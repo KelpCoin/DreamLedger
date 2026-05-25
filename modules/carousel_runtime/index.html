@@ -36,30 +36,15 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:system-ui}
 <body>
 <div class="site-header">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="80" height="40">
-    <defs>
-      <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#00d2ff"/>
-        <stop offset="30%" stop-color="#7b2ffc"/>
-        <stop offset="70%" stop-color="#ff007f"/>
-        <stop offset="100%" stop-color="#ffd700"/>
-      </linearGradient>
-    </defs>
+    <defs><linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00d2ff"/><stop offset="30%" stop-color="#7b2ffc"/><stop offset="70%" stop-color="#ff007f"/><stop offset="100%" stop-color="#ffd700"/></linearGradient></defs>
     <rect width="800" height="400" fill="#0a0a0a"/>
-    <g transform="translate(180,80)">
-      <path d="M0,0 L30,0 L30,95 L120,95 L120,120 L0,120 Z M30,25 A35,35 0 1,1 30,90 L30,70 A15,15 0 1,0 30,45 Z" fill="url(#rainbow)"/>
-    </g>
+    <g transform="translate(180,80)"><path d="M0,0 L30,0 L30,95 L120,95 L120,120 L0,120 Z M30,25 A35,35 0 1,1 30,90 L30,70 A15,15 0 1,0 30,45 Z" fill="url(#rainbow)"/></g>
   </svg>
   <span class="brand-text">DreamLedger</span>
 </div>
 <div class="ticker-bar"><div class="ticker-content" id="ticker"> connecting live feed...</div></div>
-<div class="silo-section">
-  <h2 class="silo-title mtg"> MTG / Commander</h2>
-  <div class="carousel-row" id="mtg-cards"></div>
-</div>
-<div class="silo-section">
-  <h2 class="silo-title general"> General Products</h2>
-  <div class="carousel-row" id="general-cards"></div>
-</div>
+<div class="silo-section"><h2 class="silo-title mtg"> MTG / Commander</h2><div class="carousel-row" id="mtg-cards"></div></div>
+<div class="silo-section"><h2 class="silo-title general"> General Products</h2><div class="carousel-row" id="general-cards"></div></div>
 <div class="avatar-panel" id="avatar-panel">
   <h3> Create Your Avatar</h3>
   <div class="avatar-preview" id="avatar-display"></div>
@@ -70,7 +55,6 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:system-ui}
 </div>
 <script>
 const API = 'http://localhost:4000';
-const LEDGER = 'http://localhost:5050';
 let currentUser = 'visitor_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now());
 fetch(API + '/catalog').then(r=>r.json()).then(items=>{
   window.__CATALOG = items;
@@ -81,16 +65,9 @@ fetch(API + '/catalog').then(r=>r.json()).then(items=>{
   renderCards('general-cards',general);
 });
 function renderCards(containerId,items){
-  document.getElementById(containerId).innerHTML = items.map(i=>`
-    <div class="card" data-sku="${i.id}">
-      <h3>${i.title||i.name||i.id}</h3>
-      <p class="desc">${i.description||''}</p>
-      <p class="price">$${i.price}</p>
-      <button onclick="buy('${i.id}')">Buy</button>
-    </div>`).join('');
+  document.getElementById(containerId).innerHTML = items.map(i=>`<div class="card" data-sku="${i.id}"><h3>${i.title||i.name||i.id}</h3><p class="desc">${i.description||''}</p><p class="price">$${i.price}</p><button onclick="buy('${i.id}')">Buy</button></div>`).join('');
 }
 function buy(sku){
-  fetch(LEDGER+'/event?type=intent&sku='+sku).catch(()=>{});
   const items = window.__CATALOG||[];
   const item = items.find(i=>i.id===sku);
   if(!item){alert('Item not found');return;}
@@ -99,10 +76,7 @@ function buy(sku){
   window.location.assign(url);
 }
 function updateTicker(){
-  fetch(LEDGER+'/events/recent').then(r=>r.json()).then(events=>{
-    const msgs = events.map(e=>{if(e.type==='purchase')return ' '+e.sku+' sold!';if(e.type==='scan')return ' New scan';return '';}).filter(Boolean);
-    document.getElementById('ticker').innerHTML = msgs.length?msgs.map(m=>'<span>'+m+'</span>').join(''):'<span> store is live</span>';
-  }).catch(()=>document.getElementById('ticker').innerHTML='<span> ticker offline</span>');
+  document.getElementById('ticker').innerHTML = '<span> store is live  scan to browse</span>';
 }
 setInterval(updateTicker,10000);updateTicker();
 const AVATAR_KEY='dl_avatar';
