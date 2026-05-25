@@ -1,0 +1,8 @@
+﻿{
+    "htmlPath":  "C:\\BrownEyeCortex\\modules\\carousel_runtime\\index.html",
+    "serverPath":  "C:\\BrownEyeCortex\\modules\\carousel_runtime\\server.js",
+    "timestamp":  "2026-05-25T14:33:06.0210098+12:00",
+    "services":  "node carousel + event-proxy",
+    "endpoint":  "http://localhost:4000",
+    "status":  "FAIL"
+}

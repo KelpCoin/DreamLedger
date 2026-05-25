@@ -1,0 +1,13 @@
+﻿{
+    "cartridges":  [
+                       {
+                           "id":  "card-test-001",
+                           "name":  "Black Lotus",
+                           "owner":  "Biggie",
+                           "royalty_rate":  0.1,
+                           "price_nzd":  10,
+                           "created":  "2026-05-23T15:09:54.6132775+12:00",
+                           "status":  "SOLD"
+                       }
+                   ]
+}

@@ -1,0 +1,1511 @@
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+Get-Content : Cannot find path 'C:\BrownEyeCortex\Config\config.json' because it does not exist.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:8 char:11
++ $config = Get-Content $ConfigPath | ConvertFrom-Json
++           ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\BrownEyeCortex\Config\config.json:String) [Get-Content], ItemNotFoun 
+   dException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 
+ConvertTo-SecureString : The system cannot find the path specified.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:11 char:48
++ $sec = Get-Content "$Root\Kernel\stripe.sec" | ConvertTo-SecureString
++                                                ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [ConvertTo-SecureString], CryptographicException
+    + FullyQualifiedErrorId : ImportSecureString_InvalidArgument_CryptographicError,Microsoft.PowerShell.Commands.Conv 
+   ertToSecureStringCommand
+ 
+Exception calling "SecureStringToBSTR" with "1" argument(s): "Value cannot be null.
+Parameter name: s"
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:12 char:1
++ $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : ArgumentNullException
+ 
+Cannot find an overload for "PtrToStringAuto" and the argument count: "1".
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:13 char:1
++ $stripeKey = [Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodException
+    + FullyQualifiedErrorId : MethodCountCouldNotFindBest
+ 
+Cannot convert argument "s", with value: "", for "ZeroFreeBSTR" to type "System.IntPtr": "Cannot convert null to type 
+"System.IntPtr"."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:14 char:1
++ [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodException
+    + FullyQualifiedErrorId : MethodArgumentConversionInvalidCastArgument
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:17 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:18 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:32 char:48
++ ... erator()) { $cmd.Parameters.AddWithValue($kv.Key, $kv.Value) | Out-Nu ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+ConvertTo-SecureString : The system cannot find the path specified.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:11 char:48
++ $sec = Get-Content "$Root\Kernel\stripe.sec" | ConvertTo-SecureString
++                                                ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [ConvertTo-SecureString], CryptographicException
+    + FullyQualifiedErrorId : ImportSecureString_InvalidArgument_CryptographicError,Microsoft.PowerShell.Commands.Conv 
+   ertToSecureStringCommand
+ 
+Exception calling "SecureStringToBSTR" with "1" argument(s): "Value cannot be null.
+Parameter name: s"
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:12 char:1
++ $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : ArgumentNullException
+ 
+Cannot find an overload for "PtrToStringAuto" and the argument count: "1".
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:13 char:1
++ $stripeKey = [Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodException
+    + FullyQualifiedErrorId : MethodCountCouldNotFindBest
+ 
+Cannot convert argument "s", with value: "", for "ZeroFreeBSTR" to type "System.IntPtr": "Cannot convert null to type 
+"System.IntPtr"."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:14 char:1
++ [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodException
+    + FullyQualifiedErrorId : MethodArgumentConversionInvalidCastArgument
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:17 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:18 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:32 char:48
++ ... erator()) { $cmd.Parameters.AddWithValue($kv.Key, $kv.Value) | Out-Nu ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+ConvertTo-SecureString : The system cannot find the path specified.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:11 char:48
++ $sec = Get-Content "$Root\Kernel\stripe.sec" | ConvertTo-SecureString
++                                                ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [ConvertTo-SecureString], CryptographicException
+    + FullyQualifiedErrorId : ImportSecureString_InvalidArgument_CryptographicError,Microsoft.PowerShell.Commands.Conv 
+   ertToSecureStringCommand
+ 
+Exception calling "SecureStringToBSTR" with "1" argument(s): "Value cannot be null.
+Parameter name: s"
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:12 char:1
++ $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : ArgumentNullException
+ 
+Cannot find an overload for "PtrToStringAuto" and the argument count: "1".
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:13 char:1
++ $stripeKey = [Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodException
+    + FullyQualifiedErrorId : MethodCountCouldNotFindBest
+ 
+Cannot convert argument "s", with value: "", for "ZeroFreeBSTR" to type "System.IntPtr": "Cannot convert null to type 
+"System.IntPtr"."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:14 char:1
++ [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodException
+    + FullyQualifiedErrorId : MethodArgumentConversionInvalidCastArgument
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:17 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:18 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:32 char:48
++ ... erator()) { $cmd.Parameters.AddWithValue($kv.Key, $kv.Value) | Out-Nu ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:17 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:18 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:32 char:48
++ ... erator()) { $cmd.Parameters.AddWithValue($kv.Key, $kv.Value) | Out-Nu ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:17 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:18 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:32 char:48
++ ... erator()) { $cmd.Parameters.AddWithValue($kv.Key, $kv.Value) | Out-Nu ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:17 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:18 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:32 char:48
++ ... erator()) { $cmd.Parameters.AddWithValue($kv.Key, $kv.Value) | Out-Nu ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:37 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:38 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:40 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:13 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:14 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:23 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:24 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:26 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+Add-Type : Cannot bind parameter 'Path' to the target. Exception setting "Path": "Cannot find path 
+'C:\BrownEyeCortex\lib\System.Data.SQLite.dll' because it does not exist."
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:7 char:16
++ Add-Type -Path $SqliteDll
++                ~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : ParameterBindingFailed,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+New-Object : Cannot find type [System.Data.SQLite.SQLiteConnection]: verify that the assembly containing this type is 
+loaded.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:13 char:16
++ ... ript:conn = New-Object System.Data.SQLite.SQLiteConnection("Data Sour ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidType: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : TypeNotFound,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:14 char:1
++ $script:conn.Open()
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:23 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:24 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:26 char:5
++     $cmd.ExecuteNonQuery()
++     ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:30 char:5
++     $cmd = $script:conn.CreateCommand()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The property 'CommandText' cannot be found on this object. Verify that the property exists and can be set.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:31 char:5
++     $cmd.CommandText = $sql
++     ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : PropertyNotFound
+ 
+You cannot call a method on a null-valued expression.
+At C:\BrownEyeCortex\Engine\CortexDaemon.ps1:33 char:5
++     $result = $cmd.ExecuteScalar()
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+The argument 'C:\BrownEyeCortex\Engine\CortexDaemon.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.

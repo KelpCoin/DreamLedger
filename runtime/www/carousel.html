@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Pulse Collective</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #EAECEF;
+      background: radial-gradient(circle at 50% 0%, #1e222b, #0a0c10 80%);
+      min-height: 100vh;
+    }
+    .swiper { width: 100%; max-width: 600px; margin: 0 auto; padding: 40px 0 20px; }
+    .swiper-slide {
+      background: rgba(25,27,33,0.85); border: 1px solid #2a2d35;
+      border-radius: 12px; backdrop-filter: blur(8px); padding: 30px; text-align: center; height: auto;
+    }
+    .swiper-slide h2 { color:#CBA96B; margin-bottom:15px; font-weight:500; }
+    .swiper-slide p { color:#b0b3b8; margin-bottom:20px; line-height:1.5; }
+    .btn {
+      display:inline-block; background:#CBA96B; color:#0b0c0f; padding:12px 30px;
+      border-radius:6px; text-decoration:none; font-weight:600; letter-spacing:0.5px;
+      transition: background 0.2s; margin-bottom:15px;
+    }
+    .btn:hover { background:#d4b87a; }
+    .qr-slide { width:100px; height:100px; margin:10px auto; display:block; border-radius:8px; }
+    h1 { color:#CBA96B; text-align:center; margin:30px 0 10px; font-weight:400; letter-spacing:1px; }
+    .avatar-section { text-align:center; padding:0 20px 30px; max-width:600px; margin:0 auto; }
+    .avatar-section input {
+      padding:12px 15px; border:1px solid #2a2d35;
+      background: rgba(25,27,33,0.8); color:#E0E0E0; border-radius:6px;
+      width:200px; margin-right:10px;
+    }
+    #avatar-container {
+      width:120px; height:120px; border-radius:50%; border:2px solid #CBA96B;
+      margin:15px auto 0; overflow:hidden; background:#1a1c22; display:none;
+    }
+    #avatar-container img { width:100%; height:100%; object-fit:cover; }
+    .avatar-styles { display:flex; gap:10px; justify-content:center; margin-top:10px; }
+    .style-btn {
+      padding:6px 14px; border:1px solid #2a2d35; background:rgba(25,27,33,0.8);
+      color:#CBA96B; border-radius:4px; cursor:pointer; font-size:12px;
+    }
+    .style-btn.active { background:#CBA96B; color:#0b0c0f; }
+    .swipe-hint { text-align:center; color:#6b6e76; font-size:12px; margin:10px 0; }
+    .arrow-row { display:flex; justify-content:center; gap:30px; margin:8px 0; color:#CBA96B; font-size:24px; user-select:none; cursor:pointer; opacity:0.7; }
+    .swiper-button-next, .swiper-button-prev { color:#CBA96B !important; }
+    .swiper-pagination-bullet { background:#CBA96B !important; }
+    .cosmetics-preview { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:15px; }
+    .cosmetic-item {
+      width:48px; height:48px; border-radius:8px; border:2px solid #2a2d35;
+      background:#1a1c22; display:flex; align-items:center; justify-content:center;
+      font-size:20px; cursor:pointer; opacity:0.6; transition:all 0.2s;
+    }
+    .cosmetic-item:hover { opacity:1; border-color:#CBA96B; }
+    .cosmetic-item.locked { opacity:0.3; cursor:not-allowed; }
+    .cosmetic-item.premium { border-color:#F0B90B; }
+    .price-tag { font-size:9px; color:#CBA96B; margin-top:2px; }
+  </style>
+</head>
+<body>
+  <h1>Pulse Collective</h1>
+
+  <div class="arrow-row" id="arrowTop"><span>&#10094;</span><span>&#10095;</span></div>
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper" id="product-slides"></div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+  </div>
+  <div class="swipe-hint">&#8592; swipe or tap arrows &#8594;</div>
+  <div class="arrow-row" id="arrowBottom"><span>&#10094;</span><span>&#10095;</span></div>
+
+  <div class="avatar-section">
+    <h3 style="color:#CBA96B;">Free Avatar Generator</h3>
+    <p style="color:#6b6e76; font-size:12px; margin-bottom:10px;">
+      Your character for Pulse Collective &amp; Kelphaven
+    </p>
+    <input type="text" id="avatarName" placeholder="Your name or phrase">
+    <button class="btn" onclick="generateAvatar()">Generate</button>
+    <br>
+    <div class="avatar-styles">
+      <button class="style-btn active" onclick="setStyle('avataaars')">Cartoon</button>
+      <button class="style-btn" onclick="setStyle('bottts')">Robot</button>
+      <button class="style-btn" onclick="setStyle('adventurer')">Adventurer</button>
+    </div>
+    <div id="avatar-container"><img id="avatar-img" src="" alt="Your avatar"></div>
+
+    <div class="cosmetics-preview">
+      <div class="cosmetic-item" title="Default Outfit"></div>
+      <div class="cosmetic-item premium" title="Gold Crown - $4.99"><span></span><span class="price-tag">$4.99</span></div>
+      <div class="cosmetic-item premium" title="Cool Shades - $1.99"><span></span><span class="price-tag">$1.99</span></div>
+      <div class="cosmetic-item locked" title="Dragon Armor - $9.99"><span></span><span class="price-tag">$9.99</span></div>
+      <div class="cosmetic-item locked" title="Wizard Hat - $4.99"><span></span><span class="price-tag">$4.99</span></div>
+      <div class="cosmetic-item locked" title="Angel Wings - $12.99"><span></span><span class="price-tag">$12.99</span></div>
+    </div>
+    <p style="color:#6b6e76; font-size:10px; margin-top:8px;">
+       Premium cosmetics available soon &mdash; free avatar forever
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    // === Load live products from Cortex marketplace ===
+    async function loadProducts() {
+      try {
+        const res = await fetch('/market/get');
+        const data = await res.json();
+        const items = (data.cartridges || []).filter(c => c.status === 'LISTED');
+        const wrapper = document.getElementById('product-slides');
+        
+        if (!items.length) {
+          wrapper.innerHTML = '<div class="swiper-slide"><h2>No cards listed yet</h2><p>Be the first to list an MTG card!</p><a class="btn" href="/seller.html">List a Card</a></div>';
+        } else {
+          wrapper.innerHTML = items.map(p => {
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(window.location.origin + '/market/buy?card_id=' + p.id);
+            return `
+              <div class="swiper-slide">
+                <video autoplay loop muted playsinline style="width:100%; border-radius:8px; margin-bottom:15px; opacity:0.8;">
+                  <source src="https://cdn.coverr.co/videos/coverr-abstract-particles-loop-2646/1080p.mp4" type="video/mp4">
+                </video>
+                <h2>${p.name}</h2>
+                <p>${p.id} &mdash; Seller: ${p.owner}</p>
+                <a class="btn" href="#" onclick="buyCard('${p.id}'); return false;">$${p.price_nzd.toFixed(2)} NZD &mdash; Get It</a>
+                <br>
+                <img class="qr-slide" src="${qrUrl}" alt="QR Code for ${p.name}" title="Scan to open">
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Init Swiper after slides are built
+        const swiper = new Swiper('.mySwiper', {
+          loop: items.length > 1,
+          spaceBetween: 20,
+          centeredSlides: true,
+          pagination: { el: '.swiper-pagination', clickable: true },
+          navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+          breakpoints: { 320: { slidesPerView: 1 }, 768: { slidesPerView: 1 } }
+        });
+
+        // Arrow rows
+        document.querySelectorAll('.arrow-row').forEach(row => {
+          row.addEventListener('click', e => {
+            const rect = row.getBoundingClientRect();
+            const mid = rect.left + rect.width / 2;
+            e.clientX < mid ? swiper.slidePrev() : swiper.slideNext();
+          });
+        });
+      } catch (err) {
+        document.getElementById('product-slides').innerHTML = '<div class="swiper-slide"><h2>Marketplace Offline</h2><p>Could not load listings. Make sure the Cortex bridge is running.</p></div>';
+      }
+    }
+
+    async function buyCard(id) {
+      try {
+        const res = await fetch('/market/buy', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ buyer_id: 'web_user', card_id: id })
+        });
+        const data = await res.json();
+        if (data.error) { alert('Error: ' + data.error); }
+        else { alert('Purchased!'); loadProducts(); }
+      } catch(e) { alert('Purchase failed. Check if the bridge is running.'); }
+    }
+
+    // === Avatar Generator ===
+    let currentStyle = 'avataaars';
+    function setStyle(s) {
+      currentStyle = s;
+      document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.style-btn[onclick="setStyle(\''+s+'\')"]').classList.add('active');
+      generateAvatar();
+    }
+    function generateAvatar() {
+      const name = (document.getElementById('avatarName').value || 'Pulse').trim();
+      const seed = name.replace(/\s+/g, '-').toLowerCase();
+      const url = 'https://api.dicebear.com/9.x/' + currentStyle + '/svg?seed=' + seed;
+      const img = document.getElementById('avatar-img');
+      img.src = url;
+      img.onerror = function() {
+        img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23CBA96B" width="100" height="100"/><text x="50" y="55" text-anchor="middle" fill="%230b0c0f" font-size="20">' + name.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2) + '</text></svg>';
+      };
+      document.getElementById('avatar-container').style.display = 'block';
+    }
+    window.addEventListener('load', function() {
+      loadProducts();
+      generateAvatar();
+    });
+  </script>
+</body>
+</html>

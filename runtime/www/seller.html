@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+<head><title>Pulse Collective - List Card</title></head>
+<body>
+<h2>List MTG Card</h2>
+<input id="seller" placeholder="Seller ID"><br>
+<input id="name" placeholder="Card Name"><br>
+<input id="price" placeholder="Price (NZD)"><br>
+<input id="royalty" placeholder="Royalty % (e.g. 10)"><br>
+<button onclick="list()">List Card</button>
+<pre id="out"></pre>
+<script>
+async function list() {
+    const body = {
+        cartridge_id: "card-" + Date.now(),
+        name: document.getElementById("name").value,
+        price_nzd: parseFloat(document.getElementById("price").value),
+        seller_id: document.getElementById("seller").value,
+        royalty_percent: parseFloat(document.getElementById("royalty").value) / 100
+    };
+    const res = await fetch("/market/list", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+    document.getElementById("out").innerText = JSON.stringify(await res.json(), null, 2);
+}
+</script>
+</body>
+</html>
