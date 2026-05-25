@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
-// STRIPE SETUP  uses your local environment
+// STRIPE SETUP
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
 const stripe = stripeKey ? require('stripe')(stripeKey) : null;
 const BASE_URL = process.env.BASE_URL || 'http://localhost:4000';
@@ -15,53 +15,61 @@ app.use(express.static(__dirname));
 app.get('/api/carousel-data', (req, res) => {
     res.json({
         silos: [
-            { id:'mtg', title:'MTG / Commander', tickerItems:['New deck uploaded','Price matrix updated','5 cards added to vault'],
-              ctaText:'Browse MTG', ctaLink:'/mtg', bgClass:'bg-mtg',
-              products:[
-                {name:'Commander Deck Primer',price:4.99,stripePriceId:'',img:''},
-                {name:'Price Signal Pack',price:2.99,stripePriceId:'',img:''},
-                {name:'Deck Tech Template',price:1.49,stripePriceId:'',img:''}
-              ],
-              trending:[
-                {name:'Undervalued Picks',price:3.99,stripePriceId:'',img:''},
-                {name:'Trade Calculator',price:0.99,stripePriceId:'',img:''}
-              ]
+            {
+                id:'mtg', title:'MTG / Commander',
+                tickerItems:['New deck uploaded','Price matrix updated','5 cards added to vault','3 slots left at discount'],
+                ctaText:'Browse MTG', bgClass:'bg-mtg', icon:'',
+                products:[
+                    {name:'Commander Deck Primer',price:4.99,img:''},
+                    {name:'Price Signal Pack',price:2.99,img:''},
+                    {name:'Deck Tech Template',price:1.49,img:''}
+                ],
+                trending:[
+                    {name:'Undervalued Picks',price:3.99,img:''},
+                    {name:'Trade Calculator',price:0.99,img:''}
+                ]
             },
-            { id:'avatar', title:'Avatar Forge', tickerItems:['14 avatars forged','New species unlocked','Creator pack released'],
-              ctaText:'Build Avatar', ctaLink:'/avatar', bgClass:'bg-avatar',
-              products:[
-                {name:'Custom Avatar Slot',price:9.99,stripePriceId:'',img:''},
-                {name:'Species Pack',price:4.99,stripePriceId:'',img:''},
-                {name:'Animation Set',price:2.99,stripePriceId:'',img:''}
-              ],
-              trending:[
-                {name:'Legendary Skin',price:19.99,stripePriceId:'',img:''},
-                {name:'Emote Pack',price:1.99,stripePriceId:'',img:''}
-              ]
+            {
+                id:'avatar', title:'Avatar Forge',
+                tickerItems:['14 avatars forged','New species unlocked','Creator pack released','Legendary skin drop'],
+                ctaText:'Build Avatar', bgClass:'bg-avatar', icon:'',
+                products:[
+                    {name:'Custom Avatar Slot',price:9.99,img:''},
+                    {name:'Species Pack',price:4.99,img:''},
+                    {name:'Animation Set',price:2.99,img:''}
+                ],
+                trending:[
+                    {name:'Legendary Skin',price:19.99,img:''},
+                    {name:'Emote Pack',price:1.99,img:''}
+                ]
             },
-            { id:'dreamledger', title:'DreamLedger', tickerItems:['Memory shard added','World fragment uploaded','Vault synchronized'],
-              ctaText:'Enter Ledger', ctaLink:'/ledger', bgClass:'bg-dreamledger',
-              products:[
-                {name:'Memory Vault',price:1.99,stripePriceId:'',img:''},
-                {name:'Fragment Analyzer',price:5.99,stripePriceId:'',img:''},
-                {name:'Data Crystal',price:3.49,stripePriceId:'',img:''}
-              ],
-              trending:[
-                {name:'Archive Access',price:7.99,stripePriceId:'',img:''},
-                {name:'Echo Recorder',price:0.99,stripePriceId:'',img:''}
-              ]
+            {
+                id:'dreamledger', title:'DreamLedger',
+                tickerItems:['Memory shard added','World fragment uploaded','Vault synchronized','Echo recorder active'],
+                ctaText:'Enter Ledger', bgClass:'bg-dreamledger', icon:'',
+                products:[
+                    {name:'Memory Vault',price:1.99,img:''},
+                    {name:'Fragment Analyzer',price:5.99,img:''},
+                    {name:'Data Crystal',price:3.49,img:''}
+                ],
+                trending:[
+                    {name:'Archive Access',price:7.99,img:''},
+                    {name:'Echo Recorder',price:0.99,img:''}
+                ]
             },
-            { id:'gameworld', title:'Game World', tickerItems:['Region preview released','Creature archive expanded','Alpha invite wave 2 sent'],
-              ctaText:'Explore World', ctaLink:'/game', bgClass:'bg-gameworld',
-              products:[
-                {name:'Alpha Key',price:29.99,stripePriceId:'',img:''},
-                {name:'Lore Book',price:14.99,stripePriceId:'',img:''},
-                {name:'Creature Concept Art',price:4.99,stripePriceId:'',img:''}
-              ],
-              trending:[
-                {name:'Map Fragment',price:9.99,stripePriceId:'',img:''},
-                {name:'Soundtrack',price:6.99,stripePriceId:'',img:''}
-              ]
+            {
+                id:'gameworld', title:'Game World',
+                tickerItems:['Region preview released','Creature archive expanded','Alpha invite wave 2 sent','Map fragment discovered'],
+                ctaText:'Explore World', bgClass:'bg-gameworld', icon:'',
+                products:[
+                    {name:'Alpha Key',price:29.99,img:''},
+                    {name:'Lore Book',price:14.99,img:''},
+                    {name:'Creature Concept Art',price:4.99,img:''}
+                ],
+                trending:[
+                    {name:'Map Fragment',price:9.99,img:''},
+                    {name:'Soundtrack',price:6.99,img:''}
+                ]
             }
         ]
     });
@@ -70,7 +78,7 @@ app.get('/api/carousel-data', (req, res) => {
 //  STRIPE CHECKOUT 
 app.post('/api/create-checkout-session', async (req, res) => {
     if (!stripe) {
-        return res.status(500).json({ error: 'Stripe not configured. Set STRIPE_SECRET_KEY environment variable.' });
+        return res.status(500).json({ error: 'Stripe not configured.', fallback: true });
     }
     try {
         const { items } = req.body;
@@ -92,7 +100,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
         res.json({ url: session.url });
     } catch (e) {
         console.error('Stripe error:', e.message);
-        // FALLBACK: return a Gumroad-style direct link or prompt
         res.status(500).json({ error: e.message, fallback: true });
     }
 });

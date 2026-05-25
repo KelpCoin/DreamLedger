@@ -7,23 +7,23 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a0c;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
-/*  HERO SECTION  */
+/*  HERO  */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px 24px;background:linear-gradient(160deg,#0a0a1a 0%,#1a0a2e 40%,#0d1b2a 100%);position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%,rgba(0,210,255,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(255,0,127,0.06) 0%,transparent 50%)}
-.hero h1{font-size:3rem;font-weight:900;background:linear-gradient(to right,#00d2ff,#7b2ffc,#ff007f,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;position:relative;z-index:1}
-.hero .sub{font-size:1.2rem;opacity:0.8;max-width:500px;margin-bottom:32px;position:relative;z-index:1;line-height:1.6}
+.hero h1{font-size:clamp(2rem,8vw,3.5rem);font-weight:900;background:linear-gradient(to right,#00d2ff,#7b2ffc,#ff007f,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;position:relative;z-index:1}
+.hero .sub{font-size:clamp(0.9rem,3vw,1.2rem);opacity:0.8;max-width:500px;margin-bottom:32px;position:relative;z-index:1;line-height:1.6}
 .hero .cta-group{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
-.hero .btn{padding:14px 32px;border-radius:30px;font-weight:bold;font-size:1rem;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none}
-.hero .btn-primary{background:#0ff;color:#000}
-.hero .btn-primary:hover{background:#fff;box-shadow:0 0 25px #0ff}
-.hero .btn-outline{background:transparent;border:2px solid #0ff;color:#0ff}
-.hero .btn-outline:hover{background:rgba(0,255,255,0.1)}
-.hero .scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);animation:bounce 2s infinite;opacity:0.5;z-index:1}
+.btn{padding:14px 32px;border-radius:30px;font-weight:bold;font-size:1rem;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;display:inline-block}
+.btn-primary{background:#0ff;color:#000}
+.btn-primary:hover{background:#fff;box-shadow:0 0 25px #0ff}
+.btn-outline{background:transparent;border:2px solid #0ff;color:#0ff}
+.btn-outline:hover{background:rgba(0,255,255,0.1)}
+.scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);animation:bounce 2s infinite;opacity:0.5;z-index:1;font-size:1.5rem}
 @keyframes bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-10px)}}
 /*  TRUST BAR  */
 .trust-bar{display:flex;justify-content:center;gap:40px;padding:20px;background:#0d0d1a;flex-wrap:wrap;font-size:0.8rem;opacity:0.6}
 .trust-bar span{display:flex;align-items:center;gap:6px}
-/*  SILO TUNNELS  */
+/*  TUNNELS  */
 .tunnels{padding:40px 24px;max-width:900px;margin:0 auto}
 .tunnels h2{font-size:1.5rem;margin-bottom:24px;text-align:center;text-transform:uppercase;letter-spacing:2px}
 .tunnel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
@@ -40,18 +40,17 @@ body{background:#0a0a0c;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-seri
 .modal-content h3{color:#0ff;margin-bottom:16px;font-size:1.3rem}
 .modal-content input{width:100%;padding:10px;margin:8px 0;background:#1a1a2e;border:1px solid #333;color:#fff;border-radius:8px;font-size:0.9rem}
 .modal-content input:focus{outline:none;border-color:#0ff}
-.modal-content .avatar-pick{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
-.modal-content .avatar-pick span{font-size:2rem;cursor:pointer;padding:8px;border-radius:8px;border:1px solid transparent}
-.modal-content .avatar-pick span.selected{border-color:#0ff;background:rgba(0,255,255,0.1)}
-.modal-content .btn{width:100%;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer;border:none;margin-top:12px;font-size:0.9rem}
-.modal-content .btn-create{background:#f0f;color:#fff}
-.modal-content .btn-create:hover{background:#ff40ff}
-.modal-content .btn-cancel{background:#333;color:#fff;margin-top:4px}
-.modal-content .btn-cancel:hover{background:#444}
-/*  CAROUSEL OVERLAY (for silo browsing)  */
+.avatar-preview{text-align:center;font-size:5rem;margin:10px 0;transition:0.2s}
+.avatar-pick{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;justify-content:center}
+.avatar-pick span{font-size:2rem;cursor:pointer;padding:8px;border-radius:8px;border:1px solid transparent}
+.avatar-pick span.selected{border-color:#0ff;background:rgba(0,255,255,0.1)}
+.btn-create{background:#f0f;color:#fff;width:100%;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer;border:none;margin-top:12px;font-size:0.9rem}
+.btn-create:hover{background:#ff40ff}
+.btn-cancel{background:#333;color:#fff;width:100%;padding:12px;border-radius:8px;cursor:pointer;border:none;margin-top:4px}
+/*  CAROUSEL OVERLAY  */
 .carousel-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0c;z-index:250;display:none;flex-direction:column}
 .carousel-overlay.active{display:flex}
-.carousel-overlay .close-btn{position:absolute;top:16px;right:16px;z-index:10;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:1.5rem;width:40px;height:40px;border-radius:50%;cursor:pointer}
+.close-btn{position:absolute;top:16px;right:16px;z-index:10;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:1.5rem;width:40px;height:40px;border-radius:50%;cursor:pointer}
 .hero-track{display:flex;transition:transform 0.35s ease;height:100%}
 .hero-slide{min-width:100vw;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:60px 24px 24px;background-size:cover;background-position:center}
 .hero-slide h2{font-size:2.5rem;margin-bottom:8px;text-transform:uppercase}
@@ -68,19 +67,14 @@ body{background:#0a0a0c;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-seri
 .bg-avatar{background:linear-gradient(160deg,#2e0a1a,#1a0a2e)}
 .bg-dreamledger{background:linear-gradient(160deg,#0a1a2e,#0a0a1a)}
 .bg-gameworld{background:linear-gradient(160deg,#1a2e0a,#0a1a0a)}
-/*  SUCCESS BANNER  */
 .success-banner{display:none;background:#0f0;color:#000;text-align:center;padding:12px;font-weight:bold;position:fixed;top:0;left:0;right:0;z-index:400}
 .success-banner.active{display:block}
-/*  RESPONSIVE  */
 @media(max-width:600px){.hero h1{font-size:2rem}.hero .sub{font-size:1rem}.tunnel-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<!-- SUCCESS BANNER -->
 <div class="success-banner" id="successBanner"> Payment successful! Thank you for your purchase.</div>
 
-<!-- LANDING PAGE -->
 <div id="landingPage">
   <section class="hero">
     <h1>DreamLedger</h1>
@@ -91,30 +85,27 @@ body{background:#0a0a0c;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-seri
     </div>
     <div class="scroll-hint"></div>
   </section>
-
   <div class="trust-bar">
     <span> Stripe Secure</span>
     <span> Instant Digital Delivery</span>
     <span> Join the Ledger</span>
   </div>
-
   <section class="tunnels" id="tunnels">
     <h2>Choose Your World</h2>
     <div class="tunnel-grid" id="tunnelGrid"></div>
   </section>
 </div>
 
-<!-- CAROUSEL OVERLAY -->
 <div class="carousel-overlay" id="carouselOverlay">
   <button class="close-btn" onclick="closeCarousel()"></button>
   <div class="hero-track" id="heroTrack"></div>
   <div id="nestedRows" style="padding-bottom:20px"></div>
 </div>
 
-<!-- AVATAR MODAL -->
 <div class="modal" id="avatarModal">
   <div class="modal-content">
     <h3> Create Your Free Avatar</h3>
+    <div class="avatar-preview" id="avatarPreview"></div>
     <input type="text" id="avatarName" placeholder="Your avatar name">
     <div class="avatar-pick" id="avatarIcons">
       <span onclick="pickIcon(this,'')" class="selected"></span>
@@ -124,18 +115,16 @@ body{background:#0a0a0c;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-seri
       <span onclick="pickIcon(this,'')"></span>
       <span onclick="pickIcon(this,'')"></span>
     </div>
-    <button class="btn btn-create" onclick="createAvatar()">Create Avatar</button>
-    <button class="btn btn-cancel" onclick="closeAvatarModal()">Cancel</button>
+    <button class="btn-create" onclick="createAvatar()">Create Avatar</button>
+    <button class="btn-cancel" onclick="closeAvatarModal()">Cancel</button>
   </div>
 </div>
 
 <script>
-//  GLOBAL STATE 
 let siloData = null;
 let currentSlide = 0;
 let selectedIcon = '';
 
-//  FETCH DATA 
 async function loadData() {
     try {
         const res = await fetch('/api/carousel-data');
@@ -161,7 +150,6 @@ function getFallbackData() {
     ]};
 }
 
-//  BUILD TUNNEL GRID 
 function buildTunnelGrid() {
     const grid = document.getElementById('tunnelGrid');
     grid.innerHTML = '';
@@ -172,11 +160,10 @@ function buildTunnelGrid() {
         card.innerHTML = `
             <div class="icon">${silo.icon||''}</div>
             <h3>${silo.title}</h3>
-            <p>${silo.products.length} products available</p>
+            <p>${silo.products.length} products</p>
             <div class="ticker-bar" id="tunnel-ticker-${silo.id}">${(silo.tickerItems||[''])[0]}</div>
         `;
         grid.appendChild(card);
-        // Start mini ticker
         if (silo.tickerItems && silo.tickerItems.length > 1) {
             let tIdx = 0;
             const tEl = document.getElementById('tunnel-ticker-' + silo.id);
@@ -185,7 +172,6 @@ function buildTunnelGrid() {
     });
 }
 
-//  OPEN CAROUSEL 
 function openCarousel(startIndex) {
     currentSlide = startIndex;
     document.getElementById('carouselOverlay').classList.add('active');
@@ -209,14 +195,13 @@ function buildCarousel() {
             <h2>${silo.title}</h2>
             <div class="ticker" id="car-ticker-${silo.id}">${(silo.tickerItems||[''])[0]}</div>
             <div>
-                <button class="cta-btn" onclick="buyAllInSilo('${silo.id}')"> Buy Products</button>
+                <button class="cta-btn" onclick="buyAllInSilo('${silo.id}')"> Buy All</button>
                 <button class="cta-btn outline" onclick="closeCarousel()"> Back</button>
             </div>
         `;
         track.appendChild(slide);
     });
     track.style.transform = `translateX(-${currentSlide * 100}vw)`;
-    // Start ticker
     siloData.silos.forEach(silo => {
         if (silo.tickerItems && silo.tickerItems.length > 1) {
             let tIdx = 0;
@@ -226,7 +211,6 @@ function buildCarousel() {
     });
 }
 
-// Touch swipe for carousel overlay
 let touchStartX = 0;
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.getElementById('heroTrack');
@@ -240,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateNestedRows();
         }
     });
-    // Mouse drag
     let isDragging = false, startX = 0;
     track.addEventListener('mousedown', e => { isDragging=true; startX=e.clientX; track.style.cursor='grabbing'; });
     track.addEventListener('mouseup', e => {
@@ -285,7 +268,6 @@ function buildRow(title, items) {
     return div;
 }
 
-//  STRIPE CHECKOUT 
 async function buyItem(name, price) {
     try {
         const res = await fetch('/api/create-checkout-session', {
@@ -297,7 +279,6 @@ async function buyItem(name, price) {
         if (data.url) {
             window.location.href = data.url;
         } else if (data.fallback) {
-            // Fallback: open Gumroad or manual payment
             alert('Stripe checkout unavailable. Fallback: Please use Gumroad or contact for manual payment.\n\nProduct: ' + name + ' - $' + price);
         }
     } catch(e) {
@@ -322,13 +303,13 @@ async function buyAllInSilo(siloId) {
     } catch(e) { alert('Checkout error.'); }
 }
 
-//  AVATAR 
 function openAvatarModal() { document.getElementById('avatarModal').classList.add('active'); }
 function closeAvatarModal() { document.getElementById('avatarModal').classList.remove('active'); }
 function pickIcon(el, icon) {
     document.querySelectorAll('#avatarIcons span').forEach(s => s.classList.remove('selected'));
     el.classList.add('selected');
     selectedIcon = icon;
+    document.getElementById('avatarPreview').textContent = icon;
 }
 async function createAvatar() {
     const name = document.getElementById('avatarName').value.trim();
@@ -339,23 +320,19 @@ async function createAvatar() {
         const data = await res.json();
         alert(' Avatar "' + data.avatar.name + '" created! Tier: ' + data.avatar.tier + '\n\nIt will be available in Kelphaven when the game launches.');
     } catch(e) {
-        // Local fallback
         localStorage.setItem('dl_avatar', JSON.stringify(avatar));
         alert(' Avatar "' + avatar.name + '" saved locally!');
     }
     closeAvatarModal();
 }
 
-//  UTILS 
 function scrollToTunnels() { document.getElementById('tunnels').scrollIntoView({ behavior: 'smooth' }); }
 
-// Check for Stripe success
 if (window.location.search.includes('success=true')) {
     document.getElementById('successBanner').classList.add('active');
     setTimeout(() => document.getElementById('successBanner').classList.remove('active'), 5000);
 }
 
-//  INIT 
 loadData();
 </script>
 </body>
