@@ -38,3 +38,6 @@ app.post('/api/game/export-character', (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log('DreamLedger carousel on ' + PORT));
+
+app.get('/beautiful', (req, res) => res.sendFile('C:\\BrownEyeCortex\\modules\\carousel_runtime\\index.html'));
+
