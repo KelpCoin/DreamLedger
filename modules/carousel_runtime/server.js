@@ -5,39 +5,18 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-app.get('/catalog', (req, res) => {
-    const catalogPath = path.join(__dirname, '..', 'store', 'catalog.json');
-    if (fs.existsSync(catalogPath)) {
-        res.json(JSON.parse(fs.readFileSync(catalogPath, 'utf8')));
-    } else {
-        res.json([
-            {"id":"fortune-cookie-001","title":"Fortune Cookie","price":1.49,"description":"A cryptic fortune. Instant.","stripe":"https://buy.stripe.com/REPLACE_ME"},
-            {"id":"mystery-thought","title":"Mystery Thought Fragment","price":1.99,"description":"One profound, slightly cryptic statement.","stripe":"https://buy.stripe.com/REPLACE_ME"},
-            {"id":"ai-haiku","title":"AI Haiku","price":0.99,"description":"A haiku about a random everyday object.","stripe":"https://buy.stripe.com/REPLACE_ME"}
-        ]);
-    }
+app.get('/api/carousel-data', (req, res) => {
+    res.json({
+        silos: [
+            { id:'mtg', title:'MTG / Commander', tickerItems:['New deck uploaded','Price matrix updated','5 cards added to vault'], ctaText:'Browse MTG', ctaLink:'/mtg', bgClass:'bg-mtg', products:[{name:'Commander Deck Primer',price:'$4.99',img:''},{name:'Price Signal Pack',price:'$2.99',img:''}], trending:[{name:'Undervalued Picks',price:'$3.99',img:''}] },
+            { id:'avatar', title:'Avatar Forge', tickerItems:['14 avatars forged','New species unlocked','Creator pack released'], ctaText:'Build Avatar', ctaLink:'/avatar', bgClass:'bg-avatar', products:[{name:'Custom Avatar Slot',price:'$9.99',img:''},{name:'Species Pack',price:'$4.99',img:''}], trending:[{name:'Legendary Skin',price:'$19.99',img:''}] },
+            { id:'dreamledger', title:'DreamLedger', tickerItems:['Memory shard added','World fragment uploaded','Vault synchronized'], ctaText:'Enter Ledger', ctaLink:'/ledger', bgClass:'bg-dreamledger', products:[{name:'Memory Vault',price:'$1.99',img:''},{name:'Fragment Analyzer',price:'$5.99',img:''}], trending:[{name:'Archive Access',price:'$7.99',img:''}] },
+            { id:'gameworld', title:'Game World', tickerItems:['Region preview released','Creature archive expanded','Alpha invite wave 2 sent'], ctaText:'Explore World', ctaLink:'/game', bgClass:'bg-gameworld', products:[{name:'Alpha Key',price:'$29.99',img:''},{name:'Lore Book',price:'$14.99',img:''}], trending:[{name:'Map Fragment',price:'$9.99',img:''}] }
+        ]
+    });
 });
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-app.post('/api/avatar/create', (req, res) => {
-    const av = req.body;
-    const avatarDir = path.join(__dirname, 'avatars');
-    if (!fs.existsSync(avatarDir)) fs.mkdirSync(avatarDir, { recursive: true });
-    fs.writeFileSync(path.join(avatarDir, av.id + '.json'), JSON.stringify(av, null, 2));
-    res.json({ ok: true, avatarId: av.id });
-});
-
-app.post('/api/game/export-character', (req, res) => {
-    const char = req.body;
-    const gameDir = path.join(__dirname, 'game');
-    if (!fs.existsSync(gameDir)) fs.mkdirSync(gameDir, { recursive: true });
-    fs.writeFileSync(path.join(gameDir, char.avatarId + '.json'), JSON.stringify(char, null, 2));
-    res.json({ ok: true, characterId: char.avatarId });
-});
-
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log('DreamLedger carousel on ' + PORT));
-
-app.get('/beautiful', (req, res) => res.sendFile('C:\\BrownEyeCortex\\modules\\carousel_runtime\\index.html'));
-
