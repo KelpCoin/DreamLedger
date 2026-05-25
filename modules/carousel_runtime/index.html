@@ -3,194 +3,359 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>DreamLedger  Live Carousel</title>
+<title>DreamLedger  Identity Commerce</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#0a0a0c; color:#f0f0f0; font-family:'Segoe UI',system-ui,sans-serif; overflow-x:hidden; }
-.micro-cta { position:fixed; top:12px; right:12px; z-index:200; background:rgba(0,0,0,0.75); backdrop-filter:blur(12px); padding:6px 14px; border-radius:20px; color:#0ff; font-size:0.8rem; border:1px solid #0ff; cursor:pointer; }
-.hero-swiper { width:100vw; height:70vh; position:relative; overflow:hidden; }
-.hero-track { display:flex; transition:transform 0.3s ease; height:100%; }
-.hero-slide { min-width:100vw; height:100%; display:flex; flex-direction:column; justify-content:flex-end; padding:40px 24px 24px; background-size:cover; background-position:center; border-radius:0 0 24px 24px; }
-.hero-slide h2 { font-size:2rem; margin-bottom:6px; text-transform:uppercase; }
-.hero-slide .ticker { font-size:0.8rem; opacity:0.8; margin-bottom:10px; height:20px; }
-.hero-slide .cta-btn { display:inline-block; background:#0ff; color:#000; font-weight:bold; padding:10px 24px; border-radius:24px; text-decoration:none; font-size:0.9rem; margin-right:8px; cursor:pointer; border:none; }
-.hero-slide .cta-btn.outline { background:transparent; border:1px solid #0ff; color:#0ff; }
-.nested-rows { padding:16px; }
-.nested-row { margin-bottom:24px; }
-.nested-row h3 { font-size:1rem; margin-bottom:8px; color:#aaa; text-transform:uppercase; }
-.row-scroll { display:flex; overflow-x:auto; gap:12px; padding-bottom:8px; }
-.row-card { min-width:140px; background:#15151e; border-radius:12px; padding:12px; text-align:center; border:1px solid #1e1e2a; cursor:pointer; }
-.row-card .price { color:#0ff; font-size:0.8rem; margin-top:4px; }
-.row-card .buy-btn { margin-top:6px; background:#0ff; color:#000; border:none; padding:4px 12px; border-radius:12px; font-size:0.7rem; cursor:pointer; width:100%; }
-.bg-mtg { background:linear-gradient(135deg,#1a0a2e,#0d1b2a); }
-.bg-avatar { background:linear-gradient(135deg,#2e0a1a,#1a0a2e); }
-.bg-dreamledger { background:linear-gradient(135deg,#0a1a2e,#0a0a1a); }
-.bg-gameworld { background:linear-gradient(135deg,#1a2e0a,#0a1a0a); }
-.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:300; }
-.modal.active { display:flex; }
-.modal-content { background:#111; padding:24px; border-radius:12px; width:90%; max-width:400px; }
-.modal-content h3 { color:#0ff; margin-bottom:12px; }
-.modal-content input { width:100%; padding:8px; margin:6px 0; background:#222; border:1px solid #333; color:#fff; border-radius:4px; }
-.modal-content button { width:100%; padding:10px; background:#f0f; color:#fff; border:none; border-radius:6px; cursor:pointer; margin-top:8px; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0c;color:#f0f0f0;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
+/*  HERO SECTION  */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px 24px;background:linear-gradient(160deg,#0a0a1a 0%,#1a0a2e 40%,#0d1b2a 100%);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%,rgba(0,210,255,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(255,0,127,0.06) 0%,transparent 50%)}
+.hero h1{font-size:3rem;font-weight:900;background:linear-gradient(to right,#00d2ff,#7b2ffc,#ff007f,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;position:relative;z-index:1}
+.hero .sub{font-size:1.2rem;opacity:0.8;max-width:500px;margin-bottom:32px;position:relative;z-index:1;line-height:1.6}
+.hero .cta-group{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.hero .btn{padding:14px 32px;border-radius:30px;font-weight:bold;font-size:1rem;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none}
+.hero .btn-primary{background:#0ff;color:#000}
+.hero .btn-primary:hover{background:#fff;box-shadow:0 0 25px #0ff}
+.hero .btn-outline{background:transparent;border:2px solid #0ff;color:#0ff}
+.hero .btn-outline:hover{background:rgba(0,255,255,0.1)}
+.hero .scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);animation:bounce 2s infinite;opacity:0.5;z-index:1}
+@keyframes bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-10px)}}
+/*  TRUST BAR  */
+.trust-bar{display:flex;justify-content:center;gap:40px;padding:20px;background:#0d0d1a;flex-wrap:wrap;font-size:0.8rem;opacity:0.6}
+.trust-bar span{display:flex;align-items:center;gap:6px}
+/*  SILO TUNNELS  */
+.tunnels{padding:40px 24px;max-width:900px;margin:0 auto}
+.tunnels h2{font-size:1.5rem;margin-bottom:24px;text-align:center;text-transform:uppercase;letter-spacing:2px}
+.tunnel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.tunnel-card{background:#111;border-radius:16px;padding:24px;cursor:pointer;transition:all 0.3s;border:1px solid #1a1a2e;text-align:center}
+.tunnel-card:hover{transform:translateY(-4px);border-color:#0ff;box-shadow:0 8px 30px rgba(0,255,255,0.1)}
+.tunnel-card .icon{font-size:3rem;margin-bottom:12px}
+.tunnel-card h3{font-size:1.2rem;margin-bottom:6px}
+.tunnel-card p{font-size:0.8rem;opacity:0.6}
+.tunnel-card .ticker-bar{font-size:0.7rem;color:#0ff;margin-top:8px;height:18px;overflow:hidden}
+/*  AVATAR MODAL  */
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:none;justify-content:center;align-items:center;z-index:300}
+.modal.active{display:flex}
+.modal-content{background:#111;padding:32px;border-radius:16px;width:90%;max-width:420px;border:1px solid #0ff}
+.modal-content h3{color:#0ff;margin-bottom:16px;font-size:1.3rem}
+.modal-content input{width:100%;padding:10px;margin:8px 0;background:#1a1a2e;border:1px solid #333;color:#fff;border-radius:8px;font-size:0.9rem}
+.modal-content input:focus{outline:none;border-color:#0ff}
+.modal-content .avatar-pick{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.modal-content .avatar-pick span{font-size:2rem;cursor:pointer;padding:8px;border-radius:8px;border:1px solid transparent}
+.modal-content .avatar-pick span.selected{border-color:#0ff;background:rgba(0,255,255,0.1)}
+.modal-content .btn{width:100%;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer;border:none;margin-top:12px;font-size:0.9rem}
+.modal-content .btn-create{background:#f0f;color:#fff}
+.modal-content .btn-create:hover{background:#ff40ff}
+.modal-content .btn-cancel{background:#333;color:#fff;margin-top:4px}
+.modal-content .btn-cancel:hover{background:#444}
+/*  CAROUSEL OVERLAY (for silo browsing)  */
+.carousel-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0c;z-index:250;display:none;flex-direction:column}
+.carousel-overlay.active{display:flex}
+.carousel-overlay .close-btn{position:absolute;top:16px;right:16px;z-index:10;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:1.5rem;width:40px;height:40px;border-radius:50%;cursor:pointer}
+.hero-track{display:flex;transition:transform 0.35s ease;height:100%}
+.hero-slide{min-width:100vw;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:60px 24px 24px;background-size:cover;background-position:center}
+.hero-slide h2{font-size:2.5rem;margin-bottom:8px;text-transform:uppercase}
+.hero-slide .ticker{font-size:0.9rem;opacity:0.8;margin-bottom:12px;height:22px}
+.hero-slide .cta-btn{display:inline-block;background:#0ff;color:#000;font-weight:bold;padding:12px 28px;border-radius:28px;text-decoration:none;font-size:1rem;cursor:pointer;border:none;margin-right:8px;margin-bottom:8px}
+.hero-slide .cta-btn.outline{background:transparent;border:1px solid #0ff;color:#0ff}
+.row-scroll{display:flex;overflow-x:auto;gap:12px;padding:0 16px 16px}
+.row-card{min-width:140px;background:#15151e;border-radius:12px;padding:12px;text-align:center;border:1px solid #1e1e2a;cursor:pointer;flex-shrink:0}
+.row-card:hover{border-color:#0ff}
+.row-card .price{color:#0ff;font-size:0.85rem;margin-top:4px}
+.row-card .buy-btn{margin-top:6px;background:#0ff;color:#000;border:none;padding:6px 14px;border-radius:14px;font-size:0.75rem;cursor:pointer;width:100%}
+.row-card .buy-btn:hover{background:#fff}
+.bg-mtg{background:linear-gradient(160deg,#1a0a2e,#0d1b2a)}
+.bg-avatar{background:linear-gradient(160deg,#2e0a1a,#1a0a2e)}
+.bg-dreamledger{background:linear-gradient(160deg,#0a1a2e,#0a0a1a)}
+.bg-gameworld{background:linear-gradient(160deg,#1a2e0a,#0a1a0a)}
+/*  SUCCESS BANNER  */
+.success-banner{display:none;background:#0f0;color:#000;text-align:center;padding:12px;font-weight:bold;position:fixed;top:0;left:0;right:0;z-index:400}
+.success-banner.active{display:block}
+/*  RESPONSIVE  */
+@media(max-width:600px){.hero h1{font-size:2rem}.hero .sub{font-size:1rem}.tunnel-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="micro-cta" onclick="openAvatarModal()"> Free Avatar</div>
 
-<div class="hero-swiper" id="heroSwiper">
-  <div class="hero-track" id="heroTrack"></div>
+<!-- SUCCESS BANNER -->
+<div class="success-banner" id="successBanner"> Payment successful! Thank you for your purchase.</div>
+
+<!-- LANDING PAGE -->
+<div id="landingPage">
+  <section class="hero">
+    <h1>DreamLedger</h1>
+    <p class="sub">Digital artifacts, fortune cookies, haikus, and strange insights. All under $5. One QR code. Infinite worlds behind it.</p>
+    <div class="cta-group">
+      <button class="btn btn-primary" onclick="openAvatarModal()"> Create Free Avatar</button>
+      <button class="btn btn-outline" onclick="scrollToTunnels()">Browse Worlds</button>
+    </div>
+    <div class="scroll-hint"></div>
+  </section>
+
+  <div class="trust-bar">
+    <span> Stripe Secure</span>
+    <span> Instant Digital Delivery</span>
+    <span> Join the Ledger</span>
+  </div>
+
+  <section class="tunnels" id="tunnels">
+    <h2>Choose Your World</h2>
+    <div class="tunnel-grid" id="tunnelGrid"></div>
+  </section>
 </div>
 
-<div class="nested-rows" id="nestedContainer"></div>
+<!-- CAROUSEL OVERLAY -->
+<div class="carousel-overlay" id="carouselOverlay">
+  <button class="close-btn" onclick="closeCarousel()"></button>
+  <div class="hero-track" id="heroTrack"></div>
+  <div id="nestedRows" style="padding-bottom:20px"></div>
+</div>
 
-<!-- Avatar modal -->
+<!-- AVATAR MODAL -->
 <div class="modal" id="avatarModal">
   <div class="modal-content">
-    <h3>Create Your Avatar</h3>
-    <input type="text" id="avatarName" placeholder="Avatar name">
-    <button onclick="createAvatarNow()">Create</button>
-    <button style="background:#333; margin-top:4px;" onclick="closeAvatarModal()">Cancel</button>
+    <h3> Create Your Free Avatar</h3>
+    <input type="text" id="avatarName" placeholder="Your avatar name">
+    <div class="avatar-pick" id="avatarIcons">
+      <span onclick="pickIcon(this,'')" class="selected"></span>
+      <span onclick="pickIcon(this,'')"></span>
+      <span onclick="pickIcon(this,'')"></span>
+      <span onclick="pickIcon(this,'')"></span>
+      <span onclick="pickIcon(this,'')"></span>
+      <span onclick="pickIcon(this,'')"></span>
+    </div>
+    <button class="btn btn-create" onclick="createAvatar()">Create Avatar</button>
+    <button class="btn btn-cancel" onclick="closeAvatarModal()">Cancel</button>
   </div>
 </div>
 
 <script>
+//  GLOBAL STATE 
 let siloData = null;
 let currentSlide = 0;
-const heroTrack = document.getElementById('heroTrack');
+let selectedIcon = '';
 
-// Touch / swipe handling
-let touchStartX = 0, touchEndX = 0;
-heroTrack.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
-heroTrack.addEventListener('touchend', e => {
-    touchEndX = e.changedTouches[0].screenX;
-    const diff = touchStartX - touchEndX;
-    if (Math.abs(diff) > 50) {
-        if (diff > 0 && currentSlide < siloData.silos.length-1) currentSlide++;
-        else if (diff < 0 && currentSlide > 0) currentSlide--;
-        updateHero();
-    }
-});
-// Mouse drag fallback
-let isDragging = false, startX = 0;
-heroTrack.addEventListener('mousedown', e => { isDragging=true; startX=e.clientX; heroTrack.style.cursor='grabbing'; });
-heroTrack.addEventListener('mouseup', e => {
-    if (!isDragging) return;
-    isDragging=false; heroTrack.style.cursor='grab';
-    const diff = startX - e.clientX;
-    if (Math.abs(diff) > 50) {
-        if (diff > 0 && currentSlide < siloData.silos.length-1) currentSlide++;
-        else if (diff < 0 && currentSlide > 0) currentSlide--;
-        updateHero();
-    }
-});
-heroTrack.addEventListener('mouseleave', () => { if(isDragging){ isDragging=false; heroTrack.style.cursor='grab'; } });
-
-function updateHero() {
-    heroTrack.style.transform = `translateX(-${currentSlide * 100}vw)`;
-    updateActiveSilo(currentSlide);
-}
-
-function navigateTo(url) { window.location.href = url; }
-
-// Fetch data from server
+//  FETCH DATA 
 async function loadData() {
     try {
         const res = await fetch('/api/carousel-data');
-        if (res.ok) siloData = await res.json();
-        else siloData = {
-            silos: [
-                { id:'mtg', title:'MTG / Commander', tickerItems:['New deck uploaded','Price matrix updated'], ctaText:'Browse MTG', ctaLink:'/mtg', bgClass:'bg-mtg',
-                  products:[{name:'Commander Deck Primer',price:'$4.99',stripe:'https://buy.stripe.com/REPLACE_ME'},{name:'Price Signal Pack',price:'$2.99',stripe:'https://buy.stripe.com/REPLACE_ME'}],
-                  trending:[{name:'Undervalued Picks',price:'$3.99',stripe:'https://buy.stripe.com/REPLACE_ME'}] },
-                { id:'avatar', title:'Avatar Forge', tickerItems:['14 avatars forged','New species unlocked'], ctaText:'Build Avatar', ctaLink:'/avatar', bgClass:'bg-avatar',
-                  products:[{name:'Custom Avatar Slot',price:'$9.99',stripe:null},{name:'Species Pack',price:'$4.99',stripe:null}],
-                  trending:[{name:'Legendary Skin',price:'$19.99',stripe:null}] },
-                { id:'dreamledger', title:'DreamLedger', tickerItems:['Memory shard added','Vault synchronized'], ctaText:'Enter Ledger', ctaLink:'/ledger', bgClass:'bg-dreamledger',
-                  products:[{name:'Memory Vault',price:'$1.99',stripe:null},{name:'Fragment Analyzer',price:'$5.99',stripe:null}],
-                  trending:[{name:'Archive Access',price:'$7.99',stripe:null}] },
-                { id:'gameworld', title:'Game World', tickerItems:['Region preview released','Alpha invite wave 2 sent'], ctaText:'Explore World', ctaLink:'/game', bgClass:'bg-gameworld',
-                  products:[{name:'Alpha Key',price:'$29.99',stripe:null},{name:'Lore Book',price:'$14.99',stripe:null}],
-                  trending:[{name:'Map Fragment',price:'$9.99',stripe:null}] }
-            ]
-        };
-    }
-    buildUI();
+        siloData = res.ok ? await res.json() : getFallbackData();
+    } catch(e) { siloData = getFallbackData(); }
+    buildTunnelGrid();
 }
 
-function buildUI() {
-    heroTrack.innerHTML = '';
-    siloData.silos.forEach((silo, idx) => {
+function getFallbackData() {
+    return { silos: [
+        { id:'mtg', title:'MTG / Commander', tickerItems:['New deck uploaded','Price matrix updated'], ctaText:'Browse MTG', bgClass:'bg-mtg', icon:'',
+          products:[{name:'Commander Deck Primer',price:4.99,img:''},{name:'Price Signal Pack',price:2.99,img:''},{name:'Deck Tech Template',price:1.49,img:''}],
+          trending:[{name:'Undervalued Picks',price:3.99,img:''},{name:'Trade Calculator',price:0.99,img:''}] },
+        { id:'avatar', title:'Avatar Forge', tickerItems:['14 avatars forged','New species unlocked'], ctaText:'Build Avatar', bgClass:'bg-avatar', icon:'',
+          products:[{name:'Custom Avatar Slot',price:9.99,img:''},{name:'Species Pack',price:4.99,img:''}],
+          trending:[{name:'Legendary Skin',price:19.99,img:''}] },
+        { id:'dreamledger', title:'DreamLedger', tickerItems:['Memory shard added','Vault synchronized'], ctaText:'Enter Ledger', bgClass:'bg-dreamledger', icon:'',
+          products:[{name:'Memory Vault',price:1.99,img:''},{name:'Fragment Analyzer',price:5.99,img:''}],
+          trending:[{name:'Archive Access',price:7.99,img:''}] },
+        { id:'gameworld', title:'Game World', tickerItems:['Region preview released','Alpha invite wave 2 sent'], ctaText:'Explore World', bgClass:'bg-gameworld', icon:'',
+          products:[{name:'Alpha Key',price:29.99,img:''},{name:'Lore Book',price:14.99,img:''}],
+          trending:[{name:'Map Fragment',price:9.99,img:''}] }
+    ]};
+}
+
+//  BUILD TUNNEL GRID 
+function buildTunnelGrid() {
+    const grid = document.getElementById('tunnelGrid');
+    grid.innerHTML = '';
+    siloData.silos.forEach((silo, i) => {
+        const card = document.createElement('div');
+        card.className = 'tunnel-card';
+        card.onclick = () => openCarousel(i);
+        card.innerHTML = `
+            <div class="icon">${silo.icon||''}</div>
+            <h3>${silo.title}</h3>
+            <p>${silo.products.length} products available</p>
+            <div class="ticker-bar" id="tunnel-ticker-${silo.id}">${(silo.tickerItems||[''])[0]}</div>
+        `;
+        grid.appendChild(card);
+        // Start mini ticker
+        if (silo.tickerItems && silo.tickerItems.length > 1) {
+            let tIdx = 0;
+            const tEl = document.getElementById('tunnel-ticker-' + silo.id);
+            if (tEl) setInterval(() => { tEl.textContent = silo.tickerItems[tIdx]; tIdx = (tIdx+1) % silo.tickerItems.length; }, 3000);
+        }
+    });
+}
+
+//  OPEN CAROUSEL 
+function openCarousel(startIndex) {
+    currentSlide = startIndex;
+    document.getElementById('carouselOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    buildCarousel();
+    updateNestedRows();
+}
+
+function closeCarousel() {
+    document.getElementById('carouselOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function buildCarousel() {
+    const track = document.getElementById('heroTrack');
+    track.innerHTML = '';
+    siloData.silos.forEach((silo, i) => {
         const slide = document.createElement('div');
-        slide.className = `hero-slide ${silo.bgClass || ''}`;
+        slide.className = `hero-slide ${silo.bgClass||''}`;
         slide.innerHTML = `
             <h2>${silo.title}</h2>
-            <div class="ticker" id="ticker-${silo.id}">${silo.tickerItems[0]}</div>
-            <button class="cta-btn" onclick="navigateTo('${silo.ctaLink}')">${silo.ctaText}</button>
-            <button class="cta-btn outline" onclick="alert('More ${silo.id} coming soon')">Quick View</button>
+            <div class="ticker" id="car-ticker-${silo.id}">${(silo.tickerItems||[''])[0]}</div>
+            <div>
+                <button class="cta-btn" onclick="buyAllInSilo('${silo.id}')"> Buy Products</button>
+                <button class="cta-btn outline" onclick="closeCarousel()"> Back</button>
+            </div>
         `;
-        heroTrack.appendChild(slide);
+        track.appendChild(slide);
     });
-    updateActiveSilo(0);
+    track.style.transform = `translateX(-${currentSlide * 100}vw)`;
+    // Start ticker
+    siloData.silos.forEach(silo => {
+        if (silo.tickerItems && silo.tickerItems.length > 1) {
+            let tIdx = 0;
+            const tEl = document.getElementById('car-ticker-' + silo.id);
+            if (tEl) setInterval(() => { tEl.textContent = silo.tickerItems[tIdx]; tIdx = (tIdx+1) % silo.tickerItems.length; }, 3000);
+        }
+    });
 }
 
-function updateActiveSilo(index) {
-    const silo = siloData.silos[index];
+// Touch swipe for carousel overlay
+let touchStartX = 0;
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('heroTrack');
+    track.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
+    track.addEventListener('touchend', e => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50 && siloData) {
+            if (diff > 0 && currentSlide < siloData.silos.length-1) currentSlide++;
+            else if (diff < 0 && currentSlide > 0) currentSlide--;
+            track.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            updateNestedRows();
+        }
+    });
+    // Mouse drag
+    let isDragging = false, startX = 0;
+    track.addEventListener('mousedown', e => { isDragging=true; startX=e.clientX; track.style.cursor='grabbing'; });
+    track.addEventListener('mouseup', e => {
+        if (!isDragging) return; isDragging=false; track.style.cursor='grab';
+        const diff = startX - e.clientX;
+        if (Math.abs(diff) > 50 && siloData) {
+            if (diff > 0 && currentSlide < siloData.silos.length-1) currentSlide++;
+            else if (diff < 0 && currentSlide > 0) currentSlide--;
+            track.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            updateNestedRows();
+        }
+    });
+    track.addEventListener('mouseleave', () => { if(isDragging){ isDragging=false; track.style.cursor='grab'; } });
+});
+
+function updateNestedRows() {
+    const silo = siloData.silos[currentSlide];
     if (!silo) return;
-    // Start ticker rotation
-    let tickIdx = 0;
-    const tickerEl = document.getElementById(`ticker-${silo.id}`);
-    if (tickerEl && silo.tickerItems.length) {
-        setInterval(() => { tickerEl.textContent = silo.tickerItems[tickIdx]; tickIdx = (tickIdx+1) % silo.tickerItems.length; }, 3000);
-    }
-    // Rebuild nested rows
-    const container = document.getElementById('nestedContainer');
+    const container = document.getElementById('nestedRows');
     container.innerHTML = '';
-    if (silo.trending && silo.trending.length) container.appendChild(createNestedRow('Trending', silo.trending));
-    if (silo.products && silo.products.length) container.appendChild(createNestedRow('New Drops', silo.products));
-    container.appendChild(createNestedRow('Upcoming', [{name:'Mystery Drop',price:'$?',stripe:null},{name:'Limited Edition',price:'$?',stripe:null}]));
+    if (silo.trending && silo.trending.length) container.appendChild(buildRow('Trending', silo.trending));
+    if (silo.products && silo.products.length) container.appendChild(buildRow('Products', silo.products));
+    container.appendChild(buildRow('Upcoming', [{name:'Mystery Drop',price:'?',img:''},{name:'Limited Edition',price:'?',img:''}]));
 }
 
-function createNestedRow(title, items) {
-    const row = document.createElement('div');
-    row.className = 'nested-row';
-    row.innerHTML = `<h3>${title}</h3><div class="row-scroll" id="row-${title.replace(/\s/g,'')}"></div>`;
-    const scroll = row.querySelector('.row-scroll');
+function buildRow(title, items) {
+    const div = document.createElement('div');
+    div.style.cssText = 'padding:8px 16px 16px';
+    div.innerHTML = `<h3 style="font-size:0.9rem;color:#aaa;margin-bottom:8px;text-transform:uppercase">${title}</h3><div class="row-scroll"></div>`;
+    const scroll = div.querySelector('.row-scroll');
     items.forEach(item => {
         const card = document.createElement('div');
         card.className = 'row-card';
         card.innerHTML = `
-            <div style="font-size:2em;">${item.img||''}</div>
-            <div>${item.name}</div>
-            <div class="price">${item.price}</div>
-            <button class="buy-btn" onclick="buyItem('${item.name}', '${item.stripe || ''}')">Buy</button>
+            <div style="font-size:2em">${item.img||''}</div>
+            <div style="font-size:0.8rem">${item.name}</div>
+            <div class="price">$${item.price}</div>
+            <button class="buy-btn" onclick="buyItem('${item.name.replace(/'/g,"\\'")}',${item.price})">Buy</button>
         `;
         scroll.appendChild(card);
     });
-    return row;
+    return div;
 }
 
-function buyItem(name, stripeUrl) {
-    if (stripeUrl && stripeUrl !== 'null' && stripeUrl !== '') {
-        window.location.href = stripeUrl;
-    } else {
-        alert(`Checkout for ${name}  add your Stripe link in the API data.`);
+//  STRIPE CHECKOUT 
+async function buyItem(name, price) {
+    try {
+        const res = await fetch('/api/create-checkout-session', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ items: [{ name, price }] })
+        });
+        const data = await res.json();
+        if (data.url) {
+            window.location.href = data.url;
+        } else if (data.fallback) {
+            // Fallback: open Gumroad or manual payment
+            alert('Stripe checkout unavailable. Fallback: Please use Gumroad or contact for manual payment.\n\nProduct: ' + name + ' - $' + price);
+        }
+    } catch(e) {
+        alert('Checkout error. Please try again or use alternative payment.\n\nProduct: ' + name + ' - $' + price);
     }
 }
 
-// Avatar modal
+async function buyAllInSilo(siloId) {
+    const silo = siloData.silos.find(s => s.id === siloId);
+    if (!silo) return;
+    const items = [...(silo.products||[]), ...(silo.trending||[])].map(p => ({ name: p.name, price: p.price }));
+    if (items.length === 0) { alert('No products in this silo yet.'); return; }
+    try {
+        const res = await fetch('/api/create-checkout-session', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ items })
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+        else alert('Stripe checkout unavailable. Products added to cart summary:\n\n' + items.map(i => i.name + ' - $' + i.price).join('\n'));
+    } catch(e) { alert('Checkout error.'); }
+}
+
+//  AVATAR 
 function openAvatarModal() { document.getElementById('avatarModal').classList.add('active'); }
 function closeAvatarModal() { document.getElementById('avatarModal').classList.remove('active'); }
-function createAvatarNow() {
+function pickIcon(el, icon) {
+    document.querySelectorAll('#avatarIcons span').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedIcon = icon;
+}
+async function createAvatar() {
     const name = document.getElementById('avatarName').value.trim();
-    if (!name) { alert('Enter a name'); return; }
-    fetch('/api/avatar/create', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({id:'av_'+Date.now(), name, icon:'', tier:'Seed', items:[], userId:'visitor', created:new Date().toISOString()})
-    }).then(() => { alert('Avatar created!'); closeAvatarModal(); }).catch(() => alert('Avatar saved locally.'));
+    if (!name) { alert('Enter a name for your avatar.'); return; }
+    const avatar = { id: 'av_' + Date.now(), name, icon: selectedIcon, tier: 'Seed', items: [], userId: 'visitor', created: new Date().toISOString() };
+    try {
+        const res = await fetch('/api/avatar/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(avatar) });
+        const data = await res.json();
+        alert(' Avatar "' + data.avatar.name + '" created! Tier: ' + data.avatar.tier + '\n\nIt will be available in Kelphaven when the game launches.');
+    } catch(e) {
+        // Local fallback
+        localStorage.setItem('dl_avatar', JSON.stringify(avatar));
+        alert(' Avatar "' + avatar.name + '" saved locally!');
+    }
     closeAvatarModal();
 }
 
+//  UTILS 
+function scrollToTunnels() { document.getElementById('tunnels').scrollIntoView({ behavior: 'smooth' }); }
+
+// Check for Stripe success
+if (window.location.search.includes('success=true')) {
+    document.getElementById('successBanner').classList.add('active');
+    setTimeout(() => document.getElementById('successBanner').classList.remove('active'), 5000);
+}
+
+//  INIT 
 loadData();
 </script>
 </body>
