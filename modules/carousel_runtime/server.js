@@ -78,7 +78,7 @@ app.get('/api/carousel-data', (req, res) => {
 //  STRIPE CHECKOUT 
 app.post('/api/create-checkout-session', async (req, res) => {
     if (!stripe) {
-        return res.status(500).json({ error: 'Stripe not configured.', fallback: true });
+        return res.status(500).json({ error: 'Stripe not configured. Set STRIPE_SECRET_KEY env var on Render.', fallback: true });
     }
     try {
         const { items } = req.body;
@@ -104,7 +104,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
 });
 
-//  AVATAR CREATE 
+//  AVATAR CREATE (Bitmoji style) 
 app.post('/api/avatar/create', (req, res) => {
     const av = req.body;
     const avatarDir = path.join(__dirname, 'avatars');
@@ -126,7 +126,6 @@ app.post('/api/game/export-character', (req, res) => {
     res.json({ ok: true, characterId: char.avatarId });
 });
 
-//  SERVE LANDING PAGE 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 const PORT = process.env.PORT || 4000;
