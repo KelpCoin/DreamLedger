@@ -1,17 +1,39 @@
 ﻿<!doctype html>
 <html>
 <head>
-  <title>carousel-catalog LIVE</title>
+  <title>carousel-catalog :: ENGINE v1</title>
+  <style>
+    body { background:#0b0b0f; color:#fff; font-family:Arial; padding:40px; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { border:1px solid #333; padding:16px; border-radius:10px; }
+    .meta { opacity:0.6; font-size:12px; margin-top:6px; }
+  </style>
 </head>
-<body style="background:#111;color:#fff;font-family:Arial;padding:40px;">
-  <h1>carousel-catalog IS LIVE</h1>
+<body>
+  <h1>carousel-catalog ENGINE</h1>
+  <div id="grid" class="grid"></div>
 
-  <ul>
-    <li>MTG Silo: ACTIVE</li>
-    <li>Carousel Engine: STUB</li>
-    <li>Revenue Hooks: STANDBY</li>
-  </ul>
+  <script>
+    async function load(){
+      const res = await fetch('/api/state');
+      const data = await res.json();
 
-  <p>DEPLOY STATUS: OK</p>
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+
+      data.carousel.items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div><b>${item.title}</b></div>
+          <div class="meta">status: ${item.status}</div>
+          <div class="meta">ctr: ${item.ctr}</div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    load();
+  </script>
 </body>
 </html>
