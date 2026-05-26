@@ -1,39 +1,88 @@
-﻿<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>carousel-catalog :: ENGINE v1</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MTG NZ Carousel</title>
   <style>
-    body { background:#0b0b0f; color:#fff; font-family:Arial; padding:40px; }
-    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-    .card { border:1px solid #333; padding:16px; border-radius:10px; }
-    .meta { opacity:0.6; font-size:12px; margin-top:6px; }
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    body { background:#0a0a0f; font-family: system-ui, sans-serif; overflow: hidden; }
+    .deck { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
+    .card { position: absolute; width: 320px; background: #15151e; border-radius: 32px; border: 1px solid #2a2a35; padding: 1.5rem; transition: transform 0.2s ease; cursor: pointer; }
+    .card-image { height: 180px; background: #1e1e2a; border-radius: 24px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    h3 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+    .set { font-size: 0.8rem; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .price { font-size: 1.8rem; font-weight: bold; color: #66ffcc; margin: 0.5rem 0; }
+    .condition { background: #1e1e2a; display: inline-block; padding: 0.2rem 0.8rem; border-radius: 30px; }
+    .cta-badge { background: #2a5a2a; color: #b9ff66; }
+    .swipe-hint { position: fixed; bottom: 30px; left: 0; right: 0; text-align: center; font-size: 0.8rem; color: #555; }
   </style>
 </head>
 <body>
-  <h1>carousel-catalog ENGINE</h1>
-  <div id="grid" class="grid"></div>
-
-  <script>
-    async function load(){
-      const res = await fetch('/api/state');
+<div class="deck" id="deck"></div>
+<div class="swipe-hint"> swipe left (skip) | right (interested) </div>
+<script>
+  let cards = [], currentIndex = 0, loading = false, cursor = 0, touchStartX = 0;
+  const deck = document.getElementById('deck');
+  async function fetchMore() {
+    if (loading) return;
+    loading = true;
+    try {
+      const res = await fetch(`/api/feed?cursor=${cursor}&limit=5`);
       const data = await res.json();
-
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-
-      data.carousel.items.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `
-          <div><b>${item.title}</b></div>
-          <div class="meta">status: ${item.status}</div>
-          <div class="meta">ctr: ${item.ctr}</div>
-        `;
-        grid.appendChild(div);
-      });
+      if (data.cards.length === 0) return;
+      cards.push(...data.cards);
+      cursor = data.nextCursor;
+      if (cards.length === 1) renderCurrentCard();
+    } catch(e) { console.error(e); }
+    finally { loading = false; }
+  }
+  function renderCurrentCard() {
+    if (currentIndex >= cards.length) {
+      deck.innerHTML = '<div class="card" style="position:relative; text-align:center">Loading more...</div>';
+      fetchMore();
+      return;
     }
-
-    load();
-  </script>
+    const card = cards[currentIndex];
+    const isCTA = card.type === 'cta';
+    deck.innerHTML = `
+      <div class="card" id="activeCard" style="${isCTA ? 'background: linear-gradient(145deg,#1a2a1f,#0f1a0f); border-color:#66ffcc;' : ''}">
+        <div class="card-image">${isCTA ? '' : ''}</div>
+        <h3>${escapeHtml(card.title)}</h3>
+        <div class="set">${escapeHtml(card.set)}</div>
+        <div class="price">${isCTA ? 'FREE' : '$' + Number(card.price).toFixed(2)}</div>
+        <div class="condition ${isCTA ? 'cta-badge' : ''}">${escapeHtml(card.condition)}</div>
+        ${isCTA ? `<div style="margin-top:8px;"> Click to join</div>` : ''}
+      </div>
+    `;
+    let viewTimeout = setTimeout(() => {
+      fetch('/api/view', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: card.id }) }).catch(()=>{});
+    }, 2000);
+    const activeCard = document.getElementById('activeCard');
+    activeCard.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    activeCard.addEventListener('touchend', (e) => {
+      const deltaX = e.changedTouches[0].clientX - touchStartX;
+      if (deltaX > 80) {
+        fetch('/api/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: card.id }) }).catch(()=>{});
+        nextCard();
+      } else if (deltaX < -80) nextCard();
+    });
+    activeCard.addEventListener('click', (e) => {
+      if (isCTA && card.ctaUrl) {
+        window.open(card.ctaUrl, '_blank');
+      } else {
+        fetch('/api/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: card.id }) }).catch(()=>{});
+        nextCard();
+      }
+    });
+  }
+  async function nextCard() {
+    currentIndex++;
+    if (currentIndex >= cards.length - 2) fetchMore();
+    renderCurrentCard();
+  }
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+  fetchMore();
+</script>
 </body>
 </html>
