@@ -3,144 +3,107 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const { URLSearchParams } = require("url");
-
+const url = require("url");
 const PORT = process.env.PORT || 3000;
 const STATIC = path.join(__dirname, "frontend");
 const STATE_FILE = "./state.json";
 
-function loadState() {
-    try { return JSON.parse(fs.readFileSync(STATE_FILE, "utf8")); } catch (_) {
-        return { users: {}, usersByEmail: {}, sessions: {} };
-    }
+function load() {
+  try { return JSON.parse(fs.readFileSync(STATE_FILE, "utf8")); }
+  catch {
+    return {
+      users:{}, usersByName:{}, sessions:{},
+      listings:[], trades:[], escrow:{},
+      reputation:{}, cultcoinLedger:[], eventLog:[]
+    };
+  }
 }
-function saveState(s) {
-    fs.writeFileSync(STATE_FILE + ".tmp", JSON.stringify(s, null, 2));
-    fs.renameSync(STATE_FILE + ".tmp", STATE_FILE);
-}
+function save(s) { fs.writeFileSync(STATE_FILE, JSON.stringify(s, null, 2)); }
 
-let queue = Promise.resolve();
-function withState(fn) {
-    queue = queue.then(async () => {
-        const state = loadState();
-        await fn(state);
-        saveState(state);
-    }).catch(console.error);
-    return queue;
+function hash(p) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  return salt + ":" + crypto.pbkdf2Sync(p, salt, 12000, 64, "sha512").toString("hex");
 }
-
-function hashPassword(pass) {
-    const salt = crypto.randomBytes(16).toString("hex");
-    const hash = crypto.pbkdf2Sync(pass, salt, 10000, 64, "sha512").toString("hex");
-    return `${salt}:${hash}`;
+function verify(p, stored) {
+  const [s, h] = stored.split(":");
+  return crypto.pbkdf2Sync(p, s, 12000, 64, "sha512").toString("hex") === h;
 }
-function verifyPassword(pass, stored) {
-    const [salt, hash] = stored.split(":");
-    return crypto.pbkdf2Sync(pass, salt, 10000, 64, "sha512").toString("hex") === hash;
+function token() { return crypto.randomBytes(32).toString("hex"); }
+function getUser(req, s) {
+  const m = (req.headers.cookie || "").match(/session=([^;]+)/);
+  if (!m) return null;
+  const id = s.sessions[m[1]];
+  return id ? { id, ...s.users[id] } : null;
 }
-function generateToken() { return crypto.randomBytes(32).toString("hex"); }
-function getSessionUser(req, state) {
-    const m = (req.headers.cookie || "").match(/session=([^;]+)/);
-    if (!m) return null;
-    const uid = state.sessions[m[1]];
-    return uid ? state.users[uid] : null;
+function logEvent(s, type, payload) {
+  s.eventLog.push({ type, payload, ts: Date.now() });
 }
 
-const server = http.createServer(async (req, res) => {
-    const method = req.method.toUpperCase();
-    const url = new URL(req.url, "http://localhost");
-    const pathname = url.pathname;
+const server = http.createServer((req, res) => {
+  const u = url.parse(req.url, true);
+  const p = u.pathname;
+  const m = req.method;
+  const s = load();
 
-    // 1. Static files for GET
-    if (method === "GET") {
-        const safe = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, "");
-        const filePath = path.join(STATIC, safe === "/" ? "index.html" : safe);
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(fs.readFileSync(filePath));
-            return;
-        }
+  // ---------- API ROUTES (ALWAYS FIRST) ----------
+  if (p === "/health") {
+    res.writeHead(200, {"Content-Type":"application/json"});
+    return res.end(JSON.stringify({ok:true}));
+  }
+
+  if (p === "/signup" && m === "POST") {
+    let b = "";
+    req.on("data", c => b += c);
+    req.on("end", () => {
+      const x = new URLSearchParams(b);
+      const name = x.get("username"), pass = x.get("password");
+      if (s.usersByName[name]) { res.writeHead(400); return res.end("exists"); }
+      const id = crypto.randomUUID();
+      const t = token();
+      s.users[id] = { name, password: hash(pass) };
+      s.usersByName[name] = id;
+      s.sessions[t] = id;
+      s.reputation[id] = 0;
+      save(s);
+      res.setHeader("Set-Cookie", `session=${t}; Path=/`);
+      res.writeHead(302, { Location: "/" });
+      res.end();
+    });
+    return;
+  }
+
+  if (p === "/login" && m === "POST") {
+    let b = "";
+    req.on("data", c => b += c);
+    req.on("end", () => {
+      const x = new URLSearchParams(b);
+      const name = x.get("username"), pass = x.get("password");
+      const id = s.usersByName[name];
+      if (!id || !verify(pass, s.users[id].password)) { res.writeHead(401); return res.end("bad"); }
+      const t = token();
+      s.sessions[t] = id;
+      save(s);
+      res.setHeader("Set-Cookie", `session=${t}; Path=/`);
+      res.writeHead(302, { Location: "/" });
+      res.end();
+    });
+    return;
+  }
+
+  // ---------- STATIC FILES (LAST) ----------
+  if (m === "GET") {
+    let file = p === "/" ? "/index.html" : p;
+    const fp = path.join(STATIC, file);
+    if (fs.existsSync(fp)) {
+      const ext = path.extname(fp);
+      const mime = {".html":"text/html",".css":"text/css",".js":"text/javascript"}[ext] || "text/plain";
+      res.writeHead(200, {"Content-Type": mime});
+      return res.end(fs.readFileSync(fp));
     }
+  }
 
-    // 2. Health
-    if (pathname === "/health") {
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: true }));
-        return;
-    }
-
-    // 3. Signup
-    if (pathname === "/signup" && method === "POST") {
-        let body = "";
-        req.on("data", c => body += c);
-        req.on("end", async () => {
-            const params = new URLSearchParams(body);
-            const username = params.get("username");
-            const password = params.get("password");
-            if (!username || !password) { res.writeHead(400); res.end(); return; }
-            try {
-                await withState((state) => {
-                    if (state.usersByEmail[username]) throw new Error("exists");
-                    const id = crypto.randomUUID();
-                    state.users[id] = { email: username, passwordHash: hashPassword(password) };
-                    state.usersByEmail[username] = id;
-                    const token = generateToken();
-                    state.sessions[token] = id;
-                    res.setHeader("Set-Cookie", `session=${token}; Path=/; HttpOnly`);
-                    res.writeHead(302, { Location: "/" });
-                    res.end();
-                });
-            } catch (e) { res.writeHead(409); res.end(e.message); }
-        });
-        return;
-    }
-
-    // 4. Login
-    if (pathname === "/login" && method === "POST") {
-        let body = "";
-        req.on("data", c => body += c);
-        req.on("end", async () => {
-            const params = new URLSearchParams(body);
-            const username = params.get("username");
-            const password = params.get("password");
-            if (!username || !password) { res.writeHead(400); res.end(); return; }
-            try {
-                await withState((state) => {
-                    const id = state.usersByEmail[username];
-                    if (!id || !verifyPassword(password, state.users[id].passwordHash)) throw new Error("bad");
-                    const token = generateToken();
-                    state.sessions[token] = id;
-                    res.setHeader("Set-Cookie", `session=${token}; Path=/; HttpOnly`);
-                    res.writeHead(302, { Location: "/" });
-                    res.end();
-                });
-            } catch (e) { res.writeHead(401); res.end(e.message); }
-        });
-        return;
-    }
-
-    // 5. Logout
-    if (pathname === "/logout") {
-        const m = (req.headers.cookie || "").match(/session=([^;]+)/);
-        if (m) await withState((s) => { delete s.sessions[m[1]]; });
-        res.setHeader("Set-Cookie", "session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT");
-        res.writeHead(302, { Location: "/" });
-        res.end();
-        return;
-    }
-
-    // 6. Profile
-    if (pathname === "/profile") {
-        const state = loadState();
-        const user = getSessionUser(req, state);
-        if (!user) { res.writeHead(302, { Location: "/login" }); res.end(); return; }
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.end(`<!DOCTYPE html><html><head><title>Profile</title></head><body><h1>Your Profile</h1><p>${user.email}</p><a href="/logout">Logout</a> | <a href="/">Home</a></body></html>`);
-        return;
-    }
-
-    res.writeHead(404);
-    res.end("Not Found");
+  res.writeHead(404);
+  res.end("not found");
 });
 
-server.listen(PORT, "0.0.0.0", () => console.log("DreamLedger on", PORT));
+server.listen(PORT, "0.0.0.0", () => console.log("DreamLedger running on", PORT));
