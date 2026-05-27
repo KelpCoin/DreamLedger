@@ -1,150 +1,162 @@
-const fs = require('fs');
-const express = require('express');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+﻿const http = require("http");
+const fs = require("fs");
+const url = require("url");
+const Stripe = require("stripe");
 
-const app = express();
-const ROOT = __dirname;
-const DATA = path.join(ROOT, 'runtime', 'data');
+const PORT = process.env.PORT || 8080;
+const STATE_FILE = "./state.json";
 
-const usersPath = path.join(DATA, 'users.json');
-const cardsPath = path.join(DATA, 'cards.json');
-const sessionsPath = path.join(DATA, 'sessions.json');
-
-// ensure data dir
-if (!fs.existsSync(DATA)) fs.mkdirSync(DATA, { recursive: true });
-
-function loadJson(p, fallback) {
-    try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch(e) { return fallback; }
-}
-function saveJson(p, data) {
-    fs.writeFileSync(p, JSON.stringify(data, null, 2), 'utf8');
-}
-
-// AUTH MIDDLEWARE
-function auth(req, res, next) {
-    const token = req.headers['x-session-token'];
-    const sessions = loadJson(sessionsPath, {});
-    const username = sessions[token];
-    if (!username) return res.status(401).json({ ok: false, error: 'UNAUTHORIZED' });
-    req.username = username;
-    next();
-}
-
-app.use(express.json());
-app.use(express.static(path.join(ROOT, 'public')));
-
-// HEALTH
-app.get('/health', (req, res) => res.json({ ok: true, version: '3.0.0-no-stripe' }));
-
-// REGISTER / LOGIN
-app.post('/api/register', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.json({ ok: false, error: 'MISSING_FIELDS' });
-    const users = loadJson(usersPath, []);
-    if (users.find(u => u.username === username)) return res.json({ ok: false, error: 'USER_EXISTS' });
-    const hash = bcrypt.hashSync(password, 10);
-    users.push({ username, password: hash, created: new Date().toISOString() });
-    saveJson(usersPath, users);
-    res.json({ ok: true });
-});
-
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-    const users = loadJson(usersPath, []);
-    const user = users.find(u => u.username === username);
-    if (!user) return res.json({ ok: false, error: 'NO_USER' });
-    if (!bcrypt.compareSync(password, user.password)) return res.json({ ok: false, error: 'BAD_PASSWORD' });
-    const token = uuidv4();
-    const sessions = loadJson(sessionsPath, {});
-    sessions[token] = username;
-    saveJson(sessionsPath, sessions);
-    res.json({ ok: true, token });
-});
-
-// CARDS
-app.post('/api/cards', auth, (req, res) => {
-    const { title, set, price, condition } = req.body;
-    if (!title) return res.json({ ok: false, error: 'NO_TITLE' });
-    const cards = loadJson(cardsPath, []);
-    const newCard = {
-        id: uuidv4(),
-        seller: req.username,
-        title,
-        set,
-        condition: condition || 'LP',
-        price: Number(price),
-        created: new Date().toISOString(),
-        views: 0,
-        clicks: 0
+const isProd = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
+const SECRETS_FILE = "D:\\HappyHomarid\\secrets.json";
+let secrets;
+if (!isProd) {
+    try {
+        secrets = JSON.parse(fs.readFileSync(SECRETS_FILE, "utf8"));
+    } catch (e) {
+        console.error("Missing secrets file:", SECRETS_FILE);
+        process.exit(1);
+    }
+} else {
+    secrets = {
+        stripeKey: process.env.STRIPE_SECRET_KEY,
+        baseUrl: process.env.BASE_URL,
+        wisePayLink: process.env.WISE_PAY_LINK,
+        stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET
     };
-    cards.push(newCard);
-    saveJson(cardsPath, cards);
-    res.json({ ok: true, card: newCard });
+    if (!secrets.stripeKey || !secrets.baseUrl) {
+        console.error("Missing env vars");
+        process.exit(1);
+    }
+}
+const stripe = new Stripe(secrets.stripeKey);
+const BASE_URL = secrets.baseUrl;
+const STRIPE_WEBHOOK_SECRET = secrets.stripeWebhookSecret;
+
+function loadState() {
+    try { return JSON.parse(fs.readFileSync(STATE_FILE, "utf8")); } catch {
+        return {
+            skuVault: [
+                { sku: "SKU-0001", name: "Atraxa Poison", price: 25, availableStock: 3, reservedStock: 0, soldStock: 0, status: "active" },
+                { sku: "SKU-0002", name: "Kaalia Angels", price: 40, availableStock: 1, reservedStock: 0, soldStock: 0, status: "active" }
+            ],
+            orders: [],
+            processedEvents: [],
+            reservedSkus: {}
+        };
+    }
+}
+function saveState(state) {
+    const tmp = STATE_FILE + ".tmp";
+    fs.writeFileSync(tmp, JSON.stringify(state, null, 2));
+    fs.renameSync(tmp, STATE_FILE);
+}
+let writeQueue = Promise.resolve();
+function withState(fn) {
+    writeQueue = writeQueue.then(async () => {
+        const state = loadState();
+        await fn(state);
+        saveState(state);
+    }).catch(console.error);
+    return writeQueue;
+}
+
+function htmlPage(title, body) {
+    return <!DOCTYPE html><html><head><meta charset="UTF-8"><title></title><style>body{font-family:system-ui;background:#0a0c0f;color:#e8edf2;padding:2rem}</style></head><body><div style="max-width:900px;margin:0 auto"></div></body></html>;
+}
+
+const server = http.createServer(async (req, res) => {
+    const parsed = url.parse(req.url, true);
+    const pathname = parsed.pathname;
+    const state = loadState();
+
+    if (pathname === "/") {
+        const cta = "<div style=\"text-align:center;margin-top:80px\"><h2> MTG Marketplace</h2><p>Buy and sell Magic: The Gathering decks and singles.</p><a href=\"/mtg\"><button style=\"background:#f5c542;padding:1rem 2rem;border:none;border-radius:50px\">Enter MTG </button></a></div>";
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(htmlPage("DreamLedger", cta));
+        return;
+    }
+
+    if (pathname === "/mtg") {
+        let vaultHtml = "";
+        for (const s of state.skuVault.filter(s => s.status === "active")) {
+            vaultHtml += "<div style=\"border:2px solid gold;margin:1rem;padding:1rem\"><h3>" + s.name + "</h3><p>Price: $" + s.price + " NZD</p><p>Stock: " + s.availableStock + "</p><a href=\"/buy?sku=" + s.sku + "\"><button>Buy Now</button></a></div>";
+        }
+        const full = htmlPage("Happy Homarid", "<h2>Vault</h2>" + vaultHtml);
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(full);
+        return;
+    }
+
+    if (pathname === "/buy" && req.method === "GET") {
+        const sku = parsed.query.sku;
+        let orderId, item;
+        try {
+            await withState(async (state) => {
+                item = state.skuVault.find(x => x.sku === sku && x.status === "active");
+                if (!item || item.availableStock <= 0) throw new Error("Out of stock");
+                if (state.reservedSkus[sku]) throw new Error("Reserved");
+                orderId = "ord_" + Date.now();
+                state.reservedSkus[sku] = { orderId, timestamp: Date.now() };
+                item.availableStock--;
+                item.reservedStock++;
+                state.orders.push({ orderId, sku, status: "pending", amount: item.price });
+            });
+        } catch (err) {
+            res.writeHead(409); res.end(err.message);
+            return;
+        }
+        const session = await stripe.checkout.sessions.create({
+            mode: "payment",
+            line_items: [{ quantity: 1, price_data: { currency: "nzd", product_data: { name: item.name }, unit_amount: Math.round(item.price * 100) } }],
+            success_url: BASE_URL + "/mtg?success=1", cancel_url: BASE_URL + "/mtg?cancel=1",
+            metadata: { orderId }
+        });
+        res.writeHead(302, { Location: session.url });
+        res.end();
+        return;
+    }
+
+    if (pathname === "/webhook" && req.method === "POST") {
+        let raw = "";
+        req.on("data", c => raw += c);
+        req.on("end", async () => {
+            let event;
+            const sig = req.headers["stripe-signature"];
+            try {
+                event = stripe.webhooks.constructEvent(raw, sig, STRIPE_WEBHOOK_SECRET);
+            } catch (err) {
+                res.writeHead(401); res.end();
+                return;
+            }
+            const eventId = event.id;
+            await withState((state) => {
+                if (state.processedEvents.includes(eventId)) return;
+                state.processedEvents.push(eventId);
+                if (event.type === "checkout.session.completed") {
+                    const orderId = event.data.object.metadata.orderId;
+                    const order = state.orders.find(o => o.orderId === orderId);
+                    if (!order || order.status === "paid") return;
+                    order.status = "paid";
+                    const skuItem = state.skuVault.find(x => x.sku === order.sku);
+                    if (skuItem) {
+                        skuItem.reservedStock--;
+                        skuItem.soldStock++;
+                    }
+                    delete state.reservedSkus[order.sku];
+                }
+            });
+            res.writeHead(200); res.end("ok");
+        });
+        return;
+    }
+
+    if (pathname === "/health") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok", engine: "happy-homarid", version: "2.0.0" }));
+        return;
+    }
+
+    res.writeHead(404); res.end("Not found");
 });
 
-app.get('/api/cards', (req, res) => {
-    const cards = loadJson(cardsPath, []);
-    // Inject NZ Community CTA as a virtual card (always first)
-    const communityCTA = {
-        id: 'nz_mtg_community',
-        type: 'cta',
-        title: 'NZ MTG Community',
-        set: 'Aotearoa  Independent',
-        price: 0,
-        condition: 'Join now',
-        ctaUrl: 'https://discord.gg/YOUR_INVITE',  // <-- REPLACE with your real invite
-        priority: -1
-    };
-    const allCards = [communityCTA, ...cards];
-    // Sort by priority (lower first), then created date
-    allCards.sort((a,b) => (a.priority || 0) - (b.priority || 0) || new Date(b.created) - new Date(a.created));
-    res.json({ ok: true, cards: allCards });
-});
-
-// FEED ENDPOINT (infinite swipe)
-app.get('/api/feed', (req, res) => {
-    const cards = loadJson(cardsPath, []);
-    const communityCTA = {
-        id: 'nz_mtg_community',
-        type: 'cta',
-        title: 'NZ MTG Community',
-        set: 'Aotearoa  Independent',
-        price: 0,
-        condition: 'Join now',
-        ctaUrl: 'https://discord.gg/YOUR_INVITE',
-        priority: -1
-    };
-    let feed = [communityCTA, ...cards];
-    feed.sort((a,b) => (a.priority || 0) - (b.priority || 0) || new Date(b.created) - new Date(a.created));
-    const cursor = parseInt(req.query.cursor || 0);
-    const limit = parseInt(req.query.limit || 10);
-    const slice = feed.slice(cursor, cursor + limit);
-    res.json({
-        cards: slice,
-        nextCursor: cursor + slice.length,
-        hasMore: cursor + slice.length < feed.length
-    });
-});
-
-// VIEW / CLICK tracking (optional)
-app.post('/api/view', (req, res) => {
-    const { id } = req.body;
-    const cards = loadJson(cardsPath, []);
-    const card = cards.find(c => c.id === id);
-    if (card && card.type !== 'cta') card.views = (card.views || 0) + 1;
-    if (card) saveJson(cardsPath, cards);
-    res.json({ ok: true });
-});
-app.post('/api/click', (req, res) => {
-    const { id } = req.body;
-    const cards = loadJson(cardsPath, []);
-    const card = cards.find(c => c.id === id);
-    if (card && card.type !== 'cta') card.clicks = (card.clicks || 0) + 1;
-    if (card) saveJson(cardsPath, cards);
-    res.json({ ok: true });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Cortex Carousel running on port ${PORT}`));
+server.listen(PORT, () => console.log("Running on port " + PORT));
