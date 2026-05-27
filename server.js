@@ -36,3 +36,4 @@ function router(req, res) {
 }
 
 http.createServer(router).listen(PORT, "0.0.0.0", () => console.log("Serving on", PORT));
+
