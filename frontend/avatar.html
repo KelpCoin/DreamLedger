@@ -1,11 +1,38 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><title>Avatar Creator</title>
-<style>body{background:#0a0a0a;color:#f5f5f7;font-family:system-ui;display:flex;flex-direction:column;align-items:center;padding:2rem}h1{color:#d4af37;margin-bottom:2rem}.builder{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center}.preview{width:200px;height:200px;border-radius:50%;border:3px solid #d4af37;display:flex;align-items:center;justify-content:center;font-size:80px;background:#1c1c1e}.controls{display:flex;flex-direction:column;gap:1rem}.control-group{display:flex;gap:1rem;align-items:center}button{background:#1c1c1e;border:1px solid #2c2c2e;color:#f5f5f7;padding:0.5rem 1rem;border-radius:0.75rem;cursor:pointer}button.active{border-color:#d4af37;color:#d4af37}.save-btn{background:#d4af37;color:#0a0a0a;margin-top:2rem;font-weight:bold;padding:0.75rem 2rem;border:none;border-radius:2rem;cursor:pointer}.news-link{margin-top:2rem;color:#d4af37;text-decoration:none;font-weight:bold}</style></head>
-<body><h1>Avatar Creator</h1><div class="builder"><div class="preview" id="preview"></div><div class="controls"><div class="control-group" id="skin-tone"><button data-tone="1f3fb"></button><button data-tone="1f3fc"></button><button data-tone="1f3fd"></button><button data-tone="1f3fe"></button><button data-tone="1f3ff"></button></div><div class="control-group" id="hair-style"><button data-hair="">Bald</button><button data-hair="">Curly</button><button data-hair="">Short</button><button data-hair="">Long</button></div><div class="control-group" id="outfit"><button data-outfit="">Casual</button><button data-outfit="">Formal</button><button data-outfit="">Adventurer</button><button data-outfit="">Hero</button></div></div></div><button class="save-btn" onclick="saveAvatar()">Save Avatar</button><p id="saved-msg" style="margin-top:1rem;color:#4f46e5;"></p><a class="news-link" href="news-avatar.html"> Avatar News</a>
+<style>body{background:#0a0a0a;color:#f5f5f7;font-family:system-ui;display:flex;flex-direction:column;align-items:center;padding:2rem}h1{color:#d4af37;margin-bottom:2rem}.builder{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center}.preview{width:200px;height:200px;border-radius:50%;border:3px solid #d4af37;display:flex;align-items:center;justify-content:center;font-size:80px;background:#1c1c1e}.controls{display:flex;flex-direction:column;gap:1rem}.control-group{display:flex;gap:1rem;align-items:center}button{background:#1c1c1e;border:1px solid #2c2c2e;color:#f5f5f7;padding:0.5rem 1rem;border-radius:0.75rem;cursor:pointer}button.active{border-color:#d4af37;color:#d4af37}.save-btn{background:#d4af37;color:#0a0a0a;margin-top:2rem;font-weight:bold;padding:0.75rem 2rem;border:none;border-radius:2rem;cursor:pointer}</style></head>
+<body><h1>Avatar Creator</h1><div class="builder"><div class="preview" id="preview"></div><div class="controls"><div class="control-group" id="skin-tone"><button data-tone="1f3fb"></button><button data-tone="1f3fc"></button><button data-tone="1f3fd"></button><button data-tone="1f3fe"></button><button data-tone="1f3ff"></button></div><div class="control-group" id="hair-style"><button data-hair="">Bald</button><button data-hair="">Curly</button><button data-hair="">Short</button><button data-hair="">Long</button></div><div class="control-group" id="outfit"><button data-outfit="">Casual</button><button data-outfit="">Formal</button><button data-outfit="">Adventurer</button><button data-outfit="">Hero</button></div></div></div><button class="save-btn" onclick="saveAvatar()">Save Avatar</button><p id="saved-msg" style="margin-top:1rem;color:#4f46e5;"></p>
 <script>
-let avatar={tone:'',hair:'',outfit:''};const preview=document.getElementById('preview');function update(){preview.innerHTML=avatar.outfit||'';}
-document.querySelectorAll('.control-group button').forEach(btn=>{btn.addEventListener('click',()=>{const g=btn.parentElement.id;if(g==='skin-tone')avatar.tone=btn.dataset.tone;else if(g==='hair-style')avatar.hair=btn.dataset.hair;else if(g==='outfit')avatar.outfit=btn.dataset.outfit;btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');update()})});
-function saveAvatar(){localStorage.setItem('dream-ledger-avatar',JSON.stringify(avatar));document.getElementById('saved-msg').textContent='Avatar saved! Ready for future game.'}
-(function load(){const s=localStorage.getItem('dream-ledger-avatar');if(s){avatar=JSON.parse(s);if(avatar.tone)document.querySelector(`#skin-tone [data-tone="${avatar.tone}"]`)?.classList.add('active');if(avatar.hair)document.querySelector(`#hair-style [data-hair="${avatar.hair}"]`)?.classList.add('active');if(avatar.outfit){document.querySelector(`#outfit [data-outfit="${avatar.outfit}"]`)?.classList.add('active');update()}document.getElementById('saved-msg').textContent='Previous avatar loaded.'}})();
+  let avatar = { tone: '', hair: '', outfit: '' };
+  const preview = document.getElementById('preview');
+  function update() { preview.innerHTML = avatar.outfit || ''; }
+  document.querySelectorAll('.control-group button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const g = btn.parentElement.id;
+      if (g === 'skin-tone') avatar.tone = btn.dataset.tone;
+      else if (g === 'hair-style') avatar.hair = btn.dataset.hair;
+      else if (g === 'outfit') avatar.outfit = btn.dataset.outfit;
+      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      update();
+    });
+  });
+  function saveAvatar() {
+    localStorage.setItem('dream-ledger-avatar', JSON.stringify(avatar));
+    document.getElementById('saved-msg').textContent = 'Avatar saved!';
+  }
+  (function load() {
+    const s = localStorage.getItem('dream-ledger-avatar');
+    if (s) {
+      avatar = JSON.parse(s);
+      if (avatar.tone) document.querySelector(`#skin-tone [data-tone="${avatar.tone}"]`)?.classList.add('active');
+      if (avatar.hair) document.querySelector(`#hair-style [data-hair="${avatar.hair}"]`)?.classList.add('active');
+      if (avatar.outfit) {
+        document.querySelector(`#outfit [data-outfit="${avatar.outfit}"]`)?.classList.add('active');
+        update();
+      }
+      document.getElementById('saved-msg').textContent = 'Previous avatar loaded.';
+    }
+  })();
 </script></body></html>
