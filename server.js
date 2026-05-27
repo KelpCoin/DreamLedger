@@ -61,7 +61,7 @@ function withState(fn) {
 }
 
 function htmlPage(title, body) {
-    return <!DOCTYPE html><html><head><meta charset="UTF-8"><title></title><style>body{font-family:system-ui;background:#0a0c0f;color:#e8edf2;padding:2rem}</style></head><body><div style="max-width:900px;margin:0 auto"></div></body></html>;
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title><style>body{font-family:system-ui;background:#0a0c0f;color:#e8edf2;padding:2rem}</style></head><body><div style="max-width:900px;margin:0 auto">${body}</div></body></html>`;
 }
 
 const server = http.createServer(async (req, res) => {
