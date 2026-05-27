@@ -229,6 +229,40 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // Add single
+    if (pathname === "/add-single" && req.method === "GET") {
+        if (!currentUser) { res.writeHead(302, { Location: "/login" }); res.end(); return; }
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(`<!DOCTYPE html><html><head><title>List a Single</title></head><body><h1>Sell a Single</h1><form method="POST"><input name="name" placeholder="Card Name" required><br><input name="price" step="0.01" type="number" required><br><button type="submit">List</button></form></body></html>`);
+        return;
+    }
+    if (pathname === "/add-single" && req.method === "POST" && currentUser) {
+        let body = ""; req.on("data", c => body += c); req.on("end", async () => {
+            const { name, price } = parseForm(body);
+            if (!name || !price) { res.writeHead(400); res.end(); return; }
+            await withState((state) => {
+                state.userSingles.push({ id: Date.now().toString(), name, price: parseFloat(price), seller: currentUser.email, created: new Date().toISOString() });
+                res.writeHead(302, { Location: "/mtg" });
+                res.end();
+            });
+        }); return;
+    }
+
+    // Buy-wise
+    if (pathname === "/buy-wise" && req.method === "GET") {
+        const sku = parsed.query.sku;
+        const state = loadState();
+        const item = state.skuVault.find(x => x.sku === sku && x.status === "active");
+        if (!item) { res.writeHead(404); res.end("Not found"); return; }
+        const orderId = "wise_" + Date.now();
+        await withState((state) => {
+            state.purchaseLog.push({ sku, type: "wise_redirect", orderId });
+        }).catch(() => {});
+        res.writeHead(302, { Location: WISE_PAY_LINK });
+        res.end();
+        return;
+    }
+
     res.writeHead(404); res.end();
 });
 
