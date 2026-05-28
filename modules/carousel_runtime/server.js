@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -166,3 +166,4 @@ app.get('/api/verify-invite', async (req, res) => {
   const { data } = await supabase.from('invites').select('code').eq('code', code).single();
   res.json({ valid: !!data });
 });
+
