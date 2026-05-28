@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -130,3 +130,21 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log('DreamLedger running on port ' + PORT + (stripe ? ' (Stripe LIVE)' : ' (Stripe NOT configured)')));
+
+// ---- Invite System ----
+app.post('/api/invite', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  const code = [...Array(8)].map(() => Math.random().toString(36)[2]).join('').toUpperCase();
+  await supabase.from('invites').insert({ email, code });
+
+  console.log(Invite code for : );
+  res.json({ success: true, code });
+});
+
+app.get('/api/verify-invite', async (req, res) => {
+  const { code } = req.query;
+  const { data } = await supabase.from('invites').select('code').eq('code', code).single();
+  res.json({ valid: !!data });
+});
