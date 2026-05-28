@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>DreamLedger  Account</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { margin:0; background:#0b0f14; color:#fff; font-family:Arial; display:flex; align-items:center; justify-content:center; height:100vh; }
+    .box { background:#121a24; padding:24px; border-radius:12px; width:300px; }
+    input { width:100%; padding:10px; margin:6px 0; background:#0b0f14; border:1px solid #223044; color:white; border-radius:6px; }
+    button { width:100%; padding:10px; background:#3b82f6; border:none; color:white; border-radius:6px; cursor:pointer; margin-top:6px; }
+    .msg { font-size:14px; color:#7f8ea3; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>DreamLedger</h2>
+  <input id="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Password" />
+  <input id="inviteCode" placeholder="Invite code (if required)" />
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Log In</button>
+  <p class="msg" id="msg"></p>
+</div>
+<script>
+  const supabase = window.supabase.createClient(
+    "https://wbwgroygjeyukkspnqiy.supabase.co",
+    "sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj"
+  );
+  const msg = (t) => document.getElementById('msg').innerText = t;
+
+  async function signup() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const inviteCode = document.getElementById('inviteCode').value;
+
+    if (inviteCode) {
+      const { data: valid, error } = await supabase
+        .from('invites')
+        .select('code')
+        .eq('code', inviteCode)
+        .single();
+      if (error || !valid) {
+        return msg('Invalid invite code.');
+      }
+    }
+
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) return msg(error.message);
+    msg('Check your email to confirm your account.');
+  }
+
+  async function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return msg(error.message);
+    localStorage.setItem('sb_session', JSON.stringify(data.session));
+    window.location.href = '/store.html';
+  }
+</script>
+</body>
+</html>
