@@ -2,6 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 // STRIPE SETUP
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
@@ -139,7 +141,7 @@ app.post('/api/invite', async (req, res) => {
   const code = [...Array(8)].map(() => Math.random().toString(36)[2]).join('').toUpperCase();
   await supabase.from('invites').insert({ email, code });
 
-  console.log(Invite code for : );
+  console.log("Invite code for:", email, code);
   res.json({ success: true, code });
 });
 
@@ -157,7 +159,7 @@ app.post('/api/invite', async (req, res) => {
   const code = [...Array(8)].map(() => Math.random().toString(36)[2]).join('').toUpperCase();
   await supabase.from('invites').insert({ email, code });
 
-  console.log(Invite code for : );
+  console.log("Invite code for:", email, code);
   res.json({ success: true, code });
 });
 
