@@ -1,67 +1,92 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DreamLedger</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0f;color:#eee;font-family:'Segoe UI',sans-serif}
-header{background:#111;padding:1rem;display:flex;justify-content:space-between;align-items:center}
-h1{font-size:1.5rem}
-.auth{display:flex;gap:0.5rem}
-input,button{padding:0.5rem 1rem;border-radius:6px;border:none}
-input{background:#1a1a2e;color:#eee}
-button{background:#66ffcc;color:#0a0a0f;cursor:pointer}
-.silo-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:1rem;gap:1rem}
-.silo-card{min-width:300px;background:#15151e;border-radius:16px;padding:1.5rem;scroll-snap-align:start;border:1px solid #2a2a35}
-.silo-card h2{font-size:1.3rem;margin-bottom:0.5rem}
-.ticker{font-size:0.8rem;color:#888;margin-bottom:1rem}
-.product{background:#1e1e2a;padding:0.5rem 1rem;border-radius:8px;margin:0.5rem 0;display:flex;justify-content:space-between}
-.trending{color:#66ffcc;font-size:0.9rem;margin-top:1rem}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0a0a0f;color:#eee;font-family:'Segoe UI',sans-serif}
+  header{background:#111;padding:1rem;display:flex;justify-content:space-between;align-items:center}
+  .logo{font-size:2rem;cursor:pointer}
+  .auth{display:flex;gap:0.5rem}
+  input,button{padding:0.5rem 1rem;border-radius:6px;border:none}
+  input{background:#1a1a2e;color:#eee}
+  button{background:#66ffcc;color:#0a0a0f;cursor:pointer}
+  .carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:1rem;gap:1rem;height:80vh;align-items:center}
+  .cta-card{min-width:300px;background:#15151e;border-radius:16px;padding:2rem;scroll-snap-align:center;border:1px solid #2a2a35;text-align:center;cursor:pointer}
+  .cta-card h2{font-size:2rem;margin-bottom:1rem}
+  .cta-card p{color:#888;margin-bottom:2rem}
+  .avatar-btn{background:#ff66cc;color:#0a0a0f;border:none;padding:10px 20px;border-radius:40px;font-weight:bold;cursor:pointer;margin-left:10px}
 </style>
 </head>
 <body>
 <header>
-  <h1> DreamLedger</h1>
-  <div class="auth" id="auth">
-    <input id="user" placeholder="username">
-    <input id="pass" type="password" placeholder="password">
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Log In</button>
+  <div class="logo" onclick="location.reload()"> DreamLedger</div>
+  <div>
+    <button class="avatar-btn" onclick="openAvatar()">Create Your Free Avatar</button>
+    <div class="auth" id="authBox">
+      <input id="user" placeholder="username">
+      <input id="pass" type="password" placeholder="password">
+      <button onclick="signup()">Sign Up</button>
+      <button onclick="login()">Log In</button>
+    </div>
   </div>
 </header>
-<div class="silo-carousel" id="carousel"></div>
+<div class="carousel">
+  <div class="cta-card" onclick="window.location.href='/mtg'">
+    <h2> Magic: The Gathering</h2>
+    <p>The Home of MTG in New Zealand. Trade, buy, sell freely. No gatekeepers.</p>
+    <p style="color:#66ffcc">Enter the Community </p>
+  </div>
+  <!-- You can add more silo cards later -->
+</div>
+
+<!-- Avatar Modal -->
+<div id="avatarModal" style="display:none;position:fixed;top:20%;left:50%;transform:translate(-50%,0);background:#15151e;border:1px solid #2a2a35;border-radius:16px;padding:20px;z-index:100">
+  <h2>Create Your Avatar</h2>
+  <select id="avatarStyle">
+    <option value="bottts">Bottts</option>
+    <option value="adventurer">Adventurer</option>
+    <option value="pixel-art">Pixel Art</option>
+  </select>
+  <button onclick="generateAvatar()">Random</button>
+  <div id="avatarPreview"></div>
+  <button onclick="saveAvatar()">Save Avatar</button>
+  <button onclick="closeAvatar()">Close</button>
+</div>
+
 <script>
-const API = 'https://dreamledger-ga7l.onrender.com';
-async function loadCarousel(){
-  const res = await fetch(API + '/api/carousel-data');
-  const data = await res.json();
-  const carousel = document.getElementById('carousel');
-  carousel.innerHTML = data.silos.map(s => `
-    <div class="silo-card">
-      <h2>${s.title}</h2>
-      <div class="ticker">${s.tickerItems[0]}</div>
-      ${s.products.map(p => `<div class="product"><span>${p.name}</span><span>$${p.price}</span></div>`).join('')}
-      <div class="trending"> Trending: ${s.trending.map(t=>t.name).join(', ')}</div>
-    </div>
-  `).join('');
-}
+// Auth functions
 async function signup(){
-  const u=document.getElementById('user').value;
-  const p=document.getElementById('pass').value;
-  const res=await fetch(API+'/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const u=document.getElementById('user').value, p=document.getElementById('pass').value;
+  const res=await fetch('/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
   const d=await res.json();
-  alert(d.ok?'Signed up':'Error: '+d.error);
+  alert(d.ok?'Account created':'Error: '+d.error);
 }
 async function login(){
-  const u=document.getElementById('user').value;
-  const p=document.getElementById('pass').value;
-  const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const u=document.getElementById('user').value, p=document.getElementById('pass').value;
+  const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
   const d=await res.json();
   alert(d.ok?'Logged in':'Error: '+d.error);
 }
-loadCarousel();
+
+// Avatar creator (DiceBear)
+function openAvatar(){ document.getElementById('avatarModal').style.display='block'; }
+function closeAvatar(){ document.getElementById('avatarModal').style.display='none'; }
+function generateAvatar(){
+  const style=document.getElementById('avatarStyle').value;
+  const seed=Math.random().toString(36).substring(2,10);
+  const url=`https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+  document.getElementById('avatarPreview').innerHTML=`<img src="${url}" width="120" style="border-radius:12px">`;
+  window.currentAvatar=url;
+}
+function saveAvatar(){
+  if(window.currentAvatar) localStorage.setItem('userAvatar',window.currentAvatar);
+  alert('Avatar saved!');
+}
+// Load saved avatar if exists
+window.onload=()=>{ if(localStorage.getItem('userAvatar')) openAvatar(); }
 </script>
 </body>
 </html>
