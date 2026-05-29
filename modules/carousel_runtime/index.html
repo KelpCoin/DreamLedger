@@ -9,7 +9,10 @@
   body{background:#0a0a0f;color:#eee;font-family:'Segoe UI',sans-serif}
   header{background:#111;padding:1rem;display:flex;justify-content:space-between;align-items:center}
   .logo{font-size:2rem;cursor:pointer}
-  .auth{display:flex;gap:0.5rem}
+  .auth{display:flex;gap:0.5rem;align-items:center}
+  #userInfo{display:none;align-items:center;gap:0.5rem}
+  #userName{font-weight:bold}
+  #userAvatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
   input,button{padding:0.5rem 1rem;border-radius:6px;border:none}
   input{background:#1a1a2e;color:#eee}
   button{background:#66ffcc;color:#0a0a0f;cursor:pointer}
@@ -23,31 +26,35 @@
 <body>
 <header>
   <div class="logo" onclick="location.reload()"> DreamLedger</div>
-  <div>
+  <div class="auth">
     <button class="avatar-btn" onclick="openAvatar()">Create Your Free Avatar</button>
-    <div class="auth" id="authBox">
+    <div id="authBox">
       <input id="user" placeholder="username">
       <input id="pass" type="password" placeholder="password">
       <button onclick="signup()">Sign Up</button>
       <button onclick="login()">Log In</button>
+    </div>
+    <div id="userInfo">
+      <img id="userAvatar" src="" alt="Avatar">
+      <span id="userName"></span>
+      <button onclick="logout()">Logout</button>
     </div>
   </div>
 </header>
 <div class="carousel">
   <div class="cta-card" onclick="window.location.href='/mtg'">
     <h2> Magic: The Gathering</h2>
-    <p>The Home of MTG in New Zealand. Trade, buy, sell freely. No gatekeepers.</p>
+    <p>The Home of MTG in New Zealand. Trade, buy, sell freely.</p>
     <p style="color:#66ffcc">Enter the Community </p>
   </div>
-  <!-- You can add more silo cards later -->
 </div>
 
-<!-- Avatar Modal -->
+<!-- Avatar Modal  defaults to full-body Adventurer style -->
 <div id="avatarModal" style="display:none;position:fixed;top:20%;left:50%;transform:translate(-50%,0);background:#15151e;border:1px solid #2a2a35;border-radius:16px;padding:20px;z-index:100">
   <h2>Create Your Avatar</h2>
   <select id="avatarStyle">
+    <option value="adventurer" selected>Full Body (Adventurer)</option>
     <option value="bottts">Bottts</option>
-    <option value="adventurer">Adventurer</option>
     <option value="pixel-art">Pixel Art</option>
   </select>
   <button onclick="generateAvatar()">Random</button>
@@ -57,21 +64,41 @@
 </div>
 
 <script>
-// Auth functions
+// Auth + UI update
 async function signup(){
   const u=document.getElementById('user').value, p=document.getElementById('pass').value;
   const res=await fetch('/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
   const d=await res.json();
-  alert(d.ok?'Account created':'Error: '+d.error);
+  if(d.ok){ loginSuccess(u); } else { alert('Error: '+d.error); }
 }
 async function login(){
   const u=document.getElementById('user').value, p=document.getElementById('pass').value;
   const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
   const d=await res.json();
-  alert(d.ok?'Logged in':'Error: '+d.error);
+  if(d.ok){ loginSuccess(u); } else { alert('Error: '+d.error); }
+}
+function loginSuccess(username){
+  document.getElementById('authBox').style.display='none';
+  const ui = document.getElementById('userInfo');
+  ui.style.display='flex';
+  document.getElementById('userName').innerText=username;
+  // Load saved avatar (default to adventurer if none)
+  const saved = localStorage.getItem('userAvatar');
+  if(saved){
+    document.getElementById('userAvatar').src=saved;
+  } else {
+    const seed = username + '_default';
+    const url = `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}`;
+    document.getElementById('userAvatar').src=url;
+  }
+}
+function logout(){
+  document.getElementById('authBox').style.display='block';
+  document.getElementById('userInfo').style.display='none';
+  localStorage.removeItem('userAvatar');
 }
 
-// Avatar creator (DiceBear)
+// Avatar (fullbody default)
 function openAvatar(){ document.getElementById('avatarModal').style.display='block'; }
 function closeAvatar(){ document.getElementById('avatarModal').style.display='none'; }
 function generateAvatar(){
@@ -82,11 +109,12 @@ function generateAvatar(){
   window.currentAvatar=url;
 }
 function saveAvatar(){
-  if(window.currentAvatar) localStorage.setItem('userAvatar',window.currentAvatar);
-  alert('Avatar saved!');
+  if(window.currentAvatar){
+    localStorage.setItem('userAvatar',window.currentAvatar);
+    document.getElementById('userAvatar').src=window.currentAvatar;
+    alert('Avatar saved!');
+  }
 }
-// Load saved avatar if exists
-window.onload=()=>{ if(localStorage.getItem('userAvatar')) openAvatar(); }
 </script>
 </body>
 </html>
