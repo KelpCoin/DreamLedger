@@ -33,8 +33,9 @@ button{background:#66ffcc;color:#0a0a0f;cursor:pointer}
 </header>
 <div class="silo-carousel" id="carousel"></div>
 <script>
+const API = 'https://dreamledger-ga7l.onrender.com';
 async function loadCarousel(){
-  const res = await fetch('/api/carousel-data');
+  const res = await fetch(API + '/api/carousel-data');
   const data = await res.json();
   const carousel = document.getElementById('carousel');
   carousel.innerHTML = data.silos.map(s => `
@@ -49,14 +50,14 @@ async function loadCarousel(){
 async function signup(){
   const u=document.getElementById('user').value;
   const p=document.getElementById('pass').value;
-  const res=await fetch('/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const res=await fetch(API+'/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
   const d=await res.json();
   alert(d.ok?'Signed up':'Error: '+d.error);
 }
 async function login(){
   const u=document.getElementById('user').value;
   const p=document.getElementById('pass').value;
-  const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
   const d=await res.json();
   alert(d.ok?'Logged in':'Error: '+d.error);
 }
