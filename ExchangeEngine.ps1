@@ -34,3 +34,8 @@ while($listener.IsListening){$ctx=$listener.GetContext();$req=$ctx.Request;$resp
     default{Respond-Json $resp '{"error":"not found"}' 404}
   }}catch{Respond-Json $resp '{"error":"internal server error"}' 500}finally{$resp.Close()}
 }
+
+
+# === FRONTEND_START ===
+
+# === FRONTEND_END ===

@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamledger Exchange</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}.container{max-width:900px;margin:0 auto;padding:40px 20px}h1{font-size:2rem;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px}.subtitle{color:#8b949e;margin-bottom:24px}.rate-badge{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:8px 14px;display:inline-block;margin-bottom:28px}.rate-badge span{color:#58a6ff;font-weight:600}.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}.card{background:#161b22;border:1px solid #21262d;border-radius:10px;padding:22px;transition:border-color .2s}.card:hover{border-color:#30363d}.card h3{font-size:1.1rem;margin-bottom:4px}.card .owner{color:#8b949e;font-size:.85rem;margin-bottom:12px}.card .pricing{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}.card .price-usd{font-size:1.4rem;font-weight:700;color:#3fb950}.card .price-nzd{font-size:1.1rem;color:#d29922}.card .buy-btn{display:block;width:100%;padding:10px 0;background:#238636;color:#fff;text-align:center;border-radius:6px;text-decoration:none;font-weight:600;font-size:.95rem;transition:background .2s;border:1px solid #2ea043}.card .buy-btn:hover{background:#2ea043}.login-section{background:#161b22;border:1px solid #21262d;border-radius:10px;padding:18px 22px;margin-bottom:24px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.login-section input{background:#0d1117;border:1px solid #30363d;color:#c9d1d9;padding:8px 12px;border-radius:6px;font-size:.9rem}.login-section button{background:#21262d;border:1px solid #30363d;color:#c9d1d9;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:500}.login-section button:hover{background:#30363d}.status-text{color:#8b949e;font-size:.85rem}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dreamledger Exchange</h1>
+        <p class="subtitle">MTG Commander decks, instantly delivered</p>
+        <div class="rate-badge">1 USD = <span id="rate">...</span> NZD</div>
+        <div class="login-section">
+            <input id="user" placeholder="Username" autocomplete="username">
+            <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+            <button onclick="login()">Sign in</button>
+            <span id="loginStatus" class="status-text"></span>
+            <button onclick="logout()" id="logoutBtn" style="display:none">Sign out</button>
+        </div>
+        <div class="product-grid" id="productGrid"></div>
+    </div>
+    <script>
+        // Replace these with your real Stripe links
+        const stripeLinks = {
+            "EDH_001": "https://buy.stripe.com/YOUR_EDH_001_LINK",
+            "EDH_002": "https://buy.stripe.com/YOUR_EDH_002_LINK"
+        };
+        // Hardcoded products (same as products.json)
+        const products = [
+            {"id":"EDH_001","owner":"biggie","name":"Dimir Control  Permission to End","priceUSD":80,"qty":1},
+            {"id":"EDH_002","owner":"biggie","name":"Gaea's Cradle","priceUSD":850,"qty":1}
+        ];
+        let token = localStorage.getItem('token') || '';
+        let rate = 1;
+
+        async function loadRate() {
+            try {
+                const r = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const d = await r.json();
+                rate = d.rates.NZD;
+                document.getElementById('rate').textContent = rate.toFixed(4);
+            } catch(e) {}
+        }
+        function loadProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            products.forEach(p => {
+                const nzd = (p.priceUSD * rate).toFixed(2);
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = <h3></h3><div class="owner">Seller: </div><div class="pricing"><span class="price-usd">D:/BrownEyeCortex{p.priceUSD.toFixed(2)} USD</span><span class="price-nzd">NZD:/BrownEyeCortex{nzd}</span></div><a href="" class="buy-btn">Buy Now</a>;
+                grid.appendChild(card);
+            });
+        }
+        function updateUI() {
+            document.getElementById('loginStatus').textContent = token ? 'Signed in as ' + getUsername() : '';
+            document.getElementById('logoutBtn').style.display = token ? 'inline-block' : 'none';
+        }
+        function getUsername() { try { return JSON.parse(atob(token)).u; } catch(e) { return ''; } }
+        function logout() { token = ''; localStorage.removeItem('token'); updateUI(); loadProducts(); }
+
+        loadRate();
+        loadProducts();
+        updateUI();
+        setInterval(loadProducts, 10000);
+    </script>
+</body>
+</html>
