@@ -1,43 +1,172 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DreamLedger Marketplace</title>
   <style>
-    body { font-family: system-ui; background: #0f0f0f; color: #f0f0f0; max-width: 600px; margin: 2rem auto; }
-    input, button { padding: 0.5rem; margin: 0.25rem 0; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:system-ui;background:#0f0f0f;color:#f0f0f0;max-width:900px;margin:2rem auto;padding:0 1rem}
+    h1,h2,h3{color:#f5c542}
+    .section{background:#1a1a1a;border-radius:12px;padding:1.5rem;margin:1rem 0;border:1px solid #2a2a2a}
+    input,button,select{padding:0.6rem;margin:0.25rem 0;border-radius:6px;border:1px solid #333;background:#222;color:#f0f0f0}
+    button{background:#f5c542;color:#0f0f0f;font-weight:700;cursor:pointer}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
+    .card{background:#111;border-radius:12px;padding:1rem;border:1px solid #333}
+    .rep{color:#f5c542}
   </style>
 </head>
 <body>
   <h1>DreamLedger Marketplace</h1>
-  <h2>Create Listing</h2>
-  <input id="title" placeholder="Title" /><br/>
-  <input id="price" placeholder="Price (cents)" type="number" /><br/>
-  <button onclick="createListing()">Create Listing</button>
-  <h2>Recent Listings</h2>
-  <div id="listings"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <!-- AUTH -->
+  <div class="section" id="auth-section">
+    <div id="login-form">
+      <h2>Login / Sign Up</h2>
+      <input id="login-email" placeholder="Email" type="email"><br>
+      <input id="login-password" placeholder="Password" type="password"><br>
+      <button onclick="login()">Login</button>
+      <button onclick="signup()">Sign Up</button>
+    </div>
+    <div id="user-info" style="display:none">
+      <p>Logged in as <strong id="user-email"></strong> | Reputation: <span id="user-rep" class="rep"></span></p>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- B2B SUBSCRIPTIONS -->
+  <div class="section" id="b2b-section" style="display:none">
+    <h2>B2B Subscriptions</h2>
+    <div class="grid" id="b2b-plans"></div>
+  </div>
+
+  <!-- CREATE LISTING (logged in) -->
+  <div class="section" id="create-section" style="display:none">
+    <h2>Create Listing (HappyHomarid)</h2>
+    <input id="title" placeholder="Title"><br>
+    <input id="price" placeholder="Price (cents)" type="number"><br>
+    <button onclick="createListing()">Create Listing</button>
+  </div>
+
+  <!-- LISTINGS -->
+  <div class="section">
+    <h2>Recent Listings</h2>
+    <div id="listings"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabase = window.supabase.createClient('https://your-project.supabase.co', 'your-real-anon-key');
-    async function createListing() {
-      const user = supabase.auth.user();
-      if (!user) return alert("Login first");
-      await supabase.from("listings").insert({
-        seller_id: user.id,
-        silo_id: (await supabase.from("silos").select("id").eq("slug","happyhomarid").single()).data.id,
-        title: document.getElementById("title").value,
-        price_cents: parseInt(document.getElementById("price").value)
+    const SUPABASE_URL = 'https://wbwgroygjeyukkspnqiy.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    }
+
+    async function updateUI() {
+      const user = await getUser();
+      document.getElementById('login-form').style.display = user ? 'none' : 'block';
+      document.getElementById('user-info').style.display = user ? 'block' : 'none';
+      document.getElementById('create-section').style.display = user ? 'block' : 'none';
+      document.getElementById('b2b-section').style.display = user ? 'block' : 'none';
+      if (user) {
+        document.getElementById('user-email').textContent = user.email;
+        loadReputation(user.id);
+      }
+      loadListings();
+      loadB2BPlans();
+    }
+
+    async function login() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert(error.message);
+      else updateUI();
+    }
+
+    async function signup() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) alert(error.message);
+      else alert('Check your email to confirm signup.');
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      updateUI();
+    }
+
+    async function loadReputation(userId) {
+      const { data } = await supabase.from('reputation_events').select('delta').eq('user_id', userId);
+      const score = (data || []).reduce((sum, r) => sum + (r.delta || 0), 0);
+      document.getElementById('user-rep').textContent = score;
+    }
+
+    const B2B_PLANS = [
+      { id: 'essentials', name: 'Essentials', price: 29, interval: 'month', features: ['API', 'Support'] },
+      { id: 'pro_monthly', name: 'Professional Monthly', price: 99, interval: 'month', features: ['API', 'Team', 'Priority'] },
+      { id: 'pro_yearly', name: 'Professional Yearly', price: 990, interval: 'year', features: ['API', 'Team', 'Priority'] },
+    ];
+
+    function loadB2BPlans() {
+      const container = document.getElementById('b2b-plans');
+      container.innerHTML = B2B_PLANS.map(plan => `
+        <div class="card">
+          <h3>${plan.name}</h3>
+          <p>$${plan.price} / ${plan.interval}</p>
+          <p>${plan.features.join(', ')}</p>
+          <button onclick="subscribe('${plan.id}')">Subscribe</button>
+        </div>
+      `).join('');
+    }
+
+    async function subscribe(planId) {
+      const user = await getUser();
+      if (!user) return alert('Login first');
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan_id: planId, user_id: user.id }
       });
-      alert("Listing created");
+      if (error) alert('Error: ' + error.message);
+      else if (data.url) window.location.href = data.url;
+      else alert('Checkout URL not returned');
     }
+
+    async function createListing() {
+      const user = await getUser();
+      if (!user) return alert('Login first');
+      const title = document.getElementById('title').value;
+      const price_cents = parseInt(document.getElementById('price').value);
+      if (!title || !price_cents) return alert('Fill all fields');
+      const { data: silo } = await supabase.from('silos').select('id').eq('slug','happyhomarid').single();
+      if (!silo) return alert('HappyHomarid silo missing  run the seed SQL in Supabase');
+      const { error } = await supabase.from('listings').insert({
+        seller_id: user.id,
+        silo_id: silo.id,
+        title,
+        price_cents
+      });
+      if (error) alert(error.message);
+      else {
+        document.getElementById('title').value = '';
+        document.getElementById('price').value = '';
+        loadListings();
+      }
+    }
+
     async function loadListings() {
-      const { data } = await supabase.from("listings").select("*").eq("status","active");
-      document.getElementById("listings").innerHTML = data.map(l =>
-        `<div><b>${l.title}</b>  $${(l.price_cents/100).toFixed(2)}</div>`
-      ).join("");
+      const { data } = await supabase.from('listings').select('*').eq('status','active').order('created_at',{ascending:false}).limit(20);
+      document.getElementById('listings').innerHTML = (data || []).map(l => `
+        <div class="card">
+          <b>${l.title}</b>  $${(l.price_cents/100).toFixed(2)} NZD
+        </div>
+      `).join('');
     }
-    loadListings();
-    setInterval(loadListings, 5000);
+
+    updateUI();
   </script>
 </body>
 </html>
