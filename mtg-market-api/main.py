@@ -1,86 +1,131 @@
-import os
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import jwt
+import os, uuid, json
 from datetime import datetime, timedelta
-from supabase import create_client
+from typing import Optional
+from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel, EmailStr
+from supabase import create_client, Client
+from passlib.context import CryptContext
+from jose import jwt, JWTError
 
-app = FastAPI(title="MTG Silo Marketplace API")
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+JWT_SECRET = os.environ["JWT_SECRET"]
+ALGORITHM = "HS256"
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-JWT_SECRET = os.getenv("JWT_SECRET","dev-secret")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
-db = create_client(SUPABASE_URL, SUPABASE_KEY)
+app = FastAPI(title="DreamLedger MTG Marketplace")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-def log_event(event):
-    path = f"D:\\BrownEyeCortex\\diagnostics\\mtg_api_{datetime.now().strftime('%Y%m%d')}.log"
-    with open(path,"a",encoding="utf-8") as f:
-        f.write(str(event) + "\n")
-
-class User(BaseModel):
-    email: str
+class UserRegister(BaseModel):
+    email: EmailStr
+    display_name: str
     password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class CardListing(BaseModel):
+    card_name: str
+    set_name: str = ""
+    condition: str = ""
+    price_nzd: float
+    is_tradeable: bool = True
+
+class TradeProposal(BaseModel):
+    to_user_id: str
+    offered_item: str
+    requested_item: str
+
+def get_user_from_token(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
+        user = supabase.table("users").select("*").eq("id", payload["sub"]).execute()
+        if not user.data:
+            raise HTTPException(401, "User not found")
+        return user.data[0]
+    except JWTError:
+        raise HTTPException(401, "Invalid token")
+
+@app.post("/register")
+def register(user: UserRegister):
+    existing = supabase.table("users").select("id").eq("email", user.email).execute()
+    if existing.data:
+        raise HTTPException(400, "Email already registered")
+    hashed = pwd_context.hash(user.password)
+    supabase.table("users").insert({
+        "email": user.email,
+        "display_name": user.display_name,
+        "password_hash": hashed
+    }).execute()
+    return {"msg": "Registration successful"}
+
+@app.post("/login")
+def login(user: UserLogin):
+    resp = supabase.table("users").select("*").eq("email", user.email).execute()
+    if not resp.data or not pwd_context.verify(user.password, resp.data[0]["password_hash"]):
+        raise HTTPException(400, "Invalid credentials")
+    token = jwt.encode({
+        "sub": resp.data[0]["id"],
+        "exp": datetime.utcnow() + timedelta(days=7)
+    }, JWT_SECRET, algorithm=ALGORITHM)
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/listings")
+def create_listing(listing: CardListing, user=Depends(get_user_from_token)):
+    data = {
+        "seller_id": user["id"],
+        "card_name": listing.card_name,
+        "set_name": listing.set_name,
+        "condition": listing.condition,
+        "price_nzd": listing.price_nzd,
+        "is_tradeable": listing.is_tradeable
+    }
+    res = supabase.table("listings").insert(data).execute()
+    return res.data[0]
+
+@app.get("/listings")
+def get_listings():
+    res = supabase.table("listings").select("*").order("created_at", desc=True).execute()
+    return res.data
+
+@app.post("/trades")
+def propose_trade(trade: TradeProposal, user=Depends(get_user_from_token)):
+    recipient = supabase.table("users").select("id").eq("id", trade.to_user_id).execute()
+    if not recipient.data:
+        raise HTTPException(404, "Recipient not found")
+    data = {
+        "from_user_id": user["id"],
+        "to_user_id": trade.to_user_id,
+        "offered_item": trade.offered_item,
+        "requested_item": trade.requested_item,
+        "status": "pending"
+    }
+    res = supabase.table("trades").insert(data).execute()
+    return res.data[0]
+
+@app.get("/trades")
+def get_my_trades(user=Depends(get_user_from_token)):
+    res = supabase.table("trades").select("*").or_(
+        f"from_user_id.eq.{user['id']},to_user_id.eq.{user['id']}"
+    ).execute()
+    return res.data
+
+@app.post("/trades/{trade_id}/confirm")
+def confirm_trade(trade_id: str, user=Depends(get_user_from_token)):
+    trade = supabase.table("trades").select("*").eq("id", trade_id).single().execute()
+    if not trade.data:
+        raise HTTPException(404, "Trade not found")
+    if trade.data["to_user_id"] != user["id"]:
+        raise HTTPException(403, "Only the recipient can confirm")
+    supabase.table("trades").update({"status": "completed"}).eq("id", trade_id).execute()
+    return {"msg": "Trade confirmed"}
 
 @app.get("/health")
 def health():
-    return {"status":"ok","time":str(datetime.utcnow())}
-
-@app.post("/users/register")
-def register(user: User):
-    res = db.table("users").insert({
-        "email": user.email,
-        "password": user.password,
-        "created_at": str(datetime.utcnow())
-    }).execute()
-
-    log_event({"action":"register","email":user.email})
-    return {"status":"created","user":res.data}
-
-@app.post("/users/login")
-def login(user: User):
-    res = db.table("users").select("*").eq("email",user.email).execute()
-
-    if not res.data:
-        raise HTTPException(status_code=404, detail="user not found")
-
-    token = jwt.encode({
-        "email": user.email,
-        "exp": datetime.utcnow() + timedelta(hours=24)
-    }, JWT_SECRET, algorithm="HS256")
-
-    log_event({"action":"login","email":user.email})
-    return {"token":token}
-
-@app.post("/listings/create")
-def create_listing(payload: dict):
-    payload["silo"] = "MTG"
-    payload["fee"] = 0  # enforced rule
-
-    res = db.table("listings").insert(payload).execute()
-    log_event({"action":"create_listing","payload":payload})
-    return {"status":"ok","listing":res.data}
-
-@app.get("/listings/feed")
-def feed():
-    res = db.table("listings").select("*").eq("silo","MTG").execute()
-    return {"listings":res.data}
-
-@app.post("/trades/propose")
-def propose_trade(payload: dict):
-    res = db.table("trades").insert({
-        "status":"pending",
-        "data":payload
-    }).execute()
-
-    log_event({"action":"trade_propose","payload":payload})
-    return {"status":"pending","trade":res.data}
-
-@app.post("/trades/confirm")
-def confirm_trade(payload: dict):
-    res = db.table("trades").update({
-        "status":"confirmed"
-    }).eq("id",payload["id"]).execute()
-
-    log_event({"action":"trade_confirm","id":payload["id"]})
-    return {"status":"confirmed","trade":res.data}
+    return {"status": "ok"}
