@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DreamLedger NZ MTG Marketplace</title>
+<style>
+  body { font-family: system-ui; background:#0a0a0f; color:#eee; padding:2rem; }
+  .listing { background:#1a1a2e; border-radius:12px; padding:1rem; margin:1rem 0; }
+  button { background:#ffd966; color:#000; border:none; padding:0.5rem 1rem; border-radius:6px; cursor:pointer; }
+  input { padding:0.5rem; border-radius:6px; border:1px solid #333; background:#111; color:#fff; margin:0.5rem 0; }
+</style>
+</head>
+<body>
+<h1>DreamLedger NZ MTG Marketplace</h1>
+<div id="auth-section">
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Log In</button>
+  <button onclick="register()">Register</button>
+</div>
+<div id="listings"></div>
+<script>
+const API = "https://xxxx-xxxx-xxxx.ngrok-free.dev";
+let token = localStorage.getItem('token');
+
+async function apiCall(path, method='GET', body=null) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const res = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : null });
+    return res.json();
+}
+
+async function loadListings() {
+    const listings = await apiCall('/api/listings');
+    const html = listings.map(l => 
+        <div class="listing">
+            <h3></h3>
+            <p></p>
+            <p>NZD     by </p>
+        </div>
+    ).join('');
+    document.getElementById('listings').innerHTML = html;
+}
+
+async function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const res = await apiCall('/api/users/login', 'POST', { username, password });
+    if (res.token) {
+        token = res.token;
+        localStorage.setItem('token', token);
+        alert('Logged in as ' + res.username);
+    } else { alert('Login failed'); }
+}
+
+async function register() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const email = username + '@example.com';
+    const res = await apiCall('/api/users/register', 'POST', { username, password, email });
+    if (res.token) {
+        token = res.token;
+        localStorage.setItem('token', token);
+        alert('Registered and logged in');
+    } else { alert('Registration failed'); }
+}
+
+loadListings();
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+﻿TITLE: I built a tool for Win Condition Injector Kit - nzd $12
+BODY:
+Find missing win paths and close games.
+Instant download - no waiting.
+More info: https://dreamledger.org

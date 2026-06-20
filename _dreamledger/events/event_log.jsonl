@@ -1,0 +1,12 @@
+{
+    "event_id":  "evt_c9b6d49a-a3aa-4348-8f31-6791c1fae8f0",
+    "source_system":  "STRIPE",
+    "timestamp":  "2026-06-20T15:45:29.8728155+12:00",
+    "event_type":  "payment_intent.succeeded",
+    "payload":  {
+                    "amount":  130,
+                    "currency":  "nzd",
+                    "product_id":  "deck_quintorious",
+                    "customer_id":  "first_buyer"
+                }
+}

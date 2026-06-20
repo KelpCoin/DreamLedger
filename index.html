@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DreamLedger â€” MTG Optimization Tools</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background: #0b0f14; color: #e6f1ff; font-family: system-ui, -apple-system, sans-serif; }
+    header { padding: 60px 20px 30px; text-align: center; }
+    h1 { font-size: 2.5rem; letter-spacing: -0.02em; }
+    h1 span { color: #f97316; }
+    p.sub { color: #9aa8b9; max-width: 640px; margin: 10px auto 0; font-size: 1.1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; padding: 40px; max-width: 1200px; margin: 0 auto; }
+    .card { background: #161c26; border: 1px solid #2a3442; border-radius: 16px; padding: 24px; transition: 0.25s ease; }
+    .card:hover { transform: translateY(-4px); border-color: #f97316; box-shadow: 0 8px 30px rgba(249,115,22,0.08); }
+    .card .title { font-weight: 700; font-size: 1.2rem; margin-bottom: 8px; }
+    .card .desc { font-size: 0.95rem; color: #9aa8b9; margin-bottom: 16px; line-height: 1.4; }
+    .card .price { font-weight: 600; font-size: 1.2rem; margin-bottom: 14px; color: #fff; }
+    .card .price small { font-weight: 400; font-size: 0.85rem; color: #9aa8b9; }
+    .btn { display: block; text-align: center; background: #f97316; color: #fff; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .btn:hover { background: #e8610e; transform: scale(1.02); }
+    footer { text-align: center; padding: 30px; color: #5a6a7a; font-size: 0.85rem; border-top: 1px solid #1e2632; margin-top: 20px; }
+    @media (max-width: 480px) { h1 { font-size: 1.8rem; } .grid { padding: 20px; } }
+  </style>
+</head>
+<body>
+<header>
+  <h1><span>Dream</span>Ledger</h1>
+  <p class="sub">MTG optimization tools that upgrade Commander decks instantly.</p>
+</header>
+<div class="grid">
+  <!-- Product cards will be injected via JavaScript using the JSON data -->
+</div>
+<footer>DreamLedger â€” instant digital delivery Â· no guesswork</footer>
+<script>
+  fetch('/products.json')
+    .then(r => r.json())
+    .then(data => {
+      const grid = document.querySelector('.grid');
+      data.products.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="title">${p.name}</div>
+          <div class="desc">${p.desc}</div>
+          <div class="price">$${p.price} NZD <small>~ $${Math.round(p.price*0.6)} USD</small></div>
+          <a class="btn" href="/checkout/${p.id}">Buy Now</a>
+        `;
+        grid.appendChild(card);
+      });
+    });
+</script>
+</body>
+</html>
+

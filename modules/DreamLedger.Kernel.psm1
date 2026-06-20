@@ -1,0 +1,16 @@
+﻿# DreamLedger.Kernel.psm1
+Set-StrictMode -Off; $ErrorActionPreference = 'Continue'
+$script:KernelState = $null; $script:BasePath = $null
+$script:ValidTransitions = @{ HEALTHY = @('DEGRADED','BROKEN'); DEGRADED = @('HEALTHY','BROKEN'); BROKEN = @('LOCKED'); LOCKED = @('HEALTHY') }
+function Get-KernelBasePath { if ($script:BasePath) { return $script:BasePath }; return if ($env:DREAMLEDGER_BASE) { $env:DREAMLEDGER_BASE } else { 'C:\BrownEyeCortex' } }
+function Write-KernelLog($Message,$Level='INFO') { $logDir = Join-Path (Get-KernelBasePath) 'logs'; if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Force -Path $logDir | Out-Null }; Add-Content (Join-Path $logDir 'diagnostic.log') "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [$Level] $Message" -Encoding UTF8 }
+function Get-StateFilePath { Join-Path (Get-KernelBasePath) 'state\system_state.json' }
+function Load-KernelState { $f = Get-StateFilePath; if (Test-Path $f) { $raw = Get-Content $f -Raw; if ($raw) { $p = $raw | ConvertFrom-Json; if ($p) { return $p } } }; return [PSCustomObject]@{ state='HEALTHY'; daily_dm_count=0; last_reset_date=(Get-Date -Format 'yyyy-MM-dd'); last_diagnostic_sha=''; active_mode='HEALTHY' } }
+function Save-KernelState { $script:KernelState | ConvertTo-Json -Depth 5 | Set-Content (Get-StateFilePath) -Encoding UTF8 }
+function Initialize-Kernel { param($BasePath='') $script:BasePath = if ($BasePath) { $BasePath } elseif ($env:DREAMLEDGER_BASE) { $env:DREAMLEDGER_BASE } else { 'C:\BrownEyeCortex' }; foreach ($d in @('logs','data','_revenue','checkpoints','ledger')) { $p = Join-Path $script:BasePath $d; if (-not (Test-Path $p)) { New-Item -ItemType Directory -Force -Path $p | Out-Null } }; $script:KernelState = Load-KernelState; Write-KernelLog "Kernel initialized. State=$($script:KernelState.state)" }
+function Test-SystemHealthy { if ($null -eq $script:KernelState) { Initialize-Kernel }; Reset-DailyDMCount; return ([string]$script:KernelState.state -eq 'HEALTHY') }
+function Update-SystemState([string]$NewState,[string]$Reason='') { if ($null -eq $script:KernelState) { Initialize-Kernel }; $current = $script:KernelState.state; $allowed = $script:ValidTransitions[$current]; if ($null -eq $allowed -or $allowed -notcontains $NewState) { throw "Invalid state transition: $current  $NewState" }; $script:KernelState.state = $NewState; $script:KernelState.active_mode = $NewState; Save-KernelState; Write-KernelLog "State: $current  $NewState | $Reason" }
+function Reset-DailyDMCount { if ($null -eq $script:KernelState) { Initialize-Kernel }; $today = Get-Date -Format 'yyyy-MM-dd'; if ($script:KernelState.last_reset_date -ne $today) { $script:KernelState.daily_dm_count = 0; $script:KernelState.last_reset_date = $today; Save-KernelState; Write-KernelLog "Daily DM count reset" } }
+function Increment-DMCount { if ($null -eq $script:KernelState) { Initialize-Kernel }; Reset-DailyDMCount; if ($script:KernelState.daily_dm_count -ge 10) { throw 'DM_CAP_REACHED' }; $script:KernelState.daily_dm_count++ ; Save-KernelState; Write-KernelLog "DM count: $($script:KernelState.daily_dm_count)/10" }
+Initialize-Kernel
+Export-ModuleMember -Function Initialize-Kernel, Test-SystemHealthy, Update-SystemState, Reset-DailyDMCount, Increment-DMCount, Write-KernelLog

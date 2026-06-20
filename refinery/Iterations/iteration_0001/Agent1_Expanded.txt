@@ -1,0 +1,60 @@
+﻿### ONE-LINE EXPERIMENT NAME
+MTG Commander Deck Upgrades Sales Test
+
+### PROBLEM/OPPORTUNITY
+Identify if there is a demand for selling upgraded versions of MTG Commander decks to existing HappyHomarid customers.
+
+### TARGET SILO
+HappyHomarid Storefront - Existing Buyers List (156 previous buyers)
+
+### HYPOTHESIS
+Existing HappyHomarid customers who have purchased MTG Commander decks in the past are likely interested in purchasing upgraded versions of those decks directly through DMs.
+
+### 60-MINUTE STEPS
+
+1. **Preparation**:
+   - Review existing customer data to segment potential buyers.
+   - Design a compelling product description for the deck upgrades, including before-and-after images and pricing details.
+
+2. **DM Composition**:
+   - Compose personalized direct messages (DMs) for 50 randomly selected customers from the previous buyer list.
+     - Include product highlights.
+     - Mention special offers or discounts to increase interest.
+   - Ensure DMs are engaging, addressing each customer by name and highlighting their past purchase history.
+
+3. **Launch**:
+   - Send out the personalized DMs at a strategic time (e.g., during a regular business day).
+   - Monitor responses in real-time for immediate engagement or feedback.
+
+4. **Follow-Up**:
+   - For customers who respond positively, follow up with additional information and offer them a limited-time discount.
+   - For those who are interested but need more convincing, provide detailed product information and testimonials.
+
+5. **Close the Loop**:
+   - After 24 hours of sending DMs, close the loop by summarizing responses and actions taken.
+   - Analyze initial feedback to refine future approaches.
+
+### ASSETS NEEDED
+
+- Customer data list (156 previous buyers).
+- Product images and descriptions for deck upgrades.
+- Email or messaging platform (e.g., Mailchimp, HubSpot) to send personalized DMs.
+- Sales tracking system or CRM tool to monitor responses and close sales.
+
+### METRIC
+Conversion Rate from Direct Messages to Sales
+
+### SUCCESS CRITERIA
+- At least 5% of targeted customers respond positively to the offer.
+- A minimum of 3 sales are made within the first week after sending DMs.
+- Positive customer feedback indicating interest in future upgrades or new products.
+
+### IF IT WORKS
+- Increased revenue from selling upgraded decks directly to existing customers.
+- Enhanced customer engagement and loyalty, potentially leading to repeat business and referrals.
+- Valuable insights into customer preferences for product offerings.
+
+### IF IT FLOPS
+- Low response rate to DMs (less than 3%).
+- No sales or minimal interest shown by targeted customers.
+- Negative feedback suggesting that the approach is not well-received.

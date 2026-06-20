@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Deck View</title>
+  <meta charset="utf-8"/>
+</head>
+<body style="font-family:Arial;background:#111;color:#eee;padding:20px;">
+  <div id="out"></div>
+
+<script>
+const API = '';
+
+async function load(){
+  const id = new URLSearchParams(location.search).get("id");
+  const res = await fetch(API + "/decks");
+  const decks = await res.json();
+
+  const d = decks.find(x => x.id == id);
+  document.getElementById("out").innerHTML =
+    "<h2>" + d.name + "</h2>" +
+    "<p>" + d.description + "</p>" +
+    "<h3>$" + d.price + "</h3>" +
+    "<p>Owner ID: " + d.owner_id + "</p>";
+}
+
+load();
+</script>
+</body>
+</html>

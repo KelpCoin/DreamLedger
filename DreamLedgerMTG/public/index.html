@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DreamLedger MTG</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { font-family: Arial; background:#0f0f12; color:#eee; margin:0; }
+    header { padding:20px; background:#1b1b22; display:flex; justify-content:space-between; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:12px; padding:20px; }
+    .card { background:#1c1c25; padding:12px; border-radius:10px; cursor:pointer; }
+    .price { color:#7CFF6B; font-weight:bold; }
+    button { padding:6px 10px; margin-top:6px; cursor:pointer; }
+    input { display:block; margin:6px 0; width:100%; padding:6px; }
+    .panel { padding:20px; background:#14141a; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>DreamLedger MTG</div>
+  <div>
+    <button onclick="loadDecks()">Refresh</button>
+  </div>
+</header>
+
+<div class="panel">
+  <h3>Create Deck Listing</h3>
+  <input id="name" placeholder="Deck name"/>
+  <input id="desc" placeholder="Description"/>
+  <input id="price" placeholder="Price (NZD)"/>
+  <button onclick="createDeck()">Create</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

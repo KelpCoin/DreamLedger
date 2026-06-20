@@ -1,0 +1,39 @@
+﻿{
+    "generated_utc":  "2026-06-06T00:20:02.6337541+00:00",
+    "market_phase":  "seeding",
+    "total_skus":  1,
+    "sold_count":  0,
+    "unsold_count":  1,
+    "stuck_count":  0,
+    "sell_through_pct":  0,
+    "total_revenue_nzd":  0,
+    "avg_days_to_sell":  null,
+    "needs_attention":  [
+                            {
+                                "sku_id":  "",
+                                "name":  "",
+                                "price_nzd_cents":  0,
+                                "price_nzd":  0,
+                                "sales":  0,
+                                "sold":  false,
+                                "days_on_market":  -1,
+                                "velocity":  "new",
+                                "urgency_score":  0.1,
+                                "recommendation":  "hold"
+                            }
+                        ],
+    "all_sku_metrics":  [
+                            {
+                                "sku_id":  "",
+                                "name":  "",
+                                "price_nzd_cents":  0,
+                                "price_nzd":  0,
+                                "sales":  0,
+                                "sold":  false,
+                                "days_on_market":  -1,
+                                "velocity":  "new",
+                                "urgency_score":  0.1,
+                                "recommendation":  "hold"
+                            }
+                        ]
+}

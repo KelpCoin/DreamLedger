@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+</head>
+<body style="font-family:Arial;background:#111;color:#eee;padding:20px;">
+
+<h2>Login</h2>
+<input id="email" placeholder="email"/>
+<input id="pass" placeholder="password"/>
+<button onclick="login()">Login</button>
+<button onclick="register()">Register</button>
+
+<script>
+const API = '';
+
+async function login(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("pass").value;
+
+  const res = await fetch(API + "/login", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
+  });
+
+  const data = await res.json();
+  localStorage.setItem("token", data.token);
+  alert("logged in");
+}
+
+async function register(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("pass").value;
+
+  await fetch(API + "/register", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
+  });
+
+  alert("registered");
+}
+</script>
+
+</body>
+</html>

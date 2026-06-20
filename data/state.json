@@ -1,0 +1,24 @@
+﻿{
+    "system_state":  "active",
+    "generated_utc":  "2026-06-06T00:30:35.5848954+00:00",
+    "intelligence_layer":  "dormant",
+    "market_phase":  "early",
+    "sales_count":  2,
+    "revenue_cents":  100,
+    "revenue_nzd":  1,
+    "inventory_count":  1,
+    "sell_through_rate":  1,
+    "last_sale_utc":  "2026-06-06T00:30:35.5366668+00:00",
+    "events_total":  2,
+    "per_sku":  [
+                    {
+                        "sku_id":  "",
+                        "name":  "",
+                        "price_nzd":  0,
+                        "sales":  1,
+                        "revenue_cents":  0,
+                        "sold":  true,
+                        "days_on_market":  -1
+                    }
+                ]
+}

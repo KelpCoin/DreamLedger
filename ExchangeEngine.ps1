@@ -1,0 +1,41 @@
+﻿# Universal-Exchange-Engine.ps1 (v1.0 - Stripe-linked)
+param([int]$Port=8080,[string]$UsersFile=".\users.json",[string]$ProductsFile=".\products.json",[string]$TradesFile=".\trades.json")
+$ErrorActionPreference="Stop"
+function Load-Json($p){if(Test-Path $p){$r=Get-Content $p -Raw;if(!$r){return @()};return $r|ConvertFrom-Json};return @()}
+function Save-Json($p,$d){$d|ConvertTo-Json -Depth 10|Set-Content $p -Encoding UTF8 -Force}
+function New-Salt{$rng=[System.Security.Cryptography.RNGCryptoServiceProvider]::new();$b=New-Object byte[] 16;$rng.GetBytes($b);[Convert]::ToBase64String($b)}
+function New-Hash($pw,$s){(New-Object System.Security.Cryptography.Rfc2898DeriveBytes($pw,[Text.Encoding]::UTF8.GetBytes($s),10000)).GetBytes(32) -as [Convert]::ToBase64String}
+function Test-Password($pw,$u){(New-Hash $pw $u.salt) -eq $u.passwordHash}
+function New-Token($un,$h,$exp=24){$p=@{u=$un;h=$h;exp=[int]((Get-Date).AddHours($exp)-(Get-Date "1970-01-01Z")).TotalSeconds}|ConvertTo-Json -Compress;[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($p))}
+function Get-AuthenticatedUser($t){if(!$t){return $null}try{$j=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($t));$p=$j|ConvertFrom-Json}catch{return $null}$exp=[DateTime]'1970-01-01Z'.AddSeconds($p.exp);if((Get-Date) -gt $exp){return $null};$users|?{$_.username -eq $p.u -and $_.passwordHash -eq $p.h}}
+function Respond-Json($r,$s,$c=200){$r.StatusCode=$c;$r.ContentType='application/json';$b=[Text.Encoding]::UTF8.GetBytes($s);$r.OutputStream.Write($b,0,$b.Length)}
+function Respond-Html($r,$s,$c=200){$r.StatusCode=$c;$r.ContentType='text/html; charset=utf-8';$b=[Text.Encoding]::UTF8.GetBytes($s);$r.OutputStream.Write($b,0,$b.Length)}
+function Read-Body($r){(New-Object System.IO.StreamReader($r.InputStream)).ReadToEnd()}
+$users=Load-Json $UsersFile;$products=Load-Json $ProductsFile;$trades=Load-Json $TradesFile
+$listener=New-Object System.Net.HttpListener;$listener.Prefixes.Add("http://+:$Port/");$listener.Start()
+Write-Host "Universal Exchange Engine live on http://localhost:$Port"
+while($listener.IsListening){$ctx=$listener.GetContext();$req=$ctx.Request;$resp=$ctx.Response;$path=$req.Url.AbsolutePath;$method=$req.HttpMethod
+  try{switch -Wildcard($path){
+    '/api/products'{if($method -ne 'GET'){$resp.StatusCode=405;Respond-Json $resp '{"error":"method not allowed"}';break};$avail=@($products|?{[int]$_.qty -gt 0});Respond-Json $resp ($avail|ConvertTo-Json)}
+    '/api/rate'{if($method -ne 'GET'){$resp.StatusCode=405;Respond-Json $resp '{"error":"method not allowed"}';break};try{$r=Invoke-RestMethod 'https://api.exchangerate-api.com/v4/latest/USD' -TimeoutSec 5;$rate=$r.rates.NZD;$cached=$false}catch{$rate=1.60;$cached=$true};Respond-Json $resp (ConvertTo-Json @{rate=$rate;cached=$cached})}
+    '/api/login'{if($method -ne 'POST'){$resp.StatusCode=405;Respond-Json $resp '{"error":"method not allowed"}';break}$body=Read-Body $req;$c=$body|ConvertFrom-Json;$u=$users|?{$_.username -eq $c.username};if($u -and (Test-Password $c.password $u)){$token=New-Token $u.username $u.passwordHash;Respond-Json $resp (ConvertTo-Json @{token=$token})}else{Respond-Json $resp '{"error":"Invalid credentials"}' 401}}
+    '/api/trade/request'{if($method -ne 'POST'){$resp.StatusCode=405;Respond-Json $resp '{"error":"method not allowed"}';break}$body=Read-Body $req;$r=$body|ConvertFrom-Json;$user=Get-AuthenticatedUser $r.token;if(!$user){Respond-Json $resp '{"error":"unauthorized"}' 401;break}$prod=$products|?{$_.id -eq $r.productId -and $_.owner -eq $user.username -and [int]$_.qty -gt 0};if(!$prod){Respond-Json $resp '{"error":"product not found or not available"}' 400;break}$trade=[pscustomobject]@{id=[guid]::NewGuid().ToString();from=$user.username;to=$r.targetUser;productId=$r.productId;status='pending'};$trades+=$trade;Save-Json $TradesFile $trades;Respond-Json $resp ($trade|ConvertTo-Json)}
+    '/api/trade/accept'{if($method -ne 'POST'){$resp.StatusCode=405;Respond-Json $resp '{"error":"method not allowed"}';break}$body=Read-Body $req;$r=$body|ConvertFrom-Json;$user=Get-AuthenticatedUser $r.token;if(!$user){Respond-Json $resp '{"error":"unauthorized"}' 401;break}$trade=$trades|?{$_.id -eq $r.tradeId -and $_.to -eq $user.username -and $_.status -eq 'pending'};if(!$trade){Respond-Json $resp '{"error":"trade not found or already processed"}' 404;break}$prod=$products|?{$_.id -eq $trade.productId};if($prod){$prod.owner=$user.username;$prod.qty=[int]$prod.qty-1;if($prod.qty -le 0){$products=@($products|?{$_.id -ne $prod.id})}}$trade.status='completed';Save-Json $ProductsFile $products;Save-Json $TradesFile $trades;Respond-Json $resp '{"status":"trade completed"}'}
+    '/'{
+      if(Test-Path ".\index.html"){$html=Get-Content ".\index.html" -Raw}else{
+        $s1 = "https://buy.stripe.com/YOUR_EDH_001_LINK"
+        $s2 = "https://buy.stripe.com/YOUR_EDH_002_LINK"
+        $html=@"
+<!DOCTYPE html><html><head><title>Dreamledger Exchange</title></head><body><h1>Dreamledger Exchange</h1><p>Live USD: <span id="rate">...</span> NZD</p><table id="prodTable"><tr><th>Product</th><th>Price (USD)</th><th>Price (NZD)</th><th>Owner</th><th>Action</th></tr></table><script>let token=localStorage.getItem('token')||'';let rate=1;const stripeLinks={"EDH_001":"$s1","EDH_002":"$s2"};function updateUI(){if(token){document.getElementById('loginStatus').textContent='Logged in as '+getUsername();document.getElementById('logoutBtn').style.display='inline'}else{document.getElementById('loginStatus').textContent='';document.getElementById('logoutBtn').style.display='none'}}function logout(){token='';localStorage.removeItem('token');updateUI();loadProducts()}async function login(){const u=document.getElementById('user').value;const p=document.getElementById('pass').value;const res=await fetch('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p}),headers:{'Content-Type':'application/json'}});if(res.ok){const data=await res.json();token=data.token;localStorage.setItem('token',token);updateUI();loadProducts()}else{alert('Login failed')}}async function loadRate(){try{const res=await fetch('/api/rate');const data=await res.json();rate=data.rate;document.getElementById('rate').textContent=rate.toFixed(4)}catch(e){}}async function loadProducts(){const res=await fetch('/api/products');const prods=await res.json();const table=document.getElementById('prodTable');table.innerHTML='<tr><th>Product</th><th>Price (USD)</th><th>Price (NZD)</th><th>Owner</th><th>Action</th></tr>';prods.forEach(p=>{const row=table.insertRow();const nzd=(p.priceUSD*rate).toFixed(2);let act='';if(token&&p.owner!==getUsername()){act=`<a href="${stripeLinks[p.id]||'#'}" style="display:inline-block;padding:8px;background:#58a6ff;color:#000;border-radius:4px;text-decoration:none;font-weight:bold">Buy Now</a>`}row.innerHTML=`<td>${p.name}</td><td>$${p.priceUSD.toFixed(2)}</td><td>NZ$${nzd}</td><td>${p.owner}</td><td>${act}</td>`})}function getUsername(){try{return JSON.parse(atob(token)).u}catch(e){return''}}updateUI();loadRate();loadProducts();setInterval(loadProducts,10000)</script><div class="login"><input id="user" placeholder="Username"><input id="pass" type="password" placeholder="Password"><button onclick="login()">Login</button><span id="loginStatus"></span><button onclick="logout()" style="display:none" id="logoutBtn">Logout</button></div></body></html>
+"@
+      }
+      Respond-Html $resp $html
+    }
+    default{Respond-Json $resp '{"error":"not found"}' 404}
+  }}catch{Respond-Json $resp '{"error":"internal server error"}' 500}finally{$resp.Close()}
+}
+
+
+# === FRONTEND_START ===
+
+# === FRONTEND_END ===

@@ -1,0 +1,37 @@
+﻿[
+    {
+        "id":  "yuriko-ninjas",
+        "name":  "Yuriko Ninjas",
+        "description":  "Aggro ninja tribal. Power level 8. Sleeved and ready.",
+        "price_nzd":  8500,
+        "stripe_link":  "https://buy.stripe.com/5kQ6oH0hK4lD62qam76c00y"
+    },
+    {
+        "id":  "edgar-markov",
+        "name":  "Edgar Markov Vampires",
+        "description":  "Eminence vampire tribal. Power level 9. Fully foiled.",
+        "price_nzd":  12000,
+        "stripe_link":  ""
+    },
+    {
+        "id":  "atraxa-superfriends",
+        "name":  "Atraxa Superfriends",
+        "description":  "Planeswalker proliferation. Power level 8. Includes doubling season.",
+        "price_nzd":  15000,
+        "stripe_link":  ""
+    },
+    {
+        "id":  "krenko-goblins",
+        "name":  "Krenko Goblin Horde",
+        "description":  "Mono-red goblin swarm. Wins turn 5-6 consistently. Budget powerhouse.",
+        "price_nzd":  5500,
+        "stripe_link":  ""
+    },
+    {
+        "id":  "muldrotha-graveyard",
+        "name":  "Muldrotha Graveyard",
+        "description":  "Sultai recursion engine. Never run out of threats. Power level 7.",
+        "price_nzd":  9500,
+        "stripe_link":  ""
+    }
+]

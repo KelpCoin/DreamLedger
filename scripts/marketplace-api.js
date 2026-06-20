@@ -1,0 +1,48 @@
+// scripts/marketplace-api.js
+// Simple Supabase-backed listings API for Render
+
+const express = require('express');
+const { createClient } = require('@supabase/supabase-js');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('Missing Supabase env vars');
+    process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+app.get('/api/listings', async (req, res) => {
+    try {
+        const silo = req.query.silo;
+
+        let query = supabase.from('listings').select('*').order('created_at', { ascending: false });
+
+        if (silo) {
+            query = query.eq('silo', silo);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
+
+        res.json({ listings: data });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+app.listen(PORT, () => {
+    console.log(`Marketplace API running on port ${PORT}`);
+});

@@ -1,0 +1,24 @@
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3030;
+
+const STATE_FILE = path.join(__dirname, '..', '..', '.dreamledger', 'state.json');
+
+function safeRead(file) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return {}; }
+}
+
+app.get('/api/state', (req, res) => {
+  res.json(safeRead(STATE_FILE));
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, ts: new Date().toISOString() });
+});
+
+app.listen(PORT, () => {
+  console.log('TrevorLayer dashboard running on port', PORT);
+});

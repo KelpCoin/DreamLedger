@@ -1,0 +1,25 @@
+﻿[
+    {
+        "id":  1,
+        "license":  "resellable",
+        "name":  "Atraxa EDH Deck - Resellable",
+        "type":  "b2b_sku",
+        "description":  "Fully playable Commander deck. Includes resale rights.",
+        "status":  "available",
+        "image":  "",
+        "price_nzd":  15000,
+        "payment_link":  "https://buy.stripe.com/aFabJ16G819r2Qebqb6c00v"
+    },
+    {
+        "id":  2,
+        "license":  "single_buyer",
+        "name":  "MTG Bulk Value Pack",
+        "type":  "digital_cartridge",
+        "description":  "Randomised value pack for resellers.",
+        "status":  "available",
+        "image":  "",
+        "price_nzd":  4999,
+        "payment_link":  "https://buy.stripe.com/8x2aEXfcE9FXgH451N6c00w"
+    }
+]
+

@@ -1,0 +1,9 @@
+﻿{
+  "products": [
+    {"id":"commander-upgrade","name":"Commander Upgrade Pack","desc":"Cut weak cards, add upgrades, fix win lines.","price":15,"currency":"nzd"},
+    {"id":"budget-optimizer","name":"Budget Deck Optimizer","desc":"Max power per dollar, fix efficiency gaps.","price":10,"currency":"nzd"},
+    {"id":"wincon-kit","name":"Win Condition Injector Kit","desc":"Find missing win paths and close games.","price":12,"currency":"nzd"},
+    {"id":"synergy-checklist","name":"Synergy Scanner Checklist","desc":"Detect broken themes and dead cards fast.","price":8,"currency":"nzd"},
+    {"id":"fast-fix","name":"Fast Fix Starter Kit","desc":"Quick selfâ€‘audit system for immediate improvement.","price":5,"currency":"nzd"}
+  ]
+}
