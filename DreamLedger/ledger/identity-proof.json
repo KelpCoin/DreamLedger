@@ -1,0 +1,7 @@
+﻿{
+    "reputation_file":  "C:\\BrownEyeCortex\\DreamLedger\\ledger\\reputation.json",
+    "sessions_file":  "C:\\BrownEyeCortex\\DreamLedger\\auth\\sessions.json",
+    "timestamp":  "2026-06-03T23:06:52.0365799+12:00",
+    "status":  "Identity core active",
+    "users_file":  "C:\\BrownEyeCortex\\DreamLedger\\auth\\users.json"
+}

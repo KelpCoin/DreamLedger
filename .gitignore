@@ -1,0 +1,19 @@
+node_modules/
+**/node_modules/
+Logs/
+**/*.log
+*.log
+bin/
+dist/
+build/
+runtime/
+Engine/*.exe
+*.exe
+
+# auto-added safety rules
+node_modules/
+mtg-discord-worker/node_modules/
+.env
+.DS_Store
+Logs/*.log
+*.tmp

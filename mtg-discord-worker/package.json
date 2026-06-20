@@ -1,0 +1,8 @@
+﻿{
+  "name": "mtg-discord-worker",
+  "type": "module",
+  "dependencies": {
+    "discord.js": "^14.0.0",
+    "@supabase/supabase-js": "^2.0.0"
+  }
+}
