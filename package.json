@@ -1,11 +1,11 @@
 {
-    "name":  "dreamledger",
-    "version":  "2.1.0-20260625232444",
-    "main":  "server.js",
-    "scripts":  {
-                    "start":  "node server.js"
-                },
-    "engines":  {
-                    "node":  "\u003e=18"
-                }
+    "name": "dreamledger",
+    "version": "2.1.0-20260625232444",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "engines": {
+        "node": ">=18"
+    }
 }
