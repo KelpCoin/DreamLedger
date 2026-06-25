@@ -78,3 +78,7 @@ app.get('/success', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`DreamLedger running on port ${PORT}`));
+// Debug route to confirm this file is running
+app.get('/debug', (req, res) => {
+  res.send('Server is alive and using this server.js file.');
+});
