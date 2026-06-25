@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const app = express();
 require('dotenv').config();
 app.set('view engine', 'ejs');
@@ -81,4 +81,18 @@ app.listen(PORT, () => console.log(`DreamLedger running on port ${PORT}`));
 // Debug route to confirm this file is running
 app.get('/debug', (req, res) => {
   res.send('Server is alive and using this server.js file.');
+});
+
+// DREAMLEDGER_DEBUG_ROUTE
+app.get('/debug', (req, res) => {
+  res.json({
+    ok: true,
+    file: 'server.js',
+    routes: ['/health','/mtg','/mtg/:id','/api/decks'],
+    ts: Date.now()
+  });
+});
+// Test route for /mtg
+app.get('/mtg-test', (req, res) => {
+  res.send('MTG route is reachable.');
 });
