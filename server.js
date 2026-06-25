@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const app = express();
 
 const BOOT = {
@@ -29,3 +29,5 @@ app.get("/render-check", (req,res)=>res.json({
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=>console.log("BOOTED", PORT, BOOT));
+
+// DEPLOY_FINGERPRINT=FORCE_SYNC_20260625_232444
