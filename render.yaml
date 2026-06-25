@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: dreamledger
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
