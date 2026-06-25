@@ -1,10 +1,10 @@
 {
-    "name":  "dreamledger",
-    "version":  "1.0.0-HARD_REBUILD_20260625_232819",
-    "scripts":  {
-                    "start":  "node index.js"
-                },
     "engines":  {
                     "node":  "\u003e=18"
+                },
+    "name":  "dreamledger",
+    "version":  "3.0.0-beacon",
+    "scripts":  {
+                    "start":  "node server.js"
                 }
 }
