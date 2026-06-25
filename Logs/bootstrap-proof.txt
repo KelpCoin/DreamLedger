@@ -1,0 +1,13 @@
+BOOTSTRAP EXECUTED
+TIME: 06/25/2026 22:07:19
+
+CHANGES:
+- Express is sole runtime
+- /identity added (truth source)
+- /debug added (route map)
+- /mtg hardcoded fallback HTML
+- Next.js disabled
+
+NEXT STEP:
+- Verify /identity after deploy
+- Verify /mtg returns HTML
