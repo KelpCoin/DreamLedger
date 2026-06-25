@@ -1,26 +1,25 @@
 ﻿const express = require('express');
 const app = express();
 
-const BOOT = {
+const FINGERPRINT = {
   ts: Date.now(),
-  mode: 'RENDER_HARD_SYNC_V5',
-  commit: process.env.RENDER_GIT_COMMIT || 'local',
-  stamp: '20260625_235232'
+  stamp: '20260625_235326',
+  mode: 'RUNTIME_TRUTH_ANCHOR_V6',
+  repo: 'KelpCoin/DreamLedger'
 };
 
 app.get('/health',(req,res)=>res.json({
   ok:true,
-  service:'dreamledger',
-  version:'5.0.0-SYNC',
-  BOOT
+  fingerprint:FINGERPRINT,
+  route:'/health'
 }));
 
 app.get('/runtime',(req,res)=>res.json({
   ok:true,
-  node: process.version,
-  cwd: process.cwd(),
-  file: __filename,
-  BOOT
+  fingerprint:FINGERPRINT,
+  node:process.version,
+  file:__filename,
+  cwd:process.cwd()
 }));
 
 app.get('/debug',(req,res)=>res.json({
@@ -28,4 +27,8 @@ app.get('/debug',(req,res)=>res.json({
   routes:['/health','/runtime','/debug']
 }));
 
-app.listen(process.env.PORT || 3000, ()=>console.log("RENDER_SYNC_ACTIVE"));
+app.get('/',(req,res)=>res.send('DREAMLEDGER LIVE ' + FINGERPRINT.stamp));
+
+app.listen(process.env.PORT || 3000, ()=>{
+  console.log('FINGERPRINT_RUNTIME_ACTIVE', FINGERPRINT);
+});
