@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+<head><title>MTG Commander Decks</title></head>
+<body>
+  <h1> Commander Decks</h1>
+  <div id="deck-list"></div>
+  <script>
+    fetch('/api/decks')
+      .then(r => r.json())
+      .then(decks => {
+        const container = document.getElementById('deck-list');
+        decks.forEach(d => {
+          const div = document.createElement('div');
+          div.innerHTML = `
+            <a href="/mtg/${d.id}">
+              <h3>${d.name}</h3>
+              <p>Commander: ${d.commander}</p>
+              <p>$${(d.price_nzd/100).toFixed(2)} NZD</p>
+            </a>
+          `;
+          container.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>

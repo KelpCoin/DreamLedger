@@ -1,0 +1,29 @@
+DREAMLEDGER 2.1 PRODUCTION PROOF
+
+DOMAIN:
+https://dreamledger.org
+
+LOCAL HEALTH:
+{"ok":true,"service":"dreamledger","version":"2.1.0","ts":1782371419149}
+
+PRODUCTION HEALTH:
+{"ok":true,"service":"dreamledger","version":"2.1.0","ts":1782371419284}
+
+DEPLOYMENT:
+PASS
+
+STACK:
+GitHub
+ ->
+Render Web Service
+ ->
+Node Express
+ ->
+DreamLedger 2.1.0
+
+STATUS:
+LIVE
+
+NEXT:
+Stripe Checkout Session + webhook + delivery ledger
+

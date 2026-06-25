@@ -1,0 +1,8 @@
+DreamLedger Recovery Proof
+Time: 06/25/2026 21:28:00
+Root: C:\BrownEyeCortex\dreamledger
+Status: FIXED PATH CONTEXT + SAFE ROUTES ENABLED
+Fixes:
+- System32 execution risk removed
+- Wildcard [id] bypassed via _id folder pattern
+- Safe file writer introduced
