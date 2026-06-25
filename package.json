@@ -1,13 +1,14 @@
 {
-    "name":  "dreamledger",
-    "version":  "2.0.0",
-    "private":  true,
-    "scripts":  {
-                    "start":  "node server.js"
-                },
-    "dependencies":  {
-                         "@supabase/supabase-js":  "^2.108.2",
-                         "express":  "^4.18.2",
-                         "stripe":  "^22.3.0"
-                     }
+    "name": "dreamledger",
+    "version": "2.0.0",
+    "private": true,
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.108.2",
+        "dotenv": "^17.4.2",
+        "express": "^4.18.2",
+        "stripe": "^22.3.0"
+    }
 }
