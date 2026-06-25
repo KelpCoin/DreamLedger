@@ -3,7 +3,7 @@
     "version":  "1.0.0-HARD_REBUILD_20260625_232819",
     "main":  "server.js",
     "scripts":  {
-                    "start":  "node server.js"
+                    "start":  "node ./server.js"
                 },
     "engines":  {
                     "node":  "\u003e=18"
