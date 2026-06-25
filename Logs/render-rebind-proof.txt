@@ -1,0 +1,13 @@
+RENDER REBIND EXECUTED
+TIME: 06/25/2026 22:07:51
+
+EXPECTED OUTCOME:
+- Render MUST restart container
+- server.js MUST become active runtime
+- /boot endpoint MUST appear
+- /mtg MUST resolve HTML
+
+VERIFICATION ORDER:
+1. /boot
+2. /debug
+3. /mtg

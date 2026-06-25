@@ -1,69 +1,32 @@
 const express = require("express");
 const app = express();
-const fs = require("fs");
-const path = require("path");
 
-const START_TIME = Date.now();
+const BOOT_ID = Date.now();
 
-function log(msg){
-  console.log("[DREAMLEDGER]", msg);
-}
-
-app.use(express.json());
-app.use(express.static("public"));
-
-// =====================
-// IDENTITY ROUTE (CRITICAL)
-// =====================
-app.get("/identity", (req, res) => {
+app.get("/boot", (req,res)=>{
   res.json({
-    service: "dreamledger",
-    runtime: "express",
+    bootId: BOOT_ID,
     pid: process.pid,
     cwd: process.cwd(),
-    startTime: START_TIME,
-    uptime: process.uptime(),
-    timestamp: Date.now()
+    entry: process.argv,
+    envStart: process.env.npm_lifecycle_event || null
   });
 });
 
-// =====================
-// DEBUG ROUTE (CRITICAL)
-// =====================
-app.get("/debug", (req, res) => {
+app.get("/health",(req,res)=>res.json({ok:true}));
+
+app.get("/debug",(req,res)=>{
   res.json({
-    ok: true,
-    routes: ["/health", "/identity", "/debug", "/mtg", "/mtg-test"],
-    pid: process.pid,
-    ts: Date.now()
+    ok:true,
+    routes:["/boot","/health","/debug","/mtg","/mtg-test"]
   });
 });
 
-app.get("/mtg-test", (req, res) => {
-  res.send("MTG TEST OK");
+app.get("/mtg-test",(req,res)=>res.send("MTG OK"));
+
+app.get("/mtg",(req,res)=>{
+  res.send(`<h1>MTG LIVE</h1><p>PID ${process.pid}</p><p>BOOT ${BOOT_ID}</p>`);
 });
 
-app.get("/health", (req, res) => {
-  res.json({ ok: true, service: "dreamledger", ts: Date.now() });
-});
-
-// =====================
-// MTG SAFE FALLBACK (NO SUPABASE DEPENDENCY)
-// =====================
-app.get("/mtg", (req, res) => {
-  res.send(`
-    <h1>DREAMLEDGER MTG LIVE</h1>
-    <p>Server PID: ${process.pid}</p>
-    <p>Runtime verified: EXPRESS</p>
-    <p>If you see this, routing is fixed.</p>
-  `);
-});
-
-// =====================
-// START SERVER
-// =====================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  log("Server running on port " + PORT);
-  log("PID " + process.pid);
-});
+app.listen(PORT, ()=>console.log("RUNNING", PORT, process.pid));
