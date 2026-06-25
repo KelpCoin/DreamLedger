@@ -1,0 +1,8 @@
+REROUTE ATTEMPT
+TIME: 06/25/2026 21:50:42
+
+EXPECTATION:
+- Render MUST rebuild from scratch
+- server.js MUST become entrypoint
+- /mtg MUST resolve after redeploy
+

@@ -1,0 +1,13 @@
+RUNTIME FIX APPLIED
+TIME: 06/25/2026 21:49:38
+
+ACTIONS:
+- Render entrypoint forced to server.js
+- Next.js app directory disabled
+- package.json start explicitly locked
+
+EXPECTED RESULT:
+- /mtg resolves via Express router
+- /debug becomes reachable
+- Next.js routing eliminated
+
