@@ -3,16 +3,15 @@ const app = express();
 
 const BOOT = {
   ts: Date.now(),
-  env: process.env.NODE_ENV || 'unknown',
-  port: process.env.PORT || 3000,
+  mode: 'RENDER_HARD_RESET_V1',
   commit: process.env.RENDER_GIT_COMMIT || 'unknown',
-  mode: 'CANONICAL_SINGLE_RUNTIME_V3'
+  port: process.env.PORT || 3000
 };
 
 app.get('/health', (req,res)=>res.json({
   ok:true,
   service:'dreamledger',
-  version:'3.0.0-canonical',
+  version:'RESET_1.0',
   BOOT
 }));
 
@@ -29,4 +28,4 @@ app.get('/debug', (req,res)=>res.json({
   routes:['/health','/runtime','/debug']
 }));
 
-app.listen(BOOT.port, ()=>console.log('CANONICAL_RUNTIME_ACTIVE', BOOT));
+app.listen(BOOT.port, ()=>console.log('RENDER_RESET_RUNTIME_ACTIVE', BOOT));
