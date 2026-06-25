@@ -1,8 +1,8 @@
-﻿{
+{
     "name":  "dreamledger",
     "version":  "1.0.0-HARD_REBUILD_20260625_232819",
     "scripts":  {
-                    "start":  "node server.js"
+                    "start":  "node index.js"
                 },
     "engines":  {
                     "node":  "\u003e=18"

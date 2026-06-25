@@ -1,0 +1,4 @@
+RENDER_CANONICAL_ENTRYPOINT
+timestamp=20260625_233736
+ENTRYPOINT=/server.js
+MODE=single-runtime-hard-locked
