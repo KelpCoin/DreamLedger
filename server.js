@@ -1,17 +1,17 @@
 const express=require("express");
 const fs=require("fs");
 const path=require("path");
+const Stripe=require("stripe");
 
 const app=express();
-app.use(express.json());
 
 const PORT=process.env.PORT||3000;
 
-const DATA=path.join(__dirname,"dreamledger-events.jsonl");
+const EVENTS=path.join(__dirname,"dreamledger-ledger.jsonl");
 
-function ledger(event){
+function writeLedger(event){
     fs.appendFileSync(
-        DATA,
+        EVENTS,
         JSON.stringify({
             ts:new Date().toISOString(),
             ...event
@@ -19,36 +19,58 @@ function ledger(event){
     );
 }
 
-app.get("/",(req,res)=>{
-    ledger({
-        type:"page_view"
-    });
+app.use(express.json());
 
-    res.send(`
-    <html>
-    <head><title>DreamLedger</title></head>
-    <body>
-    <h1>DreamLedger</h1>
-    <p>Reality  Observation  Extraction  Value</p>
-    <p>Status: LIVE</p>
-    </body>
-    </html>
-    `);
+const PRODUCTS=[
+    {
+        id:"commander-upgrade",
+        name:"Commander Deck Upgrade",
+        price:19,
+        description:"Optimization report and upgrade path."
+    },
+    {
+        id:"deck-audit",
+        name:"Commander Deck Audit",
+        price:9,
+        description:"Fast deck review."
+    }
+];
+
+app.get("/products.json",(req,res)=>{
+    res.json({
+        products:PRODUCTS
+    });
 });
 
+app.post("/checkout/:id",(req,res)=>{
 
-app.get("/health",(req,res)=>{
+    const product=PRODUCTS.find(
+        p=>p.id===req.params.id
+    );
+
+    if(!product){
+        return res.status(404).json({
+            error:"product_missing"
+        });
+    }
+
+    writeLedger({
+        type:"checkout_intent",
+        product:product.id,
+        price:product.price
+    });
+
     res.json({
         ok:true,
-        service:"dreamledger",
-        version:"2.0.0",
-        ts:Date.now()
+        next:"stripe_checkout",
+        product
     });
 });
 
 
 app.post("/event",(req,res)=>{
-    ledger({
+
+    writeLedger({
         type:"event",
         payload:req.body
     });
@@ -59,14 +81,24 @@ app.post("/event",(req,res)=>{
 });
 
 
+app.get("/health",(req,res)=>{
+    res.json({
+        ok:true,
+        service:"dreamledger",
+        version:"2.1.0",
+        ts:Date.now()
+    });
+});
+
+
 app.listen(PORT,()=>{
-    ledger({
+    writeLedger({
         type:"boot",
         port:PORT
     });
 
     console.log(
-        "DreamLedger listening on",
+        "DreamLedger listening",
         PORT
     );
 });

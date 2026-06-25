@@ -1,0 +1,13 @@
+DNS:
+
+Name                                           Type   TTL   Section    IPAddress                                
+----                                           ----   ---   -------    ---------                                
+dreamledger.org                                A      254   Answer     216.24.57.9                              
+dreamledger.org                                A      254   Answer     216.24.57.8                              
+
+
+
+HOME ERROR:
+Cannot overwrite variable HOME because it is read-only or constant.
+HEALTH ERROR:
+The remote server returned an error: (404) Not Found.
