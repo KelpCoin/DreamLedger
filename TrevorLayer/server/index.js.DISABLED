@@ -1,3 +1,4 @@
+/* DISABLED BY DEPLOY LOCK */
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -22,3 +23,4 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log('TrevorLayer dashboard running on port', PORT);
 });
+

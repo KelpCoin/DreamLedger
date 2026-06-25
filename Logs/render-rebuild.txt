@@ -1,0 +1,12 @@
+RENDER REBUILD REPORT
+TIME: 06/25/2026 23:29:38
+STAMP: HARD_REBUILD_20260625_232819
+
+EXPECTED RESULT:
+- all routes should resolve after rebuild
+- if runtime routes still missing => wrong entrypoint in Render dashboard
+
+NEXT DIAGNOSIS STEP IF FAILURE:
+Check Render Start Command
+Check Root Directory
+Check Service pointing to correct repo
