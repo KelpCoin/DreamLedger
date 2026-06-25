@@ -21,3 +21,5 @@ app.get("/mtg",(req,res)=>res.send(`<h1>MTG LIVE</h1><p>${BOOT.pid}</p>`));
 
 app.listen(process.env.PORT || 3000, ()=>console.log("RUNNING", BOOT));
 // DEPLOY_FINGERPRINT=RUNTIME_SYNC_20260625_232746
+
+// FORCE_REBUILD=HARD_REBUILD_20260625_232819

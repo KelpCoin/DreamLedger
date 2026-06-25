@@ -1,6 +1,6 @@
 {
     "name":  "dreamledger",
-    "version":  "2.1.0-20260625232444",
+    "version":  "1.0.0-HARD_REBUILD_20260625_232819",
     "main":  "server.js",
     "scripts":  {
                     "start":  "node server.js"

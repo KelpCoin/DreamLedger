@@ -1,0 +1,3 @@
+﻿RENDER FORCE REBUILD TRIGGER
+STAMP: HARD_REBUILD_20260625_232819
+PURPOSE: invalidate runtime cache + force new container build
