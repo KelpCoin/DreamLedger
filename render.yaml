@@ -1,0 +1,13 @@
+﻿services:
+  - type: web
+    name: dreamledger-server
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: STRIPE_SECRET_KEY
+        sync: false
+  - type: static
+    name: dreamledger-frontend
+    buildCommand: echo "static"
+    staticPublishPath: ./public
