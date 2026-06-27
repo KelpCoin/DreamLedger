@@ -1,1 +1,22 @@
-﻿
+[
+    {
+        "price":  500,
+        "title":  "Micro-Solution: - **[Founder question: what actually gets your fir",
+        "score":  7,
+        "scarcity":  3,
+        "id":  "offer_20260627173800"
+    },
+    {
+        "currency":  "usd",
+        "id":  "offer_20260627174108",
+        "type":  "b2b_digital_product",
+        "price":  500,
+        "category":  "growth_playbook",
+        "description":  "Turn validated demand into first revenue pipeline",
+        "created_at":  "2026-06-27T17:41:08.2004990+12:00",
+        "availability":  "instant_delivery",
+        "pain_point":  "How do I get my first paying SaaS customers fast?",
+        "status":  "LIVE",
+        "title":  "B2B Micro-Offer: First 10 Paying SaaS Customers System"
+    }
+]

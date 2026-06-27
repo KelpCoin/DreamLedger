@@ -1,0 +1,9 @@
+﻿{
+    "endpoints":  {
+                      "catalog":  "/api/catalog",
+                      "health":  "/api/health",
+                      "revenue":  "/api/revenue"
+                  },
+    "source":  "D:/DreamLedger/Site/public/catalog.json",
+    "mode":  "static-json-b2b-marketplace"
+}
