@@ -1,7 +1,10 @@
-services:
+﻿services:
   - type: web
-    name: dreamledger
-    runtime: node
-    plan: free
-    buildCommand: npm install
-    startCommand: npm start
+    name: dreamledger-frontend
+    runtime: static
+    buildCommand: echo "Static site built"
+    staticPublishPath: ./deploy
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
