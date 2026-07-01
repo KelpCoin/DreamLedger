@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DreamLedger  Checkout</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0a0e17; color:#00d4ff; font-family:'Courier New',monospace; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+        .container { max-width:500px; padding:2rem; background:#1a1a2e; border-radius:12px; border:1px solid #00d4ff33; }
+        h1 { margin-bottom:1rem; }
+        .loading { color:#666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Processing Checkout</h1>
+        <div class="loading">Redirecting to secure payment...</div>
+    </div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const offerId = params.get('offer');
+        if (offerId) {
+            fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({offer_id: offerId})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.url) window.location.href = data.url;
+                else document.querySelector('.loading').textContent = 'Checkout error: ' + data.error;
+            })
+            .catch(() => document.querySelector('.loading').textContent = 'Network error');
+        } else {
+            document.querySelector('.loading').textContent = 'No offer specified.';
+        }
+    </script>
+</body>
+</html>

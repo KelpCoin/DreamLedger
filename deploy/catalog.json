@@ -1,0 +1,20 @@
+﻿[
+    {
+        "id": "demo_001",
+        "title": "Automated Invoice Processing",
+        "description": "Save 10+ hours per week with automated invoice processing.",
+        "price": 4900,
+        "dsis_score": 78,
+        "scarcity": 5,
+        "status": "LIVE"
+    },
+    {
+        "id": "demo_002",
+        "title": "MTG Deck Optimization",
+        "description": "Get a professional deck audit and optimization plan within 24 hours.",
+        "price": 4900,
+        "dsis_score": 85,
+        "scarcity": 3,
+        "status": "LIVE"
+    }
+]
