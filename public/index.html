@@ -1,113 +1,45 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>MTG Carousel + Avatar | NZ Community</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dream Ledger Deck</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#0a0a0f; font-family: system-ui, sans-serif; color:#eee; }
-    .top-bar { display:flex; justify-content:space-between; align-items:center; padding:0.8rem 1.2rem; background:#12121a; border-bottom:1px solid #2a2a35; flex-wrap:wrap; gap:0.5rem; }
-    .logo { font-size:1.2rem; font-weight:bold; background:linear-gradient(135deg,#b9ff66,#66ffcc); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .nav-buttons { display:flex; gap:0.5rem; }
-    .nav-btn { background:#1e1e2a; border:none; padding:0.3rem 0.8rem; border-radius:40px; color:white; cursor:pointer; }
-    .nav-btn.active { background:#66ffcc; color:#0a0a0f; }
-    .deck { position:relative; width:100vw; height:calc(100vh - 60px); display:flex; justify-content:center; align-items:center; overflow:hidden; }
-    .card { position:absolute; width:320px; background:#15151e; border-radius:32px; border:1px solid #2a2a35; padding:1.2rem; transition:transform 0.2s ease; cursor:pointer; will-change:transform; }
-    .card-image { height:160px; background:#1e1e2a; border-radius:24px; margin-bottom:1rem; display:flex; align-items:center; justify-content:center; font-size:3rem; }
-    .card h3 { font-size:1.3rem; margin-bottom:0.25rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .card .set { font-size:0.7rem; color:#aaa; text-transform:uppercase; margin-bottom:0.5rem; }
-    .card .price { font-size:1.6rem; font-weight:bold; color:#66ffcc; margin:0.5rem 0; }
-    .card .condition { background:#1e1e2a; display:inline-block; padding:0.2rem 0.8rem; border-radius:30px; font-size:0.7rem; }
-    .hook { font-size:0.7rem; color:#ffcc66; margin:0.5rem 0 0.2rem; }
-    button.buy { margin-top:12px; background:#66ffcc; border:none; padding:8px 16px; border-radius:40px; font-weight:bold; width:100%; cursor:pointer; }
-    .swipe-hint { position:fixed; bottom:20px; left:0; right:0; text-align:center; font-size:0.7rem; color:#555; pointer-events:none; }
-    .avatar-panel { position:fixed; top:60px; left:0; right:0; bottom:0; background:#0a0a0f; z-index:20; padding:1rem; display:none; flex-direction:column; overflow-y:auto; }
-    .avatar-panel.active { display:flex; }
-    .avatar-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:1rem; margin-top:1rem; }
-    .avatar-option { background:#15151e; border-radius:20px; padding:0.5rem; text-align:center; cursor:pointer; border:2px solid transparent; }
-    .avatar-option.selected { border-color:#66ffcc; }
-    .avatar-option img { width:80px; height:80px; border-radius:50%; }
-    .close-avatar { background:#ff4444; border:none; padding:0.5rem; border-radius:40px; color:white; margin-top:1rem; cursor:pointer; }
-    @media (max-width:640px) { .card { width:280px; } }
+    body { font-family: system-ui, sans-serif; background: #0a0a0f; color: #eee; text-align: center; padding: 2rem; }
+    .card { max-width: 400px; margin: 2rem auto; background: #1a1a2e; padding: 2rem; border-radius: 16px; border: 1px solid #66ffcc; }
+    img { max-width: 100%; border-radius: 12px; }
+    button { background: #66ffcc; color: #0a0a0f; border: none; padding: 1rem 2rem; font-size: 1.1rem; border-radius: 50px; cursor: pointer; margin-top: 1rem; }
   </style>
-<meta name="build-id" content="build-20260613162110">
 </head>
 <body>
-<div class="top-bar">
-  <div class="logo">ðŸš HAPPYHOMARID Â· MTG ARENA</div>
-  <div class="nav-buttons">
-    <button class="nav-btn active" data-view="carousel">Carousel</button>
-    <button class="nav-btn" data-view="avatar">Avatar</button>
-  </div>
-</div>
-<div class="deck" id="deck"><div style="text-align:center; color:#888;">Loading cards...</div></div>
-<div class="swipe-hint">â† swipe left (skip) | right (interested) â†’</div>
-<div class="avatar-panel" id="avatarPanel">
-  <h3 style="margin-bottom:0.5rem;">ðŸŽ¨ Create Your Avatar</h3>
-  <select id="avatarStyle" style="background:#1e1e2a; color:white; padding:0.5rem; border-radius:20px; margin-bottom:1rem;">
-    <option value="bottts">Bottts</option><option value="adventurer">Adventurer</option><option value="pixel-art">Pixel Art</option><option value="identicon">Identicon</option>
-  </select>
-  <button id="randomAvatarBtn" style="background:#2a2a35; border:none; padding:0.5rem; border-radius:40px; margin-bottom:1rem; cursor:pointer;">ðŸŽ² Random Avatar</button>
-  <div class="avatar-grid" id="avatarGrid"></div>
-  <button class="close-avatar" id="closeAvatarBtn">Close</button>
-</div>
-<script>
-  const API_BASE = '';
-  const USE_SAMPLE_DATA = true;
-  const COMMUNITY_CARD = {
-    id: "nz_mtg_community",
-    type: "cta",
-    title: "NZ MTG Community",
-    set: "Aotearoa Â· Independent",
-    price: 0,
-    condition: "Join now",
-    ctaUrl: "https://discord.gg/YOUR_INVITE",   // <-- REPLACE WITH YOUR REAL DISCORD INVITE
-    source: "cta"
-  };
-  const SAMPLE_CARDS = [
-    { id: "sample1", title: "Atraxa, Praetors' Voice", set: "Commander 2016", price: 145, condition: "NM", source: "oracle" },
-    { id: "sample2", title: "Rhystic Study", set: "Prophecy", price: 38.5, condition: "LP", source: "oracle" },
-    { id: "sample3", title: "Mana Crypt", set: "Eternal Masters", price: 195, condition: "NM", source: "oracle" }
-  ];
-  let cards = [], currentIndex = 0, touchStartX = 0, currentView = 'carousel';
-  let currentAvatar = localStorage.getItem('userAvatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=default';
-  const deckDiv = document.getElementById('deck'), avatarPanel = document.getElementById('avatarPanel'), navBtns = document.querySelectorAll('.nav-btn');
-  function fetchCards() { cards = [COMMUNITY_CARD, ...SAMPLE_CARDS]; renderCurrentCard(); }
-  function renderCurrentCard() {
-    if (currentIndex >= cards.length) { deckDiv.innerHTML = '<div style="text-align:center; color:#888;">âœ¨ No more cards â€“ swipe to refresh</div>'; currentIndex = 0; return; }
-    const card = cards[currentIndex]; const isCTA = card.type === 'cta';
-    deckDiv.innerHTML = `<div class="card" id="activeCard"><div class="card-image">${isCTA ? 'ðŸŒ' : 'ðŸƒ'}</div><div class="hook">ðŸ”¥ ${Math.random()>0.7?"Hot in NZ right now":"People are watching this"}</div><h3>${escapeHtml(card.title)}</h3><div class="set">${escapeHtml(card.set)}</div><div class="price">${isCTA ? 'FREE' : '$'+Number(card.price).toFixed(2)}</div><div class="condition">${escapeHtml(card.condition)}</div><div style="font-size:0.7rem;margin-top:6px;">${Math.random()>0.8?"Tap fast":"One swipe away"}</div>${!isCTA ? `<button class="buy" onclick="event.stopPropagation(); alert('Stripe stub')">Buy Now</button>` : ''}</div>`;
-    let viewSent=false; setTimeout(()=>{if(!viewSent&&currentView==='carousel'){fetch(`${API_BASE}/api/view`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:card.id})}).catch(()=>{});viewSent=true;}},1200);
-    const activeCard=document.getElementById('activeCard'); if(!activeCard) return;
-    activeCard.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;});
-    activeCard.addEventListener('touchend',e=>{const deltaX=e.changedTouches[0].clientX-touchStartX; if(deltaX>80){fetch(`${API_BASE}/api/click`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:card.id})}).catch(()=>{});nextCard();} else if(deltaX<-80) nextCard();});
-    activeCard.addEventListener('click',e=>{if(e.target.tagName!=='BUTTON'){fetch(`${API_BASE}/api/click`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:card.id})}).catch(()=>{});nextCard();}});
-  }
-  function nextCard(){ currentIndex++; renderCurrentCard(); }
-  async function generateAvatars(style,seed=null){
-    const grid=document.getElementById('avatarGrid'); grid.innerHTML='';
-    const actualSeed=seed||Math.random().toString(36).substring(2,10);
-    for(let i=0;i<12;i++){
-      const url=`https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(actualSeed+i)}`;
-      const img=document.createElement('img'); img.src=url; img.style.width='80px'; img.style.height='80px'; img.style.borderRadius='50%'; img.style.cursor='pointer'; img.style.border=currentAvatar===url?'3px solid #66ffcc':'2px solid #2a2a35';
-      img.onclick=()=>{currentAvatar=url; localStorage.setItem('userAvatar',currentAvatar); document.querySelectorAll('#avatarGrid img').forEach(im=>im.style.border='2px solid #2a2a35'); img.style.border='3px solid #66ffcc'; alert('Avatar saved!');};
-      const div=document.createElement('div'); div.className='avatar-option'; div.appendChild(img); grid.appendChild(div);
+  <h1>Dream Ledger Deck</h1>
+  <div class="card" id="product"></div>
+
+  <script>
+    async function loadProduct() {
+      const res = await fetch('/api/catalog');
+      const catalog = await res.json();
+      const product = catalog[0];
+      document.getElementById('product').innerHTML = `
+        ${product.image ? `<img src="${product.image}" alt="Deck">` : ''}
+        <h2>${product.title}</h2>
+        <p>${product.description}</p>
+        <p><strong>$${ (product.price / 100).toFixed(2) } NZD</strong></p>
+        <button onclick="buyNow('${product.id}')">Buy Now</button>
+      `;
     }
-  }
-  async function refreshAvatarGrid(){ const style=document.getElementById('avatarStyle').value; await generateAvatars(style); }
-  function setView(view){
-    currentView=view;
-    navBtns.forEach(btn=>{ if(btn.dataset.view===view) btn.classList.add('active'); else btn.classList.remove('active'); });
-    if(view==='carousel'){ avatarPanel.classList.remove('active'); deckDiv.style.display='flex'; if(cards.length===0) fetchCards(); else renderCurrentCard(); }
-    else{ avatarPanel.classList.add('active'); deckDiv.style.display='none'; refreshAvatarGrid(); }
-  }
-  navBtns.forEach(btn=>btn.addEventListener('click',()=>setView(btn.dataset.view)));
-  document.getElementById('randomAvatarBtn').addEventListener('click',()=>{ const style=document.getElementById('avatarStyle').value; generateAvatars(style); });
-  document.getElementById('avatarStyle').addEventListener('change',()=>refreshAvatarGrid());
-  document.getElementById('closeAvatarBtn').addEventListener('click',()=>setView('carousel'));
-  function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
-  fetchCards(); setView('carousel');
-</script>
+
+    async function buyNow(productId) {
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({productId})
+      });
+      const {url} = await res.json();
+      if (url) window.location.href = url;
+    }
+
+    loadProduct();
+  </script>
 </body>
 </html>

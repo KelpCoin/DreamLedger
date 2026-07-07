@@ -1,10 +1,9 @@
-﻿services:
+services:
   - type: web
-    name: dreamledger-frontend
-    runtime: static
-    buildCommand: echo "Static site built"
-    staticPublishPath: ./deploy
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    name: dreamledger
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: STRIPE_SECRET_KEY
+        sync: false

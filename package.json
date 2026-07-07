@@ -1,13 +1,14 @@
 {
-    "engines":  {
-                    "node":  "\u003e=18"
-                },
-    "name":  "dreamledger",
-    "version":  "6.0.0-truth-anchor",
-    "dependencies":  {
-                         "express":  "^4.18.2"
-                     },
-    "scripts":  {
-                    "start":  "node server.js"
-                }
+  "name": "dreamledger",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "stripe": "^16.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
 }
