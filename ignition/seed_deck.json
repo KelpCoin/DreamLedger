@@ -1,0 +1,11 @@
+﻿{
+  "name": "Atraxa Commander Starter",
+  "type": "Deck",
+  "format": "Commander",
+  "commander": "Atraxa",
+  "price_nzd": 99,
+  "condition": "NM",
+  "card_count": 100,
+  "approval": "Publish Approved",
+  "source": "IGNITION_TEST"
+}

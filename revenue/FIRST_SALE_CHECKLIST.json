@@ -1,7 +1,4 @@
 ﻿{
-  "system": "DreamLedger MTG",
-  "version": "2.4",
-  "created": "'$Now'",
   "gates": {
     "product_created": false,
     "payment_link_created": false,

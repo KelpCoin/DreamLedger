@@ -1,0 +1,34 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamLedger MTG Intake</title>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
+        input, select, textarea, button { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
+        button { background: #4CAF50; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Add Inventory</h1>
+    <form action="/submit" method="POST" enctype="multipart/form-data">
+        <label>Type:</label>
+        <select name="type">
+            <option value="deck">Commander Deck</option>
+            <option value="single">Single Card</option>
+            <option value="collection">Card Collection</option>
+            <option value="sealed">Sealed Product</option>
+        </select>
+        <label>Name:</label>
+        <input type="text" name="name" placeholder="e.g. Atraxa Proliferate" required>
+        <label>Price Estimate (NZD):</label>
+        <input type="number" name="price" placeholder="150">
+        <label>Photos:</label>
+        <input type="file" name="photos" multiple accept="image/*" capture="environment">
+        <label>Notes:</label>
+        <textarea name="notes" rows="3"></textarea>
+        <button type="submit">Send for Review</button>
+    </form>
+</body>
+</html>

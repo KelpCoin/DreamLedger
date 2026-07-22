@@ -1,0 +1,59 @@
+{
+  "object": "data_source",
+  "id": "3a52ee9b-45db-80ec-847b-000bbfa4e509",
+  "cover": null,
+  "icon": null,
+  "created_time": "2026-07-22T04:28:00.000Z",
+  "created_by": {
+    "object": "user",
+    "id": "3a5d872b-594c-8133-aeaf-0002b30e5fb4"
+  },
+  "last_edited_by": {
+    "object": "user",
+    "id": "3a5d872b-594c-8133-aeaf-0002b30e5fb4"
+  },
+  "last_edited_time": "2026-07-22T04:29:00.000Z",
+  "title": [
+    {
+      "type": "text",
+      "text": {
+        "content": "Dreamledger MTG",
+        "link": null
+      },
+      "annotations": {
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false,
+        "code": false,
+        "color": "default"
+      },
+      "plain_text": "Dreamledger MTG",
+      "href": null
+    }
+  ],
+  "description": [],
+  "is_inline": false,
+  "properties": {
+    "Name": {
+      "id": "title",
+      "name": "Name",
+      "description": null,
+      "type": "title",
+      "title": {}
+    }
+  },
+  "parent": {
+    "type": "database_id",
+    "database_id": "3a52ee9b-45db-8042-bbdd-d1231dd52384"
+  },
+  "database_parent": {
+    "type": "workspace",
+    "workspace": true
+  },
+  "url": "https://app.notion.com/p/3a52ee9b45db8042bbddd1231dd52384",
+  "public_url": null,
+  "in_trash": false,
+  "archived": false,
+  "request_id": "0306a02f-1360-4d21-9aa2-2cf58695c9e7"
+}

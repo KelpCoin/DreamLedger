@@ -1,0 +1,6 @@
+﻿{
+  "DL-MTG-001": {
+    "payment_url": "https://example.com/payment",
+    "active": true
+  }
+}

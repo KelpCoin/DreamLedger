@@ -1,0 +1,159 @@
+{
+  "object": "list",
+  "results": [
+    {
+      "object": "page",
+      "id": "3a52ee9b-45db-81e0-933a-da6cb1fc0e87",
+      "created_time": "2026-07-22T05:04:00.000Z",
+      "last_edited_time": "2026-07-22T05:04:00.000Z",
+      "created_by": {
+        "object": "user",
+        "id": "3a52ee9b-45db-81fa-a541-002729f9df2e"
+      },
+      "last_edited_by": {
+        "object": "user",
+        "id": "3a52ee9b-45db-81fa-a541-002729f9df2e"
+      },
+      "cover": null,
+      "icon": null,
+      "parent": {
+        "type": "data_source_id",
+        "data_source_id": "3a52ee9b-45db-80ec-847b-000bbfa4e509",
+        "database_id": "3a52ee9b-45db-8042-bbdd-d1231dd52384"
+      },
+      "in_trash": false,
+      "is_archived": false,
+      "is_locked": false,
+      "properties": {
+        "Status": {
+          "id": "C%5Cu%5E",
+          "type": "select",
+          "select": {
+            "id": "4bf7cfda-847e-4ed4-8579-5f61fa78dd8f",
+            "name": "Publish Approved",
+            "color": "default"
+          }
+        },
+        "Commander": {
+          "id": "Im%3Bc",
+          "type": "rich_text",
+          "rich_text": [
+            {
+              "type": "text",
+              "text": {
+                "content": "Atraxa",
+                "link": null
+              },
+              "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+              },
+              "plain_text": "Atraxa",
+              "href": null
+            }
+          ]
+        },
+        "Format": {
+          "id": "bGjL",
+          "type": "select",
+          "select": {
+            "id": "4107a11e-39b2-4040-b76f-606f529d7783",
+            "name": "Commander",
+            "color": "default"
+          }
+        },
+        "Card Count": {
+          "id": "cF%7D%3E",
+          "type": "number",
+          "number": 2
+        },
+        "Price": {
+          "id": "hISa",
+          "type": "number",
+          "number": 49
+        },
+        "Decklist": {
+          "id": "io%7CT",
+          "type": "rich_text",
+          "rich_text": [
+            {
+              "type": "text",
+              "text": {
+                "content": "1 Atraxa\n1 Sol Ring",
+                "link": null
+              },
+              "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+              },
+              "plain_text": "1 Atraxa\n1 Sol Ring",
+              "href": null
+            }
+          ]
+        },
+        "SKU": {
+          "id": "kOg%7B",
+          "type": "rich_text",
+          "rich_text": [
+            {
+              "type": "text",
+              "text": {
+                "content": "DL-MTG-001",
+                "link": null
+              },
+              "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+              },
+              "plain_text": "DL-MTG-001",
+              "href": null
+            }
+          ]
+        },
+        "Name": {
+          "id": "title",
+          "type": "title",
+          "title": [
+            {
+              "type": "text",
+              "text": {
+                "content": "Atraxa Test Deck",
+                "link": null
+              },
+              "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+              },
+              "plain_text": "Atraxa Test Deck",
+              "href": null
+            }
+          ]
+        }
+      },
+      "url": "https://app.notion.com/p/Atraxa-Test-Deck-3a52ee9b45db81e0933ada6cb1fc0e87",
+      "public_url": null,
+      "archived": false
+    }
+  ],
+  "next_cursor": null,
+  "has_more": false,
+  "type": "page_or_data_source",
+  "page_or_data_source": {},
+  "request_id": "61a5d7f4-b971-41b8-9719-ab526c157d0b"
+}

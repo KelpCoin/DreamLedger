@@ -1,13 +1,8 @@
 ﻿name = "dreamledger-stripe"
 main = "src/index.js"
 compatibility_date = "2026-07-22"
-
 [[kv_namespaces]]
 binding = "PROCESSED_EVENTS"
 id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
-
 [vars]
 NOTION_DATABASE_ID = "REPLACE_WITH_YOUR_DATABASE_ID"
-
-# Secrets are set via `wrangler secret put`  do NOT store here.
-# Required secrets: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NOTION_API_KEY, GITHUB_TOKEN

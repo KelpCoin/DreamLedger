@@ -1,11 +1,14 @@
 ﻿<!doctype html>
 <html>
-<head><title>{{ passport.identity.name }}  DreamLedger MTG</title>
-<link rel="stylesheet" href="/assets/style.css"></head>
+<head><title>{{ passport.identity.name }}  DreamLedger MTG</title><link rel="stylesheet" href="/assets/style.css"></head>
 <body>
 <main>
 <h1>{{ passport.identity.name }}</h1>
 <div class="badge">BEC VERIFIED ASSET</div>
+{% if passport.marketing %}
+<h2>{{ passport.marketing.headline }}</h2>
+<p>{{ passport.marketing.description }}</p>
+{% endif %}
 <p>SKU: {{ passport.asset_id }}</p>
 <p>Price: ${{ passport.commerce.price_nzd }} NZD</p>
 {% if passport.inventory.cards %}

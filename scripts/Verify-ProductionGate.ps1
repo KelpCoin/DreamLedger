@@ -1,21 +1,15 @@
 ﻿#Requires -Version 5.1
-<#
-.SYNOPSIS
-    DreamLedger MTG Production Gate Verifier
-    Deep checks: passport validity, ledger integrity, no secrets, visibility, revenue system.
-#>
 $ErrorActionPreference = "Stop"
 $ROOT = "D:\DreamLedgerMTG"
 $timestamp = (Get-Date).ToString("s")
 $results = @{
     system = "DreamLedger MTG"
-    version = "2.4"
+    version = "2.5"
     timestamp = $timestamp
     checks = @()
     assets = 0
     revenue_gate = "UNKNOWN"
 }
-
 function Add-Check {
     param([string]$Name, [bool]$Pass, [string]$Details = "")
     $results.checks += @{ name = $Name; pass = $Pass; details = $Details }
@@ -61,7 +55,7 @@ $revenueState = Test-Path "$ROOT\revenue\revenue_state.json"
 $revenueAtoms = (Get-ChildItem "$ROOT\revenue\atoms\*.json" -ErrorAction SilentlyContinue).Count
 Add-Check "revenue_system" ($revenueState -or $revenueAtoms -gt 0) "Atoms: $revenueAtoms"
 
-# 5. No secrets in repo (basic check)
+# 5. No secrets in repo
 $secretsFound = (Select-String -Path "$ROOT\**\*.json", "$ROOT\**\*.py", "$ROOT\**\*.js" -Pattern "sk_live_|sk_test_|ntn_|whsec_|GITHUB_TOKEN" -ErrorAction SilentlyContinue).Count -gt 0
 Add-Check "no_secrets_in_repo" (-not $secretsFound) ""
 

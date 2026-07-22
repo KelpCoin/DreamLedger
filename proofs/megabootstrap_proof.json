@@ -1,16 +1,23 @@
 ﻿{
     "event":  "MEGA_BOOTSTRAP_COMPLETE",
-    "version":  "2.4.0",
-    "timestamp":  "2026-07-22T14:46:54.5882328+12:00",
+    "version":  "3.3",
+    "timestamp":  "2026-07-22T16:11:09.7883263+12:00",
     "repo":  "D:\\DreamLedgerMTG",
     "system":  "DreamLedger MTG",
-    "status":  "PATCHED",
-    "patches_applied":  [
-                            "Stripe idempotency (pricebased keys)",
-                            "Ledger hash reader simplified",
-                            "Revenue atom creation added",
-                            "Visibility policy enforced",
-                            "Production verifier created",
-                            "Firstsale checklist created"
-                        ]
+    "patches":  [
+                    "notion-client-v2.7-fix",
+                    "env-auto-load",
+                    "stripe-idempotency",
+                    "ledger-simplified",
+                    "worker-esm",
+                    "ai-copy-engine",
+                    "mobile-intake",
+                    "canonical-json-hashing",
+                    "ignition-seed",
+                    "deck-validation-tolerant",
+                    "intake-worker",
+                    "revenue-atom",
+                    "stripe-success-pages"
+                ],
+    "status":  "PASS"
 }

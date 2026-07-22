@@ -15,3 +15,97 @@
 2026-07-22T14:46:56.4347036+12:00 | Creating firstsale ignition checklist...
 2026-07-22T14:46:56.5040929+12:00 | Wrote D:\DreamLedgerMTG\revenue\FIRST_SALE_CHECKLIST.json
 2026-07-22T14:46:56.6458347+12:00 | Wrote D:\DreamLedgerMTG\proofs\megabootstrap_proof.json
+2026-07-22T15:16:20.5942961+12:00 | Creating directory structure...
+2026-07-22T15:16:21.0432312+12:00 | Installing Python dependencies...
+2026-07-22T15:16:21.1712181+12:00 | Installing notion-client...
+2026-07-22T15:16:26.1777434+12:00 | Installing stripe...
+2026-07-22T15:16:45.2983528+12:00 | Python dependencies installed.
+2026-07-22T15:16:45.5319546+12:00 |  Notion API key or Parent Page ID not provided. Skipping database creation.
+2026-07-22T15:16:45.5319546+12:00 |    You can manually create a database with the required fields.
+2026-07-22T15:16:45.5912416+12:00 | Creating GitHub Actions workflows...
+2026-07-22T15:16:45.9268157+12:00 | Creating Python scripts...
+2026-07-22T15:16:46.9432979+12:00 | Creating Cloudflare Worker...
+2026-07-22T15:16:48.3139210+12:00 | Wrote D:\DreamLedgerMTG\proofs\megabootstrap_proof.json
+2026-07-22T15:29:13.8160958+12:00 | INFO | === DREAM LEDGER MTG MEGA BOOTSTRAP v3.0.0 ===
+2026-07-22T15:29:13.9002238+12:00 | INFO | Python: Python 3.14.5
+2026-07-22T15:29:14.0832471+12:00 | SUCCESS | All prerequisites satisfied.
+2026-07-22T15:29:14.1170813+12:00 | INFO | Creating directory structure...
+2026-07-22T15:29:14.1942631+12:00 | INFO | Installing Python packages...
+2026-07-22T15:29:14.2844701+12:00 | INFO | Installing Python package: notion-client
+2026-07-22T15:29:15.7839338+12:00 | SUCCESS | Python dependencies installed.
+2026-07-22T15:29:46.4641018+12:00 | INFO | Validating Notion API key...
+2026-07-22T15:29:47.0954856+12:00 | SUCCESS | Notion API key validated (user: dreamledger)
+2026-07-22T15:30:03.8917141+12:00 | INFO | Validating Stripe API key...
+2026-07-22T15:30:04.3961092+12:00 | SUCCESS | Stripe key validated (balance available).
+2026-07-22T15:37:45.0500188+12:00 | INFO | === DREAM LEDGER MTG MEGA BOOTSTRAP v3.1.0 ===
+2026-07-22T15:37:45.1708327+12:00 | SUCCESS | All prerequisites satisfied.
+2026-07-22T15:37:45.2171452+12:00 | INFO | Creating directories...
+2026-07-22T15:37:45.2756079+12:00 | INFO | Installing Python packages...
+2026-07-22T15:37:45.3630725+12:00 | INFO | Installing Python package: notion-client
+2026-07-22T15:37:46.8940793+12:00 | SUCCESS | Python dependencies installed.
+2026-07-22T15:38:00.0472601+12:00 | INFO | === DREAM LEDGER MTG MEGA BOOTSTRAP v3.1.0 ===
+2026-07-22T15:38:00.1456227+12:00 | SUCCESS | All prerequisites satisfied.
+2026-07-22T15:38:00.1612806+12:00 | INFO | Creating directories...
+2026-07-22T15:38:00.2207680+12:00 | INFO | Installing Python packages...
+2026-07-22T15:38:00.3148709+12:00 | INFO | Installing Python package: notion-client
+2026-07-22T15:38:01.8457061+12:00 | SUCCESS | Python dependencies installed.
+2026-07-22T15:39:40.9131823+12:00 | INFO | Validating secrets...
+2026-07-22T15:39:41.9669775+12:00 | SUCCESS | Notion API key validated (user: dreamledger)
+2026-07-22T15:39:42.5442430+12:00 | SUCCESS | Stripe key validated.
+2026-07-22T15:39:42.8518281+12:00 | ERROR | Cloudflare validation failed: The remote server returned an error: (401) Unauthorized.
+2026-07-22T15:39:50.8435611+12:00 | INFO | Validating Cloudflare API token...
+2026-07-22T15:39:51.3552782+12:00 | ERROR | Cloudflare token validation failed: The remote server returned an error: (400) Bad Request.
+2026-07-22T15:52:50.6241327+12:00 | Wrote D:\DreamLedgerMTG\.github\workflows\verify.yml
+2026-07-22T15:52:51.0438151+12:00 | Wrote D:\DreamLedgerMTG\.github\workflows\publish.yml
+2026-07-22T15:52:51.1058242+12:00 | Wrote D:\DreamLedgerMTG\scripts\requirements.txt
+2026-07-22T15:52:51.2243312+12:00 | Wrote D:\DreamLedgerMTG\scripts\verify_from_notion.py
+2026-07-22T15:52:51.5655484+12:00 | Wrote D:\DreamLedgerMTG\scripts\publish_from_notion.py
+2026-07-22T15:52:51.6524120+12:00 | Wrote D:\DreamLedgerMTG\scripts\validate_decklock.py
+2026-07-22T15:52:51.7427286+12:00 | Wrote D:\DreamLedgerMTG\scripts\verify_ledger.py
+2026-07-22T15:52:51.8408985+12:00 | Wrote D:\DreamLedgerMTG\scripts\generate_site.py
+2026-07-22T15:52:51.9230580+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\package.json
+2026-07-22T15:52:51.9844518+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\wrangler.toml
+2026-07-22T15:52:52.0734304+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\src\index.js
+2026-07-22T15:52:52.1581287+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\templates\listing.html
+2026-07-22T15:52:52.2266289+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\templates\index.html
+2026-07-22T15:52:52.2785182+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\static\style.css
+2026-07-22T15:52:52.3203970+12:00 | Wrote D:\DreamLedgerMTG\registry\sku_registry.json
+2026-07-22T15:52:52.3731562+12:00 | Wrote D:\DreamLedgerMTG\registry\stripe_registry.json
+2026-07-22T15:52:52.4177723+12:00 | Wrote D:\DreamLedgerMTG\.gitignore
+2026-07-22T15:52:52.4710001+12:00 | Wrote D:\DreamLedgerMTG\MANIFEST.json
+2026-07-22T15:52:52.5716395+12:00 | Wrote D:\DreamLedgerMTG\Verify-DreamLedgerMTG.ps1
+2026-07-22T15:52:52.6544581+12:00 | Wrote D:\DreamLedgerMTG\proofs\megabootstrap_proof.json
+2026-07-22T16:11:10.2732613+12:00 | Created D:\DreamLedgerMTG\proofs\ignition
+2026-07-22T16:11:10.6098483+12:00 | Created D:\DreamLedgerMTG\mobile-intake\queue\pending
+2026-07-22T16:11:10.7897959+12:00 | Created D:\DreamLedgerMTG\mobile-intake\queue\processed
+2026-07-22T16:11:10.8419221+12:00 | Created D:\DreamLedgerMTG\mobile-intake\uploads
+2026-07-22T16:11:10.9576630+12:00 | Created D:\DreamLedgerMTG\mobile-intake\app
+2026-07-22T16:11:11.0503717+12:00 | Created D:\DreamLedgerMTG\ignition
+2026-07-22T16:11:11.1095526+12:00 | Wrote D:\DreamLedgerMTG\.github\workflows\verify.yml
+2026-07-22T16:11:11.2164871+12:00 | Wrote D:\DreamLedgerMTG\.github\workflows\publish.yml
+2026-07-22T16:11:11.2753839+12:00 | Wrote D:\DreamLedgerMTG\scripts\requirements.txt
+2026-07-22T16:11:11.3822088+12:00 | Wrote D:\DreamLedgerMTG\scripts\ai_agent.py
+2026-07-22T16:11:11.7612680+12:00 | Wrote D:\DreamLedgerMTG\scripts\publish_from_notion.py
+2026-07-22T16:11:11.8798059+12:00 | Wrote D:\DreamLedgerMTG\scripts\verify_from_notion.py
+2026-07-22T16:11:11.9452714+12:00 | Wrote D:\DreamLedgerMTG\scripts\validate_decklock.py
+2026-07-22T16:11:12.0382257+12:00 | Wrote D:\DreamLedgerMTG\scripts\verify_ledger.py
+2026-07-22T16:11:12.1364143+12:00 | Wrote D:\DreamLedgerMTG\scripts\generate_site.py
+2026-07-22T16:11:12.2471951+12:00 | Wrote D:\DreamLedgerMTG\scripts\intake_worker.py
+2026-07-22T16:11:12.3670241+12:00 | Wrote D:\DreamLedgerMTG\scripts\create_revenue_atom.py
+2026-07-22T16:11:12.4359925+12:00 | Wrote D:\DreamLedgerMTG\ignition\seed_deck.json
+2026-07-22T16:11:12.5387535+12:00 | Wrote D:\DreamLedgerMTG\ignition\run_ignition.ps1
+2026-07-22T16:11:12.6361459+12:00 | Wrote D:\DreamLedgerMTG\Verify-Ignition.ps1
+2026-07-22T16:11:12.7772256+12:00 | Wrote D:\DreamLedgerMTG\scripts\intake_server.py
+2026-07-22T16:11:12.8893822+12:00 | Wrote D:\DreamLedgerMTG\mobile-intake\app\intake.html
+2026-07-22T16:11:12.9682520+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\package.json
+2026-07-22T16:11:13.0237937+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\wrangler.toml
+2026-07-22T16:11:13.1238537+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\src\index.js
+2026-07-22T16:11:13.2260064+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\templates\listing.html
+2026-07-22T16:11:13.2586056+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\templates\index.html
+2026-07-22T16:11:13.2817535+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\static\style.css
+2026-07-22T16:11:13.3221254+12:00 | Wrote D:\DreamLedgerMTG\registry\sku_registry.json
+2026-07-22T16:11:13.3358313+12:00 | Wrote D:\DreamLedgerMTG\registry\stripe_registry.json
+2026-07-22T16:11:13.3921442+12:00 | Wrote D:\DreamLedgerMTG\.gitignore
+2026-07-22T16:11:13.4665925+12:00 | Wrote D:\DreamLedgerMTG\MANIFEST.json
+2026-07-22T16:11:13.5620258+12:00 | Wrote D:\DreamLedgerMTG\Verify-DreamLedgerMTG.ps1
+2026-07-22T16:11:13.6389826+12:00 | Wrote D:\DreamLedgerMTG\proofs\megabootstrap_proof.json
