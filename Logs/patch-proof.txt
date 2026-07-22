@@ -1,0 +1,11 @@
+DREAMLEDGER PATCH PROOF
+TIME: 06/25/2026 21:46:08
+
+PATCHES APPLIED:
+- /debug route injected or verified
+- /mtg route safety ensured
+- start script forced to node server.js
+
+EXPECTED RESULT:
+- Render must serve Express server.js (NOT Next.js)
+- /mtg must stop returning 404 after redeploy

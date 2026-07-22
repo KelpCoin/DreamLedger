@@ -1,0 +1,44 @@
+﻿[
+    {
+        "phase":  "1-Diagnostics",
+        "critical":  true,
+        "name":  "DreamLedger Diagnostics",
+        "type":  "dreamledger-diag"
+    },
+    {
+        "phase":  "2-Mining",
+        "path":  "REDDIT-PAIN-MINER.ps1",
+        "name":  "Reddit Pain Miner",
+        "type":  "script",
+        "critical":  false
+    },
+    {
+        "phase":  "3-Offers",
+        "path":  "REFINEMENT-FACTORY.ps1",
+        "name":  "Refinement Factory",
+        "type":  "script",
+        "critical":  false
+    },
+    {
+        "port":  8090,
+        "name":  "Payment Membrane (8090)",
+        "path":  "PAYMENT-MEMBRANE.ps1",
+        "type":  "daemon-ps1",
+        "phase":  "8-Daemons",
+        "critical":  true
+    },
+    {
+        "phase":  "10-Truth",
+        "path":  "BUSINESS-TRUTH.ps1",
+        "name":  "Business Truth",
+        "type":  "script",
+        "critical":  true
+    },
+    {
+        "phase":  "11-Report",
+        "path":  "DISCORD-OPS-DASHBOARD.ps1",
+        "name":  "Discord Ops Dashboard",
+        "type":  "script",
+        "critical":  false
+    }
+]

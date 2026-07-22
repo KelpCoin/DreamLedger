@@ -1,0 +1,14 @@
+{
+  "name": "dreamledger",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "stripe": "^16.12.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}

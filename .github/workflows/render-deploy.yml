@@ -1,0 +1,27 @@
+name: Render Deploy Trigger
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render Deploy Hook
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "Missing RENDER_DEPLOY_HOOK secret"
+            exit 1
+          fi
+          curl -X POST "$RENDER_DEPLOY_HOOK"
+          echo "Render deploy triggered"
+
+      - name: Log deploy event
+        run: |
+          echo "{\"ts\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"event\": \"render_deploy_triggered\"}" >> deploy.log

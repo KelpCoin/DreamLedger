@@ -1,0 +1,14 @@
+﻿{
+    "localPaths":  {
+                       "apiRoot":  "C:\\BrownEyeCortex\\api",
+                       "frontendRoot":  "C:\\BrownEyeCortex\\public"
+                   },
+    "render":  {
+                   "apiServiceName":  "homarid-api",
+                   "staticSiteName":  "dreamledger-org",
+                   "apiBase":  "https://api.render.com/v1"
+               },
+    "repos":  {
+                  "dreamLedger":  "https://github.com/KelpCoin/DreamLedger.git"
+              }
+}

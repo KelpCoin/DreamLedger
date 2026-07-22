@@ -1,0 +1,15 @@
+﻿{
+  "name": "EDH Micro-Audit",
+  "offer_angle": "5 cuts, 5 upgrades, 1 synergy fix",
+  "price_band": 15,
+  "cta": "DM to upgrade your deck",
+  "landing_page_structure": {
+    "headline": "Your deck is 3 upgrades from dominance",
+    "subheadline": "HappyHomarid fixes inefficiency in 15 minutes",
+    "bullets": [
+      "5 cuts that increase consistency",
+      "5 upgrades that increase win rate",
+      "1 synergy correction most players miss"
+    ]
+  }
+}

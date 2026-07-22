@@ -1,0 +1,20 @@
+﻿{
+    "timestamp_utc":  "2026-06-04T11:25:49.8600551+00:00",
+    "live_url":  "https://KelpCoin.github.io/mtg-furnace-render/store.html",
+    "repo_path":  "C:\\mtg-furnace-render",
+    "version":  "6.0",
+    "custom_domain":  "https://dreamledger.org/store.html",
+    "root":  "C:\\BrownEyeCortex",
+    "warnings":  [
+                     "Cannot reach api.stripe.com. Check network before using Stripe features.",
+                     "Could not register task Cortex-Watchdog : The property \u0027Interval\u0027 cannot be found on this object. Verify that the property exists and can be set.",
+                     "Could not register task Cortex-Intelligence : The property \u0027Interval\u0027 cannot be found on this object. Verify that the property exists and can be set.",
+                     "Could not register task Cortex-HashChain : The property \u0027Interval\u0027 cannot be found on this object. Verify that the property exists and can be set."
+                 ],
+    "stripe_key_set":  true,
+    "webhook_secret":  false,
+    "machine":  "DESKTOP-9GGFBJP",
+    "status":  "BOOTSTRAP_SUCCESS",
+    "steps_completed":  28,
+    "git_available":  true
+}

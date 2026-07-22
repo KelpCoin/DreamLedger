@@ -1,0 +1,6 @@
+RENDER_IDENTITY_BEACON
+repo=KelpCoin/DreamLedger
+branch=main
+commit=20260625_235142
+EXPECTED_RUNTIME=server.js
+EXPECTED_ENDPOINTS=/health,/runtime,/debug

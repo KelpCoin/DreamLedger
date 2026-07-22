@@ -1,0 +1,4 @@
+DreamLedger Route Fix Proof
+Time: 06/25/2026 21:28:54
+Route: app/mtg/[id]/page.tsx
+Status: NEXT.JS NATURAL ROUTING RESTORED

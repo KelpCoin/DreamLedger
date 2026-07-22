@@ -1,0 +1,11 @@
+{
+    "ledger_lock":  true,
+    "integrity_gate":  true,
+    "timestamp":  "2026-06-04T18:10:15.7186782+12:00",
+    "root":  "C:\\BrownEyeCortex",
+    "tasks":  [
+                  "BrownEyeCortex-Heartbeat"
+              ],
+    "mutex":  "Global\\BrownEyeCortex_Lock",
+    "watchdog":  true
+}

@@ -1,0 +1,82 @@
+﻿### EXPERIMENT SNAPSHOT
+
+**Experiment Name:** Test Commander Deck Upgrades Sales to Existing Buyers  
+**Problem/Oppportunity:** Increase revenue and customer lifetime value by upselling premium Commander deck upgrades.  
+**Target Silo:** E-Commerce / Direct Mail Marketing  
+**Hypothesis:** Targeted DMs promoting exclusive, high-quality Commander deck upgrades will result in at least 20% of previous buyers making a purchase within the next month.
+
+### CHECKLIST
+
+1. **Data Segmentation (15 min)**
+   - [ ] Segment recent Commander deck purchasers from existing buyer list.
+   
+2. **Content Creation (20 min)**
+   - [ ] Design personalized DMs highlighting exclusive deals, emphasizing value and exclusivity.
+   
+3. **DM Production (10 min)**
+   - [ ] Use design tool to create visually appealing DMs.
+   
+4. **Targeted Mailout (5 min)**
+   - [ ] Send DMs to 156 selected customers via email marketing platform.
+   
+5. **Tracking Setup (5 min)**
+   - [ ] Set up tracking using analytics tools like Google Analytics or CRM software.
+
+### ASSETS TO PREP
+
+- Existing buyer list of 156 customers
+- Graphic design tool or templates for creating DMs
+- Email marketing platform (e.g., Mailchimp)
+- Tracking and analytics tools (e.g., Google Analytics)
+
+### METRIC
+
+**Conversion Rate:** The percentage of recipients making a purchase after receiving the DM.
+
+### SUCCESS LINE
+
+- Achieve at least 20% conversion rate.
+- Increase monthly revenue by $1,560 (assuming an average upgrade cost of $30).
+
+### IF IT WORKS
+
+- Positive customer feedback and willingness to purchase additional products or services.
+- Increased customer lifetime value and retention.
+
+### IF IT FLOPS
+
+- Low open rates or click-through rates on DMs.
+- No increase in sales, indicating disinterest in Commander deck upgrades.
+- Negative customer response or complaints.
+
+---
+
+**To Execute:**
+
+1. **Data Segmentation (15 min)**
+   - Use your CRM software to filter and segment the 156 recent Commander deck purchasers from your existing buyer list.
+
+2. **Content Creation (20 min)**
+   - Utilize a design tool like Canva or Adobe Spark to create personalized DMs that highlight exclusive deals, emphasizing value and exclusivity.
+   
+3. **DM Production (10 min)**
+   - Design the DMs with a focus on creating a visually appealing layout that captures attention.
+
+4. **Targeted Mailout (5 min)**
+   - Use your email marketing platform to send out the personalized DMs to 156 selected customers via email.
+
+5. **Tracking Setup (5 min)**
+   - Set up tracking within Google Analytics or use the built-in analytics tools in your CRM software to monitor which recipients open and click on the DMs, as well as those who make a purchase.
+
+---
+
+**Post-Experiment Actions:**
+
+1. Review the results of the experiment.
+2. Analyze conversion rates, sales figures, and customer feedback.
+3. Adjust future strategies based on outcomes (e.g., modify content or target different segments).
+4. Communicate findings to stakeholders and plan for potential follow-up experiments.
+
+---
+
+**Notes:** Ensure you have a backup design in case initial efforts do not yield the desired results.

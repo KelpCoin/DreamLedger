@@ -1,0 +1,27 @@
+DNS:
+
+Name                                           Type   TTL   Section    IPAddress                                
+----                                           ----   ---   -------    ---------                                
+dreamledger.org                                A      159   Answer     216.24.57.9                              
+dreamledger.org                                A      159   Answer     216.24.57.8                              
+
+
+
+ROOT STATUS: 200
+SERVER:
+cloudflare
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DreamLedger  MTG Optimization Tools</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background: #0b0f14; color: #e6f1ff; font-family: system-ui, -apple-system, sans-serif; }
+    header { padding: 60px 20px 30px; text-align: center; }
+    h1 { font-size: 2.5rem; letter-spacing: -0.02em; }
+    h1 span { color: #f97316;
+HEALTH ERROR:
+The remote server returned an error: (404) Not Found.

@@ -1,0 +1,6 @@
+﻿services:
+  - type: web
+    name: mtg-furnace
+    env: node
+    startCommand: node worker.mjs
+    plan: free

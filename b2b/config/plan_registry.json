@@ -1,0 +1,9 @@
+﻿{
+  "version": 1,
+  "plans": [
+    { "id": "essentials", "name": "Essentials", "price": 29.0, "currency": "USD", "interval": "month", "features": ["api","support-email"], "trial_days": 0 },
+    { "id": "pro_monthly", "name": "Professional Monthly", "price": 99.0, "currency": "USD", "interval": "month", "features": ["api","team","support-standard"], "trial_days": 14 },
+    { "id": "pro_yearly", "name": "Professional Yearly", "price": 990.0, "currency": "USD", "interval": "year", "features": ["api","team","support-standard"], "trial_days": 0 },
+    { "id": "enterprise", "name": "Enterprise", "price": "custom", "requires_quote": true, "features": ["api","team","support-premier","compliance"] }
+  ]
+}

@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamLedger  Commander Deck Audit</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0b0f14; color: #e6f1ff; font-family: system-ui, -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1.5rem; }
+        .card { max-width: 680px; background: #161c26; border-radius: 1.5rem; padding: 2.5rem 2rem; border: 1px solid #2a3442; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        h1 { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+        .subhead { font-size: 1.1rem; color: #9aa8b9; margin: 0.5rem 0 1.5rem; border-left: 4px solid #f97316; padding-left: 1rem; }
+        .benefit { display: flex; gap: 0.75rem; align-items: flex-start; margin: 1rem 0; }
+        .icon { color: #f97316; font-weight: 700; font-size: 1.2rem; line-height: 1.5; min-width: 1.8rem; }
+        .benefit-text { color: #c8d0dc; line-height: 1.5; }
+        .benefit-text strong { color: #fff; }
+        .price-box { display: flex; align-items: baseline; gap: 0.75rem; margin: 2rem 0 0.5rem; flex-wrap: wrap; }
+        .price { font-size: 2.4rem; font-weight: 700; color: #fff; }
+        .price small { font-size: 1rem; font-weight: 400; color: #9aa8b9; }
+        .badge { display: inline-block; background: #f97316; color: #fff; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.2rem 0.8rem; border-radius: 999px; }
+        .btn { display: block; background: #f97316; color: #fff; text-align: center; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 1.2rem; text-decoration: none; transition: background 0.2s; margin-top: 0.5rem; border: none; cursor: pointer; width: 100%; }
+        .btn:hover { background: #e8610e; }
+        .guarantee { font-size: 0.85rem; color: #6b7a8a; margin-top: 1.5rem; text-align: center; border-top: 1px solid #2a3442; padding-top: 1.2rem; }
+        .guarantee span { color: #f97316; }
+        .fine { color: #5a6a7a; font-size: 0.8rem; margin-top: 0.8rem; text-align: center; }
+        @media (max-width: 480px) { .card { padding: 1.5rem 1rem; } h1 { font-size: 1.6rem; } .price { font-size: 1.8rem; } }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Fix My Commander Deck</h1>
+    <div class="subhead">You send your decklist. I send back a fix in 2448 hours.</div>
+
+    <div class="benefit">
+        <span class="icon"></span>
+        <span class="benefit-text"><strong>10 cards to cut</strong>  dead weight removed</span>
+    </div>
+    <div class="benefit">
+        <span class="icon"></span>
+        <span class="benefit-text"><strong>10 replacement upgrades</strong>  clear, affordable swaps</span>
+    </div>
+    <div class="benefit">
+        <span class="icon"></span>
+        <span class="benefit-text"><strong>Wincondition fix</strong>  actually close games</span>
+    </div>
+    <div class="benefit">
+        <span class="icon"></span>
+        <span class="benefit-text"><strong>Why it feels bad diagnosis</strong>  root cause, fixed</span>
+    </div>
+
+    <div class="price-box">
+        <span class="price">$15 NZD <small>~ $9 USD / 7 GBP</small></span>
+        <span class="badge">48h delivery</span>
+    </div>
+
+    <button class="btn" id="buyBtn"> Fix My Deck Now</button>
+
+    <div class="guarantee"><span> 100% satisfaction</span>  if your deck doesn't feel better, I'll refund you.</div>
+    <div class="fine">Digital delivery  2448h turnaround  No hidden fees</div>
+</div>
+
+<script>
+    document.getElementById('buyBtn').addEventListener('click', function() {
+        alert('Stripe checkout link will be inserted by the daily loop script.');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+node_modules/
+.env
+.DS_Store
+Logs/*.log
+*.tmp
+Attach-PaymentLinks.ps1
+mtg-discord-worker/index.js
+mtg-furnace/worker.mjs
+deploy/secrets.json
+keys/

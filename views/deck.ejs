@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html>
+<head><title><%= deck.name %></title></head>
+<body>
+  <h1><%= deck.name %></h1>
+  <p>Commander: <strong><%= deck.commander %></strong></p>
+  <p><%= deck.card_count %> cards  Ready to play</p>
+  <p><strong>$${(deck.price_nzd/100).toFixed(2)} NZD</strong></p>
+  <button onclick="checkout('<%= deck.id %>')">Buy Now</button>
+  <h3>Decklist</h3>
+  <ul>
+    <% deck.card_list.forEach(c => { %>
+      <li><%= c %></li>
+    <% }) %>
+  </ul>
+  <script>
+    function checkout(deckId) {
+      fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deckId })
+      })
+      .then(r => r.json())
+      .then(data => {
+        window.location.href = data.sessionUrl;
+      })
+      .catch(err => alert('Checkout error: ' + err));
+    }
+  </script>
+</body>
+</html>

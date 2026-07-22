@@ -1,0 +1,11 @@
+﻿{
+    "state":  "HEALTHY",
+    "mode":  "SELFHEAL",
+    "health":  3,
+    "time":  "2026-06-17T21:34:06.6117964+12:00",
+    "env":  {
+                "stripe":  true,
+                "secret":  true,
+                "discord":  true
+            }
+}

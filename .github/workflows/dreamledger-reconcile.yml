@@ -1,0 +1,46 @@
+name: DreamLedger Reconciliation Loop
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      heartbeat:
+        description: 'Send heartbeat instead of drift run'
+        required: false
+        default: 'false'
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install stripe axios @supabase/supabase-js
+
+      - name: Run reconciliation
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          node scripts/reconcile-v2.js
+
+      - name: Run Discord alerts
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          node scripts/discord-alerts.js
+
+      - name: Heartbeat (manual only)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.heartbeat == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          node scripts/discord-alerts.js --heartbeat

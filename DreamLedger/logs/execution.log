@@ -1,0 +1,6 @@
+2026-06-03T23:23:45.3036470+12:00 :: MISSING ENV: SUPABASE_SERVICE_ROLE_KEY
+2026-06-03T23:23:45.4771639+12:00 :: Starting guarded execution
+2026-06-03T23:23:45.5367440+12:00 :: Registry items: 2
+2026-06-03T23:23:45.5779927+12:00 :: Supabase skipped (offline mode)
+2026-06-03T23:23:45.9459261+12:00 :: Stripe product failed
+2026-06-03T23:23:46.0449784+12:00 :: Proof written: C:\BrownEyeCortex\DreamLedger\ledger\guarded-proof.json

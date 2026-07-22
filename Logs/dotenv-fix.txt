@@ -1,0 +1,6 @@
+DOTENV REMOVAL EXECUTED
+TIME: 06/25/2026 23:23:48
+RESULT:
+- dotenv import stripped from server.js
+- dependency removed from package.json (if existed)
+- Render will now boot Express cleanly

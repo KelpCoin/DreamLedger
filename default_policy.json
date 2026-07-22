@@ -1,0 +1,9 @@
+﻿{
+  "qualification": { "min_dsis": 60, "min_commercial_score": 65, "min_overall": 75 },
+  "evidence_levels": { "bronze": 100, "silver": 1000, "gold": 10000 },
+  "exploration_ratio": 0.2,
+  "promotion": { "min_views": 200, "min_ctr": 0.05, "min_conversion_rate": 0.03, "max_refund_rate": 0.02, "max_support_rate": 0.05 },
+  "demotion": { "min_views": 500, "max_ctr": 0.01, "min_conversions": 0 },
+  "retirement": { "min_views": 1000, "max_ctr": 0.005, "min_conversions": 0, "min_age_days": 14 },
+  "allocation": { "total_daily_impressions": 10000, "min_exposure_per_offer": 50, "max_exposure_per_offer": 2000 }
+}

@@ -1,0 +1,24 @@
+DREAMLEDGER RUNTIME ASSERTION
+
+TIME: 06/25/2026 21:42:39
+
+EXPECTED:
+- ENTRY: server.js
+- VIEW ENGINE: ejs
+- ROUTES:
+  /health   OK
+  /mtg      MUST RETURN HTML
+  /mtg/:id  MUST RETURN HTML
+
+DIAGNOSIS:
+- Express stack is PRIMARY
+- Next.js app/ is SHADOW ONLY
+
+CHECKLIST:
+- server.js exists
+- views/mtg.ejs exists
+- render('mtg') is reachable
+- Render start command = node server.js
+
+ACTION:
+Fix Render start command FIRST if /mtg returns 404

@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>DreamLedger Marketplace</title>
+  <style>
+    body { font-family: Arial; background:#0b0b0f; color:#fff; }
+    .grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; padding:20px; }
+    .card { background:#1a1a22; padding:16px; border-radius:10px; }
+    .price { color:#00ff99; font-weight:bold; }
+    button { margin-top:10px; padding:8px; width:100%; cursor:pointer; }
+    .tabs { display:flex; gap:10px; padding:10px; }
+    .tab { cursor:pointer; padding:6px 10px; background:#222; border-radius:6px; }
+  </style>
+</head>
+<body>
+
+<h1>DreamLedger Marketplace</h1>
+
+<div class="tabs">
+  <div class="tab" onclick="load('')">All</div>
+  <div class="tab" onclick="load('mtg_nz')">MTG NZ</div>
+  <div class="tab" onclick="load('happy_homarid')">Happy Homarid</div>
+</div>
+
+<div id="grid" class="grid"></div>
+
+<script>
+async function load(silo) {
+  let url = '/api/listings';
+  if (silo) url += '?silo=' + silo;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  data.listings.forEach(l => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <h3>${l.title}</h3>
+      <p>${l.description || ''}</p>
+      <div class='price'>$${l.price}</div>
+      <button onclick="buy('${l.stripe_price_id}')">Buy Now</button>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function buy(priceId) {
+  if (!priceId) return alert('No Stripe price linked yet');
+  window.location.href = 'https://buy.stripe.com/test_placeholder';
+}
+
+load('');
+</script>
+
+</body>
+</html>
+
