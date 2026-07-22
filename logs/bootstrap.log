@@ -1,0 +1,36 @@
+2026-07-22T14:42:49.2121240+12:00 | Notion API key or Parent Page ID not provided. Skipping database creation.
+2026-07-22T14:42:49.7454682+12:00 | Created directory D:\DreamLedgerMTG\.github\workflows
+2026-07-22T14:42:49.9545475+12:00 | Created directory D:\DreamLedgerMTG\scripts
+2026-07-22T14:42:50.1342129+12:00 | Created directory D:\DreamLedgerMTG\boilerplate\config
+2026-07-22T14:42:50.2676726+12:00 | Created directory D:\DreamLedgerMTG\boilerplate\templates
+2026-07-22T14:42:50.3563441+12:00 | Created directory D:\DreamLedgerMTG\boilerplate\static
+2026-07-22T14:42:50.4677659+12:00 | Created directory D:\DreamLedgerMTG\boilerplate\word_banks
+2026-07-22T14:42:50.5713750+12:00 | Created directory D:\DreamLedgerMTG\passports
+2026-07-22T14:42:50.7035849+12:00 | Created directory D:\DreamLedgerMTG\proofs
+2026-07-22T14:42:50.8822997+12:00 | Created directory D:\DreamLedgerMTG\proofs\revenue
+2026-07-22T14:42:51.0385601+12:00 | Created directory D:\DreamLedgerMTG\ledger
+2026-07-22T14:42:51.2611567+12:00 | Created directory D:\DreamLedgerMTG\content\mtg
+2026-07-22T14:42:51.2928258+12:00 | Created directory D:\DreamLedgerMTG\registry
+2026-07-22T14:42:51.4628999+12:00 | Created directory D:\DreamLedgerMTG\revenue\atoms
+2026-07-22T14:42:51.8757607+12:00 | Created directory D:\DreamLedgerMTG\workers\stripe-webhook\src
+2026-07-22T14:42:52.2195028+12:00 | Created directory D:\DreamLedgerMTG\_site\mtg
+2026-07-22T14:42:52.5662007+12:00 | Created directory D:\DreamLedgerMTG\_site\api\ai
+2026-07-22T14:42:52.7493521+12:00 | Wrote D:\DreamLedgerMTG\.github\workflows\verify.yml
+2026-07-22T14:42:52.9080979+12:00 | Wrote D:\DreamLedgerMTG\.github\workflows\publish.yml
+2026-07-22T14:42:53.0924905+12:00 | Wrote D:\DreamLedgerMTG\scripts\requirements.txt
+2026-07-22T14:42:53.3903551+12:00 | Wrote D:\DreamLedgerMTG\scripts\verify_from_notion.py
+2026-07-22T14:42:53.9454395+12:00 | Wrote D:\DreamLedgerMTG\scripts\publish_from_notion.py
+2026-07-22T14:42:54.0299800+12:00 | Wrote D:\DreamLedgerMTG\scripts\validate_decklock.py
+2026-07-22T14:42:54.1170604+12:00 | Wrote D:\DreamLedgerMTG\scripts\verify_ledger.py
+2026-07-22T14:42:54.2188622+12:00 | Wrote D:\DreamLedgerMTG\scripts\generate_site.py
+2026-07-22T14:42:54.3093738+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\package.json
+2026-07-22T14:42:54.3652956+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\wrangler.toml
+2026-07-22T14:42:54.5049015+12:00 | Wrote D:\DreamLedgerMTG\workers\stripe-webhook\src\index.js
+2026-07-22T14:42:54.6103980+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\templates\listing.html
+2026-07-22T14:42:54.6920652+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\templates\index.html
+2026-07-22T14:42:54.7558697+12:00 | Wrote D:\DreamLedgerMTG\boilerplate\static\style.css
+2026-07-22T14:42:54.8129981+12:00 | Wrote D:\DreamLedgerMTG\registry\sku_registry.json
+2026-07-22T14:42:54.8513928+12:00 | Wrote D:\DreamLedgerMTG\registry\stripe_registry.json
+2026-07-22T14:42:54.9490763+12:00 | Wrote D:\DreamLedgerMTG\MANIFEST.json
+2026-07-22T14:42:55.0349992+12:00 | Wrote D:\DreamLedgerMTG\Verify-DreamLedgerMTG.ps1
+2026-07-22T14:42:55.1398007+12:00 | Wrote D:\DreamLedgerMTG\proofs\bootstrap_proof.json

@@ -1,0 +1,8 @@
+{
+ "system":"DreamLedger MTG",
+ "revenue_gate":"WAITING_FOR_FIRST_TRANSACTION",
+ "first_product_required":true,
+ "payment_link_required":true,
+ "settlement_required":true,
+ "fulfillment_required":true
+}

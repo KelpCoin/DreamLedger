@@ -1,0 +1,21 @@
+﻿<!doctype html>
+<html>
+<head><title>{{ passport.identity.name }}  DreamLedger MTG</title>
+<link rel="stylesheet" href="/assets/style.css"></head>
+<body>
+<main>
+<h1>{{ passport.identity.name }}</h1>
+<div class="badge">BEC VERIFIED ASSET</div>
+<p>SKU: {{ passport.asset_id }}</p>
+<p>Price: ${{ passport.commerce.price_nzd }} NZD</p>
+{% if passport.inventory.cards %}
+<ul>
+{% for c in passport.inventory.cards %}
+<li>{{ c.qty }} [{{ c.set }}] {{ c.name }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+<a class="buy" href="{{ passport.commerce.stripe_url or '#' }}">BUY NOW</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,16 @@
+﻿{
+    "event":  "MEGA_BOOTSTRAP_COMPLETE",
+    "version":  "2.4.0",
+    "timestamp":  "2026-07-22T14:46:54.5882328+12:00",
+    "repo":  "D:\\DreamLedgerMTG",
+    "system":  "DreamLedger MTG",
+    "status":  "PATCHED",
+    "patches_applied":  [
+                            "Stripe idempotency (pricebased keys)",
+                            "Ledger hash reader simplified",
+                            "Revenue atom creation added",
+                            "Visibility policy enforced",
+                            "Production verifier created",
+                            "Firstsale checklist created"
+                        ]
+}

@@ -1,0 +1,12 @@
+﻿<!doctype html>
+<html>
+<head><title>DreamLedger MTG</title><link rel="stylesheet" href="/assets/style.css"></head>
+<body>
+<h1>DreamLedger MTG</h1>
+<ul>
+{% for p in passports %}
+<li><a href="/mtg/{{ p.asset_id }}/">{{ p.identity.name }}</a>  ${{ p.commerce.price_nzd }}</li>
+{% endfor %}
+</ul>
+</body>
+</html>

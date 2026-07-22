@@ -1,0 +1,26 @@
+{
+    "checks":  [
+                   {
+                       "pass":  true,
+                       "name":  "root_exists"
+                   },
+                   {
+                       "pass":  true,
+                       "name":  "visibility_policy"
+                   },
+                   {
+                       "pass":  true,
+                       "name":  "revenue_state"
+                   },
+                   {
+                       "pass":  true,
+                       "name":  "passport_directory"
+                   },
+                   {
+                       "pass":  true,
+                       "name":  "ledger_directory"
+                   }
+               ],
+    "timestamp":  "2026-07-22T14:44:40",
+    "system":  "DreamLedger MTG"
+}

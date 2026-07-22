@@ -1,0 +1,10 @@
+﻿{
+  "default": "PUBLIC",
+  "allowed": ["PUBLIC", "BUYER_ONLY", "PRIVATE"],
+  "protected_fields": ["cost_basis", "internal_notes", "supplier_data"],
+  "rules": {
+    "PUBLIC": { "show": ["name", "commander", "price", "trust_badge"] },
+    "BUYER_ONLY": { "show": ["name", "commander", "price", "trust_badge", "full_decklist"] },
+    "PRIVATE": { "show": [] }
+  }
+}
