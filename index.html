@@ -1,57 +1,39 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DreamLedger  MTG Optimization Tools</title>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background: #0b0f14; color: #e6f1ff; font-family: system-ui, -apple-system, sans-serif; }
-    header { padding: 60px 20px 30px; text-align: center; }
-    h1 { font-size: 2.5rem; letter-spacing: -0.02em; }
-    h1 span { color: #f97316; }
-    p.sub { color: #9aa8b9; max-width: 640px; margin: 10px auto 0; font-size: 1.1rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; padding: 40px; max-width: 1200px; margin: 0 auto; }
-    .card { background: #161c26; border: 1px solid #2a3442; border-radius: 16px; padding: 24px; transition: 0.25s ease; }
-    .card:hover { transform: translateY(-4px); border-color: #f97316; box-shadow: 0 8px 30px rgba(249,115,22,0.08); }
-    .card .title { font-weight: 700; font-size: 1.2rem; margin-bottom: 8px; }
-    .card .desc { font-size: 0.95rem; color: #9aa8b9; margin-bottom: 16px; line-height: 1.4; }
-    .card .price { font-weight: 600; font-size: 1.2rem; margin-bottom: 14px; color: #fff; }
-    .card .price small { font-weight: 400; font-size: 0.85rem; color: #9aa8b9; }
-    .btn { display: block; text-align: center; background: #f97316; color: #fff; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: 0.2s; }
-    .btn:hover { background: #e8610e; transform: scale(1.02); }
-    footer { text-align: center; padding: 30px; color: #5a6a7a; font-size: 0.85rem; border-top: 1px solid #1e2632; margin-top: 20px; }
-    @media (max-width: 480px) { h1 { font-size: 1.8rem; } .grid { padding: 20px; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamLedger - Verified Commerce Infrastructure</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0b0f19; color: #eaecef; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+        h1 { font-size: 3rem; font-weight: 700; color: #f0b90b; margin-bottom: 0.5rem; letter-spacing: -1px; }
+        .subtitle { color: #848e9c; font-size: 1.2rem; margin-bottom: 2rem; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; max-width: 1000px; width: 100%; }
+        .card { background: #1a1f2e; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s; text-decoration: none; color: inherit; }
+        .card:hover { transform: translateY(-4px); }
+        .card h2 { color: #f0b90b; margin-bottom: 0.5rem; }
+        .card p { color: #848e9c; font-size: 0.9rem; }
+        footer { margin-top: 3rem; color: #848e9c; font-size: 0.8rem; }
+    </style>
 </head>
 <body>
-<header>
-  <h1><span>Dream</span>Ledger</h1>
-  <p class="sub">MTG optimization tools that upgrade Commander decks instantly.</p>
-</header>
-<div class="grid">
-  <!-- Product cards will be injected via JavaScript using the JSON data -->
-</div>
-<footer>DreamLedger  instant digital delivery  no guesswork</footer>
-<script>
-  fetch('/products.json')
-    .then(r => r.json())
-    .then(data => {
-      const grid = document.querySelector('.grid');
-      data.products.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="title">${p.name}</div>
-          <div class="desc">${p.desc}</div>
-          <div class="price">$${p.price} NZD <small>~ $${Math.round(p.price*0.6)} USD</small></div>
-          <a class="btn" href="/checkout/${p.id}">Buy Now</a>
-        `;
-        grid.appendChild(card);
-      });
-    });
-</script>
-<a href="/public/marketplace.html" style="display:block; text-align:center; padding:16px; background:#1de9b6; color:#0b0f14; border-radius:999px; text-decoration:none; font-weight:bold; margin:30px 0;">
-   Enter the MTG Marketplace  FeeFree Trading
-</a></body>
+    <h1>DreamLedger</h1>
+    <p class="subtitle">Verified digital commerce infrastructure. Evidence-backed assets. Validated sellers. Trusted transactions.</p>
+    <div class="card-grid">
+        <a href="/mtg/" class="card">
+            <h2>Magic: The Gathering</h2>
+            <p>Verified Commander decks. 0% fees. Free to trade.</p>
+        </a>
+        <a href="#" class="card" style="opacity:0.6; pointer-events:none;">
+            <h2>Collectibles</h2>
+            <p>Watches, comics, and more - coming soon.</p>
+        </a>
+        <a href="#" class="card" style="opacity:0.6; pointer-events:none;">
+            <h2>Digital Assets</h2>
+            <p>Licenses, templates, and verified digital goods.</p>
+        </a>
+    </div>
+    <footer>&copy; 2026 DreamLedger. Trust layer for autonomous commerce.</footer>
+</body>
 </html>

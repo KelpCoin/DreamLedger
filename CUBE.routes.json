@@ -1,0 +1,10 @@
+﻿{
+    "silos":  {
+                  "mtg":  "/mtg/"
+              },
+    "root":  "core",
+    "rules":  {
+                  "root_only_neutral_branding":  true,
+                  "no_silo_content_on_root":  true
+              }
+}
