@@ -1,0 +1,14 @@
+﻿{
+  "silo": "mtg",
+  "version": "1.0",
+  "items": [
+    {
+      "id": "commander-diagnostic-001",
+      "slug": "commander-diagnostic-001",
+      "title": "Commander Deck Diagnostic",
+      "type": "service",
+      "price_nzd": 15,
+      "status": "active"
+    }
+  ]
+}
