@@ -1,51 +1,104 @@
-﻿body {
-    background:#0b0d12;
-    color:#eee;
-    font-family:Segoe UI,Arial,sans-serif;
-    margin:0;
+﻿body{
+margin:0;
+background:#0b0e11;
+color:#eaecef;
+font-family:Segoe UI,Arial,sans-serif;
 }
 
-header {
-    padding:50px;
-    text-align:center;
-    background:#151922;
+nav{
+display:flex;
+justify-content:space-between;
+padding:24px 50px;
+border-bottom:1px solid #2b3139;
 }
 
-h1 {
-    font-size:48px;
+.logo{
+font-size:28px;
+font-weight:700;
 }
 
-main {
-    padding:40px;
+a{
+color:#eaecef;
+text-decoration:none;
 }
 
-.cards {
-    display:flex;
-    justify-content:center;
+.navlinks{
+display:flex;
+gap:30px;
 }
 
-.card {
-    display:block;
-    width:320px;
-    padding:30px;
-    background:#1c2330;
-    border-radius:16px;
-    color:white;
-    text-decoration:none;
-    border:1px solid #39455c;
+
+.hero{
+display:flex;
+justify-content:space-between;
+padding:90px 70px;
 }
 
-.card:hover {
-    transform:translateY(-4px);
+h1{
+font-size:56px;
+max-width:700px;
 }
 
-span {
-    font-size:28px;
-    color:#7ee787;
+
+button,.buy{
+background:#fcd535;
+color:#181a20;
+padding:16px 28px;
+border-radius:8px;
+font-weight:700;
+display:inline-block;
+margin-top:30px;
 }
 
-footer {
-    text-align:center;
-    padding:30px;
-    opacity:.7;
+
+.trustbox,.panel,.card{
+
+background:#181a20;
+border:1px solid #2b3139;
+border-radius:16px;
+padding:30px;
+
+}
+
+
+.section{
+padding:60px;
+}
+
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:30px;
+}
+
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+
+.price{
+font-size:32px;
+font-weight:bold;
+color:#fcd535;
+margin-top:20px;
+}
+
+
+.status{
+color:#0ecb81;
+font-weight:bold;
+margin:20px 0;
+}
+
+
+.product{
+padding:70px;
+}
+
+footer{
+padding:40px;
+text-align:center;
+opacity:.6;
 }
