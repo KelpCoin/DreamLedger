@@ -1,0 +1,51 @@
+﻿body {
+    background:#0b0d12;
+    color:#eee;
+    font-family:Segoe UI,Arial,sans-serif;
+    margin:0;
+}
+
+header {
+    padding:50px;
+    text-align:center;
+    background:#151922;
+}
+
+h1 {
+    font-size:48px;
+}
+
+main {
+    padding:40px;
+}
+
+.cards {
+    display:flex;
+    justify-content:center;
+}
+
+.card {
+    display:block;
+    width:320px;
+    padding:30px;
+    background:#1c2330;
+    border-radius:16px;
+    color:white;
+    text-decoration:none;
+    border:1px solid #39455c;
+}
+
+.card:hover {
+    transform:translateY(-4px);
+}
+
+span {
+    font-size:28px;
+    color:#7ee787;
+}
+
+footer {
+    text-align:center;
+    padding:30px;
+    opacity:.7;
+}
