@@ -1,37 +1,31 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>DreamLedger  Commander Decks</title>
+<title>DreamLedger MTG</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#0B0F19; color:#FFFFFF; font-family:system-ui, -apple-system, sans-serif; }
-  .header { padding:1rem; border-bottom:1px solid #F0B90B; display:flex; align-items:center; gap:1rem; }
-  .logo { font-size:1.5rem; font-weight:bold; color:#F0B90B; }
-  .silos { display:flex; overflow-x:auto; gap:1rem; padding:1rem; }
-  .silo { flex:0 0 auto; padding:0.5rem 1.5rem; border-radius:2rem; background:#1A1F2E; color:#848E9C; cursor:pointer; }
-  .silo.active { background:#F0B90B; color:#0B0F19; font-weight:bold; }
+  body { background:#0b0f19; color:#fff; font-family:system-ui, -apple-system, sans-serif; }
+  .header { padding:1rem; border-bottom:1px solid #f0b90b; }
+  .logo { font-size:1.5rem; font-weight:bold; color:#f0b90b; }
   .carousel { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:1rem; padding:1rem; }
-  .card { flex:0 0 280px; scroll-snap-align:start; background:#1A1F2E; border-radius:1rem; overflow:hidden; border:1px solid #2A2F3E; }
-  .card img { width:100%; height:180px; object-fit:cover; background:#2A2F3E; }
-  .card-body { padding:1rem; }
-  .card-body h3 { margin-bottom:0.5rem; }
-  .card-body .commander { color:#848E9C; font-size:0.9rem; margin-bottom:0.5rem; }
-  .card-body .price { color:#F0B90B; font-size:1.2rem; margin:0.5rem 0; }
-  .buy-btn { display:block; background:#F0B90B; color:#0B0F19; text-align:center; padding:0.75rem; border-radius:0.5rem; font-weight:bold; text-decoration:none; margin-top:0.5rem; }
+  .card { flex:0 0 280px; scroll-snap-align:start; background:#1a1f2e; border-radius:1rem; padding:1.5rem; border:1px solid #2a2f3e; }
+  .card h2 { margin-bottom:0.5rem; font-size:1.25rem; }
+  .card .commander { color:#848e9c; font-size:0.9rem; margin-bottom:0.75rem; }
+  .card .price { color:#f0b90b; font-size:1.5rem; margin-bottom:1rem; }
+  .buy { display:block; background:#f0b90b; color:#0b0f19; text-align:center; padding:0.75rem;
+         border-radius:0.5rem; font-weight:bold; text-decoration:none; }
 </style>
 </head>
 <body>
-<div class="header">
-  <div class="logo">DreamLedger</div>
-</div>
-<div class="silos">
-  <div class="silo active">MTG</div>
-  <div class="silo">Collectibles</div>
-  <div class="silo">Digital</div>
-</div>
-<h2 style="padding:0 1rem;">Commander Decks</h2>
-<div class="carousel" id="deckCarousel"></div>
+<div class="header"><div class="logo">DreamLedger</div></div>
+<h2 style="padding:1rem;">Commander Decks</h2>
+<div class="carousel"><div class="card">
+  <h2>Commander Deck Diagnostic</h2>
+  <p class="commander">Commander: Commander Deck Diagnostic</p>
+  <p class="price">$15 NZD</p>
+  <a class="buy" href="https://paypal.me/YOUR_PAYPAL/149">BUY NOW</a>
+</div></div>
 </body>
 </html>

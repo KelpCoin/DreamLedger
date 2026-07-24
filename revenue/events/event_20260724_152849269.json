@@ -1,0 +1,10 @@
+﻿{
+    "timestamp":  "2026-07-24T15:28:49",
+    "type":  "PAYMENT_RECEIVED",
+    "payload":  {
+                    "amount":  15,
+                    "provider":  "PayPal",
+                    "transaction_id":  "actual_transaction_id",
+                    "currency":  "NZD"
+                }
+}
