@@ -1,0 +1,13 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Jaheira Commander Deck",
+  "description": "Ready-to-play Commander deck featuring Jaheira.",
+  "offers": {
+    "@type": "Offer",
+    "price": "149",
+    "priceCurrency": "NZD",
+    "availability": "https://schema.org/InStock",
+    "url": "https://dreamledger.org/silos/mtg/products/jaheira/"
+  }
+}

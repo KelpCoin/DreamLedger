@@ -1,8 +1,11 @@
-﻿{
-    "id":  "commander-diagnostic-001",
-    "name":  "Commander Deck Diagnostic",
-    "commander":  "Commander Deck Diagnostic",
-    "paypal_link":  "https://paypal.me/YOUR_PAYPAL/149",
-    "price_nzd":  15,
-    "status":  "active"
-}
+[
+  {
+    "id": "DL-JAHEIRA-001",
+    "name": "Jaheira Commander Deck",
+    "commander": "Jaheira",
+    "price_nzd": 149,
+    "status": "active",
+    "buy_link": "https://paypal.me/YOUR_REAL_PAYPAL/149",
+    "image": "/silos/mtg/products/jaheira/images/placeholder.png"
+  }
+]

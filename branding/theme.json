@@ -1,0 +1,14 @@
+{
+  "brand": "DreamLedger",
+  "theme": {
+    "background": "#050505",
+    "primary": "#FCD535",
+    "primary_hover": "#C59C0A",
+    "text": "#FFFFFF",
+    "text_muted": "#A7A7A7",
+    "border": "#262626",
+    "card_bg": "#1A1A1A",
+    "font": "system-ui, -apple-system, sans-serif"
+  },
+  "style": "premium_fintech"
+}

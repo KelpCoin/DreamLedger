@@ -1,0 +1,11 @@
+{
+  "id": "DL-JAHEIRA-001",
+  "name": "Jaheira Commander Deck",
+  "type": "commander_deck",
+  "commander": "Jaheira",
+  "status": "DRAFT",
+  "price_nzd": 149,
+  "payment_url": "",
+  "description": "Ready-to-play Commander deck featuring Jaheira.",
+  "evidence_required": ["payment_received", "delivery_completed"]
+}

@@ -1,0 +1,5 @@
+{
+  "OWNER": ["manage_inventory", "manage_users", "view_revenue", "publish"],
+  "SELLER": ["manage_own_inventory", "view_own_revenue"],
+  "CUSTOMER": ["view_products", "make_purchases"]
+}

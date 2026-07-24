@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DreamLedger  Verified Digital &amp; Physical Assets</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#050505; color:#FFFFFF; font-family:system-ui, -apple-system, sans-serif; }
+  .header { padding:1.5rem; border-bottom:1px solid #262626; display:flex; align-items:center; gap:1rem; }
+  .logo { font-size:1.8rem; font-weight:700; color:#FCD535; letter-spacing:-0.5px; }
+  .silos { display:flex; overflow-x:auto; gap:1rem; padding:1.5rem; }
+  .silo { flex:0 0 auto; padding:0.75rem 2rem; border-radius:2rem; background:#1A1A1A; color:#A7A7A7; cursor:pointer; border:1px solid #262626; }
+  .silo.active { background:#FCD535; color:#050505; font-weight:bold; border-color:#FCD535; }
+  .carousel { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:1.5rem; padding:1.5rem; }
+  .card { flex:0 0 300px; scroll-snap-align:start; background:#1A1A1A; border-radius:1rem; overflow:hidden; border:1px solid #262626; }
+  .card img { width:100%; height:200px; object-fit:cover; background:#050505; }
+  .card-body { padding:1.5rem; }
+  .card-body h3 { font-size:1.3rem; margin-bottom:0.5rem; }
+  .card-body .commander { color:#A7A7A7; font-size:0.9rem; margin-bottom:0.8rem; }
+  .card-body .price { color:#FCD535; font-size:1.5rem; font-weight:bold; margin-bottom:1rem; }
+  .buy-btn { display:block; background:#FCD535; color:#050505; text-align:center; padding:0.9rem; border-radius:0.5rem; font-weight:bold; text-decoration:none; transition:background 0.2s; }
+  .buy-btn:hover { background:#C59C0A; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">DreamLedger</div>
+</div>
+<div class="silos">
+  <div class="silo active">MTG</div>
+  <div class="silo">Collectibles</div>
+  <div class="silo">Digital</div>
+</div>
+<h2 style="padding:0 1.5rem;">Commander Decks</h2>
+<div class="carousel" id="deckCarousel"></div>
+<script>
+  fetch('/catalog/decks.json')
+    .then(r => r.json())
+    .then(decks => {
+      const carousel = document.getElementById('deckCarousel');
+      decks.forEach(d => {
+        carousel.innerHTML += '<div class="card">' +
+          '<img src="' + (d.image || '/silos/mtg/products/jaheira/images/placeholder.png') + '" alt="' + d.name + '">' +
+          '<div class="card-body">' +
+          '<h3>' + d.name + '</h3>' +
+          '<div class="commander">Commander: ' + d.commander + '</div>' +
+          '<div class="price">$' + d.price_nzd + ' NZD</div>' +
+          '<a href="' + (d.buy_link || '#') + '" class="buy-btn">Buy Now</a>' +
+          '</div></div>';
+      });
+    });
+</script>
+</body>
+</html>

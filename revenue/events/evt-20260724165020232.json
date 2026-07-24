@@ -1,0 +1,13 @@
+{
+    "id":  "evt-20260724165020232",
+    "timestamp":  "2026-07-24T16:50:20",
+    "type":  "PAYMENT_RECEIVED",
+    "payload":  {
+                    "amount":  149,
+                    "provider":  "Stripe",
+                    "transaction_id":  "REAL_TXN_ID",
+                    "currency":  "NZD"
+                },
+    "previous_hash":  null,
+    "hash":  "81b262493800aecfd20cdfe4d251886a2495c43228887994e9bcae71cf565b02"
+}
