@@ -1,0 +1,2 @@
+{"source":"LOCAL_VERIFICATION","type":"SYSTEM_ACTIVATION","timestamp":"2026-07-24T16:54:52","status":"FACTORY_READY","previous_hash":null,"product":"DL-JAHEIRA-001","hash":"ceafe8d6c5886c6e526b2a58330e3d1e1b0fe0c65d23c34dd1487de99ac638d8"}
+{"type":"FACTORY_BOOTSTRAP","event":"COMMERCE_KERNEL_CREATED","timestamp":"2026-07-24T16:55:40","status":"PASS","previous_hash":null,"product":"DL-JAHEIRA-001","hash":"71a773dfdc8d93300cfb889283cd4f44804e117c142e607672d224a51008f6c9"}
