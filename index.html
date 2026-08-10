@@ -3,35 +3,57 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="A practical Commander deck diagnostic for power level, weaknesses, strategy and upgrades. $15 NZD.">
-<title>Commander Deck Diagnostic | DreamLedger</title>
+<meta name="description" content="DreamLedger Commander deck diagnostics. A practical review of your actual deck list for $15 NZD.">
+<title>DreamLedger | Commander Deck Diagnostic</title>
 <style>
-:root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--text:#f0f6fc;--muted:#8b949e;--blue:#58a6ff;--green:#238636}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}.wrap{max-width:760px;margin:auto;padding:22px}.hero{text-align:center;padding:58px 0 34px}.eyebrow{color:var(--blue);font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}.hero h1{font-size:clamp(2.2rem,7vw,4rem);line-height:1.04;margin:14px 0}.hero p{max-width:610px;margin:auto;color:var(--muted);font-size:1.15rem}.price{display:inline-block;margin:22px 0 8px;background:var(--green);padding:8px 20px;border-radius:999px;font-size:1.3rem;font-weight:800}.cta{display:inline-block;margin:12px 0 0;background:var(--green);color:#fff;text-decoration:none;font-weight:800;font-size:1.12rem;padding:15px 28px;border-radius:8px}.sub{font-size:.86rem;color:var(--muted);margin-top:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:26px 0}.card,.section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}.card h2,.section h2{margin:0 0 7px;color:var(--blue);font-size:1.05rem}.card p,.section p,.section li{color:var(--muted)}.section{margin:15px 0}.section ul{padding-left:20px}.steps{padding-left:22px}.steps li{margin:12px 0}.trust{border-color:#3b4f66}.final{text-align:center;padding:28px 0 8px}.footer{text-align:center;color:#484f58;font-size:.8rem;padding:28px 0}@media(max-width:600px){.grid{grid-template-columns:1fr}.hero{padding-top:40px}}
+:root{--bg:#0b0d10;--panel:#12161b;--panel2:#171c22;--line:#2a313a;--text:#f3f5f7;--muted:#a5adb7;--accent:#d7b56d;--accent2:#f0d99b;--good:#86c99a;--max:960px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}.wrap{max-width:var(--max);margin:auto;padding:0 24px}a{color:inherit}.nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}.brand{font-weight:800;letter-spacing:.08em}.nav a{color:var(--muted);text-decoration:none;margin-left:20px;font-size:.92rem}.hero{padding:82px 0 62px;max-width:820px}.kicker{color:var(--accent);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.76rem}.hero h1{font-size:clamp(2.8rem,7vw,5.7rem);line-height:.98;letter-spacing:-.045em;margin:16px 0 24px}.hero p{font-size:1.2rem;color:var(--muted);max-width:720px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.button{display:inline-block;padding:14px 20px;border-radius:7px;text-decoration:none;font-weight:800}.primary{background:var(--accent);color:#17130b}.secondary{border:1px solid var(--line);color:var(--text)}.price{margin-top:18px;color:var(--muted)}.price strong{color:var(--text);font-size:1.25rem}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0 60px}.card,.section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:26px}.card h2,.section h2{margin:0 0 8px;font-size:1.05rem}.card p,.section p,.section li{color:var(--muted)}.section{margin:14px 0}.section h2{color:var(--accent2)}.proof{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:start}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0a0c0f;border:1px solid var(--line);border-radius:8px;padding:18px;white-space:pre-wrap;color:#cbd2da;font-size:.9rem}.status{color:var(--good);font-weight:800}.footer{border-top:1px solid var(--line);margin-top:70px;padding:28px 0 50px;color:#737c87;font-size:.85rem}@media(max-width:700px){.grid,.proof{grid-template-columns:1fr}.hero{padding-top:58px}.nav a{margin-left:10px}}
 </style>
 </head>
 <body>
-<main class="wrap">
-<section class="hero">
-<div class="eyebrow">DreamLedger</div>
-<h1>Find out why your Commander deck wins or loses.</h1>
-<p>A focused diagnostic that turns your actual deck list into clear cuts, upgrades and strategy fixes.</p>
-<div class="price">$15 NZD</div><br>
-<a class="cta" href="#" data-checkout>Get Your Deck Diagnostic</a>
-<div class="sub">24-hour delivery target · Full refund if not satisfied</div>
+<div class="wrap">
+<header class="nav"><div class="brand">DREAMLEDGER</div><nav><a href="#diagnostic">Diagnostic</a><a href="#proof">Proof</a><a href="/trust-engine.html">Trust</a></nav></header>
+<main>
+<section class="hero" id="diagnostic">
+<div class="kicker">Commander deck diagnostic</div>
+<h1>Stop guessing what your deck needs.</h1>
+<p>Send the actual list. DreamLedger reviews the structure, game plan, consistency, interaction and upgrade path, then gives you a practical report you can use.</p>
+<div class="actions"><a class="button primary" href="#" data-checkout>Get the diagnostic</a><a class="button secondary" href="#proof">See the proof layer</a></div>
+<div class="price"><strong>$15 NZD</strong> · written diagnostic · 24-hour delivery target · full refund if not satisfied</div>
 </section>
 <section class="grid">
-<div class="card"><h2>Power Level</h2><p>A reasoned 1-10 rating and the factors driving it.</p></div>
-<div class="card"><h2>Weaknesses</h2><p>Structural gaps, dead cards and consistency problems.</p></div>
-<div class="card"><h2>Upgrades</h2><p>Practical cuts and replacement options, including budget choices.</p></div>
-<div class="card"><h2>Game Plan</h2><p>Win conditions, curve, interaction and strategic priorities.</p></div>
+<div class="card"><h2>Power level</h2><p>A reasoned rating with the actual factors behind it.</p></div>
+<div class="card"><h2>Weaknesses</h2><p>Dead cards, structural gaps, curve problems and consistency leaks.</p></div>
+<div class="card"><h2>Strategy</h2><p>Win conditions, sequencing priorities, interaction and the deck's real plan.</p></div>
+<div class="card"><h2>Upgrades</h2><p>Specific cuts and replacement options, including budget-conscious choices.</p></div>
 </section>
-<section class="section"><h2>What you receive</h2><p>A written diagnostic built around your deck, not generic Commander advice.</p><ul><li>Power-level assessment with reasoning</li><li>Cards and patterns holding the deck back</li><li>Recommended cuts and replacement options</li><li>Mana, curve, interaction and consistency observations</li><li>Strategy and win-condition breakdown</li></ul></section>
-<section class="section"><h2>How it works</h2><ol class="steps"><li>Send your Commander deck list during checkout. Moxfield and Archidekt links are accepted.</li><li>Your list is reviewed against the diagnostic framework.</li><li>Your report is delivered within the stated turnaround target.</li></ol></section>
-<section class="section trust"><h2>Proof, without the theatre</h2><p>DreamLedger is designed around traceable commerce. The trust page documents the proof layer and its current status.</p><a href="/trust-engine.html" style="color:var(--blue)">View the trust engine</a></section>
-<section class="final"><h2>Want to know what to change?</h2><p style="color:var(--muted)">Send the list. Get the diagnosis. Make the next upgrade with a reason.</p><a class="cta" href="#" data-checkout>Get Your Diagnostic - $15 NZD</a></section>
-<footer class="footer">DreamLedger · Practical deck diagnostics</footer>
+<section class="section">
+<h2>What happens after checkout</h2>
+<ol>
+<li>Send a Commander deck list. Moxfield and Archidekt links are accepted.</li>
+<li>The list is reviewed against the DreamLedger diagnostic framework.</li>
+<li>You receive a written report targeted at decisions you can actually make.</li>
+</ol>
+</section>
+<section class="section proof" id="proof">
+<div><h2>BEC Prime smoke test</h2><p>The storefront is backed by the BEC Prime proof workflow. This is an engine smoke-test record, not a claim that every commerce transaction is cryptographically proven.</p><p class="status">PASS · CUBE-01-MTG</p><p>Verified test item: <strong>Palinchron - Urza's Legacy Foil</strong>. LP condition. Minor clouding and minor edge wear. The record identifies the item as a verified evidence-passport test case.</p><a class="button secondary" href="/proof-2026-08-10.html">Open the pass artifact</a></div>
+<div class="mono">BEC-PRIME SMOKE TEST
+Silo: CUBE-01-MTG
+
+Palinchron - Urza's Legacy Foil
+SKU: MTG-URZAS-LEGACY-PALINCHRON-FOIL-001
+
+PASS: engine fixture</div>
+</section>
+<section class="section">
+<h2>Proof, without theatre</h2>
+<p>The public trust page separates what the storefront can demonstrate from what would require a real transaction record. No transaction-level proof is claimed unless the corresponding evidence exists.</p>
+<a href="/trust-engine.html">Open the trust engine</a>
+</section>
+<section class="hero" style="padding:52px 0 20px"><div class="kicker">Ready when you are</div><h2 style="font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;margin:12px 0">Bring the deck. Leave with a plan.</h2><div class="actions"><a class="button primary" href="#" data-checkout>Buy the diagnostic for $15 NZD</a></div></section>
 </main>
+<footer class="footer">DreamLedger · Commander diagnostics · <a href="/healthz">service health</a></footer>
+</div>
 <script src="/checkout.js"></script>
 </body>
 </html>
