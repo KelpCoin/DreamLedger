@@ -1,8 +1,6 @@
 ﻿services:
   - type: web
     name: dreamledger
-    env: static
-    staticPublishPath: compiled/website
-    routes:
-      - source: /mtg
-        destination: /mtg/index.html
+    runtime: node
+    buildCommand: powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path compiled\website | Out-Null; Copy-Item -Recurse -Force cubes\*\outputs\website\*\* compiled\website\"
+    startCommand: node server.js

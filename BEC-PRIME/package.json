@@ -1,0 +1,9 @@
+﻿{
+  "name": "dreamledger",
+  "version": "1.0.0",
+  "description": "BEC-PRIME DreamLedger web service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
