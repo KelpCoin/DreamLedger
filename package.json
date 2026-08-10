@@ -1,0 +1,12 @@
+{
+  "name": "dreamledger",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DreamLedger storefront web service",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
