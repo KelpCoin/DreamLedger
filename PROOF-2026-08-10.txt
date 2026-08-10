@@ -1,0 +1,28 @@
+DreamLedger storefront pass proof
+Date: 2026-08-10
+Branch: main
+
+Changes verified in GitHub:
+- index.html replaced with conversion-focused Commander diagnostic storefront.
+- commander-diagnostic.html aligned to the same offer.
+- MTG-COMMANDER-002.html aligned to the same offer.
+- trust-engine.html changed to claim-safe public proof status language.
+- checkout.js centralizes the Stripe checkout destination for all CTA links.
+- README.md added with current product and deployment notes.
+
+Latest commit:
+3a95945985c254ed65d621b3490d372789de0921
+
+Key file content SHAs:
+index.html 7ef363e06311fd5308f8bb6ab0b37c40261db378
+checkout.js a181295a2d961ef3835b3964c0dd61351c054568
+commander-diagnostic.html fb6ff05197ad963425f5447a2ae699372b2a4fcf
+MTG-COMMANDER-002.html 480f63c04ad1e20e05306ed8c236f875a14c2a5e
+trust-engine.html fb0264800cd8115c67252661e6ed20383e6a30e6
+
+60-second verification:
+1. Open https://dreamledger-org.onrender.com/
+2. Confirm both purchase buttons navigate to Stripe checkout.
+3. Open /commander-diagnostic.html and /MTG-COMMANDER-002.html and confirm their purchase buttons work.
+4. Open /trust-engine.html and confirm it no longer claims transaction proof without a corresponding record.
+5. In Render, confirm the deployment is live on the latest main commit.
