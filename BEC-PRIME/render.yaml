@@ -1,0 +1,8 @@
+﻿services:
+  - type: web
+    name: dreamledger
+    env: static
+    staticPublishPath: compiled/website
+    routes:
+      - source: /mtg
+        destination: /mtg/index.html
