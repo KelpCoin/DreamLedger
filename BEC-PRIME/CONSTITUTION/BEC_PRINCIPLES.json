@@ -1,0 +1,93 @@
+{
+  "bec_principles_version": "1.0.0",
+  "status": "canonical",
+  "purpose": "Universal economic, governance, truth, optimization, and evidence principles inherited by BEC-PRIME constitutional components.",
+  "economic_principles": {
+    "all_revenue_events_have_value": true,
+    "small_transactions_count": true,
+    "optimize_for_verified_value_creation": true,
+    "data_should_create_future_economic_value": true,
+    "cash_is_an_exhaust_not_the_final_destination": true,
+    "revenue_claims_require_evidence": true
+  },
+  "distribution_principles": {
+    "cube_white_label_entry_should_be_free": true,
+    "monetization_opportunities_should_exist_inside_silos": true,
+    "evergreen_digital_assets_preferred": true,
+    "digital_products_should_compete_on_value": true,
+    "new_monetization_requires_evidence_of_customer_value": true
+  },
+  "governance_principles": {
+    "human_intelligence_layer_is_final_authority": true,
+    "local_killswitch_required": true,
+    "remote_killswitch_required": true,
+    "no_agent_can_override_human": true,
+    "permissions_are_earned_through_evidence": true,
+    "digital_proxy_may_be_overturned_by_gauntlet": true,
+    "gauntlet_may_be_overturned_by_truth_oracle": true
+  },
+  "truth_oracle_principles": {
+    "must_be_neutral": true,
+    "must_be_able_to_reject_bec_assumptions": true,
+    "must_prefer_external_evidence": true,
+    "must_track_real_world_changes": true,
+    "must_record_confidence": true,
+    "must_preserve_source_provenance": true,
+    "reality_beats_internal_consistency": true
+  },
+  "gauntlet_principles": {
+    "continuous_scoring": true,
+    "multi_surface_evaluation": true,
+    "include_market_sentiment": true,
+    "include_human_emotion_and_sentiment": true,
+    "include_shadow_sku_analysis": true,
+    "adversarial_testing_required_before_unlock": true
+  },
+  "signal_principles": {
+    "arbitrage_signals_should_be_triangulated": true,
+    "positive_signal_required": true,
+    "negative_signal_required": true,
+    "synthesis_signal_required": true,
+    "discord_delivery_preferred": true
+  },
+  "optimization_principles": {
+    "elochim_refinement_engine": {
+      "primary_goal": "maximize_verified_profit",
+      "secondary_goal": "reduce_complexity",
+      "algorithm_improves_from_history": true,
+      "prefer_simple_high_roi_actions": true
+    },
+    "complexity_budget_required": true,
+    "new_components_require_roi_justification": true
+  },
+  "asset_lifecycle": {
+    "required_states": [
+      "CREATED",
+      "TESTING",
+      "PROVEN",
+      "SCALING",
+      "DECLINING",
+      "ARCHIVED"
+    ],
+    "nothing_lives_forever_without_evidence": true
+  },
+  "compute_principles": {
+    "local_compute_preferred": true,
+    "gpu_should_be_utilized_for_clear_roi_jobs": true,
+    "gpu_jobs_require_measurable_output": true,
+    "idle_compute_should_not_be_consumed_without_economic_or_operational_purpose": true
+  },
+  "public_surface_principles": {
+    "public_surface_must_not_expose_private_ip": true,
+    "public_surface_must_not_claim_unproven_revenue": true,
+    "public_surface_must_be_compiled_from_canonical_sources": true,
+    "silo_boundaries_are_mandatory": true,
+    "public_actions_are_approval_gated": true
+  },
+  "vertical_separation": {
+    "vertical_specific_pricing_policies_live_outside_this_file": true,
+    "mtg_policy_separate": true,
+    "adult_policy_separate": true,
+    "other_silo_policies_separate": true
+  }
+}
