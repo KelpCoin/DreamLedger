@@ -1,150 +1,47 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "registry_id": "BEC-PRIME-ARCHITECTURE",
   "purpose": "Machine-readable source of truth for implemented, specified, backlog, externally blocked, approval-gated, and unproven BEC-PRIME capabilities.",
   "authority": "repository",
   "commercial_priority": "FIRST_PAYMENT_PROOF",
   "states": ["implemented", "specified", "backlog", "external_blocked", "approval_gated", "unproven"],
   "components": {
-    "engine": {
-      "state": "implemented",
-      "path": "BEC-PRIME/server.js",
-      "depends_on": ["catalog", "checkout", "webhook", "ip_capability_catalog"],
-      "verification": ["healthz", "api_products", "api_product_by_id", "api_ip"]
-    },
-    "catalog": {
-      "state": "implemented",
-      "path": "BEC-PRIME/catalog/products",
-      "products": ["COMMANDER-DECK-DIAGNOSTIC-001"],
-      "verification": ["product_file_exists", "product_schema"]
-    },
-    "ip_capability_catalog": {
-      "state": "implemented",
-      "path": "BEC-PRIME/catalog/ip-capabilities.json",
-      "purpose": "Machine-readable catalog of BEC-PRIME intellectual property and commercialization surfaces.",
-      "activation": "approval_gated",
-      "verification": ["catalog_file_exists", "capability_ids_unique", "no_secrets"]
-    },
-    "commander_deck_diagnostic": {
-      "state": "approval_gated",
-      "path": "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json",
-      "price_nzd": 15,
-      "silo": "mtg",
-      "experiment": "20-DM-SIGNAL-TEST",
-      "approval_required": true,
-      "verification": ["canonical_product", "approval_gate"]
-    },
-    "checkout": {
-      "state": "implemented",
-      "path": "BEC-PRIME/server.js",
-      "adapter": "stripe",
-      "verification": ["approval_gate", "checkout_session_metadata"]
-    },
-    "stripe_adapter": {
-      "state": "implemented",
-      "path": "BEC-PRIME/server.js",
-      "verification": ["checkout_session", "webhook_signature", "paid_settlement"]
-    },
-    "webhook": {
-      "state": "implemented",
-      "path": "BEC-PRIME/server.js",
-      "verification": ["signature_validation", "payment_status_paid", "idempotent_evidence"]
-    },
-    "proof_system": {
-      "state": "implemented",
-      "path": "BEC-PRIME/server.js",
-      "proof_artifact": "FIRST_PAYMENT_PROOF.json",
-      "verification": ["settlement_before_proof", "proof_write"]
-    },
-    "durable_storage": {
-      "state": "implemented",
-      "path": "/var/data",
-      "verification": ["healthz_storage_report"]
-    },
-    "website_surface": {
-      "state": "implemented",
-      "path": "index.html",
-      "depends_on": ["catalog", "checkout", "proof_system", "ip_capability_catalog"],
-      "verification": ["engine_backed_product_surface", "checkout_hook", "ip_catalog_surface"]
-    },
-    "gauntlet": {
-      "state": "specified",
-      "rules": [
-        "approval_gate",
-        "canonical_product",
-        "payment_settlement_before_delivery",
-        "idempotent_transaction",
-        "proof_generation",
-        "silo_isolation",
-        "deterministic_verification"
-      ]
-    },
-    "elohim_refinery": {
-      "state": "specified",
-      "purpose": "Future orchestration/refinery layer described by the BEC-PRIME architecture; implementation is not asserted by this registry until executable artifacts exist."
-    },
-    "cube": {
-      "state": "specified",
-      "purpose": "Compiler/reskin/clone/silo architecture described by the BEC-PRIME architecture; implementation status must be established from executable repository artifacts."
-    },
-    "x402_payment_adapter": {
-      "state": "backlog",
-      "adapter": "x402",
-      "depends_on": ["payment_adapter_boundary", "first_payment_proof", "durable_storage"],
-      "approval_required": true,
-      "do_not_implement_before": "FIRST_PAYMENT_PROOF"
-    },
-    "payment_adapter_boundary": {
-      "state": "specified",
-      "interfaces": ["offer", "payment_intent", "payment_authorization", "settlement", "delivery", "proof"]
-    },
-    "render_deployment": {
-      "state": "external_blocked",
-      "blocker": "live deployment state is controlled by Render and is not exposed through the connected GitHub tools",
-      "configuration": "render.yaml",
-      "verification": ["healthz_live", "api_products_live", "api_product_live", "api_ip_live"]
-    },
-    "first_payment_proof": {
-      "state": "unproven",
-      "artifact": "FIRST_PAYMENT_PROOF.json",
-      "requires": ["render_deployment", "approved_offer", "real_or_explicitly_authorized_test_settlement", "webhook_verification"]
-    }
+    "engine": {"state":"implemented","path":"BEC-PRIME/server.js","verification":["healthz","api_products","api_product_by_id","api_ip"]},
+    "catalog": {"state":"implemented","path":"BEC-PRIME/catalog/products","products":["COMMANDER-DECK-DIAGNOSTIC-001"]},
+    "ip_capability_catalog": {"state":"implemented","path":"BEC-PRIME/catalog/ip-capabilities.json","activation":"approval_gated"},
+    "checkout": {"state":"implemented","path":"BEC-PRIME/server.js","adapter":"stripe"},
+    "webhook": {"state":"implemented","path":"BEC-PRIME/server.js"},
+    "proof_system": {"state":"implemented","path":"BEC-PRIME/server.js","proof_artifact":"FIRST_PAYMENT_PROOF.json"},
+    "durable_storage": {"state":"implemented","path":"/var/data"},
+    "website_surface": {"state":"implemented","path":"BEC-PRIME/compiled/website/index.html"},
+    "dreamiez_accounts": {"state":"implemented","path":"BEC-PRIME/dreamiez-account.js","verification":["account_create","login","session","daily_streak","reward_gating"]},
+    "gauntlet": {"state":"implemented","path":"BEC-PRIME/gauntlet/GauntletV6.js","version":"6.0","verification":["offer_schema","approval_gate","silo_isolation","capability_links","deterministic_proof"]},
+    "elohim_v6": {"state":"implemented","path":"BEC-PRIME/elohim/ElohimV6.js","version":"6.0","verification":["proposal_generation","deterministic_reward_asset","local_model_adapter","human_action_boundary"]},
+    "digital_proxy": {"state":"approval_gated","path":"BEC-PRIME/proxy/DigitalProxy.js","verification":["allowlist","pending_approval","approval_transition","audit_log"]},
+    "control_plane": {"state":"implemented","path":"BEC-PRIME/runtime/ControlPlane.js","depends_on":["gauntlet","elohim_v6","digital_proxy","compilers"],"verification":["boot_gate","self_compile","gauntlet_health","proposal_route","proxy_route"]},
+    "self_compilation": {"state":"implemented","path":"BEC-PRIME/runtime/ControlPlane.js","policy":"compile_offers_then_compile_surface_then_gauntlet; runtime refuses start on failed gate"},
+    "x402_payment_adapter": {"state":"backlog","approval_required":true,"do_not_implement_before":"FIRST_PAYMENT_PROOF"},
+    "render_deployment": {"state":"external_blocked","blocker":"live deployment state is controlled by Render and is not exposed through the connected GitHub tools","configuration":"render.yaml","verification":["healthz_live","api_products_live","api_product_live","api_ip_live"]},
+    "first_payment_proof": {"state":"unproven","artifact":"FIRST_PAYMENT_PROOF.json","requires":["render_deployment","approved_offer","real_or_explicitly_authorized_test_settlement","webhook_verification"]}
   },
   "silos": {
-    "mtg": {
-      "state": "implemented",
-      "products": ["COMMANDER-DECK-DIAGNOSTIC-001"],
-      "isolation_rule": "MTG state and assets must not be mixed with adult/Amplissa state."
-    },
-    "commerce": {
-      "state": "implemented",
-      "catalog": "BEC-PRIME/catalog/ip-capabilities.json",
-      "isolation_rule": "BEC-PRIME commercial architecture may be exposed as capability descriptions without importing MTG inventory or adult/Amplissa state."
-    },
-    "adult": {
-      "state": "specified",
-      "isolation_rule": "Adult/Amplissa state must remain isolated from MTG and commerce state."
-    }
+    "mtg": {"state":"implemented","products":["COMMANDER-DECK-DIAGNOSTIC-001"],"isolation_rule":"MTG state and assets must not be mixed with adult/Amplissa state."},
+    "commerce": {"state":"implemented","catalog":"BEC-PRIME/catalog/ip-capabilities.json","isolation_rule":"Commercial capability descriptions may not import MTG inventory or adult/Amplissa state."},
+    "adult": {"state":"specified","isolation_rule":"Adult/Amplissa state must remain isolated from MTG and commerce state."}
   },
   "compiler_policy": {
-    "source_of_truth": "this registry plus canonical repository artifacts",
-    "never_infer_proof_from_design": true,
-    "never_mark_external_state_as_live_without_observation": true,
-    "never_disable_human_approval_implicitly": true,
-    "never_create_duplicate_products_when_canonical_product_exists": true,
-    "never_implement_backlog_items_as_blocking_dependencies_without_explicit_promotion": true,
-    "never_publish_credentials_or_customer_data": true
+    "source_of_truth":"this registry plus canonical repository artifacts",
+    "never_infer_proof_from_design":true,
+    "never_mark_external_state_as_live_without_observation":true,
+    "never_disable_human_approval_implicitly":true,
+    "never_create_duplicate_products_when_canonical_product_exists":true,
+    "never_implement_backlog_items_as_blocking_dependencies_without_explicit_promotion":true,
+    "never_publish_credentials_or_customer_data":true,
+    "never_execute_external_action_without_digital_proxy_approval":true,
+    "gauntlet_required_before_promotion":true
   },
   "commercial_gate": {
-    "sequence": [
-      "canonical_offer",
-      "live_deployment",
-      "human_approval",
-      "payment",
-      "verified_settlement",
-      "delivery",
-      "FIRST_PAYMENT_PROOF.json"
-    ],
-    "current_target": "FIRST_PAYMENT_PROOF"
+    "sequence":["canonical_offer","live_deployment","human_approval","payment","verified_settlement","delivery","FIRST_PAYMENT_PROOF.json"],
+    "current_target":"FIRST_PAYMENT_PROOF"
   }
 }
