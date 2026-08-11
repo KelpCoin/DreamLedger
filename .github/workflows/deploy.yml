@@ -6,7 +6,54 @@ on:
   workflow_dispatch:
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+
+      - name: Install
+        run: npm install
+
+      - name: Compile offers
+        run: npm run compile:offers
+
+      - name: Compile surface
+        run: npm run compile:surface
+
+      - name: Syntax gate
+        run: |
+          node --check server.js
+          node --check start.js
+          node --check dreamiez-account.js
+          node --check scripts/smoke-dreamiez.js
+          node --check gauntlet/GauntletV6.js
+          node --check elohim/ElohimV6.js
+          node --check proxy/DigitalProxy.js
+          node --check runtime/ControlPlane.js
+
+      - name: Dreamiez smoke gate
+        run: npm run smoke:dreamiez
+
+      - name: Production asset gate
+        run: |
+          test -s compiled/website/index.html
+          test -s compiled/website/assets/marketplace-live.js
+          test -s catalog/offers/offers.json
+          test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
+
   deploy:
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render deploy hook
