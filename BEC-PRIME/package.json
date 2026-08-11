@@ -12,6 +12,7 @@
     "scout:demand": "node scouts/Run-DemandScouts.js",
     "verify:public-surface": "node scripts/verify-public-surface.js",
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
+    "smoke:multi-silo": "node scripts/smoke-multi-silo.js",
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
     "gauntlet": "node scripts/meta-gauntlet.js",
     "activate:first-revenue": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Activate-FirstRevenue.ps1",
