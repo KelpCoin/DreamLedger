@@ -7,6 +7,7 @@ const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
 const sentinel = require('./runtime/Sentinel');
 const digitalProxyAssistant = require('./proxy/DigitalProxyAssistant');
+const ucp = require('./ucp');
 
 const originalCreateServer = http.createServer;
 let capturedServer = null;
@@ -26,6 +27,7 @@ function jsonBody(req) {
 }
 
 function send(res, status, body) {
+  if (res.headersSent) return;
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(body));
 }
@@ -35,6 +37,8 @@ http.createServer = function wrappedCreateServer(...args) {
   args[0] = async function dreamledgerRuntimeHandler(req, res) {
     const requestPath = String(req.url || '').split('?')[0];
     demandRadar.record('route', { route: requestPath, source: 'runtime' });
+
+    if (await ucp.handle(req, res)) return;
 
     if (req.method === 'POST' && requestPath === '/api/digital-proxy/help') {
       try {
@@ -67,22 +71,7 @@ http.createServer = function wrappedCreateServer(...args) {
     if (await dreamiezAccount.handle(req, res)) return;
     if (await controlPlane.handle(req, res)) return;
 
-    if (req.method === 'GET' && requestPath === '/') {
-      const originalEnd = res.end;
-      res.end = function injectedEnd(chunk, encoding, callback) {
-        try {
-          const contentType = String(res.getHeader('Content-Type') || '');
-          if (chunk && contentType.includes('text/html')) {
-            let html = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
-            html = html.replace('</body>', '<script src="/assets/dreamiez-account.js"></script><script src="/assets/digital-proxy-assist.js"></script></body>');
-            return originalEnd.call(this, html, 'utf8', callback);
-          }
-        } catch (err) {
-          console.error('DreamLedger UI injection failed:', err.message);
-        }
-        return originalEnd.call(this, chunk, encoding, callback);
-      };
-    }
+    // The compiled surface is authoritative. Runtime must not mutate it.
     return originalHandler(req, res);
   };
   capturedServer = originalCreateServer.apply(this, args);
@@ -91,7 +80,7 @@ http.createServer = function wrappedCreateServer(...args) {
 
 const boot = controlPlane.boot();
 const sentinelResult = sentinel.run(boot.gauntlet);
-console.log(JSON.stringify({ control_plane_boot: boot, sentinel: sentinelResult }, null, 2));
+console.log(JSON.stringify({ control_plane_boot: boot, sentinel: sentinelResult, ucp: { version: ucp.VERSION, profile: '/.well-known/ucp' } }, null, 2));
 if (boot.status !== 'PASS' || sentinelResult.verdict !== 'PASS') {
   throw new Error('Enterprise boot gate failed; refusing to start runtime');
 }
