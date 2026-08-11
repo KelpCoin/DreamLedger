@@ -26,12 +26,18 @@ jobs:
       - name: Compile public surface
         working-directory: BEC-PRIME
         run: npm run compile:surface
+      - name: Compiler truth gate
+        shell: pwsh
+        run: ./BEC-PRIME/scripts/Verify-CompilerTruth.ps1 -ProofPath "$env:GITHUB_WORKSPACE/compiler-truth-proof.json"
       - name: Syntax gate
         working-directory: BEC-PRIME
         run: |
           node --check server.js
           node --check start.js
           node --check dreamiez-account.js
+          node --check compiler/OfferCompiler.js
+          node --check compiler/SurfaceCompiler.js
+          node --check compiler/PriceDisplayPatch.js
           node --check scripts/smoke-dreamiez.js
           node --check scripts/meta-gauntlet.js
           node --check gauntlet/GauntletV6.js
@@ -55,6 +61,7 @@ jobs:
           path: |
             BEC-PRIME/PROOF-META-GAUNTLET.json
             BEC-PRIME/data/proofs/SENTINEL-LATEST.json
+            compiler-truth-proof.json
           if-no-files-found: error
 
   deploy:
