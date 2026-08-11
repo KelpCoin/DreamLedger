@@ -9,14 +9,17 @@ const crypto = require('crypto');
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'compiled', 'website');
 const ASSETS = path.join(OUT, 'assets');
+const WELL_KNOWN = path.join(OUT, '.well-known');
 const TEMPLATE_INDEX = path.join(__dirname, 'templates', 'public-index.html');
 const TEMPLATE_MARKETPLACE = path.join(__dirname, 'templates', 'public-marketplace.js');
 const TEMPLATE_DREAMIEZ = path.join(__dirname, 'templates', 'dreamiez.html');
 const TEMPLATE_DREAMIEZ_JS = path.join(__dirname, 'templates', 'dreamiez-account.js');
+const TEMPLATE_UCP = path.join(__dirname, 'templates', 'ucp-profile.json');
 const INDEX = path.join(OUT, 'index.html');
 const MARKETPLACE = path.join(ASSETS, 'public-marketplace.js');
 const DREAMIEZ = path.join(OUT, 'dreamiez.html');
 const DREAMIEZ_JS = path.join(ASSETS, 'dreamiez-account.js');
+const UCP = path.join(WELL_KNOWN, 'ucp');
 const MANIFEST = path.join(ROOT, 'manifests', 'CUBE-PUBLIC-SURFACE-MANIFEST.json');
 const OFFERS = path.join(ROOT, 'catalog', 'offers', 'offers.json');
 const IP = path.join(ROOT, 'catalog', 'ip-capabilities.json');
@@ -31,13 +34,14 @@ function digest(file) { return digestBuffer(fs.readFileSync(file)); }
 function json(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function write(file, content) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content, 'utf8'); }
 
-[TEMPLATE_INDEX, TEMPLATE_MARKETPLACE, TEMPLATE_DREAMIEZ, TEMPLATE_DREAMIEZ_JS, MANIFEST, OFFERS, IP, PRODUCTS, NEWS, AUCTIONS].forEach(must);
+[TEMPLATE_INDEX, TEMPLATE_MARKETPLACE, TEMPLATE_DREAMIEZ, TEMPLATE_DREAMIEZ_JS, TEMPLATE_UCP, MANIFEST, OFFERS, IP, PRODUCTS, NEWS, AUCTIONS].forEach(must);
 
 const manifest = json(MANIFEST);
 const offers = json(OFFERS);
 const ip = json(IP);
 const news = json(NEWS);
 const auctions = json(AUCTIONS);
+const ucpProfile = json(TEMPLATE_UCP);
 const offerList = Array.isArray(offers) ? offers : offers.offers;
 const capabilities = Array.isArray(ip) ? ip : ip.capabilities;
 const productCount = fs.readdirSync(PRODUCTS).filter(x => x.endsWith('.json')).length;
@@ -50,6 +54,8 @@ if (!Array.isArray(capabilities)) throw new Error('CUBE surface input invalid: c
 if (manifest.surface_policy.approval_required_for_activation !== true) throw new Error('CUBE surface policy must require approval before activation');
 if (manifest.surface_policy.private_material_excluded !== true) throw new Error('CUBE surface policy must exclude private material');
 if (manifest.surface_policy.silo_isolation_required !== true) throw new Error('CUBE surface policy must require silo isolation');
+if (!ucpProfile.ucp || ucpProfile.ucp.version !== '2026-04-08') throw new Error('CUBE UCP profile must declare supported protocol version');
+if (!ucpProfile.ucp.services || !ucpProfile.ucp.payment_handlers) throw new Error('CUBE UCP profile must contain services and payment_handlers');
 
 for (const offer of offerList) {
   if (offer.approval_required !== true) throw new Error(`CUBE refuses unlocked offer: ${offer.offer_id}`);
@@ -62,6 +68,7 @@ const templateIndex = fs.readFileSync(TEMPLATE_INDEX, 'utf8');
 const templateMarketplace = fs.readFileSync(TEMPLATE_MARKETPLACE, 'utf8');
 const templateDreamiez = fs.readFileSync(TEMPLATE_DREAMIEZ, 'utf8');
 const templateDreamiezJs = fs.readFileSync(TEMPLATE_DREAMIEZ_JS, 'utf8');
+const templateUcp = fs.readFileSync(TEMPLATE_UCP, 'utf8');
 if (!templateIndex.includes('compiler-generated public surface')) throw new Error('CUBE index template missing compiler marker');
 if (!templateIndex.includes('/api/offers')) throw new Error('CUBE index template missing canonical offer API surface');
 if (!templateMarketplace.includes('/api/offers')) throw new Error('CUBE marketplace template missing canonical offer API');
@@ -70,21 +77,22 @@ if (!templateDreamiez.includes('/api/dreamiez/account/create')) throw new Error(
 if (!templateDreamiez.includes('/api/dreamiez/checkin')) throw new Error('CUBE Dreamiez template missing check-in surface');
 if (!templateDreamiezJs.includes('/api/dreamiez/account/create')) throw new Error('CUBE Dreamiez client missing account API');
 
-// No timestamps, random IDs, or runtime state are injected into public output.
+// No timestamps, random IDs, runtime state, or internal capability material are injected into public output.
 write(INDEX, templateIndex);
 write(MARKETPLACE, templateMarketplace);
 write(DREAMIEZ, templateDreamiez);
 write(DREAMIEZ_JS, templateDreamiezJs);
+write(UCP, JSON.stringify(ucpProfile, null, 2) + '\n');
 
 const build = {
   type: 'dreamledger-cube-surface-compilation', status: 'PASS', compiler: 'CUBE', schema: manifest.schema,
   deterministic: true, generated_from_templates: true,
   source_of_public_economics: 'catalog/offers/offers.json', source_of_public_capabilities: 'catalog/ip-capabilities.json',
-  source_hashes: { manifest:digest(MANIFEST), offers:digest(OFFERS), ip:digest(IP), news:digest(NEWS), auctions:digest(AUCTIONS), index_template:digest(TEMPLATE_INDEX), marketplace_template:digest(TEMPLATE_MARKETPLACE), dreamiez_template:digest(TEMPLATE_DREAMIEZ), dreamiez_client_template:digest(TEMPLATE_DREAMIEZ_JS) },
-  output_hashes: { index:digest(INDEX), marketplace_runtime:digest(MARKETPLACE), dreamiez:digest(DREAMIEZ), dreamiez_client:digest(DREAMIEZ_JS) },
+  source_hashes: { manifest:digest(MANIFEST), offers:digest(OFFERS), ip:digest(IP), news:digest(NEWS), auctions:digest(AUCTIONS), index_template:digest(TEMPLATE_INDEX), marketplace_template:digest(TEMPLATE_MARKETPLACE), dreamiez_template:digest(TEMPLATE_DREAMIEZ), dreamiez_client_template:digest(TEMPLATE_DREAMIEZ_JS), ucp_template:digest(TEMPLATE_UCP) },
+  output_hashes: { index:digest(INDEX), marketplace_runtime:digest(MARKETPLACE), dreamiez:digest(DREAMIEZ), dreamiez_client:digest(DREAMIEZ_JS), ucp:digest(UCP) },
   counts: { capabilities:capabilityCount, offers:offerCount, products:productCount, news_silos:Object.keys(news).length, auctions:auctionCount },
-  required_public_surfaces: [...manifest.public_surfaces, '/dreamiez.html'],
-  gates: { approval_required_for_activation:manifest.surface_policy.approval_required_for_activation === true, private_material_excluded:manifest.surface_policy.private_material_excluded === true, silo_isolation_required:manifest.surface_policy.silo_isolation_required === true, all_compiled_offers_locked:offerList.every(o => o.approval_required === true && o.checkout_available === false), dreamiez_account_surface_compiled:true }
+  required_public_surfaces: [...manifest.public_surfaces, '/dreamiez.html', '/.well-known/ucp'],
+  gates: { approval_required_for_activation:manifest.surface_policy.approval_required_for_activation === true, private_material_excluded:manifest.surface_policy.private_material_excluded === true, silo_isolation_required:manifest.surface_policy.silo_isolation_required === true, all_compiled_offers_locked:offerList.every(o => o.approval_required === true && o.checkout_available === false), dreamiez_account_surface_compiled:true, ucp_discovery_profile_compiled:true }
 };
 write(PROOF, JSON.stringify(build, null, 2) + '\n');
 console.log(JSON.stringify(build, null, 2));
