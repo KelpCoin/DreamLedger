@@ -1,8 +1,8 @@
 {
-  "schema": "BEC-PRIME-CUBE-PUBLIC-SURFACE/v2",
+  "schema": "BEC-PRIME-CUBE-PUBLIC-SURFACE/v3",
   "status": "compiled",
   "compiler_role": "CUBE",
-  "purpose": "Expose controlled DreamLedger commerce surfaces without exposing private implementation catalogs or internal capability doctrine.",
+  "purpose": "Expose controlled DreamLedger customer and machine-commerce surfaces without exposing private implementation catalogs or internal capability doctrine.",
   "source_catalog": "catalog/ip-capabilities.json",
   "source_catalog_visibility": "private",
   "surface_policy": {
@@ -14,35 +14,44 @@
     "private_material_excluded": true,
     "silo_isolation_required": true,
     "internal_capability_catalog_public": false,
-    "internal_capability_ids_in_public_offers": false
+    "internal_capability_ids_in_public_offers": false,
+    "customer_front_exposes_internal_doctrine": false
   },
   "public_surfaces": [
-    {"route":"/","purpose":"DreamLedger commerce control surface","silo":"dreamledger"},
+    {"route":"/","purpose":"customer acquisition and offer surface","silo":"dreamledger"},
+    {"route":"/dreamiez.html","purpose":"Dreamiez account and avatar journey","silo":"dreamledger"},
     {"route":"/mtg","purpose":"MTG inventory surface","silo":"mtg"},
-    {"route":"/api/offers","purpose":"machine-readable approved commercial offer catalog","silo":"dreamledger"},
+    {"route":"/api/offers","purpose":"machine-readable commercial offer catalog","silo":"dreamledger"},
+    {"route":"/.well-known/agent-commerce.json","purpose":"vendor-neutral machine commerce contract","silo":"dreamledger"},
+    {"route":"/.well-known/ucp","purpose":"conservative UCP discovery profile","silo":"dreamledger"},
     {"route":"/api/auctions","purpose":"server-authoritative auction lane","silo":"dynamic"},
     {"route":"/api/news","purpose":"silo-specific ticker/news lane","silo":"dynamic"},
-    {"route":"/healthz","purpose":"non-secret service health and ledger balance status","silo":"dreamledger"}
+    {"route":"/healthz","purpose":"non-secret service health","silo":"dreamledger"}
   ],
   "private_surfaces": [
     {"path":"catalog/ip-capabilities.json","purpose":"internal capability doctrine and commercialization map"},
-    {"route":"/api/ip","status":"removed_from_public_runtime"}
+    {"route":"/api/ip","status":"removed_from_public_runtime"},
+    {"path":"compiler/","purpose":"private compilation machinery"},
+    {"path":"runtime/","purpose":"private execution machinery"},
+    {"path":"catalog/offers/candidates.json","purpose":"pre-activation commercial research"}
   ],
   "account_surface": {
     "dreamiez_avatar": true,
-    "profile_persistence": "browser_local_until_server_identity_layer_is deployed",
-    "public_claim": "profile UI only; no false claim of server authentication"
+    "profile_persistence": "server-backed account flow",
+    "public_claim": "account creation and avatar journey are real runtime surfaces"
   },
-  "cart_surface": {
-    "persistent_browser_cart": true,
-    "checkout_bridge": "/api/checkout/create",
-    "price_inventory_revalidation": true
+  "commerce_surface": {
+    "offer_discovery": "/api/offers",
+    "offer_checkout": "/api/offer-checkout/create",
+    "price_inventory_revalidation": true,
+    "approval_required": true,
+    "payment_proof_required_for_revenue_claim": true
   },
   "not_claimed_as_live": [
     "first_payment",
-    "server_authenticated_accounts",
+    "full UCP transactional checkout",
+    "x402 settlement",
     "white_label_customer_deployment",
-    "multi_llm_runtime",
-    "x402_settlement"
+    "multi_llm_runtime"
   ]
 }
