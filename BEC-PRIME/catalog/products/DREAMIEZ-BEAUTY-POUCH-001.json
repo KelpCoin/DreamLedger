@@ -1,0 +1,15 @@
+{
+  "id": "DREAMIEZ-BEAUTY-POUCH-001",
+  "silo": "dreamiez-beauty",
+  "name": "Dreamiez Cosmetic Pouch",
+  "description": "Soft travel pouch for cosmetics and beauty tools, finished with the Dreamiez visual treatment. Accessory only; no cosmetic formula included.",
+  "price": 3900,
+  "currency": "nzd",
+  "inventory": 1,
+  "condition": "new",
+  "status": "published",
+  "fulfillment": "manual",
+  "commercial_truth": { "approval_required": false },
+  "checkout": { "mode": "payment", "success_path": "/checkout/success", "cancel_path": "/" },
+  "evidence": { "status": "catalog-listed", "transaction_id": null }
+}

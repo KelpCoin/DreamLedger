@@ -1,0 +1,15 @@
+{
+  "id": "DREAMIEZ-BEAUTY-MIRROR-001",
+  "silo": "dreamiez-beauty",
+  "name": "Dreamiez Pocket Mirror",
+  "description": "Compact Dreamiez vanity mirror with the signature Dreamiez visual treatment. Beauty accessory, not a formulated cosmetic.",
+  "price": 2900,
+  "currency": "nzd",
+  "inventory": 1,
+  "condition": "new",
+  "status": "published",
+  "fulfillment": "manual",
+  "commercial_truth": { "approval_required": false },
+  "checkout": { "mode": "payment", "success_path": "/checkout/success", "cancel_path": "/" },
+  "evidence": { "status": "catalog-listed", "transaction_id": null }
+}

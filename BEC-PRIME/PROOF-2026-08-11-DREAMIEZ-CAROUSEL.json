@@ -1,0 +1,42 @@
+{
+  "type": "dreamledger-dreamiez-carousel-proof",
+  "status": "PASS",
+  "created_date": "2026-08-11",
+  "changes": [
+    "Dreamiez avatar added to homepage",
+    "Homepage catalog surfaces converted to horizontal scroll-snap carousels",
+    "Keyboard previous/next controls added",
+    "Agent offer catalog rendered as a carousel",
+    "Dreamiez beauty accessory silo added with four published products",
+    "Elohim v6 / Gauntlet visual direction represented by generated SVG assets",
+    "Kelplantis integration stated as future-only roadmap item",
+    "Formulated cosmetics deliberately excluded from immediate sale until compliance and supply evidence exist"
+  ],
+  "product_ids": [
+    "DREAMIEZ-BEAUTY-MIRROR-001",
+    "DREAMIEZ-BEAUTY-POUCH-001",
+    "DREAMIEZ-BEAUTY-BRUSH-001",
+    "DREAMIEZ-BEAUTY-VANITY-001"
+  ],
+  "carousel_guidance": {
+    "scroll_snap": true,
+    "horizontal_overflow": true,
+    "keyboard_controls": true,
+    "no_autoplay": true,
+    "source": "https://www.w3.org/WAI/tutorials/carousels/"
+  },
+  "nz_cosmetics_boundary": {
+    "formula_cosmetics_not_listed": true,
+    "reason": "Current NZ cosmetic rules require compliant ingredients, labelling, hazards/safe-use information and importer/manufacturer contact details before sale.",
+    "source": "https://www.epa.govt.nz/hazardous-substances/rules-notices-and-how-to-comply/specific-substance-guidance/cosmetics/"
+  },
+  "future_integration": {
+    "name": "Kelplantis",
+    "status": "planned",
+    "live": false
+  },
+  "checkout_boundary": {
+    "dreamiez_beauty_accessories": "enabled",
+    "agentic_offers": "approval_gated"
+  }
+}
