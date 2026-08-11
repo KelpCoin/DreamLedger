@@ -1,17 +1,17 @@
 {
   "type": "dreamledger-offer-compilation-proof",
-  "status": "PASS",
+  "status": "PARTIAL",
   "compiler": "offer-compiler-v1",
   "generated_at": null,
   "git_commit": null,
-  "input_capabilities_sha256": "aae4ea63add4d52294716681956a9c75aece0b39c9e0df74531d18dd45b0e608",
+  "input_capabilities_sha256": "04c3989992cf00a231e5914d960eb298876e312dbbde8da89686baf601fcf716",
   "source": "catalog/ip-capabilities.json",
   "schema": "compiler/schemas/offer.schema.json",
   "counts": {
-    "capabilities": 11,
-    "candidates": 23,
-    "passed": 23,
-    "rejected": 0
+    "capabilities": 14,
+    "candidates": 29,
+    "passed": 27,
+    "rejected": 2
   },
   "passed_offer_ids": [
     "OFFER-BEC-PRIME-ARCHITECTURE-DIAGNOSTIC",
@@ -36,9 +36,16 @@
     "OFFER-BEC-PRIME-PROOF-OF-POWER-AUDIT",
     "OFFER-BEC-PRIME-READINESS-AUDIT-SNAPSHOT",
     "OFFER-BEC-PRIME-READINESS-AUDIT-FULL-AUDIT",
-    "OFFER-BEC-PRIME-READINESS-AUDIT-BLUEPRINT"
+    "OFFER-BEC-PRIME-READINESS-AUDIT-BLUEPRINT",
+    "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-AUDIT",
+    "OFFER-BEC-PRIME-DEMAND-RADAR-DIAGNOSTIC",
+    "OFFER-BEC-PRIME-DEMAND-RADAR-AUDIT",
+    "OFFER-BEC-PRIME-SENTINEL-AUDIT"
   ],
-  "rejected_offer_ids": [],
+  "rejected_offer_ids": [
+    "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
+    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC"
+  ],
   "approval_required_for_all": true,
   "checkout_disabled_for_all": true,
   "silo_integrity": true,

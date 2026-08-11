@@ -4,10 +4,10 @@
   "source": "catalog/ip-capabilities.json",
   "approval_rule": "All compiled offers remain approval-gated and checkout-disabled until explicitly approved.",
   "counts": {
-    "capabilities": 11,
-    "candidates": 23,
-    "passed": 23,
-    "rejected": 0
+    "capabilities": 14,
+    "candidates": 29,
+    "passed": 27,
+    "rejected": 2
   },
   "candidates": [
     {
@@ -1228,7 +1228,442 @@
         "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
         "private_material": "excluded"
       }
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
+      "version": "offer-v1",
+      "capability_id": "BEC-PRIME-DIGITAL-PROXY-ASSIST",
+      "silo": "dreamledger",
+      "name": "Digital Proxy Navigation Assistant diagnostic",
+      "problem": "An explicit-invocation navigation assistant that helps visitors use the commerce surface without automatic popups or access to credentials, payments, or external actions.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 15,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "BEC-PRIME-DIGITAL-PROXY-ASSIST"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-AUDIT",
+      "version": "offer-v1",
+      "capability_id": "BEC-PRIME-DIGITAL-PROXY-ASSIST",
+      "silo": "dreamledger",
+      "name": "Digital Proxy Navigation Assistant audit",
+      "problem": "Assess and improve the area described by Digital Proxy Navigation Assistant.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 49,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "BEC-PRIME-DIGITAL-PROXY-ASSIST"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-DEMAND-RADAR-DIAGNOSTIC",
+      "version": "offer-v1",
+      "capability_id": "BEC-PRIME-DEMAND-RADAR",
+      "silo": "dreamledger",
+      "name": "Demand Radar diagnostic",
+      "problem": "A privacy-minimized signal collector that ranks observed route and help-demand patterns and creates approval-gated candidate proposals.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 15,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "BEC-PRIME-DEMAND-RADAR"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-DEMAND-RADAR-AUDIT",
+      "version": "offer-v1",
+      "capability_id": "BEC-PRIME-DEMAND-RADAR",
+      "silo": "dreamledger",
+      "name": "Demand Radar audit",
+      "problem": "Assess and improve the area described by Demand Radar.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 49,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "BEC-PRIME-DEMAND-RADAR"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC",
+      "version": "offer-v1",
+      "capability_id": "BEC-PRIME-SENTINEL",
+      "silo": "dreamledger",
+      "name": "Runtime Sentinel diagnostic",
+      "problem": "Fail-closed runtime verification for required components, catalog presence, Gauntlet health and public secret markers, with durable proof artifacts.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 15,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "BEC-PRIME-SENTINEL"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-SENTINEL-AUDIT",
+      "version": "offer-v1",
+      "capability_id": "BEC-PRIME-SENTINEL",
+      "silo": "dreamledger",
+      "name": "Runtime Sentinel audit",
+      "problem": "Assess and improve the area described by Runtime Sentinel.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 49,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "BEC-PRIME-SENTINEL"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
     }
   ],
-  "rejected": []
+  "rejected": [
+    {
+      "candidate": {
+        "offer_id": "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
+        "version": "offer-v1",
+        "capability_id": "BEC-PRIME-DIGITAL-PROXY-ASSIST",
+        "silo": "dreamledger",
+        "name": "Digital Proxy Navigation Assistant diagnostic",
+        "problem": "An explicit-invocation navigation assistant that helps visitors use the commerce surface without automatic popups or access to credentials, payments, or external actions.",
+        "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+        "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+        "delivery_mechanism": "engine_generated_digital_deliverable",
+        "deliverable": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+        "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+        "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+        "constraints": [
+          "No credential collection",
+          "No private conversation publication",
+          "No unsupported claims",
+          "Silo boundaries enforced"
+        ],
+        "price": 15,
+        "currency": "NZD",
+        "pricing_strategy": "fixed",
+        "pricing_tier": null,
+        "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+        "payment_adapter": "stripe",
+        "checkout_route": "/api/offer-checkout/create",
+        "approval_required": true,
+        "checkout_available": false,
+        "status": "candidate",
+        "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+        "verification_rules": [
+          "capability_exists",
+          "required_offer_fields",
+          "price_positive",
+          "approval_gate_locked",
+          "no_private_ip_exposure",
+          "no_unsupported_claims",
+          "delivery_defined",
+          "payment_defined",
+          "proof_defined",
+          "silo_isolated",
+          "schema_valid",
+          "unique_offer_id"
+        ],
+        "provenance": {
+          "capability_ids": [
+            "BEC-PRIME-DIGITAL-PROXY-ASSIST"
+          ],
+          "methodology": "offer-compiler-v1",
+          "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+          "private_material": "excluded"
+        }
+      },
+      "errors": [
+        "potential_private_material_reference"
+      ]
+    },
+    {
+      "candidate": {
+        "offer_id": "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC",
+        "version": "offer-v1",
+        "capability_id": "BEC-PRIME-SENTINEL",
+        "silo": "dreamledger",
+        "name": "Runtime Sentinel diagnostic",
+        "problem": "Fail-closed runtime verification for required components, catalog presence, Gauntlet health and public secret markers, with durable proof artifacts.",
+        "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+        "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+        "delivery_mechanism": "engine_generated_digital_deliverable",
+        "deliverable": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+        "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+        "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+        "constraints": [
+          "No credential collection",
+          "No private conversation publication",
+          "No unsupported claims",
+          "Silo boundaries enforced"
+        ],
+        "price": 15,
+        "currency": "NZD",
+        "pricing_strategy": "fixed",
+        "pricing_tier": null,
+        "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+        "payment_adapter": "stripe",
+        "checkout_route": "/api/offer-checkout/create",
+        "approval_required": true,
+        "checkout_available": false,
+        "status": "candidate",
+        "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+        "verification_rules": [
+          "capability_exists",
+          "required_offer_fields",
+          "price_positive",
+          "approval_gate_locked",
+          "no_private_ip_exposure",
+          "no_unsupported_claims",
+          "delivery_defined",
+          "payment_defined",
+          "proof_defined",
+          "silo_isolated",
+          "schema_valid",
+          "unique_offer_id"
+        ],
+        "provenance": {
+          "capability_ids": [
+            "BEC-PRIME-SENTINEL"
+          ],
+          "methodology": "offer-compiler-v1",
+          "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+          "private_material": "excluded"
+        }
+      },
+      "errors": [
+        "potential_private_material_reference"
+      ]
+    }
+  ]
 }
