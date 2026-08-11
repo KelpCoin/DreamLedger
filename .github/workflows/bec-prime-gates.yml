@@ -18,9 +18,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
+          node-version: 24
 
       - name: Install
         run: npm install
@@ -28,8 +26,30 @@ jobs:
       - name: Compile canonical surfaces
         run: npm run compile:offers && npm run compile:surface
 
+      - name: Public surface boundary proof
+        run: node scripts/verify-public-surface.js
+
+      - name: Compiler truth gate
+        shell: pwsh
+        run: ./scripts/Verify-CompilerTruth.ps1 -ProofPath "$env:GITHUB_WORKSPACE/compiler-truth-proof.json"
+
+      - name: UCP truth gate
+        run: node scripts/verify-ucp.js
+
       - name: Syntax gate
-        run: node --check server.js && node --check start.js
+        run: |
+          node --check server.js
+          node --check start.js
+          node --check ucp.js
+          node --check scripts/verify-ucp.js
+          node --check scripts/verify-public-surface.js
+          node --check compiler/OfferCompiler.js
+          node --check compiler/SurfaceCompiler.js
+          node --check compiler/PriceDisplayPatch.js
+          node --check scripts/meta-gauntlet.js
+          node --check runtime/ControlPlane.js
+          node --check runtime/DemandRadar.js
+          node --check runtime/Sentinel.js
 
       - name: Revenue ledger smoke
         run: npm run smoke:revenue-ledger
@@ -38,16 +58,31 @@ jobs:
         run: npm run gauntlet
 
       - name: Public boundary check
+        shell: bash
         run: |
+          set -euo pipefail
           test -f manifests/CUBE-PUBLIC-SURFACE-MANIFEST.json
           test -f PROOF-CUBE-SURFACE-COMPILATION.json
-          ! grep -R 'api/ip' compiled/website || true
-          ! grep -R 'catalog/ip-capabilities.json' compiled/website || true
+          test -f data/proofs/PUBLIC-SURFACE-PROOF.json
+          test -f ucp.js
+          test -f legal/privacy.html
+          test -f legal/terms.html
+          if grep -R -n -E 'api/ip|catalog/ip-capabilities\.json' compiled/website; then
+            echo 'PRIVATE SURFACE LEAK DETECTED'
+            exit 1
+          fi
+          if grep -R -n -E 'sk_live_|sk_test_|whsec_|BEGIN .*PRIVATE KEY' compiled/website; then
+            echo 'SECRET MARKER DETECTED'
+            exit 1
+          fi
 
       - name: Upload compilation proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bec-prime-compilation-proof
+          name: bec-prime-compilation-proof-${{ github.run_id }}
           path: |
             BEC-PRIME/PROOF-CUBE-SURFACE-COMPILATION.json
             BEC-PRIME/data/proofs/
+            compiler-truth-proof.json
+          if-no-files-found: error

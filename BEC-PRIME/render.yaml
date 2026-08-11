@@ -4,9 +4,9 @@ services:
     runtime: node
     branch: main
     rootDir: BEC-PRIME
-    autoDeployTrigger: commit
-    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node --check server.js
-    startCommand: npm start
+    autoDeployTrigger: checksPass
+    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node --check server.js && node --check start.js
+    startCommand: node start.js
     healthCheckPath: /healthz
     disk:
       name: dreamledger-data
