@@ -8,6 +8,7 @@
     "compile:offers": "node compiler/OfferCompiler.js",
     "compile:surface": "node compiler/SurfaceCompiler.js && node compiler/SiloPortfolioCompiler.js && node compiler/PriceDisplayPatch.js",
     "compile:silos": "node compiler/SiloPortfolioCompiler.js",
+    "scout:demand": "node scouts/Run-DemandScouts.js",
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
     "gauntlet": "node scripts/meta-gauntlet.js",
