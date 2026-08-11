@@ -17,8 +17,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package.json
       - name: Compile catalog
         run: node catalog/generate-evergreen-products.js
       - name: Compile agentic feed
