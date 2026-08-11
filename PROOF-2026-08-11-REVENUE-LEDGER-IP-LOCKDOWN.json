@@ -6,23 +6,26 @@
     "remove private IP catalog from DreamLedger public homepage",
     "remove /api/ip from public runtime",
     "route public homepage through sanitized marketplace runtime",
+    "remove internal capability IDs from public offer responses",
     "add immutable Stripe event ledger with event-id idempotency",
     "add double-entry payment and revenue journals",
     "add fulfillment fossil creation",
     "add revenue-ledger smoke test",
-    "extend Meta-Gauntlet with public IP lockdown and ledger gates"
+    "extend Meta-Gauntlet with public IP lockdown and ledger gates",
+    "repair registry verifier root and public-IP assumptions"
   ],
-  "commits": [
+  "head_commit": "35f33fb6403bb02f75b19ea1d33af245344e6ba8",
+  "key_commits": [
     "95cce9c979f3e5af1ef9af07c5481fd0e550d273",
     "09d92a9bff219884651715eafc30f0b459668e32",
     "70b9f0912d86e9205733bed23cc9cf7557a687b6",
     "a3ebe52434e3f8f608054293c97b58719f281762",
-    "ab47d5d7904681a63e21f93dfef6e38695c52b09",
     "de24835e5da46e00161c8cdae25bd76ca37de9fb",
     "e5d47104e3a0d8059a6e37647fef02f667b4a98a",
-    "489254a997e5718be42bc5d0b80e020e8830e2a8",
     "4ed32579d7462a46f2fbece51b22ca04ffed433a",
-    "411664e1322e37f642d405cf27f89fa3e2cdb5c2"
+    "411664e1322e37f642d405cf27f89fa3e2cdb5c2",
+    "f999af5bcfb77efb7459138d92b456f58e957ef6",
+    "35f33fb6403bb02f75b19ea1d33af245344e6ba8"
   ],
   "runtime_truth": {
     "stripe_checkout": "still approval-gated",
@@ -30,6 +33,7 @@
     "revenue_ledger": "double-entry with deferred revenue then earned revenue",
     "fulfillment": "digital-service fossil created on verified payment",
     "public_ip_catalog": "removed",
+    "public_offer_capability_ids": "removed",
     "ci_status": "not yet reported by connected GitHub status endpoint"
   },
   "verifier": "cd BEC-PRIME && npm run smoke:revenue-ledger && npm run gauntlet",
