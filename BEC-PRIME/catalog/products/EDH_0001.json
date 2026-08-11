@@ -23,5 +23,6 @@
   "evidence": {
     "status": "awaiting_first_payment",
     "transaction_id": null
-  }
+  },
+  "deployment_trigger": "EDH_0001_FIRST_SALE"
 }
