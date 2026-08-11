@@ -10,7 +10,12 @@ const base = `http://127.0.0.1:${port}`;
 const email = `smoke-${crypto.randomUUID()}@example.test`;
 const password = 'DreamiezSmokePass!2026';
 const proxyToken = process.env.DIGITAL_PROXY_APPROVAL_TOKEN || 'smoke-proxy-token';
+const smokeRoot = `/tmp/dreamledger-smoke-${process.pid}`;
+const ledgerDir = `${smokeRoot}/transactions`;
+const proofDir = `${smokeRoot}/proofs`;
+const dreamiezDir = `${smokeRoot}/dreamiez`;
 let child;
+let cookie;
 
 async function request(pathname, options = {}) {
   const r = await fetch(base + pathname, options);
@@ -24,12 +29,37 @@ async function request(pathname, options = {}) {
 function assert(condition, message) { if (!condition) throw new Error(message); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
+function spawnRuntime() {
+  child = spawn(process.execPath, ['start.js'], {
+    cwd: __dirname + '/..',
+    env: {
+      ...process.env,
+      PORT: String(port),
+      DIGITAL_PROXY_APPROVAL_TOKEN: proxyToken,
+      LEDGER_DATA_DIR: ledgerDir,
+      PROOF_DATA_DIR: proofDir,
+      DREAMIEZ_DATA_DIR: dreamiezDir
+    },
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  child.stdout.on('data', d => process.stdout.write(`[runtime] ${d}`));
+  child.stderr.on('data', d => process.stderr.write(`[runtime] ${d}`));
+}
+
 async function waitForHealth() {
   for (let i = 0; i < 50; i += 1) {
-    try { const x = await request('/healthz'); if (x.body.status === 'ok') return; } catch {}
+    try { const x = await request('/healthz'); if (x.body.status === 'ok') return x.body; } catch {}
     await sleep(200);
   }
   throw new Error('Runtime did not become healthy');
+}
+
+async function stopRuntime() {
+  if (!child) return;
+  child.kill('SIGTERM');
+  await new Promise(resolve => child.once('exit', resolve));
+  child = null;
+  await sleep(150);
 }
 
 async function main() {
@@ -39,10 +69,18 @@ async function main() {
   const marketplaceAsset = fs.readFileSync(path.join(__dirname, '..', 'compiled', 'website', 'assets', 'marketplace-live.js'), 'utf8');
   assert(marketplaceAsset.includes('raw>=1000') && marketplaceAsset.includes('raw/100'), 'Marketplace price formatter is not cents-aware');
 
-  child = spawn(process.execPath, ['start.js'], { cwd: __dirname + '/..', env: { ...process.env, PORT: String(port), DIGITAL_PROXY_APPROVAL_TOKEN: proxyToken, LEDGER_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/transactions`, PROOF_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/proofs`, DREAMIEZ_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/dreamiez` }, stdio: ['ignore', 'pipe', 'pipe'] });
-  child.stdout.on('data', d => process.stdout.write(`[runtime] ${d}`));
-  child.stderr.on('data', d => process.stderr.write(`[runtime] ${d}`));
-  await waitForHealth();
+  spawnRuntime();
+  const health = await waitForHealth();
+  assert(health.status === 'ok', 'Health endpoint did not return ok');
+  assert(health.durable_ledger_configured === false || health.durable_ledger_configured === true, 'Health response malformed');
+
+  const offers = await request('/api/offers');
+  assert(Array.isArray(offers.body.offers), 'Offer catalog endpoint did not return an offers array');
+  const commanderOffer = offers.body.offers.find(o => o.offer_id === 'OFFER-BEC-PRIME-COMMANDER-DIAGNOSTIC-001');
+  if (commanderOffer) {
+    assert(commanderOffer.price === 15, 'Commander offer API price must be 15 NZD');
+    assert(commanderOffer.currency === 'NZD', 'Commander offer API currency must be NZD');
+  }
 
   const control = await request('/api/control/health');
   assert(control.body.control_plane === 'ELOHIM-V6', 'Elohim v6 control plane missing');
@@ -57,7 +95,7 @@ async function main() {
   assert(created.body.ok === true, 'Account creation failed');
   assert(created.body.account.streak === 1, 'New account did not start at streak 1');
   assert(created.body.account.avatar_style === 'dream', 'Avatar style was not persisted');
-  const cookie = created.response.headers.get('set-cookie');
+  cookie = created.response.headers.get('set-cookie');
   assert(cookie && cookie.includes('dreamiez_session='), 'Session cookie missing');
 
   const me = await request('/api/dreamiez/me', { headers: { cookie } });
@@ -85,7 +123,34 @@ async function main() {
   const approval = await request(`/api/control/proxy/approve/${queued.body.action_id}`, { method: 'POST', headers: { 'x-human-approver': 'smoke-human', 'x-digital-proxy-token': proxyToken } });
   assert(approval.body.status === 'APPROVED', 'Digital Proxy approval transition failed');
 
-  console.log(JSON.stringify({ smoke_test: 'PASS', commander_price_cents: 1500, commander_display_price_nzd: 15, account_created: true, avatar_persisted: true, streak_started_at: 1, same_day_idempotent: true, day_1_reward_unlocked: true, day_7_reward_locked: true, elohim_reward_asset: true, login_verified: true, public_surface_injected: true, elohim_v6: true, gauntlet_v6: true, digital_proxy_approval_gate: true }, null, 2));
+  await stopRuntime();
+  spawnRuntime();
+  await waitForHealth();
+
+  const persisted = await request('/api/dreamiez/me', { headers: { cookie } });
+  assert(persisted.body.account.streak === 1, 'Account streak did not persist across runtime restart');
+  assert(persisted.body.account.avatar_style === 'dream', 'Avatar did not persist across runtime restart');
+  assert(persisted.body.rewards.some(r => r.day === 1 && r.unlocked && r.asset), 'Elohim reward did not persist across runtime restart');
+
+  console.log(JSON.stringify({
+    smoke_test: 'PASS',
+    commander_price_cents: 1500,
+    commander_display_price_nzd: 15,
+    account_created: true,
+    avatar_persisted: true,
+    streak_started_at: 1,
+    same_day_idempotent: true,
+    persistence_across_restart: true,
+    day_1_reward_unlocked: true,
+    day_7_reward_locked: true,
+    elohim_reward_asset: true,
+    login_verified: true,
+    public_surface_injected: true,
+    api_offers_verified: true,
+    elohim_v6: true,
+    gauntlet_v6: true,
+    digital_proxy_approval_gate: true
+  }, null, 2));
 }
 
-main().catch(err => { console.error(JSON.stringify({ smoke_test: 'FAIL', error: err.message }, null, 2)); process.exitCode = 1; }).finally(() => { if (child) child.kill('SIGTERM'); });
+main().catch(err => { console.error(JSON.stringify({ smoke_test: 'FAIL', error: err.message }, null, 2)); process.exitCode = 1; }).finally(async () => { await stopRuntime(); });
