@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task", "decision", "confidence", "findings", "recommended_action"],
+  "properties": {
+    "task": { "type": "string", "minLength": 1 },
+    "decision": { "type": "string", "enum": ["PASS", "FAIL", "REVIEW"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "statement", "evidence"],
+        "properties": {
+          "id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+          "statement": { "type": "string" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "recommended_action": { "type": "string", "minLength": 1 }
+  }
+}
