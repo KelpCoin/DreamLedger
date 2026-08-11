@@ -1,0 +1,1 @@
+{"id":"DREAMIEZ-neon-sneakers","silo":"SILO_DREAMIEZ","name":"Neon Sneakers","description":"Dreamiez cosmetic","price":600,"currency":"nzd","inventory":999999,"status":"published","seller":"HappyHomarid","checkout":{"mode":"payment","success_path":"/dreamiez/dreamiez.html","cancel_path":"/dreamiez/dreamiez.html"},"commercial_truth":{"approval_required":false}}
