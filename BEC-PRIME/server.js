@@ -7,6 +7,7 @@ const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.join(__dirname, 'compiled', 'website');
 const CATALOG = path.join(__dirname, 'catalog', 'products');
 const IP_CATALOG = path.join(__dirname, 'catalog', 'ip-capabilities.json');
+const OFFER_CATALOG = path.join(__dirname, 'catalog', 'offers.json');
 const DATA = path.resolve(process.env.LEDGER_DATA_DIR || path.join(__dirname, 'data', 'transactions'));
 const PROOFS = path.resolve(process.env.PROOF_DATA_DIR || path.join(__dirname, 'data', 'proofs'));
 const FIRST_PAYMENT_PROOF = path.resolve(process.env.FIRST_PAYMENT_PROOF_PATH || path.join(PROOFS, 'FIRST_PAYMENT_PROOF.json'));
@@ -44,6 +45,7 @@ function productFiles() {
 }
 function loadProducts() { return productFiles().map(readJson); }
 function loadIpCatalog() { return readJson(IP_CATALOG); }
+function loadOfferCatalog() { return readJson(OFFER_CATALOG); }
 function paidTransactionExists(productId) {
   if (!fs.existsSync(DATA)) return false;
   return fs.readdirSync(DATA).some(file => {
@@ -71,7 +73,35 @@ function publicProduct(p) {
     checkout_available: !sold && p.status === 'published' && !approvalRequired
   };
 }
+function publicOffer(offer) {
+  return {
+    offer_id: offer.offer_id,
+    capability_id: offer.capability_id,
+    product_id: offer.product_id,
+    silo: offer.silo,
+    name: offer.name,
+    problem: offer.problem,
+    input: offer.input,
+    output: offer.output,
+    buyer: offer.buyer,
+    offer_type: offer.offer_type,
+    delivery_method: offer.delivery_method,
+    price: offer.price,
+    currency: offer.currency,
+    pricing_mode: offer.pricing_mode || 'fixed',
+    eligibility: offer.eligibility,
+    proof_of_delivery: offer.proof_of_delivery,
+    refund_policy: offer.refund_policy,
+    approval_required: true,
+    checkout_available: false,
+    status: offer.status,
+    verification_rules: offer.verification_rules,
+    source_capabilities: offer.source_capabilities,
+    private_material_excluded: true
+  };
+}
 function getProduct(id) { return loadProducts().find(p => p.id === id); }
+function getOffer(id) { return loadOfferCatalog().offers.find(o => o.offer_id === id); }
 
 function safePath(urlPath) {
   const decoded = decodeURIComponent(urlPath);
@@ -222,7 +252,8 @@ const server = http.createServer(async (req, res) => {
     webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET),
     durable_ledger_configured: DATA.startsWith('/var/data') || PROOFS.startsWith('/var/data'),
     first_payment_proof_path: FIRST_PAYMENT_PROOF,
-    ip_catalog_configured: fs.existsSync(IP_CATALOG)
+    ip_catalog_configured: fs.existsSync(IP_CATALOG),
+    offer_catalog_configured: fs.existsSync(OFFER_CATALOG)
   });
   if (req.method === 'GET' && url === '/api/products') return send(res, 200, { products: loadProducts().filter(p => p.status === 'published').map(publicProduct) });
   if (req.method === 'GET' && url.startsWith('/api/products/')) {
@@ -232,6 +263,16 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && url === '/api/ip') {
     try { return send(res, 200, loadIpCatalog()); }
     catch (err) { return send(res, 500, { error: err.message }); }
+  }
+  if (req.method === 'GET' && url === '/api/offers') {
+    try { return send(res, 200, { offers: loadOfferCatalog().offers.map(publicOffer) }); }
+    catch (err) { return send(res, 500, { error: err.message }); }
+  }
+  if (req.method === 'GET' && url.startsWith('/api/offers/')) {
+    try {
+      const offer = getOffer(url.slice('/api/offers/'.length));
+      return offer ? send(res, 200, publicOffer(offer)) : send(res, 404, { error: 'Offer not found' });
+    } catch (err) { return send(res, 500, { error: err.message }); }
   }
   if (req.method === 'POST' && url === '/api/checkout/create') return createCheckout(req, res);
   if (req.method === 'POST' && url === '/webhook') return webhook(req, res);
