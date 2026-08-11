@@ -9,25 +9,16 @@ const OFFER_FILE = path.join(ROOT, 'catalog', 'offers', 'offers.json');
 const IP_FILE = path.join(ROOT, 'catalog', 'ip-capabilities.json');
 const PROOF_DIR = path.join(ROOT, 'data', 'proofs');
 
-function sha256(value) {
-  return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
-}
-
-function readJson(file) {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
-}
-
-function fail(checks, id, message) {
-  checks.push({ id, status: 'FAIL', message });
-}
-
-function pass(checks, id, message) {
-  checks.push({ id, status: 'PASS', message });
-}
+function sha256(value) { return crypto.createHash('sha256').update(value, 'utf8').digest('hex'); }
+function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+function fail(checks, id, message) { checks.push({ id, status: 'FAIL', message }); }
+function pass(checks, id, message) { checks.push({ id, status: 'PASS', message }); }
 
 function run(options = {}) {
   const checks = [];
-  const offerCatalog = readJson(options.offerFile || OFFER_FILE);
+  const offerFile = options.offerFile || OFFER_FILE;
+  const ipFile = options.ipFile || IP_FILE;
+  const offerCatalog = readJson(offerFile);
   const offers = Array.isArray(offerCatalog.offers) ? offerCatalog.offers : [];
 
   if (!offers.length) fail(checks, 'offers.present', 'No canonical offers found');
@@ -50,14 +41,16 @@ function run(options = {}) {
     if (offer.silo === 'mtg' && /amplissa|adult/i.test(JSON.stringify(offer))) fail(checks, `${prefix}.silo`, 'MTG offer contains forbidden adult/Amplissa reference');
   }
 
-  if (fs.existsSync(options.ipFile || IP_FILE)) {
-    const ip = readJson(options.ipFile || IP_FILE);
+  if (fs.existsSync(ipFile)) {
+    const ip = readJson(ipFile);
     const caps = Array.isArray(ip.capabilities) ? ip.capabilities : [];
-    const capIds = new Set(caps.map(x => x.capability_id));
+    const capIds = new Set(caps.map(x => x.capability_id || x.id));
     for (const offer of offers) {
       if (!capIds.has(offer.capability_id)) fail(checks, `capability.${offer.capability_id}`, 'Offer references an unknown capability');
     }
-    pass(checks, 'capabilities.linked', 'Every offer capability resolves in the IP catalog unless a failure was recorded above');
+    if (offers.every(offer => capIds.has(offer.capability_id))) pass(checks, 'capabilities.linked', 'Every offer capability resolves in the IP catalog');
+  } else {
+    fail(checks, 'capabilities.catalog', 'IP capability catalog is missing');
   }
 
   const status = checks.every(x => x.status === 'PASS') ? 'PASS' : 'FAIL';
@@ -67,7 +60,7 @@ function run(options = {}) {
     status,
     checks,
     checked_at: new Date().toISOString(),
-    source_hash: sha256(JSON.stringify({ offers: offerCatalog, ip: fs.existsSync(IP_FILE) ? readJson(IP_FILE) : null }))
+    source_hash: sha256(JSON.stringify({ offers: offerCatalog, ip: fs.existsSync(ipFile) ? readJson(ipFile) : null }))
   };
 
   if (options.writeProof !== false) {
