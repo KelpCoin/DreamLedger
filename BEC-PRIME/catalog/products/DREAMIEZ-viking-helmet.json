@@ -1,0 +1,1 @@
+{"id":"DREAMIEZ-viking-helmet","silo":"SILO_DREAMIEZ","name":"Viking Helmet","description":"Dreamiez cosmetic","price":600,"currency":"nzd","inventory":999999,"status":"published","seller":"HappyHomarid","checkout":{"mode":"payment","success_path":"/dreamiez/dreamiez.html","cancel_path":"/dreamiez/dreamiez.html"},"commercial_truth":{"approval_required":false}}
