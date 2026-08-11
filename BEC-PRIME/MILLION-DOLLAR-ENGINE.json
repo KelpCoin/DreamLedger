@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "objective": "Build a compounding legal revenue engine from owned digital IP, with evidence gates before production claims.",
+  "target_nzd": 1000000,
+  "currency": "NZD",
+  "public_actions": "approval_required",
+  "first_cash_gate": {
+    "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "price_nzd": 15,
+    "price_cents": 1500,
+    "status": "locked_until_production_proof"
+  },
+  "product_ladder": [
+    {"tier": "entry", "price_nzd": 15, "purpose": "low-friction diagnostic purchase"},
+    {"tier": "core", "price_nzd": 49, "purpose": "readiness snapshot / governed digital asset"},
+    {"tier": "premium", "price_nzd": 149, "purpose": "personalized generated asset pack"},
+    {"tier": "pro", "price_nzd": 499, "purpose": "deep diagnostic + implementation blueprint"},
+    {"tier": "enterprise", "price_nzd": 2500, "purpose": "licensed automation / proxy workflow"}
+  ],
+  "compounding_loop": [
+    "attract",
+    "account",
+    "daily_streak",
+    "earned asset",
+    "diagnostic",
+    "checkout",
+    "delivery",
+    "proof",
+    "referral",
+    "repeat purchase",
+    "license"
+  ],
+  "hard_gates": [
+    "healthz_200",
+    "offers_json_valid",
+    "dreamiez_e2e_pass",
+    "gauntlet_pass",
+    "digital_proxy_gate_pass",
+    "stripe_webhook_verified",
+    "first_payment_proof_exists"
+  ],
+  "unit_economics": {
+    "entry_to_core_target": 0.10,
+    "core_to_premium_target": 0.15,
+    "premium_to_pro_target": 0.10,
+    "pro_to_enterprise_target": 0.05,
+    "repeat_purchase_target": 0.30,
+    "referral_target": 0.20
+  },
+  "million_math_examples": [
+    {"price_nzd": 15, "sales_needed": 66667},
+    {"price_nzd": 49, "sales_needed": 20409},
+    {"price_nzd": 149, "sales_needed": 6712},
+    {"price_nzd": 499, "sales_needed": 2005},
+    {"price_nzd": 2500, "sales_needed": 400}
+  ],
+  "operating_rule": "Do not optimize traffic before checkout, delivery, persistence, and proof are demonstrably functional."
+}
