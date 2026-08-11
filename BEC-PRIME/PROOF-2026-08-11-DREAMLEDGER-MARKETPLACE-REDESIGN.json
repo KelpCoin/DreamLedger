@@ -1,0 +1,32 @@
+{
+  "proof_type": "DREAMLEDGER_MARKETPLACE_REDESIGN",
+  "timestamp": "2026-08-11T17:28:00+12:00",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "changed_files": [
+    "BEC-PRIME/compiled/website/index.html"
+  ],
+  "design_invariants": {
+    "mobile_first": true,
+    "thumb_first_horizontal_catalogs": true,
+    "all_primary_catalog_sections_are_carousels": true,
+    "dreamiez_avatar_top_right": true,
+    "dreamiez_profile_creation_ui": true,
+    "server_auth_claimed": false,
+    "commerce_api_unchanged": true,
+    "checkout_approval_gate_unchanged": true,
+    "kelplantis_runtime_untouched": true,
+    "kelplantis_future_only_on_public_surface": true,
+    "ai_asset_layer_separated_from_commerce_permissions": true
+  },
+  "kelplantis_preservation": {
+    "existing_local_adapter_preserved": true,
+    "existing_multi_model_pipeline_preserved": true,
+    "external_blocked_semantics_preserved": true,
+    "no_public_checkout_dependency": true
+  },
+  "account_boundary": "The homepage provides a local Dreamiez profile/avatar creation prototype only. It does not falsely represent localStorage as authenticated server identity.",
+  "commerce_boundary": "Product checkout continues through the existing server-side /api/checkout/create route and its existing approval/silo controls.",
+  "future_boundary": "Kelplantis is explicitly presented as roadmap/future integration and is not represented as live.",
+  "commit": "fdeba1d7cf05ac0f57f7cad0d632cbba861088e3"
+}
