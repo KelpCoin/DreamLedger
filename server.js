@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = __dirname;
+const ROOT = path.join(__dirname, 'BEC-PRIME', 'compiled', 'website');
 const PORT = Number(process.env.PORT || 10000);
 const HOST = '0.0.0.0';
 
