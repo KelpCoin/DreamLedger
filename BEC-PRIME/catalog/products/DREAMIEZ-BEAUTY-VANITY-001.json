@@ -1,0 +1,15 @@
+{
+  "id": "DREAMIEZ-BEAUTY-VANITY-001",
+  "silo": "dreamiez-beauty",
+  "name": "Dreamiez Travel Vanity Case",
+  "description": "Structured travel case for cosmetics, skincare and beauty tools, presented as a Dreamiez accessory. No formulated cosmetic is included.",
+  "price": 5900,
+  "currency": "nzd",
+  "inventory": 1,
+  "condition": "new",
+  "status": "published",
+  "fulfillment": "manual",
+  "commercial_truth": { "approval_required": false },
+  "checkout": { "mode": "payment", "success_path": "/checkout/success", "cancel_path": "/" },
+  "evidence": { "status": "catalog-listed", "transaction_id": null }
+}
