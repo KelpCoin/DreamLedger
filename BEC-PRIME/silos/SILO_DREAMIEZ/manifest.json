@@ -1,0 +1,15 @@
+{
+  "silo_id": "SILO_DREAMIEZ",
+  "name": "Dreamiez",
+  "description": "Avatar identity and social retention layer for DreamLedger",
+  "domain": "dreamiez.dreamledger.org",
+  "offer_type": "cosmetic",
+  "currency": "NZD",
+  "default_price": 5,
+  "approval_required": false,
+  "pricing_strategy": "fixed",
+  "provenance": {
+    "methodology": "compiler-v1",
+    "public_claims": "verified"
+  }
+}
