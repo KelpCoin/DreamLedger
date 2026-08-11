@@ -1,0 +1,53 @@
+name: BEC-PRIME Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  compile-and-verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install
+        run: npm install
+
+      - name: Compile canonical surfaces
+        run: npm run compile:offers && npm run compile:surface
+
+      - name: Syntax gate
+        run: node --check server.js && node --check start.js
+
+      - name: Revenue ledger smoke
+        run: npm run smoke:revenue-ledger
+
+      - name: Gauntlet
+        run: npm run gauntlet
+
+      - name: Public boundary check
+        run: |
+          test -f manifests/CUBE-PUBLIC-SURFACE-MANIFEST.json
+          test -f PROOF-CUBE-SURFACE-COMPILATION.json
+          ! grep -R 'api/ip' compiled/website || true
+          ! grep -R 'catalog/ip-capabilities.json' compiled/website || true
+
+      - name: Upload compilation proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-prime-compilation-proof
+          path: |
+            BEC-PRIME/PROOF-CUBE-SURFACE-COMPILATION.json
+            BEC-PRIME/data/proofs/
