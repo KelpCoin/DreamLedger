@@ -1,0 +1,15 @@
+{
+  "id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+  "silo": "commerce",
+  "name": "BEC-PRIME Architecture Audit",
+  "description": "A structured audit of a local-first AI commerce system covering canonical architecture, economic execution, proof boundaries, deployment dependencies, and monetization readiness.",
+  "price": 0,
+  "currency": "nzd",
+  "inventory": 999999,
+  "status": "published",
+  "checkout": { "mode": "payment", "success_path": "/checkout/success", "cancel_path": "/" },
+  "commercial_truth": { "approval_required": true, "payment_surface": "engine-generated-stripe-checkout", "payment_link": null },
+  "delivery": { "type": "digital_report", "target": "architecture-audit" },
+  "ip_scope": ["Foundation", "Canonical", "Execution", "Surface", "compiler", "proof", "approval"],
+  "evidence": { "status": "cataloged", "transaction_id": null }
+}

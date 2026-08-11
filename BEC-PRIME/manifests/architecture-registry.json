@@ -9,14 +9,21 @@
     "engine": {
       "state": "implemented",
       "path": "BEC-PRIME/server.js",
-      "depends_on": ["catalog", "checkout", "webhook"],
-      "verification": ["healthz", "api_products", "api_product_by_id"]
+      "depends_on": ["catalog", "checkout", "webhook", "ip_capability_catalog"],
+      "verification": ["healthz", "api_products", "api_product_by_id", "api_ip"]
     },
     "catalog": {
       "state": "implemented",
       "path": "BEC-PRIME/catalog/products",
       "products": ["COMMANDER-DECK-DIAGNOSTIC-001"],
       "verification": ["product_file_exists", "product_schema"]
+    },
+    "ip_capability_catalog": {
+      "state": "implemented",
+      "path": "BEC-PRIME/catalog/ip-capabilities.json",
+      "purpose": "Machine-readable catalog of BEC-PRIME intellectual property and commercialization surfaces.",
+      "activation": "approval_gated",
+      "verification": ["catalog_file_exists", "capability_ids_unique", "no_secrets"]
     },
     "commander_deck_diagnostic": {
       "state": "approval_gated",
@@ -57,8 +64,8 @@
     "website_surface": {
       "state": "implemented",
       "path": "index.html",
-      "depends_on": ["catalog", "checkout", "proof_system"],
-      "verification": ["engine_backed_product_surface", "checkout_hook"]
+      "depends_on": ["catalog", "checkout", "proof_system", "ip_capability_catalog"],
+      "verification": ["engine_backed_product_surface", "checkout_hook", "ip_catalog_surface"]
     },
     "gauntlet": {
       "state": "specified",
@@ -95,7 +102,7 @@
       "state": "external_blocked",
       "blocker": "live deployment state is controlled by Render and is not exposed through the connected GitHub tools",
       "configuration": "render.yaml",
-      "verification": ["healthz_live", "api_products_live", "api_product_live"]
+      "verification": ["healthz_live", "api_products_live", "api_product_live", "api_ip_live"]
     },
     "first_payment_proof": {
       "state": "unproven",
@@ -109,9 +116,14 @@
       "products": ["COMMANDER-DECK-DIAGNOSTIC-001"],
       "isolation_rule": "MTG state and assets must not be mixed with adult/Amplissa state."
     },
+    "commerce": {
+      "state": "implemented",
+      "catalog": "BEC-PRIME/catalog/ip-capabilities.json",
+      "isolation_rule": "BEC-PRIME commercial architecture may be exposed as capability descriptions without importing MTG inventory or adult/Amplissa state."
+    },
     "adult": {
       "state": "specified",
-      "isolation_rule": "Adult/Amplissa state must remain isolated from MTG state."
+      "isolation_rule": "Adult/Amplissa state must remain isolated from MTG and commerce state."
     }
   },
   "compiler_policy": {
@@ -120,7 +132,8 @@
     "never_mark_external_state_as_live_without_observation": true,
     "never_disable_human_approval_implicitly": true,
     "never_create_duplicate_products_when_canonical_product_exists": true,
-    "never_implement_backlog_items_as_blocking_dependencies_without_explicit_promotion": true
+    "never_implement_backlog_items_as_blocking_dependencies_without_explicit_promotion": true,
+    "never_publish_credentials_or_customer_data": true
   },
   "commercial_gate": {
     "sequence": [

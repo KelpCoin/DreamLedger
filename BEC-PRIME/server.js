@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.join(__dirname, 'compiled', 'website');
 const CATALOG = path.join(__dirname, 'catalog', 'products');
+const IP_CATALOG = path.join(__dirname, 'catalog', 'ip-capabilities.json');
 const DATA = path.resolve(process.env.LEDGER_DATA_DIR || path.join(__dirname, 'data', 'transactions'));
 const PROOFS = path.resolve(process.env.PROOF_DATA_DIR || path.join(__dirname, 'data', 'proofs'));
 const FIRST_PAYMENT_PROOF = path.resolve(process.env.FIRST_PAYMENT_PROOF_PATH || path.join(PROOFS, 'FIRST_PAYMENT_PROOF.json'));
@@ -16,7 +17,7 @@ const checkoutLocks = new Map();
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css',
+  '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript',
   '.json': 'application/json',
   '.png': 'image/png',
@@ -42,6 +43,7 @@ function productFiles() {
   return fs.readdirSync(CATALOG).filter(x => x.endsWith('.json')).map(x => path.join(CATALOG, x));
 }
 function loadProducts() { return productFiles().map(readJson); }
+function loadIpCatalog() { return readJson(IP_CATALOG); }
 function paidTransactionExists(productId) {
   if (!fs.existsSync(DATA)) return false;
   return fs.readdirSync(DATA).some(file => {
@@ -219,12 +221,17 @@ const server = http.createServer(async (req, res) => {
     stripe_configured: Boolean(STRIPE_SECRET_KEY),
     webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET),
     durable_ledger_configured: DATA.startsWith('/var/data') || PROOFS.startsWith('/var/data'),
-    first_payment_proof_path: FIRST_PAYMENT_PROOF
+    first_payment_proof_path: FIRST_PAYMENT_PROOF,
+    ip_catalog_configured: fs.existsSync(IP_CATALOG)
   });
   if (req.method === 'GET' && url === '/api/products') return send(res, 200, { products: loadProducts().filter(p => p.status === 'published').map(publicProduct) });
   if (req.method === 'GET' && url.startsWith('/api/products/')) {
     const product = getProduct(url.slice('/api/products/'.length));
     return product ? send(res, 200, publicProduct(product)) : send(res, 404, { error: 'Product not found' });
+  }
+  if (req.method === 'GET' && url === '/api/ip') {
+    try { return send(res, 200, loadIpCatalog()); }
+    catch (err) { return send(res, 500, { error: err.message }); }
   }
   if (req.method === 'POST' && url === '/api/checkout/create') return createCheckout(req, res);
   if (req.method === 'POST' && url === '/webhook') return webhook(req, res);
