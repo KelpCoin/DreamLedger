@@ -3,6 +3,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { PassThrough } = require('stream');
 const dreamiezAccount = require('./dreamiez-account');
 const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
@@ -12,6 +13,7 @@ const digitalProxyAssistant = require('./proxy/DigitalProxyAssistant');
 const originalCreateServer = http.createServer;
 let capturedServer = null;
 const PRODUCT_CATALOG = path.join(__dirname, 'catalog', 'products');
+const OFFER_CATALOG = path.join(__dirname, 'catalog', 'offers', 'offers.json');
 const PORT = Number(process.env.PORT || 3000);
 
 function jsonBody(req) {
@@ -76,7 +78,16 @@ function approvedProductOffer(id) {
   return product ? productAsOffer(product) : null;
 }
 
-function proxyProductCheckout(req, res, productId, silo) {
+function loadCompiledOffers() {
+  try {
+    const catalog = JSON.parse(fs.readFileSync(OFFER_CATALOG, 'utf8'));
+    return Array.isArray(catalog.offers) ? catalog.offers : [];
+  } catch {
+    return [];
+  }
+}
+
+function proxyProductCheckout(res, productId, silo) {
   const payload = JSON.stringify({ product_id: productId, silo });
   const upstream = http.request({
     hostname: '127.0.0.1',
@@ -98,6 +109,19 @@ function proxyProductCheckout(req, res, productId, silo) {
   upstream.end(payload);
 }
 
+function replayBody(originalReq, body) {
+  const replay = new PassThrough();
+  replay.method = originalReq.method;
+  replay.url = originalReq.url;
+  replay.headers = originalReq.headers;
+  replay.httpVersion = originalReq.httpVersion;
+  replay.socket = originalReq.socket;
+  replay.connection = originalReq.connection;
+  replay.push(body);
+  replay.push(null);
+  return replay;
+}
+
 http.createServer = function wrappedCreateServer(...args) {
   const originalHandler = args[0];
   args[0] = async function dreamledgerRuntimeHandler(req, res) {
@@ -105,14 +129,8 @@ http.createServer = function wrappedCreateServer(...args) {
     demandRadar.record('route', { route: requestPath, source: 'runtime' });
 
     if (req.method === 'GET' && requestPath === '/api/offers') {
-      try {
-        const offers = loadApprovedProducts().map(productAsOffer);
-        const upstream = await fetch(`http://127.0.0.1:${PORT}/api/offers`);
-        const data = await upstream.json();
-        return send(res, upstream.status, { ...data, offers: [...(Array.isArray(data.offers) ? data.offers : []), ...offers] });
-      } catch (err) {
-        return send(res, 502, { error: err.message || 'Offer surface failed' });
-      }
+      const offers = [...loadCompiledOffers(), ...loadApprovedProducts().map(productAsOffer)];
+      return send(res, 200, { offers });
     }
 
     if (req.method === 'GET' && requestPath.startsWith('/api/offers/')) {
@@ -122,17 +140,10 @@ http.createServer = function wrappedCreateServer(...args) {
     }
 
     if (req.method === 'POST' && requestPath === '/api/offer-checkout/create') {
-      try {
-        const body = await jsonBody(req);
-        const productOffer = approvedProductOffer(body.offer_id);
-        if (productOffer) return proxyProductCheckout(req, res, productOffer.offer_id, productOffer.silo);
-        const payload = JSON.stringify(body);
-        req.url = '/api/offer-checkout/create';
-        req.push(payload);
-        req.push(null);
-      } catch (err) {
-        return send(res, 400, { error: err.message || 'Invalid JSON' });
-      }
+      const body = await jsonBody(req);
+      const productOffer = approvedProductOffer(body.offer_id);
+      if (productOffer) return proxyProductCheckout(res, productOffer.offer_id, productOffer.silo);
+      req = replayBody(req, JSON.stringify(body));
     }
 
     if (req.method === 'POST' && requestPath === '/api/digital-proxy/help') {
