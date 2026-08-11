@@ -1,0 +1,38 @@
+{
+  "type": "dreamledger-agent-commerce-surface-proof",
+  "status": "PASS",
+  "created_at": "2026-08-11T00:00:00Z",
+  "changes": [
+    {
+      "commit": "19c636bf714f790b44114ba747a8277da9190d9a",
+      "path": "BEC-PRIME/package.json",
+      "claim": "Production start runs the offer compiler before starting the server."
+    },
+    {
+      "commit": "19328e66006e9e4b0d25fc1dc2d7c849f2bf764c",
+      "path": "BEC-PRIME/compiled/website/.well-known/agent-commerce.json",
+      "claim": "Agent discovery manifest exposes the canonical offer and capability endpoints while recording approval-gated status."
+    },
+    {
+      "commit": "f26de923c96fdd6e1d9c4ff26590c1d0099b41fc",
+      "path": "BEC-PRIME/compiled/website/agentic-commerce/index.html",
+      "claim": "Buyer-facing readiness offer surface presents the three approved-for-review price tiers without enabling checkout."
+    }
+  ],
+  "economic_objects": [
+    "OFFER-BEC-PRIME-READINESS-AUDIT-SNAPSHOT",
+    "OFFER-BEC-PRIME-READINESS-AUDIT-FULL_AUDIT",
+    "OFFER-BEC-PRIME-READINESS-AUDIT-BLUEPRINT"
+  ],
+  "approval_required": true,
+  "checkout_available": false,
+  "x402_touched": false,
+  "private_material_exposed": false,
+  "render_contract": {
+    "rootDir": "BEC-PRIME",
+    "buildCommand": "npm install",
+    "startCommand": "npm start",
+    "healthCheckPath": "/healthz"
+  },
+  "next_gate": "live_render_verification_then_explicit_human_approval"
+}
