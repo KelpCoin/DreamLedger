@@ -1,0 +1,33 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//DreamLedger//HappyHomarid//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:HH-AUC-001@dreamledger.org
+DTSTAMP:20260811T140000Z
+DTSTART:20260811T200000Z
+DTEND:20260812T020000Z
+SUMMARY:HappyHomarid MTG Single Auction Window
+DESCRIPTION:Approval-gated auction window. Final item evidence and bidding activation required before live bidding.
+URL:https://dreamledger.org/mtg/
+END:VEVENT
+BEGIN:VEVENT
+UID:HH-AUC-002@dreamledger.org
+DTSTAMP:20260811T140000Z
+DTSTART:20260811T200000Z
+DTEND:20260812T080000Z
+SUMMARY:HappyHomarid EDH Deck Auction Window
+DESCRIPTION:Approval-gated Commander deck auction window.
+URL:https://dreamledger.org/mtg/
+END:VEVENT
+BEGIN:VEVENT
+UID:HH-AUC-003@dreamledger.org
+DTSTAMP:20260811T140000Z
+DTSTART:20260811T200000Z
+DTEND:20260812T140000Z
+SUMMARY:HappyHomarid Collection Lot Auction Window
+DESCRIPTION:Approval-gated collection auction window.
+URL:https://dreamledger.org/mtg/
+END:VEVENT
+END:VCALENDAR
