@@ -1,35 +1,36 @@
 {
-  "schema": "dreamledger/agent-commerce/v1",
+  "schema": "dreamledger/agent-commerce/v2",
   "service": "DreamLedger",
-  "commerce_surface": "agentic_commerce_readiness",
   "silo": "dreamledger",
   "currency": "NZD",
   "offer_catalog": "/api/offers",
   "offer_lookup": "/api/offers/{offer_id}",
   "checkout": "/api/offer-checkout/create",
-  "capabilities": "/api/ip",
   "approval_model": "explicit_human_approval",
   "offers_are_checkout_disabled_by_default": true,
-  "current_offers": [
-    {
-      "offer_id": "OFFER-BEC-PRIME-READINESS-AUDIT-SNAPSHOT",
-      "price": 49,
-      "currency": "NZD",
-      "status": "approval_required"
-    },
-    {
-      "offer_id": "OFFER-BEC-PRIME-READINESS-AUDIT-FULL_AUDIT",
-      "price": 149,
-      "currency": "NZD",
-      "status": "approval_required"
-    },
-    {
-      "offer_id": "OFFER-BEC-PRIME-READINESS-AUDIT-BLUEPRINT",
-      "price": 499,
-      "currency": "NZD",
-      "status": "approval_required"
-    }
-  ],
+  "capabilities": null,
   "private_material": "excluded",
-  "source_of_truth": "/api/offers"
+  "source_of_truth": "/api/offers",
+  "agent_contract": {
+    "discover": "GET /api/offers",
+    "inspect": "GET /api/offers/{offer_id}",
+    "request_checkout": "POST /api/offer-checkout/create",
+    "checkout_requires_server_approval": true,
+    "client_supplied_price_is_ignored": true,
+    "client_supplied_inventory_is_ignored": true
+  },
+  "supported_agent_actions": [
+    "discover_offers",
+    "inspect_offer",
+    "request_approved_checkout"
+  ],
+  "not_exposed": [
+    "internal_capability_catalog",
+    "compiler_source",
+    "gauntlet_rules",
+    "private_prompts",
+    "private_implementation_details",
+    "secrets",
+    "internal_ledger_records"
+  ]
 }
