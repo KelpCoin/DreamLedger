@@ -1,0 +1,8 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "services": {},
+    "capabilities": {},
+    "payment_handlers": {}
+  }
+}
