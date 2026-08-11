@@ -1,0 +1,61 @@
+name: DreamLedger Runtime Proof
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  runtime-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe public endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime-proof
+          urls=(
+            "https://dreamledger.org/"
+            "https://dreamledger.org/healthz"
+            "https://dreamledger.org/api/products"
+            "https://dreamledger.org/api/offers"
+            "https://dreamledger.org/.well-known/agent-commerce.json"
+          )
+          failed=0
+          for url in "${urls[@]}"; do
+            name=$(echo "$url" | sed 's#https://dreamledger.org/##; s#[/.]#_#g')
+            [ -n "$name" ] || name="root"
+            code=$(curl -L -sS --max-time 30 -o "runtime-proof/${name}.body.txt" -w "%{http_code}" "$url" || true)
+            echo "$url -> HTTP $code"
+            printf '%s -> HTTP %s\n' "$url" "$code" >> runtime-proof/SUMMARY.txt
+            if [[ ! "$code" =~ ^2[0-9][0-9]$ ]]; then
+              failed=1
+            fi
+          done
+          if [ "$failed" -ne 0 ]; then
+            echo "RUNTIME FAIL" | tee -a runtime-proof/SUMMARY.txt
+            exit 1
+          fi
+          echo "RUNTIME PASS" | tee -a runtime-proof/SUMMARY.txt
+      - name: Inspect marketplace markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          body=$(cat runtime-proof/root.body.txt)
+          for marker in "Dreamiez" "Featured" "Agentic Commerce" "Marketplace" "Future"; do
+            if grep -Fq "$marker" <<< "$body"; then
+              echo "MARKER PASS: $marker"
+            else
+              echo "MARKER FAIL: $marker"
+              exit 1
+            fi
+          done
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-runtime-proof-${{ github.run_id }}
+          path: runtime-proof/
+          if-no-files-found: error
