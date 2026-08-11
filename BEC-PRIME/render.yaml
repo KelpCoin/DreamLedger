@@ -3,17 +3,25 @@ services:
     name: dreamledger
     runtime: node
     rootDir: BEC-PRIME
-    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node --check server.js
+    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node --check server.js && node --check start.js && node --check dreamiez-account.js && node --check gauntlet/GauntletV6.js && node --check elohim/ElohimV6.js && node --check proxy/DigitalProxy.js && node --check runtime/ControlPlane.js && test -f compiled/website/index.html && test -f compiled/website/assets/marketplace-live.js && test -f catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json && test -f catalog/offers/offers.json && echo "Verified DreamLedger production assets plus Elohim/Gauntlet/Proxy control plane"
     startCommand: npm start
     healthCheckPath: /healthz
+    disk:
+      name: dreamledger-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: PUBLIC_BASE_URL
         value: https://dreamledger.org
-      - key: STRIPE_SECRET_KEY
-        sync: false
-      - key: STRIPE_WEBHOOK_SECRET
-        sync: false
       - key: LEDGER_DATA_DIR
         value: /var/data/ledger
       - key: PROOF_DATA_DIR
         value: /var/data/proofs
+      - key: DREAMIEZ_DATA_DIR
+        value: /var/data/dreamiez
+      - key: DIGITAL_PROXY_APPROVAL_TOKEN
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
