@@ -28,6 +28,7 @@ function makeProduct(index, domain, format) {
   const [category, subject] = domain;
   const [type, price, why, competitor, cheaper] = format;
   const slug = `${category}-${subject}-${type}`.toUpperCase().replace(/[^A-Z0-9]+/g, '-');
+  const channel = index <= 50 ? 'human-first' : 'agent-ready';
   return {
     product_id: `ELM-${String(index).padStart(3, '0')}-${slug}`,
     title: `${subject} ${type}`,
@@ -41,6 +42,21 @@ function makeProduct(index, domain, format) {
     price_nzd: price,
     status: 'candidate',
     silo: category === 'MTG' ? 'SILO_MTG' : 'SILO_COMMERCE',
+    channel,
+    agentic_ready: channel === 'agent-ready',
+    agentic_contract: {
+      discoverable: true,
+      machine_readable: true,
+      human_approval_required_for_activation: true,
+      checkout: 'existing Stripe Checkout path',
+      payment_asset: 'no cryptocurrency accepted',
+      currency: 'NZD'
+    },
+    seo: {
+      canonical_path: `/products/${slug.toLowerCase()}`,
+      index_policy: 'noindex until activated',
+      structured_data: 'Product+Offer only after real purchasable page exists'
+    },
     gauntlet: 'required',
     elohim_role: 'review, contradiction detection, evidence gating and escalation only',
     asymmetric_leverage: 'one compiled artifact can serve many customers without proportional delivery labour',
@@ -53,12 +69,14 @@ let index = 1;
 for (const domain of domains) for (const format of formats) products.push(makeProduct(index++, domain, format));
 
 const catalog = {
-  schema: 'BEC-PRIME/EVERGREEN-PRODUCT-CATALOG/v1',
+  schema: 'BEC-PRIME/EVERGREEN-PRODUCT-CATALOG/v2',
   count: products.length,
+  channel_split: { 'human-first': 50, 'agent-ready': 50 },
   activation_policy: 'candidate products are not purchasable until explicitly approved',
   entitlement_policy: 'content remains locked until a verified payment transaction grants an entitlement',
+  payment_policy: 'NZD/card checkout only; cryptocurrency is not accepted',
   products
 };
 
 fs.writeFileSync(OUT, JSON.stringify(catalog, null, 2) + '\n');
-console.log(JSON.stringify({ status: 'PASS', output: OUT, count: products.length }, null, 2));
+console.log(JSON.stringify({ status: 'PASS', output: OUT, count: products.length, channel_split: catalog.channel_split }, null, 2));
