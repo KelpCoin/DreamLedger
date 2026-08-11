@@ -30,11 +30,6 @@ function hashFile(filePath) {
   return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
 }
 
-function getGitCommitHash() {
-  const value = process.env.GIT_COMMIT || process.env.RENDER_GIT_COMMIT || process.env.COMMIT_SHA || null;
-  return value && /^[0-9a-f]{7,64}$/i.test(value) ? value : null;
-}
-
 function eligibility(capability) {
   for (const field of ['id', 'name', 'summary', 'commercialization', 'silo']) {
     if (!capability || !String(capability[field] || '').trim()) return { eligible: false, reason: `missing_${field}` };
@@ -203,7 +198,6 @@ function compile() {
   const generated = generateCandidates(capabilities);
   const gauntlet = runGauntlet(generated.candidates, capabilities);
   fs.mkdirSync(OFFERS_DIR, { recursive: true });
-  const generatedAt = new Date().toISOString();
   const allRejected = [...generated.rejected, ...gauntlet.rejected];
   const deterministicManifest = {
     schema: 'BEC-PRIME/OFFER-CATALOG/v1',
@@ -219,13 +213,17 @@ function compile() {
   };
   fs.writeFileSync(CANDIDATES_FILE, JSON.stringify({ ...deterministicManifest, candidates: generated.candidates, rejected: allRejected }, null, 2) + '\n');
   fs.writeFileSync(OFFERS_FILE, JSON.stringify({ ...deterministicManifest, offers: gauntlet.passed }, null, 2) + '\n');
+
+  // Keep proof deterministic. Runtime timestamps and triggering commit SHAs
+  // do not describe the compiled offer set and previously caused CI churn.
+  const inputHash = hashFile(CAPABILITIES_PATH);
   const proof = {
     type: 'dreamledger-offer-compilation-proof',
     status: gauntlet.passed.length === generated.candidates.length && allRejected.length === 0 ? 'PASS' : 'PARTIAL',
     compiler: OFFER_VERSION,
-    generated_at: generatedAt,
-    git_commit: getGitCommitHash(),
-    input_capabilities_sha256: hashFile(CAPABILITIES_PATH),
+    generated_at: null,
+    git_commit: null,
+    input_capabilities_sha256: inputHash,
     source: 'catalog/ip-capabilities.json',
     schema: 'compiler/schemas/offer.schema.json',
     counts: deterministicManifest.counts,
@@ -234,7 +232,8 @@ function compile() {
     approval_required_for_all: gauntlet.passed.every(o => o.approval_required === true),
     checkout_disabled_for_all: gauntlet.passed.every(o => o.checkout_available === false),
     silo_integrity: gauntlet.passed.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
-    deterministic_ids: new Set(gauntlet.passed.map(o => o.offer_id)).size === gauntlet.passed.length
+    deterministic_ids: new Set(gauntlet.passed.map(o => o.offer_id)).size === gauntlet.passed.length,
+    deterministic_proof: true
   };
   fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n');
   return { ...deterministicManifest, candidates: generated.candidates, passed: gauntlet.passed, rejected: allRejected };
