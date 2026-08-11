@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const Ajv = require('ajv');
 
 const ROOT = path.join(__dirname, '..');
@@ -23,6 +24,15 @@ function loadCapabilities() {
 
 function slug(value) {
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function hashFile(filePath) {
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+function getGitCommitHash() {
+  const value = process.env.GIT_COMMIT || process.env.RENDER_GIT_COMMIT || process.env.COMMIT_SHA || null;
+  return value && /^[0-9a-f]{7,64}$/i.test(value) ? value : null;
 }
 
 function eligibility(capability) {
@@ -139,6 +149,10 @@ function runGauntlet(candidates, capabilities) {
   return { passed, rejected };
 }
 
+function byCapability(capabilities, id) {
+  return capabilities.find(c => c.id === id);
+}
+
 function compile() {
   const capabilities = loadCapabilities();
   const generated = generateCandidates(capabilities);
@@ -166,9 +180,13 @@ function compile() {
     status: gauntlet.passed.length === generated.candidates.length && allRejected.length === 0 ? 'PASS' : 'PARTIAL',
     compiler: OFFER_VERSION,
     generated_at: generatedAt,
+    git_commit: getGitCommitHash(),
+    input_capabilities_sha256: hashFile(CAPABILITIES_PATH),
     source: 'catalog/ip-capabilities.json',
     schema: 'compiler/schemas/offer.schema.json',
     counts: manifest.counts,
+    passed_offer_ids: gauntlet.passed.map(o => o.offer_id),
+    rejected_offer_ids: allRejected.map(item => item.candidate?.offer_id || item.capability_id || null),
     approval_required_for_all: gauntlet.passed.every(o => o.approval_required === true),
     checkout_disabled_for_all: gauntlet.passed.every(o => o.checkout_available === false),
     silo_integrity: gauntlet.passed.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
@@ -176,10 +194,6 @@ function compile() {
   };
   fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n');
   return { ...manifest, candidates: generated.candidates, passed: gauntlet.passed, rejected: allRejected };
-}
-
-function byCapability(capabilities, id) {
-  return capabilities.find(c => c.id === id);
 }
 
 module.exports = { compile, loadCapabilities, generateCandidates, runGauntlet, eligibility };
