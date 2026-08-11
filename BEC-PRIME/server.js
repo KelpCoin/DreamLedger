@@ -1,5 +1,5 @@
-﻿const http = require('http');
-const fs   = require('fs');
+const http = require('http');
+const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
@@ -7,13 +7,13 @@ const ROOT = path.join(__dirname, 'compiled', 'website');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
-  '.css':  'text/css',
-  '.js':   'application/javascript',
+  '.css': 'text/css',
+  '.js': 'application/javascript',
   '.json': 'application/json',
-  '.png':  'image/png',
-  '.jpg':  'image/jpeg',
-  '.svg':  'image/svg+xml',
-  '.ico':  'image/x-icon'
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon'
 };
 
 function serve(res, filePath) {
@@ -32,6 +32,12 @@ function serve(res, filePath) {
 const server = http.createServer((req, res) => {
   let url = req.url.split('?')[0];
   if (url === '/') url = '/index.html';
+
+  const targetPath = path.join(ROOT, url);
+  if (fs.existsSync(targetPath) && fs.statSync(targetPath).isDirectory()) {
+    url = path.join(url, 'index.html');
+  }
+
   const filePath = path.join(ROOT, url);
   serve(res, filePath);
 });
