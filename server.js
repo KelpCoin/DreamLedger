@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.join(__dirname, 'BEC-PRIME', 'compiled', 'website');
+const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 10000);
 const HOST = '0.0.0.0';
 
@@ -18,11 +18,7 @@ const MIME = {
 
 function safePath(urlPath) {
   let decoded;
-  try {
-    decoded = decodeURIComponent(urlPath.split('?')[0]);
-  } catch (_) {
-    return null;
-  }
+  try { decoded = decodeURIComponent(urlPath.split('?')[0]); } catch (_) { return null; }
   if (!decoded.startsWith('/')) return null;
   const relative = decoded.replace(/^\/+/, '');
   const full = path.resolve(ROOT, relative);
@@ -31,10 +27,7 @@ function safePath(urlPath) {
 }
 
 function send(res, status, body, contentType) {
-  res.writeHead(status, {
-    'Content-Type': contentType,
-    'Cache-Control': 'no-store'
-  });
+  res.writeHead(status, { 'Content-Type': contentType, 'Cache-Control': 'no-store' });
   res.end(body);
 }
 
@@ -56,36 +49,18 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const requested = requestPath === '/' ? '/index.html' : requestPath;
-  let filePath = safePath(requested);
-
-  if (!filePath) {
-    send(res, 400, 'Bad Request\n', 'text/plain; charset=utf-8');
-    return;
-  }
-
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(ROOT, '404.html');
-  }
-
-  if (!fs.existsSync(filePath)) {
+  const filePath = safePath(requestPath);
+  if (!filePath || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     send(res, 404, 'Not Found\n', 'text/plain; charset=utf-8');
     return;
   }
 
   const ext = path.extname(filePath).toLowerCase();
-  const contentType = MIME[ext] || 'application/octet-stream';
-
   res.writeHead(200, {
-    'Content-Type': contentType,
+    'Content-Type': MIME[ext] || 'application/octet-stream',
     'Cache-Control': 'no-store'
   });
-
-  if (req.method === 'HEAD') {
-    res.end();
-    return;
-  }
-
+  if (req.method === 'HEAD') return res.end();
   fs.createReadStream(filePath).pipe(res);
 });
 
