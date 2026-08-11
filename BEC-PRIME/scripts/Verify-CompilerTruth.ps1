@@ -25,18 +25,11 @@ function Require-File([string]$Path, [string]$Name) {
 }
 
 foreach ($item in @(
-    @($ContractPath,'contract'),
-    @($ManifestPath,'cube_manifest'),
-    @($OffersPath,'offers'),
-    @($IpPath,'ip_catalog'),
-    @($SurfaceCompilerPath,'surface_compiler'),
-    @($SurfaceIndexTemplate,'surface_index_template'),
-    @($SurfaceAssetTemplate,'surface_asset_template'),
-    @($CompiledIndex,'compiled_index'),
-    @($CompiledAsset,'compiled_marketplace_asset'),
-    @($OfferCompilerPath,'offer_compiler'),
-    @($MetaPath,'meta_gauntlet'),
-    @($SentinelPath,'sentinel')
+    @($ContractPath,'contract'), @($ManifestPath,'cube_manifest'), @($OffersPath,'offers'), @($IpPath,'ip_catalog'),
+    @($SurfaceCompilerPath,'surface_compiler'), @($SurfaceIndexTemplate,'surface_index_template'),
+    @($SurfaceAssetTemplate,'surface_asset_template'), @($CompiledIndex,'compiled_index'),
+    @($CompiledAsset,'compiled_marketplace_asset'), @($OfferCompilerPath,'offer_compiler'),
+    @($MetaPath,'meta_gauntlet'), @($SentinelPath,'sentinel')
 )) { Require-File $item[0] $item[1] }
 
 $contract = if ($Errors.Count -eq 0) { Get-Content -Raw $ContractPath | ConvertFrom-Json } else { $null }
@@ -65,8 +58,10 @@ if ($manifest) {
     if ($manifest.surface_policy.silo_isolation_required -ne $true) { $Errors.Add('MANIFEST:silo_isolation') }
 }
 
+$offerIds = @()
 if ($offers) {
     foreach ($offer in @($offers.offers)) {
+        $offerIds += [string]$offer.offer_id
         if ($offer.approval_required -ne $true) { $Errors.Add("OFFER_UNLOCKED:$($offer.offer_id)") }
         if ($offer.checkout_available -ne $false) { $Errors.Add("OFFER_CHECKOUT_ENABLED:$($offer.offer_id)") }
         if ($offer.status -ne 'candidate') { $Errors.Add("OFFER_STATUS:$($offer.offer_id)") }
@@ -85,7 +80,9 @@ if ($surfaceCompiler) {
 if ($templateIndex -and $compiledIndex) {
     if ($templateIndex -ne $compiledIndex) { $Errors.Add('SURFACE_OUTPUT_DRIFT:index_differs_from_template') }
     if ($compiledIndex -notmatch 'compiler-generated public surface') { $Errors.Add('SURFACE_OUTPUT_MARKER_MISSING') }
-    if ($compiledIndex -match 'OFFER-[A-Z0-9-]+') { $Errors.Add('SURFACE_OUTPUT_HARDCODED_OFFER_ID') }
+    foreach ($offerId in $offerIds) {
+        if ($offerId -and $compiledIndex -match [regex]::Escape($offerId)) { $Errors.Add("SURFACE_HARDCODED_OFFER_ID:$offerId") }
+    }
 }
 
 if ($templateAsset -and $compiledAsset) {
@@ -104,14 +101,15 @@ if ($ip) {
 }
 
 $proof = [ordered]@{
-    schema = 'BEC-PRIME/COMPILER-TRUTH-PROOF/v1'
+    schema = 'BEC-PRIME/COMPILER-TRUTH-PROOF/v2'
     checked_at_utc = (Get-Date).ToUniversalTime().ToString('o')
     verdict = if ($Errors.Count -eq 0) { 'PASS' } else { 'FAIL' }
     compiler_chain = @('OfferCompiler','SurfaceCompiler','PriceDisplayPatch','Gauntlet','Meta-Gauntlet','Sentinel')
     surface_generation = [ordered]@{
         template_owned = ($Errors -notcontains 'SURFACE_COMPILER_NOT_GENERATIVE')
         deterministic = ($Errors -notcontains 'SURFACE_COMPILER_NONDETERMINISTIC_TIMESTAMP')
-        output_matches_templates = ($Errors -notcontains 'SURFACE_OUTPUT_DRIFT:index_differs_from_template' -and $Errors -notcontains 'SURFACE_OUTPUT_DRIFT:marketplace_asset_differs_from_template')
+        output_matches_templates = ($Errors -notlike 'SURFACE_OUTPUT_DRIFT:*')
+        catalog_ids_not_embedded = ($Errors -notlike 'SURFACE_HARDCODED_OFFER_ID:*')
     }
     surface_policy = [ordered]@{
         phone_first = [bool]$contract.surface_rules.phone_first_horizontal_carousels
