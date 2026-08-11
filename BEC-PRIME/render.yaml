@@ -3,8 +3,8 @@ services:
     name: dreamledger
     runtime: node
     rootDir: BEC-PRIME
-    buildCommand: node --check server.js && test -f compiled/website/index.html && test -f compiled/website/mtg/index.html && test -f compiled/website/commander/index.html && test -f compiled/website/pokemon/index.html && test -f compiled/website/vinyl/index.html && test -f compiled/website/videogames/index.html && test -f compiled/website/retro/index.html && test -f catalog/products/MTG-URZAS-LEGACY-PALINCHRON-FOIL-001.json && echo "Verified DreamLedger production assets"
-    startCommand: node server.js
+    buildCommand: npm install
+    startCommand: npm start
     healthCheckPath: /healthz
     envVars:
       - key: PUBLIC_BASE_URL
@@ -13,3 +13,7 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      - key: LEDGER_DATA_DIR
+        value: /var/data/ledger
+      - key: PROOF_DATA_DIR
+        value: /var/data/proofs
