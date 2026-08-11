@@ -42,7 +42,7 @@ function eligibility(capability) {
   return { eligible: true };
 }
 
-function buildOffer(capability, type, price, output, buyer, problem) {
+function buildOffer(capability, type, price, output, buyer, problem, pricing = {}) {
   const offerType = type.replace(/_/g, ' ');
   const offerId = `OFFER-${slug(capability.id)}-${slug(type)}`.toUpperCase();
   return {
@@ -61,9 +61,11 @@ function buildOffer(capability, type, price, output, buyer, problem) {
     constraints: ['No credential collection', 'No private conversation publication', 'No unsupported claims', 'Silo boundaries enforced'],
     price,
     currency: 'NZD',
+    pricing_strategy: pricing.strategy || 'fixed',
+    pricing_tier: pricing.tier || null,
     refund_rules: 'Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.',
     payment_adapter: 'stripe',
-    checkout_route: '/api/checkout/create',
+    checkout_route: '/api/offer-checkout/create',
     approval_required: true,
     checkout_available: false,
     status: 'candidate',
@@ -82,6 +84,32 @@ function buildOffer(capability, type, price, output, buyer, problem) {
   };
 }
 
+function buildTierOffer(capability, tier, buyer) {
+  const type = tier.deliverable;
+  const copy = {
+    snapshot: {
+      output: '0-100 readiness score, five-dimension summary, top three revenue-impacting blockers, and evidence-backed next actions.',
+      problem: 'Identify the highest-impact barriers preventing a merchant from being discoverable, understandable, and transactable by commerce agents.'
+    },
+    full_audit: {
+      output: 'Full readiness score, evidence pack, ranked remediation backlog, and revenue-impact prioritization.',
+      problem: 'Turn agent-commerce readiness gaps into an evidence-backed remediation plan ranked by likely commercial impact.'
+    },
+    blueprint: {
+      output: 'Full audit plus implementation specification covering structured data, catalog/feed surfaces, agent discoverability, checkout readiness, and remediation sequencing.',
+      problem: 'Convert readiness findings into an implementation-ready blueprint that an engineering or commerce team can execute.'
+    }
+  }[type] || {
+    output: `${capability.name} ${String(type).replace(/_/g, ' ')} deliverable with findings, evidence, and prioritized next actions.`,
+    problem: `Assess and improve the area described by ${capability.name}.`
+  };
+
+  return buildOffer(capability, type, tier.price, copy.output, buyer, copy.problem, {
+    strategy: 'tiered',
+    tier: type
+  });
+}
+
 function generateCandidates(capabilities) {
   const candidates = [];
   const rejected = [];
@@ -91,9 +119,26 @@ function generateCandidates(capabilities) {
       rejected.push({ capability_id: capability?.id || null, reason: check.reason });
       continue;
     }
-    const buyer = ['commerce', 'agentic_commerce'].includes(capability.category)
+
+    const buyer = ['commerce', 'agentic_commerce', 'audit'].includes(capability.category)
       ? 'Teams preparing products or services for machine-readable commerce'
       : 'Operators and teams needing structured assessment of systems, verification, architecture, or monetization';
+
+    if (capability.pricing_strategy === 'tiered') {
+      if (!Array.isArray(capability.tiers) || capability.tiers.length === 0) {
+        rejected.push({ capability_id: capability.id, reason: 'tiered_pricing_requires_tiers' });
+        continue;
+      }
+      for (const tier of capability.tiers) {
+        if (!tier || typeof tier.price !== 'number' || tier.price <= 0 || !String(tier.deliverable || '').trim()) {
+          rejected.push({ capability_id: capability.id, reason: 'invalid_pricing_tier', tier });
+          continue;
+        }
+        candidates.push(buildTierOffer(capability, tier, buyer));
+      }
+      continue;
+    }
+
     candidates.push(buildOffer(
       capability, 'diagnostic', 15,
       'Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.',
