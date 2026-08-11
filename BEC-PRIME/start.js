@@ -40,7 +40,7 @@ function loadApprovedProducts() {
   return fs.readdirSync(PRODUCT_CATALOG)
     .filter(name => name.endsWith('.json'))
     .map(name => JSON.parse(fs.readFileSync(path.join(PRODUCT_CATALOG, name), 'utf8')))
-    .filter(product => product.status === 'published' && product.commercial_truth?.approval_required === false);
+    .filter(product => product.status === 'published' && product.commercial_truth && product.commercial_truth.approval_required === false);
 }
 
 function loadCompiledOffers() {
@@ -84,28 +84,6 @@ function approvedProductOffer(id) {
   return product ? productAsOffer(product) : null;
 }
 
-function proxyProductCheckout(res, productId, silo) {
-  const payload = JSON.stringify({ product_id: productId, silo });
-  const upstream = http.request({
-    hostname: '127.0.0.1',
-    port: PORT,
-    path: '/api/checkout/create',
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
-  }, upstreamRes => {
-    let data = '';
-    upstreamRes.setEncoding('utf8');
-    upstreamRes.on('data', chunk => { data += chunk; });
-    upstreamRes.on('end', () => {
-      let body;
-      try { body = JSON.parse(data || '{}'); } catch { body = { error: data }; }
-      send(res, upstreamRes.statusCode || 502, { ...body, offer_id: productId });
-    });
-  });
-  upstream.on('error', err => send(res, 502, { error: err.message }));
-  upstream.end(payload);
-}
-
 function replayRequest(req, payload) {
   const replay = Readable.from([payload]);
   replay.method = req.method;
@@ -128,6 +106,7 @@ http.createServer = function wrappedCreateServer(...args) {
         const products = loadApprovedProducts().map(productAsOffer);
         return send(res, 200, { offers: [...compiled, ...products] });
       } catch (err) {
+        console.error('Offer surface failed:', err);
         return send(res, 500, { error: err.message || 'Offer surface failed' });
       }
     }
@@ -142,7 +121,10 @@ http.createServer = function wrappedCreateServer(...args) {
       try {
         const body = await jsonBody(req);
         const productOffer = approvedProductOffer(body.offer_id);
-        if (productOffer) return proxyProductCheckout(res, productOffer.offer_id, productOffer.silo);
+        if (productOffer) {
+          const payload = JSON.stringify({ product_id: productOffer.offer_id, silo: productOffer.silo });
+          return proxyProductCheckout(res, productOffer.offer_id, productOffer.silo, payload);
+        }
         return originalHandler(replayRequest(req, JSON.stringify(body)), res);
       } catch (err) {
         return send(res, 400, { error: err.message || 'Invalid JSON' });
@@ -201,6 +183,27 @@ http.createServer = function wrappedCreateServer(...args) {
   capturedServer = originalCreateServer.apply(this, args);
   return capturedServer;
 };
+
+function proxyProductCheckout(res, productId, silo, payload) {
+  const upstream = http.request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/checkout/create',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
+  }, upstreamRes => {
+    let data = '';
+    upstreamRes.setEncoding('utf8');
+    upstreamRes.on('data', chunk => { data += chunk; });
+    upstreamRes.on('end', () => {
+      let body;
+      try { body = JSON.parse(data || '{}'); } catch { body = { error: data }; }
+      send(res, upstreamRes.statusCode || 502, { ...body, offer_id: productId });
+    });
+  });
+  upstream.on('error', err => send(res, 502, { error: err.message }));
+  upstream.end(payload);
+}
 
 const boot = controlPlane.boot();
 const sentinelResult = sentinel.run(boot.gauntlet);
