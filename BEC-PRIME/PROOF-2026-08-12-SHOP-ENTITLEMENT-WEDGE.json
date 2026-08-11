@@ -1,0 +1,27 @@
+{
+  "proof_type": "DREAMLEDGER_SHOP_ENTITLEMENT_WEDGE",
+  "status": "IMPLEMENTED_PENDING_CI",
+  "branch": "agent/shop-commerce-entitlements",
+  "purpose": "Add a Shopify-like governed storefront while preserving the existing Stripe checkout and approval boundary.",
+  "changes": [
+    "100-product evergreen opportunity generator",
+    "server-side entitlement check",
+    "protected goods route outside the public website root",
+    "permanent and temporary entitlement model",
+    "Shopify-style storefront surface",
+    "commerce shop verification gauntlet"
+  ],
+  "commercial_truth": {
+    "existing_stripe_checkout": "reused",
+    "price_authority": "server-side canonical catalog",
+    "payment_truth": "existing signed Stripe webhook path",
+    "public_promotion": "approval-gated",
+    "candidate_products": "not automatically activated"
+  },
+  "governance": {
+    "gauntlet_net": "required",
+    "elohim": "review, contradiction detection, evidence gating and escalation only",
+    "asymmetric_leverage": "digital goods are compiled once and delivered repeatedly without proportional labour"
+  },
+  "important_boundary": "The 100 products are opportunity candidates, not 100 fabricated live products. Real checkout remains limited to explicitly approved offers."
+}
