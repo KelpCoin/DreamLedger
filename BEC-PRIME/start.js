@@ -7,6 +7,7 @@ const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
 const sentinel = require('./runtime/Sentinel');
 const digitalProxyAssistant = require('./proxy/DigitalProxyAssistant');
+const entitlementWall = require('./runtime/EntitlementWall');
 
 const originalCreateServer = http.createServer;
 let capturedServer = null;
@@ -35,6 +36,25 @@ http.createServer = function wrappedCreateServer(...args) {
   args[0] = async function dreamledgerRuntimeHandler(req, res) {
     const requestPath = String(req.url || '').split('?')[0];
     demandRadar.record('route', { route: requestPath, source: 'runtime' });
+
+    if (req.method === 'GET' && requestPath === '/api/entitlements/check') {
+      const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+      return send(res, 200, entitlementWall.entitlementFor(
+        url.searchParams.get('session_id'),
+        url.searchParams.get('product_id')
+      ));
+    }
+
+    if (req.method === 'GET' && requestPath.startsWith('/api/goods/')) {
+      const parts = requestPath.split('/').slice(3).map(decodeURIComponent);
+      const productId = parts.shift();
+      const relativeFile = parts.join('/') || 'index.html';
+      const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+      const result = entitlementWall.readGood(url.searchParams.get('session_id'), productId, relativeFile);
+      if (result.status !== 200) return send(res, result.status, result.body);
+      res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'private, no-store', 'X-Content-Proof': result.proof });
+      return res.end(result.data);
+    }
 
     if (req.method === 'POST' && requestPath === '/api/digital-proxy/help') {
       try {
