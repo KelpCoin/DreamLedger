@@ -8,6 +8,7 @@ const ROOT = path.join(__dirname, '..');
 const catalog = path.join(ROOT, 'catalog', 'evergreen-products.json');
 const generator = path.join(ROOT, 'catalog', 'generate-evergreen-products.js');
 const feedBuilder = path.join(ROOT, 'catalog', 'build-agentic-feed.js');
+const seoBuilder = path.join(ROOT, 'catalog', 'build-seo-surfaces.js');
 const feed = path.join(ROOT, 'compiled', 'website', 'agentic', 'catalog.json');
 const shop = path.join(ROOT, 'compiled', 'website', 'shop', 'index.html');
 const mtg = path.join(ROOT, 'compiled', 'website', 'mtg', 'index.html');
@@ -20,6 +21,7 @@ function test(name, fn) { try { fn(); tests.push({ name, status: 'PASS' }); } ca
 
 test('generator exists', () => { if (!fs.existsSync(generator)) throw Error('generator missing'); });
 test('agentic feed builder exists', () => { if (!fs.existsSync(feedBuilder)) throw Error('agentic feed builder missing'); });
+test('SEO builder exists', () => { if (!fs.existsSync(seoBuilder)) throw Error('SEO builder missing'); });
 test('shop surface exists', () => { if (!fs.existsSync(shop)) throw Error('shop surface missing'); });
 test('MTG silo surface exists', () => { if (!fs.existsSync(mtg)) throw Error('MTG silo surface missing'); });
 test('entitlement wall exists', () => { if (!fs.existsSync(wall)) throw Error('entitlement wall missing'); });
@@ -41,6 +43,12 @@ test('agentic feed compiles to 100 products', () => {
   const data = JSON.parse(fs.readFileSync(feed, 'utf8'));
   if (data.products.length !== 100) throw Error(`expected 100 agentic feed products, got ${data.products.length}`);
   if (data.payment.cryptocurrency !== false) throw Error('crypto policy mismatch');
+});
+test('SEO compiler runs and sitemap remains valid', () => {
+  child.execFileSync(process.execPath, [seoBuilder], { cwd: ROOT, stdio: 'pipe' });
+  const sitemap = fs.readFileSync(path.join(ROOT, 'compiled', 'website', 'sitemap.xml'), 'utf8');
+  if (!sitemap.includes('<urlset')) throw Error('invalid sitemap');
+  if (sitemap.includes('/products/ELM-')) throw Error('candidate product leaked into SEO sitemap');
 });
 test('three MTG auction windows exist and are approval gated', () => {
   const data = JSON.parse(fs.readFileSync(auctions, 'utf8'));
