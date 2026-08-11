@@ -1,0 +1,19 @@
+{
+  "dreamledger": [
+    {"id":"DL-001","headline":"DreamLedger marketplace launches thumb-first catalog rails","kind":"product","source":"DreamLedger","published_at":"2026-08-11T00:00:00Z"},
+    {"id":"DL-002","headline":"Dreamiez auction lane is entering gated beta","kind":"market","source":"DreamLedger","published_at":"2026-08-11T00:00:00Z"},
+    {"id":"DL-003","headline":"Kelplantis remains roadmap-only while local LM Studio integration stays isolated","kind":"infrastructure","source":"DreamLedger","published_at":"2026-08-11T00:00:00Z"}
+  ],
+  "dreamiez": [
+    {"id":"DZ-001","headline":"Dreamiez Beauty Objects: new physical catalog lane","kind":"catalog","source":"Dreamiez","published_at":"2026-08-11T00:00:00Z"},
+    {"id":"DZ-002","headline":"Genesis Drop auction reserve currently NZD 49","kind":"auction","source":"Dreamiez","published_at":"2026-08-11T00:00:00Z"}
+  ],
+  "agentic-commerce": [
+    {"id":"AC-001","headline":"Readiness Snapshot remains the entry offer for merchant audits","kind":"offer","source":"DreamLedger","published_at":"2026-08-11T00:00:00Z"},
+    {"id":"AC-002","headline":"Agent discovery and machine-readable commerce surfaces remain approval-gated","kind":"protocol","source":"DreamLedger","published_at":"2026-08-11T00:00:00Z"}
+  ],
+  "kelplantis": [
+    {"id":"KP-001","headline":"Kelplantis local bridge: LM Studio orchestration remains desktop-first","kind":"integration","source":"DreamLedger","published_at":"2026-08-11T00:00:00Z"},
+    {"id":"KP-002","headline":"External Kelplantis endpoint remains explicitly blocked until configured","kind":"integration","source":"DreamLedger","published_at":"2026-08-11T00:00:00Z"}
+  ]
+}
