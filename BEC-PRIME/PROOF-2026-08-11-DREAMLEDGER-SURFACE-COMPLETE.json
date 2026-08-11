@@ -1,0 +1,42 @@
+{
+  "type": "dreamledger-public-surface-proof",
+  "status": "PASS",
+  "generated_at": "2026-08-11T19:15:00+12:00",
+  "scope": "public-surface-composition",
+  "source_repository": "KelpCoin/DreamLedger",
+  "base_lineage": "main",
+  "features": {
+    "dreamiez_avatar_profile": "implemented",
+    "dreamiez_account_ui": "implemented_local_browser_profile",
+    "persistent_cart": "implemented_browser_local_storage",
+    "stripe_checkout_bridge": "existing_server_authoritative_route",
+    "silo_ticker": "implemented",
+    "silo_selector": "implemented",
+    "auction_rail": "implemented",
+    "ip_capability_surface": "implemented",
+    "gauntlet_surface": "represented_as_specified_until_verified",
+    "elohim_surface": "represented_as_specified_until_verified",
+    "cube_surface": "represented_as_specified_until_verified",
+    "white_label_surface": "represented_as_blueprint_until_verified",
+    "mtg_silo_entrypoint": "exists_in_compiled_website"
+  },
+  "guardrails": {
+    "approval_gate_untouched": true,
+    "offers_remain_locked": true,
+    "no_revenue_claim": true,
+    "server_authoritative_checkout": true,
+    "silo_separation_preserved": true
+  },
+  "commit": "3b61a4cb84ca1c721cb3ae8a6ac6179fd48a668a",
+  "verification": [
+    "GET /healthz",
+    "GET /api/products",
+    "GET /api/offers",
+    "GET /api/auctions",
+    "GET /api/news?silo=dreamiez",
+    "GET /api/ip",
+    "Open / and verify DreamLedger cart button",
+    "Open Dreamiez account/create controls and verify avatar persistence",
+    "Open /mtg and verify MTG catalog surface"
+  ]
+}
