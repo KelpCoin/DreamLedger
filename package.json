@@ -2,9 +2,10 @@
   "name": "dreamledger",
   "version": "1.0.0",
   "private": true,
-  "description": "DreamLedger storefront web service",
+  "description": "DreamLedger storefront and BEC-PRIME commerce engine",
+  "main": "BEC-PRIME/server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node BEC-PRIME/server.js"
   },
   "engines": {
     "node": ">=20"
