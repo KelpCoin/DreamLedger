@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
+          cache-dependency-path: BEC-PRIME/package.json
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
@@ -32,19 +32,29 @@ jobs:
           node --check server.js
           node --check start.js
           node --check dreamiez-account.js
+          node --check scripts/smoke-dreamiez.js
+          node --check scripts/meta-gauntlet.js
           node --check gauntlet/GauntletV6.js
           node --check elohim/ElohimV6.js
           node --check proxy/DigitalProxy.js
+          node --check proxy/DigitalProxyAssistant.js
           node --check runtime/ControlPlane.js
+          node --check runtime/DemandRadar.js
+          node --check runtime/Sentinel.js
       - name: Enterprise meta-gauntlet
         working-directory: BEC-PRIME
         run: node scripts/meta-gauntlet.js
+      - name: Dreamiez E2E smoke
+        working-directory: BEC-PRIME
+        run: npm run smoke:dreamiez
       - name: Upload acceptance fossil
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dreamledger-acceptance-${{ github.run_id }}
-          path: BEC-PRIME/PROOF-META-GAUNTLET.json
+          path: |
+            BEC-PRIME/PROOF-META-GAUNTLET.json
+            BEC-PRIME/data/proofs/SENTINEL-LATEST.json
           if-no-files-found: error
 
   deploy:
