@@ -26,10 +26,10 @@ jobs:
         run: npm install
 
       - name: Compile canonical surfaces
-        run: npm run compile:offers && npm run compile:surface
+        run: npm run compile:offers && npm run compile:surface && npm run compile:silo-surfaces
 
       - name: Syntax gate
-        run: node --check server.js && node --check start.js && node --check scouts/Run-DemandScouts.js
+        run: node --check server.js && node --check start.js && node --check compiler/SiloSurfaceCompiler.js && node --check scouts/Run-DemandScouts.js && node --check scripts/verify-public-surface.js
 
       - name: Revenue ledger smoke
         run: npm run smoke:revenue-ledger
@@ -37,22 +37,28 @@ jobs:
       - name: Gauntlet
         run: npm run gauntlet
 
+      - name: Dreamiez smoke
+        run: npm run smoke:dreamiez
+
       - name: Demand scouts
         run: npm run scout:demand
 
-      - name: Public boundary check
+      - name: Public boundary and silo check
         run: |
           test -f manifests/CUBE-PUBLIC-SURFACE-MANIFEST.json
           test -f PROOF-CUBE-SURFACE-COMPILATION.json
+          test -f PROOF-MULTI-SILO-SURFACE-COMPILATION.json
           test -f data/scout-evidence/DEMAND-SCOUT-RESULT.json
-          ! grep -R 'api/ip' compiled/website || true
-          ! grep -R 'catalog/ip-capabilities.json' compiled/website || true
+          npm run verify:public-surface
+          ! grep -R 'api/ip' compiled/website compiled/mtg compiled/dreamiez || true
+          ! grep -R 'catalog/ip-capabilities.json' compiled/website compiled/mtg compiled/dreamiez || true
 
       - name: Upload compilation and scout proof
         uses: actions/upload-artifact@v4
         with:
-          name: bec-prime-compilation-and-scout-proof
+          name: bec-prime-multi-silo-proof
           path: |
             BEC-PRIME/PROOF-CUBE-SURFACE-COMPILATION.json
+            BEC-PRIME/PROOF-MULTI-SILO-SURFACE-COMPILATION.json
             BEC-PRIME/data/proofs/
             BEC-PRIME/data/scout-evidence/
