@@ -4,7 +4,7 @@
   "description": "BEC-PRIME DreamLedger web service",
   "main": "server.js",
   "scripts": {
-    "start": "node compiler/OfferCompiler.js && node server.js",
+    "start": "node compiler/OfferCompiler.js && node start.js",
     "compile:offers": "node compiler/OfferCompiler.js",
     "kelplantis:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1 -HealthOnly",
     "kelplantis:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1"
