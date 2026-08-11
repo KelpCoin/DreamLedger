@@ -8,22 +8,26 @@ const ROOT = path.join(__dirname, '..');
 const TRANSACTIONS = path.resolve(process.env.LEDGER_DATA_DIR || path.join(ROOT, 'data', 'transactions'));
 const GOODS = path.join(ROOT, 'private-goods');
 const CATALOG = path.join(ROOT, 'catalog', 'evergreen-products.json');
+const OFFERS = path.join(ROOT, 'catalog', 'offers', 'offers.json');
 
-function loadCatalog() {
-  if (!fs.existsSync(CATALOG)) return { products: [] };
-  return JSON.parse(fs.readFileSync(CATALOG, 'utf8'));
+function readJson(file, fallback) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) { return fallback; }
 }
+function loadCatalog() { return readJson(CATALOG, { products: [] }); }
+function loadOffers() { return readJson(OFFERS, { offers: [] }); }
 function findTransaction(sessionId) {
-  if (!sessionId || !fs.existsSync(TRANSACTIONS)) return null;
+  if (!sessionId || !/^cs_/.test(sessionId) || !fs.existsSync(TRANSACTIONS)) return null;
   const file = path.join(TRANSACTIONS, `${sessionId}.json`);
   if (!fs.existsSync(file)) return null;
-  try {
-    const tx = JSON.parse(fs.readFileSync(file, 'utf8'));
-    return tx.payment_status === 'paid' ? tx : null;
-  } catch (_) { return null; }
+  const tx = readJson(file, null);
+  return tx && tx.payment_status === 'paid' ? tx : null;
 }
 function findProduct(id) {
-  return (loadCatalog().products || []).find(p => p.product_id === id) || null;
+  const product = (loadCatalog().products || []).find(p => p.product_id === id);
+  if (product) return product;
+  const offer = (loadOffers().offers || []).find(o => o.offer_id === id);
+  if (!offer) return null;
+  return { product_id: offer.offer_id, title: offer.name, entitlement: offer.entitlement || { mode: 'permanent', duration_days: null } };
 }
 function entitlementFor(sessionId, productId) {
   const tx = findTransaction(sessionId);
