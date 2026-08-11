@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /private-goods/
+Disallow: /data/
+Disallow: /agentic/
+Sitemap: https://dreamledger.org/sitemap.xml
