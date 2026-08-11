@@ -1,0 +1,98 @@
+name: DreamLedger Proof Gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+jobs:
+  build-proof:
+    name: Build and production-surface proof
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Node syntax
+        working-directory: BEC-PRIME
+        run: node --check server.js
+
+      - name: Validate required production assets
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f compiled/website/index.html
+          test -f compiled/website/mtg/index.html
+          test -f compiled/website/commander/index.html
+          test -f compiled/website/pokemon/index.html
+          test -f compiled/website/vinyl/index.html
+          test -f compiled/website/videogames/index.html
+          test -f compiled/website/retro/index.html
+          test -f compiled/website/assets/marketplace-live.js
+          test -f catalog/products/MTG-URZAS-LEGACY-PALINCHRON-FOIL-001.json
+          test -f catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
+          test -f catalog/offers/offers.json
+          test -f catalog/ip-capabilities.json
+
+      - name: Validate marketplace source markers
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "Dreamiez Marketplace" compiled/website/index.html
+          grep -q "Agentic Commerce" compiled/website/index.html
+          grep -q "Coming Later" compiled/website/index.html
+          grep -q "Kelplantis" compiled/website/index.html
+
+  runtime-proof:
+    name: Public runtime proof
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe DreamLedger production endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          : > proof/runtime.txt
+
+          urls=(
+            "https://dreamledger.org/"
+            "https://dreamledger.org/healthz"
+            "https://dreamledger.org/api/products"
+            "https://dreamledger.org/api/offers"
+            "https://dreamledger.org/.well-known/agent-commerce.json"
+          )
+
+          failed=0
+          for url in "${urls[@]}"; do
+            name=$(printf '%s' "$url" | sed 's#https://dreamledger.org/##; s#[^A-Za-z0-9]#_#g')
+            [ -n "$name" ] || name=homepage
+            echo "=== $url ===" | tee -a "proof/runtime.txt"
+            if curl --fail --silent --show-error --location --max-time 30 "$url" -o "proof/${name}.body" -w "HTTP %{http_code}\n" | tee -a "proof/runtime.txt"; then
+              :
+            else
+              failed=1
+            fi
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            echo "RUNTIME_NOT_PROVEN" | tee -a proof/runtime.txt
+            exit 1
+          fi
+
+          grep -qi "DreamLedger" proof/homepage.body || {
+            echo "Homepage marker missing" | tee -a proof/runtime.txt
+            exit 1
+          }
+
+          echo "RUNTIME_PASS" | tee -a proof/runtime.txt
+
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-runtime-proof
+          path: proof/
