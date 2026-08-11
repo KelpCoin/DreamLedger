@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node compiler/OfferCompiler.js && node server.js",
-    "compile:offers": "node compiler/OfferCompiler.js"
+    "compile:offers": "node compiler/OfferCompiler.js",
+    "kelplantis:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1 -HealthOnly",
+    "kelplantis:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1"
   },
   "dependencies": {
     "ajv": "^8.17.1"
