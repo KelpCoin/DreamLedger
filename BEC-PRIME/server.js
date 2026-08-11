@@ -8,6 +8,7 @@ const ROOT = path.join(__dirname, 'compiled', 'website');
 const CATALOG = path.join(__dirname, 'catalog', 'products');
 const DATA = path.resolve(process.env.LEDGER_DATA_DIR || path.join(__dirname, 'data', 'transactions'));
 const PROOFS = path.resolve(process.env.PROOF_DATA_DIR || path.join(__dirname, 'data', 'proofs'));
+const FIRST_PAYMENT_PROOF = path.resolve(process.env.FIRST_PAYMENT_PROOF_PATH || path.join(PROOFS, 'FIRST_PAYMENT_PROOF.json'));
 const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
@@ -182,9 +183,15 @@ async function webhook(req, res) {
       amount_total: session.amount_total,
       currency: session.currency,
       payment_status: session.payment_status,
+      payment_received: true,
+      proof_source: 'stripe.checkout.session.completed.webhook',
+      delivery_status: 'PENDING',
       recorded_at: tx.created_at
     };
     fs.writeFileSync(path.join(PROOFS, `${session.id}.json`), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
+    if (!fs.existsSync(FIRST_PAYMENT_PROOF)) {
+      fs.writeFileSync(FIRST_PAYMENT_PROOF, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
+    }
     return send(res, 200, { received: true, fulfilled: true, transaction_id: session.id });
   } catch (err) { return send(res, 400, { error: err.message }); }
 }
@@ -197,7 +204,8 @@ const server = http.createServer(async (req, res) => {
     engine: 'commerce-v1',
     stripe_configured: Boolean(STRIPE_SECRET_KEY),
     webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET),
-    durable_ledger_configured: DATA.startsWith('/var/data') || PROOFS.startsWith('/var/data')
+    durable_ledger_configured: DATA.startsWith('/var/data') || PROOFS.startsWith('/var/data'),
+    first_payment_proof_path: FIRST_PAYMENT_PROOF
   });
   if (req.method === 'GET' && url === '/api/products') return send(res, 200, { products: loadProducts().filter(p => p.status === 'published').map(publicProduct) });
   if (req.method === 'GET' && url.startsWith('/api/products/')) {
