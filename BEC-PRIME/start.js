@@ -3,10 +3,13 @@
 const http = require('http');
 const fs = require('fs');
 const dreamiezAccount = require('./dreamiez-account');
+const dreamiezKingdom = require('./dreamiez-kingdom');
 const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
 const sentinel = require('./runtime/Sentinel');
 const digitalProxyAssistant = require('./proxy/DigitalProxyAssistant');
+
+dreamiezKingdom.ensureStores();
 
 const originalCreateServer = http.createServer;
 let capturedServer = null;
@@ -65,6 +68,7 @@ http.createServer = function wrappedCreateServer(...args) {
     }
 
     if (await dreamiezAccount.handle(req, res)) return;
+    if (await dreamiezKingdom.handle(req, res)) return;
     if (await controlPlane.handle(req, res)) return;
 
     if (req.method === 'GET' && requestPath === '/') {

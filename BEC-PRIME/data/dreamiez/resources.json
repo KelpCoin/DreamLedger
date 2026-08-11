@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "users": {},
+  "materials": {
+    "thread": {"source": "territory", "rarity": "common"},
+    "spark": {"source": "streak", "rarity": "rare"},
+    "crown_shard": {"source": "raid", "rarity": "seasonal"}
+  },
+  "crafting": {}
+}

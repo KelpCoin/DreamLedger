@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dreamiez Kingdom</title>
+<style>
+:root{color-scheme:dark}body{font-family:system-ui,sans-serif;margin:0;background:#10101a;color:#f5f3ff}main{max-width:980px;margin:auto;padding:24px}.grid{display:grid;grid-template-columns:repeat(100,1fr);gap:1px;width:min(92vw,700px);aspect-ratio:1;background:#29263a}.cell{min-width:0;background:#1b1928}.owned{background:#8b5cf6}.enemy{background:#ef4444}.panel{background:#181624;border:1px solid #302c45;border-radius:14px;padding:16px;margin:12px 0}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}button,input{padding:10px;border-radius:9px;border:1px solid #403a59;background:#12101b;color:inherit}button{cursor:pointer}.muted{color:#aaa4bb}.stat{font-size:1.25rem;font-weight:700}.feed{max-height:260px;overflow:auto;font-size:.9rem}.tile{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}
+</style>
+</head>
+<body>
+<main>
+<h1>Dreamiez Kingdom</h1>
+<p class="muted">Your territory generates Dream Dust while you are away. Build, craft, recruit, and contest the map.</p>
+<section class="panel"><div class="row"><input id="email" placeholder="email"><input id="password" type="password" placeholder="password"><button onclick="login()">Login</button><button onclick="createAccount()">Create</button></div><p id="status" class="muted">Not connected.</p></section>
+<section class="panel"><div class="row"><div>Dream Dust <span id="dust" class="stat">0</span></div><div>Tile <span id="tile" class="stat">-</span></div><div>Level <span id="level" class="stat">-</span></div><button onclick="upgrade()">Upgrade territory</button></div></section>
+<section class="panel"><h2>Territory</h2><div id="map" class="grid" aria-label="100 by 100 territory map"></div><p class="muted">Purple = your territory. Red = an occupied enemy tile. Empty tiles are neutral.</p></section>
+<section class="panel"><h2>Guild</h2><div class="row"><input id="guild" placeholder="Guild name"><button onclick="makeGuild()">Create guild</button></div><pre id="guildState" class="muted"></pre></section>
+<section class="panel"><h2>Global feed</h2><div id="feed" class="feed"></div></section>
+</main>
+<script>
+async function api(path,opts={}){const r=await fetch(path,{credentials:'same-origin',...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});const j=await r.json();if(!r.ok)throw new Error(j.error||'Request failed');return j}
+function msg(x){document.getElementById('status').textContent=x}
+async function createAccount(){try{const email=document.getElementById('email').value,password=document.getElementById('password').value;await api('/api/dreamiez/account/create',{method:'POST',body:JSON.stringify({email,password})});msg('Account created. Kingdom claimed.');await refresh()}catch(e){msg(e.message)}}
+async function login(){try{const email=document.getElementById('email').value,password=document.getElementById('password').value;await api('/api/dreamiez/account/login',{method:'POST',body:JSON.stringify({email,password})});msg('Logged in.');await refresh()}catch(e){msg(e.message)}}
+async function refresh(){try{const [r,t,g,f]=await Promise.all([api('/api/dreamiez/resources'),api('/api/dreamiez/territory'),api('/api/dreamiez/guild/me'),api('/api/dreamiez/feed?limit=40')]);document.getElementById('dust').textContent=r.dust;document.getElementById('tile').textContent=`${t.tile.x},${t.tile.y}`;document.getElementById('level').textContent=t.tile.level;document.getElementById('guildState').textContent=g.guild?JSON.stringify(g.guild,null,2):'No guild yet.';renderMap(t);document.getElementById('feed').innerHTML=f.events.map(e=>`<div>${new Date(e.at).toLocaleString()} | ${e.type}</div>`).join('')}catch(e){msg(e.message)}}
+function renderMap(t){const map=document.getElementById('map');map.innerHTML='';const nearby=new Map(t.adjacent.map(x=>[`${x.x},${x.y}`,x]));const own=t.tile;for(let y=0;y<100;y++){for(let x=0;x<100;x++){const d=document.createElement('span');d.className='cell';const a=nearby.get(`${x},${y}`);if(x===own.x&&y===own.y)d.classList.add('owned');else if(a&&a.owner_id)d.classList.add(a.guild_id&&a.guild_id!==own.guild_id?'enemy':'owned');map.appendChild(d)}}}
+async function upgrade(){try{const r=await api('/api/dreamiez/territory/upgrade',{method:'POST',body:'{}'});msg(`Territory upgraded to level ${r.tile.level}. Spent ${r.cost} Dream Dust.`);await refresh()}catch(e){msg(e.message)}}
+async function makeGuild(){try{const name=document.getElementById('guild').value;await api('/api/dreamiez/guild/create',{method:'POST',body:JSON.stringify({name})});msg('Guild created.');await refresh()}catch(e){msg(e.message)}}
+refresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "season": 1,
+  "started_at": "2026-08-12T00:00:00.000Z",
+  "ends_at": "2026-09-11T00:00:00.000Z",
+  "rewards": {
+    "guild_top_10": "SEASON_GUILD_RELIC",
+    "player_top_50": "SEASON_PLAYER_CROWN"
+  }
+}
