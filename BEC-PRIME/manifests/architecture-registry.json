@@ -1,25 +1,29 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "registry_id": "BEC-PRIME-ARCHITECTURE",
   "purpose": "Machine-readable source of truth for implemented, specified, backlog, externally blocked, approval-gated, and unproven BEC-PRIME capabilities.",
   "authority": "repository",
   "commercial_priority": "FIRST_PAYMENT_PROOF",
   "states": ["implemented", "specified", "backlog", "external_blocked", "approval_gated", "unproven"],
   "components": {
-    "engine": {"state":"implemented","path":"BEC-PRIME/server.js","verification":["healthz","api_products","api_product_by_id","api_ip"]},
+    "engine": {"state":"implemented","path":"BEC-PRIME/server.js","verification":["healthz","api_products","api_product_by_id","api_ip","api_offers","checkout","webhook"]},
     "catalog": {"state":"implemented","path":"BEC-PRIME/catalog/products","products":["COMMANDER-DECK-DIAGNOSTIC-001"]},
     "ip_capability_catalog": {"state":"implemented","path":"BEC-PRIME/catalog/ip-capabilities.json","activation":"approval_gated"},
     "checkout": {"state":"implemented","path":"BEC-PRIME/server.js","adapter":"stripe"},
     "webhook": {"state":"implemented","path":"BEC-PRIME/server.js"},
     "proof_system": {"state":"implemented","path":"BEC-PRIME/server.js","proof_artifact":"FIRST_PAYMENT_PROOF.json"},
     "durable_storage": {"state":"implemented","path":"/var/data"},
-    "website_surface": {"state":"implemented","path":"BEC-PRIME/compiled/website/index.html"},
-    "dreamiez_accounts": {"state":"implemented","path":"BEC-PRIME/dreamiez-account.js","verification":["account_create","login","session","daily_streak","reward_gating"]},
+    "website_surface": {"state":"implemented","path":"BEC-PRIME/compiled/website/index.html","ux":"phone_first_horizontal_carousels_thumb_ctas"},
+    "dreamiez_accounts": {"state":"implemented","path":"BEC-PRIME/dreamiez-account.js","verification":["account_create","login","session","daily_streak","reward_gating","restart_persistence"]},
     "gauntlet": {"state":"implemented","path":"BEC-PRIME/gauntlet/GauntletV6.js","version":"6.0","verification":["offer_schema","approval_gate","silo_isolation","capability_links","deterministic_proof"]},
     "elohim_v6": {"state":"implemented","path":"BEC-PRIME/elohim/ElohimV6.js","version":"6.0","verification":["proposal_generation","deterministic_reward_asset","local_model_adapter","human_action_boundary"]},
     "digital_proxy": {"state":"approval_gated","path":"BEC-PRIME/proxy/DigitalProxy.js","verification":["allowlist","pending_approval","approval_transition","audit_log"]},
+    "digital_proxy_assistant": {"state":"approval_gated","path":"BEC-PRIME/proxy/DigitalProxyAssistant.js","ux":"explicit_user_invocation_only","verification":["non_invasive_ui","navigation_help","no_secret_requests","optional_local_llm"]},
+    "demand_radar": {"state":"implemented","path":"BEC-PRIME/runtime/DemandRadar.js","policy":"signals_to_proposals_only","verification":["event_recording","ranked_signals","proposal_gate"]},
+    "sentinel": {"state":"implemented","path":"BEC-PRIME/runtime/Sentinel.js","policy":"fail_closed_startup","verification":["required_files","gauntlet_pass","catalog_presence","secret_scan","proof_artifact"]},
     "control_plane": {"state":"implemented","path":"BEC-PRIME/runtime/ControlPlane.js","depends_on":["gauntlet","elohim_v6","digital_proxy","compilers"],"verification":["boot_gate","self_compile","gauntlet_health","proposal_route","proxy_route"]},
     "self_compilation": {"state":"implemented","path":"BEC-PRIME/runtime/ControlPlane.js","policy":"compile_offers_then_compile_surface_then_gauntlet; runtime refuses start on failed gate"},
+    "self_improvement": {"state":"implemented","path":"BEC-PRIME/runtime/DemandRadar.js","policy":"demand_signals_may_create_approval_gated_proposals_only"},
     "x402_payment_adapter": {"state":"backlog","approval_required":true,"do_not_implement_before":"FIRST_PAYMENT_PROOF"},
     "render_deployment": {"state":"external_blocked","blocker":"live deployment state is controlled by Render and is not exposed through the connected GitHub tools","configuration":"render.yaml","verification":["healthz_live","api_products_live","api_product_live","api_ip_live"]},
     "first_payment_proof": {"state":"unproven","artifact":"FIRST_PAYMENT_PROOF.json","requires":["render_deployment","approved_offer","real_or_explicitly_authorized_test_settlement","webhook_verification"]}
@@ -27,7 +31,8 @@
   "silos": {
     "mtg": {"state":"implemented","products":["COMMANDER-DECK-DIAGNOSTIC-001"],"isolation_rule":"MTG state and assets must not be mixed with adult/Amplissa state."},
     "commerce": {"state":"implemented","catalog":"BEC-PRIME/catalog/ip-capabilities.json","isolation_rule":"Commercial capability descriptions may not import MTG inventory or adult/Amplissa state."},
-    "adult": {"state":"specified","isolation_rule":"Adult/Amplissa state must remain isolated from MTG and commerce state."}
+    "adult": {"state":"specified","isolation_rule":"Adult/Amplissa state must remain isolated from MTG and commerce state."},
+    "dreamiez": {"state":"implemented","isolation_rule":"Dreamiez identity, streaks, rewards and assets remain isolated from MTG and adult/Amplissa state."}
   },
   "compiler_policy": {
     "source_of_truth":"this registry plus canonical repository artifacts",
@@ -38,7 +43,10 @@
     "never_implement_backlog_items_as_blocking_dependencies_without_explicit_promotion":true,
     "never_publish_credentials_or_customer_data":true,
     "never_execute_external_action_without_digital_proxy_approval":true,
-    "gauntlet_required_before_promotion":true
+    "gauntlet_required_before_promotion":true,
+    "demand_radar_cannot_execute_external_actions":true,
+    "digital_proxy_assistant_must_be_user_invoked":true,
+    "sentinel_may_fail_closed_but_may_not_publish_or_charge":true
   },
   "commercial_gate": {
     "sequence":["canonical_offer","live_deployment","human_approval","payment","verified_settlement","delivery","FIRST_PAYMENT_PROOF.json"],
