@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const ROOT = path.join(__dirname, '..');
 const QUEUE = path.join(ROOT, 'data', 'proxy', 'queue.json');
 const AUDIT = path.join(ROOT, 'data', 'proxy', 'audit.jsonl');
+const APPROVAL_TOKEN = process.env.DIGITAL_PROXY_APPROVAL_TOKEN || '';
 
 function ensure() {
   fs.mkdirSync(path.dirname(QUEUE), { recursive: true });
@@ -17,6 +18,7 @@ function readQueue() { ensure(); return JSON.parse(fs.readFileSync(QUEUE, 'utf8'
 function writeQueue(q) { fs.writeFileSync(QUEUE, JSON.stringify(q, null, 2) + '\n', 'utf8'); }
 function audit(event) { ensure(); fs.appendFileSync(AUDIT, JSON.stringify({ at: new Date().toISOString(), ...event }) + '\n', 'utf8'); }
 function id() { return crypto.randomUUID(); }
+function timingSafeEqualText(a, b) { const x = Buffer.from(String(a), 'utf8'); const y = Buffer.from(String(b), 'utf8'); return x.length === y.length && crypto.timingSafeEqual(x, y); }
 
 const SAFE_ACTIONS = new Set(['gauntlet.run', 'elohim.propose', 'dreamiez.generate_reward', 'compile.offers', 'compile.surface']);
 
@@ -30,7 +32,8 @@ function queue(action, payload, requestedBy = 'system') {
   return q[actionId];
 }
 
-function approve(actionId, approver) {
+function approve(actionId, approver, token) {
+  if (!APPROVAL_TOKEN || !timingSafeEqualText(token, APPROVAL_TOKEN)) throw new Error('Valid digital proxy approval token required');
   const q = readQueue();
   const item = q[actionId];
   if (!item) throw new Error('Proxy action not found');
