@@ -1,0 +1,15 @@
+{
+  "id": "DREAMIEZ-BEAUTY-BRUSH-001",
+  "silo": "dreamiez-beauty",
+  "name": "Dreamiez Brush Roll",
+  "description": "Compact roll for makeup brushes and beauty tools, using the Dreamiez visual identity. Accessory only; no cosmetic formula included.",
+  "price": 4900,
+  "currency": "nzd",
+  "inventory": 1,
+  "condition": "new",
+  "status": "published",
+  "fulfillment": "manual",
+  "commercial_truth": { "approval_required": false },
+  "checkout": { "mode": "payment", "success_path": "/checkout/success", "cancel_path": "/" },
+  "evidence": { "status": "catalog-listed", "transaction_id": null }
+}
