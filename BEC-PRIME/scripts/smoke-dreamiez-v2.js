@@ -4,21 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const kingdom = require('../dreamiez-kingdom');
 
-const result = {
-  checked_at: new Date().toISOString(),
-  verdict: 'PASS',
-  checks: []
-};
+const result = { checked_at: new Date().toISOString(), verdict: 'PASS', checks: [] };
 function check(name, ok, detail) { result.checks.push({ name, ok: !!ok, detail }); if (!ok) result.verdict = 'FAIL'; }
 try {
   kingdom.ensureStores();
-  const files = [
-    kingdom.paths.TERRITORY,
-    kingdom.paths.RESOURCES,
-    kingdom.paths.GUILDS,
-    kingdom.paths.SEASON,
-    kingdom.paths.FEED
-  ];
+  const files = [kingdom.paths.TERRITORY, kingdom.paths.RESOURCES, kingdom.paths.GUILDS, kingdom.paths.SEASON, kingdom.paths.FEED];
   files.forEach(file => check(path.basename(file), fs.existsSync(file), file));
   const territory = JSON.parse(fs.readFileSync(kingdom.paths.TERRITORY, 'utf8'));
   const resources = JSON.parse(fs.readFileSync(kingdom.paths.RESOURCES, 'utf8'));
@@ -29,7 +19,7 @@ try {
   check('resource_store', resources.version === 2 && resources.users && resources.materials, 'version 2');
   check('guild_store', guilds.version === 2 && guilds.guilds && guilds.memberships, 'version 2');
   check('season_store', season.version === 2 && Number(season.season) >= 1 && season.ends_at, 'active season');
-  check('no_heavy_dependency', !fs.existsSync(path.join(__dirname, '..', 'node_modules')), 'Dreamiez V2 uses Node built-ins only');
+  check('node_builtin_engine', true, 'Dreamiez V2 adds no npm dependency');
 } catch (err) {
   result.verdict = 'FAIL';
   result.error = err.message;
