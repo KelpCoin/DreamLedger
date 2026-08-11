@@ -3,8 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const elohim = require('./elohim/ElohimV6');
 
-const ROOT = path.join(__dirname, 'data', 'dreamiez');
+const ROOT = path.resolve(process.env.DREAMIEZ_DATA_DIR || path.join(__dirname, 'data', 'dreamiez'));
 const STORE = path.join(ROOT, 'accounts.json');
 const SESSIONS = path.join(ROOT, 'sessions.json');
 const REWARDS = [
@@ -36,8 +37,8 @@ async function body(req) { let s = ''; for await (const chunk of req) { s += chu
 function publicAccount(a) { return { account_id: a.account_id, email: a.email, name: a.name, avatar_style: a.avatar_style, created_at: a.created_at, streak: a.streak, last_checkin: a.last_checkin, best_streak: a.best_streak, reward_level: rewardLevel(a.streak) }; }
 function rewardLevel(streak) { return Math.max(...REWARDS.filter(r => streak >= r.day).map(r => r.day), 0); }
 function rewardAsset(account, reward) {
-  const seed = crypto.createHash('sha256').update(`${account.account_id}:${reward.day}:${account.streak}`).digest('hex');
-  return { asset_id: `ELOHIM-DREAMIEZ-${reward.day}-${seed.slice(0, 12).toUpperCase()}`, generator: 'ELOHIM', account_id: account.account_id, streak_required: reward.day, tier: reward.tier, name: reward.name, description: reward.description, seed, generated_at: nowIso() };
+  const asset = elohim.generateReward({ account_id: account.account_id, reward_day: reward.day, streak: account.streak });
+  return { ...asset, tier: reward.tier, name: reward.name, description: reward.description };
 }
 function updateStreak(account) {
   const t = today();
