@@ -7,6 +7,7 @@ const port = Number(process.env.SMOKE_PORT || 38765);
 const base = `http://127.0.0.1:${port}`;
 const email = `smoke-${crypto.randomUUID()}@example.test`;
 const password = 'DreamiezSmokePass!2026';
+const proxyToken = process.env.DIGITAL_PROXY_APPROVAL_TOKEN || 'smoke-proxy-token';
 let child;
 
 async function request(path, options = {}) {
@@ -30,7 +31,7 @@ async function waitForHealth() {
 }
 
 async function main() {
-  child = spawn(process.execPath, ['start.js'], { cwd: __dirname + '/..', env: { ...process.env, PORT: String(port), LEDGER_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/transactions`, PROOF_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/proofs` }, stdio: ['ignore', 'pipe', 'pipe'] });
+  child = spawn(process.execPath, ['start.js'], { cwd: __dirname + '/..', env: { ...process.env, PORT: String(port), DIGITAL_PROXY_APPROVAL_TOKEN: proxyToken, LEDGER_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/transactions`, PROOF_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/proofs`, DREAMIEZ_DATA_DIR: `/tmp/dreamledger-smoke-${process.pid}/dreamiez` }, stdio: ['ignore', 'pipe', 'pipe'] });
   child.stdout.on('data', d => process.stdout.write(`[runtime] ${d}`));
   child.stderr.on('data', d => process.stderr.write(`[runtime] ${d}`));
   await waitForHealth();
@@ -69,7 +70,7 @@ async function main() {
 
   const queued = await request('/api/control/proxy/queue', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'elohim.propose', payload: { smoke: true }, requested_by: 'smoke-test' }) });
   assert(queued.body.status === 'PENDING_APPROVAL', 'Digital Proxy did not create an approval-gated action');
-  const approval = await request(`/api/control/proxy/approve/${queued.body.action_id}`, { method: 'POST', headers: { 'x-human-approver': 'smoke-human' } });
+  const approval = await request(`/api/control/proxy/approve/${queued.body.action_id}`, { method: 'POST', headers: { 'x-human-approver': 'smoke-human', 'x-digital-proxy-token': proxyToken } });
   assert(approval.body.status === 'APPROVED', 'Digital Proxy approval transition failed');
 
   console.log(JSON.stringify({ smoke_test: 'PASS', account_created: true, streak_started_at: 1, same_day_idempotent: true, day_1_reward_unlocked: true, day_7_reward_locked: true, login_verified: true, public_surface_injected: true, elohim_v6: true, gauntlet_v6: true, digital_proxy_approval_gate: true }, null, 2));
