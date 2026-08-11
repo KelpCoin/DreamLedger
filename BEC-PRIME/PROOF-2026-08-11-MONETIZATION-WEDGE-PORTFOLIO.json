@@ -1,0 +1,141 @@
+{
+  "schema": "BEC-PRIME/MONETIZATION-WEDGE-PORTFOLIO/v1",
+  "created_at": "2026-08-11",
+  "evidence_basis": [
+    "BEC-PRIME/catalog/ip-capabilities.json",
+    "BEC-PRIME/compiler/OfferCompiler.js",
+    "BEC-PRIME/gauntlet/GauntletV6.js",
+    "BEC-PRIME/elohim/ElohimV6.js",
+    "BEC-PRIME/proxy/DigitalProxy.js",
+    "BEC-PRIME/scripts/smoke-dreamiez.js",
+    "BEC-PRIME/auction-engine.js",
+    "BEC-PRIME/lib/stripeWebhookProof.js",
+    "BEC-PRIME/render.yaml",
+    "BEC-PRIME/compiled/website/.well-known/agent-commerce.json"
+  ],
+  "ranked_wedges": [
+    {
+      "rank": 1,
+      "name": "Agent-Ready Commerce Gateway",
+      "core_assets": ["IP capability catalog", "Offer Compiler", "agent-commerce manifest", "server-authoritative checkout"],
+      "buyer": "SMBs, agencies, marketplaces and vertical SaaS companies that want products/services discoverable and purchasable by AI agents",
+      "monetization": "setup fee + monthly platform fee + transaction or catalog-volume fee",
+      "wedge": "Make an existing business machine-readable, trust-readable and transaction-ready without replacing its existing commerce stack.",
+      "why_now": "ACP and UCP are turning agentic discovery and checkout into real distribution channels; merchants need structured product data, trust signals and agent-compatible checkout.",
+      "priority": "P0"
+    },
+    {
+      "rank": 2,
+      "name": "Commerce Trust and Proof Engine",
+      "core_assets": ["Truth and Proof Engine", "FIRST_PAYMENT_PROOF", "durable transaction evidence", "deployment proof"],
+      "buyer": "Enterprise commerce, marketplaces, fintech, procurement and agent platforms",
+      "monetization": "audit fee + per-transaction verification + enterprise license",
+      "wedge": "Independent evidence that separates designed, implemented, verified, deployed and paid states.",
+      "priority": "P0"
+    },
+    {
+      "rank": 3,
+      "name": "Gauntlet-as-a-Service",
+      "core_assets": ["Gauntlet v6", "deterministic offer checks", "approval gates", "silo isolation tests"],
+      "buyer": "Agent platforms, marketplaces, AI SaaS and commerce engineering teams",
+      "monetization": "per-run API pricing + CI subscription + enterprise policy packs",
+      "wedge": "Adversarial acceptance testing for economic actions before an agent is allowed to publish, charge or mutate state.",
+      "priority": "P0"
+    },
+    {
+      "rank": 4,
+      "name": "Digital Proxy Approval Fabric",
+      "core_assets": ["PENDING_APPROVAL queue", "human approval token", "APPROVED transition", "allowlisted actions"],
+      "buyer": "Enterprise AI teams deploying agents into high-value workflows",
+      "monetization": "per-seat + per-approved-action + enterprise governance license",
+      "wedge": "A reusable human-in-the-loop permission boundary between autonomous proposals and consequential actions.",
+      "priority": "P0"
+    },
+    {
+      "rank": 5,
+      "name": "IP-to-Offer Compiler",
+      "core_assets": ["ip-capabilities.json", "OfferCompiler", "candidate offers", "provenance"],
+      "buyer": "Consultancies, studios, software companies and IP-heavy operators",
+      "monetization": "implementation packages + recurring offer-generation service",
+      "wedge": "Turn a messy capability/IP inventory into standardized, testable, priced economic objects without exposing private material.",
+      "priority": "P0"
+    },
+    {
+      "rank": 6,
+      "name": "Silo-Controlled Multi-Vertical Commerce Kernel",
+      "core_assets": ["silo isolation", "canonical product truth", "engine-backed surfaces", "approval policy"],
+      "buyer": "Multi-brand operators and marketplaces with sensitive or unrelated business lines",
+      "monetization": "platform license + implementation + managed operations",
+      "wedge": "One commerce kernel with hard separation between domains, brands, catalogs and permissions.",
+      "priority": "P1"
+    },
+    {
+      "rank": 7,
+      "name": "Dreamiez Daily-Streak Economy",
+      "core_assets": ["account creation", "streak state", "avatar persistence", "Elohim-generated rewards", "locked reward tiers"],
+      "buyer": "Consumer brands, communities and digital-product operators",
+      "monetization": "membership, digital assets, drops, subscriptions and conversion uplift",
+      "wedge": "A persistent identity and reward loop where consistency unlocks scarce digital assets.",
+      "priority": "P1"
+    },
+    {
+      "rank": 8,
+      "name": "Deterministic Auction and Silo Ticker",
+      "core_assets": ["auction engine", "reserve", "Buy Now", "anti-sniping", "bid proofs", "silo news"],
+      "buyer": "Collectibles, specialty goods, creator drops and niche marketplaces",
+      "monetization": "listing fees + transaction take rate + premium auction tools",
+      "wedge": "A reusable auction primitive with proof artifacts and strict catalog separation.",
+      "priority": "P1"
+    },
+    {
+      "rank": 9,
+      "name": "Enterprise Local-First AI Commerce OS",
+      "core_assets": ["BEC-PRIME architecture", "compiler pipeline", "proof system", "local-first control plane", "Render deployment contract"],
+      "buyer": "Organizations that cannot put sensitive commercial operations entirely into third-party SaaS",
+      "monetization": "high-ticket implementation + annual support/license",
+      "wedge": "Local-first economic automation with explicit evidence, approval and deployment boundaries.",
+      "priority": "P1"
+    },
+    {
+      "rank": 10,
+      "name": "Verticalized Diagnostic Product Factory",
+      "core_assets": ["Commander diagnostic", "offer compiler", "proof-of-delivery model", "catalog compiler"],
+      "buyer": "Specialist communities and service businesses with expensive expert knowledge",
+      "monetization": "low-ticket diagnostics feeding higher-ticket audits, implementation and subscriptions",
+      "wedge": "Package expert judgment into repeatable digital products, then let the compiler and proof system scale the catalog.",
+      "priority": "P1"
+    }
+  ],
+  "cross_industry_expansion": [
+    "retail and ecommerce",
+    "B2B procurement",
+    "fintech and payments",
+    "travel and hospitality",
+    "professional services",
+    "software and API marketplaces",
+    "collectibles and specialty marketplaces",
+    "creator and digital-product economies",
+    "enterprise AI governance",
+    "regulated or sensitive commerce operations"
+  ],
+  "economic_thesis": "The strongest moat is not another storefront. It is the trustable economic control plane between agent intent, machine-readable offers, authorization, execution, fulfillment and evidence.",
+  "agentic_commerce_position": "Build the merchant-side trust and execution layer rather than competing head-on with UCP or ACP. Be protocol-compatible and payment-rail-aware, while owning the verification, policy, provenance and proof layer.",
+  "red_team_questions": [
+    "Can an agent bypass approval and create a chargeable offer?",
+    "Can one silo read or mutate another silo's state?",
+    "Can public catalog data leak secrets or private IP?",
+    "Can a checkout be claimed as a payment without a verified webhook?",
+    "Can a future integration be represented as live without an observed endpoint?",
+    "Can a duplicate economic object create conflicting price or identity truth?"
+  ],
+  "blue_team_requirements": [
+    "canonical source for every economic object",
+    "server-authoritative pricing and inventory",
+    "explicit approval state machine",
+    "idempotent transaction handling",
+    "durable evidence path in production",
+    "automated build and E2E gates",
+    "silo isolation tests",
+    "no-secret public catalog scan"
+  ]
+}
