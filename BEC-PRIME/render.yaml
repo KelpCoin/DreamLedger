@@ -3,5 +3,5 @@ services:
     name: dreamledger
     runtime: node
     rootDir: BEC-PRIME
-    buildCommand: mkdir -p compiled/website && cp -rf cubes/*/outputs/website/*/* compiled/website/
+    buildCommand: test -f compiled/website/index.html && test -f compiled/website/mtg/index.html && echo "Verified committed compiled website"
     startCommand: node server.js
