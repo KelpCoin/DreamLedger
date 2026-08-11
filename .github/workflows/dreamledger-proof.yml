@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: "*/15 * * * *"
 
+permissions:
+  contents: write
+
 jobs:
   build-proof:
     name: Build and production-surface proof
@@ -14,6 +17,56 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install compiler dependencies
+        working-directory: BEC-PRIME
+        run: npm install
+
+      - name: Compile canonical offers
+        working-directory: BEC-PRIME
+        env:
+          GIT_COMMIT: ${{ github.sha }}
+        run: node compiler/OfferCompiler.js
+
+      - name: Verify compiled readiness tiers
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = 'catalog/offers/offers.json';
+          const x = JSON.parse(fs.readFileSync(p, 'utf8'));
+          const expected = new Map([
+            ['OFFER-BEC-PRIME-READINESS-AUDIT-SNAPSHOT', 49],
+            ['OFFER-BEC-PRIME-READINESS-AUDIT-FULL-AUDIT', 149],
+            ['OFFER-BEC-PRIME-READINESS-AUDIT-BLUEPRINT', 499]
+          ]);
+          for (const [id, price] of expected) {
+            const o = x.offers.find(v => v.offer_id === id);
+            if (!o) throw new Error(`Missing ${id}`);
+            if (o.price !== price) throw new Error(`Wrong price for ${id}`);
+            if (o.currency !== 'NZD') throw new Error(`Wrong currency for ${id}`);
+            if (o.approval_required !== true) throw new Error(`Approval gate open for ${id}`);
+            if (o.checkout_available !== false) throw new Error(`Checkout enabled for ${id}`);
+            if (o.status !== 'candidate') throw new Error(`Wrong status for ${id}`);
+          }
+          console.log('TIERED_READINESS_OFFERS_PASS');
+          NODE
+
+      - name: Commit generated offer artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BEC-PRIME/catalog/offers/offers.json BEC-PRIME/catalog/offers/candidates.json BEC-PRIME/PROOF-OFFER-COMPILATION.json
+          if git diff --cached --quiet; then
+            echo "NO_GENERATED_CHANGES"
+          else
+            git commit -m "build: publish compiled BEC-PRIME offers [skip ci]"
+            git push origin HEAD:main
+          fi
 
       - name: Validate Node syntax
         working-directory: BEC-PRIME
