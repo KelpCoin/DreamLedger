@@ -1,0 +1,20 @@
+{
+  "id": "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001",
+  "silo": "mtg",
+  "name": "Palinchron - Urza's Legacy Foil",
+  "description": "Foil from Urza's Legacy. LP condition. Minor clouding and minor edge wear.",
+  "price": 70000,
+  "currency": "nzd",
+  "inventory": 1,
+  "condition": "LP",
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "success_path": "/checkout/success",
+    "cancel_path": "/mtg"
+  },
+  "evidence": {
+    "status": "pending",
+    "transaction_id": null
+  }
+}
