@@ -50,8 +50,7 @@ jobs:
           test -f PROOF-MULTI-SILO-SURFACE-COMPILATION.json
           test -f data/scout-evidence/DEMAND-SCOUT-RESULT.json
           npm run verify:public-surface
-          ! grep -R 'api/ip' compiled/website compiled/mtg compiled/dreamiez || true
-          ! grep -R 'catalog/ip-capabilities.json' compiled/website compiled/mtg compiled/dreamiez || true
+          if grep -R -n -E 'api/ip|catalog/ip-capabilities.json' compiled/website compiled/mtg compiled/dreamiez; then exit 1; fi
 
       - name: Upload compilation and scout proof
         uses: actions/upload-artifact@v4
