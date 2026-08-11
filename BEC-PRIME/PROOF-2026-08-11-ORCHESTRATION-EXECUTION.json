@@ -1,0 +1,77 @@
+{
+  "schema": "BEC-PRIME/ORCHESTRATION-EXECUTION/v1",
+  "recorded_at": "2026-08-11",
+  "status": "REPOSITORY_GATES_READY_RENDER_LIVE_PROOF_PENDING",
+  "repository": "KelpCoin/DreamLedger",
+  "deployment": {
+    "service_name": "dreamledger-bec-prime",
+    "type": "web",
+    "branch": "main",
+    "root_dir": "BEC-PRIME",
+    "build_command": "npm install && npm run compile:offers && npm run compile:surface && node --check server.js",
+    "start_command": "npm start",
+    "health_check": "/healthz",
+    "auto_deploy_trigger": "checksPass",
+    "custom_domain_connected": false
+  },
+  "phone_first_contract": {
+    "horizontal_carousels": true,
+    "thumb_first_ctas": true,
+    "digital_proxy_auto_open": false,
+    "digital_proxy_user_invoked": true,
+    "demand_radar_proposal_only": true,
+    "sentinel_fail_closed": true
+  },
+  "red_team": {
+    "checks": [
+      "silo leakage",
+      "unlocked offers",
+      "public secret markers",
+      "fake live integrations",
+      "payment proof spoofing",
+      "approval bypass",
+      "invasive help UI"
+    ],
+    "implementation": "BEC-PRIME/scripts/meta-gauntlet.js"
+  },
+  "blue_team": {
+    "checks": [
+      "canonical catalogs",
+      "server authoritative pricing and inventory",
+      "approval state machine",
+      "idempotent payment handling",
+      "durable proof paths",
+      "automated build and E2E gates",
+      "silo isolation",
+      "non-invasive Digital Proxy"
+    ],
+    "implementation": "BEC-PRIME/runtime/ControlPlane.js + BEC-PRIME/runtime/Sentinel.js + BEC-PRIME/scripts/smoke-dreamiez.js"
+  },
+  "top_10_monetization_wedges": [
+    "Agent-Ready Commerce Gateway",
+    "Commerce Trust and Proof Engine",
+    "Gauntlet-as-a-Service",
+    "Digital Proxy Approval Fabric",
+    "IP-to-Offer Compiler",
+    "Silo-Controlled Multi-Vertical Commerce Kernel",
+    "Dreamiez Daily-Streak Economy",
+    "Deterministic Auction and Silo Ticker",
+    "Enterprise Local-First AI Commerce OS",
+    "Verticalized Diagnostic Product Factory"
+  ],
+  "economic_thesis": "Own the trust and execution control plane between agent intent, machine-readable offers, authorization, execution, fulfillment and independently verifiable evidence.",
+  "hard_gates": {
+    "domain_cutover": false,
+    "payment_activation": false,
+    "revenue_claim": false,
+    "kelplantis_external_live_claim": false
+  },
+  "required_live_proof": [
+    "GET /healthz returns HTTP 200 JSON from BEC-PRIME",
+    "GET /api/offers returns HTTP 200 JSON",
+    "GET /api/products returns HTTP 200 JSON",
+    "GET /api/control/demand remains proposal-only",
+    "GET /api/control/sentinel returns a PASS verdict",
+    "Dreamiez E2E and meta-gauntlet pass in CI before Render deploy"
+  ]
+}
