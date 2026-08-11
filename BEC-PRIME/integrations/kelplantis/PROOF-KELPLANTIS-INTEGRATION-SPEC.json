@@ -1,0 +1,25 @@
+{
+  "proof_type": "KELPLANTIS_INTEGRATION_SPEC",
+  "version": "1.0",
+  "status": "IMPLEMENTED_LOCAL_BRIDGE_EXTERNAL_ENDPOINT_BLOCKED",
+  "integration": "kelplantis",
+  "cognition_runtime": "LM Studio",
+  "default_base_url": "http://localhost:1234/v1",
+  "worker_roles": ["architect", "builder", "critic", "synthesizer"],
+  "external_api_claimed_live": false,
+  "approval_required": true,
+  "publish_allowed": false,
+  "charge_allowed": false,
+  "artifacts": [
+    "BEC-PRIME/integrations/kelplantis/kelplantis-adapter.js",
+    "BEC-PRIME/integrations/kelplantis/multi-llm.config.json",
+    "BEC-PRIME/scripts/Run-KelplantisMultiLLM.ps1"
+  ],
+  "verification": [
+    "LM Studio GET /v1/models succeeds",
+    "three worker reports are produced",
+    "synthesis report is produced",
+    "proof JSON is written under proofs/kelplantis",
+    "adapter returns external_blocked when KELPLANTIS_BASE_URL is absent"
+  ]
+}
