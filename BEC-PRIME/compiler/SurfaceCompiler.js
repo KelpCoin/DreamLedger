@@ -1,6 +1,6 @@
 'use strict';
 
-// CUBE surface compiler: generate the public surface from versioned boilerplate
+// CUBE surface compiler: generate the public surface from versioned templates
 // and canonical catalogs. The compiled website is an output, never the source.
 const fs = require('fs');
 const path = require('path');
@@ -11,8 +11,12 @@ const OUT = path.join(ROOT, 'compiled', 'website');
 const ASSETS = path.join(OUT, 'assets');
 const TEMPLATE_INDEX = path.join(__dirname, 'templates', 'public-index.html');
 const TEMPLATE_MARKETPLACE = path.join(__dirname, 'templates', 'public-marketplace.js');
+const TEMPLATE_DREAMIEZ = path.join(__dirname, 'templates', 'dreamiez.html');
+const TEMPLATE_DREAMIEZ_JS = path.join(__dirname, 'templates', 'dreamiez-account.js');
 const INDEX = path.join(OUT, 'index.html');
-const ASSET = path.join(ASSETS, 'public-marketplace.js');
+const MARKETPLACE = path.join(ASSETS, 'public-marketplace.js');
+const DREAMIEZ = path.join(OUT, 'dreamiez.html');
+const DREAMIEZ_JS = path.join(ASSETS, 'dreamiez-account.js');
 const MANIFEST = path.join(ROOT, 'manifests', 'CUBE-PUBLIC-SURFACE-MANIFEST.json');
 const OFFERS = path.join(ROOT, 'catalog', 'offers', 'offers.json');
 const IP = path.join(ROOT, 'catalog', 'ip-capabilities.json');
@@ -21,22 +25,13 @@ const NEWS = path.join(ROOT, 'data', 'silo-news.json');
 const AUCTIONS = path.join(ROOT, 'data', 'auctions.json');
 const PROOF = path.join(ROOT, 'PROOF-CUBE-SURFACE-COMPILATION.json');
 
-function must(file) {
-  if (!fs.existsSync(file)) throw new Error(`CUBE surface input missing: ${path.relative(ROOT, file)}`);
-}
-function digestBuffer(value) {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
-function digest(file) {
-  return digestBuffer(fs.readFileSync(file));
-}
+function must(file) { if (!fs.existsSync(file)) throw new Error(`CUBE surface input missing: ${path.relative(ROOT, file)}`); }
+function digestBuffer(value) { return crypto.createHash('sha256').update(value).digest('hex'); }
+function digest(file) { return digestBuffer(fs.readFileSync(file)); }
 function json(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
-function write(file, content) {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, content, 'utf8');
-}
+function write(file, content) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content, 'utf8'); }
 
-[TEMPLATE_INDEX, TEMPLATE_MARKETPLACE, MANIFEST, OFFERS, IP, PRODUCTS, NEWS, AUCTIONS].forEach(must);
+[TEMPLATE_INDEX, TEMPLATE_MARKETPLACE, TEMPLATE_DREAMIEZ, TEMPLATE_DREAMIEZ_JS, MANIFEST, OFFERS, IP, PRODUCTS, NEWS, AUCTIONS].forEach(must);
 
 const manifest = json(MANIFEST);
 const offers = json(OFFERS);
@@ -65,47 +60,31 @@ for (const offer of offerList) {
 
 const templateIndex = fs.readFileSync(TEMPLATE_INDEX, 'utf8');
 const templateMarketplace = fs.readFileSync(TEMPLATE_MARKETPLACE, 'utf8');
+const templateDreamiez = fs.readFileSync(TEMPLATE_DREAMIEZ, 'utf8');
+const templateDreamiezJs = fs.readFileSync(TEMPLATE_DREAMIEZ_JS, 'utf8');
 if (!templateIndex.includes('compiler-generated public surface')) throw new Error('CUBE index template missing compiler marker');
 if (!templateIndex.includes('/api/offers')) throw new Error('CUBE index template missing canonical offer API surface');
 if (!templateMarketplace.includes('/api/offers')) throw new Error('CUBE marketplace template missing canonical offer API');
 if (!templateMarketplace.includes('/api/offer-checkout/create')) throw new Error('CUBE marketplace template missing governed checkout route');
+if (!templateDreamiez.includes('/api/dreamiez/account/create')) throw new Error('CUBE Dreamiez template missing account creation surface');
+if (!templateDreamiez.includes('/api/dreamiez/checkin')) throw new Error('CUBE Dreamiez template missing check-in surface');
+if (!templateDreamiezJs.includes('/api/dreamiez/account/create')) throw new Error('CUBE Dreamiez client missing account API');
 
 // No timestamps, random IDs, or runtime state are injected into public output.
-// This makes the compilation output reproducible from the same source inputs.
 write(INDEX, templateIndex);
-write(ASSET, templateMarketplace);
+write(MARKETPLACE, templateMarketplace);
+write(DREAMIEZ, templateDreamiez);
+write(DREAMIEZ_JS, templateDreamiezJs);
 
 const build = {
-  type: 'dreamledger-cube-surface-compilation',
-  status: 'PASS',
-  compiler: 'CUBE',
-  schema: manifest.schema,
-  deterministic: true,
-  generated_from_templates: true,
-  source_of_public_economics: 'catalog/offers/offers.json',
-  source_of_public_capabilities: 'catalog/ip-capabilities.json',
-  source_hashes: {
-    manifest: digest(MANIFEST),
-    offers: digest(OFFERS),
-    ip: digest(IP),
-    news: digest(NEWS),
-    auctions: digest(AUCTIONS),
-    index_template: digest(TEMPLATE_INDEX),
-    marketplace_template: digest(TEMPLATE_MARKETPLACE)
-  },
-  output_hashes: {
-    index: digest(INDEX),
-    marketplace_runtime: digest(ASSET)
-  },
-  counts: { capabilities: capabilityCount, offers: offerCount, products: productCount, news_silos: Object.keys(news).length, auctions: auctionCount },
-  required_public_surfaces: manifest.public_surfaces,
-  gates: {
-    approval_required_for_activation: manifest.surface_policy.approval_required_for_activation === true,
-    private_material_excluded: manifest.surface_policy.private_material_excluded === true,
-    silo_isolation_required: manifest.surface_policy.silo_isolation_required === true,
-    all_compiled_offers_locked: offerList.every(o => o.approval_required === true && o.checkout_available === false)
-  }
+  type: 'dreamledger-cube-surface-compilation', status: 'PASS', compiler: 'CUBE', schema: manifest.schema,
+  deterministic: true, generated_from_templates: true,
+  source_of_public_economics: 'catalog/offers/offers.json', source_of_public_capabilities: 'catalog/ip-capabilities.json',
+  source_hashes: { manifest:digest(MANIFEST), offers:digest(OFFERS), ip:digest(IP), news:digest(NEWS), auctions:digest(AUCTIONS), index_template:digest(TEMPLATE_INDEX), marketplace_template:digest(TEMPLATE_MARKETPLACE), dreamiez_template:digest(TEMPLATE_DREAMIEZ), dreamiez_client_template:digest(TEMPLATE_DREAMIEZ_JS) },
+  output_hashes: { index:digest(INDEX), marketplace_runtime:digest(MARKETPLACE), dreamiez:digest(DREAMIEZ), dreamiez_client:digest(DREAMIEZ_JS) },
+  counts: { capabilities:capabilityCount, offers:offerCount, products:productCount, news_silos:Object.keys(news).length, auctions:auctionCount },
+  required_public_surfaces: [...manifest.public_surfaces, '/dreamiez.html'],
+  gates: { approval_required_for_activation:manifest.surface_policy.approval_required_for_activation === true, private_material_excluded:manifest.surface_policy.private_material_excluded === true, silo_isolation_required:manifest.surface_policy.silo_isolation_required === true, all_compiled_offers_locked:offerList.every(o => o.approval_required === true && o.checkout_available === false), dreamiez_account_surface_compiled:true }
 };
-
 write(PROOF, JSON.stringify(build, null, 2) + '\n');
 console.log(JSON.stringify(build, null, 2));
