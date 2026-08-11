@@ -205,10 +205,9 @@ function compile() {
   fs.mkdirSync(OFFERS_DIR, { recursive: true });
   const generatedAt = new Date().toISOString();
   const allRejected = [...generated.rejected, ...gauntlet.rejected];
-  const manifest = {
+  const deterministicManifest = {
     schema: 'BEC-PRIME/OFFER-CATALOG/v1',
     compiler: OFFER_VERSION,
-    generated_at: generatedAt,
     source: 'catalog/ip-capabilities.json',
     approval_rule: 'All compiled offers remain approval-gated and checkout-disabled until explicitly approved.',
     counts: {
@@ -218,8 +217,8 @@ function compile() {
       rejected: allRejected.length
     }
   };
-  fs.writeFileSync(CANDIDATES_FILE, JSON.stringify({ ...manifest, candidates: generated.candidates, rejected: allRejected }, null, 2) + '\n');
-  fs.writeFileSync(OFFERS_FILE, JSON.stringify({ ...manifest, offers: gauntlet.passed }, null, 2) + '\n');
+  fs.writeFileSync(CANDIDATES_FILE, JSON.stringify({ ...deterministicManifest, candidates: generated.candidates, rejected: allRejected }, null, 2) + '\n');
+  fs.writeFileSync(OFFERS_FILE, JSON.stringify({ ...deterministicManifest, offers: gauntlet.passed }, null, 2) + '\n');
   const proof = {
     type: 'dreamledger-offer-compilation-proof',
     status: gauntlet.passed.length === generated.candidates.length && allRejected.length === 0 ? 'PASS' : 'PARTIAL',
@@ -229,7 +228,7 @@ function compile() {
     input_capabilities_sha256: hashFile(CAPABILITIES_PATH),
     source: 'catalog/ip-capabilities.json',
     schema: 'compiler/schemas/offer.schema.json',
-    counts: manifest.counts,
+    counts: deterministicManifest.counts,
     passed_offer_ids: gauntlet.passed.map(o => o.offer_id),
     rejected_offer_ids: allRejected.map(item => item.candidate?.offer_id || item.capability_id || null),
     approval_required_for_all: gauntlet.passed.every(o => o.approval_required === true),
@@ -238,7 +237,7 @@ function compile() {
     deterministic_ids: new Set(gauntlet.passed.map(o => o.offer_id)).size === gauntlet.passed.length
   };
   fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n');
-  return { ...manifest, candidates: generated.candidates, passed: gauntlet.passed, rejected: allRejected };
+  return { ...deterministicManifest, candidates: generated.candidates, passed: gauntlet.passed, rejected: allRejected };
 }
 
 module.exports = { compile, loadCapabilities, generateCandidates, runGauntlet, eligibility };
