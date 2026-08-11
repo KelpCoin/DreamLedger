@@ -7,6 +7,7 @@
     "start": "node compiler/OfferCompiler.js && node compiler/SurfaceCompiler.js && node start.js",
     "compile:offers": "node compiler/OfferCompiler.js",
     "compile:surface": "node compiler/SurfaceCompiler.js",
+    "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
     "kelplantis:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1 -HealthOnly",
     "kelplantis:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1"
   },
