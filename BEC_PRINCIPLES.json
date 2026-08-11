@@ -1,0 +1,107 @@
+{
+  "bec_principles_version": "1.0.0",
+  "purpose": "Universal value and optimization layer inherited by governance, truth, validation, observation, compilation, and refinement components.",
+  "authority": {
+    "human_final_authority": true,
+    "agent_cannot_override_human": true,
+    "principles_are_not_runtime_overridable": true
+  },
+  "economic": {
+    "all_validated_revenue_events_have_value": true,
+    "small_transactions_count": true,
+    "optimize_for_verified_profit": true,
+    "cash_is_one_economic_exhaust": true,
+    "data_should_create_future_economic_value": true,
+    "economic_value_is_distinct_from_strategic_value": true
+  },
+  "distribution": {
+    "free_white_label_entry_is_permitted": true,
+    "monetization_inside_silos_is_preferred": true,
+    "multiple_monetization_surfaces_are_preferred": true,
+    "evergreen_digital_assets_are_preferred": true,
+    "digital_products_should_compete_on_customer_value": true
+  },
+  "reality": {
+    "reality_over_internal_consistency": true,
+    "customer_behavior_over_internal_belief": true,
+    "verified_economics_over_architectural_elegance": true,
+    "evidence_before_claim": true
+  },
+  "truth_oracle": {
+    "must_be_able_to_contradict_bec": true,
+    "must_prefer_external_evidence_when_available": true,
+    "must_distinguish_fact_from_inference": true,
+    "must_record_provenance": true,
+    "must_record_confidence": true,
+    "must_track_freshness": true,
+    "must_preserve_conflicting_evidence": true
+  },
+  "sentinels": {
+    "continuous_external_observation": true,
+    "real_world_changes_can_trigger_re_evaluation": true,
+    "sentinels_cannot_rewrite_principles": true
+  },
+  "gauntlet": {
+    "continuous_adversarial_evaluation": true,
+    "multi_surface_scoring": true,
+    "market_sentiment_is_a_valid_signal": true,
+    "human_emotion_is_a_valid_signal": true,
+    "shadow_sku_analysis_is_a_valid_signal": true,
+    "blocking_failures_may_stop_execution": true
+  },
+  "governance": {
+    "remote_killswitch_required": true,
+    "local_killswitch_required": true,
+    "killswitch_fails_closed": true,
+    "automated_permissions_are_evidence_bound": true
+  },
+  "assets": {
+    "lifecycle_required": true,
+    "lifecycle_states": [
+      "CREATED",
+      "TESTING",
+      "PROVEN",
+      "SCALING",
+      "DECLINING",
+      "ARCHIVED"
+    ],
+    "shadow_skus_are_validation_hypotheses": true
+  },
+  "signals": {
+    "arbitrage_should_be_triangulated": true,
+    "positive_signal": true,
+    "negative_signal": true,
+    "synthesis_signal": true,
+    "signal_provenance_required": true
+  },
+  "optimization": {
+    "primary_goal": "maximize_verified_profit",
+    "secondary_goals": [
+      "minimize_human_attention",
+      "minimize_unnecessary_complexity",
+      "maximize_reusability",
+      "maximize_compounding"
+    ],
+    "complexity_budget_required": true,
+    "new_components_require_value_justification": true,
+    "historical_outcomes_may_improve_weights_and_routing": true,
+    "optimization_engine_cannot_redefine_principles": true
+  },
+  "compute": {
+    "local_compute_is_preferred_when_economically_sensible": true,
+    "gpu_utilization_should_have_roi_or_operational_justification": true
+  },
+  "silo": {
+    "universal_principles_must_not_be_weakened_by_a_silo": true,
+    "vertical_specific_rules_belong_in_policies": true
+  },
+  "ledger": {
+    "material_economic_actions_should_produce_immutable_events": true,
+    "historical_decisions_retain_the_principles_version_used": true
+  },
+  "compiler": {
+    "principles_are_compile_time_constraints": true,
+    "conflicting_configurations_must_be_rejected": true,
+    "agents_propose_compiler_permits": true
+  }
+}
