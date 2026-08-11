@@ -1,0 +1,25 @@
+{
+  "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "silo": "mtg",
+  "name": "Commander Deck Diagnostic",
+  "description": "A focused Commander deck audit with practical recommendations to improve the deck's strategy, consistency, and performance.",
+  "price": 1500,
+  "currency": "nzd",
+  "inventory": 999999,
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "success_path": "/checkout/success",
+    "cancel_path": "/mtg"
+  },
+  "commercial_truth": {
+    "experiment": "20-DM-SIGNAL-TEST",
+    "approval_required": true,
+    "payment_surface": "engine-generated-stripe-checkout",
+    "payment_link": null
+  },
+  "evidence": {
+    "status": "pending",
+    "transaction_id": null
+  }
+}
