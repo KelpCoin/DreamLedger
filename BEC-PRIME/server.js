@@ -7,6 +7,7 @@ const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.join(__dirname, 'compiled', 'website');
 const CATALOG = path.join(__dirname, 'catalog', 'products');
 const DATA = path.join(__dirname, 'data', 'transactions');
+const PROOFS = path.join(__dirname, 'data', 'proofs');
 const PUBLIC_BASE = process.env.PUBLIC_BASE_URL || 'https://dreamledger.org';
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
@@ -26,9 +27,11 @@ const MIME = {
 };
 
 fs.mkdirSync(DATA, { recursive: true });
+fs.mkdirSync(PROOFS, { recursive: true });
 
 function send(res, status, body, type = 'application/json') {
   res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' });
+  if (Buffer.isBuffer(body)) return res.end(body);
   res.end(typeof body === 'string' ? body : JSON.stringify(body));
 }
 
@@ -38,8 +41,19 @@ function productFiles() {
   return fs.readdirSync(CATALOG).filter(x => x.endsWith('.json')).map(x => path.join(CATALOG, x));
 }
 function loadProducts() { return productFiles().map(readJson); }
+function paidTransactionExists(productId) {
+  if (!fs.existsSync(DATA)) return false;
+  return fs.readdirSync(DATA).some(file => {
+    if (!file.endsWith('.json')) return false;
+    try {
+      const tx = readJson(path.join(DATA, file));
+      return tx.product_id === productId && tx.payment_status === 'paid';
+    } catch { return false; }
+  });
+}
 function publicProduct(p) {
-  return { id: p.id, silo: p.silo, name: p.name, description: p.description, price: p.price, currency: p.currency, inventory: p.inventory, condition: p.condition, status: p.status };
+  const sold = p.inventory < 1 || paidTransactionExists(p.id);
+  return { id: p.id, silo: p.silo, name: p.name, description: p.description, price: p.price, currency: p.currency, inventory: sold ? 0 : p.inventory, condition: p.condition, status: sold ? 'sold' : p.status };
 }
 function getProduct(id) { return loadProducts().find(p => p.id === id); }
 
@@ -91,17 +105,6 @@ async function stripeRequest(endpoint, method, params, idempotencyKey) {
   return body;
 }
 
-function paidTransactionExists(productId) {
-  if (!fs.existsSync(DATA)) return false;
-  return fs.readdirSync(DATA).some(file => {
-    if (!file.endsWith('.json')) return false;
-    try {
-      const tx = readJson(path.join(DATA, file));
-      return tx.product_id === productId && tx.payment_status === 'paid';
-    } catch { return false; }
-  });
-}
-
 function verifyStripeSignature(raw, header) {
   if (!STRIPE_WEBHOOK_SECRET) throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
   const parts = Object.fromEntries(header.split(',').map(x => x.split('=')));
@@ -111,7 +114,9 @@ function verifyStripeSignature(raw, header) {
   const age = Math.abs(Date.now() / 1000 - Number(timestamp));
   if (age > 300) throw new Error('Expired Stripe signature');
   const expected = crypto.createHmac('sha256', STRIPE_WEBHOOK_SECRET).update(`${timestamp}.${raw}`, 'utf8').digest('hex');
-  if (!crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature))) throw new Error('Invalid Stripe signature');
+  const a = Buffer.from(expected, 'utf8');
+  const b = Buffer.from(signature, 'utf8');
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new Error('Invalid Stripe signature');
 }
 
 async function createCheckout(req, res) {
@@ -120,8 +125,7 @@ async function createCheckout(req, res) {
   const product = getProduct(body.product_id);
   if (!product || product.status !== 'published') return send(res, 404, { error: 'Product not found' });
   if (body.silo !== product.silo) return send(res, 400, { error: 'Silo mismatch' });
-  if (product.inventory < 1) return send(res, 409, { error: 'Sold out' });
-  if (paidTransactionExists(product.id)) return send(res, 409, { error: 'Sold out' });
+  if (product.inventory < 1 || paidTransactionExists(product.id)) return send(res, 409, { error: 'Sold out' });
   if (checkoutLocks.has(product.id)) return send(res, 409, { error: 'Checkout already being created' });
   checkoutLocks.set(product.id, true);
   try {
@@ -168,6 +172,18 @@ async function webhook(req, res) {
       created_at: new Date().toISOString()
     };
     fs.writeFileSync(txFile, JSON.stringify(tx, null, 2) + '\n', { flag: 'wx' });
+    const proof = {
+      type: 'dreamledger-transaction-proof',
+      status: 'PASS',
+      transaction_id: session.id,
+      product_id: product.id,
+      silo: product.silo,
+      amount_total: session.amount_total,
+      currency: session.currency,
+      payment_status: session.payment_status,
+      recorded_at: tx.created_at
+    };
+    fs.writeFileSync(path.join(PROOFS, `${session.id}.json`), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
     return send(res, 200, { received: true, fulfilled: true, transaction_id: session.id });
   } catch (err) { return send(res, 400, { error: err.message }); }
 }
