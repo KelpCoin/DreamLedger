@@ -1,0 +1,41 @@
+{
+  "proof_type": "AUCTION_AND_SILO_TICKER",
+  "timestamp": "2026-08-11T00:00:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "implementation": {
+    "auction_engine": "BEC-PRIME/auction-engine.js",
+    "auction_catalog": "BEC-PRIME/data/auctions.json",
+    "news_catalog": "BEC-PRIME/data/silo-news.json",
+    "server_routes": [
+      "GET /api/auctions?silo=...",
+      "GET /api/auctions/:auction_id",
+      "POST /api/auctions",
+      "POST /api/auctions/:auction_id/bid",
+      "GET /api/news?silo=..."
+    ],
+    "homepage_injection": "BEC-PRIME/compiled/website/assets/marketplace-live.js"
+  },
+  "auction_invariants": {
+    "silo_required": true,
+    "minimum_increment_enforced": true,
+    "reserve_supported": true,
+    "buy_now_field_supported": true,
+    "anti_sniping_extension": true,
+    "bid_proof_artifacts": true,
+    "approval_required_default": true,
+    "checkout_available_default": false,
+    "commerce_settlement_not_falsely_claimed": true
+  },
+  "ticker_invariants": {
+    "silo_specific": true,
+    "machine_readable_api": true,
+    "seeded_editorial_items": true,
+    "source_attribution": true
+  },
+  "current_auction": "AUC-DREAMIEZ-GAUNTLET-001",
+  "current_auction_state": "gated_pending_approval",
+  "current_news_silos": ["dreamledger", "dreamiez", "agentic-commerce", "kelplantis"],
+  "kelplantis_boundary": "future/external_blocked semantics preserved",
+  "commit": "9b1552bd51d8aa3f572a938be8ffd490a24c969d"
+}
