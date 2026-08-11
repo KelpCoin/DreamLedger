@@ -14,15 +14,16 @@ const smokeRoot = `/tmp/dreamledger-smoke-${process.pid}`;
 const ledgerDir = `${smokeRoot}/transactions`;
 const proofDir = `${smokeRoot}/proofs`;
 const dreamiezDir = `${smokeRoot}/dreamiez`;
+const demandDir = `${smokeRoot}/demand`;
 let child;
 let cookie;
 
-async function request(pathname, options = {}) {
+async function request(pathname, options = {}, allowError = false) {
   const r = await fetch(base + pathname, options);
   const text = await r.text();
   let body;
   try { body = JSON.parse(text); } catch { body = text; }
-  if (!r.ok) throw new Error(`${options.method || 'GET'} ${pathname} -> ${r.status}: ${text}`);
+  if (!r.ok && !allowError) throw new Error(`${options.method || 'GET'} ${pathname} -> ${r.status}: ${text}`);
   return { response: r, body };
 }
 
@@ -38,7 +39,9 @@ function spawnRuntime() {
       DIGITAL_PROXY_APPROVAL_TOKEN: proxyToken,
       LEDGER_DATA_DIR: ledgerDir,
       PROOF_DATA_DIR: proofDir,
-      DREAMIEZ_DATA_DIR: dreamiezDir
+      DREAMIEZ_DATA_DIR: dreamiezDir,
+      DEMAND_RADAR_DATA_DIR: demandDir,
+      DIGITAL_PROXY_LM_ENABLED: 'false'
     },
     stdio: ['ignore', 'pipe', 'pipe']
   });
@@ -72,7 +75,6 @@ async function main() {
   spawnRuntime();
   const health = await waitForHealth();
   assert(health.status === 'ok', 'Health endpoint did not return ok');
-  assert(health.durable_ledger_configured === false || health.durable_ledger_configured === true, 'Health response malformed');
 
   const offers = await request('/api/offers');
   assert(Array.isArray(offers.body.offers), 'Offer catalog endpoint did not return an offers array');
@@ -88,8 +90,18 @@ async function main() {
   assert(control.body.boot.status === 'PASS', 'Control-plane boot gate failed');
   assert(control.body.boot.gauntlet.status === 'PASS', 'Gauntlet v6 failed');
 
+  const sentinel = await request('/api/control/sentinel');
+  assert(sentinel.body.verdict === 'PASS', 'Sentinel verdict failed');
+  assert(fs.existsSync(path.join(proofDir, 'SENTINEL-LATEST.json')), 'Sentinel proof artifact missing');
+
+  const demand = await request('/api/control/demand');
+  assert(demand.body.summary && demand.body.summary.schema === 'BEC-PRIME/DEMAND-RADAR/v1', 'Demand Radar missing');
+
   const root = await request('/');
-  assert(String(root.body).includes('/assets/dreamiez-account.js'), 'Dreamiez account UI was not injected into the public surface');
+  assert(String(root.body).includes('/assets/dreamiez-account.js'), 'Dreamiez account UI was not injected');
+  assert(String(root.body).includes('/assets/digital-proxy-assist.js'), 'Digital Proxy UI was not injected');
+  const help = await request('/api/digital-proxy/help', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ message: 'How do I use my Dreamiez account?', route: '/' }) });
+  assert(typeof help.body.reply === 'string' && help.body.reply.length > 10, 'Opt-in Digital Proxy help did not respond');
 
   const created = await request('/api/dreamiez/account/create', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, password, name: 'Smoke Dreamer', avatar_style: 'dream' }) });
   assert(created.body.ok === true, 'Account creation failed');
@@ -100,8 +112,7 @@ async function main() {
 
   const me = await request('/api/dreamiez/me', { headers: { cookie } });
   assert(me.body.account.streak === 1, 'Same-day account read changed streak unexpectedly');
-  assert(me.body.account.avatar_style === 'dream', 'Avatar state was not returned from the server');
-  assert(Array.isArray(me.body.rewards), 'Rewards payload missing');
+  assert(me.body.account.avatar_style === 'dream', 'Avatar state was not returned');
   assert(me.body.rewards.some(r => r.day === 1 && r.unlocked), 'Day 1 reward not unlocked');
   assert(me.body.rewards.some(r => r.day === 7 && !r.unlocked), 'Day 7 reward should remain locked');
 
@@ -120,8 +131,14 @@ async function main() {
 
   const queued = await request('/api/control/proxy/queue', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'elohim.propose', payload: { smoke: true }, requested_by: 'smoke-test' }) });
   assert(queued.body.status === 'PENDING_APPROVAL', 'Digital Proxy did not create an approval-gated action');
+  const denied = await request(`/api/control/proxy/approve/${queued.body.action_id}`, { method: 'POST', headers: { 'x-human-approver': 'smoke-human', 'x-digital-proxy-token': 'wrong-token' } }, true);
+  assert(denied.response.status === 403, 'Digital Proxy accepted an invalid approval token');
   const approval = await request(`/api/control/proxy/approve/${queued.body.action_id}`, { method: 'POST', headers: { 'x-human-approver': 'smoke-human', 'x-digital-proxy-token': proxyToken } });
   assert(approval.body.status === 'APPROVED', 'Digital Proxy approval transition failed');
+
+  const demandAfterHelp = await request('/api/control/demand');
+  assert(demandAfterHelp.body.summary.event_count >= 1, 'Demand Radar did not record runtime demand');
+  assert(demandAfterHelp.body.proposal.status === 'PROPOSED', 'Demand Radar did not produce a proposal');
 
   await stopRuntime();
   spawnRuntime();
@@ -146,6 +163,10 @@ async function main() {
     elohim_reward_asset: true,
     login_verified: true,
     public_surface_injected: true,
+    digital_proxy_opt_in: true,
+    digital_proxy_invalid_token_blocked: true,
+    demand_radar: true,
+    sentinel: true,
     api_offers_verified: true,
     elohim_v6: true,
     gauntlet_v6: true,

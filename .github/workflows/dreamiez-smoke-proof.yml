@@ -37,18 +37,26 @@ jobs:
           node --check start.js
           node --check dreamiez-account.js
           node --check scripts/smoke-dreamiez.js
+          node --check scripts/meta-gauntlet.js
           node --check gauntlet/GauntletV6.js
           node --check elohim/ElohimV6.js
           node --check proxy/DigitalProxy.js
+          node --check proxy/DigitalProxyAssistant.js
           node --check runtime/ControlPlane.js
+          node --check runtime/DemandRadar.js
+          node --check runtime/Sentinel.js
 
       - name: Dreamiez end-to-end gate
         run: npm run smoke:dreamiez
+
+      - name: Enterprise meta-gauntlet
+        run: node scripts/meta-gauntlet.js
 
       - name: Production asset gate
         run: |
           test -s compiled/website/index.html
           test -s compiled/website/assets/marketplace-live.js
+          test -s compiled/website/assets/digital-proxy-assist.js
           test -s catalog/offers/offers.json
           test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
 
@@ -57,9 +65,9 @@ jobs:
           mkdir -p ../proof-artifacts
           node - <<'NODE'
           const fs = require('fs');
-          const path = require('path');
           const commander = JSON.parse(fs.readFileSync('catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json', 'utf8'));
           const offers = JSON.parse(fs.readFileSync('catalog/offers/offers.json', 'utf8'));
+          const meta = JSON.parse(fs.readFileSync('PROOF-META-GAUNTLET.json', 'utf8'));
           const proof = {
             type: 'dreamledger-ci-production-gate',
             status: 'PASS',
@@ -72,6 +80,7 @@ jobs:
               compile_surface: true,
               syntax: true,
               dreamiez_e2e: true,
+              meta_gauntlet: meta.verdict === 'PASS',
               production_assets: true,
               commander_canonical_price_cents: commander.price === 1500,
               commander_currency_nzd: commander.currency === 'nzd',
