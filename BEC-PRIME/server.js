@@ -37,12 +37,8 @@ function send(res, status, body, type = 'application/json') {
   if (Buffer.isBuffer(body)) return res.end(body);
   res.end(typeof body === 'string' ? body : JSON.stringify(body));
 }
-
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
-function productFiles() {
-  if (!fs.existsSync(CATALOG)) return [];
-  return fs.readdirSync(CATALOG).filter(x => x.endsWith('.json')).map(x => path.join(CATALOG, x));
-}
+function productFiles() { if (!fs.existsSync(CATALOG)) return []; return fs.readdirSync(CATALOG).filter(x => x.endsWith('.json')).map(x => path.join(CATALOG, x)); }
 function loadProducts() { return productFiles().map(readJson); }
 function loadIpCatalog() { return readJson(IP_CATALOG); }
 function loadOfferCatalog() { return readJson(OFFER_CATALOG); }
@@ -50,33 +46,20 @@ function paidTransactionExists(productId) {
   if (!fs.existsSync(DATA)) return false;
   return fs.readdirSync(DATA).some(file => {
     if (!file.endsWith('.json')) return false;
-    try {
-      const tx = readJson(path.join(DATA, file));
-      return tx.product_id === productId && tx.payment_status === 'paid';
-    } catch { return false; }
+    try { return readJson(path.join(DATA, file)).product_id === productId && readJson(path.join(DATA, file)).payment_status === 'paid'; }
+    catch { return false; }
   });
 }
 function publicProduct(p) {
   const sold = p.inventory < 1 || paidTransactionExists(p.id);
   const approvalRequired = Boolean(p.commercial_truth?.approval_required);
-  return {
-    id: p.id,
-    silo: p.silo,
-    name: p.name,
-    description: p.description,
-    price: p.price,
-    currency: p.currency,
-    inventory: sold ? 0 : p.inventory,
-    condition: p.condition,
-    status: sold ? 'sold' : p.status,
-    approval_required: approvalRequired,
-    checkout_available: !sold && p.status === 'published' && !approvalRequired
-  };
+  return { id: p.id, silo: p.silo, name: p.name, description: p.description, price: p.price, currency: p.currency, inventory: sold ? 0 : p.inventory, condition: p.condition, status: sold ? 'sold' : p.status, approval_required: approvalRequired, checkout_available: !sold && p.status === 'published' && !approvalRequired };
 }
 function publicOffer(offer) {
   return {
     offer_id: offer.offer_id,
     capability_id: offer.capability_id,
+    silo: offer.silo,
     name: offer.name,
     problem: offer.problem,
     input: offer.input,
@@ -100,72 +83,29 @@ function publicOffer(offer) {
 }
 function getProduct(id) { return loadProducts().find(p => p.id === id); }
 function getOffer(id) { return loadOfferCatalog().offers.find(o => o.offer_id === id); }
-
-function safePath(urlPath) {
-  const decoded = decodeURIComponent(urlPath);
-  const candidate = path.normalize(path.join(ROOT, decoded));
-  if (candidate !== ROOT && !candidate.startsWith(ROOT + path.sep)) return null;
-  return candidate;
-}
-
-function serveFile(res, filePath) {
-  fs.readFile(filePath, (err, data) => {
-    if (err) return send(res, 404, 'Not Found', 'text/plain; charset=utf-8');
-    send(res, 200, data, MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream');
-  });
-}
-
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-    req.on('data', chunk => { data += chunk; if (data.length > 2_000_000) req.destroy(); });
-    req.on('end', () => resolve(data));
-    req.on('error', reject);
-  });
-}
-
-function stripeForm(params) {
-  const out = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) out.set(k, String(v));
-  return out;
-}
-
+function safePath(urlPath) { const decoded = decodeURIComponent(urlPath); const candidate = path.normalize(path.join(ROOT, decoded)); if (candidate !== ROOT && !candidate.startsWith(ROOT + path.sep)) return null; return candidate; }
+function serveFile(res, filePath) { fs.readFile(filePath, (err, data) => { if (err) return send(res, 404, 'Not Found', 'text/plain; charset=utf-8'); send(res, 200, data, MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream'); }); }
+function readBody(req) { return new Promise((resolve, reject) => { let data = ''; req.on('data', chunk => { data += chunk; if (data.length > 2_000_000) req.destroy(); }); req.on('end', () => resolve(data)); req.on('error', reject); }); }
+function stripeForm(params) { const out = new URLSearchParams(); for (const [k, v] of Object.entries(params)) out.set(k, String(v)); return out; }
 async function stripeRequest(endpoint, method, params, idempotencyKey) {
   if (!STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not configured');
   const headers = { Authorization: `Bearer ${STRIPE_SECRET_KEY}` };
-  if (method !== 'GET') {
-    headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
-  }
-  const response = await fetch(`https://api.stripe.com/v1/${endpoint}`, {
-    method,
-    headers,
-    body: method === 'GET' ? undefined : stripeForm(params)
-  });
-  const text = await response.text();
-  let body;
-  try { body = JSON.parse(text); } catch { body = { raw: text }; }
-  if (!response.ok) throw new Error(body?.error?.message || `Stripe API ${response.status}`);
-  return body;
+  if (method !== 'GET') { headers['Content-Type'] = 'application/x-www-form-urlencoded'; if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey; }
+  const response = await fetch(`https://api.stripe.com/v1/${endpoint}`, { method, headers, body: method === 'GET' ? undefined : stripeForm(params) });
+  const text = await response.text(); let body; try { body = JSON.parse(text); } catch { body = { raw: text }; }
+  if (!response.ok) throw new Error(body?.error?.message || `Stripe API ${response.status}`); return body;
 }
-
 function verifyStripeSignature(raw, header) {
   if (!STRIPE_WEBHOOK_SECRET) throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
-  const parts = Object.fromEntries(header.split(',').map(x => x.split('=')));
-  const timestamp = parts.t;
-  const signature = parts.v1;
+  const parts = Object.fromEntries(header.split(',').map(x => x.split('='))); const timestamp = parts.t; const signature = parts.v1;
   if (!timestamp || !signature) throw new Error('Invalid Stripe signature');
-  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
-  if (age > 300) throw new Error('Expired Stripe signature');
+  const age = Math.abs(Date.now() / 1000 - Number(timestamp)); if (age > 300) throw new Error('Expired Stripe signature');
   const expected = crypto.createHmac('sha256', STRIPE_WEBHOOK_SECRET).update(`${timestamp}.${raw}`, 'utf8').digest('hex');
-  const a = Buffer.from(expected, 'utf8');
-  const b = Buffer.from(signature, 'utf8');
+  const a = Buffer.from(expected, 'utf8'); const b = Buffer.from(signature, 'utf8');
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new Error('Invalid Stripe signature');
 }
-
 async function createCheckout(req, res) {
-  let body;
-  try { body = JSON.parse(await readBody(req)); } catch { return send(res, 400, { error: 'Invalid JSON' }); }
+  let body; try { body = JSON.parse(await readBody(req)); } catch { return send(res, 400, { error: 'Invalid JSON' }); }
   const product = getProduct(body.product_id);
   if (!product || product.status !== 'published') return send(res, 404, { error: 'Product not found' });
   if (body.silo !== product.silo) return send(res, 400, { error: 'Silo mismatch' });
@@ -189,103 +129,40 @@ async function createCheckout(req, res) {
       cancel_url: `${PUBLIC_BASE}/${product.silo}`
     }, idempotencyKey);
     return send(res, 200, { ok: true, session_id: session.id, checkout_url: session.url });
-  } catch (err) {
-    return send(res, 502, { error: err.message });
-  } finally { checkoutLocks.delete(product.id); }
+  } catch (err) { return send(res, 502, { error: err.message }); }
+  finally { checkoutLocks.delete(product.id); }
 }
-
 async function webhook(req, res) {
   const raw = await readBody(req);
   try {
-    verifyStripeSignature(raw, req.headers['stripe-signature'] || '');
-    const event = JSON.parse(raw);
+    verifyStripeSignature(raw, req.headers['stripe-signature'] || ''); const event = JSON.parse(raw);
     if (event.type !== 'checkout.session.completed') return send(res, 200, { received: true });
-    const session = event.data.object;
-    if (session.payment_status !== 'paid') return send(res, 200, { received: true, fulfilled: false });
-    const productId = session.metadata?.product_id;
-    const product = getProduct(productId);
-    if (!product) return send(res, 400, { error: 'Unknown product' });
-    const txFile = path.join(DATA, `${session.id}.json`);
-    if (fs.existsSync(txFile)) return send(res, 200, { received: true, idempotent: true });
-    const tx = {
-      transaction_id: session.id,
-      product_id: product.id,
-      silo: product.silo,
-      amount_total: session.amount_total,
-      currency: session.currency,
-      payment_status: session.payment_status,
-      customer_email: session.customer_details?.email || null,
-      created_at: new Date().toISOString()
-    };
+    const session = event.data.object; if (session.payment_status !== 'paid') return send(res, 200, { received: true, fulfilled: false });
+    const productId = session.metadata?.product_id; const product = getProduct(productId); if (!product) return send(res, 400, { error: 'Unknown product' });
+    const txFile = path.join(DATA, `${session.id}.json`); if (fs.existsSync(txFile)) return send(res, 200, { received: true, idempotent: true });
+    const tx = { transaction_id: session.id, product_id: product.id, silo: product.silo, amount_total: session.amount_total, currency: session.currency, payment_status: session.payment_status, customer_email: session.customer_details?.email || null, created_at: new Date().toISOString() };
     fs.writeFileSync(txFile, JSON.stringify(tx, null, 2) + '\n', { flag: 'wx' });
-    const proof = {
-      type: 'dreamledger-transaction-proof',
-      status: 'PASS',
-      transaction_id: session.id,
-      product_id: product.id,
-      silo: product.silo,
-      amount_total: session.amount_total,
-      currency: session.currency,
-      payment_status: session.payment_status,
-      payment_received: true,
-      proof_source: 'stripe.checkout.session.completed.webhook',
-      delivery_status: 'PENDING',
-      recorded_at: tx.created_at
-    };
+    const proof = { type: 'dreamledger-transaction-proof', status: 'PASS', transaction_id: session.id, product_id: product.id, silo: product.silo, amount_total: session.amount_total, currency: session.currency, payment_status: session.payment_status, payment_received: true, proof_source: 'stripe.checkout.session.completed.webhook', delivery_status: 'PENDING', recorded_at: tx.created_at };
     fs.writeFileSync(path.join(PROOFS, `${session.id}.json`), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
-    if (!fs.existsSync(FIRST_PAYMENT_PROOF)) {
-      fs.writeFileSync(FIRST_PAYMENT_PROOF, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
-    }
+    if (!fs.existsSync(FIRST_PAYMENT_PROOF)) fs.writeFileSync(FIRST_PAYMENT_PROOF, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
     return send(res, 200, { received: true, fulfilled: true, transaction_id: session.id });
   } catch (err) { return send(res, 400, { error: err.message }); }
 }
 
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
-  if (req.method === 'GET' && url === '/healthz') return send(res, 200, {
-    status: 'ok',
-    service: 'dreamledger',
-    engine: 'commerce-v1',
-    stripe_configured: Boolean(STRIPE_SECRET_KEY),
-    webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET),
-    durable_ledger_configured: DATA.startsWith('/var/data') || PROOFS.startsWith('/var/data'),
-    first_payment_proof_path: FIRST_PAYMENT_PROOF,
-    ip_catalog_configured: fs.existsSync(IP_CATALOG),
-    offer_catalog_configured: fs.existsSync(OFFER_CATALOG)
-  });
+  if (req.method === 'GET' && url === '/healthz') return send(res, 200, { status: 'ok', service: 'dreamledger', engine: 'commerce-v1', stripe_configured: Boolean(STRIPE_SECRET_KEY), webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET), durable_ledger_configured: DATA.startsWith('/var/data') || PROOFS.startsWith('/var/data'), first_payment_proof_path: FIRST_PAYMENT_PROOF, ip_catalog_configured: fs.existsSync(IP_CATALOG), offer_catalog_configured: fs.existsSync(OFFER_CATALOG) });
   if (req.method === 'GET' && url === '/api/products') return send(res, 200, { products: loadProducts().filter(p => p.status === 'published').map(publicProduct) });
-  if (req.method === 'GET' && url.startsWith('/api/products/')) {
-    const product = getProduct(url.slice('/api/products/'.length));
-    return product ? send(res, 200, publicProduct(product)) : send(res, 404, { error: 'Product not found' });
-  }
-  if (req.method === 'GET' && url === '/api/ip') {
-    try { return send(res, 200, loadIpCatalog()); }
-    catch (err) { return send(res, 500, { error: err.message }); }
-  }
-  if (req.method === 'GET' && url === '/api/offers') {
-    try { return send(res, 200, { offers: loadOfferCatalog().offers.map(publicOffer) }); }
-    catch (err) { return send(res, 500, { error: err.message }); }
-  }
-  if (req.method === 'GET' && url.startsWith('/api/offers/')) {
-    try {
-      const offer = getOffer(url.slice('/api/offers/'.length));
-      return offer ? send(res, 200, publicOffer(offer)) : send(res, 404, { error: 'Offer not found' });
-    } catch (err) { return send(res, 500, { error: err.message }); }
-  }
+  if (req.method === 'GET' && url.startsWith('/api/products/')) { const product = getProduct(url.slice('/api/products/'.length)); return product ? send(res, 200, publicProduct(product)) : send(res, 404, { error: 'Product not found' }); }
+  if (req.method === 'GET' && url === '/api/ip') { try { return send(res, 200, loadIpCatalog()); } catch (err) { return send(res, 500, { error: err.message }); } }
+  if (req.method === 'GET' && url === '/api/offers') { try { return send(res, 200, { offers: loadOfferCatalog().offers.map(publicOffer) }); } catch (err) { return send(res, 500, { error: err.message }); } }
+  if (req.method === 'GET' && url.startsWith('/api/offers/')) { try { const offer = getOffer(url.slice('/api/offers/'.length)); return offer ? send(res, 200, publicOffer(offer)) : send(res, 404, { error: 'Offer not found' }); } catch (err) { return send(res, 500, { error: err.message }); } }
   if (req.method === 'POST' && url === '/api/checkout/create') return createCheckout(req, res);
   if (req.method === 'POST' && url === '/webhook') return webhook(req, res);
-  if (req.method === 'GET' && url === '/checkout/success') {
-    const html = '<!doctype html><html><head><meta charset="utf-8"><title>DreamLedger | Payment received</title></head><body style="font-family:system-ui;max-width:720px;margin:80px auto;padding:24px"><h1>Payment received</h1><p>Your Stripe checkout completed. Transaction evidence is generated after webhook confirmation.</p><p><a href="/">Return to DreamLedger</a></p></body></html>';
-    return send(res, 200, html, 'text/html; charset=utf-8');
-  }
+  if (req.method === 'GET' && url === '/checkout/success') return send(res, 200, '<!doctype html><html><head><meta charset="utf-8"><title>DreamLedger | Payment received</title></head><body style="font-family:system-ui;max-width:720px;margin:80px auto;padding:24px"><h1>Payment received</h1><p>Your Stripe checkout completed. Transaction evidence is generated after webhook confirmation.</p><p><a href="/">Return to DreamLedger</a></p></body></html>', 'text/html; charset=utf-8');
   if (req.method === 'GET' && url === '/checkout/cancel') return res.writeHead(302, { Location: '/mtg' }).end();
-
-  let requestPath = url;
-  if (requestPath === '/') requestPath = '/index.html';
-  let filePath = safePath(requestPath);
-  if (!filePath) return send(res, 400, 'Bad Request', 'text/plain; charset=utf-8');
+  let requestPath = url; if (requestPath === '/') requestPath = '/index.html'; let filePath = safePath(requestPath); if (!filePath) return send(res, 400, 'Bad Request', 'text/plain; charset=utf-8');
   try { if (fs.statSync(filePath).isDirectory()) filePath = path.join(filePath, 'index.html'); } catch {}
   return serveFile(res, filePath);
 });
-
 server.listen(PORT, '0.0.0.0', () => console.log(`DreamLedger commerce engine running on port ${PORT}`));
