@@ -26,6 +26,9 @@ jobs:
       - name: Compile canonical surfaces
         run: npm run compile:offers && npm run compile:surface
 
+      - name: Public surface boundary proof
+        run: node scripts/verify-public-surface.js
+
       - name: Compiler truth gate
         shell: pwsh
         run: ./scripts/Verify-CompilerTruth.ps1 -ProofPath "$env:GITHUB_WORKSPACE/compiler-truth-proof.json"
@@ -39,6 +42,7 @@ jobs:
           node --check start.js
           node --check ucp.js
           node --check scripts/verify-ucp.js
+          node --check scripts/verify-public-surface.js
           node --check compiler/OfferCompiler.js
           node --check compiler/SurfaceCompiler.js
           node --check compiler/PriceDisplayPatch.js
@@ -59,6 +63,7 @@ jobs:
           set -euo pipefail
           test -f manifests/CUBE-PUBLIC-SURFACE-MANIFEST.json
           test -f PROOF-CUBE-SURFACE-COMPILATION.json
+          test -f data/proofs/PUBLIC-SURFACE-PROOF.json
           test -f ucp.js
           test -f legal/privacy.html
           test -f legal/terms.html
