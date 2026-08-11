@@ -1,0 +1,22 @@
+{
+  "schema": "bec-prime/silos/v1",
+  "silos": [
+    {
+      "id": "mtg",
+      "display_name": "MTG",
+      "source_surface": "compiled/website/mtg/index.html",
+      "output_dir": "compiled/mtg",
+      "mode": "existing-canonical-adapter",
+      "economic_spine": "shared",
+      "activation_required": true
+    },
+    {
+      "id": "dreamiez",
+      "display_name": "Dreamiez",
+      "output_dir": "compiled/dreamiez",
+      "mode": "generated-static-launch-candidate",
+      "economic_spine": "shared",
+      "activation_required": true
+    }
+  ]
+}
