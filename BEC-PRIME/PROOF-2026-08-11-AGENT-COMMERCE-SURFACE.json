@@ -1,7 +1,7 @@
 {
   "type": "dreamledger-agent-commerce-surface-proof",
   "status": "PASS",
-  "created_at": "2026-08-11T00:00:00Z",
+  "created_date": "2026-08-11",
   "changes": [
     {
       "commit": "19c636bf714f790b44114ba747a8277da9190d9a",
@@ -16,7 +16,7 @@
     {
       "commit": "f26de923c96fdd6e1d9c4ff26590c1d0099b41fc",
       "path": "BEC-PRIME/compiled/website/agentic-commerce/index.html",
-      "claim": "Buyer-facing readiness offer surface presents the three approved-for-review price tiers without enabling checkout."
+      "claim": "Buyer-facing readiness offer surface presents the three price tiers without enabling checkout."
     }
   ],
   "economic_objects": [
