@@ -4,7 +4,7 @@
   "description": "BEC-PRIME DreamLedger web service",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node compiler/OfferCompiler.js && node server.js",
     "compile:offers": "node compiler/OfferCompiler.js"
   },
   "dependencies": {
