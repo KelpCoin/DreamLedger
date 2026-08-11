@@ -2,11 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://dreamledger.org/schemas/bec-prime-offer-v1.json",
   "type": "object",
-  "required": ["offer_id", "version", "capability_id", "name", "problem", "input", "output", "delivery_mechanism", "deliverable", "target_buyer", "eligibility", "constraints", "price", "currency", "refund_rules", "payment_adapter", "checkout_route", "approval_required", "checkout_available", "status", "proof_of_delivery", "verification_rules", "provenance"],
+  "required": ["offer_id", "version", "capability_id", "silo", "name", "problem", "input", "output", "delivery_mechanism", "deliverable", "target_buyer", "eligibility", "constraints", "price", "currency", "refund_rules", "payment_adapter", "checkout_route", "approval_required", "checkout_available", "status", "proof_of_delivery", "verification_rules", "provenance"],
   "properties": {
-    "offer_id": { "type": "string", "minLength": 1 },
+    "offer_id": { "type": "string", "pattern": "^OFFER-[A-Z0-9-]+$" },
     "version": { "const": "offer-v1" },
     "capability_id": { "type": "string", "minLength": 1 },
+    "silo": { "type": "string", "minLength": 1 },
     "name": { "type": "string", "minLength": 1 },
     "problem": { "type": "string", "minLength": 1 },
     "input": { "type": "string", "minLength": 1 },
@@ -26,7 +27,7 @@
     "status": { "const": "candidate" },
     "proof_of_delivery": { "type": "string", "minLength": 1 },
     "verification_rules": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-    "provenance": { "type": "object", "required": ["capability_ids", "methodology", "public_claims_source", "private_material"], "properties": { "capability_ids": { "type": "array" }, "methodology": { "type": "string" }, "public_claims_source": { "type": "string" }, "private_material": { "const": "excluded" } } }
+    "provenance": { "type": "object", "required": ["capability_ids", "methodology", "public_claims_source", "private_material"], "properties": { "capability_ids": { "type": "array", "minItems": 1 }, "methodology": { "type": "string" }, "public_claims_source": { "type": "string" }, "private_material": { "const": "excluded" } } }
   },
   "additionalProperties": true
 }
