@@ -98,11 +98,8 @@ function requestProfile(req) {
 
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
-  if (req.method === 'GET' && url === '/.well-known/ucp') {
-    return send(res, 200, profile());
-  }
+  if (req.method === 'GET' && url === '/.well-known/ucp') return send(res, 200, profile());
   if (!url.startsWith('/ucp/v1/')) return false;
-
   if (!requestProfile(req) && req.method !== 'OPTIONS') {
     return send(res, 400, { ucp: { version: VERSION }, messages: [{ type: 'error', code: 'missing_ucp_agent', severity: 'unrecoverable', content: 'UCP-Agent profile is required.' }] });
   }
@@ -116,14 +113,13 @@ async function handle(req, res) {
     if (!item) return send(res, 404, { ucp: { version: VERSION }, messages: [{ type: 'error', code: 'item_not_found', severity: 'unrecoverable', content: 'Requested item was not found.' }] });
     if (input.currency && String(input.currency).toUpperCase() !== String(item.currency).toUpperCase()) return send(res, 422, { ucp: { version: VERSION }, messages: [{ type: 'error', code: 'currency_mismatch', severity: 'unrecoverable', content: 'Requested currency does not match merchant truth.' }] });
     const id = `ucp_${crypto.randomUUID()}`;
-    const now = Date.now();
     const session = {
       id,
       status: item.checkout_available ? 'ready_for_complete' : 'requires_escalation',
       currency: String(item.currency).toUpperCase(),
       line_items: [{ id: item.id, quantity: 1, title: item.name, price: Math.round(item.price * 100) }],
       totals: totals(item),
-      expires_at: new Date(now + 6 * 60 * 60 * 1000).toISOString(),
+      expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
       continue_url: `${BASE}/?ucp_checkout=${encodeURIComponent(id)}`,
       messages: item.checkout_available ? [] : [{ type: 'error', code: 'approval_required', severity: 'requires_buyer_input', content: 'This offer is not activated for checkout.' }],
       item
@@ -138,14 +134,8 @@ async function handle(req, res) {
     const session = sessions.get(id);
     if (!session) return send(res, 404, { ucp: { version: VERSION }, messages: [{ type: 'error', code: 'checkout_not_found', severity: 'unrecoverable', content: 'Checkout session not found.' }] });
     if (req.method === 'GET') return send(res, 200, checkoutResponse(session));
-    if (req.method === 'PATCH') {
-      if (session.status === 'completed' || session.status === 'canceled') return send(res, 409, { ucp: { version: VERSION }, messages: [{ type: 'error', code: 'checkout_not_modifiable', severity: 'unrecoverable', content: 'Checkout is no longer modifiable.' }] });
-      return send(res, 200, checkoutResponse(session));
-    }
-    if (req.method === 'DELETE') {
-      session.status = 'canceled';
-      return send(res, 200, checkoutResponse(session));
-    }
+    if (req.method === 'PATCH') return send(res, 200, checkoutResponse(session));
+    if (req.method === 'DELETE') { session.status = 'canceled'; return send(res, 200, checkoutResponse(session)); }
   }
 
   const complete = url.match(/^\/ucp\/v1\/checkout-sessions\/([^/]+)\/complete$/);
