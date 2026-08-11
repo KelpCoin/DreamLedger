@@ -1,9 +1,10 @@
 'use strict';
 
 // Canonical Render entrypoint.
-// Adds the Dreamiez account/streak control plane around the existing commerce server.
+// Wires Dreamiez accounts, Elohim v6, Gauntlet v6, and the approval-gated Digital Proxy around commerce.
 const http = require('http');
 const dreamiezAccount = require('./dreamiez-account');
+const controlPlane = require('./runtime/ControlPlane');
 
 const originalCreateServer = http.createServer;
 let capturedServer = null;
@@ -12,6 +13,7 @@ http.createServer = function wrappedCreateServer(...args) {
   const originalHandler = args[0];
   args[0] = async function dreamiezRuntimeHandler(req, res) {
     if (await dreamiezAccount.handle(req, res)) return;
+    if (await controlPlane.handle(req, res)) return;
 
     const requestPath = String(req.url || '').split('?')[0];
     if (req.method === 'GET' && requestPath === '/') {
@@ -35,6 +37,12 @@ http.createServer = function wrappedCreateServer(...args) {
   capturedServer = originalCreateServer.apply(this, args);
   return capturedServer;
 };
+
+const boot = controlPlane.boot();
+console.log(JSON.stringify({ control_plane_boot: boot }, null, 2));
+if (boot.status !== 'PASS') {
+  throw new Error('Elohim/Gauntlet boot gate failed; refusing to start runtime');
+}
 
 require('./server.js');
 
