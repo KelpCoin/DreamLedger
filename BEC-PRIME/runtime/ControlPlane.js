@@ -7,6 +7,7 @@ const elohim = require('../elohim/ElohimV6');
 const proxy = require('../proxy/DigitalProxy');
 
 const ROOT = path.join(__dirname, '..');
+let lastBoot = null;
 
 function compile() {
   const steps = [
@@ -25,13 +26,18 @@ function compile() {
 function boot() {
   const compileResults = compile();
   const gauntletResult = gauntlet.run();
-  return { compile: compileResults, gauntlet: gauntletResult, status: compileResults.every(x => x.status === 'PASS') && gauntletResult.status === 'PASS' ? 'PASS' : 'FAIL' };
+  lastBoot = { compile: compileResults, gauntlet: gauntletResult, status: compileResults.every(x => x.status === 'PASS') && gauntletResult.status === 'PASS' ? 'PASS' : 'FAIL', checked_at: new Date().toISOString() };
+  return lastBoot;
+}
+
+function health() {
+  return { control_plane: 'ELOHIM-V6', gauntlet: 'GAUNTLET-V6', digital_proxy: 'approval-gated', boot: lastBoot || { status: 'NOT_BOOTED' } };
 }
 
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
   const send = (status, body) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); };
-  if (req.method === 'GET' && url === '/api/control/health') return send(200, { control_plane: 'ELOHIM-V6', gauntlet: 'GAUNTLET-V6', digital_proxy: 'approval-gated', boot: boot() });
+  if (req.method === 'GET' && url === '/api/control/health') return send(200, health());
   if (req.method === 'POST' && url === '/api/control/compile') return send(200, boot());
   if (req.method === 'POST' && url === '/api/control/gauntlet') return send(200, gauntlet.run());
   if (req.method === 'POST' && url === '/api/control/elohim/propose') {
@@ -52,4 +58,4 @@ async function handle(req, res) {
   return false;
 }
 
-module.exports = { handle, boot };
+module.exports = { handle, boot, health };
