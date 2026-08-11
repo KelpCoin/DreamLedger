@@ -1,0 +1,29 @@
+{
+  "proof_type": "SURFACE_RESTORE",
+  "status": "PASS",
+  "commit": "a9b5dccbfab9122cb4462470b0a79e4c4da97397",
+  "restored_surfaces": [
+    "silo ticker",
+    "silo selector",
+    "auction rail",
+    "BEC-PRIME IP capability catalog",
+    "architecture state surface",
+    "Gauntlet status",
+    "Elohim status",
+    "CUBE status",
+    "white-label / silo-clone blueprint status"
+  ],
+  "truth_policy": {
+    "implemented_not_claimed_for_specified": true,
+    "payment_not_claimed": true,
+    "first_payment_proof_not_claimed": true,
+    "checkout_unlock_not_changed": true
+  },
+  "source_of_truth": [
+    "BEC-PRIME/catalog/ip-capabilities.json",
+    "BEC-PRIME/manifests/architecture-registry.json",
+    "BEC-PRIME/auction-engine.js",
+    "BEC-PRIME/data/auctions.json",
+    "BEC-PRIME/data/silo-news.json"
+  ]
+}
