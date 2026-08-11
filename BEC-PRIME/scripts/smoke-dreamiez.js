@@ -35,6 +35,12 @@ async function main() {
   child.stderr.on('data', d => process.stderr.write(`[runtime] ${d}`));
   await waitForHealth();
 
+  const control = await request('/api/control/health');
+  assert(control.body.control_plane === 'ELOHIM-V6', 'Elohim v6 control plane missing');
+  assert(control.body.gauntlet === 'GAUNTLET-V6', 'Gauntlet v6 missing');
+  assert(control.body.boot.status === 'PASS', 'Control-plane boot gate failed');
+  assert(control.body.boot.gauntlet.status === 'PASS', 'Gauntlet v6 failed');
+
   const root = await request('/');
   assert(String(root.body).includes('/assets/dreamiez-account.js'), 'Dreamiez account UI was not injected into the public surface');
 
@@ -57,7 +63,16 @@ async function main() {
   const rewards = await request('/api/dreamiez/rewards', { headers: { cookie } });
   assert(rewards.body.streak === 1, 'Rewards endpoint streak mismatch');
 
-  console.log(JSON.stringify({ smoke_test: 'PASS', account_created: true, streak_started_at: 1, same_day_idempotent: true, day_1_reward_unlocked: true, day_7_reward_locked: true, login_verified: true, public_surface_injected: true }, null, 2));
+  const proposal = await request('/api/control/elohim/propose', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ goal: 'Generate a Dreamiez reward asset', account_id: created.body.account.account_id, reward_day: 1, streak: 1 }) });
+  assert(proposal.body.status === 'PROPOSED', 'Elohim proposal was not created');
+  assert(Array.isArray(proposal.body.forbidden_without_human_approval), 'Elohim approval boundary missing');
+
+  const queued = await request('/api/control/proxy/queue', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'elohim.propose', payload: { smoke: true }, requested_by: 'smoke-test' }) });
+  assert(queued.body.status === 'PENDING_APPROVAL', 'Digital Proxy did not create an approval-gated action');
+  const approval = await request(`/api/control/proxy/approve/${queued.body.action_id}`, { method: 'POST', headers: { 'x-human-approver': 'smoke-human' } });
+  assert(approval.body.status === 'APPROVED', 'Digital Proxy approval transition failed');
+
+  console.log(JSON.stringify({ smoke_test: 'PASS', account_created: true, streak_started_at: 1, same_day_idempotent: true, day_1_reward_unlocked: true, day_7_reward_locked: true, login_verified: true, public_surface_injected: true, elohim_v6: true, gauntlet_v6: true, digital_proxy_approval_gate: true }, null, 2));
 }
 
 main().catch(err => { console.error(JSON.stringify({ smoke_test: 'FAIL', error: err.message }, null, 2)); process.exitCode = 1; }).finally(() => { if (child) child.kill('SIGTERM'); });
