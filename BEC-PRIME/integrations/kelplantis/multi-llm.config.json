@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "base_url": "http://localhost:1234/v1",
+  "roles": [
+    { "name": "architect", "instruction": "Design the smallest production-safe implementation. Identify interfaces, invariants, and failure modes." },
+    { "name": "builder", "instruction": "Turn the task into concrete Node.js, JSON, and PowerShell implementation steps. Prefer deterministic code." },
+    { "name": "critic", "instruction": "Attack the proposed design. Look for security, silo leakage, hallucinated external APIs, nondeterminism, and unsafe publication." }
+  ],
+  "synthesis": "Produce a final implementation plan that reconciles the three reports. Do not invent external APIs. Preserve approval_required=true and publish_allowed=false unless a human explicitly changes those gates."
+}
