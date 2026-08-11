@@ -1,9 +1,13 @@
-﻿{
+{
   "name": "dreamledger",
   "version": "1.0.0",
   "description": "BEC-PRIME DreamLedger web service",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "compile:offers": "node compiler/OfferCompiler.js"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1"
   }
 }
