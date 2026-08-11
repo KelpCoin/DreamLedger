@@ -1,0 +1,61 @@
+{
+  "schema": "bec-prime/demand-scout-sources/v1",
+  "purpose": "Find externally visible demand and reusable infrastructure before creating a new silo.",
+  "rules": {
+    "read_only": true,
+    "no_public_posting": true,
+    "no_private_data_collection": true,
+    "approval_required_for_activation": true,
+    "score_demand_before_build": true,
+    "prefer_existing_protocols": true
+  },
+  "sources": [
+    {
+      "id": "UCP_GITHUB",
+      "category": "agentic_commerce",
+      "url": "https://api.github.com/repos/Universal-Commerce-Protocol/ucp/issues?state=open&per_page=50",
+      "signals": ["open_issue", "bug", "integration", "merchant", "checkout", "conformance"]
+    },
+    {
+      "id": "ACP_GITHUB",
+      "category": "agentic_commerce",
+      "url": "https://api.github.com/repos/agentic-commerce-protocol/agentic-commerce-protocol/issues?state=open&per_page=50",
+      "signals": ["open_issue", "integration", "checkout", "merchant", "schema"]
+    },
+    {
+      "id": "X402_GITHUB",
+      "category": "machine_payments",
+      "url": "https://api.github.com/repos/coinbase/x402/issues?state=open&per_page=50",
+      "signals": ["open_issue", "integration", "facilitator", "api", "security"]
+    },
+    {
+      "id": "UCP_RELEASES",
+      "category": "protocol_change",
+      "url": "https://api.github.com/repos/Universal-Commerce-Protocol/ucp/releases?per_page=20",
+      "signals": ["release", "breaking_change", "new_capability", "schema"]
+    },
+    {
+      "id": "ACP_RELEASES",
+      "category": "protocol_change",
+      "url": "https://api.github.com/repos/agentic-commerce-protocol/agentic-commerce-protocol/releases?per_page=20",
+      "signals": ["release", "breaking_change", "new_capability", "schema"]
+    }
+  ],
+  "expansion_policy": {
+    "build_only_when": [
+      "signal_repeats",
+      "buyer_problem_is_clear",
+      "existing_infrastructure_can_reduce_build_cost",
+      "offer_can_be_defined_before_implementation",
+      "silo_boundary_is_explicit"
+    ],
+    "priority_categories": [
+      "agentic_commerce",
+      "merchant_integration",
+      "trust_and_proof",
+      "machine_payments",
+      "developer_tools",
+      "collectibles"
+    ]
+  }
+}
