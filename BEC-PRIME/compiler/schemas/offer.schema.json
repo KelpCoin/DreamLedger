@@ -21,7 +21,7 @@
     "currency": { "const": "NZD" },
     "refund_rules": { "type": "string", "minLength": 1 },
     "payment_adapter": { "const": "stripe" },
-    "checkout_route": { "const": "/api/checkout/create" },
+    "checkout_route": { "const": "/api/offer-checkout/create" },
     "approval_required": { "const": true },
     "checkout_available": { "const": false },
     "status": { "const": "candidate" },
