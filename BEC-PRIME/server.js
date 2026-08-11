@@ -54,7 +54,20 @@ function paidTransactionExists(productId) {
 }
 function publicProduct(p) {
   const sold = p.inventory < 1 || paidTransactionExists(p.id);
-  return { id: p.id, silo: p.silo, name: p.name, description: p.description, price: p.price, currency: p.currency, inventory: sold ? 0 : p.inventory, condition: p.condition, status: sold ? 'sold' : p.status };
+  const approvalRequired = Boolean(p.commercial_truth?.approval_required);
+  return {
+    id: p.id,
+    silo: p.silo,
+    name: p.name,
+    description: p.description,
+    price: p.price,
+    currency: p.currency,
+    inventory: sold ? 0 : p.inventory,
+    condition: p.condition,
+    status: sold ? 'sold' : p.status,
+    approval_required: approvalRequired,
+    checkout_available: !sold && p.status === 'published' && !approvalRequired
+  };
 }
 function getProduct(id) { return loadProducts().find(p => p.id === id); }
 
@@ -126,6 +139,7 @@ async function createCheckout(req, res) {
   const product = getProduct(body.product_id);
   if (!product || product.status !== 'published') return send(res, 404, { error: 'Product not found' });
   if (body.silo !== product.silo) return send(res, 400, { error: 'Silo mismatch' });
+  if (product.commercial_truth?.approval_required) return send(res, 403, { error: 'Human approval required' });
   if (product.inventory < 1 || paidTransactionExists(product.id)) return send(res, 409, { error: 'Sold out' });
   if (checkoutLocks.has(product.id)) return send(res, 409, { error: 'Checkout already being created' });
   checkoutLocks.set(product.id, true);
