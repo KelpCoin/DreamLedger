@@ -3,7 +3,7 @@ services:
     name: dreamledger
     runtime: node
     rootDir: BEC-PRIME
-    buildCommand: npm install
+    buildCommand: npm install && npm run compile:offers && node --check server.js
     startCommand: npm start
     healthCheckPath: /healthz
     envVars:
