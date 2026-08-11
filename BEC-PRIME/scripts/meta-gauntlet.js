@@ -10,19 +10,14 @@ const checks = [];
 
 function read(rel) {
   const file = path.join(ROOT, rel);
-  if (!fs.existsSync(file)) {
-    failures.push(`MISSING:${rel}`);
-    return '';
-  }
+  if (!fs.existsSync(file)) { failures.push(`MISSING:${rel}`); return ''; }
   return fs.readFileSync(file, 'utf8');
 }
-
 function check(name, condition, detail) {
   const pass = Boolean(condition);
   checks.push({ name, pass, detail: detail || '' });
   if (!pass) failures.push(`${name}:${detail || 'failed'}`);
 }
-
 function json(rel) {
   try { return JSON.parse(read(rel)); }
   catch (err) { failures.push(`INVALID_JSON:${rel}:${err.message}`); return null; }
@@ -30,7 +25,8 @@ function json(rel) {
 
 const capabilities = json('catalog/ip-capabilities.json');
 const offers = json('catalog/offers/offers.json');
-const products = fs.readdirSync(path.join(ROOT, 'catalog', 'products')).filter(x => x.endsWith('.json')).map(x => json(path.join('catalog/products', x)));
+const productsDir = path.join(ROOT, 'catalog', 'products');
+const products = fs.existsSync(productsDir) ? fs.readdirSync(productsDir).filter(x => x.endsWith('.json')).map(x => json(path.join('catalog/products', x))) : [];
 const auctions = json('data/auctions.json');
 const surfaceManifest = json('manifests/CUBE-PUBLIC-SURFACE-MANIFEST.json');
 const server = read('server.js');
@@ -77,34 +73,27 @@ check('AUCTION_APPROVAL_BOUNDARY', auctions && JSON.stringify(auctions).includes
 check('AUCTION_SILO_FIELD', auctions && JSON.stringify(auctions).includes('silo'), 'auction data lacks silo isolation');
 check('KELPLANTIS_NOT_LIVE_IN_MAIN_SURFACE', !surface.toLowerCase().includes('kelplantis') || surface.toLowerCase().includes('future'), 'Kelplantis appears live without future boundary');
 
-const ledgerSmoke = spawnSync(process.execPath, [path.join(__dirname, 'smoke-revenue-ledger.js')], {
-  cwd: ROOT,
-  encoding: 'utf8'
-});
-check('REVENUE_LEDGER_SMOKE', ledgerSmoke.status === 0, (ledgerSmoke.stdout || ledgerSmoke.stderr || '').trim().slice(-1800));
+const ledgerSmoke = spawnSync(process.execPath, [path.join(__dirname, 'smoke-revenue-ledger.js')], { cwd: ROOT, encoding: 'utf8' });
+check('REVENUE_LEDGER_SMOKE', ledgerSmoke.status === 0, (ledgerSmoke.stdout || ledgerSmoke.stderr || '').trim().slice(-2200));
 
+const smokePort = 38000 + (process.pid % 2000);
 const smoke = spawnSync(process.execPath, [path.join(__dirname, 'smoke-dreamiez.js')], {
   cwd: ROOT,
-  env: { ...process.env, SMOKE_PORT: String(Number(process.env.SMOKE_PORT || 38766)) },
+  env: { ...process.env, SMOKE_PORT: String(smokePort) },
   encoding: 'utf8'
 });
-check('DREAMIEZ_E2E_SMOKE', smoke.status === 0, (smoke.stdout || smoke.stderr || '').trim().slice(-1600));
+const smokeOutput = `${smoke.stdout || ''}\n${smoke.stderr || ''}`.trim();
+check('DREAMIEZ_E2E_SMOKE', smoke.status === 0, smokeOutput.length > 3000 ? `${smokeOutput.slice(0, 900)}\n...\n${smokeOutput.slice(-2200)}` : smokeOutput);
 
 const result = {
   schema: 'BEC-PRIME/META-GAUNTLET/v2',
   verified_at: new Date().toISOString(),
-  red_team: {
-    focus: ['private IP exposure', 'silo leakage', 'unlocked offers', 'public secret markers', 'fake live integrations', 'payment proof spoofing', 'approval bypass', 'non-invasive UX']
-  },
-  blue_team: {
-    focus: ['canonical catalogs', 'server-authoritative checkout', 'signed webhook idempotency', 'double-entry revenue ledger', 'fulfillment fossil', 'Elohim/Gauntlet control plane', 'Digital Proxy approval', 'Demand Radar proposal-only behavior', 'Sentinel fail-closed startup']
-  },
+  red_team: { focus: ['private IP exposure','silo leakage','unlocked offers','public secret markers','fake live integrations','payment proof spoofing','approval bypass','non-invasive UX'] },
+  blue_team: { focus: ['canonical catalogs','server-authoritative checkout','signed webhook idempotency','double-entry revenue ledger','fulfillment fossil','Elohim/Gauntlet control plane','Digital Proxy approval','Demand Radar proposal-only behavior','Sentinel fail-closed startup'] },
   checks,
   failures,
   verdict: failures.length === 0 ? 'PASS' : 'FAIL'
 };
-
-const proof = path.join(ROOT, 'PROOF-META-GAUNTLET.json');
-fs.writeFileSync(proof, JSON.stringify(result, null, 2) + '\n');
+fs.writeFileSync(path.join(ROOT, 'PROOF-META-GAUNTLET.json'), JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result, null, 2));
 process.exit(failures.length === 0 ? 0 : 1);
