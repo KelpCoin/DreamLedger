@@ -1,12 +1,19 @@
 const fs = require('fs');
 const path = require('path');
+const Ajv = require('ajv');
 
 const ROOT = path.join(__dirname, '..');
 const CAPABILITIES_PATH = path.join(ROOT, 'catalog', 'ip-capabilities.json');
 const OFFERS_DIR = path.join(ROOT, 'catalog', 'offers');
 const CANDIDATES_FILE = path.join(OFFERS_DIR, 'candidates.json');
 const OFFERS_FILE = path.join(OFFERS_DIR, 'offers.json');
+const PROOF_FILE = path.join(ROOT, 'PROOF-OFFER-COMPILATION.json');
+const SCHEMA_PATH = path.join(__dirname, 'schemas', 'offer.schema.json');
 const OFFER_VERSION = 'offer-compiler-v1';
+
+const offerSchema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8'));
+const ajv = new Ajv({ allErrors: true, strict: false });
+const validateOffer = ajv.compile(offerSchema);
 
 function loadCapabilities() {
   const catalog = JSON.parse(fs.readFileSync(CAPABILITIES_PATH, 'utf8'));
@@ -19,7 +26,7 @@ function slug(value) {
 }
 
 function eligibility(capability) {
-  for (const field of ['id', 'name', 'summary', 'commercialization']) {
+  for (const field of ['id', 'name', 'summary', 'commercialization', 'silo']) {
     if (!capability || !String(capability[field] || '').trim()) return { eligible: false, reason: `missing_${field}` };
   }
   return { eligible: true };
@@ -27,10 +34,12 @@ function eligibility(capability) {
 
 function buildOffer(capability, type, price, output, buyer, problem) {
   const offerType = type.replace(/_/g, ' ');
+  const offerId = `OFFER-${slug(capability.id)}-${slug(type)}`.toUpperCase();
   return {
-    offer_id: `OFFER-${slug(capability.id)}-${slug(type)}`.toUpperCase(),
+    offer_id: offerId,
     version: 'offer-v1',
     capability_id: capability.id,
+    silo: capability.silo,
     name: `${capability.name} ${offerType}`,
     problem,
     input: 'Customer-provided context, constraints, and relevant artifacts required for the selected service.',
@@ -52,7 +61,7 @@ function buildOffer(capability, type, price, output, buyer, problem) {
     verification_rules: [
       'capability_exists', 'required_offer_fields', 'price_positive', 'approval_gate_locked',
       'no_private_ip_exposure', 'no_unsupported_claims', 'delivery_defined', 'payment_defined',
-      'proof_defined', 'silo_isolated', 'unique_offer_id'
+      'proof_defined', 'silo_isolated', 'schema_valid', 'unique_offer_id'
     ],
     provenance: {
       capability_ids: [capability.id],
@@ -90,22 +99,27 @@ function generateCandidates(capabilities) {
 }
 
 function runGauntlet(candidates, capabilities) {
-  const validIds = new Set(capabilities.map(c => c.id));
+  const byId = new Map(capabilities.map(c => [c.id, c]));
   const seen = new Set();
   const passed = [];
   const rejected = [];
   const privateTerms = /(?:credential|password|private[_ -]?key|secret|api[_ -]?key)/i;
   const required = [
-    'offer_id', 'version', 'capability_id', 'name', 'problem', 'input', 'output',
+    'offer_id', 'version', 'capability_id', 'silo', 'name', 'problem', 'input', 'output',
     'delivery_mechanism', 'deliverable', 'target_buyer', 'eligibility', 'constraints',
     'price', 'currency', 'refund_rules', 'payment_adapter', 'checkout_route',
     'approval_required', 'checkout_available', 'status', 'proof_of_delivery',
     'verification_rules', 'provenance'
   ];
+
   for (const candidate of candidates) {
     const errors = [];
-    for (const field of required) if (candidate[field] === undefined || candidate[field] === null || candidate[field] === '') errors.push(`missing:${field}`);
-    if (!validIds.has(candidate.capability_id)) errors.push('unknown_capability');
+    const capability = byId.get(candidate.capability_id);
+    for (const field of required) {
+      if (candidate[field] === undefined || candidate[field] === null || candidate[field] === '') errors.push(`missing:${field}`);
+    }
+    if (!capability) errors.push('unknown_capability');
+    if (capability && candidate.silo !== capability.silo) errors.push('silo_mismatch');
     if (typeof candidate.price !== 'number' || candidate.price <= 0) errors.push('invalid_price');
     if (candidate.currency !== 'NZD') errors.push('unsupported_currency');
     if (candidate.approval_required !== true) errors.push('approval_gate_not_locked');
@@ -114,8 +128,13 @@ function runGauntlet(candidates, capabilities) {
     if (seen.has(candidate.offer_id)) errors.push('duplicate_offer_id');
     if (privateTerms.test(`${candidate.name} ${candidate.problem} ${candidate.output}`)) errors.push('potential_private_material_reference');
     if (candidate.provenance?.private_material !== 'excluded') errors.push('private_material_not_excluded');
+    if (!validateOffer(candidate)) errors.push(...(validateOffer.errors || []).map(e => `schema:${e.instancePath || '/'}:${e.message}`));
+
     if (errors.length) rejected.push({ candidate, errors });
-    else { seen.add(candidate.offer_id); passed.push(candidate); }
+    else {
+      seen.add(candidate.offer_id);
+      passed.push(candidate);
+    }
   }
   return { passed, rejected };
 }
@@ -126,6 +145,7 @@ function compile() {
   const gauntlet = runGauntlet(generated.candidates, capabilities);
   fs.mkdirSync(OFFERS_DIR, { recursive: true });
   const generatedAt = new Date().toISOString();
+  const allRejected = [...generated.rejected, ...gauntlet.rejected];
   const manifest = {
     schema: 'BEC-PRIME/OFFER-CATALOG/v1',
     compiler: OFFER_VERSION,
@@ -136,12 +156,30 @@ function compile() {
       capabilities: capabilities.length,
       candidates: generated.candidates.length,
       passed: gauntlet.passed.length,
-      rejected: generated.rejected.length + gauntlet.rejected.length
+      rejected: allRejected.length
     }
   };
-  fs.writeFileSync(CANDIDATES_FILE, JSON.stringify({ ...manifest, candidates: generated.candidates, rejected: [...generated.rejected, ...gauntlet.rejected] }, null, 2) + '\n');
+  fs.writeFileSync(CANDIDATES_FILE, JSON.stringify({ ...manifest, candidates: generated.candidates, rejected: allRejected }, null, 2) + '\n');
   fs.writeFileSync(OFFERS_FILE, JSON.stringify({ ...manifest, offers: gauntlet.passed }, null, 2) + '\n');
-  return { ...manifest, candidates: generated.candidates, passed: gauntlet.passed, rejected: [...generated.rejected, ...gauntlet.rejected] };
+  const proof = {
+    type: 'dreamledger-offer-compilation-proof',
+    status: gauntlet.passed.length === generated.candidates.length && allRejected.length === 0 ? 'PASS' : 'PARTIAL',
+    compiler: OFFER_VERSION,
+    generated_at: generatedAt,
+    source: 'catalog/ip-capabilities.json',
+    schema: 'compiler/schemas/offer.schema.json',
+    counts: manifest.counts,
+    approval_required_for_all: gauntlet.passed.every(o => o.approval_required === true),
+    checkout_disabled_for_all: gauntlet.passed.every(o => o.checkout_available === false),
+    silo_integrity: gauntlet.passed.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
+    deterministic_ids: new Set(gauntlet.passed.map(o => o.offer_id)).size === gauntlet.passed.length
+  };
+  fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n');
+  return { ...manifest, candidates: generated.candidates, passed: gauntlet.passed, rejected: allRejected };
+}
+
+function byCapability(capabilities, id) {
+  return capabilities.find(c => c.id === id);
 }
 
 module.exports = { compile, loadCapabilities, generateCandidates, runGauntlet, eligibility };
