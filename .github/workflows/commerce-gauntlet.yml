@@ -1,0 +1,29 @@
+name: Commerce Gauntlet
+
+on:
+  push:
+    branches: [main, 'agent/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  commerce-smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+      - name: Compile catalog
+        run: node catalog/generate-evergreen-products.js
+      - name: Compile agentic feed
+        run: node catalog/build-agentic-feed.js
+      - name: Smoke all products
+        run: node scripts/Smoke-CommerceCatalog.js
+      - name: Commerce verification
+        run: node scripts/Verify-CommerceShop.js
