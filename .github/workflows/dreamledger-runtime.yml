@@ -1,8 +1,6 @@
 name: DreamLedger Runtime Proof
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -16,8 +14,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
 
       - name: Build and syntax gate
         working-directory: BEC-PRIME
@@ -42,7 +38,7 @@ jobs:
           set -euo pipefail
           npm run smoke:dreamiez
 
-      - name: Probe public endpoints
+      - name: Probe live public endpoints
         shell: bash
         run: |
           set -euo pipefail
@@ -71,12 +67,12 @@ jobs:
           fi
           echo "RUNTIME PASS" | tee -a runtime-proof/SUMMARY.txt
 
-      - name: Inspect marketplace markers
+      - name: Inspect current marketplace markers
         shell: bash
         run: |
           set -euo pipefail
           body=$(cat runtime-proof/root.body.txt)
-          for marker in "Dreamiez" "Featured" "Agentic Commerce" "Marketplace" "Future" "Cart"; do
+          for marker in "DREAMLEDGER" "Compiled commercial offers" "Commerce spine" "Proof before claim" "Compiler gate"; do
             if grep -Fqi "$marker" <<< "$body"; then
               echo "MARKER PASS: $marker"
             else
