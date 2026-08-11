@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [string]$BaseUrl = 'https://dreamledger.org',
-    [string]$ProductId = 'MTG-URZAS-LEGACY-PALINCHRON-FOIL-001',
+    [string]$ProductId = 'COMMANDER-DECK-DIAGNOSTIC-001',
     [string]$ProofPath = 'D:\BEC_COMMERCIAL_TRUTH.json'
 )
 
@@ -15,7 +15,7 @@ function Get-Json([string]$Url) {
 }
 
 $Result = [ordered]@{
-    verifier = 'BEC-PRIME Verify-CommercialTruth v1.0'
+    verifier = 'BEC-PRIME Verify-CommercialTruth v1.1'
     checked_at_utc = (Get-Date).ToUniversalTime().ToString('o')
     base_url = $BaseUrl
     product_id = $ProductId
@@ -35,9 +35,12 @@ try {
     $Result.gates.health_ok = ($health.status -eq 'ok')
     $Result.gates.stripe_configured = [bool]$health.stripe_configured
     $Result.gates.webhook_configured = [bool]$health.webhook_configured
+    $Result.gates.durable_storage = [bool]$health.durable_ledger_configured
     $Result.gates.product_found = ($product.id -eq $ProductId)
     $Result.gates.product_published = ($product.status -eq 'published')
     $Result.gates.inventory_available = ([int]$product.inventory -gt 0)
+    $Result.gates.approval_required = [bool]$product.approval_required
+    $Result.gates.checkout_available = [bool]$product.checkout_available
     $Result.gates.payment_surface_exists = ($Result.gates.stripe_configured -and $Result.gates.webhook_configured -and $Result.gates.product_published)
 
     $required = @(
@@ -45,7 +48,10 @@ try {
         $Result.gates.product_found,
         $Result.gates.product_published,
         $Result.gates.inventory_available,
-        $Result.gates.payment_surface_exists
+        $Result.gates.payment_surface_exists,
+        $Result.gates.durable_storage,
+        $Result.gates.approval_required,
+        (-not $Result.gates.checkout_available)
     )
 
     if (($required | Where-Object { -not $_ }).Count -eq 0) {
@@ -71,6 +77,8 @@ Write-Host "VERDICT: $($Result.verdict)"
 Write-Host "PRODUCT: $ProductId"
 Write-Host "PROOF: $ProofPath"
 Write-Host "PAYMENT SURFACE: $($Result.gates.payment_surface_exists)"
+Write-Host "APPROVAL REQUIRED: $($Result.gates.approval_required)"
+Write-Host "CHECKOUT AVAILABLE: $($Result.gates.checkout_available)"
 Write-Host "REAL PAYMENT: NOT CLAIMED"
 Write-Host "DELIVERY: NOT CLAIMED"
 exit $(if ($Result.verdict -eq 'READY_FOR_HUMAN_APPROVAL') { 0 } else { 1 })
