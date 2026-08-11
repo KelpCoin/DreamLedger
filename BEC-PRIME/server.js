@@ -6,9 +6,9 @@ const crypto = require('crypto');
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.join(__dirname, 'compiled', 'website');
 const CATALOG = path.join(__dirname, 'catalog', 'products');
-const DATA = path.join(__dirname, 'data', 'transactions');
-const PROOFS = path.join(__dirname, 'data', 'proofs');
-const PUBLIC_BASE = process.env.PUBLIC_BASE_URL || 'https://dreamledger.org';
+const DATA = path.resolve(process.env.LEDGER_DATA_DIR || path.join(__dirname, 'data', 'transactions'));
+const PROOFS = path.resolve(process.env.PROOF_DATA_DIR || path.join(__dirname, 'data', 'proofs'));
+const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 const checkoutLocks = new Map();
@@ -129,6 +129,7 @@ async function createCheckout(req, res) {
   if (checkoutLocks.has(product.id)) return send(res, 409, { error: 'Checkout already being created' });
   checkoutLocks.set(product.id, true);
   try {
+    const idempotencyKey = `dreamledger-${product.id}-${crypto.randomUUID()}`;
     const session = await stripeRequest('checkout/sessions', 'POST', {
       mode: product.checkout.mode,
       'line_items[0][price_data][currency]': product.currency,
@@ -140,8 +141,8 @@ async function createCheckout(req, res) {
       'metadata[silo]': product.silo,
       'metadata[sku]': product.id,
       success_url: `${PUBLIC_BASE}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${PUBLIC_BASE}/mtg`
-    }, `dreamledger-${product.id}`);
+      cancel_url: `${PUBLIC_BASE}/${product.silo}`
+    }, idempotencyKey);
     return send(res, 200, { ok: true, session_id: session.id, checkout_url: session.url });
   } catch (err) {
     return send(res, 502, { error: err.message });
@@ -190,7 +191,14 @@ async function webhook(req, res) {
 
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
-  if (req.method === 'GET' && url === '/healthz') return send(res, 200, { status: 'ok', service: 'dreamledger', engine: 'commerce-v1' });
+  if (req.method === 'GET' && url === '/healthz') return send(res, 200, {
+    status: 'ok',
+    service: 'dreamledger',
+    engine: 'commerce-v1',
+    stripe_configured: Boolean(STRIPE_SECRET_KEY),
+    webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET),
+    durable_ledger_configured: DATA.startsWith('/var/data') || PROOFS.startsWith('/var/data')
+  });
   if (req.method === 'GET' && url === '/api/products') return send(res, 200, { products: loadProducts().filter(p => p.status === 'published').map(publicProduct) });
   if (req.method === 'GET' && url.startsWith('/api/products/')) {
     const product = getProduct(url.slice('/api/products/'.length));
