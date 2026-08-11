@@ -4,7 +4,7 @@ services:
     runtime: node
     rootDir: BEC-PRIME
     buildCommand: npm install && node compiler/OfferCompiler.js && node --check server.js && test -f compiled/website/index.html && test -f compiled/website/mtg/index.html && test -f compiled/website/commander/index.html && test -f compiled/website/pokemon/index.html && test -f compiled/website/vinyl/index.html && test -f compiled/website/videogames/index.html && test -f compiled/website/retro/index.html && test -f catalog/products/MTG-URZAS-LEGACY-PALINCHRON-FOIL-001.json && test -f catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json && test -f catalog/offers/offers.json && echo "Verified DreamLedger production assets and compiled offers"
-    startCommand: node server.js
+    startCommand: npm start
     healthCheckPath: /healthz
     disk:
       name: dreamledger-data
