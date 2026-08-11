@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dreamiez - Your Avatar</title>
+<meta name="description" content="Dreamiez is the daily identity layer for DreamLedger. Build your avatar, earn streak cosmetics, and join a guild.">
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f7f4ee;color:#141414}header{padding:16px;background:#fff;border-bottom:2px solid #141414;display:flex;justify-content:space-between}.main{max-width:760px;margin:auto;padding:24px}.card{background:#fff;border:1px solid #ddd;border-radius:14px;padding:16px;margin:14px 0}.avatar{text-align:center;font-size:90px;padding:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.item{padding:12px;border:1px solid #ddd;border-radius:10px;cursor:pointer}.owned{border-color:#1f7a4d}.btn{background:#1f7a4d;color:#fff;border:0;padding:10px 14px;border-radius:9px;cursor:pointer}.row{display:flex;gap:12px;align-items:center}.row>*{flex:1}input[type=range]{width:100%}</style>
+</head>
+<body>
+<header><strong>Dreamiez</strong><span id="streak">Streak 0</span></header>
+<main class="main">
+<div class="card"><div class="avatar" id="avatar">Dreamer</div><div class="row"><label>Height<input id="height" type="range" min="0.8" max="1.5" step="0.05" value="1"></label><label>Build<input id="build" type="range" min="0.7" max="1.4" step="0.05" value="1"></label><label>Skin<input id="skin" type="range" min="0" max="10" step="1" value="5"></label></div><p><button class="btn" onclick="saveAvatar()">Save avatar</button></p></div>
+<div class="card"><h2>Cosmetics</h2><div id="shop" class="grid"></div></div>
+<div class="card"><h2>Guild</h2><input id="guildName" placeholder="Guild name"><button class="btn" onclick="createGuild()">Create guild</button><div id="guild"></div></div>
+<div class="card"><h2>Leaderboard</h2><div id="leaderboard"></div></div>
+</main>
+<script>
+let user={id:null,avatar:{},cosmetics:[],streak:0,guild:null},catalog=[];
+async function get(path,opts){const r=await fetch(path,opts);if(!r.ok)throw new Error(await r.text());return r.json()}
+async function init(){user=await get('/api/dreamiez/me');catalog=await get('/api/dreamiez/cosmetics');document.getElementById('streak').textContent='Streak '+user.streak;document.getElementById('height').value=user.avatar.height||1;document.getElementById('build').value=user.avatar.build||1;document.getElementById('skin').value=user.avatar.skin||5;render();loadGuild();loadLeaderboard()}
+function render(){document.getElementById('avatar').textContent=(user.cosmetics.length?'Dreamer + '+user.cosmetics.length+' cosmetics':'Plain Dreamer');document.getElementById('shop').innerHTML=catalog.map(c=>'<div class="item '+(user.cosmetics.includes(c.id)?'owned':'')+'" onclick="buy(\''+c.id+'\')"><strong>'+c.name+'</strong><br>'+((c.price_nzd===0)?'Free':'NZ$'+c.price_nzd)+'<br>'+(user.cosmetics.includes(c.id)?'Owned':'Buy')+'</div>').join('')}
+async function saveAvatar(){await get('/api/dreamiez/avatar',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({height:+height.value,build:+build.value,skin:+skin.value})})}
+async function buy(id){if(user.cosmetics.includes(id)){return}const c=catalog.find(x=>x.id===id);if(c.price_nzd===0){await get('/api/dreamiez/cosmetics/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cosmetic_id:id})});user=await get('/api/dreamiez/me');render();return}const r=await get('/api/checkout/create',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({product_id:'DREAMIEZ-'+id,silo:'SILO_DREAMIEZ'})});if(r.checkout_url)location.href=r.checkout_url}
+async function createGuild(){const name=document.getElementById('guildName').value.trim();if(!name)return;await get('/api/dreamiez/guilds',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name})});loadGuild()}
+async function loadGuild(){const d=await get('/api/dreamiez/guilds/my');document.getElementById('guild').textContent=d.guild?d.guild.name+' ('+d.guild.members.length+' members)':'Not in a guild'}
+async function loadLeaderboard(){const d=await get('/api/dreamiez/leaderboard');document.getElementById('leaderboard').innerHTML=d.slice(0,10).map((x,i)=>(i+1)+'. '+x.name+' - '+x.score).join('<br>')}
+init().catch(e=>document.body.insertAdjacentHTML('beforeend','<p>'+e.message+'</p>'));
+</script>
+</body>
+</html>
