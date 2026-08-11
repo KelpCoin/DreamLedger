@@ -5,7 +5,7 @@
   "description": "DreamLedger storefront and BEC-PRIME commerce engine",
   "main": "BEC-PRIME/server.js",
   "scripts": {
-    "start": "node BEC-PRIME/compiler/OfferCompiler.js && node BEC-PRIME/server.js",
+    "start": "node BEC-PRIME/compiler/OfferCompiler.js && node BEC-PRIME/start.js",
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js"
   },
   "engines": {
