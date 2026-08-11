@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://dreamledger.org/schemas/bec-prime-offer-v1.json",
   "type": "object",
   "required": ["offer_id", "version", "capability_id", "silo", "name", "problem", "input", "output", "delivery_mechanism", "deliverable", "target_buyer", "eligibility", "constraints", "price", "currency", "refund_rules", "payment_adapter", "checkout_route", "approval_required", "checkout_available", "status", "proof_of_delivery", "verification_rules", "provenance"],
