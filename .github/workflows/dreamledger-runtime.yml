@@ -9,6 +9,39 @@ jobs:
   runtime-proof:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Build and syntax gate
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install
+          npm run compile:offers
+          npm run compile:surface
+          node --check server.js
+          node --check start.js
+          node --check dreamiez-account.js
+          node --check gauntlet/GauntletV6.js
+          node --check elohim/ElohimV6.js
+          node --check proxy/DigitalProxy.js
+          node --check runtime/ControlPlane.js
+
+      - name: Dreamiez end-to-end smoke
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run smoke:dreamiez
+
       - name: Probe public endpoints
         shell: bash
         run: |
@@ -19,9 +52,9 @@ jobs:
             "https://dreamledger.org/healthz"
             "https://dreamledger.org/api/products"
             "https://dreamledger.org/api/offers"
-            "https://dreamledger.org/api/auctions"
-            "https://dreamledger.org/api/news?silo=mtg"
-            "https://dreamledger.org/.well-known/agent-commerce.json"
+            "https://dreamledger.org/api/auctions?silo=dreamledger"
+            "https://dreamledger.org/api/news?silo=dreamledger"
+            "https://dreamledger.org/api/control/health"
           )
           failed=0
           for url in "${urls[@]}"; do
@@ -30,15 +63,14 @@ jobs:
             code=$(curl -L -sS --max-time 30 -o "runtime-proof/${name}.body.txt" -w "%{http_code}" "$url" || true)
             echo "$url -> HTTP $code"
             printf '%s -> HTTP %s\n' "$url" "$code" >> runtime-proof/SUMMARY.txt
-            if [[ ! "$code" =~ ^2[0-9][0-9]$ ]]; then
-              failed=1
-            fi
+            if [[ ! "$code" =~ ^2[0-9][0-9]$ ]]; then failed=1; fi
           done
           if [ "$failed" -ne 0 ]; then
             echo "RUNTIME FAIL" | tee -a runtime-proof/SUMMARY.txt
             exit 1
           fi
           echo "RUNTIME PASS" | tee -a runtime-proof/SUMMARY.txt
+
       - name: Inspect marketplace markers
         shell: bash
         run: |
@@ -52,6 +84,7 @@ jobs:
               exit 1
             fi
           done
+
       - name: Upload runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
