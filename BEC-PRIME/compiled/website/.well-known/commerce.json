@@ -1,0 +1,21 @@
+{
+  "schema": "https://dreamledger.org/schemas/commerce-manifest/v1",
+  "merchant": "DreamLedger / HappyHomarid Master Sellers",
+  "region": "NZ-first",
+  "currency": "NZD",
+  "payment": { "provider": "Stripe", "cryptocurrency": false },
+  "catalog": "https://dreamledger.org/agentic/catalog.json",
+  "human_storefront": "https://dreamledger.org/shop/",
+  "mtg_silo": "https://dreamledger.org/mtg/",
+  "stable_qr_destination": "https://dreamledger.org/go",
+  "product_activation": "human-approval-required",
+  "entitlement": "server-verified",
+  "fulfilment": "protected-goods-or-governed-service",
+  "agentic_readiness": {
+    "structured_product_data": true,
+    "machine_readable_catalog": true,
+    "server_rendered_entry_points": true,
+    "human_approval_before_activation": true
+  },
+  "governance": { "gauntlet_net": true, "elohim": "evidence and contradiction review" }
+}
