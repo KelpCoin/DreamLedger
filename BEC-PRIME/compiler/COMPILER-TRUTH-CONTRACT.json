@@ -1,0 +1,66 @@
+{
+  "schema": "BEC-PRIME/COMPILER-TRUTH-CONTRACT/v1",
+  "purpose": "The public DreamLedger surface is a compiled reflection of canonical economic truth, never a hand-maintained source of commercial truth.",
+  "source_of_truth": [
+    "BEC-PRIME/manifests/CUBE-PUBLIC-SURFACE-MANIFEST.json",
+    "BEC-PRIME/catalog/ip-capabilities.json",
+    "BEC-PRIME/catalog/offers/offers.json",
+    "BEC-PRIME/catalog/products/*.json",
+    "BEC-PRIME/data/silo-news.json",
+    "BEC-PRIME/data/auctions.json"
+  ],
+  "compiler_chain": [
+    "OfferCompiler",
+    "SurfaceCompiler",
+    "PriceDisplayPatch",
+    "Gauntlet",
+    "Meta-Gauntlet",
+    "Sentinel"
+  ],
+  "surface_rules": {
+    "server_authoritative_price": true,
+    "server_authoritative_inventory": true,
+    "server_authoritative_status": true,
+    "approval_required_before_activation": true,
+    "private_material_excluded": true,
+    "silo_isolation_required": true,
+    "phone_first_horizontal_carousels": true,
+    "thumb_first_ctas": true,
+    "digital_proxy_auto_open": false,
+    "demand_radar_publish_authority": false,
+    "demand_radar_charge_authority": false,
+    "sentinel_publish_authority": false,
+    "sentinel_charge_authority": false,
+    "future_integrations_must_not_be_presented_as_live": true
+  },
+  "mount_everest_inverted_guardrails": [
+    "Do not climb on an unverified route because the summit is visible.",
+    "Do not add complexity merely because a competitor has it.",
+    "Do not mistake a green build for a proven business transaction.",
+    "Do not let a polished surface outrun canonical truth.",
+    "Do not turn an interesting signal into an autonomous economic action without approval and evidence.",
+    "Do not repeat failed-bootstrap patterns: manual surface edits, duplicated pricing, hidden state, unbounded agents, invented integrations, or deployment without health proof."
+  ],
+  "commercial_gate": [
+    "canonical truth",
+    "compile",
+    "Gauntlet",
+    "Sentinel",
+    "CI acceptance",
+    "live deployment",
+    "human approval",
+    "payment",
+    "verified settlement",
+    "fulfillment",
+    "proof fossil"
+  ],
+  "hard_stop": [
+    "unverified live endpoint",
+    "secret marker in public catalog",
+    "cross-silo state",
+    "client-authoritative price",
+    "checkout activation without approval",
+    "payment claim without verified settlement",
+    "automatic external action from demand signal"
+  ]
+}
