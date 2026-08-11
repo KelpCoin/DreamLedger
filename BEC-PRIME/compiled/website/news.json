@@ -1,0 +1,7 @@
+{
+  "news": [
+    {"id":"DL-001","headline":"The marketplace is opening its first live auction lanes","kind":"market","source":"DreamLedger","published_at":"2026-08-12T00:00:00Z"},
+    {"id":"DL-002","headline":"Commander cards and useful digital products now share one storefront","kind":"drop","source":"DreamLedger","published_at":"2026-08-12T00:00:00Z"},
+    {"id":"DZ-001","headline":"Dreamiez is live: build an avatar and keep your streak","kind":"Dreamiez","source":"Dreamiez","published_at":"2026-08-12T00:00:00Z"}
+  ]
+}
