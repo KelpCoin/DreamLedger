@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "slots": 3,
+  "policy": "At least three approved auctions should be displayed when three approved auctions exist; never fabricate inventory.",
+  "silo": "SILO_MTG",
+  "seller": "HappyHomarid Master Sellers",
+  "sort": "ending_soon",
+  "minimum_distinct_end_times": 3,
+  "return_loop": {
+    "enabled": true,
+    "purpose": "Give customers a reason to return without fake scarcity",
+    "streaks": "cosmetic_or_discount_entitlements_only"
+  },
+  "approval_required": true,
+  "auction_bidding_requires_verified_listing": true,
+  "payment_rail": "Stripe",
+  "crypto_payments": false
+}
