@@ -1,0 +1,339 @@
+{
+  "schema": "BEC-PRIME/SILO-PORTFOLIO/v1",
+  "status": "COMPILED",
+  "compiler": "SiloPortfolioCompiler",
+  "compiled_at": "2026-08-11T23:34:55.449Z",
+  "source_hash": "15ebf708bdc16f829dcfa8e0a5dd7352dcd9b0aa3338724a6e724505118f5e5d",
+  "activation_policy": {
+    "approval_required": true,
+    "checkout_available": false,
+    "private_ip_doctrine_exposed": false,
+    "public_ip_doctrine_exposed": false,
+    "private_material_excluded": true,
+    "payment_claims_allowed": false,
+    "external_actions_allowed": false
+  },
+  "wedge_count": 10,
+  "wedges": [
+    {
+      "id": "WEDGE-01-AGENT-READY-COMMERCE-GATEWAY",
+      "rank": 1,
+      "name": "Agent-Ready Commerce Gateway",
+      "priority": "P0",
+      "buyer": "SMBs, agencies, marketplaces and vertical SaaS companies that want products/services discoverable and purchasable by AI agents",
+      "monetization": "setup fee + monthly platform fee + transaction or catalog-volume fee",
+      "wedge": "Make an existing business machine-readable, trust-readable and transaction-ready without replacing its existing commerce stack.",
+      "route": "/portfolio/agent-ready-commerce-gateway.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/agent-ready-commerce-gateway.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/agent-ready-commerce-gateway.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-02-COMMERCE-TRUST-AND-PROOF-ENGINE",
+      "rank": 2,
+      "name": "Commerce Trust and Proof Engine",
+      "priority": "P0",
+      "buyer": "Enterprise commerce, marketplaces, fintech, procurement and agent platforms",
+      "monetization": "audit fee + per-transaction verification + enterprise license",
+      "wedge": "Independent evidence that separates designed, implemented, verified, deployed and paid states.",
+      "route": "/portfolio/commerce-trust-and-proof-engine.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/commerce-trust-and-proof-engine.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/commerce-trust-and-proof-engine.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-03-GAUNTLET-AS-A-SERVICE",
+      "rank": 3,
+      "name": "Gauntlet-as-a-Service",
+      "priority": "P0",
+      "buyer": "Agent platforms, marketplaces, AI SaaS and commerce engineering teams",
+      "monetization": "per-run API pricing + CI subscription + enterprise policy packs",
+      "wedge": "Adversarial acceptance testing for economic actions before an agent is allowed to publish, charge or mutate state.",
+      "route": "/portfolio/gauntlet-as-a-service.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/gauntlet-as-a-service.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/gauntlet-as-a-service.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-04-DIGITAL-PROXY-APPROVAL-FABRIC",
+      "rank": 4,
+      "name": "Digital Proxy Approval Fabric",
+      "priority": "P0",
+      "buyer": "Enterprise AI teams deploying agents into high-value workflows",
+      "monetization": "per-seat + per-approved-action + enterprise governance license",
+      "wedge": "A reusable human-in-the-loop permission boundary between autonomous proposals and consequential actions.",
+      "route": "/portfolio/digital-proxy-approval-fabric.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/digital-proxy-approval-fabric.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/digital-proxy-approval-fabric.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-05-IP-TO-OFFER-COMPILER",
+      "rank": 5,
+      "name": "IP-to-Offer Compiler",
+      "priority": "P0",
+      "buyer": "Consultancies, studios, software companies and IP-heavy operators",
+      "monetization": "implementation packages + recurring offer-generation service",
+      "wedge": "Turn a messy capability/IP inventory into standardized, testable, priced economic objects without exposing private material.",
+      "route": "/portfolio/ip-to-offer-compiler.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/ip-to-offer-compiler.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/ip-to-offer-compiler.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-06-SILO-CONTROLLED-MULTI-VERTICAL-COMMERCE-KERNEL",
+      "rank": 6,
+      "name": "Silo-Controlled Multi-Vertical Commerce Kernel",
+      "priority": "P1",
+      "buyer": "Multi-brand operators and marketplaces with sensitive or unrelated business lines",
+      "monetization": "platform license + implementation + managed operations",
+      "wedge": "One commerce kernel with hard separation between domains, brands, catalogs and permissions.",
+      "route": "/portfolio/silo-controlled-multi-vertical-commerce-kernel.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/silo-controlled-multi-vertical-commerce-kernel.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/silo-controlled-multi-vertical-commerce-kernel.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-07-DREAMIEZ-DAILY-STREAK-ECONOMY",
+      "rank": 7,
+      "name": "Dreamiez Daily-Streak Economy",
+      "priority": "P1",
+      "buyer": "Consumer brands, communities and digital-product operators",
+      "monetization": "membership, digital assets, drops, subscriptions and conversion uplift",
+      "wedge": "A persistent identity and reward loop where consistency unlocks scarce digital assets.",
+      "route": "/portfolio/dreamiez-daily-streak-economy.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/dreamiez-daily-streak-economy.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/dreamiez-daily-streak-economy.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-08-DETERMINISTIC-AUCTION-AND-SILO-TICKER",
+      "rank": 8,
+      "name": "Deterministic Auction and Silo Ticker",
+      "priority": "P1",
+      "buyer": "Collectibles, specialty goods, creator drops and niche marketplaces",
+      "monetization": "listing fees + transaction take rate + premium auction tools",
+      "wedge": "A reusable auction primitive with proof artifacts and strict catalog separation.",
+      "route": "/portfolio/deterministic-auction-and-silo-ticker.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/deterministic-auction-and-silo-ticker.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/deterministic-auction-and-silo-ticker.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-09-ENTERPRISE-LOCAL-FIRST-AI-COMMERCE-OS",
+      "rank": 9,
+      "name": "Enterprise Local-First AI Commerce OS",
+      "priority": "P1",
+      "buyer": "Organizations that cannot put sensitive commercial operations entirely into third-party SaaS",
+      "monetization": "high-ticket implementation + annual support/license",
+      "wedge": "Local-first economic automation with explicit evidence, approval and deployment boundaries.",
+      "route": "/portfolio/enterprise-local-first-ai-commerce-os.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/enterprise-local-first-ai-commerce-os.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/enterprise-local-first-ai-commerce-os.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    },
+    {
+      "id": "WEDGE-10-VERTICALIZED-DIAGNOSTIC-PRODUCT-FACTORY",
+      "rank": 10,
+      "name": "Verticalized Diagnostic Product Factory",
+      "priority": "P1",
+      "buyer": "Specialist communities and service businesses with expensive expert knowledge",
+      "monetization": "low-ticket diagnostics feeding higher-ticket audits, implementation and subscriptions",
+      "wedge": "Package expert judgment into repeatable digital products, then let the compiler and proof system scale the catalog.",
+      "route": "/portfolio/verticalized-diagnostic-product-factory.html",
+      "activation_state": "APPROVAL_GATED",
+      "checkout_available": false,
+      "payment_claimed": false,
+      "source": "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json",
+      "cta": {
+        "label": "Request this wedge",
+        "action": "proposal_only",
+        "target": "/portfolio/verticalized-diagnostic-product-factory.html"
+      },
+      "tunnel": {
+        "entry": "/portfolio/verticalized-diagnostic-product-factory.html",
+        "next": "proposal",
+        "then": "human_review",
+        "then_after_approval": "canonical_offer"
+      },
+      "sku_family": [
+        "SERVICE_PAGE",
+        "DIAGNOSTIC",
+        "IMPLEMENTATION",
+        "RECURRING_OPERATION",
+        "BILLBOARD"
+      ]
+    }
+  ]
+}
