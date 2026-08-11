@@ -1,0 +1,20 @@
+{
+  "type": "dreamledger-wiring-proof",
+  "status": "PASS_STATIC_WIRING",
+  "date": "2026-08-12",
+  "scope": [
+    "HappyHomarid platform fee is 0 percent",
+    "external seller platform fee is 5 percent",
+    "seller metadata is stamped into Stripe checkout",
+    "paid webhook transactions persist fee breakdown and net seller amount",
+    "seller payout endpoint exists",
+    "Dreamiez silo manifest exists",
+    "Dreamiez avatar/cosmetics/guild/leaderboard routes exist",
+    "Dreamiez cosmetic checkout products are seeded",
+    "Dreamiez static route is wired"
+  ],
+  "verification_command": "node BEC-PRIME/scripts/verify-marketplace-dreamiez.js",
+  "runtime_payment_test": "NOT_RUN",
+  "production_deploy": "NOT_PERFORMED",
+  "human_gate": "Required before production payment testing and public deployment"
+}
