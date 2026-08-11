@@ -65,16 +65,18 @@ function publicOffer(offer) {
     input: offer.input,
     output: offer.output,
     target_buyer: offer.target_buyer,
-    offer_type: offer.offer_id.split('-').slice(-1)[0].toLowerCase(),
+    offer_type: offer.offer_type || offer.pricing_tier || offer.offer_id.split('-').slice(-1)[0].toLowerCase(),
     delivery_method: offer.delivery_mechanism,
     price: offer.price,
     currency: offer.currency,
-    pricing_mode: 'fixed',
+    pricing_mode: offer.pricing_strategy || 'fixed',
+    pricing_tier: offer.pricing_tier || null,
     eligibility: offer.eligibility,
     proof_of_delivery: offer.proof_of_delivery,
     refund_policy: offer.refund_rules,
-    approval_required: true,
-    checkout_available: false,
+    approval_required: offer.approval_required === true,
+    checkout_available: offer.checkout_available === true,
+    checkout_route: offer.checkout_route,
     status: offer.status,
     verification_rules: offer.verification_rules,
     source_capabilities: offer.provenance?.capability_ids || [],
@@ -114,7 +116,7 @@ async function createCheckout(req, res) {
   if (checkoutLocks.has(product.id)) return send(res, 409, { error: 'Checkout already being created' });
   checkoutLocks.set(product.id, true);
   try {
-    const idempotencyKey = `dreamledger-${product.id}-${crypto.randomUUID()}`;
+    const idempotencyKey = `dreamledger-product-${product.id}-${crypto.randomUUID()}`;
     const session = await stripeRequest('checkout/sessions', 'POST', {
       mode: product.checkout.mode,
       'line_items[0][price_data][currency]': product.currency,
@@ -132,20 +134,82 @@ async function createCheckout(req, res) {
   } catch (err) { return send(res, 502, { error: err.message }); }
   finally { checkoutLocks.delete(product.id); }
 }
+async function createOfferCheckout(req, res) {
+  let body; try { body = JSON.parse(await readBody(req)); } catch { return send(res, 400, { error: 'Invalid JSON' }); }
+  const offer = getOffer(body.offer_id);
+  if (!offer) return send(res, 404, { error: 'Offer not found' });
+  if (body.silo !== offer.silo) return send(res, 400, { error: 'Silo mismatch' });
+  if (offer.approval_required !== false || offer.checkout_available !== true) return send(res, 403, { error: 'Offer is not approved for checkout' });
+  if (typeof offer.price !== 'number' || offer.price <= 0 || offer.currency !== 'NZD') return send(res, 422, { error: 'Offer pricing is invalid' });
+  if (checkoutLocks.has(offer.offer_id)) return send(res, 409, { error: 'Checkout already being created' });
+  checkoutLocks.set(offer.offer_id, true);
+  try {
+    const idempotencyKey = `dreamledger-offer-${offer.offer_id}-${crypto.randomUUID()}`;
+    const session = await stripeRequest('checkout/sessions', 'POST', {
+      mode: 'payment',
+      'line_items[0][price_data][currency]': 'nzd',
+      'line_items[0][price_data][unit_amount]': Math.round(offer.price * 100),
+      'line_items[0][price_data][product_data][name]': offer.name,
+      'line_items[0][price_data][product_data][description]': offer.output,
+      'line_items[0][quantity]': 1,
+      'metadata[offer_id]': offer.offer_id,
+      'metadata[capability_id]': offer.capability_id,
+      'metadata[silo]': offer.silo,
+      'metadata[pricing_tier]': offer.pricing_tier || offer.offer_type || '',
+      success_url: `${PUBLIC_BASE}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${PUBLIC_BASE}/`
+    }, idempotencyKey);
+    return send(res, 200, { ok: true, offer_id: offer.offer_id, session_id: session.id, checkout_url: session.url });
+  } catch (err) { return send(res, 502, { error: err.message }); }
+  finally { checkoutLocks.delete(offer.offer_id); }
+}
 async function webhook(req, res) {
   const raw = await readBody(req);
   try {
     verifyStripeSignature(raw, req.headers['stripe-signature'] || ''); const event = JSON.parse(raw);
     if (event.type !== 'checkout.session.completed') return send(res, 200, { received: true });
     const session = event.data.object; if (session.payment_status !== 'paid') return send(res, 200, { received: true, fulfilled: false });
-    const productId = session.metadata?.product_id; const product = getProduct(productId); if (!product) return send(res, 400, { error: 'Unknown product' });
-    const txFile = path.join(DATA, `${session.id}.json`); if (fs.existsSync(txFile)) return send(res, 200, { received: true, idempotent: true });
-    const tx = { transaction_id: session.id, product_id: product.id, silo: product.silo, amount_total: session.amount_total, currency: session.currency, payment_status: session.payment_status, customer_email: session.customer_details?.email || null, created_at: new Date().toISOString() };
+    const productId = session.metadata?.product_id || null;
+    const offerId = session.metadata?.offer_id || null;
+    const product = productId ? getProduct(productId) : null;
+    const offer = offerId ? getOffer(offerId) : null;
+    if (!product && !offer) return send(res, 400, { error: 'Unknown product or offer' });
+    const transactionId = session.id;
+    const txFile = path.join(DATA, `${transactionId}.json`);
+    if (fs.existsSync(txFile)) return send(res, 200, { received: true, idempotent: true });
+    const silo = product?.silo || offer?.silo;
+    const tx = {
+      transaction_id: transactionId,
+      product_id: product?.id || null,
+      offer_id: offer?.offer_id || null,
+      capability_id: offer?.capability_id || null,
+      silo,
+      amount_total: session.amount_total,
+      currency: session.currency,
+      payment_status: session.payment_status,
+      customer_email: session.customer_details?.email || null,
+      created_at: new Date().toISOString()
+    };
     fs.writeFileSync(txFile, JSON.stringify(tx, null, 2) + '\n', { flag: 'wx' });
-    const proof = { type: 'dreamledger-transaction-proof', status: 'PASS', transaction_id: session.id, product_id: product.id, silo: product.silo, amount_total: session.amount_total, currency: session.currency, payment_status: session.payment_status, payment_received: true, proof_source: 'stripe.checkout.session.completed.webhook', delivery_status: 'PENDING', recorded_at: tx.created_at };
-    fs.writeFileSync(path.join(PROOFS, `${session.id}.json`), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
+    const proof = {
+      type: 'dreamledger-transaction-proof',
+      status: 'PASS',
+      transaction_id: transactionId,
+      product_id: product?.id || null,
+      offer_id: offer?.offer_id || null,
+      capability_id: offer?.capability_id || null,
+      silo,
+      amount_total: session.amount_total,
+      currency: session.currency,
+      payment_status: session.payment_status,
+      payment_received: true,
+      proof_source: 'stripe.checkout.session.completed.webhook',
+      delivery_status: 'PENDING',
+      recorded_at: tx.created_at
+    };
+    fs.writeFileSync(path.join(PROOFS, `${transactionId}.json`), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
     if (!fs.existsSync(FIRST_PAYMENT_PROOF)) fs.writeFileSync(FIRST_PAYMENT_PROOF, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
-    return send(res, 200, { received: true, fulfilled: true, transaction_id: session.id });
+    return send(res, 200, { received: true, fulfilled: true, transaction_id: transactionId });
   } catch (err) { return send(res, 400, { error: err.message }); }
 }
 
@@ -158,6 +222,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && url === '/api/offers') { try { return send(res, 200, { offers: loadOfferCatalog().offers.map(publicOffer) }); } catch (err) { return send(res, 500, { error: err.message }); } }
   if (req.method === 'GET' && url.startsWith('/api/offers/')) { try { const offer = getOffer(url.slice('/api/offers/'.length)); return offer ? send(res, 200, publicOffer(offer)) : send(res, 404, { error: 'Offer not found' }); } catch (err) { return send(res, 500, { error: err.message }); } }
   if (req.method === 'POST' && url === '/api/checkout/create') return createCheckout(req, res);
+  if (req.method === 'POST' && url === '/api/offer-checkout/create') return createOfferCheckout(req, res);
   if (req.method === 'POST' && url === '/webhook') return webhook(req, res);
   if (req.method === 'GET' && url === '/checkout/success') return send(res, 200, '<!doctype html><html><head><meta charset="utf-8"><title>DreamLedger | Payment received</title></head><body style="font-family:system-ui;max-width:720px;margin:80px auto;padding:24px"><h1>Payment received</h1><p>Your Stripe checkout completed. Transaction evidence is generated after webhook confirmation.</p><p><a href="/">Return to DreamLedger</a></p></body></html>', 'text/html; charset=utf-8');
   if (req.method === 'GET' && url === '/checkout/cancel') return res.writeHead(302, { Location: '/mtg' }).end();
