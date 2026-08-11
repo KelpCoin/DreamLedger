@@ -1,0 +1,9 @@
+{
+  "name": "DreamLedger Shop",
+  "short_name": "DreamLedger",
+  "start_url": "/shop",
+  "display": "standalone",
+  "background_color": "#F7F4EE",
+  "theme_color": "#1F7A4D",
+  "icons": []
+}
