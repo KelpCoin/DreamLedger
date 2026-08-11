@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger: Commander diagnostics and the BEC-PRIME commerce capability catalog.">
+<meta name="description" content="DreamLedger: verified commerce, checkout, fulfillment and proof.">
 <title>DreamLedger | Commerce Engine</title>
 <style>
-:root{--bg:#0b0d10;--panel:#12161b;--panel2:#171c22;--line:#2a313a;--text:#f3f5f7;--muted:#a5adb7;--accent:#d7b56d;--accent2:#f0d99b;--good:#86c99a;--max:960px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}.wrap{max-width:var(--max);margin:auto;padding:0 24px}a{color:inherit}.nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}.brand{font-weight:800;letter-spacing:.08em}.nav a{color:var(--muted);text-decoration:none;margin-left:20px;font-size:.92rem}.hero{padding:82px 0 62px;max-width:820px}.kicker{color:var(--accent);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.76rem}.hero h1{font-size:clamp(2.8rem,7vw,5.7rem);line-height:.98;letter-spacing:-.045em;margin:16px 0 24px}.hero p{font-size:1.2rem;color:var(--muted);max-width:720px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.button{display:inline-block;padding:14px 20px;border-radius:7px;text-decoration:none;font-weight:800}.primary{background:var(--accent);color:#17130b}.secondary{border:1px solid var(--line);color:var(--text)}.price{margin-top:18px;color:var(--muted)}.price strong{color:var(--text);font-size:1.25rem}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0 60px}.card,.section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:26px}.card h2,.section h2{margin:0 0 8px;font-size:1.05rem}.card p,.section p,.section li{color:var(--muted)}.section{margin:14px 0}.section h2{color:var(--accent2)}.proof{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:start}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0a0c0f;border:1px solid var(--line);border-radius:8px;padding:18px;white-space:pre-wrap;color:#cbd2da;font-size:.9rem}.status{color:var(--good);font-weight:800}.ip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.ip-card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:18px}.ip-card h3{margin:0 0 6px;font-size:1rem}.ip-card p{margin:0;color:var(--muted);font-size:.93rem}.tag{display:inline-block;margin-top:10px;font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}.footer{border-top:1px solid var(--line);margin-top:70px;padding:28px 0 50px;color:#737c87;font-size:.85rem}@media(max-width:700px){.grid,.proof,.ip-grid{grid-template-columns:1fr}.hero{padding-top:58px}.nav a{margin-left:10px}}
+:root{--bg:#0b0d10;--panel:#12161b;--line:#2a313a;--text:#f3f5f7;--muted:#a5adb7;--accent:#d7b56d;--accent2:#f0d99b;--good:#86c99a;--max:960px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}.wrap{max-width:var(--max);margin:auto;padding:0 24px}a{color:inherit}.nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}.brand{font-weight:800;letter-spacing:.08em}.nav a{color:var(--muted);text-decoration:none;margin-left:20px;font-size:.92rem}.hero{padding:82px 0 62px;max-width:820px}.kicker{color:var(--accent);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.76rem}.hero h1{font-size:clamp(2.8rem,7vw,5.7rem);line-height:.98;letter-spacing:-.045em;margin:16px 0 24px}.hero p{font-size:1.2rem;color:var(--muted);max-width:720px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.button{display:inline-block;padding:14px 20px;border-radius:7px;text-decoration:none;font-weight:800}.primary{background:var(--accent);color:#17130b}.secondary{border:1px solid var(--line);color:var(--text)}.price{margin-top:18px;color:var(--muted)}.price strong{color:var(--text);font-size:1.25rem}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0 60px}.card,.section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:26px}.card h2,.section h2{margin:0 0 8px;font-size:1.05rem}.card p,.section p,.section li{color:var(--muted)}.section{margin:14px 0}.section h2{color:var(--accent2)}.proof{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:start}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0a0c0f;border:1px solid var(--line);border-radius:8px;padding:18px;white-space:pre-wrap;color:#cbd2da;font-size:.9rem}.status{color:var(--good);font-weight:800}.footer{border-top:1px solid var(--line);margin-top:70px;padding:28px 0 50px;color:#737c87;font-size:.85rem}@media(max-width:700px){.grid,.proof{grid-template-columns:1fr}.hero{padding-top:58px}.nav a{margin-left:10px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="nav"><div class="brand">DREAMLEDGER</div><nav><a href="#diagnostic">Diagnostic</a><a href="#capabilities">Capabilities</a><a href="#proof">Proof</a><a href="/trust-engine.html">Trust</a></nav></header>
+<header class="nav"><div class="brand">DREAMLEDGER</div><nav><a href="#diagnostic">Diagnostic</a><a href="#commerce">Commerce</a><a href="#proof">Proof</a><a href="/trust-engine.html">Trust</a></nav></header>
 <main>
 <section class="hero" id="diagnostic">
 <div class="kicker">BEC-PRIME commerce engine</div>
-<h1>Turn complex systems into sellable primitives.</h1>
-<p>DreamLedger is the commercial surface for a local-first economic execution system: canonical offers, payment adapters, fulfillment, evidence, verification, and controlled market surfaces.</p>
-<div class="actions"><a class="button primary" href="#" data-checkout>Get the Commander diagnostic</a><a class="button secondary" href="#capabilities">Explore the capability catalog</a></div>
+<h1>Turn verified work into sellable outcomes.</h1>
+<p>DreamLedger is the commerce surface for canonical offers, server-authoritative checkout, fulfillment, evidence and controlled market surfaces. Private implementation material stays behind the public surface.</p>
+<div class="actions"><a class="button primary" href="#" data-checkout>Get the Commander diagnostic</a><a class="button secondary" href="#commerce">See how commerce works</a></div>
 <div class="price"><strong>$15 NZD</strong> · Commander Deck Diagnostic · approval-gated until commercial proof</div>
 </section>
 <section class="grid">
@@ -27,55 +27,27 @@
 <div class="card"><h2>Strategy</h2><p>Win conditions, sequencing priorities, interaction and the deck's real plan.</p></div>
 <div class="card"><h2>Upgrades</h2><p>Specific cuts and replacement options, including budget-conscious choices.</p></div>
 </section>
-<section class="section" id="capabilities">
-<h2>BEC-PRIME capability catalog</h2>
-<p>The system's intellectual property is represented as canonical capabilities that can become separately priced economic objects. Cataloging does not silently activate checkout. Payment and public activation remain approval-gated.</p>
-<div class="ip-grid" id="ipCatalog"><div class="ip-card"><h3>Loading capability registry...</h3><p>The engine is reading the canonical catalog.</p></div></div>
-<p><a href="/api/ip">Open the machine-readable capability catalog</a></p>
-</section>
-<section class="section">
-<h2>What happens after checkout</h2>
-<ol>
-<li>Send a Commander deck list. Moxfield and Archidekt links are accepted.</li>
-<li>The list is reviewed against the DreamLedger diagnostic framework.</li>
-<li>You receive a written report targeted at decisions you can actually make.</li>
-</ol>
+<section class="section" id="commerce">
+<h2>Commerce, end to end</h2>
+<p>The browser never becomes the source of truth. The server validates the canonical economic object, Stripe hosts payment, the signed webhook confirms settlement, the revenue ledger records balanced entries, and a fulfillment record is created for delivery.</p>
+<ol><li>Canonical offer and price are validated server-side.</li><li>Stripe Checkout handles payment details.</li><li>Webhook signature and event identity are verified.</li><li>Payment is recorded idempotently in the immutable event ledger.</li><li>Fulfillment is created and earned revenue is recognized through double-entry posting.</li><li>Proof is written only from verified evidence.</li></ol>
 </section>
 <section class="section proof" id="proof">
-<div><h2>BEC Prime smoke test</h2><p>The storefront is backed by the BEC Prime proof workflow. This is an engine smoke-test record, not a claim that every commerce transaction is cryptographically proven.</p><p class="status">PASS · CUBE-01-MTG</p><p>Verified test item: <strong>Palinchron - Urza's Legacy Foil</strong>. LP condition. Minor clouding and minor edge wear. The record identifies the item as a verified evidence-passport test case.</p><a class="button secondary" href="/proof-2026-08-10.html">Open the pass artifact</a></div>
-<div class="mono">BEC-PRIME SMOKE TEST
-Silo: CUBE-01-MTG
+<div><h2>Proof, without theatre</h2><p>The storefront distinguishes smoke-test evidence from real settlement evidence. A payment is not called proven until the signed Stripe webhook and ledger fossil exist.</p><p class="status">ENGINE GATES ACTIVE</p><a class="button secondary" href="/trust-engine.html">Open the trust engine</a></div>
+<div class="mono">DREAMLEDGER
 
-Palinchron - Urza's Legacy Foil
-SKU: MTG-URZAS-LEGACY-PALINCHRON-FOIL-001
-
-PASS: engine fixture</div>
+Canonical commerce
+Server-authoritative pricing
+Signed Stripe webhook
+Immutable event record
+Double-entry ledger
+Fulfillment fossil
+Proof before claim</div>
 </section>
-<section class="section">
-<h2>Proof, without theatre</h2>
-<p>The public trust page separates what the storefront can demonstrate from what would require a real transaction record. No transaction-level proof is claimed unless the corresponding evidence exists.</p>
-<a href="/trust-engine.html">Open the trust engine</a>
-</section>
-<section class="hero" style="padding:52px 0 20px"><div class="kicker">Ready when you are</div><h2 style="font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;margin:12px 0">Bring the deck. Leave with a plan.</h2><div class="actions"><a class="button primary" href="#" data-checkout>Buy the diagnostic for $15 NZD</a></div></section>
+<section class="hero" style="padding:52px 0 20px"><div class="kicker">Ready when approved</div><h2 style="font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;margin:12px 0">Bring the deck. Leave with a plan.</h2><div class="actions"><a class="button primary" href="#" data-checkout>Buy the diagnostic for $15 NZD</a></div></section>
 </main>
 <footer class="footer">DreamLedger · BEC-PRIME commerce engine · <a href="/healthz">service health</a></footer>
 </div>
 <script src="/checkout.js"></script>
-<script>
-(async function(){
-  const host=document.getElementById('ipCatalog');
-  try{
-    const response=await fetch('/api/ip',{cache:'no-store'});
-    if(!response.ok) throw new Error('catalog unavailable');
-    const data=await response.json();
-    host.innerHTML=(data.capabilities||[]).map(function(item){
-      return '<article class="ip-card"><h3>'+escapeHtml(item.name)+'</h3><p>'+escapeHtml(item.summary)+'</p><span class="tag">'+escapeHtml(item.category)+'</span></article>';
-    }).join('');
-  }catch(error){
-    host.innerHTML='<div class="ip-card"><h3>Capability registry unavailable</h3><p>The storefront remains usable; the machine-readable capability endpoint needs verification.</p></div>';
-  }
-  function escapeHtml(value){return String(value).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\\':'&#92;','"':'&quot;'}[c];});}
-})();
-</script>
 </body>
 </html>
