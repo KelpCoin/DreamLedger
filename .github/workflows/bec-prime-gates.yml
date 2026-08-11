@@ -29,7 +29,7 @@ jobs:
         run: npm run compile:offers && npm run compile:surface && npm run compile:silo-surfaces
 
       - name: Syntax gate
-        run: node --check server.js && node --check start.js && node --check compiler/SiloSurfaceCompiler.js && node --check scouts/Run-DemandScouts.js && node --check scripts/verify-public-surface.js
+        run: node --check server.js && node --check start.js && node --check compiler/SiloSurfaceCompiler.js && node --check scouts/Run-DemandScouts.js && node --check scripts/verify-public-surface.js && node --check scripts/smoke-multi-silo.js
 
       - name: Revenue ledger smoke
         run: npm run smoke:revenue-ledger
@@ -39,6 +39,9 @@ jobs:
 
       - name: Dreamiez smoke
         run: npm run smoke:dreamiez
+
+      - name: Multi-silo runtime smoke
+        run: npm run smoke:multi-silo
 
       - name: Demand scouts
         run: npm run scout:demand
