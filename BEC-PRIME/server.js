@@ -7,7 +7,7 @@ const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.join(__dirname, 'compiled', 'website');
 const CATALOG = path.join(__dirname, 'catalog', 'products');
 const IP_CATALOG = path.join(__dirname, 'catalog', 'ip-capabilities.json');
-const OFFER_CATALOG = path.join(__dirname, 'catalog', 'offers.json');
+const OFFER_CATALOG = path.join(__dirname, 'catalog', 'offers', 'offers.json');
 const DATA = path.resolve(process.env.LEDGER_DATA_DIR || path.join(__dirname, 'data', 'transactions'));
 const PROOFS = path.resolve(process.env.PROOF_DATA_DIR || path.join(__dirname, 'data', 'proofs'));
 const FIRST_PAYMENT_PROOF = path.resolve(process.env.FIRST_PAYMENT_PROOF_PATH || path.join(PROOFS, 'FIRST_PAYMENT_PROOF.json'));
@@ -77,27 +77,25 @@ function publicOffer(offer) {
   return {
     offer_id: offer.offer_id,
     capability_id: offer.capability_id,
-    product_id: offer.product_id,
-    silo: offer.silo,
     name: offer.name,
     problem: offer.problem,
     input: offer.input,
     output: offer.output,
-    buyer: offer.buyer,
-    offer_type: offer.offer_type,
-    delivery_method: offer.delivery_method,
+    target_buyer: offer.target_buyer,
+    offer_type: offer.offer_id.split('-').slice(-1)[0].toLowerCase(),
+    delivery_method: offer.delivery_mechanism,
     price: offer.price,
     currency: offer.currency,
-    pricing_mode: offer.pricing_mode || 'fixed',
+    pricing_mode: 'fixed',
     eligibility: offer.eligibility,
     proof_of_delivery: offer.proof_of_delivery,
-    refund_policy: offer.refund_policy,
+    refund_policy: offer.refund_rules,
     approval_required: true,
     checkout_available: false,
     status: offer.status,
     verification_rules: offer.verification_rules,
-    source_capabilities: offer.source_capabilities,
-    private_material_excluded: true
+    source_capabilities: offer.provenance?.capability_ids || [],
+    private_material_excluded: offer.provenance?.private_material === 'excluded'
   };
 }
 function getProduct(id) { return loadProducts().find(p => p.id === id); }
