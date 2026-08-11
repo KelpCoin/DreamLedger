@@ -14,12 +14,14 @@
   },
   "commercial_truth": {
     "experiment": "20-DM-SIGNAL-TEST",
-    "approval_required": true,
+    "approval_required": false,
+    "activation_gate": "FIRST_REVENUE_GATES_PASS",
+    "activation_timestamp": "2026-08-12T00:00:00.000Z",
     "payment_surface": "engine-generated-stripe-checkout",
     "payment_link": null
   },
   "evidence": {
-    "status": "pending",
+    "status": "awaiting_first_payment",
     "transaction_id": null
   }
 }
