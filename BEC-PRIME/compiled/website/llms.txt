@@ -1,0 +1,29 @@
+# DreamLedger Commerce
+
+Merchant: DreamLedger / HappyHomarid Master Sellers
+Region: New Zealand first, global-ready
+Currency: NZD
+Payment: Stripe/card rails only
+Cryptocurrency: not accepted
+
+## Human entry points
+- https://dreamledger.org/
+- https://dreamledger.org/shop/
+- https://dreamledger.org/mtg/
+
+## Machine-readable commerce
+- https://dreamledger.org/.well-known/commerce.json
+- https://dreamledger.org/agentic/catalog.json
+- https://dreamledger.org/sitemap.xml
+
+## Product state
+Candidate products are discoverable but not purchasable until explicitly approved. Never infer activation from catalog presence alone.
+
+## Entitlements
+A verified paid transaction can create a permanent or temporary entitlement. Protected goods are served only after server-side entitlement verification.
+
+## Silo rules
+SILO_MTG is the HappyHomarid Master Sellers Magic: The Gathering silo. Keep it separate from other commercial silos.
+
+## Governance
+Gauntlet Net is required for activation. Elohim is a review, contradiction-detection, evidence-gating and escalation layer, not a payment authority.

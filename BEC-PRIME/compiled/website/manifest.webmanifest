@@ -1,0 +1,10 @@
+{
+  "name": "DreamLedger Commerce",
+  "short_name": "DreamLedger",
+  "start_url": "/go",
+  "display": "standalone",
+  "background_color": "#08090c",
+  "theme_color": "#08090c",
+  "description": "Thumb-first governed commerce for HappyHomarid Master Sellers and evergreen digital products.",
+  "icons": []
+}

@@ -1,0 +1,27 @@
+{
+  "proof_type": "DREAMLEDGER_MARKETPLACE_FEE_AND_AUCTION_POLICY",
+  "status": "CONFIGURED_PENDING_RUNTIME_INTEGRATION_AND_CI",
+  "seller_policy": {
+    "HappyHomarid Master Sellers": "0% platform fee",
+    "other_approved_sellers": "5% platform fee"
+  },
+  "auction_policy": {
+    "landing_slots": 3,
+    "distinct_end_times_required": 3,
+    "fake_inventory_forbidden": true,
+    "approval_required": true
+  },
+  "payment": {
+    "rail": "Stripe",
+    "crypto": "disabled"
+  },
+  "brand_boundary": {
+    "mtg_seller": "HappyHomarid Master Sellers",
+    "forbidden_brand_reference": "Collector's Curse / Collector's Coast / Collectless"
+  },
+  "governance": {
+    "gauntlet_net": true,
+    "elohim": true,
+    "public_actions_approval_gated": true
+  }
+}

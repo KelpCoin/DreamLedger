@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "currency": "NZD",
+  "default_platform_fee_bps": 500,
+  "happyhomarid_master_sellers_fee_bps": 0,
+  "fee_basis": "gross_transaction_amount_excluding_tax_and_refunds",
+  "seller_identity": "HappyHomarid Master Sellers",
+  "payment_rail": "Stripe",
+  "crypto_payments": false,
+  "approval_required": true,
+  "rules": [
+    {
+      "seller": "HappyHomarid Master Sellers",
+      "silo": "SILO_MTG",
+      "platform_fee_bps": 0,
+      "reason": "Founding/master seller zero-platform-fee policy"
+    },
+    {
+      "seller": "OTHER_SELLERS",
+      "silo": "ANY_APPROVED_MARKETPLACE_SILO",
+      "platform_fee_bps": 500,
+      "reason": "BEC marketplace facilitation fee"
+    }
+  ],
+  "guardrails": {
+    "fee_must_be_server_side": true,
+    "client_supplied_fee_ignored": true,
+    "seller_activation_requires_approval": true,
+    "fee_changes_require_review": true,
+    "no_hidden_fee_increase": true
+  }
+}
