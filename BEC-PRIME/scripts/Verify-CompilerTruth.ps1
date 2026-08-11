@@ -11,6 +11,10 @@ $ManifestPath = Join-Path $Root 'manifests\CUBE-PUBLIC-SURFACE-MANIFEST.json'
 $OffersPath = Join-Path $Root 'catalog\offers\offers.json'
 $IpPath = Join-Path $Root 'catalog\ip-capabilities.json'
 $SurfaceCompilerPath = Join-Path $Root 'compiler\SurfaceCompiler.js'
+$SurfaceIndexTemplate = Join-Path $Root 'compiler\templates\public-index.html'
+$SurfaceAssetTemplate = Join-Path $Root 'compiler\templates\public-marketplace.js'
+$CompiledIndex = Join-Path $Root 'compiled\website\index.html'
+$CompiledAsset = Join-Path $Root 'compiled\website\assets\public-marketplace.js'
 $OfferCompilerPath = Join-Path $Root 'compiler\OfferCompiler.js'
 $MetaPath = Join-Path $Root 'scripts\meta-gauntlet.js'
 $SentinelPath = Join-Path $Root 'runtime\Sentinel.js'
@@ -26,6 +30,10 @@ foreach ($item in @(
     @($OffersPath,'offers'),
     @($IpPath,'ip_catalog'),
     @($SurfaceCompilerPath,'surface_compiler'),
+    @($SurfaceIndexTemplate,'surface_index_template'),
+    @($SurfaceAssetTemplate,'surface_asset_template'),
+    @($CompiledIndex,'compiled_index'),
+    @($CompiledAsset,'compiled_marketplace_asset'),
     @($OfferCompilerPath,'offer_compiler'),
     @($MetaPath,'meta_gauntlet'),
     @($SentinelPath,'sentinel')
@@ -35,6 +43,11 @@ $contract = if ($Errors.Count -eq 0) { Get-Content -Raw $ContractPath | ConvertF
 $manifest = if ($Errors.Count -eq 0) { Get-Content -Raw $ManifestPath | ConvertFrom-Json } else { $null }
 $offers = if ($Errors.Count -eq 0) { Get-Content -Raw $OffersPath | ConvertFrom-Json } else { $null }
 $ip = if ($Errors.Count -eq 0) { Get-Content -Raw $IpPath | ConvertFrom-Json } else { $null }
+$surfaceCompiler = if ($Errors.Count -eq 0) { Get-Content -Raw $SurfaceCompilerPath } else { '' }
+$templateIndex = if ($Errors.Count -eq 0) { Get-Content -Raw $SurfaceIndexTemplate } else { '' }
+$templateAsset = if ($Errors.Count -eq 0) { Get-Content -Raw $SurfaceAssetTemplate } else { '' }
+$compiledIndex = if ($Errors.Count -eq 0) { Get-Content -Raw $CompiledIndex } else { '' }
+$compiledAsset = if ($Errors.Count -eq 0) { Get-Content -Raw $CompiledAsset } else { '' }
 
 if ($contract) {
     if ($contract.surface_rules.server_authoritative_price -ne $true) { $Errors.Add('POLICY:server_authoritative_price') }
@@ -61,6 +74,26 @@ if ($offers) {
     }
 }
 
+if ($surfaceCompiler) {
+    if ($surfaceCompiler -notmatch 'generated_from_templates') { $Errors.Add('SURFACE_COMPILER_NOT_GENERATIVE') }
+    if ($surfaceCompiler -notmatch 'TEMPLATE_INDEX') { $Errors.Add('SURFACE_COMPILER_INDEX_TEMPLATE_MISSING') }
+    if ($surfaceCompiler -notmatch 'TEMPLATE_MARKETPLACE') { $Errors.Add('SURFACE_COMPILER_ASSET_TEMPLATE_MISSING') }
+    if ($surfaceCompiler -match 'compiled_at\s*=\s*new Date\(\)') { $Errors.Add('SURFACE_COMPILER_NONDETERMINISTIC_TIMESTAMP') }
+    if ($surfaceCompiler -match 'must\(file\).*OUT') { $Errors.Add('SURFACE_COMPILER_OUTPUT_PRECONDITION') }
+}
+
+if ($templateIndex -and $compiledIndex) {
+    if ($templateIndex -ne $compiledIndex) { $Errors.Add('SURFACE_OUTPUT_DRIFT:index_differs_from_template') }
+    if ($compiledIndex -notmatch 'compiler-generated public surface') { $Errors.Add('SURFACE_OUTPUT_MARKER_MISSING') }
+    if ($compiledIndex -match 'OFFER-[A-Z0-9-]+') { $Errors.Add('SURFACE_OUTPUT_HARDCODED_OFFER_ID') }
+}
+
+if ($templateAsset -and $compiledAsset) {
+    if ($templateAsset -ne $compiledAsset) { $Errors.Add('SURFACE_OUTPUT_DRIFT:marketplace_asset_differs_from_template') }
+    if ($compiledAsset -notmatch '/api/offers') { $Errors.Add('SURFACE_OUTPUT_MISSING_OFFER_API') }
+    if ($compiledAsset -notmatch '/api/offer-checkout/create') { $Errors.Add('SURFACE_OUTPUT_MISSING_GOVERNED_CHECKOUT') }
+}
+
 if ($ip) {
     $ids = @($ip.capabilities | ForEach-Object { [string]$_.id })
     if (($ids | Sort-Object -Unique).Count -ne $ids.Count) { $Errors.Add('IP_DUPLICATE_IDS') }
@@ -75,6 +108,11 @@ $proof = [ordered]@{
     checked_at_utc = (Get-Date).ToUniversalTime().ToString('o')
     verdict = if ($Errors.Count -eq 0) { 'PASS' } else { 'FAIL' }
     compiler_chain = @('OfferCompiler','SurfaceCompiler','PriceDisplayPatch','Gauntlet','Meta-Gauntlet','Sentinel')
+    surface_generation = [ordered]@{
+        template_owned = ($Errors -notcontains 'SURFACE_COMPILER_NOT_GENERATIVE')
+        deterministic = ($Errors -notcontains 'SURFACE_COMPILER_NONDETERMINISTIC_TIMESTAMP')
+        output_matches_templates = ($Errors -notcontains 'SURFACE_OUTPUT_DRIFT:index_differs_from_template' -and $Errors -notcontains 'SURFACE_OUTPUT_DRIFT:marketplace_asset_differs_from_template')
+    }
     surface_policy = [ordered]@{
         phone_first = [bool]$contract.surface_rules.phone_first_horizontal_carousels
         thumb_first = [bool]$contract.surface_rules.thumb_first_ctas
