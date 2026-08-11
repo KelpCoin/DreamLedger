@@ -4,18 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { KelplantisAdapter, sha256 } = require('./KelplantisAdapter');
+const { definitions: defaultTools, execute: executeTool } = require('./KelplantisTools');
 
 const ROOT = path.join(__dirname, '..');
 const SCHEMA = JSON.parse(fs.readFileSync(path.join(__dirname, 'kelplantis.schema.json'), 'utf8'));
 const PROOF_DIR = path.resolve(process.env.KELPLANTIS_PROOF_DIR || path.join(ROOT, 'data', 'proofs'));
 
-function stableJson(value) {
-  return JSON.stringify(value, Object.keys(value).sort());
-}
-
-function deterministicId(task, models) {
-  return `KELP-${sha256(`${task}|${models.join('|')}`).slice(0, 20).toUpperCase()}`;
-}
+function deterministicId(task, models) { return `KELP-${sha256(`${task}|${models.join('|')}`).slice(0, 20).toUpperCase()}`; }
 
 function validateResult(result) {
   const required = ['task', 'decision', 'confidence', 'findings', 'recommended_action'];
@@ -24,9 +19,7 @@ function validateResult(result) {
   if (typeof result?.confidence !== 'number' || result.confidence < 0 || result.confidence > 1) errors.push('invalid:confidence');
   if (!Array.isArray(result?.findings)) errors.push('invalid:findings');
   if (typeof result?.recommended_action !== 'string' || !result.recommended_action.trim()) errors.push('invalid:recommended_action');
-  if (SCHEMA.additionalProperties === false) {
-    for (const key of Object.keys(result || {})) if (!required.includes(key)) errors.push(`unexpected:${key}`);
-  }
+  if (SCHEMA.additionalProperties === false) for (const key of Object.keys(result || {})) if (!required.includes(key)) errors.push(`unexpected:${key}`);
   return { valid: errors.length === 0, errors };
 }
 
@@ -40,27 +33,26 @@ function consensus(results) {
   const confidence = Number((selected.reduce((sum, x) => sum + x.result.confidence, 0) / selected.length).toFixed(4));
   const findings = [];
   const seen = new Set();
-  for (const item of valid) {
-    for (const finding of item.result.findings) {
-      const key = `${finding.id}|${finding.statement}|${finding.evidence}`;
-      if (!seen.has(key)) { seen.add(key); findings.push(finding); }
-    }
+  for (const item of valid) for (const finding of item.result.findings) {
+    const key = `${finding.id}|${finding.statement}|${finding.evidence}`;
+    if (!seen.has(key)) { seen.add(key); findings.push(finding); }
   }
   findings.sort((a, b) => `${a.severity}:${a.id}`.localeCompare(`${b.severity}:${b.id}`));
   const recommended = [...new Set(selected.map(x => x.result.recommended_action))].sort().join(' | ');
   return { decision, confidence, findings, recommended_action: recommended || 'Review the model evidence before acting.' };
 }
 
-async function runPipeline({ task, prompt, models = [], tools = [] } = {}) {
+async function runPipeline({ task, prompt, models = [], tools = defaultTools } = {}) {
   if (!task || !prompt) throw new Error('task and prompt are required');
   const adapter = new KelplantisAdapter();
   const discovered = await adapter.listModels();
   const available = new Set(discovered.map(model => model.id));
-  const selected = (models.length ? models : discovered.map(model => model.id)).filter(model => available.has(model));
+  const requested = models.length ? models : discovered.slice(0, 3).map(model => model.id);
+  const selected = requested.filter(model => available.has(model));
   if (!selected.length) throw new Error('No requested models are available in LM Studio');
 
   const messages = [
-    { role: 'system', content: 'You are a local Kelplantis verifier. Return only the requested JSON schema. Do not invent evidence. If evidence is insufficient, choose REVIEW.' },
+    { role: 'system', content: 'You are a local Kelplantis verifier. Use the supplied read-only tools when evidence is needed. Return only the requested JSON schema. Do not invent evidence. If evidence is insufficient, choose REVIEW.' },
     { role: 'user', content: prompt }
   ];
   const results = [];
@@ -73,6 +65,7 @@ async function runPipeline({ task, prompt, models = [], tools = [] } = {}) {
         schema: SCHEMA,
         schemaName: 'kelplantis_result',
         tools,
+        toolExecutor: executeTool,
         temperature: 0,
         maxTokens: 1600
       });
@@ -88,26 +81,12 @@ async function runPipeline({ task, prompt, models = [], tools = [] } = {}) {
   const proofId = deterministicId(task, selected);
   fs.mkdirSync(PROOF_DIR, { recursive: true });
   const proof = {
-    type: 'kelplantis-local-multi-model-proof',
-    proof_id: proofId,
-    generated_at: new Date().toISOString(),
-    state: valid.length ? 'PASS' : 'EXTERNAL_BLOCKED',
-    execution_boundary: 'local_only',
-    lmstudio_base_url: adapter.baseUrl,
-    task,
-    selected_models: selected,
-    discovered_models: discovered.map(model => model.id),
-    model_results: results,
-    aggregate,
-    gauntlet: {
-      schema_valid_models: valid.length,
-      minimum_valid_models: 1,
-      passed: valid.length > 0,
-      checkout_untouched: true,
-      public_state_untouched: true
-    },
-    input_sha256: sha256(`${task}\n${prompt}`),
-    proof_sha256: null
+    type: 'kelplantis-local-multi-model-proof', proof_id: proofId, generated_at: new Date().toISOString(),
+    state: valid.length ? 'PASS' : 'EXTERNAL_BLOCKED', execution_boundary: 'local_only', lmstudio_base_url: adapter.baseUrl,
+    task, selected_models: selected, discovered_models: discovered.map(model => model.id),
+    tool_allowlist: tools.map(tool => tool.function?.name).filter(Boolean), model_results: results, aggregate,
+    gauntlet: { schema_valid_models: valid.length, minimum_valid_models: 1, passed: valid.length > 0, checkout_untouched: true, public_state_untouched: true },
+    input_sha256: sha256(`${task}\n${prompt}`), proof_sha256: null
   };
   proof.proof_sha256 = crypto.createHash('sha256').update(JSON.stringify(proof), 'utf8').digest('hex');
   const file = path.join(PROOF_DIR, `${proofId}.json`);
