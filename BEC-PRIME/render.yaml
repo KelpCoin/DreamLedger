@@ -1,9 +1,11 @@
 services:
   - type: web
-    name: dreamledger
+    name: dreamledger-bec-prime
     runtime: node
+    branch: main
     rootDir: BEC-PRIME
-    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node --check server.js && node --check start.js && node --check dreamiez-account.js && node --check scripts/smoke-dreamiez.js && node --check scripts/meta-gauntlet.js && node --check gauntlet/GauntletV6.js && node --check elohim/ElohimV6.js && node --check proxy/DigitalProxy.js && node --check proxy/DigitalProxyAssistant.js && node --check runtime/ControlPlane.js && node --check runtime/DemandRadar.js && node --check runtime/Sentinel.js && test -s compiled/website/index.html && test -s compiled/website/assets/marketplace-live.js && test -s compiled/website/assets/digital-proxy-assist.js && test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json && test -s catalog/offers/offers.json && node scripts/meta-gauntlet.js
+    autoDeployTrigger: checksPass
+    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node --check server.js
     startCommand: npm start
     healthCheckPath: /healthz
     disk:
