@@ -10,10 +10,7 @@ const ROOT = path.join(__dirname, '..');
 let lastBoot = null;
 
 function compile() {
-  const steps = [
-    ['compile:offers', path.join(ROOT, 'compiler', 'OfferCompiler.js')],
-    ['compile:surface', path.join(ROOT, 'compiler', 'SurfaceCompiler.js')]
-  ];
+  const steps = [['compile:offers', path.join(ROOT, 'compiler', 'OfferCompiler.js')], ['compile:surface', path.join(ROOT, 'compiler', 'SurfaceCompiler.js')]];
   const results = [];
   for (const [name, file] of steps) {
     const result = spawnSync(process.execPath, [file], { cwd: ROOT, encoding: 'utf8' });
@@ -30,9 +27,7 @@ function boot() {
   return lastBoot;
 }
 
-function health() {
-  return { control_plane: 'ELOHIM-V6', gauntlet: 'GAUNTLET-V6', digital_proxy: 'approval-gated', boot: lastBoot || { status: 'NOT_BOOTED' } };
-}
+function health() { return { control_plane: 'ELOHIM-V6', gauntlet: 'GAUNTLET-V6', digital_proxy: 'approval-gated', boot: lastBoot || { status: 'NOT_BOOTED' } }; }
 
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
@@ -41,8 +36,7 @@ async function handle(req, res) {
   if (req.method === 'POST' && url === '/api/control/compile') return send(200, boot());
   if (req.method === 'POST' && url === '/api/control/gauntlet') return send(200, gauntlet.run());
   if (req.method === 'POST' && url === '/api/control/elohim/propose') {
-    let body = '';
-    for await (const chunk of req) body += chunk;
+    let body = ''; for await (const chunk of req) body += chunk;
     let input = {}; try { input = JSON.parse(body || '{}'); } catch { return send(400, { error: 'Invalid JSON' }); }
     try { return send(200, await elohim.propose(input)); } catch (err) { return send(400, { error: err.message }); }
   }
@@ -53,7 +47,7 @@ async function handle(req, res) {
   }
   if (req.method === 'POST' && url.startsWith('/api/control/proxy/approve/')) {
     const id = url.slice('/api/control/proxy/approve/'.length);
-    try { return send(200, proxy.approve(id, req.headers['x-human-approver'] || 'human')); } catch (err) { return send(403, { error: err.message }); }
+    try { return send(200, proxy.approve(id, req.headers['x-human-approver'] || 'human', req.headers['x-digital-proxy-token'] || '')); } catch (err) { return send(403, { error: err.message }); }
   }
   return false;
 }
