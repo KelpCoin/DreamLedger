@@ -19,7 +19,7 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 const checkoutLocks = new Map();
 const MIME = { '.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon','.txt':'text/plain; charset=utf-8' };
 fs.mkdirSync(DATA,{recursive:true}); fs.mkdirSync(PROOFS,{recursive:true});
-function send(res,status,body,type='application/json'){res.writeHead(status,{'Content-Type':type,'Cache-Control':'no-store'});if(Buffer.isBuffer(body))return res.end(body);res.end(typeof body==='string'?body:JSON.stringify(body));}
+function send(res,status,body,type='application/json'){if(res.headersSent)return;res.writeHead(status,{'Content-Type':type,'Cache-Control':'no-store'});if(Buffer.isBuffer(body))return res.end(body);res.end(typeof body==='string'?body:JSON.stringify(body));}
 function readJson(file){return JSON.parse(fs.readFileSync(file,'utf8'));}
 function productFiles(){if(!fs.existsSync(CATALOG))return [];return fs.readdirSync(CATALOG).filter(x=>x.endsWith('.json')).map(x=>path.join(CATALOG,x));}
 function loadProducts(){return productFiles().map(readJson);}
@@ -31,7 +31,7 @@ function publicOffer(offer){return{offer_id:offer.offer_id,silo:offer.silo,name:
 function getProduct(id){return loadProducts().find(p=>p.id===id);}
 function getOffer(id){return loadOfferCatalog().offers.find(o=>o.offer_id===id);}
 function safePath(urlPath){const decoded=decodeURIComponent(urlPath);const candidate=path.normalize(path.join(ROOT,decoded));if(candidate!==ROOT&&!candidate.startsWith(ROOT+path.sep))return null;return candidate;}
-function serveFile(res,filePath){fs.readFile(filePath,(err,data)=>{if(err)return send(res,404,'Not Found','text/plain; charset=utf-8');if(filePath===path.join(ROOT,'index.html')){data=Buffer.from(data.toString('utf8').replace('</body>','<script src="/assets/public-marketplace.js"></script></body>'));}send(res,200,data,MIME[path.extname(filePath).toLowerCase()]||'application/octet-stream');});}
+function serveFile(res,filePath){fs.readFile(filePath,(err,data)=>{if(err)return send(res,404,'Not Found','text/plain; charset=utf-8');send(res,200,data,MIME[path.extname(filePath).toLowerCase()]||'application/octet-stream');});}
 function readBody(req){return new Promise((resolve,reject)=>{let data='';req.on('data',chunk=>{data+=chunk;if(data.length>2_000_000)req.destroy();});req.on('end',()=>resolve(data));req.on('error',reject);});}
 function stripeForm(params){const out=new URLSearchParams();for(const[k,v]of Object.entries(params))out.set(k,String(v));return out;}
 async function stripeRequest(endpoint,method,params,idempotencyKey){if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');const headers={Authorization:`Bearer ${STRIPE_SECRET_KEY}`};if(method!=='GET'){headers['Content-Type']='application/x-www-form-urlencoded';if(idempotencyKey)headers['Idempotency-Key']=idempotencyKey;}const response=await fetch(`https://api.stripe.com/v1/${endpoint}`,{method,headers,body:method==='GET'?undefined:stripeForm(params)});const text=await response.text();let body;try{body=JSON.parse(text);}catch{body={raw:text};}if(!response.ok)throw new Error(body?.error?.message||`Stripe API ${response.status}`);return body;}
