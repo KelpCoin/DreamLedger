@@ -1,7 +1,7 @@
 'use strict';
 
-// CUBE surface compiler: generate the public surface from versioned templates
-// and canonical catalogs. The compiled website is an output, never the source.
+// CUBE surface compiler: generate the public surface from versioned templates.
+// Canonical economics stay in the offer catalog; the public surface is output.
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -29,8 +29,7 @@ const AUCTIONS = path.join(ROOT, 'data', 'auctions.json');
 const PROOF = path.join(ROOT, 'PROOF-CUBE-SURFACE-COMPILATION.json');
 
 function must(file) { if (!fs.existsSync(file)) throw new Error(`CUBE surface input missing: ${path.relative(ROOT, file)}`); }
-function digestBuffer(value) { return crypto.createHash('sha256').update(value).digest('hex'); }
-function digest(file) { return digestBuffer(fs.readFileSync(file)); }
+function digest(value) { return crypto.createHash('sha256').update(fs.readFileSync(value)).digest('hex'); }
 function json(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function write(file, content) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content, 'utf8'); }
 
@@ -68,16 +67,16 @@ const templateIndex = fs.readFileSync(TEMPLATE_INDEX, 'utf8');
 const templateMarketplace = fs.readFileSync(TEMPLATE_MARKETPLACE, 'utf8');
 const templateDreamiez = fs.readFileSync(TEMPLATE_DREAMIEZ, 'utf8');
 const templateDreamiezJs = fs.readFileSync(TEMPLATE_DREAMIEZ_JS, 'utf8');
-const templateUcp = fs.readFileSync(TEMPLATE_UCP, 'utf8');
+
 if (!templateIndex.includes('compiler-generated public surface')) throw new Error('CUBE index template missing compiler marker');
-if (!templateIndex.includes('/api/offers')) throw new Error('CUBE index template missing canonical offer API surface');
+if (!templateIndex.includes('public-marketplace.js')) throw new Error('CUBE index template missing marketplace runtime');
 if (!templateMarketplace.includes('/api/offers')) throw new Error('CUBE marketplace template missing canonical offer API');
 if (!templateMarketplace.includes('/api/offer-checkout/create')) throw new Error('CUBE marketplace template missing governed checkout route');
 if (!templateDreamiez.includes('/api/dreamiez/account/create')) throw new Error('CUBE Dreamiez template missing account creation surface');
 if (!templateDreamiez.includes('/api/dreamiez/checkin')) throw new Error('CUBE Dreamiez template missing check-in surface');
 if (!templateDreamiezJs.includes('/api/dreamiez/account/create')) throw new Error('CUBE Dreamiez client missing account API');
 
-// No timestamps, random IDs, runtime state, or internal capability material are injected into public output.
+// Deterministic compilation: no timestamps, random IDs, runtime state, prices, or IP material are injected.
 write(INDEX, templateIndex);
 write(MARKETPLACE, templateMarketplace);
 write(DREAMIEZ, templateDreamiez);
@@ -87,12 +86,24 @@ write(UCP, JSON.stringify(ucpProfile, null, 2) + '\n');
 const build = {
   type: 'dreamledger-cube-surface-compilation', status: 'PASS', compiler: 'CUBE', schema: manifest.schema,
   deterministic: true, generated_from_templates: true,
-  source_of_public_economics: 'catalog/offers/offers.json', source_of_public_capabilities: 'catalog/ip-capabilities.json',
-  source_hashes: { manifest:digest(MANIFEST), offers:digest(OFFERS), ip:digest(IP), news:digest(NEWS), auctions:digest(AUCTIONS), index_template:digest(TEMPLATE_INDEX), marketplace_template:digest(TEMPLATE_MARKETPLACE), dreamiez_template:digest(TEMPLATE_DREAMIEZ), dreamiez_client_template:digest(TEMPLATE_DREAMIEZ_JS), ucp_template:digest(TEMPLATE_UCP) },
+  source_of_public_economics: 'catalog/offers/offers.json',
+  source_of_public_capabilities: 'catalog/ip-capabilities.json',
+  source_hashes: {
+    manifest:digest(MANIFEST), offers:digest(OFFERS), ip:digest(IP), news:digest(NEWS), auctions:digest(AUCTIONS),
+    index_template:digest(TEMPLATE_INDEX), marketplace_template:digest(TEMPLATE_MARKETPLACE),
+    dreamiez_template:digest(TEMPLATE_DREAMIEZ), dreamiez_client_template:digest(TEMPLATE_DREAMIEZ_JS), ucp_template:digest(TEMPLATE_UCP)
+  },
   output_hashes: { index:digest(INDEX), marketplace_runtime:digest(MARKETPLACE), dreamiez:digest(DREAMIEZ), dreamiez_client:digest(DREAMIEZ_JS), ucp:digest(UCP) },
   counts: { capabilities:capabilityCount, offers:offerCount, products:productCount, news_silos:Object.keys(news).length, auctions:auctionCount },
   required_public_surfaces: [...manifest.public_surfaces, '/dreamiez.html', '/.well-known/ucp'],
-  gates: { approval_required_for_activation:manifest.surface_policy.approval_required_for_activation === true, private_material_excluded:manifest.surface_policy.private_material_excluded === true, silo_isolation_required:manifest.surface_policy.silo_isolation_required === true, all_compiled_offers_locked:offerList.every(o => o.approval_required === true && o.checkout_available === false), dreamiez_account_surface_compiled:true, ucp_discovery_profile_compiled:true }
+  gates: {
+    approval_required_for_activation:manifest.surface_policy.approval_required_for_activation === true,
+    private_material_excluded:manifest.surface_policy.private_material_excluded === true,
+    silo_isolation_required:manifest.surface_policy.silo_isolation_required === true,
+    all_compiled_offers_locked:offerList.every(o => o.approval_required === true && o.checkout_available === false),
+    dreamiez_account_surface_compiled:true,
+    ucp_discovery_profile_compiled:true
+  }
 };
 write(PROOF, JSON.stringify(build, null, 2) + '\n');
 console.log(JSON.stringify(build, null, 2));
