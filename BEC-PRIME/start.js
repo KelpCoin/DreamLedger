@@ -90,14 +90,15 @@ http.createServer = function wrappedCreateServer(...args) {
     if (await dreamiezAccount.handle(req, res)) return;
     if (await controlPlane.handle(req, res)) return;
 
-    if (req.method === 'GET' && requestPath === '/') {
+    const publicSurface = req.method === 'GET' && (requestPath === '/' || requestPath === '/shop/' || requestPath === '/mtg/');
+    if (publicSurface) {
       const originalEnd = res.end;
       res.end = function injectedEnd(chunk, encoding, callback) {
         try {
           const contentType = String(res.getHeader('Content-Type') || '');
           if (chunk && contentType.includes('text/html')) {
             let html = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
-            html = html.replace('</body>', '<script src="/assets/dreamiez-account.js"></script><script src="/assets/digital-proxy-assist.js"></script></body>');
+            html = html.replace('</body>', '<script src="/assets/dreamiez-account.js"></script><script src="/assets/digital-proxy-assist.js"></script><script src="/assets/locale-context.js"></script></body>');
             return originalEnd.call(this, html, 'utf8', callback);
           }
         } catch (err) {
