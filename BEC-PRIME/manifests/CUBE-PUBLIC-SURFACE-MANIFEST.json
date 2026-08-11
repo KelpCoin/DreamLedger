@@ -1,0 +1,54 @@
+{
+  "schema": "BEC-PRIME-CUBE-PUBLIC-SURFACE/v1",
+  "status": "compiled",
+  "compiler_role": "CUBE",
+  "purpose": "Expose canonical DreamLedger IP as controlled public surfaces without inventing implementation state or crossing silo boundaries.",
+  "source_catalog": "catalog/ip-capabilities.json",
+  "surface_policy": {
+    "evergreen": true,
+    "boilerplate_reusable": true,
+    "reskin_from_canonical_definitions": true,
+    "server_authoritative_economics": true,
+    "approval_required_for_activation": true,
+    "private_material_excluded": true,
+    "silo_isolation_required": true
+  },
+  "public_surfaces": [
+    {"route":"/","purpose":"Dreamiez marketplace and commerce control surface","silo":"dreamledger"},
+    {"route":"/mtg","purpose":"MTG inventory surface","silo":"mtg"},
+    {"route":"/api/ip","purpose":"machine-readable IP capability catalog","silo":"dreamledger"},
+    {"route":"/api/offers","purpose":"machine-readable commercial offer catalog","silo":"dreamledger"},
+    {"route":"/api/auctions","purpose":"server-authoritative auction lane","silo":"dynamic"},
+    {"route":"/api/news","purpose":"silo-specific ticker/news lane","silo":"dynamic"}
+  ],
+  "capability_ids": [
+    "BEC-PRIME-ARCHITECTURE",
+    "BEC-PRIME-CUBE",
+    "BEC-PRIME-ELOHIM",
+    "BEC-PRIME-GAUNTLET",
+    "BEC-PRIME-TRUTH-PROOF",
+    "BEC-PRIME-REVENUE-OS",
+    "BEC-PRIME-COMMERCE-KERNEL",
+    "BEC-PRIME-AGENT-COMMERCE",
+    "BEC-PRIME-SILO-CONTROL",
+    "BEC-PRIME-PROOF-OF-POWER",
+    "BEC-PRIME-READINESS-AUDIT"
+  ],
+  "account_surface": {
+    "dreamiez_avatar": true,
+    "profile_persistence": "browser_local_until_server_identity_layer_is deployed",
+    "public_claim": "profile UI only; no false claim of server authentication"
+  },
+  "cart_surface": {
+    "persistent_browser_cart": true,
+    "checkout_bridge": "/api/checkout/create",
+    "price_inventory_revalidation": true
+  },
+  "not_claimed_as_live": [
+    "first_payment",
+    "server_authenticated_accounts",
+    "white_label_customer_deployment",
+    "multi_llm_runtime",
+    "x402_settlement"
+  ]
+}
