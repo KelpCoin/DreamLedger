@@ -1,0 +1,88 @@
+name: Dreamiez Production Gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+
+      - name: Install
+        run: npm install
+
+      - name: Compile offers
+        run: npm run compile:offers
+
+      - name: Compile surface
+        run: npm run compile:surface
+
+      - name: Syntax gate
+        run: |
+          node --check server.js
+          node --check start.js
+          node --check dreamiez-account.js
+          node --check scripts/smoke-dreamiez.js
+          node --check gauntlet/GauntletV6.js
+          node --check elohim/ElohimV6.js
+          node --check proxy/DigitalProxy.js
+          node --check runtime/ControlPlane.js
+
+      - name: Dreamiez end-to-end gate
+        run: npm run smoke:dreamiez
+
+      - name: Production asset gate
+        run: |
+          test -s compiled/website/index.html
+          test -s compiled/website/assets/marketplace-live.js
+          test -s catalog/offers/offers.json
+          test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
+
+      - name: Write proof artifact
+        run: |
+          mkdir -p ../proof-artifacts
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const commander = JSON.parse(fs.readFileSync('catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json', 'utf8'));
+          const offers = JSON.parse(fs.readFileSync('catalog/offers/offers.json', 'utf8'));
+          const proof = {
+            type: 'dreamledger-ci-production-gate',
+            status: 'PASS',
+            commit: process.env.GITHUB_SHA,
+            workflow: process.env.GITHUB_WORKFLOW,
+            run_id: process.env.GITHUB_RUN_ID,
+            recorded_at: new Date().toISOString(),
+            gates: {
+              compile_offers: true,
+              compile_surface: true,
+              syntax: true,
+              dreamiez_e2e: true,
+              production_assets: true,
+              commander_canonical_price_cents: commander.price === 1500,
+              commander_currency_nzd: commander.currency === 'nzd',
+              offer_catalog_present: Array.isArray(offers.offers)
+            }
+          };
+          fs.writeFileSync('../proof-artifacts/DREAMIEZ-PRODUCTION-GATE.json', JSON.stringify(proof, null, 2) + '\n');
+          NODE
+
+      - name: Upload proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamiez-production-gate
+          path: proof-artifacts/DREAMIEZ-PRODUCTION-GATE.json
