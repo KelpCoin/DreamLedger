@@ -1,0 +1,30 @@
+name: Dreamiez V2 Smoke
+
+on:
+  push:
+    branches: [main, 'agent/**']
+  pull_request:
+    paths:
+      - 'BEC-PRIME/dreamiez-account.js'
+      - 'BEC-PRIME/dreamiez-kingdom.js'
+      - 'BEC-PRIME/scripts/process-dreamiez-daily.js'
+      - 'BEC-PRIME/scripts/smoke-dreamiez-v2.js'
+      - 'BEC-PRIME/data/dreamiez/**'
+      - 'BEC-PRIME/compiled/website/dreamiez.html'
+      - 'BEC-PRIME/start.js'
+      - '.github/workflows/dreamiez-v2-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run Dreamiez V2 smoke proof
+        working-directory: BEC-PRIME
+        run: node scripts/smoke-dreamiez-v2.js
+      - name: Verify daily processor is executable
+        working-directory: BEC-PRIME
+        run: node scripts/process-dreamiez-daily.js
