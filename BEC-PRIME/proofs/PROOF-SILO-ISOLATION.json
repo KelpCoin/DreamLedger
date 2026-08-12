@@ -1,0 +1,23 @@
+{
+  "schema_version": "BEC-PROOF-1.0",
+  "proof_type": "silo_isolation",
+  "status": "PASS",
+  "checked_utc": "2026-08-12T00:00:00Z",
+  "front_door": "dreamledger.org",
+  "front_door_mode": "neutral",
+  "silos": [
+    "SILO_CRYPTO",
+    "SILO_MEDIA_MUSIC",
+    "SILO_DIGITAL_PRODUCTS",
+    "SILO_MTG"
+  ],
+  "checks": [
+    "Four revenue silo manifests exist.",
+    "Each revenue product declares an explicit silo.",
+    "Cross-silo imports are forbidden by policy.",
+    "DreamLedger front door contains no silo-specific category identity.",
+    "MTG language is confined to the MTG silo policy.",
+    "Crypto silo forbids investment promises and personalized financial advice."
+  ],
+  "note": "Repository-level proof only. Live deployment and live revenue remain unproven until observed."
+}
