@@ -1,0 +1,28 @@
+{
+  "schema_version": "BEC-MONEY-PROOF-1.0",
+  "status": "READY_FOR_HUMAN_SEND",
+  "timestamp_utc": "2026-08-12T00:00:00Z",
+  "offer_id": "AGENTIC-COMMERCE-READINESS-001",
+  "price_nzd": 49,
+  "target": "PC Traders NZ",
+  "target_url": "https://pctraders.co.nz/",
+  "observed_public_evidence": {
+    "catalog": "Public laptop collection lists hundreds of products.",
+    "high_value_target": "Dell Precision 7550 Mobile Workstation",
+    "observed_price_nzd": 2388.99,
+    "observed_stock": 1,
+    "observed_attributes": ["i7-10850H", "64GB RAM", "1TB SSD", "NVIDIA Quadro T1000 4GB", "Windows 11 Pro"],
+    "warranty": "12-month hardware warranty stated publicly",
+    "checkout": "Online add-to-cart/checkout surface publicly visible"
+  },
+  "claim_boundary": "Observed evidence supports targeting; it does not prove an agent-readiness failure or revenue event.",
+  "revenue": {
+    "amount_nzd": 0,
+    "verified_payment": false,
+    "first_payment_proof": null
+  },
+  "outreach": {
+    "automated_send": false,
+    "human_approval_required": true
+  }
+}
