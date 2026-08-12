@@ -1,0 +1,36 @@
+{
+  "schema_version": "BEC-AUTONOMOUS-REFINERY-1.0",
+  "refinery": {
+    "endpoint": "http://127.0.0.1:1234",
+    "roles": {
+      "proposer": "qwen2.5-7b-instruct",
+      "critic": "qwen2.5-14b-instruct",
+      "synthesizer": "qwen2.5-7b-instruct",
+      "monetizer": "qwen2.5-14b-instruct"
+    },
+    "max_iterations": 5,
+    "temperature": 0.2,
+    "signal": "Commander players want a cheap deck audit before spending money on upgrades.",
+    "silo": "mtg"
+  },
+  "memory": {
+    "path": "D:\\BrownEyeCortex\\BEC-PRIME\\memory\\refinery_memory.jsonl"
+  },
+  "paths": {
+    "root": "D:\\BrownEyeCortex\\BEC-PRIME",
+    "candidate_dir": "D:\\BrownEyeCortex\\BEC-PRIME\\autonomy\\REFINERY\\CANDIDATES",
+    "proof_dir": "D:\\BrownEyeCortex\\BEC-PRIME\\autonomy\\REFINERY\\PROOFS",
+    "log_dir": "D:\\BrownEyeCortex\\BEC-PRIME\\autonomy\\REFINERY\\LOGS",
+    "approved_draft_dir": "D:\\BrownEyeCortex\\BEC-PRIME\\catalog\\offers\\REFINERY_APPROVED_DRAFTS"
+  },
+  "gauntlet": {
+    "script": "D:\\BrownEyeCortex\\BEC-PRIME\\gauntlet\\CandidateGauntlet.js"
+  },
+  "execution_policy": {
+    "auto_publish": false,
+    "auto_checkout": false,
+    "auto_outreach": false,
+    "auto_payment_claims": false,
+    "on_pass": "write_internal_draft_only"
+  }
+}
