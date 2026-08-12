@@ -1,30 +1,31 @@
 {
-  "schema": "BEC-PRIME/IP-ECONOMIC-TREE-COMPILATION/v1",
-  "status": "CANONICAL",
+  "schema": "BEC-PRIME/IP-ECONOMIC-TREE-COMPILATION/v2",
+  "status": "CANONICAL_PUBLIC_CONTRACT",
   "public_surface": "DreamLedger",
   "compiler_authority": "BEC-PRIME",
+  "exposure_policy": "ABSTRACT_ONLY",
   "ip_nodes": [
-    {"id":"constitution","path":"BEC-PRIME/CONSTITUTION/BEC_PRINCIPLES.json","role":"trust-and-approval rules"},
-    {"id":"cube","path":"BEC-PRIME/compiler/","role":"canonical-to-surface compilation"},
-    {"id":"refinery","path":"BEC-PRIME/","role":"proposer-critic-synthesizer-monetizer refinement"},
-    {"id":"gauntlet","path":"BEC-PRIME/scripts/","role":"deterministic adversarial gate"},
-    {"id":"commerce-spine","path":"","role":"signal-to-checkout-to-payment-to-proof"},
-    {"id":"fossils","path":"data/proofs/","role":"verified economic evidence"},
-    {"id":"economic-memory","path":"BEC-PRIME/economics/","role":"persistent economic state and feedback"},
-    {"id":"silos","path":"BEC-PRIME/catalog/","role":"isolated Dreamiez, Kelp Atlantis, MTG and future surfaces"}
+    {"id":"constitution","public_role":"trust and approval policy","exposure":"ABSTRACT_ONLY"},
+    {"id":"compiler","public_role":"canonical state to public surface compilation","exposure":"ABSTRACT_ONLY"},
+    {"id":"refinement","public_role":"demand and offer refinement","exposure":"ABSTRACT_ONLY"},
+    {"id":"verification","public_role":"deterministic candidate verification","exposure":"ABSTRACT_ONLY"},
+    {"id":"commerce","public_role":"signal to checkout to payment to proof","exposure":"ABSTRACT_ONLY"},
+    {"id":"evidence","public_role":"verified economic evidence","exposure":"ABSTRACT_ONLY"},
+    {"id":"memory","public_role":"persistent economic state and feedback","exposure":"ABSTRACT_ONLY"},
+    {"id":"silos","public_role":"isolated commercial worlds","exposure":"ABSTRACT_ONLY"}
   ],
   "economic_loop": [
     "DEMAND",
     "REFINE",
-    "GAUNTLET",
+    "VERIFY",
     "COMPILE",
     "DISTRIBUTE",
     "CHECKOUT",
     "PAYMENT",
-    "FOSSIL",
+    "PROOF",
     "MEMORY",
     "ITERATE"
   ],
   "truth_boundary": "A checkout URL is an offer surface. Revenue is only proven by a real payment event and valid webhook-derived proof.",
-  "public_boundary": "No secrets, credentials, private customer data, or unapproved external actions are compiled into the public surface."
+  "public_boundary": "Only abstract architecture, public product information, hashes, and verified state may cross the public boundary. Secrets, credentials, customer data, private implementation paths, private prompts, proprietary model configuration, and unapproved external actions must never be compiled into the public surface."
 }
