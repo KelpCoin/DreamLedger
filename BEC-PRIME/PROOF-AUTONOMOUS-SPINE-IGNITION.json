@@ -1,0 +1,21 @@
+{
+  "schema": "BEC-AUTONOMOUS-SPINE-IGNITION-1",
+  "status": "IMPLEMENTED",
+  "commit": "55b97d50c993652d8fb36df3164196731e3429ac",
+  "layers": {
+    "L1_sensors": "catalog/products + demand radar",
+    "L2_brain": "SniperLoop + Elohim + FirstSaleGate",
+    "L3_factory": "BuilderBoss action packs",
+    "L4_commerce": "buyer-initiated Stripe checkout + webhook",
+    "L5_ledger": "Verifier fossil schema + existing revenue ledger"
+  },
+  "loops": {
+    "sniper": "payment path, approval, inventory, publication and price gate",
+    "gauntlet": "deterministic first-sale hardening before checkout exposure",
+    "evolution": "MacroEngine -> action pack -> local autonomy cycle -> evidence"
+  },
+  "public_execution": "approval-gated",
+  "settlement": "buyer-initiated",
+  "next_hard_gate": "real Stripe test payment producing a transaction_id fossil",
+  "verification_command": "cd BEC-PRIME && npm run smoke:autonomy"
+}
