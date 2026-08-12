@@ -1,0 +1,30 @@
+{
+  "schema_version": "CUBE-MONEY-FLEET-1.0",
+  "neutral_host": "dreamledger",
+  "activation_requires_payment_rail": true,
+  "revenue_claim_requires_verified_payment": true,
+  "silos": [
+    {"id":"mtg","label":"Magic: The Gathering","offer":"Commander Deck Diagnostic","price_nzd":49},
+    {"id":"crypto","label":"Crypto","offer":"Crypto Market Research Brief","price_nzd":49},
+    {"id":"media_music","label":"Media and Music","offer":"Creator Media + Music Kit","price_nzd":49},
+    {"id":"digital_products","label":"Digital Products","offer":"Local Automation Starter Kit","price_nzd":49}
+  ],
+  "isolation": {
+    "catalog": true,
+    "checkout": true,
+    "customer_data": true,
+    "analytics": true,
+    "content": true,
+    "promotion": true,
+    "credentials": true,
+    "cross_silo_offers": false,
+    "dreamledger_brand_neutral": true
+  },
+  "forbidden_public_material": [
+    "BEC-PRIME/catalog/ip-capabilities.json",
+    ".env",
+    ".env.*",
+    "secrets/",
+    "proofs/private/"
+  ]
+}
