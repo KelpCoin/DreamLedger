@@ -8,10 +8,10 @@
   button.addEventListener('click',async function(){
     button.setAttribute('aria-busy','true');button.disabled=true;error.style.display='none';
     try{
-      var response=await fetch('/api/offer-checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:'COMMANDER-DECK-DIAGNOSTIC-001'})});
+      var response=await fetch('/api/checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:'COMMANDER-DECK-DIAGNOSTIC-001',silo:'mtg'})});
       var data=await response.json();
-      if(!response.ok || !data.url) throw new Error(data.error || 'Checkout is not currently available.');
-      window.location.href=data.url;
+      if(!response.ok || !data.checkout_url) throw new Error(data.error || 'Checkout is not currently available.');
+      window.location.href=data.checkout_url;
     }catch(e){error.textContent=e.message || 'Checkout is not currently available.';error.style.display='block';button.removeAttribute('aria-busy');button.disabled=false;}
   });
 })();
