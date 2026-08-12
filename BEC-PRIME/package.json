@@ -4,6 +4,7 @@
   "description": "DreamLedger sovereign omni-commerce engine",
   "main": "server.js",
   "scripts": {
+    "build": "npm run compile",
     "compile": "node compiler/OfferCompiler.js && node compiler/QRCompiler.js && node compiler/OmniCommerceCompiler.js && node compiler/SurfaceCompiler.js && node compiler/PriceDisplayPatch.js && node compiler/PublicSurfaceContractPatch.js && node compiler/SiloPortfolioCompiler.js && node scripts/verify-public-surface.js",
     "start": "npm run compile && node -r ./lib/qrPreload.js start.js",
     "compile:offers": "node compiler/OfferCompiler.js",
