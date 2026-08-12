@@ -1,0 +1,16 @@
+{
+  "schema_version": "CUBE-MONEY-SURFACES-1.0",
+  "silos": {
+    "mtg": ["deck_diagnostics", "inventory_services", "collector_digital_products"],
+    "crypto": ["research_reports", "treasury_tools", "risk_diagnostics"],
+    "media_music": ["digital_releases", "production_assets", "creator_tools"],
+    "digital_products": ["templates", "automation_kits", "business_diagnostics"]
+  },
+  "commercial_ladder": [49,149,499,999],
+  "constraints": {
+    "payment_required_for_revenue_claim": true,
+    "public_posting_requires_approval": true,
+    "cross_silo_catalog_mix": false,
+    "dreamledger_neutral": true
+  }
+}
