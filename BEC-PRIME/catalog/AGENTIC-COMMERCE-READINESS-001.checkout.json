@@ -1,0 +1,11 @@
+{
+  "offer_id": "AGENTIC-COMMERCE-READINESS-001",
+  "title": "Agentic Commerce Readiness Audit",
+  "price_nzd": 49,
+  "currency": "NZD",
+  "approval_required": true,
+  "checkout_available": false,
+  "silo": "PUBLIC_COMMERCE",
+  "status": "READY_FOR_APPROVAL",
+  "note": "Non-MTG first-sale target. Enable checkout only after explicit approval and live payment configuration verification."
+}
