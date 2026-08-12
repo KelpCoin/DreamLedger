@@ -1,0 +1,16 @@
+{
+  "schema_version": "CUBE-INITIAL-OFFERS-1.0",
+  "status": "draft_not_activated",
+  "silos": {
+    "mtg": {"offer_id":"MTG-DECK-DIAGNOSTIC-049","name":"Commander Deck Diagnostic","price_nzd":49,"type":"digital_service"},
+    "crypto": {"offer_id":"CRYPTO-MARKET-RESEARCH-049","name":"Crypto Market Research Brief","price_nzd":49,"type":"research_only","disclaimer":"Information and research only; not financial advice."},
+    "media_music": {"offer_id":"MEDIA-MUSIC-PRODUCTION-KIT-049","name":"Creator Media and Music Production Kit","price_nzd":49,"type":"digital_product"},
+    "digital_products": {"offer_id":"DIGITAL-AUTOMATION-KIT-049","name":"Local Automation Starter Kit","price_nzd":49,"type":"digital_product"}
+  },
+  "rules": [
+    "Each offer belongs to exactly one silo.",
+    "No offer may import another silo's catalog or customer data.",
+    "All offers remain draft until explicitly activated.",
+    "No revenue claim without verified payment evidence."
+  ]
+}
