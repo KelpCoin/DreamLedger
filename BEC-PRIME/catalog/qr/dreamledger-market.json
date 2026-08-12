@@ -1,0 +1,25 @@
+{
+  "id": "dl-market-001",
+  "type": "url",
+  "destination": "https://dreamledger.org/marketplace/",
+  "label": "DreamLedger Marketplace",
+  "campaign": "omni-commerce-v1",
+  "dynamic": true,
+  "distribution": [
+    "product_packaging",
+    "invoices",
+    "business_cards",
+    "event_signage",
+    "retail_counter",
+    "email_receipts",
+    "desktop_displays"
+  ],
+  "cta": "Scan to shop the market",
+  "language": "en",
+  "translation_fallback": "en",
+  "tracking": {
+    "channel_required": true,
+    "campaign_required": true,
+    "placement_required": true
+  }
+}
