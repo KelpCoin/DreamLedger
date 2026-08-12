@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BEC CUBE Clone Manifest",
+  "type": "object",
+  "required": ["cube_version", "silo_name", "product_name", "price_nzd", "stripe_product_id", "domain", "repo_name", "surface", "status"],
+  "properties": {
+    "cube_version": {"type": "string"},
+    "silo_name": {"type": "string", "pattern": "^[a-z0-9_-]+$"},
+    "product_name": {"type": "string", "minLength": 1},
+    "price_nzd": {"type": "integer", "minimum": 1},
+    "stripe_product_id": {"type": "string"},
+    "domain": {"type": "string"},
+    "repo_name": {"type": "string"},
+    "surface": {"type": "string"},
+    "status": {"enum": ["template", "approved", "deployed", "retired"]},
+    "source_template": {"type": "string"},
+    "isolation": {"type": "boolean"}
+  },
+  "additionalProperties": true
+}
