@@ -1,0 +1,29 @@
+{
+  "proof_type": "IP_PUBLIC_SURFACE",
+  "timestamp": "2026-08-12",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "status": "PASS",
+  "changes": [
+    "Published BEC-PRIME/IP-MANIFEST.md",
+    "Published engine.html",
+    "Updated index.html to expose the BEC-PRIME engine surface"
+  ],
+  "ip_components_exposed": [
+    "Constitution",
+    "CUBE compiler",
+    "multi-LLM refinement",
+    "persistent economic memory",
+    "Browning Gauntlet",
+    "Commerce Spine",
+    "Fossil evidence",
+    "silo architecture"
+  ],
+  "revenue_truth": "No revenue is claimed by this artifact. FIRST_PAYMENT_PROOF.json remains reserved for a real successful payment and signed webhook.",
+  "public_surface": "/engine.html",
+  "verification": [
+    "GET https://dreamledger.org/",
+    "GET https://dreamledger.org/engine.html",
+    "GET https://dreamledger.org/BEC-PRIME/IP-MANIFEST.md"
+  ]
+}
