@@ -1,0 +1,22 @@
+{
+  "schema": "BEC-HUMANISER-TAX-LEDGER-PROOF-1",
+  "status": "IMPLEMENTED",
+  "humaniser": {
+    "external_products_required": true,
+    "minimum_human_footprints": 2,
+    "incomplete_action": "queue/humaniser/waiting",
+    "approved_action": "queue/humaniser/approved",
+    "robot_smell": "ERODED_ONLY_AFTER_TWO_SUBSTANTIVE_FOOTPRINTS"
+  },
+  "tax_ledger": {
+    "event_source": "verified Stripe checkout.session.completed payment",
+    "idempotent": true,
+    "gst_calculation": "inclusive gross: gross * rate / (1 + rate)",
+    "default_rate": 0.15,
+    "operator_verification_required": true,
+    "ledger_path_env": "TAX_LEDGER_PATH",
+    "business_entity_env": "TAX_BUSINESS_ENTITY",
+    "registration_status_env": "GST_REGISTRATION_STATUS"
+  },
+  "truth_boundary": "No payment, buyer, revenue, or GST registration is claimed by this artifact. It proves code-path implementation only."
+}
