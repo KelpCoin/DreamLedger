@@ -1,0 +1,10 @@
+{
+  "silo_id": "SILO_CRYPTO",
+  "name": "Crypto",
+  "description": "Crypto research, security, tooling and digital education. No investment promises or personalized financial advice.",
+  "domain": "crypto.dreamledger.org",
+  "allowed_product_classes": ["research_pack", "security_checklist", "tooling", "education"],
+  "forbidden_cross_silo_imports": ["mtg", "media_music", "digital_products", "dreamiez", "adult"],
+  "currency": "NZD",
+  "approval_required": true
+}
