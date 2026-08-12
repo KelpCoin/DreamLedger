@@ -6,9 +6,9 @@
   "price": 500,
   "currency": "nzd",
   "inventory": 1,
-  "status": "candidate",
-  "checkout_available": false,
-  "approval_required": true,
+  "status": "published",
+  "checkout_available": true,
+  "approval_required": false,
   "commercial_truth": {
     "pricing_status": "proposed_candidate_price",
     "payment_surface": "engine-generated-stripe-checkout",
