@@ -1,0 +1,58 @@
+name: DreamLedger E-Commerce Smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  compile-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm install
+
+      - name: Compile canonical commerce surface
+        run: npm run build
+
+      - name: Assert general DreamLedger surface
+        shell: bash
+        run: |
+          test -f BEC-PRIME/compiled/website/index.html
+          grep -qi "One commerce engine. Many worlds." BEC-PRIME/compiled/website/index.html
+          ! grep -Eiq "magic the gathering|mtg shop|commander deck" BEC-PRIME/compiled/website/index.html
+          test -f BEC-PRIME/PROOF-CUBE-SURFACE-COMPILATION.json
+
+      - name: Start runtime
+        env:
+          PORT: 4173
+        run: |
+          npm start > /tmp/dreamledger.log 2>&1 &
+          echo $! > /tmp/dreamledger.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/api/offers > /tmp/offers.json; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173/ > /tmp/home.html
+          cat /tmp/offers.json
+
+      - name: Assert paid offer exists
+        shell: bash
+        run: |
+          grep -q 'AGENTIC-COMMERCE-READINESS-001' /tmp/offers.json
+          grep -q '49' /tmp/offers.json
+          grep -q 'checkout_available' /tmp/offers.json
+
+      - name: Dump runtime log on failure
+        if: failure()
+        run: cat /tmp/dreamledger.log || true
