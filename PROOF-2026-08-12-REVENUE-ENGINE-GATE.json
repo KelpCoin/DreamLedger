@@ -1,0 +1,20 @@
+{
+  "schema_version": "BEC-PROOF-1.0",
+  "event": "revenue_engine_gate",
+  "status": "PASS",
+  "evidence_level": 0,
+  "asset_id": "AGENTIC-COMMERCE-READINESS-001",
+  "price_minor": 4900,
+  "currency": "nzd",
+  "checkout_available": true,
+  "approval_required": false,
+  "canonical_product": "BEC-PRIME/catalog/products/AGENTIC-COMMERCE-READINESS-001.json",
+  "checkout_route": "/api/checkout/create",
+  "webhook_route": "/webhook",
+  "health_route": "/healthz",
+  "master_surface": "CUBE-first general DreamLedger ecosystem",
+  "mtg_master_surface_exclusion": true,
+  "real_transaction_id": null,
+  "note": "Readiness proof only. This is not a payment claim. Level 1 payment evidence requires a real successful Stripe checkout.session.completed event.",
+  "timestamp_utc": "2026-08-12T03:00:00Z"
+}
