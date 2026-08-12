@@ -1,0 +1,24 @@
+{
+  "proof_type": "BACKUP_INTEGRITY_REPAIR",
+  "timestamp_utc": "2026-08-12T06:22:00Z",
+  "status": "PASS",
+  "repository": "KelpCoin/DreamLedger",
+  "main_after_repair": "01874f1976c73b229a1c5a0c60348d4c44a0761f",
+  "protected_snapshots": [
+    {
+      "branch": "backup/2026-08-12-main-5556863",
+      "commit": "55568633b41297a34f930bf1a325157eb23634be"
+    },
+    {
+      "branch": "backup/2026-08-12-neutral-carousel-7c0bf84",
+      "commit": "7c0bf848d10e170fef982e4c25ec4d8ed5d58ff8"
+    },
+    {
+      "branch": "backup/2026-08-12-pre-surface-287353f",
+      "commit": "287353f92c6f6cd1840735a1002b692ba945000d"
+    }
+  ],
+  "protected_ip_refs_recorded": 8,
+  "revenue_truth_restoration": "forbidden_without_payment_evidence",
+  "next_verification": "D:\\BrownEyeCortex\\BEC-PRIME\\scripts\\Verify-DreamLedgerBackups.ps1"
+}
