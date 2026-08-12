@@ -1,0 +1,24 @@
+{
+  "schema_version": "BEC-FIRST-PAYMENT-DRIVER-1.0",
+  "status": "CHECKOUT_WIRING_PASS_PAYMENT_UNPROVEN",
+  "objective": "ONE_REAL_PAYMENT",
+  "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "price": 25,
+  "currency": "NZD",
+  "checkout_route": "/api/checkout/create",
+  "payment_provider": "stripe",
+  "source_file": "commander-diagnostic.html",
+  "commit": "8dc03221c71a522ffa79a4d5488daa4caab2491c",
+  "verified_facts": [
+    "CTA sends product_id COMMANDER-DECK-DIAGNOSTIC-001",
+    "CTA sends silo mtg",
+    "CTA expects checkout_url from the live checkout endpoint",
+    "Product is published and approval_required is false"
+  ],
+  "payment_proof": {
+    "status": "MISSING",
+    "transaction_id": null,
+    "first_payment_fossil": "D:\\BrownEyeCortex\\BEC-PRIME\\Proof\\Fossils\\FIRST_PAYMENT_PROOF.json"
+  },
+  "next_gate": "Configure live Stripe credentials and complete one genuine checkout"
+}
