@@ -16,6 +16,7 @@
     "compile:silos": "node compiler/SiloPortfolioCompiler.js",
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
+    "smoke:production": "node scripts/smoke-production.js",
     "gauntlet": "node scripts/meta-gauntlet.js",
     "autonomy:cycle": "node autonomy/RevenueAutonomy.js",
     "autonomy:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Install-Autonomy.ps1",
