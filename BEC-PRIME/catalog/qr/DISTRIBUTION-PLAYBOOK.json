@@ -1,0 +1,23 @@
+{
+  "schema": "dreamledger/qr-distribution/v1",
+  "canonical_rule": "Use dynamic QR destinations only",
+  "language": {"canonical": "en", "fallback": "en", "translations_source": "catalog/translations"},
+  "placement_rules": {
+    "quiet_zone_required": true,
+    "cta_required": true,
+    "scan_test_required": true,
+    "distance_test_required": true,
+    "glossy_surface_test_required": true
+  },
+  "channels": [
+    {"id":"packaging","goal":"repeat_purchase","priority":1,"cta":"Scan to shop or learn more"},
+    {"id":"receipt","goal":"retention","priority":1,"cta":"Scan for your order doorway"},
+    {"id":"invoice","goal":"retention","priority":1,"cta":"Scan to manage your order"},
+    {"id":"retail_counter","goal":"conversion","priority":1,"cta":"Scan to shop the market"},
+    {"id":"event_signage","goal":"discovery","priority":2,"cta":"Scan to discover the market"},
+    {"id":"business_card","goal":"discovery","priority":2,"cta":"Scan to enter DreamLedger"},
+    {"id":"desktop_display","goal":"conversion","priority":2,"cta":"Scan to continue on your phone"}
+  ],
+  "analytics": ["scan_count","unique_scans","channel","campaign","placement","device","time","conversion"],
+  "optimization": "Retain winners, retire weak placements, never reprint a static destination when a dynamic doorway exists."
+}
