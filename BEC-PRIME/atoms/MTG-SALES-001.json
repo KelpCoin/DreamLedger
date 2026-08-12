@@ -1,0 +1,32 @@
+{
+  "atom_id": "MTG-SALES-001",
+  "version": "1.0",
+  "silo": "MTG",
+  "objective": "Obtain the first legitimate NZD payment for the Commander Deck Diagnostic",
+  "offer_id": "MTG-DIAGNOSTIC-NZD-25",
+  "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "price_nzd": 25,
+  "action": "VERIFY_CHECKOUT",
+  "estimated_minutes": 10,
+  "expected_revenue_nzd": 25,
+  "requires_human_approval": false,
+  "public_action": false,
+  "success_condition": "checkout_verified",
+  "failure_condition": "checkout_unavailable",
+  "proof_required": true,
+  "next_on_success": "MTG-SALES-002",
+  "next_on_failure": "MTG-FIX-CHECKOUT-001",
+  "revenue_truth": {
+    "verified_revenue_nzd": 0,
+    "payment_count": 0,
+    "first_payment_proof": false,
+    "transaction_id": null
+  },
+  "guardrails": {
+    "no_synthetic_payment": true,
+    "no_synthetic_fossil": true,
+    "public_outreach_requires_human_approval": true,
+    "rabbit_mode_requires_three_independent_payments": true
+  },
+  "status": "pending"
+}
