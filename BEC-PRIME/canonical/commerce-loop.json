@@ -1,0 +1,23 @@
+{
+  "schema": "dreamledger/commerce-loop/v1",
+  "loop": [
+    "SIGNAL",
+    "DEMAND_CALIBRATION",
+    "SKU_CANDIDATE",
+    "GAUNTLET",
+    "APPROVAL",
+    "PUBLISH",
+    "DISCOVERY",
+    "CHECKOUT",
+    "SETTLEMENT",
+    "FULFILMENT",
+    "PROOF",
+    "FEEDBACK"
+  ],
+  "terminal_rules": {
+    "no_payment_without_checkout": true,
+    "no_proven_revenue_without_verified_payment": true,
+    "no_public_publish_without_approval": true,
+    "no_cross_silo_data": true
+  }
+}
