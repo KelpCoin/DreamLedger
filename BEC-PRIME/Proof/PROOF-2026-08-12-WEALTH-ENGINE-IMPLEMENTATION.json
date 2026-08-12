@@ -1,0 +1,30 @@
+{
+  "schema_version": "BEC-IMPLEMENTATION-PROOF-1.0",
+  "event": "wealth_engine.implementation_committed",
+  "status": "IMPLEMENTED_NOT_RUNTIME_VERIFIED",
+  "truth_boundary": {
+    "architecture": "specified",
+    "candidate_offer": "implemented",
+    "gauntlet_runner": "implemented",
+    "surface_audit": "implemented",
+    "runtime_execution": "not_run_in_this_environment",
+    "production_deployment": "not_claimed",
+    "verified_revenue_nzd": 0,
+    "first_payment_fossil": "not_claimed"
+  },
+  "changed_files": [
+    "BEC-PRIME/catalog/products/BEC-SURFACE-AUDIT-500.json",
+    "BEC-PRIME/scripts/Run-SurfaceAudit.ps1",
+    "BEC-PRIME/scripts/Run-WealthEngineGauntlet.ps1",
+    "BEC-PRIME/scripts/Verify-WealthEngine.ps1"
+  ],
+  "guards": [
+    "candidate remains approval-gated",
+    "candidate checkout remains disabled",
+    "no transaction_id is invented",
+    "Gauntlet is a required gate for candidate activation",
+    "neutral root remains separate from MTG inventory"
+  ],
+  "runtime_blocker": "The connected GitHub environment can write repository state but cannot execute the Windows PowerShell runtime against the branch.",
+  "created_at_utc": "2026-08-12T00:00:00Z"
+}
