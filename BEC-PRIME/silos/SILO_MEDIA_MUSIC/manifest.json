@@ -1,0 +1,10 @@
+{
+  "silo_id": "SILO_MEDIA_MUSIC",
+  "name": "Media & Music",
+  "description": "Creator media, music, licensing-ready assets and production resources.",
+  "domain": "media.dreamledger.org",
+  "allowed_product_classes": ["audio_pack", "beat", "license", "media_pack", "production_resource"],
+  "forbidden_cross_silo_imports": ["mtg", "crypto", "digital_products", "dreamiez", "adult"],
+  "currency": "NZD",
+  "approval_required": true
+}
