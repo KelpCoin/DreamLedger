@@ -1,0 +1,16 @@
+{
+  "type": "bec-prime-execution-proof",
+  "version": "2.0.0",
+  "timestamp_utc": "2026-08-12T00:00:00Z",
+  "status": "READY_FOR_REAL_PAYMENT",
+  "silo": "MTG",
+  "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "price_nzd": 25,
+  "checkout_permission": true,
+  "public_outreach_permission": false,
+  "verified_revenue_nzd": 0,
+  "payment_count": 0,
+  "evidence_boundary": "No payment claim exists until Stripe checkout.session.completed webhook writes a Fossil with transaction_id.",
+  "github_commit_scope": ["autonomy/OFFERS.json","atoms/ATOM_QUEUE.json","atoms/ATOM_STATE.json","atoms/Run-AtomEngine.ps1"],
+  "next_atom": "MTG-001"
+}
