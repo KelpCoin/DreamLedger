@@ -1,0 +1,10 @@
+{
+  "silo_id": "SILO_DIGITAL_PRODUCTS",
+  "name": "Digital Products",
+  "description": "Standalone templates, guides, checklists, calculators and small business digital goods.",
+  "domain": "digital.dreamledger.org",
+  "allowed_product_classes": ["template", "guide", "checklist", "calculator", "workflow_pack"],
+  "forbidden_cross_silo_imports": ["mtg", "crypto", "media_music", "dreamiez", "adult"],
+  "currency": "NZD",
+  "approval_required": true
+}
