@@ -1,0 +1,21 @@
+{
+  "schema": "dreamledger/ip-manifest/v1",
+  "purpose": "Executable registry for proprietary commerce, discovery, asset, governance and proof concepts.",
+  "layers": {
+    "commerce": ["SKU_FACTORY", "OFFER_COMPILER", "CONVERSION_ROUTER", "FULFILMENT_ENGINE", "LEDGER_SYSTEM"],
+    "demand": ["DEMAND_RADAR", "PAIN_CLUSTER_ENGINE", "DEMAND_CALIBRATOR", "EXPOSURE_ENGINE", "FEEDBACK_ENGINE"],
+    "assets": ["CANONICAL_ASSET_SCHEMA", "ELOHIM_REFINERY", "GAUNTLET", "SHARED_AVATAR_ECOSYSTEM"],
+    "intelligence": ["TRI_LLM", "PROPOSER", "CRITIC", "SYNTHESIZER", "MONETIZER", "HUMANIZER"],
+    "governance": ["APPROVAL_GOVERNOR", "SILO_BOUNDARIES", "TRUTH_ORACLE", "TREASURY_GOVERNOR"],
+    "proof": ["EVENT_SOURCED_LEDGER", "PROOF_ARTIFACTS", "RECOVERY_ARTIFACTS", "DEPLOYMENT_GATES"]
+  },
+  "rules": {
+    "ip_becomes_runtime": true,
+    "public_surface_excludes_private_doctrine": true,
+    "public_actions_require_approval": true,
+    "silos_are_isolated": true,
+    "economic_events_require_evidence": true,
+    "canonical_ids_are_stable": true
+  },
+  "compilation": "CORE + SILO + CATALOG + BRAND + POLICY + ASSETS + OFFER_RULES -> DEPLOYABLE_SURFACE"
+}
