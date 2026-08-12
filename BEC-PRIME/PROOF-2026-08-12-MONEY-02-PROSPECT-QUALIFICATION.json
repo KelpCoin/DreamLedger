@@ -1,0 +1,15 @@
+{
+  "proof_type":"MONEY_02_PROSPECT_QUALIFICATION",
+  "date":"2026-08-12",
+  "branch":"money/agentic-readiness-acquisition",
+  "offer":"AGENTIC-COMMERCE-READINESS-001",
+  "price_nzd":49,
+  "market_evidence":["Shopify reported strong AI-related commerce momentum in 2026.","Agentic commerce protocols and merchant-readiness programs are active in 2026.","Open-source tooling now exists for scoring AI/agent readiness."],
+  "commercial_rule":"Lead with an observable merchant gap, not protocol jargon.",
+  "target_score":14,
+  "revenue_nzd":0,
+  "transaction_id":null,
+  "first_payment_proof":"NOT_YET_CREATED",
+  "public_posting":"approval_required",
+  "next_gate":"qualify real businesses and obtain the first verified NZD 49 payment"
+}
