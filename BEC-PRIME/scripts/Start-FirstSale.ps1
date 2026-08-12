@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [string]$BaseUrl = 'https://dreamledger.org',
-    [string]$ProductId = 'AGENTIC-COMMERCE-READINESS-001',
+    [string]$ProductId = 'COMMANDER-DECK-DIAGNOSTIC-001',
     [string]$ProofPath = 'D:\BrownEyeCortex\BEC-PRIME\RUN-PROOFS\FIRST-CHECKOUT-ATTEMPT.json'
 )
 
@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 $BaseUrl = $BaseUrl.TrimEnd('/')
 $started = Get-Date
 $result = [ordered]@{
-    launcher = 'BEC-PRIME Start-FirstSale v2.0'
+    launcher = 'BEC-PRIME Start-FirstSale v2.1'
     started_at_utc = $started.ToUniversalTime().ToString('o')
     base_url = $BaseUrl
     product_id = $ProductId
