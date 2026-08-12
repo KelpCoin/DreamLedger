@@ -1,0 +1,14 @@
+{
+  "schema": "dreamledger/asset-avatar-contract/v1",
+  "identity": "canonical_sku_id",
+  "shared_ecosystem": ["DREAMIEZ", "KELP_ATLANTIS"],
+  "asset_types": ["AVATAR", "COSMETIC", "ARMOR", "TSHIRT", "COLLECTIBLE"],
+  "lifecycle": ["DEMAND_SEEDED", "SPECIFIED", "PRODUCED", "REFINED", "GAUNTLET", "APPROVED", "PUBLISHED", "OWNED"],
+  "requirements": {
+    "stable_sku": true,
+    "lineage": true,
+    "demand_signal": true,
+    "gauntlet_verdict": true,
+    "account_ownership": true
+  }
+}
