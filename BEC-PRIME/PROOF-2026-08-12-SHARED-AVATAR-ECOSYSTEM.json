@@ -1,0 +1,36 @@
+{
+  "schema": "BEC-PRIME/PROOF/v1",
+  "status": "PASS",
+  "proof_id": "SHARED-AVATAR-ECOSYSTEM-2026-08-12",
+  "branch": "agent/dreamies-kelp-shared-avatar-assets",
+  "checks": {
+    "shared_asset_contract_present": true,
+    "sku_id_required": true,
+    "canonical_asset_id_required": true,
+    "target_ecosystems_locked_to_dreamiez_and_kelp_atlantis": true,
+    "demand_radar_seed_required": true,
+    "elohim_refinery_required": true,
+    "gauntlet_gate_required": true,
+    "approval_gate_required": true,
+    "web_and_game_representations_required": true,
+    "phone_first_browser_runtime_scaffold_present": true,
+    "three_js_vrm_scaffold_present": true,
+    "landing_surface_horizontal_silo_rails": true,
+    "auction_coming_soon_surface": true,
+    "ecosystem_ticker_surface": true
+  },
+  "files": [
+    "BEC-PRIME/contracts/shared-avatar-asset.schema.json",
+    "BEC-PRIME/catalog/assets/shared-avatar-registry.json",
+    "BEC-PRIME/docs/SHARED_AVATAR_SUBSYSTEM.md",
+    "BEC-PRIME/compiled/website/assets/avatar-runtime.js",
+    "BEC-PRIME/compiled/website/assets/marketplace-live.js"
+  ],
+  "external_scaffolding_research": {
+    "preferred": "Three.js + @pixiv/three-vrm",
+    "optional_creator_bridge": "Avaturn",
+    "asset_registry_reference": "Open Source Avatars / VRM"
+  },
+  "public_release": "approval_required",
+  "note": "No public social posting or irreversible commerce activation performed by this change."
+}
