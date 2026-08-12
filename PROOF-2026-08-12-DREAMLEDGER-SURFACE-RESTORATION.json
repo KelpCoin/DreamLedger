@@ -1,0 +1,17 @@
+{
+  "schema_version": "BEC-PROOF-1.0",
+  "event": "DREAMLEDGER_SURFACE_RESTORATION",
+  "status": "PASS",
+  "timestamp_utc": "2026-08-12T02:30:00Z",
+  "assertions": {
+    "general_ecosystem_front_door": true,
+    "horizontal_thumb_first_catalogue": true,
+    "dreamiez_prominent": true,
+    "dreamiez_account_and_streak_routes_preserved": true,
+    "mtg_isolated_behind_dedicated_catalogue_card": true,
+    "mtg_not_promoted_on_general_surfaces": true,
+    "compiler_and_commerce_portfolio_preserved": true
+  },
+  "source_commit": "2e2513d69616943d47da2cdd73fd5b54512d5dc3",
+  "note": "Surface restoration proof. No catalog product source files were overwritten."
+}
