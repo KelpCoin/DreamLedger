@@ -1,5 +1,5 @@
 {
-  "version": "1.2",
+  "version": "1.3",
   "registry_id": "BEC-PRIME-ARCHITECTURE",
   "purpose": "Machine-readable source of truth for implemented, specified, backlog, externally blocked, approval-gated, and unproven BEC-PRIME capabilities.",
   "authority": "repository",
@@ -7,13 +7,13 @@
   "states": ["implemented", "specified", "backlog", "external_blocked", "approval_gated", "unproven"],
   "components": {
     "engine": {"state":"implemented","path":"BEC-PRIME/server.js","verification":["healthz","api_products","api_product_by_id","api_ip","api_offers","checkout","webhook"]},
-    "catalog": {"state":"implemented","path":"BEC-PRIME/catalog/products","products":["COMMANDER-DECK-DIAGNOSTIC-001"]},
+    "catalog": {"state":"implemented","path":"BEC-PRIME/catalog/products","products":["COMMANDER-DECK-DIAGNOSTIC-001","CRYPTO-WALLET-SECURITY-PACK-001","CREATOR-AUDIO-LAUNCH-PACK-001","SMALL-BUSINESS-AI-COMMERCE-KIT-001"]},
     "ip_capability_catalog": {"state":"implemented","path":"BEC-PRIME/catalog/ip-capabilities.json","activation":"approval_gated"},
     "checkout": {"state":"implemented","path":"BEC-PRIME/server.js","adapter":"stripe"},
     "webhook": {"state":"implemented","path":"BEC-PRIME/server.js"},
     "proof_system": {"state":"implemented","path":"BEC-PRIME/server.js","proof_artifact":"FIRST_PAYMENT_PROOF.json"},
     "durable_storage": {"state":"implemented","path":"/var/data"},
-    "website_surface": {"state":"implemented","path":"BEC-PRIME/compiled/website/index.html","ux":"phone_first_horizontal_carousels_thumb_ctas"},
+    "website_surface": {"state":"implemented","path":"BEC-PRIME/compiled/website/index.html","ux":"phone_first_horizontal_carousels_thumb_ctas","policy":"neutral_front_door"},
     "dreamiez_accounts": {"state":"implemented","path":"BEC-PRIME/dreamiez-account.js","verification":["account_create","login","session","daily_streak","reward_gating","restart_persistence"]},
     "gauntlet": {"state":"implemented","path":"BEC-PRIME/gauntlet/GauntletV6.js","version":"6.0","verification":["offer_schema","approval_gate","silo_isolation","capability_links","deterministic_proof"]},
     "elohim_v6": {"state":"implemented","path":"BEC-PRIME/elohim/ElohimV6.js","version":"6.0","verification":["proposal_generation","deterministic_reward_asset","local_model_adapter","human_action_boundary"]},
@@ -24,15 +24,24 @@
     "control_plane": {"state":"implemented","path":"BEC-PRIME/runtime/ControlPlane.js","depends_on":["gauntlet","elohim_v6","digital_proxy","compilers"],"verification":["boot_gate","self_compile","gauntlet_health","proposal_route","proxy_route"]},
     "self_compilation": {"state":"implemented","path":"BEC-PRIME/runtime/ControlPlane.js","policy":"compile_offers_then_compile_surface_then_gauntlet; runtime refuses start on failed gate"},
     "self_improvement": {"state":"implemented","path":"BEC-PRIME/runtime/DemandRadar.js","policy":"demand_signals_may_create_approval_gated_proposals_only"},
+    "silo_isolation": {"state":"implemented","path":"BEC-PRIME/policy/silo-boundary-policy.json","verification":"BEC-PRIME/scripts/Verify-SiloIsolation.ps1"},
     "x402_payment_adapter": {"state":"backlog","approval_required":true,"do_not_implement_before":"FIRST_PAYMENT_PROOF"},
     "render_deployment": {"state":"external_blocked","blocker":"live deployment state is controlled by Render and is not exposed through the connected GitHub tools","configuration":"render.yaml","verification":["healthz_live","api_products_live","api_product_live","api_ip_live"]},
     "first_payment_proof": {"state":"unproven","artifact":"FIRST_PAYMENT_PROOF.json","requires":["render_deployment","approved_offer","real_or_explicitly_authorized_test_settlement","webhook_verification"]}
   },
   "silos": {
-    "mtg": {"state":"implemented","products":["COMMANDER-DECK-DIAGNOSTIC-001"],"isolation_rule":"MTG state and assets must not be mixed with adult/Amplissa state."},
-    "commerce": {"state":"implemented","catalog":"BEC-PRIME/catalog/ip-capabilities.json","isolation_rule":"Commercial capability descriptions may not import MTG inventory or adult/Amplissa state."},
-    "adult": {"state":"specified","isolation_rule":"Adult/Amplissa state must remain isolated from MTG and commerce state."},
-    "dreamiez": {"state":"implemented","isolation_rule":"Dreamiez identity, streaks, rewards and assets remain isolated from MTG and adult/Amplissa state."}
+    "crypto": {"state":"implemented","manifest":"BEC-PRIME/silos/SILO_CRYPTO/manifest.json","products":["CRYPTO-WALLET-SECURITY-PACK-001"],"isolation_rule":"Crypto products and customer state remain inside the crypto silo; no investment promises or personalized financial advice."},
+    "media_music": {"state":"implemented","manifest":"BEC-PRIME/silos/SILO_MEDIA_MUSIC/manifest.json","products":["CREATOR-AUDIO-LAUNCH-PACK-001"],"isolation_rule":"Media and music assets, licenses and customer state remain inside the media and music silo."},
+    "digital_products": {"state":"implemented","manifest":"BEC-PRIME/silos/SILO_DIGITAL_PRODUCTS/manifest.json","products":["SMALL-BUSINESS-AI-COMMERCE-KIT-001"],"isolation_rule":"Digital product files, customer state and product language remain inside the digital products silo."},
+    "mtg": {"state":"implemented","products":["COMMANDER-DECK-DIAGNOSTIC-001"],"isolation_rule":"MTG state, inventory, assets and language remain confined to the MTG silo."},
+    "dreamiez": {"state":"implemented","isolation_rule":"Dreamiez identity, streaks, rewards and assets remain isolated from all commerce silos."},
+    "adult": {"state":"specified","isolation_rule":"Adult/Amplissa state remains isolated from all other silos."}
+  },
+  "front_door_policy": {
+    "domain":"dreamledger.org",
+    "mode":"neutral",
+    "must_not_hard_code_silo_identity":true,
+    "must_render_only_approved_offers":true
   },
   "compiler_policy": {
     "source_of_truth":"this registry plus canonical repository artifacts",
@@ -46,7 +55,8 @@
     "gauntlet_required_before_promotion":true,
     "demand_radar_cannot_execute_external_actions":true,
     "digital_proxy_assistant_must_be_user_invoked":true,
-    "sentinel_may_fail_closed_but_may_not_publish_or_charge":true
+    "sentinel_may_fail_closed_but_may_not_publish_or_charge":true,
+    "never_cross_silo_data_boundaries":true
   },
   "commercial_gate": {
     "sequence":["canonical_offer","live_deployment","human_approval","payment","verified_settlement","delivery","FIRST_PAYMENT_PROOF.json"],
