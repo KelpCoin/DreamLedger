@@ -26,10 +26,10 @@ jobs:
         run: npm install
 
       - name: Compile canonical surfaces
-        run: npm run compile:offers && npm run compile:surface
+        run: npm run compile
 
       - name: Syntax gate
-        run: node --check server.js && node --check start.js
+        run: node --check server.js && node --check start.js && node --check runtime/OmniCommerce.js && node --check compiler/SellerCompiler.js && node --check compiler/MarketplaceCompiler.js
 
       - name: Revenue ledger smoke
         run: npm run smoke:revenue-ledger
@@ -41,6 +41,8 @@ jobs:
         run: |
           test -f manifests/CUBE-PUBLIC-SURFACE-MANIFEST.json
           test -f PROOF-CUBE-SURFACE-COMPILATION.json
+          test -f PROOF-OMNI-COMMERCE-COMPILATION.json
+          test -f PROOF-SELLER-SURFACES-COMPILATION.json
           ! grep -R 'api/ip' compiled/website || true
           ! grep -R 'catalog/ip-capabilities.json' compiled/website || true
 
@@ -50,4 +52,6 @@ jobs:
           name: bec-prime-compilation-proof
           path: |
             BEC-PRIME/PROOF-CUBE-SURFACE-COMPILATION.json
+            BEC-PRIME/PROOF-OMNI-COMMERCE-COMPILATION.json
+            BEC-PRIME/PROOF-SELLER-SURFACES-COMPILATION.json
             BEC-PRIME/data/proofs/
