@@ -15,8 +15,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package.json
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
@@ -29,6 +27,9 @@ jobs:
       - name: Compiler truth gate
         shell: pwsh
         run: ./BEC-PRIME/scripts/Verify-CompilerTruth.ps1 -ProofPath "$env:GITHUB_WORKSPACE/compiler-truth-proof.json"
+      - name: Public boundary gate
+        working-directory: BEC-PRIME
+        run: node scripts/verify-public-surface.js
       - name: Syntax gate
         working-directory: BEC-PRIME
         run: |
@@ -61,6 +62,7 @@ jobs:
           path: |
             BEC-PRIME/PROOF-META-GAUNTLET.json
             BEC-PRIME/data/proofs/SENTINEL-LATEST.json
+            BEC-PRIME/data/proofs/PUBLIC-SURFACE-PROOF.json
             compiler-truth-proof.json
           if-no-files-found: error
 
