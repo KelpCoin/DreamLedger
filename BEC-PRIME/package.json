@@ -16,6 +16,9 @@
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
     "gauntlet": "node scripts/meta-gauntlet.js",
+    "autonomy:cycle": "node autonomy/RevenueAutonomy.js",
+    "autonomy:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Install-Autonomy.ps1",
+    "autonomy:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-Autonomy.ps1",
     "activate:first-revenue": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Activate-FirstRevenue.ps1",
     "kelplantis:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1 -HealthOnly",
     "kelplantis:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1"
