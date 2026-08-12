@@ -11,6 +11,7 @@ const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
 const sentinel = require('./runtime/Sentinel');
 const digitalProxyAssistant = require('./proxy/DigitalProxyAssistant');
+const omniCommerce = require('./routes/omniCommerce');
 
 const originalCreateServer = http.createServer;
 let capturedServer = null;
@@ -119,6 +120,22 @@ http.createServer = function wrappedCreateServer(...args) {
     const requestPath = String(req.url || '').split('?')[0];
     demandRadar.record('route', { route: requestPath, source: 'runtime' });
 
+    if (req.method === 'POST' && requestPath === '/webhook') {
+      try {
+        const result = await omniCommerce.handleWebhook(req, res);
+        if (result.handled) return;
+        return originalHandler(replayRequest(req, result.raw), res);
+      } catch (err) {
+        return send(res, 400, { error: err.message || 'Webhook rejected' });
+      }
+    }
+
+    try {
+      if (await omniCommerce.handle(req, res, requestPath)) return;
+    } catch (err) {
+      return send(res, 500, { error: err.message || 'Omni-commerce route failed' });
+    }
+
     if (req.method === 'GET' && requestPath === '/api/products') {
       try {
         const products = loadApprovedProducts().map(publicCheckoutableProduct).filter(Boolean);
@@ -155,15 +172,15 @@ http.createServer = function wrappedCreateServer(...args) {
 
     if (req.method === 'POST' && requestPath === '/api/offer-checkout/create') {
       try {
-        const body = await jsonBody(req);
-        const productOffer = approvedProductOffer(body.offer_id);
+        const requestBody = await jsonBody(req);
+        const productOffer = approvedProductOffer(requestBody.offer_id);
         if (productOffer) {
           const payload = JSON.stringify({ product_id: productOffer.offer_id, silo: productOffer.silo });
           return proxyProductCheckout(res, productOffer.offer_id, productOffer.silo, payload);
         }
-        const verified = loadVerifiedOffers().find(item => item.offer_id === body.offer_id);
+        const verified = loadVerifiedOffers().find(item => item.offer_id === requestBody.offer_id);
         if (!verified) return send(res, 403, { error: 'Offer is not approved for checkout' });
-        return originalHandler(replayRequest(req, JSON.stringify(body)), res);
+        return originalHandler(replayRequest(req, JSON.stringify(requestBody)), res);
       } catch (err) {
         return send(res, 400, { error: err.message || 'Invalid JSON' });
       }
@@ -175,30 +192,21 @@ http.createServer = function wrappedCreateServer(...args) {
 
     if (req.method === 'POST' && requestPath === '/api/digital-proxy/help') {
       try {
-        const body = await jsonBody(req);
+        const requestBody = await jsonBody(req);
         demandRadar.record('help_request', { route: requestPath, source: 'digital-proxy' });
-        const result = await digitalProxyAssistant.reply(body.message, { route: body.route || requestPath });
+        const result = await digitalProxyAssistant.reply(requestBody.message, { route: requestBody.route || requestPath });
         return send(res, 200, result);
       } catch (err) {
         return send(res, 400, { error: err.message || 'Help request failed' });
       }
     }
 
-    if (req.method === 'GET' && requestPath === '/api/control/demand') {
-      return send(res, 404, { error: 'Not found' });
-    }
-
-    if (req.method === 'POST' && requestPath === '/api/control/demand/record') {
-      return send(res, 404, { error: 'Not found' });
-    }
-
-    if (req.method === 'GET' && requestPath === '/api/control/sentinel') {
-      return send(res, 404, { error: 'Not found' });
-    }
+    if (req.method === 'GET' && requestPath === '/api/control/demand') return send(res, 404, { error: 'Not found' });
+    if (req.method === 'POST' && requestPath === '/api/control/demand/record') return send(res, 404, { error: 'Not found' });
+    if (req.method === 'GET' && requestPath === '/api/control/sentinel') return send(res, 404, { error: 'Not found' });
 
     if (await dreamiezAccount.handle(req, res)) return;
     if (await controlPlane.handle(req, res)) return;
-
     return originalHandler(req, res);
   };
   capturedServer = originalCreateServer.apply(this, args);
@@ -217,9 +225,9 @@ function proxyProductCheckout(res, productId, silo, payload) {
     upstreamRes.setEncoding('utf8');
     upstreamRes.on('data', chunk => { data += chunk; });
     upstreamRes.on('end', () => {
-      let body;
-      try { body = JSON.parse(data || '{}'); } catch { body = { error: data }; }
-      send(res, upstreamRes.statusCode || 502, { ...body, offer_id: productId });
+      let responseBody;
+      try { responseBody = JSON.parse(data || '{}'); } catch { responseBody = { error: data }; }
+      send(res, upstreamRes.statusCode || 502, { ...responseBody, offer_id: productId });
     });
   });
   upstream.on('error', err => send(res, 502, { error: err.message }));
@@ -229,15 +237,9 @@ function proxyProductCheckout(res, productId, silo, payload) {
 const boot = controlPlane.boot();
 const sentinelResult = sentinel.run(boot.gauntlet);
 console.log(JSON.stringify({ control_plane_boot: boot, sentinel: sentinelResult }, null, 2));
-if (boot.status !== 'PASS' || sentinelResult.verdict !== 'PASS') {
-  throw new Error('Enterprise boot gate failed; refusing to start runtime');
-}
+if (boot.status !== 'PASS' || sentinelResult.verdict !== 'PASS') throw new Error('Enterprise boot gate failed; refusing to start runtime');
 
 require('./server.js');
 
 if (!capturedServer) throw new Error('DreamLedger server did not create an HTTP server');
-if (!capturedServer.listening) {
-  capturedServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`DreamLedger commerce runtime listening on 0.0.0.0:${PORT}`);
-  });
-}
+if (!capturedServer.listening) capturedServer.listen(PORT, '0.0.0.0', () => console.log(`DreamLedger commerce runtime listening on 0.0.0.0:${PORT}`));

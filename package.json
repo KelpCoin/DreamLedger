@@ -1,21 +1,17 @@
 {
   "name": "dreamledger",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
-  "description": "DreamLedger storefront and commerce engine",
+  "description": "DreamLedger sovereign omni-commerce engine",
   "main": "BEC-PRIME/start.js",
   "scripts": {
-    "start": "node BEC-PRIME/compiler/OfferCompiler.js && node BEC-PRIME/compiler/QRCompiler.js && node BEC-PRIME/compiler/SurfaceCompiler.js && node BEC-PRIME/scripts/verify-public-surface.js && node -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
-    "compile": "npm run compile:offers && npm run compile:qr && npm run compile:surface && node BEC-PRIME/scripts/verify-public-surface.js",
+    "start": "npm run compile && node -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
+    "compile": "npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && node BEC-PRIME/scripts/verify-public-surface.js",
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js",
     "compile:qr": "node BEC-PRIME/compiler/QRCompiler.js",
+    "compile:omni": "node BEC-PRIME/compiler/OmniCommerceCompiler.js",
     "compile:surface": "node BEC-PRIME/compiler/SurfaceCompiler.js"
   },
-  "engines": {
-    "node": ">=20"
-  },
-  "dependencies": {
-    "ajv": "^8.17.1",
-    "qrcode": "^1.5.4"
-  }
+  "engines": { "node": ">=20" },
+  "dependencies": { "ajv": "^8.17.1", "qrcode": "^1.5.4" }
 }
