@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const ROOT = path.join(__dirname, '..');
 const CART_DIR = path.join(ROOT, 'data', 'marketplace', 'carts');
 const SELLERS = path.join(ROOT, 'data', 'marketplace', 'sellers.json');
+const CATALOG = path.join(ROOT, 'catalog', 'products');
 const PROOFS = path.resolve(process.env.PROOF_DATA_DIR || path.join(ROOT, 'data', 'proofs'));
 const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
@@ -34,27 +35,64 @@ function verify(raw, header) {
   const expected = crypto.createHmac('sha256', STRIPE_WEBHOOK_SECRET).update(timestamp + '.' + raw, 'utf8').digest('hex');
   if (!signatures.some(sig => sig.length === expected.length && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected)))) throw new Error('Invalid Stripe signature');
 }
+function product(productId) {
+  const file = path.join(CATALOG, String(productId) + '.json');
+  if (!fs.existsSync(file)) return null;
+  return read(file);
+}
+async function createProductCheckout(productId, silo) {
+  const p = product(productId);
+  if (!p || p.status !== 'published' || Number(p.inventory || 0) < 1 || p.commercial_truth?.approval_required !== false) throw new Error('Product is not checkoutable');
+  const cartId = 'direct_' + crypto.randomUUID();
+  const params = {
+    mode: 'payment',
+    'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id),
+    'cancel_url': PUBLIC_BASE + '/mtg?checkout_cancelled=1',
+    'metadata[product_id]': p.id,
+    'metadata[silo]': silo || p.silo || 'mtg',
+    'metadata[commerce_version]': 'bec-direct-product-v1',
+    'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(),
+    'line_items[0][price_data][unit_amount]': Number(p.price),
+    'line_items[0][price_data][product_data][name]': p.name,
+    'line_items[0][price_data][product_data][metadata][product_id]': p.id,
+    'line_items[0][quantity]': 1
+  };
+  const session = await stripe('checkout/sessions', params, 'dreamledger-direct-' + p.id + '-' + cartId);
+  return { ok: true, offer_id: p.id, session_id: session.id, checkout_url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() };
+}
 async function handle(req, res, url) {
-  if (req.method !== 'POST' || url !== '/api/cart/checkout') return false;
-  let raw = ''; for await (const chunk of req) { raw += chunk; if (raw.length > 200000) throw new Error('Request too large'); }
-  let input; try { input = JSON.parse(raw || '{}'); } catch { return send(res, 400, { error: 'Invalid JSON' }); }
-  if (!input.cart_id) return send(res, 400, { error: 'cart_id is required' });
-  const file = path.join(CART_DIR, String(input.cart_id) + '.json');
-  if (!fs.existsSync(file)) return send(res, 404, { error: 'Cart not found' });
-  const cart = read(file); if (cart.status !== 'open') return send(res, 409, { error: 'Cart is not open' });
-  const allowed = new Set(platformSellerIds()); if (!cart.items.every(item => allowed.has(item.seller_id))) return false;
-  const params = { mode: 'payment', 'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id), 'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1', 'metadata[cart_id]': cart.id, 'metadata[commerce_version]': 'omni-v1-platform', 'metadata[platform_fee_bps]': '0' };
-  cart.items.forEach((item, i) => { params['line_items[' + i + '][price_data][currency]'] = String(item.currency).toLowerCase(); params['line_items[' + i + '][price_data][unit_amount]'] = item.unit_amount; params['line_items[' + i + '][price_data][product_data][name]'] = item.name; params['line_items[' + i + '][quantity]'] = item.quantity; });
-  try { const session = await stripe('checkout/sessions', params, 'dreamledger-platform-cart-' + cart.id + '-' + crypto.randomUUID()); cart.status = 'checkout_created'; cart.session_id = session.id; cart.checkout_created_at = new Date().toISOString(); write(file, cart); return send(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: 0 }); } catch (err) { return send(res, 502, { error: err.message }); }
+  if (req.method === 'POST' && url === '/api/cart/checkout') {
+    let raw = ''; for await (const chunk of req) { raw += chunk; if (raw.length > 200000) throw new Error('Request too large'); }
+    let input; try { input = JSON.parse(raw || '{}'); } catch { return send(res, 400, { error: 'Invalid JSON' }); }
+    if (!input.cart_id) return send(res, 400, { error: 'cart_id is required' });
+    const file = path.join(CART_DIR, String(input.cart_id) + '.json');
+    if (!fs.existsSync(file)) return send(res, 404, { error: 'Cart not found' });
+    const cart = read(file); if (cart.status !== 'open') return send(res, 409, { error: 'Cart is not open' });
+    const allowed = new Set(platformSellerIds()); if (!cart.items.every(item => allowed.has(item.seller_id))) return false;
+    const params = { mode: 'payment', 'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id), 'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1', 'metadata[cart_id]': cart.id, 'metadata[commerce_version]': 'omni-v1-platform', 'metadata[platform_fee_bps]': '0' };
+    cart.items.forEach((item, i) => { params['line_items[' + i + '][price_data][currency]'] = String(item.currency).toLowerCase(); params['line_items[' + i + '][price_data][unit_amount]'] = item.unit_amount; params['line_items[' + i + '][price_data][product_data][name]'] = item.name; params['line_items[' + i + '][quantity]'] = item.quantity; });
+    try { const session = await stripe('checkout/sessions', params, 'dreamledger-platform-cart-' + cart.id + '-' + crypto.randomUUID()); cart.status = 'checkout_created'; cart.session_id = session.id; cart.checkout_created_at = new Date().toISOString(); write(file, cart); return send(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: 0 }); } catch (err) { return send(res, 502, { error: err.message }); }
+  }
+  return false;
 }
 async function handleWebhook(req, res) {
   let raw = ''; for await (const chunk of req) { raw += chunk; if (raw.length > 5000000) throw new Error('Request too large'); }
   const event = JSON.parse(raw || '{}'); const session = event?.data?.object; const cartId = session?.metadata?.cart_id;
+  verify(raw, req.headers['stripe-signature']);
+  if (event.type === 'checkout.session.completed' && session.payment_status === 'paid') {
+    const productId = session?.metadata?.product_id;
+    if (productId) {
+      const timestamp = new Date().toISOString();
+      const proof = { schema_version: 'BEC-FOSSIL-1.0', event: event.type, status: 'PASS', evidence_level: 1, asset_id: productId, transaction_id: session.id, amount: session.amount_total, currency: session.currency || 'nzd', timestamp_utc: timestamp };
+      write(path.join(PROOFS, 'FIRST_PAYMENT_PROOF.json'), proof);
+      write(path.join(PROOFS, 'FIRST_PAYMENT_PROOF-' + session.id + '.json'), proof);
+      return { handled: true };
+    }
+  }
   if (!cartId) return { handled: false, raw };
   const file = path.join(CART_DIR, String(cartId) + '.json'); if (!fs.existsSync(file)) return { handled: false, raw };
   const cart = read(file); const allowed = new Set(platformSellerIds());
   if (!cart.items.every(item => allowed.has(item.seller_id))) return { handled: false, raw };
-  verify(raw, req.headers['stripe-signature']);
   if (event.type === 'checkout.session.completed' && session.payment_status === 'paid' && cart.status !== 'settled') {
     const timestamp = new Date().toISOString();
     const proof = { schema_version: 'BEC-OMNI-FOSSIL-1.0', event: event.type, status: 'PASS', evidence_level: 1, transaction_id: session.id, cart_id: cart.id, amount_minor: session.amount_total, currency: session.currency || 'nzd', platform_commission_bps: 0, stripe_processing_fees_excluded: true, transfers: [], idempotency_key: 'dreamledger-platform-cart-' + cart.id, timestamp_utc: timestamp };
@@ -62,4 +100,4 @@ async function handleWebhook(req, res) {
   }
   return { handled: true };
 }
-module.exports = { handle, handleWebhook };
+module.exports = { handle, handleWebhook, createProductCheckout };
