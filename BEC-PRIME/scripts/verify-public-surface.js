@@ -25,7 +25,10 @@ const forbidden=[
   /private prompts/i,
   /gauntlet rules/i,
   /internal ledger records/i,
-  /FIRST_PAYMENT_PROOF\.json/i
+  /FIRST_PAYMENT_PROOF\.json/i,
+  /amplissa/i,
+  /\bBBW\b/i,
+  /big beautiful women/i
 ];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`);}
