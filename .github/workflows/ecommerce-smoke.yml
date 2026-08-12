@@ -16,24 +16,31 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
 
       - name: Install
+        working-directory: BEC-PRIME
         run: npm install
 
       - name: Compile canonical commerce surface
-        run: npm run build
+        working-directory: BEC-PRIME
+        run: npm run compile
 
-      - name: Assert general DreamLedger surface
+      - name: Assert neutral DreamLedger surface
+        working-directory: BEC-PRIME
         shell: bash
         run: |
-          test -f BEC-PRIME/compiled/website/index.html
-          grep -qi "One commerce engine. Many worlds." BEC-PRIME/compiled/website/index.html
-          ! grep -Eiq "magic the gathering|mtg shop|commander deck" BEC-PRIME/compiled/website/index.html
-          test -f BEC-PRIME/PROOF-CUBE-SURFACE-COMPILATION.json
+          test -f compiled/website/index.html
+          grep -q "ONE HOST." compiled/website/index.html
+          grep -q "MANY WORLDS." compiled/website/index.html
+          grep -q "Agentic Commerce" compiled/website/index.html
+          ! grep -Eiq "magic the gathering|mtg shop|commander deck" compiled/website/index.html
+          test -f PROOF-CUBE-SURFACE-COMPILATION.json
 
       - name: Start runtime
+        working-directory: BEC-PRIME
         env:
           PORT: 4173
         run: |
