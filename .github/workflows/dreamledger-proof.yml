@@ -120,15 +120,17 @@ jobs:
           test -f catalog/offers/offers.json
           test -f catalog/ip-capabilities.json
 
-      - name: Validate marketplace source markers
+      - name: Validate neutral homepage contract
         working-directory: BEC-PRIME
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "Dreamiez Marketplace" compiled/website/index.html
+          grep -q "ONE HOST." compiled/website/index.html
+          grep -q "MANY WORLDS." compiled/website/index.html
           grep -q "Agentic Commerce" compiled/website/index.html
-          grep -q "Coming Later" compiled/website/index.html
-          grep -q "Kelplantis" compiled/website/index.html
+          grep -q "Neutral front door" compiled/website/index.html
+          ! grep -Eiq "Dreamiez Marketplace|Coming Later|Kelplantis" compiled/website/index.html
+          ! grep -Eiq "magic the gathering|mtg shop|commander deck" compiled/website/index.html
 
   runtime-proof:
     name: Public runtime proof
@@ -140,7 +142,6 @@ jobs:
           set -euo pipefail
           mkdir -p proof
           : > proof/runtime.txt
-
           urls=(
             "https://dreamledger.org/"
             "https://dreamledger.org/healthz"
@@ -148,31 +149,16 @@ jobs:
             "https://dreamledger.org/api/offers"
             "https://dreamledger.org/.well-known/agent-commerce.json"
           )
-
           failed=0
           for url in "${urls[@]}"; do
             name=$(printf '%s' "$url" | sed 's#https://dreamledger.org/##; s#[^A-Za-z0-9]#_#g')
             [ -n "$name" ] || name=homepage
             echo "=== $url ===" | tee -a "proof/runtime.txt"
-            if curl --fail --silent --show-error --location --max-time 30 "$url" -o "proof/${name}.body" -w "HTTP %{http_code}\n" | tee -a "proof/runtime.txt"; then
-              :
-            else
-              failed=1
-            fi
+            if curl --fail --silent --show-error --location --max-time 30 "$url" -o "proof/${name}.body" -w "HTTP %{http_code}\n" | tee -a "proof/runtime.txt"; then :; else failed=1; fi
           done
-
-          if [ "$failed" -ne 0 ]; then
-            echo "RUNTIME_NOT_PROVEN" | tee -a proof/runtime.txt
-            exit 1
-          fi
-
-          grep -qi "DreamLedger" proof/homepage.body || {
-            echo "Homepage marker missing" | tee -a proof/runtime.txt
-            exit 1
-          }
-
+          if [ "$failed" -ne 0 ]; then echo "RUNTIME_NOT_PROVEN" | tee -a proof/runtime.txt; exit 1; fi
+          grep -qi "DreamLedger" proof/homepage.body || { echo "Homepage marker missing" | tee -a proof/runtime.txt; exit 1; }
           echo "RUNTIME_PASS" | tee -a proof/runtime.txt
-
       - name: Upload runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
