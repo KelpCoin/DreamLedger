@@ -1,7 +1,7 @@
 'use strict';
 
-// CUBE runtime bootstrap. Public routes are fail-closed: gated/internal
-// products are never projected through the public product API.
+// Runtime bootstrap. Public commerce routes fail closed: only approved, sellable
+// products and verified offers may cross the public boundary.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -45,10 +45,11 @@ function loadApprovedProducts() {
     .filter(product => product.status === 'published' && product.commercial_truth && product.commercial_truth.approval_required === false);
 }
 
-function loadCompiledOffers() {
+function loadVerifiedOffers() {
   if (!fs.existsSync(OFFER_CATALOG)) return [];
   const catalog = JSON.parse(fs.readFileSync(OFFER_CATALOG, 'utf8'));
-  return Array.isArray(catalog.offers) ? catalog.offers : [];
+  const offers = Array.isArray(catalog.offers) ? catalog.offers : [];
+  return offers.filter(offer => offer.approval_required === false && offer.checkout_available === true && offer.status === 'VERIFIED_AVAILABLE');
 }
 
 function productAsOffer(product) {
@@ -74,7 +75,7 @@ function productAsOffer(product) {
     approval_required: false,
     checkout_available: !sold,
     checkout_route: '/api/offer-checkout/create',
-    status: sold ? 'sold' : 'published',
+    status: sold ? 'sold' : 'VERIFIED_AVAILABLE',
     verification_rules: ['canonical_product', 'explicit_operator_approval', 'inventory_positive', 'stripe_checkout', 'webhook_proof'],
     private_material_excluded: true
   };
@@ -136,12 +137,11 @@ http.createServer = function wrappedCreateServer(...args) {
 
     if (req.method === 'GET' && requestPath === '/api/offers') {
       try {
-        const compiled = loadCompiledOffers();
-        const products = loadApprovedProducts().map(productAsOffer);
-        return send(res, 200, { offers: [...compiled, ...products] });
+        const offers = [...loadVerifiedOffers(), ...loadApprovedProducts().map(productAsOffer).filter(o => o.checkout_available)];
+        return send(res, 200, { offers });
       } catch (err) {
         console.error('Offer surface failed:', err);
-        return send(res, 500, { error: err.message || 'Offer surface failed' });
+        return send(res, 500, { error: 'Offer surface unavailable' });
       }
     }
 
@@ -149,6 +149,8 @@ http.createServer = function wrappedCreateServer(...args) {
       const offerId = requestPath.slice('/api/offers/'.length);
       const productOffer = approvedProductOffer(offerId);
       if (productOffer) return send(res, 200, productOffer);
+      const verified = loadVerifiedOffers().find(item => item.offer_id === offerId);
+      return verified ? send(res, 200, verified) : send(res, 404, { error: 'Offer not available' });
     }
 
     if (req.method === 'POST' && requestPath === '/api/offer-checkout/create') {
@@ -159,6 +161,8 @@ http.createServer = function wrappedCreateServer(...args) {
           const payload = JSON.stringify({ product_id: productOffer.offer_id, silo: productOffer.silo });
           return proxyProductCheckout(res, productOffer.offer_id, productOffer.silo, payload);
         }
+        const verified = loadVerifiedOffers().find(item => item.offer_id === body.offer_id);
+        if (!verified) return send(res, 403, { error: 'Offer is not approved for checkout' });
         return originalHandler(replayRequest(req, JSON.stringify(body)), res);
       } catch (err) {
         return send(res, 400, { error: err.message || 'Invalid JSON' });
@@ -166,6 +170,10 @@ http.createServer = function wrappedCreateServer(...args) {
     }
 
     if (req.method === 'GET' && requestPath === '/api/digital-proxy/help') {
+      return send(res, 405, { error: 'Method not allowed' });
+    }
+
+    if (req.method === 'POST' && requestPath === '/api/digital-proxy/help') {
       try {
         const body = await jsonBody(req);
         demandRadar.record('help_request', { route: requestPath, source: 'digital-proxy' });
@@ -177,41 +185,20 @@ http.createServer = function wrappedCreateServer(...args) {
     }
 
     if (req.method === 'GET' && requestPath === '/api/control/demand') {
-      return send(res, 200, { summary: demandRadar.summary(), proposal: demandRadar.proposal() });
+      return send(res, 404, { error: 'Not found' });
     }
 
     if (req.method === 'POST' && requestPath === '/api/control/demand/record') {
-      try {
-        const body = await jsonBody(req);
-        return send(res, 201, demandRadar.record(body.type || 'manual_signal', body));
-      } catch (err) {
-        return send(res, 400, { error: err.message || 'Invalid demand signal' });
-      }
+      return send(res, 404, { error: 'Not found' });
     }
 
     if (req.method === 'GET' && requestPath === '/api/control/sentinel') {
-      return send(res, 200, sentinel.run(controlPlane.health().boot.gauntlet));
+      return send(res, 404, { error: 'Not found' });
     }
 
     if (await dreamiezAccount.handle(req, res)) return;
     if (await controlPlane.handle(req, res)) return;
 
-    if (req.method === 'GET' && requestPath === '/') {
-      const originalEnd = res.end;
-      res.end = function injectedEnd(chunk, encoding, callback) {
-        try {
-          const contentType = String(res.getHeader('Content-Type') || '');
-          if (chunk && contentType.includes('text/html')) {
-            let html = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
-            html = html.replace('</body>', '<script src="/assets/dreamiez-account.js"></script><script src="/assets/digital-proxy-assist.js"></script></body>');
-            return originalEnd.call(this, html, 'utf8', callback);
-          }
-        } catch (err) {
-          console.error('DreamLedger UI injection failed:', err.message);
-        }
-        return originalEnd.call(this, chunk, encoding, callback);
-      };
-    }
     return originalHandler(req, res);
   };
   capturedServer = originalCreateServer.apply(this, args);
@@ -248,8 +235,7 @@ if (boot.status !== 'PASS' || sentinelResult.verdict !== 'PASS') {
 
 require('./server.js');
 
-if (!capturedServer) throw new Error('BEC-PRIME server did not create an HTTP server');
-
+if (!capturedServer) throw new Error('DreamLedger server did not create an HTTP server');
 if (!capturedServer.listening) {
   capturedServer.listen(PORT, '0.0.0.0', () => {
     console.log(`DreamLedger commerce runtime listening on 0.0.0.0:${PORT}`);
