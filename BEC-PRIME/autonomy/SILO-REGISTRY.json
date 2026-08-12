@@ -1,0 +1,19 @@
+{
+  "schema_version": "BEC-SILO-REGISTRY-1.0",
+  "neutral_host": "dreamledger",
+  "silos": [
+    {"id":"MTG","silo":"mtg","offer":"Commander Deck Diagnostic","price_nzd":49,"priority":10,"status":"active"},
+    {"id":"CRYPTO","silo":"crypto","offer":"Wallet Audit + Tax Report","price_nzd":149,"priority":9,"status":"active"},
+    {"id":"MEDIA_MUSIC","silo":"media_music","offer":"Creator Media + Music Kit","price_nzd":499,"priority":8,"status":"active"},
+    {"id":"DIGITAL_PRODUCTS","silo":"digital_products","offer":"Local Automation Starter Kit","price_nzd":999,"priority":8,"status":"active"}
+  ],
+  "rules": {
+    "dreamledger_brand_neutral": true,
+    "cross_silo_offers": false,
+    "cross_silo_customer_data": false,
+    "cross_silo_credentials": false,
+    "cross_silo_analytics": false,
+    "public_actions_require_human_approval": true,
+    "revenue_requires_verified_payment": true
+  }
+}

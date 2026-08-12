@@ -1,0 +1,11 @@
+{
+  "schema_version": "BEC-AUTONOMY-POLICY-1.0",
+  "allowed_actions": ["READ_REPO", "WRITE_FILE", "RUN_TEST", "RUN_GAUNTLET", "CREATE_WORK_ORDER", "CHECK_DEPLOYMENT", "CHECK_PAYMENT", "WRITE_PROOF"],
+  "human_gate_actions": ["CREATE_CHECKOUT", "PUBLIC_POST", "SEND_OUTREACH", "CREATE_GITHUB_COMMIT", "CLONE_SILO", "DEPLOY", "CHANGE_PAYMENT_RAIL"],
+  "forbidden_actions": ["WITHDRAW_MONEY", "TRANSFER_MONEY", "EXPOSE_SECRET", "READ_ENV_SECRET", "CROSS_SILO_WRITE", "PUBLIC_POST_WITHOUT_APPROVAL"],
+  "network_policy": {"default": "deny", "allowed_hosts": ["localhost", "127.0.0.1"]},
+  "approval_directory": "BEC-PRIME/autonomy/QUEUE/APPROVED",
+  "work_order_directory": "BEC-PRIME/autonomy/QUEUE",
+  "proof_directory": "BEC-PRIME/autonomy/PROOFS",
+  "require_verified_payment_for_revenue_claim": true
+}

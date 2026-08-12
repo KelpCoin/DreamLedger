@@ -1,0 +1,11 @@
+{
+  "worker_id": "MTG",
+  "silo": "mtg",
+  "objective": "Find the next highest-value approved MTG revenue task without leaving the MTG silo.",
+  "price_nzd": 49,
+  "allowed_paths": ["BEC-PRIME/catalog/products", "BEC-PRIME/catalog/mtg", "BEC-PRIME/autonomy"],
+  "forbidden_silos": ["crypto", "media_music", "digital_products", "adult", "amplissa"],
+  "allowed_actions": ["READ_REPO", "WRITE_FILE", "RUN_TEST", "RUN_GAUNTLET", "CREATE_WORK_ORDER", "CHECK_DEPLOYMENT", "CHECK_PAYMENT", "WRITE_PROOF"],
+  "external_actions_require_human": ["CREATE_CHECKOUT", "PUBLIC_POST", "SEND_OUTREACH"],
+  "kill_after_consecutive_failures": 5
+}

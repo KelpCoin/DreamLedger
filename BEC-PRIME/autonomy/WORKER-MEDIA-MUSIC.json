@@ -1,0 +1,11 @@
+{
+  "worker_id": "MEDIA_MUSIC",
+  "silo": "media_music",
+  "objective": "Find the next highest-value approved media or music revenue task without leaving the media_music silo.",
+  "price_nzd": 499,
+  "allowed_paths": ["BEC-PRIME/catalog/products", "BEC-PRIME/catalog/media_music", "BEC-PRIME/autonomy"],
+  "forbidden_silos": ["mtg", "crypto", "digital_products", "adult", "amplissa"],
+  "allowed_actions": ["READ_REPO", "WRITE_FILE", "RUN_TEST", "RUN_GAUNTLET", "CREATE_WORK_ORDER", "CHECK_DEPLOYMENT", "CHECK_PAYMENT", "WRITE_PROOF"],
+  "external_actions_require_human": ["CREATE_CHECKOUT", "PUBLIC_POST", "SEND_OUTREACH"],
+  "kill_after_consecutive_failures": 5
+}

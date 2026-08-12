@@ -1,0 +1,11 @@
+{
+  "worker_id": "DIGITAL_PRODUCTS",
+  "silo": "digital_products",
+  "objective": "Find the next highest-value approved digital-product revenue task without leaving the digital_products silo.",
+  "price_nzd": 999,
+  "allowed_paths": ["BEC-PRIME/catalog/products", "BEC-PRIME/catalog/digital_products", "BEC-PRIME/autonomy"],
+  "forbidden_silos": ["mtg", "crypto", "media_music", "adult", "amplissa"],
+  "allowed_actions": ["READ_REPO", "WRITE_FILE", "RUN_TEST", "RUN_GAUNTLET", "CREATE_WORK_ORDER", "CHECK_DEPLOYMENT", "CHECK_PAYMENT", "WRITE_PROOF"],
+  "external_actions_require_human": ["CREATE_CHECKOUT", "PUBLIC_POST", "SEND_OUTREACH"],
+  "kill_after_consecutive_failures": 5
+}
