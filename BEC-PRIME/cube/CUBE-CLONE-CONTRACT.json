@@ -1,0 +1,12 @@
+{
+  "schema_version": "CUBE-CLONE-CONTRACT-1.0",
+  "source_repo": "KelpCoin/DreamLedger",
+  "purpose": "Clone isolated commercial surfaces without copying private control-plane material.",
+  "allowed_silos": ["mtg", "crypto", "media_music", "digital_products"],
+  "neutral_host": "dreamledger",
+  "isolation": {"catalog": true, "checkout": true, "analytics": true, "customer_data": true, "content": true, "promotion": true, "credentials": true},
+  "forbidden_source_paths": ["BEC-PRIME/catalog/ip-capabilities.json", ".env", ".env.*", "secrets", "private", "proofs/private"],
+  "required_inputs": ["silo_name", "product_name", "price_nzd", "stripe_product_id"],
+  "activation_rule": "Generation does not imply public activation. Deployment and promotion remain explicit operations.",
+  "money_claim_rule": "No revenue claim without verified payment evidence."
+}
