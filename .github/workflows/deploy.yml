@@ -12,6 +12,9 @@ concurrency:
   group: dreamledger-production-deploy
   cancel-in-progress: false
 
+env:
+  LIVE_URL: https://dreamledger.org
+
 jobs:
   verify:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
@@ -57,12 +60,17 @@ jobs:
       - name: Production asset gate
         run: |
           test -s compiled/website/index.html
+          test -s compiled/website/revenue.html
           test -s compiled/website/assets/marketplace-live.js
+          test -s compiled/website/portfolio/index.html
+          test -s compiled/website/economics/index.html
+          test -s compiled/website/economics/ip-manifest.json
           test -s catalog/offers/offers.json
           test -s catalog/offers/products.json
           test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
           test -s catalog/products/EDH_0001.json
           grep -q "BEC-PRIME\|Neutral front door\|DREAMLEDGER" compiled/website/index.html
+          grep -q "REVENUE PORTFOLIO\|REVENUE RAILS" compiled/website/revenue.html
 
   deploy:
     needs: verify
@@ -74,21 +82,32 @@ jobs:
         run: |
           test -n "$RENDER_DEPLOY_HOOK_URL"
           curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
-      - name: Wait for live deployment and prove public surface
+      - name: Wait for live deployment and prove public surfaces
         shell: bash
         run: |
           set -euo pipefail
-          url="https://dreamledger.org/"
+          root="${LIVE_URL}/"
+          revenue="${LIVE_URL}/revenue.html"
+          ip="${LIVE_URL}/ip.html"
+          engine="${LIVE_URL}/engine.html"
           for attempt in $(seq 1 30); do
-            body="$(curl --fail --silent --show-error --max-time 15 "$url" || true)"
-            if printf '%s' "$body" | grep -q "DREAMLEDGER" && printf '%s' "$body" | grep -q "Neutral front door"; then
-              printf '%s\n' '{"status":"PASS","url":"https://dreamledger.org/","checks":["DREAMLEDGER","Neutral front door"]}' | tee live-deployment-proof.json
+            root_body="$(curl --fail --silent --show-error --max-time 15 "$root" || true)"
+            revenue_body="$(curl --fail --silent --show-error --max-time 15 "$revenue" || true)"
+            ip_body="$(curl --fail --silent --show-error --max-time 15 "$ip" || true)"
+            engine_body="$(curl --fail --silent --show-error --max-time 15 "$engine" || true)"
+            if printf '%s' "$root_body" | grep -q "DREAMLEDGER" && \
+               printf '%s' "$root_body" | grep -q "Neutral front door" && \
+               printf '%s' "$root_body" | grep -q "Revenue Portfolio" && \
+               printf '%s' "$revenue_body" | grep -Eq "REVENUE PORTFOLIO|REVENUE RAILS" && \
+               printf '%s' "$ip_body" | grep -Eq "BEC-PRIME|IP|Constitution" && \
+               printf '%s' "$engine_body" | grep -Eq "BEC-PRIME|Commerce Kernel"; then
+              printf '%s\n' '{"status":"PASS","checks":["root","revenue","ip","engine"],"truth":"No revenue claim without verified payment proof"}' | tee live-deployment-proof.json
               exit 0
             fi
-            echo "Live deployment not yet serving current compiled surface (attempt $attempt/30)."
+            echo "Live deployment not yet serving the complete canonical surface (attempt $attempt/30)."
             sleep 10
           done
-          printf '%s\n' '{"status":"FAIL","url":"https://dreamledger.org/","reason":"Live host did not serve the canonical compiled DreamLedger surface after deploy trigger."}' | tee live-deployment-proof.json
+          printf '%s\n' '{"status":"FAIL","reason":"Live host did not serve root, revenue, IP and engine surfaces after deploy trigger."}' | tee live-deployment-proof.json
           exit 1
       - name: Upload live deployment proof
         if: always()
