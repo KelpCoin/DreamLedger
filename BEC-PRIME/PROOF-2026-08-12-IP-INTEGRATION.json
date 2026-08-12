@@ -1,0 +1,11 @@
+{
+  "proof_type":"IP_INTEGRATION",
+  "date":"2026-08-12",
+  "repository":"KelpCoin/DreamLedger",
+  "main_commits":["6f32d8d1d09bd41f1d6ba0beca3abe97cd1b2cb7","bf613fe0514f7281b3e544e82d6a81dbbb4b20be"],
+  "implemented_policy":["HUMANISER_REQUIRED","MIN_HUMAN_FOOTPRINTS=2","MEANINGFUL_ACTION_RETENTION","AUCTION_LANES","GLOBAL_AND_SILO_TICKERS","B2B_SILO_SEPARATION"],
+  "revenue":"unchanged",
+  "deployment":"not_claimed",
+  "public_posting":"not_performed",
+  "next_verification":"inspect main and run deployment/health checks"
+}
