@@ -1,13 +1,15 @@
 {
   "name": "dreamledger",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
-  "description": "DreamLedger storefront and BEC-PRIME commerce engine",
-  "main": "BEC-PRIME/server.js",
+  "description": "DreamLedger storefront and commerce engine",
+  "main": "BEC-PRIME/start.js",
   "scripts": {
-    "start": "node BEC-PRIME/compiler/OfferCompiler.js && node BEC-PRIME/compiler/QRCompiler.js && node -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
+    "start": "node BEC-PRIME/compiler/OfferCompiler.js && node BEC-PRIME/compiler/QRCompiler.js && node BEC-PRIME/compiler/SurfaceCompiler.js && node -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
+    "compile": "npm run compile:offers && npm run compile:qr && node BEC-PRIME/compiler/SurfaceCompiler.js",
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js",
-    "compile:qr": "node BEC-PRIME/compiler/QRCompiler.js"
+    "compile:qr": "node BEC-PRIME/compiler/QRCompiler.js",
+    "compile:surface": "node BEC-PRIME/compiler/SurfaceCompiler.js"
   },
   "engines": {
     "node": ">=20"
