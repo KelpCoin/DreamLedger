@@ -1,0 +1,1 @@
+{"schema":"dreamledger/ucp/v1","service":"DreamLedger","version":"1","entrypoints":{"catalog":"/api/marketplace","checkout":"/api/cart/checkout","health":"/api/omni/healthz"},"language":"en","translation":"runtime-capable","approval_required":true,"private_material":"excluded"}
