@@ -1,0 +1,5 @@
+{
+  "schema": "contracts/shared-avatar-asset.schema.json",
+  "generation_rule": "single canonical asset compiled for both ecosystems",
+  "assets": []
+}
