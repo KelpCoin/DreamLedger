@@ -1,0 +1,16 @@
+{
+  "gate": "ACCOUNT_AVATAR",
+  "date": "2026-08-13",
+  "status": "REQUIRED",
+  "acceptance": [
+    "register works",
+    "login works",
+    "session persists",
+    "avatar creator opens for authenticated user",
+    "avatar saves to account",
+    "logout/login restores avatar",
+    "phone-first flow works",
+    "shared avatar asset contract remains canonical"
+  ],
+  "rule": "Do not claim the website functional until these checks pass against the deployed runtime."
+}
