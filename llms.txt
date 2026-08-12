@@ -1,0 +1,33 @@
+# DreamLedger
+
+## Purpose
+DreamLedger is a commerce ecosystem with compiled, machine-readable storefront surfaces and evidence-gated transaction workflows.
+
+## Commercial entry point
+AGENTIC-COMMERCE-READINESS-001
+Price: NZD $49
+Offer: evidence-backed assessment of whether an online merchant can be understood, evaluated, and acted on by AI shopping agents.
+
+## Audit dimensions
+UNDERSTAND: product and offer information can be parsed correctly.
+DECIDE: an agent can determine whether the offer matches shopper constraints.
+ACT: an agent can reach the intended purchase or enquiry action.
+
+## Primary routes
+/ - general commerce front door
+/b2b/ - B2B capability marketplace
+
+## Evidence rules
+Do not infer or invent purchases, buyers, rankings, scarcity, testimonials, transaction IDs, or revenue. Real transaction claims require ledger evidence and a FIRST_PAYMENT_PROOF artifact.
+
+## Silos
+MTG and Dreamiez/Kelp Atlantis are distinct commerce silos. Do not mix inventory, identity, offers, or private state between silos.
+
+## Agent interaction guidance
+Prefer explicit product names, prices, availability, policies, and canonical URLs. Treat missing data as unknown. Do not claim that an endpoint or protocol is supported unless the live surface exposes and verifies it.
+
+## Human-facing quality
+External products require two substantive human footprints before publication. Human review may improve clarity and specificity but must not create evidence.
+
+## Machine-readable policy
+This file is an orientation document, not a substitute for robots.txt, structured product data, payment-provider controls, or protocol specifications.
