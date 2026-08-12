@@ -13,15 +13,20 @@
     "cancel_path": "/mtg"
   },
   "commercial_truth": {
-    "experiment": "20-DM-SIGNAL-TEST",
+    "experiment": "MTG-SALES-001",
     "approval_required": false,
-    "activation_gate": "FIRST_REVENUE_GATES_PASS",
+    "activation_gate": "CHECKOUT_VERIFIED",
     "activation_timestamp": "2026-08-12T00:00:00.000Z",
     "payment_surface": "engine-generated-stripe-checkout",
     "payment_link": null
   },
+  "delivery": {
+    "type": "digital_report",
+    "target": "commander-deck-diagnostic"
+  },
   "evidence": {
     "status": "awaiting_first_payment",
     "transaction_id": null
-  }
+  },
+  "execution_atom": "MTG-SALES-001"
 }
