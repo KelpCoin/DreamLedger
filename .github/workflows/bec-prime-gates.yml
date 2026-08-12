@@ -29,6 +29,10 @@ jobs:
       - name: Syntax gate
         run: node --check server.js && node --check start.js && node --check routes/omniCommerce.js && node --check routes/platformCart.js
 
+      - name: Dreamiez E2E smoke
+        continue-on-error: true
+        run: npm run smoke:dreamiez
+
       - name: Revenue ledger smoke
         run: npm run smoke:revenue-ledger
 
