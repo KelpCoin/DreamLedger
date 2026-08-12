@@ -37,6 +37,7 @@ jobs:
         run: |
           if (-not (Test-Path './BEC-PRIME/catalog/compiled/economic-tree.json')) { throw 'Economic tree was not compiled.' }
           if (-not (Test-Path './BEC-PRIME/compiled/website/economics/index.html')) { throw 'Economic tree public surface was not compiled.' }
+          if (-not (Test-Path './BEC-PRIME/compiled/website/economics/ip-manifest.json')) { throw 'IP manifest public surface was not compiled.' }
           if (-not (Test-Path './BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json')) { throw 'Economic tree proof missing.' }
           if (-not (Test-Path './BEC-PRIME/RUN-PROOFS')) { throw 'Compilation proof directory missing.' }
 
@@ -46,17 +47,17 @@ jobs:
           set -euo pipefail
           git config user.name "BEC-PRIME Compiler"
           git config user.email "bec-prime@users.noreply.github.com"
-          git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/RUN-PROOFS
+          git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/compiled/website/economics/ip-manifest.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/RUN-PROOFS
           if git diff --cached --quiet; then
             echo "No economic-tree changes."
             exit 0
           fi
-          git commit -m "chore: BEC-PRIME auto-compile economic tree [skip ci]"
+          git commit -m "chore: BEC-PRIME auto-compile IP economic kernel [skip ci]"
           for attempt in 1 2 3; do
             git fetch origin main
             if git rebase origin/main; then
               if git push origin HEAD:main; then
-                echo "Generated economic-tree state pushed."
+                echo "Generated IP and economic-tree state pushed."
                 exit 0
               fi
             else

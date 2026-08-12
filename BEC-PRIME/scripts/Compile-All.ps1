@@ -37,24 +37,27 @@ if (Test-Path (Join-Path $PSScriptRoot 'Verify-Offers.ps1')) {
 }
 
 $proof = [ordered]@{
-    schema = 'BEC-PRIME/FULL-COMPILATION/v2'
+    schema = 'BEC-PRIME/FULL-COMPILATION/v3'
     status = 'PASS'
     compiled_at = (Get-Date).ToUniversalTime().ToString('o')
     compiler = 'Compile-All.ps1'
     inputs = @(
         'package.json',
         'BEC-PRIME/economics/ECONOMIC-TREES.json',
+        'BEC-PRIME/economics/IP-ECONOMIC-COMPILATION.json',
         'BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json'
     )
     outputs = @(
         'catalog/compiled',
         'compiled/website',
+        'compiled/website/economics/ip-manifest.json',
         'PROOF-ECONOMIC-TREE-COMPILATION.json',
         'PROOF-SILO-PORTFOLIO-COMPILATION.json'
     )
     guarantees = @{
         existing_dreamledger_compile = $true
         economic_tree_compile = $true
+        ip_contract_compile = $true
         silo_portfolio_compile = $true
         payment_claims_created = $false
         external_actions_created = $false
