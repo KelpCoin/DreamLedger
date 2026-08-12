@@ -1,0 +1,9 @@
+priority,merchant_class,why_now,test_first,commercial_hook
+P1,large_catalog_retailer,"many products + variants + meaningful transaction value","hardest high-value SKU","Can an agent correctly understand and act on your most complex offer?"
+P1,consumer_electronics,"spec-heavy comparison + stock + variants","highest-value configurable product","Can an agent compare the exact configuration without guessing?"
+P1,furniture_home,"dimensions + variants + delivery constraints","largest or most complex item","Can an agent determine whether this item fits a buyer's constraints?"
+P1,specialty_sports,"technical attributes + size/fit + inventory","highest-value technical SKU","Can an agent select the correct option from your product data?"
+P1,professional_services,"service qualification + enquiry action","highest-value service","Can an agent determine eligibility and reach the correct enquiry action?"
+P2,health_beauty,"variant/ingredient/usage information","highest-value multi-variant product","Can an agent distinguish the correct product and constraints?"
+P2,food_beverage,"pack size + subscription/repeat purchase + delivery","highest-value bundle","Can an agent understand pack and fulfilment choices?"
+P2,fashion,"size/color/stock + returns","highest-value variant-rich SKU","Can an agent select a valid purchasable variant?"
