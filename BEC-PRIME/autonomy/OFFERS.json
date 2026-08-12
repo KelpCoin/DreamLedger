@@ -1,5 +1,5 @@
 {
-  "schema_version": "BEC-OFFERS-1.0",
+  "schema_version": "BEC-OFFERS-2.0",
   "neutral_host": "dreamledger",
   "offers": [
     {
@@ -7,46 +7,22 @@
       "silo": "MTG",
       "name": "Commander Deck Diagnostic",
       "price_nzd": 25,
-      "status": "ready_for_approval",
-      "checkout_available": false,
-      "public_action_requires_approval": true,
-      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\MTG_DIAGNOSTIC_NZD_25.json"
-    },
-    {
-      "id": "CRYPTO-49-001",
-      "silo": "CRYPTO",
-      "name": "Wallet Audit + Tax Report",
-      "price_nzd": 49,
-      "status": "ready_for_approval",
-      "checkout_available": false,
-      "public_action_requires_approval": true,
-      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\CRYPTO_49_001.json"
-    },
-    {
-      "id": "MEDIA-49-001",
-      "silo": "MEDIA_MUSIC",
-      "name": "Beat Pack + Cover Art Bundle",
-      "price_nzd": 49,
-      "status": "ready_for_approval",
-      "checkout_available": false,
-      "public_action_requires_approval": true,
-      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\MEDIA_49_001.json"
-    },
-    {
-      "id": "DIGITAL-49-001",
-      "silo": "DIGITAL_PRODUCTS",
-      "name": "CUBE Micro-Silo Starter",
-      "price_nzd": 49,
-      "status": "ready_for_approval",
-      "checkout_available": false,
-      "public_action_requires_approval": true,
-      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\DIGITAL_49_001.json"
+      "status": "VERIFIED_AVAILABLE",
+      "checkout_available": true,
+      "public_action_requires_approval": false,
+      "approval_required": false,
+      "checkout_route": "/api/checkout/create",
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "fossil_path": "D:\\BrownEyeCortex\\BEC-PRIME\\Proof\\Fossils\\FIRST_PAYMENT_PROOF.json"
     }
   ],
   "rules": {
+    "single_active_silo": "MTG",
     "cross_silo_offers": false,
     "cross_silo_customer_data": false,
-    "checkout_creation_requires_human_approval": true,
-    "revenue_requires_verified_payment": true
+    "checkout_creation_requires_human_approval": false,
+    "revenue_requires_verified_payment": true,
+    "public_outreach_requires_human_approval": true,
+    "rabbit_mode_requires_three_independent_payments": true
   }
 }

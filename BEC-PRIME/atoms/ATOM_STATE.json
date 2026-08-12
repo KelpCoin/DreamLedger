@@ -1,0 +1,13 @@
+{
+  "verified_revenue_nzd": 0,
+  "payments": 0,
+  "fulfilled_orders": 0,
+  "repeat_payments": 0,
+  "active_experiments": 1,
+  "winner": null,
+  "rabbit_mode": false,
+  "last_atom": null,
+  "last_status": null,
+  "next_atom": "MTG-001",
+  "last_updated": null
+}
