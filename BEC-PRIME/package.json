@@ -1,14 +1,14 @@
 {
   "name": "dreamledger",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "DreamLedger commerce engine",
   "main": "server.js",
   "scripts": {
-    "compile": "node compiler/OfferCompiler.js && node compiler/QRCompiler.js && node compiler/SurfaceCompiler.js && node compiler/SiloPortfolioCompiler.js && node compiler/PriceDisplayPatch.js && node scripts/verify-public-surface.js",
+    "compile": "node compiler/OfferCompiler.js && node compiler/QRCompiler.js && node compiler/SurfaceCompiler.js && node compiler/SiloPortfolioCompiler.js && node scripts/verify-public-surface.js",
     "start": "npm run compile && node -r ./lib/qrPreload.js start.js",
     "compile:offers": "node compiler/OfferCompiler.js",
     "compile:qr": "node compiler/QRCompiler.js",
-    "compile:surface": "node compiler/SurfaceCompiler.js && node compiler/SiloPortfolioCompiler.js && node compiler/PriceDisplayPatch.js",
+    "compile:surface": "node compiler/SurfaceCompiler.js",
     "compile:silos": "node compiler/SiloPortfolioCompiler.js",
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
