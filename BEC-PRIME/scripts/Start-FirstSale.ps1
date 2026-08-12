@@ -2,15 +2,15 @@
 [CmdletBinding()]
 param(
     [string]$BaseUrl = 'https://dreamledger.org',
-    [string]$ProductId = 'COMMANDER-DECK-DIAGNOSTIC-001',
-    [string]$ProofPath = 'D:\BEC_FIRST_SALE.json'
+    [string]$ProductId = 'AGENTIC-COMMERCE-READINESS-001',
+    [string]$ProofPath = 'D:\BrownEyeCortex\BEC-PRIME\RUN-PROOFS\FIRST-CHECKOUT-ATTEMPT.json'
 )
 
 $ErrorActionPreference = 'Stop'
 $BaseUrl = $BaseUrl.TrimEnd('/')
 $started = Get-Date
 $result = [ordered]@{
-    launcher = 'BEC-PRIME Start-FirstSale v1.0'
+    launcher = 'BEC-PRIME Start-FirstSale v2.0'
     started_at_utc = $started.ToUniversalTime().ToString('o')
     base_url = $BaseUrl
     product_id = $ProductId
@@ -27,7 +27,7 @@ try {
     $product = Invoke-RestMethod -Uri "$BaseUrl/api/products/$ProductId" -Method Get -Headers @{ 'Cache-Control' = 'no-cache' }
     if ($product.id -ne $ProductId) { throw 'Product not found' }
     if ($product.status -ne 'published') { throw 'Product is not published' }
-    if (-not $product.approval_required -eq $false) { throw 'Product approval gate is still on' }
+    if ($product.approval_required -ne $false) { throw 'Product approval gate is still on' }
     if ([int]$product.inventory -lt 1) { throw 'Product inventory unavailable' }
 
     $body = @{ offer_id = $ProductId; region = 'NZ' } | ConvertTo-Json
@@ -54,6 +54,7 @@ finally {
 
 Write-Host "STATUS: $($result.status)"
 Write-Host "PRODUCT: $ProductId"
+if ($result.amount_minor) { Write-Host "AMOUNT MINOR: $($result.amount_minor)" }
 if ($result.checkout_url) { Write-Host "CHECKOUT URL: $($result.checkout_url)" }
 if ($result.session_id) { Write-Host "STRIPE SESSION: $($result.session_id)" }
 if ($result.blocker) { Write-Host "BLOCKER: $($result.blocker)" }
