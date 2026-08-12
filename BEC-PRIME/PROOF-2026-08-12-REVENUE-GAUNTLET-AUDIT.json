@@ -1,0 +1,69 @@
+{
+  "type": "bec-prime-revenue-gauntlet-audit",
+  "date": "2026-08-12",
+  "status": "FAIL_REVENUE_PATH_NOT_CLOSED",
+  "truth": {
+    "verified_revenue_nzd": 0,
+    "payment_evidence": "none observed"
+  },
+  "checks": [
+    {
+      "id": "canonical-neutral-surface",
+      "status": "PASS",
+      "evidence": "main compiled website contains a neutral front door, horizontal x-scroll world rail, Dreamy account CTA, and MTG silo entry"
+    },
+    {
+      "id": "live-surface",
+      "status": "FAIL",
+      "evidence": "live https://dreamledger.org currently resolves to 'Dream Ledger Deck', while main contains the neutral carousel surface"
+    },
+    {
+      "id": "mtg-root-isolation",
+      "status": "PASS",
+      "evidence": "main homepage source keeps MTG behind /mtg and does not render a mixed product catalogue"
+    },
+    {
+      "id": "dreamy-account-entry",
+      "status": "PASS",
+      "evidence": "main homepage places Make an account and Make your Dreamy in the top-right navigation and routes to Dreamiez registration"
+    },
+    {
+      "id": "gauntlet-source",
+      "status": "PASS",
+      "evidence": "GauntletV6 exists and enforces approval-gated, checkout-disabled canonical offers plus capability linkage and silo/privacy checks"
+    },
+    {
+      "id": "commercial-catalog",
+      "status": "FAIL_FOR_REVENUE",
+      "evidence": "canonical compiled offer catalog contains 27 passed candidates but explicitly sets approval_required=true and checkout_available=false"
+    },
+    {
+      "id": "first-sale-product",
+      "status": "FAIL",
+      "evidence": "AGENTIC-COMMERCE-READINESS-001 is published at NZD 49, but payment_link is null and evidence.transaction_id is null"
+    },
+    {
+      "id": "deployment-proof",
+      "status": "FAIL",
+      "evidence": "neutral carousel proof explicitly records IMPLEMENTED_NOT_LIVE_VERIFIED / PENDING_DEPLOYMENT"
+    },
+    {
+      "id": "ci-execution",
+      "status": "UNKNOWN",
+      "evidence": "BEC-PRIME Gates workflow contains a Gauntlet step, but current main commit has no reported combined status from the connected GitHub status endpoint"
+    }
+  ],
+  "gauntlet_verdict": {
+    "atomize": "The actual bottleneck is not architecture. It is deployment plus payment activation.",
+    "attack": "A buyer cannot reliably reach the intended current surface, and the strongest published product has no payment link.",
+    "invert": "Adding more products, silos, agents, assets, or market research before closing this path increases surface area without increasing cash probability.",
+    "rebuild": "Use one verified commercial wedge, deploy the canonical neutral surface, connect a real checkout, verify webhook evidence, then expand using the existing IP stack."
+  },
+  "highest_leverage_wedge": {
+    "sku": "AGENTIC-COMMERCE-READINESS-001",
+    "price_nzd": 49,
+    "reason": "It directly commercializes the existing agentic-commerce/readiness IP instead of inventing another unrelated product."
+  },
+  "next_gate": "LIVE_SURFACE -> REAL_CHECKOUT -> REAL_PAYMENT -> WEBHOOK -> FOSSIL",
+  "no_revenue_claim": true
+}
