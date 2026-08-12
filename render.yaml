@@ -5,7 +5,7 @@ services:
     branch: main
     rootDir: BEC-PRIME
     autoDeployTrigger: commit
-    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node --check server.js
+    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node scripts/verify-public-boundary.js && node scripts/verify-public-surface.js && node --check server.js
     startCommand: npm start
     healthCheckPath: /healthz
     disk:
@@ -24,6 +24,8 @@ services:
       - key: DEMAND_RADAR_DATA_DIR
         value: /var/data/demand
       - key: DIGITAL_PROXY_APPROVAL_TOKEN
+        generateValue: true
+      - key: MARKETPLACE_ADMIN_TOKEN
         generateValue: true
       - key: DIGITAL_PROXY_LM_ENABLED
         value: "false"
