@@ -1,0 +1,26 @@
+{
+  "schema": "BEC-PRIME/PROOF-FIX-EVERYTHING/v1",
+  "status": "IMPLEMENTED_PENDING_LIVE_DEPLOY_PROOF",
+  "utc": "2026-08-12T16:04:00+12:00",
+  "repository": "KelpCoin/DreamLedger",
+  "changes": [
+    "Made the BEC-PRIME IP and money architecture explicit in a durable human-readable index.",
+    "Exposed the Revenue Portfolio from the neutral DreamLedger front door.",
+    "Added a visible Revenue Portfolio world/card to the thumb-first catalogue.",
+    "Hardened deployment verification so production must prove root, revenue, IP and engine surfaces after deploy.",
+    "Kept the payment truth boundary fail-closed: no payment means no verified revenue claim."
+  ],
+  "commits": [
+    "f91060e8c1f381fc831d621ee0d5ee88848096c7",
+    "0d5343698e0ecadf9031492d6446a19b5f5f72b9",
+    "89159b098149ef5a71a3d1146b07459b99887c38"
+  ],
+  "required_live_checks": [
+    "/",
+    "/revenue.html",
+    "/ip.html",
+    "/engine.html"
+  ],
+  "revenue_truth": "Only a real payment plus valid webhook-derived proof changes verified revenue from zero.",
+  "operator_verifier": "GitHub Actions workflow .github/workflows/deploy.yml performs the live-surface proof after deployment."
+}
