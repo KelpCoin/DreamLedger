@@ -38,6 +38,8 @@ jobs:
           node --check compiler/PriceDisplayPatch.js
           node --check compiler/PublicSurfaceContractPatch.js
           node --check scripts/smoke-dreamiez.js
+          node --check scripts/smoke-revenue-ledger.js
+          node --check scripts/smoke-production.js
           node --check scripts/meta-gauntlet.js
           node --check gauntlet/GauntletV6.js
           node --check elohim/ElohimV6.js
@@ -82,3 +84,28 @@ jobs:
           fi
           curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
           echo "Render deploy hook triggered after acceptance gate PASS."
+
+  production-smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Wait for Render deployment and test real public surface
+        working-directory: BEC-PRIME
+        env:
+          SMOKE_BASE_URL: https://dreamledger.org
+        run: |
+          for i in $(seq 1 12); do
+            echo "Production smoke attempt $i/12"
+            if npm run smoke:production; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "PRODUCTION SMOKE FAILED: dreamledger.org is not serving the current DreamLedger commerce runtime."
+          exit 1
