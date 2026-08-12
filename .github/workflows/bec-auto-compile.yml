@@ -8,7 +8,7 @@ on:
     - cron: '*/30 * * * *'
 
 concurrency:
-  group: bec-prime-compile
+  group: bec-prime-compile-production
   cancel-in-progress: false
 
 permissions:
@@ -27,21 +27,45 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install compiler dependencies
+        shell: bash
+        run: |
+          cd BEC-PRIME
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
       - name: Compile all BEC-PRIME surfaces
         shell: pwsh
         run: ./BEC-PRIME/scripts/Compile-All.ps1
 
-      - name: Verify generated state
+      - name: Verify generated state and public boundary
         shell: pwsh
         run: |
-          if (-not (Test-Path './BEC-PRIME/catalog/compiled/economic-tree.json')) { throw 'Economic tree was not compiled.' }
-          if (-not (Test-Path './BEC-PRIME/compiled/website/economics/index.html')) { throw 'Economic tree public surface was not compiled.' }
-          if (-not (Test-Path './BEC-PRIME/compiled/website/economics/ip-manifest.json')) { throw 'IP manifest public surface was not compiled.' }
-          if (-not (Test-Path './BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json')) { throw 'Economic tree proof missing.' }
+          $required = @(
+            './BEC-PRIME/catalog/compiled/economic-tree.json',
+            './BEC-PRIME/compiled/website/economics/index.html',
+            './BEC-PRIME/compiled/website/economics/ip-manifest.json',
+            './BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json'
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path $path)) { throw "Required compiler output missing: $path" }
+          }
+          $manifest = Get-Content './BEC-PRIME/compiled/website/economics/ip-manifest.json' -Raw | ConvertFrom-Json
+          if ($manifest.public_boundary -notmatch 'private implementation paths') { throw 'Public boundary contract is missing private-path protection.' }
           if (-not (Test-Path './BEC-PRIME/RUN-PROOFS')) { throw 'Compilation proof directory missing.' }
 
-      - name: Commit economic-tree state with race-safe push
+      - name: Scan public tree for obvious secret material
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -n -I -E 'sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*[:=]|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY' -- . ':!package-lock.json'; then
+            echo 'Potential secret material detected in repository.'
+            exit 1
+          fi
+
+      - name: Commit generated state with race-safe push
         shell: bash
         run: |
           set -euo pipefail
@@ -49,7 +73,7 @@ jobs:
           git config user.email "bec-prime@users.noreply.github.com"
           git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/compiled/website/economics/ip-manifest.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/RUN-PROOFS
           if git diff --cached --quiet; then
-            echo "No economic-tree changes."
+            echo "No generated changes."
             exit 0
           fi
           git commit -m "chore: BEC-PRIME auto-compile IP economic kernel [skip ci]"
@@ -57,7 +81,7 @@ jobs:
             git fetch origin main
             if git rebase origin/main; then
               if git push origin HEAD:main; then
-                echo "Generated IP and economic-tree state pushed."
+                echo "Generated IP and economic state pushed."
                 exit 0
               fi
             else
