@@ -10,14 +10,23 @@ New-Item -ItemType Directory -Force -Path $ProofDir | Out-Null
 
 Write-Host '=== BEC-PRIME FULL COMPILER ===' -ForegroundColor Cyan
 
+if (Test-Path (Join-Path $Root 'package.json')) {
+    Write-Host '[0/4] Installing declared Node dependencies...' -ForegroundColor Yellow
+    npm install --no-audit --no-fund
+    if ($LASTEXITCODE -ne 0) { throw 'npm install failed.' }
+}
+
+Write-Host '[1/4] Compiling the existing DreamLedger surface...' -ForegroundColor Yellow
+npm run compile
+if ($LASTEXITCODE -ne 0) { throw 'DreamLedger npm compile failed.' }
+
 $steps = @(
-    @{ Name = 'Offers'; Command = { node compiler/OfferCompiler.js } },
     @{ Name = 'EconomicTrees'; Command = { node compiler/Compile-EconomicTrees.js } },
     @{ Name = 'SiloPortfolio'; Command = { node compiler/SiloPortfolioCompiler.js } }
 )
 
 foreach ($step in $steps) {
-    Write-Host (('[{0}] compiling...' -f $step.Name)) -ForegroundColor Yellow
+    Write-Host (('[2/4] {0} compiling...' -f $step.Name)) -ForegroundColor Yellow
     & $step.Command
     if ($LASTEXITCODE -ne 0) { throw ('Compiler failed: ' + $step.Name) }
 }
@@ -28,16 +37,28 @@ if (Test-Path (Join-Path $PSScriptRoot 'Verify-Offers.ps1')) {
 }
 
 $proof = [ordered]@{
-    schema = 'BEC-PRIME/FULL-COMPILATION/v1'
+    schema = 'BEC-PRIME/FULL-COMPILATION/v2'
     status = 'PASS'
     compiled_at = (Get-Date).ToUniversalTime().ToString('o')
     compiler = 'Compile-All.ps1'
+    inputs = @(
+        'package.json',
+        'BEC-PRIME/economics/ECONOMIC-TREES.json',
+        'BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json'
+    )
     outputs = @(
         'catalog/compiled',
         'compiled/website',
         'PROOF-ECONOMIC-TREE-COMPILATION.json',
         'PROOF-SILO-PORTFOLIO-COMPILATION.json'
     )
+    guarantees = @{
+        existing_dreamledger_compile = $true
+        economic_tree_compile = $true
+        silo_portfolio_compile = $true
+        payment_claims_created = $false
+        external_actions_created = $false
+    }
 }
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $proofPath = Join-Path $ProofDir ('FULL-COMPILATION-' + $stamp + '.json')
