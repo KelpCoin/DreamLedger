@@ -1,0 +1,28 @@
+{
+  "proof_type":"IP_CONVERGENCE_AND_MONEY_GATE",
+  "created_at":"2026-08-12",
+  "repository":"KelpCoin/DreamLedger",
+  "status":"READY_FOR_FIRST_BUYER",
+  "convergence":{
+    "prior_architecture_sources":["BEC-PRIME/catalog/ip-capabilities.json","BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json","BEC-PRIME/PROOF-2026-08-11-DREAMLEDGER-SURFACE-COMPLETE.json"],
+    "current_ecosystem_sources":["ComfyUI local/API workflow infrastructure","Three.js + VRM browser rendering","open-source VRM asset registry"],
+    "canonical_thesis":"Demand -> Elohim Refinery -> Offer -> Gauntlet -> Approval -> CUBE -> Checkout -> Settlement -> Proof",
+    "shared_asset_rule":"Every Dreamiez asset is also a Kelp Atlantis asset and vice versa"
+  },
+  "commercial_wedge":{
+    "sku":"AGENTIC-COMMERCE-READINESS-001",
+    "price_nzd":49,
+    "checkout_available":true,
+    "approval_required":false,
+    "surface":"/portfolio/agentic-commerce-readiness-001.html",
+    "checkout_route":"/api/checkout/create"
+  },
+  "money_boundary":{
+    "transaction_id":null,
+    "first_payment_proof":"NOT_YET_CREATED",
+    "revenue_claim":0,
+    "rule":"Only a verified settlement webhook with a real transaction ID creates FIRST_PAYMENT_PROOF."
+  },
+  "ip_boundary":"This proof records system architecture and commercial convergence. It does not assert registered patent, trademark, or copyright status. Third-party dependencies remain governed by their licenses.",
+  "verification":"Confirm product catalog price is 4900 cents NZD, surface exists, checkout route returns a real session URL, then wait for verified webhook evidence."
+}
