@@ -2,7 +2,7 @@
   "schema": "BEC-PRIME/SILO-PORTFOLIO/v1",
   "status": "COMPILED",
   "compiler": "SiloPortfolioCompiler",
-  "compiled_at": "2026-08-12T13:27:18.537Z",
+  "compiled_at": "2026-08-12T13:28:53.256Z",
   "source_hash": "15ebf708bdc16f829dcfa8e0a5dd7352dcd9b0aa3338724a6e724505118f5e5d",
   "activation_policy": {
     "approval_required": true,
