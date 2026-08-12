@@ -9,6 +9,7 @@ const { Readable } = require('stream');
 const dreamiezAccount = require('./dreamiez-account');
 const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
+const omniCommerce = require('./runtime/OmniCommerce');
 const sentinel = require('./runtime/Sentinel');
 const digitalProxyAssistant = require('./proxy/DigitalProxyAssistant');
 
@@ -119,6 +120,8 @@ http.createServer = function wrappedCreateServer(...args) {
     const requestPath = String(req.url || '').split('?')[0];
     demandRadar.record('route', { route: requestPath, source: 'runtime' });
 
+    if (await omniCommerce.handle(req, res)) return;
+
     if (req.method === 'GET' && requestPath === '/api/products') {
       try {
         const products = loadApprovedProducts().map(publicCheckoutableProduct).filter(Boolean);
@@ -184,17 +187,9 @@ http.createServer = function wrappedCreateServer(...args) {
       }
     }
 
-    if (req.method === 'GET' && requestPath === '/api/control/demand') {
-      return send(res, 404, { error: 'Not found' });
-    }
-
-    if (req.method === 'POST' && requestPath === '/api/control/demand/record') {
-      return send(res, 404, { error: 'Not found' });
-    }
-
-    if (req.method === 'GET' && requestPath === '/api/control/sentinel') {
-      return send(res, 404, { error: 'Not found' });
-    }
+    if (req.method === 'GET' && requestPath === '/api/control/demand') return send(res, 404, { error: 'Not found' });
+    if (req.method === 'POST' && requestPath === '/api/control/demand/record') return send(res, 404, { error: 'Not found' });
+    if (req.method === 'GET' && requestPath === '/api/control/sentinel') return send(res, 404, { error: 'Not found' });
 
     if (await dreamiezAccount.handle(req, res)) return;
     if (await controlPlane.handle(req, res)) return;
@@ -229,15 +224,9 @@ function proxyProductCheckout(res, productId, silo, payload) {
 const boot = controlPlane.boot();
 const sentinelResult = sentinel.run(boot.gauntlet);
 console.log(JSON.stringify({ control_plane_boot: boot, sentinel: sentinelResult }, null, 2));
-if (boot.status !== 'PASS' || sentinelResult.verdict !== 'PASS') {
-  throw new Error('Enterprise boot gate failed; refusing to start runtime');
-}
+if (boot.status !== 'PASS' || sentinelResult.verdict !== 'PASS') throw new Error('Enterprise boot gate failed; refusing to start runtime');
 
 require('./server.js');
 
 if (!capturedServer) throw new Error('DreamLedger server did not create an HTTP server');
-if (!capturedServer.listening) {
-  capturedServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`DreamLedger commerce runtime listening on 0.0.0.0:${PORT}`);
-  });
-}
+if (!capturedServer.listening) capturedServer.listen(PORT, '0.0.0.0', () => console.log(`DreamLedger commerce runtime listening on 0.0.0.0:${PORT}`));
