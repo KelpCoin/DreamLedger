@@ -1,0 +1,33 @@
+{
+  "schema": "BEC-AUTONOMY-CONFIG-1",
+  "enabled": true,
+  "mode": "local-first",
+  "poll_seconds": 300,
+  "lm_studio": {
+    "base_url": "http://127.0.0.1:1234/v1",
+    "model": "qwen2.5-7b-instruct",
+    "timeout_seconds": 120
+  },
+  "dreamledger": {
+    "base_url": "https://dreamledger.org",
+    "products_path": "/api/products",
+    "offers_path": "/api/offers",
+    "health_path": "/healthz"
+  },
+  "automation": {
+    "discover": true,
+    "gauntlet": true,
+    "refine": true,
+    "generate_actions": true,
+    "create_checkout_only_on_buyer_intent": true,
+    "external_publish_requires_approval": true,
+    "financial_settlement_requires_buyer_authorization": true
+  },
+  "paths": {
+    "root": "D:\\BrownEyeCortex\\DreamLedgerAutonomy",
+    "logs": "D:\\BrownEyeCortex\\DreamLedgerAutonomy\\logs",
+    "proofs": "D:\\BrownEyeCortex\\DreamLedgerAutonomy\\proofs",
+    "queue": "D:\\BrownEyeCortex\\DreamLedgerAutonomy\\queue",
+    "state": "D:\\BrownEyeCortex\\DreamLedgerAutonomy\\state"
+  }
+}
