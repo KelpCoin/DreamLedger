@@ -1,5 +1,7 @@
 'use strict';
 
+// CUBE runtime bootstrap. Public routes are fail-closed: gated/internal
+// products are never projected through the public product API.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -69,13 +71,29 @@ function productAsOffer(product) {
     pricing_tier: null,
     eligibility: 'Available while inventory remains.',
     proof_of_delivery: 'stripe_payment_plus_durable_transaction_proof',
-    refund_policy: 'Apply the published checkout policy.',
     approval_required: false,
     checkout_available: !sold,
     checkout_route: '/api/offer-checkout/create',
     status: sold ? 'sold' : 'published',
     verification_rules: ['canonical_product', 'explicit_operator_approval', 'inventory_positive', 'stripe_checkout', 'webhook_proof'],
     private_material_excluded: true
+  };
+}
+
+function publicCheckoutableProduct(product) {
+  const sold = Number(product.inventory || 0) < 1;
+  if (sold) return null;
+  return {
+    id: product.id,
+    silo: product.silo,
+    name: product.name,
+    description: product.description,
+    price: Number(product.price),
+    currency: product.currency,
+    inventory: Number(product.inventory),
+    status: 'published',
+    approval_required: false,
+    checkout_available: true
   };
 }
 
@@ -99,6 +117,22 @@ http.createServer = function wrappedCreateServer(...args) {
   args[0] = async function dreamledgerRuntimeHandler(req, res) {
     const requestPath = String(req.url || '').split('?')[0];
     demandRadar.record('route', { route: requestPath, source: 'runtime' });
+
+    if (req.method === 'GET' && requestPath === '/api/products') {
+      try {
+        const products = loadApprovedProducts().map(publicCheckoutableProduct).filter(Boolean);
+        return send(res, 200, { products });
+      } catch (err) {
+        return send(res, 500, { error: 'Product surface unavailable' });
+      }
+    }
+
+    if (req.method === 'GET' && requestPath.startsWith('/api/products/')) {
+      const productId = requestPath.slice('/api/products/'.length);
+      const product = loadApprovedProducts().find(item => item.id === productId);
+      const publicProduct = product ? publicCheckoutableProduct(product) : null;
+      return publicProduct ? send(res, 200, publicProduct) : send(res, 404, { error: 'Product not available' });
+    }
 
     if (req.method === 'GET' && requestPath === '/api/offers') {
       try {
@@ -131,7 +165,7 @@ http.createServer = function wrappedCreateServer(...args) {
       }
     }
 
-    if (req.method === 'POST' && requestPath === '/api/digital-proxy/help') {
+    if (req.method === 'GET' && requestPath === '/api/digital-proxy/help') {
       try {
         const body = await jsonBody(req);
         demandRadar.record('help_request', { route: requestPath, source: 'digital-proxy' });
