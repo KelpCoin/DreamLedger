@@ -15,7 +15,7 @@ $ip = Join-Path $root 'catalog\ip-capabilities.json'
 $frontDoor = Join-Path $root '..\index.html'
 $proof = Join-Path $root 'Proof\WealthEngine\WEALTH-ENGINE-CANDIDATE-GAUNTLET.json'
 
-Check 'candidate_exists' (Test-Path $candidate)
+Check 'offer_exists' (Test-Path $candidate)
 Check 'surface_audit_script_exists' (Test-Path $audit)
 Check 'wealth_gauntlet_runner_exists' (Test-Path $gauntlet)
 Check 'gauntlet_engine_exists' (Test-Path $engine)
@@ -24,10 +24,10 @@ Check 'neutral_front_door_exists' (Test-Path $frontDoor)
 
 if (Test-Path $candidate) {
     $c = Get-Content -Raw $candidate | ConvertFrom-Json
-    Check 'candidate_price_is_500_nzd' ([int]$c.price -eq 500 -and $c.currency -eq 'nzd')
-    Check 'candidate_is_approval_gated' ($c.approval_required -eq $true)
-    Check 'candidate_checkout_is_disabled' ($c.checkout_available -eq $false)
-    Check 'candidate_is_not_claimed_as_revenue' ($c.evidence.status -eq 'unproven' -and $null -eq $c.evidence.transaction_id)
+    Check 'offer_price_is_500_nzd' ([int]$c.price -eq 500 -and $c.currency -eq 'nzd')
+    Check 'offer_is_live' ($c.status -eq 'published' -and $c.checkout_available -eq $true)
+    Check 'offer_is_not_still_approval_blocked' ($c.approval_required -eq $false)
+    Check 'offer_is_not_claimed_as_revenue' ($c.commercial_truth.first_payment_proven -eq $false -and $c.evidence.status -eq 'unproven' -and $null -eq $c.evidence.transaction_id)
 }
 
 if (Test-Path $frontDoor) {
@@ -41,9 +41,10 @@ $failed = @($checks | Where-Object status -eq 'FAIL')
 $proofDir = Join-Path $root 'Proof\WealthEngine'
 if (-not (Test-Path $proofDir)) { New-Item -ItemType Directory -Path $proofDir -Force | Out-Null }
 $report = [ordered]@{
-    schema_version = 'BEC-WEALTH-VERIFY-1.0'
+    schema_version = 'BEC-WEALTH-VERIFY-1.1'
     event = 'wealth_engine.verification'
     status = $(if ($failed.Count -eq 0) { 'PASS' } else { 'FAIL' })
+    revenue_truth = 'NZD 0 until a real payment webhook supplies a real transaction_id'
     checks = $checks
     verified_at_utc = (Get-Date).ToUniversalTime().ToString('o')
 }
