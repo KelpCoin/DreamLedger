@@ -1,0 +1,52 @@
+{
+  "schema": "BEC-PRIME/ECONOMIC-TREES/v1",
+  "status": "CANONICAL_INPUT",
+  "purpose": "Economic routing tree for DreamLedger compilation. This is a planning and prioritization input, not a revenue claim.",
+  "root": {
+    "id": "ROOT",
+    "name": "DreamLedger Commerce",
+    "children": [
+      {
+        "id": "MTG",
+        "name": "MTG",
+        "constraint": "SILO_ISOLATED",
+        "offers": [
+          { "sku": "MTG-COMMANDER-DIAGNOSTIC-025", "price_nzd": 25, "status": "APPROVAL_GATED" }
+        ]
+      },
+      {
+        "id": "AGENTIC_COMMERCE",
+        "name": "Agentic Commerce Readiness",
+        "constraint": "SILO_ISOLATED",
+        "offers": [
+          { "sku": "AGENTIC-COMMERCE-READINESS-001", "price_nzd": 49, "status": "APPROVAL_GATED" }
+        ]
+      },
+      {
+        "id": "DIGITAL_PRODUCTS",
+        "name": "Digital Products",
+        "constraint": "SILO_ISOLATED",
+        "offers": []
+      }
+    ]
+  },
+  "economic_loop": [
+    "DEMAND_SIGNAL",
+    "OFFER_CANDIDATE",
+    "GAUNTLET",
+    "APPROVAL",
+    "CHECKOUT",
+    "PAYMENT",
+    "FULFILMENT",
+    "PROOF",
+    "LEARNING",
+    "RECOMPILE"
+  ],
+  "truth_rules": {
+    "revenue_requires_payment_event": true,
+    "payment_requires_verified_provider_event": true,
+    "gauntlet_pass_is_not_revenue": true,
+    "approval_required_for_public_external_actions": true,
+    "silo_cross_contamination_forbidden": true
+  }
+}
