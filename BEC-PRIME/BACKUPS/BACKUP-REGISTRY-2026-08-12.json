@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "created_utc": "2026-08-12T06:20:00Z",
+  "purpose": "Protect recoverable DreamLedger surface and IP states from accidental overwrite.",
+  "current_main": {
+    "ref": "main",
+    "commit": "55568633b41297a34f930bf1a325157eb23634be"
+  },
+  "snapshots": [
+    {
+      "name": "main-2026-08-12",
+      "branch": "backup/2026-08-12-main-5556863",
+      "commit": "55568633b41297a34f930bf1a325157eb23634be",
+      "purpose": "Exact main snapshot immediately after neutral carousel/Dreamy repair compilation."
+    },
+    {
+      "name": "neutral-carousel-repair",
+      "branch": "backup/2026-08-12-neutral-carousel-7c0bf84",
+      "commit": "7c0bf848d10e170fef982e4c25ec4d8ed5d58ff8",
+      "purpose": "Recoverable neutral horizontal carousel and Dreamy account-entry implementation."
+    },
+    {
+      "name": "pre-surface-neutral-state",
+      "branch": "backup/2026-08-12-pre-surface-287353f",
+      "commit": "287353f92c6f6cd1840735a1002b692ba945000d",
+      "purpose": "Earlier neutral DreamLedger front-door state retained before subsequent surface changes."
+    }
+  ],
+  "protected_ip_refs": [
+    "agent/dreamies-kelp-shared-avatar-assets",
+    "agent/dreamiez-cosmetics-carousel",
+    "agent/dreamiez-v2-idle-kingdom",
+    "agent/kelplantis-lmstudio-integration",
+    "agent/phone-first-proxy-sentinel-final",
+    "feat/ip-commerce-engine",
+    "feat/offer-compiler-v1",
+    "feat/shopify-class-commerce-surface"
+  ],
+  "rules": [
+    "Never force-push main over a protected snapshot without explicit human approval.",
+    "Never delete a protected backup branch as part of routine cleanup.",
+    "Compiled surfaces remain disposable; canonical source and historical refs remain recoverable.",
+    "Revenue truth is never restored from a backup unless supported by real payment evidence.",
+    "Silo boundaries remain preserved when restoring a surface snapshot."
+  ]
+}
