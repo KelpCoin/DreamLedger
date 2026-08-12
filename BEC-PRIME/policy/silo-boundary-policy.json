@@ -1,0 +1,20 @@
+{
+  "schema_version": "SILO-BOUNDARY-1.0",
+  "neutral_front_door": true,
+  "front_door": "dreamledger.org",
+  "silos": [
+    "SILO_CRYPTO",
+    "SILO_MEDIA_MUSIC",
+    "SILO_DIGITAL_PRODUCTS",
+    "SILO_MTG"
+  ],
+  "rules": [
+    "No silo may import another silo's inventory, customer state, copy, pricing, assets or identity data.",
+    "The DreamLedger front door must remain category-neutral and must not hard-code silo-specific branding.",
+    "Silo-specific pages and products must identify their own silo explicitly.",
+    "Cross-silo bundles are forbidden unless explicitly promoted as a new approved product in a dedicated neutral offer.",
+    "No crypto investment promise, personalized financial advice or financial performance claim may be published by the crypto silo.",
+    "MTG terminology and inventory remain confined to the MTG silo."
+  ],
+  "required_product_fields": ["id", "silo", "name", "description", "price", "currency", "status"]
+}
