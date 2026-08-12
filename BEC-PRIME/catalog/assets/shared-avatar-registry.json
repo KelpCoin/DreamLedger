@@ -1,5 +1,79 @@
 {
   "schema": "contracts/shared-avatar-asset.schema.json",
   "generation_rule": "single canonical asset compiled for both ecosystems",
-  "assets": []
+  "license_rule": "External source assets must be license-compatible before commercial publication. These three local GLB files are BEC-PRIME pipeline fixtures; upstream VRM sources are CC0 candidates and remain separately attributed in provenance.",
+  "assets": [
+    {
+      "sku_id": "DREAM-AVATAR-DREAMSHELL-001",
+      "canonical_asset_id": "BEC-DUAL-0001",
+      "name": "Dream Shell",
+      "asset_type": "cosmetic",
+      "ecosystem_compatibility": ["dreamiez", "kelp-atlantis"],
+      "render_targets": {
+        "dreamiez": {"format": "vrm", "url": "https://arweave.net/gfVzs1oH_aPaHVxpQK86HT_rqzyrFPOUKUrDJ30yprs", "source_license": "CC0 candidate / verify upstream before sale"},
+        "kelp-atlantis": {"format": "glb", "url": "/assets/shared-avatar/001-DreamShell.glb"}
+      },
+      "wearable_slot": "body",
+      "price": 15,
+      "currency": "nzd",
+      "inventory": 999999,
+      "status": "candidate",
+      "checkout_available": false,
+      "approval_required": true,
+      "gauntlet_status": "PASS_FIXTURE",
+      "demand_provenance": {"source":"DEMAND_RADAR_PENDING","event_id":null},
+      "elohim_provenance": {"refinery_run":"BEC-FIXTURE-2026-08-12","generated_by":"ComfyUI_PIPELINE_FIXTURE"},
+      "verification_hash": "sha256_glb_blob_9fafad3157de3e16c080f3655339217998cfcd79",
+      "provenance": {"humanized_by":"Approval required","signature":"pending"},
+      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\BEC-DUAL-0001_FIRST_SALE.json"
+    },
+    {
+      "sku_id": "KELP-AVATAR-KELPGUARD-001",
+      "canonical_asset_id": "BEC-DUAL-0002",
+      "name": "Kelp Guard",
+      "asset_type": "armor",
+      "ecosystem_compatibility": ["dreamiez", "kelp-atlantis"],
+      "render_targets": {
+        "dreamiez": {"format": "vrm", "url": "https://arweave.net/jPOg-G0MPH55ZQmamFhT9f8cHn-hjeAQ0mRO5gWeKMQ", "source_license": "CC0 candidate / verify upstream before sale"},
+        "kelp-atlantis": {"format": "glb", "url": "/assets/shared-avatar/002-KelpGuard.glb"}
+      },
+      "wearable_slot": "torso",
+      "price": 25,
+      "currency": "nzd",
+      "inventory": 999999,
+      "status": "candidate",
+      "checkout_available": false,
+      "approval_required": true,
+      "gauntlet_status": "PASS_FIXTURE",
+      "demand_provenance": {"source":"DEMAND_RADAR_PENDING","event_id":null},
+      "elohim_provenance": {"refinery_run":"BEC-FIXTURE-2026-08-12","generated_by":"ComfyUI_PIPELINE_FIXTURE"},
+      "verification_hash": "sha256_glb_blob_d8ed4be532ff3050edc7908066862f0516ea8c1d",
+      "provenance": {"humanized_by":"Approval required","signature":"pending"},
+      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\BEC-DUAL-0002_FIRST_SALE.json"
+    },
+    {
+      "sku_id": "ELOHIM-AVATAR-BLOOM-001",
+      "canonical_asset_id": "BEC-DUAL-0003",
+      "name": "Elohim Bloom",
+      "asset_type": "accessory",
+      "ecosystem_compatibility": ["dreamiez", "kelp-atlantis"],
+      "render_targets": {
+        "dreamiez": {"format": "vrm", "url": "https://arweave.net/Ea1KXujzJatQgCFSMzGOzp_UtHqB1pyia--U3AtkMAY", "source_license": "CC0 candidate / verify upstream before sale"},
+        "kelp-atlantis": {"format": "glb", "url": "/assets/shared-avatar/003-ElohimBloom.glb"}
+      },
+      "wearable_slot": "head",
+      "price": 20,
+      "currency": "nzd",
+      "inventory": 999999,
+      "status": "candidate",
+      "checkout_available": false,
+      "approval_required": true,
+      "gauntlet_status": "PASS_FIXTURE",
+      "demand_provenance": {"source":"DEMAND_RADAR_PENDING","event_id":null},
+      "elohim_provenance": {"refinery_run":"BEC-FIXTURE-2026-08-12","generated_by":"ComfyUI_PIPELINE_FIXTURE"},
+      "verification_hash": "sha256_glb_blob_e0b4adb9627bab32ab628a100831691c149ad684",
+      "provenance": {"humanized_by":"Approval required","signature":"pending"},
+      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\BEC-DUAL-0003_FIRST_SALE.json"
+    }
+  ]
 }
