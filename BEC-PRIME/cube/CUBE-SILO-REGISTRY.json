@@ -1,0 +1,17 @@
+{
+  "schema_version": "CUBE-SILO-REGISTRY-1.0",
+  "neutral_host": "DreamLedger",
+  "cross_silo_data": false,
+  "silos": [
+    {"id":"mtg","name":"Magic: The Gathering","allowed_domains":["mtg"],"status":"isolated"},
+    {"id":"crypto","name":"Cryptocurrency","allowed_domains":["crypto"],"status":"isolated"},
+    {"id":"media_music","name":"Media and Music","allowed_domains":["media_music"],"status":"isolated"},
+    {"id":"digital_products","name":"Digital Products","allowed_domains":["digital_products"],"status":"isolated"}
+  ],
+  "rules": [
+    "No catalog, checkout, analytics, content, customer data, or promotion may cross silo boundaries.",
+    "DreamLedger remains neutral and does not become a silo.",
+    "Shared infrastructure may be reused only when silo identity is explicit and data isolation is preserved.",
+    "Every monetization surface must emit a proof artifact before revenue claims are made."
+  ]
+}
