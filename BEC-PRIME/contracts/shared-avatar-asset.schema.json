@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/BEC-PRIME-SHARED-AVATAR-ASSET-v1.json",
+  "title": "BEC-PRIME Shared Avatar Asset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","sku_id","asset_id","canonical_asset_id","asset_type","source_ecosystem","target_ecosystems","demand_signal","refinery","gauntlet","representations","compatibility","commerce","provenance","lifecycle"],
+  "properties": {
+    "schema": {"const": "BEC-PRIME/SHARED-AVATAR-ASSET/v1"},
+    "sku_id": {"type": "string", "pattern": "^SKU-[A-Z0-9-]+$"},
+    "asset_id": {"type": "string", "minLength": 1},
+    "canonical_asset_id": {"type": "string", "minLength": 1},
+    "asset_type": {"type": "string", "enum": ["avatar","cosmetic","armor","clothing","accessory","emote","animation","prop"]},
+    "source_ecosystem": {"type": "string", "enum": ["dreamiez","kelp_atlantis","shared"]},
+    "target_ecosystems": {"type": "array", "uniqueItems": true, "const": ["dreamiez","kelp_atlantis"]},
+    "demand_signal": {"type": "object", "required": ["signal_ids","priority","rationale"], "properties": {"signal_ids": {"type": "array", "items": {"type": "string"}}, "priority": {"type": "number", "minimum": 0, "maximum": 1}, "rationale": {"type": "string"}}},
+    "refinery": {"type": "object", "required": ["producer","recipe_version","generation_status"], "properties": {"producer": {"const": "ELOHIM_REFINERY"}, "recipe_version": {"type": "string"}, "generation_status": {"type": "string", "enum": ["planned","generated","refined","quarantined"]}}},
+    "gauntlet": {"type": "object", "required": ["status","score","checks"], "properties": {"status": {"type": "string", "enum": ["UNTESTED","PASS","FAIL","QUARANTINE"]}, "score": {"type": "number", "minimum": 0, "maximum": 100}, "checks": {"type": "array", "items": {"type": "string"}}}},
+    "representations": {"type": "object", "required": ["web","game"], "properties": {"web": {"type": "object", "required": ["format","uri"], "properties": {"format": {"type": "string", "enum": ["vrm","glb","gltf","png","webm"]}, "uri": {"type": "string"}}}, "game": {"type": "object", "required": ["format","uri"], "properties": {"format": {"type": "string", "enum": ["glb","gltf","vrm"]}, "uri": {"type": "string"}}}}},
+    "compatibility": {"type": "object", "required": ["avatar_rig","wearable_slots","runtime"], "properties": {"avatar_rig": {"type": "string", "enum": ["VRM1","VRM0","GLTF_HUMANOID"]}, "wearable_slots": {"type": "array", "items": {"type": "string"}}, "runtime": {"type": "array", "uniqueItems": true, "items": {"type": "string", "enum": ["browser","android","ios","game"]}}}},
+    "commerce": {"type": "object", "required": ["status","price_nzd","auction_eligible"], "properties": {"status": {"type": "string", "enum": ["candidate","approved","listed","sold","retired"]}, "price_nzd": {"type": "number", "minimum": 0}, "auction_eligible": {"type": "boolean"}}},
+    "provenance": {"type": "object", "required": ["generated_by","created_at","license"], "properties": {"generated_by": {"type": "array", "items": {"type": "string"}}, "created_at": {"type": "string"}, "license": {"type": "string"}}},
+    "lifecycle": {"type": "object", "required": ["state","approval_required","public_release"], "properties": {"state": {"type": "string", "enum": ["DRAFT","REFINED","GAUNTLET_PASS","APPROVED","PUBLISHED","RETIRED"]}, "approval_required": {"const": true}, "public_release": {"type": "boolean"}}}
+  }
+}
