@@ -1,0 +1,17 @@
+{
+  "schema": "BEC-PRIME/PUBLIC-IP-CAPABILITIES/v1",
+  "owner_surface": "DreamLedger",
+  "status": "cataloged",
+  "commercial_truth": "These are capabilities and commercial offers, not claims of registered IP rights. Third-party components remain subject to their licenses.",
+  "capabilities": [
+    {"id":"BEC-PRIME-CUBE","name":"CUBE Compiler","offer":"Reskin / Clone / Splice / Silo controlled commerce surfaces","price_from_nzd":499},
+    {"id":"BEC-PRIME-ELOHIM","name":"Elohim Refinery","offer":"Demand-seeded orchestration and asset refinement","price_from_nzd":499},
+    {"id":"BEC-PRIME-GAUNTLET","name":"Gauntlet-as-a-Service","offer":"Adversarial verification for economic actions","price_from_nzd":149},
+    {"id":"BEC-PRIME-TRUTH","name":"Truth and Proof Engine","offer":"Evidence-backed system and transaction verification","price_from_nzd":149},
+    {"id":"BEC-PRIME-REVENUE-OS","name":"Revenue OS","offer":"Discovery-to-ledger monetization loop design","price_from_nzd":499},
+    {"id":"BEC-PRIME-AGENT-COMMERCE","name":"Agentic Commerce Layer","offer":"Machine-readable offer and checkout readiness architecture","price_from_nzd":499},
+    {"id":"BEC-PRIME-SILO","name":"Silo-Controlled Commerce Kernel","offer":"Multi-brand commerce with explicit domain boundaries","price_from_nzd":999},
+    {"id":"BEC-PRIME-AVATAR","name":"Shared Avatar Asset Economy","offer":"One canonical SKU rendered across Dreamiez and Kelp Atlantis","price_from_nzd":49},
+    {"id":"AGENTIC-COMMERCE-READINESS-001","name":"Agentic Commerce Readiness Audit","offer":"Evidence-backed readiness snapshot","price_nzd":49,"checkout_available":true,"approval_required":false}
+  ]
+}
