@@ -1,32 +1,39 @@
 {
   "id": "AGENTIC-COMMERCE-READINESS-001",
-  "silo": "dreamledger",
+  "silo": "commerce",
   "name": "Agentic Commerce Readiness Audit",
-  "description": "A practical audit of catalog structure, pricing, inventory, checkout readiness, policies, machine-readable commerce surfaces, and the highest-value remediation steps.",
+  "description": "A focused audit of a business commerce surface for machine-readable discovery, product data, checkout readiness, fulfillment clarity, and agent-facing purchase friction. Delivered as a practical prioritized report.",
   "price": 4900,
   "currency": "nzd",
   "inventory": 999999,
   "status": "published",
+  "seller": "dreamledger",
   "checkout": {
     "mode": "payment",
     "success_path": "/checkout/success",
     "cancel_path": "/"
   },
+  "fulfillment": {
+    "type": "digital_report",
+    "delivery": "engine_generated_digital_deliverable",
+    "input_required": "Public commerce URL plus any public product/feed/checkout documentation the customer wants assessed.",
+    "output": "Prioritized readiness score, evidence-backed blockers, and an implementation action list."
+  },
   "commercial_truth": {
-    "experiment": "AGENTIC-COMMERCE-READINESS-FIRST-SALE",
+    "experiment": "FIRST-MONEY-COMMERCE-WEDGE",
     "approval_required": false,
-    "activation_gate": "EXPLICIT_OPERATOR_APPROVAL",
-    "activation_timestamp": "2026-08-12T00:00:00.000Z",
+    "activation_gate": "FIRST_REVENUE_GATES_PASS",
+    "activation_timestamp": "2026-08-12T03:45:00.000Z",
     "payment_surface": "engine-generated-stripe-checkout",
     "payment_link": null
-  },
-  "delivery": {
-    "type": "digital_report",
-    "target": "agentic-commerce-readiness"
   },
   "evidence": {
     "status": "awaiting_first_payment",
     "transaction_id": null
   },
-  "deployment_trigger": "AGENTIC_COMMERCE_READINESS_FIRST_SALE"
+  "silo_policy": {
+    "mtg_isolation": true,
+    "dreamiez_isolation": true,
+    "public_surface": "general-commerce"
+  }
 }
