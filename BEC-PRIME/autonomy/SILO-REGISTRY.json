@@ -1,11 +1,46 @@
 {
-  "schema_version": "BEC-SILO-REGISTRY-1.0",
+  "schema_version": "BEC-SILO-REGISTRY-1.1",
   "neutral_host": "dreamledger",
   "silos": [
-    {"id":"MTG","silo":"mtg","offer":"Commander Deck Diagnostic","price_nzd":49,"priority":10,"status":"active"},
-    {"id":"CRYPTO","silo":"crypto","offer":"Wallet Audit + Tax Report","price_nzd":149,"priority":9,"status":"active"},
-    {"id":"MEDIA_MUSIC","silo":"media_music","offer":"Creator Media + Music Kit","price_nzd":499,"priority":8,"status":"active"},
-    {"id":"DIGITAL_PRODUCTS","silo":"digital_products","offer":"Local Automation Starter Kit","price_nzd":999,"priority":8,"status":"active"}
+    {
+      "id": "MTG",
+      "silo": "mtg",
+      "offer": "Commander Deck Diagnostic",
+      "entry_offer": "MTG-DIAGNOSTIC-NZD-25",
+      "price_nzd": 25,
+      "priority": 10,
+      "status": "active"
+    },
+    {
+      "id": "CRYPTO",
+      "silo": "crypto",
+      "offer": "Wallet Audit + Tax Report",
+      "entry_offer": "CRYPTO-49-001",
+      "price_nzd": 149,
+      "entry_price_nzd": 49,
+      "priority": 9,
+      "status": "active"
+    },
+    {
+      "id": "MEDIA_MUSIC",
+      "silo": "media_music",
+      "offer": "Creator Media + Music Kit",
+      "entry_offer": "MEDIA-49-001",
+      "price_nzd": 499,
+      "entry_price_nzd": 49,
+      "priority": 8,
+      "status": "active"
+    },
+    {
+      "id": "DIGITAL_PRODUCTS",
+      "silo": "digital_products",
+      "offer": "Local Automation Starter Kit",
+      "entry_offer": "DIGITAL-49-001",
+      "price_nzd": 999,
+      "entry_price_nzd": 49,
+      "priority": 8,
+      "status": "active"
+    }
   ],
   "rules": {
     "dreamledger_brand_neutral": true,
