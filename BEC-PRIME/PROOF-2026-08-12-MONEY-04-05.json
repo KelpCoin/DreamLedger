@@ -1,0 +1,13 @@
+{
+  "proof_type":"MONEY_04_05_COMMERCIAL_HARDENING",
+  "date":"2026-08-12",
+  "offer":"AGENTIC-COMMERCE-READINESS-001",
+  "new_artifacts":["MONEY-04-AUDIT-SPEC.md","MONEY-05-OFFER-LADDER.md"],
+  "entry_price_nzd":49,
+  "next_prices_nzd":[149,499,999],
+  "revenue_nzd":0,
+  "transaction_id":null,
+  "first_payment_proof":"NOT_YET_CREATED",
+  "capital_rule":"No paid acquisition or new software until the current wedge demonstrates a bottleneck requiring it.",
+  "truth_rule":"No revenue claim without verified settlement evidence."
+}
