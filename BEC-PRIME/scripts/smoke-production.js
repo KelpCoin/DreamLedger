@@ -25,10 +25,12 @@ async function get(path) { const response = await fetch(`${base}${path}`, { redi
   assert.ok(publicAudit, 'general paid audit product must be public');
   assert.equal(publicAudit.checkout_available, true, 'general paid audit product must be checkoutable');
   assert.equal(publicAudit.price, 4900, 'general paid audit price must be NZD 49.00');
+  assert.equal(String(publicAudit.currency).toLowerCase(), 'nzd', 'general paid audit currency must be NZD');
 
   const home = await get('/');
   assert.equal(home.response.status, 200, `home HTTP ${home.response.status}`);
   assert.match(home.text, /One commerce engine\. Many worlds\./i, 'home must use CUBE-first positioning');
+  assert.match(home.text, /Agentic Commerce Readiness Audit/i, 'home must expose the first-sale offer');
   assert.doesNotMatch(home.text, /magic the gathering|mtg shop|commander deck/i, 'master surface must not be MTG-branded');
 
   console.log(JSON.stringify({
