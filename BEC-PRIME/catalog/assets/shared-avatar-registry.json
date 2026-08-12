@@ -1,0 +1,20 @@
+{
+  "schema": "BEC-PRIME/SHARED-AVATAR-ASSET-REGISTRY/v1",
+  "status": "ACTIVE",
+  "rule": "Every generated Dreamiez or Kelp Atlantis avatar asset targets both ecosystems by default.",
+  "canonical_ecosystems": ["dreamiez","kelp_atlantis"],
+  "production": {"demand_seed": ["DEMAND_RADAR","ECOSYSTEM_AGENTS"], "refinery": "ELOHIM_REFINERY", "quality_gate": "GAUNTLET", "public_release": "APPROVAL_GOVERNOR"},
+  "avatar_runtime": {"web": "three.js + @pixiv/three-vrm", "canonical_formats": ["VRM1","GLB","glTF"], "interaction": "phone-first-thumb-first", "deployment": "browser"},
+  "asset_rules": [
+    "Every asset receives a unique SKU ID.",
+    "Every asset receives a stable canonical asset ID shared across both ecosystems.",
+    "Dreamiez-only shared avatar generation is prohibited.",
+    "Kelp Atlantis-only shared avatar generation is prohibited.",
+    "A wearable game asset gets a browser avatar representation when technically applicable.",
+    "A browser wearable gets a game representation when technically applicable.",
+    "Gauntlet PASS is required before mass-consumption listing.",
+    "Approval is required before public release or paid checkout."
+  ],
+  "wearable_slots": ["head","hair","face","torso","legs","feet","back","hands","armor","accessory"],
+  "registry": []
+}
