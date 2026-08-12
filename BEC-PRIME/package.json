@@ -1,10 +1,11 @@
 {
   "name": "dreamledger",
   "version": "1.0.0",
-  "description": "BEC-PRIME DreamLedger web service",
+  "description": "DreamLedger commerce engine",
   "main": "server.js",
   "scripts": {
-    "start": "node compiler/OfferCompiler.js && node compiler/SurfaceCompiler.js && node compiler/SiloPortfolioCompiler.js && node compiler/PriceDisplayPatch.js && node start.js",
+    "compile": "node compiler/OfferCompiler.js && node compiler/SurfaceCompiler.js && node compiler/SiloPortfolioCompiler.js && node compiler/PriceDisplayPatch.js && node scripts/verify-public-surface.js",
+    "start": "npm run compile && node start.js",
     "compile:offers": "node compiler/OfferCompiler.js",
     "compile:surface": "node compiler/SurfaceCompiler.js && node compiler/SiloPortfolioCompiler.js && node compiler/PriceDisplayPatch.js",
     "compile:silos": "node compiler/SiloPortfolioCompiler.js",
