@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/contracts/shared-avatar-asset.schema.json",
+  "title": "DreamLedger Shared Avatar Asset",
+  "type": "object",
+  "required": ["id", "sku_id", "name", "asset_type", "ecosystem_compatibility", "render_targets", "price", "currency", "inventory", "status", "approval_required", "gauntlet_status", "provenance"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^ASSET-[A-Z0-9-]+$"},
+    "sku_id": {"type": "string", "pattern": "^SKU-[A-Z0-9-]+$"},
+    "name": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "asset_type": {"enum": ["cosmetic", "armor", "accessory", "emote", "background"]},
+    "ecosystem_compatibility": {"const": ["dreamiez", "kelp-atlantis"]},
+    "render_targets": {
+      "type": "object",
+      "required": ["dreamiez", "kelp-atlantis"],
+      "properties": {
+        "dreamiez": {"$ref": "#/$defs/renderTarget"},
+        "kelp-atlantis": {"$ref": "#/$defs/renderTarget"}
+      },
+      "additionalProperties": false
+    },
+    "price": {"type": "number", "minimum": 0},
+    "currency": {"const": "NZD"},
+    "inventory": {"type": "integer", "minimum": 0},
+    "status": {"enum": ["draft", "gauntlet_pending", "approved", "published", "quarantined", "retired"]},
+    "checkout_available": {"type": "boolean"},
+    "approval_required": {"type": "boolean"},
+    "gauntlet_status": {"enum": ["PENDING", "PASS", "FAIL", "QUARANTINE"]},
+    "verification_hash": {"type": "string"},
+    "provenance": {
+      "type": "object",
+      "required": ["demand_sources", "generated_by", "refinery_run_id"],
+      "properties": {
+        "demand_sources": {"type": "array", "items": {"type": "string"}},
+        "generated_by": {"type": "string"},
+        "refinery_run_id": {"type": "string"},
+        "humanized_by": {"type": "string"},
+        "signature": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "fossil_path": {"type": "string"}
+  },
+  "$defs": {
+    "renderTarget": {
+      "type": "object",
+      "required": ["format", "url"],
+      "properties": {
+        "format": {"enum": ["vrm", "gltf", "png"]},
+        "url": {"type": "string", "format": "uri"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
