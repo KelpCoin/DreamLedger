@@ -4,7 +4,8 @@
   "purpose": "Protect recoverable DreamLedger surface and IP states from accidental overwrite.",
   "current_main": {
     "ref": "main",
-    "commit": "55568633b41297a34f930bf1a325157eb23634be"
+    "commit_before_registry_update": "55568633b41297a34f930bf1a325157eb23634be",
+    "registry_commits": ["05efdd32a542f588fadf41fe1ae2b468319aee43", "fa6c5a19a3e10c66fbb504ba90eb4fc142ce7fcf"]
   },
   "snapshots": [
     {
