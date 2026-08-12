@@ -1,0 +1,19 @@
+{
+  "proof_type":"SHARED_ASSET_PIPELINE_EXECUTION",
+  "date":"2026-08-12",
+  "status":"PIPELINE_SCAFFOLD_EXECUTED",
+  "registry_assets":3,
+  "local_glb_fixtures":3,
+  "assets":["BEC-DUAL-0001","BEC-DUAL-0002","BEC-DUAL-0003"],
+  "demand_signal_route":"/api/demand/avatar",
+  "refinery_stage":"ELOHIM_REFINERY",
+  "gauntlet_stage":"REQUIRED_BEFORE_PUBLICATION",
+  "approval_stage":"REQUIRED",
+  "dreamiez_target":"external CC0-candidate VRM source; license verification required",
+  "kelp_atlantis_target":"local GLB fixture",
+  "checkout":"not enabled for candidate fixtures",
+  "transaction_id":null,
+  "first_sale_fossil":null,
+  "revenue_nzd":0,
+  "truth_boundary":"No sale or revenue is claimed until verified settlement evidence exists."
+}
