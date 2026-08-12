@@ -37,6 +37,8 @@ services:
         generateValue: true
       - key: MARKETPLACE_ADMIN_TOKEN
         generateValue: true
+      - key: M2M_API_KEY
+        generateValue: true
       - key: DIGITAL_PROXY_LM_ENABLED
         value: "false"
       - key: DIGITAL_PROXY_LM_BASE_URL
