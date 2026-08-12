@@ -5,7 +5,7 @@ services:
     branch: main
     rootDir: BEC-PRIME
     autoDeployTrigger: commit
-    buildCommand: npm install && npm run compile:offers && npm run compile:surface && node scripts/verify-public-boundary.js && node scripts/verify-public-surface.js && node --check server.js
+    buildCommand: npm install && npm run compile
     startCommand: npm start
     healthCheckPath: /healthz
     disk:
@@ -15,6 +15,16 @@ services:
     envVars:
       - key: PUBLIC_BASE_URL
         value: https://dreamledger.org
+      - key: QR_BASE_URL
+        value: https://qr.dreamledger.org
+      - key: QR_ALLOWED_HOSTS
+        value: dreamledger.org,qr.dreamledger.org
+      - key: QR_DATA_DIR
+        value: /var/data/qr
+      - key: QR_API_KEY
+        generateValue: true
+      - key: QR_IP_SALT
+        generateValue: true
       - key: LEDGER_DATA_DIR
         value: /var/data/ledger
       - key: PROOF_DATA_DIR
