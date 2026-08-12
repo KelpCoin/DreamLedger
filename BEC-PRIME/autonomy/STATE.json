@@ -1,0 +1,10 @@
+{
+  "schema_version": "BEC-AUTONOMY-STATE-1.0",
+  "status": "armed",
+  "revenue_nzd_verified": 0,
+  "last_action": null,
+  "last_silo": null,
+  "consecutive_failures": 0,
+  "cycles": 0,
+  "human_approval_required": true
+}
