@@ -1,25 +1,18 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Commander Deck Diagnostic from DreamLedger. NZD $15."><title>Commander Deck Diagnostic | DreamLedger</title><style>body{margin:0;background:#0d1117;color:#f0f6fc;font:16px/1.55 system-ui,sans-serif}.wrap{max-width:680px;margin:auto;padding:56px 22px;text-align:center}.panel{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:34px}.price{font-size:1.6rem;font-weight:800;color:#58a6ff}.cta{display:inline-block;margin-top:20px;padding:15px 28px;border-radius:8px;background:#238636;color:#fff;text-decoration:none;font-weight:800;border:0;cursor:pointer;font-size:16px}.cta[aria-busy=true]{opacity:.65;cursor:wait}.muted{color:#8b949e}.error{color:#ff7b72;margin-top:18px;display:none}ul{text-align:left;max-width:430px;margin:24px auto}</style></head>
-<body><main class="wrap"><div class="panel"><p class="muted">DreamLedger</p><h1>Commander Deck Diagnostic</h1><p class="price">$15 NZD</p><p class="muted">Power level, weaknesses, strategy and upgrade recommendations for your actual list.</p><ul><li>Moxfield and Archidekt links accepted</li><li>Written diagnostic delivered within the stated turnaround target</li><li>Full refund if not satisfied</li></ul><button class="cta" id="buy" type="button">Get Your Deck Diagnostic</button><p class="error" id="error" role="alert"></p></div></main><script>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Commander Deck Diagnostic. NZD $25."><title>Commander Deck Diagnostic | DreamLedger</title><style>body{margin:0;background:#0d1117;color:#f0f6fc;font:16px/1.55 system-ui,sans-serif}.wrap{max-width:680px;margin:auto;padding:56px 22px;text-align:center}.panel{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:34px}.price{font-size:1.6rem;font-weight:800;color:#58a6ff}.cta{display:inline-block;margin-top:20px;padding:15px 28px;border-radius:8px;background:#238636;color:#fff;text-decoration:none;font-weight:800;border:0;cursor:pointer;font-size:16px}.cta[aria-busy=true]{opacity:.65;cursor:wait}.muted{color:#8b949e}.error{color:#ff7b72;margin-top:18px;display:none}</style></head>
+<body><main class="wrap"><div class="panel"><p class="muted">DreamLedger</p><h1>Commander Deck Diagnostic</h1><p class="price">NZD $25</p><p class="muted">A focused analysis of your Commander deck with practical recommendations.</p><ul style="text-align:left;max-width:430px;margin:24px auto"><li>Power-level assessment</li><li>Strategy and consistency analysis</li><li>Weaknesses and interaction gaps</li><li>Upgrade priorities</li><li>Clear next actions</li></ul><button class="cta" id="buy" type="button">Buy for NZD $25</button><p class="error" id="error" role="alert"></p></div></main><script>
 (function(){
   var button=document.getElementById('buy');
   var error=document.getElementById('error');
   button.addEventListener('click',async function(){
-    button.setAttribute('aria-busy','true');
-    button.disabled=true;
-    error.style.display='none';
+    button.setAttribute('aria-busy','true');button.disabled=true;error.style.display='none';
     try{
       var response=await fetch('/api/offer-checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:'COMMANDER-DECK-DIAGNOSTIC-001'})});
       var data=await response.json();
-      if(!response.ok || !data.url) throw new Error(data.error || 'Checkout could not be created.');
+      if(!response.ok || !data.url) throw new Error(data.error || 'Checkout is not currently available.');
       window.location.href=data.url;
-    }catch(e){
-      error.textContent=e.message || 'Checkout could not be created.';
-      error.style.display='block';
-      button.removeAttribute('aria-busy');
-      button.disabled=false;
-    }
+    }catch(e){error.textContent=e.message || 'Checkout is not currently available.';error.style.display='block';button.removeAttribute('aria-busy');button.disabled=false;}
   });
 })();
 </script></body></html>
