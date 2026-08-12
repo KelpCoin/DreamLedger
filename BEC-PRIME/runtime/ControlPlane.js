@@ -5,12 +5,18 @@ const path = require('path');
 const gauntlet = require('../gauntlet/GauntletV6');
 const elohim = require('../elohim/ElohimV6');
 const proxy = require('../proxy/DigitalProxy');
+const sentinel = require('./Sentinel');
+const demandRadar = require('./DemandRadar');
 
 const ROOT = path.join(__dirname, '..');
 let lastBoot = null;
 
 function compile() {
-  const steps = [['compile:offers', path.join(ROOT, 'compiler', 'OfferCompiler.js')], ['compile:surface', path.join(ROOT, 'compiler', 'SurfaceCompiler.js')]];
+  const steps = [
+    ['compile:products', path.join(ROOT, 'compiler', 'ProductCompiler.js')],
+    ['compile:offers', path.join(ROOT, 'compiler', 'OfferCompiler.js')],
+    ['compile:surface', path.join(ROOT, 'compiler', 'SurfaceCompiler.js')]
+  ];
   const results = [];
   for (const [name, file] of steps) {
     const result = spawnSync(process.execPath, [file], { cwd: ROOT, encoding: 'utf8' });
@@ -23,7 +29,8 @@ function compile() {
 function boot() {
   const compileResults = compile();
   const gauntletResult = gauntlet.run();
-  lastBoot = { compile: compileResults, gauntlet: gauntletResult, status: compileResults.every(x => x.status === 'PASS') && gauntletResult.status === 'PASS' ? 'PASS' : 'FAIL', checked_at: new Date().toISOString() };
+  const sentinelResult = sentinel.run(gauntletResult);
+  lastBoot = { compile: compileResults, gauntlet: gauntletResult, sentinel: sentinelResult, status: compileResults.every(x => x.status === 'PASS') && gauntletResult.status === 'PASS' && sentinelResult.verdict === 'PASS' ? 'PASS' : 'FAIL', checked_at: new Date().toISOString() };
   return lastBoot;
 }
 
@@ -33,6 +40,10 @@ async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
   const send = (status, body) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); };
   if (req.method === 'GET' && url === '/api/control/health') return send(200, health());
+  if (req.method === 'GET' && url === '/api/control/sentinel') return send(200, sentinel.run(gauntlet.run()));
+  if (req.method === 'GET' && url === '/api/control/demand') return send(200, { summary: demandRadar.summary(), proposal: demandRadar.proposal() });
+  if (req.method === 'GET' && url === '/api/control/demand/record') return send(405, { error: 'Use POST to record demand' });
+  if (req.method === 'POST' && url === '/api/control/demand/record') { let body = ''; for await (const chunk of req) body += chunk; let input = {}; try { input = JSON.parse(body || '{}'); } catch { return send(400, { error: 'Invalid JSON' }); } return send(201, demandRadar.record(input.type || 'manual_signal', input)); }
   if (req.method === 'POST' && url === '/api/control/compile') return send(200, boot());
   if (req.method === 'POST' && url === '/api/control/gauntlet') return send(200, gauntlet.run());
   if (req.method === 'POST' && url === '/api/control/elohim/propose') {
