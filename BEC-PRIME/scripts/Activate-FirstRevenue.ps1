@@ -39,11 +39,12 @@ if (-not (Test-Path $offerPath)) { throw "Missing compiled offer catalog: $offer
 
 $product = Get-Content $productPath -Raw | ConvertFrom-Json
 if ($product.id -ne 'COMMANDER-DECK-DIAGNOSTIC-001') { throw 'Unexpected activation SKU' }
-if ($product.price -ne 1500 -or $product.currency -ne 'nzd') { throw 'Activation SKU price/currency changed; refusing to activate' }
+if ($product.price -ne 2500 -or $product.currency -ne 'nzd') { throw 'Activation SKU price/currency changed; refusing to activate' }
 
 $product.commercial_truth.approval_required = $false
 $product.commercial_truth.activation_gate = 'FIRST_REVENUE_GATES_PASS'
 $product.commercial_truth.activation_timestamp = (Get-Date).ToUniversalTime().ToString('o')
+$product.commercial_truth.payment_surface = 'engine-generated-stripe-checkout'
 $product.evidence.status = 'awaiting_first_payment'
 
 $backup = "$productPath.pre-activation.json"
@@ -65,7 +66,7 @@ $proof = [ordered]@{
 $proof | ConvertTo-Json -Depth 10 | Set-Content $proofPath -Encoding utf8
 
 Write-Host ''
-Write-Host 'FIRST REVENUE ACTIVATION: PASS' -ForegroundColor Green
-Write-Host 'Commander Deck Diagnostic is now checkout-eligible.'
+Write-Host 'FIRST REVENUE ACTIVATION: PASS'
+Write-Host 'Commander Deck Diagnostic is checkout-eligible.'
 Write-Host 'This script does not claim revenue. Revenue remains unproven until a signed Stripe webhook creates FIRST_PAYMENT_PROOF.json.'
 Write-Host "Proof: $proofPath"
