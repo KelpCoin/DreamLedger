@@ -1,0 +1,17 @@
+{
+  "proof_type":"MONEY_NOW_ACQUISITION_SEED",
+  "date":"2026-08-12",
+  "repository":"KelpCoin/DreamLedger",
+  "commit":"e903a2f8860357e429fbab7db60e68d77d0bbe38",
+  "offer":"AGENTIC-COMMERCE-READINESS-001",
+  "price_nzd":49,
+  "primary_target":"PC TRADERS NZ",
+  "secondary_target":"ALLIED MEDICAL",
+  "public_evidence":"recorded in MONEY-NOW-NZ-PROSPECTS.md",
+  "revenue_nzd":0,
+  "verified_transactions":0,
+  "outreach_sent":false,
+  "public_posting":false,
+  "truth_status":"NO_REVENUE_CLAIM",
+  "next_event":"approved outreach or inbound purchase"
+}
