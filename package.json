@@ -5,7 +5,7 @@
   "description": "DreamLedger storefront and BEC-PRIME commerce engine",
   "main": "BEC-PRIME/server.js",
   "scripts": {
-    "start": "node BEC-PRIME/compiler/OfferCompiler.js && node BEC-PRIME/compiler/QRCompiler.js && node BEC-PRIME/start.js",
+    "start": "node BEC-PRIME/compiler/OfferCompiler.js && node BEC-PRIME/compiler/QRCompiler.js && node -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js",
     "compile:qr": "node BEC-PRIME/compiler/QRCompiler.js"
   },
