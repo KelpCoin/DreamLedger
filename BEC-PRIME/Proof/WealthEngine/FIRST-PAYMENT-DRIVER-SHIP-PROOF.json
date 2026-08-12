@@ -1,0 +1,28 @@
+{
+  "schema_version": "BEC-WEALTH-SHIP-PROOF-1.0",
+  "event": "first_payment_driver.shipped",
+  "status": "SHIPPED_UNPROVEN",
+  "merged_commit": "e33b1d218d0c0d3c55c183da2f5a2d369f2b4547",
+  "product_id": "BEC-SURFACE-AUDIT-500",
+  "price_nzd": 500,
+  "checkout_available": true,
+  "approval_required": false,
+  "gauntlet": "PASS",
+  "public_boundary": "PASS",
+  "wealth_engine_verification": "PASS",
+  "surface_audit_execution": "PASS",
+  "verified_revenue_nzd": 0,
+  "first_payment_proven": false,
+  "transaction_id": null,
+  "truth_rule": "Revenue becomes verified only after a real payment webhook supplies a real transaction_id.",
+  "ci_runs": {
+    "bec_prime_gates": 31572430036,
+    "wealth_engine_verify": 31572430109
+  },
+  "artifact": {
+    "name": "wealth-engine-proof",
+    "id": 9131808937,
+    "sha256": "378017c9ff2f7b75105db0e43fb1035bd0e6dc1097116530b97ec8791b988d93"
+  },
+  "timestamp_utc": "2026-08-12T07:05:00Z"
+}
