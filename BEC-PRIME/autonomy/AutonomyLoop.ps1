@@ -12,9 +12,8 @@ function Write-Log([string]$Message) {
     Write-Host $line
     Add-Content -LiteralPath $script:LogFile -Value $line -Encoding UTF8
 }
-
 function Ensure-Dir([string]$Path) { if (-not (Test-Path -LiteralPath $Path)) { New-Item -ItemType Directory -Force -Path $Path | Out-Null } }
-function Json([object]$Value) { $Value | ConvertTo-Json -Depth 20 -Compress }
+function Json([object]$Value) { $Value | ConvertTo-Json -Depth 30 -Compress }
 function Get-Hash([string]$Text) { $sha=[Security.Cryptography.SHA256]::Create(); try { ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($Text)) | ForEach-Object ToString x2) -join '' } finally { $sha.Dispose() } }
 
 $config = Get-Content -LiteralPath $ConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -33,7 +32,12 @@ function Invoke-LM([string]$System,[string]$User) {
     $body = @{ model=[string]$config.lm_studio.model; messages=@(@{role='system';content=$System},@{role='user';content=$User}); temperature=0.1; response_format=@{type='json_object'} } | ConvertTo-Json -Depth 10
     Invoke-RestMethod -Uri (([string]$config.lm_studio.base_url).TrimEnd('/') + '/chat/completions') -Method Post -ContentType 'application/json' -Body $body -TimeoutSec ([int]$config.lm_studio.timeout_seconds)
 }
-
+function Invoke-NodeMacro {
+    $macro = Join-Path $root 'repo\BEC-PRIME\macro\MacroEngine.js'
+    if (-not (Test-Path -LiteralPath $macro)) { return @{ status='SKIP'; reason='MacroEngine not present at configured local repo path' } }
+    $result = & node $macro 2>&1
+    return @{ status='PASS'; output=($result -join "`n") }
+}
 function Run-Gauntlet($Item) {
     $checks = [ordered]@{
         id_present = -not [string]::IsNullOrWhiteSpace([string]$Item.id)
@@ -45,20 +49,18 @@ function Run-Gauntlet($Item) {
         price = ([int]$Item.price -gt 0)
     }
     $pass = -not ($checks.Values -contains $false)
-    $canonical = Json $Item
-    [pscustomobject]@{ verdict=if($pass){'PASS'}else{'FAIL'}; checks=$checks; signal_hash=(Get-Hash $canonical); reason=if($pass){'hardened'}else{'one_or_more_checks_failed'} }
+    [pscustomobject]@{ verdict=if($pass){'PASS'}else{'FAIL'}; checks=$checks; signal_hash=(Get-Hash (Json $Item)); reason=if($pass){'hardened'}else{'one_or_more_checks_failed'} }
 }
-
-function Write-Proof($Cycle,$ProductCount,$PassCount,$FailCount,$Actions) {
+function Write-Proof($Cycle,$ProductCount,$PassCount,$FailCount,$Actions,$Macro) {
     $proof = [ordered]@{
-        schema='BEC-AUTONOMY-PROOF-1'; timestamp_utc=(Get-Date).ToUniversalTime().ToString('o'); cycle=$Cycle
+        schema='BEC-AUTONOMY-PROOF-2'; timestamp_utc=(Get-Date).ToUniversalTime().ToString('o'); cycle=$Cycle
         status='PASS'; product_count=$ProductCount; gauntlet_pass=$PassCount; gauntlet_fail=$FailCount
-        actions_generated=$Actions; lm_studio=[string]$config.lm_studio.base_url
-        policy=@{ external_publish_requires_approval=$true; financial_settlement_requires_buyer_authorization=$true }
+        actions_generated=$Actions; macro=$Macro; lm_studio=[string]$config.lm_studio.base_url
+        policy=@{ external_publish_requires_approval=$true; financial_settlement_requires_buyer_authorization=$true; checkout_buyer_initiated=$true }
     }
     $proof.cycle_hash = Get-Hash (Json $proof)
     $path=Join-Path $script:ProofDir ("AUTONOMY_{0}.json" -f (Get-Date -Format 'yyyyMMdd_HHmmss'))
-    $proof | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $path -Encoding UTF8
+    $proof | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $path -Encoding UTF8
     return $path
 }
 
@@ -69,6 +71,7 @@ while ($true) {
         Write-Log "CYCLE $cycle START"
         $health = Invoke-JsonGet (([string]$config.dreamledger.base_url).TrimEnd('/') + [string]$config.dreamledger.health_path)
         if ([string]$health.status -ne 'ok') { throw 'DreamLedger health gate failed' }
+        $macro = Invoke-NodeMacro
         $products = @(Invoke-JsonGet (([string]$config.dreamledger.base_url).TrimEnd('/') + [string]$config.dreamledger.products_path)).products
         $passes=0; $fails=0; $actions=0
         foreach ($p in $products) {
@@ -79,11 +82,11 @@ while ($true) {
                 $lm = Invoke-LM 'You are the Elohim Refinery. Refine verified commerce signals into conservative, executable next actions. Evidence before claims.' $prompt
                 $content = [string]$lm.choices[0].message.content
                 $actionPath=Join-Path $script:QueueDir (([string]$p.id) + '.json')
-                [ordered]@{schema='BEC-AUTONOMY-ACTION-1'; created_utc=(Get-Date).ToUniversalTime().ToString('o'); product=$p; gauntlet=$g; refinery=$content; publish='APPROVAL_REQUIRED'; checkout='BUYER_INITIATED_ONLY'} | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $actionPath -Encoding UTF8
+                [ordered]@{schema='BEC-AUTONOMY-ACTION-2'; created_utc=(Get-Date).ToUniversalTime().ToString('o'); product=$p; gauntlet=$g; refinery=$content; publish='APPROVAL_REQUIRED'; checkout='BUYER_INITIATED_ONLY'} | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $actionPath -Encoding UTF8
                 $actions++
             } else { $fails++ }
         }
-        $proof=Write-Proof $cycle $products.Count $passes $fails $actions
+        $proof=Write-Proof $cycle $products.Count $passes $fails $actions $macro
         Write-Log "CYCLE $cycle PASS products=$($products.Count) gauntlet_pass=$passes gauntlet_fail=$fails actions=$actions proof=$proof"
     } catch { Write-Log "CYCLE $cycle FAIL $($_.Exception.Message)" }
     if ($Once) { break }

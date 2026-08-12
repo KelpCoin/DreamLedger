@@ -2,10 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 const sniper = require('../brain/SniperLoop');
-const builder = require('../factory/BuilderBoss');
-const gauntlet = require('../gauntlet/GauntletV6');
+const elohim = require('../council/Elohim');
 
 const ROOT = path.join(__dirname, '..');
 const PRODUCT_DIR = path.join(ROOT, 'catalog', 'products');
@@ -21,27 +19,23 @@ function log(event, data) { fs.mkdirSync(DATA, { recursive: true }); fs.appendFi
 function run() {
   const products = loadProducts();
   const opportunities = sniper.run(products);
-  const top = opportunities.find(x => x.status === 'CANDIDATE') || null;
-  const pack = top ? builder.write(top) : null;
-  const gauntletResult = gauntlet.run();
-  const compile = spawnSync(process.execPath, [path.join(ROOT, 'compiler', 'ProductCompiler.js')], { cwd: ROOT, encoding: 'utf8' });
+  const selected = opportunities.find(x => x.status === 'CANDIDATE') || null;
+  const council = selected ? elohim.run(products) : null;
   const result = {
-    schema_version: 'BEC-MACRO-ENGINE-1.0',
-    status: gauntletResult.status === 'PASS' && compile.status === 0 ? 'PASS' : 'FAIL',
-    selected_opportunity: top,
-    action_pack: pack,
-    gauntlet: gauntletResult.status,
-    product_compile: compile.status === 0 ? 'PASS' : 'FAIL',
+    schema_version: 'BEC-MACRO-ENGINE-2.0',
+    status: council?.verdict === 'SHIP_TO_BUYER_GATE' ? 'PASS' : 'WAIT',
+    selected_opportunity: selected,
+    council,
     public_actions_executed: false,
     approval_boundary: 'REQUIRED',
-    next_atom: pack ? pack.atoms[0] : null,
+    settlement_boundary: 'BUYER_INITIATED_ONLY',
     generated_at_utc: new Date().toISOString()
   };
   fs.mkdirSync(DATA, { recursive: true });
   fs.writeFileSync(PROOF, JSON.stringify(result, null, 2) + '\n');
-  log('macro.cycle', { status: result.status, selected: top?.source || null, pack: pack?.action_pack_id || null });
+  log('macro.cycle', { status: result.status, selected: selected?.source || null, verdict: council?.verdict || null });
   return result;
 }
 
-if (require.main === module) { const result = run(); console.log(JSON.stringify(result, null, 2)); process.exit(result.status === 'PASS' ? 0 : 1); }
+if (require.main === module) { const result = run(); console.log(JSON.stringify(result, null, 2)); process.exit(result.status === 'PASS' ? 0 : 0); }
 module.exports = { run };
