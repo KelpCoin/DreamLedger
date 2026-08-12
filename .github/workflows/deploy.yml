@@ -4,9 +4,17 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["BEC-PRIME Auto Compile DreamLedger"]
+    types: [completed]
+
+concurrency:
+  group: dreamledger-production-deploy
+  cancel-in-progress: false
 
 jobs:
   verify:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -14,20 +22,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: BEC-PRIME/package.json
-
       - name: Install
         run: npm install
-
       - name: Compile full commerce spine
         run: npm run compile
-
       - name: Syntax gate
         run: |
           node --check server.js
@@ -46,13 +50,10 @@ jobs:
           node --check elohim/ElohimV6.js
           node --check proxy/DigitalProxy.js
           node --check runtime/ControlPlane.js
-
       - name: Dreamiez smoke gate
         run: npm run smoke:dreamiez
-
       - name: Autonomy macro gate
         run: npm run autonomy:macro
-
       - name: Production asset gate
         run: |
           test -s compiled/website/index.html
@@ -61,6 +62,7 @@ jobs:
           test -s catalog/offers/products.json
           test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
           test -s catalog/products/EDH_0001.json
+          grep -q "BEC-PRIME\|Neutral front door\|DREAMLEDGER" compiled/website/index.html
 
   deploy:
     needs: verify
@@ -72,3 +74,26 @@ jobs:
         run: |
           test -n "$RENDER_DEPLOY_HOOK_URL"
           curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
+      - name: Wait for live deployment and prove public surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://dreamledger.org/"
+          for attempt in $(seq 1 30); do
+            body="$(curl --fail --silent --show-error --max-time 15 "$url" || true)"
+            if printf '%s' "$body" | grep -q "DREAMLEDGER" && printf '%s' "$body" | grep -q "Neutral front door"; then
+              printf '%s\n' '{"status":"PASS","url":"https://dreamledger.org/","checks":["DREAMLEDGER","Neutral front door"]}' | tee live-deployment-proof.json
+              exit 0
+            fi
+            echo "Live deployment not yet serving current compiled surface (attempt $attempt/30)."
+            sleep 10
+          done
+          printf '%s\n' '{"status":"FAIL","url":"https://dreamledger.org/","reason":"Live host did not serve the canonical compiled DreamLedger surface after deploy trigger."}' | tee live-deployment-proof.json
+          exit 1
+      - name: Upload live deployment proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-live-deployment-proof
+          path: live-deployment-proof.json
+          if-no-files-found: error
