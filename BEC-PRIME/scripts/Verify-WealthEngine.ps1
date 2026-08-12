@@ -9,7 +9,7 @@ function Check([string]$Name, [bool]$Pass) {
 
 $candidate = Join-Path $root 'catalog\products\BEC-SURFACE-AUDIT-500.json'
 $audit = Join-Path $root 'scripts\Run-SurfaceAudit.ps1'
-gauntlet = Join-Path $root 'scripts\Run-WealthEngineGauntlet.ps1'
+$gauntlet = Join-Path $root 'scripts\Run-WealthEngineGauntlet.ps1'
 $engine = Join-Path $root 'gauntlet\GauntletV6.js'
 $ip = Join-Path $root 'catalog\ip-capabilities.json'
 $frontDoor = Join-Path $root '..\index.html'
