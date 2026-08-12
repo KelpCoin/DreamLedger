@@ -1,0 +1,32 @@
+{
+  "proof_type": "execution_atom_activation",
+  "timestamp_utc": "2026-08-12T09:18:00Z",
+  "atom_id": "MTG-SALES-001",
+  "silo": "MTG",
+  "objective": "Verify and activate the NZD $25 Commander Deck Diagnostic first-sale path",
+  "offer_id": "MTG-DIAGNOSTIC-NZD-25",
+  "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "price_nzd": 25,
+  "github_repository": "KelpCoin/DreamLedger",
+  "execution_mode": "single_atom",
+  "changes": [
+    "Activated MTG-SALES-001 in the atom queue",
+    "Aligned Commander Deck Diagnostic commercial experiment to MTG-SALES-001",
+    "Added canonical MTG-SALES-001 atom specification"
+  ],
+  "current_truth": {
+    "checkout_verified": false,
+    "payment_received": false,
+    "fulfilled_orders": 0,
+    "verified_revenue_nzd": 0,
+    "first_payment_proof_exists": false
+  },
+  "guardrails": {
+    "revenue_requires_verified_payment": true,
+    "public_outreach_requires_human_approval": true,
+    "no_synthetic_payment": true,
+    "no_synthetic_fossil": true
+  },
+  "next_action": "Run the local single-atom controller against MTG-SALES-001 and record its verification output.",
+  "status": "ATOM_001_QUEUED_NOT_YET_EXECUTED"
+}
