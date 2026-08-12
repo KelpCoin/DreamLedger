@@ -19,7 +19,7 @@
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
     "smoke:production": "node scripts/smoke-production.js",
     "smoke:autonomy": "node scripts/smoke-autonomy.js",
-    "gauntlet": "node scripts/meta-gauntlet.js",
+    "gauntlet": "node scripts/meta-gauntlet-current.js",
     "autonomy:cycle": "node autonomy/RevenueAutonomy.js",
     "autonomy:macro": "node macro/MacroEngine.js",
     "autonomy:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Install-Autonomy.ps1",
