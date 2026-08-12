@@ -1,0 +1,13 @@
+{
+  "id": "SMALL-BUSINESS-AI-COMMERCE-KIT-001",
+  "silo": "digital_products",
+  "name": "Small Business AI Commerce Kit",
+  "description": "A practical digital toolkit for improving product pages, structured product information and AI-agent discoverability without requiring a platform rebuild.",
+  "price": 4900,
+  "currency": "nzd",
+  "inventory": 999999,
+  "status": "published",
+  "checkout": {"mode": "payment", "success_path": "/checkout/success", "cancel_path": "/"},
+  "commercial_truth": {"approval_required": true, "activation_gate": "HUMAN_APPROVAL", "payment_surface": "engine-generated-stripe-checkout", "payment_link": null},
+  "evidence": {"status": "awaiting_first_payment", "transaction_id": null}
+}
