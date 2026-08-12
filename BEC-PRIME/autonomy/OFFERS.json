@@ -1,0 +1,52 @@
+{
+  "schema_version": "BEC-OFFERS-1.0",
+  "neutral_host": "dreamledger",
+  "offers": [
+    {
+      "id": "MTG-DIAGNOSTIC-NZD-25",
+      "silo": "MTG",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 25,
+      "status": "ready_for_approval",
+      "checkout_available": false,
+      "public_action_requires_approval": true,
+      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\MTG_DIAGNOSTIC_NZD_25.json"
+    },
+    {
+      "id": "CRYPTO-49-001",
+      "silo": "CRYPTO",
+      "name": "Wallet Audit + Tax Report",
+      "price_nzd": 49,
+      "status": "ready_for_approval",
+      "checkout_available": false,
+      "public_action_requires_approval": true,
+      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\CRYPTO_49_001.json"
+    },
+    {
+      "id": "MEDIA-49-001",
+      "silo": "MEDIA_MUSIC",
+      "name": "Beat Pack + Cover Art Bundle",
+      "price_nzd": 49,
+      "status": "ready_for_approval",
+      "checkout_available": false,
+      "public_action_requires_approval": true,
+      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\MEDIA_49_001.json"
+    },
+    {
+      "id": "DIGITAL-49-001",
+      "silo": "DIGITAL_PRODUCTS",
+      "name": "CUBE Micro-Silo Starter",
+      "price_nzd": 49,
+      "status": "ready_for_approval",
+      "checkout_available": false,
+      "public_action_requires_approval": true,
+      "fossil_path": "D:\\BrownEyeCortex\\Proof\\Fossils\\DIGITAL_49_001.json"
+    }
+  ],
+  "rules": {
+    "cross_silo_offers": false,
+    "cross_silo_customer_data": false,
+    "checkout_creation_requires_human_approval": true,
+    "revenue_requires_verified_payment": true
+  }
+}
