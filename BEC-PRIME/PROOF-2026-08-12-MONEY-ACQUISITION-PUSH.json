@@ -1,0 +1,15 @@
+{
+  "proof_type":"MONEY_ACQUISITION_PUSH",
+  "date":"2026-08-12",
+  "branch":"money/agentic-readiness-acquisition",
+  "offer":"AGENTIC-COMMERCE-READINESS-001",
+  "price_nzd":49,
+  "market_signal":"Current 2026 sources show rapid growth in AI-referred commerce and active merchant/agent readiness programs.",
+  "new_surface":"BEC-PRIME/compiled/website/agentic-readiness/index.html",
+  "outreach_kit":"BEC-PRIME/marketing/AGENTIC-READINESS-OUTREACH.md",
+  "public_posting":"approval_required",
+  "transaction_id":null,
+  "revenue_nzd":0,
+  "first_payment_proof":"NOT_YET_CREATED",
+  "truth_rule":"Only a verified payment settlement event creates revenue evidence."
+}
