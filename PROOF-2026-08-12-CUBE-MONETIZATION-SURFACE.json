@@ -1,0 +1,39 @@
+{
+  "schema_version": "BEC-PROOF-1.0",
+  "status": "PASS",
+  "event": "CUBE_MONETIZATION_SURFACE_REPAIR",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "changes": [
+    "Removed vertical-specific MTG merchandising language from the compiler-owned general front door.",
+    "Restored CUBE-first positioning: one commerce engine, many worlds.",
+    "Added an approved general DreamLedger paid offer: AGENTIC-COMMERCE-READINESS-001 at NZD 49.",
+    "General storefront filters the MTG silo from the general product rail while preserving silo isolation.",
+    "Featured checkout now targets the general DreamLedger readiness offer."
+  ],
+  "payment_path": {
+    "checkout_route": "/api/checkout/create",
+    "payment_adapter": "stripe",
+    "webhook_route": "/webhook",
+    "proof_route": "BEC-PRIME/server.js webhook -> PROOF_DATA_DIR",
+    "real_payment_received": false
+  },
+  "first_sale_target": {
+    "asset_id": "AGENTIC-COMMERCE-READINESS-001",
+    "amount_minor": 4900,
+    "currency": "nzd",
+    "status": "awaiting_first_payment"
+  },
+  "verification": {
+    "source_of_truth": "BEC-PRIME/catalog/products/*.json",
+    "compiler_preserved": true,
+    "silo_isolation_preserved": true,
+    "public_surface_is_general": true,
+    "checkout_requires_server_authoritative_validation": true,
+    "first_payment_fossil_exists": false
+  },
+  "commit_chain": [
+    "49c8c727ffe96b932db243a351b07c9b3b076aca",
+    "6e93dbe4909164ec54ff9f6a95756c7ac56aabbd"
+  ]
+}
