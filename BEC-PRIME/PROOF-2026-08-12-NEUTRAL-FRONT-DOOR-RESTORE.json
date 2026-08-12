@@ -1,0 +1,27 @@
+{
+  "type": "neutral-front-door-restore",
+  "timestamp_utc": "2026-08-12T00:00:00Z",
+  "status": "IMPLEMENTED",
+  "commit": "638720abd94cd561481d7cb1fb6372224e19f0cb",
+  "checks_intended": {
+    "neutral_root": true,
+    "horizontal_swipe_first_world_catalogue": true,
+    "dreamy_top_right_account_entry": true,
+    "no_root_product_catalogue": true,
+    "mtg_isolated_entry": true,
+    "bec_prime_engine_kept_as_infrastructure": true
+  },
+  "revenue_truth": {
+    "verified_revenue_nzd": 0,
+    "payment_claimed": false,
+    "reason": "Surface repair does not constitute payment evidence."
+  },
+  "scope": [
+    "Restored a neutral DreamLedger front door.",
+    "Restored a horizontal swipe-first world carousel.",
+    "Moved Dreamy creation to the top-right account entry.",
+    "Removed invented root product sales from the landing page.",
+    "Kept MTG behind its independent silo route.",
+    "Kept BEC-PRIME, Demand Radar, Elohim, Gauntlet and CUBE represented as infrastructure rather than fake root inventory."
+  ]
+}
