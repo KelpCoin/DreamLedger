@@ -16,7 +16,6 @@ if (-not (Test-Path $proofDir)) { New-Item -ItemType Directory -Path $proofDir -
 
 $candidate = Get-Content -Raw $candidateFile | ConvertFrom-Json
 $catalog = Get-Content -Raw $offerFile | ConvertFrom-Json
-$ip = Get-Content -Raw $ipFile | ConvertFrom-Json
 
 $offer = [ordered]@{
     offer_id = 'OFFER-BEC-SURFACE-AUDIT-500'
@@ -63,8 +62,8 @@ $merged = [ordered]@{
 $merged | ConvertTo-Json -Depth 20 | Set-Content -Path $tempFile -Encoding UTF8
 
 $nodeScript = @"
-const g = require(process.argv[1]);
-const result = g.run({ offerFile: process.argv[2], ipFile: process.argv[3], writeProof: false });
+const g = require(process.argv[2]);
+const result = g.run({ offerFile: process.argv[3], ipFile: process.argv[4], writeProof: false });
 console.log(JSON.stringify(result, null, 2));
 if (result.status !== 'PASS') process.exit(2);
 "@
@@ -89,7 +88,7 @@ try {
     }
     $proofPath = Join-Path $proofDir 'WEALTH-ENGINE-CANDIDATE-GAUNTLET.json'
     $proof | ConvertTo-Json -Depth 30 | Set-Content -Path $proofPath -Encoding UTF8
-    Write-Host "GAUNTLET_PASS"
+    Write-Host 'GAUNTLET_PASS'
     Write-Host "PROOF=$proofPath"
 } finally {
     Remove-Item $tempFile,$tempJs -Force -ErrorAction SilentlyContinue
