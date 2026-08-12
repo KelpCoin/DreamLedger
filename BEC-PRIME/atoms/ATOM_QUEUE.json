@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "active": true,
+  "truth_rule": "Never synthesize checkout, payment, fulfillment, or Fossil success.",
+  "scoreboard": {
+    "verified_revenue_nzd": 0,
+    "payments": 0,
+    "fulfilled_orders": 0,
+    "repeat_payments": 0,
+    "active_experiments": 1,
+    "winner": null,
+    "rabbit_mode": false
+  },
+  "queue": [
+    {"atom_id":"MTG-001","silo":"mtg","objective":"Verify the public MTG checkout surface","action":"VERIFY_CHECKOUT","estimated_minutes":10,"requires_human_approval":false,"public_action":false,"proof_required":true,"next_on_success":"MTG-002","next_on_failure":"MTG-FIX-001"},
+    {"atom_id":"MTG-002","silo":"mtg","objective":"Verify delivery contract","action":"VERIFY_DELIVERY","estimated_minutes":10,"requires_human_approval":false,"public_action":false,"proof_required":true,"next_on_success":"MTG-003","next_on_failure":"MTG-FIX-002"},
+    {"atom_id":"MTG-003","silo":"mtg","objective":"Prepare 20 qualified Commander prospects","action":"FIND_PROSPECTS","estimated_minutes":20,"requires_human_approval":false,"public_action":false,"proof_required":true,"next_on_success":"MTG-004","next_on_failure":"MTG-RESEARCH-001"},
+    {"atom_id":"MTG-004","silo":"mtg","objective":"Prepare outreach drafts for human approval","action":"PREPARE_OUTREACH","estimated_minutes":20,"requires_human_approval":true,"public_action":false,"proof_required":true,"next_on_success":"MTG-005","next_on_failure":"MTG-RESEARCH-002"},
+    {"atom_id":"MTG-005","silo":"mtg","objective":"Wait for explicit human approval","action":"REQUEST_APPROVAL","estimated_minutes":5,"requires_human_approval":true,"public_action":false,"proof_required":true,"next_on_success":"MTG-006","next_on_failure":"MTG-ABORT-001"},
+    {"atom_id":"MTG-006","silo":"mtg","objective":"Send only approved outreach","action":"SEND_APPROVED_OUTREACH","estimated_minutes":10,"requires_human_approval":true,"public_action":true,"proof_required":true,"next_on_success":"MTG-007","next_on_failure":"MTG-RETRY-001"},
+    {"atom_id":"MTG-007","silo":"mtg","objective":"Observe real payment evidence","action":"MONITOR_PAYMENT","estimated_minutes":0,"requires_human_approval":false,"public_action":false,"proof_required":true,"next_on_success":"MTG-008","next_on_failure":"MTG-RETRY-002"},
+    {"atom_id":"MTG-008","silo":"mtg","objective":"Fulfil a paid order","action":"FULFIL_ORDER","estimated_minutes":15,"requires_human_approval":false,"public_action":false,"proof_required":true,"next_on_success":"MTG-009","next_on_failure":"MTG-FIX-003"},
+    {"atom_id":"MTG-009","silo":"mtg","objective":"Write a Fossil from verified transaction evidence","action":"WRITE_FOSSIL","estimated_minutes":5,"requires_human_approval":false,"public_action":false,"proof_required":true,"next_on_success":"MTG-010","next_on_failure":"MTG-FIX-004"},
+    {"atom_id":"MTG-010","silo":"mtg","objective":"Test repeatability with a second independent payment","action":"TEST_REPEATABILITY","estimated_minutes":10,"requires_human_approval":false,"public_action":false,"proof_required":true,"next_on_success":"RABBIT-EVALUATION-001","next_on_failure":"MTG-RESEARCH-003"}
+  ]
+}
