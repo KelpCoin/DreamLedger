@@ -15,7 +15,9 @@
     preferredFormats: ['vrm','gltf'],
     phoneFirst: true,
     loadAsset: async function(asset){
-      if(!asset || asset.ecosystem_compatibility !== TARGETS){
+      const compat = asset && asset.ecosystem_compatibility;
+      const valid = Array.isArray(compat) && TARGETS.every(function(x){return compat.indexOf(x) !== -1;});
+      if(!valid){
         throw new Error('Shared asset invariant failed: both ecosystems are required');
       }
       return asset;
