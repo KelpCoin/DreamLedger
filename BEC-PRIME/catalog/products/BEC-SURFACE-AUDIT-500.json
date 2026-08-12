@@ -1,0 +1,26 @@
+{
+  "id": "BEC-SURFACE-AUDIT-500",
+  "silo": "dreamledger",
+  "name": "Agentic Commerce Surface Audit",
+  "description": "Evidence-backed audit of a business commerce surface across UNDERSTAND, DECIDE, and ACT dimensions, with prioritized remediation findings and a durable audit proof artifact.",
+  "price": 500,
+  "currency": "nzd",
+  "inventory": 1,
+  "status": "published",
+  "checkout_available": true,
+  "approval_required": false,
+  "commercial_truth": {
+    "pricing_status": "proposed_candidate_price",
+    "payment_surface": "engine-generated-stripe-checkout",
+    "payment_link": null,
+    "first_payment_proven": false
+  },
+  "gauntlet": {
+    "required": true,
+    "minimum_status": "PASS"
+  },
+  "evidence": {
+    "status": "unproven",
+    "transaction_id": null
+  }
+}

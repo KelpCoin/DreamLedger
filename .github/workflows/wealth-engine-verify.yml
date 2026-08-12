@@ -1,0 +1,39 @@
+name: wealth-engine-verify
+
+on:
+  push:
+    branches:
+      - main
+      - agent/wealth-engine-first-payment-driver
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Verify wealth engine
+        shell: pwsh
+        run: .\BEC-PRIME\scripts\Verify-WealthEngine.ps1
+      - name: Run candidate Gauntlet
+        shell: pwsh
+        run: .\BEC-PRIME\scripts\Run-WealthEngineGauntlet.ps1
+      - name: Run surface audit against neutral front door
+        shell: pwsh
+        run: .\BEC-PRIME\scripts\Run-SurfaceAudit.ps1 -TargetUrl 'https://dreamledger.org'
+      - name: Upload proof artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wealth-engine-proof
+          path: |
+            BEC-PRIME/Proof/WealthEngine/*.json
+            BEC-PRIME/Proof/SurfaceAudits/*.json
