@@ -1,0 +1,15 @@
+{
+  "type": "bec-autonomy-push-proof",
+  "status": "PASS",
+  "timestamp_utc": "2026-08-12T00:00:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "feat/autonomy-controller-four-silo",
+  "purpose": "Record that the four-silo LM Studio controller, policy, registry, workers and verifier were pushed as a reviewable change.",
+  "silos": ["mtg", "crypto", "media_music", "digital_products"],
+  "dreamledger_neutral": true,
+  "cross_silo_contamination": false,
+  "human_gate_for_external_actions": true,
+  "verified_revenue_nzd": 0,
+  "revenue_claim": "NONE",
+  "next_truth_event": "verified Stripe payment webhook"
+}
