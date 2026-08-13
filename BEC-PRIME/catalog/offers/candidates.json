@@ -8,7 +8,7 @@
     "candidates": 29,
     "passed": 27,
     "approved": 0,
-    "rejected": 2
+    "rejected": 3
   },
   "candidates": [
     {
@@ -1664,6 +1664,33 @@
       },
       "errors": [
         "potential_private_material_reference"
+      ]
+    },
+    {
+      "offer_id": null,
+      "errors": [
+        "missing:offer_id",
+        "missing:capability_id",
+        "missing:silo",
+        "missing:name",
+        "missing:problem",
+        "missing:input",
+        "missing:output",
+        "missing:delivery_mechanism",
+        "missing:deliverable",
+        "missing:target_buyer",
+        "missing:eligibility",
+        "missing:constraints",
+        "missing:price",
+        "missing:currency",
+        "missing:refund_rules",
+        "missing:payment_adapter",
+        "missing:checkout_route",
+        "missing:proof_of_delivery",
+        "missing:verification_rules",
+        "missing:provenance",
+        "missing:approved_by",
+        "missing:approved_at"
       ]
     }
   ]
