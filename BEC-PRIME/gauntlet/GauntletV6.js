@@ -6,6 +6,7 @@ const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
 const OFFER_FILE = path.join(ROOT, 'catalog', 'offers', 'offers.json');
+const APPROVED_FILE = path.join(ROOT, 'catalog', 'offers', 'approved.json');
 const IP_FILE = path.join(ROOT, 'catalog', 'ip-capabilities.json');
 const PROOF_DIR = path.join(ROOT, 'data', 'proofs');
 
@@ -17,8 +18,11 @@ function pass(checks, id, message) { checks.push({ id, status: 'PASS', message }
 function run(options = {}) {
   const checks = [];
   const offerFile = options.offerFile || OFFER_FILE;
+  const approvedFile = options.approvedFile || APPROVED_FILE;
   const ipFile = options.ipFile || IP_FILE;
   const offerCatalog = readJson(offerFile);
+  const approvedCatalog = fs.existsSync(approvedFile) ? readJson(approvedFile) : { approved: [] };
+  const approvedIds = new Set((Array.isArray(approvedCatalog.approved) ? approvedCatalog.approved : []).map(x => String(x.offer_id)));
   const offers = Array.isArray(offerCatalog.offers) ? offerCatalog.offers : [];
 
   if (!offers.length) fail(checks, 'offers.present', 'No canonical offers found');
@@ -31,12 +35,21 @@ function run(options = {}) {
 
   for (const offer of offers) {
     const prefix = `offer.${offer.offer_id}`;
+    const explicitlyApproved = approvedIds.has(String(offer.offer_id));
     for (const field of ['offer_id', 'capability_id', 'name', 'problem', 'input', 'output', 'delivery_mechanism', 'deliverable', 'target_buyer', 'price', 'currency', 'payment_adapter', 'checkout_route', 'approval_required', 'checkout_available', 'status', 'proof_of_delivery', 'verification_rules', 'provenance']) {
       if (offer[field] === undefined || offer[field] === null || offer[field] === '') fail(checks, `${prefix}.${field}`, 'Required field missing');
     }
     if (!(Number(offer.price) > 0)) fail(checks, `${prefix}.price`, 'Price must be greater than zero');
-    if (offer.approval_required !== true) fail(checks, `${prefix}.approval`, 'Human approval gate must remain locked');
-    if (offer.checkout_available !== false) fail(checks, `${prefix}.checkout`, 'Checkout must remain disabled until approval');
+    if (explicitlyApproved) {
+      if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Explicitly approved offer must have approval_required=false');
+      if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Explicitly approved offer must have checkout enabled');
+      if (offer.status !== 'VERIFIED_AVAILABLE') fail(checks, `${prefix}.status`, 'Explicitly approved offer must be VERIFIED_AVAILABLE');
+      pass(checks, `${prefix}.approval`, 'Explicit operator approval record present');
+      pass(checks, `${prefix}.checkout`, 'Checkout enabled only for explicitly approved offer');
+    } else {
+      if (offer.approval_required !== true) fail(checks, `${prefix}.approval`, 'Human approval gate must remain locked');
+      if (offer.checkout_available !== false) fail(checks, `${prefix}.checkout`, 'Checkout must remain disabled until approval');
+    }
     if (offer.provenance?.private_material !== 'excluded') fail(checks, `${prefix}.privacy`, 'Private material must remain excluded');
     if (offer.silo === 'mtg' && /amplissa|adult/i.test(JSON.stringify(offer))) fail(checks, `${prefix}.silo`, 'MTG offer contains forbidden adult/Amplissa reference');
   }
@@ -60,7 +73,8 @@ function run(options = {}) {
     status,
     checks,
     checked_at: new Date().toISOString(),
-    source_hash: sha256(JSON.stringify({ offers: offerCatalog, ip: fs.existsSync(ipFile) ? readJson(ipFile) : null }))
+    approved_offer_ids: Array.from(approvedIds),
+    source_hash: sha256(JSON.stringify({ offers: offerCatalog, approved: approvedCatalog, ip: fs.existsSync(ipFile) ? readJson(ipFile) : null }))
   };
 
   if (options.writeProof !== false) {
