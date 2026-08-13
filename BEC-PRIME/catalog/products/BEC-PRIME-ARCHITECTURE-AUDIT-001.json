@@ -1,0 +1,32 @@
+{
+  "id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+  "silo": "commerce",
+  "name": "BEC-PRIME Architecture Audit",
+  "description": "A structured audit of a local-first AI commerce system covering architecture risks, monetization bottlenecks, deployment readiness, and prioritized implementation actions.",
+  "price": 4900,
+  "currency": "nzd",
+  "inventory": 100,
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "success_path": "/checkout/success",
+    "cancel_path": "/"
+  },
+  "commercial_truth": {
+    "experiment": "BEC-PRIME-FIRST-SALE-001",
+    "approval_required": false,
+    "approval_source": "operator-approved GitHub commit",
+    "activation_gate": "CHECKOUT_VERIFIED",
+    "payment_surface": "engine-generated-stripe-checkout",
+    "payment_link": null
+  },
+  "delivery": {
+    "type": "digital_report",
+    "target": "bec-prime-architecture-audit"
+  },
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
+  },
+  "execution_atom": "BEC-PRIME-FIRST-SALE-001"
+}
