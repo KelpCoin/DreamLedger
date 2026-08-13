@@ -1,0 +1,23 @@
+{
+  "schema_version": "BEC-EXPERIMENT-1.0",
+  "id": "AGENTIC-COMMERCE-READINESS-CHECKLIST-001",
+  "silo": "BEC-PRIME",
+  "name": "Agentic Commerce Readiness Checklist",
+  "price_nzd": 29,
+  "status": "APPROVAL_GATED",
+  "checkout_enabled": true,
+  "delivery": "manual_email_within_24_hours",
+  "fulfilment_asset": "Agentic Commerce Readiness Checklist",
+  "proof_required": true,
+  "fossil_required": true,
+  "public_outreach_requires_human_approval": true,
+  "validation_target": "first_real_payment",
+  "checks": [
+    "structured_product_data",
+    "machine_readable_policies",
+    "agent_visible_checkout",
+    "canonical_offer_identity",
+    "transaction_verifiability",
+    "silo_boundary"
+  ]
+}
