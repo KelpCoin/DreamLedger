@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "object_types": [
+    "architecture",
+    "decision",
+    "prompt",
+    "product",
+    "workflow",
+    "code_reference",
+    "deployment",
+    "proof"
+  ],
+  "required_fields": [
+    "object_id",
+    "type",
+    "silo",
+    "title",
+    "source_conversation_id",
+    "source_message_reference",
+    "confidence",
+    "status"
+  ],
+  "silos": [
+    "BEC-PRIME",
+    "DreamLedger",
+    "Dreamiez-Kelplantis",
+    "MTG",
+    "Amplissa"
+  ],
+  "statuses": [
+    "candidate",
+    "canonical",
+    "superseded",
+    "quarantined"
+  ],
+  "confidence": [
+    "high",
+    "medium",
+    "low"
+  ],
+  "privacy": "private-source-required"
+}
