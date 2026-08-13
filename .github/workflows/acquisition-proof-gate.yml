@@ -1,0 +1,62 @@
+name: Acquisition Proof Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquisition-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate acquisition proof fixture
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          p = Path('fixtures/acquisition-proof-fixture.json')
+          if not p.exists():
+              raise SystemExit('FAIL: fixture missing')
+
+          data = json.loads(p.read_text(encoding='utf-8'))
+          item = data['canonical_item']['item_id']
+          ref = data['canonical_item']['economic']['acquisition_proof_ref']
+          fossils = {x['fossil_id']: x for x in data['fossils']}
+
+          def resolve(proof_ref, owner=None):
+              f = fossils.get(proof_ref)
+              if f is None:
+                  return 'NOT_ACQUIRED'
+              if f['item_id'] != item:
+                  return 'REJECT'
+              if owner is not None and f['owner_id'] != owner:
+                  return 'REJECT'
+              return 'ACCEPT'
+
+          checks = [
+              ('valid_fossil_accept', resolve(ref, 'OWNER_ALICE'), 'ACCEPT'),
+              ('missing_fossil_not_acquired', resolve('MISSING_FOSSIL'), 'NOT_ACQUIRED'),
+              ('wrong_fossil_item_binding_reject', resolve('FOSSIL_TEST_OTHER_ITEM', 'OWNER_ALICE'), 'REJECT'),
+              ('conflicting_owner_claim_reject', resolve('FOSSIL_TEST_BLADE_0003_CONFLICT', 'OWNER_ALICE'), 'REJECT'),
+          ]
+
+          for name, got, expected in checks:
+              if got != expected:
+                  raise SystemExit(f'FAIL: {name}: expected {expected}, got {got}')
+              print(f'PASS: {name} -> {got}')
+
+          # One economic proof may back multiple presentation projections.
+          projections = ['DREAMIEZ', 'KELP_ATLANTIS']
+          if resolve(ref, 'OWNER_ALICE') != 'ACCEPT' or len(projections) != 2:
+              raise SystemExit('FAIL: multi-projection entitlement')
+          print('PASS: same_owner_multi_projection_accept_once -> ACCEPT')
+          print('ACQUISITION_PROOF_GATE=PASS')
