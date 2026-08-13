@@ -1,0 +1,39 @@
+{
+  "schema_version": "DREAMLEDGER-SURFACE-PROOF-1.0",
+  "event": "horizontal_catalogue_reset",
+  "status": "COMMITTED",
+  "commit_sequence": [
+    "f27e21428f53a97c0b52372235581ce656a17daf",
+    "e04c82a6a9696fffba50a91297972831ff70021e",
+    "5168d0a56a4ba8d0a70e0b65ec10d3900eecb071"
+  ],
+  "changes": {
+    "root_surface": "horizontal_catalogue",
+    "marketplace_surface": "horizontal_catalogue",
+    "b2b_surface": "horizontal_catalogue",
+    "auction_slots": 3,
+    "auction_state": "COMING_SOON_EMPTY_SLOTS",
+    "old_b2b_offer_cards_removed": true,
+    "hardcoded_49_149_499_offer_copy_removed": true,
+    "seller_intake_form_removed_from_public_catalogue": true,
+    "cta_cards_route_to_tunnels": true,
+    "server_side_account_layer_untouched": true,
+    "mtg_silo_untouched": true,
+    "adult_amplissa_silo_untouched": true
+  },
+  "truth_boundary": {
+    "verified_revenue_nzd": 0,
+    "auction_revenue_claimed": false,
+    "b2b_revenue_claimed": false,
+    "payment_fossil_created": false
+  },
+  "verification": {
+    "required_files": [
+      "index.html",
+      "BEC-PRIME/marketplace/marketplace.html",
+      "b2b/index.html"
+    ],
+    "manual_smoke": "Open root, marketplace and /b2b/ and verify horizontal rails, three auction-coming-soon slots and tunnel CTAs."
+  },
+  "created_at_utc": "2026-08-13T04:30:00Z"
+}
