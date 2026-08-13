@@ -45,7 +45,7 @@ echo "  ok"
 echo "[3/4] real Stripe Checkout Session..."
 SESSION="$(curl -sf -X POST "$BASE_URL/api/offer-checkout/create" \
   -H "Content-Type: application/json" \
-  -d "{\"offer_id\":\"$OFFER_ID\"}")" || fail "checkout-create endpoint failed"
+  -d "{\"offer_id\":\"$OFFER_ID\",\"silo\":\"dreamledger\"}")" || fail "checkout-create endpoint failed"
 SESSION_JSON="$SESSION" python3 - <<'PY'
 import json, os, sys
 try:
@@ -53,13 +53,19 @@ try:
 except Exception as e:
     print(f"INVALID_SESSION_JSON: {e}")
     sys.exit(1)
-url = data.get("url", "")
+url = data.get("checkout_url", data.get("url", ""))
+session_id = data.get("session_id", data.get("id", ""))
+if not session_id.startswith("cs_"):
+    print("NOT_A_STRIPE_CHECKOUT_SESSION")
+    sys.exit(1)
 if not url.startswith("https://checkout.stripe.com"):
     print("NOT_A_STRIPE_CHECKOUT_URL")
     sys.exit(1)
-print("CHECKOUT_OK", data.get("id", "UNKNOWN"))
+print("CHECKOUT_OK", session_id)
 print(url)
 PY
+
+echo "  ok"
 
 echo "[4/4] ledger durability (informational)..."
 HEALTH_JSON="$HEALTH" python3 - <<'PY'
