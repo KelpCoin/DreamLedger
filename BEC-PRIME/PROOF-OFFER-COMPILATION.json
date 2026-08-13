@@ -5,12 +5,15 @@
   "generated_at": null,
   "git_commit": null,
   "input_capabilities_sha256": "04c3989992cf00a231e5914d960eb298876e312dbbde8da89686baf601fcf716",
+  "approved_offers_sha256": "1411e0e0db4b9b6ac0c52f9d72033999b57f471d51b12f4bde184ea2a43f243f",
   "source": "catalog/ip-capabilities.json",
+  "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
   "counts": {
     "capabilities": 14,
     "candidates": 29,
     "passed": 27,
+    "approved": 1,
     "rejected": 2
   },
   "passed_offer_ids": [
@@ -40,14 +43,16 @@
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-AUDIT",
     "OFFER-BEC-PRIME-DEMAND-RADAR-DIAGNOSTIC",
     "OFFER-BEC-PRIME-DEMAND-RADAR-AUDIT",
-    "OFFER-BEC-PRIME-SENTINEL-AUDIT"
+    "OFFER-BEC-PRIME-SENTINEL-AUDIT",
+    "AGENTIC-COMMERCE-READINESS-001"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
     "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC"
   ],
-  "approval_required_for_all": true,
-  "checkout_disabled_for_all": true,
+  "approval_required_for_generated_offers": true,
+  "checkout_disabled_for_generated_offers": true,
+  "approved_checkout_enabled_only_by_explicit_record": true,
   "silo_integrity": true,
   "deterministic_ids": true,
   "deterministic_proof": true
