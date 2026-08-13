@@ -2,6 +2,9 @@ name: Create Stripe Payment Link
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   create-payment-link:
