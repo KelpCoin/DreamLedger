@@ -1,5 +1,7 @@
 {
   "schema": "BEC-PRIME/APPROVED-OFFERS/v1",
   "rule": "No commercial offer is publicly checkout-enabled until explicitly approved by the operator.",
-  "approved": []
+  "approved": [
+    "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
+  ]
 }
