@@ -1,0 +1,48 @@
+name: DreamLedger Ignition Verifier
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ignition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run deterministic ignition verifier
+        run: node BEC-PRIME/scripts/verify-ignition.js
+
+      - name: Verify no fabricated economic evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = JSON.parse(fs.readFileSync('artifacts/ignition/IGNITION_TEST.json', 'utf8'));
+          if (p.real_payment_verified !== false) throw new Error('real payment must remain false in deterministic CI');
+          if (p.first_payment_proof_exists !== false) throw new Error('first payment proof must remain false without real evidence');
+          if (p.economic_claim_made !== false) throw new Error('economic claim must remain false');
+          if (p.fixture_classification !== 'TEST_ONLY') throw new Error('fixture must be TEST_ONLY');
+          console.log('NO_FABRICATED_ECONOMIC_EVIDENCE=PASS');
+          NODE
+
+      - name: Upload ignition proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ignition-test-proof
+          path: artifacts/ignition/IGNITION_TEST.json
+          if-no-files-found: error
