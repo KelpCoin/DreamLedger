@@ -1,0 +1,18 @@
+{
+  "schema": "BEC-PRIME/ECONOMIC-TREE-COMPILATION/v2",
+  "status": "PASS",
+  "source_hash": "0b43ec6d6e873f27216ea8c936d68d4d32e4871e6b18684440ae47c97e41405b",
+  "ip_contract_hash": "5d3a53aa844298e2a8c2f6b642b20e08524bd5d6274b79d20040eae06ffbe98e",
+  "output": [
+    "catalog/compiled/economic-tree.json",
+    "compiled/website/economics/index.html",
+    "compiled/website/economics/ip-manifest.json"
+  ],
+  "guarantees": {
+    "revenue_requires_payment_event": true,
+    "payment_requires_verified_provider_event": true,
+    "gauntlet_pass_is_not_revenue": true,
+    "approval_required_for_public_external_actions": true,
+    "silo_cross_contamination_forbidden": true
+  }
+}

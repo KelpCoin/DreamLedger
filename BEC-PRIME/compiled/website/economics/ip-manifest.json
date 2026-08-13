@@ -1,0 +1,64 @@
+{
+  "schema": "BEC-PRIME/COMPILED-IP-MANIFEST/v1",
+  "status": "COMPILED",
+  "compiled_at": "2026-08-13T01:31:37.155Z",
+  "source_hash": "5d3a53aa844298e2a8c2f6b642b20e08524bd5d6274b79d20040eae06ffbe98e",
+  "public_surface": "DreamLedger",
+  "compiler_authority": "BEC-PRIME",
+  "ip_nodes": [
+    {
+      "id": "constitution",
+      "public_role": "trust and approval policy",
+      "exposure": "ABSTRACT_ONLY"
+    },
+    {
+      "id": "compiler",
+      "public_role": "canonical state to public surface compilation",
+      "exposure": "ABSTRACT_ONLY"
+    },
+    {
+      "id": "refinement",
+      "public_role": "demand and offer refinement",
+      "exposure": "ABSTRACT_ONLY"
+    },
+    {
+      "id": "verification",
+      "public_role": "deterministic candidate verification",
+      "exposure": "ABSTRACT_ONLY"
+    },
+    {
+      "id": "commerce",
+      "public_role": "signal to checkout to payment to proof",
+      "exposure": "ABSTRACT_ONLY"
+    },
+    {
+      "id": "evidence",
+      "public_role": "verified economic evidence",
+      "exposure": "ABSTRACT_ONLY"
+    },
+    {
+      "id": "memory",
+      "public_role": "persistent economic state and feedback",
+      "exposure": "ABSTRACT_ONLY"
+    },
+    {
+      "id": "silos",
+      "public_role": "isolated commercial worlds",
+      "exposure": "ABSTRACT_ONLY"
+    }
+  ],
+  "economic_loop": [
+    "DEMAND",
+    "REFINE",
+    "VERIFY",
+    "COMPILE",
+    "DISTRIBUTE",
+    "CHECKOUT",
+    "PAYMENT",
+    "PROOF",
+    "MEMORY",
+    "ITERATE"
+  ],
+  "truth_boundary": "A checkout URL is an offer surface. Revenue is only proven by a real payment event and valid webhook-derived proof.",
+  "public_boundary": "Only abstract architecture, public product information, hashes, and verified state may cross the public boundary. Secrets, credentials, customer data, private implementation paths, private prompts, proprietary model configuration, and unapproved external actions must never be compiled into the public surface."
+}
