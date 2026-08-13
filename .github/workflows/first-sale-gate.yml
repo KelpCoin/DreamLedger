@@ -14,11 +14,11 @@ on:
       PRODUCT_ID:
         description: "Live product/SKU to verify"
         required: false
-        default: "DREAMIEZ-BEAUTY-BRUSH-001"
+        default: "BEC-PRIME-ARCHITECTURE-AUDIT-001"
       OFFER_ID:
         description: "Live offer ID to checkout"
         required: false
-        default: "DREAMIEZ-BEAUTY-BRUSH-001"
+        default: "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
   schedule:
     - cron: "*/15 * * * *"
 
@@ -26,8 +26,8 @@ permissions:
   contents: read
 
 env:
-  FIRST_SALE_PRODUCT_ID: ${{ inputs.PRODUCT_ID || 'DREAMIEZ-BEAUTY-BRUSH-001' }}
-  FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || 'DREAMIEZ-BEAUTY-BRUSH-001' }}
+  FIRST_SALE_PRODUCT_ID: ${{ inputs.PRODUCT_ID || 'BEC-PRIME-ARCHITECTURE-AUDIT-001' }}
+  FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' }}
   BASE_URL: "https://dreamledger.org"
 
 jobs:
