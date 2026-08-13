@@ -1,0 +1,55 @@
+name: B2B Marketplace Live Gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+concurrency:
+  group: marketplace-live-gate
+  cancel-in-progress: true
+
+env:
+  LIVE_URL: https://dreamledger.org
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Syntax gate
+        working-directory: BEC-PRIME
+        run: |
+          node --check lib/marketplacePreload.js
+          node --check routes/dreamiez.js
+          test -s marketplace/marketplace.html
+          test -s marketplace/catalog/sku-seeds.json
+      - name: Poll live marketplace
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            h=$(curl -sS -o /tmp/health.json -w '%{http_code}' --max-time 15 "$LIVE_URL/healthz" || true)
+            m=$(curl -sS -o /tmp/marketplace.html -w '%{http_code}' --max-time 15 "$LIVE_URL/marketplace" || true)
+            c=$(curl -sS -o /tmp/catalog.json -w '%{http_code}' --max-time 15 "$LIVE_URL/api/marketplace/catalog" || true)
+            if [ "$h" = "200" ] && [ "$m" = "200" ] && [ "$c" = "200" ] && grep -q 'bec-prime.marketplace.v2' /tmp/catalog.json; then
+              echo '{"status":"PASS","health":200,"marketplace":200,"catalog":200,"truth":"Marketplace runtime observed."}' | tee marketplace-live-proof.json
+              exit 0
+            fi
+            echo "not ready attempt $attempt/30 health=$h marketplace=$m catalog=$c"
+            sleep 10
+          done
+          echo '{"status":"FAIL","truth":"Marketplace runtime was not observed after polling."}' | tee marketplace-live-proof.json
+          cat /tmp/health.json || true
+          cat /tmp/catalog.json || true
+          exit 1
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: marketplace-live-proof
+          path: marketplace-live-proof.json
+          if-no-files-found: error
