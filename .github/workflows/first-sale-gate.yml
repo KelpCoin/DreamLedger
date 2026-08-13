@@ -1,0 +1,70 @@
+name: BEC Prime First Sale Gate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  first-sale-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify commercial wedge exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f BEC-PRIME/catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json
+          node -e "const p=require('./BEC-PRIME/catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json'); if(p.price!==49 || p.currency!=='NZD' || p.approval_required!==false || p.inventory<1) process.exit(1); console.log('PRODUCT_READY', JSON.stringify({sku:p.sku,price:p.price,currency:p.currency,inventory:p.inventory}));"
+
+      - name: Verify live health
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 90 https://dreamledger.org/healthz | tee health.json
+
+      - name: Verify live offers
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 90 https://dreamledger.org/api/offers | tee offers.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('offers.json','utf8'));
+          const a=Array.isArray(x)?x:(x.offers||x.data||[]);
+          const hit=a.find(o=>o.offer_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
+          if(!hit) throw new Error('approved $49 offer not present');
+          console.log(JSON.stringify(hit,null,2));
+          NODE
+
+      - name: Create one checkout doorway
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 60 \
+            -X POST https://dreamledger.org/api/offer-checkout/create \
+            -H 'Content-Type: application/json' \
+            --data '{"offer_id":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}' \
+            | tee checkout.json
+          node - <<'NODE'
+          const x=require('./checkout.json');
+          const u=x.url||x.checkout_url;
+          if(!u || !/^https:\/\//.test(u)) throw new Error('checkout URL not returned');
+          console.log('CHECKOUT_READY',u);
+          NODE
+
+      - name: Upload gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-sale-gate-proof
+          path: |
+            health.json
+            offers.json
+            checkout.json
+          if-no-files-found: error
