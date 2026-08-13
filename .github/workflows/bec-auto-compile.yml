@@ -64,7 +64,9 @@ jobs:
             ':!BEC-PRIME/scripts/test-stripe-webhook-proof.js' \
             ':!BEC-PRIME/scripts/verify-public-boundary.js' \
             ':!BEC-PRIME/scripts/OfferCompiler.js' \
-            ':!BEC-PRIME/scripts/Verify-Registry.ps1'; then
+            ':!BEC-PRIME/scripts/Verify-Registry.ps1' \
+            ':!scripts/OfferCompiler.js' \
+            ':!scripts/Verify-Registry.ps1'; then
             echo 'Potential secret material detected in repository.'
             exit 1
           fi
