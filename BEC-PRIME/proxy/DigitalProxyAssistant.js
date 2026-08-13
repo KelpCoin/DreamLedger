@@ -12,7 +12,7 @@ function digest(value) {
 function fallback(message) {
   const text = String(message || '').toLowerCase();
   if (/account|login|sign.?up|avatar|streak/.test(text)) {
-    return 'I can help with accounts, avatars, daily streaks and Dreamiez rewards. Use the account controls on this page, then return here if a step is unclear.';
+    return 'For Dreamiez accounts: create an account with an email and password of at least 8 characters, then use Log in with the same email and password. Your character and streak are attached to that account.';
   }
   if (/buy|checkout|price|payment|stripe/.test(text)) {
     return 'I can explain an offer, price or checkout step. Payments stay behind the approval and verification gates.';
@@ -28,24 +28,28 @@ async function reply(message, context = {}) {
   if (!clean) return { status: 'READY', reply: fallback('') };
   if (!MODEL || process.env.DIGITAL_PROXY_LM_ENABLED !== 'true') return { status: 'LOCAL_FALLBACK', reply: fallback(clean) };
 
-  const response = await fetch(`${BASE_URL}/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL,
-      temperature: 0.2,
-      max_tokens: 300,
-      messages: [
-        { role: 'system', content: 'You are the DreamLedger Digital Proxy, a lightweight navigation assistant. Be concise, practical and non-invasive. Never claim to be the owner. Never request passwords, payment secrets or private customer data. Never publish, charge, approve, or execute an external action. Help the user navigate the current website.' },
-        { role: 'user', content: JSON.stringify({ message: clean, context }) }
-      ]
-    })
-  });
-  if (!response.ok) throw new Error(`Digital Proxy model ${response.status}`);
-  const data = await response.json();
-  const text = data?.choices?.[0]?.message?.content;
-  if (!text) throw new Error('Digital Proxy returned no message');
-  return { status: 'MODEL', reply: String(text).slice(0, 3000), response_id: `DP-${digest(clean)}` };
+  try {
+    const response = await fetch(`${BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        temperature: 0.2,
+        max_tokens: 300,
+        messages: [
+          { role: 'system', content: 'You are the DreamLedger Digital Proxy, a lightweight navigation assistant. Be concise, practical and non-invasive. Never claim to be the owner. Never request passwords, payment secrets or private customer data. Never publish, charge, approve, or execute an external action. Help the user navigate the current website.' },
+          { role: 'user', content: JSON.stringify({ message: clean, context }) }
+        ]
+      })
+    });
+    if (!response.ok) throw new Error(`Digital Proxy model ${response.status}`);
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Digital Proxy returned no message');
+    return { status: 'MODEL', reply: String(text).slice(0, 3000), response_id: `DP-${digest(clean)}` };
+  } catch (err) {
+    return { status: 'FALLBACK', reply: fallback(clean), response_id: `DP-${digest(clean)}`, degraded: true };
+  }
 }
 
 module.exports = { reply };
