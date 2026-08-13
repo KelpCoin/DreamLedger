@@ -95,6 +95,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Install dependencies for live gate
+        working-directory: BEC-PRIME
+        run: npm install
       - name: Wait for Render deployment and test real public surface
         working-directory: BEC-PRIME
         env:
@@ -103,9 +106,16 @@ jobs:
           for i in $(seq 1 12); do
             echo "Production smoke attempt $i/12"
             if npm run smoke:production; then
-              exit 0
+              break
+            fi
+            if [ "$i" = "12" ]; then
+              echo "PRODUCTION SMOKE FAILED: dreamledger.org is not serving the current DreamLedger commerce runtime."
+              exit 1
             fi
             sleep 10
           done
-          echo "PRODUCTION SMOKE FAILED: dreamledger.org is not serving the current DreamLedger commerce runtime."
-          exit 1
+      - name: LIVE CHECKOUT REALITY GATE
+        working-directory: BEC-PRIME
+        env:
+          BASE_URL: https://dreamledger.org
+        run: bash scripts/verify_checkout_live.sh AGENTIC-COMMERCE-READINESS-001
