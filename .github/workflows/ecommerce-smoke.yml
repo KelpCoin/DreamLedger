@@ -35,7 +35,6 @@ jobs:
           test -f compiled/website/index.html
           grep -q "ONE HOST." compiled/website/index.html
           grep -q "MANY WORLDS." compiled/website/index.html
-          grep -q "Agentic Commerce" compiled/website/index.html
           ! grep -Eiq "magic the gathering|mtg shop|commander deck" compiled/website/index.html
           test -f PROOF-CUBE-SURFACE-COMPILATION.json
 
@@ -53,12 +52,11 @@ jobs:
           curl -fsS http://127.0.0.1:4173/ > /tmp/home.html
           cat /tmp/offers.json
 
-      - name: Assert paid offer exists
+      - name: Assert phantom AI offers absent
         shell: bash
         run: |
-          grep -q 'AGENTIC-COMMERCE-READINESS-001' /tmp/offers.json
-          grep -q '49' /tmp/offers.json
-          grep -q 'checkout_available' /tmp/offers.json
+          ! grep -Eiq 'AGENTIC-COMMERCE-READINESS-001|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK' /tmp/offers.json
+          ! grep -Eiq 'checkout_available[^,}]*true|"checkout_enabled"[^,}]*true' /tmp/offers.json
 
       - name: Dump runtime log on failure
         if: failure()
