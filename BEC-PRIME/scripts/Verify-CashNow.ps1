@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [string]$BaseUrl = 'https://dreamledger.org',
-    [string]$ProductId = 'COMMANDER-DECK-DIAGNOSTIC-001',
+    [string]$ProductId = 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
     [string]$ProofPath = 'D:\BEC_CASH_NOW_PROOF.json'
 )
 
@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 $BaseUrl = $BaseUrl.TrimEnd('/')
 $started = Get-Date
 $result = [ordered]@{
-    verifier = 'BEC-PRIME Verify-CashNow v1.1'
+    verifier = 'BEC-PRIME Verify-CashNow v1.2'
     checked_at_utc = (Get-Date).ToUniversalTime().ToString('o')
     base_url = $BaseUrl
     product_id = $ProductId
@@ -61,7 +61,8 @@ try {
             $checkout = Invoke-RestMethod -Uri "$BaseUrl/api/offer-checkout/create" -Method Post -ContentType 'application/json' -Body (@{ offer_id = $ProductId; region = 'NZ' } | ConvertTo-Json)
             $result.checkout_session_id = $checkout.session_id
             $result.checkout_url = $checkout.checkout_url
-            $result.gates.stripe_checkout_live = [bool]$checkout.checkout_url
+            if (-not $result.checkout_url) { $result.checkout_url = $checkout.url }
+            $result.gates.stripe_checkout_live = [bool]$result.checkout_url
         }
         catch {
             $result.gates.stripe_checkout_live = $false
