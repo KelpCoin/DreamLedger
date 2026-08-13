@@ -1,0 +1,16 @@
+{
+  "schema": "BEC-PRIME/QUARANTINED-OFFER/v1",
+  "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+  "product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+  "status": "QUARANTINED",
+  "reason": "Legacy offer state conflicts with the current approval gate and commercial reset.",
+  "observed_conflicts": [
+    "approval_required=false",
+    "checkout_available=true",
+    "status=VERIFIED_AVAILABLE",
+    "public commercial reset removed legacy audit fiction"
+  ],
+  "rule": "Quarantine rather than silently approve or publish.",
+  "checkout_available": false,
+  "quarantined_at": "2026-08-13T00:00:00Z"
+}
