@@ -8,6 +8,7 @@ const CAPABILITIES_PATH = path.join(ROOT, 'catalog', 'ip-capabilities.json');
 const OFFERS_DIR = path.join(ROOT, 'catalog', 'offers');
 const CANDIDATES_FILE = path.join(OFFERS_DIR, 'candidates.json');
 const OFFERS_FILE = path.join(OFFERS_DIR, 'offers.json');
+const APPROVED_FILE = path.join(OFFERS_DIR, 'approved.json');
 const PROOF_FILE = path.join(ROOT, 'PROOF-OFFER-COMPILATION.json');
 const SCHEMA_PATH = path.join(__dirname, 'schemas', 'offer.schema.json');
 const OFFER_VERSION = 'offer-compiler-v1';
@@ -20,6 +21,13 @@ function loadCapabilities() {
   const catalog = JSON.parse(fs.readFileSync(CAPABILITIES_PATH, 'utf8'));
   if (!Array.isArray(catalog.capabilities)) throw new Error('Invalid IP capability catalog: capabilities[] required');
   return catalog.capabilities;
+}
+
+function loadApprovedOffers() {
+  if (!fs.existsSync(APPROVED_FILE)) return [];
+  const catalog = JSON.parse(fs.readFileSync(APPROVED_FILE, 'utf8'));
+  if (!Array.isArray(catalog.approved)) throw new Error('Invalid approved offer catalog: approved[] required');
+  return catalog.approved;
 }
 
 function slug(value) {
@@ -189,6 +197,39 @@ function runGauntlet(candidates, capabilities) {
   return { passed, rejected };
 }
 
+function compileApprovedOffers(records, capabilities, generatedOffers) {
+  const byId = new Map(capabilities.map(c => [c.id, c]));
+  const generatedIds = new Set(generatedOffers.map(o => o.offer_id));
+  const approved = [];
+  const errors = [];
+  const required = ['offer_id', 'capability_id', 'silo', 'name', 'problem', 'input', 'output', 'delivery_mechanism', 'deliverable', 'target_buyer', 'eligibility', 'constraints', 'price', 'currency', 'refund_rules', 'payment_adapter', 'checkout_route', 'proof_of_delivery', 'verification_rules', 'provenance', 'approved_by', 'approved_at'];
+
+  for (const record of records) {
+    const missing = required.filter(field => record[field] === undefined || record[field] === null || record[field] === '');
+    const capability = byId.get(record.capability_id);
+    if (missing.length) { errors.push({ offer_id: record.offer_id || null, errors: missing.map(x => `missing:${x}`) }); continue; }
+    if (!capability) { errors.push({ offer_id: record.offer_id, errors: ['unknown_capability'] }); continue; }
+    if (record.silo !== capability.silo) { errors.push({ offer_id: record.offer_id, errors: ['silo_mismatch'] }); continue; }
+    if (record.currency !== 'NZD' || typeof record.price !== 'number' || record.price <= 0) { errors.push({ offer_id: record.offer_id, errors: ['invalid_price'] }); continue; }
+    if (record.approved_by !== 'operator') { errors.push({ offer_id: record.offer_id, errors: ['explicit_operator_approval_required'] }); continue; }
+    if (generatedIds.has(record.offer_id) || approved.some(o => o.offer_id === record.offer_id)) { errors.push({ offer_id: record.offer_id, errors: ['duplicate_offer_id'] }); continue; }
+
+    const offer = {
+      ...record,
+      version: 'offer-v1',
+      pricing_strategy: record.pricing_strategy || 'fixed',
+      pricing_tier: record.pricing_tier || 'snapshot',
+      approval_required: false,
+      checkout_available: true,
+      status: 'VERIFIED_AVAILABLE'
+    };
+    delete offer.approved_by;
+    delete offer.approved_at;
+    approved.push(offer);
+  }
+  return { approved, errors };
+}
+
 function byCapability(capabilities, id) {
   return capabilities.find(c => c.id === id);
 }
@@ -197,51 +238,57 @@ function compile() {
   const capabilities = loadCapabilities();
   const generated = generateCandidates(capabilities);
   const gauntlet = runGauntlet(generated.candidates, capabilities);
+  const approvedInput = loadApprovedOffers();
+  const approvedResult = compileApprovedOffers(approvedInput, capabilities, gauntlet.passed);
   fs.mkdirSync(OFFERS_DIR, { recursive: true });
-  const allRejected = [...generated.rejected, ...gauntlet.rejected];
+  const allRejected = [...generated.rejected, ...gauntlet.rejected, ...approvedResult.errors];
+  const finalOffers = [...gauntlet.passed, ...approvedResult.approved];
   const deterministicManifest = {
     schema: 'BEC-PRIME/OFFER-CATALOG/v1',
     compiler: OFFER_VERSION,
     source: 'catalog/ip-capabilities.json',
-    approval_rule: 'All compiled offers remain approval-gated and checkout-disabled until explicitly approved.',
+    approval_rule: 'All generated offers remain approval-gated and checkout-disabled until explicitly approved in catalog/offers/approved.json.',
     counts: {
       capabilities: capabilities.length,
       candidates: generated.candidates.length,
       passed: gauntlet.passed.length,
+      approved: approvedResult.approved.length,
       rejected: allRejected.length
     }
   };
   fs.writeFileSync(CANDIDATES_FILE, JSON.stringify({ ...deterministicManifest, candidates: generated.candidates, rejected: allRejected }, null, 2) + '\n');
-  fs.writeFileSync(OFFERS_FILE, JSON.stringify({ ...deterministicManifest, offers: gauntlet.passed }, null, 2) + '\n');
+  fs.writeFileSync(OFFERS_FILE, JSON.stringify({ ...deterministicManifest, offers: finalOffers }, null, 2) + '\n');
 
-  // Keep proof deterministic. Runtime timestamps and triggering commit SHAs
-  // do not describe the compiled offer set and previously caused CI churn.
   const inputHash = hashFile(CAPABILITIES_PATH);
+  const approvalHash = fs.existsSync(APPROVED_FILE) ? hashFile(APPROVED_FILE) : null;
   const proof = {
     type: 'dreamledger-offer-compilation-proof',
-    status: gauntlet.passed.length === generated.candidates.length && allRejected.length === 0 ? 'PASS' : 'PARTIAL',
+    status: allRejected.length === 0 ? 'PASS' : 'PARTIAL',
     compiler: OFFER_VERSION,
     generated_at: null,
     git_commit: null,
     input_capabilities_sha256: inputHash,
+    approved_offers_sha256: approvalHash,
     source: 'catalog/ip-capabilities.json',
+    approval_source: 'catalog/offers/approved.json',
     schema: 'compiler/schemas/offer.schema.json',
     counts: deterministicManifest.counts,
-    passed_offer_ids: gauntlet.passed.map(o => o.offer_id),
-    rejected_offer_ids: allRejected.map(item => item.candidate?.offer_id || item.capability_id || null),
-    approval_required_for_all: gauntlet.passed.every(o => o.approval_required === true),
-    checkout_disabled_for_all: gauntlet.passed.every(o => o.checkout_available === false),
-    silo_integrity: gauntlet.passed.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
-    deterministic_ids: new Set(gauntlet.passed.map(o => o.offer_id)).size === gauntlet.passed.length,
+    passed_offer_ids: finalOffers.map(o => o.offer_id),
+    rejected_offer_ids: allRejected.map(item => item.offer_id || item.candidate?.offer_id || item.capability_id || null),
+    approval_required_for_generated_offers: gauntlet.passed.every(o => o.approval_required === true),
+    checkout_disabled_for_generated_offers: gauntlet.passed.every(o => o.checkout_available === false),
+    approved_checkout_enabled_only_by_explicit_record: approvedResult.approved.every(o => o.checkout_available === true && o.approval_required === false),
+    silo_integrity: finalOffers.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
+    deterministic_ids: new Set(finalOffers.map(o => o.offer_id)).size === finalOffers.length,
     deterministic_proof: true
   };
   fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n');
-  return { ...deterministicManifest, candidates: generated.candidates, passed: gauntlet.passed, rejected: allRejected };
+  return { ...deterministicManifest, candidates: generated.candidates, passed: finalOffers, rejected: allRejected };
 }
 
-module.exports = { compile, loadCapabilities, generateCandidates, runGauntlet, eligibility };
+module.exports = { compile, loadCapabilities, loadApprovedOffers, generateCandidates, runGauntlet, compileApprovedOffers, eligibility };
 
 if (require.main === module) {
   const result = compile();
-  console.log(JSON.stringify({ compiler: OFFER_VERSION, capabilities: result.counts.capabilities, candidates: result.counts.candidates, passed: result.counts.passed, rejected: result.counts.rejected }, null, 2));
+  console.log(JSON.stringify({ compiler: OFFER_VERSION, capabilities: result.counts.capabilities, candidates: result.counts.candidates, passed: result.counts.passed, approved: result.counts.approved, rejected: result.counts.rejected }, null, 2));
 }
