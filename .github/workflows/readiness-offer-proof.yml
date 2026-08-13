@@ -25,7 +25,7 @@ jobs:
           GIT_COMMIT: ${{ github.sha }}
         run: node BEC-PRIME/compiler/OfferCompiler.js
 
-      - name: Verify readiness tiers
+      - name: Verify readiness tiers and explicit first-sale approval
         shell: bash
         run: |
           node <<'NODE'
@@ -34,13 +34,13 @@ jobs:
           const file = path.join('BEC-PRIME', 'catalog', 'offers', 'offers.json');
           if (!fs.existsSync(file)) throw new Error('Compiled offers file missing: ' + file);
           const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+          const offers = Array.isArray(data.offers) ? data.offers : [];
+          const got = new Map(offers.map(o => [o.offer_id, o]));
           const expected = {
             'OFFER-BEC-PRIME-READINESS-AUDIT-SNAPSHOT': 49,
             'OFFER-BEC-PRIME-READINESS-AUDIT-FULL-AUDIT': 149,
             'OFFER-BEC-PRIME-READINESS-AUDIT-BLUEPRINT': 499
           };
-          const offers = Array.isArray(data.offers) ? data.offers : [];
-          const got = new Map(offers.map(o => [o.offer_id, o]));
           for (const [id, price] of Object.entries(expected)) {
             const offer = got.get(id);
             if (!offer) throw new Error('Missing offer: ' + id);
@@ -51,15 +51,24 @@ jobs:
             if (offer.status !== 'candidate') throw new Error(`${id}: status is not candidate`);
             if (offer.silo !== 'dreamledger') throw new Error(`${id}: silo mismatch`);
           }
-          const readiness = offers.filter(o => o.capability_id === 'BEC-PRIME-READINESS-AUDIT');
-          if (readiness.length !== 3) throw new Error(`Expected exactly 3 readiness offers, got ${readiness.length}`);
+          const readinessCandidates = offers.filter(o => o.capability_id === 'BEC-PRIME-READINESS-AUDIT' && o.status === 'candidate');
+          if (readinessCandidates.length !== 3) throw new Error(`Expected exactly 3 readiness candidate offers, got ${readinessCandidates.length}`);
+          const firstSale = got.get('AGENTIC-COMMERCE-READINESS-001');
+          if (!firstSale) throw new Error('Missing explicitly approved first-sale offer AGENTIC-COMMERCE-READINESS-001');
+          if (firstSale.price !== 49 || firstSale.currency !== 'NZD') throw new Error('First-sale price/currency mismatch');
+          if (firstSale.capability_id !== 'BEC-PRIME-READINESS-AUDIT') throw new Error('First-sale capability mismatch');
+          if (firstSale.silo !== 'dreamledger') throw new Error('First-sale silo mismatch');
+          if (firstSale.approval_required !== false) throw new Error('First-sale approval gate is still locked');
+          if (firstSale.checkout_available !== true) throw new Error('First-sale checkout is not enabled');
+          if (firstSale.status !== 'VERIFIED_AVAILABLE') throw new Error('First-sale status is not VERIFIED_AVAILABLE');
           console.log(JSON.stringify({
             status: 'PASS',
             commit: process.env.GITHUB_SHA,
-            readiness_offer_ids: readiness.map(o => o.offer_id),
-            prices_nzd: readiness.map(o => o.price),
-            approval_locked: readiness.every(o => o.approval_required === true),
-            checkout_locked: readiness.every(o => o.checkout_available === false),
+            readiness_candidate_offer_ids: readinessCandidates.map(o => o.offer_id),
+            first_sale_offer_id: firstSale.offer_id,
+            first_sale_price_nzd: firstSale.price,
+            approval_locked_for_candidates: readinessCandidates.every(o => o.approval_required === true),
+            checkout_enabled_only_for_explicit_approval: firstSale.checkout_available === true,
             silo: 'dreamledger'
           }, null, 2));
           NODE
