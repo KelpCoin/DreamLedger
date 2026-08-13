@@ -69,6 +69,7 @@ jobs:
           test -s catalog/offers/products.json
           test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
           test -s catalog/products/EDH_0001.json
+          test -s catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json
           grep -q "BEC-PRIME\|Neutral front door\|DREAMLEDGER" compiled/website/index.html
           grep -q "REVENUE PORTFOLIO\|REVENUE RAILS" compiled/website/revenue.html
 
@@ -85,32 +86,27 @@ jobs:
           else
             curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
           fi
-      - name: Wait for live deployment and prove public surfaces
+      - name: Prove live runtime and checkout readiness
         shell: bash
         run: |
           set -euo pipefail
-          root="${LIVE_URL}/"
-          revenue="${LIVE_URL}/revenue.html"
-          ip="${LIVE_URL}/ip.html"
-          engine="${LIVE_URL}/engine.html"
+          health="${LIVE_URL}/healthz"
+          offers="${LIVE_URL}/api/offers"
           for attempt in $(seq 1 30); do
-            root_body="$(curl --fail --silent --show-error --max-time 15 "$root" || true)"
-            revenue_body="$(curl --fail --silent --show-error --max-time 15 "$revenue" || true)"
-            ip_body="$(curl --fail --silent --show-error --max-time 15 "$ip" || true)"
-            engine_body="$(curl --fail --silent --show-error --max-time 15 "$engine" || true)"
-            if printf '%s' "$root_body" | grep -q "DREAMLEDGER" && \
-               printf '%s' "$root_body" | grep -q "Neutral front door" && \
-               printf '%s' "$root_body" | grep -q "Revenue Portfolio" && \
-               printf '%s' "$revenue_body" | grep -Eq "REVENUE PORTFOLIO|REVENUE RAILS" && \
-               printf '%s' "$ip_body" | grep -Eq "BEC-PRIME|IP|Constitution" && \
-               printf '%s' "$engine_body" | grep -Eq "BEC-PRIME|Commerce Kernel"; then
-              printf '%s\n' '{"status":"PASS","checks":["root","revenue","ip","engine"],"truth":"No revenue claim without verified payment proof"}' | tee live-deployment-proof.json
+            health_code="$(curl --silent --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$health" || true)"
+            offers_code="$(curl --silent --output /tmp/offers.json --write-out '%{http_code}' --max-time 15 "$offers" || true)"
+            if [ "$health_code" = "200" ] && [ "$offers_code" = "200" ] && grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
+              printf '%s\n' '{"status":"PASS","checks":["healthz","offers","BEC-PRIME-ARCHITECTURE-AUDIT-001","checkout_available"],"truth":"Live checkout readiness proven; payment still requires a real buyer."}' | tee live-deployment-proof.json
+              cat /tmp/health.json
+              cat /tmp/offers.json
               exit 0
             fi
-            echo "Live deployment not yet serving the complete canonical surface (attempt $attempt/30)."
+            echo "Live commerce surface not ready (attempt $attempt/30): health=$health_code offers=$offers_code"
             sleep 10
           done
-          printf '%s\n' '{"status":"FAIL","reason":"Live host did not serve root, revenue, IP and engine surfaces after deploy trigger."}' | tee live-deployment-proof.json
+          printf '%s\n' '{"status":"FAIL","reason":"Live health/offers surface did not become checkoutable after deploy trigger."}' | tee live-deployment-proof.json
+          cat /tmp/health.json || true
+          cat /tmp/offers.json || true
           exit 1
       - name: Upload live deployment proof
         if: always()
