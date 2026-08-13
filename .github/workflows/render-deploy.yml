@@ -120,8 +120,18 @@ jobs:
             fi
             sleep 10
           done
-      - name: LIVE CHECKOUT REALITY GATE
-        working-directory: BEC-PRIME
+      - name: LIVE OFFER REGISTRY REALITY GATE
         env:
           BASE_URL: https://dreamledger.org
-        run: bash scripts/verify_checkout_live.sh AGENTIC-COMMERCE-READINESS-001
+        run: |
+          body=$(curl --fail --silent --show-error "$BASE_URL/api/offers")
+          echo "$body"
+          if echo "$body" | grep -q 'AGENTIC-COMMERCE-READINESS-001'; then
+            echo "FAIL: removed Agentic Commerce offer is still publicly exposed."
+            exit 1
+          fi
+          if echo "$body" | grep -q 'SMALL-BUSINESS-AI-COMMERCE-KIT-001'; then
+            echo "FAIL: removed placeholder AI product is still publicly exposed."
+            exit 1
+          fi
+          echo "PASS: public offer registry contains no removed AI placeholders."
