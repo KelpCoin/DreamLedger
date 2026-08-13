@@ -3,14 +3,20 @@ name: Deploy DreamLedger to Render
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: ["BEC-PRIME Auto Compile DreamLedger"]
+    types: [completed]
   workflow_dispatch:
 
 jobs:
   acceptance-gate:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -91,6 +97,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
