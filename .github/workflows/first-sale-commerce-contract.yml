@@ -1,0 +1,77 @@
+name: First Sale Commerce Contract
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/autonomy/EXPERIMENTS/AGENTIC-COMMERCE-READINESS-CHECKLIST.json'
+      - 'BEC-PRIME/autonomy/OFFERS.json'
+      - '.github/workflows/create-payment-link.yml'
+      - '.github/workflows/first-sale-commerce-contract.yml'
+  push:
+    branches:
+      - main
+      - 'agent/**'
+    paths:
+      - 'BEC-PRIME/autonomy/EXPERIMENTS/AGENTIC-COMMERCE-READINESS-CHECKLIST.json'
+      - 'BEC-PRIME/autonomy/OFFERS.json'
+      - '.github/workflows/create-payment-link.yml'
+      - '.github/workflows/first-sale-commerce-contract.yml'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq empty BEC-PRIME/autonomy/OFFERS.json
+          jq empty BEC-PRIME/autonomy/EXPERIMENTS/AGENTIC-COMMERCE-READINESS-CHECKLIST.json
+
+      - name: Verify first-sale product contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          PRODUCT='BEC-PRIME/autonomy/EXPERIMENTS/AGENTIC-COMMERCE-READINESS-CHECKLIST.json'
+          WORKFLOW='.github/workflows/create-payment-link.yml'
+
+          test "$(jq -r '.id' "$PRODUCT")" = 'AGENTIC-COMMERCE-READINESS-CHECKLIST-001'
+          test "$(jq -r '.price_nzd' "$PRODUCT")" = '29'
+          test "$(jq -r '.proof_required' "$PRODUCT")" = 'true'
+          test "$(jq -r '.fossil_required' "$PRODUCT")" = 'true'
+
+          grep -F -- '--currency=nzd' "$WORKFLOW"
+          grep -F -- '--unit-amount=2900' "$WORKFLOW"
+          grep -F -- '--product-data-name="Agentic Commerce Readiness Checklist"' "$WORKFLOW"
+          grep -F -- 'secrets.STRIPE_SECRET_KEY' "$WORKFLOW"
+          grep -F -- 'https://buy.stripe.com/' "$WORKFLOW"
+
+      - name: Secret hygiene guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -RInE 'sk_(live|test)_[A-Za-z0-9]+' . --exclude-dir=.git
+
+      - name: Emit proof artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          cat > proof/first-sale-commerce-contract.txt <<'EOF'
+          PASS
+          Product: Agentic Commerce Readiness Checklist
+          Price: NZD 29
+          Checkout workflow: create-payment-link.yml
+          Proof required: true
+          Fossil required: true
+          Secret hygiene: PASS
+          EOF
+
+      - name: Upload proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-sale-commerce-contract-proof
+          path: proof/first-sale-commerce-contract.txt
