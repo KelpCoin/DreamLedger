@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "canonical_item": {
+    "item_id": "ITEM_BLADE_0003",
+    "asset_id": "ASSET_BLADE_0003",
+    "economic": {
+      "acquisition_proof_ref": "FOSSIL_TEST_BLADE_0003"
+    }
+  },
+  "fossils": [
+    {"fossil_id":"FOSSIL_TEST_BLADE_0003","item_id":"ITEM_BLADE_0003","owner_id":"OWNER_ALICE","status":"SETTLED"},
+    {"fossil_id":"FOSSIL_TEST_OTHER_ITEM","item_id":"ITEM_OTHER_0001","owner_id":"OWNER_ALICE","status":"SETTLED"},
+    {"fossil_id":"FOSSIL_TEST_BLADE_0003_CONFLICT","item_id":"ITEM_BLADE_0003","owner_id":"OWNER_BOB","status":"SETTLED"}
+  ],
+  "cases": ["valid_fossil_accept","missing_fossil_not_acquired","wrong_fossil_item_binding_reject","conflicting_owner_claim_reject","same_owner_multi_projection_accept_once"]
+}
