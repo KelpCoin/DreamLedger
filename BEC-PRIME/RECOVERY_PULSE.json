@@ -1,0 +1,11 @@
+{
+  "type": "RECOVERY_PULSE",
+  "date": "2026-08-13",
+  "purpose": "Force a fresh main-branch ingestion signal for CI verification.",
+  "economic_truth": {
+    "revenue": 0,
+    "paid_event_observed": false,
+    "fossil_created": false,
+    "rabbit_mode": "LOCKED"
+  }
+}
