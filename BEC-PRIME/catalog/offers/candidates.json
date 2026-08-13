@@ -8,7 +8,7 @@
     "candidates": 29,
     "passed": 27,
     "approved": 0,
-    "rejected": 2
+    "rejected": 3
   },
   "candidates": [
     {
@@ -1664,6 +1664,12 @@
       },
       "errors": [
         "potential_private_material_reference"
+      ]
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+      "errors": [
+        "duplicate_offer_id"
       ]
     }
   ]
