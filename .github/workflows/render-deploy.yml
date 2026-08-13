@@ -124,29 +124,29 @@ jobs:
         env:
           BASE_URL: https://dreamledger.org
         run: |
+          set -euo pipefail
           body=$(curl --fail --silent --show-error "$BASE_URL/api/offers")
           echo "$body"
-          if ! echo "$body" | grep -q 'AGENTIC-COMMERCE-READINESS-001'; then
-            echo "FAIL: required Agentic Commerce readiness offer is not publicly exposed."
-            exit 1
-          fi
-          if ! echo "$body" | grep -q '"price":49'; then
-            echo "FAIL: Agentic Commerce readiness offer price is not NZD 49."
-            exit 1
-          fi
-          if ! echo "$body" | grep -q '"checkout_available":true'; then
-            echo "FAIL: Agentic Commerce readiness offer is not checkout-enabled."
-            exit 1
-          fi
-          if echo "$body" | grep -q 'SMALL-BUSINESS-AI-COMMERCE-KIT-001'; then
-            echo "FAIL: removed placeholder AI product is still publicly exposed."
-            exit 1
-          fi
-          echo "PASS: required first-sale offer is publicly exposed and no removed placeholder AI product is exposed."
+          node - <<'NODE'
+          const body=process.env.BODY;
+          NODE
+          echo "$body" > live-offers.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('live-offers.json','utf8'));
+          const offers=Array.isArray(x)?x:(x.offers||x.data||[]);
+          const hit=offers.find(o=>o.offer_id==='OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' || o.product_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.id==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
+          if(!hit) throw new Error('FAIL: canonical BEC-PRIME architecture audit is not publicly exposed.');
+          if(Number(hit.price)!==49 || String(hit.currency||'').toUpperCase()!=='NZD') throw new Error('FAIL: canonical BEC-PRIME architecture audit is not NZD 49.');
+          if(hit.checkout_available!==true) throw new Error('FAIL: canonical BEC-PRIME architecture audit is not checkout-enabled.');
+          if(offers.some(o=>o.offer_id==='AGENTIC-COMMERCE-READINESS-001' || o.product_id==='AGENTIC-COMMERCE-READINESS-001' || o.sku==='AGENTIC-COMMERCE-READINESS-001' || o.id==='AGENTIC-COMMERCE-READINESS-001')) throw new Error('FAIL: stale AGENTIC-COMMERCE-READINESS-001 is still publicly exposed.');
+          if(offers.some(o=>o.offer_id==='SMALL-BUSINESS-AI-COMMERCE-KIT-001' || o.product_id==='SMALL-BUSINESS-AI-COMMERCE-KIT-001' || o.sku==='SMALL-BUSINESS-AI-COMMERCE-KIT-001' || o.id==='SMALL-BUSINESS-AI-COMMERCE-KIT-001')) throw new Error('FAIL: removed placeholder AI product is still publicly exposed.');
+          console.log('PASS: canonical BEC-PRIME first-sale offer is publicly exposed and stale placeholder offers are absent.');
+          NODE
       - name: LIVE STRIPE CHECKOUT REALITY GATE
         env:
           BASE_URL: https://dreamledger.org
         run: |
-          response=$(curl --fail --silent --show-error --request POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data '{"offer_id":"AGENTIC-COMMERCE-READINESS-001"}')
+          response=$(curl --fail --silent --show-error --request POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data '{"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"}')
           echo "$response"
           node -e "const r=JSON.parse(process.argv[1]); if(typeof r.url !== 'string' || !r.url.startsWith('https://checkout.stripe.com/')) { console.error('FAIL: checkout endpoint did not return a Stripe Checkout URL'); process.exit(1); } console.log('PASS: live Stripe Checkout URL returned')" "$response"
