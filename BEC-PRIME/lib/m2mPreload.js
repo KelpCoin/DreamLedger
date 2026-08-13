@@ -4,6 +4,7 @@ const m2m = require('../routes/m2m');
 const original = http.createServer;
 http.createServer = function preloadedCreateServer(...args) {
   const handler = args[0];
+  if (typeof handler !== 'function') return original.apply(this, args);
   args[0] = async function m2mFirst(req, res) {
     const url = String(req.url || '').split('?')[0];
     if (url.startsWith('/m2m/v1')) {
