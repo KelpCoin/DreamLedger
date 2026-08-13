@@ -5,7 +5,7 @@
   "generated_at": null,
   "git_commit": null,
   "input_capabilities_sha256": "04c3989992cf00a231e5914d960eb298876e312dbbde8da89686baf601fcf716",
-  "approved_offers_sha256": "c7fc172ec4ff0ff4a7550f88321caa27a8e0860c0039b3b33ec94285ce4cc6e5",
+  "approved_offers_sha256": "7249018217061063fc97d8ae89b064aec7779ac61e00f9de10ae1c77f44ebf36",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
@@ -14,7 +14,7 @@
     "candidates": 29,
     "passed": 27,
     "approved": 0,
-    "rejected": 3
+    "rejected": 2
   },
   "passed_offer_ids": [
     "OFFER-BEC-PRIME-ARCHITECTURE-DIAGNOSTIC",
@@ -47,8 +47,7 @@
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
-    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC",
-    "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
+    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC"
   ],
   "approval_required_for_generated_offers": true,
   "checkout_disabled_for_generated_offers": true,
