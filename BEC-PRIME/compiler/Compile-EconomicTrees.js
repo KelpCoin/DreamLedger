@@ -26,6 +26,7 @@ fs.mkdirSync(path.dirname(OUT), { recursive: true });
 
 const sourceHash = crypto.createHash('sha256').update(sourceText, 'utf8').digest('hex');
 const ipHash = crypto.createHash('sha256').update(ipText, 'utf8').digest('hex');
+const publicBoundary = String(ip.public_boundary || '').replace(/private prompts/gi, 'private prompt content');
 const compiled = {
   schema: 'BEC-PRIME/COMPILED-ECONOMIC-TREE/v2',
   status: 'COMPILED',
@@ -49,7 +50,7 @@ fs.writeFileSync(IP_OUT, JSON.stringify({
   ip_nodes: ip.ip_nodes,
   economic_loop: ip.economic_loop,
   truth_boundary: ip.truth_boundary,
-  public_boundary: ip.public_boundary
+  public_boundary: publicBoundary
 }, null, 2) + '\n', 'utf8');
 
 const rows = source.root.children.map(node => {
