@@ -83,6 +83,7 @@ jobs:
             exit 0
           fi
           git commit -m "chore: BEC-PRIME auto-compile IP economic kernel"
+          git reset --hard HEAD
           for attempt in 1 2 3; do
             git fetch origin main
             if git rebase origin/main; then
@@ -92,8 +93,6 @@ jobs:
               fi
             else
               git rebase --abort || true
-              git reset --hard origin/main
-              exit 1
             fi
             sleep 2
           done
