@@ -7,6 +7,15 @@ on:
     types:
       - completed
   workflow_dispatch:
+    inputs:
+      PRODUCT_ID:
+        description: "Live product/SKU to verify"
+        required: false
+        default: "DREAMIEZ-BEAUTY-BRUSH-001"
+      OFFER_ID:
+        description: "Live offer ID to checkout"
+        required: false
+        default: "DREAMIEZ-BEAUTY-BRUSH-001"
   schedule:
     - cron: "*/15 * * * *"
 
@@ -14,8 +23,8 @@ permissions:
   contents: read
 
 env:
-  FIRST_SALE_OFFER_ID: "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
-  FIRST_SALE_PRODUCT_ID: "BEC-PRIME-ARCHITECTURE-AUDIT-001"
+  FIRST_SALE_PRODUCT_ID: ${{ inputs.PRODUCT_ID || 'DREAMIEZ-BEAUTY-BRUSH-001' }}
+  FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || 'DREAMIEZ-BEAUTY-BRUSH-001' }}
   BASE_URL: "https://dreamledger.org"
 
 jobs:
@@ -29,22 +38,26 @@ jobs:
         with:
           ref: main
 
-      - name: Verify commercial wedge exists
+      - name: Verify selected commercial wedge exists
         shell: bash
         run: |
           set -euo pipefail
-          test -f "BEC-PRIME/catalog/products/${FIRST_SALE_PRODUCT_ID}.json"
-          node - <<'NODE'
-          const p=require('./BEC-PRIME/catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json');
+          PRODUCT_FILE="BEC-PRIME/catalog/products/${FIRST_SALE_PRODUCT_ID}.json"
+          test -f "$PRODUCT_FILE"
+          node - "$PRODUCT_FILE" <<'NODE'
+          const fs=require('fs');
+          const file=process.argv[2];
+          const p=JSON.parse(fs.readFileSync(file,'utf8'));
           const approved=p.commercial_truth && p.commercial_truth.approval_required === false;
           const price=Number(p.price)/100;
           const currency=String(p.currency||'').toUpperCase();
           const inventory=Number(p.inventory||0);
-          if(price!==49 || currency!=='NZD' || !approved || inventory<1) {
-            console.error('PRODUCT_NOT_READY', JSON.stringify({sku:p.id,price,currency,approval_required:p.commercial_truth && p.commercial_truth.approval_required,inventory}));
+          const status=String(p.status||'').toLowerCase();
+          if(price!==49 || currency!=='NZD' || !approved || inventory<1 || status!=='published') {
+            console.error('PRODUCT_NOT_READY', JSON.stringify({sku:p.id,price,currency,approval_required:p.commercial_truth && p.commercial_truth.approval_required,inventory,status}));
             process.exit(1);
           }
-          console.log('PRODUCT_READY', JSON.stringify({sku:p.id,price,currency,inventory}));
+          console.log('PRODUCT_READY', JSON.stringify({sku:p.id,price,currency,inventory,status}));
           NODE
 
       - name: Verify live health
@@ -53,7 +66,7 @@ jobs:
           set -euo pipefail
           curl --fail --silent --show-error --max-time 90 "$BASE_URL/healthz" | tee health.json
 
-      - name: Verify live offers
+      - name: Verify selected live offer
         shell: bash
         run: |
           set -euo pipefail
@@ -62,9 +75,9 @@ jobs:
           const fs=require('fs');
           const x=JSON.parse(fs.readFileSync('offers.json','utf8'));
           const a=Array.isArray(x)?x:(x.offers||x.data||[]);
-          const hit=a.find(o=>o.offer_id==='OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' || o.product_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.id==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
-          if(!hit) throw new Error('approved BEC Prime $49 offer is not present in live /api/offers');
-          if(Number(hit.price)!==49 || String(hit.currency||'').toUpperCase()!=='NZD' || hit.checkout_available!==true) throw new Error('BEC Prime live offer is not checkout-ready');
+          const hit=a.find(o=>o.offer_id===process.env.FIRST_SALE_OFFER_ID || o.product_id===process.env.FIRST_SALE_PRODUCT_ID || o.sku===process.env.FIRST_SALE_PRODUCT_ID || o.id===process.env.FIRST_SALE_PRODUCT_ID);
+          if(!hit) throw new Error(`selected product ${process.env.FIRST_SALE_PRODUCT_ID} is not present in live /api/offers`);
+          if(Number(hit.price)!==49 || String(hit.currency||'').toUpperCase()!=='NZD' || hit.checkout_available!==true) throw new Error('selected live offer is not checkout-ready');
           console.log('LIVE_OFFER_READY',JSON.stringify(hit));
           NODE
 
@@ -75,7 +88,7 @@ jobs:
           curl --fail --silent --show-error --max-time 60 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data '{"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"}' \
+            --data "{\"offer_id\":\"$FIRST_SALE_OFFER_ID\"}" \
             | tee checkout.json
           node - <<'NODE'
           const x=require('./checkout.json');
