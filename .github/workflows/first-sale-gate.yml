@@ -52,8 +52,9 @@ jobs:
           const fs=require('fs');
           const x=JSON.parse(fs.readFileSync('offers.json','utf8'));
           const a=Array.isArray(x)?x:(x.offers||x.data||[]);
-          const hit=a.find(o=>o.offer_id==='OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' || o.product_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
+          const hit=a.find(o=>o.offer_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.product_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
           if(!hit) throw new Error('approved $49 BEC Prime offer not present');
+          if(Number(hit.price)!==49 || String(hit.currency||'').toUpperCase()!=='NZD' || hit.checkout_available!==true) throw new Error('BEC Prime live offer is not checkout-ready');
           console.log(JSON.stringify(hit,null,2));
           NODE
 
@@ -62,9 +63,9 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --max-time 60 \
-            -X POST https://dreamledger.org/api/offer-checkout/create \
+            -X POST https://dreamledger.org/api/checkout/create \
             -H 'Content-Type: application/json' \
-            --data '{"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"}' \
+            --data '{"offer_id":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}' \
             | tee checkout.json
           node - <<'NODE'
           const x=require('./checkout.json');
