@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DreamLedger B2B Marketplace</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:0 auto;padding:24px;background:#0b1020;color:#eef2ff}a{color:#8fd3ff}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}.card{border:1px solid #293453;border-radius:16px;padding:20px;background:#111a31}.state{font-size:.85rem;opacity:.8}.price{font-size:1.5rem;font-weight:700;margin:14px 0}.button{display:inline-block;padding:10px 14px;border-radius:10px;background:#243b66;color:#fff;text-decoration:none}.locked{opacity:.65}.notice{margin-top:20px;padding:14px;border-radius:12px;background:#171f36}
+</style>
+</head>
+<body>
+<div class="top"><div><h1>DreamLedger B2B Marketplace</h1><p>Canonical marketplace projection. Listings come from the SKU seed catalog.</p></div><div><a href="/register.html">Create account</a> &middot; <a href="/dreamiez">Dreamiez</a></div></div>
+<div id="grid" class="grid"><div class="card">Loading catalog...</div></div>
+<div class="notice">Commerce is approval-gated. A listing cannot become checkoutable merely because it exists in the catalog.</div>
+<script>
+(async function(){
+  const grid=document.getElementById('grid');
+  try{
+    const r=await fetch('/api/marketplace/catalog',{cache:'no-store'});
+    if(!r.ok) throw new Error('catalog '+r.status);
+    const data=await r.json();
+    grid.innerHTML='';
+    if(!data.items.length){grid.innerHTML='<div class="card">No active marketplace seeds.</div>';return;}
+    data.items.forEach(function(x){
+      const card=document.createElement('article');
+      card.className='card '+(x.checkout_available?'':'locked');
+      card.innerHTML='<h2>'+escapeHtml(x.title)+'</h2>'+
+        '<p>'+escapeHtml(x.description)+'</p>'+
+        '<div class="price">'+escapeHtml(String(x.currency))+' '+escapeHtml(String(x.price))+'</div>'+
+        '<div class="state">State: '+escapeHtml(x.status)+'</div>'+
+        '<div class="state">Approval required: '+escapeHtml(String(x.approval_required))+'</div>'+
+        '<p><span class="button">'+(x.checkout_available?'Checkout':'Approval required')+'</span></p>';
+      grid.appendChild(card);
+    });
+  }catch(e){grid.innerHTML='<div class="card">Marketplace catalog unavailable.</div>';}
+})();
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+</script>
+</body>
+</html>
