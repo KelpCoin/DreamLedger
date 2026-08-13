@@ -48,6 +48,11 @@ jobs:
           ! grep -R 'api/ip' compiled/website || true
           ! grep -R 'catalog/ip-capabilities.json' compiled/website || true
 
+      - name: Live checkout reality gate
+        env:
+          BASE_URL: https://dreamledger.org
+        run: bash scripts/verify_checkout_live.sh AGENTIC-COMMERCE-READINESS-001
+
       - name: Upload compilation proof
         uses: actions/upload-artifact@v4
         with:
