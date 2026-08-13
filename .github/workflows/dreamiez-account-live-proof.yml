@@ -1,0 +1,19 @@
+name: Dreamiez Account Live Proof
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Wait for deployment propagation
+        shell: powershell
+        run: Start-Sleep -Seconds 45
+      - name: Verify live account and commerce surface
+        shell: powershell
+        run: .\BEC-PRIME\scripts\Verify-DreamiezAccountSurface.ps1
