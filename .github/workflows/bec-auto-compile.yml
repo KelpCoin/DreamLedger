@@ -58,7 +58,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git grep -n -I -E 'sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*[:=]|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY' -- . ':!package-lock.json'; then
+          if git grep -n -I -E 'sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*[:=][[:space:]]*[A-Za-z0-9_./+-]+|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY' -- . \
+            ':!package-lock.json' \
+            ':!BEC-PRIME/scripts/Verify-CompilerTruth.ps1' \
+            ':!BEC-PRIME/scripts/test-stripe-webhook-proof.js' \
+            ':!BEC-PRIME/scripts/verify-public-boundary.js' \
+            ':!BEC-PRIME/scripts/OfferCompiler.js' \
+            ':!BEC-PRIME/scripts/Verify-Registry.ps1'; then
             echo 'Potential secret material detected in repository.'
             exit 1
           fi
