@@ -18,6 +18,7 @@ function shell(file) {
 }
 http.createServer = function publicShellCreateServer(...args) {
   const handler = args[0];
+  if (typeof handler !== 'function') return original.apply(this, args);
   args[0] = async function publicShellHandler(req, res) {
     const route = String(req.url || '').split('?')[0];
     if (req.method === 'GET') {
