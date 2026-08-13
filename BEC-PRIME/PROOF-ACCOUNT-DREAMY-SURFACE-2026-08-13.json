@@ -1,0 +1,45 @@
+{
+  "type": "dreamledger-account-dreamy-surface-proof",
+  "date": "2026-08-13",
+  "status": "IMPLEMENTED",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "changes": [
+    "Dreamiez static pages are now served by the runtime from the Dreamiez silo.",
+    "Dreamiez registration and login routes already exist and are now reachable through the public runtime.",
+    "DreamLedger front door now exposes an explicit Log in action.",
+    "Money Now no longer hardcodes unverified products and only renders VERIFIED_AVAILABLE offers.",
+    "The unapproved Small Business AI Commerce Kit placeholder product was removed from the product catalog.",
+    "DreamLedger front door palette was cleaned and aligned with the Dreamiez purple/cyan visual system."
+  ],
+  "account_routes": [
+    "GET /login.html",
+    "GET /register.html",
+    "GET /dreamiez/register.html",
+    "GET /dreamiez/login.html",
+    "POST /api/dreamiez/account/create",
+    "POST /api/dreamiez/account/login",
+    "GET /api/dreamiez/me"
+  ],
+  "truth_rules": [
+    "Public commerce offers require approval_required=false.",
+    "Public commerce offers require checkout_available=true.",
+    "Public commerce offers require status=VERIFIED_AVAILABLE.",
+    "Unapproved placeholder products are not exposed by the runtime commerce surface.",
+    "No fake sales or revenue are asserted."
+  ],
+  "next_verification": [
+    "GET https://dreamledger.org/",
+    "GET https://dreamledger.org/register.html",
+    "GET https://dreamledger.org/dreamiez/register.html",
+    "GET https://dreamledger.org/dreamiez/login.html",
+    "GET https://dreamledger.org/healthz",
+    "GET https://dreamledger.org/api/offers"
+  ],
+  "commits": [
+    "a0309455d3fbce43baf40bbededbe27b8bfe07c0",
+    "b6073c129069d19dd656e7c5201ab4618212e267",
+    "293fda857d384cf613f5f23a5752e618650aa937",
+    "71e08f8f1a18441b1c040c9591549ee8449590de"
+  ]
+}
