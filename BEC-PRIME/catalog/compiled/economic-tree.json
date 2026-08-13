@@ -1,7 +1,7 @@
 {
   "schema": "BEC-PRIME/COMPILED-ECONOMIC-TREE/v2",
   "status": "COMPILED",
-  "compiled_at": "2026-08-13T06:13:59.153Z",
+  "compiled_at": "2026-08-13T06:22:02.515Z",
   "source_hash": "0b43ec6d6e873f27216ea8c936d68d4d32e4871e6b18684440ae47c97e41405b",
   "ip_contract_hash": "fc2d934902cac11ff645ce84cf0ff710899e244d40ea598591e06f43940fb55a",
   "root": {
