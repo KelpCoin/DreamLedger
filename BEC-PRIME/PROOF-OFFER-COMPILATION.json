@@ -5,7 +5,7 @@
   "generated_at": null,
   "git_commit": null,
   "input_capabilities_sha256": "04c3989992cf00a231e5914d960eb298876e312dbbde8da89686baf601fcf716",
-  "approved_offers_sha256": "1411e0e0db4b9b6ac0c52f9d72033999b57f471d51b12f4bde184ea2a43f243f",
+  "approved_offers_sha256": "7249018217061063fc97d8ae89b064aec7779ac61e00f9de10ae1c77f44ebf36",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
@@ -13,7 +13,7 @@
     "capabilities": 14,
     "candidates": 29,
     "passed": 27,
-    "approved": 1,
+    "approved": 0,
     "rejected": 2
   },
   "passed_offer_ids": [
@@ -43,8 +43,7 @@
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-AUDIT",
     "OFFER-BEC-PRIME-DEMAND-RADAR-DIAGNOSTIC",
     "OFFER-BEC-PRIME-DEMAND-RADAR-AUDIT",
-    "OFFER-BEC-PRIME-SENTINEL-AUDIT",
-    "AGENTIC-COMMERCE-READINESS-001"
+    "OFFER-BEC-PRIME-SENTINEL-AUDIT"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
