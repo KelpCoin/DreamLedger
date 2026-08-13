@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/create-payment-link.yml'
 
 jobs:
   create-payment-link:
@@ -25,11 +27,18 @@ jobs:
           test -n "$STRIPE_API_KEY"
           export STRIPE_API_KEY
 
+          PRODUCT_RESPONSE=$(stripe products create \
+            --name="Agentic Commerce Readiness Checklist" \
+            --description="A practical checklist for assessing whether a store can be found, understood, and transacted with by AI shopping agents. Manual email delivery within 24 hours." \
+            --json)
+          PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.id')
+          test "$PRODUCT_ID" != "null"
+          test -n "$PRODUCT_ID"
+
           PRICE_RESPONSE=$(stripe prices create \
             --currency=nzd \
             --unit-amount=2900 \
-            --product-data-name="Agentic Commerce Readiness Checklist" \
-            --product-data-description="A practical checklist for assessing whether a store can be found, understood, and transacted with by AI shopping agents. Manual email delivery within 24 hours." \
+            --product="$PRODUCT_ID" \
             --json)
           PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.id')
           test "$PRICE_ID" != "null"
