@@ -1,0 +1,64 @@
+name: Commerce Sentinel
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Readiness check or create one checkout doorway'
+        required: true
+        default: readiness
+        type: choice
+        options:
+          - readiness
+          - create-checkout
+  schedule:
+    - cron: '*/15 * * * *'
+
+concurrency:
+  group: commerce-sentinel
+  cancel-in-progress: false
+
+env:
+  LIVE_URL: https://dreamledger.org
+  OFFER_ID: BEC-PRIME-ARCHITECTURE-AUDIT-001
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check live health
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          health_code="$(curl --silent --output proof/health.json --write-out '%{http_code}' --max-time 30 "$LIVE_URL/healthz" || true)"
+          offers_code="$(curl --silent --output proof/offers.json --write-out '%{http_code}' --max-time 30 "$LIVE_URL/api/offers" || true)"
+          echo "health_http=$health_code" | tee proof/commerce-sentinel.txt
+          echo "offers_http=$offers_code" | tee -a proof/commerce-sentinel.txt
+          if [ "$health_code" != "200" ] || [ "$offers_code" != "200" ]; then exit 1; fi
+          grep -q "$OFFER_ID" proof/offers.json
+          grep -q '"checkout_available":true' proof/offers.json
+          echo "CHECKOUT_READY=true" | tee -a proof/commerce-sentinel.txt
+
+      - name: Create one checkout doorway when explicitly dispatched
+        if: github.event_name == 'workflow_dispatch' && inputs.action == 'create-checkout'
+        env:
+          CHECKOUT_URL: ${{ secrets.DREAMLEDGER_CHECKOUT_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          test -n "$CHECKOUT_URL"
+          response="$(curl --fail --silent --show-error --max-time 30 -X POST "$CHECKOUT_URL" -H 'Content-Type: application/json' --data "{\"offer_id\":\"$OFFER_ID\"}")"
+          printf '%s\n' "$response" > proof/checkout.json
+          printf '%s\n' "$response" | grep -Eo 'https://checkout\.stripe\.com[^" ]+' | head -1 > proof/checkout-url.txt
+          test -s proof/checkout-url.txt
+          echo "CHECKOUT_CREATED=true" | tee proof/checkout.txt
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: commerce-sentinel-proof-${{ github.run_id }}
+          path: proof/
+          if-no-files-found: error
