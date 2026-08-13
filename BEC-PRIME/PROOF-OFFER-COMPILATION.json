@@ -13,12 +13,11 @@
     "capabilities": 14,
     "candidates": 29,
     "passed": 27,
-    "approved": 0,
-    "rejected": 3
+    "approved": 1,
+    "rejected": 2
   },
   "passed_offer_ids": [
     "OFFER-BEC-PRIME-ARCHITECTURE-DIAGNOSTIC",
-    "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
     "OFFER-BEC-PRIME-CUBE-DIAGNOSTIC",
     "OFFER-BEC-PRIME-CUBE-AUDIT",
     "OFFER-BEC-PRIME-ELOHIM-DIAGNOSTIC",
@@ -43,12 +42,12 @@
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-AUDIT",
     "OFFER-BEC-PRIME-DEMAND-RADAR-DIAGNOSTIC",
     "OFFER-BEC-PRIME-DEMAND-RADAR-AUDIT",
-    "OFFER-BEC-PRIME-SENTINEL-AUDIT"
+    "OFFER-BEC-PRIME-SENTINEL-AUDIT",
+    "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
-    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC",
-    "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
+    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC"
   ],
   "approval_required_for_generated_offers": true,
   "checkout_disabled_for_generated_offers": true,
