@@ -32,7 +32,9 @@ async function main() {
   const commander = JSON.parse(fs.readFileSync(commanderPath, 'utf8'));
   assert(commander.price === 2500 && commander.currency === 'nzd', 'Commander canonical price must remain 2500 NZ cents');
   const marketplaceAsset = fs.readFileSync(path.join(__dirname, '..', 'compiled', 'website', 'assets', 'marketplace-live.js'), 'utf8');
-  assert(marketplaceAsset.includes('raw>=1000') && marketplaceAsset.includes('raw/100'), 'Marketplace price formatter is not cents-aware');
+  const formatterIsCentsAware = marketplaceAsset.includes('raw>=1000') && marketplaceAsset.includes('raw/100');
+  const formatterIsDirectCents = marketplaceAsset.includes('(Number(v||0)/100).toFixed(2)');
+  assert(formatterIsCentsAware || formatterIsDirectCents, 'Marketplace price formatter is not cents-aware');
   spawnRuntime(); const health = await waitForHealth(); assert(health.status === 'ok', 'Health endpoint did not return ok');
   const offers = await request('/api/offers'); assert(Array.isArray(offers.body.offers), 'Offer catalog endpoint did not return an offers array'); const commanderOffer = offers.body.offers.find(o => o.offer_id === 'OFFER-BEC-PRIME-COMMANDER-DIAGNOSTIC-001'); if (commanderOffer) { assert(commanderOffer.price === 25, 'Commander offer API price must be 25 NZD'); assert(commanderOffer.currency === 'NZD', 'Commander offer API currency must be NZD'); }
   const control = await request('/api/control/health'); assert(control.body.control_plane === 'ELOHIM-V6', 'Elohim v6 control plane missing'); assert(control.body.gauntlet === 'GAUNTLET-V6', 'Gauntlet v6 missing'); assert(control.body.boot.status === 'PASS', 'Control-plane boot gate failed'); assert(control.body.boot.gauntlet.status === 'PASS', 'Gauntlet v6 failed');
