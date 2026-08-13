@@ -1,9 +1,11 @@
 name: BEC Prime First Sale Gate
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - Deploy to Render
+    types:
+      - completed
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
@@ -13,11 +15,14 @@ permissions:
 
 jobs:
   first-sale-gate:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Verify commercial wedge exists
         shell: bash
