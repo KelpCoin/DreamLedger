@@ -1,40 +1,11 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamLedger B2B Marketplace</title>
-<style>
-body{font-family:system-ui,sans-serif;max-width:1100px;margin:0 auto;padding:24px;background:#0b1020;color:#eef2ff}a{color:#8fd3ff}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}.card{border:1px solid #293453;border-radius:16px;padding:20px;background:#111a31}.state{font-size:.85rem;opacity:.8}.price{font-size:1.5rem;font-weight:700;margin:14px 0}.button{display:inline-block;padding:10px 14px;border-radius:10px;background:#243b66;color:#fff;text-decoration:none}.locked{opacity:.65}.notice{margin-top:20px;padding:14px;border-radius:12px;background:#171f36}
-</style>
-</head>
-<body>
-<div class="top"><div><h1>DreamLedger B2B Marketplace</h1><p>Canonical marketplace projection. Listings come from the SKU seed catalog.</p></div><div><a href="/register.html">Create account</a> &middot; <a href="/dreamiez">Dreamiez</a></div></div>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DreamLedger B2B Marketplace</title><style>body{font-family:system-ui,sans-serif;max-width:1100px;margin:0 auto;padding:24px;background:#0b1020;color:#eef2ff}a{color:#8fd3ff}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}.card{border:1px solid #293453;border-radius:16px;padding:20px;background:#111a31}.state{font-size:.85rem;opacity:.8}.price{font-size:1.5rem;font-weight:700;margin:14px 0}.button{display:inline-block;padding:10px 14px;border-radius:10px;background:#243b66;color:#fff;text-decoration:none;border:0;cursor:pointer}.locked{opacity:.65}.notice{margin-top:20px;padding:14px;border-radius:12px;background:#171f36}.panel{margin-top:24px;border:1px solid #293453;border-radius:16px;padding:20px;background:#111a31}.panel input,.panel textarea{width:100%;box-sizing:border-box;margin:7px 0 14px;padding:10px;border-radius:9px;border:1px solid #293453;background:#0b1020;color:#eef2ff}.ok{color:#8ff0b0}.err{color:#ff9999}</style></head>
+<body><div class="top"><div><h1>DreamLedger B2B Marketplace</h1><p>Live projection of canonical marketplace state. Seller submissions enter a deterministic approval gate.</p></div><div><a href="/register.html">Create account</a> &middot; <a href="/dreamiez">Dreamiez</a></div></div>
 <div id="grid" class="grid"><div class="card">Loading catalog...</div></div>
-<div class="notice">Commerce is approval-gated. A listing cannot become checkoutable merely because it exists in the catalog.</div>
+<section class="panel"><h2>Sell on the marketplace</h2><p>Log in or create an account, then submit a listing. Passing intake does not approve checkout.</p><form id="sell"><label>Title</label><input id="title" maxlength="120" required><label>Description</label><textarea id="description" maxlength="4000" required></textarea><label>Price (NZD)</label><input id="price" type="number" min="0.01" step="0.01" required><label>Category</label><input id="category" maxlength="80" value="B2B"><button class="button">Submit listing for approval</button></form><div id="result"></div></section>
+<div class="notice">Commerce is approval-gated. A listing cannot become checkoutable merely because it exists or passes intake.</div>
 <script>
-(async function(){
-  const grid=document.getElementById('grid');
-  try{
-    const r=await fetch('/api/marketplace/catalog',{cache:'no-store'});
-    if(!r.ok) throw new Error('catalog '+r.status);
-    const data=await r.json();
-    grid.innerHTML='';
-    if(!data.items.length){grid.innerHTML='<div class="card">No active marketplace seeds.</div>';return;}
-    data.items.forEach(function(x){
-      const card=document.createElement('article');
-      card.className='card '+(x.checkout_available?'':'locked');
-      card.innerHTML='<h2>'+escapeHtml(x.title)+'</h2>'+
-        '<p>'+escapeHtml(x.description)+'</p>'+
-        '<div class="price">'+escapeHtml(String(x.currency))+' '+escapeHtml(String(x.price))+'</div>'+
-        '<div class="state">State: '+escapeHtml(x.status)+'</div>'+
-        '<div class="state">Approval required: '+escapeHtml(String(x.approval_required))+'</div>'+
-        '<p><span class="button">'+(x.checkout_available?'Checkout':'Approval required')+'</span></p>';
-      grid.appendChild(card);
-    });
-  }catch(e){grid.innerHTML='<div class="card">Marketplace catalog unavailable.</div>';}
-})();
-function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-</script>
-</body>
-</html>
+(async function(){const grid=document.getElementById('grid');try{const r=await fetch('/api/marketplace/catalog',{cache:'no-store'});if(!r.ok)throw new Error('catalog '+r.status);const data=await r.json();grid.innerHTML='';if(!data.items.length){grid.innerHTML='<div class="card">No marketplace listings yet.</div>';return;}data.items.forEach(function(x){const card=document.createElement('article');card.className='card '+(x.checkout_available?'':'locked');const action=x.checkout_available?'<a class="button" href="'+escapeAttr('/api/offers/'+encodeURIComponent(x.sku_id))+'">View offer</a>':'<span class="button">Approval required</span>';card.innerHTML='<h2>'+escapeHtml(x.title)+'</h2><p>'+escapeHtml(x.description||'')+'</p><div class="price">'+escapeHtml(String(x.currency))+' '+escapeHtml(String(x.price))+'</div><div class="state">State: '+escapeHtml(String(x.status))+'</div><div class="state">Checkout: '+escapeHtml(String(x.checkout_available))+'</div><p>'+action+'</p>';grid.appendChild(card);});}catch(e){grid.innerHTML='<div class="card">Marketplace catalog unavailable.</div>';}
+const form=document.getElementById('sell');form.addEventListener('submit',async function(e){e.preventDefault();const out=document.getElementById('result');out.textContent='Submitting...';out.className='';try{const r=await fetch('/api/marketplace/intake',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:document.getElementById('title').value,description:document.getElementById('description').value,price:document.getElementById('price').value,currency:'NZD',category:document.getElementById('category').value})});const d=await r.json();if(!r.ok)throw new Error(d.error||((d.failures||[]).join(', ')));out.textContent='Listing accepted into the approval queue: '+d.listing.listing_id;out.className='ok';form.reset();}catch(err){out.textContent=err.message;out.className='err';}});})();
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}function escapeAttr(v){return escapeHtml(v);}
+</script></body></html>
