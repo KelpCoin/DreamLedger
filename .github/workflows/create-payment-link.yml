@@ -1,0 +1,49 @@
+name: Create Stripe Payment Link
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-payment-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Stripe CLI
+        run: |
+          curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee /etc/apt/sources.list.d/stripe.list
+          sudo apt update
+          sudo apt install stripe -y
+
+      - name: Create Price and Payment Link
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$STRIPE_API_KEY"
+          export STRIPE_API_KEY
+
+          PRICE_RESPONSE=$(stripe prices create \
+            --currency=nzd \
+            --unit-amount=4900 \
+            --product-data-name="BEC-PRIME Agentic Commerce Readiness Audit" \
+            --product-data-description="One-time AI readiness audit, manual delivery via email within 24 hours" \
+            --json)
+          PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.id')
+          test "$PRICE_ID" != "null"
+
+          LINK_RESPONSE=$(stripe payment-links create \
+            --line-items="[{\"price\":\"$PRICE_ID\",\"quantity\":1}]" \
+            --after-completion-type=hosted_confirmation \
+            --json)
+          PAYMENT_URL=$(echo "$LINK_RESPONSE" | jq -r '.url')
+          test "$PAYMENT_URL" != "null"
+          test "${PAYMENT_URL#https://buy.stripe.com/}" != "$PAYMENT_URL"
+
+          printf '%s\n' "$PAYMENT_URL" > payment-url.txt
+          echo "PAYMENT LINK URL: $PAYMENT_URL"
+
+      - name: Upload Payment URL Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: payment-link
+          path: payment-url.txt
