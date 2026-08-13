@@ -1,6 +1,9 @@
 name: BEC Prime First Sale Gate
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
