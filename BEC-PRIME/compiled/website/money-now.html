@@ -5,43 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DreamLedger | Money Now</title>
 <style>
-body{margin:0;background:#08090c;color:#f4f4f2;font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
-.wrap{max-width:1100px;margin:auto;padding:28px 18px 70px}
-a{color:#fff}.hero{padding:20px 0 12px}.hero h1{font-size:42px;line-height:1.05;margin:8px 0}.hero p{color:#aeb5c0;max-width:760px}.grid{display:flex;gap:14px;overflow-x:auto;padding:12px 0 24px;scroll-snap-type:x mandatory}.card{min-width:285px;max-width:340px;flex:0 0 78%;background:#14171d;border:1px solid #303641;border-radius:18px;padding:20px;scroll-snap-align:start}.tag{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#8f9aaa}.card h2{margin:8px 0}.card p{color:#b7bec8}.buy{display:inline-block;border:0;border-radius:12px;padding:12px 16px;background:#f4f4f2;color:#090a0d;font-weight:800;cursor:pointer}.status{min-height:22px;margin-top:10px;font-size:13px;color:#9fa8b5}.truth{border:1px solid #303641;border-radius:16px;padding:18px;color:#aeb5c0}.truth strong{color:#fff}.nav{display:flex;gap:16px;flex-wrap:wrap}
+:root{--bg:#090b12;--panel:#121827;--panel2:#171f32;--ink:#f6f8ff;--muted:#9aa6bd;--accent:#8f7cff;--accent2:#69e4ff;--line:#2b3550;--good:#77e2a8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#292052 0,transparent 34%),radial-gradient(circle at 90% 15%,#123b4a 0,transparent 30%),var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}.wrap{max-width:1100px;margin:auto;padding:28px 18px 70px}a{color:var(--ink)}.hero{padding:20px 0 12px}.hero h1{font-size:clamp(42px,7vw,76px);line-height:.9;letter-spacing:-.07em;margin:8px 0}.hero p{color:var(--muted);max-width:760px}.grid{display:flex;gap:14px;overflow-x:auto;padding:12px 0 24px;scroll-snap-type:x mandatory}.card{min-width:285px;max-width:340px;flex:0 0 78%;background:linear-gradient(145deg,var(--panel2),#0e1421);border:1px solid var(--line);border-radius:20px;padding:20px;scroll-snap-align:start}.tag{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent2);font-weight:900}.card h2{margin:8px 0}.card p{color:var(--muted)}.buy{display:inline-block;border:0;border-radius:12px;padding:12px 16px;background:var(--accent);color:#0b0915;font-weight:900;cursor:pointer}.buy:disabled{opacity:.6;cursor:wait}.status{min-height:22px;margin-top:10px;font-size:13px;color:var(--muted)}.truth{border:1px solid var(--line);border-radius:16px;padding:18px;color:var(--muted);background:#0d1220}.truth strong{color:var(--ink)}.nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px}.empty{padding:30px;border:1px dashed var(--line);border-radius:16px;color:var(--muted)}
 </style>
 </head>
 <body>
 <main class="wrap">
-<nav class="nav"><a href="/">DreamLedger</a><a href="/ip.html">IP</a><a href="/engine.html">Engine</a></nav>
-<section class="hero">
-<div class="tag">Commerce surface</div>
-<h1>Money Now</h1>
-<p>Real offers from the BEC-PRIME catalog. Each button asks the live DreamLedger checkout service for a checkout session. No fake payment links, no invented revenue, no dead portfolio buttons.</p>
-</section>
-<section class="grid">
-<article class="card"><div class="tag">MTG</div><h2>Commander Deck Diagnostic</h2><p>Structured Commander deck review and improvement path. Canonical SKU: COMMANDER-DECK-DIAGNOSTIC-001.</p><button class="buy" data-offer="COMMANDER-DECK-DIAGNOSTIC-001">Open checkout</button><div class="status" id="s1"></div></article>
-<article class="card"><div class="tag">Agentic commerce</div><h2>Agentic Commerce Readiness</h2><p>Readiness assessment for merchants preparing for agent-mediated discovery, checkout, trust and proof.</p><button class="buy" data-offer="AGENTIC-COMMERCE-READINESS-001">Open checkout</button><div class="status" id="s2"></div></article>
-<article class="card"><div class="tag">Business</div><h2>BEC Surface Audit</h2><p>Understand, decide and act audit for a commerce surface. Canonical SKU: BEC-SURFACE-AUDIT-500.</p><button class="buy" data-offer="BEC-SURFACE-AUDIT-500">Open checkout</button><div class="status" id="s3"></div></article>
-<article class="card"><div class="tag">Architecture</div><h2>BEC-PRIME Architecture Audit</h2><p>Architecture review of an automation, commerce or agent system against the BEC-PRIME trust and economic model.</p><button class="buy" data-offer="BEC-PRIME-ARCHITECTURE-AUDIT-001">Open checkout</button><div class="status" id="s4"></div></article>
-<article class="card"><div class="tag">Creator</div><h2>Creator Audio Launch Pack</h2><p>Commercial packaging for creators who need a concrete launch surface rather than another planning document.</p><button class="buy" data-offer="CREATOR-AUDIO-LAUNCH-PACK-001">Open checkout</button><div class="status" id="s5"></div></article>
-<article class="card"><div class="tag">Digital products</div><h2>Small Business AI Commerce Kit</h2><p>Practical starter surface for small businesses moving from ordinary web traffic toward agent-ready commerce.</p><button class="buy" data-offer="SMALL-BUSINESS-AI-COMMERCE-KIT-001">Open checkout</button><div class="status" id="s6"></div></article>
-</section>
-<section class="truth"><strong>Revenue truth:</strong> a catalog entry or Gauntlet PASS is not revenue. Revenue changes only after a real payment event is accepted and verified by the settlement/proof layer. The page therefore never displays a fabricated sales number.</section>
+<nav class="nav"><a href="/">DreamLedger</a><a href="/ip.html">IP</a><a href="/engine.html">Engine</a><a href="/dreamiez">Dreamiez</a></nav>
+<section class="hero"><div class="tag">Commerce surface</div><h1>Only real offers.</h1><p>This page is generated from the live verified offer surface. An item is shown only when it is explicitly approved, checkout-enabled and marked VERIFIED_AVAILABLE. No hardcoded placeholder products.</p></section>
+<section id="offers" class="grid"><div class="empty">Loading verified offers...</div></section>
+<section class="truth"><strong>Revenue truth:</strong> a catalog entry or Gauntlet PASS is not revenue. Revenue changes only after a real payment event is accepted and verified by the settlement/proof layer. This surface does not invent products, payment links or sales.</section>
 </main>
 <script>
-const buttons=[...document.querySelectorAll('.buy')];
-buttons.forEach((b,i)=>b.addEventListener('click',async()=>{
- const s=document.getElementById('s'+(i+1));
- const offer=b.dataset.offer;
- b.disabled=true;s.textContent='Creating live checkout...';
- try{
-  const r=await fetch('/api/offer-checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:offer})});
-  const j=await r.json().catch(()=>({}));
-  if(!r.ok||!j.url) throw new Error(j.error||('HTTP '+r.status));
-  s.textContent='Checkout created.';
-  window.location.href=j.url;
- }catch(e){s.textContent='Checkout unavailable: '+e.message;b.disabled=false;}
-}));
+async function load(){const root=document.getElementById('offers');try{const r=await fetch('/api/offers',{cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||'Offer surface unavailable');const offers=Array.isArray(d.offers)?d.offers.filter(o=>o.checkout_available===true&&o.approval_required===false&&o.status==='VERIFIED_AVAILABLE'):[];if(!offers.length){root.innerHTML='<div class="empty">No verified offers are available for checkout right now.</div>';return}root.innerHTML=offers.map((o,i)=>`<article class="card"><div class="tag">${escapeHtml(o.silo||'Commerce')}</div><h2>${escapeHtml(o.name||o.offer_id)}</h2><p>${escapeHtml(o.output||o.problem||'Verified commercial offer.')}</p><div class="tag">NZD ${Number(o.price||0).toFixed(2)}</div><button class="buy" data-offer="${escapeHtml(o.offer_id)}">Open checkout</button><div class="status" id="s${i}"></div></article>`).join('');root.querySelectorAll('[data-offer]').forEach((b,i)=>b.addEventListener('click',()=>checkout(b,i)))}catch(e){root.innerHTML='<div class="empty">The verified offer surface is temporarily unavailable.</div>'}}
+function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function checkout(button,index){const status=document.getElementById('s'+index);button.disabled=true;status.textContent='Creating live checkout...';try{const r=await fetch('/api/offer-checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:button.dataset.offer})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.checkout_url)throw new Error(j.error||('HTTP '+r.status));status.textContent='Checkout created.';window.location.href=j.checkout_url}catch(e){status.textContent='Checkout unavailable: '+e.message;button.disabled=false}}
+load();
 </script>
 </body>
 </html>
