@@ -58,7 +58,7 @@ async function createProductCheckout(productId, silo) {
     'line_items[0][quantity]': 1
   };
   const session = await stripe('checkout/sessions', params, 'dreamledger-direct-' + p.id + '-' + cartId);
-  return { ok: true, offer_id: p.id, session_id: session.id, checkout_url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() };
+  return { ok: true, offer_id: p.id, session_id: session.id, checkout_url: session.url, url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() };
 }
 async function handle(req, res, url) {
   if (req.method === 'POST' && url === '/api/cart/checkout') {
