@@ -1,0 +1,76 @@
+name: First Sale Shot
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["BEC Prime Autonomous Operator"]
+    types: [completed]
+
+concurrency:
+  group: first-sale-shot
+  cancel-in-progress: false
+
+env:
+  LIVE_URL: https://dreamledger.org
+  OFFER_ID: OFFER-BEC-PRIME-ARCHITECTURE-AUDIT
+  CHECKOUT_ENDPOINT: https://dreamledger.org/api/offer-checkout/create
+
+jobs:
+  create-one-doorway:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify live commerce surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          curl --fail --silent --show-error --max-time 90 "$LIVE_URL/healthz" > proof/health.json
+          curl --fail --silent --show-error --max-time 90 "$LIVE_URL/api/offers" > proof/offers.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('proof/offers.json', 'utf8'));
+          const list = Array.isArray(data.offers) ? data.offers : [];
+          const id = process.env.OFFER_ID;
+          const offer = list.find(o => o.offer_id === id);
+          if (!offer) throw new Error(`approved offer missing: ${id}`);
+          if (offer.checkout_available !== true) throw new Error('checkout_available is false');
+          if (offer.approval_required !== false) throw new Error('approval_required is true');
+          if (Number(offer.price) !== 49) throw new Error('price is not NZD 49');
+          if (String(offer.currency).toUpperCase() !== 'NZD') throw new Error('currency is not NZD');
+          console.log('COMMERCE_GATE=GREEN');
+          NODE
+
+      - name: Create exactly one checkout doorway
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error --max-time 60 -X POST "$CHECKOUT_ENDPOINT" -H 'Content-Type: application/json' --data "{\"offer_id\":\"$OFFER_ID\"}")"
+          printf '%s\n' "$response" > proof/checkout.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('proof/checkout.json', 'utf8'));
+          const url = data.url || data.checkout_url;
+          if (!url || !/^https:\/\/checkout\.stripe\.com\//.test(url)) throw new Error('Stripe Checkout URL not returned');
+          fs.writeFileSync('proof/checkout-url.txt', url + '\n');
+          console.log(`CHECKOUT_URL=${url}`);
+          NODE
+
+      - name: Publish checkout URL to run summary
+        shell: bash
+        run: |
+          echo '## FIRST SALE SHOT' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'One approved NZD 49 checkout doorway was created.' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'The URL is stored in the checkout-url.txt artifact.' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Payment remains UNPROVEN until Stripe reports a paid checkout session.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload payment-gate proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-sale-shot-${{ github.run_id }}
+          path: proof/
+          if-no-files-found: error
