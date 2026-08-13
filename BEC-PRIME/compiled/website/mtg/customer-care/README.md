@@ -1,6 +1,6 @@
 # HappyHomarid Customer Care
 
-This directory is a private HappyHomarid customer-care substrate. HappyHomarid is an MTG silo exposed through `/mtg`; these customer-care assets must not be imported into DreamLedger root, Dreamiez, Amplissa, or other silos.
+This directory is a HappyHomarid customer-care substrate. HappyHomarid is an MTG silo exposed through `/mtg`; these customer-care assets must not be imported into DreamLedger root, Dreamiez, or other silos.
 
 ## Governing idea
 
