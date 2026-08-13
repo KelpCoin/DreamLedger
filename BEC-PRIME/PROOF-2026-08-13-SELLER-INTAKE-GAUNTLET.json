@@ -1,0 +1,29 @@
+{
+  "proof_type": "SELLER_INTAKE_GAUNTLET",
+  "date": "2026-08-13",
+  "repository": "KelpCoin/DreamLedger",
+  "commit": "38eb694ad51f3ea6a2bbd313515977a987c2d998",
+  "surface": "POST /api/marketplace/intake",
+  "changes": [
+    "SIGNAL_RECEIVED event persisted as JSONL",
+    "raw seller words retained in signal event",
+    "deterministic hardening checks added",
+    "0-100 intake score added",
+    "PASS and QUARANTINE verdicts added",
+    "OPPORTUNITY_CREATED emitted for hardened signals",
+    "idempotent duplicate detection added",
+    "all accepted listings remain PENDING_APPROVAL",
+    "checkout_available remains false until approval"
+  ],
+  "economic_truth": {
+    "revenue": 0,
+    "paid_event_observed": false,
+    "fossil_created": false,
+    "rabbit_mode": "LOCKED"
+  },
+  "verification": {
+    "source_file": "BEC-PRIME/lib/marketplacePreload.js",
+    "durable_event_store": "MARKETPLACE_DATA_DIR/events.jsonl",
+    "listing_store": "MARKETPLACE_DATA_DIR/listings.json"
+  }
+}
