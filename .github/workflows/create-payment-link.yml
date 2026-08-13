@@ -12,42 +12,36 @@ jobs:
   create-payment-link:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Stripe CLI
-        run: |
-          curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee /etc/apt/sources.list.d/stripe.list
-          sudo apt update
-          sudo apt install stripe -y
-
       - name: Create NZD 29 Agentic Commerce Checklist Price and Payment Link
         env:
           STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        shell: bash
         run: |
           set -euo pipefail
           test -n "$STRIPE_API_KEY"
-          export STRIPE_API_KEY
 
-          PRODUCT_RESPONSE=$(stripe products create \
-            --name="Agentic Commerce Readiness Checklist" \
-            --description="A practical checklist for assessing whether a store can be found, understood, and transacted with by AI shopping agents. Manual email delivery within 24 hours." \
-            --json)
+          PRODUCT_RESPONSE=$(curl -fsS https://api.stripe.com/v1/products \
+            -u "$STRIPE_API_KEY:" \
+            -d name="Agentic Commerce Readiness Checklist" \
+            -d description="A practical checklist for assessing whether a store can be found, understood, and transacted with by AI shopping agents. Manual email delivery within 24 hours.")
           PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.id')
           test "$PRODUCT_ID" != "null"
           test -n "$PRODUCT_ID"
 
-          PRICE_RESPONSE=$(stripe prices create \
-            --currency=nzd \
-            --unit-amount=2900 \
-            --product="$PRODUCT_ID" \
-            --json)
+          PRICE_RESPONSE=$(curl -fsS https://api.stripe.com/v1/prices \
+            -u "$STRIPE_API_KEY:" \
+            -d currency=nzd \
+            -d unit_amount=2900 \
+            -d "product=$PRODUCT_ID")
           PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.id')
           test "$PRICE_ID" != "null"
           test -n "$PRICE_ID"
 
-          LINK_RESPONSE=$(stripe payment-links create \
-            --line-items="[{\"price\":\"$PRICE_ID\",\"quantity\":1}]" \
-            --after-completion-type=hosted_confirmation \
-            --json)
+          LINK_RESPONSE=$(curl -fsS https://api.stripe.com/v1/payment_links \
+            -u "$STRIPE_API_KEY:" \
+            -d "line_items[0][price]=$PRICE_ID" \
+            -d "line_items[0][quantity]=1" \
+            -d "after_completion[type]=hosted_confirmation")
           PAYMENT_URL=$(echo "$LINK_RESPONSE" | jq -r '.url')
           test "$PAYMENT_URL" != "null"
           test "${PAYMENT_URL#https://buy.stripe.com/}" != "$PAYMENT_URL"
