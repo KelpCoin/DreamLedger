@@ -27,6 +27,6 @@
     "entitlement_change": "human_only",
     "policy_change": "human_only"
   },
-  "cross_silo_policy": "No DreamLedger agentic-commerce, Dreamiez, Amplissa, or unrelated MTG/CollectorsCoast context may be injected into HappyHomarid customer-care prompts unless explicitly referenced by a HappyHomarid case.",
-  "version": "1.0.0"
+  "cross_silo_policy": "No unrelated commerce, avatar, adult, or MTG/CollectorsCoast context may be injected into HappyHomarid customer-care prompts unless explicitly referenced by a HappyHomarid case.",
+  "version": "1.0.1"
 }
