@@ -2,52 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamLedger | MTG</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HappyHomarid | MTG</title>
 <style>
-:root{--bg:#0b0d10;--panel:#12161b;--line:#2a313a;--text:#f3f5f7;--muted:#a5adb7;--accent:#d7b56d;--good:#86c99a;--danger:#ef8f8f;--max:1000px}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}.wrap{max-width:var(--max);margin:auto;padding:0 24px}.nav{padding:26px 0;border-bottom:1px solid var(--line)}.brand{font-weight:800;letter-spacing:.12em}.hero{padding:72px 0 38px}.kicker{color:var(--accent);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.76rem}.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);line-height:1;letter-spacing:-.04em;margin:14px 0}.hero p,.meta{color:var(--muted)}.grid{display:grid;gap:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:30px}.card h2{margin-top:0}.status{font-weight:800}.status.good{color:var(--good)}.status.bad{color:var(--danger)}.buy{display:inline-block;margin-top:18px;border:0;border-radius:8px;padding:14px 22px;background:var(--accent);color:#111;font-weight:800;font-size:1rem;cursor:pointer}.buy:disabled{opacity:.5;cursor:not-allowed}.message{margin-top:14px;color:var(--muted)}.note{border-top:1px solid var(--line);margin-top:24px;padding-top:20px;color:var(--muted)}.footer{border-top:1px solid var(--line);margin-top:60px;padding:28px 0 50px;color:#737c87;font-size:.85rem}
+:root{--bg:#0b0d10;--panel:#12161b;--line:#2a313a;--text:#f3f5f7;--muted:#a5adb7;--accent:#d7b56d;--good:#86c99a;--danger:#ef8f8f;--max:1100px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}.wrap{max-width:var(--max);margin:auto;padding:0 16px 50px}.nav{padding:18px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.brand{font-weight:950;letter-spacing:.08em}.brand span{color:var(--accent)}.back{color:var(--muted);font-size:.78rem}.hero{padding:52px 0 26px}.kicker{color:var(--accent);font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-size:.7rem}.hero h1{font-size:clamp(2.7rem,9vw,5rem);line-height:.92;letter-spacing:-.06em;margin:12px 0}.hero p,.meta{color:var(--muted)}.rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:3px 2px 18px;-webkit-overflow-scrolling:touch}.card{scroll-snap-align:start;flex:0 0 min(82vw,340px);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}.card h2{margin:8px 0}.status{font-weight:900}.status.good{color:var(--good)}.status.bad{color:var(--danger)}.buy{display:inline-block;margin-top:18px;border:0;border-radius:10px;padding:14px 20px;background:var(--accent);color:#111;font-weight:900;font-size:1rem;cursor:pointer}.buy:disabled{opacity:.5;cursor:not-allowed}.message{margin-top:14px;color:var(--muted)}.note{border-top:1px solid var(--line);margin-top:20px;padding-top:16px;color:var(--muted);font-size:.8rem}.footer{border-top:1px solid var(--line);margin-top:34px;padding:26px 0;color:#737c87;font-size:.82rem}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="nav"><div class="brand">DREAMLEDGER / MTG</div></header>
+<header class="nav"><div class="brand"><span>HAPPY</span>HOMARID / MTG</div><a class="back" href="/">DreamLedger home</a></header>
 <main id="app">
-<section class="hero"><div class="kicker">Commerce engine</div><h1>Loading live catalog...</h1><p>Product state is retrieved from the canonical server-side engine.</p></section>
+<section class="hero"><div class="kicker">HappyHomarid MTG silo</div><h1>Loading live catalogue...</h1><p>MTG commerce is isolated here. Product state is retrieved from the canonical server-side engine.</p></section>
 </main>
-<footer class="footer">DreamLedger · MTG silo · Engine-backed surface</footer>
+<footer class="footer">HappyHomarid is the MTG silo inside DreamLedger. MTG inventory, branding and customer context stay inside this /mtg tunnel.</footer>
 </div>
 <script>
-(function(){
-  var app=document.getElementById('app');
-  function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function money(cents,currency){return (Number(cents)/100).toFixed(2)+' '+String(currency||'').toUpperCase();}
-  async function buy(product,button){
-    var message=document.getElementById('message-'+product.id); button.disabled=true; message.textContent='Creating secure checkout...';
-    try{
-      var cr=await fetch('/api/checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:product.id,silo:product.silo})});
-      var data=await cr.json(); if(!cr.ok) throw new Error(data.error||'Checkout creation failed');
-      window.location.assign(data.checkout_url);
-    }catch(e){button.disabled=false;message.textContent=e.message;}
-  }
-  async function load(){
-    try{
-      var r=await fetch('/api/products',{cache:'no-store'}); var data=await r.json();
-      if(!r.ok) throw new Error(data.error||'Catalog lookup failed');
-      var products=Array.isArray(data.products)?data.products:[];
-      var cards=products.map(function(p){
-        var available=Number(p.inventory)>0 && p.status==='published';
-        return '<article class="card"><div class="kicker">'+esc(p.silo||'mtg')+'</div><h2>'+esc(p.name)+'</h2><p class="meta">SKU: '+esc(p.id)+'</p><p>'+esc(p.description)+'</p><p><strong>'+money(p.price,p.currency)+'</strong> · '+esc(p.inventory)+' available</p><p class="status '+(available?'good':'bad')+'">ENGINE STATUS: '+esc(available?'AVAILABLE':String(p.status||'UNAVAILABLE').toUpperCase())+'</p>'+ (available?'<button class="buy" type="button" data-product="'+esc(p.id)+'">Buy securely with Stripe</button>':'<p class="meta">Checkout unavailable because the engine reports this product as unavailable.</p>') +'<div class="message" id="message-'+esc(p.id)+'"></div><div class="note">This card is rendered from the canonical commerce API. The browser does not define price, inventory, status, or product identity.</div></article>';
-      }).join('');
-      app.innerHTML='<section class="hero"><div class="kicker">Live catalog</div><h1>MTG</h1><p>The public surface is a retrieve-only reflection of the commerce engine. If the engine cannot establish product truth, this surface does not invent it.</p></section><section class="grid">'+(cards||'<article class="card"><h2>No published products</h2><p class="meta">The engine returned an empty catalog.</p></article>')+'</section><section class="card" style="margin-top:16px"><h2>Evidence boundary</h2><p class="meta">A checkout is not a payment proof. Commercial proof exists only after a verified Stripe webhook records a paid transaction.</p></section>';
-      Array.prototype.forEach.call(document.querySelectorAll('[data-product]'),function(button){
-        var product=products.find(function(x){return x.id===button.getAttribute('data-product');});
-        button.addEventListener('click',function(){buy(product,button);});
-      });
-    }catch(e){app.innerHTML='<section class="hero"><div class="kicker">Engine unavailable</div><h1>MTG surface cannot establish truth.</h1><p>'+esc(e.message)+'</p></section><section class="card"><p class="status bad">NO COMMERCIAL CLAIM MADE</p><p class="meta">The public surface refuses to invent product state when the commerce engine cannot provide it.</p></section>';}
-  }
-  load();
-})();
+(function(){var app=document.getElementById('app');function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}function money(cents,currency){return (Number(cents)/100).toFixed(2)+' '+String(currency||'').toUpperCase();}async function buy(product,button){var message=document.getElementById('message-'+product.id);button.disabled=true;message.textContent='Creating secure checkout...';try{var cr=await fetch('/api/checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:product.id,silo:product.silo})});var data=await cr.json();if(!cr.ok)throw new Error(data.error||'Checkout creation failed');window.location.assign(data.checkout_url);}catch(e){button.disabled=false;message.textContent=e.message;}}async function load(){try{var r=await fetch('/api/products',{cache:'no-store'});var data=await r.json();if(!r.ok)throw new Error(data.error||'Catalog lookup failed');var products=Array.isArray(data.products)?data.products:[];var cards=products.map(function(p){var available=Number(p.inventory)>0&&p.status==='published';return '<article class="card"><div class="kicker">'+esc(p.silo||'mtg')+'</div><h2>'+esc(p.name)+'</h2><p class="meta">SKU: '+esc(p.id)+'</p><p>'+esc(p.description)+'</p><p><strong>'+money(p.price,p.currency)+'</strong> · '+esc(p.inventory)+' available</p><p class="status '+(available?'good':'bad')+'">ENGINE STATUS: '+esc(available?'AVAILABLE':String(p.status||'UNAVAILABLE').toUpperCase())+'</p>'+(available?'<button class="buy" type="button" data-product="'+esc(p.id)+'">Buy securely with Stripe</button>':'<p class="meta">Checkout unavailable because the engine reports this product as unavailable.</p>')+'<div class="message" id="message-'+esc(p.id)+'"></div><div class="note">This card is rendered from the canonical commerce API. The browser does not define price, inventory, status, or product identity.</div></article>';}).join('');app.innerHTML='<section class="hero"><div class="kicker">HappyHomarid live catalogue</div><h1>MTG, in its own tunnel.</h1><p>This surface belongs to HappyHomarid. It reflects the MTG commerce engine without leaking MTG identity into the parent DreamLedger experience.</p></section><section class="rail">'+(cards||'<article class="card"><h2>No published products</h2><p class="meta">The engine returned an empty MTG catalog.</p></article>')+'</section><section class="card" style="margin-top:16px"><h2>Evidence boundary</h2><p class="meta">A checkout is not a payment proof. Commercial proof exists only after a verified Stripe webhook records a paid transaction.</p></section>';Array.prototype.forEach.call(document.querySelectorAll('[data-product]'),function(button){var product=products.find(function(x){return x.id===button.getAttribute('data-product');});button.addEventListener('click',function(){buy(product,button);});});}catch(e){app.innerHTML='<section class="hero"><div class="kicker">Engine unavailable</div><h1>HappyHomarid cannot establish MTG truth.</h1><p>'+esc(e.message)+'</p></section><section class="card"><p class="status bad">NO COMMERCIAL CLAIM MADE</p><p class="meta">The public surface refuses to invent product state when the commerce engine cannot provide it.</p></section>';}}load();})();
 </script>
 </body>
 </html>
