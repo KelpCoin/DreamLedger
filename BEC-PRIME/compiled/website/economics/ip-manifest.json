@@ -1,8 +1,8 @@
 {
   "schema": "BEC-PRIME/COMPILED-IP-MANIFEST/v1",
   "status": "COMPILED",
-  "compiled_at": "2026-08-13T01:31:37.155Z",
-  "source_hash": "5d3a53aa844298e2a8c2f6b642b20e08524bd5d6274b79d20040eae06ffbe98e",
+  "compiled_at": "2026-08-13T01:36:03.405Z",
+  "source_hash": "fc2d934902cac11ff645ce84cf0ff710899e244d40ea598591e06f43940fb55a",
   "public_surface": "DreamLedger",
   "compiler_authority": "BEC-PRIME",
   "ip_nodes": [
@@ -60,5 +60,5 @@
     "ITERATE"
   ],
   "truth_boundary": "A checkout URL is an offer surface. Revenue is only proven by a real payment event and valid webhook-derived proof.",
-  "public_boundary": "Only abstract architecture, public product information, hashes, and verified state may cross the public boundary. Secrets, credentials, customer data, private implementation paths, private prompts, proprietary model configuration, and unapproved external actions must never be compiled into the public surface."
+  "public_boundary": "Only abstract architecture, public product information, hashes, and verified state may cross the public boundary. Secrets, credentials, customer data, private implementation paths, private prompt content, proprietary model configuration, and unapproved external actions must never be compiled into the public surface."
 }

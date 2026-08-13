@@ -1,9 +1,9 @@
 {
   "schema": "BEC-PRIME/COMPILED-ECONOMIC-TREE/v2",
   "status": "COMPILED",
-  "compiled_at": "2026-08-13T01:31:37.155Z",
+  "compiled_at": "2026-08-13T01:36:03.405Z",
   "source_hash": "0b43ec6d6e873f27216ea8c936d68d4d32e4871e6b18684440ae47c97e41405b",
-  "ip_contract_hash": "5d3a53aa844298e2a8c2f6b642b20e08524bd5d6274b79d20040eae06ffbe98e",
+  "ip_contract_hash": "fc2d934902cac11ff645ce84cf0ff710899e244d40ea598591e06f43940fb55a",
   "root": {
     "id": "ROOT",
     "name": "DreamLedger Commerce",
