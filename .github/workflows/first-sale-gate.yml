@@ -21,7 +21,18 @@ jobs:
         run: |
           set -euo pipefail
           test -f BEC-PRIME/catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json
-          node -e "const p=require('./BEC-PRIME/catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json'); if(p.price!==49 || p.currency!=='NZD' || p.approval_required!==false || p.inventory<1) process.exit(1); console.log('PRODUCT_READY', JSON.stringify({sku:p.sku,price:p.price,currency:p.currency,inventory:p.inventory}));"
+          node - <<'NODE'
+          const p=require('./BEC-PRIME/catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json');
+          const approved=p.commercial_truth && p.commercial_truth.approval_required === false;
+          const price=Number(p.price)/100;
+          const currency=String(p.currency||'').toUpperCase();
+          const inventory=Number(p.inventory||0);
+          if(price!==49 || currency!=='NZD' || !approved || inventory<1) {
+            console.error('PRODUCT_NOT_READY', JSON.stringify({price,currency,approval_required:p.commercial_truth && p.commercial_truth.approval_required,inventory}));
+            process.exit(1);
+          }
+          console.log('PRODUCT_READY', JSON.stringify({sku:p.id,price,currency,inventory}));
+          NODE
 
       - name: Verify live health
         shell: bash
@@ -38,8 +49,8 @@ jobs:
           const fs=require('fs');
           const x=JSON.parse(fs.readFileSync('offers.json','utf8'));
           const a=Array.isArray(x)?x:(x.offers||x.data||[]);
-          const hit=a.find(o=>o.offer_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
-          if(!hit) throw new Error('approved $49 offer not present');
+          const hit=a.find(o=>o.offer_id==='OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' || o.product_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
+          if(!hit) throw new Error('approved $49 BEC Prime offer not present');
           console.log(JSON.stringify(hit,null,2));
           NODE
 
@@ -50,7 +61,7 @@ jobs:
           curl --fail --silent --show-error --max-time 60 \
             -X POST https://dreamledger.org/api/offer-checkout/create \
             -H 'Content-Type: application/json' \
-            --data '{"offer_id":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}' \
+            --data '{"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"}' \
             | tee checkout.json
           node - <<'NODE'
           const x=require('./checkout.json');
