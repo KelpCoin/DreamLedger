@@ -125,12 +125,8 @@ jobs:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          body=$(curl --fail --silent --show-error "$BASE_URL/api/offers")
-          echo "$body"
-          node - <<'NODE'
-          const body=process.env.BODY;
-          NODE
-          echo "$body" > live-offers.json
+          curl --fail --silent --show-error "$BASE_URL/api/offers" > live-offers.json
+          cat live-offers.json
           node - <<'NODE'
           const fs=require('fs');
           const x=JSON.parse(fs.readFileSync('live-offers.json','utf8'));
