@@ -76,7 +76,7 @@ jobs:
             echo "No generated changes."
             exit 0
           fi
-          git commit -m "chore: BEC-PRIME auto-compile IP economic kernel [skip ci]"
+          git commit -m "chore: BEC-PRIME auto-compile IP economic kernel"
           for attempt in 1 2 3; do
             git fetch origin main
             if git rebase origin/main; then
