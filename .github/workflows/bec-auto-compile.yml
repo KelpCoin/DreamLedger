@@ -92,6 +92,14 @@ jobs:
                 exit 0
               fi
             else
+              git checkout --theirs BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/ip-manifest.json
+              git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/ip-manifest.json
+              if git -c core.editor=true rebase --continue; then
+                if git push origin HEAD:main; then
+                  echo "Generated IP and economic state pushed after deterministic conflict resolution."
+                  exit 0
+                fi
+              fi
               git rebase --abort || true
             fi
             sleep 2
