@@ -1,0 +1,18 @@
+{
+  "schema": "BEC-PRIME/REVENUE-IGNITION-PROOF/v1",
+  "status": "APPROVED_CHECKOUT_UNVERIFIED",
+  "objective": "Activate one non-MTG DreamLedger paid offer without claiming a sale before payment evidence exists.",
+  "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+  "price_nzd": 49,
+  "silo": "dreamledger",
+  "payment_adapter": "stripe",
+  "checkout_route": "/api/offer-checkout/create",
+  "approval_record": "BEC-PRIME/catalog/offers/approved.json",
+  "approval_commit": "5f068905fe9af878c9cadfef5abaea4a6378f425",
+  "payment_claim": false,
+  "sale_claim": false,
+  "next_gate": "Run the live checkout smoke against the deployed Render service and capture a real checkout session. A checkout session is not a sale; only verified payment evidence upgrades the status.",
+  "mtg_touched": false,
+  "adult_silo_touched": false,
+  "public_post_created": false
+}
