@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "namespace": "HAPPYHOMARID-WORD-BANK",
+  "promotion_rule": "No entry becomes production guidance from model inference alone. Production status requires Biggie approval.",
+  "fields": {
+    "WORD": "string",
+    "MEANING": "string",
+    "WHEN_TO_USE": "string",
+    "WHEN_NOT_TO_USE": "string",
+    "REGISTER": "enum:plain|playful|warm|direct|serious",
+    "EMOTIONAL_WEIGHT": "number 0..1",
+    "EXAMPLE_FROM_BIGGIE": "string",
+    "SOURCE": "case_id|transcript_ref|manual",
+    "CONFIDENCE": "number 0..1",
+    "STATUS": "enum:proposed|approved|deprecated|quarantined"
+  },
+  "seed_entries": [],
+  "privacy_rule": "Store only the minimum member data needed to explain the language decision. Do not copy private member content into global style training without case-level authorization.",
+  "silo_rule": "Entries are HappyHomarid-only and are never available to other DreamLedger silos."
+}

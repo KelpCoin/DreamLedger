@@ -1,0 +1,32 @@
+{
+  "silo": "HAPPYHOMARID",
+  "parent_surface": "/mtg",
+  "namespace": "happyhomarid.customer_care",
+  "public_root_leakage": false,
+  "purpose": "Governed Patreon member customer care using Biggie-approved language patterns.",
+  "operating_rule": "The machine learns patterns from approved human output. It does not impersonate Biggie or silently promote its own style changes.",
+  "source_context": ["member_relationship", "member_message", "entitlement", "case_history"],
+  "workflow": [
+    "signal",
+    "relationship_context",
+    "case_classification",
+    "stencil_selection",
+    "word_bank_retrieval",
+    "human_agent_draft",
+    "gauntlet",
+    "approval_or_send",
+    "member_response",
+    "style_ledger",
+    "pattern_proposal",
+    "Biggie_approval"
+  ],
+  "allowed_external_actions": {
+    "send_patron_message": "approval_required_until_explicitly_promoted",
+    "refund": "human_only",
+    "compensation": "human_only",
+    "entitlement_change": "human_only",
+    "policy_change": "human_only"
+  },
+  "cross_silo_policy": "No DreamLedger agentic-commerce, Dreamiez, Amplissa, or unrelated MTG/CollectorsCoast context may be injected into HappyHomarid customer-care prompts unless explicitly referenced by a HappyHomarid case.",
+  "version": "1.0.0"
+}

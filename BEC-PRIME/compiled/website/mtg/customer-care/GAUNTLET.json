@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "namespace": "HAPPYHOMARID-GAUNTLET",
+  "decision_states": ["PASS", "REVIEW", "QUARANTINE"],
+  "checks": [
+    "CORRECT_MEMBER",
+    "CORRECT_TIER",
+    "CORRECT_ENTITLEMENT",
+    "CORRECT_CONTENT",
+    "NO_INVENTED_PROMISE",
+    "NO_INVENTED_REFUND",
+    "NO_INVENTED_DEADLINE",
+    "NO_UNAUTHORIZED_COMPENSATION",
+    "NO_PRIVATE_INFORMATION_LEAK",
+    "NO_CROSS_SILO_CONTENT",
+    "NO_UNAPPROVED_STYLE_CHANGE",
+    "NO_POLICY_VIOLATION",
+    "NO_AUTOMATIC_ESCALATION_BYPASS"
+  ],
+  "hard_fail": {
+    "incorrect_entitlement": "QUARANTINE",
+    "invented_promise": "QUARANTINE",
+    "invented_refund": "QUARANTINE",
+    "privacy_leak": "QUARANTINE",
+    "cross_silo_content": "QUARANTINE",
+    "unapproved_compensation": "REVIEW",
+    "policy_uncertainty": "REVIEW",
+    "style_proposal_not_approved": "REVIEW"
+  },
+  "send_policy": "QUARANTINE never reaches Patreon. REVIEW requires Biggie approval. PASS may be sent only when the current operating policy explicitly permits automated sending.",
+  "identity_rule": "The human agent must not claim to be Biggie. It drafts customer care on behalf of HappyHomarid."
+}

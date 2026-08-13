@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "namespace": "HAPPYHOMARID-STYLE-LEDGER",
+  "purpose": "Capture the delta between an agent draft and Biggie-approved final customer care.",
+  "record": {
+    "CASE_ID": "string",
+    "ORIGINAL_SIGNAL": "string",
+    "MEMBER_CONTEXT_REF": "string",
+    "STENCIL_USED": "string",
+    "AGENT_DRAFT": "string",
+    "BIGGIE_EDIT": "string",
+    "FINAL_MESSAGE": "string",
+    "REMOVED_PHRASES": ["string"],
+    "ADDED_PHRASES": ["string"],
+    "STYLE_REASON": "string",
+    "APPROVED": "boolean",
+    "TIMESTAMP": "ISO-8601",
+    "PROMOTION_CANDIDATE": "boolean"
+  },
+  "learning_rule": "Approved edits are evidence. They do not automatically become style rules.",
+  "retention_rule": "Keep the minimum content required for style learning and operational auditability.",
+  "silo_rule": "This ledger is private to HappyHomarid customer care."
+}
