@@ -4,6 +4,7 @@
   "approved": [
     {
       "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+      "product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
       "capability_id": "BEC-PRIME-ARCHITECTURE",
       "silo": "dreamledger",
       "name": "BEC-PRIME Architecture audit",

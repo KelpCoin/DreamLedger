@@ -47,9 +47,9 @@ async function createProductCheckout(productId, silo) {
   const params = {
     mode: 'payment',
     'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id),
-    'cancel_url': PUBLIC_BASE + '/mtg?checkout_cancelled=1',
+    'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1',
     'metadata[product_id]': p.id,
-    'metadata[silo]': silo || p.silo || 'mtg',
+    'metadata[silo]': silo || p.silo || 'dreamledger',
     'metadata[commerce_version]': 'bec-direct-product-v1',
     'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(),
     'line_items[0][price_data][unit_amount]': Number(p.price),

@@ -1,0 +1,37 @@
+{
+  "schema": "BEC-PRIME/PROOF-FIX-CHECKOUT-IDENTITY/v1",
+  "status": "PATCH_SOURCE_VERIFIED",
+  "exact_files_changed": [
+    "BEC-PRIME/start.js",
+    "BEC-PRIME/routes/platformCart.js",
+    "BEC-PRIME/catalog/offers/approved.json",
+    "BEC-PRIME/PROOF-FIX-CHECKOUT-IDENTITY.json"
+  ],
+  "old_offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+  "new_canonical_product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+  "mapping": {
+    "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+    "product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001"
+  },
+  "silo_check": {
+    "result": "PASS",
+    "approved_offer_silo": "dreamledger",
+    "changed_scope_silos": ["dreamledger"],
+    "mtg_touched": false,
+    "dreamiez_touched": false,
+    "amplissa_touched": false
+  },
+  "checkout_route_change": {
+    "route": "/api/offer-checkout/create",
+    "accepted_identifier": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+    "resolution": "approved offer mapping -> canonical product -> existing Stripe checkout machinery"
+  },
+  "cancel_url_change": {
+    "old": "/mtg?checkout_cancelled=1",
+    "new": "/revenue.html?checkout_cancelled=1"
+  },
+  "test_result": "SOURCE_STATIC_PASS; LIVE_DEPLOYMENT_VERIFICATION_PENDING",
+  "source_commit": "67fc855ac5b76b058731b0e35f8ee11dd834a115",
+  "payment_claim": false,
+  "sale_claim": false
+}
