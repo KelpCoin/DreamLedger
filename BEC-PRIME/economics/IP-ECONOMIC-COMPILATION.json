@@ -27,5 +27,5 @@
     "ITERATE"
   ],
   "truth_boundary": "A checkout URL is an offer surface. Revenue is only proven by a real payment event and valid webhook-derived proof.",
-  "public_boundary": "Only abstract architecture, public product information, hashes, and verified state may cross the public boundary. Secrets, credentials, customer data, private implementation paths, private prompts, proprietary model configuration, and unapproved external actions must never be compiled into the public surface."
+  "public_boundary": "Only abstract architecture, public product information, hashes, and verified state may cross the public boundary. Secrets, credentials, customer data, private implementation paths, private prompt content, proprietary model configuration, and unapproved external actions must never be compiled into the public surface."
 }
