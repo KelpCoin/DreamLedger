@@ -1,52 +1,5 @@
 {
   "schema": "BEC-PRIME/APPROVED-OFFERS/v1",
-  "rule": "Only explicit operator-approved offers may override the default candidate approval gate.",
-  "approved": [
-    {
-      "offer_id": "AGENTIC-COMMERCE-READINESS-001",
-      "capability_id": "BEC-PRIME-READINESS-AUDIT",
-      "silo": "dreamledger",
-      "name": "Agentic Commerce Readiness Audit",
-      "problem": "Identify the highest-impact barriers preventing a merchant from being discoverable, understandable, and transactable by commerce agents.",
-      "input": "Customer-provided catalog, commerce, policy, and checkout context sufficient to assess agentic-commerce readiness.",
-      "output": "0-100 readiness score, five-dimension summary, top three revenue-impacting blockers, and evidence-backed next actions.",
-      "delivery_mechanism": "engine_generated_digital_deliverable",
-      "deliverable": "Agentic Commerce Readiness Audit report with score, evidence-backed blockers, and prioritized next actions.",
-      "target_buyer": "Merchants and commerce teams preparing products or services for machine-readable agent commerce.",
-      "eligibility": "Customer must provide sufficient public or customer-supplied commerce inputs; no credentials are required.",
-      "constraints": [
-        "No credential collection",
-        "No private conversation publication",
-        "No unsupported claims",
-        "Silo boundaries enforced"
-      ],
-      "price": 49,
-      "currency": "NZD",
-      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
-      "payment_adapter": "stripe",
-      "checkout_route": "/api/offer-checkout/create",
-      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
-      "verification_rules": [
-        "explicit_operator_approval",
-        "capability_exists",
-        "price_positive",
-        "approval_record_present",
-        "no_private_ip_exposure",
-        "no_unsupported_claims",
-        "delivery_defined",
-        "payment_defined",
-        "proof_defined",
-        "silo_isolated",
-        "schema_valid"
-      ],
-      "provenance": {
-        "capability_ids": ["BEC-PRIME-READINESS-AUDIT"],
-        "methodology": "explicit-operator-approval-v1",
-        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
-        "private_material": "excluded"
-      },
-      "approved_by": "operator",
-      "approved_at": "2026-08-13T00:00:00.000Z"
-    }
-  ]
+  "rule": "No commercial offer is publicly checkout-enabled until explicitly approved by the operator.",
+  "approved": []
 }
