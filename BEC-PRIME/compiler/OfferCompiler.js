@@ -212,7 +212,11 @@ function compileApprovedOffers(records, capabilities, generatedOffers) {
     if (record.silo !== capability.silo) { errors.push({ offer_id: record.offer_id, errors: ['silo_mismatch'] }); continue; }
     if (record.currency !== 'NZD' || typeof record.price !== 'number' || record.price <= 0) { errors.push({ offer_id: record.offer_id, errors: ['invalid_price'] }); continue; }
     if (record.approved_by !== 'operator') { errors.push({ offer_id: record.offer_id, errors: ['explicit_operator_approval_required'] }); continue; }
-    if (generatedIds.has(record.offer_id) || approved.some(o => o.offer_id === record.offer_id)) { errors.push({ offer_id: record.offer_id, errors: ['duplicate_offer_id'] }); continue; }
+    if (approved.some(o => o.offer_id === record.offer_id)) { errors.push({ offer_id: record.offer_id, errors: ['duplicate_approved_offer_id'] }); continue; }
+    if (generatedIds.has(record.offer_id)) {
+      // Explicit operator approval intentionally overrides the generated, locked candidate
+      // with the same offer ID. The approved record becomes the sole canonical public offer.
+    }
 
     const offer = {
       ...record,
@@ -242,7 +246,11 @@ function compile() {
   const approvedResult = compileApprovedOffers(approvedInput, capabilities, gauntlet.passed);
   fs.mkdirSync(OFFERS_DIR, { recursive: true });
   const allRejected = [...generated.rejected, ...gauntlet.rejected, ...approvedResult.errors];
-  const finalOffers = [...gauntlet.passed, ...approvedResult.approved];
+  const approvedIds = new Set(approvedResult.approved.map(o => o.offer_id));
+  const finalOffers = [
+    ...gauntlet.passed.filter(o => !approvedIds.has(o.offer_id)),
+    ...approvedResult.approved
+  ];
   const deterministicManifest = {
     schema: 'BEC-PRIME/OFFER-CATALOG/v1',
     compiler: OFFER_VERSION,
