@@ -92,7 +92,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "NO_GENERATED_CHANGES"
           else
-            git commit -m "build: publish compiled commerce portfolio [skip ci]"
+            git commit -m "build: publish compiled commerce portfolio"
             git push origin HEAD:main
           fi
 
