@@ -126,12 +126,27 @@ jobs:
         run: |
           body=$(curl --fail --silent --show-error "$BASE_URL/api/offers")
           echo "$body"
-          if echo "$body" | grep -q 'AGENTIC-COMMERCE-READINESS-001'; then
-            echo "FAIL: removed Agentic Commerce offer is still publicly exposed."
+          if ! echo "$body" | grep -q 'AGENTIC-COMMERCE-READINESS-001'; then
+            echo "FAIL: required Agentic Commerce readiness offer is not publicly exposed."
+            exit 1
+          fi
+          if ! echo "$body" | grep -q '"price":49'; then
+            echo "FAIL: Agentic Commerce readiness offer price is not NZD 49."
+            exit 1
+          fi
+          if ! echo "$body" | grep -q '"checkout_available":true'; then
+            echo "FAIL: Agentic Commerce readiness offer is not checkout-enabled."
             exit 1
           fi
           if echo "$body" | grep -q 'SMALL-BUSINESS-AI-COMMERCE-KIT-001'; then
             echo "FAIL: removed placeholder AI product is still publicly exposed."
             exit 1
           fi
-          echo "PASS: public offer registry contains no removed AI placeholders."
+          echo "PASS: required first-sale offer is publicly exposed and no removed placeholder AI product is exposed."
+      - name: LIVE STRIPE CHECKOUT REALITY GATE
+        env:
+          BASE_URL: https://dreamledger.org
+        run: |
+          response=$(curl --fail --silent --show-error --request POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data '{"offer_id":"AGENTIC-COMMERCE-READINESS-001"}')
+          echo "$response"
+          node -e "const r=JSON.parse(process.argv[1]); if(typeof r.url !== 'string' || !r.url.startsWith('https://checkout.stripe.com/')) { console.error('FAIL: checkout endpoint did not return a Stripe Checkout URL'); process.exit(1); } console.log('PASS: live Stripe Checkout URL returned')" "$response"
