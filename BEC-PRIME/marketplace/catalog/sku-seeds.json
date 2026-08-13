@@ -1,0 +1,16 @@
+{
+  "schema": "bec-prime.sku-seed.v1",
+  "generated_at": "2026-08-13T00:00:00Z",
+  "items": [
+    {
+      "sku_id": "BEC-MARKETPLACE-STARTER-001",
+      "title": "B2B Marketplace Starter Listing",
+      "description": "A verified starter listing surface for B2B buyers and sellers.",
+      "price": 49,
+      "currency": "NZD",
+      "status": "active",
+      "checkout_available": false,
+      "approval_required": true
+    }
+  ]
+}
