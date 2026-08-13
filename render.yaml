@@ -5,6 +5,11 @@ services:
     branch: main
     rootDir: BEC-PRIME
     autoDeployTrigger: commit
+    renderSubdomainPolicy: enabled
+    domains:
+      - dreamledger.org
+      - www.dreamledger.org
+      - qr.dreamledger.org
     buildCommand: npm install && npm run compile
     startCommand: npm start
     healthCheckPath: /healthz
