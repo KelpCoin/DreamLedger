@@ -18,6 +18,7 @@ function ensureUser(id){const users=read(USERS,[]);let u=users.find(x=>x.id===id
 async function body(req){return new Promise((resolve,reject)=>{let s='';req.on('data',c=>{s+=c;if(s.length>1000000)req.destroy();});req.on('end',()=>{try{resolve(s?JSON.parse(s):{});}catch(e){reject(e);}});req.on('error',reject);});}
 function json(res,status,data){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));}
 async function handle(req,res,url){
+ url=typeof url==='string'?url:String(req.url||'').split('?')[0];
  if(!url.startsWith('/api/dreamiez')&&!url.startsWith('/dreamiez'))return false;
  if(req.method==='GET'&&url==='/dreamiez'){res.writeHead(302,{Location:'/dreamiez/dreamiez.html'});res.end();return true;}
  const id=userId(req,res);const u=ensureUser(id);
