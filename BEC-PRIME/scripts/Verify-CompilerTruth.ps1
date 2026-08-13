@@ -9,6 +9,7 @@ $Root = Split-Path -Parent $PSScriptRoot
 $ContractPath = Join-Path $Root 'compiler\COMPILER-TRUTH-CONTRACT.json'
 $ManifestPath = Join-Path $Root 'manifests\CUBE-PUBLIC-SURFACE-MANIFEST.json'
 $OffersPath = Join-Path $Root 'catalog\offers\offers.json'
+$ApprovedPath = Join-Path $Root 'catalog\offers\approved.json'
 $IpPath = Join-Path $Root 'catalog\ip-capabilities.json'
 $SurfaceCompilerPath = Join-Path $Root 'compiler\SurfaceCompiler.js'
 $OfferCompilerPath = Join-Path $Root 'compiler\OfferCompiler.js'
@@ -24,6 +25,7 @@ foreach ($item in @(
     @($ContractPath,'contract'),
     @($ManifestPath,'cube_manifest'),
     @($OffersPath,'offers'),
+    @($ApprovedPath,'approved_offers'),
     @($IpPath,'ip_catalog'),
     @($SurfaceCompilerPath,'surface_compiler'),
     @($OfferCompilerPath,'offer_compiler'),
@@ -34,7 +36,9 @@ foreach ($item in @(
 $contract = if ($Errors.Count -eq 0) { Get-Content -Raw $ContractPath | ConvertFrom-Json } else { $null }
 $manifest = if ($Errors.Count -eq 0) { Get-Content -Raw $ManifestPath | ConvertFrom-Json } else { $null }
 $offers = if ($Errors.Count -eq 0) { Get-Content -Raw $OffersPath | ConvertFrom-Json } else { $null }
+$approved = if ($Errors.Count -eq 0) { Get-Content -Raw $ApprovedPath | ConvertFrom-Json } else { $null }
 $ip = if ($Errors.Count -eq 0) { Get-Content -Raw $IpPath | ConvertFrom-Json } else { $null }
+$approvedIds = if ($approved) { @($approved.approved | ForEach-Object { [string]$_.offer_id }) } else { @() }
 
 if ($contract) {
     if ($contract.surface_rules.server_authoritative_price -ne $true) { $Errors.Add('POLICY:server_authoritative_price') }
@@ -54,10 +58,20 @@ if ($manifest) {
 
 if ($offers) {
     foreach ($offer in @($offers.offers)) {
-        if ($offer.approval_required -ne $true) { $Errors.Add("OFFER_UNLOCKED:$($offer.offer_id)") }
-        if ($offer.checkout_available -ne $false) { $Errors.Add("OFFER_CHECKOUT_ENABLED:$($offer.offer_id)") }
-        if ($offer.status -ne 'candidate') { $Errors.Add("OFFER_STATUS:$($offer.offer_id)") }
+        $isApproved = [string]$offer.offer_id -in $approvedIds
+        if ($isApproved) {
+            if ($offer.approval_required -ne $false) { $Errors.Add("APPROVED_OFFER_LOCKED:$($offer.offer_id)") }
+            if ($offer.checkout_available -ne $true) { $Errors.Add("APPROVED_OFFER_CHECKOUT_DISABLED:$($offer.offer_id)") }
+            if ($offer.status -ne 'VERIFIED_AVAILABLE') { $Errors.Add("APPROVED_OFFER_STATUS:$($offer.offer_id)") }
+        } else {
+            if ($offer.approval_required -ne $true) { $Errors.Add("OFFER_UNLOCKED:$($offer.offer_id)") }
+            if ($offer.checkout_available -ne $false) { $Errors.Add("OFFER_CHECKOUT_ENABLED:$($offer.offer_id)") }
+            if ($offer.status -ne 'candidate') { $Errors.Add("OFFER_STATUS:$($offer.offer_id)") }
+        }
         if ($offer.provenance.private_material -ne 'excluded') { $Errors.Add("OFFER_PRIVATE_MATERIAL:$($offer.offer_id)") }
+    }
+    foreach ($approvedId in $approvedIds) {
+        if ($approvedId -notin @($offers.offers | ForEach-Object { [string]$_.offer_id })) { $Errors.Add("APPROVED_OFFER_MISSING:$approvedId") }
     }
 }
 
@@ -85,6 +99,7 @@ $proof = [ordered]@{
     counts = [ordered]@{
         capabilities = @($ip.capabilities).Count
         offers = @($offers.offers).Count
+        approved_offers = $approvedIds.Count
         public_surfaces = @($manifest.public_surfaces).Count
     }
     errors = @($Errors)
@@ -99,6 +114,7 @@ Write-Host "VERDICT: $($proof.verdict)"
 Write-Host "PROOF: $ProofPath"
 Write-Host "CAPABILITIES: $($proof.counts.capabilities)"
 Write-Host "OFFERS: $($proof.counts.offers)"
+Write-Host "APPROVED OFFERS: $($proof.counts.approved_offers)"
 Write-Host "PUBLIC SURFACES: $($proof.counts.public_surfaces)"
 if ($Errors.Count -gt 0) { $Errors | ForEach-Object { Write-Host "FAIL: $_" } }
 exit $(if ($proof.verdict -eq 'PASS') { 0 } else { 1 })
