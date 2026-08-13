@@ -80,8 +80,11 @@ jobs:
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          test -n "$RENDER_DEPLOY_HOOK_URL"
-          curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL is not configured; relying on Render automatic deployment from main."
+          else
+            curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
+          fi
       - name: Wait for live deployment and prove public surfaces
         shell: bash
         run: |
