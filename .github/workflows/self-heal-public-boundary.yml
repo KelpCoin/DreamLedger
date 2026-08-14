@@ -1,0 +1,52 @@
+name: BEC-PRIME Self Heal Public Boundary
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  sanitize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Detect and repair public VIN exposure
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('BEC-PRIME/routes/frontDoor.js')
+          s = p.read_text(encoding='utf-8')
+          old = "    car: x.car || null\n"
+          new = "    car: x.car ? {\n      make: x.car.make || '',\n      model: x.car.model || '',\n      year: x.car.year || null,\n      kilometres: x.car.kilometres || null,\n      wof_expiry: x.car.wof_expiry || '',\n      rego_expiry: x.car.rego_expiry || '',\n      transmission: x.car.transmission || '',\n      fuel_type: x.car.fuel_type || '',\n      body_type: x.car.body_type || '',\n      service_history: x.car.service_history || ''\n    } : null\n"
+          if old not in s:
+              print('PUBLIC_VIN_BOUNDARY_ALREADY_SANITIZED')
+          else:
+              p.write_text(s.replace(old, new, 1), encoding='utf-8')
+              print('PUBLIC_VIN_BOUNDARY_REPAIRED')
+
+      - name: Verify source syntax
+        working-directory: BEC-PRIME
+        run: node --check routes/frontDoor.js
+
+      - name: Commit repair when needed
+        shell: bash
+        run: |
+          if git diff --quiet -- BEC-PRIME/routes/frontDoor.js; then
+            echo "No source repair required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BEC-PRIME/routes/frontDoor.js
+          git commit -m "fix: sanitize public marketplace vehicle fields"
+          git push origin main
