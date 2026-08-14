@@ -1,0 +1,18 @@
+{
+  "proof_id": "2026-08-14-DREAMLEDGER-SEALED-CAROUSEL",
+  "surface": "/",
+  "repository": "KelpCoin/DreamLedger",
+  "commit": "2e27f08a68874c68548887efdca6f5f1fb07b99a",
+  "changes": [
+    "replaced flat public world grid with horizontal snap carousel",
+    "added sealed certificate-stub visual treatment",
+    "added focused-card scaling and swipe/pointer interaction",
+    "added keyboard focus and reduced-motion handling",
+    "added seal-break world reveal interaction",
+    "kept world names generic at sealed surface",
+    "kept MTG inventory behind /mtg silo boundary",
+    "live MTG count is read from /api/products and never hard-coded"
+  ],
+  "truth_boundary": "This artifact proves the repository change only. It does not claim successful production deployment until CI/deployment health checks confirm it.",
+  "verification": "Invoke the site's root URL, swipe the four sealed cards, activate Break seal, and confirm /api/products populates the Collector Commerce live status."
+}
