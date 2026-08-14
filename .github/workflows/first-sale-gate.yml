@@ -12,11 +12,11 @@ on:
   workflow_dispatch:
     inputs:
       PRODUCT_ID:
-        description: "Optional live product/SKU to verify; blank enumerates published products"
+        description: "Optional live MTG product/SKU to verify; blank enumerates published MTG products"
         required: false
         default: ""
       OFFER_ID:
-        description: "Optional live offer ID to verify; blank selects a matching published live offer"
+        description: "Optional live MTG offer ID to verify; blank selects a matching published MTG offer"
         required: false
         default: ""
       CREATE_CHECKOUT:
@@ -35,6 +35,7 @@ env:
   FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || '' }}
   CREATE_CHECKOUT: ${{ inputs.CREATE_CHECKOUT || 'false' }}
   BASE_URL: "https://dreamledger.org"
+  TARGET_SILO: "mtg"
 
 jobs:
   first-sale-gate:
@@ -47,7 +48,7 @@ jobs:
         with:
           ref: main
 
-      - name: Verify published catalog
+      - name: Verify published MTG catalog
         shell: bash
         run: |
           set -euo pipefail
@@ -56,24 +57,25 @@ jobs:
           const path = require('path');
           const dir = 'BEC-PRIME/catalog/products';
           const selected = process.env.FIRST_SALE_PRODUCT_ID;
+          const targetSilo = process.env.TARGET_SILO;
           const files = fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort();
           const products = files.map(f => ({ file: f, data: JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')) }));
-          const published = products.filter(({data}) => String(data.status || '').toLowerCase() === 'published' && Number(data.inventory || 0) > 0);
-          if (!published.length) throw new Error('NO_PUBLISHED_PRODUCTS');
-          if (selected && !published.some(({data}) => data.id === selected)) throw new Error(`SELECTED_PRODUCT_NOT_PUBLISHED: ${selected}`);
+          const published = products.filter(({data}) => String(data.silo || '').toLowerCase() === targetSilo && String(data.status || '').toLowerCase() === 'published' && Number(data.inventory || 0) > 0);
+          if (!published.length) throw new Error('NO_PUBLISHED_MTG_PRODUCTS');
+          if (selected && !published.some(({data}) => data.id === selected)) throw new Error(`SELECTED_MTG_PRODUCT_NOT_PUBLISHED: ${selected}`);
           for (const {file, data: p} of published) {
             const price = Number(p.price);
             const currency = String(p.currency || '').toUpperCase();
             if (!p.id || !p.name || !Number.isInteger(price) || price <= 0 || currency !== 'NZD') {
-              throw new Error(`INVALID_PUBLISHED_PRODUCT: ${file}`);
+              throw new Error(`INVALID_PUBLISHED_MTG_PRODUCT: ${file}`);
             }
             if (!p.commercial_truth || p.commercial_truth.approval_required !== false) {
-              throw new Error(`UNAPPROVED_PUBLISHED_PRODUCT: ${file}`);
+              throw new Error(`UNAPPROVED_PUBLISHED_MTG_PRODUCT: ${file}`);
             }
             if (!p.evidence || !p.evidence.status) throw new Error(`MISSING_EVIDENCE_STATE: ${file}`);
-            console.log(`PUBLISHED_READY ${p.id} ${price} ${currency}`);
+            console.log(`PUBLISHED_MTG_READY ${p.id} ${price} ${currency}`);
           }
-          console.log(`PUBLISHED_COUNT ${published.length}`);
+          console.log(`PUBLISHED_MTG_COUNT ${published.length}`);
           NODE
 
       - name: Verify live health
@@ -82,7 +84,7 @@ jobs:
           set -euo pipefail
           curl --fail --silent --show-error --max-time 90 "$BASE_URL/healthz" | tee health.json
 
-      - name: Enumerate live checkout-ready offers
+      - name: Enumerate live MTG checkout-ready offers
         shell: bash
         run: |
           set -euo pipefail
@@ -93,11 +95,12 @@ jobs:
           const offers = Array.isArray(x) ? x : (x.offers || x.data || []);
           const productId = process.env.FIRST_SALE_PRODUCT_ID;
           const offerId = process.env.FIRST_SALE_OFFER_ID;
-          const ready = offers.filter(o => o.checkout_available === true && Number(o.price) > 0 && String(o.currency || '').toUpperCase() === 'NZD');
+          const targetSilo = process.env.TARGET_SILO;
+          const ready = offers.filter(o => String(o.silo || '').toLowerCase() === targetSilo && o.checkout_available === true && Number(o.price) > 0 && String(o.currency || '').toUpperCase() === 'NZD');
           const matches = ready.filter(o => (!productId || o.product_id === productId || o.sku === productId || o.id === productId || o.offer_id === productId) && (!offerId || o.offer_id === offerId || o.id === offerId));
-          if (!matches.length) throw new Error('NO_MATCHING_CHECKOUT_READY_OFFER');
-          console.log(`LIVE_CHECKOUT_READY_COUNT ${ready.length}`);
-          console.log('SELECTED_LIVE_OFFER', JSON.stringify(matches[0]));
+          if (!matches.length) throw new Error('NO_MATCHING_MTG_CHECKOUT_READY_OFFER');
+          console.log(`LIVE_MTG_CHECKOUT_READY_COUNT ${ready.length}`);
+          console.log('SELECTED_LIVE_MTG_OFFER', JSON.stringify(matches[0]));
           fs.writeFileSync('selected-offer.json', JSON.stringify(matches[0], null, 2) + '\n');
           NODE
 
@@ -111,7 +114,7 @@ jobs:
           curl --fail --silent --show-error --max-time 60 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data "{\"offer_id\":\"$OFFER_ID\"}" \
+            --data "{\"offer_id\":\"$OFFER_ID\",\"silo\":\"$TARGET_SILO\"}" \
             | tee checkout.json
           node <<'NODE'
           const x = require('./checkout.json');
@@ -130,4 +133,4 @@ jobs:
             offers.json
             selected-offer.json
             checkout.json
-          if-no-files-found: error
+          if-no-files-found: ignore
