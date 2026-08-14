@@ -2,23 +2,24 @@ name: First Sale Shot
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["BEC Prime First Sale Gate"]
-    types: [completed]
-
-concurrency:
-  group: first-sale-shot
-  cancel-in-progress: false
+    inputs:
+      OFFER_ID:
+        description: "Live offer ID to sell"
+        required: false
+        default: "EDH_0001"
+      EXPECTED_PRICE_NZD:
+        description: "Expected price in NZD"
+        required: false
+        default: "400"
 
 env:
   LIVE_URL: https://dreamledger.org
-  OFFER_ID: EDH_0001
-  EXPECTED_PRICE_NZD: "400"
+  OFFER_ID: ${{ inputs.OFFER_ID || 'EDH_0001' }}
+  EXPECTED_PRICE_NZD: ${{ inputs.EXPECTED_PRICE_NZD || '400' }}
   CHECKOUT_ENDPOINT: https://dreamledger.org/api/offer-checkout/create
 
 jobs:
   create-one-doorway:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -39,8 +40,8 @@ jobs:
           if (offer.checkout_available !== true) throw new Error('checkout_available is false');
           if (Number(offer.price) !== Number(process.env.EXPECTED_PRICE_NZD)) throw new Error(`price is not NZD ${process.env.EXPECTED_PRICE_NZD}`);
           if (String(offer.currency || '').toUpperCase() !== 'NZD') throw new Error('currency is not NZD');
+          fs.writeFileSync('proof/selected-offer.json', JSON.stringify(offer, null, 2) + '\n');
           console.log('COMMERCE_GATE=GREEN');
-          console.log(JSON.stringify(offer));
           NODE
 
       - name: Create exactly one checkout doorway
@@ -63,7 +64,7 @@ jobs:
         run: |
           echo '## FIRST SALE SHOT' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo 'EDH_0001 live offer verified at NZD 400.' >> "$GITHUB_STEP_SUMMARY"
+          echo "${OFFER_ID} live offer verified at NZD ${EXPECTED_PRICE_NZD}." >> "$GITHUB_STEP_SUMMARY"
           echo 'Exactly one Stripe Checkout doorway was requested.' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo 'Payment remains UNPROVEN until Stripe reports a paid checkout session.' >> "$GITHUB_STEP_SUMMARY"
