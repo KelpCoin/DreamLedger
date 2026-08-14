@@ -11,6 +11,8 @@ const RESULTS_DIR = path.join(QUEUE_DIR, 'results');
 const PROOF_DIR = path.resolve(process.env.BEC_PROOF_DIR || path.join(ROOT, 'data', 'proofs'));
 const DEFAULT_LM_URL = process.env.BEC_LM_URL || 'http://127.0.0.1:1234/v1/chat/completions';
 const DEFAULT_LM_MODEL = process.env.BEC_LM_MODEL || 'local-model';
+const REMOTE_LM_URL = process.env.BEC_REMOTE_LM_URL || '';
+const REMOTE_LM_MODEL = process.env.BEC_REMOTE_LM_MODEL || '';
 const ALLOWED_KINDS = new Set(['analysis', 'code_change', 'gauntlet', 'compile', 'test', 'lm_refinement']);
 const FORBIDDEN_EFFECTS = new Set(['money', 'checkout', 'public_post', 'production_mutation']);
 
@@ -77,35 +79,63 @@ function listJobs() {
   return fs.readdirSync(JOBS_DIR).filter(x => x.endsWith('.json')).map(x => JSON.parse(fs.readFileSync(path.join(JOBS_DIR, x), 'utf8'))).sort((a, b) => a.created_at.localeCompare(b.created_at));
 }
 
-async function runLmStudio(job) {
-  const url = job.inputs.url || DEFAULT_LM_URL;
-  const model = job.inputs.model || DEFAULT_LM_MODEL;
-  const system = job.inputs.system || 'You are an untrusted worker in BrownEye Cortex. Propose work, do not claim evidence, and do not perform irreversible actions.';
+function endpointHeaders(apiKey) {
+  return apiKey ? { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` } : { 'Content-Type': 'application/json' };
+}
+
+async function runCompatibleModel(job, config) {
   const payload = {
-    model,
+    model: config.model,
     messages: [
-      { role: 'system', content: system },
+      { role: 'system', content: job.inputs.system || 'You are an untrusted worker in BrownEye Cortex. Propose work, do not claim evidence, and do not perform irreversible actions.' },
       { role: 'user', content: job.task + '\n\nINPUTS:\n' + JSON.stringify(job.inputs) }
     ],
     temperature: Number(job.inputs.temperature ?? 0.2)
   };
-  const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  const response = await fetch(config.url, { method: 'POST', headers: endpointHeaders(config.apiKey), body: JSON.stringify(payload) });
   const text = await response.text();
-  if (!response.ok) throw new Error(`LM Studio ${response.status}: ${text.slice(0, 2000)}`);
+  if (!response.ok) throw new Error(`${config.name} ${response.status}: ${text.slice(0, 2000)}`);
   const data = JSON.parse(text);
   const content = data?.choices?.[0]?.message?.content;
-  if (typeof content !== 'string') throw new Error('LM Studio response did not contain choices[0].message.content');
-  return { worker: 'local-lmstudio', model, endpoint: url, content };
+  if (typeof content !== 'string') throw new Error(`${config.name} response did not contain choices[0].message.content`);
+  return { worker: config.name, model: config.model, endpoint: config.url, content };
+}
+
+async function runLmStudio(job) {
+  return runCompatibleModel(job, { name: 'local-lmstudio', url: job.inputs.url || DEFAULT_LM_URL, model: job.inputs.model || DEFAULT_LM_MODEL, apiKey: '' });
+}
+
+async function runRemoteModel(job) {
+  const url = job.inputs.remote_url || REMOTE_LM_URL;
+  const model = job.inputs.remote_model || REMOTE_LM_MODEL;
+  if (!url || !model) throw new Error('Remote worker is not configured: set BEC_REMOTE_LM_URL and BEC_REMOTE_LM_MODEL');
+  return runCompatibleModel(job, { name: 'remote-openai-compatible', url, model, apiKey: process.env.BEC_REMOTE_LM_API_KEY || '' });
 }
 
 async function execute(job) {
   const started = new Date().toISOString();
   let output;
-  if (job.worker_preference === 'local-lmstudio' || (job.worker_preference === 'auto' && job.kind === 'lm_refinement')) {
+  const preference = job.worker_preference;
+
+  if (preference === 'local-lmstudio') {
     output = await runLmStudio(job);
+  } else if (preference === 'remote-cloud') {
+    output = await runRemoteModel(job);
+  } else if (preference === 'auto') {
+    try {
+      output = await runLmStudio(job);
+    } catch (localError) {
+      if (REMOTE_LM_URL && REMOTE_LM_MODEL) {
+        output = await runRemoteModel(job);
+        output.fallback_reason = localError.message;
+      } else {
+        output = { worker: 'deterministic', message: 'No model endpoint available; artifact is a deterministic proposal only', task: job.task, fallback_reason: localError.message };
+      }
+    }
   } else {
-    output = { worker: 'deterministic', message: 'Job accepted for deterministic executor integration', task: job.task };
+    throw new Error(`Unsupported worker preference: ${preference}`);
   }
+
   const result = {
     schema_version: 'BEC-WORKER-RESULT-1.0',
     job_id: job.job_id,
