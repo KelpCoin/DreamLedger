@@ -46,6 +46,7 @@ async function createProductCheckout(productId, silo) {
   const cartId = 'direct_' + crypto.randomUUID();
   const params = {
     mode: 'payment',
+    'integration_identifier': 'dreamledger-mtg-checkout-' + crypto.randomBytes(4).toString('hex'),
     'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id),
     'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1',
     'metadata[product_id]': p.id,
@@ -69,7 +70,7 @@ async function handle(req, res, url) {
     if (!fs.existsSync(file)) return send(res, 404, { error: 'Cart not found' });
     const cart = read(file); if (cart.status !== 'open') return send(res, 409, { error: 'Cart is not open' });
     const allowed = new Set(platformSellerIds()); if (!cart.items.every(item => allowed.has(item.seller_id))) return false;
-    const params = { mode: 'payment', 'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id), 'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1', 'metadata[cart_id]': cart.id, 'metadata[commerce_version]': 'omni-v1-platform', 'metadata[platform_fee_bps]': '0' };
+    const params = { mode: 'payment', 'integration_identifier': 'dreamledger-platform-cart-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id), 'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1', 'metadata[cart_id]': cart.id, 'metadata[commerce_version]': 'omni-v1-platform', 'metadata[platform_fee_bps]': '0' };
     cart.items.forEach((item, i) => { params['line_items[' + i + '][price_data][currency]'] = String(item.currency).toLowerCase(); params['line_items[' + i + '][price_data][unit_amount]'] = item.unit_amount; params['line_items[' + i + '][price_data][product_data][name]'] = item.name; params['line_items[' + i + '][quantity]'] = item.quantity; });
     try { const session = await stripe('checkout/sessions', params, 'dreamledger-platform-cart-' + cart.id + '-' + crypto.randomUUID()); cart.status = 'checkout_created'; cart.session_id = session.id; cart.checkout_created_at = new Date().toISOString(); write(file, cart); return send(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: 0 }); } catch (err) { return send(res, 502, { error: err.message }); }
   }
