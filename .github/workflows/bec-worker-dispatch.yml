@@ -58,8 +58,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package.json
 
       - name: Install dependencies
         run: npm install
@@ -73,15 +71,7 @@ jobs:
           WORKER: ${{ inputs.worker_preference }}
         run: |
           mkdir -p data/jobs/dispatch
-          cat > data/jobs/dispatch/job.json <<EOF
-          {
-            "kind": "${KIND}",
-            "silo": "${SILO}",
-            "task": $(python3 -c 'import json,os; print(json.dumps(os.environ["TASK"]))'),
-            "worker_preference": "${WORKER}",
-            "effects": []
-          }
-          EOF
+          node -e 'const fs=require("fs"); fs.writeFileSync("data/jobs/dispatch/job.json", JSON.stringify({kind:process.env.KIND,silo:process.env.SILO,task:process.env.TASK,worker_preference:process.env.WORKER,effects:[]},null,2)+"\n")'
 
       - name: Execute worker
         run: node runtime/worker-pool.js enqueue data/jobs/dispatch/job.json
