@@ -12,7 +12,7 @@ jobs:
   create-payment-link:
     runs-on: ubuntu-latest
     steps:
-      - name: Create or reuse EDH_0001 NZD 400 Payment Link
+      - name: Create or reuse Discord Webhook Starter Kit NZD 79 Payment Link
         env:
           STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         shell: bash
@@ -20,19 +20,25 @@ jobs:
           set -euo pipefail
           test -n "$STRIPE_API_KEY"
 
+          OFFER_ID="DISCORD-WEBHOOK-STARTER-KIT-001"
+          PRODUCT_NAME="Discord Webhook Starter Kit"
+          PRICE_NZD="79"
+          DESCRIPTION="Complete Discord webhook system with Stripe integration. Deploy in 5 minutes. Includes code templates and setup guide."
+
           PRODUCT_RESPONSE=$(curl -fsS -G https://api.stripe.com/v1/products/search \
             -u "$STRIPE_API_KEY:" \
-            --data-urlencode "query=metadata['offer_id']:'EDH_0001'")
+            --data-urlencode "query=metadata['offer_id']:'$OFFER_ID'")
           PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.data[0].id // empty')
 
           if [ -z "$PRODUCT_ID" ]; then
             PRODUCT_RESPONSE=$(curl -fsS https://api.stripe.com/v1/products \
               -u "$STRIPE_API_KEY:" \
-              -d name="EDH_0001 MTG Commander Deck" \
-              -d description="EDH_0001 MTG inventory. Price locked at NZD 400." \
-              -d "metadata[offer_id]=EDH_0001" \
+              -d "name=$PRODUCT_NAME" \
+              -d "description=$DESCRIPTION" \
+              -d "metadata[offer_id]=$OFFER_ID" \
               -d "metadata[currency]=NZD" \
-              -d "metadata[price_nzd]=400")
+              -d "metadata[price_nzd]=$PRICE_NZD" \
+              -d "metadata[delivery]=digital")
             PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.id')
           fi
           test -n "$PRODUCT_ID"
@@ -40,18 +46,18 @@ jobs:
 
           PRICE_RESPONSE=$(curl -fsS -G https://api.stripe.com/v1/prices/search \
             -u "$STRIPE_API_KEY:" \
-            --data-urlencode "query=metadata['offer_id']:'EDH_0001' AND unit_amount:40000")
+            --data-urlencode "query=metadata['offer_id']:'$OFFER_ID' AND unit_amount:7900")
           PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.data[0].id // empty')
 
           if [ -z "$PRICE_ID" ]; then
             PRICE_RESPONSE=$(curl -fsS https://api.stripe.com/v1/prices \
               -u "$STRIPE_API_KEY:" \
               -d currency=nzd \
-              -d unit_amount=40000 \
+              -d unit_amount=7900 \
               -d "product=$PRODUCT_ID" \
-              -d "metadata[offer_id]=EDH_0001" \
+              -d "metadata[offer_id]=$OFFER_ID" \
               -d "metadata[currency]=NZD" \
-              -d "metadata[price_nzd]=400")
+              -d "metadata[price_nzd]=$PRICE_NZD")
             PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.id')
           fi
           test -n "$PRICE_ID"
@@ -60,7 +66,8 @@ jobs:
           EXISTING_LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links \
             -u "$STRIPE_API_KEY:" \
             --data-urlencode "limit=100")
-          PAYMENT_URL=$(echo "$EXISTING_LINKS" | jq -r --arg offer "EDH_0001" --arg price "$PRICE_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.line_items.data[0].price.id == $price) | .url' | head -n 1)
+          LINK_ID=$(echo "$EXISTING_LINKS" | jq -r --arg offer "$OFFER_ID" --arg price "$PRICE_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.line_items.data[0].price.id == $price) | .id' | head -n 1)
+          PAYMENT_URL=$(echo "$EXISTING_LINKS" | jq -r --arg offer "$OFFER_ID" --arg price "$PRICE_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.line_items.data[0].price.id == $price) | .url' | head -n 1)
 
           if [ -z "$PAYMENT_URL" ]; then
             LINK_RESPONSE=$(curl -fsS https://api.stripe.com/v1/payment_links \
@@ -68,22 +75,26 @@ jobs:
               -d "line_items[0][price]=$PRICE_ID" \
               -d "line_items[0][quantity]=1" \
               -d "after_completion[type]=hosted_confirmation" \
-              -d "metadata[offer_id]=EDH_0001")
+              -d "metadata[offer_id]=$OFFER_ID" \
+              -d "metadata[product]=discord-webhook-starter-kit")
+            LINK_ID=$(echo "$LINK_RESPONSE" | jq -r '.id')
             PAYMENT_URL=$(echo "$LINK_RESPONSE" | jq -r '.url')
           fi
 
+          test -n "$LINK_ID"
+          test "$LINK_ID" != "null"
           test -n "$PAYMENT_URL"
           test "$PAYMENT_URL" != "null"
           test "${PAYMENT_URL#https://buy.stripe.com/}" != "$PAYMENT_URL"
 
           printf '%s\n' "$PAYMENT_URL" > payment-url.txt
-          printf 'EDH_0001\nNZD 400\n%s\n' "$PAYMENT_URL" > payment-proof.txt
+          printf 'offer_id=%s\nproduct=%s\nprice_nzd=%s\ncurrency=NZD\npayment_link_id=%s\nurl=%s\n' "$OFFER_ID" "$PRODUCT_NAME" "$PRICE_NZD" "$LINK_ID" "$PAYMENT_URL" > payment-proof.txt
           echo "PAYMENT LINK URL: $PAYMENT_URL"
 
       - name: Upload Payment URL Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: edh-0001-payment-link
+          name: discord-webhook-starter-kit-payment-link
           path: |
             payment-url.txt
             payment-proof.txt
