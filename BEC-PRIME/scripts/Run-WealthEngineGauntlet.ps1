@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $root = Join-Path $PSScriptRoot '..'
-$candidateFile = Join-Path $root 'catalog\products\BEC-SURFACE-AUDIT-500.json'
+$candidateFile = Join-Path $root 'catalog\products\BEC-PRIME-ARCHITECTURE-AUDIT-001.json'
 $offerFile = Join-Path $root 'catalog\offers\offers.json'
 $ipFile = Join-Path $root 'catalog\ip-capabilities.json'
 $gauntletFile = Join-Path $root 'gauntlet\GauntletV6.js'
@@ -17,11 +17,14 @@ if (-not (Test-Path $proofDir)) { New-Item -ItemType Directory -Path $proofDir -
 $candidate = Get-Content -Raw $candidateFile | ConvertFrom-Json
 $catalog = Get-Content -Raw $offerFile | ConvertFrom-Json
 
+# Exercise the current first-sale product as a NEW candidate. The candidate
+# remains approval-gated and checkout-disabled; the separately approved offer
+# remains controlled by catalog/offers/approved.json and PR #59.
 $offer = [ordered]@{
-    offer_id = 'OFFER-BEC-SURFACE-AUDIT-500'
+    offer_id = 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-CANDIDATE'
     version = 'offer-v1'
-    capability_id = 'BEC-PRIME-READINESS-AUDIT'
-    silo = 'dreamledger'
+    capability_id = 'PRODUCT-BEC-PRIME-ARCHITECTURE-AUDIT-001'
+    silo = 'commerce'
     name = $candidate.name
     problem = 'A business needs evidence-backed assessment of whether its commerce surface can be understood, evaluated, and acted upon by software agents.'
     input = 'Public commerce URL and publicly accessible commerce surface.'
@@ -44,7 +47,7 @@ $offer = [ordered]@{
     proof_of_delivery = 'durable_audit_record'
     verification_rules = @('capability_exists','price_positive','approval_gate_locked','checkout_disabled','delivery_defined','proof_defined','silo_isolated','private_material_excluded')
     provenance = [ordered]@{
-        capability_ids = @('BEC-PRIME-READINESS-AUDIT')
+        capability_ids = @('PRODUCT-BEC-PRIME-ARCHITECTURE-AUDIT-001')
         methodology = 'wealth-engine-first-payment-driver-v1'
         public_claims_source = 'BEC-PRIME/catalog/ip-capabilities.json'
         private_material = 'excluded'
@@ -75,14 +78,14 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Gauntlet returned exit code $LASTEXITCODE`n$($json -join "`n")" }
     $result = ($json -join "`n") | ConvertFrom-Json
     $proof = [ordered]@{
-        schema_version = 'BEC-WEALTH-GAUNTLET-1.0'
+        schema_version = 'BEC-WEALTH-GAUNTLET-1.1'
         event = 'wealth_engine.candidate_gauntlet_completed'
         status = $result.status
         candidate = $candidate.id
-        offer_id = 'OFFER-BEC-SURFACE-AUDIT-500'
+        offer_id = 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-CANDIDATE'
         price_nzd = [int]$candidate.price
-        checkout_enabled = [bool]$candidate.checkout_available
-        approval_required = [bool]$candidate.approval_required
+        checkout_enabled = [bool]$offer.checkout_available
+        approval_required = [bool]$offer.approval_required
         gauntlet = $result
         checked_at_utc = (Get-Date).ToUniversalTime().ToString('o')
     }
