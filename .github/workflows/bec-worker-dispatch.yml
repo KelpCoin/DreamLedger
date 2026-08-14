@@ -31,6 +31,7 @@ on:
         options:
           - auto
           - local-lmstudio
+          - remote-cloud
       runner:
         description: Execution node
         required: true
@@ -74,10 +75,14 @@ jobs:
           node -e 'const fs=require("fs"); fs.writeFileSync("data/jobs/dispatch/job.json", JSON.stringify({kind:process.env.KIND,silo:process.env.SILO,task:process.env.TASK,worker_preference:process.env.WORKER,effects:[]},null,2)+"\n")'
 
       - name: Execute worker
-        run: node runtime/worker-pool.js enqueue data/jobs/dispatch/job.json
+        env:
+          BEC_REMOTE_LM_URL: ${{ secrets.BEC_REMOTE_LM_URL }}
+          BEC_REMOTE_LM_MODEL: ${{ secrets.BEC_REMOTE_LM_MODEL }}
+          BEC_REMOTE_LM_API_KEY: ${{ secrets.BEC_REMOTE_LM_API_KEY }}
+        run: node runtime/worker-pool.js enqueue data/jobs/dispatch/job.json && node runtime/worker-pool.js run-once
 
-      - name: Run queued job
-        run: node runtime/worker-pool.js run-once
+      - name: Verify worker proof
+        run: npm run worker:verify
 
       - name: Verify compile surface
         if: inputs.kind == 'compile' || inputs.kind == 'code_change'
