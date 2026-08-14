@@ -12,7 +12,7 @@ jobs:
   create-payment-link:
     runs-on: ubuntu-latest
     steps:
-      - name: Create NZD 29 Agentic Commerce Checklist Price and Payment Link
+      - name: Create EDH_0001 NZD 400 Payment Link
         env:
           STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         shell: bash
@@ -20,37 +20,61 @@ jobs:
           set -euo pipefail
           test -n "$STRIPE_API_KEY"
 
-          PRODUCT_RESPONSE=$(curl -fsS https://api.stripe.com/v1/products \
+          PRODUCT_RESPONSE=$(curl -fsS -G https://api.stripe.com/v1/products/search \
             -u "$STRIPE_API_KEY:" \
-            -d name="Agentic Commerce Readiness Checklist" \
-            -d description="A practical checklist for assessing whether a store can be found, understood, and transacted with by AI shopping agents. Manual email delivery within 24 hours.")
-          PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.id')
-          test "$PRODUCT_ID" != "null"
-          test -n "$PRODUCT_ID"
+            --data-urlencode "query=metadata['offer_id']:'EDH_0001'")
+          PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.data[0].id // empty')
 
-          PRICE_RESPONSE=$(curl -fsS https://api.stripe.com/v1/prices \
+          if [ -z "$PRODUCT_ID" ]; then
+            PRODUCT_RESPONSE=$(curl -fsS https://api.stripe.com/v1/products \
+              -u "$STRIPE_API_KEY:" \
+              -d name="EDH_0001 MTG Commander Deck" \
+              -d description="EDH_0001 MTG inventory. Price locked at NZD 400." \
+              -d "metadata[offer_id]=EDH_0001" \
+              -d "metadata[currency]=NZD" \
+              -d "metadata[price_nzd]=400")
+            PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.id')
+          fi
+          test -n "$PRODUCT_ID"
+          test "$PRODUCT_ID" != "null"
+
+          PRICE_RESPONSE=$(curl -fsS -G https://api.stripe.com/v1/prices/search \
             -u "$STRIPE_API_KEY:" \
-            -d currency=nzd \
-            -d unit_amount=2900 \
-            -d "product=$PRODUCT_ID")
-          PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.id')
-          test "$PRICE_ID" != "null"
+            --data-urlencode "query=metadata['offer_id']:'EDH_0001' AND unit_amount:40000")
+          PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.data[0].id // empty')
+
+          if [ -z "$PRICE_ID" ]; then
+            PRICE_RESPONSE=$(curl -fsS https://api.stripe.com/v1/prices \
+              -u "$STRIPE_API_KEY:" \
+              -d currency=nzd \
+              -d unit_amount=40000 \
+              -d "product=$PRODUCT_ID" \
+              -d "metadata[offer_id]=EDH_0001" \
+              -d "metadata[currency]=NZD" \
+              -d "metadata[price_nzd]=400")
+            PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.id')
+          fi
           test -n "$PRICE_ID"
+          test "$PRICE_ID" != "null"
 
           LINK_RESPONSE=$(curl -fsS https://api.stripe.com/v1/payment_links \
             -u "$STRIPE_API_KEY:" \
             -d "line_items[0][price]=$PRICE_ID" \
             -d "line_items[0][quantity]=1" \
-            -d "after_completion[type]=hosted_confirmation")
+            -d "after_completion[type]=hosted_confirmation" \
+            -d "metadata[offer_id]=EDH_0001")
           PAYMENT_URL=$(echo "$LINK_RESPONSE" | jq -r '.url')
           test "$PAYMENT_URL" != "null"
           test "${PAYMENT_URL#https://buy.stripe.com/}" != "$PAYMENT_URL"
 
           printf '%s\n' "$PAYMENT_URL" > payment-url.txt
+          printf 'EDH_0001\nNZD 400\n%s\n' "$PAYMENT_URL" > payment-proof.txt
           echo "PAYMENT LINK URL: $PAYMENT_URL"
 
       - name: Upload Payment URL Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: payment-link
-          path: payment-url.txt
+          name: edh-0001-payment-link
+          path: |
+            payment-url.txt
+            payment-proof.txt
