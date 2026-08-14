@@ -1,6 +1,6 @@
 {
   "name": "dreamledger",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "DreamLedger sovereign omni-commerce engine",
   "main": "server.js",
   "scripts": {
@@ -26,8 +26,11 @@
     "worker:enqueue": "node runtime/worker-pool.js enqueue",
     "worker:run": "node runtime/worker-pool.js run-once",
     "worker:list": "node runtime/worker-pool.js list",
+    "worker:route": "node runtime/worker-pool.js route",
     "worker:verify": "node scripts/Verify-WorkerPool.js",
+    "runtime:verify": "node scripts/Verify-Runtime.js",
     "worker:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-WorkerPool.ps1",
+    "worker:bootstrap": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Bootstrap-WindowsWorker.ps1",
     "autonomy:cycle": "node autonomy/RevenueAutonomy.js",
     "autonomy:macro": "node macro/MacroEngine.js",
     "autonomy:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Install-Autonomy.ps1",
