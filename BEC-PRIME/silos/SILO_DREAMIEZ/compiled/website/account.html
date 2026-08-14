@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dreamiez Account</title>
+<style>
+:root{--bg:#0b0d16;--panel:#151927;--ink:#fff;--muted:#aeb5c8;--accent:#ff63b6;--line:#30364c;--good:#77e2a8}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}.wrap{max-width:760px;margin:auto;padding:24px}.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px;margin:16px 0}.tabs{display:flex;gap:8px;margin-bottom:20px}.tab,button{border:0;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer}.tab{background:#282d43;color:#fff}.tab.active,button{background:var(--accent);color:#170d15}label{display:block;margin:12px 0 6px;color:var(--muted);font-size:.85rem}input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0d1019;color:#fff;font-size:1rem}.form{display:grid;gap:4px}.hidden{display:none}.status{min-height:24px;margin-top:14px;color:var(--muted)}.status.good{color:var(--good)}.avatar-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.avatar-grid label{margin-bottom:0}@media(max-width:600px){.avatar-grid{grid-template-columns:1fr}}
+a{color:#ff9bd1}
+</style>
+</head>
+<body><main class="wrap">
+<h1>Dreamiez account</h1>
+<p style="color:var(--muted)">Create an account, sign in, and keep your character attached to your account.</p>
+<section class="card">
+<div class="tabs"><button class="tab active" id="loginTab" onclick="show('login')">Sign in</button><button class="tab" id="createTab" onclick="show('create')">Create account</button></div>
+<form id="login" class="form" onsubmit="login(event)"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required><button type="submit">Sign in</button></form>
+<form id="create" class="form hidden" onsubmit="createAccount(event)"><label for="createName">Display name</label><input id="createName" maxlength="40" autocomplete="name" required><label for="createEmail">Email</label><input id="createEmail" type="email" autocomplete="email" required><label for="createPassword">Password</label><input id="createPassword" type="password" minlength="8" autocomplete="new-password" required><button type="submit">Create account</button></form>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+</section>
+<section class="card hidden" id="accountCard"><h2>Your account</h2><p id="accountSummary" style="color:var(--muted)"></p><div class="avatar-grid"><div><label for="height">Height</label><input id="height" type="range" min="0.8" max="1.5" step="0.05" value="1"></div><div><label for="build">Build</label><input id="build" type="range" min="0.7" max="1.4" step="0.05" value="1"></div><div><label for="skin">Skin</label><input id="skin" type="range" min="0" max="10" step="1" value="5"></div></div><p><button onclick="saveAvatar()">Save character</button> <a href="/dreamiez/dreamiez.html">Back to Dreamiez</a></p></section>
+<script>
+const $=id=>document.getElementById(id);
+async function api(path,opts){const r=await fetch(path,Object.assign({credentials:'same-origin'},opts||{}));let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||'Request failed');return d}
+function show(which){['login','create'].forEach(x=>$(x).classList.toggle('hidden',x!==which));$('loginTab').classList.toggle('active',which==='login');$('createTab').classList.toggle('active',which==='create');$('status').textContent=''}
+function setStatus(text,good=false){$('status').textContent=text;$('status').className='status'+(good?' good':'')}
+async function login(e){e.preventDefault();try{const d=await api('/api/dreamiez/account/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('loginEmail').value,password:$('loginPassword').value})});renderAccount(d.account||d.user);setStatus('Signed in.',true)}catch(err){setStatus(err.message)}}
+async function createAccount(e){e.preventDefault();try{const d=await api('/api/dreamiez/account/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('createName').value,email:$('createEmail').value,password:$('createPassword').value})});renderAccount(d.account||d.user);setStatus('Account created and signed in.',true)}catch(err){setStatus(err.message)}}
+function renderAccount(a){$('accountCard').classList.remove('hidden');$('accountSummary').textContent=(a.name||'Dreamer')+' · '+(a.email||'Account')+' · streak '+(a.streak||0);$('height').value=a.avatar?.height||1;$('build').value=a.avatar?.build||1;$('skin').value=a.avatar?.skin||5}
+async function saveAvatar(){try{const d=await api('/api/dreamiez/avatar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({height:+$('height').value,build:+$('build').value,skin:+$('skin').value})});renderAccount(d.account||d.user);setStatus('Character saved.',true)}catch(err){setStatus(err.message)}}
+api('/api/dreamiez/me').then(d=>{const a=d.account||d.user;if(a&&a.email)renderAccount(a)}).catch(()=>{});
+</script></main></body></html>
