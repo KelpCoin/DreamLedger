@@ -4,6 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
 const dreamiezAccount = require('./dreamiez-account');
+const frontDoor = require('./routes/frontDoor');
+const accountRecovery = require('./routes/accountRecovery');
+const marketplaceWebhook = require('./routes/marketplaceWebhook');
 const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
 const sentinel = require('./runtime/Sentinel');
@@ -23,7 +26,7 @@ const PORT = Number(process.env.PORT || 3000);
 const DREAMIEZ_ROOT = path.join(__dirname, 'silos', 'SILO_DREAMIEZ', 'compiled', 'website');
 const DREAMIEZ_MIME = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml'};
 function jsonBody(req){return new Promise((resolve,reject)=>{let data='';req.on('data',chunk=>{data+=chunk;if(data.length>200000)req.destroy(new Error('Request too large'))});req.on('end',()=>{try{resolve(JSON.parse(data||'{}'))}catch(err){reject(err)}});req.on('error',reject)})}
-function send(res,status,body){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
+function send(res,status,body){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
 function loadApprovedProducts(){if(!fs.existsSync(PRODUCT_CATALOG))return[];return fs.readdirSync(PRODUCT_CATALOG).filter(name=>name.endsWith('.json')).map(name=>JSON.parse(fs.readFileSync(path.join(PRODUCT_CATALOG,name),'utf8'))).filter(product=>product.status==='published'&&product.commercial_truth&&product.commercial_truth.approval_required===false)}
 function loadVerifiedOffers(){if(!fs.existsSync(OFFER_CATALOG))return[];const catalog=JSON.parse(fs.readFileSync(OFFER_CATALOG,'utf8'));const offers=Array.isArray(catalog.offers)?catalog.offers:[];return offers.filter(offer=>offer.approval_required===false&&offer.checkout_available===true&&offer.status==='VERIFIED_AVAILABLE')}
 function loadApprovedOfferMappings(){if(!fs.existsSync(APPROVED_OFFER_CATALOG))return[];const catalog=JSON.parse(fs.readFileSync(APPROVED_OFFER_CATALOG,'utf8'));return Array.isArray(catalog.approved)?catalog.approved:[]}
@@ -34,7 +37,9 @@ function replayRequest(req,payload){const replay=Readable.from([payload]);replay
 function serveDreamiezFile(req,res,requestPath){if(!requestPath.startsWith('/dreamiez/'))return false;const relative=requestPath.slice('/dreamiez/'.length)||'dreamiez.html';const candidate=path.normalize(path.join(DREAMIEZ_ROOT,relative));if(candidate!==DREAMIEZ_ROOT&&!candidate.startsWith(DREAMIEZ_ROOT+path.sep))return send(res,403,{error:'Forbidden'}),true;fs.readFile(candidate,(err,data)=>{if(err)return send(res,404,{error:'Dreamiez page not found'});const ext=path.extname(candidate).toLowerCase();res.writeHead(200,{'Content-Type':DREAMIEZ_MIME[ext]||'application/octet-stream','Cache-Control':'no-store'});res.end(data)});return true}
 http.createServer=function wrappedCreateServer(...args){const originalHandler=args[0];args[0]=async function dreamledgerRuntimeHandler(req,res){const requestPath=String(req.url||'').split('?')[0];demandRadar.record('route',{route:requestPath,source:'runtime'});
 if(req.method==='GET'&&requestPath==='/healthz')return send(res,200,{status:'ok'});
-if(req.method==='POST'&&requestPath==='/webhook'){try{const platformResult=await platformCart.handleWebhook(req,res);if(platformResult.handled)return;const omniResult=await omniCommerce.handleWebhook(replayRequest(req,platformResult.raw),res);if(omniResult.handled)return;return originalHandler(replayRequest(req,platformResult.raw),res)}catch(err){return send(res,400,{error:err.message||'Webhook rejected'})}}
+try{if(await accountRecovery.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Account recovery route failed'})}
+try{if(await frontDoor.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Front door route failed'})}
+if(req.method==='POST'&&requestPath==='/webhook'){const marketplaceResult=await marketplaceWebhook.handle(req,res);if(marketplaceResult.handled)return;const replayed=replayRequest(req,marketplaceResult.raw||'');try{const platformResult=await platformCart.handleWebhook(replayed,res);if(platformResult.handled)return;const omniResult=await omniCommerce.handleWebhook(replayRequest(req,marketplaceResult.raw||''),res);if(omniResult.handled)return;return originalHandler(replayRequest(req,marketplaceResult.raw||''),res)}catch(err){return send(res,400,{error:err.message||'Webhook rejected'})}}
 try{if(await platformCart.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Platform cart route failed'})}
 try{if(await omniCommerce.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Omni-commerce route failed'})}
 if(req.method==='GET'&&requestPath==='/api/products'){try{return send(res,200,{products:loadApprovedProducts().map(publicCheckoutableProduct).filter(Boolean)})}catch{return send(res,500,{error:'Product surface unavailable'})}}
