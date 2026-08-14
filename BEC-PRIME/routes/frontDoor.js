@@ -85,7 +85,18 @@ function listingPublic(x) {
     status: x.status,
     checkout_available: x.status === 'APPROVED' && x.checkout_available !== false,
     created_at: x.created_at,
-    car: x.car || null
+    car: x.car ? {
+      make: x.car.make || '',
+      model: x.car.model || '',
+      year: x.car.year || null,
+      kilometres: x.car.kilometres || null,
+      wof_expiry: x.car.wof_expiry || '',
+      rego_expiry: x.car.rego_expiry || '',
+      transmission: x.car.transmission || '',
+      fuel_type: x.car.fuel_type || '',
+      body_type: x.car.body_type || '',
+      service_history: x.car.service_history || ''
+    } : null
   };
 }
 function verifiedSeller(u) { return Boolean(u && u.email && u.email_verified === true); }
