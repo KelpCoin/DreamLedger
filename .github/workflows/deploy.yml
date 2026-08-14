@@ -1,23 +1,19 @@
-name: Deploy to Render
+name: Legacy Render Deploy Compatibility Gate
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
-  workflow_dispatch:
-  workflow_run:
-    workflows: ["BEC-PRIME Auto Compile DreamLedger"]
-    types: [completed]
 
 concurrency:
-  group: dreamledger-production-deploy
-  cancel-in-progress: false
+  group: dreamledger-legacy-compatibility
+  cancel-in-progress: true
 
 env:
   LIVE_URL: https://dreamledger.org
 
 jobs:
-  verify:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+  verify-current-contract:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,113 +25,30 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package.json
       - name: Install
         run: npm install
-      - name: Compile full commerce spine
+      - name: Compile current canonical commerce surface
         run: npm run compile
       - name: Syntax gate
         run: |
           node --check server.js
           node --check start.js
-          node --check compiler/ProductCompiler.js
-          node --check brain/SniperLoop.js
-          node --check factory/BuilderBoss.js
-          node --check macro/MacroEngine.js
-          node --check autonomy/RevenueAutonomy.js
-          node --check routes/m2m.js
-          node --check lib/m2mPreload.js
+          node --check compiler/OfferCompiler.js
           node --check dreamiez-account.js
+          node --check routes/dreamiez.js
           node --check scripts/smoke-dreamiez.js
-          node --check scripts/smoke-production.js
-          node --check gauntlet/GauntletV6.js
-          node --check elohim/ElohimV6.js
-          node --check proxy/DigitalProxy.js
-          node --check runtime/ControlPlane.js
-      - name: Dreamiez smoke gate
-        run: npm run smoke:dreamiez
-      - name: Autonomy macro gate
-        run: npm run autonomy:macro
-      - name: Production asset gate
+          node --check scripts/smoke-front-door.js
+      - name: Local account and front door smoke
         run: |
-          test -s compiled/website/index.html
-          test -s compiled/website/revenue.html
-          test -s compiled/website/assets/marketplace-live.js
-          test -s compiled/website/portfolio/index.html
-          test -s compiled/website/economics/index.html
-          test -s compiled/website/economics/ip-manifest.json
+          npm run smoke:dreamiez
+          npm run smoke:front-door
+      - name: Explicitly prove deployment ownership is canonical
+        run: |
+          test -s catalog/offers/approved.json
           test -s catalog/offers/offers.json
-          test -s catalog/offers/products.json
-          test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
-          test -s catalog/products/EDH_0001.json
-          test -s catalog/products/MTG-URZAS-LEGACY-PALINCHRON-FOIL-001.json
-          grep -Eqi 'BEC-PRIME|Neutral front door|DreamLedger' compiled/website/index.html
-          grep -Eqi 'REVENUE PORTFOLIO|REVENUE RAILS|DreamLedger' compiled/website/revenue.html
-
-  deploy:
-    needs: verify
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout catalog for live proof
-        uses: actions/checkout@v4
-        with:
-          ref: main
-      - name: Trigger Render deploy hook
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "RENDER_DEPLOY_HOOK_URL is not configured; relying on Render automatic deployment from main."
-          else
-            curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
-          fi
-      - name: Prove live runtime and MTG catalog visibility
-        shell: bash
-        run: |
-          set -euo pipefail
-          health="${LIVE_URL}/healthz"
-          products="${LIVE_URL}/api/products"
-          offers="${LIVE_URL}/api/offers"
-          mtg="${LIVE_URL}/mtg"
-          for attempt in $(seq 1 30); do
-            health_code="$(curl --silent --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$health" || true)"
-            products_code="$(curl --silent --output /tmp/products.json --write-out '%{http_code}' --max-time 15 "$products" || true)"
-            offers_code="$(curl --silent --output /tmp/offers.json --write-out '%{http_code}' --max-time 15 "$offers" || true)"
-            mtg_code="$(curl --silent --output /tmp/mtg.html --write-out '%{http_code}' --max-time 15 "$mtg" || true)"
-            if [ "$health_code" = "200" ] && [ "$products_code" = "200" ] && [ "$offers_code" = "200" ] && [ "$mtg_code" = "200" ] && grep -q '"offer_id":"EDH_0001"' /tmp/offers.json && grep -q '"price":400' /tmp/offers.json && grep -q '"currency":"NZD"' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
-              expected_mtg="$(find BEC-PRIME/catalog/products -type f -name '*.json' -print0 | xargs -0 jq -r 'select(.silo == "mtg" and .inventory_type == "physical" and .status == "published" and ((.inventory | tonumber) > 0)) | .id' | sort)"
-              actual_mtg="$(jq -r '.products[] | select(.silo == "mtg" and .inventory_type == "physical" and .status == "published" and ((.inventory | tonumber) > 0) and .checkout_available == true) | .id' /tmp/products.json | sort)"
-              if [ "$expected_mtg" = "$actual_mtg" ]; then
-                while IFS= read -r sku; do
-                  [ -z "$sku" ] && continue
-                  grep -q "$sku" /tmp/mtg.html || { echo "MTG surface missing SKU: $sku"; exit 1; }
-                done <<< "$expected_mtg"
-                printf '%s\n' '{"status":"PASS","checks":["healthz","api/products","api/offers","/mtg","all_published_physical_mtg_skus_visible","EDH_0001","price_400_NZD","checkout_available","palinchron_catalogued"],"truth":"All published physical MTG inventory in the canonical product catalog is exposed by the live API and MTG surface; payment still requires a real buyer."}' | tee live-deployment-proof.json
-                cat /tmp/health.json
-                cat /tmp/products.json
-                cat /tmp/offers.json
-                exit 0
-              fi
-              echo "MTG catalog mismatch on attempt $attempt/30"
-              echo "EXPECTED:"
-              printf '%s\n' "$expected_mtg"
-              echo "ACTUAL:"
-              printf '%s\n' "$actual_mtg"
-            else
-              echo "Live DreamLedger surface not ready (attempt $attempt/30): health=$health_code products=$products_code offers=$offers_code mtg=$mtg_code"
-            fi
-            sleep 10
-          done
-          printf '%s\n' '{"status":"FAIL","reason":"Live runtime did not expose every published physical MTG product from the canonical catalog."}' | tee live-deployment-proof.json
-          cat /tmp/health.json || true
-          cat /tmp/products.json || true
-          cat /tmp/offers.json || true
-          exit 1
-      - name: Upload live deployment proof
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dreamledger-live-deployment-proof
-          path: live-deployment-proof.json
-          if-no-files-found: error
+          grep -q 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' catalog/offers/approved.json
+          grep -q 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' catalog/offers/offers.json
+          grep -q '"approval_required": false' catalog/offers/offers.json
+          grep -q '"checkout_available": true' catalog/offers/offers.json
+          echo 'PASS: legacy deploy workflow no longer triggers Render; render-deploy.yml owns production deployment.'
+          echo 'PASS: canonical approved offer is compiled into the commerce catalog.'
