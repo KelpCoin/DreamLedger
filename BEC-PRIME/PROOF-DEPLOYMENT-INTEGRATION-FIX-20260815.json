@@ -1,0 +1,28 @@
+{
+  "schema": "BEC-PRIME/DEPLOYMENT-INTEGRATION-FIX/v1",
+  "status": "PATCHED",
+  "timestamp": "2026-08-15T01:00:00+12:00",
+  "repository": "KelpCoin/DreamLedger",
+  "target": "dreamledger.org",
+  "changes": [
+    "Render auto-deploy changed from commit to checksPass so production cannot race CI acceptance.",
+    "Persistent account chat smoke added to the pre-deploy acceptance gate.",
+    "Production convergence window extended from 5 minutes to 10 minutes.",
+    "Production marketplace assertion corrected to match the live listing contract.",
+    "Persistent chat proof and runtime logs are uploaded as CI artifacts."
+  ],
+  "required_user_flow": [
+    "register",
+    "session established",
+    "create conversation",
+    "persist message",
+    "logout",
+    "login",
+    "recover conversation history"
+  ],
+  "commits": [
+    "0068f5450dee06cbfe90dc0b1a0f43bce488adfe",
+    "3eb77e52076725300bf1532427ef8c3362f96282"
+  ],
+  "next_proof": "GitHub Actions production-smoke must finish PASS against https://dreamledger.org"
+}
