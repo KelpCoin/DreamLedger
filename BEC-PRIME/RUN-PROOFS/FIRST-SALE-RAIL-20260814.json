@@ -8,7 +8,10 @@
     "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
     "price": 49,
     "currency": "NZD",
-    "approval_source": "BEC-PRIME/catalog/offers/approved.json"
+    "approval_source": "BEC-PRIME/catalog/offers/approved.json",
+    "payment_link": "https://buy.stripe.com/5kQfZh8PH9BX3M3eZedwc1p",
+    "payment_link_status": "active",
+    "livemode": true
   },
   "fallback_payment_product": {
     "product": "Discord Webhook Starter Kit",
