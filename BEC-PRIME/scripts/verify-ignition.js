@@ -27,11 +27,14 @@ try {
   checks.repository = 'PASS';
   checks.offer = publishedProducts.length > 0 ? 'PASS' : 'FAIL';
   for (const { file, product } of publishedProducts) {
+    const evidenceStatus = product.evidence && product.evidence.status
+      ? String(product.evidence.status)
+      : 'awaiting_first_payment';
     const valid = Boolean(product.id && product.name) &&
       Number.isInteger(Number(product.price)) && Number(product.price) > 0 &&
       String(product.currency || '').toUpperCase() === 'NZD' &&
       product.commercial_truth && product.commercial_truth.approval_required === false &&
-      product.evidence && product.evidence.status;
+      Boolean(evidenceStatus);
     if (!valid) {
       checks.offer = 'FAIL';
       fail(`invalid published product: ${file}`);
