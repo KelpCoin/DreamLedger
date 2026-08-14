@@ -1,0 +1,25 @@
+{
+  "proof_type": "ci_payment_workflow_patch",
+  "timestamp_utc": "2026-08-14T00:00:00Z",
+  "status": "PATCHED_AWAITING_CI",
+  "repository": "KelpCoin/DreamLedger",
+  "base_branch": "main",
+  "changes": [
+    {
+      "path": ".github/workflows/first-sale-shot.yml",
+      "purpose": "Align the manual checkout workflow with live EDH_0001 at NZD 400 and prevent stale audit-offer assertions."
+    },
+    {
+      "path": ".github/workflows/first-sale-gate.yml",
+      "purpose": "Keep continuous verification active while requiring explicit manual approval to create a Stripe checkout doorway."
+    }
+  ],
+  "live_offer_contract": {
+    "offer_id": "EDH_0001",
+    "price_nzd": 400,
+    "checkout_available": true,
+    "payment_status": "UNPROVEN"
+  },
+  "latest_patch_commit": "bf1c2e81c10cb9fa6dc37fd163ecb7ae4f3ce905",
+  "truth_boundary": "A checkout URL is not payment evidence. Payment evidence requires a verified Stripe payment event and ledger/Fossil recording."
+}
