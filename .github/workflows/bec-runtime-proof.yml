@@ -1,0 +1,77 @@
+name: BEC Runtime Proof
+
+on:
+  push:
+    paths:
+      - 'BEC-PRIME/runtime/**'
+      - 'BEC-PRIME/gauntlet/**'
+      - 'BEC-PRIME/elohim/**'
+      - 'BEC-PRIME/proxy/**'
+      - 'BEC-PRIME/scripts/**'
+      - 'BEC-PRIME/package.json'
+      - '.github/workflows/bec-runtime-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install
+        run: npm install
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Worker smoke
+        run: npm run smoke:worker
+
+      - name: Worker proof verification
+        run: npm run worker:verify
+
+      - name: Gauntlet
+        run: npm run gauntlet
+
+      - name: Runtime module load
+        run: node -e "require('./runtime/ControlPlane'); require('./runtime/worker-pool'); require('./elohim/ElohimV6'); require('./proxy/DigitalProxy'); console.log('RUNTIME_MODULE_LOAD=PASS')"
+
+      - name: Write execution proof
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p proof/runtime
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const proof = {
+            schema: 'BEC-PRIME/RUNTIME-PROOF/v1',
+            status: process.env.GITHUB_ACTIONS === 'true' ? 'EXECUTED_IN_GITHUB_ACTIONS' : 'UNKNOWN',
+            commit: process.env.GITHUB_SHA,
+            workflow: process.env.GITHUB_WORKFLOW,
+            run_id: process.env.GITHUB_RUN_ID,
+            worker_boundary: 'payment_claim=false; sale_claim=false; fulfillment_claim=false; public_action_allowed=false',
+            created_at: new Date().toISOString()
+          };
+          fs.writeFileSync(path.join('proof', 'runtime', 'RUNTIME-EXECUTION-PROOF.json'), JSON.stringify(proof, null, 2) + '\n');
+          NODE
+
+      - name: Upload runtime proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-runtime-proof-${{ github.run_id }}
+          path: BEC-PRIME/proof/runtime/RUNTIME-EXECUTION-PROOF.json
