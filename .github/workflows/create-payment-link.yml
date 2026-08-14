@@ -25,10 +25,10 @@ jobs:
           PRICE_NZD="79"
           DESCRIPTION="Complete Discord webhook system with Stripe integration. Deploy in 5 minutes. Includes code templates and setup guide."
 
-          PRODUCT_RESPONSE=$(curl -fsS -G https://api.stripe.com/v1/products/search \
+          PRODUCTS=$(curl -fsS -G https://api.stripe.com/v1/products \
             -u "$STRIPE_API_KEY:" \
-            --data-urlencode "query=metadata['offer_id']:'$OFFER_ID'")
-          PRODUCT_ID=$(echo "$PRODUCT_RESPONSE" | jq -r '.data[0].id // empty')
+            --data-urlencode 'limit=100')
+          PRODUCT_ID=$(echo "$PRODUCTS" | jq -r --arg offer "$OFFER_ID" '.data[] | select(.metadata.offer_id == $offer) | .id' | head -n 1)
 
           if [ -z "$PRODUCT_ID" ]; then
             PRODUCT_RESPONSE=$(curl -fsS https://api.stripe.com/v1/products \
@@ -44,10 +44,10 @@ jobs:
           test -n "$PRODUCT_ID"
           test "$PRODUCT_ID" != "null"
 
-          PRICE_RESPONSE=$(curl -fsS -G https://api.stripe.com/v1/prices/search \
+          PRICES=$(curl -fsS -G https://api.stripe.com/v1/prices \
             -u "$STRIPE_API_KEY:" \
-            --data-urlencode "query=metadata['offer_id']:'$OFFER_ID' AND unit_amount:7900")
-          PRICE_ID=$(echo "$PRICE_RESPONSE" | jq -r '.data[0].id // empty')
+            --data-urlencode 'limit=100')
+          PRICE_ID=$(echo "$PRICES" | jq -r --arg offer "$OFFER_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.unit_amount == 7900) | select(.currency == "nzd") | .id' | head -n 1)
 
           if [ -z "$PRICE_ID" ]; then
             PRICE_RESPONSE=$(curl -fsS https://api.stripe.com/v1/prices \
@@ -65,7 +65,7 @@ jobs:
 
           EXISTING_LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links \
             -u "$STRIPE_API_KEY:" \
-            --data-urlencode "limit=100")
+            --data-urlencode 'limit=100')
           LINK_ID=$(echo "$EXISTING_LINKS" | jq -r --arg offer "$OFFER_ID" --arg price "$PRICE_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.line_items.data[0].price.id == $price) | .id' | head -n 1)
           PAYMENT_URL=$(echo "$EXISTING_LINKS" | jq -r --arg offer "$OFFER_ID" --arg price "$PRICE_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.line_items.data[0].price.id == $price) | .url' | head -n 1)
 
