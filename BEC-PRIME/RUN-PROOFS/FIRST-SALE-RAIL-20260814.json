@@ -1,0 +1,36 @@
+{
+  "schema": "BEC-PRIME/FIRST-SALE-RAIL/v1",
+  "timestamp": "2026-08-14T10:54:00Z",
+  "status": "READY_FOR_FIRST_EXTERNAL_PAYMENT",
+  "economic_fossil": false,
+  "reason": "No verified customer payment has occurred yet.",
+  "approved_offer": {
+    "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+    "price": 49,
+    "currency": "NZD",
+    "approval_source": "BEC-PRIME/catalog/offers/approved.json"
+  },
+  "fallback_payment_product": {
+    "product": "Discord Webhook Starter Kit",
+    "price": 79,
+    "currency": "NZD",
+    "stripe_product_id": "prod_V4OJDsgCUdo10S",
+    "stripe_price_id": "price_1U4FWXEGgEAnUFF9Pyazprfo",
+    "payment_link": "https://buy.stripe.com/7sY6oH5Dv29v0zR04kdwc1o",
+    "payment_link_status": "active",
+    "livemode": true
+  },
+  "proof_chain": {
+    "pr_59_merged": true,
+    "acceptance_gate": "PASS",
+    "public_boundary_gate": "PASS",
+    "meta_gauntlet": "PASS",
+    "revenue_ledger_smoke": "PASS",
+    "front_door_smoke": "PASS",
+    "production_deployment": "PASS",
+    "production_public_domain": "FAIL",
+    "failure": "dreamledger.org is still serving a runtime where the approved architecture audit offer is not public"
+  },
+  "next_economic_gate": "verified customer payment -> webhook -> ledger -> fulfillment -> fossil",
+  "approval_boundary": "No automatic customer charge is permitted. This artifact records a live purchase rail only."
+}
