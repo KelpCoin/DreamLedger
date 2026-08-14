@@ -47,7 +47,11 @@ jobs:
           ! grep -R 'api/ip' compiled/website || true
           ! grep -R 'catalog/ip-capabilities.json' compiled/website || true
 
+      # Production checkout is a post-deployment proof, not a PR compilation gate.
+      # PRs must prove the code and deterministic gates. Main must additionally
+      # prove the deployed production surface against the approved offer.
       - name: Live checkout reality gate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           BASE_URL: https://dreamledger.org
         run: bash scripts/verify_checkout_live.sh OFFER-BEC-PRIME-ARCHITECTURE-AUDIT
