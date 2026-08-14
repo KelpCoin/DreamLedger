@@ -8,7 +8,7 @@ function check(product) {
     approved: p.commercial_truth?.approval_required === false,
     checkout_mode: p.checkout?.mode === 'payment',
     inventory: Number(p.inventory) > 0,
-    price: Number(p.price) === 40000,
+    price: Number(p.price) === 400,
     currency: String(p.currency || '').toLowerCase() === 'nzd',
     payment_surface: p.commercial_truth?.payment_surface === 'engine-generated-stripe-checkout'
   };
@@ -17,7 +17,7 @@ function check(product) {
     asset_id: p.id || null,
     verdict: Object.values(checks).every(Boolean) ? 'PASS' : 'FAIL',
     checks,
-    reason: Object.values(checks).every(Boolean) ? 'EDH_0001 is eligible for buyer-initiated checkout.' : 'First-sale gate rejected the product.'
+    reason: Object.values(checks).every(Boolean) ? 'EDH_0001 is eligible for buyer-initiated checkout at NZD 400.' : 'First-sale gate rejected the product.'
   };
 }
 
