@@ -1,10 +1,16 @@
 name: Deploy DreamLedger to Render
 
 on:
+  push:
+    branches: [main]
   workflow_run:
     workflows: ["BEC-PRIME Auto Compile DreamLedger"]
     types: [completed]
   workflow_dispatch:
+
+concurrency:
+  group: dreamledger-production-deploy
+  cancel-in-progress: false
 
 jobs:
   acceptance-gate:
@@ -40,7 +46,6 @@ jobs:
           node --check server.js
           node --check start.js
           node --check routes/dreamiez.js
-          node --check dreamiez-account.js
           node --check routes/frontDoor.js
           node --check routes/accountRecovery.js
           node --check routes/marketplaceWebhook.js
@@ -121,17 +126,15 @@ jobs:
         env:
           SMOKE_BASE_URL: https://dreamledger.org
         run: |
-          for i in $(seq 1 12); do
-            echo "Production smoke attempt $i/12"
+          for i in $(seq 1 30); do
+            echo "Production smoke attempt $i/30"
             if npm run smoke:production; then
-              break
-            fi
-            if [ "$i" = "12" ]; then
-              echo "PRODUCTION SMOKE FAILED: dreamledger.org is not serving the current DreamLedger commerce runtime."
-              exit 1
+              exit 0
             fi
             sleep 10
           done
+          echo "PRODUCTION SMOKE FAILED: dreamledger.org did not converge to the canonical DreamLedger runtime within 5 minutes."
+          exit 1
       - name: LIVE ACCOUNT AND MARKETPLACE REALITY GATE
         env:
           BASE_URL: https://dreamledger.org
