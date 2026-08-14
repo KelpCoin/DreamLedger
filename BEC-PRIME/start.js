@@ -5,6 +5,7 @@ const path = require('path');
 const { Readable } = require('stream');
 const dreamiezAccount = require('./dreamiez-account');
 const frontDoor = require('./routes/frontDoor');
+const marketplaceWebhook = require('./routes/marketplaceWebhook');
 const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
 const sentinel = require('./runtime/Sentinel');
@@ -24,7 +25,7 @@ const PORT = Number(process.env.PORT || 3000);
 const DREAMIEZ_ROOT = path.join(__dirname, 'silos', 'SILO_DREAMIEZ', 'compiled', 'website');
 const DREAMIEZ_MIME = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml'};
 function jsonBody(req){return new Promise((resolve,reject)=>{let data='';req.on('data',chunk=>{data+=chunk;if(data.length>200000)req.destroy(new Error('Request too large'))});req.on('end',()=>{try{resolve(JSON.parse(data||'{}'))}catch(err){reject(err)}});req.on('error',reject)})}
-function send(res,status,body){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
+function send(res,status,body){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
 function loadApprovedProducts(){if(!fs.existsSync(PRODUCT_CATALOG))return[];return fs.readdirSync(PRODUCT_CATALOG).filter(name=>name.endsWith('.json')).map(name=>JSON.parse(fs.readFileSync(path.join(PRODUCT_CATALOG,name),'utf8'))).filter(product=>product.status==='published'&&product.commercial_truth&&product.commercial_truth.approval_required===false)}
 function loadVerifiedOffers(){if(!fs.existsSync(OFFER_CATALOG))return[];const catalog=JSON.parse(fs.readFileSync(OFFER_CATALOG,'utf8'));const offers=Array.isArray(catalog.offers)?catalog.offers:[];return offers.filter(offer=>offer.approval_required===false&&offer.checkout_available===true&&offer.status==='VERIFIED_AVAILABLE')}
 function loadApprovedOfferMappings(){if(!fs.existsSync(APPROVED_OFFER_CATALOG))return[];const catalog=JSON.parse(fs.readFileSync(APPROVED_OFFER_CATALOG,'utf8'));return Array.isArray(catalog.approved)?catalog.approved:[]}
@@ -36,7 +37,7 @@ function serveDreamiezFile(req,res,requestPath){if(!requestPath.startsWith('/dre
 http.createServer=function wrappedCreateServer(...args){const originalHandler=args[0];args[0]=async function dreamledgerRuntimeHandler(req,res){const requestPath=String(req.url||'').split('?')[0];demandRadar.record('route',{route:requestPath,source:'runtime'});
 if(req.method==='GET'&&requestPath==='/healthz')return send(res,200,{status:'ok'});
 try{if(await frontDoor.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Front door route failed'})}
-if(req.method==='POST'&&requestPath==='/webhook'){try{const platformResult=await platformCart.handleWebhook(req,res);if(platformResult.handled)return;const omniResult=await omniCommerce.handleWebhook(replayRequest(req,platformResult.raw),res);if(omniResult.handled)return;return originalHandler(replayRequest(req,platformResult.raw),res)}catch(err){return send(res,400,{error:err.message||'Webhook rejected'})}}
+if(req.method==='POST'&&requestPath==='/webhook'){const marketplaceResult=await marketplaceWebhook.handle(req,res);if(marketplaceResult.handled)return;try{const platformResult=await platformCart.handleWebhook(req,res);if(platformResult.handled)return;const omniResult=await omniCommerce.handleWebhook(replayRequest(req,platformResult.raw),res);if(omniResult.handled)return;return originalHandler(replayRequest(req,platformResult.raw),res)}catch(err){return send(res,400,{error:err.message||'Webhook rejected'})}}
 try{if(await platformCart.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Platform cart route failed'})}
 try{if(await omniCommerce.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Omni-commerce route failed'})}
 if(req.method==='GET'&&requestPath==='/api/products'){try{return send(res,200,{products:loadApprovedProducts().map(publicCheckoutableProduct).filter(Boolean)})}catch{return send(res,500,{error:'Product surface unavailable'})}}
