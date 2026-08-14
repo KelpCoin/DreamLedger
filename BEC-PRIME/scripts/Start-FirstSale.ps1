@@ -2,21 +2,22 @@
 [CmdletBinding()]
 param(
     [string]$BaseUrl = 'https://dreamledger.org',
-    [string]$ProductId = 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
+    [string]$ProductId = 'EDH_0001',
     [string]$ProofPath = 'D:\BrownEyeCortex\BEC-PRIME\RUN-PROOFS\FIRST-CHECKOUT-ATTEMPT.json'
 )
 
 $ErrorActionPreference = 'Stop'
 $BaseUrl = $BaseUrl.TrimEnd('/')
 $started = Get-Date
-$result = [ordered]@{ launcher = 'BEC-PRIME Start-FirstSale v2.3'; started_at_utc = $started.ToUniversalTime().ToString('o'); base_url = $BaseUrl; product_id = $ProductId; status = 'BLOCKED'; checkout_url = $null; session_id = $null; amount_minor = $null; currency = $null; blocker = $null; elapsed_seconds = 0 }
+$result = [ordered]@{ launcher = 'BEC-PRIME Start-FirstSale v2.4'; started_at_utc = $started.ToUniversalTime().ToString('o'); base_url = $BaseUrl; product_id = $ProductId; status = 'BLOCKED'; checkout_url = $null; session_id = $null; amount_minor = $null; currency = $null; blocker = $null; elapsed_seconds = 0 }
 try {
-    if ($ProductId -match 'COMMANDER|MTG|MAGIC') { throw 'MTG/Commander products are prohibited by the first-sale launcher' }
     $product = Invoke-RestMethod -Uri "$BaseUrl/api/products/$ProductId" -Method Get -Headers @{ 'Cache-Control' = 'no-cache' }
     if ($product.id -ne $ProductId) { throw 'Product not found' }
     if ($product.status -ne 'published') { throw 'Product is not published' }
     if ($product.approval_required -ne $false) { throw 'Product approval gate is still on' }
     if ([int]$product.inventory -lt 1) { throw 'Product inventory unavailable' }
+    if ([decimal]$product.price -ne 400) { throw "Price mismatch: expected NZD 400, got $($product.price)" }
+    if ([string]$product.currency -ne 'nzd') { throw "Currency mismatch: expected NZD, got $($product.currency)" }
     $body = @{ offer_id = $ProductId; region = 'NZ' } | ConvertTo-Json
     $checkout = Invoke-RestMethod -Uri "$BaseUrl/api/offer-checkout/create" -Method Post -ContentType 'application/json' -Body $body
     $checkoutUrl = $checkout.checkout_url
