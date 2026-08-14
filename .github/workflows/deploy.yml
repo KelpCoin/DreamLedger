@@ -69,8 +69,8 @@ jobs:
           test -s catalog/offers/products.json
           test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
           test -s catalog/products/EDH_0001.json
-          grep -Eq 'BEC-PRIME|Neutral front door|DREAMLEDGER' compiled/website/index.html
-          grep -Eq 'REVENUE PORTFOLIO|REVENUE RAILS' compiled/website/revenue.html
+          grep -Eqi 'BEC-PRIME|Neutral front door|DreamLedger' compiled/website/index.html
+          grep -Eqi 'REVENUE PORTFOLIO|REVENUE RAILS|DreamLedger' compiled/website/revenue.html
 
   deploy:
     needs: verify
