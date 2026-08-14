@@ -76,6 +76,10 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout catalog for live proof
+        uses: actions/checkout@v4
+        with:
+          ref: main
       - name: Trigger Render deploy hook
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
@@ -99,7 +103,7 @@ jobs:
             offers_code="$(curl --silent --output /tmp/offers.json --write-out '%{http_code}' --max-time 15 "$offers" || true)"
             mtg_code="$(curl --silent --output /tmp/mtg.html --write-out '%{http_code}' --max-time 15 "$mtg" || true)"
             if [ "$health_code" = "200" ] && [ "$products_code" = "200" ] && [ "$offers_code" = "200" ] && [ "$mtg_code" = "200" ] && grep -q '"offer_id":"EDH_0001"' /tmp/offers.json && grep -q '"price":400' /tmp/offers.json && grep -q '"currency":"NZD"' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
-              expected_mtg="$(find catalog/products -type f -name '*.json' -print0 | xargs -0 jq -r 'select(.silo == "mtg" and .status == "published" and ((.inventory | tonumber) > 0)) | .id' | sort)"
+              expected_mtg="$(find BEC-PRIME/catalog/products -type f -name '*.json' -print0 | xargs -0 jq -r 'select(.silo == "mtg" and .status == "published" and ((.inventory | tonumber) > 0)) | .id' | sort)"
               actual_mtg="$(jq -r '.products[] | select(.silo == "mtg" and .status == "published" and ((.inventory | tonumber) > 0) and .checkout_available == true) | .id' /tmp/products.json | sort)"
               if [ "$expected_mtg" = "$actual_mtg" ]; then
                 while IFS= read -r sku; do
