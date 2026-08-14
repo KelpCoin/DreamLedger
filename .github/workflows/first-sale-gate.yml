@@ -16,9 +16,14 @@ on:
         required: false
         default: ""
       OFFER_ID:
-        description: "Optional live offer ID to checkout; blank selects a matching published live offer"
+        description: "Optional live offer ID to verify; blank selects a matching published live offer"
         required: false
         default: ""
+      CREATE_CHECKOUT:
+        description: "Create one Stripe Checkout doorway after verification"
+        required: false
+        default: false
+        type: boolean
   schedule:
     - cron: "*/15 * * * *"
 
@@ -28,6 +33,7 @@ permissions:
 env:
   FIRST_SALE_PRODUCT_ID: ${{ inputs.PRODUCT_ID || '' }}
   FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || '' }}
+  CREATE_CHECKOUT: ${{ inputs.CREATE_CHECKOUT || 'false' }}
   BASE_URL: "https://dreamledger.org"
 
 jobs:
@@ -88,7 +94,7 @@ jobs:
           const productId = process.env.FIRST_SALE_PRODUCT_ID;
           const offerId = process.env.FIRST_SALE_OFFER_ID;
           const ready = offers.filter(o => o.checkout_available === true && Number(o.price) > 0 && String(o.currency || '').toUpperCase() === 'NZD');
-          const matches = ready.filter(o => (!productId || o.product_id === productId || o.sku === productId || o.id === productId) && (!offerId || o.offer_id === offerId || o.id === offerId));
+          const matches = ready.filter(o => (!productId || o.product_id === productId || o.sku === productId || o.id === productId || o.offer_id === productId) && (!offerId || o.offer_id === offerId || o.id === offerId));
           if (!matches.length) throw new Error('NO_MATCHING_CHECKOUT_READY_OFFER');
           console.log(`LIVE_CHECKOUT_READY_COUNT ${ready.length}`);
           console.log('SELECTED_LIVE_OFFER', JSON.stringify(matches[0]));
@@ -96,17 +102,18 @@ jobs:
           NODE
 
       - name: Create one checkout doorway
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.CREATE_CHECKOUT == true }}
         shell: bash
         run: |
           set -euo pipefail
-          OFFER_ID="$(node -p "require('./selected-offer.json').offer_id || require('./selected-offer.json').id || ''")"
+          OFFER_ID="$(node -p "require('./selected-offer.json').offer_id || require('./selected-offer.json').id || require('./selected-offer.json').product_id || ''")"
           test -n "$OFFER_ID"
           curl --fail --silent --show-error --max-time 60 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
             --data "{\"offer_id\":\"$OFFER_ID\"}" \
             | tee checkout.json
-          node - <<'NODE'
+          node <<'NODE'
           const x = require('./checkout.json');
           const u = x.url || x.checkout_url;
           if (!u || !/^https:\/\/checkout\.stripe\.com\//.test(u)) throw new Error('real Stripe Checkout URL not returned');
@@ -114,9 +121,10 @@ jobs:
           NODE
 
       - name: Upload gate evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: first-sale-gate-proof
+          name: first-sale-gate-proof-${{ github.run_id }}
           path: |
             health.json
             offers.json
