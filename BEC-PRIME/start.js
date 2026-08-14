@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
 const dreamiezAccount = require('./dreamiez-account');
+const frontDoor = require('./routes/frontDoor');
 const controlPlane = require('./runtime/ControlPlane');
 const demandRadar = require('./runtime/DemandRadar');
 const sentinel = require('./runtime/Sentinel');
@@ -34,6 +35,7 @@ function replayRequest(req,payload){const replay=Readable.from([payload]);replay
 function serveDreamiezFile(req,res,requestPath){if(!requestPath.startsWith('/dreamiez/'))return false;const relative=requestPath.slice('/dreamiez/'.length)||'dreamiez.html';const candidate=path.normalize(path.join(DREAMIEZ_ROOT,relative));if(candidate!==DREAMIEZ_ROOT&&!candidate.startsWith(DREAMIEZ_ROOT+path.sep))return send(res,403,{error:'Forbidden'}),true;fs.readFile(candidate,(err,data)=>{if(err)return send(res,404,{error:'Dreamiez page not found'});const ext=path.extname(candidate).toLowerCase();res.writeHead(200,{'Content-Type':DREAMIEZ_MIME[ext]||'application/octet-stream','Cache-Control':'no-store'});res.end(data)});return true}
 http.createServer=function wrappedCreateServer(...args){const originalHandler=args[0];args[0]=async function dreamledgerRuntimeHandler(req,res){const requestPath=String(req.url||'').split('?')[0];demandRadar.record('route',{route:requestPath,source:'runtime'});
 if(req.method==='GET'&&requestPath==='/healthz')return send(res,200,{status:'ok'});
+try{if(await frontDoor.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Front door route failed'})}
 if(req.method==='POST'&&requestPath==='/webhook'){try{const platformResult=await platformCart.handleWebhook(req,res);if(platformResult.handled)return;const omniResult=await omniCommerce.handleWebhook(replayRequest(req,platformResult.raw),res);if(omniResult.handled)return;return originalHandler(replayRequest(req,platformResult.raw),res)}catch(err){return send(res,400,{error:err.message||'Webhook rejected'})}}
 try{if(await platformCart.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Platform cart route failed'})}
 try{if(await omniCommerce.handle(req,res,requestPath))return}catch(err){return send(res,500,{error:err.message||'Omni-commerce route failed'})}
