@@ -1,0 +1,89 @@
+name: BEC Prime Revenue Loop
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+concurrency:
+  group: bec-prime-revenue-loop
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+  OFFER_ID: DISCORD-WEBHOOK-STARTER-KIT-001
+  EXPECTED_AMOUNT: '7900'
+  EXPECTED_CURRENCY: nzd
+
+jobs:
+  revenue-loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Poll Stripe for a real paid checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$STRIPE_API_KEY"
+          mkdir -p proof
+
+          LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links \
+            -u "$STRIPE_API_KEY:" \
+            --data-urlencode 'limit=100')
+
+          LINK=$(echo "$LINKS" | jq -c --arg offer "$OFFER_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.active == true)' | head -n 1)
+          if [ -z "$LINK" ]; then
+            echo "STATUS=WAITING_FOR_PAYMENT_LINK" | tee proof/status.txt
+            exit 0
+          fi
+
+          LINK_ID=$(echo "$LINK" | jq -r '.id')
+          PAYMENT_URL=$(echo "$LINK" | jq -r '.url')
+
+          SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions \
+            -u "$STRIPE_API_KEY:" \
+            --data-urlencode "payment_link=$LINK_ID" \
+            --data-urlencode 'limit=100')
+
+          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency)' | head -n 1)
+
+          if [ -z "$PAID" ]; then
+            printf 'STATUS=WAITING_FOR_PAYMENT\noffer_id=%s\npayment_link_id=%s\nurl=%s\n' "$OFFER_ID" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
+            exit 0
+          fi
+
+          SESSION_ID=$(echo "$PAID" | jq -r '.id')
+          PAID_AT=$(echo "$PAID" | jq -r '.created')
+          CUSTOMER_EMAIL=$(echo "$PAID" | jq -r '.customer_details.email // empty')
+
+          cat > proof/FIRST_PAYMENT_PROOF.json <<EOF
+          {
+            "status": "PASS",
+            "event": "PAYMENT_SUCCEEDED",
+            "offer_id": "$OFFER_ID",
+            "product": "Discord Webhook Starter Kit",
+            "amount_minor": 7900,
+            "amount": 79.00,
+            "currency": "NZD",
+            "payment_provider": "Stripe",
+            "payment_link_id": "$LINK_ID",
+            "checkout_session_id": "$SESSION_ID",
+            "stripe_created_unix": $PAID_AT,
+            "customer_email_present": $( [ -n "$CUSTOMER_EMAIL" ] && echo true || echo false ),
+            "verified": true
+          }
+          EOF
+
+          printf 'STATUS=PAID\nSESSION_ID=%s\nPAYMENT_LINK_ID=%s\n' "$SESSION_ID" "$LINK_ID" | tee proof/status.txt
+          jq empty proof/FIRST_PAYMENT_PROOF.json
+
+      - name: Upload revenue proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-prime-revenue-proof-${{ github.run_id }}
+          path: proof/
+          if-no-files-found: error
