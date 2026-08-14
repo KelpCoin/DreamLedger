@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "sku": "DISCORD_WEBHOOK_STARTER_KIT",
+  "product": "Discord Webhook Starter Kit",
+  "description": "Complete Discord webhook system with Stripe integration. Deploy in 5 minutes. Includes code templates and setup guide.",
+  "price": {
+    "value": 79.0,
+    "currency": "NZD",
+    "type": "one_time"
+  },
+  "delivery": {
+    "type": "digital",
+    "sla_hours": 24
+  },
+  "silo": "BEC-PRIME",
+  "payment": {
+    "provider": "stripe",
+    "mode": "payment_link",
+    "payment_link": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+    "stripe_product_id": "prod_V4OJDsgCUdo10S",
+    "stripe_price_id": "price_1U4FWXEGgEAnUFF9Pyazprfo",
+    "stripe_payment_link_id": "plink_1U4FWbEGgEAnUFF9z0owuGVN"
+  },
+  "approval": {
+    "public_posting": false,
+    "private_distribution": true
+  },
+  "revenue_state": "AWAITING_FIRST_PAYMENT",
+  "proof_event": "FIRST_PAYMENT_PROOF.json"
+}
