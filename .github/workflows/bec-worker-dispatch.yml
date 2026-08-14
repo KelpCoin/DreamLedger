@@ -24,7 +24,7 @@ on:
         default: mtg
         type: string
       worker_preference:
-        description: Worker adapter
+        description: Model worker adapter
         required: true
         default: auto
         type: choice
@@ -36,11 +36,11 @@ on:
       runner:
         description: Execution node
         required: true
-        default: ubuntu-latest
+        default: self-hosted
         type: choice
         options:
-          - ubuntu-latest
           - self-hosted
+          - ubuntu-latest
 
 permissions:
   contents: read
@@ -83,16 +83,40 @@ jobs:
           BEC_CLOUD_LM_URL: ${{ secrets.BEC_CLOUD_LM_URL }}
           BEC_CLOUD_LM_MODEL: ${{ secrets.BEC_CLOUD_LM_MODEL }}
           BEC_CLOUD_LM_API_KEY: ${{ secrets.BEC_CLOUD_LM_API_KEY }}
-        run: node runtime/worker-pool.js enqueue data/jobs/dispatch/job.json && node runtime/worker-pool.js run-once
+        run: node runtime/worker-pool.js enqueue data/jobs/dispatch/job.json && node runtime/worker-pool.js route data/jobs/dispatch/job.json && node runtime/worker-pool.js run-once
 
       - name: Verify worker proof
         run: npm run worker:verify
+
+      - name: Verify runtime ledger and Fossil chain
+        run: npm run runtime:verify
 
       - name: Verify compile surface
         if: inputs.kind == 'compile' || inputs.kind == 'code_change'
         run: npm run compile
 
-      - name: Upload job result and proof
+      - name: Publish run summary
+        if: always()
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const jobs=fs.readdirSync('data/jobs/jobs').filter(x=>x.endsWith('.json')).map(x=>JSON.parse(fs.readFileSync('data/jobs/jobs/'+x,'utf8')));
+          const job=jobs.sort((a,b)=>a.created_at.localeCompare(b.created_at)).at(-1);
+          const lines=[
+            `## BEC Worker Dispatch`,
+            `- Job: ${job?.job_id || 'unknown'}`,
+            `- Status: ${job?.status || 'unknown'}`,
+            `- Worker: ${job?.route?.adapter || 'unknown'}`,
+            `- Execution node: ${job?.route?.execution_node || 'unknown'}`,
+            `- Fossil: ${job?.fossil_hash || 'none'}`,
+            `- Payment claim: false`,
+            `- Public action: false`
+          ];
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n')+'\n');
+          NODE
+
+      - name: Upload job result, proof, ledger and Fossil
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -100,4 +124,6 @@ jobs:
           path: |
             BEC-PRIME/data/jobs/results/*.json
             BEC-PRIME/data/proofs/*.json
+            BEC-PRIME/data/proofs/fossils/*.jsonl
+            BEC-PRIME/data/ledger/EVENTS.jsonl
           if-no-files-found: warn
