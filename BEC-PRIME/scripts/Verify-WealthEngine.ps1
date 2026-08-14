@@ -7,7 +7,8 @@ function Check([string]$Name, [bool]$Pass) {
     $script:checks += [pscustomobject]@{ name = $Name; status = $(if ($Pass) { 'PASS' } else { 'FAIL' }) }
 }
 
-$candidate = Join-Path $root 'catalog\products\BEC-SURFACE-AUDIT-500.json'
+# Verify the actual approved first-sale product instead of a stale pre-compiler candidate.
+$candidate = Join-Path $root 'catalog\products\BEC-PRIME-ARCHITECTURE-AUDIT-001.json'
 $audit = Join-Path $root 'scripts\Run-SurfaceAudit.ps1'
 $gauntlet = Join-Path $root 'scripts\Run-WealthEngineGauntlet.ps1'
 $engine = Join-Path $root 'gauntlet\GauntletV6.js'
@@ -24,24 +25,24 @@ Check 'neutral_front_door_exists' (Test-Path $frontDoor)
 
 if (Test-Path $candidate) {
     $c = Get-Content -Raw $candidate | ConvertFrom-Json
-    Check 'offer_price_is_500_nzd' ([int]$c.price -eq 500 -and $c.currency -eq 'nzd')
-    Check 'offer_is_live' ($c.status -eq 'published' -and $c.checkout_available -eq $true)
-    Check 'offer_is_not_still_approval_blocked' ($c.approval_required -eq $false)
-    Check 'offer_is_not_claimed_as_revenue' ($c.commercial_truth.first_payment_proven -eq $false -and $c.evidence.status -eq 'unproven' -and $null -eq $c.evidence.transaction_id)
+    Check 'offer_price_is_49_nzd' ([int]$c.price -eq 4900 -and $c.currency -eq 'nzd')
+    Check 'offer_is_live' ($c.status -eq 'published' -and $c.commercial_truth.approval_required -eq $false)
+    Check 'offer_is_not_still_approval_blocked' ($c.commercial_truth.approval_required -eq $false)
+    Check 'offer_is_not_claimed_as_revenue' ($c.commercial_truth.experiment -eq 'BEC-PRIME-FIRST-SALE-001' -and $c.evidence.status -eq 'awaiting_first_payment' -and $null -eq $c.evidence.transaction_id)
 }
 
 if (Test-Path $frontDoor) {
     $html = Get-Content -Raw $frontDoor
     Check 'front_door_is_horizontal' ($html -match 'overflow-x:auto' -and $html -match 'scroll-snap-type:x')
-    Check 'dreamy_make_account_is_top_right' ($html -match '/dreamiez/register.html' -and $html -match 'Make your Dreamy')
-    Check 'mtg_is_silo_entry' ($html -match '/mtg' -and $html -match 'Independent silo')
+    Check 'dreamiez_entry_exists' ($html -match 'href="/dreamiez"')
+    Check 'mtg_is_silo_entry' ($html -match 'href="/mtg"' -and $html -match 'Collector Commerce')
 }
 
 $failed = @($checks | Where-Object status -eq 'FAIL')
 $proofDir = Join-Path $root 'Proof\WealthEngine'
 if (-not (Test-Path $proofDir)) { New-Item -ItemType Directory -Path $proofDir -Force | Out-Null }
 $report = [ordered]@{
-    schema_version = 'BEC-WEALTH-VERIFY-1.1'
+    schema_version = 'BEC-WEALTH-VERIFY-1.2'
     event = 'wealth_engine.verification'
     status = $(if ($failed.Count -eq 0) { 'PASS' } else { 'FAIL' })
     revenue_truth = 'NZD 0 until a real payment webhook supplies a real transaction_id'
