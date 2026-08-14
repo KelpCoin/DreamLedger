@@ -11,8 +11,10 @@ const RESULTS_DIR = path.join(QUEUE_DIR, 'results');
 const PROOF_DIR = path.resolve(process.env.BEC_PROOF_DIR || path.join(ROOT, 'data', 'proofs'));
 const DEFAULT_LM_URL = process.env.BEC_LM_URL || 'http://127.0.0.1:1234/v1/chat/completions';
 const DEFAULT_LM_MODEL = process.env.BEC_LM_MODEL || 'local-model';
-const REMOTE_LM_URL = process.env.BEC_REMOTE_LM_URL || '';
-const REMOTE_LM_MODEL = process.env.BEC_REMOTE_LM_MODEL || '';
+const GPU_LM_URL = process.env.BEC_GPU_LM_URL || '';
+const GPU_LM_MODEL = process.env.BEC_GPU_LM_MODEL || '';
+const CLOUD_LM_URL = process.env.BEC_CLOUD_LM_URL || process.env.BEC_REMOTE_LM_URL || '';
+const CLOUD_LM_MODEL = process.env.BEC_CLOUD_LM_MODEL || process.env.BEC_REMOTE_LM_MODEL || '';
 const ALLOWED_KINDS = new Set(['analysis', 'code_change', 'gauntlet', 'compile', 'test', 'lm_refinement']);
 const FORBIDDEN_EFFECTS = new Set(['money', 'checkout', 'public_post', 'production_mutation']);
 
@@ -105,11 +107,18 @@ async function runLmStudio(job) {
   return runCompatibleModel(job, { name: 'local-lmstudio', url: job.inputs.url || DEFAULT_LM_URL, model: job.inputs.model || DEFAULT_LM_MODEL, apiKey: '' });
 }
 
-async function runRemoteModel(job) {
-  const url = job.inputs.remote_url || REMOTE_LM_URL;
-  const model = job.inputs.remote_model || REMOTE_LM_MODEL;
-  if (!url || !model) throw new Error('Remote worker is not configured: set BEC_REMOTE_LM_URL and BEC_REMOTE_LM_MODEL');
-  return runCompatibleModel(job, { name: 'remote-openai-compatible', url, model, apiKey: process.env.BEC_REMOTE_LM_API_KEY || '' });
+async function runGpuModel(job) {
+  const url = job.inputs.gpu_url || GPU_LM_URL;
+  const model = job.inputs.gpu_model || GPU_LM_MODEL;
+  if (!url || !model) throw new Error('GPU worker is not configured: set BEC_GPU_LM_URL and BEC_GPU_LM_MODEL');
+  return runCompatibleModel(job, { name: 'gpu', url, model, apiKey: process.env.BEC_GPU_LM_API_KEY || '' });
+}
+
+async function runCloudModel(job) {
+  const url = job.inputs.cloud_url || CLOUD_LM_URL;
+  const model = job.inputs.cloud_model || CLOUD_LM_MODEL;
+  if (!url || !model) throw new Error('Cloud worker is not configured: set BEC_CLOUD_LM_URL and BEC_CLOUD_LM_MODEL');
+  return runCompatibleModel(job, { name: 'cloud', url, model, apiKey: process.env.BEC_CLOUD_LM_API_KEY || process.env.BEC_REMOTE_LM_API_KEY || '' });
 }
 
 async function execute(job) {
@@ -117,24 +126,21 @@ async function execute(job) {
   let output;
   const preference = job.worker_preference;
 
-  if (preference === 'local-lmstudio') {
-    output = await runLmStudio(job);
-  } else if (preference === 'remote-cloud') {
-    output = await runRemoteModel(job);
-  } else if (preference === 'auto') {
-    try {
-      output = await runLmStudio(job);
-    } catch (localError) {
-      if (REMOTE_LM_URL && REMOTE_LM_MODEL) {
-        output = await runRemoteModel(job);
-        output.fallback_reason = localError.message;
-      } else {
-        output = { worker: 'deterministic', message: 'No model endpoint available; artifact is a deterministic proposal only', task: job.task, fallback_reason: localError.message };
-      }
+  if (preference === 'local-lmstudio') output = await runLmStudio(job);
+  else if (preference === 'gpu') output = await runGpuModel(job);
+  else if (preference === 'cloud' || preference === 'remote-cloud') output = await runCloudModel(job);
+  else if (preference === 'auto') {
+    const attempts = [
+      ['local-lmstudio', runLmStudio],
+      ['gpu', runGpuModel],
+      ['cloud', runCloudModel]
+    ];
+    let lastError = null;
+    for (const [name, runner] of attempts) {
+      try { output = await runner(job); break; } catch (error) { lastError = `${name}: ${error.message}`; }
     }
-  } else {
-    throw new Error(`Unsupported worker preference: ${preference}`);
-  }
+    if (!output) output = { worker: 'deterministic', message: 'No model endpoint available; artifact is a deterministic proposal only', task: job.task, fallback_reason: lastError };
+  } else throw new Error(`Unsupported worker preference: ${preference}`);
 
   const result = {
     schema_version: 'BEC-WORKER-RESULT-1.0',
