@@ -85,26 +85,46 @@ jobs:
           else
             curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
           fi
-      - name: Prove live runtime and MTG checkout readiness
+      - name: Prove live runtime and MTG catalog visibility
         shell: bash
         run: |
           set -euo pipefail
           health="${LIVE_URL}/healthz"
+          products="${LIVE_URL}/api/products"
           offers="${LIVE_URL}/api/offers"
+          mtg="${LIVE_URL}/mtg"
           for attempt in $(seq 1 30); do
             health_code="$(curl --silent --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$health" || true)"
+            products_code="$(curl --silent --output /tmp/products.json --write-out '%{http_code}' --max-time 15 "$products" || true)"
             offers_code="$(curl --silent --output /tmp/offers.json --write-out '%{http_code}' --max-time 15 "$offers" || true)"
-            if [ "$health_code" = "200" ] && [ "$offers_code" = "200" ] && grep -q '"offer_id":"EDH_0001"' /tmp/offers.json && grep -q '"price":400' /tmp/offers.json && grep -q '"currency":"NZD"' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
-              printf '%s\n' '{"status":"PASS","checks":["healthz","offers","EDH_0001","price_400_NZD","checkout_available"],"truth":"Live EDH_0001 checkout readiness proven; payment still requires a real buyer."}' | tee live-deployment-proof.json
-              cat /tmp/health.json
-              cat /tmp/offers.json
-              exit 0
+            mtg_code="$(curl --silent --output /tmp/mtg.html --write-out '%{http_code}' --max-time 15 "$mtg" || true)"
+            if [ "$health_code" = "200" ] && [ "$products_code" = "200" ] && [ "$offers_code" = "200" ] && [ "$mtg_code" = "200" ] && grep -q '"offer_id":"EDH_0001"' /tmp/offers.json && grep -q '"price":400' /tmp/offers.json && grep -q '"currency":"NZD"' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
+              expected_mtg="$(find catalog/products -type f -name '*.json' -print0 | xargs -0 jq -r 'select(.silo == "mtg" and .status == "published" and ((.inventory | tonumber) > 0)) | .id' | sort)"
+              actual_mtg="$(jq -r '.products[] | select(.silo == "mtg" and .status == "published" and ((.inventory | tonumber) > 0) and .checkout_available == true) | .id' /tmp/products.json | sort)"
+              if [ "$expected_mtg" = "$actual_mtg" ]; then
+                while IFS= read -r sku; do
+                  [ -z "$sku" ] && continue
+                  grep -q "$sku" /tmp/mtg.html || { echo "MTG surface missing SKU: $sku"; exit 1; }
+                done <<< "$expected_mtg"
+                printf '%s\n' '{"status":"PASS","checks":["healthz","api/products","api/offers","/mtg","all_published_mtg_skus_visible","EDH_0001","price_400_NZD","checkout_available"],"truth":"All published MTG inventory in the canonical product catalog is exposed by the live API and MTG surface; payment still requires a real buyer."}' | tee live-deployment-proof.json
+                cat /tmp/health.json
+                cat /tmp/products.json
+                cat /tmp/offers.json
+                exit 0
+              fi
+              echo "MTG catalog mismatch on attempt $attempt/30"
+              echo "EXPECTED:"
+              printf '%s\n' "$expected_mtg"
+              echo "ACTUAL:"
+              printf '%s\n' "$actual_mtg"
+            else
+              echo "Live DreamLedger surface not ready (attempt $attempt/30): health=$health_code products=$products_code offers=$offers_code mtg=$mtg_code"
             fi
-            echo "Live MTG commerce surface not ready (attempt $attempt/30): health=$health_code offers=$offers_code"
             sleep 10
           done
-          printf '%s\n' '{"status":"FAIL","reason":"Live health/offers surface did not expose EDH_0001 at NZD 400 with checkout available after deploy trigger."}' | tee live-deployment-proof.json
+          printf '%s\n' '{"status":"FAIL","reason":"Live runtime did not expose every published MTG product from the canonical catalog."}' | tee live-deployment-proof.json
           cat /tmp/health.json || true
+          cat /tmp/products.json || true
           cat /tmp/offers.json || true
           exit 1
       - name: Upload live deployment proof
