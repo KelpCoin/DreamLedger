@@ -31,7 +31,8 @@ on:
         options:
           - auto
           - local-lmstudio
-          - remote-cloud
+          - gpu
+          - cloud
       runner:
         description: Execution node
         required: true
@@ -76,9 +77,12 @@ jobs:
 
       - name: Execute worker
         env:
-          BEC_REMOTE_LM_URL: ${{ secrets.BEC_REMOTE_LM_URL }}
-          BEC_REMOTE_LM_MODEL: ${{ secrets.BEC_REMOTE_LM_MODEL }}
-          BEC_REMOTE_LM_API_KEY: ${{ secrets.BEC_REMOTE_LM_API_KEY }}
+          BEC_GPU_LM_URL: ${{ secrets.BEC_GPU_LM_URL }}
+          BEC_GPU_LM_MODEL: ${{ secrets.BEC_GPU_LM_MODEL }}
+          BEC_GPU_LM_API_KEY: ${{ secrets.BEC_GPU_LM_API_KEY }}
+          BEC_CLOUD_LM_URL: ${{ secrets.BEC_CLOUD_LM_URL }}
+          BEC_CLOUD_LM_MODEL: ${{ secrets.BEC_CLOUD_LM_MODEL }}
+          BEC_CLOUD_LM_API_KEY: ${{ secrets.BEC_CLOUD_LM_API_KEY }}
         run: node runtime/worker-pool.js enqueue data/jobs/dispatch/job.json && node runtime/worker-pool.js run-once
 
       - name: Verify worker proof
