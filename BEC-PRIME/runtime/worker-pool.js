@@ -17,7 +17,9 @@ const FORBIDDEN_EFFECTS = new Set(['money', 'checkout', 'public_post', 'producti
 for (const dir of [QUEUE_DIR, JOBS_DIR, RESULTS_DIR, PROOF_DIR]) fs.mkdirSync(dir, { recursive: true });
 
 function canonical(value) {
-  return JSON.stringify(value, Object.keys(value || {}).sort());
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+  return '{' + Object.keys(value).sort().map(key => JSON.stringify(key) + ':' + canonical(value[key])).join(',') + '}';
 }
 
 function hash(value) {
@@ -149,7 +151,7 @@ async function runNext() {
   }
 }
 
-module.exports = { createJob, listJobs, loadJob, runNext, execute };
+module.exports = { canonical, hash, createJob, listJobs, loadJob, runNext, execute };
 
 if (require.main === module) {
   const [command, ...rest] = process.argv.slice(2);
