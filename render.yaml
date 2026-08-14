@@ -4,7 +4,7 @@ services:
     runtime: node
     branch: main
     rootDir: BEC-PRIME
-    autoDeployTrigger: commit
+    autoDeployTrigger: checksPass
     renderSubdomainPolicy: enabled
     domains:
       - dreamledger.org
