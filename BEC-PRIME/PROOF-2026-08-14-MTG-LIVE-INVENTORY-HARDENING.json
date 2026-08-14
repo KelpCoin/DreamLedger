@@ -1,0 +1,31 @@
+{
+  "type": "dreamledger-mtg-live-inventory-hardening",
+  "status": "PATCHED_PENDING_LIVE_CI",
+  "scope": "MTG liquidation silo only",
+  "changes": [
+    "EDH_0001 explicitly classified as physical inventory",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001 explicitly classified as physical inventory",
+    "MTG surface now renders only published physical MTG inventory with positive stock",
+    "deploy proof now compares live physical MTG SKUs against the canonical catalog"
+  ],
+  "known_physical_skus": [
+    "EDH_0001",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001"
+  ],
+  "price_lock": {
+    "EDH_0001": "400.00 NZD",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001": "700.00 NZD"
+  },
+  "verification": [
+    "npm run compile",
+    "npm run smoke:dreamiez",
+    "npm run autonomy:macro",
+    "GET /healthz",
+    "GET /api/products",
+    "GET /api/offers",
+    "GET /mtg",
+    "live physical MTG SKU set equals canonical physical MTG SKU set"
+  ],
+  "payment_claim": false,
+  "deployment_claim": false
+}
