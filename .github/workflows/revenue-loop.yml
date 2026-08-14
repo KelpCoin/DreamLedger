@@ -14,7 +14,7 @@ permissions:
 
 env:
   STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-  OFFER_ID: DISCORD-WEBHOOK-STARTER-KIT-001
+  SKU: DISCORD_WEBHOOK_STARTER_KIT
   EXPECTED_AMOUNT: '7900'
   EXPECTED_CURRENCY: nzd
 
@@ -30,11 +30,8 @@ jobs:
           test -n "$STRIPE_API_KEY"
           mkdir -p proof
 
-          LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links \
-            -u "$STRIPE_API_KEY:" \
-            --data-urlencode 'limit=100')
-
-          LINK=$(echo "$LINKS" | jq -c --arg offer "$OFFER_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.active == true)' | head -n 1)
+          LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links -u "$STRIPE_API_KEY:" --data-urlencode 'limit=100')
+          LINK=$(echo "$LINKS" | jq -c --arg sku "$SKU" '.data[] | select(.metadata.sku == $sku) | select(.active == true)' | head -n 1)
           if [ -z "$LINK" ]; then
             echo "STATUS=WAITING_FOR_PAYMENT_LINK" | tee proof/status.txt
             exit 0
@@ -43,15 +40,11 @@ jobs:
           LINK_ID=$(echo "$LINK" | jq -r '.id')
           PAYMENT_URL=$(echo "$LINK" | jq -r '.url')
 
-          SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions \
-            -u "$STRIPE_API_KEY:" \
-            --data-urlencode "payment_link=$LINK_ID" \
-            --data-urlencode 'limit=100')
-
+          SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_API_KEY:" --data-urlencode "payment_link=$LINK_ID" --data-urlencode 'limit=100')
           PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency)' | head -n 1)
 
           if [ -z "$PAID" ]; then
-            printf 'STATUS=WAITING_FOR_PAYMENT\noffer_id=%s\npayment_link_id=%s\nurl=%s\n' "$OFFER_ID" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
+            printf 'STATUS=WAITING_FOR_PAYMENT\nsku=%s\npayment_link_id=%s\nurl=%s\n' "$SKU" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
             exit 0
           fi
 
@@ -63,7 +56,7 @@ jobs:
           {
             "status": "PASS",
             "event": "PAYMENT_SUCCEEDED",
-            "offer_id": "$OFFER_ID",
+            "sku": "$SKU",
             "product": "Discord Webhook Starter Kit",
             "amount_minor": 7900,
             "amount": 79.00,
