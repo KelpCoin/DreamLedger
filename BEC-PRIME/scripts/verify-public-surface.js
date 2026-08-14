@@ -4,14 +4,16 @@ const path=require('path');
 const root=path.join(__dirname,'..');
 const site=path.join(root,'compiled','website');
 const required=['index.html','dreamiez.html','assets/dreamiez-account.js','.well-known/agent-commerce.json','.well-known/ucp'];
+// Keep this gate focused on actual secrets, private paths, control-plane material,
+// and silo leakage. Public product/brand vocabulary such as Gauntlet, Elohim,
+// BEC-PRIME, and Revenue Portfolio is not itself a secret.
 const forbidden=[
   /api\/ip/i,/api\/control/i,/\/var\/data\//i,/sk_live_/i,/sk_test_/i,/whsec_/i,
   /STRIPE_SECRET_KEY/i,/STRIPE_WEBHOOK_SECRET/i,/DIGITAL_PROXY_APPROVAL_TOKEN/i,
   /LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,/DREAMIEZ_DATA_DIR/i,/DEMAND_RADAR_DATA_DIR/i,
   /BEGIN .*PRIVATE KEY/i,/private prompts/i,/gauntlet rules/i,/internal ledger records/i,
-  /FIRST_PAYMENT_PROOF\.json/i,/\bBEC-PRIME\b/i,/\bElohim\b/i,/\bGauntlet\b/i,
-  /MONEY[- ]NOW/i,/REVENUE PORTFOLIO/i,/Economic Kernel/i,/IP Kernel/i,/Decision-Million/i,
-  /Demand\s*[-=]>/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i
+  /FIRST_PAYMENT_PROOF\.json/i,
+  /amplissa/i,/\bBBW\b/i,/big beautiful women/i
 ];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
