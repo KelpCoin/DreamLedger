@@ -1,7 +1,7 @@
 {
   "schema": "BEC-PRIME/COMPILED-IP-MANIFEST/v1",
   "status": "COMPILED",
-  "compiled_at": "2026-08-14T22:14:51.609Z",
+  "compiled_at": "2026-08-14T22:47:15.541Z",
   "source_hash": "fc2d934902cac11ff645ce84cf0ff710899e244d40ea598591e06f43940fb55a",
   "public_surface": "DreamLedger",
   "compiler_authority": "BEC-PRIME",
