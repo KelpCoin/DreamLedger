@@ -31,11 +31,15 @@ jobs:
       - name: Public boundary gate
         working-directory: BEC-PRIME
         run: node scripts/verify-public-surface.js
+      - name: Account contract gate
+        working-directory: BEC-PRIME
+        run: node scripts/verify-account-avatar-flow.js
       - name: Syntax gate
         working-directory: BEC-PRIME
         run: |
           node --check server.js
           node --check start.js
+          node --check routes/dreamiez.js
           node --check dreamiez-account.js
           node --check routes/frontDoor.js
           node --check routes/accountRecovery.js
@@ -78,6 +82,7 @@ jobs:
             BEC-PRIME/PROOF-PUBLIC-SURFACE-CONTRACT-PATCH.json
             BEC-PRIME/data/proofs/SENTINEL-LATEST.json
             BEC-PRIME/data/proofs/PUBLIC-SURFACE-PROOF.json
+            BEC-PRIME/data/proofs/ACCOUNT-AVATAR-CONTRACT-PROOF.json
             compiler-truth-proof.json
           if-no-files-found: error
 
