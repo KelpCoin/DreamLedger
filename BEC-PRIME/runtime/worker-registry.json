@@ -1,0 +1,42 @@
+{
+  "schema_version": "BEC-WORKER-REGISTRY-1.0",
+  "routing": {
+    "default": ["local-lmstudio", "self-hosted-windows", "gpu", "cloud"],
+    "lm_refinement": ["local-lmstudio", "gpu", "cloud"],
+    "code_change": ["self-hosted-windows", "gpu", "cloud"],
+    "analysis": ["local-lmstudio", "gpu", "cloud"],
+    "compile": ["self-hosted-windows", "cloud"],
+    "test": ["self-hosted-windows", "cloud"],
+    "gauntlet": ["self-hosted-windows", "cloud"]
+  },
+  "workers": {
+    "local-lmstudio": {
+      "class": "local",
+      "endpoint_env": "BEC_LM_URL",
+      "default_endpoint": "http://127.0.0.1:1234/v1/chat/completions",
+      "offline_capable": true
+    },
+    "self-hosted-windows": {
+      "class": "executor",
+      "runner_label": "self-hosted",
+      "offline_capable": true
+    },
+    "gpu": {
+      "class": "openai-compatible-gpu",
+      "endpoint_env": "BEC_GPU_LM_URL",
+      "api_key_env": "BEC_GPU_LM_API_KEY",
+      "offline_capable": false
+    },
+    "cloud": {
+      "class": "openai-compatible-cloud",
+      "endpoint_env": "BEC_CLOUD_LM_URL",
+      "api_key_env": "BEC_CLOUD_LM_API_KEY",
+      "offline_capable": false
+    }
+  },
+  "policy": {
+    "irreversible_effects": ["money", "checkout", "public_post", "production_mutation"],
+    "human_approval_required": true,
+    "payment_claim_source": "verified_provider_webhook_only"
+  }
+}
