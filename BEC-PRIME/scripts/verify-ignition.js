@@ -1,12 +1,12 @@
 const fs = require('fs');
-const crypto = require('crypto');
+const path = require('path');
 
-const productPath = 'BEC-PRIME/catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json';
+const productsDir = 'BEC-PRIME/catalog/products';
 const fixturePath = 'fixtures/acquisition-proof-fixture.json';
 const outPath = 'artifacts/ignition/IGNITION_TEST.json';
 
-function readJson(path) {
-  return JSON.parse(fs.readFileSync(path, 'utf8'));
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
 function fail(message) {
@@ -16,24 +16,35 @@ function fail(message) {
 
 const checks = {};
 let fatal = false;
+let publishedProducts = [];
 
 try {
-  const product = readJson(productPath);
+  const files = fs.readdirSync(productsDir).filter(f => f.endsWith('.json')).sort();
+  publishedProducts = files
+    .map(file => ({ file, product: readJson(path.join(productsDir, file)) }))
+    .filter(({ product }) => String(product.status || '').toLowerCase() === 'published' && Number(product.inventory || 0) > 0);
+
   checks.repository = 'PASS';
-  checks.offer = product.id === 'BEC-PRIME-ARCHITECTURE-AUDIT-001' &&
-    Number(product.price) === 4900 &&
-    String(product.currency).toUpperCase() === 'NZD' &&
-    product.status === 'published' &&
-    product.inventory > 0 &&
-    product.commercial_truth &&
-    product.commercial_truth.approval_required === false ? 'PASS' : 'FAIL';
-  if (checks.offer !== 'PASS') fatal = true;
+  checks.offer = publishedProducts.length > 0 ? 'PASS' : 'FAIL';
+  for (const { file, product } of publishedProducts) {
+    const valid = Boolean(product.id && product.name) &&
+      Number.isInteger(Number(product.price)) && Number(product.price) > 0 &&
+      String(product.currency || '').toUpperCase() === 'NZD' &&
+      product.commercial_truth && product.commercial_truth.approval_required === false &&
+      product.evidence && product.evidence.status;
+    if (!valid) {
+      checks.offer = 'FAIL';
+      fail(`invalid published product: ${file}`);
+    }
+  }
 } catch (e) {
   checks.repository = 'FAIL';
   checks.offer = 'FAIL';
   fatal = true;
-  fail(`cannot read canonical offer: ${e.message}`);
+  fail(`cannot enumerate product catalog: ${e.message}`);
 }
+
+if (checks.offer === 'FAIL') fatal = true;
 
 try {
   const data = readJson(fixturePath);
@@ -56,7 +67,10 @@ try {
   checks.multi_projection = resolve(ref, 'OWNER_ALICE') === 'ACCEPT' ? 'PASS' : 'FAIL';
   checks.replay_protection = 'PASS';
   for (const [name, value] of Object.entries(checks)) {
-    if (value === 'FAIL') fatal = true;
+    if (value === 'FAIL') {
+      fatal = true;
+      fail(`check failed: ${name}`);
+    }
   }
 } catch (e) {
   checks.fossil_binding = 'FAIL';
@@ -70,8 +84,8 @@ const payload = {
   run_id: `ignition_${Date.now()}`,
   commit_sha: process.env.GITHUB_SHA || 'LOCAL',
   timestamp: new Date().toISOString(),
-  canonical_offer: 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
-  canonical_price: 'NZD 49.00',
+  published_product_count: publishedProducts.length,
+  published_product_ids: publishedProducts.map(({ product }) => product.id),
   checks: {
     ...checks,
     webhook_verification: 'NOT_TESTED_WITH_REAL_EVENT',
