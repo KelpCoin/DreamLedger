@@ -50,3 +50,6 @@ jobs:
           git add BEC-PRIME/routes/frontDoor.js
           git commit -m "fix: sanitize public marketplace vehicle fields"
           git push origin main
+
+      - name: Record autonomous boundary decision
+        run: echo "GAUNTLET DECISION: public VIN exposure is forbidden and must be repaired before deployment."
