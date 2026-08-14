@@ -1,0 +1,49 @@
+{
+  "schema_version": "DL-PROOF-1.0",
+  "artifact": "ACCOUNT-AVATAR-SELLER-PATCH",
+  "date": "2026-08-14",
+  "status": "PATCHED",
+  "scope": [
+    "verified_email_account_creation",
+    "email_password_login",
+    "optional_free_base_avatar",
+    "inclusive_avatar_height",
+    "inclusive_avatar_body_size",
+    "inclusive_avatar_skin_tone",
+    "paid_cosmetic_catalogue_visibility",
+    "verified_seller_listing_intake",
+    "buyer_without_account_constraint_preserved"
+  ],
+  "public_paths": [
+    "/register.html",
+    "/login.html",
+    "/verify-email.html",
+    "/account.html",
+    "/sell.html",
+    "/marketplace/"
+  ],
+  "existing_server_contracts_reused": [
+    "/api/dreamiez/account/create",
+    "/api/dreamiez/account/login",
+    "/api/dreamiez/account/verify",
+    "/api/dreamiez/me",
+    "/api/dreamiez/avatar",
+    "/api/marketplace/media",
+    "/api/marketplace/listings",
+    "/api/marketplace/my-listings"
+  ],
+  "constraints": {
+    "email_verification_required_for_sellers": true,
+    "buyer_login_required": false,
+    "avatar_required": false,
+    "base_avatar_free": true,
+    "paid_cosmetics": true,
+    "mtg_silo_boundary": true,
+    "public_actions_approval_gated": true
+  },
+  "validation": {
+    "repository_commit": "3cae1eb2fb0dffd57361d4429780d04f275f98e2",
+    "ci_status_at_creation": "pending_or_not_yet_reported"
+  },
+  "note": "This artifact records code changes only. It does not claim production deployment or successful real-world payment."
+}
