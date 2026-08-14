@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "objective": "Build NZD 1,000,000 of liquid personal wealth as rapidly as legally and sustainably possible.",
+  "principle": "Optimize for cash generation, margin, distribution, repeatability, ownership and compounding, not software activity.",
+  "current_cash_target": 1000,
+  "milestones": [
+    {"target_nzd":1000,"purpose":"first validated commercial demand"},
+    {"target_nzd":10000,"purpose":"repeatable offer and distribution"},
+    {"target_nzd":25000,"purpose":"high-margin productized service engine"},
+    {"target_nzd":100000,"purpose":"multi-offer revenue machine"},
+    {"target_nzd":250000,"purpose":"capital formation"},
+    {"target_nzd":1000000,"purpose":"liquid wealth milestone"}
+  ],
+  "offer_ladder": [
+    {"sku":"DISCORD_WEBHOOK_STARTER_KIT","price_nzd":79,"role":"low-friction entry"},
+    {"sku":"AI_COMMERCE_DIAGNOSTIC","price_nzd":499,"role":"paid diagnosis"},
+    {"sku":"AI_COMMERCE_BUILD","price_nzd":2500,"role":"productized implementation"},
+    {"sku":"AI_COMMERCE_SYSTEM","price_nzd":10000,"role":"high-value deployment"}
+  ],
+  "economic_rules": [
+    "No revenue is counted until payment is independently verified.",
+    "No public distribution without approval.",
+    "Prefer high-margin digital delivery and productized services before inventory-heavy expansion.",
+    "Every new engineering task must increase acquisition, conversion, fulfilment, retention, proof or measurement.",
+    "Kill offers that fail repeated demand tests; scale offers with verified demand.",
+    "Protect cash and reinvest only where expected return is measurable."
+  ],
+  "market_signal": {
+    "nz_online_retail_h1_2026_growth_percent": 12,
+    "nz_ai_shopping_users_research_channel_rank": 3,
+    "nz_ai_agent_purchase_comfort_percent": 31,
+    "source_notes": "Current 2026 NZ research indicates rapid online-commerce growth and emerging AI-mediated shopping demand."
+  },
+  "status":"ACTIVE",
+  "next_gate":"FIRST_REAL_PAYMENT"
+}
