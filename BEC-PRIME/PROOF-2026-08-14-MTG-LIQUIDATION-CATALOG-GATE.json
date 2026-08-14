@@ -1,0 +1,18 @@
+{
+  "schema": "BEC-PRIME/MTG-LIQUIDATION-CATALOG-GATE/v1",
+  "status": "PASS",
+  "date": "2026-08-14",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "agent/mtg-liquidation-cash-funnel",
+  "rules": {
+    "quarantine_placeholder": true,
+    "published_requires_positive_inventory": true,
+    "published_requires_nonempty_image": true,
+    "public_surface_renders_only_gate_pass": true,
+    "no_photo_means_draft": true
+  },
+  "quarantined": ["EDH_0001"],
+  "drafted_for_missing_photo": ["MTG-URZAS-LEGACY-PALINCHRON-FOIL-001"],
+  "checkoutable_inventory": [],
+  "note": "No image URL was present for the real MTG SKU, so it was not promoted to published. No photo or price was fabricated."
+}
