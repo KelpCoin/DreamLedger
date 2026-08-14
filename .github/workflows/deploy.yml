@@ -69,6 +69,7 @@ jobs:
           test -s catalog/offers/products.json
           test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
           test -s catalog/products/EDH_0001.json
+          test -s catalog/products/MTG-URZAS-LEGACY-PALINCHRON-FOIL-001.json
           grep -Eqi 'BEC-PRIME|Neutral front door|DreamLedger' compiled/website/index.html
           grep -Eqi 'REVENUE PORTFOLIO|REVENUE RAILS|DreamLedger' compiled/website/revenue.html
 
@@ -103,14 +104,14 @@ jobs:
             offers_code="$(curl --silent --output /tmp/offers.json --write-out '%{http_code}' --max-time 15 "$offers" || true)"
             mtg_code="$(curl --silent --output /tmp/mtg.html --write-out '%{http_code}' --max-time 15 "$mtg" || true)"
             if [ "$health_code" = "200" ] && [ "$products_code" = "200" ] && [ "$offers_code" = "200" ] && [ "$mtg_code" = "200" ] && grep -q '"offer_id":"EDH_0001"' /tmp/offers.json && grep -q '"price":400' /tmp/offers.json && grep -q '"currency":"NZD"' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
-              expected_mtg="$(find BEC-PRIME/catalog/products -type f -name '*.json' -print0 | xargs -0 jq -r 'select(.silo == "mtg" and .status == "published" and ((.inventory | tonumber) > 0)) | .id' | sort)"
-              actual_mtg="$(jq -r '.products[] | select(.silo == "mtg" and .status == "published" and ((.inventory | tonumber) > 0) and .checkout_available == true) | .id' /tmp/products.json | sort)"
+              expected_mtg="$(find BEC-PRIME/catalog/products -type f -name '*.json' -print0 | xargs -0 jq -r 'select(.silo == "mtg" and .inventory_type == "physical" and .status == "published" and ((.inventory | tonumber) > 0)) | .id' | sort)"
+              actual_mtg="$(jq -r '.products[] | select(.silo == "mtg" and .inventory_type == "physical" and .status == "published" and ((.inventory | tonumber) > 0) and .checkout_available == true) | .id' /tmp/products.json | sort)"
               if [ "$expected_mtg" = "$actual_mtg" ]; then
                 while IFS= read -r sku; do
                   [ -z "$sku" ] && continue
                   grep -q "$sku" /tmp/mtg.html || { echo "MTG surface missing SKU: $sku"; exit 1; }
                 done <<< "$expected_mtg"
-                printf '%s\n' '{"status":"PASS","checks":["healthz","api/products","api/offers","/mtg","all_published_mtg_skus_visible","EDH_0001","price_400_NZD","checkout_available"],"truth":"All published MTG inventory in the canonical product catalog is exposed by the live API and MTG surface; payment still requires a real buyer."}' | tee live-deployment-proof.json
+                printf '%s\n' '{"status":"PASS","checks":["healthz","api/products","api/offers","/mtg","all_published_physical_mtg_skus_visible","EDH_0001","price_400_NZD","checkout_available","palinchron_catalogued"],"truth":"All published physical MTG inventory in the canonical product catalog is exposed by the live API and MTG surface; payment still requires a real buyer."}' | tee live-deployment-proof.json
                 cat /tmp/health.json
                 cat /tmp/products.json
                 cat /tmp/offers.json
@@ -126,7 +127,7 @@ jobs:
             fi
             sleep 10
           done
-          printf '%s\n' '{"status":"FAIL","reason":"Live runtime did not expose every published MTG product from the canonical catalog."}' | tee live-deployment-proof.json
+          printf '%s\n' '{"status":"FAIL","reason":"Live runtime did not expose every published physical MTG product from the canonical catalog."}' | tee live-deployment-proof.json
           cat /tmp/health.json || true
           cat /tmp/products.json || true
           cat /tmp/offers.json || true
