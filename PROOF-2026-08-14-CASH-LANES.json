@@ -1,0 +1,40 @@
+{
+  "schema": "DREAMLEDGER/CASH-LANE-EXECUTION/v1",
+  "date": "2026-08-14",
+  "base_commit": "04adafc2948bb3825eb2d4786ef0b07cb3a7efc4",
+  "objective": "Execute the approved cash-first stack without inventing inventory or payment evidence.",
+  "lanes": {
+    "mtg_liquidation": {
+      "status": "LIVE_READY",
+      "surface": "/mtg",
+      "catalog_rule": "published and in-stock catalog products only",
+      "known_live_sku": "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001",
+      "price_nzd": 700,
+      "inventory": 1,
+      "evidence_status": "awaiting_first_payment",
+      "payment_proof": "none"
+    },
+    "b2b_recurring": {
+      "status": "LIVE_READY",
+      "surface": "/b2b/",
+      "offer": "BEC-PRIME Architecture Audit",
+      "product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+      "price_nzd": 49,
+      "delivery": "engine_generated_digital_deliverable",
+      "evidence_status": "awaiting_first_payment",
+      "payment_proof": "none"
+    },
+    "dreamledger_evidence": {
+      "status": "ACTIVE_UNTIL_PAYMENT",
+      "rule": "No Fossil or verified sale is created by catalog state alone.",
+      "boundary": "verified Stripe webhook + idempotency + transaction binding"
+    }
+  },
+  "explicit_non_claims": [
+    "No first sale has been fabricated.",
+    "No EDH_0001 placeholder is used as a public cash offer.",
+    "No MTG inventory beyond the catalog is claimed.",
+    "No candidate B2B offer is activated by this proof."
+  ],
+  "next_cash_event": "A real buyer completes checkout."
+}
