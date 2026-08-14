@@ -21,6 +21,7 @@
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
     "smoke:production": "node scripts/smoke-production.js",
     "smoke:autonomy": "node scripts/smoke-autonomy.js",
+    "smoke:worker": "node scripts/smoke-worker-pool.js",
     "gauntlet": "node scripts/meta-gauntlet-current.js",
     "worker:enqueue": "node runtime/worker-pool.js enqueue",
     "worker:run": "node runtime/worker-pool.js run-once",
