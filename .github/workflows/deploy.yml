@@ -69,9 +69,8 @@ jobs:
           test -s catalog/offers/products.json
           test -s catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json
           test -s catalog/products/EDH_0001.json
-          test -s catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json
-          grep -q "BEC-PRIME\|Neutral front door\|DREAMLEDGER" compiled/website/index.html
-          grep -q "REVENUE PORTFOLIO\|REVENUE RAILS" compiled/website/revenue.html
+          grep -q 'BEC-PRIME\\|Neutral front door\\|DREAMLEDGER' compiled/website/index.html
+          grep -q 'REVENUE PORTFOLIO\\|REVENUE RAILS' compiled/website/revenue.html
 
   deploy:
     needs: verify
@@ -86,7 +85,7 @@ jobs:
           else
             curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
           fi
-      - name: Prove live runtime and checkout readiness
+      - name: Prove live runtime and MTG checkout readiness
         shell: bash
         run: |
           set -euo pipefail
@@ -95,16 +94,16 @@ jobs:
           for attempt in $(seq 1 30); do
             health_code="$(curl --silent --output /tmp/health.json --write-out '%{http_code}' --max-time 15 "$health" || true)"
             offers_code="$(curl --silent --output /tmp/offers.json --write-out '%{http_code}' --max-time 15 "$offers" || true)"
-            if [ "$health_code" = "200" ] && [ "$offers_code" = "200" ] && grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
-              printf '%s\n' '{"status":"PASS","checks":["healthz","offers","BEC-PRIME-ARCHITECTURE-AUDIT-001","checkout_available"],"truth":"Live checkout readiness proven; payment still requires a real buyer."}' | tee live-deployment-proof.json
+            if [ "$health_code" = "200" ] && [ "$offers_code" = "200" ] && grep -q '"offer_id":"EDH_0001"' /tmp/offers.json && grep -q '"price":400' /tmp/offers.json && grep -q '"currency":"NZD"' /tmp/offers.json && grep -q '"checkout_available":true' /tmp/offers.json; then
+              printf '%s\n' '{"status":"PASS","checks":["healthz","offers","EDH_0001","price_400_NZD","checkout_available"],"truth":"Live EDH_0001 checkout readiness proven; payment still requires a real buyer."}' | tee live-deployment-proof.json
               cat /tmp/health.json
               cat /tmp/offers.json
               exit 0
             fi
-            echo "Live commerce surface not ready (attempt $attempt/30): health=$health_code offers=$offers_code"
+            echo "Live MTG commerce surface not ready (attempt $attempt/30): health=$health_code offers=$offers_code"
             sleep 10
           done
-          printf '%s\n' '{"status":"FAIL","reason":"Live health/offers surface did not become checkoutable after deploy trigger."}' | tee live-deployment-proof.json
+          printf '%s\n' '{"status":"FAIL","reason":"Live health/offers surface did not expose EDH_0001 at NZD 400 with checkout available after deploy trigger."}' | tee live-deployment-proof.json
           cat /tmp/health.json || true
           cat /tmp/offers.json || true
           exit 1
