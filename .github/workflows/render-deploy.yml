@@ -38,6 +38,8 @@ jobs:
           node --check start.js
           node --check dreamiez-account.js
           node --check routes/frontDoor.js
+          node --check routes/accountRecovery.js
+          node --check routes/marketplaceWebhook.js
           node --check compiler/OfferCompiler.js
           node --check compiler/SurfaceCompiler.js
           node --check compiler/PriceDisplayPatch.js
