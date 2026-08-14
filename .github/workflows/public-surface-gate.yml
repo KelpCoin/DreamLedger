@@ -1,0 +1,31 @@
+name: DreamLedger Public Surface Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-surface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify public surface
+        run: node BEC-PRIME/scripts/verify-public-surface.js
+      - name: Upload public surface proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-surface-proof
+          path: BEC-PRIME/data/proofs/PUBLIC-SURFACE-PROOF.json
+          if-no-files-found: error
