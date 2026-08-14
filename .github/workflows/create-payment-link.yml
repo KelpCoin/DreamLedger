@@ -12,7 +12,7 @@ jobs:
   create-payment-link:
     runs-on: ubuntu-latest
     steps:
-      - name: Create EDH_0001 NZD 400 Payment Link
+      - name: Create or reuse EDH_0001 NZD 400 Payment Link
         env:
           STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         shell: bash
@@ -57,13 +57,22 @@ jobs:
           test -n "$PRICE_ID"
           test "$PRICE_ID" != "null"
 
-          LINK_RESPONSE=$(curl -fsS https://api.stripe.com/v1/payment_links \
+          EXISTING_LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links \
             -u "$STRIPE_API_KEY:" \
-            -d "line_items[0][price]=$PRICE_ID" \
-            -d "line_items[0][quantity]=1" \
-            -d "after_completion[type]=hosted_confirmation" \
-            -d "metadata[offer_id]=EDH_0001")
-          PAYMENT_URL=$(echo "$LINK_RESPONSE" | jq -r '.url')
+            --data-urlencode "limit=100")
+          PAYMENT_URL=$(echo "$EXISTING_LINKS" | jq -r --arg offer "EDH_0001" --arg price "$PRICE_ID" '.data[] | select(.metadata.offer_id == $offer) | select(.line_items.data[0].price.id == $price) | .url' | head -n 1)
+
+          if [ -z "$PAYMENT_URL" ]; then
+            LINK_RESPONSE=$(curl -fsS https://api.stripe.com/v1/payment_links \
+              -u "$STRIPE_API_KEY:" \
+              -d "line_items[0][price]=$PRICE_ID" \
+              -d "line_items[0][quantity]=1" \
+              -d "after_completion[type]=hosted_confirmation" \
+              -d "metadata[offer_id]=EDH_0001")
+            PAYMENT_URL=$(echo "$LINK_RESPONSE" | jq -r '.url')
+          fi
+
+          test -n "$PAYMENT_URL"
           test "$PAYMENT_URL" != "null"
           test "${PAYMENT_URL#https://buy.stripe.com/}" != "$PAYMENT_URL"
 
