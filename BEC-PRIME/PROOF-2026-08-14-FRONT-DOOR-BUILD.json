@@ -1,0 +1,32 @@
+{
+  "type": "dreamledger-front-door-build-proof",
+  "date": "2026-08-14",
+  "status": "BUILT_NOT_YET_PRODUCTION_VERIFIED",
+  "branch": "build/dreamledger-front-door",
+  "repository": "KelpCoin/DreamLedger",
+  "scope": [
+    "email verification account creation",
+    "independent login",
+    "password recovery",
+    "profile and seller identity",
+    "free inclusive avatar controls",
+    "optional avatar photo upload",
+    "verified seller listing creation",
+    "real photo upload",
+    "first-class car listing fields",
+    "browseable marketplace search and filters",
+    "public listing pages",
+    "guest checkout route using existing Stripe credentials",
+    "public deployment gate switched from architecture offer to account and marketplace reality"
+  ],
+  "silo_constraints": [
+    "MTG remains a separate marketplace category/surface",
+    "adult material remains excluded from public surface",
+    "private VIN is not returned by public listing payload"
+  ],
+  "verification": {
+    "local_or_ci_command": "cd BEC-PRIME && npm run smoke:front-door",
+    "production_acceptance": "You register and verify; Peggy registers and verifies; each creates a real listing; guest opens listing and reaches checkout; Stripe webhook creates order proof."
+  },
+  "deployment_truth": "This artifact does not claim that Render production has deployed or that a real payment has occurred."
+}
