@@ -1,0 +1,27 @@
+{
+  "type": "dreamledger-mtg-surface-hardening",
+  "status": "PATCHED",
+  "date": "2026-08-14",
+  "branch": "agent/mtg-live-inventory-surface",
+  "purpose": "Make the public MTG liquidation surface read canonical live commerce state and fail closed without inventing inventory.",
+  "changes": [
+    "MTG surface reads /api/products with no-store caching.",
+    "Only silo=mtg, status=published, inventory>0 products are rendered from the product catalog.",
+    "If no published MTG products are returned, the surface falls back to /api/offers and renders only VERIFIED_AVAILABLE MTG offers.",
+    "Product checkout uses /api/checkout/create; offer fallback checkout uses /api/offer-checkout/create.",
+    "No inventory, price, or payment proof is fabricated by the public page."
+  ],
+  "canonical_inventory_seen_in_repo": [
+    "EDH_0001",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001",
+    "COMMANDER-DECK-DIAGNOSTIC-001"
+  ],
+  "price_truth": {
+    "EDH_0001": "NZD 400",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001": "NZD 700"
+  },
+  "payment_truth": "No payment is claimed until a verified Stripe webhook records a paid transaction.",
+  "source_commit": "1e31624ff30bd64a3847a3cb7507793915a394f3",
+  "surface_patch_commit": "ffb51918cd0bb3e92a8846e2dfa202ead5e03220",
+  "verification_target": "GitHub Actions deploy workflow must compile, deploy, and prove EDH_0001 at NZD 400 with checkout_available=true."
+}
