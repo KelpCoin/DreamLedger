@@ -1,0 +1,104 @@
+name: BEC Worker Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Task for the worker
+        required: true
+        type: string
+      kind:
+        description: Worker job kind
+        required: true
+        type: choice
+        options:
+          - analysis
+          - code_change
+          - gauntlet
+          - compile
+          - test
+          - lm_refinement
+      silo:
+        description: Silo boundary
+        required: true
+        default: mtg
+        type: string
+      worker_preference:
+        description: Worker adapter
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - local-lmstudio
+      runner:
+        description: Execution node
+        required: true
+        default: ubuntu-latest
+        type: choice
+        options:
+          - ubuntu-latest
+          - self-hosted
+
+permissions:
+  contents: read
+
+jobs:
+  execute:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build job envelope
+        shell: bash
+        env:
+          TASK: ${{ inputs.task }}
+          KIND: ${{ inputs.kind }}
+          SILO: ${{ inputs.silo }}
+          WORKER: ${{ inputs.worker_preference }}
+        run: |
+          mkdir -p data/jobs/dispatch
+          cat > data/jobs/dispatch/job.json <<EOF
+          {
+            "kind": "${KIND}",
+            "silo": "${SILO}",
+            "task": $(python3 -c 'import json,os; print(json.dumps(os.environ["TASK"]))'),
+            "worker_preference": "${WORKER}",
+            "effects": []
+          }
+          EOF
+
+      - name: Execute worker
+        run: node runtime/worker-pool.js enqueue data/jobs/dispatch/job.json
+
+      - name: Run queued job
+        run: node runtime/worker-pool.js run-once
+
+      - name: Verify compile surface
+        if: inputs.kind == 'compile' || inputs.kind == 'code_change'
+        run: npm run compile
+
+      - name: Upload job result and proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-worker-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/jobs/results/*.json
+            BEC-PRIME/data/proofs/*.json
+          if-no-files-found: warn
