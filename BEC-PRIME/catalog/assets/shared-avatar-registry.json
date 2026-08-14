@@ -1,29 +1,8 @@
 {
-  "schema": "contracts/shared-avatar-asset.schema.json",
-  "generation_rule": "single canonical asset compiled for both ecosystems",
-  "license_rule": "External source assets must be license-compatible before commercial publication. These three local GLB files are BEC-PRIME pipeline fixtures; upstream VRM sources are CC0 candidates and remain separately attributed in provenance.",
+  "schema": "public-avatar-registry/v1",
   "assets": [
-    {
-      "sku_id": "DREAM-AVATAR-DREAMSHELL-001",
-      "canonical_asset_id": "BEC-DUAL-0001",
-      "name": "Dream Shell",
-      "asset_type": "cosmetic",
-      "ecosystem_compatibility": ["dreamiez", "kelp-atlantis"],
-      "render_targets": {"dreamiez":{"format":"vrm","url":"https://arweave.net/gfVzs1oH_aPaHVxpQK86HT_rqzyrFPOUKUrDJ30yprs","source_license":"CC0 candidate / verify upstream before sale"},"kelp-atlantis":{"format":"glb","url":"/assets/shared-avatar/001-DreamShell.glb"}},
-      "wearable_slot":"body","price":15,"currency":"nzd","inventory":999999,"status":"candidate","checkout_available":false,"approval_required":true,"gauntlet_status":"PASS_FIXTURE",
-      "demand_provenance":{"source":"DEMAND_RADAR_PENDING","event_id":null},"elohim_provenance":{"refinery_run":"BEC-FIXTURE-2026-08-12","generated_by":"ComfyUI_PIPELINE_FIXTURE"},"verification_hash":"5bf4faf7ce18257706040c5834245b6a06977950e738b40459a3b4eb0ac5d84c","provenance":{"humanized_by":"Approval required","signature":"pending"},"fossil_path":"D:\\BrownEyeCortex\\Proof\\Fossils\\BEC-DUAL-0001_FIRST_SALE.json"
-    },
-    {
-      "sku_id":"KELP-AVATAR-KELPGUARD-001","canonical_asset_id":"BEC-DUAL-0002","name":"Kelp Guard","asset_type":"armor","ecosystem_compatibility":["dreamiez","kelp-atlantis"],
-      "render_targets":{"dreamiez":{"format":"vrm","url":"https://arweave.net/jPOg-G0MPH55ZQmamFhT9f8cHn-hjeAQ0mRO5gWeKMQ","source_license":"CC0 candidate / verify upstream before sale"},"kelp-atlantis":{"format":"glb","url":"/assets/shared-avatar/002-KelpGuard.glb"}},
-      "wearable_slot":"torso","price":25,"currency":"nzd","inventory":999999,"status":"candidate","checkout_available":false,"approval_required":true,"gauntlet_status":"PASS_FIXTURE",
-      "demand_provenance":{"source":"DEMAND_RADAR_PENDING","event_id":null},"elohim_provenance":{"refinery_run":"BEC-FIXTURE-2026-08-12","generated_by":"ComfyUI_PIPELINE_FIXTURE"},"verification_hash":"42a44a2b3587e808f428ee8f5113bb10786945a13ca8566872b6b64147a87c6f","provenance":{"humanized_by":"Approval required","signature":"pending"},"fossil_path":"D:\\BrownEyeCortex\\Proof\\Fossils\\BEC-DUAL-0002_FIRST_SALE.json"
-    },
-    {
-      "sku_id":"ELOHIM-AVATAR-BLOOM-001","canonical_asset_id":"BEC-DUAL-0003","name":"Elohim Bloom","asset_type":"accessory","ecosystem_compatibility":["dreamiez","kelp-atlantis"],
-      "render_targets":{"dreamiez":{"format":"vrm","url":"https://arweave.net/Ea1KXujzJatQgCFSMzGOzp_UtHqB1pyia--U3AtkMAY","source_license":"CC0 candidate / verify upstream before sale"},"kelp-atlantis":{"format":"glb","url":"/assets/shared-avatar/003-ElohimBloom.glb"}},
-      "wearable_slot":"head","price":20,"currency":"nzd","inventory":999999,"status":"candidate","checkout_available":false,"approval_required":true,"gauntlet_status":"PASS_FIXTURE",
-      "demand_provenance":{"source":"DEMAND_RADAR_PENDING","event_id":null},"elohim_provenance":{"refinery_run":"BEC-FIXTURE-2026-08-12","generated_by":"ComfyUI_PIPELINE_FIXTURE"},"verification_hash":"13cd724977b70e07e4379e0f729c4fb6e2c5aa067535c9bead3782ca3ea8132f","provenance":{"humanized_by":"Approval required","signature":"pending"},"fossil_path":"D:\\BrownEyeCortex\\Proof\\Fossils\\BEC-DUAL-0003_FIRST_SALE.json"
-    }
+    {"id":"avatar-001","name":"Dream Shell","asset_type":"cosmetic","ecosystem_compatibility":["dreamiez","kelp-atlantis"],"format":"vrm","status":"preview"},
+    {"id":"avatar-002","name":"Kelp Guard","asset_type":"cosmetic","ecosystem_compatibility":["dreamiez","kelp-atlantis"],"format":"gltf","status":"preview"},
+    {"id":"avatar-003","name":"Bloom","asset_type":"accessory","ecosystem_compatibility":["dreamiez","kelp-atlantis"],"format":"gltf","status":"preview"}
   ]
 }

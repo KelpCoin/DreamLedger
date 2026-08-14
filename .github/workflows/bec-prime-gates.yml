@@ -27,7 +27,10 @@ jobs:
         run: npm run compile
 
       - name: Syntax gate
-        run: node --check server.js && node --check start.js && node --check routes/omniCommerce.js && node --check routes/platformCart.js
+        run: node --check server.js && node --check start.js && node --check routes/omniCommerce.js && node --check routes/platformCart.js && node --check routes/dreamiez.js
+
+      - name: Dreamiez account and public IP boundary
+        run: node scripts/verify-public-account-ip-boundary.js
 
       - name: Dreamiez E2E smoke
         continue-on-error: true
