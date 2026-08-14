@@ -7,14 +7,15 @@
   "currency": "nzd",
   "inventory": 1,
   "condition": "LP",
-  "status": "published",
+  "image": null,
+  "status": "draft",
   "checkout": {
     "mode": "payment",
     "success_path": "/checkout/success",
     "cancel_path": "/mtg"
   },
   "evidence": {
-    "status": "pending",
+    "status": "awaiting_first_payment",
     "transaction_id": null
   }
 }
