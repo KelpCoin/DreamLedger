@@ -1,0 +1,26 @@
+[
+  {
+    "schema_version": "1.0",
+    "item_id": "ITEM_BLADE_0003",
+    "name": "Blade 0003",
+    "kind": "equipment",
+    "ecosystems": ["avatar", "rpg"],
+    "economic": {"acquisition_mode": "purchased", "acquisition_proof_ref": "test:fossil-0003"}
+  },
+  {
+    "schema_version": "1.0",
+    "item_id": "AVATAR_HAT_0001",
+    "name": "Avatar Hat 0001",
+    "kind": "cosmetic",
+    "ecosystems": ["avatar"],
+    "economic": {"acquisition_mode": "earned", "acquisition_proof_ref": null}
+  },
+  {
+    "schema_version": "1.0",
+    "item_id": "RPG_SWORD_0001",
+    "name": "RPG Sword 0001",
+    "kind": "equipment",
+    "ecosystems": ["rpg"],
+    "economic": {"acquisition_mode": "purchased", "acquisition_proof_ref": "test:fossil-sword-0001"}
+  }
+]
