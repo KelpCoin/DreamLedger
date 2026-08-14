@@ -2,11 +2,17 @@ name: Create Stripe Payment Link
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
   push:
     branches:
       - main
     paths:
       - '.github/workflows/create-payment-link.yml'
+
+concurrency:
+  group: create-discord-payment-link
+  cancel-in-progress: false
 
 jobs:
   create-payment-link:
