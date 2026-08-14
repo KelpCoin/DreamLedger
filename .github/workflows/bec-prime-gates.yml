@@ -30,7 +30,6 @@ jobs:
         run: node --check server.js && node --check start.js && node --check routes/omniCommerce.js && node --check routes/platformCart.js
 
       - name: Dreamiez E2E smoke
-        continue-on-error: true
         run: npm run smoke:dreamiez
 
       - name: Revenue ledger smoke
@@ -51,9 +50,10 @@ jobs:
       - name: Live checkout reality gate
         env:
           BASE_URL: https://dreamledger.org
-        run: bash scripts/verify_checkout_live.sh AGENTIC-COMMERCE-READINESS-001
+        run: bash scripts/verify_checkout_live.sh OFFER-BEC-PRIME-ARCHITECTURE-AUDIT
 
       - name: Upload compilation proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bec-prime-compilation-proof
