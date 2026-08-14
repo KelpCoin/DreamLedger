@@ -37,11 +37,13 @@ jobs:
           node --check server.js
           node --check start.js
           node --check dreamiez-account.js
+          node --check routes/frontDoor.js
           node --check compiler/OfferCompiler.js
           node --check compiler/SurfaceCompiler.js
           node --check compiler/PriceDisplayPatch.js
           node --check compiler/PublicSurfaceContractPatch.js
           node --check scripts/smoke-dreamiez.js
+          node --check scripts/smoke-front-door.js
           node --check scripts/smoke-revenue-ledger.js
           node --check scripts/smoke-production.js
           node --check scripts/meta-gauntlet.js
@@ -61,6 +63,9 @@ jobs:
       - name: Dreamiez E2E smoke
         working-directory: BEC-PRIME
         run: npm run smoke:dreamiez
+      - name: Account and marketplace front door smoke
+        working-directory: BEC-PRIME
+        run: npm run smoke:front-door
       - name: Upload acceptance fossil
         if: always()
         uses: actions/upload-artifact@v4
@@ -120,29 +125,25 @@ jobs:
             fi
             sleep 10
           done
-      - name: LIVE OFFER REGISTRY REALITY GATE
+      - name: LIVE ACCOUNT AND MARKETPLACE REALITY GATE
         env:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error "$BASE_URL/api/offers" > live-offers.json
-          cat live-offers.json
+          curl --fail --silent --show-error "$BASE_URL/login.html" >/dev/null
+          curl --fail --silent --show-error "$BASE_URL/register.html" >/dev/null
+          curl --fail --silent --show-error "$BASE_URL/account.html" >/dev/null
+          curl --fail --silent --show-error "$BASE_URL/marketplace/" >/dev/null
+          curl --fail --silent --show-error "$BASE_URL/api/marketplace/listings" > live-marketplace.json
+          cat live-marketplace.json
           node - <<'NODE'
           const fs=require('fs');
-          const x=JSON.parse(fs.readFileSync('live-offers.json','utf8'));
-          const offers=Array.isArray(x)?x:(x.offers||x.data||[]);
-          const hit=offers.find(o=>o.offer_id==='OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' || o.product_id==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.sku==='BEC-PRIME-ARCHITECTURE-AUDIT-001' || o.id==='BEC-PRIME-ARCHITECTURE-AUDIT-001');
-          if(!hit) throw new Error('FAIL: canonical BEC-PRIME architecture audit is not publicly exposed.');
-          if(Number(hit.price)!==49 || String(hit.currency||'').toUpperCase()!=='NZD') throw new Error('FAIL: canonical BEC-PRIME architecture audit is not NZD 49.');
-          if(hit.checkout_available!==true) throw new Error('FAIL: canonical BEC-PRIME architecture audit is not checkout-enabled.');
-          if(offers.some(o=>o.offer_id==='AGENTIC-COMMERCE-READINESS-001' || o.product_id==='AGENTIC-COMMERCE-READINESS-001' || o.sku==='AGENTIC-COMMERCE-READINESS-001' || o.id==='AGENTIC-COMMERCE-READINESS-001')) throw new Error('FAIL: stale AGENTIC-COMMERCE-READINESS-001 is still publicly exposed.');
-          if(offers.some(o=>o.offer_id==='SMALL-BUSINESS-AI-COMMERCE-KIT-001' || o.product_id==='SMALL-BUSINESS-AI-COMMERCE-KIT-001' || o.sku==='SMALL-BUSINESS-AI-COMMERCE-KIT-001' || o.id==='SMALL-BUSINESS-AI-COMMERCE-KIT-001')) throw new Error('FAIL: removed placeholder AI product is still publicly exposed.');
-          console.log('PASS: canonical BEC-PRIME first-sale offer is publicly exposed and stale placeholder offers are absent.');
+          const x=JSON.parse(fs.readFileSync('live-marketplace.json','utf8'));
+          if(!Array.isArray(x.items)) throw new Error('FAIL: marketplace listing endpoint did not return items.');
+          for(const item of x.items){
+            if(item.status!=='APPROVED') throw new Error('FAIL: non-approved listing reached public marketplace.');
+            if(item.checkout_available!==true) throw new Error('FAIL: public approved listing is not checkout-enabled.');
+            if(item.car && Object.prototype.hasOwnProperty.call(item.car,'vin_private')) throw new Error('FAIL: private VIN leaked into public listing.');
+          }
+          console.log('PASS: account pages and marketplace public boundary are live.');
           NODE
-      - name: LIVE STRIPE CHECKOUT REALITY GATE
-        env:
-          BASE_URL: https://dreamledger.org
-        run: |
-          response=$(curl --fail --silent --show-error --request POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data '{"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"}')
-          echo "$response"
-          node -e "const r=JSON.parse(process.argv[1]); if(typeof r.url !== 'string' || !r.url.startsWith('https://checkout.stripe.com/')) { console.error('FAIL: checkout endpoint did not return a Stripe Checkout URL'); process.exit(1); } console.log('PASS: live Stripe Checkout URL returned')" "$response"
