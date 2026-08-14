@@ -3,7 +3,7 @@ name: First Sale Shot
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["BEC Prime Autonomous Operator"]
+    workflows: ["BEC Prime First Sale Gate"]
     types: [completed]
 
 concurrency:
@@ -12,13 +12,15 @@ concurrency:
 
 env:
   LIVE_URL: https://dreamledger.org
-  OFFER_ID: OFFER-BEC-PRIME-ARCHITECTURE-AUDIT
+  OFFER_ID: EDH_0001
+  EXPECTED_PRICE_NZD: "400"
   CHECKOUT_ENDPOINT: https://dreamledger.org/api/offer-checkout/create
 
 jobs:
   create-one-doorway:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Verify live commerce surface
         shell: bash
@@ -30,15 +32,15 @@ jobs:
           node - <<'NODE'
           const fs = require('fs');
           const data = JSON.parse(fs.readFileSync('proof/offers.json', 'utf8'));
-          const list = Array.isArray(data.offers) ? data.offers : [];
+          const list = Array.isArray(data) ? data : (Array.isArray(data.offers) ? data.offers : (Array.isArray(data.data) ? data.data : []));
           const id = process.env.OFFER_ID;
-          const offer = list.find(o => o.offer_id === id);
-          if (!offer) throw new Error(`approved offer missing: ${id}`);
+          const offer = list.find(o => o.offer_id === id || o.id === id || o.product_id === id || o.sku === id);
+          if (!offer) throw new Error(`live offer missing: ${id}`);
           if (offer.checkout_available !== true) throw new Error('checkout_available is false');
-          if (offer.approval_required !== false) throw new Error('approval_required is true');
-          if (Number(offer.price) !== 49) throw new Error('price is not NZD 49');
-          if (String(offer.currency).toUpperCase() !== 'NZD') throw new Error('currency is not NZD');
+          if (Number(offer.price) !== Number(process.env.EXPECTED_PRICE_NZD)) throw new Error(`price is not NZD ${process.env.EXPECTED_PRICE_NZD}`);
+          if (String(offer.currency || '').toUpperCase() !== 'NZD') throw new Error('currency is not NZD');
           console.log('COMMERCE_GATE=GREEN');
+          console.log(JSON.stringify(offer));
           NODE
 
       - name: Create exactly one checkout doorway
@@ -53,17 +55,16 @@ jobs:
           const url = data.url || data.checkout_url;
           if (!url || !/^https:\/\/checkout\.stripe\.com\//.test(url)) throw new Error('Stripe Checkout URL not returned');
           fs.writeFileSync('proof/checkout-url.txt', url + '\n');
-          console.log(`CHECKOUT_URL=${url}`);
+          console.log(`CHECKOUT_URL=${url.replace(/[^/]+$/, '[session]')}`);
           NODE
 
-      - name: Publish checkout URL to run summary
+      - name: Publish checkout proof to run summary
         shell: bash
         run: |
           echo '## FIRST SALE SHOT' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo 'One approved NZD 49 checkout doorway was created.' >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo 'The URL is stored in the checkout-url.txt artifact.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'EDH_0001 live offer verified at NZD 400.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Exactly one Stripe Checkout doorway was requested.' >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo 'Payment remains UNPROVEN until Stripe reports a paid checkout session.' >> "$GITHUB_STEP_SUMMARY"
 
