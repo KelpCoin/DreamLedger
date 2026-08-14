@@ -1,16 +1,25 @@
 {
   "gate": "ACCOUNT_AVATAR",
-  "date": "2026-08-13",
+  "date": "2026-08-14",
   "status": "REQUIRED",
   "acceptance": [
     "register works",
-    "login works",
+    "email verification is required",
+    "login works only after email verification",
     "session persists",
     "avatar creator opens for authenticated user",
+    "avatar is optional",
+    "base avatar is free",
+    "height supports very short through very tall",
+    "build supports very slim through very broad",
+    "skin tone supports a broad range",
     "avatar saves to account",
     "logout/login restores avatar",
+    "paid cosmetics remain separate from free base customization",
     "phone-first flow works",
-    "shared avatar asset contract remains canonical"
+    "shared avatar asset contract remains canonical",
+    "verified account is required to sell",
+    "buyers do not need an account to buy"
   ],
   "rule": "Do not claim the website functional until these checks pass against the deployed runtime."
 }
