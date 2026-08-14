@@ -1,0 +1,10 @@
+{
+  "kind": "lm_refinement",
+  "silo": "mtg",
+  "task": "Review the current MTG checkout implementation for one concrete reliability defect. Return the defect, file, evidence, and a minimal patch plan. Do not claim a payment occurred.",
+  "inputs": {
+    "model": "local-model"
+  },
+  "effects": [],
+  "worker_preference": "local-lmstudio"
+}
