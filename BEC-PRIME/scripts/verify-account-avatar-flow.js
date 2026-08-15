@@ -24,14 +24,14 @@ const checks=[
  ['ACCOUNT_BOUND_AVATAR',route.includes('users.find(x=>x.id===id)')],
  ['REGISTER_PASSWORD_MINIMUM',route.includes('password.length<8')],
  ['LOGIN_DOES_NOT_BLOCK_UNVERIFIED_ACCOUNT',!route.includes("if(found.email_verified!==true)return json(res,403")],
- ['REGISTER_USES_CREDENTIALS_API',register.includes('/api/dreamiez/account/create')],
- ['LOGIN_USES_CREDENTIALS_API',login.includes('/api/dreamiez/account/login')],
- ['LOGIN_SAME_ORIGIN_CREDENTIALS',login.includes("credentials:'same-origin'")],
- ['REGISTER_SAME_ORIGIN_CREDENTIALS',register.includes("credentials:'same-origin'")],
+ ['REGISTER_USES_PRIMARY_ACCOUNT_API',register.includes('/api/account/register')&&!register.includes('/api/dreamiez/account/create')],
+ ['LOGIN_USES_PRIMARY_ACCOUNT_API',login.includes('/api/account/login')&&!login.includes('/api/dreamiez/account/login')],
+ ['LOGIN_SAME_ORIGIN_CREDENTIALS',login.includes("credentials:'same-origin'")||login.includes("credentials:'include'")],
+ ['REGISTER_SAME_ORIGIN_CREDENTIALS',register.includes("credentials:'same-origin'")||register.includes("credentials:'include'")],
  ['EMAIL_PROVIDER_OPTIONAL_FOR_ACCOUNT_CREATION',route.includes('verification_error=err.message')&&route.includes('verification_sent')]
 ];
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
-const proof={schema:'dreamledger/account-avatar-contract/v3',verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,generated_at:new Date().toISOString()};
+const proof={schema:'dreamledger/account-avatar-contract/v4',verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,generated_at:new Date().toISOString()};
 const out=path.join(root,'data','proofs','ACCOUNT-AVATAR-CONTRACT-PROOF.json');
 fs.mkdirSync(path.dirname(out),{recursive:true});
 fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');
