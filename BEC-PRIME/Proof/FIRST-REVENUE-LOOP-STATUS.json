@@ -1,0 +1,15 @@
+{
+  "schema_version": "BEC-FIRST-REVENUE-LOOP-1.0",
+  "status": "CHECKOUT_READY_PAYMENT_UNPROVEN",
+  "product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+  "price_nzd": 49,
+  "silo": "commerce",
+  "approved": true,
+  "checkout_mode": "payment",
+  "payment_surface": "engine-generated-stripe-checkout",
+  "public_acquisition": "NOT_CHANGED",
+  "first_payment": "UNPROVEN",
+  "truth_rule": "Only a signed paid Stripe webhook may create first-payment proof.",
+  "next_machine_action": "Generate and verify buyer checkout when runtime credentials are available.",
+  "created_at_utc": "2026-08-15T00:00:00Z"
+}
