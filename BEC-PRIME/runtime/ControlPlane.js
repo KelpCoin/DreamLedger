@@ -2,6 +2,7 @@
 
 const { spawnSync } = require('child_process');
 const path = require('path');
+const autoRevenueCatalog = require('../catalog/AutoRevenueCatalog');
 const gauntlet = require('../gauntlet/GauntletV6');
 const elohim = require('../elohim/ElohimV6');
 const proxy = require('../proxy/DigitalProxy');
@@ -16,12 +17,13 @@ const ROOT = path.join(__dirname, '..');
 let lastBoot = null;
 
 function compile() {
+  const catalogResult = autoRevenueCatalog.ensure();
   const steps = [
     ['compile:products', path.join(ROOT, 'compiler', 'ProductCompiler.js')],
     ['compile:offers', path.join(ROOT, 'compiler', 'OfferCompiler.js')],
     ['compile:surface', path.join(ROOT, 'compiler', 'SurfaceCompiler.js')]
   ];
-  const results = [];
+  const results = [{ name: 'generate:auto-revenue-catalog', status: catalogResult.count === 100 ? 'PASS' : 'FAIL', stdout: JSON.stringify(catalogResult), stderr: '' }];
   for (const [name, file] of steps) {
     const result = spawnSync(process.execPath, [file], { cwd: ROOT, encoding: 'utf8' });
     results.push({ name, status: result.status === 0 ? 'PASS' : 'FAIL', stdout: result.stdout, stderr: result.stderr });
