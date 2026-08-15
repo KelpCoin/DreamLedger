@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
+      - name: Generate and verify 100 revenue products
+        working-directory: BEC-PRIME
+        run: node scripts/Verify-AutoRevenueCatalog.js
       - name: Compile canonical commerce and account surface
         working-directory: BEC-PRIME
         run: npm run compile
@@ -47,6 +50,9 @@ jobs:
         run: |
           set -euo pipefail
           node --check BEC-PRIME/start.js
+          node --check BEC-PRIME/runtime/ControlPlane.js
+          node --check BEC-PRIME/catalog/AutoRevenueCatalog.js
+          node --check BEC-PRIME/scripts/Verify-AutoRevenueCatalog.js
           node --check BEC-PRIME/routes/auth.js
           node --check BEC-PRIME/routes/dreamiez.js
           node --check BEC-PRIME/scripts/smoke-production.js
