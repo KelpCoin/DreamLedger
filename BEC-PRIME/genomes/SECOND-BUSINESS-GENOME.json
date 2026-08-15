@@ -1,0 +1,38 @@
+{
+  "genome_version": "1.0",
+  "genome_id": "GENOME_DIGITAL_SERVICE_AUDIT_001",
+  "business_id": "BUSINESS_SERVICE_AUDIT_001",
+  "brand": "ProofDesk",
+  "description": "A non-MTG digital service business used to prove that BEC can instantiate a second business from the same commercial core.",
+  "silo": "proofdesk",
+  "identity": {
+    "account_required": true,
+    "avatar_required": false,
+    "dreamiez_required": false
+  },
+  "catalogue": [
+    {
+      "sku": "PD-AUDIT-001",
+      "name": "Website Conversion Audit",
+      "price": 49,
+      "currency": "NZD",
+      "delivery": "PDF report delivered after payment"
+    }
+  ],
+  "commerce": {
+    "human_surface": true,
+    "agent_surface": true,
+    "checkout_required": true,
+    "payment_truth": "verified_payment_event"
+  },
+  "evidence": {
+    "gauntlet_required": true,
+    "participant_fossils_required": true,
+    "hash_chain_required": true,
+    "missing_evidence_policy": "QUARANTINE"
+  },
+  "policies": {
+    "public_posting": "approval_required",
+    "cross_silo_state": "forbidden"
+  }
+}
