@@ -4,11 +4,6 @@
   "installCommand": "npm install",
   "outputDirectory": "BEC-PRIME/compiled/website",
   "cleanUrls": false,
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "headers": [
     {
       "source": "/version",
