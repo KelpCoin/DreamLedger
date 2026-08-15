@@ -1,0 +1,66 @@
+name: Security Baseline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install without lifecycle scripts
+        working-directory: BEC-PRIME
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: High severity dependency audit
+        working-directory: BEC-PRIME
+        run: npm audit --audit-level=high --omit=dev
+
+      - name: Check tracked files for obvious secret material
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -nE 'sk_(live|test)_[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|xox[baprs]-[A-Za-z0-9-]{20,}' -- ':!docs/**' ':!BEC-PRIME/PROOF-*.json'; then
+            echo 'SECRET_PATTERN_FOUND'
+            exit 1
+          fi
+          echo 'SECRET_PATTERN_SCAN=PASS'
+
+      - name: Verify constitutional guardrails exist
+        shell: bash
+        run: |
+          test -f SECURITY.md
+          test -f .github/CODEOWNERS
+          test -f docs/CONSTITUTIONAL_GUARDRAILS.md
+          test -f docs/BEC_PRINCIPLES_SPEC.md
+          echo 'CONSTITUTIONAL_GUARDRAILS=PASS'
+
+      - name: Verify silo-sensitive public surface remains neutral
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          npm run compile
+          test -f compiled/website/index.html
+          ! grep -Eiq 'magic the gathering|mtg shop|commander deck' compiled/website/index.html
+          echo 'SILO_BOUNDARY_SCAN=PASS'
