@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digital Products | DreamLedger</title>
+<meta name="description" content="Instant-access digital products from the DreamLedger digital products silo.">
+<style>
+:root{--bg:#f5f6f8;--ink:#101217;--muted:#6b7280;--line:#e5e7eb;--card:#fff;--accent:#111827;--soft:#eef0f4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{text-decoration:none;color:inherit}.shell{max-width:1180px;margin:auto;padding:18px 20px 64px}.nav{height:58px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;letter-spacing:-.04em;font-size:20px}.navlinks{display:flex;gap:10px;align-items:center}.navlinks a{padding:9px 12px;border-radius:10px;color:var(--muted)}.navlinks a:hover{background:#fff;color:var(--ink)}.pill{background:var(--ink)!important;color:#fff!important}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:42px 34px;margin-top:18px;box-shadow:0 18px 55px rgba(17,24,39,.06)}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}h1{font-size:clamp(38px,7vw,72px);line-height:.95;letter-spacing:-.065em;margin:12px 0 18px;max-width:760px} .hero p{font-size:18px;color:var(--muted);max-width:680px;margin:0}.actions{display:flex;gap:10px;margin-top:25px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 17px;border-radius:12px;font-weight:800;background:var(--ink);color:#fff}.btn.alt{background:var(--soft);color:var(--ink)}
+.filters{display:flex;gap:8px;overflow:auto;padding:24px 0 14px}.filter{border:1px solid var(--line);background:#fff;padding:9px 13px;border-radius:999px;white-space:nowrap;font-weight:700}.filter.active{background:var(--ink);color:#fff;border-color:var(--ink)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;min-height:240px;display:flex;flex-direction:column}.icon{width:44px;height:44px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-weight:900;margin-bottom:20px}.tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}h2{font-size:21px;letter-spacing:-.03em;margin:7px 0}.desc{color:var(--muted);margin:0 0 18px}.bottom{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.price{font-size:19px;font-weight:900}.buy{background:var(--ink);color:#fff;border-radius:10px;padding:10px 13px;font-weight:800}.note{margin-top:20px;color:var(--muted);font-size:13px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.hero{padding:30px 22px;border-radius:22px}.navlinks a:not(.pill){display:none}.shell{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="nav"><a class="brand" href="/">DREAMLEDGER</a><nav class="navlinks"><a href="/">Home</a><a href="/login.html">Account</a><a class="pill" href="#catalog">Shop digital</a></nav></header>
+<section class="hero"><div class="eyebrow">CUBE / Digital Products</div><h1>Useful digital stuff. One clean shelf.</h1><p>A dedicated CUBE-reskinned storefront for the Digital Products silo. Browse by format, pick a product, and move directly toward instant access.</p><div class="actions"><a class="btn" href="#catalog">Browse products</a><a class="btn alt" href="/register.html">Create account</a></div></section>
+<div id="catalog" class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="pdf">PDFs</button><button class="filter" data-filter="template">Templates</button><button class="filter" data-filter="script">Scripts</button><button class="filter" data-filter="course">Courses</button><button class="filter" data-filter="audio">Audio</button></div>
+<section class="grid" aria-label="Digital products">
+<article class="card" data-type="pdf"><div class="icon">PDF</div><div class="tag">Digital guide</div><h2>Digital Product Starter Pack</h2><p class="desc">A compact bundle structure for turning useful knowledge into sellable downloads.</p><div class="bottom"><span class="price">NZ$19</span><a class="buy" href="/login.html?next=/digital-products">Get access</a></div></article>
+<article class="card" data-type="template"><div class="icon">TPL</div><div class="tag">Template</div><h2>Offer Builder Templates</h2><p class="desc">Reusable offer, landing-page and product-description templates.</p><div class="bottom"><span class="price">NZ$29</span><a class="buy" href="/login.html?next=/digital-products">Get access</a></div></article>
+<article class="card" data-type="script"><div class="icon">PS</div><div class="tag">Script</div><h2>Automation Script Kit</h2><p class="desc">Practical automation building blocks designed for repeatable local workflows.</p><div class="bottom"><span class="price">NZ$39</span><a class="buy" href="/login.html?next=/digital-products">Get access</a></div></article>
+<article class="card" data-type="course"><div class="icon">GO</div><div class="tag">Mini course</div><h2>Build-to-Sale Sprint</h2><p class="desc">A short path from product idea to a live, testable sales surface.</p><div class="bottom"><span class="price">NZ$49</span><a class="buy" href="/login.html?next=/digital-products">Get access</a></div></article>
+<article class="card" data-type="audio"><div class="icon">AUD</div><div class="tag">Audio</div><h2>Focus Pack</h2><p class="desc">Downloadable audio assets for focused work sessions and repeatable routines.</p><div class="bottom"><span class="price">NZ$15</span><a class="buy" href="/login.html?next=/digital-products">Get access</a></div></article>
+<article class="card" data-type="template"><div class="icon">KIT</div><div class="tag">Bundle</div><h2>Creator Launch Kit</h2><p class="desc">A compact bundle combining planning, offer and launch assets.</p><div class="bottom"><span class="price">NZ$59</span><a class="buy" href="/login.html?next=/digital-products">Get access</a></div></article>
+</section>
+<p class="note">This is the Digital Products silo only. MTG and other verticals remain isolated from this catalog.</p>
+</div>
+<script>
+const buttons=[...document.querySelectorAll('.filter')],cards=[...document.querySelectorAll('.card')];
+buttons.forEach(b=>b.addEventListener('click',()=>{buttons.forEach(x=>x.classList.remove('active'));b.classList.add('active');const f=b.dataset.filter;cards.forEach(c=>c.style.display=(f==='all'||c.dataset.type===f)?'flex':'none')}));
+</script>
+</body>
+</html>
