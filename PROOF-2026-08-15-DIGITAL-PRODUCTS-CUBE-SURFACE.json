@@ -1,0 +1,12 @@
+{
+  "proof": "DIGITAL_PRODUCTS_CUBE_SURFACE",
+  "status": "PASS",
+  "commit": "6e7d75f393a925d4053c89fea5d29820d4eee5dd",
+  "surface": "/digital-products.html",
+  "silo": "SILO_DIGITAL_PRODUCTS",
+  "architecture": "CUBE-reskinned digital-products storefront",
+  "categories": ["pdf", "template", "script", "course", "audio"],
+  "account_gate": "/login.html",
+  "silo_boundary": "Digital products only; no MTG catalog mixing",
+  "verification": "Open /digital-products.html and test each category filter; confirm all cards remain within the Digital Products silo."
+}
