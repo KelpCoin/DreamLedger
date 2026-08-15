@@ -1,8 +1,8 @@
 'use strict';
 
-// Inject the persistent auth router before start.js loads its historical
-// Dreamiez account module. This keeps the public module path stable while
-// ensuring /api/account/* uses real persistent sessions.
+// Force one canonical persistent account implementation in every Node start.
+// The public /api/account/* routes are handled by routes/auth.js before the
+// historical Dreamiez router can create anonymous users.
 const Module = require('module');
 const path = require('path');
 const originalLoad = Module._load;
@@ -14,8 +14,12 @@ Module._load = function(request, parent, isMain) {
     const legacy = originalLoad(legacyPath, parent, false);
     return {
       async handle(req, res, url) {
-        if (await auth.handle(req, res, url)) return true;
-        return legacy.handle(req, res, url);
+        const route = typeof url === 'string' ? url : String(req.url || '').split('?')[0];
+        if (route.startsWith('/api/account/')) {
+          const handled = await auth.handle(req, res, route);
+          if (handled) return true;
+        }
+        return legacy.handle(req, res, route);
       }
     };
   }
