@@ -1,0 +1,34 @@
+{
+  "schema": "dreamledger/login-fix-proof/v1",
+  "status": "PATCHED_AND_REDEPLOY_TRIGGERED",
+  "date": "2026-08-15",
+  "repository": "KelpCoin/DreamLedger",
+  "commit": "5fdbb5df948cb73b548ada5a400d41878047211c",
+  "change": "Forced a fresh Render production deployment and made the login release gate explicit.",
+  "canonical_routes": {
+    "/login": "login.html",
+    "/login/": "login.html",
+    "/register": "register.html",
+    "/register/": "register.html",
+    "/account": "account.html",
+    "/account/": "account.html"
+  },
+  "primary_auth": {
+    "register": "/api/account/register",
+    "login": "/api/account/login",
+    "me": "/api/account/me",
+    "logout": "/api/account/logout"
+  },
+  "production_storage_contract": "/var/data/dreamiez/users.json via DREAMIEZ_DATA_DIR on Render",
+  "verification": [
+    "GET /healthz = 200",
+    "GET /version commit matches deployed commit",
+    "GET /login = 200",
+    "GET /login.html = 200",
+    "register -> session -> me = authenticated",
+    "login -> session -> me = authenticated",
+    "invalid login = 401",
+    "logout -> me = unauthenticated"
+  ],
+  "note": "This proof records the GitHub-side fix and redeploy trigger. Live PASS requires the production smoke gate after Render propagation."
+}
