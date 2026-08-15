@@ -1,0 +1,3 @@
+DreamLedger production deployment trigger.
+Purpose: force Render autoDeployTrigger=commit after account/login fixes.
+Verification target: /version must report this commit before production is considered green.
