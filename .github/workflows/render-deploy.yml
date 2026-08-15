@@ -51,23 +51,8 @@ jobs:
         working-directory: BEC-PRIME
         run: npm run smoke:front-door
 
-  deploy:
-    needs: acceptance-gate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Render deploy when a hook is configured
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "ERROR: RENDER_DEPLOY_HOOK_URL is not configured. Refusing to claim deployment."
-            exit 1
-          fi
-          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
-          echo "PASS: Render deploy hook triggered after acceptance gate."
-
   production-smoke:
-    needs: deploy
+    needs: acceptance-gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -81,7 +66,7 @@ jobs:
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
-      - name: Wait for production and test auth
+      - name: Wait for Render auto-deploy and test production
         working-directory: BEC-PRIME
         env:
           SMOKE_BASE_URL: https://dreamledger.org
@@ -93,12 +78,12 @@ jobs:
           done
           echo "FAIL: production did not converge within 10 minutes."
           exit 1
-      - name: Verify account pages are live
+      - name: Verify account pages and canonical login surface
         env:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error "$BASE_URL/login.html" >/dev/null
+          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/account/login'
           curl --fail --silent --show-error "$BASE_URL/register.html" >/dev/null
           curl --fail --silent --show-error "$BASE_URL/account.html" >/dev/null
-          echo "PASS: production account pages are live."
+          echo "PASS: production account pages and canonical login surface are live."
