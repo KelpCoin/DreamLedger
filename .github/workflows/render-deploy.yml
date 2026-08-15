@@ -1,20 +1,12 @@
-name: Deploy DreamLedger to Render
+name: Verify DreamLedger production
 
 on:
   push:
     branches: [main]
-  workflow_run:
-    workflows: ["BEC-PRIME Auto Compile DreamLedger"]
-    types: [completed]
   workflow_dispatch:
-
-concurrency:
-  group: dreamledger-production-deploy
-  cancel-in-progress: false
 
 jobs:
   acceptance-gate:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,8 +34,10 @@ jobs:
           node --check BEC-PRIME/start.js
           node --check BEC-PRIME/lib/authRuntimePreload.js
           node --check BEC-PRIME/routes/auth.js
+          node --check BEC-PRIME/routes/dreamiez.js
           node --check BEC-PRIME/scripts/smoke-dreamiez.js
           node --check BEC-PRIME/scripts/smoke-front-door.js
+          node --check BEC-PRIME/scripts/smoke-production.js
       - name: Dreamiez E2E smoke
         working-directory: BEC-PRIME
         run: npm run smoke:dreamiez
@@ -51,7 +45,7 @@ jobs:
         working-directory: BEC-PRIME
         run: npm run smoke:front-door
 
-  production-smoke:
+  production-login-smoke:
     needs: acceptance-gate
     runs-on: ubuntu-latest
     steps:
@@ -66,24 +60,26 @@ jobs:
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
-      - name: Wait for Render auto-deploy and test production
+      - name: Verify live production login and session round-trip
         working-directory: BEC-PRIME
         env:
           SMOKE_BASE_URL: https://dreamledger.org
         run: |
+          set -euo pipefail
           for i in $(seq 1 60); do
-            echo "Production auth smoke attempt $i/60"
+            echo "LIVE LOGIN PROOF attempt $i/60"
             if npm run smoke:production; then exit 0; fi
             sleep 10
           done
-          echo "FAIL: production did not converge within 10 minutes."
+          echo "FAIL: live production login/session proof did not pass within 10 minutes."
           exit 1
-      - name: Verify account pages and canonical login surface
+      - name: Verify canonical login HTML
         env:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
           curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/account/login'
+          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/account/me'
           curl --fail --silent --show-error "$BASE_URL/register.html" >/dev/null
           curl --fail --silent --show-error "$BASE_URL/account.html" >/dev/null
-          echo "PASS: production account pages and canonical login surface are live."
+          echo "PASS: live DreamLedger login/register/account surfaces are reachable."
