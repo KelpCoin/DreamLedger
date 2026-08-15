@@ -1,0 +1,34 @@
+name: economic-revenue-gate
+
+on:
+  push:
+    branches: [ main, 'revenue/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  economic-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run canonical offer gate
+        shell: pwsh
+        run: ./BEC-PRIME/scripts/Gauntlet-Offers.ps1
+
+      - name: Run economic gate
+        shell: pwsh
+        run: ./BEC-PRIME/scripts/Run-EconomicGate.ps1
+
+      - name: Upload economic proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-gate-proof
+          path: BEC-PRIME/Proof/EconomicGate/ECONOMIC-GATE-LATEST.json
+          if-no-files-found: error
