@@ -1,0 +1,29 @@
+{
+  "schema": "dreamledger/persistent-auth-fix/v1",
+  "verdict": "IMPLEMENTED",
+  "date": "2026-08-15",
+  "repository": "KelpCoin/DreamLedger",
+  "changes": [
+    "Added BEC-PRIME/routes/auth.js as the canonical persistent email/password account router.",
+    "Added BEC-PRIME/lib/authRuntimePreload.js so production start.js uses the new auth router without breaking the legacy Dreamiez route module.",
+    "Updated BEC-PRIME/package.json to load the auth runtime preload in production and smoke startup.",
+    "Updated BEC-PRIME/scripts/smoke-dreamiez.js with anonymous, register, logout, login, invalid-login and restart-persistence checks."
+  ],
+  "storage": {
+    "production": "/var/data/dreamiez/users.json",
+    "render_environment": "DREAMIEZ_DATA_DIR=/var/data/dreamiez"
+  },
+  "security": [
+    "Passwords use Node scrypt with per-user random salts.",
+    "Session cookie is HttpOnly, Secure and SameSite=Lax.",
+    "Anonymous /api/account/me now returns authenticated=false instead of creating an anonymous account."
+  ],
+  "commits": [
+    "c7b0c9691aac662153615728b8342015a41edc81",
+    "ca62ddb02802cf5a1988a28b8151f272831b7b88",
+    "f85b41bc396e726e94d337293a6275698ba0cc14",
+    "ea5885f3ee2970a3d7169f5f4204b76e5c764a9f"
+  ],
+  "verification_command": "cd BEC-PRIME && npm run smoke:dreamiez",
+  "required_runtime_result": "smoke_test=PASS; account_created=true; anonymous_blocked=true; login=true; logout=true; password_hashed=true; persistence_across_restart=true"
+}
