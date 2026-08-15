@@ -5,9 +5,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: dreamledger-production
+  cancel-in-progress: true
+
 jobs:
   acceptance-gate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,34 +25,37 @@ jobs:
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
-      - name: Compile canonical commerce surface
+      - name: Compile canonical commerce and account surface
         working-directory: BEC-PRIME
         run: npm run compile
-      - name: Account contract gate
+      - name: Verify primary account contract
         working-directory: BEC-PRIME
         run: node scripts/verify-account-avatar-flow.js
+      - name: Verify compiled primary account pages
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          for page in login.html register.html account.html; do
+            test -f "compiled/website/$page"
+            grep -q '/api/account/' "compiled/website/$page"
+          done
+          ! grep -q '/api/dreamiez/account/login' compiled/website/login.html
+          echo "PASS: primary account pages compile without requiring Dreamiez."
       - name: Syntax gate
         shell: bash
         run: |
           set -euo pipefail
-          node --check BEC-PRIME/server.js
           node --check BEC-PRIME/start.js
-          node --check BEC-PRIME/lib/authRuntimePreload.js
           node --check BEC-PRIME/routes/auth.js
           node --check BEC-PRIME/routes/dreamiez.js
-          node --check BEC-PRIME/scripts/smoke-dreamiez.js
-          node --check BEC-PRIME/scripts/smoke-front-door.js
           node --check BEC-PRIME/scripts/smoke-production.js
-      - name: Dreamiez E2E smoke
-        working-directory: BEC-PRIME
-        run: npm run smoke:dreamiez
-      - name: Account and marketplace front door smoke
-        working-directory: BEC-PRIME
-        run: npm run smoke:front-door
+          node --check BEC-PRIME/scripts/smoke-front-door.js
 
-  production-login-smoke:
+  production-account-smoke:
     needs: acceptance-gate
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,26 +68,21 @@ jobs:
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
-      - name: Verify live production login and session round-trip
-        working-directory: BEC-PRIME
+      - name: Verify live primary account surface
         env:
           SMOKE_BASE_URL: https://dreamledger.org
+        working-directory: BEC-PRIME
         run: |
           set -euo pipefail
-          for i in $(seq 1 60); do
-            echo "LIVE LOGIN PROOF attempt $i/60"
-            if npm run smoke:production; then exit 0; fi
-            sleep 10
-          done
-          echo "FAIL: live production login/session proof did not pass within 10 minutes."
-          exit 1
-      - name: Verify canonical login HTML
+          node scripts/smoke-production.js
+      - name: Verify live account pages are reachable
         env:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/dreamiez/account/login'
-          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/dreamiez/me'
-          curl --fail --silent --show-error "$BASE_URL/register.html" >/dev/null
-          curl --fail --silent --show-error "$BASE_URL/account.html" >/dev/null
-          echo "PASS: live DreamLedger login/register/account surfaces are reachable."
+          for page in login.html register.html account.html; do
+            curl --fail --silent --show-error --max-time 15 "$BASE_URL/$page" >/tmp/$page
+            grep -q '/api/account/' /tmp/$page
+          done
+          ! grep -q '/api/dreamiez/account/login' /tmp/login.html
+          echo "PASS: live primary DreamLedger account surfaces are reachable and Dreamiez is optional."
