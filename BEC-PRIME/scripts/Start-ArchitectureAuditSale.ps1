@@ -29,7 +29,7 @@ try {
     if ($product.status -ne 'published') { throw 'Product is not published' }
     if ($product.approval_required -ne $false) { throw 'Product approval gate is still on' }
     if ([int]$product.inventory -lt 1) { throw 'Product inventory unavailable' }
-    if ([int]$product.price -ne 4900) { throw "Price mismatch: expected NZD 49.00, got minor units $($product.price)" }
+    if ([int]$product.price -ne 2900) { throw "Price mismatch: expected NZD 29.00, got minor units $($product.price)" }
     if ([string]$product.currency -ne 'nzd') { throw "Currency mismatch: expected NZD, got $($product.currency)" }
     if ($product.checkout.mode -ne 'payment') { throw 'Checkout mode is not payment' }
     if ($product.commercial_truth.payment_surface -ne 'engine-generated-stripe-checkout') { throw 'Unexpected payment surface' }
