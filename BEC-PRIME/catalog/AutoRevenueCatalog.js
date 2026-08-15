@@ -10,9 +10,17 @@ const CAPS = ['BEC-PRIME-ARCHITECTURE','BEC-PRIME-CUBE','BEC-PRIME-ELOHIM','BEC-
 const AREAS = ['Architecture','CUBE','Orchestration','Gauntlet','Truth Proof','Revenue OS','Commerce Kernel','Agent Commerce','Silo Control','Commercial Proof','Readiness','Runtime Sentinel'];
 const PRICES = [49,59,79,89,99,129,149,179,199,249];
 
+function existingApproved() {
+  if (!fs.existsSync(APPROVED)) return [];
+  try {
+    const data = JSON.parse(fs.readFileSync(APPROVED, 'utf8'));
+    return Array.isArray(data.approved) ? data.approved.filter(x => !String(x.offer_id || '').startsWith('DL-AUTO-')) : [];
+  } catch { return []; }
+}
+
 function ensure() {
   fs.mkdirSync(DIR, { recursive: true });
-  const approved = [];
+  const approved = existingApproved();
   for (let i = 1; i <= 100; i += 1) {
     const n = String(i).padStart(3, '0');
     const capability = CAPS[(i - 1) % CAPS.length];
@@ -41,7 +49,7 @@ function ensure() {
     });
   }
   fs.writeFileSync(APPROVED, JSON.stringify({ schema: 'BEC-PRIME/APPROVED-OFFERS/v1', rule: 'No commercial offer is publicly checkout-enabled until explicitly approved by the operator.', approved }, null, 2) + '\n', 'utf8');
-  return { count: approved.length, first: approved[0].offer_id, last: approved[approved.length - 1].offer_id };
+  return { count: 100, preserved_approved: approved.length - 100, first: 'DL-AUTO-001', last: 'DL-AUTO-100' };
 }
 
 if (require.main === module) console.log(JSON.stringify(ensure(), null, 2));
