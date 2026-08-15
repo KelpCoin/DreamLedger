@@ -1,0 +1,7 @@
+# Constitutional and security-sensitive paths require explicit owner review.
+# Keep the ownership rule narrow so routine application changes remain lightweight.
+/SECURITY.md @KelpCoin
+/BEC-PRIME/CONSTITUTION/ @KelpCoin
+/docs/BEC_PRINCIPLES_SPEC.md @KelpCoin
+/docs/CONSTITUTIONAL_GUARDRAILS.md @KelpCoin
+/.github/workflows/ @KelpCoin
