@@ -4,16 +4,17 @@
   "approved": [
     {
       "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
-      "product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+      "product_id": "AGENTIC_SOVEREIGNTY_DIAGNOSTIC",
+      "product_sku": "AGENTIC_SOVEREIGNTY_DIAGNOSTIC",
       "capability_id": "BEC-PRIME-ARCHITECTURE",
       "silo": "dreamledger",
-      "name": "BEC-PRIME Architecture audit",
-      "problem": "Assess and improve the area described by BEC-PRIME Architecture.",
+      "name": "Agentic Sovereignty Diagnostic",
+      "problem": "Identify the largest execution, cost, verification, and sovereignty risks in an AI-enabled system.",
       "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
-      "output": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
-      "delivery_mechanism": "engine_generated_digital_deliverable",
-      "deliverable": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
-      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "output": "One-page written diagnostic with evidence-backed findings, highest-priority risks, and concrete next actions.",
+      "delivery_mechanism": "manual_written_digital_deliverable",
+      "deliverable": "One-page written diagnostic delivered manually within 24h.",
+      "target_buyer": "AI builders, operators, and founders using or evaluating AI agents and agentic systems",
       "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
       "constraints": [
         "No credential collection",
@@ -21,11 +22,11 @@
         "No unsupported claims",
         "Silo boundaries enforced"
       ],
-      "price": 49,
+      "price": 29,
       "currency": "NZD",
       "pricing_strategy": "fixed",
       "pricing_tier": null,
-      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "refund_rules": "Manual, tracked refund path; delivery is not represented as complete before verified fulfillment.",
       "payment_adapter": "stripe",
       "checkout_route": "/api/offer-checkout/create",
       "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
@@ -50,7 +51,7 @@
         "private_material": "excluded"
       },
       "approved_by": "operator",
-      "approved_at": "2026-08-13"
+      "approved_at": "2026-08-15"
     }
   ]
 }
