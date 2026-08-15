@@ -1,4 +1,13 @@
 DreamLedger production deployment trigger.
 
 Purpose: force a fresh Render deployment from main so production can be verified against the Git commit SHA.
-Do not remove until the production /version check has passed.
+
+Release gate:
+- GET /login must resolve to the canonical primary DreamLedger login surface.
+- GET /login.html must return HTTP 200.
+- POST /api/account/register must create a primary account.
+- POST /api/account/login must authenticate the primary account.
+- GET /api/account/me must retain the authenticated session.
+- Dreamiez must remain optional and must not be the primary authentication authority.
+
+Do not remove until the production /version and account smoke checks have passed.
