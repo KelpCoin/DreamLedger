@@ -1,0 +1,34 @@
+{
+  "schema": "BEC-PRIME/FULL-COMPILATION/v4",
+  "status": "PASS",
+  "compiled_at": "2026-08-15T03:38:11.6498631Z",
+  "compiler": "Compile-All.ps1",
+  "login_contract": {
+    "session_endpoint": "/api/dreamiez/me",
+    "path": "compiled/website/login.html",
+    "verified": true,
+    "login_endpoint": "/api/dreamiez/account/login"
+  },
+  "inputs": [
+    "package.json",
+    "BEC-PRIME/economics/ECONOMIC-TREES.json",
+    "BEC-PRIME/economics/IP-ECONOMIC-COMPILATION.json",
+    "BEC-PRIME/PROOF-2026-08-11-MONETIZATION-WEDGE-PORTFOLIO.json"
+  ],
+  "outputs": [
+    "catalog/compiled",
+    "compiled/website",
+    "compiled/website/economics/ip-manifest.json",
+    "PROOF-ECONOMIC-TREE-COMPILATION.json",
+    "PROOF-SILO-PORTFOLIO-COMPILATION.json"
+  ],
+  "guarantees": {
+    "silo_portfolio_compile": true,
+    "economic_tree_compile": true,
+    "public_login_contract_verified": true,
+    "existing_dreamledger_compile": true,
+    "external_actions_created": false,
+    "ip_contract_compile": true,
+    "payment_claims_created": false
+  }
+}
