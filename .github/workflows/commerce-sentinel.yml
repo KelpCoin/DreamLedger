@@ -45,9 +45,11 @@ jobs:
           if (!offer) throw new Error(`approved offer missing: ${process.env.OFFER_ID}`);
           if (offer.checkout_available !== true) throw new Error('approved offer is not checkoutable');
           if (offer.approval_required !== false) throw new Error('approved offer remains approval-gated');
-          if (Number(offer.price) !== 49) throw new Error('approved offer price is not NZD 49');
+          if (Number(offer.price) !== 29) throw new Error('approved offer price is not NZD 29');
           if (String(offer.currency).toUpperCase() !== 'NZD') throw new Error('approved offer currency is not NZD');
-          console.log(JSON.stringify({status:'PASS', offer_id:offer.offer_id, price:offer.price, currency:offer.currency, checkout_available:offer.checkout_available}, null, 2));
+          if (String(offer.product_sku) !== 'AGENTIC_SOVEREIGNTY_DIAGNOSTIC') throw new Error('approved offer SKU is not AGENTIC_SOVEREIGNTY_DIAGNOSTIC');
+          if (String(offer.name) !== 'Agentic Sovereignty Diagnostic') throw new Error('approved offer name is not Agentic Sovereignty Diagnostic');
+          console.log(JSON.stringify({status:'PASS', offer_id:offer.offer_id, product_sku:offer.product_sku, name:offer.name, price:offer.price, currency:offer.currency, checkout_available:offer.checkout_available}, null, 2));
           NODE
           echo "CHECKOUT_READY=true" | tee -a proof/commerce-sentinel.txt
 
