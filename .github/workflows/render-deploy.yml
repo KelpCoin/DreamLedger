@@ -78,8 +78,8 @@ jobs:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/account/login'
-          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/account/me'
+          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/dreamiez/account/login'
+          curl --fail --silent --show-error "$BASE_URL/login.html" | grep -q '/api/dreamiez/me'
           curl --fail --silent --show-error "$BASE_URL/register.html" >/dev/null
           curl --fail --silent --show-error "$BASE_URL/account.html" >/dev/null
           echo "PASS: live DreamLedger login/register/account surfaces are reachable."
