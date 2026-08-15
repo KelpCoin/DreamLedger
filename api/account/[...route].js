@@ -1,16 +1,14 @@
 'use strict';
 
-// Vercel serverless adapter for the canonical Dreamiez account routes.
-// The legacy Node runtime stores local JSON state; Vercel functions have a
-// read-only deployment filesystem, so hosted smoke/auth state uses /tmp.
-// This is a runtime compatibility bridge, not a durable production datastore.
-process.env.DREAMIEZ_DATA_DIR = process.env.DREAMIEZ_DATA_DIR || '/tmp/dreamledger-dreamiez';
+// Canonical DreamLedger account API. Dreamiez is optional and is never the
+// authentication authority for the primary website account.
+process.env.DREAMIEZ_DATA_DIR = process.env.DREAMIEZ_DATA_DIR || '/tmp/dreamledger-account';
 
-const dreamiez = require('../../BEC-PRIME/routes/dreamiez');
+const auth = require('../../BEC-PRIME/routes/auth');
 
 module.exports = async function accountRoute(req, res) {
   try {
-    const handled = await dreamiez.handle(req, res, String(req.url || '').split('?')[0]);
+    const handled = await auth.handle(req, res, String(req.url || '').split('?')[0]);
     if (handled) return;
     if (!res.writableEnded) {
       res.statusCode = 404;
