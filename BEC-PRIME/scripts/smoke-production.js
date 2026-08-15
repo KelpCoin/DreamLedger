@@ -21,12 +21,12 @@ async function request(path, options = {}) {
 
   const loginPage = await request('/login.html');
   assert.equal(loginPage.response.status, 200, `login page HTTP ${loginPage.response.status}`);
-  assert.match(loginPage.text, /\/api\/account\/login/, 'login page must use canonical account login API');
-  assert.match(loginPage.text, /\/api\/account\/me/, 'login page must use canonical account session API');
+  assert.match(loginPage.text, /\/api\/dreamiez\/account\/login/, 'login page must use canonical Dreamiez login API');
+  assert.match(loginPage.text, /\/api\/dreamiez\/me/, 'login page must use canonical Dreamiez session API');
 
   const smokeEmail = `production-login-${crypto.randomUUID()}@example.test`;
   const smokePassword = 'DreamLedgerProduction!2026';
-  const created = await request('/api/account/register', {
+  const created = await request('/api/dreamiez/account/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: smokeEmail, password: smokePassword, name: 'Production Login Smoke' })
@@ -36,12 +36,12 @@ async function request(path, options = {}) {
   const cookie = created.response.headers.get('set-cookie');
   assert.ok(cookie && cookie.includes('dreamiez_session='), 'registration must return a Dreamiez session cookie');
 
-  const session = await request('/api/account/me', { headers: { cookie } });
+  const session = await request('/api/dreamiez/me', { headers: { cookie } });
   assert.equal(session.response.status, 200, 'account session probe must return HTTP 200');
   assert.equal(session.body?.authenticated, true, 'registered production account must be authenticated');
   assert.equal(session.body?.account?.email, smokeEmail, 'registered account email must round-trip');
 
-  const login = await request('/api/account/login', {
+  const login = await request('/api/dreamiez/account/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: smokeEmail, password: smokePassword })
@@ -51,11 +51,11 @@ async function request(path, options = {}) {
   const loginCookie = login.response.headers.get('set-cookie');
   assert.ok(loginCookie && loginCookie.includes('dreamiez_session='), 'login must return a Dreamiez session cookie');
 
-  const loggedIn = await request('/api/account/me', { headers: { cookie: loginCookie } });
+  const loggedIn = await request('/api/dreamiez/me', { headers: { cookie: loginCookie } });
   assert.equal(loggedIn.body?.authenticated, true, 'login session must authenticate');
   assert.equal(loggedIn.body?.account?.email, smokeEmail, 'login session must restore the same account');
 
-  const badLogin = await request('/api/account/login', {
+  const badLogin = await request('/api/dreamiez/account/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: smokeEmail, password: 'wrong-password' })
