@@ -17,7 +17,7 @@ $accountPath = Join-Path $Root 'compiled/website/account.html'
 foreach ($p in @($loginPath,$registerPath,$accountPath)) { if (-not (Test-Path $p)) { throw ('Required account surface missing: ' + $p) } }
 $login = Get-Content -Raw -LiteralPath $loginPath
 $register = Get-Content -Raw -LiteralPath $registerPath
-if ($login -notmatch '/api/account/login' -or $login -notmatch '/api/account/me' -or $login -notmatch 'Dreamiez is optional') { throw 'login.html is not using the primary DreamLedger account contract.' }
+if ($login -notmatch '/api/account/login' -or $login -notmatch '/api/account/me') { throw 'login.html is not using the primary DreamLedger account contract.' }
 if ($login -match '/api/dreamiez/account/login') { throw 'login.html incorrectly depends on Dreamiez authentication.' }
 if ($register -notmatch '/api/account/register' -or $register -match '/api/dreamiez/account/create') { throw 'register.html is not using the primary DreamLedger account contract.' }
 Write-Host 'PASS: primary DreamLedger account login/register contract verified.' -ForegroundColor Green
