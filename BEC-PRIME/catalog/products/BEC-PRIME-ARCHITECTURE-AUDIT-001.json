@@ -1,9 +1,9 @@
 {
   "id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
   "silo": "commerce",
-  "name": "BEC-PRIME Architecture Audit",
-  "description": "A structured audit of a local-first AI commerce system covering architecture risks, monetization bottlenecks, deployment readiness, and prioritized implementation actions.",
-  "price": 4900,
+  "name": "Agentic Sovereignty Diagnostic",
+  "description": "A one-page practical diagnostic of execution, cost, verification, and sovereignty risks in an AI-enabled system.",
+  "price": 2900,
   "currency": "nzd",
   "inventory": 100,
   "status": "published",
