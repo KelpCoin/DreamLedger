@@ -18,6 +18,7 @@
     "verify:ip": "node BEC-PRIME/scripts/verify-ip-runtime-contract.js",
     "verify:account-avatar": "node BEC-PRIME/scripts/verify-account-avatar-flow.js",
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
+    "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",
     "refine:local": "python BEC-PRIME/refinement/MultiLMRefinementEngine.py",
     "gauntlet:candidate": "node BEC-PRIME/gauntlet/CandidateGauntlet.js"
   },
