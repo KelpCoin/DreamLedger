@@ -18,7 +18,7 @@ function compile() {
   const offers = products.map(p => ({
     offer_id: p.id,
     version: 'product-offer-v1',
-    capability_id: `PRODUCT-${p.id}`,
+    capability_id: p.capability_id || `PRODUCT-${p.id}`,
     silo: p.silo,
     name: p.name,
     problem: `Purchase ${p.name}.`,
@@ -33,7 +33,7 @@ function compile() {
     currency: String(p.currency || 'nzd').toUpperCase(),
     pricing_strategy: 'fixed',
     payment_adapter: 'stripe',
-    checkout_route: '/api/checkout/create',
+    checkout_route: '/api/offer-checkout/create',
     approval_required: p.commercial_truth?.approval_required === true,
     checkout_available: p.status === 'published' && p.commercial_truth?.approval_required === false && Number(p.inventory || 0) > 0,
     status: p.status === 'published' && Number(p.inventory || 0) > 0 ? 'VERIFIED_AVAILABLE' : 'unavailable',
