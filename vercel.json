@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "buildCommand": "npm run compile",
+  "installCommand": "npm install",
+  "outputDirectory": "BEC-PRIME/compiled/website",
+  "cleanUrls": false,
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "headers": [
+    {
+      "source": "/version",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    }
+  ]
+}
