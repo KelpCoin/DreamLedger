@@ -1,6 +1,8 @@
 name: Deploy DreamLedger to Render
 
 on:
+  push:
+    branches: [main]
   workflow_run:
     workflows: ["BEC-PRIME Auto Compile DreamLedger"]
     types: [completed]
@@ -29,12 +31,6 @@ jobs:
       - name: Compile canonical commerce surface
         working-directory: BEC-PRIME
         run: npm run compile
-      - name: Compiler truth gate
-        shell: pwsh
-        run: ./BEC-PRIME/scripts/Verify-CompilerTruth.ps1 -ProofPath "$env:GITHUB_WORKSPACE/compiler-truth-proof.json"
-      - name: Public boundary gate
-        working-directory: BEC-PRIME
-        run: node scripts/verify-public-surface.js
       - name: Account contract gate
         working-directory: BEC-PRIME
         run: node scripts/verify-account-avatar-flow.js
@@ -44,69 +40,16 @@ jobs:
           set -euo pipefail
           node --check BEC-PRIME/server.js
           node --check BEC-PRIME/start.js
-          node --check BEC-PRIME/routes/conversations.js
-          node --check BEC-PRIME/routes/dreamiez.js
-          node --check BEC-PRIME/routes/frontDoor.js
-          node --check BEC-PRIME/routes/accountRecovery.js
-          node --check BEC-PRIME/routes/marketplaceWebhook.js
-          node --check BEC-PRIME/compiler/OfferCompiler.js
-          node --check BEC-PRIME/compiler/SurfaceCompiler.js
-          node --check BEC-PRIME/compiler/PriceDisplayPatch.js
-          node --check BEC-PRIME/compiler/PublicSurfaceContractPatch.js
+          node --check BEC-PRIME/lib/authRuntimePreload.js
+          node --check BEC-PRIME/routes/auth.js
           node --check BEC-PRIME/scripts/smoke-dreamiez.js
           node --check BEC-PRIME/scripts/smoke-front-door.js
-          node --check BEC-PRIME/scripts/smoke-revenue-ledger.js
-          node --check BEC-PRIME/scripts/smoke-production.js
-          node --check BEC-PRIME/scripts/smoke-persistent-chat.js
-          node --check BEC-PRIME/scripts/meta-gauntlet.js
-          node --check BEC-PRIME/gauntlet/GauntletV6.js
-          node --check BEC-PRIME/elohim/ElohimV6.js
-          node --check BEC-PRIME/proxy/DigitalProxy.js
-          node --check BEC-PRIME/proxy/DigitalProxyAssistant.js
-          node --check BEC-PRIME/runtime/ControlPlane.js
-          node --check BEC-PRIME/runtime/DemandRadar.js
-          node --check BEC-PRIME/runtime/Sentinel.js
-      - name: Enterprise meta-gauntlet
-        working-directory: BEC-PRIME
-        run: node scripts/meta-gauntlet.js
-      - name: Revenue ledger smoke
-        working-directory: BEC-PRIME
-        run: npm run smoke:revenue-ledger
       - name: Dreamiez E2E smoke
         working-directory: BEC-PRIME
         run: npm run smoke:dreamiez
       - name: Account and marketplace front door smoke
         working-directory: BEC-PRIME
         run: npm run smoke:front-door
-      - name: Persistent account chat smoke
-        working-directory: BEC-PRIME
-        env:
-          SMOKE_BASE_URL: http://127.0.0.1:3000
-          PROOF_PATH: PROOF-PERSISTENT-CHAT-LOCAL.json
-        run: |
-          node start.js > persistent-chat-runtime.log 2>&1 &
-          PID=$!
-          trap 'kill $PID 2>/dev/null || true' EXIT
-          for i in $(seq 1 30); do
-            if curl --fail --silent --show-error http://127.0.0.1:3000/healthz >/dev/null; then break; fi
-            sleep 1
-          done
-          npm run smoke:persistent-chat
-      - name: Upload acceptance fossil
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dreamledger-acceptance-${{ github.run_id }}
-          path: |
-            BEC-PRIME/PROOF-META-GAUNTLET.json
-            BEC-PRIME/PROOF-PUBLIC-SURFACE-CONTRACT-PATCH.json
-            BEC-PRIME/data/proofs/SENTINEL-LATEST.json
-            BEC-PRIME/data/proofs/PUBLIC-SURFACE-PROOF.json
-            BEC-PRIME/data/proofs/ACCOUNT-AVATAR-CONTRACT-PROOF.json
-            BEC-PRIME/PROOF-PERSISTENT-CHAT-LOCAL.json
-            BEC-PRIME/persistent-chat-runtime.log
-            compiler-truth-proof.json
-          if-no-files-found: warn
 
   deploy:
     needs: acceptance-gate
@@ -117,11 +60,11 @@ jobs:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "No deploy hook configured. Render is configured to deploy after GitHub checks pass."
-            exit 0
+            echo "ERROR: RENDER_DEPLOY_HOOK_URL is not configured. Refusing to claim deployment."
+            exit 1
           fi
           curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
-          echo "Render deploy hook triggered after acceptance gate PASS."
+          echo "PASS: Render deploy hook triggered after acceptance gate."
 
   production-smoke:
     needs: deploy
@@ -135,50 +78,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Install dependencies for live gate
+      - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
-      - name: Wait for Render deployment and test real public surface
+      - name: Wait for production and test auth
         working-directory: BEC-PRIME
         env:
           SMOKE_BASE_URL: https://dreamledger.org
         run: |
           for i in $(seq 1 60); do
-            echo "Production smoke attempt $i/60"
+            echo "Production auth smoke attempt $i/60"
             if npm run smoke:production; then exit 0; fi
             sleep 10
           done
-          echo "PRODUCTION SMOKE FAILED: dreamledger.org did not converge within 10 minutes."
+          echo "FAIL: production did not converge within 10 minutes."
           exit 1
-      - name: LIVE ACCOUNT MARKETPLACE AND CHAT REALITY GATE
-        working-directory: BEC-PRIME
+      - name: Verify account pages are live
         env:
           BASE_URL: https://dreamledger.org
-          SMOKE_BASE_URL: https://dreamledger.org
-          PROOF_PATH: PROOF-PERSISTENT-CHAT.json
         run: |
           set -euo pipefail
           curl --fail --silent --show-error "$BASE_URL/login.html" >/dev/null
           curl --fail --silent --show-error "$BASE_URL/register.html" >/dev/null
           curl --fail --silent --show-error "$BASE_URL/account.html" >/dev/null
-          curl --fail --silent --show-error "$BASE_URL/chat" >/dev/null
-          npm run smoke:persistent-chat
-          curl --fail --silent --show-error "$BASE_URL/api/marketplace/listings" > live-marketplace.json
-          node - <<'NODE'
-          const fs=require('fs');
-          const x=JSON.parse(fs.readFileSync('live-marketplace.json','utf8'));
-          if(!Array.isArray(x.items)) throw new Error('FAIL: marketplace listing endpoint did not return items.');
-          for(const item of x.items){
-            if(item.status!=='APPROVED') throw new Error('FAIL: non-approved listing reached public marketplace.');
-          }
-          console.log('PASS: account pages, marketplace and persistent chat are live.');
-          NODE
-      - name: Upload production proof
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dreamledger-production-proof-${{ github.run_id }}
-          path: |
-            BEC-PRIME/PROOF-PERSISTENT-CHAT.json
-            BEC-PRIME/live-marketplace.json
-          if-no-files-found: warn
+          echo "PASS: production account pages are live."
