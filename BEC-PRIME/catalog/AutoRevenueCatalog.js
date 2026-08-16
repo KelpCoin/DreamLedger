@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = __dirname;
+const ROOT = path.resolve(__dirname, '..');
 const DIR = path.join(ROOT, 'catalog', 'products');
 const APPROVED = path.join(ROOT, 'catalog', 'offers', 'approved.json');
 
