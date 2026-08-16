@@ -1,0 +1,33 @@
+{
+  "id": "BILLBOARD-SMALL",
+  "silo": "billboard",
+  "name": "Billboard Small",
+  "description": "Permanent small text slot on the Browneye Billboard Wall with deterministic receipt, proof, ledger entry, and wall refresh.",
+  "price": 500,
+  "currency": "nzd",
+  "inventory": 10000,
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "success_path": "/board?purchase=complete",
+    "cancel_path": "/board",
+    "payment_link": "https://buy.stripe.com/6oU3cvea16pL96nbN2dwc1s"
+  },
+  "commercial_truth": {
+    "experiment": "BILLBOARD-001",
+    "approval_required": false,
+    "activation_gate": "CHECKOUT_VERIFIED",
+    "activation_timestamp": "2026-08-16T00:00:00.000Z",
+    "payment_surface": "stripe-payment-link",
+    "payment_link": "https://buy.stripe.com/6oU3cvea16pL96nbN2dwc1s"
+  },
+  "delivery": {
+    "type": "public_billboard_slot",
+    "target": "dreamledger.org/board"
+  },
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
+  },
+  "execution_atom": "BILLBOARD-001"
+}
