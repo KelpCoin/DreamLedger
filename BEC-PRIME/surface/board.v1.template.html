@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DreamLedger Billboard</title>
+<style>
+body{margin:0;background:#0b0d12;color:#f4f6f8;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:0 auto;padding:32px 20px 56px}
+h1{font-size:clamp(2rem,5vw,4rem);margin:0 0 8px}
+p{color:#aeb7c4;max-width:760px;line-height:1.55}
+.cta{display:inline-block;margin:16px 0 28px;padding:13px 18px;border-radius:10px;background:#fff;color:#111;text-decoration:none;font-weight:800}
+.wall{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;background:#171b24;padding:8px;border-radius:14px}
+.slot{aspect-ratio:1;border:1px solid #2b3340;background:#10141b;display:flex;align-items:center;justify-content:center;font-size:9px;color:#667080;overflow:hidden}
+.slot span{display:block;transform:rotate(-90deg);white-space:nowrap}
+.note{font-size:.9rem;color:#7f8a99}
+@media(max-width:700px){.wall{grid-template-columns:repeat(10,1fr)}.slot{font-size:7px}}
+</style>
+</head>
+<body>
+<main>
+<h1>DreamLedger Billboard</h1>
+<p>A permanent public advertising wall. Buy a small slot for NZ$5, choose the text and destination URL, and the purchased slot enters the verified allocation queue.</p>
+<a class="cta" href="https://buy.stripe.com/6oU3cvea16pL96nbN2dwc1s">Buy a Billboard Small slot - NZ$5</a>
+<div class="wall" id="wall" aria-label="DreamLedger Billboard 10000 slots"></div>
+<p class="note">10,000 permanent slots. Each purchase is recorded through the commerce proof flow. Public placement is subject to the published billboard rules.</p>
+</main>
+<script>
+const wall=document.getElementById('wall');
+for(let i=1;i<=10000;i++){const d=document.createElement('div');d.className='slot';const s=document.createElement('span');s.textContent=String(i).padStart(5,'0');d.appendChild(s);wall.appendChild(d)}
+</script>
+</body>
+</html>
