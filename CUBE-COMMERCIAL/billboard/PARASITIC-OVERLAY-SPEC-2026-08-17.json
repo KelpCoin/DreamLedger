@@ -1,0 +1,55 @@
+{
+  "overlay_spec": {
+    "id": "DL-BILLBOARD-PARASITIC-OVERLAY-001",
+    "version": "1.0.0",
+    "status": "ARMED_NOT_DEPLOYED",
+    "host_motion": {
+      "required": true,
+      "allowed_hosts": [
+        "public_documentation",
+        "github_repository",
+        "community_promotion_thread",
+        "business_directory",
+        "creator_or_business_partner"
+      ],
+      "selection_rule": "Use only a host where promotion is explicitly permitted and where the audience has a credible visibility/advertising need."
+    },
+    "conversion_surface": {
+      "sku": "DL-BILLBOARD-100X100-001",
+      "price_nzd": 29,
+      "payment_url": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
+      "single_paid_action": "Buy one permanent 100x100 billboard block"
+    },
+    "fulfillment_contract": {
+      "required": true,
+      "inputs": ["board", "image", "destination_link"],
+      "publication": "human_approval_required",
+      "delivery": "public_block_url_after_approved_publication"
+    },
+    "receipts": {
+      "required": true,
+      "payment_state": "Stripe_confirmed_payment_only",
+      "checkout_open_is_not_payment": true,
+      "webhook_event_required": true,
+      "proof_artifact_required": true,
+      "ledger_append_required": true
+    },
+    "cash_test": {
+      "no_host_motion": "BLOCK",
+      "no_canonical_doorway": "BLOCK",
+      "no_fulfillment_contract": "BLOCK",
+      "no_verified_receipt": "UNPROVEN"
+    },
+    "forbidden_moves": [
+      "spam_or_unsolicited_bulk_posting",
+      "bypass_host_promotion_rules",
+      "impersonate_host_or_partner",
+      "claim_payment_without_stripe_confirmation",
+      "claim_publication_before_human_approval",
+      "treat_checkout_open_as_revenue",
+      "modify_host_content_without_authorization",
+      "autonomous_public_posting"
+    ],
+    "clone_rule": "Clone only after one overlay produces a verified Stripe payment and a complete fulfillment/proof fossil."
+  }
+}
