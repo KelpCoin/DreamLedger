@@ -15,6 +15,8 @@ env:
   BILLBOARD_PAYMENT_LINK_ID: plink_1U5GX8EGgEAnUFF9y2YGkIhv
   BILLBOARD_PAYMENT_URL: https://buy.stripe.com/28EcN54zraG13M3g3idwc1t
   LIVE_URL: https://dreamledger.org
+  VERCEL_TEAM_ID: team_HNsRrUI7JZV4iwejNlqJjXvR
+  VERCEL_PROJECT_NAME: dreamledger-production
   NODE_VERSION: 24
 
 jobs:
@@ -61,12 +63,21 @@ jobs:
             echo "WARN: first-party smoke test not present"
           fi
 
+      - name: Create or link Vercel project when credentials exist
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          npx --yes vercel@latest link --yes --scope "$VERCEL_TEAM_ID" --project "$VERCEL_PROJECT_NAME" --token="$VERCEL_TOKEN"
+          test -s .vercel/project.json
+          echo "PASS: Vercel project context established."
+          cat .vercel/project.json
+
       - name: Vercel production deployment when credentials exist
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        if: ${{ env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
+        if: ${{ env.VERCEL_TOKEN != '' }}
         run: |
           set -euo pipefail
           npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
@@ -76,16 +87,16 @@ jobs:
       - name: Record Vercel configuration state
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         shell: bash
         run: |
-          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
-            echo "VERCEL_STATE=CONFIGURED"
+          mkdir -p cloud-proof
+          if [ -n "$VERCEL_TOKEN" ] && [ -s .vercel/project.json ]; then
+            project_id=$(python3 -c 'import json; print(json.load(open(".vercel/project.json"))["projectId"])')
+            printf '{"state":"CONFIGURED","team_id":"%s","project_id":"%s","project_name":"%s"}\n' "$VERCEL_TEAM_ID" "$project_id" "$VERCEL_PROJECT_NAME" > cloud-proof/vercel-state.json
           else
-            echo "VERCEL_STATE=NOT_CONFIGURED"
-            echo "Cloud build/watch remains active; no deployment claim is made."
+            printf '{"state":"NOT_CONFIGURED","team_id":"%s","project_name":"%s","next_step":"Set GitHub Actions secret VERCEL_TOKEN"}\n' "$VERCEL_TEAM_ID" "$VERCEL_PROJECT_NAME" > cloud-proof/vercel-state.json
           fi
+          cat cloud-proof/vercel-state.json
 
       - name: Verify live health doorway
         shell: bash
@@ -108,7 +119,7 @@ jobs:
           printf '{\n  "http_status": %s,\n  "bytes": %s,\n  "reachable": %s\n}\n' "$code" "$bytes" "$([ "$code" = "200" ] && echo true || echo false)" > cloud-proof/billboard-doorway.json
           cat cloud-proof/billboard-doorway.json
           if [ "$code" != "200" ] || [ "$bytes" -le 0 ]; then
-            echo "WARN: /billboard is not yet public. This is a deployment/surface failure, not a payment claim."
+            echo "WARN: /billboard is not yet public."
           fi
 
       - name: Verify Stripe payment doorway
@@ -128,7 +139,7 @@ jobs:
           set -euo pipefail
           mkdir -p cloud-proof
           python3 - <<'PY'
-          import base64, json, os, pathlib, urllib.parse, urllib.request
+          import base64, json, os, pathlib, urllib.error, urllib.parse, urllib.request
           out = pathlib.Path("cloud-proof/economic-scoreboard.json")
           link_id = os.environ["BILLBOARD_PAYMENT_LINK_ID"]
           key = os.environ.get("STRIPE_SECRET_KEY", "")
@@ -138,20 +149,26 @@ jobs:
               "currency": "nzd",
               "verified_billboard_revenue_nzd": 0,
               "completed_paid_sessions": 0,
-              "status": "MISSING_STRIPE_SECRET_KEY" if not key else "VERIFIED",
+              "status": "MISSING_STRIPE_SECRET_KEY" if not key else "UNKNOWN",
               "source": "Stripe Checkout Sessions filtered by payment_link and payment_status=paid",
               "truth_rule": "Only paid completed Checkout Sessions for the canonical Billboard payment link count."
           }
           if key:
-              q = urllib.parse.urlencode({"payment_link": link_id, "limit": "100"})
-              req = urllib.request.Request("https://api.stripe.com/v1/checkout/sessions?" + q)
-              req.add_header("Authorization", "Basic " + base64.b64encode((key + ":").encode()).decode())
-              with urllib.request.urlopen(req, timeout=20) as r:
-                  data = json.load(r)
-              paid = [s for s in data.get("data", []) if s.get("payment_status") == "paid" and s.get("status") == "complete"]
-              total = sum((s.get("amount_total") or 0) for s in paid)
-              result["verified_billboard_revenue_nzd"] = total / 100
-              result["completed_paid_sessions"] = len(paid)
+              try:
+                  q = urllib.parse.urlencode({"payment_link": link_id, "limit": "100"})
+                  req = urllib.request.Request("https://api.stripe.com/v1/checkout/sessions?" + q)
+                  req.add_header("Authorization", "Basic " + base64.b64encode((key + ":").encode()).decode())
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      data = json.load(r)
+                  paid = [s for s in data.get("data", []) if s.get("payment_status") == "paid" and s.get("status") == "complete"]
+                  total = sum((s.get("amount_total") or 0) for s in paid)
+                  result["verified_billboard_revenue_nzd"] = total / 100
+                  result["completed_paid_sessions"] = len(paid)
+                  result["status"] = "VERIFIED"
+              except urllib.error.HTTPError as exc:
+                  result["status"] = "STRIPE_API_ERROR"
+                  result["http_status"] = exc.code
+                  result["note"] = "Stripe checkout remains reachable; economic verification requires a usable Checkout Sessions API credential."
           out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
           print(out.read_text())
           PY
@@ -167,7 +184,7 @@ jobs:
             "commit": "${GITHUB_SHA}",
             "live_url": "${LIVE_URL}",
             "canonical_build": true,
-            "vercel_deploy_attempted_when_credentials_present": true,
+            "vercel_project_creation_or_linking": "attempted when VERCEL_TOKEN exists",
             "healthz_checked": true,
             "billboard_doorway_probe": "cloud-proof/billboard-doorway.json",
             "stripe_checkout_http_200_checked": true,
