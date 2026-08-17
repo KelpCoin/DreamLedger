@@ -4,9 +4,10 @@ const path = require('path');
 const http = require('http');
 const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'compiled', 'website');
+const billboard = require('../routes/billboard');
 const original = http.createServer;
 function htmlFile(route) {
-  const map = { '/': 'index.html', '/dreamiez': 'dreamiez.html', '/mtg': path.join('mtg', 'index.html'), '/commander': path.join('commander', 'index.html') };
+  const map = { '/': 'index.html', '/dreamiez': 'dreamiez.html', '/mtg': path.join('mtg', 'index.html'), '/commander': path.join('commander', 'index.html'), '/billboard': 'billboard.html', '/billboard/': 'billboard.html', '/billboard-review': 'billboard-review.html', '/billboard-review/': 'billboard-review.html' };
   return map[route] || null;
 }
 function shell(file) {
@@ -30,6 +31,15 @@ http.createServer = function publicShellCreateServer(...args) {
           return res.end(payload);
         }
       }
+    }
+    try {
+      if (await billboard.handle(req, res, route)) return;
+    } catch (err) {
+      if (!res.writableEnded) {
+        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({ error: err.message || 'Billboard route failed' }));
+      }
+      return;
     }
     return handler(req, res);
   };
