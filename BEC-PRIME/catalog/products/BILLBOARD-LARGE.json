@@ -1,0 +1,15 @@
+{
+  "id": "BILLBOARD-LARGE",
+  "silo": "billboard",
+  "name": "DreamLedger Billboard Large",
+  "description": "Permanent public billboard placement at 500x500. Buyer supplies one image and destination URL; placement requires automatic and human review.",
+  "price": 34900,
+  "currency": "nzd",
+  "inventory": 10000,
+  "status": "published",
+  "checkout": {"mode": "custom_billboard_checkout", "route": "/api/billboard/submit", "success_path": "/billboard?paid=1", "cancel_path": "/billboard"},
+  "commercial_truth": {"experiment": "BILLBOARD-001", "approval_required": false, "activation_gate": "PAYMENT_AND_HUMAN_REVIEW", "payment_surface": "stripe-checkout-session"},
+  "delivery": {"type": "public_billboard_slot", "target": "dreamledger.org/billboard", "dimensions": {"w": 500, "h": 500}, "review_required": true, "image_upload": true},
+  "evidence": {"status": "awaiting_first_payment", "transaction_id": null},
+  "execution_atom": "BILLBOARD-LARGE-001"
+}
