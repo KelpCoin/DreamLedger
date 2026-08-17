@@ -1,0 +1,42 @@
+{
+  "schema": "DREAMLEDGER-CUBE-INTEGRATION-001",
+  "status": "STAGING_ONLY",
+  "public_surface": "DreamLedger",
+  "economic_engine": "BrownEye-CUBE Commerce Engine",
+  "upstream_base_env": "CUBE_COMMERCE_URL",
+  "auth_env": "CUBE_PROXY_TOKEN",
+  "routes": {
+    "checkout": {
+      "public": ["/api/checkout", "/api/checkout/create", "/api/offer-checkout/create"],
+      "upstream": "/api/checkout",
+      "method": "POST"
+    },
+    "control_room": {
+      "public": "/api/cube/control-room",
+      "upstream": "/api/control-room",
+      "method": "GET"
+    }
+  },
+  "webhook": {
+    "required_public_target": "/api/cube/webhook",
+    "upstream": "/api/webhook",
+    "signature_header_passthrough": "stripe-signature",
+    "rule": "Never mutate revenue in DreamLedger. CUBE webhook stops at evidence plus HUMAN_QUEUE/PENDING."
+  },
+  "truth_rules": [
+    "PAYMENT_RECEIVED is evidence, not revenue recognition.",
+    "Only REVENUE_RECOGNIZED with livemode=true contributes to live verified revenue.",
+    "Human approval remains mandatory before revenue mutation.",
+    "CUBE_COMMERCE_URL must point to a deployed CUBE service before production checkout is enabled.",
+    "CUBE_PROXY_TOKEN must never be committed to git."
+  ],
+  "storage_gate": {
+    "required_before_production": true,
+    "reason": "CUBE currently defaults to a Windows D: artifact root, which is not a durable production storage boundary.",
+    "accepted_backends": ["durable cloud object/database store with append/idempotency guarantees"]
+  },
+  "rollback": {
+    "mechanism": "Unset CUBE_COMMERCE_URL and redeploy DreamLedger.",
+    "effect": "CUBE proxy routes return 503 and legacy DreamLedger commerce remains available."
+  }
+}
