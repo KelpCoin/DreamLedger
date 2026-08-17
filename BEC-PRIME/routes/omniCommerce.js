@@ -15,6 +15,7 @@ const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').r
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 const ADMIN_TOKEN = process.env.MARKETPLACE_ADMIN_TOKEN || '';
+const PLATFORM_FEE_BPS = 500;
 const FORBIDDEN = ['amplissa', 'bbw', 'big beautiful women', 'adult-only', 'adult only', 'adult_silo'];
 
 fs.mkdirSync(MARKET_DATA, { recursive: true });
@@ -115,19 +116,25 @@ function allocations(cart) {
   for (const item of cart.items) grouped.set(item.seller_id, (grouped.get(item.seller_id) || 0) + item.unit_amount * item.quantity);
   return [...grouped.entries()].map(([seller_id, amount]) => ({ seller_id, amount }));
 }
+function commission(amount) { return Math.floor(Number(amount) * PLATFORM_FEE_BPS / 10000); }
 async function createCartCheckout(cart) {
   const alloc = allocations(cart);
   for (const a of alloc) {
     const s = seller(a.seller_id);
     if (!s || !s.stripe_connect_account_id) throw new Error('Seller is not payment-ready: ' + a.seller_id);
   }
+  const gross = alloc.reduce((n, a) => n + a.amount, 0);
+  const platformFee = commission(gross);
+  const sellerNet = alloc.map(a => ({ ...a, platform_fee: commission(a.amount), seller_net: a.amount - commission(a.amount) }));
   const params = {
     mode: 'payment',
     'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id),
     'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1',
     'metadata[cart_id]': cart.id,
     'metadata[commerce_version]': 'omni-v1',
-    'metadata[platform_fee_bps]': '0'
+    'metadata[platform_fee_bps]': String(PLATFORM_FEE_BPS),
+    'metadata[platform_fee_amount]': String(platformFee),
+    'metadata[gross_amount]': String(gross)
   };
   cart.items.forEach((item, i) => {
     params['line_items[' + i + '][price_data][currency]'] = String(item.currency).toLowerCase();
@@ -140,7 +147,10 @@ async function createCartCheckout(cart) {
   const session = await stripeRequest('checkout/sessions', params, 'dreamledger-cart-' + cart.id);
   cart.status = 'checkout_created';
   cart.session_id = session.id;
-  cart.allocations = alloc;
+  cart.allocations = sellerNet;
+  cart.gross_amount = gross;
+  cart.platform_fee_bps = PLATFORM_FEE_BPS;
+  cart.platform_fee_amount = platformFee;
   cart.checkout_created_at = new Date().toISOString();
   writeJson(path.join(CART_DIR, cart.id + '.json'), cart);
   return session;
@@ -185,21 +195,28 @@ async function settleCart(event) {
   for (const allocation of cart.allocations || allocations(cart)) {
     const s = seller(allocation.seller_id);
     if (!s || !s.stripe_connect_account_id) throw new Error('Seller payment account missing: ' + allocation.seller_id);
+    const sellerNet = Number(allocation.seller_net ?? (allocation.amount - commission(allocation.amount)));
     const transfer = await stripeRequest('transfers', {
-      amount: allocation.amount,
+      amount: sellerNet,
       currency: 'nzd',
       destination: s.stripe_connect_account_id,
       'transfer_group': transferGroup,
       'metadata[cart_id]': cart.id,
       'metadata[seller_id]': s.id,
-      'metadata[platform_fee_bps]': '0'
+      'metadata[platform_fee_bps]': String(PLATFORM_FEE_BPS),
+      'metadata[gross_allocation]': String(allocation.amount),
+      'metadata[platform_fee_amount]': String(allocation.platform_fee ?? commission(allocation.amount))
     }, 'dreamledger-transfer-' + cart.id + '-' + s.id);
-    transfers.push({ seller_id: s.id, amount: allocation.amount, transfer_id: transfer.id });
+    transfers.push({ seller_id: s.id, gross_amount: allocation.amount, platform_fee_bps: PLATFORM_FEE_BPS, platform_fee_amount: Number(allocation.platform_fee ?? commission(allocation.amount)), seller_net: sellerNet, transfer_id: transfer.id });
   }
+  const grossAmount = Number(session.amount_total || cart.gross_amount || 0);
+  const platformFee = Number(cart.platform_fee_amount ?? commission(grossAmount));
+  const sellerNetTotal = transfers.reduce((n, t) => n + t.seller_net, 0);
   const proof = {
     schema_version: 'BEC-OMNI-FOSSIL-1.0', event: event.type, status: 'PASS', evidence_level: 1,
-    transaction_id: session.id, cart_id: cart.id, amount_minor: session.amount_total, currency: 'nzd',
-    platform_commission_bps: 0, stripe_processing_fees_excluded: true, transfers,
+    transaction_id: session.id, cart_id: cart.id, amount_minor: grossAmount, currency: 'nzd',
+    platform_commission_bps: PLATFORM_FEE_BPS, platform_commission_amount: platformFee,
+    seller_net_amount: sellerNetTotal, stripe_processing_fees_excluded: true, transfers,
     idempotency_key: 'dreamledger-cart-' + cart.id, timestamp_utc: new Date().toISOString()
   };
   cart.status = 'settled';
@@ -229,7 +246,7 @@ async function handle(req, res, url) {
     const silo = parsed.searchParams.get('silo') || '';
     const sellerId = parsed.searchParams.get('seller_id') || '';
     const items = products().filter(approvedProduct).filter(p => !silo || p.silo === silo).filter(p => !sellerId || p.seller === sellerId).filter(p => !q || (String(p.name) + ' ' + String(p.description)).toLowerCase().includes(q)).map(publicProduct);
-    return json(res, 200, cleanPublic({ products: items, count: items.length, commission_bps: 0, search: q || null }));
+    return json(res, 200, cleanPublic({ products: items, count: items.length, commission_bps: PLATFORM_FEE_BPS, search: q || null }));
   }
   if (url === '/api/marketplace/categories' && req.method === 'GET') {
     const counts = {};
@@ -252,10 +269,10 @@ async function handle(req, res, url) {
   if (url === '/api/cart' && req.method === 'POST') { try { const cart = makeCart((await body(req)).items); return json(res, 201, cleanPublic({ cart_id: cart.id, items: cart.items, total_amount: cart.total_amount, currency: cart.currency, status: cart.status })); } catch (err) { return json(res, 422, { error: err.message }); } }
   const cartMatch = url.match(/^\/api\/cart\/([^/]+)$/);
   if (cartMatch && req.method === 'GET') { const cart = getCart(decodeURIComponent(cartMatch[1])); return cart ? json(res, 200, cleanPublic(cart)) : json(res, 404, { error: 'Cart not found' }); }
-  if (url === '/api/cart/checkout' && req.method === 'POST') { try { const cart = getCart((await body(req)).cart_id); if (!cart) return json(res, 404, { error: 'Cart not found' }); if (cart.status !== 'open') return json(res, 409, { error: 'Cart is not open' }); const session = await createCartCheckout(cart); return json(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: 0 }); } catch (err) { return json(res, 502, { error: err.message }); } }
+  if (url === '/api/cart/checkout' && req.method === 'POST') { try { const cart = getCart((await body(req)).cart_id); if (!cart) return json(res, 404, { error: 'Cart not found' }); if (cart.status !== 'open') return json(res, 409, { error: 'Cart is not open' }); const session = await createCartCheckout(cart); return json(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: PLATFORM_FEE_BPS }); } catch (err) { return json(res, 502, { error: err.message }); } }
   if (url === '/api/omni/healthz' && req.method === 'GET') {
     const list = sellers(); const ready = list.filter(s => s.status === 'active' && s.stripe_connect_account_id).length;
-    return json(res, 200, { status: 'ok', engine: 'omni-commerce-v1', sellers: list.length, payment_ready_sellers: ready, commission_bps: 0, stripe_configured: Boolean(STRIPE_SECRET_KEY), webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET), silo_firewall: 'PASS' });
+    return json(res, 200, { status: 'ok', engine: 'omni-commerce-v1', sellers: list.length, payment_ready_sellers: ready, commission_bps: PLATFORM_FEE_BPS, stripe_configured: Boolean(STRIPE_SECRET_KEY), webhook_configured: Boolean(STRIPE_WEBHOOK_SECRET), silo_firewall: 'PASS' });
   }
   return false;
 }
