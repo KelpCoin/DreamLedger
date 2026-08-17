@@ -5,11 +5,17 @@ on:
     branches: [main]
     paths:
       - 'IP/**'
+      - 'MARKETS/**'
+      - 'SOCIAL/**'
+      - 'CD/**'
       - 'README.md'
       - '.github/workflows/qr-ip-cicd.yml'
   pull_request:
     paths:
       - 'IP/**'
+      - 'MARKETS/**'
+      - 'SOCIAL/**'
+      - 'CD/**'
       - 'README.md'
       - '.github/workflows/qr-ip-cicd.yml'
   workflow_dispatch:
@@ -25,18 +31,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify QR target is present
+      - name: Verify commercial registers
         shell: bash
         run: |
           set -euo pipefail
           test -f IP/QR/QR-DESTINATION.txt
+          test -f IP/PUBLIC-IP-MANIFEST.md
+          test -f IP/QR/generate_qr.py
+          test -f MARKETS/MARKET-MATRIX.md
+          test -f SOCIAL/SOCIAL-VIRALITY-PLAYBOOK.md
+          test -f CD/RELEASE-PACKAGE.md
           grep -F 'https://buy.stripe.com/28EcN54zraG13M3g3idwc1t' IP/QR/QR-DESTINATION.txt
 
-      - name: Verify IP custody register
+      - name: Verify private IP boundary
         shell: bash
         run: |
           set -euo pipefail
-          test -f IP/MASTER-IP-MAP.md
+          test -f IP/PUBLIC-IP-MANIFEST.md
+          grep -F 'Private implementation' IP/PUBLIC-IP-MANIFEST.md
+          grep -F 'credentials' IP/PUBLIC-IP-MANIFEST.md
+
+      - name: Generate QR asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet qrcode[pil]
+          python3 IP/QR/generate_qr.py
+          test -s IP/QR/DreamLedger-Billboard-QR.svg
 
       - name: Secret hygiene
         shell: bash
@@ -57,11 +78,15 @@ jobs:
             echo "COMMIT=${GITHUB_SHA}"
             echo "UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo 'QR_TARGET=STRIPE_CHECKOUT'
+            echo 'MARKETS=REGISTERED'
+            echo 'SOCIAL=APPROVAL_GATED'
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_CI'
           } | tee artifacts/qr-ip-cicd-proof.txt
 
-      - name: Upload proof
+      - name: Upload proof and QR
         uses: actions/upload-artifact@v4
         with:
-          name: qr-ip-cicd-proof
-          path: artifacts/qr-ip-cicd-proof.txt
+          name: dreamledger-commercial-package
+          path: |
+            artifacts/qr-ip-cicd-proof.txt
+            IP/QR/DreamLedger-Billboard-QR.svg
