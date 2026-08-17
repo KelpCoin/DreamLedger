@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg width='39.2mm' height='39.2mm' version='1.1' viewBox='0 0 49 49' xmlns='http://www.w3.org/2000/svg'>
+<rect width='49' height='49' fill='#fff'/>
+<g fill='#000'>
+<path d='M4 4h15v15H4V4zm3 3v9h9V7H7zm3 3h3v3h-3v-3zM30 4h15v15H30V4zm3 3v9h9V7h-9zm3 3h3v3h-3v-3zM4 30h15v15H4V30zm3 3v9h9v-9H7zm3 3h3v3h-3v-3z'/>
+<path d='M23 4h3v6h-3V4zm0 9h3v4h-3v-4zm-7 10h4v3h-4v-3zm7 0h3v3h-3v-3zm6 0h3v3h-3v-3zm6 0h3v3h-3v-3zm-15 6h3v3h-3v-3zm6 0h6v3h-6v-3zm9 0h3v3h-3v-3zm-15 6h3v3h-3v-3zm6 0h3v3h-3v-3zm6 0h3v3h-3v-3zm6-6h3v9h-3v-9zm-15 12h3v3h-3v-3zm6 0h9v3h-9v-3z'/>
+</g>
+</svg>
