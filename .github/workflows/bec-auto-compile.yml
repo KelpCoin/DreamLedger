@@ -1,15 +1,13 @@
 name: BEC-PRIME Auto Compile DreamLedger
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '17 */6 * * *'
 
 concurrency:
   group: bec-prime-compile-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -71,7 +69,7 @@ jobs:
             exit 1
           fi
 
-      - name: Commit generated state with race-safe push
+      - name: Commit generated state without self-trigger loop
         shell: bash
         run: |
           set -euo pipefail
@@ -83,26 +81,5 @@ jobs:
             exit 0
           fi
           git commit -m "chore: BEC-PRIME auto-compile IP economic kernel"
-          git reset --hard HEAD
-          for attempt in 1 2 3; do
-            git fetch origin main
-            if git rebase origin/main; then
-              if git push origin HEAD:main; then
-                echo "Generated IP and economic state pushed."
-                exit 0
-              fi
-            else
-              git checkout --theirs BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/ip-manifest.json
-              git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/ip-manifest.json
-              if git -c core.editor=true rebase --continue; then
-                if git push origin HEAD:main; then
-                  echo "Generated IP and economic state pushed after deterministic conflict resolution."
-                  exit 0
-                fi
-              fi
-              git rebase --abort || true
-            fi
-            sleep 2
-          done
-          echo "Could not push after 3 race-safe attempts."
-          exit 1
+          git push origin HEAD:main
+          echo "Generated state pushed."
