@@ -32,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Verify ecosystem registry
         shell: bash
@@ -78,14 +77,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f package-lock.json ]; then
-            npm ci --ignore-scripts
-          elif [ -f package.json ]; then
-            npm install --ignore-scripts
-          else
-            echo "No root package manifest."
-            exit 1
-          fi
+          npm install --ignore-scripts
 
       - name: Compile canonical website
         shell: bash
@@ -99,10 +91,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f package.json ]; then
-            has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
-            if [ "$has_test" = "yes" ]; then npm test; else echo "No root test script; continuing."; fi
-          fi
+          has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
+          if [ "$has_test" = "yes" ]; then npm test; else echo "No root test script; continuing."; fi
 
       - name: Verify checkout doorway
         shell: bash
