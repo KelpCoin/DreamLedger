@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "product": "DreamLedger Billboard 100x100",
+  "fulfilment": "manual_review_then_publish",
+  "boards": [
+    {
+      "board": "Worldwide",
+      "currency": "USD",
+      "amount_minor": 1900,
+      "payment_link": "https://buy.stripe.com/7sYeVd2rj7tP82jbN2dwc1x",
+      "stripe_payment_link_id": "plink_1U5JUiEGgEAnUFF90DXv5aBm",
+      "sku": "DREAMLEDGER-BILLBOARD-WORLDWIDE-100X100"
+    },
+    {
+      "board": "New Zealand",
+      "currency": "NZD",
+      "amount_minor": 2900,
+      "payment_link": "https://buy.stripe.com/bJecN5aXPaG14Q718odwc1y",
+      "stripe_payment_link_id": "plink_1U5JUuEGgEAnUFF9URxYfX19",
+      "sku": "DREAMLEDGER-BILLBOARD-NZ-100X100"
+    },
+    {
+      "board": "Australia",
+      "currency": "AUD",
+      "amount_minor": 2900,
+      "payment_link": "https://buy.stripe.com/5kQ8wPgi9eWh3M3aIYdwc1z",
+      "stripe_payment_link_id": "plink_1U5JVUEGgEAnUFF9Ksw5Fwh2",
+      "sku": "DREAMLEDGER-BILLBOARD-AU-100X100"
+    },
+    {
+      "board": "South Africa",
+      "currency": "ZAR",
+      "amount_minor": 34900,
+      "payment_link": "https://buy.stripe.com/3cIeVd3vn3dz3M3g3idwc1A",
+      "stripe_payment_link_id": "plink_1U5JVfEGgEAnUFF9s04e6eK5",
+      "sku": "DREAMLEDGER-BILLBOARD-ZA-100X100"
+    },
+    {
+      "board": "United States",
+      "currency": "USD",
+      "amount_minor": 1900,
+      "payment_link": "https://buy.stripe.com/aFa3cvgi9eWh3M318odwc1B",
+      "stripe_payment_link_id": "plink_1U5JVqEGgEAnUFF9HNyhMdug",
+      "sku": "DREAMLEDGER-BILLBOARD-US-100X100"
+    },
+    {
+      "board": "Europe",
+      "currency": "EUR",
+      "amount_minor": 1900,
+      "payment_link": "https://buy.stripe.com/cNibJ1aXP6pL1DV2csdwc1C",
+      "stripe_payment_link_id": "plink_1U5JW2EGgEAnUFF9BwCOxLGM",
+      "sku": "DREAMLEDGER-BILLBOARD-EU-100X100"
+    }
+  ],
+  "truth": {
+    "revenue_nzd_verified": 0,
+    "payments_claimed": 0,
+    "links_created_in_stripe": 6
+  }
+}
