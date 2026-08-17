@@ -1,0 +1,44 @@
+{
+  "name": "DreamLedger Cloud Runtime Contract",
+  "version": "1.0.0",
+  "mode": "CLOUD_FIRST",
+  "primary_execution": "GitHub Actions",
+  "fallback_execution": "SELF_HOSTED_RUNNER_DEFERRED",
+  "production_deployment_owners": [
+    "Vercel project integration",
+    "Render deployment workflow where explicitly configured"
+  ],
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "payment_source": "Stripe",
+    "payment_claim_rule": "Only Stripe-confirmed paid events may change verified revenue"
+  },
+  "public_actions": {
+    "default": "APPROVAL_GATED",
+    "unsolicited_mass_dm": false,
+    "automatic_public_posting": false
+  },
+  "frozen_domains": [
+    "CUBE",
+    "UPF"
+  ],
+  "health_contract": {
+    "checkout": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
+    "healthz": "https://dreamledger.org/healthz",
+    "billboard": "https://dreamledger.org/billboard"
+  },
+  "proof_contract": {
+    "artifact": "cloud-ecosystem-proof.json",
+    "required_fields": [
+      "commit_sha",
+      "timestamp_utc",
+      "cloud_execution",
+      "stripe_checkout_http",
+      "healthz_http",
+      "billboard_http",
+      "verified_payment_count",
+      "revenue_nzd",
+      "status"
+    ]
+  }
+}
