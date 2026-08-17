@@ -1,33 +1,15 @@
 {
   "id": "BILLBOARD-SMALL",
   "silo": "billboard",
-  "name": "Billboard Small",
-  "description": "Permanent small text slot on the Browneye Billboard Wall with deterministic receipt, proof, ledger entry, and wall refresh.",
-  "price": 500,
+  "name": "DreamLedger Billboard Small",
+  "description": "Permanent public billboard placement at 100x100. Buyer supplies one image and destination URL; placement requires automatic and human review.",
+  "price": 2900,
   "currency": "nzd",
   "inventory": 10000,
   "status": "published",
-  "checkout": {
-    "mode": "payment",
-    "success_path": "/board?purchase=complete",
-    "cancel_path": "/board",
-    "payment_link": "https://buy.stripe.com/6oU3cvea16pL96nbN2dwc1s"
-  },
-  "commercial_truth": {
-    "experiment": "BILLBOARD-001",
-    "approval_required": false,
-    "activation_gate": "CHECKOUT_VERIFIED",
-    "activation_timestamp": "2026-08-16T00:00:00.000Z",
-    "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/6oU3cvea16pL96nbN2dwc1s"
-  },
-  "delivery": {
-    "type": "public_billboard_slot",
-    "target": "dreamledger.org/board"
-  },
-  "evidence": {
-    "status": "awaiting_first_payment",
-    "transaction_id": null
-  },
-  "execution_atom": "BILLBOARD-001"
+  "checkout": {"mode": "custom_billboard_checkout", "route": "/api/billboard/submit", "success_path": "/billboard?paid=1", "cancel_path": "/billboard"},
+  "commercial_truth": {"experiment": "BILLBOARD-001", "approval_required": false, "activation_gate": "PAYMENT_AND_HUMAN_REVIEW", "payment_surface": "stripe-checkout-session"},
+  "delivery": {"type": "public_billboard_slot", "target": "dreamledger.org/billboard", "dimensions": {"w": 100, "h": 100}, "review_required": true, "image_upload": true},
+  "evidence": {"status": "awaiting_first_payment", "transaction_id": null},
+  "execution_atom": "BILLBOARD-SMALL-001"
 }
