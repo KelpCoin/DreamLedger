@@ -3,7 +3,7 @@
   "buildCommand": "npm run compile",
   "installCommand": "npm install",
   "outputDirectory": "BEC-PRIME/compiled/website",
-  "cleanUrls": false,
+  "cleanUrls": true,
   "headers": [
     {
       "source": "/version",
