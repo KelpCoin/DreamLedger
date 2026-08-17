@@ -1,0 +1,51 @@
+{
+  "offer_id": "DREAMLEDGER-BILLBOARD-100X100-NZD29",
+  "version": "1.0.0",
+  "status": "ACTIVE_CASH_LANE",
+  "product": "DreamLedger Permanent Billboard Block",
+  "sku": "DL-BILLBOARD-100X100-001",
+  "price": {
+    "amount_nzd": 29,
+    "currency": "NZD"
+  },
+  "checkout": {
+    "provider": "stripe",
+    "type": "payment_link",
+    "url": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t"
+  },
+  "fulfilment": {
+    "required_inputs": [
+      "image",
+      "destination_url"
+    ],
+    "publication_requires_human_approval": true,
+    "delivery_state_before_payment": "UNPAID",
+    "delivery_state_after_verified_payment": "PAID_PENDING_FULFILMENT"
+  },
+  "proof": {
+    "payment_required": true,
+    "external_event_required": true,
+    "transaction_state_required": "PAID",
+    "revenue_claim_allowed_before_payment": false
+  },
+  "telemetry": {
+    "offer_id_required": true,
+    "checkout_click_event": true,
+    "payment_event": true,
+    "fulfilment_event": true,
+    "correlation_fields": [
+      "trace_id",
+      "run_id",
+      "offer_id",
+      "pipeline_id",
+      "event_id",
+      "external_event_id",
+      "fossil_id"
+    ]
+  },
+  "silo": "DREAMLEDGER-BILLBOARD",
+  "notes": [
+    "This contract is a commercial surface definition, not proof of a transaction.",
+    "A payment must be independently verified before revenue or fulfilment completion is recorded."
+  ]
+}
