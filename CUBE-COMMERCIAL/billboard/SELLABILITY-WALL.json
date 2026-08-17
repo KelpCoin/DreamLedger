@@ -1,0 +1,35 @@
+{
+  "schema": "DL-SELLABILITY-WALL/v1",
+  "name": "Billboard Fulfilment Wall",
+  "purpose": "Prevent a Billboard SKU from being treated as sellable unless checkout, fulfilment, delivery and risk controls exist.",
+  "sellable_requires": [
+    "PRODUCT_EXISTS",
+    "PAYMENT_ENABLED",
+    "FULFILMENT_CONTRACT_EXISTS",
+    "DELIVERY_PATH_EXISTS",
+    "RISK_POLICY_EXISTS",
+    "PROOF_PATH_EXISTS"
+  ],
+  "hard_fail_if": [
+    "checkout_url_missing",
+    "payment_provider_missing",
+    "required_customer_inputs_missing",
+    "fulfilment_contract_missing",
+    "delivery_state_missing",
+    "risk_policy_missing",
+    "proof_contract_missing"
+  ],
+  "billboard_fulfilment": {
+    "required_inputs_after_payment": ["image", "destination_url"],
+    "pre_payment_state": "UNPAID",
+    "verified_payment_state": "PAID_PENDING_FULFILMENT",
+    "publication_state": "PUBLISHED",
+    "publication_requires_human_approval": true,
+    "payment_proof_requires_external_stripe_event": true
+  },
+  "economic_truth": {
+    "verified_payment_count": 0,
+    "verified_revenue_nzd": 0,
+    "status": "UNPROVEN"
+  }
+}
