@@ -1,14 +1,24 @@
 # DreamLedger
 
-DreamLedger is a focused storefront for Commander deck diagnostics, backed by the BEC Prime evidence workflow.
+DreamLedger is a focused commerce surface backed by the BEC Prime evidence workflow.
 
-## Current offer
+## Current Billboard offer
 
-- Commander Deck Diagnostic
-- Price: $15 NZD
-- Delivery target: within 24 hours
+- Offer: Permanent Digital Billboard Block
+- Size: 100x100
+- Price: NZ$29
+- Checkout: https://buy.stripe.com/28EcN54zraG13M3g3idwc1t
+- Required inputs after payment: image and destination URL
+- Publication: human review and approval required
+
+The Billboard offer is a separate commercial surface. This README does not claim that any payment has occurred.
+
+## Existing Commander diagnostic
+
+- Product: Commander Deck Diagnostic
+- Historical/reference price: NZ$15
 - Inputs: Commander deck list, including Moxfield or Archidekt links
-- Output: a practical diagnostic covering power level, weaknesses, strategy, consistency, and upgrade options
+- Output: practical diagnostic covering power level, weaknesses, strategy, consistency, and upgrade options
 
 ## Correct Render service
 
@@ -19,7 +29,7 @@ DreamLedger is a focused storefront for Commander deck diagnostics, backed by th
 - Branch: main
 - Public domain: DreamLedger.org
 
-The repository now includes a real Node web server. It binds to `0.0.0.0` and uses Render's `PORT` environment variable. The intended start command is `npm start` and the default Node entrypoint `index.js` also loads the same server.
+The repository includes a real Node web server. It binds to `0.0.0.0` and uses Render's `PORT` environment variable. The intended start command is `npm start` and the default Node entrypoint `index.js` also loads the same server.
 
 Health endpoint: `/healthz`
 
@@ -44,7 +54,7 @@ After Render deploys main, verify:
 2. `GET /healthz` returns JSON with `status: "ok"`.
 3. `/proof-2026-08-10.html` loads.
 4. `/trust-engine.html` loads and links to the proof artifact.
-5. Every purchase CTA loads the centralized Stripe checkout destination from `checkout.js`.
-6. The custom domain DreamLedger.org resolves to this same service, not another Render service.
+5. Every purchase CTA loads its intended centralized checkout destination.
+6. The custom domain DreamLedger.org resolves to the intended production service.
 
-The last item is a Render custom-domain/service mapping check and cannot be guaranteed by GitHub code alone.
+These deployment and domain checks cannot be guaranteed by GitHub code alone.
