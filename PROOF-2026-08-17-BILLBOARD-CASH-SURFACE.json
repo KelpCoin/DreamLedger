@@ -1,0 +1,46 @@
+{
+  "schema": "DREAMLEDGER/BILLBOARD-CASH-SURFACE/v1",
+  "status": "LIVE_CHECKOUT_READY",
+  "timestamp_utc": "2026-08-17T02:44:30Z",
+  "repository": "KelpCoin/DreamLedger",
+  "latest_commit": "cac69744e119c75d53c669dac8c9f0709e73cb03",
+  "public_route_expected": "/billboard",
+  "offers": [
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-SMALL-001",
+      "dimensions": "100x100",
+      "price_nzd": 29,
+      "stripe_payment_link_id": "plink_1U5GX8EGgEAnUFF9y2YGkIhv",
+      "payment_link": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t"
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-MEDIUM-001",
+      "dimensions": "200x100",
+      "price_nzd": 79,
+      "stripe_payment_link_id": "plink_1U5GXCEGgEAnUFF9qb36Tas4",
+      "payment_link": "https://buy.stripe.com/bJedR90jbg0l2HZ9EUdwc1u"
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-WIDE-001",
+      "dimensions": "500x200",
+      "price_nzd": 149,
+      "stripe_payment_link_id": "plink_1U5GXGEgEAnUFF9LLfN0bKS",
+      "payment_link": "https://buy.stripe.com/28EfZh4zr29v5Ub18odwc1v"
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-LARGE-001",
+      "dimensions": "500x500",
+      "price_nzd": 349,
+      "stripe_payment_link_id": "plink_1U5GXKEGgEAnUFF9Js5wsHjn",
+      "payment_link": "https://buy.stripe.com/9B614n5Dv01n82jeZedwc1w"
+    }
+  ],
+  "payment_state": "NO_PAYMENT_CLAIMED",
+  "payment_evidence": "ABSENT",
+  "deployment_evidence": {
+    "vercel_production_deployment_status": "SUCCESS",
+    "deployment_commit_verified": "c7f83dc50b6eeac55e382660196594adcaf17aac",
+    "deployment_target": "dream-ledger-tnns-6dtkwahvx-dreamledger.vercel.app"
+  },
+  "remaining_boundary": "CUSTOM_DOMAIN_LIVE_ROUTE_VERIFICATION_AND_FIRST_REAL_PAYMENT"
+}
