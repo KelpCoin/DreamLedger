@@ -17,8 +17,8 @@
     "approval_required": false,
     "approval_source": "operator-approved GitHub commit",
     "activation_gate": "CHECKOUT_VERIFIED",
-    "payment_surface": "engine-generated-stripe-checkout",
-    "payment_link": null
+    "payment_surface": "stripe-payment-link",
+    "payment_link": "https://buy.stripe.com/bJedR90jbg0l2HZ9EUdwc1u"
   },
   "delivery": {
     "type": "digital_billboard_placement",
