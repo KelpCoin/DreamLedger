@@ -1,0 +1,33 @@
+{
+  "id": "DREAMLEDGER-BILLBOARD-SMALL-001",
+  "silo": "dreamledger",
+  "name": "DreamLedger Billboard - Small",
+  "description": "Reserve a 100 x 100 pixel billboard tile on the DreamLedger public board. Your approved artwork or message is installed into the purchased space.",
+  "price": 2900,
+  "currency": "nzd",
+  "inventory": 100,
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "success_path": "/billboard?paid=1",
+    "cancel_path": "/billboard"
+  },
+  "commercial_truth": {
+    "experiment": "DREAMLEDGER-BILLBOARD-FIRST-SALE-001",
+    "approval_required": false,
+    "approval_source": "operator-approved GitHub commit",
+    "activation_gate": "CHECKOUT_VERIFIED",
+    "payment_surface": "engine-generated-stripe-checkout",
+    "payment_link": null
+  },
+  "delivery": {
+    "type": "digital_billboard_placement",
+    "target": "dreamledger-public-billboard",
+    "dimensions": "100x100"
+  },
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
+  },
+  "execution_atom": "DREAMLEDGER-BILLBOARD-FIRST-SALE-001"
+}
