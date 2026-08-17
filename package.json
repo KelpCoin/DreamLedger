@@ -1,16 +1,1 @@
-{
-  "name": "dreamledger",
-  "version": "1.0.0",
-  "private": true,
-  "description": "DreamLedger storefront web service",
-  "scripts": {
-    "start": "node server.js",
-    "test:billboard-webhook": "node scripts/test-billboard-stripe-webhook.js"
-  },
-  "dependencies": {
-    "@vercel/kv": "^1.0.1"
-  },
-  "engines": {
-    "node": ">=20"
-  }
-}
+{"name":"dreamledger","version":"1.4.1","private":true,"description":"DreamLedger sovereign omni-commerce engine","main":"BEC-PRIME/start.js","scripts":{"start":"npm run compile && node -r ./BEC-PRIME/lib/publicShellPreload.js -r ./BEC-PRIME/lib/m2mPreload.js -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js","compile":"npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && npm run compile:board && npm run compile:price && npm run compile:public-contract && npm run verify:ip && node BEC-PRIME/scripts/verify-public-surface.js","build":"npm run compile","compile:products":"node BEC-PRIME/compiler/ProductCompiler.js","compile:offers":"node BEC-PRIME/compiler/OfferCompiler.js","compile:qr":"node BEC-PRIME/compiler/QRCompiler.js","compile:omni":"node BEC-PRIME/compiler/OmniCommerceCompiler.js","compile:surface":"node BEC-PRIME/compiler/SurfaceCompiler.js","compile:board":"node BEC-PRIME/compiler/BoardCompiler.js","compile:price":"node BEC-PRIME/compiler/PriceDisplayPatch.js","compile:public-contract":"node BEC-PRIME/compiler/PublicSurfaceContractPatch.js","verify:ip":"node BEC-PRIME/scripts/verify-ip-runtime-contract.js","verify:account-avatar":"node BEC-PRIME/scripts/verify-account-avatar-flow.js","smoke:public":"node BEC-PRIME/scripts/first-party-smoke.js","verify:production-version":"node BEC-PRIME/scripts/verify-production-version.js","refine:local":"python BEC-PRIME/refinement/MultiLMRefinementEngine.py","gauntlet:candidate":"node BEC-PRIME/gauntlet/CandidateGauntlet.js","test:billboard-webhook":"node scripts/test-billboard-stripe-webhook.js"},"engines":{"node":">=20"},"dependencies":{"ajv":"^8.17.1","qrcode":"^1.5.4","@vercel/kv":"^1.0.1"}}
