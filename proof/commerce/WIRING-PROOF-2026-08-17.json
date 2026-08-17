@@ -1,0 +1,23 @@
+{
+  "proof_type": "COMMERCE_WIRING_PROOF",
+  "generated_at": "2026-08-17T12:00:00+12:00",
+  "status": "WIRED_NOT_PAID",
+  "repo": "KelpCoin/DreamLedger",
+  "offer_id": "OFFER-CMD-DIAG-29-NZD",
+  "sku": "CMD-DIAG-29",
+  "price_nzd": 29,
+  "stripe_payment_link": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
+  "airtable_base": "appknw1VhHjEzCwFC",
+  "airtable_offers_table": "tblXXG4CNW7xPmmOP",
+  "airtable_events_table": "tblp9aC01vvyi9iKj",
+  "airtable_offer_record": "recv61Js6lxpCMUvZ",
+  "settlement_workflow": ".github/workflows/commerce-settlement-sync.yml",
+  "settlement_script": "ops/commerce/reconcile-stripe-airtable.mjs",
+  "verified_revenue_nzd": 0,
+  "claims": {
+    "stripe_payment_verified": false,
+    "airtable_payment_verified": false,
+    "public_posting_executed": false
+  },
+  "truth_rule": "Only a paid live Stripe Checkout Session for the configured Payment Link can create a VERIFIED PAYMENT economic event."
+}
