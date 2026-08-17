@@ -1,0 +1,18 @@
+DreamLedger just opened permanent digital billboards - Worldwide, NZ, Australia, South Africa, US, and Europe.
+Grab a 100x100 block for NZ$29. Your image and link stay live.
+People who buy share the board so their block gets seen.
+First spots are open:
+https://buy.stripe.com/28EcN54zraG13M3g3idwc1t
+
+After payment, send:
+(1) which board
+(2) your image
+(3) destination link
+I will place it and send your public block URL.
+
+OPERATIONAL RULES:
+- This file is a message draft only.
+- No public post is authorized by this commit.
+- No buyer, payment, click, or revenue may be claimed from this artifact.
+- Payment verification must come from Stripe evidence.
+- Keep adult and MTG/COLLECTORSCOAST material out of this lane.
