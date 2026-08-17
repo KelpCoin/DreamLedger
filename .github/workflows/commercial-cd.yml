@@ -15,6 +15,9 @@ on:
 permissions:
   contents: read
 
+env:
+  VERCEL_TOKEN_PRESENT: ${{ secrets.VERCEL_TOKEN != '' }}
+
 jobs:
   release-gate:
     runs-on: ubuntu-latest
@@ -33,14 +36,14 @@ jobs:
           test -f SOCIAL/SOCIAL-VIRALITY-PLAYBOOK.md
 
       - name: Fail closed without deployment credential
-        if: ${{ inputs.deploy == 'true' && secrets.VERCEL_TOKEN == '' }}
+        if: ${{ inputs.deploy == 'true' && env.VERCEL_TOKEN_PRESENT != 'true' }}
         shell: bash
         run: |
           echo 'DEPLOYMENT_BLOCKED=VERCEL_TOKEN_MISSING'
           exit 1
 
       - name: Deployment approval gate
-        if: ${{ inputs.deploy == 'true' }}
+        if: ${{ inputs.deploy == 'true' && env.VERCEL_TOKEN_PRESENT == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -58,6 +61,7 @@ jobs:
             echo 'CD_GATE=PASS'
             echo "COMMIT=${GITHUB_SHA}"
             echo "DEPLOY_REQUEST=${{ inputs.deploy }}"
+            echo "VERCEL_TOKEN_PRESENT=${VERCEL_TOKEN_PRESENT}"
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_CD'
           } | tee artifacts/commercial-cd-proof.txt
 
