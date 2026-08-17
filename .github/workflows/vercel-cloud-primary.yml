@@ -1,0 +1,104 @@
+name: Vercel Cloud Primary
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-cloud-primary
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_SCOPE: dreamledger
+  VERCEL_PROJECT: dreamledger-production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait for Vercel credential without failing the cloud spine
+        id: gate
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          if [ -n "$VERCEL_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "VERCEL_CLOUD_PRIMARY=ARMED"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "VERCEL_CLOUD_PRIMARY=WAITING_FOR_VERCEL_TOKEN"
+          fi
+
+      - name: Setup Node
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm install --global vercel@latest
+
+      - name: Create project if absent
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if vercel project ls "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" 2>/dev/null | grep -q "$VERCEL_PROJECT"; then
+            echo "VERCEL_PROJECT=EXISTS"
+          else
+            vercel project add "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+            echo "VERCEL_PROJECT=CREATED"
+          fi
+
+      - name: Link repository
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel link --project "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
+
+      - name: Deploy production
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prod --yes --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+
+      - name: Write deployment proof
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cat > artifacts/vercel-cloud-primary-proof.json <<EOF
+          {
+            "workflow": "Vercel Cloud Primary",
+            "commit_sha": "${GITHUB_SHA}",
+            "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "project": "${VERCEL_PROJECT}",
+            "scope": "${VERCEL_SCOPE}",
+            "credential_present": "$([ -n "${{ secrets.VERCEL_TOKEN }}" ] && echo true || echo false)",
+            "verified_payment_count": 0,
+            "revenue_nzd": 0,
+            "status": "CLOUD_PRIMARY_CHECKED"
+          }
+          EOF
+          cat artifacts/vercel-cloud-primary-proof.json
+
+      - name: Upload deployment proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-cloud-primary-proof-${{ github.run_id }}
+          path: artifacts/vercel-cloud-primary-proof.json
+          if-no-files-found: error
+          retention-days: 30
