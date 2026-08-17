@@ -1,0 +1,30 @@
+{
+  "type": "dreamledger-mtg-carousel-change",
+  "status": "COMPILED",
+  "timestamp": "2026-08-18",
+  "commit": "55c0ef6b1e60ddd1cebb65db1835509c41911fc8",
+  "scope": "MTG silo only",
+  "changes": [
+    "Replaced the MTG inventory grid with horizontally scrolling catalogue rails.",
+    "Commander decks are rendered from the canonical /api/products feed.",
+    "Buy now uses the existing /api/checkout/create product checkout path.",
+    "Inventory, price and availability remain sourced from canonical product records.",
+    "No new product database or checkout system was introduced.",
+    "The existing non-deck MTG inventory is shown in a separate horizontal rail."
+  ],
+  "known_canonical_physical_skus": [
+    "EDH_0001",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001"
+  ],
+  "price_lock": {
+    "EDH_0001": "400.00 NZD",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001": "700.00 NZD"
+  },
+  "proof_boundary": "This artifact proves the repository change was committed. It does not claim live deployment or payment.",
+  "next_verification": [
+    "GET https://dreamledger.org/mtg",
+    "Confirm horizontal Commander deck rail is visible.",
+    "Click Buy now for EDH_0001.",
+    "Confirm /api/checkout/create returns a Stripe checkout URL."
+  ]
+}
