@@ -1,0 +1,47 @@
+name: Commerce Settlement Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commerce-settlement-sync
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    name: Reconcile live Stripe -> Airtable
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: settlement-read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify runtime
+        run: node --version
+
+      - name: Reconcile settlement evidence
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_PAYMENT_LINK_URL: ${{ secrets.STRIPE_PAYMENT_LINK_URL }}
+          STRIPE_LIVE_ENABLED: ${{ vars.STRIPE_LIVE_ENABLED }}
+          AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+          AIRTABLE_BASE_ID: appknw1VhHjEzCwFC
+          AIRTABLE_EVENTS_TABLE_ID: tblp9aC01vvyi9iKj
+          AIRTABLE_OFFERS_TABLE_ID: tblXXG4CNW7xPmmOP
+          AIRTABLE_OFFER_RECORD_ID: recv61Js6lxpCMUvZ
+        run: node ops/commerce/reconcile-stripe-airtable.mjs
+
+      - name: Upload settlement proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: commerce-settlement-proof-${{ github.run_id }}
+          path: proof/commerce/latest-stripe-airtable-reconciliation.json
+          if-no-files-found: error
+          retention-days: 90
