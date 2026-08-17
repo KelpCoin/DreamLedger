@@ -12,44 +12,51 @@ Verified revenue: NZ$0
 
 Domain status is configuration, not proof of deployment. A green CI run never changes the revenue scoreboard.
 
-## Operating lanes
+## Operating spine
 
-1. Commerce: DreamLedger owns the customer-facing offer, checkout, fulfilment and proof boundary.
-2. Brand / holding surface: Amplissa is treated as a separate public brand surface. No private BEC/CUBE implementation material is published there by this repository.
-3. IP custody: IP manifests remain versioned in GitHub. Private implementation doctrine is not copied into public marketing artifacts.
-4. QR: one durable doorway may redirect to a controlled landing surface later. The QR asset is not itself a payment receipt.
-5. Markets: regional offers are represented as data and copy, not as claims that every regional checkout is currently live.
-6. Social: content is generated and linted by the system but publication remains human approval-gated.
-7. Gauntlet: every candidate commercial change passes compile, public-boundary and economic-truth checks before it can be considered release-ready.
+1. Signal enters the system.
+2. LM Studio performs local multi-LLM proposer -> critic -> synthesizer refinement when the Windows GPU is available.
+3. The Gauntlet checks the candidate against compile, public-boundary and economic-truth rules.
+4. Human approval is required before public publication or irreversible commercial action.
+5. DreamLedger owns the public offer and checkout surface.
+6. External payment evidence is the only event eligible to become verified revenue.
+7. The resulting evidence chain becomes a proof artifact.
 
-## Multi-LLM refinement
+## PC-off continuity
 
-When the Windows machine is available, LM Studio is the local refinement engine. It may use multiple local models in iterative proposer -> critic -> synthesizer passes.
+When the PC is off, GitHub Actions is the continuity plane for deterministic verification and the Gauntlet. If the operator explicitly enables cloud refinement, the workflow can run the same proposer -> critic -> synthesizer contract against an OpenAI-compatible endpoint supplied through repository secrets.
 
-When the PC is off, GitHub Actions can run the same refinement contract against a configured cloud OpenAI-compatible endpoint. This is a fallback execution plane, not a claim that LM Studio itself is running in GitHub Actions.
+LM Studio is never represented as running on GitHub Actions. The two planes are explicit:
 
-The cloud fallback is disabled unless the required repository secrets are explicitly configured. No secret is stored in this repository.
+- LOCAL_GPU: LM Studio multi-LLM refinement.
+- GITHUB_CLOUD: deterministic verification, Gauntlet and optional cloud refinement.
+
+## Commercial lanes
+
+- Commerce: DreamLedger owns the customer-facing offer, checkout, fulfilment and proof boundary.
+- Brand / holding surface: Amplissa is treated as a separate public brand surface. No private BEC/CUBE implementation material is published there by this repository.
+- IP custody: IP manifests remain versioned in GitHub. Private implementation doctrine is not copied into public marketing artifacts.
+- QR: one durable doorway may redirect to a controlled landing surface later. The QR asset is not itself a payment receipt.
+- Markets: regional offers are represented as data and copy, not as claims that every regional checkout is currently live.
+- Social: content is generated and linted by the system but publication remains human approval-gated.
+- Gauntlet: every candidate commercial change passes verification before it can be considered release-ready.
 
 ## Revenue boundary
 
-Automation may compile, test, lint, package, generate QR assets and create proof artifacts. It must not fabricate payment, publication, testimonials, traffic, customer identity or revenue.
+Automation may compile, test, lint, package, generate QR assets, refine copy and create proof artifacts. It must not fabricate payment, publication, testimonials, traffic, customer identity or revenue.
 
 External social publication, irreversible production deployment and any public commercial action remain approval-gated.
 
-## PC-off principle
-
-The GitHub runner is the continuity layer for deterministic work that does not require the local GPU. GPU-bound LM Studio work remains local. Cloud LLM refinement is an explicitly configured substitute when the PC is unavailable.
-
 ## Proof contract
 
-Every orchestration run must emit:
+Every orchestration run should emit:
 
 - commit SHA
 - UTC timestamp
 - selected execution plane
+- integration verification result
+- refinement result or NOT_REQUESTED
 - Gauntlet result
-- compile result
-- refinement result
 - revenue claim = NOT_VERIFIED_BY_AUTOMATION
 
 A proof artifact is operational evidence only. It is not economic evidence.

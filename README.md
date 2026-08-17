@@ -27,13 +27,33 @@ The public product is intentionally small: structured offers, focused checkout s
 
 Domain presence is not deployment proof. Payment is not claimed until external payment evidence exists.
 
-## Local and PC-off execution
+## Execution spine
 
-When the Windows GPU is available, LM Studio is the preferred local multi-LLM refinement plane. The intended iterative loop is proposer -> critic -> synthesizer -> Gauntlet -> proof.
+The system now has one explicit refinement and release spine:
 
-When the PC is off, GitHub Actions provides deterministic continuity for compile, verification, Gauntlet, packaging and proof. An explicitly configured cloud LLM endpoint can optionally perform the refinement stage. LM Studio itself is not assumed to run in GitHub Actions.
+`Signal -> LM Studio multi-LLM refinement -> Gauntlet -> approval gate -> DreamLedger -> checkout -> external payment evidence -> verified revenue`
 
-See `CONTROL-PLANE/LM-STUDIO-MULTI-LLM.md` and `.github/workflows/pc-off-refinement-gauntlet.yml`.
+When the Windows GPU is available, LM Studio is the preferred local refinement plane. The iterative contract is proposer -> critic -> synthesizer -> Gauntlet -> proof.
+
+When the PC is off, GitHub Actions provides deterministic continuity for compile, integration verification, Gauntlet, packaging and proof. A configured cloud OpenAI-compatible endpoint can optionally perform the same proposer -> critic -> synthesizer refinement. LM Studio itself is never claimed to be running in GitHub Actions.
+
+Social publication, irreversible production changes and other public commercial actions remain approval-gated. Automation cannot manufacture revenue, customers, traffic, testimonials, publication or payment evidence.
+
+## 60-second verification
+
+From `BEC-PRIME`:
+
+`npm ci`
+
+`npm run verify:integration`
+
+`npm run compile`
+
+`npm run gauntlet`
+
+For local multi-LLM refinement with LM Studio, set `LLM_API_URL` to the local OpenAI-compatible endpoint and provide comma-separated `LLM_MODELS`, then run `npm run refine:iterative`.
+
+For PC-off continuity, run the GitHub Actions workflow `PC-Off Refinement and Gauntlet`. Cloud refinement is opt-in and requires repository secrets; the default path is deterministic verification only.
 
 ## Shared item model
 
@@ -41,23 +61,11 @@ The canonical item model lives under `item-schema/`.
 
 An item declares its identity, kind, compatible experiences, and economic acquisition state. Presentation layers may project the canonical object for their own UI, but they do not become alternate sources of truth.
 
-The example fixture demonstrates three cases:
-
-- `ITEM_BLADE_0003`: compatible with avatar and RPG experiences.
-- `AVATAR_HAT_0001`: avatar-only.
-- `RPG_SWORD_0001`: RPG-only.
-
-`economic.acquisition_proof_ref` is an evidence reference. It is not, by itself, an ownership claim.
-
 ## Commerce verification
 
 DreamLedger verifies commercial state independently of any single commerce platform. Public claims are limited to what can be supported by observable evidence.
 
 A real payment is only considered verified after external payment evidence has been received and the economic proof chain has been generated from that evidence.
-
-## Development rule
-
-Prefer extending the existing canonical infrastructure over creating parallel ledgers, duplicated item databases, or ecosystem-specific ownership systems.
 
 ## Revenue truth
 

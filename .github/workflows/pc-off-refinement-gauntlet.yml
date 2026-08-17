@@ -35,6 +35,7 @@ jobs:
       LLM_API_URL: ${{ secrets.LLM_API_URL }}
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       LLM_MODEL: ${{ secrets.LLM_MODEL }}
+      LLM_MODELS: ${{ secrets.LLM_MODELS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,13 +51,13 @@ jobs:
         working-directory: BEC-PRIME
         run: npm ci
 
-      - name: Compile
+      - name: Commercial integration proof
         working-directory: BEC-PRIME
-        run: npm run compile
-
-      - name: Run Gauntlet
-        working-directory: BEC-PRIME
-        run: npm run gauntlet
+        env:
+          PROOF_OUT: ../artifacts/commercial-integration-proof.txt
+        run: |
+          mkdir -p ../artifacts
+          npm run verify:integration
 
       - name: Cloud refinement preflight
         if: ${{ env.USE_CLOUD_LLM == 'true' }}
@@ -65,18 +66,29 @@ jobs:
           set -euo pipefail
           test -n "$LLM_API_URL"
           test -n "$LLM_API_KEY"
-          test -n "$LLM_MODEL"
+          test -n "${LLM_MODELS:-$LLM_MODEL}"
           echo 'CLOUD_LLM_PREFLIGHT=PASS'
-          echo 'EXECUTION_PLANE=CLOUD_FALLBACK'
 
-      - name: Local-first fallback marker
+      - name: Iterative cloud refinement
+        if: ${{ env.USE_CLOUD_LLM == 'true' }}
+        env:
+          REFINEMENT_OUT: artifacts/iterative-refinement-proof.md
+          LLM_MODELS: ${{ secrets.LLM_MODELS || secrets.LLM_MODEL }}
+        working-directory: BEC-PRIME
+        run: node scripts/iterative-refinement.js
+
+      - name: Local-first marker
         if: ${{ env.USE_CLOUD_LLM != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
-          echo 'LM_STUDIO=LOCAL_ONLY'
+          echo 'LM_STUDIO=LOCAL_WHEN_PC_ON'
           echo 'CLOUD_REFINEMENT=NOT_REQUESTED'
           echo 'EXECUTION_PLANE=GITHUB_DETERMINISTIC'
+
+      - name: Run Gauntlet
+        working-directory: BEC-PRIME
+        run: npm run gauntlet
 
       - name: Emit proof
         if: always()
@@ -90,7 +102,9 @@ jobs:
             echo "UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "EXECUTION_PLANE=$([ \"$USE_CLOUD_LLM\" = \"true\" ] && echo CLOUD_FALLBACK || echo GITHUB_DETERMINISTIC)"
             echo 'LM_STUDIO=LOCAL_WHEN_PC_ON'
+            echo 'REFINEMENT=PROPOSER_CRITIC_SYNTHESIZER'
             echo 'GAUNTLET=EXECUTED'
+            echo 'SOCIAL_PUBLICATION=APPROVAL_GATED'
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_AUTOMATION'
           } | tee artifacts/pc-off-refinement-proof.txt
 
@@ -98,5 +112,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pc-off-refinement-proof
-          path: artifacts/pc-off-refinement-proof.txt
+          name: pc-off-refinement-gauntlet-proof
+          path: artifacts/
