@@ -1,0 +1,8 @@
+DREAMLEDGER_BILLBOARD_DEPLOY_TRIGGER
+
+Purpose: force a fresh production deployment after binding the four live Stripe Payment Links.
+Canonical target: DreamLedger production Vercel integration.
+Expected public route: /billboard
+Expected commercial state: four fixed one-time NZD offers.
+
+This file is operational evidence only. It does not constitute payment evidence.
