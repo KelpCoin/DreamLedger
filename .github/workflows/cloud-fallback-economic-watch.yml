@@ -1,0 +1,148 @@
+name: Cloud Fallback and Economic Watch
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: dreamledger-cloud-fallback
+  cancel-in-progress: true
+
+env:
+  BILLBOARD_PAYMENT_LINK_ID: plink_1U5GX8EGgEAnUFF9y2YGkIhv
+  BILLBOARD_PAYMENT_URL: https://buy.stripe.com/28EcN54zraG13M3g3idwc1t
+  LIVE_URL: https://dreamledger.org
+  NODE_VERSION: 24
+
+jobs:
+  cloud-build-and-watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile canonical commerce surface
+        run: npm run compile
+
+      - name: Syntax and critical-route gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check BEC-PRIME/start.js
+          node --check BEC-PRIME/compiler/BillboardCompiler.js
+          node --check BEC-PRIME/scripts/verify-public-surface.js
+          test -f compiled/website/billboard.html
+          echo "PASS: canonical build and billboard artifact exist."
+
+      - name: Verify live production doorway
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 20 "$LIVE_URL/healthz" -o /tmp/healthz.json
+          cat /tmp/healthz.json
+          echo
+          curl --fail --silent --show-error --max-time 20 "$LIVE_URL/billboard" -o /tmp/billboard.html
+          test -s /tmp/billboard.html
+          echo "PASS: live healthz and billboard routes are reachable."
+
+      - name: Verify Stripe payment doorway
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -s -o /tmp/stripe.html -w "%{http_code}" --max-time 20 "$BILLBOARD_PAYMENT_URL")
+          test "$code" = "200"
+          test -s /tmp/stripe.html
+          echo "PASS: Stripe Billboard checkout returned HTTP 200."
+
+      - name: Verify Billboard economic scoreboard from Stripe
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cloud-proof
+          python3 - <<'PY'
+          import json, os, pathlib, urllib.parse, urllib.request
+          out = pathlib.Path("cloud-proof/economic-scoreboard.json")
+          link_id = os.environ["BILLBOARD_PAYMENT_LINK_ID"]
+          key = os.environ.get("STRIPE_SECRET_KEY", "")
+          result = {
+              "payment_link_id": link_id,
+              "payment_url": os.environ["BILLBOARD_PAYMENT_URL"],
+              "currency": "nzd",
+              "verified_billboard_revenue_nzd": 0,
+              "completed_sessions": 0,
+              "status": "UNAVAILABLE",
+              "source": "Stripe Checkout Sessions filtered by payment_link",
+              "truth_rule": "Only completed Checkout Sessions for the canonical Billboard payment link count."
+          }
+          if key:
+              q = urllib.parse.urlencode({"payment_link": link_id, "status": "complete", "limit": "100"})
+              req = urllib.request.Request("https://api.stripe.com/v1/checkout/sessions?" + q)
+              token = (key + ":").encode()
+              import base64
+              req.add_header("Authorization", "Basic " + base64.b64encode(token).decode())
+              with urllib.request.urlopen(req, timeout=20) as r:
+                  data = json.load(r)
+              total = sum((s.get("amount_total") or 0) for s in data.get("data", []))
+              result["verified_billboard_revenue_nzd"] = total / 100
+              result["completed_sessions"] = len(data.get("data", []))
+              result["status"] = "VERIFIED"
+          else:
+              result["status"] = "MISSING_STRIPE_SECRET_KEY"
+          out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+          print(out.read_text())
+          PY
+
+      - name: Optional Vercel production fallback
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        if: ${{ env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
+        run: |
+          npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+          npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+      - name: Write cloud proof manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cloud-proof
+          cat > cloud-proof/cloud-proof.json <<EOF
+          {
+            "workflow": "cloud-fallback-economic-watch",
+            "commit": "${GITHUB_SHA}",
+            "live_url": "${LIVE_URL}",
+            "billboard_route_checked": true,
+            "stripe_checkout_http_200_checked": true,
+            "optional_vercel_fallback": "enabled only when VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID are configured",
+            "economic_scoreboard": "cloud-proof/economic-scoreboard.json",
+            "revenue_claim": "none unless Stripe completed Checkout Sessions verify it"
+          }
+          EOF
+          cat cloud-proof/cloud-proof.json
+
+      - name: Upload cloud proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-cloud-proof-${{ github.sha }}
+          path: cloud-proof/
+          if-no-files-found: error
+          retention-days: 30
