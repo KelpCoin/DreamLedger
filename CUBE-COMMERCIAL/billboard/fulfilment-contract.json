@@ -1,0 +1,52 @@
+{
+  "contract_id": "DL-BILLBOARD-FULFILMENT-001",
+  "version": "1.0.0",
+  "offer_id": "DREAMLEDGER-BILLBOARD-100X100-NZD29",
+  "states": [
+    "UNPAID",
+    "PAID_PENDING_FULFILMENT",
+    "ASSETS_RECEIVED",
+    "HUMAN_REVIEW",
+    "PUBLISHED",
+    "REJECTED",
+    "REFUNDED"
+  ],
+  "transition_rules": [
+    {
+      "from": "UNPAID",
+      "to": "PAID_PENDING_FULFILMENT",
+      "requires": ["verified_external_payment"]
+    },
+    {
+      "from": "PAID_PENDING_FULFILMENT",
+      "to": "ASSETS_RECEIVED",
+      "requires": ["image_received", "destination_url_received"]
+    },
+    {
+      "from": "ASSETS_RECEIVED",
+      "to": "HUMAN_REVIEW",
+      "requires": ["asset_validation_passed"]
+    },
+    {
+      "from": "HUMAN_REVIEW",
+      "to": "PUBLISHED",
+      "requires": ["human_publication_approval"]
+    }
+  ],
+  "hard_rules": [
+    "No payment evidence means no PAID state.",
+    "No verified payment means no publication workflow.",
+    "No human approval means no public publication.",
+    "A rejected asset cannot silently transition to PUBLISHED.",
+    "Every transition emits a proof-referenced telemetry event."
+  ],
+  "correlation_fields": [
+    "trace_id",
+    "run_id",
+    "offer_id",
+    "order_id",
+    "external_event_id",
+    "event_id",
+    "fossil_id"
+  ]
+}
