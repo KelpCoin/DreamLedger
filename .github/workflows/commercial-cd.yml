@@ -1,0 +1,68 @@
+name: Commercial CD Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Request production deployment after approval and credential checks'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify release package
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f CD/RELEASE-PACKAGE.md
+          test -f IP/QR/QR-DESTINATION.txt
+          test -f MARKETS/MARKET-MATRIX.md
+          test -f SOCIAL/SOCIAL-VIRALITY-PLAYBOOK.md
+
+      - name: Fail closed without deployment credential
+        if: ${{ inputs.deploy == 'true' && secrets.VERCEL_TOKEN == '' }}
+        shell: bash
+        run: |
+          echo 'DEPLOYMENT_BLOCKED=VERCEL_TOKEN_MISSING'
+          exit 1
+
+      - name: Deployment approval gate
+        if: ${{ inputs.deploy == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'DEPLOYMENT_REQUESTED=YES'
+          echo 'DEPLOYMENT_PROVIDER=VERCEL'
+          echo 'DEPLOYMENT_ACTION=INTENTIONALLY_NOT_AUTOMATED_HERE'
+          echo 'Configure the production deployment command only after the Vercel project and token are verified.'
+
+      - name: Emit CD proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo 'CD_GATE=PASS'
+            echo "COMMIT=${GITHUB_SHA}"
+            echo "DEPLOY_REQUEST=${{ inputs.deploy }}"
+            echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_CD'
+          } | tee artifacts/commercial-cd-proof.txt
+
+      - name: Upload CD proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: commercial-cd-proof
+          path: artifacts/commercial-cd-proof.txt
