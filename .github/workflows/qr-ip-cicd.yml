@@ -1,0 +1,67 @@
+name: QR IP CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'IP/**'
+      - 'README.md'
+      - '.github/workflows/qr-ip-cicd.yml'
+  pull_request:
+    paths:
+      - 'IP/**'
+      - 'README.md'
+      - '.github/workflows/qr-ip-cicd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-qr-ip-cicd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify QR target is present
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f IP/QR/QR-DESTINATION.txt
+          grep -F 'https://buy.stripe.com/28EcN54zraG13M3g3idwc1t' IP/QR/QR-DESTINATION.txt
+
+      - name: Verify IP custody register
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f IP/MASTER-IP-MAP.md
+
+      - name: Secret hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE '(sk_live_|rk_live_|whsec_|ghp_|github_pat_)' --exclude-dir=.git .; then
+            echo 'Potential credential material detected.'
+            exit 1
+          fi
+
+      - name: Emit CI proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo 'QR_IP_CICD=PASS'
+            echo "COMMIT=${GITHUB_SHA}"
+            echo "UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo 'QR_TARGET=STRIPE_CHECKOUT'
+            echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_CI'
+          } | tee artifacts/qr-ip-cicd-proof.txt
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: qr-ip-cicd-proof
+          path: artifacts/qr-ip-cicd-proof.txt
