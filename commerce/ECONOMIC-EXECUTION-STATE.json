@@ -1,0 +1,23 @@
+{
+  "generated_utc": "2026-08-17T06:10:00Z",
+  "state": "UNPAID_BUT_COMMERCE_READY",
+  "verified_revenue_nzd": 0,
+  "verified_paid_dreamledger_sessions": 0,
+  "regional_billboard_payment_links": 6,
+  "high_ticket_payment_links": 5,
+  "high_ticket_ladder_nzd": [49,149,499,2500,10000],
+  "guardrails": {
+    "no_fabricated_revenue": true,
+    "public_outreach_requires_operator_consent": false,
+    "manual_fulfilment_after_payment": true
+  },
+  "latest_commit": "4646abe5e899554782687c3eaeb06ca003d0ad4a",
+  "evidence": {
+    "stripe_live_mode": true,
+    "billboard_nzd_2900_session_observed": true,
+    "billboard_nzd_2900_session_payment_status": "unpaid",
+    "vercel_project_count": 0,
+    "healthz_expected": 200,
+    "billboard_expected_previous_state": 404
+  }
+}
