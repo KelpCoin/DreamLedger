@@ -32,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Verify repository control plane
         shell: bash
@@ -74,8 +73,11 @@ jobs:
             npm ci --ignore-scripts
           elif [ -f package.json ]; then
             npm install --ignore-scripts
+          elif [ -f BEC-PRIME/package-lock.json ]; then
+            cd BEC-PRIME
+            npm ci --ignore-scripts
           else
-            echo "No root Node package manifest; continuing."
+            echo "No Node package manifest; continuing."
           fi
 
       - name: Run safe repository tests when discoverable
@@ -83,13 +85,14 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f package.json ]; then
-            if npm run | grep -q " test"; then
-              npm test
-            else
-              echo "No root test script; continuing."
-            fi
+            has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
+            if [ "$has_test" = "yes" ]; then npm test; else echo "No root test script; continuing."; fi
+          elif [ -f BEC-PRIME/package.json ]; then
+            cd BEC-PRIME
+            has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
+            if [ "$has_test" = "yes" ]; then npm test; else echo "No BEC-PRIME test script; continuing."; fi
           else
-            echo "No root package.json; continuing."
+            echo "No package.json; continuing."
           fi
 
       - name: Verify checkout doorway
