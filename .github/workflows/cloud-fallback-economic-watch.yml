@@ -45,8 +45,9 @@ jobs:
           node --check BEC-PRIME/start.js
           node --check BEC-PRIME/compiler/BillboardCompiler.js
           node --check BEC-PRIME/scripts/verify-public-surface.js
-          test -f compiled/website/billboard.html
-          echo "PASS: canonical build and billboard artifact exist."
+          test -f BEC-PRIME/compiled/website/billboard.html
+          test -f BEC-PRIME/compiled/website/board.html
+          echo "PASS: canonical build and Billboard artifacts exist."
 
       - name: Verify live production doorway
         shell: bash
