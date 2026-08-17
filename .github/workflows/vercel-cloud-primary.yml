@@ -37,13 +37,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Install and compile canonical website
         shell: bash
         run: |
           set -euo pipefail
-          npm ci --ignore-scripts
+          npm install --ignore-scripts
           npm run compile
           test -d BEC-PRIME/compiled/website
 
