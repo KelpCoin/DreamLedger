@@ -1,0 +1,79 @@
+name: CUBE Verify Lite Proof
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'CUBE-COMMERCIAL/github-action/**'
+      - '.github/workflows/cube-verify-lite-proof.yml'
+
+jobs:
+  prove-pass:
+    name: Prove PASS verdict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run CUBE Verify Lite (should PASS)
+        id: verify
+        uses: ./CUBE-COMMERCIAL/github-action/cube-verify
+        with:
+          claim_file: CUBE-COMMERCIAL/github-action/fixtures/claim-pass.json
+          evidence_file: CUBE-COMMERCIAL/github-action/fixtures/evidence-pass.json
+          policy_file: CUBE-COMMERCIAL/github-action/fixtures/policy.json
+
+      - name: Assert PASS
+        run: |
+          echo "Verdict: ${{ steps.verify.outputs.verdict }}"
+          if [ "${{ steps.verify.outputs.verdict }}" != "PASS" ]; then
+            echo "Expected PASS, got ${{ steps.verify.outputs.verdict }}"
+            exit 1
+          fi
+          echo "PROOF: CUBE Verify Lite produced PASS on complete claim+evidence"
+
+  prove-quarantine:
+    name: Prove QUARANTINE verdict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run CUBE Verify Lite (should QUARANTINE)
+        id: verify
+        continue-on-error: true
+        uses: ./CUBE-COMMERCIAL/github-action/cube-verify
+        with:
+          claim_file: CUBE-COMMERCIAL/github-action/fixtures/claim-pass.json
+          evidence_file: CUBE-COMMERCIAL/github-action/fixtures/evidence-quarantine.json
+          policy_file: CUBE-COMMERCIAL/github-action/fixtures/policy.json
+
+      - name: Assert QUARANTINE
+        run: |
+          echo "Verdict: ${{ steps.verify.outputs.verdict }}"
+          if [ "${{ steps.verify.outputs.verdict }}" != "QUARANTINE" ]; then
+            echo "Expected QUARANTINE, got ${{ steps.verify.outputs.verdict }}"
+            exit 1
+          fi
+          echo "PROOF: CUBE Verify Lite produced QUARANTINE on incomplete evidence"
+
+  prove-fail:
+    name: Prove FAIL verdict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run CUBE Verify Lite (should FAIL - missing claim file handled)
+        id: verify
+        continue-on-error: true
+        uses: ./CUBE-COMMERCIAL/github-action/cube-verify
+        with:
+          claim_file: CUBE-COMMERCIAL/github-action/fixtures/does-not-exist.json
+          evidence_file: CUBE-COMMERCIAL/github-action/fixtures/evidence-pass.json
+
+      - name: Assert FAIL
+        run: |
+          echo "Verdict: ${{ steps.verify.outputs.verdict }}"
+          if [ "${{ steps.verify.outputs.verdict }}" != "FAIL" ]; then
+            echo "Expected FAIL, got ${{ steps.verify.outputs.verdict }}"
+            exit 1
+          fi
+          echo "PROOF: CUBE Verify Lite produced FAIL on missing claim file"

@@ -1,0 +1,6 @@
+{
+  "action": "execute_payment",
+  "agent_id": "agent-finance-001",
+  "timestamp": "2026-08-17T04:00:00Z",
+  "claim_id": "CLM-001"
+}
