@@ -1,0 +1,61 @@
+{
+  "generated_date": "2026-08-17",
+  "purpose": "Public-business prospect queue for operator-approved outreach",
+  "status": "RESEARCHED_NOT_CONTACTED",
+  "rule": "No outreach is recorded as sent until the operator actually sends it.",
+  "market_signal": {
+    "nz_shopify_stores_estimate": 28547,
+    "source": "Eightx 2026 NZ Shopify landscape",
+    "why_now": "NZ consumers increasingly use AI for product discovery; retailers need better AI discoverability, structured product information and transaction readiness."
+  },
+  "prospects": [
+    {"name":"Ariat New Zealand","url":"https://ariat.co.nz","fit":"AI commerce readiness / product data","priority":"A"},
+    {"name":"Alfresco Inexterior Living","url":"https://alfrescoliving.co.nz","fit":"AI commerce readiness / catalogue data","priority":"A"},
+    {"name":"Beauty Gallery","url":"https://beautygallery.co.nz","fit":"bulk product copy / AI product discoverability","priority":"A"},
+    {"name":"Ausclimate NZ","url":"https://ausclimate.co.nz","fit":"AI commerce readiness / product catalogue","priority":"A"},
+    {"name":"Cloud Nine New Zealand","url":"https://cloudnine-hair.co.nz","fit":"AI commerce readiness / product discovery","priority":"A"},
+    {"name":"Barekind NZ","url":"https://barekind.co.nz","fit":"product data / AI discoverability","priority":"A"},
+    {"name":"runEZ","url":"https://runez.co.nz","fit":"conversion repair / AI discoverability","priority":"A"},
+    {"name":"George Harrison Menswear","url":"https://georgeharrison.co.nz","fit":"AI product discovery / catalogue optimisation","priority":"A"},
+    {"name":"Oak Furniture Store NZ","url":"https://oakfurniturestore.co.nz","fit":"catalogue optimisation / AI commerce readiness","priority":"A"},
+    {"name":"Book Hero","url":"https://bookhero.co.nz","fit":"AI product discovery / catalogue quality","priority":"A"},
+    {"name":"LOADED NZ","url":"https://loadednz.com","fit":"large catalogue / AI product discovery","priority":"A"},
+    {"name":"Isla-Maree","url":"https://www.isla-maree.co.nz","fit":"product discovery / conversion repair","priority":"B"},
+    {"name":"The Glow Club","url":"https://www.theglowclubnz.com","fit":"bulk product copy / AI discoverability","priority":"B"},
+    {"name":"Furniture World Auckland","url":"https://furnitureworld.co.nz","fit":"large catalogue / AI commerce readiness","priority":"A"},
+    {"name":"The Rock Box Store","url":"https://therockboxstore.co.nz","fit":"large catalogue / AI product discovery","priority":"A"},
+    {"name":"Tommy Gun's Original Barbershop NZ","url":"https://tommyguns.co.nz","fit":"local presence / AI discoverability / FAQ","priority":"B"},
+    {"name":"FallenFront","url":"https://fallenfront.co.nz","fit":"large catalogue / AI product discovery","priority":"A"},
+    {"name":"Luxe Candle & Beauty","url":"https://luxecandb.co.nz","fit":"product copy / AI discoverability","priority":"B"},
+    {"name":"Yoho & Co","url":"https://yohoandco.co.nz","fit":"AI product discovery / catalogue quality","priority":"A"},
+    {"name":"The Gift Loft","url":"https://thegiftloft.co.nz","fit":"AI product discovery / catalogue optimisation","priority":"B"}
+  ],
+  "offer_ladder": [
+    {"price_nzd":49,"offer":"Agentic Commerce Readiness Audit"},
+    {"price_nzd":149,"offer":"AI Commerce Remediation Blueprint"},
+    {"price_nzd":499,"offer":"AI Commerce Implementation Starter"},
+    {"price_nzd":2500,"offer":"AI Commerce Productized Build"},
+    {"price_nzd":10000,"offer":"AI Commerce System Deployment"}
+  ],
+  "million_dollar_math": {
+    "target_nzd":1000000,
+    "illustrative_mix": {
+      "audits_49": 1000,
+      "remediations_149": 1000,
+      "implementations_499": 500,
+      "builds_2500": 100,
+      "systems_10000": 23
+    },
+    "illustrative_total_nzd": 1000077,
+    "note":"This is a target model, not a forecast. Actual conversion must be earned by payment evidence."
+  },
+  "next_economic_events": [
+    "First qualified prospect contacted by operator",
+    "First checkout session created from a qualified prospect",
+    "First paid NZ$49 audit",
+    "First NZ$149 remediation upsell",
+    "First NZ$499 implementation",
+    "First NZ$2500 build",
+    "First NZ$10000 system sale"
+  ]
+}
