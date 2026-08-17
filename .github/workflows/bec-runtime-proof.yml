@@ -75,3 +75,5 @@ jobs:
         with:
           name: bec-runtime-proof-${{ github.run_id }}
           path: BEC-PRIME/proof/runtime/RUNTIME-EXECUTION-PROOF.json
+
+# BEC-PRIME execution revalidation trigger: keep the runtime proof workflow independently dispatchable.
