@@ -1,0 +1,25 @@
+{
+  "schema": "DREAMLEDGER-LAUNCH-READINESS/v1",
+  "status": "READY_FOR_HUMAN_DISTRIBUTION",
+  "surfaces": {
+    "dreamledger": "https://dreamledger.org",
+    "amplissa": "https://amplissa.com",
+    "repository": "https://github.com/KelpCoin/DreamLedger"
+  },
+  "offer": {
+    "price_nzd": 29,
+    "checkout_configured": true
+  },
+  "execution": {
+    "lm_studio_local": true,
+    "github_actions_pc_off": true,
+    "gauntlet": true,
+    "approval_gated_publication": true
+  },
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "payment_received": false,
+    "social_post_sent": false
+  },
+  "next_action": "HUMAN_DISTRIBUTION"
+}
