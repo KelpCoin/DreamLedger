@@ -1,0 +1,106 @@
+name: Vercel Cloud Primary
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-cloud-primary
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_SCOPE: dreamledger
+      VERCEL_PROJECT: dreamledger
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Gate on deployment credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "VERCEL_TOKEN is not configured; cloud deployment remains BLOCKED."
+            exit 78
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install and compile canonical website
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          npm run compile
+          test -d BEC-PRIME/compiled/website
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Link project to dreamledger team
+        shell: bash
+        run: |
+          set -euo pipefail
+          vercel link --yes --project="$VERCEL_PROJECT" --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+
+      - name: Pull production environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          vercel pull --yes --environment=production --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+
+      - name: Build Vercel artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          vercel build --prod --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
+
+      - name: Deploy production
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          url=$(vercel deploy --prebuilt --prod --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "DEPLOYMENT_URL=$url"
+
+      - name: Emit deployment proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          cat > artifacts/vercel-cloud-primary-proof.json <<EOF
+          {
+            "workflow": "Vercel Cloud Primary",
+            "commit_sha": "${GITHUB_SHA}",
+            "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "team": "${VERCEL_SCOPE}",
+            "project": "${VERCEL_PROJECT}",
+            "deployment_url": "${{ steps.deploy.outputs.url }}",
+            "verified_payment_count": 0,
+            "revenue_nzd": 0,
+            "status": "DEPLOYED"
+          }
+          EOF
+          cat artifacts/vercel-cloud-primary-proof.json
+
+      - name: Upload deployment proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-cloud-primary-proof-${{ github.run_id }}
+          path: artifacts/vercel-cloud-primary-proof.json
+          if-no-files-found: error
+          retention-days: 30
