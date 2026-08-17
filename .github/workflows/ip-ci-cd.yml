@@ -1,0 +1,81 @@
+name: IP Integrity and Commerce CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ip-ci-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify IP runtime contract
+        run: npm run verify:ip
+
+      - name: Compile commerce surface
+        run: npm run compile
+
+      - name: Enforce economic truth boundary
+        shell: bash
+        run: |
+          test -f IP/MASTER-IP-MAP.md
+          grep -q 'VERIFIED_REVENUE_NZD = 0' IP/MASTER-IP-MAP.md
+          grep -q 'FIRST_PAYMENT = NO' IP/MASTER-IP-MAP.md
+          echo 'ECONOMIC_TRUTH=PASS'
+
+      - name: Secret hygiene scan
+        shell: bash
+        run: |
+          if grep -RInE --exclude-dir=.git --exclude-dir=node_modules --exclude='*.lock' '(sk_live_|sk_test_|whsec_|ghp_|github_pat_|xoxb-|AKIA[0-9A-Z]{16})' .; then
+            echo 'SECRET_HYGIENE=FAIL'
+            exit 1
+          fi
+          echo 'SECRET_HYGIENE=PASS'
+
+      - name: Write CI proof
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cat > artifacts/IP-CI-PROOF.md <<EOF
+          # IP CI Proof
+
+          - Commit: $GITHUB_SHA
+          - Workflow: $GITHUB_WORKFLOW
+          - Run: $GITHUB_RUN_ID
+          - Economic truth: VERIFIED_REVENUE_NZD=0
+          - First payment: NO
+          - IP runtime contract: PASS
+          - Commerce compile: PASS
+          - Secret hygiene: PASS
+          EOF
+
+      - name: Upload CI proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: ip-ci-proof-${{ github.run_id }}
+          path: artifacts/IP-CI-PROOF.md
+          if-no-files-found: error
