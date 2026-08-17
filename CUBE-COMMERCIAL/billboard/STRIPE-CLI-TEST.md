@@ -1,57 +1,53 @@
 # Billboard Stripe webhook testing
 
-Two layers. Offline is required. Stripe CLI is optional and local.
+## Acceptance before merge (idempotency)
 
-## 1. Offline signed-payload tests (CI + local)
+Trigger the same `checkout.session.completed` event twice (Stripe CLI or Dashboard test mode).
 
-No network. No real secret. No payment claim.
+Expected:
+
+```text
+first event  = 200, duplicate: false
+second event = 200, duplicate: true
+payment records = 1
+```
+
+If duplicate count is not enforced, PR fails merge readiness.
+
+## Env (production / Vercel)
+
+```text
+STRIPE_WEBHOOK_SECRET=whsec_...
+KV_REST_API_URL=...
+KV_REST_API_TOKEN=...
+```
+
+Do not use the filesystem for idempotency on Vercel serverless.
+
+## Offline tests (required)
 
 ```bash
 node scripts/test-billboard-stripe-webhook.js
+# or
+npm run test:billboard-webhook
 ```
 
-Covers:
+Uses in-memory store (`BILLBOARD_IDEMPOTENCY_BACKEND=memory`). No KV required for CI.
 
-- valid signature accepts
-- tampered body rejects
-- wrong secret rejects
-- stale timestamp rejects
-- paid session -> PAID_PENDING_FULFILMENT
-- unpaid session rejected
-- invalid signature -> 400
-- non-POST -> 405
-
-## 2. Local Stripe CLI (optional)
-
-Requires Stripe CLI installed and logged in.
+## Local Stripe CLI (optional)
 
 ```bash
-# Terminal A — forward webhooks to a local server that mounts the handler
 stripe listen --forward-to localhost:3000/api/billboard-stripe-webhook
-
-# Copy the printed webhook signing secret (whsec_...)
-export STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Terminal B — trigger a test event
+export STRIPE_WEBHOOK_SECRET=whsec_...   # from listen
 stripe trigger checkout.session.completed
+# trigger again with same event id path to observe duplicate: true after first durable write
 ```
 
-Notes:
-
-- `stripe trigger` generates a **test-mode** event. It is not a NZ$29 Billboard sale.
-- Fulfilment and fossils still require human approval per fossil-schema.
-- Never treat CLI trigger output as VERIFIED ECONOMIC OUTPUT.
-
-## 3. GitHub Actions
-
-Workflow: `.github/workflows/billboard-stripe-webhook-test.yml`
-
-- Always runs offline tests on the cash-lane paths.
-- Does not call live Stripe unless you later add optional secrets and a guarded job.
+CLI triggers are test-mode. They are not NZ$29 Billboard revenue.
 
 ## Scoreboard rule
 
-```
+```text
 TEST PASS != PAYMENT
 CLI TRIGGER != NZ$29 REVENUE
 ONLY Stripe-reported paid external_event_id may move commercial state.

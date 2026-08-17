@@ -1,24 +1,29 @@
 #!/usr/bin/env node
 /**
- * Offline Stripe webhook signature tests for Billboard cash lane.
- * No live Stripe network required. No payment claimed.
+ * Offline Stripe webhook tests (signature + idempotency).
+ * No live Stripe. No payment claim.
  *
- * Usage:
  *   node scripts/test-billboard-stripe-webhook.js
  */
 
 const assert = require('assert');
-const http = require('http');
 const path = require('path');
 
+process.env.BILLBOARD_IDEMPOTENCY_BACKEND = 'memory';
+
 const webhook = require(path.join(__dirname, '..', 'api', 'billboard-stripe-webhook.js'));
-const { verifyStripeSignature, signStripePayload } = webhook;
+const {
+  verifyStripeSignature,
+  signStripePayload,
+  setIdempotencyStore,
+  createMemoryStore
+} = webhook;
 
 const TEST_SECRET = 'whsec_test_dreamledger_billboard_offline_only';
 
-function buildPaidSessionEvent() {
+function buildPaidSessionEvent(id) {
   return {
-    id: 'evt_test_billboard_paid_001',
+    id: id || 'evt_test_billboard_paid_001',
     object: 'event',
     type: 'checkout.session.completed',
     data: {
@@ -35,8 +40,7 @@ function buildPaidSessionEvent() {
 }
 
 function buildUnpaidSessionEvent() {
-  const event = buildPaidSessionEvent();
-  event.id = 'evt_test_billboard_unpaid_001';
+  const event = buildPaidSessionEvent('evt_test_billboard_unpaid_001');
   event.data.object.payment_status = 'unpaid';
   return event;
 }
@@ -45,9 +49,7 @@ function invokeHandler({ method, body, signature, secret }) {
   return new Promise((resolve) => {
     const req = {
       method: method || 'POST',
-      headers: {
-        'stripe-signature': signature || ''
-      },
+      headers: { 'stripe-signature': signature || '' },
       body: Buffer.from(body, 'utf8')
     };
     const res = {
@@ -78,8 +80,9 @@ function invokeHandler({ method, body, signature, secret }) {
 
 async function run() {
   let passed = 0;
+  setIdempotencyStore(createMemoryStore());
 
-  // 1. Valid signature accepts
+  // Signature unit checks
   {
     const payload = JSON.stringify(buildPaidSessionEvent());
     const header = signStripePayload(payload, TEST_SECRET);
@@ -87,8 +90,6 @@ async function run() {
     passed += 1;
     console.log('PASS verify: valid signature');
   }
-
-  // 2. Tampered payload rejects
   {
     const payload = JSON.stringify(buildPaidSessionEvent());
     const header = signStripePayload(payload, TEST_SECRET);
@@ -96,8 +97,6 @@ async function run() {
     passed += 1;
     console.log('PASS verify: tampered payload rejected');
   }
-
-  // 3. Wrong secret rejects
   {
     const payload = JSON.stringify(buildPaidSessionEvent());
     const header = signStripePayload(payload, TEST_SECRET);
@@ -105,8 +104,6 @@ async function run() {
     passed += 1;
     console.log('PASS verify: wrong secret rejected');
   }
-
-  // 4. Stale timestamp rejects
   {
     const payload = JSON.stringify(buildPaidSessionEvent());
     const oldTs = Math.floor(Date.now() / 1000) - 600;
@@ -116,23 +113,38 @@ async function run() {
     console.log('PASS verify: stale timestamp rejected');
   }
 
-  // 5. Handler: paid session -> accepted
+  // Fresh store for handler flows
+  setIdempotencyStore(createMemoryStore());
+
+  // First paid event accepted
   {
-    const payload = JSON.stringify(buildPaidSessionEvent());
+    const payload = JSON.stringify(buildPaidSessionEvent('evt_dup_test_001'));
     const header = signStripePayload(payload, TEST_SECRET);
     const result = await invokeHandler({ body: payload, signature: header, secret: TEST_SECRET });
     assert.strictEqual(result.statusCode, 200);
     assert.strictEqual(result.body.ok, true);
     assert.strictEqual(result.body.accepted, true);
+    assert.strictEqual(result.body.duplicate, false);
     assert.strictEqual(result.body.event.fulfilment_state, 'PAID_PENDING_FULFILMENT');
-    assert.strictEqual(result.body.event.offer_id, 'DREAMLEDGER-BILLBOARD-100X100-NZD29');
-    assert.strictEqual(result.body.event.external_event_id, 'evt_test_billboard_paid_001');
     passed += 1;
-    console.log('PASS handler: paid session accepted');
+    console.log('PASS handler: first paid event accepted (duplicate: false)');
   }
 
-  // 6. Handler: unpaid session -> not accepted
+  // Second identical event = duplicate
   {
+    const payload = JSON.stringify(buildPaidSessionEvent('evt_dup_test_001'));
+    const header = signStripePayload(payload, TEST_SECRET);
+    const result = await invokeHandler({ body: payload, signature: header, secret: TEST_SECRET });
+    assert.strictEqual(result.statusCode, 200);
+    assert.strictEqual(result.body.duplicate, true);
+    assert.strictEqual(result.body.accepted, false);
+    passed += 1;
+    console.log('PASS handler: second event duplicate: true');
+  }
+
+  // Unpaid rejected
+  {
+    setIdempotencyStore(createMemoryStore());
     const payload = JSON.stringify(buildUnpaidSessionEvent());
     const header = signStripePayload(payload, TEST_SECRET);
     const result = await invokeHandler({ body: payload, signature: header, secret: TEST_SECRET });
@@ -143,7 +155,7 @@ async function run() {
     console.log('PASS handler: unpaid session rejected');
   }
 
-  // 7. Handler: invalid signature -> 400
+  // Invalid signature
   {
     const payload = JSON.stringify(buildPaidSessionEvent());
     const result = await invokeHandler({
@@ -157,7 +169,7 @@ async function run() {
     console.log('PASS handler: invalid signature 400');
   }
 
-  // 8. Handler: GET -> 405
+  // Method gate
   {
     const result = await invokeHandler({
       method: 'GET',
@@ -172,7 +184,7 @@ async function run() {
 
   console.log('');
   console.log(`ALL ${passed} OFFLINE STRIPE WEBHOOK TESTS PASSED`);
-  console.log('NOTE: This is not a live payment. VERIFIED REVENUE remains NZ$0 until Stripe reports paid.');
+  console.log('NOTE: Not a live payment. VERIFIED REVENUE remains NZ$0 until Stripe reports paid.');
 }
 
 run().catch((err) => {

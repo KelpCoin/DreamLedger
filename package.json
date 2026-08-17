@@ -4,7 +4,11 @@
   "private": true,
   "description": "DreamLedger storefront web service",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test:billboard-webhook": "node scripts/test-billboard-stripe-webhook.js"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.1"
   },
   "engines": {
     "node": ">=20"
