@@ -1,0 +1,17 @@
+{
+  "id": "evt_test_billboard_paid_001",
+  "object": "event",
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {
+      "id": "cs_test_billboard_001",
+      "object": "checkout.session",
+      "payment_status": "paid",
+      "amount_total": 2900,
+      "currency": "nzd",
+      "customer_details": {
+        "email": "test@example.com"
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+name: Billboard Stripe Webhook Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'api/billboard-stripe-webhook.js'
+      - 'scripts/test-billboard-stripe-webhook.js'
+      - 'CUBE-COMMERCIAL/billboard/**'
+      - '.github/workflows/billboard-stripe-webhook-test.yml'
+  pull_request:
+    paths:
+      - 'api/billboard-stripe-webhook.js'
+      - 'scripts/test-billboard-stripe-webhook.js'
+      - 'CUBE-COMMERCIAL/billboard/**'
+      - '.github/workflows/billboard-stripe-webhook-test.yml'
+
+jobs:
+  offline-signed-payload:
+    name: Offline signed-payload tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run offline Stripe webhook tests
+        run: node scripts/test-billboard-stripe-webhook.js
+
+      - name: Record non-revenue proof
+        run: |
+          echo "OFFLINE_STRIPE_WEBHOOK_TESTS=PASS"
+          echo "LIVE_PAYMENT=NO"
+          echo "VERIFIED_ECONOMIC_OUTPUT=NZ$0"
+
+  # Optional: only runs when repository secret STRIPE_API_KEY is present.
+  # Still does not claim Billboard NZ$29 revenue.
+  stripe-cli-smoke:
+    name: Stripe CLI smoke (optional)
+    runs-on: ubuntu-latest
+    needs: offline-signed-payload
+    if: ${{ secrets.STRIPE_API_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Stripe CLI
+        run: |
+          curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg >/dev/null
+          echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee /etc/apt/sources.list.d/stripe.list
+          sudo apt-get update
+          sudo apt-get install -y stripe
+
+      - name: Authenticate Stripe CLI (restricted)
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+        run: |
+          stripe config --set live_mode_api_key ""
+          # Use test-mode key only
+          stripe config --set test_mode_api_key "$STRIPE_API_KEY"
+          stripe config --list || true
+
+      - name: Trigger test-mode checkout.session.completed
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+        run: |
+          # Emits a test event object to stdout; does not hit production webhook URL
+          stripe trigger checkout.session.completed --api-key "$STRIPE_API_KEY" || true
+          echo "STRIPE_CLI_TRIGGER=ATTEMPTED"
+          echo "NOTE: test-mode trigger is not Billboard NZ$29 verified revenue"

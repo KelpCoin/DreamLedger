@@ -28,6 +28,12 @@ function verifyStripeSignature(payload, header, secret, toleranceSeconds = 300) 
   });
 }
 
+/** Build a Stripe-Signature header for local/CI testing only. */
+function signStripePayload(payload, secret, timestampSeconds = Math.floor(Date.now() / 1000)) {
+  const v1 = crypto.createHmac('sha256', secret).update(`${timestampSeconds}.${payload}`, 'utf8').digest('hex');
+  return `t=${timestampSeconds},v1=${v1}`;
+}
+
 async function readRawBody(req) {
   if (Buffer.isBuffer(req.body)) return req.body;
   if (typeof req.body === 'string') return Buffer.from(req.body, 'utf8');
@@ -36,7 +42,7 @@ async function readRawBody(req) {
   return Buffer.concat(chunks);
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'METHOD_NOT_ALLOWED' });
@@ -89,6 +95,12 @@ module.exports = async function handler(req, res) {
   };
 
   return res.status(200).json({ ok: true, accepted: true, event: eventRecord });
-};
+}
 
-module.exports.config = { api: { bodyParser: false } };
+handler.config = { api: { bodyParser: false } };
+
+module.exports = handler;
+module.exports.verifyStripeSignature = verifyStripeSignature;
+module.exports.signStripePayload = signStripePayload;
+module.exports.OFFER_ID = OFFER_ID;
+module.exports.SKU = SKU;
