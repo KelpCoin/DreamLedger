@@ -1,0 +1,78 @@
+name: Billboard Cash Lane CI
+
+on:
+  push:
+    branches: [ "main", "agent/billboard-cash-lane-hardening" ]
+    paths:
+      - "CUBE-COMMERCIAL/billboard/**"
+      - "BEC-PRIME/compiled/website/billboard.html"
+      - "api/billboard-stripe-webhook.js"
+      - "vercel.json"
+  pull_request:
+    paths:
+      - "CUBE-COMMERCIAL/billboard/**"
+      - "BEC-PRIME/compiled/website/billboard.html"
+      - "api/billboard-stripe-webhook.js"
+      - "vercel.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-billboard-cash-lane:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify required Billboard files
+        shell: bash
+        run: |
+          if [ -f "BEC-PRIME/compiled/website/billboard.html" ]; then
+            echo "PASS: billboard.html exists"
+          else
+            echo "FAIL: billboard.html missing"
+            exit 1
+          fi
+          if [ -f "api/billboard-stripe-webhook.js" ]; then
+            echo "PASS: webhook exists"
+          else
+            echo "FAIL: webhook missing"
+            exit 1
+          fi
+          if [ -f "vercel.json" ]; then
+            echo "PASS: vercel.json exists"
+          else
+            echo "FAIL: vercel.json missing"
+            exit 1
+          fi
+
+      - name: Run Billboard webhook tests if present
+        run: |
+          if [ -f "scripts/test-billboard-stripe-webhook.js" ]; then
+            node scripts/test-billboard-stripe-webhook.js
+          else
+            echo "WARN: no Billboard test script found"
+          fi
+
+      - name: Generate CI proof artifact
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cat > artifacts/billboard-ci-proof.json <<EOF
+          {
+            "workflow": "Billboard Cash Lane CI",
+            "commit_sha": "${{ github.sha }}",
+            "status": "completed",
+            "verified_payment_count": 0,
+            "revenue_nzd": 0,
+            "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+
+      - name: Upload CI proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: billboard-ci-proof
+          path: artifacts/billboard-ci-proof.json
