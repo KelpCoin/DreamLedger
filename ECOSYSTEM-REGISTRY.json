@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "generated_utc": "2026-08-17T00:00:00Z",
+  "primary_repo": "KelpCoin/DreamLedger",
+  "cloud_primary": true,
+  "self_hosted_fallback": "local-lmstudio",
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "verified_payment_count": 0,
+    "payment_source": "stripe_independent_confirmation"
+  },
+  "repositories": [
+    {"repo":"KelpCoin/index.html","lane":"website","silo":"public","writable":true},
+    {"repo":"KelpCoin/kelpcoin-faucet-site","lane":"website","silo":"kelpcoin","writable":true},
+    {"repo":"KelpCoin/safehub","lane":"application","silo":"safehub","writable":true},
+    {"repo":"KelpCoin/carousel-catalog","lane":"catalog","silo":"public-commerce","writable":true},
+    {"repo":"KelpCoin/pulse-catalog","lane":"catalog","silo":"public-commerce","writable":true},
+    {"repo":"KelpCoin/DreamLedger","lane":"cash+commerce","silo":"dreamledger","writable":true},
+    {"repo":"KelpCoin/render-ingestor","lane":"pipeline","silo":"engineering","writable":true},
+    {"repo":"KelpCoin/mtg-furnace-render","lane":"pipeline","silo":"mtg","writable":true},
+    {"repo":"KelpCoin/Happyhomarid","lane":"website","silo":"happyhomarid","writable":true},
+    {"repo":"KelpCoin/DreamLogic","lane":"verification","silo":"engineering","writable":true},
+    {"repo":"KelpCoin/BrownEye-CUBE","lane":"trust-core","silo":"cube","writable":true,"frozen":true}
+  ],
+  "site_surfaces": [
+    {"surface":"dreamledger.org","repo":"KelpCoin/DreamLedger","status":"target","auto_public_post":false},
+    {"surface":"KelpCoin/index.html","repo":"KelpCoin/index.html","status":"repo-surface","auto_public_post":false},
+    {"surface":"KelpCoin/kelpcoin-faucet-site","repo":"KelpCoin/kelpcoin-faucet-site","status":"repo-surface","auto_public_post":false},
+    {"surface":"KelpCoin/Happyhomarid","repo":"KelpCoin/Happyhomarid","status":"repo-surface","auto_public_post":false}
+  ],
+  "frozen": ["CUBE","UPF"],
+  "silo_rules": ["MTG never mixes with adult/Amplissa","HappyHomarid remains isolated","CUBE remains frozen unless explicitly unlocked"],
+  "integration_contract": {
+    "cloud": "GitHub Actions + Vercel/Render integrations",
+    "local": "Windows PowerShell 5.1 + LM Studio",
+    "proof_required": true,
+    "deploy_without_human_approval": false
+  }
+}
