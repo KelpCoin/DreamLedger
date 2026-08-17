@@ -29,15 +29,29 @@ Domain presence is not deployment proof. Payment is not claimed until external p
 
 ## Execution spine
 
-The system now has one explicit refinement and release spine:
+The system now has one explicit economic spine:
 
-`Signal -> LM Studio multi-LLM refinement -> Gauntlet -> approval gate -> DreamLedger -> checkout -> external payment evidence -> verified revenue`
+`Signal -> qualification -> approved response -> offer -> checkout -> external payment evidence -> verified revenue -> fulfilment -> learning -> winner candidate`
+
+MTG is the first controlled commercial laboratory. The $29 Commander Deck Diagnostic is the first armed offer.
 
 When the Windows GPU is available, LM Studio is the preferred local refinement plane. The iterative contract is proposer -> critic -> synthesizer -> Gauntlet -> proof.
 
-When the PC is off, GitHub Actions provides deterministic continuity for compile, integration verification, Gauntlet, packaging and proof. A configured cloud OpenAI-compatible endpoint can optionally perform the same proposer -> critic -> synthesizer refinement. LM Studio itself is never claimed to be running in GitHub Actions.
+When the PC is off, GitHub Actions provides deterministic continuity for compile, integration verification, Gauntlet, packaging, and settlement reconciliation. Cloud refinement is optional. Settlement reconciliation does not depend on an LLM.
 
-Social publication, irreversible production changes and other public commercial actions remain approval-gated. Automation cannot manufacture revenue, customers, traffic, testimonials, publication or payment evidence.
+Social publication, irreversible production changes, and other public commercial actions remain approval-gated. Automation cannot manufacture revenue, customers, traffic, testimonials, publication, or payment evidence.
+
+## Live settlement spine
+
+GitHub Actions is now the primary deterministic settlement reconciliation node for the first Revenue Atom.
+
+`Stripe live Checkout Session -> GitHub Actions -> Airtable Economic Events -> proof artifact`
+
+The workflow is `.github/workflows/commerce-settlement-sync.yml` and the implementation is `ops/commerce/reconcile-stripe-airtable.mjs`.
+
+The workflow accepts only a completed, paid NZ$29 NZD Checkout Session associated with the configured live Stripe Payment Link. It is idempotent on the Checkout Session ID and writes verified economic events to Airtable only after external Stripe evidence exists.
+
+Airtable remains the operational index. Stripe remains settlement authority. GitHub Actions is orchestration, not an authority for money.
 
 ## 60-second verification
 
@@ -45,15 +59,11 @@ From `BEC-PRIME`:
 
 `npm ci`
 
-`npm run verify:integration`
-
 `npm run compile`
 
-`npm run gauntlet`
+For settlement verification, manually run the GitHub Actions workflow `Commerce Settlement Sync` and inspect the uploaded `commerce-settlement-proof-{run_id}` artifact.
 
-For local multi-LLM refinement with LM Studio, set `LLM_API_URL` to the local OpenAI-compatible endpoint and provide comma-separated `LLM_MODELS`, then run `npm run refine:iterative`.
-
-For PC-off continuity, run the GitHub Actions workflow `PC-Off Refinement and Gauntlet`. Cloud refinement is opt-in and requires repository secrets; the default path is deterministic verification only.
+Expected pre-sale state is `verified_revenue_nzd: 0`. After a real live NZ$29 payment through the configured Payment Link, the artifact must contain a newly recognized `STRIPE-CHECKOUT-cs_...` event and `verified_revenue_nzd: 29`.
 
 ## Shared item model
 
@@ -69,4 +79,4 @@ A real payment is only considered verified after external payment evidence has b
 
 ## Revenue truth
 
-Current verified revenue remains NZ$0 until a real external payment is independently evidenced. CI, CD, QR generation, IP registration, market research, Gauntlet passes and social-content generation do not alter that number.
+Current verified revenue remains NZ$0 until a real external payment is independently evidenced. CI, CD, QR generation, IP registration, market research, Gauntlet passes, and social-content generation do not alter that number.
