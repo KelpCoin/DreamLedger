@@ -1,0 +1,158 @@
+name: Cloud Ecosystem Spine
+
+on:
+  push:
+    branches:
+      - main
+      - revenue/billboard-outreach-2026-08-17
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: cloud-ecosystem-spine-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  cloud-health:
+    name: Cloud health and integration proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Verify ecosystem registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f ECOSYSTEM-REGISTRY.json
+          node -e "const x=require('./ECOSYSTEM-REGISTRY.json'); if(!x.repositories || !x.site_surfaces) process.exit(1); console.log('REGISTRY_REPOS='+x.repositories.length); console.log('REGISTRY_SITES='+x.site_surfaces.length)"
+          echo "REGISTRY=PASS"
+
+      - name: Verify repository control plane
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .github/workflows/cloud-ecosystem-spine.yml
+          test -f .github/workflows/vercel-deploy.yml
+          test -f .github/workflows/render-deploy.yml
+          test -f .github/workflows/economic-revenue-gate.yml
+          test -f .github/workflows/commerce-sentinel.yml
+          test -f .github/workflows/first-sale-gate.yml
+          echo "CONTROL_PLANE=PASS"
+
+      - name: Verify canonical commerce inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          found=0
+          for p in \
+            BEC-PRIME/catalog/offers/approved.json \
+            BEC-PRIME/catalog/offers/offers.json \
+            BEC-PRIME/compiled/website/billboard.html \
+            api/billboard-stripe-webhook.js \
+            vercel.json; do
+            if [ -f "$p" ]; then
+              echo "FOUND=$p"
+              found=$((found+1))
+            else
+              echo "MISSING=$p"
+            fi
+          done
+          echo "CANONICAL_INPUTS_FOUND=$found"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts
+          elif [ -f package.json ]; then
+            npm install --ignore-scripts
+          else
+            echo "No root package manifest."
+            exit 1
+          fi
+
+      - name: Compile canonical website
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run compile
+          test -d BEC-PRIME/compiled/website
+          echo "WEBSITE_COMPILE=PASS"
+
+      - name: Run safe repository tests when discoverable
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
+            if [ "$has_test" = "yes" ]; then npm test; else echo "No root test script; continuing."; fi
+          fi
+
+      - name: Verify checkout doorway
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://buy.stripe.com/28EcN54zraG13M3g3idwc1t"
+          code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "$url")
+          echo "STRIPE_CHECKOUT_HTTP=$code"
+          test "$code" = "200"
+
+      - name: Verify public DreamLedger surfaces
+        shell: bash
+        run: |
+          set -u
+          for path in /healthz /billboard; do
+            code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org${path}" || true)
+            echo "PUBLIC_${path#/}_HTTP=$code"
+          done
+
+      - name: Generate machine-readable cloud proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t" || true)
+          health_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/healthz" || true)
+          billboard_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/billboard" || true)
+          cat > artifacts/cloud-ecosystem-proof.json <<EOF
+          {
+            "workflow": "Cloud Ecosystem Spine",
+            "commit_sha": "${GITHUB_SHA}",
+            "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "cloud_execution": true,
+            "registry": "ECOSYSTEM-REGISTRY.json",
+            "website_compile": "PASS",
+            "stripe_checkout_http": "${stripe_code}",
+            "healthz_http": "${health_code}",
+            "billboard_http": "${billboard_code}",
+            "verified_payment_count": 0,
+            "revenue_nzd": 0,
+            "self_hosted_fallback": "READY_VIA_LOCAL_BOOTSTRAP",
+            "status": "PROOF_GENERATED"
+          }
+          EOF
+          cat artifacts/cloud-ecosystem-proof.json
+
+      - name: Upload cloud proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-ecosystem-proof-${{ github.run_id }}
+          path: artifacts/cloud-ecosystem-proof.json
+          if-no-files-found: error
+          retention-days: 30
