@@ -43,7 +43,6 @@ async function readRawBody(req) {
 
 const idempotencyKey = (eventId) => `billboard:stripe:event:${eventId}`;
 
-/** Injected store for tests. Production uses Vercel KV. */
 let _store = null;
 
 function setIdempotencyStore(store) {
@@ -56,8 +55,10 @@ function createMemoryStore() {
     async get(key) {
       return mem.has(key) ? mem.get(key) : null;
     },
-    async set(key, value) {
+    async set(key, value, options = {}) {
+      if (options.nx && mem.has(key)) return null;
       mem.set(key, value);
+      return 'OK';
     }
   };
 }
@@ -68,8 +69,6 @@ function getStore() {
     _store = createMemoryStore();
     return _store;
   }
-  // Durable path: Vercel KV (requires KV_REST_API_URL + KV_REST_API_TOKEN)
-  // eslint-disable-next-line global-require
   const { kv } = require('@vercel/kv');
   _store = kv;
   return _store;
@@ -78,29 +77,30 @@ function getStore() {
 async function eventAlreadyProcessed(eventId) {
   if (!eventId) return false;
   const existing = await getStore().get(idempotencyKey(eventId));
-  return existing === 'processed';
+  return existing !== null && existing !== undefined;
 }
 
-async function markEventProcessed(eventId) {
-  if (!eventId) throw new Error('MISSING_EVENT_ID');
-  await getStore().set(idempotencyKey(eventId), 'processed');
-}
-
-/**
- * Durable payment record write.
- * Today: returns the record (caller persists via response + future ledger).
- * Failures must throw so handler returns 500 and Stripe retries.
- */
 async function createPaymentRecord(eventRecord) {
   if (!eventRecord || !eventRecord.external_event_id) {
     throw new Error('INVALID_PAYMENT_RECORD');
   }
-  // Placeholder for durable ledger/DB write. Must succeed before markEventProcessed.
+
+  const result = await getStore().set(
+    idempotencyKey(eventRecord.external_event_id),
+    JSON.stringify(eventRecord),
+    { nx: true }
+  );
+
+  if (result !== 'OK') {
+    const duplicate = new Error('DUPLICATE_EVENT');
+    duplicate.code = 'DUPLICATE_EVENT';
+    throw duplicate;
+  }
+
   return eventRecord;
 }
 
 async function handler(req, res) {
-  // 0. Method gate
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'METHOD_NOT_ALLOWED' });
@@ -111,12 +111,10 @@ async function handler(req, res) {
   const signature = req.headers['stripe-signature'];
   const payload = raw.toString('utf8');
 
-  // 1-2. Verify signature; 400 on failure
   if (!verifyStripeSignature(payload, signature, secret)) {
     return res.status(400).json({ ok: false, error: 'INVALID_STRIPE_SIGNATURE' });
   }
 
-  // 3. Parse only after verification
   let event;
   try {
     event = JSON.parse(payload);
@@ -124,7 +122,6 @@ async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'INVALID_JSON' });
   }
 
-  // 4. Ignore non-target types
   if (event.type !== 'checkout.session.completed') {
     return res.status(200).json({ ok: true, ignored: true, event_type: event.type || null });
   }
@@ -133,7 +130,6 @@ async function handler(req, res) {
   const paymentStatus = session.payment_status;
   const eventId = event.id || null;
 
-  // 5. Paid gate only
   if (paymentStatus !== 'paid') {
     return res.status(200).json({
       ok: true,
@@ -143,8 +139,11 @@ async function handler(req, res) {
     });
   }
 
+  if (!eventId) {
+    return res.status(400).json({ ok: false, error: 'MISSING_EVENT_ID' });
+  }
+
   try {
-    // 6-7. Idempotency
     if (await eventAlreadyProcessed(eventId)) {
       return res.status(200).json({
         ok: true,
@@ -176,13 +175,8 @@ async function handler(req, res) {
       timestamp_utc: new Date().toISOString()
     };
 
-    // 8. Durable write first
     await createPaymentRecord(eventRecord);
 
-    // 9. Mark processed only after durable write succeeds
-    await markEventProcessed(eventId);
-
-    // 10. 200 only after both succeed
     return res.status(200).json({
       ok: true,
       accepted: true,
@@ -190,7 +184,15 @@ async function handler(req, res) {
       event: eventRecord
     });
   } catch (err) {
-    // 11. Durable failure -> 500 so Stripe retries; do not mark processed
+    if (err && err.code === 'DUPLICATE_EVENT') {
+      return res.status(200).json({
+        ok: true,
+        accepted: false,
+        duplicate: true,
+        external_event_id: eventId
+      });
+    }
+
     return res.status(500).json({
       ok: false,
       error: 'DURABLE_WRITE_FAILED',
