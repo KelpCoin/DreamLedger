@@ -17,8 +17,6 @@ jobs:
     name: Reconcile live Stripe -> Airtable
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment:
-      name: settlement-read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
