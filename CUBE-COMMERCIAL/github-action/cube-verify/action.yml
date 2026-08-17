@@ -1,0 +1,27 @@
+name: 'CUBE Verify Lite'
+description: 'Verify a financial agent claim and return PASS/FAIL/QUARANTINE'
+author: 'DreamLedger'
+branding:
+  icon: 'shield'
+  color: 'green'
+inputs:
+  claim_file:
+    description: 'Path to agent claim JSON'
+    required: true
+  evidence_file:
+    description: 'Path to evidence JSON'
+    required: true
+  policy_file:
+    description: 'Path to policy JSON'
+    required: false
+outputs:
+  verdict:
+    description: 'PASS, FAIL, or QUARANTINE'
+runs:
+  using: 'composite'
+  steps:
+    - name: Run CUBE verify
+      shell: pwsh
+      run: |
+        $script = Join-Path $env:GITHUB_ACTION_PATH "verify.ps1"
+        & $script -ClaimFile "${{ inputs.claim_file }}" -EvidenceFile "${{ inputs.evidence_file }}" -PolicyFile "${{ inputs.policy_file }}"
