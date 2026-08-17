@@ -1,6 +1,14 @@
 name: Commercial CD Gate
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'CD/**'
+      - 'IP/**'
+      - 'MARKETS/**'
+      - 'SOCIAL/**'
+      - '.github/workflows/commercial-cd.yml'
   workflow_dispatch:
     inputs:
       deploy:
@@ -60,7 +68,7 @@ jobs:
           {
             echo 'CD_GATE=PASS'
             echo "COMMIT=${GITHUB_SHA}"
-            echo "DEPLOY_REQUEST=${{ inputs.deploy }}"
+            echo "DEPLOY_REQUEST=${{ inputs.deploy || 'false' }}"
             echo "VERCEL_TOKEN_PRESENT=${VERCEL_TOKEN_PRESENT}"
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_CD'
           } | tee artifacts/commercial-cd-proof.txt
