@@ -1,0 +1,100 @@
+name: Billboard Sellability Wall
+
+on:
+  push:
+    branches: ["main", "agent/billboard-sellability-wall-2026-08-17"]
+    paths:
+      - "CUBE-COMMERCIAL/billboard/**"
+      - "BEC-PRIME/compiled/website/billboard.html"
+      - "BEC-PRIME/compiled/website/billboard"
+      - "api/billboard-stripe-webhook.js"
+      - "vercel.json"
+      - ".github/workflows/billboard-sellability-wall.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "CUBE-COMMERCIAL/billboard/**"
+      - "BEC-PRIME/compiled/website/billboard.html"
+      - "BEC-PRIME/compiled/website/billboard"
+      - "api/billboard-stripe-webhook.js"
+      - "vercel.json"
+      - ".github/workflows/billboard-sellability-wall.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sellability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify sellability wall inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f CUBE-COMMERCIAL/billboard/billboard-catalog-v1.json
+          test -f CUBE-COMMERCIAL/billboard/SELLABILITY-WALL.json
+          test -f CUBE-COMMERCIAL/billboard/fulfilment-contract.json
+          test -f CUBE-COMMERCIAL/billboard/billboard-offer.json
+          test -f BEC-PRIME/compiled/website/billboard.html
+          test -f api/billboard-stripe-webhook.js
+          test -f vercel.json
+          echo "SELLABILITY_INPUTS=PASS"
+
+      - name: Validate catalogue and wall invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const catalog = JSON.parse(fs.readFileSync('CUBE-COMMERCIAL/billboard/billboard-catalog-v1.json','utf8'));
+          const wall = JSON.parse(fs.readFileSync('CUBE-COMMERCIAL/billboard/SELLABILITY-WALL.json','utf8'));
+          if (catalog.tiers.length !== 5) throw new Error('Expected 5 Billboard tiers');
+          if (catalog.payment_url !== 'https://buy.stripe.com/28EcN54zraG13M3g3idwc1t') throw new Error('Canonical checkout mismatch');
+          if (wall.billboard_fulfilment.publication_requires_human_approval !== true) throw new Error('Publication gate missing');
+          if (wall.billboard_fulfilment.payment_proof_requires_external_stripe_event !== true) throw new Error('External payment proof gate missing');
+          for (const tier of catalog.tiers) {
+            if (!tier.sku || !tier.offer_id || !tier.size || !(tier.price_nzd > 0)) throw new Error('Invalid tier');
+          }
+          console.log('CATALOGUE_TIERS=' + catalog.tiers.length);
+          console.log('SELLABILITY_INVARIANTS=PASS');
+          NODE
+
+      - name: Run existing Billboard webhook tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f scripts/test-billboard-stripe-webhook.js ]; then
+            node scripts/test-billboard-stripe-webhook.js
+          else
+            echo "No webhook test script present; wall validation remains PASS."
+          fi
+
+      - name: Generate non-revenue proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          cat > artifacts/billboard-sellability-wall-proof.json <<EOF
+          {
+            "workflow": "Billboard Sellability Wall",
+            "commit_sha": "${GITHUB_SHA}",
+            "status": "PASS",
+            "verified_payment_count": 0,
+            "revenue_nzd": 0,
+            "payment_claim": false,
+            "publication_claim": false,
+            "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          cat artifacts/billboard-sellability-wall-proof.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: billboard-sellability-wall-proof-${{ github.run_id }}
+          path: artifacts/billboard-sellability-wall-proof.json
+          if-no-files-found: error
+          retention-days: 30
