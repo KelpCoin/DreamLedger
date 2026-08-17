@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const billboard = require('./billboard');
 
 const ROOT = path.join(__dirname, '..');
 const CART_DIR = path.join(ROOT, 'data', 'marketplace', 'carts');
@@ -44,20 +45,7 @@ async function createProductCheckout(productId, silo) {
   const p = product(productId);
   if (!p || p.status !== 'published' || Number(p.inventory || 0) < 1 || p.commercial_truth?.approval_required !== false) throw new Error('Product is not checkoutable');
   const cartId = 'direct_' + crypto.randomUUID();
-  const params = {
-    mode: 'payment',
-    'integration_identifier': 'dreamledger-mtg-checkout-' + crypto.randomBytes(4).toString('hex'),
-    'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id),
-    'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1',
-    'metadata[product_id]': p.id,
-    'metadata[silo]': silo || p.silo || 'dreamledger',
-    'metadata[commerce_version]': 'bec-direct-product-v1',
-    'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(),
-    'line_items[0][price_data][unit_amount]': Number(p.price),
-    'line_items[0][price_data][product_data][name]': p.name,
-    'line_items[0][price_data][product_data][metadata][product_id]': p.id,
-    'line_items[0][quantity]': 1
-  };
+  const params = { mode: 'payment', 'integration_identifier': 'dreamledger-mtg-checkout-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id), 'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1', 'metadata[product_id]': p.id, 'metadata[silo]': silo || p.silo || 'dreamledger', 'metadata[commerce_version]': 'bec-direct-product-v1', 'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(), 'line_items[0][price_data][unit_amount]': Number(p.price), 'line_items[0][price_data][product_data][name]': p.name, 'line_items[0][price_data][product_data][metadata][product_id]': p.id, 'line_items[0][quantity]': 1 };
   const session = await stripe('checkout/sessions', params, 'dreamledger-direct-' + p.id + '-' + cartId);
   return { ok: true, offer_id: p.id, session_id: session.id, checkout_url: session.url, url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() };
 }
@@ -81,6 +69,7 @@ async function handleWebhook(req, res) {
   const event = JSON.parse(raw || '{}'); const session = event?.data?.object; const cartId = session?.metadata?.cart_id;
   verify(raw, req.headers['stripe-signature']);
   if (event.type === 'checkout.session.completed' && session.payment_status === 'paid') {
+    if (billboard.handlePaidSession(session)) return { handled: true };
     const productId = session?.metadata?.product_id;
     if (productId) {
       const timestamp = new Date().toISOString();
