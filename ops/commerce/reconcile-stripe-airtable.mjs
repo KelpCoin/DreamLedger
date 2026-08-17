@@ -34,6 +34,20 @@ async function stripe(path) {
   if (!r.ok) throw new Error(`Stripe ${r.status}: ${text}`);
   return JSON.parse(text);
 }
+
+async function stripeList(path, params = {}) {
+  const rows = [];
+  let startingAfter = null;
+  for (;;) {
+    const query = new URLSearchParams({ limit: '100', ...params });
+    if (startingAfter) query.set('starting_after', startingAfter);
+    const page = await stripe(`${path}?${query.toString()}`);
+    rows.push(...(page.data || []));
+    if (!page.has_more || !page.data?.length) return rows;
+    startingAfter = page.data[page.data.length - 1].id;
+  }
+}
+
 async function airtable(path, options = {}) {
   const r = await fetch(`${at}${path}`, { ...options, headers: { ...airtableHeaders, ...(options.headers || {}) } });
   const text = await r.text();
@@ -41,18 +55,18 @@ async function airtable(path, options = {}) {
   return text ? JSON.parse(text) : {};
 }
 
-function enc(params) { return new URLSearchParams(params).toString(); }
-
-const paymentLinks = await stripe(`/payment_links?limit=100`);
-const link = paymentLinks.data.find(x => x.url === process.env.STRIPE_PAYMENT_LINK_URL);
+const paymentLinks = await stripeList('/payment_links', { active: 'true' });
+const link = paymentLinks.find(x => x.url === process.env.STRIPE_PAYMENT_LINK_URL);
 if (!link) throw new Error('Configured Stripe Payment Link URL was not found in the live Stripe account.');
+if (link.livemode !== true) throw new Error('Configured Stripe Payment Link is not live.');
 
-const sessions = await stripe(`/checkout/sessions?limit=100&status=complete`);
-const matches = sessions.data.filter(s =>
+const sessions = await stripeList('/checkout/sessions', { status: 'complete' });
+const matches = sessions.filter(s =>
   s.payment_link === link.id &&
   s.payment_status === 'paid' &&
   s.currency === 'nzd' &&
-  s.amount_total === 2900
+  s.amount_total === 2900 &&
+  s.livemode === true
 );
 
 let existing = [];
@@ -61,15 +75,17 @@ do {
   const qs = new URLSearchParams({ pageSize: '100' });
   if (offset) qs.set('offset', offset);
   const page = await airtable(`/${encodeURIComponent(eventsTable)}?${qs}`);
-  existing.push(...page.records);
+  existing.push(...(page.records || []));
   offset = page.offset;
 } while (offset);
-const known = new Set(existing.map(r => r.fields?.['Event ID']).filter(Boolean));
 
+const known = new Set(existing.map(r => r.fields?.['Event ID']).filter(Boolean));
 const inserted = [];
+
 for (const s of matches) {
   const eventId = `STRIPE-CHECKOUT-${s.id}`;
   if (known.has(eventId)) continue;
+
   const timestamp = new Date((s.created || Math.floor(Date.now() / 1000)) * 1000).toISOString();
   const record = {
     fields: {
@@ -91,11 +107,19 @@ for (const s of matches) {
       'CUBE Action': 'CANDIDATE'
     }
   };
+
   const created = await airtable(`/${encodeURIComponent(eventsTable)}`, {
     method: 'POST',
     body: JSON.stringify({ records: [record] })
   });
-  inserted.push({ eventId, stripeSession: s.id, createdRecordId: created.records?.[0]?.id || null, amountNZD: 29, paidAt: timestamp });
+
+  inserted.push({
+    eventId,
+    stripeSession: s.id,
+    createdRecordId: created.records?.[0]?.id || null,
+    amountNZD: 29,
+    paidAt: timestamp
+  });
 }
 
 if (inserted.length) {
@@ -111,7 +135,8 @@ if (inserted.length) {
 
 const totalVerified = existing
   .filter(r => r.fields?.Verified === true)
-  .reduce((sum, r) => sum + Number(r.fields?.['Amount NZD'] || 0), 0) + inserted.reduce((sum, x) => sum + x.amountNZD, 0);
+  .reduce((sum, r) => sum + Number(r.fields?.['Amount NZD'] || 0), 0)
+  + inserted.reduce((sum, x) => sum + x.amountNZD, 0);
 
 const proof = {
   proof_type: 'STRIPE_AIRTABLE_RECONCILIATION',
@@ -119,6 +144,8 @@ const proof = {
   stripe_account_mode: 'live',
   payment_link_url: process.env.STRIPE_PAYMENT_LINK_URL,
   stripe_payment_link_id: link.id,
+  scanned_live_payment_links: paymentLinks.length,
+  scanned_completed_checkout_sessions: sessions.length,
   matching_paid_sessions: matches.length,
   newly_recognized_events: inserted,
   verified_revenue_nzd: totalVerified,
@@ -127,11 +154,17 @@ const proof = {
   fail_closed_rules: [
     'Only live Stripe data is accepted.',
     'Only the configured Payment Link is accepted.',
-    'Only paid NZD Checkout Sessions totaling NZ$29 are accepted.',
+    'Only paid live NZD Checkout Sessions totaling NZ$29 are accepted.',
     'Airtable Verified=true is written only from matching Stripe evidence.',
-    'Event IDs are idempotent.'
+    'Event IDs are idempotent.',
+    'Stripe list endpoints are fully paginated so older valid evidence cannot be silently skipped.'
   ]
 };
+
 await fs.mkdir('proof/commerce', { recursive: true });
-await fs.writeFile('proof/commerce/latest-stripe-airtable-reconciliation.json', JSON.stringify(proof, null, 2) + '\n', 'utf8');
+await fs.writeFile(
+  'proof/commerce/latest-stripe-airtable-reconciliation.json',
+  JSON.stringify(proof, null, 2) + '\n',
+  'utf8'
+);
 console.log(JSON.stringify(proof, null, 2));
