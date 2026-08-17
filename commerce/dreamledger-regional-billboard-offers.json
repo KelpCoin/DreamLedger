@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "product": "DreamLedger Billboard 100x100",
   "fulfilment": "manual_review_then_publish",
   "boards": [
@@ -52,9 +52,41 @@
       "sku": "DREAMLEDGER-BILLBOARD-EU-100X100"
     }
   ],
+  "high_ticket_ladder": [
+    {
+      "offer_id": "AGENTIC-COMMERCE-READINESS-001",
+      "price_nzd": 49,
+      "payment_link": "https://buy.stripe.com/eVq5kD4zr29v2HZg3idwc1D",
+      "stripe_payment_link_id": "plink_1U5Jn1EGgEAnUFF9sIsejIf0"
+    },
+    {
+      "offer_id": "AGENTIC-COMMERCE-REMEDIATION-149",
+      "price_nzd": 149,
+      "payment_link": "https://buy.stripe.com/aFaeVd1nfcO9fuL3gwdwc1E",
+      "stripe_payment_link_id": "plink_1U5Jn7EGgEAnUFF9RjkqsWk5"
+    },
+    {
+      "offer_id": "AI-COMMERCE-IMPLEMENTATION-499",
+      "price_nzd": 499,
+      "payment_link": "https://buy.stripe.com/6oUfZhc1T4hD96n9EUdwc1F",
+      "stripe_payment_link_id": "plink_1U5JnEEGgEAnUFF9gaZRxYgx"
+    },
+    {
+      "offer_id": "AI-COMMERCE-BUILD-2500",
+      "price_nzd": 2500,
+      "payment_link": "https://buy.stripe.com/3cI14n0jb5lH96n6sIdwc1G",
+      "stripe_payment_link_id": "plink_1U5JnMEGgEAnUFF9fKLHfknl"
+    },
+    {
+      "offer_id": "AI-COMMERCE-SYSTEM-10000",
+      "price_nzd": 10000,
+      "payment_link": "https://buy.stripe.com/4gM8wP5Dv29v1DV6sIdwc1H",
+      "stripe_payment_link_id": "plink_1U5JnVEGgEAnUFF9IgHlt8rC"
+    }
+  ],
   "truth": {
     "revenue_nzd_verified": 0,
     "payments_claimed": 0,
-    "links_created_in_stripe": 6
+    "links_created_in_stripe": 11
   }
 }
