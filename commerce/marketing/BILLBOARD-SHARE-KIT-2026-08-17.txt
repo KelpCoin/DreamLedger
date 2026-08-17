@@ -1,0 +1,15 @@
+DREAMLEDGER BILLBOARD SHARE KIT
+
+Buyer confirmation:
+I own a block on the DreamLedger permanent digital billboard.
+Grab a 100x100 block for NZ$29:
+https://buy.stripe.com/28EcN54zraG13M3g3idwc1t
+
+Fulfilment request:
+After payment, send:
+1. Board
+2. Image
+3. Destination link
+
+Operator rule:
+Do not publish or claim a block is live until payment is independently verified and the image/link is reviewed.
