@@ -1,0 +1,55 @@
+name: Vercel Static Storefront
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'BEC-PRIME/compiled/website/**'
+      - '.github/workflows/vercel-static-deploy.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Create or reuse Vercel project
+        working-directory: BEC-PRIME/compiled/website
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+        run: |
+          npx --yes vercel@latest add dreamledger --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes || true
+
+      - name: Deploy storefront to Vercel production
+        working-directory: BEC-PRIME/compiled/website
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+        run: |
+          test -n "$VERCEL_TOKEN"
+          npx --yes vercel@latest --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
+
+      - name: Emit deployment proof
+        env:
+          SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          mkdir -p proof
+          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"DEPLOY_COMMAND_COMPLETED"}\n' "$SHA" "$RUN_ID" > proof/vercel-static-deploy-proof.json
+          cat proof/vercel-static-deploy-proof.json
+
+      - name: Upload deployment proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-static-deploy-proof
+          path: proof/vercel-static-deploy-proof.json
