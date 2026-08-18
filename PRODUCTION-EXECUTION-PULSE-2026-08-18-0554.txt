@@ -1,0 +1,3 @@
+DreamLedger execution checkpoint.
+Push-triggered production recovery verification target.
+No revenue asserted without Stripe paid evidence.
