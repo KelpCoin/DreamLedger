@@ -1,0 +1,86 @@
+{
+  "schema": "dreamledger/revenue-engine/v1",
+  "date": "2026-08-19",
+  "mission": "Maximize verified legal revenue per unit of human effort while preserving silo boundaries and approval gates.",
+  "truth_rule": "Only externally verified settled payments count as revenue.",
+  "human_gate": "No public posting, unsolicited outreach, or advertising is performed automatically without explicit approval.",
+  "engines": [
+    {
+      "id": "E1",
+      "name": "Immediate Cash",
+      "priority": 1,
+      "targets": ["MTG inventory liquidation", "Commander diagnostics", "active DreamLedger payment links"]
+    },
+    {
+      "id": "E2",
+      "name": "Product Ladder",
+      "priority": 2,
+      "ladder_nzd": [29, 49, 99, 299, 750, 1500, 2500]
+    },
+    {
+      "id": "E3",
+      "name": "Inventory To Cash",
+      "priority": 3,
+      "score_fields": ["buyer_intent", "demand", "margin", "liquidity", "time_to_cash", "repeatability"]
+    },
+    {
+      "id": "E4",
+      "name": "Commerce Evidence",
+      "priority": 4,
+      "events": ["OFFER_CREATED", "CLICK", "CHECKOUT_STARTED", "PAYMENT_AUTHORIZED", "PAYMENT_SETTLED", "FULFILLED", "REFUND", "REPEAT_PURCHASE"]
+    },
+    {
+      "id": "E5",
+      "name": "Revenue Intelligence",
+      "priority": 5,
+      "score_fields": ["buyer_intent", "pain_intensity", "ability_to_pay", "reachability", "margin", "fulfilment_cost", "time_to_cash", "repeatability"]
+    },
+    {
+      "id": "E6",
+      "name": "Proof",
+      "priority": 6,
+      "required_proofs": ["public_http", "checkout_reachable", "payment_processor_evidence", "fulfilment_evidence"]
+    },
+    {
+      "id": "E7",
+      "name": "Compounding",
+      "priority": 7,
+      "rule": "Do not add a new offer family until an existing offer has measurable conversion evidence or a documented failure reason."
+    },
+    {
+      "id": "E8",
+      "name": "Infrastructure Reliability",
+      "priority": 8,
+      "rule": "Render is optional infrastructure and must not be a single point of failure for account authentication."
+    },
+    {
+      "id": "E9",
+      "name": "Conversion Surface",
+      "priority": 9,
+      "required_questions": ["What is it?", "Who is it for?", "What do I get?", "Where do I pay?"]
+    },
+    {
+      "id": "E10",
+      "name": "Wealth Flywheel",
+      "priority": 10,
+      "loop": ["DISCOVER", "QUALIFY", "OFFER", "EXPOSE", "CHECKOUT", "SETTLE", "FULFIL", "MEASURE", "IMPROVE", "AUTOMATE", "REPEAT"]
+    }
+  ],
+  "gates": [
+    { "id": "G1", "target_nzd": 299, "meaning": "first verified sale" },
+    { "id": "G2", "target_nzd": 1000, "meaning": "cumulative verified revenue" },
+    { "id": "G3", "target_nzd": 10000, "meaning": "cumulative verified revenue" },
+    { "id": "G4", "target_nzd_per_month": 10000, "meaning": "repeatable monthly revenue" },
+    { "id": "G5", "target_nzd_per_month": 25000, "meaning": "scaled monthly revenue" },
+    { "id": "G6", "target_nzd_per_month": 50000, "meaning": "scaled monthly revenue" },
+    { "id": "G7", "target_nzd_per_month": 100000, "meaning": "scaled monthly revenue" }
+  ],
+  "current_verified_revenue_nzd": 0,
+  "active_payment_source": "commerce/marketing/ACTIVE-PAYMENT-LINKS.json",
+  "silos": {
+    "PUBLIC_COMMERCE": ["DreamLedger commerce", "agentic commerce offers", "billboard offers"],
+    "MTG": ["CollectorsCoast", "Commander inventory", "MTG diagnostics"],
+    "ADULT": ["Amplissa"],
+    "rule": "MTG and adult assets never share offers, audiences, catalog records, or public surfaces."
+  }
+}
