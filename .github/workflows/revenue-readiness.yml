@@ -8,6 +8,8 @@ on:
     paths:
       - 'BEC-PRIME/catalog/**'
       - 'BEC-PRIME/scripts/Verify-RevenueReadiness.ps1'
+      - 'BEC-PRIME/scripts/Verify-EconomicContract.ps1'
+      - 'BEC-PRIME/package.json'
       - '.github/workflows/revenue-readiness.yml'
 
 permissions:
@@ -30,6 +32,23 @@ jobs:
           $ErrorActionPreference = 'Stop'
           powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-RevenueReadiness.ps1
 
+      - name: Verify economic contract
+        shell: powershell
+        working-directory: BEC-PRIME
+        run: |
+          $ErrorActionPreference = 'Stop'
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-EconomicContract.ps1
+
+      - name: Verify first-revenue activation remains payment-gated
+        shell: powershell
+        working-directory: BEC-PRIME
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $activation = Get-Content '.\scripts\Activate-FirstRevenue.ps1' -Raw
+          if ($activation -notmatch 'AWAITING_FIRST_PAYMENT') { throw 'FAIL: activation gate no longer requires first-payment proof' }
+          if ($activation -notmatch 'FIRST REVENUE ACTIVATION: PASS') { throw 'FAIL: activation proof marker missing' }
+          Write-Host 'PASS: first-revenue activation remains payment-gated.'
+
       - name: Emit immutable proof metadata
         shell: powershell
         run: |
@@ -44,5 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: revenue-readiness-proof
-          path: BEC-PRIME/data/proofs/REVENUE-READINESS.json
+          path: |
+            BEC-PRIME/data/proofs/REVENUE-READINESS.json
+            BEC-PRIME/data/proofs/ECONOMIC-CONTRACT.json
           if-no-files-found: error
