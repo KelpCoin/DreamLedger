@@ -82,7 +82,11 @@ jobs:
           console.log('TIERED_READINESS_OFFERS_PASS');
           NODE
 
-      - name: Upload generated offer and silo artifacts
+      - name: Verify agentic commerce contract
+        working-directory: BEC-PRIME
+        run: node scripts/verify-agentic-commerce.js
+
+      - name: Upload generated offer, silo, and agentic artifacts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -94,12 +98,13 @@ jobs:
             BEC-PRIME/catalog/compiled/silo-portfolio.json
             BEC-PRIME/compiled/website/portfolio
             BEC-PRIME/PROOF-SILO-PORTFOLIO-COMPILATION.json
+            BEC-PRIME/PROOF-AGENTIC-COMMERCE.json
           if-no-files-found: error
           retention-days: 30
 
       - name: Validate Node syntax
         working-directory: BEC-PRIME
-        run: node --check server.js && node --check compiler/SiloPortfolioCompiler.js
+        run: node --check server.js && node --check compiler/SiloPortfolioCompiler.js && node --check scripts/verify-agentic-commerce.js
 
       - name: Validate required production assets
         working-directory: BEC-PRIME
