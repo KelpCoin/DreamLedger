@@ -1,0 +1,144 @@
+name: Render Recovery Fallback
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-render-recovery
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+    steps:
+      - name: Trigger exact commit through Render deploy hook or API fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="$GITHUB_SHA"
+          trigger="NONE"
+
+          hook="${RENDER_DEPLOY_HOOK_URL:-}"
+          if [ -z "$hook" ]; then
+            hook="${RENDER_DEPLOY_HOOK:-}"
+          fi
+
+          if [ -n "$hook" ]; then
+            case "$hook" in
+              *\?*) url="${hook}&ref=${sha}" ;;
+              *) url="${hook}?ref=${sha}" ;;
+            esac
+            echo "Trying Render deploy hook for commit $sha"
+            if curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 30 -X POST "$url" > /tmp/render-hook.json; then
+              trigger="DEPLOY_HOOK"
+              cat /tmp/render-hook.json | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
+            else
+              echo "Deploy hook failed; continuing to API fallback."
+            fi
+          fi
+
+          if [ "$trigger" = "NONE" ] && [ -n "${RENDER_API_KEY:-}" ] && [ -n "${RENDER_SERVICE_ID:-}" ]; then
+            echo "Trying Render API deploy for commit $sha"
+            code=$(curl --silent --show-error --output /tmp/render-api.json --write-out '%{http_code}' \
+              -X POST "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
+              -H "Authorization: Bearer ${RENDER_API_KEY}" \
+              -H 'Content-Type: application/json' \
+              -d "{\"commitId\":\"${sha}\"}")
+            echo "Render API HTTP=$code"
+            cat /tmp/render-api.json | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
+            test "$code" = "201" -o "$code" = "202"
+            trigger="RENDER_API"
+          fi
+
+          if [ "$trigger" = "NONE" ]; then
+            echo "FAIL: no working Render trigger credentials are configured."
+            echo "Expected one of: RENDER_DEPLOY_HOOK_URL, RENDER_DEPLOY_HOOK, or RENDER_API_KEY + RENDER_SERVICE_ID."
+            exit 1
+          fi
+
+          mkdir -p proof
+          python3 - "$trigger" "$sha" <<'PY'
+          import json, os, sys, time
+          trigger, sha = sys.argv[1:]
+          proof = {
+              "status": "TRIGGER_ACCEPTED",
+              "trigger": trigger,
+              "source_commit": sha,
+              "target": "https://dreamledger.org",
+              "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "fallback_order": ["RENDER_DEPLOY_HOOK_URL", "RENDER_DEPLOY_HOOK", "RENDER_API_KEY+RENDER_SERVICE_ID"]
+          }
+          with open("proof/render-recovery-trigger-proof.json", "w", encoding="utf-8") as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Wait for production convergence
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 24); do
+            health=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 15 https://dreamledger.org/healthz || true)
+            version=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 15 https://dreamledger.org/version || true)
+            echo "attempt=$i health_http=$health version_http=$version"
+            if [ "$health" = "200" ] && [ "$version" = "200" ]; then
+              cat /tmp/healthz.json
+              cat /tmp/version.json
+              python3 - "$GITHUB_SHA" <<'PY'
+          import json, sys
+          expected = sys.argv[1]
+          with open('/tmp/version.json', encoding='utf-8') as f:
+              data = json.load(f)
+          deployed = data.get('commit') or data.get('sha')
+          if deployed != expected:
+              raise SystemExit(f'NOT_CONVERGED: deployed={deployed} expected={expected}')
+          print('PASS: exact commit is live.')
+          PY
+              exit 0
+            fi
+            sleep 10
+          done
+          echo 'FAIL: Render trigger was accepted or attempted, but production did not converge to the exact commit within 4 minutes.'
+          exit 1
+
+      - name: Write immutable recovery proof
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          proof = {
+              "source_commit": os.environ["GITHUB_SHA"],
+              "target": "https://dreamledger.org",
+              "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "healthz_http": os.environ.get("HEALTH_HTTP", "unknown"),
+              "version_http": os.environ.get("VERSION_HTTP", "unknown")
+          }
+          with open("proof/render-recovery-proof.json", "w", encoding="utf-8") as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload recovery proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-render-recovery-proof-${{ github.sha }}
+          path: proof/
+          if-no-files-found: error
+          retention-days: 30
