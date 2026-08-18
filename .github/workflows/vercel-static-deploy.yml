@@ -47,15 +47,29 @@ jobs:
           VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
         run: |
           set -euo pipefail
-          npx --yes vercel@latest --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
+          npx --yes vercel@latest --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes 2>&1 | tee "$RUNNER_TEMP/vercel-deploy.log"
+          DEPLOY_URL="$(grep -Eo 'https://[A-Za-z0-9.-]+\.vercel\.app' "$RUNNER_TEMP/vercel-deploy.log" | tail -1 || true)"
+          test -n "$DEPLOY_URL"
+          printf '%s\n' "$DEPLOY_URL" > "$RUNNER_TEMP/vercel-deploy-url.txt"
+          echo "PASS: deployment URL captured: $DEPLOY_URL"
 
-      - name: Verify production deployment URL
+      - name: Verify production deployment over HTTP
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+          EXPECTED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          echo "PASS: Vercel production deployment command completed for $GITHUB_SHA."
+          DEPLOY_URL="$(cat "$RUNNER_TEMP/vercel-deploy-url.txt")"
+
+          ROOT_STATUS="$(curl -sS -o "$RUNNER_TEMP/root.html" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/")"
+          test "$ROOT_STATUS" = "200"
+          grep -qi '<html' "$RUNNER_TEMP/root.html"
+
+          ACCOUNT_STATUS="$(curl -sS -o "$RUNNER_TEMP/account-me.json" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/api/account/me")"
+          test "$ACCOUNT_STATUS" = "200"
+          grep -q '"authenticated":false' "$RUNNER_TEMP/account-me.json"
+
+          printf '{"status":"HTTP_PASS","deployment_url":"%s","root_status":%s,"account_me_status":%s,"account_me":"anonymous","sha":"%s"}\n' "$DEPLOY_URL" "$ROOT_STATUS" "$ACCOUNT_STATUS" "$EXPECTED_SHA" > "$RUNNER_TEMP/http-proof.json"
+          cat "$RUNNER_TEMP/http-proof.json"
 
       - name: Emit deployment proof
         env:
@@ -64,7 +78,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"DEPLOY_COMMAND_COMPLETED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR"}\n' "$SHA" "$RUN_ID" > proof/vercel-static-deploy-proof.json
+          DEPLOY_URL="$(cat "$RUNNER_TEMP/vercel-deploy-url.txt")"
+          HTTP_PROOF="$(cat "$RUNNER_TEMP/http-proof.json")"
+          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" > proof/vercel-static-deploy-proof.json
           cat proof/vercel-static-deploy-proof.json
 
       - name: Upload deployment proof
