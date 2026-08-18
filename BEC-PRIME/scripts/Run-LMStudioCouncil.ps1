@@ -1,6 +1,4 @@
 #Requires -Version 5.1
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
 
 param(
     [Parameter(Mandatory = $true)]
@@ -11,6 +9,9 @@ param(
     [int]$MemoryEntries = 12,
     [switch]$DryRun
 )
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
 
 $Root = 'D:\BrownEyeCortex\ARTIFACTS\LM-COUNCIL'
 $LogDir = Join-Path $Root 'LOGS'
@@ -195,7 +196,7 @@ You are the SYNTHESIZER. Resolve the disagreement into one executable plan. Sele
     Add-Content -Path $MemoryPath -Value (($s | ConvertTo-Json -Compress -Depth 8))
     Unload-Model $s.model
 
-    if ($Assignments.coder) {
+    if ($Assignments.Contains('coder')) {
         $codePrompt = @"
 TASK:
 $Task
