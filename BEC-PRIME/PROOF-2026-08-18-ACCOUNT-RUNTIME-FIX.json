@@ -1,0 +1,36 @@
+{
+  "type": "dreamledger-account-runtime-fix-proof",
+  "status": "PASS",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "fix_commit": "912c1b80ede621abde7776333a62973a1330795f",
+  "previous_head": "439b9cf907f5e21f4849ba7835d44db2f925b230",
+  "root_cause_found": "BEC-PRIME/package.json had no start script while render.yaml required npm start. The canonical start.js runtime also relied on authRuntimePreload to mount routes/auth.js, but that preload was not invoked by the Render start command.",
+  "changes": [
+    "Added npm start script: node -r ./lib/authRuntimePreload.js start.js",
+    "Preserved render.yaml startCommand: npm start",
+    "Activated canonical /api/account/* auth handler through the existing runtime preload",
+    "Kept persistent user storage under DREAMIEZ_DATA_DIR or /var/data/dreamiez"
+  ],
+  "account_contract": [
+    "POST /api/account/register",
+    "POST /api/account/login",
+    "GET /api/account/me",
+    "POST /api/account/logout",
+    "POST /api/account/update"
+  ],
+  "frontend_contract": [
+    "compiled/website/register.html -> /api/account/register",
+    "compiled/website/login.html -> /api/account/login"
+  ],
+  "render_contract": {
+    "rootDir": "BEC-PRIME",
+    "branch": "main",
+    "autoDeployTrigger": "commit",
+    "startCommand": "npm start",
+    "healthCheckPath": "/healthz",
+    "domains": ["dreamledger.org", "www.dreamledger.org", "qr.dreamledger.org"]
+  },
+  "remaining_gate": "Production deployment must consume commit 912c1b80ede621abde7776333a62973a1330795f. Live registration/login must then be probed.",
+  "created_at": "2026-08-18T00:00:00Z"
+}
