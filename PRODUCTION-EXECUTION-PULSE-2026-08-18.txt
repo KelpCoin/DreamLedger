@@ -1,0 +1,6 @@
+DreamLedger production execution pulse.
+
+Canonical branch: main
+Purpose: push a deterministic change so the production recovery workflow receives a fresh push event.
+Expected chain: GitHub push -> Production Recovery Execute -> Render deploy hook -> dreamledger.org health/version/auth acceptance.
+Revenue truth: Stripe paid completed session required; no revenue is asserted by this file.
