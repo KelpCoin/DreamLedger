@@ -1,0 +1,101 @@
+name: Revenue Sentinel
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify active payment links are reachable
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+
+          p = Path('commerce/marketing/ACTIVE-PAYMENT-LINKS.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          failures = []
+          for item in data.get('links', []):
+              url = item['url']
+              result = subprocess.run(
+                  ['curl', '-L', '-sS', '-o', '/dev/null', '-w', '%{http_code}', '--max-time', '20', url],
+                  capture_output=True, text=True
+              )
+              code = result.stdout.strip()
+              print(f"{item['sku']} {url} HTTP {code}")
+              if code not in {'200', '301', '302', '303', '307', '308'}:
+                  failures.append(f"{item['sku']} HTTP {code}")
+          if failures:
+              raise SystemExit('PAYMENT_LINK_FAILURE: ' + '; '.join(failures))
+          print('PASS: all active payment links are reachable.')
+          PY
+
+      - name: Probe DreamLedger public domain
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl -L -sS -o "$RUNNER_TEMP/dreamledger.html" -w '%{http_code}' --max-time 20 https://dreamledger.org/ || true)"
+          echo "dreamledger.org HTTP $status"
+          if [ "$status" = "200" ] && grep -qi 'DreamLedger' "$RUNNER_TEMP/dreamledger.html"; then
+            echo 'PASS: dreamledger.org serves DreamLedger.'
+          else
+            echo 'FAIL: dreamledger.org is not yet serving the DreamLedger surface.'
+            exit 1
+          fi
+
+      - name: Probe anonymous account endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl -sS -o "$RUNNER_TEMP/account.json" -w '%{http_code}' --max-time 20 https://dreamledger.org/api/account/me || true)"
+          echo "dreamledger.org/api/account/me HTTP $status"
+          if [ "$status" = "200" ] && grep -q '"authenticated":false' "$RUNNER_TEMP/account.json"; then
+            echo 'PASS: anonymous account endpoint is healthy.'
+          else
+            echo 'FAIL: account endpoint is not returning the expected anonymous response.'
+            cat "$RUNNER_TEMP/account.json" 2>/dev/null || true
+            exit 1
+          fi
+
+      - name: Emit revenue sentinel proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          source = json.loads(Path('commerce/marketing/ACTIVE-PAYMENT-LINKS.json').read_text(encoding='utf-8'))
+          proof = {
+              'status': 'PASS',
+              'workflow': 'revenue-sentinel',
+              'sha': '${{ github.sha }}',
+              'run_id': '${{ github.run_id }}',
+              'verified_revenue_nzd': source.get('verified_revenue_nzd', 0),
+              'payment_links_checked': len(source.get('links', [])),
+              'truth_rule': source.get('truth_rule')
+          }
+          Path('proof/revenue-sentinel-proof.json').write_text(json.dumps(proof, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload revenue proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: revenue-sentinel-proof
+          path: proof/revenue-sentinel-proof.json
