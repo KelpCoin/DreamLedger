@@ -40,6 +40,19 @@ jobs:
           npx --yes vercel@latest add dreamledger --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
           echo "PASS: Vercel project dreamledger is available under $VERCEL_SCOPE."
 
+      - name: Verify required Vercel production environment variables
+        working-directory: BEC-PRIME/compiled/website
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+        run: |
+          set -euo pipefail
+          ENV_LIST="$RUNNER_TEMP/vercel-env-list.txt"
+          npx --yes vercel@latest env ls production --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" > "$ENV_LIST"
+          grep -Eq '(^|[[:space:]])SUPABASE_URL([[:space:]]|$)' "$ENV_LIST"
+          grep -Eq '(^|[[:space:]])SUPABASE_SERVICE_ROLE_KEY([[:space:]]|$)' "$ENV_LIST"
+          echo "PASS: required Supabase production environment variables are configured."
+
       - name: Deploy storefront to Vercel production
         working-directory: BEC-PRIME/compiled/website
         env:
@@ -71,6 +84,18 @@ jobs:
           printf '{"status":"HTTP_PASS","deployment_url":"%s","root_status":%s,"account_me_status":%s,"account_me":"anonymous","sha":"%s"}\n' "$DEPLOY_URL" "$ROOT_STATUS" "$ACCOUNT_STATUS" "$EXPECTED_SHA" > "$RUNNER_TEMP/http-proof.json"
           cat "$RUNNER_TEMP/http-proof.json"
 
+      - name: Probe custom domain
+        run: |
+          set -euo pipefail
+          DOMAIN_STATUS="$(curl -sS -o "$RUNNER_TEMP/domain.html" -w '%{http_code}' --retry 2 --retry-delay 2 https://dreamledger.org/ || true)"
+          if [ "$DOMAIN_STATUS" = "200" ] && grep -qi 'DreamLedger' "$RUNNER_TEMP/domain.html"; then
+            DOMAIN_STATE="LIVE_DREAMLEDGER"
+          else
+            DOMAIN_STATE="NOT_YET_DREAMLEDGER"
+          fi
+          printf '{"status":"DOMAIN_PROBE","domain":"https://dreamledger.org/","http_status":%s,"state":"%s"}\n' "$DOMAIN_STATUS" "$DOMAIN_STATE" > "$RUNNER_TEMP/domain-proof.json"
+          cat "$RUNNER_TEMP/domain-proof.json"
+
       - name: Emit deployment proof
         env:
           SHA: ${{ github.sha }}
@@ -80,7 +105,8 @@ jobs:
           mkdir -p proof
           DEPLOY_URL="$(cat "$RUNNER_TEMP/vercel-deploy-url.txt")"
           HTTP_PROOF="$(cat "$RUNNER_TEMP/http-proof.json")"
-          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" > proof/vercel-static-deploy-proof.json
+          DOMAIN_PROOF="$(cat "$RUNNER_TEMP/domain-proof.json")"
+          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" > proof/vercel-static-deploy-proof.json
           cat proof/vercel-static-deploy-proof.json
 
       - name: Upload deployment proof
