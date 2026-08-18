@@ -1,0 +1,24 @@
+{
+  "status": "CHANGES_APPLIED",
+  "date": "2026-08-19",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "changes": [
+    "Vercel deployment workflow now fails closed when VERCEL_TOKEN or project provisioning fails.",
+    "Removed the silent || true from Vercel project creation.",
+    "Added the primary account function inside the actual Vercel deployment root.",
+    "Pinned the Vercel storefront Node runtime to 22.x."
+  ],
+  "account_routes": [
+    "/api/account/register",
+    "/api/account/login",
+    "/api/account/logout",
+    "/api/account/me",
+    "/api/account/update"
+  ],
+  "deployment_root": "BEC-PRIME/compiled/website",
+  "render_dependency_for_primary_account_function": false,
+  "production_deployment_proven": false,
+  "vercel_project_proven": false,
+  "next_gate": "Successful Vercel production deployment followed by live register/login/me smoke test"
+}
