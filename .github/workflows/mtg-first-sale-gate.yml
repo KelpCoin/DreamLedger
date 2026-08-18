@@ -1,0 +1,86 @@
+name: MTG First Sale Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+      - 'BEC-PRIME/scripts/Verify-RevenueReadiness.ps1'
+      - 'BEC-PRIME/compiled/website/**'
+      - '.github/workflows/mtg-first-sale-gate.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '31 */6 * * *'
+
+concurrency:
+  group: dreamledger-mtg-first-sale-gate
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify canonical revenue readiness
+        shell: pwsh
+        run: pwsh -NoProfile -File BEC-PRIME/scripts/Verify-RevenueReadiness.ps1
+
+      - name: Verify canonical Commander product price
+        shell: pwsh
+        run: |
+          $product = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
+          if ($product.id -ne 'COMMANDER-DECK-DIAGNOSTIC-001') { throw 'wrong canonical product' }
+          if ([int]$product.price -ne 2500) { throw "canonical product price is not 2500 cents: $($product.price)" }
+          if ($product.currency -ne 'nzd') { throw 'canonical currency is not nzd' }
+          if ($product.checkout.mode -ne 'payment') { throw 'canonical checkout mode is not payment' }
+          Write-Host 'CANONICAL_MTG_PRODUCT=PASS'
+          Write-Host 'CANONICAL_PRICE_NZD=25.00'
+
+      - name: Probe public offers
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o offers.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/api/offers || true)
+          test "$code" = "200"
+          python - <<'PY'
+          import json
+          data=json.load(open('offers.json',encoding='utf-8'))
+          offers=data.get('offers', []) if isinstance(data,dict) else []
+          target=None
+          for item in offers:
+              if str(item.get('product_sku','')) == 'COMMANDER-DECK-DIAGNOSTIC-001' or str(item.get('product_id','')) == 'COMMANDER-DECK-DIAGNOSTIC-001':
+                  target=item
+                  break
+          if target is None:
+              raise SystemExit('PUBLIC_MTG_OFFER=NOT_EXPOSED')
+          price=float(target.get('price'))
+          if price not in (25.0, 2500.0):
+              raise SystemExit(f'PUBLIC_MTG_PRICE_MISMATCH={price}')
+          print('PUBLIC_MTG_OFFER=PASS')
+          print(f'PUBLIC_MTG_PRICE={price}')
+          PY
+
+      - name: Emit first-sale readiness proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          printf '{"status":"READY_FOR_FIRST_PAYMENT","sha":"%s","sku":"COMMANDER-DECK-DIAGNOSTIC-001","price_nzd":25,"payment_truth":"AWAITING_FIRST_PAYMENT","public_payment_not_claimed":true}\n' "${GITHUB_SHA}" > proof/mtg-first-sale-readiness.json
+          cat proof/mtg-first-sale-readiness.json
+
+      - name: Upload first-sale proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-first-sale-readiness-${{ github.run_id }}
+          path: proof/mtg-first-sale-readiness.json
+          if-no-files-found: error
+          retention-days: 30
