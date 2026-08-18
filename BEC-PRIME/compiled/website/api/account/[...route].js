@@ -1,9 +1,8 @@
 'use strict';
 
-// Vercel-hosted account function. Keep every runtime dependency inside the
-// Vercel deployment root so the function can be bundled independently of
-// Render and the rest of the repository.
-const auth = require('./auth');
+// Vercel function entrypoint only. Keep implementation outside /api so
+// Vercel does not discover helper modules as separate functions.
+const auth = require('../../lib/accountAuth');
 
 module.exports = async function accountRoute(req, res) {
   try {
