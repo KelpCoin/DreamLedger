@@ -8,6 +8,10 @@ on:
       - 'IP/**'
       - 'MARKETS/**'
       - 'SOCIAL/**'
+      - 'BEC-PRIME/compiled/website/mtg/**'
+      - 'BEC-PRIME/compiled/website/**'
+      - 'commander-diagnostic.html'
+      - 'revenue.html'
       - '.github/workflows/commercial-cd.yml'
   workflow_dispatch:
     inputs:
@@ -22,6 +26,9 @@ on:
 
 permissions:
   contents: read
+
+env:
+  VERCEL_TOKEN_PRESENT: ${{ secrets.VERCEL_TOKEN != '' }}
 
 env:
   VERCEL_TOKEN_PRESENT: ${{ secrets.VERCEL_TOKEN != '' }}
