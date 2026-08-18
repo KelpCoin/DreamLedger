@@ -1,0 +1,48 @@
+name: Revenue Readiness Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'BEC-PRIME/catalog/**'
+      - 'BEC-PRIME/scripts/Verify-RevenueReadiness.ps1'
+      - '.github/workflows/revenue-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify revenue readiness
+        shell: powershell
+        working-directory: BEC-PRIME
+        run: |
+          $ErrorActionPreference = 'Stop'
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-RevenueReadiness.ps1
+
+      - name: Emit immutable proof metadata
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $proof = Get-Content 'BEC-PRIME\data\proofs\REVENUE-READINESS.json' -Raw | ConvertFrom-Json
+          $proof | Add-Member -NotePropertyName github_sha -NotePropertyValue '${{ github.sha }}' -Force
+          $proof | Add-Member -NotePropertyName run_id -NotePropertyValue '${{ github.run_id }}' -Force
+          $proof | ConvertTo-Json -Depth 10 | Set-Content 'BEC-PRIME\data\proofs\REVENUE-READINESS.json' -Encoding utf8
+          Get-Content 'BEC-PRIME\data\proofs\REVENUE-READINESS.json'
+
+      - name: Upload revenue proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: revenue-readiness-proof
+          path: BEC-PRIME/data/proofs/REVENUE-READINESS.json
+          if-no-files-found: error
