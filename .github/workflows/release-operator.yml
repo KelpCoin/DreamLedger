@@ -1,0 +1,96 @@
+name: DreamLedger Release Operator
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Explicitly authorize one Vercel production deployment attempt
+        required: true
+        default: no
+        type: choice
+        options:
+          - no
+          - confirm
+      wait_for_result:
+        description: Wait for the deployment workflow and fail on its result
+        required: true
+        default: yes
+        type: choice
+        options:
+          - yes
+          - no
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: dreamledger-release-operator
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Refuse without explicit deployment authorization
+        if: inputs.deploy != 'confirm'
+        run: |
+          echo "No deployment requested. Release operator stopped safely."
+
+      - name: Dispatch canonical Vercel production workflow
+        if: inputs.deploy == 'confirm'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run vercel-static-deploy.yml \
+            --repo "${GITHUB_REPOSITORY}" \
+            --ref "${GITHUB_SHA}" \
+            -f release=confirm
+          echo "DISPATCHED=vercel-static-deploy.yml"
+
+      - name: Locate dispatched run
+        if: inputs.deploy == 'confirm' && inputs.wait_for_result == 'yes'
+        id: locate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 20); do
+            run_id=$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow vercel-static-deploy.yml --limit 20 --json databaseId,headSha,status --jq '.[] | select(.headSha == env.GITHUB_SHA) | .databaseId' | head -1 || true)
+            if [ -n "$run_id" ]; then
+              echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+              echo "FOUND_RUN=$run_id"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Could not locate dispatched Vercel workflow run."
+          exit 1
+
+      - name: Wait for deployment result
+        if: inputs.deploy == 'confirm' && inputs.wait_for_result == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run watch "${{ steps.locate.outputs.run_id }}" --repo "${GITHUB_REPOSITORY}" --exit-status
+
+      - name: Emit operator proof
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          printf '{"workflow":"release-operator","sha":"%s","deployment_authorized":%s,"wait_for_result":%s,"status":"operator_complete"}\n' "${GITHUB_SHA}" "$([ "${{ inputs.deploy }}" = "confirm" ] && echo true || echo false)" "$([ "${{ inputs.wait_for_result }}" = "yes" ] && echo true || echo false)" > proof/release-operator-proof.json
+          cat proof/release-operator-proof.json
+
+      - name: Upload operator proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-operator-proof-${{ github.run_id }}
+          path: proof/release-operator-proof.json
+          if-no-files-found: error
+          retention-days: 30
