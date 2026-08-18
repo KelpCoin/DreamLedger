@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout exact verification commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ inputs.release_sha || github.sha }}
           fetch-depth: 1
@@ -103,7 +103,7 @@ jobs:
           cat proof/mtg-first-sale-readiness.json
 
       - name: Upload first-sale proof
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: mtg-first-sale-readiness-${{ github.run_id }}
           path: proof/mtg-first-sale-readiness.json
