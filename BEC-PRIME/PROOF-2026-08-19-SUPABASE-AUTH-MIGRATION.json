@@ -1,0 +1,23 @@
+{
+  "status": "CODE_AND_SCHEMA_PASS_PRODUCTION_ENV_REQUIRED",
+  "repository": "KelpCoin/DreamLedger",
+  "merged_commit": "181a3a7ae1c934b007543c46c28dd1a33b79f1de",
+  "pull_request": 87,
+  "authentication": {
+    "production_storage": "Supabase",
+    "project_id": "wbwgroygjeyukkspnqiy",
+    "table": "public.dreamledger_accounts",
+    "rls": "enabled",
+    "anon_authenticated_access": "revoked",
+    "local_test_mode": "DREAMLEDGER_AUTH_LOCAL_TEST=1"
+  },
+  "production_requirements": [
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY"
+  ],
+  "deployment": {
+    "vercel_project": "not visible through connected team project listing",
+    "production_deploy": "not yet machine-proven"
+  },
+  "next_verification": "Deploy merged main, then test POST /api/account/register, GET /api/account/me, POST /api/account/logout, POST /api/account/login against the production deployment."
+}
