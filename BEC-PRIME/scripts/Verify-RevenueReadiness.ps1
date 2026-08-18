@@ -46,14 +46,15 @@ $approvedPath = Join-Path $RepoRoot 'catalog\offers\approved.json'
 $approved = Get-Content $approvedPath -Raw | ConvertFrom-Json
 Assert-True ($null -ne $approved.approved) 'approved-offer registry exists'
 
+$canonicalPriceNzd = [math]::Round(([int]$product.price / 100), 2)
 $proof = [ordered]@{
     type = 'dreamledger-revenue-readiness'
     status = 'PASS'
     generated_at_utc = (Get-Date).ToUniversalTime().ToString('o')
-    first_revenue_target_nzd = 29
+    first_revenue_target_nzd = $canonicalPriceNzd
     verified_revenue_nzd = 0
     canonical_activation_sku = $product.id
-    canonical_activation_price_nzd = [math]::Round(([int]$product.price / 100), 2)
+    canonical_activation_price_nzd = $canonicalPriceNzd
     payment_truth = 'AWAITING_FIRST_PAYMENT'
     public_promotion = 'NOT_PERFORMED'
     approval_gate = 'PRESERVED'
