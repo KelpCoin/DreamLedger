@@ -9,11 +9,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: dreamledger-vercel-production
-  cancel-in-progress: false
+  group: dreamledger-vercel-production-gate
+  cancel-in-progress: true
 
 env:
-  LIVE_URL: https://dream-ledger-zeta.vercel.app
+  LIVE_URL: https://dreamledger.org
 
 jobs:
   ci-gauntlet-elohim:
@@ -24,8 +24,10 @@ jobs:
       run:
         working-directory: BEC-PRIME
     steps:
-      - name: Checkout
+      - name: Checkout exact triggering commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -56,35 +58,36 @@ jobs:
         run: node -e "require('./runtime/ControlPlane'); require('./runtime/worker-pool'); require('./proxy/DigitalProxy'); console.log('RUNTIME_LOAD=PASS')"
 
   vercel-live:
-    name: Vercel Production Live Check
+    name: Canonical Production HTTP Check
     needs: ci-gauntlet-elohim
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Wait for Vercel deployment
+      - name: Probe canonical domain
         shell: bash
         run: |
           set -euo pipefail
           for attempt in $(seq 1 30); do
-            code=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 15 "$LIVE_URL" || true)
+            code=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 15 "$LIVE_URL/" || true)
             if [ "$code" = "200" ]; then
-              echo "VERCEL_HTTP=200"
-              exit 0
+              echo "PRODUCTION_HTTP=200"
+              break
             fi
-            echo "Vercel not ready: HTTP $code (attempt $attempt/30)"
+            echo "Production not ready: HTTP $code (attempt $attempt/30)"
             sleep 10
           done
-          exit 1
+          test "${code:-000}" = "200"
 
-      - name: Verify DreamLedger surface
+      - name: Verify canonical DreamLedger surface
         shell: bash
         run: |
           set -euo pipefail
-          grep -Eqi 'DreamLedger|BEC-PRIME' /tmp/dreamledger.html
-          printf '%s\n' '{"status":"PASS","vercel_url":"https://dream-ledger-zeta.vercel.app","checks":["vercel_http_200","dreamledger_surface","bec_prime_surface","ci","gauntlet","elohim"]}' > vercel-production-proof.json
+          grep -Eqi 'DreamLedger|Dream Ledger' /tmp/dreamledger.html
+          printf '%s\n' '{"status":"PASS","url":"https://dreamledger.org","checks":["http_200","dreamledger_surface","ci","gauntlet","elohim"]}' > vercel-production-proof.json
+          cat vercel-production-proof.json
 
       - name: Upload production proof
         uses: actions/upload-artifact@v4
         with:
-          name: dreamledger-vercel-production-proof
+          name: dreamledger-production-http-proof
           path: vercel-production-proof.json
