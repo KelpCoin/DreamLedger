@@ -17,6 +17,7 @@
     "compile:public-contract": "node compiler/PublicSurfaceContractPatch.js",
     "compile:silos": "node compiler/SiloPortfolioCompiler.js",
     "verify:integration": "node scripts/verify-commercial-integration.js",
+    "verify:economic-contract": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-EconomicContract.ps1",
     "refine:iterative": "node scripts/iterative-refinement.js",
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
     "smoke:front-door": "node scripts/smoke-front-door.js",
