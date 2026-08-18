@@ -2,12 +2,18 @@ name: Vercel Static Storefront
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'BEC-PRIME/compiled/website/**'
-      - '.github/workflows/vercel-static-deploy.yml'
+    inputs:
+      release:
+        description: Deploy the exact selected commit to Vercel production
+        required: true
+        default: confirm
+        type: choice
+        options:
+          - confirm
+
+concurrency:
+  group: dreamledger-vercel-production
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -15,8 +21,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Checkout exact triggering commit
+      - name: Checkout exact selected commit
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
@@ -30,17 +37,55 @@ jobs:
           test -n "$VERCEL_TOKEN"
           echo "PASS: VERCEL_TOKEN is present."
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Compile source and economic contracts
+        run: npm run compile
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
       - name: Create or reuse Vercel project
+        working-directory: BEC-PRIME/compiled/website
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+          VERCEL_PROJECT: dreamledger
+        run: |
+          set -euo pipefail
+          if vercel project ls "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" 2>/dev/null | grep -q "$VERCEL_PROJECT"; then
+            echo "PASS: Vercel project already exists."
+          else
+            vercel project add "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+            echo "PASS: Vercel project created."
+          fi
+
+      - name: Link Vercel project
         working-directory: BEC-PRIME/compiled/website
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
         run: |
           set -euo pipefail
-          npx --yes vercel@latest add dreamledger --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
-          echo "PASS: Vercel project dreamledger is available under $VERCEL_SCOPE."
+          vercel link --project dreamledger --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
 
-      - name: Verify required Vercel production environment variables
+      - name: Pull production Vercel configuration
+        working-directory: BEC-PRIME/compiled/website
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+        run: |
+          set -euo pipefail
+          vercel pull --yes --environment=production --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+
+      - name: Verify required production environment variables
         working-directory: BEC-PRIME/compiled/website
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -48,39 +93,46 @@ jobs:
         run: |
           set -euo pipefail
           ENV_LIST="$RUNNER_TEMP/vercel-env-list.txt"
-          npx --yes vercel@latest env ls production --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" > "$ENV_LIST"
+          vercel env ls production --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" > "$ENV_LIST"
           grep -Eq '(^|[[:space:]])SUPABASE_URL([[:space:]]|$)' "$ENV_LIST"
           grep -Eq '(^|[[:space:]])SUPABASE_SERVICE_ROLE_KEY([[:space:]]|$)' "$ENV_LIST"
           echo "PASS: required Supabase production environment variables are configured."
 
-      - name: Deploy storefront to Vercel production
+      - name: Build Vercel output in GitHub Actions
         working-directory: BEC-PRIME/compiled/website
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
         run: |
           set -euo pipefail
-          npx --yes vercel@latest --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes 2>&1 | tee "$RUNNER_TEMP/vercel-deploy.log"
-          DEPLOY_URL="$(grep -Eo 'https://[A-Za-z0-9.-]+\.vercel\.app' "$RUNNER_TEMP/vercel-deploy.log" | tail -1 || true)"
-          test -n "$DEPLOY_URL"
-          printf '%s\n' "$DEPLOY_URL" > "$RUNNER_TEMP/vercel-deploy-url.txt"
-          echo "PASS: deployment URL captured: $DEPLOY_URL"
+          vercel build --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+          test -f .vercel/output/config.json
+          echo "PASS: Vercel Build Output API artifact exists."
+
+      - name: Deploy prebuilt production artifact
+        working-directory: BEC-PRIME/compiled/website
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+        run: |
+          set -euo pipefail
+          vercel deploy --prebuilt --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes > "$RUNNER_TEMP/vercel-deploy-url.txt"
+          DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
+          test "$DEPLOY_URL" ~ '^https://[A-Za-z0-9.-]+\.vercel\.app$'
+          echo "PASS: prebuilt production deployment created: $DEPLOY_URL"
 
       - name: Verify production deployment over HTTP
         env:
           EXPECTED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          DEPLOY_URL="$(cat "$RUNNER_TEMP/vercel-deploy-url.txt")"
-
+          DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
           ROOT_STATUS="$(curl -sS -o "$RUNNER_TEMP/root.html" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/")"
           test "$ROOT_STATUS" = "200"
           grep -qi '<html' "$RUNNER_TEMP/root.html"
-
           ACCOUNT_STATUS="$(curl -sS -o "$RUNNER_TEMP/account-me.json" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/api/account/me")"
           test "$ACCOUNT_STATUS" = "200"
           grep -q '"authenticated":false' "$RUNNER_TEMP/account-me.json"
-
           printf '{"status":"HTTP_PASS","deployment_url":"%s","root_status":%s,"account_me_status":%s,"account_me":"anonymous","sha":"%s"}\n' "$DEPLOY_URL" "$ROOT_STATUS" "$ACCOUNT_STATUS" "$EXPECTED_SHA" > "$RUNNER_TEMP/http-proof.json"
           cat "$RUNNER_TEMP/http-proof.json"
 
@@ -103,7 +155,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          DEPLOY_URL="$(cat "$RUNNER_TEMP/vercel-deploy-url.txt")"
+          DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
           HTTP_PROOF="$(cat "$RUNNER_TEMP/http-proof.json")"
           DOMAIN_PROOF="$(cat "$RUNNER_TEMP/domain-proof.json")"
           printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" > proof/vercel-static-deploy-proof.json
