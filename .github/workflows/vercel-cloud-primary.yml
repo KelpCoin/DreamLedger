@@ -15,14 +15,17 @@ permissions:
 env:
   VERCEL_SCOPE: dreamledger
   VERCEL_PROJECT: dreamledger-production
+  VERCEL_DOMAIN: dreamledger.org
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout
+      - name: Checkout exact triggering commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
       - name: Wait for Vercel credential without failing the cloud spine
         id: gate
@@ -44,6 +47,14 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install dependencies
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm install
+
+      - name: Compile public surface
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm run compile
+
       - name: Install Vercel CLI
         if: steps.gate.outputs.enabled == 'true'
         run: npm install --global vercel@latest
@@ -62,7 +73,7 @@ jobs:
             echo "VERCEL_PROJECT=CREATED"
           fi
 
-      - name: Link repository
+      - name: Link project
         if: steps.gate.outputs.enabled == 'true'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -73,6 +84,20 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel deploy --prod --yes --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
+
+      - name: Attach production domain
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if vercel domains inspect "$VERCEL_DOMAIN" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" >/dev/null 2>&1; then
+            echo "VERCEL_DOMAIN=KNOWN"
+          else
+            vercel domains add "$VERCEL_DOMAIN" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" || true
+            echo "VERCEL_DOMAIN=ATTACH_ATTEMPTED"
+          fi
 
       - name: Write deployment proof
         if: always()
@@ -86,9 +111,8 @@ jobs:
             "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "project": "${VERCEL_PROJECT}",
             "scope": "${VERCEL_SCOPE}",
+            "domain": "${VERCEL_DOMAIN}",
             "credential_present": "$([ -n "${{ secrets.VERCEL_TOKEN }}" ] && echo true || echo false)",
-            "verified_payment_count": 0,
-            "revenue_nzd": 0,
             "status": "CLOUD_PRIMARY_CHECKED"
           }
           EOF
