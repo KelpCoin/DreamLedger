@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 1
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -67,27 +68,57 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          code=000
           for attempt in $(seq 1 30); do
             code=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 15 "$LIVE_URL/" || true)
             if [ "$code" = "200" ]; then
-              echo "PRODUCTION_HTTP=200"
+              echo "PRODUCTION_ROOT_HTTP=200"
               break
             fi
             echo "Production not ready: HTTP $code (attempt $attempt/30)"
             sleep 10
           done
-          test "${code:-000}" = "200"
+          test "$code" = "200"
+          grep -Eqi 'DreamLedger|Dream Ledger' /tmp/dreamledger.html
 
-      - name: Verify canonical DreamLedger surface
+      - name: Probe health endpoint
         shell: bash
         run: |
           set -euo pipefail
-          grep -Eqi 'DreamLedger|Dream Ledger' /tmp/dreamledger.html
-          printf '%s\n' '{"status":"PASS","url":"https://dreamledger.org","checks":["http_200","dreamledger_surface","ci","gauntlet","elohim"]}' > vercel-production-proof.json
-          cat vercel-production-proof.json
+          code=$(curl -L -sS -o /tmp/health.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 15 "$LIVE_URL/healthz" || true)
+          test "$code" = "200"
+          echo "PRODUCTION_HEALTH_HTTP=200"
+
+      - name: Probe offers endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o /tmp/offers.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 15 "$LIVE_URL/api/offers" || true)
+          test "$code" = "200"
+          grep -q '{' /tmp/offers.json
+          echo "PRODUCTION_OFFERS_HTTP=200"
+
+      - name: Probe anonymous account session
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o /tmp/account-me.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 15 "$LIVE_URL/api/account/me" || true)
+          test "$code" = "200"
+          grep -q '"authenticated":false' /tmp/account-me.json
+          echo "PRODUCTION_ACCOUNT_ME_HTTP=200_ANONYMOUS"
+
+      - name: Emit production truth proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          printf '{"status":"PASS","url":"https://dreamledger.org","source_sha":"%s","checks":["http_200","dreamledger_surface","healthz_200","offers_200","account_me_200_anonymous","ci","gauntlet","elohim","runtime"]}\n' "${GITHUB_SHA}" > proof/vercel-production-proof.json
+          cat proof/vercel-production-proof.json
 
       - name: Upload production proof
         uses: actions/upload-artifact@v4
         with:
-          name: dreamledger-production-http-proof
-          path: vercel-production-proof.json
+          name: dreamledger-production-http-proof-${{ github.run_id }}
+          path: proof/vercel-production-proof.json
+          if-no-files-found: error
+          retention-days: 30
