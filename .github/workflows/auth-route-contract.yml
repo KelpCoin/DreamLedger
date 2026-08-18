@@ -1,0 +1,78 @@
+name: Auth Route Contract
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'BEC-PRIME/compiled/website/api/account/**'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - '.github/workflows/auth-route-contract.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/compiled/website/api/account/**'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - '.github/workflows/auth-route-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auth-route-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify Vercel account entrypoint exists
+        run: |
+          set -euo pipefail
+          test -f 'BEC-PRIME/compiled/website/api/account/[...route].js'
+          test -f 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+
+      - name: Verify Vercel entrypoint targets compiled Supabase auth
+        run: |
+          set -euo pipefail
+          ENTRY='BEC-PRIME/compiled/website/api/account/[...route].js'
+          AUTH='BEC-PRIME/compiled/website/lib/accountAuth.js'
+          grep -Fq "require('../../lib/accountAuth')" "$ENTRY"
+          grep -Fq 'SUPABASE_URL' "$AUTH"
+          grep -Fq 'SUPABASE_SERVICE_ROLE_KEY' "$AUTH"
+          ! grep -Fq "require('../../../routes/auth')" "$ENTRY"
+          ! grep -Fq 'fs.' "$ENTRY"
+          echo 'PASS: Vercel account route targets the compiled Supabase-backed auth runtime.'
+
+      - name: Verify legacy filesystem auth is not the Vercel entrypoint
+        run: |
+          set -euo pipefail
+          ENTRY='BEC-PRIME/compiled/website/api/account/[...route].js'
+          ! grep -Eiq 'filesystem|sqlite|readFile|writeFile|mkdir|appendFile' "$ENTRY"
+          echo 'PASS: Vercel account entrypoint contains no filesystem persistence operations.'
+
+      - name: Verify deployment workflow is fail-closed
+        run: |
+          set -euo pipefail
+          WF='.github/workflows/vercel-static-deploy.yml'
+          test -f "$WF"
+          grep -Fq 'set -euo pipefail' "$WF"
+          ! grep -Fq 'vercel@latest add dreamledger --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes || true' "$WF"
+          echo 'PASS: Vercel project creation is not silently ignored.'
+
+      - name: Emit proof
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          printf '{"status":"PASS","contract":"vercel-account-route","sha":"%s","entrypoint":"BEC-PRIME/compiled/website/api/account/[...route].js","runtime":"BEC-PRIME/compiled/website/lib/accountAuth.js","persistence":"Supabase","production_http":"PENDING","payment":"PENDING"}\n' "$SHA" > proof/auth-route-contract.json
+          cat proof/auth-route-contract.json
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-route-contract-proof
+          path: proof/auth-route-contract.json
