@@ -1,0 +1,65 @@
+name: Production HTTP Truth Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'BEC-PRIME/compiled/website/**'
+      - '.github/workflows/production-http-truth.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  production-http-truth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Probe production root
+        shell: bash
+        env:
+          PRODUCTION_URL: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          ROOT_STATUS="$(curl -sS -L -o "$RUNNER_TEMP/root.html" -w '%{http_code}' --retry 4 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL/")"
+          test "$ROOT_STATUS" = "200"
+          grep -qi 'DreamLedger' "$RUNNER_TEMP/root.html"
+          echo "PASS: production root HTTP $ROOT_STATUS and DreamLedger marker present."
+
+      - name: Probe anonymous account surface
+        shell: bash
+        env:
+          PRODUCTION_URL: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          STATUS="$(curl -sS -L -o "$RUNNER_TEMP/account-me.json" -w '%{http_code}' --retry 3 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL/api/account/me")"
+          test "$STATUS" = "200"
+          grep -q '"authenticated":false' "$RUNNER_TEMP/account-me.json"
+          echo "PASS: anonymous account endpoint HTTP $STATUS and authenticated=false."
+
+      - name: Emit machine proof
+        shell: bash
+        env:
+          SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          ROOT_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/)"
+          ACCOUNT_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/api/account/me)"
+          printf '{"schema":"dreamledger-production-http-truth-v1","status":"PASS","sha":"%s","run_id":"%s","url":"https://dreamledger.org","root_http_status":%s,"account_me_http_status":%s,"account_me_authentication":"anonymous"}\n' "$SHA" "$RUN_ID" "$ROOT_STATUS" "$ACCOUNT_STATUS" > proof/PRODUCTION-HTTP-TRUTH.json
+          cat proof/PRODUCTION-HTTP-TRUTH.json
+
+      - name: Upload production proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-http-truth
+          path: proof/PRODUCTION-HTTP-TRUTH.json
+          if-no-files-found: error
