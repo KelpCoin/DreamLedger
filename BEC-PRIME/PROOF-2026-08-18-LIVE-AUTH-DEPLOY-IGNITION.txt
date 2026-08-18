@@ -1,0 +1,28 @@
+DreamLedger production auth deployment ignition proof
+
+Target repository: KelpCoin/DreamLedger
+Target branch: main
+
+Current source contract verified:
+- BEC-PRIME/routes/auth.js implements POST /api/account/register
+- BEC-PRIME/routes/auth.js implements POST /api/account/login
+- BEC-PRIME/routes/auth.js implements GET /api/account/me
+- BEC-PRIME/compiled/website/login.html calls /api/account/login
+- BEC-PRIME/compiled/website/register.html calls /api/account/register
+- BEC-PRIME/start.js mounts the account route handler
+- render.yaml configures the production web service on branch main
+- render.yaml sets autoDeployTrigger: commit
+- render.yaml maps dreamledger.org to the Render service
+
+This commit is an explicit deployment ignition event so the production Render service reconciles main to the current repository state.
+
+Acceptance target:
+1. GET /healthz returns 200
+2. GET /version reports this deployment or a newer main commit
+3. GET /login.html is the compiled DreamLedger account page
+4. GET /register.html is the compiled DreamLedger account page
+5. POST /api/account/register creates an account and returns 201
+6. POST /api/account/login returns 200 for the created account and sets dreamiez_session
+7. GET /api/account/me returns authenticated=true with the session cookie
+
+No public posting or external announcement is performed by this proof.
