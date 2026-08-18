@@ -10,6 +10,10 @@ on:
         type: choice
         options:
           - confirm
+      release_sha:
+        description: Immutable commit SHA to build and deploy
+        required: true
+        type: string
 
 concurrency:
   group: dreamledger-vercel-production
@@ -26,8 +30,16 @@ jobs:
       - name: Checkout exact selected commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.release_sha }}
           fetch-depth: 1
+
+      - name: Verify release SHA
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -euo pipefail
+          test -n "$RELEASE_SHA"
+          echo "RELEASE_SHA=$RELEASE_SHA"
 
       - name: Verify Vercel token
         env:
@@ -122,7 +134,7 @@ jobs:
 
       - name: Verify production deployment over HTTP
         env:
-          EXPECTED_SHA: ${{ github.sha }}
+          EXPECTED_SHA: ${{ inputs.release_sha }}
         run: |
           set -euo pipefail
           DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
@@ -149,7 +161,7 @@ jobs:
 
       - name: Emit deployment proof
         env:
-          SHA: ${{ github.sha }}
+          SHA: ${{ inputs.release_sha }}
           RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
