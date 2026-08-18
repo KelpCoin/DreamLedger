@@ -19,6 +19,7 @@
     "compile:public-contract": "node BEC-PRIME/compiler/PublicSurfaceContractPatch.js",
     "verify:ip": "node BEC-PRIME/scripts/verify-ip-runtime-contract.js",
     "verify:silos": "node BEC-PRIME/scripts/verify-silo-boundaries.js",
+    "verify:agentic-commerce": "node BEC-PRIME/scripts/verify-agentic-commerce.js",
     "verify:account-avatar": "node BEC-PRIME/scripts/verify-account-avatar-flow.js",
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
     "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",
