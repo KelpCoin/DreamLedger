@@ -1,0 +1,12 @@
+{
+  "status": "CODE_PATH_FIXED_HTTP_PROOF_PENDING",
+  "repository": "KelpCoin/DreamLedger",
+  "commit": "924d4280ddafe1d651f3d9fdf304e710d12ac43b",
+  "finding": "The Vercel account catch-all function previously required BEC-PRIME/routes/auth.js, which is filesystem-backed. The Supabase-backed compiled auth runtime already existed but was not the Vercel function target.",
+  "fix": "api/account/[...route].js now requires BEC-PRIME/compiled/website/lib/accountAuth.js.",
+  "production_storage": "Supabase via SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY",
+  "local_test_mode": "DREAMLEDGER_AUTH_LOCAL_TEST=1",
+  "render_auth_dependency": false,
+  "http_proof": "pending",
+  "payment_proof": "pending"
+}
