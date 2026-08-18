@@ -20,11 +20,22 @@
   function renderProducts(){const q=String($('#product-search')?.value||'').trim().toLowerCase(),list=products.filter(p=>!q||`${p.name} ${p.description} ${p.silo}`.toLowerCase().includes(q)),rail=$('#product-rail');if(!rail)return;rail.innerHTML=list.length?list.map(productCard).join(''):'<div class="empty">No approved products match that search.</div>';rail.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const p=products.find(x=>x.id===b.dataset.add);if(p)addCart(p)});rail.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const p=products.find(x=>x.id===b.dataset.buy);if(p){saveCart([{id:p.id,name:p.name,price:p.price,currency:p.currency,silo:p.silo}]);checkout()}})}
   async function directBuy(id){const p=products.find(x=>x.id===id);if(!p){document.querySelector('#shop')?.scrollIntoView({behavior:'smooth'});return}saveCart([{id:p.id,name:p.name,price:p.price,currency:p.currency,silo:p.silo}]);await checkout()}
   async function loadAuctions(){const rail=$('#auction-rail');try{const r=await fetch('/api/auctions',{cache:'no-store'}),d=await r.json();if(!r.ok)throw new Error(d.error||'Auction service unavailable');auctions=Array.isArray(d.auctions)?d.auctions.filter(a=>a.status!=='ended'&&Number(a.ends_at)>Date.now()):[];rail.innerHTML=auctions.length?auctions.map(auctionCard).join(''):'<div class="empty">No live auctions right now.</div>';const n=$('#auction-count');if(n)n.textContent=String(auctions.length);rail.querySelectorAll('[data-bid]').forEach(b=>b.onclick=async()=>{const id=b.dataset.bid,input=rail.querySelector(`[data-bid-input="${CSS.escape(id)}"]`),amount=Number(input?.value);if(!Number.isFinite(amount)||amount<=0)return alert('Enter a valid bid.');b.disabled=true;try{const bidder=localStorage.getItem('dreamledger_bidder_id')||`web_${Math.random().toString(36).slice(2,12)}`;localStorage.setItem('dreamledger_bidder_id',bidder);const r=await fetch(`/api/auctions/${encodeURIComponent(id)}/bid`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({bidder_id:bidder,amount})}),d=await r.json();if(!r.ok)throw new Error(d.error||'Bid failed');await loadAuctions()}catch(e){alert(e.message)}finally{b.disabled=false}})}catch(e){if(rail)rail.innerHTML=`<div class="empty">${esc(e.message)}</div>`}}
+  async function wireAccount(){
+    const links=document.querySelectorAll('a[href="/login"],a[href="/register"]');
+    links.forEach(a=>{if(a.getAttribute('href')==='/login')a.setAttribute('href','/login.html');if(a.getAttribute('href')==='/register')a.setAttribute('href','/register.html')});
+    try{
+      const r=await fetch('/api/account/me',{cache:'no-store',credentials:'same-origin'});
+      const d=await r.json();
+      if(d.authenticated){
+        links.forEach(a=>{a.textContent='My account';a.setAttribute('href','/account.html')});
+      }
+    }catch(_e){}
+  }
   function wire(){
     $('#cart-launch')?.addEventListener('click',openCart);$('#cart-close')?.addEventListener('click',closeCart);$('#cart-clear')?.addEventListener('click',()=>saveCart([]));$('#cart-checkout')?.addEventListener('click',checkout);$('#cart-panel')?.addEventListener('click',e=>{if(e.target.id==='cart-panel')closeCart()});$('#product-search')?.addEventListener('input',renderProducts);
     document.querySelectorAll('[data-direct-buy]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();directBuy(a.dataset.directBuy)}));
     document.querySelectorAll('[data-filter]').forEach(a=>a.onclick=()=>{const i=$('#product-search');if(i){i.value=a.dataset.filter;renderProducts()}});
-    renderCart();loadProducts();loadAuctions();
+    renderCart();loadProducts();loadAuctions();wireAccount();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
 })();
