@@ -35,13 +35,12 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$VERCEL_TOKEN"
-          echo "PASS: VERCEL_TOKEN is present."
+          echo 'PASS: VERCEL_TOKEN is present.'
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Install root dependencies
         run: npm install
@@ -61,10 +60,10 @@ jobs:
         run: |
           set -euo pipefail
           if vercel project ls "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" 2>/dev/null | grep -q "$VERCEL_PROJECT"; then
-            echo "PASS: Vercel project already exists."
+            echo 'PASS: Vercel project already exists.'
           else
             vercel project add "$VERCEL_PROJECT" --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
-            echo "PASS: Vercel project created."
+            echo 'PASS: Vercel project created.'
           fi
 
       - name: Link Vercel project
@@ -96,7 +95,7 @@ jobs:
           vercel env ls production --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" > "$ENV_LIST"
           grep -Eq '(^|[[:space:]])SUPABASE_URL([[:space:]]|$)' "$ENV_LIST"
           grep -Eq '(^|[[:space:]])SUPABASE_SERVICE_ROLE_KEY([[:space:]]|$)' "$ENV_LIST"
-          echo "PASS: required Supabase production environment variables are configured."
+          echo 'PASS: required Supabase production environment variables are configured.'
 
       - name: Build Vercel output in GitHub Actions
         working-directory: BEC-PRIME/compiled/website
@@ -107,7 +106,7 @@ jobs:
           set -euo pipefail
           vercel build --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN"
           test -f .vercel/output/config.json
-          echo "PASS: Vercel Build Output API artifact exists."
+          echo 'PASS: Vercel Build Output API artifact exists.'
 
       - name: Deploy prebuilt production artifact
         working-directory: BEC-PRIME/compiled/website
@@ -128,10 +127,10 @@ jobs:
           set -euo pipefail
           DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
           ROOT_STATUS="$(curl -sS -o "$RUNNER_TEMP/root.html" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/")"
-          test "$ROOT_STATUS" = "200"
+          test "$ROOT_STATUS" = '200'
           grep -qi '<html' "$RUNNER_TEMP/root.html"
           ACCOUNT_STATUS="$(curl -sS -o "$RUNNER_TEMP/account-me.json" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/api/account/me")"
-          test "$ACCOUNT_STATUS" = "200"
+          test "$ACCOUNT_STATUS" = '200'
           grep -q '"authenticated":false' "$RUNNER_TEMP/account-me.json"
           printf '{"status":"HTTP_PASS","deployment_url":"%s","root_status":%s,"account_me_status":%s,"account_me":"anonymous","sha":"%s"}\n' "$DEPLOY_URL" "$ROOT_STATUS" "$ACCOUNT_STATUS" "$EXPECTED_SHA" > "$RUNNER_TEMP/http-proof.json"
           cat "$RUNNER_TEMP/http-proof.json"
@@ -140,10 +139,10 @@ jobs:
         run: |
           set -euo pipefail
           DOMAIN_STATUS="$(curl -sS -o "$RUNNER_TEMP/domain.html" -w '%{http_code}' --retry 2 --retry-delay 2 https://dreamledger.org/ || true)"
-          if [ "$DOMAIN_STATUS" = "200" ] && grep -qi 'DreamLedger' "$RUNNER_TEMP/domain.html"; then
-            DOMAIN_STATE="LIVE_DREAMLEDGER"
+          if [ "$DOMAIN_STATUS" = '200' ] && grep -qi 'DreamLedger' "$RUNNER_TEMP/domain.html"; then
+            DOMAIN_STATE='LIVE_DREAMLEDGER'
           else
-            DOMAIN_STATE="NOT_YET_DREAMLEDGER"
+            DOMAIN_STATE='NOT_YET_DREAMLEDGER'
           fi
           printf '{"status":"DOMAIN_PROBE","domain":"https://dreamledger.org/","http_status":%s,"state":"%s"}\n' "$DOMAIN_STATUS" "$DOMAIN_STATE" > "$RUNNER_TEMP/domain-proof.json"
           cat "$RUNNER_TEMP/domain-proof.json"
