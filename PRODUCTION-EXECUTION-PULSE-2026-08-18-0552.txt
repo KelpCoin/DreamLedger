@@ -1,0 +1,5 @@
+DreamLedger production execution pulse.
+Canonical branch: main.
+Push-trigger target: Production Recovery Execute.
+Expected chain: GitHub push -> compile/auth -> Render deploy hook -> dreamledger.org health/version/auth acceptance -> production proof artifact.
+Revenue truth: Stripe paid completed session required; no revenue is asserted here.
