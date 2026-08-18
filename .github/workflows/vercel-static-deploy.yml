@@ -44,7 +44,7 @@ jobs:
           cache: npm
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm install
 
       - name: Compile source and economic contracts
         run: npm run compile
@@ -118,7 +118,7 @@ jobs:
           set -euo pipefail
           vercel deploy --prebuilt --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes > "$RUNNER_TEMP/vercel-deploy-url.txt"
           DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
-          test "$DEPLOY_URL" ~ '^https://[A-Za-z0-9.-]+\.vercel\.app$'
+          printf '%s\n' "$DEPLOY_URL" | grep -Eq '^https://[A-Za-z0-9.-]+\.vercel\.app$'
           echo "PASS: prebuilt production deployment created: $DEPLOY_URL"
 
       - name: Verify production deployment over HTTP
