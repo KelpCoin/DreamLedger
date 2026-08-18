@@ -69,13 +69,13 @@ jobs:
           EMAIL="ci-${GITHUB_RUN_ID}@example.invalid"
           REGISTER=$(curl -fsS -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/register -d "{\"name\":\"CI Auth Gate\",\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
           echo "$REGISTER"
-          echo "$REGISTER" | grep -q '\"ok\":true'
+          echo "$REGISTER" | grep -q '"ok":true'
           LOGIN=$(curl -fsS -b "$RUNNER_TEMP/cookies.txt" -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/login -d "{\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
           echo "$LOGIN"
-          echo "$LOGIN" | grep -q '\"ok\":true'
+          echo "$LOGIN" | grep -q '"ok":true'
           ME=$(curl -fsS -b "$RUNNER_TEMP/cookies.txt" http://127.0.0.1:4317/api/account/me)
           echo "$ME"
-          echo "$ME" | grep -q '\"authenticated\":true'
+          echo "$ME" | grep -q '"authenticated":true'
           echo 'PASS: local registration, login, session and account contract verified.'
 
       - name: Upload local proof
@@ -168,7 +168,7 @@ jobs:
           echo "registration_http=$status"
           cat /tmp/register-response.json
           test "$status" = "201"
-          grep -q '\"ok\":true' /tmp/register-response.json
+          grep -q '"ok":true' /tmp/register-response.json
 
       - name: Live login acceptance
         id: live_login
@@ -184,7 +184,7 @@ jobs:
           echo "login_http=$status"
           cat /tmp/login-response.json
           test "$status" = "200"
-          grep -q '\"ok\":true' /tmp/login-response.json
+          grep -q '"ok":true' /tmp/login-response.json
 
       - name: Live /me acceptance
         id: live_me
@@ -197,7 +197,7 @@ jobs:
           echo "me_http=$status"
           cat /tmp/me-response.json
           test "$status" = "200"
-          grep -q '\"authenticated\":true' /tmp/me-response.json
+          grep -q '"authenticated":true' /tmp/me-response.json
 
       - name: Write immutable machine proof
         if: always()
@@ -220,7 +220,8 @@ jobs:
           if os.path.exists(version_path):
               try:
                   with open(version_path, 'r', encoding='utf-8') as f:
-                      deployed = json.load(f).get('commit') or json.load(open(version_path, 'r', encoding='utf-8')).get('sha')
+                      data = json.load(f)
+                  deployed = data.get('commit') or data.get('sha')
               except Exception:
                   deployed = None
           gates = {
