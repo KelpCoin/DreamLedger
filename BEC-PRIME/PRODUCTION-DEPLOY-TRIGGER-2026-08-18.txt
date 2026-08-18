@@ -1,0 +1,11 @@
+DreamLedger production deployment trigger.
+
+Purpose: force a fresh Render main-branch deployment from the canonical production source after CI/auth recovery hardening.
+
+Canonical target: main
+Previous verified commit: 90f51aefa68520cfb5a90d3d4b5aa064769b0573
+Production origin: https://dreamledger.org
+Render service: dreamledger-bec-prime
+Render policy: autoDeployTrigger=commit
+
+This file contains no credentials and makes no revenue claim.
