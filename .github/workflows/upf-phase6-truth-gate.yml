@@ -35,7 +35,7 @@ jobs:
           test -f BEC-PRIME/compiled/website/mtg/index.html
           grep -q 'scroll-snap-type:x mandatory' BEC-PRIME/compiled/website/mtg/index.html
           grep -q '/api/checkout/create' BEC-PRIME/compiled/website/mtg/index.html
-          grep -q 'silo:\x27mtg\x27' BEC-PRIME/compiled/website/mtg/index.html
+          grep -q "silo:'mtg'" BEC-PRIME/compiled/website/mtg/index.html
           grep -q 'IN STOCK' BEC-PRIME/compiled/website/mtg/index.html
           if grep -Eiq 'fake scarcity|someone just bought|countdown timer|only [0-9]+ left' BEC-PRIME/compiled/website/mtg/index.html; then
             echo 'FAIL: deceptive scarcity/social-proof pattern detected'
