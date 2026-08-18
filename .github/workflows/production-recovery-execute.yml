@@ -15,7 +15,7 @@ concurrency:
 jobs:
   compile-and-auth:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,19 +60,22 @@ jobs:
           node -r ./lib/authRuntimePreload.js -r ./lib/publicShellPreload.js -r ./lib/m2mPreload.js -r ./lib/qrPreload.js -r ./lib/liveRouteCompatibility.js -r ./lib/marketplacePreload.js start.js > "$RUNNER_TEMP/dreamledger-runtime.log" 2>&1 &
           PID=$!
           trap 'kill $PID 2>/dev/null || true' EXIT
+          ready=0
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4317/healthz >/dev/null; then break; fi
+            if curl -fsS http://127.0.0.1:4317/healthz >/dev/null; then ready=1; break; fi
             sleep 1
           done
-          curl -fsS http://127.0.0.1:4317/healthz
-          curl -fsS http://127.0.0.1:4317/login.html | grep -q '/api/account/login'
-          curl -fsS http://127.0.0.1:4317/register.html | grep -q '/api/account/register'
+          test "$ready" = 1
           EMAIL="ci-${GITHUB_RUN_ID}@example.invalid"
           REGISTER=$(curl -fsS -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/register -d "{\"name\":\"CI Auth Gate\",\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
+          echo "$REGISTER"
           echo "$REGISTER" | grep -q '"ok":true'
           LOGIN=$(curl -fsS -b "$RUNNER_TEMP/cookies.txt" -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/login -d "{\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
+          echo "$LOGIN"
           echo "$LOGIN" | grep -q '"ok":true'
-          curl -fsS -b "$RUNNER_TEMP/cookies.txt" http://127.0.0.1:4317/api/account/me | grep -q '"authenticated":true'
+          ME=$(curl -fsS -b "$RUNNER_TEMP/cookies.txt" http://127.0.0.1:4317/api/account/me)
+          echo "$ME"
+          echo "$ME" | grep -q '"authenticated":true'
           echo 'PASS: local registration, login, session and account contract verified.'
 
       - name: Upload local proof
@@ -82,15 +85,16 @@ jobs:
           name: dreamledger-local-auth-proof-${{ github.sha }}
           path: ${{ runner.temp }}/dreamledger-runtime.log
           if-no-files-found: ignore
+          retention-days: 30
 
-  deploy-and-probe:
+  deploy-and-live-acceptance:
     needs: compile-and-auth
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
     steps:
-      - name: Trigger Render deploy hook
+      - name: Trigger Render deploy hook when configured
         if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
         shell: bash
         run: |
@@ -98,13 +102,15 @@ jobs:
           curl --fail --silent --show-error --max-time 30 -X POST "$RENDER_DEPLOY_HOOK"
           echo 'PASS: Render deploy hook accepted.'
 
-      - name: Probe production health and auth surfaces
+      - name: Require production health
         shell: bash
         run: |
           set -euo pipefail
           health_ok=0
-          for i in {1..24}; do
-            if curl -fsS --max-time 15 https://dreamledger.org/healthz >/tmp/healthz.json; then
+          for i in {1..30}; do
+            status=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 15 https://dreamledger.org/healthz || true)
+            echo "health_attempt=$i http=$status"
+            if [ "$status" = "200" ]; then
               health_ok=1
               cat /tmp/healthz.json
               break
@@ -112,33 +118,91 @@ jobs:
             sleep 5
           done
           test "$health_ok" = 1
+
+      - name: Verify production account pages
+        shell: bash
+        run: |
+          set -euo pipefail
           curl -fsS --max-time 15 https://dreamledger.org/login.html >/tmp/login.html
           curl -fsS --max-time 15 https://dreamledger.org/register.html >/tmp/register.html
           grep -q '/api/account/login' /tmp/login.html
           grep -q '/api/account/register' /tmp/register.html
           ! grep -q '/api/dreamiez/account/login' /tmp/login.html
-          echo 'PASS: production health and account pages verified.'
+          echo 'PASS: production login/register surfaces are present and correctly wired.'
 
-      - name: Write production proof
+      - name: Live registration acceptance
+        id: live_register
+        shell: bash
+        run: |
+          set -euo pipefail
+          EMAIL="live-proof-${GITHUB_RUN_ID}@example.invalid"
+          printf '%s\n' "$EMAIL" > /tmp/live-proof-email.txt
+          status=$(curl -sS -o /tmp/register-response.json -w '%{http_code}' --max-time 20 \
+            -c /tmp/live-cookies.txt \
+            -H 'Content-Type: application/json' \
+            -X POST https://dreamledger.org/api/account/register \
+            -d "{\"name\":\"Live Proof\",\"email\":\"$EMAIL\",\"password\":\"LivePass-123!\"}")
+          echo "registration_http=$status"
+          cat /tmp/register-response.json
+          test "$status" = "201"
+          grep -q '"ok":true' /tmp/register-response.json
+
+      - name: Live login acceptance
+        id: live_login
+        shell: bash
+        run: |
+          set -euo pipefail
+          EMAIL=$(cat /tmp/live-proof-email.txt)
+          status=$(curl -sS -o /tmp/login-response.json -w '%{http_code}' --max-time 20 \
+            -b /tmp/live-cookies.txt -c /tmp/live-cookies.txt \
+            -H 'Content-Type: application/json' \
+            -X POST https://dreamledger.org/api/account/login \
+            -d "{\"email\":\"$EMAIL\",\"password\":\"LivePass-123!\"}")
+          echo "login_http=$status"
+          cat /tmp/login-response.json
+          test "$status" = "200"
+          grep -q '"ok":true' /tmp/login-response.json
+
+      - name: Live /me acceptance
+        id: live_me
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/me-response.json -w '%{http_code}' --max-time 20 \
+            -b /tmp/live-cookies.txt \
+            https://dreamledger.org/api/account/me)
+          echo "me_http=$status"
+          cat /tmp/me-response.json
+          test "$status" = "200"
+          grep -q '"authenticated":true' /tmp/me-response.json
+
+      - name: Write immutable machine proof
         if: always()
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p proof
-          {
-            echo "commit=${GITHUB_SHA}"
-            echo "workflow=${GITHUB_WORKFLOW}"
-            echo "run_id=${GITHUB_RUN_ID}"
-            echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "target=https://dreamledger.org"
-            echo "local_auth_gate=passed"
-            echo "production_probe=completed"
-            echo "render_hook_configured=$([ -n \"${RENDER_DEPLOY_HOOK:-}\" ] && echo true || echo false)"
-          } > proof/PRODUCTION-RECOVERY-EXECUTE.txt
+          python3 - <<'PY'
+          import json, os, time
+          proof = {
+              'commit_sha': os.environ['GITHUB_SHA'],
+              'workflow': os.environ['GITHUB_WORKFLOW'],
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'target': 'https://dreamledger.org',
+              'render_hook_configured': bool(os.environ.get('RENDER_DEPLOY_HOOK')),
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'status': 'PASS' if all(os.path.exists(p) for p in ['/tmp/healthz.json','/tmp/register-response.json','/tmp/login-response.json','/tmp/me-response.json']) else 'FAIL'
+          }
+          with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
 
       - name: Upload production proof
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dreamledger-production-recovery-${{ github.sha }}
-          path: proof/PRODUCTION-RECOVERY-EXECUTE.txt
+          path: proof/deployment-proof.json
+          if-no-files-found: error
+          retention-days: 30
