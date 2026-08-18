@@ -9,6 +9,12 @@ on:
       - 'BEC-PRIME/compiled/website/**'
       - '.github/workflows/mtg-first-sale-gate.yml'
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Optional immutable commit SHA to verify instead of the dispatch branch tip
+        required: false
+        default: ''
+        type: string
   schedule:
     - cron: '31 */6 * * *'
 
@@ -24,11 +30,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout exact triggering commit
+      - name: Checkout exact verification commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.release_sha || github.sha }}
           fetch-depth: 1
+
+      - name: Record immutable verification SHA
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$RELEASE_SHA"
+          echo "VERIFY_SHA=$RELEASE_SHA"
 
       - name: Verify canonical revenue readiness
         shell: pwsh
@@ -79,10 +94,12 @@ jobs:
 
       - name: Emit first-sale readiness proof
         shell: bash
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"status":"READY_FOR_FIRST_PAYMENT","sha":"%s","sku":"COMMANDER-DECK-DIAGNOSTIC-001","price_nzd":25,"payment_truth":"AWAITING_FIRST_PAYMENT","public_payment_not_claimed":true}\n' "${GITHUB_SHA}" > proof/mtg-first-sale-readiness.json
+          printf '{"status":"READY_FOR_FIRST_PAYMENT","sha":"%s","sku":"COMMANDER-DECK-DIAGNOSTIC-001","price_nzd":25,"payment_truth":"AWAITING_FIRST_PAYMENT","public_payment_not_claimed":true}\n' "$RELEASE_SHA" > proof/mtg-first-sale-readiness.json
           cat proof/mtg-first-sale-readiness.json
 
       - name: Upload first-sale proof
