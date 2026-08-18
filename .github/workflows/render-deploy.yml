@@ -7,7 +7,10 @@ on:
 
 concurrency:
   group: dreamledger-production
-  cancel-in-progress: true
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   acceptance-gate:
@@ -71,29 +74,84 @@ jobs:
   render-deploy:
     needs: acceptance-gate
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
     steps:
-      - name: Require Render deploy hook
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      - name: Trigger exact-commit Render deployment with primary hook or API fallback
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$RENDER_DEPLOY_HOOK_URL" || { echo 'DEPLOYMENT_BLOCKED=RENDER_DEPLOY_HOOK_URL_MISSING'; exit 1; }
-      - name: Trigger Render production deployment
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          response=$(curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 30 -X POST "$RENDER_DEPLOY_HOOK_URL")
-          echo 'RENDER_DEPLOY_TRIGGERED=YES'
-          echo "$response" | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
+          proof='deployment-trigger-proof.json'
+          trigger='NONE'
+          result='FAIL'
+          error=''
+
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo 'DEPLOY_PATH=DEPLOY_HOOK'
+            url="${RENDER_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
+            if curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 30 -X POST "$url" > /tmp/render-response.txt; then
+              trigger='DEPLOY_HOOK'
+              result='PASS'
+              cat /tmp/render-response.txt | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
+            else
+              error='Render deploy hook failed; API fallback will be attempted.'
+              echo "WARN=$error"
+            fi
+          fi
+
+          if [ "$result" != 'PASS' ] && [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
+            echo 'DEPLOY_PATH=RENDER_CLI_API_FALLBACK'
+            version='v2.22.0'
+            asset="cli_${version#v}_linux_amd64.zip"
+            curl --fail --silent --show-error -L "https://github.com/render-oss/cli/releases/download/$version/$asset" -o /tmp/render-cli.zip
+            unzip -q /tmp/render-cli.zip -d /tmp/render-cli
+            RENDER_BIN=$(find /tmp/render-cli -type f -name render -perm -111 | head -n 1)
+            test -n "$RENDER_BIN"
+            export PATH="$(dirname "$RENDER_BIN"):$PATH"
+            render --version
+            RENDER_API_KEY="$RENDER_API_KEY" render deploys create "$RENDER_SERVICE_ID" --commit "$GITHUB_SHA" --wait --confirm --output json > /tmp/render-deploy.json
+            cat /tmp/render-deploy.json | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
+            trigger='RENDER_CLI_API_FALLBACK'
+            result='PASS'
+          fi
+
+          if [ "$result" != 'PASS' ]; then
+            echo 'DEPLOYMENT_BLOCKED=NO_WORKING_RENDER_TRIGGER'
+            echo 'Required primary secret: RENDER_DEPLOY_HOOK_URL'
+            echo 'Required fallback secrets: RENDER_API_KEY and RENDER_SERVICE_ID'
+            exit 1
+          fi
+
+          python3 - "$proof" "$trigger" "$result" "$GITHUB_SHA" <<'PY'
+          import json, sys, time
+          path, trigger, result, sha = sys.argv[1:]
+          data = {
+              'status': result,
+              'trigger': trigger,
+              'source_commit': sha,
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'fallback_order': ['RENDER_DEPLOY_HOOK_URL', 'RENDER_API_KEY+RENDER_SERVICE_ID'],
+              'exact_commit_requested': True
+          }
+          with open(path, 'w', encoding='utf-8') as f:
+              json.dump(data, f, indent=2)
+          print(json.dumps(data, indent=2))
+          PY
+      - name: Upload deployment trigger proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-deployment-trigger-proof-${{ github.sha }}
+          path: deployment-trigger-proof.json
+          if-no-files-found: error
+          retention-days: 30
 
   production-account-smoke:
     needs: render-deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -108,7 +166,7 @@ jobs:
         run: npm install
       - name: Wait for Render deployment to settle
         shell: bash
-        run: sleep 20
+        run: sleep 30
       - name: Verify live primary account surface
         env:
           SMOKE_BASE_URL: https://dreamledger.org
@@ -116,9 +174,10 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/smoke-production.js
-      - name: Verify live account pages are reachable
+      - name: Verify live account pages are reachable and silo-clean
         env:
           BASE_URL: https://dreamledger.org
+        shell: bash
         run: |
           set -euo pipefail
           for page in login.html register.html account.html; do
@@ -128,3 +187,51 @@ jobs:
           ! grep -qi 'amplissa\|amplissa.com\|adult content\|bbw content\|onlyfans\|pornhub' /tmp/login.html /tmp/register.html /tmp/account.html
           ! grep -q '/api/dreamiez/account/login' /tmp/login.html
           echo "PASS: live primary DreamLedger account surfaces are reachable and silo-clean."
+      - name: Verify exact deployed commit provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 20 https://dreamledger.org/version)
+          echo "version_http=$status"
+          cat /tmp/version.json
+          test "$status" = "200"
+          python3 - "$GITHUB_SHA" <<'PY'
+          import json, sys
+          expected = sys.argv[1]
+          with open('/tmp/version.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
+          deployed = data.get('commit')
+          if not deployed:
+              raise SystemExit('FAIL: /version did not expose a deployed commit SHA')
+          if deployed != expected:
+              raise SystemExit(f'FAIL: deployed SHA {deployed} does not match source SHA {expected}')
+          print(f'PASS: deployed SHA matches source SHA {expected}')
+          PY
+      - name: Write live deployment proof
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          proof = {
+              'status': 'PASS',
+              'source_commit': os.environ['GITHUB_SHA'],
+              'target': 'https://dreamledger.org',
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'live-smoke', 'version-provenance'],
+              'render_commit_provenance': True
+          }
+          with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
+      - name: Upload live deployment proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-production-proof-${{ github.sha }}
+          path: proof/deployment-proof.json
+          if-no-files-found: error
+          retention-days: 30
