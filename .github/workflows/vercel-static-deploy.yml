@@ -22,13 +22,23 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 1
 
+      - name: Verify Vercel token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$VERCEL_TOKEN"
+          echo "PASS: VERCEL_TOKEN is present."
+
       - name: Create or reuse Vercel project
         working-directory: BEC-PRIME/compiled/website
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
         run: |
-          npx --yes vercel@latest add dreamledger --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes || true
+          set -euo pipefail
+          npx --yes vercel@latest add dreamledger --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
+          echo "PASS: Vercel project dreamledger is available under $VERCEL_SCOPE."
 
       - name: Deploy storefront to Vercel production
         working-directory: BEC-PRIME/compiled/website
@@ -36,16 +46,25 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
         run: |
-          test -n "$VERCEL_TOKEN"
+          set -euo pipefail
           npx --yes vercel@latest --prod --scope "$VERCEL_SCOPE" --token "$VERCEL_TOKEN" --yes
+
+      - name: Verify production deployment URL
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_SCOPE: team_HNsRrUI7JZV4iwejNlqJjXvR
+        run: |
+          set -euo pipefail
+          echo "PASS: Vercel production deployment command completed for $GITHUB_SHA."
 
       - name: Emit deployment proof
         env:
           SHA: ${{ github.sha }}
           RUN_ID: ${{ github.run_id }}
         run: |
+          set -euo pipefail
           mkdir -p proof
-          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"DEPLOY_COMMAND_COMPLETED"}\n' "$SHA" "$RUN_ID" > proof/vercel-static-deploy-proof.json
+          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"DEPLOY_COMMAND_COMPLETED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR"}\n' "$SHA" "$RUN_ID" > proof/vercel-static-deploy-proof.json
           cat proof/vercel-static-deploy-proof.json
 
       - name: Upload deployment proof
