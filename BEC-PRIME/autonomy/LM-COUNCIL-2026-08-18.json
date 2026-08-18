@@ -1,0 +1,37 @@
+{
+  "schema_version": "BEC-LM-COUNCIL-1.0",
+  "name": "BrownEye Local Council",
+  "purpose": "Sequential multi-LLM proposal, criticism, synthesis, coding and visual review using LM Studio as the local inference plane.",
+  "transport": {
+    "base_url": "http://127.0.0.1:1234",
+    "openai_compatible": true,
+    "stateful_api": "/api/v1/chat",
+    "model_discovery": "/v1/models"
+  },
+  "roles": [
+    {"id":"proposer","preferred_patterns":["qwen3.*14b","qwen.*coder","qwen"],"purpose":"Generate candidate solutions and commercial experiments."},
+    {"id":"critic","preferred_patterns":["deepseek.*r1.*14b","deepseek.*r1","deepseek"],"purpose":"Red-team assumptions, security, economics and evidence."},
+    {"id":"synthesizer","preferred_patterns":["gpt-oss-20b","gpt-oss","qwen3.*14b","qwen"],"purpose":"Choose one executable plan from competing proposals."},
+    {"id":"visual_critic","preferred_patterns":["gemma-3.*12b","gemma-3","gemma"],"purpose":"Review images and visual surfaces when a vision-capable model is installed."},
+    {"id":"coder","preferred_patterns":["qwen3.*coder.*30b","qwen3.*coder","qwen.*coder","qwen3"],"purpose":"Implement bounded code changes and tests."}
+  ],
+  "execution": {
+    "strategy":"sequential_model_loading",
+    "reason":"Avoid wasting VRAM/RAM by keeping multiple large models resident simultaneously.",
+    "loop":["INGEST","PROPOSE","CRITIQUE","SYNTHESIZE","GAUNTLET","EXECUTE_IF_APPROVED","VERIFY","PERSIST"]
+  },
+  "persistence": {
+    "windows_root":"D:\\BrownEyeCortex\\ARTIFACTS\\LM-COUNCIL",
+    "memory":"D:\\BrownEyeCortex\\ARTIFACTS\\LM-COUNCIL\\MEMORY\\memory.jsonl",
+    "proof":"D:\\BrownEyeCortex\\ARTIFACTS\\LM-COUNCIL\\LM-COUNCIL-BOOTSTRAP-PROOF.json"
+  },
+  "guardrails":[
+    "local-first",
+    "no secret persistence",
+    "no customer PII in memory",
+    "no cross-silo context",
+    "no revenue claims without external payment evidence",
+    "no public publication without approval",
+    "fail closed when a required role has no installed model"
+  ]
+}
