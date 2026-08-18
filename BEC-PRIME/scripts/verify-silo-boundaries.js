@@ -31,26 +31,41 @@ function scanFile(file, forbiddenTerms) {
 }
 
 const contract = readJson(CONTRACT_PATH);
-const scanRoots = [
+const requiredRoots = [
   path.join(ROOT, 'BEC-PRIME', 'compiled', 'website'),
-  path.join(ROOT, 'catalog', 'offers'),
-  path.join(ROOT, 'docs', 'mtg.html')
+  path.join(ROOT, 'BEC-PRIME', 'catalog', 'offers'),
+  path.join(ROOT, 'BEC-PRIME', 'catalog', 'products')
 ];
+const scanRoots = [
+  ...requiredRoots,
+  ROOT
+];
+
+const missingRoots = requiredRoots
+  .filter(root => !fs.existsSync(root))
+  .map(root => path.relative(ROOT, root));
 
 const files = [];
 for (const root of scanRoots) {
-  if (fs.existsSync(root) && fs.statSync(root).isFile()) files.push(root);
-  else files.push(...walk(root));
+  if (!fs.existsSync(root)) continue;
+  if (root === ROOT) {
+    files.push(...walk(root).filter(file => /\.(html|htm)$/i.test(file)));
+  } else if (fs.statSync(root).isFile()) {
+    files.push(root);
+  } else {
+    files.push(...walk(root));
+  }
 }
 
+const uniqueFiles = [...new Set(files)];
 const findings = [];
-for (const file of files) {
+for (const file of uniqueFiles) {
   const hits = scanFile(file, contract.forbidden_terms || []);
   if (hits.length) findings.push({ file: path.relative(ROOT, file), hits });
 }
 
 const domainFindings = [];
-for (const file of files) {
+for (const file of uniqueFiles) {
   const text = fs.readFileSync(file, 'utf8').toLowerCase();
   for (const domain of contract.forbidden_domains || []) {
     if (text.includes(domain.toLowerCase())) {
@@ -59,15 +74,18 @@ for (const file of files) {
   }
 }
 
-const status = findings.length === 0 && domainFindings.length === 0 ? 'PASS' : 'FAIL';
+const status = missingRoots.length === 0 && findings.length === 0 && domainFindings.length === 0 ? 'PASS' : 'FAIL';
 const proof = {
-  schema: 'BROWNEYE/SILO-BOUNDARY-PROOF/v1',
+  schema: 'BROWNEYE/SILO-BOUNDARY-PROOF/v2',
   status,
   surface: contract.surface,
   silo: contract.silo,
   checked_at: new Date().toISOString(),
   contract: path.relative(ROOT, CONTRACT_PATH),
-  scanned_files: files.map(f => path.relative(ROOT, f)),
+  required_roots: requiredRoots.map(root => path.relative(ROOT, root)),
+  missing_roots: missingRoots,
+  scanned_file_count: uniqueFiles.length,
+  scanned_files: uniqueFiles.map(file => path.relative(ROOT, file)),
   forbidden_term_findings: findings,
   forbidden_domain_findings: domainFindings,
   rule: contract.rule,
@@ -78,10 +96,11 @@ fs.mkdirSync(PROOF_DIR, { recursive: true });
 fs.writeFileSync(PROOF_PATH, JSON.stringify(proof, null, 2) + '\n', 'utf8');
 
 if (status !== 'PASS') {
-  console.error('FAIL: DreamLedger silo boundary violated.');
+  console.error('FAIL: DreamLedger silo boundary violated or required public surface is missing.');
   console.error(JSON.stringify(proof, null, 2));
   process.exit(1);
 }
 
 console.log('PASS: DreamLedger silo boundary verified.');
+console.log('Scanned files: ' + uniqueFiles.length);
 console.log('Proof: ' + path.relative(ROOT, PROOF_PATH));
