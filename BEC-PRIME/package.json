@@ -4,6 +4,7 @@
   "description": "DreamLedger sovereign omni-commerce engine",
   "main": "server.js",
   "scripts": {
+    "start": "node -r ./lib/authRuntimePreload.js start.js",
     "build": "npm run compile",
     "compile": "npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:economic && npm run compile:surface && node scripts/EnsureAccountVerificationSurface.js && npm run compile:price && npm run compile:public-contract && npm run compile:silos && node scripts/verify-public-surface.js",
     "compile:products": "node compiler/ProductCompiler.js",
