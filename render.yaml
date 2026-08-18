@@ -58,3 +58,5 @@ services:
         sync: false
       - key: RESEND_FROM_EMAIL
         sync: false
+      - key: DEPLOYMENT_CHANNEL
+        value: dreamledger-production
