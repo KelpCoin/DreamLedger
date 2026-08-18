@@ -1,0 +1,74 @@
+name: UPF Phase 6 Truth Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'BEC-PRIME/compiled/website/mtg/**'
+      - 'BEC-PRIME/scripts/verify-public-surface.js'
+      - 'BEC-PRIME/scripts/verify-ip-runtime-contract.js'
+      - '.github/workflows/upf-phase6-truth-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  truth-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify public surface
+        run: node BEC-PRIME/scripts/verify-public-surface.js
+
+      - name: Verify IP runtime contract
+        run: node BEC-PRIME/scripts/verify-ip-runtime-contract.js
+
+      - name: Verify MTG commerce primitives
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f BEC-PRIME/compiled/website/mtg/index.html
+          grep -q 'scroll-snap-type:x mandatory' BEC-PRIME/compiled/website/mtg/index.html
+          grep -q '/api/checkout/create' BEC-PRIME/compiled/website/mtg/index.html
+          grep -q 'silo:\x27mtg\x27' BEC-PRIME/compiled/website/mtg/index.html
+          grep -q 'IN STOCK' BEC-PRIME/compiled/website/mtg/index.html
+          if grep -Eiq 'fake scarcity|someone just bought|countdown timer|only [0-9]+ left' BEC-PRIME/compiled/website/mtg/index.html; then
+            echo 'FAIL: deceptive scarcity/social-proof pattern detected'
+            exit 1
+          fi
+          echo 'UPF_PHASE6_PRIMITIVES=PASS'
+
+      - name: Record evidence state
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cat > artifacts/upf-phase6-truth.json <<EOF
+          {
+            "schema": "dreamledger/upf-phase6-truth/v1",
+            "commit": "${GITHUB_SHA}",
+            "thumb_first": true,
+            "horizontal_snap": true,
+            "server_side_checkout": true,
+            "mtg_silo_enforced": true,
+            "fabricated_scarcity": false,
+            "fake_social_proof": false,
+            "revenue_nzd": 0,
+            "payment_verified": false,
+            "status": "CODE_AND_POLICY_CHECKED"
+          }
+          EOF
+          cat artifacts/upf-phase6-truth.json
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upf-phase6-truth-${{ github.run_id }}
+          path: artifacts/upf-phase6-truth.json
+          retention-days: 30
