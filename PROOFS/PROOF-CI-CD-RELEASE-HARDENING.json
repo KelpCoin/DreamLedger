@@ -1,0 +1,32 @@
+{
+  "schema": "dreamledger-cicd-release-hardening-v1",
+  "what_changed": [
+    "Disabled automatic Vercel Git deployments in the compiled website configuration.",
+    "Made the production release operator require the MTG first-sale readiness gate before Vercel deployment.",
+    "Hardened the MTG public offer identity check to accept canonical offer_id.",
+    "Added public currency and checkout availability validation.",
+    "Added a fail-closed CI/CD hardening verifier."
+  ],
+  "files": [
+    "BEC-PRIME/compiled/website/vercel.json",
+    ".github/workflows/release-operator.yml",
+    ".github/workflows/mtg-first-sale-gate.yml",
+    "BEC-PRIME/scripts/Verify-CICDReleaseHardening.ps1"
+  ],
+  "verification_command": "pwsh -NoProfile -File BEC-PRIME/scripts/Verify-CICDReleaseHardening.ps1",
+  "result": "PASS_REPOSITORY_CONFIGURATION",
+  "timestamp_utc": "2026-08-18T15:26:40Z",
+  "agent": "GPT-5.6 Luna",
+  "confidence": "HIGH for repository configuration",
+  "commits": [
+    "5c4abc0ce38788e8ad1517bc03dc734f29bcd95f",
+    "3afcc82866600cbcc17fa6427f4c851c23b6b421"
+  ],
+  "remaining_risks": [
+    "Vercel connected team currently exposes zero projects.",
+    "GitHub Vercel status checks currently fail with build-rate-limit.",
+    "VERCEL_TOKEN presence and validity are not externally observable.",
+    "Production HTTP proof remains unproven through the corrected deployment path.",
+    "Real Stripe payment remains unproven."
+  ]
+}
