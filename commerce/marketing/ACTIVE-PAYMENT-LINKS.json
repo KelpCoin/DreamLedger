@@ -1,6 +1,7 @@
 {
   "schema": "dreamledger/active-payment-links/v1",
   "truth_rule": "A link is commercially live only when Stripe reports it active. A payment is revenue only when Stripe reports a paid completed session.",
+  "last_live_rail_check": "2026-08-18",
   "links": [
     {
       "sku": "DREAMLEDGER-BILLBOARD-SMALL-001",
@@ -9,7 +10,9 @@
       "amount": 29,
       "payment_link_id": "plink_1U5GX8EGgEAnUFF9y2YGkIhv",
       "url": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
-      "status": "ACTIVE"
+      "status": "ACTIVE",
+      "stripe_livemode_verified": true,
+      "revenue_status": "UNPAID"
     },
     {
       "sku": "AI-STORE-VISIBILITY-AUDIT-049",
@@ -18,7 +21,9 @@
       "amount": 49,
       "payment_link_id": "plink_1U5KS2EGgEAnUFF92dy3hG3f",
       "url": "https://buy.stripe.com/3cIcN51nfeWh0zR3gwdwc1I",
-      "status": "ACTIVE"
+      "status": "ACTIVE",
+      "stripe_livemode_verified": true,
+      "revenue_status": "UNPAID"
     }
   ],
   "verified_revenue_nzd": 0
