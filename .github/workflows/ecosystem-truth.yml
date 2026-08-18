@@ -1,0 +1,139 @@
+name: DreamLedger Ecosystem Truth
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+concurrency:
+  group: dreamledger-ecosystem-truth
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  source-contracts:
+    name: Source + Economic Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile canonical commerce surface
+        run: npm run compile
+
+      - name: Verify canonical account route
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "api/account/[...route].js"
+          grep -q "compiled/website/lib/accountAuth" "api/account/[...route].js"
+          ! grep -q "routes/auth" "api/account/[...route].js"
+          echo "ACCOUNT_ROUTE=PASS"
+
+      - name: Verify Supabase production implementation is present
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f BEC-PRIME/compiled/website/lib/accountAuth.js
+          grep -q "SUPABASE_URL" BEC-PRIME/compiled/website/lib/accountAuth.js
+          grep -q "SUPABASE_SERVICE_ROLE_KEY" BEC-PRIME/compiled/website/lib/accountAuth.js
+          echo "SUPABASE_AUTH_SOURCE=PASS"
+
+      - name: Verify silo boundary contract
+        run: npm run verify:silos
+
+      - name: Verify IP runtime contract
+        run: npm run verify:ip
+
+      - name: Verify agentic commerce contract
+        run: npm run verify:agentic-commerce
+
+      - name: Emit source proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          printf '{"status":"SOURCE_CONTRACTS_PASS","sha":"%s","account_route":"compiled/website/lib/accountAuth.js","production_store":"supabase","silos":"pass","ip_contract":"pass","agentic_commerce":"pass"}\n' "${GITHUB_SHA}" > proof/source-contract-proof.json
+          cat proof/source-contract-proof.json
+
+      - name: Upload source proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecosystem-source-proof-${{ github.sha }}
+          path: proof/source-contract-proof.json
+          if-no-files-found: error
+          retention-days: 30
+
+  public-truth:
+    name: Public Production Truth
+    needs: source-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe DreamLedger root
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o root.html -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/ || true)
+          test "$code" = "200"
+          grep -Eqi 'DreamLedger|Dream Ledger' root.html
+          echo "ROOT_HTTP=200"
+
+      - name: Probe health endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o health.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/healthz || true)
+          test "$code" = "200"
+          echo "HEALTH_HTTP=200"
+
+      - name: Probe offers endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o offers.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/api/offers || true)
+          test "$code" = "200"
+          grep -q '{' offers.json
+          echo "OFFERS_HTTP=200"
+
+      - name: Probe anonymous account session
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o account-me.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/api/account/me || true)
+          test "$code" = "200"
+          grep -q '"authenticated":false' account-me.json
+          echo "ACCOUNT_ME_HTTP=200_ANONYMOUS"
+
+      - name: Emit public truth proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          printf '{"status":"PUBLIC_HTTP_PASS","sha":"%s","root":200,"healthz":200,"offers":200,"account_me":200,"account_authenticated":false,"domain":"https://dreamledger.org"}\n' "${GITHUB_SHA}" > proof/public-truth-proof.json
+          cat proof/public-truth-proof.json
+
+      - name: Upload public truth proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecosystem-public-truth-proof-${{ github.run_id }}
+          path: proof/public-truth-proof.json
+          if-no-files-found: error
+          retention-days: 30
