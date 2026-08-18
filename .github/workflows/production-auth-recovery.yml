@@ -1,0 +1,141 @@
+name: Production Auth Recovery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-production-auth
+  cancel-in-progress: true
+
+jobs:
+  local-auth-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        run: npm install
+
+      - name: Compile production surface
+        working-directory: BEC-PRIME
+        run: npm run compile
+
+      - name: Verify account pages and routes
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f compiled/website/login.html
+          test -f compiled/website/register.html
+          test -f compiled/website/account.html
+          grep -q '/api/account/login' compiled/website/login.html
+          grep -q '/api/account/register' compiled/website/register.html
+          ! grep -q '/api/dreamiez/account/login' compiled/website/login.html
+          node --check start.js
+          node --check routes/auth.js
+          node --check lib/authRuntimePreload.js
+
+      - name: Start runtime and test real account contract
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PORT=4317
+          export NODE_ENV=test
+          export DREAMIEZ_DATA_DIR="$RUNNER_TEMP/dreamledger-data"
+          mkdir -p "$DREAMIEZ_DATA_DIR"
+          node -r ./lib/authRuntimePreload.js -r ./lib/publicShellPreload.js -r ./lib/m2mPreload.js -r ./lib/qrPreload.js -r ./lib/liveRouteCompatibility.js -r ./lib/marketplacePreload.js start.js > "$RUNNER_TEMP/dreamledger-runtime.log" 2>&1 &
+          PID=$!
+          trap 'kill $PID 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4317/healthz >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4317/healthz
+          curl -fsS http://127.0.0.1:4317/login.html | grep -q '/api/account/login'
+          curl -fsS http://127.0.0.1:4317/register.html | grep -q '/api/account/register'
+          EMAIL="ci-${GITHUB_RUN_ID}@example.invalid"
+          REGISTER=$(curl -fsS -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/register -d "{\"name\":\"CI Auth Gate\",\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
+          echo "$REGISTER" | grep -q '"ok":true'
+          LOGIN=$(curl -fsS -b "$RUNNER_TEMP/cookies.txt" -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/login -d "{\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
+          echo "$LOGIN" | grep -q '"ok":true'
+          curl -fsS -b "$RUNNER_TEMP/cookies.txt" http://127.0.0.1:4317/api/account/me | grep -q '"authenticated":true'
+          echo 'PASS: local registration, login, session and account contract verified.'
+
+      - name: Upload runtime proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-auth-recovery-proof-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/dreamledger-runtime.log
+            ${{ runner.temp }}/cookies.txt
+          if-no-files-found: ignore
+
+  render-reconcile:
+    needs: local-auth-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Trigger Render deployment when hook is configured
+        if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 30 -X POST "$RENDER_DEPLOY_HOOK"
+          echo 'PASS: Render deploy hook accepted.'
+
+      - name: Reconcile live production surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in {1..24}; do
+            if curl -fsS --max-time 15 https://dreamledger.org/healthz >/tmp/healthz.json; then
+              cat /tmp/healthz.json
+              break
+            fi
+            sleep 5
+          done
+          curl -fsS --max-time 15 https://dreamledger.org/login.html >/tmp/login.html
+          curl -fsS --max-time 15 https://dreamledger.org/register.html >/tmp/register.html
+          grep -q '/api/account/login' /tmp/login.html
+          grep -q '/api/account/register' /tmp/register.html
+          ! grep -q '/api/dreamiez/account/login' /tmp/login.html
+          echo 'PASS: live login and registration surfaces expose the primary account contract.'
+
+      - name: Write production proof
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          {
+            echo "commit=${GITHUB_SHA}"
+            echo "workflow=${GITHUB_WORKFLOW}"
+            echo "run_id=${GITHUB_RUN_ID}"
+            echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "target=https://dreamledger.org"
+            echo "local_auth_gate=completed"
+            echo "render_hook_configured=${{ secrets.RENDER_DEPLOY_HOOK != '' }}"
+          } > proof/PRODUCTION-AUTH-RECOVERY.txt
+
+      - name: Upload production proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-production-auth-recovery-${{ github.sha }}
+          path: proof/PRODUCTION-AUTH-RECOVERY.txt
