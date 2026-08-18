@@ -1,4 +1,4 @@
-name: Verify DreamLedger production
+name: Deploy and Verify DreamLedger production
 
 on:
   push:
@@ -68,10 +68,32 @@ jobs:
           node --check BEC-PRIME/scripts/smoke-production.js
           node --check BEC-PRIME/scripts/smoke-front-door.js
 
-  production-account-smoke:
+  render-deploy:
     needs: acceptance-gate
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    steps:
+      - name: Require Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$RENDER_DEPLOY_HOOK_URL" || { echo 'DEPLOYMENT_BLOCKED=RENDER_DEPLOY_HOOK_URL_MISSING'; exit 1; }
+      - name: Trigger Render production deployment
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 30 -X POST "$RENDER_DEPLOY_HOOK_URL")
+          echo 'RENDER_DEPLOY_TRIGGERED=YES'
+          echo "$response" | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
+
+  production-account-smoke:
+    needs: render-deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -84,6 +106,9 @@ jobs:
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
+      - name: Wait for Render deployment to settle
+        shell: bash
+        run: sleep 20
       - name: Verify live primary account surface
         env:
           SMOKE_BASE_URL: https://dreamledger.org
