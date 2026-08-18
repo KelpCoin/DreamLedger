@@ -57,7 +57,8 @@ jobs:
           offers=data.get('offers', []) if isinstance(data,dict) else []
           target=None
           for item in offers:
-              if str(item.get('product_sku','')) == 'COMMANDER-DECK-DIAGNOSTIC-001' or str(item.get('product_id','')) == 'COMMANDER-DECK-DIAGNOSTIC-001':
+              identity = str(item.get('offer_id') or item.get('product_sku') or item.get('product_id') or '')
+              if identity == 'COMMANDER-DECK-DIAGNOSTIC-001':
                   target=item
                   break
           if target is None:
@@ -65,8 +66,15 @@ jobs:
           price=float(target.get('price'))
           if price not in (25.0, 2500.0):
               raise SystemExit(f'PUBLIC_MTG_PRICE_MISMATCH={price}')
+          currency=str(target.get('currency','')).lower()
+          if currency and currency != 'nzd':
+              raise SystemExit(f'PUBLIC_MTG_CURRENCY_MISMATCH={currency}')
+          if 'checkout_available' in target and target.get('checkout_available') is not True:
+              raise SystemExit('PUBLIC_MTG_CHECKOUT=NOT_AVAILABLE')
           print('PUBLIC_MTG_OFFER=PASS')
           print(f'PUBLIC_MTG_PRICE={price}')
+          print('PUBLIC_MTG_CURRENCY=NZD')
+          print('PUBLIC_MTG_CHECKOUT=PASS')
           PY
 
       - name: Emit first-sale readiness proof
