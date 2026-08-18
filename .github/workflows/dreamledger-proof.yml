@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-proof:
@@ -82,19 +82,20 @@ jobs:
           console.log('TIERED_READINESS_OFFERS_PASS');
           NODE
 
-      - name: Commit generated offer and silo artifacts
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add BEC-PRIME/catalog/offers/offers.json BEC-PRIME/catalog/offers/candidates.json BEC-PRIME/PROOF-OFFER-COMPILATION.json BEC-PRIME/catalog/compiled/silo-portfolio.json BEC-PRIME/compiled/website/portfolio BEC-PRIME/PROOF-SILO-PORTFOLIO-COMPILATION.json
-          if git diff --cached --quiet; then
-            echo "NO_GENERATED_CHANGES"
-          else
-            git commit -m "build: publish compiled commerce portfolio"
-            git push origin HEAD:main
-          fi
+      - name: Upload generated offer and silo artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-compiled-commerce-${{ github.sha }}
+          path: |
+            BEC-PRIME/catalog/offers/offers.json
+            BEC-PRIME/catalog/offers/candidates.json
+            BEC-PRIME/PROOF-OFFER-COMPILATION.json
+            BEC-PRIME/catalog/compiled/silo-portfolio.json
+            BEC-PRIME/compiled/website/portfolio
+            BEC-PRIME/PROOF-SILO-PORTFOLIO-COMPILATION.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Validate Node syntax
         working-directory: BEC-PRIME
@@ -163,5 +164,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dreamledger-runtime-proof
+          name: dreamledger-runtime-proof-${{ github.sha }}
           path: proof/
+          if-no-files-found: error
+          retention-days: 30

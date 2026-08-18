@@ -69,13 +69,13 @@ jobs:
           EMAIL="ci-${GITHUB_RUN_ID}@example.invalid"
           REGISTER=$(curl -fsS -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/register -d "{\"name\":\"CI Auth Gate\",\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
           echo "$REGISTER"
-          echo "$REGISTER" | grep -q '"ok":true'
+          echo "$REGISTER" | grep -q '\"ok\":true'
           LOGIN=$(curl -fsS -b "$RUNNER_TEMP/cookies.txt" -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/login -d "{\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
           echo "$LOGIN"
-          echo "$LOGIN" | grep -q '"ok":true'
+          echo "$LOGIN" | grep -q '\"ok\":true'
           ME=$(curl -fsS -b "$RUNNER_TEMP/cookies.txt" http://127.0.0.1:4317/api/account/me)
           echo "$ME"
-          echo "$ME" | grep -q '"authenticated":true'
+          echo "$ME" | grep -q '\"authenticated\":true'
           echo 'PASS: local registration, login, session and account contract verified.'
 
       - name: Upload local proof
@@ -103,6 +103,7 @@ jobs:
           echo 'PASS: Render deploy hook accepted.'
 
       - name: Require production health
+        id: live_health
         shell: bash
         run: |
           set -euo pipefail
@@ -118,6 +119,28 @@ jobs:
             sleep 5
           done
           test "$health_ok" = 1
+
+      - name: Verify deployed commit provenance
+        id: deployed_provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 20 https://dreamledger.org/version)
+          echo "version_http=$status"
+          cat /tmp/version.json
+          test "$status" = "200"
+          python3 - "$GITHUB_SHA" <<'PY'
+          import json, sys
+          expected = sys.argv[1]
+          with open('/tmp/version.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
+          deployed = data.get('commit') or data.get('sha')
+          if not deployed:
+              raise SystemExit('FAIL: /version did not expose a deployed commit SHA')
+          if deployed != expected:
+              raise SystemExit(f'FAIL: deployed SHA {deployed} does not match source SHA {expected}')
+          print(f'PASS: deployed SHA matches source SHA {expected}')
+          PY
 
       - name: Verify production account pages
         shell: bash
@@ -145,7 +168,7 @@ jobs:
           echo "registration_http=$status"
           cat /tmp/register-response.json
           test "$status" = "201"
-          grep -q '"ok":true' /tmp/register-response.json
+          grep -q '\"ok\":true' /tmp/register-response.json
 
       - name: Live login acceptance
         id: live_login
@@ -161,7 +184,7 @@ jobs:
           echo "login_http=$status"
           cat /tmp/login-response.json
           test "$status" = "200"
-          grep -q '"ok":true' /tmp/login-response.json
+          grep -q '\"ok\":true' /tmp/login-response.json
 
       - name: Live /me acceptance
         id: live_me
@@ -174,28 +197,56 @@ jobs:
           echo "me_http=$status"
           cat /tmp/me-response.json
           test "$status" = "200"
-          grep -q '"authenticated":true' /tmp/me-response.json
+          grep -q '\"authenticated\":true' /tmp/me-response.json
 
       - name: Write immutable machine proof
         if: always()
         shell: bash
+        env:
+          HEALTH_OUTCOME: ${{ steps.live_health.outcome }}
+          PROVENANCE_OUTCOME: ${{ steps.deployed_provenance.outcome }}
+          REGISTER_OUTCOME: ${{ steps.live_register.outcome }}
+          LOGIN_OUTCOME: ${{ steps.live_login.outcome }}
+          ME_OUTCOME: ${{ steps.live_me.outcome }}
         run: |
           set -euo pipefail
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
+          def outcome(name):
+              return os.environ.get(name, 'unknown')
+          deployed = None
+          version_path = '/tmp/version.json'
+          if os.path.exists(version_path):
+              try:
+                  with open(version_path, 'r', encoding='utf-8') as f:
+                      deployed = json.load(f).get('commit') or json.load(open(version_path, 'r', encoding='utf-8')).get('sha')
+              except Exception:
+                  deployed = None
+          gates = {
+              'health': outcome('HEALTH_OUTCOME'),
+              'deployed_commit_provenance': outcome('PROVENANCE_OUTCOME'),
+              'registration': outcome('REGISTER_OUTCOME'),
+              'login': outcome('LOGIN_OUTCOME'),
+              'me': outcome('ME_OUTCOME')
+          }
+          passed = all(v == 'success' for v in gates.values())
           proof = {
               'commit_sha': os.environ['GITHUB_SHA'],
+              'deployed_commit_sha': deployed,
               'workflow': os.environ['GITHUB_WORKFLOW'],
               'run_id': os.environ['GITHUB_RUN_ID'],
               'target': 'https://dreamledger.org',
               'render_hook_configured': bool(os.environ.get('RENDER_DEPLOY_HOOK')),
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'status': 'PASS' if all(os.path.exists(p) for p in ['/tmp/healthz.json','/tmp/register-response.json','/tmp/login-response.json','/tmp/me-response.json']) else 'FAIL'
+              'gates': gates,
+              'status': 'PASS' if passed else 'FAIL'
           }
           with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
               json.dump(proof, f, indent=2)
           print(json.dumps(proof, indent=2))
+          if not passed:
+              raise SystemExit('FAIL: one or more live acceptance gates did not pass')
           PY
 
       - name: Upload production proof
