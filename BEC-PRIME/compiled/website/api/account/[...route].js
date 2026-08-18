@@ -1,12 +1,9 @@
 'use strict';
 
-// Vercel-hosted account function for the compiled DreamLedger storefront.
-// This mirrors the canonical account implementation instead of depending on
-// the Render process. Account storage uses the runtime data directory chosen
-// by the canonical auth module.
-process.env.DREAMIEZ_DATA_DIR = process.env.DREAMIEZ_DATA_DIR || '/tmp/dreamledger-account';
-
-const auth = require('../../../../routes/auth');
+// Vercel-hosted account function. Keep every runtime dependency inside the
+// Vercel deployment root so the function can be bundled independently of
+// Render and the rest of the repository.
+const auth = require('./auth');
 
 module.exports = async function accountRoute(req, res) {
   try {
