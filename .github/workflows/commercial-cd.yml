@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: 'Request production deployment after approval and credential checks'
+        description: Request one approval-gated production deployment attempt
         required: true
         default: 'false'
         type: choice
@@ -25,6 +25,7 @@ on:
           - 'true'
 
 permissions:
+  actions: write
   contents: read
 
 env:
@@ -35,8 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Checkout
+      - name: Checkout exact triggering commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
 
       - name: Verify release package
         shell: bash
@@ -54,15 +58,19 @@ jobs:
           echo 'DEPLOYMENT_BLOCKED=VERCEL_TOKEN_MISSING'
           exit 1
 
-      - name: Deployment approval gate
+      - name: Dispatch canonical release operator
         if: ${{ inputs.deploy == 'true' && env.VERCEL_TOKEN_PRESENT == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          echo 'DEPLOYMENT_REQUESTED=YES'
-          echo 'DEPLOYMENT_PROVIDER=VERCEL'
-          echo 'DEPLOYMENT_ACTION=INTENTIONALLY_NOT_AUTOMATED_HERE'
-          echo 'Configure the production deployment command only after the Vercel project and token are verified.'
+          gh workflow run release-operator.yml \
+            --repo "${GITHUB_REPOSITORY}" \
+            --ref main \
+            -f deploy=confirm \
+            -f wait_for_result=yes
+          echo 'RELEASE_OPERATOR=DISPATCHED'
 
       - name: Emit CD proof
         shell: bash
@@ -74,11 +82,18 @@ jobs:
             echo "COMMIT=${GITHUB_SHA}"
             echo "DEPLOY_REQUEST=${{ inputs.deploy || 'false' }}"
             echo "VERCEL_TOKEN_PRESENT=${VERCEL_TOKEN_PRESENT}"
+            if [ "${{ inputs.deploy || 'false' }}" = 'true' ]; then
+              echo 'RELEASE_OPERATOR=DISPATCHED'
+            else
+              echo 'RELEASE_OPERATOR=NOT_REQUESTED'
+            fi
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_CD'
           } | tee artifacts/commercial-cd-proof.txt
 
       - name: Upload CD proof
         uses: actions/upload-artifact@v4
         with:
-          name: commercial-cd-proof
+          name: commercial-cd-proof-${{ github.run_id }}
           path: artifacts/commercial-cd-proof.txt
+          if-no-files-found: error
+          retention-days: 30
