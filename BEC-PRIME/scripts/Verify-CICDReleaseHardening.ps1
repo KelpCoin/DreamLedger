@@ -18,7 +18,6 @@ function Add-Check([string]$Name, [bool]$Pass, [string]$Detail) {
 }
 
 Add-Check 'VERCEL_CONFIG_EXISTS' (Test-Path -LiteralPath $vercel) $vercel
-Add-Check 'VERCEL_GIT_DEPLOYMENT_DISABLED' $false 'not checked'
 $vc = Get-Content -LiteralPath $vercel -Raw | ConvertFrom-Json
 Add-Check 'VERCEL_GIT_DEPLOYMENT_DISABLED' ([bool]($vc.git.deploymentEnabled -eq $false)) 'git.deploymentEnabled must be false'
 
