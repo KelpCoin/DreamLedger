@@ -1,0 +1,43 @@
+name: Vercel Account Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'BEC-PRIME/compiled/website/api/account/**'
+      - '.github/workflows/vercel-account-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Verify Node runtime
+        run: node --version
+
+      - name: Run account register-login-me-logout smoke test
+        working-directory: BEC-PRIME/compiled/website
+        run: node api/account/smoke-test.js
+
+      - name: Emit proof
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          printf '{"workflow":"vercel-account-smoke","sha":"%s","run_id":"%s","status":"PASS","scope":"BEC-PRIME/compiled/website/api/account"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > proof/vercel-account-smoke-proof.json
+          cat proof/vercel-account-smoke-proof.json
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-account-smoke-proof
+          path: proof/vercel-account-smoke-proof.json
