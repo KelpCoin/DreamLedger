@@ -6,7 +6,7 @@
   "main": "BEC-PRIME/start.js",
   "scripts": {
     "start": "npm run compile && node -r ./BEC-PRIME/lib/publicShellPreload.js -r ./BEC-PRIME/lib/m2mPreload.js -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
-    "compile": "npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && npm run compile:billboard && npm run compile:board && npm run compile:price && npm run compile:public-contract && npm run verify:ip && node BEC-PRIME/scripts/verify-public-surface.js",
+    "compile": "npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && npm run compile:billboard && npm run compile:board && npm run compile:price && npm run compile:public-contract && npm run verify:ip && node BEC-PRIME/scripts/verify-public-surface.js && node BEC-PRIME/scripts/verify-silo-boundaries.js",
     "build": "npm run compile",
     "compile:products": "node BEC-PRIME/compiler/ProductCompiler.js",
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js",
@@ -18,6 +18,7 @@
     "compile:price": "node BEC-PRIME/compiler/PriceDisplayPatch.js",
     "compile:public-contract": "node BEC-PRIME/compiler/PublicSurfaceContractPatch.js",
     "verify:ip": "node BEC-PRIME/scripts/verify-ip-runtime-contract.js",
+    "verify:silos": "node BEC-PRIME/scripts/verify-silo-boundaries.js",
     "verify:account-avatar": "node BEC-PRIME/scripts/verify-account-avatar-flow.js",
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
     "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",

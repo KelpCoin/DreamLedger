@@ -1,0 +1,34 @@
+{
+  "schema": "BROWNEYE/SILO-BOUNDARY/v1",
+  "surface": "DreamLedger",
+  "silo": "MTG",
+  "classification": "PUBLIC_COMMERCE",
+  "upstream": "BrownEye Cortex",
+  "upstream_direction": "compiled_output_only",
+  "telemetry_direction": "surface_to_cortex_only",
+  "public_domains": [
+    "dreamledger.org"
+  ],
+  "forbidden_domains": [
+    "amplissa.com"
+  ],
+  "forbidden_terms": [
+    "Amplissa",
+    "amplissa.com",
+    "adult content",
+    "adult-content",
+    "18+ content",
+    "BBW content",
+    "OnlyFans",
+    "Pornhub"
+  ],
+  "allowed_business_domains": [
+    "MTG",
+    "Magic: The Gathering",
+    "Commander",
+    "collectibles",
+    "commerce"
+  ],
+  "rule": "DreamLedger public artifacts must not contain Amplissa adult-content payloads, routes, domains, or checkout references.",
+  "enforcement": "CI_FAIL_CLOSED"
+}
