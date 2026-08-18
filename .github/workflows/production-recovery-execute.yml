@@ -18,10 +18,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a
         with:
           node-version: 24
 
@@ -80,7 +80,7 @@ jobs:
 
       - name: Upload local proof
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: dreamledger-local-auth-proof-${{ github.sha }}
           path: ${{ runner.temp }}/dreamledger-runtime.log
@@ -94,8 +94,14 @@ jobs:
     env:
       RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
     steps:
-      - name: Trigger Render deploy hook when configured
-        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
+      - name: Require Render deploy hook configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$RENDER_DEPLOY_HOOK"
+          echo 'PASS: Render deploy hook is configured.'
+
+      - name: Trigger Render deploy hook
         shell: bash
         run: |
           set -euo pipefail
@@ -252,7 +258,7 @@ jobs:
 
       - name: Upload production proof
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: dreamledger-production-recovery-${{ github.sha }}
           path: proof/deployment-proof.json
