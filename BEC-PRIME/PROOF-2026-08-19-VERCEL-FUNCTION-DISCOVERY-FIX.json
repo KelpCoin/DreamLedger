@@ -1,0 +1,28 @@
+{
+  "status": "PASS_CODE_HARDENED_UNVERIFIED_PRODUCTION",
+  "date": "2026-08-19",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "changes": [
+    "Moved account auth implementation out of /api function discovery into compiled/website/lib/accountAuth.js",
+    "Kept only the Vercel account entrypoint under /api/account/[...route].js",
+    "Moved account smoke test out of /api into compiled/website/scripts/smoke-account.js",
+    "Removed auth.js and smoke-test.js from /api/account"
+  ],
+  "evidence": {
+    "api_account_directory_should_contain": ["[...route].js"],
+    "auth_helper": "BEC-PRIME/compiled/website/lib/accountAuth.js",
+    "smoke_test": "BEC-PRIME/compiled/website/scripts/smoke-account.js",
+    "node_runtime": "22.x",
+    "render_dependency_for_account": false,
+    "persistent_storage": "NOT_YET_PROVEN; current implementation defaults to /tmp/dreamledger-account"
+  },
+  "infrastructure": {
+    "vercel_team": "team_HNsRrUI7JZV4iwejNlqJjXvR",
+    "vercel_project": "NOT_VISIBLE_IN_CONNECTED_TEAM_LIST",
+    "dreamledger_supabase_project": "wbwgroygjeyukkspnqiy",
+    "dreamledger_supabase_status": "COMING_UP_AFTER_RESTORE",
+    "production_deployment": "NOT_PROVEN"
+  },
+  "next_gate": "Deploy current main to Vercel, then execute register -> me -> logout -> login against production; migrate user persistence to the restored DreamLedger Supabase project before calling authentication production-ready."
+}
