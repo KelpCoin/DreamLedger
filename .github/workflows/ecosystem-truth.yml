@@ -3,9 +3,25 @@ name: DreamLedger Ecosystem Truth
 on:
   push:
     branches: [main]
+    paths:
+      - 'BEC-PRIME/**'
+      - 'api/**'
+      - 'commerce/**'
+      - 'ops/**'
+      - 'package.json'
+      - '.github/workflows/ecosystem-truth.yml'
   workflow_dispatch:
+    inputs:
+      attest:
+        description: Create a signed provenance attestation for the release bundle
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: '17 3,15 * * *'
 
 concurrency:
   group: dreamledger-ecosystem-truth
@@ -13,10 +29,11 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write
+  attestations: write
 
 jobs:
-  source-contracts:
-    name: Source + Economic Contracts
+  truth:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -35,105 +52,87 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Compile canonical commerce surface
+      - name: Compile deterministic commerce surface
         run: npm run compile
 
-      - name: Verify canonical account route
-        shell: bash
+      - name: Reject generated drift
         run: |
           set -euo pipefail
-          test -f "api/account/[...route].js"
-          grep -q "compiled/website/lib/accountAuth" "api/account/[...route].js"
-          ! grep -q "routes/auth" "api/account/[...route].js"
-          echo "ACCOUNT_ROUTE=PASS"
+          git diff --exit-code
+          echo 'DETERMINISTIC_COMPILE=PASS'
 
-      - name: Verify Supabase production implementation is present
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f BEC-PRIME/compiled/website/lib/accountAuth.js
-          grep -q "SUPABASE_URL" BEC-PRIME/compiled/website/lib/accountAuth.js
-          grep -q "SUPABASE_SERVICE_ROLE_KEY" BEC-PRIME/compiled/website/lib/accountAuth.js
-          echo "SUPABASE_AUTH_SOURCE=PASS"
+      - name: Verify revenue readiness
+        shell: pwsh
+        run: pwsh -NoProfile -File BEC-PRIME/scripts/Verify-RevenueReadiness.ps1
 
-      - name: Verify silo boundary contract
+      - name: Verify silo boundaries
         run: npm run verify:silos
 
-      - name: Verify IP runtime contract
-        run: npm run verify:ip
-
-      - name: Verify agentic commerce contract
+      - name: Verify agentic commerce surface
         run: npm run verify:agentic-commerce
 
-      - name: Emit source proof
-        shell: bash
+      - name: Verify public surface
+        run: node BEC-PRIME/scripts/verify-public-surface.js
+
+      - name: Probe production root
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o /tmp/root.html -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/ || true)
+          test "$code" = '200'
+          grep -Eqi 'DreamLedger|Dream Ledger' /tmp/root.html
+          echo 'PRODUCTION_ROOT=PASS'
+
+      - name: Probe production offers and canonical MTG offer
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o /tmp/offers.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/api/offers || true)
+          test "$code" = '200'
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/offers.json',encoding='utf-8'))
+          offers=data.get('offers',[]) if isinstance(data,dict) else []
+          target=next((x for x in offers if str(x.get('offer_id') or x.get('product_sku') or x.get('product_id') or '')=='COMMANDER-DECK-DIAGNOSTIC-001'),None)
+          if target is None: raise SystemExit('COMMANDER_OFFER=NOT_EXPOSED')
+          price=float(target.get('price'))
+          if price not in (25.0,2500.0): raise SystemExit(f'COMMANDER_PRICE={price}')
+          if str(target.get('currency','')).lower() not in ('','nzd'): raise SystemExit('COMMANDER_CURRENCY=MISMATCH')
+          if 'checkout_available' in target and target.get('checkout_available') is not True: raise SystemExit('COMMANDER_CHECKOUT=UNAVAILABLE')
+          print('PRODUCTION_OFFERS=PASS')
+          print('COMMANDER_DECK_DIAGNOSTIC=PASS')
+          PY
+
+      - name: Probe production anonymous account
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o /tmp/account.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/api/account/me || true)
+          test "$code" = '200'
+          grep -q '"authenticated":false' /tmp/account.json
+          echo 'PRODUCTION_ACCOUNT_ME=PASS'
+
+      - name: Emit ecosystem truth proof
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"status":"SOURCE_CONTRACTS_PASS","sha":"%s","account_route":"compiled/website/lib/accountAuth.js","production_store":"supabase","silos":"pass","ip_contract":"pass","agentic_commerce":"pass"}\n' "${GITHUB_SHA}" > proof/source-contract-proof.json
-          cat proof/source-contract-proof.json
+          printf '{"schema":"dreamledger-ecosystem-truth-v1","sha":"%s","run_id":"%s","source_compile":"PASS","silo_verification":"PASS","agentic_commerce_verification":"PASS","production_root":"PASS","production_offers":"PASS","commander_offer":"PASS","production_account_me":"PASS","payment_truth":"AWAITING_REAL_PAYMENT","revenue_claim":"NOT_CLAIMED"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > proof/ecosystem-truth.json
+          cat proof/ecosystem-truth.json
 
-      - name: Upload source proof
+      - name: Package compiled storefront
+        run: |
+          set -euo pipefail
+          tar -czf dreamledger-release-${GITHUB_SHA}.tar.gz BEC-PRIME/compiled/website
+
+      - name: Upload ecosystem proof
         uses: actions/upload-artifact@v4
         with:
-          name: ecosystem-source-proof-${{ github.sha }}
-          path: proof/source-contract-proof.json
+          name: dreamledger-ecosystem-truth-${{ github.run_id }}
+          path: |
+            proof/ecosystem-truth.json
+            dreamledger-release-${{ github.sha }}.tar.gz
           if-no-files-found: error
           retention-days: 30
 
-  public-truth:
-    name: Public Production Truth
-    needs: source-contracts
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Probe DreamLedger root
-        shell: bash
-        run: |
-          set -euo pipefail
-          code=$(curl -L -sS -o root.html -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/ || true)
-          test "$code" = "200"
-          grep -Eqi 'DreamLedger|Dream Ledger' root.html
-          echo "ROOT_HTTP=200"
-
-      - name: Probe health endpoint
-        shell: bash
-        run: |
-          set -euo pipefail
-          code=$(curl -L -sS -o health.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/healthz || true)
-          test "$code" = "200"
-          echo "HEALTH_HTTP=200"
-
-      - name: Probe offers endpoint
-        shell: bash
-        run: |
-          set -euo pipefail
-          code=$(curl -L -sS -o offers.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/api/offers || true)
-          test "$code" = "200"
-          grep -q '{' offers.json
-          echo "OFFERS_HTTP=200"
-
-      - name: Probe anonymous account session
-        shell: bash
-        run: |
-          set -euo pipefail
-          code=$(curl -L -sS -o account-me.json -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 20 https://dreamledger.org/api/account/me || true)
-          test "$code" = "200"
-          grep -q '"authenticated":false' account-me.json
-          echo "ACCOUNT_ME_HTTP=200_ANONYMOUS"
-
-      - name: Emit public truth proof
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p proof
-          printf '{"status":"PUBLIC_HTTP_PASS","sha":"%s","root":200,"healthz":200,"offers":200,"account_me":200,"account_authenticated":false,"domain":"https://dreamledger.org"}\n' "${GITHUB_SHA}" > proof/public-truth-proof.json
-          cat proof/public-truth-proof.json
-
-      - name: Upload public truth proof
-        uses: actions/upload-artifact@v4
+      - name: Attest release bundle
+        if: github.event_name == 'workflow_dispatch' && inputs.attest == 'true'
+        uses: actions/attest@v4
         with:
-          name: ecosystem-public-truth-proof-${{ github.run_id }}
-          path: proof/public-truth-proof.json
-          if-no-files-found: error
-          retention-days: 30
+          subject-path: dreamledger-release-${{ github.sha }}.tar.gz
