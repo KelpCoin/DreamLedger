@@ -30,9 +30,6 @@ permissions:
 env:
   VERCEL_TOKEN_PRESENT: ${{ secrets.VERCEL_TOKEN != '' }}
 
-env:
-  VERCEL_TOKEN_PRESENT: ${{ secrets.VERCEL_TOKEN != '' }}
-
 jobs:
   release-gate:
     runs-on: ubuntu-latest
