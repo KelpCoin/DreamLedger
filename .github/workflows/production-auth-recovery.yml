@@ -80,9 +80,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dreamledger-auth-recovery-proof-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/dreamledger-runtime.log
-            ${{ runner.temp }}/cookies.txt
+          path: ${{ runner.temp }}/dreamledger-runtime.log
           if-no-files-found: ignore
 
   render-reconcile:
