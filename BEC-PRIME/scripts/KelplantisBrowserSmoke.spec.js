@@ -60,7 +60,16 @@ test('Kelplantis playable vertical slice', async ({ page }) => {
   const hpAfter = (await page.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().state)).hp;
   expect(hpAfter).toBeLessThan(hpBefore);
 
-  for (let i = 0; i < 4; i += 1) await page.evaluate(() => window.__KELPLANTIS_TEST__.killNearest());
+  const killsBefore = (await page.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().state)).kills;
+  for (let i = 0; i < 5; i += 1) {
+    await page.evaluate(() => window.__KELPLANTIS_TEST__.teleport(window.__KELPLANTIS_TEST__.snapshot().state.x, window.__KELPLANTIS_TEST__.snapshot().state.y));
+    await page.keyboard.press(' ');
+    await page.waitForTimeout(400);
+  }
+  const inputCombat = await page.evaluate(() => window.__KELPLANTIS_TEST__.snapshot());
+  expect(inputCombat.state.kills).toBeGreaterThan(killsBefore);
+
+  for (let i = inputCombat.state.kills; i < 4; i += 1) await page.evaluate(() => window.__KELPLANTIS_TEST__.killNearest());
   const combatState = await page.evaluate(() => window.__KELPLANTIS_TEST__.snapshot());
   expect(combatState.state.kills).toBeGreaterThanOrEqual(4);
   expect(combatState.state.xp).toBeGreaterThanOrEqual(100);
