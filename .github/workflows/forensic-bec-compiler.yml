@@ -30,7 +30,7 @@ jobs:
       - name: Run npm compile and capture exact failure
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Continue'
+          $ErrorActionPreference = 'Stop'
           npm run compile 2>&1 | Tee-Object -FilePath bec-npm-compile.log
           $code = $LASTEXITCODE
           Write-Host "NPM_COMPILE_EXIT=$code"
@@ -39,8 +39,8 @@ jobs:
       - name: Run Compile-All and capture exact failure
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Continue'
-          powershell -ExecutionPolicy Bypass -File ./BEC-PRIME/scripts/Compile-All.ps1 2>&1 | Tee-Object -FilePath bec-compile-all.log
+          $ErrorActionPreference = 'Stop'
+          pwsh -NoProfile -ExecutionPolicy Bypass -File ./BEC-PRIME/scripts/Compile-All.ps1 2>&1 | Tee-Object -FilePath bec-compile-all.log
           $code = $LASTEXITCODE
           Write-Host "COMPILE_ALL_EXIT=$code"
           if ($code -ne 0) { exit $code }
@@ -48,8 +48,8 @@ jobs:
       - name: Run compiler truth verifier
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Continue'
-          powershell -ExecutionPolicy Bypass -File ./BEC-PRIME/scripts/Verify-CompilerTruth.ps1 2>&1 | Tee-Object -FilePath bec-truth.log
+          $ErrorActionPreference = 'Stop'
+          pwsh -NoProfile -ExecutionPolicy Bypass -File ./BEC-PRIME/scripts/Verify-CompilerTruth.ps1 2>&1 | Tee-Object -FilePath bec-truth.log
           $code = $LASTEXITCODE
           Write-Host "VERIFY_TRUTH_EXIT=$code"
           if ($code -ne 0) { exit $code }
