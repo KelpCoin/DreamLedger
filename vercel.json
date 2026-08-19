@@ -1,15 +1,8 @@
 {
-  "version": 2,
-  "buildCommand": "npm run compile",
-  "installCommand": "npm install",
-  "outputDirectory": "BEC-PRIME/compiled/website",
-  "cleanUrls": true,
-  "headers": [
-    {
-      "source": "/version",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" }
-      ]
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/**/*.ts": { "maxDuration": 30, "memory": 1024 },
+    "api/stripe-webhook.ts": { "maxDuration": 60 }
+  },
+  "regions": ["syd1"]
 }
