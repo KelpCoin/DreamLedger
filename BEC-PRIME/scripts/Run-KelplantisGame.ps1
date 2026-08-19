@@ -24,21 +24,10 @@ if (-not (Test-Path -LiteralPath $out)) {
     exit 2
 }
 
-$proof = [ordered]@{
-    schema='bec/kelplantis/windows-launch-proof/v2'
-    status='GENERATED'
-    generated_at_utc=(Get-Date).ToUniversalTime().ToString('o')
-    artifact=(Resolve-Path $out).Path
-    launch=if ($NoLaunch) { 'SKIPPED_BY_FLAG' } else { 'BROWSER_REQUESTED' }
-    runtime_verification='NOT_PROVEN'
-    compiler_output_tail=(($compilerOutput | Select-Object -Last 12) -join "`n")
-    note='Artifact generation and browser launch request are not gameplay proof.'
-}
+$proof = [ordered]@{ schema='bec/kelplantis/windows-launch-proof/v2'; status='GENERATED'; generated_at_utc=(Get-Date).ToUniversalTime().ToString('o'); artifact=(Resolve-Path $out).Path; launch=if ($NoLaunch) { 'SKIPPED_BY_FLAG' } else { 'BROWSER_REQUESTED' }; runtime_verification='NOT_PROVEN'; compiler_output_tail=(($compilerOutput | Select-Object -Last 12) -join "`n"); note='Artifact generation and browser launch request are not gameplay proof.' }
 $proofPath = Join-Path $proofDir 'KELPLANTIS-WINDOWS-LAUNCH-PROOF.json'
 $proof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $proofPath -Encoding UTF8
-
 if (-not $NoLaunch) { Start-Process $out }
-
 Write-Host "Generated: $out" -ForegroundColor Green
 Write-Host "Proof: $proofPath" -ForegroundColor Green
 Write-Host "Runtime verification remains NOT_PROVEN until browser execution is observed." -ForegroundColor Yellow
