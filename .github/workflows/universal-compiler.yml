@@ -50,7 +50,7 @@ jobs:
         run: npm run kelplantis:test
 
       - name: Install Chromium for runtime verification
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Compile dedicated Kelplantis target
         run: node compiler/kelplantis/KelplantisTargetCompiler.js
