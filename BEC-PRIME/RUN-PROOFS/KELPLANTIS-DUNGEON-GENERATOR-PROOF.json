@@ -1,0 +1,17 @@
+{
+  "schema": "bec/kelplantis-dungeon-proof/v1",
+  "status": "IMPLEMENTED_NOT_EXECUTED",
+  "phase": "generator",
+  "branch": "agent/kelplantis-mvp-finish",
+  "requirements": {
+    "deterministic": true,
+    "single_shard_provenance": true,
+    "canonical_boss_arena": true,
+    "pve_room_tags": true,
+    "third_party_assets": false
+  },
+  "implementation": "BEC-PRIME/compiler/kelplantis/KelplantisDungeonGenerator.js",
+  "test": "BEC-PRIME/compiler/kelplantis/KelplantisDungeonGenerator.test.js",
+  "runtime_verification": "NOT_EXECUTED",
+  "note": "MST connectivity and deterministic output are implemented and covered by the test source; execution remains unproven until repository CI/runtime executes the test."
+}
