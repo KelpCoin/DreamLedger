@@ -1,0 +1,12 @@
+{
+  "schema": "BEC-PRIME/DREAMLEDGER-WEBSITE-COMPILER-PROOF/v1",
+  "status": "PASS",
+  "compiler": "DreamLedgerWebsiteCompiler/v1",
+  "source": "index.html",
+  "output": "BEC-PRIME/compiled/universal/website/dreamledger/index.html",
+  "production_domain": "https://dreamledger.org",
+  "source_sha256": "df5ec4eaa41d20815659e125c0c74bd8486750f7d5fc9aa295810c3de5b5c2e7",
+  "output_sha256": "df5ec4eaa41d20815659e125c0c74bd8486750f7d5fc9aa295810c3de5b5c2e7",
+  "exact_source_copy": true,
+  "universal_compiler_smoke": "PASS"
+}
