@@ -1,6 +1,6 @@
 {
   "schema": "BEC-PRIME/COMPILER-TRUTH-PROOF/v1",
-  "checked_at_utc": "2026-08-19T10:43:42.5160428Z",
+  "checked_at_utc": "2026-08-19T11:29:21.1440064Z",
   "verdict": "PASS",
   "compiler_chain": [
     "OfferCompiler",
