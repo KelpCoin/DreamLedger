@@ -5,6 +5,12 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/release-operator.yml'
+      - '.github/workflows/vercel-static-deploy.yml'
+      - '.github/workflows/mtg-first-sale-gate.yml'
+      - 'BEC-PRIME/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'server.js'
   workflow_dispatch:
     inputs:
       deploy:
