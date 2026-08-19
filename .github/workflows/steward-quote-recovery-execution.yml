@@ -17,10 +17,9 @@ jobs:
       - name: Checkout task scope
         uses: actions/checkout@v4
 
-      - name: Setup PowerShell
-        uses: PowerShell/PowerShell@v1
-        with:
-          pwsh-version: '7.4.x'
+      - name: Verify PowerShell runtime
+        shell: bash
+        run: pwsh --version
 
       - name: Block network egress for execution
         shell: bash
