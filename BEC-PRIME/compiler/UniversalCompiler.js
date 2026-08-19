@@ -48,7 +48,7 @@ function compileApp(spec, dir) {
   const body = `<main><h1>${esc(spec.name)}</h1><p>${esc(spec.description)}</p><div id="app">${features.map((f,i) => `<button data-feature="${i}">${esc(f)}</button>`).join(' ')}</div><p id="status">Ready.</p></main><script>document.querySelectorAll('[data-feature]').forEach(b=>b.onclick=()=>document.getElementById('status').textContent='Selected: '+b.textContent);if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>`;
   write(path.join(dir, 'index.html'), shell(spec, body, '<link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#101216">'));
   write(path.join(dir, 'manifest.webmanifest'), JSON.stringify({ name: spec.name, short_name: spec.name.slice(0, 24), start_url: './', scope: './', display: 'standalone', background_color: '#101216', theme_color: '#101216', description: spec.description, icons: [] }, null, 2) + '\n');
-  write(path.join(dir, 'sw.js'), `const CACHE='dreamledger-universal-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest']))));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));\n`);
+  write(path.join(dir, 'sw.js'), `const CACHE='dreamledger-universal-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest']))));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));\n`);
   return ['index.html', 'manifest.webmanifest', 'sw.js'];
 }
 
@@ -89,7 +89,7 @@ function compile() {
     note: 'app target produces a standards-based installable web app/PWA surface; native iOS/Android binaries require platform toolchains and are not claimed by this compiler.',
     deterministic: true,
     source_hash: sha256(fs.readFileSync(__filename, 'utf8')),
-    source_hashes: Object.fromEntries(files.map(file => [file, sha256(fs.readFileSync(path.join(SPEC_DIR, file), 'utf8')])))
+    source_hashes: Object.fromEntries(files.map(file => [file, sha256(fs.readFileSync(path.join(SPEC_DIR, file), 'utf8'))]))
   };
   write(PROOF, JSON.stringify(proof, null, 2) + '\n');
   return proof;
