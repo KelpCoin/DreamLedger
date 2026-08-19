@@ -157,3 +157,5 @@ jobs:
           path: proof/release-operator-proof.json
           if-no-files-found: error
           retention-days: 30
+
+# CASH-SPINE-EXECUTION: push-triggered release remains explicit and proof-gated.
