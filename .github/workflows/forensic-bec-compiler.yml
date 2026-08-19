@@ -54,13 +54,15 @@ jobs:
           Write-Host "VERIFY_TRUTH_EXIT=$code"
           if ($code -ne 0) { exit $code }
 
-      - name: Upload forensic logs
+      - name: Upload forensic logs and compiler truth proof
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bec-forensic-logs
+          name: bec-forensic-proof
           path: |
             bec-npm-compile.log
             bec-compile-all.log
             bec-truth.log
+            BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json
+            BEC-PRIME/RUN-PROOFS/FULL-COMPILATION-*.json
           if-no-files-found: ignore
