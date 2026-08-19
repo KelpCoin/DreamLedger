@@ -8,7 +8,6 @@ const ROOT = path.join(__dirname, '..');
 const SPEC_DIR = path.join(ROOT, 'compiler', 'universal-specs');
 const OUT_ROOT = path.join(ROOT, 'compiled', 'universal');
 const PROOF = path.join(ROOT, 'RUN-PROOFS', 'UNIVERSAL-COMPILER-PROOF.json');
-
 const TARGETS = new Set(['website', 'game', 'app']);
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
@@ -24,7 +23,12 @@ function validateSpec(spec, source) {
   assert(TARGETS.has(spec.target), `Unsupported target: ${spec.target}`);
   assert(typeof spec.name === 'string' && spec.name.trim(), `Missing name: ${source}`);
   assert(typeof spec.description === 'string', `Missing description: ${source}`);
-  if (spec.target === 'game') assert(spec.game && typeof spec.game === 'object', `Game target requires game config: ${source}`);
+  if (spec.target === 'website') assert(!spec.pages || Array.isArray(spec.pages), `Website pages must be an array: ${source}`);
+  if (spec.target === 'app') assert(!spec.features || Array.isArray(spec.features), `App features must be an array: ${source}`);
+  if (spec.target === 'game') {
+    assert(spec.game && typeof spec.game === 'object', `Game target requires game config: ${source}`);
+    assert(Number(spec.game.width || 960) > 0 && Number(spec.game.height || 540) > 0, `Invalid game dimensions: ${source}`);
+  }
   return true;
 }
 
@@ -41,11 +45,11 @@ function compileWebsite(spec, dir) {
 
 function compileApp(spec, dir) {
   const features = Array.isArray(spec.features) ? spec.features : [];
-  const body = `<main><h1>${esc(spec.name)}</h1><p>${esc(spec.description)}</p><div id="app">${features.map((f,i) => `<button data-feature="${i}">${esc(f)}</button>`).join(' ')}</div><p id="status">Ready.</p></main><script>document.querySelectorAll('[data-feature]').forEach(b=>b.onclick=()=>document.getElementById('status').textContent='Selected: '+b.textContent);</script>`;
-  write(path.join(dir, 'index.html'), shell(spec, body));
-  write(path.join(dir, 'manifest.webmanifest'), JSON.stringify({ name: spec.name, short_name: spec.name.slice(0, 24), start_url: './', display: 'standalone', description: spec.description }, null, 2) + '\n');
-  write(path.join(dir, 'app.js'), `self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));\n`);
-  return ['index.html', 'manifest.webmanifest', 'app.js'];
+  const body = `<main><h1>${esc(spec.name)}</h1><p>${esc(spec.description)}</p><div id="app">${features.map((f,i) => `<button data-feature="${i}">${esc(f)}</button>`).join(' ')}</div><p id="status">Ready.</p></main><script>document.querySelectorAll('[data-feature]').forEach(b=>b.onclick=()=>document.getElementById('status').textContent='Selected: '+b.textContent);if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>`;
+  write(path.join(dir, 'index.html'), shell(spec, body, '<link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#101216">'));
+  write(path.join(dir, 'manifest.webmanifest'), JSON.stringify({ name: spec.name, short_name: spec.name.slice(0, 24), start_url: './', scope: './', display: 'standalone', background_color: '#101216', theme_color: '#101216', description: spec.description, icons: [] }, null, 2) + '\n');
+  write(path.join(dir, 'sw.js'), `const CACHE='dreamledger-universal-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest']))));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));\n`);
+  return ['index.html', 'manifest.webmanifest', 'sw.js'];
 }
 
 function compileGame(spec, dir) {
@@ -72,6 +76,7 @@ function compileSpec(spec, source) {
 function compile() {
   assert(fs.existsSync(SPEC_DIR), `Universal spec directory missing: ${SPEC_DIR}`);
   const files = fs.readdirSync(SPEC_DIR).filter(x => x.endsWith('.json')).sort();
+  assert(files.length > 0, 'No universal compiler specs found');
   const results = files.map(file => compileSpec(readJson(path.join(SPEC_DIR, file)), file));
   const proof = {
     schema: 'BEC-PRIME/UNIVERSAL-COMPILER-PROOF/v1',
@@ -83,7 +88,8 @@ function compile() {
     native_mobile_binary: false,
     note: 'app target produces a standards-based installable web app/PWA surface; native iOS/Android binaries require platform toolchains and are not claimed by this compiler.',
     deterministic: true,
-    source_hashes: Object.fromEntries(files.map(file => [file, sha256(fs.readFileSync(path.join(SPEC_DIR, file), 'utf8'))]))
+    source_hash: sha256(fs.readFileSync(__filename, 'utf8')),
+    source_hashes: Object.fromEntries(files.map(file => [file, sha256(fs.readFileSync(path.join(SPEC_DIR, file), 'utf8')])))
   };
   write(PROOF, JSON.stringify(proof, null, 2) + '\n');
   return proof;
