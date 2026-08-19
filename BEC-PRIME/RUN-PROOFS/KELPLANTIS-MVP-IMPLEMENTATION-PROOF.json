@@ -1,0 +1,26 @@
+{
+  "schema": "bec/kelplantis-mvp-implementation-proof/v1",
+  "status": "IMPLEMENTED_NOT_EXECUTED",
+  "phase": "vertical_slice_implementation",
+  "branch": "agent/kelplantis-mvp-finish",
+  "requirements": {
+    "town": "SOURCE_PRESENT",
+    "combat_zone": "SOURCE_PRESENT",
+    "goblin_enemies": "SOURCE_PRESENT",
+    "deterministic_dungeon": "SOURCE_PRESENT",
+    "canonical_boss_arena": "SOURCE_PRESENT",
+    "basic_loot": "SOURCE_PRESENT",
+    "xp_leveling": "SOURCE_PRESENT",
+    "save_load": "SOURCE_PRESENT",
+    "windows_playable_surface": "GENERATED_HTML5",
+    "native_windows_exe": "NOT_IMPLEMENTED"
+  },
+  "compiler_target": "BEC-PRIME/compiler/kelplantis/KelplantisTargetCompiler.js",
+  "runtime": "BEC-PRIME/compiler/kelplantis/KelplantisRuntime.js",
+  "generator": "BEC-PRIME/compiler/kelplantis/KelplantisDungeonGenerator.js",
+  "generator_test": "BEC-PRIME/compiler/kelplantis/KelplantisDungeonGenerator.test.js",
+  "runtime_execution": "NOT_PROVEN",
+  "ci_execution": "NOT_OBSERVED",
+  "browser_execution": "NOT_OBSERVED",
+  "acceptance_verdict": "NOT_PROVEN"
+}
