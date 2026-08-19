@@ -2,9 +2,34 @@
   "id": "kelplantis-mvp",
   "target": "game",
   "name": "Kelplantis MVP",
-  "description": "Playable Kelplantis game prototype.",
+  "description": "Playable Kelplantis runtime proof: explore, harvest five glow-seeds, defend against hostile sprouts, and reach the sanctuary.",
   "game": {
+    "profile": "kelplantis-mvp",
     "width": 800,
-    "height": 500
+    "height": 500,
+    "player": {
+      "speed": 3.2,
+      "maxHealth": 100,
+      "attackDamage": 20,
+      "attackCooldownMs": 350
+    },
+    "objective": {
+      "seedCount": 5,
+      "sanctuaryX": 735,
+      "sanctuaryY": 430,
+      "sanctuaryRadius": 38
+    },
+    "enemies": [
+      { "x": 180, "y": 120, "health": 35, "damage": 10, "speed": 0.7 },
+      { "x": 420, "y": 160, "health": 45, "damage": 12, "speed": 0.8 },
+      { "x": 610, "y": 300, "health": 55, "damage": 15, "speed": 0.9 }
+    ],
+    "seeds": [
+      { "x": 110, "y": 390 },
+      { "x": 250, "y": 80 },
+      { "x": 360, "y": 360 },
+      { "x": 540, "y": 90 },
+      { "x": 650, "y": 410 }
+    ]
   }
 }
