@@ -1,0 +1,11 @@
+{
+  "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "price_nzd": 25.00,
+  "status": "BLOCKED",
+  "reason": "Canonical product and approved checkout offer are present, but production deployment is not proven and Vercel project/VERCEL_TOKEN provisioning is not confirmed.",
+  "canonical_product_path": "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json",
+  "canonical_offer_path": "BEC-PRIME/catalog/offers.json",
+  "checkout_available": true,
+  "evidence_status": "awaiting_first_payment",
+  "transaction_id": null
+}
