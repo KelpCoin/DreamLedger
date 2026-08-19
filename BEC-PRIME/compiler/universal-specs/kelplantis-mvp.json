@@ -2,34 +2,54 @@
   "id": "kelplantis-mvp",
   "target": "game",
   "name": "Kelplantis MVP",
-  "description": "Playable Kelplantis runtime proof: explore, harvest five glow-seeds, defend against hostile sprouts, and reach the sanctuary.",
+  "description": "Playable Windows-friendly Kelplantis PvE ARPG vertical slice: town, combat zone, goblins, deterministic dungeon, loot, XP, leveling, and save/load.",
   "game": {
     "profile": "kelplantis-mvp",
-    "width": 800,
-    "height": 500,
+    "width": 960,
+    "height": 600,
+    "world": {
+      "worldSeed": "kelplantis-mvp-world",
+      "floorId": 1,
+      "bossId": "kelp_floor1_boss",
+      "floorVersion": "1",
+      "roomCount": 14
+    },
+    "town": {
+      "x": 70,
+      "y": 70,
+      "radius": 52,
+      "safe": true
+    },
     "player": {
-      "speed": 3.2,
+      "speed": 3.4,
       "maxHealth": 100,
-      "attackDamage": 20,
-      "attackCooldownMs": 350
+      "attackDamage": 22,
+      "attackCooldownMs": 350,
+      "xpPerGoblin": 25,
+      "levelXp": 100,
+      "lootDropChance": 0.45
     },
     "objective": {
-      "seedCount": 5,
-      "sanctuaryX": 735,
-      "sanctuaryY": 430,
-      "sanctuaryRadius": 38
+      "bossRequired": true,
+      "bossX": 820,
+      "bossY": 500,
+      "bossRadius": 55
     },
     "enemies": [
-      { "x": 180, "y": 120, "health": 35, "damage": 10, "speed": 0.7 },
-      { "x": 420, "y": 160, "health": 45, "damage": 12, "speed": 0.8 },
-      { "x": 610, "y": 300, "health": 55, "damage": 15, "speed": 0.9 }
+      { "id": "goblin", "name": "Goblin", "health": 40, "damage": 8, "speed": 0.72, "xp": 25 },
+      { "id": "goblin_archer", "name": "Goblin Archer", "health": 32, "damage": 7, "speed": 0.55, "xp": 30 },
+      { "id": "goblin_champion", "name": "Goblin Champion", "health": 90, "damage": 14, "speed": 0.62, "xp": 75 }
     ],
-    "seeds": [
-      { "x": 110, "y": 390 },
-      { "x": 250, "y": 80 },
-      { "x": 360, "y": 360 },
-      { "x": 540, "y": 90 },
-      { "x": 650, "y": 410 }
-    ]
+    "loot": {
+      "items": [
+        { "id": "glow_shard", "name": "Glow Shard", "value": 10 },
+        { "id": "goblin_iron", "name": "Goblin Iron", "value": 25 },
+        { "id": "kelp_relic", "name": "Kelp Relic", "value": 100 }
+      ]
+    },
+    "save": {
+      "slot": "kelplantis-mvp-slot-1",
+      "storage": "localStorage"
+    }
   }
 }
