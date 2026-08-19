@@ -23,7 +23,7 @@
 <article class="card" data-type="calculator"><div class="icon">CALC</div><div class="tag">Calculator</div><h2>Offer Pricing Calculator</h2><p class="desc">A lightweight pricing worksheet for testing product economics before launch.</p><div class="bottom"><span class="price">NZ$15</span><span class="soon">Coming next</span></div></article>
 <article class="card" data-type="workflow"><div class="icon">BND</div><div class="tag">Workflow bundle</div><h2>Creator Launch Kit</h2><p class="desc">A bundled set of planning, offer and launch assets for creators.</p><div class="bottom"><span class="price">NZ$59</span><span class="soon">Coming next</span></div></article>
 </section>
-<p class="note">Silo boundary: Digital Products only. MTG, crypto, media/music, adult and Amplissa assets are excluded.</p>
+<p class="note">Silo boundary: Digital Products only. MTG, crypto, media/music and unrelated vertical assets are excluded.</p>
 </div>
 <script>
 const buttons=[...document.querySelectorAll('.filter')],cards=[...document.querySelectorAll('.card')];buttons.forEach(b=>b.addEventListener('click',()=>{buttons.forEach(x=>x.classList.remove('active'));b.classList.add('active');const f=b.dataset.filter;cards.forEach(c=>c.style.display=(f==='all'||c.dataset.type===f)?'flex':'none')}));

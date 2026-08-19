@@ -1,0 +1,68 @@
+name: Forensic BEC Compiler Run
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install root dependencies
+        shell: bash
+        run: npm install --no-audit --no-fund
+
+      - name: Run npm compile and capture exact failure
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          npm run compile 2>&1 | Tee-Object -FilePath bec-npm-compile.log
+          $code = $LASTEXITCODE
+          Write-Host "NPM_COMPILE_EXIT=$code"
+          if ($code -ne 0) { exit $code }
+
+      - name: Run Compile-All and capture exact failure
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          pwsh -NoProfile -ExecutionPolicy Bypass -File ./BEC-PRIME/scripts/Compile-All.ps1 2>&1 | Tee-Object -FilePath bec-compile-all.log
+          $code = $LASTEXITCODE
+          Write-Host "COMPILE_ALL_EXIT=$code"
+          if ($code -ne 0) { exit $code }
+
+      - name: Run compiler truth verifier
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          pwsh -NoProfile -ExecutionPolicy Bypass -File ./BEC-PRIME/scripts/Verify-CompilerTruth.ps1 2>&1 | Tee-Object -FilePath bec-truth.log
+          $code = $LASTEXITCODE
+          Write-Host "VERIFY_TRUTH_EXIT=$code"
+          if ($code -ne 0) { exit $code }
+
+      - name: Upload forensic logs and compiler truth proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-forensic-proof
+          path: |
+            bec-npm-compile.log
+            bec-compile-all.log
+            bec-truth.log
+            BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json
+            BEC-PRIME/RUN-PROOFS/FULL-COMPILATION-*.json
+          if-no-files-found: ignore

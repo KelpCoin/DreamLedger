@@ -1,11 +1,19 @@
 #requires -Version 5.1
 [CmdletBinding()]
 param(
-    [string]$ProofPath = 'D:\DREAMLEDGER_COMPILER_TRUTH_PROOF.json'
+    [string]$ProofPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $PSScriptRoot
+$ProofDir = Join-Path $Root 'RUN-PROOFS'
+if ([string]::IsNullOrWhiteSpace($ProofPath)) {
+    if (-not [string]::IsNullOrWhiteSpace($env:BEC_COMPILER_TRUTH_PROOF)) {
+        $ProofPath = $env:BEC_COMPILER_TRUTH_PROOF
+    } else {
+        $ProofPath = Join-Path $ProofDir 'COMPILER-TRUTH-PROOF.json'
+    }
+}
 $ContractPath = Join-Path $Root 'compiler\COMPILER-TRUTH-CONTRACT.json'
 $ManifestPath = Join-Path $Root 'manifests\CUBE-PUBLIC-SURFACE-MANIFEST.json'
 $OffersPath = Join-Path $Root 'catalog\offers\offers.json'
