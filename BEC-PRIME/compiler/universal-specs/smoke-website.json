@@ -1,0 +1,9 @@
+{
+  "id": "smoke-website",
+  "target": "website",
+  "name": "DreamLedger Smoke Website",
+  "description": "Deterministic universal compiler website fixture.",
+  "pages": [
+    { "title": "Offer", "body": "Compiled from canonical JSON input." }
+  ]
+}
