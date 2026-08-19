@@ -39,7 +39,7 @@ jobs:
         shell: bash
         run: |
           test -f RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
-          node -e "const p=require('./RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'); if(p.status!=='PASS'||p.specs_compiled!==3) process.exit(1); for(const t of ['website','game','app']) if(!p.outputs.some(x=>x.target===t)) process.exit(1); console.log(JSON.stringify(p,null,2));"
+          node -e "const p=require('./RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'); const ids=['smoke-website','smoke-game','smoke-app','dreamledger-production','amplissa-public','kelplantis-mvp']; if(p.status!=='PASS'||p.specs_compiled!==ids.length) process.exit(1); for(const id of ids) if(!p.outputs.some(x=>x.id===id)) process.exit(1); for(const t of ['website','game','app']) if(!p.outputs.some(x=>x.target===t)) process.exit(1); console.log(JSON.stringify(p,null,2));"
 
       - name: Upload universal compiler proof
         uses: actions/upload-artifact@v4

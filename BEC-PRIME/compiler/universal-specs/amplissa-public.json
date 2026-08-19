@@ -1,0 +1,9 @@
+{
+  "id": "amplissa-public",
+  "target": "website",
+  "name": "Amplissa",
+  "description": "Amplissa public surface.",
+  "pages": [
+    { "title": "Production target", "body": "Amplissa production target specification." }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "kelplantis-mvp",
+  "target": "game",
+  "name": "Kelplantis MVP",
+  "description": "Playable Kelplantis game prototype.",
+  "game": {
+    "width": 800,
+    "height": 500
+  }
+}
