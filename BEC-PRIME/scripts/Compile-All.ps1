@@ -1,3 +1,4 @@
+#requires -Version 5.1
 [CmdletBinding()]
 param()
 
@@ -8,7 +9,7 @@ $ProofDir = Join-Path $Root 'RUN-PROOFS'
 New-Item -ItemType Directory -Force -Path $ProofDir | Out-Null
 Write-Host '=== BEC-PRIME FULL COMPILER ===' -ForegroundColor Cyan
 if (Test-Path (Join-Path $Root 'package.json')) { npm install --no-audit --no-fund; if ($LASTEXITCODE -ne 0) { throw 'npm install failed.' } }
-Write-Host '[1/5] Compiling DreamLedger surface...' -ForegroundColor Yellow
+Write-Host '[1/6] Compiling DreamLedger surface...' -ForegroundColor Yellow
 npm run compile
 if ($LASTEXITCODE -ne 0) { throw 'DreamLedger npm compile failed.' }
 $loginPath = Join-Path $Root 'compiled/website/login.html'
@@ -27,14 +28,21 @@ $steps = @(
 )
 foreach ($step in $steps) { & $step.Command; if ($LASTEXITCODE -ne 0) { throw ('Compiler failed: ' + $step.Name) } }
 if (Test-Path (Join-Path $PSScriptRoot 'Verify-Offers.ps1')) { & (Join-Path $PSScriptRoot 'Verify-Offers.ps1'); if ($LASTEXITCODE -ne 0) { throw 'Offer verification failed.' } }
+Write-Host '[6/6] Verifying compiler truth contract...' -ForegroundColor Yellow
+$truthVerifier = Join-Path $PSScriptRoot 'Verify-CompilerTruth.ps1'
+$truthProof = Join-Path $ProofDir 'COMPILER-TRUTH-PROOF.json'
+if (-not (Test-Path -LiteralPath $truthVerifier)) { throw ('Compiler truth verifier missing: ' + $truthVerifier) }
+& $truthVerifier -ProofPath $truthProof
+if ($LASTEXITCODE -ne 0) { throw 'Compiler truth verification failed.' }
 $proof = [ordered]@{
-    schema = 'BEC-PRIME/FULL-COMPILATION/v5'
+    schema = 'BEC-PRIME/FULL-COMPILATION/v6'
     status = 'PASS'
     compiled_at = (Get-Date).ToUniversalTime().ToString('o')
     compiler = 'Compile-All.ps1'
+    compiler_truth_proof = 'RUN-PROOFS/COMPILER-TRUTH-PROOF.json'
     account_contract = @{ login_endpoint='/api/account/login'; session_endpoint='/api/account/me'; register_endpoint='/api/account/register'; dreamiez_required=$false; verified=$true }
     required_public_surfaces = @('compiled/website/login.html','compiled/website/register.html','compiled/website/account.html')
-    guarantees = @{ existing_dreamledger_compile=$true; primary_account_contract_verified=$true; dreamiez_required_for_login=$false; payment_claims_created=$false; external_actions_created=$false }
+    guarantees = @{ existing_dreamledger_compile=$true; primary_account_contract_verified=$true; compiler_truth_verified=$true; dreamiez_required_for_login=$false; payment_claims_created=$false; external_actions_created=$false }
 }
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $proofPath = Join-Path $ProofDir ('FULL-COMPILATION-' + $stamp + '.json')
