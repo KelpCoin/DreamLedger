@@ -12,9 +12,13 @@ $StatePath = Join-Path $OutputDir "CELL_STATE.json"
 
 function Read-State {
     if (-not (Test-Path $StatePath)) {
-        return [ordered]@{ sku=$Sku; commercial_state="PRE-MONEY"; payment_status="NOT_PROVEN"; last_action=$null; updated_at_utc=(Get-Date).ToUniversalTime().ToString("o") }
+        return [ordered]@{ sku=$Sku; commercial_state="PRE-MONEY"; payment_status="NOT_PROVEN"; last_action=$null; qa_status=$null; gauntlet_status=$null; updated_at_utc=(Get-Date).ToUniversalTime().ToString("o") }
     }
     Get-Content $StatePath -Raw | ConvertFrom-Json
+}
+function Ensure-StateProperty($State, [string]$Name, $Value) {
+    if (-not $State.PSObject.Properties[$Name]) { $State | Add-Member -NotePropertyName $Name -NotePropertyValue $Value }
+    else { $State.$Name = $Value }
 }
 function Write-State($State) { $State | ConvertTo-Json -Depth 10 | Set-Content $StatePath -Encoding UTF8 }
 function Is-Number($Value) { return $Value -is [byte] -or $Value -is [int16] -or $Value -is [int32] -or $Value -is [int64] -or $Value -is [decimal] -or $Value -is [single] -or $Value -is [double] }
@@ -45,18 +49,18 @@ if($Action -eq "discover"){
     $candidates=@(Get-Content $CandidatePath -Raw | ConvertFrom-Json)
     $scored=foreach($c in $candidates){$score=0;$reasons=@();if([bool]$c.quote_form){$score+=2;$reasons+="quote_form"};if([bool]$c.free_quote){$score+=2;$reasons+="free_quote"};if([bool]$c.high_ticket){$score+=2;$reasons+="high_ticket"};if([bool]$c.commercial_work){$score+=2;$reasons+="commercial_work"};if([bool]$c.multiple_services){$score+=1;$reasons+="multiple_services"};if([bool]$c.owner_operated){$score+=1;$reasons+="owner_operated"};[pscustomobject]@{business_name=$c.business_name;location=$c.location;qualification_score=$score;qualification_reasons=$reasons;discovery_timestamp=(Get-Date).ToUniversalTime().ToString("o");source=$c.source}}
     $scored|Sort-Object qualification_score -Descending|ConvertTo-Json -Depth 5|Set-Content (Join-Path $OutputDir "DISCOVERY.json") -Encoding UTF8
-    $s=Read-State;$s.last_action="discover";$s.updated_at_utc=(Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "Discovery complete.";exit 0
+    $s=Read-State;Ensure-StateProperty $s "last_action" "discover";Ensure-StateProperty $s "updated_at_utc" (Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "Discovery complete.";exit 0
 }
 
 if($Action -eq "qualify"){
     $p=Join-Path $OutputDir "DISCOVERY.json";if(-not(Test-Path $p)){throw "Run discover first."};$d=@(Get-Content $p -Raw|ConvertFrom-Json);$q=@();$rj=@();foreach($x in $d){if([int]$x.qualification_score -ge 5){$q+=$x}else{$rj+=$x}}
     [ordered]@{generated_at_utc=(Get-Date).ToUniversalTime().ToString("o");qualified_count=$q.Count;rejected_count=$rj.Count;qualified=@($q);rejected=@($rj)}|ConvertTo-Json -Depth 10|Set-Content (Join-Path $OutputDir "QUALIFICATION.json") -Encoding UTF8
-    $s=Read-State;$s.last_action="qualify";$s.updated_at_utc=(Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "Qualification complete.";exit 0
+    $s=Read-State;Ensure-StateProperty $s "last_action" "qualify";Ensure-StateProperty $s "updated_at_utc" (Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "Qualification complete.";exit 0
 }
 
 if($Action -eq "prepare-offer"){
     $p=Join-Path $OutputDir "QUALIFICATION.json";if(-not(Test-Path $p)){throw "Run qualify first."};$q=Get-Content $p -Raw|ConvertFrom-Json;$offers=foreach($x in @($q.qualified)){[ordered]@{business_name=$x.business_name;offer_state="HUMAN_APPROVAL_REQUIRED";price_pilot_nzd=500.00;price_standard_nzd=950.00;draft_subject="Quick question about your quote pipeline";draft_body="Hi [First Name], I noticed [Company] offers quotes/estimates. I run a small revenue-leak audit that checks whether existing enquiries and quotes are being followed up effectively. Fixed price, no software install. If useful, I can send a sample of what the report contains.";prepared_at_utc=(Get-Date).ToUniversalTime().ToString("o")}}
-    $offers|ConvertTo-Json -Depth 10|Set-Content (Join-Path $OutputDir "OFFERS_READY.json") -Encoding UTF8;$s=Read-State;$s.last_action="prepare-offer";$s.updated_at_utc=(Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "Offer preparation complete. All offers are HUMAN_APPROVAL_REQUIRED.";exit 0
+    $offers|ConvertTo-Json -Depth 10|Set-Content (Join-Path $OutputDir "OFFERS_READY.json") -Encoding UTF8;$s=Read-State;Ensure-StateProperty $s "last_action" "prepare-offer";Ensure-StateProperty $s "updated_at_utc" (Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "Offer preparation complete. All offers are HUMAN_APPROVAL_REQUIRED.";exit 0
 }
 
 if($Action -eq "fulfil"){
@@ -66,7 +70,7 @@ if($Action -eq "fulfil"){
     if($errors.Count -gt 0){$errors|ConvertTo-Json -Depth 5|Set-Content (Join-Path $OutputDir "VALIDATION_ERRORS.json") -Encoding UTF8;throw "INVALID_INPUT: $($errors.Count) invalid record(s)."}
     $leaks=Get-QuoteLeaks $valid;$totalQuoted=($valid|Measure-Object -Property quote_value_nzd -Sum).Sum;$report=[ordered]@{schema="bec/revenue-leak-report/v1";sku=$Sku;generated_at_utc=(Get-Date).ToUniversalTime().ToString("o");records_analyzed=$valid.Count;leaks_detected=$leaks.Count;total_quoted_opportunity_nzd=[math]::Round($totalQuoted,2);high_priority_count=@($leaks|Where-Object priority -eq "HIGH").Count;medium_priority_count=@($leaks|Where-Object priority -eq "MEDIUM").Count;low_priority_count=@($leaks|Where-Object priority -eq "LOW").Count;prioritized_opportunities=@($leaks);limitations=@("Quoted value is not recoverable revenue.","No recoverable revenue estimate is made.","Confidence is LOW until empirical recovery data exists.","No customer contact is automated.")}
     $reportPath=Join-Path $OutputDir "QUOTE_RECOVERY_REPORT.json";$report|ConvertTo-Json -Depth 10|Set-Content $reportPath -Encoding UTF8;$qaErrors=@();if(-not(Test-Path $reportPath)){$qaErrors+="report not generated"};if($leaks.Count -eq 0){$qaErrors+="no leaks detected"};$qa=if($qaErrors.Count -eq 0){"PASS"}else{"FAIL"};$gauntlet=if($qa -eq "PASS"){"PRE-MONEY"}else{"QUARANTINE"};$proof=[ordered]@{schema="bec/fulfilment-proof/v1";sku=$Sku;generated_at_utc=(Get-Date).ToUniversalTime().ToString("o");local_execution=$qa;qa_status=$qa;gauntlet_status=$gauntlet;payment_status="NOT_PROVEN";input_record_count=$valid.Count;invalid_record_count=$errors.Count;output_leak_count=$leaks.Count;total_quoted_opportunity_nzd=[math]::Round($totalQuoted,2);operator_minutes=0;machine_duration_ms=0;report_path=$reportPath;artificial_recovery_factor="REMOVED"};$proofPath=Join-Path $OutputDir "FULFILMENT_PROOF.json";$proof|ConvertTo-Json -Depth 5|Set-Content $proofPath -Encoding UTF8
-    $s=Read-State;$s.last_action="fulfil";$s.qa_status=$qa;$s.gauntlet_status=$gauntlet;$s.payment_status="NOT_PROVEN";$s.updated_at_utc=(Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "QA: $qa";Write-Host "GAUNTLET: $gauntlet";Write-Host "PAYMENT: NOT_PROVEN";Write-Host "REPORT: $reportPath";Write-Host "PROOF: $proofPath";if($gauntlet -eq "QUARANTINE"){exit 1};exit 0
+    $s=Read-State;Ensure-StateProperty $s "last_action" "fulfil";Ensure-StateProperty $s "qa_status" $qa;Ensure-StateProperty $s "gauntlet_status" $gauntlet;Ensure-StateProperty $s "payment_status" "NOT_PROVEN";Ensure-StateProperty $s "updated_at_utc" (Get-Date).ToUniversalTime().ToString("o");Write-State $s;Write-Host "QA: $qa";Write-Host "GAUNTLET: $gauntlet";Write-Host "PAYMENT: NOT_PROVEN";Write-Host "REPORT: $reportPath";Write-Host "PROOF: $proofPath";if($gauntlet -eq "QUARANTINE"){exit 1};exit 0
 }
 
 if($Action -eq "qa"){$p=Join-Path $OutputDir "FULFILMENT_PROOF.json";if(-not(Test-Path $p)){throw "Fulfil first."};$x=Get-Content $p -Raw|ConvertFrom-Json;Write-Host "QA: $($x.qa_status)";Write-Host "GAUNTLET: $($x.gauntlet_status)";Write-Host "PAYMENT: $($x.payment_status)";exit 0}
