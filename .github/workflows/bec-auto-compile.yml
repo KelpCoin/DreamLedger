@@ -2,6 +2,13 @@ name: BEC-PRIME Auto Compile DreamLedger
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'BEC-PRIME/catalog/compiled/**'
+      - 'BEC-PRIME/compiled/website/economics/**'
+      - 'BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json'
+      - 'BEC-PRIME/RUN-PROOFS/**'
   schedule:
     - cron: '17 */6 * * *'
 
@@ -43,14 +50,16 @@ jobs:
             './BEC-PRIME/catalog/compiled/economic-tree.json',
             './BEC-PRIME/compiled/website/economics/index.html',
             './BEC-PRIME/compiled/website/economics/ip-manifest.json',
-            './BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json'
+            './BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json',
+            './BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json'
           )
           foreach ($path in $required) {
             if (-not (Test-Path $path)) { throw "Required compiler output missing: $path" }
           }
           $manifest = Get-Content './BEC-PRIME/compiled/website/economics/ip-manifest.json' -Raw | ConvertFrom-Json
           if ($manifest.public_boundary -notmatch 'private implementation paths') { throw 'Public boundary contract is missing private-path protection.' }
-          if (-not (Test-Path './BEC-PRIME/RUN-PROOFS')) { throw 'Compilation proof directory missing.' }
+          $truth = Get-Content './BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json' -Raw | ConvertFrom-Json
+          if ($truth.verdict -ne 'PASS') { throw 'Compiler truth proof is not PASS.' }
 
       - name: Scan public tree for obvious secret material
         shell: bash
