@@ -1,0 +1,56 @@
+name: DreamLedger Commerce Scale Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/scripts/scale-commerce-smoke.js'
+      - 'BEC-PRIME/scripts/Verify-Scale-Commerce.ps1'
+      - 'package.json'
+      - '.github/workflows/commerce-scale-smoke.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/scripts/scale-commerce-smoke.js'
+      - 'BEC-PRIME/scripts/Verify-Scale-Commerce.ps1'
+      - 'package.json'
+      - '.github/workflows/commerce-scale-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Run 100000 product fixture smoke
+        env:
+          DL_SCALE_COUNT: 100000
+        run: npm run smoke:commerce-scale
+
+      - name: Emit proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          DL_SCALE_COUNT=100000 node BEC-PRIME/scripts/scale-commerce-smoke.js > proof/commerce-scale-smoke.json
+          test -s proof/commerce-scale-smoke.json
+          grep -q '"status": "PASS"' proof/commerce-scale-smoke.json
+          cat proof/commerce-scale-smoke.json
+
+      - name: Upload proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: commerce-scale-smoke-proof-${{ github.run_id }}
+          path: proof/commerce-scale-smoke.json
+          if-no-files-found: error
+          retention-days: 30
