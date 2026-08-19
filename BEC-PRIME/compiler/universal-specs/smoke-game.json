@@ -1,0 +1,7 @@
+{
+  "id": "smoke-game",
+  "target": "game",
+  "name": "DreamLedger Smoke Game",
+  "description": "Deterministic canvas game compiler fixture.",
+  "game": { "width": 640, "height": 360 }
+}

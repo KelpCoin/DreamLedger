@@ -1,0 +1,7 @@
+{
+  "id": "smoke-app",
+  "target": "app",
+  "name": "DreamLedger Smoke App",
+  "description": "Deterministic installable web app compiler fixture.",
+  "features": ["Catalog", "Checkout", "Account"]
+}

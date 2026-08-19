@@ -1,0 +1,49 @@
+name: Universal Compiler
+
+on:
+  push:
+    branches:
+      - feature/universal-product-compiler
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'BEC-PRIME/compiler/UniversalCompiler.js'
+      - 'BEC-PRIME/compiler/universal-specs/**'
+      - 'BEC-PRIME/scripts/Smoke-UniversalCompiler.js'
+      - 'BEC-PRIME/package.json'
+      - '.github/workflows/universal-compiler.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Compile universal targets
+        run: npm run compile:universal
+
+      - name: Verify proof and outputs
+        shell: bash
+        run: |
+          test -f RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
+          node -e "const p=require('./RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'); if(p.status!=='PASS'||p.specs_compiled!==3) process.exit(1); for(const t of ['website','game','app']) if(!p.outputs.some(x=>x.target===t)) process.exit(1); console.log(JSON.stringify(p,null,2));"
+
+      - name: Upload universal compiler proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: universal-compiler-proof-${{ github.sha }}
+          path: BEC-PRIME/RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
+          if-no-files-found: error
