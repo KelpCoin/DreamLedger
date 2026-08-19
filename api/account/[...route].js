@@ -2,8 +2,10 @@
 
 // Canonical DreamLedger account API. Dreamiez is optional and is never the
 // authentication authority for the primary website account.
-// The account runtime is kept outside the public compiled website tree.
-const auth = require('../../BEC-PRIME/lib/accountAuth');
+// The compiled account runtime uses Supabase in production and local files
+// only when DREAMLEDGER_AUTH_LOCAL_TEST=1. Do not reintroduce /tmp storage
+// into the production authentication path.
+const auth = require('../../BEC-PRIME/compiled/website/lib/accountAuth');
 
 module.exports = async function accountRoute(req, res) {
   try {
