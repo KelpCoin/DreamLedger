@@ -18,6 +18,7 @@
     "compile:board": "node BEC-PRIME/compiler/BoardCompiler.js",
     "compile:price": "node BEC-PRIME/compiler/PriceDisplayPatch.js",
     "compile:public-contract": "node BEC-PRIME/compiler/PublicSurfaceContractPatch.js",
+    "compile:universal": "node BEC-PRIME/compiler/UniversalCompiler.js",
     "verify:ip": "node BEC-PRIME/scripts/verify-ip-runtime-contract.js",
     "verify:silos": "node BEC-PRIME/scripts/verify-silo-boundaries.js",
     "verify:agentic-commerce": "node BEC-PRIME/scripts/verify-agentic-commerce.js",
