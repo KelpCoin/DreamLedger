@@ -1,0 +1,28 @@
+{
+  "schema": "BEC-PRIME/COMPILER-TRUTH-PROOF/v1",
+  "checked_at_utc": "2026-08-19T05:07:54.1179000Z",
+  "verdict": "PASS",
+  "compiler_chain": [
+    "OfferCompiler",
+    "SurfaceCompiler",
+    "PriceDisplayPatch",
+    "Gauntlet",
+    "Meta-Gauntlet",
+    "Sentinel"
+  ],
+  "surface_policy": {
+    "phone_first": true,
+    "thumb_first": true,
+    "proxy_opt_in": true,
+    "demand_proposal_only": true,
+    "sentinel_non_economic": true
+  },
+  "counts": {
+    "capabilities": 14,
+    "offers": 27,
+    "approved_offers": 1,
+    "public_surfaces": 6
+  },
+  "errors": [],
+  "doctrine": "The website is an output of the compiler chain. Canonical catalogs define commercial truth. Public HTML must never become the economic source of truth."
+}
