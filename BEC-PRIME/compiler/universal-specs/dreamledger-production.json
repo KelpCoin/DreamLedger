@@ -1,0 +1,9 @@
+{
+  "id": "dreamledger-production",
+  "target": "website",
+  "name": "DreamLedger",
+  "description": "Commander deck diagnostics and related MTG commerce.",
+  "pages": [
+    { "title": "Production target", "body": "DreamLedger production target specification." }
+  ]
+}
