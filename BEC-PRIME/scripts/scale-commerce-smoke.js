@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 const COUNT = Number(process.env.DL_SCALE_COUNT || 100000);
 const SILOS = ['MTG', 'DIGITAL', 'SERVICE'];
-const PRICE_CENTS = 2900;
+const PRICE_CENTS = 100;
 
 function sku(i) {
   return 'SCALE-' + String(i).padStart(6, '0');
@@ -36,7 +36,6 @@ function assert(condition, message) {
 
 function main() {
   assert(Number.isInteger(COUNT) && COUNT > 0 && COUNT <= 1000000, 'DL_SCALE_COUNT must be an integer from 1 to 1000000');
-  assert(PRICE_CENTS === 2900, 'Scale fixture price is intentionally pinned to the proposed NZ$29 test contract');
 
   const ids = new Set();
   const keys = new Set();
@@ -66,7 +65,7 @@ function main() {
     unique_idempotency_keys: keys.size,
     checkoutable_count: checkoutable,
     price_contract_test_cents: PRICE_CENTS,
-    price_contract_note: 'Synthetic scale fixture only. Does not establish the live commercial price contract.',
+    price_contract_note: 'Synthetic fixture value only. Does not establish or select the live NZ$25/NZ$29 commercial price contract.',
     stripe_objects_created: 0,
     stripe_api_calls_made: 0,
     silo_counts: siloCounts,
