@@ -1,0 +1,59 @@
+name: Live Site Forensics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-site-forensics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  forensic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe live domains and DNS
+        shell: bash
+        run: |
+          set -u
+          mkdir -p proof
+          {
+            echo '=== DREAMLEDGER.ORG HEADERS ==='
+            curl -sS -I --max-time 20 https://dreamledger.org/ || true
+            echo
+            echo '=== VERCEL ZETA HEADERS ==='
+            curl -sS -I --max-time 20 https://dream-ledger-zeta.vercel.app/ || true
+            echo
+            echo '=== DNS A ==='
+            dig +noall +answer dreamledger.org A || true
+            echo
+            echo '=== DNS CNAME ==='
+            dig +noall +answer dreamledger.org CNAME || true
+            echo
+            echo '=== GITHUB PAGES API ==='
+            curl -sS --max-time 20 https://api.github.com/repos/KelpCoin/DreamLedger/pages || true
+            echo
+            echo '=== LIVE PAGE BODY MARKERS ==='
+            curl -sS --max-time 20 https://dreamledger.org/ | grep -Eio '<title[^>]*>[^<]*|Dream Ledger|DreamLedger' | head -20 || true
+          } | tee proof/live-site-forensics.txt
+
+      - name: Emit machine-readable forensic record
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='${GITHUB_SHA}'
+          ORG_STATUS="$(curl -sS -o /tmp/org.html -w '%{http_code}' --max-time 20 https://dreamledger.org/ || echo 000)"
+          ZETA_STATUS="$(curl -sS -o /tmp/zeta.html -w '%{http_code}' --max-time 20 https://dream-ledger-zeta.vercel.app/ || echo 000)"
+          printf '{"schema":"dreamledger-live-site-forensics-v1","sha":"%s","dreamledger_org_http":%s,"vercel_zeta_http":%s,"status":"OBSERVED","deployment_commit":"UNKNOWN"}\n' "$SHA" "$ORG_STATUS" "$ZETA_STATUS" > proof/live-site-forensics.json
+          cat proof/live-site-forensics.json
+
+      - name: Upload forensic proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-site-forensics-${{ github.run_id }}
+          path: proof/
+          if-no-files-found: error
+          retention-days: 30
