@@ -1,0 +1,27 @@
+{
+  "schema": "BEC-PRIME/FULL-COMPILATION/v6",
+  "status": "PASS",
+  "compiled_at": "2026-08-19T18:52:02.4987225Z",
+  "compiler": "Compile-All.ps1",
+  "compiler_truth_proof": "RUN-PROOFS/COMPILER-TRUTH-PROOF.json",
+  "account_contract": {
+    "register_endpoint": "/api/account/register",
+    "login_endpoint": "/api/account/login",
+    "session_endpoint": "/api/account/me",
+    "dreamiez_required": false,
+    "verified": true
+  },
+  "required_public_surfaces": [
+    "compiled/website/login.html",
+    "compiled/website/register.html",
+    "compiled/website/account.html"
+  ],
+  "guarantees": {
+    "dreamiez_required_for_login": false,
+    "compiler_truth_verified": true,
+    "primary_account_contract_verified": true,
+    "payment_claims_created": false,
+    "external_actions_created": false,
+    "existing_dreamledger_compile": true
+  }
+}
