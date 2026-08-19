@@ -1,0 +1,15 @@
+{
+  "schema": "bec/kelplantis-100-floor-slice-proof/v1",
+  "status": "IMPLEMENTED_NOT_EXECUTED",
+  "branch": "agent/kelplantis-mvp-finish",
+  "floor_profiles": {"count": 100, "range": "1-100"},
+  "deterministic_generation": "IMPLEMENTED",
+  "single_shard_history": "IMPLEMENTED",
+  "canonical_boss_arena": "IMPLEMENTED",
+  "pve_room_tags": "IMPLEMENTED",
+  "profile_test": "PRESENT_NOT_EXECUTED",
+  "history_test": "PRESENT_NOT_EXECUTED",
+  "browser_runtime": "NOT_PROVEN",
+  "windows_runtime": "NOT_PROVEN",
+  "note": "This artifact records implementation only. It does not overwrite earlier proof states or claim runtime PASS."
+}
