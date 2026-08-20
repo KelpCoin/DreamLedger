@@ -87,7 +87,6 @@ jobs:
           proof='deployment-trigger-proof.json'
           trigger='NONE'
           result='FAIL'
-          error=''
 
           if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
             echo 'DEPLOY_PATH=DEPLOY_HOOK'
@@ -97,8 +96,7 @@ jobs:
               result='PASS'
               cat /tmp/render-response.txt | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
             else
-              error='Render deploy hook failed; API fallback will be attempted.'
-              echo "WARN=$error"
+              echo 'WARN=Render deploy hook failed; API fallback will be attempted.'
             fi
           fi
 
@@ -207,8 +205,8 @@ jobs:
               raise SystemExit(f'FAIL: deployed SHA {deployed} does not match source SHA {expected}')
           print(f'PASS: deployed SHA matches source SHA {expected}')
           PY
-      - name: Write live deployment proof
-        if: always()
+      - name: Write live deployment proof on success
+        if: success()
         shell: bash
         run: |
           set -euo pipefail
@@ -222,6 +220,25 @@ jobs:
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'live-smoke', 'version-provenance'],
               'render_commit_provenance': True
+          }
+          with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
+      - name: Write live deployment proof on failure
+        if: failure() || cancelled()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          proof = {
+              'status': 'NOT_PROVEN',
+              'source_commit': os.environ['GITHUB_SHA'],
+              'target': 'https://dreamledger.org',
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'reason': 'production verification did not complete successfully'
           }
           with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
               json.dump(proof, f, indent=2)
