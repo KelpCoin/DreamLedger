@@ -20,7 +20,7 @@
       "currency": "NZD",
       "amount": 49,
       "payment_link_id": "plink_1U5KS2EGgEAnUFF92dy3hG3f",
-      "url": "https://buy.stripe.com/3cIcN51nfeWh0zR3gwdwc1I",
+      "url": "https://buy.stripe.com/3cIcN51nfeWhaar6sIdwc1I",
       "status": "ACTIVE",
       "stripe_livemode_verified": true,
       "revenue_status": "UNPAID"
@@ -43,6 +43,17 @@
       "amount": 29,
       "payment_link_id": "plink_1U6V4DEGgEAnUFF9t2YgqIKw",
       "url": "https://buy.stripe.com/14A3cv3vneWhaar6sIdwc1K",
+      "status": "ACTIVE",
+      "stripe_livemode_verified": true,
+      "revenue_status": "UNPAID"
+    },
+    {
+      "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "offer": "Commander Deck Diagnostic",
+      "currency": "NZD",
+      "amount": 25,
+      "payment_link_id": "plink_1U6V4kEGgEAnUFF9PEYgHYS8",
+      "url": "https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L",
       "status": "ACTIVE",
       "stripe_livemode_verified": true,
       "revenue_status": "UNPAID"
