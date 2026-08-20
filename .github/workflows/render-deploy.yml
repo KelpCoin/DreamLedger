@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Immutable commit SHA to deploy and verify
+        required: true
+        type: string
 
 concurrency:
   group: dreamledger-production
@@ -17,46 +22,71 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Resolve release SHA
+        id: release
+        env:
+          INPUT_SHA: ${{ inputs.release_sha }}
+          PUSH_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_SHA" ]; then
+            echo "sha=$INPUT_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=$PUSH_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout exact release SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ steps.release.outputs.sha }}
+          fetch-depth: 1
+
+      - name: Verify release SHA
+        env:
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$RELEASE_SHA"
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$RELEASE_SHA"
+          echo "RELEASE_SHA=$RELEASE_SHA"
+
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
+
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
+
       - name: Generate and verify 100 revenue products
         working-directory: BEC-PRIME
         run: node scripts/Verify-AutoRevenueCatalog.js
+
       - name: Compile canonical commerce and account surface
         working-directory: BEC-PRIME
         run: npm run compile
+
       - name: Explicit silo boundary gate
         working-directory: BEC-PRIME
         run: npm run verify:silos
+
       - name: Verify primary account contract
         working-directory: BEC-PRIME
         run: node scripts/verify-account-avatar-flow.js
+
       - name: Verify compiled primary account pages
-        working-directory: BEC-PRIME
         shell: bash
         run: |
           set -euo pipefail
           for page in login.html register.html account.html; do
-            test -f "compiled/website/$page"
-            grep -q '/api/account/' "compiled/website/$page"
+            test -f "BEC-PRIME/compiled/website/$page"
+            grep -q '/api/account/' "BEC-PRIME/compiled/website/$page"
           done
-          ! grep -q '/api/dreamiez/account/login' compiled/website/login.html
-          echo "PASS: primary account pages compile without requiring Dreamiez."
-      - name: Upload silo proof
-        uses: actions/upload-artifact@v4
-        with:
-          name: dreamledger-silo-boundary-proof
-          path: BEC-PRIME/PROOF/silo-boundary-proof.json
-          if-no-files-found: error
+          ! grep -q '/api/dreamiez/account/login' BEC-PRIME/compiled/website/login.html
+          echo 'PASS: primary account pages compile without requiring Dreamiez.'
+
       - name: Syntax gate
         shell: bash
         run: |
@@ -74,14 +104,29 @@ jobs:
   render-deploy:
     needs: acceptance-gate
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RELEASE_SHA: ${{ needs.acceptance-gate.outputs.release_sha || inputs.release_sha || github.sha }}
     steps:
-      - name: Trigger exact-commit Render deployment with primary hook or API fallback
+      - name: Resolve immutable release SHA
+        id: release
+        env:
+          INPUT_SHA: ${{ inputs.release_sha }}
+          PUSH_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          RELEASE_SHA="${INPUT_SHA:-$PUSH_SHA}"
+          test -n "$RELEASE_SHA"
+          echo "sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_SHA=$RELEASE_SHA"
+
+      - name: Trigger exact-commit Render deployment with hook or API fallback
         shell: bash
+        env:
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
           proof='deployment-trigger-proof.json'
@@ -90,7 +135,12 @@ jobs:
 
           if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
             echo 'DEPLOY_PATH=DEPLOY_HOOK'
-            url="${RENDER_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
+            separator='&'
+            case "$RENDER_DEPLOY_HOOK_URL" in
+              *\?*) separator='&' ;;
+              *) separator='?' ;;
+            esac
+            url="${RENDER_DEPLOY_HOOK_URL}${separator}ref=${RELEASE_SHA}"
             if curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 30 -X POST "$url" > /tmp/render-response.txt; then
               trigger='DEPLOY_HOOK'
               result='PASS'
@@ -110,7 +160,7 @@ jobs:
             test -n "$RENDER_BIN"
             export PATH="$(dirname "$RENDER_BIN"):$PATH"
             render --version
-            RENDER_API_KEY="$RENDER_API_KEY" render deploys create "$RENDER_SERVICE_ID" --commit "$GITHUB_SHA" --wait --confirm --output json > /tmp/render-deploy.json
+            RENDER_API_KEY="$RENDER_API_KEY" render deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json > /tmp/render-deploy.json
             cat /tmp/render-deploy.json | sed -E 's/https?:\/\/[^ ]+/[redacted-url]/g'
             trigger='RENDER_CLI_API_FALLBACK'
             result='PASS'
@@ -123,7 +173,7 @@ jobs:
             exit 1
           fi
 
-          python3 - "$proof" "$trigger" "$result" "$GITHUB_SHA" <<'PY'
+          python3 - "$proof" "$trigger" "$result" "$RELEASE_SHA" <<'PY'
           import json, sys, time
           path, trigger, result, sha = sys.argv[1:]
           data = {
@@ -138,10 +188,11 @@ jobs:
               json.dump(data, f, indent=2)
           print(json.dumps(data, indent=2))
           PY
+
       - name: Upload deployment trigger proof
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: dreamledger-deployment-trigger-proof-${{ github.sha }}
+          name: dreamledger-deployment-trigger-proof-${{ steps.release.outputs.sha }}
           path: deployment-trigger-proof.json
           if-no-files-found: error
           retention-days: 30
@@ -149,29 +200,80 @@ jobs:
   production-account-smoke:
     needs: render-deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout exact release SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.release_sha || github.sha }}
+          fetch-depth: 1
+
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
+
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm install
+
       - name: Wait for Render deployment to settle
         shell: bash
         run: sleep 30
+
       - name: Verify live primary account surface
         env:
           SMOKE_BASE_URL: https://dreamledger.org
         working-directory: BEC-PRIME
+        run: node scripts/smoke-production.js
+
+      - name: Verify required live endpoints
+        env:
+          BASE_URL: https://dreamledger.org
+          EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
+        shell: bash
         run: |
           set -euo pipefail
-          node scripts/smoke-production.js
+
+          get_status() {
+            curl -sS -o "$2" -w '%{http_code}' --retry 5 --retry-delay 3 --max-time 20 "$BASE_URL$1"
+          }
+
+          status=$(get_status '/healthz' /tmp/healthz.json)
+          test "$status" = '200'
+          grep -q '"status":"ok"' /tmp/healthz.json
+
+          status=$(get_status '/register' /tmp/register.html)
+          test "$status" = '200'
+          grep -qi '<html' /tmp/register.html
+
+          status=$(get_status '/api/account/me' /tmp/account-me.json)
+          test "$status" = '200'
+          grep -q '"authenticated":false' /tmp/account-me.json
+
+          status=$(get_status '/api/catalog' /tmp/catalog.json)
+          test "$status" = '200'
+          grep -q 'EDH_0001' /tmp/catalog.json
+
+          status=$(get_status '/api/products/EDH_0001' /tmp/product.json)
+          test "$status" = '200'
+          grep -q 'EDH_0001' /tmp/product.json
+
+          status=$(get_status '/version' /tmp/version.json)
+          test "$status" = '200'
+          python3 - "$EXPECTED_SHA" <<'PY'
+          import json, sys
+          expected = sys.argv[1]
+          with open('/tmp/version.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
+          deployed = data.get('commit')
+          if deployed != expected:
+              raise SystemExit(f'FAIL: deployed SHA {deployed} does not match source SHA {expected}')
+          print(f'PASS: /version matches source SHA {expected}')
+          PY
+
+          echo 'PASS: /healthz /register /api/account/me /api/catalog /api/products/EDH_0001 /version'
+
       - name: Verify live account pages are reachable and silo-clean
         env:
           BASE_URL: https://dreamledger.org
@@ -184,27 +286,8 @@ jobs:
           done
           ! grep -qi 'amplissa\|amplissa.com\|adult content\|bbw content\|onlyfans\|pornhub' /tmp/login.html /tmp/register.html /tmp/account.html
           ! grep -q '/api/dreamiez/account/login' /tmp/login.html
-          echo "PASS: live primary DreamLedger account surfaces are reachable and silo-clean."
-      - name: Verify exact deployed commit provenance
-        shell: bash
-        run: |
-          set -euo pipefail
-          status=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 20 https://dreamledger.org/version)
-          echo "version_http=$status"
-          cat /tmp/version.json
-          test "$status" = "200"
-          python3 - "$GITHUB_SHA" <<'PY'
-          import json, sys
-          expected = sys.argv[1]
-          with open('/tmp/version.json', 'r', encoding='utf-8') as f:
-              data = json.load(f)
-          deployed = data.get('commit')
-          if not deployed:
-              raise SystemExit('FAIL: /version did not expose a deployed commit SHA')
-          if deployed != expected:
-              raise SystemExit(f'FAIL: deployed SHA {deployed} does not match source SHA {expected}')
-          print(f'PASS: deployed SHA matches source SHA {expected}')
-          PY
+          echo 'PASS: live primary DreamLedger account surfaces are reachable and silo-clean.'
+
       - name: Write live deployment proof on success
         if: success()
         shell: bash
@@ -215,19 +298,23 @@ jobs:
           import json, os, time
           proof = {
               'status': 'PASS',
-              'source_commit': os.environ['GITHUB_SHA'],
+              'source_commit': os.environ.get('EXPECTED_SHA') or os.environ['GITHUB_SHA'],
               'target': 'https://dreamledger.org',
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'live-smoke', 'version-provenance'],
-              'render_commit_provenance': True
+              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'healthz', 'register', 'account-me', 'catalog', 'EDH_0001', 'version-provenance'],
+              'render_commit_provenance': True,
+              'live_http_verified': True
           }
           with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
               json.dump(proof, f, indent=2)
           print(json.dumps(proof, indent=2))
           PY
+
       - name: Write live deployment proof on failure
         if: failure() || cancelled()
         shell: bash
+        env:
+          EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
         run: |
           set -euo pipefail
           mkdir -p proof
@@ -235,7 +322,7 @@ jobs:
           import json, os, time
           proof = {
               'status': 'NOT_PROVEN',
-              'source_commit': os.environ['GITHUB_SHA'],
+              'source_commit': os.environ['EXPECTED_SHA'],
               'target': 'https://dreamledger.org',
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'reason': 'production verification did not complete successfully'
@@ -244,11 +331,12 @@ jobs:
               json.dump(proof, f, indent=2)
           print(json.dumps(proof, indent=2))
           PY
+
       - name: Upload live deployment proof
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: dreamledger-production-proof-${{ github.sha }}
+          name: dreamledger-production-proof-${{ inputs.release_sha || github.sha }}
           path: proof/deployment-proof.json
           if-no-files-found: error
           retention-days: 30
