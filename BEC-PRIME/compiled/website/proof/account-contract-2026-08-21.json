@@ -1,0 +1,23 @@
+{
+  "date": "2026-08-21",
+  "purpose": "DreamLedger primary account boundary",
+  "dreamledger_account": "primary",
+  "dreamiez": "optional_free",
+  "canonical_login": "/login.html",
+  "canonical_register": "/register.html",
+  "canonical_account": "/account.html",
+  "legacy_dreamiez_login_redirect": "/dreamiez/login.html -> /login.html",
+  "legacy_dreamiez_register_redirect": "/dreamiez/register.html -> /register.html",
+  "signin_alias": "/signin.html -> /login.html",
+  "signup_alias": "/signup.html -> /register.html",
+  "account_api": [
+    "/api/account/register",
+    "/api/account/login",
+    "/api/account/logout",
+    "/api/account/me",
+    "/api/account/update"
+  ],
+  "public_posting": false,
+  "dreamiez_required_for_account": false,
+  "status": "SOURCE_FIXED_PENDING_LIVE_BROWSER_VERIFICATION"
+}
