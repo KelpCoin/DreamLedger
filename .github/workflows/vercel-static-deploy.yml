@@ -1,6 +1,9 @@
 name: Vercel Static Storefront
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       release:
@@ -27,18 +30,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - name: Resolve release SHA
+        id: release
+        env:
+          INPUT_SHA: ${{ inputs.release_sha }}
+          PUSH_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_SHA" ]; then
+            echo "sha=$INPUT_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=$PUSH_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout exact selected commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ inputs.release_sha }}
+          ref: ${{ steps.release.outputs.sha }}
           fetch-depth: 1
 
       - name: Verify release SHA
         env:
-          RELEASE_SHA: ${{ inputs.release_sha }}
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
           test -n "$RELEASE_SHA"
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$RELEASE_SHA"
           echo "RELEASE_SHA=$RELEASE_SHA"
 
       - name: Verify Vercel token
@@ -120,6 +138,15 @@ jobs:
           test -f .vercel/output/config.json
           echo 'PASS: Vercel Build Output API artifact exists.'
 
+      - name: Assert compiled commerce API exists
+        working-directory: BEC-PRIME/compiled/website
+        run: |
+          set -euo pipefail
+          test -f api/catalog.ts
+          test -f api/products.ts
+          test -f api/products/[id].ts
+          echo 'PASS: compiled commerce API routes are present in deployment root.'
+
       - name: Deploy prebuilt production artifact
         working-directory: BEC-PRIME/compiled/website
         env:
@@ -134,7 +161,7 @@ jobs:
 
       - name: Verify production deployment over HTTP
         env:
-          EXPECTED_SHA: ${{ inputs.release_sha }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
           DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
@@ -144,7 +171,13 @@ jobs:
           ACCOUNT_STATUS="$(curl -sS -o "$RUNNER_TEMP/account-me.json" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/api/account/me")"
           test "$ACCOUNT_STATUS" = '200'
           grep -q '"authenticated":false' "$RUNNER_TEMP/account-me.json"
-          printf '{"status":"HTTP_PASS","deployment_url":"%s","root_status":%s,"account_me_status":%s,"account_me":"anonymous","sha":"%s"}\n' "$DEPLOY_URL" "$ROOT_STATUS" "$ACCOUNT_STATUS" "$EXPECTED_SHA" > "$RUNNER_TEMP/http-proof.json"
+          CATALOG_STATUS="$(curl -sS -o "$RUNNER_TEMP/catalog.json" -w '%{http_code}' --retry 5 --retry-delay 3 "$DEPLOY_URL/api/catalog")"
+          test "$CATALOG_STATUS" = '200'
+          grep -q 'EDH_0001' "$RUNNER_TEMP/catalog.json"
+          PRODUCT_STATUS="$(curl -sS -o "$RUNNER_TEMP/product.json" -w '%{http_code}' --retry 5 --retry-delay 3 "$DEPLOY_URL/api/products/EDH_0001")"
+          test "$PRODUCT_STATUS" = '200'
+          grep -q 'EDH_0001' "$RUNNER_TEMP/product.json"
+          printf '{"status":"HTTP_PASS","deployment_url":"%s","root_status":%s,"account_me_status":%s,"catalog_status":%s,"product_status":%s,"sha":"%s"}\n' "$DEPLOY_URL" "$ROOT_STATUS" "$ACCOUNT_STATUS" "$CATALOG_STATUS" "$PRODUCT_STATUS" "$EXPECTED_SHA" > "$RUNNER_TEMP/http-proof.json"
           cat "$RUNNER_TEMP/http-proof.json"
 
       - name: Probe custom domain
@@ -161,7 +194,7 @@ jobs:
 
       - name: Emit deployment proof
         env:
-          SHA: ${{ inputs.release_sha }}
+          SHA: ${{ steps.release.outputs.sha }}
           RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
