@@ -2,32 +2,9 @@
   "id": "COMMANDER-DECK-DIAGNOSTIC-001",
   "silo": "mtg",
   "name": "Commander Deck Diagnostic",
-  "description": "A focused Commander deck audit with practical recommendations to improve the deck's strategy, consistency, and performance.",
-  "price": 25,
-  "currency": "nzd",
-  "inventory": 999999,
-  "status": "published",
-  "checkout": {
-    "mode": "payment",
-    "success_path": "/checkout/success",
-    "cancel_path": "/mtg"
-  },
+  "status": "archived",
   "commercial_truth": {
-    "experiment": "MTG-SALES-001",
-    "approval_required": false,
-    "activation_gate": "CHECKOUT_VERIFIED",
-    "activation_timestamp": "2026-08-21T00:00:00.000Z",
-    "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L",
-    "payment_link_id": "plink_1U6V4kEGgEAnUFF9PEYgHYS8"
-  },
-  "delivery": {
-    "type": "digital_report",
-    "target": "commander-deck-diagnostic"
-  },
-  "evidence": {
-    "status": "awaiting_first_payment",
-    "transaction_id": null
-  },
-  "execution_atom": "MTG-SALES-001"
+    "sellable": false,
+    "reason": "Operator explicitly does not sell this offer."
+  }
 }
