@@ -15,13 +15,19 @@ if ($LASTEXITCODE -ne 0) { throw 'DreamLedger npm compile failed.' }
 $loginPath = Join-Path $Root 'compiled/website/login.html'
 $registerPath = Join-Path $Root 'compiled/website/register.html'
 $accountPath = Join-Path $Root 'compiled/website/account.html'
-foreach ($p in @($loginPath,$registerPath,$accountPath)) { if (-not (Test-Path $p)) { throw ('Required account surface missing: ' + $p) } }
+$avatarPath = Join-Path $Root 'compiled/website/avatar.html'
+$assetsPath = Join-Path $Root 'compiled/website/assets.html'
+foreach ($p in @($loginPath,$registerPath,$accountPath,$avatarPath,$assetsPath)) { if (-not (Test-Path $p)) { throw ('Required public surface missing: ' + $p) } }
 $login = Get-Content -Raw -LiteralPath $loginPath
 $register = Get-Content -Raw -LiteralPath $registerPath
+$avatar = Get-Content -Raw -LiteralPath $avatarPath
+$assets = Get-Content -Raw -LiteralPath $assetsPath
 if ($login -notmatch '/api/account/login') { throw 'login.html is not using the primary DreamLedger account contract.' }
 if ($login -match '/api/dreamiez/account/login') { throw 'login.html incorrectly depends on Dreamiez authentication.' }
 if ($register -notmatch '/api/account/register' -or $register -match '/api/dreamiez/account/create') { throw 'register.html is not using the primary DreamLedger account contract.' }
-Write-Host 'PASS: primary DreamLedger account login/register contract verified.' -ForegroundColor Green
+if ($avatar -notmatch '/api/account/me' -or $avatar -notmatch '/api/account/update') { throw 'avatar.html is not using the primary DreamLedger account contract.' }
+if ($assets -notmatch '/api/products') { throw 'assets.html is not using the machine-readable product catalog contract.' }
+Write-Host 'PASS: primary DreamLedger account/avatar/assets contracts verified.' -ForegroundColor Green
 $steps = @(
     @{ Name = 'EconomicTrees'; Command = { node compiler/Compile-EconomicTrees.js } },
     @{ Name = 'SiloPortfolio'; Command = { node compiler/SiloPortfolioCompiler.js } }
@@ -35,14 +41,14 @@ if (-not (Test-Path -LiteralPath $truthVerifier)) { throw ('Compiler truth verif
 & $truthVerifier -ProofPath $truthProof
 if ($LASTEXITCODE -ne 0) { throw 'Compiler truth verification failed.' }
 $proof = [ordered]@{
-    schema = 'BEC-PRIME/FULL-COMPILATION/v6'
+    schema = 'BEC-PRIME/FULL-COMPILATION/v7'
     status = 'PASS'
     compiled_at = (Get-Date).ToUniversalTime().ToString('o')
     compiler = 'Compile-All.ps1'
     compiler_truth_proof = 'RUN-PROOFS/COMPILER-TRUTH-PROOF.json'
     account_contract = @{ login_endpoint='/api/account/login'; session_endpoint='/api/account/me'; register_endpoint='/api/account/register'; dreamiez_required=$false; verified=$true }
-    required_public_surfaces = @('compiled/website/login.html','compiled/website/register.html','compiled/website/account.html')
-    guarantees = @{ existing_dreamledger_compile=$true; primary_account_contract_verified=$true; compiler_truth_verified=$true; dreamiez_required_for_login=$false; payment_claims_created=$false; external_actions_created=$false }
+    required_public_surfaces = @('compiled/website/login.html','compiled/website/register.html','compiled/website/account.html','compiled/website/avatar.html','compiled/website/assets.html')
+    guarantees = @{ existing_dreamledger_compile=$true; primary_account_contract_verified=$true; avatar_contract_verified=$true; assets_contract_verified=$true; compiler_truth_verified=$true; dreamiez_required_for_login=$false; payment_claims_created=$false; external_actions_created=$false }
 }
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $proofPath = Join-Path $ProofDir ('FULL-COMPILATION-' + $stamp + '.json')
