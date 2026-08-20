@@ -3,25 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamLedger | Home of Agentic Commerce</title>
-<meta name="description" content="DreamLedger is an evidence-first commerce surface for AI agents and businesses preparing for agentic commerce.">
+<title>Agentic Commerce Home | DreamLedger</title>
+<meta name="description" content="A low-fee, machine-readable home for agentic commerce: discover offers, verify sellers, execute checkout, and carry proof of settlement.">
 <style>
-body{margin:0;background:#070707;color:#f4f2eb;font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:960px;margin:auto;padding:72px 24px}h1{font-size:clamp(3rem,8vw,7rem);line-height:.9;letter-spacing:-.08em;margin:12px 0 28px}h2{font-size:2rem;letter-spacing:-.04em}.eyebrow{color:#f2c14e;font-size:.7rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.lead{max-width:720px;color:#aaa;font-size:1.15rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:36px}.card{border:1px solid #292929;border-radius:18px;padding:20px;background:#111}.card b{display:block;color:#f2c14e}.card p{color:#888;font-size:.9rem}.cta{display:inline-block;margin-top:24px;padding:13px 18px;border-radius:12px;background:#f2c14e;color:#090909;text-decoration:none;font-weight:900}.secondary{display:inline-block;margin:24px 0 0 8px;padding:12px 17px;border:1px solid #444;border-radius:12px;color:#fff;text-decoration:none;font-weight:800}.proof{margin-top:44px;border-top:1px solid #292929;padding-top:28px;color:#777;font-size:.9rem}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+:root{--bg:#070707;--panel:#111;--line:#292929;--text:#f4f2eb;--muted:#999;--gold:#f2c14e;--green:#78e0a0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 70% 10%,#17130a 0,#070707 42%);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1080px;margin:auto;padding:54px 24px 90px}.eyebrow{color:var(--gold);font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.hero{padding:60px 0 30px}h1{font-size:clamp(3.2rem,8vw,7rem);line-height:.88;letter-spacing:-.08em;max-width:900px;margin:12px 0 28px}h2{font-size:1.55rem;letter-spacing:-.035em;margin:8px 0}.lead{max-width:760px;color:#b8b5ad;font-size:1.2rem}.cta{display:inline-block;margin-top:26px;padding:14px 20px;border-radius:12px;background:var(--gold);color:#090909;text-decoration:none;font-weight:900}.secondary{display:inline-block;margin:26px 0 0 8px;padding:13px 19px;border:1px solid #444;border-radius:12px;color:#fff;text-decoration:none;font-weight:800}.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:42px 0}.metric{border:1px solid var(--line);border-radius:14px;padding:17px;background:#0d0d0d}.metric b{display:block;color:var(--green);font-size:.78rem;letter-spacing:.08em}.metric span{color:#aaa;font-size:.88rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.card{border:1px solid var(--line);border-radius:18px;padding:22px;background:linear-gradient(145deg,#121212,#0c0c0c)}.card b{color:var(--gold);font-size:.72rem;letter-spacing:.14em}.card p{color:#929292}.flow{margin-top:52px;border:1px solid var(--line);border-radius:20px;padding:26px;background:#0c0c0c}.flowline{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.step{border:1px solid #333;border-radius:999px;padding:8px 12px;color:#ddd}.proof{margin-top:44px;border-top:1px solid var(--line);padding-top:28px;color:#777;font-size:.9rem}.note{color:#aaa;font-size:.92rem;max-width:800px}@media(max-width:760px){.strip,.grid{grid-template-columns:1fr}.secondary{margin-left:0}}
 </style>
 </head>
 <body>
 <main>
-<div class="eyebrow">DreamLedger / Agentic Commerce</div>
-<h1>The home of agentic commerce.</h1>
-<p class="lead">AI agents are becoming buyers. Businesses need machine-readable offers, trustworthy pricing, clear policies, executable checkout paths, and evidence that transactions actually happened. DreamLedger is building the verification and proof layer around that economy.</p>
-<a class="cta" href="/">Open the commerce engine</a>
-<a class="secondary" href="/api/offers">Inspect machine-readable offers</a>
-<section class="grid">
-<article class="card"><b>DISCOVER</b><h2>Machine-readable</h2><p>Offers and capabilities should be understandable to software agents without scraping a human-only storefront.</p></article>
-<article class="card"><b>VERIFY</b><h2>Evidence-first</h2><p>Price, identity, eligibility and checkout state are treated as economic facts only when the system can prove them.</p></article>
-<article class="card"><b>SETTLE</b><h2>Proof-backed</h2><p>Real payment events become durable transaction evidence. A checkout button is not counted as revenue.</p></article>
+<section class="hero">
+<div class="eyebrow">DreamLedger / Agentic Commerce Home</div>
+<h1>Commerce built for buyers that are software.</h1>
+<p class="lead">A low-fee, machine-readable home where agents can discover offers, verify who is selling, understand the real price, execute a permitted purchase, and receive durable proof of what happened.</p>
+<a class="cta" href="/api/offers">Explore machine-readable offers</a>
+<a class="secondary" href="/">Open merchant commerce</a>
 </section>
-<section class="proof"><strong>Our wedge:</strong> we are not trying to replace UCP, ACP, AP2, MCP or A2A. We build the merchant-side readiness, verification, routing and evidence layer that can sit beside those protocols. The immediate commercial experiment is a paid agent-commerce readiness diagnostic, followed by implementation and monitoring work.</section>
+
+<section class="strip">
+<div class="metric"><b>LOW-FEE</b><span>Merchant economics designed to stay lean and transparent.</span></div>
+<div class="metric"><b>AGENT-READY</b><span>Structured offers instead of scraping-first commerce.</span></div>
+<div class="metric"><b>VERIFIED</b><span>Identity, price and policy signals made explicit.</span></div>
+<div class="metric"><b>PROOF-BACKED</b><span>Settlement evidence instead of imaginary revenue.</span></div>
+</section>
+
+<section class="grid">
+<article class="card"><b>DISCOVER</b><h2>Findable by agents</h2><p>Machine-readable offers, capabilities, availability and constraints give buying agents something precise to evaluate.</p></article>
+<article class="card"><b>TRUST</b><h2>Know before acting</h2><p>Expose seller identity, price, currency, inventory, policies and evidence status before an agent commits money.</p></article>
+<article class="card"><b>EXECUTE</b><h2>Checkout without guesswork</h2><p>Route an eligible agent to an executable commerce path while preserving the human approval boundary where required.</p></article>
+<article class="card"><b>SETTLE</b><h2>Carry the receipt</h2><p>Paid events become durable transaction evidence. A checkout page is not counted as revenue until settlement is proven.</p></article>
+<article class="card"><b>INTEROPERATE</b><h2>Protocol-neutral</h2><p>Designed to complement emerging agent-commerce protocols rather than lock merchants into one ecosystem.</p></article>
+<article class="card"><b>OPERATE</b><h2>Merchant control</h2><p>Rules, approval gates, fulfilment contracts and monitoring keep autonomous commerce inside explicit boundaries.</p></article>
+</section>
+
+<section class="flow">
+<div class="eyebrow">The transaction loop</div>
+<h2>Discover → Verify → Authorize → Buy → Settle → Prove</h2>
+<p class="note">The core promise is simple: make commerce legible to machines without making merchants surrender control. Fees and commercial terms are shown before commitment and are not hidden behind agent-specific surprises.</p>
+<div class="flowline"><span class="step">Offer</span><span class="step">Identity</span><span class="step">Price</span><span class="step">Policy</span><span class="step">Checkout</span><span class="step">Settlement</span><span class="step">Proof</span></div>
+</section>
+
+<section class="proof">
+<strong>Position:</strong> DreamLedger is not claiming to replace UCP, ACP, AP2, MCP or A2A. The opportunity is the merchant-side readiness, verification, routing and evidence layer around agentic commerce. Initial commercial wedge: an agent-commerce readiness diagnostic, followed by implementation and monitoring services.
+</section>
 </main>
 </body>
 </html>
