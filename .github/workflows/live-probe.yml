@@ -5,27 +5,46 @@ on:
     branches:
       - live-probe
 
+permissions:
+  contents: write
+
 jobs:
   probe:
+    if: github.event.head_commit.message != 'probe: capture live evidence'
     runs-on: ubuntu-latest
     steps:
       - name: Probe live endpoints
         run: |
           set +e
-          echo "=== HEALTH ==="
-          curl -s -i --max-time 20 https://dreamledger.org/healthz
-          echo ""
-          echo "=== ACCOUNT ME ==="
-          curl -s -i --max-time 20 https://dreamledger.org/api/account/me
-          echo ""
-          echo "=== REGISTER PAGE ==="
-          curl -s -i --max-time 20 https://dreamledger.org/register
-          echo ""
-          echo "=== ACCOUNT PAGE ==="
-          curl -s -i --max-time 20 https://dreamledger.org/account
-          echo ""
-          echo "=== EDH_0001 ==="
-          curl -s -i --max-time 20 https://dreamledger.org/api/products/EDH_0001
-          echo ""
-          echo "=== VERSION ==="
-          curl -s -i --max-time 20 https://dreamledger.org/version
+          {
+            echo "=== HEALTH ==="
+            curl -s -i --max-time 20 https://dreamledger.org/healthz
+            echo ""
+            echo "=== ACCOUNT ME ==="
+            curl -s -i --max-time 20 https://dreamledger.org/api/account/me
+            echo ""
+            echo "=== REGISTER PAGE ==="
+            curl -s -i --max-time 20 https://dreamledger.org/register
+            echo ""
+            echo "=== ACCOUNT PAGE ==="
+            curl -s -i --max-time 20 https://dreamledger.org/account
+            echo ""
+            echo "=== EDH_0001 ==="
+            curl -s -i --max-time 20 https://dreamledger.org/api/products/EDH_0001
+            echo ""
+            echo "=== VERSION ==="
+            curl -s -i --max-time 20 https://dreamledger.org/version
+          } | tee LIVE-PROBE-EVIDENCE.txt
+      - name: Commit evidence to probe branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git init
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch origin live-probe
+          git checkout -B live-probe FETCH_HEAD
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- LIVE-PROBE-EVIDENCE.txt
+          git commit -m "probe: capture live evidence"
+          git push origin live-probe
