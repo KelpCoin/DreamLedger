@@ -28,13 +28,27 @@ function validateSpec(spec, source) {
   if (spec.target === 'game') {
     assert(spec.game && typeof spec.game === 'object', `Game target requires game config: ${source}`);
     assert(Number(spec.game.width || 960) > 0 && Number(spec.game.height || 540) > 0, `Invalid game dimensions: ${source}`);
+    if (spec.game.profile === 'kelplantis-mvp') validateKelplantis(spec, source);
   }
-  return true;
+}
+
+function validateKelplantis(spec, source) {
+  const g = spec.game;
+  assert(g.world && typeof g.world === 'object', `Kelplantis world config missing: ${source}`);
+  assert(String(g.world.worldSeed || '').length > 0, `Kelplantis world seed missing: ${source}`);
+  assert(Number.isInteger(Number(g.world.floorId)) && Number(g.world.floorId) >= 1, `Kelplantis floor id invalid: ${source}`);
+  assert(String(g.world.bossId || '').length > 0, `Kelplantis boss id missing: ${source}`);
+  assert(Number(g.world.roomCount) >= 8, `Kelplantis room count invalid: ${source}`);
+  assert(g.town && g.town.safe === true, `Kelplantis safe town missing: ${source}`);
+  assert(g.player && Number(g.player.speed) > 0 && Number(g.player.maxHealth) > 0 && Number(g.player.attackDamage) > 0, `Kelplantis player config invalid: ${source}`);
+  assert(Array.isArray(g.enemies) && g.enemies.length >= 2, `Kelplantis enemy roster missing: ${source}`);
+  for (const enemy of g.enemies) assert(Number(enemy.health) > 0 && Number(enemy.damage) > 0 && Number(enemy.speed) > 0 && Number(enemy.xp) > 0, `Invalid Kelplantis enemy: ${source}`);
+  assert(g.loot && Array.isArray(g.loot.items) && g.loot.items.length > 0, `Kelplantis loot table missing: ${source}`);
+  assert(g.save && String(g.save.slot || '').length > 0, `Kelplantis save slot missing: ${source}`);
 }
 
 function shell(spec, body, extra = '') {
-  const title = esc(spec.name);
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="DreamLedger UniversalCompiler/v1"><title>${title}</title><meta name="description" content="${esc(spec.description)}"><style>body{margin:0;font-family:system-ui,sans-serif;background:#101216;color:#f5f7fa}main{max-width:1000px;margin:auto;padding:32px}button{font:inherit;padding:10px 14px;border:0;border-radius:8px;cursor:pointer}canvas{display:block;max-width:100%;background:#181b22;border-radius:12px}</style>${extra}</head><body>${body}</body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="DreamLedger UniversalCompiler/v3"><title>${esc(spec.name)}</title><meta name="description" content="${esc(spec.description)}"><style>body{margin:0;font-family:system-ui,sans-serif;background:#07110b;color:#f5f7fa}main{max-width:1000px;margin:auto;padding:18px}button{font:inherit;padding:10px 14px;border:0;border-radius:8px;cursor:pointer}canvas{display:block;max-width:100%;background:#0b2112;border-radius:12px;box-shadow:0 10px 40px #0008}#hud{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0;font-weight:700}</style>${extra}</head><body>${body}</body></html>`;
 }
 
 function compileWebsite(spec, dir) {
@@ -45,53 +59,48 @@ function compileWebsite(spec, dir) {
 
 function compileApp(spec, dir) {
   const features = Array.isArray(spec.features) ? spec.features : [];
-  const body = `<main><h1>${esc(spec.name)}</h1><p>${esc(spec.description)}</p><div id="app">${features.map((f,i) => `<button data-feature="${i}">${esc(f)}</button>`).join(' ')}</div><p id="status">Ready.</p></main><script>document.querySelectorAll('[data-feature]').forEach(b=>b.onclick=()=>document.getElementById('status').textContent='Selected: '+b.textContent);if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>`;
-  write(path.join(dir, 'index.html'), shell(spec, body, '<link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#101216">'));
+  const body = `<main><h1>${esc(spec.name)}</h1><p>${esc(spec.description)}</p><div id="app">${features.map((f,i) => `<button data-feature="${i}">${esc(f)}</button>`).join(' ')}</div><p id="status">Ready.</p></main><script>document.querySelectorAll('[data-feature]').forEach(b=>b.onclick=()=>document.getElementById('status').textContent='Selected: '+b.textContent);</script>`;
+  write(path.join(dir, 'index.html'), shell(spec, body));
   write(path.join(dir, 'manifest.webmanifest'), JSON.stringify({ name: spec.name, short_name: spec.name.slice(0, 24), start_url: './', scope: './', display: 'standalone', background_color: '#101216', theme_color: '#101216', description: spec.description, icons: [] }, null, 2) + '\n');
-  write(path.join(dir, 'sw.js'), `const CACHE='dreamledger-universal-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest']))));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));\n`);
-  return ['index.html', 'manifest.webmanifest', 'sw.js'];
+  return ['index.html', 'manifest.webmanifest'];
 }
 
-function compileGame(spec, dir) {
-  const width = Number(spec.game.width || 960);
-  const height = Number(spec.game.height || 540);
-  const body = `<main><h1>${esc(spec.name)}</h1><p>${esc(spec.description)}</p><canvas id="game" width="${width}" height="${height}" aria-label="${esc(spec.name)} game"></canvas><p id="score">Score: 0</p></main><script>const c=document.getElementById('game'),x=c.getContext('2d'),s=document.getElementById('score');let px=${Math.floor(width/2)},py=${Math.floor(height/2)},score=0;const keys=new Set;addEventListener('keydown',e=>keys.add(e.key));addEventListener('keyup',e=>keys.delete(e.key));function loop(){if(keys.has('ArrowLeft'))px-=4;if(keys.has('ArrowRight'))px+=4;if(keys.has('ArrowUp'))py-=4;if(keys.has('ArrowDown'))py+=4;px=Math.max(10,Math.min(${width-10},px));py=Math.max(10,Math.min(${height-10},py));score++;x.clearRect(0,0,c.width,c.height);x.fillStyle='#4ade80';x.fillRect(px-10,py-10,20,20);s.textContent='Score: '+score;requestAnimationFrame(loop)}loop();</script>`;
+function compileBasicGame(spec, dir) {
+  const width = Number(spec.game.width || 960), height = Number(spec.game.height || 540);
+  const body = `<main><h1>${esc(spec.name)}</h1><p>${esc(spec.description)}</p><canvas id="game" width="${width}" height="${height}"></canvas><p id="score">Score: 0</p></main><script>const c=document.getElementById('game'),x=c.getContext('2d'),s=document.getElementById('score');let px=${Math.floor(width/2)},py=${Math.floor(height/2)},score=0;const keys=new Set;addEventListener('keydown',e=>keys.add(e.key));addEventListener('keyup',e=>keys.delete(e.key));function loop(){if(keys.has('ArrowLeft'))px-=4;if(keys.has('ArrowRight'))px+=4;if(keys.has('ArrowUp'))py-=4;if(keys.has('ArrowDown'))py+=4;px=Math.max(10,Math.min(${width-10},px));py=Math.max(10,Math.min(${height-10},py));score++;x.clearRect(0,0,c.width,c.height);x.fillStyle='#4ade80';x.fillRect(px-10,py-10,20,20);s.textContent='Score: '+score;requestAnimationFrame(loop)}loop();</script>`;
   write(path.join(dir, 'index.html'), shell(spec, body));
   return ['index.html'];
 }
 
+function compileKelplantis(spec, dir) {
+  const { generateDungeon } = require('./kelplantis/KelplantisDungeonGenerator');
+  const { buildRuntimeHtml } = require('./kelplantis/KelplantisRuntime');
+  const g = spec.game;
+  const dungeon = generateDungeon({ world_seed:g.world.worldSeed, floor_id:g.world.floorId, canonical_boss_id:g.world.bossId, floor_version:g.world.floorVersion, room_count:g.world.roomCount, width:80, height:50 });
+  write(path.join(dir, 'index.html'), buildRuntimeHtml(spec, dungeon));
+  write(path.join(dir, 'game.json'), JSON.stringify({ id:spec.id, profile:g.profile, dungeon }, null, 2) + '\n');
+  return ['index.html', 'game.json'];
+}
+
+function compileGame(spec, dir) { return spec.game.profile === 'kelplantis-mvp' ? compileKelplantis(spec, dir) : compileBasicGame(spec, dir); }
+
 function compileSpec(spec, source) {
   validateSpec(spec, source);
   const dir = path.join(OUT_ROOT, spec.target, spec.id);
-  fs.rmSync(dir, { recursive: true, force: true });
-  fs.mkdirSync(dir, { recursive: true });
-  let files;
-  if (spec.target === 'website') files = compileWebsite(spec, dir);
-  else if (spec.target === 'game') files = compileGame(spec, dir);
-  else files = compileApp(spec, dir);
-  const outputs = files.map(file => ({ path: path.relative(ROOT, path.join(dir, file)).replace(/\\/g, '/'), sha256: sha256(fs.readFileSync(path.join(dir, file), 'utf8')) }));
-  return { id: spec.id, target: spec.target, name: spec.name, files: outputs };
+  fs.rmSync(dir, { recursive:true, force:true });
+  fs.mkdirSync(dir, { recursive:true });
+  const files = spec.target === 'website' ? compileWebsite(spec, dir) : spec.target === 'game' ? compileGame(spec, dir) : compileApp(spec, dir);
+  const outputs = files.map(file => ({ path:path.relative(ROOT, path.join(dir, file)).replace(/\\/g,'/'), sha256:sha256(fs.readFileSync(path.join(dir,file),'utf8')) }));
+  return { id:spec.id, target:spec.target, name:spec.name, profile:spec.game && spec.game.profile || null, files:outputs };
 }
 
 function compile() {
   assert(fs.existsSync(SPEC_DIR), `Universal spec directory missing: ${SPEC_DIR}`);
   const files = fs.readdirSync(SPEC_DIR).filter(x => x.endsWith('.json')).sort();
   assert(files.length > 0, 'No universal compiler specs found');
-  const results = files.map(file => compileSpec(readJson(path.join(SPEC_DIR, file)), file));
-  const proof = {
-    schema: 'BEC-PRIME/UNIVERSAL-COMPILER-PROOF/v1',
-    status: 'PASS',
-    compiler: 'UniversalCompiler/v1',
-    targets_supported: Array.from(TARGETS),
-    specs_compiled: results.length,
-    outputs: results,
-    native_mobile_binary: false,
-    note: 'app target produces a standards-based installable web app/PWA surface; native iOS/Android binaries require platform toolchains and are not claimed by this compiler.',
-    deterministic: true,
-    source_hash: sha256(fs.readFileSync(__filename, 'utf8')),
-    source_hashes: Object.fromEntries(files.map(file => [file, sha256(fs.readFileSync(path.join(SPEC_DIR, file), 'utf8'))]))
-  };
-  write(PROOF, JSON.stringify(proof, null, 2) + '\n');
+  const results = files.map(file => compileSpec(readJson(path.join(SPEC_DIR,file)), file));
+  const proof = { schema:'BEC-PRIME/UNIVERSAL-COMPILER-PROOF/v3', status:'PASS', compiler:'UniversalCompiler/v3', targets_supported:Array.from(TARGETS), game_profiles_supported:['basic','kelplantis-mvp'], specs_compiled:results.length, outputs:results, native_windows_binary:false, deterministic:true, source_hash:sha256(fs.readFileSync(__filename,'utf8')), source_hashes:Object.fromEntries(files.map(file => [file,sha256(fs.readFileSync(path.join(SPEC_DIR,file),'utf8'))])) };
+  write(PROOF, JSON.stringify(proof,null,2) + '\n');
   return proof;
 }
 

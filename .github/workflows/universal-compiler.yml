@@ -10,7 +10,9 @@ on:
     paths:
       - 'BEC-PRIME/compiler/UniversalCompiler.js'
       - 'BEC-PRIME/compiler/universal-specs/**'
+      - 'BEC-PRIME/compiler/kelplantis/**'
       - 'BEC-PRIME/scripts/Smoke-UniversalCompiler.js'
+      - 'BEC-PRIME/scripts/KelplantisBrowserSmoke.spec.js'
       - 'BEC-PRIME/package.json'
       - '.github/workflows/universal-compiler.yml'
 
@@ -32,18 +34,45 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+
       - name: Compile universal targets
         run: npm run compile:universal
 
-      - name: Verify proof and outputs
+      - name: Verify universal compiler proof
         shell: bash
         run: |
           test -f RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
-          node -e "const p=require('./RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'); if(p.status!=='PASS'||p.specs_compiled!==3) process.exit(1); for(const t of ['website','game','app']) if(!p.outputs.some(x=>x.target===t)) process.exit(1); console.log(JSON.stringify(p,null,2));"
+          node -e "const p=require('./RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'); const ids=['smoke-website','smoke-game','smoke-app','dreamledger-production','amplissa-public','kelplantis-mvp']; if(p.status!=='PASS'||p.specs_compiled!==ids.length) process.exit(1); for(const id of ids) if(!p.outputs.some(x=>x.id===id)) process.exit(1); for(const t of ['website','game','app']) if(!p.outputs.some(x=>x.target===t)) process.exit(1); console.log(JSON.stringify(p,null,2));"
 
-      - name: Upload universal compiler proof
+      - name: Run Kelplantis deterministic tests
+        run: npm run kelplantis:test
+
+      - name: Install Chromium for runtime verification
+        run: npx playwright install chromium
+
+      - name: Compile dedicated Kelplantis target
+        run: node compiler/kelplantis/KelplantisTargetCompiler.js
+
+      - name: Verify Kelplantis browser runtime
+        run: npx playwright test scripts/KelplantisBrowserSmoke.spec.js --reporter=line
+
+      - name: Verify runtime proof
+        shell: bash
+        run: |
+          test -f RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json
+          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json'); if(p.status!=='PASS'||p.player_movement!==true||p.player_attack!==true||p.enemy_ai_damage!==true||p.loot!==true||p.xp!==true||p.leveling!==true||p.town_safety!==true||p.save_load!==true||p.boss_fightable!==true||p.win_state!==true||p.console_errors.length!==0) process.exit(1); console.log(JSON.stringify(p,null,2));"
+
+      - name: Upload compiler and runtime proofs
         uses: actions/upload-artifact@v4
         with:
-          name: universal-compiler-proof-${{ github.sha }}
-          path: BEC-PRIME/RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
+          name: kelplantis-runtime-proof-${{ github.sha }}
+          path: |
+            BEC-PRIME/RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
+            BEC-PRIME/RUN-PROOFS/KELPLANTIS-MVP-COMPILER-PROOF.json
+            BEC-PRIME/RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json
+            BEC-PRIME/RUN-PROOFS/KELPLANTIS-100-FLOOR-SLICE-PROOF.json
+            BEC-PRIME/RUN-PROOFS/KELPLANTIS-DUNGEON-GENERATOR-PROOF.json
+            BEC-PRIME/compiled/universal/game/kelplantis-mvp/**
           if-no-files-found: error
