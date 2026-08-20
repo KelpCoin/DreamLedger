@@ -3,7 +3,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const CONTRACT_PATH = path.join(ROOT, 'docs', 'SILO-BOUNDARY-CONTRACT.json');
-const PROOF_DIR = path.join(ROOT, 'PROOF');
+const PROOF_DIR = path.join(ROOT, 'BEC-PRIME', 'PROOF');
 const PROOF_PATH = path.join(PROOF_DIR, 'silo-boundary-proof.json');
 
 function readJson(file) {
