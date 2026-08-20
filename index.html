@@ -4,16 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0d12">
-<meta name="description" content="DreamLedger: a verified marketplace for digital goods, avatars, and practical services.">
-<title>DreamLedger | Marketplace</title>
+<meta name="description" content="DreamLedger: a neutral front door to independent digital worlds, identity, and commerce.">
+<title>DreamLedger | Neutral Front Door</title>
 <style>
-:root{--bg:#0b0d12;--panel:#121722;--panel2:#171d29;--ink:#f5f7fb;--muted:#9da7b8;--line:#2a3342;--accent:#e7bd69;--good:#8fd3a0;--max:1180px}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b0d12,#101520 55%,#0b0d12);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 22px 70px}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{font-weight:950;letter-spacing:-.06em}.brand b{color:var(--accent)}.navlinks{display:flex;gap:20px;color:var(--muted);font-size:.8rem;font-weight:800}.hero{padding:78px 0 54px;display:grid;grid-template-columns:1.25fr .75fr;gap:45px;align-items:end}.eyebrow{font:900 .65rem ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(3.5rem,8vw,7rem);font-weight:500;line-height:.88;letter-spacing:-.075em;margin:14px 0 25px}.hero p{max-width:680px;color:var(--muted);font-size:1.08rem}.proofline{border-left:2px solid var(--accent);padding:18px 0 18px 20px;color:#c8d0dc;font-size:.85rem}.proofline strong{display:block;color:var(--ink);margin-bottom:7px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}.button{display:inline-flex;align-items:center;justify-content:center;padding:13px 17px;border-radius:9px;border:1px solid var(--line);font-weight:950}.button.primary{background:var(--accent);color:#15120c;border-color:var(--accent)}.button.secondary{background:transparent}.section{padding:28px 0}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:18px}.sectionhead h2{font-family:Georgia,"Times New Roman",serif;font-size:2.5rem;font-weight:500;letter-spacing:-.055em;margin:5px 0}.hint{color:var(--muted);font-size:.8rem}.offers{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.card{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:25px;min-height:300px;display:flex;flex-direction:column}.tag{display:inline-flex;width:max-content;border:1px solid var(--line);border-radius:999px;padding:6px 9px;color:var(--muted);font:800 .58rem ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase}.card h3{font-family:Georgia,"Times New Roman",serif;font-size:2.35rem;font-weight:500;line-height:.98;letter-spacing:-.055em;margin:24px 0 13px}.card p{color:var(--muted);max-width:510px}.price{margin-top:auto;padding-top:22px;display:flex;align-items:end;justify-content:space-between;gap:15px}.amount{font-size:1.65rem;font-weight:950}.amount small{font-size:.65rem;color:var(--muted);font-weight:800}.status{font:900 .6rem ui-monospace,monospace;color:var(--good);letter-spacing:.08em}.boundary{margin-top:24px;border:1px solid var(--line);border-radius:14px;padding:18px;color:var(--muted);font-size:.78rem}.boundary strong{color:var(--ink)}.footer{border-top:1px solid var(--line);margin-top:45px;padding-top:24px;color:#737d8d;font-size:.72rem}@media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:52px}.offers{grid-template-columns:1fr}.navlinks{display:none}}
+:root{--bg:#0b0d12;--panel:#121722;--panel2:#171d29;--ink:#f5f7fb;--muted:#9da7b8;--line:#2a3342;--accent:#e7bd69;--good:#8fd3a0;--max:1180px}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b0d12,#101520 55%,#0b0d12);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 22px 70px}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{font-weight:950;letter-spacing:-.06em}.brand b{color:var(--accent)}
+.navlinks{display:flex;gap:20px;color:var(--muted);font-size:.8rem;font-weight:800}.hero{padding:70px 0 34px}.eyebrow{font:900 .65rem ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(3.3rem,8vw,6.4rem);font-weight:500;line-height:.9;letter-spacing:-.075em;margin:14px 0 22px}.hero p{max-width:760px;color:var(--muted);font-size:1.06rem}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.button{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:9px;border:1px solid var(--line);font-weight:950}.button.primary{background:var(--accent);color:#15120c;border-color:var(--accent)}
+.world{margin:28px 0 0;overflow-x:auto;scroll-snap-type:x mandatory;display:flex;gap:18px;padding:4px 0 18px;-webkit-overflow-scrolling:touch}.world::-webkit-scrollbar{height:8px}.world-card{scroll-snap-align:start;flex:0 0 min(82vw,360px);min-height:300px;background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:25px;display:flex;flex-direction:column}.world-card h2{font-family:Georgia,"Times New Roman",serif;font-size:2.5rem;font-weight:500;line-height:.98;letter-spacing:-.055em;margin:20px 0 12px}.world-card p{color:var(--muted)}.world-card .foot{margin-top:auto;padding-top:20px;display:flex;justify-content:space-between;gap:10px;align-items:end}.status{font:900 .58rem ui-monospace,monospace;color:var(--good);letter-spacing:.08em}.boundary{margin-top:16px;border:1px solid var(--line);border-radius:14px;padding:16px;color:var(--muted);font-size:.78rem}.boundary strong{color:var(--ink)}
+.footer{border-top:1px solid var(--line);margin-top:36px;padding-top:24px;color:#737d8d;font-size:.72rem}
 </style>
 </head>
 <body><div class="wrap">
-<header class="nav"><a class="brand" href="/">DREAM<b>LEDGER</b></a><nav class="navlinks"><a href="/marketplace/">Marketplace</a><a href="/avatar.html">Avatar</a><a href="/account.html">Account</a></nav></header>
-<main><section class="hero"><div><div class="eyebrow">Verified marketplace / New Zealand</div><h1>Own your identity.<br>Buy what matters.</h1><p>DreamLedger is a public marketplace for approved digital goods, avatar assets, and practical services. Your account and identity stay yours. Product and payment state are validated by the server.</p><div class="actions"><a class="button primary" href="/marketplace/">Browse marketplace</a><a class="button secondary" href="/register">Create account</a><a class="button secondary" href="/login">Log in</a></div></div><div class="proofline"><strong>PUBLIC SURFACE</strong>DreamLedger is intentionally isolated from private and unrelated silos. The homepage contains no Magic: The Gathering catalogue, adult content, or Amplissa references.</div></section>
-<section class="section"><div class="sectionhead"><div><div class="eyebrow">Avatar ecosystem</div><h2>Your Dreamiez identity.</h2></div><div class="hint">Customise, collect, wear</div></div><div class="offers"><article class="card"><span class="tag">Identity</span><h3>Create your avatar</h3><p>Build and manage your DreamLedger identity, including avatar style and owned cosmetics.</p><div class="price"><div><div class="status">ACCOUNT REQUIRED</div></div><a class="button primary" href="/avatar.html">Open avatar</a></div></article><article class="card"><span class="tag">Digital goods</span><h3>Avatar assets</h3><p>Shared avatar assets are designed for the Dreamiez and Kelplantis ecosystems. Publication remains approval-gated.</p><div class="price"><div><div class="status">APPROVED CATALOG ONLY</div></div><a class="button primary" href="/marketplace/">Browse assets</a></div></article></div></section>
-<section class="section"><div class="sectionhead"><div><div class="eyebrow">Account</div><h2>One doorway.</h2></div></div><div class="offers"><article class="card"><span class="tag">Customer</span><h3>Log in</h3><p>Access your account, identity, inventory and marketplace state.</p><div class="price"><a class="button primary" href="/login">Log in</a></div></article><article class="card"><span class="tag">New customer</span><h3>Create account</h3><p>Create an account and start with your DreamLedger identity.</p><div class="price"><a class="button primary" href="/register">Create account</a></div></article></div></section>
-</main><footer class="footer">DreamLedger public marketplace. Private silos stay private. The server validates commercial state.</footer>
+<header class="nav"><a class="brand" href="/">DREAM<b>LEDGER</b></a><nav class="navlinks"><a href="/dreamiez">Dreamiez</a><a href="/mtg">MTG</a></nav></header>
+<main>
+<section class="hero">
+  <div class="eyebrow">Neutral front door / ONE HOST</div>
+  <h1>Choose your world.</h1>
+  <p>DreamLedger is the neutral front door for independent experiences. Each destination remains isolated behind its own route and commercial boundary.</p>
+  <div class="actions"><a class="button primary" href="/dreamiez/register.html">Make your Dreamy</a><a class="button" href="/dreamiez/login.html">Log in</a></div>
+</section>
+<section aria-label="DreamLedger worlds" class="world">
+  <article class="world-card">
+    <div class="eyebrow">Dreamiez</div>
+    <h2>Identity, avatars, and owned cosmetics.</h2>
+    <p>Your Dreamiez identity lives in its own account surface and remains separate from the other silos.</p>
+    <div class="foot"><div class="status">INDEPENDENT WORLD</div><a class="button primary" href="/dreamiez">Enter Dreamiez</a></div>
+  </article>
+  <article class="world-card">
+    <div class="eyebrow">Collector Commerce</div>
+    <h2>Magic: The Gathering.</h2>
+    <p>Independent silo for cards, decks, and collector commerce. Nothing from private or unrelated silos is mixed into this destination.</p>
+    <div class="foot"><div class="status">INDEPENDENT SILO</div><a class="button primary" href="/mtg">Enter MTG</a></div>
+  </article>
+  <article class="world-card">
+    <div class="eyebrow">Kelplantis</div>
+    <h2>PvE world in development.</h2>
+    <p>A separate game world with its own runtime, compiler target, and content boundary.</p>
+    <div class="foot"><div class="status">GAME WORLD</div><a class="button" href="/kelplantis">Enter Kelplantis</a></div>
+  </article>
+</section>
+<div class="boundary"><strong>Neutral front door.</strong> DreamLedger hosts the doorway, not a mixed catalogue. Each world keeps its own content, account, and commerce boundary.</div>
+</main>
+<footer class="footer">DreamLedger public front door. Independent worlds remain isolated. Revenue is not claimed until a real payment produces transaction evidence.</footer>
 </div></body></html>
