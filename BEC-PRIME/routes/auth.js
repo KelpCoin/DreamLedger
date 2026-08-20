@@ -34,6 +34,10 @@ function publicAccount(user) {
 async function body(req) { return new Promise((resolve, reject) => { let value = ''; req.on('data', chunk => { value += chunk; if (value.length > 1000000) req.destroy(new Error('Request too large')); }); req.on('end', () => { try { resolve(value ? JSON.parse(value) : {}); } catch (err) { reject(err); } }); req.on('error', reject); }); }
 function json(res, status, data) { if (res.writableEnded) return true; res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); return true; }
 function validEmail(email) { return /^\S+@\S+\.\S+$/.test(email); }
+function validAvatar(avatar) {
+  if (!avatar || typeof avatar !== 'object' || Array.isArray(avatar)) return false;
+  return ['height', 'build', 'skin'].every(key => Number.isInteger(Number(avatar[key])) && Number(avatar[key]) >= 1 && Number(avatar[key]) <= 6);
+}
 
 async function handle(req, res, url) {
   const route = typeof url === 'string' ? url : String(req.url || '').split('?')[0];
@@ -97,6 +101,14 @@ async function handle(req, res, url) {
     if (!user) return json(res, 401, { error: 'Please log in first.' });
     const input = await body(req);
     if (input.name !== undefined) user.name = String(input.name || '').trim().slice(0, 60) || user.name;
+    if (input.avatar !== undefined) {
+      if (!validAvatar(input.avatar)) return json(res, 422, { error: 'Invalid avatar selection.' });
+      user.avatar = {
+        height: Number(input.avatar.height),
+        build: Number(input.avatar.build),
+        skin: Number(input.avatar.skin)
+      };
+    }
     user.seller = {
       display_name: String(input.seller_display_name || user.seller?.display_name || user.name).trim().slice(0, 80),
       location: String(input.location || '').trim().slice(0, 100),
