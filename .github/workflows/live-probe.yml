@@ -1,0 +1,31 @@
+name: Live DreamLedger Probe
+
+on:
+  push:
+    branches:
+      - live-probe
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe live endpoints
+        run: |
+          set +e
+          echo "=== HEALTH ==="
+          curl -s -i --max-time 20 https://dreamledger.org/healthz
+          echo ""
+          echo "=== ACCOUNT ME ==="
+          curl -s -i --max-time 20 https://dreamledger.org/api/account/me
+          echo ""
+          echo "=== REGISTER PAGE ==="
+          curl -s -i --max-time 20 https://dreamledger.org/register
+          echo ""
+          echo "=== ACCOUNT PAGE ==="
+          curl -s -i --max-time 20 https://dreamledger.org/account
+          echo ""
+          echo "=== EDH_0001 ==="
+          curl -s -i --max-time 20 https://dreamledger.org/api/products/EDH_0001
+          echo ""
+          echo "=== VERSION ==="
+          curl -s -i --max-time 20 https://dreamledger.org/version
