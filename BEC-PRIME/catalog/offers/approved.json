@@ -16,12 +16,7 @@
       "deliverable": "One-page written diagnostic delivered manually within 24h.",
       "target_buyer": "AI builders, operators, and founders using or evaluating AI agents and agentic systems",
       "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
-      "constraints": [
-        "No credential collection",
-        "No private conversation publication",
-        "No unsupported claims",
-        "Silo boundaries enforced"
-      ],
+      "constraints": ["No credential collection","No private conversation publication","No unsupported claims","Silo boundaries enforced"],
       "price": 29,
       "currency": "NZD",
       "pricing_strategy": "fixed",
@@ -30,28 +25,38 @@
       "payment_adapter": "stripe",
       "checkout_route": "/api/offer-checkout/create",
       "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
-      "verification_rules": [
-        "capability_exists",
-        "required_offer_fields",
-        "price_positive",
-        "approval_gate_locked",
-        "no_private_ip_exposure",
-        "no_unsupported_claims",
-        "delivery_defined",
-        "payment_defined",
-        "proof_defined",
-        "silo_isolated",
-        "schema_valid",
-        "unique_offer_id"
-      ],
-      "provenance": {
-        "capability_ids": ["BEC-PRIME-ARCHITECTURE"],
-        "methodology": "offer-compiler-v1",
-        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
-        "private_material": "excluded"
-      },
+      "verification_rules": ["capability_exists","required_offer_fields","price_positive","approval_gate_locked","no_private_ip_exposure","no_unsupported_claims","delivery_defined","payment_defined","proof_defined","silo_isolated","schema_valid","unique_offer_id"],
+      "provenance": {"capability_ids":["BEC-PRIME-ARCHITECTURE"],"methodology":"offer-compiler-v1","public_claims_source":"BEC-PRIME/catalog/ip-capabilities.json","private_material":"excluded"},
       "approved_by": "operator",
       "approved_at": "2026-08-15"
+    },
+    {
+      "offer_id": "EDH_0001",
+      "product_id": "EDH_0001",
+      "product_sku": "EDH_0001",
+      "capability_id": "PRODUCT-EDH_0001",
+      "silo": "mtg",
+      "name": "EDH_0001 Commander Deck",
+      "problem": "Purchase the published physical Commander deck EDH_0001.",
+      "input": "No additional input required to purchase.",
+      "output": "Physical Commander deck EDH_0001. One available unit. Ships from Tauranga, New Zealand.",
+      "delivery_mechanism": "physical_delivery",
+      "deliverable": "Physical Commander deck EDH_0001 shipped to the buyer.",
+      "target_buyer": "Buyer seeking the published EDH_0001 Commander deck.",
+      "eligibility": "Available while the single unit remains in inventory.",
+      "constraints": ["No credential collection","Silo boundaries enforced","Inventory must remain positive"],
+      "price": 400,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout and fulfillment policy.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "proof_of_delivery": "stripe_payment_plus_durable_transaction_proof",
+      "verification_rules": ["canonical_product","explicit_operator_approval","inventory_positive","stripe_checkout","webhook_proof","silo_isolated","schema_valid","unique_offer_id"],
+      "provenance": {"product_source":"BEC-PRIME/catalog/products/EDH_0001.json","private_material":"excluded"},
+      "approved_by": "operator",
+      "approved_at": "2026-08-20"
     }
   ]
 }
