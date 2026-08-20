@@ -1,7 +1,7 @@
 {
   "schema": "dreamledger/active-payment-links/v1",
   "truth_rule": "A link is commercially live only when Stripe reports it active. A payment is revenue only when Stripe reports a paid completed session.",
-  "last_live_rail_check": "2026-08-18",
+  "last_live_rail_check": "2026-08-21",
   "links": [
     {
       "sku": "DREAMLEDGER-BILLBOARD-SMALL-001",
@@ -21,6 +21,17 @@
       "amount": 49,
       "payment_link_id": "plink_1U5KS2EGgEAnUFF92dy3hG3f",
       "url": "https://buy.stripe.com/3cIcN51nfeWh0zR3gwdwc1I",
+      "status": "ACTIVE",
+      "stripe_livemode_verified": true,
+      "revenue_status": "UNPAID"
+    },
+    {
+      "sku": "EDH_0001",
+      "offer": "EDH_0001 Commander Deck",
+      "currency": "NZD",
+      "amount": 400,
+      "payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr",
+      "url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
       "status": "ACTIVE",
       "stripe_livemode_verified": true,
       "revenue_status": "UNPAID"
