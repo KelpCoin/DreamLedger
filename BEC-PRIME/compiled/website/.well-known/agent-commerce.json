@@ -2,13 +2,9 @@
   "schema": "dreamledger/agent-commerce-manifest/v1",
   "name": "DreamLedger",
   "description": "Commerce layer for AI agents.",
-  "capabilities": [
-    "catalog:read",
-    "product:read",
-    "agent-readiness-assessment",
-    "checkout:prepare",
-    "settlement:verify"
-  ],
+  "private_material": "excluded",
+  "capabilities": null,
+  "current_offers": [],
   "verified_merchants": [],
   "first_payment_proof": "NOT_PROVEN",
   "revenue_nzd": 0,
