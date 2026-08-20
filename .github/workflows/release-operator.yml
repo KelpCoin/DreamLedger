@@ -40,12 +40,13 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RELEASE_AUTHORIZED: ${{ github.event_name == 'push' || inputs.deploy == 'confirm' }}
-  WAIT_FOR_RESULT: ${{ github.event_name == 'push' || inputs.wait_for_result == 'yes' }}
+  RELEASE_AUTHORIZED: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy == 'confirm' }}
+  WAIT_FOR_RESULT: ${{ github.event_name == 'workflow_dispatch' && inputs.wait_for_result == 'yes' }}
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 45
     steps:
       - name: Refuse without explicit deployment authorization
@@ -153,7 +154,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"schema":"dreamledger-release-operator-v7","sha":"%s","event":"%s","deployment_authorized":%s,"wait_for_result":%s,"deployment_before_readiness":true,"immutable_sha_dispatch":true,"deployment_provider":"render","status":"operator_complete"}\n' "${GITHUB_SHA}" "${GITHUB_EVENT_NAME}" "$([ "${RELEASE_AUTHORIZED}" = "true" ] && echo true || echo false)" "$([ "${WAIT_FOR_RESULT}" = "true" ] && echo true || echo false)" > proof/release-operator-proof.json
+          printf '{"schema":"dreamledger-release-operator-v8","sha":"%s","event":"%s","deployment_authorized":%s,"wait_for_result":%s,"deployment_before_readiness":true,"immutable_sha_dispatch":true,"deployment_provider":"render","status":"operator_complete"}\n' "${GITHUB_SHA}" "${GITHUB_EVENT_NAME}" "$([ "${RELEASE_AUTHORIZED}" = "true" ] && echo true || echo false)" "$([ "${WAIT_FOR_RESULT}" = "true" ] && echo true || echo false)" > proof/release-operator-proof.json
           cat proof/release-operator-proof.json
 
       - name: Upload operator proof
@@ -165,4 +166,4 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-# CASH-SPINE-EXECUTION: Render is canonical; no Vercel credentials or workflow are required.
+# CASH-SPINE-EXECUTION: Render is canonical; production deploy requires explicit workflow_dispatch confirmation and production environment approval.
