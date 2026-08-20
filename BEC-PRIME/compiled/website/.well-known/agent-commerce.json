@@ -1,16 +1,16 @@
 {
-  "schema": "dreamledger/agent-commerce/v1",
-  "service": "DreamLedger",
-  "commerce_surface": "agentic_commerce_readiness",
-  "silo": "dreamledger",
-  "currency": "NZD",
-  "offer_catalog": "/api/offers",
-  "offer_lookup": "/api/offers/{offer_id}",
-  "checkout": "/api/offer-checkout/create",
-  "capabilities": null,
-  "approval_model": "explicit_human_approval",
-  "offers_are_checkout_disabled_by_default": true,
-  "current_offers": [],
+  "schema": "dreamledger/agent-commerce-manifest/v1",
+  "name": "DreamLedger",
+  "description": "Commerce layer for AI agents.",
   "private_material": "excluded",
-  "source_of_truth": "/api/offers"
+  "capabilities": null,
+  "current_offers": [],
+  "verified_merchants": [],
+  "first_payment_proof": "NOT_PROVEN",
+  "revenue_nzd": 0,
+  "approval_required_for": [
+    "external_publication",
+    "payment_actions",
+    "customer_contact"
+  ]
 }

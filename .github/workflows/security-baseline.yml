@@ -47,6 +47,7 @@ jobs:
             ':!BEC-PRIME/scripts/Verify-CompilerTruth.ps1' \
             ':!BEC-PRIME/scripts/Verify-Registry.ps1' \
             ':!BEC-PRIME/scripts/verify-public-boundary.js' \
+            ':!scripts/Verify-Registry.ps1' \
             ':!scripts/OfferCompiler.js'; then
             echo 'SECRET_PATTERN_FOUND'
             exit 1
