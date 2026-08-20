@@ -3,7 +3,7 @@
   "silo": "mtg",
   "name": "EDH_0001 Commander Deck",
   "description": "Physical Commander deck EDH_0001. One available unit. Ships from Tauranga, New Zealand.",
-  "price": 40000,
+  "price": 400,
   "currency": "nzd",
   "inventory": 1,
   "inventory_type": "physical",
@@ -18,8 +18,9 @@
     "approval_required": false,
     "activation_gate": "EXPLICIT_OPERATOR_APPROVAL",
     "activation_timestamp": "2026-08-12T00:00:00.000Z",
-    "payment_surface": "engine-generated-stripe-checkout",
-    "payment_link": null
+    "payment_surface": "stripe-payment-link",
+    "payment_link": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+    "payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr"
   },
   "evidence": {
     "status": "awaiting_first_payment",
