@@ -1,8 +1,8 @@
 const TOLERANCE_SECONDS = 300;
 const PROOF_TABLE = 'first_payment_proofs';
-const CANONICAL_SKU = 'COMMANDER-DECK-DIAGNOSTIC-001';
+const CANONICAL_SKU = 'EDH_0001';
 const CANONICAL_CURRENCY = 'nzd';
-const CANONICAL_AMOUNT_CENTS = 2500;
+const CANONICAL_AMOUNT_CENTS = 40000;
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
