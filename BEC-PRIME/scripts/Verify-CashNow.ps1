@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [string]$BaseUrl = 'https://dreamledger.org',
-    [string]$ProductId = 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
+    [string]$ProductId = 'EDH_0001',
     [string]$ProofPath = 'D:\BEC_CASH_NOW_PROOF.json'
 )
 
@@ -49,6 +49,9 @@ try {
     $result.gates.inventory_available = ([int]$product.inventory -gt 0)
     $result.gates.approval_off = (-not [bool]$product.approval_required)
     $result.gates.checkout_available = [bool]$product.checkout_available
+    $result.gates.currency_nzd = (([string]$product.currency).ToLower() -eq 'nzd')
+    $result.gates.unit_amount_40000 = ([int]$product.unit_amount_cents -eq 40000)
+    $result.gates.price_nzd_400 = ([decimal]$product.price_nzd -eq 400.00)
 
     if (-not $result.gates.health_ok) { $result.blocker = 'healthz_not_ok' }
     elseif (-not $result.gates.product_found) { $result.blocker = 'product_not_found' }
@@ -56,6 +59,9 @@ try {
     elseif (-not $result.gates.inventory_available) { $result.blocker = 'inventory_unavailable' }
     elseif (-not $result.gates.approval_off) { $result.blocker = 'approval_gate_on' }
     elseif (-not $result.gates.checkout_available) { $result.blocker = 'checkout_not_available' }
+    elseif (-not $result.gates.currency_nzd) { $result.blocker = 'wrong_currency' }
+    elseif (-not $result.gates.unit_amount_40000) { $result.blocker = 'wrong_unit_amount' }
+    elseif (-not $result.gates.price_nzd_400) { $result.blocker = 'wrong_price_nzd' }
     else {
         try {
             $checkout = Invoke-RestMethod -Uri "$BaseUrl/api/offer-checkout/create" -Method Post -ContentType 'application/json' -Body (@{ offer_id = $ProductId; region = 'NZ' } | ConvertTo-Json)
