@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cultlantis MVP</title>
+<style>
+:root{--bg:#07151a;--panel:#0d252b;--ink:#e8fff8;--muted:#91b8b1;--accent:#58d6b4;--line:#1b4a4b}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#12343a,#07151a 55%);color:var(--ink);font:16px system-ui,sans-serif;min-height:100vh}.wrap{max-width:760px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center}.tag{font:800 11px ui-monospace,monospace;letter-spacing:.14em;color:var(--accent)}h1{font-size:clamp(42px,10vw,80px);line-height:.9;margin:34px 0 12px;letter-spacing:-.06em}p{color:var(--muted)}.panel{background:rgba(13,37,43,.9);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:22px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{padding:14px;border:1px solid var(--line);border-radius:12px}.num{display:block;font-size:25px;font-weight:900;color:var(--accent)}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:18px}.node{aspect-ratio:1;border:1px solid var(--line);border-radius:14px;background:#0a2025;color:var(--accent);font-size:26px;cursor:pointer}.node:hover{transform:translateY(-2px);border-color:var(--accent)}.node:disabled{opacity:.3;cursor:default}.message{min-height:28px;font-weight:800}.win{color:var(--accent)}button.reset{margin-top:16px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:10px 14px;border-radius:9px;cursor:pointer}
+</style>
+</head>
+<body><main class="wrap">
+<div class="top"><div class="tag">CULTLANTIS / MVP-001</div><div class="tag">LOCAL GAME LOOP</div></div>
+<h1>Grow the reef.</h1><p>Harvest living kelp, convert it into oxygen, and wake the first Cultlantis colony. This is a tiny deterministic playable core, not a promise of the larger game.</p>
+<section class="panel"><div class="stats"><div class="stat">Oxygen<span class="num" id="oxygen">0</span></div><div class="stat">Kelp<span class="num" id="kelp">0</span></div><div class="stat">Colony<span class="num" id="colony">0%</span></div></div><div class="grid" id="grid"></div><p class="message" id="message">Harvest 10 kelp.</p><button class="reset" id="reset">Reset reef</button></section>
+</main><script>
+const N=15,goal=10;let kelp=0,oxygen=0;const grid=document.getElementById('grid'),o=document.getElementById('oxygen'),k=document.getElementById('kelp'),c=document.getElementById('colony'),m=document.getElementById('message');
+function render(){o.textContent=oxygen;k.textContent=kelp;c.textContent=Math.min(100,kelp*10)+'%';if(kelp>=goal){m.textContent='Colony awakened. Cultlantis MVP complete.';m.className='message win'}else m.textContent='Harvest '+(goal-kelp)+' more kelp.'}
+function reset(){kelp=0;oxygen=0;grid.innerHTML='';for(let i=0;i<N;i++){const b=document.createElement('button');b.className='node';b.textContent='✦';b.onclick=()=>{if(b.disabled)return;b.disabled=true;kelp++;oxygen+=2;render()};grid.appendChild(b)}render()}
+document.getElementById('reset').onclick=reset;reset();
+</script></body></html>
