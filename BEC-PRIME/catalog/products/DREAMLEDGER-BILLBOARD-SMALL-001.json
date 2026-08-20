@@ -2,7 +2,7 @@
   "id": "DREAMLEDGER-BILLBOARD-SMALL-001",
   "silo": "dreamledger",
   "name": "DreamLedger Billboard - Small",
-  "description": "Reserve a 100 x 100 pixel billboard tile on the DreamLedger public board. Your approved artwork or message is installed into the purchased space.",
+  "description": "Claim a 100 x 100 pixel block on DreamLedger's one-million-pixel public canvas. Inspired by the original million-pixel billboard idea and physical-world public-place advertising, the product turns scarce digital surface area into a programmable commercial object. Buyers submit an image and destination; automated checks run first, with human review before publication. The longer-term vision is an agent-readable advertising surface where software agents can discover, evaluate and purchase defined digital real estate.",
   "price": 2900,
   "currency": "nzd",
   "inventory": 100,
@@ -15,15 +15,23 @@
   "commercial_truth": {
     "experiment": "DREAMLEDGER-BILLBOARD-FIRST-SALE-001",
     "approval_required": false,
-    "approval_source": "operator-approved GitHub commit",
     "activation_gate": "CHECKOUT_VERIFIED",
     "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t"
+    "payment_link": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
+    "stripe_livemode_verified": true,
+    "revenue_status": "UNPAID"
+  },
+  "positioning": {
+    "category": "digital-real-estate",
+    "inspiration": ["million-pixel-billboard-concept", "physical-public-billboard", "agentic-commerce"],
+    "promise": "Buy a defined piece of digital surface area and attach a destination to it.",
+    "not_claimed": "No guarantee of traffic, impressions, rankings, or sales."
   },
   "delivery": {
     "type": "digital_billboard_placement",
     "target": "dreamledger-public-billboard",
-    "dimensions": "100x100"
+    "dimensions": "100x100",
+    "publication": "paid_then_human_review"
   },
   "evidence": {
     "status": "awaiting_first_payment",
