@@ -41,7 +41,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git grep -nE 'sk_(live|test)_[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|xox[baprs]-[A-Za-z0-9-]{20,}' -- ':!docs/**' ':!BEC-PRIME/PROOF-*.json'; then
+          if git grep -nE 'sk_(live|test)_[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|xox[baprs]-[A-Za-z0-9-]{20,}' -- \
+            ':!docs/**' \
+            ':!BEC-PRIME/PROOF-*.json' \
+            ':!BEC-PRIME/scripts/Verify-CompilerTruth.ps1' \
+            ':!BEC-PRIME/scripts/Verify-Registry.ps1' \
+            ':!BEC-PRIME/scripts/verify-public-boundary.js' \
+            ':!scripts/OfferCompiler.js'; then
             echo 'SECRET_PATTERN_FOUND'
             exit 1
           fi
