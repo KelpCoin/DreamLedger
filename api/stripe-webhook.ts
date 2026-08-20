@@ -1,6 +1,6 @@
 const TOLERANCE_SECONDS = 300;
 const PROOF_TABLE = 'first_payment_proofs';
-const CANONICAL_SKU = 'DREAMLEDGER-BILLBOARD-SMALL-001';
+const CANONICAL_SKU = 'DL-BILLBOARD-100X100-001';
 const CANONICAL_CURRENCY = 'nzd';
 const CANONICAL_AMOUNT_CENTS = 2900;
 
@@ -52,7 +52,7 @@ function validatePaymentEvent(event: any): { ok: true; session: any } | { ok: fa
   if (session.payment_status !== 'paid') return { ok: false, reason: 'Checkout session is not paid' };
   if (String(session.currency ?? '').toLowerCase() !== CANONICAL_CURRENCY) return { ok: false, reason: 'Unexpected currency' };
   if (session.amount_total !== CANONICAL_AMOUNT_CENTS) return { ok: false, reason: 'Unexpected payment amount' };
-  if (session.metadata?.sku !== CANONICAL_SKU) return { ok: false, reason: 'Unexpected SKU' };
+  if (session.metadata?.dreamledger_sku !== CANONICAL_SKU) return { ok: false, reason: 'Unexpected DreamLedger SKU' };
 
   return { ok: true, session };
 }
