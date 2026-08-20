@@ -1,0 +1,10 @@
+{
+  "purpose": "Trigger production deployment and verification for canonical DreamLedger account surfaces",
+  "source_sha_before_trigger": "cf896bf8737062b9456fa9ca39bc0f39acd5589d",
+  "required_live_surfaces": ["/login", "/register", "/account", "/avatar", "/assets", "/api/account/me"],
+  "required_account_contract": ["POST /api/account/register", "POST /api/account/login", "POST /api/account/logout", "GET /api/account/me"],
+  "mtg_root_policy": "root public surface must contain no MTG, Commander, deck, Magic, or EDH_0001 tokens",
+  "payment_state": "NOT_PROVEN",
+  "revenue_nzd": 0,
+  "note": "Non-application proof marker. Its purpose is to cause the existing main->Render deployment workflow to execute against current main."
+}
