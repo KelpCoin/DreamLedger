@@ -9,7 +9,7 @@
       "currency": "NZD",
       "amount": 29,
       "payment_link_id": "plink_1U5GX8EGgEAnUFF9y2YGkIhv",
-      "url": "https://buy.stripe.com/28EcN54zraG1G3M3g3idwc1t",
+      "url": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
       "status": "ACTIVE",
       "stripe_livemode_verified": true,
       "revenue_status": "UNPAID"
