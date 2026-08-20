@@ -35,6 +35,17 @@
       "status": "ACTIVE",
       "stripe_livemode_verified": true,
       "revenue_status": "UNPAID"
+    },
+    {
+      "sku": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+      "offer": "Agentic Sovereignty Diagnostic",
+      "currency": "NZD",
+      "amount": 29,
+      "payment_link_id": "plink_1U6V4DEGgEAnUFF9t2YgqIKw",
+      "url": "https://buy.stripe.com/14A3cv3vneWhaar6sIdwc1K",
+      "status": "ACTIVE",
+      "stripe_livemode_verified": true,
+      "revenue_status": "UNPAID"
     }
   ],
   "verified_revenue_nzd": 0
