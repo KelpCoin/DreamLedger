@@ -1,0 +1,36 @@
+name: BEC-PRIME Verify Compiler
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/**'
+      - '.github/workflows/bec-pr-verify.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Compile and verify BEC-PRIME
+        shell: pwsh
+        run: ./BEC-PRIME/scripts/Compile-All.ps1
+
+      - name: Require compiler truth PASS
+        shell: pwsh
+        run: |
+          $proof = Get-Content './BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json' -Raw | ConvertFrom-Json
+          if ($proof.verdict -ne 'PASS') { throw "BEC compiler truth verdict is $($proof.verdict)" }
+          Write-Host 'BEC_COMPILER_TRUTH=PASS' -ForegroundColor Green
