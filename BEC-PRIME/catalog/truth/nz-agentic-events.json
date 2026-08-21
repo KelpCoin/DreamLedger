@@ -1,0 +1,17 @@
+{
+  "schema_version": "DREAMLEDGER-NZ-AGENTIC-EVENTS-1",
+  "scope": "New Zealand agentic commerce events and public reports",
+  "records": [
+    {
+      "record_id": "NZ-AGENT-2026-02-17-MASTERCARD-WESTPAC",
+      "date": "2026-02-17",
+      "category": "agentic_payment_transaction",
+      "status": "PUBLICLY_REPORTED",
+      "participants": ["Mastercard", "Westpac", "Event Cinemas", "IPSI", "Maincode"],
+      "description": "Mastercard reported New Zealand's first fully authenticated agentic transactions. One transaction purchased Event Cinemas tickets using a Westpac-issued debit card; a separate transaction booked accommodation with QT Hotels & Resorts in Queenstown.",
+      "amount_nzd": null,
+      "independent_verification": "NOT_PERFORMED_BY_DREAMLEDGER",
+      "source": "https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-completes-new-zealands-first-authenticated-agentic-transactions-with-westpac-bringing-trust-transparency-and-security-to-ai-powered-commerce/"
+    }
+  ]
+}
