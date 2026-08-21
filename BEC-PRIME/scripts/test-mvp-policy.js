@@ -7,6 +7,7 @@ const baseAuthority = { authority_id: 'authz_test', max_bid: 5000, max_total_spe
 const baseAuction = { id: 'A1', category: 'vehicle', status: 'open', current_bid: 1000, ends_at: new Date(Date.now() + 3600000).toISOString() };
 
 assert.equal(authorityReason({ authority: baseAuthority, auction: baseAuction, amount: 1500, acceptedSpend: 0 }), null);
+assert.equal(authorityReason({ authority: baseAuthority, auction: null, amount: 1500 }), 'AUCTION_NOT_FOUND');
 assert.equal(authorityReason({ authority: baseAuthority, auction: baseAuction, amount: 6000, acceptedSpend: 0 }), 'MAX_BID_EXCEEDED');
 assert.equal(authorityReason({ authority: baseAuthority, auction: baseAuction, amount: 1500, acceptedSpend: 7000 }), 'MAX_TOTAL_SPEND_EXCEEDED');
 assert.equal(authorityReason({ authority: { ...baseAuthority, expires_at: new Date(Date.now() - 1000).toISOString() }, auction: baseAuction, amount: 1500 }), 'AUTHORITY_EXPIRED');
@@ -20,6 +21,8 @@ first.event_hash = hashEvidence(first);
 const second = { event_id: 'e2', timestamp: '2026-08-21T00:00:01.000Z', principal_id: 'u1', agent_id: 'a1', action: 'TEST', authority: { authority_id: 'x' }, outcome: { allowed: false, reason: 'MAX_BID_EXCEEDED' }, previous_hash: first.event_hash };
 second.event_hash = hashEvidence(second);
 assert.deepEqual(verifyEvidenceChain([first, second]).ok, true);
+const equivalentTimestamp = { ...first, timestamp: '2026-08-21T00:00:00+00:00' };
+assert.equal(hashEvidence(equivalentTimestamp), first.event_hash);
 const tampered = { ...second, outcome: { allowed: true } };
 assert.equal(verifyEvidenceChain([first, tampered]).reason, 'EVENT_HASH_MISMATCH');
 const broken = { ...second, previous_hash: '1'.repeat(64), event_hash: hashEvidence({ ...second, previous_hash: '1'.repeat(64) }) };
