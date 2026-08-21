@@ -42,11 +42,20 @@ function product(productId) {
   if (!fs.existsSync(file)) return null;
   return read(file);
 }
+function productIdByPaymentLink(paymentLinkId) {
+  if (!paymentLinkId || !fs.existsSync(CATALOG)) return null;
+  const files = fs.readdirSync(CATALOG).filter(name => name.endsWith('.json'));
+  for (const file of files) {
+    const p = read(path.join(CATALOG, file));
+    if (p?.commercial_truth?.payment_link_id === paymentLinkId) return p.id;
+  }
+  return null;
+}
 async function createProductCheckout(productId, silo) {
   const p = product(productId);
   if (!p || p.status !== 'published' || Number(p.inventory || 0) < 1 || p.commercial_truth?.approval_required !== false) throw new Error('Product is not checkoutable');
   const cartId = 'direct_' + crypto.randomUUID();
-  const params = { mode: 'payment', 'integration_identifier': 'dreamledger-mtg-checkout-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id), 'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1', 'metadata[product_id]': p.id, 'metadata[silo]': silo || p.silo || 'dreamledger', 'metadata[commerce_version]': 'bec-direct-product-v1', 'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(), 'line_items[0][price_data][unit_amount]': Number(p.price), 'line_items[0][price_data][product_data][name]': p.name, 'line_items[0][price_data][product_data][metadata][product_id]': p.id, 'line_items[0][quantity]': 1 };
+  const params = { mode: 'payment', 'integration_identifier': 'dreamledger-mtg-checkout-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id), 'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1', 'metadata[product_id]': p.id, 'metadata[silo]': silo || p.silo || 'dreamledger', 'metadata[commerce_version]': 'bec-direct-product-v1', 'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(), 'line_items[0][price_data][unit_amount]': Number(p.price), 'line_items[0][price_data][product_data][name]': p.name, 'line_items[0][quantity]': 1 };
   const session = await stripe('checkout/sessions', params, 'dreamledger-direct-' + p.id + '-' + cartId);
   return { ok: true, offer_id: p.id, session_id: session.id, checkout_url: session.url, url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() };
 }
@@ -78,10 +87,21 @@ async function handleWebhook(req, res) {
       const result = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], {
         webhookSecret: STRIPE_WEBHOOK_SECRET,
         getProduct: (id) => product(id),
+        getProductByPaymentLink: productIdByPaymentLink,
         getOffer: () => null,
       });
       if (!result.received || !result.handled) throw new Error('Stripe payment proof handler did not handle paid product session');
       return { handled: true };
+    }
+    if (session?.payment_link) {
+      const paymentProof = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], {
+        webhookSecret: STRIPE_WEBHOOK_SECRET,
+        getProduct: (id) => product(id),
+        getProductByPaymentLink: productIdByPaymentLink,
+        getOffer: () => null,
+        dirs: stripeWebhookProof.resolveDirs(process.env),
+      });
+      if (paymentProof.handled) return { handled: true };
     }
   }
   if (!cartId) return { handled: false, raw };
