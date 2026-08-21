@@ -1,0 +1,25 @@
+name: Dreamiez Build 4 Truth Gate
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/silos/SILO_DREAMIEZ/source/dreamiez-unified.html'
+      - 'BEC-PRIME/compiled/website/dreamiez-unified.html'
+      - 'BEC-PRIME/scripts/verify-dreamiez-build4.mjs'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/silos/SILO_DREAMIEZ/source/dreamiez-unified.html'
+      - 'BEC-PRIME/compiled/website/dreamiez-unified.html'
+      - 'BEC-PRIME/scripts/verify-dreamiez-build4.mjs'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify Build 4 source and compiled contract
+        run: node BEC-PRIME/scripts/verify-dreamiez-build4.mjs
