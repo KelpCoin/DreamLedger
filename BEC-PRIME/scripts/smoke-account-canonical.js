@@ -1,6 +1,5 @@
 'use strict';
 
-// Deterministic account contract smoke test. No external credentials.
 process.env.DREAMLEDGER_AUTH_LOCAL_TEST = '1';
 const fs = require('fs');
 const os = require('os');
@@ -9,7 +8,7 @@ const stream = require('stream');
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-account-smoke-'));
 process.env.DREAMIEZ_DATA_DIR = dataDir;
-const handler = require('../compiled/website/api/account/[...route].js');
+const handler = require('../../api/account/[...route].js');
 
 function invoke(method, url, payload, cookie) {
   return new Promise((resolve, reject) => {
