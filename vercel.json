@@ -3,11 +3,14 @@
   "buildCommand": "cd BEC-PRIME && npm install && npm run compile",
   "functions": {
     "api/**/*.ts": { "maxDuration": 30, "memory": 1024 },
-    "api/stripe-webhook.ts": { "maxDuration": 60 }
+    "api/stripe-webhook.ts": { "maxDuration": 60 },
+    "api/molt-beach-webhook.ts": { "maxDuration": 60 }
   },
   "regions": ["syd1"],
   "rewrites": [
     { "source": "/", "destination": "/compiled/website/index.html" },
+    { "source": "/board", "destination": "/compiled/website/board.html" },
+    { "source": "/board/", "destination": "/compiled/website/board.html" },
     { "source": "/login", "destination": "/compiled/website/login.html" },
     { "source": "/login/", "destination": "/compiled/website/login.html" },
     { "source": "/register", "destination": "/compiled/website/register.html" },
