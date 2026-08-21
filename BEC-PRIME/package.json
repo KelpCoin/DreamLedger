@@ -21,6 +21,7 @@
     "compile:universal": "node scripts/Smoke-UniversalCompiler.js",
     "verify:silos": "node scripts/verify-silo-boundaries.js",
     "verify:integration": "node scripts/verify-commercial-integration.js",
+    "integration-truth": "node scripts/integration-truth.js",
     "verify:economic-contract": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-EconomicContract.ps1",
     "refine:iterative": "node scripts/iterative-refinement.js",
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
