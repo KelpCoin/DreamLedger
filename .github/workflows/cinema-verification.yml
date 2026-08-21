@@ -1,0 +1,24 @@
+name: Cinema Verification
+
+on:
+  push:
+    paths:
+      - 'cinema.html'
+      - 'scripts/verify-cinema.mjs'
+      - '.github/workflows/cinema-verification.yml'
+  pull_request:
+    paths:
+      - 'cinema.html'
+      - 'scripts/verify-cinema.mjs'
+      - '.github/workflows/cinema-verification.yml'
+
+jobs:
+  verify-cinema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify Cinema
+        run: node scripts/verify-cinema.mjs
