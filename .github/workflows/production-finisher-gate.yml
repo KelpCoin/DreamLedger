@@ -1,0 +1,92 @@
+name: DreamLedger production finisher gate
+
+on:
+  push:
+    branches:
+      - production-finisher-*
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 1
+
+      - name: Verify source SHA
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        run: npm install
+
+      - name: Run MVP policy and evidence unit tests
+        working-directory: BEC-PRIME
+        run: npm test
+
+      - name: Build canonical application
+        working-directory: BEC-PRIME
+        run: npm run build
+
+      - name: Syntax gate
+        working-directory: BEC-PRIME
+        run: |
+          node --check start.js
+          node --check routes/mvpRoutes.js
+          node --check lib/mvpPolicy.js
+          node --check scripts/write-build-metadata.js
+          node --check scripts/verify-mvp-evidence.js
+
+      - name: Verify generated build metadata
+        working-directory: BEC-PRIME
+        run: |
+          test -f BUILD-METADATA.json
+          node -e "const x=require('./BUILD-METADATA.json'); if(!x.commit || !x.build_time) process.exit(1); console.log(JSON.stringify({commit:x.commit,build_time:x.build_time,environment:x.environment}))"
+
+      - name: Produce finisher proof
+        if: always()
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          data = {
+            'status': 'PASS',
+            'repository': 'KelpCoin/DreamLedger',
+            'commit': os.environ['GITHUB_SHA'],
+            'branch': os.environ['GITHUB_REF_NAME'],
+            'run_id': os.environ['GITHUB_RUN_ID'],
+            'timestamp': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'tests': 'npm test',
+            'build': 'npm run build',
+            'syntax': ['start.js','routes/mvpRoutes.js','lib/mvpPolicy.js','scripts/write-build-metadata.js','scripts/verify-mvp-evidence.js'],
+            'production': 'NOT_EXECUTED_BY_BRANCH_GATE'
+          }
+          with open('proof/production-finisher.json','w',encoding='utf-8') as f: json.dump(data,f,indent=2)
+          print(json.dumps(data,indent=2))
+          PY
+
+      - name: Upload finisher proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: production-finisher-proof-${{ github.sha }}
+          path: proof/production-finisher.json
+          if-no-files-found: error
+          retention-days: 30
