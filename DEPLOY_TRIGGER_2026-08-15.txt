@@ -11,3 +11,5 @@ Release gate:
 - Dreamiez must remain optional and must not be the primary authentication authority.
 
 Do not remove until the production /version and account smoke checks have passed.
+
+2026-08-21 CI/CD execution marker: trigger the evidence-gated Render deployment from current main and verify live commit provenance before release.
