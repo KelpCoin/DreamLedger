@@ -4,11 +4,17 @@ on:
   push:
     paths:
       - 'cinema.html'
+      - 'cinema/**'
+      - 'BEC-PRIME/compiler/CinemaCompiler.js'
+      - 'BEC-PRIME/package.json'
       - 'scripts/verify-cinema.mjs'
       - '.github/workflows/cinema-verification.yml'
   pull_request:
     paths:
       - 'cinema.html'
+      - 'cinema/**'
+      - 'BEC-PRIME/compiler/CinemaCompiler.js'
+      - 'BEC-PRIME/package.json'
       - 'scripts/verify-cinema.mjs'
       - '.github/workflows/cinema-verification.yml'
 
@@ -20,5 +26,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Verify Cinema
+      - name: Verify deterministic Cinema core
+        run: node cinema/verify-determinism.js
+      - name: Compile Cinema into production website
+        working-directory: BEC-PRIME
+        run: npm run compile:cinema
+      - name: Verify compiled Cinema surface
+        run: test -f BEC-PRIME/compiled/website/cinema.html && grep -q '<title>DreamLedger Cinema</title>' BEC-PRIME/compiled/website/cinema.html
+      - name: Verify Cinema source contract
         run: node scripts/verify-cinema.mjs
