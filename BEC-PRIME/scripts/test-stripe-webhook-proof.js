@@ -62,10 +62,8 @@ const offer = {
   pricing_tier: 'snapshot',
 };
 
-// Signature round-trip
 verifyStripeSignature(raw, header, SECRET);
 
-// Build + write
 const records = buildRecords(session, {
   getOffer: (id) => (id === offer.offer_id ? offer : null),
 });
@@ -74,11 +72,9 @@ if (!first.ok || first.idempotent || !first.first_payment_proof_written) {
   throw new Error('First write failed: ' + JSON.stringify(first));
 }
 
-// Idempotent second write
 const second = writeProofArtifacts(records, dirs);
 if (!second.idempotent) throw new Error('Expected idempotent second write');
 
-// Full handler
 const handled = handleStripeWebhook(raw, header, {
   webhookSecret: SECRET,
   getOffer: (id) => (id === offer.offer_id ? offer : null),
@@ -93,6 +89,32 @@ if (firstProof.status !== 'PASS' || firstProof.offer_id !== offer.offer_id) {
   throw new Error('FIRST_PAYMENT_PROOF content invalid');
 }
 
+const paymentLinkSession = {
+  id: 'cs_test_payment_link_001',
+  object: 'checkout.session',
+  payment_status: 'paid',
+  amount_total: 2900,
+  currency: 'nzd',
+  payment_link: 'plink_test_architecture_audit',
+  payment_intent: 'pi_test_payment_link',
+  customer_details: { email: 'payment-link@example.com' },
+  metadata: {},
+};
+const paymentLinkRecords = buildRecords(paymentLinkSession, {
+  getProductByPaymentLink: (id) => id === 'plink_test_architecture_audit' ? 'BEC-PRIME-ARCHITECTURE-AUDIT-001' : null,
+  getProduct: (id) => id === 'BEC-PRIME-ARCHITECTURE-AUDIT-001' ? {
+    id,
+    silo: 'commerce',
+    name: 'Agentic Sovereignty Diagnostic',
+  } : null,
+});
+if (paymentLinkRecords.tx.product_id !== 'BEC-PRIME-ARCHITECTURE-AUDIT-001') {
+  throw new Error('Payment-link product resolution failed');
+}
+if (paymentLinkRecords.proof.payment_link_id !== 'plink_test_architecture_audit') {
+  throw new Error('Payment-link identity missing from proof');
+}
+
 console.log(
   JSON.stringify(
     {
@@ -101,6 +123,8 @@ console.log(
       first_payment_proof_written: first.first_payment_proof_written,
       idempotent_reentry: second.idempotent,
       transaction_id: first.transaction_id,
+      payment_link_resolution: 'PASS',
+      payment_link_product_id: paymentLinkRecords.tx.product_id,
       tmp: tmpRoot,
     },
     null,
