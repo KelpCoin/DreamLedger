@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DreamLedger Truth Oracle</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 20px;line-height:1.5}header{border-bottom:1px solid #ccc;margin-bottom:24px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}.status{font-weight:700}.note{padding:12px;background:#f4f4f4;border-left:4px solid #555}a{word-break:break-word}
+</style>
+</head>
+<body>
+<header><h1>DreamLedger Truth Oracle</h1><p>Public registry of agentic commerce events. Evidence status is explicit. A reported event is not presented as cryptographically verified by DreamLedger.</p></header>
+<div class="note"><strong>Verification rule:</strong> external events require a primary public source. DreamLedger-verified events require a corresponding DreamLedger economic artifact and tamper-evident ledger evidence.</div>
+<p><a href="/truth-oracle.json">Machine-readable registry</a></p>
+<table><thead><tr><th>Date</th><th>Event</th><th>Participants</th><th>Status</th><th>Evidence</th></tr></thead><tbody id="events"></tbody></table>
+<script>
+fetch('/truth-oracle.json',{cache:'no-store'}).then(r=>r.json()).then(d=>{document.getElementById('events').innerHTML=d.events.map(e=>`<tr><td>${e.event_date}</td><td><strong>${e.event_id}</strong><br>${e.description}</td><td>${e.issuer_partner||''}<br>${e.merchant||''}</td><td class="status">${e.verification_status}</td><td><a href="${e.primary_source}" rel="noopener">Primary source</a></td></tr>`).join('')}).catch(()=>{document.getElementById('events').innerHTML='<tr><td colspan="5">Registry unavailable.</td></tr>'});
+</script>
+</body>
+</html>
