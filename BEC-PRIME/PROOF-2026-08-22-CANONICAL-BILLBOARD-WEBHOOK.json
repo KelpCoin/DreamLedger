@@ -1,0 +1,15 @@
+{
+  "schema": "DreamLedger/canonical-billboard-webhook-proof/v1",
+  "status": "SOURCE_CHANGE_PREPARED",
+  "scope": "Billboard/Molt Beach webhook canonicalization",
+  "changes": [
+    "Retire the stale api/stripe-webhook.ts implementation that hard-codes the legacy DL-BILLBOARD-100X100-001 NZ$29 proof path.",
+    "Remove the stale api/stripe-webhook.ts function override from Vercel configuration.",
+    "Leave api/molt-beach-webhook.ts as the dedicated Billboard webhook path.",
+    "Leave checkout, generic offer catalogue, Commander, Elohim, and README revenue claims untouched.",
+    "No production credentials or external secrets are modified."
+  ],
+  "live_payment_claimed": false,
+  "live_deployment_claimed": false,
+  "next_gate": "Merge, deploy, then verify the live /board checkout and Stripe webhook externally."
+}
