@@ -9,8 +9,8 @@ function authorityReason({ authority, auction, amount, acceptedSpend = 0, now = 
   if (authority.human_approval_required) return 'HUMAN_APPROVAL_REQUIRED';
   if (!Number.isFinite(amount) || amount <= 0) return 'INVALID_BID_AMOUNT';
   if (amount > Number(authority.max_bid)) return 'MAX_BID_EXCEEDED';
-  if (Array.isArray(authority.allowed_auction_ids) && authority.allowed_auction_ids.length && !authority.allowed_auction_ids.includes(auction.id)) return 'AUCTION_NOT_AUTHORIZED';
   if (!auction) return 'AUCTION_NOT_FOUND';
+  if (Array.isArray(authority.allowed_auction_ids) && authority.allowed_auction_ids.length && !authority.allowed_auction_ids.includes(auction.id)) return 'AUCTION_NOT_AUTHORIZED';
   if (auction.status !== 'open') return 'AUCTION_CLOSED';
   if (new Date(auction.ends_at).getTime() <= now) return 'AUCTION_EXPIRED';
   if (Array.isArray(authority.allowed_categories) && authority.allowed_categories.length && !authority.allowed_categories.includes(auction.category)) return 'CATEGORY_NOT_AUTHORIZED';
@@ -25,7 +25,9 @@ function canonicalEvidencePayload(event) {
     if (value && typeof value === 'object') return Object.keys(value).sort().reduce((out, key) => { out[key] = sort(value[key]); return out; }, {});
     return value;
   };
-  return JSON.stringify(sort(event));
+  const normalized = { ...event };
+  if (normalized.timestamp) normalized.timestamp = new Date(normalized.timestamp).toISOString();
+  return JSON.stringify(sort(normalized));
 }
 
 function hashEvidence(event) {
