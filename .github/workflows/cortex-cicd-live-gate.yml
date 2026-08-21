@@ -100,6 +100,14 @@ jobs:
           done
           ! grep -q '/api/dreamiez/account/login' BEC-PRIME/compiled/website/login.html
 
+      - name: Verify approved commerce checkout SKU
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' BEC-PRIME/catalog/offers/approved.json
+          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
+          echo 'APPROVED_COMMERCE_SKU=PASS'
+
       - name: Write CI proof
         env:
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
@@ -116,8 +124,11 @@ jobs:
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'checks': [
                   'compile', 'silo-boundaries', 'commercial-integration',
-                  'worker-pool', 'runtime', 'syntax', 'primary-account-pages'
+                  'worker-pool', 'runtime', 'syntax', 'primary-account-pages',
+                  'approved-commerce-sku'
               ],
+              'approved_commerce_sku': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
+              'approved_commerce_price_nzd': 29,
               'public_actions': 'approval-required',
               'financial_actions': 'approval-required'
           }
@@ -185,16 +196,24 @@ jobs:
           response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data '{"sku":"AGENTIC-SOVEREIGNTY-DIAGNOSTIC"}')
+            --data '{"sku":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}')
           echo "$response" > /tmp/checkout.json
           python3 - <<'PY'
           import json
           with open('/tmp/checkout.json', encoding='utf-8') as f:
               data=json.load(f)
           url=str(data.get('url',''))
+          sku=str(data.get('product_id',''))
+          amount=data.get('amount_nzd')
           if not url.startswith('https://') or 'stripe.com' not in url:
               raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
+          if sku != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+              raise SystemExit(f'CHECKOUT_SKU=FAIL:{sku}')
+          if amount != 29:
+              raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
           print('CHECKOUT_URL_PRESENT=PASS')
+          print('CHECKOUT_SKU=PASS')
+          print('CHECKOUT_AMOUNT=PASS')
           PY
 
       - name: Write production proof
@@ -213,6 +232,8 @@ jobs:
               'live_sha_verified': True,
               'surfaces_verified': ['healthz','register.html','elohim-refinery.html','gauntlet.html','version'],
               'checkout_surface_verified': True,
+              'checkout_sku_verified': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
+              'checkout_amount_nzd_verified': 29,
               'purchase_executed': False,
               'revenue_claimed': False
           }
