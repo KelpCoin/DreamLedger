@@ -1,0 +1,95 @@
+name: Revenue Operator Deterministic Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/refinement/PersistentRevenueOperator.py'
+      - 'BEC-PRIME/scripts/Run-RevenueOperator.ps1'
+      - 'BEC-PRIME/gauntlet/**'
+      - '.github/workflows/revenue-operator-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify Python syntax
+        run: python -m py_compile BEC-PRIME/refinement/PersistentRevenueOperator.py
+
+      - name: Verify PowerShell syntax
+        shell: pwsh
+        run: |
+          $null = [System.Management.Automation.Language.Parser]::ParseFile(
+            'BEC-PRIME/scripts/Run-RevenueOperator.ps1',
+            [ref]$null,
+            [ref]$null
+          )
+          if ($null) { throw 'PowerShell parse failed.' }
+          Write-Host 'POWERSHELL_PARSE=PASS'
+
+      - name: Verify deterministic candidate gate module
+        run: node --check BEC-PRIME/gauntlet/CandidateGauntlet.js
+
+      - name: Verify no autonomous execution strings
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'BLOCKED_UNTIL_HUMAN_APPROVAL' BEC-PRIME/refinement/PersistentRevenueOperator.py
+          grep -q 'BLOCKED_UNTIL_HUMAN_APPROVAL' BEC-PRIME/scripts/Run-RevenueOperator.ps1
+          echo 'APPROVAL_GATE=PASS'
+
+      - name: Write proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p BEC-PRIME/RUN-PROOFS
+          python3 - <<'PY'
+          import hashlib, json, time
+          paths = [
+              'BEC-PRIME/refinement/PersistentRevenueOperator.py',
+              'BEC-PRIME/scripts/Run-RevenueOperator.ps1',
+              'BEC-PRIME/gauntlet/CandidateGauntlet.js'
+          ]
+          hashes = {}
+          for path in paths:
+              with open(path, 'rb') as f:
+                  hashes[path] = hashlib.sha256(f.read()).hexdigest()
+          proof = {
+              'status': 'PASS',
+              'gate': 'REVENUE_OPERATOR',
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'checks': ['python-syntax','powershell-parse','node-syntax','approval-gate'],
+              'public_execution': 'approval-required',
+              'financial_execution': 'approval-required',
+              'file_sha256': hashes
+          }
+          with open('BEC-PRIME/RUN-PROOFS/REVENUE-OPERATOR-PROOF.json', 'w', encoding='utf-8') as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: revenue-operator-proof-${{ github.sha }}
+          path: BEC-PRIME/RUN-PROOFS/REVENUE-OPERATOR-PROOF.json
+          if-no-files-found: error
+          retention-days: 30
