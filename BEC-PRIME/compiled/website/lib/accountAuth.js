@@ -1,5 +1,7 @@
 'use strict';
 
+// Canonical production account runtime. Supabase is the persistence authority.
+// Local file storage is allowed only for deterministic CI smoke tests.
 const crypto = require('crypto');
 const localStore = process.env.DREAMLEDGER_AUTH_LOCAL_TEST === '1' ? require('./accountLocalTestStore') : null;
 
@@ -35,6 +37,15 @@ function verifyPassword(password, record) {
   return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
 }
 
+function normalizeAvatar(value) {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'object' && !Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try { return JSON.parse(value); } catch { return null; }
+  }
+  return null;
+}
+
 function publicAccount(user) {
   return {
     account_id: user.id,
@@ -42,7 +53,7 @@ function publicAccount(user) {
     email: user.email || null,
     email_verified: user.email_verified === true,
     avatar_style: user.avatar_style || null,
-    avatar: user.avatar || null,
+    avatar: normalizeAvatar(user.avatar),
     cosmetics: Array.isArray(user.cosmetics) ? user.cosmetics : [],
     streak: Number(user.streak || 0),
     rewards: [],
@@ -215,14 +226,14 @@ async function handle(req, res, url) {
       if (!current) return json(res, 401, { error: 'Please log in first.' });
       const input = await body(req);
       if (input.avatar !== undefined && !validAvatar(input.avatar)) return json(res, 422, { error: 'Invalid avatar selection.' });
-      const nextAvatar = input.avatar === undefined ? current.avatar : {
+      const nextAvatar = input.avatar === undefined ? normalizeAvatar(current.avatar) : {
         height: Number(input.avatar.height),
         build: Number(input.avatar.build),
         skin: Number(input.avatar.skin)
       };
       const patch = {
         name: input.name !== undefined ? (String(input.name || '').trim().slice(0, 60) || current.name) : current.name,
-        avatar: nextAvatar,
+        avatar: nextAvatar === null ? null : JSON.stringify(nextAvatar),
         seller: {
           display_name: String(input.seller_display_name || current.seller?.display_name || current.name).trim().slice(0, 80),
           location: String(input.location || current.seller?.location || '').trim().slice(0, 100),
@@ -231,12 +242,13 @@ async function handle(req, res, url) {
         updated_at: new Date().toISOString()
       };
       if (LOCAL_TEST) {
-        const users = localStore.read().map(item => item.id === sessionId ? Object.assign({}, item, patch) : item);
+        const localPatch = Object.assign({}, patch, { avatar: nextAvatar });
+        const users = localStore.read().map(item => item.id === sessionId ? Object.assign({}, item, localPatch) : item);
         localStore.write(users);
-        return json(res, 200, { ok: true, account: publicAccount(Object.assign({}, current, patch)) });
+        return json(res, 200, { ok: true, account: publicAccount(Object.assign({}, current, localPatch)) });
       }
       const updated = await dbUpdate(sessionId, patch);
-      return json(res, 200, { ok: true, account: publicAccount(updated || Object.assign({}, current, patch)) });
+      return json(res, 200, { ok: true, account: publicAccount(updated || Object.assign({}, current, { avatar: nextAvatar })) });
     }
 
     return false;
