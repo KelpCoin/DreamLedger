@@ -28,6 +28,8 @@ services:
         value: https://qr.dreamledger.org
       - key: QR_ALLOWED_HOSTS
         value: dreamledger.org,qr.dreamledger.org
+      - key: QR_DATA_DIR
+        value: /var/data/qr
       - key: QR_API_KEY
         generateValue: true
       - key: QR_IP_SALT
