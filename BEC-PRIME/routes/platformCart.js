@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const billboard = require('./billboard');
+const stripeWebhookProof = require('../lib/stripeWebhookProof');
 
 const ROOT = path.join(__dirname, '..');
 const CART_DIR = path.join(ROOT, 'data', 'marketplace', 'carts');
@@ -41,6 +42,15 @@ function product(productId) {
   if (!fs.existsSync(file)) return null;
   return read(file);
 }
+function productIdByPaymentLink(paymentLinkId) {
+  if (!paymentLinkId || !fs.existsSync(CATALOG)) return null;
+  const files = fs.readdirSync(CATALOG).filter(name => name.endsWith('.json'));
+  for (const file of files) {
+    const p = read(path.join(CATALOG, file));
+    if (p?.commercial_truth?.payment_link_id === paymentLinkId) return p.id;
+  }
+  return null;
+}
 async function createProductCheckout(productId, silo) {
   const p = product(productId);
   if (!p || p.status !== 'published' || Number(p.inventory || 0) < 1 || p.commercial_truth?.approval_required !== false) throw new Error('Product is not checkoutable');
@@ -77,6 +87,15 @@ async function handleWebhook(req, res) {
       write(path.join(PROOFS, 'FIRST_PAYMENT_PROOF.json'), proof);
       write(path.join(PROOFS, 'FIRST_PAYMENT_PROOF-' + session.id + '.json'), proof);
       return { handled: true };
+    }
+    if (session?.payment_link) {
+      const paymentProof = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], {
+        webhookSecret: STRIPE_WEBHOOK_SECRET,
+        getProduct: product,
+        getProductByPaymentLink: productIdByPaymentLink,
+        dirs: stripeWebhookProof.resolveDirs(process.env),
+      });
+      if (paymentProof.handled) return { handled: true };
     }
   }
   if (!cartId) return { handled: false, raw };
