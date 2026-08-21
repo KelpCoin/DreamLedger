@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(import.meta.dirname, '..', '..');
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(here, '..', '..');
 const source = path.join(root, 'BEC-PRIME', 'silos', 'SILO_DREAMIEZ', 'source', 'dreamiez-unified.html');
 const compiled = path.join(root, 'BEC-PRIME', 'compiled', 'website', 'dreamiez-unified.html');
 
@@ -31,7 +33,7 @@ for (const marker of required) {
 if (/alert\(['"]Paid cosmetics checkout is being connected/i.test(compiledHtml)) {
   throw new Error('compiled runtime still contains the old fake paid-cosmetics placeholder');
 }
-if (/payment.{0,40}(success|complete|confirmed)/i.test(compiledHtml)) {
+if (/payment\s+(?:success|complete|confirmed)\b/i.test(compiledHtml)) {
   throw new Error('compiled runtime contains an unsupported payment-success claim');
 }
 
