@@ -28,8 +28,6 @@ services:
         value: https://qr.dreamledger.org
       - key: QR_ALLOWED_HOSTS
         value: dreamledger.org,qr.dreamledger.org
-      - key: QR_DATA_DIR
-        value: /var/data/qr
       - key: QR_API_KEY
         generateValue: true
       - key: QR_IP_SALT
@@ -52,6 +50,10 @@ services:
         value: "false"
       - key: DIGITAL_PROXY_LM_BASE_URL
         value: http://127.0.0.1:1234/v1
+      - key: SUPABASE_URL
+        value: https://wbwgroygjeyukkspnqiy.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
