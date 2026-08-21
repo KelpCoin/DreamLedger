@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/release-operator.yml'
-      - '.github/workflows/vercel-static-deploy.yml'
+      - '.github/workflows/render-deploy.yml'
+      - '.github/workflows/commercial-cd.yml'
       - '.github/workflows/mtg-first-sale-gate.yml'
       - 'BEC-PRIME/**'
       - 'package.json'
@@ -14,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: Explicitly authorize one Vercel production deployment attempt
+        description: Explicitly authorize one Render production deployment attempt
         required: true
         default: no
         type: choice
@@ -22,7 +23,7 @@ on:
           - no
           - confirm
       wait_for_result:
-        description: Wait for the deployment workflow and fail on its result
+        description: Wait for the Render deployment and fail on its result
         required: true
         default: yes
         type: choice
@@ -39,18 +40,18 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RELEASE_AUTHORIZED: ${{ github.event_name == 'push' || inputs.deploy == 'confirm' }}
-  WAIT_FOR_RESULT: ${{ github.event_name == 'push' || inputs.wait_for_result == 'yes' }}
+  RELEASE_AUTHORIZED: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy == 'confirm' }}
+  WAIT_FOR_RESULT: ${{ github.event_name == 'workflow_dispatch' && inputs.wait_for_result == 'yes' }}
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 45
     steps:
       - name: Refuse without explicit deployment authorization
         if: env.RELEASE_AUTHORIZED != 'true'
-        run: |
-          echo 'No deployment requested. Release operator stopped safely.'
+        run: echo 'No deployment requested. Release operator stopped safely.'
 
       - name: Pin immutable release SHA
         if: env.RELEASE_AUTHORIZED == 'true'
@@ -59,22 +60,21 @@ jobs:
           test -n '${{ github.sha }}'
           echo 'RELEASE_SHA=${{ github.sha }}'
 
-      - name: Dispatch canonical Vercel production workflow at exact release SHA
+      - name: Dispatch canonical Render production workflow at exact release SHA
         if: env.RELEASE_AUTHORIZED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          gh workflow run vercel-static-deploy.yml \
+          gh workflow run render-deploy.yml \
             --repo "${GITHUB_REPOSITORY}" \
             --ref main \
-            -f release=confirm \
             -f release_sha="$RELEASE_SHA"
-          echo 'DISPATCHED=vercel-static-deploy.yml'
+          echo 'DISPATCHED=render-deploy.yml'
           echo "RELEASE_SHA=$RELEASE_SHA"
 
-      - name: Locate dispatched deployment run for exact SHA
+      - name: Locate dispatched Render deployment run
         if: env.RELEASE_AUTHORIZED == 'true' && env.WAIT_FOR_RESULT == 'true'
         id: locate
         env:
@@ -83,27 +83,29 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 20); do
-            run_id=$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow vercel-static-deploy.yml --limit 20 --json databaseId,headSha,status --jq '.[] | select(.headSha == "'"$EXPECTED_SHA"'") | .databaseId' | head -1 || true)
-            if [ -n "$run_id" ]; then
+            run_json=$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow render-deploy.yml --event workflow_dispatch --limit 20 --json databaseId,headSha,status,createdAt --jq 'sort_by(.createdAt) | reverse | .[0]' || true)
+            run_id=$(printf '%s' "$run_json" | jq -r '.databaseId // empty')
+            head_sha=$(printf '%s' "$run_json" | jq -r '.headSha // empty')
+            if [ -n "$run_id" ] && [ "$head_sha" = "$EXPECTED_SHA" ]; then
               echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
-              echo "FOUND_RUN=$run_id"
+              echo "FOUND_RENDER_RUN=$run_id"
               exit 0
             fi
             sleep 3
           done
-          echo "Could not locate dispatched Vercel workflow run for ${EXPECTED_SHA}."
+          echo "Could not locate the dispatched Render workflow for ${EXPECTED_SHA}."
           exit 1
 
-      - name: Wait for deployment result
+      - name: Wait for Render deployment result
         if: env.RELEASE_AUTHORIZED == 'true' && env.WAIT_FOR_RESULT == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           gh run watch "${{ steps.locate.outputs.run_id }}" --repo "${GITHUB_REPOSITORY}" --exit-status
-          echo 'VERCEL_DEPLOYMENT=PASS'
+          echo 'RENDER_DEPLOYMENT=PASS'
 
-      - name: Dispatch MTG first-sale readiness gate after deployment
+      - name: Dispatch MTG first-sale readiness gate after Render deployment
         if: env.RELEASE_AUTHORIZED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -152,7 +154,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"schema":"dreamledger-release-operator-v6","sha":"%s","event":"%s","deployment_authorized":%s,"wait_for_result":%s,"deployment_before_readiness":true,"immutable_sha_dispatch":true,"status":"operator_complete"}\n' "${GITHUB_SHA}" "${GITHUB_EVENT_NAME}" "$([ "${RELEASE_AUTHORIZED}" = "true" ] && echo true || echo false)" "$([ "${WAIT_FOR_RESULT}" = "true" ] && echo true || echo false)" > proof/release-operator-proof.json
+          printf '{"schema":"dreamledger-release-operator-v8","sha":"%s","event":"%s","deployment_authorized":%s,"wait_for_result":%s,"deployment_before_readiness":true,"immutable_sha_dispatch":true,"deployment_provider":"render","status":"operator_complete"}\n' "${GITHUB_SHA}" "${GITHUB_EVENT_NAME}" "$([ "${RELEASE_AUTHORIZED}" = "true" ] && echo true || echo false)" "$([ "${WAIT_FOR_RESULT}" = "true" ] && echo true || echo false)" > proof/release-operator-proof.json
           cat proof/release-operator-proof.json
 
       - name: Upload operator proof
@@ -164,4 +166,4 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-# CASH-SPINE-EXECUTION: push-triggered release remains explicit and proof-gated.
+# CASH-SPINE-EXECUTION: Render is canonical; production deploy requires explicit workflow_dispatch confirmation and production environment approval.

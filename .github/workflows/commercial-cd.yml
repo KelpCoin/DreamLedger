@@ -10,13 +10,16 @@ on:
       - 'SOCIAL/**'
       - 'BEC-PRIME/compiled/website/mtg/**'
       - 'BEC-PRIME/compiled/website/**'
+      - 'BEC-PRIME/**'
       - 'commander-diagnostic.html'
       - 'revenue.html'
       - '.github/workflows/commercial-cd.yml'
+      - '.github/workflows/release-operator.yml'
+      - '.github/workflows/render-deploy.yml'
   workflow_dispatch:
     inputs:
       deploy:
-        description: Request one approval-gated production deployment attempt
+        description: Request one approval-gated Render production deployment attempt
         required: true
         default: 'false'
         type: choice
@@ -28,16 +31,21 @@ permissions:
   actions: write
   contents: read
 
+concurrency:
+  group: dreamledger-commercial-cd
+  cancel-in-progress: false
+
 env:
-  VERCEL_TOKEN_PRESENT: ${{ secrets.VERCEL_TOKEN != '' }}
+  DEPLOY_REQUESTED: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy == 'true' }}
 
 jobs:
   release-gate:
     runs-on: ubuntu-latest
     environment: production
+    timeout-minutes: 50
     steps:
       - name: Checkout exact triggering commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.sha }}
           fetch-depth: 1
@@ -51,17 +59,11 @@ jobs:
           test -f MARKETS/MARKET-MATRIX.md
           test -f SOCIAL/SOCIAL-VIRALITY-PLAYBOOK.md
 
-      - name: Fail closed without deployment credential
-        if: ${{ inputs.deploy == 'true' && env.VERCEL_TOKEN_PRESENT != 'true' }}
-        shell: bash
-        run: |
-          echo 'DEPLOYMENT_BLOCKED=VERCEL_TOKEN_MISSING'
-          exit 1
-
-      - name: Dispatch canonical release operator
-        if: ${{ inputs.deploy == 'true' && env.VERCEL_TOKEN_PRESENT == 'true' }}
+      - name: Dispatch canonical Render release operator
+        if: env.DEPLOY_REQUESTED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
         shell: bash
         run: |
           set -euo pipefail
@@ -71,29 +73,63 @@ jobs:
             -f deploy=confirm \
             -f wait_for_result=yes
           echo 'RELEASE_OPERATOR=DISPATCHED'
+          echo "RELEASE_SHA=$RELEASE_SHA"
 
-      - name: Emit CD proof
+      - name: Locate release operator run
+        if: env.DEPLOY_REQUESTED == 'true'
+        id: locate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ github.sha }}
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p artifacts
-          {
-            echo 'CD_GATE=PASS'
-            echo "COMMIT=${GITHUB_SHA}"
-            echo "DEPLOY_REQUEST=${{ inputs.deploy || 'false' }}"
-            echo "VERCEL_TOKEN_PRESENT=${VERCEL_TOKEN_PRESENT}"
-            if [ "${{ inputs.deploy || 'false' }}" = 'true' ]; then
-              echo 'RELEASE_OPERATOR=DISPATCHED'
-            else
-              echo 'RELEASE_OPERATOR=NOT_REQUESTED'
+          for attempt in $(seq 1 20); do
+            run_json=$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow release-operator.yml --event workflow_dispatch --limit 20 --json databaseId,headSha,status,createdAt --jq 'sort_by(.createdAt) | reverse | .[0]' || true)
+            run_id=$(printf '%s' "$run_json" | jq -r '.databaseId // empty')
+            head_sha=$(printf '%s' "$run_json" | jq -r '.headSha // empty')
+            if [ -n "$run_id" ] && [ "$head_sha" = "$EXPECTED_SHA" ]; then
+              echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+              echo "FOUND_RELEASE_OPERATOR=$run_id"
+              exit 0
             fi
-            echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_CD'
-          } | tee artifacts/commercial-cd-proof.txt
+            sleep 3
+          done
+          echo "Could not locate release operator for ${EXPECTED_SHA}."
+          exit 1
+
+      - name: Wait for canonical Render release result
+        if: env.DEPLOY_REQUESTED == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run watch "${{ steps.locate.outputs.run_id }}" --repo "${GITHUB_REPOSITORY}" --exit-status
+          echo 'RENDER_CD=PASS'
+
+      - name: Emit truthful CD proof
+        if: always()
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          if [ "$DEPLOY_REQUESTED" = 'true' ]; then
+            status='PASS'
+            deployment='RENDER_VERIFIED'
+          else
+            status='NOT_REQUESTED'
+            deployment='NOT_REQUESTED'
+          fi
+          printf '{"schema":"dreamledger-commercial-cd-v2","status":"%s","commit":"%s","deploy_request":%s,"deployment":"%s","revenue_claim":"NOT_VERIFIED_BY_CD"}\n' "$status" "$RELEASE_SHA" "$([ "$DEPLOY_REQUESTED" = 'true' ] && echo true || echo false)" "$deployment" | tee artifacts/commercial-cd-proof.json
 
       - name: Upload CD proof
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: commercial-cd-proof-${{ github.run_id }}
-          path: artifacts/commercial-cd-proof.txt
+          path: artifacts/commercial-cd-proof.json
           if-no-files-found: error
           retention-days: 30
