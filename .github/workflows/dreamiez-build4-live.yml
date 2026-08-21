@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'BEC-PRIME/silos/SILO_DREAMIEZ/compiled/website/dreamiez-dashboard.html'
+      - 'BEC-PRIME/compiled/website/dreamiez-dashboard.html'
       - 'BEC-PRIME/scripts/verify-dreamiez-fusion.js'
       - '.github/workflows/dreamiez-build4-live.yml'
   workflow_dispatch:
@@ -21,7 +22,7 @@ jobs:
         run: sleep 90
       - name: Probe production fusion
         env:
-          DREAMIEZ_FUSION_URL: https://dreamledger.org/dreamiez/dreamiez-dashboard.html
+          DREAMIEZ_FUSION_URL: https://dreamledger.org/dreamiez-dashboard.html
         run: node BEC-PRIME/scripts/verify-dreamiez-fusion.js
       - name: Upload proof artifact
         if: always()
