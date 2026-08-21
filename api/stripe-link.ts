@@ -1,52 +1,65 @@
 const STRIPE_API = 'https://api.stripe.com/v1/checkout/sessions';
-const SKU = 'EDH_0001';
-const PRICE_NZD_CENTS = 40000;
-const SUCCESS_URL = 'https://dreamledger.org/success?session_id={CHECKOUT_SESSION_ID}';
-const CANCEL_URL = 'https://dreamledger.org/cancel';
+
+const OFFERS = {
+  'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT': {
+    sku: 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
+    product_id: 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
+    name: 'Agentic Sovereignty Diagnostic',
+    amount_nzd_cents: 2900,
+    silo: 'commerce',
+  },
+  EDH_0001: {
+    sku: 'EDH_0001',
+    product_id: 'EDH_0001',
+    name: 'EDH_0001',
+    amount_nzd_cents: 40000,
+    silo: 'mtg',
+  },
+};
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
   });
 }
 
 export default async function handler(request: Request): Promise<Response> {
-  if (request.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
+  if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 });
 
   const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) return json({ error: 'STRIPE_SECRET_KEY is not configured' }, 503);
 
-  let body: { sku?: string };
+  let body: { offer_id?: string; product_id?: string; sku?: string; silo?: string };
   try {
     body = await request.json();
   } catch {
     return json({ error: 'Invalid JSON body' }, 400);
   }
 
-  if (body.sku !== SKU) {
-    return json({ error: 'Unknown SKU', allowed_sku: SKU }, 400);
-  }
+  const requested = body.offer_id || body.product_id || body.sku;
+  const offer = requested ? OFFERS[requested as keyof typeof OFFERS] : undefined;
+  if (!offer) return json({ error: 'Unknown or missing approved offer', requested }, 400);
+  if (body.silo && body.silo !== offer.silo) return json({ error: 'Silo mismatch', expected_silo: offer.silo }, 409);
 
   const form = new URLSearchParams();
   form.set('mode', 'payment');
   form.set('line_items[0][price_data][currency]', 'nzd');
-  form.set('line_items[0][price_data][product_data][name]', 'EDH_0001');
-  form.set('line_items[0][price_data][product_data][metadata][sku]', SKU);
-  form.set('line_items[0][price_data][unit_amount]', String(PRICE_NZD_CENTS));
+  form.set('line_items[0][price_data][product_data][name]', offer.name);
+  form.set('line_items[0][price_data][product_data][metadata][sku]', offer.sku);
+  form.set('line_items[0][price_data][product_data][metadata][product_id]', offer.product_id);
+  form.set('line_items[0][price_data][unit_amount]', String(offer.amount_nzd_cents));
   form.set('line_items[0][quantity]', '1');
-  form.set('success_url', SUCCESS_URL);
-  form.set('cancel_url', CANCEL_URL);
-  form.set('metadata[sku]', SKU);
+  form.set('success_url', 'https://dreamledger.org/success?session_id={CHECKOUT_SESSION_ID}');
+  form.set('cancel_url', 'https://dreamledger.org/cancel');
+  form.set('metadata[offer_id]', requested || offer.sku);
+  form.set('metadata[product_id]', offer.product_id);
+  form.set('metadata[silo]', offer.silo);
+  form.set('metadata[sku]', offer.sku);
 
   const response = await fetch(STRIPE_API, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${secret}`,
-      'content-type': 'application/x-www-form-urlencoded',
-    },
+    headers: { authorization: `Bearer ${secret}`, 'content-type': 'application/x-www-form-urlencoded' },
     body: form,
   });
 
@@ -57,8 +70,10 @@ export default async function handler(request: Request): Promise<Response> {
   }
 
   return json({
-    sku: SKU,
-    amount_nzd: PRICE_NZD_CENTS / 100,
+    offer_id: requested || offer.sku,
+    product_id: offer.product_id,
+    silo: offer.silo,
+    amount_nzd: offer.amount_nzd_cents / 100,
     session_id: result.id,
     url: result.url,
   });
