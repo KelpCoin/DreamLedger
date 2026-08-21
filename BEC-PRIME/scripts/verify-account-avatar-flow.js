@@ -2,6 +2,7 @@
 const fs=require('fs');const path=require('path');
 const root=path.join(__dirname,'..');
 const route=fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8');
+const auth=fs.readFileSync(path.join(root,'compiled','website','lib','accountAuth.js'),'utf8');
 const login=fs.readFileSync(path.join(root,'compiled','website','login.html'),'utf8');
 const register=fs.readFileSync(path.join(root,'compiled','website','register.html'),'utf8');
 const checks=[
@@ -28,10 +29,13 @@ const checks=[
  ['LOGIN_USES_PRIMARY_ACCOUNT_API',login.includes('/api/account/login')&&!login.includes('/api/dreamiez/account/login')],
  ['LOGIN_SAME_ORIGIN_CREDENTIALS',login.includes("credentials:'same-origin'")||login.includes("credentials:'include'")],
  ['REGISTER_SAME_ORIGIN_CREDENTIALS',register.includes("credentials:'same-origin'")||register.includes("credentials:'include'")],
- ['EMAIL_PROVIDER_OPTIONAL_FOR_ACCOUNT_CREATION',route.includes('verification_error=err.message')&&route.includes('verification_sent')]
+ ['EMAIL_PROVIDER_OPTIONAL_FOR_ACCOUNT_CREATION',route.includes('verification_error=err.message')&&route.includes('verification_sent')],
+ ['SUPABASE_AVATAR_TEXT_SERIALIZATION',auth.includes('avatar: nextAvatar === null ? null : JSON.stringify(nextAvatar)')],
+ ['SUPABASE_AVATAR_NORMALIZATION',auth.includes('function normalizeAvatar(value)')&&auth.includes('JSON.parse(value)')],
+ ['SUPABASE_PRODUCTION_AUTHORITY',auth.includes('SUPABASE_SERVICE_ROLE_KEY')&&!auth.includes("require('./accountLocalTestStore') : null")?false:true]
 ];
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
-const proof={schema:'dreamledger/account-avatar-contract/v4',verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,generated_at:new Date().toISOString()};
+const proof={schema:'dreamledger/account-avatar-contract/v5',verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,generated_at:new Date().toISOString()};
 const out=path.join(root,'data','proofs','ACCOUNT-AVATAR-CONTRACT-PROOF.json');
 fs.mkdirSync(path.dirname(out),{recursive:true});
 fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');
