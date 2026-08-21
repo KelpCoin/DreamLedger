@@ -1,0 +1,20 @@
+'use strict';
+const fs=require('fs');
+const path=require('path');
+const ROOT=path.join(__dirname,'..','..');
+const checks=[];
+function ok(name,pass,detail){checks.push({name,status:pass?'PASS':'FAIL',detail})}
+const template=path.join(ROOT,'BEC-PRIME','surface','molt-beach.v1.template.html');
+const compiler=path.join(ROOT,'BEC-PRIME','compiler','MoltBeachCompiler.js');
+const checkout=path.join(ROOT,'api','molt-beach-checkout.ts');
+const inventory=path.join(ROOT,'api','molt-beach-inventory.ts');
+const webhook=path.join(ROOT,'api','molt-beach-webhook.ts');
+const vercel=JSON.parse(fs.readFileSync(path.join(ROOT,'vercel.json'),'utf8'));
+for(const f of [template,compiler,checkout,inventory,webhook]) ok(path.relative(ROOT,f),fs.existsSync(f),'file exists');
+const html=fs.readFileSync(template,'utf8').toLowerCase();for(const token of ['amplissa','adult-only','stripe_secret_key','stripe_webhook_secret','bec-prime'])ok('public silo gate '+token,!html.includes(token),'forbidden token absent');
+ok('canvas',html.includes('1000px')&&html.includes('1000000'),'1000x1000 canvas');
+ok('agent inventory',fs.readFileSync(inventory,'utf8').includes('molt_beach_campaigns'),'Supabase-backed inventory API');
+ok('dynamic checkout',fs.readFileSync(checkout,'utf8').includes('STRIPE_SECRET_KEY'),'server-side Stripe checkout');
+ok('paid webhook',fs.readFileSync(webhook,'utf8').includes('checkout.session.completed'),'paid activation webhook');
+ok('board rewrite',vercel.rewrites.some(x=>x.source==='/board'&&x.destination==='/compiled/website/board.html'),'Vercel /board route');
+const fail=checks.filter(x=>x.status==='FAIL');const proof={type:'molt-beach-mvp-verification',status:fail.length?'FAIL':'PASS',checks,verified_at:new Date().toISOString()};const out=path.join(ROOT,'PROOF-MOLT-BEACH-MVP.json');fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));if(fail.length)process.exit(1);
