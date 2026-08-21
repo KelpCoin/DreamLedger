@@ -1,0 +1,28 @@
+name: Truth Oracle Registry
+on:
+  push:
+    branches: [main, 'feat/truth-oracle-public-registry']
+    paths:
+      - 'BEC-PRIME/public/truth-oracle.json'
+      - 'BEC-PRIME/public/truth-oracle.schema.json'
+      - 'BEC-PRIME/compiled/website/truth-oracle.html'
+      - 'BEC-PRIME/scripts/Verify-TruthOracle.js'
+      - '.github/workflows/truth-oracle.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify registry
+        run: node scripts/Verify-TruthOracle.js
+      - name: Verify public JSON
+        run: node -e "const x=require('./public/truth-oracle.json'); if(x.schema_version!=='truth-oracle-v1'||x.jurisdiction!=='NZ') process.exit(1); console.log('TRUTH_ORACLE_PUBLIC_JSON=PASS events='+x.events.length)"
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: truth-oracle-proof
+          path: BEC-PRIME/proof/TRUTH-ORACLE-PROOF.json
