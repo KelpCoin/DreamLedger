@@ -203,7 +203,7 @@ jobs:
           retention-days: 30
 
   production-account-smoke:
-    needs: render-deploy
+    needs: [acceptance-gate, render-deploy]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -280,6 +280,8 @@ jobs:
           echo 'PASS: /healthz /register /api/account/me /api/catalog /api/products/EDH_0001 /version'
 
       - name: Verify live account pages are reachable and silo-clean
+        env:
+          BASE_URL: https://dreamledger.org
         shell: bash
         run: |
           set -euo pipefail
@@ -290,14 +292,6 @@ jobs:
           ! grep -qi 'amplissa\|amplissa.com\|adult content\|bbw content\|onlyfans\|pornhub' /tmp/login.html /tmp/register.html /tmp/account.html
           ! grep -q '/api/dreamiez/account/login' /tmp/login.html
           echo 'PASS: live primary DreamLedger account surfaces are reachable and silo-clean.'
-
-      - name: Verify approved commerce offer contract
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --max-time 15 "$BASE_URL/version" >/tmp/version-final.json
-          test -s /tmp/version-final.json
-          echo 'PASS: production provenance endpoint reachable.'
 
       - name: Write live deployment proof on success
         if: success()
