@@ -1,0 +1,12 @@
+{
+  "product_id": "COMMANDER_AUTOPSY_v1",
+  "name": "Commander Deck Autopsy Report",
+  "description": "Upload your Commander deck list. Get the 10 weakest cards, 10 upgrades, and a tuning plan, delivered as a PDF within 24 hours.",
+  "price_nzd": 15,
+  "currency": "NZD",
+  "delivery_method": "email_with_pdf_attachment",
+  "payment_provider": "stripe",
+  "payment_url": null,
+  "status": "DRAFT",
+  "created_at": "2026-08-21T00:00:00Z"
+}
