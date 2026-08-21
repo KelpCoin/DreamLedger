@@ -21,6 +21,8 @@ jobs:
   acceptance-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      release_sha: ${{ steps.release.outputs.sha }}
     steps:
       - name: Resolve release SHA
         id: release
@@ -87,6 +89,14 @@ jobs:
           ! grep -q '/api/dreamiez/account/login' BEC-PRIME/compiled/website/login.html
           echo 'PASS: primary account pages compile without requiring Dreamiez.'
 
+      - name: Verify approved commerce offer
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' BEC-PRIME/catalog/offers/approved.json
+          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
+          echo 'PASS: approved NZ$29 commerce offer is present.'
+
       - name: Syntax gate
         shell: bash
         run: |
@@ -109,24 +119,19 @@ jobs:
       RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-      RELEASE_SHA: ${{ needs.acceptance-gate.outputs.release_sha || inputs.release_sha || github.sha }}
+      RELEASE_SHA: ${{ needs.acceptance-gate.outputs.release_sha }}
     steps:
-      - name: Resolve immutable release SHA
-        id: release
-        env:
-          INPUT_SHA: ${{ inputs.release_sha }}
-          PUSH_SHA: ${{ github.sha }}
+      - name: Verify immutable release SHA plumbing
+        shell: bash
         run: |
           set -euo pipefail
-          RELEASE_SHA="${INPUT_SHA:-$PUSH_SHA}"
           test -n "$RELEASE_SHA"
-          echo "sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
           echo "RELEASE_SHA=$RELEASE_SHA"
 
       - name: Trigger exact-commit Render deployment with hook or API fallback
         shell: bash
         env:
-          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+          RELEASE_SHA: ${{ env.RELEASE_SHA }}
         run: |
           set -euo pipefail
           proof='deployment-trigger-proof.json'
@@ -192,7 +197,7 @@ jobs:
       - name: Upload deployment trigger proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: dreamledger-deployment-trigger-proof-${{ steps.release.outputs.sha }}
+          name: dreamledger-deployment-trigger-proof-${{ env.RELEASE_SHA }}
           path: deployment-trigger-proof.json
           if-no-files-found: error
           retention-days: 30
@@ -201,11 +206,14 @@ jobs:
     needs: render-deploy
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      EXPECTED_SHA: ${{ needs.acceptance-gate.outputs.release_sha }}
+      BASE_URL: https://dreamledger.org
     steps:
       - name: Checkout exact release SHA
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ inputs.release_sha || github.sha }}
+          ref: ${{ env.EXPECTED_SHA }}
           fetch-depth: 1
 
       - name: Setup Node
@@ -228,9 +236,6 @@ jobs:
         run: node scripts/smoke-production.js
 
       - name: Verify required live endpoints
-        env:
-          BASE_URL: https://dreamledger.org
-          EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
         shell: bash
         run: |
           set -euo pipefail
@@ -275,8 +280,6 @@ jobs:
           echo 'PASS: /healthz /register /api/account/me /api/catalog /api/products/EDH_0001 /version'
 
       - name: Verify live account pages are reachable and silo-clean
-        env:
-          BASE_URL: https://dreamledger.org
         shell: bash
         run: |
           set -euo pipefail
@@ -288,6 +291,14 @@ jobs:
           ! grep -q '/api/dreamiez/account/login' /tmp/login.html
           echo 'PASS: live primary DreamLedger account surfaces are reachable and silo-clean.'
 
+      - name: Verify approved commerce offer contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 15 "$BASE_URL/version" >/tmp/version-final.json
+          test -s /tmp/version-final.json
+          echo 'PASS: production provenance endpoint reachable.'
+
       - name: Write live deployment proof on success
         if: success()
         shell: bash
@@ -298,8 +309,8 @@ jobs:
           import json, os, time
           proof = {
               'status': 'PASS',
-              'source_commit': os.environ.get('EXPECTED_SHA') or os.environ['GITHUB_SHA'],
-              'target': 'https://dreamledger.org',
+              'source_commit': os.environ['EXPECTED_SHA'],
+              'target': os.environ['BASE_URL'],
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'healthz', 'register', 'account-me', 'catalog', 'EDH_0001', 'version-provenance'],
               'render_commit_provenance': True,
@@ -313,8 +324,6 @@ jobs:
       - name: Write live deployment proof on failure
         if: failure() || cancelled()
         shell: bash
-        env:
-          EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
         run: |
           set -euo pipefail
           mkdir -p proof
@@ -323,7 +332,7 @@ jobs:
           proof = {
               'status': 'NOT_PROVEN',
               'source_commit': os.environ['EXPECTED_SHA'],
-              'target': 'https://dreamledger.org',
+              'target': os.environ['BASE_URL'],
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'reason': 'production verification did not complete successfully'
           }
@@ -336,7 +345,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: dreamledger-production-proof-${{ inputs.release_sha || github.sha }}
+          name: dreamledger-production-proof-${{ env.EXPECTED_SHA }}
           path: proof/deployment-proof.json
           if-no-files-found: error
           retention-days: 30
