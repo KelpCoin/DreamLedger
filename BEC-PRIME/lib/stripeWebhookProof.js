@@ -33,13 +33,15 @@ function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
 }
 
 function buildRecords(session, lookups = {}) {
-  const productId = session.metadata?.product_id || null;
+  const paymentLinkId = session.payment_link || null;
+  const resolvedProductId = session.metadata?.product_id || (paymentLinkId && lookups.getProductByPaymentLink ? lookups.getProductByPaymentLink(paymentLinkId) : null);
+  const productId = resolvedProductId || null;
   const offerId = session.metadata?.offer_id || null;
   const capabilityId = session.metadata?.capability_id || null;
   const pricingTier = session.metadata?.pricing_tier || null;
   const product = productId && lookups.getProduct ? lookups.getProduct(productId) : null;
   const offer = offerId && lookups.getOffer ? lookups.getOffer(offerId) : null;
-  if (!product && !offer) { const err = new Error('Unknown product or offer in session metadata'); err.code = 'UNKNOWN_COMMERCIAL_OBJECT'; throw err; }
+  if (!product && !offer) { const err = new Error('Unknown product or offer in session metadata/payment link'); err.code = 'UNKNOWN_COMMERCIAL_OBJECT'; throw err; }
   const silo = product?.silo || offer?.silo || session.metadata?.silo || null;
   const recordedAt = new Date().toISOString();
   const transactionId = session.id;
@@ -47,14 +49,14 @@ function buildRecords(session, lookups = {}) {
   const tx = {
     transaction_id: transactionId, product_id: product?.id || null, offer_id: offer?.offer_id || null,
     capability_id: capabilityId || offer?.capability_id || null, pricing_tier: pricingTier || offer?.pricing_tier || null,
-    silo, amount_total: session.amount_total, currency: session.currency, payment_status: session.payment_status,
+    payment_link_id: paymentLinkId, silo, amount_total: session.amount_total, currency: session.currency, payment_status: session.payment_status,
     customer_email: session.customer_details?.email || null, stripe_payment_intent: session.payment_intent || null,
     created_at: recordedAt, tax_tag: taxTag
   };
   const proof = {
     type: 'dreamledger-transaction-proof', status: 'PASS', transaction_id: transactionId,
     product_id: tx.product_id, offer_id: tx.offer_id, capability_id: tx.capability_id, pricing_tier: tx.pricing_tier,
-    silo: tx.silo, amount_total: tx.amount_total, currency: tx.currency, payment_status: tx.payment_status,
+    payment_link_id: paymentLinkId, silo: tx.silo, amount_total: tx.amount_total, currency: tx.currency, payment_status: tx.payment_status,
     payment_received: true, proof_source: 'stripe.checkout.session.completed.webhook', delivery_status: 'PENDING',
     customer_email: tx.customer_email, recorded_at: recordedAt, tax_tag: taxTag
   };
@@ -82,13 +84,13 @@ function writeProofArtifacts({ tx, proof, transactionId, taxTag }, dirs = resolv
 }
 
 function handleStripeWebhook(rawBody, signatureHeader, opts) {
-  const { webhookSecret, getProduct, getOffer, dirs } = opts;
+  const { webhookSecret, getProduct, getProductByPaymentLink, getOffer, dirs } = opts;
   verifyStripeSignature(rawBody, signatureHeader, webhookSecret);
   let event; try { event = JSON.parse(rawBody); } catch { const err = new Error('Invalid JSON payload'); err.statusCode = 400; throw err; }
   if (event.type !== 'checkout.session.completed') return { received: true, handled: false, type: event.type };
   const session = event.data.object;
   if (session.payment_status !== 'paid') return { received: true, handled: false, type: event.type, reason: 'payment_status_not_paid', payment_status: session.payment_status };
-  const records = buildRecords(session, { getProduct, getOffer });
+  const records = buildRecords(session, { getProduct, getProductByPaymentLink, getOffer });
   return { received: true, handled: true, fulfilled: true, ...writeProofArtifacts(records, dirs || resolveDirs()) };
 }
 
