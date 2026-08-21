@@ -1,5 +1,6 @@
 # Render deployment refresh: account/runtime surface is already compiled on main.
 # Production refresh trigger: canonical account runtime + compiled account pages are on main.
+# E0 recovery marker: force one controlled production refresh so dreamledger.org is rebuilt from main.
 services:
   - type: web
     name: dreamledger-bec-prime
