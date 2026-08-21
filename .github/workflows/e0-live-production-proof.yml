@@ -1,0 +1,94 @@
+name: E0 Live Production Proof
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  e0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe live production
+        shell: bash
+        env:
+          BASE: https://dreamledger.org
+          EXPECTED: 9c6eb4257f3f489902049a8ca3883766b4901da5
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python - <<'PY'
+          import json, os, sys, urllib.request, urllib.error
+          base = os.environ['BASE']
+          expected = os.environ['EXPECTED']
+          out = {
+              'checked_at': __import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),
+              'base': base,
+              'expected_sha': expected,
+              'deployed_sha': None,
+              'health_status': None,
+              'board_status': None,
+              'inventory_status': None,
+              'e0': False,
+              'errors': []
+          }
+          def get(path):
+              req = urllib.request.Request(base + path, headers={'User-Agent':'DreamLedger-E0-GitHubActions/1.0'})
+              try:
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      return r.status, r.read().decode('utf-8', 'replace')
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode('utf-8', 'replace')
+                  return e.code, body
+          try:
+              s, body = get('/version')
+              if s == 200:
+                  try:
+                      data = json.loads(body)
+                      out['deployed_sha'] = str(data.get('commit') or data.get('sha') or '')
+                  except Exception as e:
+                      out['errors'].append('version JSON parse: ' + str(e))
+              else:
+                  out['errors'].append('/version HTTP ' + str(s))
+              s, _ = get('/healthz')
+              out['health_status'] = s
+              if s != 200:
+                  out['errors'].append('/healthz HTTP ' + str(s))
+              s, _ = get('/board')
+              out['board_status'] = s
+              if s != 200:
+                  out['errors'].append('/board HTTP ' + str(s))
+              s, body = get('/api/molt-beach-inventory')
+              out['inventory_status'] = s
+              if s != 200:
+                  out['errors'].append('/api/molt-beach-inventory HTTP ' + str(s))
+              else:
+                  try:
+                      json.loads(body)
+                  except Exception as e:
+                      out['errors'].append('inventory JSON parse: ' + str(e))
+              out['e0'] = (
+                  out['deployed_sha'] == expected and
+                  out['health_status'] == 200 and
+                  out['board_status'] == 200 and
+                  out['inventory_status'] == 200 and
+                  not out['errors']
+              )
+          except Exception as e:
+              out['errors'].append(str(e))
+          with open('proof/E0-LIVE-PRODUCTION-PROOF.json','w',encoding='utf-8') as f:
+              json.dump(out, f, indent=2)
+              f.write('\n')
+          print(json.dumps(out, indent=2))
+          sys.exit(0 if out['e0'] else 1)
+
+      - name: Upload E0 proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-e0-proof-${{ github.run_id }}
+          path: proof/E0-LIVE-PRODUCTION-PROOF.json
