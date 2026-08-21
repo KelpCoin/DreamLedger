@@ -8,7 +8,7 @@ $Out = Join-Path $ProofRoot $Run
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 
 $Models = if ($env:BEC_LM_MODELS) { $env:BEC_LM_MODELS } else { 'qwen2.5-coder-14b-instruct,phi-3-mini-4k-instruct,qwen2.5-coder-14b-instruct' }
-$Url = if ($env:BEC_LM_URL) { $env:BEC_LM_URL } else { 'http://localhost:1234/v1/chat/completions' }
+$Url = if ($env:BEC_LM_URL) { $env:BEC_LM_URL } else { 'http://169.254.83.107:1235/v1/chat/completions' }
 $Signal = if ($args.Count -gt 0) { $args -join ' ' } else { 'Find the smallest urgent paid wedge for verifiable evidence and adversarial AI-agent testing.' }
 
 Set-Location $Repo
