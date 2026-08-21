@@ -23,3 +23,9 @@ jobs:
           node-version: 20
       - name: Verify Build 4 source and compiled contract
         run: node BEC-PRIME/scripts/verify-dreamiez-build4.mjs
+      - name: Upload Build 4 proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamiez-build4-proof
+          path: BEC-PRIME/proof/dreamiez-build4-proof.json
+          if-no-files-found: error
