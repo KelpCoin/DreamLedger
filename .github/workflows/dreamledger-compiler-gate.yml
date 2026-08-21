@@ -1,0 +1,60 @@
+name: DreamLedger Compiler Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  compile-and-verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run canonical compiler
+        run: npm run compile
+
+      - name: Run Universal Compiler
+        run: npm run compile:universal
+
+      - name: Verify compiler proof
+        shell: bash
+        run: |
+          test -f RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
+          node -e "const p=require('./RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'); if(p.status!=='PASS') process.exit(1); console.log('UNIVERSAL_COMPILER_PASS');"
+
+      - name: Verify public compiled surface
+        shell: bash
+        run: |
+          test -f compiled/website/index.html
+          test -f compiled/website/login.html
+          test -f compiled/website/register.html
+          echo "COMPILED_PUBLIC_SURFACE_PASS"
+
+      - name: Upload compiler proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-compiler-proof
+          path: BEC-PRIME/RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
+          if-no-files-found: warn
