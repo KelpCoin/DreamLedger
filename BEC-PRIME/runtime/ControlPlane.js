@@ -12,6 +12,7 @@ const workerPool = require('./worker-pool');
 const scheduler = require('./Scheduler');
 const ledger = require('./Ledger');
 const fossil = require('./Fossil');
+const internalTrust = require('../trust/InternalTrustService');
 
 const ROOT = path.join(__dirname, '..');
 let lastBoot = null;
@@ -61,7 +62,13 @@ function health() {
   };
 }
 
-async function readJsonBody(req) { let body = ''; for await (const chunk of req) body += chunk; try { return JSON.parse(body || '{}'); } catch { throw new Error('Invalid JSON'); } }
+async function readJsonBody(req) { let body = ''; for await (const chunk of req) { body += chunk; if (body.length > 200000) throw new Error('Request too large'); } try { return JSON.parse(body || '{}'); } catch { throw new Error('Invalid JSON'); } }
+
+function internalTrustAuthorized(req) {
+  const configured = process.env.DREAMLEDGER_INTERNAL_TRUST_TOKEN || '';
+  const supplied = String(req.headers['x-dreamledger-internal-token'] || '');
+  return Boolean(configured) && supplied === configured;
+}
 
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
@@ -80,6 +87,10 @@ async function handle(req, res) {
   if (req.method === 'GET' && url === '/api/control/ledger') return send(200, ledger.verifyChain());
   if (req.method === 'GET' && url === '/api/control/fossils') return send(200, fossil.verifyFossils());
   if (req.method === 'GET' && url.startsWith('/api/control/jobs/')) { const jobId = url.slice('/api/control/jobs/'.length); try { return send(200, workerPool.loadJob(jobId)); } catch (err) { return send(404, { error: err.message }); } }
+  if (req.method === 'POST' && url === '/api/control/trust/verify') {
+    if (!internalTrustAuthorized(req)) return send(process.env.DREAMLEDGER_INTERNAL_TRUST_TOKEN ? 401 : 503, { error: process.env.DREAMLEDGER_INTERNAL_TRUST_TOKEN ? 'Unauthorized' : 'Internal trust service not configured' });
+    try { const input = await readJsonBody(req); return send(200, { verification: await internalTrust.verify(input.candidate) }); } catch (err) { return send(400, { error: err.message }); }
+  }
   if (req.method === 'POST' && url === '/api/control/elohim/propose') { try { return send(200, await elohim.propose(await readJsonBody(req))); } catch (err) { return send(400, { error: err.message }); } }
   if (req.method === 'POST' && url === '/api/control/proxy/queue') { try { const input = await readJsonBody(req); return send(201, proxy.queue(input.action, input.payload, input.requested_by)); } catch (err) { return send(400, { error: err.message }); } }
   if (req.method === 'POST' && url.startsWith('/api/control/proxy/approve/')) { const id = url.slice('/api/control/proxy/approve/'.length); try { return send(200, proxy.approve(id, req.headers['x-human-approver'] || 'human', req.headers['x-digital-proxy-token'] || '')); } catch (err) { return send(403, { error: err.message }); } }
