@@ -1,0 +1,19 @@
+{
+  "schema": "DL-BILLBOARD-CATALOG/v1",
+  "status": "ACTIVE_CASH_LANE",
+  "currency": "NZD",
+  "payment_provider": "stripe",
+  "payment_url": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
+  "tiers": [
+    {"sku":"DL-BILLBOARD-100X100-001","offer_id":"DREAMLEDGER-BILLBOARD-100X100-NZD29","size":"100x100","price_nzd":29},
+    {"sku":"DL-BILLBOARD-200X100-001","offer_id":"DREAMLEDGER-BILLBOARD-200X100-NZD79","size":"200x100","price_nzd":79},
+    {"sku":"DL-BILLBOARD-500X200-001","offer_id":"DREAMLEDGER-BILLBOARD-500X200-NZD149","size":"500x200","price_nzd":149},
+    {"sku":"DL-BILLBOARD-500X500-001","offer_id":"DREAMLEDGER-BILLBOARD-500X500-NZD349","size":"500x500","price_nzd":349},
+    {"sku":"DL-BILLBOARD-1000X1000-001","offer_id":"DREAMLEDGER-BILLBOARD-1000X1000-NZD999","size":"1000x1000","price_nzd":999}
+  ],
+  "economic_truth": {
+    "verified_payment_count": 0,
+    "verified_revenue_nzd": 0,
+    "rule": "Only independently verified paid Stripe events may change these values."
+  }
+}
