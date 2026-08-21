@@ -52,6 +52,10 @@ services:
         value: "false"
       - key: DIGITAL_PROXY_LM_BASE_URL
         value: http://127.0.0.1:1234/v1
+      - key: SUPABASE_URL
+        value: https://wbwgroygjeyukkspnqiy.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
