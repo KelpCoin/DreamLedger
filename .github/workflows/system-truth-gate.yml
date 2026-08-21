@@ -1,0 +1,51 @@
+name: DreamLedger System Truth Gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Expected production SHA. Leave blank to verify availability without pinning.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-system-truth
+  cancel-in-progress: true
+
+jobs:
+  truth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run canonical system truth sweep
+        env:
+          DREAMLEDGER_BASE_URL: https://dreamledger.org
+          EXPECTED_SHA: ${{ inputs.expected_sha || github.sha }}
+        run: node scripts/SystemTruthSweep.js
+
+      - name: Upload system proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-system-truth-proof
+          path: BEC-PRIME/RUN-PROOFS/SYSTEM-TRUTH-LATEST.json
+          if-no-files-found: warn
