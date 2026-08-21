@@ -1,0 +1,27 @@
+{
+  "schema": "DreamLedger/account-surface-proof/v1",
+  "date": "2026-08-22",
+  "status": "SOURCE_VERIFIED",
+  "repository": "KelpCoin/DreamLedger",
+  "canonical_account_contract": {
+    "register": "/api/account/register",
+    "login": "/api/account/login",
+    "session": "/api/account/me",
+    "logout": "/api/account/logout",
+    "update": "/api/account/update"
+  },
+  "public_surfaces": {
+    "/register": "compiled/website/register.html",
+    "/login": "compiled/website/login.html",
+    "/account": "compiled/website/account.html"
+  },
+  "changes": [
+    "Account page now reads and writes profile data through the canonical DreamLedger account API.",
+    "Avatar editor now writes height, build and skin through /api/account/update with the runtime's valid 1..6 ranges.",
+    "Legacy Dreamiez login/register paths remain redirect shims to the primary DreamLedger account pages.",
+    "Added a deterministic canonical account smoke test with no external credentials."
+  ],
+  "external_runtime_claimed": false,
+  "live_deployment_verified": false,
+  "next_live_gate": "Deploy current main and run register -> me -> logout -> login against dreamledger.org."
+}
