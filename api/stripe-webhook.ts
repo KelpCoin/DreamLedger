@@ -1,6 +1,8 @@
 const TOLERANCE_SECONDS = 300;
 const PROOF_TABLE = 'first_payment_proofs';
-const CANONICAL_SKU = 'DL-BILLBOARD-100X100-001';
+const CANONICAL_OFFER_ID = 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT';
+const CANONICAL_PRODUCT_ID = 'BEC-PRIME-ARCHITECTURE-AUDIT-001';
+const CANONICAL_SKU = 'BEC-PRIME-ARCHITECTURE-AUDIT-001';
 const CANONICAL_CURRENCY = 'nzd';
 const CANONICAL_AMOUNT_CENTS = 2900;
 
@@ -52,7 +54,13 @@ function validatePaymentEvent(event: any): { ok: true; session: any } | { ok: fa
   if (session.payment_status !== 'paid') return { ok: false, reason: 'Checkout session is not paid' };
   if (String(session.currency ?? '').toLowerCase() !== CANONICAL_CURRENCY) return { ok: false, reason: 'Unexpected currency' };
   if (session.amount_total !== CANONICAL_AMOUNT_CENTS) return { ok: false, reason: 'Unexpected payment amount' };
-  if (session.metadata?.dreamledger_sku !== CANONICAL_SKU) return { ok: false, reason: 'Unexpected DreamLedger SKU' };
+
+  const metadata = session.metadata || {};
+  const sku = metadata.sku || metadata.dreamledger_sku;
+  if (metadata.offer_id !== CANONICAL_OFFER_ID) return { ok: false, reason: 'Unexpected DreamLedger offer' };
+  if (metadata.product_id !== CANONICAL_PRODUCT_ID) return { ok: false, reason: 'Unexpected DreamLedger product' };
+  if (sku !== CANONICAL_SKU) return { ok: false, reason: 'Unexpected DreamLedger SKU' };
+  if (metadata.silo !== 'commerce') return { ok: false, reason: 'Unexpected commerce silo' };
 
   return { ok: true, session };
 }
@@ -91,6 +99,9 @@ async function persistProof(event: any, session: any): Promise<'inserted' | 'dup
     amount_total: session.amount_total,
     currency: CANONICAL_CURRENCY,
     sku: CANONICAL_SKU,
+    offer_id: CANONICAL_OFFER_ID,
+    product_id: CANONICAL_PRODUCT_ID,
+    revenue_nzd: session.amount_total / 100,
     paid_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
     proof_type: 'FIRST_PAYMENT_PROOF',
