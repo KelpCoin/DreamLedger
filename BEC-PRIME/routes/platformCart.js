@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const billboard = require('./billboard');
+const stripeWebhookProof = require('../lib/stripeWebhookProof');
 
 const ROOT = path.join(__dirname, '..');
 const CART_DIR = path.join(ROOT, 'data', 'marketplace', 'carts');
@@ -72,10 +73,14 @@ async function handleWebhook(req, res) {
     if (billboard.handlePaidSession(session)) return { handled: true };
     const productId = session?.metadata?.product_id;
     if (productId) {
-      const timestamp = new Date().toISOString();
-      const proof = { schema_version: 'BEC-FOSSIL-1.0', event: event.type, status: 'PASS', evidence_level: 1, asset_id: productId, transaction_id: session.id, amount: session.amount_total, currency: session.currency || 'nzd', timestamp_utc: timestamp };
-      write(path.join(PROOFS, 'FIRST_PAYMENT_PROOF.json'), proof);
-      write(path.join(PROOFS, 'FIRST_PAYMENT_PROOF-' + session.id + '.json'), proof);
+      const productRecord = product(productId);
+      if (!productRecord) throw new Error('Unknown product in paid session: ' + productId);
+      const result = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], {
+        webhookSecret: STRIPE_WEBHOOK_SECRET,
+        getProduct: (id) => product(id),
+        getOffer: () => null,
+      });
+      if (!result.received || !result.handled) throw new Error('Stripe payment proof handler did not handle paid product session');
       return { handled: true };
     }
   }
