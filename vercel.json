@@ -4,5 +4,14 @@
     "api/**/*.ts": { "maxDuration": 30, "memory": 1024 },
     "api/stripe-webhook.ts": { "maxDuration": 60 }
   },
-  "regions": ["syd1"]
+  "regions": ["syd1"],
+  "rewrites": [
+    { "source": "/", "destination": "/compiled/website/index.html" },
+    { "source": "/login", "destination": "/compiled/website/login.html" },
+    { "source": "/login/", "destination": "/compiled/website/login.html" },
+    { "source": "/register", "destination": "/compiled/website/register.html" },
+    { "source": "/register/", "destination": "/compiled/website/register.html" },
+    { "source": "/account", "destination": "/compiled/website/account.html" },
+    { "source": "/account/", "destination": "/compiled/website/account.html" }
+  ]
 }
