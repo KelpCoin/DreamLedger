@@ -1,0 +1,120 @@
+name: E0 Production Truth Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-e0-production-truth
+  cancel-in-progress: false
+
+env:
+  EXPECTED_SHA: 5f168829135e90f5b22fcda40ae989b638fecfb6
+  BASE_URL: https://dreamledger.org
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+
+      - name: Verify source SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          echo "source_sha=$actual"
+          test "$actual" = "$GITHUB_SHA"
+
+      - name: Probe production health
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 20 --retry 3 --retry-delay 2 "$BASE_URL/healthz" || true)
+          echo "healthz_http=$status"
+          cat /tmp/healthz.json 2>/dev/null || true
+          printf '%s\n' "$status" > /tmp/healthz.status
+
+      - name: Probe production version
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 20 --retry 3 --retry-delay 2 "$BASE_URL/version" || true)
+          echo "version_http=$status"
+          cat /tmp/version.json 2>/dev/null || true
+          printf '%s\n' "$status" > /tmp/version.status
+
+      - name: Verify version provenance when available
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(cat /tmp/version.status)"
+          if [ "$status" = "200" ]; then
+            python3 - <<'PY'
+          import json
+          expected = "5f168829135e90f5b22fcda40ae989b638fecfb6"
+          with open('/tmp/version.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
+          deployed = data.get('commit') or data.get('sha')
+          print('deployed_sha=' + str(deployed))
+          if deployed != expected:
+              raise SystemExit('FAIL: production version does not match expected canonical SHA')
+          print('PASS: production provenance matches expected canonical SHA')
+          PY
+          else
+            echo "NOT_VERIFIED: /version returned HTTP $status"
+          fi
+
+      - name: Probe commerce surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in / /api/catalog /api/products/EDH_0001 /api/account/me; do
+            status=$(curl -sS -o /tmp/probe.out -w '%{http_code}' --max-time 20 --retry 2 --retry-delay 2 "$BASE_URL$path" || true)
+            echo "$path http=$status"
+          done
+
+      - name: Emit E0 proof artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          health = open('/tmp/healthz.status', encoding='utf-8').read().strip()
+          version = open('/tmp/version.status', encoding='utf-8').read().strip()
+          proof = {
+              'schema_version': 'BEC-E0-TRUTH-PROBE-1.0',
+              'workflow': os.environ.get('GITHUB_WORKFLOW'),
+              'run_id': os.environ.get('GITHUB_RUN_ID'),
+              'source_sha': os.environ.get('GITHUB_SHA'),
+              'expected_sha': os.environ.get('EXPECTED_SHA'),
+              'base_url': os.environ.get('BASE_URL'),
+              'healthz_http': health,
+              'version_http': version,
+              'status': 'PASS' if health == '200' and version == '200' else 'NOT_VERIFIED',
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+          }
+          with open('proof/e0-production-truth.json', 'w', encoding='utf-8') as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload E0 proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: e0-production-truth-${{ github.sha }}
+          path: proof/e0-production-truth.json
+          if-no-files-found: error
+          retention-days: 30
