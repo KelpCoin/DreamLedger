@@ -1,0 +1,90 @@
+name: Mirror Truth Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      render_url:
+        description: Render or canonical production base URL
+        required: true
+        default: https://dreamledger.org
+        type: string
+      vercel_url:
+        description: Vercel production base URL
+        required: true
+        default: https://dream-ledger-zeta.vercel.app
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe both deployments without mutating infrastructure
+        env:
+          RENDER_URL: ${{ inputs.render_url }}
+          VERCEL_URL: ${{ inputs.vercel_url }}
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+
+          normalize() {
+            printf '%s' "$1" | sed 's#/$##'
+          }
+
+          RENDER="$(normalize "$RENDER_URL")"
+          VERCEL="$(normalize "$VERCEL_URL")"
+
+          curl -fsSL --retry 3 --retry-delay 2 "$RENDER/version" -o proof/render-version.json
+          curl -fsSL --retry 3 --retry-delay 2 "$VERCEL/version" -o proof/vercel-version.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('proof/render-version.json').read_text())
+          v=json.loads(Path('proof/vercel-version.json').read_text())
+          def commit(x):
+              for k in ('commit','commit_sha','sha','version'):
+                  if isinstance(x,dict) and x.get(k):
+                      return str(x[k])
+              return None
+          rc=commit(r)
+          vc=commit(v)
+          print('RENDER_COMMIT=' + str(rc))
+          print('VERCEL_COMMIT=' + str(vc))
+          if not rc or not vc:
+              raise SystemExit('BLOCKED: /version did not expose a recognized commit identity on both targets')
+          if rc != vc:
+              raise SystemExit('MISMATCH: Render and Vercel release identities differ')
+          print('PASS: Render and Vercel release identities match')
+          PY
+
+          for base in "$RENDER" "$VERCEL"; do
+            curl -fsSL --retry 3 --retry-delay 2 "$base/" -o /tmp/root.html
+            grep -qi '<html' /tmp/root.html
+            curl -fsSL --retry 3 --retry-delay 2 "$base/dreammeez-dashboard.html" -o /tmp/dreammeez.html
+            grep -qi 'DreamMeez' /tmp/dreammeez.html
+          done
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('proof/render-version.json').read_text())
+          v=json.loads(Path('proof/vercel-version.json').read_text())
+          out={
+            'status':'PASS',
+            'render_version':r,
+            'vercel_version':v,
+            'checks':['render:/version','vercel:/version','render:/','vercel:/','render:/dreammeez-dashboard.html','vercel:/dreammeez-dashboard.html']
+          }
+          Path('proof/mirror-truth-proof.json').write_text(json.dumps(out,indent=2)+'\n')
+          print(json.dumps(out,indent=2))
+          PY
+
+      - name: Upload mirror proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mirror-truth-proof
+          path: proof/
