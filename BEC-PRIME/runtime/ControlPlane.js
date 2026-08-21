@@ -1,6 +1,7 @@
 'use strict';
 
 const { spawnSync } = require('child_process');
+const fs = require('fs');
 const path = require('path');
 const autoRevenueCatalog = require('../catalog/AutoRevenueCatalog');
 const gauntlet = require('../gauntlet/GauntletV6');
@@ -16,6 +17,8 @@ const truthOracle = require('./TruthOracle');
 const internalTrust = require('../trust/InternalTrustService');
 
 const ROOT = path.join(__dirname, '..');
+const BOARD_FILE = path.join(ROOT, 'compiled', 'website', 'board.html');
+const PRODUCT_DIR = path.join(ROOT, 'catalog', 'products');
 let lastBoot = null;
 
 function compile() {
@@ -34,6 +37,16 @@ function compile() {
   return results;
 }
 
+function boardInventory() {
+  const products = fs.existsSync(PRODUCT_DIR) ? fs.readdirSync(PRODUCT_DIR).filter(name => /^BILLBOARD-(SMALL|MEDIUM|WIDE|LARGE|TAKEOVER)\.json$/i.test(name)).map(name => JSON.parse(fs.readFileSync(path.join(PRODUCT_DIR, name), 'utf8'))) : [];
+  return {
+    schema_version: 'DREAMLEDGER-BOARD-INVENTORY-1',
+    board: { route: '/board', canonical_surface: '/board', compiled_file: 'BEC-PRIME/compiled/website/board.html', exists: fs.existsSync(BOARD_FILE) },
+    territory_skus: products.map(product => ({ id: product.id, name: product.name, price: product.price, currency: product.currency, inventory: Number(product.inventory || 0), status: product.status, checkout_available: product.checkout_available === true })),
+    generated_at: new Date().toISOString()
+  };
+}
+
 function boot() {
   const compileResults = compile();
   const gauntletResult = gauntlet.run();
@@ -47,6 +60,7 @@ function boot() {
     ledger: ledgerResult,
     fossils: fossilResult,
     truth_oracle: truthOracle.snapshot(),
+    board_inventory: boardInventory(),
     workers: scheduler.advertisedWorkers().workers,
     worker_pool: { status: 'READY', queue: workerPool.listJobs().length },
     status: compileResults.every(x => x.status === 'PASS') && gauntletResult.status === 'PASS' && sentinelResult.verdict === 'PASS' && ledgerResult.status === 'PASS' && fossilResult.status === 'PASS' ? 'PASS' : 'FAIL',
@@ -59,7 +73,7 @@ function health() {
   return {
     control_plane: 'ELOHIM-V6', gauntlet: 'GAUNTLET-V6', digital_proxy: 'approval-gated',
     scheduler: { registry: scheduler.loadRegistry(), workers: scheduler.advertisedWorkers().workers },
-    ledger: ledger.verifyChain(), fossils: fossil.verifyFossils(), truth_oracle: truthOracle.snapshot(),
+    ledger: ledger.verifyChain(), fossils: fossil.verifyFossils(), truth_oracle: truthOracle.snapshot(), board_inventory: boardInventory(),
     worker_pool: { status: 'READY', jobs: workerPool.listJobs() }, boot: lastBoot || { status: 'NOT_BOOTED' }
   };
 }
@@ -77,6 +91,9 @@ async function handle(req, res) {
   const send = (status, body) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); };
   if (req.method === 'GET' && url === '/api/truth-oracle') return send(200, truthOracle.snapshot());
   if (req.method === 'GET' && url === '/truth-oracle') { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(truthOracle.html()); }
+  if (req.method === 'GET' && url === '/board') { if (!fs.existsSync(BOARD_FILE)) return send(503, { error: 'Board has not been compiled' }); const html = fs.readFileSync(BOARD_FILE, 'utf8'); res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(html); }
+  if (req.method === 'GET' && url === '/billboard') { if (!fs.existsSync(BOARD_FILE)) return send(503, { error: 'Board has not been compiled' }); const html = fs.readFileSync(BOARD_FILE, 'utf8'); res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(html); }
+  if (req.method === 'GET' && url === '/api/molt-beach-inventory') return send(200, boardInventory());
   if (req.method === 'GET' && url === '/api/control/health') return send(200, health());
   if (req.method === 'GET' && url === '/api/control/sentinel') return send(200, sentinel.run(gauntlet.run()));
   if (req.method === 'GET' && url === '/api/control/demand') return send(200, { summary: demandRadar.summary(), proposal: demandRadar.proposal() });
@@ -101,4 +118,4 @@ async function handle(req, res) {
   return false;
 }
 
-module.exports = { handle, boot, health };
+module.exports = { handle, boot, health, boardInventory };
