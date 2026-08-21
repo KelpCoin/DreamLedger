@@ -1,0 +1,89 @@
+name: Steward Quote Recovery Execution
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/cells/quote-recovery/**'
+      - '.github/workflows/steward-quote-recovery-execution.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout task scope
+        uses: actions/checkout@v4
+
+      - name: Verify PowerShell runtime
+        shell: bash
+        run: pwsh --version
+
+      - name: Block network egress for execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo iptables -P OUTPUT DROP
+          sudo iptables -A OUTPUT -o lo -j ACCEPT
+          echo 'NETWORK_EGRESS=BLOCKED_FOR_EXECUTION'
+
+      - name: Execute status
+        shell: pwsh
+        run: pwsh -NoProfile -File BEC-PRIME/cells/quote-recovery/StewardCell.ps1 -Action status -OutputDir BEC-PRIME/cells/quote-recovery/state
+
+      - name: Execute discovery
+        shell: pwsh
+        run: |
+          $c = @(
+            [pscustomobject]@{ business_name='Fixture Plumbing'; location='Auckland'; quote_form=$true; free_quote=$true; high_ticket=$true; commercial_work=$true; multiple_services=$true; owner_operated=$true; source='fixture' }
+            [pscustomobject]@{ business_name='Fixture Low Score'; location='Auckland'; quote_form=$true; free_quote=$false; high_ticket=$false; commercial_work=$false; multiple_services=$false; owner_operated=$false; source='fixture' }
+          )
+          $c | ConvertTo-Json -Depth 5 | Set-Content BEC-PRIME/cells/quote-recovery/fixtures/candidates.json -Encoding UTF8
+          pwsh -NoProfile -File BEC-PRIME/cells/quote-recovery/StewardCell.ps1 -Action discover -CandidatePath BEC-PRIME/cells/quote-recovery/fixtures/candidates.json -OutputDir BEC-PRIME/cells/quote-recovery/state
+
+      - name: Execute qualification
+        shell: pwsh
+        run: pwsh -NoProfile -File BEC-PRIME/cells/quote-recovery/StewardCell.ps1 -Action qualify -OutputDir BEC-PRIME/cells/quote-recovery/state
+
+      - name: Execute offer preparation
+        shell: pwsh
+        run: pwsh -NoProfile -File BEC-PRIME/cells/quote-recovery/StewardCell.ps1 -Action prepare-offer -OutputDir BEC-PRIME/cells/quote-recovery/state
+
+      - name: Execute fulfilment
+        shell: pwsh
+        run: pwsh -NoProfile -File BEC-PRIME/cells/quote-recovery/StewardCell.ps1 -Action fulfil -InputPath BEC-PRIME/cells/quote-recovery/fixtures/fixture.json -OutputDir BEC-PRIME/cells/quote-recovery/state
+
+      - name: Execute QA and proof readback
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -File BEC-PRIME/cells/quote-recovery/StewardCell.ps1 -Action qa -OutputDir BEC-PRIME/cells/quote-recovery/state
+          pwsh -NoProfile -File BEC-PRIME/cells/quote-recovery/StewardCell.ps1 -Action proof -OutputDir BEC-PRIME/cells/quote-recovery/state
+          $p = Get-Content BEC-PRIME/cells/quote-recovery/state/FULFILMENT_PROOF.json -Raw | ConvertFrom-Json
+          if ($p.local_execution -ne 'PASS') { throw 'EXECUTION_PROOF_FAIL' }
+          if ($p.qa_status -ne 'PASS') { throw 'QA_PROOF_FAIL' }
+          if ($p.gauntlet_status -ne 'PRE-MONEY') { throw 'GAUNTLET_TRUTH_FAIL' }
+          if ($p.payment_status -ne 'NOT_PROVEN') { throw 'PAYMENT_TRUTH_FAIL' }
+          if ($p.total_quoted_opportunity_nzd -ne 5050) { throw 'FIXTURE_TOTAL_FAIL' }
+          if ($p.output_leak_count -ne 3) { throw 'FIXTURE_LEAK_COUNT_FAIL' }
+          Write-Host 'EXECUTION_CONTRACT=PASS'
+          Write-Host 'LOCAL_EXECUTION=PASS'
+          Write-Host 'QA=PASS'
+          Write-Host 'GAUNTLET=PRE-MONEY'
+          Write-Host 'PAYMENT=NOT_PROVEN'
+          Write-Host 'REVENUE=0'
+
+      - name: Restore network for artifact upload
+        if: always()
+        shell: bash
+        run: sudo iptables -P OUTPUT ACCEPT
+
+      - name: Upload execution proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: steward-quote-recovery-proof-${{ github.run_id }}
+          path: BEC-PRIME/cells/quote-recovery/state/
+          if-no-files-found: error
+          retention-days: 30
