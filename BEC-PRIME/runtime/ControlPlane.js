@@ -12,6 +12,7 @@ const workerPool = require('./worker-pool');
 const scheduler = require('./Scheduler');
 const ledger = require('./Ledger');
 const fossil = require('./Fossil');
+const truthOracle = require('./TruthOracle');
 const internalTrust = require('../trust/InternalTrustService');
 
 const ROOT = path.join(__dirname, '..');
@@ -45,6 +46,7 @@ function boot() {
     sentinel: sentinelResult,
     ledger: ledgerResult,
     fossils: fossilResult,
+    truth_oracle: truthOracle.snapshot(),
     workers: scheduler.advertisedWorkers().workers,
     worker_pool: { status: 'READY', queue: workerPool.listJobs().length },
     status: compileResults.every(x => x.status === 'PASS') && gauntletResult.status === 'PASS' && sentinelResult.verdict === 'PASS' && ledgerResult.status === 'PASS' && fossilResult.status === 'PASS' ? 'PASS' : 'FAIL',
@@ -57,7 +59,7 @@ function health() {
   return {
     control_plane: 'ELOHIM-V6', gauntlet: 'GAUNTLET-V6', digital_proxy: 'approval-gated',
     scheduler: { registry: scheduler.loadRegistry(), workers: scheduler.advertisedWorkers().workers },
-    ledger: ledger.verifyChain(), fossils: fossil.verifyFossils(),
+    ledger: ledger.verifyChain(), fossils: fossil.verifyFossils(), truth_oracle: truthOracle.snapshot(),
     worker_pool: { status: 'READY', jobs: workerPool.listJobs() }, boot: lastBoot || { status: 'NOT_BOOTED' }
   };
 }
@@ -73,6 +75,8 @@ function internalTrustAuthorized(req) {
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
   const send = (status, body) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); };
+  if (req.method === 'GET' && url === '/api/truth-oracle') return send(200, truthOracle.snapshot());
+  if (req.method === 'GET' && url === '/truth-oracle') { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(truthOracle.html()); }
   if (req.method === 'GET' && url === '/api/control/health') return send(200, health());
   if (req.method === 'GET' && url === '/api/control/sentinel') return send(200, sentinel.run(gauntlet.run()));
   if (req.method === 'GET' && url === '/api/control/demand') return send(200, { summary: demandRadar.summary(), proposal: demandRadar.proposal() });
