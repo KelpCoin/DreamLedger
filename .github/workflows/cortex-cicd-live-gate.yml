@@ -1,0 +1,230 @@
+name: Cortex CI/CD Live Release Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Commit SHA to verify in production
+        required: false
+        type: string
+
+concurrency:
+  group: cortex-cicd-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: CI - deterministic release gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      release_sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - name: Resolve release SHA
+        id: release
+        shell: bash
+        env:
+          INPUT_SHA: ${{ inputs.expected_sha }}
+          EVENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          sha="${INPUT_SHA:-$EVENT_SHA}"
+          test -n "$sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_SHA=$sha"
+
+      - name: Checkout exact release SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.sha }}
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Compile canonical release
+        working-directory: BEC-PRIME
+        run: npm run compile
+
+      - name: Verify silo boundaries
+        working-directory: BEC-PRIME
+        run: npm run verify:silos
+
+      - name: Verify commercial integration
+        working-directory: BEC-PRIME
+        run: npm run verify:integration
+
+      - name: Verify worker pool
+        working-directory: BEC-PRIME
+        run: npm run worker:verify
+
+      - name: Verify runtime
+        working-directory: BEC-PRIME
+        run: npm run runtime:verify
+
+      - name: Verify critical JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check BEC-PRIME/start.js
+          node --check BEC-PRIME/runtime/ControlPlane.js
+          node --check BEC-PRIME/routes/auth.js
+          node --check BEC-PRIME/scripts/smoke-production.js
+          node --check BEC-PRIME/scripts/smoke-front-door.js
+
+      - name: Verify primary account pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          for page in login.html register.html account.html; do
+            test -f "BEC-PRIME/compiled/website/$page"
+            grep -q '/api/account/' "BEC-PRIME/compiled/website/$page"
+          done
+          ! grep -q '/api/dreamiez/account/login' BEC-PRIME/compiled/website/login.html
+
+      - name: Write CI proof
+        env:
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p BEC-PRIME/RUN-PROOFS
+          python3 - <<'PY'
+          import json, os, time
+          data = {
+              'status': 'PASS',
+              'gate': 'CORTEX_CI',
+              'release_sha': os.environ['RELEASE_SHA'],
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'checks': [
+                  'compile', 'silo-boundaries', 'commercial-integration',
+                  'worker-pool', 'runtime', 'syntax', 'primary-account-pages'
+              ],
+              'public_actions': 'approval-required',
+              'financial_actions': 'approval-required'
+          }
+          with open('BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, indent=2)
+          print(json.dumps(data, indent=2))
+          PY
+
+      - name: Upload CI proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-ci-proof-${{ steps.release.outputs.sha }}
+          path: BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json
+          if-no-files-found: error
+          retention-days: 30
+
+  production:
+    name: CD - verify Render production release
+    needs: ci
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE_URL: https://dreamledger.org
+      EXPECTED_SHA: ${{ needs.ci.outputs.release_sha }}
+    steps:
+      - name: Poll live version until exact SHA is deployed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            body=$(curl -sS --max-time 10 "$BASE_URL/version" || true)
+            live=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit", ""))' <<< "$body" 2>/dev/null || true)
+            echo "poll=$i live_sha=$live expected_sha=$EXPECTED_SHA"
+            if [ "$live" = "$EXPECTED_SHA" ]; then
+              echo "LIVE_SHA_MATCH=PASS"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "LIVE_SHA_MATCH=FAIL"
+          exit 1
+
+      - name: Verify required live surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          check() {
+            path="$1"
+            expected="$2"
+            code=$(curl -sS -o /tmp/response --retry 3 --retry-delay 2 --max-time 15 -w '%{http_code}' "$BASE_URL$path")
+            echo "$path HTTP=$code"
+            test "$code" = "$expected"
+          }
+          check /healthz 200
+          check /register.html 200
+          check /elohim-refinery.html 200
+          check /gauntlet.html 200
+          check /version 200
+
+      - name: Verify checkout surface without purchasing
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
+            -X POST "$BASE_URL/api/offer-checkout/create" \
+            -H 'Content-Type: application/json' \
+            --data '{"sku":"AGENTIC-SOVEREIGNTY-DIAGNOSTIC"}')
+          echo "$response" > /tmp/checkout.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/checkout.json', encoding='utf-8') as f:
+              data=json.load(f)
+          url=str(data.get('url',''))
+          if not url.startswith('https://') or 'stripe.com' not in url:
+              raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
+          print('CHECKOUT_URL_PRESENT=PASS')
+          PY
+
+      - name: Write production proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          data = {
+              'status': 'PASS',
+              'gate': 'CORTEX_CD',
+              'release_sha': os.environ['EXPECTED_SHA'],
+              'target': os.environ['BASE_URL'],
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'live_sha_verified': True,
+              'surfaces_verified': ['healthz','register.html','elohim-refinery.html','gauntlet.html','version'],
+              'checkout_surface_verified': True,
+              'purchase_executed': False,
+              'revenue_claimed': False
+          }
+          with open('proof/cortex-production-proof.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, indent=2)
+          print(json.dumps(data, indent=2))
+          PY
+
+      - name: Upload production proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-production-proof-${{ env.EXPECTED_SHA }}
+          path: proof/cortex-production-proof.json
+          if-no-files-found: error
+          retention-days: 30
