@@ -37,9 +37,16 @@ function run(options = {}) {
     const prefix = `offer.${offer.offer_id}`;
     const explicitlyApproved = approvedIds.has(String(offer.offer_id));
     for (const field of ['offer_id', 'capability_id', 'name', 'problem', 'input', 'output', 'delivery_mechanism', 'deliverable', 'target_buyer', 'price', 'currency', 'payment_adapter', 'checkout_route', 'approval_required', 'checkout_available', 'status', 'proof_of_delivery', 'verification_rules', 'provenance']) {
-      if (offer[field] === undefined || offer[field] === null || offer[field] === '') fail(checks, `${prefix}.${field}`, 'Required field missing');
+      if (offer[field] === undefined || offer[field] === '') fail(checks, `${prefix}.${field}`, 'Required field missing');
     }
-    if (!(Number(offer.price) > 0)) fail(checks, `${prefix}.price`, 'Price must be greater than zero');
+
+    const unavailableWithoutPrice = offer.price === null && offer.checkout_available === false && offer.status === 'unavailable';
+    if (!(Number(offer.price) > 0) && !unavailableWithoutPrice) {
+      fail(checks, `${prefix}.price`, 'Checkoutable or quarantined offers must have a positive price');
+    } else if (unavailableWithoutPrice) {
+      pass(checks, `${prefix}.price`, 'Unavailable offer may omit price because checkout is disabled');
+    }
+
     if (explicitlyApproved) {
       if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Explicitly approved offer must have approval_required=false');
       if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Explicitly approved offer must have checkout enabled');

@@ -3,6 +3,8 @@ name: Production Recovery Execute
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -85,6 +87,7 @@ jobs:
           retention-days: 30
 
   deploy-and-live-acceptance:
+    if: github.event_name != 'pull_request'
     needs: compile-and-auth
     runs-on: ubuntu-latest
     timeout-minutes: 20
