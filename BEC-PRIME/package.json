@@ -49,7 +49,8 @@
     "kelplantis:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1 -HealthOnly",
     "kelplantis:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1",
     "kelplantis:test": "node compiler/kelplantis/KelplantisFloorProfiles.test.js && node compiler/kelplantis/KelplantisHistory.test.js && node compiler/kelplantis/KelplantisDungeonGenerator.test.js",
-    "kelplantis:browser": "playwright test scripts/KelplantisBrowserSmoke.spec.js"
+    "kelplantis:browser": "playwright test scripts/KelplantisBrowserSmoke.spec.js",
+    "kelplantis:commerce-test": "node compiler/kelplantis/KelplantisTargetCompiler.js && playwright test scripts/KelplantisCommerceSmoke.spec.js"
   },
   "dependencies": { "ajv": "^8.17.1", "qrcode": "^1.5.4" },
   "devDependencies": { "playwright": "^1.55.0" }
