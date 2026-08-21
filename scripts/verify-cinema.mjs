@@ -1,5 +1,9 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { generateFixture: coreGenerate } = require('../cinema/cinema-core.js');
 
 const file = 'cinema.html';
 const html = fs.readFileSync(file, 'utf8');
@@ -34,8 +38,10 @@ new vm.Script(script, { filename: file }).runInContext(context);
 const a = JSON.parse(vm.runInContext("JSON.stringify(generateFixture(12345, 'A', 'B', 10))", context));
 const b = JSON.parse(vm.runInContext("JSON.stringify(generateFixture(12345, 'A', 'B', 10))", context));
 const c = JSON.parse(vm.runInContext("JSON.stringify(generateFixture(12346, 'A', 'B', 10))", context));
+const canonical = coreGenerate(12345, 'A', 'B', 10);
 if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error('Same seed is not deterministic');
 if (JSON.stringify(a) === JSON.stringify(c)) throw new Error('Different seed did not diverge');
+if (JSON.stringify(a) !== JSON.stringify(canonical)) throw new Error('Shipped inline engine diverges from canonical cinema-core.js');
 if (a.schema_version !== 'cinema-event-v1') throw new Error('Schema mismatch');
 if (a.events.length !== 10) throw new Error('Event count mismatch');
 if (!['A','B'].includes(a.result.winner)) throw new Error('Invalid winner');
@@ -46,5 +52,6 @@ console.log('PASS zero-network static surface');
 console.log('PASS required DOM contract');
 console.log('PASS deterministic same-seed reproduction');
 console.log('PASS different-seed divergence');
+console.log('PASS shipped inline engine matches canonical core');
 console.log('PASS event schema and winner');
 console.log('CINEMA_VERIFICATION=PASS');
