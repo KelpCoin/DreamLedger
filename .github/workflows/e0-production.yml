@@ -1,6 +1,8 @@
 name: E0 Production Proof
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: "*/30 * * * *"
@@ -24,7 +26,6 @@ jobs:
           python3 - <<'PY'
           import json, os, sys, hashlib
           from urllib.request import Request, urlopen
-          from urllib.error import HTTPError, URLError
           from datetime import datetime, timezone
 
           base = os.environ['BASE'].rstrip('/')
