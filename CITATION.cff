@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use DreamLedger, please cite the specific release or commit used."
+title: "DreamLedger"
+type: software
+version: 1.6.1
+date-released: 2026-08-21
+url: "https://github.com/KelpCoin/DreamLedger"
+repository-code: "https://github.com/KelpCoin/DreamLedger"
+authors:
+  - name: "KelpCoin"
+keywords:
+  - "agentic commerce"
+  - "digital identity"
+  - "evidence ledger"
+  - "auction authority"
+  - "software"
+license: MIT
