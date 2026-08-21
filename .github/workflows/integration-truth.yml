@@ -1,0 +1,49 @@
+name: DreamLedger Integration Truth
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  integration-truth:
+    runs-on: ubuntu-latest
+    env:
+      INTEGRATION_TRUTH_BASE_URL: https://dreamledger.org
+      INTEGRATION_TRUTH_EXPECTED_SHA: ${{ github.sha }}
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+
+      - name: Install runtime dependencies
+        working-directory: BEC-PRIME
+        run: npm install
+
+      - name: Compile canonical surfaces
+        working-directory: BEC-PRIME
+        run: npm run compile
+
+      - name: Run Integration Truth Gate
+        working-directory: BEC-PRIME
+        run: npm run integration-truth
+
+      - name: Upload Integration Truth proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-truth-${{ github.sha }}
+          path: BEC-PRIME/data/proofs/INTEGRATION-TRUTH.json
+          if-no-files-found: warn
+          retention-days: 30
