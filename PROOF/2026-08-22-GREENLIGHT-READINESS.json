@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-08-22T14:41:00+12:00",
+  "purpose": "record currently achievable green-light gates without fabricating external runtime state",
+  "canonical_repo": "KelpCoin/DreamLedger",
+  "approved_offer": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+  "approved_price_nzd": 29,
+  "stripe_payment_link": "https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M",
+  "stripe_livemode": true,
+  "stripe_webhook_endpoint_created": true,
+  "stripe_webhook_endpoint_id": "we_1U74ZtEGgEAnUFF9zjOqs2lZ",
+  "supabase_receiver_deployed": true,
+  "supabase_receiver": "dreamledger-stripe-webhook-v2",
+  "current_nz29_payment_observed": false,
+  "e0_verified": false,
+  "production_live_sha_verified": false,
+  "revenue_claim": "UNPROVEN_CURRENTLY"
+}
