@@ -5,7 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
-const LEDGER_DIR = path.resolve(process.env.BEC_LEDGER_DIR || path.join(ROOT, 'data', 'ledger'));
+const LEDGER_DIR = path.resolve(process.env.BEC_LEDGER_DIR || process.env.LEDGER_DATA_DIR || path.join(ROOT, 'data', 'ledger'));
 const EVENTS_FILE = path.join(LEDGER_DIR, 'EVENTS.jsonl');
 
 fs.mkdirSync(LEDGER_DIR, { recursive: true });
