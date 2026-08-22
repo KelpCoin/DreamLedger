@@ -1,0 +1,58 @@
+{
+  "schema": "BEC-PRIME/CUBE-SILO-FACTORY-CONTRACT/v1",
+  "purpose": "Turn a verified silo definition into a reusable commercial surface with existing BEC capabilities mounted by reference.",
+  "factory_rule": "Clone the shell and capability bindings, never the inventory. A silo becomes economically active only when a verified supply atom and a buyer/payment atom exist.",
+  "capability_manifest": "BEC-PRIME/cube/CUBE-ASSET-CAPABILITY-MANIFEST.json",
+  "economic_event_library": "BEC-PRIME/economics/CUBE-ECONOMIC-EVENTS-100.json",
+  "default_capabilities": ["catalog","cinema","auction","compiler","news-carousel","dreammeez","gauntlet","commerce-spine","fossil"],
+  "activation_pipeline": [
+    "discover_signal",
+    "verify_supply",
+    "compile_candidate",
+    "gauntlet_check",
+    "publish_approval_gate",
+    "buyer_action",
+    "checkout",
+    "settled_payment",
+    "fulfilment",
+    "fossilize",
+    "reuse_result"
+  ],
+  "automation_policy": {
+    "human_role": "approve_public_distribution_and_handle_exceptions",
+    "agent_role": "discover_compile_test_draft_measure_and_prepare_next action",
+    "inventory_policy": "empty_until_verified_supply",
+    "payment_truth": "settled_payment_only",
+    "failure_policy": "quarantine_and_continue_other_silos",
+    "bottleneck_policy": "no manual per-silo code changes for ordinary cloning"
+  },
+  "silos": [
+    "mtg",
+    "dreammeez",
+    "media-music",
+    "digital-products",
+    "nz-secondhand",
+    "b2b",
+    "electronics-appliances",
+    "home-garden",
+    "health-beauty",
+    "pet",
+    "books-stationery",
+    "sports-outdoors",
+    "baby-kids",
+    "automotive",
+    "food-pantry",
+    "education-courses"
+  ],
+  "economic_event_mapping": {
+    "catalog": ["catalog_view","offer_click","checkout_start","paid_order"],
+    "cinema": ["free_preview","paid_replay","proof_artifact"],
+    "auction": ["bid","auction_win","deposit","settled_sale"],
+    "compiler": ["candidate_compile","offer_compile","surface_compile"],
+    "news-carousel": ["signal_view","content_click","offer_discovery"],
+    "dreammeez": ["identity_session","streak","reward_unlock","repeat_purchase"],
+    "gauntlet": ["candidate_pass","candidate_quarantine","evidence_emit"],
+    "commerce-spine": ["checkout","payment","fulfilment","settlement_evidence"],
+    "fossil": ["payment_fossil","fulfilment_fossil","experiment_memory"]
+  }
+}
