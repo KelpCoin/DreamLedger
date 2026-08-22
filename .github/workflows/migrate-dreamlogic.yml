@@ -4,6 +4,10 @@ on:
   push:
     paths:
       - "ops/migrations/dreamlogic-import.trigger"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "ops/migrations/dreamlogic-import.trigger"
   workflow_dispatch:
 
 permissions:
@@ -21,6 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.sha }}
 
       - name: Checkout retired DreamLogic source
         uses: actions/checkout@v4
