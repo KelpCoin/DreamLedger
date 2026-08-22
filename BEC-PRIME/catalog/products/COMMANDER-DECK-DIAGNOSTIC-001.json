@@ -2,9 +2,20 @@
   "id": "COMMANDER-DECK-DIAGNOSTIC-001",
   "silo": "mtg",
   "name": "Commander Deck Diagnostic",
-  "status": "archived",
+  "status": "active",
+  "price": {
+    "currency": "NZD",
+    "amount": 29
+  },
+  "checkout_url": "https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L",
+  "fulfilment": {
+    "delivery_sla_hours": 48,
+    "inputs": ["Commander decklist"],
+    "outputs": ["focused diagnostic", "weakest-card analysis", "upgrade priorities", "tuning plan"]
+  },
   "commercial_truth": {
-    "sellable": false,
-    "reason": "Operator explicitly does not sell this offer."
-  }
+    "sellable": true,
+    "reason": "Operator authorized first-revenue experiment on 2026-08-22."
+  },
+  "experiment": "MTG-SALES-001"
 }
