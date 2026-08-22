@@ -1,0 +1,81 @@
+name: Migrate DreamLogic Into DreamLedger
+
+on:
+  push:
+    paths:
+      - "ops/migrations/dreamlogic-import.trigger"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dreamlogic-migration
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical DreamLedger
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout retired DreamLogic source
+        uses: actions/checkout@v4
+        with:
+          repository: KelpCoin/DreamLogic
+          ref: main
+          path: .migration/DreamLogic
+          fetch-depth: 1
+
+      - name: Import source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf legacy/DreamLogic
+          mkdir -p legacy/DreamLogic
+          rsync -a --delete --exclude='.git' .migration/DreamLogic/ legacy/DreamLogic/
+          rm -rf .migration
+          cat > legacy/DreamLogic/CANONICAL-STATUS.md <<'EOF'
+# DreamLogic retirement record
+
+DreamLogic is a historical source tree migrated into the canonical DreamLedger repository.
+
+Canonical repository: KelpCoin/DreamLedger
+Historical source: KelpCoin/DreamLogic
+Status: RETIRED AS A SEPARATE RUNTIME
+
+Do not add new production functionality to this archive. Move maintained logic into the canonical DreamLedger architecture.
+EOF
+
+      - name: Commit migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "DreamLedger Migration Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add legacy/DreamLogic
+          if git diff --cached --quiet; then
+            echo "No DreamLogic migration changes needed."
+            exit 0
+          fi
+          git commit -m "chore: absorb DreamLogic into canonical DreamLedger repo"
+          git push origin HEAD:main
+
+      - name: Emit migration proof
+        shell: bash
+        run: |
+          mkdir -p proof/migrations
+          printf '%s\n' \
+            '{' \
+            '  "migration": "DreamLogic -> DreamLedger",' \
+            '  "source": "KelpCoin/DreamLogic",' \
+            '  "destination": "KelpCoin/DreamLedger/legacy/DreamLogic",' \
+            '  "status": "MIGRATED",' \
+            '  "runtime_rule": "DreamLedger is canonical; DreamLogic is retired as a separate runtime."' \
+            '}' > proof/migrations/DREAMLOGIC-MIGRATION.json
+          git add proof/migrations/DREAMLOGIC-MIGRATION.json
+          git commit -m "proof: record DreamLogic migration" || true
+          git push origin HEAD:main || true
