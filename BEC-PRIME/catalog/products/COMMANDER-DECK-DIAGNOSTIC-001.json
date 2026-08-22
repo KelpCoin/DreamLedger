@@ -20,7 +20,9 @@
     "sellable": true,
     "reason": "Operator authorized first-revenue experiment on 2026-08-22.",
     "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L"
+    "payment_link": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
+    "stripe_product_id": "prod_V6iVKl9HgFpzRU",
+    "stripe_price_id": "price_1U7OJkEGgEAnUFF95GIzLolj"
   },
   "fulfilment": {
     "delivery_sla_hours": 48,
