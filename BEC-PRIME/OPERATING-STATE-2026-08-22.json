@@ -1,0 +1,52 @@
+{
+  "schema": "BEC-PRIME/OPERATING-STATE/v1",
+  "generated_utc": "2026-08-22T03:12:00Z",
+  "purpose": "Canonical whole-stack execution state. Revenue, runtime, evidence, security, and silo boundaries are tracked independently.",
+  "canonical_repo": "KelpCoin/DreamLedger",
+  "canonical_rule": "DreamLedger is the only active source of truth. DreamLogic is historical until physically migrated into legacy/DreamLogic.",
+  "whole_stack": {
+    "brown_eye_cortex": "INCOMPLETE",
+    "dreamledger": "INCOMPLETE",
+    "revenue_engine": "ARMED_NO_CURRENT_REVENUE",
+    "evidence_ledger": "LIVE_EMPTY",
+    "runtime": "DEPLOYMENT_NOT_PROVEN",
+    "acquisition": "NOT_STARTED",
+    "fulfilment": "DEFINED_MANUAL",
+    "stripe": "LIVE",
+    "supabase": "ACTIVE_HEALTHY",
+    "airtable": "OPERATIONAL_EVIDENCE",
+    "notion": "NOT_CONNECTED_IN_CURRENT_TOOLSET",
+    "vercel": "NO_ACTIVE_PROJECT_CONNECTED"
+  },
+  "economic_lanes": [
+    {"id":"DL-029","price_nzd":29,"status":"LIVE_RAIL","proof":"NO_CURRENT_PAYMENT"},
+    {"id":"DL-049","price_nzd":49,"status":"LIVE_RAIL","proof":"NO_CURRENT_PAYMENT"},
+    {"id":"DL-149","price_nzd":149,"status":"LIVE_RAIL","proof":"NO_CURRENT_PAYMENT"},
+    {"id":"DL-499","price_nzd":499,"status":"LIVE_RAIL","proof":"NO_CURRENT_PAYMENT"},
+    {"id":"DL-2500","price_nzd":2500,"status":"LIVE_RAIL","proof":"NO_CURRENT_PAYMENT"},
+    {"id":"DL-10000","price_nzd":10000,"status":"LIVE_RAIL","proof":"NO_CURRENT_PAYMENT"},
+    {"id":"MTG-029","price_nzd":29,"status":"ARMED","proof":"NO_CURRENT_PAYMENT"},
+    {"id":"MTG-400","price_nzd":400,"status":"LIVE_RAIL","proof":"NO_CURRENT_PAYMENT"}
+  ],
+  "verified_economic_state": {
+    "current_verified_revenue_nzd": 0,
+    "historical_live_payment_nzd": 5,
+    "current_paid_dreamledger_sessions": 0,
+    "first_payment_proofs": 0,
+    "dreamledger_orders_paid": 0
+  },
+  "security_actions_completed": [
+    "revoked anon and authenticated EXECUTE on public.dreamledger_append_evidence"
+  ],
+  "remaining_hard_gates": [
+    "physical DreamLogic migration into legacy/DreamLogic",
+    "Render exact-SHA deployment proof",
+    "public /version /healthz /board /api offer verification",
+    "Stripe webhook signature secret wiring proof",
+    "first current paid economic event",
+    "first_payment_proofs populated",
+    "repeatable acquisition loop",
+    "whole-stack local bootstrap verified on Windows"
+  ],
+  "operating_rule": "Do not mark a subsystem complete merely because its code, link, or configuration exists. Completion requires observable runtime or economic evidence appropriate to that subsystem."
+}
