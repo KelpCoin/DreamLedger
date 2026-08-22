@@ -1,0 +1,31 @@
+{
+  "proof_type": "dreamledger-q1-dreammee-mtg-patch",
+  "status": "REPO_PATCHED",
+  "canonical_production_target": "Render",
+  "canonical_domain": "https://dreamledger.org/",
+  "canonical_qr_destination": "https://dreamledger.org/",
+  "canonical_cta": "Make your free DreamMee",
+  "changes": {
+    "mtg_surface": true,
+    "all_mtg_catalog_records_visible": true,
+    "deterministic_cinema_embedded": true,
+    "monte_carlo_fixture_engine_added": true,
+    "dreammee_doorway_asset_added": true,
+    "public_shell_injects_dreammee_doorway": true,
+    "vercel_workflow_removed": true,
+    "dreammee_world_contract_added": true
+  },
+  "truth_boundaries": {
+    "monte_carlo_is_rules_accurate_magic": false,
+    "rules_accurate_simulation_requires_decklists": true,
+    "production_render_verified_from_this_session": false
+  },
+  "commits": [
+    "ee1c55be92a5b0c1b11b37e51dbece3f2440a493",
+    "cfc8749a53f31a693be5f5017fd43d00b1112444",
+    "8eedcc747d3e34199ef51cff1c1b25532861b36c",
+    "d763a9d3c5f58b106640a5b64c6cfc99cc424ac2",
+    "3a8e4734f4c953670e0ad5b0dfcfc1da3bd9e07f",
+    "c53def88ee4bea89d467973d955b6ebbf57814de"
+  ]
+}
