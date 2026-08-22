@@ -1,0 +1,33 @@
+{
+  "schema_version": "DREAMLEDGER-GAUNTLET-CHECKPOINT-1",
+  "status": "HARDENED",
+  "executed_at_utc": "2026-08-22T14:31:00Z",
+  "release": "main",
+  "changes_applied": [
+    "Aligned api/stripe-link.ts architecture audit amount from NZD 29 to NZD 49.",
+    "Aligned BEC-PRIME/scripts/Start-ArchitectureAuditSale.ps1 with the approved NZD 49 contract.",
+    "Added .github/workflows/gauntlet-release-gate.yml for compile, Gauntlet, offer contract, syntax, silo isolation, live front-door and checkout-contract checks.",
+    "Added BEC-PRIME/scripts/Invoke-DreamLedgerGauntlet.ps1 for PowerShell 5.1 local verification and D: proof output."
+  ],
+  "canonical_offer": {
+    "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+    "product_id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
+    "price_nzd": 49,
+    "payment_link_status": "ACTIVE_LIVEMODE"
+  },
+  "economic_truth": {
+    "payment_link": "CONFIGURED",
+    "buyer_payment": false,
+    "payment_provider_event": false,
+    "sale_settled": false,
+    "economic_proof": false
+  },
+  "deployment_truth": {
+    "render": "configured_as_commit_driven_production_authority",
+    "public_front_door": "live",
+    "vercel_status": "nonblocking_build_rate_limit_status_present"
+  },
+  "silo_policy": "MTG and adult/Amplissa remain isolated",
+  "public_actions": "approval-gated",
+  "financial_actions": "approval-gated"
+}
