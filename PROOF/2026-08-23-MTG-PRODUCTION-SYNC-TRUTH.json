@@ -5,7 +5,8 @@
   "canonical_domain": "https://dreamledger.org/",
   "repository": "KelpCoin/DreamLedger",
   "branch": "main",
-  "commit": "2d0763ec9ecd2097b7e2d983bc04b418538a26ff",
+  "source_commit": "2d0763ec9ecd2097b7e2d983bc04b418538a26ff",
+  "proof_commit": "b472e201994009e4f31c533e3f7f6d061a16bea4",
   "changes": {
     "compiled_mtg_surface_synced_to_canonical_source": true,
     "monte_carlo_surface_present_in_source": true,
@@ -21,5 +22,5 @@
     "live_commit_match": "UNVERIFIED",
     "economic_sale": "UNPROVEN"
   },
-  "note": "Do not claim production PASS until Render serves the new commit and the production gate verifies /healthz, /mtg and /cinema.html."
+  "note": "This artifact records repository-side truth only. Do not claim production PASS until Render serves the resulting commit and the production gate verifies /healthz, /mtg and /cinema.html."
 }
