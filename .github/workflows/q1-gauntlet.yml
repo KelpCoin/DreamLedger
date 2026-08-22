@@ -1,0 +1,97 @@
+name: Q1 Gauntlet Proof
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'GAUNTLET/**'
+      - '.github/workflows/q1-gauntlet.yml'
+  pull_request:
+    paths:
+      - 'GAUNTLET/**'
+      - '.github/workflows/q1-gauntlet.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: q1-gauntlet-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  q1-gauntlet:
+    name: Q1 normalize + proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify repository cleanliness
+        shell: bash
+        run: git diff --check
+
+      - name: Check PowerShell
+        shell: pwsh
+        run: $PSVersionTable | Out-String | Write-Host
+
+      - name: Run Q1 Gauntlet
+        shell: pwsh
+        run: |
+          & ./GAUNTLET/Invoke-BEC-Gauntlet-Q1.ps1 -Action Run
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify Q1 proof hashes
+        shell: pwsh
+        run: |
+          & ./GAUNTLET/Invoke-BEC-Gauntlet-Q1.ps1 -Action Verify
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Assert economic truth remains false
+        shell: pwsh
+        run: |
+          $proofs = Get-ChildItem './GAUNTLET/Q1-MESSY-CSV/PROOF' -Filter '*.json' -File
+          if (-not $proofs) { throw 'No proof JSON produced.' }
+          foreach ($p in $proofs) {
+            $obj = Get-Content $p.FullName -Raw | ConvertFrom-Json
+            if ($obj.economic_claim -ne $false) { throw "economic_claim was not false in $($p.Name)" }
+            if ($obj.sale_settled -ne $false) { throw "sale_settled was not false in $($p.Name)" }
+            if ($obj.economic_proof -ne $false) { throw "economic_proof was not false in $($p.Name)" }
+          }
+          Write-Host 'ECONOMIC TRUTH GATE: PASS'
+
+      - name: Publish CI proof bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: q1-gauntlet-proof-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            GAUNTLET/Q1-MESSY-CSV/CLEAN/**
+            GAUNTLET/Q1-MESSY-CSV/REPORTS/**
+            GAUNTLET/Q1-MESSY-CSV/PROOF/**
+            GAUNTLET/Q1-MESSY-CSV/LOGS/**
+
+      - name: Write job summary
+        shell: pwsh
+        run: |
+          $proof = Get-ChildItem './GAUNTLET/Q1-MESSY-CSV/PROOF' -Filter '*.json' -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          $obj = Get-Content $proof.FullName -Raw | ConvertFrom-Json
+          @"
+          ## BEC PRIME Q1 Gauntlet
+
+          - Status: **$($obj.payload.status)**
+          - Files discovered: **$($obj.payload.files_discovered)**
+          - Files processed: **$($obj.payload.files_processed)**
+          - Files failed: **$($obj.payload.files_failed)**
+          - Rows cleaned: **$($obj.payload.total_rows_cleaned)**
+          - Duplicates removed: **$($obj.payload.total_duplicates_removed)**
+          - Anomalies: **$($obj.payload.total_anomalies)**
+          - Economic claim: **false**
+          - SALE_SETTLED: **false**
+          - ECONOMIC_PROOF: **false**
+          - Proof: `$($proof.Name)`
+          - Proof SHA256: `$((Get-FileHash $proof.FullName -Algorithm SHA256).Hash.ToLowerInvariant())`
+
+          Q1 proves data-processing integrity only. It does not prove revenue.
+          "@ | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
