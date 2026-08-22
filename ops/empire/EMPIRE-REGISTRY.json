@@ -1,0 +1,66 @@
+{
+  "schema": "BEC-PRIME/EMPIRE-REGISTRY/v1",
+  "canonical_repo": "KelpCoin/DreamLedger",
+  "purpose": "Single control-plane registry for the BrownEye Cortex portfolio. Assets either run from the canonical repo, are linked as external silos, or are explicitly retired.",
+  "updated": "2026-08-22",
+  "silos": {
+    "DREAMLEDGER": {
+      "repo": "KelpCoin/DreamLedger",
+      "role": "canonical-commerce-runtime",
+      "status": "CANONICAL"
+    },
+    "DREAMLOGIC": {
+      "repo": "KelpCoin/DreamLogic",
+      "role": "legacy-source-to-be-absorbed",
+      "status": "RETIRE_AFTER_MIRROR",
+      "mirror_path": "legacy/DreamLogic"
+    },
+    "BEC_CUBE": {
+      "repo": "KelpCoin/BrownEye-CUBE",
+      "role": "private-agentic-commerce-control-plane",
+      "status": "EXTERNAL_SILO",
+      "integration": "registry-and-adapter"
+    },
+    "MTG": {
+      "repo": "KelpCoin/mtg-furnace-render",
+      "role": "physical-commerce-and-MTG-silo",
+      "status": "EXTERNAL_SILO",
+      "integration": "silo-isolated"
+    },
+    "HAPPYHOMARID": {
+      "repo": "KelpCoin/Happyhomarid",
+      "role": "independent-commerce/property-surface",
+      "status": "EXTERNAL_SILO",
+      "integration": "silo-isolated"
+    },
+    "DREAMIEZ_ORACLE": {
+      "repo": "KelpCoin/dreamiez-oracle",
+      "role": "Dreamiez identity/oracle subsystem",
+      "status": "EXTERNAL_SILO",
+      "integration": "adapter-only"
+    },
+    "CAROUSEL": {
+      "repo": "KelpCoin/carousel-catalog",
+      "role": "catalog/distribution surface",
+      "status": "EXTERNAL_SILO"
+    },
+    "PULSE": {
+      "repo": "KelpCoin/pulse-catalog",
+      "role": "front-door/discovery surface",
+      "status": "EXTERNAL_SILO"
+    },
+    "RENDER_INGESTOR": {
+      "repo": "KelpCoin/render-ingestor",
+      "role": "deployment/ingestion helper",
+      "status": "EXTERNAL_SILO"
+    },
+    "SAFEHUB": {
+      "repo": "KelpCoin/safehub",
+      "role": "trust/safety auxiliary surface",
+      "status": "EXTERNAL_SILO"
+    }
+  },
+  "economic_rule": "No asset is counted as revenue until a verified payment and fulfillment/evidence event exists.",
+  "architecture_rule": "Shared infrastructure may be reused; commercial and identity silos remain isolated.",
+  "release_rule": "DreamLedger main is the only canonical release branch for shared commerce primitives."
+}
