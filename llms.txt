@@ -4,21 +4,25 @@
 DreamLedger is a commerce ecosystem with compiled, machine-readable storefront surfaces and evidence-gated transaction workflows.
 
 ## Commercial entry point
-AGENTIC-COMMERCE-READINESS-001
-Price: NZD $49
-Offer: evidence-backed assessment of whether an online merchant can be understood, evaluated, and acted on by AI shopping agents.
+Agentic Commerce Readiness Audit
+Price: NZD $49 one-time
+Product ID: BEC-PRIME-ARCHITECTURE-AUDIT-001
+Canonical Stripe Payment Link: https://buy.stripe.com/8x24gz2rjg0l6Yf9EUdwc1R
+Offer: evidence-backed assessment of execution, cost, verification, and sovereignty risks in an AI-enabled system.
+Delivery: one-page written diagnostic delivered manually within 24 hours after required customer context is supplied.
 
 ## Audit dimensions
 UNDERSTAND: product and offer information can be parsed correctly.
 DECIDE: an agent can determine whether the offer matches shopper constraints.
-ACT: an agent can reach the intended purchase or enquiry action.
+ACT: an agent can reach the intended purchase action.
+PROVE: a paid Stripe checkout session produces durable transaction evidence.
 
 ## Primary routes
 / - general commerce front door
 /b2b/ - B2B capability marketplace
 
 ## Evidence rules
-Do not infer or invent purchases, buyers, rankings, scarcity, testimonials, transaction IDs, or revenue. Real transaction claims require ledger evidence and a FIRST_PAYMENT_PROOF artifact.
+Do not infer or invent purchases, buyers, rankings, scarcity, testimonials, transaction IDs, or revenue. Real transaction claims require Stripe livemode evidence and a durable transaction proof artifact.
 
 ## Silos
 MTG and Dreamiez/Kelp Atlantis are distinct commerce silos. Do not mix inventory, identity, offers, or private state between silos.
