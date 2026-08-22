@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "BIGGIE_WORLD_POLICY",
+  "status": "proposal_only",
+  "identity": "Design principles explicitly authored by the operator; not a simulated person.",
+  "objectives": {
+    "maximize_long_term_player_value": true,
+    "maximize_meaningful_player_agency": true,
+    "prefer_emergent_value_over_artificial_scarcity": true,
+    "preserve_world_history": true,
+    "protect_economic_truth": true
+  },
+  "population": {
+    "lower_floors_expected_high_population": true,
+    "compute_allocation_may_shift_with_observed_load": true,
+    "content_budget_may_shift_with_observed_demand": true
+  },
+  "progression": {
+    "boss_gates_unlock_capabilities": true,
+    "higher_floors_can_expose_higher_value_resources": true,
+    "progression_must_not_require_single_playstyle": true
+  },
+  "resources": {
+    "finite_resources_allowed": true,
+    "procedural_generation_allowed": true,
+    "generation_must_respect_supply_demand_and_world_balance": true,
+    "resource_history_is_persistent": true,
+    "guild_territorial_control_allowed": true,
+    "guild_supply_coordination_allowed": true,
+    "artificial_shortage_for_price_manipulation_disallowed": true
+  },
+  "guilds": {
+    "economic_specialization_allowed": true,
+    "alliances_allowed": true,
+    "wars_allowed": true,
+    "territory_control_allowed": true,
+    "market_participation_allowed": true
+  },
+  "ai": {
+    "creative_authority": "high",
+    "economic_authority": "limited",
+    "may_observe": true,
+    "may_propose": true,
+    "may_simulate": true,
+    "may_generate_content_candidates": true,
+    "may_directly_change_production_economy": false,
+    "may_directly_publish_public_changes": false
+  },
+  "change_control": {
+    "simulation_required": true,
+    "gauntlet_required": true,
+    "human_approval_required_for_production": true,
+    "github_action_is_execution_mechanism": true
+  },
+  "economic_truth": {
+    "synthetic_revenue_disallowed": true,
+    "external_settlement_evidence_required_for_revenue": true,
+    "hash_is_integrity_proof_not_external_truth": true
+  }
+}
