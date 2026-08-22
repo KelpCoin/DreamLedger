@@ -1,0 +1,18 @@
+{
+  "proof_type": "BEC-PRIME_EXECUTION_GATE",
+  "verified_at": "2026-08-23",
+  "canonical_offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+  "payment_link_id": "plink_1U7F9QEGgEAnUFF9NjRq8gNq",
+  "amount_minor": 4900,
+  "currency": "nzd",
+  "payment_link_live": true,
+  "paid_checkout_sessions_observed_at_verification": 0,
+  "payment_intent_observed": false,
+  "sale_settled": false,
+  "economic_proof": false,
+  "manual_revenue_assertion": false,
+  "state": "WAITING_FOR_REAL_BUYER",
+  "next_external_event": "REAL_BUYER_COMPLETES_CANONICAL_CHECKOUT",
+  "verification_rule": "No SALE_SETTLED or ECONOMIC_PROOF without independent Stripe retrieval and validation.",
+  "local_proof_root": "D:\\BrownEyeCortex\\BEC-PRIME\\RUN-PROOFS\\ECONOMIC"
+}
