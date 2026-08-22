@@ -1,0 +1,4 @@
+Canonical production recovery kick.
+Purpose: execute the existing PR compile gate, then merge to main to trigger the Render exact-SHA recovery path.
+Created: 2026-08-22T17:22:00+12:00
+No public posting or customer communication is performed by this marker.
