@@ -1,0 +1,29 @@
+{
+  "schema": "BEC-PRIME/CROSS-GAME-ITEM/v1",
+  "id_rules": {
+    "avatar": "DRMZ-AVT-####",
+    "item": "DRMZ-ITM-####",
+    "skin": "DRMZ-SKN-####",
+    "game": "DRMZ-GME-####",
+    "product": "PRD-{SILO}-{####}"
+  },
+  "required_fields": [
+    "item_id",
+    "sku",
+    "name",
+    "kind",
+    "rarity",
+    "source_silo",
+    "game_usable",
+    "compatible_games",
+    "metadata"
+  ],
+  "rules": [
+    "One canonical item_id and sku per economic object.",
+    "Presentation surfaces may project an item but may not mint another identity.",
+    "game_usable=true requires a compatibility declaration.",
+    "A game may add runtime stats in metadata without changing canonical identity.",
+    "Purchased ownership attaches to item_id, never to a presentation route.",
+    "DreamMeez assets must remain reusable by future games and future games must consume the same canonical item IDs."
+  ]
+}
