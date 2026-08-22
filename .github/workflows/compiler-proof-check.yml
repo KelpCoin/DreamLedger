@@ -1,6 +1,14 @@
 name: Compiler Pong Proof
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/compiler/**'
+      - 'BEC-PRIME/scripts/**'
+      - 'BEC-PRIME/test-vectors/**'
+      - 'BEC-PRIME/package.json'
+      - '.github/workflows/compiler-proof-check.yml'
   pull_request:
     paths:
       - 'BEC-PRIME/compiler/**'
@@ -37,6 +45,12 @@ jobs:
           grep -q 'BrownEye Cortex Compiler Proof: PONG' compiled/website/compiler-proof/pong.html
           test -s data/proofs/compiler-leverage-latest.json
           grep -q '"status": "PASS"' data/proofs/compiler-leverage-latest.json
+      - name: Verify DreamMeez branding and Cortex controls
+        run: |
+          test -s compiled/website/dreammeez.html
+          grep -q 'DreamMeez' compiled/website/index.html
+          grep -q 'href="/cortex.html"' compiled/website/index.html
+          test -s compiled/website/cortex.html
       - name: Upload compiler proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -44,5 +58,6 @@ jobs:
           path: |
             BEC-PRIME/compiled/website/compiler-proof/pong.html
             BEC-PRIME/data/proofs/compiler-leverage-latest.json
+            BEC-PRIME/compiled/website/cortex.html
           if-no-files-found: error
           retention-days: 30
