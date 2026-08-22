@@ -28,3 +28,5 @@ jobs:
         run: npm install
       - name: Compile
         run: npm run compile
+      - name: Kelplantis tests
+        run: npm run kelplantis:test
