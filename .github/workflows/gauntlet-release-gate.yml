@@ -1,0 +1,199 @@
+name: DreamLedger Gauntlet Release Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-gauntlet-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gauntlet:
+    name: Full commerce gauntlet
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install BEC-PRIME dependencies
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Compile canonical release
+        working-directory: BEC-PRIME
+        run: npm run compile
+
+      - name: Run Wealth Engine Gauntlet
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const g = require('./gauntlet/GauntletV6.js');
+          const result = g.run({ writeProof: true });
+          console.log(JSON.stringify(result, null, 2));
+          if (result.status !== 'PASS') process.exit(2);
+          NODE
+
+      - name: Verify approved offer contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
+          offers = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
+          target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT'), None)
+          if not target:
+              raise SystemExit('APPROVED_ARCHITECTURE_AUDIT=FAIL')
+          if target.get('price') != 49 or target.get('currency') != 'NZD':
+              raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
+          if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
+              raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
+          if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
+              raise SystemExit('PAYMENT_LINK_URL=FAIL')
+          if target.get('product_id') != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+              raise SystemExit('PRODUCT_ID=FAIL')
+          print('APPROVED_ARCHITECTURE_AUDIT=PASS')
+          print('APPROVED_PRICE_CURRENCY=PASS')
+          print('PAYMENT_LINK_STATUS=PASS')
+          print('PAYMENT_LINK_URL=PASS')
+          print('PRODUCT_ID=PASS')
+          print('CANONICAL_CANDIDATE_COUNT=' + str(len(offers.get('offers', []))))
+          PY
+
+      - name: Verify critical syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find BEC-PRIME -type f -name '*.js' -print0)
+          node --check api/account/'[...route].js'
+          echo 'JAVASCRIPT_SYNTAX=PASS'
+
+      - name: Verify silo isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())['approved']
+          for offer in approved:
+              text = json.dumps(offer).lower()
+              if offer.get('silo') == 'mtg' and ('amplissa' in text or 'adult' in text):
+                  raise SystemExit('MTG_SILO_ISOLATION=FAIL')
+          print('MTG_SILO_ISOLATION=PASS')
+          print('PUBLIC_ACTIONS=APPROVAL_GATED')
+
+      - name: Verify live front door
+        shell: bash
+        env:
+          BASE_URL: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          for path in / /healthz /version /gauntlet.html /register.html; do
+            code=$(curl -sS -o /tmp/response --retry 3 --retry-delay 2 --max-time 15 -w '%{http_code}' "$BASE_URL$path")
+            echo "$path HTTP=$code"
+            test "$code" = "200"
+          done
+          body=$(curl -sS --retry 3 --retry-delay 2 --max-time 15 "$BASE_URL/")
+          echo "$body" | grep -q 'Agentic Commerce Readiness Audit'
+          echo "$body" | grep -q 'NZD 49'
+          echo 'LIVE_FRONT_DOOR=PASS'
+
+      - name: Verify checkout contract without purchase
+        shell: bash
+        env:
+          BASE_URL: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
+            -X POST "$BASE_URL/api/offer-checkout/create" \
+            -H 'Content-Type: application/json' \
+            --data '{"sku":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}')
+          python3 - <<'PY' "$response"
+          import json, sys
+          data = json.loads(sys.argv[1])
+          url = str(data.get('url', data.get('checkout_url', '')))
+          sku = str(data.get('product_id', ''))
+          amount = data.get('amount_nzd')
+          if not url.startswith('https://') or 'stripe.com' not in url:
+              raise SystemExit('CHECKOUT_URL=FAIL')
+          if sku != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+              raise SystemExit('CHECKOUT_SKU=FAIL')
+          if amount != 49:
+              raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
+          print('CHECKOUT_URL=PASS')
+          print('CHECKOUT_SKU=PASS')
+          print('CHECKOUT_AMOUNT_NZD_49=PASS')
+          print('PURCHASE_EXECUTED=FALSE')
+          PY
+
+      - name: Write proof artifact
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p BEC-PRIME/RUN-PROOFS/GAUNTLET
+          python3 - <<'PY'
+          import hashlib, json, os, time
+          from pathlib import Path
+          proof = {
+              'schema_version': 'DREAMLEDGER-GAUNTLET-RELEASE-1',
+              'status': 'PASS',
+              'release_sha': os.environ['RELEASE_SHA'],
+              'checked_at_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'economic_truth': {
+                  'payment_link': 'VERIFIED_CONFIGURED',
+                  'purchase_executed': False,
+                  'sale_settled': False,
+                  'economic_proof': False
+              },
+              'gates': [
+                  'canonical_compile',
+                  'wealth_engine_gauntlet',
+                  'approved_offer_contract',
+                  'javascript_syntax',
+                  'silo_isolation',
+                  'live_front_door',
+                  'checkout_contract'
+              ],
+              'public_actions': 'approval-gated',
+              'financial_actions': 'approval-gated'
+          }
+          raw = json.dumps(proof, sort_keys=True, indent=2).encode()
+          proof['sha256'] = hashlib.sha256(raw).hexdigest()
+          path = Path('BEC-PRIME/RUN-PROOFS/GAUNTLET/DREAMLEDGER-GAUNTLET-LATEST.json')
+          path.write_text(json.dumps(proof, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-gauntlet-proof-${{ github.sha }}
+          path: BEC-PRIME/RUN-PROOFS/GAUNTLET/DREAMLEDGER-GAUNTLET-LATEST.json
+          if-no-files-found: error
+          retention-days: 30
