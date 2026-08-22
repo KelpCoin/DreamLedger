@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BrownEye Cortex Compiler Proof - Pong</title>
+<style>
+html,body{margin:0;height:100%;background:#080808;color:#eee;font-family:system-ui,sans-serif;overflow:hidden}#ui{position:fixed;inset:14px auto auto 14px;z-index:2}canvas{display:block;width:100vw;height:100vh;background:#101010}kbd{padding:2px 6px;border:1px solid #444;border-radius:5px;background:#191919}
+</style>
+</head>
+<body>
+<div id="ui"><strong>BrownEye Cortex Compiler Proof: PONG</strong><br><span>W/S or Up/Down to move. First to 7 wins. <kbd>R</kbd> reset.</span><div id="score">0 : 0</div></div>
+<canvas id="game" width="960" height="540"></canvas>
+<script>
+(function(){
+'use strict';
+const c=document.getElementById('game'),x=c.getContext('2d'),score=document.getElementById('score');
+const S={w:960,h:540,p:92,ph:110,b:10,vx:420,vy:280,l:0,r:0,keys:{},paused:false};
+function reset(){S.bx=S.w/2;S.by=S.h/2;S.vx=(Math.random()<.5?-1:1)*420;S.vy=(Math.random()-.5)*360;S.py=S.h/2-S.ph/2;S.qy=S.py;S.l=0;S.r=0;}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function collide(px,py,pw,ph){return S.bx+S.b>px&&S.bx-S.b<px+pw&&S.by+S.b>py&&S.by-S.b<py+ph;}
+function step(dt){
+ let move=0;if(S.keys.w||S.keys.ArrowUp)move-=1;if(S.keys.s||S.keys.ArrowDown)move+=1;S.py=clamp(S.py+move*420*dt,0,S.h-S.ph);
+ const ai=S.by-S.ph/2;S.qy=clamp(S.qy+(ai-S.qy)*Math.min(1,dt*3.5),0,S.h-S.ph);
+ S.bx+=S.vx*dt;S.by+=S.vy*dt;if(S.by-S.b<0||S.by+S.b>S.h){S.vy*=-1;S.by=clamp(S.by,S.b,S.h-S.b)}
+ if(collide(24,S.py,18,S.ph)&&S.vx<0){S.bx=42+S.b;S.vx=Math.abs(S.vx)*1.04;S.vy+=(S.by-(S.py+S.ph/2))*5}
+ if(collide(S.w-42,S.qy,18,S.ph)&&S.vx>0){S.bx=S.w-42-S.b;S.vx=-Math.abs(S.vx)*1.04;S.vy+=(S.by-(S.qy+S.ph/2))*5}
+ if(S.bx<0){S.r++;resetServe(-1)} if(S.bx>S.w){S.l++;resetServe(1)}
+ if(S.l>=7||S.r>=7){S.paused=true}
+}
+function resetServe(dir){S.bx=S.w/2;S.by=S.h/2;S.vx=dir*420;S.vy=(Math.random()-.5)*360;if(S.l<7&&S.r<7)S.paused=false}
+function draw(){x.clearRect(0,0,S.w,S.h);x.fillStyle='#171717';x.fillRect(0,0,S.w,S.h);x.strokeStyle='#333';x.setLineDash([12,12]);x.beginPath();x.moveTo(S.w/2,0);x.lineTo(S.w/2,S.h);x.stroke();x.setLineDash([]);x.fillStyle='#f2c14e';x.fillRect(24,S.py,18,S.ph);x.fillStyle='#43d39a';x.fillRect(S.w-42,S.qy,18,S.ph);x.fillStyle='#fff';x.beginPath();x.arc(S.bx,S.by,S.b,0,Math.PI*2);x.fill();score.textContent=S.l+' : '+S.r;if(S.paused){x.fillStyle='#fff';x.font='bold 34px system-ui';x.textAlign='center';x.fillText((S.l>S.r?'PLAYER':'AI')+' WINS - PRESS R',S.w/2,S.h/2);}}
+let last=performance.now();function loop(t){const dt=Math.min(.033,(t-last)/1000);last=t;if(!S.paused)step(dt);draw();requestAnimationFrame(loop)}
+window.addEventListener('keydown',e=>{S.keys[e.key]=true;if(e.key.toLowerCase()==='r')reset();if(['ArrowUp','ArrowDown','w','s'].includes(e.key))e.preventDefault()});window.addEventListener('keyup',e=>S.keys[e.key]=false);reset();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
