@@ -1,0 +1,36 @@
+{
+  "id": "BESPOKE-ARTISAN-EDH-DECK-001",
+  "capability_id": "PRODUCT-BESPOKE-ARTISAN-EDH-DECK-001",
+  "silo": "mtg",
+  "name": "Bespoke Artisan EDH Commander Deck",
+  "description": "A bespoke 100-card Commander deck with a curated sideboard-style reserve. Built from verified available MTG inventory and tuned for the buyer's requested play style.",
+  "price": 38500,
+  "price_unit": "minor",
+  "currency": "nzd",
+  "inventory": 1,
+  "inventory_type": "physical",
+  "status": "published",
+  "checkout": {
+    "mode": "payment_link",
+    "success_path": "/mtg?paid=1",
+    "cancel_path": "/mtg?cancelled=1"
+  },
+  "commercial_truth": {
+    "approval_required": false,
+    "sellable": true,
+    "reason": "Operator-confirmed real available supply for first live MTG physical-goods offer.",
+    "payment_surface": "stripe-payment-link",
+    "payment_link": "https://buy.stripe.com/fZuaEX3vn15r4Q74kAdwc1S"
+  },
+  "fulfilment": {
+    "delivery_sla_hours": 72,
+    "type": "physical_inventory",
+    "inputs": ["buyer commander preferences", "shipping details"],
+    "outputs": ["100-card Commander deck", "reserve cards/sideboard package", "fulfilment confirmation"]
+  },
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
+  },
+  "experiment": "MTG-ARTISAN-001"
+}
