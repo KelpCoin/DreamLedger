@@ -18,5 +18,5 @@
   "settlement_observation": "Stripe livemode rail verified; no paid customer session observed yet.",
   "checkout_intake": "Stripe custom field system_context required; public_url optional.",
   "fulfillment": "One-page written diagnostic delivered manually within 24h.",
-  "github_commit_that_records_rail": "pending-this-commit"
+  "github_commit_that_records_rail": "69a66d0213857b4fa7f8ca9cd3747990d87dfee0"
 }
