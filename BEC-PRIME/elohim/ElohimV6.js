@@ -21,8 +21,8 @@ function deterministicAsset({ accountId, rewardDay, streak }) {
     account_id: accountId,
     streak_required: rewardDay,
     tier: rewardDay >= 30 ? 'CROWN' : rewardDay >= 14 ? 'ASCENDANT' : rewardDay >= 7 ? 'PRIME' : rewardDay >= 3 ? 'SIGNAL' : 'SPARK',
-    title: rewardDay >= 30 ? 'Dreamiez Crown' : rewardDay >= 14 ? 'Dreamiez Ascendant' : rewardDay >= 7 ? 'Dreamiez Prime' : rewardDay >= 3 ? 'Dreamiez Signal' : 'Dreamiez Spark',
-    description: 'A Dreamiez asset generated from a verified daily streak.',
+    title: rewardDay >= 30 ? 'DreamMeez Crown' : rewardDay >= 14 ? 'DreamMeez Ascendant' : rewardDay >= 7 ? 'DreamMeez Prime' : rewardDay >= 3 ? 'DreamMeez Signal' : 'DreamMeez Spark',
+    description: 'A DreamMeez asset generated from a verified daily streak.',
     seed,
     generated_at: new Date().toISOString()
   };
