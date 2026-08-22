@@ -1,3 +1,4 @@
+# Q1 proof workflow: deterministic data-processing verification only.
 name: Q1 Gauntlet Proof
 
 on:
@@ -26,27 +27,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Verify repository cleanliness
         shell: bash
         run: git diff --check
-
       - name: Check PowerShell
         shell: pwsh
         run: $PSVersionTable | Out-String | Write-Host
-
       - name: Run Q1 Gauntlet
         shell: pwsh
         run: |
           & ./GAUNTLET/Invoke-BEC-Gauntlet-Q1.ps1 -Action Run
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
       - name: Verify Q1 proof hashes
         shell: pwsh
         run: |
           & ./GAUNTLET/Invoke-BEC-Gauntlet-Q1.ps1 -Action Verify
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
       - name: Assert economic truth remains false
         shell: pwsh
         run: |
@@ -59,7 +55,6 @@ jobs:
             if ($obj.economic_proof -ne $false) { throw "economic_proof was not false in $($p.Name)" }
           }
           Write-Host 'ECONOMIC TRUTH GATE: PASS'
-
       - name: Publish CI proof bundle
         uses: actions/upload-artifact@v4
         with:
@@ -71,7 +66,6 @@ jobs:
             GAUNTLET/Q1-MESSY-CSV/REPORTS/**
             GAUNTLET/Q1-MESSY-CSV/PROOF/**
             GAUNTLET/Q1-MESSY-CSV/LOGS/**
-
       - name: Write job summary
         shell: pwsh
         run: |
@@ -79,7 +73,6 @@ jobs:
           $obj = Get-Content $proof.FullName -Raw | ConvertFrom-Json
           @"
           ## BEC PRIME Q1 Gauntlet
-
           - Status: **$($obj.payload.status)**
           - Files discovered: **$($obj.payload.files_discovered)**
           - Files processed: **$($obj.payload.files_processed)**
@@ -92,6 +85,5 @@ jobs:
           - ECONOMIC_PROOF: **false**
           - Proof: `$($proof.Name)`
           - Proof SHA256: `$((Get-FileHash $proof.FullName -Algorithm SHA256).Hash.ToLowerInvariant())`
-
           Q1 proves data-processing integrity only. It does not prove revenue.
           "@ | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
