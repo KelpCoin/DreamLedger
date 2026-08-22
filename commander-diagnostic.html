@@ -1,18 +1,4 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Commander Deck Diagnostic. NZD $25."><title>Commander Deck Diagnostic | DreamLedger</title><style>body{margin:0;background:#0d1117;color:#f0f6fc;font:16px/1.55 system-ui,sans-serif}.wrap{max-width:680px;margin:auto;padding:56px 22px;text-align:center}.panel{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:34px}.price{font-size:1.6rem;font-weight:800;color:#58a6ff}.cta{display:inline-block;margin-top:20px;padding:15px 28px;border-radius:8px;background:#238636;color:#fff;text-decoration:none;font-weight:800;border:0;cursor:pointer;font-size:16px}.cta[aria-busy=true]{opacity:.65;cursor:wait}.muted{color:#8b949e}.error{color:#ff7b72;margin-top:18px;display:none}</style></head>
-<body><main class="wrap"><div class="panel"><p class="muted">DreamLedger</p><h1>Commander Deck Diagnostic</h1><p class="price">NZD $25</p><p class="muted">A focused analysis of your Commander deck with practical recommendations.</p><ul style="text-align:left;max-width:430px;margin:24px auto"><li>Power-level assessment</li><li>Strategy and consistency analysis</li><li>Weaknesses and interaction gaps</li><li>Upgrade priorities</li><li>Clear next actions</li></ul><button class="cta" id="buy" type="button">Buy for NZD $25</button><p class="error" id="error" role="alert"></p></div></main><script>
-(function(){
-  var button=document.getElementById('buy');
-  var error=document.getElementById('error');
-  button.addEventListener('click',async function(){
-    button.setAttribute('aria-busy','true');button.disabled=true;error.style.display='none';
-    try{
-      var response=await fetch('/api/checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:'COMMANDER-DECK-DIAGNOSTIC-001',silo:'mtg'})});
-      var data=await response.json();
-      if(!response.ok || !data.checkout_url) throw new Error(data.error || 'Checkout is not currently available.');
-      window.location.href=data.checkout_url;
-    }catch(e){error.textContent=e.message || 'Checkout is not currently available.';error.style.display='block';button.removeAttribute('aria-busy');button.disabled=false;}
-  });
-})();
-</script></body></html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Commander Deck Diagnostic. NZD $29."><title>Commander Deck Diagnostic | DreamLedger</title><style>body{margin:0;background:#0d1117;color:#f0f6fc;font:16px/1.55 system-ui,sans-serif}.wrap{max-width:720px;margin:auto;padding:56px 22px}.panel{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:34px}.price{font-size:1.8rem;font-weight:800;color:#58a6ff}.cta{display:inline-block;margin-top:20px;padding:15px 28px;border-radius:8px;background:#238636;color:#fff;text-decoration:none;font-weight:800;font-size:16px}.muted{color:#8b949e}.proof{margin-top:28px;padding-top:22px;border-top:1px solid #30363d}.proof li{margin:8px 0}</style></head>
+<body><main class="wrap"><div class="panel"><p class="muted">DreamLedger / MTG</p><h1>Fix Your Commander Deck</h1><p class="price">NZD $29</p><p>Send me your Commander decklist. I will give you a focused diagnostic, not a 100-card rebuild.</p><ul class="proof"><li>The weakest cards and why they are holding the deck back</li><li>Highest-impact upgrade targets</li><li>Strategy, consistency and interaction gaps</li><li>A practical tuning plan for your next games</li><li>Delivered within 48 hours after your decklist is received</li></ul><a class="cta" href="https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L">Get My Deck Diagnostic - NZD $29</a><p class="muted">Payment is handled by Stripe. After payment, use the checkout confirmation/instructions to provide your decklist.</p></div></main></body></html>
