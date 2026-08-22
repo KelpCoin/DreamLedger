@@ -1,0 +1,10 @@
+create table if not exists public.swipe_products (id text primary key, silo text not null, title text not null, image_url text, price_nzd numeric(12,2), description text not null, created_at timestamptz not null default now());
+create table if not exists public.swipe_avatars (id text primary key, name text not null, image_url text, unlock_price_nzd numeric(12,2) not null default 0, created_at timestamptz not null default now());
+create table if not exists public.swipe_user_state (user_id uuid primary key references auth.users(id) on delete cascade, avatar_id text references public.swipe_avatars(id), streak integer not null default 0, credits integer not null default 0, updated_at timestamptz not null default now());
+create table if not exists public.swipe_swipes (id bigint generated always as identity primary key, user_id uuid not null references auth.users(id) on delete cascade, product_id text not null references public.swipe_products(id) on delete cascade, direction text not null check (direction in ('left','right')), created_at timestamptz not null default now());
+create table if not exists public.swipe_game_state (user_id uuid primary key references auth.users(id) on delete cascade, streak integer not null default 0, rewards_unlocked integer not null default 0, updated_at timestamptz not null default now());
+alter table public.swipe_products enable row level security;
+alter table public.swipe_avatars enable row level security;
+alter table public.swipe_user_state enable row level security;
+alter table public.swipe_swipes enable row level security;
+alter table public.swipe_game_state enable row level security;
