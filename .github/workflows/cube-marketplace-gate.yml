@@ -1,0 +1,27 @@
+name: CUBE Marketplace Gate
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify CUBE and marketplace
+        run: node BEC-PRIME/scripts/verify-cube-marketplace.js
+      - name: Compile canonical application
+        working-directory: BEC-PRIME
+        run: npm install --no-audit --no-fund && npm run compile
+      - name: Verify production routes remain present
+        run: test -f BEC-PRIME/compiled/website/marketplace.html && test -f BEC-PRIME/compiled/website/media-music.html && test -f BEC-PRIME/compiled/website/digital-products.html && test -f BEC-PRIME/compiled/website/nz-secondhand.html
