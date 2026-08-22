@@ -1,0 +1,30 @@
+name: DreamLedger build
+
+on:
+  push:
+    branches:
+      - main
+      - fix/render-build-runtime
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.1
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+      - name: Install
+        run: npm install
+      - name: Compile
+        run: npm run compile
