@@ -1,0 +1,51 @@
+name: Persist Cinema Artifact
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'BEC-PRIME/compiled/website/cinema.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dreamledger-persist-cinema
+  cancel-in-progress: false
+
+jobs:
+  persist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Generate canonical compiled Cinema artifact
+        run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
+
+      - name: Verify compiled Cinema artifact
+        run: |
+          test -f BEC-PRIME/compiled/website/cinema.html
+          grep -q 'cinema-event-v1' BEC-PRIME/compiled/website/cinema.html
+
+      - name: Persist compiled Cinema artifact when changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- BEC-PRIME/compiled/website/cinema.html; then
+            echo 'Cinema artifact already matches canonical source.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add BEC-PRIME/compiled/website/cinema.html
+          git commit -m 'build: persist compiled Cinema artifact'
+          git push origin HEAD:main
