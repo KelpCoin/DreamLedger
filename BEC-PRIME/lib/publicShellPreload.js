@@ -27,6 +27,7 @@ function shell(file) {
   if (!fs.existsSync(full)) return null;
   let html = fs.readFileSync(full, 'utf8');
   if (!html.includes('/assets/dreamiez-account.js')) html = html.replace('</body>', '<script src="/assets/dreamiez-account.js" defer></script><script src="/assets/digital-proxy-assist.js" defer></script></body>');
+  if (!html.includes('/assets/dreammee-doorway.js') && !/dreamie?z/i.test(file)) html = html.replace('</body>', '<script src="/assets/dreammee-doorway.js" defer></script></body>');
   return Buffer.from(html, 'utf8');
 }
 http.createServer = function publicShellCreateServer(...args) {
