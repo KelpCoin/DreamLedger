@@ -1,0 +1,32 @@
+{
+  "schema": "brown-eye-cortex/empire-compiler-proof/v1",
+  "timestamp_utc": "2026-08-22T07:10:00Z",
+  "status": "SOURCE_INTEGRATED_PENDING_LIVE_DEPLOYMENT",
+  "public_brand": "DreamMeez",
+  "canonical_repo": "KelpCoin/DreamLedger",
+  "mainline_commits": {
+    "render_gate": "400013fe0f0b63cbc80d1957bead8385504cac61",
+    "elohim_public_naming": "07426a34e644e6763e5214e616efbfaf3677f07b",
+    "dreammeez_cortex_nav": "a3a932f11b61521d9324ea5aab0ddfb28047cc05",
+    "compiler_leverage": "78c9ee28c90acc8396adfbeb1c3d3f21472ab2e8",
+    "control_surface": "c6755ad2eb035b8295ff2e6f476760390a391382",
+    "pong_vector": "f8ce46fb7a54d02945d20ada81179b362ce6632b",
+    "compiler_proof_workflow": "4d621eab9c5012cc98a788c8df5e634c6a35d252"
+  },
+  "compiler": {
+    "gauntlet": "BEC-PRIME/compiler/LeverageGauntlet.js",
+    "elohim": "BEC-PRIME/elohim/ElohimV6.js",
+    "proof_runner": "BEC-PRIME/scripts/Run-CompilerLeverageGate.js",
+    "pong_test_vector": "BEC-PRIME/test-vectors/pong.html",
+    "compiled_pong_target": "BEC-PRIME/compiled/website/compiler-proof/pong.html"
+  },
+  "website": {
+    "dreammeez_alias": "/dreammeez",
+    "cortex_control": "/cortex.html",
+    "pong_proof": "/compiler-proof/pong.html",
+    "gauntlet": "/gauntlet.html",
+    "elohim": "/elohim-refinery.html"
+  },
+  "approval_boundary": "Compiler may propose and validate; publication, customer charging, messaging and external actions remain approval-gated.",
+  "revenue_status": "UNPROVEN"
+}
