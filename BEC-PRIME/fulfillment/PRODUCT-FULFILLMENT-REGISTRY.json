@@ -1,7 +1,7 @@
 {
   "schema": "BEC-PRIME/PRODUCT-FULFILLMENT-REGISTRY/v1",
   "policy": "A product is checkoutable only when this registry contains a ready=true fulfillment contract. Products without a ready contract are unavailable and must not be sold.",
-  "updated": "2026-08-17",
+  "updated": "2026-08-23",
   "entries": {
     "BILLBOARD-SMALL": {"ready": true, "type": "service_activation", "delivery_target": "dreamledger.org/billboard", "activation": "paid_order_plus_human_approval_publishes_billboard_slot_and_receipt", "operator_required": true},
     "BILLBOARD-MEDIUM": {"ready": true, "type": "service_activation", "delivery_target": "dreamledger.org/billboard", "activation": "paid_order_plus_human_approval_publishes_billboard_slot_and_receipt", "operator_required": true},
@@ -9,6 +9,7 @@
     "BILLBOARD-LARGE": {"ready": true, "type": "service_activation", "delivery_target": "dreamledger.org/billboard", "activation": "paid_order_plus_human_approval_publishes_billboard_slot_and_receipt", "operator_required": true},
     "BILLBOARD-TAKEOVER": {"ready": true, "type": "service_activation", "delivery_target": "dreamledger.org/billboard", "activation": "paid_order_plus_human_approval_publishes_billboard_slot_and_receipt", "operator_required": true},
     "COMMANDER-DECK-DIAGNOSTIC-001": {"ready": true, "type": "report_template", "template": "BEC-PRIME/fulfillment/templates/COMMANDER-DECK-DIAGNOSTIC.md", "delivery": "generate_report_from_buyer_deck_input_and_release_after_payment", "operator_required": true},
+    "BESPOKE-ARTISAN-EDH-DECK-001": {"ready": true, "type": "physical_inventory", "inventory_source": "BEC-PRIME/catalog/products/BESPOKE-ARTISAN-EDH-DECK-001.json", "delivery": "manual_dispatch_from_declared_inventory", "operator_required": true},
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {"ready": true, "type": "report_template", "template": "BEC-PRIME/fulfillment/templates/AGENTIC-SOVEREIGNTY-DIAGNOSTIC.md", "delivery": "generate_report_from_buyer_intake_and_release_after_payment", "operator_required": true},
     "EDH_0001": {"ready": true, "type": "physical_inventory", "inventory_source": "BEC-PRIME/catalog/products/EDH_0001.json", "delivery": "manual_dispatch_from_declared_inventory", "operator_required": true},
     "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001": {"ready": true, "type": "physical_inventory", "inventory_source": "BEC-PRIME/catalog/products/MTG-URZAS-LEGACY-PALINCHRON-FOIL-001.json", "delivery": "manual_dispatch_from_declared_inventory", "operator_required": true},
