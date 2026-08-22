@@ -26,29 +26,36 @@ jobs:
           echo "EXPECTED_SHA=$EXPECTED_SHA"
           echo "TARGET=$TARGET"
 
+      - name: Checkout verifier
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
       - name: Wait for Render Git auto-deploy to converge
         run: |
           set -euo pipefail
           for i in $(seq 1 36); do
             health_code=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 15 "$TARGET/healthz" || true)
             version_code=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 15 "$TARGET/version" || true)
-            mtg_code=$(curl -sS -o /tmp/mtg.html -w '%{http_code}' --max-time 15 "$TARGET/mtg" || true)
-            board_code=$(curl -sS -o /tmp/board.html -w '%{http_code}' --max-time 15 "$TARGET/board" || true)
-            inventory_code=$(curl -sS -o /tmp/inventory.json -w '%{http_code}' --max-time 15 "$TARGET/api/molt-beach-inventory" || true)
-            echo "attempt=$i health_http=$health_code version_http=$version_code mtg_http=$mtg_code board_http=$board_code inventory_http=$inventory_code"
+            echo "attempt=$i health_http=$health_code version_http=$version_code"
             if [ "$health_code" = "200" ] && [ "$version_code" = "200" ]; then
               deployed=$(python3 -c "import json; print(json.load(open('/tmp/version.json')).get('commit',''))")
               echo "deployed_commit=$deployed"
-              if [ "$deployed" = "$EXPECTED_SHA" ] && [ "$mtg_code" = "200" ] && [ "$board_code" = "200" ] && [ "$inventory_code" = "200" ]; then
-                echo 'PASS: Render production converged to exact Git commit and canonical public routes are live.'
+              if [ "$deployed" = "$EXPECTED_SHA" ]; then
+                BASE_URL="$TARGET" EXPECTED_SHA="$EXPECTED_SHA" node BEC-PRIME/scripts/verify-public-silo-routes.js
+                echo 'PASS: Render production converged to exact Git commit and all canonical public routes are live.'
                 exit 0
               fi
-              echo 'WAIT: Render is healthy but route/provenance checks are not yet converged.'
+              echo 'WAIT: Render is healthy but still serving an older commit.'
             fi
             sleep 10
           done
-          echo 'FAIL: Render did not converge to the pushed Git commit and canonical public routes.'
-          echo 'Required: /version, /mtg, /board, and /api/molt-beach-inventory must all be live on the exact Git SHA.'
+          echo 'FAIL: Render did not converge to the pushed Git commit and canonical public route contract.'
           exit 1
 
       - name: Write deployment proof
@@ -61,8 +68,8 @@ jobs:
               'source_commit': sys.argv[1],
               'target': 'https://dreamledger.org',
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'contract': 'github-main-push-must-converge-render-production-and-public-route-contract',
-              'routes': ['/version','/healthz','/mtg','/board','/api/molt-beach-inventory']
+              'contract': 'github-main-push-must-converge-render-production-and-all-canonical-silo-routes',
+              'verifier': 'BEC-PRIME/scripts/verify-public-silo-routes.js'
           }
           with open('proof/render-git-convergence.json','w',encoding='utf-8') as f:
               json.dump(proof,f,indent=2)
