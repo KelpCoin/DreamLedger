@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DreamLedger Truth Oracle Registry",
+  "type": "object",
+  "required": ["schema_version","title","jurisdiction","verification_policy","events"],
+  "properties": {
+    "schema_version": {"const":"truth-oracle-v1"},
+    "title": {"type":"string"},
+    "description": {"type":"string"},
+    "jurisdiction": {"const":"NZ"},
+    "updated_at": {"type":"string","format":"date-time"},
+    "verification_policy": {"type":"object","required":["external_primary_source_verified","dreamledger_verified","reported_unverified","disputed"]},
+    "events": {
+      "type":"array",
+      "items": {
+        "type":"object",
+        "required":["event_id","event_date","country","event_type","verification_status","description","primary_source"],
+        "properties": {
+          "event_id":{"type":"string"},
+          "event_date":{"type":"string","format":"date"},
+          "country":{"const":"NZ"},
+          "event_type":{"type":"string"},
+          "verification_status":{"enum":["external_primary_source_verified","dreamledger_verified","reported_unverified","disputed"]},
+          "description":{"type":"string"},
+          "agent_identified_by_source":{"type":"boolean"},
+          "amount":{"type":["number","null"]},
+          "currency":{"type":["string","null"]},
+          "dreamledger_artifact":{"type":["string","null"]},
+          "primary_source":{"type":"string","format":"uri"}
+        }
+      }
+    }
+  }
+}
