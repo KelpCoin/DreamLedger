@@ -4,8 +4,8 @@ const OFFERS = {
   'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT': {
     sku: 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
     product_id: 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
-    name: 'Agentic Sovereignty Diagnostic',
-    amount_nzd_cents: 2900,
+    name: 'Agentic Commerce Readiness Audit',
+    amount_nzd_cents: 4900,
     silo: 'commerce',
   },
   EDH_0001: {
