@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 $BaseUrl = $BaseUrl.TrimEnd('/')
 $started = Get-Date
 $result = [ordered]@{
-    launcher = 'BEC-PRIME Start-ArchitectureAuditSale v1'
+    launcher = 'BEC-PRIME Start-ArchitectureAuditSale v2'
     started_at_utc = $started.ToUniversalTime().ToString('o')
     base_url = $BaseUrl
     product_id = $ProductId
@@ -29,7 +29,7 @@ try {
     if ($product.status -ne 'published') { throw 'Product is not published' }
     if ($product.approval_required -ne $false) { throw 'Product approval gate is still on' }
     if ([int]$product.inventory -lt 1) { throw 'Product inventory unavailable' }
-    if ([int]$product.price -ne 2900) { throw "Price mismatch: expected NZD 29.00, got minor units $($product.price)" }
+    if ([int]$product.price -ne 4900) { throw "Price mismatch: expected NZD 49.00, got minor units $($product.price)" }
     if ([string]$product.currency -ne 'nzd') { throw "Currency mismatch: expected NZD, got $($product.currency)" }
     if ($product.checkout.mode -ne 'payment') { throw 'Checkout mode is not payment' }
     if ($product.commercial_truth.payment_surface -ne 'engine-generated-stripe-checkout') { throw 'Unexpected payment surface' }
@@ -39,12 +39,13 @@ try {
     $checkoutUrl = $checkout.checkout_url
     if (-not $checkoutUrl) { $checkoutUrl = $checkout.url }
     if (-not $checkoutUrl) { throw 'Stripe did not return a checkout URL' }
+    if ([int]$checkout.amount_minor -ne 4900 -and [decimal]$checkout.amount_nzd -ne 49) { throw 'Checkout amount is not NZD 49.00' }
 
     $result.status = 'CHECKOUT_CREATED_PAYMENT_UNPROVEN'
     $result.checkout_url = $checkoutUrl
     $result.session_id = $checkout.session_id
-    $result.amount_minor = $checkout.amount_minor
-    $result.currency = $checkout.currency
+    $result.amount_minor = if ($checkout.amount_minor) { $checkout.amount_minor } else { 4900 }
+    $result.currency = if ($checkout.currency) { $checkout.currency } else { 'nzd' }
 } catch {
     $result.status = 'BLOCKED'
     $result.blocker = $_.ErrorDetails.Message
