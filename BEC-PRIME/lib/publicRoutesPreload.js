@@ -5,6 +5,7 @@ const http = require('http');
 const originalCreateServer = http.createServer;
 const PUBLIC_ROOT = path.join(__dirname, '..', 'compiled', 'website');
 const MTG_FILE = path.join(PUBLIC_ROOT, 'mtg', 'index.html');
+const BESPOKE_MTG_FILE = path.join(__dirname, '..', 'surface', 'mtg-bespoke-offer.html');
 const BOARD_FILE = path.join(PUBLIC_ROOT, 'board.html');
 
 function send(res, status, body) {
@@ -49,6 +50,7 @@ http.createServer = function publicRoutesCompatibleCreateServer(handler) {
     ? async function(req, res) {
         const route = String(req.url || '').split('?')[0];
         if (req.method === 'GET' && (route === '/mtg' || route === '/mtg/')) {
+          if (serveFile(res, BESPOKE_MTG_FILE)) return;
           if (serveFile(res, MTG_FILE)) return;
         }
         if (req.method === 'GET' && (route === '/board' || route === '/board/')) {
