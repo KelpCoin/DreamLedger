@@ -1,0 +1,20 @@
+{
+  "proof_type": "economic_offer_activation",
+  "experiment": "MTG-SALES-001",
+  "timestamp_utc": "2026-08-22T07:14:00Z",
+  "canonical_repo": "KelpCoin/DreamLedger",
+  "source_sha_before": "2c2e25ef72f81fde0b90bdc7a23611c3a5133bc0",
+  "activation_commits": [
+    "1ca6dcfb66d69f67ea2a03014be5e9e5153a5fe2",
+    "0a5e444cffd48d8e10d6b14c35cb0832070414c6"
+  ],
+  "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "offer_name": "Commander Deck Diagnostic",
+  "price": "NZD 29",
+  "stripe_payment_link": "https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L",
+  "public_surface": "/commander-diagnostic.html",
+  "fulfilment_sla_hours": 48,
+  "status": "activated",
+  "economic_event_proven": false,
+  "next_proof": "successful external payment"
+}
