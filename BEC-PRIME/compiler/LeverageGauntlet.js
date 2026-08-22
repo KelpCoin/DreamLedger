@@ -20,9 +20,9 @@ function checkArtifact(filePath, kind = 'html') {
     exists: true,
     nontrivial: stat.size >= 256,
     deterministic_read: typeof text === 'string',
-    html_shell: kind !== 'html' || /<!doctype html/i.test(text),
-    viewport: kind !== 'html' || /<meta[^>]+name=["']viewport["']/i.test(text),
-    game_loop: kind !== 'html' || /(requestAnimationFrame|setInterval|addEventListener)/i.test(text),
+    html_shell: kind !== 'html' && kind !== 'game' || /<!doctype html/i.test(text),
+    viewport: kind !== 'html' && kind !== 'game' || /<meta[^>]+name=["']viewport["']/i.test(text),
+    game_loop: kind !== 'game' || /(requestAnimationFrame|setInterval|addEventListener)/i.test(text),
     no_obvious_secret: !/(sk_(live|test)_|whsec_|BEGIN (RSA|EC|OPENSSH|PRIVATE KEY))/i.test(text)
   };
   const verdict = Object.values(checks).every(Boolean) ? 'PASS' : 'FAIL';
