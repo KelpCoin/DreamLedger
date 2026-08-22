@@ -3,7 +3,7 @@
   "title": "DreamLedger Truth Oracle",
   "description": "Public registry of agentic commerce events with explicit evidence status. External events are never presented as DreamLedger-verified ledger events unless independently proven by DreamLedger evidence.",
   "jurisdiction": "NZ",
-  "updated_at": "2026-08-22T00:00:00Z",
+  "updated_at": "2026-08-23T00:00:00Z",
   "verification_policy": {
     "external_primary_source_verified": "A primary source reports the event. DreamLedger has not independently cryptographically verified the underlying payment.",
     "dreamledger_verified": "DreamLedger possesses a verified economic event and tamper-evident ledger artifact.",
