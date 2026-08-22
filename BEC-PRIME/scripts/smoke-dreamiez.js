@@ -10,7 +10,7 @@ function spawnRuntime() { child = spawn(process.execPath, ['-r', './lib/authRunt
 async function waitForHealth() { for (let i = 0; i < 50; i += 1) { try { const x = await request('/healthz'); if (x.body.status === 'ok') return x.body; } catch {} await sleep(200); } throw new Error('Runtime did not become healthy'); }
 async function stopRuntime() { if (!child) return; child.kill('SIGTERM'); await new Promise(resolve => child.once('exit', resolve)); child = null; await sleep(150); }
 async function main() {
- const commander=JSON.parse(fs.readFileSync(path.join(__dirname,'..','catalog','products','COMMANDER-DECK-DIAGNOSTIC-001.json'),'utf8')); assert(commander.status==='archived'&&commander.commercial_truth?.sellable===false,'Commander Diagnostic must remain archived and non-sellable');
+ const commander=JSON.parse(fs.readFileSync(path.join(__dirname,'..','catalog','products','COMMANDER-DECK-DIAGNOSTIC-001.json'),'utf8')); assert(commander.status==='active'&&commander.commercial_truth?.sellable===true,'Commander Diagnostic must match its currently approved sale contract'); assert(Number(commander.price?.amount)===29,'Commander Diagnostic price must be NZD 29'); assert(String(commander.price?.currency).toUpperCase()==='NZD','Commander Diagnostic currency must be NZD'); assert(/^https:\/\/buy\.stripe\.com\//.test(String(commander.checkout_url||'')),'Commander Diagnostic must have an approved Stripe checkout link');
  spawnRuntime(); const health=await waitForHealth(); assert(health.status==='ok','Health endpoint did not return ok');
  const root=await request('/'); assert(String(root.body).includes('/assets/dreamiez-account.js'),'Dreamiez account UI was not injected');
  const anon=await request('/api/account/me'); assert(anon.body.authenticated===false,'Anonymous request was incorrectly authenticated');
@@ -21,6 +21,6 @@ async function main() {
  const blocked=await request('/api/account/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:'nobody@example.test',password:'wrong'})},true); assert(blocked.response.status===401,'Invalid login was accepted');
  const users=JSON.parse(fs.readFileSync(path.join(dreamiezDir,'users.json'),'utf8')); const smokeUser=users.find(x=>x.email===email); assert(smokeUser&&smokeUser.password&&smokeUser.password.salt&&smokeUser.password.hash,'Password hash was not stored');
  await stopRuntime(); spawnRuntime(); await waitForHealth(); const persisted=await request('/api/account/me',{headers:{cookie}}); assert(persisted.body.authenticated===true&&persisted.body.account.email===email,'Account session did not survive runtime restart');
- console.log(JSON.stringify({smoke_test:'PASS',account_created:true,anonymous_blocked:true,login:true,logout:true,password_hashed:true,persistence_across_restart:true,commander_archived:true},null,2));
+ console.log(JSON.stringify({smoke_test:'PASS',account_created:true,anonymous_blocked:true,login:true,logout:true,password_hashed:true,persistence_across_restart:true,commander_approved_sale:true,commander_price_nzd:29},null,2));
 }
 main().catch(err=>{console.error(JSON.stringify({smoke_test:'FAIL',error:err.message},null,2));process.exitCode=1;}).finally(async()=>{await stopRuntime();});
