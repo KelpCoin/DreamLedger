@@ -41,21 +41,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -d '' FILES < <(git ls-files -z \
-            ':!docs/**' \
-            ':!BEC-PRIME/PROOF-*.json' \
-            ':!BEC-PRIME/scripts/Verify-CompilerTruth.ps1' \
-            ':!BEC-PRIME/scripts/Verify-Registry.ps1' \
-            ':!BEC-PRIME/scripts/verify-public-boundary.js' \
-            ':!scripts/Verify-Registry.ps1' \
-            ':!scripts/OfferCompiler.js' \
-            ':!.github/workflows/security-baseline.yml')
-          if ((${#FILES[@]} > 0)); then
-            printf '%s' "${FILES[@]}" | xargs -0 grep -nE 'sk_(live|test)_[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|xox[baprs]-[A-Za-z0-9-]{20,}'
-            if [ $? -eq 0 ]; then
-              echo 'SECRET_PATTERN_FOUND'
-              exit 1
-            fi
+          pattern='sk_(live|test)_[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|xox[baprs]-[A-Za-z0-9-]{20,}'
+          set +e
+          git grep -nE "$pattern" -- \
+            . \
+            ':(exclude)docs/**' \
+            ':(exclude)BEC-PRIME/PROOF-*.json' \
+            ':(exclude)BEC-PRIME/scripts/Verify-CompilerTruth.ps1' \
+            ':(exclude)BEC-PRIME/scripts/Verify-Registry.ps1' \
+            ':(exclude)BEC-PRIME/scripts/verify-public-boundary.js' \
+            ':(exclude)scripts/Verify-Registry.ps1' \
+            ':(exclude)scripts/OfferCompiler.js' \
+            ':(exclude).github/workflows/security-baseline.yml'
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ]; then
+            echo 'SECRET_PATTERN_FOUND'
+            exit 1
+          fi
+          if [ "$rc" -ne 1 ]; then
+            echo "SECRET_PATTERN_SCAN_ERROR=$rc"
+            exit "$rc"
           fi
           echo 'SECRET_PATTERN_SCAN=PASS'
 
