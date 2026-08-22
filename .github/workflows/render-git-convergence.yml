@@ -1,0 +1,74 @@
+name: Render Git Convergence
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-render-git-convergence
+  cancel-in-progress: false
+
+jobs:
+  converge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      TARGET: https://dreamledger.org
+      EXPECTED_SHA: ${{ github.sha }}
+    steps:
+      - name: State exact source commit
+        run: |
+          set -euo pipefail
+          echo "EXPECTED_SHA=$EXPECTED_SHA"
+          echo "TARGET=$TARGET"
+
+      - name: Wait for Render Git auto-deploy to converge
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 36); do
+            health_code=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 15 "$TARGET/healthz" || true)
+            version_code=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 15 "$TARGET/version" || true)
+            echo "attempt=$i health_http=$health_code version_http=$version_code"
+            if [ "$health_code" = "200" ] && [ "$version_code" = "200" ]; then
+              deployed=$(python3 -c "import json; print(json.load(open('/tmp/version.json')).get('commit',''))")
+              echo "deployed_commit=$deployed"
+              if [ "$deployed" = "$EXPECTED_SHA" ]; then
+                echo 'PASS: Render production converged to exact Git commit.'
+                exit 0
+              fi
+              echo 'WAIT: Render is healthy but still serving an older commit.'
+            fi
+            sleep 10
+          done
+          echo 'FAIL: Render did not converge to the pushed Git commit.'
+          echo 'The Render service/domain is not consuming main automatically, or the wrong Render service is attached to dreamledger.org.'
+          exit 1
+
+      - name: Write deployment proof
+        if: always()
+        run: |
+          mkdir -p proof
+          python3 - "$EXPECTED_SHA" <<'PY'
+          import json, sys, time
+          proof = {
+              'source_commit': sys.argv[1],
+              'target': 'https://dreamledger.org',
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'contract': 'github-main-push-must-converge-render-production'
+          }
+          with open('proof/render-git-convergence.json','w',encoding='utf-8') as f:
+              json.dump(proof,f,indent=2)
+          PY
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-git-convergence-${{ github.sha }}
+          path: proof/render-git-convergence.json
+          if-no-files-found: error
+          retention-days: 30
