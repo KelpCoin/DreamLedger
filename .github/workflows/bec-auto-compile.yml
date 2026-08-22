@@ -50,12 +50,16 @@ jobs:
             './BEC-PRIME/catalog/compiled/economic-tree.json',
             './BEC-PRIME/compiled/website/economics/index.html',
             './BEC-PRIME/compiled/website/economics/ip-manifest.json',
+            './BEC-PRIME/compiled/website/cinema.html',
             './BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json',
+            './BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json',
             './BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json'
           )
           foreach ($path in $required) {
             if (-not (Test-Path $path)) { throw "Required compiler output missing: $path" }
           }
+          $cinema = Get-Content './BEC-PRIME/compiled/website/cinema.html' -Raw
+          if ($cinema -notmatch 'cinema-event-v1') { throw 'Compiled Cinema artifact is missing cinema-event-v1.' }
           $manifest = Get-Content './BEC-PRIME/compiled/website/economics/ip-manifest.json' -Raw | ConvertFrom-Json
           if ($manifest.public_boundary -notmatch 'private implementation paths') { throw 'Public boundary contract is missing private-path protection.' }
           $truth = Get-Content './BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json' -Raw | ConvertFrom-Json
@@ -84,11 +88,11 @@ jobs:
           set -euo pipefail
           git config user.name "BEC-PRIME Compiler"
           git config user.email "bec-prime@users.noreply.github.com"
-          git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/compiled/website/economics/ip-manifest.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/RUN-PROOFS
+          git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/compiled/website/economics/ip-manifest.json BEC-PRIME/compiled/website/cinema.html BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/RUN-PROOFS
           if git diff --cached --quiet; then
             echo "No generated changes."
             exit 0
           fi
-          git commit -m "chore: BEC-PRIME auto-compile IP economic kernel"
+          git commit -m "chore: BEC-PRIME auto-compile public Cinema artifact"
           git push origin HEAD:main
           echo "Generated state pushed."
