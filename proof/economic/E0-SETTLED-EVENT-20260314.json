@@ -1,0 +1,18 @@
+{
+  "schema": "dreamledger/economic-event-proof/v1",
+  "event": "SETTLED_PAYMENT_OBSERVED",
+  "event_class": "revenue",
+  "observed_at_utc": "2026-03-14T10:44:05Z",
+  "stripe_livemode": true,
+  "payment_intent_id": "pi_3TApftEGgEAnUFF903eC3JeK",
+  "checkout_session_id": "cs_live_a1CxYemkZzYHYela3lFInNOu4xX6Pxri5savCci99nQwavpKy96DTajlhN",
+  "status": "succeeded",
+  "payment_status": "paid",
+  "currency": "NZD",
+  "amount_nzd": 5,
+  "line_item_description": "Browneye Billboard Slot (XS)",
+  "price_id": "price_1Sz7A6EGgEAnUFF93FPjxZVE",
+  "sku": "BROWNEYE_BILLBOARD_XS",
+  "truth_rule": "This is an observed settled payment in Stripe livemode. It predates the current NZD 29 audit rail and is not represented as current-month revenue.",
+  "current_month_revenue_claim": false
+}
