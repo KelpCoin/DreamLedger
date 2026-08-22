@@ -1,0 +1,21 @@
+{
+  "schema": "BEC-PRIME/FEATURED-OFFER/v1",
+  "rule": "The homepage featured offer is an explicit commercial surface and must resolve to a live, operator-authorized payment rail.",
+  "offer_id": "OFFER-CMD-DIAG-29-NZD",
+  "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "sku": "CMD-DIAG-29",
+  "silo": "mtg",
+  "name": "Commander Deck Diagnostic",
+  "price": 29,
+  "currency": "NZD",
+  "payment_link_url": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
+  "stripe_product_id": "prod_V6iVKl9HgFpzRU",
+  "stripe_price_id": "price_1U7OJkEGgEAnUFF95GIzLolj",
+  "payment_link_id": "plink_1U7OJrEGgEAnUFF9YeAOO2l8",
+  "payment_link_status": "ACTIVE_LIVEMODE",
+  "public_visibility": "featured",
+  "evidence_status": "awaiting_first_payment",
+  "private_material": "excluded",
+  "approved_by": "operator",
+  "approved_at": "2026-08-23"
+}
