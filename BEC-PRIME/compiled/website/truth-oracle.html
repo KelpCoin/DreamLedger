@@ -5,16 +5,24 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DreamLedger Truth Oracle</title>
 <style>
-body{font-family:system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 20px;line-height:1.5}header{border-bottom:1px solid #ccc;margin-bottom:24px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}.status{font-weight:700}.note{padding:12px;background:#f4f4f4;border-left:4px solid #555}a{word-break:break-word}
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 20px;line-height:1.5}header{border-bottom:1px solid #ccc;margin-bottom:24px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}.status{font-weight:700}.note{padding:12px;background:#f4f4f4;border-left:4px solid #555;margin:12px 0}a{word-break:break-word}.role{border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0}.role h3{margin:0 0 5px}.muted{color:#666;font-size:.9rem}
 </style>
 </head>
 <body>
 <header><h1>DreamLedger Truth Oracle</h1><p>Public registry of agentic commerce events. Evidence status is explicit. A reported event is not presented as cryptographically verified by DreamLedger.</p></header>
 <div class="note"><strong>Verification rule:</strong> external events require a primary public source. DreamLedger-verified events require a corresponding DreamLedger economic artifact and tamper-evident ledger evidence.</div>
-<p><a href="/truth-oracle.json">Machine-readable registry</a></p>
+<div class="note"><strong>Progressive transparency:</strong> DreamLedger publishes verifiable truth while protecting private customer data, credentials, raw prospect data, proprietary scoring, acquisition mechanics and core secret sauce. Access increases by role, not by making private IP public.</div>
+<p><a href="/truth-oracle.json">Machine-readable registry</a> | <a href="/transparency-policy.json">Transparency policy</a></p>
+<section><h2>Transparency layers</h2><div id="roles"></div></section>
 <table><thead><tr><th>Date</th><th>Event</th><th>Participants</th><th>Status</th><th>Evidence</th></tr></thead><tbody id="events"></tbody></table>
 <script>
-fetch('/truth-oracle.json',{cache:'no-store'}).then(r=>r.json()).then(d=>{document.getElementById('events').innerHTML=d.events.map(e=>`<tr><td>${e.event_date}</td><td><strong>${e.event_id}</strong><br>${e.description}</td><td>${e.issuer_partner||''}<br>${e.merchant||''}</td><td class="status">${e.verification_status}</td><td><a href="${e.primary_source}" rel="noopener">Primary source</a></td></tr>`).join('')}).catch(()=>{document.getElementById('events').innerHTML='<tr><td colspan="5">Registry unavailable.</td></tr>'});
+Promise.all([
+  fetch('/truth-oracle.json',{cache:'no-store'}).then(r=>r.json()),
+  fetch('/transparency-policy.json',{cache:'no-store'}).then(r=>r.json())
+]).then(([d,p])=>{
+  document.getElementById('events').innerHTML=d.events.map(e=>`<tr><td>${e.event_date}</td><td><strong>${e.event_id}</strong><br>${e.description}</td><td>${e.issuer_partner||''}<br>${e.merchant||''}</td><td class="status">${e.verification_status}</td><td><a href="${e.primary_source}" rel="noopener">Primary source</a></td></tr>`).join('');
+  document.getElementById('roles').innerHTML=p.roles.map(r=>`<article class="role"><h3>${r.name}</h3><div class="muted">${r.role_id} / ${r.disclosure_class}</div><p>${r.allowed_public_outputs.join(' | ')}</p></article>`).join('');
+}).catch(()=>{document.getElementById('events').innerHTML='<tr><td colspan="5">Registry unavailable.</td></tr>';document.getElementById('roles').innerHTML='<div class="note">Transparency policy unavailable.</div>'});
 </script>
 </body>
 </html>
