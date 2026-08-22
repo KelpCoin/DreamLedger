@@ -11,13 +11,29 @@ const OUT_FILE = path.join(OUT_DIR, 'products.json');
 const PROOF_FILE = path.join(ROOT, 'PROOF-PRODUCT-COMPILATION.json');
 const FULFILLMENT_FILE = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json');
 
+const LEGACY_MINOR_DEFAULT_IDS = new Set([
+  'BILLBOARD-LARGE','BILLBOARD-MEDIUM','BILLBOARD-SMALL','BILLBOARD-TAKEOVER','BILLBOARD-WIDE',
+  'DREAMIEZ-BEAUTY-BRUSH-001','DREAMIEZ-BEAUTY-MIRROR-001','DREAMIEZ-BEAUTY-POUCH-001','DREAMIEZ-BEAUTY-VANITY-001',
+  'DREAMIEZ-cape','DREAMIEZ-cosmic-hoodie','DREAMIEZ-dragon-tattoo','DREAMIEZ-flower-crown','DREAMIEZ-neon-sneakers',
+  'DREAMIEZ-ninja-mask','DREAMIEZ-pink-hair','DREAMIEZ-pirate-hat','DREAMIEZ-sunglasses','DREAMIEZ-top-hat',
+  'DREAMIEZ-tuxedo','DREAMIEZ-viking-helmet',
+  'DREAMLEDGER-BILLBOARD-LARGE-001','DREAMLEDGER-BILLBOARD-MEDIUM-001','DREAMLEDGER-BILLBOARD-SMALL-001','DREAMLEDGER-BILLBOARD-WIDE-001',
+  'MTG-URZAS-LEGACY-PALINCHRON-FOIL-001'
+]);
+
 function sha256(value) { return crypto.createHash('sha256').update(value, 'utf8').digest('hex'); }
 function read(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+function resolvePriceUnit(product) {
+  if (product.price_unit) return { unit: String(product.price_unit).toLowerCase(), implicit: false };
+  if (LEGACY_MINOR_DEFAULT_IDS.has(product.id)) return { unit: 'minor', implicit: true };
+  return { unit: 'major', implicit: true };
+}
 function priceInMajorUnits(product) {
   const value = Number(product.price);
   if (!Number.isFinite(value) || value < 0) throw new Error(`Invalid product price for ${product.id}`);
-  const unit = String(product.price_unit || 'major').toLowerCase();
-  if (unit === 'minor' || unit === 'cents') return value / 100;
+  const resolved = resolvePriceUnit(product);
+  if (resolved.unit === 'minor' || resolved.unit === 'cents') return value / 100;
+  if (resolved.unit !== 'major') throw new Error(`Unsupported price_unit for ${product.id}: ${resolved.unit}`);
   return value;
 }
 
@@ -42,6 +58,7 @@ function compile() {
 
   const offers = products.map(p => {
     const f = fulfillmentReady(p, registry);
+    const resolvedPrice = resolvePriceUnit(p);
     const price = priceInMajorUnits(p);
     const checkoutAvailable = p.status === 'published' && p.commercial_truth?.approval_required === false && Number(p.inventory || 0) > 0 && f.ready;
     return {
@@ -61,6 +78,8 @@ function compile() {
       price,
       currency: String(p.currency || 'nzd').toUpperCase(),
       price_unit: 'major',
+      source_price_unit: resolvedPrice.unit,
+      source_price_unit_implicit: resolvedPrice.implicit,
       pricing_strategy: 'fixed',
       payment_adapter: 'stripe',
       checkout_route: '/api/offer-checkout/create',
@@ -75,6 +94,7 @@ function compile() {
     };
   });
 
+  const implicitLegacyCount = offers.filter(x => x.source_price_unit_implicit).length;
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const manifest = {
     schema: 'BEC-PRIME/PRODUCT-OFFER-CATALOG/v3',
@@ -84,7 +104,8 @@ function compile() {
     count: offers.length,
     checkoutable_count: offers.filter(x => x.checkout_available).length,
     source_hash: sha256(JSON.stringify(products)),
-    price_contract: 'major_units_by_default; minor/cents only when price_unit explicitly declares it',
+    price_contract: 'major_units_by_default; legacy allowlist remains minor until explicit price_unit migration',
+    implicit_legacy_price_unit_count: implicitLegacyCount,
     offers
   };
 
@@ -95,6 +116,7 @@ function compile() {
     compiler: 'product-compiler-v3-major-unit-safe',
     source_hash: manifest.source_hash,
     price_contract: manifest.price_contract,
+    implicit_legacy_price_unit_count: implicitLegacyCount,
     product_count: products.length,
     checkoutable_product_ids: offers.filter(x => x.checkout_available).map(x => x.offer_id),
     quarantined_published_product_ids: offers.filter(x => x.status === 'QUARANTINED_NO_FULFILLMENT').map(x => x.offer_id)
@@ -104,4 +126,4 @@ function compile() {
 }
 
 if (require.main === module) console.log(JSON.stringify(compile(), null, 2));
-module.exports = { compile, priceInMajorUnits };
+module.exports = { compile, priceInMajorUnits, resolvePriceUnit };

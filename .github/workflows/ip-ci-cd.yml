@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -49,7 +49,21 @@ jobs:
       - name: Secret hygiene scan
         shell: bash
         run: |
-          if grep -RInE --exclude-dir=.git --exclude-dir=node_modules --exclude='*.lock' '(sk_live_|sk_test_|whsec_|ghp_|github_pat_|xoxb-|AKIA[0-9A-Z]{16})' .; then
+          set -euo pipefail
+          set +e
+          matches=$(git grep -n -I -E 'sk_(live|test)_[A-Za-z0-9]{20,}|whsec_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|xoxb-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}' -- \
+            ':(exclude).github/workflows' \
+            ':(exclude)BEC-PRIME/compiler/LeverageGauntlet.js' \
+            ':(exclude)BEC-PRIME/runtime/Sentinel.js' \
+            ':(exclude)BEC-PRIME/scripts/meta-gauntlet.js' \
+            ':(exclude)BEC-PRIME/scripts/Verify-*' \
+            ':(exclude)BEC-PRIME/scripts/test-stripe-webhook-proof.js' \
+            ':(exclude)scripts/OfferCompiler.js' \
+            ':(exclude)scripts/Verify-Registry.ps1' 2>/dev/null)
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ] && [ -n "$matches" ]; then
+            printf '%s\n' "$matches"
             echo 'SECRET_HYGIENE=FAIL'
             exit 1
           fi

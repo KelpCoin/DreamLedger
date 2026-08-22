@@ -1,0 +1,21 @@
+{
+  "schema": "CUBE/SILO-REGISTRY/v1",
+  "status": "active",
+  "shared_spine": "b2b-commerce",
+  "silos": [
+    {"id":"mtg","route":"/mtg","label":"Magic: The Gathering","inventory_mode":"physical","public":true,"cross_game":false},
+    {"id":"dreammeez","route":"/dreammeez","label":"DreamMeez","inventory_mode":"digital","public":true,"cross_game":true},
+    {"id":"media-music","route":"/media-music","label":"Media & Music","inventory_mode":"mixed","public":true,"cross_game":false},
+    {"id":"digital-products","route":"/digital-products","label":"Digital Products","inventory_mode":"digital","public":true,"cross_game":false},
+    {"id":"nz-secondhand","route":"/nz-secondhand","label":"NZ Secondhand","inventory_mode":"physical","public":true,"cross_game":false},
+    {"id":"b2b","route":"/marketplace","label":"B2B Marketplace","inventory_mode":"mixed","public":true,"cross_silo_view":true}
+  ],
+  "hard_exclusions": ["adult","amplissa"],
+  "rules": {
+    "single_source_of_truth": true,
+    "global_sku_required": true,
+    "seller_id_required_for_marketplace": true,
+    "fulfillment_contract_required_before_checkout": true,
+    "approval_required_for_external_publication": true
+  }
+}

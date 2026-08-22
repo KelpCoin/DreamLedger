@@ -7,7 +7,19 @@ const PUBLIC = path.join(ROOT, 'compiled', 'website');
 const billboard = require('../routes/billboard');
 const original = http.createServer;
 function htmlFile(route) {
-  const map = { '/': 'index.html', '/dreamiez': 'dreamiez.html', '/mtg': path.join('mtg', 'index.html'), '/commander': path.join('commander', 'index.html'), '/billboard': 'billboard.html', '/billboard/': 'billboard.html', '/billboard-review': 'billboard-review.html', '/billboard-review/': 'billboard-review.html' };
+  const map = {
+    '/': 'index.html',
+    '/dreamiez': 'dreamiez.html',
+    '/dreammeez': 'dreamiez.html',
+    '/mtg': path.join('mtg', 'index.html'),
+    '/commander': path.join('commander', 'index.html'),
+    '/billboard': 'billboard.html',
+    '/billboard/': 'billboard.html',
+    '/billboard-review': 'billboard-review.html',
+    '/billboard-review/': 'billboard-review.html',
+    '/cinema': 'cinema.html',
+    '/cinema.html': 'cinema.html'
+  };
   return map[route] || null;
 }
 function shell(file) {
