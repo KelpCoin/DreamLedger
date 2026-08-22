@@ -1,0 +1,74 @@
+name: DreamLedger Emergency Render Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact commit SHA to deploy
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-emergency-render
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
+      RENDER_SERVICE_ID: srv-d8ud55lckfvc73f1t4eg
+    steps:
+      - name: Validate inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$RENDER_API_KEY"
+          test -n "$RELEASE_SHA"
+          echo "Deploying $RELEASE_SHA to $RENDER_SERVICE_ID"
+
+      - name: Trigger exact Render deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 \
+            -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"commitId\":\"$RELEASE_SHA\",\"clearCache\":\"clear\"}" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+            | tee /tmp/render-deploy.json
+
+      - name: Emit trigger proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          proof = {
+              "status": "TRIGGERED",
+              "service_id": os.environ["RENDER_SERVICE_ID"],
+              "release_sha": os.environ["RELEASE_SHA"],
+              "clear_cache": True,
+              "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+          }
+          with open("proof/render-emergency-deploy.json", "w", encoding="utf-8") as f:
+              json.dump(proof, f, indent=2)
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload trigger proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-emergency-deploy-${{ env.RELEASE_SHA }}
+          path: proof/render-emergency-deploy.json
+          if-no-files-found: error
+          retention-days: 30
