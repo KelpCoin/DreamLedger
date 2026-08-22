@@ -1,0 +1,30 @@
+{
+  "proof_type": "CUBE_FIRST_OFFER",
+  "timestamp_utc": "2026-08-22T12:22:00Z",
+  "silo_id": "NZ_BooksStationery",
+  "sku_id": "SKU_BOOK_20260823_0001",
+  "ci_id": "YOU_SUPPLIER_001",
+  "product_name": "Used NZ Gardening Book",
+  "price_nzd": 15.0,
+  "supply_status": "USER_DECLARED_REAL_ITEM",
+  "supply_verified": false,
+  "stripe": {
+    "livemode": true,
+    "payment_link_id": "plink_1U7DxOEGgEAnUFF9NaReAezv",
+    "payment_link": "https://buy.stripe.com/3cI3cv3vncO95UbaIYdwc1T",
+    "completed_sessions_limit": 1,
+    "completed_sessions": 0
+  },
+  "economic_state": "OFFER_LIVE_AWAITING_BUYER",
+  "settlement_state": "NOT_YET_SETTLED",
+  "fulfilment_state": "NOT_YET_FULFILLED",
+  "fossil_state": "NOT_YET_CLOSED",
+  "repo_commit": "4f89c57bafa8bb6e227227b606c47f7d2c18aee2",
+  "verification": {
+    "sku_written_to_supabase": true,
+    "stripe_payment_link_created": true,
+    "payment_settled": false,
+    "fulfilment_proof": false,
+    "fossil_closed": false
+  }
+}
