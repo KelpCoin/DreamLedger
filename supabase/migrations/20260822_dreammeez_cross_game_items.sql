@@ -36,20 +36,21 @@ alter table public.commerce_items enable row level security;
 alter table public.commerce_item_ownership enable row level security;
 alter table public.commerce_referrals enable row level security;
 
-create policy commerce_items_public_read on public.commerce_items
-  for select to public using (true);
-
-create policy commerce_item_ownership_self_read on public.commerce_item_ownership
-  for select to authenticated
-  using ((select auth.uid()) = user_id);
-
-create policy commerce_item_ownership_self_insert on public.commerce_item_ownership
-  for insert to authenticated
-  with check ((select auth.uid()) = user_id);
-
-create policy commerce_referrals_self_read on public.commerce_referrals
-  for select to authenticated
-  using ((select auth.uid()) = owner_user_id or (select auth.uid()) = referred_user_id);
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='commerce_items' and policyname='commerce_items_public_read') then
+    create policy commerce_items_public_read on public.commerce_items for select to public using (true);
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='commerce_item_ownership' and policyname='commerce_item_ownership_self_read') then
+    create policy commerce_item_ownership_self_read on public.commerce_item_ownership for select to authenticated using ((select auth.uid()) = user_id);
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='commerce_item_ownership' and policyname='commerce_item_ownership_self_insert') then
+    create policy commerce_item_ownership_self_insert on public.commerce_item_ownership for insert to authenticated with check ((select auth.uid()) = user_id);
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='commerce_referrals' and policyname='commerce_referrals_self_read') then
+    create policy commerce_referrals_self_read on public.commerce_referrals for select to authenticated using ((select auth.uid()) = owner_user_id or (select auth.uid()) = referred_user_id);
+  end if;
+end $$;
 
 insert into public.commerce_items
   (item_id, sku, name, kind, rarity, source_silo, game_usable, compatible_games, metadata)
