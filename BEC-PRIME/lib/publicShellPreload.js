@@ -4,6 +4,7 @@ const path = require('path');
 const http = require('http');
 const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'compiled', 'website');
+const CINEMA_SOURCE = path.join(ROOT, '..', 'cinema.html');
 const billboard = require('../routes/billboard');
 const original = http.createServer;
 function htmlFile(route) {
@@ -23,7 +24,8 @@ function htmlFile(route) {
   return map[route] || null;
 }
 function shell(file) {
-  const full = path.join(PUBLIC, file);
+  let full = path.join(PUBLIC, file);
+  if (!fs.existsSync(full) && file === 'cinema.html' && fs.existsSync(CINEMA_SOURCE)) full = CINEMA_SOURCE;
   if (!fs.existsSync(full)) return null;
   let html = fs.readFileSync(full, 'utf8');
   if (!html.includes('/assets/dreamiez-account.js')) html = html.replace('</body>', '<script src="/assets/dreamiez-account.js" defer></script><script src="/assets/digital-proxy-assist.js" defer></script></body>');
