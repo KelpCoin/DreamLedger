@@ -1,0 +1,31 @@
+name: Swipe Streak MVP
+
+on:
+  pull_request:
+    paths:
+      - 'swipe-streak/**'
+      - '.github/workflows/swipe-streak-mvp.yml'
+  push:
+    branches: [swipe-streak-mvp]
+    paths:
+      - 'swipe-streak/**'
+      - '.github/workflows/swipe-streak-mvp.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: swipe-streak
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: swipe-streak/package.json
+      - run: npm install
+      - run: npm run build
