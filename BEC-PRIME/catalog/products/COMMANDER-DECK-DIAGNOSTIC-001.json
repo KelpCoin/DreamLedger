@@ -1,21 +1,35 @@
 {
   "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "capability_id": "PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
   "silo": "mtg",
   "name": "Commander Deck Diagnostic",
-  "status": "active",
-  "price": {
-    "currency": "NZD",
-    "amount": 29
+  "description": "A focused written Commander deck diagnostic covering the weakest-card analysis, upgrade priorities and tuning plan.",
+  "price": 29,
+  "price_unit": "major",
+  "currency": "nzd",
+  "inventory": 1,
+  "inventory_type": "digital",
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "success_path": "/checkout/success",
+    "cancel_path": "/mtg"
   },
-  "checkout_url": "https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L",
+  "commercial_truth": {
+    "approval_required": false,
+    "sellable": true,
+    "reason": "Operator authorized first-revenue experiment on 2026-08-22.",
+    "payment_surface": "stripe-payment-link",
+    "payment_link": "https://buy.stripe.com/5kQaEX1nfbK5fuL4kAdwc1L"
+  },
   "fulfilment": {
     "delivery_sla_hours": 48,
     "inputs": ["Commander decklist"],
     "outputs": ["focused diagnostic", "weakest-card analysis", "upgrade priorities", "tuning plan"]
   },
-  "commercial_truth": {
-    "sellable": true,
-    "reason": "Operator authorized first-revenue experiment on 2026-08-22."
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
   },
   "experiment": "MTG-SALES-001"
 }
