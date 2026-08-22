@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-08-22T14:16:00+12:00",
+  "objective": "turn canonical DreamLedger into a current, observable revenue path",
+  "canonical_repo": "KelpCoin/DreamLedger",
+  "canonical_main_trigger_commit": "4179f8b973ab3c9735bb845ef3a68400b9985364",
+  "featured_checkout_hardening_commit": "14fd6a9242bcb48809d7e1b384a117f5a94de81e",
+  "live_payment_link": "https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M",
+  "live_payment_link_status": "ACTIVE_LIVEMODE",
+  "live_price_nzd": 29,
+  "historical_live_payment_verified_nzd": 5,
+  "current_29_payment_observed": false,
+  "supabase_first_payment_proofs_rows": 0,
+  "supabase_dreamledger_orders_rows": 0,
+  "production_public_surface_observation": "homepage still renders stale NZD 49 and live API product fetch is failing in current crawl",
+  "required_next_truth_gate": "Render production refresh to a commit containing the hardened featured-offer gate, followed by exact /version + /healthz + /board + inventory verification",
+  "revenue_claim": "UNPROVEN_CURRENTLY"
+}
