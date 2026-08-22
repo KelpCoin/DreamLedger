@@ -50,8 +50,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
 
       - name: Install dependencies
         working-directory: BEC-PRIME
@@ -105,7 +103,8 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' BEC-PRIME/catalog/offers/approved.json
-          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
+          grep -q '"price": 49' BEC-PRIME/catalog/offers/approved.json
+          grep -q '8x24gz2rjg0l6Yf9EUdwc1R' BEC-PRIME/catalog/offers/approved.json
           echo 'APPROVED_COMMERCE_SKU=PASS'
 
       - name: Write CI proof
@@ -128,7 +127,7 @@ jobs:
                   'approved-commerce-sku'
               ],
               'approved_commerce_sku': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
-              'approved_commerce_price_nzd': 29,
+              'approved_commerce_price_nzd': 49,
               'public_actions': 'approval-required',
               'financial_actions': 'approval-required'
           }
@@ -209,7 +208,7 @@ jobs:
               raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
           if sku != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
               raise SystemExit(f'CHECKOUT_SKU=FAIL:{sku}')
-          if amount != 29:
+          if amount != 49:
               raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
           print('CHECKOUT_URL_PRESENT=PASS')
           print('CHECKOUT_SKU=PASS')
@@ -233,7 +232,7 @@ jobs:
               'surfaces_verified': ['healthz','register.html','elohim-refinery.html','gauntlet.html','version'],
               'checkout_surface_verified': True,
               'checkout_sku_verified': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
-              'checkout_amount_nzd_verified': 29,
+              'checkout_amount_nzd_verified': 49,
               'purchase_executed': False,
               'revenue_claimed': False
           }
