@@ -32,20 +32,23 @@ jobs:
           for i in $(seq 1 36); do
             health_code=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 15 "$TARGET/healthz" || true)
             version_code=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 15 "$TARGET/version" || true)
-            echo "attempt=$i health_http=$health_code version_http=$version_code"
+            mtg_code=$(curl -sS -o /tmp/mtg.html -w '%{http_code}' --max-time 15 "$TARGET/mtg" || true)
+            board_code=$(curl -sS -o /tmp/board.html -w '%{http_code}' --max-time 15 "$TARGET/board" || true)
+            inventory_code=$(curl -sS -o /tmp/inventory.json -w '%{http_code}' --max-time 15 "$TARGET/api/molt-beach-inventory" || true)
+            echo "attempt=$i health_http=$health_code version_http=$version_code mtg_http=$mtg_code board_http=$board_code inventory_http=$inventory_code"
             if [ "$health_code" = "200" ] && [ "$version_code" = "200" ]; then
               deployed=$(python3 -c "import json; print(json.load(open('/tmp/version.json')).get('commit',''))")
               echo "deployed_commit=$deployed"
-              if [ "$deployed" = "$EXPECTED_SHA" ]; then
-                echo 'PASS: Render production converged to exact Git commit.'
+              if [ "$deployed" = "$EXPECTED_SHA" ] && [ "$mtg_code" = "200" ] && [ "$board_code" = "200" ] && [ "$inventory_code" = "200" ]; then
+                echo 'PASS: Render production converged to exact Git commit and canonical public routes are live.'
                 exit 0
               fi
-              echo 'WAIT: Render is healthy but still serving an older commit.'
+              echo 'WAIT: Render is healthy but route/provenance checks are not yet converged.'
             fi
             sleep 10
           done
-          echo 'FAIL: Render did not converge to the pushed Git commit.'
-          echo 'The Render service/domain is not consuming main automatically, or the wrong Render service is attached to dreamledger.org.'
+          echo 'FAIL: Render did not converge to the pushed Git commit and canonical public routes.'
+          echo 'Required: /version, /mtg, /board, and /api/molt-beach-inventory must all be live on the exact Git SHA.'
           exit 1
 
       - name: Write deployment proof
@@ -58,7 +61,8 @@ jobs:
               'source_commit': sys.argv[1],
               'target': 'https://dreamledger.org',
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'contract': 'github-main-push-must-converge-render-production'
+              'contract': 'github-main-push-must-converge-render-production-and-public-route-contract',
+              'routes': ['/version','/healthz','/mtg','/board','/api/molt-beach-inventory']
           }
           with open('proof/render-git-convergence.json','w',encoding='utf-8') as f:
               json.dump(proof,f,indent=2)
