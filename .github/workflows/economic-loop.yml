@@ -13,6 +13,9 @@ concurrency:
   group: dreamledger-economic-loop
   cancel-in-progress: false
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   close-economic-loop:
     runs-on: ubuntu-latest
@@ -35,8 +38,6 @@ jobs:
         run: node ops/commerce/reconcile-stripe-airtable.mjs
 
       - name: Create idempotent fulfillment work items
-        env:
-          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -62,6 +63,14 @@ jobs:
           const rows = JSON.parse(fs.readFileSync('/tmp/new-payments.json', 'utf8'));
           for (const row of rows) {
             const title = `FULFILL ${row.eventId} CMD-DIAG-29`;
+            const existing = cp.spawnSync('gh', ['issue', 'list', '--state', 'all', '--search', `in:title "${title}"`, '--limit', '1', '--json', 'number,title'], {encoding:'utf8'});
+            if (existing.status !== 0) throw new Error(existing.stderr || 'gh issue list failed');
+            const found = JSON.parse(existing.stdout || '[]');
+            if (found.length) {
+              console.log(`IDEMPOTENT_SKIP issue=${found[0].number} event=${row.eventId}`);
+              continue;
+            }
+
             const body = [
               '# Verified paid order',
               '',
@@ -77,14 +86,14 @@ jobs:
               '4. Do not publicly post or contact the buyer from automation.',
               '',
               '## Economic loop',
-              'Payment -> verified event -> fulfillment -> evidence -> next-offer candidate.',
+              'Payment -> verified event -> fulfillment -> evidence -> next monetization candidate.',
               '',
               'This issue is generated only from a live Stripe payment event. No synthetic revenue is created.'
             ].join('\\n');
 
-            const result = cp.spawnSync('gh', ['issue', 'create', '--title', title, '--body', body, '--label', 'commerce,fulfillment'], {encoding:'utf8'});
+            const result = cp.spawnSync('gh', ['issue', 'create', '--title', title, '--body', body], {encoding:'utf8'});
             if (result.status !== 0) throw new Error(result.stderr || result.stdout || 'gh issue create failed');
-            console.log(result.stdout.trim());
+            console.log(`FULFILLMENT_CREATED ${result.stdout.trim()}`);
           }
           NODE
 
