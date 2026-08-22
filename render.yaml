@@ -21,6 +21,8 @@ services:
       mountPath: /var/data
       sizeGB: 1
     envVars:
+      - key: NODE_VERSION
+        value: "24.14.1"
       - key: PUBLIC_BASE_URL
         value: https://dreamledger.org
       - key: PUBLIC_ORIGIN
