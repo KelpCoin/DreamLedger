@@ -1,9 +1,8 @@
 'use strict';
-
 const fs = require('fs');
 const path = require('path');
 
-const root = path.resolve(__dirname, '..');
+const repo = path.resolve(__dirname, '..', '..');
 const required = [
   'README.md',
   'CONTROL-PLANE/COMMERCIAL-INTEGRATION.md',
@@ -17,11 +16,9 @@ const required = [
   '.github/workflows/pc-off-refinement-gauntlet.yml'
 ];
 const failures = [];
-for (const rel of required) {
-  if (!fs.existsSync(path.join(root, rel))) failures.push(`MISSING=${rel}`);
-}
-const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
-const integration = fs.readFileSync(path.join(root, 'CONTROL-PLANE/COMMERCIAL-INTEGRATION.md'), 'utf8');
+for (const rel of required) if (!fs.existsSync(path.join(repo, rel))) failures.push(`MISSING=${rel}`);
+const readme = fs.readFileSync(path.join(repo, 'README.md'), 'utf8');
+const integration = fs.readFileSync(path.join(repo, 'CONTROL-PLANE/COMMERCIAL-INTEGRATION.md'), 'utf8');
 if (!readme.includes('https://dreamledger.org')) failures.push('README_DREAMLEDGER_URL=FAIL');
 if (!readme.includes('https://amplissa.com')) failures.push('README_AMPLISSA_URL=FAIL');
 if (!readme.includes('https://buy.stripe.com/28EcN54zraG13M3g3idwc1t')) failures.push('README_STRIPE_LINK=FAIL');
