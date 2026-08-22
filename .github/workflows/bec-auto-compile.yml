@@ -1,6 +1,7 @@
 name: BEC-PRIME Auto Compile DreamLedger
 
 # Production trigger: generated public surfaces are part of the deploy contract.
+# 2026-08-23: explicit retrigger marker after production-truth audit.
 
 on:
   workflow_dispatch:
