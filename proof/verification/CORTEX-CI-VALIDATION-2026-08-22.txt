@@ -1,0 +1,4 @@
+CORTEX CI VALIDATION
+Date: 2026-08-22
+Purpose: trigger a fresh pull-request validation run after canonical CI hardening.
+No economic event is claimed by this file.
