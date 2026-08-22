@@ -1,0 +1,48 @@
+name: Compiler Pong Proof
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/compiler/**'
+      - 'BEC-PRIME/scripts/**'
+      - 'BEC-PRIME/test-vectors/**'
+      - 'BEC-PRIME/package.json'
+      - '.github/workflows/compiler-proof-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pong-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install
+      - name: Run compiler
+        run: npm run compile
+      - name: Verify Pong proof surface
+        run: |
+          test -s compiled/website/compiler-proof/pong.html
+          grep -q 'BrownEye Cortex Compiler Proof: PONG' compiled/website/compiler-proof/pong.html
+          test -s data/proofs/compiler-leverage-latest.json
+          grep -q '"status": "PASS"' data/proofs/compiler-leverage-latest.json
+      - name: Upload compiler proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: brown-eye-cortex-pong-proof-${{ github.sha }}
+          path: |
+            BEC-PRIME/compiled/website/compiler-proof/pong.html
+            BEC-PRIME/data/proofs/compiler-leverage-latest.json
+          if-no-files-found: error
+          retention-days: 30
