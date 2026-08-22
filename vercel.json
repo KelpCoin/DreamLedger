@@ -3,7 +3,6 @@
   "buildCommand": "cd BEC-PRIME && npm install && npm run compile",
   "functions": {
     "api/**/*.ts": { "maxDuration": 30, "memory": 1024 },
-    "api/stripe-webhook.ts": { "maxDuration": 60 },
     "api/molt-beach-webhook.ts": { "maxDuration": 60 }
   },
   "regions": ["syd1"],
