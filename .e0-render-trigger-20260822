@@ -1,2 +1,3 @@
-Controlled no-op commit to trigger the canonical Render autoDeployTrigger: commit path for E0 production recovery. Remove after E0 is proven.
-Trigger refresh: 2026-08-22T01:08:00+12:00.
+Controlled no-op commit to trigger the canonical Render autoDeployTrigger commit path for E0 production recovery. Remove after E0 is proven.
+Trigger refresh: 2026-08-22T21:00:00+12:00.
+Target release: eb0a46befd2e4fb12a1629bb59fd0e774f3ade3f.
