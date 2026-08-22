@@ -35,11 +35,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24.14.1"
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
       - name: Install canonical dependencies
         working-directory: BEC-PRIME
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Run canonical tests
         working-directory: BEC-PRIME
         run: npm test
@@ -89,7 +87,7 @@ jobs:
           if-no-files-found: error
 
   github-pages-fallback:
-    needs: verify
+    needs: [verify, render-primary]
     if: ${{ always() && needs.verify.result == 'success' && needs.render-primary.result != 'success' }}
     runs-on: ubuntu-latest
     environment: pages
@@ -118,7 +116,7 @@ EOF
 
   ghcr-fallback:
     needs: verify
-    if: ${{ always() && needs.verify.result == 'success' }}
+    if: ${{ needs.verify.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -134,7 +132,6 @@ EOF
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - name: Emit release spine proof
         shell: bash
         run: |
@@ -150,8 +147,9 @@ EOF
             "rule": "Never claim production unless the live runtime is independently verified."
           }
           EOF
-          git config user.name "DreamLedger Release Spine"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add proof/cloud/CANONICAL-RELEASE-SPINE.json
-          git commit -m "proof: record canonical release spine result" || true
-          git push origin HEAD:main || true
+      - name: Upload release spine proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-release-spine-${{ github.sha }}
+          path: proof/cloud/CANONICAL-RELEASE-SPINE.json
+          if-no-files-found: error
