@@ -1,9 +1,5 @@
 'use strict';
 
-// Reconciles the public homepage hero with the single operator-approved DreamLedger offer.
-// MTG approvals are intentionally excluded from this public DreamLedger feature gate.
-// This script is deliberately local-only: it changes compiled public HTML and never
-// creates, approves, or records a payment.
 const fs = require('fs');
 const path = require('path');
 
@@ -23,7 +19,6 @@ const offer = dreamLedgerOffers[0];
 if (offer.currency !== 'NZD' || Number(offer.price) !== 49) {
   throw new Error(`FEATURED_OFFER_GATE_FAILED: expected DreamLedger offer at NZD 49, got ${offer.currency} ${offer.price}`);
 }
-
 if (!offer.product_id) throw new Error('FEATURED_OFFER_GATE_FAILED: approved DreamLedger offer missing product_id');
 if (!offer.payment_link_url) throw new Error('FEATURED_OFFER_GATE_FAILED: approved DreamLedger offer missing payment_link_url');
 if (offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
@@ -32,12 +27,11 @@ if (offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
 
 let html = fs.readFileSync(INDEX, 'utf8');
 const oldBlock = /<div class="featured"><div class="eyebrow">Start here<\/div><h2>Agentic Commerce Readiness Audit<\/h2><p>Audit catalog structure, pricing, inventory, checkout readiness, policies and machine-readable commerce surfaces, then get the highest-value next actions\.<\/p><div class="featured-price">NZD 49 <small>one-time<\/small><\/div><button class="btn gold" id="featured-buy" type="button">Buy the audit<\/button><div class="trust-row"><div class="trust"><b>Approved<\/b><span>Catalog gated<\/span><\/div><div class="trust"><b>Live price<\/b><span>Server checked<\/span><\/div><div class="trust"><b>Proof<\/b><span>Webhook recorded<\/span><\/div><\/div><\/div>/;
-const replacement = `<div class="featured"><div class="eyebrow">Start here</div><h2>${offer.name}</h2><p>${offer.output}</p><div class="featured-price">NZD ${Number(offer.price).toFixed(0)} <small>one-time</small></div><a class="btn gold" id="featured-buy" href="${offer.payment_link_url}" target="_blank" rel="noopener">Buy the audit</a><div class="trust-row"><div class="trust"><b>Approved</b><span>Operator approved</span></div><div class="trust"><b>NZD 49</b><span>Fixed price</span></div><div class="trust"><b>Live checkout</b><span>Stripe livemode</span></div></div></div>`;
+const replacement = `<div class="featured"><div class="eyebrow">Start here</div><h2>${offer.name}</h2><p>${offer.output}</p><div class="featured-price">NZD ${Number(offer.price).toFixed(0)} <small>one-time</small></div><a class="btn gold" id="featured-buy" href="${offer.payment_link_url}" target="_blank" rel="noopener">Buy the diagnostic</a><div class="trust-row"><div class="trust"><b>Approved</b><span>Operator approved</span></div><div class="trust"><b>NZD 49</b><span>Fixed price</span></div><div class="trust"><b>Live checkout</b><span>Stripe livemode</span></div></div></div>`;
 
 if (!oldBlock.test(html)) throw new Error('FEATURED_OFFER_GATE_FAILED: stale featured offer block not found');
 html = html.replace(oldBlock, replacement);
 html = html.replace("products.find(p=>p.id==='AGENTIC-COMMERCE-READINESS-001')", `products.find(p=>p.id==='${offer.product_id}')`);
-
 fs.writeFileSync(INDEX, html, 'utf8');
 
 const verify = fs.readFileSync(INDEX, 'utf8');
