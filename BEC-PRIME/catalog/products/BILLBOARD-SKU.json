@@ -1,0 +1,21 @@
+{
+  "id": "BILLBOARD-SKU",
+  "name": "Digital Billboard Placement",
+  "description": "One placement on the BrownEye Cortex public billboard. Includes QR code distribution asset.",
+  "requested_price_nzd": 49,
+  "currency": "nzd",
+  "status": "published",
+  "stripe": {
+    "mode": "livemode",
+    "resolution": "existing_similar_billboard_product",
+    "product_id": "prod_V5RQPXmFb7y87p",
+    "price_id": "price_1U5JVwEGgEAnUFF9Eo1J8n2L",
+    "payment_link": "https://buy.stripe.com/28EfZh4zr29v5Ub18odwc1v",
+    "actual_price_nzd": 149
+  },
+  "distribution": {
+    "route": "https://dreamledger.org/billboard",
+    "qr_path": "BEC-PRIME/compiled/website/qr/billboard.png",
+    "qr_url": "https://dreamledger.org/billboard?utm_source=qr&utm_medium=physical&utm_campaign=silo_launch"
+  }
+}

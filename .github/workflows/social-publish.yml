@@ -1,0 +1,120 @@
+name: Social Publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Tumblr secrets
+        env:
+          TUMBLR_CONSUMER_KEY: ${{ secrets.TUMBLR_CONSUMER_KEY }}
+          TUMBLR_CONSUMER_SECRET: ${{ secrets.TUMBLR_CONSUMER_SECRET }}
+          TUMBLR_TOKEN: ${{ secrets.TUMBLR_TOKEN }}
+          TUMBLR_TOKEN_SECRET: ${{ secrets.TUMBLR_TOKEN_SECRET }}
+          TUMBLR_BLOG_IDENTIFIER: ${{ secrets.TUMBLR_BLOG_IDENTIFIER }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in TUMBLR_CONSUMER_KEY TUMBLR_CONSUMER_SECRET TUMBLR_TOKEN TUMBLR_TOKEN_SECRET TUMBLR_BLOG_IDENTIFIER; do
+            if [ -z "${!name:-}" ]; then
+              missing+=("$name")
+            fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Missing required Tumblr GitHub secrets:"
+            printf ' - %s\n' "${missing[@]}"
+            exit 1
+          fi
+
+      - name: Install publisher dependencies
+        run: python -m pip install --disable-pip-version-check requests requests-oauthlib
+
+      - name: Publish social posts
+        env:
+          TUMBLR_CONSUMER_KEY: ${{ secrets.TUMBLR_CONSUMER_KEY }}
+          TUMBLR_CONSUMER_SECRET: ${{ secrets.TUMBLR_CONSUMER_SECRET }}
+          TUMBLR_TOKEN: ${{ secrets.TUMBLR_TOKEN }}
+          TUMBLR_TOKEN_SECRET: ${{ secrets.TUMBLR_TOKEN_SECRET }}
+          TUMBLR_BLOG_IDENTIFIER: ${{ secrets.TUMBLR_BLOG_IDENTIFIER }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import requests
+          from requests_oauthlib import OAuth1
+
+          posts_path = Path("BEC-PRIME/social/social-posts.json")
+          posts = json.loads(posts_path.read_text(encoding="utf-8"))
+          if not isinstance(posts, list) or not posts:
+              raise SystemExit("social-posts.json must contain a non-empty JSON array")
+
+          auth = OAuth1(
+              os.environ["TUMBLR_CONSUMER_KEY"],
+              client_secret=os.environ["TUMBLR_CONSUMER_SECRET"],
+              resource_owner_key=os.environ["TUMBLR_TOKEN"],
+              resource_owner_secret=os.environ["TUMBLR_TOKEN_SECRET"],
+          )
+          blog = os.environ["TUMBLR_BLOG_IDENTIFIER"]
+          endpoint = f"https://api.tumblr.com/v2/blog/{blog}/post"
+          results = []
+
+          for index, post in enumerate(posts, 1):
+              image_path = Path(post["image_path"])
+              if not image_path.is_file():
+                  raise SystemExit(f"Missing image_path for post {index}: {image_path}")
+
+              payload = {
+                  "type": "photo",
+                  "caption": "<h2>" + post["title"] + "</h2><p>" + post["body"] + "</p><p>" + post["cta"] + "</p><p><a href=\"" + post["link"] + "\">Open DreamLedger</a></p>",
+                  "tags": ",".join(post.get("tags", [])),
+              }
+
+              with image_path.open("rb") as image_file:
+                  response = requests.post(
+                      endpoint,
+                      auth=auth,
+                      data=payload,
+                      files={"data": (image_path.name, image_file, "image/png")},
+                      timeout=60,
+                  )
+
+              if response.status_code >= 300:
+                  raise SystemExit(
+                      f"Tumblr publish failed for post {index} ({post.get('silo')}): "
+                      f"{response.status_code} {response.text[:1000]}"
+                  )
+
+              body = response.json()
+              post_id = body.get("response", {}).get("id")
+              post_url = f"https://www.tumblr.com/{blog}/{post_id}" if post_id else ""
+              results.append({
+                  "index": index,
+                  "silo": post["silo"],
+                  "title": post["title"],
+                  "post_id": post_id,
+                  "post_url": post_url,
+              })
+              print(f"Published {index}/{len(posts)}: {post['silo']} -> {post_url}")
+
+          Path("tumblr-post-results.json").write_text(
+              json.dumps(results, indent=2),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload publish results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tumblr-post-results
+          path: tumblr-post-results.json

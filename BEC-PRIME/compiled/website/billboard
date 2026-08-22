@@ -1,1 +1,44 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=/billboard.html"><link rel="canonical" href="/billboard.html"><title>DreamLedger Billboard</title></head><body><p><a href="/billboard.html">DreamLedger Billboard</a></p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Digital Billboard Placement on the DreamLedger public billboard.">
+<title>Digital Billboard Placement | DreamLedger</title>
+<style>
+body{margin:0;background:#070707;color:#f4f2eb;font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:980px;margin:auto;padding:48px 20px}
+.grid{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:center}
+.card{background:#111;border:1px solid #292929;border-radius:20px;padding:24px}
+h1{font-size:clamp(3rem,8vw,6rem);line-height:.85;letter-spacing:-.08em;margin:10px 0 22px}
+.gold{color:#f2c14e}
+.btn{display:inline-block;background:#f2c14e;color:#080808;padding:13px 18px;border-radius:12px;font-weight:900;text-decoration:none;margin:6px 6px 6px 0}
+.alt{background:#171717;color:#fff;border:1px solid #333}
+.qr{width:245px;height:245px;background:#fff;padding:12px;border-radius:16px}
+.muted{color:#89857d}
+.price{font-size:2rem;font-weight:1000;color:#f2c14e}
+</style>
+</head>
+<body>
+<main>
+<div class="grid">
+<section>
+<div class="muted">DREAMLEDGER / DIGITAL REAL ESTATE</div>
+<h1>Digital <span class="gold">Billboard</span> Placement.</h1>
+<p>One placement on the DreamLedger public billboard. Includes a QR code distribution asset and a direct destination path.</p>
+<div class="card">
+<div class="muted">Existing verified billboard offer</div>
+<div class="price">NZ$149</div>
+<p class="muted">The account already has a similar live billboard product, so no duplicate Stripe product was created.</p>
+<a class="btn" href="https://buy.stripe.com/28EfZh4zr29v5Ub18odwc1v">Buy Now</a>
+<a class="btn alt" href="/billboard.html">View full billboard</a>
+</div>
+</section>
+<aside class="card">
+<img class="qr" src="/qr/billboard.png" alt="QR code for DreamLedger billboard">
+<p class="muted">Scan to open this billboard surface.</p>
+</aside>
+</div>
+</main>
+</body>
+</html>
