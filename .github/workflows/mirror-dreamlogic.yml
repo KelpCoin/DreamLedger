@@ -1,0 +1,71 @@
+name: Mirror Retired DreamLogic
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '31 2 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ops/empire/EMPIRE-REGISTRY.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dreamlogic-mirror
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    if: ${{ !contains(github.event.head_commit.message, '[dreamlogic-mirror]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Clone retired DreamLogic source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/dreamlogic
+          git clone --depth 1 https://github.com/KelpCoin/DreamLogic.git /tmp/dreamlogic
+
+      - name: Replace legacy mirror
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf legacy/DreamLogic
+          mkdir -p legacy/DreamLogic
+          cp -a /tmp/dreamlogic/. legacy/DreamLogic/
+          rm -rf legacy/DreamLogic/.git
+
+      - name: Record source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA=$(git -C /tmp/dreamlogic rev-parse HEAD)
+          cat > legacy/DreamLogic/MIRROR-METADATA.json <<EOF
+          {
+            "source_repo": "KelpCoin/DreamLogic",
+            "source_commit": "$SHA",
+            "mirrored_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "status": "LEGACY_MIRROR"
+          }
+          EOF
+
+      - name: Commit mirror only when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'DreamLedger Mirror Bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add legacy/DreamLogic
+          if git diff --cached --quiet; then
+            echo 'DREAMLOGIC_MIRROR=UNCHANGED'
+            exit 0
+          fi
+          git commit -m "chore: mirror retired DreamLogic into canonical tree [dreamlogic-mirror]"
+          git push origin HEAD:main
