@@ -1,5 +1,7 @@
 name: BEC-PRIME Auto Compile DreamLedger
 
+# Production trigger: keep generated Cinema persistence gate active.
+
 on:
   workflow_dispatch:
   push:
