@@ -21,6 +21,10 @@ for (const name of targets) {
     .replace(/\bDREAMIEZ\b/g, 'DREAMMEEZ')
     .replace(/href="\/dreamiez"/g, 'href="/dreammeez"')
     .replace(/href='\/dreamiez'/g, "href='/dreammeez'");
+
+  if (name === 'index.html' && !text.includes('href="/cortex.html"')) {
+    text = text.replace('<nav class="links">', '<nav class="links"><a href="/cortex.html">Cortex</a>');
+  }
   fs.writeFileSync(file, text, 'utf8');
 }
 
@@ -28,4 +32,4 @@ const alias = path.join(PUBLIC, 'dreammeez.html');
 if (!fs.existsSync(alias)) {
   fs.writeFileSync(alias, '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/dreamiez"><link rel="canonical" href="/dreammeez"></head><body>DreamMeez</body></html>\n', 'utf8');
 }
-console.log('PASS: DreamMeez public branding patch applied.');
+console.log('PASS: DreamMeez public branding and Cortex navigation patch applied.');
