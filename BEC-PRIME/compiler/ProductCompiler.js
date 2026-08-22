@@ -13,6 +13,13 @@ const FULFILLMENT_FILE = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REG
 
 function sha256(value) { return crypto.createHash('sha256').update(value, 'utf8').digest('hex'); }
 function read(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+function priceInMajorUnits(product) {
+  const value = Number(product.price);
+  if (!Number.isFinite(value) || value < 0) throw new Error(`Invalid product price for ${product.id}`);
+  const unit = String(product.price_unit || 'major').toLowerCase();
+  if (unit === 'minor' || unit === 'cents') return value / 100;
+  return value;
+}
 
 function fulfillmentReady(product, registry) {
   const f = registry.entries[product.id];
@@ -35,10 +42,11 @@ function compile() {
 
   const offers = products.map(p => {
     const f = fulfillmentReady(p, registry);
+    const price = priceInMajorUnits(p);
     const checkoutAvailable = p.status === 'published' && p.commercial_truth?.approval_required === false && Number(p.inventory || 0) > 0 && f.ready;
     return {
       offer_id: p.id,
-      version: 'product-offer-v2',
+      version: 'product-offer-v3',
       capability_id: p.capability_id || `PRODUCT-${p.id}`,
       silo: p.silo,
       name: p.name,
@@ -50,8 +58,9 @@ function compile() {
       deliverable: f.ready ? (f.contract.template || f.contract.delivery_target || f.contract.delivery) : null,
       target_buyer: 'Buyer seeking the published product.',
       eligibility: 'Available only when payment and fulfillment prerequisites are satisfied.',
-      price: Number(p.price) / 100,
+      price,
       currency: String(p.currency || 'nzd').toUpperCase(),
+      price_unit: 'major',
       pricing_strategy: 'fixed',
       payment_adapter: 'stripe',
       checkout_route: '/api/offer-checkout/create',
@@ -68,13 +77,14 @@ function compile() {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const manifest = {
-    schema: 'BEC-PRIME/PRODUCT-OFFER-CATALOG/v2',
-    compiler: 'product-compiler-v2',
+    schema: 'BEC-PRIME/PRODUCT-OFFER-CATALOG/v3',
+    compiler: 'product-compiler-v3-major-unit-safe',
     source: 'catalog/products/*.json',
     fulfillment_registry: 'fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json',
     count: offers.length,
     checkoutable_count: offers.filter(x => x.checkout_available).length,
     source_hash: sha256(JSON.stringify(products)),
+    price_contract: 'major_units_by_default; minor/cents only when price_unit explicitly declares it',
     offers
   };
 
@@ -82,8 +92,9 @@ function compile() {
   const proof = {
     type: 'dreamledger-product-compilation-proof',
     status: 'PASS',
-    compiler: 'product-compiler-v2',
+    compiler: 'product-compiler-v3-major-unit-safe',
     source_hash: manifest.source_hash,
+    price_contract: manifest.price_contract,
     product_count: products.length,
     checkoutable_product_ids: offers.filter(x => x.checkout_available).map(x => x.offer_id),
     quarantined_published_product_ids: offers.filter(x => x.status === 'QUARANTINED_NO_FULFILLMENT').map(x => x.offer_id)
@@ -93,4 +104,4 @@ function compile() {
 }
 
 if (require.main === module) console.log(JSON.stringify(compile(), null, 2));
-module.exports = { compile };
+module.exports = { compile, priceInMajorUnits };
