@@ -1,0 +1,94 @@
+{
+  "schema": "DREAMLEDGER/PROGRESSIVE-TRANSPARENCY/v1",
+  "public_rule": "Publish what can be independently verified without exposing proprietary implementation, private demand data, credentials, private customer material, or economically sensitive secret sauce.",
+  "roles": [
+    {
+      "role_id": "PUBLIC",
+      "name": "Public Truth Layer",
+      "disclosure_class": "PUBLIC",
+      "allowed_public_outputs": [
+        "verified external primary-source events",
+        "DreamLedger verification status",
+        "public schemas and evidence definitions",
+        "aggregate deployment and economic truth status",
+        "publicly approved offers and checkout state"
+      ],
+      "protected_information": [
+        "source code not already public",
+        "private customer data",
+        "raw demand-prospect lists",
+        "credentials and secrets",
+        "proprietary scoring weights",
+        "private acquisition tactics"
+      ]
+    },
+    {
+      "role_id": "PATREON_TIER_1_SIGNAL_INGEST",
+      "name": "The Signal Ingest",
+      "price_reference": "NZ$15-20/mo",
+      "disclosure_class": "SIGNAL",
+      "allowed_public_outputs": [
+        "signal intake summaries",
+        "market data summaries",
+        "redacted opportunity themes",
+        "public methodology notes"
+      ],
+      "protected_information": [
+        "raw private sources",
+        "buyer identities",
+        "unredacted prospect lists",
+        "private source connectors",
+        "secret scoring implementation"
+      ]
+    },
+    {
+      "role_id": "PATREON_TIER_2_AUTOMATION_POD",
+      "name": "The Automation Pod",
+      "price_reference": "NZ$500-1,500/mo",
+      "disclosure_class": "INTELLIGENCE",
+      "allowed_public_outputs": [
+        "hardened signal alerts",
+        "redacted opportunity scoring",
+        "B2B templates",
+        "decision-support artifacts"
+      ],
+      "protected_information": [
+        "source code",
+        "private automation credentials",
+        "proprietary ranking weights",
+        "private customer datasets",
+        "unreleased acquisition mechanics"
+      ]
+    },
+    {
+      "role_id": "PATREON_TIER_3_SOVEREIGN_FACTORY",
+      "name": "The Sovereign Factory",
+      "price_reference": "NZ$2,500-10,000+/mo",
+      "disclosure_class": "FACTORY",
+      "allowed_public_outputs": [
+        "dedicated Sniper Loop/node outputs",
+        "custom SKU Factory outputs",
+        "audit-ready immutable ledger artifacts",
+        "customer-scoped operational evidence"
+      ],
+      "protected_information": [
+        "core secret sauce",
+        "unredacted internal architecture",
+        "shared proprietary algorithms",
+        "other customers' data",
+        "credentials and signing material"
+      ],
+      "human_approval_required": true,
+      "scale_rule": "Do not scale Tier 3 actions until the tier has a verified Paid Event."
+    }
+  ],
+  "enforcement": {
+    "default_role": "PUBLIC",
+    "fail_closed": true,
+    "no_private_ip_exposure": true,
+    "no_cross_silo_disclosure": true,
+    "economic_claims_require_evidence": true,
+    "patreon_entitlement_source": "NOT_CONNECTED",
+    "until_entitlement_connector_exists": "role access is policy-defined but not automatically granted by an unverified claim"
+  }
+}
