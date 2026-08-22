@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'BEC-PRIME/compiler/**'
+      - 'BEC-PRIME/cortex/**'
       - 'BEC-PRIME/scripts/**'
       - 'BEC-PRIME/test-vectors/**'
       - 'BEC-PRIME/package.json'
@@ -12,6 +13,7 @@ on:
   pull_request:
     paths:
       - 'BEC-PRIME/compiler/**'
+      - 'BEC-PRIME/cortex/**'
       - 'BEC-PRIME/scripts/**'
       - 'BEC-PRIME/test-vectors/**'
       - 'BEC-PRIME/package.json'
@@ -39,18 +41,30 @@ jobs:
         run: npm install
       - name: Run compiler
         run: npm run compile
+      - name: Verify leverage registry
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const r = JSON.parse(fs.readFileSync('cortex/LEVERAGE-REGISTRY-401-500.json', 'utf8'));
+          if (!Array.isArray(r.entries) || r.entries.length !== 100) throw new Error('Expected exactly 100 leverage entries');
+          if (r.entries[0].id !== 401 || r.entries[99].id !== 500) throw new Error('Expected registry IDs 401..500');
+          console.log('PASS: leverage registry 401..500');
+          NODE
       - name: Verify Pong proof surface
         run: |
           test -s compiled/website/compiler-proof/pong.html
           grep -q 'BrownEye Cortex Compiler Proof: PONG' compiled/website/compiler-proof/pong.html
           test -s data/proofs/compiler-leverage-latest.json
           grep -q '"status": "PASS"' data/proofs/compiler-leverage-latest.json
+          test -s data/proofs/leverage-registry-latest.json
+          grep -q '"count": 100' data/proofs/leverage-registry-latest.json
       - name: Verify DreamMeez branding and Cortex controls
         run: |
           test -s compiled/website/dreammeez.html
           grep -q 'DreamMeez' compiled/website/index.html
           grep -q 'href="/cortex.html"' compiled/website/index.html
           test -s compiled/website/cortex.html
+          test -s compiled/website/leverage-registry.html
       - name: Upload compiler proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -58,6 +72,8 @@ jobs:
           path: |
             BEC-PRIME/compiled/website/compiler-proof/pong.html
             BEC-PRIME/data/proofs/compiler-leverage-latest.json
+            BEC-PRIME/data/proofs/leverage-registry-latest.json
             BEC-PRIME/compiled/website/cortex.html
+            BEC-PRIME/compiled/website/leverage-registry.html
           if-no-files-found: error
           retention-days: 30
