@@ -1,0 +1,79 @@
+{
+  "schema": "BEC-PRIME/CUBE-ASSET-CAPABILITY-MANIFEST/v1",
+  "purpose": "Reusable IP capabilities that can be mounted into any isolated CUBE silo without copying silo data.",
+  "truth_rule": "A capability is reusable software. A commercial event still requires verified supply, buyer action, settled payment, fulfilment and evidence.",
+  "assets": [
+    {
+      "id": "catalog",
+      "kind": "commerce_surface",
+      "existing_paths": ["BEC-PRIME/catalog/compiled/silo-portfolio.json", "BEC-PRIME/catalog/offers/offers.json"],
+      "economic_atoms": ["catalog_view", "offer_click", "checkout_start", "paid_order"],
+      "default": true
+    },
+    {
+      "id": "cinema",
+      "kind": "media_experience",
+      "existing_paths": ["cinema.html", "scripts/verify-cinema.mjs"],
+      "economic_atoms": ["free_preview", "paid_replay", "proof_artifact"],
+      "default": true
+    },
+    {
+      "id": "auction",
+      "kind": "transaction_mechanic",
+      "existing_paths": ["BEC-PRIME/data/auctions.json", "BEC-PRIME/compiled/website/portfolio/deterministic-auction-and-silo-ticker.html"],
+      "economic_atoms": ["bid", "auction_win", "deposit", "settled_sale"],
+      "default": true
+    },
+    {
+      "id": "compiler",
+      "kind": "refinement_engine",
+      "existing_paths": ["BEC-PRIME/compiler/MTGCatalogCompiler.js"],
+      "economic_atoms": ["candidate_compile", "offer_compile", "surface_compile"],
+      "default": true
+    },
+    {
+      "id": "news-carousel",
+      "kind": "discovery_surface",
+      "existing_paths": ["BEC-PRIME/data/silo-news.json", "BEC-PRIME/compiled/website/news.json"],
+      "economic_atoms": ["signal_view", "content_click", "offer_discovery"],
+      "default": true
+    },
+    {
+      "id": "dreammeez",
+      "kind": "identity_loyalty_layer",
+      "existing_paths": ["BEC-PRIME/silos/SILO_DREAMIEZ/compiled/website/dreamiez-dashboard.html"],
+      "economic_atoms": ["identity_session", "streak", "reward_unlock", "repeat_purchase"],
+      "default": true
+    },
+    {
+      "id": "gauntlet",
+      "kind": "trust_gate",
+      "existing_paths": ["BEC-PRIME/scripts/Verify-CUBE-SiloIsolation.ps1"],
+      "economic_atoms": ["candidate_pass", "candidate_quarantine", "evidence_emit"],
+      "default": true
+    },
+    {
+      "id": "commerce-spine",
+      "kind": "settlement_layer",
+      "existing_paths": ["BEC-PRIME/routes/mvpRoutes.js"],
+      "economic_atoms": ["checkout", "payment", "fulfilment", "settlement_evidence"],
+      "default": true
+    },
+    {
+      "id": "fossil",
+      "kind": "economic_memory",
+      "existing_paths": ["BEC-PRIME/public/truth-oracle.json"],
+      "economic_atoms": ["payment_fossil", "fulfilment_fossil", "experiment_memory"],
+      "default": true
+    }
+  ],
+  "mount_policy": {
+    "mode": "reference_not_copy",
+    "silo_data_isolation": true,
+    "shared_code_allowed": true,
+    "shared_identity_allowed": true,
+    "cross_silo_inventory_forbidden": true,
+    "fabricated_inventory_forbidden": true,
+    "public_distribution_approval_gated": true
+  }
+}
