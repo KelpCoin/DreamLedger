@@ -1,0 +1,3 @@
+CI LIVE GATE PROBE
+Generated to expose PR-triggered canonical CI from current main state.
+No production code change intended.
