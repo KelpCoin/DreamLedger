@@ -2,5 +2,9 @@
   "date": "2026-08-22",
   "canonical_repo": "KelpCoin/DreamLedger",
   "economic_event_claimed": false,
-  "purpose": "Canonical Cortex release validation state"
+  "purpose": "Canonical Cortex release validation state",
+  "ci_release_requested": true,
+  "ci_release_requested_at": "2026-08-22T16:08:00+12:00",
+  "release_policy": "main is canonical; production truth requires compile, security, runtime, E0 and economic evidence",
+  "target_runtime": "Render/DreamLedger1"
 }
