@@ -1,6 +1,6 @@
 name: BEC-PRIME Auto Compile DreamLedger
 
-# Production trigger: keep generated Cinema persistence gate active.
+# Production trigger: generated public surfaces are part of the deploy contract.
 
 on:
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.14.1'
 
       - name: Install compiler dependencies
         shell: bash
@@ -53,8 +53,13 @@ jobs:
             './BEC-PRIME/compiled/website/economics/index.html',
             './BEC-PRIME/compiled/website/economics/ip-manifest.json',
             './BEC-PRIME/compiled/website/cinema.html',
+            './BEC-PRIME/compiled/website/truth-oracle.html',
+            './BEC-PRIME/compiled/website/truth-oracle.json',
+            './BEC-PRIME/compiled/website/transparency-policy.json',
             './BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json',
             './BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json',
+            './BEC-PRIME/proof/TRUTH-ORACLE-PROOF.json',
+            './BEC-PRIME/proof/TRUTH-ORACLE-SURFACE-PUBLISH-PROOF.json',
             './BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json'
           )
           foreach ($path in $required) {
@@ -90,11 +95,11 @@ jobs:
           set -euo pipefail
           git config user.name "BEC-PRIME Compiler"
           git config user.email "bec-prime@users.noreply.github.com"
-          git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/compiled/website/economics/ip-manifest.json BEC-PRIME/compiled/website/cinema.html BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/RUN-PROOFS
+          git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/compiled/website/economics/ip-manifest.json BEC-PRIME/compiled/website/cinema.html BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/proof/TRUTH-ORACLE-PROOF.json BEC-PRIME/proof/TRUTH-ORACLE-SURFACE-PUBLISH-PROOF.json BEC-PRIME/RUN-PROOFS
           if git diff --cached --quiet; then
             echo "No generated changes."
             exit 0
           fi
-          git commit -m "chore: BEC-PRIME auto-compile public Cinema artifact"
+          git commit -m "chore: persist BEC-PRIME generated public surfaces"
           git push origin HEAD:main
           echo "Generated state pushed."
