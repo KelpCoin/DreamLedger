@@ -1,5 +1,5 @@
 {
-  "schema": "CUBE/SILO-REGISTRY/v1",
+  "schema": "CUBE/SILO-REGISTRY/v2",
   "canonical": true,
   "silos": [
     {"id":"mtg","label":"Magic: The Gathering","route":"/mtg","inventory_mode":"physical","status":"active"},
@@ -7,13 +7,24 @@
     {"id":"media-music","label":"Media & Music","route":"/media-music.html","inventory_mode":"mixed","status":"active"},
     {"id":"digital-products","label":"Digital Products","route":"/digital-products.html","inventory_mode":"digital","status":"active"},
     {"id":"nz-secondhand","label":"NZ Secondhand","route":"/nz-secondhand.html","inventory_mode":"physical","status":"active"},
-    {"id":"b2b","label":"B2B Marketplace","route":"/marketplace.html","inventory_mode":"mixed","status":"active"}
+    {"id":"b2b","label":"B2B Marketplace","route":"/marketplace.html","inventory_mode":"mixed","status":"active"},
+    {"id":"electronics-appliances","label":"Electronics & Appliances","route":"/electronics.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
+    {"id":"home-garden","label":"Home & Garden","route":"/home-garden.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
+    {"id":"health-beauty","label":"Health & Beauty","route":"/health-beauty.html","inventory_mode":"mixed","status":"active","market":"NZ-AU"},
+    {"id":"pet","label":"Pet","route":"/pet.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
+    {"id":"books-stationery","label":"Books & Stationery","route":"/books-stationery.html","inventory_mode":"mixed","status":"active","market":"NZ-AU"},
+    {"id":"sports-outdoors","label":"Sports & Outdoors","route":"/sports-outdoors.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
+    {"id":"baby-kids","label":"Baby & Kids","route":"/baby-kids.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
+    {"id":"automotive","label":"Automotive","route":"/automotive.html","inventory_mode":"mixed","status":"active","market":"NZ-AU"},
+    {"id":"food-pantry","label":"Food & Pantry","route":"/food-pantry.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
+    {"id":"education-courses","label":"Education & Courses","route":"/education-courses.html","inventory_mode":"digital","status":"active","market":"NZ-AU"}
   ],
   "rules": {
     "shared_identity": true,
     "cross_silo_catalog": true,
     "silo_data_isolation": true,
     "no_fabricated_inventory": true,
-    "public_actions_approval_gated": true
+    "public_actions_approval_gated": true,
+    "new_silos_start_inventory_empty": true
   }
 }
