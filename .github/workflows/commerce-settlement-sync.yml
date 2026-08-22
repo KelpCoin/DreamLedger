@@ -36,10 +36,20 @@ jobs:
           AIRTABLE_OFFER_RECORD_ID: recv61Js6lxpCMUvZ
         run: node ops/commerce/reconcile-stripe-airtable.mjs
 
+      - name: Hash settlement proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s proof/commerce/latest-stripe-airtable-reconciliation.json
+          sha256sum proof/commerce/latest-stripe-airtable-reconciliation.json > proof/commerce/latest-stripe-airtable-reconciliation.sha256
+          cat proof/commerce/latest-stripe-airtable-reconciliation.sha256
+
       - name: Upload settlement proof
         uses: actions/upload-artifact@v4
         with:
           name: commerce-settlement-proof-${{ github.run_id }}
-          path: proof/commerce/latest-stripe-airtable-reconciliation.json
+          path: |
+            proof/commerce/latest-stripe-airtable-reconciliation.json
+            proof/commerce/latest-stripe-airtable-reconciliation.sha256
           if-no-files-found: error
           retention-days: 90
