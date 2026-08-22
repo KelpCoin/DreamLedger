@@ -22,6 +22,9 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Assert Cinema artifact is tracked
+        run: git ls-files --error-unmatch BEC-PRIME/compiled/website/cinema.html
+
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
@@ -33,6 +36,9 @@ jobs:
       - name: Compile canonical production artifact
         run: npm run compile
 
+      - name: Verify compiled Cinema artifact
+        run: test -f BEC-PRIME/compiled/website/cinema.html && grep -q 'cinema-event-v1' BEC-PRIME/compiled/website/cinema.html
+
       - name: Verify MTG compiler is wired
         run: test -f BEC-PRIME/compiled/website/mtg/index.html && grep -q 'Monte Carlo' BEC-PRIME/compiled/website/mtg/index.html && grep -q 'DreamMee' BEC-PRIME/compiled/website/mtg/index.html
 
@@ -43,12 +49,15 @@ jobs:
           set -euo pipefail
           for i in $(seq 1 30); do
             HEALTH="$(curl -fsS -o /tmp/healthz -w '%{http_code}' --max-time 10 https://dreamledger.org/healthz || true)"
+            VERSION="$(curl -fsS -o /tmp/version.json -w '%{http_code}' --max-time 10 https://dreamledger.org/version || true)"
             MTG="$(curl -fsS -o /tmp/mtg.html -w '%{http_code}' --max-time 10 https://dreamledger.org/mtg || true)"
             CINEMA="$(curl -fsS -o /tmp/cinema.html -w '%{http_code}' --max-time 10 https://dreamledger.org/cinema.html || true)"
-            if [ "$HEALTH" = "200" ] && [ "$MTG" = "200" ] && [ "$CINEMA" = "200" ] && grep -q 'Monte Carlo' /tmp/mtg.html && grep -q 'DreamMee' /tmp/mtg.html && grep -q 'cinema-event-v1' /tmp/cinema.html; then
+            DEPLOYED_SHA="$(node -e "const fs=require('fs');try{const x=JSON.parse(fs.readFileSync('/tmp/version.json','utf8'));process.stdout.write(String(x.commit||''))}catch(e){}")"
+            if [ "$HEALTH" = "200" ] && [ "$VERSION" = "200" ] && [ "$DEPLOYED_SHA" = "$EXPECTED_SHA" ] && [ "$MTG" = "200" ] && [ "$CINEMA" = "200" ] && grep -q 'Monte Carlo' /tmp/mtg.html && grep -q 'DreamMee' /tmp/mtg.html && grep -q 'cinema-event-v1' /tmp/cinema.html; then
               echo "PASS: Render production surface is live for $EXPECTED_SHA"
               break
             fi
+            echo "WAIT $i/30 health=$HEALTH version=$VERSION deployed_sha=$DEPLOYED_SHA mtg=$MTG cinema=$CINEMA expected=$EXPECTED_SHA"
             if [ "$i" = "30" ]; then
               echo "FAIL: Render production surface did not converge to the required contract."
               exit 1
@@ -63,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"status":"PASS","provider":"Render","sha":"%s","run_id":"%s","healthz":"200","mtg":"200","cinema":"200","mtg_contract":"Monte Carlo + DreamMee","cinema_contract":"cinema-event-v1"}\n' "$SHA" "$RUN_ID" > proof/render-production-gate.json
+          printf '{"status":"PASS","provider":"Render","sha":"%s","run_id":"%s","healthz":"200","version":"200","mtg":"200","cinema":"200","cinema_contract":"cinema-event-v1"}\n' "$SHA" "$RUN_ID" > proof/render-production-gate.json
           cat proof/render-production-gate.json
 
       - name: Upload production proof
