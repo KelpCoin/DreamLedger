@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { gate } = require('../compiler/LeverageGauntlet');
+const { load: loadLeverageRegistry } = require('../cortex/LeverageRegistryCompiler');
 
 (async () => {
   const root = path.join(__dirname, '..');
@@ -11,6 +12,9 @@ const { gate } = require('../compiler/LeverageGauntlet');
   const compiledPong = path.join(root, 'compiled', 'website', 'compiler-proof', 'pong.html');
   const compiledHome = path.join(root, 'compiled', 'website', 'index.html');
 
+  const leverageRegistry = loadLeverageRegistry();
+  const registryPass = leverageRegistry.entries.length === 100;
+
   fs.mkdirSync(path.dirname(compiledPong), { recursive: true });
   fs.copyFileSync(sourcePong, compiledPong);
 
@@ -18,8 +22,9 @@ const { gate } = require('../compiler/LeverageGauntlet');
   const home = await gate({ artifact: compiledHome, kind: 'html', compiler: 'BrownEyeCortex-SurfaceCompiler' });
 
   const result = {
-    schema: 'BEC-COMPILER-LEVERAGE-RUN/v1',
-    status: pong.verdict === 'PASS' && home.verdict === 'PASS' ? 'PASS' : 'FAIL',
+    schema: 'BEC-COMPILER-LEVERAGE-RUN/v2',
+    status: registryPass && pong.verdict === 'PASS' && home.verdict === 'PASS' ? 'PASS' : 'FAIL',
+    leverage_registry: { range: leverageRegistry.range, count: leverageRegistry.entries.length, verdict: registryPass ? 'PASS' : 'FAIL' },
     pong,
     homepage: home,
     generated_at: new Date().toISOString()
