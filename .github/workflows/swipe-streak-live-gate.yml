@@ -1,0 +1,71 @@
+name: Swipe Streak Live Gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: swipe-streak-live-gate
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Verify Swipe Streak surface exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s BEC-PRIME/compiled/website/swipe-streak.html
+          grep -q 'SWIPE.<br>STREAK.<br>UNLOCK.' BEC-PRIME/compiled/website/swipe-streak.html
+          grep -q '/api/swipe-streak/swipe' BEC-PRIME/compiled/website/swipe-streak.html
+          echo "PASS: Swipe Streak production surface is present at $GITHUB_SHA"
+
+      - name: Syntax gate
+        working-directory: BEC-PRIME
+        run: |
+          npm install
+          node --check start.js
+          npm run compile
+
+      - name: Live surface smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://dreamledger.org/swipe-streak.html'
+          body="$(curl --fail --silent --show-error --retry 8 --retry-delay 10 --max-time 30 "$url")"
+          printf '%s' "$body" | grep -q 'SWIPE.<br>STREAK.<br>UNLOCK.'
+          printf '%s' "$body" | grep -q 'MTG / Commander'
+          echo "PASS: $url is serving the Swipe Streak surface."
+
+      - name: Emit proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          cat > proof/SWIPE-STREAK-LIVE-GATE.json <<EOF
+          {
+            "schema": "dreamledger/swipe-streak-live-gate/v1",
+            "commit": "$GITHUB_SHA",
+            "surface": "https://dreamledger.org/swipe-streak.html",
+            "checks": ["source-present","node-syntax","compile","live-http-surface"],
+            "status": "PASS"
+          }
+          EOF
+          cat proof/SWIPE-STREAK-LIVE-GATE.json
+
+      - name: Upload proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: swipe-streak-live-gate-${{ github.sha }}
+          path: proof/SWIPE-STREAK-LIVE-GATE.json
+          if-no-files-found: error
+          retention-days: 30
