@@ -1,0 +1,30 @@
+{
+  "id": "BESPOKE-ARTISAN-EDH-DECK-001",
+  "silo": "mtg",
+  "name": "Bespoke Artisan EDH Commander Deck (100 Cards + Sideboard)",
+  "description": "One bespoke physical Commander deck built from declared MTG inventory. One available unit.",
+  "price": 38500,
+  "price_unit": "minor",
+  "currency": "nzd",
+  "inventory": 1,
+  "inventory_type": "physical",
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "success_path": "/checkout/success",
+    "cancel_path": "/mtg"
+  },
+  "commercial_truth": {
+    "approval_required": false,
+    "sellable": true,
+    "payment_surface": "stripe-payment-link",
+    "payment_link": "https://buy.stripe.com/fZuaEX3vn15r4Q74kAdwc1S",
+    "payment_link_id": "plink_1U7DdsEGgEAnUFF9l5mTK7Gk",
+    "experiment": "MTG-FIRST-ARTISAN-EDH-SALE"
+  },
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
+  },
+  "deployment_trigger": "MTG_FIRST_ARTISAN_EDH_SALE"
+}
