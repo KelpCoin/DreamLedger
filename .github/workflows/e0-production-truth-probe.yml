@@ -38,7 +38,7 @@ jobs:
           echo "source_sha=$actual"
           test "$actual" = "$GITHUB_SHA"
 
-      - name: Probe production routes
+      - name: Probe canonical production routes
         shell: bash
         run: |
           set -euo pipefail
@@ -51,36 +51,41 @@ jobs:
             printf '%s\n' "$status" > "$file.status"
           }
 
+          probe / /tmp/home.html
           probe /healthz /tmp/healthz.json
           probe /version /tmp/version.json
-          probe /board /tmp/board.html
-          probe /api/molt-beach-inventory /tmp/inventory.json
+          probe /api/offers /tmp/offers.json
+          probe /api/products /tmp/products.json
 
       - name: Verify E0 contract
         shell: bash
         run: |
           set -euo pipefail
+          home="$(cat /tmp/home.html.status)"
           health="$(cat /tmp/healthz.json.status)"
           version="$(cat /tmp/version.json.status)"
-          board="$(cat /tmp/board.html.status)"
-          inventory="$(cat /tmp/inventory.json.status)"
+          offers="$(cat /tmp/offers.json.status)"
+          products="$(cat /tmp/products.json.status)"
 
+          echo "home_http=$home"
           echo "healthz_http=$health"
           echo "version_http=$version"
-          echo "board_http=$board"
-          echo "inventory_http=$inventory"
+          echo "offers_http=$offers"
+          echo "products_http=$products"
 
+          test "$home" = "200"
           test "$health" = "200"
           test "$version" = "200"
-          test "$board" = "200"
-          test "$inventory" = "200"
+          test "$offers" = "200"
+          test "$products" = "200"
 
           python3 - <<'PY'
-          import json
-          expected = __import__('os').environ['EXPECTED_SHA']
+          import json, os
+          expected = os.environ['EXPECTED_SHA']
+
           with open('/tmp/version.json', 'r', encoding='utf-8') as f:
-              data = json.load(f)
-          deployed = data.get('commit') or data.get('sha')
+              version = json.load(f)
+          deployed = version.get('commit') or version.get('sha')
           print('deployed_sha=' + str(deployed))
           if deployed != expected:
               raise SystemExit(f'FAIL: production SHA {deployed!r} != workflow SHA {expected!r}')
@@ -90,12 +95,17 @@ jobs:
           if health.get('status') != 'ok':
               raise SystemExit('FAIL: /healthz did not return {status: ok}')
 
-          with open('/tmp/inventory.json', 'r', encoding='utf-8') as f:
-              inventory = json.load(f)
-          if not isinstance(inventory, (list, dict)):
-              raise SystemExit('FAIL: inventory response was not JSON object/list')
+          with open('/tmp/offers.json', 'r', encoding='utf-8') as f:
+              offers = json.load(f)
+          if not isinstance(offers, dict) or not isinstance(offers.get('offers'), list):
+              raise SystemExit('FAIL: /api/offers did not return an offers array')
 
-          print('PASS: E0 contract is satisfied')
+          with open('/tmp/products.json', 'r', encoding='utf-8') as f:
+              products = json.load(f)
+          if not isinstance(products, dict) or not isinstance(products.get('products'), list):
+              raise SystemExit('FAIL: /api/products did not return a products array')
+
+          print('PASS: canonical E0 contract is satisfied')
           PY
 
       - name: Emit E0 proof artifact
@@ -112,13 +122,14 @@ jobs:
               except Exception:
                   return '0'
           statuses = {
+              'home_http': status('/tmp/home.html.status'),
               'healthz_http': status('/tmp/healthz.json.status'),
               'version_http': status('/tmp/version.json.status'),
-              'board_http': status('/tmp/board.html.status'),
-              'inventory_http': status('/tmp/inventory.json.status'),
+              'offers_http': status('/tmp/offers.json.status'),
+              'products_http': status('/tmp/products.json.status'),
           }
           proof = {
-              'schema_version': 'BEC-E0-TRUTH-PROBE-2.0',
+              'schema_version': 'BEC-E0-TRUTH-PROBE-3.0',
               'workflow': os.environ.get('GITHUB_WORKFLOW'),
               'run_id': os.environ.get('GITHUB_RUN_ID'),
               'source_sha': os.environ.get('GITHUB_SHA'),
