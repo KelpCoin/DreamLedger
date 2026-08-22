@@ -1,0 +1,18 @@
+{
+  "schema": "dreamledger/swipe-streak-empire-execution/v1",
+  "timestamp_utc": "2026-08-22T00:00:00Z",
+  "scope": "multi-silo empire",
+  "first_silo": "MTG",
+  "mtg_is_end_game": false,
+  "actions": [
+    "published a standalone Swipe Streak production surface",
+    "added a main-branch CI live gate",
+    "added source, compile, live HTTP and proof checks"
+  ],
+  "source_commit": "315dc9c3940d31be58e5e497aaa399e1244e9610",
+  "ci_gate_commit": "8553ee6ad2b1f0eb99c2f4bcdc4f7229a2312bf6",
+  "live_surface": "https://dreamledger.org/swipe-streak.html",
+  "live_verification": "PENDING_DEPLOYMENT",
+  "approval_boundary": "No public social posting or unsolicited outreach performed",
+  "status": "SHIPPED_TO_MAIN_PENDING_PRODUCTION_VERIFICATION"
+}
