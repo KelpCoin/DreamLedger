@@ -1,9 +1,6 @@
 name: Vercel Static Storefront
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       release:
@@ -34,14 +31,10 @@ jobs:
         id: release
         env:
           INPUT_SHA: ${{ inputs.release_sha }}
-          PUSH_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          if [ -n "$INPUT_SHA" ]; then
-            echo "sha=$INPUT_SHA" >> "$GITHUB_OUTPUT"
-          else
-            echo "sha=$PUSH_SHA" >> "$GITHUB_OUTPUT"
-          fi
+          test -n "$INPUT_SHA"
+          echo "sha=$INPUT_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Checkout exact selected commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -54,7 +47,6 @@ jobs:
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
-          test -n "$RELEASE_SHA"
           ACTUAL_SHA="$(git rev-parse HEAD)"
           test "$ACTUAL_SHA" = "$RELEASE_SHA"
           echo "RELEASE_SHA=$RELEASE_SHA"
