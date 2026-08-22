@@ -1,0 +1,3 @@
+Canonical CI live-trigger marker.
+Purpose: force the main-branch release workflows to execute after the canonical commercial and release-gate repairs.
+Expected path: GitHub Actions -> verify -> Render primary -> fallback artifacts -> proof.
