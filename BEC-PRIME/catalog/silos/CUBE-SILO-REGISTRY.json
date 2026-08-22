@@ -1,0 +1,19 @@
+{
+  "schema": "CUBE/SILO-REGISTRY/v1",
+  "canonical": true,
+  "silos": [
+    {"id":"mtg","label":"Magic: The Gathering","route":"/mtg","inventory_mode":"physical","status":"active"},
+    {"id":"dreammeez","label":"DreamMeez","route":"/dreammeez","inventory_mode":"digital","status":"active"},
+    {"id":"media-music","label":"Media & Music","route":"/media-music.html","inventory_mode":"mixed","status":"active"},
+    {"id":"digital-products","label":"Digital Products","route":"/digital-products.html","inventory_mode":"digital","status":"active"},
+    {"id":"nz-secondhand","label":"NZ Secondhand","route":"/nz-secondhand.html","inventory_mode":"physical","status":"active"},
+    {"id":"b2b","label":"B2B Marketplace","route":"/marketplace.html","inventory_mode":"mixed","status":"active"}
+  ],
+  "rules": {
+    "shared_identity": true,
+    "cross_silo_catalog": true,
+    "silo_data_isolation": true,
+    "no_fabricated_inventory": true,
+    "public_actions_approval_gated": true
+  }
+}
