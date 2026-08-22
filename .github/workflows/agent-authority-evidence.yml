@@ -1,0 +1,37 @@
+name: Agent Authority Evidence
+
+on:
+  push:
+    paths:
+      - 'BEC-PRIME/runtime/AgentAuthority.js'
+      - 'BEC-PRIME/runtime/Ledger.js'
+      - 'BEC-PRIME/runtime/TruthOracle.js'
+      - 'BEC-PRIME/runtime/ControlPlane.js'
+      - 'BEC-PRIME/scripts/test-agent-authority-evidence.js'
+      - '.github/workflows/agent-authority-evidence.yml'
+  workflow_dispatch:
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node syntax check
+        run: |
+          node --check runtime/AgentAuthority.js
+          node --check runtime/ControlPlane.js
+          node --check runtime/TruthOracle.js
+          node --check scripts/test-agent-authority-evidence.js
+
+      - name: Run authority ceiling evidence gauntlet
+        run: node scripts/test-agent-authority-evidence.js
+
+      - name: Economic truth gate
+        run: |
+          node scripts/test-agent-authority-evidence.js > /tmp/authority-result.json
+          node -e "const r=require('/tmp/authority-result.json'); if(r.sale_settled!==false || r.economic_proof!==false || r.revenue!==false) process.exit(1); console.log('Economic truth gate PASS: no revenue claimed.');"
