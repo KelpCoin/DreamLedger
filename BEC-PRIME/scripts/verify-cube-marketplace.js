@@ -1,0 +1,8 @@
+'use strict';
+const fs=require('fs');const path=require('path');const ROOT=path.join(__dirname,'..');
+const required=['catalog/silos/CUBE-SILO-REGISTRY.json','docs/cube-silo-registry-v1.md','docs/CUBE-B2B-MARKETPLACE-V1.md','docs/dreammeez-retention-economy-v1.md','compiled/website/marketplace.html','compiled/website/media-music.html','compiled/website/digital-products.html','compiled/website/nz-secondhand.html','routes/marketplace.js'];
+const failures=[];for(const rel of required){if(!fs.existsSync(path.join(ROOT,rel)))failures.push('MISSING:'+rel);}
+const registry=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog/silos/CUBE-SILO-REGISTRY.json'),'utf8'));for(const id of ['mtg','dreammeez','media-music','digital-products','nz-secondhand','b2b'])if(!registry.silos.some(x=>x.id===id))failures.push('MISSING_SILO:'+id);
+const routes=fs.readFileSync(path.join(ROOT,'routes/marketplace.js'),'utf8');for(const token of ['/marketplace.html','/media-music.html','/digital-products.html','/nz-secondhand.html','/api/cube/silos','/api/cube/marketplace'])if(!routes.includes(token))failures.push('MISSING_ROUTE:'+token);
+const server=fs.readFileSync(path.join(ROOT,'server.js'),'utf8');if(!server.includes("marketplaceRoutes=require('./routes/marketplace')"))failures.push('MARKETPLACE_ROUTER_NOT_WIRED');
+const result={schema:'CUBE/B2B-MARKETPLACE-VERIFY/v1',status:failures.length?'FAIL':'PASS',silos:registry.silos.map(x=>x.id),required_files:required.length,failures};fs.writeFileSync(path.join(ROOT,'PROOF-CUBE-MARKETPLACE.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));process.exit(failures.length?1:0);
