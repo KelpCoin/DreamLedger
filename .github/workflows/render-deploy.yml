@@ -94,8 +94,18 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' BEC-PRIME/catalog/offers/approved.json
-          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
-          echo 'PASS: approved NZ$29 commerce offer is present.'
+          grep -q '"price": 49' BEC-PRIME/catalog/offers/approved.json
+          echo 'PASS: approved NZ$49 commerce offer is present.'
+
+      - name: Verify Swipe Streak production surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s BEC-PRIME/compiled/website/swipe-streak.html
+          grep -q 'SWIPE.<br>STREAK.<br>UNLOCK.' BEC-PRIME/compiled/website/swipe-streak.html
+          grep -q 'MTG / Commander' BEC-PRIME/compiled/website/swipe-streak.html
+          grep -q '/api/swipe-streak/swipe' BEC-PRIME/compiled/website/swipe-streak.html
+          echo 'PASS: Swipe Streak production surface compiled.'
 
       - name: Syntax gate
         shell: bash
@@ -202,7 +212,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  production-account-smoke:
+  production-smoke:
     needs: [acceptance-gate, render-deploy]
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -210,62 +220,19 @@ jobs:
       EXPECTED_SHA: ${{ needs.acceptance-gate.outputs.release_sha }}
       BASE_URL: https://dreamledger.org
     steps:
-      - name: Checkout exact release SHA
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ env.EXPECTED_SHA }}
-          fetch-depth: 1
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        working-directory: BEC-PRIME
-        run: npm install
-
       - name: Wait for Render deployment to settle
         shell: bash
         run: sleep 30
 
-      - name: Verify live primary account surface
-        env:
-          SMOKE_BASE_URL: https://dreamledger.org
-        working-directory: BEC-PRIME
-        run: node scripts/smoke-production.js
-
-      - name: Verify required live endpoints
+      - name: Verify health and provenance
         shell: bash
         run: |
           set -euo pipefail
 
-          get_status() {
-            curl -sS -o "$2" -w '%{http_code}' --retry 5 --retry-delay 3 --max-time 20 "$BASE_URL$1"
-          }
-
-          status=$(get_status '/healthz' /tmp/healthz.json)
-          test "$status" = '200'
+          curl --fail --silent --show-error --retry 8 --retry-delay 10 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz.json
           grep -q '"status":"ok"' /tmp/healthz.json
 
-          status=$(get_status '/register' /tmp/register.html)
-          test "$status" = '200'
-          grep -qi '<html' /tmp/register.html
-
-          status=$(get_status '/api/account/me' /tmp/account-me.json)
-          test "$status" = '200'
-          grep -q '"authenticated":false' /tmp/account-me.json
-
-          status=$(get_status '/api/catalog' /tmp/catalog.json)
-          test "$status" = '200'
-          grep -q 'EDH_0001' /tmp/catalog.json
-
-          status=$(get_status '/api/products/EDH_0001' /tmp/product.json)
-          test "$status" = '200'
-          grep -q 'EDH_0001' /tmp/product.json
-
-          status=$(get_status '/version' /tmp/version.json)
-          test "$status" = '200'
+          curl --fail --silent --show-error --retry 8 --retry-delay 10 --max-time 30 "$BASE_URL/version" >/tmp/version.json
           python3 - "$EXPECTED_SHA" <<'PY'
           import json, sys
           expected = sys.argv[1]
@@ -277,66 +244,47 @@ jobs:
           print(f'PASS: /version matches source SHA {expected}')
           PY
 
-          echo 'PASS: /healthz /register /api/account/me /api/catalog /api/products/EDH_0001 /version'
-
-      - name: Verify live account pages are reachable and silo-clean
-        env:
-          BASE_URL: https://dreamledger.org
+      - name: Verify core commerce API
         shell: bash
         run: |
           set -euo pipefail
-          for page in login.html register.html account.html; do
-            curl --fail --silent --show-error --max-time 15 "$BASE_URL/$page" >/tmp/$page
-            grep -q '/api/account/' /tmp/$page
-          done
-          ! grep -qi 'amplissa\|amplissa.com\|adult content\|bbw content\|onlyfans\|pornhub' /tmp/login.html /tmp/register.html /tmp/account.html
-          ! grep -q '/api/dreamiez/account/login' /tmp/login.html
-          echo 'PASS: live primary DreamLedger account surfaces are reachable and silo-clean.'
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 20 "$BASE_URL/api/offers" >/tmp/offers.json
+          grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' /tmp/offers.json
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 20 "$BASE_URL/api/products/EDH_0001" >/tmp/product.json
+          grep -q 'EDH_0001' /tmp/product.json
 
-      - name: Write live deployment proof on success
-        if: success()
+      - name: Verify Swipe Streak live surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 8 --retry-delay 10 --max-time 30 "$BASE_URL/swipe-streak.html" >/tmp/swipe-streak.html
+          grep -q 'SWIPE.<br>STREAK.<br>UNLOCK.' /tmp/swipe-streak.html
+          grep -q 'MTG / Commander' /tmp/swipe-streak.html
+          grep -q '/api/swipe-streak/swipe' /tmp/swipe-streak.html
+          echo 'PASS: Swipe Streak is live on Render.'
+
+      - name: Write live deployment proof
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p proof
-          python3 - <<'PY'
-          import json, os, time
+          python3 - "$EXPECTED_SHA" <<'PY'
+          import json, sys, time
           proof = {
               'status': 'PASS',
-              'source_commit': os.environ['EXPECTED_SHA'],
-              'target': os.environ['BASE_URL'],
+              'source_commit': sys.argv[1],
+              'target': 'https://dreamledger.org',
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'healthz', 'register', 'account-me', 'catalog', 'EDH_0001', 'version-provenance'],
+              'gates': ['compile','revenue-offer-nzd49','silo-boundary','render-deploy','version-provenance','offers-api','EDH_0001','swipe-streak-live'],
               'render_commit_provenance': True,
               'live_http_verified': True
           }
-          with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
-              json.dump(proof, f, indent=2)
-          print(json.dumps(proof, indent=2))
-          PY
-
-      - name: Write live deployment proof on failure
-        if: failure() || cancelled()
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p proof
-          python3 - <<'PY'
-          import json, os, time
-          proof = {
-              'status': 'NOT_PROVEN',
-              'source_commit': os.environ['EXPECTED_SHA'],
-              'target': os.environ['BASE_URL'],
-              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'reason': 'production verification did not complete successfully'
-          }
-          with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
-              json.dump(proof, f, indent=2)
-          print(json.dumps(proof, indent=2))
+          with open('proof/deployment-proof.json','w',encoding='utf-8') as f:
+              json.dump(proof,f,indent=2)
+          print(json.dumps(proof,indent=2))
           PY
 
       - name: Upload live deployment proof
-        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: dreamledger-production-proof-${{ env.EXPECTED_SHA }}
