@@ -1,0 +1,84 @@
+name: Empire Health
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ops/empire/**'
+      - 'BEC-PRIME/catalog/**'
+      - 'BEC-PRIME/scripts/patch-featured-offer.js'
+      - '.github/workflows/empire-health.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  registry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate empire registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "const x=require('./ops/empire/EMPIRE-REGISTRY.json'); if(x.canonical_repo!=='KelpCoin/DreamLedger') process.exit(2); if(!x.silos.DREAMLEDGER) process.exit(3); if(!x.silos.DREAMLOGIC) process.exit(4); console.log('EMPIRE_REGISTRY=PASS')"
+      - name: Validate canonical offer
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='BEC-PRIME/catalog/offers/approved.json';
+          const x=JSON.parse(fs.readFileSync(p,'utf8'));
+          const dl=x.approved.filter(o=>o.silo==='dreamledger');
+          if(dl.length!==1) throw new Error('Expected exactly one DreamLedger approved offer');
+          const o=dl[0];
+          if(Number(o.price)!==49 || o.currency!=='NZD') throw new Error('Canonical DreamLedger offer must be NZD 49');
+          if(o.payment_link_status!=='ACTIVE_LIVEMODE') throw new Error('Canonical payment link is not active livemode');
+          console.log('CANONICAL_OFFER=PASS');
+          NODE
+      - name: Validate external portfolio references
+        shell: bash
+        run: |
+          set -euo pipefail
+          for repo in "KelpCoin/DreamLedger" "KelpCoin/DreamLogic" "KelpCoin/BrownEye-CUBE" "KelpCoin/mtg-furnace-render" "KelpCoin/Happyhomarid" "KelpCoin/dreamiez-oracle" "KelpCoin/carousel-catalog" "KelpCoin/pulse-catalog"; do
+            curl -fsS "https://api.github.com/repos/$repo" >/dev/null
+            echo "REPO_OK $repo"
+          done
+      - name: Write health proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof/empire
+          node - <<'NODE'
+          const fs=require('fs');
+          const r=require('./ops/empire/EMPIRE-REGISTRY.json');
+          const x={
+            schema:'BEC-PRIME/EMPIRE-HEALTH/v1',
+            timestamp:new Date().toISOString(),
+            canonical_repo:r.canonical_repo,
+            silos:Object.keys(r.silos),
+            economic_rule:r.economic_rule,
+            status:'PASS'
+          };
+          fs.writeFileSync('proof/empire/EMPIRE-HEALTH.json',JSON.stringify(x,null,2)+'\n');
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: empire-health-${{ github.sha }}
+          path: proof/empire/EMPIRE-HEALTH.json
+
+  dreamlogic-mirror-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate DreamLogic mirror policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f ops/empire/EMPIRE-REGISTRY.json
+          grep -q 'legacy/DreamLogic' ops/empire/EMPIRE-REGISTRY.json
+          echo 'DREAMLOGIC_MIRROR_POLICY=PASS'
