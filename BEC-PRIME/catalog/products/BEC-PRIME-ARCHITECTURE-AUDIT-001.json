@@ -2,32 +2,33 @@
   "id": "BEC-PRIME-ARCHITECTURE-AUDIT-001",
   "silo": "commerce",
   "name": "Agentic Commerce Readiness Audit",
-  "description": "A one-page practical diagnostic of execution, cost, verification, and sovereignty risks in an AI-enabled system.",
+  "description": "Archived legacy offer. Retained for provenance only and not publicly checkoutable.",
   "price": 49,
   "price_unit": "major",
   "currency": "nzd",
-  "inventory": 100,
-  "status": "published",
+  "inventory": 0,
+  "status": "archived",
   "checkout": {
-    "mode": "payment",
-    "success_path": "/checkout/success",
+    "mode": "disabled",
+    "success_path": "/",
     "cancel_path": "/"
   },
   "commercial_truth": {
-    "experiment": "BEC-PRIME-FIRST-SALE-001",
-    "approval_required": false,
-    "approval_source": "operator-approved GitHub commit",
-    "activation_gate": "CHECKOUT_VERIFIED",
-    "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/8x24gz1nfbK5fuL4kAdwc1R",
-    "payment_link_id": "plink_1U74zVEGgEAnUFF9UEBUloaW"
+    "approval_required": true,
+    "sellable": false,
+    "reason": "Superseded by canonical NZ$29 Commander Deck Diagnostic for the first-sale experiment.",
+    "payment_surface": "archived",
+    "payment_link": null,
+    "stripe_product_id": null,
+    "stripe_price_id": null,
+    "payment_link_id": null
   },
   "delivery": {
     "type": "digital_report",
-    "target": "bec-prime-architecture-audit"
+    "target": "archived"
   },
   "evidence": {
-    "status": "awaiting_first_payment",
+    "status": "archived",
     "transaction_id": null
   },
   "execution_atom": "BEC-PRIME-FIRST-SALE-001"
