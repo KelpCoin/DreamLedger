@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          FILES=$(git ls-files \
+          mapfile -d '' FILES < <(git ls-files -z \
             ':!docs/**' \
             ':!BEC-PRIME/PROOF-*.json' \
             ':!BEC-PRIME/scripts/Verify-CompilerTruth.ps1' \
@@ -50,9 +50,12 @@ jobs:
             ':!scripts/Verify-Registry.ps1' \
             ':!scripts/OfferCompiler.js' \
             ':!.github/workflows/security-baseline.yml')
-          if printf '%s\n' "$FILES" | xargs -r grep -nE 'sk_(live|test)_[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|xox[baprs]-[A-Za-z0-9-]{20,}'; then
-            echo 'SECRET_PATTERN_FOUND'
-            exit 1
+          if ((${#FILES[@]} > 0)); then
+            printf '%s' "${FILES[@]}" | xargs -0 grep -nE 'sk_(live|test)_[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|xox[baprs]-[A-Za-z0-9-]{20,}'
+            if [ $? -eq 0 ]; then
+              echo 'SECRET_PATTERN_FOUND'
+              exit 1
+            fi
           fi
           echo 'SECRET_PATTERN_SCAN=PASS'
 
