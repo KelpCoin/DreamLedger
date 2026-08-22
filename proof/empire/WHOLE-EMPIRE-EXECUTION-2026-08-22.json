@@ -1,0 +1,34 @@
+{
+  "schema": "BEC-PRIME/WHOLE-EMPIRE-EXECUTION/v1",
+  "timestamp": "2026-08-22T16:34:00+12:00",
+  "canonical_repo": "KelpCoin/DreamLedger",
+  "changes": {
+    "canonical_offer": "NZD 49 Agentic Commerce Readiness Audit aligned with ACTIVE_LIVEMODE Stripe rail",
+    "featured_offer_gate": "updated to require NZD 49 and ACTIVE_LIVEMODE",
+    "empire_registry": "created at ops/empire/EMPIRE-REGISTRY.json",
+    "empire_health_workflow": "created at .github/workflows/empire-health.yml",
+    "dreamlogic_mirror_workflow": "created at .github/workflows/mirror-dreamlogic.yml",
+    "stripe_webhook_v3": "deployed with environment-backed signing secret and fail-closed behavior"
+  },
+  "portfolio": [
+    "DreamLedger",
+    "DreamLogic",
+    "BrownEye-CUBE",
+    "mtg-furnace-render",
+    "Happyhomarid",
+    "dreamiez-oracle",
+    "carousel-catalog",
+    "pulse-catalog",
+    "render-ingestor",
+    "safehub"
+  ],
+  "economic_truth": {
+    "historical_real_payment": "NZD 5 verified previously",
+    "current_new_revenue_observed": 0,
+    "dreamledger_orders": 0,
+    "first_payment_proofs": 0,
+    "processed_events": 0,
+    "jobs": 0
+  },
+  "hard_gate": "Do not declare the empire revenue-producing until a new settled payment produces durable proof."
+}
