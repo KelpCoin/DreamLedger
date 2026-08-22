@@ -1,0 +1,47 @@
+{
+  "schema_version": "truth-oracle-v1",
+  "title": "DreamLedger Truth Oracle",
+  "description": "Public registry of agentic commerce events with explicit evidence status. External events are never presented as DreamLedger-verified ledger events unless independently proven by DreamLedger evidence.",
+  "jurisdiction": "NZ",
+  "updated_at": "2026-08-23T00:00:00Z",
+  "verification_policy": {
+    "external_primary_source_verified": "A primary source reports the event. DreamLedger has not independently cryptographically verified the underlying payment.",
+    "dreamledger_verified": "DreamLedger possesses a verified economic event and tamper-evident ledger artifact.",
+    "reported_unverified": "A public report exists but primary evidence has not been established.",
+    "disputed": "Evidence conflicts or the event cannot currently be verified."
+  },
+  "events": [
+    {
+      "event_id": "NZ-AGENTIC-2026-0001",
+      "event_date": "2026-02-17",
+      "country": "NZ",
+      "event_type": "AUTHENTICATED_AGENTIC_TRANSACTION",
+      "verification_status": "external_primary_source_verified",
+      "issuer_or_rail": "Mastercard Agent Pay",
+      "issuer_partner": "Westpac New Zealand",
+      "merchant": "Event Cinemas",
+      "description": "Mastercard reported New Zealand's first fully authenticated agentic transaction, using a Westpac-issued debit card to purchase cinema tickets with cardholder consent.",
+      "agent_identified_by_source": true,
+      "amount": null,
+      "currency": null,
+      "dreamledger_artifact": null,
+      "primary_source": "https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-completes-new-zealands-first-authenticated-agentic-transactions-with-westpac-bringing-trust-transparency-and-security-to-ai-powered-commerce/"
+    },
+    {
+      "event_id": "NZ-AGENTIC-2026-0002",
+      "event_date": "2026-02-17",
+      "country": "NZ",
+      "event_type": "AUTHENTICATED_AGENTIC_TRANSACTION",
+      "verification_status": "external_primary_source_verified",
+      "issuer_or_rail": "Mastercard Agent Pay",
+      "issuer_partner": "Westpac New Zealand",
+      "merchant": "QT Hotels & Resorts",
+      "description": "Mastercard reported a separate authenticated agentic transaction booking accommodation in Queenstown, processed through IPSI and completed using Maincode's Matilda model.",
+      "agent_identified_by_source": true,
+      "amount": null,
+      "currency": null,
+      "dreamledger_artifact": null,
+      "primary_source": "https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-completes-new-zealands-first-authenticated-agentic-transactions-with-westpac-bringing-trust-transparency-and-security-to-ai-powered-commerce/"
+    }
+  ]
+}
