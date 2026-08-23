@@ -19,36 +19,23 @@ if (!fs.existsSync(productPath)) throw new Error(`FEATURED_OFFER_GATE_FAILED: pr
 const product = JSON.parse(fs.readFileSync(productPath, 'utf8'));
 if (product.id !== featured.product_id) throw new Error('FEATURED_OFFER_GATE_FAILED: product identity mismatch');
 if (product.silo !== featured.silo) throw new Error('FEATURED_OFFER_GATE_FAILED: silo mismatch');
-if (Number(product.price) !== Number(featured.price)) throw new Error(`FEATURED_OFFER_GATE_FAILED: product price ${product.price} != featured price ${featured.price}`);
+if (Number(product.price) !== Number(featured.price)) throw new Error(`FEATURED_OFFER_GATE_FAILED: product price ${product.price} != featured ${featured.price}`);
 if (product.currency !== String(featured.currency).toLowerCase()) throw new Error('FEATURED_OFFER_GATE_FAILED: product currency mismatch');
 if (product.commercial_truth && product.commercial_truth.payment_link !== featured.payment_link_url) throw new Error('FEATURED_OFFER_GATE_FAILED: product payment link mismatch');
 
-let html = fs.readFileSync(INDEX, 'utf8');
-const startMarker = '<div class="featured"><div class="eyebrow">Start here</div>';
-const endMarker = '</div></aside></section>';
-const start = html.indexOf(startMarker);
-const end = start >= 0 ? html.indexOf(endMarker, start) : -1;
-if (start < 0 || end < 0) throw new Error('FEATURED_OFFER_GATE_FAILED: homepage featured block boundaries not found');
-
-const description = String(product.description || 'A focused written Commander deck diagnostic.').replace(/[&<>\"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
-const name = String(featured.name).replace(/[&<>\"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
-const price = Number(featured.price).toFixed(0);
-const replacement = `<div class="featured"><div class="eyebrow">Start here</div><h2>${name}</h2><p>${description}</p><div class="featured-price">NZD ${price} <small>one-time</small></div><a class="btn gold" id="featured-buy" href="${featured.payment_link_url}" target="_blank" rel="noopener">Buy the diagnostic</a><div class="trust-row"><div class="trust"><b>Approved</b><span>Operator approved</span></div><div class="trust"><b>NZD ${price}</b><span>Fixed price</span></div><div class="trust"><b>Live checkout</b><span>Stripe livemode</span></div></div></div>`;
-
-html = html.slice(0, start) + replacement + html.slice(end);
-fs.writeFileSync(INDEX, html, 'utf8');
-
-const verify = fs.readFileSync(INDEX, 'utf8');
-if (!verify.includes(`>${name}</h2>`)) throw new Error('FEATURED_OFFER_GATE_FAILED: featured name missing');
-if (!verify.includes(`NZD ${price} <small>one-time</small>`)) throw new Error('FEATURED_OFFER_GATE_FAILED: featured price missing');
-if (!verify.includes(`href="${featured.payment_link_url}"`)) throw new Error('FEATURED_OFFER_GATE_FAILED: featured payment link missing');
+const html = fs.readFileSync(INDEX, 'utf8');
+const marker = `content="${featured.product_id}"`;
+if (!html.includes(marker)) throw new Error('FEATURED_OFFER_GATE_FAILED: canonical product marker missing from catalog front door');
+if (!html.toLowerCase().includes('digital goods')) throw new Error('FEATURED_OFFER_GATE_FAILED: digital goods rail missing');
+if (!html.toLowerCase().includes('mtg')) throw new Error('FEATURED_OFFER_GATE_FAILED: MTG lane missing');
 
 console.log(JSON.stringify({
   status: 'PASS',
   featured_offer_id: featured.offer_id,
   product_id: featured.product_id,
+  sku: featured.sku,
   silo: featured.silo,
   price_nzd: Number(featured.price),
   payment_link_status: featured.payment_link_status,
-  compiled_index: INDEX
+  placement: 'digital-goods-rail + MTG silo'
 }, null, 2));
