@@ -7,7 +7,7 @@ const PUBLIC = path.join(ROOT, 'compiled', 'website');
 const PRODUCT_CATALOG = path.join(ROOT, 'catalog', 'products');
 const billboard = require('../routes/billboard');
 const original = http.createServer;
-const EXCLUDED_ROUTES = new Set(['/dreamiez','/dreammeez']);
+const EXCLUDED_ROUTES = new Set(['/dreamiez']);
 const EXCLUDED_SILOS = new Set(['SILO_DREAMIEZ','dreamiez','SILO_CINEMA']);
 function safePublicProductFiles(){
   if(!fs.existsSync(PRODUCT_CATALOG)) return [];
@@ -17,7 +17,7 @@ function safePublicProductFiles(){
 }
 function isExcludedPublicRoute(route){
   const value=String(route||'').split('?')[0].toLowerCase();
-  return EXCLUDED_ROUTES.has(value)||value.includes('/dreamiez')||value.includes('/dreammeez');
+  return EXCLUDED_ROUTES.has(value)||value.includes('/dreamiez');
 }
 function htmlFile(route){
   const map={
@@ -27,6 +27,8 @@ function htmlFile(route){
     '/cinema':'../../cinema.html',
     '/cinema/':'../../cinema.html',
     '/cinema.html':'../../cinema.html',
+    '/dreammeez':'avatar.html',
+    '/dreammeez/':'avatar.html',
     '/billboard':'billboard.html',
     '/billboard/':'billboard.html',
     '/billboard-review':'billboard-review.html',
