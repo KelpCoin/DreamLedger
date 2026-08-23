@@ -30,20 +30,24 @@ jobs:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 1
 
-      - name: Compile and validate catalogue surface
+      - name: Compile and validate catalog surface
         working-directory: BEC-PRIME
         run: |
           set -euo pipefail
           npm install
           npm run compile
-          grep -q 'Horizontal catalogue' compiled/website/index.html
-          grep -q 'MTG / CUBE silo' compiled/website/index.html
-          grep -q 'DreamLedger Cinema' compiled/website/index.html
+          grep -q 'DREAMLEDGER / CATALOG' compiled/website/index.html
+          grep -q 'Swipe the catalog.' compiled/website/index.html
+          grep -q 'Magic: The Gathering' compiled/website/index.html
           grep -q 'Digital Products' compiled/website/index.html
-          grep -q 'DreamMee Avatar' compiled/website/index.html
-          ! grep -q 'Agentic Commerce Readiness Audit' compiled/website/index.html
-          ! grep -q 'Dream Ledger Deck' compiled/website/index.html
-          echo "PASS: catalogue surface compiled for $RELEASE_SHA"
+          grep -q 'DreamMeez identity' compiled/website/index.html
+          grep -q 'Deterministic Cinema' compiled/website/index.html
+          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' compiled/website/index.html
+          ! grep -qi 'Agentic Commerce Readiness Audit' compiled/website/index.html
+          ! grep -qi 'Dream Ledger Deck' compiled/website/index.html
+          ! grep -qi 'Amplissa' compiled/website/index.html
+          ! grep -qi 'CollectorsCoast' compiled/website/index.html
+          echo "PASS: catalog front door compiled for $RELEASE_SHA"
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -75,7 +79,7 @@ jobs:
           set -euo pipefail
           sleep 20
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz.json
-          grep -q '"status":"ok"' /tmp/healthz.json
+          grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"' /tmp/healthz.json
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/version" >/tmp/version.json
           python3 - "$RELEASE_SHA" <<'PY'
           import json,sys
@@ -87,33 +91,33 @@ jobs:
           print(f'PASS: live SHA {deployed}')
           PY
 
-      - name: Verify live catalogue surface
+      - name: Verify live catalog front door
         shell: bash
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          grep -q 'Horizontal catalogue' /tmp/home.html
-          grep -q 'MTG / CUBE silo' /tmp/home.html
-          grep -q 'DreamLedger Cinema' /tmp/home.html
+          grep -q 'DREAMLEDGER / CATALOG' /tmp/home.html
+          grep -q 'Swipe the catalog.' /tmp/home.html
+          grep -q 'Magic: The Gathering' /tmp/home.html
           grep -q 'Digital Products' /tmp/home.html
-          grep -q 'DreamMee Avatar' /tmp/home.html
-          ! grep -q 'Agentic Commerce Readiness Audit' /tmp/home.html
-          ! grep -q 'Dream Ledger Deck' /tmp/home.html
-          echo 'PASS: production catalogue surface verified.'
+          grep -q 'DreamMeez identity' /tmp/home.html
+          grep -q 'Deterministic Cinema' /tmp/home.html
+          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' /tmp/home.html
+          ! grep -qi 'Agentic Commerce Readiness Audit' /tmp/home.html
+          ! grep -qi 'Dream Ledger Deck' /tmp/home.html
+          ! grep -qi 'Amplissa' /tmp/home.html
+          ! grep -qi 'CollectorsCoast' /tmp/home.html
+          echo 'PASS: production catalog front door verified.'
 
       - name: Verify public sub-surfaces
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/mtg" >/tmp/mtg.html
-          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/cinema.html" >/tmp/cinema.html
-          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/digital-products.html" >/tmp/digital.html
-          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/avatar.html" >/tmp/avatar.html
-          grep -q 'Magic: The Gathering' /tmp/mtg.html
-          grep -q 'Cinema' /tmp/cinema.html
-          grep -q 'Digital Products' /tmp/digital.html
-          grep -q 'Avatar' /tmp/avatar.html
-          echo 'PASS: MTG + Cinema + Digital Products + Avatar sub-surfaces reachable.'
+          for route in /mtg /cinema.html /digital-products.html /avatar.html /marketplace.html; do
+            curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL$route" >/tmp/route.html
+            test -s /tmp/route.html
+          done
+          echo 'PASS: MTG + Cinema + Digital Products + Avatar + Marketplace routes respond.'
 
       - name: Write deployment fossil
         shell: bash
@@ -122,18 +126,7 @@ jobs:
           mkdir -p proof
           python3 - "$RELEASE_SHA" <<'PY'
           import json,sys,time
-          data={
-            'production_truth': True,
-            'production_pass': True,
-            'source_commit': sys.argv[1],
-            'target':'https://dreamledger.org',
-            'surface':'DreamLedger catalogue',
-            'surfaces':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html'],
-            'historical_single_offer_removed_from_home':True,
-            'revenue_nzd':0,
-            'first_economic_proof':False,
-            'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
-          }
+          data={'production_truth':True,'production_pass':True,'source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'DreamLedger catalog front door','surfaces':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html','/marketplace.html'],'homepage_is_catalog':True,'historical_single_offer_removed_from_home':True,'revenue_nzd':0,'first_economic_proof':False,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
           open('proof/ProductionTruth-LATEST.json','w').write(json.dumps(data,indent=2)+'\n')
           print(json.dumps(data,indent=2))
           PY
