@@ -1,0 +1,144 @@
+{
+  "schema": "DREAMLEDGER-SALES-CATALOG/v1",
+  "status": "SALE_READY_MANIFEST",
+  "last_checked_utc": "2026-08-24T00:00:00Z",
+  "public_doorway": "https://dreamledger.org",
+  "presentation_target": "Super.so",
+  "payment_authority": "Stripe",
+  "evidence_authority": "DreamLedger",
+  "publication_policy": "approval_gated",
+  "revenue_policy": "external_payment_evidence_required",
+  "silo_policy": "hard_isolation",
+  "offers": [
+    {
+      "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "silo": "mtg",
+      "price_nzd": 29,
+      "billing": "one_time",
+      "stripe_payment_link": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
+      "status": "live_payment_link",
+      "first_revenue_candidate": true
+    },
+    {
+      "offer_id": "PERSONAL-COMMERCE-CONSTITUTION",
+      "name": "Personal Commerce Constitution Setup",
+      "silo": "dreamledger",
+      "price_nzd": 29,
+      "billing": "one_time",
+      "stripe_payment_link": "https://buy.stripe.com/00wcN59TLcO9fuLcR6dwc20",
+      "status": "live_payment_link"
+    },
+    {
+      "offer_id": "DREAMLEDGER-OBSERVER",
+      "name": "DreamLedger Observer",
+      "silo": "dreamledger",
+      "price_nzd": 9,
+      "billing": "monthly",
+      "stripe_payment_link": "https://buy.stripe.com/4gM14ngi9bK56Yf4kAdwc1W",
+      "status": "live_payment_link"
+    },
+    {
+      "offer_id": "DREAMLEDGER-ANALYST",
+      "name": "DreamLedger Analyst",
+      "silo": "dreamledger",
+      "price_nzd": 29,
+      "billing": "monthly",
+      "stripe_payment_link": "https://buy.stripe.com/28EeVd6Hzg0l6Yf8AQdwc1X",
+      "status": "live_payment_link"
+    },
+    {
+      "offer_id": "DREAMLEDGER-OPERATOR",
+      "name": "DreamLedger Operator",
+      "silo": "dreamledger",
+      "price_nzd": 99,
+      "billing": "monthly",
+      "stripe_payment_link": "https://buy.stripe.com/fZuaEXfe515r3M3bN2dwc1Y",
+      "status": "live_payment_link"
+    },
+    {
+      "offer_id": "DREAMLEDGER-WHITE-LABEL",
+      "name": "DreamLedger White-Label Evidence World",
+      "silo": "dreamledger",
+      "price_nzd": 99,
+      "billing": "monthly",
+      "stripe_payment_link": "https://buy.stripe.com/cNi6oH6Hz3dz82j8AQdwc1Z",
+      "status": "live_payment_link",
+      "fulfilment": "approval_required"
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+      "name": "BEC-PRIME Architecture Audit",
+      "silo": "bec-prime",
+      "price_nzd": 49,
+      "billing": "one_time",
+      "status": "stripe_product_exists",
+      "public_activation": "approval_required"
+    },
+    {
+      "offer_id": "AGENTIC-COMMERCE-READINESS-001",
+      "name": "Agentic Commerce Readiness Audit",
+      "silo": "dreamledger",
+      "price_nzd": 49,
+      "billing": "one_time",
+      "status": "stripe_product_exists",
+      "public_activation": "approval_required"
+    },
+    {
+      "offer_id": "AGENTIC-COMMERCE-REMEDIATION-149",
+      "name": "Agentic Commerce Remediation Blueprint",
+      "silo": "digital-products",
+      "price_nzd": 149,
+      "billing": "one_time",
+      "status": "stripe_product_exists",
+      "public_activation": "approval_required"
+    },
+    {
+      "offer_id": "AI-COMMERCE-IMPLEMENTATION-499",
+      "name": "AI Commerce Implementation Starter",
+      "silo": "digital-products",
+      "price_nzd": 499,
+      "billing": "one_time",
+      "status": "stripe_product_exists",
+      "public_activation": "approval_required"
+    },
+    {
+      "offer_id": "AI-COMMERCE-BUILD-2500",
+      "name": "AI Commerce Productized Build",
+      "silo": "digital-products",
+      "price_nzd": 2500,
+      "billing": "one_time",
+      "status": "stripe_product_exists",
+      "public_activation": "approval_required"
+    },
+    {
+      "offer_id": "AI-COMMERCE-SYSTEM-10000",
+      "name": "AI Commerce System Deployment",
+      "silo": "digital-products",
+      "price_nzd": 10000,
+      "billing": "one_time",
+      "status": "stripe_product_exists",
+      "public_activation": "approval_required"
+    }
+  ],
+  "super_so_contract": {
+    "canonical_source": "https://dreamledger.org/api/offers",
+    "display_rule": "only display offers whose status is live_payment_link unless an explicit approval flag exists",
+    "checkout_rule": "button links directly to the canonical Stripe Payment Link",
+    "do_not_create": [
+      "duplicate product records",
+      "duplicate payment links",
+      "fake payment confirmations",
+      "public claims of verified revenue without Stripe evidence"
+    ],
+    "copy_rule": "value proposition first, evidence boundary second, checkout third",
+    "silo_rule": "MTG and DreamLedger commerce offers must not expose Amplissa/adult material"
+  },
+  "activation_queue": [
+    "create_or_verify_payment_links_for_stripe_products_without_live_payment_links",
+    "publish_super_catalog_only_after_public_activation_approval",
+    "run_live_checkout_verification",
+    "run_commerce_settlement_sync",
+    "record_first_external_payment_as_economic_event_001"
+  ]
+}
