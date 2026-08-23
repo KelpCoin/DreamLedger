@@ -30,17 +30,20 @@ jobs:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 1
 
-      - name: Compile and validate E1 surface
+      - name: Compile and validate catalogue surface
         working-directory: BEC-PRIME
         run: |
           set -euo pipefail
           npm install
           npm run compile
-          grep -q 'Agentic Sovereignty Diagnostic' compiled/website/index.html
-          grep -q 'NZ$29' compiled/website/index.html
-          grep -q '9B6fZh6Hz7tPgyP3gwdwc1M' compiled/website/index.html
-          ! grep -q 'Commander Deck Diagnostic' compiled/website/index.html
-          echo "PASS: E1 surface compiled for $RELEASE_SHA"
+          grep -q 'Horizontal catalogue' compiled/website/index.html
+          grep -q 'MTG / CUBE silo' compiled/website/index.html
+          grep -q 'DreamLedger Cinema' compiled/website/index.html
+          grep -q 'Digital Products' compiled/website/index.html
+          grep -q 'DreamMee Avatar' compiled/website/index.html
+          ! grep -q 'Agentic Commerce Readiness Audit' compiled/website/index.html
+          ! grep -q 'Dream Ledger Deck' compiled/website/index.html
+          echo "PASS: catalogue surface compiled for $RELEASE_SHA"
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -84,17 +87,33 @@ jobs:
           print(f'PASS: live SHA {deployed}')
           PY
 
-      - name: Verify public E1 surface
+      - name: Verify live catalogue surface
         shell: bash
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          grep -q 'Agentic Sovereignty Diagnostic' /tmp/home.html
-          grep -q 'NZ$29' /tmp/home.html
-          grep -q '9B6fZh6Hz7tPgyP3gwdwc1M' /tmp/home.html
-          ! grep -q 'Commander Deck Diagnostic' /tmp/home.html
-          ! grep -q 'Cinema Player' /tmp/home.html
-          echo 'PASS: production E1 surface verified.'
+          grep -q 'Horizontal catalogue' /tmp/home.html
+          grep -q 'MTG / CUBE silo' /tmp/home.html
+          grep -q 'DreamLedger Cinema' /tmp/home.html
+          grep -q 'Digital Products' /tmp/home.html
+          grep -q 'DreamMee Avatar' /tmp/home.html
+          ! grep -q 'Agentic Commerce Readiness Audit' /tmp/home.html
+          ! grep -q 'Dream Ledger Deck' /tmp/home.html
+          echo 'PASS: production catalogue surface verified.'
+
+      - name: Verify public sub-surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/mtg" >/tmp/mtg.html
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/cinema.html" >/tmp/cinema.html
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/digital-products.html" >/tmp/digital.html
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/avatar.html" >/tmp/avatar.html
+          grep -q 'Magic: The Gathering' /tmp/mtg.html
+          grep -q 'Cinema' /tmp/cinema.html
+          grep -q 'Digital Products' /tmp/digital.html
+          grep -q 'Avatar' /tmp/avatar.html
+          echo 'PASS: MTG + Cinema + Digital Products + Avatar sub-surfaces reachable.'
 
       - name: Write deployment fossil
         shell: bash
@@ -108,9 +127,9 @@ jobs:
             'production_pass': True,
             'source_commit': sys.argv[1],
             'target':'https://dreamledger.org',
-            'offer':'Agentic Sovereignty Diagnostic',
-            'price_nzd':29,
-            'checkout_url':'https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M',
+            'surface':'DreamLedger catalogue',
+            'surfaces':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html'],
+            'historical_single_offer_removed_from_home':True,
             'revenue_nzd':0,
             'first_economic_proof':False,
             'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
@@ -122,6 +141,6 @@ jobs:
       - name: Upload deployment fossil
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: dreamledger-e1-production-truth-${{ env.RELEASE_SHA }}
+          name: dreamledger-catalogue-production-truth-${{ env.RELEASE_SHA }}
           path: proof/ProductionTruth-LATEST.json
           retention-days: 30
