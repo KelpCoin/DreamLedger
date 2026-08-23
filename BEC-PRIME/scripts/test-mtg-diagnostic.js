@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert');
+const d=require('../lib/mtgDiagnosticFulfillment');
+const deck=Array.from({length:35},(_,i)=>`1 Test Card ${i+1}`).join('\n');
+const parsed=d.parseDecklist(deck);
+assert.strictEqual(parsed.length,35);
+const metrics=d.classify([{name:'Sol Ring',qty:1},{name:'Arcane Signet',qty:1},{name:'Command Tower',qty:1},{name:'Forest',qty:1},{name:'Counterspell',qty:1}]);
+assert.strictEqual(metrics.ramp,2);
+assert.strictEqual(metrics.lands,2);
+assert.strictEqual(metrics.removal,1);
+console.log(JSON.stringify({status:'PASS',test:'mtg-diagnostic-contract',parsed_cards:parsed.length,metrics},null,2));
