@@ -1,26 +1,17 @@
 {
-  "schema": "BEC-PRIME-CUBE-PUBLIC-SURFACE/v3",
+  "schema": "BEC-PRIME-CUBE-PUBLIC-SURFACE/v4",
   "status": "compiled",
   "compiler_role": "CUBE",
   "purpose": "Expose controlled DreamLedger commerce surfaces without exposing private implementation catalogs or internal capability doctrine.",
   "source_catalog": "catalog/ip-capabilities.json",
   "source_catalog_visibility": "private",
-  "surface_policy": {
-    "evergreen": true,
-    "boilerplate_reusable": true,
-    "reskin_from_canonical_definitions": true,
-    "server_authoritative_economics": true,
-    "approval_required_for_activation": true,
-    "private_material_excluded": true,
-    "silo_isolation_required": true,
-    "internal_capability_catalog_public": false,
-    "internal_capability_ids_in_public_offers": false,
-    "empty_inventory_is_valid": true
-  },
+  "surface_policy": {"evergreen":true,"boilerplate_reusable":true,"reskin_from_canonical_definitions":true,"server_authoritative_economics":true,"approval_required_for_activation":true,"private_material_excluded":true,"silo_isolation_required":true,"internal_capability_catalog_public":false,"internal_capability_ids_in_public_offers":false,"empty_inventory_is_valid":true},
   "public_surfaces": [
     {"route":"/","purpose":"DreamLedger commerce control surface","silo":"dreamledger"},
     {"route":"/mtg","purpose":"MTG inventory surface","silo":"mtg"},
     {"route":"/dreammeez","purpose":"DreamMeez avatar and identity surface","silo":"dreammeez"},
+    {"route":"/avatar.html","purpose":"Account avatar surface","silo":"dreammeez"},
+    {"route":"/cinema.html","purpose":"Deterministic cinema simulation and proof surface","silo":"cinema"},
     {"route":"/media-music.html","purpose":"Media and music commerce surface","silo":"media-music"},
     {"route":"/digital-products.html","purpose":"Digital products commerce surface","silo":"digital-products"},
     {"route":"/nz-secondhand.html","purpose":"New Zealand secondhand surface","silo":"nz-secondhand"},
@@ -40,25 +31,8 @@
     {"route":"/api/news","purpose":"silo-specific ticker/news lane","silo":"dynamic"},
     {"route":"/healthz","purpose":"non-secret service health and ledger balance status","silo":"dreamledger"}
   ],
-  "private_surfaces": [
-    {"path":"catalog/ip-capabilities.json","purpose":"internal capability doctrine and commercialization map"},
-    {"route":"/api/ip","status":"removed_from_public_runtime"}
-  ],
-  "account_surface": {
-    "dreamiez_avatar": true,
-    "profile_persistence": "browser_local_until_server_identity_layer_is deployed",
-    "public_claim": "profile UI only; no false claim of server authentication"
-  },
-  "cart_surface": {
-    "persistent_browser_cart": true,
-    "checkout_bridge": "/api/checkout/create",
-    "price_inventory_revalidation": true
-  },
-  "not_claimed_as_live": [
-    "first_payment",
-    "server_authenticated_accounts",
-    "white_label_customer_deployment",
-    "multi_llm_runtime",
-    "x402_settlement"
-  ]
+  "private_surfaces": [{"path":"catalog/ip-capabilities.json","purpose":"internal capability doctrine and commercialization map"},{"route":"/api/ip","status":"removed_from_public_runtime"}],
+  "account_surface": {"dreamiez_avatar":true,"profile_persistence":"server-backed account surface","public_claim":"profile UI and avatar surface only"},
+  "cart_surface": {"persistent_browser_cart":true,"checkout_bridge":"/api/checkout/create","price_inventory_revalidation":true},
+  "not_claimed_as_live": ["first_payment","white_label_customer_deployment","multi_llm_runtime","x402_settlement"]
 }
