@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="DreamLedger independent commerce catalog: digital goods, MTG, avatar identity, cinema and approved marketplace products.">
 <meta name="theme-color" content="#070707">
+<meta name="dreamledger-featured-product" content="COMMANDER-DECK-DIAGNOSTIC-001">
 <title>DreamLedger | Independent Commerce</title>
 <style>
 :root{--bg:#070707;--panel:#111;--line:#292929;--ink:#f7f7f3;--muted:#969693;--gold:#f2c14e;--green:#32d296;--radius:18px}
@@ -46,7 +47,8 @@
     const rail=document.getElementById('digital-rail');
     document.getElementById('digital-count').textContent=String(digital.length);
     if(!digital.length){rail.innerHTML='<div class="empty">No published digital goods are currently available.</div>';return}
-    rail.innerHTML=digital.map(p=>`<article class="card"><div class="card-art">DIGITAL</div><div class="card-body"><span class="tag">${esc(p.silo)} digital good</span><h3>${esc(p.name)}</h3><div class="desc">${esc(p.description||'Automated digital product.')}</div><div class="card-foot"><div><div class="price">${money(p.price,p.currency)}</div><div class="stock">${Number(p.inventory||0)>0?'Available':'Sold out'}</div></div></div><div class="card-actions"><a class="btn" href="/${String(p.silo).toLowerCase()==='mtg'?'mtg':'digital-products.html'}">View silo</a><a class="btn gold" href="/api/checkout/create?product_id=${encodeURIComponent(p.id)}&silo=${encodeURIComponent(p.silo)}">Buy path</a></div></div></article>`).join('');
+    rail.innerHTML=digital.map(p=>`<article class="card"><div class="card-art">DIGITAL</div><div class="card-body"><span class="tag">${esc(p.silo)} digital good</span><h3>${esc(p.name)}</h3><div class="desc">${esc(p.description||'Automated digital product.')}</div><div class="card-foot"><div><div class="price">${money(p.price,p.currency)}</div><div class="stock">${Number(p.inventory||0)>0?'Available':'Sold out'}</div></div></div><div class="card-actions"><a class="btn" href="/${String(p.silo).toLowerCase()==='mtg'?'mtg':'digital-products.html'}">View silo</a><button class="btn gold" type="button" data-digital-buy="${esc(p.id)}">Buy now</button></div></div></article>`).join('');
+    rail.querySelectorAll('[data-digital-buy]').forEach(btn=>btn.onclick=async()=>{btn.disabled=true;btn.textContent='Opening...';try{const p=digital.find(x=>x.id===btn.dataset.digitalBuy);const r=await fetch('/api/checkout/create',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({product_id:p.id,silo:p.silo})});const out=await r.json();if(!r.ok)throw new Error(out.error||'Checkout unavailable');location.href=out.checkout_url}catch(e){alert(e.message);btn.disabled=false;btn.textContent='Buy now'}});
   }).catch(()=>{document.getElementById('digital-rail').innerHTML='<div class="empty">Digital goods service unavailable.</div>'});
 })();
 </script>
