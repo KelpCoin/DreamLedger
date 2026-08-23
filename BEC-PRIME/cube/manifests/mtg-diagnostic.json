@@ -7,6 +7,6 @@
   "domain":"dreamledger.org/mtg",
   "repo_name":"KelpCoin/DreamLedger",
   "surface":"BEC-PRIME/compiled/website/mtg/diagnostic.html",
-  "status":"active",
+  "status":"deployed",
   "isolation":true
 }
