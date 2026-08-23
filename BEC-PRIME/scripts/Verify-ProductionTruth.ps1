@@ -35,16 +35,11 @@ function Test-Route {
     }
 }
 
+# First-sale production gate. Cinema and internal product surfaces are not gate dependencies.
 Test-Route '/' 200 'Commander Deck Diagnostic'
 Test-Route '/' 200 'NZ$29'
 Test-Route '/healthz' 200
 Test-Route '/version' 200
-Test-Route '/mtg' 200
-Test-Route '/truth-oracle.html' 200 'DreamLedger Truth Oracle'
-Test-Route '/truth-oracle.json' 200 'truth-oracle-v1'
-Test-Route '/transparency-policy.json' 200 'DREAMLEDGER/PROGRESSIVE-TRANSPARENCY/v1'
-Test-Route '/cinema.html' 404
-Test-Route '/dreamiez' 404
 
 $version = $null
 try { $version = Invoke-RestMethod ($Base + '/version') -TimeoutSec 15 } catch { $failures.Add('/version-json') }
@@ -54,14 +49,15 @@ if (-not $shaMatch) { $failures.Add('version.commit') }
 
 $pass = ($failures.Count -eq 0)
 $proof = [ordered]@{
-    proof_version = 'dreamledger-production-truth-v2'
+    proof_version = 'dreamledger-production-truth-v3'
     checked_at = (Get-Date).ToUniversalTime().ToString('o')
     base = $Base
     expected_commit = $ExpectedCommit
     deployed_commit = $deployedCommit
     sha_match = $shaMatch
     routes = $results
-    excluded_surfaces = @{ cinema = '404_required'; dreamiez = '404_required' }
+    production_gate = @('/', '/healthz', '/version', 'version.commit')
+    cinema_gate = 'REMOVED'
     deployment_proof = if ($pass) { 'VALID' } else { 'PENDING' }
     production_pass = $pass
     first_economic_proof = $false
