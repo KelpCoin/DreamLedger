@@ -15,6 +15,10 @@ function safePublicProductFiles(){
     try{return JSON.parse(fs.readFileSync(path.join(PRODUCT_CATALOG,n),'utf8'));}catch{return null;}
   }).filter(p=>p&&p.status==='published'&&p.commercial_truth&&p.commercial_truth.approval_required===false&&!EXCLUDED_SILOS.has(String(p.silo||'')));
 }
+function isExcludedPublicRoute(route){
+  const value=String(route||'').split('?')[0].toLowerCase();
+  return EXCLUDED_ROUTES.has(value)||value.includes('/cinema')||value.includes('/dreamiez')||value.includes('/dreammeez');
+}
 function htmlFile(route){
   const map={
     '/':'index.html',
@@ -46,7 +50,7 @@ http.createServer=function publicShellCreateServer(...args){
   if(typeof handler!=='function') return original.apply(this,args);
   args[0]=async function publicShellHandler(req,res){
     const route=String(req.url||'').split('?')[0];
-    if(req.method==='GET'&&EXCLUDED_ROUTES.has(route)) return sendJson(res,404,{error:'Route excluded from production surface'});
+    if(req.method==='GET'&&isExcludedPublicRoute(route)) return sendJson(res,404,{error:'Route excluded from production surface'});
     if(req.method==='GET'&&route==='/api/products'){
       const products=safePublicProductFiles().map(p=>({id:p.id,silo:p.silo,name:p.name,description:p.description,price:Number(p.price),currency:p.currency,inventory:Number(p.inventory),status:'published',approval_required:false,checkout_available:Number(p.inventory)>0}));
       return sendJson(res,200,{products});
