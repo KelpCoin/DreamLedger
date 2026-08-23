@@ -1,4 +1,4 @@
-name: E1 Render Production Truth
+name: DreamLedger Production - Canonical Catalog Gate
 
 on:
   push:
@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: dreamledger-production
+  cancel-in-progress: false
+
 jobs:
   deploy-and-probe:
     runs-on: ubuntu-latest
@@ -25,39 +29,39 @@ jobs:
       BASE_URL: https://dreamledger.org
     steps:
       - name: Checkout exact release
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 1
 
-      - name: Compile and validate catalog surface
+      - name: Compile canonical catalog
         working-directory: BEC-PRIME
         run: |
           set -euo pipefail
           npm install
           npm run compile
-          grep -q 'DREAMLEDGER / CATALOG' compiled/website/index.html
-          grep -q 'Swipe the catalog.' compiled/website/index.html
+          test -s compiled/website/index.html
+          test -s compiled/website/digital-products.html
+          test -s compiled/website/avatar.html
+          grep -q 'The catalogue is the product surface.' compiled/website/index.html
           grep -q 'Magic: The Gathering' compiled/website/index.html
+          grep -q 'DreamLedger Cinema' compiled/website/index.html
           grep -q 'Digital Products' compiled/website/index.html
-          grep -q 'DreamMeez identity' compiled/website/index.html
-          grep -q 'Deterministic Cinema' compiled/website/index.html
-          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' compiled/website/index.html
-          ! grep -qi 'Agentic Commerce Readiness Audit' compiled/website/index.html
+          grep -q 'DreamMee Avatar' compiled/website/index.html
           ! grep -qi 'Dream Ledger Deck' compiled/website/index.html
           ! grep -qi 'Amplissa' compiled/website/index.html
           ! grep -qi 'CollectorsCoast' compiled/website/index.html
-          echo "PASS: catalog front door compiled for $RELEASE_SHA"
+          echo "PASS: canonical catalog compiled for $RELEASE_SHA"
 
       - name: Trigger exact Render deployment
         shell: bash
         run: |
           set -euo pipefail
-          result=0
           if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
             separator='?'
             case "$RENDER_DEPLOY_HOOK_URL" in *\?*) separator='&';; esac
-            curl --fail-with-body --silent --show-error --retry 4 --retry-delay 5 --max-time 45 -X POST "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${RELEASE_SHA}" || result=$?
+            curl --fail-with-body --silent --show-error --retry 4 --retry-delay 5 --max-time 45 -X POST "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${RELEASE_SHA}" >/tmp/render-trigger.json
+            cat /tmp/render-trigger.json
           elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
             version='v2.22.0'
             asset="cli_${version#v}_linux_amd64.zip"
@@ -66,14 +70,14 @@ jobs:
             RENDER_BIN=$(find /tmp/render-cli -type f -name render -perm -111 | head -n 1)
             test -n "$RENDER_BIN"
             export PATH="$(dirname "$RENDER_BIN"):$PATH"
-            RENDER_API_KEY="$RENDER_API_KEY" render deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json
+            RENDER_API_KEY="$RENDER_API_KEY" render deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json >/tmp/render-deploy.json
+            cat /tmp/render-deploy.json
           else
-            echo 'No Render deploy hook or API credentials available.'
+            echo 'FAIL: no Render deployment trigger configured.'
             exit 2
           fi
-          test "$result" -eq 0
 
-      - name: Verify live health and SHA
+      - name: Verify live production
         shell: bash
         run: |
           set -euo pipefail
@@ -91,33 +95,25 @@ jobs:
           print(f'PASS: live SHA {deployed}')
           PY
 
-      - name: Verify live catalog front door
-        shell: bash
-        run: |
-          set -euo pipefail
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          grep -q 'DREAMLEDGER / CATALOG' /tmp/home.html
-          grep -q 'Swipe the catalog.' /tmp/home.html
+          grep -q 'The catalogue is the product surface.' /tmp/home.html
           grep -q 'Magic: The Gathering' /tmp/home.html
+          grep -q 'DreamLedger Cinema' /tmp/home.html
           grep -q 'Digital Products' /tmp/home.html
-          grep -q 'DreamMeez identity' /tmp/home.html
-          grep -q 'Deterministic Cinema' /tmp/home.html
-          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' /tmp/home.html
-          ! grep -qi 'Agentic Commerce Readiness Audit' /tmp/home.html
+          grep -q 'DreamMee Avatar' /tmp/home.html
           ! grep -qi 'Dream Ledger Deck' /tmp/home.html
           ! grep -qi 'Amplissa' /tmp/home.html
           ! grep -qi 'CollectorsCoast' /tmp/home.html
-          echo 'PASS: production catalog front door verified.'
 
-      - name: Verify public sub-surfaces
-        shell: bash
-        run: |
-          set -euo pipefail
           for route in /mtg /cinema.html /digital-products.html /avatar.html /marketplace.html; do
-            curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL$route" >/tmp/route.html
+            code=$(curl -sS -o /tmp/route.html -w '%{http_code}' --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL$route")
+            test "$code" = 200
             test -s /tmp/route.html
           done
-          echo 'PASS: MTG + Cinema + Digital Products + Avatar + Marketplace routes respond.'
+
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/mtg/diagnostic.html" >/tmp/diagnostic.html
+          grep -qi 'Commander Deck Diagnostic' /tmp/diagnostic.html
+          echo 'PASS: catalog + MTG + Cinema + Digital Products + Avatar + Marketplace live.'
 
       - name: Write deployment fossil
         shell: bash
@@ -126,13 +122,24 @@ jobs:
           mkdir -p proof
           python3 - "$RELEASE_SHA" <<'PY'
           import json,sys,time
-          data={'production_truth':True,'production_pass':True,'source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'DreamLedger catalog front door','surfaces':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html','/marketplace.html'],'homepage_is_catalog':True,'historical_single_offer_removed_from_home':True,'revenue_nzd':0,'first_economic_proof':False,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
-          open('proof/ProductionTruth-LATEST.json','w').write(json.dumps(data,indent=2)+'\n')
+          data={
+            'production_truth':True,
+            'source_commit':sys.argv[1],
+            'target':'https://dreamledger.org',
+            'homepage':'catalog',
+            'surfaces':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html','/marketplace.html','/mtg/diagnostic.html'],
+            'historical_single_offer_removed_from_home':True,
+            'collectors_coast_public_surface':False,
+            'first_economic_proof':False,
+            'revenue_nzd':0,
+            'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
+          }
+          with open('proof/ProductionTruth-LATEST.json','w') as f: json.dump(data,f,indent=2)
           print(json.dumps(data,indent=2))
           PY
 
       - name: Upload deployment fossil
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@v4
         with:
           name: dreamledger-catalogue-production-truth-${{ env.RELEASE_SHA }}
           path: proof/ProductionTruth-LATEST.json
