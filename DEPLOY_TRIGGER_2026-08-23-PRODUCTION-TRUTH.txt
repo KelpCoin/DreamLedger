@@ -1,0 +1,7 @@
+PRODUCTION TRUTH REDEPLOY TRIGGER
+Timestamp: 2026-08-23
+Purpose: force Render to consume current main and prove the canonical DreamLedger surface.
+Expected public boundary: MTG, Commander Diagnostic, Truth Oracle, Trust, Gauntlet, Get Help.
+Excluded public routes: /cinema.html, /cinema, /dreamiez, /dreammeez.
+Canonical offer: CMD-DIAG-29, NZD 29, Stripe-backed.
+This marker contains no secrets and no proprietary implementation.
