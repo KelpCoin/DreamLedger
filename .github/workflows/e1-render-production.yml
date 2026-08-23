@@ -1,0 +1,127 @@
+name: E1 Render Production Truth
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact commit SHA to deploy
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-and-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      BASE_URL: https://dreamledger.org
+    steps:
+      - name: Checkout exact release
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          fetch-depth: 1
+
+      - name: Compile and validate E1 surface
+        working-directory: BEC-PRIME
+        run: |
+          set -euo pipefail
+          npm install
+          npm run compile
+          grep -q 'Agentic Sovereignty Diagnostic' compiled/website/index.html
+          grep -q 'NZ$29' compiled/website/index.html
+          grep -q '9B6fZh6Hz7tPgyP3gwdwc1M' compiled/website/index.html
+          ! grep -q 'Commander Deck Diagnostic' compiled/website/index.html
+          echo "PASS: E1 surface compiled for $RELEASE_SHA"
+
+      - name: Trigger exact Render deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          result=0
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            separator='?'
+            case "$RENDER_DEPLOY_HOOK_URL" in *\?*) separator='&';; esac
+            curl --fail-with-body --silent --show-error --retry 4 --retry-delay 5 --max-time 45 -X POST "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${RELEASE_SHA}" || result=$?
+          elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
+            version='v2.22.0'
+            asset="cli_${version#v}_linux_amd64.zip"
+            curl --fail --silent --show-error -L "https://github.com/render-oss/cli/releases/download/$version/$asset" -o /tmp/render-cli.zip
+            unzip -q /tmp/render-cli.zip -d /tmp/render-cli
+            RENDER_BIN=$(find /tmp/render-cli -type f -name render -perm -111 | head -n 1)
+            test -n "$RENDER_BIN"
+            export PATH="$(dirname "$RENDER_BIN"):$PATH"
+            RENDER_API_KEY="$RENDER_API_KEY" render deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json
+          else
+            echo 'No Render deploy hook or API credentials available.'
+            exit 2
+          fi
+          test "$result" -eq 0
+
+      - name: Verify live health and SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          sleep 20
+          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz.json
+          grep -q '"status":"ok"' /tmp/healthz.json
+          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/version" >/tmp/version.json
+          python3 - "$RELEASE_SHA" <<'PY'
+          import json,sys
+          expected=sys.argv[1]
+          actual=json.load(open('/tmp/version.json'))
+          deployed=actual.get('commit')
+          if deployed != expected:
+              raise SystemExit(f'FAIL: deployed SHA {deployed} != expected {expected}')
+          print(f'PASS: live SHA {deployed}')
+          PY
+
+      - name: Verify public E1 surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
+          grep -q 'Agentic Sovereignty Diagnostic' /tmp/home.html
+          grep -q 'NZ$29' /tmp/home.html
+          grep -q '9B6fZh6Hz7tPgyP3gwdwc1M' /tmp/home.html
+          ! grep -q 'Commander Deck Diagnostic' /tmp/home.html
+          ! grep -q 'Cinema Player' /tmp/home.html
+          echo 'PASS: production E1 surface verified.'
+
+      - name: Write deployment fossil
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - "$RELEASE_SHA" <<'PY'
+          import json,sys,time
+          data={
+            'production_truth': True,
+            'production_pass': True,
+            'source_commit': sys.argv[1],
+            'target':'https://dreamledger.org',
+            'offer':'Agentic Sovereignty Diagnostic',
+            'price_nzd':29,
+            'checkout_url':'https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M',
+            'revenue_nzd':0,
+            'first_economic_proof':False,
+            'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
+          }
+          open('proof/ProductionTruth-LATEST.json','w').write(json.dumps(data,indent=2)+'\n')
+          print(json.dumps(data,indent=2))
+          PY
+
+      - name: Upload deployment fossil
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dreamledger-e1-production-truth-${{ env.RELEASE_SHA }}
+          path: proof/ProductionTruth-LATEST.json
+          retention-days: 30
