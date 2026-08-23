@@ -33,6 +33,9 @@ jobs:
           Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
+      - name: Verify CUBE MTG reskin
+        shell: pwsh
+        run: .\BEC-PRIME\scripts\Verify-CUBE-MTG-Reskin.ps1
       - name: Verify public surfaces exist
         shell: pwsh
         run: |
