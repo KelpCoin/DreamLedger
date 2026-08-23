@@ -1,0 +1,20 @@
+{
+  "status": "NOT_PROVEN",
+  "checked_at_utc": "2026-08-23T01:10:00Z",
+  "source_commit": "1b2487a3db163a1cde40de058a952334232efd31",
+  "target": "https://dreamledger.org",
+  "production_truth": false,
+  "sale_gate": "BLOCKED",
+  "observed_live_homepage": "Dream Ledger Deck",
+  "healthz": "NOT_VERIFIED",
+  "version": "NOT_VERIFIED",
+  "approved_offer": "Agentic Sovereignty Diagnostic",
+  "price_nzd": 29,
+  "stripe_payment_link": "https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M",
+  "stripe_payment_link_verified_livemode": true,
+  "stripe_line_item_amount_nzd": 29,
+  "revenue_nzd": 0,
+  "first_economic_proof": false,
+  "reason": "Repository and Stripe truth are verified, but production domain still exposes the legacy Dream Ledger Deck surface and /healthz and /version are not independently verified through the available web path.",
+  "next_top_item": "Verify Render deployment of source commit and rerun production truth probe."
+}
