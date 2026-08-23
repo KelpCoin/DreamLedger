@@ -3,23 +3,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger: commerce, evidence, settlement and progressive transparency.">
-<title>DreamLedger | Commerce with a truth layer</title>
+<meta name="description" content="DreamLedger: evidence-gated digital products. We test. We record. You inspect.">
+<title>DreamLedger | Evidence-Gated Digital Products</title>
 <style>
-:root{--bg:#090b0f;--panel:#121722;--line:#2a3342;--ink:#f5f7fb;--muted:#9da7b8;--gold:#e7bd69;--good:#8fd3a0;--max:1120px}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#090b0f,#101520 55%,#090b0f);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 22px 70px}.nav{height:70px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:18px}.brand{font-weight:950;letter-spacing:-.06em}.brand b{color:var(--gold)}.navlinks{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:.75rem;font-weight:800;flex-wrap:wrap}.navlinks a{padding:8px 10px;border-radius:8px}.navlinks a:hover{color:var(--ink);background:var(--panel)}.navlinks .cta{color:#15120c;background:var(--gold)}.hero{padding:72px 0 38px}.eyebrow{font:900 .65rem ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(3.2rem,8vw,6.2rem);font-weight:500;line-height:.9;letter-spacing:-.075em;margin:14px 0 22px}.hero p{max-width:760px;color:var(--muted);font-size:1.05rem}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.button{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:9px;border:1px solid var(--line);font-weight:900}.button.primary{background:var(--gold);color:#15120c;border-color:var(--gold)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px;margin-top:24px}.card{background:linear-gradient(145deg,#171d29,#111722);border:1px solid var(--line);border-radius:16px;padding:22px}.card h2{font-family:Georgia,"Times New Roman",serif;font-size:2rem;font-weight:500;line-height:1;margin:12px 0}.card p{color:var(--muted);font-size:.88rem}.price{font-size:1.8rem;font-weight:950;color:var(--good)}.boundary{margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:16px;color:var(--muted);font-size:.8rem}.boundary strong{color:var(--ink)}.footer{border-top:1px solid var(--line);margin-top:36px;padding-top:24px;color:#737d8d;font-size:.72rem}
+:root{--bg:#180f2e;--panel:#241a44;--line:#3a2c66;--bubblegum:#ff6fae;--mint:#5fe0b7;--gold:#ffcf5c;--cream:#f4eeff;--dim:#a79bd1;--max:560px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--cream);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+body{background:radial-gradient(circle at 50% -10%,#2e2159 0,var(--bg) 42%)}
+a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:0 auto;padding:20px 16px 52px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}.brand{font-size:22px;font-weight:800;letter-spacing:-.03em}.brand span{color:var(--bubblegum)}
+.identity{width:42px;height:42px;border-radius:50%;overflow:hidden;background:#2e2159;border:1px solid var(--line);flex:0 0 auto}.identity svg{width:100%;height:100%}
+.hero{text-align:center;margin-bottom:28px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:10px}.hero h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.7rem,12vw,4.6rem);font-weight:500;line-height:.9;letter-spacing:-.06em;margin:0 0 16px}.hero p{font-size:14px;line-height:1.55;color:var(--dim);margin:0 auto;max-width:460px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;margin-top:14px}.section-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:14px}
+.proof-list{list-style:none;padding:0;margin:0}.proof-list li{padding:13px 0;border-top:1px solid var(--line);font-size:13px}.proof-list li:first-child{border-top:0;padding-top:0}.proof-list strong{display:block;color:var(--mint);font-size:12px;margin-bottom:3px}.proof-list span{color:var(--dim)}
+.offer{background:linear-gradient(145deg,#2e2159,#241a44);border:1px solid var(--line);border-radius:22px;padding:22px;margin-top:14px}.offer h2{font-family:Georgia,"Times New Roman",serif;font-size:2rem;font-weight:500;line-height:1;margin:0 0 14px}.label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:800;margin-top:14px}.value{font-size:13px;line-height:1.5;margin-top:4px}.price{font-size:1.8rem;font-weight:900;color:var(--gold);margin:18px 0}.buy{display:flex;align-items:center;justify-content:center;width:100%;padding:14px 18px;border-radius:12px;background:var(--bubblegum);border:1px solid var(--bubblegum);color:#200a17;font:inherit;font-size:14px;font-weight:900;cursor:pointer}.buy:active{transform:scale(.98)}.receipt{font-size:10px;line-height:1.5;color:var(--dim);text-align:center;margin-top:12px}
+.footer{text-align:center;border-top:1px solid var(--line);margin-top:28px;padding-top:20px;color:var(--dim);font-size:10px;letter-spacing:.04em}
 </style>
 </head>
-<body><div class="wrap">
-<header class="nav"><a class="brand" href="/">DREAM<b>LEDGER</b></a><nav class="navlinks"><a href="/mtg">MTG</a><a href="/commander-diagnostic.html">Deck Diagnostic</a><a href="/truth-oracle.html">Truth Oracle</a><a href="/trust-engine.html">Trust</a><a href="/gauntlet.html">Gauntlet</a><a href="/get-help.html">Get help</a></nav></header>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/">Dream<span>Ledger</span></a>
+  <div class="identity" aria-label="DreamMeez identity"><svg id="mini-avatar" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg></div>
+</header>
+
 <main>
-<section class="hero"><div class="eyebrow">Commerce / Evidence / Settlement</div><h1>Commerce with a truth layer.</h1><p>DreamLedger is the production front door for controlled commerce and evidence. Public surfaces show what can be verified. Private demand data, credentials, customer material, proprietary scoring and economically sensitive implementation remain protected.</p><div class="actions"><a class="button primary" href="/commander-diagnostic.html">Get the Commander Deck Diagnostic - NZD $29</a><a class="button" href="/truth-oracle.html">Inspect Truth Oracle</a><a class="button" href="/get-help.html">Get help</a></div></section>
-<section class="grid" aria-label="Production surfaces">
-<article class="card"><div class="eyebrow">MTG / First Revenue Experiment</div><h2>Commander Deck Diagnostic</h2><div class="price">NZD $29</div><p>Focused written diagnostic covering weakest cards, upgrade priorities, strategy gaps and a practical tuning plan. Delivery target: 48 hours after decklist receipt.</p><a class="button primary" href="/commander-diagnostic.html">Open offer</a></article>
-<article class="card"><div class="eyebrow">Truth Oracle</div><h2>Progressive transparency</h2><p>Machine-readable evidence status, verification rules and role-based disclosure policy. Public truth is persistent without publishing the secret sauce.</p><a class="button" href="/truth-oracle.html">View evidence</a></article>
-<article class="card"><div class="eyebrow">Trust / Proof</div><h2>Evidence spine</h2><p>Deployment, economic and operational evidence are kept explicit. Revenue is not claimed until a real external payment produces settlement evidence.</p><a class="button" href="/trust-engine.html">Inspect trust</a></article>
-<article class="card"><div class="eyebrow">Support</div><h2>Get help</h2><p>Use the public help surface for navigation and safe operational questions. No passwords, payment secrets or private customer material are requested.</p><a class="button" href="/get-help.html">Open help</a></article>
+<section class="hero">
+  <div class="eyebrow">Evidence / Product / Receipt</div>
+  <h1>Evidence, not Hype.</h1>
+  <p>Evidence-Gated Digital Products. We test. We record. You inspect.</p>
 </section>
-<div class="boundary"><strong>Truth boundary.</strong> Canonical MTG offer: NZD $29. No Cinema surface. No DreamMeez surface. No revenue claim until a real payment produces durable transaction evidence.</div>
-</main><footer class="footer">DreamLedger production front door. Public-safe evidence is persistent; proprietary and private material remains protected.</footer>
-</div></body></html>
+
+<section class="panel" aria-labelledby="trust-title">
+  <div class="section-label" id="trust-title">How it works</div>
+  <ul class="proof-list">
+    <li><strong>Clear Scope</strong><span>You see exactly what the asset does.</span></li>
+    <li><strong>Tested Behaviour</strong><span>Tested against stated criteria.</span></li>
+    <li><strong>Observable Proof</strong><span>You get the evidence file to inspect.</span></li>
+    <li><strong>Evidence Receipt</strong><span>The outcome is preserved after purchase.</span></li>
+  </ul>
+</section>
+
+<section class="offer" aria-labelledby="offer-title">
+  <div class="section-label">Current Offer</div>
+  <h2 id="offer-title">Architecture Evidence Audit</h2>
+
+  <div class="label">Problem</div>
+  <div class="value">You don't know if your asset actually does what it claims.</div>
+
+  <div class="label">Deliverable</div>
+  <div class="value">1 PDF report + Evidence JSON file.</div>
+
+  <div class="label">Evidence</div>
+  <div class="value">Test results + Before/After state + timestamped receipt.</div>
+
+  <div class="price">NZ$29</div>
+  <a class="buy" href="https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V">Buy Now</a>
+  <div class="receipt">Payment is handled by Stripe. The evidence receipt is provided after purchase.</div>
+</section>
+</main>
+
+<footer class="footer">DreamLedger &middot; &copy; 2026</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var fallback={skin:"#f0b088",hair:"bob",hairColor:"#2b1b12",outfit:"#ff6fae",backdrop:"#2e2159"};
+  var avatar=fallback;
+  try{var raw=localStorage.getItem("dreammeez_avatar_v1");if(raw)avatar=JSON.parse(raw)||fallback;}catch(e){}
+  function hairPath(style,color){
+    switch(style){
+      case "bob":return '<path d="M35 85 Q30 25 100 20 Q170 25 165 85 Q165 60 100 55 Q35 60 35 85 Z" fill="'+color+'"/>';
+      case "curly":return '<g fill="'+color+'"><circle cx="45" cy="55" r="18"/><circle cx="70" cy="35" r="20"/><circle cx="100" cy="28" r="22"/><circle cx="130" cy="35" r="20"/><circle cx="155" cy="55" r="18"/></g>';
+      case "spiky":return '<path d="M30 80 L45 25 L58 70 L75 15 L90 68 L100 10 L110 68 L125 15 L142 70 L155 25 L170 80 Q100 45 30 80 Z" fill="'+color+'"/>';
+      case "long":return '<path d="M32 90 Q28 20 100 18 Q172 20 168 90 L168 150 Q158 130 150 90 Q150 50 100 48 Q50 50 50 90 Q42 130 32 150 Z" fill="'+color+'"/>';
+      case "buzzed":return '<path d="M38 70 Q35 30 100 28 Q165 30 162 70 Q100 50 38 70 Z" fill="'+color+'"/>';
+      default:return "";
+    }
+  }
+  var svg=document.getElementById("mini-avatar");
+  if(svg)svg.innerHTML='<rect x="0" y="0" width="200" height="200" rx="100" fill="'+(avatar.backdrop||fallback.backdrop)+'"/><ellipse cx="100" cy="175" rx="55" ry="30" fill="'+(avatar.outfit||fallback.outfit)+'"/><circle cx="100" cy="100" r="55" fill="'+(avatar.skin||fallback.skin)+'"/><circle cx="80" cy="98" r="5" fill="#2a2a2a"/><circle cx="120" cy="98" r="5" fill="#2a2a2a"/><path d="M85 118 Q100 128 115 118" stroke="#2a2a2a" stroke-width="3" fill="none" stroke-linecap="round"/>'+hairPath(avatar.hair,avatar.hairColor||fallback.hairColor);
+})();
+</script>
+</body>
+</html>
