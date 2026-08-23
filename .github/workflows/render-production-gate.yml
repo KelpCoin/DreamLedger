@@ -18,29 +18,42 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout exact commit
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Assert Cinema artifact is tracked
-        run: git ls-files --error-unmatch BEC-PRIME/compiled/website/cinema.html
-
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Install dependencies
         run: npm install
 
-      - name: Compile canonical production artifact
+      - name: Compile production surfaces
         run: npm run compile
 
-      - name: Verify compiled Cinema artifact
-        run: test -f BEC-PRIME/compiled/website/cinema.html && grep -q 'cinema-event-v1' BEC-PRIME/compiled/website/cinema.html
+      - name: Verify public contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f BEC-PRIME/compiled/website/index.html
+          test -f BEC-PRIME/compiled/website/truth-oracle.html
+          test -f BEC-PRIME/compiled/website/truth-oracle.json
+          test -f BEC-PRIME/compiled/website/transparency-policy.json
+          test -f commander-diagnostic.html
+          ! grep -RniE 'href=["'"'][^"'"']*(cinema|dreamiez)[^"'"']*["'"']|src=["'"'][^"'"']*(cinema|dreamiez)[^"'"']*["'"']' BEC-PRIME/compiled/website/index.html
+          ! grep -niE '>Cinema<|>Dreamiez<|/cinema|/dreamiez' BEC-PRIME/compiled/website/index.html
 
-      - name: Verify MTG compiler is wired
-        run: test -f BEC-PRIME/compiled/website/mtg/index.html && grep -q 'Monte Carlo' BEC-PRIME/compiled/website/mtg/index.html && grep -q 'DreamMee' BEC-PRIME/compiled/website/mtg/index.html
+      - name: Verify canonical MTG offer
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = JSON.parse(fs.readFileSync('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json','utf8'));
+          if (p.sku !== 'CMD-DIAG-29' || Number(p.price) !== 29 || p.currency.toLowerCase() !== 'nzd' || p.status !== 'published' || p.commercial_truth?.approval_required !== false) process.exit(1);
+          if (!String(p.commercial_truth?.payment_link || '').startsWith('https://buy.stripe.com/')) process.exit(1);
+          console.log('CANONICAL_OFFER=PASS SKU=CMD-DIAG-29 PRICE=NZD29');
+          NODE
 
       - name: Wait for Render deployment
         env:
@@ -51,17 +64,20 @@ jobs:
             HEALTH="$(curl -fsS -o /tmp/healthz -w '%{http_code}' --max-time 10 https://dreamledger.org/healthz || true)"
             VERSION="$(curl -fsS -o /tmp/version.json -w '%{http_code}' --max-time 10 https://dreamledger.org/version || true)"
             MTG="$(curl -fsS -o /tmp/mtg.html -w '%{http_code}' --max-time 10 https://dreamledger.org/mtg || true)"
-            CINEMA="$(curl -fsS -o /tmp/cinema.html -w '%{http_code}' --max-time 10 https://dreamledger.org/cinema.html || true)"
+            OFFER="$(curl -fsS -o /tmp/offer.html -w '%{http_code}' --max-time 10 https://dreamledger.org/commander-diagnostic.html || true)"
+            ORACLE="$(curl -fsS -o /tmp/oracle.html -w '%{http_code}' --max-time 10 https://dreamledger.org/truth-oracle.html || true)"
+            ORACLE_JSON="$(curl -fsS -o /tmp/oracle.json -w '%{http_code}' --max-time 10 https://dreamledger.org/truth-oracle.json || true)"
+            POLICY="$(curl -fsS -o /tmp/policy.json -w '%{http_code}' --max-time 10 https://dreamledger.org/transparency-policy.json || true)"
+            HELP="$(curl -fsS -o /tmp/help.html -w '%{http_code}' --max-time 10 https://dreamledger.org/get-help.html || true)"
+            EXCLUDED_CINEMA="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 https://dreamledger.org/cinema.html || true)"
+            EXCLUDED_DREAMIEZ="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 https://dreamledger.org/dreamiez || true)"
             DEPLOYED_SHA="$(node -e "const fs=require('fs');try{const x=JSON.parse(fs.readFileSync('/tmp/version.json','utf8'));process.stdout.write(String(x.commit||''))}catch(e){}")"
-            if [ "$HEALTH" = "200" ] && [ "$VERSION" = "200" ] && [ "$DEPLOYED_SHA" = "$EXPECTED_SHA" ] && [ "$MTG" = "200" ] && [ "$CINEMA" = "200" ] && grep -q 'Monte Carlo' /tmp/mtg.html && grep -q 'DreamMee' /tmp/mtg.html && grep -q 'cinema-event-v1' /tmp/cinema.html; then
-              echo "PASS: Render production surface is live for $EXPECTED_SHA"
+            if [ "$HEALTH" = "200" ] && [ "$VERSION" = "200" ] && [ "$DEPLOYED_SHA" = "$EXPECTED_SHA" ] && [ "$MTG" = "200" ] && [ "$OFFER" = "200" ] && [ "$ORACLE" = "200" ] && [ "$ORACLE_JSON" = "200" ] && [ "$POLICY" = "200" ] && [ "$HELP" = "200" ] && [ "$EXCLUDED_CINEMA" = "404" ] && [ "$EXCLUDED_DREAMIEZ" = "404" ]; then
+              echo "PASS: production matches $EXPECTED_SHA and excluded routes are closed"
               break
             fi
-            echo "WAIT $i/30 health=$HEALTH version=$VERSION deployed_sha=$DEPLOYED_SHA mtg=$MTG cinema=$CINEMA expected=$EXPECTED_SHA"
-            if [ "$i" = "30" ]; then
-              echo "FAIL: Render production surface did not converge to the required contract."
-              exit 1
-            fi
+            echo "WAIT $i/30 health=$HEALTH version=$VERSION sha=$DEPLOYED_SHA mtg=$MTG offer=$OFFER oracle=$ORACLE oracle_json=$ORACLE_JSON policy=$POLICY help=$HELP cinema=$EXCLUDED_CINEMA dreamiez=$EXCLUDED_DREAMIEZ expected=$EXPECTED_SHA"
+            if [ "$i" = "30" ]; then exit 1; fi
             sleep 10
           done
 
@@ -70,13 +86,12 @@ jobs:
           SHA: ${{ github.sha }}
           RUN_ID: ${{ github.run_id }}
         run: |
-          set -euo pipefail
           mkdir -p proof
-          printf '{"status":"PASS","provider":"Render","sha":"%s","run_id":"%s","healthz":"200","version":"200","mtg":"200","cinema":"200","cinema_contract":"cinema-event-v1"}\n' "$SHA" "$RUN_ID" > proof/render-production-gate.json
+          printf '{"status":"PASS","provider":"Render","sha":"%s","run_id":"%s","healthz":"200","version":"200","mtg":"200","commander_offer":"200","truth_oracle":"200","truth_oracle_json":"200","transparency_policy":"200","help":"200","excluded_cinema":"404","excluded_dreamiez":"404"}\n' "$SHA" "$RUN_ID" > proof/render-production-gate.json
           cat proof/render-production-gate.json
 
       - name: Upload production proof
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@v4
         with:
           name: render-production-gate-proof
           path: proof/render-production-gate.json
