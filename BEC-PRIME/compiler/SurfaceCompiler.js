@@ -9,6 +9,7 @@ const OUT = path.join(ROOT, 'compiled', 'website');
 const INDEX = path.join(OUT, 'index.html');
 const TEMPLATE = path.join(ROOT, 'surface', 'index.v3.template.html');
 const CINEMA_TEMPLATE = path.join(ROOT, 'surface', 'cinema.html');
+const DIGITAL_TEMPLATE = path.join(ROOT, 'surface', 'digital-products.html');
 const MANIFEST = path.join(ROOT, 'manifests', 'CUBE-PUBLIC-SURFACE-MANIFEST.json');
 const OFFERS = path.join(ROOT, 'catalog', 'offers', 'offers.json');
 const IP = path.join(ROOT, 'catalog', 'ip-capabilities.json');
@@ -20,7 +21,6 @@ const FORBIDDEN_PUBLIC = [
   'amplissa','bbw','big beautiful women','adult-only','adult only','stripe_secret_key','stripe_webhook_secret',
   '/var/data/','127.0.0.1','BEC-PRIME','ELOHIM','internal control plane','CollectorsCoast','HappyHomarid'
 ];
-
 function must(file){if(!fs.existsSync(file))throw new Error(`CUBE surface input missing: ${path.relative(ROOT,file)}`)}
 function digest(file){return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')}
 function json(file){return JSON.parse(fs.readFileSync(file,'utf8'))}
@@ -35,19 +35,20 @@ function buildAccountPages(){
   write(path.join(OUT,'assets.html'),`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Assets | DreamLedger</title></head><body><main><h1>DreamLedger Assets</h1><p>Approved public commerce assets and product catalog references.</p></main></body></html>`);
 }
 
-[TEMPLATE,CINEMA_TEMPLATE,MANIFEST,OFFERS,IP,PRODUCTS,NEWS,AUCTIONS].forEach(must);
+[TEMPLATE,CINEMA_TEMPLATE,DIGITAL_TEMPLATE,MANIFEST,OFFERS,IP,PRODUCTS,NEWS,AUCTIONS].forEach(must);
 fs.mkdirSync(path.join(OUT,'assets'),{recursive:true});
 const manifest=json(MANIFEST), offers=json(OFFERS), ip=json(IP), news=json(NEWS), auctions=json(AUCTIONS);
 const template=fs.readFileSync(TEMPLATE,'utf8');
 assertClean('template',template);
 write(INDEX,template); assertClean('compiled index',fs.readFileSync(INDEX,'utf8'));
 write(path.join(OUT,'cinema.html'),fs.readFileSync(CINEMA_TEMPLATE,'utf8')); assertClean('cinema',fs.readFileSync(path.join(OUT,'cinema.html'),'utf8'));
+write(path.join(OUT,'digital-products.html'),fs.readFileSync(DIGITAL_TEMPLATE,'utf8')); assertClean('digital-products',fs.readFileSync(path.join(OUT,'digital-products.html'),'utf8'));
 buildAccountPages();
 for(const page of ['login.html','register.html','account.html','avatar.html','assets.html']){const html=fs.readFileSync(path.join(OUT,page),'utf8');if(page!=='assets.html'&&!html.includes('/api/account/'))throw new Error(`PRIMARY_ACCOUNT_SURFACE_FAILED: ${page}`);assertClean(page,html);}
 const productCount=fs.readdirSync(PRODUCTS).filter(x=>x.endsWith('.json')).length;
 const capabilityCount=Array.isArray(ip)?ip.length:(ip.capabilities||[]).length;
 const offerCount=Array.isArray(offers)?offers.length:(offers.offers||[]).length;
 const auctionCount=Array.isArray(auctions)?auctions.length:(auctions.auctions||[]).length;
-const build={type:'dreamledger-public-surface-compilation',status:'PASS',compiler:'surface',schema:manifest.schema,compiled_at:new Date().toISOString(),source_hashes:{template:digest(TEMPLATE),cinema_template:digest(CINEMA_TEMPLATE),manifest:digest(MANIFEST),offers:digest(OFFERS),ip:digest(IP),news:digest(NEWS),auctions:digest(AUCTIONS),surface_html:digest(INDEX)},counts:{capabilities:capabilityCount,offers:offerCount,products:productCount,news_silos:Object.keys(news).length,auctions:auctionCount},public_account_surfaces:['/login.html','/register.html','/account.html','/avatar.html','/assets.html'],public_surfaces:manifest.public_surfaces,gates:{approval_required_for_activation:manifest.surface_policy.approval_required_for_activation===true,private_material_excluded:manifest.surface_policy.private_material_excluded===true,silo_isolation_required:manifest.surface_policy.silo_isolation_required===true,forbidden_public_tokens_checked:true,template_compiled:true,cinema_surface_compiled:true,primary_account_pages_compiled:true}};
+const build={type:'dreamledger-public-surface-compilation',status:'PASS',compiler:'surface',schema:manifest.schema,compiled_at:new Date().toISOString(),source_hashes:{template:digest(TEMPLATE),cinema_template:digest(CINEMA_TEMPLATE),digital_template:digest(DIGITAL_TEMPLATE),manifest:digest(MANIFEST),offers:digest(OFFERS),ip:digest(IP),news:digest(NEWS),auctions:digest(AUCTIONS),surface_html:digest(INDEX)},counts:{capabilities:capabilityCount,offers:offerCount,products:productCount,news_silos:Object.keys(news).length,auctions:auctionCount},public_account_surfaces:['/login.html','/register.html','/account.html','/avatar.html','/assets.html'],public_surfaces:manifest.public_surfaces,gates:{approval_required_for_activation:manifest.surface_policy.approval_required_for_activation===true,private_material_excluded:manifest.surface_policy.private_material_excluded===true,silo_isolation_required:manifest.surface_policy.silo_isolation_required===true,forbidden_public_tokens_checked:true,template_compiled:true,cinema_surface_compiled:true,digital_products_surface_compiled:true,primary_account_pages_compiled:true}};
 write(PROOF,JSON.stringify(build,null,2)+'\n');
 console.log(JSON.stringify(build,null,2));
