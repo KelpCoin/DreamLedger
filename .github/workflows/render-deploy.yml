@@ -1,0 +1,172 @@
+name: Deploy and Verify DreamLedger Catalogue
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Immutable commit SHA to deploy and verify
+        required: true
+        type: string
+  push:
+    branches: [main]
+
+concurrency:
+  group: dreamledger-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
+      BASE_URL: https://dreamledger.org
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+    steps:
+      - name: Checkout immutable release
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          fetch-depth: 1
+
+      - name: Prove checkout SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          echo "RELEASE_SHA=$RELEASE_SHA"
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Compile canonical public surface
+        working-directory: BEC-PRIME
+        run: |
+          npm ci
+          npm run compile
+
+      - name: Verify catalogue compile output
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s BEC-PRIME/compiled/website/index.html
+          for page in login.html register.html account.html assets.html avatar.html; do test -s "BEC-PRIME/compiled/website/$page"; done
+          grep -q 'The catalogue is the product surface.' BEC-PRIME/compiled/website/index.html
+          grep -q 'MTG / CUBE silo' BEC-PRIME/compiled/website/index.html
+          grep -q 'DreamLedger Cinema' BEC-PRIME/compiled/website/index.html
+          grep -q 'Digital Products' BEC-PRIME/compiled/website/index.html
+          grep -q 'DreamMee Avatar' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'Dream Ledger Deck' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'single-offer homepage' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'Amplissa' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'CollectorsCoast' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'HappyHomarid' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'adult' BEC-PRIME/compiled/website/index.html
+          echo 'CATALOG_COMPILE=PASS'
+
+      - name: Verify approved commercial offer
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'OFFER-CMD-DIAG-29-NZD' BEC-PRIME/catalog/offers/approved.json
+          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' BEC-PRIME/catalog/offers/approved.json
+          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
+          grep -q '9B6aEX5DvdSd4Q73gwdwc1V' BEC-PRIME/catalog/offers/approved.json
+          grep -q '/api/mtg/diagnostic/intake' BEC-PRIME/catalog/offers/approved.json
+          echo 'APPROVED_OFFER=PASS'
+
+      - name: Trigger exact Render deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            case "$RENDER_DEPLOY_HOOK_URL" in
+              *\?*) SEP='&' ;;
+              *) SEP='?' ;;
+            esac
+            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60 \
+              -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" >/tmp/render.json
+            cat /tmp/render.json
+          elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
+            curl --fail --silent --show-error -L \
+              https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip \
+              -o /tmp/render.zip
+            unzip -q /tmp/render.zip -d /tmp/render
+            RENDER_BIN=$(find /tmp/render -type f -name render -perm -111 | head -1)
+            test -n "$RENDER_BIN"
+            "$RENDER_BIN" --version
+            RENDER_API_KEY="$RENDER_API_KEY" "$RENDER_BIN" deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json | tee /tmp/render.json
+          else
+            echo 'FAIL: missing RENDER_DEPLOY_HOOK_URL and RENDER_API_KEY/RENDER_SERVICE_ID'
+            exit 1
+          fi
+
+      - name: Wait for production and verify catalogue
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent --show-error --max-time 20 "$BASE_URL/version" >/tmp/version.json && \
+               grep -q "$RELEASE_SHA" /tmp/version.json; then break; fi
+            if [ "$attempt" = 12 ]; then echo 'FAIL: production SHA did not converge'; cat /tmp/version.json 2>/dev/null || true; exit 1; fi
+            sleep 10
+          done
+          for path in / /mtg /cinema.html /digital-products.html /avatar.html /healthz /version /login.html /register.html /account.html /assets.html /api/offers /api/products/EDH_0001 /api/mtg/diagnostic/intake; do
+            code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
+            echo "$code $path"
+            test "$code" = 200
+          done
+          HOME=$(cat /tmp/body 2>/dev/null || true)
+          curl --fail --silent --show-error "$BASE_URL/" >/tmp/home.html
+          grep -q 'MTG / CUBE silo' /tmp/home.html
+          grep -q 'DreamLedger Cinema' /tmp/home.html
+          grep -q 'Digital Products' /tmp/home.html
+          grep -q 'DreamMee Avatar' /tmp/home.html
+          ! grep -qi 'Dream Ledger Deck' /tmp/home.html
+          ! grep -qi 'single-offer homepage' /tmp/home.html
+          ! grep -qi 'Amplissa' /tmp/home.html
+          ! grep -qi 'CollectorsCoast' /tmp/home.html
+          ! grep -qi 'HappyHomarid' /tmp/home.html
+          ! grep -qi 'adult' /tmp/home.html
+          curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.json
+          grep -q '"status":"ok"' /tmp/healthz.json
+          echo "PRODUCTION_CATALOGUE=PASS"
+
+      - name: Emit deployment fossil
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          p={
+            'schema':'dreamledger-catalogue-deployment-v1',
+            'source_sha':os.environ['RELEASE_SHA'],
+            'base_url':os.environ['BASE_URL'],
+            'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
+            'catalogue_routes':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html'],
+            'support_routes':['/healthz','/version','/login.html','/register.html','/account.html','/assets.html','/api/offers','/api/products/EDH_0001','/api/mtg/diagnostic/intake'],
+            'approved_offer':'OFFER-CMD-DIAG-29-NZD',
+            'stripe_link':'https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V'
+          }
+          with open('proof/catalogue-deployment-fossil.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
+          print(json.dumps(p,indent=2))
+          PY
+      - name: Upload fossil
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dreamledger-catalogue-fossil-${{ env.RELEASE_SHA }}
+          path: proof/catalogue-deployment-fossil.json
+          if-no-files-found: error
+          retention-days: 30
