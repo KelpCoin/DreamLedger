@@ -1,57 +1,116 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger Agentic Commerce Readiness Audit. Evidence, not hype.">
-<title>DreamLedger | Evidence, Not Hype</title>
+<meta name="description" content="DreamLedger Agentic Sovereignty Diagnostic. A focused NZ$29 evidence review for agentic commerce systems.">
+<meta name="theme-color" content="#0b0d12">
+<title>DreamLedger | Agentic Sovereignty Diagnostic</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f8f6f1;color:#1a1a1f;font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:0 20px 56px}.wrap{max-width:820px;margin:auto}.top{padding:22px 0;border-bottom:1px solid #e8e4dd;margin-bottom:58px}.brand{font-size:24px;font-weight:800;text-decoration:none;color:#1a1a1f}.brand b{color:#c97d5a}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#777;margin-bottom:12px}h1{font-size:clamp(42px,8vw,68px);line-height:.98;letter-spacing:-.05em;margin:0}h1 span{color:#c97d5a}.sub{font-size:19px;color:#555;max-width:700px;margin:18px 0 26px}.badges{display:flex;gap:8px;flex-wrap:wrap}.badge{background:#fff;border:1px solid #d9d4cb;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:700}.section{margin-top:48px}.section h2{font-size:26px;margin:0 0 8px}.muted{color:#555}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}.card{background:#fff;border:1px solid #e8e4dd;border-radius:13px;padding:18px}.card h3{margin:0;color:#c97d5a;font-size:13px;text-transform:uppercase;letter-spacing:.06em}.card p{margin:7px 0 0;color:#333;font-size:14px}.offer{margin-top:16px;background:#fff;border:1px solid #d9d4cb;border-radius:16px;padding:24px;box-shadow:0 4px 18px rgba(0,0,0,.04)}.tag{display:inline-block;background:#eaf3ea;color:#2a6b3a;border:1px solid #c5dcc5;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800}.offer h2{font-size:30px;margin:12px 0}.price{font-size:42px;font-weight:850;letter-spacing:-.04em;margin-top:18px}.buy{display:inline-block;margin-top:10px;background:#1a1a1f;color:#fff;text-decoration:none;padding:13px 24px;border-radius:999px;font-weight:800}.note{font-size:12px;color:#888;margin-top:8px}.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.step{background:#fff;border:1px solid #e8e4dd;border-radius:13px;padding:18px}.num{font-size:12px;font-weight:800;color:#c97d5a}.step h3{margin:5px 0}.step p{margin:0;color:#555;font-size:14px}.footer{margin-top:48px;padding-top:18px;border-top:1px solid #e8e4dd;color:#888;font-size:12px}@media(max-width:650px){.grid,.steps{grid-template-columns:1fr}}
+:root{--bg:#f5f3ee;--ink:#101218;--muted:#62656d;--line:#dedbd3;--card:#fff;--accent:#b86f4f;--accent-dark:#8f5036;--green:#176b4a;--shadow:0 18px 50px rgba(16,18,24,.08);--radius:22px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.shell{max-width:1160px;margin:0 auto;padding:0 28px}
+.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{font-size:22px;font-weight:900;letter-spacing:-.04em;text-decoration:none}.brand span{color:var(--accent)}
+.toplink{font-size:14px;font-weight:700;text-decoration:none;color:var(--muted)}
+.hero{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(330px,.82fr);gap:72px;align-items:center;padding:86px 0 72px}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid #d8d5cc;border-radius:999px;background:rgba(255,255,255,.72);font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#555861}
+.kicker i{width:7px;height:7px;border-radius:50%;background:var(--green);display:block}
+h1{font-size:clamp(48px,7vw,86px);line-height:.94;letter-spacing:-.065em;margin:20px 0 24px;max-width:850px}h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:20px;line-height:1.55;color:var(--muted);max-width:720px;margin:0 0 30px}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.primary{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 23px;border-radius:999px;background:var(--ink);color:#fff;text-decoration:none;font-weight:850;box-shadow:0 8px 20px rgba(16,18,24,.15)}.primary:hover{background:#292c34}.secondary{font-weight:750;color:var(--muted);text-decoration:none;padding:12px 4px}
+.micro{font-size:12px;color:#777a82;margin-top:13px}
+.offer{background:#0b0d12;color:#fff;border-radius:28px;padding:30px;box-shadow:var(--shadow);position:relative;overflow:hidden}.offer:before{content:"";position:absolute;inset:-100px -80px auto auto;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(184,111,79,.35),rgba(184,111,79,0) 68%)}.offer>*{position:relative}.offer-label{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#aeb2bb;font-weight:900}.offer h2{font-size:32px;line-height:1.05;letter-spacing:-.04em;margin:14px 0 12px}.offer p{color:#c8cbd1;margin:0 0 20px}.price-row{display:flex;align-items:end;justify-content:space-between;gap:18px;border-top:1px solid #2b2f38;padding-top:20px}.price{font-size:46px;line-height:1;font-weight:900;letter-spacing:-.06em}.price small{font-size:13px;color:#9da1aa;font-weight:650;letter-spacing:0}.offer .buy{display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#101218;text-decoration:none;font-weight:900;padding:13px 18px;border-radius:14px;white-space:nowrap}.offer .buy:hover{background:#f0eee9}
+.trustbar{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.trust{padding:20px 18px;border-right:1px solid var(--line)}.trust:last-child{border-right:0}.trust strong{display:block;font-size:13px}.trust span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.section{padding:88px 0}.section-head{max-width:700px;margin-bottom:30px}.eyebrow{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}h2.section-title{font-size:clamp(34px,5vw,54px);line-height:1.02;letter-spacing:-.055em;margin:9px 0 12px}.section-copy{font-size:17px;color:var(--muted);margin:0}
+.evidence-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.evidence{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;min-height:190px}.evidence .num{font-size:12px;font-weight:900;color:var(--accent)}.evidence h3{font-size:19px;letter-spacing:-.025em;margin:22px 0 7px}.evidence p{font-size:14px;color:var(--muted);margin:0}
+.split{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:start}.deliverable{display:grid;gap:12px}.deliver{background:#fff;border:1px solid var(--line);border-radius:17px;padding:20px 22px;display:grid;grid-template-columns:32px 1fr;gap:15px}.deliver .check{width:28px;height:28px;border-radius:50%;background:#e8f3ed;color:var(--green);display:grid;place-items:center;font-weight:900}.deliver h3{margin:0;font-size:16px}.deliver p{margin:3px 0 0;color:var(--muted);font-size:14px}
+.process{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.process-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px}.process-card .step{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:.12em}.process-card h3{font-size:21px;margin:14px 0 7px}.process-card p{margin:0;color:var(--muted);font-size:14px}
+.faq{max-width:820px}.faq details{border-top:1px solid var(--line);padding:20px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{cursor:pointer;font-weight:800;font-size:16px}.faq p{color:var(--muted);font-size:14px;max-width:700px;margin:10px 0 0}
+.final{background:#0b0d12;color:#fff;border-radius:30px;padding:54px;display:flex;align-items:center;justify-content:space-between;gap:30px}.final h2{font-size:clamp(34px,5vw,56px);line-height:1;letter-spacing:-.055em;margin:8px 0 10px}.final p{color:#b9bdc5;margin:0;max-width:620px}.final .primary{background:#fff;color:#101218;box-shadow:none}.final .primary:hover{background:#eae8e3}
+footer{padding:32px 0 54px;color:#777a82;font-size:12px}footer .footline{border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.note{font-size:12px;color:#777a82}
+.mobile-cta{display:none}
+@media(max-width:900px){.hero{grid-template-columns:1fr;gap:38px;padding:64px 0 54px}.evidence-grid{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr;gap:30px}.trustbar{grid-template-columns:repeat(2,1fr)}.trust:nth-child(2){border-right:0}.trust:nth-child(-n+2){border-bottom:1px solid var(--line)}.process{grid-template-columns:1fr}.final{padding:38px;display:block}.final .actions{margin-top:24px}}
+@media(max-width:620px){.shell{padding:0 18px}.topbar{height:68px}.toplink{display:none}h1{font-size:52px}.lede{font-size:18px}.offer{padding:23px;border-radius:22px}.price-row{align-items:stretch;flex-direction:column}.offer .buy{width:100%}.trustbar{grid-template-columns:1fr}.trust{border-right:0!important;border-bottom:1px solid var(--line)!important}.trust:last-child{border-bottom:0!important}.section{padding:62px 0}.evidence-grid{grid-template-columns:1fr}.evidence{min-height:auto}.final{border-radius:22px;padding:30px 23px}.mobile-cta{display:block;position:fixed;z-index:20;left:12px;right:12px;bottom:12px}.mobile-cta a{display:flex;align-items:center;justify-content:center;min-height:50px;background:#101218;color:#fff;border:1px solid #30343d;border-radius:999px;text-decoration:none;font-weight:900;box-shadow:0 12px 30px rgba(0,0,0,.2)}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header class="top"><a class="brand" href="/">Dream<b>Ledger</b></a></header>
+<div class="shell">
+<header class="topbar">
+<a class="brand" href="/">Dream<span>Ledger</span></a>
+<a class="toplink" href="#details">See what you receive</a>
+</header>
 <main>
-<section>
-<div class="eyebrow">Agentic commerce evidence</div>
-<h1>Evidence, <span>Not Hype.</span></h1>
-<p class="sub">A focused readiness audit for businesses building or operating agentic commerce. We inspect the evidence, identify trust gaps, and return a practical diagnostic you can act on.</p>
-<div class="badges"><span class="badge">Clear scope</span><span class="badge">Evidence first</span><span class="badge">Observable findings</span><span class="badge">NZ delivery</span></div>
-</section>
-<section class="section">
-<h2>What the audit examines</h2>
-<p class="muted">The audit evaluates the evidence around agent identity, authorization, transaction controls, fulfilment signals, and the audit trail connecting them.</p>
-<div class="grid">
-<article class="card"><h3>Identity</h3><p>What identifies the agent, operator, merchant, and customer context?</p></article>
-<article class="card"><h3>Authorization</h3><p>What evidence shows the action was permitted and within scope?</p></article>
-<article class="card"><h3>Economic event</h3><p>What proves the payment, transaction, or settlement actually occurred?</p></article>
-<article class="card"><h3>Fulfilment</h3><p>What evidence connects the transaction to the promised outcome?</p></article>
+<section class="hero">
+<div>
+<div class="kicker"><i></i> Agentic commerce evidence review</div>
+<h1>Know what your transaction <em>actually proves.</em></h1>
+<p class="lede">The Agentic Sovereignty Diagnostic is a focused evidence review for businesses building or operating agentic commerce. We inspect the available proof, expose trust gaps, and return the highest-value actions.</p>
+<div class="actions"><a class="primary" href="https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M" target="_blank" rel="noopener noreferrer">Get the diagnostic - NZ$29</a><a class="secondary" href="#details">What is included</a></div>
+<div class="micro">Secure Stripe checkout. No DreamLedger account required.</div>
 </div>
-</section>
-<section class="section">
-<h2>One offer. One price.</h2>
-<div class="offer">
-<span class="tag">NZ$29 Agentic Commerce Readiness Audit</span>
+<aside class="offer" aria-label="Agentic Sovereignty Diagnostic offer">
+<div class="offer-label">One focused offer</div>
 <h2>Agentic Sovereignty Diagnostic</h2>
-<p><strong>Problem:</strong> Agentic commerce can prove pieces of a transaction without giving the operator one inspectable evidence trail.</p>
-<p><strong>Deliverable:</strong> A focused diagnostic identifying evidence gaps, trust boundaries, and the highest-value remediation actions.</p>
-<p><strong>Evidence:</strong> Your supplied context and public artifacts are assessed against explicit criteria. Findings are returned as a written diagnostic.</p>
-<div class="price">NZ$29</div>
-<a class="buy" href="https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M" target="_blank" rel="noopener noreferrer">Buy the Diagnostic - NZ$29</a>
-<div class="note">Secure checkout via Stripe. No account required.</div>
+<p>A practical review of identity, authorization, economic events, fulfilment evidence, and the trail connecting them.</p>
+<div class="price-row"><div class="price">NZ$29 <small>one-time</small></div><a class="buy" href="https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M" target="_blank" rel="noopener noreferrer">Buy now</a></div>
+</aside>
+</section>
+<section class="trustbar" aria-label="Service principles">
+<div class="trust"><strong>Evidence first</strong><span>Findings tied to observable material.</span></div>
+<div class="trust"><strong>Clear scope</strong><span>A defined diagnostic, not a consulting maze.</span></div>
+<div class="trust"><strong>Practical output</strong><span>Prioritized actions, not theory sludge.</span></div>
+<div class="trust"><strong>NZ$29 flat</strong><span>One payment. One focused deliverable.</span></div>
+</section>
+<section class="section" id="details">
+<div class="section-head"><div class="eyebrow">The evidence surface</div><h2 class="section-title">Four questions. One inspectable picture.</h2><p class="section-copy">The diagnostic focuses on the evidence chain that matters when an agent can identify, authorize, transact, and claim an outcome.</p></div>
+<div class="evidence-grid">
+<article class="evidence"><div class="num">01</div><h3>Identity</h3><p>What identifies the agent, operator, merchant, and customer context?</p></article>
+<article class="evidence"><div class="num">02</div><h3>Authorization</h3><p>What shows the action was permitted and stayed within the intended scope?</p></article>
+<article class="evidence"><div class="num">03</div><h3>Economic event</h3><p>What evidence shows payment, transaction, or settlement actually occurred?</p></article>
+<article class="evidence"><div class="num">04</div><h3>Fulfilment</h3><p>What connects the transaction to the promised outcome and its supporting evidence?</p></article>
 </div>
 </section>
-<section class="section">
-<h2>How it works</h2>
-<div class="steps">
-<div class="step"><div class="num">01</div><h3>Pay</h3><p>Complete the NZ$29 Stripe checkout.</p></div>
-<div class="step"><div class="num">02</div><h3>Provide context</h3><p>Send the system context and relevant public artifacts requested at checkout.</p></div>
-<div class="step"><div class="num">03</div><h3>Receive findings</h3><p>Receive the written diagnostic with evidence gaps and prioritized actions.</p></div>
+<section class="section" style="padding-top:0">
+<div class="split">
+<div class="section-head"><div class="eyebrow">What you receive</div><h2 class="section-title">A useful answer, not a 40-page fog bank.</h2><p class="section-copy">The output is designed to tell you what is proven, what is missing, and what deserves attention first.</p></div>
+<div class="deliverable">
+<div class="deliver"><div class="check">1</div><div><h3>Evidence map</h3><p>A concise view of the observable evidence supplied or publicly available.</p></div></div>
+<div class="deliver"><div class="check">2</div><div><h3>Trust-gap findings</h3><p>Specific gaps and boundary conditions identified against explicit diagnostic criteria.</p></div></div>
+<div class="deliver"><div class="check">3</div><div><h3>Priority actions</h3><p>The highest-value remediation actions, ordered so you can move without guesswork.</p></div></div>
+<div class="deliver"><div class="check">4</div><div><h3>Written diagnostic</h3><p>A focused report you can retain as an evidence artifact for the next decision.</p></div></div>
 </div>
+</div>
+</section>
+<section class="section" style="padding-top:0">
+<div class="section-head"><div class="eyebrow">Simple by design</div><h2 class="section-title">Three steps from checkout to findings.</h2></div>
+<div class="process">
+<div class="process-card"><div class="step">STEP 01</div><h3>Pay</h3><p>Complete the NZ$29 Stripe checkout. No account is required on DreamLedger.</p></div>
+<div class="process-card"><div class="step">STEP 02</div><h3>Provide context</h3><p>Supply the system context and relevant public artifacts requested for the review.</p></div>
+<div class="process-card"><div class="step">STEP 03</div><h3>Receive findings</h3><p>Receive the written diagnostic with evidence gaps and prioritized next actions.</p></div>
+</div>
+</section>
+<section class="section" style="padding-top:0">
+<div class="faq">
+<div class="section-head"><div class="eyebrow">Questions</div><h2 class="section-title">Before you buy.</h2></div>
+<details><summary>What is this?</summary><p>A focused evidence review of an agentic commerce system or transaction surface. It is designed to identify what can actually be supported by observable evidence.</p></details>
+<details><summary>What is not promised?</summary><p>The diagnostic does not manufacture evidence, certify a system without supporting material, or claim that an unverified transaction occurred.</p></details>
+<details><summary>Do I need an account?</summary><p>No. Checkout is handled through Stripe and the diagnostic is delivered from the information supplied for the review.</p></details>
+<details><summary>Why NZ$29?</summary><p>It is intentionally a low-friction first purchase: a defined scope, a defined output, and a single price.</p></details>
+</div>
+</section>
+<section class="section" style="padding-top:0">
+<div class="final"><div><div class="eyebrow">Ready when you are</div><h2>Turn uncertainty into an evidence map.</h2><p>Get the Agentic Sovereignty Diagnostic for NZ$29 and see exactly where the proof is strong, weak, or missing.</p></div><div class="actions"><a class="primary" href="https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M" target="_blank" rel="noopener noreferrer">Get the diagnostic - NZ$29</a></div></div>
 </section>
 </main>
-<footer class="footer">DreamLedger. Evidence first. Revenue is recorded only after verified settlement evidence.</footer>
+<footer>
+<div class="footline"><span>DreamLedger. Evidence first.</span><span>Private implementation material is not a public surface.</span><span>Revenue is recorded only after verified settlement evidence.</span></div>
+</footer>
 </div>
+<div class="mobile-cta"><a href="https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M" target="_blank" rel="noopener noreferrer">Get the diagnostic - NZ$29</a></div>
 </body>
 </html>
