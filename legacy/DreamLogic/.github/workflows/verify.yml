@@ -1,0 +1,30 @@
+name: Verify DreamLedger
+
+on:
+  push:
+    branches: [main, agent/prime-first-payment-qr]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install
+      - run: npm run build
+      - run: npm run verify
+      - run: node scripts/silo-integrity.js
+
+# CI ignition probe: push-trigger verification.

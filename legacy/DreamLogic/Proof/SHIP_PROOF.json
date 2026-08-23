@@ -1,0 +1,13 @@
+{
+  "schema_version": "BEC-SHIP-PROOF-1.0",
+  "status": "PASS",
+  "proof_type": "repository_ship",
+  "repository": "KelpCoin/DreamLogic",
+  "branch": "agent/prime-first-payment-qr",
+  "commit": "2c0e04a4dafadee76ba5c67973f79bea07bca7e6",
+  "draft_pr": 1,
+  "payment_status": "UNVERIFIED",
+  "payment_claim": false,
+  "created_utc": "2026-08-12T07:16:00Z",
+  "note": "Repository implementation shipped to a draft branch. No revenue PASS is asserted until a signed live Stripe webhook creates FIRST_PAYMENT_PROOF.json."
+}

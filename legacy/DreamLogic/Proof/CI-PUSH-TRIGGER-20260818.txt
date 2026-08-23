@@ -1,0 +1,5 @@
+DreamLedger CI push-trigger probe
+
+Purpose: generate a real push event on main so Verify DreamLedger executes.
+
+No application behavior is changed by this file.

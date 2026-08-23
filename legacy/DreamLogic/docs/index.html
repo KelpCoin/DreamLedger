@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DreamLedger MTG storefront. Static deployment surface for Commander products.">
+<title>DreamLedger | MTG Storefront</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070a0f;color:#eef3f8;font-family:system-ui,-apple-system,Segoe UI,sans-serif}main{width:min(720px,100%);margin:auto;padding:24px 16px 56px}nav{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:42px}a{color:#8be9ff;text-decoration:none}.tag{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8be9ff}.card{border:1px solid #29384a;border-radius:22px;padding:24px;background:#0d131c;margin:18px 0}.price{font-size:38px;font-weight:850;margin:18px 0}.btn{display:block;text-align:center;padding:15px;border-radius:12px;background:#2563eb;color:#fff;font-weight:800}.small{font-size:13px;line-height:1.5;color:#9baabd}.proof{border:1px solid #29384a;border-radius:14px;padding:14px;margin-top:24px;color:#9baabd}.live{border-color:#245c39;background:#0b1710;color:#9de0b4}.warning{border-color:#6b5426;background:#19150c;color:#d8c28d}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="/" style="font-size:22px;font-weight:900">DREAMLEDGER</a><span class="tag">MTG / LIVE SURFACE</span></nav>
+<header>
+<div class="tag">Release 2026-08-18</div>
+<h1>Commander decks, separated from the backend.</h1>
+<p class="small">This is the DreamLedger MTG public surface. It is deployed as static files and does not depend on Render being awake. Authentication and backend APIs remain separate runtime services.</p>
+</header>
+<section class="card">
+<div class="tag">MTG catalog</div>
+<h2>Atraxa Commander Deck</h2>
+<p>100-card Commander deck offer from the MTG silo.</p>
+<div class="price">NZ$149</div>
+<a class="btn" href="/mtg.html">Open MTG catalog</a>
+<p class="small" style="margin-top:14px">Checkout is intentionally disabled until a verified payment URL is present in the repository. No fabricated payment link is published.</p>
+</section>
+<section class="proof live">
+<strong>Deployment boundary</strong><br>
+Source: KelpCoin/DreamLogic main. Target: dreamledger.org. Silo: MTG. Static surface: GitHub Pages. Backend: optional Node runtime.<br><br>
+<strong>Deployment trigger</strong><br>
+This release intentionally changes the public index so the Pages pipeline has a concrete source change to deploy and verify.
+</section>
+<section class="proof">
+<strong>Truth boundary</strong><br>
+Generated is not approved. Approved is not sold. Sold is not payment. This page only claims what the repository can prove.<br><br>
+<a href="/trust.html">View progressive transparency tiers</a>
+</section>
+<section class="proof warning">
+<strong>Login boundary</strong><br>
+Login requires the backend runtime. This static surface does not fake authentication. If login is unavailable, the backend deployment must be repaired separately.
+</section>
+<p class="small" style="margin-top:28px"><a href="https://github.com/KelpCoin/DreamLogic">Repository</a> | <a href="/mtg.html">MTG silo</a> | <a href="/trust.html">Transparency</a> | GitHub Pages target: <code>/docs</code></p>
+</main>
+</body>
+</html>

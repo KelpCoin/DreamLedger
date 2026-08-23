@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: dreamledger
+    env: node
+    branch: main
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    disk:
+      name: dreamledger-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_ROOT
+        value: /var/data
+      - key: PUBLIC_BASE_URL
+        value: https://dreamledger.org
+      - key: QR_BASE_DOMAIN
+        value: https://qr.dreamledger.org
+      - key: QR_CODE
+        value: DL1
+      - key: DEFAULT_LANGUAGE
+        value: en
+      - key: DEFAULT_COUNTRY
+        value: NZ
+      - key: GEO_COUNTRY_HEADER
+        value: cf-ipcountry
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_NZ
+        sync: false
+      - key: STRIPE_PRICE_US
+        sync: false
+      - key: STRIPE_PRICE_EU
+        sync: false
+      - key: STRIPE_PRICE_INTL
+        sync: false

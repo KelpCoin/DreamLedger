@@ -1,0 +1,5 @@
+DreamLedger CI ignition probe
+Target commit: 7281f93b4873813657e548d1aaffa98bda7995e1
+Expected workflows: Verify DreamLedger; Deploy to Render
+Purpose: create a real push event on main so the existing CI/CD triggers can be observed.
+No payment or inventory claim is made by this file.

@@ -1,0 +1,1 @@
+Non-MTG cleanup audit: neutral front door and revenue surfaces contained stale approval-registry copy. MTG surface remains isolated and unchanged. No EDH inventory fabricated.

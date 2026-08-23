@@ -1,0 +1,110 @@
+name: Live Commerce Gate
+
+on:
+  workflow_run:
+    workflows: ["Deploy to Render"]
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-commerce:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Verify production health
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/healthz -o /tmp/healthz.json
+          node -e "const x=require('/tmp/healthz.json'); if(x.status!=='ok') throw new Error('healthz not ok'); console.log('PASS healthz')"
+
+      - name: Verify neutral front door
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/ -o /tmp/index.html
+          grep -q 'Neutral front door' /tmp/index.html
+          grep -q 'Dreamiez' /tmp/index.html
+          grep -q 'Kelplantis' /tmp/index.html
+          grep -q 'BEC-PRIME' /tmp/index.html
+          echo 'PASS neutral front door'
+
+      - name: Verify Dreamiez isolation
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/dreamiez/index.html -o /tmp/dreamiez.html
+          grep -q 'Your Dreamy' /tmp/dreamiez.html
+          if grep -Eqi 'COMMANDER-DECK|offer-checkout|/api/marketplace/intake' /tmp/dreamiez.html; then
+            echo 'FAIL Dreamiez contains foreign commerce routes'
+            exit 1
+          fi
+          echo 'PASS Dreamiez isolation'
+
+      - name: Verify B2B marketplace boundary
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/marketplace -o /tmp/marketplace.html
+          grep -q 'B2B MARKETPLACE' /tmp/marketplace.html
+          grep -q '/api/marketplace/catalog' /tmp/marketplace.html
+          grep -q '/api/marketplace/intake' /tmp/marketplace.html
+          if grep -Eqi 'COMMANDER-DECK-DIAGNOSTIC-001|/api/offer-checkout/create' /tmp/marketplace.html; then
+            echo 'FAIL B2B surface contains MTG checkout references'
+            exit 1
+          fi
+          echo 'PASS B2B boundary'
+
+      - name: Verify Kelplantis shared asset surface
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/kelplantis.html -o /tmp/kelplantis.html
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/api/shared-assets/schema -o /tmp/shared-assets.json
+          grep -q 'Kelplantis' /tmp/kelplantis.html
+          node -e "const x=require('/tmp/shared-assets.json'); if(x.schema_version!=='BEC-SHARED-ASSET-1.0') throw new Error('shared asset schema mismatch'); console.log('PASS shared asset contract')"
+
+      - name: Verify canonical offers contract
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/api/offers -o /tmp/offers.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('/tmp/offers.json', 'utf8'));
+          const offers = Array.isArray(data) ? data : (Array.isArray(data.offers) ? data.offers : []);
+          if (!offers.length) throw new Error('Production offers endpoint returned zero offers');
+          const ids = new Set();
+          for (const offer of offers) {
+            if (!offer.id) throw new Error('Offer missing id');
+            if (ids.has(offer.id)) throw new Error(`Duplicate production offer id: ${offer.id}`);
+            ids.add(offer.id);
+            if (!offer.silo) throw new Error(`Offer missing silo: ${offer.id}`);
+          }
+          console.log(`PASS canonical offers=${offers.length}`);
+          NODE
+
+      - name: Verify revenue truth boundary
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 https://dreamledger.org/revenue.html -o /tmp/revenue.html
+          curl --silent --show-error --location --max-time 20 https://dreamledger.org/api/proof/first-payment -o /tmp/payment-proof.json -w '%{http_code}' > /tmp/payment-proof-status.txt
+          grep -q 'canonical offers API' /tmp/revenue.html
+          grep -q 'not payment evidence' /tmp/revenue.html
+          status=$(cat /tmp/payment-proof-status.txt)
+          if [ "$status" = "200" ]; then
+            node -e "const x=require('/tmp/payment-proof.json'); if(x.status!=='PASS'||!x.transaction_id) throw new Error('payment fossil is malformed'); console.log('PAYMENT_PROOF_PRESENT')"
+          elif [ "$status" = "404" ]; then
+            echo 'PAYMENT_PROOF=NOT_PRESENT'
+          else
+            echo "Unexpected payment proof status: $status"
+            exit 1
+          fi
+          echo 'PASS revenue truth boundary'
+
+      - name: Emit proof summary
+        run: |
+          echo "LIVE_COMMERCE_GATE=PASS"
+          echo "HEALTH=https://dreamledger.org/healthz"
+          echo "FRONT_DOOR=https://dreamledger.org/"
+          echo "OFFERS=https://dreamledger.org/api/offers"
+          echo "PAYMENT=NOT_VERIFIED_BY_THIS_GATE"
+          echo "LIVE_PAYMENT_PROOF=https://dreamledger.org/api/proof/first-payment"

@@ -1,0 +1,24 @@
+{
+  "schema_version": "BEC-RELEASE-1.0",
+  "targets": {
+    "dreamledger": {
+      "domain": "dreamledger.org",
+      "source_root": ".",
+      "runtime": "node20",
+      "entrypoint": "server.js",
+      "silo": "MTG",
+      "artifact_dir": "dist-release/dreamledger",
+      "deploy_workflow": ".github/workflows/deploy.yml"
+    },
+    "amplissa": {
+      "domain": "amplissa.com",
+      "source_root": null,
+      "runtime": "node20",
+      "entrypoint": "server.js",
+      "silo": "AMPLISSA",
+      "artifact_dir": "dist-release/amplissa",
+      "deploy_workflow": null,
+      "status": "SOURCE_REQUIRED"
+    }
+  }
+}

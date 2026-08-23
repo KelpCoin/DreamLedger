@@ -1,0 +1,59 @@
+name: BEC Release Compiler
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Compile DreamLedger release
+        run: node scripts/compile-release.js dreamledger
+
+      - name: Verify silo integrity
+        run: node scripts/silo-integrity.js
+
+      - name: Verify release manifest
+        run: node -e "const fs=require('fs'); const p='dist-release/dreamledger/release-manifest.json'; const x=JSON.parse(fs.readFileSync(p)); if(x.status!=='PASS'||x.target!=='dreamledger'||x.silo!=='MTG'||!x.source_sha) process.exit(1); console.log('PASS release manifest', x.source_sha, x.file_count, x.total_bytes)"
+
+      - name: Compile Amplissa only when its source is present
+        run: |
+          if [ -d ../amplissa ]; then
+            node scripts/compile-release.js amplissa
+          else
+            echo "PASS Amplissa compiler guard: source is intentionally absent from DreamLogic"
+          fi
+
+      - name: Upload immutable release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-release-${{ github.sha }}
+          path: dist-release/dreamledger
+          if-no-files-found: error
+
+      - name: Write compiler proof
+        run: |
+          mkdir -p Proof
+          node - <<'NODE'
+          const fs=require('fs');
+          const m=JSON.parse(fs.readFileSync('dist-release/dreamledger/release-manifest.json'));
+          const p={schema_version:'BEC-COMPILER-PROOF-1.0',status:'PASS',target:m.target,domain:m.domain,silo:m.silo,source_sha:m.source_sha,file_count:m.file_count,total_bytes:m.total_bytes,timestamp_utc:new Date().toISOString(),amplissa:'SOURCE_REQUIRED'};
+          fs.writeFileSync('Proof/COMPILER-PROOF.json',JSON.stringify(p,null,2)+'\n');
+          NODE
+
+      - name: Upload compiler proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-proof-${{ github.sha }}
+          path: Proof/COMPILER-PROOF.json

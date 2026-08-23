@@ -1,0 +1,17 @@
+{
+  "schema_version": "BEC-PROOF-1.0",
+  "scope": "NON-MTG",
+  "status": "CODE_PUSHED",
+  "changes": [
+    "Verifier aligned with the live MTG checkout contract without changing mtg.html",
+    "Silo integrity hardened for Dreamiez, B2B marketplace, neutral front door and revenue surface",
+    "Non-MTG surfaces explicitly reject MTG checkout/catalog contamination"
+  ],
+  "commits": [
+    "fefeab329c7b42ff8033a97a23b1a7fb238c9c33",
+    "03ae99ec0bf175f88927db2a4db3f017613307c0"
+  ],
+  "edh_inventory": "ABSENT_BY_DESIGN",
+  "verified_revenue_nzd": 0,
+  "deployment": "UNPROVEN"
+}

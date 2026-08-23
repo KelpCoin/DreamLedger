@@ -1,0 +1,21 @@
+{
+  "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+  "name": "Commander Deck Diagnostic",
+  "price": 25,
+  "currency": "nzd",
+  "status": "published",
+  "checkout_available": true,
+  "approval_required": false,
+  "stock": 999999,
+  "inventory": 999999,
+  "gauntlet_status": "PASS",
+  "silo": "MTG",
+  "stripe_price_env": {
+    "NZ": "STRIPE_PRICE_NZ",
+    "US": "STRIPE_PRICE_US",
+    "EU": "STRIPE_PRICE_EU",
+    "INTL": "STRIPE_PRICE_INTL"
+  },
+  "fossil_path": "Proof/Fossils/FIRST_PAYMENT_PROOF.json",
+  "fulfilment": "Human-delivered diagnostic report after verified payment"
+}

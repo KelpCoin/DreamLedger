@@ -1,0 +1,71 @@
+name: DreamLedger CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Verify
+        run: npm run verify
+      - name: Build Cloudflare Pages output
+        run: npm run build:pages
+      - name: Verify Cloudflare Pages packaging
+        run: npm run verify:pages
+      - name: Enforce silo boundaries
+        run: node scripts/silo-integrity.js
+      - name: Ecosystem scaffold gate
+        run: node scripts/ecosystem-gate.js
+      - name: Gauntlet evidence gate
+        env:
+          RUN_ID: ${{ github.run_id }}
+          ECONOMIC_EVENT_TYPE: NONE
+        run: node scripts/gauntlet/index.js
+      - name: Write CI proof
+        if: always()
+        run: |
+          mkdir -p proof
+          cat > proof/ci-proof.json <<'JSON'
+          {
+            "commit": "${{ github.sha }}",
+            "workflow": "${{ github.workflow }}",
+            "run_id": "${{ github.run_id }}",
+            "run_number": "${{ github.run_number }}",
+            "status": "${{ job.status }}",
+            "cloudflare_pages": "STATIC_PACKAGE_VERIFIED",
+            "economic_event_rule": "EXTERNAL_CUSTOMER",
+            "revenue_claim": "UNPROVEN_UNTIL_EXTERNAL_CUSTOMER_EVENT"
+          }
+          JSON
+          cat proof/ci-proof.json
+      - name: Upload CI proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-proof-${{ github.run_id }}
+          path: |
+            proof/ci-proof.json
+            Proof/Cloudflare/cloudflare-pages-proof.json
+          if-no-files-found: error

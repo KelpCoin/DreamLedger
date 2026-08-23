@@ -1,0 +1,41 @@
+{
+  "schema_version": "CUBE-COMMERCE-PROOF-1.0",
+  "timestamp_utc": "2026-08-18T00:00:00Z",
+  "repository": "KelpCoin/DreamLogic",
+  "branch": "main",
+  "commit_sha_at_write": "21b4f0280b7225d704fe360d253e7e30be4d9e7f",
+  "state": "COMPILED",
+  "action": "Add public /mtg route alias and automated MTG commerce gate checks",
+  "files_changed": [
+    "server.js",
+    "scripts/verify.js",
+    "Proof/COMMERCE-MTG-EXECUTION-20260818.json"
+  ],
+  "repository_evidence": {
+    "mtg_surface": "mtg.html",
+    "canonical_product_source": "catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json",
+    "checkout_endpoint": "POST /api/offer-checkout/create",
+    "checkout_payload": "{offer_id:<offer id>,region:NZ}",
+    "render_config": "render.yaml",
+    "render_auto_deploy": true,
+    "github_actions": ".github/workflows/verify.yml"
+  },
+  "inventory_evidence": {
+    "edh_0001": "NOT_FOUND",
+    "existing_mtg_product": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "existing_mtg_product_price_nzd": 25,
+    "existing_mtg_product_checkout_available": true
+  },
+  "ci": {
+    "workflow_run_id": 32041373510,
+    "head_sha": "21b4f0280b7225d704fe360d253e7e30be4d9e7f",
+    "status_at_write": "in_progress"
+  },
+  "deployment": "UNVERIFIED",
+  "production_surface": "UNVERIFIED",
+  "checkout": "UNVERIFIED",
+  "stripe_payment": "NOT_VERIFIED",
+  "verified_revenue_nzd": 0,
+  "blocker": "EDH_0001 is not present in the repository canonical inventory, and this session cannot reach the production deployment to verify live behaviour.",
+  "no_fabrication": true
+}

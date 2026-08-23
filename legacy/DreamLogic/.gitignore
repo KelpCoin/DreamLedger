@@ -1,0 +1,6 @@
+node_modules/
+dist/
+Proof/Scans/
+Proof/Fossils/FIRST_PAYMENT_PROOF.json
+.env
+.env.*

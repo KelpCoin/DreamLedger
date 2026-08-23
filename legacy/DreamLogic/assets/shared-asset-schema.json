@@ -1,0 +1,10 @@
+{
+  "schema_version": "BEC-SHARED-ASSET-1.0",
+  "purpose": "Interoperability contract for Dreamiez and Kelplantis assets without merging silo catalogues",
+  "canonical_fields": ["asset_id","sku","asset_type","owner_silo","compatible_silos","version","status","economics","provenance"],
+  "silos": ["DREAMIEZ","KELPLANTIS"],
+  "rule": "Ownership, catalogue placement, approval and economic evidence remain silo-local; compatibility is declared here only.",
+  "supported_asset_types": ["avatar","face","cosmetic","armor","shirt"],
+  "economic_rule": "Paid assets require an approved offer. A daily free cosmetic may be awarded only by the verified daily reward condition.",
+  "compiler_contract": "The compiler must preserve owner_silo and compatible_silos and must reject undeclared cross-silo compatibility."
+}

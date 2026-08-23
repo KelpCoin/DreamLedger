@@ -1,0 +1,83 @@
+# DreamLedger Pages deployment: every main push is a deployment candidate.
+name: DreamLedger GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: dreamledger-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Compile DreamLedger release
+        run: npm run build
+      - name: Verify compiled Pages surface
+        run: |
+          test -f dist-pages/index.html
+          test -f dist-pages/mtg.html
+          test -f dist-pages/CNAME
+          test -f dist-pages/compiler-manifest.json
+          node -e "const x=require('./dist-pages/compiler-manifest.json'); if(x.status!=='PASS'||x.targets.dreamledger.silo!=='MTG'||x.targets.amplissa.compiled!==false) process.exit(1); console.log('PASS compiler boundary')"
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload compiled static site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist-pages
+      - name: Upload compiler proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-compiler-proof-${{ github.run_id }}
+          path: dist-pages/compiler-manifest.json
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy compiled DreamLedger static surface
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Probe GitHub Pages deployment URL
+        run: |
+          set -euo pipefail
+          URL="${{ steps.deployment.outputs.page_url }}"
+          CODE=$(curl --location --silent --show-error --output /tmp/dreamledger.html --write-out '%{http_code}' --max-time 20 "$URL")
+          test "$CODE" = "200"
+          grep -q "DreamLedger" /tmp/dreamledger.html
+          echo "PASS Pages deployment HTTP 200: $URL"
+      - name: Probe custom domain
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            CODE=$(curl --location --silent --show-error --output /tmp/dreamledger-custom.html --write-out '%{http_code}' --max-time 10 https://dreamledger.org/ || true)
+            if [ "$CODE" = "200" ] && grep -q "DreamLedger" /tmp/dreamledger-custom.html; then
+              echo "PASS dreamledger.org HTTP 200"
+              exit 0
+            fi
+            echo "Waiting for custom domain convergence: attempt $attempt/18 HTTP=$CODE"
+            sleep 10
+          done
+          echo "FAIL dreamledger.org did not converge"
+          exit 1

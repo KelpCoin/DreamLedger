@@ -1,0 +1,99 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-render-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify before deploy
+        id: verify
+        run: npm run verify
+
+      - name: Enforce silo boundaries
+        id: silo
+        run: node scripts/silo-integrity.js
+
+      - name: Trigger Render Deploy
+        id: render
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$RENDER_DEPLOY_HOOK_URL"
+          RESPONSE=$(curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL")
+          {
+            echo "RENDER_RESPONSE<<EOF"
+            echo "$RESPONSE"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+          echo "RENDER_DEPLOY_TRIGGER=PASS"
+
+      - name: Probe production convergence
+        id: live_probe
+        if: success()
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 24); do
+            if curl --fail --silent --show-error --location --max-time 10 https://dreamledger.org/healthz -o /tmp/healthz.json; then
+              node -e "const x=require('/tmp/healthz.json'); if(x.status!=='ok') process.exit(1); console.log('PASS production health')" && exit 0
+            fi
+            echo "Waiting for Render convergence: attempt $attempt/24"
+            sleep 10
+          done
+          echo 'FAIL production convergence probe timed out'
+          exit 1
+
+      - name: Generate Deployment Proof Artifact
+        if: always()
+        env:
+          RENDER_RESPONSE: ${{ env.RENDER_RESPONSE }}
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const proof = {
+            commit: process.env.GITHUB_SHA,
+            workflow: process.env.GITHUB_WORKFLOW,
+            run_id: process.env.GITHUB_RUN_ID,
+            run_number: process.env.GITHUB_RUN_NUMBER,
+            timestamp: new Date().toISOString(),
+            verify_result: '${{ steps.verify.outcome }}',
+            silo_result: '${{ steps.silo.outcome }}',
+            render_result: '${{ steps.render.outcome }}',
+            live_probe_result: '${{ steps.live_probe.outcome }}',
+            render_hook_response: process.env.RENDER_RESPONSE || '',
+            status: '${{ job.status }}'
+          };
+          fs.writeFileSync('deployment-proof.json', JSON.stringify(proof, null, 2) + '\n');
+          NODE
+          cat deployment-proof.json
+
+      - name: Upload Deployment Proof Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-proof-${{ github.run_id }}
+          path: deployment-proof.json
+          if-no-files-found: error

@@ -1,0 +1,10 @@
+{
+  "routes": {
+    "NZ": { "currency": "NZD", "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001", "language": "en" },
+    "US": { "currency": "USD", "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001", "language": "en" },
+    "EU": { "currency": "EUR", "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001", "language": "en" },
+    "INTL": { "currency": "USD", "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001", "language": "en" }
+  },
+  "canonical_qr": "https://qr.dreamledger.org/DL1",
+  "fallback": { "country": "US", "language": "en" }
+}

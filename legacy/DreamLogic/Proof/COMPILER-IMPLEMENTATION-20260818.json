@@ -1,0 +1,16 @@
+{
+  "schema_version": "BEC-COMPILER-IMPLEMENTATION-1.0",
+  "status": "IMPLEMENTED_NOT_RUNTIME_VERIFIED",
+  "target": "dreamledger",
+  "domain": "dreamledger.org",
+  "silo": "MTG",
+  "compiler": "scripts/compile-release.js",
+  "target_config": "config/release-targets.json",
+  "ci_workflow": ".github/workflows/release-compiler.yml",
+  "npm_commands": ["npm run compile:release", "npm run build:release"],
+  "implementation_commit": "92be862d91a50fdd4243d5f6d633db176bfd2a85",
+  "amplissa_status": "SOURCE_REQUIRED",
+  "runtime_verification": "NOT_YET_VERIFIED",
+  "production_verification": "NOT_YET_VERIFIED",
+  "created_utc": "2026-08-18T02:35:00Z"
+}

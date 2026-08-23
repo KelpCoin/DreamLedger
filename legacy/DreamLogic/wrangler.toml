@@ -1,0 +1,6 @@
+name = "dreamledger"
+pages_build_output_dir = "./dist-pages"
+compatibility_date = "2026-08-18"
+
+[vars]
+RENDER_BACKEND_URL = "https://dreamledger.onrender.com"

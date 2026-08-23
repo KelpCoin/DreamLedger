@@ -1,0 +1,40 @@
+{
+  "schema_version": "BEC-TRANSPARENCY-1.0",
+  "status": "DESIGN_ONLY_UNTIL_PAYMENT_RAILS_ARE_VERIFIED",
+  "silo": "MTG",
+  "tiers": [
+    {
+      "id": "watcher",
+      "name": "Watcher",
+      "price_nzd_month": 0,
+      "access": ["public MTG catalogue", "public offer status"],
+      "oracle_visibility": "summary"
+    },
+    {
+      "id": "supporter",
+      "name": "Supporter",
+      "price_nzd_month": 5,
+      "access": ["full MTG catalogue", "verified checkout when enabled"],
+      "oracle_visibility": "offer receipt"
+    },
+    {
+      "id": "sustainer",
+      "name": "Sustainer",
+      "price_nzd_month": 21,
+      "access": ["early MTG releases", "published proof artifacts"],
+      "oracle_visibility": "evidence chain"
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle",
+      "price_nzd_month": 100,
+      "access": ["expanded MTG evidence", "compiler and governance documentation"],
+      "oracle_visibility": "full public verification surface"
+    }
+  ],
+  "payment_integration": {
+    "provider": null,
+    "status": "NOT_CONFIGURED",
+    "public_checkout": false
+  }
+}

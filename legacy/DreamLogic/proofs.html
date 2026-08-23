@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DreamLedger | Proofs</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-zinc-950 text-white"><main class="mx-auto max-w-4xl px-6 py-16"><a href="/" class="text-cyan-400">DreamLedger</a><h1 class="mt-8 text-5xl font-black">Proofs &amp; Evidence</h1><p class="mt-5 text-xl text-white/70">The ledger distinguishes proposals, observations and verified economic events.</p><div class="mt-10 space-y-6"><section class="rounded-2xl border border-cyan-700/50 p-7"><h2 class="text-2xl font-bold">Fossil rule</h2><p class="mt-3 text-white/70">FIRST_PAYMENT_PROOF.json is PASS only after a signed Stripe webhook is verified. A checkout URL, page view or simulated event is not payment evidence.</p></section><section class="rounded-2xl border border-cyan-700/50 p-7"><h2 class="text-2xl font-bold">Schema</h2><pre class="mt-4 overflow-auto rounded-xl bg-black p-5 text-sm">schema_version: BEC-FOSSIL-1.0
+event: checkout.session.completed
+asset_id: COMMANDER-DECK-DIAGNOSTIC-001
+evidence_level: 1
+status: PASS
+amount: real Stripe amount_total
+currency: real Stripe currency
+transaction_id: real Stripe Checkout Session ID
+timestamp_utc: observed webhook time</pre></section><section class="rounded-2xl border border-amber-700/50 p-7"><h2 class="text-2xl font-bold">Current truth</h2><p class="mt-3 text-white/70">If no Fossil is present, verified revenue remains NZD $0. The system never manufactures a PASS state.</p></section></div></main></body></html>
