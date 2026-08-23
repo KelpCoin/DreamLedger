@@ -30,17 +30,24 @@ jobs:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 1
 
-      - name: Compile and validate E1 surface
+      - name: Compile and validate catalog surface
         working-directory: BEC-PRIME
         run: |
           set -euo pipefail
           npm install
           npm run compile
-          grep -q 'Agentic Sovereignty Diagnostic' compiled/website/index.html
-          grep -q 'NZ$29' compiled/website/index.html
-          grep -q '9B6fZh6Hz7tPgyP3gwdwc1M' compiled/website/index.html
-          ! grep -q 'Commander Deck Diagnostic' compiled/website/index.html
-          echo "PASS: E1 surface compiled for $RELEASE_SHA"
+          grep -q 'DREAMLEDGER / CATALOG' compiled/website/index.html
+          grep -q 'Swipe the catalog.' compiled/website/index.html
+          grep -q 'Magic: The Gathering' compiled/website/index.html
+          grep -q 'Digital Products' compiled/website/index.html
+          grep -q 'DreamMeez identity' compiled/website/index.html
+          grep -q 'Deterministic Cinema' compiled/website/index.html
+          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' compiled/website/index.html
+          ! grep -qi 'Agentic Commerce Readiness Audit' compiled/website/index.html
+          ! grep -qi 'Dream Ledger Deck' compiled/website/index.html
+          ! grep -qi 'Amplissa' compiled/website/index.html
+          ! grep -qi 'CollectorsCoast' compiled/website/index.html
+          echo "PASS: catalog front door compiled for $RELEASE_SHA"
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -72,7 +79,7 @@ jobs:
           set -euo pipefail
           sleep 20
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz.json
-          grep -q '"status":"ok"' /tmp/healthz.json
+          grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"' /tmp/healthz.json
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/version" >/tmp/version.json
           python3 - "$RELEASE_SHA" <<'PY'
           import json,sys
@@ -84,17 +91,33 @@ jobs:
           print(f'PASS: live SHA {deployed}')
           PY
 
-      - name: Verify public E1 surface
+      - name: Verify live catalog front door
         shell: bash
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          grep -q 'Agentic Sovereignty Diagnostic' /tmp/home.html
-          grep -q 'NZ$29' /tmp/home.html
-          grep -q '9B6fZh6Hz7tPgyP3gwdwc1M' /tmp/home.html
-          ! grep -q 'Commander Deck Diagnostic' /tmp/home.html
-          ! grep -q 'Cinema Player' /tmp/home.html
-          echo 'PASS: production E1 surface verified.'
+          grep -q 'DREAMLEDGER / CATALOG' /tmp/home.html
+          grep -q 'Swipe the catalog.' /tmp/home.html
+          grep -q 'Magic: The Gathering' /tmp/home.html
+          grep -q 'Digital Products' /tmp/home.html
+          grep -q 'DreamMeez identity' /tmp/home.html
+          grep -q 'Deterministic Cinema' /tmp/home.html
+          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' /tmp/home.html
+          ! grep -qi 'Agentic Commerce Readiness Audit' /tmp/home.html
+          ! grep -qi 'Dream Ledger Deck' /tmp/home.html
+          ! grep -qi 'Amplissa' /tmp/home.html
+          ! grep -qi 'CollectorsCoast' /tmp/home.html
+          echo 'PASS: production catalog front door verified.'
+
+      - name: Verify public sub-surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          for route in /mtg /cinema.html /digital-products.html /avatar.html /marketplace.html; do
+            curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL$route" >/tmp/route.html
+            test -s /tmp/route.html
+          done
+          echo 'PASS: MTG + Cinema + Digital Products + Avatar + Marketplace routes respond.'
 
       - name: Write deployment fossil
         shell: bash
@@ -108,9 +131,10 @@ jobs:
             'production_pass': True,
             'source_commit': sys.argv[1],
             'target':'https://dreamledger.org',
-            'offer':'Agentic Sovereignty Diagnostic',
-            'price_nzd':29,
-            'checkout_url':'https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M',
+            'surface':'DreamLedger catalog front door',
+            'surfaces':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html','/marketplace.html'],
+            'homepage_is_catalog':True,
+            'historical_single_offer_removed_from_home':True,
             'revenue_nzd':0,
             'first_economic_proof':False,
             'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
@@ -122,6 +146,6 @@ jobs:
       - name: Upload deployment fossil
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: dreamledger-e1-production-truth-${{ env.RELEASE_SHA }}
+          name: dreamledger-catalogue-production-truth-${{ env.RELEASE_SHA }}
           path: proof/ProductionTruth-LATEST.json
           retention-days: 30
