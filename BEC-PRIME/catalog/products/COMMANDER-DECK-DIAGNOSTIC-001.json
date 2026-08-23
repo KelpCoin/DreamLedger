@@ -4,36 +4,16 @@
   "capability_id": "PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
   "silo": "mtg",
   "name": "Commander Deck Diagnostic",
-  "description": "A focused written Commander deck diagnostic covering the weakest-card analysis, upgrade priorities and tuning plan.",
+  "description": "An automated first-pass Commander deck diagnostic covering structural weaknesses, upgrade priorities and a tuning plan.",
   "price": 29,
   "price_unit": "major",
   "currency": "nzd",
   "inventory": 999,
   "inventory_type": "digital",
   "status": "published",
-  "checkout": {
-    "mode": "payment",
-    "success_path": "/checkout/success",
-    "cancel_path": "/mtg"
-  },
-  "commercial_truth": {
-    "approval_required": false,
-    "sellable": true,
-    "reason": "Operator authorized first-revenue experiment on 2026-08-22.",
-    "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
-    "payment_link_id": "plink_1U7OJrEGgEAnUFF9YeAOO2l8",
-    "stripe_product_id": "prod_V6iVKl9HgFpzRU",
-    "stripe_price_id": "price_1U7OJkEGgEAnUFF95GIzLolj"
-  },
-  "fulfilment": {
-    "delivery_sla_hours": 48,
-    "inputs": ["Commander decklist"],
-    "outputs": ["focused diagnostic", "weakest-card analysis", "upgrade priorities", "tuning plan"]
-  },
-  "evidence": {
-    "status": "awaiting_first_payment",
-    "transaction_id": null
-  },
-  "experiment": "MTG-SALES-001"
+  "checkout": {"mode":"payment","success_path":"/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}","cancel_path":"/mtg"},
+  "commercial_truth": {"approval_required":false,"sellable":true,"reason":"Operator authorized automated MTG digital fulfillment on 2026-08-23.","payment_surface":"stripe-checkout-session","payment_link":"https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V","payment_link_id":"plink_1U7OJrEGgEAnUFF9YeAOO2l8","stripe_product_id":"prod_V6iVKl9HgFpzRU","stripe_price_id":"price_1U7OJkEGgEAnUFF95GIzLolj"},
+  "fulfilment": {"mode":"automated","delivery_sla_hours":1,"inputs":["Commander name","decklist","strategy if known","improvement budget"],"outputs":["hash-stamped diagnostic report","structural metrics","three biggest issues","cut candidates","upgrade priorities","tuning plan"],"report_endpoint":"/api/mtg/diagnostic/report?session_id={CHECKOUT_SESSION_ID}","operator_required":false},
+  "evidence": {"status":"awaiting_first_payment","transaction_id":null},
+  "experiment":"MTG-SALES-001"
 }
