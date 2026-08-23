@@ -19,7 +19,7 @@ $failures = New-Object System.Collections.Generic.List[string]
 function Test-Route {
     param([string]$Path,[int]$ExpectedStatus = 200,[string]$Marker = '')
     try {
-        $r = Invoke-WebRequest -Uri ($Base + $Path) -UseBasicParsing -TimeoutSec 15
+        $r = Invoke-WebRequest -Uri ($Base + $Path) -UseBasicParsing -TimeoutSec 20
         $body = [string]$r.Content
         $markerOk = [string]::IsNullOrWhiteSpace($Marker) -or $body.Contains($Marker)
         $ok = ($r.StatusCode -eq $ExpectedStatus) -and $markerOk
@@ -35,34 +35,41 @@ function Test-Route {
     }
 }
 
-Test-Route '/' 200 'Commander Deck Diagnostic'
+Test-Route '/' 200 'Agentic Sovereignty Diagnostic'
 Test-Route '/' 200 'NZ$29'
-Test-Route '/healthz' 200
-Test-Route '/version' 200
-Test-Route '/mtg' 200
-Test-Route '/truth-oracle.html' 200 'DreamLedger Truth Oracle'
-Test-Route '/truth-oracle.json' 200 'truth-oracle-v1'
-Test-Route '/transparency-policy.json' 200 'DREAMLEDGER/PROGRESSIVE-TRANSPARENCY/v1'
+Test-Route '/' 200 'buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M'
+Test-Route '/' 200 'Evidence, Not Hype.'
+Test-Route '/healthz' 200 '"status":"ok"'
+Test-Route '/version' 200 'production-version-v1'
 Test-Route '/cinema.html' 404
-Test-Route '/dreamiez' 404
 
 $version = $null
-try { $version = Invoke-RestMethod ($Base + '/version') -TimeoutSec 15 } catch { $failures.Add('/version-json') }
+try { $version = Invoke-RestMethod ($Base + '/version') -TimeoutSec 20 } catch { $failures.Add('/version-json') }
 $deployedCommit = if ($version) { [string]$version.commit } else { '' }
 $shaMatch = $deployedCommit -eq $ExpectedCommit
 if (-not $shaMatch) { $failures.Add('version.commit') }
 
+$rootBody = ''
+try { $rootBody = [string](Invoke-WebRequest -Uri $Base -UseBasicParsing -TimeoutSec 20).Content } catch { $failures.Add('/') }
+$legacyTokens = @('Cinema Player','Truth Oracle','Commander Deck Diagnostic','/dreamiez/')
+$legacyHits = @($legacyTokens | Where-Object { $rootBody.Contains($_) })
+if ($legacyHits.Count -gt 0) { $failures.Add('legacy-surface') }
+
 $pass = ($failures.Count -eq 0)
 $proof = [ordered]@{
-    proof_version = 'dreamledger-production-truth-v2'
+    proof_version = 'dreamledger-production-truth-v3'
     checked_at = (Get-Date).ToUniversalTime().ToString('o')
     base = $Base
     expected_commit = $ExpectedCommit
     deployed_commit = $deployedCommit
     sha_match = $shaMatch
     routes = $results
-    excluded_surfaces = @{ cinema = '404_required'; dreamiez = '404_required' }
+    checkout_url = 'https://buy.stripe.com/9B6fZh6Hz7tPgyP3gwdwc1M'
+    offer = 'Agentic Sovereignty Diagnostic'
+    price_nzd = 29
+    legacy_hits = @($legacyHits)
     deployment_proof = if ($pass) { 'VALID' } else { 'PENDING' }
+    production_truth = $pass
     production_pass = $pass
     first_economic_proof = $false
     sale_settled = $false
@@ -70,7 +77,10 @@ $proof = [ordered]@{
     failures = @($failures)
 }
 
-$path = Join-Path $ProofDir 'PRODUCTION-TRUTH-PROOF.json'
+$timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+$path = Join-Path $ProofDir ("ProductionTruth-{0}.json" -f $timestamp)
 $proof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $path -Encoding UTF8
+$latest = Join-Path $ProofDir 'LATEST.json'
+$proof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $latest -Encoding UTF8
 $proof | ConvertTo-Json -Depth 8
 if (-not $pass) { exit 1 }
