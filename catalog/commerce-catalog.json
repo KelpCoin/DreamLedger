@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0.0",
+  "generated_utc": "2026-08-24",
+  "canonical_payment_rail": "stripe",
+  "canonical_frontend": "super",
+  "public_actions": "approval_gated",
+  "silo_policy": "MTG/CollectorsCoast/HappyHomarid isolated from Amplissa/adult",
+  "products": [
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "silo": "mtg",
+      "price_nzd": 29,
+      "billing": "one_time",
+      "status": "sale_ready",
+      "stripe_payment_link": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
+      "stripe_product": "prod_V6iVKl9HgFpzRU",
+      "stripe_price": "price_1U7OJkEGgEAnUFF95GIzLolj",
+      "role": "first_payment_proof_candidate"
+    },
+    {
+      "id": "PERSONAL-COMMERCE-CONSTITUTION",
+      "name": "Personal Commerce Constitution Setup",
+      "silo": "dreamledger",
+      "price_nzd": 29,
+      "billing": "one_time",
+      "status": "sale_ready",
+      "stripe_payment_link": "https://buy.stripe.com/00wcN59TLcO9fuLcR6dwc20",
+      "stripe_product": "prod_V7sIMUc9ZDz0kg",
+      "stripe_price": "price_1U7cY2EGgEAnUFF9dAJyGYvh",
+      "role": "consumer_agent_policy_wedge"
+    },
+    {
+      "id": "DREAMLEDGER-OBSERVER",
+      "name": "DreamLedger Observer",
+      "silo": "dreamledger",
+      "price_nzd": 9,
+      "billing": "monthly",
+      "status": "sale_ready",
+      "stripe_payment_link": "https://buy.stripe.com/4gM14ngi9bK56Yf4kAdwc1W",
+      "stripe_product": "prod_V7sIM9cBEogwTf",
+      "stripe_price": "price_1U7cXiEGgEAnUFF97Wh0PcfZ",
+      "role": "recurring_evidence_observation"
+    },
+    {
+      "id": "DREAMLEDGER-ANALYST",
+      "name": "DreamLedger Analyst",
+      "silo": "dreamledger",
+      "price_nzd": 29,
+      "billing": "monthly",
+      "status": "sale_ready",
+      "stripe_payment_link": "https://buy.stripe.com/28EeVd6Hzg0l6Yf8AQdwc1X",
+      "stripe_product": "prod_V7sI5uxbgtbHFI",
+      "stripe_price": "price_1U7cXnEGgEAnUFF9XT07FlOH",
+      "role": "recurring_evidence_analysis"
+    },
+    {
+      "id": "DREAMLEDGER-OPERATOR",
+      "name": "DreamLedger Operator",
+      "silo": "dreamledger",
+      "price_nzd": 99,
+      "billing": "monthly",
+      "status": "sale_ready",
+      "stripe_payment_link": "https://buy.stripe.com/fZuaEXfe515r3M3bN2dwc1Y",
+      "stripe_product": "prod_V7sIjnZUBagjSk",
+      "stripe_price": "price_1U7cXrEGgEAnUFF9d08y52kI",
+      "role": "recurring_operator_evidence"
+    },
+    {
+      "id": "DREAMLEDGER-WHITE-LABEL",
+      "name": "DreamLedger White-Label Evidence World",
+      "silo": "dreamledger",
+      "price_nzd": 99,
+      "billing": "monthly",
+      "status": "sale_ready_approval_required",
+      "stripe_payment_link": "https://buy.stripe.com/cNi6oH6Hz3dz82j8AQdwc1Z",
+      "stripe_product": "prod_V7sICroN3dPwMK",
+      "stripe_price": "price_1U7cXvEGgEAnUFF9xzl6zjpJ",
+      "role": "white_label_evidence_surface"
+    },
+    {
+      "id": "AGENTIC-COMMERCE-READINESS-049",
+      "name": "Agentic Commerce Readiness Audit",
+      "silo": "dreamledger",
+      "price_nzd": 49,
+      "billing": "one_time",
+      "status": "existing_sale_ready",
+      "stripe_payment_link": "https://buy.stripe.com/8x24gz2rjg0l6Yf9EUdwc1R",
+      "role": "merchant_entry_offer"
+    },
+    {
+      "id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+      "name": "BEC-PRIME Architecture Audit",
+      "silo": "bec-prime",
+      "price_nzd": 49,
+      "billing": "one_time",
+      "status": "existing_sale_ready",
+      "stripe_payment_link": "https://buy.stripe.com/aFa8wP3vn8xT82j9EUdwc1U",
+      "role": "operator_approved_audit"
+    }
+  ],
+  "not_for_activation_yet": [
+    {
+      "id": "GENERAL-COMMERCE-FEE",
+      "status": "blocked",
+      "reason": "Marketplace/payment facilitation requires explicit legal, AML/CFT and settlement approval before activation."
+    },
+    {
+      "id": "MTG-MARKETPLACE-0-FEE",
+      "status": "blocked",
+      "reason": "Marketplace settlement and seller onboarding remain approval-gated."
+    },
+    {
+      "id": "AUTONOMOUS-PURCHASES",
+      "status": "blocked",
+      "reason": "Agent purchase authority remains user-policy and explicit-approval gated."
+    }
+  ]
+}
