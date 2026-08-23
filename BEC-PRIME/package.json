@@ -9,7 +9,7 @@
     "build": "npm run compile",
     "test": "node --test scripts/test-mvp-policy.js",
     "verify:evidence": "node scripts/verify-mvp-evidence.js",
-    "compile": "node scripts/write-build-metadata.js && npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:economic && npm run compile:surface && node scripts/EnsureAccountVerificationSurface.js && npm run compile:price && npm run compile:public-contract && npm run compile:silos && npm run compile:featured-offer && npm run compile:mtg-catalog && npm run compile:registry && npm run compile:leverage && npm run compile:control-surface && node scripts/Publish-TruthOracleSurface.js && node scripts/verify-public-surface.js && node scripts/Verify-E1-Public-Surface.js && npm run verify:production-contract",
+    "compile": "node scripts/write-build-metadata.js && npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:economic && npm run compile:surface && node scripts/EnsureAccountVerificationSurface.js && npm run compile:price && npm run compile:public-contract && npm run compile:silos && npm run compile:featured-offer && npm run compile:mtg-catalog && npm run compile:registry && npm run compile:leverage && npm run compile:control-surface && node scripts/Publish-TruthOracleSurface.js && node scripts/Polish-E1-Public-Surface.js && node scripts/verify-public-surface.js && node scripts/Verify-E1-Public-Surface.js && npm run verify:production-contract",
     "compile:products": "node compiler/ProductCompiler.js",
     "compile:offers": "node compiler/OfferCompiler.js",
     "compile:qr": "node compiler/QRCompiler.js",
