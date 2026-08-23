@@ -1,6 +1,5 @@
-# Render deployment refresh: account/runtime surface is already compiled on main.
-# Production refresh trigger: canonical account runtime + compiled account pages are on main.
-# E0 recovery marker: force one controlled production refresh so dreamledger.org is rebuilt from main.
+# E1 production release refresh: approved Agentic Sovereignty Diagnostic on main.
+# Render service: dreamledger-bec-prime. Exact production proof is required before sale outreach.
 services:
   - type: web
     name: dreamledger-bec-prime
