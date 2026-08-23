@@ -71,12 +71,13 @@ jobs:
             HELP="$(curl -fsS -o /tmp/help.html -w '%{http_code}' --max-time 10 https://dreamledger.org/get-help.html || true)"
             EXCLUDED_CINEMA="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 https://dreamledger.org/cinema.html || true)"
             EXCLUDED_DREAMIEZ="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 https://dreamledger.org/dreamiez || true)"
+            EXCLUDED_DREAMIEZ_NESTED="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 https://dreamledger.org/dreamiez/ || true)"
             DEPLOYED_SHA="$(node -e "const fs=require('fs');try{const x=JSON.parse(fs.readFileSync('/tmp/version.json','utf8'));process.stdout.write(String(x.commit||''))}catch(e){}")"
-            if [ "$HEALTH" = "200" ] && [ "$VERSION" = "200" ] && [ "$DEPLOYED_SHA" = "$EXPECTED_SHA" ] && [ "$MTG" = "200" ] && [ "$OFFER" = "200" ] && [ "$ORACLE" = "200" ] && [ "$ORACLE_JSON" = "200" ] && [ "$POLICY" = "200" ] && [ "$HELP" = "200" ] && [ "$EXCLUDED_CINEMA" = "404" ] && [ "$EXCLUDED_DREAMIEZ" = "404" ]; then
+            if [ "$HEALTH" = "200" ] && [ "$VERSION" = "200" ] && [ "$DEPLOYED_SHA" = "$EXPECTED_SHA" ] && [ "$MTG" = "200" ] && [ "$OFFER" = "200" ] && [ "$ORACLE" = "200" ] && [ "$ORACLE_JSON" = "200" ] && [ "$POLICY" = "200" ] && [ "$HELP" = "200" ] && [ "$EXCLUDED_CINEMA" = "404" ] && [ "$EXCLUDED_DREAMIEZ" = "404" ] && [ "$EXCLUDED_DREAMIEZ_NESTED" = "404" ]; then
               echo "PASS: production matches $EXPECTED_SHA and excluded routes are closed"
               break
             fi
-            echo "WAIT $i/30 health=$HEALTH version=$VERSION sha=$DEPLOYED_SHA mtg=$MTG offer=$OFFER oracle=$ORACLE oracle_json=$ORACLE_JSON policy=$POLICY help=$HELP cinema=$EXCLUDED_CINEMA dreamiez=$EXCLUDED_DREAMIEZ expected=$EXPECTED_SHA"
+            echo "WAIT $i/30 health=$HEALTH version=$VERSION sha=$DEPLOYED_SHA mtg=$MTG offer=$OFFER oracle=$ORACLE oracle_json=$ORACLE_JSON policy=$POLICY help=$HELP cinema=$EXCLUDED_CINEMA dreamiez=$EXCLUDED_DREAMIEZ dreamiez_nested=$EXCLUDED_DREAMIEZ_NESTED expected=$EXPECTED_SHA"
             if [ "$i" = "30" ]; then exit 1; fi
             sleep 10
           done
@@ -87,7 +88,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
         run: |
           mkdir -p proof
-          printf '{"status":"PASS","provider":"Render","sha":"%s","run_id":"%s","healthz":"200","version":"200","mtg":"200","commander_offer":"200","truth_oracle":"200","truth_oracle_json":"200","transparency_policy":"200","help":"200","excluded_cinema":"404","excluded_dreamiez":"404"}\n' "$SHA" "$RUN_ID" > proof/render-production-gate.json
+          printf '{"status":"PASS","provider":"Render","sha":"%s","run_id":"%s","healthz":"200","version":"200","mtg":"200","commander_offer":"200","truth_oracle":"200","truth_oracle_json":"200","transparency_policy":"200","help":"200","excluded_cinema":"404","excluded_dreamiez":"404","excluded_dreamiez_nested":"404"}\n' "$SHA" "$RUN_ID" > proof/render-production-gate.json
           cat proof/render-production-gate.json
 
       - name: Upload production proof
