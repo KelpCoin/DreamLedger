@@ -8,6 +8,10 @@
   "regions": ["syd1"],
   "rewrites": [
     { "source": "/", "destination": "/compiled/website/index.html" },
+    { "source": "/mtg", "destination": "/compiled/website/mtg/index.html" },
+    { "source": "/mtg/", "destination": "/compiled/website/mtg/index.html" },
+    { "source": "/MTG", "destination": "/compiled/website/mtg/index.html" },
+    { "source": "/MTG/", "destination": "/compiled/website/mtg/index.html" },
     { "source": "/board", "destination": "/compiled/website/board.html" },
     { "source": "/board/", "destination": "/compiled/website/board.html" },
     { "source": "/login", "destination": "/compiled/website/login.html" },
