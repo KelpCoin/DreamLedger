@@ -1,5 +1,5 @@
 {
-  "schema_version": "BEC-SILO-REGISTRY-1.1",
+  "schema_version": "BEC-SILO-REGISTRY-1.2",
   "neutral_host": "dreamledger",
   "silos": [
     {
@@ -40,6 +40,19 @@
       "entry_price_nzd": 49,
       "priority": 8,
       "status": "active"
+    },
+    {
+      "id": "ACCOUNTING",
+      "silo": "accounting",
+      "offer": "Agentic Accounting Diagnostic",
+      "entry_offer": "ACCOUNTING-DIAGNOSTIC-NZD-29",
+      "price_nzd": 29,
+      "priority": 11,
+      "status": "active",
+      "allowed_capabilities": ["LEDGER_IMPORT", "CLASSIFY", "RECONCILE", "CLOSE", "TAX_DRAFT"],
+      "allowed_tools": ["TOOL_PYTHON", "TOOL_MCP"],
+      "risk_policy": "LOW_TO_MODERATE",
+      "authorization_policy": "APPROVAL_FOR_LIVE_PAYMENT_OR_TAX_FILING"
     }
   ],
   "rules": {
@@ -49,6 +62,8 @@
     "cross_silo_credentials": false,
     "cross_silo_analytics": false,
     "public_actions_require_human_approval": true,
-    "revenue_requires_verified_payment": true
+    "revenue_requires_verified_payment": true,
+    "accounting_live_payment_requires_human_approval": true,
+    "accounting_tax_filing_requires_human_approval": true
   }
 }
