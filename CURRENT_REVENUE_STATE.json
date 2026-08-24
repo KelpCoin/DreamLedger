@@ -19,10 +19,10 @@
   "ledger_status": "UNKNOWN",
   "fulfilment_status": "PASS",
   "economic_event_001": "NOT_YET_OCCURRED",
-  "first_broken_boundary": "Silo integrity is the first verified blocker because the current customer-facing design exposes cross-silo or unclassified-world navigation, so the correct commercial silo cannot be proven from the public doorway.",
+  "first_broken_boundary": "Silo integrity is the first verified blocker because the live production doorway exposes an unclassified world and the current release has not yet been deployed, so the correct commercial silo cannot be proven from production.",
   "blocker_type": "SILO_INTEGRITY",
-  "blocker_description": "The current production site exposes Dreamiez and a multi-world commerce narrative, while repository customer-facing surfaces cross-link MTG, Cinema, Digital Products and Avatar; the frozen v5.2 law requires uncertain or unrelated silos to remain unexposed.",
-  "patch": "Prepared a minimum-change general-digital doorway patch on gauntlet-v5.2-2026-08-24; production deployment was not performed.",
+  "blocker_description": "Production currently exposes Dreamiez and a multi-world commerce narrative outside the frozen silo map. The prepared branch narrows the BEC-PRIME public doorway to general digital products and removes unrelated links from the MTG diagnostic surfaces.",
+  "patch": "Prepared and committed a minimum-change silo-isolation patch on gauntlet-v5.2-2026-08-24; production deployment was not performed.",
   "next_machine_action": "Run Verify-RevenuePath.ps1 locally on C:\\KelpCoin\\DreamLedger and inspect the generated proof.",
   "next_human_action": "Approve or reject the prepared silo-isolation patch and subsequent production deployment.",
   "commercial_validation_action": "After silo and production gates pass, give one real Commander-deck owner the approved NZ$29 Commander Deck Diagnostic checkout and record provider transaction evidence.",
@@ -35,6 +35,7 @@
   "evidence": {
     "repository": "KelpCoin/DreamLedger",
     "source_main_sha": "8a9a71a6df13e80541fa163b30408e6835b1dd21",
+    "prepared_branch": "gauntlet-v5.2-2026-08-24",
     "production_url": "https://dreamledger.org",
     "production_observation": "Homepage currently presents One commerce engine. Many worlds., an Agentic Commerce Readiness Audit at NZD 49, Dreamiez, live offers and business systems.",
     "approved_offer_id": "OFFER-CMD-DIAG-29-NZD",
@@ -43,15 +44,17 @@
     "commander_payment_link": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
     "commander_product_evidence": "Repository product is published, MTG silo, NZD 29, and marked awaiting_first_payment.",
     "payment_evidence": "No provider-confirmed customer payment was observed.",
-    "production_sha_evidence": "Production /version could not be resolved to a current SHA during this audit; the homepage content is materially behind current repository content.",
-    "deployment_safety": "render-deploy.yml deploys on main pushes; therefore this patch is held on a non-main branch and was not deployed.",
-    "cross_silo_findings": [
-      "BEC-PRIME/surface/index.v2.template.html links to /mtg, /cinema, /digital-products.html and /avatar.html.",
-      "BEC-PRIME/website/mtg-diagnostic.html links from the MTG surface to /digital-products.html and /.",
-      "BEC-PRIME/compiled/website/mtg/index.html links to DreamMee, Cinema and the DreamLedger home.",
-      "shop.html exposes the MTG diagnostic beside general products and exposes a BEC-PRIME Architecture Audit.",
-      "Production homepage exposes Dreamiez, which is not classified in the frozen four-silo map."
+    "production_sha_evidence": "Production /version did not yield a current SHA during this audit; homepage content is materially behind the current repository.",
+    "deployment_safety": "render-deploy.yml can deploy from main; the prepared patch is held on a non-main branch and was not deployed.",
+    "prepared_patch_files": [
+      "BEC-PRIME/surface/index.v2.template.html",
+      "BEC-PRIME/website/mtg-diagnostic.html",
+      "BEC-PRIME/compiled/website/mtg/index.html"
     ],
-    "cinema_status": "UNKNOWN and not required for the first transaction; no implementation change was made to Cinema."
+    "deferred_findings": [
+      "root shop.html still contains a mixed catalogue and BEC-PRIME Architecture Audit; it is outside the current BEC-PRIME production root and is deferred until a verified production requirement exists.",
+      "root index.html still contains cross-silo doorway links; it is outside the current BEC-PRIME production root and is deferred until deployment-root truth is verified.",
+      "Cinema ownership is UNKNOWN and it is not required for the first transaction."
+    ]
   }
 }
