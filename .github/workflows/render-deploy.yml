@@ -60,17 +60,21 @@ jobs:
           set -euo pipefail
           test -s BEC-PRIME/compiled/website/index.html
           for page in login.html register.html account.html assets.html avatar.html; do test -s "BEC-PRIME/compiled/website/$page"; done
-          grep -q 'The catalogue is the product surface.' BEC-PRIME/compiled/website/index.html
-          grep -q 'MTG / CUBE silo' BEC-PRIME/compiled/website/index.html
-          grep -q 'DreamLedger Cinema' BEC-PRIME/compiled/website/index.html
-          grep -q 'Digital Products' BEC-PRIME/compiled/website/index.html
-          grep -q 'DreamMee Avatar' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'Dream Ledger Deck' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'single-offer homepage' BEC-PRIME/compiled/website/index.html
+          grep -q 'Commander Deck Diagnostic' BEC-PRIME/compiled/website/index.html
+          grep -q 'NZ\$29' BEC-PRIME/compiled/website/index.html
+          grep -q '/mtg/diagnostic.html' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'DreamLedger Cinema' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'Digital Products' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'DreamMee' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'Avatar' BEC-PRIME/compiled/website/index.html
           ! grep -qi 'Amplissa' BEC-PRIME/compiled/website/index.html
           ! grep -qi 'CollectorsCoast' BEC-PRIME/compiled/website/index.html
           ! grep -qi 'HappyHomarid' BEC-PRIME/compiled/website/index.html
           ! grep -qi 'adult' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'BEC-PRIME' BEC-PRIME/compiled/website/index.html
+          ! grep -q 'href="/cinema' BEC-PRIME/compiled/website/index.html
+          ! grep -q 'href="/digital-products' BEC-PRIME/compiled/website/index.html
+          ! grep -q 'href="/avatar' BEC-PRIME/compiled/website/index.html
           echo 'CATALOG_COMPILE=PASS'
 
       - name: Verify approved commercial offer
@@ -125,18 +129,21 @@ jobs:
             echo "$code $path"
             test "$code" = 200
           done
-          HOME=$(cat /tmp/body 2>/dev/null || true)
           curl --fail --silent --show-error "$BASE_URL/" >/tmp/home.html
-          grep -q 'MTG / CUBE silo' /tmp/home.html
-          grep -q 'DreamLedger Cinema' /tmp/home.html
-          grep -q 'Digital Products' /tmp/home.html
-          grep -q 'DreamMee Avatar' /tmp/home.html
-          ! grep -qi 'Dream Ledger Deck' /tmp/home.html
-          ! grep -qi 'single-offer homepage' /tmp/home.html
+          grep -q 'Commander Deck Diagnostic' /tmp/home.html
+          grep -q 'NZ\$29' /tmp/home.html
+          grep -q '/mtg/diagnostic.html' /tmp/home.html
+          ! grep -qi 'DreamLedger Cinema' /tmp/home.html
+          ! grep -qi 'Digital Products' /tmp/home.html
+          ! grep -qi 'DreamMee' /tmp/home.html
+          ! grep -qi 'Avatar' /tmp/home.html
           ! grep -qi 'Amplissa' /tmp/home.html
           ! grep -qi 'CollectorsCoast' /tmp/home.html
           ! grep -qi 'HappyHomarid' /tmp/home.html
           ! grep -qi 'adult' /tmp/home.html
+          ! grep -q 'href="/cinema' /tmp/home.html
+          ! grep -q 'href="/digital-products' /tmp/home.html
+          ! grep -q 'href="/avatar' /tmp/home.html
           curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.json
           grep -q '"status":"ok"' /tmp/healthz.json
           echo "PRODUCTION_CATALOGUE=PASS"
@@ -157,7 +164,8 @@ jobs:
             'catalogue_routes':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html'],
             'support_routes':['/healthz','/version','/login.html','/register.html','/account.html','/assets.html','/api/offers','/api/products/EDH_0001','/api/mtg/diagnostic/intake'],
             'approved_offer':'OFFER-CMD-DIAG-29-NZD',
-            'stripe_link':'https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V'
+            'stripe_link':'https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V',
+            'front_door_silo':'mtg'
           }
           with open('proof/catalogue-deployment-fossil.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
           print(json.dumps(p,indent=2))
