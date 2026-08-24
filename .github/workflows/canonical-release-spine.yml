@@ -38,21 +38,24 @@ jobs:
       - name: Install canonical dependencies
         working-directory: BEC-PRIME
         run: npm install --no-audit --no-fund
-      - name: Run canonical tests
+      - name: GAUNTLET - canonical tests
         working-directory: BEC-PRIME
         run: npm test
-      - name: Run canonical compile
+      - name: GAUNTLET - canonical compile
         working-directory: BEC-PRIME
         run: npm run compile
-      - name: Verify public surface contract
+      - name: GAUNTLET - public surface contract
         working-directory: BEC-PRIME
         run: node scripts/verify-public-surface.js
-      - name: Verify silo boundaries
+      - name: GAUNTLET - silo boundaries
         working-directory: BEC-PRIME
         run: npm run verify:silos
-      - name: Verify commercial integration
+      - name: GAUNTLET - commercial integration
         working-directory: BEC-PRIME
         run: npm run verify:integration
+      - name: GAUNTLET - production verifier exists
+        working-directory: BEC-PRIME
+        run: node --check scripts/verify-production-version.js
 
   render-primary:
     needs: verify
@@ -86,8 +89,71 @@ jobs:
           path: render-deploy.json
           if-no-files-found: error
 
-  github-pages-fallback:
+  production-gate:
     needs: [verify, render-primary]
+    if: ${{ needs.verify.result == 'success' && needs.render-primary.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.14.1"
+      - name: Wait for Render production convergence
+        working-directory: BEC-PRIME
+        env:
+          EXPECTED_COMMIT: ${{ needs.verify.outputs.sha }}
+          PRODUCTION_BASE_URL: https://dreamledger.org
+          PRODUCTION_VERSION_TIMEOUT_MS: 15000
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            echo "Production convergence attempt $attempt/30"
+            if node scripts/verify-production-version.js; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              echo "Production did not converge to expected commit."
+              exit 1
+            fi
+            sleep 20
+          done
+      - name: Verify MTG routes and commerce surface
+        env:
+          BASE: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/EDH_0001; do
+            code=$(curl -L -sS -o /tmp/dreamledger-response -w "%{http_code}" --max-time 20 "$BASE$path")
+            echo "$code $path"
+            test "$code" = "200"
+          done
+          curl -L -sS --fail --max-time 20 "$BASE/mtg" -o /tmp/mtg.html
+          grep -q "data-dreamledger-mtg-commerce-v2" /tmp/mtg.html
+          grep -q "BUY NOW" /tmp/mtg.html
+      - name: Emit live production proof
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ needs.verify.outputs.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p proof/cloud
+          curl -L -sS --fail --max-time 20 https://dreamledger.org/version > proof/cloud/LIVE-VERSION.json
+          cat > proof/cloud/LIVE-PRODUCTION-GATE.json <<EOF
+          {
+            "status": "PASS",
+            "expected_commit": "$EXPECTED_COMMIT",
+            "rule": "Production is not claimed until /version and required MTG routes independently verify live."
+          }
+          EOF
+      - name: Upload live production proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-production-gate-${{ needs.verify.outputs.sha }}
+          path: proof/cloud
+          if-no-files-found: error
+
+  github-pages-fallback:
+    needs: [verify, render-primary, production-gate]
     if: ${{ always() && needs.verify.result == 'success' && needs.render-primary.result != 'success' }}
     runs-on: ubuntu-latest
     environment: pages
@@ -128,7 +194,7 @@ EOF
           docker push ghcr.io/${{ github.repository_owner }}/dreamledger:${{ needs.verify.outputs.sha }}
 
   spine-proof:
-    needs: [verify, render-primary, github-pages-fallback, ghcr-fallback]
+    needs: [verify, render-primary, production-gate, github-pages-fallback, ghcr-fallback]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
@@ -142,6 +208,7 @@ EOF
             "commit": "$GITHUB_SHA",
             "verify": "${{ needs.verify.result }}",
             "render_primary": "${{ needs.render-primary.result }}",
+            "production_gate": "${{ needs.production-gate.result }}",
             "github_pages_fallback": "${{ needs.github-pages-fallback.result }}",
             "ghcr_fallback": "${{ needs.ghcr-fallback.result }}",
             "rule": "Never claim production unless the live runtime is independently verified."
