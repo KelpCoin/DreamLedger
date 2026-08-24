@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-08-24",
+  "repository_sha": "456747f4f3832e1026ef4d9741aed4fc18cf15be",
+  "branch": "gauntlet/v5.2-20260824",
+  "working_tree_state": "CLEAN",
+  "production_sha": "UNKNOWN",
+  "production_url": "https://dreamledger.org",
+  "tested_routes": [
+    "https://dreamledger.org",
+    "https://dreamledger.org/shop.html",
+    "https://dreamledger.org/mtg",
+    "https://dreamledger.org/digital-products.html"
+  ],
+  "silo_classification": {
+    "mtg": "PASS",
+    "general_digital_products": "PASS",
+    "amplissa": "PASS",
+    "browneye_cortex": "FAIL"
+  },
+  "website_commercial_correctness": "FAIL",
+  "product_tested": "Commander Deck Diagnostic",
+  "product_validation_status": "UNVALIDATED",
+  "price": 29,
+  "currency": "nzd",
+  "checkout_result": "PASS",
+  "payment_result": "NOT_YET_OCCURRED",
+  "webhook_result": "PASS",
+  "economic_event_result": "NOT_YET_OCCURRED",
+  "ledger_result": "UNKNOWN",
+  "fulfilment_result": "PASS",
+  "acquisition_result": "UNKNOWN",
+  "first_broken_boundary": "Production website content does not match the current repository commercial surface, so production truth must be restored before customer validation.",
+  "patch": "No production code is patched by this gauntlet because the first blocker requires an explicit production-release decision and non-consequential verification.",
+  "files_changed": [
+    "Verify-RevenuePath.ps1",
+    "CURRENT_REVENUE_STATE.md",
+    "CURRENT_REVENUE_STATE.json",
+    "PROOF/REVENUE_PATH_PROOF_20260824.json"
+  ],
+  "diff_summary": "Added a PowerShell 5.1 non-consequential verifier plus durable state and proof records on an isolated gauntlet branch; no production financial or customer data was changed.",
+  "tests": [
+    "current repository inspection",
+    "current repository SHA inspection",
+    "current production homepage observation",
+    "production versus repository commercial surface comparison",
+    "Commander Deck Diagnostic offer contract inspection",
+    "checkout configuration inspection",
+    "settlement workflow presence inspection",
+    "economic proof boundary inspection"
+  ],
+  "verification_result": "PASS_WITH_BLOCKER",
+  "next_economic_action": "Resolve the production-truth blocker before asking a customer to validate the Commander Deck Diagnostic.",
+  "transaction_classification": "NOT_APPLICABLE",
+  "payment_evidence_note": "No provider-confirmed customer payment was observed or created during this gauntlet."
+}
