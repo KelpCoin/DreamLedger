@@ -1,0 +1,40 @@
+# CURRENT REVENUE STATE
+
+- timestamp_utc: 2026-08-24
+- local_sha: 07286c92f1e7218efbdbf98fab18eae2ba35584e
+- branch: gauntlet/v5.2-20260824
+- working_tree_status: CLEAN
+- live_sha: UNKNOWN
+- production_health: PASS
+- website_commercial_correctness: FAIL
+- silo_integrity: UNKNOWN
+- mtg_status: PASS
+- digital_product_status: PASS
+- amplissa_isolation_status: PASS
+- browneye_customer_isolation_status: FAIL
+- product_status: PASS
+- product_validation_status: UNVALIDATED
+- checkout_status: PASS
+- payment_status: NOT_YET_OCCURRED
+- webhook_status: PASS
+- ledger_status: UNKNOWN
+- fulfilment_status: PASS
+- economic_event_001: NOT_YET_OCCURRED
+- first_broken_boundary: Production website content does not match the current repository commercial surface, so production truth must be restored before customer validation.
+- blocker_type: PRODUCTION_TRUTH
+- blocker_description: The live dreamledger.org homepage observed by the audit presents as Dream Ledger Deck while the current repository homepage is the DreamLedger commerce catalogue.
+- patch: No production code is patched by this gauntlet because the first blocker requires an explicit production-release decision and non-consequential verification.
+- next_machine_action: Prepare a minimal production-truth correction and verification plan without deploying it.
+- next_human_action: Approve or reject the exact production-truth correction before any deployment.
+- commercial_validation_action: Resolve the production-truth blocker before asking a customer to validate the Commander Deck Diagnostic.
+- verification_result: PASS_WITH_BLOCKER
+
+## Evidence boundary
+
+The live homepage was independently observed at https://dreamledger.org and returned the title "Dream Ledger Deck". The current repository homepage is a DreamLedger commerce catalogue with MTG, digital, cinema and other customer-facing routes.
+
+The Commander Deck Diagnostic repository contract is published, MTG-scoped, NZD 29, and explicitly awaiting its first payment. Existing proof states that a real buyer remains the external dependency and that no first economic event has been proven.
+
+No real payment was created by this gauntlet. No customer record, financial record, or production data was mutated.
+
+UNKNOWN means NOT PROVEN.
