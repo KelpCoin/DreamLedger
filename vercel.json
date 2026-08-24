@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": false
+  },
   "buildCommand": "cd BEC-PRIME && npm install && npm run compile",
   "functions": {
     "api/**/*.ts": { "maxDuration": 30, "memory": 1024 },
