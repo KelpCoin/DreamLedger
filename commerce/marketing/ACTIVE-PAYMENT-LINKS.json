@@ -1,8 +1,19 @@
 {
   "schema": "dreamledger/active-payment-links/v1",
   "truth_rule": "A link is commercially live only when Stripe reports it active. A payment is revenue only when Stripe reports a paid completed session.",
-  "last_live_rail_check": "2026-08-22",
+  "last_live_rail_check": "2026-08-24",
   "links": [
+    {
+      "sku": "CMD-DIAG-29",
+      "offer": "Commander Deck Diagnostic",
+      "currency": "NZD",
+      "amount": 29,
+      "payment_link_id": "plink_1U7OJrEGgEAnUFF9YeAOO2l8",
+      "url": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
+      "status": "ACTIVE",
+      "stripe_livemode_verified": true,
+      "revenue_status": "UNPAID"
+    },
     {
       "sku": "DL-BILLBOARD-100X100-001",
       "offer": "DreamLedger Billboard 100x100",
