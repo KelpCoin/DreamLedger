@@ -1,0 +1,54 @@
+name: MTG Live Production Probe
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe live DreamLedger MTG surface
+        shell: bash
+        env:
+          BASE: https://dreamledger.org
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          echo "Expected commit: $EXPECTED_COMMIT"
+          curl -L -sS --fail --max-time 20 "$BASE/version" -o proof/LIVE-VERSION.json
+          cat proof/LIVE-VERSION.json
+          LIVE_COMMIT=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8')); process.stdout.write(String(x.commit||''))")
+          echo "Live commit: $LIVE_COMMIT"
+          test "$LIVE_COMMIT" = "$EXPECTED_COMMIT"
+          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/EDH_0001; do
+            code=$(curl -L -sS -o /tmp/response -w "%{http_code}" --max-time 20 "$BASE$path")
+            echo "$code $path"
+            test "$code" = "200"
+          done
+          curl -L -sS --fail --max-time 20 "$BASE/mtg" -o proof/MTG.html
+          grep -q "data-dreamledger-mtg-commerce-v2" proof/MTG.html
+          grep -q "BUY NOW" proof/MTG.html
+          cat > proof/MTG-LIVE-GATE.json <<EOF
+          {
+            "status": "PASS",
+            "expected_commit": "$EXPECTED_COMMIT",
+            "live_commit": "$LIVE_COMMIT",
+            "mtg_routes": "PASS",
+            "commerce_markers": "PASS"
+          }
+          EOF
+      - name: Upload production proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-live-production-probe-${{ github.sha }}
+          path: proof/
+          if-no-files-found: error
