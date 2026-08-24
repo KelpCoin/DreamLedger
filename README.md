@@ -18,7 +18,7 @@ The public product is intentionally small: structured offers, focused checkout s
 - Public commerce surface: https://dreamledger.org
 - Brand / holding surface: https://amplissa.com
 - Canonical repository: https://github.com/KelpCoin/DreamLedger
-- Current NZ$29 checkout: https://buy.stripe.com/28EcN54zraG13M3g3idwc1t
+- Current MTG NZ$29 checkout: https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V
 - Permanent QR policy: `IP/QR/QR-DESTINATION.txt`
 - Markets: `MARKETS/MARKET-MATRIX.md`
 - Social distribution: `SOCIAL/SOCIAL-VIRALITY-PLAYBOOK.md`
@@ -53,6 +53,12 @@ The workflow accepts only a completed, paid NZ$29 NZD Checkout Session associate
 
 Airtable remains the operational index. Stripe remains settlement authority. GitHub Actions is orchestration, not an authority for money.
 
+## Production convergence
+
+The Render deployment gate is configured to compile the canonical BEC-PRIME public surface, verify the approved Commander Deck Diagnostic offer, deploy the exact release SHA, and then verify the live `dreamledger.org` routes and production SHA.
+
+The current external production check shows a convergence mismatch: `dreamledger.org` is serving an Agentic Sovereignty Diagnostic surface while the canonical GitHub deployment gate expects the MTG catalogue. This is treated as a deployment-state problem only. No revenue is asserted from it.
+
 ## 60-second verification
 
 From `BEC-PRIME`:
@@ -63,7 +69,7 @@ From `BEC-PRIME`:
 
 For settlement verification, manually run the GitHub Actions workflow `Commerce Settlement Sync` and inspect the uploaded `commerce-settlement-proof-{run_id}` artifact.
 
-Expected pre-sale state is `verified_revenue_nzd: 0`. After a real live NZ$29 payment through the configured Payment Link, the artifact must contain a newly recognized `STRIPE-CHECKOUT-cs_...` event and `verified_revenue_nzd: 29`.
+Expected pre-sale state is `verified_revenue_nzd: 0`. After a real live NZ$29 payment through the configured Commander Deck Diagnostic Payment Link, the artifact must contain a newly recognized `STRIPE-CHECKOUT-cs_...` event and `verified_revenue_nzd: 29`.
 
 ## Shared item model
 
