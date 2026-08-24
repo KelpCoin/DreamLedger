@@ -6,11 +6,32 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
-
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
+
+function writeProof() {
+  const proof = {
+    schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
+    status: 'PASS',
+    source: 'BEC-PRIME/website/mtg-catalog.html',
+    marker: MARKER,
+    route: '/mtg',
+    aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
+    inventory_endpoint: '/api/products',
+    checkout_endpoint: '/api/offer-checkout/create',
+    horizontal_catalogue: true,
+    displays: ['image', 'name', 'price_nzd', 'condition', 'availability', 'buy_button'],
+    generated_at: new Date().toISOString()
+  };
+  fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
+  console.log(JSON.stringify(proof, null, 2));
+}
 
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
+  if (html.includes(MARKER)) {
+    writeProof();
+    return;
+  }
   const original = html;
 
   html = html.replace(
@@ -62,29 +83,11 @@ rail.querySelectorAll('.mtg-buy').forEach(button=>button.addEventListener('click
 }`;
 
   html = html.slice(0, start) + render + html.slice(end);
-
-  if (!html.includes(MARKER)) {
-    html = html.replace('<body>', '<body '+MARKER+'>');
-  }
+  html = html.replace('<body>', '<body '+MARKER+'>');
 
   if (html === original) throw new Error('MTG commerce patch made no changes');
   fs.writeFileSync(SOURCE, html, 'utf8');
-
-  const proof = {
-    schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
-    status: 'PASS',
-    source: 'BEC-PRIME/website/mtg-catalog.html',
-    marker: MARKER,
-    route: '/mtg',
-    aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
-    inventory_endpoint: '/api/products',
-    checkout_endpoint: '/api/offer-checkout/create',
-    horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'condition', 'availability', 'buy_button'],
-    generated_at: new Date().toISOString()
-  };
-  fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
-  console.log(JSON.stringify(proof, null, 2));
+  writeProof();
 }
 
 patch();
