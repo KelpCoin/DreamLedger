@@ -1,0 +1,21 @@
+{
+  "schema": "dreamledger/silo-isolation-fix/v1",
+  "timestamp_utc": "2026-08-24T01:10:00Z",
+  "status": "PATCH_PREPARED",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "gauntlet-v5.2-2026-08-24",
+  "target_silo": "mtg",
+  "blocker": "Public customer-facing surfaces exposed unrelated commercial silos.",
+  "corrections": [
+    "Front door is now MTG-specific and presents only the Commander Deck Diagnostic path.",
+    "MTG catalog navigation no longer links to unrelated Cinema or identity surfaces.",
+    "Commander diagnostic navigation no longer links to unrelated digital-product surfaces.",
+    "Compiled public homepage is synchronized with the corrected MTG front door.",
+    "Production deployment gate now rejects unrelated silo names and links on the front door."
+  ],
+  "payment_claim": "NO_NEW_PAYMENT_CLAIM",
+  "customer_validation": "UNVALIDATED",
+  "economic_event_001": "NOT_YET_OCCURRED",
+  "production_deployed": "UNKNOWN",
+  "human_deployment_required": true
+}
