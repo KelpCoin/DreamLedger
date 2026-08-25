@@ -1,0 +1,52 @@
+{
+  "schema": "BEC-PRIME/AGENTIC-COMMERCE-ENGINE/v1",
+  "version": "1.0.0",
+  "mode": "approval_gated",
+  "objective": "Convert qualified demand into verified external commerce through a machine-readable catalog.",
+  "event_order": [
+    "CATALOG_PUBLISHED",
+    "PROSPECT_FOUND",
+    "MATCH_CREATED",
+    "OFFER_PRESENTED",
+    "CHECKOUT_STARTED",
+    "PAYMENT_CONFIRMED",
+    "FULFILMENT_COMPLETED",
+    "EVIDENCE_RECORDED",
+    "NEXT_PROSPECT_FOUND"
+  ],
+  "truth_rules": {
+    "revenue_requires": "verified_external_payment",
+    "checkout_is_not_revenue": true,
+    "commit_is_not_revenue": true,
+    "self_purchase_is_not_revenue": true,
+    "public_outreach_requires_approval": true
+  },
+  "matching": {
+    "required_offer_fields": ["offer_id", "name", "problem", "buyer", "price", "currency", "delivery_method", "eligibility", "status"],
+    "ranking": ["pain", "willingness_to_pay", "buyer_fit", "accessibility", "margin", "fulfilment_simplicity"],
+    "minimum_status": "APPROVED"
+  },
+  "commerce": {
+    "payment_adapters": ["stripe", "paypal"],
+    "one_active_checkout_per_offer": true,
+    "external_payment_only": true,
+    "fulfilment_requires_payment": true,
+    "evidence_requires_transaction_id": true
+  },
+  "silos": {
+    "mtg": "isolated",
+    "adult": "isolated",
+    "commerce": "isolated"
+  },
+  "economics": {
+    "target_nzd": 1000000,
+    "first_gate_nzd": 50,
+    "milestones_nzd": [50, 500, 2000, 10000, 30000, 1000000],
+    "optimize_for": "contribution_margin_and_repeatable_external_demand"
+  },
+  "approval": {
+    "catalog_activation": "operator_approved",
+    "public_posting": "operator_approved",
+    "automatic_charge": "customer_initiated_only"
+  }
+}
