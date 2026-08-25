@@ -13,8 +13,12 @@ const fossil = require('./Fossil');
 const truthOracle = require('./TruthOracle');
 const internalTrust = require('../trust/InternalTrustService');
 const agentAuthority = require('./AgentAuthority');
+const revenueAutonomy = require('../autonomy/RevenueAutonomy');
 
 const ROOT = path.join(__dirname, '..');
+const AUTONOMY_DATA = path.join(ROOT, 'data', 'autonomy');
+const AUTONOMY_STATE = path.join(AUTONOMY_DATA, 'state.json');
+const AUTONOMY_PROOF = path.join(AUTONOMY_DATA, 'proofs', 'AUTONOMY-LATEST.json');
 let lastBoot = null;
 
 // Runtime boot must never mutate or recompile the production surface.
@@ -37,6 +41,19 @@ function compile() {
   }));
 }
 
+function readJsonFile(file, fallback) {
+  try { return JSON.parse(require('fs').readFileSync(file, 'utf8')); } catch { return fallback; }
+}
+
+function revenueSnapshot() {
+  return {
+    autonomy: readJsonFile(AUTONOMY_PROOF, { status: 'NOT_RUN' }),
+    state: readJsonFile(AUTONOMY_STATE, { paid_events: [], rabbit_mode: 'LOCKED', rabbit_trigger: 'WAITING_FOR_PAID_EVENTS' }),
+    approval_boundary: 'REQUIRED',
+    public_actions_executed: false
+  };
+}
+
 function boot() {
   const compileResults = compile();
   const gauntletResult = gauntlet.run();
@@ -52,6 +69,7 @@ function boot() {
     truth_oracle: truthOracle.snapshot(),
     workers: scheduler.advertisedWorkers().workers,
     worker_pool: { status: 'READY', queue: workerPool.listJobs().length },
+    revenue_autonomy: revenueSnapshot(),
     status: compileResults.every(x => x.status === 'PASS') && gauntletResult.status === 'PASS' && sentinelResult.verdict === 'PASS' && ledgerResult.status === 'PASS' && fossilResult.status === 'PASS' ? 'PASS' : 'FAIL',
     checked_at: new Date().toISOString()
   };
@@ -63,7 +81,9 @@ function health() {
     control_plane: 'ELOHIM-V6', gauntlet: 'GAUNTLET-V6', digital_proxy: 'approval-gated',
     scheduler: { registry: scheduler.loadRegistry(), workers: scheduler.advertisedWorkers().workers },
     ledger: ledger.verifyChain(), fossils: fossil.verifyFossils(), truth_oracle: truthOracle.snapshot(),
-    worker_pool: { status: 'READY', jobs: workerPool.listJobs() }, boot: lastBoot || { status: 'NOT_BOOTED' }
+    worker_pool: { status: 'READY', jobs: workerPool.listJobs() },
+    revenue_autonomy: revenueSnapshot(),
+    boot: lastBoot || { status: 'NOT_BOOTED' }
   };
 }
 
@@ -88,6 +108,15 @@ async function handle(req, res) {
   if (req.method === 'POST' && url === '/api/control/demand/record') { try { const input = await readJsonBody(req); return send(201, demandRadar.record(input.type || 'manual_signal', input)); } catch (err) { return send(400, { error: err.message }); } }
   if (req.method === 'POST' && url === '/api/control/compile') return send(200, boot());
   if (req.method === 'POST' && url === '/api/control/gauntlet') return send(200, gauntlet.run());
+  if (req.method === 'GET' && url === '/api/control/revenue') return send(200, revenueSnapshot());
+  if (req.method === 'POST' && url === '/api/control/revenue/cycle') {
+    try {
+      const proof = await revenueAutonomy.cycle();
+      return send(proof.status === 'PASS' ? 200 : 500, proof);
+    } catch (err) {
+      return send(500, { status: 'FAIL', error: err.message || 'Revenue autonomy cycle failed', approval_boundary: 'REQUIRED', public_actions_executed: false });
+    }
+  }
   if (req.method === 'GET' && url === '/api/control/jobs') return send(200, { jobs: workerPool.listJobs() });
   if (req.method === 'POST' && url === '/api/control/jobs') { try { const input = await readJsonBody(req); const job = workerPool.createJob(input); return send(201, { status: 'QUEUED', job, route: scheduler.choose(job) }); } catch (err) { return send(400, { error: err.message }); } }
   if (req.method === 'POST' && url === '/api/control/jobs/run-once') { const result = await workerPool.runNext(); return send(result.status === 'FAILED' ? 500 : 200, result); }
