@@ -2,32 +2,15 @@
   "id":"DREAMLEDGER-BILLBOARD-MEDIUM-001",
   "silo":"dreamledger",
   "name":"DreamLedger Billboard Medium",
-  "description":"200 x 100 pixel permanent billboard placement. Limited inventory of 50. One-time purchase with human review before publication.",
+  "description":"200 x 100 pixel permanent billboard placement. Consumes 2 of the 100 finite tile-units in a market. One-time purchase with human review before publication.",
   "price":9900,
   "currency":"nzd",
   "inventory":50,
+  "tile_units":2,
   "status":"published",
-  "checkout":{
-    "mode":"payment",
-    "success_path":"/billboard?paid=1",
-    "cancel_path":"/billboard"
-  },
-  "commercial_truth":{
-    "experiment":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001",
-    "approval_required":true,
-    "activation_gate":"CHECKOUT_VERIFIED",
-    "payment_surface":"stripe-payment-link",
-    "payment_link":"https://buy.stripe.com/5kQ28rea15lH3M38AQdwc2g",
-    "stripe_payment_link_id":"plink_1U8EN3EGgEAnUFF9bxDWZfsO"
-  },
-  "delivery":{
-    "type":"digital_billboard_placement",
-    "target":"dreamledger-public-billboard",
-    "dimensions":"200x100"
-  },
-  "evidence":{
-    "status":"awaiting_first_payment",
-    "transaction_id":null
-  },
+  "checkout":{"mode":"dynamic_stripe_checkout","success_path":"/billboard?paid=1","cancel_path":"/billboard"},
+  "commercial_truth":{"experiment":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001","approval_required":true,"activation_gate":"CHECKOUT_VERIFIED","payment_surface":"dynamic-stripe-checkout"},
+  "delivery":{"type":"digital_billboard_placement","target":"dreamledger-public-billboard","dimensions":"200x100"},
+  "evidence":{"status":"awaiting_first_payment","transaction_id":null},
   "execution_atom":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001"
 }
