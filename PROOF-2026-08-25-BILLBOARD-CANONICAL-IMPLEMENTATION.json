@@ -1,0 +1,16 @@
+{
+  "proof_id":"BILLBOARD-CANONICAL-IMPLEMENTATION-2026-08-25",
+  "timestamp":"2026-08-25T00:00:00Z",
+  "status":"IMPLEMENTED_PENDING_LIVE_DEPLOYMENT_AND_FIRST_EXTERNAL_PAYMENT",
+  "canonical_public_route":"/billboard",
+  "legacy_route":"/board",
+  "founding_tile":{"sku":"BILLBOARD-SMALL","price_nzd":50,"dimensions":"100x100","inventory_positions_per_market":100},
+  "larger_tiles":[{"sku":"BILLBOARD-MEDIUM","price_nzd":79,"dimensions":"200x100"},{"sku":"BILLBOARD-WIDE","price_nzd":149,"dimensions":"500x200"},{"sku":"BILLBOARD-LARGE","price_nzd":349,"dimensions":"500x500"},{"sku":"BILLBOARD-TAKEOVER","price_nzd":999,"dimensions":"1000x1000"}],
+  "markets":["GLOBAL","NZ","AU","ZA","AMERICAS","EUROPE"],
+  "backend":{"checkout":"/api/molt-beach-checkout","submit":"/api/billboard/submit","claim":"/api/billboard/claim","inventory":"/api/molt-beach-inventory","webhook":"/api/molt-beach-webhook","supabase_table":"molt_beach_campaigns"},
+  "payment_state":"Stripe checkout plus signed webhook; no production revenue inferred",
+  "fulfilment_state":"PAID_PENDING_REVIEW until human approval; PUBLISHED only after approval",
+  "changes":["canonical billboard compiler now generates the commercial surface","production build invokes BillboardCompiler","/board redirects to /billboard","market-specific inventory remains isolated in Supabase","paid intake endpoint verifies the Stripe session before writing creative data","Supabase title column and market/status index added"],
+  "remaining_gates":["deploy current main branch","verify public routes","verify Stripe NZD 50 checkout in live environment without inventing a payment","verify signed webhook persistence","perform human approval test on a real paid campaign","record durable payment and delivery proof","obtain first external buyer"],
+  "truth_rule":"Do not mark GREEN until live evidence exists for the complete payment-to-publication path."
+}
