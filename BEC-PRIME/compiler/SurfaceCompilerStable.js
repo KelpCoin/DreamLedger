@@ -34,7 +34,6 @@ function buildAccountPages(){
   write(path.join(OUT,'assets.html'),'<main><h1>DreamLedger Assets</h1><p>Approved public commerce assets.</p></main>');
 }
 
-[TEMPLATE,MANIFEST,OFFERS,IP,PRODUCTS,NEWS,AUCTIONS,CATALOG_TEMPLATE,CINEMA_TEMPLATE,DIGITAL_TEMPLATE,BILLBOARDS].forEach(()=>{});
 const required=[MANIFEST,OFFERS,IP,PRODUCTS,NEWS,AUCTIONS,CATALOG_TEMPLATE,CINEMA_TEMPLATE,DIGITAL_TEMPLATE,BILLBOARDS];
 required.forEach(must);
 fs.mkdirSync(path.join(OUT,'assets'),{recursive:true});
