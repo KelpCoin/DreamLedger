@@ -17,6 +17,8 @@
     { "source": "/MTG/", "destination": "/compiled/website/mtg/index.html" },
     { "source": "/board", "destination": "/compiled/website/board.html" },
     { "source": "/board/", "destination": "/compiled/website/board.html" },
+    { "source": "/billboard", "destination": "/compiled/website/board.html" },
+    { "source": "/billboard/", "destination": "/compiled/website/board.html" },
     { "source": "/login", "destination": "/compiled/website/login.html" },
     { "source": "/login/", "destination": "/compiled/website/login.html" },
     { "source": "/register", "destination": "/compiled/website/register.html" },
