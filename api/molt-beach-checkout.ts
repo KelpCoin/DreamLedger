@@ -1,5 +1,6 @@
 const STRIPE_API='https://api.stripe.com/v1/checkout/sessions';
 const SUPABASE_TABLE='molt_beach_campaigns';
+const FOUNDING_UNITS=100;
 const MARKETS:any={
  GLOBAL:{slug:'global',name:'Global Billboard',currency:'usd'},
  NZ:{slug:'nz',name:'New Zealand Billboard',currency:'nzd'},
@@ -16,7 +17,8 @@ const OFFERS:any={
 };
 function json(data:any,status=200){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store'}})}
 function overlaps(x:number,y:number,w:number,h:number,c:any){return x<c.x+c.width&&x+w>c.x&&y<c.y+c.height&&y+h>c.y}
-function findSlot(items:any[],w:number,h:number){for(let y=0;y<=1000-h;y+=10)for(let x=0;x<=1000-w;x+=10)if(!items.some((c:any)=>overlaps(x,y,w,h,c)))return{x,y};return null}
+function tileUnits(w:number,h:number){return Math.max(1,Math.ceil(w/100)*Math.ceil(h/100))}
+function findSlot(items:any[],w:number,h:number){for(let y=0;y<=1000-h;y+=100)for(let x=0;x<=1000-w;x+=100)if(!items.some((c:any)=>overlaps(x,y,w,h,c)))return{x,y};return null}
 export default async function handler(request:Request){
  if(request.method!=='POST')return new Response('Method not allowed',{status:405});
  const secret=process.env.STRIPE_SECRET_KEY;if(!secret)return json({error:'STRIPE_SECRET_KEY is not configured'},503);
@@ -29,9 +31,9 @@ export default async function handler(request:Request){
  const base=process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!base||!key)return json({error:'Supabase configuration missing'},503);
  const invUrl=base.replace(/\/$/,'')+'/rest/v1/'+SUPABASE_TABLE+'?market=eq.'+encodeURIComponent(market)+'&status=in.(PUBLISHED,PAID_PENDING_REVIEW)&select=x,y,width,height';
  const inv=await fetch(invUrl,{headers:{apikey:key,authorization:`Bearer ${key}`}});if(!inv.ok)return json({error:'Inventory unavailable'},503);
- const rows=await inv.json();const slot=findSlot(rows,offer.w,offer.h);if(!slot)return json({error:'No block of that size is currently available'},409);
+ const rows=await inv.json();const usedUnits=rows.reduce((n:any,c:any)=>n+tileUnits(Number(c.width),Number(c.height)),0);const neededUnits=tileUnits(offer.w,offer.h);if(usedUnits+neededUnits>FOUNDING_UNITS)return json({error:'This billboard size is sold out in this market'},409);const slot=findSlot(rows,offer.w,offer.h);if(!slot)return json({error:'No contiguous block of this size is currently available'},409);
  const currency=marketSpec.currency;const amount=Number(offer.amounts[currency]);
  const form=new URLSearchParams();form.set('mode','payment');form.set('line_items[0][price_data][currency]',currency);form.set('line_items[0][price_data][product_data][name]',offer.name+' - '+marketSpec.name);form.set('line_items[0][price_data][product_data][description]','Permanent digital billboard placement. Human review required before publication.');form.set('line_items[0][price_data][unit_amount]',String(amount));form.set('line_items[0][quantity]','1');form.set('success_url','https://dreamledger.org/billboard?paid=1&session_id={CHECKOUT_SESSION_ID}');form.set('cancel_url','https://dreamledger.org/billboard?cancelled=1');form.set('customer_email',email);
- form.set('metadata[molt_beach]','true');form.set('metadata[billboard]','true');form.set('metadata[sku]',offer.sku);form.set('metadata[market]',market);form.set('metadata[market_name]',marketSpec.name);form.set('metadata[x]',String(slot.x));form.set('metadata[y]',String(slot.y));form.set('metadata[width]',String(offer.w));form.set('metadata[height]',String(offer.h));form.set('metadata[price_nzd]',String(offer.price_nzd));form.set('metadata[currency]',currency);form.set('metadata[amount_minor]',String(amount));form.set('metadata[title]',title);form.set('metadata[owner_name]',owner_name.slice(0,80));form.set('metadata[image_url]',image_url);form.set('metadata[destination_url]',destination_url);
- const r=await fetch(STRIPE_API,{method:'POST',headers:{authorization:`Bearer ${secret}`,'content-type':'application/x-www-form-urlencoded'},body:form});const result=await r.json();if(!r.ok)return json({error:'Stripe checkout creation failed'},502);return json({url:result.url,session_id:result.id,sku:offer.sku,market,amount:amount/100,currency,slot});
+ form.set('metadata[molt_beach]','true');form.set('metadata[billboard]','true');form.set('metadata[sku]',offer.sku);form.set('metadata[market]',market);form.set('metadata[market_name]',marketSpec.name);form.set('metadata[x]',String(slot.x));form.set('metadata[y]',String(slot.y));form.set('metadata[width]',String(offer.w));form.set('metadata[height]',String(offer.h));form.set('metadata[price_nzd]',String(offer.price_nzd));form.set('metadata[currency]',currency);form.set('metadata[amount_minor]',String(amount));form.set('metadata[tile_units]',String(neededUnits));form.set('metadata[title]',title);form.set('metadata[owner_name]',owner_name.slice(0,80));form.set('metadata[image_url]',image_url);form.set('metadata[destination_url]',destination_url);
+ const r=await fetch(STRIPE_API,{method:'POST',headers:{authorization:`Bearer ${secret}`,'content-type':'application/x-www-form-urlencoded'},body:form});const result=await r.json();if(!r.ok)return json({error:'Stripe checkout creation failed'},502);return json({url:result.url,session_id:result.id,sku:offer.sku,market,amount:amount/100,currency,slot,inventory:{total_units:FOUNDING_UNITS,used_units:usedUnits,remaining_units:FOUNDING_UNITS-usedUnits-neededUnits}});
 }
