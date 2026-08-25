@@ -1,33 +1,16 @@
 {
-  "id": "DREAMLEDGER-BILLBOARD-WIDE-001",
-  "silo": "dreamledger",
-  "name": "DreamLedger Billboard - Wide",
-  "description": "Reserve a 500 x 200 pixel billboard placement on the DreamLedger public board. Your approved artwork or message is installed into the purchased space.",
-  "price": 14900,
-  "currency": "nzd",
-  "inventory": 20,
-  "status": "published",
-  "checkout": {
-    "mode": "payment",
-    "success_path": "/billboard?paid=1",
-    "cancel_path": "/billboard"
-  },
-  "commercial_truth": {
-    "experiment": "DREAMLEDGER-BILLBOARD-FIRST-SALE-001",
-    "approval_required": false,
-    "approval_source": "operator-approved GitHub commit",
-    "activation_gate": "CHECKOUT_VERIFIED",
-    "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/28EfZh4zr29v5Ub18odwc1v"
-  },
-  "delivery": {
-    "type": "digital_billboard_placement",
-    "target": "dreamledger-public-billboard",
-    "dimensions": "500x200"
-  },
-  "evidence": {
-    "status": "awaiting_first_payment",
-    "transaction_id": null
-  },
-  "execution_atom": "DREAMLEDGER-BILLBOARD-FIRST-SALE-001"
+  "id":"DREAMLEDGER-BILLBOARD-WIDE-001",
+  "silo":"dreamledger",
+  "name":"DreamLedger Billboard Wide",
+  "description":"500 x 200 pixel permanent billboard placement. Consumes 10 of the 100 finite tile-units in a market. One-time purchase with human review before publication.",
+  "price":24900,
+  "currency":"nzd",
+  "inventory":10,
+  "tile_units":10,
+  "status":"published",
+  "checkout":{"mode":"dynamic_stripe_checkout","success_path":"/billboard?paid=1","cancel_path":"/billboard"},
+  "commercial_truth":{"experiment":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001","approval_required":true,"activation_gate":"CHECKOUT_VERIFIED","payment_surface":"dynamic-stripe-checkout"},
+  "delivery":{"type":"digital_billboard_placement","target":"dreamledger-public-billboard","dimensions":"500x200"},
+  "evidence":{"status":"awaiting_first_payment","transaction_id":null},
+  "execution_atom":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001"
 }

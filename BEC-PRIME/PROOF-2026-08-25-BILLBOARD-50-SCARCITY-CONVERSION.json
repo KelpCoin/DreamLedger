@@ -1,0 +1,64 @@
+{
+  "proof_version":"1.0",
+  "timestamp":"2026-08-25",
+  "status":"READY_FOR_DEPLOYMENT_VERIFICATION",
+  "scope":"DreamLedger Billboard",
+  "commercial_decisions":{
+    "founding_tile_price_nzd":50,
+    "founding_inventory_units_per_market":100,
+    "allocation_grid":"100x100",
+    "unlimited_inventory":false,
+    "fake_scarcity":false,
+    "auto_rotating_carousel":false,
+    "mobile_pattern":"thumb_first_horizontal_swipe",
+    "markets":["GLOBAL","NZ","AU","ZA","AMERICAS","EUROPE"],
+    "size_ladder":[
+      {"dimensions":"100x100","price_nzd":50,"tile_units":1},
+      {"dimensions":"200x100","price_nzd":99,"tile_units":2},
+      {"dimensions":"500x200","price_nzd":249,"tile_units":10},
+      {"dimensions":"500x500","price_nzd":499,"tile_units":25}
+    ]
+  },
+  "conversion_research":{
+    "mobile_ux_source":"Baymard mobile ecommerce research",
+    "mobile_risk":"63% of tested mobile users abandoned a product or site at least once due to preventable mobile usability issues",
+    "carousel_decision":"Use deliberate user-controlled horizontal swipe; no auto-rotation",
+    "scarcity_rule":"Only show server-authoritative remaining inventory; no fake countdowns or manufactured activity"
+  },
+  "market_research":{
+    "global_ooh_2025_usd_bn":54.2,
+    "global_dooh_2025_usd_bn":25.5,
+    "global_dooh_2026_forecast_usd_bn":28,
+    "global_pdooh_2025_usd_bn":1.4,
+    "source":"World Out of Home Organization 2026 expenditure and pDOOH reports"
+  },
+  "runtime_changes":[
+    "Dynamic Stripe Checkout with local-currency pricing",
+    "100px grid slot reservation",
+    "100 founding tile-unit cap per market",
+    "Complete title/image/destination metadata carried into signed webhook",
+    "PAID_PENDING_REVIEW persistence aligned to live Supabase schema",
+    "Server-authoritative remaining inventory endpoint",
+    "Canonical swipe-first billboard surface",
+    "Stale static payment links deactivated",
+    "Billboard compiler made non-destructive"
+  ],
+  "supabase_verification":{
+    "project":"DreamLedger",
+    "table":"molt_beach_campaigns",
+    "current_rows":0,
+    "founding_units_remaining_per_market":100,
+    "schema_checked":true,
+    "schema_compatible_with_webhook":true
+  },
+  "revenue_truth":{
+    "settled_billboard_revenue_nzd":0,
+    "external_buyer_count":0,
+    "green_revenue_proof":false,
+    "next_gate":"DEPLOY_AND_VERIFY_LIVE_CANONICAL_SURFACE"
+  },
+  "public_action":{
+    "external_outreach_sent":false,
+    "public_post_made":false
+  }
+}

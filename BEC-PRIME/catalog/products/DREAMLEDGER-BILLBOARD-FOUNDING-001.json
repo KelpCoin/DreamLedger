@@ -1,0 +1,35 @@
+{
+  "id":"DREAMLEDGER-BILLBOARD-FOUNDING-001",
+  "silo":"dreamledger",
+  "name":"DreamLedger Founding Tile",
+  "description":"100 x 100 pixel permanent digital billboard tile. First 100 positions per market only. One-time purchase. Human review before publication.",
+  "price":5000,
+  "currency":"nzd",
+  "inventory":100,
+  "status":"published",
+  "checkout":{
+    "mode":"payment",
+    "success_path":"/billboard?paid=1",
+    "cancel_path":"/billboard"
+  },
+  "commercial_truth":{
+    "experiment":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001",
+    "approval_required":true,
+    "activation_gate":"CHECKOUT_VERIFIED",
+    "payment_surface":"stripe-payment-link",
+    "payment_link":"https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a",
+    "stripe_payment_link_id":"plink_1U8EMUEGgEAnUFF9xLEPb6Vm",
+    "scarcity":"100_positions_per_market"
+  },
+  "delivery":{
+    "type":"digital_billboard_tile",
+    "target":"dreamledger-public-billboard",
+    "dimensions":"100x100",
+    "permanence":"permanent_unless_policy_violation"
+  },
+  "evidence":{
+    "status":"awaiting_first_payment",
+    "transaction_id":null
+  },
+  "execution_atom":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001"
+}
