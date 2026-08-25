@@ -1,11 +1,11 @@
 {
   "name":"dreamledger",
-  "version":"1.6.2",
+  "version":"1.6.3",
   "description":"DreamLedger sovereign omni-commerce engine",
   "main":"server.js",
   "engines":{"node":">=24 <25"},
   "scripts":{
-    "start":"node -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js start.js",
+    "start":"node -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js start.js",
     "build":"npm run compile",
     "test":"node --test scripts/test-mvp-policy.js",
     "verify:evidence":"node scripts/verify-mvp-evidence.js",
