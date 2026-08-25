@@ -1,0 +1,84 @@
+name: DreamLedger Storefront UX Gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  storefront-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install runtime dependencies
+        run: npm ci --omit=dev
+
+      - name: Verify committed customer storefront
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f compiled/website/index.html
+          grep -q 'DreamMeez' compiled/website/index.html
+          grep -q 'Sign in' compiled/website/index.html
+          grep -q 'Register' compiled/website/index.html
+          grep -q 'class="avatar"' compiled/website/index.html
+          grep -q 'id="worldRail"' compiled/website/index.html
+          grep -q 'id="catalogRail"' compiled/website/index.html
+          grep -qi 'cinema.html' compiled/website/index.html
+          grep -qi 'digital-products.html' compiled/website/index.html
+          ! grep -Eiq 'signal -> offer -> checkout -> proof|shared primitives handle offers|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK|Dreamies' compiled/website/index.html
+
+      - name: Start runtime
+        env:
+          PORT: 4173
+        run: |
+          set -euo pipefail
+          npm start > /tmp/dreamledger-storefront.log 2>&1 &
+          echo $! > /tmp/dreamledger-storefront.pid
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173/ >/tmp/storefront.html
+          curl -fsS http://127.0.0.1:4173/api/offers >/tmp/offers.json
+
+      - name: Run customer and commerce gate
+        run: node scripts/verify-storefront-ux.js > /tmp/storefront-proof.json
+
+      - name: Emit proof artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../proof
+          if test -f /tmp/storefront-proof.json; then cp /tmp/storefront-proof.json ../proof/storefront-ux-proof.json; else printf '{"status":"FAIL","commit":"%s"}\n' "$GITHUB_SHA" > ../proof/storefront-ux-proof.json; fi
+          printf '{"commit":"%s","timestamp_utc":"%s"}\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ../proof/storefront-ux-run.json
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-storefront-ux-${{ github.sha }}
+          path: proof/storefront-ux-*.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Dump runtime log on failure
+        if: failure()
+        run: cat /tmp/dreamledger-storefront.log || true
