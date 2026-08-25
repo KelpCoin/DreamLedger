@@ -6,14 +6,13 @@ on:
     - cron: '*/15 * * * *'
 
 permissions:
-  contents: write
+  contents: read
   actions: read
-  issues: write
 
 jobs:
   operator:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,49 +20,73 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install
+        working-directory: BEC-PRIME
+        run: npm ci --ignore-scripts
 
       - name: Compile
         working-directory: BEC-PRIME
-        run: npm install --ignore-scripts && npm run compile
+        run: npm run compile
 
-      - name: Run deterministic gates
+      - name: Verify canonical approved offer
         working-directory: BEC-PRIME
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p proof/autonomous
-          node -e "const fs=require('fs'); const p='catalog/offers/approved.json'; const x=JSON.parse(fs.readFileSync(p,'utf8')); if(!Array.isArray(x.approved)) throw new Error('approved.json invalid'); console.log(JSON.stringify({approved:x.approved.length,offers:x.approved},null,2));"
-          node -e "const fs=require('fs'); const p='catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json'; const x=JSON.parse(fs.readFileSync(p,'utf8')); if(x.status!=='published') throw new Error('product not published'); if(Number(x.inventory)<=0) throw new Error('product out of inventory'); if(x.commercial_truth?.approval_required!==false) throw new Error('product not commercially approved'); console.log(JSON.stringify({product:x.product_id||x.id,status:x.status,inventory:x.inventory,approval_required:x.commercial_truth.approval_required},null,2));"
-          node -e "const fs=require('fs'); const p='catalog/offers/offers.json'; const x=JSON.parse(fs.readFileSync(p,'utf8')); const a=(x.offers||[]).find(o=>o.offer_id==='OFFER-BEC-PRIME-ARCHITECTURE-AUDIT'); if(!a) throw new Error('approved offer missing from offers catalog'); console.log(JSON.stringify(a,null,2));"
-          node -e "const fs=require('fs'); const a=JSON.parse(fs.readFileSync('catalog/offers/approved.json','utf8')).approved.find(x=>x.offer_id==='OFFER-BEC-PRIME-ARCHITECTURE-AUDIT'); const p=JSON.parse(fs.readFileSync('catalog/products/BEC-PRIME-ARCHITECTURE-AUDIT-001.json','utf8')); if(!a) throw new Error('AUDIT-001 approval missing'); if(a.product_id!=='AGENTIC_SOVEREIGNTY_DIAGNOSTIC') throw new Error('AUDIT-001 product_id mismatch'); if(a.product_sku!=='AGENTIC_SOVEREIGNTY_DIAGNOSTIC') throw new Error('AUDIT-001 SKU mismatch'); if(Number(a.price)!==29 || String(a.currency).toUpperCase()!=='NZD') throw new Error('approved offer price mismatch'); if(Number(p.price)!==2900 || String(p.currency).toLowerCase()!=='nzd') throw new Error('product price mismatch'); if(p.name!=='Agentic Sovereignty Diagnostic') throw new Error('product name mismatch'); console.log('AUDIT001_COMMERCIAL_IDENTITY=PASS');"
+          node - <<'NODE'
+          const fs = require('fs');
+          const approved = JSON.parse(fs.readFileSync('catalog/offers/approved.json','utf8'));
+          if (!Array.isArray(approved.approved) || approved.approved.length < 1) throw new Error('No approved offer exists');
+          const billboard = approved.approved.find(x => x.offer_id === 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001');
+          if (!billboard) throw new Error('Canonical approved billboard offer missing');
+          if (Number(billboard.price) !== 50 || String(billboard.currency).toUpperCase() !== 'NZD') throw new Error('Canonical billboard price/currency mismatch');
+          if (billboard.payment_link_status !== 'ACTIVE_LIVEMODE') throw new Error('Canonical billboard checkout is not marked ACTIVE_LIVEMODE');
+          if (billboard.payment_link_url !== 'https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a') throw new Error('Canonical billboard payment link mismatch');
+          if (billboard.fulfillment_route !== 'stripe_webhook -> billboardAutoFulfillment.fulfill') throw new Error('Billboard fulfillment route mismatch');
+          if (billboard.constraints.includes('DreamLedger silo only') !== true) throw new Error('Billboard silo isolation constraint missing');
+          console.log(JSON.stringify({offer_id: billboard.offer_id, price: billboard.price, currency: billboard.currency, checkout: billboard.payment_link_status, silo: billboard.silo}, null, 2));
+          NODE
 
-      - name: Run existing commerce gauntlet tests when present
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -f scripts/Smoke-CommerceCatalog.js ]; then node scripts/Smoke-CommerceCatalog.js || true; fi
-          if [ -f BEC-PRIME/scripts/Smoke-CommerceCatalog.js ]; then node BEC-PRIME/scripts/Smoke-CommerceCatalog.js || true; fi
+      - name: Verify silo boundaries
+        working-directory: BEC-PRIME
+        run: npm run verify:silos
+
+      - name: Verify commercial integration
+        working-directory: BEC-PRIME
+        run: npm run verify:integration
+
+      - name: Verify production contract
+        working-directory: BEC-PRIME
+        run: npm run verify:production-contract
 
       - name: Write operator proof
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p BEC-PRIME/proof/autonomous
-          cat > BEC-PRIME/proof/autonomous/AUTONOMOUS_OPERATOR_PROOF.json <<'JSON'
+          mkdir -p proof/autonomous
+          cat > proof/autonomous/AUTONOMOUS_OPERATOR_PROOF.json <<JSON
           {
-            "schema": "BEC-PRIME/AUTONOMOUS-OPERATOR/v1",
+            "schema": "BEC-PRIME/AUTONOMOUS-OPERATOR/v2",
             "status": "PASS",
             "execution": "GitHub-hosted-runner",
             "pc_required": false,
-            "commercial_gate": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
+            "commercial_gate": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
             "payment_claimed": false,
-            "next_external_gate": "live_checkout_and_real_payment"
+            "payment_verified": false,
+            "external_action_performed": false,
+            "silo_isolation_checked": true,
+            "production_contract_checked": true,
+            "next_external_gate": "real_external_payment"
           }
           JSON
+          cat proof/autonomous/AUTONOMOUS_OPERATOR_PROOF.json
 
       - name: Upload proof
         uses: actions/upload-artifact@v4
         with:
           name: bec-prime-autonomous-operator-proof
-          path: BEC-PRIME/proof/autonomous/AUTONOMOUS_OPERATOR_PROOF.json
+          path: proof/autonomous/AUTONOMOUS_OPERATOR_PROOF.json
