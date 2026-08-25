@@ -1,0 +1,12 @@
+{
+  "schema": "BEC-PRIME/LIVE-COMMERCE/v1",
+  "truth_rule": "Only Stripe-confirmed external payments count as revenue.",
+  "updated_at": "2026-08-25",
+  "offers": [
+    {"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-002","price_nzd":49,"checkout":"https://buy.stripe.com/5kQ00j7LD9BXfuLaIYdwc2k","status":"ACTIVE_LIVEMODE","silo":"commerce"},
+    {"offer_id":"OFFER-BEC-PRIME-AGENT-READINESS-099","price_nzd":99,"checkout":"https://buy.stripe.com/5kQaEX1nf5lH1DV2csdwc2j","status":"ACTIVE_LIVEMODE","silo":"commerce"},
+    {"offer_id":"OFFER-CMD-DIAG-29-NZD","price_nzd":29,"checkout":"https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V","status":"ACTIVE_LIVEMODE","silo":"mtg"},
+    {"offer_id":"DREAMLEDGER-BILLBOARD-NZ-100X100","price_nzd":50,"checkout":"https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a","status":"ACTIVE_LIVEMODE","silo":"commerce"}
+  ],
+  "revenue": {"verified_external_nzd":0,"self_purchases":0}
+}
