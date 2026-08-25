@@ -1,0 +1,14 @@
+{
+  "schema": "dreamledger/trust-attestation/v1",
+  "status": "INSUFFICIENT_EVIDENCE",
+  "evidence": {
+    "transaction_id": "UNPROVEN",
+    "source_reference": "local-bootstrap",
+    "observed_at": "1970-01-01T00:00:00.000Z",
+    "payment_event_id": "",
+    "payment_status": "unverified",
+    "claim": "Agentic transaction trust attestation",
+    "evidence_hash": "PLACEHOLDER"
+  },
+  "note": "This manifest is intentionally non-passing. A real external payment event and signed evidence are required before PASS."
+}
