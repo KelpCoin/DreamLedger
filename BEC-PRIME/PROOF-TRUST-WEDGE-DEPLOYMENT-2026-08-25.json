@@ -1,0 +1,14 @@
+{
+  "schema": "dreamledger/trust-wedge-deployment-proof/v1",
+  "status": "INSUFFICIENT_EVIDENCE",
+  "merged_commit": "addd33ac7666b8c2d9ee0ae1f19a92c00ddc233e",
+  "deployment_trigger": "push-to-main workflow",
+  "production_url": "https://dreamledger.org",
+  "runtime_routes": [
+    "/api/trust/status",
+    "/api/trust/verify"
+  ],
+  "economic_gate": "NO_EXTERNAL_PAYMENT_PROVEN",
+  "verification_requirement": "PASS requires deterministic evidence hash, real external payment event id, payment_status=paid, and valid Ed25519 signature when signing is enabled.",
+  "note": "Code is merged to main. Production convergence was not asserted by this artifact and must be proven by the deployment workflow and live endpoint verifier."
+}
