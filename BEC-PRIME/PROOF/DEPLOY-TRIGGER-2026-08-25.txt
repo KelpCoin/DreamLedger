@@ -1,6 +1,7 @@
-Deployment trigger only.
+Deployment trigger retry.
 Product scope unchanged.
 Target: DreamLedger 1 / dreamledger-bec-prime.
 Source feature commit: fbaa4d8072a0ccde175e0e9241134f4603a89e36.
-Purpose: trigger the existing production Render workflow on main.
+Purpose: force the existing production Render workflow on main to execute now.
+Render service: srv-d8ud55lckfvc73f1t4eg.
 No public outreach. No revenue claim.
