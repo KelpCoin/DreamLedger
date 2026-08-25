@@ -1,23 +1,17 @@
-# E1 production release refresh: Render is the sole active primary deployment path.
-# Vercel remains dormant as a fallback and must not participate in production deployment.
+# E1 production release: Render is the active primary deployment path.
 services:
   - type: web
     name: dreamledger-bec-prime
     runtime: node
     branch: main
     rootDir: BEC-PRIME
-    autoDeployTrigger: off
+    autoDeployTrigger: commit
     renderSubdomainPolicy: enabled
     domains:
       - dreamledger.org
       - www.dreamledger.org
       - qr.dreamledger.org
-    # Production artifacts are committed and verified in git. The previous
-    # build command ran the entire experimental compiler chain on every Render
-    # deploy; repeated Render failures left the site serving the last rollback.
-    # Deploy the committed artifact directly. Compilation remains available
-    # locally/CI via npm run compile and is not on the critical Render path.
-    buildCommand: npm install --omit=dev
+    buildCommand: npm install --omit=dev && npm run compile:billboard && npm run patch:billboard-market
     startCommand: npm start
     healthCheckPath: /healthz
     disk:
@@ -35,12 +29,12 @@ services:
         value: https://qr.dreamledger.org
       - key: QR_ALLOWED_HOSTS
         value: dreamledger.org,qr.dreamledger.org
-      - key: QR_DATA_DIR
-        value: /var/data/qr
       - key: QR_API_KEY
         generateValue: true
       - key: QR_IP_SALT
         generateValue: true
+      - key: QR_DATA_DIR
+        value: /var/data/qr
       - key: LEDGER_DATA_DIR
         value: /var/data/ledger
       - key: PROOF_DATA_DIR
