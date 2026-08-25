@@ -1,15 +1,15 @@
 {
   "id": "BILLBOARD-SMALL",
   "silo": "billboard",
-  "name": "DreamLedger Billboard Small",
-  "description": "Permanent public billboard placement at 100x100. Buyer supplies one image and destination URL; placement requires automatic and human review.",
-  "price": 2900,
+  "name": "DreamLedger Founding Tile - 100x100",
+  "description": "Permanent 100x100 founding tile on the DreamLedger billboard. Buyer supplies one image and destination URL; publication requires human review.",
+  "price": 5000,
   "currency": "nzd",
-  "inventory": 10000,
+  "inventory": 100,
   "status": "published",
-  "checkout": {"mode": "custom_billboard_checkout", "route": "/api/billboard/submit", "success_path": "/billboard?paid=1", "cancel_path": "/billboard"},
-  "commercial_truth": {"experiment": "BILLBOARD-001", "approval_required": false, "activation_gate": "PAYMENT_AND_HUMAN_REVIEW", "payment_surface": "stripe-checkout-session"},
+  "checkout": {"mode": "custom_billboard_checkout", "route": "/api/molt-beach-checkout", "success_path": "/billboard?paid=1", "cancel_path": "/billboard"},
+  "commercial_truth": {"experiment": "BILLBOARD-FOUNDING-001", "approval_required": true, "activation_gate": "PAYMENT_AND_HUMAN_REVIEW", "payment_surface": "stripe-checkout-session"},
   "delivery": {"type": "public_billboard_slot", "target": "dreamledger.org/billboard", "dimensions": {"w": 100, "h": 100}, "review_required": true, "image_upload": true},
   "evidence": {"status": "awaiting_first_payment", "transaction_id": null},
-  "execution_atom": "BILLBOARD-SMALL-001"
+  "execution_atom": "BILLBOARD-FOUNDING-TILE-001"
 }
