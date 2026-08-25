@@ -1,5 +1,5 @@
-# E1 production release refresh: approved Agentic Sovereignty Diagnostic on main.
-# Render service: dreamledger-bec-prime. Exact production proof is required before sale outreach.
+# E1 production release refresh: Render is the sole active primary deployment path.
+# Vercel remains dormant as a fallback and must not participate in production deployment.
 services:
   - type: web
     name: dreamledger-bec-prime
@@ -12,7 +12,12 @@ services:
       - dreamledger.org
       - www.dreamledger.org
       - qr.dreamledger.org
-    buildCommand: npm install && npm run compile
+    # Production artifacts are committed and verified in git. The previous
+    # build command ran the entire experimental compiler chain on every Render
+    # deploy; repeated Render failures left the site serving the last rollback.
+    # Deploy the committed artifact directly. Compilation remains available
+    # locally/CI via `npm run compile` and is not on the critical Render path.
+    buildCommand: npm install --omit=dev
     startCommand: npm start
     healthCheckPath: /healthz
     disk:
