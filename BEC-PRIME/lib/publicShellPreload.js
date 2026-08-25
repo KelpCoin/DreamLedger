@@ -6,6 +6,7 @@ const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'compiled', 'website');
 const PRODUCT_CATALOG = path.join(ROOT, 'catalog', 'products');
 const billboard = require('../routes/billboard');
+const trustAttestation = require('../routes/trustAttestation');
 const original = http.createServer;
 const EXCLUDED_ROUTES = new Set(['/dreamiez']);
 const EXCLUDED_SILOS = new Set(['SILO_DREAMIEZ','dreamiez','SILO_CINEMA']);
@@ -59,6 +60,9 @@ http.createServer=function publicShellCreateServer(...args){
     if(req.method==='GET'&&route==='/api/products'){
       const products=safePublicProductFiles().map(p=>({id:p.id,silo:p.silo,name:p.name,description:p.description,price:Number(p.price),currency:p.currency,inventory:Number(p.inventory),status:'published',approval_required:false,checkout_available:Number(p.inventory)>0}));
       return sendJson(res,200,{products});
+    }
+    if(req.method==='GET' || req.method==='POST'){
+      try{if(await trustAttestation.handle(req,res,route))return;}catch(err){return sendJson(res,500,{error:err.message||'Trust attestation route failed'});}
     }
     if(req.method==='GET'){
       const file=htmlFile(route);
