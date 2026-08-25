@@ -20,7 +20,7 @@ concurrency:
 
 env:
   LIVE_URL: https://dreamledger.org
-  OFFER_ID: OFFER-BEC-PRIME-ARCHITECTURE-AUDIT
+  OFFER_ID: OFFER-COMMANDER-DECK-DIAGNOSTIC-001
   CHECKOUT_ENDPOINT: https://dreamledger.org/api/offer-checkout/create
 
 jobs:
@@ -47,8 +47,8 @@ jobs:
           if (offer.approval_required !== false) throw new Error('approved offer remains approval-gated');
           if (Number(offer.price) !== 29) throw new Error('approved offer price is not NZD 29');
           if (String(offer.currency).toUpperCase() !== 'NZD') throw new Error('approved offer currency is not NZD');
-          if (String(offer.product_sku) !== 'AGENTIC_SOVEREIGNTY_DIAGNOSTIC') throw new Error('approved offer SKU is not AGENTIC_SOVEREIGNTY_DIAGNOSTIC');
-          if (String(offer.name) !== 'Agentic Sovereignty Diagnostic') throw new Error('approved offer name is not Agentic Sovereignty Diagnostic');
+          if (String(offer.product_sku) !== 'COMMANDER-DECK-DIAGNOSTIC-001') throw new Error('approved offer SKU is not COMMANDER-DECK-DIAGNOSTIC-001');
+          if (String(offer.name) !== 'Commander Deck Diagnostic') throw new Error('approved offer name is not Commander Deck Diagnostic');
           console.log(JSON.stringify({status:'PASS', offer_id:offer.offer_id, product_sku:offer.product_sku, name:offer.name, price:offer.price, currency:offer.currency, checkout_available:offer.checkout_available}, null, 2));
           NODE
           echo "CHECKOUT_READY=true" | tee -a proof/commerce-sentinel.txt
