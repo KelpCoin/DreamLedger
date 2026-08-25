@@ -1,5 +1,5 @@
 {
-  "schema": "BEC-PRIME/APPROVED-OFFERS/v4",
+  "schema": "BEC-PRIME/APPROVED-OFFERS/v5",
   "rule": "No commercial offer is publicly checkout-enabled unless verified payment and zero-human fulfillment are both implemented.",
   "approved": [
     {
@@ -26,9 +26,9 @@
       "payment_link_id": "plink_1U8EMUEGgEAnUFF9xLEPb6Vm",
       "checkout_route": "stripe_payment_link",
       "fulfillment_route": "stripe_webhook -> billboardAutoFulfillment.fulfill",
-      "proof_of_delivery": "stripe_transaction_proof + fulfillment_record + published_tile + delivery_url",
+      "proof_of_delivery": "stripe_transaction_proof + fulfillment_record + published_tile + delivery_url + proof_url",
       "scarcity": {"market":"NZ","units":100,"unit_dimensions":"100x100","allocation":"atomic_first_available_grid_cell"},
-      "verification_rules": ["canonical_product","explicit_operator_approval","stripe_checkout","webhook_signature","payment_paid","amount_exact","currency_exact","custom_fields_present","automatic_moderation","atomic_grid_allocation","automatic_publication","durable_fulfillment_proof","silo_isolated","schema_valid","unique_offer_id"],
+      "verification_rules": ["canonical_product","stripe_checkout","webhook_signature","payment_paid","amount_exact","currency_exact","custom_fields_present","automatic_moderation","atomic_grid_allocation","automatic_publication","durable_fulfillment_proof","zero_human_fulfillment","silo_isolated","schema_valid","unique_offer_id"],
       "provenance": {"product_source":"BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json","private_material":"excluded"},
       "approved_by": "operator",
       "approved_at": "2026-08-25"
