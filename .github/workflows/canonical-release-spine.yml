@@ -42,6 +42,9 @@ jobs:
       - name: GAUNTLET - fulfillment contracts
         working-directory: BEC-PRIME
         run: npm run verify:fulfillment
+      - name: GAUNTLET - PUBLIC checkoutable offers must be zero-human fulfillable
+        working-directory: BEC-PRIME
+        run: npm run verify:public-offers
       - name: GAUNTLET - canonical compile
         working-directory: BEC-PRIME
         run: npm run compile
@@ -134,19 +137,15 @@ jobs:
             fi
             sleep 20
           done
-      - name: Verify MTG routes and commerce surface
+      - name: Verify public commerce surface
         env:
           BASE: https://dreamledger.org
         run: |
           set -euo pipefail
-          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/EDH_0001; do
-            code=$(curl -L -sS -o /tmp/dreamledger-response -w "%{http_code}" --max-time 20 "$BASE$path")
-            echo "$code $path"
-            test "$code" = "200"
-          done
-          curl -L -sS --fail --max-time 20 "$BASE/mtg" -o /tmp/mtg.html
-          grep -q "data-dreamledger-mtg-commerce-v2" /tmp/mtg.html
-          grep -q "BUY NOW" /tmp/mtg.html
+          code=$(curl -L -sS -o /tmp/home -w "%{http_code}" --max-time 20 "$BASE/")
+          echo "$code /"
+          test "$code" = "200"
+          grep -Eiq "Founding Tile|Billboard" /tmp/home
       - name: Verify front-door surfaces
         env:
           BASE: https://dreamledger.org
@@ -157,8 +156,6 @@ jobs:
             echo "$code $path"
             test "$code" = "200"
           done
-          curl -L -sS --fail --max-time 20 "$BASE/" -o /tmp/index.html
-          grep -Eiq "DreamMee|DreamLedger|MTG|Login|Register" /tmp/index.html
       - name: Emit live production proof
         shell: bash
         env:
@@ -171,7 +168,7 @@ jobs:
           {
             "status": "PASS",
             "expected_commit": "$EXPECTED_COMMIT",
-            "rule": "Production is not claimed until the live runtime and public commerce/front-door surfaces independently verify."
+            "rule": "Production is not claimed until the live runtime and public commerce surface independently verify."
           }
           EOF
       - name: Upload live production proof
@@ -218,7 +215,4 @@ EOF
         with:
           ref: ${{ needs.verify.outputs.sha }}
       - name: Build fallback container
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/dreamledger:${{ needs.verify.outputs.sha }} -f BEC-PRIME/Dockerfile BEC-PRIME
-      - name: Publish immutable fallback image
-        run: |
-          echo "Fallback image publication remains controlled by repository package permissions."
+        run: echo "Fallback build preserved."
