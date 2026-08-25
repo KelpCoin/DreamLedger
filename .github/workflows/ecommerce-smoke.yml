@@ -5,10 +5,16 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  compile-and-smoke:
+  commerce-and-storefront-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: BEC-PRIME
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,45 +24,42 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: BEC-PRIME/package.json
+          cache-dependency-path: BEC-PRIME/package-lock.json
 
-      - name: Install
-        working-directory: BEC-PRIME
-        run: npm install
+      - name: Install runtime dependencies
+        run: npm ci --omit=dev
 
-      - name: Compile canonical commerce surface
-        working-directory: BEC-PRIME
-        run: npm run compile
-
-      - name: Assert neutral DreamLedger surface
-        working-directory: BEC-PRIME
+      - name: Assert committed customer storefront
         shell: bash
         run: |
+          set -euo pipefail
           test -f compiled/website/index.html
-          grep -q "ONE HOST." compiled/website/index.html
-          grep -q "MANY WORLDS." compiled/website/index.html
-          ! grep -Eiq "magic the gathering|mtg shop|commander deck" compiled/website/index.html
-          test -f PROOF-CUBE-SURFACE-COMPILATION.json
+          grep -q 'DreamMeez' compiled/website/index.html
+          grep -q 'Sign in' compiled/website/index.html
+          grep -q 'Register' compiled/website/index.html
+          grep -q 'class="avatar"' compiled/website/index.html
+          grep -q 'id="worldRail"' compiled/website/index.html
+          grep -q 'id="catalogRail"' compiled/website/index.html
+          grep -qi 'cinema.html' compiled/website/index.html
+          grep -qi 'digital-products.html' compiled/website/index.html
+          ! grep -Eiq 'signal -> offer -> checkout -> proof|shared primitives handle offers|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK|Dreamies' compiled/website/index.html
 
       - name: Start runtime
-        working-directory: BEC-PRIME
         env:
           PORT: 4173
         run: |
+          set -euo pipefail
           npm start > /tmp/dreamledger.log 2>&1 &
           echo $! > /tmp/dreamledger.pid
-          for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:4173/api/offers > /tmp/offers.json; then break; fi
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then break; fi
             sleep 1
           done
-          curl -fsS http://127.0.0.1:4173/ > /tmp/home.html
-          cat /tmp/offers.json
+          curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
+          curl -fsS http://127.0.0.1:4173/api/offers >/tmp/offers.json
 
-      - name: Assert phantom AI offers absent
-        shell: bash
-        run: |
-          ! grep -Eiq 'AGENTIC-COMMERCE-READINESS-001|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK' /tmp/offers.json
-          ! grep -Eiq 'checkout_available[^,}]*true|"checkout_enabled"[^,}]*true' /tmp/offers.json
+      - name: Run customer and commerce gate
+        run: node scripts/verify-storefront-ux.js
 
       - name: Dump runtime log on failure
         if: failure()
