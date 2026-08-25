@@ -1,5 +1,8 @@
 name: Canonical Release Spine
 
+# Deployment pulse: 2026-08-25 production repair after zero-human-fulfillment gate failure.
+# The Render build now compiles canonical offers before runtime activation.
+
 on:
   push:
     branches: [main]
