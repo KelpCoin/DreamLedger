@@ -13,7 +13,7 @@
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js",
     "compile:qr": "node BEC-PRIME/compiler/QRCompiler.js",
     "compile:omni": "node BEC-PRIME/compiler/OmniCommerceCompiler.js",
-    "compile:surface": "node BEC-PRIME/compiler/SurfaceCompiler.js",
+    "compile:surface": "node BEC-PRIME/compiler/SurfaceCompilerRuntimeFix.js",
     "compile:mtg": "node BEC-PRIME/compiler/MTGCatalogCompiler.js",
     "compile:featured-offer": "node BEC-PRIME/scripts/patch-featured-offer.js",
     "compile:billboard": "node BEC-PRIME/compiler/BillboardCompiler.js",
