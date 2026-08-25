@@ -4,6 +4,7 @@ const http = require('http');
 const crypto = require('crypto');
 const { Readable } = require('stream');
 const billboard = require('../routes/billboard-v2');
+const autoFulfillment = require('./billboardAutoFulfillment');
 
 function verifyStripe(raw, signature, secret) {
   if (!signature || !secret) return false;
@@ -33,11 +34,21 @@ if (!http.createServer.__dreamledgerBillboardWebhookWrapped) {
           }
           if (verifyStripe(raw, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET || '')) {
             const event = JSON.parse(raw);
-            if (event?.type === 'checkout.session.completed' && event?.data?.object?.metadata?.product === 'DREAMLEDGER-BILLBOARD') {
-              const handled = billboard.handlePaidSession(event.data.object, event.id);
-              if (handled) {
-                res.writeHead(200, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
-                return res.end(JSON.stringify({received:true,billboard:true}));
+            if (event?.type === 'checkout.session.completed') {
+              const session = event.data.object;
+              if (session?.metadata?.offer_id === 'DREAMLEDGER-BILLBOARD-FOUNDING-001') {
+                const result = await autoFulfillment.fulfill(session, event.id);
+                if (result.handled) {
+                  res.writeHead(200, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
+                  return res.end(JSON.stringify({received:true,billboard:true,fulfillment:result}));
+                }
+              }
+              if (session?.metadata?.product === 'DREAMLEDGER-BILLBOARD') {
+                const handled = billboard.handlePaidSession(session, event.id);
+                if (handled) {
+                  res.writeHead(200, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
+                  return res.end(JSON.stringify({received:true,billboard:true}));
+                }
               }
             }
           }
