@@ -1,0 +1,100 @@
+name: Cortex Production Spine
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: cortex-production-spine
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        run: npm ci --ignore-scripts
+
+      - name: Compile canonical Cortex surfaces
+        working-directory: BEC-PRIME
+        run: npm run compile
+
+      - name: Run unit and policy tests
+        working-directory: BEC-PRIME
+        run: npm test
+
+      - name: Verify silo boundaries
+        working-directory: BEC-PRIME
+        run: npm run verify:silos
+
+      - name: Verify commercial integration
+        working-directory: BEC-PRIME
+        run: npm run verify:integration
+
+      - name: Verify production contract
+        working-directory: BEC-PRIME
+        run: npm run verify:production-contract
+
+      - name: Verify front door
+        working-directory: BEC-PRIME
+        run: npm run smoke:front-door
+
+      - name: Verify revenue ledger contract
+        working-directory: BEC-PRIME
+        run: npm run smoke:revenue-ledger
+
+      - name: Verify autonomy contract
+        working-directory: BEC-PRIME
+        run: npm run smoke:autonomy
+
+      - name: Write proof artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof/cortex
+          cat > proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json <<JSON
+          {
+            "schema": "BROWNEYE-CORTEX/PRODUCTION-SPINE/v1",
+            "status": "PASS",
+            "execution": "GitHub-hosted-runner",
+            "pc_required": false,
+            "compile": "PASS",
+            "tests": "PASS",
+            "silo_boundaries": "PASS",
+            "commercial_integration": "PASS",
+            "production_contract": "PASS",
+            "front_door": "PASS",
+            "revenue_ledger": "PASS",
+            "autonomy_contract": "PASS",
+            "external_payment_claimed": false,
+            "external_payment_verified": false,
+            "public_posting_performed": false,
+            "next_gate": "external_buyer_payment"
+          }
+          JSON
+          cat proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json
+
+      - name: Upload proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-production-spine-proof
+          path: proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json
