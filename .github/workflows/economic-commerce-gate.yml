@@ -1,0 +1,31 @@
+name: Economic Commerce Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/catalog/offers.json'
+      - 'BEC-PRIME/scripts/Verify-EconomicCommerce.ps1'
+      - 'BEC-PRIME/AGENTIC-COMMERCE-ENGINE.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify approved commerce surfaces
+        shell: pwsh
+        run: ./BEC-PRIME/scripts/Verify-EconomicCommerce.ps1
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-commerce-proof
+          path: BEC-PRIME/Proof/ECONOMIC-COMMERCE-PROOF.json
+          if-no-files-found: error
