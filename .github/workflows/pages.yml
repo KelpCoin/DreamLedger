@@ -1,0 +1,74 @@
+name: DreamLedger GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: dreamledger-pages
+  cancel-in-progress: true
+
+env:
+  LIVE_URL: https://dreamledger.org
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Stage canonical static surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp mtg.html _site/mtg.html
+          cp CNAME _site/CNAME
+          test -s _site/index.html
+          test -s _site/mtg.html
+          test "$(cat _site/CNAME)" = "dreamledger.org"
+          grep -q "NZ$29" _site/index.html
+          grep -q "00w7sLaXP01n96nbN2dwc2l" _site/index.html
+          grep -q "MTG / active commercial silo" _site/index.html
+          echo "PASS canonical static surface staged"
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Verify deployed page
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="${{ steps.deployment.outputs.page_url }}"
+          for attempt in $(seq 1 12); do
+            CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
+            if [ "$CODE" = "200" ] && grep -q "Commander Deck Diagnostic" /tmp/dreamledger.html && grep -q 'NZ$29' /tmp/dreamledger.html; then
+              echo "PASS Pages deployment: $URL"
+              exit 0
+            fi
+            echo "Waiting for Pages convergence: attempt $attempt/12 HTTP=$CODE"
+            sleep 10
+          done
+          echo "FAIL Pages deployment verification"
+          exit 1
