@@ -1,0 +1,46 @@
+{
+  "proof_id": "PROOF-2026-08-25-BILLBOARD-FOUNDING-TILES",
+  "timestamp": "2026-08-25",
+  "status": "BLOCKED_PENDING_LIVE_DEPLOYMENT",
+  "product": {
+    "sku": "BILLBOARD-SMALL",
+    "name": "DreamLedger Founding Tile - 100x100",
+    "price_nzd": 50,
+    "inventory_per_market": 100,
+    "human_review_required": true
+  },
+  "markets": ["GLOBAL", "NZ", "AU", "ZA", "AMERICAS", "EUROPE"],
+  "public_routes": ["/billboard", "/billboard/nz", "/billboard/au", "/billboard/za", "/billboard/americas", "/billboard/europe"],
+  "checkout": "/api/molt-beach-checkout",
+  "inventory_api": "/api/molt-beach-inventory?market=GLOBAL",
+  "webhook": "/api/molt-beach-webhook",
+  "database": "molt_beach_campaigns.market",
+  "payment_state": "PAID_PENDING_REVIEW",
+  "implementation_changes": [
+    "Founding Tile price changed from NZD 29 to NZD 50",
+    "Founding Tile inventory canonicalized to 100 per market",
+    "market column added to Supabase campaign table",
+    "checkout accepts market and stores Stripe metadata",
+    "signed webhook persists market",
+    "inventory API filters by market",
+    "global and regional public routes added",
+    "public surface now displays Founding Tile at NZD 50"
+  ],
+  "research": {
+    "us_ooh_2025_revenue_usd": 9460000000,
+    "us_dooh_share_2025_percent": 36.3,
+    "us_dooh_growth_2025_percent": 10.5,
+    "us_dooh_growth_q2_2026_percent": 18.5,
+    "source_note": "OAAA 2026 releases and IAB 2025 DOOH Measurement Guide"
+  },
+  "live_revenue": {
+    "external_paid_billboard_transactions_verified": 0,
+    "claim": "No external revenue claimed"
+  },
+  "deployment": {
+    "vercel_project_visible_to_connector": false,
+    "live_deployment_verified": false,
+    "reason": "Connected Vercel team currently exposes no project to the connector"
+  },
+  "next_gate": "Deploy current main branch, then live-test each canonical route and the NZD 50 checkout/webhook path before external acquisition."
+}
