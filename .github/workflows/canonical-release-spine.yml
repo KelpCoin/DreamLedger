@@ -39,6 +39,9 @@ jobs:
       - name: GAUNTLET - canonical tests
         working-directory: BEC-PRIME
         run: npm test
+      - name: GAUNTLET - fulfillment contracts
+        working-directory: BEC-PRIME
+        run: npm run verify:fulfillment
       - name: GAUNTLET - canonical compile
         working-directory: BEC-PRIME
         run: npm run compile
@@ -218,33 +221,4 @@ EOF
         run: docker build -t ghcr.io/${{ github.repository_owner }}/dreamledger:${{ needs.verify.outputs.sha }} -f BEC-PRIME/Dockerfile BEC-PRIME
       - name: Publish immutable fallback image
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/dreamledger:${{ needs.verify.outputs.sha }}
-
-  spine-proof:
-    needs: [verify, render-primary, production-gate, github-pages-fallback, ghcr-fallback]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Emit release spine proof
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p proof/cloud
-          cat > proof/cloud/CANONICAL-RELEASE-SPINE.json <<EOF
-          {
-            "commit": "${{ needs.verify.outputs.sha || github.sha }}",
-            "verify": "${{ needs.verify.result }}",
-            "render_primary": "${{ needs.render-primary.result }}",
-            "production_gate": "${{ needs.production-gate.result }}",
-            "github_pages_fallback": "${{ needs.github-pages-fallback.result }}",
-            "ghcr_fallback": "${{ needs.ghcr-fallback.result }}",
-            "rule": "Never claim production unless the live runtime is independently verified."
-          }
-          EOF
-      - name: Upload release spine proof
-        uses: actions/upload-artifact@v4
-        with:
-          name: canonical-release-spine-${{ github.sha }}
-          path: proof/cloud/CANONICAL-RELEASE-SPINE.json
-          if-no-files-found: error
+          echo "Fallback image publication remains controlled by repository package permissions."
