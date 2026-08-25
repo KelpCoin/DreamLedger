@@ -1,0 +1,6 @@
+Deployment trigger only.
+Product scope unchanged.
+Target: DreamLedger 1 / dreamledger-bec-prime.
+Source feature commit: fbaa4d8072a0ccde175e0e9241134f4603a89e36.
+Purpose: trigger the existing production Render workflow on main.
+No public outreach. No revenue claim.
