@@ -1,0 +1,15 @@
+{
+  "status":"IMPLEMENTED_PENDING_DEPLOYMENT_VERIFICATION",
+  "commit":"1e9ddec3bfe1dc471e5b8c5d2b0143501fdd63f6",
+  "canonical":"/billboard",
+  "price_nzd":50,
+  "fixed_supply":true,
+  "founding_positions_per_market":100,
+  "markets":["GLOBAL","NZ","AU","ZA","AMERICAS","EUROPE"],
+  "larger_inventory":{"medium":50,"wide":30,"large":20,"takeover":1},
+  "mobile_catalogue":{"horizontal_swipe":true,"scroll_snap":true,"auto_rotate":false,"single_primary_checkout":true},
+  "checkout":{"image_upload":true,"market_scoped":true,"stripe_session":true},
+  "fulfilment":{"payment_state":"PAID_PENDING_REVIEW","human_approval_required":true,"publication_after_approval":true},
+  "truth_gate":"Do not mark GREEN until Render deployment and a real external payment are verified.",
+  "next_action":"LIVE_DEPLOYMENT_CHECK"
+}
