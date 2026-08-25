@@ -10,10 +10,10 @@ const MARKETS:any={
  EUROPE:{slug:'europe',name:'Europe Billboard',currency:'eur'}
 };
 const OFFERS:any={
- '100x100':{sku:'BILLBOARD-SMALL',name:'DreamLedger Founding Tile - 100x100',price_nzd:50,amounts:{nzd:5000,aud:5000,zar:65000,usd:3000,eur:3000},w:100,h:100},
- '200x100':{sku:'BILLBOARD-MEDIUM',name:'DreamLedger Billboard Medium - 200x100',price_nzd:99,amounts:{nzd:9900,aud:9900,zar:130000,usd:6000,eur:6000},w:200,h:100},
- '500x200':{sku:'BILLBOARD-WIDE',name:'DreamLedger Billboard Wide - 500x200',price_nzd:249,amounts:{nzd:24900,aud:24900,zar:325000,usd:15000,eur:15000},w:500,h:200},
- '500x500':{sku:'BILLBOARD-LARGE',name:'DreamLedger Billboard Large - 500x500',price_nzd:499,amounts:{nzd:49900,aud:49900,zar:650000,usd:30000,eur:30000},w:500,h:500}
+ '100x100':{sku:'BILLBOARD-SMALL',name:'DreamLedger Founding Tile - 100x100',price_nzd:50,amounts:{nzd:5000,aud:4500,zar:50000,usd:3000,eur:2500},w:100,h:100},
+ '200x100':{sku:'BILLBOARD-MEDIUM',name:'DreamLedger Billboard Medium - 200x100',price_nzd:99,amounts:{nzd:9900,aud:8300,zar:95000,usd:6000,eur:5100},w:200,h:100},
+ '500x200':{sku:'BILLBOARD-WIDE',name:'DreamLedger Billboard Wide - 500x200',price_nzd:249,amounts:{nzd:24900,aud:20900,zar:240000,usd:14900,eur:12900},w:500,h:200},
+ '500x500':{sku:'BILLBOARD-LARGE',name:'DreamLedger Billboard Large - 500x500',price_nzd:499,amounts:{nzd:49900,aud:41900,zar:480000,usd:29900,eur:25500},w:500,h:500}
 };
 function json(data:any,status=200){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store'}})}
 function overlaps(x:number,y:number,w:number,h:number,c:any){return x<c.x+c.width&&x+w>c.x&&y<c.y+c.height&&y+h>c.y}
