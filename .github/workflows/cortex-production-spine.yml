@@ -98,3 +98,5 @@ jobs:
         with:
           name: cortex-production-spine-proof
           path: proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json
+
+# Triggered from main to verify the newly installed spine without a local PC.
