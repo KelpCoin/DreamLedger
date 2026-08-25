@@ -1,0 +1,37 @@
+{
+  "schema":"BEC-PRIME/BILLBOARD-SCARCITY-UX/v1",
+  "status":"IMPLEMENTED_PENDING_LIVE_VERIFICATION",
+  "decision_date":"2026-08-25",
+  "commercial_strategy":{
+    "founding_tile_nzd":50,
+    "founding_positions_per_market":100,
+    "markets":["GLOBAL","NZ","AU","ZA","AMERICAS","EUROPE"],
+    "scarcity_source":"durable market-scoped placement capacity",
+    "no_fake_countdowns":true,
+    "larger_inventory":{"MEDIUM":50,"WIDE":30,"LARGE":20,"TAKEOVER":1}
+  },
+  "ux_strategy":{
+    "mobile_first":true,
+    "horizontal_swipe_catalogue":true,
+    "scroll_snap":true,
+    "auto_rotate":false,
+    "persistent_market_context":true,
+    "visible_remaining_inventory":true,
+    "single_primary_checkout_action":true
+  },
+  "research_basis":[
+    "Baymard 2026 mobile ecommerce benchmark: 75% of benchmarked sites rated mediocre; mobile requires careful overview and simple interaction.",
+    "Baymard product-list research: product lists materially affect product-finding success; horizontal areas should not hijack vertical scrolling.",
+    "2022 scarcity meta-analysis: scarcity effects vary by scarcity type and context; scarcity should be aligned to the actual product and purchase stage.",
+    "2026 Journal of Retailing: artificial supply scarcity can reduce perceived sincerity when quantities are unexpectedly low; genuine availability and guarantees mitigate the problem.",
+    "2025 Psychology & Marketing: scarcity can increase urgency but social and temporal cues can also drive alternative shopping; product-based fixed scarcity is safer for a unique digital asset."
+  ],
+  "guardrails":[
+    "Never claim a remaining count that is not derived from durable placement capacity.",
+    "Never use an invented countdown timer.",
+    "Never imply traffic, impressions, rankings or sales are guaranteed.",
+    "Payment remains separate from human publication approval.",
+    "Markets remain commercially isolated."
+  ],
+  "next_gate":"LIVE_DEPLOYMENT_AND_FIRST_EXTERNAL_PAYMENT"
+}
