@@ -26,6 +26,7 @@
     "verify:silos": "node BEC-PRIME/scripts/verify-silo-boundaries.js",
     "verify:agentic-commerce": "node BEC-PRIME/scripts/verify-agentic-commerce.js",
     "verify:trust-attestation": "node BEC-PRIME/scripts/verify-trust-attestation.js",
+    "verify:evidence-manifest": "node BEC-PRIME/scripts/verify-evidence-manifest.js",
     "verify:account-avatar": "node BEC-PRIME/scripts/verify-account-avatar-flow.js",
     "verify:internal-trust": "node BEC-PRIME/scripts/verify-internal-trust-service.js",
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
