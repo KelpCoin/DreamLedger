@@ -1,0 +1,105 @@
+'use strict';
+
+const http = require('http');
+
+const PORT = Number(process.env.PORT || 4173);
+const BASE = `http://127.0.0.1:${PORT}`;
+const APPROVED_CHECKOUT_IDS = new Set([
+  'OFFER-CMD-DIAG-29-NZD',
+  'EDH_0001'
+]);
+const FORBIDDEN_PUBLIC = [
+  'signal -> offer -> checkout -> proof',
+  'signal -> offer -> checkout -> proof',
+  'shared primitives handle offers',
+  'agentic commerce readiness audit',
+  'BEC-PRIME-ARCHITECTURE-AUDIT',
+  'BEC-SURFACE-AUDIT',
+  'CREATOR-AUDIO-LAUNCH-PACK',
+  'CRYPTO-WALLET-SECURITY-PACK',
+  'Dreamies'
+];
+
+function get(pathname) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(`${BASE}${pathname}`, { headers: { 'cache-control': 'no-cache' } }, res => {
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', chunk => { body += chunk; });
+      res.on('end', () => resolve({ status: res.statusCode || 0, headers: res.headers, body }));
+    });
+    req.on('error', reject);
+    req.setTimeout(10000, () => req.destroy(new Error(`timeout: ${pathname}`)));
+  });
+}
+
+function fail(message) {
+  console.error(`STOREfront_UX_GATE_FAILED: ${message}`);
+  process.exitCode = 1;
+}
+
+async function main() {
+  const home = await get('/');
+  if (home.status !== 200) fail(`homepage status ${home.status}`);
+
+  const html = home.body;
+  const required = [
+    ['DreamLedger', /DreamLedger/i],
+    ['DreamMeez', /DreamMeez/g],
+    ['sign in', /Sign in/i],
+    ['register', /Register/i],
+    ['avatar', /class="avatar"/i],
+    ['world carousel', /id="worldRail"/i],
+    ['catalog carousel', /id="catalogRail"/i],
+    ['cinema', /cinema\.html/i],
+    ['digital', /digital-products\.html/i]
+  ];
+
+  for (const [label, pattern] of required) {
+    if (!pattern.test(html)) fail(`missing ${label} on homepage`);
+  }
+
+  for (const token of FORBIDDEN_PUBLIC) {
+    if (html.toLowerCase().includes(token.toLowerCase())) fail(`forbidden public copy: ${token}`);
+  }
+
+  const offers = await get('/api/offers');
+  if (offers.status !== 200) fail(`/api/offers status ${offers.status}`);
+  let parsed;
+  try {
+    parsed = JSON.parse(offers.body);
+  } catch (error) {
+    fail(`/api/offers returned invalid JSON: ${error.message}`);
+    parsed = null;
+  }
+
+  if (parsed) {
+    const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.offers) ? parsed.offers : null);
+    if (!list) fail('/api/offers JSON has no offers[] array');
+    if (list) {
+      for (const offer of list) {
+        if (offer.checkout_available === true && !APPROVED_CHECKOUT_IDS.has(String(offer.offer_id || offer.id || ''))) {
+          fail(`unapproved checkout-enabled offer exposed: ${offer.offer_id || offer.id || 'unknown'}`);
+        }
+      }
+    }
+  }
+
+  const proof = {
+    status: process.exitCode ? 'FAIL' : 'PASS',
+    timestamp_utc: new Date().toISOString(),
+    homepage_status: home.status,
+    offers_status: offers.status,
+    homepage_required_markers: required.map(([label]) => label),
+    forbidden_public_copy_checked: FORBIDDEN_PUBLIC,
+    approved_checkout_ids: [...APPROVED_CHECKOUT_IDS],
+    offers_json_valid: parsed !== null
+  };
+  console.log(JSON.stringify(proof, null, 2));
+  if (process.exitCode) process.exit(1);
+}
+
+main().catch(error => {
+  console.error(error.stack || error.message);
+  process.exit(1);
+});
