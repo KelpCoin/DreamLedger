@@ -1,0 +1,7 @@
+Deployment nudge for canonical production.
+Purpose: trigger the existing Render auto-deploy-on-commit path after the NZ$50 Founding Tile checkout was reactivated.
+No product scope change.
+No public outreach.
+No revenue claim.
+Canonical target: dreamledger-bec-prime / dreamledger.org.
+Source feature commit: fbaa4d8072a0ccde175e0e9241134f4603a89e36.
