@@ -1,7 +1,7 @@
 {
   "schema": "BEC-PRIME/PRODUCT-FULFILLMENT-REGISTRY/v2",
   "policy": "A product is checkoutable only when this registry contains ready=true, operator_required=false, and a verified zero-human fulfillment contract. Products without that contract must not be sold.",
-  "updated": "2026-08-25",
+  "updated": "2026-08-26",
   "entries": {
     "BILLBOARD-SMALL": {
       "ready": true,
@@ -19,7 +19,7 @@
     "BILLBOARD-WIDE": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
     "BILLBOARD-LARGE": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
     "BILLBOARD-TAKEOVER": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
-    "COMMANDER-DECK-DIAGNOSTIC-001": {"ready": false, "operator_required": false, "reason": "fulfillment contract not currently approved for public sale"},
+    "COMMANDER-DECK-DIAGNOSTIC-001": {"ready": true, "operator_required": false, "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."},
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {"ready": false, "operator_required": false, "reason": "fulfillment contract requires human release and is therefore not publicly sellable"},
     "EDH_0001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
     "BESPOKE-ARTISAN-EDH-DECK-001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
