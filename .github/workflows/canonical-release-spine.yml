@@ -11,7 +11,7 @@ on:
         default: "true"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
   packages: write
@@ -22,6 +22,7 @@ concurrency:
 
 jobs:
   verify:
+    if: ${{ !contains(github.event.head_commit.message, 'chore: persist BEC-PRIME generated public surfaces') }}
     runs-on: ubuntu-latest
     outputs:
       sha: ${{ steps.meta.outputs.sha }}
@@ -29,9 +30,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - id: meta
-        shell: bash
-        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4
         with:
           node-version: "24.14.1"
@@ -53,18 +51,32 @@ jobs:
       - name: GAUNTLET - commercial integration
         working-directory: BEC-PRIME
         run: npm run verify:integration
-      - name: GAUNTLET - production verifier exists
+      - name: GAUNTLET - production verifier
         working-directory: BEC-PRIME
         run: node --check scripts/verify-production-version.js
+      - name: Persist verified generated state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "BEC-PRIME Compiler"
+          git config user.email "bec-prime@users.noreply.github.com"
+          git add BEC-PRIME/catalog/compiled BEC-PRIME/compiled/website/economics BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/proof BEC-PRIME/RUN-PROOFS
+          if git diff --cached --quiet; then
+            echo "No generated changes to persist."
+          else
+            git commit -m "chore: persist BEC-PRIME generated public surfaces"
+            git push origin HEAD:main
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        id: meta
 
   render-primary:
     needs: verify
-    if: ${{ github.event_name == 'push' || github.event.inputs.deploy_render == 'true' }}
+    if: ${{ needs.verify.result == 'success' && (github.event_name == 'push' || github.event.inputs.deploy_render == 'true') }}
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Trigger Render primary deployment
-        id: render
+      - name: Trigger Render primary deployment for verified commit
         shell: bash
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
@@ -79,7 +91,7 @@ jobs:
             -H "Authorization: Bearer $RENDER_API_KEY" \
             -H "Content-Type: application/json" \
             "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-            -d "{\"commitId\":\"$COMMIT_SHA\",\"clearCache\":\"clear\"}" \
+            -d "{\"commitId\":\"$COMMIT_SHA\",\"clearCache\":\"do_not_clear\"}" \
             > render-deploy.json
           cat render-deploy.json
       - name: Save deployment proof
@@ -95,6 +107,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.verify.outputs.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: "24.14.1"
@@ -130,6 +144,18 @@ jobs:
           curl -L -sS --fail --max-time 20 "$BASE/mtg" -o /tmp/mtg.html
           grep -q "data-dreamledger-mtg-commerce-v2" /tmp/mtg.html
           grep -q "BUY NOW" /tmp/mtg.html
+      - name: Verify front-door surfaces
+        env:
+          BASE: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          for path in / /avatar.html /login.html /register.html; do
+            code=$(curl -L -sS -o /tmp/front-door-response -w "%{http_code}" --max-time 20 "$BASE$path")
+            echo "$code $path"
+            test "$code" = "200"
+          done
+          curl -L -sS --fail --max-time 20 "$BASE/" -o /tmp/index.html
+          grep -Eiq "DreamMee|DreamLedger|MTG|Login|Register" /tmp/index.html
       - name: Emit live production proof
         shell: bash
         env:
@@ -142,7 +168,7 @@ jobs:
           {
             "status": "PASS",
             "expected_commit": "$EXPECTED_COMMIT",
-            "rule": "Production is not claimed until /version and required MTG routes independently verify live."
+            "rule": "Production is not claimed until the live runtime and public commerce/front-door surfaces independently verify."
           }
           EOF
       - name: Upload live production proof
@@ -186,6 +212,8 @@ EOF
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.verify.outputs.sha }}
       - name: Build fallback container
         run: docker build -t ghcr.io/${{ github.repository_owner }}/dreamledger:${{ needs.verify.outputs.sha }} -f BEC-PRIME/Dockerfile BEC-PRIME
       - name: Publish immutable fallback image
@@ -205,7 +233,7 @@ EOF
           mkdir -p proof/cloud
           cat > proof/cloud/CANONICAL-RELEASE-SPINE.json <<EOF
           {
-            "commit": "$GITHUB_SHA",
+            "commit": "${{ needs.verify.outputs.sha || github.sha }}",
             "verify": "${{ needs.verify.result }}",
             "render_primary": "${{ needs.render-primary.result }}",
             "production_gate": "${{ needs.production-gate.result }}",
