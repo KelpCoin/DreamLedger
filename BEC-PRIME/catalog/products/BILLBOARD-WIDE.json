@@ -1,15 +1,3 @@
 {
-  "id": "BILLBOARD-WIDE",
-  "silo": "billboard",
-  "name": "DreamLedger Billboard Wide",
-  "description": "Permanent public billboard placement at 500x200. Buyer supplies one image and destination URL; placement requires automatic and human review.",
-  "price": 14900,
-  "currency": "nzd",
-  "inventory": 10000,
-  "status": "published",
-  "checkout": {"mode": "custom_billboard_checkout", "route": "/api/billboard/submit", "success_path": "/billboard?paid=1", "cancel_path": "/billboard"},
-  "commercial_truth": {"experiment": "BILLBOARD-001", "approval_required": false, "activation_gate": "PAYMENT_AND_HUMAN_REVIEW", "payment_surface": "stripe-checkout-session"},
-  "delivery": {"type": "public_billboard_slot", "target": "dreamledger.org/billboard", "dimensions": {"w": 500, "h": 200}, "review_required": true, "image_upload": true},
-  "evidence": {"status": "awaiting_first_payment", "transaction_id": null},
-  "execution_atom": "BILLBOARD-WIDE-001"
+  "id":"BILLBOARD-WIDE","silo":"billboard","name":"DreamLedger Billboard Wide","description":"Permanent 500x200 billboard placement. Fixed inventory of 30 positions per market. Buyer supplies one image and destination URL; publication requires human review.","price":14900,"currency":"nzd","inventory":30,"status":"published","checkout":{"mode":"custom_billboard_checkout","route":"/api/billboard/submit/{market}","success_path":"/billboard/{market}?paid=1","cancel_path":"/billboard/{market}"},"commercial_truth":{"experiment":"BILLBOARD-FOUNDING-001","approval_required":true,"activation_gate":"PAYMENT_AND_HUMAN_REVIEW","payment_surface":"stripe-checkout-session"},"delivery":{"type":"public_billboard_slot","target":"dreamledger.org/billboard","dimensions":{"w":500,"h":200},"review_required":true,"image_upload":true},"scarcity":{"model":"fixed_supply","positions_per_market":30,"countdown_source":"durable_inventory"},"evidence":{"status":"awaiting_first_payment","transaction_id":null},"execution_atom":"BILLBOARD-WIDE-001"
 }
