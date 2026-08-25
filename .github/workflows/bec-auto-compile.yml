@@ -1,22 +1,14 @@
-name: BEC-PRIME Auto Compile DreamLedger
+name: BEC-PRIME Manual Compiler
 
-# Production trigger: generated public surfaces are part of the deploy contract.
-# Public production excludes Cinema and DreamMeez. They are not required to build or ship.
+# Canonical Release Spine owns production compilation and deployment.
+# This workflow is retained as a manual recovery tool only so it cannot
+# create duplicate Render builds or six-hour compiler/deploy churn.
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths-ignore:
-      - 'BEC-PRIME/catalog/compiled/**'
-      - 'BEC-PRIME/compiled/website/economics/**'
-      - 'BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json'
-      - 'BEC-PRIME/RUN-PROOFS/**'
-  schedule:
-    - cron: '17 */6 * * *'
 
 concurrency:
-  group: bec-prime-compile-production
+  group: bec-prime-manual-compile
   cancel-in-progress: true
 
 permissions:
@@ -65,35 +57,14 @@ jobs:
           foreach ($path in $required) {
             if (-not (Test-Path $path)) { throw "Required compiler output missing: $path" }
           }
-          $manifest = Get-Content './BEC-PRIME/compiled/website/economics/ip-manifest.json' -Raw | ConvertFrom-Json
-          if ($manifest.public_boundary -notmatch 'private implementation paths') { throw 'Public boundary contract is missing private-path protection.' }
-          $truth = Get-Content './BEC-PRIME/RUN-PROOFS/COMPILER-TRUTH-PROOF.json' -Raw | ConvertFrom-Json
-          if ($truth.verdict -ne 'PASS') { throw 'Compiler truth proof is not PASS.' }
 
-      - name: Scan public tree for obvious secret material
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git grep -n -I -E 'sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*[:=][[:space:]]*[A-Za-z0-9_./+-]+|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY' -- . \
-            ':!package-lock.json' \
-            ':!BEC-PRIME/scripts/Verify-CompilerTruth.ps1' \
-            ':!BEC-PRIME/scripts/test-stripe-webhook-proof.js' \
-            ':!BEC-PRIME/scripts/verify-public-boundary.js' \
-            ':!BEC-PRIME/scripts/OfferCompiler.js' \
-            ':!BEC-PRIME/scripts/Verify-Registry.ps1' \
-            ':!scripts/OfferCompiler.js' \
-            ':!scripts/Verify-Registry.ps1'; then
-            echo 'Potential secret material detected in repository.'
-            exit 1
-          fi
-
-      - name: Commit generated state without self-trigger loop
+      - name: Commit generated state
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "BEC-PRIME Compiler"
           git config user.email "bec-prime@users.noreply.github.com"
-          git add BEC-PRIME/catalog/compiled/economic-tree.json BEC-PRIME/compiled/website/economics/index.html BEC-PRIME/compiled/website/economics/ip-manifest.json BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/proof/TRUTH-ORACLE-PROOF.json BEC-PRIME/proof/TRUTH-ORACLE-SURFACE-PUBLISH-PROOF.json BEC-PRIME/RUN-PROOFS
+          git add BEC-PRIME/catalog/compiled BEC-PRIME/compiled/website/economics BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/proof BEC-PRIME/RUN-PROOFS
           if git diff --cached --quiet; then
             echo "No generated changes."
             exit 0
