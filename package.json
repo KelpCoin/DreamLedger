@@ -29,8 +29,10 @@
     "verify:evidence-manifest": "node BEC-PRIME/scripts/verify-evidence-manifest.js",
     "verify:account-avatar": "node BEC-PRIME/scripts/verify-account-avatar-flow.js",
     "verify:internal-trust": "node BEC-PRIME/scripts/verify-internal-trust-service.js",
-    "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
     "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",
+    "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
+    "revenue:cycle": "node -e \"require('./BEC-PRIME/autonomy/RevenueAutonomy').cycle().then(x=>process.exit(x.status==='PASS'?0:1)).catch(e=>{console.error(e);process.exit(1)})\"",
+    "revenue:status": "node -e \"const fs=require('fs'); const p='BEC-PRIME/data/autonomy/proofs/AUTONOMY-LATEST.json'; console.log(fs.existsSync(p)?fs.readFileSync(p,'utf8'):'NOT_RUN')\"",
     "refine:local": "python BEC-PRIME/refinement/MultiLMRefinementEngine.py",
     "gauntlet:candidate": "node BEC-PRIME/gauntlet/CandidateGauntlet.js"
   },
