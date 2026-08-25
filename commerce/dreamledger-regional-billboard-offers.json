@@ -1,125 +1,24 @@
 {
-  "schema_version": "1.2",
-  "product": "DreamLedger Billboard Founding Tile",
-  "position": "permanent_digital_real_estate",
-  "fulfilment": "manual_review_then_publish",
-  "scarcity": {
-    "model": "real_inventory",
-    "founding_tiles_per_market": 100,
-    "countdown_timers": false,
-    "fake_urgency": false,
-    "inventory_source": "Stripe completed sessions plus Supabase published/paid-pending-review records"
-  },
-  "boards": [
-    {
-      "board": "Worldwide",
-      "currency": "USD",
-      "amount_minor": 3000,
-      "payment_link": "https://buy.stripe.com/8x2fZhgi9cO9aarbN2dwc2f",
-      "stripe_payment_link_id": "plink_1U8EMvEGgEAnUFF9znAaQWAV",
-      "sku": "DREAMLEDGER-BILLBOARD-WORLDWIDE-100X100",
-      "inventory": 100
-    },
-    {
-      "board": "New Zealand",
-      "currency": "NZD",
-      "amount_minor": 5000,
-      "payment_link": "https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a",
-      "stripe_payment_link_id": "plink_1U8EMUEGgEAnUFF9xLEPb6Vm",
-      "sku": "DREAMLEDGER-BILLBOARD-NZ-100X100",
-      "inventory": 100
-    },
-    {
-      "board": "Australia",
-      "currency": "AUD",
-      "amount_minor": 5000,
-      "payment_link": "https://buy.stripe.com/cNi4gzgi9aG15Ub04kdwc2b",
-      "stripe_payment_link_id": "plink_1U8EMaEGgEAnUFF9dXk2ApZ1",
-      "sku": "DREAMLEDGER-BILLBOARD-AU-100X100",
-      "inventory": 100
-    },
-    {
-      "board": "South Africa",
-      "currency": "ZAR",
-      "amount_minor": 65000,
-      "payment_link": "https://buy.stripe.com/aFafZh7LD7tPdmDbN2dwc2c",
-      "stripe_payment_link_id": "plink_1U8EMfEGgEAnUFF9YBhypWKX",
-      "sku": "DREAMLEDGER-BILLBOARD-ZA-100X100",
-      "inventory": 100
-    },
-    {
-      "board": "Americas",
-      "currency": "USD",
-      "amount_minor": 3000,
-      "payment_link": "https://buy.stripe.com/aFa3cvfe529v2HZcR6dwc2d",
-      "stripe_payment_link_id": "plink_1U8EMkEGgEAnUFF95WAT1SMY",
-      "sku": "DREAMLEDGER-BILLBOARD-AMERICAS-100X100",
-      "inventory": 100
-    },
-    {
-      "board": "Europe",
-      "currency": "EUR",
-      "amount_minor": 3000,
-      "payment_link": "https://buy.stripe.com/9B64gz5DvaG14Q704kdwc2e",
-      "stripe_payment_link_id": "plink_1U8EMqEGgEAnUFF9xFYXYbXm",
-      "sku": "DREAMLEDGER-BILLBOARD-EU-100X100",
-      "inventory": 100
-    }
+  "schema_version":"1.3",
+  "product":"DreamLedger Billboard Founding Tile",
+  "position":"permanent_digital_real_estate",
+  "fulfilment":"manual_review_then_publish",
+  "checkout_mode":"dynamic_stripe_checkout",
+  "scarcity":{"model":"real_inventory","founding_tiles_per_market":100,"countdown_timers":false,"fake_urgency":false,"allocation_grid":"100x100"},
+  "boards":[
+    {"board":"Worldwide","currency":"USD","founding_price_local":30,"price_nzd_anchor":50,"inventory":100,"sku":"DREAMLEDGER-BILLBOARD-WORLDWIDE-100X100"},
+    {"board":"New Zealand","currency":"NZD","founding_price_local":50,"price_nzd_anchor":50,"inventory":100,"sku":"DREAMLEDGER-BILLBOARD-NZ-100X100"},
+    {"board":"Australia","currency":"AUD","founding_price_local":45,"price_nzd_anchor":50,"inventory":100,"sku":"DREAMLEDGER-BILLBOARD-AU-100X100"},
+    {"board":"South Africa","currency":"ZAR","founding_price_local":500,"price_nzd_anchor":50,"inventory":100,"sku":"DREAMLEDGER-BILLBOARD-ZA-100X100"},
+    {"board":"Americas","currency":"USD","founding_price_local":30,"price_nzd_anchor":50,"inventory":100,"sku":"DREAMLEDGER-BILLBOARD-AMERICAS-100X100"},
+    {"board":"Europe","currency":"EUR","founding_price_local":25,"price_nzd_anchor":50,"inventory":100,"sku":"DREAMLEDGER-BILLBOARD-EU-100X100"}
   ],
-  "size_ladder_nzd": [
-    {
-      "tier": "FOUNDING",
-      "dimensions": "100x100",
-      "price_nzd": 50,
-      "inventory": 100,
-      "payment_link": "https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a",
-      "stripe_payment_link_id": "plink_1U8EMUEGgEAnUFF9xLEPb6Vm",
-      "sku": "DREAMLEDGER-BILLBOARD-NZ-100X100"
-    },
-    {
-      "tier": "MEDIUM",
-      "dimensions": "200x100",
-      "price_nzd": 99,
-      "inventory": 50,
-      "payment_link": "https://buy.stripe.com/5kQ28rea15lH3M38AQdwc2g",
-      "stripe_payment_link_id": "plink_1U8EN3EGgEAnUFF9bxDWZfsO",
-      "sku": "DREAMLEDGER-BILLBOARD-MEDIUM-001"
-    },
-    {
-      "tier": "WIDE",
-      "dimensions": "500x200",
-      "price_nzd": 249,
-      "inventory": 20,
-      "payment_link": "https://buy.stripe.com/4gM14nea1eWh4Q78AQdwc2h",
-      "stripe_payment_link_id": "plink_1U8ENAEGgEAnUFF979PV0Cxl",
-      "sku": "DREAMLEDGER-BILLBOARD-WIDE-001"
-    },
-    {
-      "tier": "LARGE",
-      "dimensions": "500x500",
-      "price_nzd": 499,
-      "inventory": 8,
-      "payment_link": "https://buy.stripe.com/aFa7sL2rjaG14Q74kAdwc2i",
-      "stripe_payment_link_id": "plink_1U8ENGEGgEAnUFF9tfsuhelo",
-      "sku": "DREAMLEDGER-BILLBOARD-LARGE-001"
-    }
+  "size_ladder_nzd":[
+    {"tier":"FOUNDING","dimensions":"100x100","price_nzd":50,"tile_units":1,"inventory_units":100,"sku":"DREAMLEDGER-BILLBOARD-NZ-100X100"},
+    {"tier":"MEDIUM","dimensions":"200x100","price_nzd":99,"tile_units":2,"inventory_units":50,"sku":"DREAMLEDGER-BILLBOARD-MEDIUM-001"},
+    {"tier":"WIDE","dimensions":"500x200","price_nzd":249,"tile_units":10,"inventory_units":10,"sku":"DREAMLEDGER-BILLBOARD-WIDE-001"},
+    {"tier":"LARGE","dimensions":"500x500","price_nzd":499,"tile_units":25,"inventory_units":4,"sku":"DREAMLEDGER-BILLBOARD-LARGE-001"}
   ],
-  "conversion_design": {
-    "primary_cta": "Claim Your Founding Tile",
-    "secondary_cta": "Browse the Board",
-    "mobile_pattern": "thumb_first_horizontal_swipe",
-    "auto_rotate": false,
-    "show_remaining_inventory": true,
-    "show_founder_number_when_assigned": true,
-    "show_price_on_cta": true,
-    "show_social_proof_only_when_real": true,
-    "no_fake_activity": true
-  },
-  "truth": {
-    "revenue_nzd_verified": 0,
-    "payments_claimed": 0,
-    "links_created_in_stripe": 17,
-    "new_foundation_links_created": 9,
-    "note": "Payment links are live but no sale is claimed until Stripe settlement and webhook/Supabase evidence exist."
-  }
+  "conversion_design":{"primary_cta":"Claim Your Founding Tile","secondary_cta":"Browse the Board","mobile_pattern":"thumb_first_horizontal_swipe","auto_rotate":false,"show_remaining_inventory":true,"show_price_on_cta":true,"show_social_proof_only_when_real":true,"no_fake_activity":true},
+  "truth":{"revenue_nzd_verified":0,"payments_claimed":0,"static_payment_links_deactivated":9,"note":"Canonical checkout is dynamic Stripe Checkout with server-side slot reservation and signed webhook persistence. No sale is claimed until settled payment evidence exists."}
 }
