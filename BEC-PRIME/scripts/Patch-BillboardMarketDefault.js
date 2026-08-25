@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs');const path=require('path');
+const file=path.join(__dirname,'..','compiled','website','billboard.html');
+let html=fs.readFileSync(file,'utf8');
+const from="const state={market:'GLOBAL',size:'small'};";
+const to="const pathMarket={ '/billboard/nz':'NZ','/billboard/au':'AU','/billboard/za':'ZA','/billboard/americas':'AMERICAS','/billboard/europe':'EUROPE' };const state={market:pathMarket[location.pathname.replace(/\\/$/,'')]||'GLOBAL',size:'small'};";
+if(!html.includes(from)&&!html.includes(to))throw new Error('Billboard market initializer not found');
+if(html.includes(from))html=html.replace(from,to);
+fs.writeFileSync(file,html,'utf8');
+console.log(JSON.stringify({status:'PASS',file:'compiled/website/billboard.html',canonicalMarket:'pathname-scoped'},null,2));
