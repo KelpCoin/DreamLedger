@@ -17,3 +17,6 @@ function wrap(mod, name) {
 
 wrap(auth, 'handle');
 wrap(mvpRoutes, 'handle');
+require('./billboardRuntimePreload');
+require('./billboardSupabaseMirror');
+require('./billboardWebhookPreload');

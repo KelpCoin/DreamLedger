@@ -39,6 +39,7 @@ jobs:
               'board_status': None,
               'inventory_status': None,
               'inventory_json': False,
+              'inventory_finite': False,
               'e0': False,
               'errors': []
           }
@@ -66,11 +67,12 @@ jobs:
               result['errors'].append('/board: ' + str(e))
 
           try:
-              result['inventory_status'], body = get('/api/molt-beach-inventory')
-              json.loads(body.decode('utf-8'))
+              result['inventory_status'], body = get('/api/billboard/inventory/NZ')
+              payload = json.loads(body.decode('utf-8'))
               result['inventory_json'] = True
+              result['inventory_finite'] = payload.get('founding_positions') == 100 and 'founding_positions_remaining' in payload
           except Exception as e:
-              result['errors'].append('/api/molt-beach-inventory: ' + str(e))
+              result['errors'].append('/api/billboard/inventory/NZ: ' + str(e))
 
           result['e0'] = (
               bool(expected) and
@@ -78,7 +80,8 @@ jobs:
               result['health_status'] == 200 and
               result['board_status'] == 200 and
               result['inventory_status'] == 200 and
-              result['inventory_json']
+              result['inventory_json'] and
+              result['inventory_finite']
           )
 
           raw = json.dumps(result, sort_keys=True, separators=(',',':')).encode()
