@@ -1,8 +1,6 @@
 'use strict';
 
-const { spawnSync } = require('child_process');
 const path = require('path');
-const autoRevenueCatalog = require('../catalog/AutoRevenueCatalog');
 const gauntlet = require('../gauntlet/GauntletV6');
 const elohim = require('../elohim/ElohimV6');
 const proxy = require('../proxy/DigitalProxy');
@@ -19,20 +17,24 @@ const agentAuthority = require('./AgentAuthority');
 const ROOT = path.join(__dirname, '..');
 let lastBoot = null;
 
+// Runtime boot must never mutate or recompile the production surface.
+// Compilation belongs to the build/deployment phase. Boot verifies that the
+// immutable build artifacts required by the runtime are present, then runs
+// the existing trust gates over those artifacts.
 function compile() {
-  const catalogResult = autoRevenueCatalog.ensure();
-  const steps = [
-    ['compile:products', path.join(ROOT, 'compiler', 'ProductCompiler.js')],
-    ['compile:offers', path.join(ROOT, 'compiler', 'OfferCompiler.js')],
-    ['compile:surface', path.join(ROOT, 'compiler', 'SurfaceCompiler.js')]
+  const requiredArtifacts = [
+    ['catalog:offers', path.join(ROOT, 'catalog', 'offers', 'offers.json')],
+    ['catalog:approved', path.join(ROOT, 'catalog', 'offers', 'approved.json')],
+    ['catalog:ip', path.join(ROOT, 'catalog', 'ip-capabilities.json')],
+    ['surface:index', path.join(ROOT, 'compiled', 'website', 'index.html')],
+    ['surface:marketplace', path.join(ROOT, 'compiled', 'website', 'assets', 'marketplace-live.js')]
   ];
-  const results = [{ name: 'generate:auto-revenue-catalog', status: catalogResult.count === 100 ? 'PASS' : 'FAIL', stdout: JSON.stringify(catalogResult), stderr: '' }];
-  for (const [name, file] of steps) {
-    const result = spawnSync(process.execPath, [file], { cwd: ROOT, encoding: 'utf8' });
-    results.push({ name, status: result.status === 0 ? 'PASS' : 'FAIL', stdout: result.stdout, stderr: result.stderr });
-    if (result.status !== 0) break;
-  }
-  return results;
+  return requiredArtifacts.map(([name, file]) => ({
+    name,
+    status: require('fs').existsSync(file) ? 'PASS' : 'FAIL',
+    stdout: '',
+    stderr: require('fs').existsSync(file) ? '' : `Missing runtime artifact: ${file}`
+  }));
 }
 
 function boot() {
