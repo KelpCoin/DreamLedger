@@ -1,0 +1,41 @@
+{
+  "proof_type": "BILLBOARD_CANONICALIZATION",
+  "timestamp_utc": "2026-08-25T06:15:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "status": "CODE_PATH_ALIGNED_PENDING_LIVE_DEPLOYMENT",
+  "canonical_public_route": "/billboard",
+  "legacy_public_route": "/board",
+  "public_surface": "compiled/website/board.html",
+  "canonical_offer": {
+    "100x100": {
+      "sku": "BILLBOARD-SMALL",
+      "name": "DreamLedger Founding Tile - 100x100",
+      "price_nzd": 29
+    },
+    "200x100": {
+      "sku": "BILLBOARD-MEDIUM",
+      "price_nzd": 79
+    },
+    "500x200": {
+      "sku": "BILLBOARD-WIDE",
+      "price_nzd": 149
+    },
+    "500x500": {
+      "sku": "BILLBOARD-LARGE",
+      "price_nzd": 349
+    },
+    "1000x1000": {
+      "sku": "BILLBOARD-TAKEOVER",
+      "price_nzd": 999
+    }
+  },
+  "checkout_endpoint": "/api/molt-beach-checkout",
+  "inventory_endpoint": "/api/molt-beach-inventory",
+  "webhook_endpoint": "/api/molt-beach-webhook",
+  "payment_state": "PAID_PENDING_REVIEW",
+  "human_review_required": true,
+  "external_payment_evidence": false,
+  "deployment_verified": false,
+  "next_gate": "DEPLOY_AND_VERIFY_LIVE_PUBLIC_CHECKOUT_WEBHOOK_PATH",
+  "revenue_claim_allowed": false
+}
