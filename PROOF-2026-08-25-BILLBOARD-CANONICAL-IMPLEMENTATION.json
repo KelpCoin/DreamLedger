@@ -1,6 +1,6 @@
 {
   "proof_id":"BILLBOARD-CANONICAL-IMPLEMENTATION-2026-08-25",
-  "timestamp":"2026-08-25T00:00:00Z",
+  "date":"2026-08-25",
   "status":"IMPLEMENTED_PENDING_LIVE_DEPLOYMENT_AND_FIRST_EXTERNAL_PAYMENT",
   "canonical_public_route":"/billboard",
   "legacy_route":"/board",
