@@ -15,7 +15,7 @@
     "compile:qr": "node compiler/QRCompiler.js",
     "compile:omni": "node compiler/OmniCommerceCompiler.js",
     "compile:economic": "node compiler/Compile-EconomicTrees.js",
-    "compile:surface": "node compiler/SurfaceCompilerRuntimeFix.js",
+    "compile:surface": "node compiler/SurfaceCompilerStable.js",
     "compile:board": "node compiler/BoardCompiler.js",
     "compile:molt-beach": "node compiler/MoltBeachCompiler.js",
     "compile:featured-offer": "node scripts/patch-featured-offer.js",
