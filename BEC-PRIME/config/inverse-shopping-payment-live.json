@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "sku": "INVERSE-SHOPPING-SOURCE-001",
+  "offer": "Inverse Shopping Sourcing Request",
+  "amount": 15,
+  "currency": "NZD",
+  "payment_provider": "stripe",
+  "payment_link_id": "plink_1U8ep3EGgEAnUFF9QvW170mN",
+  "payment_link_url": "https://buy.stripe.com/7sY00jd5XcO90zR04kdwc2m",
+  "livemode": true,
+  "active": true,
+  "public_activation": "approval-gated",
+  "commercial_signal": "UNPROVEN_UNTIL_SETTLEMENT",
+  "fulfilment": "manual_approval_after_settlement",
+  "purchase_or_bid": false,
+  "source_policy": "EBAY_BROWSE_API_ONLY",
+  "created_at": "2026-08-26T00:00:00Z"
+}
