@@ -1,0 +1,47 @@
+{
+  "schema_version": "inverse-commerce-economic-loop-v1",
+  "product": "INVERSE-SHOPPING-SOURCE-001",
+  "promise": "Customer states a hard-to-find item; the system searches approved sources and returns auditable candidates.",
+  "pricing": {
+    "model": "one_time",
+    "currency": "NZD",
+    "starting_price_nzd": 15,
+    "public_activation": "APPROVAL_REQUIRED"
+  },
+  "economic_gates": [
+    {"id":"G0","name":"runtime","success":"software executes"},
+    {"id":"G1","name":"source","success":"live approved source responds"},
+    {"id":"G2","name":"match","success":"candidate satisfies factual request evidence"},
+    {"id":"G3","name":"proof","success":"candidate is independently auditable"},
+    {"id":"G4","name":"payment","success":"real Stripe payment settles"},
+    {"id":"G5","name":"fulfilment","success":"paid request is fulfilled within target cost/time"},
+    {"id":"G6","name":"repeatability","success":"paid requests recur profitably"}
+  ],
+  "current_source": {
+    "id": "ebay",
+    "mode": "Browse_API_only",
+    "status": "APPROVED_FIRST_GATE"
+  },
+  "deferred_sources": ["trade_me","etsy","apify","agentql","browser_scraping"],
+  "forbidden": ["captcha_bypass","credential_bypass","rate_limit_evasion","fingerprint_spoofing","unauthorized_authenticated_access","purchase_or_bid"],
+  "payment": {
+    "provider": "stripe",
+    "surface": "payment_link",
+    "mode": "live",
+    "payment_link_env": "INVERSE_SHOPPING_PAYMENT_LINK",
+    "payment_status_source_of_truth": "verified_stripe_event",
+    "revenue_claim": "UNPROVEN_UNTIL_SETTLED_EVENT"
+  },
+  "fulfilment": {
+    "purchase_authority": false,
+    "human_approval_required_for_external_purchase": true,
+    "customer_receives": "auditable_candidate_report",
+    "success_event": "FULFILMENT_PROOF"
+  },
+  "silo_policy": {
+    "mtg": "ISOLATED",
+    "adult": "ISOLATED",
+    "inverse_shopping": "GENERAL_COMMERCE_ONLY"
+  },
+  "operator_rule": "Build and verify the loop; do not claim revenue until Stripe settlement evidence exists."
+}
