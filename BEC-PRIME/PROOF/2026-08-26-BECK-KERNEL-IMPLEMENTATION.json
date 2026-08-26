@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "artifact": "BECK-KERNEL-IMPLEMENTATION",
+  "date": "2026-08-26",
+  "branch": "beck-transaction-kernel-2026-08-26",
+  "head_commit": "6e6da7766c595f6db15653b6e70246bd149c4c2a",
+  "implemented": [
+    "explicit transaction state machine",
+    "SQLite transactional inbox with UNIQUE stripe_event_id",
+    "SQLite WAL + synchronous FULL + foreign keys + busy timeout",
+    "transaction-local hash-chained JSONL ledger",
+    "durable transaction state",
+    "restart recovery entrypoint",
+    "Stripe raw-body signature adapter using existing verifier",
+    "fail-closed BECK webhook boundary",
+    "idempotent output, fulfilment and delivery operation IDs",
+    "proof writer and tamper verifier",
+    "100-transaction adversarial attack harness",
+    "package scripts for attack, recovery and verification",
+    "GitHub Actions syntax/test workflow"
+  ],
+  "verified_by_source": {
+    "stripe_signature": "existing BEC-PRIME/lib/stripeWebhookProof.js",
+    "runtime": "BEC-PRIME/package.json requires Node >=24 <25"
+  },
+  "execution_status": "IMPLEMENTED_NOT_YET_CERTIFIED",
+  "production_gate": "UNPROVEN",
+  "commercial_gate": "UNPROVEN",
+  "real_customer_payment": false,
+  "notes": [
+    "The live /api/webhooks/stripe route has not been switched to the new kernel on this branch.",
+    "The 100-transaction harness exists but its execution result is not claimed here because this session runtime could not clone GitHub and the connected Stripe account is live-only.",
+    "No live payment or public commerce action was initiated."
+  ],
+  "next_gate": "Execute node transaction/Invoke-BECKTransactionAttack.js on Node 24, inspect proof, then wire BECKWebhookHandler into the live webhook route only after the attack harness passes."
+}
