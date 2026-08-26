@@ -18,32 +18,24 @@ The public product is intentionally small: structured offers, focused checkout s
 - Public commerce surface: https://dreamledger.org
 - Brand / holding surface: https://amplissa.com
 - Canonical repository: https://github.com/KelpCoin/DreamLedger
-- Current MTG NZ$29 checkout: https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V
+- Current MTG NZ$29 checkout: https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l
 - Permanent QR policy: `IP/QR/QR-DESTINATION.txt`
 - Markets: `MARKETS/MARKET-MATRIX.md`
 - Social distribution: `SOCIAL/SOCIAL-VIRALITY-PLAYBOOK.md`
 - IP custody: `IP/MASTER-IP-MAP.md` and `IP/PUBLIC-IP-MANIFEST.md`
 - Execution architecture: `CONTROL-PLANE/COMMERCIAL-INTEGRATION.md`
 
-Domain presence is not deployment proof. Payment is not claimed until external payment evidence exists.
+The live Stripe account currently exposes an active, one-time NZD 29 Commander Deck Diagnostic Payment Link. The line item is `Commander Deck Diagnostic`, quantity 1, amount NZD 29.00. External settlement evidence is still required before revenue is claimed.
 
 ## Execution spine
-
-The system now has one explicit economic spine:
 
 `Signal -> qualification -> approved response -> offer -> checkout -> external payment evidence -> verified revenue -> fulfilment -> learning -> winner candidate`
 
 MTG is the first controlled commercial laboratory. The $29 Commander Deck Diagnostic is the first armed offer.
 
-When the Windows GPU is available, LM Studio is the preferred local refinement plane. The iterative contract is proposer -> critic -> synthesizer -> Gauntlet -> proof.
-
-When the PC is off, GitHub Actions provides deterministic continuity for compile, integration verification, Gauntlet, packaging, and settlement reconciliation. Cloud refinement is optional. Settlement reconciliation does not depend on an LLM.
-
 Social publication, irreversible production changes, and other public commercial actions remain approval-gated. Automation cannot manufacture revenue, customers, traffic, testimonials, publication, or payment evidence.
 
 ## Live settlement spine
-
-GitHub Actions is now the primary deterministic settlement reconciliation node for the first Revenue Atom.
 
 `Stripe live Checkout Session -> GitHub Actions -> Airtable Economic Events -> proof artifact`
 
@@ -51,13 +43,9 @@ The workflow is `.github/workflows/commerce-settlement-sync.yml` and the impleme
 
 The workflow accepts only a completed, paid NZ$29 NZD Checkout Session associated with the configured live Stripe Payment Link. It is idempotent on the Checkout Session ID and writes verified economic events to Airtable only after external Stripe evidence exists.
 
-Airtable remains the operational index. Stripe remains settlement authority. GitHub Actions is orchestration, not an authority for money.
+## Kelplantis v6
 
-## Production convergence
-
-The Render deployment gate is configured to compile the canonical BEC-PRIME public surface, verify the approved Commander Deck Diagnostic offer, deploy the exact release SHA, and then verify the live `dreamledger.org` routes and production SHA.
-
-The current external production check shows a convergence mismatch: `dreamledger.org` is serving an Agentic Sovereignty Diagnostic surface while the canonical GitHub deployment gate expects the MTG catalogue. This is treated as a deployment-state problem only. No revenue is asserted from it.
+A hardened playable 100-floor slice is included at `BEC-PRIME/kelplantis/kelplantis-v6.html`. It uses one coordinate system, versioned local saves, deterministic floor generation, explicit boss state, bounded movement, pointer controls for mobile, keyboard controls for desktop, and a DreamMeez identity stub.
 
 ## 60-second verification
 
@@ -70,18 +58,6 @@ From `BEC-PRIME`:
 For settlement verification, manually run the GitHub Actions workflow `Commerce Settlement Sync` and inspect the uploaded `commerce-settlement-proof-{run_id}` artifact.
 
 Expected pre-sale state is `verified_revenue_nzd: 0`. After a real live NZ$29 payment through the configured Commander Deck Diagnostic Payment Link, the artifact must contain a newly recognized `STRIPE-CHECKOUT-cs_...` event and `verified_revenue_nzd: 29`.
-
-## Shared item model
-
-The canonical item model lives under `item-schema/`.
-
-An item declares its identity, kind, compatible experiences, and economic acquisition state. Presentation layers may project the canonical object for their own UI, but they do not become alternate sources of truth.
-
-## Commerce verification
-
-DreamLedger verifies commercial state independently of any single commerce platform. Public claims are limited to what can be supported by observable evidence.
-
-A real payment is only considered verified after external payment evidence has been received and the economic proof chain has been generated from that evidence.
 
 ## Revenue truth
 
