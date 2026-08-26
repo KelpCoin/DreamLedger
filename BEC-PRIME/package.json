@@ -12,6 +12,7 @@
     "verify:hunt":"node scripts/verify-hunt.js",
     "verify:wanted":"node scripts/verify-wanted.js",
     "verify:wanted-proof":"node scripts/verify-wanted-hunt-proof.js",
+    "verify:inverse-loop":"pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-InverseCommerceLoop.ps1",
     "verify:universal":"node scripts/verify-universal-extraction.js",
     "verify:billboard":"pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-BillboardCanonical.ps1",
     "verify:fulfillment":"pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-OfferFulfillmentContracts.ps1",
