@@ -37,7 +37,7 @@ jobs:
           test "$(cat _site/CNAME)" = "dreamledger.org"
           grep -q "NZ$29" _site/index.html
           grep -q "00w7sLaXP01n96nbN2dwc2l" _site/index.html
-          grep -q "MTG / isolated silo" _site/index.html
+          grep -q "MTG / COMMANDER / ONE-TIME PURCHASE" _site/index.html
           echo "PASS canonical static surface staged"
       - name: Configure Pages
         uses: actions/configure-pages@v5
