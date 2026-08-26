@@ -1,0 +1,20 @@
+{
+  "opportunity_id":"BILLBOARD-001",
+  "silo":"billboard",
+  "title":"Digital billboard slot as a service",
+  "hypothesis":"People and small businesses will pay for a permanent or time-bounded claim on a visible digital property surface.",
+  "target_buyer":"Creators, small businesses, collectors, and internet-native projects wanting durable attention.",
+  "channel":"DreamLedger doorway, Reddit, Substack, referrals",
+  "smallest_test":"Sell one clearly bounded NZ$29-NZ$99 digital billboard slot with a defined placement, duration, and proof of publication.",
+  "evidence_required":["buyer interest","payment evidence","published-slot proof","ownership or usage terms"],
+  "cost_nzd":10,
+  "upside_nzd":99,
+  "risk":"LOW",
+  "reversibility":"HIGH",
+  "execution_steps":["define one slot","publish terms","collect qualified interest","fulfil one slot","capture proof"],
+  "proof_required":["slot identifier","payment or explicit no-sale result","rendered publication proof"],
+  "approval_required":true,
+  "public_action":true,
+  "payment_adapter":"UNSELECTED",
+  "kill_condition":"No qualified buyer interest after 20 targeted exposures, or fulfilment cannot be proven deterministically."
+}
