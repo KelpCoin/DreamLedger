@@ -1,5 +1,5 @@
 param(
-  [string]$EventFile = $(if ($env:INVERSE_ECONOMIC_EVENT_FILE) { $env:INVERSE_ECONOMIC_EVENT_FILE } else { 'D:\BrownEyeCortex\InverseShopping\data\economic-events.jsonl' })
+  [string]$EventFile = $(if ($env:INVERSE_ECONOMIC_EVENT_FILE) { $env:INVERSE_ECONOMIC_EVENT_FILE } else { 'C:\BrownEyeCortex\BEC-PRIME\data\inverse-commerce\economic-events.jsonl' })
 )
 
 $ErrorActionPreference = 'Stop'
