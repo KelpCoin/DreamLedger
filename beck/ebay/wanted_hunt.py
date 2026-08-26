@@ -49,7 +49,9 @@ def search(wanted: Wanted, token: str) -> Dict[str, Any]:
     started = time.time()
     response = requests.get(f"{BASE_URL}/item_summary/search", headers=headers, params=params, timeout=20)
     raw_body = response.text
-    return {"status_code": response.status_code, "duration_ms": int((time.time() - started) * 1000), "request": {"method": "GET", "endpoint": f"{BASE_URL}/item_summary/search", "params": params}, "response_sha256": hashlib.sha256(raw_body.encode()).hexdigest(), "data": response.json() if response.ok else {}}
+    parsed = response.json() if response.ok else {}
+    canonical_response = json.dumps(parsed, sort_keys=True, separators=(",", ":"))
+    return {"status_code": response.status_code, "duration_ms": int((time.time() - started) * 1000), "request": {"method": "GET", "endpoint": f"{BASE_URL}/item_summary/search", "params": params}, "response_sha256": hashlib.sha256(canonical_response.encode()).hexdigest(), "data": parsed}
 
 
 def score(item: Dict[str, Any], wanted: Wanted) -> Candidate:
