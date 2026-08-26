@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "name": "FALDON",
+  "display_mode": "selectable",
+  "power_effect": "cosmetic_status_first",
+  "families": {
+    "FIGHTER": ["Novice Fighter", "Adept Fighter", "Veteran Fighter", "Master Fighter", "Grandmaster Fighter"],
+    "ARCANE": ["Novice Arcanist", "Adept Arcanist", "Veteran Arcanist", "Master Arcanist", "Grandmaster Arcanist"],
+    "LAND": ["Wayfarer", "Pathfinder", "Surveyor", "Cartographer", "Worldwalker"],
+    "DUELIST": ["Challenger", "Contender", "Gladiator", "Champion", "Apex Duelist"],
+    "OUTLAW": ["Rogue", "Outlaw", "Infamous", "Dreaded", "Nemesis"],
+    "ARTISAN": ["Apprentice Artisan", "Journeyman", "Craftsman", "Master Artisan", "Grand Artisan"],
+    "WARDEN": ["Sentry", "Guardian", "Warden", "High Warden", "World Warden"],
+    "EXPLORER": ["Scout", "Seeker", "Pathfinder", "Expeditioner", "Legendary Explorer"]
+  },
+  "unlock_rules": {
+    "FIGHTER": "combat_and_boss_milestones",
+    "ARCANE": "spell_and_magic_milestones",
+    "LAND": "gathering_exploration_housing_milestones",
+    "DUELIST": "rated_pvp_rating",
+    "OUTLAW": "pvp_infamy_and_criminal_events",
+    "ARTISAN": "crafting_and_market_milestones",
+    "WARDEN": "cooperative_defence_and_guild_milestones",
+    "EXPLORER": "map_and_rare_zone_completion"
+  }
+}
