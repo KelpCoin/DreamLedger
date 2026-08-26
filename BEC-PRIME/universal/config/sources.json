@@ -1,0 +1,38 @@
+{
+  "version": "universal-extraction-v1",
+  "default_policy": "deny",
+  "sources": [
+    {
+      "id": "ebay",
+      "enabled": true,
+      "type": "api",
+      "policy": "approved",
+      "handler": "hunt/HuntEngine.searchEbay",
+      "telemetry": true
+    },
+    {
+      "id": "http_json",
+      "enabled": true,
+      "type": "api",
+      "policy": "generic-api-only",
+      "handler": "universal/UniversalExtractor.requestJson",
+      "telemetry": true
+    },
+    {
+      "id": "local_file",
+      "enabled": true,
+      "type": "local",
+      "policy": "local-only",
+      "handler": "universal/UniversalExtractor.readLocalJson",
+      "telemetry": true
+    }
+  ],
+  "blocked_capabilities": [
+    "credential_bypass",
+    "captcha_bypass",
+    "rate_limit_evasion",
+    "fingerprint_spoofing",
+    "unauthorized_authenticated_access",
+    "purchase_or_bid"
+  ]
+}

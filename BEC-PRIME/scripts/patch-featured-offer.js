@@ -7,7 +7,7 @@ if(!fs.existsSync(INDEX))throw Error('FEATURED_OFFER_GATE_FAILED: compiled homep
 let html=fs.readFileSync(INDEX,'utf8');
 const productMeta=`<meta name="dreamledger-featured-product" content="${featured.product_id}">`;
 const paymentMeta=`<meta name="dreamledger-featured-payment" content="${featured.payment_link_url}">`;
-function ensureMeta(input,meta,name){const re=new RegExp(`<meta\\s+name=["']${name}["'][^>]*>`,`i`);if(re.test(input))return input.replace(re,meta);if(/<\\/head>/i.test(input))return input.replace(/<\\/head>/i,`${meta}\\n</head>`);throw Error(`FEATURED_OFFER_GATE_FAILED: <head> missing for ${name}`)}
+function ensureMeta(input,meta,name){const re=new RegExp(`<meta\\s+name=["']${name}["'][^>]*>`,'i');if(re.test(input))return input.replace(re,meta);if(/<\/head>/i.test(input))return input.replace(/<\/head>/i,`${meta}\n</head>`);throw Error(`FEATURED_OFFER_GATE_FAILED: <head> missing for ${name}`)}
 html=ensureMeta(html,productMeta,'dreamledger-featured-product');
 html=ensureMeta(html,paymentMeta,'dreamledger-featured-payment');
 fs.writeFileSync(INDEX,html,'utf8');
