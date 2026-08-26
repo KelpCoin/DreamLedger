@@ -1,0 +1,27 @@
+name: BECK Transaction Attack
+
+on:
+  push:
+    branches:
+      - beck-transaction-kernel-2026-08-26
+  workflow_dispatch:
+
+jobs:
+  attack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax check
+        working-directory: BEC-PRIME
+        run: |
+          node --check transaction/TransactionStateMachine.js
+          node --check transaction/TransactionStore.js
+          node --check transaction/BECKTransactionKernel.js
+          node --check transaction/StripePaymentAdapter.js
+          node --check transaction/Invoke-BECKTransactionAttack.js
+      - name: Run 100 transaction attack
+        working-directory: BEC-PRIME
+        run: node transaction/Invoke-BECKTransactionAttack.js
