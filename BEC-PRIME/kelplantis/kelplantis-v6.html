@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Kelplantis v6</title>
+<style>
+html,body{margin:0;height:100%;background:#070a12;color:#eef;font-family:system-ui,Arial,sans-serif;overflow:hidden}#wrap{height:100%;display:grid;place-items:center}#game{position:relative;width:min(100vw,560px);height:min(100vh,900px);background:#10182a;overflow:hidden}canvas{display:block;width:100%;height:100%}#hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;font-size:13px;text-shadow:0 2px 4px #000}#controls{position:absolute;left:16px;right:16px;bottom:18px;display:flex;justify-content:space-between;align-items:end}button{border:0;border-radius:50%;font-weight:700;color:#fff;background:#254a70}#joy{width:84px;height:84px;border:2px solid #789;background:#ffffff18}#atk{width:74px;height:74px;background:#8b2e45}#menu{position:absolute;inset:0;display:grid;place-items:center;background:#05070bcc;text-align:center}#menu>div{padding:28px}#start{border-radius:10px;padding:12px 28px;font-size:18px;background:#2e6d9f}#reset{position:absolute;right:10px;bottom:10px;border-radius:8px;padding:6px 10px;background:#333}
+</style>
+</head>
+<body><div id="wrap"><div id="game"><canvas id="c"></canvas><div id="hud"><span id="stats"></span><span id="id">DRMZ-AVT-001</span></div><div id="controls"><button id="joy" aria-label="Move"></button><button id="atk" aria-label="Attack">ATTACK</button></div><button id="reset">Reset</button><div id="menu"><div><h1>KELPLANTIS</h1><p>100-floor dungeon slice</p><button id="start">START</button></div></div></div></div>
+<script>
+'use strict';
+const SAVE='kelplantis.v6.save';const VERSION=6;const c=document.getElementById('c'),x=c.getContext('2d');
+let W=0,H=0,raf=0,attackLock=0,joyOn=false,joy={dx:0,dy:0};
+let s={version:VERSION,floor:1,hp:100,maxHp:100,attack:12,defense:5,x:.5,y:.5,kills:0,bosses:0,bossHp:0,seed:0,dreammeez:'DRMZ-AVT-001'};
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6d2b79f5)|0;let t=Math.imul(a^(a>>>15),1|a);t^=t+Math.imul(t^(t>>>7),61|t);return((t^(t>>>14))>>>0)/4294967296}}
+function load(){try{let z=JSON.parse(localStorage.getItem(SAVE)||'null');if(z&&z.version===VERSION){Object.assign(s,z);return true}}catch(e){}return false}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(s))}catch(e){}}
+function reset(){s={version:VERSION,floor:1,hp:100,maxHp:100,attack:12,defense:5,x:.5,y:.5,kills:0,bosses:0,bossHp:0,seed:Math.floor(Math.random()*0xffffffff),dreammeez:'DRMZ-AVT-001'};save();regen();}
+function regen(){let r=rng((s.seed+s.floor*7919)>>>0);s.bossHp=60+s.floor*8;rooms=[];for(let i=0;i<6;i++)rooms.push({x:.06+r()*.7,y:.10+r()*.65,w:.10+r()*.18,h:.08+r()*.16,boss:i===5});s.x=.5;s.y=.82;save();}
+let rooms=[];
+function resize(){let d=devicePixelRatio||1,rect=c.getBoundingClientRect();W=rect.width;H=rect.height;c.width=Math.max(1,Math.floor(W*d));c.height=Math.max(1,Math.floor(H*d));x.setTransform(d,0,0,d,0,0)}
+function update(){if(attackLock>0)attackLock--;if(s.hp<=0)return;let speed=.0048;s.x=Math.max(.02,Math.min(.98,s.x+joy.dx*speed));s.y=Math.max(.04,Math.min(.96,s.y+joy.dy*speed));let b=rooms.find(q=>q.boss);if(b){let dx=s.x-(b.x+b.w/2),dy=s.y-(b.y+b.h/2);if(Math.hypot(dx,dy)<.13&&s.bossHp>0)bossNear=true;else bossNear=false}}
+let bossNear=false;
+function attack(){if(attackLock||!bossNear||s.bossHp<=0)return;attackLock=12;let dmg=s.attack+Math.floor(Math.random()*6);s.bossHp=Math.max(0,s.bossHp-dmg);s.hp=Math.max(0,s.hp-Math.max(1,6-Math.floor(s.defense/3)));if(s.bossHp===0){s.bosses++;s.floor++;s.hp=Math.min(s.maxHp,s.hp+25);regen()}else save()}
+function draw(){x.clearRect(0,0,W,H);x.fillStyle='#0d1424';x.fillRect(0,0,W,H);for(const r of rooms){let rx=r.x*W,ry=r.y*H,rw=r.w*W,rh=r.h*H;x.fillStyle=r.boss&&s.bossHp>0?'#351d31':'#18312d';x.strokeStyle='#5d7894';x.lineWidth=2;x.fillRect(rx,ry,rw,rh);x.strokeRect(rx,ry,rw,rh);if(r.boss&&s.bossHp>0){x.fillStyle='#f47';x.font='28px sans-serif';x.fillText('B',rx+rw/2-9,ry+rh/2+10)}}let px=s.x*W,py=s.y*H;x.fillStyle='#7de1ff';x.beginPath();x.arc(px,py,Math.min(W,H)*.028,0,Math.PI*2);x.fill();document.getElementById('stats').textContent='Floor '+s.floor+' | HP '+s.hp+'/'+s.maxHp+' | Boss '+s.bossHp+' | Kills '+s.kills;raf=requestAnimationFrame(()=>{update();draw()})}
+function setJoy(e){let r=document.getElementById('joy').getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,m=r.width/2,d=Math.hypot(dx,dy);if(d>m){dx=dx*m/d;dy=dy*m/d}joy.dx=dx/m;joy.dy=dy/m}
+const j=document.getElementById('joy');j.addEventListener('pointerdown',e=>{joyOn=true;j.setPointerCapture(e.pointerId);setJoy(e)});j.addEventListener('pointermove',e=>{if(joyOn)setJoy(e)});j.addEventListener('pointerup',()=>{joyOn=false;joy.dx=joy.dy=0});j.addEventListener('pointercancel',()=>{joyOn=false;joy.dx=joy.dy=0});
+document.getElementById('atk').addEventListener('pointerdown',e=>{e.preventDefault();attack()});document.addEventListener('keydown',e=>{if(e.key===' '){e.preventDefault();attack()}if(e.key==='ArrowLeft'||e.key==='a')joy.dx=-1;if(e.key==='ArrowRight'||e.key==='d')joy.dx=1;if(e.key==='ArrowUp'||e.key==='w')joy.dy=-1;if(e.key==='ArrowDown'||e.key==='s')joy.dy=1});document.addEventListener('keyup',e=>{if('ArrowLeft ArrowRight a d'.split(' ').includes(e.key))joy.dx=0;if('ArrowUp ArrowDown w s'.split(' ').includes(e.key))joy.dy=0});
+document.getElementById('start').onclick=()=>document.getElementById('menu').style.display='none';document.getElementById('reset').onclick=()=>{reset();document.getElementById('menu').style.display='none'};window.addEventListener('resize',resize);if(!load())reset();else regen();resize();draw();
+</script></body></html>
