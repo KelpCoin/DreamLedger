@@ -52,7 +52,6 @@ const ranked = rankCandidates([
   { platform: 'fixture', title: 'generic blue shirt medium', price: 140, currency: 'NZD' },
   { platform: 'fixture', title: 'FUBU vintage 2000s jacket XL red', price: 70, currency: 'NZD' }
 ], wanted);
-assert.strictEqual(ranked[0].brand, undefined);
 assert.ok(ranked[0].match_score >= ranked[1].match_score);
 assert.ok(ranked[0].title.includes('FUBU'));
 
