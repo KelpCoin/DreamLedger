@@ -10,30 +10,45 @@ def verify(path: str):
     unsigned = dict(data)
     unsigned.pop("proof_sha256", None)
     recomputed = hashlib.sha256(json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+    source = data.get("source", {})
+    response = source.get("raw_response", {})
+    response_hash = hashlib.sha256(json.dumps(response, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    response_hash_matches = response_hash == source.get("response_sha256")
+
+    candidates = data.get("candidates", [])
+    strong_recomputed = any(float(c.get("total_score", 0)) >= 0.8 and c.get("verdict") == "STRONG" for c in candidates)
+    ids = {item.get("itemId") for item in response.get("itemSummaries", []) if item.get("itemId")}
+    candidate_ids = {c.get("item_id") for c in candidates if c.get("item_id")}
+    candidates_derive_from_response = candidate_ids.issubset(ids)
+
     gates = data.get("gates", {})
     required = ["G01_CREDENTIALS_PRESENT", "G02_OAUTH_SUCCESS", "G03_HTTP_SUCCESS", "G04_RESPONSE_HASHED", "G05_RESULTS_RETURNED", "G06_STRONG_MATCH"]
-    gate_integrity = all(gates.get(k) in {"PASS", "FAIL"} for k in required)
-    all_pass = all(gates.get(k) == "PASS" for k in required)
-    response = data.get("source", {}).get("raw_response", {})
-    canonical_response = json.dumps(response, separators=(",", ":"), sort_keys=True)
-    response_hash = hashlib.sha256(canonical_response.encode()).hexdigest()
+    gate_schema_valid = all(gates.get(k) in {"PASS", "FAIL"} for k in required)
+    external_gate_recompute = {
+        "G03_HTTP_SUCCESS": source.get("http_status") == 200,
+        "G04_RESPONSE_HASHED": bool(source.get("response_sha256")) and response_hash_matches,
+        "G05_RESULTS_RETURNED": len(candidates) > 0,
+        "G06_STRONG_MATCH": strong_recomputed and candidates_derive_from_response,
+    }
+    externally_consistent = all(external_gate_recompute.values())
+
     result = {
         "hash_match": stored == recomputed,
-        "gate_schema_valid": gate_integrity,
-        "all_required_gates_pass": all_pass,
-        "response_present": bool(response),
-        "response_hash_recomputed": response_hash,
-        "recorded_response_hash": data.get("source", {}).get("response_sha256"),
-        "response_hash_matches": False,
+        "gate_schema_valid": gate_schema_valid,
+        "response_hash_matches": response_hash_matches,
+        "candidates_derive_from_response": candidates_derive_from_response,
+        "strong_match_recomputed": strong_recomputed,
+        "external_gate_recompute": external_gate_recompute,
         "commercial_signal": data.get("commercial_signal"),
     }
-    # The producer hashes the exact HTTP response text, so the verifier cannot
-    # reconstruct that text from parsed JSON. The recorded hash remains evidence,
-    # while proof integrity is verified independently.
-    result["overall"] = result["hash_match"] and result["gate_schema_valid"] and result["response_present"] and all_pass
+    result["overall"] = result["hash_match"] and result["gate_schema_valid"] and externally_consistent
     print(json.dumps(result, indent=2))
     return 0 if result["overall"] else 1
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python beck/proof/verify_ebay_proof.py <proof.json>")
+        raise SystemExit(2)
     raise SystemExit(verify(sys.argv[1]))
