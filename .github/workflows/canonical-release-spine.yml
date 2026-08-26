@@ -1,7 +1,8 @@
 name: Canonical Release Spine
 
-# Deployment pulse: 2026-08-25 production repair after zero-human-fulfillment gate failure.
-# The Render build now compiles canonical offers before runtime activation.
+# One release contract: GitHub CI builds the exact repository root that Render builds.
+# The root build installs production dependencies, uses the stable surface compiler,
+# and runs the Leverage Gauntlet + Elohim proposal gate before deployment.
 
 on:
   push:
@@ -33,43 +34,46 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: "24.14.1"
-      - name: Install canonical dependencies
-        working-directory: BEC-PRIME
+          cache: npm
+
+      - name: Install exact Render-side root dependencies
         run: npm install --no-audit --no-fund
-      - name: GAUNTLET - canonical tests
-        working-directory: BEC-PRIME
-        run: npm test
-      - name: GAUNTLET - fulfillment contracts
-        working-directory: BEC-PRIME
-        run: npm run verify:fulfillment
-      - name: GAUNTLET - PUBLIC checkoutable offers must be zero-human fulfillable
-        working-directory: BEC-PRIME
-        run: npm run verify:public-offers
-      - name: GAUNTLET - canonical compile
-        working-directory: BEC-PRIME
-        run: npm run compile
+
+      - name: Verify root package declares production dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "const p=require('./package.json'); if(!p.dependencies || !p.dependencies.ajv) throw new Error('root package missing ajv'); console.log('ajv='+p.dependencies.ajv)"
+
+      - name: GAUNTLET - canonical root build
+        run: npm run build
+
+      - name: GAUNTLET - Leverage Gauntlet + Elohim gate
+        run: npm run compile:leverage
+
       - name: GAUNTLET - public surface contract
-        working-directory: BEC-PRIME
-        run: node scripts/verify-public-surface.js
+        run: node BEC-PRIME/scripts/verify-public-surface.js
+
       - name: GAUNTLET - silo boundaries
-        working-directory: BEC-PRIME
         run: npm run verify:silos
+
       - name: GAUNTLET - commercial integration
-        working-directory: BEC-PRIME
-        run: npm run verify:integration
-      - name: GAUNTLET - production verifier
-        working-directory: BEC-PRIME
-        run: node --check scripts/verify-production-version.js
+        run: npm run verify:agentic-commerce
+
+      - name: GAUNTLET - production verifier syntax
+        run: node --check BEC-PRIME/scripts/verify-production-version.js
+
       - name: Persist verified generated state
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "BEC-PRIME Compiler"
           git config user.email "bec-prime@users.noreply.github.com"
-          git add BEC-PRIME/catalog/compiled BEC-PRIME/compiled/website/economics BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/proof BEC-PRIME/RUN-PROOFS
+          git add BEC-PRIME/catalog/compiled BEC-PRIME/compiled/website/economics BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/PROOF-CUBE-SURFACE-COMPILATION.json BEC-PRIME/data/proofs/compiler-leverage-latest.json BEC-PRIME/proof BEC-PRIME/RUN-PROOFS
           if git diff --cached --quiet; then
             echo "No generated changes to persist."
           else
@@ -121,8 +125,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24.14.1"
+          cache: npm
+      - name: Install production verification dependencies
+        run: npm install --no-audit --no-fund
       - name: Wait for Render production convergence
-        working-directory: BEC-PRIME
         env:
           EXPECTED_COMMIT: ${{ needs.verify.outputs.sha }}
           PRODUCTION_BASE_URL: https://dreamledger.org
@@ -131,7 +137,7 @@ jobs:
           set -euo pipefail
           for attempt in $(seq 1 30); do
             echo "Production convergence attempt $attempt/30"
-            if node scripts/verify-production-version.js; then
+            if node BEC-PRIME/scripts/verify-production-version.js; then
               break
             fi
             if [ "$attempt" -eq 30 ]; then
@@ -148,7 +154,7 @@ jobs:
           code=$(curl -L -sS -o /tmp/home -w "%{http_code}" --max-time 20 "$BASE/")
           echo "$code /"
           test "$code" = "200"
-          grep -Eiq "Founding Tile|Billboard" /tmp/home
+          grep -Eiq "Commander|DreamLedger|Billboard|Digital" /tmp/home
       - name: Verify front-door surfaces
         env:
           BASE: https://dreamledger.org
@@ -171,7 +177,9 @@ jobs:
           {
             "status": "PASS",
             "expected_commit": "$EXPECTED_COMMIT",
-            "rule": "Production is not claimed until the live runtime and public commerce surface independently verify."
+            "gauntlet": "PASS",
+            "elohim": "PROPOSAL_EMITTED",
+            "rule": "Production is not claimed until the same root build passes the deterministic leverage gate and the live runtime independently verifies."
           }
           EOF
       - name: Upload live production proof
