@@ -20,6 +20,7 @@
     "compile:omni":"node compiler/OmniCommerceCompiler.js",
     "compile:economic":"node compiler/Compile-EconomicTrees.js",
     "compile:opportunities":"node opportunity/OpportunityCompiler.js",
+    "gauntlet:opportunities":"node gauntlet/OpportunityGauntlet.js",
     "compile:surface":"node compiler/SurfaceCompilerStable.js",
     "compile:billboard":"node compiler/BillboardCompiler.js",
     "patch:billboard-market":"node scripts/Patch-BillboardMarketDefault.js",
