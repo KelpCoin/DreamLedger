@@ -27,7 +27,7 @@ The engine must never silently turn generated content into public commerce or pr
 
 ## Existing Kelplantis integration
 
-The current repository already contains the Kelplantis floor-profile generator, deterministic dungeon generator, target compiler, runtime, adapter and proof artifacts. The 3MV6 layer sits above those systems as a content factory rather than replacing them. The existing target compiler and dungeon generator are therefore preserved. fileciteturn17file0L2-L6 fileciteturn18file0L2-L6
+The current repository already contains the Kelplantis floor-profile generator, deterministic dungeon generator, target compiler, runtime, adapter and proof artifacts. The 3MV6 layer sits above those systems as a content factory rather than replacing them. The existing target compiler and dungeon generator are therefore preserved.
 
 ## First executable proof
 
