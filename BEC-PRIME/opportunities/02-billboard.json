@@ -1,0 +1,19 @@
+{
+  "opportunity_id": "BILL-001",
+  "silo": "BILLBOARD",
+  "title": "Billboard-as-a-service scarce digital property",
+  "hypothesis": "People will pay for a scarce, visible digital placement when ownership, scarcity, permanence, or attention is clearly packaged.",
+  "channels": ["DreamLedger", "Reddit", "Substack"],
+  "buyer": "Creators, collectors, small businesses and communities seeking a persistent digital placement",
+  "offer": "Buy a defined scarce placement with a clear term, location, and proof of ownership/use.",
+  "price_nzd": 29,
+  "test_cost_nzd": 0,
+  "upside_nzd": 1000,
+  "evidence_score": 4,
+  "risk_score": 5,
+  "speed_score": 8,
+  "evidence_required": ["10 qualified buyer conversations", "1 paid placement"],
+  "smallest_test": "Publish one tightly defined scarce placement and solicit 10 qualified prospects.",
+  "proof_required": ["Listing artifact", "Buyer conversation", "Payment receipt", "Placement proof"],
+  "public_action": "APPROVAL_REQUIRED"
+}
