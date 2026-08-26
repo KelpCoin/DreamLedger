@@ -1,11 +1,11 @@
 #requires -Version 5.1
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
-
 param(
     [string]$RepoRoot = '',
     [switch]$Live
 )
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
 
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     if (Test-Path (Join-Path (Get-Location) 'package.json')) {
@@ -45,6 +45,7 @@ try {
     $lines.Add(('EXIT={0}' -f $huntExit))
     $lines.Add('')
 
+    $liveExit = 0
     if ($Live) {
         if ([string]::IsNullOrWhiteSpace($env:EBAY_OAUTH_TOKEN) -and ([string]::IsNullOrWhiteSpace($env:EBAY_APP_ID) -or [string]::IsNullOrWhiteSpace($env:EBAY_CERT_ID))) {
             throw 'Live hunt requires EBAY_OAUTH_TOKEN or EBAY_APP_ID plus EBAY_CERT_ID in the process environment.'
@@ -67,7 +68,6 @@ try {
         } | ConvertTo-Json -Depth 8 -Compress
 
         $node = @'
-const fs = require('fs');
 const { hunt } = require('./BEC-PRIME/hunt/HuntEngine');
 const input = JSON.parse(process.env.WANTED_PROOF_PAYLOAD);
 hunt(input.wanted, { wantedId: input.wanted.id, ebay: { limit: input.limit } })
@@ -82,7 +82,6 @@ hunt(input.wanted, { wantedId: input.wanted.id, ebay: { limit: input.limit } })
         $lines.Add('=== LIVE eBay HUNT ===')
         $lines.AddRange([string[]]$liveOutput)
         $lines.Add(('EXIT={0}' -f $liveExit))
-        $lines.Add('')
         $lines.Add('LIVE_MODE=' + $(if ($liveExit -eq 0) { 'PASS' } else { 'FAIL' }))
     } else {
         $lines.Add('LIVE_MODE=NOT_RUN')
@@ -96,9 +95,9 @@ hunt(input.wanted, { wantedId: input.wanted.id, ebay: { limit: input.limit } })
     $lines | Set-Content -LiteralPath $Proof -Encoding ASCII
 
     if (-not $overall) { throw "WANTED proof failed. See $Proof" }
-    Write-Host "PROOF=PASS" -ForegroundColor Green
-    Write-Host "PROOF_FILE=$Proof" -ForegroundColor Cyan
-    Write-Host 'VERIFY_60S=Get-Content -LiteralPath ' + $Proof -ForegroundColor Yellow
+    Write-Host 'PROOF=PASS' -ForegroundColor Green
+    Write-Host ('PROOF_FILE={0}' -f $Proof) -ForegroundColor Cyan
+    Write-Host ('VERIFY_60S=Get-Content -LiteralPath "{0}"' -f $Proof) -ForegroundColor Yellow
 }
 finally {
     Pop-Location
