@@ -18,7 +18,7 @@ The public product is intentionally small: structured offers, focused checkout s
 - Public commerce surface: https://dreamledger.org
 - Brand / holding surface: https://amplissa.com
 - Canonical repository: https://github.com/KelpCoin/DreamLedger
-- Current MTG NZ$29 checkout: https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V
+- Current MTG NZ$29 checkout: https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l
 - Permanent QR policy: `IP/QR/QR-DESTINATION.txt`
 - Markets: `MARKETS/MARKET-MATRIX.md`
 - Social distribution: `SOCIAL/SOCIAL-VIRALITY-PLAYBOOK.md`
