@@ -5,7 +5,6 @@ const crypto = require('crypto');
 const { Readable } = require('stream');
 const billboard = require('../routes/billboard-v2');
 const autoFulfillment = require('./billboardAutoFulfillment');
-const inverseEvents = require('../inverse-commerce/EconomicEventLedger');
 
 function verifyStripe(raw, signature, secret) {
   if (!signature || !secret) return false;
@@ -37,11 +36,6 @@ if (!http.createServer.__dreamledgerBillboardWebhookWrapped) {
             const event = JSON.parse(raw);
             if (event?.type === 'checkout.session.completed') {
               const session = event.data.object;
-              if (session?.metadata?.sku === 'INVERSE-SHOPPING-SOURCE-001' && session?.payment_status === 'paid') {
-                const result = inverseEvents.recordSettlement(event);
-                res.writeHead(200, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
-                return res.end(JSON.stringify({received:true,inverse_shopping:true,economic_event:result}));
-              }
               if (session?.metadata?.offer_id === 'DREAMLEDGER-BILLBOARD-FOUNDING-001') {
                 const result = await autoFulfillment.fulfill(session, event.id);
                 if (result.handled) {
@@ -55,14 +49,6 @@ if (!http.createServer.__dreamledgerBillboardWebhookWrapped) {
                   res.writeHead(200, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
                   return res.end(JSON.stringify({received:true,billboard:true}));
                 }
-              }
-            }
-            if (event?.type === 'payment_intent.succeeded') {
-              const intent = event.data.object;
-              if (intent?.metadata?.sku === 'INVERSE-SHOPPING-SOURCE-001') {
-                const result = inverseEvents.recordSettlement(event);
-                res.writeHead(200, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
-                return res.end(JSON.stringify({received:true,inverse_shopping:true,economic_event:result}));
               }
             }
           }
