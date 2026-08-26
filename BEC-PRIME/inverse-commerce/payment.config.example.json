@@ -1,0 +1,14 @@
+{
+  "product_id": "INVERSE-SHOPPING-SOURCE-001",
+  "payment_provider": "stripe",
+  "payment_surface": "payment_link",
+  "mode": "live",
+  "currency": "NZD",
+  "amount_nzd": 15,
+  "payment_link_url": null,
+  "approval_required": true,
+  "public_activation": false,
+  "environment_variable": "INVERSE_SHOPPING_PAYMENT_LINK",
+  "revenue_truth": "A payment is counted only from a verified Stripe settlement event.",
+  "do_not_fabricate_url": true
+}
