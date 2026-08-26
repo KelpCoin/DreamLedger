@@ -1,0 +1,56 @@
+name: Economic Opportunity Compiler
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/opportunity/**'
+      - 'BEC-PRIME/opportunities/**'
+      - 'BEC-PRIME/package.json'
+      - '.github/workflows/economic-opportunity-compiler.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/opportunity/**'
+      - 'BEC-PRIME/opportunities/**'
+      - 'BEC-PRIME/package.json'
+      - '.github/workflows/economic-opportunity-compiler.yml'
+
+jobs:
+  compile-opportunities:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.1
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Compile opportunities
+        run: npm run compile:opportunities
+      - name: Verify compiler role boundary
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = 'compiled/opportunities/ECONOMIC_OPPORTUNITY_REPORT.json';
+          const r = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (!r.opportunities || !r.opportunities.length) throw new Error('No opportunities compiled');
+          if (r.role_boundary.gauntlet !== 'JUDGE') throw new Error('Gauntlet role boundary missing');
+          if (r.role_boundary.compiler !== 'NORMALISE_AND_PACKAGE_ONLY') throw new Error('Compiler role boundary missing');
+          if (r.public_execution !== 'BLOCKED_UNTIL_TRUTH_ORACLE_GAUNTLET_AND_HUMAN_APPROVAL') throw new Error('Public execution gate missing');
+          for (const o of r.opportunities) {
+            if (o.compiler_state !== 'AWAITING_GAUNTLET') throw new Error(`Unexpected compiler state: ${o.opportunity_id}`);
+            if (o.public_action && o.approval_required !== true) throw new Error(`Public opportunity lacks approval: ${o.opportunity_id}`);
+          }
+          console.log(`PASS: ${r.valid_count}/${r.source_count} opportunities valid`);
+          NODE
+      - name: Upload compiler report
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-opportunity-report
+          path: BEC-PRIME/compiled/opportunities/

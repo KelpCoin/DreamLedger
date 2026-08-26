@@ -7,9 +7,10 @@ if(!fs.existsSync(INDEX))throw Error('FEATURED_OFFER_GATE_FAILED: compiled homep
 let html=fs.readFileSync(INDEX,'utf8');
 const productMeta=`<meta name="dreamledger-featured-product" content="${featured.product_id}">`;
 const paymentMeta=`<meta name="dreamledger-featured-payment" content="${featured.payment_link_url}">`;
-function ensureMeta(input,meta,name){const re=new RegExp(`<meta\\s+name=["']${name}["'][^>]*>`,`i`);if(re.test(input))return input.replace(re,meta);if(/<\\/head>/i.test(input))return input.replace(/<\\/head>/i,`${meta}\\n</head>`);throw Error(`FEATURED_OFFER_GATE_FAILED: <head> missing for ${name}`)}
+function ensureMeta(input,meta,name){const re=new RegExp(`<meta\\s+name=["']${name}["'][^>]*>`,`i`);if(re.test(input))return input.replace(re,meta);if(/<\/head>/i.test(input))return input.replace(/<\/head>/i,`${meta}\n</head>`);throw Error(`FEATURED_OFFER_GATE_FAILED: <head> missing for ${name}`)}
 html=ensureMeta(html,productMeta,'dreamledger-featured-product');
 html=ensureMeta(html,paymentMeta,'dreamledger-featured-payment');
 fs.writeFileSync(INDEX,html,'utf8');
-if(!html.includes(`content="${featured.product_id}"`))throw Error('FEATURED_OFFER_GATE_FAILED: product marker missing');if(!html.includes(`content="${featured.payment_link_url}"`))throw Error('FEATURED_OFFER_GATE_FAILED: payment marker missing');if(!html.toLowerCase().includes('digital goods'))throw Error('FEATURED_OFFER_GATE_FAILED: digital rail missing');if(!html.toLowerCase().includes('magic: the gathering'))throw Error('FEATURED_OFFER_GATE_FAILED: MTG lane missing');
-console.log(JSON.stringify({status:'PASS',featured_offer_id:featured.offer_id,product_id:featured.product_id,sku:featured.sku,silo:featured.silo,price_nzd:Number(featured.price),payment_link_status:featured.payment_link_status,placement:'digital-goods-rail + MTG silo',markers_written:true},null,2));
+if(!html.includes(`content="${featured.product_id}"`))throw Error('FEATURED_OFFER_GATE_FAILED: product marker missing');if(!html.includes(`content="${featured.payment_link_url}"`))throw Error('FEATURED_OFFER_GATE_FAILED: payment marker missing');if(!html.toLowerCase().includes('digital goods'))throw Error('FEATURED_OFFER_GATE_FAILED: digital rail missing');
+const mtgLane=/commander deck diagnostic|mtg\s*\/\s*isolated commercial lane|magic:\s*the gathering/i.test(html);if(!mtgLane)throw Error('FEATURED_OFFER_GATE_FAILED: MTG commercial lane missing');
+console.log(JSON.stringify({status:'PASS',featured_offer_id:featured.offer_id,product_id:featured.product_id,sku:featured.sku,silo:featured.silo,price_nzd:Number(featured.price),payment_link_status:featured.payment_link_status,placement:'digital-goods rail + isolated MTG lane',markers_written:true},null,2));

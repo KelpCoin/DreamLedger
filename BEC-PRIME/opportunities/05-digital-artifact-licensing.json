@@ -1,0 +1,19 @@
+{
+  "opportunity_id": "ART-001",
+  "silo": "DIGITAL_ASSETS",
+  "title": "License existing digital artifacts as commercial kits",
+  "hypothesis": "Existing diagrams, templates, specifications and automation artifacts can be packaged and licensed as useful operator kits rather than remaining internal documentation.",
+  "channels": ["DreamLedger", "Substack", "Reddit"],
+  "buyer": "AI builders, operators and small businesses",
+  "offer": "One-off commercial kit containing a focused artifact bundle and usage instructions.",
+  "price_nzd": 39,
+  "test_cost_nzd": 0,
+  "upside_nzd": 780,
+  "evidence_score": 2,
+  "risk_score": 5,
+  "speed_score": 7,
+  "evidence_required": ["Artifact inventory", "Clear buyer problem", "10 qualified conversations", "1 paid license"],
+  "smallest_test": "Select one artifact bundle, write a one-page buyer-facing description, and test it with 10 qualified prospects.",
+  "proof_required": ["Source artifact hash", "Offer artifact", "Prospect log", "Payment receipt", "Delivery record"],
+  "public_action": "APPROVAL_REQUIRED"
+}

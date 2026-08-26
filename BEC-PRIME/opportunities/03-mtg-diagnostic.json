@@ -1,0 +1,19 @@
+{
+  "opportunity_id": "MTG-001",
+  "silo": "MTG",
+  "title": "Commander deck diagnostic",
+  "hypothesis": "Commander players will pay for a fast diagnostic that identifies weaknesses and gives concrete upgrades.",
+  "channels": ["Reddit", "Discord", "TradeMe", "DreamLedger"],
+  "buyer": "Commander players who want an actionable deck review",
+  "offer": "NZ$29 automated Commander Deck Diagnostic.",
+  "price_nzd": 29,
+  "test_cost_nzd": 0,
+  "upside_nzd": 580,
+  "evidence_score": 7,
+  "risk_score": 3,
+  "speed_score": 10,
+  "evidence_required": ["Existing verified offer artifact", "1 new paid order"],
+  "smallest_test": "Put the existing NZ$29 offer in front of 20 qualified Commander owners and measure purchases.",
+  "proof_required": ["Offer artifact", "Payment event", "Delivered diagnostic"],
+  "public_action": "APPROVAL_REQUIRED"
+}

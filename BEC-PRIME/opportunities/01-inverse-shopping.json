@@ -1,0 +1,19 @@
+{
+  "opportunity_id": "INV-001",
+  "silo": "INVERSE_SHOPPING",
+  "title": "Wanted-item sourcing service",
+  "hypothesis": "People with unusually specific shopping needs will pay to have an agent search multiple marketplaces and channels for a matching item.",
+  "channels": ["Amazon", "eBay", "Reddit", "Substack"],
+  "buyer": "Collectors and shoppers with a highly specific wanted item",
+  "offer": "Submit a wanted item; receive a ranked shortlist and sourcing help.",
+  "price_nzd": 15,
+  "test_cost_nzd": 0,
+  "upside_nzd": 500,
+  "evidence_score": 5,
+  "risk_score": 4,
+  "speed_score": 9,
+  "evidence_required": ["10+ qualified wanted-item conversations", "At least 1 paid sourcing request"],
+  "smallest_test": "Manually source 10 highly specific requests from existing communities and offer a NZ$15 paid hunt.",
+  "proof_required": ["Conversation log", "Payment receipt", "Fulfilment artifact"],
+  "public_action": "APPROVAL_REQUIRED"
+}
