@@ -9,7 +9,17 @@ if (!fs.existsSync(INDEX)) throw new Error('PUBLIC_SURFACE_CONTRACT_INPUT_MISSIN
 let html = fs.readFileSync(INDEX, 'utf8');
 html = html.replace(/capability catalog/gi, 'product catalog');
 html = html.replace(/BEC-PRIME IP \/ Commercial Surfaces/gi, 'Commerce surfaces');
-if (!html.toLowerCase().includes(marker)) html = html.replace('</footer>', '<p class="note">Private implementation material is not a public surface.</p></footer>');
+const lowerBefore = html.toLowerCase();
+if (!lowerBefore.includes(marker)) {
+  const note = '<p class="note">Private implementation material is not a public surface.</p>';
+  if (/<\/footer>/i.test(html)) {
+    html = html.replace(/<\/footer>/i, note + '</footer>');
+  } else if (/<\/body>/i.test(html)) {
+    html = html.replace(/<\/body>/i, note + '</body>');
+  } else {
+    html += note;
+  }
+}
 fs.writeFileSync(INDEX, html, 'utf8');
 const lower = html.toLowerCase();
 const proof = { schema: 'BEC-PUBLIC-SURFACE-CONTRACT/v1', status: lower.includes(marker) && !lower.includes('capability catalog') && !lower.includes('bec-prime ip / commercial surfaces') ? 'PASS' : 'FAIL', patched_at: new Date().toISOString(), marker_present: lower.includes(marker), private_phrase_removed: !lower.includes('capability catalog'), internal_surface_label_removed: !lower.includes('bec-prime ip / commercial surfaces') };
