@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "hardening": "BECK-6.0-H",
+  "timestamp_utc": "2026-08-27",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "hardening/kelplantis-revenue-gate-6-0-h",
+  "checks": {
+    "github_repo_access": "PASS",
+    "kelplantis_v6_payload_written": "PASS",
+    "live_stripe_account_access": "PASS",
+    "commander_diagnostic_payment_link_active": "PASS",
+    "commander_diagnostic_currency": "NZD",
+    "commander_diagnostic_amount_nzd": 29,
+    "commander_diagnostic_recurring": false,
+    "external_payment_settlement": "UNPROVEN"
+  },
+  "stripe_payment_link_id": "plink_1U8LHlEGgEAnUFF9qkZuYTKB",
+  "stripe_price_id": "price_1U8LHfEGgEAnUFF9i3vrXCJU",
+  "offer_id": "OFFER-COMMANDER-DECK-DIAGNOSTIC-001",
+  "silo": "mtg",
+  "revenue_claim": 0,
+  "rule": "A live checkout surface is not payment evidence. Revenue remains zero until a completed paid Checkout Session is independently observed."
+}
