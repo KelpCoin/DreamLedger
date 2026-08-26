@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "surface": "kelplantis_mobile",
+  "host": "dreamledger.org/kelplantis/",
+  "world": "KELPLANTIS",
+  "identity_surface": "DREAMMEEZ",
+  "canonical_progression": {
+    "credential_event": "BOSS_CLEARED",
+    "boss_id_pattern": "kelp_floor{N}_boss",
+    "floors": 100,
+    "next_floor_requires_previous_floor_clear": true
+  },
+  "avatar_contract": {
+    "avatar_id": "DRMZ-AVT-001",
+    "starter_item_ids": ["DRMZ-ITM-001", "DRMZ-ITM-002"],
+    "identity_is_not_duplicated": true,
+    "game_extends_metadata_without_rewriting_identity": true
+  },
+  "mobile": {
+    "input": ["touch_joystick", "attack_button"],
+    "orientation": "portrait_first",
+    "offline_progression": true,
+    "save": "localStorage",
+    "external_runtime_dependencies": 0
+  },
+  "truth_boundary": {
+    "prototype_status": "PLAYABLE_VERTICAL_SLICE",
+    "not_claimed": ["multiplayer", "server_authoritative_inventory", "paid_inventory", "production_end_to_end_proof"],
+    "canonical_engine_remains": "BEC-PRIME/compiler/kelplantis"
+  }
+}
