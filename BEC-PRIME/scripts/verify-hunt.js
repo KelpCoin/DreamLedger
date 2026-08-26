@@ -1,12 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const {
-  buildEbayQuery,
-  buildEbayFilter,
-  rankCandidates,
-  rankCandidate
-} = require('../hunt/HuntEngine');
+const { buildEbayQuery, buildEbayFilter, rankCandidates, rankCandidate } = require('../hunt/HuntEngine');
 
 const wanted = {
   id: 'W-proof',
@@ -28,8 +23,14 @@ assert.ok(query.includes('2XL'));
 assert.ok(query.includes('black'));
 
 const filter = buildEbayFilter(wanted);
-assert.ok(filter.includes('price:[0..120]'));
+assert.ok(filter.includes('deliveryCountry:NZ'));
 assert.ok(filter.includes('FIXED_PRICE'));
+assert.ok(!filter.includes('price:['), 'NZD must not be incorrectly treated as AUD');
+
+const audWanted = { ...wanted, currency: 'AUD' };
+const audFilter = buildEbayFilter(audWanted);
+assert.ok(audFilter.includes('price:[..120]'));
+assert.ok(audFilter.includes('priceCurrency:AUD'));
 
 const strong = rankCandidate({
   platform: 'fixture',
