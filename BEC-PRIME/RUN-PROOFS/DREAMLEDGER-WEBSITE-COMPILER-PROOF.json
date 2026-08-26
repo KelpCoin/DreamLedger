@@ -5,8 +5,8 @@
   "source": "index.html",
   "output": "BEC-PRIME/compiled/universal/website/dreamledger/index.html",
   "production_domain": "https://dreamledger.org",
-  "source_sha256": "5d366f283c4aebd0220d648727336d389e754381921713b30135ff4fdb32f612",
-  "output_sha256": "5d366f283c4aebd0220d648727336d389e754381921713b30135ff4fdb32f612",
+  "source_sha256": "6c5328d7c1c97a69037a9183e5ac923e21189046d2e330e5572f8d00866d418a",
+  "output_sha256": "6c5328d7c1c97a69037a9183e5ac923e21189046d2e330e5572f8d00866d418a",
   "exact_source_copy": true,
   "universal_compiler_smoke": "PASS"
 }
