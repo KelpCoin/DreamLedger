@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "type": "economic_opportunity_compiler_bootstrap_proof",
+  "status": "INSTALLED",
+  "generated_utc": "2026-08-26T13:25:30Z",
+  "source_commit": "3a1732022ee83fb318d8b24ec502b52d8daf6d65",
+  "branch": "ui/control-plane-commerce-home",
+  "pr": 183,
+  "components": {
+    "opportunity_compiler": "BEC-PRIME/opportunity/OpportunityCompiler.js",
+    "opportunity_registry": "BEC-PRIME/opportunities/*.json",
+    "gauntlet_judge": "BEC-PRIME/gauntlet/OpportunityGauntlet.js",
+    "ci_gate": ".github/workflows/economic-opportunity-compiler.yml"
+  },
+  "seeded_opportunities": ["INVSHOP-001","BILLBOARD-001","ELOM-001"],
+  "role_separation": {
+    "elohim": "CREATE_AND_REFINE_ONLY",
+    "truth_oracle": "EVIDENCE_ONLY",
+    "gauntlet": "JUDGE",
+    "biggie": "APPROVE_PUBLIC_OR_HIGH_IMPACT_ACTIONS",
+    "compiler": "NORMALISE_AND_PACKAGE_ONLY"
+  },
+  "public_execution": "BLOCKED_UNTIL_TRUTH_ORACLE_GAUNTLET_AND_HUMAN_APPROVAL",
+  "revenue_claim": false,
+  "notes": "This proof records installation of the opportunity compiler. It is not evidence of revenue, customer demand, payment, or market validation."
+}
