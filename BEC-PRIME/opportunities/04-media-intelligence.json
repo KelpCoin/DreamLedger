@@ -1,0 +1,19 @@
+{
+  "opportunity_id": "MEDIA-001",
+  "silo": "MEDIA",
+  "title": "Audience pain intelligence brief",
+  "hypothesis": "Creators and small operators will pay for concise, evidence-backed briefs that turn Reddit/Substack/community signals into actionable commercial opportunities.",
+  "channels": ["Reddit", "Substack", "Patreon"],
+  "buyer": "Creators, operators and niche businesses",
+  "offer": "A one-off commercial signal brief with source evidence, buyer hypothesis and smallest test.",
+  "price_nzd": 49,
+  "test_cost_nzd": 0,
+  "upside_nzd": 980,
+  "evidence_score": 3,
+  "risk_score": 4,
+  "speed_score": 8,
+  "evidence_required": ["10 qualified buyer conversations", "1 paid brief"],
+  "smallest_test": "Create one sample brief from public community signals and offer it to 10 qualified prospects.",
+  "proof_required": ["Sample brief", "Prospect log", "Payment receipt", "Delivered brief"],
+  "public_action": "APPROVAL_REQUIRED"
+}
