@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { assertTransition, TERMINAL } = require('./TransactionStateMachine');
-const { TransactionStore } = require('./TransactionStore');
+const { TransactionStore, sha256 } = require('./TransactionStore');
 
 function id(prefix) { return prefix + '_' + crypto.randomUUID(); }
 
@@ -23,12 +23,12 @@ class MockFulfilmentAdapter {
     const dir = path.join(this.rootDir, 'outputs'); fs.mkdirSync(dir, { recursive:true });
     const file = path.join(dir, ctx.transaction_id + '.json');
     if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify({ transaction_id:ctx.transaction_id, sku:ctx.sku, diagnostic:'PASS', generated_at:new Date().toISOString() }, null, 2) + '\n', { flag:'wx' });
-    return { output_path:file, output_hash:require('./TransactionStore').sha256(fs.readFileSync(file, 'utf8')) };
+    return { output_path:file, output_hash:sha256(fs.readFileSync(file, 'utf8')) };
   }
   verifyOutput(ctx) {
     if (!ctx.output_path || !fs.existsSync(ctx.output_path)) return { valid:false };
     const value = JSON.parse(fs.readFileSync(ctx.output_path, 'utf8'));
-    return { valid:value.transaction_id === ctx.transaction_id && value.sku === ctx.sku, output_hash:require('./TransactionStore').sha256(fs.readFileSync(ctx.output_path, 'utf8')) };
+    return { valid:value.transaction_id === ctx.transaction_id && value.sku === ctx.sku, output_hash:sha256(fs.readFileSync(ctx.output_path, 'utf8')) };
   }
   createFulfilment(ctx) {
     const file = path.join(this.rootDir, 'fulfilment', ctx.transaction_id + '.json'); fs.mkdirSync(path.dirname(file), { recursive:true });
@@ -69,7 +69,7 @@ class BECKTransactionKernel {
     const session = event.data.object;
     const tx = { transaction_id:String(session.id || event.id), stripe_event_id:String(event.id), payment_intent_id:session.payment_intent || null, order_id:id('ord'), operation_id:id('op'), state:'PAYMENT_RECEIVED', sku:String(session.metadata?.product_id || session.metadata?.sku || 'COMMANDER-DECK-DIAGNOSTIC'), amount_minor:Number(session.amount_total || 0), currency:String(session.currency || 'nzd').toUpperCase(), silo:String(session.metadata?.silo || 'MTG'), customer_email:session.customer_details?.email || null };
     this.store.upsertTransaction(tx);
-    this._transition({ ...tx, state:'PAYMENT_RECEIVED' }, 'ORDER_CREATED', 'PAYMENT_ACCEPTED');
+    this._transition(tx, 'ORDER_CREATED', 'PAYMENT_ACCEPTED');
     this._crash('ORDER_CREATED');
     return this.resume(tx.transaction_id);
   }
@@ -77,8 +77,7 @@ class BECKTransactionKernel {
   resume(transactionId) {
     let tx = this.store.getTransaction(transactionId);
     if (!tx) throw new Error('TRANSACTION_NOT_FOUND:' + transactionId);
-    const extra = this._readContext(tx);
-    tx = Object.assign(tx, extra);
+    tx = Object.assign(tx, this._readContext(tx));
     if (TERMINAL.has(tx.state)) return { ok:true, transaction_id:tx.transaction_id, state:tx.state, terminal:true };
     while (!TERMINAL.has(tx.state)) {
       switch (tx.state) {
@@ -129,7 +128,7 @@ class BECKTransactionKernel {
     const fulfil=path.join(this.rootDir,'fulfilment',tx.transaction_id+'.json');
     const delivery=path.join(this.rootDir,'delivery',tx.transaction_id+'.json');
     const out={ output_path:output };
-    if (fs.existsSync(output)) out.output_hash=require('./TransactionStore').sha256(fs.readFileSync(output,'utf8'));
+    if (fs.existsSync(output)) out.output_hash=sha256(fs.readFileSync(output,'utf8'));
     if (fs.existsSync(fulfil)) out.fulfilment_id=JSON.parse(fs.readFileSync(fulfil,'utf8')).fulfilment_id;
     if (fs.existsSync(delivery)) out.delivery_operation_id=JSON.parse(fs.readFileSync(delivery,'utf8')).operation_id;
     return out;
