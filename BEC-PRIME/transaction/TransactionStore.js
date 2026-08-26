@@ -15,7 +15,7 @@ class TransactionStore {
     fs.mkdirSync(this.ledgerDir, { recursive: true });
     fs.mkdirSync(this.proofDir, { recursive: true });
     this.db = new DatabaseSync(path.join(this.rootDir, 'beck.sqlite'));
-    this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;`);
+    this.db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS inbox (
         stripe_event_id TEXT PRIMARY KEY,
@@ -37,12 +37,7 @@ class TransactionStore {
         currency TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
-      CREATE TABLE IF NOT EXISTS ledger_meta (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        last_event_hash TEXT NOT NULL
-      );
     `);
-    this.db.prepare("INSERT OR IGNORE INTO ledger_meta(id,last_event_hash) VALUES(1,'GENESIS')").run();
   }
 
   beginInbox(event) {
@@ -76,13 +71,16 @@ class TransactionStore {
 
   appendTransition(event) {
     const file = path.join(this.ledgerDir, event.transaction_id + '.jsonl');
-    const previous = this.db.prepare('SELECT last_event_hash FROM ledger_meta WHERE id=1').get().last_event_hash;
+    let previous = 'GENESIS';
+    if (fs.existsSync(file)) {
+      const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean);
+      if (lines.length) previous = JSON.parse(lines[lines.length - 1]).event_hash;
+    }
     const base = { schema_version:'1.0', event_id:event.event_id, event_type:'TRANSITION', timestamp:new Date().toISOString(), ...event, previous_event_hash:previous };
     delete base.event_hash;
     const eventHash = sha256(JSON.stringify(base));
     const record = { ...base, event_hash:eventHash };
     fs.appendFileSync(file, JSON.stringify(record) + '\n', { encoding:'utf8' });
-    this.db.prepare('UPDATE ledger_meta SET last_event_hash=? WHERE id=1').run(eventHash);
     return record;
   }
 
@@ -90,8 +88,7 @@ class TransactionStore {
 
   writeProof(proof) {
     const payload = { schema_version:'1.0', ...proof };
-    const canonical = JSON.stringify(payload);
-    const proofHash = sha256(canonical);
+    const proofHash = sha256(JSON.stringify(payload));
     const final = { ...payload, proof_hash:proofHash };
     const file = path.join(this.proofDir, proof.transaction_id + '.json');
     fs.writeFileSync(file, JSON.stringify(final, null, 2) + '\n', { encoding:'utf8' });
@@ -111,6 +108,11 @@ class TransactionStore {
       previous = item.event_hash;
     }
     return { ok:true, events:lines.length, last_event_hash:previous };
+  }
+
+  recoverIncomplete() {
+    const rows = this.listTransactions();
+    return rows.filter(row => !['PROOF_FINALIZED','PAYMENT_REJECTED','ORDER_CANCELLED','AUTHORIZATION_DENIED','REFUNDED','QUARANTINED','MANUAL_REVIEW'].includes(row.state));
   }
 
   close() { this.db.close(); }
