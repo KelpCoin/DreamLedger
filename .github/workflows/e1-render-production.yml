@@ -1,4 +1,4 @@
-name: DreamLedger Production - Canonical Catalog Gate
+name: DreamLedger Production - 3000 Gate
 
 on:
   push:
@@ -34,24 +34,22 @@ jobs:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 1
 
-      - name: Compile canonical catalog
-        working-directory: BEC-PRIME
+      - name: Verify public 3000 artifact
+        shell: bash
         run: |
           set -euo pipefail
-          npm install
-          npm run compile
-          test -s compiled/website/index.html
-          test -s compiled/website/digital-products.html
-          test -s compiled/website/avatar.html
-          grep -q 'The catalogue is the product surface.' compiled/website/index.html
-          grep -q 'Magic: The Gathering' compiled/website/index.html
-          grep -q 'DreamLedger Cinema' compiled/website/index.html
-          grep -q 'Digital Products' compiled/website/index.html
-          grep -q 'DreamMee Avatar' compiled/website/index.html
-          ! grep -qi 'Dream Ledger Deck' compiled/website/index.html
-          ! grep -qi 'Amplissa' compiled/website/index.html
-          ! grep -qi 'CollectorsCoast' compiled/website/index.html
-          echo "PASS: canonical catalog compiled for $RELEASE_SHA"
+          test -s BEC-PRIME/compiled/website/index.html
+          grep -q '10,000 places' BEC-PRIME/compiled/website/index.html
+          grep -q '1,000,000 pixels' BEC-PRIME/compiled/website/index.html
+          grep -q 'NZ$50' BEC-PRIME/compiled/website/index.html
+          grep -q '01.01.3000' BEC-PRIME/compiled/website/index.html
+          grep -q 'buy.stripe.com' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'Amplissa' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'Magic: The Gathering' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'DreamMeez' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'CollectorsCoast' BEC-PRIME/compiled/website/index.html
+          ! grep -qi 'cryptocurrency' BEC-PRIME/compiled/website/index.html
+          echo "PASS: public surface is 3000-only for $RELEASE_SHA"
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -77,7 +75,7 @@ jobs:
             exit 2
           fi
 
-      - name: Verify live production
+      - name: Verify live 3000 production
         shell: bash
         run: |
           set -euo pipefail
@@ -89,58 +87,39 @@ jobs:
           import json,sys
           expected=sys.argv[1]
           actual=json.load(open('/tmp/version.json'))
-          deployed=actual.get('commit')
-          if deployed != expected:
-              raise SystemExit(f'FAIL: deployed SHA {deployed} != expected {expected}')
-          print(f'PASS: live SHA {deployed}')
+          if actual.get('commit') != expected:
+              raise SystemExit(f"FAIL: deployed SHA {actual.get('commit')} != expected {expected}")
+          print(f"PASS: live SHA {expected}")
           PY
-
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          grep -q 'The catalogue is the product surface.' /tmp/home.html
-          grep -q 'Magic: The Gathering' /tmp/home.html
-          grep -q 'DreamLedger Cinema' /tmp/home.html
-          grep -q 'Digital Products' /tmp/home.html
-          grep -q 'DreamMee Avatar' /tmp/home.html
-          ! grep -qi 'Dream Ledger Deck' /tmp/home.html
+          grep -q '3000.' /tmp/home.html
+          grep -q '10,000 places' /tmp/home.html
+          grep -q 'NZ$50' /tmp/home.html
+          grep -q '01.01.3000' /tmp/home.html
           ! grep -qi 'Amplissa' /tmp/home.html
+          ! grep -qi 'Magic: The Gathering' /tmp/home.html
+          ! grep -qi 'DreamMeez' /tmp/home.html
           ! grep -qi 'CollectorsCoast' /tmp/home.html
+          ! grep -qi 'cryptocurrency' /tmp/home.html
+          echo 'PASS: live public doorway is 3000-only.'
 
-          for route in /mtg /cinema.html /digital-products.html /avatar.html /marketplace.html; do
-            code=$(curl -sS -o /tmp/route.html -w '%{http_code}' --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL$route")
-            test "$code" = 200
-            test -s /tmp/route.html
-          done
-
-          curl --fail --silent --show-error --retry 5 --retry-delay 5 --max-time 30 "$BASE_URL/mtg/diagnostic.html" >/tmp/diagnostic.html
-          grep -qi 'Commander Deck Diagnostic' /tmp/diagnostic.html
-          echo 'PASS: catalog + MTG + Cinema + Digital Products + Avatar + Marketplace live.'
-
-      - name: Write deployment fossil
+      - name: Write deployment proof
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p proof
           python3 - "$RELEASE_SHA" <<'PY'
-          import json,sys,time
-          data={
-            'production_truth':True,
-            'source_commit':sys.argv[1],
-            'target':'https://dreamledger.org',
-            'homepage':'catalog',
-            'surfaces':['/','/mtg','/cinema.html','/digital-products.html','/avatar.html','/marketplace.html','/mtg/diagnostic.html'],
-            'historical_single_offer_removed_from_home':True,
-            'collectors_coast_public_surface':False,
-            'first_economic_proof':False,
-            'revenue_nzd':0,
-            'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
-          }
-          with open('proof/ProductionTruth-LATEST.json','w') as f: json.dump(data,f,indent=2)
+          import hashlib,json,sys,time
+          path='BEC-PRIME/compiled/website/index.html'
+          digest=hashlib.sha256(open(path,'rb').read()).hexdigest()
+          data={'product':'3000','source_commit':sys.argv[1],'target':'https://dreamledger.org','public_surface':'3000-only','price_nzd':50,'places':10000,'pixels':1000000,'horizon':'3000-01-01','public_silo_spillage':False,'revenue_proven_nzd':0,'customers_proven':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'public_index_sha256':digest}
+          json.dump(data,open('proof/3000-ProductionTruth.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
 
-      - name: Upload deployment fossil
+      - name: Upload deployment proof
         uses: actions/upload-artifact@v4
         with:
-          name: dreamledger-catalogue-production-truth-${{ env.RELEASE_SHA }}
-          path: proof/ProductionTruth-LATEST.json
+          name: 3000-production-truth-${{ env.RELEASE_SHA }}
+          path: proof/3000-ProductionTruth.json
           retention-days: 30
