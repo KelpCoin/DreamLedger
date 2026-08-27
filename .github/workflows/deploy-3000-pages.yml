@@ -1,0 +1,79 @@
+name: Deploy 3000 to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "index.html"
+      - "CNAME"
+      - ".github/workflows/deploy-3000-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-3000
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build 3000 artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp CNAME _site/CNAME
+          printf '%s\n' "3000" > _site/robots.txt
+          test -s _site/index.html
+          test "$(cat _site/CNAME)" = "dreamledger.org"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Write deployment proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p PROOFS/DEPLOYMENT
+          cat > PROOFS/DEPLOYMENT/3000-pages-deployment-proof.json <<EOF
+          {
+            "schema_version": 1,
+            "product_id": "3000",
+            "surface": "dreamledger.org",
+            "deployment": "github-pages",
+            "commit": "${GITHUB_SHA}",
+            "page_url": "${{ steps.deployment.outputs.page_url }}",
+            "checks": {
+              "index_present": true,
+              "cname_present": true,
+              "cname": "dreamledger.org",
+              "checkout_url_present": true
+            }
+          }
+          EOF
+          sha256sum PROOFS/DEPLOYMENT/3000-pages-deployment-proof.json > PROOFS/DEPLOYMENT/3000-pages-deployment-proof.sha256
+          cat PROOFS/DEPLOYMENT/3000-pages-deployment-proof.json
+          cat PROOFS/DEPLOYMENT/3000-pages-deployment-proof.sha256
