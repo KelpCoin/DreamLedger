@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-27T09:20:00Z",
+  "product_id": "3000",
+  "source": "Supabase execute_sql verification",
+  "facts": {
+    "total_rows": 0,
+    "published_count": 0,
+    "published_pixels": 0,
+    "paid_pending_review_count": 0,
+    "approved_count": 0,
+    "rejected_count": 0,
+    "refunded_count": 0,
+    "published_pixels_remaining": 1000000,
+    "overlap_pairs": []
+  },
+  "economic_truth": {
+    "external_customers_proven": 0,
+    "revenue_nzd_proven": 0,
+    "first_sale_gate": "ONE_REAL_EXTERNAL_PAYMENT"
+  },
+  "decision": {
+    "status": "BLOCKED_ON_FIRST_SALE",
+    "reason": "No real external NZ$50 payment or public allocation exists in the verified Supabase state."
+  }
+}
