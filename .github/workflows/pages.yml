@@ -35,10 +35,11 @@ jobs:
           test -s _site/index.html
           test -s _site/mtg.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
-          grep -q "NZ$29" _site/index.html
-          grep -q "00w7sLaXP01n96nbN2dwc2l" _site/index.html
-          grep -q "MTG / COMMANDER / ONE-TIME PURCHASE" _site/index.html
-          echo "PASS canonical static surface staged"
+          grep -q "THE INTERNET BILLBOARD" _site/index.html
+          grep -q "NZ$15" _site/index.html
+          grep -q "3cI4gz9TL7tPbev9EUdwc2n" _site/index.html
+          grep -q "100 founding tiles" _site/index.html
+          echo "PASS canonical billboard surface staged"
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
@@ -63,7 +64,7 @@ jobs:
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -q "Commander Deck Diagnostic" /tmp/dreamledger.html && grep -q 'NZ$29' /tmp/dreamledger.html; then
+            if [ "$CODE" = "200" ] && grep -q "THE INTERNET BILLBOARD" /tmp/dreamledger.html && grep -q 'NZ$15' /tmp/dreamledger.html && grep -q '3cI4gz9TL7tPbev9EUdwc2n' /tmp/dreamledger.html; then
               echo "PASS Pages deployment: $URL"
               exit 0
             fi
