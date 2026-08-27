@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-08-27T06:00:00Z",
+  "product_id": "3000",
+  "github": {
+    "repository": "KelpCoin/DreamLedger",
+    "canonical_branch": "main",
+    "pages_workflow_commit": "8151d520b8070eecf2e05e27b29d21937c1099ef"
+  },
+  "public_domain_observation": {
+    "domain": "dreamledger.org",
+    "observed_surface": "legacy_general_commerce_surface",
+    "target_surface": "3000",
+    "target_surface_observed_live": false
+  },
+  "stripe": {
+    "livemode": true,
+    "account": "acct_1SNVPvEGgEAnUFF9",
+    "active_3000_payment_link": "https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r",
+    "active_link_restriction_completed_sessions": 100,
+    "first_sale_gate_amount_nzd": 50,
+    "first_sale_gate_status": "NOT_PROVEN"
+  },
+  "economic_truth": {
+    "revenue_proven_nzd_for_3000": 0,
+    "customers_proven_for_3000": 0,
+    "gate": "ONE_REAL_EXTERNAL_PAYMENT"
+  },
+  "deployment": {
+    "github_pages_workflow_added": true,
+    "vercel_project_found": false,
+    "stripe_secret_configured_in_github_actions": "UNKNOWN"
+  },
+  "decision": "SHIP_3000_PUBLIC_SURFACE_THEN_VERIFY_EXTERNAL_PAYMENT"
+}
