@@ -1,0 +1,32 @@
+{
+  "proof_type": "public_surface_cleanup",
+  "timestamp": "2026-08-27T22:41:00+12:00",
+  "repository": "KelpCoin/DreamLedger",
+  "public_product": "3000",
+  "public_sku_count": 1,
+  "price_nzd": 50,
+  "places": 10000,
+  "pixels": 1000000,
+  "horizon": "3000-01-01",
+  "revenue_proven_nzd": 0,
+  "customers_proven": 0,
+  "changes": [
+    "Replaced root homepage with a single-product 3000 doorway.",
+    "Removed public navigation and messaging for unrelated products from the homepage.",
+    "Changed Vercel deployment to publish only a generated public directory containing index.html.",
+    "Removed public rewrites for MTG, billboard aliases, login, register, and account pages.",
+    "Updated README to state the public doctrine and confidentiality boundary."
+  ],
+  "security_status": {
+    "web_surface_reduced": true,
+    "repository_visibility": "PUBLIC",
+    "confidential_ip_protection_complete": false,
+    "required_next_control": "Move proprietary/internal material to a PRIVATE repository and rotate any credential that has ever been committed."
+  },
+  "commits": {
+    "vercel_json": "eacd9389b035c6e9668e14b387d125d8a630a76d",
+    "index_html": "1c035ca082632663e3c9b1adef9ff450fb13b744",
+    "readme": "6e0f9d0b05ebe2cf5a6883de64a80d298b03d831"
+  },
+  "ruling": "3000_ONLY_PUBLIC_SURFACE"
+}
