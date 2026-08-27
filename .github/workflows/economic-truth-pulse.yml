@@ -31,17 +31,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p PROOFS/TRUTH
-          TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           STEM="$(date -u +%Y-%m-%dT%H%M%SZ)-economic-truth"
           FILE="PROOFS/TRUTH/${STEM}.json"
-          HASHFILE="PROOFS/TRUTH/${STEM}.sha256"
           URL="$SUPABASE_URL/rest/v1/billboard_placements?select=id,status,x,y,width,height,pixels,title,price_nzd,stripe_checkout_session,stripe_payment_intent&order=id.asc"
           HTTP="$(curl -sS -o /tmp/placements.json -w '%{http_code}' --max-time 30 \
             -H "apikey: $SUPABASE_KEY" \
             -H "Authorization: Bearer $SUPABASE_KEY" "$URL")"
           test "$HTTP" = "200"
 
-          python3 - <<'PY'
+          FILE="$FILE" python3 - <<'PY'
           import json, os, subprocess
           from datetime import datetime, timezone
 
@@ -146,6 +144,7 @@ jobs:
               f.write("\n")
           print(json.dumps(out, indent=2, sort_keys=True))
           PY
+
           FILE="$FILE" python3 - <<'PY'
           import hashlib, os
           p = os.environ["FILE"]
