@@ -1,0 +1,19 @@
+{
+  "product_id": "3000",
+  "status": "ACTIVE_EXPERIMENT",
+  "price_nzd": 50,
+  "inventory_places": 10000,
+  "canvas_pixels": 1000000,
+  "standard_width": 100,
+  "standard_height": 100,
+  "horizon": "3000-01-01T00:00:00Z",
+  "cta": "CLAIM A PLACE",
+  "payment_provider": "stripe",
+  "allocation_provider": "supabase",
+  "review_required": true,
+  "revenue_proven": false,
+  "external_customers_proven": 0,
+  "first_sale_gate": "ONE_REAL_EXTERNAL_PAYMENT",
+  "public_posting_requires_human_approval": true,
+  "canonical_question": "Will a stranger pay NZ$50 for a place in 3000?"
+}
