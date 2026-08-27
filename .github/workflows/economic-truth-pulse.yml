@@ -1,0 +1,114 @@
+name: Economic Truth Pulse
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */12 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: economic-truth-pulse
+  cancel-in-progress: true
+
+env:
+  PRODUCT_ID: "3000"
+  SUPABASE_URL: "https://wbwgroygjeyukkspnqiy.supabase.co"
+  SUPABASE_KEY: "sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj"
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical repository
+        uses: actions/checkout@v4
+
+      - name: Read public allocation state
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p PROOFS/TRUTH
+          TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          FILE="PROOFS/TRUTH/$(date -u +%Y-%m-%dT%H%M%SZ)-economic-truth.json"
+          URL="$SUPABASE_URL/rest/v1/billboard_placements?select=id,status,x,y,width,height,pixels,title&order=id.asc"
+          HTTP="$(curl -sS -o /tmp/placements.json -w '%{http_code}' --max-time 30             -H "apikey: $SUPABASE_KEY"             -H "Authorization: Bearer $SUPABASE_KEY" "$URL")"
+          test "$HTTP" = "200"
+          python3 - <<'PY' > "$FILE"
+          import json
+          from datetime import datetime, timezone
+
+          with open("/tmp/placements.json","r",encoding="utf-8") as f:
+              rows=json.load(f)
+
+          published=[r for r in rows if r.get("status")=="PUBLISHED"]
+          paid=[r for r in rows if str(r.get("status","")).startswith("PAID")]
+          pixels=sum(int(r.get("pixels") or 0) for r in published)
+
+          # Overlap check for published rectangles.
+          bad=[]
+          for i,a in enumerate(published):
+              ax,ay,aw,ah=[int(a.get(k) or 0) for k in ("x","y","width","height")]
+              for b in published[i+1:]:
+                  bx,by,bw,bh=[int(b.get(k) or 0) for k in ("x","y","width","height")]
+                  if ax < bx+bw and ax+aw > bx and ay < by+bh and ay+ah > by:
+                      bad.append([a.get("id"),b.get("id")])
+
+          out={
+            "schema_version":1,
+            "generated_at":datetime.now(timezone.utc).isoformat(),
+            "product_id":"3000",
+            "facts":{
+              "supabase_http":200,
+              "total_rows":len(rows),
+              "published_count":len(published),
+              "paid_or_pending_review_count":len(paid),
+              "published_pixels":pixels,
+              "published_pixel_capacity":1000000,
+              "published_pixels_remaining":1000000-pixels,
+              "overlap_pairs":bad
+            },
+            "economic_truth":{
+              "external_customers_proven":0,
+              "revenue_nzd_proven":0,
+              "first_sale_gate":"ONE_REAL_EXTERNAL_PAYMENT"
+            },
+            "decision":{
+              "status":"BLOCKED_ON_FIRST_SALE",
+              "reason":"No real external NZ$50 payment has been proven by this pulse."
+            }
+          }
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+          cat "$FILE"
+
+      - name: Validate truth artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import glob,json,sys
+          files=sorted(glob.glob("PROOFS/TRUTH/*-economic-truth.json"))
+          assert files, "No truth artifact"
+          d=json.load(open(files[-1],encoding="utf-8"))
+          assert d["product_id"]=="3000"
+          assert d["facts"]["supabase_http"]==200
+          assert d["facts"]["overlap_pairs"]==[]
+          assert d["economic_truth"]["external_customers_proven"]==0
+          assert d["economic_truth"]["revenue_nzd_proven"]==0
+          print("PASS economic truth verifier")
+          PY
+
+      - name: Commit proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "DreamLedger Economic Court"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PROOFS/TRUTH/
+          if git diff --cached --quiet; then
+            echo "NO_CHANGE"
+            exit 0
+          fi
+          git commit -m "chore: record economic truth pulse"
+          git push
