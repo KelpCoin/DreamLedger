@@ -1,0 +1,53 @@
+{
+  "experiment": "INTERNET-BILLBOARD-2026-08-27",
+  "product": "The Internet Billboard",
+  "status": "ASSEMBLED_PENDING_RUNTIME_VERIFICATION",
+  "offer": {
+    "standard_size": "100x100",
+    "standard_price_nzd": 50,
+    "retention_until": "3000-01-01",
+    "canvas_pixels_per_market": 1000000,
+    "founding_units_per_market": 100,
+    "image_addon_nzd": 100,
+    "image_requires_human_approval": true
+  },
+  "positioning": {
+    "hook": "BUY A PIECE. LEAVE IT UNTIL 3000.",
+    "principles": ["finite inventory", "premium price signal", "permanence", "visual impact", "contextual relevance", "clear destination", "brand safety"]
+  },
+  "dooh_research": {
+    "source": "IAB DOOH Definition and Core Features, published 2024-12-12",
+    "verified_principles": ["dynamic content", "contextual relevance", "placement variety", "data integration", "programmatic buying"],
+    "adaptation": "Use DOOH creative principles without falsely describing a web canvas as physical DOOH inventory."
+  },
+  "implementation": {
+    "landing_surface": "BEC-PRIME/compiled/website/billboard.html",
+    "checkout": "api/molt-beach-checkout.ts",
+    "submission": "api/billboard/submit.ts",
+    "webhook": "api/molt-beach-webhook.ts",
+    "inventory": "api/molt-beach-inventory.ts",
+    "compiler_guard": "BEC-PRIME/compiler/BillboardCompiler.js",
+    "activation_guard": "BEC-PRIME/scripts/Activate-BillboardScarcity.js",
+    "database": "public.molt_beach_campaigns",
+    "overlap_guard": "trg_billboard_overlap_guard"
+  },
+  "database_verification": {
+    "supabase_project": "wbwgroygjeyukkspnqiy",
+    "overlap_trigger_present": true,
+    "paid_or_published_rows_at_check": 0
+  },
+  "deployment": {
+    "primary": "Render",
+    "domain": "dreamledger.org",
+    "auto_deploy": true,
+    "vercel_projects_found_for_dreamledger_team": 0
+  },
+  "safety": {
+    "no_fake_sales": true,
+    "paid_state_is_not_published": true,
+    "image_review_gate": true,
+    "overlap_protection": true,
+    "refund_on_failed_paid_reservation": true
+  },
+  "runtime_note": "This artifact proves assembly and database guard installation. A fresh production deployment and live checkout must still be verified before claiming end-to-end runtime PASS."
+}
