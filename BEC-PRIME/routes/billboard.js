@@ -9,11 +9,11 @@ const STRIPE_SECRET_KEY=process.env.STRIPE_SECRET_KEY||'';
 const ADMIN_TOKEN=process.env.MARKETPLACE_ADMIN_TOKEN||'';
 const MAX_BYTES=5*1024*1024;
 const CANVAS=1000;
-const SIZES={small:{label:'Small',w:100,h:100,price:2900,sku:'BILLBOARD-SMALL'},medium:{label:'Medium',w:200,h:100,price:7900,sku:'BILLBOARD-MEDIUM'},wide:{label:'Wide',w:500,h:200,price:14900,sku:'BILLBOARD-WIDE'},large:{label:'Large',w:500,h:500,price:34900,sku:'BILLBOARD-LARGE'},takeover:{label:'Takeover',w:1000,h:1000,price:99900,sku:'BILLBOARD-TAKEOVER'}};
+const SIZES={small:{label:'Small',w:100,h:100,price:5000,sku:'BILLBOARD-SMALL'},medium:{label:'Medium',w:200,h:100,price:7900,sku:'BILLBOARD-MEDIUM'},wide:{label:'Wide',w:500,h:200,price:14900,sku:'BILLBOARD-WIDE'},large:{label:'Large',w:500,h:500,price:34900,sku:'BILLBOARD-LARGE'},takeover:{label:'Takeover',w:1000,h:1000,price:99900,sku:'BILLBOARD-TAKEOVER'}};
 const BAD_TEXT=/\b(?:n[i1]gg(?:er|a)|fagg(?:ot|ots)|kike|chink|spic|coon|wetback|retard(?:ed)?|kill\s+(?:all|the)|white\s+power|heil\s+hitler|gas\s+the|death\s+to)\b/i;
 function mkdir(p){fs.mkdirSync(p,{recursive:true});}
 function readJson(file,fallback){try{return JSON.parse(fs.readFileSync(file,'utf8'));}catch{return fallback;}}
-function writeJson(file,value){mkdir(path.dirname(file));fs.writeFileSync(file,JSON.stringify(value,null,2)+'\n','utf8');}
+function writeJson(file,value){mkdir(path.dirname(file));fs.writeFileSync(file,JSON.stringify(value,null,2)+'\n');}
 function send(res,status,body){if(res.writableEnded)return;res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(body));}
 function load(){return readJson(path.join(DATA_ROOT,'billboard.json'),{version:1,canvas:{w:CANVAS,h:CANVAS},ads:[]});}
 function save(s){writeJson(path.join(DATA_ROOT,'billboard.json'),s);}
