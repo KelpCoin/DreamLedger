@@ -1,39 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {"deploymentEnabled": false},
-  "buildCommand": "cd BEC-PRIME && npm install && npm run compile",
+  "buildCommand": "node -e \"const fs=require('fs');fs.mkdirSync('public',{recursive:true});fs.copyFileSync('index.html','public/index.html')\"",
+  "outputDirectory": "public",
   "functions": {
-    "api/**/*.ts": {"maxDuration":30,"memory":1024},
-    "api/molt-beach-webhook.ts": {"maxDuration":60}
+    "api/**/*.ts": {"maxDuration":30,"memory":1024}
   },
   "regions": ["syd1"],
-  "redirects": [
-    {"source":"/board","destination":"/billboard","permanent":true},
-    {"source":"/board/","destination":"/billboard","permanent":true}
-  ],
   "rewrites": [
-    {"source":"/","destination":"/compiled/website/index.html"},
-    {"source":"/mtg","destination":"/compiled/website/mtg/index.html"},
-    {"source":"/mtg/","destination":"/compiled/website/mtg/index.html"},
-    {"source":"/MTG","destination":"/compiled/website/mtg/index.html"},
-    {"source":"/MTG/","destination":"/compiled/website/mtg/index.html"},
-    {"source":"/billboard","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/nz","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/nz/","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/au","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/au/","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/za","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/za/","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/americas","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/americas/","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/europe","destination":"/compiled/website/billboard.html"},
-    {"source":"/billboard/europe/","destination":"/compiled/website/billboard.html"},
-    {"source":"/login","destination":"/compiled/website/login.html"},
-    {"source":"/login/","destination":"/compiled/website/login.html"},
-    {"source":"/register","destination":"/compiled/website/register.html"},
-    {"source":"/register/","destination":"/compiled/website/register.html"},
-    {"source":"/account","destination":"/compiled/website/account.html"},
-    {"source":"/account/","destination":"/compiled/website/account.html"}
+    {"source":"/","destination":"/index.html"}
   ]
 }
