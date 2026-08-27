@@ -15,7 +15,7 @@
   "stripe": {
     "livemode": true,
     "payment_link_id": "plink_1U8x4CEGgEAnUFF9Djs5myeK",
-    "payment_link_url": "https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2q",
+    "payment_link_url": "https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r",
     "currency": "nzd",
     "unit_amount_nzd": 50,
     "one_time": true,
