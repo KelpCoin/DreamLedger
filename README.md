@@ -8,20 +8,18 @@
 - Permanent until 01.01.3000
 - Human approval before publication
 
-## Public rule
+## Public doctrine
 
-This doorway contains only customer-facing product information and evidence that belongs on the public surface. Internal business architecture, datasets, algorithms, credentials, private controls, customer records, unpublished products, and unrelated business silos do not belong here.
+The public product is 3000. One product, one price, one checkout, one allocation rule.
 
-## Economic truth
+No fabricated scarcity. No fabricated sales. Empty inventory remains empty until a real customer claims a place and the placement is approved.
 
-A checkout link is not a sale. Revenue remains NZ$0 until a real external payment is independently evidenced.
+A checkout click is not revenue. Revenue is reported only after independent payment evidence exists.
 
-## Deployment
+## Security boundary
 
-Production target: https://dreamledger.org
+This repository is not the confidential home of proprietary business logic, credentials, private datasets, customer records, unreleased products, or unrelated business silos. Those materials must live in private storage and private repositories.
 
-The production gate must verify the exact release SHA, `/healthz`, `/version`, the 3000-only homepage, absence of unrelated silo names, and a retained deployment proof artifact.
+## Production
 
-## Product
-
-The only currently live public SKU is the 100 x 100 Founding Tile at NZ$50. Unbuilt footprints and internal services are not advertised or sold from this doorway.
+The production web surface is intentionally reduced to the 3000 doorway. Unrelated routes and public catalogue surfaces are not part of the product.
