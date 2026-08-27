@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-27",
+  "artifact": "BECK_EMPIRE_IGNITION",
+  "identity": "BECK",
+  "product": "3000",
+  "sku": "DL-BILLBOARD-100X100-3000-001",
+  "price_nzd": 50,
+  "term": "until_3000",
+  "inventory": {
+    "places": 10000,
+    "canvas_pixels": 1000000,
+    "placement_pixels": 10000
+  },
+  "stripe": {
+    "livemode": true,
+    "payment_link_id": "plink_1U8x4CEGgEAnUFF9Djs5myeK",
+    "payment_link_url": "https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2q",
+    "currency": "nzd",
+    "unit_amount_nzd": 50,
+    "one_time": true,
+    "completed_sessions_limit": 100
+  },
+  "deployment": {
+    "canonical_repository": "KelpCoin/DreamLedger",
+    "default_branch": "main",
+    "pages_workflow": ".github/workflows/pages.yml",
+    "custom_domain": "dreamledger.org",
+    "current_web_observation": "OLD_COMMERCE_SURFACE_OBSERVED",
+    "launch_branch": "launch/3000-ignition-2026-08-27"
+  },
+  "commercial_truth": {
+    "revenue_proven_nzd": 0,
+    "customers_proven": 0,
+    "gate": "ONE_REAL_EXTERNAL_PAYMENT",
+    "public_promotion": "APPROVAL_REQUIRED"
+  },
+  "decision": "PREPARED_NOT_PUBLICLY_PROMOTED",
+  "next_gate": "MERGE_AND_VERIFY_DREAMLEDGER_ORG",
+  "verification": [
+    "Confirm GitHub Pages workflow passes.",
+    "Confirm https://dreamledger.org serves the 3000 surface and HTTP 200.",
+    "Confirm Stripe checkout URL opens and is the NZ$50 one-time link.",
+    "Do not count revenue until Stripe settlement is independently observed."
+  ]
+}
