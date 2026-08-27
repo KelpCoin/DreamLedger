@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-08-27",
+  "system": "DreamLedger Economic Court",
+  "canonical_product": "3000",
+  "revenue_nzd": 0,
+  "external_customers": 0,
+  "first_sale_proven": false,
+  "deployment_proven": false,
+  "decision": "SELL_ONE_THING",
+  "next_gate": "ONE_REAL_EXTERNAL_PAYMENT",
+  "source_of_payment_truth": "stripe",
+  "source_of_allocation_truth": "supabase",
+  "source_of_history": "github",
+  "local_compute": "BrownEye Cortex",
+  "human_approval_required_for_public_actions": true
+}
