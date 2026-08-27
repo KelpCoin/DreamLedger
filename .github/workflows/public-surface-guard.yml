@@ -1,0 +1,54 @@
+name: Public Surface Guard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify public entrypoint is 3000-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          if grep -Eiq 'amplissa|mtg|collectorscoast|bec-prime|dreammeez|supabase|api[_ -]?key|secret[_ -]?key|private[_ -]?key|bearer|token' index.html; then
+            echo 'FAIL: prohibited internal/silo material found in root public entrypoint.'
+            exit 1
+          fi
+          echo 'PASS: root public entrypoint contains no prohibited silo/security terms.'
+
+      - name: Verify public Vercel surface is minimal
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f vercel.json
+          if grep -Eiq 'amplissa|mtg|collectorscoast|bec-prime|dreammeez|login|register|account|admin|internal' vercel.json; then
+            echo 'FAIL: public deployment configuration contains prohibited routes.'
+            exit 1
+          fi
+          echo 'PASS: deployment configuration contains no prohibited internal routes.'
+
+      - name: Check for obvious credential literals in public surface files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in index.html vercel.json; do
+            if grep -Eiq '(sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|ghp_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY)' "$f"; then
+              echo "FAIL: credential-like literal found in $f"
+              exit 1
+            fi
+          done
+          echo 'PASS: no obvious credential literals found in public surface files.'
