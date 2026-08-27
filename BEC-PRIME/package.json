@@ -1,12 +1,12 @@
 {
   "name":"dreamledger",
-  "version":"1.6.7",
+  "version":"1.6.8",
   "description":"DreamLedger sovereign omni-commerce engine",
   "main":"start.js",
   "engines":{"node":">=24 <25"},
   "scripts":{
     "start":"node -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js -r ./lib/liveRouteCompatibility.js start.js",
-    "build":"npm install --omit=dev && npm run compile",
+    "build":"npm install --omit=dev --no-audit --no-fund && node -e \"require('ajv'); console.log('AJV_RUNTIME_OK')\" && npm run compile",
     "test":"node --test scripts/test-mvp-policy.js",
     "verify:evidence":"node scripts/verify-mvp-evidence.js",
     "verify:billboard":"pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-BillboardCanonical.ps1",
