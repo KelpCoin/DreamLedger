@@ -2,6 +2,9 @@ name: Economic Truth Pulse
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/economic-truth-pulse.yml"
   schedule:
     - cron: "0 */12 * * *"
 
@@ -34,28 +37,18 @@ jobs:
           STEM="$(date -u +%Y-%m-%dT%H%M%SZ)-economic-truth"
           FILE="PROOFS/TRUTH/${STEM}.json"
           URL="$SUPABASE_URL/rest/v1/billboard_placements?select=id,status,x,y,width,height,pixels,title,price_nzd,stripe_checkout_session,stripe_payment_intent&order=id.asc"
-          HTTP="$(curl -sS -o /tmp/placements.json -w '%{http_code}' --max-time 30 \
-            -H "apikey: $SUPABASE_KEY" \
-            -H "Authorization: Bearer $SUPABASE_KEY" "$URL")"
+          HTTP="$(curl -sS -o /tmp/placements.json -w '%{http_code}' --max-time 30 -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" "$URL")"
           test "$HTTP" = "200"
 
           FILE="$FILE" python3 - <<'PY'
           import json, os, subprocess
           from datetime import datetime, timezone
-
           with open("/tmp/placements.json", "r", encoding="utf-8") as f:
               rows = json.load(f)
-
           published = [r for r in rows if r.get("status") == "PUBLISHED"]
           paid = [r for r in rows if str(r.get("status", "")).startswith("PAID")]
-          payment_linked = [
-              r for r in rows
-              if r.get("stripe_payment_intent")
-              and r.get("stripe_checkout_session")
-              and r.get("status") != "REFUNDED"
-          ]
+          payment_linked = [r for r in rows if r.get("stripe_payment_intent") and r.get("stripe_checkout_session") and r.get("status") != "REFUNDED"]
           pixels = sum(int(r.get("pixels") or 0) for r in published)
-
           bad = []
           for i, a in enumerate(published):
               ax, ay, aw, ah = [int(a.get(k) or 0) for k in ("x", "y", "width", "height")]
@@ -63,13 +56,11 @@ jobs:
                   bx, by, bw, bh = [int(b.get(k) or 0) for k in ("x", "y", "width", "height")]
                   if ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by:
                       bad.append([a.get("id"), b.get("id")])
-
           stripe_key = os.environ.get("STRIPE_SECRET_KEY", "").strip()
           stripe_check = "NOT_CONFIGURED"
           stripe_error = None
           verified_payments = []
           seen = set()
-
           if stripe_key:
               stripe_check = "PASS"
               for row in payment_linked:
@@ -78,66 +69,30 @@ jobs:
                       continue
                   seen.add(pi)
                   try:
-                      raw = subprocess.check_output([
-                          "curl", "-sS", "--max-time", "30",
-                          "-u", stripe_key + ":",
-                          "https://api.stripe.com/v1/payment_intents/" + pi
-                      ], text=True)
+                      raw = subprocess.check_output(["curl", "-sS", "--max-time", "30", "-u", stripe_key + ":", "https://api.stripe.com/v1/payment_intents/" + pi], text=True)
                       obj = json.loads(raw)
                       status = obj.get("status")
                       currency = str(obj.get("currency") or "").lower()
                       amount = int(obj.get("amount") or 0)
                       if status == "succeeded" and currency == "nzd" and amount == 5000:
-                          verified_payments.append({
-                              "payment_intent_id": pi,
-                              "status": status,
-                              "currency": currency,
-                              "amount_nzd": amount / 100.0,
-                              "allocation_id": row.get("id")
-                          })
+                          verified_payments.append({"payment_intent_id": pi, "status": status, "currency": currency, "amount_nzd": amount / 100.0, "allocation_id": row.get("id")})
                       else:
                           stripe_check = "FAIL"
                           stripe_error = "Linked PaymentIntent did not satisfy succeeded/nzd/5000 requirements: " + pi
                   except Exception as exc:
                       stripe_check = "FAIL"
                       stripe_error = "Stripe lookup failed for " + pi + ": " + str(exc)
-
           revenue = sum(p["amount_nzd"] for p in verified_payments)
           customers = len(verified_payments)
           gate_passed = customers >= 1 and not bad and stripe_check == "PASS"
-
           out = {
             "schema_version": 2,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "product_id": "3000",
-            "facts": {
-              "supabase_http": 200,
-              "total_rows": len(rows),
-              "published_count": len(published),
-              "paid_or_pending_review_count": len(paid),
-              "allocation_linked_payment_count": len(payment_linked),
-              "published_pixels": pixels,
-              "published_pixel_capacity": 1000000,
-              "published_pixels_remaining": 1000000 - pixels,
-              "overlap_pairs": bad
-            },
-            "stripe_independent_observation": {
-              "check": stripe_check,
-              "verified_payment_count": customers,
-              "verified_payments": verified_payments,
-              "error": stripe_error
-            },
-            "economic_truth": {
-              "external_customers_proven": customers,
-              "revenue_nzd_proven": revenue,
-              "allocation_linked_payment_evidence_count": len(payment_linked),
-              "stripe_settlement_independent_check": stripe_check,
-              "first_sale_gate": "ONE_REAL_EXTERNAL_PAYMENT"
-            },
-            "decision": {
-              "status": "ECONOMIC_GATE_PASSED" if gate_passed else "BLOCKED_ON_FIRST_SALE",
-              "reason": "At least one externally observed Stripe PaymentIntent succeeded for 3000." if gate_passed else "No real external NZ$50 payment has been independently proven by this pulse."
-            }
+            "facts": {"supabase_http": 200, "total_rows": len(rows), "published_count": len(published), "paid_or_pending_review_count": len(paid), "allocation_linked_payment_count": len(payment_linked), "published_pixels": pixels, "published_pixel_capacity": 1000000, "published_pixels_remaining": 1000000 - pixels, "overlap_pairs": bad},
+            "stripe_independent_observation": {"check": stripe_check, "verified_payment_count": customers, "verified_payments": verified_payments, "error": stripe_error},
+            "economic_truth": {"external_customers_proven": customers, "revenue_nzd_proven": revenue, "allocation_linked_payment_evidence_count": len(payment_linked), "stripe_settlement_independent_check": stripe_check, "first_sale_gate": "ONE_REAL_EXTERNAL_PAYMENT"},
+            "decision": {"status": "ECONOMIC_GATE_PASSED" if gate_passed else "BLOCKED_ON_FIRST_SALE", "reason": "At least one externally observed Stripe PaymentIntent succeeded for 3000." if gate_passed else "No real external NZ$50 payment has been independently proven by this pulse."}
           }
           with open(os.environ["FILE"], "w", encoding="utf-8") as f:
               json.dump(out, f, indent=2, sort_keys=True)
