@@ -2,37 +2,39 @@
   "id":"DREAMLEDGER-BILLBOARD-FOUNDING-001",
   "silo":"dreamledger",
   "name":"DreamLedger Founding Tile",
-  "description":"100 x 100 pixel permanent digital billboard tile. 100 founding-equivalent positions in the New Zealand market. One-time purchase. Automatic publication after verified payment and automated content validation.",
+  "description":"100 x 100 pixel permanent Internet Billboard placement. One finite 1,000,000-pixel canvas. Approved placement remains public until January 1, 3000.",
   "price":5000,
   "currency":"nzd",
-  "inventory":100,
+  "inventory_pixels":1000000,
+  "placement_pixels":10000,
   "status":"published",
   "commercial_truth":{
-    "approval_required":false,
-    "activation_gate":"CHECKOUT_AND_FULFILLMENT_VERIFIED",
+    "approval_required":true,
+    "activation_gate":"STRIPE_PAYMENT_VERIFIED_AND_HUMAN_REVIEW",
     "payment_surface":"stripe-payment-link",
-    "payment_link":"https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a",
-    "stripe_payment_link_id":"plink_1U8EMUEGgEAnUFF9xLEPb6Vm",
-    "market":"NZ",
-    "scarcity":"100_positions_per_market",
-    "fulfillment":"automatic_billboard_publication"
+    "payment_link":"https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r",
+    "stripe_payment_link_id":"plink_1U8xDOEGgEAnUFF9n08bpldm",
+    "market":"GLOBAL",
+    "scarcity":"1000000_pixel_canvas",
+    "fulfillment":"automated_payment_allocation_then_manual_content_approval"
   },
   "checkout":{
     "mode":"payment",
-    "success_path":"/billboard?paid=1",
-    "cancel_path":"/billboard",
-    "required_fields":["tile_image_url","destination_url","tile_alt_text"]
+    "success_path":"/",
+    "cancel_path":"/",
+    "required_fields":["billboard_title","destination_url"],
+    "optional_addon":"image_placement_nzd_100"
   },
   "delivery":{
-    "type":"digital_billboard_tile",
+    "type":"digital_billboard_placement",
     "target":"dreamledger-public-billboard",
     "dimensions":"100x100",
-    "permanence":"permanent_unless_policy_violation",
-    "automation":"verified_stripe_payment -> signed_webhook -> content_validation -> atomic_grid_allocation -> publication -> durable_proof"
+    "permanence":"until_3000_01_01",
+    "automation":"verified_stripe_payment -> signed_webhook -> atomic_grid_allocation -> paid_pending_review -> human_approval -> publication -> durable_proof"
   },
   "evidence":{
     "status":"ready_for_external_sale",
     "transaction_id":null
   },
-  "execution_atom":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001"
+  "execution_atom":"EXP-2026-08-27-001"
 }
