@@ -33,6 +33,36 @@
       "provenance":{"product_source":"BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json","private_material":"excluded"},
       "approved_by":"operator",
       "approved_at":"2026-08-27"
+    },
+    {
+      "offer_id":"OFFER-CMD-DIAG-29-NZD",
+      "product_id":"COMMANDER-DECK-DIAGNOSTIC-001",
+      "product_sku":"CMD-DIAG-29",
+      "capability_id":"PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
+      "silo":"mtg",
+      "name":"Commander Deck Diagnostic",
+      "problem":"Get a first-pass diagnostic of a Commander deck.",
+      "input":"Commander name, decklist, strategy if known, and improvement budget.",
+      "output":"Hash-stamped diagnostic report with structural metrics, major issues, cut candidates, upgrade priorities, and tuning plan.",
+      "delivery_mechanism":"stripe_payment -> automated_fulfillment",
+      "deliverable":"Automated Commander deck diagnostic report.",
+      "target_buyer":"Commander deck owner seeking actionable tuning guidance.",
+      "eligibility":"Buyer supplies valid Commander deck data.",
+      "constraints":["MTG silo only","Automated digital fulfillment","No credential collection","No invented results"],
+      "price":29,
+      "currency":"NZD",
+      "pricing_strategy":"fixed",
+      "payment_adapter":"stripe",
+      "payment_link_url":"https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
+      "payment_link_status":"ACTIVE_LIVEMODE",
+      "payment_link_id":"plink_1U7OJrEGgEAnUFF9YeAOO2l8",
+      "checkout_route":"stripe_payment_link",
+      "fulfillment_route":"/api/mtg/diagnostic/report?session_id={CHECKOUT_SESSION_ID}",
+      "proof_of_delivery":"stripe_payment_record + diagnostic_report",
+      "verification_rules":["canonical_product","stripe_livemode","payment_paid","currency_nzd","automated_fulfillment","report_produced","silo_isolated","schema_valid"],
+      "provenance":{"product_source":"BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json","private_material":"excluded"},
+      "approved_by":"operator",
+      "approved_at":"2026-08-23"
     }
   ]
 }
