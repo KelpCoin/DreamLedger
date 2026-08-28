@@ -1,8 +1,8 @@
 {
   "schema": "BEC-PRIME/COMPILED-IP-MANIFEST/v1",
   "status": "COMPILED",
-  "compiled_at": "2026-08-20T03:43:18.575Z",
-  "source_hash": "fc2d934902cac11ff645ce84cf0ff710899e244d40ea598591e06f43940fb55a",
+  "compiled_at": "2026-08-28T06:46:59.089Z",
+  "source_hash": "593c93be4803eea899d037736a430761f42a19625d64c2501c349aa14a9bf752",
   "public_surface": "DreamLedger",
   "compiler_authority": "BEC-PRIME",
   "ip_nodes": [

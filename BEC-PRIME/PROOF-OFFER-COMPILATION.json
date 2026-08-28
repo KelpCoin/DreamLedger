@@ -4,20 +4,21 @@
   "compiler": "offer-compiler-v1",
   "generated_at": null,
   "git_commit": null,
-  "input_capabilities_sha256": "04c3989992cf00a231e5914d960eb298876e312dbbde8da89686baf601fcf716",
-  "approved_offers_sha256": "de481907b233719292544d8605028840092aa7fa432e5a914f60d5b065f21b26",
+  "input_capabilities_sha256": "2a6dc589a150eee0ee1514c35ecd2433e7f505e6c003a1e1bab4bbfcdc5663d0",
+  "approved_offers_sha256": "d0af9750918e053ddf863ff94773094e17cff8937638f551adeeca1a8c719756",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
   "counts": {
-    "capabilities": 14,
-    "candidates": 29,
-    "passed": 27,
-    "approved": 1,
-    "rejected": 2
+    "capabilities": 15,
+    "candidates": 31,
+    "passed": 29,
+    "approved": 0,
+    "rejected": 3
   },
   "passed_offer_ids": [
     "OFFER-BEC-PRIME-ARCHITECTURE-DIAGNOSTIC",
+    "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT",
     "OFFER-BEC-PRIME-CUBE-DIAGNOSTIC",
     "OFFER-BEC-PRIME-CUBE-AUDIT",
     "OFFER-BEC-PRIME-ELOHIM-DIAGNOSTIC",
@@ -43,11 +44,13 @@
     "OFFER-BEC-PRIME-DEMAND-RADAR-DIAGNOSTIC",
     "OFFER-BEC-PRIME-DEMAND-RADAR-AUDIT",
     "OFFER-BEC-PRIME-SENTINEL-AUDIT",
-    "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
+    "OFFER-PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001-DIAGNOSTIC",
+    "OFFER-PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001-AUDIT"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
-    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC"
+    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC",
+    "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001"
   ],
   "approval_required_for_generated_offers": true,
   "checkout_disabled_for_generated_offers": true,

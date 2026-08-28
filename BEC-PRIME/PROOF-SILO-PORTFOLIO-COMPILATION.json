@@ -1,23 +1,23 @@
 {
   "schema": "BEC-PRIME/SILO-PORTFOLIO-COMPILATION/v1",
   "status": "PASS",
-  "compiled_at": "2026-08-18T03:48:21.947Z",
-  "source_hash": "15ebf708bdc16f829dcfa8e0a5dd7352dcd9b0aa3338724a6e724505118f5e5d",
+  "compiled_at": "2026-08-28T06:47:01.521Z",
+  "source_hash": "43bd7b85f4a4826e5473d47e50c00788c96042af55bcce2301c74da204595c62",
   "wedge_count": 10,
   "generated": {
-    "catalog": "catalog/compiled/silo-portfolio.json",
-    "index": "compiled/website/portfolio/index.html",
+    "catalog": "catalog\\compiled\\silo-portfolio.json",
+    "index": "compiled\\website\\portfolio\\index.html",
     "service_pages": [
-      "compiled/website/portfolio/agent-ready-commerce-gateway.html",
-      "compiled/website/portfolio/commerce-trust-and-proof-engine.html",
-      "compiled/website/portfolio/gauntlet-as-a-service.html",
-      "compiled/website/portfolio/digital-proxy-approval-fabric.html",
-      "compiled/website/portfolio/ip-to-offer-compiler.html",
-      "compiled/website/portfolio/silo-controlled-multi-vertical-commerce-kernel.html",
-      "compiled/website/portfolio/dreamiez-daily-streak-economy.html",
-      "compiled/website/portfolio/deterministic-auction-and-silo-ticker.html",
-      "compiled/website/portfolio/enterprise-local-first-ai-commerce-os.html",
-      "compiled/website/portfolio/verticalized-diagnostic-product-factory.html"
+      "compiled\\website\\portfolio\\agent-ready-commerce-gateway.html",
+      "compiled\\website\\portfolio\\commerce-trust-and-proof-engine.html",
+      "compiled\\website\\portfolio\\gauntlet-as-a-service.html",
+      "compiled\\website\\portfolio\\digital-proxy-approval-fabric.html",
+      "compiled\\website\\portfolio\\ip-to-offer-compiler.html",
+      "compiled\\website\\portfolio\\silo-controlled-multi-vertical-commerce-kernel.html",
+      "compiled\\website\\portfolio\\dreamiez-daily-streak-economy.html",
+      "compiled\\website\\portfolio\\deterministic-auction-and-silo-ticker.html",
+      "compiled\\website\\portfolio\\enterprise-local-first-ai-commerce-os.html",
+      "compiled\\website\\portfolio\\verticalized-diagnostic-product-factory.html"
     ]
   },
   "guarantees": {

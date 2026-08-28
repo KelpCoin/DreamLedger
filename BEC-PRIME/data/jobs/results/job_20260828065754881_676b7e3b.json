@@ -1,0 +1,54 @@
+{
+  "schema_version": "BEC-WORKER-RESULT-1.1",
+  "job_id": "job_20260828065754881_676b7e3b",
+  "started_at": "2026-08-28T06:58:09.914Z",
+  "completed_at": "2026-08-28T06:59:10.640Z",
+  "status": "ARTIFACT_READY",
+  "worker": "local-lmstudio",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  },
+  "output": {
+    "worker": "local-lmstudio",
+    "model": "phi-3-mini-4k-instruct",
+    "endpoint": "http://127.0.0.1:1235/v1/chat/completions",
+    "content": " Proposed Next Action: Initiate a 20-minute promotional discount on the top-selling product category to boost sales volume and revenue.\n\nEvidence Supporting the Action: The DreamLedger data indicates that electronics have consistently high transaction volumes over the past month, with an average of $5,000 in transactions per day within this category. This suggests a strong customer interest and potential for increased sales through targeted promotions."
+  },
+  "evidence_claims": {
+    "payment_claim": false,
+    "sale_claim": false,
+    "fulfillment_claim": false
+  },
+  "public_action_allowed": false,
+  "output_hash": "sha256:aeb3d6dad1df16831d9a44165342cc3204259744953773a225bc420fb63f2d66",
+  "result_hash": "sha256:cd5c1ef89e06c3543f579db27f46cfed9ece6caffb25b243fcc9a8031a89c7d8"
+}

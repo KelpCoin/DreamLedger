@@ -1,0 +1,51 @@
+{
+  "schema_version": "BEC-WORKER-PROOF-1.1",
+  "proof_id": "proof_20260828064131509_021fce84",
+  "job_id": "job_20260828063926487_7a7bb6be",
+  "silo": "dreamledger",
+  "status": "PASS",
+  "worker": "local-lmstudio",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "local-model"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  },
+  "input_hash": "sha256:9b1fb84cbd8f4f41f05299e412e7e51dca22f78a72bd29a465bf2ed4f8425273",
+  "result_hash": "sha256:ab07d728e26e9fa60fd90ba0913391c1b71adb75a04ce8defc2d98afa9df7021",
+  "claims": {
+    "payment_claim": false,
+    "sale_claim": false,
+    "fulfillment_claim": false
+  },
+  "approval_required": true,
+  "public_action_allowed": false,
+  "created_at": "2026-08-28T06:41:31.509Z",
+  "proof_hash": "sha256:dcf821cf8cac74887c2501c41a00b9706a9b7145e783e48365813e058d6429ad"
+}

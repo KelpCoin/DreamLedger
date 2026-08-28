@@ -1,0 +1,61 @@
+{
+  "schema_version": "BEC-WORKER-JOB-1.1",
+  "job_id": "job_20260828065754881_676b7e3b",
+  "created_at": "2026-08-28T06:57:54.881Z",
+  "status": "ARTIFACT_READY",
+  "silo": "dreamledger",
+  "kind": "analysis",
+  "task": "BEC COMMANDER ECONOMIC SCAN\nInspect the verified DreamLedger commercial state supplied below. Identify exactly one highest-value next 20-minute atom. Do not execute it. Do not claim a sale, customer, payment, inventory fact, or external action that is not present in the supplied data. Return a concise proposed next action and the evidence supporting it.",
+  "inputs": {
+    "model": "phi-3-mini-4k-instruct",
+    "url": "http://127.0.0.1:1235/v1/chat/completions",
+    "temperature": 0.1,
+    "system": "You are BEC Commander, an economic planning worker. Your output is untrusted analysis. Propose only. Never claim evidence you were not given. Never perform irreversible actions. Prefer real revenue evidence over infrastructure work.",
+    "runtime": {
+      "generated_at": "2026-08-28T06:57:54.881Z",
+      "source": "local-commander"
+    }
+  },
+  "effects": [],
+  "worker_preference": "local-lmstudio",
+  "approval_required": true,
+  "public_action_allowed": false,
+  "previous_result_hash": null,
+  "input_hash": "sha256:2c32e6aec58e953b645d8caa2bfad57c6497d9b15b3a08b53f89c83e09a88dab",
+  "result_hash": "sha256:cd5c1ef89e06c3543f579db27f46cfed9ece6caffb25b243fcc9a8031a89c7d8",
+  "proof_hash": "sha256:a34c58ab4f45c5b20a1b8407a2628e7fbbaf3b1363870110fa41ccc9941a2ad7",
+  "fossil_hash": "sha256:67e23d0553ddcce36e82f2ea1a47ffd96807279dcc0b75139e9ef6e0a33a0d39",
+  "completed_at": "2026-08-28T06:59:10.640Z",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  }
+}

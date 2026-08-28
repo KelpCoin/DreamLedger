@@ -1,0 +1,57 @@
+{
+  "schema_version": "BEC-WORKER-JOB-1.1",
+  "job_id": "job_20260828064859554_ac42c543",
+  "created_at": "2026-08-28T06:48:59.555Z",
+  "status": "ARTIFACT_READY",
+  "silo": "dreamledger",
+  "kind": "analysis",
+  "task": "Return exactly one line: ROUTING_OK. Do not claim payment, sale, fulfillment, or any external action.",
+  "inputs": {
+    "url": "http://127.0.0.1:1235/v1/chat/completions",
+    "model": "phi-3-mini-4k-instruct",
+    "system": "You are a local routing verification worker. Return only the requested text.",
+    "temperature": 0
+  },
+  "effects": [],
+  "worker_preference": "local-lmstudio",
+  "approval_required": true,
+  "public_action_allowed": false,
+  "previous_result_hash": null,
+  "input_hash": "sha256:912a386fdb3195ca3121ba8abfe228fc40f78e68f1fc9d28f2b9b831791dc8bb",
+  "result_hash": "sha256:eeaad39fbc5f1d2283c86c3bf4d45edf168f6e1788ca0edc7a7a4e9c69808318",
+  "proof_hash": "sha256:92103556578138e7a1182212c69950c95a68d4d46a18e5f2d45332870036bff2",
+  "fossil_hash": "sha256:ed6e7261c731a14358c035d40d9ea2fc9604bdb9390fc8ddf8c402be588ee811",
+  "completed_at": "2026-08-28T06:51:04.881Z",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  }
+}

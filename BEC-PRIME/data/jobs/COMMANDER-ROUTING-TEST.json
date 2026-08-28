@@ -1,0 +1,15 @@
+{
+    "inputs":  {
+                   "url":  "http://127.0.0.1:1235/v1/chat/completions",
+                   "model":  "phi-3-mini-4k-instruct",
+                   "system":  "You are a local routing verification worker. Return only the requested text.",
+                   "temperature":  0
+               },
+    "silo":  "dreamledger",
+    "worker_preference":  "local-lmstudio",
+    "kind":  "analysis",
+    "effects":  [
+
+                ],
+    "task":  "Return exactly one line: ROUTING_OK. Do not claim payment, sale, fulfillment, or any external action."
+}

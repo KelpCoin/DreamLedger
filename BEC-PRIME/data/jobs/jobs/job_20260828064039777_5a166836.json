@@ -1,0 +1,57 @@
+{
+  "schema_version": "BEC-WORKER-JOB-1.1",
+  "job_id": "job_20260828064039777_5a166836",
+  "created_at": "2026-08-28T06:40:39.777Z",
+  "status": "ARTIFACT_READY",
+  "silo": "dreamledger",
+  "kind": "analysis",
+  "task": "Return exactly three concise lines proving that the local LM Studio worker received this job. Do not claim any payment, customer, sale, or external action.",
+  "inputs": {
+    "url": "http://127.0.0.1:1235/v1/chat/completions",
+    "model": null,
+    "system": "You are a local verification worker. Produce analysis only. Never invent economic evidence.",
+    "temperature": 0.1
+  },
+  "effects": [],
+  "worker_preference": "local-lmstudio",
+  "approval_required": true,
+  "public_action_allowed": false,
+  "previous_result_hash": null,
+  "input_hash": "sha256:0ed69e62b700440252e133b92dec55a08fffbd7a722634271ad3948da7471898",
+  "result_hash": "sha256:190545835f96b22e4b14be84b39f6b4bce38f938b860d29dbe5bd1ea19526523",
+  "proof_hash": "sha256:b5a015e19d956bc1aac2a30b50ec43d48c99a3a9338e783cf8b96ee484f3defd",
+  "fossil_hash": "sha256:80244d4b9da549c148e15f0c58d7c809ccf30735cc19a1ef6caecc36f354446e",
+  "completed_at": "2026-08-28T06:44:16.982Z",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  }
+}

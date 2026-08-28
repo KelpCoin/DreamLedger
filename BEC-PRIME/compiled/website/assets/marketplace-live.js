@@ -3,7 +3,7 @@
   const CART_KEY='dreamledger_cart_v2';
   const $=s=>document.querySelector(s);
   const esc=v=>String(v==null?'':v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
-  const money=(v,c='NZD')=>`${String(c||'NZD').toUpperCase()} ${(Number(v||0)/100).toFixed(2)}`;
+  const money=(n,c='NZD')=>{const raw=Number(n||0);const amount=(Number.isInteger(raw)&&raw>=1000)?raw/100:raw;return `${c} ${amount.toFixed(2)}`;};
   let products=[];
   let auctions=[];
   function getCart(){try{return JSON.parse(localStorage.getItem(CART_KEY)||'[]')}catch{return[]}}

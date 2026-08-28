@@ -13,7 +13,7 @@ const JOBS_DIR = path.join(QUEUE_DIR, 'jobs');
 const RESULTS_DIR = path.join(QUEUE_DIR, 'results');
 const PROOF_DIR = path.resolve(process.env.BEC_PROOF_DIR || path.join(ROOT, 'data', 'proofs'));
 const DEFAULT_LM_URL = process.env.BEC_LM_URL || 'http://127.0.0.1:1234/v1/chat/completions';
-const DEFAULT_LM_MODEL = process.env.BEC_LM_MODEL || 'local-model';
+const DEFAULT_LM_MODEL = process.env.BEC_LM_MODEL || 'phi-3-mini-4k-instruct';
 const GPU_LM_URL = process.env.BEC_GPU_LM_URL || '';
 const GPU_LM_MODEL = process.env.BEC_GPU_LM_MODEL || '';
 const CLOUD_LM_URL = process.env.BEC_CLOUD_LM_URL || process.env.BEC_REMOTE_LM_URL || '';
@@ -120,3 +120,4 @@ if (require.main === module) {
     throw new Error('Usage: node runtime/worker-pool.js enqueue <job.json> | run-once | list | route <job.json>');
   })().catch(error => { console.error(error.message); process.exitCode = 1; });
 }
+

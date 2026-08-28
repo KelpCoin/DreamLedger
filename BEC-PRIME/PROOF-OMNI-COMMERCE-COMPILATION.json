@@ -1,0 +1,157 @@
+{
+  "schema_version": "BEC-OMNI-COMMERCE-1.0",
+  "status": "PASS",
+  "compiled_at": "2026-08-28T06:46:58.728Z",
+  "architecture": {
+    "owned_storefront": true,
+    "marketplace": true,
+    "auctions": true,
+    "multi_vendor_cart": true,
+    "single_stripe_checkout": true,
+    "stripe_connect_settlement": true,
+    "platform_commission_bps": 0,
+    "immutable_proof": true,
+    "compiler_owned_surface": true
+  },
+  "silo_policy": {
+    "amplissa_excluded": true,
+    "adult_material_excluded": true,
+    "forbidden_tokens_checked": true
+  },
+  "counts": {
+    "sellers": 1,
+    "active_sellers": 1,
+    "payment_ready_sellers": 0,
+    "products": 31,
+    "public_products": 20
+  },
+  "source_hashes": {
+    "sellers": "24ee00aa50db3690ae871d43c501a9fb17d4dfef0a298787a79f0d14b6d65887",
+    "product_catalog": [
+      {
+        "file": "BEC-PRIME-ARCHITECTURE-AUDIT-001.json",
+        "sha256": "1a64aad1e6f419e707a8ef20538bd51797548ff936ae0ae32a9b513cf3729962"
+      },
+      {
+        "file": "BESPOKE-ARTISAN-EDH-DECK-001.json",
+        "sha256": "ebcaae3c2b28d0c2978068ad8057a621f53467350026b873d3016df9a6b5fe3c"
+      },
+      {
+        "file": "BILLBOARD-LARGE.json",
+        "sha256": "39d3eb1107ed79712b2351b22cad48117205584924e4fc4fa70c76e5a529f186"
+      },
+      {
+        "file": "BILLBOARD-MEDIUM.json",
+        "sha256": "5172085f62785942d2c8ad1ba60f720da5f5ac657fdced4f97c6a33b1832a995"
+      },
+      {
+        "file": "BILLBOARD-SMALL.json",
+        "sha256": "6ec40126a0c47c6dc288e689c3a6176c218b85c4700f5a9478dfd229ef169f5b"
+      },
+      {
+        "file": "BILLBOARD-TAKEOVER.json",
+        "sha256": "bfeba4ead5ff523e8aa0d27d89c77daf747393a4b4b4434e8c75fbc3bd816bd0"
+      },
+      {
+        "file": "BILLBOARD-WIDE.json",
+        "sha256": "5a1d807f7544a7ac76cbe4c6c06b1e75d2eededd2cae676e203d44a10a268d18"
+      },
+      {
+        "file": "COMMANDER-DECK-DIAGNOSTIC-001.json",
+        "sha256": "de1023efa74f76d17fb2bc843f97f9dacdd6374a71b227601127c669ef8e0101"
+      },
+      {
+        "file": "DREAMIEZ-BEAUTY-BRUSH-001.json",
+        "sha256": "dce0135920009cedb7cec7947a94bfab7163dddba83365bea809fba523f95e78"
+      },
+      {
+        "file": "DREAMIEZ-BEAUTY-MIRROR-001.json",
+        "sha256": "ea795cb30fde36a1509eda13e2373a9ad43b0dc7626e70dbc851398fecea7d79"
+      },
+      {
+        "file": "DREAMIEZ-BEAUTY-POUCH-001.json",
+        "sha256": "5ee313bd55d2e44b1e765bf00216e95a910b5af7c006b3e6bb1013c739b4db5e"
+      },
+      {
+        "file": "DREAMIEZ-BEAUTY-VANITY-001.json",
+        "sha256": "3e8a1709c0046b5f21913379e4e88622410ecc8d0d3492483fbf2dc211b85f17"
+      },
+      {
+        "file": "DREAMIEZ-cape.json",
+        "sha256": "6ce83a06daa25a700d1429a14cae90f7de235418338f80f587ab855ceee038ce"
+      },
+      {
+        "file": "DREAMIEZ-cosmic-hoodie.json",
+        "sha256": "2a1cdb8db32ab25308ecb48ab58ca9e177c9b39fd93525f5a12ca81cb5f25382"
+      },
+      {
+        "file": "DREAMIEZ-dragon-tattoo.json",
+        "sha256": "557d9bd6eb56724b1cd2b21a15aab06af825e4e7b49392a949fa24483ec4254c"
+      },
+      {
+        "file": "DREAMIEZ-flower-crown.json",
+        "sha256": "13ae84d92e4c9e8bae3be233833df0aeb7ca5753545de828cdbdef712e7a065a"
+      },
+      {
+        "file": "DREAMIEZ-neon-sneakers.json",
+        "sha256": "2296ab06fabfc3f1232f37fe45ff222668625b2c257c06a1cf2aa80fcf82a59c"
+      },
+      {
+        "file": "DREAMIEZ-ninja-mask.json",
+        "sha256": "332bb132390e2ba614bce4971b3e01964b13252c85e95598809dd5b885319fa1"
+      },
+      {
+        "file": "DREAMIEZ-pink-hair.json",
+        "sha256": "94454d32bd7253e1bf886279290df26bbed749827e66d09bb63f768cae3b4ac4"
+      },
+      {
+        "file": "DREAMIEZ-pirate-hat.json",
+        "sha256": "822073d63d979d3ea67dddd256a8d02e5b54eea293a479cac09b94dca5fe50d0"
+      },
+      {
+        "file": "DREAMIEZ-sunglasses.json",
+        "sha256": "be6cacfb5bf8f9cc94eba1f3c5a55514120f9024cdfd266b94c097400163580d"
+      },
+      {
+        "file": "DREAMIEZ-top-hat.json",
+        "sha256": "c1eb958dc8d3fc3e6f8b6b6d5da30fbd6a41a36c7d111014e9eaf0fa7fc71abe"
+      },
+      {
+        "file": "DREAMIEZ-tuxedo.json",
+        "sha256": "36ba00b6030a46cbd0c66be4af7a08b24fbdc62fffb9790a76926ad9e1707561"
+      },
+      {
+        "file": "DREAMIEZ-viking-helmet.json",
+        "sha256": "1772e4f8180b7c774ef8871d607bcd6ec817740348aee0d2fdba017ad781cd7b"
+      },
+      {
+        "file": "DREAMLEDGER-BILLBOARD-FOUNDING-001.json",
+        "sha256": "9b7ea3ac31ea2b507121ed029024eedbe687106237b94f546fcdf87c417348d0"
+      },
+      {
+        "file": "DREAMLEDGER-BILLBOARD-LARGE-001.json",
+        "sha256": "7dc5545932f446a735cfc3d5c73cf2d60edcf0b43dff5e08413fadb1bfd5654b"
+      },
+      {
+        "file": "DREAMLEDGER-BILLBOARD-MEDIUM-001.json",
+        "sha256": "2cbe335e2a58b629ec35ad46c1b7248e200be06597d363ab31f98bceea03ee22"
+      },
+      {
+        "file": "DREAMLEDGER-BILLBOARD-SMALL-001.json",
+        "sha256": "9aefb3440343c0dcfc6641543f4abe26ca6d6342528fe41640f8512e3eccbd32"
+      },
+      {
+        "file": "DREAMLEDGER-BILLBOARD-WIDE-001.json",
+        "sha256": "717b5893dee4240441e9a2eba89ffa86024565acbc6bc3b5e7284870a928c894"
+      },
+      {
+        "file": "EDH_0001.json",
+        "sha256": "4505b79eeb75f9f385d419a89e30afbd76146c1a3f14daa32746040c642c8514"
+      },
+      {
+        "file": "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001.json",
+        "sha256": "be468a2ee1f3d6005b545f29893e4bb651cc575110c2ede747856bd0eded1f26"
+      }
+    ]
+  }
+}

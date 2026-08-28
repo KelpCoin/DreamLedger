@@ -1,0 +1,54 @@
+{
+  "schema_version": "BEC-WORKER-RESULT-1.1",
+  "job_id": "job_20260828065101518_b598731d",
+  "started_at": "2026-08-28T06:51:07.005Z",
+  "completed_at": "2026-08-28T06:51:22.249Z",
+  "status": "ARTIFACT_READY",
+  "worker": "local-lmstudio",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  },
+  "output": {
+    "worker": "local-lmstudio",
+    "model": "phi-3-mini-4k-instruct",
+    "endpoint": "http://127.0.0.1:1235/v1/chat/completions",
+    "content": " ROUTING_OK_edee3cefb5834eaa9fa6b29e03e24bb4"
+  },
+  "evidence_claims": {
+    "payment_claim": false,
+    "sale_claim": false,
+    "fulfillment_claim": false
+  },
+  "public_action_allowed": false,
+  "output_hash": "sha256:fcfc1abfadc26113af0d243a790d4823d3a90576f4db8af165e4142e4a017908",
+  "result_hash": "sha256:8fffd2a8f78d4f03d6d5e093186d04d28b1fec7b7b50bd77c45d6e2c30c34a56"
+}

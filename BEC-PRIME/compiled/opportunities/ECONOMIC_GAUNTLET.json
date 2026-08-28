@@ -1,0 +1,350 @@
+{
+  "schema_version": "1.0",
+  "generated_utc": "2026-08-28T06:32:35.746Z",
+  "compiler": "EconomicOpportunityCompiler",
+  "claim_boundary": "RANKING_ONLY_NO_REVENUE_CLAIM",
+  "candidate_count": 8,
+  "results": [
+    {
+      "opportunity_id": "MTG-001",
+      "file": "03-mtg-diagnostic.json",
+      "silo": "MTG",
+      "title": "Commander deck diagnostic",
+      "hypothesis": "Commander players will pay for a fast diagnostic that identifies weaknesses and gives concrete upgrades.",
+      "channels": [
+        "Reddit",
+        "Discord",
+        "TradeMe",
+        "DreamLedger"
+      ],
+      "buyer": "Commander players who want an actionable deck review",
+      "offer": "NZ$29 automated Commander Deck Diagnostic.",
+      "price_nzd": 29,
+      "test_cost_nzd": 0,
+      "upside_nzd": 580,
+      "smallest_test": "Put the existing NZ$29 offer in front of 20 qualified Commander owners and measure purchases.",
+      "evidence_required": [
+        "Existing verified offer artifact",
+        "1 new paid order"
+      ],
+      "proof_required": [
+        "Offer artifact",
+        "Payment event",
+        "Delivered diagnostic"
+      ],
+      "scoring": {
+        "evidence": 7,
+        "roi": 10,
+        "speed": 10,
+        "risk": 3,
+        "silo_alignment": 10,
+        "total": 8.65,
+        "evidence_ready": true
+      },
+      "verdict": "PASS",
+      "public_action": "APPROVAL_REQUIRED"
+    },
+    {
+      "opportunity_id": "INV-001",
+      "file": "01-inverse-shopping.json",
+      "silo": "INVERSE_SHOPPING",
+      "title": "Wanted-item sourcing service",
+      "hypothesis": "People with unusually specific shopping needs will pay to have an agent search multiple marketplaces and channels for a matching item.",
+      "channels": [
+        "Amazon",
+        "eBay",
+        "Reddit",
+        "Substack"
+      ],
+      "buyer": "Collectors and shoppers with a highly specific wanted item",
+      "offer": "Submit a wanted item; receive a ranked shortlist and sourcing help.",
+      "price_nzd": 15,
+      "test_cost_nzd": 0,
+      "upside_nzd": 500,
+      "smallest_test": "Manually source 10 highly specific requests from existing communities and offer a NZ$15 paid hunt.",
+      "evidence_required": [
+        "10+ qualified wanted-item conversations",
+        "At least 1 paid sourcing request"
+      ],
+      "proof_required": [
+        "Conversation log",
+        "Payment receipt",
+        "Fulfilment artifact"
+      ],
+      "scoring": {
+        "evidence": 5,
+        "roi": 10,
+        "speed": 9,
+        "risk": 4,
+        "silo_alignment": 10,
+        "total": 7.7,
+        "evidence_ready": true
+      },
+      "verdict": "FAIL",
+      "public_action": "APPROVAL_REQUIRED"
+    },
+    {
+      "opportunity_id": "BILL-001",
+      "file": "02-billboard.json",
+      "silo": "BILLBOARD",
+      "title": "Billboard-as-a-service scarce digital property",
+      "hypothesis": "People will pay for a scarce, visible digital placement when ownership, scarcity, permanence, or attention is clearly packaged.",
+      "channels": [
+        "DreamLedger",
+        "Reddit",
+        "Substack"
+      ],
+      "buyer": "Creators, collectors, small businesses and communities seeking a persistent digital placement",
+      "offer": "Buy a defined scarce placement with a clear term, location, and proof of ownership/use.",
+      "price_nzd": 29,
+      "test_cost_nzd": 0,
+      "upside_nzd": 1000,
+      "smallest_test": "Publish one tightly defined scarce placement and solicit 10 qualified prospects.",
+      "evidence_required": [
+        "10 qualified buyer conversations",
+        "1 paid placement"
+      ],
+      "proof_required": [
+        "Listing artifact",
+        "Buyer conversation",
+        "Payment receipt",
+        "Placement proof"
+      ],
+      "scoring": {
+        "evidence": 4,
+        "roi": 10,
+        "speed": 8,
+        "risk": 5,
+        "silo_alignment": 10,
+        "total": 7.05,
+        "evidence_ready": true
+      },
+      "verdict": "FAIL",
+      "public_action": "APPROVAL_REQUIRED"
+    },
+    {
+      "opportunity_id": "MEDIA-001",
+      "file": "04-media-intelligence.json",
+      "silo": "MEDIA",
+      "title": "Audience pain intelligence brief",
+      "hypothesis": "Creators and small operators will pay for concise, evidence-backed briefs that turn Reddit/Substack/community signals into actionable commercial opportunities.",
+      "channels": [
+        "Reddit",
+        "Substack",
+        "Patreon"
+      ],
+      "buyer": "Creators, operators and niche businesses",
+      "offer": "A one-off commercial signal brief with source evidence, buyer hypothesis and smallest test.",
+      "price_nzd": 49,
+      "test_cost_nzd": 0,
+      "upside_nzd": 980,
+      "smallest_test": "Create one sample brief from public community signals and offer it to 10 qualified prospects.",
+      "evidence_required": [
+        "10 qualified buyer conversations",
+        "1 paid brief"
+      ],
+      "proof_required": [
+        "Sample brief",
+        "Prospect log",
+        "Payment receipt",
+        "Delivered brief"
+      ],
+      "scoring": {
+        "evidence": 3,
+        "roi": 10,
+        "speed": 8,
+        "risk": 4,
+        "silo_alignment": 0,
+        "total": 5.9,
+        "evidence_ready": true
+      },
+      "verdict": "FAIL",
+      "public_action": "APPROVAL_REQUIRED"
+    },
+    {
+      "opportunity_id": "ART-001",
+      "file": "05-digital-artifact-licensing.json",
+      "silo": "DIGITAL_ASSETS",
+      "title": "License existing digital artifacts as commercial kits",
+      "hypothesis": "Existing diagrams, templates, specifications and automation artifacts can be packaged and licensed as useful operator kits rather than remaining internal documentation.",
+      "channels": [
+        "DreamLedger",
+        "Substack",
+        "Reddit"
+      ],
+      "buyer": "AI builders, operators and small businesses",
+      "offer": "One-off commercial kit containing a focused artifact bundle and usage instructions.",
+      "price_nzd": 39,
+      "test_cost_nzd": 0,
+      "upside_nzd": 780,
+      "smallest_test": "Select one artifact bundle, write a one-page buyer-facing description, and test it with 10 qualified prospects.",
+      "evidence_required": [
+        "Artifact inventory",
+        "Clear buyer problem",
+        "10 qualified conversations",
+        "1 paid license"
+      ],
+      "proof_required": [
+        "Source artifact hash",
+        "Offer artifact",
+        "Prospect log",
+        "Payment receipt",
+        "Delivery record"
+      ],
+      "scoring": {
+        "evidence": 2,
+        "roi": 10,
+        "speed": 7,
+        "risk": 5,
+        "silo_alignment": 0,
+        "total": 5.25,
+        "evidence_ready": true
+      },
+      "verdict": "FAIL",
+      "public_action": "APPROVAL_REQUIRED"
+    },
+    {
+      "opportunity_id": "BILLBOARD-001",
+      "file": "BILLBOARD-001.json",
+      "silo": "billboard",
+      "title": "Digital billboard slot as a service",
+      "hypothesis": "People and small businesses will pay for a permanent or time-bounded claim on a visible digital property surface.",
+      "channels": [],
+      "price_nzd": 0,
+      "test_cost_nzd": 0,
+      "upside_nzd": 99,
+      "smallest_test": "Sell one clearly bounded NZ$29-NZ$99 digital billboard slot with a defined placement, duration, and proof of publication.",
+      "evidence_required": [
+        "buyer interest",
+        "payment evidence",
+        "published-slot proof",
+        "ownership or usage terms"
+      ],
+      "proof_required": [
+        "slot identifier",
+        "payment or explicit no-sale result",
+        "rendered publication proof"
+      ],
+      "scoring": {
+        "evidence": 0,
+        "roi": 10,
+        "speed": 5,
+        "risk": 5,
+        "silo_alignment": 0,
+        "total": 4.25,
+        "evidence_ready": true
+      },
+      "verdict": "FAIL",
+      "public_action": true
+    },
+    {
+      "opportunity_id": "ELOM-001",
+      "file": "ELOM-001.json",
+      "silo": "elom",
+      "title": "ELoM creator asset revival",
+      "hypothesis": "Existing game-world artifacts can be refined into a small paid creator or player experience without rebuilding the entire historical system.",
+      "channels": [],
+      "price_nzd": 0,
+      "test_cost_nzd": 0,
+      "upside_nzd": 500,
+      "smallest_test": "Archaeologise one coherent historical mechanic, package a tiny playable or demonstrable slice, and test paid interest before rebuilding the wider game.",
+      "evidence_required": [
+        "artifact provenance",
+        "playable or rendered demo",
+        "qualified interest",
+        "payment evidence if sold"
+      ],
+      "proof_required": [
+        "source manifest",
+        "demo proof",
+        "demand record",
+        "economic result if any"
+      ],
+      "scoring": {
+        "evidence": 0,
+        "roi": 10,
+        "speed": 5,
+        "risk": 5,
+        "silo_alignment": 0,
+        "total": 4.25,
+        "evidence_ready": true
+      },
+      "verdict": "FAIL",
+      "public_action": "APPROVAL_REQUIRED"
+    },
+    {
+      "opportunity_id": "INVSHOP-001",
+      "file": "INVSHOP-001.json",
+      "silo": "inverse-shopping",
+      "title": "Wanted-item sourcing service",
+      "hypothesis": "People will pay a small fee to have an agent search multiple commerce channels for a highly specific hard-to-find item.",
+      "channels": [],
+      "price_nzd": 0,
+      "test_cost_nzd": 0,
+      "upside_nzd": 290,
+      "smallest_test": "Offer a manually fulfilled NZ$15-NZ$29 wanted-item hunt to 10 qualified prospects without depending on one marketplace.",
+      "evidence_required": [
+        "prospect replies",
+        "payment evidence",
+        "fulfilment proof",
+        "channel-policy compliance"
+      ],
+      "proof_required": [
+        "request record",
+        "candidate results",
+        "payment or explicit no-sale result"
+      ],
+      "scoring": {
+        "evidence": 0,
+        "roi": 10,
+        "speed": 5,
+        "risk": 5,
+        "silo_alignment": 0,
+        "total": 4.25,
+        "evidence_ready": true
+      },
+      "verdict": "FAIL",
+      "public_action": "APPROVAL_REQUIRED"
+    }
+  ],
+  "recommended_next": {
+    "opportunity_id": "MTG-001",
+    "file": "03-mtg-diagnostic.json",
+    "silo": "MTG",
+    "title": "Commander deck diagnostic",
+    "hypothesis": "Commander players will pay for a fast diagnostic that identifies weaknesses and gives concrete upgrades.",
+    "channels": [
+      "Reddit",
+      "Discord",
+      "TradeMe",
+      "DreamLedger"
+    ],
+    "buyer": "Commander players who want an actionable deck review",
+    "offer": "NZ$29 automated Commander Deck Diagnostic.",
+    "price_nzd": 29,
+    "test_cost_nzd": 0,
+    "upside_nzd": 580,
+    "smallest_test": "Put the existing NZ$29 offer in front of 20 qualified Commander owners and measure purchases.",
+    "evidence_required": [
+      "Existing verified offer artifact",
+      "1 new paid order"
+    ],
+    "proof_required": [
+      "Offer artifact",
+      "Payment event",
+      "Delivered diagnostic"
+    ],
+    "scoring": {
+      "evidence": 7,
+      "roi": 10,
+      "speed": 10,
+      "risk": 3,
+      "silo_alignment": 10,
+      "total": 8.65,
+      "evidence_ready": true
+    },
+    "verdict": "PASS",
+    "public_action": "APPROVAL_REQUIRED"
+  },
+  "integrity_sha256": "7b28a8555f1f0ed30c75d3244bed2f84f782986e7a3ae8f3272060ef1f7d7713"
+}

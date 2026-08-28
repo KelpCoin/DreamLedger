@@ -1,0 +1,51 @@
+{
+  "schema_version": "BEC-WORKER-PROOF-1.1",
+  "proof_id": "proof_20260828065122249_c91bd0fe",
+  "job_id": "job_20260828065101518_b598731d",
+  "silo": "dreamledger",
+  "status": "PASS",
+  "worker": "local-lmstudio",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  },
+  "input_hash": "sha256:02306655b7c8d24cef97b203351a06f6e485f7115f0a365bc6aa40991ce1ac3b",
+  "result_hash": "sha256:8fffd2a8f78d4f03d6d5e093186d04d28b1fec7b7b50bd77c45d6e2c30c34a56",
+  "claims": {
+    "payment_claim": false,
+    "sale_claim": false,
+    "fulfillment_claim": false
+  },
+  "approval_required": true,
+  "public_action_allowed": false,
+  "created_at": "2026-08-28T06:51:22.250Z",
+  "proof_hash": "sha256:2133fb14c58222065c5769447cbaf8dd8c5282ed10fe2f7509d6e47a706b1cb2"
+}

@@ -1,0 +1,123 @@
+{
+  "type": "dreamledger-public-surface-compilation",
+  "status": "PASS",
+  "compiler": "surface-stable-v1",
+  "schema": "BEC-PRIME-CUBE-PUBLIC-SURFACE/v4",
+  "compiled_at": "2026-08-28T06:46:59.776Z",
+  "source_hashes": {
+    "catalog_template": "e744c6e9001915820a52dee08b81bfea3e092c61756f2eefc55aed2721b6a751",
+    "cinema_template": "b5c6b259a805eaf2f979c992c87736433afdf86bacc4ab36d356a9671b4a72fd",
+    "digital_template": "909c8415811defb4cec530eba4b345ae0f76bc88a85dca921e93ea9e993c96f1",
+    "manifest": "e415a2f43d7abf8ee1c26b500d86cfa30bc4239a915ef0a85d447ba250258f40",
+    "offers": "783374b0ff32a7a65126275ee49223dbfae70f73d132a0d6a196c320861135d5",
+    "ip": "2a6dc589a150eee0ee1514c35ecd2433e7f505e6c003a1e1bab4bbfcdc5663d0",
+    "news": "c7682e4278b94624479e85871ff7a556833291b0d937a8a6def69533375f5948",
+    "auctions": "832a81dec4b6d4e48b329c8b432cdfea2864fe64d719153e4b8b7e2de32ad97e",
+    "billboards": "3f978fd4fa6c3f148fe6cbb606c2cdb99570b49386719b9b7af91eb217516481",
+    "surface_html": "e744c6e9001915820a52dee08b81bfea3e092c61756f2eefc55aed2721b6a751"
+  },
+  "counts": {
+    "capabilities": 15,
+    "offers": 29,
+    "products": 31,
+    "news_silos": 4,
+    "auctions": 3,
+    "billboards": 6
+  },
+  "public_account_surfaces": [
+    "/login.html",
+    "/register.html",
+    "/account.html",
+    "/avatar.html",
+    "/assets.html"
+  ],
+  "public_surfaces": [
+    {
+      "route": "/",
+      "purpose": "DreamLedger horizontal catalogue doorway",
+      "silo": "dreamledger"
+    },
+    {
+      "route": "/mtg",
+      "purpose": "Magic: The Gathering catalogue and commerce",
+      "silo": "mtg"
+    },
+    {
+      "route": "/cinema.html",
+      "purpose": "DreamLedger Cinema proof surface",
+      "silo": "cinema"
+    },
+    {
+      "route": "/digital-products.html",
+      "purpose": "Digital products shelf and automated fulfillment",
+      "silo": "digital-products"
+    },
+    {
+      "route": "/avatar.html",
+      "purpose": "DreamMee account/avatar surface",
+      "silo": "dreammeez"
+    },
+    {
+      "route": "/healthz",
+      "purpose": "Service health",
+      "silo": "dreamledger"
+    },
+    {
+      "route": "/version",
+      "purpose": "Deployment provenance",
+      "silo": "dreamledger"
+    },
+    {
+      "route": "/login.html",
+      "purpose": "Account login",
+      "silo": "account"
+    },
+    {
+      "route": "/register.html",
+      "purpose": "Account registration",
+      "silo": "account"
+    },
+    {
+      "route": "/account.html",
+      "purpose": "Account surface",
+      "silo": "account"
+    },
+    {
+      "route": "/assets.html",
+      "purpose": "Public asset surface",
+      "silo": "dreamledger"
+    },
+    {
+      "route": "/api/offers",
+      "purpose": "Machine-readable approved offers",
+      "silo": "dreamledger"
+    },
+    {
+      "route": "/api/products/EDH_0001",
+      "purpose": "MTG product endpoint",
+      "silo": "mtg"
+    },
+    {
+      "route": "/api/mtg/diagnostic/intake",
+      "purpose": "Automated MTG diagnostic intake",
+      "silo": "mtg"
+    },
+    {
+      "route": "/api/mtg/diagnostic/report",
+      "purpose": "Automated MTG diagnostic fulfillment",
+      "silo": "mtg"
+    }
+  ],
+  "gates": {
+    "approval_required_for_activation": true,
+    "private_material_excluded": true,
+    "silo_isolation_required": true,
+    "forbidden_public_tokens_checked": true,
+    "template_compiled": true,
+    "cinema_surface_compiled": true,
+    "digital_products_surface_compiled": true,
+    "primary_account_pages_compiled": true,
+    "billboard_rail_compiled": true,
+    "news_ticker_compiled": true
+  }
+}

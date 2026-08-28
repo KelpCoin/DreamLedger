@@ -4,11 +4,11 @@
   "source": "catalog/ip-capabilities.json",
   "approval_rule": "All generated offers remain approval-gated and checkout-disabled until explicitly approved in catalog/offers/approved.json.",
   "counts": {
-    "capabilities": 14,
-    "candidates": 29,
-    "passed": 27,
-    "approved": 1,
-    "rejected": 2
+    "capabilities": 15,
+    "candidates": 31,
+    "passed": 29,
+    "approved": 0,
+    "rejected": 3
   },
   "candidates": [
     {
@@ -865,7 +865,7 @@
       "capability_id": "BEC-PRIME-SILO-CONTROL",
       "silo": "dreamledger",
       "name": "Silo and Asset Control diagnostic",
-      "problem": "Explicit tenant, owner, asset, and silo boundaries preventing cross-pollination between MTG, commerce, and adult/Amplissa domains.",
+      "problem": "Explicit tenant, owner, asset, and silo boundaries preventing cross-pollination between MTG, commerce, and adult domains.",
       "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
       "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
       "delivery_mechanism": "engine_generated_digital_deliverable",
@@ -1547,6 +1547,112 @@
         "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
         "private_material": "excluded"
       }
+    },
+    {
+      "offer_id": "OFFER-PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001-DIAGNOSTIC",
+      "version": "offer-v1",
+      "capability_id": "PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "silo": "dreamledger",
+      "name": "DreamLedger Founding Tile diagnostic",
+      "problem": "Permanent 100x100 digital billboard placement with 100 founding-equivalent positions in the New Zealand market and automatic publication after verified payment.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 15,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
+    },
+    {
+      "offer_id": "OFFER-PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001-AUDIT",
+      "version": "offer-v1",
+      "capability_id": "PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "silo": "dreamledger",
+      "name": "DreamLedger Founding Tile audit",
+      "problem": "Assess and improve the area described by DreamLedger Founding Tile.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 49,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
     }
   ],
   "rejected": [
@@ -1664,6 +1770,12 @@
       },
       "errors": [
         "potential_private_material_reference"
+      ]
+    },
+    {
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "errors": [
+        "missing:refund_rules"
       ]
     }
   ]

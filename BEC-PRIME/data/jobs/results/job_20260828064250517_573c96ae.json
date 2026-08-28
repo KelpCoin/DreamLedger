@@ -1,0 +1,54 @@
+{
+  "schema_version": "BEC-WORKER-RESULT-1.1",
+  "job_id": "job_20260828064250517_573c96ae",
+  "started_at": "2026-08-28T06:48:59.616Z",
+  "completed_at": "2026-08-28T06:49:56.336Z",
+  "status": "ARTIFACT_READY",
+  "worker": "local-lmstudio",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  },
+  "output": {
+    "worker": "local-lmstudio",
+    "model": "phi-3-mini-4k-instruct",
+    "endpoint": "http://127.0.0.1:1235/v1/chat/completions",
+    "content": " 1. The LM Studio worker's unique identifier was logged into the system at http://127.0.0.1:1235/v1/chat/completions.\n\n2. A completion task with specific parameters linked to the local LM Studio worker was processed by the model phi-3-mini-4k-instruct.\n\n3. The system's records confirm a successful verification of the LM Studio worker's job reception without any external transaction data."
+  },
+  "evidence_claims": {
+    "payment_claim": false,
+    "sale_claim": false,
+    "fulfillment_claim": false
+  },
+  "public_action_allowed": false,
+  "output_hash": "sha256:e1c1d4e7a7a9f599441c8db2e72f0444ce218edadb6f7b846ec7f2908c404927",
+  "result_hash": "sha256:3ee011e5c5c75578b7cb738990a6e465b975b6859b0b283a393d4e2c2c9d6a18"
+}

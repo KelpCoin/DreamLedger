@@ -1,0 +1,15 @@
+{
+  "schema": "bec-prime/leverage-registry-proof/v1",
+  "generated_at": "2026-08-28T06:47:02.528Z",
+  "range": "401-500",
+  "count": 100,
+  "owners": [
+    "commerce",
+    "compiler",
+    "elohim",
+    "evidence",
+    "gauntlet",
+    "runtime"
+  ],
+  "status": "PASS"
+}

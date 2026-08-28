@@ -1,0 +1,24 @@
+{
+  "schema": "BEC-PRIME/MTG-CATALOG-COMPILATION/v3",
+  "status": "PASS",
+  "source": "BEC-PRIME/website/mtg-catalog.html",
+  "output": "BEC-PRIME/compiled/website/mtg/index.html",
+  "asset_source": "BEC-PRIME/website/assets",
+  "asset_output": "BEC-PRIME/compiled/website/assets",
+  "catalog_sha256": "4a197e032e09ac3b09fb1494fa78bb1dfc90b8dd290af28662d24b907913c1af",
+  "assets": [
+    "dreammee-doorway.js",
+    "mtg-monte-carlo.js"
+  ],
+  "price_unit": "major_nzd",
+  "checkout_endpoint": "/api/checkout/create",
+  "inventory_sources": [
+    "/api/products",
+    "/api/catalog"
+  ],
+  "excluded_public_surfaces": [
+    "cinema.html",
+    "dreamiez"
+  ],
+  "generated_at": "2026-08-28T06:47:02.213Z"
+}

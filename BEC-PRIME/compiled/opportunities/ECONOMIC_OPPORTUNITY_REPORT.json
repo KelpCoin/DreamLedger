@@ -1,0 +1,375 @@
+{
+  "type": "dreamledger-economic-opportunity-compiler-report",
+  "schema_version": "1.1",
+  "generated_at": "2026-08-28T06:46:59.440Z",
+  "role_boundary": {
+    "elohim": "CREATE_AND_REFINE_ONLY",
+    "truth_oracle": "EVIDENCE_ONLY",
+    "gauntlet": "JUDGE",
+    "biggie": "APPROVE_PUBLIC_OR_HIGH_IMPACT_ACTIONS",
+    "compiler": "NORMALISE_AND_PACKAGE_ONLY"
+  },
+  "source_count": 8,
+  "valid_count": 8,
+  "invalid_count": 0,
+  "opportunities": [
+    {
+      "opportunity_id": "INV-001",
+      "silo": "INVERSE_SHOPPING",
+      "title": "Wanted-item sourcing service",
+      "hypothesis": "People with unusually specific shopping needs will pay to have an agent search multiple marketplaces and channels for a matching item.",
+      "target_buyer": "Collectors and shoppers with a highly specific wanted item",
+      "channel": "Amazon, eBay, Reddit, Substack",
+      "channels": [
+        "Amazon",
+        "eBay",
+        "Reddit",
+        "Substack"
+      ],
+      "offer": "Submit a wanted item; receive a ranked shortlist and sourcing help.",
+      "smallest_test": "Manually source 10 highly specific requests from existing communities and offer a NZ$15 paid hunt.",
+      "evidence_required": [
+        "10+ qualified wanted-item conversations",
+        "At least 1 paid sourcing request"
+      ],
+      "cost_nzd": 0,
+      "upside_nzd": 500,
+      "risk": "4/10",
+      "reversibility": "REVERSIBLE_TEST",
+      "execution_steps": [
+        "Manually source 10 highly specific requests from existing communities and offer a NZ$15 paid hunt."
+      ],
+      "proof_required": [
+        "Conversation log",
+        "Payment receipt",
+        "Fulfilment artifact"
+      ],
+      "approval_required": true,
+      "public_action": true,
+      "payment_adapter": "STRIPE_PAYMENT_LINK_OR_MANUAL",
+      "kill_condition": "STOP_IF_SMALLEST_TEST_PRODUCES_NO_PAID_EVENT_OR_REQUIRED_EVIDENCE_FAILS",
+      "source_file": "01-inverse-shopping.json",
+      "source_sha256": "d1bdc39fee31ba8bbd32f10caa8eadc612194aac47f8a96bf0d0aeba3f7a8f7f",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    },
+    {
+      "opportunity_id": "BILL-001",
+      "silo": "BILLBOARD",
+      "title": "Billboard-as-a-service scarce digital property",
+      "hypothesis": "People will pay for a scarce, visible digital placement when ownership, scarcity, permanence, or attention is clearly packaged.",
+      "target_buyer": "Creators, collectors, small businesses and communities seeking a persistent digital placement",
+      "channel": "DreamLedger, Reddit, Substack",
+      "channels": [
+        "DreamLedger",
+        "Reddit",
+        "Substack"
+      ],
+      "offer": "Buy a defined scarce placement with a clear term, location, and proof of ownership/use.",
+      "smallest_test": "Publish one tightly defined scarce placement and solicit 10 qualified prospects.",
+      "evidence_required": [
+        "10 qualified buyer conversations",
+        "1 paid placement"
+      ],
+      "cost_nzd": 0,
+      "upside_nzd": 1000,
+      "risk": "5/10",
+      "reversibility": "REVERSIBLE_TEST",
+      "execution_steps": [
+        "Publish one tightly defined scarce placement and solicit 10 qualified prospects."
+      ],
+      "proof_required": [
+        "Listing artifact",
+        "Buyer conversation",
+        "Payment receipt",
+        "Placement proof"
+      ],
+      "approval_required": true,
+      "public_action": true,
+      "payment_adapter": "STRIPE_PAYMENT_LINK_OR_MANUAL",
+      "kill_condition": "STOP_IF_SMALLEST_TEST_PRODUCES_NO_PAID_EVENT_OR_REQUIRED_EVIDENCE_FAILS",
+      "source_file": "02-billboard.json",
+      "source_sha256": "eed4018233e07e4137db1da5fe297bb279cbd09c47be4636ccc3ac9986420c1e",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    },
+    {
+      "opportunity_id": "MTG-001",
+      "silo": "MTG",
+      "title": "Commander deck diagnostic",
+      "hypothesis": "Commander players will pay for a fast diagnostic that identifies weaknesses and gives concrete upgrades.",
+      "target_buyer": "Commander players who want an actionable deck review",
+      "channel": "Reddit, Discord, TradeMe, DreamLedger",
+      "channels": [
+        "Reddit",
+        "Discord",
+        "TradeMe",
+        "DreamLedger"
+      ],
+      "offer": "NZ$29 automated Commander Deck Diagnostic.",
+      "smallest_test": "Put the existing NZ$29 offer in front of 20 qualified Commander owners and measure purchases.",
+      "evidence_required": [
+        "Existing verified offer artifact",
+        "1 new paid order"
+      ],
+      "cost_nzd": 0,
+      "upside_nzd": 580,
+      "risk": "3/10",
+      "reversibility": "REVERSIBLE_TEST",
+      "execution_steps": [
+        "Put the existing NZ$29 offer in front of 20 qualified Commander owners and measure purchases."
+      ],
+      "proof_required": [
+        "Offer artifact",
+        "Payment event",
+        "Delivered diagnostic"
+      ],
+      "approval_required": true,
+      "public_action": true,
+      "payment_adapter": "STRIPE_PAYMENT_LINK_OR_MANUAL",
+      "kill_condition": "STOP_IF_SMALLEST_TEST_PRODUCES_NO_PAID_EVENT_OR_REQUIRED_EVIDENCE_FAILS",
+      "source_file": "03-mtg-diagnostic.json",
+      "source_sha256": "5646e865df2aacef0449fddea5f4b95fbbceb2e5d992ced82862fd8582e1d9ab",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    },
+    {
+      "opportunity_id": "MEDIA-001",
+      "silo": "MEDIA",
+      "title": "Audience pain intelligence brief",
+      "hypothesis": "Creators and small operators will pay for concise, evidence-backed briefs that turn Reddit/Substack/community signals into actionable commercial opportunities.",
+      "target_buyer": "Creators, operators and niche businesses",
+      "channel": "Reddit, Substack, Patreon",
+      "channels": [
+        "Reddit",
+        "Substack",
+        "Patreon"
+      ],
+      "offer": "A one-off commercial signal brief with source evidence, buyer hypothesis and smallest test.",
+      "smallest_test": "Create one sample brief from public community signals and offer it to 10 qualified prospects.",
+      "evidence_required": [
+        "10 qualified buyer conversations",
+        "1 paid brief"
+      ],
+      "cost_nzd": 0,
+      "upside_nzd": 980,
+      "risk": "4/10",
+      "reversibility": "REVERSIBLE_TEST",
+      "execution_steps": [
+        "Create one sample brief from public community signals and offer it to 10 qualified prospects."
+      ],
+      "proof_required": [
+        "Sample brief",
+        "Prospect log",
+        "Payment receipt",
+        "Delivered brief"
+      ],
+      "approval_required": true,
+      "public_action": true,
+      "payment_adapter": "STRIPE_PAYMENT_LINK_OR_MANUAL",
+      "kill_condition": "STOP_IF_SMALLEST_TEST_PRODUCES_NO_PAID_EVENT_OR_REQUIRED_EVIDENCE_FAILS",
+      "source_file": "04-media-intelligence.json",
+      "source_sha256": "44ccf6d7831a772ef5e96b4a6aed5cb057bdcb48c032a4ec0be786516c35756d",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    },
+    {
+      "opportunity_id": "ART-001",
+      "silo": "DIGITAL_ASSETS",
+      "title": "License existing digital artifacts as commercial kits",
+      "hypothesis": "Existing diagrams, templates, specifications and automation artifacts can be packaged and licensed as useful operator kits rather than remaining internal documentation.",
+      "target_buyer": "AI builders, operators and small businesses",
+      "channel": "DreamLedger, Substack, Reddit",
+      "channels": [
+        "DreamLedger",
+        "Substack",
+        "Reddit"
+      ],
+      "offer": "One-off commercial kit containing a focused artifact bundle and usage instructions.",
+      "smallest_test": "Select one artifact bundle, write a one-page buyer-facing description, and test it with 10 qualified prospects.",
+      "evidence_required": [
+        "Artifact inventory",
+        "Clear buyer problem",
+        "10 qualified conversations",
+        "1 paid license"
+      ],
+      "cost_nzd": 0,
+      "upside_nzd": 780,
+      "risk": "5/10",
+      "reversibility": "REVERSIBLE_TEST",
+      "execution_steps": [
+        "Select one artifact bundle, write a one-page buyer-facing description, and test it with 10 qualified prospects."
+      ],
+      "proof_required": [
+        "Source artifact hash",
+        "Offer artifact",
+        "Prospect log",
+        "Payment receipt",
+        "Delivery record"
+      ],
+      "approval_required": true,
+      "public_action": true,
+      "payment_adapter": "STRIPE_PAYMENT_LINK_OR_MANUAL",
+      "kill_condition": "STOP_IF_SMALLEST_TEST_PRODUCES_NO_PAID_EVENT_OR_REQUIRED_EVIDENCE_FAILS",
+      "source_file": "05-digital-artifact-licensing.json",
+      "source_sha256": "236c11815ae7f3340a60e046341215fe07e686df92f51ac971a40b6f4b438d6e",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    },
+    {
+      "opportunity_id": "BILLBOARD-001",
+      "silo": "billboard",
+      "title": "Digital billboard slot as a service",
+      "hypothesis": "People and small businesses will pay for a permanent or time-bounded claim on a visible digital property surface.",
+      "target_buyer": "Creators, small businesses, collectors, and internet-native projects wanting durable attention.",
+      "channel": "DreamLedger doorway, Reddit, Substack, referrals",
+      "channels": [
+        "DreamLedger doorway, Reddit, Substack, referrals"
+      ],
+      "offer": "",
+      "smallest_test": "Sell one clearly bounded NZ$29-NZ$99 digital billboard slot with a defined placement, duration, and proof of publication.",
+      "evidence_required": [
+        "buyer interest",
+        "payment evidence",
+        "published-slot proof",
+        "ownership or usage terms"
+      ],
+      "cost_nzd": 10,
+      "upside_nzd": 99,
+      "risk": "LOW",
+      "reversibility": "HIGH",
+      "execution_steps": [
+        "define one slot",
+        "publish terms",
+        "collect qualified interest",
+        "fulfil one slot",
+        "capture proof"
+      ],
+      "proof_required": [
+        "slot identifier",
+        "payment or explicit no-sale result",
+        "rendered publication proof"
+      ],
+      "approval_required": true,
+      "public_action": true,
+      "payment_adapter": "UNSELECTED",
+      "kill_condition": "No qualified buyer interest after 20 targeted exposures, or fulfilment cannot be proven deterministically.",
+      "source_file": "BILLBOARD-001.json",
+      "source_sha256": "708cb1e68df604624e4f53d1c68167fe02e08d7746a8fd00b64a84be50548e70",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    },
+    {
+      "opportunity_id": "ELOM-001",
+      "silo": "elom",
+      "title": "ELoM creator asset revival",
+      "hypothesis": "Existing game-world artifacts can be refined into a small paid creator or player experience without rebuilding the entire historical system.",
+      "target_buyer": "Players, creators, collectors, and fans of persistent digital worlds.",
+      "channel": "Existing ELoM artifacts, community discovery, Substack, Reddit",
+      "channels": [
+        "Existing ELoM artifacts, community discovery, Substack, Reddit"
+      ],
+      "offer": "",
+      "smallest_test": "Archaeologise one coherent historical mechanic, package a tiny playable or demonstrable slice, and test paid interest before rebuilding the wider game.",
+      "evidence_required": [
+        "artifact provenance",
+        "playable or rendered demo",
+        "qualified interest",
+        "payment evidence if sold"
+      ],
+      "cost_nzd": 30,
+      "upside_nzd": 500,
+      "risk": "MEDIUM",
+      "reversibility": "HIGH",
+      "execution_steps": [
+        "inventory artifacts",
+        "select one coherent mechanic",
+        "refine a minimal slice",
+        "show it to qualified prospects",
+        "record demand"
+      ],
+      "proof_required": [
+        "source manifest",
+        "demo proof",
+        "demand record",
+        "economic result if any"
+      ],
+      "approval_required": true,
+      "public_action": false,
+      "payment_adapter": "UNSELECTED",
+      "kill_condition": "Artifact cannot be reconstructed coherently, or no qualified demand appears after a bounded demonstration test.",
+      "source_file": "ELOM-001.json",
+      "source_sha256": "be0fb4a89436d20e22655535fb9962f5e5098c6356fb82b8ba3267ac32f0953c",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    },
+    {
+      "opportunity_id": "INVSHOP-001",
+      "silo": "inverse-shopping",
+      "title": "Wanted-item sourcing service",
+      "hypothesis": "People will pay a small fee to have an agent search multiple commerce channels for a highly specific hard-to-find item.",
+      "target_buyer": "Collectors and shoppers with precise item, size, style, condition, or price requirements.",
+      "channel": "Reddit, Substack, direct referrals, marketplace adapters",
+      "channels": [
+        "Reddit, Substack, direct referrals, marketplace adapters"
+      ],
+      "offer": "",
+      "smallest_test": "Offer a manually fulfilled NZ$15-NZ$29 wanted-item hunt to 10 qualified prospects without depending on one marketplace.",
+      "evidence_required": [
+        "prospect replies",
+        "payment evidence",
+        "fulfilment proof",
+        "channel-policy compliance"
+      ],
+      "cost_nzd": 20,
+      "upside_nzd": 290,
+      "risk": "MEDIUM",
+      "reversibility": "HIGH",
+      "execution_steps": [
+        "collect qualified demand signals",
+        "run multi-channel search",
+        "present matches",
+        "record outcome"
+      ],
+      "proof_required": [
+        "request record",
+        "candidate results",
+        "payment or explicit no-sale result"
+      ],
+      "approval_required": true,
+      "public_action": false,
+      "payment_adapter": "UNSELECTED",
+      "kill_condition": "Fewer than 2 qualified prospects from the first 10-target test, or acquisition cost exceeds the test ceiling.",
+      "source_file": "INVSHOP-001.json",
+      "source_sha256": "c08e4ab1cd67cdb51506d1e700acf19f8ea4f3babc5a6947a3e3be56e9869aed",
+      "compiler_state": "AWAITING_GAUNTLET",
+      "validation": {
+        "status": "VALID",
+        "missing": []
+      }
+    }
+  ],
+  "public_execution": "BLOCKED_UNTIL_TRUTH_ORACLE_GAUNTLET_AND_HUMAN_APPROVAL",
+  "claim_boundary": "RANKING_AND_PACKAGING_ONLY_NO_REVENUE_CLAIM"
+}

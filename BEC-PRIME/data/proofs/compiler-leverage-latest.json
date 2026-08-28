@@ -1,0 +1,60 @@
+{
+  "schema": "BEC-COMPILER-LEVERAGE-RUN/v2",
+  "status": "PASS",
+  "leverage_registry": {
+    "range": "401-500",
+    "count": 100,
+    "verdict": "PASS"
+  },
+  "pong": {
+    "schema": "BEC-COMPILER-QUALITY-GATE/v1",
+    "verdict": "PASS",
+    "gauntlet": {
+      "schema": "BEC-COMPILER-LEVERAGE-GAUNTLET/v1",
+      "verdict": "PASS",
+      "checks": {
+        "exists": true,
+        "nontrivial": true,
+        "deterministic_read": true,
+        "html_shell": true,
+        "viewport": true,
+        "game_loop": true,
+        "no_obvious_secret": true
+      },
+      "artifact": {
+        "path": "C:\\BrownEyeCortex\\dreamledger\\BEC-PRIME\\compiled\\website\\compiler-proof\\pong.html",
+        "kind": "html",
+        "bytes": 3088,
+        "sha256": "a18089bf0720b4b398f5a60f209c19bd46259543d36968808d381c09d77d2eba"
+      }
+    },
+    "elohim_proposal_id": "ELOHIM-P-7ee6bc99ffa10664",
+    "generated_at": "2026-08-28T06:47:02.869Z"
+  },
+  "homepage": {
+    "schema": "BEC-COMPILER-QUALITY-GATE/v1",
+    "verdict": "PASS",
+    "gauntlet": {
+      "schema": "BEC-COMPILER-LEVERAGE-GAUNTLET/v1",
+      "verdict": "PASS",
+      "checks": {
+        "exists": true,
+        "nontrivial": true,
+        "deterministic_read": true,
+        "html_shell": true,
+        "viewport": true,
+        "game_loop": true,
+        "no_obvious_secret": true
+      },
+      "artifact": {
+        "path": "C:\\BrownEyeCortex\\dreamledger\\BEC-PRIME\\compiled\\website\\index.html",
+        "kind": "html",
+        "bytes": 12535,
+        "sha256": "d3635c937b81d31809fc00f9c2ce16b2eb96d669765f38309eb59199b9bdd5c1"
+      }
+    },
+    "elohim_proposal_id": "ELOHIM-P-c08fe579feaadd9f",
+    "generated_at": "2026-08-28T06:47:02.870Z"
+  },
+  "generated_at": "2026-08-28T06:47:02.870Z"
+}

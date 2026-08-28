@@ -1,8 +1,8 @@
 {
   "schema": "BEC-PRIME/ECONOMIC-TREE-COMPILATION/v2",
   "status": "PASS",
-  "source_hash": "0b43ec6d6e873f27216ea8c936d68d4d32e4871e6b18684440ae47c97e41405b",
-  "ip_contract_hash": "fc2d934902cac11ff645ce84cf0ff710899e244d40ea598591e06f43940fb55a",
+  "source_hash": "b057fab0b863768a33001f99568fdba409c89c6a696d884714da7debea761314",
+  "ip_contract_hash": "593c93be4803eea899d037736a430761f42a19625d64c2501c349aa14a9bf752",
   "output": [
     "catalog/compiled/economic-tree.json",
     "compiled/website/economics/index.html",

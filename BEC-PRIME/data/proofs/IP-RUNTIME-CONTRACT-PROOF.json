@@ -1,0 +1,11 @@
+{
+  "schema": "dreamledger/ip-runtime-contract/v1",
+  "verdict": "PASS",
+  "files": [
+    "manifest",
+    "commerce",
+    "assets",
+    "capabilities"
+  ],
+  "failed": []
+}

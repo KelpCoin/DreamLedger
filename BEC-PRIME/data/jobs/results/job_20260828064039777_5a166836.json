@@ -1,0 +1,54 @@
+{
+  "schema_version": "BEC-WORKER-RESULT-1.1",
+  "job_id": "job_20260828064039777_5a166836",
+  "started_at": "2026-08-28T06:43:26.428Z",
+  "completed_at": "2026-08-28T06:44:16.982Z",
+  "status": "ARTIFACT_READY",
+  "worker": "local-lmstudio",
+  "route": {
+    "adapter": "local-lmstudio",
+    "execution_node": "local-process",
+    "worker": {
+      "worker_id": "win-local-01",
+      "availability": "online",
+      "trust_level": "local",
+      "gpu": {
+        "vendor": "unknown",
+        "vram_mb": 0
+      },
+      "models": [
+        "phi-3-mini-4k-instruct"
+      ],
+      "context_length": 32768,
+      "tools": [
+        "analyze",
+        "edit",
+        "test"
+      ],
+      "network": "offline-capable",
+      "cost": {
+        "class": "sunk",
+        "unit": "relative"
+      },
+      "latency_class": "local",
+      "permissions": [
+        "ANALYZE",
+        "EDIT"
+      ]
+    }
+  },
+  "output": {
+    "worker": "local-lmstudio",
+    "model": "phi-3-mini-4k-instruct",
+    "endpoint": "http://127.0.0.1:1235/v1/chat/completions",
+    "content": " 1. The LM Studio worker's unique identifier was logged into the system at http://127.0.0.1:1235/v1/chat/completions.\n\n2. A completion task with specific parameters linked to their profile indicates direct involvement in processing a job request.\n\n3. The timestamp on the log entry matches the timeframe of when the job was reported as received by LM Studio."
+  },
+  "evidence_claims": {
+    "payment_claim": false,
+    "sale_claim": false,
+    "fulfillment_claim": false
+  },
+  "public_action_allowed": false,
+  "output_hash": "sha256:34fb27f521fd17d1ff7498c2d1f5dc1b28b2b2706d199ee50fe43ca25509a8a6",
+  "result_hash": "sha256:190545835f96b22e4b14be84b39f6b4bce38f938b860d29dbe5bd1ea19526523"
+}

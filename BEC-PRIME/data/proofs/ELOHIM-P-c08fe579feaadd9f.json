@@ -1,0 +1,28 @@
+{
+  "type": "elohim-v6-proposal",
+  "proposal_id": "ELOHIM-P-c08fe579feaadd9f",
+  "status": "PROPOSED",
+  "created_at": "2026-08-28T06:47:02.870Z",
+  "input": {
+    "compiler": "BrownEyeCortex-SurfaceCompiler",
+    "artifact": {
+      "path": "C:\\BrownEyeCortex\\dreamledger\\BEC-PRIME\\compiled\\website\\index.html",
+      "kind": "html"
+    },
+    "gauntlet": "PASS",
+    "objective": "maximize deterministic quality while preserving approval boundaries"
+  },
+  "local_model_result": null,
+  "allowed_actions": [
+    "generate_asset",
+    "write_proof",
+    "update_candidate"
+  ],
+  "forbidden_without_human_approval": [
+    "publish",
+    "send_message",
+    "charge_customer",
+    "execute_external_action",
+    "change_approval_gate"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "dreamledger-commerce-api-compilation-proof",
+  "status": "PASS",
+  "product_count": 31,
+  "source_hash": "63e3fa405fb448e6554bde29d7859d485ce392940d66edfd79963fc8cc8d91ea",
+  "generated_files": [
+    "compiled/website/api/_catalog.json",
+    "compiled/website/api/catalog.js",
+    "compiled/website/api/products.js",
+    "compiled/website/api/products/[id].js"
+  ],
+  "contract": {
+    "catalog": "/api/catalog",
+    "products": "/api/products",
+    "product": "/api/products/:id"
+  }
+}

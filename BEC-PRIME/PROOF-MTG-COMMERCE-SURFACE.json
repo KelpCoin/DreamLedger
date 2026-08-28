@@ -1,0 +1,25 @@
+{
+  "schema": "BEC-PRIME/MTG-COMMERCE-SURFACE/v2",
+  "status": "PASS",
+  "source": "BEC-PRIME/website/mtg-catalog.html",
+  "marker": "data-dreamledger-mtg-commerce-v2",
+  "route": "/mtg",
+  "aliases": [
+    "/mtg",
+    "/mtg/",
+    "/MTG",
+    "/MTG/"
+  ],
+  "inventory_endpoint": "/api/products",
+  "checkout_endpoint": "/api/offer-checkout/create",
+  "horizontal_catalogue": true,
+  "displays": [
+    "image",
+    "name",
+    "price_nzd",
+    "condition",
+    "availability",
+    "buy_button"
+  ],
+  "generated_at": "2026-08-28T06:47:01.883Z"
+}

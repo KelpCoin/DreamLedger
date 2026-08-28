@@ -1,0 +1,42 @@
+{
+  "type": "dreamledger-product-compilation-proof",
+  "status": "PASS",
+  "compiler": "product-compiler-v3-major-unit-safe",
+  "source_hash": "63e3fa405fb448e6554bde29d7859d485ce392940d66edfd79963fc8cc8d91ea",
+  "price_contract": "major_units_by_default; legacy allowlist remains minor until explicit price_unit migration",
+  "implicit_legacy_price_unit_count": 27,
+  "product_count": 31,
+  "checkoutable_product_ids": [
+    "COMMANDER-DECK-DIAGNOSTIC-001"
+  ],
+  "quarantined_published_product_ids": [
+    "BESPOKE-ARTISAN-EDH-DECK-001",
+    "BILLBOARD-LARGE",
+    "BILLBOARD-MEDIUM",
+    "BILLBOARD-SMALL",
+    "BILLBOARD-TAKEOVER",
+    "BILLBOARD-WIDE",
+    "DREAMIEZ-BEAUTY-BRUSH-001",
+    "DREAMIEZ-BEAUTY-MIRROR-001",
+    "DREAMIEZ-BEAUTY-POUCH-001",
+    "DREAMIEZ-BEAUTY-VANITY-001",
+    "DREAMIEZ-cape",
+    "DREAMIEZ-cosmic-hoodie",
+    "DREAMIEZ-dragon-tattoo",
+    "DREAMIEZ-flower-crown",
+    "DREAMIEZ-neon-sneakers",
+    "DREAMIEZ-ninja-mask",
+    "DREAMIEZ-pink-hair",
+    "DREAMIEZ-pirate-hat",
+    "DREAMIEZ-sunglasses",
+    "DREAMIEZ-top-hat",
+    "DREAMIEZ-tuxedo",
+    "DREAMIEZ-viking-helmet",
+    "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "DREAMLEDGER-BILLBOARD-LARGE-001",
+    "DREAMLEDGER-BILLBOARD-MEDIUM-001",
+    "DREAMLEDGER-BILLBOARD-WIDE-001",
+    "EDH_0001",
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001"
+  ]
+}

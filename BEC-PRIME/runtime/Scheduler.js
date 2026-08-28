@@ -18,7 +18,7 @@ function localAdvertisement() {
       vendor: process.env.BEC_GPU_VENDOR || 'unknown',
       vram_mb: Number(process.env.BEC_GPU_VRAM_MB || 0)
     },
-    models: [process.env.BEC_LM_MODEL || 'local-model'],
+    models: [process.env.BEC_LM_MODEL || 'phi-3-mini-4k-instruct'],
     context_length: Number(process.env.BEC_LM_CONTEXT || 32768),
     tools: ['analyze', 'edit', 'test'],
     network: 'offline-capable',
@@ -52,3 +52,4 @@ function choose(job) {
 }
 
 module.exports = { loadRegistry, advertisedWorkers, choose };
+

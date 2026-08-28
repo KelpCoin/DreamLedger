@@ -6,29 +6,75 @@
       "role_id": "PUBLIC",
       "name": "Public Truth Layer",
       "disclosure_class": "PUBLIC",
-      "allowed_public_outputs": ["verified external primary-source events","DreamLedger verification status","public schemas and evidence definitions","aggregate deployment and economic truth status","publicly approved offers and checkout state"],
-      "protected_information": ["source code not already public","private customer data","raw demand-prospect lists","credentials and secrets","proprietary scoring weights","private acquisition tactics"]
+      "allowed_public_outputs": [
+        "verified external primary-source events",
+        "DreamLedger verification status",
+        "public schemas and evidence definitions",
+        "aggregate deployment and economic truth status",
+        "publicly approved offers and checkout state"
+      ],
+      "protected_information": [
+        "source code not already public",
+        "private customer data",
+        "raw demand-prospect lists",
+        "credentials and secrets",
+        "proprietary scoring weights",
+        "private acquisition tactics"
+      ]
     },
     {
       "role_id": "PATREON_TIER_1_SIGNAL_INGEST",
       "name": "The Signal Ingest",
       "disclosure_class": "SIGNAL",
-      "allowed_public_outputs": ["signal intake summaries","market data summaries","redacted opportunity themes","public methodology notes"],
-      "protected_information": ["raw private sources","buyer identities","unredacted prospect lists","private source connectors","secret scoring implementation"]
+      "allowed_public_outputs": [
+        "signal intake summaries",
+        "market data summaries",
+        "redacted opportunity themes",
+        "public methodology notes"
+      ],
+      "protected_information": [
+        "raw private sources",
+        "buyer identities",
+        "unredacted prospect lists",
+        "private source connectors",
+        "secret scoring implementation"
+      ]
     },
     {
       "role_id": "PATREON_TIER_2_AUTOMATION_POD",
       "name": "The Automation Pod",
       "disclosure_class": "INTELLIGENCE",
-      "allowed_public_outputs": ["hardened signal alerts","redacted opportunity scoring","B2B templates","decision-support artifacts"],
-      "protected_information": ["source code","private automation credentials","proprietary ranking weights","private customer datasets","unreleased acquisition mechanics"]
+      "allowed_public_outputs": [
+        "hardened signal alerts",
+        "redacted opportunity scoring",
+        "B2B templates",
+        "decision-support artifacts"
+      ],
+      "protected_information": [
+        "source code",
+        "private automation credentials",
+        "proprietary ranking weights",
+        "private customer datasets",
+        "unreleased acquisition mechanics"
+      ]
     },
     {
       "role_id": "PATREON_TIER_3_SOVEREIGN_FACTORY",
       "name": "The Sovereign Factory",
       "disclosure_class": "FACTORY",
-      "allowed_public_outputs": ["dedicated Sniper Loop/node outputs","custom SKU Factory outputs","audit-ready immutable ledger artifacts","customer-scoped operational evidence"],
-      "protected_information": ["core secret sauce","unredacted internal architecture","shared proprietary algorithms","other customers' data","credentials and signing material"]
+      "allowed_public_outputs": [
+        "dedicated Sniper Loop/node outputs",
+        "custom SKU Factory outputs",
+        "audit-ready immutable ledger artifacts",
+        "customer-scoped operational evidence"
+      ],
+      "protected_information": [
+        "core secret sauce",
+        "unredacted internal architecture",
+        "shared proprietary algorithms",
+        "other customers' data",
+        "credentials and signing material"
+      ]
     }
   ]
 }

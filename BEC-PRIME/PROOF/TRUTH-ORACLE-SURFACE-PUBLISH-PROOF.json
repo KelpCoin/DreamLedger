@@ -1,0 +1,10 @@
+{
+  "proof_version": "truth-oracle-surface-publish-proof-v1",
+  "generated_at": "2026-08-28T06:47:03.309Z",
+  "source": "public/truth-oracle.json",
+  "served_copy": "compiled/website/truth-oracle.json",
+  "registry_sha256": "12b30ae1e62187275a2075d7335bd85b8e1d76c255de6b0b4b136bbd66668c73",
+  "registry_event_count": 2,
+  "transparency_policy_served": true,
+  "verdict": "PASS"
+}

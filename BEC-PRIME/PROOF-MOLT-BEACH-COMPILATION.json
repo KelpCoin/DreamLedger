@@ -1,0 +1,49 @@
+{
+  "type": "molt-beach-compilation-proof",
+  "status": "PASS",
+  "canvas": {
+    "width": 1000,
+    "height": 1000,
+    "total_pixels": 1000000
+  },
+  "sizes": [
+    {
+      "sku": "MOLT-BEACH-100X100",
+      "w": 100,
+      "h": 100,
+      "price_nzd": 29
+    },
+    {
+      "sku": "MOLT-BEACH-200X100",
+      "w": 200,
+      "h": 100,
+      "price_nzd": 79
+    },
+    {
+      "sku": "MOLT-BEACH-500X200",
+      "w": 500,
+      "h": 200,
+      "price_nzd": 149
+    },
+    {
+      "sku": "MOLT-BEACH-500X500",
+      "w": 500,
+      "h": 500,
+      "price_nzd": 349
+    },
+    {
+      "sku": "MOLT-BEACH-1000X1000",
+      "w": 1000,
+      "h": 1000,
+      "price_nzd": 999
+    }
+  ],
+  "source_hash": "dc1bf53c7a8284a3c65d7f0c1639cb6514c87ee6deaf683c01642ffba89f48bf",
+  "output": "compiled/website/board.html",
+  "public_surface": "/board",
+  "human_review_required": true,
+  "agent_inventory_endpoint": "/api/molt-beach-inventory",
+  "checkout_endpoint": "/api/molt-beach-checkout",
+  "webhook_endpoint": "/api/molt-beach-webhook",
+  "compiled_at": "2026-08-28T06:32:34.170Z"
+}
