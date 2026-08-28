@@ -74,6 +74,14 @@ if (
   errors.push('STRIPE_LINK_DRIFT');
 }
 
+if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
+  errors.push('STRIPE_LINK_NOT_LIVEMODE');
+}
+
+if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
+  errors.push('PRODUCT_NOT_SELLABLE');
+}
+
 const homepageFile = path.join(root, 'compiled/website/index.html');
 
 if (fs.existsSync(homepageFile)) {
@@ -82,17 +90,23 @@ if (fs.existsSync(homepageFile)) {
   for (const forbidden of [
     'cinema-event-v1',
     '/cinema.html',
-    'dreamiez',
-    'Dreamiez'
+    'Amplissa',
+    'HappyHomarid',
+    'CollectorsCoast',
+    'adult-only',
+    'adult only',
+    'stripe_secret_key',
+    'stripe_webhook_secret',
+    '/var/data/'
   ]) {
     if (homepage.includes(forbidden)) {
-      errors.push(`EXCLUDED_SURFACE:${forbidden}`);
+      errors.push(`PUBLIC_BOUNDARY_LEAK:${forbidden}`);
     }
   }
 }
 
 const result = {
-  schema: 'BEC-PRIME/PRODUCTION-CONTRACT/v2',
+  schema: 'BEC-PRIME/PRODUCTION-CONTRACT/v3',
   status: errors.length ? 'FAIL' : 'PASS',
   checked_at: new Date().toISOString(),
   canonical_offer: {
@@ -101,6 +115,7 @@ const result = {
     price_nzd: 29,
     payment_link_status: offer?.payment_link_status || null
   },
+  excluded_surfaces: ['cinema', 'private-adult-boundary'],
   errors
 };
 
