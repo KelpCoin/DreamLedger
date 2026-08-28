@@ -7,6 +7,7 @@ param(
     [Parameter(Mandatory=$false)][string]$RepositoryPath = (Get-Location).Path,
     [switch]$ClearCache,
     [switch]$WaitForProduction,
+    [switch]$VerifyMoneyPath,
     [switch]$VerifyOnly
 )
 
@@ -27,8 +28,8 @@ if ([string]::IsNullOrWhiteSpace($CommitSha)) {
 }
 
 if ($VerifyOnly) {
-    Test-RenderProduction -ExpectedCommit $CommitSha
+    Test-RenderProduction -ExpectedCommit $CommitSha -VerifyMoneyPath:$VerifyMoneyPath
     exit 0
 }
 
-Invoke-RenderDeploy -ServiceId $ServiceId -ApiKey $ApiKey -RepositoryPath $RepositoryPath -CommitSha $CommitSha -ClearCache:$ClearCache -WaitForProduction:$WaitForProduction
+Invoke-RenderDeploy -ServiceId $ServiceId -ApiKey $ApiKey -RepositoryPath $RepositoryPath -CommitSha $CommitSha -ClearCache:$ClearCache -WaitForProduction:$WaitForProduction -VerifyMoneyPath:$VerifyMoneyPath
