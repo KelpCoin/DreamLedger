@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const originalCreateServer = http.createServer;
 const crypto = require('crypto');
 
 const PUBLIC_ROOT = path.join(__dirname, '..', 'compiled', 'website');
