@@ -1,0 +1,83 @@
+{
+  "schema_version": "mtg-80-20-config-v1",
+  "status": "LIVE_CONFIGURABLE",
+  "deck_id": "EDH_0001",
+  "name": "Edward Kenway - Grixis Pirates",
+  "commander": "Edward Kenway",
+  "theme": "Grixis Pirates",
+  "strategy": "Treasure generation and pirate synergy",
+  "bracket_target": "3",
+  "base_price_minor": 40000,
+  "currency": "NZD",
+  "inventory_status": "ASSEMBLED_BASE_UNIT",
+  "testing_status": "TESTING_DATA_REQUIRED",
+  "testing_note": "Do not publish numerical win-rate claims until the complete 100-card decklist and simulation evidence are ingested and verified.",
+  "primer_status": "DRAFT_REQUIRED",
+  "defaults": {
+    "land_package": "LANDS-CLASSIC"
+  },
+  "limits": {
+    "max_flex_slots": 2,
+    "max_premium_upgrades": 2
+  },
+  "customization": {
+    "land_packages": [
+      {
+        "id": "LANDS-CLASSIC",
+        "name": "Classic lands",
+        "description": "Traditional non-foil basic land treatment.",
+        "price_adjustment_minor": 0,
+        "status": "AVAILABLE",
+        "inventory_ref": "MTG-BASIC-LANDS-CLASSIC"
+      },
+      {
+        "id": "LANDS-PREMIUM-FOIL",
+        "name": "Premium foil lands",
+        "description": "Foil basic land treatment, subject to verified stock.",
+        "price_adjustment_minor": 1800,
+        "status": "PENDING_INVENTORY",
+        "inventory_ref": "MTG-BASIC-LANDS-PREMIUM-FOIL"
+      },
+      {
+        "id": "LANDS-THEMED",
+        "name": "Themed lands",
+        "description": "Visually coherent land package selected for the deck theme.",
+        "price_adjustment_minor": 1200,
+        "status": "PENDING_INVENTORY",
+        "inventory_ref": "MTG-BASIC-LANDS-THEMED"
+      }
+    ],
+    "flex_slots": [
+      {
+        "id": "FLEX-REMOVAL",
+        "name": "Removal slot",
+        "description": "Replace one engineered removal slot with a verified compatible inventory card.",
+        "options": []
+      },
+      {
+        "id": "FLEX-RAMP",
+        "name": "Ramp slot",
+        "description": "Replace one engineered ramp slot with a verified compatible inventory card.",
+        "options": []
+      }
+    ],
+    "premium_upgrades": [
+      {
+        "id": "UPG-FOIL-PACKAGE",
+        "name": "Foil package",
+        "description": "Upgrade verified eligible cards to foil versions.",
+        "price_adjustment_minor": 5000,
+        "status": "PENDING_INVENTORY",
+        "inventory_ref": "MTG-FOIL-UPGRADE-EDH-0001"
+      },
+      {
+        "id": "UPG-CHASE-CARD",
+        "name": "Chase-card upgrade",
+        "description": "Add a verified compatible premium card selected from the singles inventory.",
+        "price_adjustment_minor": 10000,
+        "status": "PENDING_INVENTORY",
+        "inventory_ref": "MTG-CHASE-UPGRADE-EDH-0001"
+      }
+    ]
+  }
+}
