@@ -1,45 +1,24 @@
-# BEC-PRIME / DreamLedger: IP and Money Surface
+# DreamLedger / IP and Money Boundary
 
-DreamLedger is the neutral public host. BEC-PRIME is the reusable commerce kernel.
+DreamLedger is the customer-facing commerce surface. Internal implementation is retained behind the public boundary.
 
-Canonical intellectual property represented by the public surface includes:
+## Public surface
 
-- Constitution and approval governance
-- CUBE compiler: reskin, clone, splice and silo
-- Demand Radar
-- Elohim Refinery and multi-LLM proposer/critic/synthesizer/monetizer loop
-- Deterministic Gauntlet
-- Truth and Proof Engine
-- Persistent Economic Memory
-- Revenue OS and Commerce Spine
-- Digital Proxy approval boundary
-- Silo Control and public-boundary enforcement
-- Shared Dreamiez + Kelp Atlantis asset economy
-- Phone-first horizontal world/carousel surface
-- Agentic commerce and machine-readable commerce surfaces
+- Real products and services that are approved for publication.
+- Customer-facing descriptions, prices, checkout paths, and published proof.
+- High-level explanations required to understand a public offer.
 
-Economic loop:
+## Private surface
 
-DEMAND -> REFINE -> GAUNTLET -> COMPILE -> DISTRIBUTE -> CHECKOUT -> PAYMENT -> FOSSIL -> MEMORY -> ITERATE
+- Proprietary prompts, algorithms, compiler logic, scoring systems, decision policies, and internal controls.
+- Private customer, demand, experiment, pricing, and operational data.
+- Credentials, tokens, payment secrets, and private configuration.
+- Unreleased commercial opportunities and internal implementation material.
 
-Money truth:
+## Economic truth
 
-A product page or Checkout URL is an offer surface. Revenue is only counted after a real payment event and valid webhook-derived proof.
+A product page or checkout URL is an offer surface. Revenue is counted only after independently verifiable settlement evidence.
 
-Public IP boundary:
+## Release rule
 
-Private credentials, secrets, customer data, private capability material and unapproved external actions must not be compiled into public surfaces.
-
-Revenue portfolio:
-
-- Agent-ready commerce gateway
-- Commerce trust and proof engine
-- Gauntlet-as-a-Service
-- Digital Proxy approval fabric
-- IP-to-Offer Compiler
-- Silo-controlled commerce kernel
-- Dreamiez digital economy
-- MTG / Commander commerce and diagnostics
-- Digital products and implementation services
-
-This file is a canonical human-readable index. Machine-readable contracts remain the source of compilation truth.
+The public website must expose the output, not the private machinery that creates, evaluates, or governs that output. When a disclosure is not necessary for the customer to understand or buy the public offer, it stays private.
