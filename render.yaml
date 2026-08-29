@@ -3,7 +3,7 @@ services:
     name: dreamledger-storefront
     runtime: node
     plan: starter
-    branch: boundary-lock-2026-08-29
+    branch: main
     rootDir: public
     autoDeployTrigger: commit
     renderSubdomainPolicy: enabled
@@ -32,7 +32,7 @@ services:
     name: dreamledger-engine
     runtime: node
     plan: starter
-    branch: boundary-lock-2026-08-29
+    branch: main
     rootDir: BEC-PRIME
     buildCommand: npm run build
     startCommand: npm start
