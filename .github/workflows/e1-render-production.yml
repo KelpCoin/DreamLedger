@@ -1,4 +1,4 @@
-name: DreamLedger Production - 3000 Gate
+name: DreamLedger Production Boundary
 
 on:
   push:
@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
-      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RELEASE_SHA: \${{ inputs.release_sha || github.sha }}
+      RENDER_DEPLOY_HOOK_URL: \${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_API_KEY: \${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: \${{ secrets.RENDER_SERVICE_ID }}
       BASE_URL: https://dreamledger.org
     steps:
       - name: Checkout exact release
@@ -34,22 +34,23 @@ jobs:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 1
 
-      - name: Verify public 3000 artifact
+      - name: Verify public storefront artifact
         shell: bash
         run: |
           set -euo pipefail
-          test -s BEC-PRIME/compiled/website/index.html
-          grep -q '10,000 places' BEC-PRIME/compiled/website/index.html
-          grep -q '1,000,000 pixels' BEC-PRIME/compiled/website/index.html
-          grep -q 'NZ$50' BEC-PRIME/compiled/website/index.html
-          grep -q '01.01.3000' BEC-PRIME/compiled/website/index.html
-          grep -q 'buy.stripe.com' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'Amplissa' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'Magic: The Gathering' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'DreamMeez' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'CollectorsCoast' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'cryptocurrency' BEC-PRIME/compiled/website/index.html
-          echo "PASS: public surface is 3000-only for $RELEASE_SHA"
+          test -s public/index.html
+          test -s public/billboard.html
+          test -s public/server.js
+          grep -q 'DreamLedger 3000' public/index.html
+          grep -q 'NZ$50' public/index.html
+          grep -q 'Founding Tile' public/billboard.html
+          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined' public/index.html public/billboard.html public/server.js
+          ! grep -Eiq 'MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' public/index.html public/billboard.html
+          grep -q 'type: web' render.yaml
+          grep -q 'rootDir: public' render.yaml
+          grep -q 'type: pserv' render.yaml
+          grep -q 'rootDir: BEC-PRIME' render.yaml
+          echo "PASS: public/private topology and storefront artifact verified for $RELEASE_SHA"
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -57,7 +58,7 @@ jobs:
           set -euo pipefail
           if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
             separator='?'
-            case "$RENDER_DEPLOY_HOOK_URL" in *\?*) separator='&';; esac
+            case "$RENDER_DEPLOY_HOOK_URL" in *?*) separator='&';; esac
             curl --fail-with-body --silent --show-error --retry 4 --retry-delay 5 --max-time 45 -X POST "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${RELEASE_SHA}" >/tmp/render-trigger.json
             cat /tmp/render-trigger.json
           elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
@@ -75,13 +76,13 @@ jobs:
             exit 2
           fi
 
-      - name: Verify live 3000 production
+      - name: Verify live boundary
         shell: bash
         run: |
           set -euo pipefail
           sleep 20
-          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz.json
-          grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"' /tmp/healthz.json
+          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz
+          test "$(cat /tmp/healthz)" = "ok"
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/version" >/tmp/version.json
           python3 - "$RELEASE_SHA" <<'PY'
           import json,sys
@@ -89,37 +90,40 @@ jobs:
           actual=json.load(open('/tmp/version.json'))
           if actual.get('commit') != expected:
               raise SystemExit(f"FAIL: deployed SHA {actual.get('commit')} != expected {expected}")
-          print(f"PASS: live SHA {expected}")
+          if actual.get('surface') != 'public-v3':
+              raise SystemExit(f"FAIL: wrong public surface {actual.get('surface')}")
+          print(f"PASS: live SHA {expected}, surface public-v3")
           PY
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          grep -q '3000.' /tmp/home.html
-          grep -q '10,000 places' /tmp/home.html
-          grep -q 'NZ$50' /tmp/home.html
-          grep -q '01.01.3000' /tmp/home.html
-          ! grep -qi 'Amplissa' /tmp/home.html
-          ! grep -qi 'Magic: The Gathering' /tmp/home.html
-          ! grep -qi 'DreamMeez' /tmp/home.html
-          ! grep -qi 'CollectorsCoast' /tmp/home.html
-          ! grep -qi 'cryptocurrency' /tmp/home.html
-          echo 'PASS: live public doorway is 3000-only.'
+          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/billboard" >/tmp/billboard.html
+          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined' /tmp/home.html /tmp/billboard.html
+          ! grep -Eiq 'MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' /tmp/home.html /tmp/billboard.html
+          for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /api/products /api/offer-checkout/create /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
+            code=$(curl -sS -o /tmp/probe -w '%{http_code}' --max-time 20 "$BASE_URL$path")
+            case "$code" in
+              403|404) ;;
+              *) echo "FAIL: $path returned $code"; exit 1;;
+            esac
+          done
+          echo 'BOUNDARY_PROOF: PASS'
 
-      - name: Write deployment proof
+      - name: Write proof artifact
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p proof
           python3 - "$RELEASE_SHA" <<'PY'
           import hashlib,json,sys,time
-          path='BEC-PRIME/compiled/website/index.html'
-          digest=hashlib.sha256(open(path,'rb').read()).hexdigest()
-          data={'product':'3000','source_commit':sys.argv[1],'target':'https://dreamledger.org','public_surface':'3000-only','price_nzd':50,'places':10000,'pixels':1000000,'horizon':'3000-01-01','public_silo_spillage':False,'revenue_proven_nzd':0,'customers_proven':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'public_index_sha256':digest}
-          json.dump(data,open('proof/3000-ProductionTruth.json','w'),indent=2)
+          files=['public/index.html','public/billboard.html','public/server.js','render.yaml']
+          hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
+          data={'schema':'dreamledger/boundary-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v3','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          json.dump(data,open('proof/BOUNDARY_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
 
-      - name: Upload deployment proof
+      - name: Upload proof
         uses: actions/upload-artifact@v4
         with:
-          name: 3000-production-truth-${{ env.RELEASE_SHA }}
-          path: proof/3000-ProductionTruth.json
+          name: boundary-proof-${{ env.RELEASE_SHA }}
+          path: proof/BOUNDARY_PROOF.json
           retention-days: 30
