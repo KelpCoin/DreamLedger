@@ -1,16 +1,39 @@
 services:
   - type: web
-    name: dreamledger-bec-prime
+    name: dreamledger-storefront
     runtime: node
     plan: starter
     branch: main
-    rootDir: BEC-PRIME
+    rootDir: public
     autoDeployTrigger: commit
     renderSubdomainPolicy: enabled
     domains:
       - dreamledger.org
       - www.dreamledger.org
       - qr.dreamledger.org
+    buildCommand: npm install --omit=dev --no-audit --no-fund
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "24.14.1"
+      - key: ENGINE_INTERNAL_URL
+        fromService:
+          type: pserv
+          name: dreamledger-engine
+          property: hostport
+      - key: ENGINE_INTERNAL_API_KEY
+        fromService:
+          type: pserv
+          name: dreamledger-engine
+          envVarKey: ENGINE_INTERNAL_API_KEY
+
+  - type: pserv
+    name: dreamledger-engine
+    runtime: node
+    plan: starter
+    branch: main
+    rootDir: BEC-PRIME
     buildCommand: npm run build
     startCommand: npm start
     healthCheckPath: /healthz
@@ -48,6 +71,8 @@ services:
       - key: MARKETPLACE_ADMIN_TOKEN
         generateValue: true
       - key: M2M_API_KEY
+        generateValue: true
+      - key: ENGINE_INTERNAL_API_KEY
         generateValue: true
       - key: DIGITAL_PROXY_LM_ENABLED
         value: "false"
