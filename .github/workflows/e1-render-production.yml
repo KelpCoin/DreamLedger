@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      RELEASE_SHA: \${{ inputs.release_sha || github.sha }}
-      RENDER_DEPLOY_HOOK_URL: \${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-      RENDER_API_KEY: \${{ secrets.RENDER_API_KEY }}
-      RENDER_SERVICE_ID: \${{ secrets.RENDER_SERVICE_ID }}
+      RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
       BASE_URL: https://dreamledger.org
     steps:
       - name: Checkout exact release
