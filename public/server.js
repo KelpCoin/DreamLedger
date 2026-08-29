@@ -69,7 +69,7 @@ function proxy(req, res, body) {
     headers: {
       'x-dreamledger-internal-key': ENGINE_KEY,
       'content-type': req.headers['content-type'] || 'application/octet-stream',
-      'content-length': Buffer.byteLength(body),
+      'content-length': Buffer.isBuffer(body) ? body.length : Buffer.byteLength(body),
       'stripe-signature': req.headers['stripe-signature'] || ''
     }
   };
@@ -120,7 +120,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (p === '/webhook' && req.method === 'POST') {
-    try { return proxy(req, res, (await readBody(req)).toString('utf8')); }
+    try { return proxy(req, res, await readBody(req)); }
     catch { return send(res, 400, 'Bad request', 'text/plain; charset=utf-8'); }
   }
 
@@ -132,7 +132,7 @@ const server = http.createServer(async (req, res) => {
     catch { return send(res, 400, 'Bad request', 'text/plain; charset=utf-8'); }
   }
 
-  const file = PUBLIC_FILES[p];
+  if (req.method === 'GET' && p.startsWith('/billboard/media/')) {\n    return proxy(req, res, Buffer.alloc(0));\n  }\n\n  const file = PUBLIC_FILES[p];
   if (!file || req.method !== 'GET') return send(res, 404, 'Not Found', 'text/plain; charset=utf-8');
   const full = path.join(ROOT, file);
   fs.readFile(full, (err, data) => {
