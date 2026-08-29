@@ -1,0 +1,23 @@
+name: verify-distribution
+
+on:
+  push:
+    paths:
+      - 'BEC-PRIME/distribution/**'
+      - 'BEC-PRIME/routes/distributionDoorway.js'
+      - 'BEC-PRIME/scripts/Verify-DistributionEngine.js'
+      - 'BEC-PRIME/package.json'
+      - 'BEC-PRIME/start.js'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/Verify-DistributionEngine.js
