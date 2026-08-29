@@ -1,0 +1,56 @@
+{
+  "schema_version": "BEC-CAMPAIGN-SPEC-1.0",
+  "campaign_id": "D-001",
+  "status": "DRAFT",
+  "created_by": "DECK",
+  "silo": "SILO_DREAMLEDGER",
+  "offer": {
+    "offer_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "price_nzd": 50
+  },
+  "objective": {
+    "metric": "PAYMENT_RECEIVED",
+    "target": 1,
+    "amount_nzd": 50
+  },
+  "audience": {
+    "description": "qualified creators and small businesses",
+    "max_targets": 10
+  },
+  "channels": [
+    {
+      "type": "direct_outreach",
+      "mode": "PREPARE_ONLY",
+      "external_action_requires_approval": true
+    }
+  ],
+  "doorway": {
+    "canonical": "https://dreamledger.org/go",
+    "campaign_id": "D-001"
+  },
+  "qr": {
+    "asset_id": "QR-CANONICAL-001",
+    "canonical": "https://dreamledger.org/go",
+    "placement_variants_allowed": true
+  },
+  "success_criteria": {
+    "min_payments": 1,
+    "payment_amount_nzd": 50
+  },
+  "kill_condition": {
+    "max_qualified_targets": 10,
+    "max_human_minutes": 15
+  },
+  "approval": {
+    "required": true,
+    "status": "PENDING",
+    "public_action_allowed": false
+  },
+  "human_time_budget_minutes": 15,
+  "evidence_required": [
+    "campaign_spec_hash",
+    "approval_event",
+    "execution_event",
+    "payment_proof_or_zero_payment_result"
+  ]
+}
