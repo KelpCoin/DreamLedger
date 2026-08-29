@@ -15,6 +15,7 @@ const MIME = {'.html':'text/html; charset=utf-8','.txt':'text/plain; charset=utf
 
 function headers(res){
   res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');
+  res.setHeader('X-DreamLedger-Storefront','public-v1');
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
@@ -46,6 +47,7 @@ const server=http.createServer(async(req,res)=>{
   if(p==='/webhook'&&req.method==='POST'){try{return proxy(req,res,await readBody(req));}catch{return send(res,400,'Bad request','text/plain; charset=utf-8');}}
   if(p==='/webhook')return send(res,405,'Method not allowed','text/plain; charset=utf-8');
   if(p.startsWith('/api/')){if(!isAllowedApi(p))return send(res,404,'Not Found','text/plain; charset=utf-8');try{return proxy(req,res,await readBody(req));}catch{return send(res,400,'Bad request','text/plain; charset=utf-8');}}
+  if(req.method==='GET'&&p.startsWith('/billboard/media/'))return proxy(req,res,Buffer.alloc(0));
   const file=PUBLIC_FILES[p];
   if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');
   fs.readFile(path.join(ROOT,file),(err,data)=>{if(err)return send(res,404,'Not Found','text/plain; charset=utf-8');res.setHeader('Content-Type',MIME[path.extname(file).toLowerCase()]||'application/octet-stream');res.setHeader('Cache-Control','no-store');send(res,200,data);});
