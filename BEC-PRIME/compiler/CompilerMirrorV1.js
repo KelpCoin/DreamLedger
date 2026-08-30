@@ -11,6 +11,7 @@ const ALLOW = [
   ['compiled/website/index.html', 'public/index.html'],
   ['compiled/website/cinema.html', 'public/cinema.html'],
   ['compiled/website/digital-products.html', 'public/digital-products.html'],
+  ['compiled/website/security.html', 'public/security.html'],
   ['compiled/website/login.html', 'public/login.html'],
   ['compiled/website/register.html', 'public/register.html'],
   ['compiled/website/account.html', 'public/account.html'],
