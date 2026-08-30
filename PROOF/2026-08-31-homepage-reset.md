@@ -2,24 +2,36 @@
 
 Date: 2026-08-31
 
-Status: IMPLEMENTED
+Status: CODE COMPLETE / PRODUCTION DEPLOYMENT NOT YET VERIFIED
 
-Scope:
-- Replaced the live public homepage with a catalogue-first, thumb-first storefront.
-- Billboard is retained as a small pioneer product module and top-left discovery cue.
+Implemented on main:
+- Replaced public/index.html with a catalogue-first, thumb-first storefront.
 - DreamMee is confined to a small top-right interaction.
-- Product discovery is organised into horizontal swipe rails.
-- Removed public payment-logo clutter.
-- Removed internal BECK PRIME, MCP, Gauntlet, Truth Oracle, Economic Court, RA_000001 and implementation language from the homepage.
-- Public product claims are limited to catalogue facts and explicit product descriptions.
-- Added a public GET /api/products proxy from the storefront to the server-authoritative product catalogue.
+- Billboard is retained as a small pioneer product module and top-left discovery cue.
+- Product discovery uses horizontal swipe rails.
+- MTG is a product shelf, not the identity of the whole storefront.
+- Removed homepage payment-logo clutter.
+- Removed internal BECK PRIME, MCP, Gauntlet, Truth Oracle, Economic Court and RA_000001 language from the public homepage.
+- Added GET /api/products as an explicit public catalogue projection through the storefront proxy.
+- Kept engine credentials server-side.
+- Aligned BEC-PRIME/surface/catalog.html with the same storefront.
+- Updated public-surface verification contracts and Render production checks to match the new public surface.
+- Bumped the public storefront contract marker to public-v5.
 
-Public boundary:
-- The storefront exposes only the public product projection.
-- Internal engine credentials remain server-side.
-- No Stripe secret is sent to the browser.
-- No autonomous payment execution is added.
+Evidence:
+- public/index.html SHA: 9f773b6e21b3acf07dafe9fd32176649d14d718d
+- public/server.js SHA: 2361c60f95ba027208a5b8e06abbd4129419ad41
+- BEC-PRIME/surface/catalog.html SHA: 9f773b6e21b3acf07dafe9fd32176649d14d718d
+- Latest homepage/workflow changes are committed on main.
 
-Production note:
-- PR #193 is already merged on main.
-- This homepage change is a separate production storefront change.
+Production truth:
+- A live check of https://dreamledger.org on 2026-08-31 still returned the older DreamLedger 3000 billboard-first homepage.
+- Therefore the repository is updated, but the new storefront has NOT been claimed as live.
+- The repository contains an existing Render production workflow that is intended to deploy main and verify /version plus the public boundary.
+- No claim of live deployment is made until that workflow or an equivalent production probe returns the new public-v5 surface.
+
+Safety:
+- No public social posting was performed.
+- No payment was executed.
+- No Stripe secret was exposed.
+- RA_000001 remains unclaimed.
