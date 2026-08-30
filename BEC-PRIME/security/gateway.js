@@ -49,7 +49,7 @@ function verifyProof(proofId) {
   if (!fs.existsSync(file)) return { verified:false, reason:'Proof not found' };
   const proof = readJson(file);
   if (!proof.data || !proof.hash) return { verified:false, reason:'Proof hash missing' };
-  const computed = hash(JSON.stringify(proof.data, Object.keys(proof.data).sort()));
+  const computed = ledger.sha256(proof.data);
   return { proof_id:proofId, verified:computed === proof.hash, computed_hash:computed };
 }
 
@@ -93,7 +93,7 @@ function proposeCheckout(args) {
   if (Number(cart.price) !== Number(checkout.amount)) return { error:'Price mismatch', expected:Number(cart.price), provided:Number(checkout.amount) };
   const court = courtEvaluate('CHECKOUT', checkout, silo);
   if (court.decision === 'BLOCKED') return { status:'BLOCKED', court };
-  const proposal = { checkout_id:'CHECKOUT-' + crypto.randomUUID(), status:'AWAITING_HUMAN_APPROVAL', silo, checkout, cart_hash:hash(JSON.stringify(cart)), court, capital_authority:'ZERO', execution:'BLOCKED', executed:false };
+  const proposal = { checkout_id:'CHECKOUT-' + crypto.randomUUID(), status:'AWAITING_HUMAN_APPROVAL', silo, checkout, cart_hash:ledger.sha256(cart), court, capital_authority:'ZERO', execution:'BLOCKED', executed:false };
   ledger.appendEvent({ event_type:'MCP_CHECKOUT_PROPOSED', silo, actor:{type:'model-proposal',id:'gemma'}, payload:proposal, result:'ELIGIBLE_FOR_HUMAN_APPROVAL' });
   return proposal;
 }
@@ -105,7 +105,7 @@ function callTool(name, args) {
   if (name === 'dl_propose_offer') return proposeOffer(args);
   if (name === 'dl_propose_checkout') return proposeCheckout(args);
   if (name === 'dl_verify_proof') return verifyProof(args.proof_id);
-  if (name === 'dl_read_ledger') return { entries:ledger.readEvents().slice(-Math.min(Number(args.limit || 100),100)).map(e => ({...e, payload:{...e.payload, customer_ref:undefined}})), chain:ledger.verifyChain(), read_only:true };
+  if (name === 'dl_read_ledger') return { entries:ledger.readEvents().slice(-Math.min(Number(args.limit || 100),100)), chain:ledger.verifyChain(), read_only:true };
   if (name === 'dl_read_inventory') return { inventory:'READ_ONLY', note:'Inventory is exposed through the canonical product surface.', read_only:true };
   if (name === 'dl_read_cartridge') { const cart = offerBySku(args.sku); if (!cart) return { error:'Not found' }; if (silo !== 'CORE' && String(cart.silo || '').toLowerCase() !== String(silo).toLowerCase()) return { error:'Silo access denied' }; const out={...cart}; delete out.internal_notes; return { sku:args.sku, cartridge:out, read_only:true }; }
   return { error:'Unhandled tool' };
