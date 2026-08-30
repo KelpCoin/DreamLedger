@@ -20,7 +20,6 @@ const PUBLIC_FILES = {
 };
 
 const ALLOWED_API = {
-  'GET /api/molt-beach-inventory': true,
   'POST /api/billboard/submit': true
 };
 
