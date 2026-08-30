@@ -1,0 +1,15 @@
+{
+  "schema_version": "BECKPRIME-MCP-MANIFEST-1.2",
+  "gateway": "dreamledger-gateway",
+  "transport": "stdio",
+  "protocol_version": "2025-11-25",
+  "tools": [
+    {"name":"dl_read_cartridge","permission":"READ_ONLY","description":"Read product cartridge by SKU"},
+    {"name":"dl_read_inventory","permission":"READ_ONLY","description":"Check inventory levels"},
+    {"name":"dl_read_ledger","permission":"READ_ONLY","description":"Query economic ledger"},
+    {"name":"dl_propose_offer","permission":"PROPOSAL_ONLY","description":"Propose a new offer for Economic Court"},
+    {"name":"dl_verify_proof","permission":"READ_ONLY","description":"Cryptographically verify a proof artifact"},
+    {"name":"dl_propose_checkout","permission":"PROPOSAL_ONLY","description":"Propose checkout for Court and human approval"}
+  ],
+  "manifest_hash": "TO_BE_COMPILED"
+}
