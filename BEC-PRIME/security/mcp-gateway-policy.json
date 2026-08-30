@@ -12,8 +12,9 @@
     "allow_npx": false,
     "allow_pip_install": false,
     "allow_git_clone": false,
-    "allowed_commands": ["python"],
-    "command_must_be_absolute_on_host": true
+    "allowed_commands": ["node"],
+    "command_must_be_absolute_on_host": true,
+    "arguments_must_be_pinned": true
   },
   "authority": {
     "proposal_only": true,
