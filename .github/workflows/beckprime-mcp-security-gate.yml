@@ -1,0 +1,25 @@
+name: BECKPrime MCP Security Gate
+
+on:
+  push:
+    branches: [main, beckprime-v1.2-mcp-hardening]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Compile MCP manifest
+        run: node security/compile-mcp-manifest.js
+      - name: Verify Node security gate
+        run: node scripts/verify-mcp-security.js
+      - name: Verify Python behavioural gateway
+        run: python3 scripts/verify-mcp-gateway.py
