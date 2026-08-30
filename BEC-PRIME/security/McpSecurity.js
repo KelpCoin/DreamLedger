@@ -8,32 +8,23 @@ const ROOT = path.join(__dirname, '..');
 const MANIFEST_PATH = path.join(__dirname, 'mcp-tool-manifest.json');
 const PIN_PATH = path.join(__dirname, 'mcp-tool-manifest.pin.json');
 
-function canonical(value) {
-  return JSON.stringify(value, Object.keys(value || {}).sort(), 0);
+function stable(value) {
+  if (Array.isArray(value)) return `[${value.map(stable).join(',')}]`;
+  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map(k => `${JSON.stringify(k)}:${stable(value[k])}`).join(',')}}`;
+  return JSON.stringify(value);
 }
-function sha256(value) {
-  return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
-}
-function canonicalTool(tool) {
-  return JSON.stringify({
-    name: tool.name,
-    description: tool.description,
-    inputSchema: tool.inputSchema
-  }, Object.keys(tool.inputSchema || {}).sort(), 0);
-}
-function loadManifest() {
-  return JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
-}
+function sha256(value) { return crypto.createHash('sha256').update(value, 'utf8').digest('hex'); }
+function canonicalTool(tool) { return stable({ name: tool.name, description: tool.description, inputSchema: tool.inputSchema }); }
+function loadManifest() { return JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8')); }
 function manifestHash(manifest) {
   const tools = [...manifest.tools].sort((a, b) => a.name.localeCompare(b.name));
-  return sha256(JSON.stringify(tools.map(t => JSON.parse(canonicalTool(t)))));
+  return sha256(`[${tools.map(canonicalTool).join(',')}]`);
 }
 function verifyToolManifest() {
   const manifest = loadManifest();
   const actual = manifestHash(manifest);
   const pin = JSON.parse(fs.readFileSync(PIN_PATH, 'utf8'));
-  const ok = actual === String(pin.sha256 || '').toLowerCase();
-  if (!ok) throw new Error(`MCP tool manifest hash mismatch: expected ${pin.sha256}, actual ${actual}`);
+  if (actual !== String(pin.sha256 || '').toLowerCase()) throw new Error(`MCP tool manifest hash mismatch: expected ${pin.sha256}, actual ${actual}`);
   return { status: 'PASS', sha256: actual, tool_count: manifest.tools.length };
 }
 function rejectEnvExpansion(value) {
@@ -65,26 +56,9 @@ function safePath(base, relative) {
   return candidate;
 }
 function verifyProofShape(proof) {
-  if (!proof || typeof proof !== 'object') return { verified: false, reason: 'Invalid proof object' };
-  if (!proof.data || proof.hash !== undefined) {
-    if (!proof.data || typeof proof.hash !== 'string') return { verified: false, reason: 'Proof requires data and hash' };
-  }
-  const computed = sha256(JSON.stringify(proof.data));
-  return computed === String(proof.hash).toLowerCase()
-    ? { verified: true, computed_hash: computed }
-    : { verified: false, computed_hash: computed, reason: 'Hash mismatch' };
+  if (!proof || typeof proof !== 'object' || !proof.data || typeof proof.hash !== 'string') return { verified: false, reason: 'Proof requires data and hash' };
+  const computed = sha256(stable(proof.data));
+  return computed === String(proof.hash).toLowerCase() ? { verified: true, computed_hash: computed } : { verified: false, computed_hash: computed, reason: 'Hash mismatch' };
 }
 
-module.exports = {
-  ROOT,
-  loadManifest,
-  manifestHash,
-  verifyToolManifest,
-  rejectEnvExpansion,
-  assertLocalCommand,
-  assertNoShellMeta,
-  validateCustomerRef,
-  validateSilo,
-  safePath,
-  verifyProofShape
-};
+module.exports = { ROOT, loadManifest, manifestHash, verifyToolManifest, rejectEnvExpansion, assertLocalCommand, assertNoShellMeta, validateCustomerRef, validateSilo, safePath, verifyProofShape };
