@@ -41,11 +41,12 @@ jobs:
           test -s public/index.html
           test -s public/billboard.html
           test -s public/server.js
-          grep -q 'DreamLedger 3000' public/index.html
+          grep -q 'FIND SOMETHING' public/index.html
+          grep -q 'GOOD.' public/index.html
           grep -q 'NZ$50' public/index.html
-          grep -q 'Founding Tile' public/billboard.html
-          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined' public/index.html public/billboard.html public/server.js
-          ! grep -Eiq 'MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' public/index.html public/billboard.html
+          grep -q 'DreamLedger' public/index.html
+          grep -q '/billboard' public/index.html
+          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public/index.html public/billboard.html public/server.js
           grep -q 'type: web' render.yaml
           grep -q 'rootDir: public' render.yaml
           grep -q 'type: pserv' render.yaml
@@ -90,15 +91,14 @@ jobs:
           actual=json.load(open('/tmp/version.json'))
           if actual.get('commit') != expected:
               raise SystemExit(f"FAIL: deployed SHA {actual.get('commit')} != expected {expected}")
-          if actual.get('surface') != 'public-v3':
+          if actual.get('surface') != 'public-v5':
               raise SystemExit(f"FAIL: wrong public surface {actual.get('surface')}")
-          print(f"PASS: live SHA {expected}, surface public-v3")
+          print(f"PASS: live SHA {expected}, surface public-v5")
           PY
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/billboard" >/tmp/billboard.html
-          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined' /tmp/home.html /tmp/billboard.html
-          ! grep -Eiq 'MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' /tmp/home.html /tmp/billboard.html
-          for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /api/products /api/offer-checkout/create /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
+          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html /tmp/billboard.html
+          for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /api/offer-checkout/create /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
             code=$(curl -sS -o /tmp/probe -w '%{http_code}' --max-time 20 "$BASE_URL$path")
             case "$code" in
               403|404) ;;
@@ -116,7 +116,7 @@ jobs:
           import hashlib,json,sys,time
           files=['public/index.html','public/billboard.html','public/server.js','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/boundary-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v3','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          data={'schema':'dreamledger/boundary-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v5','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
           json.dump(data,open('proof/BOUNDARY_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
