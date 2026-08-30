@@ -1,7 +1,12 @@
 {
-  "name":"dreamledger-public-storefront",
-  "private":true,
-  "version":"1.0.0",
-  "engines":{"node":">=24 <25"},
-  "scripts":{"start":"node server.js"}
+  "name": "dreamledger-public-storefront",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "verify:surface": "node scripts/verify-phone-first-surface.js"
+  }
 }
