@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DreamLedger | Security & Trust</title>
+<style>
+body{margin:0;background:#070707;color:#f5f1e8;font:16px/1.6 system-ui,sans-serif}.wrap{max-width:900px;margin:auto;padding:48px 20px}a{color:#e5bd5b}.card{border:1px solid #292929;border-radius:20px;background:#101010;padding:24px;margin:16px 0}.ok{color:#7fdb9f}.warn{color:#d6ae68}code{background:#171717;padding:2px 5px;border-radius:5px}
+</style>
+</head>
+<body><main class="wrap">
+<p><a href="/">DreamLedger</a></p>
+<h1>Security & Trust</h1>
+<p>This page describes the authority boundary behind DreamLedger's agent tooling. The public site does not grant an AI model authority to publish, charge, delete or execute arbitrary commands.</p>
+<div class="card"><h2 class="ok">Model: propose only</h2><p>Gemma may inspect allowlisted information and propose offers or checkout actions. Proposals enter the Economic Court and cannot create a payment session.</p></div>
+<div class="card"><h2 class="ok">Economic Court: human approval</h2><p>Checkout proposals move through <code>PROPOSED</code> → <code>COURT_CHECKED</code> → <code>AWAITING_HUMAN_APPROVAL</code> → <code>HUMAN_APPROVED</code> → <code>EXECUTABLE</code>. No autonomous spend authority exists.</p></div>
+<div class="card"><h2 class="ok">MCP: six allowlisted tools</h2><p>The gateway exposes only read-only or proposal-only tools. Tool definitions are pinned by SHA-256 and changes require re-verification.</p></div>
+<div class="card"><h2 class="ok">Sandbox: no network</h2><p>The hardened local configuration runs the MCP gateway in a Docker container with a read-only filesystem, no network, dropped Linux capabilities and no-new-privileges. Product and proof inputs are mounted read-only; only the audit volume is writable.</p></div>
+<div class="card"><h2 class="warn">Proof is not revenue</h2><p>Architecture, deployment, page views and AI assertions do not count as revenue. RA_000001 remains a real stranger payment with independent settlement evidence.</p></div>
+<p><a href="/billboard">Return to the storefront</a></p>
+</main></body></html>
