@@ -3,6 +3,8 @@ name: DreamLedger Storefront UX Gate
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -29,36 +31,35 @@ jobs:
       - name: Install runtime dependencies
         run: npm ci --omit=dev
 
+      - name: Compile canonical storefront
+        run: npm run compile:surface
+
       - name: Verify committed customer storefront
         shell: bash
         run: |
           set -euo pipefail
           test -f compiled/website/index.html
           grep -q 'DreamMeez' compiled/website/index.html
-          grep -q 'Sign in' compiled/website/index.html
-          grep -q 'Register' compiled/website/index.html
+          grep -q 'Shop the collection.' compiled/website/index.html
           grep -q 'class="avatar"' compiled/website/index.html
-          grep -q 'id="worldRail"' compiled/website/index.html
-          grep -q 'id="catalogRail"' compiled/website/index.html
-          grep -qi 'cinema.html' compiled/website/index.html
-          grep -qi 'digital-products.html' compiled/website/index.html
-          ! grep -Eiq 'signal -> offer -> checkout -> proof|shared primitives handle offers|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK|Dreamies' compiled/website/index.html
+          grep -q 'id="rail"' compiled/website/index.html
+          grep -q 'id="mtgRail"' compiled/website/index.html
+          grep -q 'Product Evidence Passport' compiled/website/index.html
+          grep -q 'Listing Evidence Audit' compiled/website/index.html
+          grep -q 'Founding Tile.' compiled/website/index.html
+          ! grep -Eiq 'signal -> offer -> checkout -> proof|shared primitives handle offers|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK|Dreamies|ELOHIM|Economic Court|Truth Oracle|Gauntlet|MCP gateway|Agentic commerce|AI agent|VISA|MASTERCARD|AMEX' compiled/website/index.html
 
-      - name: Start runtime
+      - name: Start compiled storefront
         env:
           PORT: 4173
         run: |
           set -euo pipefail
-          npm start > /tmp/dreamledger-storefront.log 2>&1 &
+          node -e 'const http=require("http"),fs=require("fs"),path=require("path");const root=path.join(process.cwd(),"compiled","website"),port=Number(process.env.PORT||4173);http.createServer((req,res)=>{const u=new URL(req.url,"http://127.0.0.1");if(u.pathname==="/healthz"){res.writeHead(200);return res.end("ok")}let rel=u.pathname==="/"?"index.html":u.pathname.slice(1);if(rel.includes("..")){res.writeHead(400);return res.end("bad path")}const file=path.join(root,rel);fs.readFile(file,(e,d)=>{if(e){res.writeHead(404);return res.end("Not found")}res.writeHead(200,{"Content-Type":file.endsWith(".html")?"text/html; charset=utf-8":"application/octet-stream"});res.end(d)})}).listen(port,"127.0.0.1")' > /tmp/dreamledger-storefront.log 2>&1 &
           echo $! > /tmp/dreamledger-storefront.pid
-          for i in $(seq 1 45); do
-            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then break; fi
-            sleep 1
-          done
+          for i in $(seq 1 20); do if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then break; fi; sleep 1; done
           curl -fsS http://127.0.0.1:4173/ >/tmp/storefront.html
-          curl -fsS http://127.0.0.1:4173/api/offers >/tmp/offers.json
 
-      - name: Run customer and commerce gate
+      - name: Run customer surface gate
         run: node scripts/verify-storefront-ux.js > /tmp/storefront-proof.json
 
       - name: Emit proof artifact

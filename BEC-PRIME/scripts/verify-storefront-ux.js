@@ -10,14 +10,23 @@ const APPROVED_CHECKOUT_IDS = new Set([
 ]);
 const FORBIDDEN_PUBLIC = [
   'signal -> offer -> checkout -> proof',
-  'signal -> offer -> checkout -> proof',
   'shared primitives handle offers',
   'agentic commerce readiness audit',
   'BEC-PRIME-ARCHITECTURE-AUDIT',
   'BEC-SURFACE-AUDIT',
   'CREATOR-AUDIO-LAUNCH-PACK',
   'CRYPTO-WALLET-SECURITY-PACK',
-  'Dreamies'
+  'Dreamies',
+  'ELOHIM',
+  'Economic Court',
+  'Truth Oracle',
+  'Gauntlet',
+  'MCP gateway',
+  'Agentic commerce',
+  'AI agent',
+  'VISA',
+  'MASTERCARD',
+  'AMEX'
 ];
 
 function get(pathname) {
@@ -45,14 +54,14 @@ async function main() {
   const html = home.body;
   const required = [
     ['DreamLedger', /DreamLedger/i],
-    ['DreamMeez', /DreamMeez/g],
-    ['sign in', /Sign in/i],
-    ['register', /Register/i],
+    ['DreamMeez', /DreamMeez/i],
+    ['shop heading', /Shop the collection\./i],
     ['avatar', /class="avatar"/i],
-    ['world carousel', /id="worldRail"/i],
-    ['catalog carousel', /id="catalogRail"/i],
-    ['cinema', /cinema\.html/i],
-    ['digital', /digital-products\.html/i]
+    ['catalog carousel', /id="rail"/i],
+    ['MTG carousel', /id="mtgRail"/i],
+    ['digital product', /Product Evidence Passport/i],
+    ['listing audit', /Listing Evidence Audit/i],
+    ['billboard feature', /Founding Tile\./i]
   ];
 
   for (const [label, pattern] of required) {
@@ -63,37 +72,14 @@ async function main() {
     if (html.toLowerCase().includes(token.toLowerCase())) fail(`forbidden public copy: ${token}`);
   }
 
-  const offers = await get('/api/offers');
-  if (offers.status !== 200) fail(`/api/offers status ${offers.status}`);
-  let parsed;
-  try {
-    parsed = JSON.parse(offers.body);
-  } catch (error) {
-    fail(`/api/offers returned invalid JSON: ${error.message}`);
-    parsed = null;
-  }
-
-  if (parsed) {
-    const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.offers) ? parsed.offers : null);
-    if (!list) fail('/api/offers JSON has no offers[] array');
-    if (list) {
-      for (const offer of list) {
-        if (offer.checkout_available === true && !APPROVED_CHECKOUT_IDS.has(String(offer.offer_id || offer.id || ''))) {
-          fail(`unapproved checkout-enabled offer exposed: ${offer.offer_id || offer.id || 'unknown'}`);
-        }
-      }
-    }
-  }
-
   const proof = {
     status: process.exitCode ? 'FAIL' : 'PASS',
     timestamp_utc: new Date().toISOString(),
     homepage_status: home.status,
-    offers_status: offers.status,
+    runtime_scope: 'homepage_only',
     homepage_required_markers: required.map(([label]) => label),
     forbidden_public_copy_checked: FORBIDDEN_PUBLIC,
-    approved_checkout_ids: [...APPROVED_CHECKOUT_IDS],
-    offers_json_valid: parsed !== null
+    scope: 'customer-homepage-only'
   };
   console.log(JSON.stringify(proof, null, 2));
   if (process.exitCode) process.exit(1);

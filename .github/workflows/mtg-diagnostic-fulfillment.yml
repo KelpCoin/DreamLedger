@@ -48,9 +48,9 @@ jobs:
             'cinema.html'
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
-          $home = Get-Content BEC-PRIME/compiled/website/index.html -Raw
-          foreach ($token in @('Horizontal catalogue','href="/mtg"','href="/cinema.html"','href="/digital-products.html"','href="/avatar.html"')) {
-            if ($home -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
+          $homeHtml = Get-Content BEC-PRIME/compiled/website/index.html -Raw
+          foreach ($token in @('Shop the collection.','DreamMeez','class="avatar"','id="rail"','id="mtgRail"','Product Evidence Passport','Listing Evidence Audit','Founding Tile.')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
           }
-          if ($home -match 'Agentic Commerce Readiness Audit') { throw 'Historical audit homepage residue detected' }
+          if ($homeHtml -match 'Agentic Commerce Readiness Audit') { throw 'Historical audit homepage residue detected' }
           Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Cinema + Digital Products + Avatar surfaces present'

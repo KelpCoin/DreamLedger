@@ -11,8 +11,8 @@ const forbidden=[
   /BEGIN .*PRIVATE KEY/i,/private prompts/i,/internal ledger records/i,
   /FIRST_PAYMENT_PROOF\.json/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i,
   /cinema-event-v1/i
-];
-const CATALOG_REQUIRED=['DREAMLEDGER','Things you can buy.','Billboard','MTG','NZ$50','NZ$400','NZ$385','NZ$700'];
+ ];
+const CATALOG_REQUIRED=['DREAMLEDGER','Find something','Shop the collection.','Billboard','MTG','DreamMeez','NZ$50','Product Evidence Passport','Listing Evidence Audit'];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
 const authPages=['login.html','register.html','account.html'];
@@ -41,6 +41,8 @@ const indexPath=path.join(site,'index.html');
 let index='';
 try{index=fs.readFileSync(indexPath,'utf8')}catch(e){errors.push('CATALOGUE_SURFACE:index.html unreadable')}
 for(const requiredText of CATALOG_REQUIRED){if(!index.toLowerCase().includes(requiredText.toLowerCase()))errors.push(`CATALOGUE_REQUIRED_MISSING:${requiredText}`)}
+const homepageForbidden=[/ELOHIM/i,/Economic Court/i,/Truth Oracle/i,/Gauntlet/i,/MCP gateway/i,/Agentic commerce/i,/AI agent/i,/VISA/i,/MASTERCARD/i,/AMEX/i];
+for(const re of homepageForbidden){if(re.test(index))errors.push(`HOMEPAGE_COPY_LEAK:${re}`)}
 const agentPath=path.join(site,'.well-known','agent-commerce.json');
 let agent={};
 try{agent=JSON.parse(fs.readFileSync(agentPath,'utf8'))}catch(e){errors.push('AGENT_BOUNDARY:invalid agent-commerce.json')}
