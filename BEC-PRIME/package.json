@@ -9,6 +9,7 @@
     "build":"npm install --omit=dev --no-audit --no-fund && node -e \"require('ajv'); console.log('AJV_RUNTIME_OK')\" && npm run compile",
     "test":"node --test scripts/test-mvp-policy.js",
     "smoke:dreamiez":"node scripts/smoke-dreamiez.js",
+    "bootstrap:mcp":"pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Bootstrap-GemmaMCP-v1.2.ps1",
     "verify:mcp":"node scripts/verify-mcp-gateway.js",
     "verify:mcp-legacy":"python scripts/verify-mcp-gateway.py",
     "verify:mcp-security":"node scripts/verify-mcp-security.js",
