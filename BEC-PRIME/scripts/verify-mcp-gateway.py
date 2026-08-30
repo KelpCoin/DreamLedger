@@ -64,7 +64,9 @@ try:
     check('TOOLS_EXACT', names == expected, 'exact six-tool allowlist')
     r = rpc(proc, {'jsonrpc':'2.0','id':5,'method':'tools/call','params':{'name':'dl_propose_checkout','arguments':{'sku':'TEST','amount':50,'customer_ref':'test','silo':'CORE'}}})
     payload = json.loads(r['result']['content'][0]['text'])
-    check('CHECKOUT_PROPOSAL_ONLY', payload.get('capital_authority') == 'ZERO' and payload.get('execution') == 'BLOCKED', 'no autonomous execution')
+    authority = payload.get('capital_authority') or payload.get('court', {}).get('capital_authority')
+    ok = payload.get('status') == 'AWAITING_HUMAN_APPROVAL' and payload.get('execution') == 'BLOCKED' and authority == 'ZERO' and payload.get('executed') is False
+    check('CHECKOUT_PROPOSAL_ONLY', ok, 'state=' + str(payload.get('status')) + ', execution=' + str(payload.get('execution')) + ', authority=' + str(authority))
     r = rpc(proc, {'jsonrpc':'2.0','id':6,'method':'tools/call','params':{'name':'dl_execute_powershell','arguments':{'command':'whoami'}}})
     check('DANGEROUS_TOOL_REJECTED', r.get('error',{}).get('code') == -32000, 'unknown execution tool rejected')
 finally:
