@@ -112,7 +112,7 @@ jobs:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          for path in / /healthz /version /gauntlet.html /register.html; do
+          for path in / /healthz /version /mtg.html /security.html /register.html; do
             code=$(curl -sS -o /tmp/response --retry 3 --retry-delay 2 --max-time 15 -w '%{http_code}' "$BASE_URL$path")
             echo "$path HTTP=$code"
             test "$code" = "200"
