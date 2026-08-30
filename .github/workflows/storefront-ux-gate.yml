@@ -52,6 +52,8 @@ jobs:
       - name: Start runtime
         env:
           PORT: 4173
+          ENGINE_INTERNAL_API_KEY: ci-test-only-not-a-secret
+          ENGINE_INTERNAL_URL: http://127.0.0.1:65535
         run: |
           set -euo pipefail
           npm start > /tmp/dreamledger-storefront.log 2>&1 &
