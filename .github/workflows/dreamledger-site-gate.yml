@@ -27,14 +27,16 @@ jobs:
           test -s public/billboard.html
           test -s public/server.js
           test -s public/package.json
-          grep -q 'DreamLedger 3000' public/index.html
+          grep -q 'FIND SOMETHING' public/index.html
+          grep -q 'GOOD.' public/index.html
           grep -q 'NZ$50' public/index.html
           grep -q '/billboard' public/index.html
-          grep -q 'DreamLedger 3000' public/billboard.html
+          grep -q 'DREAMLEDGER' public/billboard.html
           grep -q 'NZ$50' public/billboard.html
           grep -q '/api/billboard/submit' public/billboard.html
-          grep -q "GET /api/molt-beach-inventory" public/server.js
-          grep -q "POST /api/billboard/submit" public/server.js
+          grep -q "'GET /api/molt-beach-inventory':true" public/server.js
+          grep -q "'GET /api/products':true" public/server.js
+          grep -q "'POST /api/billboard/submit':true" public/server.js
           grep -q "p==='/healthz'" public/server.js
           grep -q "p==='/version'" public/server.js
           echo 'PASS: current public storefront contract is present.'
@@ -56,7 +58,7 @@ jobs:
           grep -q "const PUBLIC_FILES" public/server.js
           grep -q "'/': 'index.html'" public/server.js
           grep -q "'/billboard': 'billboard.html'" public/server.js
-          grep -q "if(!ALLOWED_API\[apiKey\])" public/server.js
+          grep -q "if(!ALLOWED_API\[key\])" public/server.js
           grep -q "return send(res,404,'Not Found'" public/server.js
           echo 'PASS: public route and API allowlists are explicit.'
 
