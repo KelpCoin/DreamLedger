@@ -62,16 +62,16 @@ jobs:
           from pathlib import Path
           approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
           offers = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
-          target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT'), None)
+          target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD'), None)
           if not target:
               raise SystemExit('APPROVED_ARCHITECTURE_AUDIT=FAIL')
-          if target.get('price') != 49 or target.get('currency') != 'NZD':
+          if target.get('price') != 29 or target.get('currency') != 'NZD':
               raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
           if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
               raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
           if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
               raise SystemExit('PAYMENT_LINK_URL=FAIL')
-          if target.get('product_id') != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+          if target.get('product_id') != 'CMD-DIAG-29':
               raise SystemExit('PRODUCT_ID=FAIL')
           print('APPROVED_ARCHITECTURE_AUDIT=PASS')
           print('APPROVED_PRICE_CURRENCY=PASS')
@@ -118,8 +118,8 @@ jobs:
             test "$code" = "200"
           done
           body=$(curl -sS --retry 3 --retry-delay 2 --max-time 15 "$BASE_URL/")
-          echo "$body" | grep -q 'Agentic Commerce Readiness Audit'
-          echo "$body" | grep -q 'NZD 49'
+          echo "$body" | grep -q 'Commander Deck Diagnostic'
+          echo "$body" | grep -q 'NZD 29'
           echo 'LIVE_FRONT_DOOR=PASS'
 
       - name: Verify checkout contract without purchase
@@ -131,7 +131,7 @@ jobs:
           response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data '{"sku":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}')
+            --data '{"sku":"CMD-DIAG-29"}')
           python3 - <<'PY' "$response"
           import json, sys
           data = json.loads(sys.argv[1])
@@ -140,13 +140,13 @@ jobs:
           amount = data.get('amount_nzd')
           if not url.startswith('https://') or 'stripe.com' not in url:
               raise SystemExit('CHECKOUT_URL=FAIL')
-          if sku != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+          if sku != 'CMD-DIAG-29':
               raise SystemExit('CHECKOUT_SKU=FAIL')
-          if amount != 49:
+          if amount != 29:
               raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
           print('CHECKOUT_URL=PASS')
           print('CHECKOUT_SKU=PASS')
-          print('CHECKOUT_AMOUNT_NZD_49=PASS')
+          print('CHECKOUT_AMOUNT_NZD_29=PASS')
           print('PURCHASE_EXECUTED=FALSE')
           PY
 
