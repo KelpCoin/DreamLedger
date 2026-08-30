@@ -7,6 +7,7 @@
 - NZ$50 founding placement
 - Permanent until 01.01.3000
 - Human approval before publication
+- Checkout: https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r
 
 ## Public doctrine
 
@@ -19,6 +20,10 @@ A checkout click is not revenue. Revenue is reported only after independent paym
 ## Security boundary
 
 This repository is not the confidential home of proprietary business logic, credentials, private datasets, customer records, unreleased products, or unrelated business silos. Those materials must live in private storage and private repositories.
+
+## Public URL
+
+https://dreamledger.org
 
 ## Production
 
