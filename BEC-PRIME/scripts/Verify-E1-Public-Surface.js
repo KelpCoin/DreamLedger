@@ -7,7 +7,7 @@ const SITE=path.join(ROOT,'compiled','website');
 const INDEX=path.join(SITE,'index.html');
 const PROOF_DIR=path.join(ROOT,'RUN-PROOFS');
 const PROOF=path.join(PROOF_DIR,'E1-PUBLIC-SURFACE-PROOF.json');
-const REQUIRED=['DreamLedger','BUY SOMETHING','REAL.','Billboard','MTG','NZ$50','NZ$400','NZ$385','NZ$700'];
+const REQUIRED=['DreamLedger','FIND SOMETHING','GOOD.','Billboard','MTG','NZ$50','NZ$400','NZ$385','NZ$700'];
 const FORBIDDEN=['Dream Ledger Deck','Agentic Commerce Readiness Audit','One offer. One price.','Buy the Diagnostic - NZ$29','CollectorsCoast','HappyHomarid','Amplissa','stripe_secret_key','stripe_webhook_secret','/var/data/'];
 const ROUTES={mtg:lower=>lower.includes('href="/mtg"')||lower.includes('href="/mtg.html"'),billboard:lower=>lower.includes('href="/billboard"')||lower.includes('href="/billboard.html"')};
 if(!fs.existsSync(INDEX))throw Error('public index missing: '+INDEX);
