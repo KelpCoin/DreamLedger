@@ -64,16 +64,16 @@ jobs:
           offers = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
           target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD'), None)
           if not target:
-              raise SystemExit('APPROVED_ARCHITECTURE_AUDIT=FAIL')
+              raise SystemExit('APPROVED_COMMANDER_DIAGNOSTIC=FAIL')
           if target.get('price') != 29 or target.get('currency') != 'NZD':
               raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
           if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
               raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
           if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
               raise SystemExit('PAYMENT_LINK_URL=FAIL')
-          if target.get('product_id') != 'CMD-DIAG-29':
+          if target.get('product_id') != 'COMMANDER-DECK-DIAGNOSTIC-001':
               raise SystemExit('PRODUCT_ID=FAIL')
-          print('APPROVED_ARCHITECTURE_AUDIT=PASS')
+          print('APPROVED_COMMANDER_DIAGNOSTIC=PASS')
           print('APPROVED_PRICE_CURRENCY=PASS')
           print('PAYMENT_LINK_STATUS=PASS')
           print('PAYMENT_LINK_URL=PASS')
