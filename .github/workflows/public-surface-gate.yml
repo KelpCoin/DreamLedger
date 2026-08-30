@@ -21,6 +21,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install compiler dependencies
+        working-directory: BEC-PRIME
+        run: npm ci --omit=dev
+      - name: Compile canonical public surface
+        working-directory: BEC-PRIME
+        run: npm run compile:surface
       - name: Verify public surface
         run: node BEC-PRIME/scripts/verify-public-surface.js
       - name: Upload public surface proof
