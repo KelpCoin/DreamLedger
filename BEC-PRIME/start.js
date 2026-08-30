@@ -21,7 +21,15 @@ const omniCommerce = require('./routes/omniCommerce');
 const platformCart = require('./routes/platformCart');
 const originalWriteHead = http.ServerResponse.prototype.writeHead;
 const originalEnd = http.ServerResponse.prototype.end;
-http.ServerResponse.prototype.writeHead = function(...args){ if(this.headersSent)return this; return originalWriteHead.apply(this,args); };
+http.ServerResponse.prototype.writeHead = function(...args){
+  if (this.headersSent) return this;
+  if (!this.hasHeader('X-Content-Type-Options')) this.setHeader('X-Content-Type-Options', 'nosniff');
+  if (!this.hasHeader('X-Frame-Options')) this.setHeader('X-Frame-Options', 'DENY');
+  if (!this.hasHeader('Referrer-Policy')) this.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (!this.hasHeader('Permissions-Policy')) this.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if ((process.env.NODE_ENV || process.env.RENDER_ENV) === 'production' && !this.hasHeader('Strict-Transport-Security')) this.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  return originalWriteHead.apply(this,args);
+};
 http.ServerResponse.prototype.end = function(...args){ if(this.writableEnded)return this; return originalEnd.apply(this,args); };
 const originalCreateServer = http.createServer;
 let capturedServer = null;
