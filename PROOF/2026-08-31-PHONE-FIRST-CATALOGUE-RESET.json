@@ -1,0 +1,32 @@
+{
+  "schema": "dreamledger/public-surface-reset/v1",
+  "date": "2026-08-31",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "homepage-phone-first-20260831",
+  "intent": "Phone-first thumb-first horizontal catalogue storefront reset",
+  "changes": [
+    "Billboard retained as a compact pioneer product in the upper-left catalogue strip",
+    "DreamMee retained as a compact interactive avatar in the upper-right",
+    "Homepage changed from billboard-first to catalogue-first",
+    "Primary product browsing uses horizontal scroll-snap rails",
+    "Cards expose a partial next-card cue for thumb discovery",
+    "Discovery streak stored locally and incremented by distinct product interactions",
+    "Public copy removes internal architecture and governance terminology",
+    "Payment brand logo clutter removed",
+    "Catalogue loads from the server-authoritative product endpoint",
+    "Checkout requests remain server-side and no payment credentials are exposed"
+  ],
+  "public_forbidden_terms": [
+    "BECK",
+    "Gauntlet",
+    "Economic Court",
+    "Truth Oracle",
+    "ELOHIM",
+    "BrownEye Cortex",
+    "BEC-PRIME",
+    "Amplissa",
+    "CollectorsCoast",
+    "DreamMeez"
+  ],
+  "approval_gate": "No public deployment or public posting performed by this change"
+}
