@@ -36,8 +36,9 @@ jobs:
           test -f public/index.html
           test -f public/billboard.html
           test -f public/server.js
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|DreamMeez|Monte Carlo|cinema' public; then
-            echo 'FAIL: prohibited internal, confidential, or inactive product language found in public assets.'
+          test -f public/assets/dreamledger-tile-preview.svg
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|DreamMeez|Monte Carlo|cinema|MTG|avatar ecosystem' public; then
+            echo 'FAIL: prohibited internal, confidential, cross-silo, or inactive product language found in public assets.'
             exit 1
           fi
           echo 'PASS: public assets contain no prohibited internal/confidential language.'
@@ -46,10 +47,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "'GET /api/molt-beach-inventory': true" public/server.js
           grep -q "'POST /api/billboard/submit': true" public/server.js
+          ! grep -q "'/api/molt-beach-inventory'" public/server.js
           grep -q "if(!ALLOWED_API\[apiKey\])" public/server.js
-          echo 'PASS: public API allowlist is explicit.'
+          echo 'PASS: public API allowlist contains only the checkout submission route.'
 
       - name: Check for obvious credential literals
         shell: bash
