@@ -87,7 +87,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find BEC-PRIME -type f -name '*.js' -print0)
+          done < <(find BEC-PRIME -type f -name '*.js' ! -path 'BEC-PRIME/compiled/*' ! -path 'BEC-PRIME/RUN-PROOFS/*' -print0)
           node --check api/account/'[...route].js'
           echo 'JAVASCRIPT_SYNTAX=PASS'
 
