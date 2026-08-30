@@ -12,7 +12,11 @@ async function main() {
  spawnRuntime();
  const health=await waitHealth();
  const root=await request('/');
- if (!root.text.includes('Public commerce catalogue') || !root.text.includes('BUY SOMETHING')) throw new Error('Public commerce surface missing canonical catalogue markers');
+ if (root.response.status !== 200) throw new Error('Public root did not return HTTP 200');
+ const products=await request('/api/products');
+ if (!products.body || !Array.isArray(products.body.products)) throw new Error('Public product catalogue did not return a product array');
+ const offers=await request('/api/offers');
+ if (!offers.body || !Array.isArray(offers.body.offers)) throw new Error('Public offer catalogue did not return an offer array');
  for (const p of ['/mtg','/billboard','/security.html']) await request(p);
  const headers=health.response.headers;
  if (!headers) throw new Error('Health response headers unavailable');
