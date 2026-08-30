@@ -1,0 +1,1 @@
+Public-copy cleanup session: visitor-facing pages identified as public/index.html and public/billboard.html. The new copy removes defensive engineering language from the visitor experience while retaining purchase terms and the image-review gate.
