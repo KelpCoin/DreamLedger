@@ -10,7 +10,7 @@ const NEWS=path.join(ROOT,'data','silo-news.json');
 const AUCTIONS=path.join(ROOT,'data','auctions.json');
 
 function read(file,fallback){try{return JSON.parse(fs.readFileSync(file,'utf8'));}catch{return fallback;}}
-function js(v){return JSON.stringify(v).replace(/<\\//g,'<\\\\/');}
+function js(v){return JSON.stringify(v).replace(/<\//g,'<\\/');}
 function write(file,value){fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,value,'utf8');}
 
 if(!fs.existsSync(INDEX))throw new Error('Public storefront index missing');
