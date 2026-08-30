@@ -3,34 +3,146 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger public catalogue. Buy real products from separated commercial silos.">
-<title>DreamLedger | Buy something real</title>
+<meta name="description" content="DreamLedger is a playful catalogue of things worth owning, using and discovering.">
+<title>DreamLedger | Things worth finding</title>
 <style>
-:root{--bg:#070707;--panel:#101010;--panel2:#151515;--line:#292929;--text:#f5f1e8;--muted:#96918a;--gold:#e5bd5b;--green:#7fdb9f;--red:#ff8279;--max:1240px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(var(--max),calc(100% - 28px));margin:auto}.nav{height:70px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;background:#070707f2;backdrop-filter:blur(14px)}.brand{font-weight:1000;letter-spacing:-.07em;font-size:1.15rem}.brand span{color:var(--gold)}.navlinks{display:flex;gap:18px;color:var(--muted);font-size:.75rem;font-weight:800}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #3b3b3b;border-radius:12px;padding:10px 16px;background:#151515;color:#fff;font-weight:950;cursor:pointer}.primary{background:var(--gold);color:#090909;border-color:var(--gold)}.hero{padding:72px 0 52px;border-bottom:1px solid var(--line)}.kicker{color:var(--gold);font-size:.65rem;font-weight:1000;letter-spacing:.2em;text-transform:uppercase}.hero h1{font-size:clamp(4rem,11vw,9rem);line-height:.78;letter-spacing:-.1em;margin:15px 0 24px}.hero h1 span{color:var(--gold)}.lead{max-width:780px;color:#b7b1a7;font-size:1.08rem}.heroactions{display:flex;gap:9px;flex-wrap:wrap;margin-top:25px}.trust{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}.pill{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--muted);font-size:.67rem}.live{color:var(--green);border-color:#35513d}.section{padding:58px 0;border-bottom:1px solid var(--line)}.head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:22px}.head h2{font-size:clamp(2.7rem,6vw,5.5rem);line-height:.82;letter-spacing:-.09em;margin:7px 0}.head p{max-width:520px;color:var(--muted);margin:0}.rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;scrollbar-width:thin}.card{flex:0 0 min(390px,84vw);min-height:390px;scroll-snap-align:start;border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,#171512,#0d0d0c);padding:22px;display:flex;flex-direction:column;justify-content:space-between}.card.featured{border-color:#806529;box-shadow:inset 0 0 0 1px #e5bd5b14}.card .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:.62em;letter-spacing:.13em;text-transform:uppercase}.card .status{color:var(--green)}.card h3{font-size:2.45rem;line-height:.88;letter-spacing:-.075em;margin:20px 0 12px}.card p{color:#aaa39a;max-width:330px;font-size:.84rem}.price{font-size:2rem;font-weight:1000;color:var(--gold);margin:20px 0 4px}.small{font-size:.66rem;color:#6e6962;text-transform:uppercase;letter-spacing:.12em}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.silos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.silo{border:1px solid var(--line);border-radius:15px;padding:17px;background:var(--panel)}.silo b{display:block;font-size:.8rem}.silo span{display:block;color:var(--muted);font-size:.7rem;margin-top:4px}.wall{border:1px solid var(--line);border-radius:22px;padding:10px;overflow:auto;background:#090909}.canvas{position:relative;width:1000px;height:1000px;background-color:#080808;background-image:linear-gradient(#1a1a1a 1px,transparent 1px),linear-gradient(90deg,#1a1a1a 1px,transparent 1px);background-size:100px 100px}.empty{position:absolute;inset:0;display:grid;place-items:center;color:#4d4942;font-weight:1000;letter-spacing:.12em;font-size:.7rem}.unit{position:absolute;overflow:hidden}.unit img{width:100%;height:100%;object-fit:cover}.unit a{display:block;width:100%;height:100%}.soon{opacity:.72}.soon .status{color:#d6ae68}.footer{padding:34px 0;color:#666;font-size:.68rem;display:flex;justify-content:space-between;gap:20px}@media(max-width:850px){.navlinks{display:none}.silos{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.silos{grid-template-columns:1fr}.hero{padding-top:52px}.card{flex-basis:88vw}}
+:root{--bg:#080808;--panel:#11100e;--panel2:#171512;--line:#292620;--text:#f7f2e8;--muted:#a29a8d;--gold:#e7bd58;--green:#8dd9a4;--max:1240px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 50% -15%,#302514 0,#0d0c0a 32%,#080808 58%);color:var(--text);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+.wrap{width:min(var(--max),calc(100% - 24px));margin:auto}
+.nav{height:68px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;background:#080808e8;backdrop-filter:blur(16px)}
+.brand{font-weight:1000;letter-spacing:-.07em;font-size:1.15rem}
+.brand span{color:var(--gold)}
+.navlinks{display:flex;gap:16px;color:var(--muted);font-size:.72rem;font-weight:800}
+.navlinks a:hover{color:#fff}
+.navright{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border:1px solid #3b3832;border-radius:12px;padding:9px 14px;background:#151412;color:#fff;font-weight:950;cursor:pointer}
+.primary{background:var(--gold);border-color:var(--gold);color:#090909}
+.hero{min-height:430px;padding:52px 0 34px;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:24px;align-items:end}
+.kicker{color:var(--gold);font-size:.63rem;font-weight:1000;letter-spacing:.2em;text-transform:uppercase}
+.hero h1{font-size:clamp(4rem,11vw,9rem);line-height:.78;letter-spacing:-.105em;margin:13px 0 22px;max-width:900px}
+.hero h1 span{color:var(--gold)}
+.lead{max-width:700px;color:#b9b1a4;font-size:1.05rem}
+.heroactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.avatar{justify-self:end;align-self:start;width:230px;border:1px solid #51472f;border-radius:24px;padding:15px;background:linear-gradient(150deg,#1b170f,#0e0e0d);box-shadow:0 20px 70px #000b;transform:rotate(1deg)}
+.avatar:hover{transform:rotate(0) translateY(-2px)}
+.face{height:132px;border-radius:18px;background:radial-gradient(circle at 50% 34%,#e9c26b 0 24%,transparent 25%),radial-gradient(circle at 37% 47%,#111 0 4%,transparent 5%),radial-gradient(circle at 63% 47%,#111 0 4%,transparent 5%),radial-gradient(ellipse at 50% 70%,#111 0 12%,transparent 13%),linear-gradient(145deg,#4d3a1b,#17130d);position:relative;overflow:hidden}
+.face:after{content:"";position:absolute;left:23%;right:23%;bottom:-25px;height:70px;border-radius:50%;background:#e7bd58;opacity:.35}
+.avatar h2{font-size:1.05rem;margin:11px 0 3px}
+.avatar p{font-size:.75rem;color:var(--muted);margin:0 0 11px}
+.avatar .btn{width:100%}
+.section{padding:35px 0 8px}
+.head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:12px}
+.head h2{font-size:clamp(2.4rem,6vw,5rem);line-height:.84;letter-spacing:-.09em;margin:6px 0}
+.head p{max-width:520px;color:var(--muted);margin:0;font-size:.82rem}
+.rail{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x mandatory;padding:5px 2px 18px;scrollbar-width:thin}
+.card{flex:0 0 min(310px,78vw);min-height:335px;scroll-snap-align:start;border:1px solid var(--line);border-radius:21px;background:linear-gradient(155deg,#171512,#0d0d0c);padding:18px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .16s,border-color .16s}
+.card:hover{transform:translateY(-3px);border-color:#574b32}
+.card.hero-card{border-color:#76602f;background:linear-gradient(155deg,#1d180e,#0e0d0b)}
+.card .meta{display:flex;justify-content:space-between;gap:10px;color:#756f65;font-size:.59rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.status{color:var(--green)}
+.art{height:118px;border-radius:15px;margin:-1px -1px 13px;display:grid;place-items:end;padding:13px;background:radial-gradient(circle at 25% 25%,#5c4a27 0,#242017 35%,#0c0c0b 82%);overflow:hidden}
+.art span{font-size:3.2rem;font-weight:1000;letter-spacing:-.1em;color:#e7bd58c7}
+.card h3{font-size:2rem;line-height:.9;letter-spacing:-.07em;margin:10px 0 8px}
+.card p{color:#a7a095;font-size:.79rem;margin:0;max-width:280px}
+.price{font-size:1.75rem;font-weight:1000;color:var(--gold);margin-top:14px}
+.small{font-size:.62rem;color:#706a61;text-transform:uppercase;letter-spacing:.1em}
+.card .btn{width:100%;margin-top:13px}
+.feature{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.featurebox{border:1px solid var(--line);border-radius:18px;padding:18px;background:#0e0e0d}
+.featurebox h3{margin:0 0 7px;font-size:1.2rem}
+.featurebox p{margin:0;color:var(--muted);font-size:.78rem}
+.note{font-size:.68rem;color:#686158;margin:7px 2px 0}
+.footer{margin-top:45px;padding:25px 0 34px;border-top:1px solid var(--line);color:#686158;font-size:.66rem;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:760px){.navlinks{display:none}.hero{grid-template-columns:1fr;min-height:auto;padding-top:35px}.avatar{width:210px;justify-self:end}.feature{grid-template-columns:1fr}.head{display:block}.head p{margin-top:10px}.card{flex-basis:82vw}}
+@media(max-width:480px){.wrap{width:min(var(--max),calc(100% - 16px))}.hero h1{font-size:clamp(3.5rem,17vw,5.2rem)}.heroactions .btn{width:100%}.avatar{width:100%;max-width:230px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="nav"><a class="brand" href="/">DREAM<span>LEDGER</span></a><nav class="navlinks"><a href="#live">Live</a><a href="/mtg">MTG</a><a href="/billboard">Billboard</a><a href="#soon">Coming soon</a></nav><a class="btn primary" href="#live">Shop</a></header>
+<header class="nav">
+<a class="brand" href="/">DREAM<span>LEDGER</span></a>
+<nav class="navlinks"><a href="#shop">Shop</a><a href="#mtg">MTG</a><a href="#digital">Digital</a></nav>
+<div class="navright"><a class="btn primary" href="#shop">Browse</a></div>
+</header>
+
 <main>
-<section class="hero"><div class="kicker">Public commerce catalogue</div><h1>BUY THE OUTPUT.<br><span>FOR REAL.</span></h1><p class="lead">Live products are shown with real inventory, real prices and real purchase paths. MTG and Billboard are separate commercial silos. Future worlds are clearly labelled and never counted as revenue.</p><div class="heroactions"><a class="btn primary" href="#live">Browse live products</a><a class="btn" href="/billboard">Buy billboard space</a><a class="btn" href="/mtg">Buy MTG</a></div><div class="trust"><span class="pill live">LIVE / MTG</span><span class="pill live">LIVE / BILLBOARD</span><span class="pill">TEST / INTENT</span><span class="pill">COMING SOON / DREAM MEEZ</span></div></section>
-<section class="section" id="live"><div class="head"><div><div class="kicker">Live inventory</div><h2>Things you can buy.</h2></div><p>Cards below come from the canonical product catalogue. A BUY action must lead to a real checkout. No painted-on doors.</p></div><div id="rail" class="rail"><article class="card"><div><div class="meta"><span>CATALOGUE</span><span>LOADING</span></div><h3>Loading live inventory.</h3><p>Reading the server-authoritative catalogue.</p></div></article></div></section>
-<section class="section" id="mtg"><div class="head"><div><div class="kicker">MTG / physical</div><h2>Commander and collectibles.</h2></div><p>Real physical inventory only. Each listing gets its own purchase path and inventory state.</p></div><div id="mtgRail" class="rail"></div><noscript><p>MTG live listings include EDH_0001 at NZ$400, Bespoke Artisan EDH Deck at NZ$385, and Palinchron - Urza's Legacy Foil at NZ$700. Enable JavaScript to load the current server-authoritative catalogue and purchase controls.</p></noscript></section>
-<section class="section"><div class="head"><div><div class="kicker">Billboard / digital property</div><h2>The Internet Billboard.</h2></div><p>A finite canvas with real purchasable footprints. Payment creates an order. Human review controls publication.</p></div><div class="rail"><article class="card featured"><div><div class="meta"><span>BILLBOARD</span><span class="status">LIVE</span></div><h3>Founding Tile.</h3><p>100x100 permanent placement on the DreamLedger canvas. Choose your destination and submit creative through the dedicated billboard checkout.</p><div class="price">NZ$50.00</div><div class="small">Permanent until January 1, 3000</div></div><div class="actions"><a class="btn primary" href="/billboard#claim">CLAIM SPACE</a><a class="btn" href="/billboard#wall">VIEW CANVAS</a></div></article></div></section>
-<section class="section"><div class="head"><div><div class="kicker">Hard separation</div><h2>Silos, not soup.</h2></div><p>Shared doorway. Separate products, economics, fulfilment and proof.</p></div><div class="silos"><div class="silo"><b>MTG</b><span>Commander, singles and physical collectibles.</span></div><div class="silo"><b>BILLBOARD</b><span>Finite digital property and placements.</span></div><div class="silo"><b>INTENT</b><span>Future sourcing and matching experiments.</span></div><div class="silo"><b>INTELLIGENCE</b><span>Evidence, signals and data products.</span></div><div class="silo"><b>DREAM MEEZ</b><span>Future avatar ecosystem.</span></div><div class="silo"><b>KELPLANTISPVERPG</b><span>Future ecosystem. Coming soon.</span></div><div class="silo"><b>ORACLE</b><span>External evidence and truth inputs.</span></div><div class="silo"><b>LEDGER</b><span>Durable economic record of what happened.</span></div></div></section>
-<section class="section" id="wall"><div class="head"><div><div class="kicker">Billboard</div><h2>See the wall.</h2></div><p>Published placements only. Empty space is not fake social proof.</p></div><div class="wall"><div id="canvas" class="canvas"><div class="empty">LOADING CANVAS</div></div></div></section>
-<section class="section" id="soon"><div class="head"><div><div class="kicker">Future surfaces</div><h2>Coming soon.</h2></div><p>These are intentionally not purchase products until their economics and fulfilment are real.</p></div><div class="rail"><article class="card soon"><div><div class="meta"><span>DREAM MEEZ</span><span class="status">COMING SOON</span></div><h3>DREAM<br>MEEZ.</h3><p>Avatar ecosystem. Kept separate from the MTG and Billboard revenue lanes.</p></div><div class="actions"><a class="btn" href="/dreammeez">OPEN DOORWAY</a></div></article><article class="card soon"><div><div class="meta"><span>KELPLANTISPVERPG</span><span class="status">COMING SOON</span></div><h3>FUTURE<br>WORLD.</h3><p>Visible future surface. Not counted as revenue and not used as a fake CTA.</p></div></article></div></section>
+<section class="hero">
+<div>
+<div class="kicker">A catalogue for curious people</div>
+<h1>FIND SOMETHING<br><span>GOOD.</span></h1>
+<p class="lead">A changing shelf of things you can actually buy, play with, collect or put to work. Swipe through, tap what catches your eye, and take a closer look.</p>
+<div class="heroactions"><a class="btn primary" href="#shop">Shop the collection</a><a class="btn" href="#mtg">See MTG</a></div>
+</div>
+<a class="avatar" href="#dreammeez" aria-label="Meet DreamMeez">
+<div class="face"></div>
+<h2>Meet DreamMeez</h2>
+<p>A little guide for when you do not know what you want yet.</p>
+<span class="btn primary">Come say hi</span>
+</a>
+</section>
+
+<section class="section" id="shop">
+<div class="head"><div><div class="kicker">The shelf</div><h2>Shop the collection.</h2></div><p>Start here. Swipe sideways. The catalogue changes as new things earn their place.</p></div>
+<div id="rail" class="rail"><article class="card"><div><div class="meta"><span>COLLECTION</span><span>LOADING</span></div><h3>Loading the good stuff.</h3><p>Fetching the current collection.</p></div></article></div>
+<p class="note">Prices and availability shown here come from the current catalogue.</p>
+</section>
+
+<section class="section" id="mtg">
+<div class="head"><div><div class="kicker">Magic: The Gathering</div><h2>Cards, decks, collectibles.</h2></div><p>Physical MTG products get their own shelf. If you collect it, play it or want it, this is where you browse.</p></div>
+<div id="mtgRail" class="rail"></div>
+</section>
+
+<section class="section" id="digital">
+<div class="head"><div><div class="kicker">Digital</div><h2>Small things. Useful things.</h2></div><p>Digital products live alongside everything else instead of swallowing the whole shop.</p></div>
+<div class="feature">
+<article class="featurebox"><h3>Product Evidence Passport</h3><p>A compact record that helps a buyer understand what they are looking at and what has actually been checked.</p><div class="price">NZ$10</div></article>
+<article class="featurebox"><h3>Listing Evidence Audit</h3><p>A practical second set of eyes for a listing before it goes in front of buyers.</p><div class="price">NZ$29</div></article>
+</div>
+</section>
+
+<section class="section" id="billboard">
+<div class="head"><div><div class="kicker">One of the products</div><h2>Put your mark on the web.</h2></div><p>The Internet Billboard is one offering in the collection. It gets a small, visible spot here, not the whole shop.</p></div>
+<div class="rail">
+<article class="card hero-card">
+<div>
+<div class="meta"><span>INTERNET BILLBOARD</span><span class="status">AVAILABLE</span></div>
+<div class="art"><span>100²</span></div>
+<h3>Founding Tile.</h3>
+<p>A 100 x 100 space on the DreamLedger canvas with one clickable destination.</p>
+<div class="price">NZ$50</div>
+<div class="small">One payment</div>
+</div>
+<a class="btn primary" href="/billboard">See the billboard</a>
+</article>
+</div>
+</section>
+
+<section class="section" id="dreammeez">
+<div class="head"><div><div class="kicker">Your guide</div><h2>Not sure yet?</h2></div><p>DreamMeez is here for discovery, not to shout over the products.</p></div>
+<div class="feature">
+<article class="featurebox"><h3>Tell DreamMeez what you are into.</h3><p>Use the little doorway in the top-right corner to start exploring.</p></article>
+<article class="featurebox"><h3>Prefer to browse?</h3><p>Keep swiping. There is no funnel to crawl through and no subscription trap at the end.</p></article>
+</div>
+</section>
 </main>
-<footer class="footer"><span>DREAMLEDGER / PUBLIC CATALOGUE</span><span>Live products first. Proof follows.</span></footer>
+
+<footer class="footer"><span>DREAMLEDGER</span><span>Browse. Find something good. Enjoy it.</span></footer>
 </div>
 <script>
+const BILLBOARDS=__BILLBOARDS_JSON__;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const price=(p)=>{const n=Number(p.price||0);const minor=p.price_unit==='minor'||n>=1000&&String(p.id||'').startsWith('BILLBOARD-')||n>=10000;return 'NZ$'+(minor?n/100:n).toFixed(2)};
-function card(p){const live=String(p.status)==='published'&&Number(p.inventory||0)>0;const silo=String(p.silo||'').toLowerCase();let href=silo==='billboard'?'/billboard':('/mtg#'+encodeURIComponent(p.id));let action=silo==='billboard'?'OPEN BILLBOARD':live?'BUY NOW':'NOT AVAILABLE';return '<article class="card '+(p.id==='EDH_0001'?'featured':'')+'"><div><div class="meta"><span>'+esc(silo.toUpperCase())+' / '+esc(p.id)+'</span><span class="status">'+(live?'LIVE':'WAIT')+'</span></div><h3>'+esc(p.name||p.id)+'</h3><p>'+esc(p.description||'Approved product.')+'</p><div class="price">'+price(p)+'</div><div class="small">'+(live?esc(String(p.inventory))+' unit(s) available':'Unavailable')+'</div></div><div class="actions"><a class="btn '+(live?'primary':'')+'" href="'+href+'">'+action+'</a></div></article>'}
-async function load(){try{const r=await fetch('/api/products',{cache:'no-store'});if(!r.ok)throw Error('catalog API '+r.status);const d=await r.json();const items=(d.products||[]).filter(p=>String(p.status)!=='sold');const mtg=items.filter(p=>String(p.silo||'').toLowerCase()==='mtg');document.getElementById('rail').innerHTML=items.filter(p=>['mtg','billboard'].includes(String(p.silo||'').toLowerCase())).map(card).join('');document.getElementById('mtgRail').innerHTML=mtg.map(card).join('')||'<article class="card"><h3>No MTG records published.</h3></article>'}catch(e){document.getElementById('rail').innerHTML='<article class="card"><h3>Catalogue unavailable.</h3><p>'+esc(e.message)+'</p></article>';document.getElementById('mtgRail').innerHTML=document.getElementById('rail').innerHTML}}
-async function wall(){try{const r=await fetch('/api/billboard',{cache:'no-store'});if(!r.ok)throw Error('billboard '+r.status);const d=await r.json(),c=document.getElementById('canvas');c.innerHTML='';(d.ads||[]).forEach(a=>{const e=document.createElement('div');e.className='unit';e.style.cssText='left:'+a.x+'px;top:'+a.y+'px;width:'+a.w+'px;height:'+a.h+'px';const x=document.createElement('a');x.href=a.link||'#';x.target='_blank';x.rel='noopener noreferrer';if(a.image_url){const i=document.createElement('img');i.src=a.image_url;i.alt=a.title||'Billboard placement';x.appendChild(i)}e.appendChild(x);c.appendChild(e)});if(!(d.ads||[]).length)c.innerHTML='<div class="empty">EMPTY CANVAS / FIRST CLAIM IS YOURS</div>'}catch(e){document.getElementById('canvas').innerHTML='<div class="empty">CANVAS UNAVAILABLE</div>'}}
-load();wall();
+const records=j=>Array.isArray(j)?j:Array.isArray(j.products)?j.products:Array.isArray(j.records)?j.records:Array.isArray(j.items)?j.items:[];
+const isMtg=p=>String(p.silo||'').toLowerCase()==='mtg'||/^EDH[_-]/i.test(String(p.id||''));
+const money=p=>{const n=Number(p.price||0);const minor=String(p.price_unit||'').toLowerCase()==='minor'||String(p.price_unit||'').toLowerCase()==='cents'||n>=10000;return 'NZ$'+(minor?n/100:n).toFixed(2)};
+async function get(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(url+' returned '+r.status);return records(await r.json())}
+async function checkout(id){const r=await fetch('/api/offer-checkout/create',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({offer_id:id})});const d=await r.json();if(!r.ok||!d.checkout_url)throw Error(d.error||'Checkout unavailable');location.assign(d.checkout_url)}
+function productCard(p){const live=String(p.status||'').toLowerCase()==='published'&&Number(p.inventory||0)>0;return '<article class="card '+(p.id==='EDH_0001'?'hero-card':'')+'"><div><div class="meta"><span>'+esc(String(p.silo||'').toUpperCase())+'</span><span class="status">'+(live?'AVAILABLE':'UNAVAILABLE')+'</span></div><div class="art"><span>'+esc(isMtg(p)?'MTG':'GOOD')+'</span></div><h3>'+esc(p.name||p.id)+'</h3><p>'+esc(p.description||'Something worth a look.')+'</p><div class="price">'+money(p)+'</div><div class="small">'+esc(live?((Number(p.inventory)||0)+' available'):'Not currently available')+'</div></div><button class="btn '+(live?'primary':'')+'" '+(live?'':'disabled')+' data-buy="'+esc(p.id||'')+'">'+(live?'Buy now':'Unavailable')+'</button></article>'}
+async function load(){const rail=document.getElementById('rail'),mtgRail=document.getElementById('mtgRail');try{let items=[];try{items=await get('/api/products')}catch(e){items=await get('/api/catalog')}const mtg=items.filter(isMtg);rail.innerHTML=items.filter(p=>!isMtg(p)).slice(0,12).map(productCard).join('')||'<article class="card"><h3>More is coming.</h3><p>The shelf is being restocked.</p></article>';mtgRail.innerHTML=mtg.slice(0,12).map(productCard).join('')||'<article class="card"><h3>MTG is resting.</h3><p>Check back when the next cards land.</p></article>';document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',async()=>{const old=b.textContent;b.disabled=true;b.textContent='Opening...';try{await checkout(b.dataset.buy)}catch(e){b.disabled=false;b.textContent=old;alert(e.message)}}))}catch(e){rail.innerHTML='<article class="card"><h3>Shop is taking a breath.</h3><p>'+esc(e.message)+'</p></article>';mtgRail.innerHTML='<article class="card"><h3>MTG is taking a breath.</h3><p>Please try again shortly.</p></article>'}}
+load();
 </script>
 </body>
 </html>
