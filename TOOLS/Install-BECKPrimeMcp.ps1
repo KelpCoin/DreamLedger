@@ -1,7 +1,7 @@
 #requires -version 5.1
 [CmdletBinding()]
 param(
-    [string]$RepoRoot = $(Split-Path -Parent (Split-Path -Parent $PSScriptRoot)),
+    [string]$RepoRoot = $(Split-Path -Parent $PSScriptRoot),
     [switch]$Force
 )
 $ErrorActionPreference = 'Stop'
@@ -76,4 +76,4 @@ $Proof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ProofPath -Encoding
 Write-Host "PASS: MCP sandbox installed."
 Write-Host "Config: $McpConfig"
 Write-Host "Proof:  $ProofPath"
-Write-Host "Verify: node `"$Gateway`" --help"
+Write-Host "Verify: node -e \"const g=require('$Gateway'); console.log(g.TOOLS.length === 6 ? 'PASS' : 'FAIL')\""
