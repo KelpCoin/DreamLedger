@@ -101,7 +101,13 @@ async function createCheckout(req, res) {
     'metadata[account_id]': user.id,
     'metadata[product_id]': p.id,
     'metadata[silo]': p.silo || 'dreamledger',
-    'metadata[commerce_version]': 'dreamledger-mvp-v1'
+    'metadata[commerce_version]': 'dreamledger-mvp-v1',
+    'payment_intent_data[metadata][product_sku]': p.id,
+    'payment_intent_data[metadata][silo]': p.silo || 'dreamledger',
+    'payment_intent_data[metadata][source]': cleanQuery(parsed.value.source) || 'direct',
+    'payment_intent_data[metadata][offer]': cleanQuery(parsed.value.offer_id || parsed.value.product_id || parsed.value.sku) || p.id,
+    'payment_intent_data[metadata][account_id]': user.id,
+    'payment_intent_data[metadata][commerce_version]': 'dreamledger-mvp-v1'
   }, 'dreamledger-mvp-checkout-' + user.id + '-' + p.id + '-' + crypto.randomUUID());
   await db('POST', 'dreamledger_orders', '', { id: 'ord_' + crypto.randomBytes(12).toString('hex'), principal_id: user.id, checkout_session_id: session.id, product_id: p.id, amount_total: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), payment_status: 'pending', customer_email: user.email }, 'return=minimal');
   return json(res, 200, { ok: true, order_pending: true, session_id: session.id, checkout_url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() });
