@@ -41,6 +41,8 @@ const indexPath=path.join(site,'index.html');
 let index='';
 try{index=fs.readFileSync(indexPath,'utf8')}catch(e){errors.push('CATALOGUE_SURFACE:index.html unreadable')}
 for(const requiredText of CATALOG_REQUIRED){if(!index.toLowerCase().includes(requiredText.toLowerCase()))errors.push(`CATALOGUE_REQUIRED_MISSING:${requiredText}`)}
+const homepageForbidden=[/ELOHIM/i,/Economic Court/i,/Truth Oracle/i,/Gauntlet/i,/MCP gateway/i,/Agentic commerce/i,/AI agent/i,/VISA/i,/MASTERCARD/i,/AMEX/i];
+for(const re of homepageForbidden){if(re.test(index))errors.push(`HOMEPAGE_COPY_LEAK:${re}`)}
 const agentPath=path.join(site,'.well-known','agent-commerce.json');
 let agent={};
 try{agent=JSON.parse(fs.readFileSync(agentPath,'utf8'))}catch(e){errors.push('AGENT_BOUNDARY:invalid agent-commerce.json')}
