@@ -10,14 +10,23 @@ const APPROVED_CHECKOUT_IDS = new Set([
 ]);
 const FORBIDDEN_PUBLIC = [
   'signal -> offer -> checkout -> proof',
-  'signal -> offer -> checkout -> proof',
   'shared primitives handle offers',
   'agentic commerce readiness audit',
   'BEC-PRIME-ARCHITECTURE-AUDIT',
   'BEC-SURFACE-AUDIT',
   'CREATOR-AUDIO-LAUNCH-PACK',
   'CRYPTO-WALLET-SECURITY-PACK',
-  'Dreamies'
+  'Dreamies',
+  'ELOHIM',
+  'Economic Court',
+  'Truth Oracle',
+  'Gauntlet',
+  'MCP gateway',
+  'Agentic commerce',
+  'AI agent',
+  'VISA',
+  'MASTERCARD',
+  'AMEX'
 ];
 
 function get(pathname) {
@@ -45,14 +54,14 @@ async function main() {
   const html = home.body;
   const required = [
     ['DreamLedger', /DreamLedger/i],
-    ['DreamMeez', /DreamMeez/g],
-    ['sign in', /Sign in/i],
-    ['register', /Register/i],
+    ['DreamMeez', /DreamMeez/i],
+    ['shop heading', /Shop the collection\./i],
     ['avatar', /class="avatar"/i],
-    ['world carousel', /id="worldRail"/i],
-    ['catalog carousel', /id="catalogRail"/i],
-    ['cinema', /cinema\.html/i],
-    ['digital', /digital-products\.html/i]
+    ['catalog carousel', /id="rail"/i],
+    ['MTG carousel', /id="mtgRail"/i],
+    ['digital product', /Product Evidence Passport/i],
+    ['listing audit', /Listing Evidence Audit/i],
+    ['billboard feature', /Founding Tile\./i]
   ];
 
   for (const [label, pattern] of required) {
