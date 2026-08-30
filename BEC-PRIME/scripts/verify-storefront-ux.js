@@ -79,8 +79,7 @@ async function main() {
     runtime_scope: 'homepage_only',
     homepage_required_markers: required.map(([label]) => label),
     forbidden_public_copy_checked: FORBIDDEN_PUBLIC,
-    approved_checkout_ids: [...APPROVED_CHECKOUT_IDS],
-    offers_json_valid: parsed !== null
+    scope: 'customer-homepage-only'
   };
   console.log(JSON.stringify(proof, null, 2));
   if (process.exitCode) process.exit(1);
