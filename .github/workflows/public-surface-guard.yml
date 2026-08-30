@@ -46,9 +46,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "'GET /api/molt-beach-inventory': true" public/server.js
-          grep -q "'POST /api/billboard/submit': true" public/server.js
-          grep -q "if(!ALLOWED_API\[apiKey\])" public/server.js
+          grep -q "'GET /api/molt-beach-inventory':true" public/server.js
+          grep -q "'GET /api/products':true" public/server.js
+          grep -q "'POST /api/billboard/submit':true" public/server.js
+          grep -q "if(!ALLOWED_API\[key\])" public/server.js
           echo 'PASS: public API allowlist is explicit.'
 
       - name: Check for obvious credential literals
