@@ -2,9 +2,13 @@ name: DreamLedger Public Surface Gate
 
 on:
   push:
-    branches: [main, 'ui/**']
+    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   public-surface:
@@ -12,44 +16,89 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-      - name: Validate homepage contract
+      - name: Validate public storefront files
         shell: bash
         run: |
           set -euo pipefail
-          test -s index.html
-          grep -q 'dreamledger.org' index.html || true
-          grep -q 'Commander Deck Diagnostic' index.html
-          grep -q 'NZ$29' index.html
-          grep -q 'buy.stripe.com/00w7sLaXP01n96nbN2dwc2l' index.html
-          grep -q 'href="/mtg.html"' index.html
-          grep -q 'approval-gated' index.html
-          ! grep -Eqi 'password|secret|api[_-]?key|private[_-]?key' index.html
+          test -s public/index.html
+          test -s public/billboard.html
+          test -s public/server.js
+          test -s public/package.json
+          grep -q 'DreamLedger 3000' public/index.html
+          grep -q 'NZ$50' public/index.html
+          grep -q '/billboard' public/index.html
+          grep -q 'DreamLedger 3000' public/billboard.html
+          grep -q 'NZ$50' public/billboard.html
+          grep -q '/api/billboard/submit' public/billboard.html
+          grep -q "GET /api/molt-beach-inventory" public/server.js
+          grep -q "POST /api/billboard/submit" public/server.js
+          grep -q "p==='/healthz'" public/server.js
+          grep -q "p==='/version'" public/server.js
+          echo 'PASS: current public storefront contract is present.'
 
-      - name: Validate referenced local pages
+      - name: Scan every public text asset for internal or cross-silo leakage
         shell: bash
         run: |
           set -euo pipefail
-          test -s mtg.html
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'BECK|Gauntlet|Economic Court|Trust Oracle|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|ENGINE_INTERNAL|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|AMPLISSA|COLLECTORSCOAST|DreamMeez|DreamLogic|Monte Carlo|avatar ecosystem|private factory|internal factory' public; then
+            echo 'FAIL: prohibited internal, confidential, credential, or cross-silo language found in public assets.'
+            exit 1
+          fi
+          echo 'PASS: public text assets contain no prohibited internal, credential, or cross-silo language.'
+
+      - name: Verify public route allowlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "const PUBLIC_FILES" public/server.js
+          grep -q "'/': 'index.html'" public/server.js
+          grep -q "'/billboard': 'billboard.html'" public/server.js
+          grep -q "if(!ALLOWED_API\[apiKey\])" public/server.js
+          grep -q "return send(res,404,'Not Found'" public/server.js
+          echo 'PASS: public route and API allowlists are explicit.'
+
+      - name: Verify sensitive literals are absent from public assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' 'sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY|SUPABASE_SERVICE_ROLE_KEY|ENGINE_INTERNAL_API_KEY' public; then
+            echo 'FAIL: credential-like literal found in public assets.'
+            exit 1
+          fi
+          echo 'PASS: no obvious secret material found in public assets.'
+
+      - name: Syntax check public server
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check public/server.js
+          echo 'PASS: public server syntax is valid.'
 
       - name: Emit machine proof
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p PROOF
           cat > PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json <<'JSON'
           {
-            "schema_version": "1.0",
+            "schema_version": "2.0",
             "gate": "DREAMLEDGER_PUBLIC_SURFACE",
             "status": "PASS",
+            "public_root": "public",
             "checks": [
-              "homepage_exists",
-              "commercial_offer_present",
-              "nz29_price_present",
-              "stripe_link_present",
-              "mtg_route_present",
-              "approval_gate_language_present",
-              "no_obvious_secret_tokens_in_homepage"
-            ]
+              "public_files_exist",
+              "current_3000_offer_present",
+              "billboard_purchase_route_present",
+              "healthz_and_version_present",
+              "api_allowlist_present",
+              "internal_language_scan_passed",
+              "credential_scan_passed",
+              "server_syntax_passed"
+            ],
+            "note": "Live deployment status requires the production boundary workflow to pass against dreamledger.org."
           }
           JSON
 
