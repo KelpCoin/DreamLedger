@@ -1,24 +1,37 @@
 {
   "proof_type": "DREAMLEDGER_CATALOGUE_STOREFRONT_RESET",
-  "generated_at": "2026-08-31T11:25:00+12:00",
+  "generated_at": "2026-08-31T12:05:00+12:00",
   "repository": "KelpCoin/DreamLedger",
   "branch": "codex/catalogue-first-storefront",
-  "homepage_commit": "4036b0c5a53fdc431c2ef8a57fc40a04e3bec11f",
+  "homepage_commit": "61c1f14c56f059f51db7c586e11933509a4d72f1",
   "target": "public/index.html",
+  "acceptance_test": "18-point storefront reset",
   "checks": {
     "catalogue_first": true,
+    "billboard_single_contained_module": true,
+    "billboard_not_hero": true,
+    "billboard_not_sticky_or_repeated": true,
+    "dreamledger_identity_top_left": true,
+    "dreammee_top_right_fixed": true,
     "horizontal_product_rail": true,
-    "commander_diagnostic_present": true,
-    "founding_tile_present": true,
-    "billboard_demoted_to_compact_module": true,
-    "dreammee_affordance_present": true,
+    "partial_next_card_mobile": true,
+    "thumb_first_touch_targets": true,
+    "multiple_product_categories_visible": true,
     "card_network_logos_removed": true,
     "internal_architecture_language_removed": true,
-    "dedicated_billboard_pdp_preserved": true,
-    "live_stripe_checkout_links_used": true,
+    "unsupported_scarcity_removed": true,
+    "unsupported_best_seller_removed": true,
+    "public_agent_terminology_removed": true,
+    "mobile_low_cognitive_load": true,
+    "billboard_styles_locally_scoped": true,
+    "public_private_boundary_preserved": true
+  },
+  "product_truth": {
+    "commander_deck_diagnostic": "present",
+    "founding_billboard_tile": "present",
     "unverified_products_not_promoted_as_checkoutable": true
   },
   "payment_dispatch_authorised": false,
   "deployment_performed": false,
-  "note": "Homepage redesign committed only. No public posting, payment dispatch, or production deployment was performed."
+  "note": "Homepage refinement committed only. No public posting, payment dispatch, or production deployment was performed."
 }
