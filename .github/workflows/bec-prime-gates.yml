@@ -62,7 +62,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           BASE_URL: https://dreamledger.org
-        run: bash scripts/verify_checkout_live.sh OFFER-BEC-PRIME-ARCHITECTURE-AUDIT
+        run: bash scripts/verify_checkout_live.sh OFFER-CMD-DIAG-29-NZD
 
       - name: Upload compilation proof
         if: always()

@@ -36,7 +36,7 @@ jobs:
           test -f public/index.html
           test -f public/billboard.html
           test -f public/server.js
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|DreamMeez|Monte Carlo|cinema' public; then
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public; then
             echo 'FAIL: prohibited internal, confidential, or inactive product language found in public assets.'
             exit 1
           fi

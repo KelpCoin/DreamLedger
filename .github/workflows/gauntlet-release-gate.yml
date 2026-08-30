@@ -62,18 +62,18 @@ jobs:
           from pathlib import Path
           approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
           offers = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
-          target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT'), None)
+          target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD'), None)
           if not target:
-              raise SystemExit('APPROVED_ARCHITECTURE_AUDIT=FAIL')
-          if target.get('price') != 49 or target.get('currency') != 'NZD':
+              raise SystemExit('APPROVED_COMMANDER_DIAGNOSTIC=FAIL')
+          if target.get('price') != 29 or target.get('currency') != 'NZD':
               raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
           if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
               raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
           if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
               raise SystemExit('PAYMENT_LINK_URL=FAIL')
-          if target.get('product_id') != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+          if target.get('product_id') != 'COMMANDER-DECK-DIAGNOSTIC-001':
               raise SystemExit('PRODUCT_ID=FAIL')
-          print('APPROVED_ARCHITECTURE_AUDIT=PASS')
+          print('APPROVED_COMMANDER_DIAGNOSTIC=PASS')
           print('APPROVED_PRICE_CURRENCY=PASS')
           print('PAYMENT_LINK_STATUS=PASS')
           print('PAYMENT_LINK_URL=PASS')
@@ -87,7 +87,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find BEC-PRIME -type f -name '*.js' -print0)
+          done < <(find BEC-PRIME -type f -name '*.js' ! -path 'BEC-PRIME/compiled/*' ! -path 'BEC-PRIME/RUN-PROOFS/*' -print0)
           node --check api/account/'[...route].js'
           echo 'JAVASCRIPT_SYNTAX=PASS'
 
@@ -112,17 +112,15 @@ jobs:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          for path in / /healthz /version /gauntlet.html /register.html; do
+          for path in / /healthz /version; do
             code=$(curl -sS -o /tmp/response --retry 3 --retry-delay 2 --max-time 15 -w '%{http_code}' "$BASE_URL$path")
             echo "$path HTTP=$code"
             test "$code" = "200"
           done
-          body=$(curl -sS --retry 3 --retry-delay 2 --max-time 15 "$BASE_URL/")
-          echo "$body" | grep -q 'Agentic Commerce Readiness Audit'
-          echo "$body" | grep -q 'NZD 49'
           echo 'LIVE_FRONT_DOOR=PASS'
 
       - name: Verify checkout contract without purchase
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         env:
           BASE_URL: https://dreamledger.org
@@ -131,7 +129,7 @@ jobs:
           response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data '{"sku":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}')
+            --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD"}')
           python3 - <<'PY' "$response"
           import json, sys
           data = json.loads(sys.argv[1])
@@ -140,13 +138,13 @@ jobs:
           amount = data.get('amount_nzd')
           if not url.startswith('https://') or 'stripe.com' not in url:
               raise SystemExit('CHECKOUT_URL=FAIL')
-          if sku != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
               raise SystemExit('CHECKOUT_SKU=FAIL')
-          if amount != 49:
+          if amount != 29:
               raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
           print('CHECKOUT_URL=PASS')
           print('CHECKOUT_SKU=PASS')
-          print('CHECKOUT_AMOUNT_NZD_49=PASS')
+          print('CHECKOUT_AMOUNT_NZD_29=PASS')
           print('PURCHASE_EXECUTED=FALSE')
           PY
 

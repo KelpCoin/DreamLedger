@@ -12,7 +12,7 @@ const forbidden=[
   /FIRST_PAYMENT_PROOF\.json/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i,
   /cinema-event-v1/i
 ];
-const CATALOG_REQUIRED=['DREAMLEDGER','BUY THE OUTPUT.','Billboard','MTG','NZ$50','NZ$400','NZ$385','NZ$700'];
+const CATALOG_REQUIRED=['DREAMLEDGER','Things you can buy.','Billboard','MTG','NZ$50','NZ$400','NZ$385','NZ$700'];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
 const authPages=['login.html','register.html','account.html'];

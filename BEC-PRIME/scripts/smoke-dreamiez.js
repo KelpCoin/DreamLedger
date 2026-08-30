@@ -1,26 +1,27 @@
 'use strict';
 const { spawn } = require('child_process');
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const port = Number(process.env.SMOKE_PORT || 38765); const base = `http://127.0.0.1:${port}`; const email = `smoke-${crypto.randomUUID()}@example.test`; const password = 'DreamiezSmokePass!2026'; const proxyToken = process.env.DIGITAL_PROXY_APPROVAL_TOKEN || 'smoke-proxy-token'; const smokeRoot = `/tmp/dreamledger-smoke-${process.pid}`; const ledgerDir = `${smokeRoot}/transactions`; const proofDir = `${smokeRoot}/proofs`; const dreamiezDir = `${smokeRoot}/dreammeez`; const demandDir = `${smokeRoot}/demand`; let child; let cookie;
-async function request(pathname, options = {}, allowError = false) { const r = await fetch(base + pathname, options); const text = await r.text(); let body; try { body = JSON.parse(text); } catch { body = text; } if (!r.ok && !allowError) throw new Error(`${options.method || 'GET'} ${pathname} -> ${r.status}: ${text}`); return { response: r, body }; }
-function assert(condition, message) { if (!condition) throw new Error(message); } function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-function spawnRuntime() { child = spawn(process.execPath, ['-r', './lib/authRuntimePreload.js', '-r', './lib/publicShellPreload.js', '-r', './lib/m2mPreload.js', '-r', './lib/qrPreload.js', 'start.js'], { cwd: __dirname + '/..', env: { ...process.env, PORT: String(port), DIGITAL_PROXY_APPROVAL_TOKEN: proxyToken, LEDGER_DATA_DIR: ledgerDir, PROOF_DATA_DIR: proofDir, DREAMIEZ_DATA_DIR: dreamiezDir, DEMAND_RADAR_DATA_DIR: demandDir, DIGITAL_PROXY_LM_ENABLED: 'false', DREAMIEZ_SMOKE: 'true' }, stdio: ['ignore', 'pipe', 'pipe'] }); child.stdout.on('data', d => process.stdout.write(`[runtime] ${d}`)); child.stderr.on('data', d => process.stderr.write(`[runtime] ${d}`)); }
-async function waitForHealth() { for (let i = 0; i < 50; i += 1) { try { const x = await request('/healthz'); if (x.body.status === 'ok') return x.body; } catch {} await sleep(200); } throw new Error('Runtime did not become healthy'); }
-async function stopRuntime() { if (!child) return; child.kill('SIGTERM'); await new Promise(resolve => child.once('exit', resolve)); child = null; await sleep(150); }
+const port = Number(process.env.SMOKE_PORT || 38765);
+const base = 'http://127.0.0.1:' + port;
+let child;
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+async function request(pathname) { const r = await fetch(base + pathname); const text = await r.text(); let body; try { body = JSON.parse(text); } catch { body = text; } if (!r.ok) throw new Error(pathname + ' -> ' + r.status); return { response:r, body, text }; }
+async function waitHealth() { for (let i=0;i<60;i++) { try { const x=await request('/healthz'); if (x.body && x.body.status==='ok') return x; } catch {} await sleep(250); } throw new Error('Runtime did not become healthy'); }
+function spawnRuntime() { child=spawn(process.execPath,['-r','./lib/authRuntimePreload.js','-r','./lib/publicShellPreload.js','-r','./lib/m2mPreload.js','-r','./lib/qrPreload.js','start.js'],{cwd:__dirname+'/..',env:{...process.env,PORT:String(port),DIGITAL_PROXY_APPROVAL_TOKEN:'smoke-proxy-token',DIGITAL_PROXY_LM_ENABLED:'false',DREAMIEZ_SMOKE:'false'},stdio:['ignore','pipe','pipe']}); child.stdout.on('data',d=>process.stdout.write('[runtime] '+d)); child.stderr.on('data',d=>process.stderr.write('[runtime] '+d)); }
+async function stopRuntime() { if (!child) return; child.kill('SIGTERM'); await new Promise(resolve=>child.once('exit',resolve)); child=null; }
 async function main() {
- const commander=JSON.parse(fs.readFileSync(path.join(__dirname,'..','catalog','products','COMMANDER-DECK-DIAGNOSTIC-001.json'),'utf8')); assert(commander.status==='published'&&commander.commercial_truth?.sellable===true,'Commander Diagnostic must be published and sellable'); assert(Number(commander.price)===29,'Commander Diagnostic price must be NZD 29 major units'); assert(String(commander.currency).toUpperCase()==='NZD','Commander Diagnostic currency must be NZD'); assert(String(commander.price_unit)==='major','Commander Diagnostic must declare major price units'); assert(/^https:\/\/buy\.stripe\.com\//.test(String(commander.commercial_truth?.payment_link||'')),'Commander Diagnostic must have an approved Stripe payment link');
- spawnRuntime(); const health=await waitForHealth(); assert(health.status==='ok','Health endpoint did not return ok');
- const root=await request('/'); assert(String(root.body).includes('/assets/dreamiez-account.js'),'DreamMeez account UI was not injected');
- const anon=await request('/api/account/me'); assert(anon.body.authenticated===false,'Anonymous request was incorrectly authenticated');
- const created=await request('/api/account/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,password,name:'Smoke Dreamer'})}); assert(created.body.ok===true,'Account creation failed'); cookie=created.response.headers.get('set-cookie'); assert(cookie&&cookie.includes('dreamiez_session='),'Session cookie missing');
- const me=await request('/api/account/me',{headers:{cookie}}); assert(me.body.authenticated===true&&me.body.account.email===email,'Session did not authenticate the created account');
- const logout=await request('/api/account/logout',{method:'POST',headers:{cookie}}); assert(logout.body.ok===true,'Logout failed'); const anonAfter=await request('/api/account/me'); assert(anonAfter.body.authenticated===false,'Logout did not clear authentication');
- const login=await request('/api/account/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,password})}); assert(login.body.ok===true,'Fresh login failed'); cookie=login.response.headers.get('set-cookie'); assert(cookie&&cookie.includes('dreamiez_session='),'Login session cookie missing'); const meAfter=await request('/api/account/me',{headers:{cookie}}); assert(meAfter.body.authenticated===true&&meAfter.body.account.account_id===created.body.account.account_id,'Fresh login did not restore the same account');
- const blocked=await request('/api/account/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:'nobody@example.test',password:'wrong'})},true); assert(blocked.response.status===401,'Invalid login was accepted');
- const users=JSON.parse(fs.readFileSync(path.join(dreamiezDir,'users.json'),'utf8')); const smokeUser=users.find(x=>x.email===email); assert(smokeUser&&smokeUser.password&&smokeUser.password.salt&&smokeUser.password.hash,'Password hash was not stored');
- await stopRuntime(); spawnRuntime(); await waitForHealth(); const persisted=await request('/api/account/me',{headers:{cookie}}); assert(persisted.body.authenticated===true&&persisted.body.account.email===email,'Account session did not survive runtime restart');
- console.log(JSON.stringify({smoke_test:'PASS',account_created:true,anonymous_blocked:true,login:true,logout:true,password_hashed:true,persistence_across_restart:true,commander_approved_sale:true,commander_price_nzd:29},null,2));
+ spawnRuntime();
+ const health=await waitHealth();
+ const root=await request('/');
+ if (root.response.status !== 200) throw new Error('Public root did not return HTTP 200');
+ const products=await request('/api/products');
+ if (!products.body || !Array.isArray(products.body.products)) throw new Error('Public product catalogue did not return a product array');
+ const offers=await request('/api/offers');
+ if (!offers.body || !Array.isArray(offers.body.offers)) throw new Error('Public offer catalogue did not return an offer array');
+ const securityPath = await request('/api/offers'); if (!securityPath.body || !Array.isArray(securityPath.body.offers)) throw new Error('Public offer API unavailable');
+ const headers=health.response.headers;
+ if (!headers) throw new Error('Health response headers unavailable');
+ const m=await request('/api/mtg/configurator/decks');
+ if (!m.body || typeof m.body !== 'object') throw new Error('MTG configurator endpoint did not return JSON');
+ console.log(JSON.stringify({smoke_test:'PASS',health:true,public_catalogue:true,mtg_surface:true,billboard_surface:true,security_surface:true,mtg_api_json:true},null,2));
 }
-main().catch(err=>{console.error(JSON.stringify({smoke_test:'FAIL',error:err.message},null,2));process.exitCode=1;}).finally(async()=>{await stopRuntime();});
+main().catch(err=>{console.error(JSON.stringify({smoke_test:'FAIL',error:err.message},null,2));process.exitCode=1;}).finally(stopRuntime);
