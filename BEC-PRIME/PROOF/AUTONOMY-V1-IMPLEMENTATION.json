@@ -1,0 +1,33 @@
+{
+  "schema_version": "BEC-AUTONOMY-IMPLEMENTATION-1.0",
+  "status": "IMPLEMENTED_UNVERIFIED",
+  "branch": "beckprime-autonomy-v1",
+  "base": "beckprime-hardening-v1-1",
+  "authority": {
+    "model": "UNTRUSTED_INTELLIGENCE",
+    "read_tools": "AUTONOMOUS_ALLOWED",
+    "proposal_tools": "HUMAN_APPROVAL_REQUIRED",
+    "payment_execution": "FORBIDDEN_TO_MODEL",
+    "self_approval": false,
+    "credential_access": false,
+    "public_posting": false,
+    "shell_execution": false,
+    "cross_silo_access": false
+  },
+  "verification": {
+    "agent_runtime_executed": false,
+    "reason": "GitHub connector cannot execute the Windows Node/Docker runtime.",
+    "ci_workflow": "BECK PRIME Autonomous Policy Gate",
+    "required_local_commands": [
+      "npm ci --ignore-scripts",
+      "npm run verify:security",
+      "npm run verify:autonomy",
+      "npm run compile:mirror",
+      "node BEC-PRIME/scripts/verify-public-surface.js"
+    ]
+  },
+  "economic_truth": {
+    "RA_000001": "NOT_CLAIMED",
+    "revenue_proven": false
+  }
+}
