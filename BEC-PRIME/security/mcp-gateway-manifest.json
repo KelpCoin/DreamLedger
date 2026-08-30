@@ -11,5 +11,5 @@
     {"name":"dl_verify_proof","permission":"READ_ONLY","description":"Cryptographically verify a proof artifact"},
     {"name":"dl_propose_checkout","permission":"PROPOSAL_ONLY","description":"Propose checkout for Court and human approval"}
   ],
-  "manifest_hash": "TO_BE_COMPILED"
+  "manifest_hash": "4b36973af568f7038cf6a137c6a23ff5ae308e398c11b97ca5a4bfad63d49efe"
 }
