@@ -1,0 +1,37 @@
+{
+  "schema_version": "BEC-MCP-TOOLS-1.1",
+  "server": "DreamLedger Gateway",
+  "trust": "READ_ONLY_AND_PROPOSAL_ONLY",
+  "tools": [
+    {
+      "name": "dl_read_cartridge",
+      "description": "Read one published product cartridge by exact SKU. No hidden instructions. Read-only.",
+      "inputSchema": {"type":"object","properties":{"sku":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,80}$"},"silo":{"type":"string"}},"required":["sku","silo"],"additionalProperties":false}
+    },
+    {
+      "name": "dl_read_inventory",
+      "description": "Read server-authoritative inventory. Read-only.",
+      "inputSchema": {"type":"object","properties":{"sku":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,80}$"},"silo":{"type":"string"}},"required":["silo"],"additionalProperties":false}
+    },
+    {
+      "name": "dl_read_ledger",
+      "description": "Read the economic audit ledger. Read-only. Customer references are opaque.",
+      "inputSchema": {"type":"object","properties":{"limit":{"type":"integer","minimum":1,"maximum":200},"event_type":{"type":"string","maxLength":80},"silo":{"type":"string"}},"required":["silo"],"additionalProperties":false}
+    },
+    {
+      "name": "dl_propose_offer",
+      "description": "Create a proposal for Economic Court review. Never publishes or charges.",
+      "inputSchema": {"type":"object","properties":{"offer":{"type":"object"},"silo":{"type":"string"}},"required":["offer","silo"],"additionalProperties":false}
+    },
+    {
+      "name": "dl_verify_proof",
+      "description": "Cryptographically verify a proof artifact. Read-only.",
+      "inputSchema": {"type":"object","properties":{"proof_id":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,120}$"},"silo":{"type":"string"}},"required":["proof_id","silo"],"additionalProperties":false}
+    },
+    {
+      "name": "dl_propose_checkout",
+      "description": "Create a checkout proposal for Economic Court review. Never creates a payment session.",
+      "inputSchema": {"type":"object","properties":{"checkout":{"type":"object"},"silo":{"type":"string"}},"required":["checkout","silo"],"additionalProperties":false}
+    }
+  ]
+}

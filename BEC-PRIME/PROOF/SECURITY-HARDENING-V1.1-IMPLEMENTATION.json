@@ -1,0 +1,34 @@
+{
+  "schema_version": "BEC-SECURITY-HARDENING-IMPLEMENTATION-1.1",
+  "status": "IMPLEMENTED_UNVERIFIED",
+  "branch": "beckprime-hardening-v1-1",
+  "authority": "HUMAN_APPROVAL_REQUIRED",
+  "changes": [
+    "Economic Court V2 state machine",
+    "Ed25519 approval-token verification",
+    "Approval-token-gated executor adapter",
+    "MCP Gateway V2 with six allowlisted tools",
+    "MCP tool manifest SHA-256 pinning",
+    "Docker no-network MCP sandbox",
+    "Behavioral Security Gauntlet V7",
+    "Elohim V7 proposal-only orchestrator",
+    "Compiler Mirror V1",
+    "Token-gated control-plane mutations",
+    "Public security and trust surface",
+    "Public-surface verifier upgraded to security page contract"
+  ],
+  "verification": {
+    "runtime_tests_executed_by_agent": false,
+    "reason": "Repository runtime is not executable inside the GitHub connector environment.",
+    "required_commands": [
+      "npm ci --ignore-scripts",
+      "npm run verify:security",
+      "npm run compile:mirror",
+      "node BEC-PRIME/scripts/verify-public-surface.js"
+    ]
+  },
+  "economic_truth": {
+    "RA_000001": "NOT_CLAIMED",
+    "revenue_proven": false
+  }
+}
