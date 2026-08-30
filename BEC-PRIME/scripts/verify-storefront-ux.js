@@ -17,7 +17,7 @@ const FORBIDDEN_PUBLIC = [
   'BEC-SURFACE-AUDIT',
   'CREATOR-AUDIO-LAUNCH-PACK',
   'CRYPTO-WALLET-SECURITY-PACK',
-  'Dreamies'
+  'Dreamies',\n  'ELOHIM',\n  'Economic Court',\n  'Truth Oracle',\n  'Gauntlet',\n  'MCP gateway',\n  'Agentic commerce',\n  'AI agent',\n  'VISA',\n  'MASTERCARD',\n  'AMEX'
 ];
 
 function get(pathname) {
