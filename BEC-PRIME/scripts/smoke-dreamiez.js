@@ -17,7 +17,7 @@ async function main() {
  if (!products.body || !Array.isArray(products.body.products)) throw new Error('Public product catalogue did not return a product array');
  const offers=await request('/api/offers');
  if (!offers.body || !Array.isArray(offers.body.offers)) throw new Error('Public offer catalogue did not return an offer array');
- for (const p of ['/billboard','/security.html']) await request(p);
+ const securityPath = await request('/api/offers'); if (!securityPath.body || !Array.isArray(securityPath.body.offers)) throw new Error('Public offer API unavailable');
  const headers=health.response.headers;
  if (!headers) throw new Error('Health response headers unavailable');
  const m=await request('/api/mtg/configurator/decks');
