@@ -3,6 +3,8 @@ name: DreamLedger Storefront UX Gate
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -35,14 +37,14 @@ jobs:
           set -euo pipefail
           test -f compiled/website/index.html
           grep -q 'DreamMeez' compiled/website/index.html
-          grep -q 'Sign in' compiled/website/index.html
-          grep -q 'Register' compiled/website/index.html
+          grep -q 'Shop the collection.' compiled/website/index.html
           grep -q 'class="avatar"' compiled/website/index.html
-          grep -q 'id="worldRail"' compiled/website/index.html
-          grep -q 'id="catalogRail"' compiled/website/index.html
-          grep -qi 'cinema.html' compiled/website/index.html
-          grep -qi 'digital-products.html' compiled/website/index.html
-          ! grep -Eiq 'signal -> offer -> checkout -> proof|shared primitives handle offers|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK|Dreamies' compiled/website/index.html
+          grep -q 'id="rail"' compiled/website/index.html
+          grep -q 'id="mtgRail"' compiled/website/index.html
+          grep -q 'Product Evidence Passport' compiled/website/index.html
+          grep -q 'Listing Evidence Audit' compiled/website/index.html
+          grep -q 'Founding Tile.' compiled/website/index.html
+          ! grep -Eiq 'signal -> offer -> checkout -> proof|shared primitives handle offers|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK|Dreamies|ELOHIM|Economic Court|Truth Oracle|Gauntlet|MCP gateway|Agentic commerce|AI agent|VISA|MASTERCARD|AMEX' compiled/website/index.html
 
       - name: Start runtime
         env:
