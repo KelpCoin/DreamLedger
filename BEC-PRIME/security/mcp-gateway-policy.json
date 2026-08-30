@@ -1,0 +1,46 @@
+{
+  "schema_version": "BECKPRIME-MCP-SECURITY-1.2",
+  "gateway": "dreamledger-gateway",
+  "transport": "stdio",
+  "network": {
+    "remote_mcp_http_allowed": false,
+    "localhost_only": true,
+    "allow_any_interface": false
+  },
+  "execution": {
+    "allow_shell": false,
+    "allow_npx": false,
+    "allow_pip_install": false,
+    "allow_git_clone": false,
+    "allowed_commands": ["python"],
+    "command_must_be_absolute_on_host": true
+  },
+  "authority": {
+    "proposal_only": true,
+    "autonomous_spend_nzd": 0,
+    "model_can_approve": false,
+    "model_can_execute": false,
+    "model_can_access_payment_credentials": false
+  },
+  "tools": {
+    "require_manifest_hash": true,
+    "require_description_hash": true,
+    "require_reapproval_on_change": true,
+    "allow_shadowing": false
+  },
+  "sessions": {
+    "bind_identity": true,
+    "shared_state": false,
+    "max_message_bytes": 262144,
+    "max_calls_per_session": 100
+  },
+  "secrets": {
+    "token_passthrough": false,
+    "environment_urls": false,
+    "environment_interpolation": false
+  },
+  "silos": {
+    "cross_silo_access": false,
+    "allowed": ["CORE", "MTG", "DREAMIEZ"]
+  }
+}
