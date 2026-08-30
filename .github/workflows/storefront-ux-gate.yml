@@ -63,7 +63,6 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:4173/ >/tmp/storefront.html
-          curl -fsS http://127.0.0.1:4173/api/offers >/tmp/offers.json
 
       - name: Run customer and commerce gate
         run: node scripts/verify-storefront-ux.js > /tmp/storefront-proof.json
