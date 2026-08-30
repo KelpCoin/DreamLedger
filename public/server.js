@@ -9,6 +9,7 @@ const ENGINE = process.env.ENGINE_INTERNAL_URL || '';
 const ENGINE_KEY = process.env.ENGINE_INTERNAL_API_KEY || '';
 const COMMIT = process.env.RENDER_GIT_COMMIT || process.env.RENDER_GIT_COMMIT_SHA || process.env.GITHUB_SHA || 'unknown';
 const ROOT = __dirname;
+const ASSETS_ROOT = path.join(ROOT,'assets');
 
 const PUBLIC_FILES = {
   '/': 'index.html',
@@ -19,7 +20,6 @@ const PUBLIC_FILES = {
 };
 
 const ALLOWED_API = {
-  'GET /api/molt-beach-inventory': true,
   'POST /api/billboard/submit': true
 };
 
@@ -34,6 +34,7 @@ const MIME = {
   '.jpeg':'image/jpeg',
   '.svg':'image/svg+xml',
   '.webp':'image/webp',
+  '.gif':'image/gif',
   '.ico':'image/x-icon'
 };
 
@@ -96,6 +97,26 @@ function proxy(req,res,body) {
   upstream.end(body);
 }
 
+function serveFile(res,file) {
+  fs.readFile(file,(err,data)=>{
+    if(err) return send(res,404,'Not Found','text/plain; charset=utf-8');
+    res.setHeader('Content-Type',MIME[path.extname(file).toLowerCase()]||'application/octet-stream');
+    res.setHeader('Cache-Control','no-store');
+    send(res,200,data);
+  });
+}
+
+function serveAsset(res,pathname) {
+  let relative;
+  try { relative=decodeURIComponent(pathname.slice('/assets/'.length)); }
+  catch { return send(res,400,'Bad request','text/plain; charset=utf-8'); }
+  if(!relative || relative.includes('\0')) return send(res,404,'Not Found','text/plain; charset=utf-8');
+  const file=path.resolve(ASSETS_ROOT,relative);
+  const rootPrefix=ASSETS_ROOT.endsWith(path.sep)?ASSETS_ROOT:ASSETS_ROOT+path.sep;
+  if(file!==ASSETS_ROOT && !file.startsWith(rootPrefix)) return send(res,404,'Not Found','text/plain; charset=utf-8');
+  return serveFile(res,file);
+}
+
 const server=http.createServer(async(req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
@@ -126,15 +147,11 @@ const server=http.createServer(async(req,res)=>{
     catch { return send(res,400,'Bad request','text/plain; charset=utf-8'); }
   }
 
+  if(req.method==='GET'&&p.startsWith('/assets/')) return serveAsset(res,p);
+
   const file=PUBLIC_FILES[p];
   if(!file||req.method!=='GET') return send(res,404,'Not Found','text/plain; charset=utf-8');
-
-  fs.readFile(path.join(ROOT,file),(err,data)=>{
-    if(err) return send(res,404,'Not Found','text/plain; charset=utf-8');
-    res.setHeader('Content-Type',MIME[path.extname(file).toLowerCase()]||'application/octet-stream');
-    res.setHeader('Cache-Control','no-store');
-    send(res,200,data);
-  });
+  return serveFile(res,path.join(ROOT,file));
 });
 
 server.listen(PORT,'0.0.0.0',()=>console.log('DreamLedger public storefront listening on '+PORT));

@@ -41,9 +41,10 @@ jobs:
           test -s public/index.html
           test -s public/billboard.html
           test -s public/server.js
+          test -s public/assets/dreamledger-tile-preview.svg
           grep -q 'DreamLedger 3000' public/index.html
           grep -q 'NZ$50' public/index.html
-          grep -q 'Founding Tile' public/billboard.html
+          grep -q 'Continue to secure payment' public/billboard.html
           ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined' public/index.html public/billboard.html public/server.js
           ! grep -Eiq 'MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' public/index.html public/billboard.html
           grep -q 'type: web' render.yaml
@@ -51,6 +52,43 @@ jobs:
           grep -q 'type: pserv' render.yaml
           grep -q 'rootDir: BEC-PRIME' render.yaml
           echo "PASS: public/private topology and storefront artifact verified for $RELEASE_SHA"
+
+      - name: Local storefront smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          PORT=18181 RENDER_GIT_COMMIT="$RELEASE_SHA" node public/server.js >/tmp/dreamledger-smoke.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS --max-time 2 http://127.0.0.1:18181/healthz >/tmp/healthz; then break; fi
+            sleep 1
+          done
+          test "$(cat /tmp/healthz)" = "ok"
+          curl -fsS http://127.0.0.1:18181/ >/tmp/home.html
+          curl -fsS http://127.0.0.1:18181/billboard >/tmp/billboard.html
+          curl -fsS http://127.0.0.1:18181/assets/dreamledger-tile-preview.svg >/tmp/tile.svg
+          curl -fsS http://127.0.0.1:18181/version >/tmp/version.json
+          grep -q 'DreamLedger 3000' /tmp/home.html
+          grep -q 'Continue to secure payment' /tmp/billboard.html
+          test -s /tmp/tile.svg
+          python3 - "$RELEASE_SHA" <<'PY'
+          import json,sys
+          expected=sys.argv[1]
+          actual=json.load(open('/tmp/version.json'))
+          assert actual.get('commit') == expected, actual
+          assert actual.get('surface') == 'public-v3', actual
+          print('PASS: local storefront smoke test')
+          PY
+          for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /api/products /api/offer-checkout/create /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
+            code=$(curl -sS -o /tmp/probe -w '%{http_code}' --max-time 5 "http://127.0.0.1:18181$path")
+            case "$code" in
+              403|404) ;;
+              *) echo "FAIL: local $path returned $code"; exit 1;;
+            esac
+          done
+          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' /tmp/home.html /tmp/billboard.html
+          echo 'PASS: local private-route and public-language smoke checks'
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -96,8 +134,9 @@ jobs:
           PY
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
           curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/billboard" >/tmp/billboard.html
-          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined' /tmp/home.html /tmp/billboard.html
-          ! grep -Eiq 'MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' /tmp/home.html /tmp/billboard.html
+          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/assets/dreamledger-tile-preview.svg" >/tmp/tile.svg
+          test -s /tmp/tile.svg
+          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|MTG|CollectorsCoast|Amplissa|DreamMeez|cinema|Monte Carlo|avatar ecosystem' /tmp/home.html /tmp/billboard.html
           for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /api/products /api/offer-checkout/create /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
             code=$(curl -sS -o /tmp/probe -w '%{http_code}' --max-time 20 "$BASE_URL$path")
             case "$code" in
@@ -114,9 +153,9 @@ jobs:
           mkdir -p proof
           python3 - "$RELEASE_SHA" <<'PY'
           import hashlib,json,sys,time
-          files=['public/index.html','public/billboard.html','public/server.js','render.yaml']
+          files=['public/index.html','public/billboard.html','public/server.js','public/assets/dreamledger-tile-preview.svg','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/boundary-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v3','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          data={'schema':'dreamledger/boundary-proof/v3','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v3','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'asset_serving_verified':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
           json.dump(data,open('proof/BOUNDARY_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
