@@ -1,0 +1,24 @@
+{
+  "proof_type": "DREAMLEDGER_CATALOGUE_STOREFRONT_RESET",
+  "generated_at": "2026-08-31T11:25:00+12:00",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "codex/catalogue-first-storefront",
+  "homepage_commit": "4036b0c5a53fdc431c2ef8a57fc40a04e3bec11f",
+  "target": "public/index.html",
+  "checks": {
+    "catalogue_first": true,
+    "horizontal_product_rail": true,
+    "commander_diagnostic_present": true,
+    "founding_tile_present": true,
+    "billboard_demoted_to_compact_module": true,
+    "dreammee_affordance_present": true,
+    "card_network_logos_removed": true,
+    "internal_architecture_language_removed": true,
+    "dedicated_billboard_pdp_preserved": true,
+    "live_stripe_checkout_links_used": true,
+    "unverified_products_not_promoted_as_checkoutable": true
+  },
+  "payment_dispatch_authorised": false,
+  "deployment_performed": false,
+  "note": "Homepage redesign committed only. No public posting, payment dispatch, or production deployment was performed."
+}
