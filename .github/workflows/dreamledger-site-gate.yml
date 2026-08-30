@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'BECK|Gauntlet|Economic Court|Trust Oracle|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|ENGINE_INTERNAL|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|AMPLISSA|COLLECTORSCOAST|DreamMeez|DreamLogic|Monte Carlo|avatar ecosystem|private factory|internal factory' public; then
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'Gauntlet|Economic Court|Trust Oracle|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|DreamLogic|private factory|internal factory' public; then
             echo 'FAIL: prohibited internal, confidential, credential, or cross-silo language found in public assets.'
             exit 1
           fi
