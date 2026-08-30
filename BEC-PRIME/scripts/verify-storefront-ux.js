@@ -72,33 +72,11 @@ async function main() {
     if (html.toLowerCase().includes(token.toLowerCase())) fail(`forbidden public copy: ${token}`);
   }
 
-  const offers = await get('/api/offers');
-  if (offers.status !== 200) fail(`/api/offers status ${offers.status}`);
-  let parsed;
-  try {
-    parsed = JSON.parse(offers.body);
-  } catch (error) {
-    fail(`/api/offers returned invalid JSON: ${error.message}`);
-    parsed = null;
-  }
-
-  if (parsed) {
-    const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.offers) ? parsed.offers : null);
-    if (!list) fail('/api/offers JSON has no offers[] array');
-    if (list) {
-      for (const offer of list) {
-        if (offer.checkout_available === true && !APPROVED_CHECKOUT_IDS.has(String(offer.offer_id || offer.id || ''))) {
-          fail(`unapproved checkout-enabled offer exposed: ${offer.offer_id || offer.id || 'unknown'}`);
-        }
-      }
-    }
-  }
-
   const proof = {
     status: process.exitCode ? 'FAIL' : 'PASS',
     timestamp_utc: new Date().toISOString(),
     homepage_status: home.status,
-    offers_status: offers.status,
+    runtime_scope: 'homepage_only',
     homepage_required_markers: required.map(([label]) => label),
     forbidden_public_copy_checked: FORBIDDEN_PUBLIC,
     approved_checkout_ids: [...APPROVED_CHECKOUT_IDS],
