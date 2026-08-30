@@ -117,9 +117,9 @@ jobs:
             echo "$path HTTP=$code"
             test "$code" = "200"
           done
-          body=$(curl -sS --retry 3 --retry-delay 2 --max-time 15 "$BASE_URL/")
-          echo "$body" | grep -q 'Commander Deck Diagnostic'
-          echo "$body" | grep -q 'NZD 29'
+          body=$(curl -sS --retry 3 --retry-delay 2 --max-time 15 "$BASE_URL/api/products")
+          echo "$body" | grep -q 'COMMANDER-DECK-DIAGNOSTIC-001'
+          echo "$body" | grep -q '29'
           echo 'LIVE_FRONT_DOOR=PASS'
 
       - name: Verify checkout contract without purchase
@@ -131,7 +131,7 @@ jobs:
           response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data '{"sku":"CMD-DIAG-29"}')
+            --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD"}')
           python3 - <<'PY' "$response"
           import json, sys
           data = json.loads(sys.argv[1])
@@ -140,7 +140,7 @@ jobs:
           amount = data.get('amount_nzd')
           if not url.startswith('https://') or 'stripe.com' not in url:
               raise SystemExit('CHECKOUT_URL=FAIL')
-          if sku != 'CMD-DIAG-29':
+          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
               raise SystemExit('CHECKOUT_SKU=FAIL')
           if amount != 29:
               raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
