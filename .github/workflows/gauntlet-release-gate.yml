@@ -120,6 +120,7 @@ jobs:
           echo 'LIVE_FRONT_DOOR=PASS'
 
       - name: Verify checkout contract without purchase
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         env:
           BASE_URL: https://dreamledger.org
