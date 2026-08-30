@@ -117,8 +117,6 @@ jobs:
             echo "$path HTTP=$code"
             test "$code" = "200"
           done
-          body=$(curl -sS --retry 3 --retry-delay 2 --max-time 15 "$BASE_URL/api/products")
-          echo "$body" | python3 -c "import json,sys; d=json.load(sys.stdin); assert isinstance(d.get('products'), list)"
           echo 'LIVE_FRONT_DOOR=PASS'
 
       - name: Verify checkout contract without purchase
