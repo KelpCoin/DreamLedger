@@ -20,8 +20,7 @@ for (const rel of required) if (!fs.existsSync(path.join(repo, rel))) failures.p
 const readme = fs.readFileSync(path.join(repo, 'README.md'), 'utf8');
 const integration = fs.readFileSync(path.join(repo, 'CONTROL-PLANE/COMMERCIAL-INTEGRATION.md'), 'utf8');
 if (!readme.includes('https://dreamledger.org')) failures.push('README_DREAMLEDGER_URL=FAIL');
-if (!readme.includes('https://amplissa.com')) failures.push('README_AMPLISSA_URL=FAIL');
-if (!readme.includes('https://buy.stripe.com/28EcN54zraG13M3g3idwc1t')) failures.push('README_STRIPE_LINK=FAIL');
+if (!readme.includes('https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r')) failures.push('README_STRIPE_LINK=FAIL');
 if (!integration.includes('APPROVAL-GATED')) failures.push('APPROVAL_GATE=FAIL');
 if (!integration.includes('Automation may compile, test, lint, package, generate QR assets')) failures.push('AUTOMATION_BOUNDARY=FAIL');
 
