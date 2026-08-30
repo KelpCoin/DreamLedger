@@ -5,13 +5,13 @@ const root=path.join(__dirname,'..');
 const site=path.join(root,'compiled','website');
 const required=['index.html','login.html','register.html','account.html','.well-known/agent-commerce.json','.well-known/ucp','truth-oracle.html','truth-oracle.json','transparency-policy.json'];
 const forbidden=[
-  /api\\/ip/i,/api\\/control/i,/\\/var\\/data\\//i,/sk_live_/i,/sk_test_/i,/whsec_/i,
+  /api\/ip/i,/api\/control/i,/\/var\/data\//i,/sk_live_/i,/sk_test_/i,/whsec_/i,
   /STRIPE_SECRET_KEY/i,/STRIPE_WEBHOOK_SECRET/i,/DIGITAL_PROXY_APPROVAL_TOKEN/i,
   /LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,/DREAMIEZ_DATA_DIR/i,/DEMAND_RADAR_DATA_DIR/i,
   /BEGIN .*PRIVATE KEY/i,/private prompts/i,/internal ledger records/i,
-  /FIRST_PAYMENT_PROOF\\.json/i,/amplissa/i,/\\bBBW\\b/i,/big beautiful women/i,
+  /FIRST_PAYMENT_PROOF\.json/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i,
   /cinema-event-v1/i
-];
+ ];
 const CATALOG_REQUIRED=['DREAMLEDGER','Find something','Shop the collection.','Billboard','MTG','DreamMeez','NZ$50','Product Evidence Passport','Listing Evidence Audit'];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
