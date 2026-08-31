@@ -1,0 +1,6 @@
+{
+  "schema": "BEC-PRIME/public-safe-telemetry-contract/v1",
+  "purpose": "Public repository marker for commerce observability.",
+  "implementation": "Private telemetry implementation is maintained outside the public storefront contract.",
+  "public_rule": "No credentials, customer secrets, internal scoring logic, proprietary decision rules, or protected evidence are exposed here."
+}
