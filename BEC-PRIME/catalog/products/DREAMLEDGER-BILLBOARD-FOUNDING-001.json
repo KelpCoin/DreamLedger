@@ -3,7 +3,7 @@
   "silo":"dreamledger",
   "name":"DreamLedger Founding Tile",
   "description":"100 x 100 pixel permanent Internet Billboard placement. One finite 1,000,000-pixel canvas. Approved placement remains public until January 1, 3000.",
-  "price":5000,
+  "price":50,
   "currency":"nzd",
   "inventory_pixels":1000000,
   "placement_pixels":10000,
