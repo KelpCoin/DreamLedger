@@ -28,7 +28,8 @@ if (Test-Path $candidate) {
     Check 'offer_price_is_29_nzd' ([int]$c.price -eq 29 -and $c.currency -eq 'nzd')
     Check 'offer_is_live' ($c.status -eq 'published' -and $c.commercial_truth.approval_required -eq $false)
     Check 'offer_is_not_still_approval_blocked' ($c.commercial_truth.approval_required -eq $false)
-    Check 'offer_is_not_claimed_as_revenue' ((($c.commercial_truth.experiment -eq 'MTG-SALES-001') -or ($c.experiment -eq 'MTG-SALES-001')) -and $c.evidence.status -eq 'awaiting_first_payment' -and $null -eq $c.evidence.transaction_id)
+    $experiment = if ($c.experiment) { [string]$c.experiment } elseif ($c.commercial_truth.PSObject.Properties.Name -contains 'experiment') { [string]$c.commercial_truth.experiment } else { '' }
+    Check 'offer_is_not_claimed_as_revenue' ($experiment -eq 'MTG-SALES-001' -and $c.evidence.status -eq 'awaiting_first_payment' -and $null -eq $c.evidence.transaction_id)
 }
 
 if (Test-Path $frontDoor) {
