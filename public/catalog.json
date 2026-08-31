@@ -1,0 +1,73 @@
+{
+  "schema": "dreamledger/public-catalogue/v1",
+  "currency_default": "NZD",
+  "products": [
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "silo": "mtg",
+      "name": "Commander Deck Diagnostic",
+      "description": "An automated first-pass Commander deck diagnostic covering structural weaknesses, upgrade priorities and a tuning plan.",
+      "price": 29,
+      "currency": "nzd",
+      "inventory": 999,
+      "inventory_type": "digital",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00"
+    },
+    {
+      "id": "EDH_0001",
+      "silo": "mtg",
+      "name": "EDH_0001 Commander Deck",
+      "description": "One physical Commander deck from the current collection.",
+      "price": 400,
+      "currency": "nzd",
+      "inventory": 1,
+      "inventory_type": "physical",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J"
+    },
+    {
+      "id": "BESPOKE-ARTISAN-EDH-DECK-001",
+      "silo": "mtg",
+      "name": "Bespoke Artisan EDH Commander Deck (100 Cards + Sideboard)",
+      "description": "One bespoke physical Commander deck built from declared MTG inventory. One available unit.",
+      "price": 385,
+      "currency": "nzd",
+      "inventory": 1,
+      "inventory_type": "physical",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/fZuaEX3vn15r4Q74kAdwc1S"
+    },
+    {
+      "id": "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001",
+      "silo": "mtg",
+      "name": "Palinchron - Urza's Legacy Foil",
+      "description": "Foil from Urza's Legacy. LP condition. Minor clouding and minor edge wear.",
+      "price": 700,
+      "currency": "nzd",
+      "inventory": 1,
+      "inventory_type": "physical",
+      "condition": "LP",
+      "status": "published",
+      "checkout_available": false,
+      "checkout_url": null
+    },
+    {
+      "id": "BILLBOARD-LARGE",
+      "silo": "media",
+      "name": "DreamLedger Digital Billboard Large",
+      "description": "Programmatic digital-out-of-home placement on the DreamLedger billboard surface.",
+      "price": 50,
+      "currency": "nzd",
+      "inventory": 1,
+      "inventory_type": "digital",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02"
+    }
+  ]
+}
