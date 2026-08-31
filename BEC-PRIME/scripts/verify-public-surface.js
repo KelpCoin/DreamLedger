@@ -3,6 +3,7 @@ const fs=require('fs');
 const path=require('path');
 const root=path.join(__dirname,'..');
 const site=path.join(root,'compiled','website');
+const deployedSite=path.join(root,'..','public');
 const required=['index.html','login.html','register.html','account.html','.well-known/agent-commerce.json','.well-known/ucp','truth-oracle.html','truth-oracle.json','transparency-policy.json'];
 const forbidden=[
   /api\/ip/i,/api\/control/i,/\/var\/data\//i,/sk_live_/i,/sk_test_/i,/whsec_/i,
@@ -37,9 +38,9 @@ for(const p of files){
   const raw=fs.readFileSync(p,'utf8');
   for(const re of forbidden){if(re.test(raw))errors.push(`PUBLIC_LEAK:${rel}:${re}`)}
 }
-const indexPath=path.join(site,'index.html');
+const indexPath=path.join(deployedSite,'index.html');
 let index='';
-try{index=fs.readFileSync(indexPath,'utf8')}catch(e){errors.push('CATALOGUE_SURFACE:index.html unreadable')}
+try{index=fs.readFileSync(indexPath,'utf8')}catch(e){errors.push('CATALOGUE_SURFACE:public/index.html unreadable')}
 for(const requiredText of CATALOG_REQUIRED){if(!index.toLowerCase().includes(requiredText.toLowerCase()))errors.push(`CATALOGUE_REQUIRED_MISSING:${requiredText}`)}
 const agentPath=path.join(site,'.well-known','agent-commerce.json');
 let agent={};
