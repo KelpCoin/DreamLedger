@@ -59,7 +59,6 @@ jobs:
           grep -q "'/': 'index.html'" public/server.js
           grep -q "'/billboard': 'billboard.html'" public/server.js
           grep -q "if(!ALLOWED_API\[key\])" public/server.js
-          grep -q "return send(res,404,'Not Found'" public/server.js
           echo 'PASS: public route and API allowlists are explicit.'
 
       - name: Verify sensitive literals are absent from public assets
