@@ -103,7 +103,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'OFFER-CMD-DIAG-29-NZD' BEC-PRIME/catalog/offers/approved.json
-          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
+          grep -Eq '"price"[[:space:]]*:[[:space:]]*29' BEC-PRIME/catalog/offers/approved.json
           grep -q '8x28wQ0cwbn48CA3mM9oc00' BEC-PRIME/catalog/offers/approved.json
           echo 'APPROVED_COMMERCE_SKU=PASS'
 
@@ -232,7 +232,7 @@ jobs:
               'live_sha_verified': True,
               'surfaces_verified': ['healthz','version','mtg','billboard','api/products'],
               'checkout_surface_verified': True,
-              'checkout_sku_verified': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
+              'checkout_sku_verified': 'COMMANDER-DECK-DIAGNOSTIC-001',
               'checkout_amount_nzd_verified': 29,
               'purchase_executed': False,
               'revenue_claimed': False
