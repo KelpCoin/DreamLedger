@@ -19,7 +19,7 @@ for(const text of requiredText){if(!index.toLowerCase().includes(text.toLowerCas
 const server=fs.existsSync(path.join(site,'server.js'))?fs.readFileSync(path.join(site,'server.js'),'utf8'):'';
 for(const token of ["'/':'index.html'","'/billboard':'billboard.html'","'/mtg':'mtg.html'","'/avatar':'avatar.html'","if(!ALLOWED_API[key])"]){if(!server.includes(token))errors.push('PUBLIC_ROUTE_CONTRACT:'+token)}
 const proof={schema:'dreamledger/public-surface-proof/v14',verdict:errors.length?'FAIL':'PASS',required_files:required,scanned_files:files.map(x=>path.relative(site,x).replace(/\\/g,'/')).sort(),excluded_implementation_dirs:[],excluded_surfaces:[],excluded_files:[],binary_assets_skipped:true,errors,public_boundary:'E1 public catalogue doorway; public-v5 is the canonical front door'};
-fs.mkdirSync(path.join(root,'data','proofs'),{recursive:true});
-fs.writeFileSync(path.join(root,'data','proofs','PUBLIC-SURFACE-PROOF.json'),JSON.stringify(proof,null,2)+'\n','utf8');
+fs.mkdirSync(path.join(root,'BEC-PRIME','data','proofs'),{recursive:true});
+fs.writeFileSync(path.join(root,'BEC-PRIME','data','proofs','PUBLIC-SURFACE-PROOF.json'),JSON.stringify(proof,null,2)+'\n','utf8');
 console.log(JSON.stringify(proof,null,2));
 process.exit(errors.length?1:0);
