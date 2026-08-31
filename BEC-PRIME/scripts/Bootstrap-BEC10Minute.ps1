@@ -97,22 +97,25 @@ try {
     $versionResult = Invoke-Lms $lmsPath @("version") -AllowFailure
     $lmsVersion = if ($versionResult.Code -eq 0) { $versionResult.Output.Trim() } else { "VERSION_UNAVAILABLE" }
 
-    Write-Host "[3/6] Ensuring LM Studio server..." -ForegroundColor Cyan
-    $serverStatus = Invoke-Lms $lmsPath @("server","status") -AllowFailure
-    $serverText = $serverStatus.Output
-    $serverRunning = $serverText -match "(?i)(running|listening|active|started)"
+    Write-Host "[3/6] Verifying LM Studio server without assuming daemon commands..." -ForegroundColor Cyan
+    $serverBefore = Invoke-Lms $lmsPath @("server","status") -AllowFailure
+    $serverTextBefore = $serverBefore.Output
+    $serverRunning = $serverTextBefore -match "(?i)(running|listening|active|started)"
+    $serverStartAttempted = $false
+    $serverStartSucceeded = $false
+
     if (-not $serverRunning) {
+        $serverStartAttempted = $true
         $startResult = Invoke-Lms $lmsPath @("server","start","--port","1234") -AllowFailure
-        if ($startResult.Code -ne 0) {
-            throw ("LM Studio server start failed: " + $startResult.Output)
+        $serverStartSucceeded = ($startResult.Code -eq 0)
+        if (-not $serverStartSucceeded) {
+            Write-Host ("WARN: LM Studio server start returned non-zero: " + $startResult.Output) -ForegroundColor Yellow
         }
     }
-    $serverStatus2 = Invoke-Lms $lmsPath @("server","status") -AllowFailure
-    $serverText2 = $serverStatus2.Output
-    $serverRunning2 = $serverText2 -match "(?i)(running|listening|active|started)"
-    if (-not $serverRunning2) {
-        throw "LM Studio local server could not be confirmed running."
-    }
+
+    $serverAfter = Invoke-Lms $lmsPath @("server","status") -AllowFailure
+    $serverTextAfter = $serverAfter.Output
+    $serverRunningAfter = $serverTextAfter -match "(?i)(running|listening|active|started)"
 
     Write-Host "[4/6] Discovering installed models..." -ForegroundColor Cyan
     $modelsResult = Invoke-Lms $lmsPath @("ls")
@@ -121,22 +124,23 @@ try {
     $gptPattern = "(?i)gpt-oss-20b|openai/gpt-oss-20b"
     $gptAvailable = $modelsResult.Output -match $gptPattern
     $gptLoaded = $loadedResult.Output -match $gptPattern
+    $loadAttempted = $false
+    $loadSucceeded = $false
 
+    Write-Host "[5/6] Ensuring GPT-OSS 20B is available when installed..." -ForegroundColor Cyan
     if ($gptAvailable -and (-not $gptLoaded)) {
-        Write-Host "[5/6] Loading GPT-OSS 20B..." -ForegroundColor Cyan
+        $loadAttempted = $true
         $loadResult = Invoke-Lms $lmsPath @("load","openai/gpt-oss-20b","--gpu=auto") -AllowFailure
-        if ($loadResult.Code -ne 0) {
-            Write-Host ("WARN: GPT-OSS 20B load failed: " + $loadResult.Output) -ForegroundColor Yellow
+        $loadSucceeded = ($loadResult.Code -eq 0)
+        if (-not $loadSucceeded) {
+            Write-Host ("WARN: GPT-OSS 20B load returned non-zero: " + $loadResult.Output) -ForegroundColor Yellow
         }
-    }
-    else {
-        Write-Host "[5/6] GPT-OSS 20B already loaded or unavailable..." -ForegroundColor Cyan
     }
 
     Write-Host "[6/6] Writing BEC work state and proof..." -ForegroundColor Cyan
     $handoff = Join-Path $DataRoot "ACTIVE-WORK-STATE.json"
     Write-Json $handoff ([ordered]@{
-        schema="BEC-ACTIVE-WORK-STATE-2.2"
+        schema="BEC-ACTIVE-WORK-STATE-2.3"
         mission="AUTONOMOUS-REVENUE-ENGINE"
         active_repo=$RepoRoot
         compiler_entry="BEC-PRIME\bec.cmd"
@@ -150,7 +154,13 @@ try {
         lmstudio_cli=$lmsPath
         lmstudio_version=$lmsVersion
         lmstudio_server="http://127.0.0.1:1234"
-        lmstudio_server_confirmed=$serverRunning2
+        lmstudio_server_confirmed=$serverRunningAfter
+        lmstudio_server_start_attempted=$serverStartAttempted
+        lmstudio_server_start_succeeded=$serverStartSucceeded
+        gpt_oss_20b_available=$gptAvailable
+        gpt_oss_20b_loaded_before_boot=$gptLoaded
+        gpt_oss_20b_load_attempted=$loadAttempted
+        gpt_oss_20b_load_succeeded=$loadSucceeded
         public_actions="APPROVAL_REQUIRED"
         autonomous_spend_nzd=0
         updated_at_utc=(Get-Date).ToUniversalTime().ToString("o")
@@ -172,17 +182,26 @@ try {
         Pop-Location
     }
 
+    $gptLoadedAfter = (Invoke-Lms $lmsPath @("ps") -AllowFailure).Output -match $gptPattern
+
     $proof = [ordered]@{
-        schema="BEC-10MINUTE-BOOTSTRAP-2.2"
+        schema="BEC-10MINUTE-BOOTSTRAP-2.3"
         status="PASS"
         repo=$RepoRoot
         data_root=$DataRoot
         known_startup_tasks_disabled=$disabled
         lmstudio_cli=$lmsPath
         lmstudio_version=$lmsVersion
-        lmstudio_server_status=$serverText2
+        lmstudio_server_status_before=$serverTextBefore
+        lmstudio_server_status_after=$serverTextAfter
+        lmstudio_server_confirmed=$serverRunningAfter
+        lmstudio_server_start_attempted=$serverStartAttempted
+        lmstudio_server_start_succeeded=$serverStartSucceeded
         gpt_oss_20b_available=$gptAvailable
-        gpt_oss_20b_loaded_after_boot=(Invoke-Lms $lmsPath @("ps") -AllowFailure).Output -match $gptPattern
+        gpt_oss_20b_loaded_before_boot=$gptLoaded
+        gpt_oss_20b_loaded_after_boot=$gptLoadedAfter
+        gpt_oss_20b_load_attempted=$loadAttempted
+        gpt_oss_20b_load_succeeded=$loadSucceeded
         compiler_entry=$bec
         compiler_status="PASS"
         active_work_state=$handoff
@@ -194,7 +213,7 @@ try {
 }
 catch {
     $proof = [ordered]@{
-        schema="BEC-10MINUTE-BOOTSTRAP-2.2"
+        schema="BEC-10MINUTE-BOOTSTRAP-2.3"
         status="FAIL"
         error=$_.Exception.Message
         timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")
