@@ -1,0 +1,18 @@
+{
+  "schema": "BECK/SILO-FEE-POLICY/v1",
+  "default_currency": "nzd",
+  "rules": {
+    "dreamledger-mtg": { "silo": "MTG", "domain": "dreamledger.org/mtg", "platform_fee_bps": 0, "label": "0% forever" },
+    "amplissa": { "silo": "AMPLISSA", "platform_fee_bps": 500, "label": "5% flat" },
+    "bbw-ssbbw-creator": { "silo": "BBW_SSBBW", "platform_fee_bps": 500, "label": "5% flat" },
+    "default": { "silo": "OTHER", "platform_fee_bps": 500, "label": "5% flat" }
+  },
+  "invariants": [
+    "MTG is the only zero-fee silo.",
+    "Every non-MTG silo is charged 500 basis points.",
+    "A checkout cannot declare a commission rate different from this policy.",
+    "Fee policy is resolved server-side from the silo, never trusted from browser input.",
+    "Fee policy changes require a repository change and CI verification."
+  ],
+  "approval": "BIGGIE_REQUIRED_FOR_PUBLIC_RELEASE"
+}
