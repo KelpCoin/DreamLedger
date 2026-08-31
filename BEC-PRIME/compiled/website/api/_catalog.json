@@ -297,10 +297,10 @@
         "sellable": true,
         "reason": "Operator authorized automated MTG digital fulfillment on 2026-08-23.",
         "payment_surface": "stripe-checkout-session",
-        "payment_link": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
-        "payment_link_id": "plink_1U7OJrEGgEAnUFF9YeAOO2l8",
-        "stripe_product_id": "prod_V6iVKl9HgFpzRU",
-        "stripe_price_id": "price_1U7OJkEGgEAnUFF95GIzLolj"
+        "payment_link": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
+        "payment_link_id": "plink_1UAJyVJt4ieIQDFzj4kA5B7x",
+        "stripe_product_id": "prod_VAfIWvDKMHTjFC",
+        "stripe_price_id": "price_1UAJyAJt4ieIQDFzj8DQBNNT"
       },
       "fulfilment": {
         "mode": "automated",
