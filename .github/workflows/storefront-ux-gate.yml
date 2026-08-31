@@ -47,6 +47,8 @@ jobs:
       - name: Start runtime
         env:
           PORT: 4173
+          ENGINE_INTERNAL_API_KEY: ci-storefront-gate-only
+          RENDER_ENV: ci
         run: |
           set -euo pipefail
           npm start > /tmp/dreamledger-storefront.log 2>&1 &
@@ -55,6 +57,10 @@ jobs:
             if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then break; fi
             sleep 1
           done
+          if ! curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then
+            cat /tmp/dreamledger-storefront.log || true
+            exit 1
+          fi
           curl -fsS http://127.0.0.1:4173/ >/tmp/storefront.html
           curl -fsS http://127.0.0.1:4173/api/offers >/tmp/offers.json
 
