@@ -1,0 +1,27 @@
+{
+  "schema_version": "generation-recipe-v1",
+  "recipes": [
+    {
+      "id": "mtg-hero-comfyui-v1",
+      "version": 1,
+      "status": "active",
+      "stencil_id": "mtg-deck-hero-v1",
+      "engine": "comfyui",
+      "endpoint_env": "COMFYUI_BASE_URL",
+      "workflow_env": "COMFYUI_HERO_WORKFLOW",
+      "output": { "image": "png", "video": "mp4", "video_optional": true },
+      "approval_required": true
+    },
+    {
+      "id": "mtg-cinema-v1",
+      "version": 1,
+      "status": "active",
+      "stencil_id": "mtg-deck-hero-v1",
+      "engine": "comfyui",
+      "endpoint_env": "COMFYUI_BASE_URL",
+      "workflow_env": "COMFYUI_CINEMA_WORKFLOW",
+      "output": { "image": "png", "video": "mp4", "max_seconds": 15, "video_optional": true },
+      "approval_required": true
+    }
+  ]
+}
