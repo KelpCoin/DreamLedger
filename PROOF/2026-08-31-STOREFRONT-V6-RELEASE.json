@@ -1,0 +1,12 @@
+{
+  "schema":"DREAMLEDGER-STOREFRONT-RELEASE-PROOF/v1",
+  "status":"MERGED",
+  "release_commit":"d057d287ce7696b00d97cbc4f1504eccd035e5d6",
+  "deployment_trigger_commit":"0b7ee49d0a1316826a986a8ca6a8dce392a4638d",
+  "replacement_pr":209,
+  "retired_pr":208,
+  "surface":"public-v6",
+  "changes":["catalogue-first multi-silo homepage","public sitemap route","robots sitemap declaration","v6 production truth contract","public surface gate","wealth-engine Magic label compatibility"],
+  "revenue_claim":"NOT_VERIFIED",
+  "live_verification":"PENDING_RENDER_CONVERGENCE"
+}
