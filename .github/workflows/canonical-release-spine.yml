@@ -34,8 +34,8 @@ jobs:
       - name: Install root dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Verify application build
-        run: npm run build
+      - name: Compile and verify application
+        run: npm run compile
 
       - name: Verify public surface
         run: node BEC-PRIME/scripts/verify-public-surface.js
