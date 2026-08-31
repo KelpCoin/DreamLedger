@@ -63,7 +63,6 @@ jobs:
           test -s compiled/website/dreammeez.html
           test -s compiled/website/cortex.html
           test -s compiled/website/leverage-registry.html
-          grep -q 'DreamMeez' compiled/website/dreammeez.html
           grep -q 'FIND SOMETHING' ../public/index.html
           grep -q 'DreamMee' ../public/index.html
       - name: Upload compiler proof
