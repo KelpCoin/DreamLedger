@@ -7,7 +7,7 @@
   "currency":"nzd",
   "inventory":10,
   "tile_units":10,
-  "status":"published",
+  "status":"catalog_only",
   "checkout":{"mode":"dynamic_stripe_checkout","success_path":"/billboard?paid=1","cancel_path":"/billboard"},
   "commercial_truth":{"experiment":"DREAMLEDGER-BILLBOARD-FIRST-SALE-001","approval_required":true,"activation_gate":"CHECKOUT_VERIFIED","payment_surface":"dynamic-stripe-checkout"},
   "delivery":{"type":"digital_billboard_placement","target":"dreamledger-public-billboard","dimensions":"500x200"},
