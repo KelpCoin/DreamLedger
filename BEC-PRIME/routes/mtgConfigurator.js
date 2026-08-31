@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const edhOneLink = require('../edh/EDHOneLinkRoute');
+const creatorCommerce = require('./creatorCommerce');
 
 const ROOT = path.join(__dirname, '..');
 const CONFIG_DIR = path.join(ROOT, 'catalog', 'configurator');
@@ -80,6 +81,7 @@ function price(c, selection) {
 }
 async function handle(req, res, url) {
   if (await edhOneLink.handle(req, res, url)) return true;
+  if (await creatorCommerce.handle(req, res, url)) return true;
   const prefix = '/api/mtg/configurator';
   if (req.method === 'GET' && url === prefix + '/decks') {
     const files = fs.existsSync(CONFIG_DIR) ? fs.readdirSync(CONFIG_DIR).filter(name => name.endsWith('.json')) : [];
