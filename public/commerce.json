@@ -1,0 +1,23 @@
+﻿{
+  "schema": "dreamledger/billboard-commerce/v1",
+  "product_id": "BILLBOARD-LARGE",
+  "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+  "name": "DreamLedger Founding Tile",
+  "price": 50,
+  "currency": "NZD",
+  "placement": "100x100",
+  "canvas": "1000000_pixels",
+  "term": "until_3000",
+  "checkout_surface": "stripe_payment_link",
+  "payment_link": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
+  "workflow": [
+    "submission",
+    "reservation_record",
+    "stripe_checkout",
+    "payment_webhook",
+    "human_review",
+    "publication"
+  ],
+  "publication": "human_approval_required",
+  "scarcity": "finite_canvas_only"
+}
