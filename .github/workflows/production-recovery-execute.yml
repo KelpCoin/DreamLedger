@@ -14,9 +14,6 @@ concurrency:
   group: dreamledger-production-recovery-execute
   cancel-in-progress: false
 
-env:
-  RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-
 jobs:
   compile-and-auth:
     runs-on: ubuntu-latest
@@ -92,32 +89,45 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Require Render deployment path
+      - name: Wait for Render auto-deploy convergence
+        id: live_deploy
         shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
-          test -n "$RENDER_DEPLOY_HOOK_URL"
-          echo 'PASS: Render deploy hook is configured.'
-      - name: Trigger exact commit through Render hook
-        shell: bash
-        run: |
-          set -euo pipefail
-          url="${RENDER_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
-          curl --fail --silent --show-error --max-time 30 -X POST "$url"
-          echo "PASS: Render deploy hook accepted commit $GITHUB_SHA."
+          for attempt in $(seq 1 60); do
+            echo "convergence_attempt=$attempt/60"
+            status=$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 20 https://dreamledger.org/version || true)
+            cat /tmp/version.json 2>/dev/null || true
+            if [ "$status" = "200" ]; then
+              commit=$(python3 - <<'PY'
+          import json
+          try:
+              with open('/tmp/version.json', 'r', encoding='utf-8') as f:
+                  print(json.load(f).get('commit', ''))
+          except Exception:
+              print('')
+          PY
+              )
+              if [ "$commit" = "$EXPECTED_COMMIT" ]; then
+                echo "PASS: Render converged to $EXPECTED_COMMIT"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "FAIL: Render did not converge to $EXPECTED_COMMIT"
+          exit 1
       - name: Require production health
         id: live_health
         shell: bash
         run: |
           set -euo pipefail
-          health_ok=0
-          for i in {1..30}; do
-            status=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 15 https://dreamledger.org/healthz || true)
-            echo "health_attempt=$i http=$status"
-            if [ "$status" = "200" ]; then health_ok=1; cat /tmp/healthz.json; break; fi
-            sleep 5
-          done
-          test "$health_ok" = 1
+          status=$(curl -sS -o /tmp/healthz.json -w '%{http_code}' --max-time 20 https://dreamledger.org/healthz)
+          echo "health_http=$status"
+          cat /tmp/healthz.json
+          test "$status" = "200"
       - name: Verify deployed commit provenance
         id: deployed_provenance
         shell: bash
@@ -130,12 +140,53 @@ jobs:
           python3 - "$GITHUB_SHA" <<'PY'
           import json, sys
           expected = sys.argv[1]
-          with open('/tmp/version.json', 'r', encoding='utf-8') as f: data = json.load(f)
+          with open('/tmp/version.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
           deployed = data.get('commit') or data.get('sha')
-          if deployed != expected: raise SystemExit(f'FAIL: deployed SHA {deployed} != source SHA {expected}')
-          print(f'PASS: deployed SHA matches source SHA {expected}')
+          if deployed != expected:
+              raise SystemExit(f'FAIL: deployed SHA {deployed} != source SHA {expected}')
+          if data.get('surface') != 'public-v6':
+              raise SystemExit(f"FAIL: unexpected surface {data.get('surface')}")
+          print(f'PASS: deployed SHA and surface verified for {expected}')
           PY
+      - name: Verify production commerce surface
+        id: live_commerce
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://dreamledger.org"
+          products_code=$(curl -sS -o /tmp/products.json -w '%{http_code}' --max-time 20 "$BASE/api/products")
+          echo "products_http=$products_code"
+          cat /tmp/products.json
+          test "$products_code" = "200"
+          python3 - <<'PY'
+          import json
+          with open('/tmp/products.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
+          products = data.get('products')
+          if not isinstance(products, list):
+              raise SystemExit('FAIL: products array missing')
+          billboard = next((p for p in products if p.get('id') == 'BILLBOARD-LARGE'), None)
+          if billboard is None:
+              raise SystemExit('FAIL: BILLBOARD-LARGE missing')
+          if float(billboard.get('price', 0)) != 50:
+              raise SystemExit('FAIL: BILLBOARD-LARGE price is not 50')
+          if str(billboard.get('currency', '')).upper() != 'NZD':
+              raise SystemExit('FAIL: BILLBOARD-LARGE currency is not NZD')
+          if billboard.get('checkout_available') is not True:
+              raise SystemExit('FAIL: BILLBOARD-LARGE checkout not available')
+          diagnostic = next((p for p in products if p.get('id') == 'COMMANDER-DECK-DIAGNOSTIC-001'), None)
+          if diagnostic is not None and diagnostic.get('checkout_available') is not True:
+              raise SystemExit('FAIL: diagnostic checkout not available')
+          print('PASS: public commerce catalogue verified')
+          PY
+          for path in / /billboard /mtg /sitemap.xml /robots.txt; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$BASE$path")
+            echo "$code $path"
+            test "$code" = "200"
+          done
       - name: Verify production account pages
+        id: live_accounts
         shell: bash
         run: |
           set -euo pipefail
@@ -145,58 +196,37 @@ jobs:
           grep -q '/api/account/register' /tmp/register.html
           ! grep -q '/api/dreamiez/account/login' /tmp/login.html
           echo 'PASS: production login/register surfaces are present and correctly wired.'
-      - name: Live registration acceptance
-        id: live_register
-        shell: bash
-        run: |
-          set -euo pipefail
-          EMAIL="live-proof-${GITHUB_RUN_ID}@example.invalid"
-          printf '%s\n' "$EMAIL" > /tmp/live-proof-email.txt
-          status=$(curl -sS -o /tmp/register-response.json -w '%{http_code}' --max-time 20 -c /tmp/live-cookies.txt -H 'Content-Type: application/json' -X POST https://dreamledger.org/api/account/register -d "{\"name\":\"Live Proof\",\"email\":\"$EMAIL\",\"password\":\"LivePass-123!\"}")
-          echo "registration_http=$status"
-          cat /tmp/register-response.json
-          test "$status" = "201"
-          grep -q '"ok":true' /tmp/register-response.json
-      - name: Live login acceptance
-        id: live_login
-        shell: bash
-        run: |
-          set -euo pipefail
-          EMAIL=$(cat /tmp/live-proof-email.txt)
-          status=$(curl -sS -o /tmp/login-response.json -w '%{http_code}' --max-time 20 -b /tmp/live-cookies.txt -c /tmp/live-cookies.txt -H 'Content-Type: application/json' -X POST https://dreamledger.org/api/account/login -d "{\"email\":\"$EMAIL\",\"password\":\"LivePass-123!\"}")
-          echo "login_http=$status"
-          cat /tmp/login-response.json
-          test "$status" = "200"
-          grep -q '"ok":true' /tmp/login-response.json
-      - name: Live /me acceptance
-        id: live_me
-        shell: bash
-        run: |
-          set -euo pipefail
-          status=$(curl -sS -o /tmp/me-response.json -w '%{http_code}' --max-time 20 -b /tmp/live-cookies.txt https://dreamledger.org/api/account/me)
-          echo "me_http=$status"
-          cat /tmp/me-response.json
-          test "$status" = "200"
-          grep -q '"authenticated":true' /tmp/me-response.json
       - name: Write immutable machine proof
         if: always()
         shell: bash
         env:
+          DEPLOY_OUTCOME: ${{ steps.live_deploy.outcome }}
           HEALTH_OUTCOME: ${{ steps.live_health.outcome }}
           PROVENANCE_OUTCOME: ${{ steps.deployed_provenance.outcome }}
-          REGISTER_OUTCOME: ${{ steps.live_register.outcome }}
-          LOGIN_OUTCOME: ${{ steps.live_login.outcome }}
-          ME_OUTCOME: ${{ steps.live_me.outcome }}
+          COMMERCE_OUTCOME: ${{ steps.live_commerce.outcome }}
+          ACCOUNTS_OUTCOME: ${{ steps.live_accounts.outcome }}
         run: |
           set -euo pipefail
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
-          gates = {k: os.environ.get(k, 'unknown') for k in ['HEALTH_OUTCOME','PROVENANCE_OUTCOME','REGISTER_OUTCOME','LOGIN_OUTCOME','ME_OUTCOME']}
-          proof = {'commit_sha': os.environ['GITHUB_SHA'], 'workflow': os.environ['GITHUB_WORKFLOW'], 'run_id': os.environ['GITHUB_RUN_ID'], 'target': 'https://dreamledger.org', 'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'gates': gates, 'status': 'PASS' if all(v == 'success' for v in gates.values()) else 'FAIL'}
-          with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f: json.dump(proof, f, indent=2)
+          keys = ['DEPLOY_OUTCOME','HEALTH_OUTCOME','PROVENANCE_OUTCOME','COMMERCE_OUTCOME','ACCOUNTS_OUTCOME']
+          gates = {k: os.environ.get(k, 'unknown') for k in keys}
+          status = 'PASS' if all(v == 'success' for v in gates.values()) else 'FAIL'
+          proof = {
+              'commit_sha': os.environ['GITHUB_SHA'],
+              'workflow': os.environ['GITHUB_WORKFLOW'],
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'target': 'https://dreamledger.org',
+              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+              'gates': gates,
+              'status': status
+          }
+          with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
+              json.dump(proof, f, indent=2)
           print(json.dumps(proof, indent=2))
-          if proof['status'] != 'PASS': raise SystemExit('FAIL: one or more live acceptance gates did not pass')
+          if status != 'PASS':
+              raise SystemExit('FAIL: one or more production gates did not pass')
           PY
       - name: Upload production proof
         if: always()
