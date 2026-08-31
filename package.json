@@ -32,6 +32,7 @@
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
     "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",
     "verify:edh-one-link": "node BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js",
+    "verify:beck-empire": "node BEC-PRIME/scripts/Verify-BECKEmpireFactory.js",
     "refine:local": "python BEC-PRIME/refinement/MultiLMRefinementEngine.py",
     "gauntlet:candidate": "node BEC-PRIME/gauntlet/CandidateGauntlet.js"
   },
