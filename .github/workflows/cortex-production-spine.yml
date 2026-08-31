@@ -35,8 +35,24 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Compile canonical Cortex surfaces
+        id: compile
         working-directory: BEC-PRIME
-        run: npm run compile
+        shell: bash
+        run: |
+          set +e
+          npm run compile > ../cortex-compile.log 2>&1
+          RC=$?
+          cat ../cortex-compile.log
+          echo "COMPILE_EXIT_CODE=$RC"
+          exit $RC
+
+      - name: Upload compile diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-compile-diagnostic-${{ github.sha }}
+          path: cortex-compile.log
+          if-no-files-found: error
 
       - name: Run unit and policy tests
         working-directory: BEC-PRIME
