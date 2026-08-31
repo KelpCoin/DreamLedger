@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   cloud-health:
-    name: Cloud health and integration proof
+    name: Cloud health and commerce proof
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -44,25 +44,35 @@ jobs:
           test -f .github/workflows/first-sale-gate.yml
           echo "CONTROL_PLANE=PASS"
 
-      - name: Verify canonical commerce inputs
+      - name: Verify canonical DreamLedger commercial package
         shell: bash
         run: |
           set -euo pipefail
-          found=0
-          for p in \
-            BEC-PRIME/catalog/offers/approved.json \
-            BEC-PRIME/catalog/offers/offers.json \
-            BEC-PRIME/compiled/website/billboard.html \
-            api/billboard-stripe-webhook.js \
-            vercel.json; do
-            if [ -f "$p" ]; then
-              echo "FOUND=$p"
-              found=$((found+1))
-            else
-              echo "MISSING=$p"
-            fi
-          done
-          echo "CANONICAL_INPUTS_FOUND=$found"
+          test -s public/index.html
+          test -s public/billboard.html
+          test -s public/server.js
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          approved=json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())['approved']
+          offer=next(x for x in approved if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          product=json.loads(Path('BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json').read_text())
+          campaign=json.loads(Path('BEC-PRIME/distribution/campaigns/D-001.json').read_text())
+          assert offer['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
+          assert offer['price']==50 and offer['currency']=='NZD'
+          assert offer['payment_link_status']=='ACTIVE_LIVEMODE'
+          assert offer['payment_link_url']=='https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r'
+          assert product['price']==50 and product['currency']=='nzd'
+          assert product['commercial_truth']['payment_link']==offer['payment_link_url']
+          assert campaign['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
+          assert campaign['offer']['price_nzd']==50
+          assert campaign['objective']['metric']=='PAYMENT_RECEIVED'
+          assert campaign['objective']['target']==1
+          print('CANONICAL_OFFER=DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          print('CANONICAL_PRICE_NZD=50')
+          print('CANONICAL_CHECKOUT='+offer['payment_link_url'])
+          PY
+          echo 'COMMERCIAL_PACKAGE=PASS'
 
       - name: Install dependencies when package manifest exists
         shell: bash
@@ -71,6 +81,9 @@ jobs:
           if [ -f package-lock.json ]; then
             npm ci --ignore-scripts
           elif [ -f package.json ]; then
+            npm install --ignore-scripts
+          elif [ -f public/package.json ]; then
+            cd public
             npm install --ignore-scripts
           elif [ -f BEC-PRIME/package-lock.json ]; then
             cd BEC-PRIME
@@ -86,38 +99,42 @@ jobs:
           if [ -f package.json ]; then
             has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
             if [ "$has_test" = "yes" ]; then npm test; else echo "No root test script; continuing."; fi
-          elif [ -f BEC-PRIME/package.json ]; then
-            cd BEC-PRIME
+          elif [ -f public/package.json ]; then
+            cd public
             has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
-            if [ "$has_test" = "yes" ]; then npm test; else echo "No BEC-PRIME test script; continuing."; fi
+            if [ "$has_test" = "yes" ]; then npm test; else echo "No public test script; continuing."; fi
           else
             echo "No package.json; continuing."
           fi
 
-      - name: Verify checkout doorway
+      - name: Verify live selling doorway
         shell: bash
         run: |
           set -euo pipefail
-          url="https://buy.stripe.com/28EcN54zraG13M3g3idwc1t"
-          code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "$url")
-          echo "STRIPE_CHECKOUT_HTTP=$code"
-          test "$code" = "200"
-
-      - name: Verify public DreamLedger surfaces
-        shell: bash
-        run: |
-          set -u
           for path in /healthz /billboard; do
-            code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org${path}" || true)
+            code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org${path}")
             echo "PUBLIC_${path#/}_HTTP=$code"
+            test "$code" = "200"
           done
+          curl -L -sS --fail --max-time 20 https://dreamledger.org/billboard >/tmp/billboard.html
+          grep -q 'NZ$50' /tmp/billboard.html
+          grep -q '100 x 100' /tmp/billboard.html
+          python3 - <<'PY'
+          import json, urllib.request
+          p=json.load(open('BEC-PRIME/catalog/offers/approved.json'))
+          offer=next(x for x in p['approved'] if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          r=urllib.request.urlopen(offer['payment_link_url'], timeout=20)
+          print('STRIPE_CHECKOUT_HTTP='+str(r.status))
+          assert r.status==200
+          PY
+          echo 'SELLING_DOORWAY=PASS'
 
       - name: Generate machine-readable cloud proof
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t" || true)
+          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r" || true)
           health_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/healthz" || true)
           billboard_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/billboard" || true)
           cat > artifacts/cloud-ecosystem-proof.json <<EOF
@@ -126,12 +143,13 @@ jobs:
             "commit_sha": "${GITHUB_SHA}",
             "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "cloud_execution": true,
+            "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+            "price_nzd": 50,
             "stripe_checkout_http": "${stripe_code}",
             "healthz_http": "${health_code}",
             "billboard_http": "${billboard_code}",
             "verified_payment_count": 0,
             "revenue_nzd": 0,
-            "self_hosted_fallback": "DEFERRED",
             "status": "PROOF_GENERATED"
           }
           EOF
