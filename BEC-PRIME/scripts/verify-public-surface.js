@@ -12,7 +12,7 @@ const forbidden=[
   /FIRST_PAYMENT_PROOF\.json/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i,
   /cinema-event-v1/i
 ];
-const CATALOG_REQUIRED=['DreamLedger','Digital products','Physical collectibles','Interactive experiences','Media'];
+const CATALOG_REQUIRED=['DreamLedger','Digital products','Magic & collectibles','Games & experiments','Digital media'];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
 const authPages=['login.html','register.html','account.html'];
