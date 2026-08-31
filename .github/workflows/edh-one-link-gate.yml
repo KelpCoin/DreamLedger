@@ -25,6 +25,7 @@ jobs:
           node --check BEC-PRIME/edh/EDHOneLinkService.js
           node --check BEC-PRIME/edh/EDHOneLinkRoute.js
           node --check BEC-PRIME/edh/EDHMediaService.js
+          node --check BEC-PRIME/edh/EDHCinemaService.js
           node --check BEC-PRIME/edh/InvokeEDHOneLink.js
           node --check BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js
           node --check BEC-PRIME/edh/Test-EDHOneLinkContract.js
