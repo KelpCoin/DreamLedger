@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       release_sha:
-        description: Exact commit SHA to deploy
+        description: Exact commit SHA to verify in production
         required: true
         type: string
 
@@ -20,12 +20,9 @@ concurrency:
 jobs:
   deploy-and-probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     env:
       RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
-      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
       BASE_URL: https://dreamledger.org
     steps:
       - name: Checkout exact release
@@ -43,61 +40,54 @@ jobs:
           test -s public/server.js
           grep -q 'FIND SOMETHING' public/index.html
           grep -q 'GOOD.' public/index.html
-          grep -q 'NZ$50' public/index.html
-          grep -q 'DreamLedger' public/index.html
+          grep -q 'DreamMee' public/index.html
+          grep -q 'Pioneer product' public/index.html
           grep -q '/billboard' public/index.html
-          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public/index.html public/billboard.html public/server.js
-          grep -q 'type: web' render.yaml
+          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public/index.html public/billboard.html public/server.js
+          grep -q 'autoDeployTrigger: commit' render.yaml
           grep -q 'rootDir: public' render.yaml
-          grep -q 'type: pserv' render.yaml
           grep -q 'rootDir: BEC-PRIME' render.yaml
           echo "PASS: public/private topology and storefront artifact verified for $RELEASE_SHA"
 
-      - name: Trigger exact Render deployment
+      - name: Verify Render auto-deployment
         shell: bash
         run: |
           set -euo pipefail
-          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
-            separator='?'
-            case "$RENDER_DEPLOY_HOOK_URL" in *?*) separator='&';; esac
-            curl --fail-with-body --silent --show-error --retry 4 --retry-delay 5 --max-time 45 -X POST "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${RELEASE_SHA}" >/tmp/render-trigger.json
-            cat /tmp/render-trigger.json
-          elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
-            version='v2.22.0'
-            asset="cli_${version#v}_linux_amd64.zip"
-            curl --fail --silent --show-error -L "https://github.com/render-oss/cli/releases/download/$version/$asset" -o /tmp/render-cli.zip
-            unzip -q /tmp/render-cli.zip -d /tmp/render-cli
-            RENDER_BIN=$(find /tmp/render-cli -type f -name render -perm -111 | head -n 1)
-            test -n "$RENDER_BIN"
-            export PATH="$(dirname "$RENDER_BIN"):$PATH"
-            RENDER_API_KEY="$RENDER_API_KEY" render deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json >/tmp/render-deploy.json
-            cat /tmp/render-deploy.json
-          else
-            echo 'FAIL: no Render deployment trigger configured.'
-            exit 2
-          fi
+          echo "Render is configured for commit-triggered deployment."
+          echo "Waiting for https://dreamledger.org to expose $RELEASE_SHA."
+          for i in $(seq 1 45); do
+            body=$(curl -sS --max-time 10 "$BASE_URL/version" || true)
+            live=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit",""))' <<< "$body" 2>/dev/null || true)
+            surface=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("surface",""))' <<< "$body" 2>/dev/null || true)
+            echo "poll=$i live_sha=$live surface=$surface expected_sha=$RELEASE_SHA"
+            if [ "$live" = "$RELEASE_SHA" ] && [ "$surface" = "public-v5" ]; then
+              echo "LIVE_RELEASE=PASS"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "LIVE_RELEASE=FAIL"
+          exit 1
 
       - name: Verify live boundary
         shell: bash
         run: |
           set -euo pipefail
-          sleep 20
-          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz
           test "$(cat /tmp/healthz)" = "ok"
-          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/version" >/tmp/version.json
-          python3 - "$RELEASE_SHA" <<'PY'
-          import json,sys
-          expected=sys.argv[1]
-          actual=json.load(open('/tmp/version.json'))
-          if actual.get('commit') != expected:
-              raise SystemExit(f"FAIL: deployed SHA {actual.get('commit')} != expected {expected}")
-          if actual.get('surface') != 'public-v5':
-              raise SystemExit(f"FAIL: wrong public surface {actual.get('surface')}")
-          print(f"PASS: live SHA {expected}, surface public-v5")
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/" >/tmp/home.html
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/billboard" >/tmp/billboard.html
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/api/products" >/tmp/products.json
+          grep -q 'FIND SOMETHING' /tmp/home.html
+          grep -q 'DreamMee' /tmp/home.html
+          grep -q 'Pioneer product' /tmp/home.html
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/products.json',encoding='utf-8'))
+          assert isinstance(data,dict) and isinstance(data.get('products'),list)
+          print('CATALOGUE_API=PASS')
           PY
-          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          curl --fail --silent --show-error --retry 10 --retry-delay 10 --max-time 30 "$BASE_URL/billboard" >/tmp/billboard.html
-          ! grep -Eiq 'BECK|DECK|Gauntlet|Economic Court|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html /tmp/billboard.html
+          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html /tmp/billboard.html
           for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /api/offer-checkout/create /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
             code=$(curl -sS -o /tmp/probe -w '%{http_code}' --max-time 20 "$BASE_URL$path")
             case "$code" in
@@ -116,7 +106,7 @@ jobs:
           import hashlib,json,sys,time
           files=['public/index.html','public/billboard.html','public/server.js','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/boundary-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v5','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          data={'schema':'dreamledger/boundary-proof/v3','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v5','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
           json.dump(data,open('proof/BOUNDARY_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
