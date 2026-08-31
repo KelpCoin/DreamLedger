@@ -63,8 +63,8 @@ jobs:
           assert offer['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
           assert offer['price']==50 and offer['currency']=='NZD'
           assert offer['payment_link_status']=='ACTIVE_LIVEMODE'
-          assert offer['payment_link_url']=='https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r'
-          assert product['price']==50 and product['currency']=='nzd'
+          assert offer['payment_link_url']=='https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02'
+          assert product['price']==5000 and product['currency']=='nzd'
           assert product['commercial_truth']['payment_link']==offer['payment_link_url']
           assert campaign['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
           assert campaign['offer']['price_nzd']==50
@@ -160,7 +160,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r" || true)
+          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02" || true)
           health_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/healthz" || true)
           billboard_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/billboard" || true)
           cat > artifacts/cloud-ecosystem-proof.json <<EOF
