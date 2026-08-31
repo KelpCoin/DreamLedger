@@ -1,0 +1,40 @@
+{
+  "schema": "BEC-PRIME/COMMERCE/PURCHASE-TO-SHARE-LOOP/v1",
+  "objective": "Make every legitimate purchase create an optional, attributable discovery path without cold outreach.",
+  "stages": [
+    "purchase",
+    "fulfilment",
+    "proof",
+    "share_artifact",
+    "referral_visit",
+    "product_discovery",
+    "new_purchase"
+  ],
+  "share_artifact_rules": {
+    "must_be_generated_after_verified_payment": true,
+    "must_not_expose_private_system_logic": true,
+    "must_include_public_product_identity": true,
+    "must_include_canonical_url": true,
+    "must_include_optional_referral_code": true,
+    "must_be_human_approval_free_after_customer_action": true
+  },
+  "measurement": [
+    "PAYMENT_CONFIRMED",
+    "FULFILMENT_COMPLETED",
+    "REFERRAL_SHARED",
+    "REFERRAL_CONVERSION"
+  ],
+  "silos": {
+    "commercial_front_door": "shared",
+    "product_catalogue": "isolated_by_silo",
+    "customer_data": "first_party",
+    "adult": "hard_isolated",
+    "mtg": "hard_isolated"
+  },
+  "anti_spam": {
+    "automatic_public_posting": false,
+    "customer_initiated_share": true,
+    "rate_limit": true,
+    "duplicate_suppression": true
+  }
+}
