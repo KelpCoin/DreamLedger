@@ -27,9 +27,9 @@ jobs:
           node --check BEC-PRIME/edh/EDHMediaService.js
           node --check BEC-PRIME/edh/InvokeEDHOneLink.js
           node --check BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js
+          node --check BEC-PRIME/edh/Test-EDHOneLinkContract.js
           node --check BEC-PRIME/routes/mtgConfigurator.js
-      - name: Contract verifier
-        run: node BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js
-        continue-on-error: true
+      - name: Contract test
+        run: node BEC-PRIME/edh/Test-EDHOneLinkContract.js
       - name: Boundary scan
         run: '! grep -RniE "sk_live_|whsec_|STRIPE_SECRET_KEY" BEC-PRIME/edh BEC-PRIME/scripts/Invoke-EDHOneLink.ps1'
