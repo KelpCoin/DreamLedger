@@ -64,7 +64,7 @@ if (
   errors.push('SKU_DRIFT');
 }
 
-const paymentLink = 'https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V';
+const paymentLink = 'https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00';
 
 if (
   product.commercial_truth?.payment_link !== paymentLink ||
