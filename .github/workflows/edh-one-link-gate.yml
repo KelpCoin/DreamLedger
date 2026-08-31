@@ -1,0 +1,22 @@
+name: edh-one-link-gate
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/edh/**'
+      - 'BEC-PRIME/scripts/Invoke-EDHOneLink.ps1'
+  push:
+    paths:
+      - 'BEC-PRIME/edh/**'
+      - 'BEC-PRIME/scripts/Invoke-EDHOneLink.ps1'
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: node --check BEC-PRIME/edh/EDHOneLinkPipeline.js && node --check BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js
+      - name: Boundary scan
+        run: '! grep -RniE "sk_live_|whsec_|STRIPE_SECRET_KEY" BEC-PRIME/edh BEC-PRIME/scripts/Invoke-EDHOneLink.ps1'
