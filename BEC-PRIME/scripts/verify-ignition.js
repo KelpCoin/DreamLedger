@@ -33,8 +33,11 @@ try {
     const valid = Boolean(product.id && product.name) &&
       Number.isInteger(Number(product.price)) && Number(product.price) > 0 &&
       String(product.currency || '').toUpperCase() === 'NZD' &&
-      product.commercial_truth && product.commercial_truth.approval_required === false &&
-      Boolean(evidenceStatus);
+      product.commercial_truth &&
+      Boolean(evidenceStatus) &&
+      (product.commercial_truth.approval_required === false ||
+       (product.commercial_truth.approval_required === true &&
+        String(product.commercial_truth.activation_gate || '').length > 0));
     if (!valid) {
       checks.offer = 'FAIL';
       fail(`invalid published product: ${file}`);
