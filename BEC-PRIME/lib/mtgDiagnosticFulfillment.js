@@ -9,7 +9,7 @@ const REPORTS = path.join(DATA, 'reports');
 const INTAKES = path.join(DATA, 'intakes');
 const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
-const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1U7OJkEGgEAnUFF95GIzLolj';
+const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1UAJyAJt4ieIQDFzj8DQBNNT';
 const PRODUCT_ID = 'COMMANDER-DECK-DIAGNOSTIC-001';
 const OFFER_ID = 'OFFER-CMD-DIAG-29-NZD';
 
@@ -23,7 +23,6 @@ function parseDecklist(text){
   }).filter(x=>x.name.length>1).slice(0,120);
 }
 function classify(cards){
-  const text=cards.map(c=>c.name.toLowerCase()).join('\n');
   const rules={lands:/\b(island|swamp|mountain|forest|plains|command tower|path of ancestry|temple|guildgate|land)\b/i,ramp:/\b(sol ring|arcane signet|signet|talisman|cultivate|kodama|rampant growth|fellwar stone|mana crypt|mana vault)\b/i,draw:/\b(phyrexian arena|rhystic study|mystic remora|sign in blood|harmonize|faithless looting|brainstorm|ponder|preordain|read the bones)\b/i,removal:/\b(swords to plowshares|path to exile|beast within|generous gift|pongify|rapid hybridization|terminate|counterspell|go for the throat|hero's downfall|cyclonic rift|wrath|damnation)\b/i};
   const totals={lands:0,ramp:0,draw:0,removal:0};
   for(const c of cards){const n=c.qty;for(const [k,re] of Object.entries(rules))if(re.test(c.name))totals[k]+=n;}
