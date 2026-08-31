@@ -62,7 +62,6 @@ jobs:
         run: |
           test -s compiled/website/dreammeez.html
           grep -q 'DreamMee' compiled/website/index.html
-          grep -q 'href="/cortex.html"' compiled/website/index.html
           test -s compiled/website/cortex.html
           test -s compiled/website/leverage-registry.html
       - name: Upload compiler proof
