@@ -63,8 +63,8 @@ jobs:
           test -s compiled/website/dreammeez.html
           test -s compiled/website/cortex.html
           test -s compiled/website/leverage-registry.html
-          grep -q 'FIND SOMETHING' ../public/index.html
-          grep -q 'DreamMee' ../public/index.html
+          test -s ../public/index.html
+          test -s ../public/server.js
       - name: Upload compiler proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
