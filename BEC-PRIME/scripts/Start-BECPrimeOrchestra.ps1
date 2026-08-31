@@ -75,10 +75,10 @@ try {
     $loadedNow = $verify | Where-Object { ([string]$_.identifier) -eq $selected -or ([string]$_.modelKey) -eq $selected }
     if (-not $loadedNow) { throw "LM Studio model failed to remain loaded: $selected" }
     Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.0";model_key=$selected;server="http://127.0.0.1:1234";loaded=$true;verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
-    $cycle = Join-Path $RepoRoot "scripts\Run-AutonomyCycle.ps1"
+    $cycle = Join-Path $RepoRoot "autonomy\RevenueAutonomy.js"
     $cycleStatus = "NOT_STARTED"
     if (Test-Path -LiteralPath $cycle) {
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $cycle *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "autonomy-cycle.log") | Out-Host
+        & node.exe $cycle *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "autonomy-cycle.log") | Out-Host
         $cycleStatus = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
     }
     $proof = [ordered]@{schema="BEC-PRIME-STARTUP-ORCHESTRA-1.0";status="PASS";lm_studio="RUNNING";model=$selected;model_loaded=$true;server="http://127.0.0.1:1234";autonomous_spend_nzd=0;public_actions="APPROVAL_REQUIRED";autonomy_cycle=$cycleStatus;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}
