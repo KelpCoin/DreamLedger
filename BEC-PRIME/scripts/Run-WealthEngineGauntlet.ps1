@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $root = Join-Path $PSScriptRoot '..'
-$candidateFile = Join-Path $root 'catalog\products\BEC-PRIME-ARCHITECTURE-AUDIT-001.json'
+$candidateFile = Join-Path $root 'catalog\products\COMMANDER-DECK-DIAGNOSTIC-001.json'
 $offerFile = Join-Path $root 'catalog\offers\offers.json'
 $ipFile = Join-Path $root 'catalog\ip-capabilities.json'
 $gauntletFile = Join-Path $root 'gauntlet\GauntletV6.js'
@@ -21,34 +21,34 @@ $catalog = Get-Content -Raw $offerFile | ConvertFrom-Json
 # remains approval-gated and checkout-disabled; the separately approved offer
 # remains controlled by catalog/offers/approved.json and PR #59.
 $offer = [ordered]@{
-    offer_id = 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-CANDIDATE'
+    offer_id = 'OFFER-CMD-DIAG-29-NZD-CANDIDATE'
     version = 'offer-v1'
-    capability_id = 'BEC-PRIME-ARCHITECTURE'
+    capability_id = 'PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001'
     silo = 'commerce'
     name = $candidate.name
     problem = 'A business needs evidence-backed assessment of whether its commerce surface can be understood, evaluated, and acted upon by software agents.'
-    input = 'Public commerce URL and publicly accessible commerce surface.'
-    output = 'UNDERSTAND, DECIDE, and ACT audit with prioritized remediation findings.'
-    delivery_mechanism = 'engine_generated_digital_deliverable'
-    deliverable = 'Evidence-backed surface audit report plus durable audit proof artifact.'
-    target_buyer = 'E-commerce operators and SaaS/product owners'
+    input = 'Commander name, decklist, strategy if known, and improvement budget.'
+    output = 'Diagnostic report with structural findings, cut candidates, upgrade priorities and tuning plan.'
+    delivery_mechanism = 'stripe_payment -> automated_fulfillment'
+    deliverable = 'Automated Commander deck diagnostic report.'
+    target_buyer = 'Commander deck owners seeking actionable tuning guidance'
     eligibility = 'Customer must control or authorize review of the submitted public commerce surface.'
     constraints = @('No credentials collected','No private data requested','No unsupported claims','Silo boundaries enforced')
     price = [int]$candidate.price
     currency = 'NZD'
-    pricing_strategy = 'fixed_candidate'
-    pricing_tier = 'surface_audit'
-    refund_rules = 'Define and publish before checkout activation.'
+    pricing_strategy = 'fixed'
+    pricing_tier = 'mtg_diagnostic'
+    refund_rules = 'Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.'
     payment_adapter = 'stripe'
     checkout_route = '/api/offer-checkout/create'
     approval_required = $true
     checkout_available = $false
     status = 'candidate'
-    proof_of_delivery = 'durable_audit_record'
+    proof_of_delivery = 'diagnostic_report'
     verification_rules = @('capability_exists','price_positive','approval_gate_locked','checkout_disabled','delivery_defined','proof_defined','silo_isolated','private_material_excluded')
     provenance = [ordered]@{
-        capability_ids = @('BEC-PRIME-ARCHITECTURE')
-        methodology = 'wealth-engine-first-payment-driver-v1'
+        capability_ids = @('PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001')
+        methodology = 'MTG-SALES-001'
         public_claims_source = 'BEC-PRIME/catalog/ip-capabilities.json'
         private_material = 'excluded'
     }
@@ -82,7 +82,7 @@ try {
         event = 'wealth_engine.candidate_gauntlet_completed'
         status = $result.status
         candidate = $candidate.id
-        offer_id = 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-CANDIDATE'
+        offer_id = 'OFFER-CMD-DIAG-29-NZD-CANDIDATE'
         price_nzd = [int]$candidate.price
         checkout_enabled = [bool]$offer.checkout_available
         approval_required = [bool]$offer.approval_required
