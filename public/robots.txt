@@ -2,3 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /webhook
+Disallow: /admin/
+Disallow: /internal/
+Disallow: /debug/
+Sitemap: https://dreamledger.org/sitemap.xml
