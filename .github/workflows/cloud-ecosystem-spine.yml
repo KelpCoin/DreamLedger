@@ -38,7 +38,6 @@ jobs:
         run: |
           set -euo pipefail
           test -f .github/workflows/cloud-ecosystem-spine.yml
-          test -f .github/workflows/vercel-static-deploy.yml
           test -f .github/workflows/render-deploy.yml
           test -f .github/workflows/economic-revenue-gate.yml
           test -f .github/workflows/commerce-sentinel.yml
