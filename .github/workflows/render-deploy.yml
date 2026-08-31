@@ -59,8 +59,8 @@ jobs:
           assert b['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
           assert b['price']==50 and b['currency']=='NZD'
           assert b['payment_link_status']=='ACTIVE_LIVEMODE'
-          assert b['payment_link_url']=='https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r'
-          assert bp['price']==50 and bp['currency']=='nzd'
+          assert b['payment_link_url']=='https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02'
+          assert bp['price']==5000 and bp['currency']=='nzd'
           assert bp['commercial_truth']['payment_link']==b['payment_link_url']
           assert c['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
           assert c['objective']['metric']=='PAYMENT_RECEIVED' and c['objective']['target']==1
