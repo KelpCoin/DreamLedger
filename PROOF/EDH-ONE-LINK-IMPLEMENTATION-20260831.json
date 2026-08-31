@@ -1,0 +1,24 @@
+{
+  "schema_version": "implementation-proof-v1",
+  "status": "PASS",
+  "feature": "EDH one-link deck-to-catalogue pipeline",
+  "merged_pr": 211,
+  "merge_sha": "560fd76e7e8ea6f765ac1aaa9f9cd907e4f6a369",
+  "flow": [
+    "public deck URL",
+    "normalized deck manifest",
+    "up to five comparison decks",
+    "deterministic heuristic Monte Carlo benchmark",
+    "structured primer",
+    "hero media prompt",
+    "catalogue product manifest",
+    "machine-readable proof"
+  ],
+  "benchmark_label": "FIXTURE_BENCHMARK",
+  "rules_accurate_claim": false,
+  "media_blocking": false,
+  "public_sale_activation": "approval_gated",
+  "public_posting": false,
+  "payment_dispatch": false,
+  "verified_at": "2026-08-31T08:40:00Z"
+}
