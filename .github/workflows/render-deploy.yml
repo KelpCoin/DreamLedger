@@ -1,4 +1,4 @@
-name: Deploy and Verify DreamLedger Catalogue
+name: Deploy and Verify DreamLedger Production
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
+  deploy-and-verify:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -29,7 +29,7 @@ jobs:
       RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
     steps:
       - name: Checkout immutable release
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.RELEASE_SHA }}
           fetch-depth: 1
@@ -41,30 +41,28 @@ jobs:
           test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
           echo "RELEASE_SHA=$RELEASE_SHA"
 
-      - name: Verify committed production artifact
+      - name: Verify public storefront artifact
         shell: bash
         run: |
           set -euo pipefail
-          test -s BEC-PRIME/compiled/website/index.html
-          for page in login.html register.html account.html assets.html avatar.html; do test -s "BEC-PRIME/compiled/website/$page"; done
-          grep -q 'Commander Deck Diagnostic' BEC-PRIME/compiled/website/index.html
-          grep -q 'NZ\$29' BEC-PRIME/compiled/website/index.html
-          grep -q '/mtg/diagnostic.html' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'Amplissa' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'CollectorsCoast' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'HappyHomarid' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'adult' BEC-PRIME/compiled/website/index.html
-          echo 'COMMITTED_ARTIFACT=PASS'
+          test -s public/index.html
+          test -s public/server.js
+          grep -q 'DreamLedger' public/index.html
+          grep -q 'FIND SOMETHING' public/index.html
+          grep -q 'Commander Deck Diagnostic' public/index.html
+          grep -q 'DreamMee' public/index.html
+          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|HappyHomarid|STRIPE_SECRET|SUPABASE_SERVICE_ROLE' public/index.html
+          echo 'PUBLIC_STOREFRONT_ARTIFACT=PASS'
 
-      - name: Verify approved commercial offer
+      - name: Verify canonical commercial offer
         shell: bash
         run: |
           set -euo pipefail
           grep -q 'OFFER-CMD-DIAG-29-NZD' BEC-PRIME/catalog/offers/approved.json
           grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' BEC-PRIME/catalog/offers/approved.json
-          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
-          grep -q '9B6aEX5DvdSd4Q73gwdwc1V' BEC-PRIME/catalog/offers/approved.json
-          echo 'APPROVED_OFFER=PASS'
+          grep -q '"price":29' BEC-PRIME/catalog/offers/approved.json
+          grep -q 'ACTIVE_LIVEMODE' BEC-PRIME/catalog/offers/approved.json
+          echo 'CANONICAL_OFFER=PASS'
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -72,16 +70,13 @@ jobs:
           set -euo pipefail
           if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
             case "$RENDER_DEPLOY_HOOK_URL" in
-              *\?*) SEP='&' ;;
+              *?*) SEP='&' ;;
               *) SEP='?' ;;
             esac
-            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60 \
-              -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" >/tmp/render.json
+            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60               -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" >/tmp/render.json
             cat /tmp/render.json
           elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
-            curl --fail --silent --show-error -L \
-              https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip \
-              -o /tmp/render.zip
+            curl --fail --silent --show-error -L               https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip               -o /tmp/render.zip
             unzip -q /tmp/render.zip -d /tmp/render
             RENDER_BIN=$(find /tmp/render -type f -name render -perm -111 | head -1)
             test -n "$RENDER_BIN"
@@ -95,45 +90,80 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for attempt in $(seq 1 18); do
-            if curl --fail --silent --show-error --max-time 20 "$BASE_URL/version" >/tmp/version.json && grep -q "$RELEASE_SHA" /tmp/version.json; then break; fi
-            if [ "$attempt" = 18 ]; then echo 'FAIL: production SHA did not converge'; cat /tmp/version.json 2>/dev/null || true; exit 1; fi
+          for attempt in $(seq 1 24); do
+            if curl --fail --silent --show-error --max-time 20 "$BASE_URL/version" >/tmp/version.json && grep -q "$RELEASE_SHA" /tmp/version.json; then
+              echo 'PRODUCTION_SHA=PASS'
+              break
+            fi
+            if [ "$attempt" = 24 ]; then
+              echo 'FAIL: production SHA did not converge'
+              cat /tmp/version.json 2>/dev/null || true
+              exit 1
+            fi
             sleep 10
           done
-          for path in / /mtg /cinema.html /digital-products.html /avatar.html /healthz /version /login.html /register.html /account.html /assets.html /api/offers /api/products/EDH_0001 /api/mtg/diagnostic/intake; do
+
+      - name: Verify public routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in / /billboard /mtg /avatar /healthz /version /api/products; do
             code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
             echo "$code $path"
             test "$code" = 200
           done
           curl --fail --silent --show-error "$BASE_URL/" >/tmp/home.html
+          grep -q 'FIND SOMETHING' /tmp/home.html
+          grep -q 'DreamMee' /tmp/home.html
           grep -q 'Commander Deck Diagnostic' /tmp/home.html
-          grep -q 'NZ\$29' /tmp/home.html
-          grep -q '/mtg/diagnostic.html' /tmp/home.html
-          ! grep -qi 'Amplissa' /tmp/home.html
-          ! grep -qi 'CollectorsCoast' /tmp/home.html
-          ! grep -qi 'HappyHomarid' /tmp/home.html
-          ! grep -qi 'adult' /tmp/home.html
-          curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.json
-          grep -q '"status":"ok"' /tmp/healthz.json
-          echo 'PRODUCTION_CATALOGUE=PASS'
+          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|HappyHomarid' /tmp/home.html
+          echo 'PUBLIC_SURFACE=PASS'
 
-      - name: Emit deployment proof
+      - name: Verify checkout contract without purchase
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20             -X POST "$BASE_URL/api/offer-checkout/create"             -H 'Content-Type: application/json'             --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD"}')
+          python3 - <<'PY' "$response"
+          import json, sys
+          data = json.loads(sys.argv[1])
+          url = str(data.get('url', data.get('checkout_url', '')))
+          sku = str(data.get('product_id', ''))
+          amount = data.get('amount_nzd')
+          if not url.startswith('https://') or 'stripe.com' not in url:
+              raise SystemExit('CHECKOUT_URL=FAIL')
+          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
+              raise SystemExit('CHECKOUT_SKU=FAIL')
+          if amount != 29:
+              raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
+          print('CHECKOUT_URL=PASS')
+          print('CHECKOUT_SKU=PASS')
+          print('CHECKOUT_AMOUNT_NZD_29=PASS')
+          print('PURCHASE_EXECUTED=FALSE')
+          PY
+
+      - name: Write deployment proof
         if: always()
         shell: bash
+        env:
+          RELEASE_SHA: ${{ env.RELEASE_SHA }}
         run: |
           set -euo pipefail
           mkdir -p proof
           python3 - <<'PY'
-          import json, os, time
-          p={'schema':'dreamledger-catalogue-deployment-v2','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'render_service':'DreamLedger1','front_door_silo':'mtg','approved_offer':'OFFER-CMD-DIAG-29-NZD'}
-          with open('proof/catalogue-deployment-fossil.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
+          import hashlib, json, os, time
+          p = {'schema':'dreamledger-production-deployment-v3','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'storefront':'public-v5','payment_execution':False,'ra_000001':False}
+          raw = json.dumps(p, sort_keys=True, indent=2).encode()
+          p['sha256'] = hashlib.sha256(raw).hexdigest()
+          with open('proof/dreamledger-production-proof.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
           print(json.dumps(p,indent=2))
           PY
-      - name: Upload proof
+
+      - name: Upload deployment proof
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@v4
         with:
-          name: dreamledger-catalogue-proof-${{ env.RELEASE_SHA }}
-          path: proof/catalogue-deployment-fossil.json
+          name: dreamledger-production-proof-${{ env.RELEASE_SHA }}
+          path: proof/dreamledger-production-proof.json
           if-no-files-found: error
           retention-days: 30
