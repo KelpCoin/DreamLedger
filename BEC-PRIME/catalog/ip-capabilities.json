@@ -1,23 +1,165 @@
 {
-  "schema":"BEC-PRIME/IP-CAPABILITY-CATALOG/v1",
-  "status":"cataloged",
-  "commercial_rule":"Capabilities are cataloged separately from payment activation. No capability becomes checkout-enabled without an explicit approval gate and a canonical economic object.",
-  "capabilities":[
-    {"id":"BEC-PRIME-ARCHITECTURE","name":"BEC-PRIME Architecture","category":"systems","summary":"Four-layer local-first commerce architecture spanning Foundation, Canonical, Execution, and Surface.","commercialization":"architecture_audit","silo":"dreamledger"},
-    {"id":"BEC-PRIME-CUBE","name":"CUBE Compiler / Reskin / Clone / Silo","category":"compiler","summary":"A planned compiler architecture for producing controlled surfaces from canonical economic and asset definitions while preserving silo boundaries.","commercialization":"implementation_or_blueprint","silo":"dreamledger"},
-    {"id":"BEC-PRIME-ELOHIM","name":"Elohim Refinery","category":"orchestration","summary":"The planned orchestration/refinery layer for turning validated specifications and signals into executable work.","commercialization":"architecture_or_implementation","silo":"dreamledger"},
-    {"id":"BEC-PRIME-GAUNTLET","name":"Gauntlet","category":"verification","summary":"A rule-driven verification layer for approval gates, canonical products, settlement-before-delivery, idempotency, proof generation, silo isolation, and deterministic verification.","commercialization":"audit_or_verification_framework","silo":"dreamledger"},
-    {"id":"BEC-PRIME-TRUTH-PROOF","name":"Truth and Proof Engine","category":"trust","summary":"Evidence-first transaction and system-state verification that distinguishes designed, implemented, verified, deployed, and proven states.","commercialization":"audit_or_proof_system","silo":"dreamledger"},
-    {"id":"BEC-PRIME-REVENUE-OS","name":"Revenue OS","category":"monetization","summary":"A closed economic loop connecting discovery, pain clustering, SKU creation, exposure, conversion, fulfillment, feedback, red-team checks, and ledger evidence.","commercialization":"revenue_system_design","silo":"dreamledger"},
-    {"id":"BEC-PRIME-COMMERCE-KERNEL","name":"Commerce Kernel","category":"commerce","summary":"A payment-rail-agnostic economic execution model separating offer, payment intent, authorization, settlement, delivery, and proof.","commercialization":"commerce_architecture","silo":"dreamledger"},
-    {"id":"BEC-PRIME-AGENT-COMMERCE","name":"Agentic Commerce Layer","category":"agentic_commerce","summary":"Machine-readable paid capabilities designed for future agent commerce, with x402 deliberately held in backlog until first commercial proof.","commercialization":"agentic_commerce_architecture","silo":"dreamledger"},
-    {"id":"BEC-PRIME-SILO-CONTROL","name":"Silo and Asset Control","category":"governance","summary":"Explicit tenant, owner, asset, and silo boundaries preventing cross-pollination between MTG, commerce, and adult domains.","commercialization":"governance_or_architecture_audit","silo":"dreamledger"},
-    {"id":"BEC-PRIME-PROOF-OF-POWER","name":"Commercial Proof Loop","category":"commercial_execution","summary":"Customer to payment to verified settlement to delivery to durable proof, with FIRST_PAYMENT_PROOF.json as the first commercial evidence gate.","commercialization":"commerce_implementation_or_audit","silo":"dreamledger"},
-    {"id":"BEC-PRIME-READINESS-AUDIT","name":"Agentic Commerce Readiness Audit","category":"audit","summary":"Automated audit of merchant catalog, schema, pricing, inventory, policies, checkout readiness, and agent discoverability, producing evidence-backed remediation priorities.","commercialization":"readiness_audit","silo":"dreamledger","pricing_strategy":"tiered","tiers":[{"price":49,"deliverable":"snapshot"},{"price":149,"deliverable":"full_audit"},{"price":499,"deliverable":"blueprint"}]},
-    {"id":"BEC-PRIME-DIGITAL-PROXY-ASSIST","name":"Digital Proxy Navigation Assistant","category":"agentic_assistance","summary":"An explicit-invocation navigation assistant that helps visitors use the commerce surface without automatic popups or access to credentials, payments, or external actions.","commercialization":"embedded_assistant","silo":"dreamledger","approval_required":true},
-    {"id":"BEC-PRIME-DEMAND-RADAR","name":"Demand Radar","category":"market_intelligence","summary":"A privacy-minimized signal collector that ranks observed route and help-demand patterns and creates approval-gated candidate proposals.","commercialization":"market_intelligence_or_growth_engine","silo":"dreamledger","approval_required":true},
-    {"id":"BEC-PRIME-SENTINEL","name":"Runtime Sentinel","category":"reliability","summary":"Fail-closed runtime verification for required components, catalog presence, Gauntlet health and public secret markers, with durable proof artifacts.","commercialization":"reliability_or_governance_service","silo":"dreamledger","approval_required":true},
-    {"id":"PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001","name":"DreamLedger Founding Tile","category":"digital_billboard","summary":"Permanent 100x100 digital billboard placement with 100 founding-equivalent positions in the New Zealand market and automatic publication after verified payment.","commercialization":"digital_billboard_publication","silo":"dreamledger","pricing_strategy":"fixed","price":50,"currency":"NZD"}
+  "schema": "BEC-PRIME/IP-CAPABILITY-CATALOG/v1",
+  "status": "cataloged",
+  "commercial_rule": "Capabilities are cataloged separately from payment activation. No capability becomes checkout-enabled without an explicit approval gate and a canonical economic object.",
+  "capabilities": [
+    {
+      "id": "BEC-PRIME-ARCHITECTURE",
+      "name": "BEC-PRIME Architecture",
+      "category": "systems",
+      "summary": "Four-layer local-first commerce architecture spanning Foundation, Canonical, Execution, and Surface.",
+      "commercialization": "architecture_audit",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-CUBE",
+      "name": "CUBE Compiler / Reskin / Clone / Silo",
+      "category": "compiler",
+      "summary": "A planned compiler architecture for producing controlled surfaces from canonical economic and asset definitions while preserving silo boundaries.",
+      "commercialization": "implementation_or_blueprint",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-ELOHIM",
+      "name": "Elohim Refinery",
+      "category": "orchestration",
+      "summary": "The planned orchestration/refinery layer for turning validated specifications and signals into executable work.",
+      "commercialization": "architecture_or_implementation",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-GAUNTLET",
+      "name": "Gauntlet",
+      "category": "verification",
+      "summary": "A rule-driven verification layer for approval gates, canonical products, settlement-before-delivery, idempotency, proof generation, silo isolation, and deterministic verification.",
+      "commercialization": "audit_or_verification_framework",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-TRUTH-PROOF",
+      "name": "Truth and Proof Engine",
+      "category": "trust",
+      "summary": "Evidence-first transaction and system-state verification that distinguishes designed, implemented, verified, deployed, and proven states.",
+      "commercialization": "audit_or_proof_system",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-REVENUE-OS",
+      "name": "Revenue OS",
+      "category": "monetization",
+      "summary": "A closed economic loop connecting discovery, pain clustering, SKU creation, exposure, conversion, fulfillment, feedback, red-team checks, and ledger evidence.",
+      "commercialization": "revenue_system_design",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-COMMERCE-KERNEL",
+      "name": "Commerce Kernel",
+      "category": "commerce",
+      "summary": "A payment-rail-agnostic economic execution model separating offer, payment intent, authorization, settlement, delivery, and proof.",
+      "commercialization": "commerce_architecture",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-AGENT-COMMERCE",
+      "name": "Agentic Commerce Layer",
+      "category": "agentic_commerce",
+      "summary": "Machine-readable paid capabilities designed for future agent commerce, with x402 deliberately held in backlog until first commercial proof.",
+      "commercialization": "agentic_commerce_architecture",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-SILO-CONTROL",
+      "name": "Silo and Asset Control",
+      "category": "governance",
+      "summary": "Explicit tenant, owner, asset, and silo boundaries preventing cross-pollination between MTG, commerce, and adult domains.",
+      "commercialization": "governance_or_architecture_audit",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-PROOF-OF-POWER",
+      "name": "Commercial Proof Loop",
+      "category": "commercial_execution",
+      "summary": "Customer to payment to verified settlement to delivery to durable proof, with FIRST_PAYMENT_PROOF.json as the first commercial evidence gate.",
+      "commercialization": "commerce_implementation_or_audit",
+      "silo": "dreamledger"
+    },
+    {
+      "id": "BEC-PRIME-READINESS-AUDIT",
+      "name": "Agentic Commerce Readiness Audit",
+      "category": "audit",
+      "summary": "Automated audit of merchant catalog, schema, pricing, inventory, policies, checkout readiness, and agent discoverability, producing evidence-backed remediation priorities.",
+      "commercialization": "readiness_audit",
+      "silo": "dreamledger",
+      "pricing_strategy": "tiered",
+      "tiers": [
+        {
+          "price": 49,
+          "deliverable": "snapshot"
+        },
+        {
+          "price": 149,
+          "deliverable": "full_audit"
+        },
+        {
+          "price": 499,
+          "deliverable": "blueprint"
+        }
+      ]
+    },
+    {
+      "id": "BEC-PRIME-DIGITAL-PROXY-ASSIST",
+      "name": "Digital Proxy Navigation Assistant",
+      "category": "agentic_assistance",
+      "summary": "An explicit-invocation navigation assistant that helps visitors use the commerce surface without automatic popups or access to credentials, payments, or external actions.",
+      "commercialization": "embedded_assistant",
+      "silo": "dreamledger",
+      "approval_required": true
+    },
+    {
+      "id": "BEC-PRIME-DEMAND-RADAR",
+      "name": "Demand Radar",
+      "category": "market_intelligence",
+      "summary": "A privacy-minimized signal collector that ranks observed route and help-demand patterns and creates approval-gated candidate proposals.",
+      "commercialization": "market_intelligence_or_growth_engine",
+      "silo": "dreamledger",
+      "approval_required": true
+    },
+    {
+      "id": "BEC-PRIME-SENTINEL",
+      "name": "Runtime Sentinel",
+      "category": "reliability",
+      "summary": "Fail-closed runtime verification for required components, catalog presence, Gauntlet health and public secret markers, with durable proof artifacts.",
+      "commercialization": "reliability_or_governance_service",
+      "silo": "dreamledger",
+      "approval_required": true
+    },
+    {
+      "id": "PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "category": "mtg_digital",
+      "summary": "Automated first-pass Commander deck analysis with structural findings, upgrade priorities and a tuning plan.",
+      "commercialization": "automated_diagnostic",
+      "silo": "mtg",
+      "approval_required": false
+    },
+    {
+      "id": "PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Founding Tile",
+      "category": "digital_billboard",
+      "summary": "Permanent 100x100 digital billboard placement with 100 founding-equivalent positions in the New Zealand market and automatic publication after verified payment.",
+      "commercialization": "digital_billboard_publication",
+      "silo": "dreamledger",
+      "pricing_strategy": "fixed",
+      "price": 50,
+      "currency": "NZD"
+    }
   ],
-  "excluded_from_public_catalog":["credentials","private_keys","payment_secrets","customer_data","private_operational_files","unapproved_adult_content"]
+  "excluded_from_public_catalog": [
+    "credentials",
+    "private_keys",
+    "payment_secrets",
+    "customer_data",
+    "private_operational_files",
+    "unapproved_adult_content"
+  ]
 }

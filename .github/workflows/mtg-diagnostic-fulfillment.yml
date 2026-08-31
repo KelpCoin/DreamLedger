@@ -36,21 +36,14 @@ jobs:
       - name: Verify CUBE MTG reskin
         shell: pwsh
         run: .\BEC-PRIME\scripts\Verify-CUBE-MTG-Reskin.ps1
-      - name: Verify public surfaces exist
+      - name: Verify current public surfaces
         shell: pwsh
         run: |
-          $required = @(
-            'BEC-PRIME/compiled/website/index.html',
-            'BEC-PRIME/compiled/website/mtg/index.html',
-            'BEC-PRIME/compiled/website/mtg/diagnostic.html',
-            'BEC-PRIME/compiled/website/mtg/diagnostic-success.html',
-            'BEC-PRIME/compiled/website/digital-products.html',
-            'cinema.html'
-          )
+          $required = @('public/index.html','public/mtg.html','public/billboard.html','public/avatar.html','public/server.js')
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
-          $home = Get-Content BEC-PRIME/compiled/website/index.html -Raw
-          foreach ($token in @('Horizontal catalogue','href="/mtg"','href="/cinema.html"','href="/digital-products.html"','href="/avatar.html"')) {
-            if ($home -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
+          $homePage = Get-Content public/index.html -Raw
+          foreach ($token in @('FIND SOMETHING','href="/mtg"','href="/billboard"','DreamMee')) {
+            if ($homePage -notmatch [regex]::Escape($token)) { throw "Public catalogue token missing: $token" }
           }
-          if ($home -match 'Agentic Commerce Readiness Audit') { throw 'Historical audit homepage residue detected' }
-          Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Cinema + Digital Products + Avatar surfaces present'
+          if ($homePage -match 'Agentic Commerce Readiness Audit') { throw 'Historical audit homepage residue detected' }
+          Write-Host '[PASS] DreamLedger public catalogue + MTG + billboard + avatar surfaces present'

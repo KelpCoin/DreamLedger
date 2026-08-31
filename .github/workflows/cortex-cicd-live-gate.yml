@@ -49,7 +49,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         working-directory: BEC-PRIME
@@ -102,9 +102,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'BEC-PRIME-ARCHITECTURE-AUDIT-001' BEC-PRIME/catalog/offers/approved.json
-          grep -q '"price": 49' BEC-PRIME/catalog/offers/approved.json
-          grep -q '8x24gz2rjg0l6Yf9EUdwc1R' BEC-PRIME/catalog/offers/approved.json
+          grep -q 'OFFER-CMD-DIAG-29-NZD' BEC-PRIME/catalog/offers/approved.json
+          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' BEC-PRIME/catalog/offers/approved.json
+          grep -q '"price":29' BEC-PRIME/catalog/offers/approved.json
+          grep -q 'ACTIVE_LIVEMODE' BEC-PRIME/catalog/offers/approved.json
           echo 'APPROVED_COMMERCE_SKU=PASS'
 
       - name: Write CI proof
@@ -126,8 +127,8 @@ jobs:
                   'worker-pool', 'runtime', 'syntax', 'primary-account-pages',
                   'approved-commerce-sku'
               ],
-              'approved_commerce_sku': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
-              'approved_commerce_price_nzd': 49,
+              'approved_commerce_sku': 'CMD-DIAG-29',
+              'approved_commerce_price_nzd': 29,
               'public_actions': 'approval-required',
               'financial_actions': 'approval-required'
           }
@@ -184,8 +185,10 @@ jobs:
           }
           check /healthz 200
           check /register.html 200
-          check /elohim-refinery.html 200
-          check /gauntlet.html 200
+          check / 200
+          check /billboard 200
+          check /mtg 200
+          check /avatar 200
           check /version 200
 
       - name: Verify checkout surface without purchasing
@@ -195,7 +198,7 @@ jobs:
           response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data '{"sku":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}')
+            --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD"}')
           echo "$response" > /tmp/checkout.json
           python3 - <<'PY'
           import json
@@ -206,9 +209,9 @@ jobs:
           amount=data.get('amount_nzd')
           if not url.startswith('https://') or 'stripe.com' not in url:
               raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
-          if sku != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
               raise SystemExit(f'CHECKOUT_SKU=FAIL:{sku}')
-          if amount != 49:
+          if amount != 29:
               raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
           print('CHECKOUT_URL_PRESENT=PASS')
           print('CHECKOUT_SKU=PASS')
@@ -231,8 +234,8 @@ jobs:
               'live_sha_verified': True,
               'surfaces_verified': ['healthz','register.html','elohim-refinery.html','gauntlet.html','version'],
               'checkout_surface_verified': True,
-              'checkout_sku_verified': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
-              'checkout_amount_nzd_verified': 49,
+              'checkout_sku_verified': 'COMMANDER-DECK-DIAGNOSTIC-001',
+              'checkout_amount_nzd_verified': 29,
               'purchase_executed': False,
               'revenue_claimed': False
           }

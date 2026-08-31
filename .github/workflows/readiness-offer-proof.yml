@@ -1,13 +1,19 @@
-name: Readiness Offer Proof
+name: Canonical Commercial Offer Proof
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  compile-and-verify:
+  verify:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         run: npm install --ignore-scripts
@@ -23,61 +29,39 @@ jobs:
       - name: Compile offers
         env:
           GIT_COMMIT: ${{ github.sha }}
-        run: node BEC-PRIME/compiler/OfferCompiler.js
+        run: node compiler/OfferCompiler.js
 
-      - name: Verify readiness tiers and explicit first-sale approval
+      - name: Verify canonical commercial offer
         shell: bash
         run: |
+          set -euo pipefail
           node <<'NODE'
           const fs = require('fs');
-          const path = require('path');
-          const file = path.join('BEC-PRIME', 'catalog', 'offers', 'offers.json');
-          if (!fs.existsSync(file)) throw new Error('Compiled offers file missing: ' + file);
-          const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+          const data = JSON.parse(fs.readFileSync('catalog/offers/offers.json', 'utf8'));
           const offers = Array.isArray(data.offers) ? data.offers : [];
-          const got = new Map(offers.map(o => [o.offer_id, o]));
-          const expected = {
-            'OFFER-BEC-PRIME-READINESS-AUDIT-SNAPSHOT': 49,
-            'OFFER-BEC-PRIME-READINESS-AUDIT-FULL-AUDIT': 149,
-            'OFFER-BEC-PRIME-READINESS-AUDIT-BLUEPRINT': 499
-          };
-          for (const [id, price] of Object.entries(expected)) {
-            const offer = got.get(id);
-            if (!offer) throw new Error('Missing offer: ' + id);
-            if (offer.price !== price) throw new Error(`${id}: expected price ${price}, got ${offer.price}`);
-            if (offer.currency !== 'NZD') throw new Error(`${id}: currency is not NZD`);
-            if (offer.approval_required !== true) throw new Error(`${id}: approval gate is not locked`);
-            if (offer.checkout_available !== false) throw new Error(`${id}: checkout is not locked`);
-            if (offer.status !== 'candidate') throw new Error(`${id}: status is not candidate`);
-            if (offer.silo !== 'dreamledger') throw new Error(`${id}: silo mismatch`);
-          }
-          const readinessCandidates = offers.filter(o => o.capability_id === 'BEC-PRIME-READINESS-AUDIT' && o.status === 'candidate');
-          if (readinessCandidates.length !== 3) throw new Error(`Expected exactly 3 readiness candidate offers, got ${readinessCandidates.length}`);
-          const firstSale = got.get('AGENTIC-COMMERCE-READINESS-001');
-          if (!firstSale) throw new Error('Missing explicitly approved first-sale offer AGENTIC-COMMERCE-READINESS-001');
-          if (firstSale.price !== 49 || firstSale.currency !== 'NZD') throw new Error('First-sale price/currency mismatch');
-          if (firstSale.capability_id !== 'BEC-PRIME-READINESS-AUDIT') throw new Error('First-sale capability mismatch');
-          if (firstSale.silo !== 'dreamledger') throw new Error('First-sale silo mismatch');
-          if (firstSale.approval_required !== false) throw new Error('First-sale approval gate is still locked');
-          if (firstSale.checkout_available !== true) throw new Error('First-sale checkout is not enabled');
-          if (firstSale.status !== 'VERIFIED_AVAILABLE') throw new Error('First-sale status is not VERIFIED_AVAILABLE');
-          console.log(JSON.stringify({
-            status: 'PASS',
-            commit: process.env.GITHUB_SHA,
-            readiness_candidate_offer_ids: readinessCandidates.map(o => o.offer_id),
-            first_sale_offer_id: firstSale.offer_id,
-            first_sale_price_nzd: firstSale.price,
-            approval_locked_for_candidates: readinessCandidates.every(o => o.approval_required === true),
-            checkout_enabled_only_for_explicit_approval: firstSale.checkout_available === true,
-            silo: 'dreamledger'
-          }, null, 2));
+          const byId = new Map(offers.map(o => [o.offer_id, o]));
+          const approved = JSON.parse(fs.readFileSync('catalog/offers/approved.json', 'utf8'));
+          const approvedIds = new Set((approved.approved || []).map(o => o.offer_id));
+          const id = 'OFFER-CMD-DIAG-29-NZD';
+          const offer = byId.get(id);
+          if (!offer) throw new Error('Missing canonical offer: ' + id);
+          if (!approvedIds.has(id)) throw new Error('Canonical offer is not operator-approved');
+          if (offer.price !== 29 || offer.currency !== 'NZD') throw new Error('Canonical price/currency mismatch');
+          if (offer.product_id !== 'COMMANDER-DECK-DIAGNOSTIC-001') throw new Error('Canonical product mismatch');
+          if (offer.approval_required !== false) throw new Error('Canonical offer approval gate is still locked');
+          if (offer.checkout_available !== true) throw new Error('Canonical checkout is not enabled');
+          if (offer.status !== 'VERIFIED_AVAILABLE') throw new Error('Canonical offer is not VERIFIED_AVAILABLE');
+          if (offer.payment_link_status !== 'ACTIVE_LIVEMODE') throw new Error('Canonical payment rail is not ACTIVE_LIVEMODE');
+          if (!String(offer.payment_link_url || '').startsWith('https://buy.stripe.com/')) throw new Error('Canonical payment link missing');
+          console.log(JSON.stringify({status:'PASS',offer_id:id,product_id:offer.product_id,price_nzd:offer.price,payment_link_status:offer.payment_link_status,checkout_available:offer.checkout_available,approved:true}, null, 2));
           NODE
 
-      - name: Upload compilation proof
+      - name: Upload proof
         uses: actions/upload-artifact@v4
         with:
-          name: readiness-offer-proof-${{ github.sha }}
+          name: canonical-commercial-offer-proof-${{ github.sha }}
           path: |
             BEC-PRIME/catalog/offers/offers.json
-            BEC-PRIME/catalog/offers/candidates.json
+            BEC-PRIME/catalog/offers/approved.json
             BEC-PRIME/PROOF-OFFER-COMPILATION.json
+          if-no-files-found: error

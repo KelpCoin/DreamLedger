@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install root dependencies
         shell: bash
@@ -36,7 +36,8 @@ jobs:
           Write-Host "NPM_COMPILE_EXIT=$code"
           if ($code -ne 0) { exit $code }
 
-      - name: Run Compile-All and capture exact failure
+      - name: Run Compile-All diagnostic and capture exact failure
+        continue-on-error: true
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'

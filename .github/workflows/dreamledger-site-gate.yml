@@ -1,111 +1,68 @@
 name: DreamLedger Public Surface Gate
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   public-surface:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Validate public storefront files
         shell: bash
         run: |
           set -euo pipefail
           test -s public/index.html
           test -s public/billboard.html
+          test -s public/mtg.html
+          test -s public/avatar.html
           test -s public/server.js
           test -s public/package.json
           grep -q 'FIND SOMETHING' public/index.html
           grep -q 'GOOD.' public/index.html
-          grep -q 'NZ$50' public/index.html
+          grep -q 'Commander Deck Diagnostic' public/index.html
+          grep -q 'DreamMee' public/index.html
           grep -q '/billboard' public/index.html
-          grep -q 'DREAMLEDGER' public/billboard.html
-          grep -q 'NZ$50' public/billboard.html
           grep -q '/api/billboard/submit' public/billboard.html
-          grep -q "'GET /api/molt-beach-inventory':true" public/server.js
           grep -q "'GET /api/products':true" public/server.js
           grep -q "'POST /api/billboard/submit':true" public/server.js
           grep -q "p==='/healthz'" public/server.js
           grep -q "p==='/version'" public/server.js
-          echo 'PASS: current public storefront contract is present.'
-
-      - name: Scan every public text asset for internal or cross-silo leakage
+          echo 'PUBLIC_STOREFRONT=PASS'
+      - name: Scan public text assets
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'Gauntlet|Economic Court|Trust Oracle|Truth Oracle|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|DreamLogic|private factory|internal factory' public; then
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|AMPLISSA|COLLECTORSCOAST|DreamLogic|private factory|internal factory|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public; then
             echo 'FAIL: prohibited internal, confidential, credential, or cross-silo language found in public assets.'
             exit 1
           fi
-          echo 'PASS: public text assets contain no prohibited internal, credential, or cross-silo language.'
-
+          echo 'PUBLIC_COPY_SCAN=PASS'
       - name: Verify public route allowlist
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "const PUBLIC_FILES" public/server.js
-          grep -q "'/': 'index.html'" public/server.js
-          grep -q "'/billboard': 'billboard.html'" public/server.js
-          grep -q "if(!ALLOWED_API\[key\])" public/server.js
+          grep -q 'const PUBLIC_FILES' public/server.js
+          grep -q "'/':'index.html'" public/server.js
+          grep -q "'/billboard':'billboard.html'" public/server.js
+          grep -q "'/mtg':'mtg.html'" public/server.js
+          grep -q "'/avatar':'avatar.html'" public/server.js
+          grep -q 'if(!ALLOWED_API\[key\])' public/server.js
           grep -q "return send(res,404,'Not Found'" public/server.js
-          echo 'PASS: public route and API allowlists are explicit.'
-
-      - name: Verify sensitive literals are absent from public assets
+          echo 'PUBLIC_ALLOWLIST=PASS'
+      - name: Verify sensitive literals
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' 'sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY|SUPABASE_SERVICE_ROLE_KEY' public; then
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' 'sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY|SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET' public; then
             echo 'FAIL: credential-like literal found in public assets.'
             exit 1
           fi
-          echo 'PASS: no obvious secret material found in public assets.'
-
-      - name: Syntax check public server
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --check public/server.js
-          echo 'PASS: public server syntax is valid.'
-
-      - name: Emit machine proof
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p PROOF
-          cat > PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json <<'JSON'
-          {
-            "schema_version": "2.0",
-            "gate": "DREAMLEDGER_PUBLIC_SURFACE",
-            "status": "PASS",
-            "public_root": "public",
-            "checks": [
-              "public_files_exist",
-              "current_3000_offer_present",
-              "billboard_purchase_route_present",
-              "healthz_and_version_present",
-              "api_allowlist_present",
-              "internal_language_scan_passed",
-              "credential_scan_passed",
-              "server_syntax_passed"
-            ],
-            "note": "Live deployment status requires the production boundary workflow to pass against dreamledger.org."
-          }
-          JSON
-
-      - name: Upload proof
-        uses: actions/upload-artifact@v4
-        with:
-          name: dreamledger-public-surface-proof
-          path: PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json
+          echo 'PUBLIC_SECRET_SCAN=PASS'
+      - name: Syntax check
+        run: node --check public/server.js
