@@ -120,11 +120,11 @@ jobs:
             test "$code" = 200
           done
           curl --fail --silent --show-error "$BASE_URL/billboard" >/tmp/billboard.html
-          grep -q 'NZ$50' /tmp/billboard.html
+          grep -Fq 'NZ$50' /tmp/billboard.html
           grep -q '100 x 100' /tmp/billboard.html
           curl --fail --silent --show-error "$BASE_URL/mtg" >/tmp/mtg.html
           grep -q 'EDH_0001' /tmp/mtg.html
-          grep -q 'NZ$400' /tmp/mtg.html
+          grep -Fq 'NZ$400' /tmp/mtg.html
           curl --fail --silent --show-error "$BASE_URL/api/products" >/tmp/products.json
           python3 - <<'PY'
           import json
