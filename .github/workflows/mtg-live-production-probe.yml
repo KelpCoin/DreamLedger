@@ -43,11 +43,24 @@ jobs:
           test "$converged" = "1"
           cat proof/LIVE-VERSION.json
 
-          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/EDH_0001 /sitemap.xml /robots.txt; do
+          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/COMMANDER-DECK-DIAGNOSTIC-001 /sitemap.xml /robots.txt; do
             code=$(curl -L -sS -o /tmp/response -w "%{http_code}" --max-time 20 "$BASE$path")
             echo "$code $path"
             test "$code" = "200"
           done
+
+          curl -L -sS --fail --max-time 20 "$BASE/api/products" -o proof/PRODUCTS.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const x = JSON.parse(fs.readFileSync('proof/PRODUCTS.json','utf8'));
+          const products = Array.isArray(x.products) ? x.products : [];
+          const p = products.find(v => v.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+          if (!p) throw new Error('COMMANDER-DECK-DIAGNOSTIC-001 missing from /api/products');
+          if (Number(p.price) !== 29) throw new Error('MTG diagnostic price is not 29');
+          if (String(p.currency).toUpperCase() !== 'NZD') throw new Error('MTG diagnostic currency is not NZD');
+          if (!p.checkout_url) throw new Error('MTG diagnostic checkout URL missing');
+          console.log('PRODUCT CONTRACT: PASS');
+          NODE
 
           curl -L -sS --fail --max-time 20 "$BASE/mtg" -o proof/MTG.html
           grep -q "data-dreamledger-mtg-commerce-v2" proof/MTG.html
@@ -59,6 +72,7 @@ jobs:
             "expected_commit": "$EXPECTED_COMMIT",
             "live_commit": "$LIVE_COMMIT",
             "mtg_routes": "PASS",
+            "diagnostic_product": "PASS",
             "commerce_markers": "PASS",
             "sitemap": "PASS",
             "robots": "PASS"
