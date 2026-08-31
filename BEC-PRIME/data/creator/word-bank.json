@@ -1,0 +1,10 @@
+{
+  "schema_version": "word-bank-v1",
+  "words": {
+    "cinematic": { "bank": "styles", "base_weight": 1.2, "current_weight": 1.2, "half_life_days": 30, "upvotes": 0, "downvotes": 0 },
+    "collector": { "bank": "styles", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 45, "upvotes": 0, "downvotes": 0 },
+    "commander": { "bank": "subjects", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 90, "upvotes": 0, "downvotes": 0 },
+    "artifact": { "bank": "subjects", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 45, "upvotes": 0, "downvotes": 0 },
+    "tabletop": { "bank": "settings", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 60, "upvotes": 0, "downvotes": 0 }
+  }
+}
