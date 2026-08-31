@@ -6,7 +6,7 @@
   "price":7900,
   "currency":"nzd",
   "inventory":50,
-  "status":"published",
+  "status":"catalog_only",
   "checkout":{"mode":"custom_billboard_checkout","route":"/api/billboard/submit/{market}","success_path":"/billboard/{market}?paid=1","cancel_path":"/billboard/{market}"},
   "commercial_truth":{"experiment":"BILLBOARD-FOUNDING-001","approval_required":true,"activation_gate":"PAYMENT_AND_HUMAN_REVIEW","payment_surface":"stripe-checkout-session"},
   "delivery":{"type":"public_billboard_slot","target":"dreamledger.org/billboard","dimensions":{"w":200,"h":100},"review_required":true,"image_upload":true},
