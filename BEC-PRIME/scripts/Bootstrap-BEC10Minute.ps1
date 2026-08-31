@@ -33,13 +33,36 @@ function Find-Lms {
 }
 
 function Invoke-Lms([string]$Lms,[string[]]$Args,[switch]$AllowFailure) {
-    $o = & $Lms @Args 2>&1
-    $code = $LASTEXITCODE
-    $text = ($o -join "`n")
+    $savedPreference = $ErrorActionPreference
+    $code = 0
+    $text = ""
+    try {
+        $ErrorActionPreference = "Continue"
+        $o = & $Lms @Args 2>&1
+        $code = if ($null -ne $LASTEXITCODE) { [int]$LASTEXITCODE } else { 0 }
+        $text = (($o | ForEach-Object { [string]$_ }) -join "`n").Trim()
+    }
+    catch {
+        $code = 1
+        $text = $_.Exception.Message
+    }
+    finally {
+        $ErrorActionPreference = $savedPreference
+    }
     if (($code -ne 0) -and (-not $AllowFailure)) {
         throw ("lms failed: " + ($Args -join " ") + " :: " + $text)
     }
     return [pscustomobject]@{ Code=$code; Output=$text }
+}
+
+function Test-LmApi([string]$Url) {
+    try {
+        $r = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 5
+        return ($r.StatusCode -ge 200 -and $r.StatusCode -lt 500)
+    }
+    catch {
+        return $false
+    }
 }
 
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
@@ -94,31 +117,53 @@ try {
 
     Write-Host "[2/6] Detecting LM Studio CLI..." -ForegroundColor Cyan
     $lmsPath = Find-Lms
-    $versionResult = Invoke-Lms $lmsPath @("version") -AllowFailure
-    $lmsVersion = if ($versionResult.Code -eq 0) { $versionResult.Output.Trim() } else { "VERSION_UNAVAILABLE" }
 
-    Write-Host "[3/6] Verifying LM Studio server without assuming daemon commands..." -ForegroundColor Cyan
-    $serverBefore = Invoke-Lms $lmsPath @("server","status") -AllowFailure
-    $serverTextBefore = $serverBefore.Output
-    $serverRunning = $serverTextBefore -match "(?i)(running|listening|active|started)"
+    $helpResult = Invoke-Lms $lmsPath @("--help") -AllowFailure
+    $helpText = $helpResult.Output
+
+    $versionResult = Invoke-Lms $lmsPath @("--version") -AllowFailure
+    if ($versionResult.Code -ne 0) {
+        $versionResult = Invoke-Lms $lmsPath @("version") -AllowFailure
+    }
+    $lmsVersion = if ($versionResult.Code -eq 0 -and $versionResult.Output) { $versionResult.Output.Trim() } else { "VERSION_UNAVAILABLE" }
+
+    Write-Host "[3/6] Detecting and starting LM Studio server using supported CLI paths..." -ForegroundColor Cyan
+    $serverStatusResult = Invoke-Lms $lmsPath @("server","status","--json","--quiet") -AllowFailure
+    if ($serverStatusResult.Code -ne 0) {
+        $serverStatusResult = Invoke-Lms $lmsPath @("server","status") -AllowFailure
+    }
+
+    $serverTextBefore = $serverStatusResult.Output
+    $serverRunning = $false
+    if ($serverTextBefore -match '"running"\s*:\s*true') { $serverRunning = $true }
+    if ($serverTextBefore -match '(?i)server is running|running on port|listening|active') { $serverRunning = $true }
+    if (Test-LmApi "http://127.0.0.1:1234/v1/models") { $serverRunning = $true }
+
     $serverStartAttempted = $false
     $serverStartSucceeded = $false
-
     if (-not $serverRunning) {
         $serverStartAttempted = $true
         $startResult = Invoke-Lms $lmsPath @("server","start","--port","1234") -AllowFailure
         $serverStartSucceeded = ($startResult.Code -eq 0)
+        Start-Sleep -Seconds 2
+        if (Test-LmApi "http://127.0.0.1:1234/v1/models") { $serverStartSucceeded = $true }
         if (-not $serverStartSucceeded) {
-            Write-Host ("WARN: LM Studio server start returned non-zero: " + $startResult.Output) -ForegroundColor Yellow
+            Write-Host ("WARN: LM Studio server start was not confirmed: " + $startResult.Output) -ForegroundColor Yellow
         }
     }
 
-    $serverAfter = Invoke-Lms $lmsPath @("server","status") -AllowFailure
+    $serverAfter = Invoke-Lms $lmsPath @("server","status","--json","--quiet") -AllowFailure
+    if ($serverAfter.Code -ne 0) {
+        $serverAfter = Invoke-Lms $lmsPath @("server","status") -AllowFailure
+    }
     $serverTextAfter = $serverAfter.Output
-    $serverRunningAfter = $serverTextAfter -match "(?i)(running|listening|active|started)"
+    $serverRunningAfter = $false
+    if ($serverTextAfter -match '"running"\s*:\s*true') { $serverRunningAfter = $true }
+    if ($serverTextAfter -match '(?i)server is running|running on port|listening|active') { $serverRunningAfter = $true }
+    if (Test-LmApi "http://127.0.0.1:1234/v1/models") { $serverRunningAfter = $true }
 
-    Write-Host "[4/6] Discovering installed models..." -ForegroundColor Cyan
-    $modelsResult = Invoke-Lms $lmsPath @("ls")
+    Write-Host "[4/6] Discovering installed and loaded models..." -ForegroundColor Cyan
+    $modelsResult = Invoke-Lms $lmsPath @("ls") -AllowFailure
     $loadedResult = Invoke-Lms $lmsPath @("ps") -AllowFailure
 
     $gptPattern = "(?i)gpt-oss-20b|openai/gpt-oss-20b"
@@ -140,7 +185,7 @@ try {
     Write-Host "[6/6] Writing BEC work state and proof..." -ForegroundColor Cyan
     $handoff = Join-Path $DataRoot "ACTIVE-WORK-STATE.json"
     Write-Json $handoff ([ordered]@{
-        schema="BEC-ACTIVE-WORK-STATE-2.3"
+        schema="BEC-ACTIVE-WORK-STATE-2.4"
         mission="AUTONOMOUS-REVENUE-ENGINE"
         active_repo=$RepoRoot
         compiler_entry="BEC-PRIME\bec.cmd"
@@ -153,10 +198,12 @@ try {
         )
         lmstudio_cli=$lmsPath
         lmstudio_version=$lmsVersion
+        lmstudio_help_detected=$helpText
         lmstudio_server="http://127.0.0.1:1234"
         lmstudio_server_confirmed=$serverRunningAfter
         lmstudio_server_start_attempted=$serverStartAttempted
         lmstudio_server_start_succeeded=$serverStartSucceeded
+        lmstudio_api_confirmed=(Test-LmApi "http://127.0.0.1:1234/v1/models")
         gpt_oss_20b_available=$gptAvailable
         gpt_oss_20b_loaded_before_boot=$gptLoaded
         gpt_oss_20b_load_attempted=$loadAttempted
@@ -185,7 +232,7 @@ try {
     $gptLoadedAfter = (Invoke-Lms $lmsPath @("ps") -AllowFailure).Output -match $gptPattern
 
     $proof = [ordered]@{
-        schema="BEC-10MINUTE-BOOTSTRAP-2.3"
+        schema="BEC-10MINUTE-BOOTSTRAP-2.4"
         status="PASS"
         repo=$RepoRoot
         data_root=$DataRoot
@@ -197,6 +244,7 @@ try {
         lmstudio_server_confirmed=$serverRunningAfter
         lmstudio_server_start_attempted=$serverStartAttempted
         lmstudio_server_start_succeeded=$serverStartSucceeded
+        lmstudio_api_confirmed=(Test-LmApi "http://127.0.0.1:1234/v1/models")
         gpt_oss_20b_available=$gptAvailable
         gpt_oss_20b_loaded_before_boot=$gptLoaded
         gpt_oss_20b_loaded_after_boot=$gptLoadedAfter
@@ -213,7 +261,7 @@ try {
 }
 catch {
     $proof = [ordered]@{
-        schema="BEC-10MINUTE-BOOTSTRAP-2.3"
+        schema="BEC-10MINUTE-BOOTSTRAP-2.4"
         status="FAIL"
         error=$_.Exception.Message
         timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")
