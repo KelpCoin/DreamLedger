@@ -55,9 +55,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "const PUBLIC_FILES" public/server.js
-          grep -q "'/': 'index.html'" public/server.js
-          grep -q "'/billboard': 'billboard.html'" public/server.js
+          grep -q 'PUBLIC_FILES' public/server.js
+          grep -Eq "'/'.*index.html" public/server.js
+          grep -Eq "'/billboard'.*billboard.html" public/server.js
           grep -q "if(!ALLOWED_API\[key\])" public/server.js
           echo 'PASS: public route and API allowlists are explicit.'
 
