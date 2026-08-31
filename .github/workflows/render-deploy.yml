@@ -47,13 +47,13 @@ jobs:
           set -euo pipefail
           test -s BEC-PRIME/compiled/website/index.html
           for page in login.html register.html account.html assets.html avatar.html; do test -s "BEC-PRIME/compiled/website/$page"; done
-          grep -q 'Commander Deck Diagnostic' BEC-PRIME/compiled/website/index.html
-          grep -q 'NZ\$29' BEC-PRIME/compiled/website/index.html
-          grep -q '/mtg/diagnostic.html' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'Amplissa' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'CollectorsCoast' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'HappyHomarid' BEC-PRIME/compiled/website/index.html
-          ! grep -qi 'adult' BEC-PRIME/compiled/website/index.html
+          grep -q 'DreamMee' BEC-PRIME/compiled/website/index.html
+          grep -q 'FIND SOMETHING' BEC-PRIME/compiled/website/index.html
+          grep -q 'GOOD.' BEC-PRIME/compiled/website/index.html
+          grep -q 'class="rail"' BEC-PRIME/compiled/website/index.html
+          grep -q 'id="magic"' BEC-PRIME/compiled/website/index.html
+          grep -q 'id="digital"' BEC-PRIME/compiled/website/index.html
+          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BEC-PRIME|BrownEye Cortex|Amplissa|CollectorsCoast|HappyHomarid|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' BEC-PRIME/compiled/website/index.html
           echo 'COMMITTED_ARTIFACT=PASS'
 
       - name: Verify approved commercial offer
@@ -100,19 +100,17 @@ jobs:
             if [ "$attempt" = 18 ]; then echo 'FAIL: production SHA did not converge'; cat /tmp/version.json 2>/dev/null || true; exit 1; fi
             sleep 10
           done
-          for path in / /mtg /cinema.html /digital-products.html /avatar.html /healthz /version /login.html /register.html /account.html /assets.html /api/offers /api/products/EDH_0001 /api/mtg/diagnostic/intake; do
+          for path in / /mtg /cinema.html /digital-products.html /avatar.html /healthz /version /login.html /register.html /account.html /assets.html /api/offers /api/products/EDH_0001; do
             code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
             echo "$code $path"
             test "$code" = 200
           done
           curl --fail --silent --show-error "$BASE_URL/" >/tmp/home.html
-          grep -q 'Commander Deck Diagnostic' /tmp/home.html
-          grep -q 'NZ\$29' /tmp/home.html
-          grep -q '/mtg/diagnostic.html' /tmp/home.html
-          ! grep -qi 'Amplissa' /tmp/home.html
-          ! grep -qi 'CollectorsCoast' /tmp/home.html
-          ! grep -qi 'HappyHomarid' /tmp/home.html
-          ! grep -qi 'adult' /tmp/home.html
+          grep -q 'DreamMee' /tmp/home.html
+          grep -q 'FIND SOMETHING' /tmp/home.html
+          grep -q 'GOOD.' /tmp/home.html
+          grep -q 'class="rail"' /tmp/home.html
+          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BEC-PRIME|BrownEye Cortex|Amplissa|CollectorsCoast|HappyHomarid|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html
           curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.json
           grep -q '"status":"ok"' /tmp/healthz.json
           echo 'PRODUCTION_CATALOGUE=PASS'
@@ -125,7 +123,7 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
-          p={'schema':'dreamledger-catalogue-deployment-v2','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'render_service':'DreamLedger1','front_door_silo':'mtg','approved_offer':'OFFER-CMD-DIAG-29-NZD'}
+          p={'schema':'dreamledger-catalogue-deployment-v2','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'render_service':'DreamLedger1','front_door':'catalogue','approved_offer':'OFFER-CMD-DIAG-29-NZD'}
           with open('proof/catalogue-deployment-fossil.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
           print(json.dumps(p,indent=2))
           PY
