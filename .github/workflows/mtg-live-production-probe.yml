@@ -13,9 +13,9 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
-      - name: Probe live DreamLedger MTG surface
+      - name: Wait for Render and probe live DreamLedger MTG surface
         shell: bash
         env:
           BASE: https://dreamledger.org
@@ -24,26 +24,44 @@ jobs:
           set -euo pipefail
           mkdir -p proof
           echo "Expected commit: $EXPECTED_COMMIT"
-          curl -L -sS --fail --max-time 20 "$BASE/version" -o proof/LIVE-VERSION.json
+
+          converged=0
+          for attempt in $(seq 1 18); do
+            if curl -L -sS --fail --max-time 20 "$BASE/version" -o proof/LIVE-VERSION.json; then
+              LIVE_COMMIT=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8')); process.stdout.write(String(x.commit||''))")
+              echo "Attempt $attempt/18 - live commit: $LIVE_COMMIT"
+              if [ "$LIVE_COMMIT" = "$EXPECTED_COMMIT" ]; then
+                converged=1
+                break
+              fi
+            else
+              echo "Attempt $attempt/18 - /version unavailable"
+            fi
+            sleep 20
+          done
+
+          test "$converged" = "1"
           cat proof/LIVE-VERSION.json
-          LIVE_COMMIT=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8')); process.stdout.write(String(x.commit||''))")
-          echo "Live commit: $LIVE_COMMIT"
-          test "$LIVE_COMMIT" = "$EXPECTED_COMMIT"
-          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/EDH_0001; do
+
+          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/EDH_0001 /sitemap.xml /robots.txt; do
             code=$(curl -L -sS -o /tmp/response -w "%{http_code}" --max-time 20 "$BASE$path")
             echo "$code $path"
             test "$code" = "200"
           done
+
           curl -L -sS --fail --max-time 20 "$BASE/mtg" -o proof/MTG.html
           grep -q "data-dreamledger-mtg-commerce-v2" proof/MTG.html
           grep -q "BUY NOW" proof/MTG.html
+
           cat > proof/MTG-LIVE-GATE.json <<EOF
           {
             "status": "PASS",
             "expected_commit": "$EXPECTED_COMMIT",
             "live_commit": "$LIVE_COMMIT",
             "mtg_routes": "PASS",
-            "commerce_markers": "PASS"
+            "commerce_markers": "PASS",
+            "sitemap": "PASS",
+            "robots": "PASS"
           }
           EOF
       - name: Upload production proof
