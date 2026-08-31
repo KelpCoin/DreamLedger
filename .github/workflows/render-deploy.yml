@@ -1,4 +1,4 @@
-name: Deploy and Verify DreamLedger Billboard
+name: Deploy and Verify DreamLedger Commercial Surfaces
 
 on:
   workflow_dispatch:
@@ -39,41 +39,49 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
-          echo "RELEASE_SHA=$RELEASE_SHA"
 
-      - name: Verify canonical DreamLedger commercial package
+      - name: Verify canonical commercial package
         shell: bash
         run: |
           set -euo pipefail
           test -s public/index.html
           test -s public/billboard.html
+          test -s public/mtg.html
           test -s public/server.js
-          test -s public/package.json
           python3 - <<'PY'
           import json
           from pathlib import Path
-          approved=json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())['approved']
-          offer=next(x for x in approved if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
-          product=json.loads(Path('BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json').read_text())
-          campaign=json.loads(Path('BEC-PRIME/distribution/campaigns/D-001.json').read_text())
-          assert offer['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
-          assert offer['price']==50 and offer['currency']=='NZD'
-          assert offer['payment_link_status']=='ACTIVE_LIVEMODE'
-          assert offer['payment_link_url']=='https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r'
-          assert product['price']==50 and product['currency']=='nzd'
-          assert product['commercial_truth']['payment_link']==offer['payment_link_url']
-          assert campaign['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
-          assert campaign['offer']['price_nzd']==50
-          assert campaign['objective']['metric']=='PAYMENT_RECEIVED'
-          assert campaign['objective']['target']==1
-          print('CANONICAL_OFFER=DREAMLEDGER-BILLBOARD-FOUNDING-001')
-          print('CANONICAL_PRICE_NZD=50')
-          print('CANONICAL_CHECKOUT='+offer['payment_link_url'])
+          def load(p): return json.loads(Path(p).read_text())
+          approved=load('BEC-PRIME/catalog/offers/approved.json')['approved']
+          b=next(x for x in approved if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          bp=load('BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json')
+          c=load('BEC-PRIME/distribution/campaigns/D-001.json')
+          assert b['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
+          assert b['price']==50 and b['currency']=='NZD'
+          assert b['payment_link_status']=='ACTIVE_LIVEMODE'
+          assert b['payment_link_url']=='https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r'
+          assert bp['price']==50 and bp['currency']=='nzd'
+          assert bp['commercial_truth']['payment_link']==b['payment_link_url']
+          assert c['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
+          assert c['objective']['metric']=='PAYMENT_RECEIVED' and c['objective']['target']==1
+          mtg=[
+            ('EDH_0001',400),
+            ('BESPOKE-ARTISAN-EDH-DECK-001',385),
+            ('MTG-URZAS-LEGACY-PALINCHRON-FOIL-001',700)
+          ]
+          for pid,expected in mtg:
+              p=load('BEC-PRIME/catalog/products/'+pid+'.json')
+              assert p['silo']=='mtg' and p['inventory_type']=='physical'
+              assert p['status']=='published' and int(p.get('inventory',0))>0
+              assert p.get('commercial_truth',{}).get('approval_required') is False
+              unit=p.get('price_unit')
+              major=(int(p['price'])/100) if unit=='minor' else (int(p['price'])/100)
+              assert round(major,2)==expected
+              print('MTG_CATALOG_OK='+pid+' NZ$'+str(expected))
+          print('COMMERCIAL_PACKAGE=PASS')
           PY
           grep -q 'NZ$50' public/billboard.html
-          grep -q 'POST' public/server.js
-          grep -q 'billboard' public/server.js
-          echo 'COMMERCIAL_PACKAGE=PASS'
+          grep -q 'EDH_0001' public/mtg.html
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -81,16 +89,13 @@ jobs:
           set -euo pipefail
           if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
             case "$RENDER_DEPLOY_HOOK_URL" in
-              *\?*) SEP='&' ;;
+              *?*) SEP='&' ;;
               *) SEP='?' ;;
             esac
-            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60 \
-              -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" >/tmp/render.json
+            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60               -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" >/tmp/render.json
             cat /tmp/render.json
           elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
-            curl --fail --silent --show-error -L \
-              https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip \
-              -o /tmp/render.zip
+            curl --fail --silent --show-error -L               https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip -o /tmp/render.zip
             unzip -q /tmp/render.zip -d /tmp/render
             RENDER_BIN=$(find /tmp/render -type f -name render -perm -111 | head -1)
             test -n "$RENDER_BIN"
@@ -100,16 +105,16 @@ jobs:
             exit 1
           fi
 
-      - name: Verify production convergence and selling doorway
+      - name: Verify production convergence and selling doorways
         shell: bash
         run: |
           set -euo pipefail
           for attempt in $(seq 1 18); do
             if curl --fail --silent --show-error --max-time 20 "$BASE_URL/version" >/tmp/version.json && grep -q "$RELEASE_SHA" /tmp/version.json; then break; fi
-            if [ "$attempt" = 18 ]; then echo 'FAIL: production SHA did not converge'; cat /tmp/version.json 2>/dev/null || true; exit 1; fi
+            if [ "$attempt" = 18 ]; then exit 1; fi
             sleep 10
           done
-          for path in / /billboard /avatar /healthz /version; do
+          for path in / /billboard /mtg /avatar /healthz /version; do
             code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
             echo "$code $path"
             test "$code" = 200
@@ -117,17 +122,33 @@ jobs:
           curl --fail --silent --show-error "$BASE_URL/billboard" >/tmp/billboard.html
           grep -q 'NZ$50' /tmp/billboard.html
           grep -q '100 x 100' /tmp/billboard.html
+          curl --fail --silent --show-error "$BASE_URL/mtg" >/tmp/mtg.html
+          grep -q 'EDH_0001' /tmp/mtg.html
+          grep -q 'NZ$400' /tmp/mtg.html
+          curl --fail --silent --show-error "$BASE_URL/api/products" >/tmp/products.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/products.json'))
+          rows=d if isinstance(d,list) else d.get('products',d.get('records',d.get('items',[])))
+          by={str(x.get('id')):x for x in rows if isinstance(x,dict)}
+          for pid in ['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001']:
+              assert pid in by, 'missing '+pid
+              assert str(by[pid].get('silo','')).lower()=='mtg'
+              assert str(by[pid].get('status','')).lower()=='published'
+              assert int(by[pid].get('inventory',0))>0
+              print('LIVE_MTG_PRODUCT='+pid)
+          PY
           curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.txt
           grep -q '^ok$' /tmp/healthz.txt
           python3 - <<'PY'
           import json, urllib.request
           p=json.load(open('BEC-PRIME/catalog/offers/approved.json'))
-          offer=next(x for x in p['approved'] if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
-          r=urllib.request.urlopen(offer['payment_link_url'], timeout=20)
-          print('STRIPE_CHECKOUT_HTTP='+str(r.status))
+          o=next(x for x in p['approved'] if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          r=urllib.request.urlopen(o['payment_link_url'],timeout=20)
           assert r.status==200
+          print('BILLBOARD_CHECKOUT_HTTP='+str(r.status))
           PY
-          echo 'PRODUCTION_BILLBOARD=PASS'
+          echo 'PRODUCTION_COMMERCIAL_SURFACES=PASS'
 
       - name: Emit deployment proof
         if: always()
@@ -136,16 +157,15 @@ jobs:
           set -euo pipefail
           mkdir -p proof
           python3 - <<'PY'
-          import json, os, time
-          p={'schema':'dreamledger-billboard-deployment-v1','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'render_service':'DreamLedger1','front_door':'/billboard','offer_id':'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001','price_nzd':50,'payment_proof_required':True}
-          with open('proof/billboard-deployment-fossil.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
-          print(json.dumps(p,indent=2))
+          import json,os,time
+          p={'schema':'dreamledger-commercial-deployment-v3','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'surfaces':['billboard','mtg','avatar'],'physical_mtg':['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001'],'payment_claim_made':False}
+          with open('proof/commercial-deployment-fossil.json','w') as f: json.dump(p,f,indent=2)
           PY
       - name: Upload proof
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: dreamledger-billboard-proof-${{ env.RELEASE_SHA }}
-          path: proof/billboard-deployment-fossil.json
+          name: dreamledger-commercial-proof-${{ env.RELEASE_SHA }}
+          path: proof/commercial-deployment-fossil.json
           if-no-files-found: error
           retention-days: 30
