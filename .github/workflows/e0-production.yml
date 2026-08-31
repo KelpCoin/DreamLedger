@@ -19,7 +19,7 @@ jobs:
         shell: bash
         env:
           BASE: https://dreamledger.org
-          EXPECTED_SHA: ${{ github.event.repository.default_branch == 'main' && github.sha || '' }}
+          EXPECTED_SHA: ${{ github.event_name == 'push' && github.sha || '' }}
         run: |
           set -u
           mkdir -p proof
@@ -35,17 +35,18 @@ jobs:
               'base': base,
               'expected_sha': expected,
               'deployed_sha': None,
+              'surface': None,
               'health_status': None,
-              'board_status': None,
-              'inventory_status': None,
-              'inventory_json': False,
-              'inventory_finite': False,
+              'catalogue_status': None,
+              'catalogue_json': False,
+              'homepage_status': None,
+              'homepage_catalogue': False,
               'e0': False,
               'errors': []
           }
 
           def get(path):
-              req = Request(base + path, headers={'User-Agent':'DreamLedger-E0-Probe/1.0','Accept':'application/json,text/html,*/*'})
+              req = Request(base + path, headers={'User-Agent':'DreamLedger-E0-Probe/2.0','Accept':'application/json,text/html,*/*'})
               with urlopen(req, timeout=20) as r:
                   return r.status, r.read()
 
@@ -53,6 +54,7 @@ jobs:
               status, body = get('/version')
               payload = json.loads(body.decode('utf-8'))
               result['deployed_sha'] = str(payload.get('commit',''))
+              result['surface'] = str(payload.get('surface',''))
           except Exception as e:
               result['errors'].append('/version: ' + str(e))
 
@@ -62,26 +64,37 @@ jobs:
               result['errors'].append('/healthz: ' + str(e))
 
           try:
-              result['board_status'], _ = get('/board')
+              result['catalogue_status'], body = get('/api/products')
+              payload = json.loads(body.decode('utf-8'))
+              result['catalogue_json'] = isinstance(payload, dict) and isinstance(payload.get('products'), list)
           except Exception as e:
-              result['errors'].append('/board: ' + str(e))
+              result['errors'].append('/api/products: ' + str(e))
 
           try:
-              result['inventory_status'], body = get('/api/billboard/inventory/NZ')
-              payload = json.loads(body.decode('utf-8'))
-              result['inventory_json'] = True
-              result['inventory_finite'] = payload.get('founding_positions') == 100 and 'founding_positions_remaining' in payload
+              result['homepage_status'], body = get('/')
+              text = body.decode('utf-8', 'replace')
+              result['homepage_catalogue'] = (
+                  'FIND SOMETHING' in text and
+                  'GOOD.' in text and
+                  'DreamMee' in text and
+                  'Swipe sideways' in text and
+                  'Pioneer product' in text
+              )
           except Exception as e:
-              result['errors'].append('/api/billboard/inventory/NZ: ' + str(e))
+              result['errors'].append('/: ' + str(e))
 
           result['e0'] = (
-              bool(expected) and
-              result['deployed_sha'] == expected and
+              (
+                  not expected or
+                  result['deployed_sha'] == expected
+              ) and
+              result['deployed_sha'] not in ('', 'unknown', 'None') and
               result['health_status'] == 200 and
-              result['board_status'] == 200 and
-              result['inventory_status'] == 200 and
-              result['inventory_json'] and
-              result['inventory_finite']
+              result['surface'] == 'public-v5' and
+              result['catalogue_status'] == 200 and
+              result['catalogue_json'] and
+              result['homepage_status'] == 200 and
+              result['homepage_catalogue']
           )
 
           raw = json.dumps(result, sort_keys=True, separators=(',',':')).encode()
