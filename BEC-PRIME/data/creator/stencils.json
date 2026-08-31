@@ -1,0 +1,17 @@
+{
+  "schema_version": "stencil-v1",
+  "stencils": [
+    {
+      "id": "mtg-deck-hero-v1",
+      "version": 1,
+      "status": "active",
+      "template": "Premium {style} Commander product hero featuring {subject} in a {setting} environment. Dramatic depth, collector presentation, clean commercial composition.",
+      "slots": {
+        "style": { "word_bank": "styles", "count": 1 },
+        "subject": { "word_bank": "subjects", "count": 1 },
+        "setting": { "word_bank": "settings", "count": 1 }
+      },
+      "policy": { "official_artwork": false, "logos": false, "card_text": false }
+    }
+  ]
+}
