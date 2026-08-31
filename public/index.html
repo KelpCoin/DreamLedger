@@ -25,12 +25,12 @@ button{font:inherit}
 .dreammee .spark{position:absolute;right:-2px;bottom:-2px;width:15px;height:15px;border-radius:50%;background:var(--purple);color:#fff;font-size:9px;display:grid;place-items:center}
 .dreammee-tip{position:fixed;right:68px;top:11px;z-index:69;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:7px 10px;font-size:.66rem;color:var(--muted);box-shadow:0 10px 30px #17151218;opacity:0;transform:translateY(-3px);pointer-events:none;transition:.18s}
 .dreammee:hover + .dreammee-tip{opacity:1;transform:none}
-.billboard-peek{position:fixed;left:12px;top:75px;z-index:55;width:124px;height:78px;border-radius:15px;border:1px solid #594b2f;background:var(--dark);color:#fff;box-shadow:0 12px 32px #1715121c;overflow:hidden}
+.billboard-peek{position:absolute;left:0;top:14px;z-index:3;width:112px;height:62px;border-radius:15px;border:1px solid #594b2f;background:var(--dark);color:#fff;box-shadow:0 12px 32px #1715121c;overflow:hidden}
 .billboard-peek:before{content:"";position:absolute;inset:0;background-image:linear-gradient(90deg,#ffffff12 1px,transparent 1px),linear-gradient(#ffffff12 1px,transparent 1px);background-size:17px 17px}
-.billboard-peek div{position:relative;padding:10px}
-.billboard-peek b{display:block;font-size:.66rem;letter-spacing:.04em}
-.billboard-peek span{display:block;margin-top:5px;font-size:.56rem;color:#dbc99c}
-.hero{padding:54px 0 30px;max-width:780px}
+.billboard-peek div{position:relative;padding:8px 9px}
+.billboard-peek b{display:block;font-size:.58rem;letter-spacing:.04em}
+.billboard-peek span{display:block;margin-top:3px;font-size:.5rem;color:#dbc99c}
+.hero{position:relative;padding:88px 0 30px;max-width:780px}
 .eyebrow{font-size:.61rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--purple)}
 h1{font-size:clamp(3.5rem,9vw,7.5rem);line-height:.8;letter-spacing:-.095em;margin:11px 0 17px}
 .lead{font-size:1.03rem;color:var(--muted);max-width:650px}
@@ -73,7 +73,7 @@ h1{font-size:clamp(3.5rem,9vw,7.5rem);line-height:.8;letter-spacing:-.095em;marg
 .footer{padding:35px 0 25px;border-top:1px solid var(--line);color:var(--muted);font-size:.67rem;display:flex;justify-content:space-between;gap:15px}
 .loading{color:var(--muted);padding:18px 2px}
 .noscript{margin-top:10px;color:var(--muted);font-size:.72rem}
-@media(max-width:700px){.navlinks{display:none}.hero{padding-top:46px}.billboard-peek{width:104px;height:67px;left:9px}.dreammee{right:11px}.dreammee-tip{display:none}.billboard-module{align-items:flex-start;flex-direction:column}.footer{flex-direction:column}}
+@media(max-width:700px){.navlinks{display:none}.hero{padding-top:46px}.billboard-peek{width:96px;height:58px;left:0}.dreammee{right:11px}.dreammee-tip{display:none}.billboard-module{align-items:flex-start;flex-direction:column}.footer{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -152,5 +152,6 @@ document.getElementById("magicRail").innerHTML='<article class="card"><div><div 
 load();
 })();
 </script>
+<!-- PUBLIC MVP CONTRACT: catalogue-first, billboard-contained, canonical paid wedge visible -->
 </body>
 </html>
