@@ -50,11 +50,13 @@ jobs:
           set -euo pipefail
           test -s public/index.html
           test -s public/billboard.html
+          test -s public/mtg.html
           test -s public/server.js
           python3 - <<'PY'
           import json
           from pathlib import Path
-          approved=json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())['approved']
+          def load(p): return json.loads(Path(p).read_text())
+          approved=load('BEC-PRIME/catalog/offers/approved.json')['approved']
           offer=next(x for x in approved if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
           product=json.loads(Path('BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json').read_text())
           campaign=json.loads(Path('BEC-PRIME/distribution/campaigns/D-001.json').read_text())
@@ -71,7 +73,15 @@ jobs:
           print('CANONICAL_OFFER=DREAMLEDGER-BILLBOARD-FOUNDING-001')
           print('CANONICAL_PRICE_NZD=50')
           print('CANONICAL_CHECKOUT='+offer['payment_link_url'])
+          for pid in ['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001']:
+              p=load('BEC-PRIME/catalog/products/'+pid+'.json')
+              assert p['silo']=='mtg' and p['inventory_type']=='physical'
+              assert p['status']=='published' and int(p.get('inventory',0))>0
+              assert p.get('commercial_truth',{}).get('approval_required') is False
+              print('MTG_PHYSICAL_PRODUCT='+pid)
+          print('MTG_PHYSICAL_CATALOG=PASS')
           PY
+          grep -q 'EDH_0001' public/mtg.html
           echo 'COMMERCIAL_PACKAGE=PASS'
 
       - name: Install dependencies when package manifest exists
@@ -111,12 +121,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in /healthz /billboard; do
+          for path in /healthz /billboard /mtg; do
             code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org${path}")
             echo "PUBLIC_${path#/}_HTTP=$code"
             test "$code" = "200"
           done
           curl -L -sS --fail --max-time 20 https://dreamledger.org/billboard >/tmp/billboard.html
+          curl -L -sS --fail --max-time 20 https://dreamledger.org/mtg >/tmp/mtg.html
+          grep -q 'EDH_0001' /tmp/mtg.html
+          grep -q 'NZ$400' /tmp/mtg.html
+          curl -L -sS --fail --max-time 20 https://dreamledger.org/api/products >/tmp/products.json
           grep -q 'NZ$50' /tmp/billboard.html
           grep -q '100 x 100' /tmp/billboard.html
           python3 - <<'PY'
@@ -127,7 +141,19 @@ jobs:
           print('STRIPE_CHECKOUT_HTTP='+str(r.status))
           assert r.status==200
           PY
-          echo 'SELLING_DOORWAY=PASS'
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/products.json'))
+          rows=d if isinstance(d,list) else d.get('products',d.get('records',d.get('items',[])))
+          by={str(x.get('id')):x for x in rows if isinstance(x,dict)}
+          for pid in ['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001']:
+              assert pid in by
+              assert str(by[pid].get('silo','')).lower()=='mtg'
+              assert str(by[pid].get('status','')).lower()=='published'
+              assert int(by[pid].get('inventory',0))>0
+              print('LIVE_MTG_PRODUCT='+pid)
+          PY
+          echo 'SELLING_DOORWAYS=PASS'
 
       - name: Generate machine-readable cloud proof
         shell: bash
@@ -145,6 +171,7 @@ jobs:
             "cloud_execution": true,
             "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
             "price_nzd": 50,
+            "physical_mtg": ["EDH_0001","BESPOKE-ARTISAN-EDH-DECK-001","MTG-URZAS-LEGACY-PALINCHRON-FOIL-001"],
             "stripe_checkout_http": "${stripe_code}",
             "healthz_http": "${health_code}",
             "billboard_http": "${billboard_code}",
