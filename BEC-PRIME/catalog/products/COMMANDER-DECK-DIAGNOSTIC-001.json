@@ -5,7 +5,7 @@
   "silo": "mtg",
   "name": "Commander Deck Diagnostic",
   "description": "An automated first-pass Commander deck diagnostic covering structural weaknesses, upgrade priorities and a tuning plan.",
-  "price": 29,
+  "price": 2900,
   "price_unit": "major",
   "currency": "nzd",
   "inventory": 999,
