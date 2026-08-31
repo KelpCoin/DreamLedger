@@ -1,0 +1,31 @@
+name: BECK Empire Factory Gate
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/creator/**'
+      - 'BEC-PRIME/data/creator/**'
+      - 'BEC-PRIME/routes/creatorCommerce.js'
+      - 'BEC-PRIME/scripts/Verify-BECKEmpireFactory.js'
+  push:
+    paths:
+      - 'BEC-PRIME/creator/**'
+      - 'BEC-PRIME/data/creator/**'
+      - 'BEC-PRIME/routes/creatorCommerce.js'
+      - 'BEC-PRIME/scripts/Verify-BECKEmpireFactory.js'
+
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax
+        run: |
+          node --check BEC-PRIME/creator/CreatorCommerceFactory.js
+          node --check BEC-PRIME/routes/creatorCommerce.js
+          node --check BEC-PRIME/scripts/Verify-BECKEmpireFactory.js
+      - name: Architecture proof
+        run: node BEC-PRIME/scripts/Verify-BECKEmpireFactory.js
