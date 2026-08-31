@@ -1,0 +1,33 @@
+{
+  "id": "BILLBOARD-TEXT-TILE-001",
+  "silo": "billboard",
+  "name": "DreamLedger Founding Text Tile - 100x100",
+  "description": "Permanent 100x100 public billboard placement. Buyer supplies a short title and destination URL. Payment triggers automated validation, first-available slot allocation, publication, and durable fulfillment proof.",
+  "price": 50,
+  "currency": "nzd",
+  "inventory": 100,
+  "status": "published",
+  "checkout": {
+    "mode": "stripe_payment_link",
+    "payment_link": "https://buy.stripe.com/5kQeVeaRa9eWaKI3mM9oc01",
+    "success_path": "/billboard?paid=1"
+  },
+  "commercial_truth": {
+    "experiment": "BILLBOARD-TEXT-TILE-001",
+    "approval_required": false,
+    "activation_gate": "PAID_AND_AUTOMATIC_VALIDATION",
+    "payment_surface": "stripe-payment-link"
+  },
+  "delivery": {
+    "type": "public_billboard_slot",
+    "target": "dreamledger.org/billboard",
+    "dimensions": {"w": 100, "h": 100},
+    "review_required": false,
+    "buyer_fields": ["title", "destination_url"]
+  },
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
+  },
+  "execution_atom": "BILLBOARD-TEXT-TILE-001"
+}
