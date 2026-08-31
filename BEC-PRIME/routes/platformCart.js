@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const billboard = require('./billboard');
 const stripeWebhookProof = require('../lib/stripeWebhookProof');
+const siloFeePolicy = require('../lib/siloFeePolicy');
 
 const ROOT = path.join(__dirname, '..');
 const CART_DIR = path.join(ROOT, 'data', 'marketplace', 'carts');
@@ -27,6 +28,7 @@ async function stripe(endpoint, params, key) {
   return data;
 }
 function platformSellerIds() { if (!fs.existsSync(SELLERS)) return []; return read(SELLERS).filter(s => s.status === 'active' && s.platform === true).map(s => s.id); }
+function seller(id) { if (!id || !fs.existsSync(SELLERS)) return null; return read(SELLERS).find(s => s.id === id && s.status === 'active') || null; }
 function verify(raw, header) {
   if (!STRIPE_WEBHOOK_SECRET) throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
   const parts = String(header || '').split(',');
@@ -51,32 +53,29 @@ function productIdByPaymentLink(paymentLinkId) {
   }
   return null;
 }
+function resolveCheckoutFee(silo, amountMinor) {
+  const rule = siloFeePolicy.assert(silo);
+  const feeMinor = Math.floor(Number(amountMinor) * rule.platform_fee_bps / 10000);
+  return { ...rule, fee_minor: feeMinor };
+}
 async function createProductCheckout(productId, silo) {
   const p = product(productId);
   if (!p || p.status !== 'published' || Number(p.inventory || 0) < 1 || p.commercial_truth?.approval_required !== false) throw new Error('Product is not checkoutable');
+  const fee = resolveCheckoutFee(p.silo || silo || 'default', Number(p.price));
+  if (fee.platform_fee_bps !== 0 && !p.connected_account_id) throw new Error('Non-MTG checkout requires a Stripe Connect connected_account_id');
 
-  // Cash-first fallback: an explicitly approved Stripe Payment Link can serve
-  // the first-sale surface even before server-side Stripe API credentials are
-  // provisioned on the hosting platform. The webhook still remains the source
-  // of settlement proof and must use STRIPE_WEBHOOK_SECRET.
-  if (!STRIPE_SECRET_KEY && p.commercial_truth?.payment_link) {
-    return {
-      ok: true,
-      offer_id: p.id,
-      checkout_url: p.commercial_truth.payment_link,
-      url: p.commercial_truth.payment_link,
-      payment_link_id: p.commercial_truth.payment_link_id || null,
-      amount_major: Number(p.price) / 100,
-      amount_minor: Number(p.price),
-      currency: String(p.currency || 'nzd').toLowerCase(),
-      mode: 'approved_payment_link'
-    };
+  if (!STRIPE_SECRET_KEY && fee.platform_fee_bps === 0 && p.commercial_truth?.payment_link) {
+    return { ok: true, offer_id: p.id, checkout_url: p.commercial_truth.payment_link, url: p.commercial_truth.payment_link, payment_link_id: p.commercial_truth.payment_link_id || null, amount_major: Number(p.price) / 100, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), mode: 'approved_payment_link', commission_bps: 0 };
   }
 
   const cartId = 'direct_' + crypto.randomUUID();
-  const params = { mode: 'payment', 'integration_identifier': 'dreamledger-mtg-checkout-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id), 'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1', 'metadata[product_id]': p.id, 'metadata[silo]': silo || p.silo || 'dreamledger', 'metadata[commerce_version]': 'bec-direct-product-v1', 'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(), 'line_items[0][price_data][unit_amount]': Number(p.price), 'line_items[0][price_data][product_data][name]': p.name, 'line_items[0][quantity]': 1 };
+  const params = { mode: 'payment', 'integration_identifier': 'dreamledger-direct-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?product_id=' + encodeURIComponent(p.id), 'cancel_url': PUBLIC_BASE + '/revenue.html?checkout_cancelled=1', 'metadata[product_id]': p.id, 'metadata[silo]': fee.silo, 'metadata[platform_fee_bps]': fee.platform_fee_bps, 'metadata[platform_fee_minor]': fee.fee_minor, 'metadata[commerce_version]': 'bec-direct-product-v2', 'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(), 'line_items[0][price_data][unit_amount]': Number(p.price), 'line_items[0][price_data][product_data][name]': p.name, 'line_items[0][quantity]': 1 };
+  if (fee.platform_fee_bps > 0) {
+    params['payment_intent_data[application_fee_amount]'] = fee.fee_minor;
+    params['payment_intent_data[transfer_data][destination]'] = p.connected_account_id;
+  }
   const session = await stripe('checkout/sessions', params, 'dreamledger-direct-' + p.id + '-' + cartId);
-  return { ok: true, offer_id: p.id, session_id: session.id, checkout_url: session.url, url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), mode: 'server_checkout' };
+  return { ok: true, offer_id: p.id, session_id: session.id, checkout_url: session.url, url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), mode: fee.platform_fee_bps ? 'connect_destination_charge' : 'server_checkout', commission_bps: fee.platform_fee_bps, commission_minor: fee.fee_minor };
 }
 async function handle(req, res, url) {
   if (req.method === 'POST' && url === '/api/cart/checkout') {
@@ -86,10 +85,20 @@ async function handle(req, res, url) {
     const file = path.join(CART_DIR, String(input.cart_id) + '.json');
     if (!fs.existsSync(file)) return send(res, 404, { error: 'Cart not found' });
     const cart = read(file); if (cart.status !== 'open') return send(res, 409, { error: 'Cart is not open' });
-    const allowed = new Set(platformSellerIds()); if (!cart.items.every(item => allowed.has(item.seller_id))) return false;
-    const params = { mode: 'payment', 'integration_identifier': 'dreamledger-platform-cart-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id), 'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1', 'metadata[cart_id]': cart.id, 'metadata[commerce_version]': 'omni-v1-platform', 'metadata[platform_fee_bps]': '0' };
+    const allowed = new Set(platformSellerIds()); if (!cart.items.every(item => allowed.has(item.seller_id))) return send(res, 403, { error: 'Seller is not an active platform seller' });
+    const silos = [...new Set(cart.items.map(item => String(item.silo || 'default')) )];
+    if (silos.length !== 1) return send(res, 400, { error: 'Mixed-silo carts are not permitted' });
+    const fee = resolveCheckoutFee(silos[0], cart.items.reduce((sum, item) => sum + Number(item.unit_amount) * Number(item.quantity || 1), 0));
+    if (fee.platform_fee_bps > 0) {
+      if (cart.items.length !== 1) return send(res, 400, { error: 'Non-MTG checkout currently requires one seller and one item per transaction' });
+      const connected = cart.items[0].connected_account_id;
+      if (!connected || !seller(cart.items[0].seller_id)?.stripe_connected_account_id) return send(res, 409, { error: 'Non-MTG checkout requires a verified Stripe Connect seller account' });
+      if (connected !== seller(cart.items[0].seller_id).stripe_connected_account_id) return send(res, 409, { error: 'Connected account mismatch' });
+    }
+    const params = { mode: 'payment', 'integration_identifier': 'dreamledger-platform-cart-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id), 'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1', 'metadata[cart_id]': cart.id, 'metadata[commerce_version]': 'omni-v2-platform', 'metadata[silo]': fee.silo, 'metadata[platform_fee_bps]': fee.platform_fee_bps, 'metadata[platform_fee_minor]': fee.fee_minor };
     cart.items.forEach((item, i) => { params['line_items[' + i + '][price_data][currency]'] = String(item.currency).toLowerCase(); params['line_items[' + i + '][price_data][unit_amount]'] = item.unit_amount; params['line_items[' + i + '][price_data][product_data][name]'] = item.name; params['line_items[' + i + '][quantity]'] = item.quantity; });
-    try { const session = await stripe('checkout/sessions', params, 'dreamledger-platform-cart-' + cart.id + '-' + crypto.randomUUID()); cart.status = 'checkout_created'; cart.session_id = session.id; cart.checkout_created_at = new Date().toISOString(); write(file, cart); return send(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: 0 }); } catch (err) { return send(res, 502, { error: err.message }); }
+    if (fee.platform_fee_bps > 0) { params['payment_intent_data[application_fee_amount]'] = fee.fee_minor; params['payment_intent_data[transfer_data][destination]'] = cart.items[0].connected_account_id; }
+    try { const session = await stripe('checkout/sessions', params, 'dreamledger-platform-cart-' + cart.id + '-' + crypto.randomUUID()); cart.status = 'checkout_created'; cart.session_id = session.id; cart.checkout_created_at = new Date().toISOString(); cart.platform_fee_bps = fee.platform_fee_bps; cart.platform_fee_minor = fee.fee_minor; write(file, cart); return send(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: fee.platform_fee_bps, commission_minor: fee.fee_minor }); } catch (err) { return send(res, 502, { error: err.message }); }
   }
   return false;
 }
@@ -103,23 +112,12 @@ async function handleWebhook(req, res) {
     if (productId) {
       const productRecord = product(productId);
       if (!productRecord) throw new Error('Unknown product in paid session: ' + productId);
-      const result = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], {
-        webhookSecret: STRIPE_WEBHOOK_SECRET,
-        getProduct: (id) => product(id),
-        getProductByPaymentLink: productIdByPaymentLink,
-        getOffer: () => null,
-      });
+      const result = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], { webhookSecret: STRIPE_WEBHOOK_SECRET, getProduct: (id) => product(id), getProductByPaymentLink: productIdByPaymentLink, getOffer: () => null });
       if (!result.received || !result.handled) throw new Error('Stripe payment proof handler did not handle paid product session');
       return { handled: true };
     }
     if (session?.payment_link) {
-      const paymentProof = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], {
-        webhookSecret: STRIPE_WEBHOOK_SECRET,
-        getProduct: (id) => product(id),
-        getProductByPaymentLink: productIdByPaymentLink,
-        getOffer: () => null,
-        dirs: stripeWebhookProof.resolveDirs(process.env),
-      });
+      const paymentProof = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], { webhookSecret: STRIPE_WEBHOOK_SECRET, getProduct: (id) => product(id), getProductByPaymentLink: productIdByPaymentLink, getOffer: () => null, dirs: stripeWebhookProof.resolveDirs(process.env) });
       if (paymentProof.handled) return { handled: true };
     }
   }
@@ -129,7 +127,7 @@ async function handleWebhook(req, res) {
   if (!cart.items.every(item => allowed.has(item.seller_id))) return { handled: false, raw };
   if (event.type === 'checkout.session.completed' && session.payment_status === 'paid' && cart.status !== 'settled') {
     const timestamp = new Date().toISOString();
-    const proof = { schema_version: 'BEC-OMNI-FOSSIL-1.0', event: event.type, status: 'PASS', evidence_level: 1, transaction_id: session.id, cart_id: cart.id, amount_minor: session.amount_total, currency: session.currency || 'nzd', platform_commission_bps: 0, stripe_processing_fees_excluded: true, transfers: [], idempotency_key: 'dreamledger-platform-cart-' + cart.id, timestamp_utc: timestamp };
+    const proof = { schema_version: 'BEC-OMNI-FOSSIL-1.1', event: event.type, status: 'PASS', evidence_level: 1, transaction_id: session.id, cart_id: cart.id, amount_minor: session.amount_total, currency: session.currency || 'nzd', platform_commission_bps: Number(session?.metadata?.platform_fee_bps || cart.platform_fee_bps || 0), platform_commission_minor: Number(session?.metadata?.platform_fee_minor || cart.platform_fee_minor || 0), stripe_processing_fees_excluded: true, transfers: [], idempotency_key: 'dreamledger-platform-cart-' + cart.id, timestamp_utc: timestamp };
     cart.status = 'settled'; cart.settled_at = timestamp; cart.fossil = proof; write(file, cart); write(path.join(PROOFS, 'OMNI-' + cart.id + '.json'), proof);
   }
   return { handled: true, raw };
