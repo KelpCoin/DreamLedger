@@ -59,6 +59,7 @@ jobs:
           echo "STRIPE_CHECKOUT_HTTP=$code"
           test "$code" = "200"
       - name: Verify public DreamLedger surfaces
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -euo pipefail
@@ -68,6 +69,7 @@ jobs:
             test "$code" = "200"
           done
       - name: Generate machine-readable cloud proof
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -euo pipefail
