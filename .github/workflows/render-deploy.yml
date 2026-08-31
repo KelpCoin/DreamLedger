@@ -1,4 +1,4 @@
-name: Deploy and Verify DreamLedger Catalogue
+name: Deploy and Verify DreamLedger Billboard
 
 on:
   workflow_dispatch:
@@ -41,30 +41,39 @@ jobs:
           test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
           echo "RELEASE_SHA=$RELEASE_SHA"
 
-      - name: Verify committed production artifact
+      - name: Verify canonical DreamLedger commercial package
         shell: bash
         run: |
           set -euo pipefail
-          test -s BEC-PRIME/compiled/website/index.html
-          for page in login.html register.html account.html assets.html avatar.html; do test -s "BEC-PRIME/compiled/website/$page"; done
-          grep -q 'DreamMee' BEC-PRIME/compiled/website/index.html
-          grep -q 'FIND SOMETHING' BEC-PRIME/compiled/website/index.html
-          grep -q 'GOOD.' BEC-PRIME/compiled/website/index.html
-          grep -q 'class="rail"' BEC-PRIME/compiled/website/index.html
-          grep -q 'id="magic"' BEC-PRIME/compiled/website/index.html
-          grep -q 'id="digital"' BEC-PRIME/compiled/website/index.html
-          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BEC-PRIME|BrownEye Cortex|Amplissa|CollectorsCoast|HappyHomarid|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' BEC-PRIME/compiled/website/index.html
-          echo 'COMMITTED_ARTIFACT=PASS'
-
-      - name: Verify approved commercial offer
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -q 'OFFER-CMD-DIAG-29-NZD' BEC-PRIME/catalog/offers/approved.json
-          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' BEC-PRIME/catalog/offers/approved.json
-          grep -q '"price": 29' BEC-PRIME/catalog/offers/approved.json
-          grep -q '9B6aEX5DvdSd4Q73gwdwc1V' BEC-PRIME/catalog/offers/approved.json
-          echo 'APPROVED_OFFER=PASS'
+          test -s public/index.html
+          test -s public/billboard.html
+          test -s public/server.js
+          test -s public/package.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          approved=json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())['approved']
+          offer=next(x for x in approved if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          product=json.loads(Path('BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json').read_text())
+          campaign=json.loads(Path('BEC-PRIME/distribution/campaigns/D-001.json').read_text())
+          assert offer['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
+          assert offer['price']==50 and offer['currency']=='NZD'
+          assert offer['payment_link_status']=='ACTIVE_LIVEMODE'
+          assert offer['payment_link_url']=='https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r'
+          assert product['price']==50 and product['currency']=='nzd'
+          assert product['commercial_truth']['payment_link']==offer['payment_link_url']
+          assert campaign['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
+          assert campaign['offer']['price_nzd']==50
+          assert campaign['objective']['metric']=='PAYMENT_RECEIVED'
+          assert campaign['objective']['target']==1
+          print('CANONICAL_OFFER=DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          print('CANONICAL_PRICE_NZD=50')
+          print('CANONICAL_CHECKOUT='+offer['payment_link_url'])
+          PY
+          grep -q 'NZ$50' public/billboard.html
+          grep -q 'POST' public/server.js
+          grep -q 'billboard' public/server.js
+          echo 'COMMERCIAL_PACKAGE=PASS'
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -91,7 +100,7 @@ jobs:
             exit 1
           fi
 
-      - name: Verify production convergence
+      - name: Verify production convergence and selling doorway
         shell: bash
         run: |
           set -euo pipefail
@@ -100,20 +109,25 @@ jobs:
             if [ "$attempt" = 18 ]; then echo 'FAIL: production SHA did not converge'; cat /tmp/version.json 2>/dev/null || true; exit 1; fi
             sleep 10
           done
-          for path in / /mtg /cinema.html /digital-products.html /avatar.html /healthz /version /login.html /register.html /account.html /assets.html /api/offers /api/products/EDH_0001; do
+          for path in / /billboard /avatar /healthz /version; do
             code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
             echo "$code $path"
             test "$code" = 200
           done
-          curl --fail --silent --show-error "$BASE_URL/" >/tmp/home.html
-          grep -q 'DreamMee' /tmp/home.html
-          grep -q 'FIND SOMETHING' /tmp/home.html
-          grep -q 'GOOD.' /tmp/home.html
-          grep -q 'class="rail"' /tmp/home.html
-          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BEC-PRIME|BrownEye Cortex|Amplissa|CollectorsCoast|HappyHomarid|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html
-          curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.json
-          grep -q '"status":"ok"' /tmp/healthz.json
-          echo 'PRODUCTION_CATALOGUE=PASS'
+          curl --fail --silent --show-error "$BASE_URL/billboard" >/tmp/billboard.html
+          grep -q 'NZ$50' /tmp/billboard.html
+          grep -q '100 x 100' /tmp/billboard.html
+          curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.txt
+          grep -q '^ok$' /tmp/healthz.txt
+          python3 - <<'PY'
+          import json, urllib.request
+          p=json.load(open('BEC-PRIME/catalog/offers/approved.json'))
+          offer=next(x for x in p['approved'] if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
+          r=urllib.request.urlopen(offer['payment_link_url'], timeout=20)
+          print('STRIPE_CHECKOUT_HTTP='+str(r.status))
+          assert r.status==200
+          PY
+          echo 'PRODUCTION_BILLBOARD=PASS'
 
       - name: Emit deployment proof
         if: always()
@@ -123,15 +137,15 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
-          p={'schema':'dreamledger-catalogue-deployment-v2','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'render_service':'DreamLedger1','front_door':'catalogue','approved_offer':'OFFER-CMD-DIAG-29-NZD'}
-          with open('proof/catalogue-deployment-fossil.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
+          p={'schema':'dreamledger-billboard-deployment-v1','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'render_service':'DreamLedger1','front_door':'/billboard','offer_id':'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001','price_nzd':50,'payment_proof_required':True}
+          with open('proof/billboard-deployment-fossil.json','w',encoding='utf-8') as f: json.dump(p,f,indent=2)
           print(json.dumps(p,indent=2))
           PY
       - name: Upload proof
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: dreamledger-catalogue-proof-${{ env.RELEASE_SHA }}
-          path: proof/catalogue-deployment-fossil.json
+          name: dreamledger-billboard-proof-${{ env.RELEASE_SHA }}
+          path: proof/billboard-deployment-fossil.json
           if-no-files-found: error
           retention-days: 30
