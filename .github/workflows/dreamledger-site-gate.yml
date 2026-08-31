@@ -1,23 +1,18 @@
 name: DreamLedger Public Surface Gate
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   public-surface:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
       - name: Validate public storefront files
         shell: bash
         run: |
@@ -39,7 +34,7 @@ jobs:
           grep -q "p==='/healthz'" public/server.js
           grep -q "p==='/version'" public/server.js
           echo 'PUBLIC_STOREFRONT=PASS'
-      - name: Scan public text assets for internal or cross-silo leakage
+      - name: Scan public text assets
         shell: bash
         run: |
           set -euo pipefail
@@ -53,14 +48,14 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'const PUBLIC_FILES' public/server.js
-          grep -q "'/': 'index.html'" public/server.js
-          grep -q "'/billboard': 'billboard.html'" public/server.js
-          grep -q "'/mtg': 'mtg.html'" public/server.js
-          grep -q "'/avatar': 'avatar.html'" public/server.js
+          grep -q "'/':'index.html'" public/server.js
+          grep -q "'/billboard':'billboard.html'" public/server.js
+          grep -q "'/mtg':'mtg.html'" public/server.js
+          grep -q "'/avatar':'avatar.html'" public/server.js
           grep -q 'if(!ALLOWED_API\[key\])' public/server.js
           grep -q "return send(res,404,'Not Found'" public/server.js
           echo 'PUBLIC_ALLOWLIST=PASS'
-      - name: Verify sensitive literals are absent
+      - name: Verify sensitive literals
         shell: bash
         run: |
           set -euo pipefail
@@ -69,9 +64,5 @@ jobs:
             exit 1
           fi
           echo 'PUBLIC_SECRET_SCAN=PASS'
-      - name: Syntax check public server
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --check public/server.js
-          echo 'PUBLIC_SERVER_SYNTAX=PASS'
+      - name: Syntax check
+        run: node --check public/server.js
