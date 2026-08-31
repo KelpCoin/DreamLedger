@@ -1,0 +1,56 @@
+{
+  "schema": "BEC-PRIME/TELEMETRY/COMMERCE-DATA-CONTRACT/v1",
+  "purpose": "Single economic event vocabulary for discovery, commerce, fulfilment, referrals, trust and resource accounting.",
+  "privacy": {
+    "principle": "first_party_minimum_collection",
+    "never_collect": ["payment_card_data", "secret_keys", "full_request_bodies", "unnecessary_identity_attributes"],
+    "retention": "event-level retention must follow product, legal and accounting requirements"
+  },
+  "dimensions": [
+    "silo",
+    "sku",
+    "offer_id",
+    "channel",
+    "surface",
+    "campaign_id",
+    "referral_code",
+    "event_type"
+  ],
+  "events": [
+    "DISCOVERY_IMPRESSION",
+    "DISCOVERY_CLICK",
+    "PRODUCT_VIEW",
+    "CHECKOUT_STARTED",
+    "PAYMENT_CONFIRMED",
+    "FULFILMENT_STARTED",
+    "FULFILMENT_COMPLETED",
+    "REFERRAL_SHARED",
+    "REFERRAL_CONVERSION",
+    "TRUTH_RELEASE_VIEWED",
+    "EVIDENCE_UNLOCKED",
+    "COMPILER_JOB_STARTED",
+    "COMPILER_JOB_COMPLETED",
+    "GPU_RESOURCE_CONSUMED",
+    "SYSTEM_HEALTH_CHECK"
+  ],
+  "economic_truth": {
+    "revenue_event": "PAYMENT_CONFIRMED",
+    "repeatable_demand_event": "REFERRAL_CONVERSION",
+    "fulfilment_success_event": "FULFILMENT_COMPLETED",
+    "resource_cost_event": "GPU_RESOURCE_CONSUMED"
+  },
+  "storage_targets": [
+    "public.telemetry",
+    "public.telemetry_events",
+    "public.telemetry_facts",
+    "public.economic_events",
+    "public.dreamledger_evidence"
+  ],
+  "controls": {
+    "idempotency_key": "event_id",
+    "silo_required": true,
+    "sku_required_for_commerce": true,
+    "payment_id_required_for_revenue": true,
+    "public_release_must_reference_evidence": true
+  }
+}
