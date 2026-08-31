@@ -25,8 +25,9 @@ try {
     .filter(({ product }) => String(product.status || '').toLowerCase() === 'published' && Number(product.inventory || 0) > 0);
 
   checks.repository = 'PASS';
-  checks.offer = publishedProducts.length > 0 ? 'PASS' : 'FAIL';
-  for (const { file, product } of publishedProducts) {
+  const purchasableProducts = publishedProducts.filter(({ product }) => product.commercial_truth && product.commercial_truth.approval_required === false);
+  checks.offer = purchasableProducts.length > 0 ? 'PASS' : 'FAIL';
+  for (const { file, product } of purchasableProducts) {
     const evidenceStatus = product.evidence && product.evidence.status
       ? String(product.evidence.status)
       : 'awaiting_first_payment';
@@ -89,6 +90,7 @@ const payload = {
   timestamp: new Date().toISOString(),
   published_product_count: publishedProducts.length,
   published_product_ids: publishedProducts.map(({ product }) => product.id),
+  purchasable_product_count: publishedProducts.filter(({ product }) => product.commercial_truth && product.commercial_truth.approval_required === false).length,
   checks: {
     ...checks,
     webhook_verification: 'NOT_TESTED_WITH_REAL_EVENT',

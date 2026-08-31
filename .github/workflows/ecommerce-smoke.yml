@@ -34,15 +34,15 @@ jobs:
         run: |
           set -euo pipefail
           test -f compiled/website/index.html
-          grep -q 'DreamMeez' compiled/website/index.html
-          grep -q 'Sign in' compiled/website/index.html
-          grep -q 'Register' compiled/website/index.html
-          grep -q 'class="avatar"' compiled/website/index.html
-          grep -q 'id="worldRail"' compiled/website/index.html
-          grep -q 'id="catalogRail"' compiled/website/index.html
-          grep -qi 'cinema.html' compiled/website/index.html
-          grep -qi 'digital-products.html' compiled/website/index.html
-          ! grep -Eiq 'signal -> offer -> checkout -> proof|shared primitives handle offers|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|BEC-SURFACE-AUDIT|CREATOR-AUDIO-LAUNCH-PACK|CRYPTO-WALLET-SECURITY-PACK|Dreamies' compiled/website/index.html
+          grep -q 'DreamMee' compiled/website/index.html
+          grep -q 'Find something good' compiled/website/index.html
+          grep -q 'id="new"' compiled/website/index.html
+          grep -q 'id="magic"' compiled/website/index.html
+          grep -q 'id="digital"' compiled/website/index.html
+          grep -q 'class="rail"' compiled/website/index.html
+          grep -q 'Pioneer product' compiled/website/index.html
+          grep -q 'href="/billboard"' compiled/website/index.html
+          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' compiled/website/index.html
 
       - name: Start runtime
         env:
@@ -56,7 +56,7 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
-          curl -fsS http://127.0.0.1:4173/api/offers >/tmp/offers.json
+          curl -fsS http://127.0.0.1:4173/api/products >/tmp/products.json
 
       - name: Run customer and commerce gate
         run: node scripts/verify-storefront-ux.js

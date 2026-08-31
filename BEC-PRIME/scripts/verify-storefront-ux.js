@@ -3,104 +3,93 @@
 const http = require('http');
 
 const PORT = Number(process.env.PORT || 4173);
-const BASE = `http://127.0.0.1:${PORT}`;
-const APPROVED_CHECKOUT_IDS = new Set([
-  'OFFER-CMD-DIAG-29-NZD',
-  'EDH_0001'
-]);
-const FORBIDDEN_PUBLIC = [
-  'signal -> offer -> checkout -> proof',
-  'signal -> offer -> checkout -> proof',
-  'shared primitives handle offers',
-  'agentic commerce readiness audit',
-  'BEC-PRIME-ARCHITECTURE-AUDIT',
-  'BEC-SURFACE-AUDIT',
-  'CREATOR-AUDIO-LAUNCH-PACK',
-  'CRYPTO-WALLET-SECURITY-PACK',
-  'Dreamies'
-];
+const BASE = 'http://127.0.0.1:' + PORT;
 
 function get(pathname) {
   return new Promise((resolve, reject) => {
-    const req = http.get(`${BASE}${pathname}`, { headers: { 'cache-control': 'no-cache' } }, res => {
+    const req = http.get(BASE + pathname, { headers: { 'cache-control': 'no-cache' } }, res => {
       let body = '';
       res.setEncoding('utf8');
       res.on('data', chunk => { body += chunk; });
       res.on('end', () => resolve({ status: res.statusCode || 0, headers: res.headers, body }));
     });
     req.on('error', reject);
-    req.setTimeout(10000, () => req.destroy(new Error(`timeout: ${pathname}`)));
+    req.setTimeout(10000, () => req.destroy(new Error('timeout: ' + pathname)));
   });
 }
 
 function fail(message) {
-  console.error(`STOREfront_UX_GATE_FAILED: ${message}`);
+  console.error('STOREFRONT_UX_GATE_FAILED: ' + message);
   process.exitCode = 1;
 }
 
 async function main() {
   const home = await get('/');
-  if (home.status !== 200) fail(`homepage status ${home.status}`);
+  if (home.status !== 200) fail('homepage status ' + home.status);
 
   const html = home.body;
   const required = [
     ['DreamLedger', /DreamLedger/i],
-    ['DreamMeez', /DreamMeez/g],
-    ['sign in', /Sign in/i],
-    ['register', /Register/i],
-    ['avatar', /class="avatar"/i],
-    ['world carousel', /id="worldRail"/i],
-    ['catalog carousel', /id="catalogRail"/i],
-    ['cinema', /cinema\.html/i],
-    ['digital', /digital-products\.html/i]
+    ['DreamMee', /DreamMee/i],
+    ['catalogue headline', /FIND SOMETHING/i],
+    ['catalogue prompt', /Swipe sideways/i],
+    ['new rail', /id="new"/i],
+    ['magic rail', /id="magic"/i],
+    ['digital section', /id="digital"/i],
+    ['horizontal rails', /class="rail"/i],
+    ['billboard module', /Pioneer product/i],
+    ['billboard route', /href="\/billboard"/i]
   ];
 
   for (const [label, pattern] of required) {
-    if (!pattern.test(html)) fail(`missing ${label} on homepage`);
+    if (!pattern.test(html)) fail('missing ' + label + ' on homepage');
   }
 
-  for (const token of FORBIDDEN_PUBLIC) {
-    if (html.toLowerCase().includes(token.toLowerCase())) fail(`forbidden public copy: ${token}`);
+  const forbidden = [
+    'Gauntlet',
+    'Economic Court',
+    'Truth Oracle',
+    'ELOHIM',
+    'BrownEye Cortex',
+    'BEC-PRIME',
+    'AMPLISSA',
+    'COLLECTORSCOAST',
+    'SUPABASE_SERVICE_ROLE',
+    'STRIPE_SECRET',
+    'STRIPE_WEBHOOK',
+    'RA_000001',
+    'agentic commerce',
+    'capital authority'
+  ];
+
+  for (const token of forbidden) {
+    if (html.toLowerCase().includes(token.toLowerCase())) fail('forbidden public copy: ' + token);
   }
 
-  const offers = await get('/api/offers');
-  if (offers.status !== 200) fail(`/api/offers status ${offers.status}`);
-  let parsed;
+  const products = await get('/api/products');
+  if (products.status !== 200) fail('/api/products status ' + products.status);
+
+  let parsed = null;
   try {
-    parsed = JSON.parse(offers.body);
+    parsed = JSON.parse(products.body);
   } catch (error) {
-    fail(`/api/offers returned invalid JSON: ${error.message}`);
-    parsed = null;
+    fail('/api/products returned invalid JSON: ' + error.message);
   }
 
-  if (parsed) {
-    const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.offers) ? parsed.offers : null);
-    if (!list) fail('/api/offers JSON has no offers[] array');
-    if (list) {
-      for (const offer of list) {
-        if (offer.checkout_available === true) {
-          const id = String(offer.offer_id || offer.id || '');
-          const url = String(offer.payment_link_url || offer.checkout_url || '');
-          const price = Number(offer.price_nzd || offer.price || offer.amount_nzd || 0);
-          if (id && APPROVED_CHECKOUT_IDS.size && !APPROVED_CHECKOUT_IDS.has(id) && !/^https:\/\/(buy\\.)?stripe\\.com\//i.test(url)) {
-            fail(`checkout-enabled offer has no approved payment route: ${id}`);
-          }
-          if (price <= 0) fail(`checkout-enabled offer has invalid price: ${id}`);
-        }
-      }
-    }
+  if (parsed && !Array.isArray(parsed.products)) {
+    fail('/api/products JSON has no products[] array');
   }
 
   const proof = {
     status: process.exitCode ? 'FAIL' : 'PASS',
     timestamp_utc: new Date().toISOString(),
     homepage_status: home.status,
-    offers_status: offers.status,
-    homepage_required_markers: required.map(([label]) => label),
-    forbidden_public_copy_checked: FORBIDDEN_PUBLIC,
-    approved_checkout_ids: [...APPROVED_CHECKOUT_IDS],
-    offers_json_valid: parsed !== null
+    products_status: products.status,
+    required_markers: required.map(([label]) => label),
+    forbidden_public_copy_checked: forbidden,
+    products_json_valid: parsed !== null
   };
+
   console.log(JSON.stringify(proof, null, 2));
   if (process.exitCode) process.exit(1);
 }

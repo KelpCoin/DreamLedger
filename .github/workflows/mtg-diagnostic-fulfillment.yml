@@ -44,13 +44,13 @@ jobs:
             'BEC-PRIME/compiled/website/mtg/index.html',
             'BEC-PRIME/compiled/website/mtg/diagnostic.html',
             'BEC-PRIME/compiled/website/mtg/diagnostic-success.html',
-            'BEC-PRIME/compiled/website/digital-products.html',
-            'cinema.html'
+            'BEC-PRIME/compiled/website/mtg.html',
+            'BEC-PRIME/compiled/website/billboard.html'
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
-          $home = Get-Content BEC-PRIME/compiled/website/index.html -Raw
-          foreach ($token in @('Horizontal catalogue','href="/mtg"','href="/cinema.html"','href="/digital-products.html"','href="/avatar.html"')) {
-            if ($home -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
+          $homeHtml = Get-Content BEC-PRIME/compiled/website/index.html -Raw
+          foreach ($token in @('FIND SOMETHING','DreamMee','id="new"','id="magic"','id="digital"','class="rail"','href="/billboard"')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
           }
-          if ($home -match 'Agentic Commerce Readiness Audit') { throw 'Historical audit homepage residue detected' }
-          Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Cinema + Digital Products + Avatar surfaces present'
+          if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|Truth Oracle|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
+          Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'

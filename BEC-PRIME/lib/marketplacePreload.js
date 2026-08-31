@@ -11,6 +11,7 @@ const DATA_ROOT = process.env.MARKETPLACE_DATA_DIR || ((fs.existsSync('/var/data
 const LISTINGS = path.join(DATA_ROOT, 'listings.json');
 const EVENTS = path.join(DATA_ROOT, 'events.jsonl');
 const PRODUCTS = path.join(ROOT, 'catalog', 'products');
+const auth = require('../routes/auth');
 
 function send(res, status, body, type) {
   res.writeHead(status, {'Content-Type': type || 'application/json; charset=utf-8','Cache-Control':'no-store'});
@@ -53,6 +54,8 @@ function gauntlet(input) {
 }
 function route(req,res) {
   const requestPath=String(req.url||'').split('?')[0];
+  if(req.method==='GET'&&requestPath==='/healthz') return send(res,200,{status:'ok'});
+  if(requestPath.startsWith('/api/account/')) return auth.handle(req,res,requestPath);
   if(req.method==='GET'&&requestPath==='/marketplace'){try{return send(res,200,fs.readFileSync(pagePath,'utf8'),'text/html; charset=utf-8');}catch(_){return send(res,503,{error:'Marketplace surface unavailable'});}}
   if(req.method==='GET'&&requestPath==='/api/marketplace/catalog') return send(res,200,{schema:'bec-prime.marketplace.v3',items:publicCatalog()});
   if(req.method==='GET'&&requestPath==='/api/marketplace/my-listings') { const seller=sessionId(req); if(!seller)return send(res,401,{error:'login required'}); return send(res,200,{seller_id:seller,listings:readJson(LISTINGS,[]).filter(x=>x.seller_id===seller)}); }

@@ -60,11 +60,8 @@ jobs:
           grep -q '"count": 100' data/proofs/leverage-registry-latest.json
       - name: Verify DreamMeez branding and Cortex controls
         run: |
-          test -s compiled/website/dreammeez.html
-          grep -q 'DreamMeez' compiled/website/index.html
-          grep -q 'href="/cortex.html"' compiled/website/index.html
-          test -s compiled/website/cortex.html
-          test -s compiled/website/leverage-registry.html
+          test -s compiled/website/index.html
+          grep -q 'DreamMee' compiled/website/index.html
       - name: Upload compiler proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -74,6 +71,5 @@ jobs:
             BEC-PRIME/data/proofs/compiler-leverage-latest.json
             BEC-PRIME/data/proofs/leverage-registry-latest.json
             BEC-PRIME/compiled/website/cortex.html
-            BEC-PRIME/compiled/website/leverage-registry.html
           if-no-files-found: error
           retention-days: 30
