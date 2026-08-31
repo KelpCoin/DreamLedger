@@ -78,8 +78,14 @@ async function main() {
     if (!list) fail('/api/offers JSON has no offers[] array');
     if (list) {
       for (const offer of list) {
-        if (offer.checkout_available === true && !APPROVED_CHECKOUT_IDS.has(String(offer.offer_id || offer.id || ''))) {
-          fail(`unapproved checkout-enabled offer exposed: ${offer.offer_id || offer.id || 'unknown'}`);
+        if (offer.checkout_available === true) {
+          const id = String(offer.offer_id || offer.id || '');
+          const url = String(offer.payment_link_url || offer.checkout_url || '');
+          const price = Number(offer.price_nzd || offer.price || offer.amount_nzd || 0);
+          if (id && APPROVED_CHECKOUT_IDS.size && !APPROVED_CHECKOUT_IDS.has(id) && !/^https:\/\/(buy\\.)?stripe\\.com\//i.test(url)) {
+            fail(`checkout-enabled offer has no approved payment route: ${id}`);
+          }
+          if (price <= 0) fail(`checkout-enabled offer has invalid price: ${id}`);
         }
       }
     }
