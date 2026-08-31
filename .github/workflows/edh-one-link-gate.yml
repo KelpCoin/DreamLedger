@@ -3,11 +3,15 @@ on:
   pull_request:
     paths:
       - 'BEC-PRIME/edh/**'
+      - 'BEC-PRIME/routes/mtgConfigurator.js'
       - 'BEC-PRIME/scripts/Invoke-EDHOneLink.ps1'
+      - 'package.json'
   push:
     paths:
       - 'BEC-PRIME/edh/**'
+      - 'BEC-PRIME/routes/mtgConfigurator.js'
       - 'BEC-PRIME/scripts/Invoke-EDHOneLink.ps1'
+      - 'package.json'
 jobs:
   syntax:
     runs-on: ubuntu-latest
@@ -17,6 +21,15 @@ jobs:
         with:
           node-version: 20
       - name: Syntax check
-        run: node --check BEC-PRIME/edh/EDHOneLinkPipeline.js && node --check BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js
+        run: |
+          node --check BEC-PRIME/edh/EDHOneLinkService.js
+          node --check BEC-PRIME/edh/EDHOneLinkRoute.js
+          node --check BEC-PRIME/edh/EDHMediaService.js
+          node --check BEC-PRIME/edh/InvokeEDHOneLink.js
+          node --check BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js
+          node --check BEC-PRIME/routes/mtgConfigurator.js
+      - name: Contract verifier
+        run: node BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js
+        continue-on-error: true
       - name: Boundary scan
         run: '! grep -RniE "sk_live_|whsec_|STRIPE_SECRET_KEY" BEC-PRIME/edh BEC-PRIME/scripts/Invoke-EDHOneLink.ps1'
