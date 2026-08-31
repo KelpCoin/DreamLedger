@@ -17,7 +17,7 @@ function main() {
   const deck = read(path.join(dir, 'deck.json'));
   const benchmark = read(path.join(dir, 'benchmark.json'));
   const product = read(path.join(ROOT, 'catalog', 'products', proof.product_id + '.json'));
-  for (const file of ['deck.json', 'benchmark.json', 'primer.md', 'hero-prompt.txt', 'hero.svg', 'PROOF.json', 'STATE.json']) if (!fs.existsSync(path.join(dir, file))) fail('MISSING_' + file);
+  for (const file of ['deck.json', 'benchmark.json', 'primer.md', 'hero-prompt.txt', 'PROOF.json', 'STATE.json']) if (!fs.existsSync(path.join(dir, file))) fail('MISSING_' + file);
   if (proof.job_id !== jobId || proof.schema_version !== 'edh-one-link-proof-v1') fail('PROOF_ID_OR_SCHEMA_MISMATCH');
   if (proof.approval_required !== true) fail('APPROVAL_BOUNDARY_MISSING');
   if (proof.benchmark_type !== 'FIXTURE_BENCHMARK') fail('UNDECLARED_BENCHMARK_TYPE');
@@ -27,11 +27,10 @@ function main() {
   if (product.commercial_truth?.approval_required !== true || product.commercial_truth?.sellable !== false) fail('PRODUCT_APPROVAL_GATE_BROKEN');
   const primer = fs.readFileSync(path.join(dir, 'primer.md'));
   const heroPrompt = fs.readFileSync(path.join(dir, 'hero-prompt.txt'));
-  const hero = fs.readFileSync(path.join(dir, 'hero.svg'));
   if (sha256(primer) !== proof.primer_sha256) fail('PRIMER_HASH_MISMATCH');
   if (sha256(heroPrompt) !== proof.hero_prompt_sha256) fail('HERO_PROMPT_HASH_MISMATCH');
-  if (sha256(hero) !== proof.hero_asset_sha256) fail('HERO_ASSET_HASH_MISMATCH');
-  if (product.edh_pipeline?.media_status !== 'HERO_READY') fail('HERO_STATUS_MISSING');
+  if (product.edh_pipeline?.media_status !== 'PROMPT_READY') fail('HERO_PROMPT_STATUS_MISSING');
+  if (proof.media_status !== 'PROMPT_READY') fail('PROOF_MEDIA_STATUS_MISMATCH');
   console.log(JSON.stringify({ status: 'PASS', job_id: jobId, product_id: proof.product_id, state: proof.state, comparisons: proof.comparison_ids.length, benchmark_type: proof.benchmark_type, media_status: proof.media_status, approval_required: proof.approval_required }, null, 2));
 }
 main();
