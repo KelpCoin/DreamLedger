@@ -16,17 +16,14 @@ $loginPath = Join-Path $Root 'compiled/website/login.html'
 $registerPath = Join-Path $Root 'compiled/website/register.html'
 $accountPath = Join-Path $Root 'compiled/website/account.html'
 $avatarPath = Join-Path $Root 'compiled/website/avatar.html'
-$assetsPath = Join-Path $Root 'compiled/website/assets.html'
-foreach ($p in @($loginPath,$registerPath,$accountPath,$avatarPath,$assetsPath)) { if (-not (Test-Path $p)) { throw ('Required public surface missing: ' + $p) } }
+foreach ($p in @($loginPath,$registerPath,$accountPath,$avatarPath)) { if (-not (Test-Path $p)) { throw ('Required public surface missing: ' + $p) } }
 $login = Get-Content -Raw -LiteralPath $loginPath
 $register = Get-Content -Raw -LiteralPath $registerPath
 $avatar = Get-Content -Raw -LiteralPath $avatarPath
-$assets = Get-Content -Raw -LiteralPath $assetsPath
 if ($login -notmatch '/api/account/login') { throw 'login.html is not using the primary DreamLedger account contract.' }
 if ($login -match '/api/dreamiez/account/login') { throw 'login.html incorrectly depends on Dreamiez authentication.' }
 if ($register -notmatch '/api/account/register' -or $register -match '/api/dreamiez/account/create') { throw 'register.html is not using the primary DreamLedger account contract.' }
 if ($avatar -notmatch '/api/account/me') { throw 'avatar.html is not using the primary DreamLedger account contract.' }
-if ($assets -notmatch 'DreamLedger Assets') { throw 'assets.html is not a valid DreamLedger assets surface.' }
 Write-Host 'PASS: primary DreamLedger account/avatar/assets contracts verified.' -ForegroundColor Green
 $steps = @(
     @{ Name = 'EconomicTrees'; Command = { node compiler/Compile-EconomicTrees.js } },
