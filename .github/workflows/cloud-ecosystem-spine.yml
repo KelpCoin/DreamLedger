@@ -118,6 +118,7 @@ jobs:
           fi
 
       - name: Verify live selling doorway
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
@@ -128,10 +129,10 @@ jobs:
           done
           curl -L -sS --fail --max-time 20 https://dreamledger.org/billboard >/tmp/billboard.html
           curl -L -sS --fail --max-time 20 https://dreamledger.org/mtg >/tmp/mtg.html
-          grep -q 'EDH_0001' /tmp/mtg.html
-          grep -q 'NZ$400' /tmp/mtg.html
+          grep -Fq 'EDH_0001' /tmp/mtg.html
+          grep -Fq 'NZ$400' /tmp/mtg.html
           curl -L -sS --fail --max-time 20 https://dreamledger.org/api/products >/tmp/products.json
-          grep -q 'NZ$50' /tmp/billboard.html
+          grep -Fq 'NZ$50' /tmp/billboard.html
           grep -q '100 x 100' /tmp/billboard.html
           python3 - <<'PY'
           import json, urllib.request
