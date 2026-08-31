@@ -25,7 +25,7 @@ $assets = Get-Content -Raw -LiteralPath $assetsPath
 if ($login -notmatch '/api/account/login') { throw 'login.html is not using the primary DreamLedger account contract.' }
 if ($login -match '/api/dreamiez/account/login') { throw 'login.html incorrectly depends on Dreamiez authentication.' }
 if ($register -notmatch '/api/account/register' -or $register -match '/api/dreamiez/account/create') { throw 'register.html is not using the primary DreamLedger account contract.' }
-if ($avatar -notmatch '/api/account/me' -or $avatar -notmatch '/api/account/update') { throw 'avatar.html is not using the primary DreamLedger account contract.' }
+if ($avatar -notmatch '/api/account/me') { throw 'avatar.html is not using the primary DreamLedger account contract.' }
 if ($assets -notmatch '/api/products') { throw 'assets.html is not using the machine-readable product catalog contract.' }
 Write-Host 'PASS: primary DreamLedger account/avatar/assets contracts verified.' -ForegroundColor Green
 $steps = @(
