@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: dreamledger-production
-  cancel-in-progress: false
+  group: dreamledger-boundary
+  cancel-in-progress: true
 
 jobs:
   deploy-and-probe:
@@ -54,11 +54,10 @@ jobs:
           grep -q "'/sitemap.xml'" public/server.js
           echo "PASS: public/private topology and storefront v6 artifact verified for $RELEASE_SHA"
 
-      - name: Verify Render auto-deployment
+      - name: Verify Render deployment convergence
         shell: bash
         run: |
           set -euo pipefail
-          echo "Render is configured for commit-triggered deployment."
           echo "Waiting for https://dreamledger.org to expose $RELEASE_SHA."
           for i in $(seq 1 45); do
             body=$(curl -sS --max-time 10 "$BASE_URL/version" || true)
@@ -94,7 +93,14 @@ jobs:
           import json
           data=json.load(open('/tmp/products.json',encoding='utf-8'))
           assert isinstance(data,dict) and isinstance(data.get('products'),list)
+          rows=data['products']
+          b=next((x for x in rows if x.get('id')=='BILLBOARD-LARGE'),None)
+          assert b is not None
+          assert int(b.get('price'))==50
+          assert str(b.get('currency','')).upper()=='NZD'
+          assert b.get('checkout_available') is True
           print('CATALOGUE_API=PASS')
+          print('BILLBOARD_COMMERCE=PASS')
           PY
           grep -qi 'sitemap' /tmp/robots.txt
           ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html /tmp/billboard.html
@@ -116,7 +122,7 @@ jobs:
           import hashlib,json,sys,time
           files=['public/index.html','public/billboard.html','public/server.js','public/sitemap.xml','public/robots.txt','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/boundary-proof/v4','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v6','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'catalogue_api_checked':True,'sitemap_checked':True,'robots_checked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          data={'schema':'dreamledger/boundary-proof/v5','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v6','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'catalogue_api_checked':True,'billboard_commerce_checked':True,'sitemap_checked':True,'robots_checked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
           json.dump(data,open('proof/BOUNDARY_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
