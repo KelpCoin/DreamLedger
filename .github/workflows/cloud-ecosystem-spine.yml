@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Verify repository control plane
         shell: bash
@@ -42,27 +42,24 @@ jobs:
           test -f .github/workflows/economic-revenue-gate.yml
           test -f .github/workflows/commerce-sentinel.yml
           test -f .github/workflows/first-sale-gate.yml
+          test -f render.yaml
+          grep -q 'rootDir: public' render.yaml
+          grep -q 'rootDir: BEC-PRIME' render.yaml
           echo "CONTROL_PLANE=PASS"
 
       - name: Verify canonical commerce inputs
         shell: bash
         run: |
           set -euo pipefail
-          found=0
-          for p in \
-            BEC-PRIME/catalog/offers/approved.json \
-            BEC-PRIME/catalog/offers/offers.json \
-            BEC-PRIME/compiled/website/billboard.html \
-            api/billboard-stripe-webhook.js \
-            vercel.json; do
-            if [ -f "$p" ]; then
-              echo "FOUND=$p"
-              found=$((found+1))
-            else
-              echo "MISSING=$p"
-            fi
+          for p in BEC-PRIME/catalog/offers/approved.json BEC-PRIME/catalog/offers/offers.json BEC-PRIME/catalog/featured-offer.json public/index.html public/server.js public/package.json; do
+            test -s "$p"
+            echo "FOUND=$p"
           done
-          echo "CANONICAL_INPUTS_FOUND=$found"
+          grep -q 'OFFER-CMD-DIAG-29-NZD' BEC-PRIME/catalog/offers/approved.json
+          grep -q 'COMMANDER-DECK-DIAGNOSTIC-001' BEC-PRIME/catalog/offers/approved.json
+          grep -q '"price":29' BEC-PRIME/catalog/offers/approved.json
+          grep -q 'ACTIVE_LIVEMODE' BEC-PRIME/catalog/offers/approved.json
+          echo "CANONICAL_COMMERCE=PASS"
 
       - name: Install dependencies when package manifest exists
         shell: bash
@@ -94,11 +91,11 @@ jobs:
             echo "No package.json; continuing."
           fi
 
-      - name: Verify checkout doorway
+      - name: Verify approved checkout doorway
         shell: bash
         run: |
           set -euo pipefail
-          url="https://buy.stripe.com/28EcN54zraG13M3g3idwc1t"
+          url="https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00"
           code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "$url")
           echo "STRIPE_CHECKOUT_HTTP=$code"
           test "$code" = "200"
@@ -106,10 +103,11 @@ jobs:
       - name: Verify public DreamLedger surfaces
         shell: bash
         run: |
-          set -u
-          for path in /healthz /billboard; do
-            code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org${path}" || true)
+          set -euo pipefail
+          for path in /healthz /version / /billboard /mtg /avatar; do
+            code=$(curl -L -sS -o /tmp/body -w "%{http_code}" --max-time 20 "https://dreamledger.org${path}")
             echo "PUBLIC_${path#/}_HTTP=$code"
+            test "$code" = "200"
           done
 
       - name: Generate machine-readable cloud proof
@@ -117,9 +115,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t" || true)
-          health_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/healthz" || true)
-          billboard_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/billboard" || true)
+          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00")
+          health_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/healthz")
+          version_body=$(curl -L -sS --max-time 20 "https://dreamledger.org/version")
           cat > artifacts/cloud-ecosystem-proof.json <<EOF
           {
             "workflow": "Cloud Ecosystem Spine",
@@ -128,10 +126,9 @@ jobs:
             "cloud_execution": true,
             "stripe_checkout_http": "${stripe_code}",
             "healthz_http": "${health_code}",
-            "billboard_http": "${billboard_code}",
+            "version": ${version_body},
             "verified_payment_count": 0,
             "revenue_nzd": 0,
-            "self_hosted_fallback": "DEFERRED",
             "status": "PROOF_GENERATED"
           }
           EOF
