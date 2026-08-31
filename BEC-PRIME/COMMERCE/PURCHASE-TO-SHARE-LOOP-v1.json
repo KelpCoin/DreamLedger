@@ -1,0 +1,6 @@
+{
+  "schema": "BEC-PRIME/public-safe-commerce-marker/v1",
+  "purpose": "Public repository marker for a purchase-to-discovery concept.",
+  "implementation": "Private referral, attribution, reward, and anti-abuse logic is maintained outside the public storefront contract.",
+  "public_rule": "Customer sharing is optional and customer initiated. No private system logic is exposed."
+}
