@@ -1,6 +1,7 @@
 'use strict';
 
 const service = require('./EDHOneLinkService');
+const media = require('./EDHMediaService');
 
 function send(res, status, body) {
   if (res.writableEnded) return true;
@@ -27,7 +28,8 @@ async function handle(req, res, url) {
       const comparisonIds = Array.isArray(input.comparison_product_ids) ? input.comparison_product_ids : [];
       if (comparisonIds.length > 5) return send(res, 422, { error: 'MAX_FIVE_COMPARISONS' });
       const proof = await service.createJob(input);
-      return send(res, 202, { job_id: proof.job_id, status: proof.state, product_id: proof.product_id, proof_manifest: 'BEC-PRIME/data/mtg/edh-jobs/' + proof.job_id + '/PROOF.json' });
+      const withMedia = await media.attachHero(proof);
+      return send(res, 202, { job_id: withMedia.job_id, status: withMedia.state, product_id: withMedia.product_id, media_status: withMedia.media_status, proof_manifest: 'BEC-PRIME/data/mtg/edh-jobs/' + withMedia.job_id + '/PROOF.json' });
     } catch (err) {
       return send(res, err.statusCode || 500, { error: err.message || 'EDH_IMPORT_FAILED' });
     }
