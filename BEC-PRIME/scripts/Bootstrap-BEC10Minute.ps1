@@ -23,13 +23,15 @@ function Find-Lms {
         (Join-Path $env:LOCALAPPDATA "Programs\LM Studio\resources\app\.webpack\bin\lms.exe")
     )
     foreach ($p in $candidates) { if (Test-Path -LiteralPath $p) { return $p } }
-    throw "lms.exe not found. Open LM Studio once or install llmster/lms."
+    throw "lms.exe not found."
 }
-function Invoke-Lms([string[]]$Args) {
-    $lms = Find-Lms
-    $o = & $lms @Args 2>&1
-    if ($LASTEXITCODE -ne 0) { throw ("lms failed: " + ($Args -join " ") + " :: " + ($o -join " ")) }
-    return ($o -join "`n")
+function Invoke-Lms([string]$Lms,[string[]]$Args,[switch]$AllowFailure) {
+    $o = & $Lms @Args 2>&1
+    $code = $LASTEXITCODE
+    if (($code -ne 0) -and (-not $AllowFailure)) {
+        throw ("lms failed: " + ($Args -join " ") + " :: " + ($o -join " "))
+    }
+    return [pscustomobject]@{ Code=$code; Output=($o -join "`n") }
 }
 
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
@@ -44,7 +46,10 @@ if ([string]::IsNullOrWhiteSpace($DataRoot)) {
 $LogRoot = Join-Path $DataRoot "logs"
 $ProofRoot = Join-Path $DataRoot "proofs"
 $ConfigRoot = Join-Path $DataRoot "config"
-Ensure-Dir $LogRoot; Ensure-Dir $ProofRoot; Ensure-Dir $ConfigRoot
+Ensure-Dir $LogRoot
+Ensure-Dir $ProofRoot
+Ensure-Dir $ConfigRoot
+
 $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $log = Join-Path $LogRoot "bootstrap-10min-$stamp.log"
 Start-Transcript -LiteralPath $log -Force | Out-Null
@@ -68,92 +73,90 @@ try {
         } catch {}
     }
 
-    Write-Host "[2/6] Starting LM Studio daemon/server..." -ForegroundColor Cyan
-    Invoke-Lms @("daemon","up","--json") | Out-Null
-    Invoke-Lms @("server","start","--port","1234","--bind","127.0.0.1") | Out-Null
+    Write-Host "[2/6] Detecting LM Studio CLI..." -ForegroundColor Cyan
+    $lmsPath = Find-Lms
+    $versionResult = Invoke-Lms $lmsPath @("version") -AllowFailure
+    $lmsVersion = if ($versionResult.Code -eq 0) { $versionResult.Output.Trim() } else { "VERSION_UNAVAILABLE" }
 
-    Write-Host "[3/6] Discovering installed models..." -ForegroundColor Cyan
-    $modelsRaw = Invoke-Lms @("ls","--llm","--json") | ConvertFrom-Json
-    $models = @($modelsRaw)
-    if ($models.Count -eq 1 -and $models[0].models) { $models = @($models[0].models) }
-    $rows = @($models | Where-Object { $_.modelKey -or $_.identifier })
-    if ($rows.Count -eq 0) { throw "No downloaded LM Studio models were discovered." }
-
-    $preferred = $rows | Where-Object { ([string]$_.modelKey -match '(?i)gpt.*oss.*20b') -or ([string]$_.identifier -match '(?i)gpt.*oss.*20b') } | Select-Object -First 1
-    if (-not $preferred) { $preferred = $rows | Select-Object -First 1 }
-    $selected = if ($preferred.modelKey) { [string]$preferred.modelKey } else { [string]$preferred.identifier }
-
-    $configPath = Join-Path $ConfigRoot "lmstudio-defaults.json"
-    $cfg = [ordered]@{
-        schema = "BEC-LMSTUDIO-DEFAULTS-1.0"
-        preferred_model_pattern = "gpt.*oss.*20b"
-        selected_model = $selected
-        second_model_pattern = ""
-        server = "http://127.0.0.1:1234"
-        note = "Set second_model_pattern only after confirming the exact installed identifier."
+    Write-Host "[3/6] Starting LM Studio server..." -ForegroundColor Cyan
+    $statusResult = Invoke-Lms $lmsPath @("server","status","--json","--quiet") -AllowFailure
+    $serverRunning = $false
+    if ($statusResult.Code -eq 0) {
+        try { $serverRunning = [bool](($statusResult.Output | ConvertFrom-Json).running) } catch {}
     }
-    if (Test-Path -LiteralPath $configPath) {
-        try {
-            $old = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
-            if ($old.preferred_model_pattern) { $cfg.preferred_model_pattern = [string]$old.preferred_model_pattern }
-            if ($old.selected_model) { $selected = [string]$old.selected_model; $cfg.selected_model = $selected }
-            if ($old.second_model_pattern) { $cfg.second_model_pattern = [string]$old.second_model_pattern }
-        } catch {}
+    if (-not $serverRunning) {
+        $startResult = Invoke-Lms $lmsPath @("server","start","--port","1234","--bind","127.0.0.1") -AllowFailure
+        if ($startResult.Code -ne 0) { throw ("LM Studio server start failed: " + $startResult.Output) }
+    }
+    $status2 = Invoke-Lms $lmsPath @("server","status","--json","--quiet") -AllowFailure
+    $serverStatus = if ($status2.Code -eq 0) { $status2.Output.Trim() } else { "STATUS_UNAVAILABLE" }
+
+    Write-Host "[4/6] Discovering installed models..." -ForegroundColor Cyan
+    $modelsResult = Invoke-Lms $lmsPath @("ls")
+    $loadedResult = Invoke-Lms $lmsPath @("ps") -AllowFailure
+    $loadedModels = @($loadedResult.Output -split "`r?`n" | Where-Object { $_ -match "(?i)gpt-oss|qwen|phi|LOADED" })
+
+    Write-Host "[5/6] Ensuring GPT-OSS 20B is loaded when available..." -ForegroundColor Cyan
+    $gptLoaded = $loadedResult.Output -match "(?i)gpt-oss-20b"
+    if (-not $gptLoaded) {
+        $loadResult = Invoke-Lms $lmsPath @("load","openai/gpt-oss-20b","--gpu=auto") -AllowFailure
+        if ($loadResult.Code -ne 0) {
+            Write-Host "WARN: GPT-OSS 20B load did not complete: $($loadResult.Output)" -ForegroundColor Yellow
+        }
     }
 
-    Write-Host "[4/6] Loading default model quietly..." -ForegroundColor Cyan
-    $loadedRaw = Invoke-Lms @("ps","--json") | ConvertFrom-Json
-    $loaded = @($loadedRaw)
-    if ($loaded.Count -eq 1 -and $loaded[0].models) { $loaded = @($loaded[0].models) }
-    $already = $loaded | Where-Object { ([string]$_.identifier -eq $selected) -or ([string]$_.modelKey -eq $selected) }
-    if (-not $already) { Invoke-Lms @("load",$selected,"--gpu","auto") | Out-Null }
-
-    Write-Host "[5/6] Creating local control-plane handoff..." -ForegroundColor Cyan
+    Write-Host "[6/6] Writing BEC work state and proof..." -ForegroundColor Cyan
     $handoff = Join-Path $DataRoot "ACTIVE-WORK-STATE.json"
     Write-Json $handoff ([ordered]@{
-        schema="BEC-ACTIVE-WORK-STATE-1.0"
+        schema="BEC-ACTIVE-WORK-STATE-2.0"
         mission="AUTONOMOUS-REVENUE-ENGINE"
         active_repo=$RepoRoot
         compiler_entry="BEC-PRIME\bec.cmd"
         compiler_targets=@("website","game","app")
-        commercial_priority=@("BILLBOARD-TEXT-TILE-001","EDH_0001","DIGITAL-PRODUCT-CATALOG")
-        model_team=@(@{role="proposer";model=$selected},@{role="critic";model_pattern=$cfg.second_model_pattern},@{role="synthesizer";model="local-controller"})
+        commercial_priority=@("BILLBOARD-TEXT-TILE-001","DIGITAL-PRODUCT-CATALOG","PHYSICAL-MTG-INVENTORY")
+        model_team=@(
+            @{role="proposer";model="openai/gpt-oss-20b"},
+            @{role="critic";model="qwen2.5-coder-14b-instruct"},
+            @{role="synthesizer";model="local-controller"}
+        )
+        lmstudio_cli=$lmsPath
+        lmstudio_version=$lmsVersion
+        lmstudio_server="http://127.0.0.1:1234"
         public_actions="APPROVAL_REQUIRED"
         autonomous_spend_nzd=0
         updated_at_utc=(Get-Date).ToUniversalTime().ToString("o")
     })
 
-    Write-Host "[6/6] Verifying local compiler control point..." -ForegroundColor Cyan
     $bec = Join-Path $RepoRoot "BEC-PRIME\bec.cmd"
-    $compilerStatus = "MISSING"
-    if (Test-Path -LiteralPath $bec) {
-        Push-Location (Join-Path $RepoRoot "BEC-PRIME")
-        try {
-            & cmd.exe /c "bec.cmd status" *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "bec-status.log") | Out-Host
-            $compilerStatus = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
-        } finally { Pop-Location }
-    }
+    if (-not (Test-Path -LiteralPath $bec)) { throw "BEC command missing: $bec" }
+    Push-Location (Join-Path $RepoRoot "BEC-PRIME")
+    try {
+        & cmd.exe /c "bec.cmd status" *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "bec-status.log") | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw "BEC status failed." }
+    } finally { Pop-Location }
 
     $proof = [ordered]@{
-        schema="BEC-10MINUTE-BOOTSTRAP-1.0"
+        schema="BEC-10MINUTE-BOOTSTRAP-2.1"
         status="PASS"
         repo=$RepoRoot
         data_root=$DataRoot
         known_startup_tasks_disabled=$disabled
-        lm_studio_server="http://127.0.0.1:1234"
-        selected_model=$selected
+        lmstudio_cli=$lmsPath
+        lmstudio_version=$lmsVersion
+        lmstudio_server_status=$serverStatus
+        loaded_model_hints=$loadedModels
         compiler_entry=$bec
-        compiler_status=$compilerStatus
+        compiler_status="PASS"
         active_work_state=$handoff
         timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")
     }
     Write-Json (Join-Path $ProofRoot "BOOTSTRAP-10MIN-LATEST.json") $proof
-    $cfg | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $configPath -Encoding UTF8
     Write-Host "BOOTSTRAP 10-MINUTE PASS" -ForegroundColor Green
     Write-Host ("Proof: " + (Join-Path $ProofRoot "BOOTSTRAP-10MIN-LATEST.json")) -ForegroundColor Green
 } catch {
-    $proof = [ordered]@{schema="BEC-10MINUTE-BOOTSTRAP-1.0";status="FAIL";error=$_.Exception.Message;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}
+    $proof = [ordered]@{schema="BEC-10MINUTE-BOOTSTRAP-2.1";status="FAIL";error=$_.Exception.Message;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}
     Write-Json (Join-Path $ProofRoot "BOOTSTRAP-10MIN-LATEST.json") $proof
+    Write-Host "BOOTSTRAP FAILED: $($_.Exception.Message)" -ForegroundColor Red
     throw
 } finally {
     Stop-Transcript | Out-Null
