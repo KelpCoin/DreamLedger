@@ -11,7 +11,7 @@
   "inventory": 999,
   "inventory_type": "digital",
   "status": "published",
-  "checkout": {"mode":"payment","success_path":"/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}","cancel_path":"/mtg"},
+  "checkout": {"mode":"intake_then_payment","url":"/mtg","success_path":"/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}","cancel_path":"/mtg"},
   "commercial_truth": {"approval_required":false,"sellable":true,"reason":"Operator authorized automated MTG digital fulfillment on 2026-08-23.","payment_surface":"stripe-checkout-session","payment_link":"https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00","payment_link_id":"plink_1UAJyVJt4ieIQDFzj4kA5B7x","stripe_product_id":"prod_VAfIWvDKMHTjFC","stripe_price_id":"price_1UAJyAJt4ieIQDFzj8DQBNNT"},
   "fulfilment": {"mode":"automated","delivery_sla_hours":1,"inputs":["Commander name","decklist","strategy if known","improvement budget"],"outputs":["hash-stamped diagnostic report","structural metrics","three biggest issues","cut candidates","upgrade priorities","tuning plan"],"report_endpoint":"/api/mtg/diagnostic/report?session_id={CHECKOUT_SESSION_ID}","operator_required":false},
   "evidence": {"status":"awaiting_first_payment","transaction_id":null},
