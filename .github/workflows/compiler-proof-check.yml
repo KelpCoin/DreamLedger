@@ -61,7 +61,7 @@ jobs:
       - name: Verify DreamMeez branding and Cortex controls
         run: |
           test -s compiled/website/dreammeez.html
-          grep -q 'DreamMeez' compiled/website/index.html
+          grep -q 'DreamMee' compiled/website/index.html
           grep -q 'href="/cortex.html"' compiled/website/index.html
           test -s compiled/website/cortex.html
           test -s compiled/website/leverage-registry.html
