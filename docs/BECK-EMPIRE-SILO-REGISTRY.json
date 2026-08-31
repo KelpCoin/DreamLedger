@@ -1,0 +1,69 @@
+{
+  "schema": "BECK/EMPIRE-SILO-REGISTRY/v1",
+  "default_currency": "nzd",
+  "fee_invariant": "MTG=0% forever; every other silo=5% flat",
+  "silos": {
+    "MTG": {
+      "id": "dreamledger-mtg",
+      "public_domains": ["dreamledger.org"],
+      "public_prefixes": ["/mtg"],
+      "platform_fee_bps": 0,
+      "status": "active",
+      "first_dollar_priority": 1,
+      "cross_silo_forbidden_domains": ["amplissa.com"],
+      "cross_silo_forbidden_terms": ["Amplissa", "adult content", "18+ content", "BBW content", "OnlyFans", "Pornhub"]
+    },
+    "AMPLISSA": {
+      "id": "amplissa",
+      "public_domains": ["amplissa.com"],
+      "public_prefixes": ["/"],
+      "platform_fee_bps": 500,
+      "status": "build",
+      "first_dollar_priority": 3,
+      "cross_silo_forbidden_domains": ["dreamledger.org"],
+      "cross_silo_forbidden_terms": ["MTG", "Magic: The Gathering", "Commander", "DreamLedger", "DreamMeez"]
+    },
+    "BBW_SSBBW": {
+      "id": "bbw-ssbbw-creator",
+      "public_domains": ["dreamledger.org"],
+      "public_prefixes": ["/bbw"],
+      "platform_fee_bps": 500,
+      "status": "build",
+      "first_dollar_priority": 4,
+      "cross_silo_forbidden_domains": ["amplissa.com"],
+      "cross_silo_forbidden_terms": ["MTG", "Magic: The Gathering", "Commander"]
+    },
+    "DREAMMEEZ": {
+      "id": "dreammeez",
+      "public_domains": ["dreamledger.org"],
+      "public_prefixes": ["/avatar"],
+      "platform_fee_bps": 500,
+      "status": "development",
+      "first_dollar_priority": 5,
+      "cross_silo_forbidden_domains": ["amplissa.com"],
+      "cross_silo_forbidden_terms": ["adult content", "18+ content"]
+    },
+    "OTHER": {
+      "id": "default",
+      "public_domains": [],
+      "public_prefixes": [],
+      "platform_fee_bps": 500,
+      "status": "future",
+      "first_dollar_priority": 99,
+      "cross_silo_forbidden_domains": [],
+      "cross_silo_forbidden_terms": []
+    }
+  },
+  "hard_rules": [
+    "Only MTG may resolve to 0 basis points.",
+    "Every non-MTG silo resolves to exactly 500 basis points.",
+    "Checkout fee is server-derived from silo identity.",
+    "Browser-supplied fee values are advisory only and cannot override policy.",
+    "Mixed-silo carts are rejected.",
+    "Non-MTG marketplace checkout requires a verified Stripe Connect seller.",
+    "Public publishing remains approval-gated.",
+    "Silo payloads, routes, catalogues and assets are isolated by contract.",
+    "No silo may claim payment from local checkout state; processor evidence is required.",
+    "Policy changes require repository review and verification."
+  ]
+}
