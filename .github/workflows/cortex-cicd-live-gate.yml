@@ -183,9 +183,10 @@ jobs:
             test "$code" = "$expected"
           }
           check /healthz 200
-          check /register.html 200
-          check /elohim-refinery.html 200
-          check /gauntlet.html 200
+          check / 200
+          check /mtg 200
+          check /billboard 200
+          check /api/products 200
           check /version 200
 
       - name: Verify checkout surface without purchasing
@@ -195,7 +196,7 @@ jobs:
           response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
-            --data '{"sku":"BEC-PRIME-ARCHITECTURE-AUDIT-001"}')
+            --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD","silo":"mtg"}')
           echo "$response" > /tmp/checkout.json
           python3 - <<'PY'
           import json
@@ -206,7 +207,7 @@ jobs:
           amount=data.get('amount_nzd')
           if not url.startswith('https://') or 'stripe.com' not in url:
               raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
-          if sku != 'BEC-PRIME-ARCHITECTURE-AUDIT-001':
+          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
               raise SystemExit(f'CHECKOUT_SKU=FAIL:{sku}')
           if amount != 29:
               raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
@@ -229,7 +230,7 @@ jobs:
               'target': os.environ['BASE_URL'],
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'live_sha_verified': True,
-              'surfaces_verified': ['healthz','register.html','elohim-refinery.html','gauntlet.html','version'],
+              'surfaces_verified': ['healthz','version','mtg','billboard','api/products'],
               'checkout_surface_verified': True,
               'checkout_sku_verified': 'BEC-PRIME-ARCHITECTURE-AUDIT-001',
               'checkout_amount_nzd_verified': 29,
