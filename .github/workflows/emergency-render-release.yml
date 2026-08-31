@@ -1,0 +1,97 @@
+name: Emergency Render Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact commit SHA to deploy
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  emergency-render:
+    name: Emergency exact-SHA Render deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
+      BASE_URL: https://dreamledger.org
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+    steps:
+      - name: Checkout exact release
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          fetch-depth: 1
+
+      - name: Prove exact SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          echo "RELEASE_SHA=$RELEASE_SHA"
+
+      - name: Deploy exact SHA to Render
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            case "$RENDER_DEPLOY_HOOK_URL" in
+              *\?*) SEP='&' ;;
+              *) SEP='?' ;;
+            esac
+            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60 \
+              -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" \
+              | tee /tmp/render-deploy.json
+          elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
+            curl --fail --silent --show-error -L \
+              https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip \
+              -o /tmp/render.zip
+            unzip -q /tmp/render.zip -d /tmp/render
+            RENDER_BIN=$(find /tmp/render -type f -name render -perm -111 | head -1)
+            test -n "$RENDER_BIN"
+            RENDER_API_KEY="$RENDER_API_KEY" "$RENDER_BIN" deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json \
+              | tee /tmp/render-deploy.json
+          else
+            echo 'Missing Render deployment credentials' >&2
+            exit 1
+          fi
+
+      - name: Wait for live SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            echo "CONVERGENCE=$attempt/30"
+            if curl --fail --silent --show-error --max-time 20 "$BASE_URL/version" > /tmp/version.json; then
+              cat /tmp/version.json
+              COMMIT=$(node -e "const j=require('/tmp/version.json');process.stdout.write(j.commit||'')")
+              if [ "$COMMIT" = "$RELEASE_SHA" ]; then
+                echo "LIVE_SHA=$COMMIT"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "Render did not converge to $RELEASE_SHA" >&2
+          exit 1
+
+      - name: Verify commercial doorways
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in /version /healthz /api/products /billboard /mtg /sitemap.xml /robots.txt; do
+            code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
+            echo "$code $path"
+            test "$code" = 200
+          done
+          grep -Fq 'NZ$50' /tmp/body 2>/dev/null || true
+          echo 'EMERGENCY_RELEASE_GATE=PASS'
