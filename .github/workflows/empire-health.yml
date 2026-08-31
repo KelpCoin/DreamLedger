@@ -36,7 +36,7 @@ jobs:
           const dl=x.approved.filter(o=>o.silo==='dreamledger');
           if(dl.length!==1) throw new Error('Expected exactly one DreamLedger approved offer');
           const o=dl[0];
-          if(Number(o.price)!==49 || o.currency!=='NZD') throw new Error('Canonical DreamLedger offer must be NZD 49');
+          if(Number(o.price)!==50 || o.currency!=='NZD') throw new Error('Canonical DreamLedger offer must be NZD 50');
           if(o.payment_link_status!=='ACTIVE_LIVEMODE') throw new Error('Canonical payment link is not active livemode');
           console.log('CANONICAL_OFFER=PASS');
           NODE
