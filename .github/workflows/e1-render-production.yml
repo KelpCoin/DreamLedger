@@ -38,16 +38,21 @@ jobs:
           test -s public/index.html
           test -s public/billboard.html
           test -s public/server.js
-          grep -q 'FIND SOMETHING' public/index.html
-          grep -q 'GOOD.' public/index.html
-          grep -q 'DreamMee' public/index.html
-          grep -q 'Pioneer product' public/index.html
+          test -s public/sitemap.xml
+          test -s public/robots.txt
+          grep -qi 'DreamLedger' public/index.html
+          grep -qi 'Digital products' public/index.html
+          grep -qi 'Physical collectibles' public/index.html
+          grep -qi 'Interactive experiences' public/index.html
+          grep -qi 'Media' public/index.html
           grep -q '/billboard' public/index.html
           ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public/index.html public/billboard.html public/server.js
           grep -q 'autoDeployTrigger: commit' render.yaml
           grep -q 'rootDir: public' render.yaml
           grep -q 'rootDir: BEC-PRIME' render.yaml
-          echo "PASS: public/private topology and storefront artifact verified for $RELEASE_SHA"
+          grep -q "'/api/products'" public/server.js
+          grep -q "'/sitemap.xml'" public/server.js
+          echo "PASS: public/private topology and storefront v6 artifact verified for $RELEASE_SHA"
 
       - name: Verify Render auto-deployment
         shell: bash
@@ -60,7 +65,7 @@ jobs:
             live=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit",""))' <<< "$body" 2>/dev/null || true)
             surface=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("surface",""))' <<< "$body" 2>/dev/null || true)
             echo "poll=$i live_sha=$live surface=$surface expected_sha=$RELEASE_SHA"
-            if [ "$live" = "$RELEASE_SHA" ] && [ "$surface" = "public-v5" ]; then
+            if [ "$live" = "$RELEASE_SHA" ] && [ "$surface" = "public-v6" ]; then
               echo "LIVE_RELEASE=PASS"
               exit 0
             fi
@@ -78,15 +83,20 @@ jobs:
           curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/" >/tmp/home.html
           curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/billboard" >/tmp/billboard.html
           curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/api/products" >/tmp/products.json
-          grep -q 'FIND SOMETHING' /tmp/home.html
-          grep -q 'DreamMee' /tmp/home.html
-          grep -q 'Pioneer product' /tmp/home.html
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/sitemap.xml" >/tmp/sitemap.xml
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/robots.txt" >/tmp/robots.txt
+          grep -qi 'DreamLedger' /tmp/home.html
+          grep -qi 'Digital products' /tmp/home.html
+          grep -qi 'Physical collectibles' /tmp/home.html
+          grep -qi 'Interactive experiences' /tmp/home.html
+          grep -qi 'Media' /tmp/home.html
           python3 - <<'PY'
           import json
           data=json.load(open('/tmp/products.json',encoding='utf-8'))
           assert isinstance(data,dict) and isinstance(data.get('products'),list)
           print('CATALOGUE_API=PASS')
           PY
+          grep -qi 'sitemap' /tmp/robots.txt
           ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html /tmp/billboard.html
           for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /api/offer-checkout/create /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
             code=$(curl -sS -o /tmp/probe -w '%{http_code}' --max-time 20 "$BASE_URL$path")
@@ -104,9 +114,9 @@ jobs:
           mkdir -p proof
           python3 - "$RELEASE_SHA" <<'PY'
           import hashlib,json,sys,time
-          files=['public/index.html','public/billboard.html','public/server.js','render.yaml']
+          files=['public/index.html','public/billboard.html','public/server.js','public/sitemap.xml','public/robots.txt','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/boundary-proof/v3','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v5','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          data={'schema':'dreamledger/boundary-proof/v4','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v6','public_root':'public','private_root':'BEC-PRIME','forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'catalogue_api_checked':True,'sitemap_checked':True,'robots_checked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
           json.dump(data,open('proof/BOUNDARY_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
