@@ -123,7 +123,7 @@ async function handle(req, res, url) {
         mode: 'payment', success_url: PUBLIC_BASE + '/checkout/success?configuration_order_id=' + encodeURIComponent(orderId),
         cancel_url: PUBLIC_BASE + '/mtg/configurator.html?deck=' + encodeURIComponent(c.deck_id) + '&checkout_cancelled=1',
         'metadata[product_id]': p.id, 'metadata[silo]': 'mtg', 'metadata[configuration_order_id]': orderId,
-        'metadata[commerce_version]': 'mtg-80-20-configurator-v1',
+        'metadata[commerce_version]': 'mtg-80-20-configurator-v1', 'metadata[product_sku]': p.sku || p.id, 'metadata[offer_id]': p.default_offer_id || p.id, 'metadata[source]': 'mtg_configurator', 'payment_intent_data[metadata][product_id]': p.id, 'payment_intent_data[metadata][product_sku]': p.sku || p.id, 'payment_intent_data[metadata][offer_id]': p.default_offer_id || p.id, 'payment_intent_data[metadata][silo]': 'mtg', 'payment_intent_data[metadata][source]': 'mtg_configurator',
         'line_items[0][price_data][currency]': String(c.currency).toLowerCase(),
         'line_items[0][price_data][unit_amount]': priced.total_minor,
         'line_items[0][price_data][product_data][name]': c.name + ' - Configured',
