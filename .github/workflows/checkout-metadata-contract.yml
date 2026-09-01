@@ -1,0 +1,21 @@
+name: Checkout Metadata Contract
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checkout-metadata:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify Checkout producers
+        run: node scripts/verify-checkout-metadata-contract.js
+      - name: Syntax check payment patch
+        run: node --check lib/commercePaymentContractPreload.js
