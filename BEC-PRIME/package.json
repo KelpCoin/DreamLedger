@@ -62,7 +62,6 @@
     "smoke:persistent-chat": "node scripts/smoke-persistent-chat.js",
     "smoke:autonomy": "node scripts/smoke-autonomy.js",
     "smoke:worker": "node scripts/smoke-worker-pool.js",
-    "smoke:worker": "node scripts/smoke-worker-pool.js",
     "runtime:verify": "node scripts/Verify-Runtime.js",
     "worker:enqueue": "node runtime/worker-pool.js enqueue",
     "worker:run": "node runtime/worker-pool.js run-once",
