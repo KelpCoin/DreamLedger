@@ -1,0 +1,39 @@
+{
+  "schema": "dreamledger/visual-contract/v1",
+  "surface": "/",
+  "domain": "dreamledger.org",
+  "desktop": {
+    "viewport": "1440x900",
+    "hero_required": true,
+    "primary_cta_required": true,
+    "catalogue_rails_required": true,
+    "mtg_shelf_required": true,
+    "dreammeez_position": "top-right",
+    "max_horizontal_overflow": 0
+  },
+  "mobile": {
+    "viewport": "390x844",
+    "hero_required": true,
+    "primary_cta_required": true,
+    "catalogue_rails_required": true,
+    "mtg_shelf_required": true,
+    "dreammeez_position": "top-right",
+    "max_horizontal_overflow": 0
+  },
+  "required_text": [
+    "DISCOVER",
+    "THINGS WORTH BUYING",
+    "Digital products",
+    "Magic & collectibles",
+    "Games & experiments",
+    "Digital media",
+    "Evidence before hype"
+  ],
+  "required_markers": [
+    "dreamledger-surface=public-v6",
+    "dreamledger-visual-contract=catalogue-first-v1"
+  ],
+  "forbidden_text": [
+    "Dream Ledger Deck"
+  ]
+}
