@@ -10,6 +10,8 @@ const BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(
 const MAX_BYTES = 5 * 1024 * 1024;
 const MARKETS = { GLOBAL: 'Global', NZ: 'New Zealand', AU: 'Australia', ZA: 'South Africa', AMERICAS: 'Americas', EUROPE: 'Europe' };
 const FOUNDING = { w: 100, h: 100, price: 5000, sku: 'BILLBOARD-SMALL' };
+const OFFER_ID_CANONICAL = 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001';
+const OFFER_ID_LEGACY = 'DREAMLEDGER-BILLBOARD-FOUNDING-001';
 const BAD = /\b(?:n[i1]gg(?:er|a)|fagg(?:ot|ots)|kike|chink|spic|coon|wetback|retard(?:ed)?|kill\s+(?:all|the)|white\s+power|heil\s+hitler|gas\s+the|death\s+to)\b/i;
 
 function mkdir(p) { fs.mkdirSync(p, { recursive: true }); }
@@ -62,7 +64,8 @@ async function fetchImage(url) {
 }
 async function fulfill(session, eventId) {
   if (session?.payment_status !== 'paid') return { handled: false, reason: 'payment_not_paid' };
-  if (session?.metadata?.offer_id !== 'DREAMLEDGER-BILLBOARD-FOUNDING-001') return { handled: false };
+  const offerId = session?.metadata?.offer_id || session?.metadata?.offerId;
+  if (offerId !== OFFER_ID_CANONICAL && offerId !== OFFER_ID_LEGACY) return { handled: false };
   const market = String(session.metadata?.market || 'NZ').toUpperCase();
   if (!MARKETS[market]) throw new Error('Invalid billboard market');
   if (Number(session.amount_total) !== FOUNDING.price || String(session.currency || '').toLowerCase() !== 'nzd') throw new Error('Billboard payment amount/currency mismatch');
@@ -86,9 +89,9 @@ async function fulfill(session, eventId) {
   mkdir(path.dirname(media(id)));
   fs.writeFileSync(media(id), image.buffer, { flag: 'wx' });
 
-  const fulfillment = revenueLedger.createFulfillment({ transactionId: session.id, productId: FOUNDING.sku, offerId: 'DREAMLEDGER-BILLBOARD-FOUNDING-001', silo: 'dreamledger', amountMinor: Number(session.amount_total), currency: 'NZD', customerEmail: session.customer_details?.email || null });
-  revenueLedger.recordPayment({ eventId: eventId || 'billboard:' + session.id + ':payment', transactionId: session.id, amountMinor: Number(session.amount_total), currency: 'nzd', productId: FOUNDING.sku, offerId: 'DREAMLEDGER-BILLBOARD-FOUNDING-001', silo: 'dreamledger' });
-  revenueLedger.recordFulfillment({ eventId: session.id + ':fulfillment', transactionId: session.id, amountMinor: Number(session.amount_total), currency: 'NZD', fulfillmentId: fulfillment.fulfillment.fulfillment_id, productId: FOUNDING.sku, offerId: 'DREAMLEDGER-BILLBOARD-FOUNDING-001', silo: 'dreamledger' });
+  const fulfillment = revenueLedger.createFulfillment({ transactionId: session.id, productId: FOUNDING.sku, offerId, silo: 'dreamledger', amountMinor: Number(session.amount_total), currency: 'NZD', customerEmail: session.customer_details?.email || null });
+  revenueLedger.recordPayment({ eventId: eventId || 'billboard:' + session.id + ':payment', transactionId: session.id, amountMinor: Number(session.amount_total), currency: 'nzd', productId: FOUNDING.sku, offerId, silo: 'dreamledger' });
+  revenueLedger.recordFulfillment({ eventId: session.id + ':fulfillment', transactionId: session.id, amountMinor: Number(session.amount_total), currency: 'NZD', fulfillmentId: fulfillment.fulfillment.fulfillment_id, productId: FOUNDING.sku, offerId, silo: 'dreamledger' });
 
   const ad = { id, market, sku: FOUNDING.sku, status: 'PUBLISHED', payment_status: 'paid', human_review: 'AUTO_PASS', fulfillment_recorded: true, fulfillment_id: fulfillment.fulfillment.fulfillment_id, transaction_id: session.id, amount_total_minor: Number(session.amount_total), size: 'small', size_label: 'Founding Tile', w: 100, h: 100, x: p.x, y: p.y, title: altText, name: session.customer_details?.name || '', email: session.customer_details?.email || '', link: destinationUrl, source_image_url: imageUrl, mime: image.type, ext, created_at: new Date().toISOString(), paid_at: new Date().toISOString(), fulfilled_at: new Date().toISOString(), published_at: new Date().toISOString(), scarcity_bucket: 'FOUNDING_100', delivery_url: BASE + '/billboard/media/' + id, proof_url: BASE + '/api/billboard/order/' + market.toLowerCase() + '/' + id };
   state.ads.push(ad);
