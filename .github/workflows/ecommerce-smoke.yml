@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: BEC-PRIME
+        working-directory: public
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,26 +23,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
-
-      - name: Install runtime dependencies
-        run: npm ci --omit=dev
 
       - name: Assert committed customer storefront
         shell: bash
         run: |
           set -euo pipefail
-          test -f compiled/website/index.html
-          grep -q 'DreamMee' compiled/website/index.html
-          grep -q 'Find something good' compiled/website/index.html
-          grep -q 'id="new"' compiled/website/index.html
-          grep -q 'id="magic"' compiled/website/index.html
-          grep -q 'id="digital"' compiled/website/index.html
-          grep -q 'class="rail"' compiled/website/index.html
-          grep -q 'Pioneer product' compiled/website/index.html
-          grep -q 'href="/billboard"' compiled/website/index.html
-          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' compiled/website/index.html
+          test -s index.html
+          test -s billboard.html
+          test -s avatar.html
+          test -s server.js
+          grep -qi 'AVATAR ACCESSORIES' index.html
+          grep -qi 'DIGITAL BILLBOARDS' index.html
+          grep -qi 'Make your avatar yours' index.html
+          grep -qi 'Put your message on a billboard' index.html
+          grep -q 'href="/avatar"' index.html
+          grep -q 'href="/billboard"' index.html
+          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' index.html billboard.html avatar.html server.js
+          echo 'SOURCE_STOREFRONT=PASS'
 
       - name: Start runtime
         env:
@@ -57,9 +54,15 @@ jobs:
           done
           curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
           curl -fsS http://127.0.0.1:4173/api/products >/tmp/products.json
+          grep -qi 'AVATAR ACCESSORIES' /tmp/home.html
+          grep -qi 'DIGITAL BILLBOARDS' /tmp/home.html
+          grep -qi 'Make your avatar yours' /tmp/home.html
+          grep -qi 'Put your message on a billboard' /tmp/home.html
+          grep -q '"products"' /tmp/products.json
+          echo 'LOCAL_STOREFRONT_RUNTIME=PASS'
 
       - name: Run customer and commerce gate
-        run: node scripts/verify-storefront-ux.js
+        run: node ../BEC-PRIME/scripts/verify-storefront-ux.js
 
       - name: Dump runtime log on failure
         if: failure()
