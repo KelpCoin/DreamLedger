@@ -5,26 +5,42 @@ $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $proofRoot = "D:\BrownEyeCortex\DreamLedger\EconomicGate"
 New-Item -ItemType Directory -Force -Path $proofRoot | Out-Null
 $log = Join-Path $proofRoot "bootstrap-$stamp.log"
-Start-Transcript -Path $log -Force | Out-Null
+$transcriptStarted = $false
 try {
+  Start-Transcript -Path $log -Force | Out-Null
+  $transcriptStarted = $true
+
   if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     $RepoRoot = (Get-Location).Path
     if (-not (Test-Path (Join-Path $RepoRoot "BEC-PRIME\package.json"))) {
       $candidates = @("C:\DreamLedger","C:\KelpCoin\DreamLedger","$env:USERPROFILE\DreamLedger")
-      foreach ($c in $candidates) { if (Test-Path (Join-Path $c "BEC-PRIME\package.json")) { $RepoRoot=$c; break } }
+      foreach ($c in $candidates) {
+        if (Test-Path (Join-Path $c "BEC-PRIME\package.json")) { $RepoRoot=$c; break }
+      }
     }
   }
-  if (-not (Test-Path (Join-Path $RepoRoot "BEC-PRIME\package.json"))) { throw "DreamLedger repository not found. Run from repo root or pass -RepoRoot C:\path\to\DreamLedger." }
+  if ([string]::IsNullOrWhiteSpace($RepoRoot) -or -not (Test-Path (Join-Path $RepoRoot "BEC-PRIME\package.json"))) {
+    throw "DreamLedger repository not found. Run from repo root or pass -RepoRoot C:\path\to\DreamLedger."
+  }
   if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw "git is required" }
   if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "node is required" }
+
   Push-Location $RepoRoot
-  $sha = (git rev-parse HEAD).Trim()
-  $branch = (git branch --show-current).Trim()
+  $shaRaw = @(git rev-parse HEAD 2>$null)
+  if ($shaRaw.Count -lt 1 -or [string]::IsNullOrWhiteSpace([string]$shaRaw[0])) { throw "Unable to resolve git HEAD." }
+  $sha = ([string]$shaRaw[0]).Trim()
+
+  $branchRaw = @(git branch --show-current 2>$null)
+  $branch = if ($branchRaw.Count -gt 0) { ([string]$branchRaw[0]).Trim() } else { "" }
+  if ([string]::IsNullOrWhiteSpace($branch)) { $branch = "DETACHED-HEAD" }
+
   $dirty = @(git status --porcelain)
   $backup = "bec-pre-browning-$stamp"
-  if (-not (git branch --list $backup)) { git branch $backup $sha | Out-Null }
+  $existingBackup = @(git branch --list $backup)
+  if ($existingBackup.Count -eq 0) { git branch $backup $sha | Out-Null }
 
   $route = Join-Path $RepoRoot "BEC-PRIME\routes\mvpRoutes.js"
+  if (-not (Test-Path -LiteralPath $route -PathType Leaf)) { throw "Required route file missing: $route" }
   $routeBackup = Join-Path $proofRoot "mvpRoutes-before-$stamp.js"
   Copy-Item $route $routeBackup -Force
 
@@ -98,5 +114,7 @@ console.log(JSON.stringify({status:'PASS',cases,states:STATES},null,2));
   Write-Host "Route backup: $routeBackup"
   Write-Host "Proof: $proofPath"
   Write-Host "Verifier: node BEC-PRIME\scripts\verify-browning-economic-gate.js"
-  Pop-Location
-} finally { Stop-Transcript | Out-Null }
+} finally {
+  if ($transcriptStarted) { Stop-Transcript | Out-Null }
+  if ($null -ne (Get-Location)) { Pop-Location -ErrorAction SilentlyContinue }
+}
