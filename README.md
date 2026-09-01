@@ -1,21 +1,6 @@
-# 3000
+# DreamLedger
 
-3000 is a finite digital record.
-
-- 10,000 places
-- 1,000,000 pixels
-- NZ$50 founding placement
-- Permanent until 01.01.3000
-- Human approval before publication
-- Checkout: https://buy.stripe.com/00w9ATaXP3dzaar9EUdwc2r
-
-## Public doctrine
-
-The public product is 3000. One product, one price, one checkout, one allocation rule.
-
-No fabricated scarcity. No fabricated sales. Empty inventory remains empty until a real customer claims a place and the placement is approved.
-
-A checkout click is not revenue. Revenue is reported only after independent payment evidence exists.
+DreamLedger is a storefront for avatar accessories and digital billboard advertising.
 
 ## Security boundary
 
