@@ -6,16 +6,16 @@ on:
       OFFER_ID:
         description: "Approved live offer ID to sell"
         required: false
-        default: "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT"
+        default: "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001"
       EXPECTED_PRICE_NZD:
         description: "Expected price in NZD"
         required: false
-        default: "49"
+        default: "50"
 
 env:
   LIVE_URL: https://dreamledger.org
-  OFFER_ID: ${{ inputs.OFFER_ID || 'OFFER-BEC-PRIME-ARCHITECTURE-AUDIT' }}
-  EXPECTED_PRICE_NZD: ${{ inputs.EXPECTED_PRICE_NZD || '49' }}
+  OFFER_ID: ${{ inputs.OFFER_ID || 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001' }}
+  EXPECTED_PRICE_NZD: ${{ inputs.EXPECTED_PRICE_NZD || '50' }}
   CHECKOUT_ENDPOINT: https://dreamledger.org/api/offer-checkout/create
 
 jobs:
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload payment-gate proof
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: first-sale-shot-${{ github.run_id }}
           path: proof/
