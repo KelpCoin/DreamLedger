@@ -50,6 +50,14 @@ try {
     set('metadata[product_id]', product.id);
     set('metadata[silo]', 'mtg');
     set('metadata[commerce_version]', 'bec-mtg-direct-v2');
+    set('metadata[product_sku]', product.sku || product.id);
+    set('metadata[offer_id]', product.default_offer_id || product.id);
+    set('metadata[source]', 'mtg_direct');
+    set('payment_intent_data[metadata][product_id]', product.id);
+    set('payment_intent_data[metadata][product_sku]', product.sku || product.id);
+    set('payment_intent_data[metadata][offer_id]', product.default_offer_id || product.id);
+    set('payment_intent_data[metadata][silo]', 'mtg');
+    set('payment_intent_data[metadata][source]', 'mtg_direct');
     set('line_items[0][price_data][currency]', String(product.currency || 'nzd').toLowerCase());
     set('line_items[0][price_data][unit_amount]', mtgPriceMinor(product));
     set('line_items[0][price_data][product_data][name]', product.name);
