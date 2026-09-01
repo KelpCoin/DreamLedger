@@ -23,9 +23,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package.json
+          node-version: 24
 
       - name: Install runtime dependencies
         working-directory: BEC-PRIME
