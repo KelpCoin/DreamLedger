@@ -31,8 +31,8 @@ jobs:
           grep -q 'DISCOVER' public/index.html
           grep -q 'WORTH BUYING' public/index.html
           grep -q 'Digital products' public/index.html
-          grep -q 'Magic & collectibles' public/index.html
-          grep -q 'Games & experiments' public/index.html
+          grep -q 'Magic &amp; collectibles' public/index.html
+          grep -q 'Games &amp; experiments' public/index.html
           grep -q 'Digital media' public/index.html
           grep -q '/billboard' public/index.html
           grep -q "'GET /api/products':true" public/server.js
