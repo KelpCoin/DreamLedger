@@ -1,4 +1,4 @@
-name: DreamLedger Public Surface Gate
+name: DreamMeez Public Surface Gate
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
           grep -q "public-v6" public/server.js
           grep -q 'https://dreamledger.org/sitemap.xml' public/robots.txt
           grep -q 'https://dreamledger.org/' public/sitemap.xml
-          echo 'PASS: storefront v6 contract is present.'
+          echo 'PASS: DreamMeez storefront v6 contract is present.'
       - name: Scan public assets for internal or cross-silo leakage
         shell: bash
         run: |
@@ -84,7 +84,7 @@ jobs:
           cat > PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json <<'JSON'
           {
             "schema_version": "3.0",
-            "gate": "DREAMLEDGER_PUBLIC_SURFACE_V6",
+            "gate": "DREAMMEEZ_PUBLIC_SURFACE_V6",
             "status": "PASS",
             "public_root": "public",
             "checks": ["catalogue_first","multi_silo_navigation","billboard_contained","sitemap_present","robots_present","api_allowlist_present","language_boundary_passed","credential_scan_passed","server_syntax_passed"],
@@ -94,5 +94,5 @@ jobs:
       - name: Upload proof
         uses: actions/upload-artifact@v4
         with:
-          name: dreamledger-public-surface-proof
+          name: dreammeez-public-surface-proof
           path: PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json
