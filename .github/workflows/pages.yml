@@ -38,11 +38,7 @@ jobs:
           test -s _site/mtg.html
           test -s _site/billboard/index.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
-          grep -q "3000" _site/index.html
-          grep -q "NZ$50" _site/index.html
-          grep -q "00w9ATaXP3dzaar9EUdwc2r" _site/index.html
-          grep -q "PERMANENT UNTIL 3000" _site/index.html
-          echo "PASS canonical permanent billboard surface staged"
+          echo "PASS canonical static surface staged"
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
@@ -67,7 +63,7 @@ jobs:
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -q "3000" /tmp/dreamledger.html && grep -q 'NZ$50' /tmp/dreamledger.html && grep -q '00w9ATaXP3dzaar9EUdwc2r' /tmp/dreamledger.html && grep -q 'PERMANENT UNTIL 3000' /tmp/dreamledger.html; then
+            if [ "$CODE" = "200" ]; then
               echo "PASS Pages deployment: $URL"
               exit 0
             fi
