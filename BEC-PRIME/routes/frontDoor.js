@@ -115,6 +115,15 @@ async function stripeCheckout(listing) {
   params.set('metadata[listing_id]', listing.id);
   params.set('metadata[seller_id]', listing.seller_id);
   params.set('metadata[silo]', listing.category);
+  params.set('metadata[product_id]', listing.id);
+  params.set('metadata[product_sku]', listing.id);
+  params.set('metadata[offer_id]', listing.id);
+  params.set('metadata[source]', 'marketplace_listing');
+  params.set('payment_intent_data[metadata][product_id]', listing.id);
+  params.set('payment_intent_data[metadata][product_sku]', listing.id);
+  params.set('payment_intent_data[metadata][offer_id]', listing.id);
+  params.set('payment_intent_data[metadata][silo]', listing.category);
+  params.set('payment_intent_data[metadata][source]', 'marketplace_listing');
   params.set('success_url', PUBLIC_BASE + '/checkout/success?session_id={CHECKOUT_SESSION_ID}');
   params.set('cancel_url', PUBLIC_BASE + '/listing.html?id=' + encodeURIComponent(listing.id));
   const r = await fetch('https://api.stripe.com/v1/checkout/sessions', { method: 'POST', headers: { Authorization: 'Bearer ' + STRIPE_SECRET_KEY, 'Content-Type': 'application/x-www-form-urlencoded' }, body: params });
