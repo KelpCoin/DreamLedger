@@ -6,6 +6,9 @@ const { Readable } = require('stream');
 const billboard = require('../routes/billboard-v2');
 const autoFulfillment = require('./billboardAutoFulfillment');
 
+const OFFER_ID_CANONICAL = 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001';
+const OFFER_ID_LEGACY = 'DREAMLEDGER-BILLBOARD-FOUNDING-001';
+
 function verifyStripe(raw, signature, secret) {
   if (!signature || !secret) return false;
   const parts = String(signature).split(',');
@@ -36,7 +39,8 @@ if (!http.createServer.__dreamledgerBillboardWebhookWrapped) {
             const event = JSON.parse(raw);
             if (event?.type === 'checkout.session.completed') {
               const session = event.data.object;
-              if (session?.metadata?.offer_id === 'DREAMLEDGER-BILLBOARD-FOUNDING-001') {
+              const offerId = session?.metadata?.offer_id || session?.metadata?.offerId;
+              if (offerId === OFFER_ID_CANONICAL || offerId === OFFER_ID_LEGACY) {
                 const result = await autoFulfillment.fulfill(session, event.id);
                 if (result.handled) {
                   res.writeHead(200, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
