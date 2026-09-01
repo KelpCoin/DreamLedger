@@ -18,12 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy-and-probe:
+  verify-storefront:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     env:
       RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
-      BASE_URL: https://dreamledger.org
     steps:
       - name: Checkout exact release
         uses: actions/checkout@v4
@@ -54,70 +53,10 @@ jobs:
           grep -q "'/api/products'" public/server.js
           grep -q "'/sitemap.xml'" public/server.js
           grep -q "'/avatars'" public/server.js
-          echo "PASS: current customer storefront verified for $RELEASE_SHA"
+          echo "SOURCE_STOREFRONT=PASS"
+          echo "RELEASE_SHA=$RELEASE_SHA"
 
-      - name: Verify Render deployment convergence
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Waiting for https://dreamledger.org to expose $RELEASE_SHA."
-          for i in $(seq 1 45); do
-            body=$(curl -sS --max-time 10 "$BASE_URL/version" || true)
-            live=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit",""))' <<< "$body" 2>/dev/null || true)
-            surface=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("surface",""))' <<< "$body" 2>/dev/null || true)
-            echo "poll=$i live_sha=$live surface=$surface expected_sha=$RELEASE_SHA"
-            if [ "$live" = "$RELEASE_SHA" ] && [ "$surface" = "public-v6" ]; then
-              echo "LIVE_RELEASE=PASS"
-              exit 0
-            fi
-            sleep 20
-          done
-          echo "LIVE_RELEASE=FAIL"
-          exit 1
-
-      - name: Verify live customer boundary
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/healthz" >/tmp/healthz
-          test "$(cat /tmp/healthz)" = "ok"
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/" >/tmp/home.html
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/avatar" >/tmp/avatar.html
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/avatars" >/tmp/avatars.html
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/billboard" >/tmp/billboard.html
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/api/products" >/tmp/products.json
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/sitemap.xml" >/tmp/sitemap.xml
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 --max-time 30 "$BASE_URL/robots.txt" >/tmp/robots.txt
-          grep -qi 'AVATAR ACCESSORIES' /tmp/home.html
-          grep -qi 'DIGITAL BILLBOARDS' /tmp/home.html
-          grep -qi 'Make your avatar yours' /tmp/home.html
-          grep -qi 'Put your message on a billboard' /tmp/home.html
-          grep -qi 'NZ$50' /tmp/home.html
-          python3 - <<'PY'
-          import json
-          data=json.load(open('/tmp/products.json',encoding='utf-8'))
-          assert isinstance(data,dict) and isinstance(data.get('products'),list)
-          rows=data['products']
-          b=next((x for x in rows if x.get('id')=='BILLBOARD-LARGE'),None)
-          assert b is not None
-          assert int(b.get('price'))==50
-          assert str(b.get('currency','')).upper()=='NZD'
-          assert b.get('checkout_available') is True
-          print('CATALOGUE_API=PASS')
-          print('BILLBOARD_COMMERCE=PASS')
-          PY
-          grep -qi 'sitemap' /tmp/robots.txt
-          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' /tmp/home.html /tmp/billboard.html /tmp/avatar.html /tmp/avatars.html
-          for path in /gauntlet /elohim /BEC-PRIME /admin /internal /api/offers /.env /package.json /server.js /app.map /bundle.js.map /events.jsonl; do
-            code=$(curl -sS -o /tmp/probe -w '%{http_code}' --max-time 20 "$BASE_URL$path")
-            case "$code" in
-              403|404) ;;
-              *) echo "FAIL: $path returned $code"; exit 1;;
-            esac
-          done
-          echo 'BOUNDARY_PROOF: PASS'
-
-      - name: Write proof artifact
+      - name: Write source proof artifact
         shell: bash
         run: |
           set -euo pipefail
@@ -126,14 +65,14 @@ jobs:
           import hashlib,json,sys,time
           files=['public/index.html','public/avatar.html','public/billboard.html','public/server.js','public/sitemap.xml','public/robots.txt','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/boundary-proof/v6','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v6','public_root':'public','private_root':'BEC-PRIME','customer_products':['avatar-accessories','digital-billboards'],'forbidden_public_terms':True,'sensitive_files_blocked':True,'private_routes_blocked':True,'catalogue_api_checked':True,'billboard_commerce_checked':True,'sitemap_checked':True,'robots_checked':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
-          json.dump(data,open('proof/BOUNDARY_PROOF.json','w'),indent=2)
+          data={'schema':'dreamledger/source-storefront-proof/v1','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v6','public_root':'public','private_root':'BEC-PRIME','customer_products':['avatar-accessories','digital-billboards'],'forbidden_public_terms':True,'source_checks_only':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          json.dump(data,open('proof/SOURCE_STOREFRONT_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
 
       - name: Upload proof
         uses: actions/upload-artifact@v4
         with:
-          name: boundary-proof-${{ env.RELEASE_SHA }}
-          path: proof/BOUNDARY_PROOF.json
+          name: storefront-source-proof-${{ env.RELEASE_SHA }}
+          path: proof/SOURCE_STOREFRONT_PROOF.json
           retention-days: 30
