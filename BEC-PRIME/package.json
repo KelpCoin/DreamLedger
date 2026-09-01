@@ -3,11 +3,9 @@
   "version": "1.7.1",
   "description": "DreamLedger sovereign omni-commerce engine",
   "main": "start.js",
-  "engines": {
-    "node": ">=24 <25"
-  },
+  "engines": { "node": ">=24 <25" },
   "scripts": {
-    "start": "node -r ./lib/marketplacePreload.js -r ./lib/boundaryRuntimePreload.js -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js -r ./lib/liveRouteCompatibility.js start.js",
+    "start": "node -r ./lib/commercePaymentContractPreload.js -r ./lib/marketplacePreload.js -r ./lib/boundaryRuntimePreload.js -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js -r ./lib/liveRouteCompatibility.js start.js",
     "build": "npm install --omit=dev --no-audit --no-fund && node -e \"require('ajv'); console.log('AJV_RUNTIME_OK')\" && npm run compile",
     "test": "node --test scripts/test-mvp-policy.js",
     "smoke:dreamiez": "node scripts/smoke-dreamiez.js",
@@ -84,11 +82,6 @@
     "startup:verify": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-BECPrimeStartup.ps1",
     "startup:watchdog": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Watch-BECPrimeOrchestra.ps1"
   },
-  "dependencies": {
-    "ajv": "^8.17.1",
-    "qrcode": "^1.5.4"
-  },
-  "devDependencies": {
-    "playwright": "^1.55.0"
-  }
+  "dependencies": { "ajv": "^8.17.1", "qrcode": "^1.5.4" },
+  "devDependencies": { "playwright": "^1.55.0" }
 }
