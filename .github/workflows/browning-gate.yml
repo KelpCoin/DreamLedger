@@ -1,0 +1,36 @@
+name: Browning Economic Gate
+
+on:
+  push:
+    branches:
+      - bec-phase1-economic-gate
+  pull_request:
+    branches:
+      - main
+      - bec-phase1-economic-gate
+
+permissions:
+  contents: read
+
+jobs:
+  browning-verifier:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+
+      - name: Bootstrap Browning economic gate
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\BEC-PRIME\scripts\Bootstrap-BrowningEconomicGate.ps1
+
+      - name: Run Browning verifier
+        shell: powershell
+        run: node .\BEC-PRIME\scripts\verify-browning-economic-gate.js
