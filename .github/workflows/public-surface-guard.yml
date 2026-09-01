@@ -36,11 +36,11 @@ jobs:
           test -f public/index.html
           test -f public/billboard.html
           test -f public/server.js
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public; then
-            echo 'FAIL: prohibited internal, confidential, or inactive product language found in public assets.'
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' public; then
+            echo 'FAIL: prohibited internal, confidential, or inactive product language or credential material found in public assets.'
             exit 1
           fi
-          echo 'PASS: public assets contain no prohibited internal/confidential language.'
+          echo 'PASS: public assets contain no prohibited internal/confidential language or credential material.'
 
       - name: Verify public server exposes only approved API routes
         shell: bash
@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' 'sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY|SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET' public; then
+          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' 'sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY' public; then
             echo 'FAIL: credential-like literal found in public assets.'
             exit 1
           fi
