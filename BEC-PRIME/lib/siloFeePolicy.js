@@ -8,7 +8,7 @@ const POLICY = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8'));
 function normalize(value) { return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
 function resolve(silo) {
   const normalized = normalize(silo);
-  const aliases = { mtg: 'dreamledger-mtg' };
+  const aliases = { mtg: 'dreamledger-mtg', 'dreamledger-mtg': 'dreamledger-mtg' };
   const key = aliases[normalized] || normalized;
   const rules = POLICY.rules || {};
   const rule = rules[key] || rules.default;
