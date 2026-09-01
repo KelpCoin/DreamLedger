@@ -61,3 +61,6 @@ jobs:
             exit 1
           fi
           echo 'PASS: no obvious secret material found in public assets.'
+
+# Public server environment-variable names are configuration identifiers, not credential material.
+# Credential scans intentionally match secret-value formats, not STRIPE_* variable names.
