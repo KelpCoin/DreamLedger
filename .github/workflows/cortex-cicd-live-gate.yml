@@ -39,45 +39,56 @@ jobs:
           test -n "$sha"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
           echo "RELEASE_SHA=$sha"
-
       - name: Checkout exact release SHA
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.release.outputs.sha }}
           fetch-depth: 1
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
+          node-version: '24.14.1'
       - name: Install dependencies
         working-directory: BEC-PRIME
         shell: bash
         run: |
           set -euo pipefail
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
-
       - name: Compile canonical release
         working-directory: BEC-PRIME
         run: npm run compile
-
       - name: Verify silo boundaries
         working-directory: BEC-PRIME
         run: npm run verify:silos
-
       - name: Verify commercial integration
         working-directory: BEC-PRIME
         run: npm run verify:integration
-
       - name: Verify worker pool
         working-directory: BEC-PRIME
         run: npm run worker:verify
-
-      - name: Verify runtime
+      - name: Verify runtime and Stage 1 ledger proof
         working-directory: BEC-PRIME
         run: npm run runtime:verify
-
+      - name: Verify Stage 1 proof contract
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s RUN-PROOFS/STAGE-1-LOGIC-GATE.json
+          python3 - <<'PY'
+          import json
+          with open('RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f:
+              p = json.load(f)
+          if p.get('status') != 'PASS': raise SystemExit('STAGE1_STATUS=FAIL')
+          if p.get('mode') != 'SIMULATION': raise SystemExit('STAGE1_MODE=FAIL')
+          if not p.get('lifecycle_complete'): raise SystemExit('STAGE1_LIFECYCLE=FAIL')
+          h = str(p.get('ledger_head_hash') or '')
+          if len(h) != 64: raise SystemExit('STAGE1_LEDGER_HEAD_HASH=FAIL')
+          if p.get('revenue_claimed') is not False: raise SystemExit('REVENUE_CLAIM=FAIL')
+          if p.get('ra_000001_authorized') is not False: raise SystemExit('RA000001_AUTH=FAIL')
+          print('STAGE1_PROOF=PASS')
+          print('LEDGER_HEAD_HASH=' + h)
+          PY
       - name: Verify critical JavaScript syntax
         shell: bash
         run: |
@@ -87,7 +98,6 @@ jobs:
           node --check BEC-PRIME/routes/auth.js
           node --check BEC-PRIME/scripts/smoke-production.js
           node --check BEC-PRIME/scripts/smoke-front-door.js
-
       - name: Verify primary account pages
         shell: bash
         run: |
@@ -97,7 +107,6 @@ jobs:
             grep -q '/api/account/' "BEC-PRIME/compiled/website/$page"
           done
           ! grep -q '/api/dreamiez/account/login' BEC-PRIME/compiled/website/login.html
-
       - name: Verify approved commerce checkout SKU
         shell: bash
         run: |
@@ -106,7 +115,6 @@ jobs:
           grep -Eq '"price"[[:space:]]*:[[:space:]]*29' BEC-PRIME/catalog/offers/approved.json
           grep -q '8x28wQ0cwbn48CA3mM9oc00' BEC-PRIME/catalog/offers/approved.json
           echo 'APPROVED_COMMERCE_SKU=PASS'
-
       - name: Write CI proof
         env:
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
@@ -116,31 +124,29 @@ jobs:
           mkdir -p BEC-PRIME/RUN-PROOFS
           python3 - <<'PY'
           import json, os, time
+          with open('BEC-PRIME/RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f:
+              stage1 = json.load(f)
           data = {
-              'status': 'PASS',
-              'gate': 'CORTEX_CI',
-              'release_sha': os.environ['RELEASE_SHA'],
+              'status': 'PASS', 'gate': 'CORTEX_CI', 'release_sha': os.environ['RELEASE_SHA'],
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'checks': [
-                  'compile', 'silo-boundaries', 'commercial-integration',
-                  'worker-pool', 'runtime', 'syntax', 'primary-account-pages',
-                  'approved-commerce-sku'
-              ],
-              'approved_commerce_sku': 'OFFER-CMD-DIAG-29-NZD',
-              'approved_commerce_price_nzd': 29,
-              'public_actions': 'approval-required',
-              'financial_actions': 'approval-required'
+              'checks': ['compile','silo-boundaries','commercial-integration','worker-pool','runtime','stage-1-ledger-proof','syntax','primary-account-pages','approved-commerce-sku'],
+              'stage_1_status': stage1['status'], 'stage_1_mode': stage1['mode'],
+              'ledger_head_hash': stage1['ledger_head_hash'], 'event_count': stage1['event_count'],
+              'lifecycle_complete': stage1['lifecycle_complete'], 'approved_commerce_sku': 'OFFER-CMD-DIAG-29-NZD',
+              'approved_commerce_price_nzd': 29, 'public_actions': 'approval-required', 'financial_actions': 'approval-required',
+              'ra_000001_authorized': False, 'revenue_claimed': False
           }
           with open('BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json', 'w', encoding='utf-8') as f:
               json.dump(data, f, indent=2)
           print(json.dumps(data, indent=2))
           PY
-
       - name: Upload CI proof
         uses: actions/upload-artifact@v4
         with:
           name: cortex-ci-proof-${{ steps.release.outputs.sha }}
-          path: BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json
+          path: |
+            BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json
+            BEC-PRIME/RUN-PROOFS/STAGE-1-LOGIC-GATE.json
           if-no-files-found: error
           retention-days: 30
 
@@ -162,60 +168,37 @@ jobs:
             body=$(curl -sS --max-time 10 "$BASE_URL/version" || true)
             live=$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit", ""))' <<< "$body" 2>/dev/null || true)
             echo "poll=$i live_sha=$live expected_sha=$EXPECTED_SHA"
-            if [ "$live" = "$EXPECTED_SHA" ]; then
-              echo "LIVE_SHA_MATCH=PASS"
-              exit 0
-            fi
+            if [ "$live" = "$EXPECTED_SHA" ]; then echo "LIVE_SHA_MATCH=PASS"; exit 0; fi
             sleep 20
           done
           echo "LIVE_SHA_MATCH=FAIL"
           exit 1
-
       - name: Verify required live surfaces
         shell: bash
         run: |
           set -euo pipefail
-          check() {
-            path="$1"
-            expected="$2"
-            code=$(curl -sS -o /tmp/response --retry 3 --retry-delay 2 --max-time 15 -w '%{http_code}' "$BASE_URL$path")
-            echo "$path HTTP=$code"
-            test "$code" = "$expected"
-          }
+          check() { path="$1"; expected="$2"; code=$(curl -sS -o /tmp/response --retry 3 --retry-delay 2 --max-time 15 -w '%{http_code}' "$BASE_URL$path"); echo "$path HTTP=$code"; test "$code" = "$expected"; }
           check /healthz 200
           check / 200
           check /mtg 200
           check /billboard 200
           check /api/products 200
           check /version 200
-
       - name: Verify checkout surface without purchasing
         shell: bash
         run: |
           set -euo pipefail
-          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
-            -X POST "$BASE_URL/api/offer-checkout/create" \
-            -H 'Content-Type: application/json' \
-            --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD","silo":"mtg"}')
+          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 -X POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD","silo":"mtg"}')
           echo "$response" > /tmp/checkout.json
           python3 - <<'PY'
           import json
-          with open('/tmp/checkout.json', encoding='utf-8') as f:
-              data=json.load(f)
-          url=str(data.get('url',''))
-          sku=str(data.get('product_id',''))
-          amount=data.get('amount_nzd')
-          if not url.startswith('https://') or 'stripe.com' not in url:
-              raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
-          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
-              raise SystemExit(f'CHECKOUT_SKU=FAIL:{sku}')
-          if amount != 29:
-              raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
-          print('CHECKOUT_URL_PRESENT=PASS')
-          print('CHECKOUT_SKU=PASS')
-          print('CHECKOUT_AMOUNT=PASS')
+          with open('/tmp/checkout.json', encoding='utf-8') as f: data=json.load(f)
+          url=str(data.get('url','')); sku=str(data.get('product_id','')); amount=data.get('amount_nzd')
+          if not url.startswith('https://') or 'stripe.com' not in url: raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
+          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001': raise SystemExit(f'CHECKOUT_SKU=FAIL:{sku}')
+          if amount != 29: raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
+          print('CHECKOUT_URL_PRESENT=PASS'); print('CHECKOUT_SKU=PASS'); print('CHECKOUT_AMOUNT=PASS')
           PY
-
       - name: Write production proof
         shell: bash
         run: |
@@ -223,25 +206,10 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
-          data = {
-              'status': 'PASS',
-              'gate': 'CORTEX_CD',
-              'release_sha': os.environ['EXPECTED_SHA'],
-              'target': os.environ['BASE_URL'],
-              'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'live_sha_verified': True,
-              'surfaces_verified': ['healthz','version','mtg','billboard','api/products'],
-              'checkout_surface_verified': True,
-              'checkout_sku_verified': 'COMMANDER-DECK-DIAGNOSTIC-001',
-              'checkout_amount_nzd_verified': 29,
-              'purchase_executed': False,
-              'revenue_claimed': False
-          }
-          with open('proof/cortex-production-proof.json', 'w', encoding='utf-8') as f:
-              json.dump(data, f, indent=2)
-          print(json.dumps(data, indent=2))
+          data={'status':'PASS','gate':'CORTEX_CD','release_sha':os.environ['EXPECTED_SHA'],'target':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'live_sha_verified':True,'surfaces_verified':['healthz','version','mtg','billboard','api/products'],'checkout_surface_verified':True,'checkout_sku_verified':'COMMANDER-DECK-DIAGNOSTIC-001','checkout_amount_nzd_verified':29,'purchase_executed':False,'revenue_claimed':False}
+          with open('proof/cortex-production-proof.json','w',encoding='utf-8') as f: json.dump(data,f,indent=2)
+          print(json.dumps(data,indent=2))
           PY
-
       - name: Upload production proof
         uses: actions/upload-artifact@v4
         with:
