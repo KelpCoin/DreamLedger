@@ -15,6 +15,18 @@ const OFFERS = {
     amount_nzd_cents: 40000,
     silo: 'mtg',
   },
+  'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001': {
+    sku: 'DL-BILLBOARD-100X100-3000-001',
+    product_id: 'DREAMLEDGER-BILLBOARD-FOUNDING-001',
+    name: 'DreamLedger Founding Tile',
+    amount_nzd_cents: 5000,
+    silo: 'dreamledger',
+    custom_fields: [
+      { key: 'tile_alt_text', type: 'text', label: 'Billboard title', required: true },
+      { key: 'destination_url', type: 'text', label: 'Destination URL', required: true },
+      { key: 'tile_image_url', type: 'text', label: 'Public image URL', required: true },
+    ],
+  },
 };
 
 function json(data: unknown, status = 200): Response {
@@ -56,6 +68,16 @@ export default async function handler(request: Request): Promise<Response> {
   form.set('metadata[product_id]', offer.product_id);
   form.set('metadata[silo]', offer.silo);
   form.set('metadata[sku]', offer.sku);
+
+  if ('custom_fields' in offer && Array.isArray(offer.custom_fields)) {
+    offer.custom_fields.forEach((field, index) => {
+      form.set(`custom_fields[${index}][key]`, field.key);
+      form.set(`custom_fields[${index}][type]`, field.type);
+      form.set(`custom_fields[${index}][label][type]`, 'custom');
+      form.set(`custom_fields[${index}][label][custom]`, field.label);
+      form.set(`custom_fields[${index}][optional]`, field.required ? 'false' : 'true');
+    });
+  }
 
   const response = await fetch(STRIPE_API, {
     method: 'POST',
