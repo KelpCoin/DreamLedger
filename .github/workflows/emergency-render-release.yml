@@ -61,8 +61,8 @@ jobs:
             RENDER_API_KEY="$RENDER_API_KEY" "$RENDER_BIN" deploys create "$RENDER_SERVICE_ID" --commit "$RELEASE_SHA" --wait --confirm --output json \
               | tee /tmp/render-deploy.json
           else
-            echo 'Missing Render deployment credentials' >&2
-            exit 1
+            echo 'No Render API/deploy-hook credentials are configured; relying on the linked service native auto-deploy.'
+            echo 'NATIVE_AUTO_DEPLOY_FALLBACK=TRUE'
           fi
 
       - name: Wait for live SHA
@@ -88,10 +88,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in /version /healthz /api/products /billboard /mtg /sitemap.xml /robots.txt; do
+          for path in /version /healthz /api/products /api/offers /billboard /mtg /sitemap.xml /robots.txt; do
             code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
             echo "$code $path"
             test "$code" = 200
           done
-          grep -Fq 'NZ$50' /tmp/body 2>/dev/null || true
+          curl --fail --silent --show-error --max-time 20 "$BASE_URL/api/offers" > /tmp/offers.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('/tmp/offers.json','utf8'));
+          const offers=Array.isArray(x)?x:(Array.isArray(x.offers)?x.offers:[]);
+          const o=offers.find(v=>v.offer_id==='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001');
+          if(!o) throw new Error('LIVE_FOUNDING_TILE_MISSING');
+          if(Number(o.price)!==50 || String(o.currency).toUpperCase()!=='NZD') throw new Error('LIVE_FOUNDING_TILE_PRICE_OR_CURRENCY_MISMATCH');
+          if(o.checkout_available!==true) throw new Error('LIVE_FOUNDING_TILE_NOT_CHECKOUT_READY');
+          console.log('LIVE_FOUNDING_TILE=PASS');
+          NODE
           echo 'EMERGENCY_RELEASE_GATE=PASS'
