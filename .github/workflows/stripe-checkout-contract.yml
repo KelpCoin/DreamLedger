@@ -1,0 +1,31 @@
+name: Stripe Checkout Contract
+
+on:
+  push:
+    paths:
+      - 'BEC-PRIME/**'
+      - 'api/**'
+      - 'scripts/**'
+      - '.github/workflows/stripe-checkout-contract.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/**'
+      - 'api/**'
+      - 'scripts/**'
+      - '.github/workflows/stripe-checkout-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  stripe-checkout-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify Stripe Checkout producers
+        run: node BEC-PRIME/scripts/verify-stripe-checkout-contract.js
+      - name: Syntax check verifier
+        run: node --check BEC-PRIME/scripts/verify-stripe-checkout-contract.js
