@@ -17,5 +17,9 @@ jobs:
           node-version: 24
       - name: Verify Checkout producers
         run: node scripts/verify-checkout-metadata-contract.js
+      - name: Verify Stripe webhook contract
+        run: node scripts/verify-stripe-webhook-contract.js
+      - name: Syntax check webhook
+        run: node --check routes/mvpRoutes.js
       - name: Syntax check payment patch
         run: node --check lib/commercePaymentContractPreload.js
