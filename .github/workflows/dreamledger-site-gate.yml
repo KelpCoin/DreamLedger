@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: dreammeez-public-surface-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   public-surface:
     runs-on: ubuntu-latest
