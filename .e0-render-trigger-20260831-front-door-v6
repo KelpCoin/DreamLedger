@@ -1,2 +1,3 @@
 DreamLedger storefront v6 deployment trigger.
-Release: d057d287ce7696b00d97cbc4f1504eccd035e5d6
+Release: 2fd92287ffd5a5db15226bdcb3c131a3f3e6a286
+Purpose: force production redeploy so the configured public root serves the current main/public/index.html.
