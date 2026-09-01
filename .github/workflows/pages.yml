@@ -38,7 +38,9 @@ jobs:
           test -s _site/mtg.html
           test -s _site/billboard/index.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
-          echo "PASS canonical static surface staged"
+          grep -q "dreamledger.org" _site/index.html
+          grep -q "https://dreamledger.org/" _site/index.html
+          echo "PASS canonical static redirect surface staged"
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
@@ -63,7 +65,7 @@ jobs:
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ]; then
+            if [ "$CODE" = "200" ] && grep -q "dreamledger.org" /tmp/dreamledger.html; then
               echo "PASS Pages deployment: $URL"
               exit 0
             fi
