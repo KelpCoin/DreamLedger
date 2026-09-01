@@ -30,19 +30,31 @@ jobs:
           p = Path('commerce/marketing/ACTIVE-PAYMENT-LINKS.json')
           data = json.loads(p.read_text(encoding='utf-8'))
           failures = []
+          checked = 0
           for item in data.get('links', []):
-              url = item['url']
+              url = item.get('url')
+              status = item.get('status', '')
+              if not url:
+                  if status == 'OPTIONAL_ITEM_ON_STANDARD_LINK':
+                      print(f"SKIP {item.get('sku')} no standalone payment URL")
+                      continue
+                  failures.append(f"{item.get('sku')} missing URL")
+                  continue
+              if not str(url).startswith('https://'):
+                  failures.append(f"{item.get('sku')} invalid URL")
+                  continue
               result = subprocess.run(
                   ['curl', '-L', '-sS', '-o', '/dev/null', '-w', '%{http_code}', '--max-time', '20', url],
                   capture_output=True, text=True
               )
               code = result.stdout.strip()
+              checked += 1
               print(f"{item['sku']} {url} HTTP {code}")
               if code not in {'200', '301', '302', '303', '307', '308'}:
                   failures.append(f"{item['sku']} HTTP {code}")
           if failures:
               raise SystemExit('PAYMENT_LINK_FAILURE: ' + '; '.join(failures))
-          print('PASS: all active payment links are reachable.')
+          print(f'PASS: all {checked} standalone payment links are reachable.')
           PY
 
       - name: Probe DreamLedger public domain
@@ -87,7 +99,7 @@ jobs:
               'sha': '${{ github.sha }}',
               'run_id': '${{ github.run_id }}',
               'verified_revenue_nzd': source.get('verified_revenue_nzd', 0),
-              'payment_links_checked': len(source.get('links', [])),
+              'payment_links_checked': sum(1 for x in source.get('links', []) if x.get('url')),
               'truth_rule': source.get('truth_rule')
           }
           Path('proof/revenue-sentinel-proof.json').write_text(json.dumps(proof, indent=2) + '\n', encoding='utf-8')
