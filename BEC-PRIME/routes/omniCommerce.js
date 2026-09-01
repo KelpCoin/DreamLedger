@@ -131,7 +131,7 @@ async function createCartCheckout(cart) {
     'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id),
     'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1',
     'metadata[cart_id]': cart.id,
-    'metadata[commerce_version]': 'omni-v1',
+    'metadata[commerce_version]': 'omni-v1', 'metadata[product_id]': cart.items.length === 1 ? cart.items[0].product_id : cart.id, 'metadata[product_sku]': cart.items.length === 1 ? cart.items[0].product_id : cart.id, 'metadata[offer_id]': cart.items.length === 1 ? cart.items[0].product_id : cart.id, 'metadata[silo]': cart.items.length === 1 ? cart.items[0].silo : 'omni', 'metadata[source]': 'omni_cart', 'payment_intent_data[metadata][product_id]': cart.items.length === 1 ? cart.items[0].product_id : cart.id, 'payment_intent_data[metadata][product_sku]': cart.items.length === 1 ? cart.items[0].product_id : cart.id, 'payment_intent_data[metadata][offer_id]': cart.items.length === 1 ? cart.items[0].product_id : cart.id, 'payment_intent_data[metadata][silo]': cart.items.length === 1 ? cart.items[0].silo : 'omni', 'payment_intent_data[metadata][source]': 'omni_cart',
     'metadata[platform_fee_bps]': String(PLATFORM_FEE_BPS),
     'metadata[platform_fee_amount]': String(platformFee),
     'metadata[gross_amount]': String(gross)
