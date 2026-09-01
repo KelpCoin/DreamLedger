@@ -82,7 +82,7 @@ jobs:
               dreamiez_e2e: true,
               meta_gauntlet: meta.verdict === 'PASS',
               production_assets: true,
-              commander_canonical_price_cents: commander.price === 1500,
+              commander_canonical_price_nzd: commander.price === 29,
               commander_currency_nzd: commander.currency === 'nzd',
               offer_catalog_present: Array.isArray(offers.offers)
             }
