@@ -6,6 +6,7 @@ $proofRoot = "D:\BrownEyeCortex\DreamLedger\EconomicGate"
 New-Item -ItemType Directory -Force -Path $proofRoot | Out-Null
 $log = Join-Path $proofRoot "bootstrap-$stamp.log"
 $transcriptStarted = $false
+$locationPushed = $false
 try {
   Start-Transcript -Path $log -Force | Out-Null
   $transcriptStarted = $true
@@ -26,6 +27,7 @@ try {
   if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "node is required" }
 
   Push-Location $RepoRoot
+  $locationPushed = $true
   $shaRaw = @(git rev-parse HEAD 2>$null)
   if ($shaRaw.Count -lt 1 -or [string]::IsNullOrWhiteSpace([string]$shaRaw[0])) { throw "Unable to resolve git HEAD." }
   $sha = ([string]$shaRaw[0]).Trim()
@@ -115,6 +117,6 @@ console.log(JSON.stringify({status:'PASS',cases,states:STATES},null,2));
   Write-Host "Proof: $proofPath"
   Write-Host "Verifier: node BEC-PRIME\scripts\verify-browning-economic-gate.js"
 } finally {
+  if ($locationPushed) { Pop-Location -ErrorAction SilentlyContinue }
   if ($transcriptStarted) { Stop-Transcript | Out-Null }
-  if ($null -ne (Get-Location)) { Pop-Location -ErrorAction SilentlyContinue }
 }
