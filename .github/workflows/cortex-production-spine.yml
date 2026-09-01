@@ -22,18 +22,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: BEC-PRIME/package-lock.json
-
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm ci --ignore-scripts
-
       - name: Compile canonical Cortex surfaces
         id: compile
         working-directory: BEC-PRIME
@@ -45,7 +42,6 @@ jobs:
           cat ../cortex-compile.log
           echo "COMPILE_EXIT_CODE=$RC"
           exit $RC
-
       - name: Upload compile diagnostic
         if: always()
         uses: actions/upload-artifact@v4
@@ -53,66 +49,90 @@ jobs:
           name: cortex-compile-diagnostic-${{ github.sha }}
           path: cortex-compile.log
           if-no-files-found: error
-
       - name: Run unit and policy tests
         working-directory: BEC-PRIME
         run: npm test
-
       - name: Verify silo boundaries
         working-directory: BEC-PRIME
         run: npm run verify:silos
-
       - name: Verify commercial integration
         working-directory: BEC-PRIME
         run: npm run verify:integration
-
       - name: Verify production contract
         working-directory: BEC-PRIME
         run: npm run verify:production-contract
-
       - name: Verify front door
         working-directory: BEC-PRIME
         run: npm run smoke:front-door
-
       - name: Verify revenue ledger contract
         working-directory: BEC-PRIME
         run: npm run smoke:revenue-ledger
-
       - name: Verify autonomy contract
         working-directory: BEC-PRIME
         run: npm run smoke:autonomy
-
+      - name: Verify runtime and Stage 1 ledger proof
+        working-directory: BEC-PRIME
+        run: npm run runtime:verify
+      - name: Verify Stage 1 proof contract
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s RUN-PROOFS/STAGE-1-LOGIC-GATE.json
+          python3 - <<'PY'
+          import json
+          with open('RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f: p=json.load(f)
+          if p.get('status') != 'PASS': raise SystemExit('STAGE1_STATUS=FAIL')
+          if p.get('mode') != 'SIMULATION': raise SystemExit('STAGE1_MODE=FAIL')
+          if not p.get('lifecycle_complete'): raise SystemExit('STAGE1_LIFECYCLE=FAIL')
+          if len(str(p.get('ledger_head_hash') or '')) != 64: raise SystemExit('STAGE1_HASH=FAIL')
+          if p.get('revenue_claimed') is not False: raise SystemExit('REVENUE_CLAIM=FAIL')
+          if p.get('ra_000001_authorized') is not False: raise SystemExit('RA000001_AUTH=FAIL')
+          print('STAGE1_PROOF=PASS')
+          print('LEDGER_HEAD_HASH=' + str(p['ledger_head_hash']))
+          PY
       - name: Write proof artifact
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p proof/cortex
-          cat > proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json <<JSON
-          {
-            "schema": "BROWNEYE-CORTEX/PRODUCTION-SPINE/v1",
-            "status": "PASS",
-            "execution": "GitHub-hosted-runner",
-            "pc_required": false,
-            "compile": "PASS",
-            "tests": "PASS",
-            "silo_boundaries": "PASS",
-            "commercial_integration": "PASS",
-            "production_contract": "PASS",
-            "front_door": "PASS",
-            "revenue_ledger": "PASS",
-            "autonomy_contract": "PASS",
-            "external_payment_claimed": false,
-            "external_payment_verified": false,
-            "public_posting_performed": false,
-            "next_gate": "external_buyer_payment"
+          python3 - <<'PY'
+          import json, os, time
+          with open('BEC-PRIME/RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f: stage1=json.load(f)
+          data = {
+            'schema': 'BROWNEYE-CORTEX/PRODUCTION-SPINE/v2',
+            'status': 'PASS',
+            'execution': 'GitHub-hosted-runner',
+            'commit': os.environ.get('GITHUB_SHA'),
+            'run_id': os.environ.get('GITHUB_RUN_ID'),
+            'pc_required': False,
+            'compile': 'PASS',
+            'tests': 'PASS',
+            'silo_boundaries': 'PASS',
+            'commercial_integration': 'PASS',
+            'production_contract': 'PASS',
+            'front_door': 'PASS',
+            'revenue_ledger': 'PASS',
+            'autonomy_contract': 'PASS',
+            'runtime': 'PASS',
+            'stage_1': stage1,
+            'external_payment_claimed': False,
+            'external_payment_verified': False,
+            'public_posting_performed': False,
+            'next_gate': 'external_buyer_payment',
+            'created_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
           }
-          JSON
-          cat proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json
-
+          with open('proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json','w',encoding='utf-8') as f: json.dump(data,f,indent=2)
+          print(json.dumps(data,indent=2))
+          PY
       - name: Upload proof artifact
         uses: actions/upload-artifact@v4
         with:
           name: cortex-production-spine-proof
-          path: proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json
+          path: |
+            proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json
+            BEC-PRIME/RUN-PROOFS/STAGE-1-LOGIC-GATE.json
+          if-no-files-found: error
+          retention-days: 30
 
-# Triggered from main to verify the newly installed spine without a local PC.
+# Triggered from main to verify the installed spine without a local PC.
