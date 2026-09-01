@@ -82,6 +82,10 @@ async function appendEvidence({ principalId, agentId, action, authority, outcome
   const rpc = await db('POST', 'rpc/dreamledger_append_evidence', '', { p_event_id: eventId, p_timestamp: timestamp, p_principal_id: principalId || null, p_agent_id: agentId || null, p_action: action, p_authority: authority || null, p_outcome: outcome }, 'return=representation');
   return Array.isArray(rpc) ? rpc[0] : rpc;
 }
+async function stripeEventAlreadyRecorded(eventId) {
+  const rows = await db('GET', 'dreamledger_evidence', '?select=event_id&event_id=eq.' + encodeURIComponent('stripe_' + eventId) + '&limit=1');
+  return Array.isArray(rows) && rows.length > 0;
+}
 async function createCheckout(req, res) {
   const user = await principal(req);
   if (!user) return json(res, 401, { error: 'Authentication required' });
@@ -100,8 +104,16 @@ async function createCheckout(req, res) {
     'line_items[0][quantity]': 1,
     'metadata[account_id]': user.id,
     'metadata[product_id]': p.id,
+    'metadata[product_sku]': p.sku || p.id,
+    'metadata[offer_id]': p.default_offer_id || p.id,
     'metadata[silo]': p.silo || 'dreamledger',
-    'metadata[commerce_version]': 'dreamledger-mvp-v1'
+    'metadata[source]': 'mvp_checkout',
+    'metadata[commerce_version]': 'dreamledger-mvp-v2',
+    'payment_intent_data[metadata][product_id]': p.id,
+    'payment_intent_data[metadata][product_sku]': p.sku || p.id,
+    'payment_intent_data[metadata][offer_id]': p.default_offer_id || p.id,
+    'payment_intent_data[metadata][silo]': p.silo || 'dreamledger',
+    'payment_intent_data[metadata][source]': 'mvp_checkout'
   }, 'dreamledger-mvp-checkout-' + user.id + '-' + p.id + '-' + crypto.randomUUID());
   await db('POST', 'dreamledger_orders', '', { id: 'ord_' + crypto.randomBytes(12).toString('hex'), principal_id: user.id, checkout_session_id: session.id, product_id: p.id, amount_total: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), payment_status: 'pending', customer_email: user.email }, 'return=minimal');
   return json(res, 200, { ok: true, order_pending: true, session_id: session.id, checkout_url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() });
@@ -110,24 +122,36 @@ async function stripeWebhook(req, res) {
   const parsed = await body(req, 5000000);
   stripeProof.verifyStripeSignature(parsed.raw, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET || '');
   const event = parsed.value;
+  if (!event.id) return json(res, 400, { error: 'Stripe event id is required' });
+  if (await stripeEventAlreadyRecorded(event.id)) return json(res, 200, { received: true, already_recorded: true, event_id: event.id });
   if (event.type !== 'checkout.session.completed') return json(res, 200, { received: true, ignored: true });
   const session = event?.data?.object;
   if (!session || session.payment_status !== 'paid') return json(res, 200, { received: true, ignored: true, reason: 'payment_not_paid' });
-  const accountId = cleanQuery(session.metadata?.account_id);
-  const productId = cleanQuery(session.metadata?.product_id);
-  const p = checkoutableProduct(productId);
-  if (!accountId || !p || String(session.currency).toLowerCase() !== String(p.currency || 'nzd').toLowerCase() || Number(session.amount_total) !== Number(p.price)) return json(res, 400, { error: 'Payment failed canonical server-side validation' });
+  const accountId = cleanQuery(session.metadata?.account_id) || null;
+  const productId = cleanQuery(session.metadata?.product_id || session.metadata?.product_sku);
+  const p = product(productId);
+  if (!p || p.status !== 'published') return json(res, 400, { error: 'Payment references unknown or unpublished product' });
+  const sessionCurrency = String(session.currency || '').toLowerCase();
+  const productCurrency = String(p.currency || 'nzd').toLowerCase();
+  const sessionAmount = Number(session.amount_total);
+  const productAmount = Number(p.price);
+  if (!Number.isFinite(sessionAmount) || sessionCurrency !== productCurrency || sessionAmount !== productAmount) return json(res, 400, { error: 'Payment failed canonical server-side validation' });
   const existing = await db('GET', 'dreamledger_orders', '?select=*&checkout_session_id=eq.' + encodeURIComponent(session.id) + '&limit=1');
   let order = Array.isArray(existing) && existing[0] ? existing[0] : null;
   if (!order) {
-    const rows = await db('POST', 'dreamledger_orders', '', { id: 'ord_' + crypto.randomBytes(12).toString('hex'), principal_id: accountId, checkout_session_id: session.id, product_id: p.id, amount_total: Number(session.amount_total), currency: String(session.currency).toLowerCase(), payment_status: 'paid', stripe_payment_intent: session.payment_intent || null, customer_email: session.customer_details?.email || null, paid_at: new Date().toISOString() });
+    const rows = await db('POST', 'dreamledger_orders', '', { id: 'ord_' + crypto.randomBytes(12).toString('hex'), principal_id: accountId, checkout_session_id: session.id, product_id: p.id, amount_total: sessionAmount, currency: sessionCurrency, payment_status: 'paid', stripe_payment_intent: session.payment_intent || null, customer_email: session.customer_details?.email || null, paid_at: new Date().toISOString() });
     order = Array.isArray(rows) ? rows[0] : rows;
   } else if (order.payment_status !== 'paid') {
     const rows = await db('PATCH', 'dreamledger_orders', '?id=eq.' + encodeURIComponent(order.id), { payment_status: 'paid', stripe_payment_intent: session.payment_intent || null, paid_at: new Date().toISOString() });
     order = Array.isArray(rows) ? rows[0] : order;
   }
-  const evidence = await appendEvidence({ principalId: accountId, action: 'STRIPE_PAYMENT', authority: { source: 'stripe_webhook', checkout_session_id: session.id }, outcome: { allowed: true, status: 'PAID', order_id: order.id, amount_total: Number(session.amount_total), currency: String(session.currency).toLowerCase(), product_id: p.id }, eventId: 'stripe_' + event.id });
-  return json(res, 200, { received: true, order_id: order.id, evidence_event_id: evidence?.event_id || ('stripe_' + event.id) });
+  try {
+    const evidence = await appendEvidence({ principalId: accountId, action: 'STRIPE_PAYMENT', authority: { source: 'stripe_webhook', stripe_event_id: event.id, checkout_session_id: session.id }, outcome: { allowed: true, status: 'PAID', order_id: order.id, amount_total: sessionAmount, currency: sessionCurrency, product_id: p.id }, eventId: 'stripe_' + event.id });
+    return json(res, 200, { received: true, order_id: order.id, evidence_event_id: evidence?.event_id || ('stripe_' + event.id) });
+  } catch (err) {
+    if (err?.detail?.code === '23505' || /duplicate|unique/i.test(String(err?.message || ''))) return json(res, 200, { received: true, already_recorded: true, event_id: event.id });
+    throw err;
+  }
 }
 async function getOrders(req, res) {
   const user = await principal(req); if (!user) return json(res, 401, { error: 'Authentication required' });
