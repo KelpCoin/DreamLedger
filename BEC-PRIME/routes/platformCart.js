@@ -15,6 +15,8 @@ const PROOFS = path.resolve(process.env.PROOF_DATA_DIR || path.join(ROOT, 'data'
 const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+const CANONICAL_BILLBOARD_PRODUCT = 'DREAMLEDGER-BILLBOARD-FOUNDING-001';
+const CANONICAL_BILLBOARD_OFFER = 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001';
 
 function read(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function write(file, value) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n', 'utf8'); }
@@ -60,7 +62,25 @@ function resolveCheckoutFee(silo, amountMinor) {
 }
 async function createProductCheckout(productId, silo) {
   const p = product(productId);
-  if (!p || p.status !== 'published' || Number(p.inventory || 0) < 1 || p.commercial_truth?.approval_required !== false) throw new Error('Product is not checkoutable');
+  if (!p || p.status !== 'published') throw new Error('Product is not checkoutable');
+
+  if (p.id === CANONICAL_BILLBOARD_PRODUCT && p.commercial_truth?.payment_link && p.commercial_truth?.payment_link_id) {
+    return {
+      ok: true,
+      offer_id: CANONICAL_BILLBOARD_OFFER,
+      product_id: p.id,
+      checkout_url: p.commercial_truth.payment_link,
+      url: p.commercial_truth.payment_link,
+      payment_link_id: p.commercial_truth.payment_link_id,
+      amount_major: Number(p.price) / 100,
+      amount_minor: Number(p.price),
+      currency: String(p.currency || 'nzd').toLowerCase(),
+      mode: 'canonical_payment_link',
+      commission_bps: 0
+    };
+  }
+
+  if (Number(p.inventory || 0) < 1 || p.commercial_truth?.approval_required !== false) throw new Error('Product is not checkoutable');
   const fee = resolveCheckoutFee(p.silo || silo || 'default', Number(p.price));
   if (fee.platform_fee_bps !== 0 && !p.connected_account_id) throw new Error('Non-MTG checkout requires a Stripe Connect connected_account_id');
 
