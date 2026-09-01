@@ -3,5 +3,5 @@
   "private":true,
   "version":"1.0.0",
   "engines":{"node":">=24 <25"},
-  "scripts":{"prestart":"node patch-dreammeez-brand.js","start":"node server.js"}
+  "scripts":{"start":"node -r ./brand-preload.js server.js"}
 }
