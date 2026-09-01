@@ -11,14 +11,10 @@ on:
       - completed
   workflow_dispatch:
     inputs:
-      PRODUCT_ID:
-        description: "Optional live MTG product/SKU to verify; blank enumerates published MTG products"
-        required: false
-        default: ""
       OFFER_ID:
-        description: "Optional live MTG offer ID to verify; blank selects a matching published MTG offer"
+        description: "Approved live DreamLedger offer ID to verify"
         required: false
-        default: ""
+        default: "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001"
       CREATE_CHECKOUT:
         description: "Create one Stripe Checkout doorway after verification"
         required: false
@@ -31,11 +27,11 @@ permissions:
   contents: read
 
 env:
-  FIRST_SALE_PRODUCT_ID: ${{ inputs.PRODUCT_ID || '' }}
-  FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || '' }}
+  FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001' }}
   CREATE_CHECKOUT: ${{ inputs.CREATE_CHECKOUT || 'false' }}
   BASE_URL: "https://dreamledger.org"
-  TARGET_SILO: "mtg"
+  TARGET_SILO: "dreamledger"
+  EXPECTED_PRICE_NZD: "50"
 
 jobs:
   first-sale-gate:
@@ -48,34 +44,22 @@ jobs:
         with:
           ref: main
 
-      - name: Verify published MTG catalog
+      - name: Verify canonical Founding Tile offer
         shell: bash
         run: |
           set -euo pipefail
           node <<'NODE'
           const fs = require('fs');
-          const path = require('path');
-          const dir = 'BEC-PRIME/catalog/products';
-          const selected = process.env.FIRST_SALE_PRODUCT_ID;
-          const targetSilo = process.env.TARGET_SILO;
-          const files = fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort();
-          const products = files.map(f => ({ file: f, data: JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')) }));
-          const published = products.filter(({data}) => String(data.silo || '').toLowerCase() === targetSilo && String(data.status || '').toLowerCase() === 'published' && Number(data.inventory || 0) > 0);
-          if (!published.length) throw new Error('NO_PUBLISHED_MTG_PRODUCTS');
-          if (selected && !published.some(({data}) => data.id === selected)) throw new Error(`SELECTED_MTG_PRODUCT_NOT_PUBLISHED: ${selected}`);
-          for (const {file, data: p} of published) {
-            const price = Number(p.price);
-            const currency = String(p.currency || '').toUpperCase();
-            if (!p.id || !p.name || !Number.isInteger(price) || price <= 0 || currency !== 'NZD') {
-              throw new Error(`INVALID_PUBLISHED_MTG_PRODUCT: ${file}`);
-            }
-            if (!p.commercial_truth || p.commercial_truth.approval_required !== false) {
-              throw new Error(`UNAPPROVED_PUBLISHED_MTG_PRODUCT: ${file}`);
-            }
-            if (!p.evidence || !p.evidence.status) throw new Error(`MISSING_EVIDENCE_STATE: ${file}`);
-            console.log(`PUBLISHED_MTG_READY ${p.id} ${price} ${currency}`);
-          }
-          console.log(`PUBLISHED_MTG_COUNT ${published.length}`);
+          const x = JSON.parse(fs.readFileSync('BEC-PRIME/catalog/offers/approved.json', 'utf8'));
+          const offer = (x.approved || []).find(o => o.offer_id === process.env.FIRST_SALE_OFFER_ID);
+          if (!offer) throw new Error('CANONICAL_FOUNDING_TILE_OFFER_MISSING');
+          if (offer.silo !== process.env.TARGET_SILO) throw new Error('WRONG_FOUNDING_TILE_SILO');
+          if (Number(offer.price) !== Number(process.env.EXPECTED_PRICE_NZD)) throw new Error('WRONG_FOUNDING_TILE_PRICE');
+          if (String(offer.currency || '').toUpperCase() !== 'NZD') throw new Error('WRONG_FOUNDING_TILE_CURRENCY');
+          if (offer.payment_link_status !== 'ACTIVE_LIVEMODE') throw new Error('FOUNDING_TILE_PAYMENT_LINK_NOT_ACTIVE');
+          if (!offer.payment_link_url) throw new Error('FOUNDING_TILE_PAYMENT_LINK_MISSING');
+          fs.writeFileSync('approved-offer.json', JSON.stringify(offer, null, 2) + '\n');
+          console.log('CANONICAL_FOUNDING_TILE=PASS');
           NODE
 
       - name: Verify live health
@@ -84,7 +68,7 @@ jobs:
           set -euo pipefail
           curl --fail --silent --show-error --max-time 90 "$BASE_URL/healthz" | tee health.json
 
-      - name: Enumerate live MTG checkout-ready offers
+      - name: Verify live Founding Tile offer
         shell: bash
         run: |
           set -euo pipefail
@@ -92,16 +76,14 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const x = JSON.parse(fs.readFileSync('offers.json', 'utf8'));
-          const offers = Array.isArray(x) ? x : (x.offers || x.data || []);
-          const productId = process.env.FIRST_SALE_PRODUCT_ID;
-          const offerId = process.env.FIRST_SALE_OFFER_ID;
-          const targetSilo = process.env.TARGET_SILO;
-          const ready = offers.filter(o => String(o.silo || '').toLowerCase() === targetSilo && o.checkout_available === true && Number(o.price) > 0 && String(o.currency || '').toUpperCase() === 'NZD');
-          const matches = ready.filter(o => (!productId || o.product_id === productId || o.sku === productId || o.id === productId || o.offer_id === productId) && (!offerId || o.offer_id === offerId || o.id === offerId));
-          if (!matches.length) throw new Error('NO_MATCHING_MTG_CHECKOUT_READY_OFFER');
-          console.log(`LIVE_MTG_CHECKOUT_READY_COUNT ${ready.length}`);
-          console.log('SELECTED_LIVE_MTG_OFFER', JSON.stringify(matches[0]));
-          fs.writeFileSync('selected-offer.json', JSON.stringify(matches[0], null, 2) + '\n');
+          const offers = Array.isArray(x) ? x : (Array.isArray(x.offers) ? x.offers : (Array.isArray(x.data) ? x.data : []));
+          const offer = offers.find(o => (o.offer_id === process.env.FIRST_SALE_OFFER_ID || o.id === process.env.FIRST_SALE_OFFER_ID) && String(o.silo || '').toLowerCase() === process.env.TARGET_SILO);
+          if (!offer) throw new Error('LIVE_FOUNDING_TILE_OFFER_MISSING');
+          if (offer.checkout_available !== true) throw new Error('LIVE_FOUNDING_TILE_NOT_CHECKOUT_READY');
+          if (Number(offer.price) !== Number(process.env.EXPECTED_PRICE_NZD)) throw new Error('LIVE_FOUNDING_TILE_WRONG_PRICE');
+          if (String(offer.currency || '').toUpperCase() !== 'NZD') throw new Error('LIVE_FOUNDING_TILE_WRONG_CURRENCY');
+          fs.writeFileSync('selected-offer.json', JSON.stringify(offer, null, 2) + '\n');
+          console.log('LIVE_FOUNDING_TILE=PASS');
           NODE
 
       - name: Create one checkout doorway
@@ -109,8 +91,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          OFFER_ID="$(node -p "require('./selected-offer.json').offer_id || require('./selected-offer.json').id || require('./selected-offer.json').product_id || ''")"
-          test -n "$OFFER_ID"
+          OFFER_ID="$FIRST_SALE_OFFER_ID"
           curl --fail --silent --show-error --max-time 60 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
@@ -119,7 +100,7 @@ jobs:
           node <<'NODE'
           const x = require('./checkout.json');
           const u = x.url || x.checkout_url;
-          if (!u || !/^https:\/\/checkout\.stripe\.com\//.test(u)) throw new Error('real Stripe Checkout URL not returned');
+          if (!u || !/^https:\/\/(checkout\.stripe\.com|buy\.stripe\.com)\//.test(u)) throw new Error('real Stripe checkout doorway not returned');
           console.log('CHECKOUT_READY', u.replace(/[^/]+$/, '[session]'));
           NODE
 
@@ -129,6 +110,7 @@ jobs:
         with:
           name: first-sale-gate-proof-${{ github.run_id }}
           path: |
+            approved-offer.json
             health.json
             offers.json
             selected-offer.json
