@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: cortex-production-spine
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   verify:
@@ -126,13 +126,12 @@ jobs:
           print(json.dumps(data,indent=2))
           PY
       - name: Upload proof artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cortex-production-spine-proof
+          name: cortex-production-spine-proof-${{ github.run_id }}
           path: |
             proof/cortex/CORTEX_PRODUCTION_SPINE_PROOF.json
             BEC-PRIME/RUN-PROOFS/STAGE-1-LOGIC-GATE.json
           if-no-files-found: error
           retention-days: 30
-
-# Triggered from main to verify the installed spine without a local PC.
