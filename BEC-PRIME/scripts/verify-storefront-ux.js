@@ -18,83 +18,67 @@ function get(pathname) {
   });
 }
 
-function fail(message) {
-  console.error('STOREFRONT_UX_GATE_FAILED: ' + message);
-  process.exitCode = 1;
-}
-
 async function main() {
   const home = await get('/');
-  if (home.status !== 200) fail('homepage status ' + home.status);
+  if (home.status !== 200) throw new Error('homepage status ' + home.status);
 
   const html = home.body;
   const required = [
     ['DreamLedger', /DreamLedger/i],
-    ['DreamMee', /DreamMee/i],
-    ['catalogue headline', /FIND SOMETHING/i],
-    ['catalogue prompt', /Swipe sideways/i],
-    ['new rail', /id="new"/i],
-    ['magic rail', /id="magic"/i],
-    ['digital section', /id="digital"/i],
-    ['horizontal rails', /class="rail"/i],
-    ['billboard module', /Pioneer product/i],
-    ['billboard route', /href="\/billboard"/i]
+    ['avatar accessories headline', /AVATAR ACCESSORIES/i],
+    ['digital billboards headline', /DIGITAL BILLBOARDS/i],
+    ['avatar outcome', /Make your avatar yours/i],
+    ['billboard outcome', /Put your message on a billboard/i],
+    ['avatar route', /href="\/avatar"/i],
+    ['billboard route', /href="\/billboard"/i],
+    ['billboard price', /NZ\$50/i]
   ];
 
   for (const [label, pattern] of required) {
-    if (!pattern.test(html)) fail('missing ' + label + ' on homepage');
+    if (!pattern.test(html)) throw new Error('missing ' + label + ' on homepage');
   }
 
   const forbidden = [
-    'Gauntlet',
-    'Economic Court',
-    'Truth Oracle',
-    'ELOHIM',
-    'BrownEye Cortex',
-    'BEC-PRIME',
-    'AMPLISSA',
-    'COLLECTORSCOAST',
-    'SUPABASE_SERVICE_ROLE',
-    'STRIPE_SECRET',
-    'STRIPE_WEBHOOK',
-    'RA_000001',
-    'agentic commerce',
-    'capital authority'
+    'Gauntlet', 'Economic Court', 'Truth Oracle', 'ELOHIM',
+    'BrownEye Cortex', 'BEC-PRIME', 'AMPLISSA', 'COLLECTORSCOAST',
+    'SUPABASE_SERVICE_ROLE', 'STRIPE_SECRET', 'STRIPE_WEBHOOK',
+    'RA_000001', 'agentic commerce', 'capital authority', 'Dream Ledger Deck'
   ];
 
   for (const token of forbidden) {
-    if (html.toLowerCase().includes(token.toLowerCase())) fail('forbidden public copy: ' + token);
+    if (html.toLowerCase().includes(token.toLowerCase())) {
+      throw new Error('forbidden public copy: ' + token);
+    }
   }
 
   const products = await get('/api/products');
-  if (products.status !== 200) fail('/api/products status ' + products.status);
+  if (products.status !== 200) throw new Error('/api/products status ' + products.status);
 
-  let parsed = null;
+  let parsed;
   try {
     parsed = JSON.parse(products.body);
   } catch (error) {
-    fail('/api/products returned invalid JSON: ' + error.message);
+    throw new Error('/api/products returned invalid JSON: ' + error.message);
   }
 
-  if (parsed && !Array.isArray(parsed.products)) {
-    fail('/api/products JSON has no products[] array');
+  if (!parsed || !Array.isArray(parsed.products)) {
+    throw new Error('/api/products JSON has no products[] array');
   }
 
   const proof = {
-    status: process.exitCode ? 'FAIL' : 'PASS',
+    status: 'PASS',
     timestamp_utc: new Date().toISOString(),
     homepage_status: home.status,
     products_status: products.status,
     required_markers: required.map(([label]) => label),
     forbidden_public_copy_checked: forbidden,
-    products_json_valid: parsed !== null
+    products_json_valid: true
   };
 
   console.log(JSON.stringify(proof, null, 2));
-  if (process.exitCode) process.exit(1);
 }
 
 main().catch(error => {
-  console.error(error.stack || error.message);
+  console.error('STOREFRONT_UX_GATE_FAILED: ' + (error.stack || error.message));
   process.exit(1);
 });
