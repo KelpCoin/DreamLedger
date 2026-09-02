@@ -1,0 +1,31 @@
+name: Ping Sitemap
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify sitemap is live
+        run: |
+          set -euo pipefail
+          code=$(curl -L -s -o sitemap.xml -w '%{http_code}' https://dreamledger.org/sitemap.xml)
+          echo "sitemap_http_status=$code"
+          test "$code" = "200"
+          grep -q '<urlset' sitemap.xml
+          grep -q 'https://dreamledger.org/' sitemap.xml
+      - name: Ping Google
+        run: |
+          code=$(curl -L -s -o /dev/null -w '%{http_code}' "https://www.google.com/ping?sitemap=https://dreamledger.org/sitemap.xml")
+          echo "google_ping_http_status=$code"
+          test "$code" -ge 200
+          test "$code" -lt 400
+      - name: Ping Bing
+        run: |
+          code=$(curl -L -s -o /dev/null -w '%{http_code}' "https://www.bing.com/ping?sitemap=https://dreamledger.org/sitemap.xml")
+          echo "bing_ping_http_status=$code"
+          test "$code" -ge 200
+          test "$code" -lt 400
