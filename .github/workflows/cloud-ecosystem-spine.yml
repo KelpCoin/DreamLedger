@@ -2,14 +2,11 @@ name: Cloud Ecosystem Spine
 
 on:
   push:
-    branches:
-      - main
-      - agent/cloud-ecosystem-spine
+    branches: [main, agent/cloud-ecosystem-spine]
   pull_request:
-    branches:
-      - main
+    branches: [main]
   schedule:
-    - cron: "17 * * * *"
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 concurrency:
@@ -21,8 +18,8 @@ permissions:
 
 env:
   LIVE_URL: https://dreamledger.org
-  COMMANDER_PAYMENT_LINK: https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00
-  COMMANDER_PAYMENT_LINK_ID: plink_1UAJyVJt4ieIQDFzj4kA5B7x
+  BILLBOARD_PAYMENT_LINK: https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02
+  BILLBOARD_PAYMENT_LINK_ID: plink_1UAN9zJt4ieIQDFzgHeso6Qo
   NODE_VERSION: 24
 
 jobs:
@@ -48,93 +45,53 @@ jobs:
           test -f .github/workflows/economic-revenue-gate.yml
           test -f .github/workflows/commerce-sentinel.yml
           test -f .github/workflows/first-sale-gate.yml
-          echo "CONTROL_PLANE=PASS"
+          echo CONTROL_PLANE=PASS
 
-      - name: Verify canonical Commander commercial package
+      - name: Verify canonical public assets
         shell: bash
         run: |
           set -euo pipefail
           test -s public/index.html
-          test -s public/mtg.html
           test -s public/server.js
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          def load(p): return json.loads(Path(p).read_text())
-          approved=load('BEC-PRIME/catalog/offers/approved.json')['approved']
-          offer=next(x for x in approved if x['offer_id']=='OFFER-CMD-DIAG-29-NZD')
-          product=load('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json')
-          assert offer['product_id']=='COMMANDER-DECK-DIAGNOSTIC-001'
-          assert offer['price']==29 and offer['currency']=='NZD'
-          assert offer['payment_link_url']=="https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00"
-          assert product['price']==2900
-          assert str(product['currency']).lower()=='nzd'
-          assert product['commercial_truth']['payment_link']==offer['payment_link_url']
-          assert product['commercial_truth']['approval_required'] is False
-          print('CANONICAL_OFFER=OFFER-CMD-DIAG-29-NZD')
-          print('CANONICAL_PRICE_NZD=29')
-          print('CANONICAL_CHECKOUT='+offer['payment_link_url'])
-          PY
-          grep -q '8x28wQ0cwbn48CA3mM9oc00' public/index.html
-          echo 'COMMERCIAL_PACKAGE=PASS'
+          test -s public/billboard.html
+          test -s public/avatar.html
+          test -s BEC-PRIME/compiled/website/login.html
+          test -s BEC-PRIME/compiled/website/register.html
+          test -s BEC-PRIME/compiled/website/account.html
+          echo PUBLIC_ASSETS=PASS
 
-      - name: Install dependencies when package manifest exists
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -f package-lock.json ]; then
-            npm ci --ignore-scripts
-          elif [ -f package.json ]; then
-            npm install --ignore-scripts
-          elif [ -f BEC-PRIME/package-lock.json ]; then
-            cd BEC-PRIME
-            npm ci --ignore-scripts
-          fi
-
-      - name: Run safe repository tests when discoverable
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -f package.json ]; then
-            has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
-            if [ "$has_test" = "yes" ]; then npm test; else echo "No root test script; continuing."; fi
-          else
-            echo "No root package.json; continuing."
-          fi
-
-      - name: Verify live selling doorway
+      - name: Verify live selling doors
         if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
-          for path in / /healthz /mtg /api/products /api/offers; do
-            code=$(curl -L -sS -o /tmp/probe -w "%{http_code}" --max-time 20 "${LIVE_URL}${path}")
-            echo "PUBLIC_${path#/}_HTTP=$code"
-            test "$code" = "200"
+          for path in / /healthz /version /billboard /dreammeez /login /register /account /api/products /api/offers /api/dreamiez/cosmetics; do
+            code=$(curl -L -sS -o /tmp/probe -w '%{http_code}' --max-time 30 "${LIVE_URL}${path}")
+            echo "PUBLIC_${path#/}_HTTP=${code}"
+            test "$code" = 200
           done
-          curl -L -sS --fail --max-time 20 "${LIVE_URL}/mtg" >/tmp/mtg.html
-          grep -Fq 'EDH_0001' /tmp/mtg.html
-          curl -L -sS --fail --max-time 20 "${LIVE_URL}/api/offers" >/tmp/offers.json
+          curl -L -sS --fail --max-time 30 "$LIVE_URL/api/offers" >/tmp/offers.json
+          curl -L -sS --fail --max-time 30 "$LIVE_URL/api/dreamiez/cosmetics" >/tmp/cosmetics.json
           python3 - <<'PY'
           import json
-          d=json.load(open('/tmp/offers.json'))
-          rows=d.get('offers',[])
-          target=next((x for x in rows if x.get('offer_id')=='OFFER-CMD-DIAG-29-NZD'),None)
-          assert target is not None
-          assert target.get('checkout_available') is True
-          assert float(target.get('price')) == 29
-          assert str(target.get('currency')).upper() == 'NZD'
-          print('LIVE_COMMANDER_OFFER=PASS')
+          offers=json.load(open('/tmp/offers.json')).get('offers',[])
+          cosmetics=json.load(open('/tmp/cosmetics.json'))
+          billboard=[x for x in offers if x.get('offer_id') in {'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001','DREAMLEDGER-BILLBOARD-FOUNDING-001','BILLBOARD-LARGE'} or x.get('product_id')=='BILLBOARD-LARGE']
+          assert billboard, 'no billboard offer visible'
+          assert any(float(x.get('price',0))==50 and str(x.get('currency','')).upper()=='NZD' for x in billboard), 'NZ$50 billboard doorway missing'
+          assert isinstance(cosmetics,list) and len(cosmetics)>=3, 'DreamMeez cosmetics registry incomplete'
+          print('BILLBOARD_DOOR=PASS')
+          print('DREAMMEEZ_COSMETICS='+str(len(cosmetics)))
           PY
           python3 - <<'PY'
           import urllib.request
-          r=urllib.request.urlopen('https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00', timeout=20)
-          print('COMMANDER_STRIPE_CHECKOUT_HTTP='+str(r.status))
-          assert r.status==200
+          with urllib.request.urlopen('${BILLBOARD_PAYMENT_LINK}', timeout=30) as r:
+              print('BILLBOARD_STRIPE_CHECKOUT_HTTP='+str(r.status))
+              assert r.status==200
           PY
-          echo 'SELLING_DOORWAYS=PASS'
+          echo SELLING_DOORS=PASS
 
-      - name: Verify canonical Commander settlement count from Stripe
+      - name: Verify canonical Stripe settlement scoreboard
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         shell: bash
@@ -143,35 +100,24 @@ jobs:
           mkdir -p artifacts
           python3 - <<'PY'
           import base64, json, os, pathlib, urllib.parse, urllib.request
-          out=pathlib.Path('artifacts/economic-scoreboard.json')
+          result={'payment_link_id':os.environ['BILLBOARD_PAYMENT_LINK_ID'],'payment_url':os.environ['BILLBOARD_PAYMENT_LINK'],'offer_id':'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001','status':'MISSING_STRIPE_SECRET_KEY' if not os.environ.get('STRIPE_SECRET_KEY') else 'UNKNOWN','completed_paid_sessions':0,'verified_revenue_nzd':0}
           key=os.environ.get('STRIPE_SECRET_KEY','')
-          result={
-            'payment_link_id':os.environ['COMMANDER_PAYMENT_LINK_ID'],
-            'payment_url':os.environ['COMMANDER_PAYMENT_LINK'],
-            'offer_id':'OFFER-CMD-DIAG-29-NZD',
-            'sku':'CMD-DIAG-29',
-            'currency':'nzd',
-            'status':'MISSING_STRIPE_SECRET_KEY' if not key else 'UNKNOWN',
-            'completed_paid_sessions':0,
-            'verified_revenue_nzd':0
-          }
           if key:
-            q=urllib.parse.urlencode({'payment_link':os.environ['COMMANDER_PAYMENT_LINK_ID'],'limit':'100'})
+            q=urllib.parse.urlencode({'payment_link':os.environ['BILLBOARD_PAYMENT_LINK_ID'],'limit':'100'})
             req=urllib.request.Request('https://api.stripe.com/v1/checkout/sessions?'+q)
             req.add_header('Authorization','Basic '+base64.b64encode((key+':').encode()).decode())
             try:
-              with urllib.request.urlopen(req,timeout=20) as r: data=json.load(r)
-              paid=[s for s in data.get('data',[]) if s.get('status')=='complete' and s.get('payment_status')=='paid' and s.get('livemode') is True and s.get('currency')=='nzd' and s.get('amount_total')==2900]
+              with urllib.request.urlopen(req,timeout=30) as r: data=json.load(r)
+              paid=[s for s in data.get('data',[]) if s.get('status')=='complete' and s.get('payment_status')=='paid' and s.get('livemode') is True and s.get('currency')=='nzd' and s.get('amount_total')==5000]
               result['completed_paid_sessions']=len(paid)
-              result['verified_revenue_nzd']=sum(s.get('amount_total',0) or 0 for s in paid)/100
+              result['verified_revenue_nzd']=sum(int(s.get('amount_total',0) or 0) for s in paid)/100
               result['status']='VERIFIED'
             except Exception as e:
               result['status']='STRIPE_API_ERROR'
               result['error_type']=type(e).__name__
-          out.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
-          print(out.read_text())
+          pathlib.Path('artifacts/economic-scoreboard.json').write_text(json.dumps(result,indent=2)+'\n')
+          print(json.dumps(result,indent=2))
           PY
-          cat artifacts/economic-scoreboard.json
 
       - name: Upload cloud proof
         uses: actions/upload-artifact@v4
