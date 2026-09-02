@@ -46,11 +46,14 @@ jobs:
           test -s RUN-PROOFS/STAGE-1-LOGIC-GATE.json
           python3 - <<'PY'
           import json
+          import re
           with open('RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f: p=json.load(f)
           if p.get('status') != 'PASS': raise SystemExit('STAGE1_STATUS=FAIL')
           if p.get('mode') != 'SIMULATION': raise SystemExit('STAGE1_MODE=FAIL')
           if not p.get('lifecycle_complete'): raise SystemExit('STAGE1_LIFECYCLE=FAIL')
-          if len(str(p.get('ledger_head_hash') or '')) != 64: raise SystemExit('STAGE1_HASH=FAIL')
+          h = str(p.get('ledger_head_hash') or '')
+          h = h[7:] if h.startswith('sha256:') else h
+          if not re.fullmatch(r'[a-f0-9]{64}', h): raise SystemExit('STAGE1_HASH=FAIL')
           print('STAGE1_PROOF=PASS')
           print('LEDGER_HEAD_HASH=' + str(p['ledger_head_hash']))
           PY
