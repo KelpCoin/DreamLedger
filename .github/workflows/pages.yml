@@ -15,7 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  LIVE_URL: https://dreamledger.org
+  LIVE_URL: https://dreamledger1.onrender.com
+  CANONICAL_URL: https://dreamledger.org
 
 jobs:
   build:
@@ -23,26 +24,58 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Stage canonical static surface
+
+      - name: Stage Render bridge
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site
           mkdir -p _site
-          cp index.html _site/index.html
-          cp mtg.html _site/mtg.html
           cp CNAME _site/CNAME
-          mkdir -p _site/billboard
-          cp billboard/index.html _site/billboard/index.html
+
+          make_redirect() {
+            local dir="$1"
+            local target="$2"
+            mkdir -p "_site/${dir}"
+            cat > "_site/${dir}/index.html" <<EOF
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <meta http-equiv="refresh" content="0;url=${LIVE_URL}${target}">
+            <meta name="robots" content="noindex">
+            <title>DreamLedger</title>
+            <script>location.replace('${LIVE_URL}${target}');</script>
+          </head>
+          <body><p>Opening the live DreamLedger storefront…</p><p><a href="${LIVE_URL}${target}">Continue</a></p></body>
+          </html>
+          EOF
+          }
+
+          make_redirect "" "/"
+          make_redirect "billboard" "/billboard"
+          make_redirect "dreammeez" "/dreammeez"
+          make_redirect "dreamiez" "/dreamiez"
+          make_redirect "avatar" "/avatar"
+          make_redirect "avatars" "/avatars"
+          make_redirect "login" "/login"
+          make_redirect "register" "/register"
+          make_redirect "account" "/account"
+          make_redirect "mtg" "/mtg"
+          make_redirect "version" "/version"
+          make_redirect "healthz" "/healthz"
+
           test -s _site/index.html
-          test -s _site/mtg.html
           test -s _site/billboard/index.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
-          grep -q "dreamledger.org" _site/index.html
-          grep -q "https://dreamledger.org/" _site/index.html
-          echo "PASS canonical static redirect surface staged"
+          grep -q "${LIVE_URL}" _site/index.html
+          grep -q "${LIVE_URL}/billboard" _site/billboard/index.html
+          echo "PASS GitHub Pages is a deterministic bridge to the live Render storefront"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -58,19 +91,20 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify deployed page
+
+      - name: Verify deployed bridge
         shell: bash
         run: |
           set -euo pipefail
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -q "dreamledger.org" /tmp/dreamledger.html; then
-              echo "PASS Pages deployment: $URL"
+            if [ "$CODE" = "200" ] && grep -q "Dream Ledger 3000" /tmp/dreamledger.html; then
+              echo "PASS Pages bridge reaches live Render storefront: $URL -> ${LIVE_URL}"
               exit 0
             fi
-            echo "Waiting for Pages convergence: attempt $attempt/12 HTTP=$CODE"
+            echo "Waiting for bridge convergence: attempt $attempt/12 HTTP=$CODE"
             sleep 10
           done
-          echo "FAIL Pages deployment verification"
+          echo "FAIL Pages bridge verification"
           exit 1
