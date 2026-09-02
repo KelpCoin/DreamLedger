@@ -74,13 +74,13 @@
       "sku": "DL-DOOH-CAMPAIGN-500",
       "silo": "core",
       "name": "DreamLedger Verified DOOH Campaign",
-      "description": "One-time verified digital-out-of-home campaign package with payment-linked delivery and proof-of-delivery evidence.",
+      "description": "One-time verified digital-out-of-home campaign package. Checkout is gated until the delivery contract is verified.",
       "price": 500,
       "currency": "nzd",
       "inventory": 1000,
       "inventory_type": "service",
-      "status": "published",
-      "checkout_available": true,
+      "status": "gated",
+      "checkout_available": false,
       "checkout_url": "https://buy.stripe.com/28E4gAf7q4YG6us5uU9oc05"
     }
   ]
