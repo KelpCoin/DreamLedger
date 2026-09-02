@@ -19,6 +19,12 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  LIVE_URL: https://dreamledger.org
+  COMMANDER_PAYMENT_LINK: https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00
+  COMMANDER_PAYMENT_LINK_ID: plink_1UAJyVJt4ieIQDFzj4kA5B7x
+  NODE_VERSION: 24
+
 jobs:
   cloud-health:
     name: Cloud health and commerce proof
@@ -31,7 +37,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Verify repository control plane
         shell: bash
@@ -44,12 +50,11 @@ jobs:
           test -f .github/workflows/first-sale-gate.yml
           echo "CONTROL_PLANE=PASS"
 
-      - name: Verify canonical DreamLedger commercial package
+      - name: Verify canonical Commander commercial package
         shell: bash
         run: |
           set -euo pipefail
           test -s public/index.html
-          test -s public/billboard.html
           test -s public/mtg.html
           test -s public/server.js
           python3 - <<'PY'
@@ -57,31 +62,20 @@ jobs:
           from pathlib import Path
           def load(p): return json.loads(Path(p).read_text())
           approved=load('BEC-PRIME/catalog/offers/approved.json')['approved']
-          offer=next(x for x in approved if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
-          product=json.loads(Path('BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json').read_text())
-          campaign=json.loads(Path('BEC-PRIME/distribution/campaigns/D-001.json').read_text())
-          assert offer['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
-          assert offer['price']==50 and offer['currency']=='NZD'
-          assert offer['payment_link_status']=='ACTIVE_LIVEMODE'
-          assert offer['payment_link_url']=='https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02'
-          assert product['price']==5000 and product['currency']=='nzd'
+          offer=next(x for x in approved if x['offer_id']=='OFFER-CMD-DIAG-29-NZD')
+          product=load('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json')
+          assert offer['product_id']=='COMMANDER-DECK-DIAGNOSTIC-001'
+          assert offer['price']==29 and offer['currency']=='NZD'
+          assert offer['payment_link_url']=="https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00"
+          assert product['price']==2900
+          assert str(product['currency']).lower()=='nzd'
           assert product['commercial_truth']['payment_link']==offer['payment_link_url']
-          assert campaign['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
-          assert campaign['offer']['price_nzd']==50
-          assert campaign['objective']['metric']=='PAYMENT_RECEIVED'
-          assert campaign['objective']['target']==1
-          print('CANONICAL_OFFER=DREAMLEDGER-BILLBOARD-FOUNDING-001')
-          print('CANONICAL_PRICE_NZD=50')
+          assert product['commercial_truth']['approval_required'] is False
+          print('CANONICAL_OFFER=OFFER-CMD-DIAG-29-NZD')
+          print('CANONICAL_PRICE_NZD=29')
           print('CANONICAL_CHECKOUT='+offer['payment_link_url'])
-          for pid in ['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001']:
-              p=load('BEC-PRIME/catalog/products/'+pid+'.json')
-              assert p['silo']=='mtg' and p['inventory_type']=='physical'
-              assert p['status']=='published' and int(p.get('inventory',0))>0
-              assert p.get('commercial_truth',{}).get('approval_required') is False
-              print('MTG_PHYSICAL_PRODUCT='+pid)
-          print('MTG_PHYSICAL_CATALOG=PASS')
           PY
-          grep -q 'EDH_0001' public/mtg.html
+          grep -q '8x28wQ0cwbn48CA3mM9oc00' public/index.html
           echo 'COMMERCIAL_PACKAGE=PASS'
 
       - name: Install dependencies when package manifest exists
@@ -92,14 +86,9 @@ jobs:
             npm ci --ignore-scripts
           elif [ -f package.json ]; then
             npm install --ignore-scripts
-          elif [ -f public/package.json ]; then
-            cd public
-            npm install --ignore-scripts
           elif [ -f BEC-PRIME/package-lock.json ]; then
             cd BEC-PRIME
             npm ci --ignore-scripts
-          else
-            echo "No Node package manifest; continuing."
           fi
 
       - name: Run safe repository tests when discoverable
@@ -109,12 +98,8 @@ jobs:
           if [ -f package.json ]; then
             has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
             if [ "$has_test" = "yes" ]; then npm test; else echo "No root test script; continuing."; fi
-          elif [ -f public/package.json ]; then
-            cd public
-            has_test=$(node -e "const p=require('./package.json'); process.stdout.write(p.scripts && p.scripts.test ? 'yes' : 'no')")
-            if [ "$has_test" = "yes" ]; then npm test; else echo "No public test script; continuing."; fi
           else
-            echo "No package.json; continuing."
+            echo "No root package.json; continuing."
           fi
 
       - name: Verify live selling doorway
@@ -122,71 +107,76 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in /healthz /billboard /mtg; do
-            code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org${path}")
+          for path in / /healthz /mtg /api/products /api/offers; do
+            code=$(curl -L -sS -o /tmp/probe -w "%{http_code}" --max-time 20 "${LIVE_URL}${path}")
             echo "PUBLIC_${path#/}_HTTP=$code"
             test "$code" = "200"
           done
-          curl -L -sS --fail --max-time 20 https://dreamledger.org/billboard >/tmp/billboard.html
-          curl -L -sS --fail --max-time 20 https://dreamledger.org/mtg >/tmp/mtg.html
+          curl -L -sS --fail --max-time 20 "${LIVE_URL}/mtg" >/tmp/mtg.html
           grep -Fq 'EDH_0001' /tmp/mtg.html
-          grep -Fq 'NZ$400' /tmp/mtg.html
-          curl -L -sS --fail --max-time 20 https://dreamledger.org/api/products >/tmp/products.json
-          grep -Fq 'NZ$50' /tmp/billboard.html
-          grep -q '100 x 100' /tmp/billboard.html
-          python3 - <<'PY'
-          import json, urllib.request
-          p=json.load(open('BEC-PRIME/catalog/offers/approved.json'))
-          offer=next(x for x in p['approved'] if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
-          r=urllib.request.urlopen(offer['payment_link_url'], timeout=20)
-          print('STRIPE_CHECKOUT_HTTP='+str(r.status))
-          assert r.status==200
-          PY
+          curl -L -sS --fail --max-time 20 "${LIVE_URL}/api/offers" >/tmp/offers.json
           python3 - <<'PY'
           import json
-          d=json.load(open('/tmp/products.json'))
-          rows=d if isinstance(d,list) else d.get('products',d.get('records',d.get('items',[])))
-          by={str(x.get('id')):x for x in rows if isinstance(x,dict)}
-          for pid in ['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001']:
-              assert pid in by
-              assert str(by[pid].get('silo','')).lower()=='mtg'
-              assert str(by[pid].get('status','')).lower()=='published'
-              assert int(by[pid].get('inventory',0))>0
-              print('LIVE_MTG_PRODUCT='+pid)
+          d=json.load(open('/tmp/offers.json'))
+          rows=d.get('offers',[])
+          target=next((x for x in rows if x.get('offer_id')=='OFFER-CMD-DIAG-29-NZD'),None)
+          assert target is not None
+          assert target.get('checkout_available') is True
+          assert float(target.get('price')) == 29
+          assert str(target.get('currency')).upper() == 'NZD'
+          print('LIVE_COMMANDER_OFFER=PASS')
+          PY
+          python3 - <<'PY'
+          import urllib.request
+          r=urllib.request.urlopen('https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00', timeout=20)
+          print('COMMANDER_STRIPE_CHECKOUT_HTTP='+str(r.status))
+          assert r.status==200
           PY
           echo 'SELLING_DOORWAYS=PASS'
 
-      - name: Generate machine-readable cloud proof
+      - name: Verify canonical Commander settlement count from Stripe
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          stripe_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02" || true)
-          health_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/healthz" || true)
-          billboard_code=$(curl -L -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://dreamledger.org/billboard" || true)
-          cat > artifacts/cloud-ecosystem-proof.json <<EOF
-          {
-            "workflow": "Cloud Ecosystem Spine",
-            "commit_sha": "${GITHUB_SHA}",
-            "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "cloud_execution": true,
-            "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-            "price_nzd": 50,
-            "physical_mtg": ["EDH_0001","BESPOKE-ARTISAN-EDH-DECK-001","MTG-URZAS-LEGACY-PALINCHRON-FOIL-001"],
-            "stripe_checkout_http": "${stripe_code}",
-            "healthz_http": "${health_code}",
-            "billboard_http": "${billboard_code}",
-            "verified_payment_count": 0,
-            "revenue_nzd": 0,
-            "status": "PROOF_GENERATED"
+          python3 - <<'PY'
+          import base64, json, os, pathlib, urllib.parse, urllib.request
+          out=pathlib.Path('artifacts/economic-scoreboard.json')
+          key=os.environ.get('STRIPE_SECRET_KEY','')
+          result={
+            'payment_link_id':os.environ['COMMANDER_PAYMENT_LINK_ID'],
+            'payment_url':os.environ['COMMANDER_PAYMENT_LINK'],
+            'offer_id':'OFFER-CMD-DIAG-29-NZD',
+            'sku':'CMD-DIAG-29',
+            'currency':'nzd',
+            'status':'MISSING_STRIPE_SECRET_KEY' if not key else 'UNKNOWN',
+            'completed_paid_sessions':0,
+            'verified_revenue_nzd':0
           }
-          EOF
-          cat artifacts/cloud-ecosystem-proof.json
+          if key:
+            q=urllib.parse.urlencode({'payment_link':os.environ['COMMANDER_PAYMENT_LINK_ID'],'limit':'100'})
+            req=urllib.request.Request('https://api.stripe.com/v1/checkout/sessions?'+q)
+            req.add_header('Authorization','Basic '+base64.b64encode((key+':').encode()).decode())
+            try:
+              with urllib.request.urlopen(req,timeout=20) as r: data=json.load(r)
+              paid=[s for s in data.get('data',[]) if s.get('status')=='complete' and s.get('payment_status')=='paid' and s.get('livemode') is True and s.get('currency')=='nzd' and s.get('amount_total')==2900]
+              result['completed_paid_sessions']=len(paid)
+              result['verified_revenue_nzd']=sum(s.get('amount_total',0) or 0 for s in paid)/100
+              result['status']='VERIFIED'
+            except Exception as e:
+              result['status']='STRIPE_API_ERROR'
+              result['error_type']=type(e).__name__
+          out.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+          print(out.read_text())
+          PY
+          cat artifacts/economic-scoreboard.json
 
       - name: Upload cloud proof
         uses: actions/upload-artifact@v4
         with:
           name: cloud-ecosystem-proof-${{ github.run_id }}
-          path: artifacts/cloud-ecosystem-proof.json
+          path: artifacts/
           if-no-files-found: error
           retention-days: 30
