@@ -45,8 +45,8 @@ jobs:
           if (!billboard) throw new Error('Canonical approved billboard offer missing');
           if (Number(billboard.price) !== 50 || String(billboard.currency).toUpperCase() !== 'NZD') throw new Error('Canonical billboard price/currency mismatch');
           if (billboard.payment_link_status !== 'ACTIVE_LIVEMODE') throw new Error('Canonical billboard checkout is not marked ACTIVE_LIVEMODE');
-          if (billboard.payment_link_url !== 'https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a') throw new Error('Canonical billboard payment link mismatch');
-          if (billboard.fulfillment_route !== 'stripe_webhook -> billboardAutoFulfillment.fulfill') throw new Error('Billboard fulfillment route mismatch');
+          if (billboard.payment_link_url !== 'https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02') throw new Error('Canonical billboard payment link mismatch');
+          if (billboard.fulfillment_route !== 'supabase_billboard_webhook -> finite_allocation -> manual_review -> publication') throw new Error('Billboard fulfillment route mismatch');
           if (billboard.constraints.includes('DreamLedger silo only') !== true) throw new Error('Billboard silo isolation constraint missing');
           console.log(JSON.stringify({offer_id: billboard.offer_id, price: billboard.price, currency: billboard.currency, checkout: billboard.payment_link_status, silo: billboard.silo}, null, 2));
           NODE
