@@ -29,8 +29,9 @@
       "endpoint": "/api/offers",
       "action": "purchase",
       "price_nzd": 500,
-      "status": "live",
-      "role": "commercial_campaign"
+      "status": "gated",
+      "role": "commercial_campaign",
+      "reason": "checkout_disabled_until_delivery_contract_is_verified"
     },
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
