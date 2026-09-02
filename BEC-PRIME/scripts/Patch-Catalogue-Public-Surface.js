@@ -8,7 +8,7 @@ if(!fs.existsSync(INDEX))throw new Error('compiled public index missing: '+INDEX
 const html=fs.readFileSync(INDEX,'utf8');
 const required=['DreamLedger','Digital products','Magic & collectibles','Games & experiments','Digital media','Billboard','DreamMeez'];
 const forbidden=['Amplissa','HappyHomarid','CollectorsCoast','adult-only','adult only','stripe_secret_key','stripe_webhook_secret','/var/data/'];
-const lower=html.toLowerCase();
+const lower=html.toLowerCase().replace(/&amp;/g,'&');
 const missing=required.filter(x=>!lower.includes(x.toLowerCase()));
 const leaked=forbidden.filter(x=>lower.includes(x.toLowerCase()));
 if(missing.length)throw new Error('PUBLIC CATALOGUE FAILED: missing '+missing.join(', '));
