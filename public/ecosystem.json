@@ -1,0 +1,30 @@
+{
+  "schema": "dreamledger/ecosystem/v1",
+  "name": "DreamLedger 3000",
+  "status": "active",
+  "principle": "many_surfaces_one_commerce_spine",
+  "canonical": {
+    "discovery": "/cube.json",
+    "offers": "/api/offers",
+    "catalog": "/api/products",
+    "agent_manifest": "/agent.json",
+    "billboard": "/billboard",
+    "proof_contract": "dreamledger/proof/v1",
+    "event_spine": ["discovered","offered","authorized","paid","delivered","proven","refunded","quarantined"]
+  },
+  "surfaces": [
+    {"id":"DOOH_SCREEN","path":"/billboard","status":"active"},
+    {"id":"QR_SURFACE","status":"active","role":"physical_to_digital_doorway"},
+    {"id":"WEB_OFFER","path":"/api/offers","status":"active"},
+    {"id":"AGENT_ENDPOINT","path":"/agent.json","status":"active"},
+    {"id":"DIGITAL_PRODUCT","path":"/api/products","status":"active"},
+    {"id":"TRUST_PROOF","status":"active","role":"portable_economic_evidence"}
+  ],
+  "rules": {
+    "payment_authority": "checkout_provider_event",
+    "fulfillment_authority": "paid_verified",
+    "scale_authority": "proven_paid_event",
+    "public_posting": "approval_gated",
+    "silo_isolation": true
+  }
+}
