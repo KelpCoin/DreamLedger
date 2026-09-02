@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /* Behavioral Checkout metadata gate.
  * Finds code that can POST to Stripe Checkout Sessions, including raw fetch
@@ -57,7 +57,7 @@ else {
   for (const field of REQUIRED) {
     if (!new RegExp('payment_intent_data\\[metadata\\]\\[' + field + '\\]').test(contract)) failures.push('runtime patch missing field: ' + field);
   }
-  if (!/api\\\.stripe\\\.com\\/v1\\/checkout\\/sessions/.test(contract)) failures.push('runtime patch does not guard raw Stripe Checkout URL');
+  if (!/api\.stripe\.com\/v1\/checkout\/sessions/.test(contract)) failures.push('runtime patch does not guard raw Stripe Checkout URL');
 }
 
 const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));

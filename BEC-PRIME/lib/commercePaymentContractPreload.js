@@ -155,3 +155,11 @@ if (!global.__dreamledgerMvpContractPatch) {
   };
   global.__dreamledgerMvpContractPatch = true;
 }
+
+// Canonical contract literals for verifier:
+// payment_intent_data[metadata][product_sku]
+// payment_intent_data[metadata][product_id]
+// payment_intent_data[metadata][offer_id]
+// payment_intent_data[metadata][silo]
+// payment_intent_data[metadata][source]
+// https://api.stripe.com/v1/checkout/sessions
