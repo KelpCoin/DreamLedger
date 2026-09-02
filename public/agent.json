@@ -11,7 +11,8 @@
     "authorization": "buyer_or_authorized_agent",
     "payment": "checkout_url",
     "currency": "NZD",
-    "evidence_after_payment": true
+    "evidence_after_payment": true,
+    "economic_event_order": ["authorized","paid","delivered","proven"]
   },
   "offers": [
     {
@@ -30,6 +31,10 @@
       "role": "ignition_test_only"
     }
   ],
+  "proof": {
+    "schema": "dreamledger/proof/v1",
+    "required_fields": ["proof_id","event_id","surface_id","offer_id","product_id","payment_provider","payment_reference","paid_at","delivered_at","delivery_status","asset_sha256","evidence_sha256","verification_status","created_at"]
+  },
   "safety": {
     "no_claim_without_proof": true,
     "payment_must_be_verified": true,
