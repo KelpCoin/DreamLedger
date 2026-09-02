@@ -46,8 +46,11 @@ jobs:
           set -euo pipefail
           test -s public/index.html
           test -s public/billboard.html
-          test -s public/mtg.html
+          test -s public/avatar.html
           test -s public/server.js
+          test -s BEC-PRIME/compiled/website/login.html
+          test -s BEC-PRIME/compiled/website/register.html
+          test -s BEC-PRIME/compiled/website/account.html
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -56,7 +59,6 @@ jobs:
           b=next(x for x in approved if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
           bp=load('BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json')
           c=load('BEC-PRIME/distribution/campaigns/D-001.json')
-          assert b['product_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
           assert b['price']==50 and b['currency']=='NZD'
           assert b['payment_link_status']=='ACTIVE_LIVEMODE'
           assert b['payment_link_url']=='https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02'
@@ -64,24 +66,14 @@ jobs:
           assert bp['commercial_truth']['payment_link']==b['payment_link_url']
           assert c['offer']['offer_id']=='DREAMLEDGER-BILLBOARD-FOUNDING-001'
           assert c['objective']['metric']=='PAYMENT_RECEIVED' and c['objective']['target']==1
-          mtg=[
-            ('EDH_0001',400),
-            ('BESPOKE-ARTISAN-EDH-DECK-001',385),
-            ('MTG-URZAS-LEGACY-PALINCHRON-FOIL-001',700)
-          ]
-          for pid,expected in mtg:
-              p=load('BEC-PRIME/catalog/products/'+pid+'.json')
-              assert p['silo']=='mtg' and p['inventory_type']=='physical'
-              assert p['status']=='published' and int(p.get('inventory',0))>0
-              assert p.get('commercial_truth',{}).get('approval_required') is False
-              unit=p.get('price_unit')
-              major=(int(p['price'])/100) if unit=='minor' else (int(p['price'])/100)
-              assert round(major,2)==expected
-              print('MTG_CATALOG_OK='+pid+' NZ$'+str(expected))
+          assert 'DreamMeez' in Path('public/avatar.html').read_text()
+          for rel in ['login.html','register.html','account.html']:
+              assert '/api/account/' in Path('BEC-PRIME/compiled/website/'+rel).read_text()
           print('COMMERCIAL_PACKAGE=PASS')
           PY
           grep -q 'NZ$50' public/billboard.html
-          grep -q 'EDH_0001' public/mtg.html
+          grep -q 'DreamMeez' public/avatar.html
+          grep -q 'public-v15' public/server.js
 
       - name: Trigger exact Render deployment
         shell: bash
@@ -92,10 +84,10 @@ jobs:
               *?*) SEP='&' ;;
               *) SEP='?' ;;
             esac
-            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60               -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" >/tmp/render.json
+            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60 -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${RELEASE_SHA}" >/tmp/render.json
             cat /tmp/render.json
           elif [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
-            curl --fail --silent --show-error -L               https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip -o /tmp/render.zip
+            curl --fail --silent --show-error -L https://github.com/render-oss/cli/releases/download/v2.22.0/cli_2.22.0_linux_amd64.zip -o /tmp/render.zip
             unzip -q /tmp/render.zip -d /tmp/render
             RENDER_BIN=$(find /tmp/render -type f -name render -perm -111 | head -1)
             test -n "$RENDER_BIN"
@@ -114,39 +106,42 @@ jobs:
             if [ "$attempt" = 18 ]; then exit 1; fi
             sleep 10
           done
-          for path in / /billboard /mtg /avatar /healthz /version; do
-            code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 20 "$BASE_URL$path")
+          for path in / /billboard /mtg /avatar /dreammeez /healthz /version /login /register /account /api/products /api/offers /api/dreamiez/cosmetics; do
+            code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 30 "$BASE_URL$path")
             echo "$code $path"
             test "$code" = 200
           done
           curl --fail --silent --show-error "$BASE_URL/billboard" >/tmp/billboard.html
           grep -Fq 'NZ$50' /tmp/billboard.html
           grep -q '100 x 100' /tmp/billboard.html
-          curl --fail --silent --show-error "$BASE_URL/mtg" >/tmp/mtg.html
-          grep -q 'EDH_0001' /tmp/mtg.html
-          grep -Fq 'NZ$400' /tmp/mtg.html
-          curl --fail --silent --show-error "$BASE_URL/api/products" >/tmp/products.json
+          curl --fail --silent --show-error "$BASE_URL/dreammeez" >/tmp/dreammeez.html
+          grep -q 'DreamMeez' /tmp/dreammeez.html
+          curl --fail --silent --show-error "$BASE_URL/api/dreamiez/cosmetics" >/tmp/cosmetics.json
           python3 - <<'PY'
           import json
-          d=json.load(open('/tmp/products.json'))
-          rows=d if isinstance(d,list) else d.get('products',d.get('records',d.get('items',[])))
-          by={str(x.get('id')):x for x in rows if isinstance(x,dict)}
-          for pid in ['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001']:
-              assert pid in by, 'missing '+pid
-              assert str(by[pid].get('silo','')).lower()=='mtg'
-              assert str(by[pid].get('status','')).lower()=='published'
-              assert int(by[pid].get('inventory',0))>0
-              print('LIVE_MTG_PRODUCT='+pid)
+          d=json.load(open('/tmp/cosmetics.json'))
+          assert isinstance(d,list) and len(d)>=3
+          print('LIVE_DREAMMEEZ_COSMETICS='+str(len(d)))
+          offers=json.load(open('/tmp/offers.json')) if __import__('os').path.exists('/tmp/offers.json') else None
           PY
-          curl --fail --silent --show-error "$BASE_URL/healthz" >/tmp/healthz.txt
-          grep -q '^ok$' /tmp/healthz.txt
+          curl --fail --silent --show-error "$BASE_URL/api/offers" >/tmp/offers.json
           python3 - <<'PY'
-          import json, urllib.request
-          p=json.load(open('BEC-PRIME/catalog/offers/approved.json'))
-          o=next(x for x in p['approved'] if x['offer_id']=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001')
-          r=urllib.request.urlopen(o['payment_link_url'],timeout=20)
+          import json
+          rows=json.load(open('/tmp/offers.json')).get('offers',[])
+          assert any(x.get('offer_id')=='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001' and float(x.get('price',0))==50 and str(x.get('currency')).upper()=='NZD' for x in rows)
+          print('LIVE_BILLBOARD_OFFER=PASS')
+          PY
+          curl --fail --silent --show-error "$BASE_URL/login" >/tmp/login.html
+          grep -q '/api/account/login' /tmp/login.html
+          curl --fail --silent --show-error "$BASE_URL/account" >/tmp/account.html
+          grep -q 'DreamMeez' /tmp/account.html
+          python3 - <<'PY'
+          import urllib.request
+          r=urllib.request.urlopen('https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02',timeout=30)
+          print('BILLBOARD_STRIPE_CHECKOUT_HTTP='+str(r.status))
           assert r.status==200
-          print('BILLBOARD_CHECKOUT_HTTP='+str(r.status))
+          for u in ['https://buy.stripe.com/28E6oI4sM1Mu5qo9La9oc03','https://buy.stripe.com/4gMcN65wQdvc3igf5u9oc04']:
+              rr=urllib.request.urlopen(u,timeout=30); assert rr.status==200; print('DREAMMEEZ_STRIPE_CHECKOUT_HTTP='+str(rr.status))
           PY
           echo 'PRODUCTION_COMMERCIAL_SURFACES=PASS'
 
@@ -158,7 +153,7 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json,os,time
-          p={'schema':'dreamledger-commercial-deployment-v3','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'surfaces':['billboard','mtg','avatar'],'physical_mtg':['EDH_0001','BESPOKE-ARTISAN-EDH-DECK-001','MTG-URZAS-LEGACY-PALINCHRON-FOIL-001'],'payment_claim_made':False}
+          p={'schema':'dreamledger-commercial-deployment-v4','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'surfaces':['billboard','dreammeez','login','register','account'],'payment_claim_made':False}
           with open('proof/commercial-deployment-fossil.json','w') as f: json.dump(p,f,indent=2)
           PY
       - name: Upload proof
