@@ -1,0 +1,89 @@
+{
+  "schema": "dreamledger/cube/v1",
+  "status": "active",
+  "principle": "many_surfaces_one_commerce_spine",
+  "canonical": {
+    "surface_id": "required",
+    "offer_id": "required",
+    "checkout": "canonical_payment_rail",
+    "proof": "append_only_evidence",
+    "ledger": "economic_event"
+  },
+  "silos": {
+    "core": {
+      "fee_rate_percent": 5,
+      "purpose": "DOOH, agentic commerce, trust/evidence and digital products"
+    },
+    "mtg": {
+      "fee_rate_percent": 0,
+      "purpose": "isolated physical inventory liquidation and MTG digital arbitrage"
+    }
+  },
+  "surface_classes": [
+    {"id":"DOOH_SCREEN","status":"active","commercial_role":"physical advertising inventory"},
+    {"id":"QR_SURFACE","status":"active","commercial_role":"canonical physical-to-digital commerce doorway"},
+    {"id":"WEB_OFFER","status":"active","commercial_role":"human-facing digital checkout doorway"},
+    {"id":"AGENT_ENDPOINT","status":"ready","commercial_role":"machine-readable discovery and purchase doorway"},
+    {"id":"DIGITAL_PRODUCT","status":"active","commercial_role":"high-margin digital fulfillment"},
+    {"id":"TRUST_PROOF","status":"ready","commercial_role":"portable transaction and delivery evidence"}
+  ],
+  "locked_offers": [
+    {
+      "offer_id":"OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "product_id":"BILLBOARD-LARGE",
+      "sku":"DL-BILLBOARD-100X100-3000-001",
+      "silo":"core",
+      "type":"dooh",
+      "price_nzd":50,
+      "status":"live"
+    },
+    {
+      "offer_id":"OFFER-CMD-DIAG-29-NZD",
+      "product_id":"COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku":"CMD-DIAG-29",
+      "silo":"mtg",
+      "type":"digital_product",
+      "price_nzd":29,
+      "status":"live",
+      "role":"ignition_test_only"
+    }
+  ],
+  "expansion_targets": [
+    {
+      "id":"PDOOH_PROGRAMMATIC_CAMPAIGN",
+      "type":"dooh",
+      "status":"target",
+      "commercial_goal":"sell measurable multi-surface campaigns before automating buying"
+    },
+    {
+      "id":"AGENTIC_COMMERCE_TRUST_WEDGE",
+      "type":"agentic_commerce",
+      "status":"target",
+      "commercial_goal":"machine-readable offers with authorization, payment and evidence"
+    },
+    {
+      "id":"DIGITAL_PRODUCT_LADDER",
+      "type":"digital_product",
+      "status":"target",
+      "commercial_goal":"rapidly test high-margin products and clone paid winners"
+    },
+    {
+      "id":"VERIFIED_DOoh_DELIVERY",
+      "type":"trust",
+      "status":"target",
+      "commercial_goal":"attach proof-of-delivery to advertising transactions"
+    }
+  ],
+  "event_spine": [
+    "discovered",
+    "offered",
+    "authorized",
+    "paid",
+    "delivered",
+    "proven",
+    "refunded",
+    "quarantined"
+  ],
+  "scale_rule": "paid_verified_then_clone",
+  "anti_bloat_rule": "expand_commercial_surface_without_unnecessary_internal_complexity"
+}
