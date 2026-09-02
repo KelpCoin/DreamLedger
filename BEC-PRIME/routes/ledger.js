@@ -261,11 +261,11 @@ async function handle(req, res, p) {
     try {
       const l = await getLedger(h);
       if (!l) return json(res, 404, { error: 'Ledger not found.' });
-      const resource = 'dream_ledger_follows?ledger_id=eq.' + encodeURIComponent(l.id) + '&follower_user_id=eq.' + encodeURIComponent(u.id);
+      const resource = 'dream_ledger_follows?ledger_id=eq.' + encodeURIComponent(l.id) + '&follower_account_id=eq.' + encodeURIComponent(u.id);
       if (req.method === 'DELETE') {
         await supabase(resource, { method: 'DELETE' });
       } else {
-        await supabase('dream_ledger_follows', { method: 'POST', body: JSON.stringify({ ledger_id: l.id, follower_user_id: u.id }) });
+        await supabase('dream_ledger_follows', { method: 'POST', body: JSON.stringify({ ledger_id: l.id, follower_account_id: u.id }) });
       }
       return json(res, 200, { ok: true, following: req.method !== 'DELETE', follow_count: await getFollowCount(l.id) });
     } catch (e) {
