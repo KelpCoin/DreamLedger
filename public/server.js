@@ -1,4 +1,5 @@
 'use strict';
+// Production convergence marker: 2026-09-02. Keep the public storefront on the canonical v15 contract.
 const crypto=require('crypto');
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const auth=require('../BEC-PRIME/routes/auth');
