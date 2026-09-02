@@ -6,6 +6,8 @@
   "discovery": "/api/offers",
   "catalog": "/api/products",
   "ecosystem": "/ecosystem.json",
+  "surfaces": "/surfaces.json",
+  "discovery_manifest": "/.well-known/dreamledger.json",
   "commerce": {
     "supported_action": "purchase",
     "authorization": "buyer_or_authorized_agent",
@@ -21,6 +23,14 @@
       "action": "purchase",
       "price_nzd": 50,
       "status": "live"
+    },
+    {
+      "offer_id": "OFFER-DREAMLEDGER-DOOH-CAMPAIGN-500",
+      "endpoint": "/api/offers",
+      "action": "purchase",
+      "price_nzd": 500,
+      "status": "live",
+      "role": "commercial_campaign"
     },
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
