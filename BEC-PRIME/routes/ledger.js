@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
+const QRCode = require('qrcode');
 
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(__dirname, '..', 'data', 'dreamiez'));
 const USERS = path.join(DATA_ROOT, 'users.json');
@@ -11,6 +12,13 @@ const COOKIE = 'dreamiez_session';
 const BASE = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
 const PUBLIC_BASE = String(process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
+
+function sendBinary(res, status, data) {
+  if (res.writableEnded) return true;
+  res.writeHead(status, { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'no-store' });
+  res.end(data);
+  return true;
+}
 
 function json(res, status, data) {
   if (res.writableEnded) return true;
@@ -95,6 +103,11 @@ async function getItems(id) {
   );
 }
 
+async function getFollowCount(id) {
+  const rows = await supabase('dream_ledger_follows?select=follower_user_id&ledger_id=eq.' + encodeURIComponent(id));
+  return Array.isArray(rows) ? rows.length : 0;
+}
+
 async function getDiscoverLedgers() {
   return supabase(
     'dream_ledgers?select=id,handle,display_name,bio,avatar_url,dreammeez_id,theme,permanence_year,created_at,status&status=eq.active&order=created_at.desc&limit=40'
@@ -115,7 +128,7 @@ function publicLedger(l) {
   };
 }
 
-function page(l, items) {
+function page(l, items, followCount) {
   const title = (l.display_name || l.handle) + ' | Dream Ledger 3000';
   const description = (l.bio || 'A persistent Ledger on Dream Ledger 3000.').slice(0, 160);
   const canonical = PUBLIC_BASE + '/u/' + encodeURIComponent(l.handle);
@@ -144,7 +157,7 @@ function page(l, items) {
     '<style>body{margin:0;background:#0b0b10;color:#f5f5f7;font:16px system-ui,-apple-system,sans-serif}.wrap{max-width:860px;margin:auto;padding:24px 18px 70px}.nav{display:flex;justify-content:space-between;gap:12px;margin-bottom:36px}.nav a{color:#d8b56b;text-decoration:none;font-weight:800}.top{display:flex;gap:18px;align-items:center}.avatar{width:96px;height:96px;border-radius:26px;object-fit:cover;background:#222}.name{font-size:34px;font-weight:900}.handle{opacity:.55}.bio{font-size:18px;line-height:1.5;margin:24px 0}.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.chip{border:1px solid #34343e;border-radius:999px;padding:6px 9px;font-size:11px;color:#aaa}.grid{display:grid;gap:12px}.card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid #292934;border-radius:18px;background:#15151d;color:inherit;text-decoration:none}.card span{opacity:.72}.empty{border:1px dashed #34343e;border-radius:18px;padding:24px;opacity:.7}.brand{margin-top:40px;opacity:.55;font-size:13px}</style></head><body><main class="wrap">' +
     '<nav class="nav"><a href="/">DREAM LEDGER 3000</a><a href="/discover">Discover</a></nav>' +
     '<section class="top">' + avatar + '<div><div class="name">' + esc(l.display_name || l.handle) + '</div><div class="handle">@' + esc(l.handle) + '</div></div></section>' +
-    (l.bio ? '<p class="bio">' + esc(l.bio) + '</p>' : '') + '<div class="chips">' + dream + '<div class="chip">Permanent to ' + esc(l.permanence_year || 3000) + '</div></div>' +
+    (l.bio ? '<p class="bio">' + esc(l.bio) + '</p>' : '') + '<div class="chips">' + dream + '<div class="chip">Permanent to ' + esc(l.permanence_year || 3000) + '</div><div class="chip">' + esc(followCount || 0) + ' followers</div></div>' +
     (cards ? '<section class="grid">' + cards + '</section>' : '<div class="empty">This Ledger is alive, but nothing has been published yet.</div>') +
     '<div class="brand">Dream Ledger 3000 · Your Ledger. Your World.</div></main></body></html>';
 }
@@ -192,7 +205,7 @@ async function handle(req, res, p) {
     try {
       const l = await getLedger(h);
       if (!l) return html(res, 404, claimPage(h));
-      return html(res, 200, await getItems(l.id).then(it => page(l, it)));
+      return html(res, 200, Promise.all([getItems(l.id), getFollowCount(l.id)]).then(([it, count]) => page(l, it, count)));
     } catch { return html(res, 503, '<h1>Ledger temporarily unavailable</h1>'); }
   }
 
@@ -216,6 +229,61 @@ async function handle(req, res, p) {
       const it = await getItems(l.id);
       return json(res, 200, { ledger: publicLedger(l), items: it });
     } catch { return json(res, 503, { error: 'Ledger service unavailable' }); }
+  }
+
+  if (req.method === 'POST' && /^\\/u\\/[A-Za-z0-9-]+\\/edit$/.test(p)) {
+    const u = currentUser(req);
+    if (!u) return json(res, 401, { error: 'Log in first.' });
+    const h = normalizeHandle(p.split('/')[2]);
+    let body;
+    try { body = await readJson(req, 100000); } catch { return json(res, 400, { error: 'Invalid JSON' }); }
+    try {
+      const l = await getLedger(h);
+      if (!l || l.owner_account_id !== u.id) return json(res, 403, { error: 'Ledger not found or not owned by you.' });
+      const patch = {
+        display_name: body.display_name === undefined ? l.display_name : String(body.display_name || '').trim().slice(0, 80) || l.display_name,
+        bio: body.bio === undefined ? l.bio : String(body.bio || '').trim().slice(0, 500),
+        avatar_url: body.avatar_url === undefined ? l.avatar_url : (body.avatar_url ? String(body.avatar_url).trim().slice(0, 2000) : null),
+        dreammeez_id: body.dreammeez_id === undefined ? l.dreammeez_id : (body.dreammeez_id ? String(body.dreammeez_id).trim().slice(0, 120) : null),
+        theme: body.theme === undefined ? l.theme : String(body.theme || 'default').trim().slice(0, 40)
+      };
+      const updated = await supabase('dream_ledgers?id=eq.' + encodeURIComponent(l.id), { method: 'PATCH', body: JSON.stringify(patch) });
+      return json(res, 200, { ok: true, ledger: Array.isArray(updated) ? updated[0] : updated, url: '/u/' + h });
+    } catch { return json(res, 503, { error: 'Ledger service unavailable' }); }
+  }
+
+  if ((req.method === 'POST' || req.method === 'DELETE') && p === '/api/follow') {
+    const u = currentUser(req);
+    if (!u) return json(res, 401, { error: 'Log in first.' });
+    let body;
+    try { body = await readJson(req, 10000); } catch { return json(res, 400, { error: 'Invalid JSON' }); }
+    const h = normalizeHandle(body.handle);
+    try {
+      const l = await getLedger(h);
+      if (!l) return json(res, 404, { error: 'Ledger not found.' });
+      const resource = 'dream_ledger_follows?ledger_id=eq.' + encodeURIComponent(l.id) + '&follower_user_id=eq.' + encodeURIComponent(u.id);
+      if (req.method === 'DELETE') {
+        await supabase(resource, { method: 'DELETE' });
+      } else {
+        await supabase('dream_ledger_follows', { method: 'POST', body: JSON.stringify({ ledger_id: l.id, follower_user_id: u.id }) });
+      }
+      return json(res, 200, { ok: true, following: req.method !== 'DELETE', follow_count: await getFollowCount(l.id) });
+    } catch (e) {
+      if (e.status === 409) return json(res, 200, { ok: true, following: true, follow_count: await getFollowCountByHandle(h) });
+      return json(res, 503, { error: 'Follow service unavailable' });
+    }
+  }
+
+  if (req.method === 'GET' && /^\\/u\\/[A-Za-z0-9-]+\\/qr\\.png$/.test(p)) {
+    const h = normalizeHandle(p.split('/')[2]);
+    if (!validHandle(h)) return sendBinary(res, 404, Buffer.from('not found'));
+    try {
+      const l = await getLedger(h);
+      if (!l) return sendBinary(res, 404, Buffer.from('not found'));
+      const png = await QRCode.toBuffer(PUBLIC_BASE + '/u/' + encodeURIComponent(h), { type: 'png', width: 640, margin: 2 });
+      res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600' });
+      return res.end(png);
+    } catch { return sendBinary(res, 503, Buffer.from('qr unavailable')); }
   }
 
   if (req.method === 'POST' && p === '/api/ledgers') {
