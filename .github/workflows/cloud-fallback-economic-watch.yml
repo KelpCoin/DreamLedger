@@ -12,8 +12,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BILLBOARD_PAYMENT_LINK_ID: plink_1U5GX8EGgEAnUFF9y2YGkIhv
-  BILLBOARD_PAYMENT_URL: https://buy.stripe.com/28EcN54zraG13M3g3idwc1t
+  COMMANDER_PAYMENT_LINK_ID: plink_1UAJyVJt4ieIQDFzj4kA5B7x
+  COMMANDER_PAYMENT_URL: https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00
+  COMMANDER_OFFER_ID: OFFER-CMD-DIAG-29-NZD
+  COMMANDER_SKU: CMD-DIAG-29
   LIVE_URL: https://dreamledger.org
   VERCEL_TEAM_ID: team_HNsRrUI7JZV4iwejNlqJjXvR
   VERCEL_PROJECT_NAME: dreamledger-production
@@ -34,10 +36,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --omit=dev --no-audit --no-fund
 
       - name: Compile canonical commerce surface
         run: npm run compile
@@ -108,30 +109,16 @@ jobs:
           echo "HEALTHZ_HTTP_STATUS=$code"
           test "$code" = "200"
 
-      - name: Probe live Billboard doorway
+      - name: Verify Commander checkout doorway
         shell: bash
         run: |
           set -euo pipefail
-          code=$(curl -L -sS -o /tmp/billboard.html -w "%{http_code}" --max-time 20 "$LIVE_URL/billboard" || true)
-          bytes=0
-          if [ -f /tmp/billboard.html ]; then bytes=$(wc -c < /tmp/billboard.html); fi
-          mkdir -p cloud-proof
-          printf '{\n  "http_status": %s,\n  "bytes": %s,\n  "reachable": %s\n}\n' "$code" "$bytes" "$([ "$code" = "200" ] && echo true || echo false)" > cloud-proof/billboard-doorway.json
-          cat cloud-proof/billboard-doorway.json
-          if [ "$code" != "200" ] || [ "$bytes" -le 0 ]; then
-            echo "WARN: /billboard is not yet public."
-          fi
-
-      - name: Verify Stripe payment doorway
-        shell: bash
-        run: |
-          set -euo pipefail
-          code=$(curl -L -sS -o /tmp/stripe.html -w "%{http_code}" --max-time 20 "$BILLBOARD_PAYMENT_URL")
+          code=$(curl -L -sS -o /tmp/stripe.html -w "%{http_code}" --max-time 20 "$COMMANDER_PAYMENT_URL")
           test "$code" = "200"
           test -s /tmp/stripe.html
-          echo "PASS: Stripe Billboard checkout returned HTTP 200."
+          echo "PASS: Commander NZ$29 Stripe checkout returned HTTP 200."
 
-      - name: Verify economic scoreboard from Stripe
+      - name: Verify Commander economic scoreboard from Stripe
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         shell: bash
@@ -139,19 +126,22 @@ jobs:
           set -euo pipefail
           mkdir -p cloud-proof
           python3 - <<'PY'
-          import base64, json, os, pathlib, urllib.error, urllib.parse, urllib.request
+          import base64, json, os, pathlib, urllib.parse, urllib.request
           out = pathlib.Path("cloud-proof/economic-scoreboard.json")
-          link_id = os.environ["BILLBOARD_PAYMENT_LINK_ID"]
+          link_id = os.environ["COMMANDER_PAYMENT_LINK_ID"]
           key = os.environ.get("STRIPE_SECRET_KEY", "")
           result = {
               "payment_link_id": link_id,
-              "payment_url": os.environ["BILLBOARD_PAYMENT_URL"],
+              "payment_url": os.environ["COMMANDER_PAYMENT_URL"],
+              "offer_id": os.environ["COMMANDER_OFFER_ID"],
+              "sku": os.environ["COMMANDER_SKU"],
               "currency": "nzd",
-              "verified_billboard_revenue_nzd": 0,
+              "canonical_price_nzd": 29,
+              "verified_revenue_nzd": 0,
               "completed_paid_sessions": 0,
               "status": "MISSING_STRIPE_SECRET_KEY" if not key else "UNKNOWN",
-              "source": "Stripe Checkout Sessions filtered by payment_link and payment_status=paid",
-              "truth_rule": "Only paid completed Checkout Sessions for the canonical Billboard payment link count."
+              "source": "Stripe Checkout Sessions filtered by canonical Commander Payment Link",
+              "truth_rule": "Only status=complete and payment_status=paid sessions for the exact Commander link count."
           }
           if key:
               try:
@@ -160,15 +150,14 @@ jobs:
                   req.add_header("Authorization", "Basic " + base64.b64encode((key + ":").encode()).decode())
                   with urllib.request.urlopen(req, timeout=20) as r:
                       data = json.load(r)
-                  paid = [s for s in data.get("data", []) if s.get("payment_status") == "paid" and s.get("status") == "complete"]
+                  paid = [s for s in data.get("data", []) if s.get("payment_status") == "paid" and s.get("status") == "complete" and int(s.get("amount_total") or 0) == 2900 and str(s.get("currency") or "").lower() == "nzd"]
                   total = sum((s.get("amount_total") or 0) for s in paid)
-                  result["verified_billboard_revenue_nzd"] = total / 100
+                  result["verified_revenue_nzd"] = total / 100
                   result["completed_paid_sessions"] = len(paid)
-                  result["status"] = "VERIFIED"
-              except urllib.error.HTTPError as exc:
+                  result["status"] = "VERIFIED" if paid else "NO_PAID_COMMANDER_EVENT"
+              except Exception as exc:
                   result["status"] = "STRIPE_API_ERROR"
-                  result["http_status"] = exc.code
-                  result["note"] = "Stripe checkout remains reachable; economic verification requires a usable Checkout Sessions API credential."
+                  result["note"] = type(exc).__name__
           out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
           print(out.read_text())
           PY
@@ -184,12 +173,13 @@ jobs:
             "commit": "${GITHUB_SHA}",
             "live_url": "${LIVE_URL}",
             "canonical_build": true,
-            "vercel_project_creation_or_linking": "attempted when VERCEL_TOKEN exists",
             "healthz_checked": true,
-            "billboard_doorway_probe": "cloud-proof/billboard-doorway.json",
-            "stripe_checkout_http_200_checked": true,
+            "commander_checkout_http_200_checked": true,
+            "commander_payment_link_id": "${COMMANDER_PAYMENT_LINK_ID}",
+            "commander_offer_id": "${COMMANDER_OFFER_ID}",
+            "commander_sku": "${COMMANDER_SKU}",
             "economic_scoreboard": "cloud-proof/economic-scoreboard.json",
-            "revenue_claim": "none unless Stripe reports a paid completed session for the canonical Billboard link"
+            "revenue_claim": "none unless Stripe reports a paid completed session for the canonical Commander link"
           }
           EOF
           cat cloud-proof/cloud-proof.json
