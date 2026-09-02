@@ -5,7 +5,7 @@ const elohim = require('../elohim/ElohimV6');
 const gauntlet = require('../gauntlet/CandidateGauntlet');
 
 const WEIGHTS = { sensitivity: 0.40, complexity: 0.30, compliance: 0.30 };
-const THRESHOLDS = { warning: 3, limitation: 6, suspend: 7 };
+const THRESHOLDS = { warning_max: 3, limitation_max: 6, suspend_min: 7 };
 
 function canonical(value) {
   return JSON.stringify(value, Object.keys(value || {}).sort());
@@ -23,21 +23,41 @@ function normalise(value) {
 
 function trustRisk(candidate) {
   const source = candidate.risk || candidate.trust || candidate;
-  const sensitivity = normalise(source.sensitivity ?? source.S);
-  const complexity = normalise(source.complexity ?? source.C);
-  const compliance = normalise(source.compliance ?? source.R);
-  const score = (WEIGHTS.sensitivity * sensitivity) + (WEIGHTS.complexity * complexity) + (WEIGHTS.compliance * compliance);
-  const action = score >= THRESHOLDS.suspend ? 'SUSPEND_MANUAL_REVIEW' : score >= THRESHOLDS.warning ? (score >= 4 ? 'SERVICE_LIMITATION' : 'EMAIL_WARNING_REMEDIATION') : 'EMAIL_WARNING_REMEDIATION';
+  const rawSensitivity = source.sensitivity ?? source.S;
+  const rawComplexity = source.complexity ?? source.C;
+  const rawCompliance = source.compliance ?? source.R;
+  const sensitivity = normalise(rawSensitivity);
+  const complexity = normalise(rawComplexity);
+  const compliance = normalise(rawCompliance);
+  const score10 = (WEIGHTS.sensitivity * sensitivity + WEIGHTS.complexity * complexity + WEIGHTS.compliance * compliance) * 10;
+  const action = score10 >= THRESHOLDS.suspend_min
+    ? 'SUSPEND_MANUAL_REVIEW'
+    : score10 >= 4
+      ? 'SERVICE_LIMITATION'
+      : 'EMAIL_WARNING_REMEDIATION';
+  const correlation = candidate.correlation || candidate.correlation_matrix || null;
+  let correlationFlag = Boolean(candidate.correlation_flag);
+  let maxAbsCorrelation = null;
+  if (correlation && typeof correlation === 'object') {
+    const values = [];
+    for (const key of ['S_R', 'R_S', 'S,C', 'C,S', 'S_R_correlation', 'S_C', 'C_R']) {
+      const value = Number(correlation[key]);
+      if (Number.isFinite(value)) values.push(Math.abs(value));
+    }
+    if (values.length) maxAbsCorrelation = Math.max.apply(null, values);
+    if (maxAbsCorrelation !== null && maxAbsCorrelation > 0.40) correlationFlag = true;
+  }
   return {
-    raw: { sensitivity: source.sensitivity ?? source.S, complexity: source.complexity ?? source.C, compliance: source.compliance ?? source.R },
+    raw: { sensitivity: rawSensitivity, complexity: rawComplexity, compliance: rawCompliance },
     normalised: { sensitivity, complexity, compliance },
     weights: WEIGHTS,
-    score: Number(score.toFixed(4)),
-    score_0_10: Number((score * 10).toFixed(4)),
+    score: Number(score10.toFixed(4)),
+    score_0_10: Number(score10.toFixed(4)),
     action,
     thresholds: THRESHOLDS,
-    correlation_status: candidate.correlation_status || 'UNSUPPLIED',
-    correlation_flag: Boolean(candidate.correlation_flag)
+    correlation_status: candidate.correlation_status || (correlationFlag ? 'RETRAIN_OR_EXTEND' : 'OK_OR_UNSUPPLIED'),
+    correlation_flag: correlationFlag,
+    max_abs_correlation: maxAbsCorrelation
   };
 }
 
@@ -50,13 +70,11 @@ async function verify(candidate) {
   const total = result.checks.length;
   const gauntletScore = total ? Math.round((passed / total) * 100) : 0;
   let risk = null;
-  if (candidate.risk || candidate.trust || ['S','C','R','sensitivity','complexity','compliance'].some(k => Object.prototype.hasOwnProperty.call(candidate, k))) {
-    risk = trustRisk(candidate);
-  }
+  if (candidate.risk || candidate.trust || ['S','C','R','sensitivity','complexity','compliance'].some(k => Object.prototype.hasOwnProperty.call(candidate, k))) risk = trustRisk(candidate);
 
   const verification = {
     type: 'dreamledger-internal-trust-verification',
-    version: '2.0',
+    version: '2.1',
     verdict: result.status,
     trust_score: risk ? risk.score_0_10 : gauntletScore,
     risk_engine: risk,
