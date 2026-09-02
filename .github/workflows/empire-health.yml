@@ -40,14 +40,15 @@ jobs:
           if(o.payment_link_status!=='ACTIVE_LIVEMODE') throw new Error('Canonical payment link is not active livemode');
           console.log('CANONICAL_OFFER=PASS');
           NODE
-      - name: Validate external portfolio references
+      - name: Validate public portfolio references
         shell: bash
         run: |
           set -euo pipefail
-          for repo in "KelpCoin/DreamLedger" "KelpCoin/DreamLogic" "KelpCoin/BrownEye-CUBE" "KelpCoin/mtg-furnace-render" "KelpCoin/Happyhomarid" "KelpCoin/dreamiez-oracle" "KelpCoin/carousel-catalog" "KelpCoin/pulse-catalog"; do
+          for repo in "KelpCoin/DreamLedger" "KelpCoin/DreamLogic" "KelpCoin/mtg-furnace-render" "KelpCoin/Happyhomarid" "KelpCoin/dreamiez-oracle" "KelpCoin/carousel-catalog" "KelpCoin/pulse-catalog"; do
             curl -fsS "https://api.github.com/repos/$repo" >/dev/null
             echo "REPO_OK $repo"
           done
+          echo 'RESTRICTED_PORTFOLIO=NOT_PROBED'
       - name: Write health proof
         shell: bash
         run: |
