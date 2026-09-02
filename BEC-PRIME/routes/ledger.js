@@ -162,6 +162,21 @@ function page(l, items, followCount) {
     '<div class="brand">Dream Ledger 3000 · Your Ledger. Your World.</div></main></body></html>';
 }
 
+function xmlEsc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+}
+
+let sitemapCache = { at: 0, body: '' };
+async function sitemapXml() {
+  if (sitemapCache.body && Date.now() - sitemapCache.at < 3600000) return sitemapCache.body;
+  const ledgers = await supabase('dream_ledgers?select=handle,updated_at&status=eq.active&order=created_at.asc&limit=50000');
+  const urls = (Array.isArray(ledgers) ? ledgers : []).map(l => '<url><loc>' + xmlEsc(PUBLIC_BASE + '/u/' + encodeURIComponent(l.handle)) + '</loc>' + (l.updated_at ? '<lastmod>' + xmlEsc(l.updated_at) + '</lastmod>' : '') + '</url>');
+  urls.unshift('<url><loc>' + xmlEsc(PUBLIC_BASE + '/discover') + '</loc></url>');
+  const body = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls.join('') + '</urlset>';
+  sitemapCache = { at: Date.now(), body };
+  return body;
+}
+
 function discoverPage(ledgers) {
   const cards = ledgers.map(l =>
     '<a class="card" href="/u/' + encodeURIComponent(l.handle) + '">' +
@@ -193,6 +208,11 @@ async function readJson(req, maxBytes) {
 }
 
 async function handle(req, res, p) {
+  if (req.method === 'GET' && p === '/sitemap.xml') {
+    try { if (res.writableEnded) return true; res.writeHead(200, { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' }); res.end(await sitemapXml()); return true; }
+    catch { return html(res, 503, '<h1>Sitemap temporarily unavailable</h1>'); }
+  }
+
   if (req.method === 'GET' && p === '/discover') {
     try { return html(res, 200, discoverPage(await getDiscoverLedgers())); }
     catch { return html(res, 503, '<h1>Discovery temporarily unavailable</h1>'); }
