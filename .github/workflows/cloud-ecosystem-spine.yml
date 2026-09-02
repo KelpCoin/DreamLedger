@@ -83,7 +83,7 @@ jobs:
           print('BILLBOARD_DOOR=PASS')
           print('DREAMMEEZ_COSMETICS='+str(len(cosmetics)))
           PY
-          python3 - <<'PY'
+          python3 - <<PY
           import urllib.request
           with urllib.request.urlopen('${BILLBOARD_PAYMENT_LINK}', timeout=30) as r:
               print('BILLBOARD_STRIPE_CHECKOUT_HTTP='+str(r.status))
