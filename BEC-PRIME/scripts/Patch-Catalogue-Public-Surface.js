@@ -6,7 +6,7 @@ const ROOT=path.join(__dirname,'..');
 const INDEX=path.join(ROOT,'compiled','website','index.html');
 if(!fs.existsSync(INDEX))throw new Error('compiled public index missing: '+INDEX);
 const html=fs.readFileSync(INDEX,'utf8');
-const required=['DreamLedger','FIND SOMETHING','GOOD.','Billboard','MTG','NZ$50','NZ$400','NZ$385','NZ$700'];
+const required=['DreamLedger','Digital products','Magic & collectibles','Games & experiments','Digital media','Billboard','DreamMeez'];
 const forbidden=['Amplissa','HappyHomarid','CollectorsCoast','adult-only','adult only','stripe_secret_key','stripe_webhook_secret','/var/data/'];
 const lower=html.toLowerCase();
 const missing=required.filter(x=>!lower.includes(x.toLowerCase()));
