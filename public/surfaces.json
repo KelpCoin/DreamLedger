@@ -1,0 +1,93 @@
+{
+  "schema": "dreamledger/surfaces/v1",
+  "status": "active",
+  "purpose": "canonical commercial surface registry",
+  "rules": {
+    "every_surface_has_surface_id": true,
+    "every_surface_maps_to_offer_id": true,
+    "every_paid_event_maps_to_economic_event": true,
+    "every_delivery_emits_proof": true,
+    "scale_rule": "paid_verified_then_clone"
+  },
+  "surface_classes": {
+    "DOOH_SCREEN": "physical advertising inventory",
+    "QR_SURFACE": "physical-to-digital doorway",
+    "WEB_OFFER": "human-facing offer",
+    "AGENT_ENDPOINT": "machine-readable commerce doorway",
+    "DIGITAL_PRODUCT": "automated digital fulfillment",
+    "TRUST_PROOF": "portable transaction and delivery evidence"
+  },
+  "active_surfaces": [
+    {
+      "surface_id": "DL-WEB-BILLBOARD-001",
+      "class": "WEB_OFFER",
+      "silo": "core",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "path": "/billboard",
+      "status": "active"
+    },
+    {
+      "surface_id": "DL-AGENT-001",
+      "class": "AGENT_ENDPOINT",
+      "silo": "core",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "path": "/agent.json",
+      "status": "active"
+    },
+    {
+      "surface_id": "DL-QR-001",
+      "class": "QR_SURFACE",
+      "silo": "core",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "canonical_target": "/billboard",
+      "status": "active"
+    },
+    {
+      "surface_id": "DL-TRUST-001",
+      "class": "TRUST_PROOF",
+      "silo": "core",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "proof_schema": "dreamledger/proof/v1",
+      "status": "active"
+    },
+    {
+      "surface_id": "DL-WEB-CMD-DIAG-001",
+      "class": "WEB_OFFER",
+      "silo": "mtg",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "path": "/mtg",
+      "status": "active",
+      "role": "ignition_test_only"
+    }
+  ],
+  "expansion_surfaces": [
+    {
+      "surface_id_prefix": "DL-DOOH-",
+      "class": "DOOH_SCREEN",
+      "silo": "core",
+      "offer_family": "PDOOH_PROGRAMMATIC_CAMPAIGN",
+      "state": "ready_to_clone_after_paid_proof"
+    },
+    {
+      "surface_id_prefix": "DL-QR-",
+      "class": "QR_SURFACE",
+      "silo": "core",
+      "offer_family": "QR_COMMERCE_DOORWAY",
+      "state": "ready_to_clone_after_paid_proof"
+    },
+    {
+      "surface_id_prefix": "DL-DIGITAL-",
+      "class": "DIGITAL_PRODUCT",
+      "silo": "core",
+      "offer_family": "DIGITAL_PRODUCT_LADDER",
+      "state": "ready_to_clone_after_paid_proof"
+    },
+    {
+      "surface_id_prefix": "DL-AGENT-",
+      "class": "AGENT_ENDPOINT",
+      "silo": "core",
+      "offer_family": "AGENTIC_COMMERCE_TRUST_WEDGE",
+      "state": "ready_to_clone_after_paid_proof"
+    }
+  ]
+}
