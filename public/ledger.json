@@ -1,0 +1,13 @@
+{
+  "schema":"dreamledger/ledger/v1",
+  "status":"active",
+  "name":"Dream Ledger 3000",
+  "promise":"A durable identity and commerce surface designed for long-lived hosting.",
+  "model":"one_identity_many_surfaces_one_commerce_spine",
+  "fee_policy":{"mtg_percent":0,"default_percent":5},
+  "features":{"profiles":true,"dreammeez":true,"catalogue":true,"swipe":true,"streaks":true,"ticker":true,"billboard":true,"commerce":true,"proof":true,"games":"planned"},
+  "silos":{"core":"active","mtg":"active","adult":"quarantined","collectors_coast":"quarantined"},
+  "profile_route":"/u/:handle",
+  "canonical_identity":"ledger_id",
+  "scale_rule":"paid_verified_then_clone"
+}
