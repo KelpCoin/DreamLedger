@@ -1,0 +1,13 @@
+{
+  "schema":"dreamledger/platform/v1",
+  "name":"Dream Ledger 3000",
+  "tagline":"Your Ledger. Your World.",
+  "thesis":"Permanent identity + discovery + commerce + proof.",
+  "surfaces":["profile","dreammeez","catalogue","swipe","streak","ticker","billboard","agent","proof"],
+  "economics":{"default_platform_fee_percent":5,"mtg_platform_fee_percent":0},
+  "silos":{"core":"active","mtg":{"status":"active","alias":"Meatiest Magic","fee_percent":0},"adult":"quarantined","collectors_coast":"quarantined"},
+  "profile_model":"white_label_micro_marketplace",
+  "identity":"ledger_id",
+  "commerce":"canonical_offer_checkout_payment_delivery_proof_ledger",
+  "scale":"paid_verified_then_clone"
+}
