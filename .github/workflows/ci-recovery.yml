@@ -1,0 +1,39 @@
+name: CI Recovery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run basic test suite
+        run: npm test
+
+  ci-pass-evidence:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: CI PASS evidence
+        run: echo "CI PASS: PROVEN"
