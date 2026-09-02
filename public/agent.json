@@ -1,0 +1,39 @@
+{
+  "schema": "dreamledger/agent/v1",
+  "name": "DreamLedger Commerce Agent Interface",
+  "status": "active",
+  "human_entry": "/",
+  "discovery": "/api/offers",
+  "catalog": "/api/products",
+  "ecosystem": "/ecosystem.json",
+  "commerce": {
+    "supported_action": "purchase",
+    "authorization": "buyer_or_authorized_agent",
+    "payment": "checkout_url",
+    "currency": "NZD",
+    "evidence_after_payment": true
+  },
+  "offers": [
+    {
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "endpoint": "/billboard",
+      "action": "purchase",
+      "price_nzd": 50,
+      "status": "live"
+    },
+    {
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "endpoint": "/api/offer-checkout/create",
+      "action": "purchase",
+      "price_nzd": 29,
+      "status": "live",
+      "role": "ignition_test_only"
+    }
+  ],
+  "safety": {
+    "no_claim_without_proof": true,
+    "payment_must_be_verified": true,
+    "refund_event_supported": true,
+    "silo_isolation": true
+  }
+}
