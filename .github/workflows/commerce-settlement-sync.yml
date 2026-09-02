@@ -27,8 +27,8 @@ jobs:
       - name: Reconcile settlement evidence
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_PAYMENT_LINK_URL: ${{ secrets.STRIPE_PAYMENT_LINK_URL }}
-          STRIPE_LIVE_ENABLED: ${{ vars.STRIPE_LIVE_ENABLED }}
+          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00
+          STRIPE_LIVE_ENABLED: 'true'
           AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
           AIRTABLE_BASE_ID: appknw1VhHjEzCwFC
           AIRTABLE_EVENTS_TABLE_ID: tblp9aC01vvyi9iKj
