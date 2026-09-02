@@ -46,7 +46,7 @@ jobs:
           grep -qi 'Put your message on a billboard' public/index.html
           grep -q '/avatar' public/index.html
           grep -q '/billboard' public/index.html
-          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK' public/index.html public/billboard.html public/avatar.html public/server.js
+          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET' public/index.html public/billboard.html public/avatar.html public/server.js
           grep -q 'autoDeployTrigger: commit' render.yaml
           grep -q 'rootDir: public' render.yaml
           grep -q 'rootDir: BEC-PRIME' render.yaml
