@@ -63,7 +63,7 @@ jobs:
           grep -q 'PUBLIC_FILES' public/server.js
           grep -Eq "'/'.*index.html" public/server.js
           grep -Eq "'/billboard'.*billboard.html" public/server.js
-          grep -Eq "'/dreammeez'.*dreamiez.html" public/server.js
+          grep -Eq "'/dreammeez'.*avatar.html" public/server.js
           grep -Eq "'/sitemap.xml'.*sitemap.xml" public/server.js
           grep -q "if\(!ALLOWED_API\[key\]\)" public/server.js
           echo 'PASS: public routes explicitly allowlisted.'
