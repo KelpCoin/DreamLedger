@@ -7,6 +7,7 @@
     "offer_id": "required",
     "checkout": "canonical_payment_rail",
     "proof": "append_only_evidence",
+    "proof_schema": "dreamledger/proof/v1",
     "ledger": "economic_event"
   },
   "silos": {
@@ -23,9 +24,9 @@
     {"id":"DOOH_SCREEN","status":"active","commercial_role":"physical advertising inventory"},
     {"id":"QR_SURFACE","status":"active","commercial_role":"canonical physical-to-digital commerce doorway"},
     {"id":"WEB_OFFER","status":"active","commercial_role":"human-facing digital checkout doorway"},
-    {"id":"AGENT_ENDPOINT","status":"ready","commercial_role":"machine-readable discovery and purchase doorway"},
+    {"id":"AGENT_ENDPOINT","status":"active","commercial_role":"machine-readable discovery and purchase doorway"},
     {"id":"DIGITAL_PRODUCT","status":"active","commercial_role":"high-margin digital fulfillment"},
-    {"id":"TRUST_PROOF","status":"ready","commercial_role":"portable transaction and delivery evidence"}
+    {"id":"TRUST_PROOF","status":"active","commercial_role":"portable transaction and delivery evidence"}
   ],
   "locked_offers": [
     {
@@ -68,7 +69,7 @@
       "commercial_goal":"rapidly test high-margin products and clone paid winners"
     },
     {
-      "id":"VERIFIED_DOoh_DELIVERY",
+      "id":"VERIFIED_DOOH_DELIVERY",
       "type":"trust",
       "status":"target",
       "commercial_goal":"attach proof-of-delivery to advertising transactions"
