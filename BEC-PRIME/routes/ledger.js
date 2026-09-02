@@ -269,7 +269,7 @@ async function handle(req, res, p) {
       }
       return json(res, 200, { ok: true, following: req.method !== 'DELETE', follow_count: await getFollowCount(l.id) });
     } catch (e) {
-      if (e.status === 409) return json(res, 200, { ok: true, following: true, follow_count: await getFollowCountByHandle(h) });
+      if (e.status === 409) return json(res, 200, { ok: true, following: true, follow_count: await getFollowCount(l.id) });
       return json(res, 503, { error: 'Follow service unavailable' });
     }
   }
