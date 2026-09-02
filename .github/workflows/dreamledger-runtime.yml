@@ -65,7 +65,8 @@ jobs:
           if (x.status !== 'PASS') throw new Error('Stage 1 status is not PASS');
           if (x.mode !== 'SIMULATION') throw new Error('Stage 1 mode is not SIMULATION');
           if (!x.lifecycle_complete) throw new Error('Stage 1 lifecycle is incomplete');
-          if (!/^[a-f0-9]{64}$/.test(String(x.ledger_head_hash || ''))) throw new Error('ledger_head_hash is not a SHA-256 hex value');
+          const hash = String(x.ledger_head_hash || '').replace(/^sha256:/, '');
+          if (!/^[a-f0-9]{64}$/.test(hash)) throw new Error('ledger_head_hash is not a SHA-256 hex value');
           if (x.revenue_claimed !== false) throw new Error('Simulation proof cannot claim revenue');
           if (x.ra_000001_authorized !== false) throw new Error('Stage 1 cannot authorize RA_000001');
           console.log(JSON.stringify({status:'PASS',ledger_head_hash:x.ledger_head_hash,event_count:x.event_count,mode:x.mode},null,2));
