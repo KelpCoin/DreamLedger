@@ -10,6 +10,7 @@
     "agent_manifest": "/agent.json",
     "billboard": "/billboard",
     "proof_contract": "dreamledger/proof/v1",
+    "proof_fields": ["proof_id","event_id","surface_id","offer_id","product_id","silo","payment_provider","payment_reference","paid_at","delivered_at","delivery_status","asset_sha256","evidence_sha256","verification_status","issuer","created_at"],
     "event_spine": ["discovered","offered","authorized","paid","delivered","proven","refunded","quarantined"]
   },
   "surfaces": [
@@ -25,6 +26,8 @@
     "fulfillment_authority": "paid_verified",
     "scale_authority": "proven_paid_event",
     "public_posting": "approval_gated",
-    "silo_isolation": true
+    "silo_isolation": true,
+    "proof_integrity": "sha256_append_only",
+    "economic_truth": "ledger_event_not_page_view"
   }
 }
