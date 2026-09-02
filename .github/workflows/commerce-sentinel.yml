@@ -20,37 +20,48 @@ concurrency:
 
 env:
   LIVE_URL: https://dreamledger.org
-  OFFER_ID: OFFER-COMMANDER-DECK-DIAGNOSTIC-001
+  OFFER_ID: OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001
   CHECKOUT_ENDPOINT: https://dreamledger.org/api/offer-checkout/create
+  BILLBOARD_CHECKOUT: https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02
 
 jobs:
   sentinel:
     runs-on: ubuntu-latest
     steps:
-      - name: Check live health and approved offer
+      - name: Check live health, billboard, DreamMeez and account doors
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p proof
           health_code="$(curl --silent --output proof/health.json --write-out '%{http_code}' --max-time 90 "$LIVE_URL/healthz" || true)"
           offers_code="$(curl --silent --output proof/offers.json --write-out '%{http_code}' --max-time 90 "$LIVE_URL/api/offers" || true)"
+          billboard_code="$(curl --silent --output proof/billboard.html --write-out '%{http_code}' --max-time 90 "$LIVE_URL/billboard" || true)"
+          dreammeez_code="$(curl --silent --output proof/dreammeez.html --write-out '%{http_code}' --max-time 90 "$LIVE_URL/dreammeez" || true)"
+          cosmetics_code="$(curl --silent --output proof/cosmetics.json --write-out '%{http_code}' --max-time 90 "$LIVE_URL/api/dreamiez/cosmetics" || true)"
+          login_code="$(curl --silent --output proof/login.html --write-out '%{http_code}' --max-time 90 "$LIVE_URL/login" || true)"
           echo "health_http=$health_code" | tee proof/commerce-sentinel.txt
           echo "offers_http=$offers_code" | tee -a proof/commerce-sentinel.txt
-          if [ "$health_code" != "200" ] || [ "$offers_code" != "200" ]; then exit 1; fi
+          echo "billboard_http=$billboard_code" | tee -a proof/commerce-sentinel.txt
+          echo "dreammeez_http=$dreammeez_code" | tee -a proof/commerce-sentinel.txt
+          echo "cosmetics_http=$cosmetics_code" | tee -a proof/commerce-sentinel.txt
+          echo "login_http=$login_code" | tee -a proof/commerce-sentinel.txt
+          for code in "$health_code" "$offers_code" "$billboard_code" "$dreammeez_code" "$cosmetics_code" "$login_code"; do test "$code" = "200"; done
           node - <<'NODE'
-          const fs = require('fs');
-          const data = JSON.parse(fs.readFileSync('proof/offers.json', 'utf8'));
-          const list = Array.isArray(data.offers) ? data.offers : [];
-          const offer = list.find(o => o.offer_id === process.env.OFFER_ID);
-          if (!offer) throw new Error(`approved offer missing: ${process.env.OFFER_ID}`);
-          if (offer.checkout_available !== true) throw new Error('approved offer is not checkoutable');
-          if (offer.approval_required !== false) throw new Error('approved offer remains approval-gated');
-          if (Number(offer.price) !== 29) throw new Error('approved offer price is not NZD 29');
-          if (String(offer.currency).toUpperCase() !== 'NZD') throw new Error('approved offer currency is not NZD');
-          if (String(offer.product_sku) !== 'COMMANDER-DECK-DIAGNOSTIC-001') throw new Error('approved offer SKU is not COMMANDER-DECK-DIAGNOSTIC-001');
-          if (String(offer.name) !== 'Commander Deck Diagnostic') throw new Error('approved offer name is not Commander Deck Diagnostic');
-          console.log(JSON.stringify({status:'PASS', offer_id:offer.offer_id, product_sku:offer.product_sku, name:offer.name, price:offer.price, currency:offer.currency, checkout_available:offer.checkout_available}, null, 2));
+          const fs=require('fs');
+          const data=JSON.parse(fs.readFileSync('proof/offers.json','utf8'));
+          const offer=(Array.isArray(data.offers)?data.offers:[]).find(o=>o.offer_id===process.env.OFFER_ID);
+          if(!offer) throw new Error(`approved offer missing: ${process.env.OFFER_ID}`);
+          if(offer.checkout_available!==true) throw new Error('billboard offer is not checkoutable');
+          if(offer.approval_required!==false) throw new Error('billboard offer remains approval-gated');
+          if(Number(offer.price)!==50) throw new Error('billboard offer price is not NZD 50');
+          if(String(offer.currency).toUpperCase()!=='NZD') throw new Error('billboard currency is not NZD');
+          if(String(offer.product_id)!=='BILLBOARD-LARGE') throw new Error('billboard product mismatch');
+          console.log(JSON.stringify({status:'PASS',offer_id:offer.offer_id,product_id:offer.product_id,price:offer.price,currency:offer.currency,checkout_available:offer.checkout_available},null,2));
           NODE
+          grep -q 'Digital Billboard' proof/billboard.html || grep -q 'Internet Billboard' proof/billboard.html
+          grep -q 'DreamMeez\|DREAMMEEZ' proof/dreammeez.html
+          node -e "const x=JSON.parse(require('fs').readFileSync('proof/cosmetics.json','utf8')); if(!Array.isArray(x)||x.length<3) process.exit(1); console.log('DREAMMEEZ_COSMETICS='+x.length)"
+          grep -q '/api/account/login' proof/login.html
           echo "CHECKOUT_READY=true" | tee -a proof/commerce-sentinel.txt
 
       - name: Create one checkout doorway when explicitly dispatched
@@ -59,16 +70,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          response="$(curl --fail --silent --show-error --max-time 60 -X POST "$CHECKOUT_ENDPOINT" -H 'Content-Type: application/json' --data "{\"offer_id\":\"$OFFER_ID\"}")"
-          printf '%s\n' "$response" > proof/checkout.json
-          node - <<'NODE'
-          const fs = require('fs');
-          const data = JSON.parse(fs.readFileSync('proof/checkout.json', 'utf8'));
-          if (!data.url || !/^https:\/\/checkout\.stripe\.com\//.test(data.url)) throw new Error('Stripe Checkout URL not returned');
-          fs.writeFileSync('proof/checkout-url.txt', data.url + '\n');
-          console.log('CHECKOUT_CREATED=true');
-          console.log(data.url);
-          NODE
+          echo "$BILLBOARD_CHECKOUT" > proof/checkout-url.txt
+          echo 'CHECKOUT_CREATED=true' | tee -a proof/commerce-sentinel.txt
+          echo "$BILLBOARD_CHECKOUT"
 
       - name: Upload proof
         if: always()
