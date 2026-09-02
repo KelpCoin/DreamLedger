@@ -1,0 +1,23 @@
+{
+  "schema": "dreamledger/discovery/v1",
+  "service": "DreamLedger",
+  "status": "active",
+  "canonical": {
+    "cube": "/cube.json",
+    "ecosystem": "/ecosystem.json",
+    "agent": "/agent.json",
+    "surfaces": "/surfaces.json",
+    "offers": "/api/offers",
+    "products": "/api/products",
+    "proof_schema": "dreamledger/proof/v1"
+  },
+  "commerce": {
+    "flow": ["discover", "offer", "authorize", "pay", "deliver", "prove", "ledger"],
+    "scale_rule": "paid_verified_then_clone"
+  },
+  "safety": {
+    "payment_authorization_required": true,
+    "public_posting_approval_required": true,
+    "silo_isolation_required": true
+  }
+}
