@@ -1,7 +1,7 @@
 'use strict';
 
-/* Keep Stripe webhook handling on the persistent DreamLedger engine.
- * The public storefront has no durable disk and must not consume /webhook itself.
+/* Keep Stripe webhook and Truth Oracle handling on the persistent DreamLedger engine.
+ * The public storefront has no durable disk and must not consume engine-backed state.
  */
 const http = require('http');
 const { URL } = require('url');
@@ -10,8 +10,12 @@ if (!global.__dreamledgerWebhookProxyPreload) {
   const originalCreateServer = http.createServer;
   http.createServer = function wrappedCreateServer(handler) {
     const engine = String(process.env.ENGINE_INTERNAL_URL || '');
+    const engineKey = String(process.env.ENGINE_INTERNAL_API_KEY || '');
     const wrapped = async function webhookProxyHandler(req, res) {
-      if (req.method === 'POST' && String(req.url || '').split('?')[0] === '/webhook' && engine) {
+      const requestPath = String(req.url || '').split('?')[0];
+      const shouldProxyWebhook = req.method === 'POST' && requestPath === '/webhook' && engine;
+      const shouldProxyTruth = engine && (requestPath === '/truth-oracle' || requestPath === '/api/truth-oracle' || requestPath.startsWith('/api/truth-oracle/'));
+      if (shouldProxyWebhook || shouldProxyTruth) {
         let body = Buffer.alloc(0);
         try {
           const chunks = [];
@@ -25,11 +29,13 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             'content-length': body.length,
             'stripe-signature': req.headers['stripe-signature'] || ''
           };
+          if (engineKey) headers['x-dreamledger-internal-key'] = engineKey;
+          if (req.headers.cookie) headers.cookie = req.headers.cookie;
           const upstream = http.request({
             hostname: target.hostname,
             port: Number(target.port || 80),
-            path: '/webhook',
-            method: 'POST',
+            path: req.url,
+            method: req.method,
             headers
           }, response => {
             res.statusCode = response.statusCode || 502;
@@ -43,7 +49,7 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             if (!res.writableEnded) {
               res.statusCode = 502;
               res.setHeader('Content-Type', 'application/json; charset=utf-8');
-              res.end(JSON.stringify({ error: err.message || 'Webhook upstream unavailable' }));
+              res.end(JSON.stringify({ error: err.message || 'Engine upstream unavailable' }));
             }
           });
           upstream.end(body);
@@ -52,7 +58,7 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           if (!res.writableEnded) {
             res.statusCode = 400;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
-            res.end(JSON.stringify({ error: err.message || 'Webhook proxy failed' }));
+            res.end(JSON.stringify({ error: err.message || 'Engine proxy failed' }));
           }
           return;
         }
