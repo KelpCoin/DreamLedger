@@ -69,6 +69,10 @@ jobs:
         working-directory: BEC-PRIME
         run: npm run test:truth-oracle
 
+      - name: Revenue pipeline deterministic tests
+        working-directory: BEC-PRIME
+        run: npm run test:revenue-pipeline
+
       - name: Public Truth Oracle surface verification
         shell: bash
         run: |
