@@ -41,6 +41,8 @@ async function stripePost(endpoint,params,idempotencyKey) {
   const text=await response.text(); let data; try{data=JSON.parse(text);}catch{data={raw:text};}
   if(!response.ok)throw new Error(data?.error?.message||'Stripe API '+response.status); return data;
 }
+function isoFromUnix(value) { return Number.isFinite(Number(value)) ? new Date(Number(value)*1000).toISOString() : null; }
+function rememberEvent(record,event) { const events={...(record.provider_events||{})}; events[event.id]={type:event.type,timestamp:event.created||null,livemode:event.livemode===true,processed_at:new Date().toISOString()}; const ids=Object.keys(events); while(ids.length>100){delete events[ids.shift()];} record.provider_events=events; record.last_provider_event_id=event.id; return record; }
 
 async function handle(req,res,url) {
   if(req.method==='GET'&&url==='/api/truth-oracle/plans') return send(res,200,{plans:plans().map(p=>({tier:p.tier,display_name:p.display_name||p.tier,price_nzd_month:Number(p.price_nzd_month),disclosure_class:p.disclosure_class,description:p.description}))});
@@ -88,32 +90,47 @@ async function handleStripeWebhook(raw,signature) {
   const object=event?.data?.object||{};
   const metadata=object.metadata||{};
   if(metadata.silo!=='truth-oracle')return {handled:false};
-  const environment=process.env.STRIPE_LIVEMODE==='true'?'live':'test';
+  const environment=event.livemode===true?'live':'test';
   const state=billing();
-  const userId=String(metadata.user_id||object.client_reference_id||'');
+  let userId=String(metadata.user_id||object.client_reference_id||'');
+  const subscriptionId=typeof object.subscription==='string'?object.subscription:(object.subscription?.id||null);
+  if(!userId && subscriptionId && STRIPE_SECRET_KEY) {
+    const subscription=await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId));
+    const sm=subscription.metadata||{}; userId=String(sm.user_id||'');
+  }
   if(!userId)throw Object.assign(new Error('Truth Oracle billing event missing account association'),{statusCode:400});
   const existing=state[userId]||{};
+  if(existing.provider_events && existing.provider_events[event.id]) return {handled:true,idempotent:true,provider_event_id:event.id};
+  let record={...existing};
   if(event.type==='checkout.session.completed') {
     if(object.mode!=='subscription'||object.payment_status!=='paid')return {handled:true,ignored:true,reason:'payment_not_paid'};
     const tier=String(metadata.truth_oracle_tier||''); if(!paidPlan(tier))throw Object.assign(new Error('Unknown Truth Oracle tier in provider event'),{statusCode:400});
-    state[userId]={...existing,tier,status:'active',environment,customer_id:object.customer||null,subscription_id:typeof object.subscription==='string'?object.subscription:(object.subscription?.id||null),last_provider_event_id:event.id,updated_at:new Date().toISOString(),expires_at:null};
-    saveBilling(state); return {handled:true,economic_state:'ENTITLEMENT_GRANTED',provider_event_id:event.id};
+    let subscription=null; if(subscriptionId && STRIPE_SECRET_KEY) subscription=await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId));
+    record={...record,tier,status:'active',environment,customer_id:object.customer||null,subscription_id:subscriptionId,expires_at:isoFromUnix(subscription?.current_period_end),updated_at:new Date().toISOString()};
+    record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:'ENTITLEMENT_GRANTED',provider_event_id:event.id,environment};
   }
   if(event.type==='invoice.paid') {
-    const subscriptionId=typeof object.subscription==='string'?object.subscription:(object.subscription?.id||null);
-    const invoiceMeta=metadata;
-    const tier=String(invoiceMeta.truth_oracle_tier||existing.tier||'');
+    const subscription=subscriptionId&&STRIPE_SECRET_KEY?await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId)):null;
+    const tier=String(metadata.truth_oracle_tier||subscription?.metadata?.truth_oracle_tier||existing.tier||'');
+    const resolvedUser=String(metadata.user_id||subscription?.metadata?.user_id||userId);
     if(!paidPlan(tier))return {handled:true,ignored:true,reason:'unknown_tier'};
-    state[userId]={...existing,tier,status:'active',environment,customer_id:object.customer||existing.customer_id,subscription_id:subscriptionId||existing.subscription_id,last_provider_event_id:event.id,updated_at:new Date().toISOString(),expires_at:null};
-    saveBilling(state); return {handled:true,economic_state:'PAYMENT_SUCCEEDED',provider_event_id:event.id};
+    record={...record,tier,status:'active',environment,customer_id:object.customer||existing.customer_id,subscription_id:subscriptionId||existing.subscription_id,expires_at:isoFromUnix(subscription?.current_period_end),updated_at:new Date().toISOString()};
+    record=rememberEvent(record,event); state[resolvedUser]=record; saveBilling(state); return {handled:true,economic_state:'PAYMENT_SUCCEEDED',provider_event_id:event.id,environment};
   }
   if(event.type==='invoice.payment_failed') {
-    state[userId]={...existing,status:'past_due',environment,last_provider_event_id:event.id,updated_at:new Date().toISOString()}; saveBilling(state); return {handled:true,economic_state:'PAYMENT_FAILED',provider_event_id:event.id};
+    record={...record,status:'past_due',environment,updated_at:new Date().toISOString()}; record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:'PAYMENT_FAILED',provider_event_id:event.id,environment};
+  }
+  if(event.type==='customer.subscription.updated') {
+    const tier=String(metadata.truth_oracle_tier||existing.tier||'');
+    const status=String(object.status||'');
+    const active=['active','trialing'].includes(status);
+    record={...record,tier:paidPlan(tier)?tier:(existing.tier||'public'),status:active?'active':status,environment,customer_id:object.customer||existing.customer_id,subscription_id:object.id||existing.subscription_id,expires_at:isoFromUnix(object.current_period_end),cancel_at_period_end:object.cancel_at_period_end===true,updated_at:new Date().toISOString()};
+    record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:active?'ENTITLEMENT_GRANTED':'BILLING_STATE_UPDATED',provider_event_id:event.id,environment};
   }
   if(event.type==='customer.subscription.deleted') {
-    state[userId]={...existing,status:'canceled',environment,last_provider_event_id:event.id,updated_at:new Date().toISOString(),expires_at:new Date().toISOString()}; saveBilling(state); return {handled:true,economic_state:'REVOKED',provider_event_id:event.id};
+    record={...record,status:'canceled',environment,subscription_id:object.id||existing.subscription_id,updated_at:new Date().toISOString(),expires_at:new Date().toISOString()}; record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:'REVOKED',provider_event_id:event.id,environment};
   }
-  return {handled:true,ignored:true,reason:'unsupported_event'};
+  record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,ignored:true,reason:'unsupported_event',provider_event_id:event.id,environment};
 }
 
 module.exports={handle,handleStripeWebhook,getEntitlement};
