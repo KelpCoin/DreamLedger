@@ -1,18 +1,12 @@
 {
   "proof_version": "truth-oracle-economic-activation-v1",
-  "timestamp": "2026-09-03T00:00:00Z",
+  "timestamp": "2026-09-03",
   "repository": "KelpCoin/DreamLedger",
   "branch": "main",
   "implementation": {
     "truth_oracle": "expanded economic evidence layer",
     "public_route": "/truth-oracle",
-    "api_routes": [
-      "/api/truth-oracle",
-      "/api/truth-oracle/plans",
-      "/api/truth-oracle/checkout",
-      "/api/truth-oracle/entitlement",
-      "/api/truth-oracle/access"
-    ],
+    "api_routes": ["/api/truth-oracle","/api/truth-oracle/plans","/api/truth-oracle/checkout","/api/truth-oracle/entitlement","/api/truth-oracle/access"],
     "evidence_types": ["OBSERVED","INDEPENDENTLY_VERIFIED","SOURCE_SUPPORT","DERIVED","INFERRED","CONTRADICTED","UNKNOWN"],
     "truth_payment_invariant": "Entitlement changes disclosure depth, never underlying verdict or confidence."
   },
@@ -25,7 +19,6 @@
   },
   "stripe": {
     "environment_target": "live",
-    "account_context": "acct_1NKPLaJt4ieIQDFz",
     "products_prices": "existing configured Stripe product/price IDs reused",
     "real_money_action": "not performed",
     "customer_authorization_required": true
