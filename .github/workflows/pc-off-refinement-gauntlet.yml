@@ -21,6 +21,8 @@ on:
       - 'MARKETS/**'
       - 'SOCIAL/**'
       - 'BEC-PRIME/**'
+      - 'public/**'
+      - 'render.yaml'
       - '.github/workflows/pc-off-refinement-gauntlet.yml'
 
 permissions:
@@ -43,7 +45,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: BEC-PRIME/package-lock.json
 
@@ -58,6 +60,37 @@ jobs:
         run: |
           mkdir -p ../artifacts
           npm run verify:integration
+
+      - name: Truth Oracle commerce verification
+        working-directory: BEC-PRIME
+        run: npm run verify:truth-oracle-commerce
+
+      - name: Truth Oracle deterministic tests
+        working-directory: BEC-PRIME
+        run: npm run test:truth-oracle
+
+      - name: Public Truth Oracle surface verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s public/webhook-proxy-preload.js
+          test -s BEC-PRIME/compiled/website/truth-oracle.html
+          grep -q "requestPath === '/truth-oracle'" public/webhook-proxy-preload.js
+          grep -q "requestPath.startsWith('/api/truth-oracle/')" public/webhook-proxy-preload.js
+          grep -q "ENGINE_INTERNAL_URL_MISSING" public/webhook-proxy-preload.js
+          node --check public/webhook-proxy-preload.js
+          echo 'TRUTH_ORACLE_PUBLIC_SURFACE=PASS'
+
+      - name: Render contract verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'name: dreamledger-storefront' render.yaml
+          grep -q 'name: dreamledger-engine' render.yaml
+          grep -q 'autoDeployTrigger: commit' render.yaml
+          grep -q 'healthCheckPath: /healthz' render.yaml
+          grep -q '24.14.1' render.yaml
+          echo 'RENDER_CONTRACT=PASS'
 
       - name: Cloud refinement preflight
         if: ${{ env.USE_CLOUD_LLM == 'true' }}
@@ -104,7 +137,6 @@ jobs:
             echo 'LM_STUDIO=LOCAL_WHEN_PC_ON'
             echo 'REFINEMENT=PROPOSER_CRITIC_SYNTHESIZER'
             echo 'GAUNTLET=EXECUTED'
-            echo 'SOCIAL_PUBLICATION=APPROVAL_GATED'
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_AUTOMATION'
           } | tee artifacts/pc-off-refinement-proof.txt
 
