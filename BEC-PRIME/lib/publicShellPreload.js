@@ -7,69 +7,16 @@ const PUBLIC = path.join(ROOT, 'compiled', 'website');
 const PRODUCT_CATALOG = path.join(ROOT, 'catalog', 'products');
 const billboard = require('../routes/billboard');
 const trustAttestation = require('../routes/trustAttestation');
+const truthOracleCommerce = require('../routes/truthOracleCommerce');
 const original = http.createServer;
 const EXCLUDED_ROUTES = new Set(['/dreamiez']);
 const EXCLUDED_SILOS = new Set(['SILO_DREAMIEZ','dreamiez','SILO_CINEMA']);
 function safePublicProductFiles(){
   if(!fs.existsSync(PRODUCT_CATALOG)) return [];
-  return fs.readdirSync(PRODUCT_CATALOG).filter(n=>n.endsWith('.json')).map(n=>{
-    try{return JSON.parse(fs.readFileSync(path.join(PRODUCT_CATALOG,n),'utf8'));}catch{return null;}
-  }).filter(p=>p&&p.status==='published'&&p.commercial_truth&&p.commercial_truth.approval_required===false&&!EXCLUDED_SILOS.has(String(p.silo||'')));
+  return fs.readdirSync(PRODUCT_CATALOG).filter(n=>n.endsWith('.json')).map(n=>{try{return JSON.parse(fs.readFileSync(path.join(PRODUCT_CATALOG,n,'utf8')))}catch{return null}}).filter(p=>p&&p.status==='published'&&p.commercial_truth&&p.commercial_truth.approval_required===false&&!EXCLUDED_SILOS.has(String(p.silo||'')));
 }
-function isExcludedPublicRoute(route){
-  const value=String(route||'').split('?')[0].toLowerCase();
-  return EXCLUDED_ROUTES.has(value)||value.includes('/dreamiez');
-}
-function htmlFile(route){
-  const map={
-    '/':'index.html',
-    '/mtg':path.join('mtg','index.html'),
-    '/commander':path.join('commander','index.html'),
-    '/cinema':'../../cinema.html',
-    '/cinema/':'../../cinema.html',
-    '/cinema.html':'../../cinema.html',
-    '/dreammeez':'avatar.html',
-    '/dreammeez/':'avatar.html',
-    '/billboard':'billboard.html',
-    '/billboard/':'billboard.html',
-    '/billboard-review':'billboard-review.html',
-    '/billboard-review/':'billboard-review.html'
-  };
-  return map[route]||null;
-}
-function shell(file){
-  const full=path.join(PUBLIC,file);
-  if(!fs.existsSync(full)) return null;
-  let html=fs.readFileSync(full,'utf8');
-  if(!html.includes('/assets/digital-proxy-assist.js')) html=html.replace('</body>','<script src="/assets/digital-proxy-assist.js" defer></script></body>');
-  return Buffer.from(html,'utf8');
-}
-function sendJson(res,status,data){
-  if(res.writableEnded)return true;
-  const body=Buffer.from(JSON.stringify(data));
-  res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Content-Length':String(body.length)});
-  res.end(body);
-  return true;
-}
-http.createServer=function publicShellCreateServer(...args){
-  const handler=args[0];
-  if(typeof handler!=='function') return original.apply(this,args);
-  args[0]=async function publicShellHandler(req,res){
-    const route=String(req.url||'').split('?')[0];
-    if(req.method==='GET'&&isExcludedPublicRoute(route)) return sendJson(res,404,{error:'Route excluded from production surface'});
-    if(req.method==='GET'&&route==='/api/products'){
-      const products=safePublicProductFiles().map(p=>({id:p.id,silo:p.silo,name:p.name,description:p.description,price:Number(p.price),currency:p.currency,inventory:Number(p.inventory),status:'published',approval_required:false,checkout_available:Number(p.inventory)>0}));
-      return sendJson(res,200,{products});
-    }
-    if(req.method==='GET' || req.method==='POST'){
-      try{if(await trustAttestation.handle(req,res,route))return;}catch(err){return sendJson(res,500,{error:err.message||'Trust attestation route failed'});}
-    }
-    if(req.method==='GET'){
-      const file=htmlFile(route);
-      if(file){const payload=shell(file);if(payload){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Length':String(payload.length)});return res.end(payload);}}
-    }
-    try{if(await billboard.handle(req,res,route))return;}catch(err){return sendJson(res,500,{error:err.message||'Billboard route failed'});}
-    return handler(req,res);
-  };
-  return original.apply(this,args);
-};
+function isExcludedPublicRoute(route){const value=String(route||'').split('?')[0].toLowerCase();return EXCLUDED_ROUTES.has(value)||value.includes('/dreamiez');}
+function htmlFile(route){const map={'/':'index.html','/mtg':path.join('mtg','index.html'),'/commander':path.join('commander','index.html'),'/cinema':'../../cinema.html','/cinema/':'../../cinema.html','/cinema.html':'../../cinema.html','/dreammeez':'avatar.html','/dreammeez/':'avatar.html','/billboard':'billboard.html','/billboard/':'billboard.html','/billboard-review':'billboard-review.html','/billboard-review/':'billboard-review.html','/truth-oracle':'truth-oracle.html','/truth-oracle/':'truth-oracle.html'};return map[route]||null;}
+function shell(file){const full=path.join(PUBLIC,file);if(!fs.existsSync(full))return null;let html=fs.readFileSync(full,'utf8');if(!html.includes('dreamledger-persistent-nav')){const nav='<div id="dreamledger-persistent-nav" style="position:fixed;left:12px;right:12px;top:10px;z-index:9999;display:flex;justify-content:space-between;align-items:center;pointer-events:none"><a href="/truth-oracle" style="pointer-events:auto;text-decoration:none;padding:9px 13px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(9,11,16,.9);color:#f3f5f8;font:800 12px system-ui;box-shadow:0 8px 30px rgba(0,0,0,.22)">TRUTH ORACLE</a><div style="display:flex;gap:7px;pointer-events:auto"><a href="/dreammeez" style="text-decoration:none;padding:9px 12px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(9,11,16,.9);color:#f3f5f8;font:800 12px system-ui">Dreamies</a><a href="/login" style="text-decoration:none;padding:9px 12px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(9,11,16,.9);color:#f3f5f8;font:800 12px system-ui">Login</a><a href="/account" aria-label="Account" style="width:38px;height:38px;border:2px solid #f3f5f8;border-radius:50%;background:#bba7ff;color:#090b10;display:grid;place-items:center;text-decoration:none;font:900 14px system-ui">A</a></div></div>';html=html.replace('<body>', '<body>'+nav)}if(!html.includes('dreamledger-payment-trust-footer')){const footer='<footer id="dreamledger-payment-trust-footer" style="margin:60px 20px 20px;padding:22px 0;border-top:1px solid rgba(127,138,154,.25);color:#8f9aaa;font:12px system-ui;text-align:center"><div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:9px"><span>SECURE CHECKOUT</span><span>CARDS</span><span>WALLETS</span><span>STRIPE</span></div><div>Payment methods shown at checkout vary by eligibility and Stripe configuration. No payment mark is a guarantee of availability.</div></footer>';html=html.replace('</body>',footer+'</body>')}if(!html.includes('/assets/digital-proxy-assist.js'))html=html.replace('</body>','<script src="/assets/digital-proxy-assist.js" defer></script></body>');return Buffer.from(html,'utf8');}
+function sendJson(res,status,data){if(res.writableEnded)return true;const body=Buffer.from(JSON.stringify(data));res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Content-Length':String(body.length)});res.end(body);return true;}
+http.createServer=function publicShellCreateServer(...args){const handler=args[0];if(typeof handler!=='function')return original.apply(this,args);args[0]=async function publicShellHandler(req,res){const route=String(req.url||'').split('?')[0];if(req.method==='GET'&&isExcludedPublicRoute(route))return sendJson(res,404,{error:'Route excluded from production surface'});try{if(await truthOracleCommerce.handle(req,res,route))return;}catch(err){return sendJson(res,err.statusCode||500,{error:err.message||'Truth Oracle commerce route failed'});}if(req.method==='GET'&&route==='/api/products'){const products=safePublicProductFiles().map(p=>({id:p.id,silo:p.silo,name:p.name,description:p.description,price:Number(p.price),currency:p.currency,inventory:Number(p.inventory),status:'published',approval_required:false,checkout_available:Number(p.inventory)>0}));return sendJson(res,200,{products});}if(req.method==='GET'||req.method==='POST'){try{if(await trustAttestation.handle(req,res,route))return;}catch(err){return sendJson(res,500,{error:err.message||'Trust attestation route failed'});}}if(req.method==='GET'){const file=htmlFile(route);if(file){const payload=shell(file);if(payload){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Length':String(payload.length)});return res.end(payload);}}}try{if(await billboard.handle(req,res,route))return;}catch(err){return sendJson(res,500,{error:err.message||'Billboard route failed'});}return handler(req,res);};return original.apply(this,args);};
