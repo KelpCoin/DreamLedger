@@ -1,8 +1,20 @@
 {
   "schema": "BEC-PRIME/PRODUCT-FULFILLMENT-REGISTRY/v2",
   "policy": "A product is checkoutable only when this registry contains ready=true, operator_required=false, and a verified zero-human fulfillment contract. Products without that contract must not be sold.",
-  "updated": "2026-08-26",
+  "updated": "2026-08-31",
   "entries": {
+    "BILLBOARD-TEXT-TILE-001": {
+      "ready": true,
+      "type": "automatic_service_activation",
+      "delivery_target": "dreamledger.org/billboard",
+      "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> atomic_first_available_100x100_grid_allocation -> billboard_state_persist -> publication -> durable_fulfillment_proof",
+      "operator_required": false,
+      "idempotency_key": "stripe_checkout_session_id",
+      "buyer_inputs": ["title", "destination_url"],
+      "scarcity": "100 founding-equivalent 100x100 positions per market",
+      "delivery_proof": ["campaign_id", "stripe_checkout_session_id", "grid_position", "delivery_url", "proof_url"],
+      "failure_behavior": "payment remains recorded and is refunded if automatic fulfillment cannot safely complete; retry is idempotent"
+    },
     "BILLBOARD-SMALL": {
       "ready": true,
       "type": "automatic_service_activation",
