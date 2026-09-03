@@ -37,6 +37,7 @@
     "compile:economic": "node compiler/Compile-EconomicTrees.js",
     "compile:opportunities": "node opportunity/OpportunityCompiler.js",
     "gauntlet:opportunities": "node gauntlet/OpportunityGauntlet.js",
+    "gauntlet": "node -e \"const g=require('./gauntlet/GauntletV6'); const r=g.run(); console.log(JSON.stringify(r,null,2)); process.exit(r.status==='PASS'?0:1)\"",
     "compile:surface": "node compiler/SurfaceCompilerStable.js",
     "compile:billboard": "node compiler/BillboardCompiler.js",
     "patch:billboard-market": "node scripts/Patch-BillboardMarketDefault.js",
