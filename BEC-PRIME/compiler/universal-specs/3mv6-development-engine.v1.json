@@ -1,0 +1,92 @@
+{
+  "schema": "bec/3mv6-development-engine/v1",
+  "id": "3mv6",
+  "name": "3MV6 Development Engine",
+  "purpose": "Deterministic content-production engine for building the Kelplantis game, DreamMeez identity assets, and isolated commerce catalog assets from data definitions.",
+  "status": "DEVELOPMENT_ENGINE_ONLY",
+  "truth_rules": {
+    "generated_asset_is_not_production_asset": true,
+    "manifest_is_authoritative_for_generation": true,
+    "asset_ids_are_deterministic": true,
+    "source_silo_required": true,
+    "public_release_requires_approval": true
+  },
+  "silos": [
+    "SILO_KELPLANTIS",
+    "SILO_DREAMMEEZ",
+    "SILO_INVERSE_SHOPPING"
+  ],
+  "asset_families": {
+    "world": ["biome", "tileset", "room", "prop", "settlement", "property", "weather", "ambient_set"],
+    "actors": ["player_archetype", "npc", "mob", "elite", "boss", "pet", "mount"],
+    "items": ["weapon", "armor", "tool", "consumable", "resource", "furniture", "decoration", "collectible"],
+    "identity": ["body", "hair", "outfit", "accessory", "effect", "emote", "title_badge", "guild_banner"],
+    "commerce": ["catalog_item", "bundle", "creator_surface", "market_listing_template"]
+  },
+  "definition_contract": {
+    "required": ["asset_id", "asset_type", "silo", "generation_version", "seed", "provenance"],
+    "optional": ["rarity", "tags", "style_profile", "palette_profile", "materials", "drops", "behaviours", "ownership_class", "dreammeez_surface", "commerce_surface"]
+  },
+  "generation": {
+    "mode": "deterministic_data_driven",
+    "seed_formula": "sha256(world_id:asset_type:asset_id:generation_version)",
+    "rebuild_policy": "same_definition_and_version_must_produce_same_manifest",
+    "variation": "parameterized_not_random_untracked",
+    "batch_targets": {
+      "mobs": 1000,
+      "items": 5000,
+      "bosses": 500,
+      "npcs": 500,
+      "identity_assets": 5000,
+      "properties": 1000
+    }
+  },
+  "composition": {
+    "boss": ["visual_profile", "combat_profile", "arena_profile", "loot_profile", "lore_profile", "credential_event"],
+    "mob": ["visual_profile", "combat_profile", "drop_profile", "behaviour_profile", "biome_affinity"],
+    "item": ["visual_profile", "stats_profile", "craft_profile", "ownership_class", "provenance"],
+    "identity": ["body_slot", "appearance_profile", "unlock_trigger", "surface_rules"],
+    "property": ["location", "layout", "capacity", "ownership", "decoration_slots", "market_rules"]
+  },
+  "game_contract": {
+    "persistent_world": true,
+    "gear_persistent_by_default": true,
+    "boss_clear_is_progression_credential": true,
+    "floor_access_requires_canonical_credential": true,
+    "dungeon_generation_can_be_procedural": true,
+    "life_simulation": ["housing", "farming", "crafting", "cooking", "social", "guilds"],
+    "adventure": ["combat", "exploration", "bosses", "loot", "resources"]
+  },
+  "dreammeez_contract": {
+    "identity_is_persistent": true,
+    "game_acquisition_drives_unlocks": true,
+    "game_items_may_surface_as_cosmetics": true,
+    "cross_silo_catalog_bleed": false,
+    "required_trigger_for_cosmetic": true
+  },
+  "commerce_contract": {
+    "commerce_is_optional_to_gameplay": true,
+    "power_sales_disabled_by_default": true,
+    "identity_expression_allowed": true,
+    "property_and_marketplace_supported": true,
+    "every_transaction_requires_sink": true,
+    "public_listing_requires_approval": true
+  },
+  "compiler_outputs": [
+    "asset-manifest.json",
+    "content-index.json",
+    "dreammeez-identity-index.json",
+    "commerce-catalog-seed.json",
+    "generation-proof.json"
+  ],
+  "acceptance": [
+    "deterministic_asset_ids",
+    "deterministic_seed",
+    "silo_isolation",
+    "ownership_class_present_for_owned_assets",
+    "dreammeez_trigger_present_for_identity_unlocks",
+    "canonical_boss_credential_present",
+    "commerce_sink_present_when_commerce_enabled",
+    "generation_manifest_hash_present"
+  ]
+}
