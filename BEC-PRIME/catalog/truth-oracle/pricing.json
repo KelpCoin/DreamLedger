@@ -1,25 +1,28 @@
 {
-  "schema_version": "truth-oracle-pricing-v1",
+  "schema_version": "truth-oracle-pricing-v2",
   "silo": "SILO_TRUTH_ORACLE",
   "currency": "NZD",
   "principle": "Free access demonstrates the philosophy; paid access buys deeper transparency, never a better verdict.",
   "plans": [
     {
       "tier": "FREE",
+      "display_name": "Public",
       "price_nzd_month": 0,
       "disclosure_class": "PUBLIC",
-      "description": "Public verdicts, evidence summaries, major contradictions and unresolved items."
+      "description": "Public verdicts, confidence, evidence summaries, contradictions and unresolved items."
     },
     {
       "tier": "SIGNAL",
+      "display_name": "Observer",
       "price_nzd_month": 4.99,
       "disclosure_class": "SIGNAL",
       "stripe_product_id": "prod_VBncpbTj8t0BUk",
       "stripe_price_id": "price_1UBQ1RJt4ieIQDFzRIItEG0Z",
-      "description": "Expanded evidence summaries, provenance and market signal views."
+      "description": "Expanded evidence summaries, provenance and economic signal views."
     },
     {
       "tier": "INTELLIGENCE",
+      "display_name": "Investigator",
       "price_nzd_month": 7.99,
       "disclosure_class": "INTELLIGENCE",
       "stripe_product_id": "prod_VBncKh0lv6UKZH",
@@ -28,12 +31,13 @@
     },
     {
       "tier": "DEEP_EVIDENCE",
+      "display_name": "Deep Evidence",
       "price_nzd_month": 9.99,
       "disclosure_class": "DEEP_EVIDENCE",
       "stripe_product_id": "prod_VBncosaTHebeLx",
       "stripe_price_id": "price_1UBQ1mJt4ieIQDFzgCNY2sS8",
-      "description": "Maximum permitted transparency, advanced evidence relationships, extended history and calibration views."
+      "description": "Maximum permitted transparency, advanced evidence relationships and extended history."
     }
   ],
-  "pricing_note": "Pricing is intentionally low-friction and positioned below mainstream research subscriptions while preserving a free public layer. It can be recalibrated from observed conversion and retention data without changing truth calculations."
+  "pricing_note": "Pricing is low-friction and can be recalibrated from observed conversion and retention without changing Truth Oracle calculations."
 }
