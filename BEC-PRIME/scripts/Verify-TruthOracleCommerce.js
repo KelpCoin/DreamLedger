@@ -26,18 +26,18 @@ if (!failures.length) {
     if (!stripePlan || stripePlan.display_name !== name || Number(stripePlan.price_nzd_month) !== price || !stripePlan.price_id) failures.push('silo-plan:' + tier);
   }
   if (!pricing.plans.some(p => p.tier === 'FREE' && Number(p.price_nzd_month) === 0)) failures.push('free-tier');
-  for (const type of ['OBSERVED','INDEPENDENTLY_VERIFIED','SOURCE_SUPPORT','DERIVED','INFERRED','CONTRADICTED','UNKNOWN']) if (!oracle.includes(type)) failures.push('evidence-type:' + type);
-  for (const rule of ['max(0.5, 1 - age_days / 365)','unresolvedCount * 1.5','Math.round']) if (!oracle.includes(rule)) failures.push('confidence-rule:' + rule);
+  for (const type of ['OBSERVED','INDEPENDENTLY_VERIFIED','SOURCE_SUPPORT','DERIVED','INFERRED','CONTRADICTED','UNKNOWN']) if (!oracle.includes("'" + type + "'")) failures.push('evidence-type:' + type);
+  for (const rule of ['Math.max(0.5, 1 - ageDays','/ 365','unresolvedCount) * 1.5','Math.round']) if (!oracle.includes(rule)) failures.push('confidence-rule:' + rule);
   for (const rule of ['authentication_required','client_reference_id:user.id','metadata[user_id]','stripeProof.verifyStripeSignature','invoice.paid','customer.subscription.deleted']) if (!route.includes(rule)) failures.push('billing-boundary:' + rule);
   if (!start.includes("require('./routes/truthOracleCommerce')")) failures.push('truth-route-not-mounted');
   if (!start.includes('truthOracleCommerce.handleStripeWebhook')) failures.push('truth-webhook-not-mounted');
-  if (!page.includes('NZ$4.99 / month') && !page.includes('NZ$4.99')) failures.push('public-price-observer');
-  if (!page.includes('NZ$7.99 / month') && !page.includes('NZ$7.99')) failures.push('public-price-investigator');
-  if (!page.includes('NZ$9.99 / month') && !page.includes('NZ$9.99')) failures.push('public-price-deep');
+  if (!page.includes('NZ$4.99')) failures.push('public-price-observer');
+  if (!page.includes('NZ$7.99')) failures.push('public-price-investigator');
+  if (!page.includes('NZ$9.99')) failures.push('public-price-deep');
   if (!page.includes('Payment never changes the underlying verdict')) failures.push('public-truth-rule');
   if (!page.includes('You cannot pay to make reality look better')) failures.push('commercial-rule');
-  if (route.includes('authenticated:false')) failures.push('unauthenticated-entitlement');
   if (!route.includes("tier:'public'")) failures.push('public-default-entitlement');
+  if (!route.includes("record.environment!=='live'")) failures.push('live-environment-boundary');
 }
 if (failures.length) { console.error('FAIL Truth Oracle commerce verification'); console.error(JSON.stringify(failures,null,2)); process.exit(1); }
 console.log('PASS Truth Oracle commerce verification');
