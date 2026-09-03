@@ -88,15 +88,17 @@ async function handleStripeWebhook(raw,signature) {
   stripeProof.verifyStripeSignature(raw,signature,process.env.STRIPE_WEBHOOK_SECRET||'');
   let event; try{event=JSON.parse(raw);}catch{throw Object.assign(new Error('Invalid JSON payload'),{statusCode:400});}
   const object=event?.data?.object||{};
-  const metadata=object.metadata||{};
-  if(metadata.silo!=='truth-oracle')return {handled:false};
+  const metadata={...(object.metadata||{})};
+  const subscriptionId=typeof object.subscription==='string'?object.subscription:(object.subscription?.id||null);
+  let subscription=null;
+  if((event.type==='invoice.paid'||event.type==='invoice.payment_failed') && subscriptionId && STRIPE_SECRET_KEY) subscription=await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId));
+  if(metadata.silo!=='truth-oracle' && subscription?.metadata?.silo!=='truth-oracle')return {handled:false};
   const environment=event.livemode===true?'live':'test';
   const state=billing();
-  let userId=String(metadata.user_id||object.client_reference_id||'');
-  const subscriptionId=typeof object.subscription==='string'?object.subscription:(object.subscription?.id||null);
+  let userId=String(metadata.user_id||object.client_reference_id||subscription?.metadata?.user_id||'');
   if(!userId && subscriptionId && STRIPE_SECRET_KEY) {
-    const subscription=await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId));
-    const sm=subscription.metadata||{}; userId=String(sm.user_id||'');
+    const resolved=subscription || await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId));
+    userId=String(resolved.metadata?.user_id||'');
   }
   if(!userId)throw Object.assign(new Error('Truth Oracle billing event missing account association'),{statusCode:400});
   const existing=state[userId]||{};
@@ -105,25 +107,21 @@ async function handleStripeWebhook(raw,signature) {
   if(event.type==='checkout.session.completed') {
     if(object.mode!=='subscription'||object.payment_status!=='paid')return {handled:true,ignored:true,reason:'payment_not_paid'};
     const tier=String(metadata.truth_oracle_tier||''); if(!paidPlan(tier))throw Object.assign(new Error('Unknown Truth Oracle tier in provider event'),{statusCode:400});
-    let subscription=null; if(subscriptionId && STRIPE_SECRET_KEY) subscription=await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId));
+    if(!subscription && subscriptionId && STRIPE_SECRET_KEY) subscription=await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId));
     record={...record,tier,status:'active',environment,customer_id:object.customer||null,subscription_id:subscriptionId,expires_at:isoFromUnix(subscription?.current_period_end),updated_at:new Date().toISOString()};
     record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:'ENTITLEMENT_GRANTED',provider_event_id:event.id,environment};
   }
   if(event.type==='invoice.paid') {
-    const subscription=subscriptionId&&STRIPE_SECRET_KEY?await stripeGet('subscriptions/'+encodeURIComponent(subscriptionId)):null;
     const tier=String(metadata.truth_oracle_tier||subscription?.metadata?.truth_oracle_tier||existing.tier||'');
-    const resolvedUser=String(metadata.user_id||subscription?.metadata?.user_id||userId);
     if(!paidPlan(tier))return {handled:true,ignored:true,reason:'unknown_tier'};
     record={...record,tier,status:'active',environment,customer_id:object.customer||existing.customer_id,subscription_id:subscriptionId||existing.subscription_id,expires_at:isoFromUnix(subscription?.current_period_end),updated_at:new Date().toISOString()};
-    record=rememberEvent(record,event); state[resolvedUser]=record; saveBilling(state); return {handled:true,economic_state:'PAYMENT_SUCCEEDED',provider_event_id:event.id,environment};
+    record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:'PAYMENT_SUCCEEDED',provider_event_id:event.id,environment};
   }
   if(event.type==='invoice.payment_failed') {
     record={...record,status:'past_due',environment,updated_at:new Date().toISOString()}; record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:'PAYMENT_FAILED',provider_event_id:event.id,environment};
   }
   if(event.type==='customer.subscription.updated') {
-    const tier=String(metadata.truth_oracle_tier||existing.tier||'');
-    const status=String(object.status||'');
-    const active=['active','trialing'].includes(status);
+    const tier=String(metadata.truth_oracle_tier||existing.tier||''); const status=String(object.status||''); const active=['active','trialing'].includes(status);
     record={...record,tier:paidPlan(tier)?tier:(existing.tier||'public'),status:active?'active':status,environment,customer_id:object.customer||existing.customer_id,subscription_id:object.id||existing.subscription_id,expires_at:isoFromUnix(object.current_period_end),cancel_at_period_end:object.cancel_at_period_end===true,updated_at:new Date().toISOString()};
     record=rememberEvent(record,event); state[userId]=record; saveBilling(state); return {handled:true,economic_state:active?'ENTITLEMENT_GRANTED':'BILLING_STATE_UPDATED',provider_event_id:event.id,environment};
   }
