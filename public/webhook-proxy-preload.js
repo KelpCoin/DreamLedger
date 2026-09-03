@@ -1,7 +1,8 @@
 'use strict';
 
-/* Keep Stripe webhook and Truth Oracle handling on the persistent DreamLedger engine.
- * The public storefront has no durable disk and must not consume engine-backed state.
+/* Keep Stripe webhook and Truth Oracle API handling on the persistent DreamLedger engine.
+ * The public storefront serves the Truth Oracle HTML shell itself so the page remains reachable
+ * even when the private engine is restarting. Engine-backed API and webhook traffic stays private.
  */
 const http = require('http');
 const { URL } = require('url');
@@ -14,8 +15,8 @@ if (!global.__dreamledgerWebhookProxyPreload) {
       const engineKey = String(process.env.ENGINE_INTERNAL_API_KEY || '');
       const requestPath = String(req.url || '').split('?')[0];
       const isWebhook = req.method === 'POST' && requestPath === '/webhook';
-      const isTruthOracle = requestPath === '/truth-oracle' || requestPath === '/api/truth-oracle' || requestPath.startsWith('/api/truth-oracle/');
-      const needsEngine = isWebhook || isTruthOracle;
+      const isTruthOracleApi = requestPath === '/api/truth-oracle' || requestPath.startsWith('/api/truth-oracle/');
+      const needsEngine = isWebhook || isTruthOracleApi;
 
       if (needsEngine) {
         if (!engine) {
