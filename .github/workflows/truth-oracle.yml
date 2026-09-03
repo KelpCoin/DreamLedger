@@ -6,7 +6,15 @@ on:
       - 'BEC-PRIME/public/truth-oracle.json'
       - 'BEC-PRIME/public/truth-oracle.schema.json'
       - 'BEC-PRIME/compiled/website/truth-oracle.html'
+      - 'BEC-PRIME/runtime/TruthOracle.js'
+      - 'BEC-PRIME/routes/truthOracleCommerce.js'
+      - 'BEC-PRIME/catalog/truth-oracle/pricing.json'
+      - 'BEC-PRIME/silos/SILO_TRUTH_ORACLE/config.json'
       - 'BEC-PRIME/scripts/Verify-TruthOracle.js'
+      - 'BEC-PRIME/scripts/Verify-TruthOracleCommerce.js'
+      - 'BEC-PRIME/scripts/test-truth-oracle-economic.js'
+      - 'BEC-PRIME/package.json'
+      - 'BEC-PRIME/start.js'
       - '.github/workflows/truth-oracle.yml'
   workflow_dispatch:
 jobs:
@@ -19,6 +27,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify registry
         run: node scripts/Verify-TruthOracle.js
+      - name: Verify economic Truth Oracle
+        run: node scripts/Verify-TruthOracleCommerce.js
+      - name: Run deterministic Truth Oracle tests
+        run: node --test scripts/test-truth-oracle-economic.js
       - name: Verify public JSON
         run: node -e "const x=require('./public/truth-oracle.json'); if(x.schema_version!=='truth-oracle-v1'||x.jurisdiction!=='NZ') process.exit(1); console.log('TRUTH_ORACLE_PUBLIC_JSON=PASS events='+x.events.length)"
       - name: Upload proof
