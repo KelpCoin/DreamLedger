@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const taxLedger = require('./taxLedger');
+const runtimeLedger = require('../runtime/Ledger');
 
 function resolveDirs(env = process.env) {
   const ledger = path.resolve(env.LEDGER_DATA_DIR || path.join(__dirname, '..', 'data', 'transactions'));
@@ -15,6 +16,69 @@ function resolveDirs(env = process.env) {
   fs.mkdirSync(ledger, { recursive: true });
   fs.mkdirSync(proofs, { recursive: true });
   return { ledger, proofs, firstProof };
+}
+
+function writeTruthOracleEventProof(event, economicState, ledgerEvent) {
+  const root = path.resolve(process.env.PROOF_DATA_DIR || path.join(__dirname, '..', 'data', 'proofs'), 'truth-oracle');
+  fs.mkdirSync(root, { recursive: true });
+  const file = path.join(root, `${event.id}.json`);
+  if (fs.existsSync(file)) return { path: file, idempotent: true };
+  const proof = {
+    type: 'dreamledger-truth-oracle-economic-proof',
+    schema_version: '1.0',
+    status: 'PASS',
+    provider: 'stripe',
+    provider_event_id: event.id,
+    provider_event_type: event.type,
+    livemode: event.livemode === true,
+    economic_state: economicState,
+    ledger_event_id: ledgerEvent.event_id,
+    ledger_event_hash: ledgerEvent.event_hash,
+    ledger_previous_event_hash: ledgerEvent.previous_event_hash,
+    ledger_chain_status: runtimeLedger.verifyChain().status,
+    recorded_at: new Date().toISOString(),
+    provider_payload_hash: runtimeLedger.sha256(event)
+  };
+  try { fs.writeFileSync(file, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' }); }
+  catch (err) { if (err.code !== 'EEXIST') throw err; }
+  return { path: file, idempotent: false };
+}
+
+function recordTruthOracleWebhookEvent(event) {
+  const object = event?.data?.object || {};
+  const metadata = object.metadata || {};
+  if (metadata.silo !== 'truth-oracle') return null;
+  const userId = String(metadata.user_id || object.client_reference_id || 'unknown');
+  let economicState = 'STRIPE_EVENT_VERIFIED';
+  let claims = { payment_claim: false, sale_claim: false, fulfillment_claim: false };
+  if (event.type === 'checkout.session.completed' && object.payment_status === 'paid' && object.mode === 'subscription') {
+    economicState = 'ENTITLEMENT_GRANTED';
+    claims = { payment_claim: true, sale_claim: true, fulfillment_claim: false };
+  } else if (event.type === 'invoice.paid') {
+    economicState = 'PAYMENT_SUCCEEDED';
+    claims = { payment_claim: true, sale_claim: true, fulfillment_claim: false };
+  } else if (event.type === 'invoice.payment_failed') {
+    economicState = 'PAYMENT_FAILED';
+  } else if (event.type === 'customer.subscription.deleted') {
+    economicState = 'REVOKED';
+  }
+  const ledger = runtimeLedger.appendEventIdempotent({
+    event_id: `stripe_${event.id}`,
+    graph_id: 'DREAMLEDGER-COMMERCE',
+    branch_id: 'truth-oracle',
+    node_id: 'truth-oracle-stripe-webhook',
+    event_type: 'TRUTH_ORACLE_STRIPE_EVENT',
+    silo: 'truth-oracle',
+    actor: { type: 'provider_webhook', id: 'stripe' },
+    inputs_hash: runtimeLedger.sha256({ provider_event_id: event.id, type: event.type }),
+    outputs_hash: runtimeLedger.sha256({ user_id: userId, economic_state }),
+    payload: { provider: 'stripe', provider_event_id: event.id, provider_event_type: event.type, user_id: userId, economic_state },
+    claims,
+    evidence_refs: [event.id],
+    result: 'PASS'
+  });
+  const proof = writeTruthOracleEventProof(event, economicState, ledger.event);
+  return { ledger, proof };
 }
 
 function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
@@ -30,6 +94,10 @@ function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
   const expected = crypto.createHmac('sha256', webhookSecret).update(`${timestamp}.${rawBody}`, 'utf8').digest('hex');
   const a = Buffer.from(expected, 'utf8'); const b = Buffer.from(signature, 'utf8');
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new Error('Invalid Stripe signature');
+  let event;
+  try { event = JSON.parse(rawBody); } catch { throw new Error('Invalid JSON payload'); }
+  recordTruthOracleWebhookEvent(event);
+  return event;
 }
 
 function buildRecords(session, lookups = {}) {
@@ -94,4 +162,4 @@ function handleStripeWebhook(rawBody, signatureHeader, opts) {
   return { received: true, handled: true, fulfilled: true, ...writeProofArtifacts(records, dirs || resolveDirs()) };
 }
 
-module.exports = { resolveDirs, verifyStripeSignature, buildRecords, writeProofArtifacts, handleStripeWebhook };
+module.exports = { resolveDirs, verifyStripeSignature, buildRecords, writeProofArtifacts, handleStripeWebhook, recordTruthOracleWebhookEvent };
