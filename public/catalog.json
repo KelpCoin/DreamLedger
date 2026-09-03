@@ -57,10 +57,11 @@
       "checkout_url": null
     },
     {
-      "id": "BILLBOARD-LARGE",
-      "silo": "media",
-      "name": "DreamLedger Digital Billboard Large",
-      "description": "Programmatic digital-out-of-home placement on the DreamLedger billboard surface.",
+      "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "sku": "DL-BILLBOARD-100X100-3000-001",
+      "silo": "dreamledger",
+      "name": "DreamLedger Founding Tile",
+      "description": "100 x 100 pixel permanent Internet Billboard placement on a finite one-million-pixel canvas.",
       "price": 50,
       "currency": "nzd",
       "inventory": 1,
