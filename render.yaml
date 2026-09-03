@@ -92,3 +92,5 @@ services:
         sync: false
       - key: DEPLOYMENT_CHANNEL
         value: dreamledger-production
+
+# Force Blueprint reconciliation of the storefront -> private-engine environment wiring.
