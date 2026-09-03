@@ -47,7 +47,7 @@ assert.strictEqual(events[0].event_id, 'stripe_evt_truth_oracle_verification_001
 assert.strictEqual(events[0].claims.payment_claim, true);
 assert.strictEqual(events[0].claims.sale_claim, true);
 assert.strictEqual(fs.existsSync(path.join(process.env.PROOF_DATA_DIR, 'truth-oracle', 'evt_truth_oracle_verification_001.json')), true);
-assert.strictEqual(stripeWebhookProof.verifyStripeSignature(raw, header, secret).event.id, undefined);
+assert.strictEqual(stripeWebhookProof.verifyStripeSignature(raw, header, secret).id, event.id);
 
 let rejected = false;
 try {
