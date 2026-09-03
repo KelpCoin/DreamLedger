@@ -1,0 +1,55 @@
+{
+  "proof_version": "truth-oracle-economic-activation-v1",
+  "timestamp": "2026-09-03T00:00:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "implementation": {
+    "truth_oracle": "expanded economic evidence layer",
+    "public_route": "/truth-oracle",
+    "api_routes": [
+      "/api/truth-oracle",
+      "/api/truth-oracle/plans",
+      "/api/truth-oracle/checkout",
+      "/api/truth-oracle/entitlement",
+      "/api/truth-oracle/access"
+    ],
+    "evidence_types": ["OBSERVED","INDEPENDENTLY_VERIFIED","SOURCE_SUPPORT","DERIVED","INFERRED","CONTRADICTED","UNKNOWN"],
+    "truth_payment_invariant": "Entitlement changes disclosure depth, never underlying verdict or confidence."
+  },
+  "pricing": {
+    "currency": "NZD",
+    "observer": 4.99,
+    "investigator": 7.99,
+    "deep_evidence": 9.99,
+    "free_public_layer": true
+  },
+  "stripe": {
+    "environment_target": "live",
+    "account_context": "acct_1NKPLaJt4ieIQDFz",
+    "products_prices": "existing configured Stripe product/price IDs reused",
+    "real_money_action": "not performed",
+    "customer_authorization_required": true
+  },
+  "billing": {
+    "checkout": "server-side Stripe-hosted Checkout Session",
+    "price_selection": "server-authoritative",
+    "webhook_signature_verification": true,
+    "provider_event_idempotency": true,
+    "subscription_lifecycle": ["checkout.session.completed","invoice.paid","invoice.payment_failed","customer.subscription.updated","customer.subscription.deleted"]
+  },
+  "tests": {
+    "repository_runtime_execution": "NOT VERIFIED in this connector session",
+    "ci_execution": "NOT VERIFIED at artifact creation time",
+    "static_implementation_checks": "implemented"
+  },
+  "payment": {
+    "production_customer_payment": "NOT VERIFIED",
+    "live_revenue_claim": false,
+    "economic_status": "PREPARED"
+  },
+  "remaining_blockers": [
+    "Run repository test and verification commands in CI/runtime.",
+    "Verify the live webhook endpoint is configured with the production signing secret.",
+    "A real customer must complete a production subscription before LIVE_PAYMENT_VERIFIED can be claimed."
+  ]
+}
