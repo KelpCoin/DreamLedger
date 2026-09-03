@@ -24,13 +24,21 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
 
       - name: Install
         run: npm install
 
       - name: Compile IP
         run: npm run compile
+
+      - name: Verify Truth Oracle commerce
+        run: npm run verify:truth-oracle-commerce
+
+      - name: Verify Truth Oracle runtime tests
+        run: npm run test:truth-oracle
 
       - name: Run Gauntlet
         run: npm run gauntlet
@@ -44,8 +52,8 @@ jobs:
       - name: Save operator proof
         if: always()
         run: |
-          mkdir -p ../operator-proof
-          printf '{\n  "workflow": "BEC Prime PC-Off Operator",\n  "pc_required": false,\n  "utc": "%s",\n  "compile": "executed",\n  "gauntlet": "executed",\n  "revenue_autonomy": "executed",\n  "revenue_ledger_smoke": "executed"\n}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ../operator-proof/AUTONOMOUS_OPERATOR_PROOF.json
+          mkdir -p operator-proof
+          printf '{\n  "workflow": "BEC Prime PC-Off Operator",\n  "pc_required": false,\n  "utc": "%s",\n  "compile": "executed",\n  "truth_oracle_commerce": "executed",\n  "truth_oracle_tests": "executed",\n  "gauntlet": "executed",\n  "revenue_autonomy": "executed",\n  "revenue_ledger_smoke": "executed"\n}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > operator-proof/AUTONOMOUS_OPERATOR_PROOF.json
 
       - name: Upload proof
         if: always()
@@ -53,4 +61,4 @@ jobs:
         with:
           name: bec-prime-operator-proof
           path: BEC-PRIME/operator-proof/AUTONOMOUS_OPERATOR_PROOF.json
-          if-no-files-found: warn
+          if-no-files-found: error
