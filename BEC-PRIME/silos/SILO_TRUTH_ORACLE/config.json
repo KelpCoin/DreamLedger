@@ -1,0 +1,23 @@
+{
+  "silo_id": "SILO_TRUTH_ORACLE",
+  "name": "DreamLedger Truth Oracle",
+  "status": "active",
+  "purpose": "Evidence evaluation and progressive transparency for economic claims.",
+  "truth_rule": "Entitlement changes disclosure depth, never the underlying verdict.",
+  "default_disclosure": "PUBLIC",
+  "billing_provider": "STRIPE_BILLING",
+  "currency": "NZD",
+  "tiers": [
+    {"tier":"SIGNAL","price_nzd_month":4.99,"price_id":"price_1UBQ1RJt4ieIQDFzRIItEG0Z"},
+    {"tier":"INTELLIGENCE","price_nzd_month":7.99,"price_id":"price_1UBQ1bJt4ieIQDFzv2rsdyKe"},
+    {"tier":"DEEP_EVIDENCE","price_nzd_month":9.99,"price_id":"price_1UBQ1mJt4ieIQDFzgCNY2sS8"}
+  ],
+  "protected": [
+    "credentials",
+    "private_customer_data",
+    "private_source_material",
+    "proprietary_scoring_weights",
+    "internal_security_controls",
+    "cross_silo_data"
+  ]
+}
