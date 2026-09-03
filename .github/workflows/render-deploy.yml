@@ -48,6 +48,7 @@ jobs:
           test -s public/billboard.html
           test -s public/avatar.html
           test -s public/server.js
+          test -s public/webhook-proxy-preload.js
           test -s BEC-PRIME/compiled/website/login.html
           test -s BEC-PRIME/compiled/website/register.html
           test -s BEC-PRIME/compiled/website/account.html
@@ -69,6 +70,10 @@ jobs:
           assert 'DreamMeez' in Path('public/avatar.html').read_text()
           for rel in ['login.html','register.html','account.html']:
               assert '/api/account/' in Path('BEC-PRIME/compiled/website/'+rel).read_text()
+          truth=Path('BEC-PRIME/routes/truthOracleCommerce.js').read_text()
+          assert "'/api/truth-oracle/plans'" in truth
+          proxy=Path('public/webhook-proxy-preload.js').read_text()
+          assert "'/truth-oracle'" in proxy and "'/api/truth-oracle'" in proxy
           print('COMMERCIAL_PACKAGE=PASS')
           PY
           grep -q 'NZ$50' public/billboard.html
@@ -106,7 +111,7 @@ jobs:
             if [ "$attempt" = 18 ]; then exit 1; fi
             sleep 10
           done
-          for path in / /billboard /mtg /avatar /dreammeez /healthz /version /login /register /account /api/products /api/offers /api/dreamiez/cosmetics; do
+          for path in / /billboard /mtg /avatar /dreammeez /truth-oracle /healthz /version /login /register /account /api/products /api/offers /api/truth-oracle/plans /api/dreamiez/cosmetics; do
             code=$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 30 "$BASE_URL$path")
             echo "$code $path"
             test "$code" = 200
@@ -116,13 +121,22 @@ jobs:
           grep -q '100 x 100' /tmp/billboard.html
           curl --fail --silent --show-error "$BASE_URL/dreammeez" >/tmp/dreammeez.html
           grep -q 'DreamMeez' /tmp/dreammeez.html
+          curl --fail --silent --show-error "$BASE_URL/truth-oracle" >/tmp/truth-oracle.html
+          grep -q 'Truth Oracle' /tmp/truth-oracle.html
+          curl --fail --silent --show-error "$BASE_URL/api/truth-oracle/plans" >/tmp/truth-plans.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/truth-plans.json'))
+          rows=d.get('plans',d if isinstance(d,list) else [])
+          assert isinstance(rows,list) and len(rows)>=1
+          print('TRUTH_ORACLE_PLANS=PASS')
+          PY
           curl --fail --silent --show-error "$BASE_URL/api/dreamiez/cosmetics" >/tmp/cosmetics.json
           python3 - <<'PY'
           import json
           d=json.load(open('/tmp/cosmetics.json'))
           assert isinstance(d,list) and len(d)>=3
           print('LIVE_DREAMMEEZ_COSMETICS='+str(len(d)))
-          offers=json.load(open('/tmp/offers.json')) if __import__('os').path.exists('/tmp/offers.json') else None
           PY
           curl --fail --silent --show-error "$BASE_URL/api/offers" >/tmp/offers.json
           python3 - <<'PY'
@@ -153,7 +167,7 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json,os,time
-          p={'schema':'dreamledger-commercial-deployment-v4','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'surfaces':['billboard','dreammeez','login','register','account'],'payment_claim_made':False}
+          p={'schema':'dreamledger-commercial-deployment-v4','source_sha':os.environ['RELEASE_SHA'],'base_url':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'surfaces':['billboard','dreammeez','truth-oracle','login','register','account'],'payment_claim_made':False}
           with open('proof/commercial-deployment-fossil.json','w') as f: json.dump(p,f,indent=2)
           PY
       - name: Upload proof
