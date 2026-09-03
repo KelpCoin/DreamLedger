@@ -1,7 +1,7 @@
 {
   "name":"dreamledger-public-storefront",
   "private":true,
-  "version":"1.0.0",
+  "version":"1.0.1",
   "engines":{"node":">=24 <25"},
   "scripts":{"start":"node -r ./webhook-proxy-preload.js -r ./brand-preload.js server.js"}
 }
