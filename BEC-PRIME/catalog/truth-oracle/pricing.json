@@ -1,0 +1,39 @@
+{
+  "schema_version": "truth-oracle-pricing-v1",
+  "silo": "SILO_TRUTH_ORACLE",
+  "currency": "NZD",
+  "principle": "Free access demonstrates the philosophy; paid access buys deeper transparency, never a better verdict.",
+  "plans": [
+    {
+      "tier": "FREE",
+      "price_nzd_month": 0,
+      "disclosure_class": "PUBLIC",
+      "description": "Public verdicts, evidence summaries, major contradictions and unresolved items."
+    },
+    {
+      "tier": "SIGNAL",
+      "price_nzd_month": 4.99,
+      "disclosure_class": "SIGNAL",
+      "stripe_product_id": "prod_VBncpbTj8t0BUk",
+      "stripe_price_id": "price_1UBQ1RJt4ieIQDFzRIItEG0Z",
+      "description": "Expanded evidence summaries, provenance and market signal views."
+    },
+    {
+      "tier": "INTELLIGENCE",
+      "price_nzd_month": 7.99,
+      "disclosure_class": "INTELLIGENCE",
+      "stripe_product_id": "prod_VBncKh0lv6UKZH",
+      "stripe_price_id": "price_1UBQ1bJt4ieIQDFzv2rsdyKe",
+      "description": "Deeper provenance, evidence lineage, contradiction analysis and historical views."
+    },
+    {
+      "tier": "DEEP_EVIDENCE",
+      "price_nzd_month": 9.99,
+      "disclosure_class": "DEEP_EVIDENCE",
+      "stripe_product_id": "prod_VBncosaTHebeLx",
+      "stripe_price_id": "price_1UBQ1mJt4ieIQDFzgCNY2sS8",
+      "description": "Maximum permitted transparency, advanced evidence relationships, extended history and calibration views."
+    }
+  ],
+  "pricing_note": "Pricing is intentionally low-friction and positioned below mainstream research subscriptions while preserving a free public layer. It can be recalibrated from observed conversion and retention data without changing truth calculations."
+}
