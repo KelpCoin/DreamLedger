@@ -5,7 +5,6 @@ const path = require('path');
 const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const PUBLIC = path.join(ROOT, 'public');
 const proofDir = path.join(ROOT, 'BEC-PRIME', 'data', 'proofs');
 fs.mkdirSync(proofDir, { recursive: true });
 
@@ -25,26 +24,20 @@ const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.jso
 
 check('homepage-canonical-doors',
   ['DreamLedger', 'Billboard', 'DreamMeez', 'Truth Oracle'].every((x) => index.toLowerCase().includes(x.toLowerCase())),
-  'Homepage exposes only the canonical storefront doors required for this release.');
-
+  'Homepage exposes the canonical storefront doors required for this release.');
 check('diagnostic-removed-from-public-catalog',
   !/COMMANDER-DECK-DIAGNOSTIC|Commander Deck Diagnostic/i.test(catalog),
-  'The retired Commander Deck Diagnostic is absent from public/catalog.json.');
-
+  'Retired Commander Deck Diagnostic is absent from public/catalog.json.');
 check('diagnostic-removed-from-public-mtg',
   !/COMMANDER-DECK-DIAGNOSTIC|Commander Deck Diagnostic/i.test(mtg),
-  'The retired Commander Deck Diagnostic is absent from public/mtg.html.');
+  'Retired Commander Deck Diagnostic is absent from public/mtg.html.');
 
-const tiers = Array.isArray(truthPricing.tiers) ? truthPricing.tiers : [];
-const expected = {
-  observer: 4.99,
-  investigator: 7.99,
-  deep_evidence: 9.99
-};
-for (const [id, price] of Object.entries(expected)) {
-  const tier = tiers.find((x) => String(x.id || x.tier || '').toLowerCase() === id);
-  check('truth-oracle-price-' + id, !!tier && Number(tier.price_nzd ?? tier.price) === price,
-    `Truth Oracle ${id} tier is NZD ${price.toFixed(2)}.`);
+const plans = Array.isArray(truthPricing.plans) ? truthPricing.plans : [];
+const expected = { SIGNAL: 4.99, INTELLIGENCE: 7.99, DEEP_EVIDENCE: 9.99 };
+for (const [tier, price] of Object.entries(expected)) {
+  const plan = plans.find((x) => String(x.tier || '').toUpperCase() === tier);
+  check('truth-oracle-price-' + tier.toLowerCase(), !!plan && Number(plan.price_nzd_month) === price,
+    `Truth Oracle ${tier} tier is NZD ${price.toFixed(2)}/month.`);
 }
 
 check('no-fake-payment-claim',
