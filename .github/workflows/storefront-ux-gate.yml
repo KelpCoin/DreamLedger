@@ -15,30 +15,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Verify committed customer storefront
         shell: bash
         run: |
           set -euo pipefail
-          test -f public/index.html
-          grep -Fq 'AVATAR ACCESSORIES.' public/index.html
-          grep -Fq 'DIGITAL BILLBOARDS.' public/index.html
-          grep -Fq 'Make your avatar yours.' public/index.html
-          grep -Fq 'Put your message on a billboard.' public/index.html
-          grep -Fq 'href="/avatar"' public/index.html
+          test -s public/index.html
+          grep -Fqi 'THE INTERNET' public/index.html
+          grep -Fqi 'IS A GARDEN' public/index.html
+          grep -Fqi 'Plant a plot' public/index.html
           grep -Fq 'href="/billboard"' public/index.html
+          grep -Fq 'href="/dreammeez"' public/index.html
           grep -Fq 'NZ$50' public/index.html
-          ! grep -Eiq 'Gauntlet|Economic Court|Truth Oracle|ELOHIM|BEC-PRIME|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|signal -> offer -> checkout -> proof|agentic commerce readiness audit|BEC-PRIME-ARCHITECTURE-AUDIT|DreamMee|FIND SOMETHING|Pioneer product' public/index.html
-
-      - name: Verify customer paths exist
+          grep -Fqi 'shopping agents' public/index.html
+          ! grep -Eiq 'Gauntlet|Economic Court|ELOHIM|BEC-PRIME|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001|Dream Ledger Deck|agentic commerce readiness audit' public/index.html
+      - name: Verify principal customer paths exist
         shell: bash
         run: |
           set -euo pipefail
-          test -f public/avatar/index.html
-          test -f public/billboard/index.html
-          grep -Eiq 'avatar|accessor' public/avatar/index.html
-          grep -Eiq 'billboard|NZ\$50' public/billboard/index.html
-
+          test -s public/avatar.html
+          test -s public/billboard.html
+          grep -Eqi 'DreamMeez|Garden identity|gardener' public/avatar.html
+          grep -Eqi 'DreamLedger|Internet Garden|NZ\$50' public/billboard.html
       - name: Emit proof artifact
         if: always()
         shell: bash
@@ -46,7 +43,6 @@ jobs:
           set -euo pipefail
           mkdir -p proof
           printf '{"status":"PASS","commit":"%s","surface":"public/index.html","timestamp_utc":"%s"}\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > proof/storefront-ux-proof.json
-
       - name: Upload proof
         if: always()
         uses: actions/upload-artifact@v4
