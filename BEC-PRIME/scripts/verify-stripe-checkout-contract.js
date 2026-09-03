@@ -9,13 +9,13 @@ const SKIP = new Set(['.git', 'node_modules', '.next', 'dist', 'build', 'coverag
 const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1', '.yml', '.yaml', '.sh']);
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 const PRODUCER_MARKERS = [
-  /checkout\\/sessions/i,
-  /stripe\\.checkout\\.sessions\\.create/i,
-  /stripeCheckout\\s*\\(/i,
-  /stripeRequest\\s*\\(/i,
-  /fetch\\s*\\(\\s*[`'\"]https:\\/\\/api\\.stripe\\.com\\/v1\\/checkout\\/sessions/i,
-  /curl[^\n]*api\\.stripe\\.com\\/v1\\/checkout\\/sessions/i,
-  /urllib[^\n]*api\\.stripe\\.com\\/v1\\/checkout\\/sessions/i
+  /checkout\/sessions/i,
+  /stripe\.checkout\.sessions\.create/i,
+  /stripeCheckout\s*\(/i,
+  /stripeRequest\s*\(/i,
+  /fetch\s*\(\s*[`'\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i,
+  /curl[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i,
+  /urllib[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i
 ];
 
 function walk(dir, out = []) {
@@ -36,7 +36,7 @@ function hasAnyProducer(text) {
 function isReadOnlyStripeUse(text) {
   const lower = text.toLowerCase();
   if (!lower.includes('checkout/sessions')) return true;
-  return !/(method\\s*[:=]\\s*['\"]post['\"]|stripecheckout\\s*\\(|stripeRequest\\s*\\(|sessions\\s*\\.create|curl[^\n]*-x\\s+post|post\\s+https?:\\/\\/api\\.stripe\\.com\\/v1\\/checkout\\/sessions)/i.test(text);
+  return !/(method\s*[:=]\s*['\"]post['\"]|stripeCheckout\s*\(|stripeRequest\s*\(|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
 }
 
 function producerWindows(text) {
@@ -52,10 +52,10 @@ function producerWindows(text) {
 }
 
 function metadataPresent(windowText, key) {
-  const k = key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
-  const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + k + '|[\\\"\\\']' + k + '[\\\"\\\'])', 'i');
-  const urlEncoded = new RegExp('payment_intent_data\\[metadata\\]\\[' + k + '\\]', 'i');
-  const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\\\"\\\']?' + k + '[\\\"\\\']?', 'i');
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + escaped + '|[\\"\\\']' + escaped + '[\\"\\\'])', 'i');
+  const urlEncoded = new RegExp('payment_intent_data\\[metadata\\]\\[' + escaped + '\\]', 'i');
+  const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\\"\\\']?' + escaped + '[\\"\\\']?', 'i');
   return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText);
 }
 
