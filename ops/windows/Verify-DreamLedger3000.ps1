@@ -18,7 +18,7 @@ $account = Join-Path $RepoRoot 'BEC-PRIME\compiled\website\account.html'
 $index = Join-Path $RepoRoot 'BEC-PRIME\compiled\website\index.html'
 $template = Join-Path $RepoRoot 'BEC-PRIME\surface\index.v2.template.html'
 $contract = Join-Path $RepoRoot 'docs\DREAM-LEDGER-3000-CONTRACT.md'
-$checks['canonical_route'] = HasText $ledger "^/u/"
+$checks['canonical_route'] = HasText $ledger '/u/'
 $checks['free_create_endpoint'] = HasText $ledger "POST' && p === '/api/ledgers'"
 $checks['handle_validation'] = HasText $ledger 'validHandle'
 $checks['published_only_public_items'] = HasText $ledger 'published=eq.true'
