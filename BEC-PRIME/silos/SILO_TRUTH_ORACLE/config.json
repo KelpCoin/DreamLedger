@@ -8,9 +8,9 @@
   "billing_provider": "STRIPE_BILLING",
   "currency": "NZD",
   "tiers": [
-    {"tier":"SIGNAL","price_nzd_month":4.99,"price_id":"price_1UBQ1RJt4ieIQDFzRIItEG0Z"},
-    {"tier":"INTELLIGENCE","price_nzd_month":7.99,"price_id":"price_1UBQ1bJt4ieIQDFzv2rsdyKe"},
-    {"tier":"DEEP_EVIDENCE","price_nzd_month":9.99,"price_id":"price_1UBQ1mJt4ieIQDFzgCNY2sS8"}
+    {"tier":"SIGNAL","display_name":"Observer","price_nzd_month":4.99,"price_id":"price_1UBQ1RJt4ieIQDFzRIItEG0Z"},
+    {"tier":"INTELLIGENCE","display_name":"Investigator","price_nzd_month":7.99,"price_id":"price_1UBQ1bJt4ieIQDFzv2rsdyKe"},
+    {"tier":"DEEP_EVIDENCE","display_name":"Deep Evidence","price_nzd_month":9.99,"price_id":"price_1UBQ1mJt4ieIQDFzgCNY2sS8"}
   ],
   "protected": [
     "credentials",
