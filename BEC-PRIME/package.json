@@ -31,6 +31,7 @@
     "approve:distribution": "node distribution/BECK-Executor.js approve",
     "execute:distribution": "node distribution/BECK-Executor.js execute",
     "verify:distribution": "node scripts/Verify-DistributionEngine.js",
+    "compile:omni": "node compiler/OmniCommerceCompiler.js",
     "verify:omni": "node compiler/OmniCommerceCompiler.js",
     "compile:economic": "node compiler/Compile-EconomicTrees.js",
     "compile:opportunities": "node opportunity/OpportunityCompiler.js",
