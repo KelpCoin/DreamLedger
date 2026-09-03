@@ -21,11 +21,11 @@
     "activation_gate": "EXPLICIT_OPERATOR_APPROVAL",
     "activation_timestamp": "2026-08-12T00:00:00.000Z",
     "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-    "payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr"
+    "payment_link": "https://buy.stripe.com/00waEYgbu1Muf0Y2iI9oc0b",
+    "payment_link_id": "plink_1UBRZXJt4ieIQDFzdUP0KL2z"
   },
   "evidence": {
-    "status": "awaiting_first_payment",
+    "status": "checkout_ready_waiting_for_first_customer_payment",
     "transaction_id": null
   },
   "deployment_trigger": "EDH_0001_FIRST_SALE"
