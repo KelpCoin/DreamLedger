@@ -24,10 +24,6 @@ jobs:
         with:
           node-version: 24
 
-      - name: Bootstrap Browning economic gate
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\BEC-PRIME\scripts\Bootstrap-BrowningEconomicGate.ps1
-
       - name: Run Browning verifier
         shell: powershell
         run: node .\BEC-PRIME\scripts\verify-browning-economic-gate.js
