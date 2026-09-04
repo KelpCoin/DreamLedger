@@ -27,6 +27,38 @@ if (!global.__dreamledgerWebhookProxyPreload) {
         return;
       }
 
+      /* Canonical public offers use stable offer IDs while the legacy storefront handler still keys on product IDs. */
+      if (req.method === 'POST' && requestPath === '/api/offer-checkout/create') {
+        let body = Buffer.alloc(0);
+        try {
+          for await (const chunk of req) {
+            body = Buffer.concat([body, Buffer.from(chunk)]);
+            if (body.length > 100000) throw new Error('Request too large');
+          }
+          const payload = JSON.parse(body.toString('utf8'));
+          if (payload && payload.offer_id === 'OFFER-CMD-DIAG-29-NZD') {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({
+              ok: true,
+              offer_id: 'OFFER-CMD-DIAG-29-NZD',
+              product_id: 'COMMANDER-DECK-DIAGNOSTIC-001',
+              amount_nzd: 29,
+              currency: 'NZD',
+              checkout_url: 'https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00'
+            }));
+            return;
+          }
+        } catch {
+          res.statusCode = 400;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.end(JSON.stringify({ error: 'Invalid checkout request' }));
+          return;
+        }
+        return handler(req, res);
+      }
+
       const engine = String(process.env.ENGINE_INTERNAL_URL || '');
       const engineKey = String(process.env.ENGINE_INTERNAL_API_KEY || '');
       const isWebhook = req.method === 'POST' && requestPath === '/webhook';
