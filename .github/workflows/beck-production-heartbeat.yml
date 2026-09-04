@@ -21,7 +21,7 @@ env:
 jobs:
   heartbeat:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout current main
         uses: actions/checkout@v4
@@ -141,13 +141,65 @@ jobs:
             > proof/beck/render-self-heal-response.json
           echo 'RENDER_SELF_HEAL_TRIGGERED=true' > proof/beck/render-self-heal-status.txt
 
+      - name: Verify convergence after self-heal
+        if: always()
+        env:
+          RELEASE_SHA: ${{ steps.probe.outputs.expected_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -s proof/beck/render-self-heal-status.txt ]; then
+            echo 'No Render self-heal was triggered.'
+            exit 0
+          fi
+          live_sha=''
+          version_http='000'
+          for attempt in $(seq 1 12); do
+            payload="$(curl -sS --max-time 30 -w '\n%{http_code}' "$BASE_URL/version" || true)"
+            version_http="$(printf '%s\n' "$payload" | tail -n1)"
+            json="$(printf '%s\n' "$payload" | sed '$d')"
+            if [ "$version_http" = '200' ]; then
+              live_sha="$(node -e 'const x=JSON.parse(process.argv[1]); process.stdout.write(String(x.commit||x.sha||x.version_sha||x.git_sha||""))' "$json" 2>/dev/null || true)"
+              if [ "$live_sha" = "$RELEASE_SHA" ]; then
+                break
+              fi
+            fi
+            sleep 15
+          done
+          export LIVE_SHA="$live_sha"
+          export VERSION_HTTP="$version_http"
+          node -e '
+            const fs=require("fs");
+            const pPath="proof/beck/latest-production-heartbeat.json";
+            const p=JSON.parse(fs.readFileSync(pPath,"utf8"));
+            const expected=process.env.RELEASE_SHA;
+            const live=process.env.LIVE_SHA;
+            p.checked_at=new Date().toISOString();
+            p.production.version_http=Number(process.env.VERSION_HTTP);
+            p.production.live_sha=live||null;
+            p.production.version_ok=Number(process.env.VERSION_HTTP)===200 && live===expected;
+            p.overall=Boolean(p.production.health_ok && p.production.version_ok && p.commerce_surface.offer_ok && p.commerce_surface.checkout_ok);
+            fs.writeFileSync(pPath,JSON.stringify(p,null,2)+"\n");
+            console.log(JSON.stringify(p,null,2));
+          '
+
       - name: Create one drift incident when unhealthy
-        if: ${{ failure() }}
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
+          proof='proof/beck/latest-production-heartbeat.json'
+          if [ -s "$proof" ]; then
+            overall="$(node -e "const x=require('./$proof'); console.log(String(x.overall))")"
+          else
+            overall=false
+          fi
+          if [ "$overall" = 'true' ]; then
+            echo 'Production heartbeat PASS; no incident required.'
+            exit 0
+          fi
           title="BECK production heartbeat failure: $(date -u +%Y-%m-%d)"
           existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --limit 1 --json number,title)"
           if [ "$(node -e "const x=JSON.parse(process.argv[1]); console.log(x.length)" "$existing")" -gt 0 ]; then
