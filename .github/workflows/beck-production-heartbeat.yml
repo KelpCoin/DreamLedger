@@ -16,11 +16,12 @@ env:
   FOUNDING_OFFER_ID: OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001
   FOUNDING_PRICE_NZD: '50'
   FOUNDING_PAYMENT_LINK: https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02
+  RENDER_SERVICE_ID: srv-d8ud55lckfvc73f1t4eg
 
 jobs:
   heartbeat:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - name: Checkout current main
         uses: actions/checkout@v4
@@ -29,6 +30,7 @@ jobs:
           fetch-depth: 1
 
       - name: Probe production and write evidence
+        id: probe
         shell: bash
         run: |
           set -euo pipefail
@@ -53,7 +55,7 @@ jobs:
                 break
               fi
             fi
-            sleep 30
+            sleep 15
           done
 
           offers_http="$(curl -sS -o offers.json -w '%{http_code}' --max-time 30 "$BASE_URL/api/offers" || true)"
@@ -109,26 +111,67 @@ jobs:
             console.log(JSON.stringify(p,null,2));
           '
 
-          if ! $overall; then
-            exit 1
+      - name: Self-heal production deployment drift
+        if: ${{ steps.probe.outputs.unavailable == 'false' || steps.probe.outcome == 'success' }}
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RELEASE_SHA: ${{ steps.probe.outputs.expected_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof='proof/beck/latest-production-heartbeat.json'
+          test -s "$proof"
+          version_ok="$(node -e "const x=require('./$proof'); console.log(String(x.production.version_ok))")"
+          if [ "$version_ok" = 'true' ]; then
+            echo 'Production already converged to expected main SHA.'
+            exit 0
           fi
+          if [ -z "${RENDER_API_KEY:-}" ]; then
+            echo 'RENDER_API_KEY is not configured; cannot self-heal deployment drift.'
+            exit 0
+          fi
+          echo "Production drift detected. Triggering exact Render deployment for $RELEASE_SHA."
+          curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 \
+            -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H 'Content-Type: application/json' \
+            -d "{\"commitId\":\"$RELEASE_SHA\",\"clearCache\":\"clear\"}" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+            > proof/beck/render-self-heal-response.json
+          echo 'RENDER_SELF_HEAL_TRIGGERED=true' > proof/beck/render-self-heal-status.txt
 
       - name: Create one drift incident when unhealthy
-        if: failure()
+        if: ${{ failure() }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
           title="BECK production heartbeat failure: $(date -u +%Y-%m-%d)"
+          existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --limit 1 --json number,title)"
+          if [ "$(node -e "const x=JSON.parse(process.argv[1]); console.log(x.length)" "$existing")" -gt 0 ]; then
+            echo "INCIDENT_ALREADY_OPEN"
+            exit 0
+          fi
           body="Autonomous production heartbeat detected a failure. Expected main SHA: ${{ github.sha }}. Review workflow proof artifact and current production endpoints. No revenue is inferred from traffic or health alone."
-          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body" || true
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
 
       - name: Upload heartbeat evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: beck-production-heartbeat-${{ github.run_id }}
-          path: proof/beck/latest-production-heartbeat.json
+          path: proof/beck
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Fail closed when production contract is not satisfied
+        if: ${{ steps.probe.outcome == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          overall="$(node -e "const x=require('./proof/beck/latest-production-heartbeat.json'); console.log(String(x.overall))")"
+          if [ "$overall" != 'true' ]; then
+            echo 'BECK production contract not satisfied.'
+            exit 1
+          fi
