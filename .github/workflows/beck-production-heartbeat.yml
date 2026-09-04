@@ -69,6 +69,18 @@ jobs:
           overall=false
           if $health_ok && $version_ok && $offer_ok && $checkout_ok; then overall=true; fi
 
+          export EXPECTED_SHA="$expected_sha"
+          export HEALTH_HTTP="$health_http"
+          export VERSION_HTTP="$version_http"
+          export LIVE_SHA="$version_sha"
+          export OFFERS_HTTP="$offers_http"
+          export CHECKOUT_CODE="$checkout_code"
+          export HEALTH_OK="$health_ok"
+          export VERSION_OK="$version_ok"
+          export OFFER_OK="$offer_ok"
+          export CHECKOUT_OK="$checkout_ok"
+          export OVERALL="$overall"
+
           node -e '
             const fs=require("fs");
             const p={
@@ -95,21 +107,11 @@ jobs:
             };
             fs.writeFileSync("proof/beck/latest-production-heartbeat.json",JSON.stringify(p,null,2)+"\n");
             console.log(JSON.stringify(p,null,2));
-          ' 
-        env:
-          EXPECTED_SHA: ${{ github.sha }}
-          BASE_URL: ${{ env.BASE_URL }}
-          FOUNDING_OFFER_ID: ${{ env.FOUNDING_OFFER_ID }}
-          HEALTH_HTTP: ${{ env.HEALTH_HTTP }}
-          VERSION_HTTP: ${{ env.VERSION_HTTP }}
-          LIVE_SHA: ${{ env.VERSION_SHA }}
-          OFFERS_HTTP: ${{ env.OFFERS_HTTP }}
-          CHECKOUT_CODE: ${{ env.CHECKOUT_CODE }}
-          HEALTH_OK: ${{ env.HEALTH_OK }}
-          VERSION_OK: ${{ env.VERSION_OK }}
-          OFFER_OK: ${{ env.OFFER_OK }}
-          CHECKOUT_OK: ${{ env.CHECKOUT_OK }}
-          OVERALL: ${{ env.OVERALL }}
+          '
+
+          if ! $overall; then
+            exit 1
+          fi
 
       - name: Create one drift incident when unhealthy
         if: failure()
