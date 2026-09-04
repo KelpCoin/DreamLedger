@@ -7,6 +7,7 @@ const revenueLedger = require('./lib/revenueLedger');
 const marketplacePolicy = require('./lib/marketplacePolicy');
 const dreamiezRoutes = require('./routes/dreamiez');
 const marketplaceRoutes = require('./routes/marketplace');
+const mtgConfigurator = require('./routes/mtgConfigurator');
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = path.join(__dirname, 'compiled', 'website');
@@ -47,6 +48,7 @@ async function webhook(req,res){const raw=await readBody(req);try{verifyStripeSi
 const server=http.createServer(async(req,res)=>{const url=req.url.split('?')[0];
 if(await dreamiezRoutes.handle(req,res,url))return;
 if(await marketplaceRoutes.handle(req,res,url))return;
+if(await mtgConfigurator.handle(req,res,url))return;
 if(req.method==='GET'&&url==='/healthz'){const ledger=revenueLedger.health();return send(res,200,{status:'ok',service:'dreamledger',checks:{stripe_configured:Boolean(STRIPE_SECRET_KEY),webhook_configured:Boolean(STRIPE_WEBHOOK_SECRET),durable_ledger:DATA.startsWith('/var/data'),offer_catalog:fs.existsSync(OFFER_CATALOG),auction_catalog:fs.existsSync(auctions.AUCTION_DATA),dreamiez:fs.existsSync(DREAMIEZ_ROOT),news:fs.existsSync(NEWS_CATALOG)},revenue_ledger:{balanced:ledger.balanced,event_count:ledger.event_count,journal_count:ledger.journal_count,ledger_entry_count:ledger.ledger_entry_count,fulfillment_count:ledger.fulfillment_count}});}
 if(req.method==='GET'&&url==='/api/products')return send(res,200,{products:loadProducts().filter(p=>p.status==='published').map(publicProduct)});
 if(req.method==='GET'&&url.startsWith('/api/products/')){const product=getProduct(url.slice('/api/products/'.length));return product?send(res,200,publicProduct(product)):send(res,404,{error:'Product not found'});}
