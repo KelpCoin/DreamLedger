@@ -38,6 +38,34 @@ jobs:
           STRIPE_LIVE_ENABLED: ${{ vars.STRIPE_LIVE_ENABLED }}
         run: node scripts/Verify-StripeLiveAuth.mjs
 
+      - name: Create idempotent Stripe auth incident
+        if: ${{ always() && steps.stripe-auth.outcome == 'failure' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof='proof/commerce/latest-stripe-live-auth.json'
+          test -s "$proof"
+          reason="$(node -e "const x=require('./$proof'); process.stdout.write(x.reason||'Stripe authentication preflight failed.')")"
+          acct="$(node -e "const x=require('./$proof'); process.stdout.write(x.account_id||'unknown')")"
+          title="ECONOMIC BLOCKER: Stripe auth ${acct} $(date -u +%Y-%m-%d)"
+          existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --limit 1 --json number,title)"
+          if [ "$(node -e "const x=JSON.parse(process.argv[1]); console.log(x.length)" "$existing")" -gt 0 ]; then
+            echo "INCIDENT_ALREADY_OPEN"
+            exit 0
+          fi
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "# Stripe authentication gate blocked the economic loop
+
+Reason: $reason
+Observed account: $acct
+Canonical DreamLedger account: $STRIPE_EXPECTED_ACCOUNT_ID
+
+The loop is fail-closed. No reconciliation, fulfillment, or revenue recognition occurs while this gate is blocked.
+
+Do not paste secret material into issues, commits, chat, or logs. Replace the GitHub Actions STRIPE_SECRET_KEY with a live secret belonging to the canonical Stripe account, then rerun the Economic Loop Controller.
+
+Evidence file: proof/commerce/latest-stripe-live-auth.json
+Revenue claimed: NZ$0"
+
       - name: Reconcile live payment evidence
         if: ${{ steps.stripe-auth.outcome == 'success' }}
         env:
