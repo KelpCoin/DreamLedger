@@ -1,7 +1,7 @@
 {
   "schema": "BEC-PRIME/PRODUCT-FULFILLMENT-REGISTRY/v2",
   "policy": "A product is checkoutable only when this registry contains ready=true, operator_required=false, and a verified zero-human fulfillment contract. Products without that contract must not be sold.",
-  "updated": "2026-08-26",
+  "updated": "2026-09-04",
   "entries": {
     "BILLBOARD-SMALL": {
       "ready": true,
@@ -14,6 +14,19 @@
       "scarcity": "100 founding-equivalent 100x100 positions per market",
       "delivery_proof": ["fulfillment_id", "transaction_id", "grid_position", "delivery_url", "proof_url"],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent"
+    },
+    "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001": {
+      "ready": true,
+      "type": "automatic_service_activation",
+      "delivery_target": "dreamledger.org/billboard",
+      "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
+      "operator_required": false,
+      "idempotency_key": "stripe_checkout_session_id",
+      "buyer_inputs": ["destination_url", "tile_alt_text", "tile_image_url"],
+      "scarcity": "100 founding-equivalent 100x100 positions per market",
+      "delivery_proof": ["fulfillment_id", "transaction_id", "grid_position", "delivery_url", "proof_url"],
+      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
+      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001"
     },
     "BILLBOARD-MEDIUM": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
     "BILLBOARD-WIDE": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
