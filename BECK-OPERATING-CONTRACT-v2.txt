@@ -1,0 +1,20 @@
+BECK Operating Contract
+
+Purpose: keep production observable, verifiable, recoverable, and commercially pointed.
+
+Truth rules:
+1. Health, traffic, clicks, checkout availability, and intent are not revenue.
+2. Revenue requires attributable live payment evidence.
+3. Delivery and evidence follow payment.
+4. Failed or stale checks create exceptions, not success claims.
+5. Routine observation and evidence collection may run automatically.
+6. Consequential public posting, spending, or irreversible commercial actions remain approval-gated unless separately authorized.
+
+Core loop:
+OBSERVE -> RECORD -> COMPARE -> DETECT -> EXPERIMENT -> SELL -> VERIFY -> LEARN -> REPEAT
+
+Canonical nucleus: DreamLedger. Other workloads attach to the same commerce spine instead of creating parallel economic truth systems.
+
+RA_000001: first verified stranger payment attributable to the DreamLedger Founding Tile offer. Until proven, verified revenue remains NZ$0.
+
+Heartbeat: health, deployment SHA convergence, canonical Founding Tile offer, and live checkout doorway. Retain evidence as an artifact. Surface failures as a single open GitHub incident to avoid alert spam.
