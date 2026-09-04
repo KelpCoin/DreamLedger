@@ -36,6 +36,7 @@ jobs:
           set -euo pipefail
           mkdir -p proof/beck
           expected_sha="$(git rev-parse HEAD)"
+          echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"
 
           health_http="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/healthz" || true)"
           health_ok=false
@@ -112,7 +113,7 @@ jobs:
           '
 
       - name: Self-heal production deployment drift
-        if: ${{ steps.probe.outputs.unavailable == 'false' || steps.probe.outcome == 'success' }}
+        if: always()
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RELEASE_SHA: ${{ steps.probe.outputs.expected_sha }}
