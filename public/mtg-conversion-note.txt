@@ -1,0 +1,1 @@
+Economic conversion note: the live $1 One-Minute Curiosity Pack is an optional low-friction entry point. Do not count checkout activity as revenue. Paid-state evidence must come from Stripe completed Checkout Sessions.
