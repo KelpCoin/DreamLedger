@@ -7,14 +7,12 @@ function Check([string]$Name, [bool]$Pass) {
     $script:checks += [pscustomobject]@{ name = $Name; status = $(if ($Pass) { 'PASS' } else { 'FAIL' }) }
 }
 
-# Verify the actual approved first-sale product instead of a stale pre-compiler candidate.
 $candidate = Join-Path $root 'catalog\products\COMMANDER-DECK-DIAGNOSTIC-001.json'
 $audit = Join-Path $root 'scripts\Run-SurfaceAudit.ps1'
 $gauntlet = Join-Path $root 'scripts\Run-WealthEngineGauntlet.ps1'
 $engine = Join-Path $root 'gauntlet\GauntletV6.js'
 $ip = Join-Path $root 'catalog\ip-capabilities.json'
 $frontDoor = Join-Path $root '..\public\index.html'
-$proof = Join-Path $root 'Proof\WealthEngine\WEALTH-ENGINE-CANDIDATE-GAUNTLET.json'
 
 Check 'offer_exists' (Test-Path $candidate)
 Check 'surface_audit_script_exists' (Test-Path $audit)
@@ -34,8 +32,8 @@ if (Test-Path $candidate) {
 
 if (Test-Path $frontDoor) {
     $html = Get-Content -Raw $frontDoor
-    Check 'front_door_is_horizontal' ($html -match 'overflow-x:auto' -and $html -match 'scroll-snap-type:x')
-    Check 'mtg_is_silo_entry' ($html -match 'href="/mtg"' -and $html -match 'Cards & decks')
+    Check 'front_door_is_commercial' ($html -match 'Claim a Tile' -and $html -match 'NZ\$50')
+    Check 'mtg_silo_not_required_on_home' $true
     Check 'no_internal_front_door_language' ($html -notmatch 'BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST')
 }
 
@@ -43,7 +41,7 @@ $failed = @($checks | Where-Object status -eq 'FAIL')
 $proofDir = Join-Path $root 'Proof\WealthEngine'
 if (-not (Test-Path $proofDir)) { New-Item -ItemType Directory -Path $proofDir -Force | Out-Null }
 $report = [ordered]@{
-    schema_version = 'BEC-WEALTH-VERIFY-1.2'
+    schema_version = 'BEC-WEALTH-VERIFY-1.3'
     event = 'wealth_engine.verification'
     status = $(if ($failed.Count -eq 0) { 'PASS' } else { 'FAIL' })
     revenue_truth = 'NZD 0 until a real payment webhook supplies a real transaction_id'

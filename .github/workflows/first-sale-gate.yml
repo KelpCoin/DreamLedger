@@ -30,7 +30,7 @@ env:
   FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001' }}
   CREATE_CHECKOUT: ${{ inputs.CREATE_CHECKOUT || 'false' }}
   BASE_URL: "https://dreamledger.org"
-  TARGET_SILO: "dreamledger"
+  TARGET_SILO: "media"
   EXPECTED_PRICE_NZD: "50"
 
 jobs:
@@ -43,7 +43,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-
       - name: Verify canonical Founding Tile offer
         shell: bash
         run: |
@@ -61,13 +60,11 @@ jobs:
           fs.writeFileSync('approved-offer.json', JSON.stringify(offer, null, 2) + '\n');
           console.log('CANONICAL_FOUNDING_TILE=PASS');
           NODE
-
       - name: Verify live health
         shell: bash
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --max-time 90 "$BASE_URL/healthz" | tee health.json
-
       - name: Verify live Founding Tile offer
         shell: bash
         run: |
@@ -85,25 +82,19 @@ jobs:
           fs.writeFileSync('selected-offer.json', JSON.stringify(offer, null, 2) + '\n');
           console.log('LIVE_FOUNDING_TILE=PASS');
           NODE
-
       - name: Create one checkout doorway
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.CREATE_CHECKOUT == true }}
         shell: bash
         run: |
           set -euo pipefail
           OFFER_ID="$FIRST_SALE_OFFER_ID"
-          curl --fail --silent --show-error --max-time 60 \
-            -X POST "$BASE_URL/api/offer-checkout/create" \
-            -H 'Content-Type: application/json' \
-            --data "{\"offer_id\":\"$OFFER_ID\",\"silo\":\"$TARGET_SILO\"}" \
-            | tee checkout.json
+          curl --fail --silent --show-error --max-time 60 -X POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data "{\"offer_id\":\"$OFFER_ID\",\"silo\":\"$TARGET_SILO\"}" | tee checkout.json
           node <<'NODE'
           const x = require('./checkout.json');
           const u = x.url || x.checkout_url;
           if (!u || !/^https:\/\/(checkout\.stripe\.com|buy\.stripe\.com)\//.test(u)) throw new Error('real Stripe checkout doorway not returned');
           console.log('CHECKOUT_READY', u.replace(/[^/]+$/, '[session]'));
           NODE
-
       - name: Upload gate evidence
         if: always()
         uses: actions/upload-artifact@v4

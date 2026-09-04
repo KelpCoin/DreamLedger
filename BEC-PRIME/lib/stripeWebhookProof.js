@@ -71,8 +71,8 @@ function recordTruthOracleWebhookEvent(event) {
     silo: 'truth-oracle',
     actor: { type: 'provider_webhook', id: 'stripe' },
     inputs_hash: runtimeLedger.sha256({ provider_event_id: event.id, type: event.type }),
-    outputs_hash: runtimeLedger.sha256({ user_id: userId, economic_state }),
-    payload: { provider: 'stripe', provider_event_id: event.id, provider_event_type: event.type, user_id: userId, economic_state },
+    outputs_hash: runtimeLedger.sha256({ user_id: userId, economic_state: economicState }),
+    payload: { provider: 'stripe', provider_event_id: event.id, provider_event_type: event.type, user_id: userId, economic_state: economicState },
     claims,
     evidence_refs: [event.id],
     result: 'PASS'
@@ -153,8 +153,7 @@ function writeProofArtifacts({ tx, proof, transactionId, taxTag }, dirs = resolv
 
 function handleStripeWebhook(rawBody, signatureHeader, opts) {
   const { webhookSecret, getProduct, getProductByPaymentLink, getOffer, dirs } = opts;
-  verifyStripeSignature(rawBody, signatureHeader, webhookSecret);
-  let event; try { event = JSON.parse(rawBody); } catch { const err = new Error('Invalid JSON payload'); err.statusCode = 400; throw err; }
+  const event = verifyStripeSignature(rawBody, signatureHeader, webhookSecret);
   if (event.type !== 'checkout.session.completed') return { received: true, handled: false, type: event.type };
   const session = event.data.object;
   if (session.payment_status !== 'paid') return { received: true, handled: false, type: event.type, reason: 'payment_status_not_paid', payment_status: session.payment_status };

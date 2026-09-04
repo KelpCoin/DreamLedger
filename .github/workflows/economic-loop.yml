@@ -41,7 +41,6 @@ jobs:
         run: |
           set -euo pipefail
           test -s proof/commerce/latest-stripe-airtable-reconciliation.json
-
           node <<'NODE'
           const fs = require('fs');
           const proof = JSON.parse(fs.readFileSync('proof/commerce/latest-stripe-airtable-reconciliation.json', 'utf8'));
@@ -49,13 +48,11 @@ jobs:
           fs.writeFileSync('/tmp/new-payments.json', JSON.stringify(inserted));
           console.log(`NEWLY_RECOGNIZED=${inserted.length}`);
           NODE
-
           count=$(node -e "const x=require('/tmp/new-payments.json'); console.log(x.length)")
           if [ "$count" -eq 0 ]; then
             echo 'No new verified payment. Nothing to fulfill.'
             exit 0
           fi
-
           node <<'NODE'
           const fs = require('fs');
           const cp = require('child_process');
@@ -65,35 +62,26 @@ jobs:
             const existing = cp.spawnSync('gh', ['issue', 'list', '--state', 'all', '--search', `in:title "${title}"`, '--limit', '1', '--json', 'number,title'], {encoding:'utf8'});
             if (existing.status !== 0) throw new Error(existing.stderr || 'gh issue list failed');
             const found = JSON.parse(existing.stdout || '[]');
-            if (found.length) {
-              console.log(`IDEMPOTENT_SKIP issue=${found[0].number} event=${row.eventId}`);
-              continue;
-            }
-
+            if (found.length) { console.log(`IDEMPOTENT_SKIP issue=${found[0].number} event=${row.eventId}`); continue; }
             const body = [
-              '# Verified paid order',
-              '',
+              '# Verified paid order', '',
               `Event ID: ${row.eventId}`,
               `Offer ID: ${row.offerId || 'unknown'}`,
               `Product ID: ${row.productId || 'unknown'}`,
               `SKU: ${row.sku || 'unknown'}`,
               `Stripe session: ${row.stripeSession}`,
               `Amount: NZ$${row.amountNZD}`,
-              `Paid at: ${row.paidAt}`,
-              '',
+              `Paid at: ${row.paidAt}`, '',
               '## Required operator actions',
               `1. Fulfill the approved offer identified by ${row.offerId || row.sku || row.productId}.`,
               '2. Follow the offer registry fulfillment route and required human approval gate.',
               '3. Record delivery evidence in the normal fulfillment system.',
               '4. Close this issue only after delivery is evidenced.',
-              '5. Do not publicly post or contact the buyer from automation.',
-              '',
+              '5. Do not publicly post or contact the buyer from automation.', '',
               '## Economic loop',
-              'Payment -> verified event -> offer-specific fulfillment -> evidence -> next monetization candidate.',
-              '',
+              'Payment -> verified event -> offer-specific fulfillment -> evidence -> next monetization candidate.', '',
               'This issue is generated only from a live Stripe payment event. No synthetic revenue is created.'
             ].join('\\n');
-
             const result = cp.spawnSync('gh', ['issue', 'create', '--title', title, '--body', body], {encoding:'utf8'});
             if (result.status !== 0) throw new Error(result.stderr || result.stdout || 'gh issue create failed');
             console.log(`FULFILLMENT_CREATED ${result.stdout.trim()}`);
@@ -105,48 +93,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p proof/commerce
-          if [ -s proof/commerce/latest-stripe-airtable-reconciliation.json ]; then
-            node <<'NODE'
-            const fs = require('fs');
-            const source = JSON.parse(fs.readFileSync('proof/commerce/latest-stripe-airtable-reconciliation.json', 'utf8'));
-            const out = {
-              schema: 'dreamledger-economic-loop-v1',
-              generated_at: new Date().toISOString(),
-              authority: source.authority,
-              verified_revenue_nzd: source.verified_revenue_nzd,
-              newly_recognized_events: source.newly_recognized_events,
-              matching_paid_sessions: source.matching_paid_sessions,
-              scanned_completed_checkout_sessions: source.scanned_completed_checkout_sessions,
-              loop: 'payment -> reconciliation -> offer-specific fulfillment -> human delivery evidence -> next monetization candidate',
-              public_posting: 'DISABLED',
-              synthetic_revenue: false,
-              status: 'RECONCILIATION_PASS'
-            };
-            fs.writeFileSync('proof/commerce/latest-economic-loop.json', JSON.stringify(out, null, 2) + '\\n');
-            console.log(JSON.stringify(out, null, 2));
-            NODE
-          else
-            node <<'NODE'
-            const fs = require('fs');
-            const out = {
-              schema: 'dreamledger-economic-loop-v1',
-              generated_at: new Date().toISOString(),
-              authority: 'Stripe live payment evidence',
-              verified_revenue_nzd: 0,
-              newly_recognized_events: [],
-              matching_paid_sessions: null,
-              scanned_completed_checkout_sessions: null,
-              loop: 'payment -> reconciliation -> offer-specific fulfillment -> human delivery evidence -> next monetization candidate',
-              public_posting: 'DISABLED',
-              synthetic_revenue: false,
-              status: 'RECONCILIATION_BLOCKED',
-              reason: 'Stripe reconciliation did not produce a reconciliation proof file.'
-            };
-            fs.writeFileSync('proof/commerce/latest-economic-loop.json', JSON.stringify(out, null, 2) + '\\n');
-            console.log(JSON.stringify(out, null, 2));
-            NODE
-          fi
+          node scripts/Emit-EconomicLoopProof.js
           sha256sum proof/commerce/latest-economic-loop.json > proof/commerce/latest-economic-loop.sha256
 
       - name: Upload economic-loop proof
