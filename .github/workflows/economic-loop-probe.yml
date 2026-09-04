@@ -1,0 +1,23 @@
+name: Economic Loop Registration Probe
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  registration-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Prove runner scheduling
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "WORKFLOW_REGISTRATION=PASS"
+          echo "RUNNER_SCHEDULING=PASS"
+          echo "SHA=${GITHUB_SHA}"
+          echo "RUN_ID=${GITHUB_RUN_ID}"
