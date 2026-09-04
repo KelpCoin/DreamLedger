@@ -1,0 +1,2 @@
+Purpose: harmless push trigger to force a fresh Economic Loop Controller run after rotating STRIPE_SECRET_KEY.
+No application behavior is changed by this file.
