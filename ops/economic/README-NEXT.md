@@ -1,0 +1,1 @@
+The commerce system is at an evidence-backed intent state. The next economic transition is a real paid checkout. Use the direct purchase surface and approved live Stripe links. Do not infer revenue from checkout activity. The system's verification target is one attributable paid session, followed by fulfillment and delivery evidence.
