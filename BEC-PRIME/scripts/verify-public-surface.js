@@ -6,7 +6,12 @@ const site=path.join(root,'compiled','website');
 const deployedSite=path.join(root,'..','public');
 const required=['index.html','login.html','register.html','account.html','.well-known/agent-commerce.json','.well-known/ucp','truth-oracle.html','truth-oracle.json','transparency-policy.json'];
 const forbidden=[/api\/ip/i,/api\/control/i,/\/var\/data\//i,/sk_live_/i,/sk_test_/i,/whsec_/i,/STRIPE_SECRET_KEY/i,/STRIPE_WEBHOOK_SECRET/i,/DIGITAL_PROXY_APPROVAL_TOKEN/i,/LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,/DREAMIEZ_DATA_DIR/i,/DEMAND_RADAR_DATA_DIR/i,/BEGIN .*PRIVATE KEY/i,/private prompts/i,/internal ledger records/i,/FIRST_PAYMENT_PROOF\.json/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i,/cinema-event-v1/i];
-const CATALOG_REQUIRED=['DreamLedger','Billboard','DreamMeez','Truth Oracle'];
+const CATALOG_REQUIRED=[
+  {label:'DreamLedger', test:/dreamledger/i},
+  {label:'Billboard', test:/href=["']\/billboard["']/i},
+  {label:'DreamMeez', test:/href=["']\/dreammeez["']/i},
+  {label:'Truth Oracle', test:/href=["']\/truth-oracle["']/i}
+];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
 for(const rel of ['login.html','register.html','account.html']){const p=path.join(site,rel);if(!fs.existsSync(p))continue;const raw=fs.readFileSync(p,'utf8');if(!/\/api\/account\//i.test(raw))errors.push(`ACCOUNT_CONTRACT:${rel}:missing /api/account/`);}
@@ -15,7 +20,7 @@ function walk(dir){if(!fs.existsSync(dir))return;for(const name of fs.readdirSyn
 if(fs.existsSync(site))walk(site);
 for(const p of files){const rel=path.relative(site,p).replace(/\\/g,'/');if(!textExtensions.has(path.extname(p).toLowerCase()))continue;const raw=fs.readFileSync(p,'utf8');for(const re of forbidden){if(re.test(raw))errors.push(`PUBLIC_LEAK:${rel}:${re}`)}}
 const indexPath=path.join(deployedSite,'index.html');let index='';try{index=fs.readFileSync(indexPath,'utf8')}catch(e){errors.push('CATALOGUE_SURFACE:public/index.html unreadable')}
-for(const requiredText of CATALOG_REQUIRED){if(!index.toLowerCase().includes(requiredText.toLowerCase()))errors.push(`CATALOGUE_REQUIRED_MISSING:${requiredText}`)}
+for(const requiredEntry of CATALOG_REQUIRED){if(!requiredEntry.test.test(index))errors.push(`CATALOGUE_REQUIRED_MISSING:${requiredEntry.label}`)}
 const agentPath=path.join(site,'.well-known','agent-commerce.json');let agent={};try{agent=JSON.parse(fs.readFileSync(agentPath,'utf8'))}catch(e){errors.push('AGENT_BOUNDARY:invalid agent-commerce.json')}
 if(agent.private_material!=='excluded')errors.push('AGENT_BOUNDARY:private_material');
 if(agent.capabilities!==null)errors.push('AGENT_BOUNDARY:capabilities must remain null');
