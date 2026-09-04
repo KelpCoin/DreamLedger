@@ -1,0 +1,29 @@
+{
+  "schema": "dreamledger/live-economic-signal/v1",
+  "observed_at": "2026-09-04T20:42:00+12:00",
+  "authority": "Stripe live account",
+  "account_id": "acct_1NKPLaJt4ieIQDFz",
+  "signal_type": "CHECKOUT_INTENT",
+  "revenue_claimed_nzd": 0,
+  "paid_sessions": 0,
+  "unpaid_sessions_observed": [
+    {
+      "checkout_session": "cs_live_a1E3ND7LvQpFXgp9xRKNZkGIIOn1COAoliQ3uLiGel3wmkYHLe6QMKvXcM",
+      "payment_link": "plink_1UAN9zJt4ieIQDFzgHeso6Qo",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "amount_nzd": 50,
+      "status": "open",
+      "payment_status": "unpaid"
+    },
+    {
+      "checkout_session": "cs_live_a1LnRJpkGV7B2Sw6hkNRwEhMCXr6vvNxsKhn3EVa15bOkWrSLz26rEFbll",
+      "payment_link": "plink_1UAN9zJt4ieIQDFzgHeso6Qo",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "amount_nzd": 50,
+      "status": "expired",
+      "payment_status": "unpaid"
+    }
+  ],
+  "interpretation": "Two live checkout attempts demonstrate purchase intent but neither constitutes revenue. No buyer identity or private customer data is copied into this signal record.",
+  "next_transition_target": "paid"
+}
