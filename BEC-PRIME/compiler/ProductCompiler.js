@@ -36,16 +36,22 @@ function priceInMajorUnits(product) {
   if (resolved.unit !== 'major') throw new Error(`Unsupported price_unit for ${product.id}: ${resolved.unit}`);
   return value;
 }
-
+function inventoryPositive(product) {
+  if (Number(product.inventory) > 0) return true;
+  if (Number(product.inventory_units) > 0) return true;
+  if (Number(product.inventory_pixels) > 0 && Number(product.placement_pixels) > 0) return true;
+  return false;
+}
 function fulfillmentReady(product, registry) {
-  const f = registry.entries[product.id];
-  if (!f || f.ready !== true) return { ready: false, reason: 'NO_FULFILLMENT_CONTRACT' };
-  if (f.type === 'physical_inventory' && Number(product.inventory || 0) <= 0) return { ready: false, reason: 'NO_POSITIVE_INVENTORY' };
+  const f = registry.entries[product.offer_id] || registry.entries[product.id];
+  if (!f || f.ready !== true || f.operator_required === true) return { ready: false, reason: 'NO_FULFILLMENT_CONTRACT' };
+  if (f.type === 'physical_inventory' && !inventoryPositive(product)) return { ready: false, reason: 'NO_POSITIVE_INVENTORY' };
   if (f.type === 'report_template') {
     const templatePath = path.join(ROOT, '..', f.template);
     if (!fs.existsSync(templatePath)) return { ready: false, reason: 'FULFILLMENT_TEMPLATE_MISSING' };
   }
   if (f.type === 'service_activation' && !f.delivery_target) return { ready: false, reason: 'DELIVERY_TARGET_MISSING' };
+  if (f.type === 'automatic_service_activation' && !f.delivery_target) return { ready: false, reason: 'DELIVERY_TARGET_MISSING' };
   return { ready: true, reason: null, contract: f };
 }
 
@@ -60,9 +66,10 @@ function compile() {
     const f = fulfillmentReady(p, registry);
     const resolvedPrice = resolvePriceUnit(p);
     const price = priceInMajorUnits(p);
-    const checkoutAvailable = p.status === 'published' && p.commercial_truth?.approval_required === false && Number(p.inventory || 0) > 0 && f.ready;
+    const checkoutAvailable = p.status === 'published' && p.commercial_truth?.approval_required === false && inventoryPositive(p) && f.ready;
     return {
-      offer_id: p.id,
+      offer_id: p.offer_id || p.id,
+      product_id: p.id,
       version: 'product-offer-v3',
       capability_id: p.capability_id || `PRODUCT-${p.id}`,
       silo: p.silo,
@@ -82,7 +89,8 @@ function compile() {
       source_price_unit_implicit: resolvedPrice.implicit,
       pricing_strategy: 'fixed',
       payment_adapter: 'stripe',
-      checkout_route: '/api/offer-checkout/create',
+      checkout_route: p.checkout?.mode === 'payment_link' ? 'stripe_payment_link' : '/api/offer-checkout/create',
+      checkout_url: p.commercial_truth?.payment_link || null,
       approval_required: p.commercial_truth?.approval_required === true,
       checkout_available: checkoutAvailable,
       status: checkoutAvailable ? 'VERIFIED_AVAILABLE' : (p.status === 'published' ? 'QUARANTINED_NO_FULFILLMENT' : 'unavailable'),
@@ -126,4 +134,4 @@ function compile() {
 }
 
 if (require.main === module) console.log(JSON.stringify(compile(), null, 2));
-module.exports = { compile, priceInMajorUnits, resolvePriceUnit };
+module.exports = { compile, priceInMajorUnits, resolvePriceUnit, inventoryPositive };
