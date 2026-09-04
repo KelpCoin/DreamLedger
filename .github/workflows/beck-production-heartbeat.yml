@@ -11,10 +11,6 @@ permissions:
   contents: read
   issues: write
 
-concurrency:
-  group: beck-production-heartbeat
-  cancel-in-progress: true
-
 env:
   BASE_URL: https://dreamledger.org
   FOUNDING_OFFER_ID: OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001
@@ -32,116 +28,99 @@ jobs:
           ref: main
           fetch-depth: 1
 
-      - name: Probe production, commerce surface, and write evidence
+      - name: Probe production and write evidence
         shell: bash
-        env:
-          EXPECTED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           mkdir -p proof/beck
-          node <<'NODE'
-          const fs = require('fs');
-          const { execSync } = require('child_process');
+          expected_sha="$(git rev-parse HEAD)"
 
-          const base = process.env.BASE_URL;
-          const expectedSha = process.env.EXPECTED_SHA || execSync('git rev-parse HEAD').toString().trim();
-          const offerId = process.env.FOUNDING_OFFER_ID;
-          const expectedPrice = Number(process.env.FOUNDING_PRICE_NZD);
-          const paymentLink = process.env.FOUNDING_PAYMENT_LINK;
+          health_http="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/healthz" || true)"
+          health_ok=false
+          [ "$health_http" = '200' ] && health_ok=true
 
-          async function get(url, options = {}) {
-            try {
-              const r = await fetch(url, { redirect: 'follow', ...options });
-              const text = await r.text();
-              return { ok: r.ok, status: r.status, url: r.url, text };
-            } catch (error) {
-              return { ok: false, status: 0, url, text: '', error: String(error?.message || error) };
-            }
-          }
+          version_http=000
+          version_sha=''
+          version_ok=false
+          for attempt in $(seq 1 12); do
+            version_payload="$(curl -sS --max-time 30 -w '\n%{http_code}' "$BASE_URL/version" || true)"
+            version_http="$(printf '%s\n' "$version_payload" | tail -n1)"
+            version_json="$(printf '%s\n' "$version_payload" | sed '$d')"
+            if [ "$version_http" = '200' ]; then
+              version_sha="$(node -e 'const x=JSON.parse(process.argv[1]); process.stdout.write(String(x.commit||x.sha||x.version_sha||x.git_sha||""))' "$version_json" 2>/dev/null || true)"
+              if [ "$version_sha" = "$expected_sha" ]; then
+                version_ok=true
+                break
+              fi
+            fi
+            sleep 30
+          done
 
-          function parseJson(text) {
-            try { return JSON.parse(text); } catch { return null; }
-          }
+          offers_http="$(curl -sS -o offers.json -w '%{http_code}' --max-time 30 "$BASE_URL/api/offers" || true)"
+          offer_ok=false
+          if [ "$offers_http" = '200' ]; then
+            offer_ok="$(FOUNDING_OFFER_ID="$FOUNDING_OFFER_ID" FOUNDING_PRICE_NZD="$FOUNDING_PRICE_NZD" node -e 'const fs=require("fs"); const x=JSON.parse(fs.readFileSync("offers.json","utf8")); const a=Array.isArray(x)?x:(x.offers||x.data||[]); const o=a.find(v=>(v.offer_id===process.env.FOUNDING_OFFER_ID||v.id===process.env.FOUNDING_OFFER_ID)); process.stdout.write(String(!!o && Number(o.price)===Number(process.env.FOUNDING_PRICE_NZD) && String(o.currency||"").toUpperCase()==="NZD" && o.checkout_available===true))')"
+          fi
 
-          const health = await get(`${base}/healthz`);
-          let version = { ok: false, status: 0, text: '', url: `${base}/version` };
-          let liveSha = '';
-          let versionOk = false;
-          for (let attempt = 1; attempt <= 12; attempt += 1) {
-            version = await get(`${base}/version`);
-            const x = parseJson(version.text);
-            liveSha = String(x?.commit ?? x?.sha ?? x?.version_sha ?? x?.git_sha ?? '');
-            if (version.status === 200 && liveSha === expectedSha) {
-              versionOk = true;
-              break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 30000));
-          }
+          checkout_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$FOUNDING_PAYMENT_LINK" || true)"
+          checkout_ok=false
+          [ "$checkout_code" = '200' ] && checkout_ok=true
 
-          const offers = await get(`${base}/api/offers`);
-          let offerOk = false;
-          const offerPayload = parseJson(offers.text);
-          const offerRows = Array.isArray(offerPayload)
-            ? offerPayload
-            : (offerPayload?.offers || offerPayload?.data || []);
-          const founding = offerRows.find(row =>
-            (row?.offer_id === offerId || row?.id === offerId) &&
-            Number(row?.price) === expectedPrice &&
-            String(row?.currency || '').toUpperCase() === 'NZD' &&
-            row?.checkout_available === true
-          );
-          if (offers.status === 200 && founding) offerOk = true;
+          overall=false
+          if $health_ok && $version_ok && $offer_ok && $checkout_ok; then overall=true; fi
 
-          const checkout = await get(paymentLink);
-          const checkoutOk = checkout.status >= 200 && checkout.status < 400;
-          const overall = health.status === 200 && versionOk && offerOk && checkoutOk;
+          node -e '
+            const fs=require("fs");
+            const p={
+              proof_type:"BECK_PRODUCTION_HEARTBEAT",
+              checked_at:new Date().toISOString(),
+              expected_main_sha:process.env.EXPECTED_SHA,
+              production:{
+                base_url:process.env.BASE_URL,
+                health_http:Number(process.env.HEALTH_HTTP),
+                version_http:Number(process.env.VERSION_HTTP),
+                live_sha:process.env.LIVE_SHA||null,
+                version_ok:process.env.VERSION_OK==="true",
+                health_ok:process.env.HEALTH_OK==="true"
+              },
+              commerce_surface:{
+                offers_http:Number(process.env.OFFERS_HTTP),
+                founding_offer_id:process.env.FOUNDING_OFFER_ID,
+                offer_ok:process.env.OFFER_OK==="true",
+                checkout_http:Number(process.env.CHECKOUT_CODE),
+                checkout_ok:process.env.CHECKOUT_OK==="true"
+              },
+              overall:process.env.OVERALL==="true",
+              revenue_claimed_nzd:0
+            };
+            fs.writeFileSync("proof/beck/latest-production-heartbeat.json",JSON.stringify(p,null,2)+"\n");
+            console.log(JSON.stringify(p,null,2));
+          ' 
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+          BASE_URL: ${{ env.BASE_URL }}
+          FOUNDING_OFFER_ID: ${{ env.FOUNDING_OFFER_ID }}
+          HEALTH_HTTP: ${{ env.HEALTH_HTTP }}
+          VERSION_HTTP: ${{ env.VERSION_HTTP }}
+          LIVE_SHA: ${{ env.VERSION_SHA }}
+          OFFERS_HTTP: ${{ env.OFFERS_HTTP }}
+          CHECKOUT_CODE: ${{ env.CHECKOUT_CODE }}
+          HEALTH_OK: ${{ env.HEALTH_OK }}
+          VERSION_OK: ${{ env.VERSION_OK }}
+          OFFER_OK: ${{ env.OFFER_OK }}
+          CHECKOUT_OK: ${{ env.CHECKOUT_OK }}
+          OVERALL: ${{ env.OVERALL }}
 
-          const proof = {
-            proof_type: 'BECK_PRODUCTION_HEARTBEAT',
-            checked_at: new Date().toISOString(),
-            expected_main_sha: expectedSha,
-            production: {
-              base_url: base,
-              health_http: health.status,
-              version_http: version.status,
-              live_sha: liveSha || null,
-              version_ok: versionOk,
-              health_ok: health.status === 200
-            },
-            commerce_surface: {
-              offers_http: offers.status,
-              founding_offer_id: offerId,
-              offer_ok: offerOk,
-              checkout_http: checkout.status,
-              checkout_ok: checkoutOk
-            },
-            overall,
-            revenue_claimed_nzd: 0,
-            revenue_rule: 'No revenue is inferred from health, traffic, checkout availability, or intent.'
-          };
-
-          fs.writeFileSync('proof/beck/latest-production-heartbeat.json', JSON.stringify(proof, null, 2) + '\n');
-          console.log(JSON.stringify(proof, null, 2));
-          if (!overall) process.exit(1);
-          NODE
-
-      - name: Create one open drift incident when heartbeat fails
+      - name: Create one drift incident when unhealthy
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          title="BECK production heartbeat failure"
-          existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "BECK production heartbeat failure"' --limit 1 --json number --jq '.[0].number' || true)"
-          if [ -n "$existing" ]; then
-            echo "Existing heartbeat incident #$existing"
-          else
-            gh issue create \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "$title" \
-              --body "BECK detected a production heartbeat failure. Expected main SHA: ${{ github.sha }}. Inspect the workflow artifact for exact endpoint evidence. No revenue is inferred from this failure or from traffic alone."
-          fi
+          title="BECK production heartbeat failure: $(date -u +%Y-%m-%d)"
+          body="Autonomous production heartbeat detected a failure. Expected main SHA: ${{ github.sha }}. Review workflow proof artifact and current production endpoints. No revenue is inferred from traffic or health alone."
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body" || true
 
       - name: Upload heartbeat evidence
         if: always()
