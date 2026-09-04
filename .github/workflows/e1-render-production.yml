@@ -40,19 +40,21 @@ jobs:
           test -s public/server.js
           test -s public/sitemap.xml
           test -s public/robots.txt
-          grep -qi 'AVATAR ACCESSORIES' public/index.html
-          grep -qi 'DIGITAL BILLBOARDS' public/index.html
-          grep -qi 'Make your avatar yours' public/index.html
-          grep -qi 'Put your message on a billboard' public/index.html
-          grep -q '/avatar' public/index.html
-          grep -q '/billboard' public/index.html
-          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET' public/index.html public/billboard.html public/avatar.html public/server.js
+          grep -qi 'THE INTERNET' public/index.html
+          grep -qi 'IS A GARDEN' public/index.html
+          grep -qi 'Plant a plot' public/index.html
+          grep -qi 'See what' public/index.html
+          grep -q 'href="/billboard"' public/index.html
+          grep -q 'href="/dreammeez"' public/index.html
+          grep -q 'href="/truth-oracle"' public/index.html
+          ! grep -Eiq 'BECK|Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET' public/index.html public/billboard.html public/avatar.html public/server.js
           grep -q 'autoDeployTrigger: commit' render.yaml
           grep -q 'rootDir: public' render.yaml
           grep -q 'rootDir: BEC-PRIME' render.yaml
           grep -q "'/api/products'" public/server.js
           grep -q "'/sitemap.xml'" public/server.js
           grep -q "'/avatars'" public/server.js
+          grep -q "'/api/offers'" public/server.js
           echo "SOURCE_STOREFRONT=PASS"
           echo "RELEASE_SHA=$RELEASE_SHA"
 
@@ -65,7 +67,7 @@ jobs:
           import hashlib,json,sys,time
           files=['public/index.html','public/avatar.html','public/billboard.html','public/server.js','public/sitemap.xml','public/robots.txt','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/source-storefront-proof/v1','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'public-v6','public_root':'public','private_root':'BEC-PRIME','customer_products':['avatar-accessories','digital-billboards'],'forbidden_public_terms':True,'source_checks_only':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          data={'schema':'dreamledger/source-storefront-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'internet-garden','public_root':'public','private_root':'BEC-PRIME','customer_products':['internet-garden-plots','digital-billboards'],'forbidden_public_terms':True,'source_checks_only':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
           json.dump(data,open('proof/SOURCE_STOREFRONT_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
