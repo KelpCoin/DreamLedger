@@ -17,7 +17,10 @@ Routine verification, reconciliation, evidence generation, and safe idempotent r
 ## Current commissioning exceptions
 - Production version endpoint reports a live SHA different from the merged main commit.
 - Public surface guard contains stale expectations from an older storefront contract.
-- System Truth Gate uses Node 22 while BEC-PRIME declares Node >=24 <25.
+
+## Runtime alignment
+- BEC-PRIME declares Node >=24 <25.
+- The compiled website package now declares the same Node >=24 <25 contract.
 
 ## Next economic gate
 E1_FIRST_EXTERNAL_PAYMENT.
