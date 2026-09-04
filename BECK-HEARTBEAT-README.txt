@@ -1,0 +1,1 @@
+BECK heartbeat is a recurring observation loop for DreamLedger production. It checks health, deployment convergence, the canonical Founding Tile offer, and checkout reachability. It does not count traffic or checkout availability as revenue.
