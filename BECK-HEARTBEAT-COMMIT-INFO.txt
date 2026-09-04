@@ -1,0 +1,1 @@
+BECK heartbeat branch based on production main commit 24f45954b23a9b136d6cca4e2890854b8f279543. The heartbeat checks /healthz, /version SHA convergence, /api/offers canonical Founding Tile readiness, and Stripe Payment Link reachability. No revenue is inferred.
