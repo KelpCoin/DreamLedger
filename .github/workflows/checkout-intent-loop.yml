@@ -1,0 +1,32 @@
+name: Checkout Intent Loop
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Use supported Node 24 runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+
+      - name: Detect checkout intent
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_LIVE_ENABLED: ${{ vars.STRIPE_LIVE_ENABLED }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          CHECKOUT_SIGNAL_PAYMENT_LINK_IDS: plink_1UAN9zJt4ieIQDFzgHeso6Qo,plink_1UAJyVJt4ieIQDFzj4kA5B7x
+          CHECKOUT_SIGNAL_RECENT_DAYS: '14'
+        run: node scripts/Detect-CheckoutSignals.mjs
