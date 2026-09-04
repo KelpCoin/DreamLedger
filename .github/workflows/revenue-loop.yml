@@ -14,8 +14,11 @@ permissions:
 
 env:
   STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-  SKU: DISCORD_WEBHOOK_STARTER_KIT
-  EXPECTED_AMOUNT: '7900'
+  EXPECTED_ACCOUNT_ID: acct_1NKPLaJt4ieIQDFz
+  EXPECTED_PAYMENT_LINK_URL: https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00
+  EXPECTED_OFFER_ID: OFFER-CMD-DIAG-29-NZD
+  EXPECTED_PRODUCT_ID: COMMANDER-DECK-DIAGNOSTIC-001
+  EXPECTED_AMOUNT: '2900'
   EXPECTED_CURRENCY: nzd
 
 jobs:
@@ -23,17 +26,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Poll Stripe for a real paid checkout
+      - name: Poll Stripe for a real paid canonical checkout
         shell: bash
         run: |
           set -euo pipefail
           test -n "$STRIPE_API_KEY"
           mkdir -p proof
 
+          ACCOUNT=$(curl -fsS https://api.stripe.com/v1/account -u "$STRIPE_API_KEY:")
+          ACCOUNT_ID=$(echo "$ACCOUNT" | jq -r '.id // empty')
+          test "$ACCOUNT_ID" = "$EXPECTED_ACCOUNT_ID"
+          echo "STRIPE_ACCOUNT=$ACCOUNT_ID"
+
           LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links -u "$STRIPE_API_KEY:" --data-urlencode 'limit=100')
-          LINK=$(echo "$LINKS" | jq -c --arg sku "$SKU" '.data[] | select(.metadata.sku == $sku) | select(.active == true)' | head -n 1)
+          LINK=$(echo "$LINKS" | jq -c --arg url "$EXPECTED_PAYMENT_LINK_URL" '.data[] | select(.url == $url) | select(.active == true)' | head -n 1)
           if [ -z "$LINK" ]; then
-            echo "STATUS=WAITING_FOR_PAYMENT_LINK" | tee proof/status.txt
+            echo "STATUS=WAITING_FOR_CANONICAL_PAYMENT_LINK" | tee proof/status.txt
             exit 0
           fi
 
@@ -41,10 +49,10 @@ jobs:
           PAYMENT_URL=$(echo "$LINK" | jq -r '.url')
 
           SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_API_KEY:" --data-urlencode "payment_link=$LINK_ID" --data-urlencode 'limit=100')
-          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency)' | head -n 1)
+          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" --arg offer "$EXPECTED_OFFER_ID" --arg product "$EXPECTED_PRODUCT_ID" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency) | select(.metadata.offer_id == $offer) | select(.metadata.product_id == $product)' | head -n 1)
 
           if [ -z "$PAID" ]; then
-            printf 'STATUS=WAITING_FOR_PAYMENT\nsku=%s\npayment_link_id=%s\nurl=%s\n' "$SKU" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
+            printf 'STATUS=WAITING_FOR_PAYMENT\noffer_id=%s\nproduct_id=%s\npayment_link_id=%s\nurl=%s\n' "$EXPECTED_OFFER_ID" "$EXPECTED_PRODUCT_ID" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
             exit 0
           fi
 
@@ -56,21 +64,24 @@ jobs:
           {
             "status": "PASS",
             "event": "PAYMENT_SUCCEEDED",
-            "sku": "$SKU",
-            "product": "Discord Webhook Starter Kit",
-            "amount_minor": 7900,
-            "amount": 79.00,
+            "offer_id": "$EXPECTED_OFFER_ID",
+            "product_id": "$EXPECTED_PRODUCT_ID",
+            "amount_minor": 2900,
+            "amount": 29.00,
             "currency": "NZD",
             "payment_provider": "Stripe",
+            "stripe_account_id": "$ACCOUNT_ID",
             "payment_link_id": "$LINK_ID",
+            "payment_link_url": "$PAYMENT_URL",
             "checkout_session_id": "$SESSION_ID",
             "stripe_created_unix": $PAID_AT,
             "customer_email_present": $( [ -n "$CUSTOMER_EMAIL" ] && echo true || echo false ),
-            "verified": true
+            "verified": true,
+            "synthetic_revenue": false
           }
           EOF
 
-          printf 'STATUS=PAID\nSESSION_ID=%s\nPAYMENT_LINK_ID=%s\n' "$SESSION_ID" "$LINK_ID" | tee proof/status.txt
+          printf 'STATUS=PAID\nOFFER_ID=%s\nPRODUCT_ID=%s\nSESSION_ID=%s\nPAYMENT_LINK_ID=%s\n' "$EXPECTED_OFFER_ID" "$EXPECTED_PRODUCT_ID" "$SESSION_ID" "$LINK_ID" | tee proof/status.txt
           jq empty proof/FIRST_PAYMENT_PROOF.json
 
       - name: Upload revenue proof
