@@ -1,0 +1,1 @@
+Current next action: merge the corrected autonomous BECK production heartbeat after review. It is intended to check production health, deployment SHA convergence, the canonical Founding Tile offer, and the live checkout doorway on a recurring schedule. It must never infer revenue from availability or traffic.
