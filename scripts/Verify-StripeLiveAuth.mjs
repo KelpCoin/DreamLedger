@@ -17,6 +17,8 @@ const out = {
   account_id: null,
   account_match: false,
   auth_ok: false,
+  charges_enabled: null,
+  payouts_enabled: null,
   status: 'BLOCKED',
   reason: null,
   synthetic_revenue: false,
@@ -42,6 +44,9 @@ async function main() {
     out.account_id = payload.id || null;
     out.auth_ok = response.ok;
     out.account_match = Boolean(out.account_id && expectedAccount && out.account_id === expectedAccount);
+    out.charges_enabled = typeof payload.charges_enabled === 'boolean' ? payload.charges_enabled : null;
+    out.payouts_enabled = typeof payload.payouts_enabled === 'boolean' ? payload.payouts_enabled : null;
+
     if (!response.ok) {
       out.reason = `Stripe account authentication failed with HTTP ${response.status}.`;
     } else if (!out.account_match) {
