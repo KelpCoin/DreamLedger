@@ -36,9 +36,13 @@ const requiredRoots = [
   path.join(ROOT, 'BEC-PRIME', 'catalog', 'offers'),
   path.join(ROOT, 'BEC-PRIME', 'catalog', 'products')
 ];
+
+// Scan public-facing artifacts only. Do not recursively scan the repository's
+// source/docs/legacy HTML, because those are not compiled public payloads and
+// may legitimately contain silo names as boundary documentation.
 const scanRoots = [
   ...requiredRoots,
-  ROOT
+  path.join(ROOT, 'public')
 ];
 
 const missingRoots = requiredRoots
@@ -48,9 +52,7 @@ const missingRoots = requiredRoots
 const files = [];
 for (const root of scanRoots) {
   if (!fs.existsSync(root)) continue;
-  if (root === ROOT) {
-    files.push(...walk(root).filter(file => /\.(html|htm)$/i.test(file)));
-  } else if (fs.statSync(root).isFile()) {
+  if (fs.statSync(root).isFile()) {
     files.push(root);
   } else {
     files.push(...walk(root));
@@ -83,6 +85,7 @@ const proof = {
   checked_at: new Date().toISOString(),
   contract: path.relative(ROOT, CONTRACT_PATH),
   required_roots: requiredRoots.map(root => path.relative(ROOT, root)),
+  scan_roots: scanRoots.map(root => path.relative(ROOT, root)),
   missing_roots: missingRoots,
   scanned_file_count: uniqueFiles.length,
   scanned_files: uniqueFiles.map(file => path.relative(ROOT, file)),
