@@ -107,14 +107,14 @@ jobs:
             grep -q '/api/account/' "BEC-PRIME/compiled/website/$page"
           done
           ! grep -q '/api/dreamiez/account/login' BEC-PRIME/compiled/website/login.html
-      - name: Verify approved commerce checkout SKU
+      - name: Verify paid surfaces are fulfilment-gated
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'OFFER-CMD-DIAG-29-NZD' BEC-PRIME/catalog/offers/approved.json
-          grep -Eq '"price"[[:space:]]*:[[:space:]]*29' BEC-PRIME/catalog/offers/approved.json
-          grep -q '8x28wQ0cwbn48CA3mM9oc00' BEC-PRIME/catalog/offers/approved.json
-          echo 'APPROVED_COMMERCE_SKU=PASS'
+          grep -q 'NOT CURRENTLY FOR SALE' public/automation-rescue.html
+          grep -q 'NOT CURRENTLY FOR SALE' public/billboard.html
+          grep -q 'OTHER SKUS · QUARANTINED' public/offers.html
+          echo 'PAID_SURFACES_GATED=PASS'
       - name: Write CI proof
         env:
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
@@ -129,11 +129,11 @@ jobs:
           data = {
               'status': 'PASS', 'gate': 'CORTEX_CI', 'release_sha': os.environ['RELEASE_SHA'],
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'checks': ['compile','silo-boundaries','commercial-integration','worker-pool','runtime','stage-1-ledger-proof','syntax','primary-account-pages','approved-commerce-sku'],
+              'checks': ['compile','silo-boundaries','commercial-integration','worker-pool','runtime','stage-1-ledger-proof','syntax','primary-account-pages','paid-surfaces-fulfilment-gated'],
               'stage_1_status': stage1['status'], 'stage_1_mode': stage1['mode'],
               'ledger_head_hash': stage1['ledger_head_hash'], 'event_count': stage1['event_count'],
-              'lifecycle_complete': stage1['lifecycle_complete'], 'approved_commerce_sku': 'OFFER-CMD-DIAG-29-NZD',
-              'approved_commerce_price_nzd': 29, 'public_actions': 'approval-required', 'financial_actions': 'approval-required',
+              'lifecycle_complete': stage1['lifecycle_complete'],
+              'public_actions': 'approval-required', 'financial_actions': 'approval-required',
               'ra_000001_authorized': False, 'revenue_claimed': False
           }
           with open('BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json', 'w', encoding='utf-8') as f:
@@ -180,25 +180,17 @@ jobs:
           check() { path="$1"; expected="$2"; code=$(curl -sS -o /tmp/response --retry 3 --retry-delay 2 --max-time 15 -w '%{http_code}' "$BASE_URL$path"); echo "$path HTTP=$code"; test "$code" = "$expected"; }
           check /healthz 200
           check / 200
-          check /mtg 200
           check /billboard 200
-          check /api/products 200
+          check /offers.html 200
+          check /automation-rescue 200
           check /version 200
-      - name: Verify checkout surface without purchasing
+      - name: Verify paid surfaces remain gated
         shell: bash
         run: |
           set -euo pipefail
-          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 -X POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD","silo":"mtg"}')
-          echo "$response" > /tmp/checkout.json
-          python3 - <<'PY'
-          import json
-          with open('/tmp/checkout.json', encoding='utf-8') as f: data=json.load(f)
-          url=str(data.get('url','')); sku=str(data.get('product_id','')); amount=data.get('amount_nzd')
-          if not url.startswith('https://') or 'stripe.com' not in url: raise SystemExit('CHECKOUT_URL_PRESENT=FAIL')
-          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001': raise SystemExit(f'CHECKOUT_SKU=FAIL:{sku}')
-          if amount != 29: raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
-          print('CHECKOUT_URL_PRESENT=PASS'); print('CHECKOUT_SKU=PASS'); print('CHECKOUT_AMOUNT=PASS')
-          PY
+          curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/automation-rescue" | grep -q 'NOT CURRENTLY FOR SALE'
+          curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/billboard" | grep -q 'NOT CURRENTLY FOR SALE'
+          echo 'LIVE_PAID_SURFACES_GATED=PASS'
       - name: Write production proof
         shell: bash
         run: |
@@ -206,7 +198,7 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
-          data={'status':'PASS','gate':'CORTEX_CD','release_sha':os.environ['EXPECTED_SHA'],'target':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'live_sha_verified':True,'surfaces_verified':['healthz','version','mtg','billboard','api/products'],'checkout_surface_verified':True,'checkout_sku_verified':'COMMANDER-DECK-DIAGNOSTIC-001','checkout_amount_nzd_verified':29,'purchase_executed':False,'revenue_claimed':False}
+          data={'status':'PASS','gate':'CORTEX_CD','release_sha':os.environ['EXPECTED_SHA'],'target':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'live_sha_verified':True,'surfaces_verified':['healthz','version','billboard','offers.html','automation-rescue'],'paid_surfaces_gated':True,'purchase_executed':False,'revenue_claimed':False}
           with open('proof/cortex-production-proof.json','w',encoding='utf-8') as f: json.dump(data,f,indent=2)
           print(json.dumps(data,indent=2))
           PY
