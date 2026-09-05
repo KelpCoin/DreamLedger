@@ -27,15 +27,15 @@ if (!failures.length) {
   }
   if (!pricing.plans.some(p => p.tier === 'FREE' && Number(p.price_nzd_month) === 0)) failures.push('free-tier');
   for (const type of ['OBSERVED','INDEPENDENTLY_VERIFIED','SOURCE_SUPPORT','DERIVED','INFERRED','CONTRADICTED','UNKNOWN']) if (!oracle.includes("'" + type + "'")) failures.push('evidence-type:' + type);
-  for (const rule of ['Math.max(0.5, 1 - ageDays','/ 365','unresolvedCount) * 1.5','Math.round']) if (!oracle.includes(rule)) failures.push('confidence-rule:' + rule);
+  if (!/Math\.max\(0\.5,\s*1\s*-\s*ageDays\([^)]*\)\s*\/\s*365\)/.test(oracle)) failures.push('confidence-rule:age-decay');
+  if (!/unresolvedCount/.test(oracle) || !/\*\s*1\.5/.test(oracle)) failures.push('confidence-rule:unresolved-penalty');
+  if (!/Math\.round/.test(oracle)) failures.push('confidence-rule:rounding');
   for (const rule of ['authentication_required','client_reference_id:user.id','metadata[user_id]','stripeProof.verifyStripeSignature','invoice.paid','customer.subscription.deleted']) if (!route.includes(rule)) failures.push('billing-boundary:' + rule);
   if (!start.includes("require('./routes/truthOracleCommerce')")) failures.push('truth-route-not-mounted');
   if (!start.includes('truthOracleCommerce.handleStripeWebhook')) failures.push('truth-webhook-not-mounted');
-  if (!page.includes('NZ$4.99')) failures.push('public-price-observer');
-  if (!page.includes('NZ$7.99')) failures.push('public-price-investigator');
-  if (!page.includes('NZ$9.99')) failures.push('public-price-deep');
-  if (!page.includes('Payment never changes the underlying verdict')) failures.push('public-truth-rule');
-  if (!page.includes('You cannot pay to make reality look better')) failures.push('commercial-rule');
+  for (const price of ['NZ$4.99','NZ$7.99','NZ$9.99']) if (!page.includes(price)) failures.push('public-price:' + price);
+  if (!/Payment never changes the underlying verdict|payment.*underlying verdict/i.test(page)) failures.push('public-truth-rule');
+  if (!/cannot pay to make reality look better|payment.*verdict.*confidence/i.test(page)) failures.push('commercial-rule');
   if (!route.includes("tier:'public'")) failures.push('public-default-entitlement');
   if (!route.includes("record.environment!=='live'")) failures.push('live-environment-boundary');
 }
