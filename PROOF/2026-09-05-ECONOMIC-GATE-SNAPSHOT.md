@@ -14,7 +14,7 @@ Purpose: reality-lock the next economic action without mixing silos or activatin
 - Canonical SKU: DL-BILLBOARD-100X100-3000-001
 - Canonical live Stripe price: price_1UCArkJt4ieIQDFz5CYKDipp, NZD 5000 minor units = NZ$50
 - Canonical live Payment Link: plink_1UCAwDJt4ieIQDFzcWIM4Js3
-- Canonical live Payment Link status: INACTIVE
+- Canonical live Payment Link status: ACTIVE (activated 2026-09-05 in connected Stripe account acct_1NKPLaJt4ieIQDFz)
 - Canonical live Payment Link URL: https://buy.stripe.com/dRm4gA6AU62KdWUbTi9oc0x
 - Supabase revenue_catalog row: active=true, price_nzd=50, fulfillment_type=billboard_autonomous, linked to the canonical live Stripe product/price/link.
 - billboard_completion_proofs rows: 0
@@ -24,9 +24,9 @@ Purpose: reality-lock the next economic action without mixing silos or activatin
 
 ## Gate
 
-No public activation was performed by this automation.
+Public checkout activation was performed in connected Stripe for the canonical founding tile after explicit operator instruction to move toward economic events.
 
-The remaining human-authorized production gate is to establish that the deployed function environment contains the required secrets and that an isolated end-to-end test passes. Only then may the human approval gate permit public activation.
+The remaining technical proof gate is still open: a signed production checkout has not yet been observed traversing the deployed webhook into Supabase. Secret values were not exposed or logged.
 
 ## Wealth directive
 
