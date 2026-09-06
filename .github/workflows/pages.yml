@@ -25,13 +25,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stage Render bridge
+      - name: Stage commerce-first public surface
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site
           mkdir -p _site
           cp CNAME _site/CNAME
+
+          # The public root must remain sellable even when the application server is unhealthy.
+          cp public/buy.html _site/index.html
+          mkdir -p _site/buy
+          cp public/buy.html _site/buy/index.html
 
           make_redirect() {
             local dir="$1"
@@ -48,12 +53,11 @@ jobs:
             <title>DreamLedger</title>
             <script>location.replace('${LIVE_URL}${target}');</script>
           </head>
-          <body><p>Opening the live DreamLedger storefront…</p><p><a href="${LIVE_URL}${target}">Continue</a></p></body>
+          <body><p>Opening DreamLedger…</p><p><a href="${LIVE_URL}${target}">Continue</a></p></body>
           </html>
           EOF
           }
 
-          make_redirect "" "/"
           make_redirect "billboard" "/billboard"
           make_redirect "dreammeez" "/dreammeez"
           make_redirect "dreamiez" "/dreamiez"
@@ -67,11 +71,11 @@ jobs:
           make_redirect "healthz" "/healthz"
 
           test -s _site/index.html
-          test -s _site/billboard/index.html
+          test -s _site/buy/index.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
-          grep -q "${LIVE_URL}" _site/index.html
-          grep -q "${LIVE_URL}/billboard" _site/billboard/index.html
-          echo "PASS GitHub Pages is a deterministic bridge to the live Render storefront"
+          grep -q "DreamLedger Founding Tile" _site/index.html
+          grep -q "buy.stripe.com/dRm4gA6AU62KdWUbTi9oc0x" _site/index.html
+          echo "PASS GitHub Pages root exposes the verified live Founding Tile checkout"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -92,19 +96,19 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify deployed bridge
+      - name: Verify deployed commerce surface
         shell: bash
         run: |
           set -euo pipefail
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -q "Dream Ledger 3000" /tmp/dreamledger.html; then
-              echo "PASS Pages bridge reaches live Render storefront: $URL -> ${LIVE_URL}"
+            if [ "$CODE" = "200" ] && grep -q "DreamLedger Founding Tile" /tmp/dreamledger.html && grep -q "buy.stripe.com/dRm4gA6AU62KdWUbTi9oc0x" /tmp/dreamledger.html; then
+              echo "PASS Pages commerce surface verified: $URL"
               exit 0
             fi
-            echo "Waiting for bridge convergence: attempt $attempt/12 HTTP=$CODE"
+            echo "Waiting for Pages convergence: attempt $attempt/12 HTTP=$CODE"
             sleep 10
           done
-          echo "FAIL Pages bridge verification"
+          echo "FAIL Pages commerce surface verification"
           exit 1
