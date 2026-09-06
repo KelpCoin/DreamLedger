@@ -146,3 +146,5 @@ main().catch(err => {
   console.error(JSON.stringify({ schema: 'BEC-SYNTHETIC-COMMERCE-PATH/v1', status: 'FAIL', mode: 'SYNTHETIC', error: err.message, stack: err.stack }, null, 2));
   process.exitCode = 1;
 });
+
+// Trigger BEC Runtime Proof execution without changing test behavior.
