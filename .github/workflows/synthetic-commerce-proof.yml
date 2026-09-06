@@ -1,0 +1,37 @@
+name: Synthetic Commerce Proof
+
+on:
+  push:
+    branches:
+      - 'feat/agent-control-bridge'
+    paths:
+      - 'BEC-PRIME/scripts/synthetic-commerce-path.js'
+      - 'BEC-PRIME/routes/distributionDoorway.js'
+      - 'BEC-PRIME/routes/platformCart.js'
+      - 'BEC-PRIME/routes/billboard.js'
+      - 'BEC-PRIME/lib/revenueLedger.js'
+      - 'BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json'
+      - '.github/workflows/synthetic-commerce-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.1
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Synthetic QR to commerce path
+        run: node scripts/synthetic-commerce-path.js
