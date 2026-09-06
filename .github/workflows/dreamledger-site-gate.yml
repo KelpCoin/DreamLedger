@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Validate public storefront files
+      - name: Validate current public storefront contract
         shell: bash
         run: |
           set -euo pipefail
@@ -32,12 +32,11 @@ jobs:
           test -s public/package.json
           test -s public/robots.txt
           test -s public/sitemap.xml
-          grep -q 'DISCOVER' public/index.html
-          grep -q 'WORTH BUYING' public/index.html
-          grep -q 'Digital products' public/index.html
-          grep -q 'Magic &amp; collectibles' public/index.html
-          grep -q 'Games &amp; experiments' public/index.html
-          grep -q 'Digital media' public/index.html
+          grep -q 'DREAMLEDGER 3000' public/index.html
+          grep -q 'Automation Rescue' public/index.html
+          grep -q 'Claim a Tile' public/index.html
+          grep -q 'Identity' public/index.html
+          grep -q 'Truth Oracle' public/index.html
           grep -q '/billboard' public/index.html
           grep -q '/dreammeez' public/index.html
           grep -q "'GET /api/products':true" public/server.js
@@ -46,7 +45,7 @@ jobs:
           grep -Eq "public-v1[4-9]" public/server.js
           grep -q 'https://dreamledger.org/sitemap.xml' public/robots.txt
           grep -q 'https://dreamledger.org/' public/sitemap.xml
-          echo 'PASS: DreamMeez storefront contract is present.'
+          echo 'PASS: current DreamLedger public storefront contract is present.'
       - name: Scan public assets for internal or cross-silo leakage
         shell: bash
         run: |
@@ -65,7 +64,7 @@ jobs:
           grep -Eq "'/billboard'.*billboard.html" public/server.js
           grep -Eq "'/dreammeez'.*avatar.html" public/server.js
           grep -Eq "'/sitemap.xml'.*sitemap.xml" public/server.js
-          grep -q "if\(!ALLOWED_API\[key\]\)" public/server.js
+          grep -q "if(!ALLOWED_API\[key\])" public/server.js
           echo 'PASS: public routes explicitly allowlisted.'
       - name: Verify secrets absent from public assets
         shell: bash
@@ -89,12 +88,12 @@ jobs:
           mkdir -p PROOF
           cat > PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json <<'JSON'
           {
-            "schema_version": "4.0",
+            "schema_version": "5.0",
             "gate": "DREAMMEEZ_PUBLIC_SURFACE",
             "status": "PASS",
             "public_root": "public",
-            "checks": ["catalogue_first","dreammeez_navigation","billboard_contained","sitemap_present","robots_present","api_allowlist_present","language_boundary_passed","credential_scan_passed","server_syntax_passed"],
-            "note": "Live deployment status is established by the production truth probe."
+            "checks": ["current_storefront_contract","dreammeez_navigation","billboard_contained","sitemap_present","robots_present","api_allowlist_present","language_boundary_passed","credential_scan_passed","server_syntax_passed"],
+            "note": "Gate validates the current public-v15 storefront contract rather than retired historical copy."
           }
           JSON
       - name: Upload proof
