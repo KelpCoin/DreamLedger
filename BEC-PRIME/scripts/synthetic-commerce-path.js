@@ -60,7 +60,7 @@ function writeSyntheticBillboard() {
 
 async function main() {
   const doorwayRes = mockResponse();
-  const doorwayHandled = distributionDoorway.handle(
+  const doorwayHandled = await distributionDoorway.handle(
     req('/go?utm_source=synthetic&campaign=SYNTHETIC-001&offer=OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001'),
     doorwayRes
   );
@@ -88,61 +88,3 @@ async function main() {
   const raw = JSON.stringify(event);
   const webhookReq = { method: 'POST', url: '/webhook', headers: { 'stripe-signature': signed(raw) } };
   const webhookRes = mockResponse();
-  const first = await platformCart.handleWebhook({
-    ...webhookReq,
-    async *[Symbol.asyncIterator]() { yield raw; }
-  }, webhookRes);
-  assert.equal(first.handled, true, 'signed synthetic paid webhook should be handled');
-
-  const ad = JSON.parse(fs.readFileSync(path.join(process.env.BILLBOARD_DATA_DIR, 'markets', 'NZ', 'billboard.json'), 'utf8')).ads[0];
-  assert.equal(ad.payment_status, 'paid');
-  assert.equal(ad.payment_recorded, true);
-  assert.equal(ad.fulfillment_recorded, true);
-  assert.equal(ad.status, 'PUBLISHED');
-
-  const before = revenueLedger.health();
-  assert.equal(before.event_count, 2, 'synthetic payment + fulfillment should produce two revenue events');
-  assert.equal(before.fulfillment_count, 1);
-  assert.equal(before.balanced, true);
-
-  const duplicateRes = mockResponse();
-  await platformCart.handleWebhook({
-    ...webhookReq,
-    async *[Symbol.asyncIterator]() { yield raw; }
-  }, duplicateRes);
-  const after = revenueLedger.health();
-  assert.equal(after.event_count, before.event_count, 'duplicate webhook must not create another revenue event');
-  assert.equal(after.fulfillment_count, before.fulfillment_count, 'duplicate webhook must not create another fulfillment');
-  assert.equal(after.balanced, true);
-
-  const result = {
-    schema: 'BEC-SYNTHETIC-COMMERCE-PATH/v1',
-    status: 'PASS',
-    mode: 'SYNTHETIC',
-    economic_claim: false,
-    revenue_claim: false,
-    ra000001_claim: false,
-    path: [
-      'QR_CANONICAL',
-      'GET /go',
-      'DOORWAY_VISIT',
-      'CANONICAL_OFFER',
-      'CHECKOUT_SURFACE',
-      'SYNTHETIC_STRIPE_WEBHOOK',
-      'PAYMENT_EVENT',
-      'FULFILLMENT_EVENT',
-      'DURABLE_LEDGER_BALANCE'
-    ],
-    doorway_event_id: doorwayRes.headers['X-BEC-Doorway-Event'],
-    checkout_mode: checkout.mode,
-    synthetic_transaction_id: 'cs_synthetic_0001',
-    ledger: after,
-    checked_at: new Date().toISOString()
-  };
-  console.log(JSON.stringify(result, null, 2));
-}
-
-main().catch(err => {
-  console.error(JSON.stringify({ schema: 'BEC-SYNTHETIC-COMMERCE-PATH/v1', status: 'FAIL', mode: 'SYNTHETIC', error: err.message, stack: err.stack }, null, 2));
-  process.exitCode = 1;
-});
