@@ -91,6 +91,7 @@ for (const file of files) {
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
   const rel = path.relative(ROOT, file).replace(/\\/g, '/');
   for (const win of producerWindows(text)) {
+    if (!hasCheckoutPost(win.text)) continue;
     let missing = REQUIRED.filter(k => !metadataPresent(win.text, k));
     let covered_by_adapter = false;
     if (missing.length && adapter && IDENTITY_MARKERS.some(r => r.test(win.text))) {
