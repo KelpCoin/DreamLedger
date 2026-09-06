@@ -1,0 +1,17 @@
+{
+  "artifact": "economic-control-disciplines-v1",
+  "verified_at": "2026-09-06T04:21:35Z",
+  "project": "DreamLedger",
+  "project_ref": "wbwgroygjeyukkspnqiy",
+  "ra000001_status": "OPEN",
+  "verified_payments": 0,
+  "revenue_nzd": 0,
+  "active_controls": 24,
+  "verified_e3_evidence": 0,
+  "active_experiments": 0,
+  "unanswered_bridge_notes": 1,
+  "legacy_prospecting_jobs": "quarantined",
+  "external_actions": "human_approval_required",
+  "architecture_building": "frozen_until_transaction_evidence",
+  "commit": "1a0c0a6554eed1797f32b5002b33c538bef39394"
+}
