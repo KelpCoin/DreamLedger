@@ -104,3 +104,56 @@ async function createProductCheckout(productId, silo) {
 async function handle(req, res, url) {
   if (req.method === 'POST' && url === '/api/cart/checkout') {
     let raw = ''; for await (const chunk of req) { raw += chunk; if (raw.length > 200000) throw new Error('Request too large'); }
+    let input; try { input = JSON.parse(raw || '{}'); } catch { return send(res, 400, { error: 'Invalid JSON' }); }
+    if (!input.cart_id) return send(res, 400, { error: 'cart_id is required' });
+    const file = path.join(CART_DIR, String(input.cart_id) + '.json');
+    if (!fs.existsSync(file)) return send(res, 404, { error: 'Cart not found' });
+    const cart = read(file); if (cart.status !== 'open') return send(res, 409, { error: 'Cart is not open' });
+    const allowed = new Set(platformSellerIds()); if (!cart.items.every(item => allowed.has(item.seller_id))) return send(res, 403, { error: 'Seller is not an active platform seller' });
+    const silos = [...new Set(cart.items.map(item => String(item.silo || 'default')) )];
+    if (silos.length !== 1) return send(res, 400, { error: 'Mixed-silo carts are not permitted' });
+    const fee = resolveCheckoutFee(silos[0], cart.items.reduce((sum, item) => sum + Number(item.unit_amount) * Number(item.quantity || 1), 0));
+    if (fee.platform_fee_bps > 0) {
+      if (cart.items.length !== 1) return send(res, 400, { error: 'Non-MTG checkout currently requires one seller and one item per transaction' });
+      const connected = cart.items[0].connected_account_id;
+      if (!connected || !seller(cart.items[0].seller_id)?.stripe_connected_account_id) return send(res, 409, { error: 'Non-MTG checkout requires a verified Stripe Connect seller account' });
+      if (connected !== seller(cart.items[0].seller_id).stripe_connected_account_id) return send(res, 409, { error: 'Connected account mismatch' });
+    }
+    const params = { mode: 'payment', 'integration_identifier': 'dreamledger-platform-cart-' + crypto.randomBytes(4).toString('hex'), 'success_url': PUBLIC_BASE + '/checkout/success?cart_id=' + encodeURIComponent(cart.id), 'cancel_url': PUBLIC_BASE + '/?cart_cancelled=1', 'metadata[cart_id]': cart.id, 'commerce_version': 'omni-v2-platform', 'metadata[silo]': fee.silo, 'metadata[platform_fee_bps]': fee.platform_fee_bps, 'metadata[platform_fee_minor]': fee.fee_minor };
+    cart.items.forEach((item, i) => { params['line_items[' + i + '][price_data][currency]'] = String(item.currency).toLowerCase(); params['line_items[' + i + '][price_data][unit_amount]'] = item.unit_amount; params['line_items[' + i + '][price_data][product_data][name]'] = item.name; params['line_items[' + i + '][quantity]'] = item.quantity; });
+    if (fee.platform_fee_bps > 0) { params['payment_intent_data[application_fee_amount]'] = fee.fee_minor; params['payment_intent_data[transfer_data][destination]'] = cart.items[0].connected_account_id; }
+    try { const session = await stripe('checkout/sessions', params, 'dreamledger-platform-cart-' + cart.id + '-' + crypto.randomUUID()); cart.status = 'checkout_created'; cart.session_id = session.id; cart.checkout_created_at = new Date().toISOString(); cart.platform_fee_bps = fee.platform_fee_bps; cart.platform_fee_minor = fee.fee_minor; write(file, cart); return send(res, 200, { ok: true, cart_id: cart.id, session_id: session.id, checkout_url: session.url, commission_bps: fee.platform_fee_bps, commission_minor: fee.fee_minor }); } catch (err) { return send(res, 502, { error: err.message }); }
+  }
+  return false;
+}
+async function handleWebhook(req, res) {
+  let raw = ''; for await (const chunk of req) { raw += chunk; if (raw.length > 5000000) throw new Error('Request too large'); }
+  const event = JSON.parse(raw || '{}'); const session = event?.data?.object; const cartId = session?.metadata?.cart_id;
+  verify(raw, req.headers['stripe-signature']);
+  if (event.type === 'checkout.session.completed' && session.payment_status === 'paid') {
+    if (billboard.handlePaidSession(session)) return { handled: true };
+    const productId = session?.metadata?.product_id;
+    if (productId) {
+      const productRecord = product(productId);
+      if (!productRecord) throw new Error('Unknown product in paid session: ' + productId);
+      const result = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], { webhookSecret: STRIPE_WEBHOOK_SECRET, getProduct: (id) => product(id), getProductByPaymentLink: productIdByPaymentLink, getOffer: () => null });
+      if (!result.received || !result.handled) throw new Error('Stripe payment proof handler did not handle paid product session');
+      return { handled: true };
+    }
+    if (session?.payment_link) {
+      const paymentProof = stripeWebhookProof.handleStripeWebhook(raw, req.headers['stripe-signature'], { webhookSecret: STRIPE_WEBHOOK_SECRET, getProduct: (id) => product(id), getProductByPaymentLink: productIdByPaymentLink, getOffer: () => null, dirs: stripeWebhookProof.resolveDirs(process.env) });
+      if (paymentProof.handled) return { handled: true };
+    }
+  }
+  if (!cartId) return { handled: false, raw };
+  const file = path.join(CART_DIR, String(cartId) + '.json'); if (!fs.existsSync(file)) return { handled: false, raw };
+  const cart = read(file); const allowed = new Set(platformSellerIds());
+  if (!cart.items.every(item => allowed.has(item.seller_id))) return { handled: false, raw };
+  if (event.type === 'checkout.session.completed' && session.payment_status === 'paid' && cart.status !== 'settled') {
+    const timestamp = new Date().toISOString();
+    const proof = { schema_version: 'BEC-OMNI-FOSSIL-1.1', event: event.type, status: 'PASS', evidence_level: 1, transaction_id: session.id, cart_id: cart.id, amount_minor: session.amount_total, currency: session.currency || 'nzd', platform_commission_bps: Number(session?.metadata?.platform_fee_bps || cart.platform_fee_bps || 0), platform_commission_minor: Number(session?.metadata?.platform_fee_minor || cart.platform_fee_minor || 0), stripe_processing_fees_excluded: true, transfers: [], idempotency_key: 'dreamledger-platform-cart-' + cart.id, timestamp_utc: timestamp };
+    cart.status = 'settled'; cart.settled_at = timestamp; cart.fossil = proof; write(file, cart); write(path.join(PROOFS, 'OMNI-' + cart.id + '.json'), proof);
+  }
+  return { handled: true, raw };
+}
+module.exports = { handle, handleWebhook, createProductCheckout };
