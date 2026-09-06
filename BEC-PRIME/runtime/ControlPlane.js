@@ -13,6 +13,7 @@ const fossil = require('./Fossil');
 const truthOracle = require('./TruthOracle');
 const internalTrust = require('../trust/InternalTrustService');
 const agentAuthority = require('./AgentAuthority');
+const agentBridge = require('./AgentBridge');
 const mcpSecurity = require('../security/MCPGatewaySecurity');
 
 const ROOT = path.join(__dirname, '..');
@@ -90,6 +91,7 @@ function rejectMutation(req, send) {
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
   const send = (status, body) => { if (!res.writableEnded) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); } };
+  if (url.startsWith('/api/agent-bridge')) return agentBridge.handle(req, res);
   if (url.startsWith('/api/agent-authority')) return agentAuthority.handle(req, res);
   if (req.method === 'GET' && url === '/api/truth-oracle') return send(200, truthOracle.snapshot());
   if (req.method === 'GET' && url === '/truth-oracle') { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(truthOracle.html()); }
