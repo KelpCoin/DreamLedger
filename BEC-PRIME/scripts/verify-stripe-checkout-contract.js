@@ -17,12 +17,13 @@ const PRODUCER_MARKERS = [
   /curl[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i,
   /urllib[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i
 ];
-const POST_MARKERS = [
-  /method\s*[:=]\s*['\"]POST['\"]/i,
-  /sessions\s*\.create/i,
+const STRIPE_CHECKOUT_POST_MARKERS = [
+  /stripe\.checkout\.sessions\.create/i,
   /stripeCheckout\s*\(/i,
-  /stripeRequest\s*\(/i,
-  /curl[^\n]*-x\s+post/i,
+  /stripeRequest\s*\(\s*['\"]checkout\/sessions/i,
+  /stripePost\s*\(\s*['\"]checkout\/sessions/i,
+  /fetch\s*\(\s*[`'\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i,
+  /curl[^\n]*api\.stripe\.com\/v1\/checkout\/sessions[^\n]*-x\s+post/i,
   /post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i
 ];
 const IDENTITY_MARKERS = [
@@ -42,7 +43,7 @@ function walk(dir, out = []) {
 }
 
 function hasAnyProducer(text) { return PRODUCER_MARKERS.some(r => r.test(text)); }
-function hasCheckoutPost(text) { return POST_MARKERS.some(r => r.test(text)); }
+function hasCheckoutPost(text) { return STRIPE_CHECKOUT_POST_MARKERS.some(r => r.test(text)); }
 function isReadOnlyStripeUse(text) { return !hasCheckoutPost(text); }
 
 function producerWindows(text) {
@@ -50,8 +51,8 @@ function producerWindows(text) {
   const windows = [];
   for (let i = 0; i < lines.length; i++) {
     if (!PRODUCER_MARKERS.some(r => r.test(lines[i]))) continue;
-    const start = Math.max(0, i - 60);
-    const end = Math.min(lines.length, i + 100);
+    const start = Math.max(0, i - 180);
+    const end = Math.min(lines.length, i + 120);
     windows.push({ start: start + 1, end, text: lines.slice(start, end).join('\n') });
   }
   return windows;
