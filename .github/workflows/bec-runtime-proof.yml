@@ -31,6 +31,8 @@ jobs:
           node-version: 24.14.1
       - name: Install
         run: npm install --no-audit --no-fund
+      - name: Synthetic QR to commerce vertical slice
+        run: node scripts/synthetic-commerce-path.js
       - name: Compile
         run: npm run compile
       - name: Worker smoke
