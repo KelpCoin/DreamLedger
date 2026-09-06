@@ -5,7 +5,7 @@
   "main": "start.js",
   "engines": { "node": ">=24 <25" },
   "scripts": {
-    "start": "node -r ./lib/commercePaymentContractPreload.js -r ./lib/marketplacePreload.js -r ./lib/b2bMarketplaceKernelPreload.js -r ./lib/b2bMarketplaceHttpPreload.js -r ./lib/boundaryRuntimePreload.js -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js -r ./lib/liveRouteCompatibility.js start.js",
+    "start": "node -r ./lib/legacyStripeContractPreload.js -r ./lib/commercePaymentContractPreload.js -r ./lib/marketplacePreload.js -r ./lib/b2bMarketplaceKernelPreload.js -r ./lib/b2bMarketplaceHttpPreload.js -r ./lib/boundaryRuntimePreload.js -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js -r ./lib/liveRouteCompatibility.js start.js",
     "build": "npm install --omit=dev --no-audit --no-fund && node -e \"require('ajv'); console.log('AJV_RUNTIME_OK')\" && npm run compile",
     "test": "node --test scripts/test-mvp-policy.js",
     "test:truth-oracle": "node --test scripts/test-truth-oracle-economic.js",
