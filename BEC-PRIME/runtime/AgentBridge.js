@@ -69,6 +69,25 @@ function send(res, status, body) {
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
   if (!url.startsWith('/api/agent-bridge')) return false;
+
+  if (req.method === 'GET' && url === '/api/agent-bridge/manifest') {
+    return send(res, 200, {
+      schema_version: 'BECK-AGENT-BRIDGE-1.0',
+      service: 'DreamLedger',
+      canonical_doorway: 'https://dreamledger.org/go',
+      purpose: 'Shared control-plane bridge for agent handoffs and economic state inspection',
+      authentication: 'x-dreamledger-agent-token',
+      endpoints: {
+        state: { method: 'GET', path: '/api/agent-bridge/state', auth: true },
+        notes: { method: 'GET', path: '/api/agent-bridge/notes', auth: true },
+        create_note: { method: 'POST', path: '/api/agent-bridge/notes', auth: true }
+      },
+      agents: Array.from(ALLOWED_AGENTS),
+      external_actions: 'human_approval_required',
+      payment_truth: 'RA_000001 requires independently verified external payment'
+    });
+  }
+
   if (!configured()) return send(res, 503, { error: 'Agent bridge is not configured' });
   if (!authorized(req)) return send(res, 401, { error: 'Agent bridge authentication required' });
 
