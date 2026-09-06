@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+// Contract verifier v2: only actual checkout POST producers are contractual producers.
 
 const fs = require('fs');
 const path = require('path');
