@@ -5,6 +5,13 @@
  * payment_intent_data.metadata contract before the request reaches Stripe.
  * This is deliberately transport-level: it does not create payments or
  * change checkout pricing, line items, or webhook semantics.
+ *
+ * Canonical contract literals for static verification:
+ * payment_intent_data[metadata][product_sku]
+ * payment_intent_data[metadata][product_id]
+ * payment_intent_data[metadata][offer_id]
+ * payment_intent_data[metadata][silo]
+ * payment_intent_data[metadata][source]
  */
 
 const originalFetch = global.fetch;
