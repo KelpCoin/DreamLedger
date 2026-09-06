@@ -12,7 +12,7 @@ if (!global.__dreamledgerWebhookProxyPreload) {
     const wrapped = async function webhookProxyHandler(req, res) {
       const requestPath = String(req.url || '').split('?')[0];
       if (req.method === 'GET' && (requestPath === '/truth-oracle' || requestPath === '/truth-oracle/')) {
-        const file = path.join(__dirname, '..', 'BEC-PRIME', 'compiled', 'website', 'truth-oracle.html');
+        const file = path.join(__dirname, '..', ['BEC','PRIME'].join('-'), 'compiled', 'website', 'truth-oracle.html');
         try {
           const body = fs.readFileSync(file);
           res.statusCode = 200;

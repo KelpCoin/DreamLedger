@@ -3,20 +3,6 @@
   "currency_default": "NZD",
   "products": [
     {
-      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "sku": "CMD-DIAG-29",
-      "silo": "mtg",
-      "name": "Commander Deck Diagnostic",
-      "description": "An automated first-pass Commander deck diagnostic covering structural weaknesses, upgrade priorities and a tuning plan.",
-      "price": 29,
-      "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "digital",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00"
-    },
-    {
       "id": "EDH_0001",
       "silo": "mtg",
       "name": "EDH_0001 Commander Deck",
