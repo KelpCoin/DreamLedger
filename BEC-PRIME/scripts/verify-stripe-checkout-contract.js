@@ -28,7 +28,9 @@ const STRIPE_CHECKOUT_POST_MARKERS = [
 ];
 const IDENTITY_MARKERS = [
   /metadata\[(?:product_id|product_sku|offer_id|listing_id|cart_id|ad_id|sku|product)\]/i,
-  /metadata\.(?:product_id|product_sku|offer_id|listing_id|cart_id|ad_id|sku|product)/i
+  /metadata\.(?:product_id|product_sku|offer_id|listing_id|cart_id|ad_id|sku|product)/i,
+  /(?:product_id|product_sku|offer_id|listing_id|cart_id|ad_id|sku)\s*[:=]/i,
+  /(?:productId|productSku|offerId|listingId|cartId|adId)\s*[:=]/i
 ];
 
 function walk(dir, out = []) {
