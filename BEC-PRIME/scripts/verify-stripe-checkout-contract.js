@@ -22,7 +22,8 @@ const STRIPE_CHECKOUT_POST_MARKERS = [
   /stripeCheckout\s*\(/i,
   /stripeRequest\s*\(\s*['\"]checkout\/sessions/i,
   /stripePost\s*\(\s*['\"]checkout\/sessions/i,
-  /fetch\s*\(\s*[`'\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i,
+  /fetch\s*\([^\n]*api\.stripe\.com\/v1\/checkout\/sessions[^\n]*method\s*[:=]\s*['\"]POST['\"]/i,
+  /fetch\s*\([^\n]*method\s*[:=]\s*['\"]POST['\"][^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i,
   /curl[^\n]*api\.stripe\.com\/v1\/checkout\/sessions[^\n]*-x\s+post/i,
   /post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i
 ];
