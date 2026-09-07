@@ -3,5 +3,5 @@
   "private":true,
   "version":"1.0.1",
   "engines":{"node":">=24 <25"},
-  "scripts":{"start":"node -r ./webhook-proxy-preload.js -r ./brand-preload.js server.js"}
+  "scripts":{"start":"node -r ./agentbridge-preload.js -r ./webhook-proxy-preload.js -r ./brand-preload.js server.js"}
 }
