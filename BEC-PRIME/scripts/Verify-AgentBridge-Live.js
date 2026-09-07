@@ -29,10 +29,13 @@ async function main() {
   try {
     const manifest = await request(port, '/api/agent-bridge/manifest');
     assert.equal(manifest.status, 200);
-    assert.equal(manifest.json?.schema_version, 'BECK-AGENT-BRIDGE-1.0');
+    assert.equal(manifest.json?.schema_version, 'BECK-AGENT-BRIDGE-1.1');
     assert.equal(manifest.json?.canonical_doorway, 'https://dreamledger.org/go');
     assert.equal(manifest.json?.external_actions, 'human_approval_required');
+    assert.equal(manifest.json?.payment_truth, 'RA_000001 requires independently verified external payment');
     assert.equal(manifest.json?.endpoints?.jobs?.path, '/api/agent-bridge/jobs?status=pending&limit=10');
+    assert.equal(manifest.json?.endpoints?.next_job?.mutation, false);
+    assert.equal(manifest.json?.endpoints?.correlation?.path, '/api/agent-bridge/correlations/:id');
 
     const state = await request(port, '/api/agent-bridge/state', {
       'x-dreamledger-agent-token': process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN
@@ -55,13 +58,22 @@ async function main() {
       assert.equal(Object.prototype.hasOwnProperty.call(job, 'payload'), false, 'raw job payload must not cross the normalized bridge contract');
     }
 
+    const next = await request(port, '/api/agent-bridge/jobs/next', {
+      'x-dreamledger-agent-token': process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN
+    });
+    assert.equal(next.status, 200, `next-job endpoint failed: ${next.body}`);
+    assert.equal(next.json?.schema_version, 'BECK-ECONOMIC-JOB-1.0');
+    assert.equal(next.json?.mutation, 'none');
+
     console.log(JSON.stringify({
-      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v2',
+      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v3',
       status: 'PASS',
       manifest: 'PASS',
       state_read: 'PASS',
       jobs_read: 'PASS',
+      next_job_read: 'PASS',
       normalized_contract: 'PASS',
+      correlation_route_declared: 'PASS',
       ra000001_status: state.json.state.status,
       verified_payment_count: state.json.state.verified_payment_count,
       revenue_nzd: state.json.state.revenue_nzd,
@@ -75,6 +87,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v2', status: 'FAIL', error: err.message }, null, 2));
+  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v3', status: 'FAIL', error: err.message }, null, 2));
   process.exitCode = 1;
 });
