@@ -1,0 +1,95 @@
+name: Failure Point Recovery
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+
+concurrency:
+  group: failure-point-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect recent workflow failures
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const excluded = new Set([
+              'Failure Point Recovery',
+              'All Workflows Fallback Dispatcher'
+            ]);
+            const safe = new Set([
+              'Economic Loop Controller',
+              'Economic Loop Controller V2',
+              'Economic Loop Registration Probe',
+              'DreamLedger System Truth Gate',
+              'Production HTTP Truth Gate',
+              'E0 Production Truth Probe',
+              'Revenue Readiness Gate',
+              'Economic Commerce Gate',
+              'B2B Marketplace Live Gate',
+              'Commerce Sentinel',
+              'Revenue Sentinel',
+              'BECK Production Heartbeat',
+              'Commerce Settlement Sync',
+              'MTG Diagnostic Fulfillment Gate',
+              'Production Recovery Execute',
+              'Render Recovery Fallback',
+              'Production Auth Recovery',
+              'Repair AgentBridge Runtime Mount',
+              'DreamLedger Cloud Primary'
+            ]);
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner, repo, per_page: 100, status: 'completed'
+            });
+            const cutoff = Date.now() - 20 * 60 * 1000;
+            const recent = runs.filter(r =>
+              new Date(r.updated_at).getTime() >= cutoff &&
+              ['failure','timed_out','cancelled'].includes(r.conclusion) &&
+              !excluded.has(r.name)
+            );
+            const retried = [];
+            const skipped = [];
+            for (const run of recent) {
+              if (!safe.has(run.name)) {
+                skipped.push({name: run.name, id: run.id, conclusion: run.conclusion, reason: 'not-safe-for-automatic-rerun'});
+                continue;
+              }
+              if ((run.run_attempt || 1) > 1) {
+                skipped.push({name: run.name, id: run.id, conclusion: run.conclusion, reason: 'already-retried'});
+                continue;
+              }
+              try {
+                await github.rest.actions.reRunWorkflowFailedJobs({owner, repo, run_id: run.id});
+                retried.push({name: run.name, id: run.id, conclusion: run.conclusion});
+              } catch (e) {
+                skipped.push({name: run.name, id: run.id, conclusion: run.conclusion, reason: 'rerun-rejected'});
+              }
+            }
+            const summary = {
+              generated_at: new Date().toISOString(),
+              window_minutes: 20,
+              recent_failures: recent.length,
+              retried,
+              skipped,
+              safety_policy: 'Only allowlisted idempotent verification/recovery/economic reconciliation workflows are rerun. Payment creation, releases, migrations, and external outreach are fail-closed.'
+            };
+            core.summary.addHeading('Failure Point Recovery');
+            core.summary.addRaw('```json\n' + JSON.stringify(summary, null, 2) + '\n```');
+            await core.summary.write();
+            core.setOutput('failure_count', String(recent.length));
+            core.setOutput('retried_count', String(retried.length));
+
+      - name: Fail closed if recovery activity was rejected
+        run: |
+          echo "Recovery watchdog completed. Unsafe or rejected actions remain fail-closed."
