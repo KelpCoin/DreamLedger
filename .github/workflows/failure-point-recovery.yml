@@ -8,7 +8,6 @@ on:
 permissions:
   actions: write
   contents: read
-  issues: write
 
 concurrency:
   group: failure-point-recovery
@@ -17,8 +16,9 @@ concurrency:
 jobs:
   recover:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Inspect recent workflow failures
+      - name: Inspect and recover recent safe failures
         uses: actions/github-script@v7
         with:
           script: |
@@ -49,47 +49,90 @@ jobs:
               'Repair AgentBridge Runtime Mount',
               'DreamLedger Cloud Primary'
             ]);
+
             const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
-              owner, repo, per_page: 100, status: 'completed'
+              owner,
+              repo,
+              per_page: 100,
+              status: 'completed'
             });
+
             const cutoff = Date.now() - 20 * 60 * 1000;
-            const recent = runs.filter(r =>
-              new Date(r.updated_at).getTime() >= cutoff &&
-              ['failure','timed_out','cancelled'].includes(r.conclusion) &&
-              !excluded.has(r.name)
+            const recent = runs.filter(run =>
+              new Date(run.updated_at).getTime() >= cutoff &&
+              ['failure', 'timed_out', 'cancelled'].includes(run.conclusion) &&
+              !excluded.has(run.name)
             );
+
             const retried = [];
             const skipped = [];
+            const rejected = [];
+
             for (const run of recent) {
               if (!safe.has(run.name)) {
-                skipped.push({name: run.name, id: run.id, conclusion: run.conclusion, reason: 'not-safe-for-automatic-rerun'});
+                skipped.push({
+                  name: run.name,
+                  id: run.id,
+                  conclusion: run.conclusion,
+                  reason: 'not-safe-for-automatic-rerun'
+                });
                 continue;
               }
+
               if ((run.run_attempt || 1) > 1) {
-                skipped.push({name: run.name, id: run.id, conclusion: run.conclusion, reason: 'already-retried'});
+                skipped.push({
+                  name: run.name,
+                  id: run.id,
+                  conclusion: run.conclusion,
+                  reason: 'already-retried'
+                });
                 continue;
               }
+
               try {
-                await github.rest.actions.reRunWorkflowFailedJobs({owner, repo, run_id: run.id});
-                retried.push({name: run.name, id: run.id, conclusion: run.conclusion});
-              } catch (e) {
-                skipped.push({name: run.name, id: run.id, conclusion: run.conclusion, reason: 'rerun-rejected'});
+                await github.rest.actions.reRunWorkflowFailedJobs({
+                  owner,
+                  repo,
+                  run_id: run.id
+                });
+                retried.push({
+                  name: run.name,
+                  id: run.id,
+                  conclusion: run.conclusion
+                });
+              } catch (error) {
+                rejected.push({
+                  name: run.name,
+                  id: run.id,
+                  conclusion: run.conclusion,
+                  reason: 'rerun-rejected',
+                  status: error.status || null
+                });
               }
             }
+
             const summary = {
               generated_at: new Date().toISOString(),
               window_minutes: 20,
               recent_failures: recent.length,
               retried,
               skipped,
-              safety_policy: 'Only allowlisted idempotent verification/recovery/economic reconciliation workflows are rerun. Payment creation, releases, migrations, and external outreach are fail-closed.'
+              rejected,
+              safety_policy: 'Only allowlisted idempotent verification/recovery/economic reconciliation workflows are rerun. Payment creation, releases, migrations, destructive changes, and external outreach remain fail-closed.'
             };
+
             core.summary.addHeading('Failure Point Recovery');
             core.summary.addRaw('```json\n' + JSON.stringify(summary, null, 2) + '\n```');
             await core.summary.write();
+
             core.setOutput('failure_count', String(recent.length));
             core.setOutput('retried_count', String(retried.length));
+            core.setOutput('rejected_count', String(rejected.length));
 
-      - name: Fail closed if recovery activity was rejected
+            if (rejected.length > 0) {
+              core.warning(`${rejected.length} recovery attempt(s) were rejected. No unsafe fallback was attempted.`);
+            }
+
+      - name: Confirm fail-closed policy
         run: |
-          echo "Recovery watchdog completed. Unsafe or rejected actions remain fail-closed."
+          echo "Failure recovery completed. Unsafe or rejected actions remain fail-closed."
