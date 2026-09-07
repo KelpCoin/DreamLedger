@@ -1,12 +1,21 @@
 'use strict';
-
-/* Truth Oracle HTML is served from the compiled engine surface; its APIs and webhook remain engine-backed. */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
+const { Readable } = require('stream');
 const distributionDoorway = require('../BEC-PRIME/routes/distributionDoorway');
 const mtgDiagnostic = require('../BEC-PRIME/lib/mtgDiagnosticFulfillment');
+
+function replayRequest(req, body) {
+  const replay = Readable.from([body]);
+  replay.method = req.method;
+  replay.url = req.url;
+  replay.headers = req.headers;
+  replay.httpVersion = req.httpVersion;
+  replay.socket = req.socket;
+  return replay;
+}
 
 if (!global.__dreamledgerWebhookProxyPreload) {
   const originalCreateServer = http.createServer;
@@ -17,11 +26,10 @@ if (!global.__dreamledgerWebhookProxyPreload) {
       if (req.method === 'GET' && (requestPath === '/mtg/diagnostic.html' || requestPath === '/mtg/diagnostic/')) {
         const file = path.join(__dirname, '..', 'BEC-PRIME', 'compiled', 'website', 'mtg', 'diagnostic.html');
         try {
-          const body = fs.readFileSync(file);
           res.statusCode = 200;
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
           res.setHeader('Cache-Control', 'no-store');
-          res.end(body);
+          res.end(fs.readFileSync(file));
         } catch {
           res.statusCode = 503;
           res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -33,11 +41,10 @@ if (!global.__dreamledgerWebhookProxyPreload) {
       if (req.method === 'GET' && (requestPath === '/mtg/diagnostic-success.html' || requestPath === '/mtg/diagnostic-success/')) {
         const file = path.join(__dirname, '..', 'BEC-PRIME', 'compiled', 'website', 'mtg', 'diagnostic-success.html');
         try {
-          const body = fs.readFileSync(file);
           res.statusCode = 200;
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
           res.setHeader('Cache-Control', 'no-store');
-          res.end(body);
+          res.end(fs.readFileSync(file));
         } catch {
           res.statusCode = 503;
           res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -53,8 +60,7 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             body = Buffer.concat([body, Buffer.from(chunk)]);
             if (body.length > 100000) throw new Error('Request too large');
           }
-          const payload = JSON.parse(body.toString('utf8'));
-          const result = await mtgDiagnostic.createPaymentLinkCheckout(payload);
+          const result = await mtgDiagnostic.createPaymentLinkCheckout(JSON.parse(body.toString('utf8')));
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.setHeader('Cache-Control', 'no-store');
@@ -62,7 +68,6 @@ if (!global.__dreamledgerWebhookProxyPreload) {
         } catch (err) {
           res.statusCode = 400;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.setHeader('Cache-Control', 'no-store');
           res.end(JSON.stringify({ error: err && err.message ? err.message : 'Diagnostic intake failed' }));
         }
         return;
@@ -85,9 +90,6 @@ if (!global.__dreamledgerWebhookProxyPreload) {
         return;
       }
 
-      /* The Render Node service runs public/server.js from rootDir=public. Route the canonical
-         production doorway through the same durable doorway implementation used by the
-         synthetic commerce proof. */
       if (req.method === 'GET' && requestPath === '/go') {
         try {
           const handled = await distributionDoorway.handle(req, res);
@@ -106,11 +108,10 @@ if (!global.__dreamledgerWebhookProxyPreload) {
       if (req.method === 'GET' && (requestPath === '/truth-oracle' || requestPath === '/truth-oracle/')) {
         const file = path.join(__dirname, '..', 'BEC-PRIME', 'compiled', 'website', 'truth-oracle.html');
         try {
-          const body = fs.readFileSync(file);
           res.statusCode = 200;
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
           res.setHeader('Cache-Control', 'no-store');
-          res.end(body);
+          res.end(fs.readFileSync(file));
         } catch {
           res.statusCode = 503;
           res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -119,7 +120,6 @@ if (!global.__dreamledgerWebhookProxyPreload) {
         return;
       }
 
-      /* Canonical public offers use stable offer IDs while the legacy storefront handler still keys on product IDs. */
       if (req.method === 'POST' && requestPath === '/api/offer-checkout/create') {
         let body = Buffer.alloc(0);
         try {
@@ -132,47 +132,34 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             res.setHeader('Cache-Control', 'no-store');
-            res.end(JSON.stringify({
-              ok: true,
-              offer_id: 'OFFER-CMD-DIAG-29-NZD',
-              product_id: 'COMMANDER-DECK-DIAGNOSTIC-001',
-              amount_nzd: 29,
-              currency: 'NZD',
-              checkout_url: 'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l'
-            }));
+            res.end(JSON.stringify({ok:true,offer_id:'OFFER-CMD-DIAG-29-NZD',product_id:'COMMANDER-DECK-DIAGNOSTIC-001',amount_nzd:29,currency:'NZD',checkout_url:'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l'}));
             return;
           }
+          return handler(replayRequest(req, body), res);
         } catch {
           res.statusCode = 400;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.end(JSON.stringify({ error: 'Invalid checkout request' }));
           return;
         }
-        return handler(req, res);
       }
 
-      const engine = String(process.env.ENGINE_INTERNAL_URL || '');
-      const engineKey = String(process.env.ENGINE_INTERNAL_API_KEY || '');
-      const isWebhook = req.method === 'POST' && requestPath === '/webhook';
-      const isTruthOracleApi = requestPath === '/api/truth-oracle' || requestPath.startsWith('/api/truth-oracle/');
-      const needsEngine = isTruthOracleApi;
-
-      if (isWebhook) {
+      if (req.method === 'POST' && requestPath === '/webhook') {
         let body = Buffer.alloc(0);
         try {
           for await (const chunk of req) {
             body = Buffer.concat([body, Buffer.from(chunk)]);
             if (body.length > 5000000) throw new Error('Request too large');
           }
-          const replay = http.IncomingMessage.prototype;
-          const diagnosticReq = require('stream').Readable.from([body]);
-          diagnosticReq.method = req.method;
-          diagnosticReq.url = req.url;
-          diagnosticReq.headers = req.headers;
-          diagnosticReq.httpVersion = req.httpVersion;
-          diagnosticReq.socket = req.socket;
-          const diagnosticResult = await mtgDiagnostic.handleWebhook(diagnosticReq, res);
-          if (diagnosticResult && diagnosticResult.handled) return;
+        } catch (err) {
+          res.statusCode = 400;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.end(JSON.stringify({ error: err.message || 'Request too large' }));
+          return;
+        }
+        try {
+          const result = await mtgDiagnostic.handleWebhook(replayRequest(req, body), res);
+          if (result && result.handled) return;
         } catch (err) {
           if (err && /STRIPE_WEBHOOK_SECRET|Invalid Stripe signature|Expired Stripe signature/.test(err.message || '')) {
             res.statusCode = 400;
@@ -182,28 +169,13 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           }
         }
         if (res.writableEnded) return;
-        if (!engine) {
-          res.statusCode = 503;
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(JSON.stringify({ error: 'DreamLedger engine wiring unavailable', code: 'ENGINE_INTERNAL_URL_MISSING' }));
-          return;
-        }
-        let body = Buffer.alloc(0);
-        try {
-          for await (const chunk of req) body = Buffer.concat([body, Buffer.from(chunk)]);
-        } catch {}
-        const target = new URL('http://' + engine);
-        const headers = {'content-type': req.headers['content-type'] || 'application/json','content-length': body.length,'stripe-signature': req.headers['stripe-signature'] || ''};
-        if (engineKey) headers['x-dreamledger-internal-key'] = engineKey;
-        const upstream = http.request({hostname: target.hostname, port: Number(target.port || 80), path: req.url, method: req.method, headers}, response => {res.statusCode=response.statusCode||502;for(const[key,value]of Object.entries(response.headers)){if(key!=='connection'&&key!=='transfer-encoding'&&value!==undefined)res.setHeader(key,value);}res.setHeader('Cache-Control','no-store');response.pipe(res);});
-        upstream.setTimeout(20000,()=>upstream.destroy());
-        upstream.on('error',err=>{if(!res.writableEnded){res.statusCode=502;res.setHeader('Content-Type','application/json; charset=utf-8');res.end(JSON.stringify({error:err.message||'Engine upstream unavailable',code:'ENGINE_UPSTREAM_UNAVAILABLE'}));}});
-        upstream.end(body);
-        return;
+        return handler(replayRequest(req, body), res);
       }
 
-      if (!needsEngine) return handler(req, res);
-
+      const engine = String(process.env.ENGINE_INTERNAL_URL || '');
+      const engineKey = String(process.env.ENGINE_INTERNAL_API_KEY || '');
+      const isTruthOracleApi = requestPath === '/api/truth-oracle' || requestPath.startsWith('/api/truth-oracle/');
+      if (!isTruthOracleApi) return handler(req, res);
       if (!engine) {
         res.statusCode = 503;
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -219,36 +191,18 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           if (body.length > 5000000) throw new Error('Request too large');
         }
         const target = new URL('http://' + engine);
-        const headers = {
-          'content-type': req.headers['content-type'] || 'application/json',
-          'content-length': body.length,
-          'stripe-signature': req.headers['stripe-signature'] || ''
-        };
-        if (engineKey) headers['x-dreamledger-internal-key'] = engineKey;
-        if (req.headers.cookie) headers.cookie = req.headers.cookie;
-        const upstream = http.request({hostname: target.hostname, port: Number(target.port || 80), path: req.url, method: req.method, headers}, response => {
-          res.statusCode = response.statusCode || 502;
-          for (const [key, value] of Object.entries(response.headers)) {
-            if (key !== 'connection' && key !== 'transfer-encoding' && value !== undefined) res.setHeader(key, value);
-          }
-          res.setHeader('Cache-Control', 'no-store');
-          response.pipe(res);
-        });
-        upstream.setTimeout(20000, () => upstream.destroy());
-        upstream.on('error', err => {
-          if (!res.writableEnded) {
-            res.statusCode = 502;
-            res.setHeader('Content-Type', 'application/json; charset=utf-8');
-            res.setHeader('Cache-Control', 'no-store');
-            res.end(JSON.stringify({ error: err.message || 'Engine upstream unavailable', code: 'ENGINE_UPSTREAM_UNAVAILABLE' }));
-          }
-        });
+        const headers = {'content-type':req.headers['content-type']||'application/json','content-length':body.length,'stripe-signature':req.headers['stripe-signature']||''};
+        if (engineKey) headers['x-dreamledger-internal-key']=engineKey;
+        if (req.headers.cookie) headers.cookie=req.headers.cookie;
+        const upstream=http.request({hostname:target.hostname,port:Number(target.port||80),path:req.url,method:req.method,headers},response=>{res.statusCode=response.statusCode||502;for(const[key,value]of Object.entries(response.headers)){if(key!=='connection'&&key!=='transfer-encoding'&&value!==undefined)res.setHeader(key,value);}res.setHeader('Cache-Control','no-store');response.pipe(res);});
+        upstream.setTimeout(20000,()=>upstream.destroy());
+        upstream.on('error',err=>{if(!res.writableEnded){res.statusCode=502;res.setHeader('Content-Type','application/json; charset=utf-8');res.end(JSON.stringify({error:err.message||'Engine upstream unavailable',code:'ENGINE_UPSTREAM_UNAVAILABLE'}));}});
         upstream.end(body);
       } catch (err) {
         if (!res.writableEnded) {
-          res.statusCode = 400;
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(JSON.stringify({ error: err.message || 'Engine proxy failed', code: 'ENGINE_PROXY_FAILED' }));
+          res.statusCode=400;
+          res.setHeader('Content-Type','application/json; charset=utf-8');
+          res.end(JSON.stringify({error:err.message||'Engine proxy failed',code:'ENGINE_PROXY_FAILED'}));
         }
       }
     };
