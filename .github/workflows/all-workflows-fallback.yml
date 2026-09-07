@@ -1,0 +1,76 @@
+name: All Workflows Fallback Dispatcher
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to dispatch against'
+        required: false
+        default: 'main'
+        type: string
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: all-workflows-fallback
+  cancel-in-progress: false
+
+jobs:
+  dispatch-all:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch every dispatchable workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REF: ${{ inputs.ref || 'main' }}
+          SELF: all-workflows-fallback.yml
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Fallback controller: $REPO @ $REF"
+          echo "The controller never dispatches itself."
+
+          workflows=$(gh api -H 'Accept: application/vnd.github+json' \
+            "/repos/${REPO}/actions/workflows?per_page=100" \
+            --paginate --jq '.workflows[] | [.id,.path,.state] | @tsv')
+
+          attempted=0
+          dispatched=0
+          skipped=0
+          failed=0
+
+          while IFS=$'\t' read -r id path state; do
+            [ -n "${id:-}" ] || continue
+            if [ "$path" = ".github/workflows/$SELF" ]; then
+              skipped=$((skipped+1))
+              continue
+            fi
+            if [ "$state" != "active" ]; then
+              echo "SKIP inactive: $path ($state)"
+              skipped=$((skipped+1))
+              continue
+            fi
+
+            attempted=$((attempted+1))
+            echo "TRY  $path"
+            if gh api --method POST \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "/repos/${REPO}/actions/workflows/${id}/dispatches" \
+              -f ref="$REF" >/dev/null 2>&1; then
+              echo "OK   $path"
+              dispatched=$((dispatched+1))
+            else
+              echo "NOOP $path (no workflow_dispatch trigger or dispatch rejected)"
+              failed=$((failed+1))
+            fi
+          done <<< "$workflows"
+
+          echo
+          echo "Fallback summary: attempted=$attempted dispatched=$dispatched skipped=$skipped rejected=$failed"
+          echo "Rejected workflows remain governed by their existing triggers and are not modified by this fallback."
