@@ -5,6 +5,7 @@ const crypto=require('crypto');
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const auth=require('../BEC-PRIME/routes/auth');
 const dreamiez=require('../BEC-PRIME/routes/dreamiez');
+const agentBridge=require('../BEC-PRIME/runtime/AgentBridge');
 const PORT=Number(process.env.PORT||10000),ENGINE=process.env.ENGINE_INTERNAL_URL||'',ENGINE_KEY=process.env.ENGINE_INTERNAL_API_KEY||'',STRIPE_WEBHOOK_SECRET=process.env.STRIPE_WEBHOOK_SECRET||'',COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown',ROOT=__dirname;
 const CATALOG_PATH=path.join(ROOT,'catalog.json');
 const CUBE_PATH=path.join(ROOT,'cube.json');
@@ -38,6 +39,7 @@ function proxy(req,res,body){if(!ENGINE||!ENGINE_KEY)return send(res,503,'Servic
 function serveFile(res,file,root=ROOT){const safe=path.normalize(path.join(root,file));if(!safe.startsWith(root+path.sep))return send(res,403,'Forbidden','text/plain; charset=utf-8');fs.readFile(safe,(err,data)=>{if(err)return send(res,404,'Not Found','text/plain; charset=utf-8');res.setHeader('Content-Type',MIME[path.extname(file).toLowerCase()]||'application/octet-stream');res.setHeader('Cache-Control','no-store');send(res,200,data)})}
 http.createServer(async(req,res)=>{headers(res);const u=new URL(req.url||'/','http://localhost'),p=u.pathname,key=req.method+' '+p;
 if(req.method==='GET'&&p==='/healthz')return send(res,200,'ok','text/plain; charset=utf-8');
+if(p.startsWith('/api/agent-bridge')){try{const handled=await agentBridge.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'AgentBridge route failed'}),'application/json; charset=utf-8')}}
 if(req.method==='GET'&&p==='/version')return send(res,200,JSON.stringify({service:'dreamledger-storefront',commit:COMMIT,surface:'public-v15',cube:'v1',ecosystem:'v1',agent_manifest:'/agent.json',surfaces:'/surfaces.json',discovery:'/.well-known/dreamledger.json',account_auth:'first-party',dreammeez_route:'/dreammeez'}),'application/json; charset=utf-8');
 if(ACCOUNT_PAGES[p]&&req.method==='GET')return serveFile(res,ACCOUNT_PAGES[p],ACCOUNT_ROOT);
 if(ACCOUNT_API[key]){try{if(await auth.handle(req,res,p))return;}catch(e){return send(res,500,JSON.stringify({error:e&&e.message?e.message:'Authentication service failed'}),'application/json; charset=utf-8')}}
