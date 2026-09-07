@@ -52,6 +52,7 @@ async function supabase(path, options = {}) {
     const message = data && data.message ? data.message : `Supabase bridge request failed (${response.status})`;
     const error = new Error(message);
     error.statusCode = response.status;
+    error.supabase = data;
     throw error;
   }
   return data;
@@ -67,7 +68,10 @@ function send(res, status, body) {
 }
 
 async function recordDoorwaySession(session) {
-  if (!configured()) return { recorded: false, reason: 'bridge_not_configured' };
+  if (!configured()) {
+    console.warn('[AgentBridge] recordDoorwaySession: bridge_not_configured');
+    return { recorded: false, reason: 'bridge_not_configured' };
+  }
   const row = {
     event_type: 'DOORWAY_SESSION_STARTED',
     payload: {
@@ -84,8 +88,19 @@ async function recordDoorwaySession(session) {
       user_agent: String(session.user_agent || '')
     }
   };
-  const created = await supabase('telemetry_events', { method: 'POST', body: JSON.stringify(row) });
-  return { recorded: true, event: Array.isArray(created) ? created[0] : created };
+  try {
+    const created = await supabase('telemetry_events', { method: 'POST', body: JSON.stringify(row) });
+    console.log('[AgentBridge] recordDoorwaySession: success');
+    return { recorded: true, event: Array.isArray(created) ? created[0] : created };
+  } catch (err) {
+    console.error('[AgentBridge] Supabase insert failed:', err.message);
+    console.error('[AgentBridge] Error details:', JSON.stringify({
+      statusCode: err.statusCode || null,
+      message: err.message || 'unknown error',
+      supabase: err.supabase || null
+    }));
+    return { recorded: false, reason: err.message || 'Supabase insert failed' };
+  }
 }
 
 async function handle(req, res) {
