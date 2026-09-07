@@ -32,6 +32,7 @@ async function main() {
     assert.equal(manifest.json?.schema_version, 'BECK-AGENT-BRIDGE-1.0');
     assert.equal(manifest.json?.canonical_doorway, 'https://dreamledger.org/go');
     assert.equal(manifest.json?.external_actions, 'human_approval_required');
+    assert.equal(manifest.json?.endpoints?.jobs?.path, '/api/agent-bridge/jobs?status=pending&limit=10');
 
     const state = await request(port, '/api/agent-bridge/state', {
       'x-dreamledger-agent-token': process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN
@@ -41,14 +42,30 @@ async function main() {
     assert.equal(Number(state.json?.state?.verified_payment_count || 0), 0, 'synthetic bridge verification must not claim a payment');
     assert.equal(Number(state.json?.state?.revenue_nzd || 0), 0, 'synthetic bridge verification must not claim revenue');
 
+    const jobs = await request(port, '/api/agent-bridge/jobs?status=pending&limit=10', {
+      'x-dreamledger-agent-token': process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN
+    });
+    assert.equal(jobs.status, 200, `jobs endpoint failed: ${jobs.body}`);
+    assert.equal(jobs.json?.schema_version, 'BECK-ECONOMIC-JOB-1.0');
+    assert.equal(Array.isArray(jobs.json?.jobs), true);
+    for (const job of jobs.json.jobs) {
+      assert.equal(typeof job.job_id, 'string');
+      assert.equal(typeof job.job_type, 'string');
+      assert.equal(typeof job.state, 'string');
+      assert.equal(Object.prototype.hasOwnProperty.call(job, 'payload'), false, 'raw job payload must not cross the normalized bridge contract');
+    }
+
     console.log(JSON.stringify({
-      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v1',
+      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v2',
       status: 'PASS',
       manifest: 'PASS',
       state_read: 'PASS',
+      jobs_read: 'PASS',
+      normalized_contract: 'PASS',
       ra000001_status: state.json.state.status,
       verified_payment_count: state.json.state.verified_payment_count,
       revenue_nzd: state.json.state.revenue_nzd,
+      pending_job_count: jobs.json.jobs.length,
       note_write_performed: false,
       checked_at: new Date().toISOString()
     }, null, 2));
@@ -58,6 +75,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v1', status: 'FAIL', error: err.message }, null, 2));
+  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v2', status: 'FAIL', error: err.message }, null, 2));
   process.exitCode = 1;
 });
