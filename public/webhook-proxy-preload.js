@@ -5,12 +5,32 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
+const distributionDoorway = require('../BEC-PRIME/routes/distributionDoorway');
 
 if (!global.__dreamledgerWebhookProxyPreload) {
   const originalCreateServer = http.createServer;
   http.createServer = function wrappedCreateServer(handler) {
     const wrapped = async function webhookProxyHandler(req, res) {
       const requestPath = String(req.url || '').split('?')[0];
+
+      /* The Render Node service runs public/server.js from rootDir=public. Route the canonical
+         production doorway through the same durable doorway implementation used by the
+         synthetic commerce proof. */
+      if (req.method === 'GET' && requestPath === '/go') {
+        try {
+          const handled = await distributionDoorway.handle(req, res);
+          if (handled) return;
+        } catch (err) {
+          if (!res.writableEnded) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({ error: err && err.message ? err.message : 'Doorway failed', code: 'DOORWAY_FAILED' }));
+          }
+          return;
+        }
+      }
+
       if (req.method === 'GET' && (requestPath === '/truth-oracle' || requestPath === '/truth-oracle/')) {
         const file = path.join(__dirname, '..', 'BEC-PRIME', 'compiled', 'website', 'truth-oracle.html');
         try {
