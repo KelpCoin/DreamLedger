@@ -67,6 +67,47 @@ function send(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+function normalizedJob(job) {
+  const payload = job && job.payload && typeof job.payload === 'object' ? job.payload : {};
+  const approvalGate = payload.approval_gate == null ? null : String(payload.approval_gate);
+  const approvalRequired = approvalGate ? /human|approval|required/i.test(approvalGate) : false;
+  return {
+    job_id: job.id,
+    job_type: job.type,
+    state: job.status,
+    source: payload.source || 'jobs',
+    objective: payload.mission || payload.objective || null,
+    candidate_id: payload.candidate_id || null,
+    offer_ids: Array.isArray(payload.offer_ids) ? payload.offer_ids : [],
+    assigned_worker: job.worker_id || null,
+    attempt_count: Number(job.attempt_count || 0),
+    required_evidence: {
+      proof_truth: payload.proof_truth || null,
+      payment_truth: payload.payment_truth || null
+    },
+    existing_evidence: payload.existing_evidence || null,
+    approval_required: approvalRequired,
+    approval_gate: approvalGate,
+    next_permitted_action: approvalRequired ? 'PREPARE_ONLY_UNTIL_HUMAN_APPROVAL' : 'WORKER_DEFINED',
+    created_at: job.created_at,
+    started_at: job.started_at || null,
+    leased_until: job.leased_until || null,
+    completed_at: job.completed_at || null,
+    failure: job.last_error || null
+  };
+}
+
+async function listJobs(url) {
+  const requestedStatus = String(url.searchParams.get('status') || 'pending').trim();
+  const allowedStatuses = new Set(['pending', 'leased', 'completed', 'failed', 'cancelled']);
+  const status = allowedStatuses.has(requestedStatus) ? requestedStatus : 'pending';
+  const requestedLimit = Number(url.searchParams.get('limit') || 10);
+  const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(50, Math.floor(requestedLimit))) : 10;
+  const path = `jobs?select=id,type,status,attempt_count,worker_id,created_at,started_at,leased_until,completed_at,last_error,payload&status=eq.${encodeURIComponent(status)}&order=created_at.asc&limit=${limit}`;
+  const jobs = await supabase(path);
+  return Array.isArray(jobs) ? jobs.map(normalizedJob) : [];
+}
+
 async function recordDoorwaySession(session) {
   if (!configured()) {
     console.warn('[AgentBridge] recordDoorwaySession: bridge_not_configured');
@@ -104,7 +145,8 @@ async function recordDoorwaySession(session) {
 }
 
 async function handle(req, res) {
-  const url = String(req.url || '').split('?')[0];
+  const rawUrl = String(req.url || '');
+  const url = rawUrl.split('?')[0];
   if (!url.startsWith('/api/agent-bridge')) return false;
 
   if (req.method === 'GET' && url === '/api/agent-bridge/manifest') {
@@ -116,6 +158,7 @@ async function handle(req, res) {
       authentication: 'x-dreamledger-agent-token',
       endpoints: {
         state: { method: 'GET', path: '/api/agent-bridge/state', auth: true },
+        jobs: { method: 'GET', path: '/api/agent-bridge/jobs?status=pending&limit=10', auth: true },
         notes: { method: 'GET', path: '/api/agent-bridge/notes', auth: true },
         create_note: { method: 'POST', path: '/api/agent-bridge/notes', auth: true }
       },
@@ -138,6 +181,15 @@ async function handle(req, res) {
         supabase('telemetry_events?event_type=eq.DOORWAY_SESSION_STARTED&select=id,event_type,offer_id,payload,event_timestamp&order=event_timestamp.desc&limit=25')
       ]);
       return send(res, 200, { state: state[0] || null, dashboard: dashboard[0] || null, evidence, notes, doorway_sessions: doorwaySessions });
+    }
+
+    if (req.method === 'GET' && url === '/api/agent-bridge/jobs') {
+      const jobs = await listJobs(new URL(`http://agent-bridge.local${rawUrl}`));
+      return send(res, 200, {
+        schema_version: 'BECK-ECONOMIC-JOB-1.0',
+        count: jobs.length,
+        jobs
+      });
     }
 
     if (req.method === 'GET' && url === '/api/agent-bridge/notes') {
@@ -177,4 +229,4 @@ async function handle(req, res) {
   }
 }
 
-module.exports = { handle, configured, recordDoorwaySession };
+module.exports = { handle, configured, recordDoorwaySession, normalizedJob, listJobs };
