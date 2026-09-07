@@ -54,6 +54,11 @@ async function handle(req, res) {
     ip_hash: ipHash,
     user_agent: userAgent
   });
+  if (!bridgeResult.recorded) {
+    console.warn('[distributionDoorway] Telemetry not recorded:', bridgeResult.reason);
+  } else {
+    console.log('[distributionDoorway] Telemetry recorded:', sessionId);
+  }
   const target = new URL(cfg.destination_path, 'https://dreamledger.org');
   target.searchParams.set('utm_source', source);
   target.searchParams.set('utm_medium', medium);
