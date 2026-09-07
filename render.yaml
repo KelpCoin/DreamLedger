@@ -74,6 +74,8 @@ services:
         generateValue: true
       - key: ENGINE_INTERNAL_API_KEY
         generateValue: true
+      - key: DREAMLEDGER_AGENT_BRIDGE_TOKEN
+        generateValue: true
       - key: DIGITAL_PROXY_LM_ENABLED
         value: "false"
       - key: DIGITAL_PROXY_LM_BASE_URL
@@ -87,6 +89,8 @@ services:
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
       - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
         sync: false
       - key: RESEND_FROM_EMAIL
         sync: false
