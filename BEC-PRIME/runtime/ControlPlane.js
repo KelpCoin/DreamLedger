@@ -14,6 +14,7 @@ const truthOracle = require('./TruthOracle');
 const internalTrust = require('../trust/InternalTrustService');
 const agentAuthority = require('./AgentAuthority');
 const agentBridge = require('./AgentBridge');
+const agentBridgeLiveVerify = require('./AgentBridgeLiveVerify');
 const mcpSecurity = require('../security/MCPGatewaySecurity');
 
 const ROOT = path.join(__dirname, '..');
@@ -88,11 +89,21 @@ function rejectMutation(req, send) {
   return true;
 }
 
+function engineInternalAuthorized(req) {
+  const configured = String(process.env.ENGINE_INTERNAL_API_KEY || '');
+  const supplied = String(req.headers['x-dreamledger-internal-key'] || '');
+  return Boolean(configured) && supplied === configured;
+}
+
 async function handle(req, res) {
   const url = String(req.url || '').split('?')[0];
   const send = (status, body) => { if (!res.writableEnded) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); } };
   if (url.startsWith('/api/agent-bridge')) return agentBridge.handle(req, res);
   if (url.startsWith('/api/agent-authority')) return agentAuthority.handle(req, res);
+  if (req.method === 'GET' && url === '/api/truth-oracle/agent-bridge-live-verify') {
+    if (!engineInternalAuthorized(req)) return send(process.env.ENGINE_INTERNAL_API_KEY ? 401 : 503, { error: process.env.ENGINE_INTERNAL_API_KEY ? 'Internal engine authentication required' : 'Internal engine key not configured' });
+    try { return send(200, await agentBridgeLiveVerify.run()); } catch (err) { return send(500, { schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v3', status: 'FAIL', error: err.message || String(err), note_write_performed: false }); }
+  }
   if (req.method === 'GET' && url === '/api/truth-oracle') return send(200, truthOracle.snapshot());
   if (req.method === 'GET' && url === '/truth-oracle') { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(truthOracle.html()); }
   if (req.method === 'GET' && url === '/api/control/health') return send(200, health());
