@@ -1,0 +1,56 @@
+name: Repair AgentBridge Runtime Mount
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Mount existing AgentBridge into public server
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('public/server.js')
+          s = p.read_text()
+          import_line = "const agentBridge=require('../BEC-PRIME/runtime/AgentBridge');"
+          route = "if(p.startsWith('/api/agent-bridge')){try{const handled=await agentBridge.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'AgentBridge route failed'}),'application/json; charset=utf-8')}}\n"
+          if import_line not in s:
+              marker = "const dreamiez=require('../BEC-PRIME/routes/dreamiez');"
+              if marker not in s:
+                  raise SystemExit('FAIL: server import marker not found')
+              s = s.replace(marker, marker + "\n" + import_line, 1)
+          if "if(p.startsWith('/api/agent-bridge'))" not in s:
+              marker = "if(req.method==='GET'&&p==='/healthz')return send(res,200,'ok','text/plain; charset=utf-8');"
+              if marker not in s:
+                  raise SystemExit('FAIL: server route marker not found')
+              s = s.replace(marker, marker + "\n" + route.rstrip(), 1)
+          p.write_text(s)
+          assert import_line in s
+          assert "if(p.startsWith('/api/agent-bridge'))" in s
+          print('AGENTBRIDGE_RUNTIME_MOUNT=PASS')
+          PY
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/server.js
+          if git diff --cached --quiet; then
+            echo "NO_CHANGE_NEEDED=PASS"
+            exit 0
+          fi
+          git commit -m "fix: mount AgentBridge into production storefront runtime"
+          git push origin HEAD:main
