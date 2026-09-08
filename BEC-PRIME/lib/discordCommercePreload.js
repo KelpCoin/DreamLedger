@@ -49,16 +49,19 @@ if (!global.__dreamledgerDiscordCommercePreload) {
           const sessionId = new URL(req.url || '/', 'https://dreamledger.org').searchParams.get('session_id');
           await verifyPaidSession(sessionId);
           if (!fs.existsSync(ZIP)) throw new Error('Digital package is not published yet');
-          send(res, 200, {ok:true,product_id:PRODUCT_ID,download_url:'/downloads/discord-webhook-starter-kit.zip'});
+          send(res, 200, {ok:true,product_id:PRODUCT_ID,download_url:'/downloads/discord-webhook-starter-kit.zip?session_id='+encodeURIComponent(sessionId)});
         } catch (err) { send(res, 402, {error:err.message || 'Fulfillment unavailable'}); }
         return;
       }
       if (req.method === 'GET' && route === '/downloads/discord-webhook-starter-kit.zip') {
         try {
+          const sessionId = new URL(req.url || '/', 'https://dreamledger.org').searchParams.get('session_id');
+          await verifyPaidSession(sessionId);
+          if (!fs.existsSync(ZIP)) throw new Error('Digital package is not published yet');
           const file = fs.readFileSync(ZIP);
           res.writeHead(200, {'Content-Type':'application/zip','Content-Disposition':'attachment; filename="discord-webhook-starter-kit.zip"','Cache-Control':'private, no-store'});
           res.end(file);
-        } catch { send(res, 404, {error:'Digital package not found'}); }
+        } catch (err) { send(res, 402, {error:err.message || 'Download unavailable'}); }
         return;
       }
       return handler(req, res);
