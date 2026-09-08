@@ -60,6 +60,15 @@ jobs:
       - name: Compile source and economic contracts
         run: npm run compile
 
+      - name: Publication admission gate
+        working-directory: BEC-PRIME
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ inputs.release_sha }}
+          PUBLICATION_CANDIDATE_TYPE: RELEASE
+        run: npm run publication-admission:check
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
@@ -143,7 +152,7 @@ jobs:
           grep -qi '<html' "$RUNNER_TEMP/root.html"
           ACCOUNT_STATUS="$(curl -sS -o "$RUNNER_TEMP/account-me.json" -w '%{http_code}' --retry 3 --retry-delay 2 "$DEPLOY_URL/api/account/me")"
           test "$ACCOUNT_STATUS" = '200'
-          grep -q '"authenticated":false' "$RUNNER_TEMP/account-me.json"
+          grep -q '\"authenticated\":false' "$RUNNER_TEMP/account-me.json"
           printf '{"status":"HTTP_PASS","deployment_url":"%s","root_status":%s,"account_me_status":%s,"account_me":"anonymous","sha":"%s"}\n' "$DEPLOY_URL" "$ROOT_STATUS" "$ACCOUNT_STATUS" "$EXPECTED_SHA" > "$RUNNER_TEMP/http-proof.json"
           cat "$RUNNER_TEMP/http-proof.json"
 
@@ -169,7 +178,7 @@ jobs:
           DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
           HTTP_PROOF="$(cat "$RUNNER_TEMP/http-proof.json")"
           DOMAIN_PROOF="$(cat "$RUNNER_TEMP/domain-proof.json")"
-          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" > proof/vercel-static-deploy-proof.json
+          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s,"publication_admission":"REQUIRED_BEFORE_DEPLOY"}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" > proof/vercel-static-deploy-proof.json
           cat proof/vercel-static-deploy-proof.json
 
       - name: Upload deployment proof
