@@ -12,8 +12,8 @@ permissions:
 env:
   NODE_VERSION: 22
   # Publishable browser key only. Secrets override these public fallback values when configured.
-  SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
-  SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY || 'sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj' }}
+  KELPLANTIS_SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
+  KELPLANTIS_SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY || 'sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj' }}
 
 jobs:
   live-floor1-e2e:
@@ -63,8 +63,8 @@ jobs:
       - name: Run live browser journey
         working-directory: BEC-PRIME
         env:
-          KELPLANTIS_SUPABASE_URL: ${{ env.SUPABASE_URL }}
-          KELPLANTIS_SUPABASE_ANON_KEY: ${{ env.SUPABASE_ANON_KEY }}
+          KELPLANTIS_SUPABASE_URL: ${{ env.KELPLANTIS_SUPABASE_URL }}
+          KELPLANTIS_SUPABASE_ANON_KEY: ${{ env.KELPLANTIS_SUPABASE_ANON_KEY }}
         run: npx playwright test scripts/KelplantisLiveBrowserE2E.spec.js --reporter=line
 
       - name: Validate machine-readable proof
