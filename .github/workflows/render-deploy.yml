@@ -84,6 +84,9 @@ jobs:
     needs: acceptance-gate
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment:
+      name: production
+      url: https://dreamledger.org
     env:
       RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
@@ -144,7 +147,8 @@ jobs:
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'fallback_order': ['RENDER_DEPLOY_HOOK_URL', 'RENDER_API_KEY+RENDER_SERVICE_ID'],
               'exact_commit_requested': True,
-              'publication_admission': 'REQUIRED_BEFORE_DEPLOY'
+              'publication_admission': 'REQUIRED_BEFORE_DEPLOY',
+              'github_environment': 'production'
           }
           with open(path, 'w', encoding='utf-8') as f:
               json.dump(data, f, indent=2)
@@ -230,7 +234,7 @@ jobs:
               'source_commit': os.environ['GITHUB_SHA'],
               'target': 'https://dreamledger.org',
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'publication-admission', 'live-smoke', 'version-provenance'],
+              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'publication-admission', 'github-production-environment', 'live-smoke', 'version-provenance'],
               'render_commit_provenance': True
           }
           with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
