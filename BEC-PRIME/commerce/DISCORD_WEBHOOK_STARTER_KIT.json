@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "sku": "DISCORD_WEBHOOK_STARTER_KIT",
   "product": "Discord Webhook Starter Kit",
   "description": "Complete Discord webhook system with Stripe integration. Deploy in 5 minutes. Includes code templates and setup guide.",
@@ -10,7 +10,11 @@
   },
   "delivery": {
     "type": "digital",
-    "sla_hours": 24
+    "sla_hours": 0,
+    "mode": "automated",
+    "operator_required": false,
+    "success_path": "/discord/starter-kit-success.html?session_id={CHECKOUT_SESSION_ID}",
+    "download_endpoint": "/api/discord/starter-kit/download?session_id={CHECKOUT_SESSION_ID}"
   },
   "silo": "BEC-PRIME",
   "payment": {
@@ -22,8 +26,15 @@
     "stripe_payment_link_id": "plink_1U4FWbEGgEAnUFF9z0owuGVN"
   },
   "approval": {
+    "required_for_sale": false,
     "public_posting": false,
     "private_distribution": true
+  },
+  "fulfillment": {
+    "trigger": "verified_paid_stripe_session",
+    "artifact": "/downloads/discord-webhook-starter-kit.zip",
+    "payment_gate": true,
+    "human_action": false
   },
   "revenue_state": "AWAITING_FIRST_PAYMENT",
   "proof_event": "FIRST_PAYMENT_PROOF.json"
