@@ -27,10 +27,10 @@ async function rpc(name, body) {
   return { status: response.status, data };
 }
 
-async function writeProof(proof) {
+function writeProof(proof) {
   fs.mkdirSync(DIST, { recursive: true });
-  const body = JSON.stringify(proof, null, 2) + '\n';
-  const hash = crypto.createHash('sha256').update(body, 'utf8').digest('hex');
+  const unsigned = JSON.stringify(proof, null, 2) + '\n';
+  const hash = crypto.createHash('sha256').update(unsigned, 'utf8').digest('hex');
   proof.evidence_sha256 = hash;
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n');
   fs.writeFileSync(PROOF_HASH, hash + '  kelplantis-live-browser-e2e-proof.json\n');
@@ -96,7 +96,7 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
   await page.getByRole('button', { name: /Enter Dungeon/i }).click();
   await page.waitForTimeout(250);
   let player = (await rpc('kelplantis_get_player', { p_token: token })).data;
-  if (!player || player.scene !== 'DUNGEON') throw new Error('authoritative Floor 1 entry/movement not observed');
+  if (!player || player.scene !== 'DUNGEON') throw new Error('authoritative Floor 1 movement not observed');
   proof.floor_1_entered = true;
   proof.movement_authoritative = Number.isInteger(player.pos_x) && Number.isInteger(player.pos_y) && player.scene === 'DUNGEON';
   proof.authoritative_dungeon_player = player;
@@ -124,7 +124,6 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
       proof.boss_clear_authoritative = true;
       break;
     }
-
     if (player.scene !== 'DUNGEON') throw new Error('unexpected scene during authoritative combat');
   }
 
@@ -146,6 +145,7 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
   if (!proof.floor_2_unlocked) throw new Error('Floor 2 was not authoritatively unlocked');
 
   await page.reload({ waitUntil: 'networkidle' });
+  await expect(page.getByText('AUTHORITY: SUPABASE')).toBeVisible();
   await page.waitForTimeout(250);
   const persistedPlayer = (await rpc('kelplantis_get_player', { p_token: token })).data;
   const persistedProgress = (await rpc('kelplantis_get_floor_progress', { p_token: token })).data;
@@ -165,5 +165,5 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
   if (!proof.state_survived_reload) throw new Error('authoritative state did not survive browser reload');
   if (consoleErrors.length) throw new Error(`browser console errors: ${consoleErrors.join(' | ')}`);
 
-  await writeProof(proof);
+  writeProof(proof);
 });
