@@ -1,0 +1,57 @@
+name: Build Discord Webhook Starter Kit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/products/discord-webhook-starter-kit/**'
+      - '.github/workflows/build-discord-starter-kit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate kit
+        run: |
+          set -euo pipefail
+          test -s BEC-PRIME/products/discord-webhook-starter-kit/README.md
+          test -s BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          test -s BEC-PRIME/products/discord-webhook-starter-kit/.env.example
+          test -s BEC-PRIME/products/discord-webhook-starter-kit/package.json
+          node --check BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          grep -q "timingSafeEqual" BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          grep -q "payment_status !== 'paid'" BEC-PRIME/products/discord-webhook-starter-kit/server.js
+
+      - name: Package digital product
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/discord-webhook-starter-kit
+          mkdir -p /tmp/discord-webhook-starter-kit
+          cp BEC-PRIME/products/discord-webhook-starter-kit/README.md /tmp/discord-webhook-starter-kit/
+          cp BEC-PRIME/products/discord-webhook-starter-kit/server.js /tmp/discord-webhook-starter-kit/
+          cp BEC-PRIME/products/discord-webhook-starter-kit/.env.example /tmp/discord-webhook-starter-kit/
+          cp BEC-PRIME/products/discord-webhook-starter-kit/package.json /tmp/discord-webhook-starter-kit/
+          mkdir -p public/downloads
+          rm -f public/downloads/discord-webhook-starter-kit.zip
+          cd /tmp
+          zip -qr "$GITHUB_WORKSPACE/public/downloads/discord-webhook-starter-kit.zip" discord-webhook-starter-kit
+          test -s "$GITHUB_WORKSPACE/public/downloads/discord-webhook-starter-kit.zip"
+
+      - name: Publish generated package
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/downloads/discord-webhook-starter-kit.zip
+          if git diff --cached --quiet; then
+            echo 'PACKAGE_UNCHANGED=PASS'
+            exit 0
+          fi
+          git commit -m 'Build Discord Webhook Starter Kit package'
+          git push
