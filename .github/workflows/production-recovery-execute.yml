@@ -95,6 +95,17 @@ jobs:
           set -euo pipefail
           test -n "$RENDER_DEPLOY_HOOK_URL"
           echo 'PASS: Render deploy hook is configured.'
+      - name: Publication admission gate before recovery deployment
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ github.sha }}
+          PUBLICATION_CANDIDATE_TYPE: RELEASE
+        working-directory: BEC-PRIME
+        run: |
+          set -euo pipefail
+          node scripts/check-publication-admission.js
+          echo 'PUBLICATION_ADMISSION=PASS'
       - name: Trigger exact commit through Render hook
         shell: bash
         run: |
