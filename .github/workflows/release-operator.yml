@@ -80,6 +80,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PUBLICATION_CANDIDATE_KEY: release:github:${{ github.sha }}
           PUBLICATION_CANDIDATE_TYPE: RELEASE
+          PUBLICATION_ALLOW_HUMAN_REQUIRED: 'true'
         run: |
           set -euo pipefail
           node scripts/check-publication-admission.js
