@@ -49,5 +49,5 @@
     "kelplantis:browser": "playwright test scripts/KelplantisBrowserSmoke.spec.js"
   },
   "dependencies": { "ajv": "^8.17.1", "qrcode": "^1.5.4" },
-  "devDependencies": { "playwright": "^1.55.0" }
+  "devDependencies": { "playwright": "^1.55.0", "@playwright/test": "1.55.0" }
 }
