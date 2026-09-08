@@ -59,6 +59,32 @@ jobs:
           test -n '${{ github.sha }}'
           echo 'RELEASE_SHA=${{ github.sha }}'
 
+      - name: Checkout exact release source for admission check
+        if: env.RELEASE_AUTHORIZED == 'true'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Setup Node for admission check
+        if: env.RELEASE_AUTHORIZED == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Publication admission gate before any deployment dispatch
+        if: env.RELEASE_AUTHORIZED == 'true'
+        working-directory: BEC-PRIME
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ github.sha }}
+          PUBLICATION_CANDIDATE_TYPE: RELEASE
+        run: |
+          set -euo pipefail
+          node scripts/check-publication-admission.js
+          echo 'PUBLICATION_ADMISSION=PASS'
+
       - name: Dispatch canonical Vercel production workflow at exact release SHA
         if: env.RELEASE_AUTHORIZED == 'true'
         env:
@@ -152,7 +178,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"schema":"dreamledger-release-operator-v6","sha":"%s","event":"%s","deployment_authorized":%s,"wait_for_result":%s,"deployment_before_readiness":true,"immutable_sha_dispatch":true,"status":"operator_complete"}\n' "${GITHUB_SHA}" "${GITHUB_EVENT_NAME}" "$([ "${RELEASE_AUTHORIZED}" = "true" ] && echo true || echo false)" "$([ "${WAIT_FOR_RESULT}" = "true" ] && echo true || echo false)" > proof/release-operator-proof.json
+          printf '{"schema":"dreamledger-release-operator-v7","sha":"%s","event":"%s","deployment_authorized":%s,"wait_for_result":%s,"publication_admission_before_dispatch":true,"immutable_sha_dispatch":true,"status":"operator_complete"}\n' "${GITHUB_SHA}" "${GITHUB_EVENT_NAME}" "$([ "${RELEASE_AUTHORIZED}" = "true" ] && echo true || echo false)" "$([ "${WAIT_FOR_RESULT}" = "true" ] && echo true || echo false)" > proof/release-operator-proof.json
           cat proof/release-operator-proof.json
 
       - name: Upload operator proof
