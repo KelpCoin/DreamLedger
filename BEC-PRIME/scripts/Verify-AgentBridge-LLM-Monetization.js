@@ -53,22 +53,31 @@ function main() {
     assert.strictEqual(ref.payment_ready, true);
   });
 
-  expect('client rejects agent spoofing', () => {
-    const client = new AgentBridgeClient({ baseUrl: 'https://dreamledger.org', token: 'test', agent: 'grok' });
-    assert.throws(() => client.emit({
-      event_id: 'TEST_SPOOF',
-      correlation_id: 'TEST_SPOOF',
-      event_type: 'CANDIDATE_FOUND',
-      agent: 'claude',
-      lane: 'discovery'
-    }), /must match client agent/);
+  expect('client requires an explicit provider identity', () => {
+    assert.throws(() => new AgentBridgeClient({
+      baseUrl: 'https://dreamledger.org',
+      token: 'test',
+      agent: ''
+    }), /unsupported bridge agent/);
   });
 
-  expect('economic authority remains outside LLM client', () => {
+  expect('client exposes no payment authority', () => {
     assert.strictEqual(typeof AgentBridgeClient.prototype.emit, 'function');
     assert.strictEqual(typeof AgentBridgeClient.prototype.commercialCandidate, 'function');
     assert.strictEqual(typeof AgentBridgeClient.prototype.approveAction, 'undefined');
-    assert.ok(!Object.prototype.hasOwnProperty.call(AGENT_PROFILES.grok, 'payment_authority'));
+  });
+
+  expect('commercial preparation cannot declare revenue', () => {
+    const ref = commercialEvidence({
+      offer_id: 'AUT_0001',
+      price_minor: 9900,
+      currency: 'nzd',
+      payment_ready: true,
+      lattice_id: 'LAT-002'
+    });
+    assert.strictEqual(ref.authority, 'advisory_only');
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(ref, 'verified_payment'), false);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(ref, 'revenue_nzd'), false);
   });
 
   const failed = checks.filter(x => x.status === 'FAIL');
