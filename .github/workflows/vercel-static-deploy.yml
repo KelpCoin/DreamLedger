@@ -23,12 +23,14 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  admission-check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment:
-      name: production
-      url: https://dreamledger.org
+    outputs:
+      status: ${{ steps.admission.outputs.status }}
+      environment: ${{ steps.admission.outputs.environment }}
+      admission_id: ${{ steps.admission.outputs.admission_id }}
+      candidate_sha256: ${{ steps.admission.outputs.candidate_sha256 }}
     steps:
       - name: Checkout exact selected commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -36,13 +38,60 @@ jobs:
           ref: ${{ inputs.release_sha }}
           fetch-depth: 1
 
-      - name: Verify release SHA
+      - name: Verify immutable release SHA
         env:
           RELEASE_SHA: ${{ inputs.release_sha }}
         run: |
           set -euo pipefail
-          test -n "$RELEASE_SHA"
-          echo "RELEASE_SHA=$RELEASE_SHA"
+          test "$RELEASE_SHA" = "$(git rev-parse HEAD)"
+          echo "PASS: checked out exact release SHA $RELEASE_SHA"
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Compile source and economic contracts
+        run: npm run compile
+
+      - name: Publication admission machine gate
+        id: admission
+        working-directory: BEC-PRIME
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ inputs.release_sha }}
+          PUBLICATION_CANDIDATE_TYPE: RELEASE
+          PUBLICATION_ALLOW_HUMAN_REQUIRED: 'true'
+        run: node scripts/check-publication-admission.js
+
+  deploy:
+    needs: admission-check
+    if: needs.admission-check.outputs.status == 'approved' || needs.admission-check.outputs.status == 'pending_human'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: ${{ needs.admission-check.outputs.environment }}
+      url: https://dreamledger.org
+    steps:
+      - name: Checkout exact admitted release SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 1
+
+      - name: Verify SHA matches admission receipt
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          ADMISSION_SHA256: ${{ needs.admission-check.outputs.candidate_sha256 }}
+        run: |
+          set -euo pipefail
+          test "$RELEASE_SHA" = "$(git rev-parse HEAD)"
+          test -n "$ADMISSION_SHA256"
+          echo "PASS: deployment SHA is bound to admission receipt ${{ needs.admission-check.outputs.admission_id }}"
 
       - name: Verify Vercel token
         env:
@@ -63,14 +112,15 @@ jobs:
       - name: Compile source and economic contracts
         run: npm run compile
 
-      - name: Publication admission gate
+      - name: Re-verify publication admission for exact SHA
         working-directory: BEC-PRIME
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PUBLICATION_CANDIDATE_KEY: release:github:${{ inputs.release_sha }}
           PUBLICATION_CANDIDATE_TYPE: RELEASE
-        run: npm run publication-admission:check
+          PUBLICATION_ALLOW_HUMAN_REQUIRED: 'true'
+        run: node scripts/check-publication-admission.js
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -175,13 +225,14 @@ jobs:
         env:
           SHA: ${{ inputs.release_sha }}
           RUN_ID: ${{ github.run_id }}
+          ADMISSION_ID: ${{ needs.admission-check.outputs.admission_id }}
         run: |
           set -euo pipefail
           mkdir -p proof
           DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
           HTTP_PROOF="$(cat "$RUNNER_TEMP/http-proof.json")"
           DOMAIN_PROOF="$(cat "$RUNNER_TEMP/domain-proof.json")"
-          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s,"publication_admission":"REQUIRED_BEFORE_DEPLOY","github_environment":"production"}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" > proof/vercel-static-deploy-proof.json
+          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","admission_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s,"publication_admission":"REQUIRED_BEFORE_ENVIRONMENT","github_environment":"%s"}\n' "$SHA" "$RUN_ID" "$ADMISSION_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" "${{ needs.admission-check.outputs.environment }}" > proof/vercel-static-deploy-proof.json
           cat proof/vercel-static-deploy-proof.json
 
       - name: Upload deployment proof
