@@ -11,11 +11,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 Deno.serve(async (req) => {
   if (req.method === "GET") {
-    return Response.json({
-      service: "stripe-revenue-41104f355d6878cdd6d1f9dc",
-      status: "healthy",
-      webhook_auth_configured: Boolean(STRIPE_WEBHOOK_SECRET),
-    });
+    return Response.json({ service: "stripe-revenue-41104f355d6878cdd6d1f9dc", status: "healthy" });
   }
   if (req.method !== "POST") return new Response("POST only", { status: 405 });
   if (!STRIPE_WEBHOOK_SECRET) return new Response("webhook authentication unavailable", { status: 503 });
