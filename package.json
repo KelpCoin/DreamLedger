@@ -31,6 +31,7 @@
     "verify:internal-trust": "node BEC-PRIME/scripts/verify-internal-trust-service.js",
     "verify:silo-fees": "node BEC-PRIME/scripts/verify-silo-fee-policy.js",
     "verify:empire-silos": "node BEC-PRIME/scripts/Verify-BECKEmpireSilos.js",
+    "verify:qr-distribution": "node BEC-PRIME/scripts/verify-qr-distribution.js",
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
     "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",
     "verify:edh-one-link": "node BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js",
