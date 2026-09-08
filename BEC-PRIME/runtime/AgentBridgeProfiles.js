@@ -32,10 +32,10 @@ const AGENT_PROFILES = Object.freeze({
     next_agents: ['truth_oracle', 'gauntlet']
   }),
   deepseek: Object.freeze({
-    role: 'specialist_analysis',
-    lanes: ['evidence', 'evaluation'],
-    event_types: ['EVIDENCE_ATTACHED', 'DELIVERY_ASSESSMENT'],
-    next_agents: ['truth_oracle', 'gauntlet']
+    role: 'specialist_proposal',
+    lanes: ['evaluation'],
+    event_types: ['ACTION_PROPOSED'],
+    next_agents: ['gauntlet', 'human']
   }),
   monetizer: Object.freeze({
     role: 'commercial_packaging',
@@ -45,8 +45,8 @@ const AGENT_PROFILES = Object.freeze({
   }),
   humanizer: Object.freeze({
     role: 'customer_facing_copy',
-    lanes: ['evidence', 'evaluation'],
-    event_types: ['EVIDENCE_ATTACHED', 'DELIVERY_ASSESSMENT'],
+    lanes: ['evaluation'],
+    event_types: ['DELIVERY_ASSESSMENT'],
     next_agents: ['truth_oracle', 'human']
   }),
   truth_oracle: Object.freeze({
