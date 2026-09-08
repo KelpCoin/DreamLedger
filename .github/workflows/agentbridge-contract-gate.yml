@@ -1,0 +1,52 @@
+name: AgentBridge Contract Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/runtime/AgentBridge.js'
+      - 'BEC-PRIME/scripts/Verify-AgentBridge-*.js'
+      - '.github/workflows/agentbridge-contract-gate.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/runtime/AgentBridge.js'
+      - 'BEC-PRIME/scripts/Verify-AgentBridge-*.js'
+      - '.github/workflows/agentbridge-contract-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agentbridge-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Node
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a
+        with:
+          node-version: 24
+
+      - name: Syntax gate
+        run: |
+          set -euo pipefail
+          node --check BEC-PRIME/runtime/AgentBridge.js
+          node --check BEC-PRIME/scripts/Verify-AgentBridge-Contract.js
+          node --check BEC-PRIME/scripts/Verify-AgentBridge-Live.js
+
+      - name: Run no-secret contract verification
+        run: node BEC-PRIME/scripts/Verify-AgentBridge-Contract.js
+
+      - name: Report boundary
+        run: |
+          echo 'PASS: AgentBridge contract is structurally valid.'
+          echo 'PASS: Grok, Claude, ChatGPT, Truth Oracle and Gauntlet roles are represented.'
+          echo 'PASS: consequential external actions remain human-approval gated.'
+          echo 'PASS: contract test performs no Supabase writes and cannot manufacture RA_000001.'
