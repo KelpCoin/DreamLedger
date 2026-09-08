@@ -71,6 +71,15 @@ jobs:
           node --check BEC-PRIME/scripts/smoke-production.js
           node --check BEC-PRIME/scripts/smoke-front-door.js
 
+      - name: Publication admission gate
+        working-directory: BEC-PRIME
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ github.sha }}
+          PUBLICATION_CANDIDATE_TYPE: RELEASE
+        run: npm run publication-admission:check
+
   render-deploy:
     needs: acceptance-gate
     runs-on: ubuntu-latest
@@ -134,7 +143,8 @@ jobs:
               'source_commit': sha,
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'fallback_order': ['RENDER_DEPLOY_HOOK_URL', 'RENDER_API_KEY+RENDER_SERVICE_ID'],
-              'exact_commit_requested': True
+              'exact_commit_requested': True,
+              'publication_admission': 'REQUIRED_BEFORE_DEPLOY'
           }
           with open(path, 'w', encoding='utf-8') as f:
               json.dump(data, f, indent=2)
@@ -220,7 +230,7 @@ jobs:
               'source_commit': os.environ['GITHUB_SHA'],
               'target': 'https://dreamledger.org',
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'live-smoke', 'version-provenance'],
+              'gates': ['compile', 'revenue-catalog', 'silo-boundary', 'account-contract', 'publication-admission', 'live-smoke', 'version-provenance'],
               'render_commit_provenance': True
           }
           with open('proof/deployment-proof.json', 'w', encoding='utf-8') as f:
