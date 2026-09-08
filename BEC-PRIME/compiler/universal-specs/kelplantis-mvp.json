@@ -11,7 +11,8 @@
       "worldSeed": "kelplantis-mvp-world",
       "floorId": 1,
       "bossId": "kelp_floor1_boss",
-      "floorVersion": "1"
+      "floorVersion": "1",
+      "roomCount": 8
     },
     "town": {
       "x": 70,
