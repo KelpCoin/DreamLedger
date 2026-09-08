@@ -1,0 +1,46 @@
+{
+  "schema": "bec/kelplantis-event-graph-proof/v1",
+  "date": "2026-09-08",
+  "status": "VERIFIED_FOUNDATION",
+  "supabase_project": "wbwgroygjeyukkspnqiy",
+  "verified_objects": [
+    "public.normalized_events",
+    "public.event_relationships",
+    "public.event_motifs",
+    "public.economic_predictions"
+  ],
+  "verified_properties": {
+    "normalized_events_source_idempotency": true,
+    "relationship_type_constraint": true,
+    "motif_sequence_uniqueness": true,
+    "economic_prediction_status_index": true,
+    "kelplantis_event_normalization_trigger": true,
+    "economic_event_normalization_trigger": true,
+    "existing_economic_task_idempotency_preserved": true,
+    "atomic_task_claim_function_created": true,
+    "expired_task_requeue_function_created": true
+  },
+  "live_observation": {
+    "normalized_events_rows": 0,
+    "event_relationships_rows": 0,
+    "event_motifs_rows": 0,
+    "economic_predictions_rows": 0,
+    "existing_kelplantis_players": 0
+  },
+  "synthetic_attack": {
+    "invalid_relationship_type": "REJECTED_BY_CHECK_CONSTRAINT",
+    "valid_relationship": "INSERTED_AND_REMOVED",
+    "valid_motif": "INSERTED_AND_REMOVED",
+    "normalized_event": "INSERTED_AND_REMOVED",
+    "duplicate_normalized_source_key": "ON_CONFLICT_DO_NOTHING"
+  },
+  "boundaries": [
+    "No real payment created",
+    "No outreach executed",
+    "No publication executed",
+    "No RA_000001 promotion",
+    "No real player created",
+    "No production game client claim"
+  ],
+  "next": "Connect the existing playable Floor 1 client to authoritative Supabase gameplay functions, then implement motif extraction and calibrated prediction from normalized_events."
+}
