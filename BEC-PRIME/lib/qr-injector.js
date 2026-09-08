@@ -9,9 +9,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const CANONICAL_BASE = (process.env.QR_CANONICAL_BASE_URL || 'https://dreamledger.org/').replace(/\/$/, '') + '/';
 const QR_ALLOWED_HOSTS = new Set(['dreamledger.org', 'qr.dreamledger.org']);
 
-function sha256Buffer(value) {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
+function sha256Buffer(value) { return crypto.createHash('sha256').update(value).digest('hex'); }
 
 function validateContext(context) {
   if (!context || typeof context !== 'object') throw new Error('QR context is required');
@@ -32,15 +30,11 @@ function canonicalUrl(context) {
 
 function validateCanonical(url) {
   const parsed = new URL(url);
-  if (parsed.protocol !== 'https:' || !QR_ALLOWED_HOSTS.has(parsed.hostname.toLowerCase())) {
-    throw new Error('QR destination must use an owned DreamLedger HTTPS host');
-  }
+  if (parsed.protocol !== 'https:' || !QR_ALLOWED_HOSTS.has(parsed.hostname.toLowerCase())) throw new Error('QR destination must use an owned DreamLedger HTTPS host');
 }
 
 async function supabaseRequest(path, init) {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for QR manifests');
-  }
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for QR manifests');
   const response = await fetch(`${SUPABASE_URL}${path}`, {
     ...init,
     headers: {
@@ -78,6 +72,8 @@ function embed(asset, qrDataUrl, qrSvg, context) {
 
 async function injectQR(asset, context) {
   validateContext(context);
+  const format = String(asset && asset.format || '').toLowerCase();
+  if (!['html', 'htm', 'svg'].includes(format)) throw new Error(`No safe QR embed adapter exists for asset format '${format}'. Release is blocked.`);
   const canonical = canonicalUrl(context);
   validateCanonical(canonical);
   const enrichedContext = { ...context, canonicalUrl: canonical };
@@ -86,7 +82,7 @@ async function injectQR(asset, context) {
   if (existing && existing[0]) {
     const q = await qrEngine.getByShortUrl(existing[0].qr_url);
     if (q) {
-      const qrDataUrl = q.png_data_url || await QRCode.toDataURL(existing[0].qr_url, { width: 512, margin: 2, errorCorrectionLevel: 'H' });
+      const qrDataUrl = await QRCode.toDataURL(existing[0].qr_url, { width: 512, margin: 2, errorCorrectionLevel: 'H' });
       const qrSvg = await QRCode.toString(existing[0].qr_url, { type: 'svg', width: 512, margin: 2, errorCorrectionLevel: 'H' });
       return { asset: embed(asset, qrDataUrl, qrSvg, enrichedContext), manifestId: existing[0].id, qrUrl: existing[0].qr_url, idempotent: true };
     }
