@@ -28,6 +28,12 @@ function writeProof(proof) {
   fs.writeFileSync(PROOF_HASH, hash + '  kelplantis-live-browser-e2e-proof.json\n');
 }
 
+async function getPlayer(token, label) {
+  const result = await rpc('kelplantis_get_player', { p_token: token });
+  if (result.status !== 200 || !result.data) throw new Error(`${label}: get_player failed with ${result.status}`);
+  return result.data;
+}
+
 test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) => {
   const token = process.env.KELPLANTIS_PLAYER_TOKEN;
   const playerId = process.env.KELPLANTIS_PLAYER_ID;
@@ -37,12 +43,12 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
   page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
   page.on('pageerror', err => consoleErrors.push(String(err)));
 
-  const beforePlayer = (await rpc('kelplantis_get_player', { p_token: token })).data;
-  const beforeProgress = (await rpc('kelplantis_get_floor_progress', { p_token: token })).data;
-  const beforeGate = (await rpc('kelplantis_get_floor_gate', { p_token: token, p_floor_id: 2 })).data;
-  if (!beforePlayer || beforePlayer.id !== playerId) throw new Error('fresh player lookup failed');
+  const beforePlayer = await getPlayer(token, 'before');
+  const beforeProgressResult = await rpc('kelplantis_get_floor_progress', { p_token: token });
+  const beforeGateResult = await rpc('kelplantis_get_floor_gate', { p_token: token, p_floor_id: 2 });
+  if (beforePlayer.id !== playerId) throw new Error('fresh player lookup returned wrong player');
   if (beforePlayer.scene !== 'TOWN') throw new Error('fresh player did not start in TOWN');
-  if (beforeGate && beforeGate.unlocked !== false) throw new Error('Floor 2 unexpectedly unlocked before play');
+  if (beforeGateResult.status !== 200 || !beforeGateResult.data || beforeGateResult.data.unlocked !== false) throw new Error('Floor 2 unexpectedly unlocked before play');
 
   const illegal = await rpc('kelplantis_enter_floor', { p_token: token, p_floor_id: 2 });
   if (illegal.status === 200) throw new Error('illegal Floor 2 entry was accepted');
@@ -63,31 +69,29 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
     floor_2_unlocked: false, state_survived_reload: false, illegal_floor_2_entry_rejected: true,
     synthetic_events_counted_as_player_evidence: false, player_id: playerId,
     player_token_sha256: crypto.createHash('sha256').update(token).digest('hex'),
-    before_player: beforePlayer, before_progress: beforeProgress, before_gate: beforeGate,
+    before_player: beforePlayer, before_progress: beforeProgressResult.data, before_gate: beforeGateResult.data,
     illegal_floor_2_status: illegal.status, console_errors: [], source_commit: process.env.GITHUB_SHA || 'local'
   };
 
-  const beforeScene = beforePlayer.scene;
   await page.getByRole('button', { name: /Enter Dungeon/i }).click();
   await page.waitForTimeout(300);
-  let player = (await rpc('kelplantis_get_player', { p_token: token })).data;
-  if (!player || player.scene !== 'DUNGEON') throw new Error('authoritative Floor 1 movement not observed');
-  proof.floor_1_entered = beforeScene === 'TOWN';
+  let player = await getPlayer(token, 'after-enter');
+  if (player.scene !== 'DUNGEON') throw new Error('authoritative Floor 1 movement not observed');
+  proof.floor_1_entered = beforePlayer.scene === 'TOWN';
   proof.movement_authoritative = Number.isInteger(player.pos_x) && Number.isInteger(player.pos_y) && player.scene === 'DUNGEON';
   proof.authoritative_dungeon_player = player;
 
   for (let step = 0; step < 24; step++) {
     if (!player.current_encounter) {
       const engage = await rpc('kelplantis_engage_encounter', { p_token: token });
-      if (engage.status !== 200) throw new Error(`encounter RPC failed at step ${step}: ${engage.status}`);
+      if (engage.status !== 200 || !engage.data || !engage.data.current_encounter) throw new Error(`encounter RPC failed at step ${step}`);
       player = engage.data;
-      if (!player || !player.current_encounter) throw new Error('encounter state was not authoritative');
       proof.encounter_authoritative = true;
     }
 
     const beforeHp = Number(player.current_encounter.enemyHp);
     const attack = await rpc('kelplantis_attack', { p_token: token });
-    if (attack.status !== 200) throw new Error(`attack RPC failed at step ${step}: ${attack.status}`);
+    if (attack.status !== 200 || !attack.data) throw new Error(`attack RPC failed at step ${step}`);
     player = attack.data;
     proof.combat_authoritative = true;
     if (player.current_encounter && Number(player.current_encounter.enemyHp) >= beforeHp) throw new Error('authoritative attack did not reduce enemy HP');
@@ -100,10 +104,14 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
   }
   if (!proof.boss_clear_authoritative) throw new Error('boss was not cleared authoritatively within attack budget');
 
-  const afterPlayer = (await rpc('kelplantis_get_player', { p_token: token })).data;
-  const afterProgress = (await rpc('kelplantis_get_floor_progress', { p_token: token })).data;
-  const afterGate = (await rpc('kelplantis_get_floor_gate', { p_token: token, p_floor_id: 2 })).data;
-  const world = (await rpc('kelplantis_get_world_state', { p_scope: 'global' })).data;
+  const afterPlayer = await getPlayer(token, 'after-clear');
+  const afterProgressResult = await rpc('kelplantis_get_floor_progress', { p_token: token });
+  const afterGateResult = await rpc('kelplantis_get_floor_gate', { p_token: token, p_floor_id: 2 });
+  const worldResult = await rpc('kelplantis_get_world_state', { p_scope: 'global' });
+  if (afterProgressResult.status !== 200 || afterGateResult.status !== 200 || worldResult.status !== 200) throw new Error('post-clear authority probes failed');
+  const afterProgress = afterProgressResult.data;
+  const afterGate = afterGateResult.data;
+  const world = worldResult.data;
   proof.after_player = afterPlayer; proof.floor_progress = afterProgress; proof.after_gate = afterGate; proof.world = world;
   proof.world_consequence_observed = !!world && (world.state === 'changed_after_first_clear' || world.world_state === 'changed_after_first_clear');
   proof.floor_2_unlocked = !!afterGate && afterGate.unlocked === true && Number(afterProgress.highest_unlocked_floor) >= 2;
@@ -112,12 +120,16 @@ test('Kelplantis Floor 1 live browser authoritative journey', async ({ page }) =
 
   await page.reload({ waitUntil: 'networkidle' });
   await expect(page.getByText('AUTHORITY: SUPABASE')).toBeVisible();
-  const persistedPlayer = (await rpc('kelplantis_get_player', { p_token: token })).data;
-  const persistedProgress = (await rpc('kelplantis_get_floor_progress', { p_token: token })).data;
-  const persistedGate = (await rpc('kelplantis_get_floor_gate', { p_token: token, p_floor_id: 2 })).data;
-  const persistedWorld = (await rpc('kelplantis_get_world_state', { p_scope: 'global' })).data;
+  const persistedPlayer = await getPlayer(token, 'persisted');
+  const persistedProgressResult = await rpc('kelplantis_get_floor_progress', { p_token: token });
+  const persistedGateResult = await rpc('kelplantis_get_floor_gate', { p_token: token, p_floor_id: 2 });
+  const persistedWorldResult = await rpc('kelplantis_get_world_state', { p_scope: 'global' });
+  if (persistedProgressResult.status !== 200 || persistedGateResult.status !== 200 || persistedWorldResult.status !== 200) throw new Error('reload authority probes failed');
+  const persistedProgress = persistedProgressResult.data;
+  const persistedGate = persistedGateResult.data;
+  const persistedWorld = persistedWorldResult.data;
   proof.persisted_player = persistedPlayer; proof.persisted_progress = persistedProgress; proof.persisted_gate = persistedGate; proof.persisted_world = persistedWorld;
-  proof.state_survived_reload = !!persistedPlayer && !!persistedProgress && Number(persistedProgress.highest_unlocked_floor) >= 2 && !!persistedGate && persistedGate.unlocked === true && !!persistedWorld && (persistedWorld.state === 'changed_after_first_clear' || persistedWorld.world_state === 'changed_after_first_clear');
+  proof.state_survived_reload = Number(persistedProgress.highest_unlocked_floor) >= 2 && persistedGate.unlocked === true && !!persistedWorld && (persistedWorld.state === 'changed_after_first_clear' || persistedWorld.world_state === 'changed_after_first_clear');
   proof.console_errors = consoleErrors;
   if (!proof.state_survived_reload) throw new Error('authoritative state did not survive browser reload');
   if (consoleErrors.length) throw new Error(`browser console errors: ${consoleErrors.join(' | ')}`);
