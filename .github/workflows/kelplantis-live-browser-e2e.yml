@@ -29,12 +29,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
 
       - name: Install dependencies
         working-directory: BEC-PRIME
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Install Chromium
         working-directory: BEC-PRIME
