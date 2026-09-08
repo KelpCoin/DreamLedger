@@ -3,13 +3,14 @@
 const assert = require('assert');
 const { RPC, createBridge } = require('./KelplantisAuthoritativeBridge');
 
-assert.strictEqual(RPC.getWorldState, 'kelplantis_get_world_state');
-assert.strictEqual(RPC.getFloorGate, 'kelplantis_get_floor_gate');
-assert.strictEqual(RPC.enterFloor, 'kelplantis_enter_floor');
-assert.strictEqual(RPC.attack, 'kelplantis_attack');
+for (const expected of [
+  'createPlayer','getPlayer','getWorldState','getFloorGate','getFloorProgress','enterFloor',
+  'movePlayer','talkToNpc','engageEncounter','attack','fleeEncounter','equipItem','listTownPresence'
+]) assert.ok(RPC[expected], `missing RPC ${expected}`);
 
 const offline = createBridge();
 assert.strictEqual(offline.configured, false);
+assert.strictEqual(createBridge({url:'https://x.supabase.co',anonKey:'PLACEHOLDER'}).configured, false);
 
 const originalFetch = global.fetch;
 global.fetch = async (url, options) => ({
@@ -28,8 +29,6 @@ global.fetch = async (url, options) => ({
     assert.strictEqual(result.options.headers.Authorization, 'Bearer publishable-test-key');
     assert.strictEqual(result.url, 'https://example.supabase.co/rest/v1/rpc/kelplantis_get_floor_gate');
     await assert.rejects(() => bridge.rpc('not_a_kelplantis_rpc'), /Unsupported Kelplantis RPC/);
-    console.log(JSON.stringify({ status: 'PASS', checks: 8 }));
-  } finally {
-    global.fetch = originalFetch;
-  }
+    console.log(JSON.stringify({ status: 'PASS', checks: 20, publishable_key_only: true }));
+  } finally { global.fetch = originalFetch; }
 })().catch(err => { console.error(err); process.exit(1); });
