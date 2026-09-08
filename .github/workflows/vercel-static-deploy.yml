@@ -63,7 +63,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          PUBLICATION_CANDIDATE_KEY: release:github:${{ inputs.release_sha }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ inputs.release_sha }}:sku:AUT_0001
           PUBLICATION_CANDIDATE_TYPE: RELEASE
           PUBLICATION_ALLOW_HUMAN_REQUIRED: 'true'
         run: node scripts/check-publication-admission.js
@@ -91,7 +91,10 @@ jobs:
           set -euo pipefail
           test "$RELEASE_SHA" = "$(git rev-parse HEAD)"
           test -n "$ADMISSION_SHA256"
-          echo "PASS: deployment SHA is bound to admission receipt ${{ needs.admission-check.outputs.admission_id }}"
+          EXPECTED_CANDIDATE_KEY="release:github:${RELEASE_SHA}:sku:AUT_0001"
+          EXPECTED_CANDIDATE_SHA256="$(printf '%s' "$EXPECTED_CANDIDATE_KEY" | sha256sum | awk '{print $1}')"
+          test "$ADMISSION_SHA256" = "$EXPECTED_CANDIDATE_SHA256"
+          echo "PASS: exact release SHA is cryptographically bound to admission receipt ${{ needs.admission-check.outputs.admission_id }}"
 
       - name: Verify Vercel token
         env:
@@ -117,7 +120,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          PUBLICATION_CANDIDATE_KEY: release:github:${{ inputs.release_sha }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ inputs.release_sha }}:sku:AUT_0001
           PUBLICATION_CANDIDATE_TYPE: RELEASE
           PUBLICATION_ALLOW_HUMAN_REQUIRED: 'true'
         run: node scripts/check-publication-admission.js
