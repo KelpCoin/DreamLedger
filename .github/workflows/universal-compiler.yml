@@ -28,42 +28,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Install test dependencies
         run: npm install --no-audit --no-fund
-
       - name: Compile universal targets
         run: npm run compile:universal
-
       - name: Verify universal compiler proof
         shell: bash
         run: |
           test -f RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
           node -e "const p=require('./RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'); const ids=['smoke-website','smoke-game','smoke-app','dreamledger-production','amplissa-public','kelplantis-mvp']; if(p.status!=='PASS'||p.specs_compiled!==ids.length) process.exit(1); for(const id of ids) if(!p.outputs.some(x=>x.id===id)) process.exit(1); for(const t of ['website','game','app']) if(!p.outputs.some(x=>x.target===t)) process.exit(1); console.log(JSON.stringify(p,null,2));"
-
       - name: Run Kelplantis deterministic tests
         run: npm run kelplantis:test
-
       - name: Install Chromium for runtime verification
         run: npx playwright install chromium
-
       - name: Compile dedicated Kelplantis target
         run: node compiler/kelplantis/KelplantisTargetCompiler.js
-
       - name: Verify Kelplantis browser runtime
         run: npx playwright test scripts/KelplantisBrowserSmoke.spec.js --reporter=line
-
-      - name: Verify runtime proof
+      - name: Verify authoritative runtime proof
         shell: bash
         run: |
           test -f RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json
-          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json'); if(p.status!=='PASS'||p.player_movement!==true||p.player_attack!==true||p.enemy_ai_damage!==true||p.loot!==true||p.xp!==true||p.leveling!==true||p.town_safety!==true||p.save_load!==true||p.boss_fightable!==true||p.win_state!==true||p.console_errors.length!==0) process.exit(1); console.log(JSON.stringify(p,null,2));"
-
+          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json'); if(p.status!=='PASS'||p.localStorage_game_state!==false||p.authoritative_combat!==true||p.authoritative_boss_clear!==true||p.world_mutation_rendered!==true||p.floor_gate_rendered!==true||p.console_errors.length!==0) process.exit(1); console.log(JSON.stringify(p,null,2));"
+      - name: Verify compiler authority proof
+        shell: bash
+        run: |
+          test -f RUN-PROOFS/KELPLANTIS-MVP-COMPILER-PROOF.json
+          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-MVP-COMPILER-PROOF.json'); if(p.status!=='PASS'||p.authority.browser_state_authority!==false||p.authority.localStorage_game_state!==false||p.authority.publishable_key_only!==true||p.authority.service_role_key_embedded!==false) process.exit(1); console.log(JSON.stringify(p,null,2));"
       - name: Upload compiler and runtime proofs
         uses: actions/upload-artifact@v4
         with:
