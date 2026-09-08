@@ -18,7 +18,7 @@ function buildRuntimeHtml(spec) {
 <div><button id="create">Create Wanderer</button><button id="sync">Sync</button><button id="warden">Talk to Garden Warden</button><button id="dungeon">Enter Dungeon</button><button id="engage">Engage</button><button id="attack">Attack</button><button id="flee">Flee</button><button id="home">Go Home</button></div><p id="log">Connecting to the authoritative game service…</p></section>
 <section><h2>World</h2><div id="world">Loading world state…</div><h2>Floor Gate</h2><div id="gate">Checking Floor 2…</div><h2>Town Presence</h2><div id="presence" class="presence">Loading…</div></section></div>
 <script>
-const CONFIG=window.__KELPLANTIS_CONFIG__||{url:'${game.supabaseUrl || ''}',anonKey:'PLACEHOLDER'};
+const CONFIG=window.__KELPLANTIS_CONFIG__||{url:'${game.supabaseUrl || ''}',anonKey:'${game.supabaseAnonKey || ''}'};
 const RPC={createPlayer:'kelplantis_create_player',getPlayer:'kelplantis_get_player',getWorldState:'kelplantis_get_world_state',getFloorGate:'kelplantis_get_floor_gate',getFloorProgress:'kelplantis_get_floor_progress',enterFloor:'kelplantis_enter_floor',movePlayer:'kelplantis_move_player',talkToNpc:'kelplantis_talk_to_npc',engageEncounter:'kelplantis_engage_encounter',attack:'kelplantis_attack',fleeEncounter:'kelplantis_flee_encounter',equipItem:'kelplantis_equip_item',listTownPresence:'kelplantis_list_town_presence'};
 const c=document.getElementById('game'),ctx=c.getContext('2d');let player=null,world=null,gate=null,loading=false;const tokenKey='kelplantis_player_token';
 function bridgeReady(){return CONFIG.url&&CONFIG.anonKey&&CONFIG.anonKey!=='PLACEHOLDER'&&!CONFIG.anonKey.includes('PLACEHOLDER')}
