@@ -15,22 +15,22 @@ function stripHtml(value) {
     .replace(/&amp;/g, "&")
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
 function extractBudget(text) {
-  const m = String(text || "").match(/(?:NZ\\$|US\\$|AU\\$|CA\\$|\\$|USD\\s*)\\s*(\\d{2,6}(?:[,.]\\d{1,2})?)/i);
+  const m = String(text || "").match(/(?:NZ\$|US\$|AU\$|CA\$|\$|USD\s*)\s*(\d{2,6}(?:[,.]\d{1,2})?)/i);
   return m ? Number(m[1].replace(",", "")) : null;
 }
 
 function scoreIntent(text) {
   const s = String(text || "").toLowerCase();
   let score = 0;
-  if (/\\b(paid|pay|budget|compensation|hire|hiring|freelancer|contractor)\\b/.test(s)) score += 0.35;
-  if (/\\b(urgent|asap|immediately|broken|stopped|losing|ghosted|deadline)\\b/.test(s)) score += 0.25;
-  if (/\\b(need|looking for|seeking|required|help)\\b/.test(s)) score += 0.20;
-  if (/\\b(n8n|automation|workflow|ai agent|api integration)\\b/.test(s)) score += 0.20;
+  if (/\b(paid|pay|budget|compensation|hire|hiring|freelancer|contractor)\b/.test(s)) score += 0.35;
+  if (/\b(urgent|asap|immediately|broken|stopped|losing|ghosted|deadline)\b/.test(s)) score += 0.25;
+  if (/\b(need|looking for|seeking|required|help)\b/.test(s)) score += 0.20;
+  if (/\b(n8n|automation|workflow|ai agent|api integration)\b/.test(s)) score += 0.20;
   return Math.min(1, score);
 }
 
@@ -71,24 +71,26 @@ async function main() {
   const topics = payload.topic_list?.topics || [];
 
   let inserted = 0;
-  let skipped = 0;
 
   for (const topic of topics.slice(0, 50)) {
     const title = stripHtml(topic.title);
     const url = "https://community.n8n.io/t/" + topic.slug + "/" + topic.id;
     const text = title;
+    const intent = scoreIntent(text);
+
     const signal = {
       signal_id: "N8N-" + topic.id,
       source: SOURCE,
       source_url: url,
       title,
       body: text,
+      problem_text: text,
       raw_data: topic,
       extracted_budget: extractBudget(text),
-      extracted_currency: /NZ\\$/.test(text) ? "NZD" : /AU\\$/.test(text) ? "AUD" : /CA\\$/.test(text) ? "CAD" : "USD",
-      extracted_intent: scoreIntent(text) >= 0.7 ? "HIGH" : scoreIntent(text) >= 0.4 ? "MEDIUM" : "LOW",
+      extracted_currency: /NZ\$/.test(text) ? "NZD" : /AU\$/.test(text) ? "AUD" : /CA\$/.test(text) ? "CAD" : "USD",
+      extracted_intent: intent >= 0.7 ? "HIGH" : intent >= 0.4 ? "MEDIUM" : "LOW",
       domain_id: domainFor(text),
-      buyer_intent: scoreIntent(text),
+      buyer_intent: intent,
       freshness_score: 1,
       evidence_score: 0.75,
       fit_score: 0.75,
@@ -98,17 +100,12 @@ async function main() {
       observed_at: new Date(topic.bumped_at || topic.created_at || Date.now()).toISOString()
     };
 
-    try {
-      await supabase("/rest/v1/economic_demand_signals?on_conflict=source,source_url", {
-        method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-        body: JSON.stringify(signal)
-      });
-      inserted++;
-    } catch (err) {
-      if (String(err).includes("duplicate")) skipped++;
-      else throw err;
-    }
+    await supabase("/rest/v1/economic_demand_signals?on_conflict=source,source_url", {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(signal)
+    });
+    inserted++;
     await sleep(100);
   }
 
@@ -128,7 +125,6 @@ async function main() {
     endpoint: ENDPOINT,
     topics_seen: topics.length,
     inserted,
-    skipped,
     public_actions: 0,
     approval_required: true
   }, null, 2));
