@@ -1,0 +1,68 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy-supabase-edge-functions.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-edge-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: wbwgroygjeyukkspnqiy
+      FUNCTION_NAME: stripe-revenue-41104f355d6878cdd6d1f9dc
+      FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc
+
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate deployment source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "supabase/functions/${FUNCTION_NAME}/index.ts"
+          test -s "supabase/functions/${FUNCTION_NAME}/deno.json"
+          grep -F 'constructEventAsync' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'STRIPE_WEBHOOK_SECRET' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'payment.verified' "supabase/functions/${FUNCTION_NAME}/index.ts"
+
+      - name: Deploy canonical Edge Function
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase functions deploy "${FUNCTION_NAME}" \
+            --project-ref "${PROJECT_ID}" \
+            --no-verify-jwt
+
+      - name: Verify deployed function health
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 "${FUNCTION_URL}")"
+          echo "${body}" | grep -F '"status":"healthy"'
+          echo "${body}" | grep -F "${FUNCTION_NAME}"
+
+      - name: Record deployment identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Deployed Supabase function ${FUNCTION_NAME} from commit ${GITHUB_SHA}"
