@@ -2,6 +2,9 @@ name: Kelplantis Live Browser E2E
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - agent/kelplantis-floor1-authoritative-social
 
 permissions:
   contents: read
@@ -38,12 +41,34 @@ jobs:
           sleep 2
           curl --fail --silent http://127.0.0.1:4173/ >/dev/null
 
+      - name: Mint fresh isolated player token
+        env:
+          KELPLANTIS_SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL }}
+          KELPLANTIS_SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$KELPLANTIS_SUPABASE_URL"
+          test -n "$KELPLANTIS_SUPABASE_ANON_KEY"
+          PLAYER_NAME="E2E-$(date -u +%Y%m%d%H%M%S)-${GITHUB_RUN_ID}"
+          RESPONSE=$(curl --fail --silent --show-error \
+            -X POST "$KELPLANTIS_SUPABASE_URL/rest/v1/rpc/kelplantis_create_player" \
+            -H "apikey: $KELPLANTIS_SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $KELPLANTIS_SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            --data "{\"p_name\":\"$PLAYER_NAME\",\"p_color_hue\":140}")
+          PLAYER_TOKEN=$(printf '%s' "$RESPONSE" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const p=JSON.parse(s);if(!p.player_token)process.exit(2);process.stdout.write(p.player_token)})")
+          test -n "$PLAYER_TOKEN"
+          {
+            echo "KELPLANTIS_PLAYER_TOKEN=$PLAYER_TOKEN"
+            echo "KELPLANTIS_E2E_PLAYER_NAME=$PLAYER_NAME"
+          } >> "$GITHUB_ENV"
+
       - name: Execute live Floor 1 browser journey
         working-directory: BEC-PRIME
         env:
           KELPLANTIS_SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL }}
           KELPLANTIS_SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY }}
-          KELPLANTIS_PLAYER_TOKEN: ${{ secrets.KELPLANTIS_PLAYER_TOKEN }}
+          KELPLANTIS_PLAYER_TOKEN: ${{ env.KELPLANTIS_PLAYER_TOKEN }}
         run: npx playwright test scripts/KelplantisLiveBrowserSmoke.spec.js --reporter=line
 
       - name: Validate machine-readable proof
