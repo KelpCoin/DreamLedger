@@ -94,6 +94,11 @@ jobs:
           console.log('LIVE E2E PROOF VALID: PASS');
           NODE
 
+      - name: Verify proof with repository verifier
+        working-directory: BEC-PRIME
+        shell: pwsh
+        run: ./scripts/Verify-KelplantisLiveProof.ps1
+
       - name: Upload proof
         if: always()
         uses: actions/upload-artifact@v4
