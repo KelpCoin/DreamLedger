@@ -105,6 +105,10 @@ async function main() {
       headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
       body: JSON.stringify(signal)
     });
+    await supabase("/rest/v1/rpc/route_economic_demand", {
+      method: "POST",
+      body: JSON.stringify({ p_signal_id: signal.signal_id })
+    });
     inserted++;
     await sleep(100);
   }
