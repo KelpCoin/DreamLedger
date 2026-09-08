@@ -1,0 +1,60 @@
+name: Kelplantis Live Browser E2E
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-floor1-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact branch commit
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        run: npm install --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Compile Kelplantis
+        working-directory: BEC-PRIME
+        run: node compiler/kelplantis/KelplantisTargetCompiler.js
+
+      - name: Serve compiled client
+        working-directory: BEC-PRIME
+        run: |
+          python3 -m http.server 4173 --directory compiled/universal/game/kelplantis-mvp >/tmp/kelplantis-http.log 2>&1 &
+          echo $! >/tmp/kelplantis-http.pid
+          sleep 2
+          curl --fail --silent http://127.0.0.1:4173/ >/dev/null
+
+      - name: Execute live Floor 1 browser journey
+        working-directory: BEC-PRIME
+        env:
+          KELPLANTIS_SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL }}
+          KELPLANTIS_SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY }}
+          KELPLANTIS_PLAYER_TOKEN: ${{ secrets.KELPLANTIS_PLAYER_TOKEN }}
+        run: npx playwright test scripts/KelplantisLiveBrowserSmoke.spec.js --reporter=line
+
+      - name: Validate machine-readable proof
+        working-directory: BEC-PRIME
+        run: |
+          test -s RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json
+          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json'); if(p.status!=='PASS'||p.persisted_after_reload!==true||!p.after_gate.unlocked||!p.floor_progress||!p.floor_progress.highest_unlocked_floor||p.console_errors.length) process.exit(1); console.log(JSON.stringify(p,null,2));"
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: kelplantis-live-browser-e2e-proof
+          path: BEC-PRIME/RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json
+          if-no-files-found: error
