@@ -107,14 +107,20 @@ jobs:
             grep -q '/api/account/' "BEC-PRIME/compiled/website/$page"
           done
           ! grep -q '/api/dreamiez/account/login' BEC-PRIME/compiled/website/login.html
-      - name: Verify paid surfaces are fulfilment-gated
+      - name: Verify live commerce surfaces
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'NOT CURRENTLY FOR SALE' public/automation-rescue.html
+          test -s public/automation-rescue.html
+          grep -q 'LIVE OFFER' public/automation-rescue.html
+          grep -q 'https://buy.stripe.com/' public/automation-rescue.html
+          grep -q 'session_id' public/automation-rescue.html
+          grep -q '/fulfilment.html?session_id=' public/automation-rescue.html
+          grep -q 'NZ$99' public/automation-rescue.html
+          grep -q 'bounded failure path' public/automation-rescue.html
           grep -q 'NOT CURRENTLY FOR SALE' public/billboard.html
           grep -q 'OTHER SKUS · QUARANTINED' public/offers.html
-          echo 'PAID_SURFACES_GATED=PASS'
+          echo 'LIVE_COMMERCE_SURFACES=PASS'
       - name: Write CI proof
         env:
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
@@ -129,7 +135,7 @@ jobs:
           data = {
               'status': 'PASS', 'gate': 'CORTEX_CI', 'release_sha': os.environ['RELEASE_SHA'],
               'timestamp_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'checks': ['compile','silo-boundaries','commercial-integration','worker-pool','runtime','stage-1-ledger-proof','syntax','primary-account-pages','paid-surfaces-fulfilment-gated'],
+              'checks': ['compile','silo-boundaries','commercial-integration','worker-pool','runtime','stage-1-ledger-proof','syntax','primary-account-pages','live-commerce-surfaces'],
               'stage_1_status': stage1['status'], 'stage_1_mode': stage1['mode'],
               'ledger_head_hash': stage1['ledger_head_hash'], 'event_count': stage1['event_count'],
               'lifecycle_complete': stage1['lifecycle_complete'],
@@ -184,13 +190,23 @@ jobs:
           check /offers.html 200
           check /automation-rescue 200
           check /version 200
-      - name: Verify paid surfaces remain gated
+      - name: Verify live Automation Rescue purchase surface
         shell: bash
         run: |
           set -euo pipefail
-          curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/automation-rescue" | grep -q 'NOT CURRENTLY FOR SALE'
+          body=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/automation-rescue")
+          grep -q 'LIVE OFFER' <<< "$body"
+          grep -q 'https://buy.stripe.com/' <<< "$body"
+          grep -q 'session_id' <<< "$body"
+          grep -q '/fulfilment.html?session_id=' <<< "$body"
+          grep -q 'NZ$99' <<< "$body"
+          echo 'LIVE_AUTOMATION_RESCUE=PASS'
+      - name: Verify non-live surfaces remain gated
+        shell: bash
+        run: |
+          set -euo pipefail
           curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/billboard" | grep -q 'NOT CURRENTLY FOR SALE'
-          echo 'LIVE_PAID_SURFACES_GATED=PASS'
+          echo 'NON_LIVE_SURFACES_GATED=PASS'
       - name: Write production proof
         shell: bash
         run: |
@@ -198,7 +214,7 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
-          data={'status':'PASS','gate':'CORTEX_CD','release_sha':os.environ['EXPECTED_SHA'],'target':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'live_sha_verified':True,'surfaces_verified':['healthz','version','billboard','offers.html','automation-rescue'],'paid_surfaces_gated':True,'purchase_executed':False,'revenue_claimed':False}
+          data={'status':'PASS','gate':'CORTEX_CD','release_sha':os.environ['EXPECTED_SHA'],'target':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'live_sha_verified':True,'surfaces_verified':['healthz','version','billboard','offers.html','automation-rescue'],'automation_rescue_live':True,'purchase_executed':False,'revenue_claimed':False}
           with open('proof/cortex-production-proof.json','w',encoding='utf-8') as f: json.dump(data,f,indent=2)
           print(json.dumps(data,indent=2))
           PY
