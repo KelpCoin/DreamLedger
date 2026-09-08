@@ -26,11 +26,11 @@ jobs:
           test -s BEC-PRIME/control-plane/DAY1-ADMISSION-CONTROL-EXECUTION-RECEIPT.md
           test -s BEC-PRIME/control-plane/DAY2-TRUTH-ORACLE-EXECUTION-RECEIPT.md
           test -s BEC-PRIME/control-plane/DAY3-ECONOMIC-GAUNTLET-EXECUTION-RECEIPT.md
-          grep -q 'No synthetic receipt persisted' BEC-PRIME/control-plane/DAY1-ADMISSION-CONTROL-EXECUTION-RECEIPT.md
+          grep -qi 'no synthetic admission receipt was persisted' BEC-PRIME/control-plane/DAY1-ADMISSION-CONTROL-EXECUTION-RECEIPT.md
           grep -q 'Verdict: `VERIFIED`' BEC-PRIME/control-plane/DAY2-TRUTH-ORACLE-EXECUTION-RECEIPT.md
           grep -q 'Verdict: `PASS`' BEC-PRIME/control-plane/DAY3-ECONOMIC-GAUNTLET-EXECUTION-RECEIPT.md
-          grep -q 'no Gauntlet or publication admission' BEC-PRIME/control-plane/DAY2-TRUTH-ORACLE-EXECUTION-RECEIPT.md
-          grep -q 'not an admission receipt' BEC-PRIME/control-plane/DAY3-ECONOMIC-GAUNTLET-EXECUTION-RECEIPT.md
+          grep -q 'not a Gauntlet receipt and it is not a publication admission' BEC-PRIME/control-plane/DAY2-TRUTH-ORACLE-EXECUTION-RECEIPT.md
+          grep -q 'This is a Gauntlet receipt, not an admission receipt' BEC-PRIME/control-plane/DAY3-ECONOMIC-GAUNTLET-EXECUTION-RECEIPT.md
           echo "PASS: BECK control-plane evidence receipts are present and internally consistent."
 
       - name: Verify no fabricated admission receipt
