@@ -74,8 +74,31 @@ jobs:
       - name: Validate machine-readable proof
         working-directory: BEC-PRIME
         run: |
+          set -euo pipefail
           test -s RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json
-          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json'); if(p.status!=='PASS'||p.persisted_after_reload!==true||!p.after_gate.unlocked||!p.floor_progress||!p.floor_progress.highest_unlocked_floor||p.console_errors.length) process.exit(1); console.log(JSON.stringify(p,null,2));"
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = JSON.parse(fs.readFileSync('./RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json', 'utf8'));
+          const required = [
+            'player_created', 'floor_1_entered', 'movement_authoritative',
+            'encounter_authoritative', 'combat_authoritative',
+            'boss_clear_authoritative', 'world_consequence_observed',
+            'floor_2_unlocked', 'state_survived_reload',
+            'illegal_floor_2_entry_rejected',
+            'synthetic_events_counted_as_player_evidence'
+          ];
+          if (p.schema !== 'bec/kelplantis/live-browser-e2e-proof/v2') process.exit(1);
+          if (p.status !== 'PASS') process.exit(1);
+          for (const key of required) {
+            if (p[key] !== true && key !== 'synthetic_events_counted_as_player_evidence') process.exit(1);
+          }
+          if (p.synthetic_events_counted_as_player_evidence !== false) process.exit(1);
+          if (!p.after_gate || p.after_gate.unlocked !== true) process.exit(1);
+          if (!p.floor_progress || p.floor_progress.highest_unlocked_floor < 2) process.exit(1);
+          if (!Array.isArray(p.console_errors) || p.console_errors.length !== 0) process.exit(1);
+          if (!p.evidence_sha256) process.exit(1);
+          console.log(JSON.stringify(p, null, 2));
+          NODE
 
       - name: Upload proof
         uses: actions/upload-artifact@v4
