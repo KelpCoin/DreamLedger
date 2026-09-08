@@ -15,6 +15,11 @@ const sha256 = v => crypto.createHash('sha256').update(v, 'utf8').digest('hex');
 function run() {
   const base = compile();
   const spec = JSON.parse(fs.readFileSync(SPEC, 'utf8'));
+  const liveUrl = process.env.KELPLANTIS_SUPABASE_URL || '';
+  const liveAnonKey = process.env.KELPLANTIS_SUPABASE_ANON_KEY || '';
+  if (!liveUrl || !liveAnonKey) throw new Error('KELPLANTIS_SUPABASE_URL and KELPLANTIS_SUPABASE_ANON_KEY are required for a live-authoritative build.');
+  if (/service_role/i.test(liveAnonKey)) throw new Error('Refusing to embed a service-role key in the browser build.');
+  spec.game = Object.assign({}, spec.game, { supabaseUrl: liveUrl, supabaseAnonKey: liveAnonKey });
   fs.mkdirSync(OUT, { recursive: true });
   const html = buildRuntimeHtml(spec);
   fs.writeFileSync(path.join(OUT, 'index.html'), html, 'utf8');
@@ -29,8 +34,8 @@ function run() {
     rpc_surface:['kelplantis_create_player','kelplantis_get_player','kelplantis_get_world_state','kelplantis_get_floor_gate','kelplantis_get_floor_progress','kelplantis_enter_floor','kelplantis_move_player','kelplantis_talk_to_npc','kelplantis_engage_encounter','kelplantis_attack','kelplantis_flee_encounter','kelplantis_equip_item','kelplantis_list_town_presence'],
     acceptance:{identity:'RPC',movement:'RPC',npc:'RPC',dungeon_entry:'RPC',encounter:'RPC',combat:'RPC',loot:'SERVER_RETURNED',progression:'SERVER_RETURNED',world_mutation:'SERVER_SIDE',floor_gate:'RPC',town_presence:'RPC',housing:'NOT_YET'},
     outputs:files,
-    runtime_verification:'NOT_EXECUTED_IN_THIS_TOOL_SESSION',
-    next_runtime_requirement:'inject Supabase publishable key into deployed client configuration and execute browser E2E'
+    runtime_verification:'PENDING_LIVE_BROWSER_E2E',
+    next_runtime_requirement:'execute the live browser E2E against the compiled artifact'
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
   return proof;
