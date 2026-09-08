@@ -1,0 +1,20 @@
+{
+  "schema": "bec/kelplantis/backend-forensic-proof/v1",
+  "status": "PASS_BACKEND_ONLY",
+  "commit_sha": "bcae6446beeb858db133a2d139a278dc0130faf1",
+  "player_id": "02afc802-6d11-4c6b-a162-8373c2ed6594",
+  "boss_clear_authoritative": true,
+  "world_consequence_observed": true,
+  "floor2_unlock_authoritative": true,
+  "real_events_generated": 64,
+  "normalized_events": 64,
+  "event_relationships": 0,
+  "event_motifs": 11,
+  "economic_predictions": 0,
+  "notes": [
+    "Backend playthrough used authoritative RPC functions.",
+    "Browser E2E remains a separate pending gate; no browser PASS is claimed.",
+    "Relationship refresh returned zero because the SQL forensic replay shares one transaction timestamp; browser RPCs use separate transactions."
+  ],
+  "evidence_sha256": "eb96b118596b0fce5cb39c516791a914e20c3c87ed8749c39df89c02a39e8e52"
+}
