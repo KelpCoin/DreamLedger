@@ -1,0 +1,54 @@
+name: Enforce Discord Zero-Touch Commerce
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/products/discord-webhook-starter-kit/**'
+      - '.github/workflows/enforce-discord-zero-touch-commerce.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Stripe Payment Link for automatic delivery
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          SUCCESS_URL: https://dreamledger.org/discord/starter-kit-success.html?session_id={CHECKOUT_SESSION_ID}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$STRIPE_API_KEY"
+          LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links \
+            -u "$STRIPE_API_KEY:" \
+            --data-urlencode 'limit=100')
+          LINK_ID=$(echo "$LINKS" | jq -r '.data[] | select(.metadata.offer_id == "DISCORD-WEBHOOK-STARTER-KIT-001") | .id' | head -n 1)
+          test -n "$LINK_ID"
+          test "$LINK_ID" != "null"
+          curl -fsS -X POST "https://api.stripe.com/v1/payment_links/$LINK_ID" \
+            -u "$STRIPE_API_KEY:" \
+            -d 'after_completion[type]=redirect' \
+            --data-urlencode "after_completion[redirect][url]=$SUCCESS_URL" \
+            -d 'active=true' \
+            > payment-link.json
+          jq -e '.active == true' payment-link.json >/dev/null
+          jq -e '.after_completion.type == "redirect"' payment-link.json >/dev/null
+          jq -e --arg u "$SUCCESS_URL" '.after_completion.redirect.url == $u' payment-link.json >/dev/null
+          echo "DISCORD_PAYMENT_LINK=$(jq -r '.url' payment-link.json)"
+          echo "DISCORD_PAYMENT_LINK_ID=$LINK_ID"
+
+      - name: Verify zero-touch source contract
+        run: |
+          set -euo pipefail
+          test -s BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          test -s BEC-PRIME/products/discord-webhook-starter-kit/README.md
+          node --check BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          grep -q "timingSafeEqual" BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          grep -q "payment_status !== 'paid'" BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          grep -q "DISCORD_WEBHOOK_URL" BEC-PRIME/products/discord-webhook-starter-kit/server.js
