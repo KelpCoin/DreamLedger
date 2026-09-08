@@ -1,0 +1,16 @@
+{
+  "schema": "bec/kelplantis-floor1-authoritative-bridge-proof/v1",
+  "status": "SOURCE_VERIFIED",
+  "branch": "agent/kelplantis-floor1-authoritative-social",
+  "checks": {
+    "publishable_key_only": true,
+    "service_role_key_embedded": false,
+    "world_state_rpc": "kelplantis_get_world_state",
+    "floor_gate_rpc": "kelplantis_get_floor_gate",
+    "enter_floor_rpc": "kelplantis_enter_floor",
+    "combat_rpc": "kelplantis_attack",
+    "client_bypass_path": false
+  },
+  "runtime_browser_execution": "NOT_EXECUTED_IN_THIS_TOOL_SESSION",
+  "supabase_project": "wbwgroygjeyukkspnqiy"
+}
