@@ -1,0 +1,34 @@
+name: LLM Bridge Monetization Gate
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/runtime/AgentBridge.js'
+      - 'BEC-PRIME/runtime/AgentBridgeClient.js'
+      - 'BEC-PRIME/runtime/AgentBridgeProfiles.js'
+      - 'BEC-PRIME/scripts/Verify-AgentBridge-LLM-Monetization.js'
+      - '.github/workflows/llm-bridge-monetization-gate.yml'
+  push:
+    branches:
+      - main
+      - feat/llm-bridge-monetization-readiness
+    paths:
+      - 'BEC-PRIME/runtime/AgentBridge.js'
+      - 'BEC-PRIME/runtime/AgentBridgeClient.js'
+      - 'BEC-PRIME/runtime/AgentBridgeProfiles.js'
+      - 'BEC-PRIME/scripts/Verify-AgentBridge-LLM-Monetization.js'
+      - '.github/workflows/llm-bridge-monetization-gate.yml'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check BEC-PRIME/runtime/AgentBridge.js
+          node --check BEC-PRIME/runtime/AgentBridgeClient.js
+          node --check BEC-PRIME/runtime/AgentBridgeProfiles.js
+          node --check BEC-PRIME/scripts/Verify-AgentBridge-LLM-Monetization.js
+      - name: Run no-secret LLM bridge monetization contract gate
+        run: node BEC-PRIME/scripts/Verify-AgentBridge-LLM-Monetization.js
