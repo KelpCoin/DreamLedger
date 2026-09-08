@@ -88,9 +88,14 @@ jobs:
     needs: compile-and-auth
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment:
+      name: production
+      url: https://dreamledger.org
     steps:
       - name: Require Render deployment path
         shell: bash
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           set -euo pipefail
           test -n "$RENDER_DEPLOY_HOOK_URL"
@@ -108,6 +113,8 @@ jobs:
           echo 'PUBLICATION_ADMISSION=PASS'
       - name: Trigger exact commit through Render hook
         shell: bash
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           set -euo pipefail
           url="${RENDER_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
