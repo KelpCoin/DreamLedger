@@ -24,6 +24,27 @@ jobs:
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
     steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        run: npm install
+      - name: Publication admission gate
+        working-directory: BEC-PRIME
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PUBLICATION_CANDIDATE_KEY: release:github:${{ github.sha }}
+          PUBLICATION_CANDIDATE_TYPE: RELEASE
+        run: npm run publication-admission:check
+
       - name: Trigger exact commit through Render deploy hook or API fallback
         shell: bash
         run: |
@@ -71,7 +92,7 @@ jobs:
 
           mkdir -p proof
           python3 - "$trigger" "$sha" <<'PY'
-          import json, os, sys, time
+          import json, sys, time
           trigger, sha = sys.argv[1:]
           proof = {
               "status": "TRIGGER_ACCEPTED",
@@ -79,7 +100,8 @@ jobs:
               "source_commit": sha,
               "target": "https://dreamledger.org",
               "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-              "fallback_order": ["RENDER_DEPLOY_HOOK_URL", "RENDER_DEPLOY_HOOK", "RENDER_API_KEY+RENDER_SERVICE_ID"]
+              "fallback_order": ["RENDER_DEPLOY_HOOK_URL", "RENDER_DEPLOY_HOOK", "RENDER_API_KEY+RENDER_SERVICE_ID"],
+              "publication_admission": "REQUIRED_BEFORE_DEPLOY"
           }
           with open("proof/render-recovery-trigger-proof.json", "w", encoding="utf-8") as f:
               json.dump(proof, f, indent=2)
@@ -127,7 +149,8 @@ jobs:
               "target": "https://dreamledger.org",
               "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "healthz_http": os.environ.get("HEALTH_HTTP", "unknown"),
-              "version_http": os.environ.get("VERSION_HTTP", "unknown")
+              "version_http": os.environ.get("VERSION_HTTP", "unknown"),
+              "publication_admission": "REQUIRED_BEFORE_DEPLOY"
           }
           with open("proof/render-recovery-proof.json", "w", encoding="utf-8") as f:
               json.dump(proof, f, indent=2)
