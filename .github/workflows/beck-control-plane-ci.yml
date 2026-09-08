@@ -1,0 +1,44 @@
+name: BECK Control Plane CI
+
+on:
+  push:
+    branches: ["agent/kelplantis-floor1-authoritative-social"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  control-plane-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Validate control-plane receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s BEC-PRIME/control-plane/SEVEN-DAY-AUTONOMY-MANDATE.md
+          test -s BEC-PRIME/control-plane/DAY1-ADMISSION-CONTROL-EXECUTION-RECEIPT.md
+          test -s BEC-PRIME/control-plane/DAY2-TRUTH-ORACLE-EXECUTION-RECEIPT.md
+          test -s BEC-PRIME/control-plane/DAY3-ECONOMIC-GAUNTLET-EXECUTION-RECEIPT.md
+          grep -q 'No synthetic receipt persisted' BEC-PRIME/control-plane/DAY1-ADMISSION-CONTROL-EXECUTION-RECEIPT.md
+          grep -q 'Verdict: `VERIFIED`' BEC-PRIME/control-plane/DAY2-TRUTH-ORACLE-EXECUTION-RECEIPT.md
+          grep -q 'Verdict: `PASS`' BEC-PRIME/control-plane/DAY3-ECONOMIC-GAUNTLET-EXECUTION-RECEIPT.md
+          grep -q 'no Gauntlet or publication admission' BEC-PRIME/control-plane/DAY2-TRUTH-ORACLE-EXECUTION-RECEIPT.md
+          grep -q 'not an admission receipt' BEC-PRIME/control-plane/DAY3-ECONOMIC-GAUNTLET-EXECUTION-RECEIPT.md
+          echo "PASS: BECK control-plane evidence receipts are present and internally consistent."
+
+      - name: Verify no fabricated admission receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n "decision.*ALLOW\|policy_decision.*ALLOW" BEC-PRIME/control-plane/DAY*-RECEIPT.md 2>/dev/null; then
+            echo "FAIL: an execution receipt claims a publication ALLOW."
+            exit 1
+          fi
+          echo "PASS: receipts do not fabricate publication admission."
