@@ -29,10 +29,15 @@ async function main() {
   try {
     const manifest = await request(port, '/api/agent-bridge/manifest');
     assert.equal(manifest.status, 200);
-    assert.equal(manifest.json?.schema_version, 'BECK-AGENT-BRIDGE-1.0');
+    assert.equal(manifest.json?.schema_version, 'BECK-AGENT-BRIDGE-1.1');
     assert.equal(manifest.json?.canonical_doorway, 'https://dreamledger.org/go');
     assert.equal(manifest.json?.external_actions, 'human_approval_required');
-    assert.equal(manifest.json?.endpoints?.jobs?.path, '/api/agent-bridge/jobs?status=pending&limit=10');
+    assert.equal(manifest.json?.payment_truth, 'RA_000001 requires independently verified external payment');
+    assert.equal(manifest.json?.endpoints?.events?.path, '/api/agent-bridge/events');
+    assert.equal(manifest.json?.endpoints?.correlation?.path, '/api/agent-bridge/correlations/:id');
+
+    const unauthenticatedState = await request(port, '/api/agent-bridge/state');
+    assert.equal(unauthenticatedState.status, 401, 'state endpoint must reject unauthenticated callers');
 
     const state = await request(port, '/api/agent-bridge/state', {
       'x-dreamledger-agent-token': process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN
@@ -56,9 +61,10 @@ async function main() {
     }
 
     console.log(JSON.stringify({
-      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v2',
+      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v3',
       status: 'PASS',
       manifest: 'PASS',
+      auth_gate: 'PASS',
       state_read: 'PASS',
       jobs_read: 'PASS',
       normalized_contract: 'PASS',
@@ -75,6 +81,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v2', status: 'FAIL', error: err.message }, null, 2));
+  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v3', status: 'FAIL', error: err.message }, null, 2));
   process.exitCode = 1;
 });
