@@ -53,27 +53,13 @@ jobs:
       - name: Start compiled client
         working-directory: BEC-PRIME
         run: |
-          nohup npx http-server compiler/kelplantis/dist -p 4173 -a 127.0.0.1 > /tmp/kelplantis-http.log 2>&1 &
+          nohup python3 -m http.server 4173 --bind 127.0.0.1 --directory compiled/universal/game/kelplantis-mvp > /tmp/kelplantis-http.log 2>&1 &
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
             sleep 1
           done
           cat /tmp/kelplantis-http.log
           exit 1
-
-      - name: Mint isolated player through real RPC
-        id: mint
-        shell: bash
-        run: |
-          payload=$(node -e 'process.stdout.write(JSON.stringify({name:"CI-E2E-"+process.env.GITHUB_RUN_ID,color_hue:180}))')
-          response=$(curl -fsS "$SUPABASE_URL/rest/v1/rpc/kelplantis_create_player" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            -H "Content-Type: application/json" \
-            --data "$payload")
-          token=$(printf '%s' "$response" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const x=JSON.parse(s); if(!x.player_token) process.exit(2); process.stdout.write(x.player_token)})')
-          echo "player_token=$token" >> "$GITHUB_OUTPUT"
-          echo "player_id=$(printf '%s' "$response" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const x=JSON.parse(s); process.stdout.write(x.id||"")})')" >> "$GITHUB_OUTPUT"
 
       - name: Run live browser journey
         working-directory: BEC-PRIME
@@ -82,7 +68,7 @@ jobs:
           KELPLANTIS_SUPABASE_ANON_KEY: ${{ env.SUPABASE_ANON_KEY }}
           KELPLANTIS_PLAYER_TOKEN: ${{ steps.mint.outputs.player_token }}
           KELPLANTIS_PLAYER_ID: ${{ steps.mint.outputs.player_id }}
-        run: npx playwright test scripts/KelplantisLiveBrowserSmoke.spec.js --reporter=line
+        run: npx playwright test scripts/KelplantisLiveBrowserE2E.spec.js --reporter=line
 
       - name: Validate machine-readable proof
         working-directory: BEC-PRIME
@@ -90,7 +76,7 @@ jobs:
         run: |
           node - <<'NODE'
           const fs = require('fs');
-          const path = 'compiler/kelplantis/dist/kelplantis-live-browser-e2e-proof.json';
+          const path = 'compiled/universal/game/kelplantis-mvp/kelplantis-live-browser-e2e-proof.json';
           if (!fs.existsSync(path)) throw new Error('proof artifact missing: ' + path);
           const p = JSON.parse(fs.readFileSync(path, 'utf8'));
           const required = [
@@ -99,7 +85,7 @@ jobs:
             'world_consequence_observed','floor_2_unlocked','state_survived_reload',
             'illegal_floor_2_entry_rejected'
           ];
-          if (p.schema !== 'bec/kelplantis/live-browser-e2e-proof/v2') throw new Error('wrong proof schema');
+          if (p.schema !== 'bec/kelplantis/live-browser-e2e-proof/v3') throw new Error('wrong proof schema');
           if (p.status !== 'PASS') throw new Error('proof status is not PASS');
           for (const k of required) if (p[k] !== true) throw new Error('proof assertion failed: ' + k);
           if (p.synthetic_events_counted_as_player_evidence !== false) throw new Error('synthetic evidence flag is unsafe');
@@ -116,7 +102,7 @@ jobs:
         with:
           name: kelplantis-live-browser-e2e-proof
           path: |
-            BEC-PRIME/compiler/kelplantis/dist/kelplantis-live-browser-e2e-proof.json
-            BEC-PRIME/compiler/kelplantis/dist/kelplantis-live-browser-e2e-proof.sha256
+            BEC-PRIME/compiled/universal/game/kelplantis-mvp/kelplantis-live-browser-e2e-proof.json
+            BEC-PRIME/compiled/universal/game/kelplantis-mvp/kelplantis-live-browser-e2e-proof.sha256
             BEC-PRIME/compiler/kelplantis/dist/*.html
           if-no-files-found: warn
