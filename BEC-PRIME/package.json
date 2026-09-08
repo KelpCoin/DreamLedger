@@ -41,6 +41,8 @@
     "autonomy:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-Autonomy.ps1",
     "activate:first-revenue": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Activate-FirstRevenue.ps1",
     "control-plane:test": "node control-plane/ControlLoop.test.js",
+    "publication-admission:test": "node scripts/check-publication-admission.test.js",
+    "publication-admission:check": "node scripts/check-publication-admission.js",
     "kelplantis:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1 -HealthOnly",
     "kelplantis:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1",
     "kelplantis:test": "node compiler/kelplantis/KelplantisFloorProfiles.test.js && node compiler/kelplantis/KelplantisHistory.test.js && node compiler/kelplantis/KelplantisDungeonGenerator.test.js",
