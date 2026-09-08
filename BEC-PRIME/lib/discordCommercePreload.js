@@ -10,11 +10,12 @@ if (!global.__dreamledgerDiscordCommercePreload) {
   const ZIP = path.join(PUBLIC_ROOT, 'downloads', 'discord-webhook-starter-kit.zip');
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
   const STRIPE_PRICE_ID = process.env.DISCORD_STARTER_STRIPE_PRICE_ID || 'price_1U4FWXEGgEAnUFF9Pyazprfo';
+  const SERVICE_BASE = (process.env.SERVICE_PUBLIC_BASE_URL || 'https://dreamledger1.onrender.com').replace(/\/$/, '');
   const PRODUCT_ID = 'DISCORD-WEBHOOK-STARTER-KIT-001';
 
   function send(res, status, body) {
     if (res.writableEnded) return;
-    res.writeHead(status, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
+    res.writeHead(status, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'https://dreamledger.org'});
     res.end(JSON.stringify(body));
   }
 
@@ -56,7 +57,7 @@ if (!global.__dreamledgerDiscordCommercePreload) {
           const sessionId = new URL(req.url || '/', 'https://dreamledger.org').searchParams.get('session_id');
           await verifyPaidSession(sessionId);
           if (!fs.existsSync(ZIP)) throw new Error('Digital package is not published yet');
-          send(res, 200, {ok:true,product_id:PRODUCT_ID,download_url:'/downloads/discord-webhook-starter-kit.zip?session_id='+encodeURIComponent(sessionId)});
+          send(res, 200, {ok:true,product_id:PRODUCT_ID,download_url:SERVICE_BASE+'/downloads/discord-webhook-starter-kit.zip?session_id='+encodeURIComponent(sessionId)});
         } catch (err) { send(res, 402, {error:err.message || 'Fulfillment unavailable'}); }
         return;
       }
