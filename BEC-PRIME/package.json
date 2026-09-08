@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node -r ./lib/authRuntimePreload.js start.js",
     "build": "npm run compile",
-    "compile": "npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:economic && npm run compile:surface && node scripts/EnsureAccountVerificationSurface.js && npm run compile:price && npm run compile:public-contract && npm run compile:silos && node scripts/verify-public-surface.js",
     "compile:products": "node compiler/ProductCompiler.js",
     "compile:offers": "node compiler/OfferCompiler.js",
     "compile:qr": "node compiler/QRCompiler.js",
@@ -16,6 +15,7 @@
     "compile:price": "node compiler/PriceDisplayPatch.js",
     "compile:public-contract": "node compiler/PublicSurfaceContractPatch.js",
     "compile:silos": "node compiler/SiloPortfolioCompiler.js",
+    "compile": "npm run compile:products && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:economic && npm run compile:surface && node scripts/EnsureAccountVerificationSurface.js && npm run compile:price && npm run compile:public-contract && npm run compile:silos && node scripts/verify-public-surface.js",
     "compile:universal": "node scripts/Smoke-UniversalCompiler.js",
     "verify:integration": "node scripts/verify-commercial-integration.js",
     "verify:economic-contract": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-EconomicContract.ps1",
@@ -40,6 +40,7 @@
     "autonomy:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Install-Autonomy.ps1",
     "autonomy:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-Autonomy.ps1",
     "activate:first-revenue": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Activate-FirstRevenue.ps1",
+    "control-plane:test": "node control-plane/ControlLoop.test.js",
     "kelplantis:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1 -HealthOnly",
     "kelplantis:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Run-Kelplantis.ps1",
     "kelplantis:test": "node compiler/kelplantis/KelplantisFloorProfiles.test.js && node compiler/kelplantis/KelplantisHistory.test.js && node compiler/kelplantis/KelplantisDungeonGenerator.test.js",
