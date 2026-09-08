@@ -46,8 +46,8 @@ jobs:
       - name: Validate required Supabase secrets
         shell: bash
         run: |
-          test -n "$SUPABASE_URL" || { echo "Missing KELPLANTIS_SUPABASE_URL"; exit 1; }
-          test -n "$SUPABASE_ANON_KEY" || { echo "Missing KELPLANTIS_SUPABASE_ANON_KEY"; exit 1; }
+          test -n "$KELPLANTIS_SUPABASE_URL" || { echo "Missing KELPLANTIS_SUPABASE_URL"; exit 1; }
+          test -n "$KELPLANTIS_SUPABASE_ANON_KEY" || { echo "Missing KELPLANTIS_SUPABASE_ANON_KEY"; exit 1; }
 
       - name: Start compiled client
         working-directory: BEC-PRIME
