@@ -1,0 +1,51 @@
+name: Verify Zero-Touch Products
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+      - 'BEC-PRIME/commerce/DISCORD_WEBHOOK_STARTER_KIT.json'
+      - 'BEC-PRIME/lib/mtgDiagnosticFulfillment.js'
+      - 'BEC-PRIME/routes/mtgDiagnostic.js'
+      - 'BEC-PRIME/lib/discordCommercePreload.js'
+      - 'BEC-PRIME/products/discord-webhook-starter-kit/**'
+      - 'public/discord-starter-kit.html'
+      - 'public/discord/starter-kit-success.html'
+      - '.github/workflows/verify-zero-touch-products.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Commander zero-touch contract
+        run: |
+          set -euo pipefail
+          node -e "const p=require('./BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'); if(p.status!=='published') throw Error('Commander not published'); if(p.commercial_truth.approval_required!==false) throw Error('Commander approval required'); if(p.fulfilment.mode!=='automated') throw Error('Commander fulfillment not automated'); if(p.fulfilment.operator_required!==false) throw Error('Commander operator required'); if(!p.fulfilment.report_endpoint.includes('/api/mtg/diagnostic/report')) throw Error('Commander report endpoint missing'); console.log('COMMANDER_ZERO_TOUCH_CONTRACT=PASS')"
+          node --check BEC-PRIME/lib/mtgDiagnosticFulfillment.js
+          node --check BEC-PRIME/routes/mtgDiagnostic.js
+          grep -q 'module.exports={handle,handleWebhook}' BEC-PRIME/routes/mtgDiagnostic.js
+          grep -q 'fulfillPaidSession' BEC-PRIME/routes/mtgDiagnostic.js
+
+      - name: Verify Discord zero-touch contract
+        run: |
+          set -euo pipefail
+          node -e "const p=require('./BEC-PRIME/commerce/DISCORD_WEBHOOK_STARTER_KIT.json'); if(p.delivery.mode!=='automated') throw Error('Discord fulfillment not automated'); if(p.delivery.operator_required!==false) throw Error('Discord operator required'); if(p.approval.required_for_sale!==false) throw Error('Discord sale approval required'); if(!p.delivery.download_endpoint.includes('session_id')) throw Error('Discord paid download gate missing'); console.log('DISCORD_ZERO_TOUCH_CONTRACT=PASS')"
+          node --check BEC-PRIME/lib/discordCommercePreload.js
+          node --check BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          grep -q 'payment_status !== '\''paid'\''' BEC-PRIME/lib/discordCommercePreload.js
+          grep -q 'timingSafeEqual' BEC-PRIME/products/discord-webhook-starter-kit/server.js
+          test -s public/discord-starter-kit.html
+          test -s public/discord/starter-kit-success.html
+
+      - name: Verify no operator language in zero-touch product contracts
+        run: |
+          set -euo pipefail
+          if grep -nE 'human_approval|required_for_sale[^:]*:[[:space:]]*true|operator_required[^:]*:[[:space:]]*true' BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json BEC-PRIME/commerce/DISCORD_WEBHOOK_STARTER_KIT.json; then
+            echo 'ZERO_TOUCH_CONTRACT=FAIL'
+            exit 1
+          fi
+          echo 'ZERO_TOUCH_CONTRACT=PASS'
