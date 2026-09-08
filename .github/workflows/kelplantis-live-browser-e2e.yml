@@ -66,8 +66,6 @@ jobs:
         env:
           KELPLANTIS_SUPABASE_URL: ${{ env.SUPABASE_URL }}
           KELPLANTIS_SUPABASE_ANON_KEY: ${{ env.SUPABASE_ANON_KEY }}
-          KELPLANTIS_PLAYER_TOKEN: ${{ steps.mint.outputs.player_token }}
-          KELPLANTIS_PLAYER_ID: ${{ steps.mint.outputs.player_id }}
         run: npx playwright test scripts/KelplantisLiveBrowserE2E.spec.js --reporter=line
 
       - name: Validate machine-readable proof
@@ -83,14 +81,14 @@ jobs:
             'player_created','floor_1_entered','movement_authoritative',
             'encounter_authoritative','combat_authoritative','boss_clear_authoritative',
             'world_consequence_observed','floor_2_unlocked','state_survived_reload',
-            'illegal_floor_2_entry_rejected'
+            'illegal_floor_2_entry_rejected','illegal_boss_clear_rejected','illegal_world_mutation_rejected'
           ];
           if (p.schema !== 'bec/kelplantis/live-browser-e2e-proof/v3') throw new Error('wrong proof schema');
           if (p.status !== 'PASS') throw new Error('proof status is not PASS');
           for (const k of required) if (p[k] !== true) throw new Error('proof assertion failed: ' + k);
           if (p.synthetic_events_counted_as_player_evidence !== false) throw new Error('synthetic evidence flag is unsafe');
           if (!p.after_gate || p.after_gate.unlocked !== true) throw new Error('Floor 2 gate not unlocked');
-          if (!p.floor_progress || Number(p.floor_progress.highest_unlocked_floor) < 2) throw new Error('highest unlocked floor < 2');
+          if (!p.floor_progress || !p.floor_progress['1'] || p.floor_progress['1'].bossDefeated !== true) throw new Error('authoritative boss clear missing');
           if (!Array.isArray(p.console_errors) || p.console_errors.length) throw new Error('browser console errors present');
           if (!p.evidence_sha256) throw new Error('evidence_sha256 missing');
           console.log('LIVE E2E PROOF VALID: PASS');
@@ -104,5 +102,5 @@ jobs:
           path: |
             BEC-PRIME/compiled/universal/game/kelplantis-mvp/kelplantis-live-browser-e2e-proof.json
             BEC-PRIME/compiled/universal/game/kelplantis-mvp/kelplantis-live-browser-e2e-proof.sha256
-            BEC-PRIME/compiler/kelplantis/dist/*.html
+            BEC-PRIME/compiled/universal/game/kelplantis-mvp/index.html
           if-no-files-found: warn
