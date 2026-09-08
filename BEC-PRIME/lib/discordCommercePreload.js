@@ -18,10 +18,17 @@ if (!global.__dreamledgerDiscordCommercePreload) {
     res.end(JSON.stringify(body));
   }
 
+  function servePublic(file, res, contentType) {
+    try {
+      res.writeHead(200, {'Content-Type':contentType,'Cache-Control':'no-store'});
+      res.end(fs.readFileSync(file));
+    } catch { send(res, 503, {error:'Public commerce surface unavailable'}); }
+  }
+
   async function verifyPaidSession(sessionId) {
     if (!STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not configured');
     if (!/^cs_[A-Za-z0-9_]+$/.test(String(sessionId))) throw new Error('Invalid checkout session');
-    const target = new URL('https://api.stripe.com/v1/checkout/sessions/' + encodeURIComponent(sessionId));
+    const target = new URL('https://api.stripe.com/v1/checkout/sessions/' + encodeURIComponent(sessionId) + '?expand[]=line_items');
     const response = await fetch(target, {headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
     const data = await response.json();
     if (!response.ok) throw new Error(data?.error?.message || 'Stripe session lookup failed');
@@ -36,12 +43,12 @@ if (!global.__dreamledgerDiscordCommercePreload) {
   http.createServer = function wrappedCreateServer(handler) {
     return originalCreateServer.call(this, async function discordCommerceHandler(req, res) {
       const route = String(req.url || '').split('?')[0];
+      if (req.method === 'GET' && route === '/discord-starter-kit.html') {
+        servePublic(path.join(PUBLIC_ROOT, 'discord-starter-kit.html'), res, 'text/html; charset=utf-8');
+        return;
+      }
       if (req.method === 'GET' && route === '/discord/starter-kit-success.html') {
-        try {
-          const file = path.join(PUBLIC_ROOT, 'discord', 'starter-kit-success.html');
-          res.writeHead(200, {'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});
-          res.end(fs.readFileSync(file));
-        } catch { send(res, 503, {error:'Fulfillment surface unavailable'}); }
+        servePublic(path.join(PUBLIC_ROOT, 'discord', 'starter-kit-success.html'), res, 'text/html; charset=utf-8');
         return;
       }
       if (req.method === 'GET' && route === '/api/discord/starter-kit/download') {
