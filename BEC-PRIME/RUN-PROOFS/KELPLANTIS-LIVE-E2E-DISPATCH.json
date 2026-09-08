@@ -1,0 +1,6 @@
+{
+  "schema": "bec/kelplantis/live-e2e-dispatch/v1",
+  "requested_at": "2026-09-09T11:46:00+12:00",
+  "purpose": "Trigger live browser E2E on the isolated authoritative Kelplantis branch.",
+  "approval": "user-directed"
+}
