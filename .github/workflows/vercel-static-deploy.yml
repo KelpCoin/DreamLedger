@@ -26,6 +26,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment:
+      name: production
+      url: https://dreamledger.org
     steps:
       - name: Checkout exact selected commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -178,7 +181,7 @@ jobs:
           DEPLOY_URL="$(tail -1 "$RUNNER_TEMP/vercel-deploy-url.txt")"
           HTTP_PROOF="$(cat "$RUNNER_TEMP/http-proof.json")"
           DOMAIN_PROOF="$(cat "$RUNNER_TEMP/domain-proof.json")"
-          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s,"publication_admission":"REQUIRED_BEFORE_DEPLOY"}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" > proof/vercel-static-deploy-proof.json
+          printf '{"workflow":"vercel-static-deploy","sha":"%s","run_id":"%s","status":"HTTP_VERIFIED","project":"dreamledger","scope":"team_HNsRrUI7JZV4iwejNlqJjXvR","deployment_url":"%s","http_proof":%s,"domain_proof":%s,"publication_admission":"REQUIRED_BEFORE_DEPLOY","github_environment":"production"}\n' "$SHA" "$RUN_ID" "$DEPLOY_URL" "$HTTP_PROOF" "$DOMAIN_PROOF" > proof/vercel-static-deploy-proof.json
           cat proof/vercel-static-deploy-proof.json
 
       - name: Upload deployment proof
