@@ -17,6 +17,21 @@
       "checkout_url": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00"
     },
     {
+      "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "sku": "DISCORD_WEBHOOK_STARTER_KIT",
+      "silo": "bec-prime",
+      "name": "Discord Webhook Starter Kit",
+      "description": "A downloadable Stripe-to-Discord webhook starter kit with verified payment handling, code templates and setup guide.",
+      "price": 79,
+      "currency": "nzd",
+      "inventory": 999,
+      "inventory_type": "digital",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "fulfillment": "automatic_paid_session_download"
+    },
+    {
       "id": "EDH_0001",
       "silo": "mtg",
       "name": "EDH_0001 Commander Deck",
