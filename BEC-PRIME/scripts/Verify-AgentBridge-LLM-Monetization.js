@@ -37,7 +37,7 @@ function main() {
   expect('Claude delivery contract', () => assert.strictEqual(canEmit('claude', 'DELIVERY_ASSESSMENT', 'evaluation'), true));
   expect('ChatGPT court contract', () => assert.strictEqual(canEmit('chatgpt', 'COURT_REVIEW', 'evaluation'), true));
   expect('Luna court contract', () => assert.strictEqual(canEmit('luna', 'COURT_VERDICT', 'evaluation'), true));
-  expect('DeepSeek evidence contract', () => assert.strictEqual(canEmit('deepseek', 'EVIDENCE_ATTACHED', 'evidence'), true));
+  expect('DeepSeek proposal contract', () => assert.strictEqual(canEmit('deepseek', 'ACTION_PROPOSED', 'evaluation'), true));
 
   expect('provider cannot emit outside its role', () => assert.strictEqual(canEmit('grok', 'ACTION_APPROVED', 'approval'), false));
   expect('commercial reference is advisory', () => {
