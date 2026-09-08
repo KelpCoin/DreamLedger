@@ -9,100 +9,114 @@ on:
 permissions:
   contents: read
 
+env:
+  NODE_VERSION: 22
+  SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY }}
+
 jobs:
   live-floor1-e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout exact branch commit
+      - name: Checkout exact commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
 
       - name: Install dependencies
         working-directory: BEC-PRIME
-        run: npm install --no-audit --no-fund
+        run: npm ci
 
       - name: Install Chromium
+        working-directory: BEC-PRIME
         run: npx playwright install --with-deps chromium
 
       - name: Compile Kelplantis
         working-directory: BEC-PRIME
         run: node compiler/kelplantis/KelplantisTargetCompiler.js
 
-      - name: Serve compiled client
+      - name: Validate required Supabase secrets
+        shell: bash
+        run: |
+          test -n "$SUPABASE_URL" || { echo "Missing KELPLANTIS_SUPABASE_URL"; exit 1; }
+          test -n "$SUPABASE_ANON_KEY" || { echo "Missing KELPLANTIS_SUPABASE_ANON_KEY"; exit 1; }
+
+      - name: Start compiled client
         working-directory: BEC-PRIME
         run: |
-          python3 -m http.server 4173 --directory compiled/universal/game/kelplantis-mvp >/tmp/kelplantis-http.log 2>&1 &
-          echo $! >/tmp/kelplantis-http.pid
-          sleep 2
-          curl --fail --silent http://127.0.0.1:4173/ >/dev/null
+          nohup npx http-server compiler/kelplantis/dist -p 4173 -a 127.0.0.1 > /tmp/kelplantis-http.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/kelplantis-http.log
+          exit 1
 
-      - name: Mint fresh isolated player token
-        env:
-          KELPLANTIS_SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL }}
-          KELPLANTIS_SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY }}
+      - name: Mint isolated player through real RPC
+        id: mint
+        shell: bash
         run: |
-          set -euo pipefail
-          test -n "$KELPLANTIS_SUPABASE_URL"
-          test -n "$KELPLANTIS_SUPABASE_ANON_KEY"
-          PLAYER_NAME="E2E-$(date -u +%Y%m%d%H%M%S)-${GITHUB_RUN_ID}"
-          RESPONSE=$(curl --fail --silent --show-error \
-            -X POST "$KELPLANTIS_SUPABASE_URL/rest/v1/rpc/kelplantis_create_player" \
-            -H "apikey: $KELPLANTIS_SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $KELPLANTIS_SUPABASE_ANON_KEY" \
+          payload=$(node -e 'process.stdout.write(JSON.stringify({name:"CI-E2E-"+process.env.GITHUB_RUN_ID,color_hue:180}))')
+          response=$(curl -fsS "$SUPABASE_URL/rest/v1/rpc/kelplantis_create_player" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
             -H "Content-Type: application/json" \
-            --data "{\"p_name\":\"$PLAYER_NAME\",\"p_color_hue\":140}")
-          PLAYER_TOKEN=$(printf '%s' "$RESPONSE" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const p=JSON.parse(s);if(!p.player_token)process.exit(2);process.stdout.write(p.player_token)})")
-          test -n "$PLAYER_TOKEN"
-          {
-            echo "KELPLANTIS_PLAYER_TOKEN=$PLAYER_TOKEN"
-            echo "KELPLANTIS_E2E_PLAYER_NAME=$PLAYER_NAME"
-          } >> "$GITHUB_ENV"
+            --data "$payload")
+          token=$(printf '%s' "$response" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const x=JSON.parse(s); if(!x.player_token) process.exit(2); process.stdout.write(x.player_token)})')
+          echo "player_token=$token" >> "$GITHUB_OUTPUT"
+          echo "player_id=$(printf '%s' "$response" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const x=JSON.parse(s); process.stdout.write(x.id||"")})')" >> "$GITHUB_OUTPUT"
 
-      - name: Execute live Floor 1 browser journey
+      - name: Run live browser journey
         working-directory: BEC-PRIME
         env:
-          KELPLANTIS_SUPABASE_URL: ${{ secrets.KELPLANTIS_SUPABASE_URL }}
-          KELPLANTIS_SUPABASE_ANON_KEY: ${{ secrets.KELPLANTIS_SUPABASE_ANON_KEY }}
-          KELPLANTIS_PLAYER_TOKEN: ${{ env.KELPLANTIS_PLAYER_TOKEN }}
+          KELPLANTIS_SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          KELPLANTIS_SUPABASE_ANON_KEY: ${{ env.SUPABASE_ANON_KEY }}
+          KELPLANTIS_PLAYER_TOKEN: ${{ steps.mint.outputs.player_token }}
+          KELPLANTIS_PLAYER_ID: ${{ steps.mint.outputs.player_id }}
         run: npx playwright test scripts/KelplantisLiveBrowserSmoke.spec.js --reporter=line
 
       - name: Validate machine-readable proof
         working-directory: BEC-PRIME
+        shell: bash
         run: |
-          set -euo pipefail
-          test -s RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json
           node - <<'NODE'
           const fs = require('fs');
-          const p = JSON.parse(fs.readFileSync('./RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json', 'utf8'));
+          const path = 'compiler/kelplantis/dist/kelplantis-live-browser-e2e-proof.json';
+          if (!fs.existsSync(path)) throw new Error('proof artifact missing: ' + path);
+          const p = JSON.parse(fs.readFileSync(path, 'utf8'));
           const required = [
-            'player_created', 'floor_1_entered', 'movement_authoritative',
-            'encounter_authoritative', 'combat_authoritative',
-            'boss_clear_authoritative', 'world_consequence_observed',
-            'floor_2_unlocked', 'state_survived_reload',
-            'illegal_floor_2_entry_rejected',
-            'synthetic_events_counted_as_player_evidence'
+            'player_created','floor_1_entered','movement_authoritative',
+            'encounter_authoritative','combat_authoritative','boss_clear_authoritative',
+            'world_consequence_observed','floor_2_unlocked','state_survived_reload',
+            'illegal_floor_2_entry_rejected'
           ];
-          if (p.schema !== 'bec/kelplantis/live-browser-e2e-proof/v2') process.exit(1);
-          if (p.status !== 'PASS') process.exit(1);
-          for (const key of required) {
-            if (p[key] !== true && key !== 'synthetic_events_counted_as_player_evidence') process.exit(1);
-          }
-          if (p.synthetic_events_counted_as_player_evidence !== false) process.exit(1);
-          if (!p.after_gate || p.after_gate.unlocked !== true) process.exit(1);
-          if (!p.floor_progress || p.floor_progress.highest_unlocked_floor < 2) process.exit(1);
-          if (!Array.isArray(p.console_errors) || p.console_errors.length !== 0) process.exit(1);
-          if (!p.evidence_sha256) process.exit(1);
-          console.log(JSON.stringify(p, null, 2));
+          if (p.schema !== 'bec/kelplantis/live-browser-e2e-proof/v2') throw new Error('wrong proof schema');
+          if (p.status !== 'PASS') throw new Error('proof status is not PASS');
+          for (const k of required) if (p[k] !== true) throw new Error('proof assertion failed: ' + k);
+          if (p.synthetic_events_counted_as_player_evidence !== false) throw new Error('synthetic evidence flag is unsafe');
+          if (!p.after_gate || p.after_gate.unlocked !== true) throw new Error('Floor 2 gate not unlocked');
+          if (!p.floor_progress || Number(p.floor_progress.highest_unlocked_floor) < 2) throw new Error('highest unlocked floor < 2');
+          if (!Array.isArray(p.console_errors) || p.console_errors.length) throw new Error('browser console errors present');
+          if (!p.evidence_sha256) throw new Error('evidence_sha256 missing');
+          console.log('LIVE E2E PROOF VALID: PASS');
           NODE
 
       - name: Upload proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kelplantis-live-browser-e2e-proof
-          path: BEC-PRIME/RUN-PROOFS/KELPLANTIS-LIVE-BROWSER-E2E-PROOF.json
-          if-no-files-found: error
+          path: |
+            BEC-PRIME/compiler/kelplantis/dist/kelplantis-live-browser-e2e-proof.json
+            BEC-PRIME/compiler/kelplantis/dist/kelplantis-live-browser-e2e-proof.sha256
+            BEC-PRIME/compiler/kelplantis/dist/*.html
+          if-no-files-found: warn
