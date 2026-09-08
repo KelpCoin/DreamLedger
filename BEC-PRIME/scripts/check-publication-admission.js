@@ -2,6 +2,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const fs = require('fs');
 
 function required(name) {
   const value = process.env[name];
@@ -13,12 +14,19 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
 }
 
+function setOutput(name, value) {
+  const target = process.env.GITHUB_OUTPUT;
+  if (!target) return;
+  fs.appendFileSync(target, `${name}=${String(value).replace(/\r?\n/g, ' ')}\n`, 'utf8');
+}
+
 async function main() {
   const baseUrl = required('SUPABASE_URL').replace(/\/$/, '');
   const serviceRoleKey = required('SUPABASE_SERVICE_ROLE_KEY');
   const candidateKey = required('PUBLICATION_CANDIDATE_KEY');
   const candidateType = process.env.PUBLICATION_CANDIDATE_TYPE || 'RELEASE';
   const expectedHash = process.env.PUBLICATION_CANDIDATE_SHA256 || sha256(candidateKey);
+  const allowHumanRequired = process.env.PUBLICATION_ALLOW_HUMAN_REQUIRED === 'true';
 
   if (!/^[a-f0-9]{64}$/i.test(expectedHash)) {
     throw new Error('PUBLICATION_CANDIDATE_SHA256 must be a 64-character SHA-256 hex digest');
@@ -55,15 +63,7 @@ async function main() {
   if (admission.candidate_key !== candidateKey) throw new Error('PUBLICATION_BLOCKED: candidate key mismatch');
   if (admission.candidate_type !== candidateType) throw new Error('PUBLICATION_BLOCKED: candidate type mismatch');
 
-  if (admission.policy_decision === 'HUMAN_REQUIRED') {
-    throw new Error('PUBLICATION_BLOCKED: HUMAN_REQUIRED');
-  }
-  if (!admission.admitted || !['ALLOW', 'ALLOW_WITH_CAVEATS'].includes(admission.policy_decision)) {
-    throw new Error(`PUBLICATION_BLOCKED: admission=${admission.policy_decision || 'UNKNOWN'} oracle=${admission.oracle_verdict || 'UNKNOWN'} gauntlet=${admission.gauntlet_verdict || 'UNKNOWN'} reason=${admission.denial_reason || 'not admitted'}`);
-  }
-
-  console.log(JSON.stringify({
-    status: 'PUBLICATION_ADMITTED',
+  const base = {
     admission_id: admission.id,
     candidate_key: candidateKey,
     candidate_sha256: expectedHash,
@@ -76,7 +76,27 @@ async function main() {
     ci_verified: admission.ci_verified,
     human_approval_required: admission.human_approval_required,
     human_approved: admission.human_approved
-  }));
+  };
+
+  if (admission.policy_decision === 'HUMAN_REQUIRED') {
+    if (!allowHumanRequired) throw new Error('PUBLICATION_BLOCKED: HUMAN_REQUIRED');
+    setOutput('status', 'pending_human');
+    setOutput('environment', 'production');
+    setOutput('admission_id', admission.id);
+    setOutput('candidate_sha256', expectedHash);
+    console.log(JSON.stringify({ status: 'PUBLICATION_PENDING_HUMAN', ...base }));
+    return;
+  }
+
+  if (!admission.admitted || admission.policy_decision !== 'ALLOW') {
+    throw new Error(`PUBLICATION_BLOCKED: admission=${admission.policy_decision || 'UNKNOWN'} oracle=${admission.oracle_verdict || 'UNKNOWN'} gauntlet=${admission.gauntlet_verdict || 'UNKNOWN'} reason=${admission.denial_reason || 'not admitted'}`);
+  }
+
+  setOutput('status', 'approved');
+  setOutput('environment', 'production-auto');
+  setOutput('admission_id', admission.id);
+  setOutput('candidate_sha256', expectedHash);
+  console.log(JSON.stringify({ status: 'PUBLICATION_ADMITTED', ...base }));
 }
 
 main().catch((error) => {
