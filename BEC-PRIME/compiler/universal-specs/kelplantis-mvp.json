@@ -2,7 +2,7 @@
   "id": "kelplantis-mvp",
   "target": "game",
   "name": "Kelplantis MVP",
-  "description": "Playable Windows-friendly Kelplantis PvE ARPG vertical slice: town, combat zone, goblins, deterministic dungeon, loot, XP, leveling, and save/load.",
+  "description": "Playable Windows-friendly Kelplantis PvE ARPG vertical slice: town, authoritative combat zone, deterministic dungeon, loot, XP, leveling, and server persistence.",
   "game": {
     "profile": "kelplantis-mvp",
     "width": 960,
@@ -11,8 +11,7 @@
       "worldSeed": "kelplantis-mvp-world",
       "floorId": 1,
       "bossId": "kelp_floor1_boss",
-      "floorVersion": "1",
-      "roomCount": 14
+      "floorVersion": "1"
     },
     "town": {
       "x": 70,
@@ -48,8 +47,10 @@
       ]
     },
     "save": {
-      "slot": "kelplantis-mvp-slot-1",
-      "storage": "localStorage"
+      "slot": "kelplantis-authoritative-player",
+      "storage": "supabase_rpc",
+      "client_storage": "sessionStorage_player_token_only",
+      "game_state_authority": "supabase"
     }
   }
 }
