@@ -35,8 +35,7 @@ function main() {
 
   expect('Grok discovery contract', () => assert.strictEqual(canEmit('grok', 'CANDIDATE_FOUND', 'discovery'), true));
   expect('Claude delivery contract', () => assert.strictEqual(canEmit('claude', 'DELIVERY_ASSESSMENT', 'evaluation'), true));
-  expect('ChatGPT economic discovery contract', () => assert.strictEqual(canEmit('chatgpt', 'CANDIDATE_FOUND', 'discovery'), true));
-  expect('ChatGPT court contract', () => assert.strictEqual(canEmit('chatgpt', 'COURT_REVIEW', 'evaluation'), true));
+  expect('ChatGPT economic relay contract', () => assert.strictEqual(canEmit('chatgpt', 'COURT_REVIEW', 'evaluation'), true));
   expect('Luna court contract', () => assert.strictEqual(canEmit('luna', 'COURT_VERDICT', 'evaluation'), true));
   expect('DeepSeek proposal contract', () => assert.strictEqual(canEmit('deepseek', 'ACTION_PROPOSED', 'evaluation'), true));
 
