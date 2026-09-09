@@ -35,6 +35,7 @@ function main() {
 
   expect('Grok discovery contract', () => assert.strictEqual(canEmit('grok', 'CANDIDATE_FOUND', 'discovery'), true));
   expect('Claude delivery contract', () => assert.strictEqual(canEmit('claude', 'DELIVERY_ASSESSMENT', 'evaluation'), true));
+  expect('ChatGPT economic discovery contract', () => assert.strictEqual(canEmit('chatgpt', 'CANDIDATE_FOUND', 'discovery'), true));
   expect('ChatGPT court contract', () => assert.strictEqual(canEmit('chatgpt', 'COURT_REVIEW', 'evaluation'), true));
   expect('Luna court contract', () => assert.strictEqual(canEmit('luna', 'COURT_VERDICT', 'evaluation'), true));
   expect('DeepSeek proposal contract', () => assert.strictEqual(canEmit('deepseek', 'ACTION_PROPOSED', 'evaluation'), true));
@@ -67,6 +68,17 @@ function main() {
     assert.strictEqual(typeof AgentBridgeClient.prototype.approveAction, 'undefined');
   });
 
+  expect('ChatGPT commercial candidate is routed for multi-agent economic review', () => {
+    const client = new AgentBridgeClient({
+      baseUrl: 'https://dreamledger.org',
+      token: 'test',
+      agent: 'chatgpt'
+    });
+    assert.strictEqual(canEmit('chatgpt', 'COURT_REVIEW', 'evaluation'), true);
+    assert.deepStrictEqual(AGENT_PROFILES.chatgpt.next_agents, ['claude', 'grok', 'truth_oracle', 'gauntlet']);
+    assert.equal(typeof client.commercialCandidate, 'function');
+  });
+
   expect('commercial preparation cannot declare revenue', () => {
     const ref = commercialEvidence({
       offer_id: 'AUT_0001',
@@ -93,7 +105,7 @@ function main() {
       'authenticated DeepSeek request against production AgentBridge',
       'persisted event_id and correlation_id',
       'duplicate replay returns idempotent=true',
-      'commercial candidate reaches Truth Oracle/Gauntlet without becoming a live offer',
+      'commercial candidate reaches Claude/Grok/Truth Oracle/Gauntlet without becoming a live offer',
       'human approval remains required before consequential execution',
       'real stranger payment remains the only RA_000001 authority'
     ],
