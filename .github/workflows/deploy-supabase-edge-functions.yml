@@ -43,16 +43,14 @@ jobs:
           test -s "supabase/functions/${FUNCTION_NAME}/deno.json"
           grep -F 'constructEventAsync' "supabase/functions/${FUNCTION_NAME}/index.ts"
           grep -F 'STRIPE_WEBHOOK_SECRET' "supabase/functions/${FUNCTION_NAME}/index.ts"
-          grep -F 'payment.verified' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'stripe_webhook_events' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'control_reconciliations' "supabase/functions/${FUNCTION_NAME}/index.ts"
 
       - name: Deploy canonical Edge Function
         shell: bash
         run: |
           set -euo pipefail
-          supabase functions deploy "${FUNCTION_NAME}" \
-            --project-ref "${PROJECT_ID}" \
-            --no-verify-jwt \
-            --import-map "supabase/functions/${FUNCTION_NAME}/deno.json"
+          supabase functions deploy "${FUNCTION_NAME}"             --project-ref "${PROJECT_ID}"             --no-verify-jwt             --import-map "supabase/functions/${FUNCTION_NAME}/deno.json"
 
       - name: Verify deployed function health
         shell: bash
@@ -61,6 +59,8 @@ jobs:
           body="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 "${FUNCTION_URL}")"
           echo "${body}" | grep -F '"status":"healthy"'
           echo "${body}" | grep -F "${FUNCTION_NAME}"
+          echo "${body}" | grep -F 'stripe_webhook_events'
+          echo "${body}" | grep -F 'control_reconciliations'
 
       - name: Record deployment identity
         shell: bash
