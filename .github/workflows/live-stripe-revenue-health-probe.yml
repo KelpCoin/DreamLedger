@@ -1,0 +1,106 @@
+name: LIVE Stripe Revenue Health Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      probe_url:
+        description: "Target URL (override only for debugging)"
+        required: false
+        default: "https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc"
+        type: string
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      TARGET_URL: ${{ inputs.probe_url }}
+
+    steps:
+      - name: Probe live endpoint
+        id: probe
+        shell: bash
+        run: |
+          set -u
+
+          mkdir -p probe-artifact
+          BODY_FILE="probe-artifact/response-body.txt"
+          META_FILE="probe-artifact/probe.json"
+          HTTP_FILE="probe-artifact/http-status.txt"
+
+          STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          HTTP_STATUS="000"
+          CURL_EXIT=0
+
+          curl --silent --show-error --location --max-time 20 \
+            --output "$BODY_FILE" \
+            --write-out '%{http_code}' \
+            "$TARGET_URL" > "$HTTP_FILE" || CURL_EXIT=$?
+
+          if [ -s "$HTTP_FILE" ]; then
+            HTTP_STATUS="$(cat "$HTTP_FILE")"
+          fi
+
+          case "$HTTP_STATUS" in
+            2[0-9][0-9]) CLASSIFICATION="PASS" ;;
+            4[0-9][0-9]|5[0-9][0-9]) CLASSIFICATION="FAIL" ;;
+            *) CLASSIFICATION="UNKNOWN" ;;
+          esac
+
+          FINISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          jq -n \
+            --arg target_url "$TARGET_URL" \
+            --arg started_at "$STARTED_AT" \
+            --arg finished_at "$FINISHED_AT" \
+            --arg http_status "$HTTP_STATUS" \
+            --arg classification "$CLASSIFICATION" \
+            --arg curl_exit "$CURL_EXIT" \
+            --rawfile response_body "$BODY_FILE" \
+            '{
+              probe: "LIVE Stripe Revenue Health Probe",
+              target_url: $target_url,
+              started_at_utc: $started_at,
+              finished_at_utc: $finished_at,
+              http_status: $http_status,
+              classification: $classification,
+              curl_exit_code: ($curl_exit | tonumber),
+              response_body: $response_body,
+              evidence_boundary: {
+                proves_live_https_response: ($classification == "PASS" or $classification == "FAIL"),
+                proves_revenue: false,
+                proves_stripe_webhook_routing: false,
+                proves_customer_payment: false,
+                creates_synthetic_commerce: false,
+                seals_ra_000001: false
+              }
+            }' > "$META_FILE"
+
+          echo "HTTP_STATUS=$HTTP_STATUS" >> "$GITHUB_OUTPUT"
+          echo "CLASSIFICATION=$CLASSIFICATION" >> "$GITHUB_OUTPUT"
+          echo "CURL_EXIT=$CURL_EXIT" >> "$GITHUB_OUTPUT"
+
+          if [ "$CLASSIFICATION" = "UNKNOWN" ]; then
+            echo "Network-level probe failure; reachability is UNKNOWN."
+            exit 0
+          fi
+
+          echo "Live endpoint returned HTTP $HTTP_STATUS; classification=$CLASSIFICATION."
+
+      - name: Upload forensic probe artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-stripe-revenue-health-probe
+          path: probe-artifact/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Enforce probe result
+        if: steps.probe.outputs.CLASSIFICATION == 'FAIL'
+        shell: bash
+        run: |
+          echo "Live endpoint was reached but returned HTTP ${{ steps.probe.outputs.HTTP_STATUS }}."
+          exit 1
