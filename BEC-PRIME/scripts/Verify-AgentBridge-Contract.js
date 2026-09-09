@@ -58,7 +58,8 @@ async function main() {
   try {
     const manifest = await request(port, '/api/agent-bridge/manifest');
     assert.equal(manifest.status, 200);
-    assert.equal(manifest.json.schema_version, 'BECK-AGENT-BRIDGE-1.1');
+    assert.equal(manifest.json.schema_version, bridge.BRIDGE_SCHEMA_VERSION);
+    assert.equal(manifest.json.schema_version, 'BECK-AGENT-BRIDGE-1.2');
     assert.equal(manifest.json.authentication, 'x-dreamledger-agent-token');
     assert.equal(manifest.json.external_actions, 'human_approval_required');
     assert.equal(manifest.json.payment_truth, 'RA_000001 requires independently verified external payment');

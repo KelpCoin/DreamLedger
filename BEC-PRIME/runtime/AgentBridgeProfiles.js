@@ -20,10 +20,10 @@ const AGENT_PROFILES = Object.freeze({
     next_agents: ['truth_oracle', 'gauntlet']
   }),
   chatgpt: Object.freeze({
-    role: 'evaluation_and_court',
+    role: 'economic_evaluation_and_court',
     lanes: ['evaluation'],
     event_types: ['COURT_REVIEW', 'COURT_VERDICT'],
-    next_agents: ['truth_oracle', 'gauntlet']
+    next_agents: ['claude', 'grok', 'truth_oracle', 'gauntlet']
   }),
   luna: Object.freeze({
     role: 'court_and_adversarial_review',

@@ -106,6 +106,28 @@ class AgentBridgeClient {
   }
 
   commercialCandidate({ event_id, correlation_id, claim, offer_id, price_minor, currency = 'nzd', payment_ready = false, lattice_id = null, source_ref = null }) {
+    const evidence = commercialEvidence({ offer_id, price_minor, currency, payment_ready, lattice_id });
+    if (this.agent === 'chatgpt') {
+      return this.emit({
+        event_id,
+        correlation_id,
+        event_type: 'COURT_REVIEW',
+        agent: this.agent,
+        lane: 'evaluation',
+        silo_id: 'SILO_GENERAL',
+        source_system: this.agent,
+        source_ref: source_ref || null,
+        economic_intent: 'evaluate_paid_offer',
+        subject_type: 'offer_candidate',
+        subject_id: offer_id,
+        claim,
+        evidence: [evidence],
+        confidence: 0.5,
+        requested_action: 'route_to_claude_grok_truth_oracle_and_gauntlet',
+        suggested_next_agents: ['claude', 'grok', 'truth_oracle', 'gauntlet'],
+        ttl_seconds: 86400
+      });
+    }
     return this.candidate({
       event_id,
       correlation_id,
@@ -113,7 +135,7 @@ class AgentBridgeClient {
       subject_id: offer_id,
       source_ref,
       confidence: 0.5,
-      evidence: [commercialEvidence({ offer_id, price_minor, currency, payment_ready, lattice_id })]
+      evidence: [evidence]
     });
   }
 
