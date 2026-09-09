@@ -71,6 +71,7 @@ test('live authoritative Kelplantis Floor 1', async ({ page }) => {
   const token = created.player_token;
   await page.evaluate(v => sessionStorage.setItem('kelplantis_player_token', v), token);
   await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#scene')).toHaveText('TOWN', { timeout: 15000 });
 
   let p = await player(page, token);
   transition('player_created', null, { rpc: 'kelplantis_create_player' }, p);
