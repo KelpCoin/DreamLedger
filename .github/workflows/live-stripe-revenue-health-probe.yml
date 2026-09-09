@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       probe_url:
-        description: "Target URL (override only for debugging)"
+        description: "Target URL"
         required: false
         default: "https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc"
         type: string
@@ -30,22 +30,21 @@ jobs:
           META_FILE="probe-artifact/probe.json"
           HTTP_FILE="probe-artifact/http-status.txt"
 
-          # Strip markdown backticks and surrounding whitespace if a URL was pasted from a code span.
-          TARGET_URL="$(printf '%s' "$TARGET_URL" | tr -d '\`' | xargs)"
-          EXPECTED_URL="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc"
-          if [ "$TARGET_URL" != "$EXPECTED_URL" ]; then
-            echo "Refusing to probe unexpected target URL: $TARGET_URL"
-            exit 2
-          fi
+          TARGET_URL="$(printf '%s' "$TARGET_URL" | xargs)"
+
+          case "$TARGET_URL" in
+            https://*) ;;
+            *)
+              echo "Refusing non-HTTPS target URL: $TARGET_URL"
+              exit 2
+              ;;
+          esac
 
           STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           HTTP_STATUS="000"
           CURL_EXIT=0
 
-          curl --silent --show-error --location --max-time 20 \
-            --output "$BODY_FILE" \
-            --write-out '%{http_code}' \
-            "$TARGET_URL" > "$HTTP_FILE" || CURL_EXIT=$?
+          curl --silent --show-error --location --max-time 20             --output "$BODY_FILE"             --write-out '%{http_code}'             "$TARGET_URL" > "$HTTP_FILE" || CURL_EXIT=$?
 
           if [ -s "$HTTP_FILE" ]; then
             HTTP_STATUS="$(cat "$HTTP_FILE")"
@@ -59,15 +58,7 @@ jobs:
 
           FINISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          jq -n \
-            --arg target_url "$TARGET_URL" \
-            --arg started_at "$STARTED_AT" \
-            --arg finished_at "$FINISHED_AT" \
-            --arg http_status "$HTTP_STATUS" \
-            --arg classification "$CLASSIFICATION" \
-            --arg curl_exit "$CURL_EXIT" \
-            --rawfile response_body "$BODY_FILE" \
-            '{
+          jq -n             --arg target_url "$TARGET_URL"             --arg started_at "$STARTED_AT"             --arg finished_at "$FINISHED_AT"             --arg http_status "$HTTP_STATUS"             --arg classification "$CLASSIFICATION"             --arg curl_exit "$CURL_EXIT"             --rawfile response_body "$BODY_FILE"             '{
               probe: "LIVE Stripe Revenue Health Probe",
               target_url: $target_url,
               started_at_utc: $started_at,
