@@ -30,6 +30,14 @@ jobs:
           META_FILE="probe-artifact/probe.json"
           HTTP_FILE="probe-artifact/http-status.txt"
 
+          # Strip markdown backticks and surrounding whitespace if a URL was pasted from a code span.
+          TARGET_URL="$(printf '%s' "$TARGET_URL" | tr -d '\`' | xargs)"
+          EXPECTED_URL="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc"
+          if [ "$TARGET_URL" != "$EXPECTED_URL" ]; then
+            echo "Refusing to probe unexpected target URL: $TARGET_URL"
+            exit 2
+          fi
+
           STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           HTTP_STATUS="000"
           CURL_EXIT=0
