@@ -151,6 +151,7 @@ async function recordStage(input) {
   const envelope = input && input.envelope;
   const signature = String(input && input.signature || '');
   const workerId = String(input && input.worker_id || '').trim();
+  const actorId = String(input && input.actor_id || workerId).trim().toLowerCase();
   const stage = String(input && input.stage || '').trim().toUpperCase();
   if (!envelope || !verify(envelope, signature)) {
     const err = new Error('Invalid bridge lease signature');
@@ -172,6 +173,16 @@ async function recordStage(input) {
     err.statusCode = 400;
     throw err;
   }
+  if (stage === 'WORKER_A_RESULT' && actorId !== workerId) {
+    const err = new Error('Worker A actor must match the leased worker');
+    err.statusCode = 403;
+    throw err;
+  }
+  if (stage === 'WORKER_B_RESULT' && actorId === workerId) {
+    const err = new Error('Worker B requires an independent verifier actor');
+    err.statusCode = 403;
+    throw err;
+  }
 
   const resultHash = crypto.createHash('sha256').update(JSON.stringify(input.result || {})).digest('hex');
   const payload = {
@@ -180,12 +191,13 @@ async function recordStage(input) {
     lease_id: envelope.lease_id,
     job_id: envelope.job_id,
     worker_id: workerId,
+    actor_id: actorId,
     parent_signature: signature,
     result_hash: resultHash,
     result: input.result || {},
     recorded_at: new Date().toISOString()
   };
-  const note = await durableNote(workerId, stage === 'WORKER_A_RESULT' ? 'system' : 'truth_oracle', `BRIDGE_STAGE:${envelope.lease_id}:${stage}`, payload, envelope.lease_id);
+  const note = await durableNote(actorId, stage === 'WORKER_A_RESULT' ? 'system' : 'truth_oracle', `BRIDGE_STAGE:${envelope.lease_id}:${stage}`, payload, envelope.lease_id);
 
   if (stage === 'WORKER_B_RESULT') {
     await supabase(`jobs?id=eq.${encodeURIComponent(envelope.job_id)}&status=eq.leased`, {
@@ -198,12 +210,13 @@ async function recordStage(input) {
       lease_id: envelope.lease_id,
       job_id: envelope.job_id,
       worker_a_and_b_observed: true,
+      independent_verifier: actorId,
       worker_b_result_hash: resultHash,
       sealed_at: new Date().toISOString()
     }, envelope.lease_id, 'reconciliation');
   }
 
-  return { rail_schema: RAIL_SCHEMA, accepted: true, stage, lease_id: envelope.lease_id, job_id: envelope.job_id, result_hash: resultHash, note_id: note && note.note_id };
+  return { rail_schema: RAIL_SCHEMA, accepted: true, stage, lease_id: envelope.lease_id, job_id: envelope.job_id, actor_id: actorId, result_hash: resultHash, note_id: note && note.note_id };
 }
 
 async function handle(req, res) {
