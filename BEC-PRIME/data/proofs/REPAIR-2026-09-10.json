@@ -1,0 +1,55 @@
+{
+  "schema": "BEC-DREAMLEDGER-REPAIR-PROOF/v1",
+  "generated_at": "2026-09-10T02:31:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "changes": [
+    {
+      "commit": "3ca6f838068269fee3078cbffcd9519a74b0b590",
+      "change": "Aligned public/index.html with canonical NZ$50 Founding Tile offer and active Stripe payment link."
+    },
+    {
+      "commit": "17b7661a83d20d668759067688f4b502a4ed105b",
+      "change": "Made production bridge worker report exact missing environment variables and propagated the existing bridge token from the private engine to the storefront worker."
+    },
+    {
+      "commit": "f11161d13900988d1f470b56144bc3fefdc2d027",
+      "change": "Propagated the existing Supabase service-role credential from the private engine to the storefront bridge worker without exposing or manufacturing its value."
+    }
+  ],
+  "canonical_offer": {
+    "product": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "price_nzd": 50,
+    "checkout_url": "https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x",
+    "checkout_status_in_source_compilation": "VERIFIED_AVAILABLE",
+    "fulfillment_ready_in_source_compilation": true,
+    "human_review": true
+  },
+  "bridge_runtime": {
+    "required_env": [
+      "SUPABASE_URL",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "DREAMLEDGER_AGENT_BRIDGE_TOKEN"
+    ],
+    "latest_observed_missing_env_before_fix": ["SUPABASE_SERVICE_ROLE_KEY"],
+    "credential_values_manufactured": false,
+    "credential_wiring_source": "render.yaml fromService references to dreamledger-engine"
+  },
+  "render": {
+    "service_id": "srv-d8ud55lckfvc73f1t4eg",
+    "latest_deploy_id": "dep-dah1ci3l550s73d5m19g",
+    "latest_deploy_commit": "f11161d13900988d1f470b56144bc3fefdc2d027",
+    "latest_deploy_status_at_proof_time": "build_in_progress"
+  },
+  "commercial_truth": {
+    "verified_revenue_nzd": 0,
+    "ra000001": "OPEN",
+    "public_buyer_claim": "UNVERIFIED until external public URL and checkout observation passes"
+  },
+  "forbidden_mutations": [
+    "no billboard database schema creation",
+    "no placement engine creation",
+    "no pDOOH auction RPC creation",
+    "no QMS outreach",
+    "no Stripe webhook rewrite"
+  ]
+}
