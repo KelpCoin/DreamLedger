@@ -34,43 +34,58 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Lease production economic job
+      - name: Lease and execute production economic job
         env:
           BEC_AGENT_BRIDGE_URL: https://dreamledger.org
           DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
           BEC_WORKER_ID: ${{ inputs.worker_id || 'github-worker' }}
         run: node runtime/EconomicJobWorkerAdapter.js | tee bridge-worker-result.json
 
-      - name: Validate lease result
-        shell: bash
+      - name: Validate Worker A result
+        env:
+          BEC_WORKER_ID: ${{ inputs.worker_id || 'github-worker' }}
         run: |
           node - <<'NODE'
           const fs = require('fs');
           const result = JSON.parse(fs.readFileSync('bridge-worker-result.json', 'utf8'));
-          if (!['IDLE', 'LEASED_AND_EXECUTED'].includes(result.status)) {
-            throw new Error(`Unexpected worker status: ${result.status}`);
-          }
+          if (!['IDLE', 'LEASED_AND_EXECUTED'].includes(result.status)) throw new Error(`Unexpected worker status: ${result.status}`);
           if (result.status === 'LEASED_AND_EXECUTED') {
             const lease = result.lease;
             if (lease.envelope.job_id !== lease.job.id) throw new Error('Lease job identity mismatch');
             if (lease.envelope.worker_id !== process.env.BEC_WORKER_ID.toLowerCase()) throw new Error('Worker identity mismatch');
-            console.log(JSON.stringify({
-              JOB_ID: lease.envelope.job_id,
-              WORKER_ID: lease.envelope.worker_id,
-              LEASE_ID: lease.envelope.lease_id,
-              STATUS: lease.job.status,
-              ISSUED_AT: lease.envelope.issued_at,
-              EXPIRES_AT: lease.envelope.expires_at,
-              RAIL_SCHEMA: lease.envelope.schema_version
-            }, null, 2));
+            if (!result.stage_a?.accepted) throw new Error('Worker A result was not durably staged');
+            console.log(JSON.stringify({ JOB_ID: lease.envelope.job_id, WORKER_ID: lease.envelope.worker_id, LEASE_ID: lease.envelope.lease_id, STATUS: lease.job.status, STAGE_A: result.stage_a, RAIL_SCHEMA: lease.envelope.schema_version }, null, 2));
           } else {
             console.log('No pending production job was available.');
           }
+          NODE
+
+      - name: Independently verify Worker A and stage Worker B
+        if: success()
+        env:
+          BEC_AGENT_BRIDGE_URL: https://dreamledger.org
+          DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
+          BEC_VERIFIER_ID: truth-oracle
+        run: node runtime/BridgeRailVerifier.js bridge-worker-result.json | tee bridge-verifier-result.json
+
+      - name: Validate BridgeRail completion
+        if: success()
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const worker = JSON.parse(fs.readFileSync('bridge-worker-result.json', 'utf8'));
+          const verifier = JSON.parse(fs.readFileSync('bridge-verifier-result.json', 'utf8'));
+          if (worker.status !== 'LEASED_AND_EXECUTED') throw new Error('No production lease was executed');
+          if (verifier.stage !== 'WORKER_B_RESULT' || verifier.actor_id !== 'truth-oracle') throw new Error('Independent verifier stage missing');
+          if (verifier.job_id !== worker.lease.envelope.job_id) throw new Error('Verifier/job identity mismatch');
+          console.log(JSON.stringify({ JOB_ID: verifier.job_id, LEASE_ID: verifier.lease_id, WORKER_A: worker.lease.envelope.worker_id, WORKER_B: verifier.actor_id, FINAL_STAGE: verifier.stage }, null, 2));
           NODE
 
       - name: Upload bridge evidence
@@ -78,5 +93,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bec-economic-bridge-${{ github.run_id }}
-          path: BEC-PRIME/bridge-worker-result.json
+          path: |
+            BEC-PRIME/bridge-worker-result.json
+            BEC-PRIME/bridge-verifier-result.json
           if-no-files-found: warn
