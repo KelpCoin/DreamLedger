@@ -2,6 +2,7 @@
 const http=require('http');
 const agentBridge=require('../BEC-PRIME/runtime/AgentBridge');
 const bridgeRail=require('../BEC-PRIME/runtime/BridgeRail');
+const productionWorker=require('../BEC-PRIME/runtime/ProductionBridgeWorker');
 
 if(!global.__dreamledgerAgentBridgePreload){
   const originalCreateServer=http.createServer;
@@ -38,7 +39,35 @@ if(!global.__dreamledgerAgentBridgePreload){
       }
       return handler(req,res);
     };
-    return originalCreateServer.call(this,wrapped);
+    const server=originalCreateServer.call(this,wrapped);
+    const originalListen=server.listen.bind(server);
+    server.listen=function agentBridgeListen(...args){
+      const callback=typeof args[args.length-1]==='function'?args[args.length-1]:null;
+      if(callback){
+        args[args.length-1]=function(){
+          callback.apply(this,arguments);
+          try{
+            const address=server.address();
+            const port=typeof address==='object'&&address?address.port:process.env.PORT;
+            productionWorker.start({port,workerId:process.env.BEC_WORKER_ID||'render-worker'});
+          }catch(err){
+            console.error('[ProductionBridgeWorker] startup failed',err&&err.message?err.message:err);
+          }
+        };
+      }
+      const result=originalListen(...args);
+      if(!callback){
+        try{
+          const address=server.address();
+          const port=typeof address==='object'&&address?address.port:process.env.PORT;
+          productionWorker.start({port,workerId:process.env.BEC_WORKER_ID||'render-worker'});
+        }catch(err){
+          console.error('[ProductionBridgeWorker] startup failed',err&&err.message?err.message:err);
+        }
+      }
+      return result;
+    };
+    return server;
   };
   global.__dreamledgerAgentBridgePreload=true;
 }
