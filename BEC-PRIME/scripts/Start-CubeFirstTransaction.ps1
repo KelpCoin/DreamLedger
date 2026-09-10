@@ -49,14 +49,26 @@ try {
 
     Write-Host '[2/5] Reading CUBE marketplace catalog...'
     $catalog = Get-Json "$BaseUrl/api/marketplace/catalog"
+    $catalogMatches = @($catalog.items | Where-Object {
+        $_.sku_id -eq $ProductId -or $_.item_id -eq $ProductId -or $_.id -eq $ProductId
+    })
     $result.marketplace_catalog = [ordered]@{
         item_count = @($catalog.items).Count
-        matching_items = @($catalog.items | Where-Object { $_.sku_id -eq $ProductId -or $_.item_id -eq $ProductId -or $_.id -eq $ProductId }).Count
+        matching_items = $catalogMatches.Count
     }
 
     Write-Host '[3/5] Reading marketplace listings...'
     $listings = Get-Json "$BaseUrl/api/marketplace/listings?q=$([uri]::EscapeDataString($ProductId))"
-    $match = @($listings.items | Where-Object { $_.id -eq $ProductId -or $_.seller_id -or $_.title -match [regex]::Escape($ProductId) }) | Select-Object -First 1
+    $match = @($listings.items | Where-Object {
+        $_.id -eq $ProductId -or $_.title -match [regex]::Escape($ProductId)
+    }) | Select-Object -First 1
+    if (-not $match -and $catalogMatches.Count -eq 1) {
+        $catalogItem = $catalogMatches[0]
+        $byTitle = @($listings.items | Where-Object {
+            $_.title -eq $catalogItem.title
+        }) | Select-Object -First 1
+        if ($byTitle) { $match = $byTitle }
+    }
     if ($match) {
         $result.marketplace_listing = [ordered]@{
             id = $match.id
@@ -75,7 +87,7 @@ try {
             $result.next_action = 'Create or approve the first CUBE listing for the canonical product, then rerun with -CreateCheckout.'
         } elseif ($match.checkout_available -ne $true) {
             $result.status = 'CHECKOUT_BLOCKED'
-            $result.next_action = 'Make the matched CUBE listing checkout_available=true, then rerun with -CreateCheckout.'
+            $result.next_action = 'Make the matched CUBE listing checkoutable, then rerun with -CreateCheckout.'
         } else {
             $result.status = 'READY_FOR_REAL_BUYER'
             $result.next_action = 'Send the listing to an independent buyer. Do not self-pay. Settled Stripe payment is the only revenue truth.'
