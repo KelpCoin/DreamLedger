@@ -6,11 +6,12 @@ const RAIL_SCHEMA = 'BECK-BRIDGE-RAIL-1.0';
 const LEASE_TTL_SECONDS = 900;
 
 function config() {
+  const token = String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN || '');
   return {
     url: String(process.env.SUPABASE_URL || '').replace(/\/$/, ''),
     key: String(process.env.SUPABASE_SERVICE_ROLE_KEY || ''),
-    token: String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN || ''),
-    signingSecret: String(process.env.BECK_BRIDGE_SIGNING_SECRET || '')
+    token,
+    signingSecret: String(process.env.BECK_BRIDGE_SIGNING_SECRET || token)
   };
 }
 
