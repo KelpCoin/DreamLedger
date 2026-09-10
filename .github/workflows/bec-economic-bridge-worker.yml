@@ -8,6 +8,8 @@ on:
         required: true
         default: github-worker
         type: string
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: read
@@ -35,7 +37,7 @@ jobs:
         env:
           BEC_AGENT_BRIDGE_URL: https://dreamledger.org
           DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
-          BEC_WORKER_ID: ${{ inputs.worker_id }}
+          BEC_WORKER_ID: ${{ inputs.worker_id || 'github-worker' }}
         run: node runtime/EconomicJobWorkerAdapter.js | tee bridge-worker-result.json
 
       - name: Validate lease result
