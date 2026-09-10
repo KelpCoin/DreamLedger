@@ -30,7 +30,7 @@ function localAdvertisement() {
 
 function advertisedWorkers() {
   const registry = loadRegistry();
-  const workers = [localAdvertisement()];
+  const workers = process.env.RENDER === 'true' ? [] : [localAdvertisement()];
   if (process.env.BEC_GPU_LM_URL && process.env.BEC_GPU_LM_MODEL) workers.push({ worker_id: 'gpu-remote-01', availability: 'online', trust_level: 'cloud', gpu: { vendor: process.env.BEC_GPU_VENDOR || 'nvidia', vram_mb: Number(process.env.BEC_GPU_VRAM_MB || 0) }, models: [process.env.BEC_GPU_LM_MODEL], context_length: Number(process.env.BEC_GPU_CONTEXT || 32768), tools: ['analyze', 'edit', 'test'], network: 'online', cost: { class: 'configured', unit: 'relative' }, latency_class: 'regional', permissions: ['ANALYZE', 'EDIT'] });
   if (process.env.BEC_CLOUD_LM_URL && process.env.BEC_CLOUD_LM_MODEL) workers.push({ worker_id: 'cloud-remote-01', availability: 'online', trust_level: 'cloud', gpu: { vendor: 'provider', vram_mb: 0 }, models: [process.env.BEC_CLOUD_LM_MODEL], context_length: Number(process.env.BEC_CLOUD_LM_CONTEXT || 32768), tools: ['analyze', 'edit', 'test'], network: 'online', cost: { class: 'metered', unit: 'relative' }, latency_class: 'remote', permissions: ['ANALYZE', 'EDIT'] });
   return { registry, workers };
