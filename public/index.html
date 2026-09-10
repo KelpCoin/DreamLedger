@@ -3,30 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamLedger Billboard | Founding Tile</title>
-<meta name="description" content="Buy a permanent 100x100 DreamLedger founding tile for NZ$50. Human review is required before publication.">
+<title>DreamLedger | Catalogue</title>
+<meta name="description" content="DreamLedger public catalogue. Browse existing offers and purchase through Stripe.">
 <link rel="stylesheet" href="/styles.css">
 <style>
-main{width:min(1100px,calc(100% - 28px));margin:auto;padding:60px 0 90px}.hero{max-width:850px}.hero h1{font-size:clamp(55px,9vw,110px);line-height:.8;letter-spacing:-.09em}.hero h1 em{font-style:normal;color:#6ce1bd}.lead{font-size:18px;color:#b7bfcb}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:30px}.card{border:1px solid #343d4d;border-radius:22px;background:linear-gradient(145deg,#151a24,#0d1118);padding:23px}.card h2{font-size:28px;letter-spacing:-.05em}.card p,.row{color:#99a3b0;font-size:12px}.row{padding:12px 0;border-bottom:1px solid #29323f}.row:last-child{border-bottom:0}.buy{display:inline-block;margin-top:24px;padding:16px 22px;border-radius:12px;background:#f4c95d;color:#090909;font-weight:900;text-decoration:none}.note{margin-top:18px;border:1px solid #7b6840;background:#17140d;color:#d8caa8;border-radius:16px;padding:16px;font-size:12px}.trust{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}.trust a{color:#b7bfcb;font-size:12px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+main{width:min(1100px,calc(100% - 28px));margin:auto;padding:48px 0 80px}.hero{max-width:850px}.hero h1{font-size:clamp(48px,8vw,92px);line-height:.86;letter-spacing:-.08em}.hero h1 em{font-style:normal;color:#e6bc58}.lead{font-size:18px;color:#b7bfcb}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}.catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}.card{border:1px solid #343d4d;border-radius:18px;background:linear-gradient(145deg,#151a24,#0d1118);padding:20px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#e6bc58;font-weight:900}.card h2{font-size:23px;letter-spacing:-.04em;margin:8px 0}.card p,.row{color:#99a3b0;font-size:13px}.row{padding:10px 0;border-bottom:1px solid #29323f}.price{font-size:22px;font-weight:900;color:#e6bc58;margin-top:14px}.buy{display:inline-block;margin-top:14px;padding:12px 16px;border-radius:10px;background:#f4c95d;color:#090909;font-weight:900;text-decoration:none;border:0;cursor:pointer}.muted{color:#8993a0;font-size:12px}.detail{display:none;margin-top:18px}.detail.active{display:block}.catalog.hidden{display:none}.status{margin-top:14px;color:#b7bfcb;font-size:13px}@media(max-width:800px){.catalog,.grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.catalog,.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header class="topbar"><div class="topbar-inner"><a class="logo" href="/">DREAMLEDGER <span>3000</span></a><nav><a href="/">Home</a><a href="/billboard">Billboard</a><a href="/offers.html">Offers</a></nav></div></header>
+<header class="topbar"><div class="topbar-inner"><a class="logo" href="/">DREAMLEDGER <span>3000</span></a><nav><a href="/">Catalogue</a><a href="/mtg">Magic</a><a href="/billboard">Billboard</a><a href="/dreammeez">DreamMeez</a></nav></div></header>
 <main>
 <section class="hero">
-<div class="eyebrow">DREAMLEDGER 3000 · FOUNDING TILES</div>
-<h1>BUY A PIECE.<br><em>LEAVE IT UNTIL 3000.</em></h1>
-<p class="lead">Claim one permanent 100x100 tile on the DreamLedger Internet Billboard. Put your brand, project, artwork, joke or destination on a finite public canvas.</p>
-<a class="buy" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy Founding Tile · NZ$50</a>
-<div class="note"><strong>Human review applies.</strong> After payment, your destination and tile details are reviewed before publication. Payment does not guarantee publication. Unacceptable, illegal, fraudulent, malicious or otherwise prohibited content will not be published.</div>
-<div class="trust"><a href="/billboard">Billboard</a><a href="/dreammeez">DreamMeez</a><a href="/truth-oracle">Truth Oracle</a></div>
+<div class="eyebrow">DREAMLEDGER 3000 · PUBLIC CATALOGUE</div>
+<h1>BUY SOMETHING.<br><em>MAKE IT REAL.</em></h1>
+<p class="lead">Existing DreamLedger offers, connected to their current checkout contracts. No fake inventory, no invented products, and no claims beyond the listed offer.</p>
+<div id="status" class="status"></div>
 </section>
+<section id="detail" class="card detail"></section>
+<section id="catalog" class="catalog" aria-label="DreamLedger products"></section>
 <section class="grid">
-<article class="card"><div class="eyebrow">THE OFFER</div><h2>NZ$50 founding tile</h2><div class="row">100x100 permanent web placement</div><div class="row">One-time payment</div><div class="row">One destination URL</div><div class="row">Finite inventory</div><div class="row">Placement intended to remain until January 1, 3000</div></article>
-<article class="card"><div class="eyebrow">HOW IT WORKS</div><h2>Simple and honest.</h2><div class="row">1. Pay securely through Stripe.</div><div class="row">2. Supply your tile details in checkout.</div><div class="row">3. Human review checks the submission.</div><div class="row">4. Approved placement is published.</div><div class="row">5. The live board becomes the public record of the placement.</div></article>
+<article class="card"><div class="eyebrow">FOUNDING TILE</div><h2>DreamLedger Billboard</h2><p>Permanent 100x100 web placement on the public DreamLedger canvas. Human review applies before publication.</p><div class="price">NZ$50</div><a class="buy" href="/billboard">View billboard offer</a></article>
+<article class="card"><div class="eyebrow">MAGIC</div><h2>MTG storefront</h2><p>Commander diagnostic, physical deck and collectible inventory in the existing horizontal carousel.</p><a class="buy" href="/mtg">Open Magic catalogue</a></article>
 </section>
-<section class="card" style="margin-top:14px"><div class="eyebrow">WHAT THIS IS</div><h2>A web-native billboard, not physical DOOH.</h2><p>This is a permanent digital placement on DreamLedger's public web canvas. It does not promise physical screen impressions, traffic, reach or conversions.</p></section>
 </main>
-<footer><span>DreamLedger 3000</span><span>Founding Tile · NZ$50 · Human review</span></footer>
+<footer><span>DreamLedger 3000</span><span>Existing catalogue · Stripe checkout</span></footer>
+<script>
+(function(){
+  var catalog=document.getElementById('catalog'),detail=document.getElementById('detail'),status=document.getElementById('status');
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function money(p){return 'NZ$'+Number(p.price||0).toFixed(0)}
+  function card(p){var disabled=p.checkout_available===false;return '<article class="card"><div class="eyebrow">'+esc(p.silo||'offer')+'</div><h2>'+esc(p.name)+'</h2><p>'+esc(p.description)+'</p><div class="price">'+money(p)+'</div><a class="buy" href="/?product='+encodeURIComponent(p.id)+'">View product</a>'+(disabled?'<div class="muted">Checkout currently unavailable</div>':'')+'</article>'}
+  function renderDetail(p){detail.innerHTML='<div class="eyebrow">PRODUCT DETAIL</div><h2>'+esc(p.name)+'</h2><p>'+esc(p.description)+'</p><div class="price">'+money(p)+'</div><p class="muted">SKU: '+esc(p.sku||p.id)+' · Status: '+esc(p.status)+'</p>'+(p.checkout_available!==false&&p.checkout_url?'<a class="buy" href="'+esc(p.checkout_url)+'">Continue to Stripe checkout</a>':'<div class="muted">This product is not currently checkoutable.</div>');detail.classList.add('active');catalog.classList.add('hidden')}
+  function renderBrowse(products){catalog.innerHTML=products.map(card).join('');catalog.classList.remove('hidden');detail.classList.remove('active')}
+  fetch('/api/products').then(function(r){if(!r.ok)throw Error('Catalogue unavailable');return r.json()}).then(function(data){var products=Array.isArray(data.products)?data.products:[];var id=new URLSearchParams(location.search).get('product');var selected=products.find(function(p){return p.id===id});if(selected)renderDetail(selected);else renderBrowse(products);status.textContent=products.length+' published products in the public catalogue.'}).catch(function(e){status.textContent=e.message;catalog.innerHTML='<article class="card"><h2>Catalogue unavailable</h2><p>Use the existing Magic or Billboard surfaces while the catalogue service recovers.</p></article>'});
+  var q=new URLSearchParams(location.search);if(q.get('checkout_cancelled')==='1')status.textContent='Checkout cancelled. No payment was recorded by this page.';if(q.get('checkout_success')==='1')status.textContent='Checkout completed. Stripe has received the payment flow; fulfilment remains governed by the product contract.';
+})();
+</script>
 </body>
 </html>
