@@ -27,6 +27,16 @@ services:
           type: pserv
           name: dreamledger-engine
           envVarKey: ENGINE_INTERNAL_API_KEY
+      - key: SUPABASE_URL
+        fromService:
+          type: pserv
+          name: dreamledger-engine
+          envVarKey: SUPABASE_URL
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        fromService:
+          type: pserv
+          name: dreamledger-engine
+          envVarKey: SUPABASE_SERVICE_ROLE_KEY
       - key: DREAMLEDGER_AGENT_BRIDGE_TOKEN
         fromService:
           type: pserv
@@ -100,4 +110,5 @@ services:
       - key: DEPLOYMENT_CHANNEL
         value: dreamledger-production
 
-# Force Blueprint reconciliation of the storefront -> private-engine environment wiring.
+# Storefront bridge worker consumes the existing engine credentials via fromService.
+# No secret value is generated or exposed by this file.
