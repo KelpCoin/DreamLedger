@@ -1,0 +1,34 @@
+{
+  "schema": "BEC-PRIME/BILLBOARD-FIRST-SALE-SURFACE/v1",
+  "timestamp": "2026-09-10T00:27:20Z",
+  "status": "ACTIVATION_DEPLOYING",
+  "purpose": "Open the public DreamLedger founding-tile offer for the first legitimate external sale without requiring autonomous publication.",
+  "public_product": {
+    "name": "DreamLedger Founding Tile",
+    "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "price_nzd": 50,
+    "dimensions": "100x100",
+    "duration": "until January 1, 3000",
+    "surface": "dreamledger.org/billboard",
+    "human_review_required": true
+  },
+  "checkout": {
+    "payment_link": "https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x",
+    "stripe_link_id": "plink_1UCrekEGgEAnUFF9XVRM04aG",
+    "source": "live Stripe account evidence checked 2026-09-10"
+  },
+  "change": {
+    "file": "public/billboard.html",
+    "commit": "b29455b2d17534b8213a155d9170caad134cb007",
+    "removed_gate": "NOT CURRENTLY FOR SALE",
+    "new_behavior": "Public NZ$50 checkout CTA with explicit human-review fulfillment terms."
+  },
+  "guardrails": [
+    "No autonomous publication claim",
+    "No physical DOOH claim",
+    "Payment does not guarantee publication",
+    "No Stripe object was deactivated",
+    "No new Stripe product or payment rail was created"
+  ],
+  "next_proof": "Fetch https://dreamledger.org/billboard and verify the NZ$50 CTA is present, then perform a real stranger checkout and verify Stripe payment -> fulfillment -> proof."
+}
