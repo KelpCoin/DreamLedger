@@ -1,12 +1,14 @@
 [CmdletBinding()]
 param(
     [string]$DataRoot = 'D:\BrownEyeCortex\Supervisor',
-    [string]$RepoRoot = 'C:\DreamLedger_Actual',
-    [switch]$Once
+    [string]$RepoRoot = 'C:\DreamLedger_Actual'
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+$job = $null
+$source = $null
+$workPath = $null
 
 function Ensure-Dir([string]$Path) { New-Item -ItemType Directory -Force -Path $Path | Out-Null }
 function Write-AsciiJson([string]$Path, $Object) {
@@ -18,12 +20,9 @@ function Append-Jsonl([string]$Path, $Object) {
     $line = ($Object | ConvertTo-Json -Depth 20 -Compress) + "`n"
     $enc = New-Object System.Text.ASCIIEncoding
     $fs = [System.IO.File]::Open($Path, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
-    try {
-        $bytes = $enc.GetBytes($line)
-        $fs.Write($bytes, 0, $bytes.Length)
-        $fs.Flush()
-    } finally { $fs.Close() }
+    try { $bytes = $enc.GetBytes($line); $fs.Write($bytes, 0, $bytes.Length); $fs.Flush() } finally { $fs.Close() }
 }
+function Write-Card([string]$Text) { $Text | Set-Content -Encoding ASCII -Path $card }
 
 $inbox = Join-Path $DataRoot 'inbox'
 $working = Join-Path $DataRoot 'working'
@@ -37,8 +36,6 @@ $card = Join-Path $DataRoot 'CURRENT_NEXT.txt'
 
 Ensure-Dir $inbox; Ensure-Dir $working; Ensure-Dir $done; Ensure-Dir $failed; Ensure-Dir $proofs; Ensure-Dir (Split-Path -Parent $ledger)
 
-function Write-Card([string]$Text) { $Text | Set-Content -Encoding ASCII -Path $card }
-
 if (Test-Path $lock) {
     $age = (Get-Date) - (Get-Item $lock).LastWriteTime
     if ($age.TotalMinutes -lt 10) { exit 0 }
@@ -49,7 +46,7 @@ New-Item -ItemType File -Path $lock -Force | Out-Null
 try {
     $files = @(Get-ChildItem -Path $inbox -Filter '*.json' -File | Sort-Object Name)
     if ($files.Count -eq 0) {
-        Write-Card 'SUPERVISOR IDLE`r`nNo queued job.'
+        Write-Card "SUPERVISOR IDLE`r`nNo queued job."
         if (Test-Path $current) { Remove-Item $current -Force }
         exit 0
     }
@@ -63,7 +60,7 @@ try {
         Write-AsciiJson $blockedProof $p
         Move-Item $source (Join-Path $failed $source.Name) -Force
         Write-AsciiJson $current $job
-        Write-Card ('SUPERVISOR BLOCKED`r`n' + $job.job_id + '`r`nApproval required.')
+        Write-Card "SUPERVISOR BLOCKED`r`n$($job.job_id)`r`nApproval required."
         Append-Jsonl $ledger ([ordered]@{ at=(Get-Date).ToUniversalTime().ToString('o'); event='BLOCKED'; job_id=$job.job_id })
         exit 0
     }
@@ -72,7 +69,7 @@ try {
     Move-Item $source $workPath -Force
     $job.execution_status = 'RUNNING'
     Write-AsciiJson $current $job
-    Write-Card ('SUPERVISOR RUNNING`r`n' + $job.job_id + '`r`n' + $job.request)
+    Write-Card "SUPERVISOR RUNNING`r`n$($job.job_id)`r`n$($job.request)"
     Append-Jsonl $ledger ([ordered]@{ at=(Get-Date).ToUniversalTime().ToString('o'); event='START'; job_id=$job.job_id })
 
     if (-not $job.command) { throw 'Job has no command.' }
@@ -90,19 +87,17 @@ try {
     Write-AsciiJson (Join-Path $done $source.Name) $job
     Remove-Item $workPath -Force
     Write-AsciiJson $current $job
-    Write-Card ('SUPERVISOR DONE`r`n' + $job.job_id + '`r`nProof: ' + $proofPath)
+    Write-Card "SUPERVISOR DONE`r`n$($job.job_id)`r`nProof: $proofPath"
     Append-Jsonl $ledger ([ordered]@{ at=(Get-Date).ToUniversalTime().ToString('o'); event='DONE'; job_id=$job.job_id; proof=$proofPath })
 }
 catch {
     $msg = $_.Exception.Message
-    if (Test-Path $workPath) {
-        try { Move-Item $workPath (Join-Path $failed $source.Name) -Force } catch {}
-    }
+    if ($workPath -and (Test-Path $workPath)) { try { Move-Item $workPath (Join-Path $failed $source.Name) -Force } catch {} }
     $jobId = if ($job -and $job.job_id) { $job.job_id } else { 'UNKNOWN' }
     $proofPath = Join-Path $proofs ($jobId + '.failed.json')
     $proof = [ordered]@{ proof_version='1.0.0'; job_id=$jobId; generated_at=(Get-Date).ToUniversalTime().ToString('o'); status='FAIL'; action='SUPERVISOR_TICK'; proof_path=$proofPath; message=$msg }
     Write-AsciiJson $proofPath $proof
-    Write-Card ('SUPERVISOR FAILED`r`n' + $jobId + '`r`n' + $msg + '`r`nProof: ' + $proofPath)
+    Write-Card "SUPERVISOR FAILED`r`n$jobId`r`n$msg`r`nProof: $proofPath"
     Append-Jsonl $ledger ([ordered]@{ at=(Get-Date).ToUniversalTime().ToString('o'); event='FAIL'; job_id=$jobId; message=$msg; proof=$proofPath })
     exit 1
 }
