@@ -4,13 +4,15 @@ const workerPool = require('./worker-pool');
 
 const DEFAULT_BRIDGE_URL = process.env.BEC_AGENT_BRIDGE_URL || process.env.AGENT_BRIDGE_URL || 'http://127.0.0.1:3000';
 const DEFAULT_RAIL_PATH = '/api/agent-bridge/rail/lease';
+const DEFAULT_STAGE_PATH = '/api/agent-bridge/rail/stage';
 const JOB_KIND_MAP = new Map([
   ['analysis', 'analysis'],
   ['code_change', 'code_change'],
   ['gauntlet', 'gauntlet'],
   ['compile', 'compile'],
   ['test', 'test'],
-  ['lm_refinement', 'lm_refinement']
+  ['lm_refinement', 'lm_refinement'],
+  ['revenue_prospecting', 'analysis']
 ]);
 
 function requiredString(value, field) {
@@ -54,6 +56,31 @@ function toWorkerJob(jobEnvelope) {
     public_action_allowed: false,
     worker_preference: 'auto'
   };
+}
+
+async function postStage(lease, result, options = {}) {
+  const fetchImpl = options.fetchImpl || globalThis.fetch;
+  const baseUrl = String(options.baseUrl || DEFAULT_BRIDGE_URL).replace(/\/$/, '');
+  const endpoint = `${baseUrl}${options.stagePath || DEFAULT_STAGE_PATH}`;
+  const token = String(options.token || process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN || '');
+  const workerId = String(lease.envelope.worker_id || '').trim().toLowerCase();
+  const response = await fetchImpl(endpoint, {
+    method: 'POST',
+    headers: { 'x-dreamledger-agent-token': token, Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      envelope: lease.envelope,
+      signature: lease.signature,
+      worker_id: workerId,
+      actor_id: workerId,
+      stage: 'WORKER_A_RESULT',
+      result
+    })
+  });
+  const text = await response.text();
+  let body = null;
+  try { body = JSON.parse(text || 'null'); } catch { throw new Error(`Bridge stage returned invalid JSON (${response.status})`); }
+  if (!response.ok) throw new Error(body && body.error ? body.error : `Bridge stage failed (${response.status})`);
+  return body;
 }
 
 async function leaseNextJob(options = {}) {
@@ -122,16 +149,21 @@ async function runNext(options = {}) {
     objective: lease.envelope.objective,
     silo: lease.envelope.silo_id,
     source: 'agent-bridge-rail',
-    payload: lease.job.payload || {}
+    payload: lease.job.payload || {},
+    offer_ids: lease.job.payload?.offer_ids || [],
+    approval_gate: lease.job.payload?.approval_gate || null,
+    next_permitted_action: lease.job.payload?.next_permitted_action || null
   }, options);
+  const stageA = await postStage(lease, result, options);
   return {
     status: 'LEASED_AND_EXECUTED',
     lease,
-    result
+    result,
+    stage_a: stageA
   };
 }
 
-module.exports = { leaseNextJob, toWorkerJob, adaptJob, runNext };
+module.exports = { leaseNextJob, toWorkerJob, adaptJob, postStage, runNext };
 
 if (require.main === module) {
   runNext().then(result => console.log(JSON.stringify(result, null, 2))).catch(error => {
