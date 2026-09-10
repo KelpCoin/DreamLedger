@@ -16,6 +16,7 @@ concurrency:
 
 env:
   CANONICAL_URL: https://dreamledger.org
+  FOUNDING_TILE_CHECKOUT: https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x
 
 jobs:
   build:
@@ -38,11 +39,12 @@ jobs:
           test -s _site/about.html
           test -s _site/policies.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
-          grep -Fq "THE INTERNET BILLBOARD" _site/index.html
-          grep -Fq "100 founding tiles" _site/index.html
-          grep -Fq 'NZ$15' _site/index.html
-          grep -Fq 'https://buy.stripe.com/3cI4gz9TL7tPbev9EUdwc2n' _site/index.html
-          grep -Fq 'BUY A TILE' _site/index.html
+          grep -Fq "DREAMLEDGER 3000" _site/index.html
+          grep -Fq "FOUNDING TILES" _site/index.html
+          grep -Fq 'NZ$50' _site/index.html
+          grep -Fq "$FOUNDING_TILE_CHECKOUT" _site/index.html
+          grep -Fq 'Buy Founding Tile' _site/index.html
+          grep -Fq 'until January 1, 3000' _site/index.html
           echo "PASS Billboard Pages artifact staged"
 
       - name: Configure Pages
@@ -71,7 +73,7 @@ jobs:
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -Fq "THE INTERNET BILLBOARD" /tmp/dreamledger.html && grep -Fq "100 founding tiles" /tmp/dreamledger.html && grep -Fq 'NZ$15' /tmp/dreamledger.html && grep -Fq 'https://buy.stripe.com/3cI4gz9TL7tPbev9EUdwc2n' /tmp/dreamledger.html && grep -Fq 'BUY A TILE' /tmp/dreamledger.html; then
+            if [ "$CODE" = "200" ] && grep -Fq "DREAMLEDGER 3000" /tmp/dreamledger.html && grep -Fq "FOUNDING TILES" /tmp/dreamledger.html && grep -Fq 'NZ$50' /tmp/dreamledger.html && grep -Fq "$FOUNDING_TILE_CHECKOUT" /tmp/dreamledger.html && grep -Fq 'Buy Founding Tile' /tmp/dreamledger.html; then
               echo "PASS GitHub Pages Billboard verified: $URL"
               exit 0
             fi
