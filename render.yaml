@@ -27,6 +27,11 @@ services:
           type: pserv
           name: dreamledger-engine
           envVarKey: ENGINE_INTERNAL_API_KEY
+      - key: DREAMLEDGER_AGENT_BRIDGE_TOKEN
+        fromService:
+          type: pserv
+          name: dreamledger-engine
+          envVarKey: DREAMLEDGER_AGENT_BRIDGE_TOKEN
 
   - type: pserv
     name: dreamledger-engine
