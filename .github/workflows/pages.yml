@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stage current public storefront
+      - name: Stage Billboard storefront
         shell: bash
         run: |
           set -euo pipefail
@@ -38,10 +38,12 @@ jobs:
           test -s _site/about.html
           test -s _site/policies.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
-          grep -q "ONE BROKEN WORKFLOW" _site/index.html
-          grep -q "buy.stripe.com/6oU28r7LD6pL4Q74kAdwc2z" _site/index.html
-          grep -q "NZ$99" _site/index.html
-          echo "PASS canonical Pages surface stages current Automation Rescue storefront"
+          grep -Fq "THE INTERNET BILLBOARD" _site/index.html
+          grep -Fq "100 founding tiles" _site/index.html
+          grep -Fq 'NZ$15' _site/index.html
+          grep -Fq 'https://buy.stripe.com/3cI4gz9TL7tPbev9EUdwc2n' _site/index.html
+          grep -Fq 'BUY A TILE' _site/index.html
+          echo "PASS Billboard Pages artifact staged"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -62,19 +64,19 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify deployed canonical storefront
+      - name: Verify deployed Billboard
         shell: bash
         run: |
           set -euo pipefail
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -q "ONE BROKEN WORKFLOW" /tmp/dreamledger.html && grep -q "buy.stripe.com/6oU28r7LD6pL4Q74kAdwc2z" /tmp/dreamledger.html; then
-              echo "PASS Pages canonical storefront verified: $URL"
+            if [ "$CODE" = "200" ] && grep -Fq "THE INTERNET BILLBOARD" /tmp/dreamledger.html && grep -Fq "100 founding tiles" /tmp/dreamledger.html && grep -Fq 'NZ$15' /tmp/dreamledger.html && grep -Fq 'https://buy.stripe.com/3cI4gz9TL7tPbev9EUdwc2n' /tmp/dreamledger.html && grep -Fq 'BUY A TILE' /tmp/dreamledger.html; then
+              echo "PASS GitHub Pages Billboard verified: $URL"
               exit 0
             fi
-            echo "Waiting for Pages convergence: attempt $attempt/12 HTTP=$CODE"
+            echo "Waiting for Pages deployment: attempt $attempt/12 HTTP=$CODE"
             sleep 10
           done
-          echo "FAIL Pages canonical storefront verification"
+          echo "FAIL GitHub Pages Billboard verification"
           exit 1
