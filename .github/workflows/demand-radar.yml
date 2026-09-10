@@ -2,6 +2,10 @@ name: Demand Radar
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'BEC-PRIME/demand-radar/**'
+      - '.github/workflows/demand-radar.yml'
   schedule:
     - cron: '17 */6 * * *'
       timezone: 'Pacific/Auckland'
