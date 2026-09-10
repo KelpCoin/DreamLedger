@@ -48,14 +48,14 @@
       "id": "BESPOKE-ARTISAN-EDH-DECK-001",
       "silo": "mtg",
       "name": "Bespoke Artisan EDH Commander Deck (100 Cards + Sideboard)",
-      "description": "One bespoke physical Commander deck built from declared MTG inventory. One available unit.",
+      "description": "One bespoke physical Commander deck built from declared MTG inventory. One available unit. Checkout remains quarantined until the existing fulfillment contract is ready.",
       "price": 385,
       "currency": "nzd",
       "inventory": 1,
       "inventory_type": "physical",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/fZuaEX3vn15r4Q74kAdwc1S"
+      "status": "gated",
+      "checkout_available": false,
+      "checkout_url": null
     },
     {
       "id": "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001",
@@ -75,14 +75,14 @@
       "id": "BILLBOARD-LARGE",
       "silo": "media",
       "name": "DreamLedger Digital Billboard Large",
-      "description": "Programmatic digital-out-of-home placement on the DreamLedger billboard surface.",
+      "description": "Larger billboard placement remains gated until its existing fulfillment contract is verified. The canonical NZ$50 Founding Tile is available on the Billboard surface.",
       "price": 50,
       "currency": "nzd",
       "inventory": 1,
       "inventory_type": "digital",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02"
+      "status": "gated",
+      "checkout_available": false,
+      "checkout_url": null
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
@@ -96,7 +96,7 @@
       "inventory_type": "service",
       "status": "gated",
       "checkout_available": false,
-      "checkout_url": "https://buy.stripe.com/28E4gAf7q4YG6us5uU9oc05"
+      "checkout_url": null
     }
   ]
 }
