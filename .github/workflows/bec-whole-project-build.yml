@@ -3,7 +3,7 @@ name: BEC Whole Project Build
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, "build/**"]
   schedule:
     - cron: "17 */6 * * *"
 
