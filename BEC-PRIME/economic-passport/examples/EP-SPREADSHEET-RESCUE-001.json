@@ -1,0 +1,50 @@
+{
+  "passport_version": "1.0.0",
+  "passport_id": "EP-SPREADSHEET-RESCUE-001",
+  "passport_status": "ACTIVE",
+  "commercial_truth": {
+    "sku": "DL-SPREADSHEET-RESCUE-199",
+    "name": "Spreadsheet Rescue",
+    "description": "Human-assisted repair and recovery of a broken spreadsheet workflow.",
+    "owner": { "id": "BEC-OWNER-001", "name": "DreamLedger" },
+    "seller": { "id": "BEC-SELLER-001", "name": "DreamLedger" },
+    "price": 199,
+    "currency": "NZD",
+    "billing": "ONE_TIME"
+  },
+  "authority": {
+    "resale_allowed": false,
+    "territories": ["NZ"],
+    "reseller_rights": ["DIRECT_SALE_ONLY"],
+    "restrictions": ["No resale without written authority."],
+    "margin": { "type": "NONE", "amount": 0, "currency": "NZD" }
+  },
+  "execution": {
+    "fulfilment_method": "Customer supplies the spreadsheet and describes the failure; seller repairs the agreed issue and returns the repaired file or a documented diagnosis if repair is not possible.",
+    "fulfilment_condition": "Payment settled and customer materials received.",
+    "deployment_mode": "HYBRID",
+    "dependencies": ["Spreadsheet file supplied by customer"],
+    "support": "One delivery review cycle included.",
+    "refund_rule": "Refund handling is governed by the applicable sale terms."
+  },
+  "evidence": {
+    "required": true,
+    "requirements": ["settled payment reference", "input file hash", "output file hash or diagnosis artifact", "fulfilment timestamp"],
+    "verification_rule": "A verifier must be able to establish that payment settled, the customer material was received, and the promised delivery artifact was produced.",
+    "truth_status": "UNVERIFIED",
+    "provenance": [
+      {
+        "claim": "Listed price is NZD 199.",
+        "source": "BEC commercial offer definition",
+        "observed_at": "2026-09-11T00:00:00Z",
+        "method": "DECLARED",
+        "result": "UNVERIFIED"
+      }
+    ],
+    "conflict_disclosure": false
+  },
+  "validity": {
+    "effective_at": "2026-09-11T00:00:00Z",
+    "version": "1.0.0"
+  }
+}
