@@ -1,15 +1,44 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="refresh" content="0;url=https://dreamledger1.onrender.com/">
-  <meta name="robots" content="noindex">
-  <title>DreamLedger</title>
-  <script>location.replace('https://dreamledger1.onrender.com/');</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="The DreamLedger Internet Billboard. 100 clickable founding tiles. NZ$15 for 30 days.">
+<title>DreamLedger Billboard | Buy a Tile</title>
+<style>
+:root{--bg:#080808;--panel:#111;--line:#292929;--text:#f4f1e8;--muted:#a8a49a;--gold:#d6ad55;--gold2:#f0ce78}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}a{color:inherit}.wrap{width:min(1080px,calc(100% - 36px));margin:auto}.nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}.brand{font-weight:800;letter-spacing:.08em}.nav a{color:var(--muted);text-decoration:none;font-size:14px}.hero{padding:78px 0 46px;text-align:center}.eyebrow{color:var(--gold2);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.hero h1{font-size:clamp(44px,8vw,82px);line-height:.95;letter-spacing:-.055em;margin:18px auto;max-width:850px}.hero p{max-width:650px;margin:0 auto;color:var(--muted);font-size:19px}.price{margin:30px 0 18px;font-size:28px;font-weight:800}.cta{display:inline-block;background:var(--gold);color:#090909;text-decoration:none;font-weight:900;padding:16px 28px;border-radius:7px;box-shadow:0 10px 30px rgba(214,173,85,.12)}.cta:hover{background:var(--gold2)}.note{font-size:12px;color:#777;margin-top:12px}.board-section{padding:35px 0 70px}.board-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:14px}.board-head h2{margin:0;font-size:25px}.board-head span{color:var(--muted);font-size:13px}.board{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;background:#202020;padding:4px;border:1px solid var(--line);border-radius:8px}.tile{aspect-ratio:1;background:#151515;border:1px solid #242424;display:grid;place-items:center;color:#6e6b63;font-size:10px}.tile:hover{border-color:var(--gold);color:var(--gold2)}.tile:nth-child(-n+100)::after{content:"AVAILABLE"}.tile{font-size:0}.tile::after{font-size:8px;letter-spacing:.08em}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 0 70px}.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px}.num{color:var(--gold);font-weight:900;font-size:12px;letter-spacing:.12em}.card h3{margin:10px 0 6px}.card p{margin:0;color:var(--muted);font-size:14px}.terms{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--muted);font-size:13px}.terms strong{color:var(--text)}footer{border-top:1px solid var(--line);padding:22px 0 40px;color:#666;font-size:12px;display:flex;justify-content:space-between}@media(max-width:700px){.hero{padding-top:55px}.steps{grid-template-columns:1fr}.board{gap:2px}.tile::after{font-size:6px}.board-head{display:block}.board-head span{display:block;margin-top:5px}footer{display:block}}
+</style>
 </head>
 <body>
-  <p>Opening the live DreamLedger storefront…</p>
-  <p><a href="https://dreamledger1.onrender.com/">Continue to DreamLedger</a></p>
+<div class="wrap">
+<header class="nav"><div class="brand">DREAMLEDGER</div><a href="#how">How it works</a></header>
+<main>
+<section class="hero">
+<div class="eyebrow">THE INTERNET BILLBOARD</div>
+<h1>Own a little piece of the page.</h1>
+<p>100 clickable founding tiles. Put your website, project, product or public link in front of whoever discovers the board.</p>
+<div class="price">NZ$15 <span style="font-size:15px;font-weight:600;color:#999">/ tile / 30 days</span></div>
+<a class="cta" href="https://buy.stripe.com/3cI4gz9TL7tPbev9EUdwc2n">BUY A TILE</a>
+<div class="note">One-time payment. No account. First come, first served.</div>
+</section>
+<section class="board-section" id="board">
+<div class="board-head"><h2>100 founding tiles</h2><span>Every tile is a placement. Every placement can carry a link.</span></div>
+<div class="board" aria-label="100 available billboard tiles">
+<script>for(let i=1;i<=100;i++)document.write('<div class="tile" aria-label="Tile '+i+'">'+i+'</div>');</script>
+</div>
+</section>
+<section class="steps" id="how">
+<div class="card"><div class="num">01 / BUY</div><h3>Choose a tile</h3><p>Pay NZ$15 through Stripe. Your purchase reserves one founding tile for 30 days.</p></div>
+<div class="card"><div class="num">02 / SEND</div><h3>Give us your link</h3><p>Reply with the destination URL and, if you want one, a square image for your tile.</p></div>
+<div class="card"><div class="num">03 / GO LIVE</div><h3>We publish it</h3><p>We review the submission and publish an in-scope tile within 24 hours.</p></div>
+</section>
+<section class="terms">
+<p><strong>What can you promote?</strong> Legitimate websites, products, projects, profiles and other lawful destinations. We reject scams, malware, illegal content and material that creates an unreasonable risk to the board or its visitors.</p>
+<p><strong>What happens after payment?</strong> This is a manual first-sale service. Payment reserves the placement. Fulfilment requires your destination URL and optional image. A tile that cannot be published because its submitted destination violates the terms will be handled under the published refund/fulfilment policy.</p>
+</section>
+</main>
+<footer><span>DreamLedger Billboard</span><span>100 founding tiles · NZ$15 · 30 days</span></footer>
+</div>
 </body>
 </html>
