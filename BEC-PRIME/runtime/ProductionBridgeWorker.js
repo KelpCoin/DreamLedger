@@ -5,16 +5,33 @@ const { verifyAndStage } = require('./BridgeRailVerifier');
 
 let running = false;
 
+const REQUIRED_ENV = [
+  'SUPABASE_URL',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'DREAMLEDGER_AGENT_BRIDGE_TOKEN'
+];
+
+function missingConfig() {
+  return REQUIRED_ENV.filter((name) => !String(process.env[name] || '').trim());
+}
+
+function configStatus() {
+  const missing = missingConfig();
+  return {
+    configured: missing.length === 0,
+    missing_env: missing,
+    required_env: REQUIRED_ENV.slice()
+  };
+}
+
 function configured() {
-  return Boolean(
-    process.env.SUPABASE_URL &&
-    process.env.SUPABASE_SERVICE_ROLE_KEY &&
-    process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN
-  );
+  return configStatus().configured;
 }
 
 async function tick({ port, workerId = 'render-worker' } = {}) {
-  if (running || !configured()) return { status: running ? 'BUSY' : 'NOT_CONFIGURED' };
+  const config = configStatus();
+  if (running) return { status: 'BUSY', config };
+  if (!config.configured) return { status: 'NOT_CONFIGURED', config };
   running = true;
   const baseUrl = `http://127.0.0.1:${Number(port)}`;
   try {
@@ -48,6 +65,7 @@ function start({ port, intervalMs = 60000, workerId = 'render-worker' } = {}) {
   const execute = () => tick({ port, workerId }).then(result => {
     console.log('[ProductionBridgeWorker]', JSON.stringify({
       status: result.status,
+      config: result.config || null,
       job_id: result.job_id || null,
       lease_id: result.lease_id || null,
       worker_id: result.worker_id || workerId
@@ -58,15 +76,20 @@ function start({ port, intervalMs = 60000, workerId = 'render-worker' } = {}) {
     return null;
   });
 
+  const initialConfig = configStatus();
   console.log('[ProductionBridgeWorker] started', JSON.stringify({
-    configured: configured(),
+    ...initialConfig,
     port: Number(port),
     worker_id: workerId,
     interval_ms: Math.max(15000, Number(intervalMs) || 60000)
   }));
 
+  if (!initialConfig.configured) {
+    console.error('[ProductionBridgeWorker] NOT_CONFIGURED missing environment variables:', initialConfig.missing_env.join(', '));
+  }
+
   execute();
   return setInterval(execute, Math.max(15000, Number(intervalMs) || 60000));
 }
 
-module.exports = { configured, tick, start };
+module.exports = { configured, configStatus, missingConfig, tick, start };
