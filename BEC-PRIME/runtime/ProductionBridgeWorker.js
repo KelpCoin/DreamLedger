@@ -46,19 +46,27 @@ async function tick({ port, workerId = 'render-worker' } = {}) {
 function start({ port, intervalMs = 60000, workerId = 'render-worker' } = {}) {
   if (!Number.isInteger(Number(port)) || Number(port) <= 0) return null;
   const execute = () => tick({ port, workerId }).then(result => {
-    if (result.status !== 'IDLE' && result.status !== 'BUSY' && result.status !== 'NOT_CONFIGURED') {
-      console.log('[ProductionBridgeWorker]', JSON.stringify(result));
-    }
+    console.log('[ProductionBridgeWorker]', JSON.stringify({
+      status: result.status,
+      job_id: result.job_id || null,
+      lease_id: result.lease_id || null,
+      worker_id: result.worker_id || workerId
+    }));
     return result;
   }).catch(error => {
     console.error('[ProductionBridgeWorker]', error && error.stack ? error.stack : error);
     return null;
   });
 
-  setTimeout(execute, 5000);
-  const timer = setInterval(execute, Math.max(15000, Number(intervalMs) || 60000));
-  if (typeof timer.unref === 'function') timer.unref();
-  return timer;
+  console.log('[ProductionBridgeWorker] started', JSON.stringify({
+    configured: configured(),
+    port: Number(port),
+    worker_id: workerId,
+    interval_ms: Math.max(15000, Number(intervalMs) || 60000)
+  }));
+
+  execute();
+  return setInterval(execute, Math.max(15000, Number(intervalMs) || 60000));
 }
 
 module.exports = { configured, tick, start };
