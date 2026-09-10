@@ -3,7 +3,7 @@
 const workerPool = require('./worker-pool');
 
 const DEFAULT_BRIDGE_URL = process.env.BEC_AGENT_BRIDGE_URL || process.env.AGENT_BRIDGE_URL || 'http://127.0.0.1:3000';
-const DEFAULT_BRIDGE_PATH = '/api/agent-bridge/jobs/next';
+const DEFAULT_RAIL_PATH = '/api/agent-bridge/rail/lease';
 const JOB_KIND_MAP = new Map([
   ['analysis', 'analysis'],
   ['code_change', 'code_change'],
@@ -41,7 +41,7 @@ function toWorkerJob(jobEnvelope) {
     task: objective,
     inputs: {
       bridge_job_id: jobId,
-      source: jobEnvelope.source || 'agent-bridge',
+      source: jobEnvelope.source || 'agent-bridge-rail',
       candidate_id: jobEnvelope.candidate_id || null,
       offer_ids: offerIds,
       evidence_requirements: evidenceRequirements,
@@ -56,24 +56,30 @@ function toWorkerJob(jobEnvelope) {
   };
 }
 
-async function fetchNextJob(options = {}) {
+async function leaseNextJob(options = {}) {
   const fetchImpl = options.fetchImpl || globalThis.fetch;
   if (typeof fetchImpl !== 'function') throw new Error('fetch is not available');
   const baseUrl = String(options.baseUrl || DEFAULT_BRIDGE_URL).replace(/\/$/, '');
-  const endpoint = `${baseUrl}${options.path || DEFAULT_BRIDGE_PATH}`;
+  const endpoint = `${baseUrl}${options.path || DEFAULT_RAIL_PATH}`;
   const token = String(options.token || process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN || '');
+  const workerId = String(options.workerId || process.env.BEC_WORKER_ID || '').trim().toLowerCase();
   if (!token) throw new Error('DREAMLEDGER_AGENT_BRIDGE_TOKEN is required');
+  if (!workerId || !/^[a-z0-9_-]{2,64}$/.test(workerId)) throw new Error('BEC_WORKER_ID must match ^[a-z0-9_-]{2,64}$');
 
   const response = await fetchImpl(endpoint, {
-    method: 'GET',
-    headers: { 'x-dreamledger-agent-token': token, Accept: 'application/json' }
+    method: 'POST',
+    headers: { 'x-dreamledger-agent-token': token, Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ worker_id: workerId })
   });
   const text = await response.text();
-  let body;
-  try { body = JSON.parse(text || '{}'); } catch { throw new Error('Agent bridge returned invalid JSON'); }
-  if (!response.ok) throw new Error(body.error || `Agent bridge request failed (${response.status})`);
-  if (body.schema_version !== 'BECK-ECONOMIC-JOB-1.0') throw new Error('Unexpected agent bridge job schema');
-  return body.job || null;
+  let body = null;
+  try { body = JSON.parse(text || 'null'); } catch { throw new Error(`Bridge rail returned invalid JSON (${response.status})`); }
+  if (response.status === 204) return null;
+  if (!response.ok) throw new Error(body && body.error ? body.error : `Bridge rail request failed (${response.status})`);
+  if (!body || body.rail_schema !== 'BECK-BRIDGE-RAIL-1.0' || !body.envelope || !body.signature || !body.job) {
+    throw new Error('Bridge rail returned an invalid lease envelope');
+  }
+  return body;
 }
 
 async function adaptJob(jobEnvelope, options = {}) {
@@ -108,12 +114,24 @@ async function adaptJob(jobEnvelope, options = {}) {
 }
 
 async function runNext(options = {}) {
-  const job = await fetchNextJob(options);
-  if (!job) return { status: 'IDLE' };
-  return adaptJob(job, options);
+  const lease = await leaseNextJob(options);
+  if (!lease) return { status: 'IDLE' };
+  const result = await adaptJob({
+    job_id: lease.envelope.job_id,
+    job_type: lease.job.type,
+    objective: lease.envelope.objective,
+    silo: lease.envelope.silo_id,
+    source: 'agent-bridge-rail',
+    payload: lease.job.payload || {}
+  }, options);
+  return {
+    status: 'LEASED_AND_EXECUTED',
+    lease,
+    result
+  };
 }
 
-module.exports = { fetchNextJob, toWorkerJob, adaptJob, runNext };
+module.exports = { leaseNextJob, toWorkerJob, adaptJob, runNext };
 
 if (require.main === module) {
   runNext().then(result => console.log(JSON.stringify(result, null, 2))).catch(error => {
