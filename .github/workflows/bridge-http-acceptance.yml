@@ -113,9 +113,9 @@ try {
   await assert(manifest.status === 200, 'HTTP_AUTH_VALID', {status:manifest.status});
 
   job1 = await insertExpiredJob(workerA, tokenA);
-  const reaped = await sb('/rest/v1/rpc/reclaim_expired_jobs', {method:'POST', body:JSON.stringify({p_limit:50})});
-  const reclaimed = Array.isArray(reaped) ? reaped : [];
-  await assert(reclaimed.some(x => x.id === job1.id) || reclaimed.some(x => x.job_id === job1.id), 'HTTP_RECLAIM', {job_id:job1.id,reaped});
+  await sb('/rest/v1/rpc/reclaim_expired_jobs', {method:'POST', body:JSON.stringify({p_limit:50})});
+  const reclaimedRow = await sb(`/rest/v1/jobs?id=eq.${encodeURIComponent(job1.id)}&select=id,status,worker_id,lease_token,leased_until`);
+  await assert(Array.isArray(reclaimedRow) && reclaimedRow[0]?.status === 'pending' && reclaimedRow[0]?.lease_token == null, 'HTTP_RECLAIM', {job:reclaimedRow[0]});
 
   const claim = await http('/api/agent-bridge/jobs/claim', {worker_id:workerB,lease_seconds:60}, {'headers':{'X-Correlation-ID':corr}});
   leaseB = claim.body;
@@ -128,7 +128,7 @@ try {
   const stale = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerA,lease_token:tokenA}, {'headers':{'X-Correlation-ID':corr}});
   await assert(stale.status === 409 && stale.body?.fenced === true, 'HTTP_LEASE_FENCING', stale);
 
-  const good = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerB,lease_token:leaseB.lease_token}, {'headers:{'X-Correlation-ID':corr}});
+  const good = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerB,lease_token:leaseB.lease_token}, {'headers':{'X-Correlation-ID':corr}});
   await assert(good.status === 200 && good.body?.completed === true && good.body?.status === 'SUCCEEDED', 'HTTP_E2E', good);
 
   const replay = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerB,lease_token:leaseB.lease_token}, {'headers':{'X-Correlation-ID':corr}});
