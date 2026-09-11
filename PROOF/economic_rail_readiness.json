@@ -1,0 +1,12 @@
+{
+  "schema": "browneye/proof/v1",
+  "name": "economic_rail_readiness",
+  "status": "UNPROVEN",
+  "detail": {
+    "live_offers_count": 3,
+    "billboard_surface": "live",
+    "stripe_pi_known": "pi_3TApftEGgEAnUFF903eC3JeK",
+    "policy": "Do not promote unmatched PaymentIntent without full evidence chain",
+    "launch": "NOT authorized this session"
+  }
+}

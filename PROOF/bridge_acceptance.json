@@ -1,0 +1,15 @@
+{
+  "schema": "browneye/proof/v1",
+  "name": "bridge_acceptance",
+  "status": "UNPROVEN",
+  "detail": {
+    "reason": "GitHub Actions secrets SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DREAMLEDGER_AGENT_BRIDGE_TOKEN are empty",
+    "last_acceptance_run": "34565763849",
+    "deploy_gate": "PASS",
+    "secrets_gate": "FAIL",
+    "http_race": "NOT_RUN",
+    "claim_without_token": 401,
+    "manifest": 200
+  },
+  "produced_by": "remote-engineering-worker"
+}

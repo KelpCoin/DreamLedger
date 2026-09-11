@@ -1,0 +1,36 @@
+{
+  "schema": "browneye/cortex-execution-manifest/v1",
+  "manifest_id": "MANIFEST-CORTEX-REMOTE-2026-09-11",
+  "correlation_id": "CORR-CORTEX-HANDOFF-2026-09-11",
+  "remote_endpoint": "https://dreamledger.org",
+  "authentication": {
+    "required": true,
+    "header": "x-dreamledger-agent-token",
+    "env": "DREAMLEDGER_AGENT_BRIDGE_TOKEN"
+  },
+  "approval_requirement": "none for observe-only smoke jobs",
+  "timeout_sec": 300,
+  "retry_policy": {"max_attempts": 3, "backoff_ms": 2000},
+  "expected_completion_state": "COMPLETED",
+  "verifier": "local_health_check.py + cortex_worker.py",
+  "jobs": [
+    {
+      "job_id": "JOB-MANIFEST-PROBE-001",
+      "action": "manifest_probe",
+      "capability": "verification",
+      "objective": "Manifest probe against live AgentBridge",
+      "silo_id": "SILO_GENERAL",
+      "risk_class": "observe",
+      "approval_state": "none"
+    },
+    {
+      "job_id": "JOB-BRIDGE-CLAIM-SMOKE-001",
+      "action": "bridge_claim_smoke",
+      "capability": "bridge_worker",
+      "objective": "Authenticated claim smoke; empty queue acceptable",
+      "silo_id": "SILO_GENERAL",
+      "risk_class": "observe",
+      "approval_state": "none"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "browneye/proof/v1",
+  "name": "gauntlet_readiness",
+  "status": "UNPROVEN",
+  "detail": {
+    "existing": "GAUNTLET/Invoke-BEC-Gauntlet-Q1.ps1",
+    "local_adapter": "CORTEX/gauntlet_adapter.py",
+    "thresholds": {"promote": 75, "test_review": 60, "kill": 40},
+    "decisions": ["PASS", "FAIL", "QUARANTINE", "NEEDS_EVIDENCE"]
+  }
+}

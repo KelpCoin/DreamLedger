@@ -1,0 +1,6 @@
+{
+  "schema": "browneye/cortex-execution-manifest/v1",
+  "manifest_id": "MANIFEST-CORTEX-REMOTE-2026-09-11",
+  "remote_endpoint": "https://dreamledger.org",
+  "note": "Mirror of CORTEX/cortex_execution_manifest.json for proof index"
+}

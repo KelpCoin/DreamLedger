@@ -1,0 +1,17 @@
+{
+  "schema": "browneye/proof/v1",
+  "name": "bridge_evidence",
+  "status": "UNPROVEN",
+  "detail": {
+    "code_present": true,
+    "entry": "BEC-PRIME/runtime/AgentBridge.js -> AgentBridgeFencedAdapter",
+    "client": "BEC-PRIME/runtime/AgentBridgeClient.js",
+    "rail": "BEC-PRIME/runtime/BridgeRail.js",
+    "auth_header": "x-dreamledger-agent-token",
+    "live": {
+      "POST /api/agent-bridge/jobs/claim unauth": 401,
+      "GET /api/agent-bridge/manifest": 200,
+      "GET /healthz": 200
+    }
+  }
+}

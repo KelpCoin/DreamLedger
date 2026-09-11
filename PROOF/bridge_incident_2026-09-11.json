@@ -1,0 +1,10 @@
+{
+  "schema": "browneye/proof/v1",
+  "name": "bridge_incident_2026-09-11",
+  "status": "STALE",
+  "detail": {
+    "incident_window_utc": "2026-09-11T05:08:44Z",
+    "context": "Acceptance deploy wait; production was on df03b632 until public/ rebuild",
+    "current_blocker": "GitHub repository secrets missing for bridge acceptance job"
+  }
+}
