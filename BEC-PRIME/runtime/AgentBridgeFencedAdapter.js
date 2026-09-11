@@ -9,140 +9,83 @@ function config() {
   const proxy = String(process.env.AGENT_BRIDGE_PROXY_URL || `${url}/functions/v1/agent-bridge-proxy`).replace(/\/$/, '');
   return { url, token, proxy };
 }
-
-function configured() {
-  const c = config();
-  return Boolean(c.url && c.token && c.proxy);
-}
-
-function authorized(req) {
-  const c = config();
-  return configured() && String(req.headers['x-dreamledger-agent-token'] || '') === c.token;
-}
-
-function correlationId(req) {
-  const supplied = String(req.headers['x-correlation-id'] || '').trim();
-  return supplied || crypto.randomUUID();
-}
-
+function configured() { const c = config(); return Boolean(c.url && c.token && c.proxy); }
+function authorized(req) { const c = config(); return configured() && String(req.headers['x-dreamledger-agent-token'] || '') === c.token; }
+function correlationId(req) { return String(req.headers['x-correlation-id'] || '').trim() || crypto.randomUUID(); }
 function send(res, status, body, correlation) {
   if (res.writableEnded) return;
   if (correlation) res.setHeader('X-Correlation-ID', correlation);
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(body));
 }
-
 async function readJson(req) {
   let raw = '';
-  for await (const chunk of req) {
-    raw += chunk;
-    if (raw.length > 200000) throw Object.assign(new Error('Request too large'), { statusCode: 413 });
-  }
+  for await (const chunk of req) { raw += chunk; if (raw.length > 200000) throw Object.assign(new Error('Request too large'), { statusCode: 413 }); }
   try { return JSON.parse(raw || '{}'); } catch (_) { throw Object.assign(new Error('Invalid JSON'), { statusCode: 400 }); }
 }
-
 async function db(path, method, body) {
   const c = config();
-  const response = await fetch(c.proxy, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-dreamledger-agent-token': c.token },
-    body: JSON.stringify({ path, method: method || 'GET', prefer: 'return=representation', body: method === 'GET' ? undefined : (body || {}) })
-  });
+  const response = await fetch(c.proxy, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-dreamledger-agent-token': c.token }, body: JSON.stringify({ path, method: method || 'GET', prefer: 'return=representation', body: method === 'GET' ? undefined : (body || {}) }) });
   const text = await response.text();
-  let data;
-  try { data = JSON.parse(text || 'null'); } catch (_) { data = { raw: text }; }
+  let data; try { data = JSON.parse(text || 'null'); } catch (_) { data = { raw: text }; }
   if (!response.ok) throw Object.assign(new Error(data && data.error ? data.error : `Bridge proxy failed (${response.status})`), { statusCode: response.status });
   return data;
 }
-
 function jobView(job, correlation) {
   if (!job) return null;
-  return {
-    job_id: job.id,
-    job_type: job.type,
-    state: job.status,
-    payload: job.payload || {},
-    worker_id: job.worker_id || null,
-    attempt_count: Number(job.attempt_count || 0),
-    started_at: job.started_at || null,
-    leased_until: job.leased_until || null,
-    correlation_id: correlation
-  };
+  return { job_id: job.id, job_type: job.type, state: job.status, payload: job.payload || {}, worker_id: job.worker_id || null, attempt_count: Number(job.attempt_count || 0), started_at: job.started_at || null, leased_until: job.leased_until || null, correlation_id: correlation };
 }
-
 async function remember(eventId, body) {
   const existing = await db(`control_bridge_notes?event_id=eq.${encodeURIComponent(eventId)}&select=note_id,body&limit=1`, 'GET');
-  if (Array.isArray(existing) && existing.length) {
-    try { return { idempotent: true, receipt: JSON.parse(existing[0].body || '{}'), note_id: existing[0].note_id }; } catch (_) {}
-  }
-  const row = {
-    from_agent: 'system',
-    to_agent: 'system',
-    note_type: 'FINDING',
-    subject: `HTTP_BRIDGE_OPERATION:${eventId}`,
-    body: JSON.stringify(body),
-    requires_response: false,
-    event_id: eventId,
-    correlation_id: body.correlation_id,
-    lane: 'execution',
-    priority: 100,
-    silo_id: 'SILO_GENERAL',
-    source_system: 'agentbridge-http'
-  };
+  if (Array.isArray(existing) && existing.length) { try { return { idempotent: true, receipt: JSON.parse(existing[0].body || '{}'), note_id: existing[0].note_id }; } catch (_) {} }
+  const row = { from_agent: 'system', to_agent: 'system', note_type: 'FINDING', subject: `HTTP_BRIDGE_OPERATION:${eventId}`, body: JSON.stringify(body), requires_response: false, event_id: eventId, correlation_id: body.correlation_id, lane: 'execution', priority: 100, silo_id: 'SILO_GENERAL', source_system: 'agentbridge-http' };
   const created = await db('control_bridge_notes', 'POST', row);
   const note = Array.isArray(created) ? created[0] : created;
   return { idempotent: false, receipt: body, note_id: note && note.note_id };
 }
 
 async function handle(req, res) {
-  const raw = String(req.url || '');
-  const path = raw.split('?')[0];
-  const match = path.match(/^\/api\/agent-bridge\/jobs\/([^/]+)\/(claim|complete|fail|heartbeat)$/);
-  if (!match) return legacy.handle(req, res);
+  const path = String(req.url || '').split('?')[0];
+  const nextClaim = path === '/api/agent-bridge/jobs/claim';
+  const match = path.match(/^\/api\/agent-bridge\/jobs\/([^/]+)\/(complete|fail|heartbeat)$/);
+  if (!nextClaim && !match) return legacy.handle(req, res);
 
   const correlation = correlationId(req);
-  res.setHeader('X-Correlation-ID', correlation);
   if (!configured()) return send(res, 503, { error: 'Agent bridge is not configured', correlation_id: correlation }, correlation);
   if (!authorized(req)) return send(res, 401, { error: 'Agent bridge authentication required', correlation_id: correlation }, correlation);
   if (req.method !== 'POST') return send(res, 405, { error: 'POST required', correlation_id: correlation }, correlation);
 
   try {
-    const jobId = decodeURIComponent(match[1]);
-    const op = match[2];
     const input = await readJson(req);
     const workerId = String(input.worker_id || '').trim();
     if (!workerId) return send(res, 400, { error: 'worker_id required', correlation_id: correlation }, correlation);
 
-    if (op === 'claim') {
+    if (nextClaim) {
       const leaseSeconds = Math.max(30, Math.min(3600, Number(input.lease_seconds || 900)));
       const claimed = await db('rpc/claim_job', 'POST', { p_worker_id: workerId, p_lease_seconds: leaseSeconds });
       if (!claimed) return send(res, 200, { claimed: false, reason: 'NO_JOB', correlation_id: correlation }, correlation);
-      if (String(claimed.id) !== String(jobId)) return send(res, 409, { claimed: false, reason: 'CLAIMED_DIFFERENT_JOB', job: jobView(claimed, correlation), correlation_id: correlation }, correlation);
       return send(res, 200, { claimed: true, job: jobView(claimed, correlation), lease_token: claimed.lease_token, lease_until: claimed.leased_until, correlation_id: correlation }, correlation);
     }
 
+    const jobId = decodeURIComponent(match[1]);
+    const op = match[2];
     const token = String(input.lease_token || '').trim();
     if (!token) return send(res, 400, { error: 'lease_token required', correlation_id: correlation }, correlation);
 
     if (op === 'heartbeat') {
       const seconds = Math.max(30, Math.min(3600, Number(input.lease_seconds || 900)));
       const ok = await db('rpc/renew_job', 'POST', { p_job_id: jobId, p_lease_token: token, p_lease_seconds: seconds });
-      if (!ok) return send(res, 409, { renewed: false, reason: 'LEASE_LOST', correlation_id: correlation }, correlation);
+      if (!ok) return send(res, 409, { renewed: false, reason: 'LEASE_LOST', correlation_id: correlation, fenced: true }, correlation);
       return send(res, 200, { renewed: true, lease_seconds: seconds, correlation_id: correlation }, correlation);
     }
 
     const eventId = `HTTP-${op.toUpperCase()}-${jobId}-${token}`;
     const replay = await remember(eventId, { operation: op, job_id: jobId, lease_token: token, worker_id: workerId, correlation_id: correlation, status: 'RECEIVED' });
-    if (replay.idempotent && replay.receipt && replay.receipt.status === 'SUCCEEDED') {
-      return send(res, 200, Object.assign({}, replay.receipt, { idempotent: true }), correlation);
-    }
+    if (replay.idempotent && replay.receipt && replay.receipt.status === 'SUCCEEDED') return send(res, 200, Object.assign({}, replay.receipt, { idempotent: true }), correlation);
 
-    let ok;
-    if (op === 'complete') {
-      ok = await db('rpc/complete_job', 'POST', { p_job_id: jobId, p_lease_token: token });
-    } else {
-      ok = await db('rpc/fail_job', 'POST', { p_job_id: jobId, p_lease_token: token, p_error: String(input.error || 'worker failure').slice(0, 4000) });
-    }
+    const ok = op === 'complete'
+      ? await db('rpc/complete_job', 'POST', { p_job_id: jobId, p_lease_token: token })
+      : await db('rpc/fail_job', 'POST', { p_job_id: jobId, p_lease_token: token, p_error: String(input.error || 'worker failure').slice(0, 4000) });
 
     if (!ok) return send(res, 409, { [op === 'complete' ? 'completed' : 'failed']: false, reason: 'LEASE_NOT_HELD', correlation_id: correlation, fenced: true }, correlation);
 
