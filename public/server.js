@@ -1,5 +1,5 @@
 'use strict';
-// Production convergence marker: 2026-09-02. Keep the public storefront on the canonical v15 contract.
+// Production convergence marker: 2026-09-11. Force exact-SHA deploy so bridge acceptance can run against live production.
 // CUBE surface registry: many commercial surfaces, one commerce/proof spine.
 const crypto=require('crypto');
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
@@ -60,7 +60,7 @@ if(p==='/webhook'&&req.method==='POST'){try{const body=await readBody(req);verif
 if(p==='/webhook')return send(res,405,'Method not allowed','text/plain; charset=utf-8');
 if(p==='/dreammeez'||p==='/dreammeez/')return serveFile(res,'avatar.html');
 if(p==='/dreamiez'||p==='/dreamiez/')return serveFile(res,'dreamiez.html',DREAMMEEZ_ROOT);
-if(p==='/avatar'||p==='/avatar/'||p==='/avatars'||p==='/avatars/')return serveFile(res,'avatar.html');
+if(p==='/avatar'||p==='/avatar/'||p==='/avatars'||p=='/avatars/')return serveFile(res,'avatar.html');
 if(p.startsWith('/api/')){if(!ALLOWED_API[key])return send(res,404,'Not Found','text/plain; charset=utf-8');try{return proxy(req,res,await readBody(req))}catch{return send(res,400,'Bad request','text/plain; charset=utf-8')}}
 if(p==='/.well-known/dreamledger.json'&&req.method==='GET')return serveFile(res,'.well-known/dreamledger.json');
 const file=PUBLIC_FILES[p];if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');serveFile(res,file)}).listen(PORT,'0.0.0.0',()=>console.log('DreamLedger public storefront listening on '+PORT));
