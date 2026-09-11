@@ -1,0 +1,27 @@
+{
+  "schema": "browneye/cortex-job-envelope/v1",
+  "description": "Canonical job envelope over existing DreamLedger jobs substrate",
+  "required": ["job_id", "correlation_id", "silo_id", "capability", "objective", "actor", "risk_class", "approval_state", "state"],
+  "properties": {
+    "job_id": {"type": "string"},
+    "correlation_id": {"type": "string"},
+    "parent_job_id": {"type": ["string", "null"]},
+    "silo_id": {"type": "string"},
+    "capability": {"type": "string"},
+    "objective": {"type": "string"},
+    "actor": {"type": "string"},
+    "risk_class": {"type": "string", "enum": ["observe", "mutate_test", "mutate_prod", "irreversible"]},
+    "approval_state": {"type": "string", "enum": ["none", "pending", "approved", "rejected"]},
+    "state": {"type": "string"},
+    "input_hash": {"type": ["string", "null"]},
+    "output_hash": {"type": ["string", "null"]},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "gauntlet_result": {"type": ["object", "null"]},
+    "truth_result": {"type": ["object", "null"]},
+    "execution_result": {"type": ["object", "null"]},
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"}
+  },
+  "gauntlet_thresholds": {"promote": 75, "test_review": 60, "kill": 40},
+  "gauntlet_decisions": ["PASS", "FAIL", "QUARANTINE", "NEEDS_EVIDENCE"]
+}

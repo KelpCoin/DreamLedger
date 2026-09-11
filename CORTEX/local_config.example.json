@@ -1,0 +1,22 @@
+{
+  "schema": "browneye/cortex-local-config/v1",
+  "bridge_base_url": "https://dreamledger.org",
+  "bridge_token_env": "DREAMLEDGER_AGENT_BRIDGE_TOKEN",
+  "agent_id": "cortex-windows-1",
+  "agent_profile": "grok",
+  "silo_id": "SILO_GENERAL",
+  "model": {
+    "provider": "lmstudio",
+    "base_url": "http://127.0.0.1:1234/v1",
+    "model_id": "local-model",
+    "timeout_ms": 120000
+  },
+  "paths": {
+    "work_dir": "./work",
+    "proof_dir": "./proof",
+    "manifest": "./cortex_execution_manifest.json",
+    "result": "./cortex_execution_result.json"
+  },
+  "retry": {"max_attempts": 3, "backoff_ms": 2000},
+  "timeout_sec": 300
+}
