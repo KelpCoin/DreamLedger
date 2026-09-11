@@ -18,30 +18,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Wait for production to expose this exact commit or a verified ancestor
+      - name: Wait for production to expose this exact commit
         env:
           EXPECTED_COMMIT: ${{ github.sha }}
           BRIDGE_URL: https://dreamledger.org
         shell: bash
         run: |
           set -euo pipefail
-          for i in $(seq 1 60); do
+          for i in $(seq 1 90); do
             body=$(curl -fsS "$BRIDGE_URL/version" || true)
             printf '%s\n' "$body"
             prod=$(printf '%s' "$body" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{process.stdout.write(JSON.parse(d).commit||'')}catch{}})")
-            if [ -z "$prod" ] || [ "$prod" = "unknown" ]; then
-              sleep 10
-              continue
-            fi
             if [ "$prod" = "$EXPECTED_COMMIT" ]; then
               echo 'DEPLOYED_COMMIT=PASS'
-              echo "MATCH=exact"
-              exit 0
-            fi
-            # Accept production SHA if it is an ancestor of the commit under test (CI-only changes).
-            if git merge-base --is-ancestor "$prod" "$EXPECTED_COMMIT" 2>/dev/null; then
-              echo 'DEPLOYED_COMMIT=PASS'
-              echo "MATCH=lineage-ancestor"
               echo "PRODUCTION_SHA=$prod"
               echo "EXPECTED_SHA=$EXPECTED_COMMIT"
               exit 0
@@ -49,6 +38,8 @@ jobs:
             sleep 10
           done
           echo 'DEPLOYED_COMMIT=FAIL'
+          echo "PRODUCTION_SHA=${prod:-unknown}"
+          echo "EXPECTED_SHA=$EXPECTED_COMMIT"
           exit 1
 
       - name: Require bridge secrets
@@ -65,8 +56,8 @@ jobs:
           if [ -z "${DREAMLEDGER_AGENT_BRIDGE_TOKEN:-}" ]; then echo 'MISSING_SECRET=DREAMLEDGER_AGENT_BRIDGE_TOKEN'; missing=1; fi
           if [ "$missing" -ne 0 ]; then
             echo 'SECRETS=FAIL'
-            echo 'Set these three repository secrets in GitHub → Settings → Secrets and variables → Actions'
-            echo 'Use the same values already configured on the live Render dreamledger-storefront / dreamledger-engine services.'
+            echo 'Set these three repository secrets in GitHub -> Settings -> Secrets and variables -> Actions'
+            echo 'Use the same values already configured on the live Render bridge services.'
             exit 1
           fi
           echo 'SECRETS=PASS'
