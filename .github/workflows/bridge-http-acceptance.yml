@@ -48,64 +48,64 @@ jobs:
           test -n "${SUPABASE_SERVICE_ROLE_KEY:-}"
           test -n "${DREAMLEDGER_AGENT_BRIDGE_TOKEN:-}"
           node <<'NODE'
-const crypto = require('crypto');
-const base = process.env.SUPABASE_URL.replace(/\/$/, '');
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const token = process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN;
-const bridge = process.env.BRIDGE_URL.replace(/\/$/, '');
-const corr = `BRIDGE-HTTP-PROBE-${crypto.randomUUID()}`;
-const out = [];
-const headers = {'apikey':key,'Authorization':`Bearer ${key}`,'Content-Type':'application/json','Prefer':'return=representation'};
-const httpHeaders = {'Content-Type':'application/json','x-dreamledger-agent-token':token};
-async function sb(path, options={}) { const r=await fetch(base+path,{headers,...options}); const t=await r.text(); let b; try{b=JSON.parse(t||'null')}catch{b=t} if(!r.ok) throw new Error(`SUPABASE ${r.status}: ${t}`); return b; }
-async function http(path, body, correlation=corr) { const r=await fetch(bridge+path,{method:'POST',headers:{...httpHeaders,'X-Correlation-ID':correlation},body:body===undefined?undefined:JSON.stringify(body)}); const t=await r.text(); let b; try{b=JSON.parse(t||'null')}catch{b=t} return {status:r.status,headers:Object.fromEntries(r.headers.entries()),body:b}; }
-function gate(name, ok, detail){out.push({gate:name,status:ok?'PASS':'FAIL',detail}); if(!ok) throw new Error(`${name}: ${JSON.stringify(detail)}`);}
-async function makeExpired(worker, leaseToken){const id=crypto.randomUUID(), now=new Date().toISOString(); const rows=await sb('/rest/v1/jobs',{method:'POST',body:JSON.stringify({id,type:'BRIDGE_TEST_HTTP_PROBE',payload:{source:'BRIDGE_TEST_HTTP_PROBE',approval_gate:'TEST_ONLY',external_action_allowed:false,payment_claim:false,sale_claim:false,fulfillment_claim:false},status:'leased',attempt_count:1,worker_id:worker,lease_token:leaseToken,created_at:now,started_at:now,leased_until:new Date(Date.now()-60000).toISOString(),last_error:null})}); return Array.isArray(rows)?rows[0]:rows;}
-(async()=>{try{
-  const unauth=await fetch(`${bridge}/api/agent-bridge/jobs/claim`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({worker_id:'bridge-unauth',lease_seconds:30})}); gate('HTTP_AUTH',unauth.status===401,{status:unauth.status});
-  const manifest=await fetch(`${bridge}/api/agent-bridge/manifest`,{headers:{'x-dreamledger-agent-token':token}}); gate('HTTP_AUTH_VALID',manifest.status===200,{status:manifest.status});
+          const crypto = require('crypto');
+          const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+          const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+          const token = process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN;
+          const bridge = process.env.BRIDGE_URL.replace(/\/$/, '');
+          const corr = `BRIDGE-HTTP-PROBE-${crypto.randomUUID()}`;
+          const out = [];
+          const headers = {'apikey':key,'Authorization':`Bearer ${key}`,'Content-Type':'application/json','Prefer':'return=representation'};
+          const httpHeaders = {'Content-Type':'application/json','x-dreamledger-agent-token':token};
+          async function sb(path, options={}) { const r=await fetch(base+path,{headers,...options}); const t=await r.text(); let b; try{b=JSON.parse(t||'null')}catch{b=t} if(!r.ok) throw new Error(`SUPABASE ${r.status}: ${t}`); return b; }
+          async function http(path, body, correlation=corr) { const r=await fetch(bridge+path,{method:'POST',headers:{...httpHeaders,'X-Correlation-ID':correlation},body:body===undefined?undefined:JSON.stringify(body)}); const t=await r.text(); let b; try{b=JSON.parse(t||'null')}catch{b=t} return {status:r.status,headers:Object.fromEntries(r.headers.entries()),body:b}; }
+          function gate(name, ok, detail){out.push({gate:name,status:ok?'PASS':'FAIL',detail}); if(!ok) throw new Error(`${name}: ${JSON.stringify(detail)}`);}
+          async function makeExpired(worker, leaseToken){const id=crypto.randomUUID(), now=new Date().toISOString(); const rows=await sb('/rest/v1/jobs',{method:'POST',body:JSON.stringify({id,type:'BRIDGE_TEST_HTTP_PROBE',payload:{source:'BRIDGE_TEST_HTTP_PROBE',approval_gate:'TEST_ONLY',external_action_allowed:false,payment_claim:false,sale_claim:false,fulfillment_claim:false},status:'leased',attempt_count:1,worker_id:worker,lease_token:leaseToken,created_at:now,started_at:now,leased_until:new Date(Date.now()-60000).toISOString(),last_error:null})}); return Array.isArray(rows)?rows[0]:rows;}
+          (async()=>{try{
+            const unauth=await fetch(`${bridge}/api/agent-bridge/jobs/claim`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({worker_id:'bridge-unauth',lease_seconds:30})}); gate('HTTP_AUTH',unauth.status===401,{status:unauth.status});
+            const manifest=await fetch(`${bridge}/api/agent-bridge/manifest`,{headers:{'x-dreamledger-agent-token':token}}); gate('HTTP_AUTH_VALID',manifest.status===200,{status:manifest.status});
 
-  const workerA=`probe-a-${crypto.randomUUID().slice(0,8)}`, workerB=`probe-b-${crypto.randomUUID().slice(0,8)}`, staleToken=crypto.randomUUID();
-  const job=await makeExpired(workerA,staleToken);
-  await sb('/rest/v1/rpc/reclaim_expired_jobs',{method:'POST',body:JSON.stringify({p_limit:50})});
-  const reclaimed=(await sb(`/rest/v1/jobs?id=eq.${encodeURIComponent(job.id)}&select=id,status,worker_id,lease_token,leased_until`))[0];
-  gate('HTTP_RECLAIM',reclaimed?.status==='pending'&&reclaimed?.lease_token==null,reclaimed);
+            const workerA=`probe-a-${crypto.randomUUID().slice(0,8)}`, workerB=`probe-b-${crypto.randomUUID().slice(0,8)}`, staleToken=crypto.randomUUID();
+            const job=await makeExpired(workerA,staleToken);
+            await sb('/rest/v1/rpc/reclaim_expired_jobs',{method:'POST',body:JSON.stringify({p_limit:50})});
+            const reclaimed=(await sb(`/rest/v1/jobs?id=eq.${encodeURIComponent(job.id)}&select=id,status,worker_id,lease_token,leased_until`))[0];
+            gate('HTTP_RECLAIM',reclaimed?.status==='pending'&&reclaimed?.lease_token==null,reclaimed);
 
-  const claim=await http('/api/agent-bridge/jobs/claim',{worker_id:workerB,lease_seconds:60});
-  gate('HTTP_LEASE_CLAIM',claim.status===200&&claim.body?.claimed===true&&claim.body?.job?.job_id===job.id,{status:claim.status,body:claim.body});
-  const liveToken=claim.body.lease_token;
-  gate('HTTP_CORRELATION',claim.headers['x-correlation-id']===corr&&claim.body.correlation_id===corr,{header:claim.headers['x-correlation-id'],body:claim.body.correlation_id,expected:corr});
+            const claim=await http('/api/agent-bridge/jobs/claim',{worker_id:workerB,lease_seconds:60});
+            gate('HTTP_LEASE_CLAIM',claim.status===200&&claim.body?.claimed===true&&claim.body?.job?.job_id===job.id,{status:claim.status,body:claim.body});
+            const liveToken=claim.body.lease_token;
+            gate('HTTP_CORRELATION',claim.headers['x-correlation-id']===corr&&claim.body.correlation_id===corr,{header:claim.headers['x-correlation-id'],body:claim.body.correlation_id,expected:corr});
 
-  const hb=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/heartbeat`,{worker_id:workerB,lease_token:liveToken,lease_seconds:60});
-  gate('HTTP_HEARTBEAT',hb.status===200&&hb.body?.renewed===true,hb);
+            const hb=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/heartbeat`,{worker_id:workerB,lease_token:liveToken,lease_seconds:60});
+            gate('HTTP_HEARTBEAT',hb.status===200&&hb.body?.renewed===true,hb);
 
-  const stale=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/complete`,{worker_id:workerA,lease_token:staleToken});
-  gate('HTTP_LEASE_FENCING',stale.status===409&&stale.body?.fenced===true,stale);
+            const stale=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/complete`,{worker_id:workerA,lease_token:staleToken});
+            gate('HTTP_LEASE_FENCING',stale.status===409&&stale.body?.fenced===true,stale);
 
-  const good=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/complete`,{worker_id:workerB,lease_token:liveToken});
-  gate('HTTP_E2E',good.status===200&&good.body?.completed===true&&good.body?.status==='SUCCEEDED',good);
+            const good=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/complete`,{worker_id:workerB,lease_token:liveToken});
+            gate('HTTP_E2E',good.status===200&&good.body?.completed===true&&good.body?.status==='SUCCEEDED',good);
 
-  const replay=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/complete`,{worker_id:workerB,lease_token:liveToken});
-  gate('HTTP_REPLAY_REJECTION',replay.status===200&&replay.body?.idempotent===true,replay);
+            const replay=await http(`/api/agent-bridge/jobs/${encodeURIComponent(job.id)}/complete`,{worker_id:workerB,lease_token:liveToken});
+            gate('HTTP_REPLAY_REJECTION',replay.status===200&&replay.body?.idempotent===true,replay);
 
-  const observed=(await sb(`/rest/v1/jobs?id=eq.${encodeURIComponent(job.id)}&select=id,type,status,worker_id,attempt_count,leased_until,completed_at,lease_token`))[0];
-  gate('HTTP_EXTERNAL_OBSERVER',observed?.status==='completed'&&observed?.lease_token==null,observed);
+            const observed=(await sb(`/rest/v1/jobs?id=eq.${encodeURIComponent(job.id)}&select=id,type,status,worker_id,attempt_count,leased_until,completed_at,lease_token`))[0];
+            gate('HTTP_EXTERNAL_OBSERVER',observed?.status==='completed'&&observed?.lease_token==null,observed);
 
-  const railWorker=`rail-a-${crypto.randomUUID().slice(0,8)}`, railToken=crypto.randomUUID();
-  const railJob=await makeExpired(railWorker,railToken);
-  await sb('/rest/v1/rpc/reclaim_expired_jobs',{method:'POST',body:JSON.stringify({p_limit:50})});
-  const leaseR=await fetch(`${bridge}/api/agent-bridge/rail/lease`,{method:'POST',headers:httpHeaders,body:JSON.stringify({worker_id:railWorker})});
-  const leaseT=await leaseR.text(); let lease; try{lease=JSON.parse(leaseT)}catch{lease=null};
-  gate('HTTP_INDEPENDENT_VERIFY_LEASE',leaseR.status===201&&lease?.envelope?.job_id===railJob.id&&!!lease?.envelope?.lease_token,{status:leaseR.status,body:lease});
-  const stageA=await fetch(`${bridge}/api/agent-bridge/rail/stage`,{method:'POST',headers:httpHeaders,body:JSON.stringify({envelope:lease.envelope,signature:lease.signature,worker_id:railWorker,actor_id:railWorker,stage:'WORKER_A_RESULT',result:{status:'LEASED_AND_EXECUTED',irreversible_effects_triggered:false,proof_ref:'BRIDGE_TEST_HTTP_PROBE'}})});
-  const stageAT=await stageA.text(); let stageAB; try{stageAB=JSON.parse(stageAT)}catch{stageAB=stageAT}; gate('HTTP_WORKER_A',stageA.status===201&&stageAB?.accepted===true,stageAB);
-  const stageB=await fetch(`${bridge}/api/agent-bridge/rail/stage`,{method:'POST',headers:httpHeaders,body:JSON.stringify({envelope:lease.envelope,signature:lease.signature,worker_id:railWorker,actor_id:'truth-oracle',stage:'WORKER_B_RESULT',result:{independently_verified:true,observed_worker_a:true,irreversible_effects_triggered:false,proof_ref:'BRIDGE_TEST_HTTP_PROBE'}})});
-  const stageBT=await stageB.text(); let stageBB; try{stageBB=JSON.parse(stageBT)}catch{stageBB=stageBT}; gate('HTTP_INDEPENDENT_VERIFY',stageB.status===201&&stageBB?.accepted===true,stageBB);
-  const railReplay=await fetch(`${bridge}/api/agent-bridge/rail/stage`,{method:'POST',headers:httpHeaders,body:JSON.stringify({envelope:lease.envelope,signature:lease.signature,worker_id:railWorker,actor_id:'truth-oracle',stage:'WORKER_B_RESULT',result:{independently_verified:true}})});
-  const railReplayT=await railReplay.text(); let railReplayB; try{railReplayB=JSON.parse(railReplayT)}catch{railReplayB=railReplayT}; gate('HTTP_RAIL_REPLAY',railReplay.status===201&&railReplayB?.idempotent===true,railReplayB);
-  const finalJob=(await sb(`/rest/v1/jobs?id=eq.${encodeURIComponent(railJob.id)}&select=id,status,worker_id,lease_token,completed_at`))[0];
-  const proofs=await sb(`/rest/v1/control_bridge_notes?subject=like.BRIDGE_PROOF:${encodeURIComponent(lease.envelope.lease_id)}&select=note_id,event_id,correlation_id,subject&limit=5`);
-  gate('HTTP_EVIDENCE_CHAIN',finalJob?.status==='completed'&&Array.isArray(proofs)&&proofs.length>0,{job:finalJob,proofs});
-  out.push({gate:'BRIDGE_PROVEN',status:'YES'});
-}catch(e){out.push({gate:'BRIDGE_PROVEN',status:'NO',reason:e.message}); process.exitCode=1}finally{console.log(JSON.stringify({schema:'BEC-BRIDGE-HTTP-ACCEPTANCE-1.1',correlation_id:corr,results:out},null,2));}})();
-NODE
+            const railWorker=`rail-a-${crypto.randomUUID().slice(0,8)}`, railToken=crypto.randomUUID();
+            const railJob=await makeExpired(railWorker,railToken);
+            await sb('/rest/v1/rpc/reclaim_expired_jobs',{method:'POST',body:JSON.stringify({p_limit:50})});
+            const leaseR=await fetch(`${bridge}/api/agent-bridge/rail/lease`,{method:'POST',headers:httpHeaders,body:JSON.stringify({worker_id:railWorker})});
+            const leaseT=await leaseR.text(); let lease; try{lease=JSON.parse(leaseT)}catch{lease=null};
+            gate('HTTP_INDEPENDENT_VERIFY_LEASE',leaseR.status===201&&lease?.envelope?.job_id===railJob.id&&!!lease?.envelope?.lease_token,{status:leaseR.status,body:lease});
+            const stageA=await fetch(`${bridge}/api/agent-bridge/rail/stage`,{method:'POST',headers:httpHeaders,body:JSON.stringify({envelope:lease.envelope,signature:lease.signature,worker_id:railWorker,actor_id:railWorker,stage:'WORKER_A_RESULT',result:{status:'LEASED_AND_EXECUTED',irreversible_effects_triggered:false,proof_ref:'BRIDGE_TEST_HTTP_PROBE'}})});
+            const stageAT=await stageA.text(); let stageAB; try{stageAB=JSON.parse(stageAT)}catch{stageAB=stageAT}; gate('HTTP_WORKER_A',stageA.status===201&&stageAB?.accepted===true,stageAB);
+            const stageB=await fetch(`${bridge}/api/agent-bridge/rail/stage`,{method:'POST',headers:httpHeaders,body:JSON.stringify({envelope:lease.envelope,signature:lease.signature,worker_id:railWorker,actor_id:'truth-oracle',stage:'WORKER_B_RESULT',result:{independently_verified:true,observed_worker_a:true,irreversible_effects_triggered:false,proof_ref:'BRIDGE_TEST_HTTP_PROBE'}})});
+            const stageBT=await stageB.text(); let stageBB; try{stageBB=JSON.parse(stageBT)}catch{stageBB=stageBT}; gate('HTTP_INDEPENDENT_VERIFY',stageB.status===201&&stageBB?.accepted===true,stageBB);
+            const railReplay=await fetch(`${bridge}/api/agent-bridge/rail/stage`,{method:'POST',headers:httpHeaders,body:JSON.stringify({envelope:lease.envelope,signature:lease.signature,worker_id:railWorker,actor_id:'truth-oracle',stage:'WORKER_B_RESULT',result:{independently_verified:true}})});
+            const railReplayT=await railReplay.text(); let railReplayB; try{railReplayB=JSON.parse(railReplayT)}catch{railReplayB=railReplayT}; gate('HTTP_RAIL_REPLAY',railReplay.status===201&&railReplayB?.idempotent===true,railReplayB);
+            const finalJob=(await sb(`/rest/v1/jobs?id=eq.${encodeURIComponent(railJob.id)}&select=id,status,worker_id,lease_token,completed_at`))[0];
+            const proofs=await sb(`/rest/v1/control_bridge_notes?subject=like.BRIDGE_PROOF:${encodeURIComponent(lease.envelope.lease_id)}&select=note_id,event_id,correlation_id,subject&limit=5`);
+            gate('HTTP_EVIDENCE_CHAIN',finalJob?.status==='completed'&&Array.isArray(proofs)&&proofs.length>0,{job:finalJob,proofs});
+            out.push({gate:'BRIDGE_PROVEN',status:'YES'});
+          }catch(e){out.push({gate:'BRIDGE_PROVEN',status:'NO',reason:e.message}); process.exitCode=1}finally{console.log(JSON.stringify({schema:'BEC-BRIDGE-HTTP-ACCEPTANCE-1.1',correlation_id:corr,results:out},null,2));}})();
+          NODE
