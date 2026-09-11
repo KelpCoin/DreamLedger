@@ -15,14 +15,35 @@ permissions:
 jobs:
   acceptance:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
       BRIDGE_URL: https://dreamledger.org
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Request exact Render deployment when a deploy hook is configured
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "${RENDER_DEPLOY_HOOK_URL:-}" ]; then
+            case "$RENDER_DEPLOY_HOOK_URL" in
+              *\?*) SEP='&' ;;
+              *) SEP='?' ;;
+            esac
+            curl --fail-with-body --silent --show-error --retry 3 --retry-delay 3 --max-time 60 \
+              -X POST "${RENDER_DEPLOY_HOOK_URL}${SEP}ref=${EXPECTED_COMMIT}" \
+              | tee /tmp/render-acceptance-deploy.json
+            echo 'EXACT_DEPLOY_REQUEST=PASS'
+          else
+            echo 'EXACT_DEPLOY_REQUEST=SKIPPED_NO_DEPLOY_HOOK'
+          fi
 
       - name: Wait for deployed commit
         shell: bash
@@ -30,7 +51,7 @@ jobs:
           EXPECTED_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
-          for i in $(seq 1 30); do
+          for i in $(seq 1 60); do
             body=$(curl -fsS "$BRIDGE_URL/version" || true)
             echo "$body"
             if printf '%s' "$body" | grep -q "$EXPECTED_COMMIT"; then
@@ -44,7 +65,9 @@ jobs:
 
       - name: Execute six-gate HTTP proof
         shell: bash
-        run: node <<'NODE'
+        run: |
+          set -euo pipefail
+          node <<'NODE'
 const crypto = require('crypto');
 const base = process.env.SUPABASE_URL.replace(/\/$/, '');
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -82,9 +105,6 @@ async function insertExpiredJob(worker, leaseToken) {
   const rows = await sb('/rest/v1/jobs', {method:'POST', body:JSON.stringify({id,type:'BRIDGE_TEST_HTTP_PROBE',payload,status:'leased',attempt_count:1,worker_id:worker,lease_token:leaseToken,created_at:now,started_at:now,leased_until:new Date(Date.now()-60000).toISOString(),last_error:null})});
   return Array.isArray(rows) ? rows[0] : rows;
 }
-async function finishJob(id, tokenValue) {
-  try { await sb(`/rest/v1/rpc/complete_job`, {method:'POST',body:JSON.stringify({job_id:id,lease_token:tokenValue})}); } catch {}
-}
 try {
   const unauth = await fetch(`${bridge}/api/agent-bridge/jobs/claim`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({worker_id:'unauth-probe',lease_seconds:30})});
   await assert(unauth.status === 401, 'HTTP_AUTH', {status:unauth.status});
@@ -93,6 +113,10 @@ try {
   await assert(manifest.status === 200, 'HTTP_AUTH_VALID', {status:manifest.status});
 
   job1 = await insertExpiredJob(workerA, tokenA);
+  const reaped = await sb('/rest/v1/rpc/reclaim_expired_jobs', {method:'POST', body:JSON.stringify({p_limit:50})});
+  const reclaimed = Array.isArray(reaped) ? reaped : [];
+  await assert(reclaimed.some(x => x.id === job1.id) || reclaimed.some(x => x.job_id === job1.id), 'HTTP_RECLAIM', {job_id:job1.id,reaped});
+
   const claim = await http('/api/agent-bridge/jobs/claim', {worker_id:workerB,lease_seconds:60}, {'headers':{'X-Correlation-ID':corr}});
   leaseB = claim.body;
   await assert(claim.status === 200 && claim.body && claim.body.claimed === true && claim.body.job.job_id === job1.id, 'HTTP_CORRELATION', {status:claim.status,job_id:claim.body?.job?.job_id,expected:job1.id,correlation_header:claim.headers['x-correlation-id'],correlation_body:claim.body?.correlation_id,expected_correlation:corr});
@@ -104,7 +128,7 @@ try {
   const stale = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerA,lease_token:tokenA}, {'headers':{'X-Correlation-ID':corr}});
   await assert(stale.status === 409 && stale.body?.fenced === true, 'HTTP_LEASE_FENCING', stale);
 
-  const good = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerB,lease_token:leaseB.lease_token}, {'headers':{'X-Correlation-ID':corr}});
+  const good = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerB,lease_token:leaseB.lease_token}, {'headers:{'X-Correlation-ID':corr}});
   await assert(good.status === 200 && good.body?.completed === true && good.body?.status === 'SUCCEEDED', 'HTTP_E2E', good);
 
   const replay = await http(`/api/agent-bridge/jobs/${encodeURIComponent(job1.id)}/complete`, {worker_id:workerB,lease_token:leaseB.lease_token}, {'headers':{'X-Correlation-ID':corr}});
@@ -117,6 +141,7 @@ try {
   const workerRail = `rail-a-${crypto.randomUUID().slice(0,8)}`;
   const railToken = crypto.randomUUID();
   const job2 = await insertExpiredJob(workerRail, railToken);
+  await sb('/rest/v1/rpc/reclaim_expired_jobs', {method:'POST', body:JSON.stringify({p_limit:50})});
   const leaseRes = await fetch(`${bridge}/api/agent-bridge/rail/lease`, {method:'POST',headers:httpHeaders,body:JSON.stringify({worker_id:workerRail})});
   const leaseText = await leaseRes.text(); let railLease; try {railLease=JSON.parse(leaseText)} catch {railLease=null;}
   await assert(leaseRes.status === 201 && railLease?.envelope?.job_id === job2.id && railLease?.envelope?.lease_token, 'HTTP_INDEPENDENT_VERIFY_LEASE', {status:leaseRes.status,job_id:railLease?.envelope?.job_id});
