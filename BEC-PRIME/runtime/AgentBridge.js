@@ -1,5 +1,6 @@
 'use strict';
 
-// Canonical bridge implementation. The adapter preserves the public AgentBridge contract
-// while removing the Render-side requirement for a Supabase service-role secret.
-module.exports = require('./AgentBridgeProxyAdapter');
+// Canonical bridge entrypoint. HTTP job settlement is fenced by the existing
+// database lease_token contract; all other AgentBridge routes remain on the
+// existing proxy adapter.
+module.exports = require('./AgentBridgeFencedAdapter');
