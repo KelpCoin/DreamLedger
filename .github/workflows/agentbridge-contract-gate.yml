@@ -5,12 +5,16 @@ on:
     branches: [main]
     paths:
       - 'BEC-PRIME/runtime/AgentBridge.js'
+      - 'BEC-PRIME/runtime/AgentBridgeFencedAdapter.js'
       - 'BEC-PRIME/scripts/Verify-AgentBridge-*.js'
+      - 'BEC-PRIME/scripts/CortexEconomicWorker.ps1'
       - '.github/workflows/agentbridge-contract-gate.yml'
   pull_request:
     paths:
       - 'BEC-PRIME/runtime/AgentBridge.js'
+      - 'BEC-PRIME/runtime/AgentBridgeFencedAdapter.js'
       - 'BEC-PRIME/scripts/Verify-AgentBridge-*.js'
+      - 'BEC-PRIME/scripts/CortexEconomicWorker.ps1'
       - '.github/workflows/agentbridge-contract-gate.yml'
   workflow_dispatch:
 
@@ -38,6 +42,8 @@ jobs:
         run: |
           set -euo pipefail
           node --check BEC-PRIME/runtime/AgentBridge.js
+          node --check BEC-PRIME/runtime/AgentBridgeFencedAdapter.js
+          node --check BEC-PRIME/runtime/AgentBridgeProxyAdapter.js
           node --check BEC-PRIME/scripts/Verify-AgentBridge-Contract.js
           node --check BEC-PRIME/scripts/Verify-AgentBridge-Live.js
 
@@ -46,7 +52,7 @@ jobs:
 
       - name: Report boundary
         run: |
-          echo 'PASS: AgentBridge contract is structurally valid.'
-          echo 'PASS: Grok, Claude, ChatGPT, Truth Oracle and Gauntlet roles are represented.'
+          echo 'PASS: AgentBridge syntax gate executed.'
+          echo 'PASS: fenced HTTP adapter is included in the contract gate.'
           echo 'PASS: consequential external actions remain human-approval gated.'
           echo 'PASS: contract test performs no Supabase writes and cannot manufacture RA_000001.'
