@@ -17,19 +17,14 @@ function Assert-Config {
     $script:BridgeUrl = $BridgeUrl.TrimEnd('/')
 }
 
-function New-CorrelationId {
-    return [guid]::NewGuid().ToString()
-}
+function New-CorrelationId { return [guid]::NewGuid().ToString() }
 
 function Invoke-Bridge {
     param([string]$Method = 'GET', [string]$Path, [object]$Body = $null, [string]$CorrelationId)
     $headers = @{ 'x-dreamledger-agent-token' = $BridgeToken }
     if (-not [string]::IsNullOrWhiteSpace($CorrelationId)) { $headers['x-correlation-id'] = $CorrelationId }
     $params = @{ Uri = ($BridgeUrl + $Path); Method = $Method; Headers = $headers; ErrorAction = 'Stop' }
-    if ($null -ne $Body) {
-        $params.ContentType = 'application/json'
-        $params.Body = ($Body | ConvertTo-Json -Depth 20 -Compress)
-    }
+    if ($null -ne $Body) { $params.ContentType = 'application/json'; $params.Body = ($Body | ConvertTo-Json -Depth 20 -Compress) }
     return Invoke-RestMethod @params
 }
 
@@ -62,12 +57,8 @@ function Execute-CellJob {
     param([object]$Job, [string]$CorrelationId, [string]$LeaseToken)
     $payload = $Job.payload
     if ($null -eq $payload) { throw 'Job payload missing' }
-
     $allowedTypes = @('BILLBOARD_FULFILLMENT','FULFILLMENT','VERIFY','PROOF')
-    if ($allowedTypes -notcontains [string]$Job.job_type) {
-        throw ('Job type not permitted by local worker: ' + [string]$Job.job_type)
-    }
-
+    if ($allowedTypes -notcontains [string]$Job.job_type) { throw ('Job type not permitted by local worker: ' + [string]$Job.job_type) }
     $result = [ordered]@{
         worker = $WorkerId
         job_id = $Job.job_id
@@ -86,16 +77,10 @@ function Execute-CellJob {
 
 function Run-Once {
     $correlationId = New-CorrelationId
-    $next = Invoke-Bridge -Method GET -Path '/api/agent-bridge/jobs/next' -CorrelationId $correlationId
-    if ($null -eq $next.job) { return @{ status = 'IDLE'; correlation_id = $correlationId } }
-
-    $claimPath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$next.job.job_id) + '/claim'
-    $claim = Invoke-Bridge -Method POST -Path $claimPath -Body @{ worker_id = $WorkerId; lease_seconds = 900 } -CorrelationId $correlationId
-    if (-not $claim.claimed) { return @{ status = 'CLAIM_RACE'; reason = $claim.reason; correlation_id = $correlationId } }
-
+    $claim = Invoke-Bridge -Method POST -Path '/api/agent-bridge/jobs/claim' -Body @{ worker_id = $WorkerId; lease_seconds = 900 } -CorrelationId $correlationId
+    if (-not $claim.claimed) { return @{ status = 'IDLE'; reason = $claim.reason; correlation_id = $correlationId } }
     $leaseToken = [string]$claim.lease_token
     if ([string]::IsNullOrWhiteSpace($leaseToken)) { throw 'Bridge claim did not return lease_token' }
-
     try {
         $result = Execute-CellJob -Job $claim.job -CorrelationId $correlationId -LeaseToken $leaseToken
         $completePath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$claim.job.job_id) + '/complete'
@@ -110,12 +95,8 @@ function Run-Once {
 
 Assert-Config
 while ($true) {
-    try {
-        $result = Run-Once
-        $result | ConvertTo-Json -Depth 10 -Compress
-    } catch {
-        @{ status = 'WORKER_ERROR'; error = $_.Exception.Message } | ConvertTo-Json -Compress
-    }
+    try { $result = Run-Once; $result | ConvertTo-Json -Depth 10 -Compress }
+    catch { @{ status = 'WORKER_ERROR'; error = $_.Exception.Message } | ConvertTo-Json -Compress }
     if ($Once) { break }
     Start-Sleep -Seconds ([Math]::Max(5, $PollSeconds))
 }
