@@ -49,46 +49,37 @@ async function handle(req, res) {
   const nextClaim = path === '/api/agent-bridge/jobs/claim';
   const match = path.match(/^\/api\/agent-bridge\/jobs\/([^/]+)\/(complete|fail|heartbeat)$/);
   if (!nextClaim && !match) return legacy.handle(req, res);
-
   const correlation = correlationId(req);
   if (!configured()) return send(res, 503, { error: 'Agent bridge is not configured', correlation_id: correlation }, correlation);
   if (!authorized(req)) return send(res, 401, { error: 'Agent bridge authentication required', correlation_id: correlation }, correlation);
   if (req.method !== 'POST') return send(res, 405, { error: 'POST required', correlation_id: correlation }, correlation);
-
   try {
     const input = await readJson(req);
     const workerId = String(input.worker_id || '').trim();
     if (!workerId) return send(res, 400, { error: 'worker_id required', correlation_id: correlation }, correlation);
-
     if (nextClaim) {
       const leaseSeconds = Math.max(30, Math.min(3600, Number(input.lease_seconds || 900)));
       const claimed = await db('rpc/claim_job', 'POST', { p_worker_id: workerId, p_lease_seconds: leaseSeconds });
       if (!claimed) return send(res, 200, { claimed: false, reason: 'NO_JOB', correlation_id: correlation }, correlation);
       return send(res, 200, { claimed: true, job: jobView(claimed, correlation), lease_token: claimed.lease_token, lease_until: claimed.leased_until, correlation_id: correlation }, correlation);
     }
-
     const jobId = decodeURIComponent(match[1]);
     const op = match[2];
     const token = String(input.lease_token || '').trim();
     if (!token) return send(res, 400, { error: 'lease_token required', correlation_id: correlation }, correlation);
-
     if (op === 'heartbeat') {
       const seconds = Math.max(30, Math.min(3600, Number(input.lease_seconds || 900)));
       const ok = await db('rpc/renew_job', 'POST', { p_job_id: jobId, p_lease_token: token, p_lease_seconds: seconds });
       if (!ok) return send(res, 409, { renewed: false, reason: 'LEASE_LOST', correlation_id: correlation, fenced: true }, correlation);
       return send(res, 200, { renewed: true, lease_seconds: seconds, correlation_id: correlation }, correlation);
     }
-
     const eventId = `HTTP-${op.toUpperCase()}-${jobId}-${token}`;
     const replay = await remember(eventId, { operation: op, job_id: jobId, lease_token: token, worker_id: workerId, correlation_id: correlation, status: 'RECEIVED' });
     if (replay.idempotent && replay.receipt && replay.receipt.status === 'SUCCEEDED') return send(res, 200, Object.assign({}, replay.receipt, { idempotent: true }), correlation);
-
     const ok = op === 'complete'
       ? await db('rpc/complete_job', 'POST', { p_job_id: jobId, p_lease_token: token })
       : await db('rpc/fail_job', 'POST', { p_job_id: jobId, p_lease_token: token, p_error: String(input.error || 'worker failure').slice(0, 4000) });
-
     if (!ok) return send(res, 409, { [op === 'complete' ? 'completed' : 'failed']: false, reason: 'LEASE_NOT_HELD', correlation_id: correlation, fenced: true }, correlation);
-
     const receipt = { operation: op, job_id: jobId, lease_token: token, worker_id: workerId, correlation_id: correlation, status: 'SUCCEEDED', [op === 'complete' ? 'completed' : 'failed']: true, idempotent: false };
     await db(`control_bridge_notes?event_id=eq.${encodeURIComponent(eventId)}`, 'PATCH', { body: JSON.stringify(receipt), execution_status: 'SUCCEEDED', completed_at: new Date().toISOString() });
     return send(res, 200, receipt, correlation);
@@ -97,4 +88,4 @@ async function handle(req, res) {
   }
 }
 
-module.exports = { handle };
+module.exports = Object.assign({}, legacy, { handle });
