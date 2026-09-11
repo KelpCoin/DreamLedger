@@ -22,16 +22,16 @@ async function request(port, path, headers = {}) {
 }
 
 async function main() {
-  assert.equal(bridge.configured(), true, 'agent bridge requires SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and DREAMLEDGER_AGENT_BRIDGE_TOKEN');
+  assert.equal(bridge.configured(), true, 'agent bridge requires SUPABASE_URL, DREAMLEDGER_AGENT_BRIDGE_TOKEN and a bridge proxy URL');
   const server = http.createServer((req, res) => bridge.handle(req, res));
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   const port = server.address().port;
   try {
     const manifest = await request(port, '/api/agent-bridge/manifest');
     assert.equal(manifest.status, 200);
-    assert.equal(manifest.json?.schema_version, 'BECK-AGENT-BRIDGE-1.1');
+    assert.equal(manifest.json?.schema_version, 'BECK-AGENT-BRIDGE-1.3');
     assert.equal(manifest.json?.canonical_doorway, 'https://dreamledger.org/go');
-    assert.equal(manifest.json?.external_actions, 'human_approval_required');
+    assert.equal(manifest.json?.external_actions, 'policy_gated');
     assert.equal(manifest.json?.payment_truth, 'RA_000001 requires independently verified external payment');
     assert.equal(manifest.json?.endpoints?.events?.path, '/api/agent-bridge/events');
     assert.equal(manifest.json?.endpoints?.correlation?.path, '/api/agent-bridge/correlations/:id');
@@ -61,7 +61,7 @@ async function main() {
     }
 
     console.log(JSON.stringify({
-      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v3',
+      schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v4',
       status: 'PASS',
       manifest: 'PASS',
       auth_gate: 'PASS',
@@ -81,6 +81,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v3', status: 'FAIL', error: err.message }, null, 2));
+  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-LIVE-VERIFY/v4', status: 'FAIL', error: err.message }, null, 2));
   process.exitCode = 1;
 });
