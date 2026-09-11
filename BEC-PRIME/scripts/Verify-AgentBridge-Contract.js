@@ -59,21 +59,21 @@ async function main() {
     const manifest = await request(port, '/api/agent-bridge/manifest');
     assert.equal(manifest.status, 200);
     assert.equal(manifest.json.schema_version, bridge.BRIDGE_SCHEMA_VERSION);
-    assert.equal(manifest.json.schema_version, 'BECK-AGENT-BRIDGE-1.2');
+    assert.equal(manifest.json.schema_version, 'BECK-AGENT-BRIDGE-1.3');
     assert.equal(manifest.json.authentication, 'x-dreamledger-agent-token');
-    assert.equal(manifest.json.external_actions, 'human_approval_required');
+    assert.equal(manifest.json.external_actions, 'policy_gated');
     assert.equal(manifest.json.payment_truth, 'RA_000001 requires independently verified external payment');
     assert.equal(manifest.json.endpoints.events.path, '/api/agent-bridge/events');
     assert.equal(manifest.json.endpoints.correlation.path, '/api/agent-bridge/correlations/:id');
     assert.equal(manifest.json.endpoints.approve_action.path, '/api/agent-bridge/actions/:id/approve');
 
     console.log(JSON.stringify({
-      schema: 'BEC-AGENT-BRIDGE-CONTRACT-VERIFY/v1',
+      schema: 'BEC-AGENT-BRIDGE-CONTRACT-VERIFY/v2',
       status: 'PASS',
       manifest: 'PASS',
       event_contract: 'PASS',
       role_gate: 'PASS',
-      consequential_action_gate: 'human_approval_required',
+      consequential_action_gate: 'policy_gated',
       note_write_performed: false,
       checked_at: new Date().toISOString()
     }, null, 2));
@@ -83,6 +83,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-CONTRACT-VERIFY/v1', status: 'FAIL', error: err.message }, null, 2));
+  console.error(JSON.stringify({ schema: 'BEC-AGENT-BRIDGE-CONTRACT-VERIFY/v2', status: 'FAIL', error: err.message }, null, 2));
   process.exitCode = 1;
 });
