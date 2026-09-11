@@ -17,9 +17,14 @@ function Assert-Config {
     $script:BridgeUrl = $BridgeUrl.TrimEnd('/')
 }
 
+function New-CorrelationId {
+    return [guid]::NewGuid().ToString()
+}
+
 function Invoke-Bridge {
-    param([string]$Method = 'GET', [string]$Path, [object]$Body = $null)
+    param([string]$Method = 'GET', [string]$Path, [object]$Body = $null, [string]$CorrelationId)
     $headers = @{ 'x-dreamledger-agent-token' = $BridgeToken }
+    if (-not [string]::IsNullOrWhiteSpace($CorrelationId)) { $headers['x-correlation-id'] = $CorrelationId }
     $params = @{ Uri = ($BridgeUrl + $Path); Method = $Method; Headers = $headers; ErrorAction = 'Stop' }
     if ($null -ne $Body) {
         $params.ContentType = 'application/json'
@@ -29,15 +34,17 @@ function Invoke-Bridge {
 }
 
 function Write-Proof {
-    param([object]$Job, [object]$Result)
+    param([object]$Job, [object]$Result, [string]$CorrelationId, [string]$LeaseToken)
     $root = Join-Path $env:ProgramData 'BrownEyeCortex\proof\economic-cells'
     $dir = Join-Path $root ([string]$Job.job_type)
     New-Item -ItemType Directory -Path $dir -Force | Out-Null
     $proof = [ordered]@{
-        schema_version = 'BEC-ECONOMIC-PROOF-1.0'
+        schema_version = 'BEC-ECONOMIC-PROOF-1.1'
         job_id = $Job.job_id
         job_type = $Job.job_type
         worker_id = $WorkerId
+        correlation_id = $CorrelationId
+        lease_token = $LeaseToken
         action = 'LOCAL_WORKER_EXECUTION'
         started_at = $Job.started_at
         completed_at = (Get-Date).ToUniversalTime().ToString('o')
@@ -52,45 +59,52 @@ function Write-Proof {
 }
 
 function Execute-CellJob {
-    param([object]$Job)
+    param([object]$Job, [string]$CorrelationId, [string]$LeaseToken)
     $payload = $Job.payload
     if ($null -eq $payload) { throw 'Job payload missing' }
 
-    # Safety boundary: this worker never executes arbitrary command text from a remote job.
     $allowedTypes = @('BILLBOARD_FULFILLMENT','FULFILLMENT','VERIFY','PROOF')
     if ($allowedTypes -notcontains [string]$Job.job_type) {
         throw ('Job type not permitted by local worker: ' + [string]$Job.job_type)
     }
 
-    # This v0.1 worker is deliberately a control/fulfillment adapter. It records the job,
-    # writes durable local proof, and returns the exact remote payload for a cell-specific
-    # handler to consume. No arbitrary PowerShell is accepted from the network.
     $result = [ordered]@{
         worker = $WorkerId
         job_id = $Job.job_id
         job_type = $Job.job_type
+        correlation_id = $CorrelationId
+        lease_token = $LeaseToken
         accepted = $true
-        handler = 'CortexEconomicWorker-v0.1'
+        handler = 'CortexEconomicWorker-v0.2'
         payload_hash_input = ($payload | ConvertTo-Json -Depth 20 -Compress)
         note = 'Cell-specific handler boundary reached; no arbitrary remote command execution.'
     }
-    $proofPath = Write-Proof -Job $Job -Result $result
+    $proofPath = Write-Proof -Job $Job -Result $result -CorrelationId $CorrelationId -LeaseToken $LeaseToken
     $result.proof_path = $proofPath
     return $result
 }
 
 function Run-Once {
-    $next = Invoke-Bridge -Method GET -Path '/api/agent-bridge/jobs/next'
-    if ($null -eq $next.job) { return @{ status = 'IDLE' } }
-    $claim = Invoke-Bridge -Method POST -Path ('/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$next.job.job_id) + '/claim') -Body @{ worker_id = $WorkerId }
-    if (-not $claim.claimed) { return @{ status = 'CLAIM_RACE'; reason = $claim.reason } }
+    $correlationId = New-CorrelationId
+    $next = Invoke-Bridge -Method GET -Path '/api/agent-bridge/jobs/next' -CorrelationId $correlationId
+    if ($null -eq $next.job) { return @{ status = 'IDLE'; correlation_id = $correlationId } }
+
+    $claimPath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$next.job.job_id) + '/claim'
+    $claim = Invoke-Bridge -Method POST -Path $claimPath -Body @{ worker_id = $WorkerId; lease_seconds = 900 } -CorrelationId $correlationId
+    if (-not $claim.claimed) { return @{ status = 'CLAIM_RACE'; reason = $claim.reason; correlation_id = $correlationId } }
+
+    $leaseToken = [string]$claim.lease_token
+    if ([string]::IsNullOrWhiteSpace($leaseToken)) { throw 'Bridge claim did not return lease_token' }
+
     try {
-        $result = Execute-CellJob -Job $claim.job
-        $done = Invoke-Bridge -Method POST -Path ('/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$claim.job.job_id) + '/complete') -Body @{ worker_id = $WorkerId; result = $result }
-        return @{ status = $(if ($done.completed) { 'COMPLETED' } else { 'COMPLETE_NOT_CONFIRMED' }); job_id = $claim.job.job_id; proof = $result.proof_path }
+        $result = Execute-CellJob -Job $claim.job -CorrelationId $correlationId -LeaseToken $leaseToken
+        $completePath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$claim.job.job_id) + '/complete'
+        $done = Invoke-Bridge -Method POST -Path $completePath -Body @{ worker_id = $WorkerId; lease_token = $leaseToken; result = $result } -CorrelationId $correlationId
+        return @{ status = $(if ($done.completed) { 'COMPLETED' } else { 'COMPLETE_NOT_CONFIRMED' }); job_id = $claim.job.job_id; proof = $result.proof_path; correlation_id = $correlationId }
     } catch {
-        $failed = Invoke-Bridge -Method POST -Path ('/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$claim.job.job_id) + '/fail') -Body @{ worker_id = $WorkerId; error = $_.Exception.Message; retryable = $true }
-        return @{ status = 'FAILED'; job_id = $claim.job.job_id; bridge_updated = $failed.failed; error = $_.Exception.Message }
+        $failPath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$claim.job.job_id) + '/fail'
+        $failed = Invoke-Bridge -Method POST -Path $failPath -Body @{ worker_id = $WorkerId; lease_token = $leaseToken; error = $_.Exception.Message; retryable = $true } -CorrelationId $correlationId
+        return @{ status = 'FAILED'; job_id = $claim.job.job_id; bridge_updated = $failed.failed; error = $_.Exception.Message; correlation_id = $correlationId }
     }
 }
 
