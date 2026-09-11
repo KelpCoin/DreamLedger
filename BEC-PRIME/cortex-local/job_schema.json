@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BEC Cortex Job Envelope",
+  "type": "object",
+  "required": ["job_id", "correlation_id", "silo_id", "capability", "objective", "actor", "risk_class", "approval_state", "state", "created_at"],
+  "properties": {
+    "job_id": {"type": "string"},
+    "correlation_id": {"type": "string"},
+    "parent_job_id": {"type": ["string", "null"]},
+    "silo_id": {"type": "string", "pattern": "^SILO_[A-Z0-9_]{1,60}$"},
+    "capability": {"type": "string", "enum": ["generation", "coding", "classification", "verification", "bridge_probe", "economic_observe"]},
+    "objective": {"type": "string"},
+    "actor": {"type": "string"},
+    "risk_class": {"type": "string", "enum": ["read_only", "reversible", "irreversible"]},
+    "approval_state": {"type": "string", "enum": ["not_required", "pending", "approved", "denied"]},
+    "state": {"type": "string", "enum": ["pending", "leased", "completed", "failed", "cancelled"]},
+    "input_hash": {"type": ["string", "null"]},
+    "output_hash": {"type": ["string", "null"]},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "gauntlet_result": {"type": ["object", "null"]},
+    "truth_result": {"type": ["object", "null"]},
+    "execution_result": {"type": ["object", "null"]},
+    "created_at": {"type": "string"},
+    "updated_at": {"type": ["string", "null"]}
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "BEC-BRIDGE-ACCEPTANCE-STATUS-1.0",
+  "BRIDGE_PROVEN": "NO",
+  "status": "UNPROVEN",
+  "reason": "GitHub Actions repository secrets SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DREAMLEDGER_AGENT_BRIDGE_TOKEN are empty; race test never executes against live DB",
+  "production_version_sha": "7b964d5c6485f9c93ac0956a8abc80afe24467ab",
+  "live_checks": {
+    "healthz": 200,
+    "manifest": 200,
+    "claim_without_token": 401,
+    "rail_manifest_without_token": 401
+  },
+  "architecture": {
+    "entrypoint": "BEC-PRIME/runtime/AgentBridge.js -> AgentBridgeFencedAdapter",
+    "auth": "x-dreamledger-agent-token",
+    "claim_rpc": "rpc/claim_job",
+    "complete_rpc": "rpc/complete_job",
+    "renew_rpc": "rpc/renew_job",
+    "proxy": "SUPABASE functions/v1/agent-bridge-proxy",
+    "rail": "BridgeRail HMAC lease + Worker A/B stage + control_bridge_notes"
+  },
+  "acceptance_runs_observed": [
+    {"id": 34565763849, "result": "SECRETS=FAIL"},
+    {"id": 34564959647, "result": "deploy PASS then secrets empty"}
+  ],
+  "timestamp": "2026-09-11T08:26:00Z"
+}

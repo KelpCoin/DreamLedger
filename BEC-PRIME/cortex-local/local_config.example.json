@@ -1,0 +1,12 @@
+{
+  "bridge_base_url": "https://dreamledger.org",
+  "agent_token_env": "DREAMLEDGER_AGENT_BRIDGE_TOKEN",
+  "lmstudio_base_url": "http://127.0.0.1:1234/v1",
+  "lmstudio_model": "local-model",
+  "worker_id": "cortex-windows-01",
+  "silo_id": "SILO_GENERAL",
+  "poll_seconds": 15,
+  "lease_seconds": 600,
+  "proof_dir": "./proofs",
+  "artifact_dir": "./artifacts"
+}

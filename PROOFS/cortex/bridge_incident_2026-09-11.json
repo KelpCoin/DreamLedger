@@ -1,0 +1,14 @@
+{
+  "schema": "BEC-BRIDGE-INCIDENT-1.0",
+  "incident_time_utc": "2026-09-11T05:08:44Z",
+  "status": "STALE_CONTEXT",
+  "observed_sequence": [
+    "Production stuck on df03b632 while acceptance required exact newer SHA",
+    "Render auto-deploy incomplete without deploy-hook secrets",
+    "Forced public/server.js change converged production to f8bba6",
+    "Acceptance deploy gate PASS",
+    "Acceptance secrets gate FAIL (empty GitHub Actions secrets)"
+  ],
+  "current_blocker": "GitHub repository secrets for bridge acceptance workflow",
+  "timestamp": "2026-09-11T08:26:00Z"
+}

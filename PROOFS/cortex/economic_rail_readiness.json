@@ -1,0 +1,13 @@
+{
+  "schema": "BEC-ECONOMIC-RAIL-READINESS-1.0",
+  "status": "PARTIAL",
+  "live_offers": [
+    {"offer_id": "OFFER-CMD-DIAG-29-NZD", "price": 29, "currency": "NZD", "checkout_available": true},
+    {"offer_id": "DISCORD-WEBHOOK-STARTER-KIT-001", "price": 79, "currency": "NZD", "checkout_available": true},
+    {"offer_id": "EDH_0001", "price": 400, "currency": "NZD", "checkout_available": true}
+  ],
+  "billboard_target": "DL-BILLBOARD-100X100-3000-001 / NZ$50 founding tile surface is public",
+  "stripe_pi_3TApftEGgEAnUFF903eC3JeK": "MUST_REMAIN_UNMATCHED_UNLESS_EVIDENCE_CHAIN_PROVES_OTHERWISE",
+  "no_fake_transactions": true,
+  "timestamp": "2026-09-11T08:26:00Z"
+}

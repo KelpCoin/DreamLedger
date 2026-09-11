@@ -1,0 +1,8 @@
+{
+  "schema": "BEC-BRIDGE-EVIDENCE-1.0",
+  "status": "UNPROVEN",
+  "independent_db_observation": "NOT_PERFORMED",
+  "direct_supabase_fallback_used": false,
+  "note": "Evidence limited to public HTTP probes and repository source inspection. Authenticated race not executed without secrets.",
+  "timestamp": "2026-09-11T08:26:00Z"
+}

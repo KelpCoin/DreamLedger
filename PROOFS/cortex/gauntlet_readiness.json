@@ -1,0 +1,8 @@
+{
+  "schema": "BEC-GAUNTLET-READINESS-1.0",
+  "status": "PARTIAL",
+  "existing": "GAUNTLET/Invoke-BEC-Gauntlet-Q1.ps1 + Q1 fixture CSV",
+  "machine_contract": "BEC-PRIME/cortex-local/gauntlet_adapter.py provides PASS/FAIL/QUARANTINE/NEEDS_EVIDENCE with thresholds 75/60/40",
+  "elohim_separation": "elohim_adapter creates only; gauntlet_adapter judges only",
+  "timestamp": "2026-09-11T08:26:00Z"
+}
