@@ -35,6 +35,26 @@ jobs:
           echo 'DEPLOYED_COMMIT=FAIL'
           exit 1
 
+      - name: Require bridge secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          if [ -z "${SUPABASE_URL:-}" ]; then echo 'MISSING_SECRET=SUPABASE_URL'; missing=1; fi
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then echo 'MISSING_SECRET=SUPABASE_SERVICE_ROLE_KEY'; missing=1; fi
+          if [ -z "${DREAMLEDGER_AGENT_BRIDGE_TOKEN:-}" ]; then echo 'MISSING_SECRET=DREAMLEDGER_AGENT_BRIDGE_TOKEN'; missing=1; fi
+          if [ "$missing" -ne 0 ]; then
+            echo 'SECRETS=FAIL'
+            echo 'Set these three repository secrets in GitHub → Settings → Secrets and variables → Actions'
+            echo 'Use the same values already configured on the live Render dreamledger-storefront / dreamledger-engine services.'
+            exit 1
+          fi
+          echo 'SECRETS=PASS'
+
       - name: Execute stale-lease HTTP acceptance proof
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -44,9 +64,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${SUPABASE_URL:-}"
-          test -n "${SUPABASE_SERVICE_ROLE_KEY:-}"
-          test -n "${DREAMLEDGER_AGENT_BRIDGE_TOKEN:-}"
           node <<'NODE'
           const crypto = require('crypto');
           const base = process.env.SUPABASE_URL.replace(/\/$/, '');
