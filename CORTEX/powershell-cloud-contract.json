@@ -1,0 +1,13 @@
+{
+  "schema":"dreamledger/powershell-cloud-contract/v1",
+  "transport":"supabase_mailbox",
+  "github":"implementation_and_cloud_execution",
+  "powershell":"local_supervisor_and_desktop_execution",
+  "states":["pending","claimed","running","completed","failed","blocked"],
+  "local_default":true,
+  "cloud_routes":["public_probe","scheduled_execution","ci_secret_execution","long_running"],
+  "local_routes":["lm_studio","gpu_reasoning","powershell_workers","desktop_only"],
+  "handoff":{"cloud_to_local":"write_task","local_to_cloud":"write_result","evidence":"immutable_artifact_reference"},
+  "forbidden":["direct_desktop_http_dependency","agent_as_settlement_authority","fake_revenue","unapproved_external_action"],
+  "completion":"result_plus_evidence_plus_verification"
+}
