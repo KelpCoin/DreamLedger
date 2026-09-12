@@ -57,6 +57,7 @@
     "verify:integration": "node scripts/verify-commercial-integration.js",
     "integration-truth": "node scripts/integration-truth.js",
     "verify:economic-contract": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-EconomicContract.ps1",
+    "economic:bootstrap": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/DreamLedger-Economic-Bootstrap.ps1",
     "refine:iterative": "node scripts/iterative-refinement.js",
     "smoke:front-door": "node scripts/smoke-front-door.js",
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
