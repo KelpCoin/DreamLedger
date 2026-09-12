@@ -1,0 +1,38 @@
+name: DreamLedger Scheduled Probe
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-scheduled-probe
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe production surfaces
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CLOUD_ORCHESTRATOR_MODE: probe
+          CLOUD_PROOF_ROOT: ${{ github.workspace }}\cloud-proof
+        run: .\BEC-PRIME\scripts\Cloud-Orchestrator.ps1
+      - name: Upload probe evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: scheduled-probe-${{ github.run_id }}
+          path: cloud-proof
+          if-no-files-found: error
+          retention-days: 90
