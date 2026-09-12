@@ -1,0 +1,45 @@
+{
+  "type": "dreamledger-web-enabled-handover-verification",
+  "date": "2026-09-12",
+  "status": "VERIFIED_WITH_BLOCKERS",
+  "observed": {
+    "production_domain": "https://dreamledger.org",
+    "public_billboard_offer": {
+      "price_nzd": 50,
+      "description": "Permanent 100x100 web placement on the DreamLedger public canvas",
+      "human_review": true,
+      "physical_dooh_claim": false
+    },
+    "repository_main_head_checked": "939cbd8f9c325a7b2d46ee3c69cb257c423674e4",
+    "render_live_deploy": "939cbd8f9c325a7b2d46ee3c69cb257c423674e4",
+    "public_agent_manifest_source_exists": true,
+    "public_well_known_dreamledger_source_exists": true,
+    "a2a_agent_card_source_exists": false,
+    "verified_external_revenue_nzd": 0
+  },
+  "repo_findings": {
+    "public_agent_json": "public/agent.json",
+    "well_known_discovery": "public/.well-known/dreamledger.json",
+    "agent_commerce_manifest": "BEC-PRIME/compiled/website/.well-known/agent-commerce.json",
+    "agent_commerce_verifier": "BEC-PRIME/scripts/verify-agentic-commerce.js",
+    "approved_offer_catalog": "BEC-PRIME/catalog/offers/approved.json"
+  },
+  "important_boundary": "A2A Agent Cards require an actual A2A service endpoint. No A2A transport endpoint was verified, so this change deliberately does not publish a misleading Agent Card.",
+  "commercial_research": {
+    "nz_pdooh": "Programmatic DOOH is established and growing in New Zealand.",
+    "screen_owner_examples": ["QMS Media", "LUMO", "Go Media", "VAST", "JCDecaux NZ"],
+    "next_relationship": "Qualify one real screen-owner relationship before building any SSP/DSP layer."
+  },
+  "changes_in_branch": [
+    "Updated the agent-commerce verifier to validate the manifest schema actually checked into the repository instead of requiring fields that are absent from the manifest.",
+    "Added this handover verification artifact."
+  ],
+  "not_done": [
+    "No production deployment",
+    "No public post",
+    "No customer contact",
+    "No Stripe payment",
+    "No A2A endpoint implementation",
+    "No pDOOH integration"
+  ]
+}
