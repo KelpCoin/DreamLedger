@@ -1,31 +1,26 @@
 name: Red Team Regression Gate
-
 on:
   push:
     branches: [main]
-    paths:
-      - 'CORTEX/redteam/**'
-      - 'CORTEX/test_redteam_extension.py'
-      - 'policy/runtime.cedar'
-      - '.github/workflows/redteam-regression.yml'
+    paths: ['CORTEX/redteam/**','CORTEX/test_redteam_extension.py','policy/runtime.cedar','.github/workflows/redteam-regression.yml']
   pull_request:
-    paths:
-      - 'CORTEX/redteam/**'
-      - 'CORTEX/test_redteam_extension.py'
-      - 'policy/runtime.cedar'
-      - '.github/workflows/redteam-regression.yml'
+    paths: ['CORTEX/redteam/**','CORTEX/test_redteam_extension.py','policy/runtime.cedar','.github/workflows/redteam-regression.yml']
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   redteam:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Run deterministic extension tests
+      - name: Compile belt
+        run: python3 -m compileall -q CORTEX/redteam
+      - name: Unit tests
         run: python3 -m unittest CORTEX.test_redteam_extension -v
-      - name: Run regression corpus
+      - name: Meta-belt
+        run: python3 -m CORTEX.redteam.cli meta
+      - name: Regression corpus
         run: python3 -m CORTEX.redteam.regression
+      - name: Ecosystem spine
+        run: python3 -m CORTEX.ecosystem_spine
