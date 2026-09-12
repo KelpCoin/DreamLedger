@@ -1,0 +1,25 @@
+name: Red Team Meta-Belt
+on:
+  push:
+    paths: ['CORTEX/redteam/**']
+  pull_request:
+    paths: ['CORTEX/redteam/**']
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Meta-belt
+        run: python -m CORTEX.redteam.cli meta
+      - name: Fingerprint
+        run: python -m CORTEX.redteam.cli sign
+      - name: Persistence verifier
+        run: python -m CORTEX.redteam.cli verify
