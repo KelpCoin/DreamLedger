@@ -1,19 +1,24 @@
 // DreamLedger runtime policy guardrails.
 // These are enforcement rules, not advisory red-team findings.
 
-forbid(principal, action, resource)
+forbid(principal, action == Action::"send_email", resource)
 when {
-    action == Action::"send_email" && !context has approval_id
+    !(context has approval_id)
 };
 
-forbid(principal, action, resource)
+forbid(principal, action == Action::"publish", resource)
 when {
-    action == Action::"publish" && !context has approval_id
+    !(context has approval_id)
 };
 
-forbid(principal, action, resource)
+forbid(principal, action == Action::"charge_card", resource)
 when {
-    action == Action::"charge_card" && !context has approval_id
+    !(context has approval_id)
+};
+
+forbid(principal, action == Action::"charge_card", resource)
+when {
+    context has amount && context.amount > 100000
 };
 
 forbid(principal, action, resource)
