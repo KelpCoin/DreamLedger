@@ -1,0 +1,34 @@
+name: DreamLedger Cloud Orchestrator Syntax
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/scripts/Cloud-Orchestrator.ps1'
+      - '.github/workflows/orchestrator-tick.yml'
+      - '.github/workflows/scheduled-probe.yml'
+      - '.github/workflows/ledger-verifier.yml'
+      - '.github/workflows/daily-state-report.yml'
+      - '.github/workflows/evidence-sealer.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse cloud worker
+        run: |
+          $tokens=$null
+          $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path '.\BEC-PRIME\scripts\Cloud-Orchestrator.ps1'),[ref]$tokens,[ref]$errors)|Out-Null
+          if($errors.Count -gt 0){$errors|ForEach-Object{Write-Host $_.Message};throw 'Cloud orchestrator syntax failed.'}
+          Get-Content '.\BEC-PRIME\config\public-surface-baseline.json' -Raw|ConvertFrom-Json|Out-Null
+          Write-Host 'Cloud orchestrator syntax and baseline: PASS'
