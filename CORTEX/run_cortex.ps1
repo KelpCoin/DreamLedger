@@ -16,10 +16,15 @@ if ($BridgeSmoke) {
     exit 0
 }
 
-if (-not $env:SUPABASE_URL -or -not $env:SUPABASE_SECRET_KEY) {
-    throw 'Set SUPABASE_URL and SUPABASE_SECRET_KEY before local mailbox execution'
+$sbUrl = if ($env:DREAMLEDGER_SUPABASE_URL) { $env:DREAMLEDGER_SUPABASE_URL } else { $env:SUPABASE_URL }
+$sbKey = if ($env:DREAMLEDGER_SUPABASE_KEY) { $env:DREAMLEDGER_SUPABASE_KEY } else { $env:SUPABASE_SECRET_KEY }
+if (-not $sbUrl -or -not $sbKey) {
+    throw 'Set DREAMLEDGER_SUPABASE_URL and DREAMLEDGER_SUPABASE_KEY before local mailbox execution'
 }
+$env:DREAMLEDGER_SUPABASE_URL = $sbUrl
+$env:DREAMLEDGER_SUPABASE_KEY = $sbKey
+if (-not $env:DREAMLEDGER_WORKER_ID) { $env:DREAMLEDGER_WORKER_ID = 'cortex-windows-local' }
 
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File '.\local_mailbox_worker.ps1' -Once
 if ($LASTEXITCODE -ne 0) { throw 'Local mailbox worker failed' }
-Write-Host 'Local Cortex mailbox cycle completed.'
+Write-Host 'Local Cortex work-ledger cycle completed.'
