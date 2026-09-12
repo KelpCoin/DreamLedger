@@ -3,40 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamLedger | Catalogue</title>
-<meta name="description" content="DreamLedger public catalogue. Browse existing offers and purchase through Stripe.">
+<title>DreamLedger | Buy Something. Make It Real.</title>
+<meta name="description" content="DreamLedger is a unified storefront for verified offers, the Internet Billboard, DreamMeez and isolated product worlds.">
 <link rel="stylesheet" href="/styles.css">
-<style>
-main{width:min(1100px,calc(100% - 28px));margin:auto;padding:48px 0 80px}.hero{max-width:850px}.hero h1{font-size:clamp(48px,8vw,92px);line-height:.86;letter-spacing:-.08em}.hero h1 em{font-style:normal;color:#e6bc58}.lead{font-size:18px;color:#b7bfcb}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}.catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}.card{border:1px solid #343d4d;border-radius:18px;background:linear-gradient(145deg,#151a24,#0d1118);padding:20px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#e6bc58;font-weight:900}.card h2{font-size:23px;letter-spacing:-.04em;margin:8px 0}.card p,.row{color:#99a3b0;font-size:13px}.row{padding:10px 0;border-bottom:1px solid #29323f}.price{font-size:22px;font-weight:900;color:#e6bc58;margin-top:14px}.buy{display:inline-block;margin-top:14px;padding:12px 16px;border-radius:10px;background:#f4c95d;color:#090909;font-weight:900;text-decoration:none;border:0;cursor:pointer}.muted{color:#8993a0;font-size:12px}.detail{display:none;margin-top:18px}.detail.active{display:block}.catalog.hidden{display:none}.status{margin-top:14px;color:#b7bfcb;font-size:13px}@media(max-width:800px){.catalog,.grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.catalog,.grid{grid-template-columns:1fr}}
-</style>
 </head>
 <body>
-<header class="topbar"><div class="topbar-inner"><a class="logo" href="/">DREAMLEDGER <span>3000</span></a><nav><a href="/">Catalogue</a><a href="/mtg">Magic</a><a href="/billboard">Billboard</a><a href="/dreammeez">DreamMeez</a><a href="/truth-oracle">Truth Oracle</a></nav></div></header>
+<header class="topbar"><div class="topbar-inner"><a class="logo" href="/">DREAMLEDGER <span>3000</span></a><nav aria-label="Primary"><a href="/" aria-current="page">Store</a><a href="/billboard">Billboard</a><a href="/mtg">Magic</a><a href="/dreammeez">DreamMeez</a><a href="/truth-oracle">Truth Oracle</a></nav></div></header>
 <main>
 <section class="hero">
-<div class="eyebrow">DREAMLEDGER 3000 · PUBLIC CATALOGUE</div>
+<div class="eyebrow">ONE FRONT DOOR · MANY WORLDS</div>
 <h1>BUY SOMETHING.<br><em>MAKE IT REAL.</em></h1>
-<p class="lead">Existing DreamLedger offers, connected to their current checkout contracts. No fake inventory, no invented products, and no claims beyond the listed offer.</p>
-<div id="status" class="status"></div>
+<p class="lead">DreamLedger brings its independent product worlds under one visual system. Each silo keeps its own product truth, while the customer gets one clear place to discover, compare and buy.</p>
+<div class="hero-actions"><a class="button primary" href="#catalogue">Browse the catalogue</a><a class="button" href="/billboard">See the billboard</a></div>
 </section>
-<section id="detail" class="card detail"></section>
-<section id="catalog" class="catalog" aria-label="DreamLedger products"></section>
-<section class="grid">
-<article class="card"><div class="eyebrow">FOUNDING TILE</div><h2>DreamLedger Billboard</h2><p>Permanent 100x100 web placement on the public DreamLedger canvas. Human review applies before publication.</p><div class="price">NZ$50</div><a class="buy" href="/billboard">View billboard offer</a></article>
-<article class="card"><div class="eyebrow">MAGIC</div><h2>MTG storefront</h2><p>Commander diagnostic, physical deck and collectible inventory in the existing horizontal carousel.</p><a class="buy" href="/mtg">Open Magic catalogue</a></article>
+<section class="section" id="billboard-preview">
+<div class="section-head"><div><div class="eyebrow">THE PROOF OF CONCEPT</div><h2>See the board.</h2></div><a class="text-link" href="/billboard">Open full billboard →</a></div>
+<div class="board-shell"><div class="board" aria-label="DreamLedger Internet Billboard demonstration canvas">
+<div class="board-demo">BIGGIE WAS HERE<div><small>FOUNDER DEMO · EXAMPLE TILE</small></div></div>
+<div class="placement" style="left:40%;top:15%;width:13%;height:28%">YOUR BRAND</div><div class="placement" style="left:55%;top:15%;width:13%;height:28%">YOUR PROJECT</div><div class="placement" style="left:70%;top:15%;width:13%;height:28%">YOUR LINK</div><div class="placement" style="left:40%;top:48%;width:13%;height:28%">FOUNDING TILE</div><div class="placement" style="left:55%;top:48%;width:13%;height:28%">AVAILABLE</div><div class="placement" style="left:70%;top:48%;width:13%;height:28%">AVAILABLE</div>
+</div><div class="board-caption"><strong>BIGGIE WAS HERE</strong><span>Founder demonstration only. Paid customer placements are published only after approval.</span></div></div>
+</section>
+<section class="section" id="catalogue">
+<div class="section-head"><div><div class="eyebrow">PUBLIC CATALOGUE</div><h2>Pick a world.</h2><p>Horizontal browsing by design. On mobile, swipe. On desktop, scroll the rail.</p></div></div>
+<div id="status" class="status" aria-live="polite"></div>
+<div id="catalog" class="rail" aria-label="DreamLedger products"></div>
+</section>
+<section class="section">
+<div class="section-head"><div><div class="eyebrow">CLEAR ROUTES</div><h2>Nothing is hiding.</h2></div></div>
+<div class="rail">
+<article class="product-card"><div class="product-art"><span>50</span><small>FOUNDING TILE</small></div><div class="product-body"><b>DreamLedger Billboard</b><p>Permanent 100x100 web placement on the public canvas.</p><div><strong>NZ$50</strong><a href="/billboard">See it</a></div></div></article>
+<article class="product-card"><div class="product-art"><span>MTG</span><small>MAGIC</small></div><div class="product-body"><b>Magic storefront</b><p>Separate Magic inventory and services, with the same DreamLedger shell.</p><div><strong>From NZ$1</strong><a href="/mtg">Browse</a></div></div></article>
+<article class="product-card"><div class="product-art"><span>DMZ</span><small>DREAMMEEZ</small></div><div class="product-body"><b>DreamMeez</b><p>Avatar identity and digital-world products in an isolated silo.</p><div><strong>Explore</strong><a href="/dreammeez">Open</a></div></div></article>
+</div>
+</section>
+<section class="trust" aria-label="Payment trust information">
+<div class="trust-head"><strong>SECURE CHECKOUT</strong><span>Payment is processed by Stripe. DreamLedger does not handle your card details.</span></div>
+<div class="trust-badges" aria-label="Payment methods and trust marks"><span>STRIPE</span><span>VISA</span><span>MASTERCARD</span><span>AMERICAN EXPRESS</span><span>APPLE PAY</span><span>GOOGLE PAY</span><span>KLARNA*</span></div>
+<p class="trust-copy">*Payment methods displayed by Stripe Checkout vary by product, buyer eligibility, device and region. Only methods actually offered by Stripe at checkout are available for a purchase.</p>
 </section>
 </main>
-<footer><span>DreamLedger 3000</span><span>Existing catalogue · Stripe checkout · <a href="/truth-oracle">Truth Oracle</a></span></footer>
+<footer><span>DreamLedger 3000 · Independent commerce storefront</span><span><a href="/">Store</a> · <a href="/billboard">Billboard</a> · <a href="/mtg">Magic</a> · <a href="/dreammeez">DreamMeez</a> · <a href="/truth-oracle">Truth Oracle</a></span></footer>
 <script>
 (function(){
-  var catalog=document.getElementById('catalog'),detail=document.getElementById('detail'),status=document.getElementById('status');
+  var catalog=document.getElementById('catalog'),status=document.getElementById('status');
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function money(p){return 'NZ$'+Number(p.price||0).toFixed(0)}
-  function card(p){var disabled=p.checkout_available===false;return '<article class="card"><div class="eyebrow">'+esc(p.silo||'offer')+'</div><h2>'+esc(p.name)+'</h2><p>'+esc(p.description)+'</p><div class="price">'+money(p)+'</div><a class="buy" href="/?product='+encodeURIComponent(p.id)+'">View product</a>'+(disabled?'<div class="muted">Checkout currently unavailable</div>':'')+'</article>'}
-  function renderDetail(p){detail.innerHTML='<div class="eyebrow">PRODUCT DETAIL</div><h2>'+esc(p.name)+'</h2><p>'+esc(p.description)+'</p><div class="price">'+money(p)+'</div><p class="muted">SKU: '+esc(p.sku||p.id)+' · Status: '+esc(p.status)+'</p>'+(p.checkout_available!==false&&p.checkout_url?'<a class="buy" href="'+esc(p.checkout_url)+'">Continue to Stripe checkout</a>':'<div class="muted">This product is not currently checkoutable.</div>');detail.classList.add('active');catalog.classList.add('hidden')}
-  function renderBrowse(products){catalog.innerHTML=products.map(card).join('');catalog.classList.remove('hidden');detail.classList.remove('active')}
-  fetch('/api/products').then(function(r){if(!r.ok)throw Error('Catalogue unavailable');return r.json()}).then(function(data){var products=Array.isArray(data.products)?data.products:[];var id=new URLSearchParams(location.search).get('product');var selected=products.find(function(p){return p.id===id});if(selected)renderDetail(selected);else renderBrowse(products);status.textContent=products.length+' published products in the public catalogue.'}).catch(function(e){status.textContent=e.message;catalog.innerHTML='<article class="card"><h2>Catalogue unavailable</h2><p>Use the existing Magic or Billboard surfaces while the catalogue service recovers.</p></article>'});
-  var q=new URLSearchParams(location.search);if(q.get('checkout_cancelled')==='1')status.textContent='Checkout cancelled. No payment was recorded by this page.';if(q.get('checkout_success')==='1')status.textContent='Checkout completed. Stripe has received the payment flow; fulfilment remains governed by the product contract.';
+  function card(p){var disabled=p.checkout_available===false;return '<article class="product-card"><div class="product-art"><span>'+esc((p.silo||'OFFER').toUpperCase().slice(0,6))+'</span><small>'+esc((p.silo||'OFFER').toUpperCase())+'</small></div><div class="product-body"><b>'+esc(p.name)+'</b><p>'+esc(p.description)+'</p><div><strong>'+money(p)+'</strong><a href="/?product='+encodeURIComponent(p.id)+'">View</a></div>'+(disabled?'<p class="muted">Checkout currently unavailable.</p>':'')+'</div></article>'}
+  fetch('/api/products').then(function(r){if(!r.ok)throw Error('Catalogue service unavailable');return r.json()}).then(function(data){var products=Array.isArray(data.products)?data.products:[];catalog.innerHTML=products.map(card).join('');status.textContent=products.length+' published products. Swipe or scroll horizontally to browse.'}).catch(function(e){status.textContent='Catalogue service unavailable. The direct product surfaces remain available below.';catalog.innerHTML='<article class="product-card"><div class="product-art"><span>LIVE</span><small>DIRECT ROUTES</small></div><div class="product-body"><b>Billboard, Magic and DreamMeez</b><p>Use the direct product worlds below while the catalogue API recovers.</p><div><strong>Open</strong><a href="/billboard">Billboard</a></div></div></article>'});
 })();
 </script>
 </body>
