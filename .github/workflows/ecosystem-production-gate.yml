@@ -3,9 +3,9 @@ name: Ecosystem Production Gate
 on:
   push:
     branches: [main]
-    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','.github/workflows/**']
+    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','supabase/migrations/**','.github/workflows/**']
   pull_request:
-    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','.github/workflows/**']
+    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','supabase/migrations/**','.github/workflows/**']
   workflow_dispatch:
 
 jobs:
@@ -46,13 +46,27 @@ jobs:
           test -f BEC-PRIME/routes/platformCart.js
           test -f BEC-PRIME/lib/billboardAutoFulfillment.js
           test -f public/cube.json
+          test -f supabase/migrations/20260912_orchestrator_work_ledger.sql
+          test -f supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
+      - name: Validate migration invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "create table if not exists public.orchestrator_tasks" supabase/migrations/20260912_orchestrator_work_ledger.sql
+          grep -q "claim_orchestrator_task" supabase/migrations/20260912_orchestrator_work_ledger.sql
+          grep -q "lease_token" supabase/migrations/20260912_orchestrator_work_ledger.sql
+          grep -q "waiting_external" supabase/migrations/20260912_orchestrator_work_ledger.sql
+          grep -q "marketplace_listing_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
+          grep -q "marketplace_order_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
+          grep -q "stale listing version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
+          grep -q "stale order version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
       - name: Scan repository for forbidden secret material
         shell: bash
         run: |
           set -euo pipefail
           P1='STRIPE_SECRET_KEY[[:space:]]*=[[:space:]]*["'"']'
           P2='SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*["'"']'
-          if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public 2>/dev/null; then
+          if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public supabase/migrations 2>/dev/null; then
             echo 'Forbidden secret material detected'
             exit 1
           fi
@@ -60,7 +74,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          find CORTEX BEC-PRIME api public policy .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
+          find CORTEX BEC-PRIME api public policy supabase/migrations .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
       - name: Upload production evidence
         uses: actions/upload-artifact@v4
         with:
@@ -69,6 +83,8 @@ jobs:
             ecosystem-production-manifest.sha256
             CORTEX/ecosystem_registry.json
             CORTEX/ecosystem_verify.py
+            supabase/migrations/20260912_orchestrator_work_ledger.sql
+            supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           retention-days: 90
 
   provenance:
