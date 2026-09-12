@@ -19,6 +19,7 @@ REQUIRED_FILES = [
     "CORTEX/redteam/regression.py",
     "CORTEX/test_redteam_extension.py",
     "policy/runtime.cedar",
+    "policy/schema.json",
     ".github/workflows/redteam-regression.yml",
     ".github/workflows/cloud-ecosystem-spine.yml",
     ".github/workflows/economic-supervisor.yml",
@@ -68,10 +69,19 @@ def verify() -> dict[str, Any]:
                 failures.append({"kind": "missing_symbol", "path": rel, "symbol": symbol})
 
     policy = ROOT / "policy/runtime.cedar"
-    if policy.is_file():
-        text = policy.read_text(encoding="utf-8")
-        if "forbid" not in text:
-            failures.append({"kind": "policy", "message": "runtime Cedar policy contains no forbid rule"})
+    if policy.is_file() and "forbid" not in policy.read_text(encoding="utf-8"):
+        failures.append({"kind": "policy", "message": "runtime Cedar policy contains no forbid rule"})
+
+    schema = ROOT / "policy/schema.json"
+    if schema.is_file():
+        try:
+            parsed = json.loads(schema.read_text(encoding="utf-8"))
+            actions = parsed.get("DreamLedger", {}).get("actions", {})
+            for action in ("send_email", "publish", "charge_card", "refund"):
+                if action not in actions:
+                    failures.append({"kind": "policy_schema", "message": "missing Cedar action", "action": action})
+        except Exception as exc:
+            failures.append({"kind": "policy_schema", "message": "invalid JSON schema", "error_type": type(exc).__name__})
 
     return {
         "schema": "dreamledger/ecosystem-spine/v1",
