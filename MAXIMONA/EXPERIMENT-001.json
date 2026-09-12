@@ -1,0 +1,31 @@
+{
+  "schema_version": "MAXIMONA-EXPERIMENT-001/1.0",
+  "experiment_id": "MAXIMONA-001",
+  "name": "Independent Production Verification",
+  "annual_objective_nzd": 1000000,
+  "beachhead": "Independent Production Verification for AI-built SaaS",
+  "technical_wedge": ["Supabase/Postgres", "Stripe", "cross-layer economic reconciliation"],
+  "offer": {
+    "single_system_nzd": 500,
+    "combined_supabase_stripe_nzd": 1500,
+    "discount_tier": false
+  },
+  "sample_size": 10,
+  "held_constant": ["offer", "scope", "price", "core positioning", "fulfillment promise"],
+  "observed": ["channel", "response", "problem recognition", "trust", "price reaction", "purchase", "fulfillment", "customer value"],
+  "sale_definition": ["real external buyer", "settled payment"],
+  "customer_validation_definition": ["fulfilled work", "customer confirmation of material value"],
+  "strategic_validation_definition": ["repeatable customer demand", "acceptable margin", "declining operator burden", "credible expansion path"],
+  "funnel": ["CONTACT", "RESPONSE", "PROBLEM_RECOGNITION", "INTEREST", "SCOPE_REQUEST", "PRICE_ACCEPTANCE", "PURCHASE", "SETTLED_PAYMENT", "FULFILLMENT", "CUSTOMER_VALUE", "REPEAT_OR_REFERRAL"],
+  "terminal_states": ["NO_EXTERNAL_SIGNAL", "PROBLEM_CONFIRMED", "PRICE_RESISTANCE", "TRUST_RESISTANCE", "PURCHASE_SIGNAL", "FULFILLMENT_VALIDATED", "CUSTOMER_VALUE_VALIDATED", "REPEATABILITY_SIGNAL", "RECURRING_DEMAND_SIGNAL", "SCALABLE_MECHANISM_SIGNAL", "SEVEN_FIGURE_CANDIDATE", "NO_GO", "HUMAN_AUTHORITY_REQUIRED"],
+  "promotion_rule": {
+    "repeatability_testing": "3 or more independent purchases",
+    "seven_figure_candidate": "observed economics support a credible NZ$1M+ annual path"
+  },
+  "commercial_rule": "Do not count response, interest, scope request or price acceptance as revenue.",
+  "approval_rule": "External outreach and financial actions require explicit operator authorization. This manifest records authorization intent but never fabricates execution.",
+  "current_stage": "CONTACT_READY",
+  "verified_revenue_nzd": 0,
+  "prospects_contacted": 0,
+  "prospect_target": 10
+}
