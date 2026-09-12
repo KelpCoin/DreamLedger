@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "captured_from": "production observation handover 2026-09-12",
+  "offers": [
+    "OFFER-CMD-DIAG-29-NZD",
+    "DISCORD-WEBHOOK-STARTER-KIT-001",
+    "EDH_0001"
+  ],
+  "known_surface_gap": {
+    "path": "/billboard",
+    "expected_public": true,
+    "expected_in_api_offers": false,
+    "offer_ids": [
+      "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "DL-BILLBOARD-100X100-3000-001"
+    ]
+  }
+}
