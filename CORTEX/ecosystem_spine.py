@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib, json, re
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRED_FILES = ['CORTEX/ecosystem_registry.json','CORTEX/ecosystem_verify.py','CORTEX/local_mailbox_worker.ps1','CORTEX/gauntlet_adapter.py','CORTEX/ecosystem_spine.py','CORTEX/powershell-cloud-contract.json','CORTEX/redteam/belt.py','CORTEX/redteam/contracts.py','CORTEX/redteam/belt_extension.py','CORTEX/redteam/regression.py','CORTEX/redteam/meta_belt.py','CORTEX/redteam/persistence.py','CORTEX/redteam/signer.py','CORTEX/redteam/manifest.json','CORTEX/redteam/modules/__init__.py','CORTEX/test_redteam_extension.py','policy/runtime.cedar','policy/schema.json','.github/workflows/redteam-regression.yml','.github/workflows/redteam-meta.yml','.github/workflows/cloud-ecosystem-spine.yml','.github/workflows/economic-supervisor.yml','.github/workflows/ecosystem-production-gate.yml','BEC-PRIME/AGENTIC-COMMERCE-ENGINE.json','BEC-PRIME/COMMERCE/PURCHASE-TO-SHARE-LOOP-v1.json','BEC-PRIME/routes/platformCart.js','BEC-PRIME/lib/billboardAutoFulfillment.js','api/stripe-link.ts','public/agent.json','public/surfaces.json','public/cube.json']
+REQUIRED_FILES = ['CORTEX/ecosystem_registry.json','CORTEX/ecosystem_verify.py','CORTEX/local_mailbox_worker.ps1','CORTEX/gauntlet_adapter.py','CORTEX/ecosystem_spine.py','CORTEX/powershell-cloud-contract.json','CORTEX/redteam/belt.py','CORTEX/redteam/contracts.py','CORTEX/redteam/belt_extension.py','CORTEX/redteam/regression.py','CORTEX/redteam/meta_belt.py','CORTEX/redteam/persistence.py','CORTEX/redteam/signer.py','CORTEX/redteam/manifest.json','CORTEX/redteam/modules/__init__.py','CORTEX/test_redteam_extension.py','policy/runtime.cedar','policy/schema.json','.github/workflows/redteam-regression.yml','.github/workflows/redteam-meta.yml','.github/workflows/cloud-ecosystem-spine.yml','.github/workflows/economic-supervisor.yml','.github/workflows/ecosystem-production-gate.yml','.github/workflows/cortex-mailbox-dispatch.yml','BEC-PRIME/AGENTIC-COMMERCE-ENGINE.json','BEC-PRIME/COMMERCE/PURCHASE-TO-SHARE-LOOP-v1.json','BEC-PRIME/routes/platformCart.js','BEC-PRIME/lib/billboardAutoFulfillment.js','api/stripe-link.ts','public/agent.json','public/surfaces.json','public/cube.json']
 REQUIRED_SYMBOLS = {'CORTEX/gauntlet_adapter.py':['evaluate','THRESHOLDS','run_extension_belt'],'CORTEX/redteam/belt.py':['run_belt','BELT_VERSION'],'CORTEX/redteam/belt_extension.py':['run_extension_belt','MODULES','B13_specification_termination','B24_supply_chain_provenance'],'CORTEX/redteam/regression.py':['add_case','run_regression'],'CORTEX/redteam/meta_belt.py':['run_meta_belt']}
 FORBIDDEN = [r'sk-live-[A-Za-z0-9]', r'rk_live_[A-Za-z0-9]', r'STRIPE_SECRET_KEY\s*=\s*[\'\"]', r'SUPABASE_SERVICE_ROLE_KEY\s*=\s*[\'\"]']
 def verify():
@@ -35,7 +35,7 @@ def verify():
             for a in ('send_email','publish','charge_card','refund'):
                 if a not in actions: failures.append({'kind':'policy_schema','action':a})
         except Exception as e: failures.append({'kind':'policy_schema','error_type':type(e).__name__})
-    return {'schema':'dreamledger/ecosystem-spine/v4','status':'FAIL' if failures else 'PASS','failures':failures,'files':files}
+    return {'schema':'dreamledger/ecosystem-spine/v5','status':'FAIL' if failures else 'PASS','failures':failures,'files':files}
 def main():
     r=verify(); print(json.dumps(r,indent=2,sort_keys=True)); return 1 if r['status']=='FAIL' else 0
 if __name__=='__main__': raise SystemExit(main())
