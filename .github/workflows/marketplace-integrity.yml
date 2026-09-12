@@ -1,0 +1,43 @@
+name: Marketplace Integrity
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/marketplace/**'
+      - 'CORTEX/**'
+      - 'policy/**'
+      - '.github/workflows/marketplace-integrity.yml'
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate marketplace contract
+        run: python -m json.tool BEC-PRIME/marketplace/marketplace-contract.json >/dev/null
+      - name: Validate marketplace runtime
+        run: python BEC-PRIME/marketplace/marketplace-runtime.py
+      - name: Compile Python modules
+        run: python -m compileall -q CORTEX BEC-PRIME/marketplace
+      - name: Run red-team regression
+        run: python -m unittest CORTEX.test_redteam_extension
+      - name: Ecosystem spine
+        run: python CORTEX/ecosystem_spine.py
+      - name: Build marketplace manifest
+        run: |
+          mkdir -p evidence
+          sha256sum BEC-PRIME/marketplace/* CORTEX/ecosystem_spine.py > evidence/marketplace-manifest.sha256
+      - name: Attest marketplace manifest
+        uses: actions/attest@v4
+        with:
+          subject-path: evidence/marketplace-manifest.sha256
