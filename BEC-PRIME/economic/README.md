@@ -1,6 +1,6 @@
-# DreamLedger Economic Cockpit
+# DreamLedger Economic Cockpit 2.0
 
-The Economic Cockpit is the local money-facing control surface for DreamLedger.
+The Economic Cockpit is the local money-facing control surface for the active DreamLedger Billboard cell.
 
 ## One command
 
@@ -16,41 +16,61 @@ Or double-click:
 BEC-PRIME/economic/Run-Economic-Cockpit.cmd
 ```
 
-## What it proves
+The runner deliberately refuses to start when `STRIPE_SECRET_KEY` is present or `STRIPE_READONLY_KEY` is absent. Use a restricted Stripe key with read-only access suitable for Payment Links, Checkout Sessions, Payment Intents, Charges and Balance observation. Never put a full live secret in the cockpit.
 
-Mandatory observation is limited to the commercial evidence chain:
+## Economic truth
 
-1. DreamLedger production root is observable.
-2. Billboard page is observable.
-3. Machine-readable offers are observable.
-4. Stripe live charges are observable.
-5. Payment evidence is derived only from the valid Stripe charges response.
+The cockpit does not treat every paid charge in the Stripe account as DreamLedger revenue.
 
-Connectivity failure and HTTP 5xx produce `INVALID`.
-A mandatory 4xx produces `CONTRADICTED` so the report identifies a specific missing or incorrect surface.
-A valid Stripe response with zero paid live charges is a valid result: `VALID` with `NZ$0`.
+Attribution is:
+
+```text
+DreamLedger Billboard Payment Link
+  -> paid live Checkout Session
+  -> Payment Intent
+  -> paid live Charge
+  -> BusinessTruth
+```
+
+Only charges reached through that chain are counted as Billboard revenue. Unrelated Stripe account activity is excluded.
+
+A valid live checkout with no attributable paid charge is a valid result: `VERIFIED_ZERO_BILLBOARD_PAYMENTS` and `NZ$0`.
+
+## Approval is a record, not a flag
+
+Each outreach opportunity receives a frozen authorization record containing the exact action type, recipient, amount, currency, offer, payment link, message body, creation time, expiry, nonce and hashes.
+
+The execution gate is:
+
+```text
+node BEC-PRIME\economic\AssertAuthorizationRecord.js <authorization.json> <proposed.json>
+```
+
+It refuses execution if the record is not explicitly approved, has expired, its immutable snapshot hash has changed, or any protected field differs from the approved snapshot. A changed prospect row cannot inherit an old approval.
+
+The cockpit itself never sends outreach. It only prepares these records.
+
+## Acquisition scoring
+
+Prospects are scored on three independent axes:
+
+- `intent_score`: evidence the buyer is in-market now
+- `fit_score`: match to the Billboard offer and target market
+- `engagement_score`: evidence of interaction with DreamLedger
+
+The queue is ordered by intent first, then fit, then engagement. An outreach trigger requires meaningful fit plus current intent. A high-fit prospect with no intent is not treated as hot.
+
+Expected prospect columns include:
+
+```text
+name,business,website,email,country,market,location,website_active,intent_score,intent_signals,intent_date,engagement_score,engagement_signal,message_body
+```
 
 ## What it does not do
 
 It does not send email, send outreach, create a payment, create a Stripe Payment Link, deploy production, write Supabase records, resurrect MTG work, or invent revenue.
 
-## Acquisition loop
-
-When `DREAMLEDGER_PROSPECTS_CSV` exists, the cockpit reads the prospect feed, scores the supplied evidence, and creates an approval queue. The queue is never sent automatically.
-
-Default prospect feed:
-
-```text
-D:\BrownEyeCortex\Prospects\prospects.csv
-```
-
-Override with:
-
-```text
-DREAMLEDGER_PROSPECTS_CSV
-```
-
-The resulting `OUTREACH_QUEUE.csv` is written beside the evidence report. Each opportunity carries `approval_required=true` and `send_status=NOT_SENT`.
+MTG is outside this commercial cell.
 
 ## Evidence
 
@@ -66,8 +86,12 @@ The latest machine-readable summary is:
 D:\BrownEyeCortex\EconomicCockpit\latest.json
 ```
 
+Each run contains production evidence, offer evidence, checkout evidence, attributable payment evidence, acquisition evidence, the outreach queue, and immutable authorization snapshots.
+
 ## Economic doctrine
 
-`REAL BUYER -> STRIPE LIVE PAYMENT -> FULFILMENT -> PROOF`
+```text
+REAL BUYER -> LIVE BILLBOARD CHECKOUT -> SETTLED PAYMENT -> FULFILMENT -> PROOF
+```
 
-The cockpit may identify opportunities, but it never promotes opportunity value into revenue. Only live Stripe payment evidence can establish BusinessTruth.
+Opportunity count, pipeline value, intent score, Stripe account-wide charges, and self-payments are not revenue.
