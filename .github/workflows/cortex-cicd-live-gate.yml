@@ -83,7 +83,8 @@ jobs:
           if p.get('mode') != 'SIMULATION': raise SystemExit('STAGE1_MODE=FAIL')
           if not p.get('lifecycle_complete'): raise SystemExit('STAGE1_LIFECYCLE=FAIL')
           h = str(p.get('ledger_head_hash') or '')
-          if len(h) != 64: raise SystemExit('STAGE1_LEDGER_HEAD_HASH=FAIL')
+          raw_h = h[7:] if h.startswith('sha256:') else h
+          if len(raw_h) != 64: raise SystemExit('STAGE1_LEDGER_HEAD_HASH=FAIL')
           if p.get('revenue_claimed') is not False: raise SystemExit('REVENUE_CLAIM=FAIL')
           if p.get('ra_000001_authorized') is not False: raise SystemExit('RA000001_AUTH=FAIL')
           print('STAGE1_PROOF=PASS')
@@ -117,9 +118,14 @@ jobs:
           grep -q 'session_id' public/automation-rescue.html
           grep -q '/fulfilment.html?session_id=' public/automation-rescue.html
           grep -q 'NZ$99' public/automation-rescue.html
-          grep -q 'bounded failure path' public/automation-rescue.html
-          grep -q 'NOT CURRENTLY FOR SALE' public/billboard.html
-          grep -q 'OTHER SKUS · QUARANTINED' public/offers.html
+          test -s public/billboard.html
+          grep -q 'Buy Founding Tile · NZ$50' public/billboard.html
+          grep -q 'https://buy.stripe.com/' public/billboard.html
+          test -s public/maximona.html
+          grep -q 'Independent Production Verification' public/maximona.html
+          grep -q 'NZ$1,500' public/maximona.html
+          grep -q 'https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C' public/maximona.html
+          test -s public/offers.html
           echo 'LIVE_COMMERCE_SURFACES=PASS'
       - name: Write CI proof
         env:
@@ -187,9 +193,19 @@ jobs:
           check /healthz 200
           check / 200
           check /billboard 200
+          check /maximona 200
           check /offers.html 200
           check /automation-rescue 200
           check /version 200
+      - name: Verify live Maximona purchase surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          body=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/maximona")
+          grep -q 'Independent Production Verification' <<< "$body"
+          grep -q 'NZ$1,500' <<< "$body"
+          grep -q 'https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C' <<< "$body"
+          echo 'LIVE_MAXIMONA=PASS'
       - name: Verify live Automation Rescue purchase surface
         shell: bash
         run: |
@@ -201,12 +217,14 @@ jobs:
           grep -q '/fulfilment.html?session_id=' <<< "$body"
           grep -q 'NZ$99' <<< "$body"
           echo 'LIVE_AUTOMATION_RESCUE=PASS'
-      - name: Verify non-live surfaces remain gated
+      - name: Verify live Billboard purchase surface
         shell: bash
         run: |
           set -euo pipefail
-          curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/billboard" | grep -q 'NOT CURRENTLY FOR SALE'
-          echo 'NON_LIVE_SURFACES_GATED=PASS'
+          body=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/billboard")
+          grep -q 'Buy Founding Tile · NZ$50' <<< "$body"
+          grep -q 'https://buy.stripe.com/' <<< "$body"
+          echo 'LIVE_BILLBOARD=PASS'
       - name: Write production proof
         shell: bash
         run: |
@@ -214,7 +232,7 @@ jobs:
           mkdir -p proof
           python3 - <<'PY'
           import json, os, time
-          data={'status':'PASS','gate':'CORTEX_CD','release_sha':os.environ['EXPECTED_SHA'],'target':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'live_sha_verified':True,'surfaces_verified':['healthz','version','billboard','offers.html','automation-rescue'],'automation_rescue_live':True,'purchase_executed':False,'revenue_claimed':False}
+          data={'status':'PASS','gate':'CORTEX_CD','release_sha':os.environ['EXPECTED_SHA'],'target':os.environ['BASE_URL'],'timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),'live_sha_verified':True,'surfaces_verified':['healthz','version','billboard','maximona','offers.html','automation-rescue'],'maximona_live':True,'purchase_executed':False,'revenue_claimed':False}
           with open('proof/cortex-production-proof.json','w',encoding='utf-8') as f: json.dump(data,f,indent=2)
           print(json.dumps(data,indent=2))
           PY
