@@ -1,0 +1,85 @@
+name: Dispatch Local Task
+on:
+  workflow_dispatch:
+    inputs:
+      role:
+        description: Handler name from the local allowlist
+        required: true
+        type: choice
+        options: [lm_research, lm_draft, lm_skeptic, hash_evidence, noop]
+      objective:
+        description: Task objective
+        required: true
+        type: string
+      required_output_schema:
+        description: Optional schema name
+        required: false
+        type: string
+      timeout_seconds:
+        description: Hard wait timeout
+        required: false
+        default: '300'
+        type: string
+permissions:
+  contents: read
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: dispatch-local-task-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Validate inputs
+        env:
+          ROLE: ${{ inputs.role }}
+          OBJECTIVE: ${{ inputs.objective }}
+          TIMEOUT: ${{ inputs.timeout_seconds }}
+        run: |
+          set -euo pipefail
+          case "$ROLE" in lm_research|lm_draft|lm_skeptic|hash_evidence|noop) ;; *) exit 1 ;; esac
+          test -n "$OBJECTIVE"
+          [[ "$TIMEOUT" =~ ^[0-9]+$ ]] && test "$TIMEOUT" -gt 0
+      - name: Write task to Supabase mailbox
+        id: enqueue
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ROLE: ${{ inputs.role }}
+          OBJECTIVE: ${{ inputs.objective }}
+          SCHEMA: ${{ inputs.required_output_schema }}
+          TIMEOUT: ${{ inputs.timeout_seconds }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          RUN_UUID=$(python - <<'PY'
+          import uuid
+          print(uuid.uuid4())
+          PY
+          )
+          jq -n --arg role "$ROLE" --arg obj "$OBJECTIVE" --arg schema "$SCHEMA" --arg run_uuid "$RUN_UUID" --argjson timeout "$TIMEOUT" '{run_id:$run_uuid,role:$role,tier:"local",objective:$obj,input:{objective:$obj},required_output_schema:(if $schema=="" then null else $schema end),timeout_seconds:$timeout,max_turns:10,max_tool_calls:20,status:"queued",retry_policy_json:{max_attempts:3,backoff_seconds:30}}' > /tmp/task.json
+          curl -fsS -X POST -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" -H 'Content-Type: application/json' -H 'Prefer: return=representation' -d @/tmp/task.json "$SUPABASE_URL/rest/v1/orchestrator_tasks" > /tmp/response.json
+          TASK_ID=$(jq -r '.[0].task_id' /tmp/response.json)
+          test "$TASK_ID" != null
+          echo "task_id=$TASK_ID" >> "$GITHUB_OUTPUT"
+          echo "Dispatched $TASK_ID"
+      - name: Poll mailbox
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TASK_ID: ${{ steps.enqueue.outputs.task_id }}
+          TIMEOUT: ${{ inputs.timeout_seconds }}
+        run: |
+          set -euo pipefail
+          deadline=$(( $(date +%s) + TIMEOUT + 60 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            row=$(curl -fsS -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" "$SUPABASE_URL/rest/v1/orchestrator_tasks?task_id=eq.$TASK_ID&select=status,result,error,lease_owner,attempt_count")
+            status=$(jq -r '.[0].status // "missing"' <<<"$row")
+            echo "status=$status"
+            case "$status" in done) echo "$row" | jq .; exit 0;; failed|timeout|cancelled) echo "$row" | jq .; exit 1;; esac
+            sleep 5
+          done
+          echo "mailbox wait timeout for $TASK_ID"
+          exit 1
