@@ -1,0 +1,97 @@
+name: Offer Catalog Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/catalog/ip-capabilities.json'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/catalog/offers/offers.json'
+      - 'BEC-PRIME/catalog/offers/candidates.json'
+      - 'BEC-PRIME/compiler/OfferCompiler.js'
+      - 'BEC-PRIME/scripts/Compile-Offers.ps1'
+      - 'BEC-PRIME/scripts/Verify-ApprovedOfferContract.ps1'
+      - '.github/workflows/offer-catalog-contract.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/catalog/ip-capabilities.json'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/catalog/offers/offers.json'
+      - 'BEC-PRIME/catalog/offers/candidates.json'
+      - 'BEC-PRIME/compiler/OfferCompiler.js'
+      - 'BEC-PRIME/scripts/Compile-Offers.ps1'
+      - 'BEC-PRIME/scripts/Verify-ApprovedOfferContract.ps1'
+      - '.github/workflows/offer-catalog-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Regenerate offer artifacts from source
+        run: npm run compile:offers
+
+      - name: Verify generated artifact is committed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- \
+            BEC-PRIME/catalog/offers/offers.json \
+            BEC-PRIME/catalog/offers/candidates.json \
+            BEC-PRIME/PROOF-OFFER-COMPILATION.json
+          echo 'PASS: committed offer artifacts match compiler output'
+
+      - name: Verify approved source to compiled catalog contract
+        shell: pwsh
+        run: ./scripts/Verify-ApprovedOfferContract.ps1
+
+      - name: Verify compiled catalog to production API contract
+        shell: bash
+        env:
+          LIVE_URL: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 30 "$LIVE_URL/api/offers" -o /tmp/live-offers.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const source = JSON.parse(fs.readFileSync('catalog/offers/offers.json', 'utf8'));
+          const liveData = JSON.parse(fs.readFileSync('/tmp/live-offers.json', 'utf8'));
+          const live = Array.isArray(liveData) ? liveData : (Array.isArray(liveData.offers) ? liveData.offers : []);
+          const liveById = new Map(live.map(o => [o.offer_id || o.id, o]));
+          for (const expected of source.offers.filter(o => o.status === 'VERIFIED_AVAILABLE')) {
+            const actual = liveById.get(expected.offer_id);
+            if (!actual) throw new Error(`approved offer missing from production API: ${expected.offer_id}`);
+            if (Number(actual.price) !== Number(expected.price)) throw new Error(`price mismatch: ${expected.offer_id}`);
+            if (String(actual.currency).toUpperCase() !== String(expected.currency).toUpperCase()) throw new Error(`currency mismatch: ${expected.offer_id}`);
+            if (actual.checkout_available !== true) throw new Error(`checkout unavailable: ${expected.offer_id}`);
+          }
+          console.log(`PASS: ${source.offers.filter(o => o.status === 'VERIFIED_AVAILABLE').length} approved offers present in production API`);
+          NODE
+
+      - name: Verify billboard public surface for canonical billboard offer
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 30 https://dreamledger.org/billboard -o /tmp/billboard.html
+          grep -q 'Digital Billboard\|Internet Billboard\|Founding Tile' /tmp/billboard.html
+          echo 'PASS: billboard public surface is reachable and renders the billboard commerce surface'
