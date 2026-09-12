@@ -6,6 +6,15 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SKIP = new Set(['.git', 'node_modules', '.next', 'dist', 'build', 'coverage']);
+const EXCLUDED_PATHS = [
+  'BEC-PRIME/scripts/verify-stripe-checkout-contract.js',
+  'BEC-PRIME/scripts/__fixtures__',
+  'BEC-PRIME/scripts/__tests__',
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+];
 const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1', '.yml', '.yaml', '.sh']);
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 
@@ -29,6 +38,12 @@ function walk(dir, out = []) {
     else if (EXT.has(path.extname(name).toLowerCase())) out.push(full);
   }
   return out;
+}
+
+function shouldSkip(filePath) {
+  const normalised = filePath.replace(/\\/g, '/');
+  const relative = path.relative(ROOT, filePath).replace(/\\/g, '/');
+  return EXCLUDED_PATHS.some((ex) => normalised.includes(ex) || relative.includes(ex));
 }
 
 function hasAnyProducer(text) {
@@ -67,6 +82,7 @@ function metadataPresent(windowText, key) {
 const files = walk(ROOT);
 const producers = [];
 for (const file of files) {
+  if (shouldSkip(file)) continue;
   const text = fs.readFileSync(file, 'utf8');
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
   const rel = path.relative(ROOT, file).replace(/\\/g, '/');
