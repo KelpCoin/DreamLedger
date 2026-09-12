@@ -56,9 +56,9 @@ jobs:
         run: |
           set -euo pipefail
           git diff --exit-code -- \
-            BEC-PRIME/catalog/offers/offers.json \
-            BEC-PRIME/catalog/offers/candidates.json \
-            BEC-PRIME/PROOF-OFFER-COMPILATION.json
+            catalog/offers/offers.json \
+            catalog/offers/candidates.json \
+            PROOF-OFFER-COMPILATION.json
           echo 'PASS: committed offer artifacts match compiler output'
 
       - name: Verify approved source to compiled catalog contract
@@ -78,17 +78,18 @@ jobs:
           const liveData = JSON.parse(fs.readFileSync('/tmp/live-offers.json', 'utf8'));
           const live = Array.isArray(liveData) ? liveData : (Array.isArray(liveData.offers) ? liveData.offers : []);
           const liveById = new Map(live.map(o => [o.offer_id || o.id, o]));
-          for (const expected of source.offers.filter(o => o.status === 'VERIFIED_AVAILABLE')) {
+          const approved = source.offers.filter(o => o.status === 'VERIFIED_AVAILABLE');
+          for (const expected of approved) {
             const actual = liveById.get(expected.offer_id);
             if (!actual) throw new Error(`approved offer missing from production API: ${expected.offer_id}`);
             if (Number(actual.price) !== Number(expected.price)) throw new Error(`price mismatch: ${expected.offer_id}`);
             if (String(actual.currency).toUpperCase() !== String(expected.currency).toUpperCase()) throw new Error(`currency mismatch: ${expected.offer_id}`);
             if (actual.checkout_available !== true) throw new Error(`checkout unavailable: ${expected.offer_id}`);
           }
-          console.log(`PASS: ${source.offers.filter(o => o.status === 'VERIFIED_AVAILABLE').length} approved offers present in production API`);
+          console.log(`PASS: ${approved.length} approved offers present in production API`);
           NODE
 
-      - name: Verify billboard public surface for canonical billboard offer
+      - name: Verify billboard public surface
         shell: bash
         run: |
           set -euo pipefail
