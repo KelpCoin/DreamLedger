@@ -54,10 +54,11 @@ function producerWindows(text) {
 }
 
 function metadataPresent(windowText, key) {
+  const exact = `payment_intent_data[metadata][${key}]`;
+  if (windowText.includes(exact)) return true;
   const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const bracket = new RegExp('payment_intent_data\\s*\\[metadata\\]\\s*\\[' + escaped + '\\]', 'i');
   const object = new RegExp('payment_intent_data[\\s\\S]{0,3000}metadata[\\s\\S]{0,1500}[\\[\\."\\\']' + escaped + '[\\]"\\\']', 'i');
-  return bracket.test(windowText) || object.test(windowText);
+  return object.test(windowText);
 }
 
 const files = walk(ROOT);
