@@ -4,20 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DreamLedger | Catalogue</title>
-<meta name="description" content="DreamLedger public catalogue. Browse existing offers and purchase through Stripe.">
+<meta name="description" content="DreamLedger public catalogue and commercial services. Browse verified offers and production verification.">
 <link rel="stylesheet" href="/styles.css">
 <style>
-main{width:min(1100px,calc(100% - 28px));margin:auto;padding:48px 0 80px}.hero{max-width:850px}.hero h1{font-size:clamp(48px,8vw,92px);line-height:.86;letter-spacing:-.08em}.hero h1 em{font-style:normal;color:#e6bc58}.lead{font-size:18px;color:#b7bfcb}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}.catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}.card{border:1px solid #343d4d;border-radius:18px;background:linear-gradient(145deg,#151a24,#0d1118);padding:20px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#e6bc58;font-weight:900}.card h2{font-size:23px;letter-spacing:-.04em;margin:8px 0}.card p,.row{color:#99a3b0;font-size:13px}.row{padding:10px 0;border-bottom:1px solid #29323f}.price{font-size:22px;font-weight:900;color:#e6bc58;margin-top:14px}.buy{display:inline-block;margin-top:14px;padding:12px 16px;border-radius:10px;background:#f4c95d;color:#090909;font-weight:900;text-decoration:none;border:0;cursor:pointer}.muted{color:#8993a0;font-size:12px}.detail{display:none;margin-top:18px}.detail.active{display:block}.catalog.hidden{display:none}.status{margin-top:14px;color:#b7bfcb;font-size:13px}@media(max-width:800px){.catalog,.grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.catalog,.grid{grid-template-columns:1fr}}
+main{width:min(1100px,calc(100% - 28px));margin:auto;padding:48px 0 80px}.hero{max-width:850px}.hero h1{font-size:clamp(48px,8vw,92px);line-height:.86;letter-spacing:-.08em}.hero h1 em{font-style:normal;color:#e6bc58}.lead{font-size:18px;color:#b7bfcb}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}.catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}.card{border:1px solid #343d4d;border-radius:18px;background:linear-gradient(145deg,#151a24,#0d1118);padding:20px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#e6bc58;font-weight:900}.card h2{font-size:23px;letter-spacing:-.04em;margin:8px 0}.card p,.row{color:#99a3b0;font-size:13px}.row{padding:10px 0;border-bottom:1px solid #29323f}.price{font-size:22px;font-weight:900;color:#e6bc58;margin-top:14px}.buy{display:inline-block;margin-top:14px;padding:12px 16px;border-radius:10px;background:#f4c95d;color:#090909;font-weight:900;text-decoration:none;border:0;cursor:pointer}.muted{color:#8993a0;font-size:12px}.detail{display:none;margin-top:18px}.detail.active{display:block}.catalog.hidden{display:none}.status{margin-top:14px;color:#b7bfcb;font-size:13px}.featured{border-color:#7b6840;background:linear-gradient(145deg,#1a1710,#0d1118)}@media(max-width:800px){.catalog,.grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.catalog,.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header class="topbar"><div class="topbar-inner"><a class="logo" href="/">DREAMLEDGER <span>3000</span></a><nav><a href="/">Catalogue</a><a href="/mtg">Magic</a><a href="/billboard">Billboard</a><a href="/dreammeez">DreamMeez</a><a href="/truth-oracle">Truth Oracle</a></nav></div></header>
+<header class="topbar"><div class="topbar-inner"><a class="logo" href="/">DREAMLEDGER <span>3000</span></a><nav><a href="/">Catalogue</a><a href="/maximona">Maximona</a><a href="/mtg">Magic</a><a href="/billboard">Billboard</a><a href="/offers.html">Offers</a></nav></div></header>
 <main>
 <section class="hero">
-<div class="eyebrow">DREAMLEDGER 3000 · PUBLIC CATALOGUE</div>
+<div class="eyebrow">DREAMLEDGER · PUBLIC COMMERCIAL SURFACE</div>
 <h1>BUY SOMETHING.<br><em>MAKE IT REAL.</em></h1>
-<p class="lead">Existing DreamLedger offers, connected to their current checkout contracts. No fake inventory, no invented products, and no claims beyond the listed offer.</p>
+<p class="lead">Live commercial offers with explicit boundaries. The current priority is Maximona, an independent production verification service for SaaS systems using Supabase/Postgres and Stripe.</p>
 <div id="status" class="status"></div>
+</section>
+<section class="card featured">
+<div class="eyebrow">MAXIMONA · CURRENT COMMERCIAL WEDGE</div>
+<h2>Independent Production Verification</h2>
+<p>Evidence-backed verification of the live Supabase/Postgres and Stripe layers, including cross-layer consistency. Read-only by default. Fixed scope.</p>
+<div class="price">NZ$1,500</div>
+<a class="buy" href="/maximona">View verification offer</a>
 </section>
 <section id="detail" class="card detail"></section>
 <section id="catalog" class="catalog" aria-label="DreamLedger products"></section>
@@ -26,7 +33,7 @@ main{width:min(1100px,calc(100% - 28px));margin:auto;padding:48px 0 80px}.hero{m
 <article class="card"><div class="eyebrow">MAGIC</div><h2>MTG storefront</h2><p>Commander diagnostic, physical deck and collectible inventory in the existing horizontal carousel.</p><a class="buy" href="/mtg">Open Magic catalogue</a></article>
 </section>
 </main>
-<footer><span>DreamLedger 3000</span><span>Existing catalogue · Stripe checkout · <a href="/truth-oracle">Truth Oracle</a></span></footer>
+<footer><span>DreamLedger 3000</span><span>Commercial surface · Stripe checkout · <a href="/truth-oracle">Truth Oracle</a></span></footer>
 <script>
 (function(){
   var catalog=document.getElementById('catalog'),detail=document.getElementById('detail'),status=document.getElementById('status');
@@ -35,7 +42,7 @@ main{width:min(1100px,calc(100% - 28px));margin:auto;padding:48px 0 80px}.hero{m
   function card(p){var disabled=p.checkout_available===false;return '<article class="card"><div class="eyebrow">'+esc(p.silo||'offer')+'</div><h2>'+esc(p.name)+'</h2><p>'+esc(p.description)+'</p><div class="price">'+money(p)+'</div><a class="buy" href="/?product='+encodeURIComponent(p.id)+'">View product</a>'+(disabled?'<div class="muted">Checkout currently unavailable</div>':'')+'</article>'}
   function renderDetail(p){detail.innerHTML='<div class="eyebrow">PRODUCT DETAIL</div><h2>'+esc(p.name)+'</h2><p>'+esc(p.description)+'</p><div class="price">'+money(p)+'</div><p class="muted">SKU: '+esc(p.sku||p.id)+' · Status: '+esc(p.status)+'</p>'+(p.checkout_available!==false&&p.checkout_url?'<a class="buy" href="'+esc(p.checkout_url)+'">Continue to Stripe checkout</a>':'<div class="muted">This product is not currently checkoutable.</div>');detail.classList.add('active');catalog.classList.add('hidden')}
   function renderBrowse(products){catalog.innerHTML=products.map(card).join('');catalog.classList.remove('hidden');detail.classList.remove('active')}
-  fetch('/api/products').then(function(r){if(!r.ok)throw Error('Catalogue unavailable');return r.json()}).then(function(data){var products=Array.isArray(data.products)?data.products:[];var id=new URLSearchParams(location.search).get('product');var selected=products.find(function(p){return p.id===id});if(selected)renderDetail(selected);else renderBrowse(products);status.textContent=products.length+' published products in the public catalogue.'}).catch(function(e){status.textContent=e.message;catalog.innerHTML='<article class="card"><h2>Catalogue unavailable</h2><p>Use the existing Magic or Billboard surfaces while the catalogue service recovers.</p></article>'});
+  fetch('/api/products').then(function(r){if(!r.ok)throw Error('Catalogue unavailable');return r.json()}).then(function(data){var products=Array.isArray(data.products)?data.products:[];var id=new URLSearchParams(location.search).get('product');var selected=products.find(function(p){return p.id===id});if(selected)renderDetail(selected);else renderBrowse(products);status.textContent=products.length+' published products in the public catalogue.'}).catch(function(e){status.textContent=e.message;catalog.innerHTML='<article class="card"><h2>Catalogue unavailable</h2><p>Use the Maximona, Magic or Billboard surfaces while the catalogue service recovers.</p></article>'});
   var q=new URLSearchParams(location.search);if(q.get('checkout_cancelled')==='1')status.textContent='Checkout cancelled. No payment was recorded by this page.';if(q.get('checkout_success')==='1')status.textContent='Checkout completed. Stripe has received the payment flow; fulfilment remains governed by the product contract.';
 })();
 </script>
