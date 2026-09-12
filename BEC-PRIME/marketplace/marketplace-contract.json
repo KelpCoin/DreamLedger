@@ -1,0 +1,12 @@
+{
+  "schema":"dreamledger/marketplace-contract/v1",
+  "purpose":"General B2B marketplace control-plane contract",
+  "entities":["seller","buyer","inventory","offer","order","payment","fulfilment","evidence","reputation","category"],
+  "lifecycle":{
+    "inventory":["SUBMITTED","SCREENING","GAUNTLET","APPROVED","PUBLISHED","SUSPENDED","SOLD_OUT","RETIRED"],
+    "order":["DISCOVERED","MATCHED","CHECKOUT","SETTLED","FULFILMENT_PENDING","FULFILLED","DISPUTED","REFUNDED","CLOSED"]
+  },
+  "truth_authorities":{"payment":"stripe_live_settlement","identity":"independent_verifier","fulfilment":"seller_evidence_plus_truth_oracle"},
+  "rules":["no_self_payment_as_revenue","no_public_publish_without_approval","no_settled_without_payment_evidence","no_fulfilled_without_settlement","no_inventory_cross_silo_leakage"],
+  "economic_goal":"increase_verified_external_revenue"
+}
