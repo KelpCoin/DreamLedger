@@ -1,13 +1,20 @@
 {
-  "schema":"dreamledger/powershell-cloud-contract/v1",
+  "schema":"dreamledger/powershell-cloud-contract/v2",
   "transport":"supabase_mailbox",
-  "github":"implementation_and_cloud_execution",
-  "powershell":"local_supervisor_and_desktop_execution",
+  "github":"cloud_execution_ci_probes_evidence",
+  "powershell":"local_supervisor_desktop_execution",
   "states":["pending","claimed","running","completed","failed","blocked"],
-  "local_default":true,
+  "claim_rule":"atomic pending to claimed with worker_id",
+  "local_routes":["lm_studio","gpu_reasoning","powershell_workers","desktop_only","local_filesystem"],
   "cloud_routes":["public_probe","scheduled_execution","ci_secret_execution","long_running"],
-  "local_routes":["lm_studio","gpu_reasoning","powershell_workers","desktop_only"],
-  "handoff":{"cloud_to_local":"write_task","local_to_cloud":"write_result","evidence":"immutable_artifact_reference"},
-  "forbidden":["direct_desktop_http_dependency","agent_as_settlement_authority","fake_revenue","unapproved_external_action"],
-  "completion":"result_plus_evidence_plus_verification"
+  "handoff":{"cloud_to_local":"write_task","local_to_cloud":"write_result","evidence":"immutable_artifact_reference_and_sha256"},
+  "fallback":["local","cloud","deterministic","blocked","deadletter"],
+  "retry_seconds":[1,4,16],
+  "max_attempts":3,
+  "forbidden":["direct_desktop_http_dependency","agent_as_settlement_authority","fake_revenue","unapproved_external_action","self_payment_as_revenue"],
+  "local_must_not":["charge_card","refund","send_external_message_without_approval","write_verified_revenue_without_evidence"],
+  "cloud_must_not":["assume_desktop_online","bypass_approval","claim_settlement_without_stripe_evidence"],
+  "completion":"result_plus_evidence_plus_verification",
+  "approval_authority":"human",
+  "settlement_authority":"stripe_live"
 }
