@@ -1,5 +1,4 @@
 'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -44,7 +43,7 @@ function createJob(input) {
   const job = { schema_version: 'BEC-WORKER-JOB-1.1', job_id: jobId, created_at: new Date().toISOString(), status: 'QUEUED', silo: input.silo, kind: input.kind, task: input.task, inputs: input.inputs || {}, effects: input.effects || [], worker_preference: input.worker_preference || 'auto', approval_required: true, public_action_allowed: false, previous_result_hash: null };
   job.input_hash = `sha256:${hash(job)}`;
   fs.writeFileSync(jobPath(jobId), JSON.stringify(job, null, 2) + '\n', { flag: 'wx' });
-  ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: jobId, node_id: 'queue', event_type: 'JOB_CREATED', silo: job.silo, inputs_hash: job.input_hash, payload: { job_id: jobId, kind: job.kind, worker_preference: job.worker_preference } });
+  ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: jobId, node_id: 'queue', event_type: 'JOB_CREATED', silo: job.silo, inputs_hash: job.input_hash, payload: { job_id: job.job_id, kind: job.kind, worker_preference: job.worker_preference } });
   return job;
 }
 function listJobs() { return fs.readdirSync(JOBS_DIR).filter(x => x.endsWith('.json')).map(x => JSON.parse(fs.readFileSync(path.join(JOBS_DIR, x), 'utf8'))).sort((a, b) => a.created_at.localeCompare(b.created_at)); }
@@ -65,17 +64,19 @@ async function runCloudModel(job) { const url = job.inputs.cloud_url || CLOUD_LM
 
 async function execute(job) {
   const started = new Date().toISOString();
-  const selected = scheduler.choose(job);
+  const workerPreference = String(job.worker_preference || 'auto').trim() || 'auto';
+  const normalizedJob = workerPreference === job.worker_preference ? job : { ...job, worker_preference: workerPreference };
+  const selected = scheduler.choose(normalizedJob);
   ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: 'scheduler', event_type: 'WORKER_SELECTED', silo: job.silo, inputs_hash: job.input_hash, payload: selected });
-  if (job.worker_preference !== 'auto' && selected.adapter === 'deterministic') throw new Error(`Requested worker is unavailable: ${job.worker_preference}`);
+  if (workerPreference !== 'auto' && selected.adapter === 'deterministic') throw new Error(`Requested worker is unavailable: ${workerPreference}`);
   let output;
   let route = selected;
   const runners = { 'local-lmstudio': runLmStudio, gpu: runGpuModel, cloud: runCloudModel };
-  const candidates = job.worker_preference === 'auto' ? [selected.adapter, 'gpu', 'cloud', 'deterministic'] : [selected.adapter];
+  const candidates = workerPreference === 'auto' ? [selected.adapter, 'gpu', 'cloud', 'deterministic'] : [selected.adapter];
   let lastError = null;
   for (const adapter of candidates) {
     if (adapter === 'deterministic') { output = { worker: 'deterministic', message: 'No compatible model worker is configured; this is a deterministic proposal only', task: job.task }; route = { ...selected, adapter: 'deterministic', execution_node: 'none', fallback_reason: lastError }; break; }
-    const candidateRoute = adapter === selected.adapter ? selected : scheduler.choose({ ...job, worker_preference: adapter });
+    const candidateRoute = adapter === selected.adapter ? selected : scheduler.choose({ ...normalizedJob, worker_preference: adapter });
     const candidateRunner = runners[adapter];
     if (!candidateRunner || candidateRoute.adapter === 'deterministic') continue;
     try {
@@ -120,4 +121,3 @@ if (require.main === module) {
     throw new Error('Usage: node runtime/worker-pool.js enqueue <job.json> | run-once | list | route <job.json>');
   })().catch(error => { console.error(error.message); process.exitCode = 1; });
 }
-
