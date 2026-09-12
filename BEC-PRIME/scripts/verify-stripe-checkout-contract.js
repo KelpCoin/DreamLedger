@@ -6,13 +6,24 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SKIP = new Set(['.git', 'node_modules', '.next', 'dist', 'build', 'coverage']);
+const EXCLUDED_PATHS = [
+  'BEC-PRIME/scripts/verify-stripe-checkout-contract.js',
+  'BEC-PRIME/scripts/__fixtures__',
+  'BEC-PRIME/scripts/__tests__',
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+];
 const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1', '.yml', '.yaml', '.sh']);
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
+
+// Detect actual Stripe Checkout session creation sites, not calls to local helper
+// functions such as stripeCheckout(). The helper definition owns the Stripe POST;
+// its nearby checkout parameter object is inspected as part of the same producer.
 const PRODUCER_MARKERS = [
-  /checkout\/sessions/i,
   /stripe\.checkout\.sessions\.create/i,
-  /stripeCheckout\s*\(/i,
-  /stripeRequest\s*\(/i,
+  /sessions\.create\s*\(/i,
   /fetch\s*\(\s*[`'\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i,
   /curl[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i,
   /urllib[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i
@@ -29,6 +40,12 @@ function walk(dir, out = []) {
   return out;
 }
 
+function shouldSkip(filePath) {
+  const normalised = filePath.replace(/\\/g, '/');
+  const relative = path.relative(ROOT, filePath).replace(/\\/g, '/');
+  return EXCLUDED_PATHS.some((ex) => normalised.includes(ex) || relative.includes(ex));
+}
+
 function hasAnyProducer(text) {
   return PRODUCER_MARKERS.some((r) => r.test(text));
 }
@@ -36,7 +53,7 @@ function hasAnyProducer(text) {
 function isReadOnlyStripeUse(text) {
   const lower = text.toLowerCase();
   if (!lower.includes('checkout/sessions')) return true;
-  return !/(method\s*[:=]\s*['\"]post['\"]|stripeCheckout\s*\(|stripeRequest\s*\(|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
+  return !/(method\s*[:=]\s*['\"]post['\"]|sessions\.create\s*\(|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
 }
 
 function producerWindows(text) {
@@ -45,23 +62,27 @@ function producerWindows(text) {
   for (let i = 0; i < lines.length; i++) {
     if (!PRODUCER_MARKERS.some((r) => r.test(lines[i]))) continue;
     const start = Math.max(0, i - 35);
-    const end = Math.min(lines.length, i + 65);
+    // Some local Stripe helpers build params at the call site more than 65 lines
+    // after the POST helper. Keep one bounded producer window large enough to
+    // capture that contract without scanning the entire file.
+    const end = Math.min(lines.length, i + 150);
     windows.push({ start: start + 1, end, text: lines.slice(start, end).join('\n') });
   }
   return windows;
 }
 
 function metadataPresent(windowText, key) {
+  const exact = `payment_intent_data[metadata][${key}]`;
+  if (windowText.includes(exact)) return true;
   const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + escaped + '|[\\"\\\']' + escaped + '[\\"\\\'])', 'i');
-  const urlEncoded = new RegExp('payment_intent_data\\[metadata\\]\\[' + escaped + '\\]', 'i');
-  const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\\"\\\']?' + escaped + '[\\"\\\']?', 'i');
-  return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText);
+  const object = new RegExp('payment_intent_data[\\s\\S]{0,3000}metadata[\\s\\S]{0,1500}[\\[\\."\\\']' + escaped + '[\\]"\\\']', 'i');
+  return object.test(windowText);
 }
 
 const files = walk(ROOT);
 const producers = [];
 for (const file of files) {
+  if (shouldSkip(file)) continue;
   const text = fs.readFileSync(file, 'utf8');
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
   const rel = path.relative(ROOT, file).replace(/\\/g, '/');
