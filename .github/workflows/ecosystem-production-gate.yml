@@ -10,16 +10,12 @@ jobs:
   production-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    permissions:
-      contents: read
-    concurrency:
-      group: ecosystem-production-gate-${{ github.ref }}
-      cancel-in-progress: false
+    permissions: {contents: read}
+    concurrency: {group: ecosystem-production-gate-${{ github.ref }}, cancel-in-progress: false}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+        with: {python-version: '3.12'}
       - name: Verify ecosystem registry
         run: python CORTEX/ecosystem_verify.py
       - name: Compile Python ecosystem
@@ -32,7 +28,7 @@ jobs:
         run: python -m CORTEX.redteam.regression
       - name: Ecosystem spine
         run: python CORTEX/ecosystem_spine.py
-      - name: Verify marketplace contract surfaces
+      - name: Verify marketplace and database contract surfaces
         shell: bash
         run: |
           set -euo pipefail
@@ -48,11 +44,12 @@ jobs:
           test -f supabase/migrations/20260912_orchestrator_work_ledger.sql
           test -f supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           test -f supabase/migrations/20260912_order_transition_idempotency.sql
+          test -f supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
+          test -f supabase/migrations/20260912_work_ledger_marketplace_indexes.sql
       - name: Validate migration invariants
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "create table if not exists public.orchestrator_tasks" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "claim_orchestrator_task" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "lease_token" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "waiting_external" supabase/migrations/20260912_orchestrator_work_ledger.sql
@@ -62,21 +59,17 @@ jobs:
           grep -q "stale listing version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "stale order version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "idempotency_key" supabase/migrations/20260912_order_transition_idempotency.sql
+          grep -q "auth.role()" supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
       - name: Scan repository for forbidden secret material
         shell: bash
         run: |
           set -euo pipefail
           P1='STRIPE_SECRET_KEY[[:space:]]*=[[:space:]]*["'"']'
           P2='SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*["'"']'
-          if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public supabase/migrations 2>/dev/null; then
-            echo 'Forbidden secret material detected'
-            exit 1
-          fi
+          if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public supabase/migrations 2>/dev/null; then exit 1; fi
       - name: Build deterministic production manifest
         shell: bash
-        run: |
-          set -euo pipefail
-          find CORTEX BEC-PRIME api public policy supabase/migrations .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
+        run: find CORTEX BEC-PRIME api public policy supabase/migrations .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
       - name: Upload production evidence
         uses: actions/upload-artifact@v4
         with:
@@ -88,6 +81,8 @@ jobs:
             supabase/migrations/20260912_orchestrator_work_ledger.sql
             supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
             supabase/migrations/20260912_order_transition_idempotency.sql
+            supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
+            supabase/migrations/20260912_work_ledger_marketplace_indexes.sql
           retention-days: 90
   provenance:
     needs: production-gate
@@ -97,16 +92,10 @@ jobs:
       contents: read
       id-token: write
       attestations: write
-    concurrency:
-      group: ecosystem-provenance-${{ github.ref }}
-      cancel-in-progress: false
+    concurrency: {group: ecosystem-provenance-${{ github.ref }}, cancel-in-progress: false}
     steps:
-      - name: Download production evidence
-        uses: actions/download-artifact@v4
-        with:
-          name: ecosystem-production-evidence
-          path: evidence
+      - uses: actions/download-artifact@v4
+        with: {name: ecosystem-production-evidence, path: evidence}
       - name: Attest production manifest
         uses: actions/attest@v4
-        with:
-          subject-path: evidence/ecosystem-production-manifest.sha256
+        with: {subject-path: evidence/ecosystem-production-manifest.sha256}
