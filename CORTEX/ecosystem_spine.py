@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib,json,re
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-REQUIRED_FILES=['CORTEX/gauntlet_adapter.py','CORTEX/redteam/belt.py','CORTEX/redteam/contracts.py','CORTEX/redteam/belt_extension.py','CORTEX/redteam/regression.py','CORTEX/redteam/meta_belt.py','CORTEX/redteam/persistence.py','CORTEX/redteam/signer.py','CORTEX/redteam/manifest.json','CORTEX/redteam/modules/__init__.py','CORTEX/test_redteam_extension.py','policy/runtime.cedar','policy/schema.json','.github/workflows/redteam-regression.yml','.github/workflows/redteam-meta.yml','.github/workflows/cloud-ecosystem-spine.yml','.github/workflows/economic-supervisor.yml']
+REQUIRED_FILES=['CORTEX/gauntlet_adapter.py','CORTEX/ecosystem_spine.py','CORTEX/powershell-cloud-contract.json','CORTEX/redteam/belt.py','CORTEX/redteam/contracts.py','CORTEX/redteam/belt_extension.py','CORTEX/redteam/regression.py','CORTEX/redteam/meta_belt.py','CORTEX/redteam/persistence.py','CORTEX/redteam/signer.py','CORTEX/redteam/manifest.json','CORTEX/redteam/modules/__init__.py','CORTEX/test_redteam_extension.py','policy/runtime.cedar','policy/schema.json','.github/workflows/redteam-regression.yml','.github/workflows/redteam-meta.yml','.github/workflows/cloud-ecosystem-spine.yml','.github/workflows/economic-supervisor.yml']
 REQUIRED_SYMBOLS={'CORTEX/gauntlet_adapter.py':['evaluate','THRESHOLDS','run_belt','run_extension_belt'],'CORTEX/redteam/belt.py':['run_belt','BELT_VERSION'],'CORTEX/redteam/belt_extension.py':['run_extension_belt','MODULES','B13_specification_termination','B24_supply_chain_provenance'],'CORTEX/redteam/regression.py':['add_case','run_regression'],'CORTEX/redteam/meta_belt.py':['run_meta_belt']}
 FORBIDDEN=[r'sk-live-',r'rk_live_',r'STRIPE_SECRET_KEY=',r'SUPABASE_SERVICE_ROLE_KEY=']
 def verify():
@@ -27,7 +27,14 @@ def verify():
    for a in ('send_email','publish','charge_card','refund'):
     if a not in actions:failures.append({'kind':'policy_schema','action':a})
   except Exception as e:failures.append({'kind':'policy_schema','error_type':type(e).__name__})
- return {'schema':'dreamledger/ecosystem-spine/v2','status':'FAIL' if failures else 'PASS','failures':failures,'files':files}
+ contract=ROOT/'CORTEX/powershell-cloud-contract.json'
+ if contract.is_file():
+  try:
+   c=json.loads(contract.read_text(encoding='utf-8'))
+   for k in ('transport','states','fallback','approval_authority','settlement_authority'):
+    if k not in c:failures.append({'kind':'interlock_contract','field':k})
+  except Exception as e:failures.append({'kind':'interlock_contract','error_type':type(e).__name__})
+ return {'schema':'dreamledger/ecosystem-spine/v3','status':'FAIL' if failures else 'PASS','failures':failures,'files':files}
 def main():
  r=verify();print(json.dumps(r,indent=2,sort_keys=True));return 1 if r['status']=='FAIL' else 0
 if __name__=='__main__':raise SystemExit(main())
