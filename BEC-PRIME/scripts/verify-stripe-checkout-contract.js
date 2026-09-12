@@ -10,8 +10,8 @@ const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1'
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 
 // Detect actual Stripe Checkout session creation sites, not calls to local helper
-// functions such as stripeCheckout(). The helper definition contains the real
-// Stripe POST and is the producer that owns payment_intent_data metadata.
+// functions such as stripeCheckout(). The helper definition owns the Stripe POST;
+// its nearby checkout parameter object is inspected as part of the same producer.
 const PRODUCER_MARKERS = [
   /stripe\.checkout\.sessions\.create/i,
   /sessions\.create\s*\(/i,
@@ -47,7 +47,10 @@ function producerWindows(text) {
   for (let i = 0; i < lines.length; i++) {
     if (!PRODUCER_MARKERS.some((r) => r.test(lines[i]))) continue;
     const start = Math.max(0, i - 35);
-    const end = Math.min(lines.length, i + 65);
+    // Some local Stripe helpers build params at the call site more than 65 lines
+    // after the POST helper. Keep one bounded producer window large enough to
+    // capture that contract without scanning the entire file.
+    const end = Math.min(lines.length, i + 150);
     windows.push({ start: start + 1, end, text: lines.slice(start, end).join('\n') });
   }
   return windows;
