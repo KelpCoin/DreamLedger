@@ -23,6 +23,8 @@ Node 20+ / no external dependencies.
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { loadProspects } = require('./lib/load-prospects');
+const { writeOutreachQueue } = require('./lib/write-outreach-queue');
 
 const BASE_URL = String(process.env.DREAMLEDGER_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 const BILLBOARD_PATH = process.env.DREAMLEDGER_BILLBOARD_PATH || '/billboard';
@@ -33,6 +35,7 @@ const BILLBOARD_OFFER_ID = 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001';
 const EXPECTED_AMOUNT_CENTS = 5000;
 const COCKPIT_ROOT = process.env.DREAMLEDGER_COCKPIT_ROOT || path.join('D:\\BrownEyeCortex', 'EconomicCockpit');
 const PROSPECTS_CSV = process.env.DREAMLEDGER_PROSPECTS_CSV || path.join('D:\\BrownEyeCortex', 'Prospects', 'prospects.csv');
+const SENT_LOG_PATH = process.env.DREAMLEDGER_SENT_LOG || path.join('D:\\BrownEyeCortex', 'Prospects', 'sent.log');
 const APPROVAL_TTL_HOURS = Number(process.env.DREAMLEDGER_APPROVAL_TTL_HOURS || 72);
 
 const RUN_ID = `COCKPIT-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}-${crypto.randomBytes(4).toString('hex')}`;
@@ -43,34 +46,6 @@ const evidence = {};
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function sha256(value) { return crypto.createHash('sha256').update(String(value)).digest('hex'); }
 function writeJson(file, data) { fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8'); }
-
-function csvRows(text) {
-  const lines = text.split(/\r?\n/).filter(Boolean);
-  if (!lines.length) return [];
-  const headers = lines.shift().split(',').map(x => x.trim().replace(/^"|"$/g, ''));
-  return lines.map(line => {
-    const out = {};
-    let cell = '';
-    let quoted = false;
-    const cells = [];
-    for (let i = 0; i < line.length; i += 1) {
-      const ch = line[i];
-      if (ch === '"') {
-        if (quoted && line[i + 1] === '"') { cell += '"'; i += 1; }
-        else quoted = !quoted;
-      } else if (ch === ',' && !quoted) { cells.push(cell); cell = ''; }
-      else cell += ch;
-    }
-    cells.push(cell);
-    headers.forEach((h, i) => { out[h] = String(cells[i] || '').trim(); });
-    return out;
-  });
-}
-
-function csvEscape(value) {
-  const s = String(value == null ? '' : value);
-  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
-}
 
 async function requestJson(url, options = {}) {
   try {
@@ -110,41 +85,25 @@ function normalizePaymentLinkId(value) {
 }
 
 function scoreProspect(p) {
+  const text = `${p.business || ''} ${p.fit_reason || ''} ${p.source || ''} ${p.personalization || ''} ${p.role || ''}`;
   let fit = 0;
   const fitReasons = [];
-  if (/\bnz\b|new zealand/i.test(p.country || p.market || p.location || '')) { fit += 20; fitReasons.push('NZ market'); }
-  if (/^https?:\/\//i.test(p.website || '')) { fit += 15; fitReasons.push('live website'); }
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(p.email || '')) { fit += 20; fitReasons.push('direct email'); }
-  if (/^true|yes|y|1$/i.test(p.website_active || '')) { fit += 10; fitReasons.push('website active'); }
-  if (/advert|marketing|brand|design|ecommerce|shop|studio|agency|solar|pool|cabins|digital|matcha/i.test(`${p.name || ''} ${p.reason || ''} ${p.website || ''}`)) { fit += 15; fitReasons.push('commercial relevance'); }
+  if (/\bnz\b|new zealand|nz/i.test(text)) { fit += 20; fitReasons.push('NZ signal'); }
+  if (/^https?:\/\//i.test(p.source || '')) { fit += 15; fitReasons.push('source URL'); }
+  if (/advert|marketing|brand|design|ecommerce|shop|studio|agency|solar|pool|cabins|digital|matcha|business|commercial/i.test(text)) { fit += 25; fitReasons.push('commercial relevance'); }
+  if (p.channel) { fit += 10; fitReasons.push(`channel:${p.channel}`); }
+  if (p.role) { fit += 10; fitReasons.push(`role:${p.role}`); }
 
-  let intent = Number(p.intent_score || 0);
-  if (!Number.isFinite(intent)) intent = 0;
-  const intentReasons = [];
-  const signals = String(p.intent_signals || p.intent || '').split(/[;|]/).map(x => x.trim()).filter(Boolean);
-  signals.forEach(s => intentReasons.push(s));
-  if (/hiring|funding|launch|new website|rebrand|marketing|advertising|promotion|opening|expansion|purchase|bought|campaign/i.test(`${p.intent_signals || ''} ${p.reason || ''}`)) {
-    intent = Math.max(intent, 70);
-    if (!intentReasons.length) intentReasons.push('recent commercial activity signal');
-  }
-  if (p.intent_date) {
-    const days = (Date.now() - Date.parse(p.intent_date)) / 86400000;
-    if (Number.isFinite(days) && days >= 0 && days <= 30) intent = Math.min(100, intent + 15);
-  }
-
-  let engagement = Number(p.engagement_score || 0);
-  if (!Number.isFinite(engagement)) engagement = 0;
-  const engagementReasons = [];
-  if (p.engagement_signal) engagementReasons.push(String(p.engagement_signal));
-  if (/click|visit|reply|inbound|referr|form|download|view/i.test(String(p.engagement_signal || ''))) engagement = Math.max(engagement, 70);
+  const intent = /launch|rebrand|marketing|advertising|promotion|opening|expansion|purchase|campaign|founding|tile|billboard/i.test(text) ? 70 : 0;
+  const engagement = /reply|inbound|referr|form|download|click|visit|conversation|introduced/i.test(text) ? 70 : 0;
 
   return {
     fit_score: Math.min(fit, 100),
-    intent_score: Math.min(intent, 100),
-    engagement_score: Math.min(engagement, 100),
+    intent_score: intent,
+    engagement_score: engagement,
     fit_reasons: fitReasons,
-    intent_reasons: intentReasons,
-    engagement_reasons: engagementReasons,
+    intent_reasons: intent ? ['commercial activity signal in prospect evidence'] : [],
+    engagement_reasons: engagement ? ['engagement signal in prospect evidence'] : [],
     outreach_trigger: fit >= 50 && intent >= 60,
     score: Math.min(100, Math.round((intent * 0.5) + (fit * 0.35) + (engagement * 0.15)))
   };
@@ -153,12 +112,12 @@ function scoreProspect(p) {
 function authorizationFor(p, runId) {
   const created = new Date().toISOString();
   const expires = new Date(Date.now() + APPROVAL_TTL_HOURS * 3600000).toISOString();
-  const body = p.message_body || `Hi - I run dreamledger.org. I have one permanent 100x100 tile available on the front page. NZ$50, one-time, stays there. No ongoing fees, no subscription, no account required. If you want it, here is the link: ${p.payment_link || '[LIVE_STRIPE_PAYMENT_LINK]'}. If not, no follow-up from me.`;
+  const body = p.message_body || p.personalization || `Hi - I run dreamledger.org. I have one permanent 100x100 tile available on the front page. NZ$${p.price_nzd}, one-time, stays there. No ongoing fees, no subscription, no account required. If you want it, here is the link: ${p.payment_link || '[LIVE_STRIPE_PAYMENT_LINK]'}. If not, no follow-up from me.`;
   const snapshot = {
     action_type: 'OUTREACH_BILLBOARD_FOUNDING_TILE',
-    recipient: p.email || '',
-    recipient_hash: sha256(p.email || ''),
-    amount: '50.00',
+    recipient: p.email || p.contact_route || '',
+    recipient_hash: sha256(p.email || p.contact_route || ''),
+    amount: String(Number(p.price_nzd).toFixed(2)),
     currency: 'NZD',
     offer_sku: BILLBOARD_SKU,
     payment_link: p.payment_link || '',
@@ -183,14 +142,61 @@ function authorizationFor(p, runId) {
   };
 }
 
+function buildOpportunities(prospects, paymentLink) {
+  return prospects.map((p) => {
+    const scored = scoreProspect(p);
+    const idSeed = `${p.business || ''}|${p.source || ''}|${p.channel || ''}`;
+    const opportunity = {
+      opportunity_id: `OPP-${sha256(idSeed).slice(0, 12).toUpperCase()}`,
+      offer_sku: BILLBOARD_SKU,
+      business: p.business,
+      source_url: p.source,
+      evidence_quote: p.fit_reason,
+      website: /^https?:\/\//i.test(p.source) ? p.source : '',
+      email: '',
+      channel: p.channel,
+      contact_route: p.source,
+      personalization: p.personalization,
+      role: p.role,
+      price_nzd: p.price_nzd,
+      fit_score: scored.fit_score,
+      intent_score: scored.intent_score,
+      engagement_score: scored.engagement_score,
+      score: scored.score,
+      fit_reasons: scored.fit_reasons,
+      intent_reasons: scored.intent_reasons,
+      engagement_reasons: scored.engagement_reasons,
+      outreach_trigger: scored.outreach_trigger,
+      source_status: p.status,
+      send_status: 'NOT_SENT',
+      approval_status: 'PENDING',
+      approval_required: true,
+      payment_link: paymentLink || '',
+      draft_message: p.personalization
+    };
+    const auth = authorizationFor({ ...opportunity, message_body: p.personalization }, RUN_ID);
+    opportunity.authorization_id = auth.authorization_id;
+    opportunity.authorization_payload_hash = auth.payload_hash;
+    opportunity.authorization_snapshot_file = `approvals/${auth.authorization_id}.json`;
+    writeJson(path.join(RUN_DIR, opportunity.authorization_snapshot_file), auth);
+    return opportunity;
+  }).sort((a, b) => b.intent_score - a.intent_score || b.fit_score - a.fit_score || b.engagement_score - a.engagement_score);
+}
+
 async function main() {
   ensureDir(RUN_DIR);
+
+  // Fail closed before producing any economic report when the prospect feed is bad.
+  const prospects = loadProspects(PROSPECTS_CSV);
+
   const readKey = process.env.STRIPE_READONLY_KEY || '';
   const legacyKeyPresent = Boolean(process.env.STRIPE_SECRET_KEY);
   const health = {
     run_id: RUN_ID,
     node: process.version,
     base_url: BASE_URL,
+    prospects_csv: path.resolve(PROSPECTS_CSV),
+    sent_log: path.resolve(SENT_LOG_PATH),
     stripe_readonly_key_present: Boolean(readKey),
     legacy_stripe_secret_key_present: legacyKeyPresent,
     supabase_url_present: Boolean(process.env.SUPABASE_URL),
@@ -262,56 +268,34 @@ async function main() {
   } else if (!readKey) invalidReasons.push('STRIPE_READONLY_KEY is missing; payment evidence cannot be observed.');
 
   const uniqueCharges = [...new Map(attributableCharges.map(c => [c.id, c])).values()];
+  const invalidCharge = uniqueCharges.find(c => !Number.isFinite(Number(c.amount)) || String(c.currency || '').toLowerCase() !== 'nzd');
   const currencies = [...new Set(uniqueCharges.map(c => String(c.currency || '').toLowerCase()))].filter(Boolean);
   const grossMinor = uniqueCharges.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+  const paymentStatus = !readKey
+    ? 'INVALID'
+    : checkout.status !== 'VERIFIED'
+      ? 'UNVERIFIED_CHECKOUT'
+      : invalidCharge
+        ? 'CONTRADICTED_PAYMENT_AMOUNT_OR_CURRENCY'
+        : uniqueCharges.length
+          ? 'VERIFIED_PAYMENT_EVIDENCE_PRESENT'
+          : 'VERIFIED_ZERO_BILLBOARD_PAYMENTS';
   evidence.payment = {
     method: 'PAYMENT_LINK -> CHECKOUT_SESSIONS -> PAYMENT_INTENT -> CHARGES',
     payment_link_id: paymentLinkId || null,
     paid_checkout_session_count: attributableSessions.length,
     attributable_charge_count: uniqueCharges.length,
     currencies,
-    gross_attributable_paid_nzd: currencies.length === 1 && currencies[0] === 'nzd' ? Math.round(grossMinor) / 100 : null,
-    status: !readKey ? 'INVALID' : checkout.status !== 'VERIFIED' ? 'UNVERIFIED_CHECKOUT' : uniqueCharges.length ? 'VERIFIED_PAYMENT_EVIDENCE_PRESENT' : 'VERIFIED_ZERO_BILLBOARD_PAYMENTS'
+    gross_attributable_paid_nzd: !invalidCharge && currencies.length === 1 && currencies[0] === 'nzd' ? Math.round(grossMinor) / 100 : null,
+    status: paymentStatus
   };
 
   const truth = await requestJson(BASE_URL + TRUTH_PATH);
   evidence.truth_oracle = truth.ok && truth.status < 400 ? { status: 'VERIFIED_REACHABLE', status_code: truth.status } : { status: 'UNVERIFIED', status_code: truth.status, error: truth.error };
 
-  let prospects = [];
-  if (fs.existsSync(PROSPECTS_CSV)) prospects = csvRows(fs.readFileSync(PROSPECTS_CSV, 'utf8'));
-  const opportunities = prospects.map((p) => {
-    const scored = scoreProspect(p);
-    const idSeed = `${p.name || p.business || ''}|${p.website || ''}|${p.email || ''}`;
-    const opportunity = {
-      opportunity_id: `OPP-${sha256(idSeed).slice(0, 12).toUpperCase()}`,
-      offer_sku: BILLBOARD_SKU,
-      business: p.name || p.business || '',
-      website: p.website || '',
-      email: p.email || '',
-      fit_score: scored.fit_score,
-      intent_score: scored.intent_score,
-      engagement_score: scored.engagement_score,
-      score: scored.score,
-      fit_reasons: scored.fit_reasons,
-      intent_reasons: scored.intent_reasons,
-      engagement_reasons: scored.engagement_reasons,
-      outreach_trigger: scored.outreach_trigger,
-      status: p.status || 'READY_FOR_REVIEW',
-      send_status: 'NOT_SENT',
-      approval_status: 'PENDING',
-      approval_required: true,
-      payment_link: rawPaymentLink || ''
-    };
-    const auth = authorizationFor({ ...opportunity, message_body: p.message_body }, RUN_ID);
-    opportunity.authorization_id = auth.authorization_id;
-    opportunity.authorization_payload_hash = auth.payload_hash;
-    opportunity.authorization_snapshot_file = `approvals/${auth.authorization_id}.json`;
-    writeJson(path.join(RUN_DIR, opportunity.authorization_snapshot_file), auth);
-    return opportunity;
-  }).sort((a, b) => b.intent_score - a.intent_score || b.fit_score - a.fit_score || b.engagement_score - a.engagement_score);
-
+  const opportunities = buildOpportunities(prospects, rawPaymentLink || '');
   evidence.acquisition = {
-    source: fs.existsSync(PROSPECTS_CSV) ? PROSPECTS_CSV : null,
+    source: path.resolve(PROSPECTS_CSV),
     discovered: prospects.length,
     qualified: opportunities.filter(x => x.fit_score >= 50).length,
     intent_triggered: opportunities.filter(x => x.outreach_trigger).length,
@@ -368,13 +352,27 @@ async function main() {
   writeJson(path.join(RUN_DIR, '06_acquisition.json'), evidence.acquisition);
   writeJson(path.join(RUN_DIR, '07_report.json'), report);
 
-  const queueHeader = ['opportunity_id','offer_sku','business','website','email','intent_score','fit_score','engagement_score','score','outreach_trigger','authorization_id','authorization_payload_hash','approval_status','send_status'];
-  const queueLines = [queueHeader.join(',')];
-  for (const o of evidence.acquisition.opportunities) queueLines.push([
-    o.opportunity_id,o.offer_sku,o.business,o.website,o.email,o.intent_score,o.fit_score,o.engagement_score,o.score,o.outreach_trigger,
-    o.authorization_id,o.authorization_payload_hash,o.approval_status,o.send_status
-  ].map(csvEscape).join(','));
-  fs.writeFileSync(path.join(RUN_DIR, 'OUTREACH_QUEUE.csv'), queueLines.join('\n') + '\n', 'utf8');
+  const queueRows = opportunities.filter(o => o.status !== 'SENT').map(o => ({
+    opportunity_id: o.opportunity_id,
+    business: o.business,
+    channel: o.channel,
+    contact_route: o.contact_route,
+    offer_sku: o.offer_sku,
+    price_nzd: o.price_nzd,
+    evidence_quote: o.evidence_quote,
+    draft_message: o.draft_message,
+    approval_required: true,
+    status: 'READY_FOR_APPROVAL',
+    created_at: new Date().toISOString()
+  }));
+  const queue = writeOutreachQueue({
+    rows: queueRows,
+    outPath: path.join(RUN_DIR, 'OUTREACH_QUEUE.csv'),
+    sentLogPath: SENT_LOG_PATH
+  });
+  evidence.acquisition.queue_written = queue.written;
+  evidence.acquisition.skipped_already_sent = queue.skipped_already_sent;
+  writeJson(path.join(RUN_DIR, '06_acquisition.json'), evidence.acquisition);
   writeJson(path.join(COCKPIT_ROOT, 'latest.json'), report);
 
   console.log('');
@@ -390,6 +388,8 @@ async function main() {
   console.log(`Prospects:          ${evidence.acquisition.discovered}`);
   console.log(`Intent triggers:    ${evidence.acquisition.intent_triggered}`);
   console.log(`Approvals pending:  ${evidence.acquisition.approval_pending}`);
+  console.log(`Queue written:      ${queue.written}`);
+  console.log(`Already sent:       ${queue.skipped_already_sent}`);
   console.log('');
   console.log(`NEXT ACTION: ${nextAction.action}`);
   console.log(`Approval required: ${nextAction.approval_required}`);
@@ -403,7 +403,8 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error('ECONOMIC COCKPIT ERROR');
+  console.error('ECONOMIC COCKPIT HALTED');
   console.error(error && error.stack ? error.stack : error);
+  console.error('Do not treat the last money report as current. The last valid run is the last green run.');
   process.exitCode = 1;
 });
