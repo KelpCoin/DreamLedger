@@ -1,0 +1,40 @@
+{
+  "schema_version": "CUBE-SILO-MANIFEST-1.0",
+  "silo_id": "production_verification",
+  "aliases": ["maximona"],
+  "status": "active_isolated",
+  "source": "Grok-derived commercial opportunity inventory, independently promoted into MAXIMONA-001",
+  "commercial_experiment": "MAXIMONA-001",
+  "offer": {
+    "primary": {
+      "sku": "MAXIMONA-IPV-001",
+      "stripe_product_id": "prod_VFNPftn0BlqvDh",
+      "stripe_price_id": "price_1UEsfHEGgEAnUFF9b4E0C4Gl",
+      "payment_link_id": "plink_1UEsfSEGgEAnUFF9paXFhlAo",
+      "price_nzd": 1500,
+      "type": "one_time_fixed_scope",
+      "evergreen": true
+    }
+  },
+  "isolation": {
+    "catalog": true,
+    "checkout": true,
+    "analytics": true,
+    "customer_data": true,
+    "content": true,
+    "promotion": true,
+    "credentials": true,
+    "economic_evidence": true
+  },
+  "scaling": {
+    "quantity": "unbounded_subject_to_fulfillment_capacity",
+    "pricing": "fixed_until_experiment_changes_it",
+    "recurring_billing": "disabled_until_repeat_demand_is_verified",
+    "cross_silo_leakage": "forbidden"
+  },
+  "truth": {
+    "verified_revenue_nzd": 0,
+    "revenue_definition": "settled Stripe payment from a real external buyer",
+    "current_stage": "CONTACT_READY"
+  }
+}
