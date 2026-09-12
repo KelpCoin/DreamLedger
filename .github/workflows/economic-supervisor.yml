@@ -1,0 +1,78 @@
+name: DreamLedger Economic Supervisor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/scripts/DreamLedger-Economic-Bootstrap.ps1'
+      - 'BEC-PRIME/config/economic-supervisor.json'
+      - '.github/workflows/economic-supervisor.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-economic-supervisor
+  cancel-in-progress: true
+
+jobs:
+  verify-and-route:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+        shell: powershell
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify PowerShell runtime
+        run: |
+          $PSVersionTable.PSVersion
+          if ($PSVersionTable.PSVersion.Major -ne 5) {
+            throw 'Economic supervisor requires Windows PowerShell 5.x for its compatibility contract.'
+          }
+
+      - name: Run economic supervisor
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          AGENTBRIDGE_BASE_URL: https://dreamledger.org
+          AGENTBRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
+          ECONOMIC_BOOTSTRAP_ROOT: ${{ github.workspace }}\economic-bootstrap
+        run: .\scripts\DreamLedger-Economic-Bootstrap.ps1
+
+      - name: Locate latest evidence run
+        id: evidence
+        run: |
+          $run = Get-ChildItem '.\economic-bootstrap' -Directory | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+          if (-not $run) { throw 'No economic bootstrap evidence directory was produced.' }
+          "path=$($run.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding ascii
+          Write-Host "Evidence run: $($run.FullName)"
+
+      - name: Publish economic evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-economic-state-${{ github.run_id }}
+          path: economic-bootstrap
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Emit next action
+        if: always()
+        run: |
+          $next = Get-ChildItem '.\economic-bootstrap' -Recurse -Filter '12_NEXT_ACTION.json' | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+          if ($next) {
+            Write-Host '--- ECONOMIC NEXT ACTION ---'
+            Get-Content $next.FullName -Raw
+          } else {
+            Write-Host 'No next-action evidence was produced.'
+          }
