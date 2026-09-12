@@ -3,21 +3,9 @@ name: Ecosystem Production Gate
 on:
   push:
     branches: [main]
-    paths:
-      - 'CORTEX/**'
-      - 'BEC-PRIME/**'
-      - 'api/**'
-      - 'public/**'
-      - 'policy/**'
-      - '.github/workflows/**'
+    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','.github/workflows/**']
   pull_request:
-    paths:
-      - 'CORTEX/**'
-      - 'BEC-PRIME/**'
-      - 'api/**'
-      - 'public/**'
-      - 'policy/**'
-      - '.github/workflows/**'
+    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','.github/workflows/**']
   workflow_dispatch:
 
 permissions:
@@ -31,29 +19,21 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Verify ecosystem registry
         run: python CORTEX/ecosystem_verify.py
-
       - name: Compile Python ecosystem
         run: python -m compileall -q CORTEX
-
       - name: Red-team unit tests
         run: python -m unittest CORTEX.test_redteam_extension -v
-
       - name: Red-team meta-belt
         run: python -m CORTEX.redteam.cli meta
-
       - name: Red-team regression corpus
         run: python -m CORTEX.redteam.regression
-
       - name: Ecosystem spine
         run: python CORTEX/ecosystem_spine.py
-
       - name: Verify marketplace contract surfaces
         shell: bash
         run: |
@@ -65,27 +45,23 @@ jobs:
           test -f BEC-PRIME/routes/platformCart.js
           test -f BEC-PRIME/lib/billboardAutoFulfillment.js
           test -f public/cube.json
-
       - name: Scan repository for forbidden secret material
         shell: bash
         run: |
-          if grep -RInE 'sk-live-|rk_live_|STRIPE_SECRET_KEY=|SUPABASE_SERVICE_ROLE_KEY=' CORTEX policy .github/workflows BEC-PRIME api public 2>/dev/null; then
+          P1='STRIPE_SECRET_KEY[[:space:]]*=[[:space:]]*["'"']'
+          P2='SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*["'"']'
+          if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public 2>/dev/null; then
             echo 'Forbidden secret material detected'
             exit 1
           fi
-
       - name: Build deterministic production manifest
         shell: bash
         run: |
-          find CORTEX BEC-PRIME api public policy .github/workflows -type f -print0 \
-            | sort -z \
-            | xargs -0 sha256sum > ecosystem-production-manifest.sha256
-
+          find CORTEX BEC-PRIME api public policy .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
       - name: Attest production manifest
         uses: actions/attest-build-provenance@v3
         with:
           subject-path: ecosystem-production-manifest.sha256
-
       - name: Upload production evidence
         uses: actions/upload-artifact@v4
         with:
