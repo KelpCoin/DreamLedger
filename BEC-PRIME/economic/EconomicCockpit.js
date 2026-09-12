@@ -35,7 +35,8 @@ const BILLBOARD_OFFER_ID = 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001';
 const EXPECTED_AMOUNT_CENTS = 5000;
 const COCKPIT_ROOT = process.env.DREAMLEDGER_COCKPIT_ROOT || path.join('D:\\BrownEyeCortex', 'EconomicCockpit');
 const PROSPECTS_CSV = process.env.DREAMLEDGER_PROSPECTS_CSV || path.join('D:\\BrownEyeCortex', 'Prospects', 'prospects.csv');
-const SENT_LOG_PATH = process.env.DREAMLEDGER_SENT_LOG || path.join('D:\\BrownEyeCortex', 'Prospects', 'sent.log');
+const SENT_LOG_PATH = process.env.DREAMLEDGER_SENT_LOG || path.join('D:\\BrownEyeCortex', 'Prospects', 'sent.csv');
+const OUTREACH_QUEUE_PATH = process.env.DREAMLEDGER_OUTREACH_QUEUE || path.join(path.dirname(PROSPECTS_CSV), 'OUTREACH_QUEUE.csv');
 const APPROVAL_TTL_HOURS = Number(process.env.DREAMLEDGER_APPROVAL_TTL_HOURS || 72);
 
 const RUN_ID = `COCKPIT-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}-${crypto.randomBytes(4).toString('hex')}`;
@@ -85,11 +86,11 @@ function normalizePaymentLinkId(value) {
 }
 
 function scoreProspect(p) {
-  const text = `${p.business || ''} ${p.fit_reason || ''} ${p.source || ''} ${p.personalization || ''} ${p.role || ''}`;
+  const text = `${p.business || ''} ${p.evidence_quote || ''} ${p.contact_route || ''} ${p.personalization || ''} ${p.role || ''}`;
   let fit = 0;
   const fitReasons = [];
   if (/\bnz\b|new zealand|nz/i.test(text)) { fit += 20; fitReasons.push('NZ signal'); }
-  if (/^https?:\/\//i.test(p.source || '')) { fit += 15; fitReasons.push('source URL'); }
+  if (/^https?:\/\//i.test(p.contact_route || '')) { fit += 15; fitReasons.push('contact/source URL'); }
   if (/advert|marketing|brand|design|ecommerce|shop|studio|agency|solar|pool|cabins|digital|matcha|business|commercial/i.test(text)) { fit += 25; fitReasons.push('commercial relevance'); }
   if (p.channel) { fit += 10; fitReasons.push(`channel:${p.channel}`); }
   if (p.role) { fit += 10; fitReasons.push(`role:${p.role}`); }
@@ -145,17 +146,17 @@ function authorizationFor(p, runId) {
 function buildOpportunities(prospects, paymentLink) {
   return prospects.map((p) => {
     const scored = scoreProspect(p);
-    const idSeed = `${p.business || ''}|${p.source || ''}|${p.channel || ''}`;
+    const idSeed = `${p.business || ''}|${p.contact_route || ''}|${p.channel || ''}`;
     const opportunity = {
       opportunity_id: `OPP-${sha256(idSeed).slice(0, 12).toUpperCase()}`,
       offer_sku: BILLBOARD_SKU,
       business: p.business,
       source_url: p.source,
-      evidence_quote: p.fit_reason,
+      evidence_quote: p.evidence_quote,
       website: /^https?:\/\//i.test(p.source) ? p.source : '',
-      email: '',
+      email: /^mailto:/i.test(p.contact_route) ? p.contact_route.replace(/^mailto:/i, '') : '',
       channel: p.channel,
-      contact_route: p.source,
+      contact_route: p.contact_route,
       personalization: p.personalization,
       role: p.role,
       price_nzd: p.price_nzd,
@@ -186,8 +187,18 @@ function buildOpportunities(prospects, paymentLink) {
 async function main() {
   ensureDir(RUN_DIR);
 
-  // Fail closed before producing any economic report when the prospect feed is bad.
-  const prospects = loadProspects(PROSPECTS_CSV);
+  // The prospect feed is a mandatory input. A malformed or missing feed is
+  // a deterministic input failure, not an unhandled cockpit crash.
+  let prospects;
+  try {
+    prospects = loadProspects(PROSPECTS_CSV);
+  } catch (error) {
+    console.error('ECONOMIC COCKPIT INPUT INVALID');
+    console.error(error && error.message ? error.message : error);
+    console.error(`Prospect feed: ${path.resolve(PROSPECTS_CSV)}`);
+    process.exitCode = 3;
+    return;
+  }
 
   const readKey = process.env.STRIPE_READONLY_KEY || '';
   const legacyKeyPresent = Boolean(process.env.STRIPE_SECRET_KEY);
@@ -197,6 +208,7 @@ async function main() {
     base_url: BASE_URL,
     prospects_csv: path.resolve(PROSPECTS_CSV),
     sent_log: path.resolve(SENT_LOG_PATH),
+    outreach_queue: path.resolve(OUTREACH_QUEUE_PATH),
     stripe_readonly_key_present: Boolean(readKey),
     legacy_stripe_secret_key_present: legacyKeyPresent,
     supabase_url_present: Boolean(process.env.SUPABASE_URL),
@@ -352,7 +364,7 @@ async function main() {
   writeJson(path.join(RUN_DIR, '06_acquisition.json'), evidence.acquisition);
   writeJson(path.join(RUN_DIR, '07_report.json'), report);
 
-  const queueRows = opportunities.filter(o => o.status !== 'SENT').map(o => ({
+  const queueRows = opportunities.filter(o => o.send_status !== 'SENT').map(o => ({
     opportunity_id: o.opportunity_id,
     business: o.business,
     channel: o.channel,
@@ -367,7 +379,7 @@ async function main() {
   }));
   const queue = writeOutreachQueue({
     rows: queueRows,
-    outPath: path.join(RUN_DIR, 'OUTREACH_QUEUE.csv'),
+    outPath: OUTREACH_QUEUE_PATH,
     sentLogPath: SENT_LOG_PATH
   });
   evidence.acquisition.queue_written = queue.written;
