@@ -10,10 +10,10 @@ const MARKETS:any={
  EUROPE:{slug:'europe',name:'Europe Billboard',currency:'eur'}
 };
 const OFFERS:any={
- '100x100':{sku:'BILLBOARD-SMALL',name:'DreamLedger Founding Tile - 100x100',price_nzd:50,amounts:{nzd:5000,aud:4500,zar:50000,usd:3000,eur:2500},w:100,h:100},
- '200x100':{sku:'BILLBOARD-MEDIUM',name:'DreamLedger Billboard Medium - 200x100',price_nzd:99,amounts:{nzd:9900,aud:8300,zar:95000,usd:6000,eur:5100},w:200,h:100},
- '500x200':{sku:'BILLBOARD-WIDE',name:'DreamLedger Billboard Wide - 500x200',price_nzd:249,amounts:{nzd:24900,aud:20900,zar:240000,usd:14900,eur:12900},w:500,h:200},
- '500x500':{sku:'BILLBOARD-LARGE',name:'DreamLedger Billboard Large - 500x500',price_nzd:499,amounts:{nzd:49900,aud:41900,zar:480000,usd:29900,eur:25500},w:500,h:500}
+ '100x100':{sku:'BILLBOARD-SMALL',product_id:'DREAMLEDGER-BILLBOARD-FOUNDING-001',offer_id:'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001',name:'DreamLedger Founding Tile - 100x100',price_nzd:50,amounts:{nzd:5000,aud:4500,zar:50000,usd:3000,eur:2500},w:100,h:100},
+ '200x100':{sku:'BILLBOARD-MEDIUM',product_id:'BILLBOARD-MEDIUM',offer_id:'BILLBOARD-MEDIUM',name:'DreamLedger Billboard Medium - 200x100',price_nzd:99,amounts:{nzd:9900,aud:8300,zar:95000,usd:6000,eur:5100},w:200,h:100},
+ '500x200':{sku:'BILLBOARD-WIDE',product_id:'BILLBOARD-WIDE',offer_id:'BILLBOARD-WIDE',name:'DreamLedger Billboard Wide - 500x200',price_nzd:249,amounts:{nzd:24900,aud:20900,zar:240000,usd:14900,eur:12900},w:500,h:200},
+ '500x500':{sku:'BILLBOARD-LARGE',product_id:'BILLBOARD-LARGE',offer_id:'BILLBOARD-LARGE',name:'DreamLedger Billboard Large - 500x500',price_nzd:499,amounts:{nzd:49900,aud:41900,zar:480000,usd:29900,eur:25500},w:500,h:500}
 };
 const IMAGE_ADDON:any={nzd:10000,aud:8300,zar:100000,usd:6000,eur:5100};
 function json(data:any,status=200){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store'}})}
@@ -39,5 +39,6 @@ export default async function handler(request:Request){
  if(image_requested){form.set('line_items[1][price_data][currency]',currency);form.set('line_items[1][price_data][product_data][name]','Image Placement + Human Approval');form.set('line_items[1][price_data][product_data][description]','Image placement add-on. Artwork is manually reviewed before publication.');form.set('line_items[1][price_data][unit_amount]',String(imageAmount));form.set('line_items[1][quantity]','1')}
  form.set('success_url','https://dreamledger.org/billboard?paid=1&session_id={CHECKOUT_SESSION_ID}');form.set('cancel_url','https://dreamledger.org/billboard?cancelled=1');form.set('customer_email',email);
  form.set('metadata[molt_beach]','true');form.set('metadata[billboard]','true');form.set('metadata[sku]',offer.sku);form.set('metadata[market]',market);form.set('metadata[market_name]',marketSpec.name);form.set('metadata[x]',String(slot.x));form.set('metadata[y]',String(slot.y));form.set('metadata[width]',String(offer.w));form.set('metadata[height]',String(offer.h));form.set('metadata[price_nzd]',String(offer.price_nzd));form.set('metadata[currency]',currency);form.set('metadata[amount_minor]',String(amount));form.set('metadata[tile_units]',String(neededUnits));form.set('metadata[image_requested]',String(image_requested));form.set('metadata[image_addon_minor]',String(imageAmount));form.set('metadata[title]',title);form.set('metadata[owner_name]',owner_name.slice(0,80));form.set('metadata[image_url]',image_requested?image_url:'');form.set('metadata[destination_url]',destination_url);
+ form.set('payment_intent_data[metadata][product_sku]',offer.sku);form.set('payment_intent_data[metadata][product_id]',offer.product_id);form.set('payment_intent_data[metadata][offer_id]',offer.offer_id);form.set('payment_intent_data[metadata][silo]','molt-beach');form.set('payment_intent_data[metadata][source]','molt-beach-checkout');
  const r=await fetch(STRIPE_API,{method:'POST',headers:{authorization:`Bearer ${secret}`,'content-type':'application/x-www-form-urlencoded'},body:form});const result=await r.json();if(!r.ok)return json({error:'Stripe checkout creation failed'},502);return json({url:result.url,session_id:result.id,sku:offer.sku,market,amount:(amount+imageAmount)/100,currency,image_requested,slot,inventory:{total_units:FOUNDING_UNITS,used_units:usedUnits,remaining_units:FOUNDING_UNITS-usedUnits-neededUnits}});
 }
