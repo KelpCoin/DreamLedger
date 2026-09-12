@@ -16,7 +16,35 @@ Or double-click:
 BEC-PRIME/economic/Run-Economic-Cockpit.cmd
 ```
 
-The runner deliberately refuses to start when `STRIPE_SECRET_KEY` is present or `STRIPE_READONLY_KEY` is absent. Use a restricted Stripe key with read-only access suitable for Payment Links, Checkout Sessions, Payment Intents, Charges and Balance observation. Never put a full live secret in the cockpit.
+The runner first returns to the repository root with `pushd`, verifies that `node` is available, then launches the cockpit. It deliberately refuses to start when `STRIPE_SECRET_KEY` is present or `STRIPE_READONLY_KEY` is absent. Use a restricted Stripe key with read-only access suitable for Payment Links, Checkout Sessions, Payment Intents, Charges and Balance observation. Never put a full live secret in the cockpit.
+
+## Prospect input
+
+The cockpit reads prospects from:
+
+```text
+D:\BrownEyeCortex\Prospects\prospects.csv
+```
+
+Override that path with `DREAMLEDGER_PROSPECTS_CSV` when necessary.
+
+The prospect feed is fail-closed. Missing, empty, malformed, or schema-incomplete input halts the cockpit before a money report or outreach queue is produced. Required columns are:
+
+```text
+business,source,fit_reason,channel,personalization,offer,price_nzd,role,status
+```
+
+A valid feed must contain at least one data row, a non-empty business and offer, and a positive numeric `price_nzd`.
+
+The sent-contact log defaults to:
+
+```text
+D:\BrownEyeCortex\Prospects\sent.log
+```
+
+Override it with `DREAMLEDGER_SENT_LOG` when necessary. Existing sent businesses are excluded from the new outreach queue.
+
+If the cockpit halts, do not treat the last money report as current. The last valid run is the last green run.
 
 ## Economic truth
 
@@ -60,11 +88,15 @@ Prospects are scored on three independent axes:
 
 The queue is ordered by intent first, then fit, then engagement. An outreach trigger requires meaningful fit plus current intent. A high-fit prospect with no intent is not treated as hot.
 
-Expected prospect columns include:
+## Outreach queue
+
+Each run writes:
 
 ```text
-name,business,website,email,country,market,location,website_active,intent_score,intent_signals,intent_date,engagement_score,engagement_signal,message_body
+OUTREACH_QUEUE.csv
 ```
+
+The queue is approval-gated. Every row is emitted with `approval_required=true` and `status=READY_FOR_APPROVAL`. The writer excludes businesses present in the sent log, preventing a later cockpit run from recreating already-sent contacts.
 
 ## What it does not do
 
