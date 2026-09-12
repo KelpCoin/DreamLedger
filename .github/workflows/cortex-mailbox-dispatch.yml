@@ -1,0 +1,84 @@
+name: Cortex Mailbox Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      objective:
+        description: Allowlisted local Cortex objective
+        required: true
+        type: choice
+        options:
+          - ecosystem.verify
+          - redteam.meta
+          - cortex.manifest_probe
+      tier:
+        description: Execution tier
+        required: true
+        default: local
+        type: choice
+        options:
+          - local
+      input_json:
+        description: Optional JSON input object
+        required: false
+        default: '{}'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate input and enqueue task
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          OBJECTIVE: ${{ inputs.objective }}
+          TIER: ${{ inputs.tier }}
+          INPUT_JSON: ${{ inputs.input_json }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_SECRET_KEY"
+          python - <<'PY'
+          import json, os, uuid
+          allowed = {'ecosystem.verify','redteam.meta','cortex.manifest_probe'}
+          objective = os.environ['OBJECTIVE']
+          if objective not in allowed:
+              raise SystemExit('objective is not allowlisted')
+          payload = json.loads(os.environ.get('INPUT_JSON') or '{}')
+          if not isinstance(payload, dict):
+              raise SystemExit('input_json must be an object')
+          row = {
+              'run_id': str(uuid.uuid4()),
+              'task_id': str(uuid.uuid4()),
+              'parent_task_id': None,
+              'role': 'executor',
+              'tier': os.environ['TIER'],
+              'objective': objective,
+              'input': payload,
+              'required_output_schema': 'dreamledger/local-worker-result/v1',
+              'timeout_seconds': 300,
+              'status': 'pending',
+              'claimed_by': None,
+              'claimed_at': None,
+              'created_at': __import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),
+              'completed_at': None,
+              'result': None,
+              'error': None
+          }
+          with open('task.json','w',encoding='utf-8') as f:
+              json.dump(row,f,sort_keys=True,separators=(',',':'))
+          PY
+          curl --fail-with-body --silent --show-error \
+            -X POST "$SUPABASE_URL/rest/v1/agent_coordination_log" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+            -H 'Content-Type: application/json' \
+            -H 'Prefer: return=minimal' \
+            --data-binary @task.json
+          rm -f task.json
