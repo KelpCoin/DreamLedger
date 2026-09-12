@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: dreamledger-orchestrator-tick
+  group: dreamledger-orchestrator-tick-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -21,11 +21,10 @@ jobs:
         shell: powershell
     steps:
       - uses: actions/checkout@v4
-      - name: Run cloud task worker
+      - name: Run leased cloud task worker
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           CLOUD_MODEL_API_URL: ${{ secrets.CLOUD_MODEL_API_URL }}
           CLOUD_MODEL_API_KEY: ${{ secrets.CLOUD_MODEL_API_KEY }}
           CLOUD_MODEL_NAME: ${{ secrets.CLOUD_MODEL_NAME }}
