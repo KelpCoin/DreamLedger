@@ -1,5 +1,4 @@
 name: Ecosystem Production Gate
-
 on:
   push:
     branches: [main]
@@ -7,7 +6,6 @@ on:
   pull_request:
     paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','supabase/migrations/**','.github/workflows/**']
   workflow_dispatch:
-
 jobs:
   production-gate:
     runs-on: ubuntu-latest
@@ -40,14 +38,16 @@ jobs:
           set -euo pipefail
           test -f BEC-PRIME/AGENTIC-COMMERCE-ENGINE.json
           test -f BEC-PRIME/COMMERCE/PURCHASE-TO-SHARE-LOOP-v1.json
+          test -f BEC-PRIME/routes/platformCart.js
+          test -f BEC-PRIME/lib/marketplaceOrderBridge.js
+          test -f BEC-PRIME/lib/billboardAutoFulfillment.js
           test -f api/stripe-link.ts
           test -f public/agent.json
           test -f public/surfaces.json
-          test -f BEC-PRIME/routes/platformCart.js
-          test -f BEC-PRIME/lib/billboardAutoFulfillment.js
           test -f public/cube.json
           test -f supabase/migrations/20260912_orchestrator_work_ledger.sql
           test -f supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
+          test -f supabase/migrations/20260912_order_transition_idempotency.sql
       - name: Validate migration invariants
         shell: bash
         run: |
@@ -56,10 +56,12 @@ jobs:
           grep -q "claim_orchestrator_task" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "lease_token" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "waiting_external" supabase/migrations/20260912_orchestrator_work_ledger.sql
+          grep -q "reap_orchestrator_tasks" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "marketplace_listing_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "marketplace_order_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "stale listing version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "stale order version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
+          grep -q "idempotency_key" supabase/migrations/20260912_order_transition_idempotency.sql
       - name: Scan repository for forbidden secret material
         shell: bash
         run: |
@@ -85,8 +87,8 @@ jobs:
             CORTEX/ecosystem_verify.py
             supabase/migrations/20260912_orchestrator_work_ledger.sql
             supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
+            supabase/migrations/20260912_order_transition_idempotency.sql
           retention-days: 90
-
   provenance:
     needs: production-gate
     runs-on: ubuntu-latest
