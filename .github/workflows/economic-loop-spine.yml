@@ -1,0 +1,48 @@
+name: Economic Loop Spine
+
+on:
+  push:
+    branches: [main, feat/economic-loop-spine]
+    paths:
+      - 'ops/economic/ECONOMIC_LOOP_CONTRACT.json'
+      - 'scripts/Verify-EconomicLoopSpine.js'
+      - 'PROOFS/cortex/bridge_acceptance.json'
+      - 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts'
+      - '.github/workflows/economic-loop-spine.yml'
+  pull_request:
+    paths:
+      - 'ops/economic/ECONOMIC_LOOP_CONTRACT.json'
+      - 'scripts/Verify-EconomicLoopSpine.js'
+      - 'PROOFS/cortex/bridge_acceptance.json'
+      - 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts'
+      - '.github/workflows/economic-loop-spine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: economic-loop-spine-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-spine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Verify economic loop spine
+        run: node scripts/Verify-EconomicLoopSpine.js
+
+      - name: Upload spine proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-loop-spine-${{ github.sha }}
+          path: proof/commerce/economic-loop-spine.json
+          retention-days: 90
