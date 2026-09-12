@@ -1,6 +1,16 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+/*
+OWNERSHIP FENCE
+A) This Edge Function owns revenue recognition (revenue_* writes).
+The stripe webhook settlement queue owns only marketplace fulfillment/
+settlement advancement and MUST NOT write revenue_* tables.
+This function records the signed Stripe observation and creates the
+revenue_* recognition chain; it does not promote RA_000001 or declare
+BusinessTruth without downstream fulfillment and independent proof.
+*/
+
 const FUNCTION_NAME = "stripe-revenue-41104f355d6878cdd6d1f9dc";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
