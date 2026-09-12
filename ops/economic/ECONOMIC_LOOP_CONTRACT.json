@@ -1,0 +1,87 @@
+{
+  "schema": "dreamledger-economic-loop-contract-v1",
+  "purpose": "Connect genuine economic demand to automated execution, independent verification, delivered value, and repeatable opportunity generation.",
+  "target_weekly_nzd": {
+    "minimum": 500,
+    "maximum": 700
+  },
+  "commercial_truth": {
+    "payment_authority": "settled external Stripe payment",
+    "revenue_requires": [
+      "real external buyer",
+      "settled payment",
+      "attributed offer or SKU",
+      "fulfillment",
+      "delivery evidence"
+    ],
+    "forbidden_revenue_states": [
+      "TEST",
+      "SIMULATED",
+      "INTERNAL",
+      "UNMATCHED",
+      "proposal",
+      "checkout link",
+      "impression",
+      "click"
+    ]
+  },
+  "commercial_loop": [
+    "REAL_PROBLEM",
+    "QUALIFIED_BUYER",
+    "OFFER",
+    "PAYMENT",
+    "CUSTOMER"
+  ],
+  "execution_loop": [
+    "REAL_JOB",
+    "AGENTS",
+    "ONLINE_AND_LOCAL_WORKERS",
+    "VERIFICATION",
+    "DELIVERABLE"
+  ],
+  "intersection": "VERIFIED_VALUE",
+  "evidence_loop": [
+    "DELIVERED_VALUE",
+    "EVIDENCE",
+    "LEARNING",
+    "BETTER_TARGETING_OR_OFFER",
+    "NEXT_BUYER"
+  ],
+  "automation_policy": {
+    "automated": [
+      "deterministic validation",
+      "artifact generation",
+      "job creation after verified payment",
+      "agent and worker execution",
+      "independent verification",
+      "evidence generation",
+      "reconciliation",
+      "idempotent retries"
+    ],
+    "human_approval_required": [
+      "external outreach",
+      "contracts",
+      "financial commitments",
+      "public release where explicitly gated",
+      "unusual or irreversible actions"
+    ]
+  },
+  "system_boundaries": {
+    "commercial_surface": "DreamLedger",
+    "control_plane": "BrownEye Cortex",
+    "shared_evidence_layer": "Supabase",
+    "payment_authority": "Stripe",
+    "agent_transport": "AgentBridge",
+    "online_automation": "GitHub Actions",
+    "local_execution": "PowerShell + Python + LM Studio/local workers"
+  },
+  "required_existing_proofs": [
+    "PROOFS/cortex/bridge_acceptance.json",
+    "supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts"
+  ],
+  "status_semantics": {
+    "GREEN": "contract and static rails agree; this is not revenue proof",
+    "BLOCKED": "a required rail is missing or contradicts the contract",
+    "REVENUE_VERIFIED": "only after real external payment plus attribution, fulfillment, delivery evidence, and reconciliation"
+  }
+}
