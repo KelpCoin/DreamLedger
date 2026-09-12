@@ -52,6 +52,7 @@ jobs:
           test -f supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
           test -f supabase/migrations/20260912_work_ledger_marketplace_indexes.sql
           test -f supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+          test -f supabase/migrations/20260912_settlement_actor_role_fence.sql
       - name: Validate migration invariants
         shell: bash
         run: |
@@ -65,6 +66,8 @@ jobs:
           grep -q "trg_stripe_webhook_to_settlement_queue" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
           grep -q "settlement_claim_batch" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
           grep -q "settlement authority required" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+          grep -q "transition_marketplace_order_settlement" supabase/migrations/20260912_settlement_actor_role_fence.sql
+          grep -q "settlement_consumer" supabase/migrations/20260912_settlement_actor_role_fence.sql
           grep -q "marketplace_listing_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "marketplace_order_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "idempotency_key" supabase/migrations/20260912_order_transition_idempotency.sql
@@ -95,6 +98,7 @@ jobs:
             supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
             supabase/migrations/20260912_work_ledger_marketplace_indexes.sql
             supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+            supabase/migrations/20260912_settlement_actor_role_fence.sql
           retention-days: 90
   provenance:
     needs: production-gate
