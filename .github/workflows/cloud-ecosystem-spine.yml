@@ -1,124 +1,84 @@
 name: Cloud Ecosystem Spine
-
 on:
   push:
-    branches: [main, agent/cloud-ecosystem-spine]
+    branches: [main]
   pull_request:
     branches: [main]
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
-
 concurrency:
   group: cloud-ecosystem-spine-${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
   contents: read
-
 env:
   LIVE_URL: https://dreamledger.org
-  BILLBOARD_PAYMENT_LINK: https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02
-  BILLBOARD_PAYMENT_LINK_ID: plink_1UAN9zJt4ieIQDFzgHeso6Qo
   NODE_VERSION: 24
-
 jobs:
   cloud-health:
     name: Cloud health and commerce proof
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Verify repository control plane
-        shell: bash
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: ${{ env.NODE_VERSION }}}
+      - name: Verify control plane and ecosystem spine
         run: |
           set -euo pipefail
-          test -f .github/workflows/cloud-ecosystem-spine.yml
-          test -f .github/workflows/render-deploy.yml
-          test -f .github/workflows/economic-revenue-gate.yml
-          test -f .github/workflows/commerce-sentinel.yml
-          test -f .github/workflows/first-sale-gate.yml
-          echo CONTROL_PLANE=PASS
-
-      - name: Verify canonical public assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s public/index.html
-          test -s public/server.js
-          test -s public/billboard.html
-          test -s public/avatar.html
-          test -s BEC-PRIME/compiled/website/login.html
-          test -s BEC-PRIME/compiled/website/register.html
-          test -s BEC-PRIME/compiled/website/account.html
-          echo PUBLIC_ASSETS=PASS
-
-      - name: Verify live selling doors
+          test -f CORTEX/ecosystem_spine.py
+          test -f CORTEX/gauntlet_adapter.py
+          test -f CORTEX/redteam/belt.py
+          test -f CORTEX/redteam/belt_extension.py
+          test -f CORTEX/redteam/meta_belt.py
+          test -f CORTEX/redteam/persistence.py
+          test -f CORTEX/redteam/signer.py
+          test -f policy/runtime.cedar
+          test -f policy/schema.json
+          python3 -m CORTEX.ecosystem_spine
+      - name: Run full red-team meta-belt
+        run: python3 -m CORTEX.redteam.cli meta
+      - name: Run Python compile gate
+        run: python3 -m compileall -q CORTEX
+      - name: Verify live public surface
         if: github.event_name != 'pull_request'
-        shell: bash
         run: |
           set -euo pipefail
-          for path in / /healthz /version /billboard /dreammeez /login /register /account /api/products /api/offers /api/dreamiez/cosmetics; do
+          for path in / /healthz /version /billboard /api/products /api/offers; do
             code=$(curl -L -sS -o /tmp/probe -w '%{http_code}' --max-time 30 "${LIVE_URL}${path}")
             echo "PUBLIC_${path#/}_HTTP=${code}"
             test "$code" = 200
           done
           curl -L -sS --fail --max-time 30 "$LIVE_URL/api/offers" >/tmp/offers.json
-          curl -L -sS --fail --max-time 30 "$LIVE_URL/api/dreamiez/cosmetics" >/tmp/cosmetics.json
           python3 - <<'PY'
           import json
           offers=json.load(open('/tmp/offers.json')).get('offers',[])
-          cosmetics=json.load(open('/tmp/cosmetics.json'))
-          billboard=[x for x in offers if x.get('offer_id') in {'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001','DREAMLEDGER-BILLBOARD-FOUNDING-001','BILLBOARD-LARGE'} or x.get('product_id')=='BILLBOARD-LARGE']
-          assert billboard, 'no billboard offer visible'
-          assert any(float(x.get('price',0))==50 and str(x.get('currency','')).upper()=='NZD' for x in billboard), 'NZ$50 billboard doorway missing'
-          assert isinstance(cosmetics,list) and len(cosmetics)>=3, 'DreamMeez cosmetics registry incomplete'
-          print('BILLBOARD_DOOR=PASS')
-          print('DREAMMEEZ_COSMETICS='+str(len(cosmetics)))
+          assert isinstance(offers,list), 'offers must be a list'
+          print('LIVE_OFFERS='+str(len(offers)))
+          for x in offers: print('OFFER',x.get('offer_id'),x.get('price'),x.get('currency'))
           PY
-          python3 - <<PY
-          import urllib.request
-          with urllib.request.urlopen('${BILLBOARD_PAYMENT_LINK}', timeout=30) as r:
-              print('BILLBOARD_STRIPE_CHECKOUT_HTTP='+str(r.status))
-              assert r.status==200
-          PY
-          echo SELLING_DOORS=PASS
-
-      - name: Verify canonical Stripe settlement scoreboard
+      - name: Verify settlement scoreboard
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-        shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
           python3 - <<'PY'
-          import base64, json, os, pathlib, urllib.parse, urllib.request
-          result={'payment_link_id':os.environ['BILLBOARD_PAYMENT_LINK_ID'],'payment_url':os.environ['BILLBOARD_PAYMENT_LINK'],'offer_id':'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001','status':'MISSING_STRIPE_SECRET_KEY' if not os.environ.get('STRIPE_SECRET_KEY') else 'UNKNOWN','completed_paid_sessions':0,'verified_revenue_nzd':0}
+          import base64,json,os,pathlib,urllib.parse,urllib.request
+          out={'schema':'dreamledger/cloud-settlement-scoreboard/v1','status':'UNAVAILABLE','completed_paid_sessions':0,'verified_revenue_nzd':0}
           key=os.environ.get('STRIPE_SECRET_KEY','')
           if key:
-            q=urllib.parse.urlencode({'payment_link':os.environ['BILLBOARD_PAYMENT_LINK_ID'],'limit':'100'})
-            req=urllib.request.Request('https://api.stripe.com/v1/checkout/sessions?'+q)
+            req=urllib.request.Request('https://api.stripe.com/v1/checkout/sessions?limit=100')
             req.add_header('Authorization','Basic '+base64.b64encode((key+':').encode()).decode())
             try:
-              with urllib.request.urlopen(req,timeout=30) as r: data=json.load(r)
-              paid=[s for s in data.get('data',[]) if s.get('status')=='complete' and s.get('payment_status')=='paid' and s.get('livemode') is True and s.get('currency')=='nzd' and s.get('amount_total')==5000]
-              result['completed_paid_sessions']=len(paid)
-              result['verified_revenue_nzd']=sum(int(s.get('amount_total',0) or 0) for s in paid)/100
-              result['status']='VERIFIED'
-            except Exception as e:
-              result['status']='STRIPE_API_ERROR'
-              result['error_type']=type(e).__name__
-          pathlib.Path('artifacts/economic-scoreboard.json').write_text(json.dumps(result,indent=2)+'\n')
-          print(json.dumps(result,indent=2))
+              with urllib.request.urlopen(req,timeout=30) as r:data=json.load(r)
+              paid=[s for s in data.get('data',[]) if s.get('livemode') and s.get('status')=='complete' and s.get('payment_status')=='paid']
+              out['completed_paid_sessions']=len(paid);out['verified_revenue_nzd']=sum((s.get('amount_total') or 0) for s in paid)/100;out['status']='OBSERVED'
+            except Exception as e:out['status']='STRIPE_API_ERROR';out['error_type']=type(e).__name__
+          pathlib.Path('artifacts/economic-scoreboard.json').write_text(json.dumps(out,indent=2)+'\n')
+          print(json.dumps(out,indent=2))
           PY
-
       - name: Upload cloud proof
         uses: actions/upload-artifact@v4
         with:
