@@ -1,0 +1,65 @@
+name: DreamLedger Evidence Sealer
+
+on:
+  workflow_run:
+    workflows:
+      - DreamLedger Cloud Orchestrator Tick
+      - DreamLedger Scheduled Probe
+      - DreamLedger Ledger Verifier
+      - DreamLedger Daily State Report
+      - DreamLedger Economic Supervisor
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: dreamledger-evidence-sealer-${{ github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  seal:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download triggering run artifacts
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/download-artifact@v5
+        with:
+          path: sealed-input
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sealed
+          find sealed-input -type f -print0 | sort -z | xargs -0 sha256sum > sealed/manifest.sha256
+          cat > sealed/provenance.json <<EOF
+          {
+            "source_run_id": "${{ github.event.workflow_run.id || github.run_id }}",
+            "source_workflow": "${{ github.event.workflow_run.name || 'manual' }}",
+            "source_commit": "${{ github.event.workflow_run.head_sha || github.sha }}",
+            "sealed_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          tar -czf sealed/evidence-bundle.tgz -C sealed-input . 2>/dev/null || tar -czf sealed/evidence-bundle.tgz -C sealed . manifest.sha256 provenance.json
+
+      - name: Attest sealed evidence bundle
+        uses: actions/attest@v4
+        with:
+          subject-path: sealed/evidence-bundle.tgz
+
+      - name: Upload sealed evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-evidence-${{ github.event.workflow_run.id || github.run_id }}
+          path: sealed
+          if-no-files-found: error
+          retention-days: 90
