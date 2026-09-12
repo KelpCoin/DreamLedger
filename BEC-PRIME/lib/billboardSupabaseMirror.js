@@ -17,8 +17,9 @@ function mapStatus(ad) {
   if (ad.payment_status !== 'paid') return null;
   return ad.status === 'PUBLISHED' ? 'PUBLISHED' : 'PAID_PENDING_REVIEW';
 }
+function sessionId(ad) { return ad.transaction_id || ad.session_id || null; }
 async function upsert(ad, market) {
-  if (!BASE || !KEY || !ad || !ad.session_id) return;
+  if (!BASE || !KEY || !ad || !sessionId(ad)) return;
   const status = mapStatus(ad);
   if (!status) return;
   const payload = {
@@ -32,7 +33,7 @@ async function upsert(ad, market) {
     owner_email: ad.email || null,
     image_url: ad.status === 'PUBLISHED' ? `${String(process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/,'')}/billboard/media/${ad.id}` : null,
     destination_url: ad.link || null,
-    stripe_session_id: ad.session_id,
+    stripe_session_id: sessionId(ad),
     status,
     title: ad.title || null,
     purchased_at: ad.paid_at || ad.created_at || new Date().toISOString(),
