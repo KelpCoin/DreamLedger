@@ -1,0 +1,38 @@
+name: DreamLedger Ledger Verifier
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-ledger-verifier
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify evidence chain
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CLOUD_ORCHESTRATOR_MODE: ledger
+          CLOUD_PROOF_ROOT: ${{ github.workspace }}\cloud-proof
+        run: .\BEC-PRIME\scripts\Cloud-Orchestrator.ps1
+      - name: Upload verification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ledger-verification-${{ github.run_id }}
+          path: cloud-proof
+          if-no-files-found: error
+          retention-days: 90
