@@ -1,0 +1,49 @@
+{
+  "passport_version": "1.0.0",
+  "passport_id": "EP-SPREADSHEET-RESCUE-001",
+  "issued_at": "2026-09-11T00:00:00Z",
+  "issued_by": "biggie",
+  "passport_status": "ACTIVE",
+  "commercial_truth": {
+    "sku": "DL-SPREADSHEET-RESCUE-199",
+    "product_name": "Spreadsheet Rescue",
+    "product_summary": "Human-assisted repair and recovery of a broken spreadsheet workflow.",
+    "owner": { "id": "BEC-OWNER-001", "name": "DreamLedger" },
+    "seller": { "id": "BEC-SELLER-001", "name": "DreamLedger" },
+    "price_nzd": 199,
+    "billing": "ONE_TIME"
+  },
+  "authority": {
+    "resale_allowed": true,
+    "territory": { "scope": "seller_and_buyer_in_nz" },
+    "resale_price_policy": "FIXED",
+    "resale_price_nzd": 199,
+    "reseller_margin": { "type": "FIXED", "amount_nzd": 60 },
+    "reseller_rights": ["DIRECT_SALE"],
+    "restrictions": ["Reseller may not alter the product promise or represented fulfilment conditions."]
+  },
+  "execution": {
+    "fulfilment_method": "Customer supplies the spreadsheet and describes the failure; seller repairs the agreed issue and returns the repaired file or a documented diagnosis if repair is not possible.",
+    "fulfilment_trigger": "payment_captured_and_customer_materials_received",
+    "fulfilment_window_hours": 72,
+    "dependencies": ["Spreadsheet file supplied by customer"],
+    "deployment_mode": "HYBRID",
+    "support": "One delivery review cycle included.",
+    "refund_rule": "Refund handling is governed by the applicable sale terms."
+  },
+  "evidence": {
+    "requirements": ["settled_payment_reference", "input_file_hash", "output_file_hash_or_diagnosis_artifact", "fulfilment_timestamp"],
+    "verification_rule": "sha256_match",
+    "truth_status": "UNVERIFIED",
+    "provenance": []
+  },
+  "transition_log": [
+    {
+      "at": "2026-09-11T00:00:00Z",
+      "from": null,
+      "to": "ACTIVE",
+      "reason": "Initial Passport issuance for schema traversal test; commercial claims remain UNVERIFIED.",
+      "actor": "biggie"
+    }
+  ]
+}

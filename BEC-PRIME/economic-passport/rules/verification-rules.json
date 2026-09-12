@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "rules": {
+    "sha256_match": {
+      "description": "The verifier compares the SHA-256 hash of the expected artifact with the observed artifact.",
+      "requires": ["expected_sha256", "observed_sha256"],
+      "operator": "EQUALS"
+    }
+  }
+}
