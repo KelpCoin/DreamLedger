@@ -8,15 +8,15 @@ on:
     paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','.github/workflows/**']
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write
-  attestations: write
-
 jobs:
   production-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+    concurrency:
+      group: ecosystem-production-gate-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -37,6 +37,7 @@ jobs:
       - name: Verify marketplace contract surfaces
         shell: bash
         run: |
+          set -euo pipefail
           test -f BEC-PRIME/AGENTIC-COMMERCE-ENGINE.json
           test -f BEC-PRIME/COMMERCE/PURCHASE-TO-SHARE-LOOP-v1.json
           test -f api/stripe-link.ts
@@ -48,6 +49,7 @@ jobs:
       - name: Scan repository for forbidden secret material
         shell: bash
         run: |
+          set -euo pipefail
           P1='STRIPE_SECRET_KEY[[:space:]]*=[[:space:]]*["'"']'
           P2='SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*["'"']'
           if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public 2>/dev/null; then
@@ -57,11 +59,8 @@ jobs:
       - name: Build deterministic production manifest
         shell: bash
         run: |
+          set -euo pipefail
           find CORTEX BEC-PRIME api public policy .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
-      - name: Attest production manifest
-        uses: actions/attest-build-provenance@v3
-        with:
-          subject-path: ecosystem-production-manifest.sha256
       - name: Upload production evidence
         uses: actions/upload-artifact@v4
         with:
@@ -71,3 +70,25 @@ jobs:
             CORTEX/ecosystem_registry.json
             CORTEX/ecosystem_verify.py
           retention-days: 90
+
+  provenance:
+    needs: production-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    concurrency:
+      group: ecosystem-provenance-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Download production evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ecosystem-production-evidence
+          path: evidence
+      - name: Attest production manifest
+        uses: actions/attest@v4
+        with:
+          subject-path: evidence/ecosystem-production-manifest.sha256
