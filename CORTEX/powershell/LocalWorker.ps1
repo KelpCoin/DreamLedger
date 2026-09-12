@@ -1,0 +1,38 @@
+[CmdletBinding()]
+param(
+  [string]$SupabaseUrl=$env:SUPABASE_URL,
+  [string]$SupabaseKey=$env:SUPABASE_SECRET_KEY,
+  [string]$WorkerId=$env:CORTEX_WORKER_ID,
+  [string]$LmStudioUrl='http://127.0.0.1:1234/v1',
+  [int]$PollSeconds=5,
+  [int]$LeaseSeconds=120,
+  [int]$RenewInterval=30,
+  [int]$HttpTimeoutSec=120,
+  [switch]$Once
+)
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+if([string]::IsNullOrWhiteSpace($SupabaseUrl)){throw 'SUPABASE_URL not set'}
+if([string]::IsNullOrWhiteSpace($SupabaseKey)){throw 'SUPABASE_SECRET_KEY not set'}
+if([string]::IsNullOrWhiteSpace($WorkerId)){$WorkerId="$env:COMPUTERNAME-cortex"}
+$SupabaseUrl=$SupabaseUrl.TrimEnd('/')
+$Headers=@{apikey=$SupabaseKey;Authorization="Bearer $SupabaseKey";'Content-Type'='application/json';Accept='application/json';Prefer='return=representation'}
+$Root=Split-Path -Parent $MyInvocation.MyCommand.Path
+$LogPath=Join-Path $Root 'LocalWorker.log'
+function Log([string]$Message,[string]$Level='INFO'){Add-Content -Path $LogPath -Encoding ASCII -Value ("$((Get-Date).ToUniversalTime().ToString('o')) [$Level] [$WorkerId] $Message");Write-Host $Message}
+function Rpc([string]$Name,[hashtable]$Body){$json=$Body|ConvertTo-Json -Depth 30 -Compress;return Invoke-RestMethod -Method Post -Uri "$SupabaseUrl/rest/v1/rpc/$Name" -Headers $Headers -Body $json -TimeoutSec $HttpTimeoutSec}
+function HashText([string]$Text){$sha=[Security.Cryptography.SHA256]::Create();try{return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($Text)))).Replace('-','').ToLowerInvariant()}finally{$sha.Dispose()}}
+function ApprovalOk($Task){$actions=$Task.input.proposed_actions;if(-not $actions){return $true};foreach($a in $actions){if(@('send_message','send_email','send_dm','post_public','publish_listing','charge_card','issue_refund','contact_buyer') -contains [string]$a.type){if(-not $a.approval -or -not $a.approval.approved_by){return $false};if([string]$a.approval.approved_by -eq [string]$a.approval.requested_by){return $false}}};return $true}
+function InvokeLm([string]$Objective,[string]$Model,[string]$System,[double]$Temperature,[bool]$JsonMode){$body=@{model=if($Model){$Model}else{'local-model'};messages=@(@{role='system';content=$System},@{role='user';content=$Objective});temperature=$Temperature;max_tokens=2048};if($JsonMode){$body.response_format=@{type='json_object'}};$r=Invoke-RestMethod -Method Post -Uri "$LmStudioUrl/chat/completions" -Body ($body|ConvertTo-Json -Depth 20 -Compress) -ContentType 'application/json' -TimeoutSec $HttpTimeoutSec;return $r.choices[0].message.content}
+function Handle($Task){$input=@{};if($Task.input){foreach($p in $Task.input.PSObject.Properties){$input[$p.Name]=$p.Value}};switch([string]$Task.role){'lm_research'{return InvokeLm ([string]$Task.objective) ([string]$input.model) 'You are a researcher. Return concise evidence-backed findings.' 0.2 $false};'lm_draft'{return InvokeLm ([string]$Task.objective) ([string]$input.model) 'You are a drafter. Produce a bounded draft only.' 0.3 $false};'lm_skeptic'{return InvokeLm ([string]$Task.objective) ([string]$input.model) 'You are a skeptic. Return JSON with an issues array.' 0.1 $true};'hash_evidence'{if(-not $input.content){throw 'hash_evidence requires input.content'};return @{hash=(HashText([string]$input.content))}};'noop'{return @{ok=$true}}default{throw "role '$($Task.role)' is not allowlisted"}}}
+function ProcessOne{
+  $claim=@(Rpc 'claim_task' @{p_worker_id=$WorkerId;p_tier='local';p_lease_secs=$LeaseSeconds});if($claim.Count -eq 0){return $false};$task=$claim[0];$token=$task.lease_token;Log "claimed $($task.task_id) role=$($task.role)";
+  if(-not $task.id -and -not $task.task_id){throw 'task id missing'}
+  if(-not @('lm_research','lm_draft','lm_skeptic','hash_evidence','noop') -contains [string]$task.role){[void](Rpc 'finish_task_for_worker' @{p_task_id=$task.task_id;p_lease_token=$token;p_worker=$WorkerId;p_status='failed';p_result=$null;p_error='handler_not_allowlisted'});return $true}
+  if(-not (ApprovalOk $task)){[void](Rpc 'finish_task_for_worker' @{p_task_id=$task.task_id;p_lease_token=$token;p_worker=$WorkerId;p_status='failed';p_result=$null;p_error='approval_boundary_violation'});return $true}
+  $timer=New-Object Timers.Timer;$timer.Interval=$RenewInterval*1000;$timer.AutoReset=$true;$sub=Register-ObjectEvent -InputObject $timer -EventName Elapsed -Action {try{[void](Rpc 'renew_task_lease_for_worker' @{p_task_id=$event.MessageData.task_id;p_lease_token=$event.MessageData.token;p_worker=$event.MessageData.worker;p_lease_secs=$event.MessageData.lease})}catch{Log "lease renewal failed: $($_.Exception.Message)" 'WARN'}} -MessageData @{task_id=$task.task_id;token=$token;worker=$WorkerId;lease=$LeaseSeconds};$timer.Start();$started=Get-Date;$status='done';$result=$null;$errorText=$null;
+  try{$out=Handle $task;$outText=if($out -is [string]){$out}else{$out|ConvertTo-Json -Depth 30 -Compress};$result=@{output=$out;worker=$WorkerId;role=$task.role;result_sha256=(HashText $outText)}}catch{$status='failed';$errorText="$($_.Exception.GetType().Name): $($_.Exception.Message)";Log "task $($task.task_id) failed: $errorText" 'ERROR'}finally{$timer.Stop();Unregister-Event -SubscriptionId $sub.Id -ErrorAction SilentlyContinue;$timer.Dispose()}
+  $result.duration_ms=[int]((Get-Date)-$started).TotalMilliseconds;[void](Rpc 'finish_task_for_worker' @{p_task_id=$task.task_id;p_lease_token=$token;p_worker=$WorkerId;p_status=$status;p_result=$result;p_error=$errorText});Log "finished $($task.task_id) status=$status";return $true
+}
+Log "local worker starting"
+do{try{$worked=ProcessOne;if(-not $worked){Start-Sleep -Seconds $PollSeconds}}catch{Log $_.Exception.Message 'ERROR';Start-Sleep -Seconds ($PollSeconds*2)};if($Once){break}}while($true)
