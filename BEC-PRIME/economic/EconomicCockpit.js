@@ -187,17 +187,22 @@ function buildOpportunities(prospects, paymentLink) {
 async function main() {
   ensureDir(RUN_DIR);
 
-  // The prospect feed is a mandatory input. A malformed or missing feed is
-  // a deterministic input failure, not an unhandled cockpit crash.
-  let prospects;
-  try {
-    prospects = loadProspects(PROSPECTS_CSV);
-  } catch (error) {
-    console.error('ECONOMIC COCKPIT INPUT INVALID');
-    console.error(error && error.message ? error.message : error);
-    console.error(`Prospect feed: ${path.resolve(PROSPECTS_CSV)}`);
-    process.exitCode = 3;
-    return;
+  const prospectsDir = path.dirname(PROSPECTS_CSV);
+  let prospectsStatus = 'NOT_PROVIDED';
+  let prospects = [];
+  let queueResult = null;
+
+  if (fs.existsSync(PROSPECTS_CSV)) {
+    try {
+      prospects = loadProspects(PROSPECTS_CSV);
+      prospectsStatus = 'LOADED';
+    } catch (error) {
+      console.error('PROSPECT_FEED_INVALID: ' + (error && error.message ? error.message : error));
+      console.error('Cockpit halts. The file exists but is malformed.');
+      console.error('Fix the file or remove it to run without a prospect feed.');
+      process.exitCode = 3;
+      return;
+    }
   }
 
   const readKey = process.env.STRIPE_READONLY_KEY || '';
@@ -207,6 +212,7 @@ async function main() {
     node: process.version,
     base_url: BASE_URL,
     prospects_csv: path.resolve(PROSPECTS_CSV),
+    prospects_status: prospectsStatus,
     sent_log: path.resolve(SENT_LOG_PATH),
     outreach_queue: path.resolve(OUTREACH_QUEUE_PATH),
     stripe_readonly_key_present: Boolean(readKey),
@@ -305,9 +311,10 @@ async function main() {
   const truth = await requestJson(BASE_URL + TRUTH_PATH);
   evidence.truth_oracle = truth.ok && truth.status < 400 ? { status: 'VERIFIED_REACHABLE', status_code: truth.status } : { status: 'UNVERIFIED', status_code: truth.status, error: truth.error };
 
-  const opportunities = buildOpportunities(prospects, rawPaymentLink || '');
+  const opportunities = prospectsStatus === 'LOADED' ? buildOpportunities(prospects, rawPaymentLink || '') : [];
   evidence.acquisition = {
     source: path.resolve(PROSPECTS_CSV),
+    prospects_status: prospectsStatus,
     discovered: prospects.length,
     qualified: opportunities.filter(x => x.fit_score >= 50).length,
     intent_triggered: opportunities.filter(x => x.outreach_trigger).length,
@@ -321,7 +328,13 @@ async function main() {
   if (!mandatoryValid) nextAction = { code: 'REPAIR_MANDATORY_OBSERVATION', approval_required: false, action: 'Repair the mandatory observation layer. No economic verdict is valid from this run.' };
   else if (!billboardOffer) nextAction = { code: 'FIX_BILLBOARD_OFFER', approval_required: false, action: 'Repair the machine-readable Founding Billboard offer.' };
   else if (checkout.status !== 'VERIFIED') nextAction = { code: 'FIX_BILLBOARD_CHECKOUT', approval_required: false, action: 'Repair the NZ$50 live Stripe checkout contract.' };
-  else if (evidence.payment.status === 'VERIFIED_ZERO_BILLBOARD_PAYMENTS') nextAction = { code: 'BUYER_ACQUISITION', approval_required: true, action: 'Review the highest-intent Billboard opportunities. Approval must be granted against the frozen authorization record before any outreach worker can act.' };
+  else if (evidence.payment.status === 'VERIFIED_ZERO_BILLBOARD_PAYMENTS' && prospectsStatus === 'NOT_PROVIDED') nextAction = {
+    code: 'PROVIDE_PROSPECT_FEED',
+    approval_required: false,
+    action: `Create ${PROSPECTS_CSV} with columns business,source,fit_reason,channel,personalization,offer,price_nzd,role,status,contact_route,evidence_quote, populated with at least one qualified row. Then rerun.`
+  };
+  else if (evidence.payment.status === 'VERIFIED_ZERO_BILLBOARD_PAYMENTS' && prospectsStatus === 'LOADED' && opportunities.length > 0) nextAction = { code: 'BUYER_ACQUISITION', approval_required: true, action: 'Review the highest-intent Billboard opportunities. Approval must be granted against the frozen authorization record before any outreach worker can act.' };
+  else if (evidence.payment.status === 'VERIFIED_ZERO_BILLBOARD_PAYMENTS') nextAction = { code: 'BUYER_ACQUISITION', approval_required: true, action: 'Provide at least one qualified Billboard prospect before any outreach worker can act.' };
   else nextAction = { code: 'FULFILMENT_AND_PROOF', approval_required: false, action: 'Reconcile the attributable live payment to fulfilment and generate proof.' };
 
   const report = {
@@ -337,6 +350,9 @@ async function main() {
     billboard_offer: evidence.billboard_offer,
     checkout_status: checkout.status,
     payment_status: evidence.payment.status,
+    prospects_status: prospectsStatus,
+    queue_written: 0,
+    queue_path: null,
     acquisition: {
       discovered: evidence.acquisition.discovered,
       qualified: evidence.acquisition.qualified,
@@ -364,28 +380,37 @@ async function main() {
   writeJson(path.join(RUN_DIR, '06_acquisition.json'), evidence.acquisition);
   writeJson(path.join(RUN_DIR, '07_report.json'), report);
 
-  const queueRows = opportunities.filter(o => o.send_status !== 'SENT').map(o => ({
-    opportunity_id: o.opportunity_id,
-    business: o.business,
-    channel: o.channel,
-    contact_route: o.contact_route,
-    offer_sku: o.offer_sku,
-    price_nzd: o.price_nzd,
-    evidence_quote: o.evidence_quote,
-    draft_message: o.draft_message,
-    approval_required: true,
-    status: 'READY_FOR_APPROVAL',
-    created_at: new Date().toISOString()
-  }));
-  const queue = writeOutreachQueue({
-    rows: queueRows,
-    outPath: OUTREACH_QUEUE_PATH,
-    sentLogPath: SENT_LOG_PATH
-  });
-  evidence.acquisition.queue_written = queue.written;
-  evidence.acquisition.skipped_already_sent = queue.skipped_already_sent;
-  writeJson(path.join(RUN_DIR, '06_acquisition.json'), evidence.acquisition);
-  writeJson(path.join(COCKPIT_ROOT, 'latest.json'), report);
+  if (prospectsStatus === 'LOADED') {
+    const queueRows = opportunities.filter(o => o.send_status !== 'SENT').map(o => ({
+      opportunity_id: o.opportunity_id,
+      business: o.business,
+      channel: o.channel,
+      contact_route: o.contact_route,
+      offer_sku: o.offer_sku,
+      price_nzd: o.price_nzd,
+      evidence_quote: o.evidence_quote,
+      draft_message: o.draft_message,
+      approval_required: true,
+      status: 'READY_FOR_APPROVAL',
+      created_at: new Date().toISOString()
+    }));
+    queueResult = writeOutreachQueue({
+      rows: queueRows,
+      outPath: OUTREACH_QUEUE_PATH,
+      sentLogPath: SENT_LOG_PATH
+    });
+    evidence.acquisition.queue_written = queueResult.written;
+    evidence.acquisition.skipped_already_sent = queueResult.skipped_already_sent;
+    report.queue_written = queueResult.written;
+    report.queue_path = OUTREACH_QUEUE_PATH;
+    writeJson(path.join(RUN_DIR, '06_acquisition.json'), evidence.acquisition);
+    writeJson(path.join(COCKPIT_ROOT, 'latest.json'), report);
+  } else {
+    evidence.acquisition.queue_written = 0;
+    evidence.acquisition.skipped_already_sent = 0;
+    writeJson(path.join(RUN_DIR, '06_acquisition.json'), evidence.acquisition);
+    writeJson(path.join(COCKPIT_ROOT, 'latest.json'), report);
+  }
 
   console.log('');
   console.log('============================================================');
@@ -397,11 +422,11 @@ async function main() {
   console.log(`Production:         ${report.production_status}`);
   console.log(`Offer:              ${billboardOffer ? 'DISCOVERED' : 'NOT DISCOVERED'}`);
   console.log(`Checkout:           ${checkout.status}`);
-  console.log(`Prospects:          ${evidence.acquisition.discovered}`);
+  console.log(`Prospects:          ${prospectsStatus}${prospectsStatus === 'LOADED' ? ` (${evidence.acquisition.discovered})` : ''}`);
   console.log(`Intent triggers:    ${evidence.acquisition.intent_triggered}`);
   console.log(`Approvals pending:  ${evidence.acquisition.approval_pending}`);
-  console.log(`Queue written:      ${queue.written}`);
-  console.log(`Already sent:       ${queue.skipped_already_sent}`);
+  console.log(`Queue written:      ${queueResult ? queueResult.written : 'NOT_WRITTEN'}`);
+  console.log(`Already sent:       ${queueResult ? queueResult.skipped_already_sent : 0}`);
   console.log('');
   console.log(`NEXT ACTION: ${nextAction.action}`);
   console.log(`Approval required: ${nextAction.approval_required}`);
