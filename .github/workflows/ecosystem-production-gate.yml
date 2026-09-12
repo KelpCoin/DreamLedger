@@ -61,8 +61,9 @@ jobs:
           grep -q "waiting_external" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "reap_orchestrator_tasks" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "promote_retry_scheduled_tasks" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
-          grep -q "settlement_claim_batch" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
           grep -q "settlement_enqueue_webhook" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+          grep -q "trg_stripe_webhook_to_settlement_queue" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+          grep -q "settlement_claim_batch" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
           grep -q "settlement authority required" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
           grep -q "marketplace_listing_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "marketplace_order_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
