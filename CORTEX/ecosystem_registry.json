@@ -18,7 +18,7 @@
     {"id":"replication","role":"validated_cell_replication","paths":["public/cube.json"]},
     {"id":"cloud_execution","role":"github_actions","paths":[".github/workflows/economic-supervisor.yml",".github/workflows/orchestrator-tick.yml",".github/workflows/redteam-regression.yml",".github/workflows/redteam-meta.yml",".github/workflows/cloud-ecosystem-spine.yml",".github/workflows/ecosystem-production-gate.yml",".github/workflows/cortex-mailbox-dispatch.yml"]},
     {"id":"local_execution","role":"windows_powershell","paths":["CORTEX/bootstrap.ps1","CORTEX/run_cortex.ps1","CORTEX/local_mailbox_worker.ps1","CORTEX/powershell-cloud-contract.json"]},
-    {"id":"database_control_plane","role":"durable_state_and_leases","paths":["supabase/migrations/20260912_orchestrator_work_ledger.sql","supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql","supabase/migrations/20260912_order_transition_idempotency.sql"]}
+    {"id":"database_control_plane","role":"durable_state_and_leases","paths":["supabase/migrations/20260912_orchestrator_work_ledger.sql","supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql","supabase/migrations/20260912_order_transition_idempotency.sql","supabase/migrations/20260912_work_ledger_marketplace_indexes.sql"]}
   ],
   "economic_chain":["buyer","inventory","match","offer","order","settlement","fulfilment","truth","reputation","repeat"],
   "forbidden_shortcuts":["self_payment","fake_revenue","agent_settlement_authority","unapproved_external_action","caller_asserted_identity","silent_belt_disable"]
