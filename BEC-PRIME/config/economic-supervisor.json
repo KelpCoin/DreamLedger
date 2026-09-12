@@ -1,0 +1,42 @@
+{
+  "schema_version": "economic-supervisor-1.0",
+  "base_url": "https://dreamledger.org",
+  "surfaces": [
+    { "id": "health", "path": "/healthz", "class": "health" },
+    { "id": "offers", "path": "/api/offers", "class": "offers" },
+    { "id": "billboard", "path": "/billboard", "class": "economic_surface" },
+    { "id": "truth_oracle", "path": "/truth-oracle", "class": "verification" },
+    { "id": "agent_manifest", "path": "/agent.json", "class": "discovery" },
+    { "id": "surfaces_manifest", "path": "/surfaces.json", "class": "discovery" }
+  ],
+  "agentbridge_paths": [
+    "/api/agent-bridge/manifest",
+    "/api/agent-bridge/state",
+    "/api/agent-bridge/jobs"
+  ],
+  "supabase_probe_tables": [
+    "dreamledger_orders",
+    "control_registry",
+    "control_bridge_notes",
+    "control_failures",
+    "ra000001_state"
+  ],
+  "economic_invariants": {
+    "settlement_authority": "stripe_live",
+    "verified_stranger_revenue_requires_independent_verification": true,
+    "external_actions_require_human_approval": true,
+    "bootstrap_external_side_effects": false,
+    "self_payment_counts_as_revenue": false
+  },
+  "cell_field_aliases": {
+    "offer_id": ["offer_id", "id", "offerId"],
+    "sku": ["sku", "sku_id", "skuId", "product_sku"],
+    "name": ["name", "title", "product_name"],
+    "price": ["price", "amount", "unit_amount", "price_nzd"],
+    "currency": ["currency", "currency_code"],
+    "checkout": ["checkout", "checkout_url", "checkoutUrl", "payment_link", "payment_url", "paymentLink", "stripe_payment_link"],
+    "public_path": ["public_path", "path", "url", "landing_page", "landing_page_url"],
+    "fulfilment": ["fulfilment", "fulfillment", "fulfilment_path", "fulfillment_path"],
+    "approval_required": ["approval_required", "requires_approval", "human_approval"]
+  }
+}
