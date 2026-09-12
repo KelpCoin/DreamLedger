@@ -7,6 +7,8 @@ const path = require('path');
 const REQUIRED_COLUMNS = [
   'business',
   'source',
+  'contact_route',
+  'evidence_quote',
   'fit_reason',
   'channel',
   'personalization',
@@ -86,6 +88,12 @@ function loadProspects(csvPath) {
     }
     if (!row.offer) {
       throw new Error(`prospects.csv row ${i + 1}: 'offer' is empty`);
+    }
+    if (!row.contact_route) {
+      throw new Error(`prospects.csv row ${i + 1}: 'contact_route' is empty`);
+    }
+    if (!row.evidence_quote) {
+      throw new Error(`prospects.csv row ${i + 1}: 'evidence_quote' is empty`);
     }
 
     const priceNum = Number(row.price_nzd);
