@@ -1,9 +1,17 @@
 {
-  "schema_version": "MAXIMONA-EXPERIMENT-001/1.0",
+  "schema_version": "MAXIMONA-EXPERIMENT-001/1.1",
   "experiment_id": "MAXIMONA-001",
   "name": "Independent Production Verification",
   "annual_objective_nzd": 1000000,
   "beachhead": "Independent Production Verification for AI-built SaaS",
+  "buyer_hypothesis": "A non-developer or small SaaS operator using AI coding tools needs an independent, evidence-backed check that their live Supabase/Postgres and Stripe production system is actually secure and economically coherent before launch or material growth.",
+  "bridge_atom": {
+    "name": "maximona_production_verification_job",
+    "purpose": "Carry one concrete read-only verification job from assignment through authenticated specialist execution, evidence return, and acknowledgement without bypassing the shared control/evidence layer.",
+    "input": ["target_repository", "target_supabase_scope", "target_stripe_scope", "read_only_authorization"],
+    "output": ["findings", "evidence_references", "verification_status", "acknowledgement"],
+    "business_boundary": "No revenue claim, customer claim, or production-change authority is granted by bridge execution alone."
+  },
   "technical_wedge": ["Supabase/Postgres", "Stripe", "cross-layer economic reconciliation"],
   "offer": {
     "single_system_nzd": 500,
