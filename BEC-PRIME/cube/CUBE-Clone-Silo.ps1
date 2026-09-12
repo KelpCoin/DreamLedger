@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory=$true)][ValidateSet('mtg','crypto','media_music','digital_products')][string]$SiloName,
+    [Parameter(Mandatory=$true)][ValidateSet('mtg','crypto','media_music','digital_products','production_verification')][string]$SiloName,
     [Parameter(Mandatory=$true)][string]$ProductName,
     [Parameter(Mandatory=$true)][ValidateRange(1,1000000)][decimal]$PriceNZD,
     [Parameter(Mandatory=$true)][string]$StripeProductId,
@@ -55,6 +55,8 @@ $config = [ordered]@{
     stripe_product_id=$StripeProductId
     source_engine=$SourceRepo
     neutral_host='DreamLedger'
+    evergreen_catalog=$true
+    scaling='unbounded_quantity_subject_to_service_capacity'
     isolation=@{catalog=$true; checkout=$true; analytics=$true; customer_data=$true; content=$true; promotion=$true; credentials=$true}
     status='generated_not_deployed'
 }

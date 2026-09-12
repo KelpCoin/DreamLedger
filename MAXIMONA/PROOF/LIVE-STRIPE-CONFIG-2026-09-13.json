@@ -1,0 +1,83 @@
+{
+  "schema_version": "MAXIMONA-LIVE-STRIPE-CONFIG-EVIDENCE/1.0",
+  "captured_at_date": "2026-09-13",
+  "environment": "live",
+  "stripe_account": "acct_1SNVPvEGgEAnUFF9",
+  "scope": "MAXIMONA-001 configured commerce objects only",
+  "evidence_rule": "This artifact records direct Stripe API observations. It proves configuration, not transaction capability or runtime metadata propagation.",
+  "product": {
+    "id": "prod_VFNPftn0BlqvDh",
+    "active": true,
+    "livemode": true,
+    "name": "Maximona Independent Production Verification",
+    "type": "service",
+    "default_price": null,
+    "metadata": {
+      "evidence_rule": "settled_stripe_only",
+      "experiment": "MAXIMONA-001",
+      "fulfillment": "digital_report",
+      "offer": "independent_production_verification",
+      "silo": "production_verification"
+    }
+  },
+  "price": {
+    "id": "price_1UEsfHEGgEAnUFF9b4E0C4Gl",
+    "active": true,
+    "livemode": true,
+    "currency": "nzd",
+    "type": "one_time",
+    "unit_amount": 150000,
+    "product": "prod_VFNPftn0BlqvDh",
+    "lookup_key": "maximona_ipv_1500_nzd_v1",
+    "recurring": null,
+    "metadata": {
+      "evergreen": "true",
+      "evidence_rule": "settled_stripe_only",
+      "experiment": "MAXIMONA-001",
+      "offer": "combined_supabase_stripe",
+      "price_nzd": "1500",
+      "silo": "production_verification"
+    }
+  },
+  "payment_link": {
+    "id": "plink_1UEsfSEGgEAnUFF9paXFhlAo",
+    "active": true,
+    "livemode": true,
+    "currency": "nzd",
+    "allow_promotion_codes": false,
+    "customer_creation": "always",
+    "payment_intent_data": null,
+    "metadata": {
+      "evergreen": "true",
+      "evidence_rule": "settled_stripe_only",
+      "experiment": "MAXIMONA-001",
+      "offer": "combined_supabase_stripe",
+      "silo": "production_verification"
+    }
+  },
+  "payment_link_line_item": {
+    "payment_link_id": "plink_1UEsfSEGgEAnUFF9paXFhlAo",
+    "quantity": 1,
+    "amount_subtotal": 150000,
+    "amount_total": 150000,
+    "currency": "nzd",
+    "price_id": "price_1UEsfHEGgEAnUFF9b4E0C4Gl",
+    "product_id": "prod_VFNPftn0BlqvDh",
+    "price_type": "one_time"
+  },
+  "runtime_transaction_propagation": {
+    "status": "UNVERIFIED",
+    "reason": "No quarantined test-mode transaction observation artifact is attached to this snapshot. payment_intent_data is null on the live Payment Link, so runtime propagation must not be inferred from configuration metadata."
+  },
+  "revenue_truth": {
+    "verified_revenue_nzd": 0,
+    "status": "UNVERIFIED_FOR_RUNTIME_SETTLEMENT",
+    "reason": "No settled payment has been attributed to MAXIMONA-001. The live Stripe account contains unrelated succeeded PaymentIntents, so account-wide zero revenue is not claimed by this artifact."
+  },
+  "source_observations": [
+    "Stripe Retrieve Product API response",
+    "Stripe Retrieve Price API response",
+    "Stripe Retrieve Payment Link API response",
+    "Stripe Retrieve Payment Link Line Items API response"
+  ]
+}

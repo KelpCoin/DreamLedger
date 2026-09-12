@@ -1,5 +1,5 @@
 {
-  "schema_version": "CUBE-SILO-REGISTRY-1.1",
+  "schema_version": "CUBE-SILO-REGISTRY-1.2",
   "neutral_host": "DreamLedger",
   "cross_silo_data": false,
   "silos": [
@@ -7,13 +7,16 @@
     {"id":"crypto","name":"Cryptocurrency","allowed_domains":["crypto"],"status":"isolated"},
     {"id":"media_music","name":"Media and Music","allowed_domains":["media_music"],"status":"isolated"},
     {"id":"digital_products","name":"Digital Products","allowed_domains":["digital_products"],"status":"isolated"},
-    {"id":"accounting","name":"Agentic Accounting","allowed_domains":["accounting"],"status":"isolated","risk_policy":"LOW_TO_MODERATE","live_payment_approval_required":true,"tax_filing_approval_required":true}
+    {"id":"accounting","name":"Agentic Accounting","allowed_domains":["accounting"],"status":"isolated","risk_policy":"LOW_TO_MODERATE","live_payment_approval_required":true,"tax_filing_approval_required":true},
+    {"id":"production_verification","name":"Production Verification","allowed_domains":["production_verification","maximona"],"status":"isolated","commercial_experiment":"MAXIMONA-001","payment_model":"one_time_fixed_scope","evergreen_catalog":true}
   ],
   "rules": [
     "No catalog, checkout, analytics, content, customer data, or promotion may cross silo boundaries.",
     "DreamLedger remains neutral and does not become a silo.",
     "Shared infrastructure may be reused only when silo identity is explicit and data isolation is preserved.",
     "Every monetization surface must emit a proof artifact before revenue claims are made.",
-    "ACCOUNTING live payments and tax filings require explicit human approval."
+    "ACCOUNTING live payments and tax filings require explicit human approval.",
+    "PRODUCTION_VERIFICATION may reuse the commerce spine but must retain its own offer, prospect, fulfillment, and economic evidence namespace.",
+    "CUBE clones preserve source-silo identity and may not import another silo's customer data, credentials, analytics, content, or promotion."
   ]
 }

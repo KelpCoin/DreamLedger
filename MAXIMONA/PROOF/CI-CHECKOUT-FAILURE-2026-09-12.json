@@ -1,0 +1,23 @@
+{
+  "schema_version": "MAXIMONA-CI-EVIDENCE/1.0",
+  "workflow": "Stripe Checkout Contract",
+  "run_id": 34701776275,
+  "run_number": 457,
+  "job_id": 103574696799,
+  "head_sha": "e096b79ea95579e06190c0ff91bda3950f574fd2",
+  "current_pr_head_sha": "f0ce4fa87cf1b9ca1c78b6a91e6ec2de69b82ed4",
+  "conclusion": "failure",
+  "failed_step": "Verify Stripe Checkout producers",
+  "syntax_check_step": "skipped",
+  "failure_count_claim": {
+    "value": 15,
+    "status": "UNVERIFIED",
+    "reason": "The captured GitHub Actions run/job metadata proves one failing verifier step, but the raw step log containing a count of 15 failures was not captured. Do not repeat 15 as an established count."
+  },
+  "known_evidence": [
+    "Run 34701776275 completed with conclusion failure.",
+    "Job 103574696799 failed at Verify Stripe Checkout producers.",
+    "The run executed against stale head SHA e096b79 relative to current PR head f0ce4fa."
+  ],
+  "next_evidence_required": "Raw verifier step output from the relevant run, including the actual Error/FAIL lines, before any numeric failure count is promoted to verified fact."
+}
