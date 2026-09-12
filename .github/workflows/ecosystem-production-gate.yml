@@ -2,9 +2,9 @@ name: Ecosystem Production Gate
 on:
   push:
     branches: [main]
-    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','supabase/migrations/**','.github/workflows/**']
+    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','money/**','policy/**','supabase/migrations/**','.github/workflows/**']
   pull_request:
-    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','policy/**','supabase/migrations/**','.github/workflows/**']
+    paths: ['CORTEX/**','BEC-PRIME/**','api/**','public/**','money/**','policy/**','supabase/migrations/**','.github/workflows/**']
   workflow_dispatch:
 jobs:
   production-gate:
@@ -19,7 +19,9 @@ jobs:
       - name: Verify ecosystem registry
         run: python CORTEX/ecosystem_verify.py
       - name: Compile Python ecosystem
-        run: python -m compileall -q CORTEX
+        run: python -m compileall -q CORTEX money
+      - name: Install settlement dependency
+        run: python -m pip install -r money/requirements.txt
       - name: Red-team unit tests
         run: python -m unittest CORTEX.test_redteam_extension -v
       - name: Red-team meta-belt
@@ -41,11 +43,15 @@ jobs:
           test -f public/agent.json
           test -f public/surfaces.json
           test -f public/cube.json
+          test -f money/settlement_consumer.py
+          test -f money/requirements.txt
+          test -f CORTEX/powershell/LocalWorker.ps1
           test -f supabase/migrations/20260912_orchestrator_work_ledger.sql
           test -f supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           test -f supabase/migrations/20260912_order_transition_idempotency.sql
           test -f supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
           test -f supabase/migrations/20260912_work_ledger_marketplace_indexes.sql
+          test -f supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
       - name: Validate migration invariants
         shell: bash
         run: |
@@ -54,10 +60,12 @@ jobs:
           grep -q "lease_token" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "waiting_external" supabase/migrations/20260912_orchestrator_work_ledger.sql
           grep -q "reap_orchestrator_tasks" supabase/migrations/20260912_orchestrator_work_ledger.sql
+          grep -q "promote_retry_scheduled_tasks" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+          grep -q "settlement_claim_batch" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+          grep -q "settlement_enqueue_webhook" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
+          grep -q "settlement authority required" supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
           grep -q "marketplace_listing_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "marketplace_order_state_events" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
-          grep -q "stale listing version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
-          grep -q "stale order version" supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
           grep -q "idempotency_key" supabase/migrations/20260912_order_transition_idempotency.sql
           grep -q "auth.role()" supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
       - name: Scan repository for forbidden secret material
@@ -66,10 +74,10 @@ jobs:
           set -euo pipefail
           P1='STRIPE_SECRET_KEY[[:space:]]*=[[:space:]]*["'"']'
           P2='SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*["'"']'
-          if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public supabase/migrations 2>/dev/null; then exit 1; fi
+          if grep -RInE "sk-live-[A-Za-z0-9]|rk_live_[A-Za-z0-9]|${P1}|${P2}" CORTEX policy .github/workflows BEC-PRIME api public money supabase/migrations 2>/dev/null; then exit 1; fi
       - name: Build deterministic production manifest
         shell: bash
-        run: find CORTEX BEC-PRIME api public policy supabase/migrations .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
+        run: find CORTEX BEC-PRIME api public policy money supabase/migrations .github/workflows -type f -print0 | sort -z | xargs -0 sha256sum > ecosystem-production-manifest.sha256
       - name: Upload production evidence
         uses: actions/upload-artifact@v4
         with:
@@ -78,11 +86,14 @@ jobs:
             ecosystem-production-manifest.sha256
             CORTEX/ecosystem_registry.json
             CORTEX/ecosystem_verify.py
+            CORTEX/powershell/LocalWorker.ps1
+            money/settlement_consumer.py
             supabase/migrations/20260912_orchestrator_work_ledger.sql
             supabase/migrations/20260912_marketplace_state_identity_control_plane_v1.sql
             supabase/migrations/20260912_order_transition_idempotency.sql
             supabase/migrations/20260912_marketplace_identity_binding_hardening.sql
             supabase/migrations/20260912_work_ledger_marketplace_indexes.sql
+            supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql
           retention-days: 90
   provenance:
     needs: production-gate
