@@ -57,7 +57,7 @@ function Execute-CellJob {
     param([object]$Job, [string]$CorrelationId, [string]$LeaseToken)
     $payload = $Job.payload
     if ($null -eq $payload) { throw 'Job payload missing' }
-    $allowedTypes = @('BILLBOARD_FULFILLMENT','FULFILLMENT','VERIFY','PROOF')
+    $allowedTypes = @('BILLBOARD_FULFILLMENT','FULFILLMENT','VERIFY','PROOF','MAXIMONA_PRODUCTION_VERIFICATION')
     if ($allowedTypes -notcontains [string]$Job.job_type) { throw ('Job type not permitted by local worker: ' + [string]$Job.job_type) }
     $result = [ordered]@{
         worker = $WorkerId
@@ -66,9 +66,17 @@ function Execute-CellJob {
         correlation_id = $CorrelationId
         lease_token = $LeaseToken
         accepted = $true
-        handler = 'CortexEconomicWorker-v0.2'
+        handler = 'CortexEconomicWorker-v0.3'
         payload_hash_input = ($payload | ConvertTo-Json -Depth 20 -Compress)
         note = 'Cell-specific handler boundary reached; no arbitrary remote command execution.'
+    }
+    if ([string]$Job.job_type -eq 'MAXIMONA_PRODUCTION_VERIFICATION') {
+        if ([string]$payload.experiment_id -ne 'MAXIMONA-001') { throw 'MAXIMONA job rejected: experiment_id mismatch' }
+        if ([string]$payload.bridge_atom -ne 'maximona_production_verification_job') { throw 'MAXIMONA job rejected: bridge_atom mismatch' }
+        $result.experiment_id = [string]$payload.experiment_id
+        $result.bridge_atom = [string]$payload.bridge_atom
+        $result.execution_boundary = 'bridge_transport_only'
+        $result.business_truth = 'NO_REVENUE_CLAIM'
     }
     $proofPath = Write-Proof -Job $Job -Result $result -CorrelationId $CorrelationId -LeaseToken $LeaseToken
     $result.proof_path = $proofPath
