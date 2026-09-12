@@ -38,6 +38,22 @@ jobs:
             throw 'Economic supervisor requires Windows PowerShell 5.x for its compatibility contract.'
           }
 
+      - name: Parse supervisor and configuration
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path '.\scripts\DreamLedger-Economic-Bootstrap.ps1'),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Host $_.Message }
+            throw 'Economic supervisor PowerShell parse failed.'
+          }
+          Get-Content '.\config\economic-supervisor.json' -Raw | ConvertFrom-Json | Out-Null
+          Write-Host 'Supervisor syntax and configuration parse: PASS'
+
       - name: Run economic supervisor
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
