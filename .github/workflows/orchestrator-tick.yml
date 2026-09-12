@@ -1,0 +1,41 @@
+name: DreamLedger Cloud Orchestrator Tick
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-orchestrator-tick
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run cloud task worker
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CLOUD_MODEL_API_URL: ${{ secrets.CLOUD_MODEL_API_URL }}
+          CLOUD_MODEL_API_KEY: ${{ secrets.CLOUD_MODEL_API_KEY }}
+          CLOUD_MODEL_NAME: ${{ secrets.CLOUD_MODEL_NAME }}
+          CLOUD_ORCHESTRATOR_MODE: orchestrator
+          CLOUD_PROOF_ROOT: ${{ github.workspace }}\cloud-proof
+        run: .\BEC-PRIME\scripts\Cloud-Orchestrator.ps1
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestrator-proof-${{ github.run_id }}
+          path: cloud-proof
+          if-no-files-found: error
+          retention-days: 90
