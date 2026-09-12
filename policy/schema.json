@@ -1,0 +1,14 @@
+{
+  "DreamLedger": {
+    "entityTypes": {
+      "Principal": {"shape": {"type": "Record", "attributes": {}}},
+      "Resource": {"shape": {"type": "Record", "attributes": {}}}
+    },
+    "actions": {
+      "send_email": {"appliesTo": {"principalTypes": ["Principal"], "resourceTypes": ["Resource"], "context": {"type": "Record", "attributes": {"approval_id": {"type": "String", "required": false}, "parameters_json": {"type": "String", "required": false}, "amount": {"type": "Long", "required": false}}}}},
+      "publish": {"appliesTo": {"principalTypes": ["Principal"], "resourceTypes": ["Resource"], "context": {"type": "Record", "attributes": {"approval_id": {"type": "String", "required": false}, "parameters_json": {"type": "String", "required": false}, "amount": {"type": "Long", "required": false}}}}},
+      "charge_card": {"appliesTo": {"principalTypes": ["Principal"], "resourceTypes": ["Resource"], "context": {"type": "Record", "attributes": {"approval_id": {"type": "String", "required": false}, "parameters_json": {"type": "String", "required": false}, "amount": {"type": "Long", "required": false}}}}},
+      "refund": {"appliesTo": {"principalTypes": ["Principal"], "resourceTypes": ["Resource"], "context": {"type": "Record", "attributes": {"approval_id": {"type": "String", "required": false}, "parameters_json": {"type": "String", "required": false}, "amount": {"type": "Long", "required": false}}}}}
+    }
+  }
+}
