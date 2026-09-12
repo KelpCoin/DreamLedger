@@ -3,6 +3,8 @@ name: Maximona Bridge Worker Once
 on:
   push:
     branches: [maximona-experiment-001-execution]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
