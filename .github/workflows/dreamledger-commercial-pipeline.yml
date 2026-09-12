@@ -1,0 +1,24 @@
+name: DreamLedger Commercial Pipeline
+
+on:
+  push:
+    paths:
+      - 'dreamledger/**'
+      - '.github/workflows/dreamledger-commercial-pipeline.yml'
+  pull_request:
+    paths:
+      - 'dreamledger/**'
+      - '.github/workflows/dreamledger-commercial-pipeline.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Compile Python files
+        run: python -m compileall -q dreamledger
+      - name: Run commercial pipeline tests
+        run: python -m unittest dreamledger.test_pipeline -v
