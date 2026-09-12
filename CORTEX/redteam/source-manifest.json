@@ -1,0 +1,37 @@
+{
+  "schema": "dreamledger/redteam-source-manifest/v1",
+  "belt_version": "redteam-extension-1.0.0",
+  "claims": [
+    {
+      "module": "B13-B15",
+      "topic": "agent specification and coordination failures",
+      "status": "UNVERIFIED_IN_REPO",
+      "note": "External research claim supplied for the belt is not treated as a repository fact until the cited primary paper is pinned."
+    },
+    {
+      "module": "B16-B20,B22-B24",
+      "topic": "OWASP agent/LLM risks",
+      "status": "PARTIALLY_VERIFIED",
+      "source": "OWASP Top 10 for LLM and GenAI",
+      "note": "Official OWASP material verifies Excessive Agency, Supply Chain, Data and Model Poisoning, Improper Output Handling, Vector and Embedding Weaknesses, and Unbounded Consumption. Exact 2026 numbering is not hard-coded here because the currently indexed official material clearly exposes the 2025 taxonomy and a separate 2026 resource entry."
+    },
+    {
+      "module": "B21",
+      "topic": "independent agent identity verification",
+      "status": "UNVERIFIED_LEGAL_CLAIM",
+      "note": "The implementation enforces independent verification as a security control, but does not represent the supplied legislative attribution as verified law."
+    },
+    {
+      "module": "B17",
+      "topic": "tool description poisoning",
+      "status": "IMPLEMENTED_AS_SECURITY_HEURISTIC",
+      "note": "Pattern matching is a deterministic pre-flight signal, not proof that a tool is safe."
+    },
+    {
+      "module": "B18",
+      "topic": "memory poisoning",
+      "status": "IMPLEMENTED_AS_PROVENANCE_CONTROL",
+      "note": "Source, timestamp, and review attribution are required; provenance does not prove semantic safety."
+    }
+  ]
+}
