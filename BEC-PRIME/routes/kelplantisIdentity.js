@@ -2,17 +2,10 @@
 
 // Cross-game identity adapter. Kelplantis gameplay state remains in its existing
 // player tables; DreamMeez remains the authoritative avatar identity.
-const crypto = require('crypto');
-const COOKIE = 'dreamiez_session';
-
-function getCookie(req, name) {
-  const raw = String(req.headers.cookie || '');
-  const match = raw.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[1]) : null;
-}
+const sessionCookie = require('../lib/sessionCookie');
 
 function config() {
-  const base = String(process.env.SUPABASE_URL || '').replace(/\\/$/, '');
+  const base = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
   const key = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
   if (!base || !key) throw new Error('Kelplantis identity storage is not configured.');
   return { base, key };
@@ -49,7 +42,7 @@ function error(message, statusCode) { const err = new Error(message); err.status
 async function handle(req, res, url) {
   const route = typeof url === 'string' ? url : String(req.url || '').split('?')[0];
   if (route !== '/api/kelplantis/identity') return false;
-  const accountId = getCookie(req, COOKIE);
+  const accountId = sessionCookie.get(req);
   if (!accountId) throw error('login required', 401);
 
   const accounts = await dbRequest('GET', 'dreamledger_accounts', '?select=id,name&id=eq.' + encodeURIComponent(accountId) + '&limit=1');
@@ -68,7 +61,7 @@ async function handle(req, res, url) {
     const input = await body(req);
     const playerId = String(input.player_id || '').trim();
     if (!playerId) throw error('player_id is required', 422);
-    if (!crypto.randomUUID || !/^[0-9a-f-]{36}$/i.test(playerId)) throw error('player_id must be a UUID', 422);
+    if (!/^[0-9a-f-]{36}$/i.test(playerId)) throw error('player_id must be a UUID', 422);
 
     const players = await dbRequest('GET', 'kelplantis_players', '?select=id,account_id,avatar_id,name,player_token&id=eq.' + encodeURIComponent(playerId) + '&limit=1');
     if (!Array.isArray(players) || !players[0]) throw error('Kelplantis player not found', 404);
