@@ -1,0 +1,19 @@
+{
+  "schema_version": "DOOH-CUBE-LEDGER/1.0",
+  "updated_at": "2026-09-13T00:00:00Z",
+  "cube_id": "DOOH_CUBE_001",
+  "QUALIFIED_PROSPECTS": 1,
+  "OUTREACH_EXECUTED": 0,
+  "REPLIES": 0,
+  "PAID_ENGAGEMENTS": 0,
+  "VERIFIED_REVENUE_NZD": 0,
+  "BRIDGE_PROVEN": "NO",
+  "DOOH_CUBE_DEFINED": "YES",
+  "DOOH_CUBE_CONTRACTED": "YES",
+  "DOOH_CUBE_INSTANTIATED": "NO",
+  "TRILLBOARDS_CONNECTED": "UNKNOWN",
+  "GATE_1_STATUS": "NOT_YET_RUN",
+  "GATE_2_STATUS": "BLOCKED_PENDING_AUTHORIZED_LIVE_BOOKING",
+  "VIRAL_COEFFICIENT": null,
+  "truth_rule": "No live booking, proof, buyer, or revenue claim is inferred from configuration or documentation."
+}
