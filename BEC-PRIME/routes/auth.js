@@ -18,12 +18,9 @@ function requestForLegacyAuth(req) {
   return proxy;
 }
 
-async function handle(req, res, url) {
-  if (await kelplantisIdentity.handle(req, res, url)) return true;
-
-  const originalSetHeader = res.setHeader.bind(res);
-  const adaptedRes = Object.create(res);
-  adaptedRes.setHeader = function(name, value) {
+function adaptSetCookie(res) {
+  const original = res.setHeader;
+  res.setHeader = function(name, value) {
     if (String(name).toLowerCase() === 'set-cookie') {
       const values = Array.isArray(value) ? value : [value];
       const converted = values.map(cookieValue => {
@@ -38,12 +35,22 @@ async function handle(req, res, url) {
         }
         return sessionCookie.COOKIE + '=' + sessionCookie.encode(id) + '; Path=/; Max-Age=' + sessionCookie.MAX_AGE + '; HttpOnly; Secure; SameSite=Lax';
       });
-      return originalSetHeader(name, Array.isArray(value) ? converted : converted[0]);
+      return original.call(this, name, Array.isArray(value) ? converted : converted[0]);
     }
-    return originalSetHeader(name, value);
+    return original.call(this, name, value);
   };
+  return original;
+}
 
-  return accountAuth.handle(requestForLegacyAuth(req), adaptedRes, url);
+async function handle(req, res, url) {
+  if (await kelplantisIdentity.handle(req, res, url)) return true;
+
+  const originalSetHeader = adaptSetCookie(res);
+  try {
+    return await accountAuth.handle(requestForLegacyAuth(req), res, url);
+  } finally {
+    res.setHeader = originalSetHeader;
+  }
 }
 
 module.exports = { handle };
