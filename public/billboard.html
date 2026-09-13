@@ -17,7 +17,7 @@ main{width:min(1100px,calc(100% - 28px));margin:auto;padding:60px 0 90px}.hero{m
 <div class="eyebrow">DREAMLEDGER 3000 · FOUNDING TILES</div>
 <h1>BUY A PIECE.<br><em>LEAVE IT UNTIL 3000.</em></h1>
 <p class="lead">Claim one permanent 100x100 tile on the DreamLedger Internet Billboard. Put your brand, project, artwork, joke or destination on a finite public canvas.</p>
-<a class="buy" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy Founding Tile · NZ$50</a>
+<a id="buy-tile" class="buy" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy Founding Tile · NZ$50</a>
 <div class="note"><strong>Human review applies.</strong> After payment, your destination and tile details are reviewed before publication. Payment does not guarantee publication. Unacceptable, illegal, fraudulent, malicious or otherwise prohibited content will not be published.</div>
 </section>
 <section class="grid">
@@ -27,5 +27,17 @@ main{width:min(1100px,calc(100% - 28px));margin:auto;padding:60px 0 90px}.hero{m
 <section class="card" style="margin-top:14px"><div class="eyebrow">WHAT THIS IS</div><h2>A web-native billboard, not physical DOOH.</h2><p>This is a permanent digital placement on DreamLedger's public web canvas. It does not promise physical screen impressions, traffic, reach or conversions.</p></section>
 </main>
 <footer><span>DreamLedger 3000</span><span>Founding Tile · NZ$50 · Human review</span></footer>
+<script>
+(function(){
+  const params=new URLSearchParams(location.search);
+  const session=params.get('session_id');
+  const link=document.getElementById('buy-tile');
+  if(session&&link){
+    const u=new URL(link.href);
+    u.searchParams.set('client_reference_id',session);
+    link.href=u.toString();
+  }
+})();
+</script>
 </body>
 </html>
