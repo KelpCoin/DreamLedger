@@ -23,9 +23,7 @@ async function stripe(path, options = {}) {
   const text = await response.text();
   let body;
   try { body = JSON.parse(text); } catch { body = { raw: text }; }
-  if (!response.ok) {
-    throw new Error(`Stripe ${response.status}: ${JSON.stringify(body)}`);
-  }
+  if (!response.ok) throw new Error(`Stripe ${response.status}: ${JSON.stringify(body)}`);
   return body;
 }
 
@@ -44,22 +42,21 @@ const required = {
 
 async function main() {
   const before = await stripe(`/payment_links/${paymentLinkId}`);
-  const existing = before.payment_intent_data?.metadata || {};
-  const merged = { ...existing, ...required };
+  const existingPaymentIntentMetadata = before.payment_intent_data?.metadata || {};
+  const mergedPaymentIntentMetadata = { ...existingPaymentIntentMetadata, ...required };
+  const mergedTopLevelMetadata = { ...(before.metadata || {}), ...required };
 
   console.log(JSON.stringify({
     stage: 'READ_BEFORE',
     payment_link_id: paymentLinkId,
     top_level_metadata: before.metadata || {},
-    payment_intent_metadata_before: existing,
-    payment_intent_metadata_after: merged,
+    payment_intent_metadata_before: existingPaymentIntentMetadata,
+    payment_intent_metadata_after: mergedPaymentIntentMetadata,
   }, null, 2));
 
   const form = {};
-  for (const [key, value] of Object.entries(required)) {
-    form[`metadata[${key}]`] = value;
-    form[`payment_intent_data[metadata][${key}]`] = value;
-  }
+  for (const [key, value] of Object.entries(mergedTopLevelMetadata)) form[`metadata[${key}]`] = value;
+  for (const [key, value] of Object.entries(mergedPaymentIntentMetadata)) form[`payment_intent_data[metadata][${key}]`] = value;
 
   await stripe(`/payment_links/${paymentLinkId}`, {
     method: 'POST',
@@ -69,13 +66,13 @@ async function main() {
 
   const after = await stripe(`/payment_links/${paymentLinkId}`);
   const actual = after.payment_intent_data?.metadata || {};
-  const pass = Object.entries(required).every(([key, value]) => actual[key] === value);
+  const pass = Object.entries(mergedPaymentIntentMetadata).every(([key, value]) => actual[key] === value);
 
   console.log(JSON.stringify({
     stage: 'READ_AFTER',
     payment_link_id: paymentLinkId,
     payment_intent_metadata: actual,
-    required,
+    required_keys: required,
     pass,
   }, null, 2));
 
