@@ -3,6 +3,21 @@
   "currency_default": "NZD",
   "products": [
     {
+      "id": "MAXIMONA-IPV-001",
+      "sku": "MAXIMONA-IPV-001",
+      "silo": "production_verification",
+      "name": "Maximona Independent Production Verification",
+      "description": "Fixed-scope independent verification of a live SaaS production system across Supabase/Postgres, Stripe, and the consistency between them. Evidence-backed report. Read-only by default.",
+      "price": 1500,
+      "currency": "nzd",
+      "inventory": 999,
+      "inventory_type": "service",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C",
+      "fulfillment": "manual_verified_engagement"
+    },
+    {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "sku": "CMD-DIAG-29",
       "silo": "mtg",
