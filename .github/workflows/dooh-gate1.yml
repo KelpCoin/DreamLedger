@@ -1,0 +1,62 @@
+name: DOOH Gate 1
+
+on:
+  push:
+    paths:
+      - 'DOOH/**'
+      - '.github/workflows/dooh-gate1.yml'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-discovery:
+    name: Public discovery and proof-key gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PowerShell
+        shell: bash
+        run: pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+
+      - name: Run Gate 1 public discovery
+        shell: pwsh
+        run: |
+          ./DOOH/Gate1-Test.ps1 -OutputPath ./DOOH/mcp-tools.json
+
+      - name: Upload Gate 1 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dooh-gate1-evidence
+          path: |
+            DOOH/mcp-tools.json
+            DOOH/DOOH-Gate1-proof-*.json
+          if-no-files-found: error
+
+  authenticated-readiness:
+    name: Authenticated readiness boundary
+    runs-on: ubuntu-latest
+    needs: public-discovery
+    steps:
+      - name: Report authentication state
+        shell: bash
+        env:
+          TRILLBOARDS_API_KEY: ${{ secrets.TRILLBOARDS_API_KEY }}
+        run: |
+          if [ -n "$TRILLBOARDS_API_KEY" ]; then
+            echo "TRILLBOARDS_API_KEY is configured. Authenticated sandbox/live gate may proceed separately."
+          else
+            echo "TRILLBOARDS_API_KEY is not configured. Gate 1 remains public-discovery complete; no credential is inferred or requested by CI."
+          fi
+
+      - name: State boundary
+        shell: bash
+        run: |
+          echo "DOOH_CUBE_DEFINED=YES"
+          echo "DOOH_CUBE_CONTRACTED=YES"
+          echo "DOOH_CUBE_INSTANTIATED=NO"
+          echo "NEXT_GATE=GATE_2_LIVE_BOOKING"
