@@ -7,15 +7,12 @@ const accountAuth = require('../compiled/website/lib/accountAuth');
 const kelplantisIdentity = require('./kelplantisIdentity');
 const sessionCookie = require('../lib/sessionCookie');
 
-function requestForLegacyAuth(req) {
+function adaptLegacyCookie(req) {
   const accountId = sessionCookie.get(req);
-  if (!accountId) return req;
-  const headers = Object.assign({}, req.headers, {
-    cookie: 'dreamiez_session=' + encodeURIComponent(accountId)
-  });
-  const proxy = Object.create(req);
-  proxy.headers = headers;
-  return proxy;
+  if (!accountId) return null;
+  const original = req.headers.cookie;
+  req.headers.cookie = String(original || '') + (original ? '; ' : '') + 'dreamiez_session=' + encodeURIComponent(accountId);
+  return original;
 }
 
 function adaptSetCookie(res) {
@@ -45,10 +42,16 @@ function adaptSetCookie(res) {
 async function handle(req, res, url) {
   if (await kelplantisIdentity.handle(req, res, url)) return true;
 
+  const originalCookie = adaptLegacyCookie(req);
   const originalSetHeader = adaptSetCookie(res);
   try {
-    return await accountAuth.handle(requestForLegacyAuth(req), res, url);
+    return await accountAuth.handle(req, res, url);
   } finally {
+    if (originalCookie === null) {
+      delete req.headers.cookie;
+    } else {
+      req.headers.cookie = originalCookie;
+    }
     res.setHeader = originalSetHeader;
   }
 }
