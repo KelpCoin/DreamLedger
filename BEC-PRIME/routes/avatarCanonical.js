@@ -1,24 +1,15 @@
 'use strict';
 
-// Canonical DreamMeez avatar runtime.
-// Production persistence lives in Supabase. The legacy users.json avatar/cosmetics
-// fields are read only as a migration source and are never the authoritative store.
 const fs = require('fs');
 const path = require('path');
+const sessionCookie = require('../lib/sessionCookie');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
 const COSMETICS = path.join(DATA_ROOT, 'cosmetics.json');
-const COOKIE = 'dreamiez_session';
-
-function cookie(req, name) {
-  const raw = String(req.headers.cookie || '');
-  const match = raw.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[1]) : null;
-}
 
 function config() {
-  const base = String(process.env.SUPABASE_URL || '').replace(/\\/$/, '');
+  const base = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
   const key = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
   if (!base || !key) throw new Error('Canonical avatar storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
   return { base, key };
@@ -141,7 +132,7 @@ function accountProjection(account, avatar, items) {
 async function handle(req, res, url) {
   const route = typeof url === 'string' ? url : String(req.url || '').split('?')[0];
   if (!route.startsWith('/api/dreamiez/avatar') && route !== '/api/dreamiez/me' && route !== '/api/dreamiez/cosmetics') return false;
-  const accountId = cookie(req, COOKIE);
+  const accountId = sessionCookie.get(req);
   if (!accountId) { const error = new Error('login required'); error.statusCode = 401; throw error; }
   const account = await accountById(accountId);
   if (!account) { const error = new Error('account not found'); error.statusCode = 401; throw error; }
