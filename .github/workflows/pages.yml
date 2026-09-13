@@ -25,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stage Billboard storefront
+      - name: Stage DreamLedger storefront
         shell: bash
         run: |
           set -euo pipefail
@@ -40,12 +40,13 @@ jobs:
           test -s _site/policies.html
           test "$(cat _site/CNAME)" = "dreamledger.org"
           grep -Fq "DREAMLEDGER 3000" _site/index.html
-          grep -Fq "FOUNDING TILES" _site/index.html
+          grep -Fq "THE FRONT DOOR" _site/index.html
+          grep -Fq "Billboard" _site/index.html
           grep -Fq 'NZ$50' _site/index.html
           grep -Fq "$FOUNDING_TILE_CHECKOUT" _site/index.html
-          grep -Fq 'Buy Founding Tile' _site/index.html
-          grep -Fq 'until January 1, 3000' _site/index.html
-          echo "PASS Billboard Pages artifact staged"
+          grep -Fq 'DreamMeez' _site/index.html
+          grep -Fq 'Magic' _site/index.html
+          echo "PASS DreamLedger Pages artifact staged"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -66,19 +67,19 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify deployed Billboard
+      - name: Verify deployed DreamLedger front door
         shell: bash
         run: |
           set -euo pipefail
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -Fq "DREAMLEDGER 3000" /tmp/dreamledger.html && grep -Fq "FOUNDING TILES" /tmp/dreamledger.html && grep -Fq 'NZ$50' /tmp/dreamledger.html && grep -Fq "$FOUNDING_TILE_CHECKOUT" /tmp/dreamledger.html && grep -Fq 'Buy Founding Tile' /tmp/dreamledger.html; then
-              echo "PASS GitHub Pages Billboard verified: $URL"
+            if [ "$CODE" = "200" ] && grep -Fq "DREAMLEDGER 3000" /tmp/dreamledger.html && grep -Fq "THE FRONT DOOR" /tmp/dreamledger.html && grep -Fq 'NZ$50' /tmp/dreamledger.html && grep -Fq "$FOUNDING_TILE_CHECKOUT" /tmp/dreamledger.html && grep -Fq 'DreamMeez' /tmp/dreamledger.html; then
+              echo "PASS GitHub Pages DreamLedger front door verified: $URL"
               exit 0
             fi
             echo "Waiting for Pages deployment: attempt $attempt/12 HTTP=$CODE"
             sleep 10
           done
-          echo "FAIL GitHub Pages Billboard verification"
+          echo "FAIL GitHub Pages DreamLedger front-door verification"
           exit 1
