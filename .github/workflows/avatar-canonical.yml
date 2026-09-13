@@ -8,9 +8,13 @@ on:
   pull_request:
     paths:
       - 'BEC-PRIME/routes/avatarCanonical.js'
+      - 'BEC-PRIME/routes/kelplantisIdentity.js'
+      - 'BEC-PRIME/routes/auth.js'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
       - 'BEC-PRIME/lib/authRuntimePreload.js'
       - 'BEC-PRIME/scripts/verify-avatar-canonical.js'
       - 'supabase/migrations/20260913_dreammeez_avatar_*.sql'
+      - 'supabase/migrations/20260913_kelplantis_canonical_avatar_link_v1.sql'
 
 jobs:
   avatar-canonical:
@@ -23,6 +27,9 @@ jobs:
       - name: Syntax checks
         run: |
           node --check BEC-PRIME/routes/avatarCanonical.js
+          node --check BEC-PRIME/routes/kelplantisIdentity.js
+          node --check BEC-PRIME/routes/auth.js
+          node --check BEC-PRIME/compiled/website/lib/accountAuth.js
           node --check BEC-PRIME/lib/authRuntimePreload.js
           node --check BEC-PRIME/scripts/verify-avatar-canonical.js
       - name: Canonical avatar unit verification
