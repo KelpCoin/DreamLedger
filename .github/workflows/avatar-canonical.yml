@@ -14,6 +14,7 @@ on:
       - 'BEC-PRIME/lib/authRuntimePreload.js'
       - 'BEC-PRIME/lib/sessionCookie.js'
       - 'BEC-PRIME/scripts/verify-avatar-canonical.js'
+      - 'BEC-PRIME/scripts/verify-avatar-structural.js'
       - 'BEC-PRIME/scripts/verify-session-cookie.js'
       - 'supabase/migrations/20260913_dreammeez_avatar_*.sql'
       - 'supabase/migrations/20260913_kelplantis_canonical_avatar_link_v1.sql'
@@ -35,6 +36,7 @@ jobs:
           node --check BEC-PRIME/lib/authRuntimePreload.js
           node --check BEC-PRIME/lib/sessionCookie.js
           node --check BEC-PRIME/scripts/verify-avatar-canonical.js
+          node --check BEC-PRIME/scripts/verify-avatar-structural.js
           node --check BEC-PRIME/scripts/verify-session-cookie.js
       - name: Canonical avatar unit verification
         run: node BEC-PRIME/scripts/verify-avatar-canonical.js
