@@ -5,11 +5,9 @@
 // fields are read only as a migration source and are never the authoritative store.
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
-const USERS = path.join(DATA_ROOT, 'users.json');
 const COSMETICS = path.join(DATA_ROOT, 'cosmetics.json');
 const COOKIE = 'dreamiez_session';
 
@@ -50,7 +48,7 @@ async function dbRequest(method, table, query, payload) {
 
 async function accountById(accountId) {
   if (!accountId) return null;
-  const rows = await dbRequest('GET', 'dreamledger_accounts', '?select=id,name,email,email_verified,avatar,avatar_style,cosmetics& id=eq.' + encodeURIComponent(accountId).replace('%20', '') + '&limit=1');
+  const rows = await dbRequest('GET', 'dreamledger_accounts', '?select=id,name,email,email_verified,avatar,avatar_style,cosmetics& id=eq.' + encodeURIComponent(accountId) + '&limit=1');
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
 
@@ -59,10 +57,10 @@ async function avatarByAccount(accountId) {
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
 
-async function ensureAvatar(accountId, account) {
+async function ensureAvatar(accountId, account, requestedAppearance) {
   let avatar = await avatarByAccount(accountId);
   if (avatar) return avatar;
-  const legacy = account && account.avatar ? normalizeAppearance(account.avatar) : { height: 2, build: 2, skin: 5 };
+  const legacy = requestedAppearance ? normalizeAppearance(requestedAppearance) : (account && account.avatar ? normalizeAppearance(account.avatar) : { height: 2, build: 2, skin: 5 });
   const inserted = await dbRequest('POST', 'dreammeez_avatars', '', {
     account_id: accountId,
     appearance: legacy,
@@ -148,9 +146,7 @@ async function ownership(accountId) {
 async function setAvatar(accountId, appearance) {
   const next = normalizeAppearance(appearance);
   const current = await avatarByAccount(accountId);
-  if (!current) {
-    return ensureAvatar(accountId, await accountById(accountId));
-  }
+  if (!current) return ensureAvatar(accountId, await accountById(accountId), next);
   const rows = await dbRequest('PATCH', 'dreammeez_avatars', '?account_id=eq.' + encodeURIComponent(accountId) + '&version=eq.' + encodeURIComponent(String(current.version)), { appearance: next });
   if (!Array.isArray(rows) || !rows[0]) throw new Error('Avatar changed concurrently. Reload and retry.');
   return rows[0];
@@ -191,6 +187,7 @@ function accountProjection(account, avatar, items) {
     name: account.name || 'Dreamer',
     email: account.email || null,
     email_verified: account.email_verified === true,
+    streak: 0,
     avatar_id: avatar.avatar_id,
     avatar_style: account.avatar_style || 'dream',
     avatar: avatar.appearance,
@@ -222,18 +219,10 @@ async function handle(req, res, url) {
   const avatar = await ensureAvatar(accountId, account);
   const items = await ownership(accountId);
 
-  if (req.method === 'GET' && route === '/api/dreamiez/cosmetics') {
-    return send(res, 200, catalog());
-  }
-  if (req.method === 'GET' && route === '/api/dreamiez/me') {
-    return send(res, 200, accountProjection(account, avatar, items));
-  }
-  if (req.method === 'GET' && route === '/api/dreamiez/avatar/state') {
-    return send(res, 200, { avatar: accountProjection(account, avatar, items) });
-  }
-  if (req.method === 'GET' && route === '/api/dreamiez/avatar/inventory') {
-    return send(res, 200, { items: accountProjection(account, avatar, items).inventory });
-  }
+  if (req.method === 'GET' && route === '/api/dreamiez/cosmetics') return send(res, 200, catalog());
+  if (req.method === 'GET' && route === '/api/dreamiez/me') return send(res, 200, accountProjection(account, avatar, items));
+  if (req.method === 'GET' && route === '/api/dreamiez/avatar/state') return send(res, 200, { avatar: accountProjection(account, avatar, items) });
+  if (req.method === 'GET' && route === '/api/dreamiez/avatar/inventory') return send(res, 200, { items: accountProjection(account, avatar, items).inventory });
   if (req.method === 'POST' && route === '/api/dreamiez/avatar') {
     const b = await body(req);
     if (account.email && account.email_verified !== true) {
