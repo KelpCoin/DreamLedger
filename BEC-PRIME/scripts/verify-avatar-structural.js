@@ -41,11 +41,11 @@ async function select(table, columns) {
   }
 }
 
-function duplicateValues(rows, field) {
+function duplicateValues(rows, keyFn) {
   const seen = new Set();
   const duplicates = [];
   for (const row of rows) {
-    const value = row[field];
+    const value = keyFn(row);
     if (value == null) continue;
     if (seen.has(String(value))) duplicates.push(String(value));
     seen.add(String(value));
@@ -66,12 +66,12 @@ function duplicateValues(rows, field) {
   const avatarById = new Map(avatars.map(row => [String(row.avatar_id), row]));
   const itemIds = new Set(commerce.map(row => String(row.item_id)));
 
-  assert.strictEqual(duplicateValues(avatars, 'account_id').length, 0,
+  assert.strictEqual(duplicateValues(avatars, row => row.account_id).length, 0,
     'canonical avatar table must contain at most one avatar per account');
-  assert.strictEqual(duplicateValues(avatars, 'avatar_id').length, 0,
+  assert.strictEqual(duplicateValues(avatars, row => row.avatar_id).length, 0,
     'canonical avatar ids must be unique');
-  assert.strictEqual(duplicateValues(items, 'account_id').length, 0,
-    'item ownership uniqueness must be checked by the database primary key');
+  assert.strictEqual(duplicateValues(items, row => String(row.account_id) + '\\0' + String(row.item_id)).length, 0,
+    'canonical item ownership contains duplicate account/item pairs');
 
   const orphanAvatars = avatars.filter(row => !accountIds.has(String(row.account_id)));
   const orphanItems = items.filter(row =>
@@ -112,6 +112,7 @@ function duplicateValues(rows, field) {
     checks: [
       'one_avatar_per_account',
       'canonical_avatar_id_uniqueness',
+      'canonical_item_ownership_pair_uniqueness',
       'account_references',
       'item_references',
       'avatar_version_invariant',
