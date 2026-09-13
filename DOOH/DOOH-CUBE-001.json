@@ -1,0 +1,64 @@
+{
+  "cube_id": "DOOH_CUBE_001",
+  "version": "0.1.0",
+  "status": "DEFINED",
+  "lineage": {
+    "parent_cell_id": null,
+    "mutation_id": null,
+    "created_by": "Josh",
+    "created_at": "2026-09-13T00:00:00Z"
+  },
+  "provider": {
+    "name": "Trillboards",
+    "mcp_endpoint": "https://api.trillboards.com/mcp/",
+    "proof_endpoint": "https://api.trillboards.com/v1/advertiser/proof/.well-known/public-key",
+    "proof_verify_endpoint": "https://api.trillboards.com/v1/advertiser/proof/verify-proof",
+    "sandbox_available": true
+  },
+  "commercial_definition": {
+    "offer": "Digital billboard display + independently verified proof-of-play + shareable asset",
+    "price_nzd": 50,
+    "buyer_persona": "Small business or creator seeking physical visibility",
+    "deliverable": "Display on one screen for one flight, Ed25519 proof, shareable asset"
+  },
+  "execution_definition": {
+    "trigger": "buyer_purchase",
+    "steps": [
+      "inventory_discover",
+      "media_buy_create",
+      "creative_sync",
+      "display",
+      "proof_of_play_retrieve",
+      "proof_verify_independently",
+      "share_asset_generate",
+      "share_asset_deliver"
+    ],
+    "outputs": ["proof_of_play", "share_asset"]
+  },
+  "evidence_definition": {
+    "required_artifacts": ["ed25519_proof", "audience_metrics", "share_asset"],
+    "verification_method": "ed25519_signature_verification",
+    "independence_requirement": "public_key_from_well_known_endpoint",
+    "tamper_test_required": true
+  },
+  "authority_definition": {
+    "autonomous": ["inventory_discover", "proof_verify", "share_asset_generate"],
+    "human_approval": ["media_buy_create", "first_live_booking"],
+    "forbidden": ["cross_cell_data_access", "unverified_claim", "live_purchase_without_approval"]
+  },
+  "fitness_definition": {
+    "success_metric": ["share_rate", "scan_rate", "purchase_per_scan", "repeat_purchase_rate", "cycle_time", "gross_margin", "human_intervention"],
+    "kill_condition": "zero_shares_after_10_deliveries",
+    "replication_condition": "share_rate > 0.3 AND purchase_per_scan > 0.02",
+    "note": "Thresholds are experiment policy, not forecasts. Fitness is measured from real observations."
+  },
+  "state": {
+    "defined": true,
+    "contracted": true,
+    "instantiated": false,
+    "live_booking": false,
+    "real_proof": false,
+    "verified_revenue_nzd": 0,
+    "viral_coefficient": null
+  }
+}
