@@ -2,9 +2,16 @@ name: DOOH Gate 1B Sandbox
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/dooh-gate1b-sandbox.yml'
 
 permissions:
   contents: read
+
+concurrency:
+  group: dooh-gate1b-sandbox
+  cancel-in-progress: false
 
 jobs:
   sandbox:
