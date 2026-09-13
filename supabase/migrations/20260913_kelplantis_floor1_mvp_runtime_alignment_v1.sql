@@ -115,7 +115,7 @@ begin
    nx:=r.xp; nl:=r.level; inv:=r.inventory; fp:=coalesce(r.floor_progress,'{}'::jsonb); qs:=coalesce(r.quest_state,'{}'::jsonb);
    if e->>'type'='boss' then
      firstclear:=not coalesce((fp->'1'->>'bossDefeated')::boolean,false); nx:=nx+40;
-     fp:=jsonb_set(fp,'{1}',coalesce(fp->1,'{}'::jsonb)||jsonb_build_object('bossDefeated',true,'clearedAt',now()),true);
+     fp:=jsonb_set(fp,'{1}',coalesce(fp->'1','{}'::jsonb)||jsonb_build_object('bossDefeated',true,'clearedAt',now()),true);
      roll:=('x'||substr(md5('floor1:boss:loot'),1,8))::bit(32)::bigint; loot:=lt->mod(abs(roll),jsonb_array_length(lt))::int;
      loot:=loot||jsonb_build_object('id',(loot->>'key')||'_floor1_boss'); inv:=inv||jsonb_build_array(loot);
      insert into public.kelplantis_events(player_token,event_type,payload)
