@@ -1,0 +1,29 @@
+name: Avatar Canonical Verification
+
+on:
+  push:
+    branches:
+      - main
+      - avatar-ecosystem-canonical-v1
+  pull_request:
+    paths:
+      - 'BEC-PRIME/routes/avatarCanonical.js'
+      - 'BEC-PRIME/lib/authRuntimePreload.js'
+      - 'BEC-PRIME/scripts/verify-avatar-canonical.js'
+      - 'supabase/migrations/20260913_dreammeez_avatar_*.sql'
+
+jobs:
+  avatar-canonical:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax checks
+        run: |
+          node --check BEC-PRIME/routes/avatarCanonical.js
+          node --check BEC-PRIME/lib/authRuntimePreload.js
+          node --check BEC-PRIME/scripts/verify-avatar-canonical.js
+      - name: Canonical avatar unit verification
+        run: node BEC-PRIME/scripts/verify-avatar-canonical.js
