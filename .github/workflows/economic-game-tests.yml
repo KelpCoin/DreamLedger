@@ -1,0 +1,22 @@
+name: economic-game-tests
+
+on:
+  push:
+    branches:
+      - economic-game-mvp
+  pull_request:
+    branches:
+      - economic-game-mvp
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pytest
+        run: python -m pip install pytest
+      - name: Run economic engine tests
+        run: python -m pytest -q game/tests/test_replay.py
