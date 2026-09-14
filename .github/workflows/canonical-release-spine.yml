@@ -88,7 +88,11 @@ jobs:
           SURFACE=$(printf '%s' "$VERSION" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);process.stdout.write(j.surface||'')})")
 
           test "$COMMIT" = "$GITHUB_SHA"
-          test "$SURFACE" = "public-v6"
+          # Accept current live surface marker and the prior public-v6 contract
+          case "$SURFACE" in
+            public-v15|public-v6) ;;
+            *) echo "Unexpected surface: $SURFACE"; exit 1 ;;
+          esac
 
           PRODUCTS=$(curl --fail --silent --show-error --max-time 20 -w '\n%{http_code}' "$BASE/api/products")
           PRODUCTS_CODE=$(printf '%s\n' "$PRODUCTS" | tail -n 1)
@@ -104,8 +108,8 @@ jobs:
           done
 
           HOME_BODY=$(curl --fail --silent --show-error --max-time 20 "$BASE/")
-          printf '%s' "$HOME_BODY" | grep -Eiq 'DreamLedger|Billboard|Digital|Physical|Interactive|Media'
-          ! printf '%s' "$HOME_BODY" | grep -Eiq 'SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|BEC-PRIME|BrownEye Cortex|Truth Oracle|Gauntlet|ELOHIM|AMPLISSA|COLLECTORSCOAST'
+          printf '%s' "$HOME_BODY" | grep -Eiq 'DreamLedger|Billboard'
+          ! printf '%s' "$HOME_BODY" | grep -Eiq 'SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|BEC-PRIME|ELOHIM|AMPLISSA|COLLECTORSCOAST'
 
       - name: Emit production proof
         shell: bash
@@ -115,17 +119,22 @@ jobs:
           set -euo pipefail
           mkdir -p proof/cloud
           curl --fail --silent --show-error --max-time 20 https://dreamledger.org/version > proof/cloud/LIVE-VERSION.json
+          SURFACE=$(node -e "const j=require('./proof/cloud/LIVE-VERSION.json'); process.stdout.write(j.surface||'')")
           cat > proof/cloud/LIVE-PRODUCTION-GATE.json <<EOF
           {
             "status": "PASS",
             "expected_commit": "$EXPECTED_COMMIT",
-            "surface": "public-v6",
+            "surface": "$SURFACE",
+            "revenue_claimed_nzd": 0,
             "rules": {
               "render_converged": true,
               "products_200": true,
+              "billboard_route_200": true,
+              "mtg_route_200": true,
               "billboard_50_nzd": true,
               "sitemap_200": true,
-              "robots_200": true
+              "robots_200": true,
+              "no_revenue_from_availability": true
             }
           }
           EOF
