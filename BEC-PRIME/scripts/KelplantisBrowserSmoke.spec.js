@@ -2,7 +2,127 @@ const { test, expect } = require('playwright/test');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
-let server;let baseUrl;const root=path.resolve(__dirname,'..');const proofDir=path.join(root,'RUN-PROOFS');const outDir=path.join(root,'compiled','universal','game','kelplantis-mvp');const proofPath=path.join(proofDir,'KELPLANTIS-BROWSER-RUNTIME-PROOF.json');
-function startServer(){return new Promise((resolve,reject)=>{server=http.createServer((req,res)=>{const pathname=decodeURIComponent((req.url||'/').split('?')[0]);const file=pathname==='/'?path.join(outDir,'index.html'):path.join(outDir,pathname.replace(/^\//,''));if(!file.startsWith(outDir)||!fs.existsSync(file)){res.writeHead(404);res.end('not found');return}res.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});fs.createReadStream(file).pipe(res)});server.on('error',reject);server.listen(0,'127.0.0.1',()=>{baseUrl=`http://127.0.0.1:${server.address().port}/`;resolve()})})}
-test.beforeAll(async()=>{if(!fs.existsSync(path.join(outDir,'index.html')))throw new Error('Kelplantis artifact missing. Run compiler first.');await startServer()});test.afterAll(async()=>{if(server)await new Promise(resolve=>server.close(resolve))});
-test('Kelplantis playable vertical slice',async({page})=>{const consoleErrors=[];page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text())});page.on('pageerror',err=>consoleErrors.push(err.message));await page.goto(baseUrl,{waitUntil:'load'});await expect(page.locator('h1')).toHaveText('Kelplantis MVP');const initial=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot());expect(initial.inTown).toBe(true);expect(initial.bossAlive).toBe(true);await page.getByRole('button',{name:'Enter Dungeon'}).click();await page.waitForTimeout(100);expect((await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot())).inTown).toBe(false);const beforeMove=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state);await page.keyboard.down('d');await page.waitForTimeout(300);await page.keyboard.up('d');const afterMove=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state);expect(Math.abs(afterMove.x-beforeMove.x)+Math.abs(afterMove.y-beforeMove.y)).toBeGreaterThan(0);const enemy=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().firstAliveEnemy);expect(enemy).not.toBeNull();await page.evaluate(({x,y})=>window.__KELPLANTIS_TEST__.teleport(x,y),enemy);const hpBefore=(await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state)).hp;await page.waitForTimeout(900);const hpAfter=(await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state)).hp;expect(hpAfter).toBeLessThan(hpBefore);const killsBefore=(await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state)).kills;for(let i=0;i<5;i+=1){await page.keyboard.press(' ');await page.waitForTimeout(400)}const inputCombat=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot());expect(inputCombat.state.kills).toBeGreaterThan(killsBefore);for(let i=inputCombat.state.kills;i<4;i+=1)await page.evaluate(()=>window.__KELPLANTIS_TEST__.killNearest());const combatState=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot());expect(combatState.state.kills).toBeGreaterThanOrEqual(4);expect(combatState.state.xp).toBeGreaterThanOrEqual(100);expect(combatState.state.level).toBeGreaterThan(1);expect(combatState.state.loot.length).toBeGreaterThan(0);await page.evaluate(()=>window.__KELPLANTIS_TEST__.returnTown());const safeBefore=(await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state)).hp;await page.waitForTimeout(1000);const safeAfter=(await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state)).hp;expect(safeAfter).toBe(safeBefore);await page.getByRole('button',{name:'Save'}).click();const saved=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state);await page.evaluate(()=>window.__KELPLANTIS_TEST__.teleport(400,400));await page.getByRole('button',{name:'Load'}).click();const loaded=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot().state);expect(loaded.x).toBe(saved.x);expect(loaded.y).toBe(saved.y);expect(loaded.level).toBe(saved.level);await page.evaluate(()=>window.__KELPLANTIS_TEST__.killBoss());const won=await page.evaluate(()=>window.__KELPLANTIS_TEST__.snapshot());expect(won.state.bossDead).toBe(true);expect(won.state.win).toBe(true);await expect(page.locator('#log')).toContainText('floor 1 cleared');if(consoleErrors.length)throw new Error(`Console errors: ${consoleErrors.join(' | ')}`);fs.mkdirSync(proofDir,{recursive:true});fs.writeFileSync(proofPath,JSON.stringify({schema:'bec/kelplantis/browser-runtime-proof/v1',status:'PASS',runtime:'browser',page_loads:true,player_movement:true,player_attack:true,enemy_ai_damage:true,loot:true,xp:true,leveling:true,town_safety:true,save_load:true,boss_present:true,boss_fightable:true,win_state:true,console_errors:[],generated_artifact:path.join('compiled','universal','game','kelplantis-mvp','index.html')},null,2)+'\n','utf8')});
+
+let server;
+let baseUrl;
+const root = path.resolve(__dirname, '..');
+const proofDir = path.join(root, 'RUN-PROOFS');
+const outDir = path.join(root, 'compiled', 'universal', 'game', 'kelplantis-mvp');
+const proofPath = path.join(proofDir, 'KELPLANTIS-BROWSER-RUNTIME-PROOF.json');
+
+function startServer() {
+  return new Promise((resolve, reject) => {
+    server = http.createServer((req, res) => {
+      const pathname = decodeURIComponent((req.url || '/').split('?')[0]);
+      const file = pathname === '/' ? path.join(outDir, 'index.html') : path.join(outDir, pathname.replace(/^\//, ''));
+      if (!file.startsWith(outDir) || !fs.existsSync(file)) {
+        res.writeHead(404);
+        res.end('not found');
+        return;
+      }
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
+      fs.createReadStream(file).pipe(res);
+    });
+    server.on('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      baseUrl = `http://127.0.0.1:${server.address().port}/`;
+      resolve();
+    });
+  });
+}
+
+test.beforeAll(async () => {
+  if (!fs.existsSync(path.join(outDir, 'index.html'))) throw new Error('Kelplantis artifact missing. Run compiler first.');
+  await startServer();
+});
+
+test.afterAll(async () => {
+  if (server) await new Promise(resolve => server.close(resolve));
+});
+
+test('Kelplantis Depth 1 social vertical slice', async ({ browser }) => {
+  const context = await browser.newContext();
+  const pageA = await context.newPage();
+  const pageB = await context.newPage();
+  const errors = [];
+  for (const page of [pageA, pageB]) {
+    page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+    page.on('pageerror', err => errors.push(err.message));
+  }
+
+  await pageA.goto(`${baseUrl}#alpha`, { waitUntil: 'load' });
+  await pageB.goto(`${baseUrl}#bravo`, { waitUntil: 'load' });
+
+  await expect(pageA.locator('h1')).toHaveText('Kelplantis: Depth 1');
+  await expect(pageA.getByRole('button', { name: 'Enter Depth 1' })).toBeVisible();
+
+  await pageA.getByPlaceholder('DreamMeez name').fill('Alpha');
+  await pageB.getByPlaceholder('DreamMeez name').fill('Bravo');
+  await pageA.getByRole('button', { name: 'Enter Depth 1' }).click();
+  await pageB.getByRole('button', { name: 'Enter Depth 1' }).click();
+
+  await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().peerCount)).toBe(1);
+  await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().peerCount)).toBe(1);
+
+  const snapA = await pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot());
+  expect(snapA.inDepth1).toBe(true);
+  expect(snapA.atFountain).toBe(true);
+  expect(snapA.peers[0].name).toBe('Bravo');
+
+  await pageA.keyboard.down('d');
+  await pageA.waitForTimeout(350);
+  await pageA.keyboard.up('d');
+  const moved = await pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot());
+  expect(moved.moved).toBe(true);
+
+  await pageA.evaluate(() => window.__KELPLANTIS_TEST__.inspectFirstPeer());
+  await expect(pageA.locator('#inspect')).not.toHaveClass(/hidden/);
+  await expect(pageA.locator('#iName')).toHaveText('Bravo');
+  await expect(pageA.locator('#iTitle')).toContainText('Title:');
+  await expect(pageA.locator('#iCosmetics')).toContainText('Cosmetics:');
+  await expect(pageA.locator('#iSoul')).toContainText('Soul Tome:');
+
+  await pageA.getByPlaceholder('Say something...').fill('Hello Bravo');
+  await pageA.getByRole('button', { name: 'Chat' }).click();
+  await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().lastPeerChat)).toBe('Hello Bravo');
+
+  await pageA.getByRole('button', { name: 'Emote' }).click();
+  await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().lastPeerEmote)).toBe('*waves*');
+
+  await pageA.getByRole('button', { name: 'Save' }).click();
+  const saved = await pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot());
+  await pageA.evaluate(() => window.__KELPLANTIS_TEST__.moveFar());
+  await pageA.getByRole('button', { name: 'Save' }).click();
+  await pageA.evaluate(() => window.__KELPLANTIS_TEST__.load());
+  const loaded = await pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot());
+  expect(loaded.x).toBe(saved.x);
+  expect(loaded.y).toBe(saved.y);
+  expect(loaded.name).toBe('Alpha');
+
+  await pageA.keyboard.press('e');
+  await pageA.waitForTimeout(50);
+  expect((await pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot()).catch(() => null))).not.toBeNull();
+
+  if (errors.length) throw new Error(`Console errors: ${errors.join(' | ')}`);
+
+  fs.mkdirSync(proofDir, { recursive: true });
+  fs.writeFileSync(proofPath, JSON.stringify({
+    schema: 'bec/kelplantis/browser-runtime-proof/v2',
+    status: 'PASS',
+    runtime: 'browser',
+    page_loads: true,
+    create_avatar: true,
+    depth_1_entry: true,
+    fountain_spawn: true,
+    player_movement: true,
+    two_client_presence: true,
+    identity_inspection: true,
+    proximity_chat: true,
+    emotes: true,
+    save_load: true,
+    console_errors: [],
+    generated_artifact: 'compiled/universal/game/kelplantis-mvp/index.html'
+  }, null, 2) + '\n', 'utf8');
+
+  await context.close();
+});
