@@ -41,6 +41,7 @@ def _process(event:dict[str,Any])->None:
     event_type=event.get('type')
     if event_type in ('checkout.session.completed','checkout.session.async_payment_succeeded'):_handle_checkout_completed(event)
     elif event_type=='payment_intent.succeeded':_handle_payment_intent_succeeded(event)
+    elif event_type=='charge.refunded':_handle_charge_refunded(event)
 
 def _handle_checkout_completed(event:dict[str,Any])->None:
     session=event['data']['object']
@@ -66,6 +67,19 @@ def _handle_payment_intent_succeeded(event:dict[str,Any])->None:
     if not rows:return
     # PaymentIntent is corroborating evidence only. Checkout session remains the order correlation trigger.
 
+def _handle_charge_refunded(event:dict[str,Any])->None:
+    charge=event['data']['object']
+    amount_refunded_minor=int(charge.get('amount_refunded') or 0)
+    result=_rpc('settlement_apply_marketplace_refund',{
+        'p_event_id':event['id'],
+        'p_payment_intent_id':charge.get('payment_intent'),
+        'p_charge_id':charge.get('id'),
+        'p_amount_refunded_nzd':amount_refunded_minor / 100,
+        'p_refund_reason':charge.get('refunds',{}).get('data',[{}])[0].get('reason') if charge.get('refunds',{}).get('data') else None,
+    })
+    if result and isinstance(result,dict) and result.get('status')=='UNMATCHED':
+        raise RuntimeError(f"refund event {event['id']} did not match a marketplace payment")
+
 def _transition_payment_with_retry(order_id:str,version:int,reason:str,max_attempts:int=3)->None:
     expected=version
     for attempt in range(max_attempts):
@@ -86,7 +100,7 @@ def _transition_fulfillment_with_retry(order_id:str,version:int,reason:str,max_a
             _rpc('transition_marketplace_order_settlement',{'p_order_id':order_id,'p_expected_version':expected,'p_to_state':'fulfillment','p_actor_user_id':None,'p_actor_org_id':None,'p_idempotency_key':f'settlement:{order_id}:fulfillment','p_reason':reason,'p_actor_role':'settlement_consumer'});return
         except httpx.HTTPStatusError as exc:
             if 'P0002' not in exc.response.text and 'stale order version' not in exc.response.text:raise
-            time.sleep(0.2*(attempt+1));rows=_select('marketplace_orders',{'id':f'eq.{order_id}','select':'id,order_state,state_version','limit':'1'})
+            time.sleep(0.2*(attempt+1));rows=_select('marketplace_orders',{'id':f"eq.{order_id}",'select':'id,order_state,state_version','limit':'1'})
             if not rows:raise RuntimeError(f'order disappeared during fulfillment transition: {order_id}')
             if rows[0]['order_state'] in ('fulfillment','complete'):return
             if rows[0]['order_state']!='paid':raise RuntimeError(f'order {order_id} left paid state during settlement')
