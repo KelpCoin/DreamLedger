@@ -37,6 +37,11 @@ setInterval(()=>{if(kelp7bPlayerReady&&document.visibilityState==='visible')kelp
 
 const kelp7bBaseEmit=emit;
 const kelp7bBaseReceiveMessage=receiveMessage;
+const kelp7bBaseRealtimeSend=realtimeSend;
+realtimeSend=function(event,payload){
+  if(event==='presence')return kelp7bBaseRealtimeSend(event,{type:'presence',event:'track',payload:kelp7bPresenceState()});
+  return kelp7bBaseRealtimeSend(event,payload);
+};
 emit=function(type,payload){
   if(type==='presence'&&payload&&(payload.x!==undefined||payload.y!==undefined||payload.chat||payload.emote))return kelp7bBaseEmit('movement',payload);
   return kelp7bBaseEmit(type,payload);
