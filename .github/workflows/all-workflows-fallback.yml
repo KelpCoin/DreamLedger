@@ -1,12 +1,12 @@
-name: All Workflows Fallback Dispatcher
+name: DreamLedger Portfolio Controller
 
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Git ref to dispatch against'
+        description: Git ref to dispatch against
         required: false
-        default: 'main'
+        default: main
         type: string
   schedule:
     - cron: '*/30 * * * *'
@@ -16,61 +16,127 @@ permissions:
   contents: read
 
 concurrency:
-  group: all-workflows-fallback
+  group: dreamledger-portfolio-controller
   cancel-in-progress: false
 
 jobs:
-  dispatch-all:
+  portfolio:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch every dispatchable workflow
+      - name: Dispatch safe portfolio lanes
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           REF: ${{ inputs.ref || 'main' }}
-          SELF: all-workflows-fallback.yml
         shell: bash
         run: |
           set -euo pipefail
-          echo "Fallback controller: $REPO @ $REF"
-          echo "The controller never dispatches itself."
 
-          workflows=$(gh api -H 'Accept: application/vnd.github+json' \
-            "/repos/${REPO}/actions/workflows?per_page=100" \
-            --paginate --jq '.workflows[] | [.id,.path,.state] | @tsv')
+          # These lanes are internal verification, research, game/avatar build,
+          # evidence, and economic-control work. They must never create money,
+          # contact buyers, publish listings, fund wallets, or deploy production.
+          SAFE_PATHS=(
+            '.github/workflows/bec-prime-mission-loop.yml'
+            '.github/workflows/bec-economic-bridge-worker.yml'
+            '.github/workflows/bridge-http-acceptance.yml'
+            '.github/workflows/agentbridge-contract-gate.yml'
+            '.github/workflows/economic-loop-v2.yml'
+            '.github/workflows/economic-opportunity-compiler.yml'
+            '.github/workflows/economic-supervisor.yml'
+            '.github/workflows/economic-truth-pulse.yml'
+            '.github/workflows/q1-gauntlet.yml'
+            '.github/workflows/gauntlet-release-gate.yml'
+            '.github/workflows/cube-marketplace-gate.yml'
+            '.github/workflows/commerce-sentinel.yml'
+            '.github/workflows/commerce-settlement-sync.yml'
+            '.github/workflows/offer-catalog-contract.yml'
+            '.github/workflows/first-sale-commerce-contract.yml'
+            '.github/workflows/readiness-offer-proof.yml'
+            '.github/workflows/revenue-readiness.yml'
+            '.github/workflows/revenue-operator-proof.yml'
+            '.github/workflows/live-stripe-revenue-health-probe.yml'
+            '.github/workflows/truth-oracle.yml'
+            '.github/workflows/truth-oracle-ledger-gate.yml'
+            '.github/workflows/evidence-sealer.yml'
+            '.github/workflows/redteam-meta.yml'
+            '.github/workflows/redteam-regression.yml'
+            '.github/workflows/beck-empire-factory-gate.yml'
+            '.github/workflows/beck-production-heartbeat.yml'
+            '.github/workflows/dreamiez-smoke.yml'
+            '.github/workflows/dreamiez-smoke-proof.yml'
+            '.github/workflows/dreamiez-account-live-proof.yml'
+            '.github/workflows/empire-health.yml'
+            '.github/workflows/demand-radar.yml'
+            '.github/workflows/demand-radar-n8n.yml'
+            '.github/workflows/wealth-engine-verify.yml'
+          )
 
-          attempted=0
-          dispatched=0
-          skipped=0
-          failed=0
+          blocked_patterns=(
+            'create-payment-link.yml'
+            'render-deploy.yml'
+            'render-emergency-deploy.yml'
+            'production-recovery-execute.yml'
+            'deploy-supabase-edge-functions.yml'
+            'commercial-cd.yml'
+            'surface-deploy-gate.yml'
+            'emergency-render-release.yml'
+          )
 
-          while IFS=$'\t' read -r id path state; do
-            [ -n "${id:-}" ] || continue
-            if [ "$path" = ".github/workflows/$SELF" ]; then
-              skipped=$((skipped+1))
+          for path in "${SAFE_PATHS[@]}"; do
+            blocked=false
+            for blocked_path in "${blocked_patterns[@]}"; do
+              if [ "$path" = ".github/workflows/$blocked_path" ]; then blocked=true; fi
+            done
+            if [ "$blocked" = true ]; then
+              echo "BLOCKED $path"
               continue
             fi
-            if [ "$state" != "active" ]; then
-              echo "SKIP inactive: $path ($state)"
-              skipped=$((skipped+1))
-              continue
-            fi
 
-            attempted=$((attempted+1))
-            echo "TRY  $path"
+            echo "DISPATCH $path"
             if gh api --method POST \
               -H 'Accept: application/vnd.github+json' \
               -H 'X-GitHub-Api-Version: 2022-11-28' \
-              "/repos/${REPO}/actions/workflows/${id}/dispatches" \
+              "/repos/${REPO}/actions/workflows/${path##*/}/dispatches" \
               -f ref="$REF" >/dev/null 2>&1; then
-              echo "OK   $path"
-              dispatched=$((dispatched+1))
+              echo "OK $path"
             else
-              echo "NOOP $path (no workflow_dispatch trigger or dispatch rejected)"
-              failed=$((failed+1))
+              echo "SKIP $path (not dispatchable or rejected)"
             fi
-          done <<< "$workflows"
+          done
 
-          echo
-          echo "Fallback summary: attempted=$attempted dispatched=$dispatched skipped=$skipped rejected=$failed"
-          echo "Rejected workflows remain governed by their existing triggers and are not modified by this fallback."
+      - name: Emit controller proof
+        shell: bash
+        run: |
+          mkdir -p proof
+          cat > proof/dreamledger_portfolio_controller.json <<EOF
+          {
+            "controller": "DreamLedger Portfolio Controller",
+            "mode": "approval_safe",
+            "ref": "${{ inputs.ref || 'main' }}",
+            "lanes": [
+              "agented_commerce",
+              "pragmatic_dao",
+              "economic_arbitrage",
+              "beck_game",
+              "avatar_ecosystem",
+              "truth_and_redteam"
+            ],
+            "forbidden": [
+              "autonomous_spend",
+              "wallet_funding",
+              "buyer_contact",
+              "public_listing",
+              "payment_mutation",
+              "production_deploy"
+            ],
+            "truth_rule": "external_buyer + settled_payment + attribution + fulfillment + proof",
+            "generated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          cat proof/dreamledger_portfolio_controller.json
+
+      - name: Upload controller proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-portfolio-controller-${{ github.run_id }}
+          path: proof/dreamledger_portfolio_controller.json
