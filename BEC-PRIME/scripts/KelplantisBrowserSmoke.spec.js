@@ -61,7 +61,6 @@ test('Kelplantis Depth 1 7A.5 real two-session network slice', async ({ browser 
   await pageA.getByRole('button', { name: 'Enter Depth 1' }).click();
   await pageB.getByRole('button', { name: 'Enter Depth 1' }).click();
 
-  await expect.poll(async () => pageA.evaluate(() => pageA = undefined)).toBe(undefined).catch(() => {});
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().joined)).toBe(true);
   await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().joined)).toBe(true);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().transport)).toBe('supabase');
