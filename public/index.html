@@ -1,520 +1,272 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-dreamledger-surface="public-v6" data-dreamledger-visual-contract="catalogue-first-v1">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger — digital products, public placements, avatar worlds and collectibles. Real offers only.">
+<meta name="description" content="DreamLedger catalogue: horizontal CTA rails for Billboard, Magic, digital products and marketplace silos.">
 <meta name="theme-color" content="#07080c">
-<title>DreamLedger 3000 | Worlds, Products, Placements</title>
+<title>DreamLedger 3000 | Catalogue</title>
 <style>
-:root {
-  --bg: #07080c;
-  --panel: #10131b;
-  --line: #282e3a;
-  --text: #f6f2e8;
-  --muted: #9da3b0;
-  --dim: #707785;
-  --gold: #e2b95f;
-  --gold-bright: #f0cc73;
-  --pink: #ff78b7;
-  --green: #69d5b7;
-  --max: 1240px;
+:root{
+  --bg:#07080c;--panel:#10131b;--line:#282e3a;--text:#f6f2e8;--muted:#9da3b0;--dim:#707785;
+  --gold:#e2b95f;--gold2:#f0cc73;--pink:#ff78b7;--green:#69d5b7;--max:1240px;
 }
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: radial-gradient(ellipse at 80% 0%, #211a0b 0%, transparent 42%), var(--bg);
-  color: var(--text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-a { color: inherit; text-decoration: none; }
-.wrap { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 85% 0,#211a0b 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(var(--max),calc(100% - 24px));margin:auto}
 
-/* Nav */
-.nav {
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--line);
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: rgba(7, 8, 12, 0.92);
-  backdrop-filter: blur(18px);
-}
-.brand {
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.brand span { color: var(--gold); }
-.navlinks {
-  display: flex;
-  gap: 18px;
-  color: #aeb2bd;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-.navlinks a:hover { color: var(--text); }
+.nav{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;background:#07080cf2;backdrop-filter:blur(16px)}
+.brand{font-size:11px;font-weight:1000;letter-spacing:.16em}.brand span{color:var(--gold)}
+.navlinks{display:flex;gap:14px;color:#aeb2bd;font-size:10px;font-weight:900;overflow-x:auto;white-space:nowrap}
+.navlinks a:hover{color:var(--text)}
 
-/* Hero */
-.hero {
-  padding: 72px 0 56px;
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 48px;
-  align-items: center;
-}
-.eyebrow {
-  font-size: 10px;
-  color: var(--gold);
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.hero h1 {
-  font-size: clamp(52px, 8.5vw, 92px);
-  line-height: 0.88;
-  letter-spacing: -0.06em;
-  margin: 0 0 20px;
-  font-weight: 800;
-}
-.hero h1 em {
-  font-style: normal;
-  color: var(--pink);
-}
-.lead {
-  max-width: 520px;
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1.55;
-  margin: 0 0 28px;
-}
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.cta, .ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-.cta {
-  background: var(--gold);
-  color: #0b0b08;
-}
-.cta:hover { background: var(--gold-bright); transform: translateY(-1px); }
-.ghost {
-  border: 1px solid #3a4050;
-  color: var(--text);
-}
-.ghost:hover { border-color: #5a6270; background: rgba(255,255,255,0.03); }
-.note {
-  color: var(--dim);
-  font-size: 12px;
-  max-width: 480px;
-}
+.eyebrow{font-size:9px;color:var(--gold);font-weight:1000;letter-spacing:.2em;text-transform:uppercase}
+.hero{padding:48px 0 28px}
+.hero h1{font-size:clamp(44px,10vw,92px);line-height:.86;letter-spacing:-.07em;margin:10px 0 14px;font-weight:900}
+.hero h1 em{font-style:normal;color:var(--pink)}
+.lead{max-width:720px;color:var(--muted);font-size:15px;line-height:1.5;margin:0 0 18px}
+.actions{display:flex;gap:8px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+.actions::-webkit-scrollbar{display:none}
+.cta,.ghost{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:9px;font-size:11px;font-weight:900}
+.cta{background:var(--gold);color:#0b0b08}
+.ghost{border:1px solid #3a4050}
+.note{margin-top:10px;color:var(--dim);font-size:11px}
 
-/* Doors panel */
-.doors {
-  background: linear-gradient(160deg, #12161f 0%, #0c0f16 100%);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 22px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
-}
-.doors-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 16px;
-}
-.doors-count {
-  font-size: 42px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-.doors-label {
-  font-size: 10px;
-  color: var(--dim);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-.doors-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.door {
-  aspect-ratio: 1;
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border: 1px solid transparent;
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-.door:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
-.door.bill { background: linear-gradient(145deg, #3a2b0f, #1a140a); color: #e2b95f; }
-.door.meez { background: linear-gradient(145deg, #2a1a3a, #140e1c); color: #c9a0ff; }
-.door.magic { background: linear-gradient(145deg, #0f2a24, #0a1814); color: #69d5b7; }
-.door.oracle { background: linear-gradient(145deg, #1a2438, #0e121c); color: #8ab4ff; }
-.door.auto { background: linear-gradient(145deg, #2a1e30, #140f18); color: #d4a0e8; }
-.door.market { background: linear-gradient(145deg, #1e2228, #121418); color: #aeb2bd; }
-.doors-foot {
-  margin-top: 14px;
-  font-size: 10px;
-  color: var(--dim);
-  letter-spacing: 0.04em;
-  text-align: center;
-}
+.section{padding:28px 0}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:12px}
+.section-head h2{font-size:clamp(28px,5.5vw,48px);line-height:.92;letter-spacing:-.06em;margin:4px 0;font-weight:900}
+.section-head p{max-width:480px;color:#858b98;font-size:12px;margin:0}
 
-/* Sections */
-.section { padding: 56px 0; }
-.section-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 28px;
+/* Horizontal catalogue rails — core of the architecture */
+.rail{
+  display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+  overscroll-behavior-x:contain;touch-action:pan-x;
+  padding:4px 2px 14px;scrollbar-width:none;
+  margin-right:calc((100vw - min(var(--max),calc(100vw - 24px)))/-2);
+  padding-right:calc((100vw - min(var(--max),calc(100vw - 24px)))/2);
 }
-.section-head h2 {
-  font-size: clamp(32px, 5vw, 48px);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  margin: 6px 0 0;
-  font-weight: 800;
-}
-.section-head p {
-  max-width: 420px;
-  color: #858b98;
-  font-size: 14px;
-  margin: 0;
-}
+.rail::-webkit-scrollbar{display:none}
 
-/* Product cards */
-.rail {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+.card{
+  flex:0 0 min(78vw,340px);min-height:250px;scroll-snap-align:start;
+  border:1px solid var(--line);border-radius:16px;
+  background:linear-gradient(145deg,#11151e,#0c0f15);
+  padding:18px;display:flex;flex-direction:column;justify-content:space-between;
 }
-.card {
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: linear-gradient(155deg, #12161f, #0c0f15);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 280px;
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-.card:hover {
-  border-color: #3a4250;
-  transform: translateY(-3px);
-}
-.card.bill {
-  border-color: #5a4a22;
-  background: radial-gradient(circle at 90% 0%, #3a2b0f 0%, transparent 50%), linear-gradient(155deg, #17150f, #0c0f15);
-}
-.card.magic { border-color: #1e4a42; }
-.card.kit { border-color: #3a3d48; }
-.tag {
-  font-size: 10px;
-  color: var(--gold);
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.card h3 {
-  font-size: 26px;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin: 12px 0 10px;
-  font-weight: 800;
-}
-.card p {
-  color: #9298a5;
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 0;
-  flex: 1;
-}
-.meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-.price {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--gold-bright);
-  letter-spacing: -0.02em;
-}
-.small-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: #f2eee3;
-  color: #111;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-.small-cta:hover { background: #fff; }
+.card.bill{border-color:#6d5829;background:radial-gradient(circle at 90% 0,#3a2b0f,transparent 45%),linear-gradient(145deg,#17150f,#0c0f15)}
+.card.magic{border-color:#24564e}
+.card.kit{border-color:#3b3d48}
+.card.market{border-color:#3b3d48}
+.card.meez{border-color:#4a3a5a}
 
-/* Ecosystem strip */
-.ecosystem {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  align-items: start;
-  padding: 40px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-.ecosystem h2 {
-  font-size: clamp(28px, 4vw, 40px);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin: 8px 0 12px;
-  font-weight: 800;
-}
-.ecosystem p {
-  color: var(--muted);
-  font-size: 15px;
-  max-width: 440px;
-}
-.ecosystem-list {
-  display: grid;
-  gap: 12px;
-}
-.eco-item {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--line);
-}
-.eco-item strong {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 2px;
-}
-.eco-item span {
-  font-size: 13px;
-  color: var(--muted);
-}
+.tag{font-size:9px;color:var(--gold);font-weight:1000;letter-spacing:.14em;text-transform:uppercase}
+.card h3{font-size:24px;line-height:.95;letter-spacing:-.04em;margin:8px 0;font-weight:900}
+.card p{color:#9298a5;font-size:12px;line-height:1.45;margin:0;flex:1}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.price{font-size:18px;font-weight:1000;color:var(--gold2)}
+.small-cta{display:inline-flex;align-items:center;justify-content:center;padding:9px 13px;border-radius:8px;background:#f2eee3;color:#111;font-size:10px;font-weight:1000}
 
-/* Footer */
-.footer {
-  padding: 32px 0 48px;
-  color: #656c79;
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.footer a:hover { color: var(--text); }
+.hint{display:flex;justify-content:space-between;color:#676f7c;font-size:10px;margin-top:2px}
+.hint strong{color:#9ca3b0}
 
-/* Mobile */
-@media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-    padding: 48px 0 40px;
-    gap: 36px;
-  }
-  .rail {
-    grid-template-columns: 1fr;
-  }
-  .ecosystem {
-    grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 650px) {
-  .wrap { width: calc(100% - 24px); }
-  .navlinks { gap: 12px; font-size: 10px; }
-  .hero h1 { font-size: clamp(42px, 12vw, 64px); }
-  .lead { font-size: 15px; }
-  .doors-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .door { font-size: 9px; padding: 10px; }
-  .section-head { flex-direction: column; align-items: flex-start; }
-  .section { padding: 40px 0; }
+.footer{border-top:1px solid var(--line);padding:22px 0 40px;color:#656c79;font-size:11px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.footer a:hover{color:var(--text)}
+
+@media(max-width:650px){
+  .wrap{width:calc(100% - 22px)}
+  .navlinks{max-width:55vw}
+  .hero{padding:36px 0 22px}
+  .hero h1{font-size:clamp(40px,13vw,68px)}
+  .lead{font-size:14px}
+  .section-head{display:block}
+  .section-head p{margin-top:6px}
+  .card{min-height:240px}
+  .footer{display:block}
+  .footer span{display:block;margin-bottom:6px}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="nav">
-    <a class="brand" href="/">DREAMLEDGER <span>3000</span></a>
-    <nav class="navlinks">
-      <a href="#buy">Buy</a>
-      <a href="/billboard">Billboard</a>
-      <a href="/mtg">Magic</a>
-      <a href="#ecosystem">Explore</a>
-      <a href="/about.html">About</a>
-    </nav>
-  </header>
+<header class="nav">
+  <a class="brand" href="/">DREAMLEDGER <span>3000</span></a>
+  <nav class="navlinks">
+    <a href="#buy">Buy</a>
+    <a href="/billboard">Billboard</a>
+    <a href="/mtg">Magic</a>
+    <a href="#silos">Silos</a>
+  </nav>
+</header>
 
-  <main>
-    <section class="hero">
+<main>
+  <section class="hero">
+    <div class="eyebrow">DreamLedger · Catalogue front door</div>
+    <h1>See it.<br><em>Swipe it. Buy it.</em></h1>
+    <p class="lead">Horizontal catalogue rails. Every commercial path is its own CTA card inside its own silo. Swipe on mobile, drag or wheel on desktop.</p>
+    <div class="actions">
+      <a class="cta" href="/billboard">View the Billboard · NZ$50</a>
+      <a class="ghost" href="/mtg">Open Magic</a>
+      <a class="ghost" href="#silos">Browse silos</a>
+    </div>
+    <div class="note">No fake sales. Demo placements stay labelled as demo. Payment and fulfilment states remain separate from display.</div>
+  </section>
+
+  <!-- BUY NOW rail — primary CTA cards -->
+  <section class="section" id="buy">
+    <div class="section-head">
       <div>
-        <div class="eyebrow">DreamLedger 3000 · The Front Door</div>
-        <h1>Worlds.<br><em>Things worth owning.</em></h1>
-        <p class="lead">A home for digital products, public placements, avatar worlds, collectibles and experiments. Different surfaces, one clear rule: if something is for sale, the offer is understandable and the path to buy is obvious.</p>
-        <div class="actions">
-          <a class="cta" href="/billboard">Claim a Founding Tile · NZ$50</a>
-          <a class="ghost" href="#buy">See what's available</a>
-        </div>
-        <p class="note">No invented scarcity. No fake reach claims. Individual surfaces keep their own terms, inventory and checkout.</p>
+        <div class="eyebrow">Buy now</div>
+        <h2>Commercial rails.</h2>
       </div>
-
-      <aside class="doors" aria-label="Visible doors">
-        <div class="doors-head">
-          <div class="doors-count">06</div>
-          <div class="doors-label">Visible doors</div>
-        </div>
-        <div class="doors-grid">
-          <a class="door bill" href="/billboard">Billboard</a>
-          <a class="door meez" href="/avatar.html">DreamMeez</a>
-          <a class="door magic" href="/mtg">Magic</a>
-          <a class="door oracle" href="/offers.html">Truth Oracle</a>
-          <a class="door auto" href="/automation-rescue.html">Automation</a>
-          <a class="door market" href="/offers.html">Marketplace</a>
-        </div>
-        <div class="doors-foot">One public front door · Separate destinations · Real offers only</div>
-      </aside>
-    </section>
-
-    <section class="section" id="buy">
-      <div class="section-head">
+      <p>Three concrete doors first. Each card is a silo entry. The catalogue moves sideways, not as a vertical wall.</p>
+    </div>
+    <div class="rail">
+      <article class="card bill">
         <div>
-          <div class="eyebrow">Buy now</div>
-          <h2>Start with something real.</h2>
+          <div class="tag">Public placement</div>
+          <h3>Founding Billboard Tile</h3>
+          <p>One permanent 100×100 position on the DreamLedger canvas. One-time payment. Human review before publication.</p>
         </div>
-        <p>These are the clearest currently published paths into actual offers. Each product keeps its own checkout and fulfilment contract.</p>
-      </div>
+        <div class="meta">
+          <span class="price">NZ$50</span>
+          <a class="small-cta" href="/billboard">View + Buy</a>
+        </div>
+      </article>
+      <article class="card magic">
+        <div>
+          <div class="tag">Magic · Manual fulfilment</div>
+          <h3>Commander Deck Diagnostic</h3>
+          <p>Practical first-pass diagnostic: power, weaknesses, upgrade priorities and tuning plan.</p>
+        </div>
+        <div class="meta">
+          <span class="price">NZ$29</span>
+          <a class="small-cta" href="/mtg">Open Magic</a>
+        </div>
+      </article>
+      <article class="card kit">
+        <div>
+          <div class="tag">Digital kit</div>
+          <h3>Discord Webhook Starter</h3>
+          <p>Stripe-to-Discord webhook starter kit with payment handling, templates and setup guidance.</p>
+        </div>
+        <div class="meta">
+          <span class="price">NZ$79</span>
+          <a class="small-cta" href="/discord-starter-kit.html">View kit</a>
+        </div>
+      </article>
+    </div>
+    <div class="hint"><span>← swipe / drag →</span><strong>thumb-first</strong></div>
+  </section>
 
-      <div class="rail">
-        <article class="card bill">
-          <div>
-            <div class="tag">Fastest clean transaction</div>
-            <h3>Founding Billboard Tile</h3>
-            <p>One 100×100 clickable position on the DreamLedger 3000 public canvas. One-time payment. Human review before publication. Intended horizon: 1 January 3000.</p>
-          </div>
-          <div class="meta">
-            <span class="price">NZ$50</span>
-            <a class="small-cta" href="/billboard">View offer</a>
-          </div>
-        </article>
-
-        <article class="card magic">
-          <div>
-            <div class="tag">Magic · Manual fulfilment</div>
-            <h3>Commander Deck Diagnostic</h3>
-            <p>A practical first-pass diagnostic for a Commander deck: power level, weaknesses, upgrade priorities and a tuning plan.</p>
-          </div>
-          <div class="meta">
-            <span class="price">NZ$29</span>
-            <a class="small-cta" href="/mtg">View Magic</a>
-          </div>
-        </article>
-
-        <article class="card kit">
-          <div>
-            <div class="tag">Digital kit</div>
-            <h3>Discord Webhook Starter Kit</h3>
-            <p>A downloadable Stripe-to-Discord webhook starter with payment handling, code templates and setup guidance.</p>
-          </div>
-          <div class="meta">
-            <span class="price">NZ$79</span>
-            <a class="small-cta" href="/discord-starter-kit.html">View kit</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="ecosystem" id="ecosystem">
+  <!-- SILO rail — each silo gets its own CTA card -->
+  <section class="section" id="silos">
+    <div class="section-head">
       <div>
-        <div class="eyebrow">The ecosystem</div>
-        <h2>Different worlds.<br>Clear doors.</h2>
-        <p>DreamLedger is not a single catalogue dump. Each surface owns its inventory, terms and checkout. The front door simply makes the real paths visible.</p>
+        <div class="eyebrow">Silos</div>
+        <h2>One catalogue.<br>Separated shelves.</h2>
       </div>
-      <div class="ecosystem-list">
-        <div class="eco-item">
-          <div>
-            <strong>Billboard</strong>
-            <span>Permanent digital placements on a finite public canvas.</span>
-          </div>
-        </div>
-        <div class="eco-item">
-          <div>
-            <strong>Magic</strong>
-            <span>Commander diagnostics, decks and singles with real fulfilment.</span>
-          </div>
-        </div>
-        <div class="eco-item">
-          <div>
-            <strong>DreamMeez / Avatars</strong>
-            <span>Identity and avatar surfaces that travel with the account.</span>
-          </div>
-        </div>
-        <div class="eco-item">
-          <div>
-            <strong>Marketplace & B2B</strong>
-            <span>Seller listings, orders and settlement on a shared substrate.</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
+      <p>Each silo owns its inventory, terms and checkout. The front door only shows the entry cards.</p>
+    </div>
+    <div class="rail">
+      <a class="card bill" href="/billboard">
         <div>
-          <div class="eyebrow">Operating rule</div>
-          <h2>Evidence decides.</h2>
+          <div class="tag">Placement silo</div>
+          <h3>Billboard</h3>
+          <p>Finite public canvas. Founding tiles. Real position, human review.</p>
         </div>
-        <p>Demand generates candidates. Evidence promotes them. A real buyer, settled payment, fulfilment and proof are what turn a listing into a verified economic outcome.</p>
-      </div>
-    </section>
-  </main>
+        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
+      </a>
+      <a class="card magic" href="/mtg">
+        <div>
+          <div class="tag">Magic silo</div>
+          <h3>MTG</h3>
+          <p>Commander diagnostics, decks, singles. Existing Stripe contracts only.</p>
+        </div>
+        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
+      </a>
+      <a class="card meez" href="/avatar.html">
+        <div>
+          <div class="tag">Avatar silo</div>
+          <h3>DreamMeez</h3>
+          <p>Identity and avatar surfaces that travel with the account.</p>
+        </div>
+        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
+      </a>
+      <a class="card market" href="/offers.html">
+        <div>
+          <div class="tag">Marketplace silo</div>
+          <h3>B2B / Offers</h3>
+          <p>Seller listings, orders and settlement on the shared substrate.</p>
+        </div>
+        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
+      </a>
+    </div>
+    <div class="hint"><span>Swipe sideways to browse</span><strong>4 silos</strong></div>
+  </section>
 
-  <footer class="footer">
-    <span>DreamLedger 3000 · Real offers · Phone-first · Desktop capable</span>
-    <span><a href="/about.html">About</a> · <a href="/policies.html">Policies</a></span>
-  </footer>
+  <!-- MTG shelf rail — required by visual contract -->
+  <section class="section" id="mtg-shelf">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">MTG shelf</div>
+        <h2>Magic gets its own rail.</h2>
+      </div>
+      <p>Services and physical inventory share the same storefront surface. Fulfilment stays specific to each listing.</p>
+    </div>
+    <div class="rail">
+      <article class="card magic">
+        <div>
+          <div class="tag">Service</div>
+          <h3>Commander Diagnostic</h3>
+          <p>Manual first. Prove the buyer and fulfilment loop before automating it.</p>
+        </div>
+        <div class="meta"><span class="price">NZ$29</span><a class="small-cta" href="/mtg">CTA</a></div>
+      </article>
+      <article class="card">
+        <div>
+          <div class="tag">Owned inventory</div>
+          <h3>EDH_0001 Deck</h3>
+          <p>Physical Commander deck presented as a marketplace listing.</p>
+        </div>
+        <div class="meta"><span class="price">NZ$400</span><a class="small-cta" href="/mtg">View</a></div>
+      </article>
+      <article class="card">
+        <div>
+          <div class="tag">Collectible</div>
+          <h3>Palinchron Foil</h3>
+          <p>One collectible card. Checkout currently unavailable from the public catalogue.</p>
+        </div>
+        <div class="meta"><span class="price">NZ$700</span><a class="small-cta" href="/mtg">View</a></div>
+      </article>
+      <article class="card market">
+        <div>
+          <div class="tag">Third-party</div>
+          <h3>Other sellers</h3>
+          <p>Future seller inventory uses the same listing, order and payment model.</p>
+        </div>
+        <div class="meta"><span class="price">—</span><a class="small-cta" href="#silos">Silos</a></div>
+      </article>
+    </div>
+    <div class="hint"><span>← swipe / drag →</span><strong>MTG shelf</strong></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Operating rule</div>
+        <h2>Evidence decides.</h2>
+      </div>
+      <p>Demand generates candidates. Evidence promotes them. A real buyer, settled payment, fulfilment and proof turn a listing into a verified outcome.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>DreamLedger · horizontal catalogue · CTA cards · silo separation</span>
+  <span><a href="/about.html">About</a> · <a href="/policies.html">Policies</a></span>
+</footer>
 </div>
 </body>
 </html>
