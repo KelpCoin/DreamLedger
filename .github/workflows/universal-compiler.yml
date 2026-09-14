@@ -3,6 +3,7 @@ name: Universal Compiler
 on:
   push:
     branches:
+      - main
       - feature/universal-product-compiler
   pull_request:
     branches:
@@ -55,24 +56,22 @@ jobs:
       - name: Compile dedicated Kelplantis target
         run: node compiler/kelplantis/KelplantisTargetCompiler.js
 
-      - name: Verify Kelplantis browser runtime
+      - name: Verify Kelplantis Depth 1 browser runtime
         run: npx playwright test scripts/KelplantisBrowserSmoke.spec.js --reporter=line
 
-      - name: Verify runtime proof
+      - name: Verify Depth 1 runtime proof
         shell: bash
         run: |
           test -f RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json
-          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json'); if(p.status!=='PASS'||p.player_movement!==true||p.player_attack!==true||p.enemy_ai_damage!==true||p.loot!==true||p.xp!==true||p.leveling!==true||p.town_safety!==true||p.save_load!==true||p.boss_fightable!==true||p.win_state!==true||p.console_errors.length!==0) process.exit(1); console.log(JSON.stringify(p,null,2));"
+          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json'); const required=['create_avatar','depth_1_entry','fountain_spawn','player_movement','two_client_presence','identity_inspection','proximity_chat','emotes','save_load']; if(p.status!=='PASS'||p.console_errors.length!==0||required.some(k=>p[k]!==true)) process.exit(1); console.log(JSON.stringify(p,null,2));"
 
-      - name: Upload compiler and runtime proofs
+      - name: Upload compiler and Depth 1 runtime proofs
         uses: actions/upload-artifact@v4
         with:
-          name: kelplantis-runtime-proof-${{ github.sha }}
+          name: kelplantis-depth1-runtime-proof-${{ github.sha }}
           path: |
             BEC-PRIME/RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json
             BEC-PRIME/RUN-PROOFS/KELPLANTIS-MVP-COMPILER-PROOF.json
             BEC-PRIME/RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json
-            BEC-PRIME/RUN-PROOFS/KELPLANTIS-100-FLOOR-SLICE-PROOF.json
-            BEC-PRIME/RUN-PROOFS/KELPLANTIS-DUNGEON-GENERATOR-PROOF.json
             BEC-PRIME/compiled/universal/game/kelplantis-mvp/**
           if-no-files-found: error
