@@ -56,14 +56,14 @@ jobs:
       - name: Compile dedicated Kelplantis target
         run: node compiler/kelplantis/KelplantisTargetCompiler.js
 
-      - name: Verify Kelplantis Depth 1 browser runtime
+      - name: Verify Kelplantis Depth 1 network runtime
         run: npx playwright test scripts/KelplantisBrowserSmoke.spec.js --reporter=line
 
-      - name: Verify Depth 1 runtime proof
+      - name: Verify Depth 1 network runtime proof
         shell: bash
         run: |
           test -f RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json
-          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json'); const required=['create_avatar','depth_1_entry','fountain_spawn','player_movement','two_client_presence','identity_inspection','proximity_chat','emotes','save_load']; if(p.status!=='PASS'||p.console_errors.length!==0||required.some(k=>p[k]!==true)) process.exit(1); console.log(JSON.stringify(p,null,2));"
+          node -e "const p=require('./RUN-PROOFS/KELPLANTIS-BROWSER-RUNTIME-PROOF.json'); const required=['create_avatar','depth_1_entry','fountain_spawn','player_movement','realtime_presence','realtime_broadcast_movement','identity_inspection','proximity_chat','emotes','presence_refresh','disconnect_cleanup','save_load']; if(p.status!=='PASS'||p.transport!=='supabase_realtime'||p.independent_browser_contexts!==2||p.console_errors.length!==0||required.some(k=>p[k]!==true)) process.exit(1); console.log(JSON.stringify(p,null,2));"
 
       - name: Upload compiler and Depth 1 runtime proofs
         uses: actions/upload-artifact@v4
