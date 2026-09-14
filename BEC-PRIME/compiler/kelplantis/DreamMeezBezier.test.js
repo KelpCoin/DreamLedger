@@ -13,7 +13,6 @@ const p0 = { x: 0, y: 0 };
 const p1 = { x: 0.5, y: 1 };
 const p2 = { x: 1, y: 0 };
 
-// Endpoints
 const q0 = quadraticPoint(p0, p1, p2, 0);
 const q1 = quadraticPoint(p0, p1, p2, 1);
 assert.ok(Math.abs(q0.x - 0) < 1e-12 && Math.abs(q0.y - 0) < 1e-12);
@@ -36,17 +35,13 @@ for (let i = 1; i < arc.length; i++) {
 }
 assert.ok(Math.abs(arc[arc.length - 1].s - 1) < 1e-6);
 
-const stroke = sampleScarStrokeQuadratic(p0, p1, p2, {
-  segments: 12,
-  width0: 0.04,
-  width1: 0.01,
-  jagged: 0.5,
-  seed: 42
-});
+const opts = { segments: 12, width0: 0.04, width1: 0.01, jagged: 0.5, seed: 42 };
+const stroke = sampleScarStrokeQuadratic(p0, p1, p2, opts);
 assert.strictEqual(stroke.length, 13);
 assert.ok(stroke[0].halfWidth > stroke[stroke.length - 1].halfWidth);
-const stroke2 = sampleScarStrokeQuadratic(p0, p1, p2, { segments: 12, seed: 42, jagged: 0.5 });
+const stroke2 = sampleScarStrokeQuadratic(p0, p1, p2, opts);
 assert.strictEqual(stroke[5].x, stroke2[5].x, 'deterministic seed');
+assert.strictEqual(stroke[5].y, stroke2[5].y);
 
 console.log(JSON.stringify({
   status: 'PASS',
