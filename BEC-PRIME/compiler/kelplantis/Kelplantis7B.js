@@ -33,6 +33,19 @@ kelp7bEnsurePlayer().then(async()=>{await kelp7bResolveSpawn();await kelp7bSetOf
 window.addEventListener('beforeunload',()=>{try{kelp7bSetOffline(true);}catch(_){}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshPresence();kelp7bRefreshEchoes();}});
 setInterval(()=>{if(kelp7bPlayerReady&&document.visibilityState==='visible')kelp7bRefreshEchoes();},5000);
+
+// Realtime boundary: Presence is reserved for slow-changing online/zone state.
+// Movement/state updates are Broadcast events, even when the legacy runtime calls them "presence".
+const kelp7bBaseEmit=emit;
+const kelp7bBaseReceiveMessage=receiveMessage;
+emit=function(type,payload){
+  if(type==='presence'&&payload&&(payload.x!==undefined||payload.y!==undefined||payload.chat||payload.emote))return kelp7bBaseEmit('movement',payload);
+  return kelp7bBaseEmit(type,payload);
+};
+receiveMessage=function(message){
+  if(message&&message.type==='movement')message={...message,type:'presence'};
+  return kelp7bBaseReceiveMessage(message);
+};
 `;
 }
 module.exports={build7BScript};
