@@ -14,7 +14,7 @@ const PROOF = path.join(ROOT, 'RUN-PROOFS', 'KELPLANTIS-MVP-COMPILER-PROOF.json'
 const sha256 = v => crypto.createHash('sha256').update(v, 'utf8').digest('hex');
 
 function inject7B(runtimeHtml) {
-  const marker = '</script></body></html>`;';
+  const marker = '</script></body></html>';
   if (!runtimeHtml.includes(marker)) throw new Error('Kelplantis runtime script boundary missing');
   return runtimeHtml.replace(marker, build7BScript() + marker);
 }
