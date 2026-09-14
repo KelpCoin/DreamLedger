@@ -112,6 +112,38 @@
       "status": "gated",
       "checkout_available": false,
       "checkout_url": null
+    },
+    {
+      "id": "KELP-HOME-RENT-FLOOR1",
+      "sku": "KELP-HOME-RENT-F1",
+      "silo": "kelplantis",
+      "name": "Kelplantis Home Rent — Depth 1 (30 days)",
+      "description": "Rent one home plot in the Depth 1 town for 30 days. Visitable when multiplayer home presence ships. Inventory capped by town_economy.town_plot_slots. Checkout gated until lease fulfilment RPC is verified.",
+      "price": 15,
+      "currency": "nzd",
+      "inventory": 48,
+      "inventory_type": "digital",
+      "status": "gated",
+      "checkout_available": false,
+      "checkout_url": null,
+      "fulfillment": "kelplantis_lease_on_paid",
+      "offer_family": "OFFER-KELP-HOME-RENT"
+    },
+    {
+      "id": "KELP-BILLBOARD-FLOOR1",
+      "sku": "KELP-BB-F1",
+      "silo": "kelplantis",
+      "name": "Kelplantis Town Billboard — Depth 1",
+      "description": "One in-game town billboard slot on Depth 1. Settles on DreamLedger Stripe spine; creative delivered into Kelplantis town render. Scarcity: town_economy.billboard_slots. Gated until webhook fulfilment is verified.",
+      "price": 25,
+      "currency": "nzd",
+      "inventory": 6,
+      "inventory_type": "digital",
+      "status": "gated",
+      "checkout_available": false,
+      "checkout_url": null,
+      "fulfillment": "kelplantis_billboard_on_paid",
+      "offer_family": "OFFER-KELP-BILLBOARD"
     }
   ]
 }
