@@ -1,0 +1,37 @@
+{
+  "contract_version": "EGP-1.0",
+  "branch": "economic-game-mvp",
+  "seed": 123456,
+  "proof_type": "deterministic_replay_execution_witness",
+  "canonicalization": {
+    "json": "sorted_keys",
+    "currency": "fixed_point_integer",
+    "wall_clock_in_simulation_state": false,
+    "uuid_dependent_economic_state": false,
+    "floating_point_currency": false
+  },
+  "required_inputs": ["seed", "deterministic_context", "canonical_event_log"],
+  "required_outputs": ["final_state_hash", "event_chain_hash", "canonical_proof_bytes"],
+  "acceptance": [
+    "clean_checkout_runs",
+    "existing_deterministic_tests_pass",
+    "proof_generated_with_seed_123456",
+    "two_generations_are_byte_identical",
+    "generated_proof_matches_committed_proof",
+    "player_cli_launches",
+    "work_packet_imports_and_starts_REAL_CANDIDATE"
+  ],
+  "commercial_boundary": {
+    "automatic_game_to_real_transition": false,
+    "real_world_states": [
+      "REAL_CANDIDATE",
+      "HUMAN_REVIEW",
+      "APPROVED_REAL_ACTION",
+      "REAL_EXECUTION",
+      "REAL_VERIFIED"
+    ],
+    "human_approval_required": true,
+    "stripe_before_approval": false
+  },
+  "status": "UNVERIFIED"
+}
