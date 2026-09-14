@@ -54,10 +54,22 @@ test('Kelplantis Depth 1 7C two-session authoritative gathering slice', async ({
   await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_7C__ && window.__KELPLANTIS_7C__.realtimeJoined())).toBe(true);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_7C__.getNodes().length)).toBeGreaterThan(0);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_7C__.getInventory())).not.toBeNull();
+  await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().peerCount)).toBeGreaterThan(0);
+
+  const presencePeer = await pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().peers.find(p => p.name === 'Alpha'));
+  expect(presencePeer).toBeTruthy();
+  expect(presencePeer.x).toBeUndefined();
+  expect(presencePeer.y).toBeUndefined();
+  expect(presencePeer.zone).toBe('depth-1');
+
+  await pageA.evaluate(() => window.__KELPLANTIS_TEST__.moveFar());
+  await expect.poll(async () => pageB.evaluate(() => {
+    const p=window.__KELPLANTIS_TEST__.snapshot().peers.find(v=>v.name==='Alpha');
+    return p ? [Number(p.x),Number(p.y)] : null;
+  })).toEqual([35,35]);
 
   const node = await pageA.evaluate(() => window.__KELPLANTIS_7C__.getNodes().find(n => Number(n.amount) > 0));
   expect(node).toBeTruthy();
-  await pageA.evaluate(({ x, y }) => window.__KELPLANTIS_7C__.moveTo(x, y), node);
   await pageA.evaluate(({ x, y }) => window.__KELPLANTIS_7C__.moveTo(x, y), node);
   const before = Number(node.amount);
   const invBefore = await pageA.evaluate(() => window.__KELPLANTIS_7C__.getInventory().kelp);
@@ -65,14 +77,15 @@ test('Kelplantis Depth 1 7C two-session authoritative gathering slice', async ({
   await pageA.evaluate(id => window.__KELPLANTIS_7C__.harvest(id), node.id);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_7C__.getInventory().kelp)).toBeGreaterThan(invBefore);
   await expect.poll(async () => pageB.evaluate(id => { const n=window.__KELPLANTIS_7C__.getNodes().find(v=>v.id===id); return n ? Number(n.amount) : -1; }, node.id)).toBe(before - Math.min(5, before));
-  await expect.poll(async () => pageB.evaluate(n => window.__KELPLANTIS_7C__.realtimeUpdates(), bUpdatesBefore), { timeout: 10000 }).toBeGreaterThan(bUpdatesBefore);
+  await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_7C__.realtimeUpdates()), { timeout: 10000 }).toBeGreaterThan(bUpdatesBefore);
 
   if (errors.length) throw new Error(`Console errors: ${errors.join(' | ')}`);
   fs.mkdirSync(proofDir, { recursive: true });
   fs.writeFileSync(proofPath, JSON.stringify({
-    schema: 'bec/kelplantis/browser-runtime-proof/v4',
+    schema: 'bec/kelplantis/browser-runtime-proof/v5',
     status: 'PASS', runtime: 'browser', transport: 'supabase_realtime', independent_browser_contexts: 2,
     depth_1_social: true, realtime_presence_slow_state: true, realtime_broadcast_movement: true,
+    presence_excludes_position: true, movement_broadcast_observed: true,
     resource_nodes_visible: true, authoritative_harvest: true, inventory_conservation: true,
     resource_depletion_realtime: true, console_errors: [], generated_artifact: 'compiled/universal/game/kelplantis-mvp/index.html'
   }, null, 2) + '\n', 'utf8');
