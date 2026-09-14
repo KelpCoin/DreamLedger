@@ -1,6 +1,8 @@
 name: DreamLedger Portfolio Controller
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
@@ -32,9 +34,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # These lanes are internal verification, research, game/avatar build,
-          # evidence, and economic-control work. They must never create money,
-          # contact buyers, publish listings, fund wallets, or deploy production.
           SAFE_PATHS=(
             '.github/workflows/bec-prime-mission-loop.yml'
             '.github/workflows/bec-economic-bridge-worker.yml'
@@ -71,27 +70,7 @@ jobs:
             '.github/workflows/wealth-engine-verify.yml'
           )
 
-          blocked_patterns=(
-            'create-payment-link.yml'
-            'render-deploy.yml'
-            'render-emergency-deploy.yml'
-            'production-recovery-execute.yml'
-            'deploy-supabase-edge-functions.yml'
-            'commercial-cd.yml'
-            'surface-deploy-gate.yml'
-            'emergency-render-release.yml'
-          )
-
           for path in "${SAFE_PATHS[@]}"; do
-            blocked=false
-            for blocked_path in "${blocked_patterns[@]}"; do
-              if [ "$path" = ".github/workflows/$blocked_path" ]; then blocked=true; fi
-            done
-            if [ "$blocked" = true ]; then
-              echo "BLOCKED $path"
-              continue
-            fi
-
             echo "DISPATCH $path"
             if gh api --method POST \
               -H 'Accept: application/vnd.github+json' \
