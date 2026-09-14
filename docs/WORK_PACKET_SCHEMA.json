@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dreamledger://schemas/work-packet/v1",
+  "title": "DreamLedger Work Packet",
+  "description": "A game-originated, human-gated packet describing real-world work worth investigating. A Work Packet is never proof of a real economic event and cannot authorize execution by itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "work_packet_id",
+    "schema_version",
+    "created_at",
+    "status",
+    "created_by",
+    "source",
+    "hypothesis",
+    "proposed_work",
+    "risk",
+    "approval",
+    "verification"
+  ],
+  "properties": {
+    "work_packet_id": { "type": "string", "pattern": "^WP_[A-Z0-9_-]+$" },
+    "schema_version": { "const": "1.0" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "status": {
+      "type": "string",
+      "enum": [
+        "REAL_CANDIDATE",
+        "HUMAN_REVIEW",
+        "APPROVED_REAL_ACTION",
+        "REAL_EXECUTION",
+        "REAL_VERIFIED",
+        "REJECTED"
+      ]
+    },
+    "created_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role"],
+      "properties": {
+        "role": { "enum": ["ELOHIM", "PLAYER", "SYSTEM"] },
+        "actor_id": { "type": "string" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_event_ids"],
+      "properties": {
+        "game_event_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "opportunity_id": { "type": "string" },
+        "market_ids": { "type": "array", "items": { "type": "string" } },
+        "proof_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": "string" },
+        "signals": { "type": "array", "items": { "type": "string" } },
+        "observed_at": { "type": "string", "format": "date-time" },
+        "uncertainty": { "type": "string" }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "confidence"],
+      "properties": {
+        "claim": { "type": "string" },
+        "confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "assumptions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "proposed_work": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["objective", "actions", "success_criteria"],
+      "properties": {
+        "objective": { "type": "string" },
+        "actions": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "counterparties": { "type": "array", "items": { "type": "string" } },
+        "budget_limit_cents": { "type": "integer", "minimum": 0 },
+        "success_criteria": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["financial", "operational", "uncertainty"],
+      "properties": {
+        "financial": { "enum": ["NONE", "LOW", "MEDIUM", "HIGH"] },
+        "operational": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "uncertainty": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["human_required"],
+      "properties": {
+        "human_required": { "const": true },
+        "approved_by": { "type": "string" },
+        "approved_at": { "type": "string", "format": "date-time" },
+        "approval_reference": { "type": "string" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "action_id": { "type": "string" },
+        "started_at": { "type": "string", "format": "date-time" },
+        "completed_at": { "type": "string", "format": "date-time" },
+        "external_reference": { "type": "string" }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criteria"],
+      "properties": {
+        "criteria": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "result": { "enum": ["PENDING", "VERIFIED", "FAILED"] },
+        "evidence_ids": { "type": "array", "items": { "type": "string" } },
+        "verified_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "at", "actor"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "at": { "type": "string", "format": "date-time" },
+          "actor": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}
