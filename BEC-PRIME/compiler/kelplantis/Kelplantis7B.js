@@ -13,6 +13,7 @@ let kelp7bPlayerReady=false,kelp7bEchoes=[];
 const kelp7bBasePersist=persist;
 persist=function(){kelp7bBasePersist();try{const k='kelplantis-dreammeez-'+state.id,v=JSON.parse(localStorage.getItem(k)||'null');if(v){v.no_sid=true;localStorage.setItem(k,JSON.stringify(v));}}catch(_){} };
 async function kelp7bSyncLocal(){try{const k='kelplantis-dreammeez-'+state.id,v=JSON.parse(localStorage.getItem(k)||'null');if(v){v.no_sid=false;localStorage.setItem(k,JSON.stringify(v));}}catch(_){} }
+function kelp7bPresenceState(){return {id:state.id,name:state.name,title:state.title,scars:state.scars,cosmetics:state.cosmetics,soul:state.soul,zone:'depth-1',online:true};}
 async function kelp7bEnsurePlayer(){
   if(kelp7bPlayerReady)return;const current=state.id;
   if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(current)){kelp7bPlayerReady=true;return;}
@@ -31,11 +32,9 @@ const kelp7bClaim=document.createElement('button');kelp7bClaim.textContent='Clai
 window.__KELPLANTIS_7B__={claimParcel:kelp7bClaimParcel,resolveSpawn:kelp7bResolveSpawn,setOffline:kelp7bSetOffline,refreshEchoes:kelp7bRefreshEchoes,inspectEcho:kelp7bInspectEcho,getEchoes:()=>kelp7bEchoes,ready:()=>kelp7bPlayerReady};
 kelp7bEnsurePlayer().then(async()=>{await kelp7bResolveSpawn();await kelp7bSetOffline(false);await kelp7bSyncLocal();await kelp7bRefreshEchoes();draw();}).catch(e=>log('7B bootstrap: '+e.message));
 window.addEventListener('beforeunload',()=>{try{kelp7bSetOffline(true);}catch(_){}});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshPresence();kelp7bRefreshEchoes();}});
-setInterval(()=>{if(kelp7bPlayerReady&&document.visibilityState==='visible')kelp7bRefreshEchoes();},5000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){kelp7bRefreshEchoes();}});
+setInterval(()=>{if(kelp7bPlayerReady&&document.visibilityState==='visible')kelp7bRefreshEchoes();},15000);
 
-// Realtime boundary: Presence is reserved for slow-changing online/zone state.
-// Movement/state updates are Broadcast events, even when the legacy runtime calls them "presence".
 const kelp7bBaseEmit=emit;
 const kelp7bBaseReceiveMessage=receiveMessage;
 emit=function(type,payload){
@@ -45,6 +44,11 @@ emit=function(type,payload){
 receiveMessage=function(message){
   if(message&&message.type==='movement')message={...message,type:'presence'};
   return kelp7bBaseReceiveMessage(message);
+};
+const kelp7bBaseRefreshPresence=refreshPresence;
+refreshPresence=function(){
+  if(transport==='supabase'&&joined)realtimeSend('presence',{type:'presence',event:'track',payload:kelp7bPresenceState()});
+  else if(transport==='local')kelp7bBaseEmit('presence',kelp7bPresenceState());
 };
 `;
 }
