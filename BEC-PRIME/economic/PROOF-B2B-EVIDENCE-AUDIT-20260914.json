@@ -1,0 +1,26 @@
+{
+  "proof_id": "B2B-EVIDENCE-AUDIT-20260914",
+  "status": "PRE_RELEASE",
+  "sku": "B2B-EVIDENCE-AUDIT-001",
+  "price_nzd": 49,
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "external_buyer": false,
+    "settled_payment": false,
+    "attribution": false,
+    "fulfillment_proof": false
+  },
+  "implementation": {
+    "fulfillment_contract_defined": true,
+    "artifact_schema_defined": true,
+    "hash_verification_required": true,
+    "production_release": false
+  },
+  "hard_blockers": [
+    "real_paid_order_required_for_end_to_end_proof",
+    "production_fulfillment_function_not_yet_proven",
+    "public_doorway_requires_human_approval"
+  ],
+  "next_action": "implement_non_production_fulfillment_and_run_deterministic_verifier",
+  "generated_utc": "2026-09-14T00:00:00Z"
+}
