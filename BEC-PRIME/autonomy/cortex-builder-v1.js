@@ -13,11 +13,18 @@ const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 const run = command => cp.execSync(command, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const files = () => run('git ls-files -z').split('\0').filter(Boolean);
 
+const payloadPath = path.join(outDir, 'claimed-job.json');
+const claimed = fs.existsSync(payloadPath) ? JSON.parse(fs.readFileSync(payloadPath, 'utf8')) : null;
+const payload = (claimed && claimed.payload) || {};
+if (payload.job_mode !== 'phinhaven_rename_304') throw new Error('UNSUPPORTED_BUILDER_MODE');
+if (payload.write_scope_mode !== 'phinhaven_user_facing_rename_only') throw new Error('WRITE_SCOPE_MODE_MISSING');
+
 function protectedPath(file) {
   const p = file.replaceAll('\\', '/').toLowerCase();
   if (p.startsWith('supabase/migrations/')) return true;
   if (p.startsWith('proof/')) return true;
   if (p.startsWith('bec-prime/run-proofs/')) return true;
+  if (p.startsWith('.github/workflows/')) return true;
   return ['billboard','maximona','automation-rescue','mtg','happyhomarid','collectorscoast','amplissa'].some(x => p.includes(x));
 }
 
@@ -56,17 +63,15 @@ function rename(list) {
     if (protectedPath(file)) continue;
     const original = readText(file);
     if (original === null) continue;
-
+    if (!/Finhaven|FINHAVEN|finhaven|Kelplantis|KELPLANTIS|kelplantis/.test(original)) continue;
     const tokens = new Map();
     let text = original.replace(technical, token => {
       const key = `__CORTEX_TECH_${tokenNo++}__`;
       tokens.set(key, token);
       return key;
     });
-
     for (const [re, value] of replacements) text = text.replace(re, value);
     for (const [key, value] of tokens) text = text.replaceAll(key, value);
-
     if (text !== original) {
       fs.writeFileSync(path.join(root, file), text, 'utf8');
       changed.push(file);
@@ -90,17 +95,20 @@ function remainingLegacy(list) {
 const list = files();
 const technicalBefore = technicalSnapshot(list);
 const changedPaths = rename(list);
-const technicalAfter = technicalSnapshot(list);
-const remaining = remainingLegacy(list);
+const afterList = files();
+const technicalAfter = technicalSnapshot(afterList);
+const remaining = remainingLegacy(afterList);
 const forbiddenChanged = changedPaths.filter(protectedPath);
+const unprotectedLegacy = remaining.filter(x => !x.protected);
 const technicalPreserved = JSON.stringify(technicalBefore) === JSON.stringify(technicalAfter);
 
 const proof = {
-  schema: 'BROWNEYE-CORTEX/RENAME-BUILDER/v1',
+  schema: 'BROWNEYE-CORTEX/RENAME-BUILDER/v2',
   issue: 304,
   target_brand: 'PhinHaven',
   rejected_brand: 'Finhaven',
   source_brand: 'Kelplantis',
+  scope_mode: payload.write_scope_mode,
   base_sha: run('git rev-parse HEAD').trim(),
   changed_paths: changedPaths,
   changed_path_count: changedPaths.length,
@@ -109,11 +117,11 @@ const proof = {
   technical_identifiers_after: technicalAfter,
   technical_identifiers_preserved: technicalPreserved,
   remaining_legacy_references: remaining,
+  unprotected_legacy_references: unprotectedLegacy,
   deterministic_builder: true,
-  status: technicalPreserved && forbiddenChanged.length === 0 ? 'PASS' : 'FAIL',
+  status: technicalPreserved && forbiddenChanged.length === 0 && unprotectedLegacy.length === 0 ? 'PASS' : 'FAIL',
   generated_at: new Date().toISOString()
 };
-
 proof.content_sha256 = sha256(JSON.stringify(proof));
 fs.writeFileSync(path.join(outDir, 'rename-builder-proof.json'), JSON.stringify(proof, null, 2) + '\n');
 console.log(JSON.stringify(proof, null, 2));
