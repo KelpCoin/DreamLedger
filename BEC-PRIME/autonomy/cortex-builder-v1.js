@@ -9,42 +9,37 @@ const root = path.resolve(__dirname, '..', '..');
 const outDir = path.join(root, 'BEC-PRIME', 'data', 'cortex-builder');
 fs.mkdirSync(outDir, { recursive: true });
 
-function sha256(value) {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
+const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
+const run = command => cp.execSync(command, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const files = () => run('git ls-files -z').split('\0').filter(Boolean);
 
-function run(command) {
-  return cp.execSync(command, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-}
-
-function trackedFiles() {
-  return run('git ls-files -z').split('\0').filter(Boolean);
-}
-
-function isProtectedPath(file) {
-  const p = file.replaceAll('\\', '/');
+function protectedPath(file) {
+  const p = file.replaceAll('\\', '/').toLowerCase();
   if (p.startsWith('supabase/migrations/')) return true;
   if (p.startsWith('proof/')) return true;
-  if (p.startsWith('BEC-PRIME/RUN-PROOFS/')) return true;
-  const lower = p.toLowerCase();
-  const commercial = ['billboard', 'maximona', 'automation-rescue', 'mtg', 'happyhomarid', 'collectorscoast', 'amplissa'];
-  return commercial.some(x => lower.includes(x));
+  if (p.startsWith('bec-prime/run-proofs/')) return true;
+  return ['billboard','maximona','automation-rescue','mtg','happyhomarid','collectorscoast','amplissa'].some(x => p.includes(x));
 }
 
-function snapshotTechnicalIds(files) {
-  const set = new Set();
+function readText(file) {
+  const data = fs.readFileSync(path.join(root, file));
+  if (data.includes(0)) return null;
+  const text = data.toString('utf8');
+  return text.includes('\uFFFD') ? null : text;
+}
+
+function technicalSnapshot(list) {
+  const result = new Set();
   const re = /\bkelplantis_[A-Za-z0-9_]+\b/g;
-  for (const file of files) {
-    if (isProtectedPath(file)) continue;
-    const full = path.join(root, file);
-    let text;
-    try { text = fs.readFileSync(full, 'utf8'); } catch { continue; }
-    for (const match of text.matchAll(re)) set.add(match[0]);
+  for (const file of list) {
+    const text = readText(file);
+    if (text === null) continue;
+    for (const match of text.matchAll(re)) result.add(match[0]);
   }
-  return [...set].sort();
+  return [...result].sort();
 }
 
-function applyRename(files) {
+function rename(list) {
   const replacements = [
     [/FINHAVEN/g, 'PHINHAVEN'],
     [/Finhaven/g, 'PhinHaven'],
@@ -54,62 +49,51 @@ function applyRename(files) {
     [/kelplantis/g, 'phinhaven']
   ];
   const changed = [];
-  const tokenMap = new Map();
+  const technical = /\bkelplantis_[A-Za-z0-9_]+\b/gi;
   let tokenNo = 0;
-  const technicalRe = /\bkelplantis_[A-Za-z0-9_]+\b/gi;
 
-  for (const file of files) {
-    if (isProtectedPath(file)) continue;
-    const full = path.join(root, file);
-    let before;
-    try { before = fs.readFileSync(full); } catch { continue; }
-    if (before.includes(0)) continue;
-    let text;
-    try { text = before.toString('utf8'); } catch { continue; }
-    if (text.includes('\uFFFD')) continue;
+  for (const file of list) {
+    if (protectedPath(file)) continue;
+    const original = readText(file);
+    if (original === null) continue;
 
-    tokenMap.clear();
-    text = text.replace(technicalRe, token => {
+    const tokens = new Map();
+    let text = original.replace(technical, token => {
       const key = `__CORTEX_TECH_${tokenNo++}__`;
-      tokenMap.set(key, token);
+      tokens.set(key, token);
       return key;
     });
 
-    let next = text;
-    for (const [re, value] of replacements) next = next.replace(re, value);
-    for (const [key, value] of tokenMap) next = next.replaceAll(key, value);
+    for (const [re, value] of replacements) text = text.replace(re, value);
+    for (const [key, value] of tokens) text = text.replaceAll(key, value);
 
-    if (next !== text.replace(new RegExp('__CORTEX_TECH_[0-9]+__', 'g'), m => tokenMap.get(m) || m)) {
-      fs.writeFileSync(full, next, 'utf8');
+    if (text !== original) {
+      fs.writeFileSync(path.join(root, file), text, 'utf8');
       changed.push(file);
     }
   }
   return changed.sort();
 }
 
-function remainingLegacy(files) {
-  const results = [];
+function remainingLegacy(list) {
   const re = /Finhaven|FINHAVEN|finhaven|Kelplantis|KELPLANTIS|kelplantis/gi;
-  for (const file of files) {
-    const full = path.join(root, file);
-    let text;
-    try { text = fs.readFileSync(full, 'utf8'); } catch { continue; }
+  const result = [];
+  for (const file of list) {
+    const text = readText(file);
+    if (text === null) continue;
     const matches = [...text.matchAll(re)];
-    if (matches.length) results.push({ path: file, count: matches.length });
+    if (matches.length) result.push({ path: file, count: matches.length, protected: protectedPath(file) });
   }
-  return results;
+  return result;
 }
 
-function verifyTechnicalIds(before, after) {
-  return JSON.stringify(before) === JSON.stringify(after);
-}
-
-const files = trackedFiles();
-const technicalBefore = snapshotTechnicalIds(files);
-const changed = applyRename(files);
-const technicalAfter = snapshotTechnicalIds(files);
-const legacy = remainingLegacy(files);
-const changedProtected = changed.filter(isProtectedPath);
+const list = files();
+const technicalBefore = technicalSnapshot(list);
+const changedPaths = rename(list);
+const technicalAfter = technicalSnapshot(list);
+const remaining = remainingLegacy(list);
+const forbiddenChanged = changedPaths.filter(protectedPath);
+const technicalPreserved = JSON.stringify(technicalBefore) === JSON.stringify(technicalAfter);
 
 const proof = {
   schema: 'BROWNEYE-CORTEX/RENAME-BUILDER/v1',
@@ -118,21 +102,19 @@ const proof = {
   rejected_brand: 'Finhaven',
   source_brand: 'Kelplantis',
   base_sha: run('git rev-parse HEAD').trim(),
-  changed_paths: changed,
-  changed_path_count: changed.length,
-  protected_path_changes: changedProtected,
+  changed_paths: changedPaths,
+  changed_path_count: changedPaths.length,
+  forbidden_path_changes: forbiddenChanged,
   technical_identifiers_before: technicalBefore,
   technical_identifiers_after: technicalAfter,
-  technical_identifiers_preserved: verifyTechnicalIds(technicalBefore, technicalAfter),
-  remaining_legacy_references: legacy,
-  forbidden_public_silo_touched: changedProtected.length > 0,
+  technical_identifiers_preserved: technicalPreserved,
+  remaining_legacy_references: remaining,
   deterministic_builder: true,
-  status: changedProtected.length === 0 && verifyTechnicalIds(technicalBefore, technicalAfter) ? 'PASS' : 'FAIL',
+  status: technicalPreserved && forbiddenChanged.length === 0 ? 'PASS' : 'FAIL',
   generated_at: new Date().toISOString()
 };
 
 proof.content_sha256 = sha256(JSON.stringify(proof));
 fs.writeFileSync(path.join(outDir, 'rename-builder-proof.json'), JSON.stringify(proof, null, 2) + '\n');
-
-if (proof.status !== 'PASS') process.exit(2);
 console.log(JSON.stringify(proof, null, 2));
+if (proof.status !== 'PASS') process.exit(2);
