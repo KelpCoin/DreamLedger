@@ -1,0 +1,32 @@
+{
+  "proof_id": "MONEY-FACTORY-20260914",
+  "status": "PRE_RELEASE",
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "external_buyer": false,
+    "settled_payment": false,
+    "attribution": false,
+    "fulfillment_proof": false
+  },
+  "primary_candidate": {
+    "sku": "B2B-EVIDENCE-AUDIT-001",
+    "price_nzd": 49,
+    "state": "BLOCKED",
+    "blockers": [
+      "fulfillment_contract_not_yet_proven",
+      "public_doorway_not_yet_exposed"
+    ]
+  },
+  "secondary_candidate": {
+    "sku": "AUT_0001",
+    "price_nzd": 99,
+    "state": "BLOCKED",
+    "blockers": [
+      "public_doorway_not_yet_exposed",
+      "fulfillment_path_not_yet_proven"
+    ]
+  },
+  "release_gate": "HUMAN_APPROVAL_REQUIRED",
+  "next_machine_task": "implement_and_verify_one_real_fulfillment_path_without_production_release",
+  "generated_utc": "2026-09-14T00:00:00Z"
+}
