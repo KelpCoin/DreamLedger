@@ -1,0 +1,16 @@
+{
+  "verified_revenue_nzd_cents": 0,
+  "RA_000001": "OPEN",
+  "CORTEX": "NOT_PROVEN",
+  "PHINHAVEN_PLAYER_READY": "NO",
+  "current_packet": "FIN-PHIN-STRIPE-REPAIR-001",
+  "current_gate": "financial_production_mutation",
+  "truth_layers": {
+    "layer1_entries": 1,
+    "layer2_entries": 0,
+    "layer3_entries": 0
+  },
+  "bridge_freeze": "INACTIVE_UNTIL_FIRST_PROBE",
+  "commercial_decision": "NOT_MADE",
+  "commercial_decision_note": "Initial learning vehicle: manually fulfilled evidence products. Not a company decision. Earned only by repeat revenue."
+}
