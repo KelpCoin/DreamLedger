@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>DreamLedger | Magic — Commander & Collectibles</title>
-<meta name="description" content="Magic: The Gathering products on DreamLedger. Commander Deck Diagnostic, physical decks and collectibles. Real Stripe checkout only.">
+<title>Buy Commander Diagnostic · Magic | DreamLedger</title>
+<meta name="description" content="Commander Deck Diagnostic NZ$29, physical EDH deck NZ$400, curiosity pack NZ$1. Live Stripe checkout on DreamLedger.">
 <meta name="theme-color" content="#07080c">
 <style>
 :root {
@@ -51,9 +51,8 @@ a { color: inherit; text-decoration: none; }
 }
 .brand span { color: var(--gold); }
 .nav a { color: var(--muted); font-size: 12px; font-weight: 600; }
-.nav a:hover { color: var(--text); }
 
-.hero { padding: 64px 0 36px; }
+.hero { padding: 48px 0 28px; }
 .eyebrow {
   font-size: 10px;
   color: var(--gold);
@@ -63,16 +62,16 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 14px;
 }
 .hero h1 {
-  font-size: clamp(42px, 8vw, 72px);
+  font-size: clamp(36px, 8vw, 64px);
   line-height: 0.92;
   letter-spacing: -0.04em;
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   font-weight: 800;
 }
 .hero p {
-  max-width: 580px;
+  max-width: 560px;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 15px;
   margin: 0;
 }
 
@@ -80,7 +79,7 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
-  padding: 12px 0 40px;
+  padding: 12px 0 32px;
 }
 .card {
   border: 1px solid var(--line);
@@ -89,33 +88,24 @@ a { color: inherit; text-decoration: none; }
   padding: 22px;
   display: flex;
   flex-direction: column;
-  min-height: 320px;
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  min-height: 340px;
 }
-.card:hover {
-  border-color: #3a4250;
-  transform: translateY(-2px);
-}
-.card.starter {
+.card.featured {
   border-color: #2a5a4a;
   background: radial-gradient(circle at 90% 0%, #0f2a24 0%, transparent 50%), linear-gradient(155deg, #10181a, #0c0f15);
 }
 .art {
-  height: 120px;
+  height: 100px;
   border-radius: 12px;
   background: linear-gradient(145deg, #1a2e28, #0e1614);
   display: grid;
   place-items: center;
-  margin-bottom: 16px;
-  font-size: 36px;
+  margin-bottom: 14px;
+  font-size: 28px;
   font-weight: 800;
   color: var(--gold);
-  letter-spacing: -0.03em;
 }
-.card.starter .art {
-  background: linear-gradient(145deg, #1a3a32, #0e1c18);
-  color: var(--green);
-}
+.card.featured .art { color: var(--green); }
 .tag {
   font-size: 10px;
   color: var(--gold);
@@ -127,61 +117,70 @@ a { color: inherit; text-decoration: none; }
 .card h2 {
   font-size: 20px;
   line-height: 1.15;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 .card p {
   color: #9298a5;
   font-size: 14px;
-  margin: 0;
+  margin: 0 0 8px;
   flex: 1;
 }
+.bullets {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--dim);
+}
+.bullets li { padding: 3px 0; }
+.bullets li::before { content: "→ "; color: var(--gold); }
 .price {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   color: var(--gold-bright);
-  margin: 16px 0 12px;
-  letter-spacing: -0.02em;
+  margin: 8px 0 12px;
 }
-.card.starter .price { color: var(--green); }
+.card.featured .price { color: var(--green); }
 .btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
+  min-height: 48px;
   padding: 12px;
   border-radius: 10px;
   background: var(--gold);
   color: #0b0b08;
   font-weight: 800;
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  transition: background 0.15s ease;
+  font-size: 14px;
 }
 .btn:hover { background: var(--gold-bright); }
-.card.starter .btn {
+.card.featured .btn {
   background: var(--green);
   color: #06120e;
 }
-.card.starter .btn:hover { background: #7fe0c4; }
 .btn.disabled {
   background: #2a2e38;
   color: #6a7080;
   pointer-events: none;
 }
+.micro {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--dim);
+  text-align: center;
+}
 
 .note {
   border-top: 1px solid var(--line);
-  padding: 28px 0 48px;
+  padding: 24px 0 48px;
   color: var(--dim);
   font-size: 13px;
   max-width: 720px;
 }
 
 @media (max-width: 650px) {
-  .hero { padding: 40px 0 28px; }
-  .hero h1 { font-size: clamp(36px, 10vw, 52px); }
+  .hero { padding: 36px 0 20px; }
   .rail { grid-template-columns: 1fr; }
 }
 </style>
@@ -190,55 +189,73 @@ a { color: inherit; text-decoration: none; }
 <div class="wrap">
   <header class="nav">
     <a class="brand" href="/">DREAMLEDGER <span>3000</span></a>
-    <a href="/">← Back to front door</a>
+    <a href="/">← Catalogue</a>
   </header>
 
   <section class="hero">
-    <div class="eyebrow">Magic · The Gathering</div>
-    <h1>Start small.<br>Buy something.<br>Get value.</h1>
-    <p>A dedicated corner of DreamLedger for Magic products. Every listed price uses a live Stripe checkout. No fake availability.</p>
+    <div class="eyebrow">Magic · live Stripe checkout</div>
+    <h1>Pick a product.<br>Pay once.<br>Get the thing.</h1>
+    <p>Commander tools and physical inventory. Buttons go straight to Stripe. A sale only counts when Stripe records payment.</p>
   </section>
 
   <div class="rail">
-    <article class="card starter">
-      <div class="art">$1</div>
-      <div class="tag">Lowest-friction entry</div>
-      <h2>One-Minute Curiosity Pack</h2>
-      <p>A tiny, one-time purchase designed to turn interest into a real transaction.</p>
-      <div class="price">NZ$1</div>
-      <a class="btn" href="https://buy.stripe.com/fZu6oIaRadvc9GEe1q9oc07">Try the curiosity pack →</a>
+    <article class="card featured">
+      <div class="art">NZ$29</div>
+      <div class="tag">Best first purchase</div>
+      <h2>Commander Deck Diagnostic</h2>
+      <p>Send your list. Get a practical first-pass: power band, structural holes, and upgrade order.</p>
+      <ul class="bullets">
+        <li>Written diagnostic you can act on</li>
+        <li>Manual fulfilment after payment</li>
+        <li>One-time · no subscription</li>
+      </ul>
+      <div class="price">NZ$29</div>
+      <a class="btn" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy diagnostic · NZ$29</a>
+      <div class="micro">Stripe checkout · under 2 minutes</div>
     </article>
 
     <article class="card">
-      <div class="art">EDH</div>
-      <div class="tag">Commander</div>
-      <h2>Commander Deck Diagnostic</h2>
-      <p>A practical first-pass look at strengths, weak spots and upgrade priorities.</p>
-      <div class="price">NZ$29</div>
-      <a class="btn" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Get the diagnostic →</a>
+      <div class="art">NZ$1</div>
+      <div class="tag">Lowest friction</div>
+      <h2>One-Minute Curiosity Pack</h2>
+      <p>Smallest paid step if you want to test checkout before a bigger buy.</p>
+      <ul class="bullets">
+        <li>One-time micro purchase</li>
+        <li>Confirms your Stripe path works</li>
+      </ul>
+      <div class="price">NZ$1</div>
+      <a class="btn" href="https://buy.stripe.com/fZu6oIaRadvc9GEe1q9oc07">Pay NZ$1</a>
+      <div class="micro">Optional · not required for other products</div>
     </article>
 
     <article class="card">
       <div class="art">100</div>
-      <div class="tag">Physical deck</div>
+      <div class="tag">Physical · 1 unit</div>
       <h2>EDH_0001 Commander Deck</h2>
-      <p>One physical Commander deck from the current collection.</p>
+      <p>One physical Commander deck from the current collection. Ships after payment.</p>
+      <ul class="bullets">
+        <li>Single unit inventory</li>
+        <li>Secure Stripe payment</li>
+        <li>Fulfilment by seller after paid</li>
+      </ul>
       <div class="price">NZ$400</div>
-      <a class="btn" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy EDH_0001 securely →</a>
+      <a class="btn" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy deck · NZ$400</a>
+      <div class="micro">Physical goods · shipping arranged after pay</div>
     </article>
 
     <article class="card">
       <div class="art">FOIL</div>
       <div class="tag">Collectible</div>
       <h2>Palinchron — Urza's Legacy Foil</h2>
-      <p>One collectible card, separately listed. Checkout is currently unavailable from the public catalogue.</p>
+      <p>Listed for visibility. Checkout is not available until fulfilment is ready.</p>
       <div class="price">NZ$700</div>
-      <a class="btn disabled" href="/">Checkout unavailable</a>
+      <a class="btn disabled" href="#">Checkout unavailable</a>
+      <div class="micro">Honest gate — no fake buy button</div>
     </article>
   </div>
 
   <div class="note">
-    Magic is its own product section. Product truth and payment state remain in the existing catalogue and Stripe contracts. A sale is only counted when Stripe records the payment.
+    Product truth lives in the catalogue and Stripe. DreamLedger does not mark a sale from clicks or page views — only from settled payment.
   </div>
 </div>
 </body>
