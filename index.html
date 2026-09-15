@@ -79,6 +79,11 @@ a{color:inherit;text-decoration:none}
   background:transparent;color:var(--text);
   border:1px solid var(--border);
 }
+.btn-secondary-fill{
+  background:var(--surface);
+  color:var(--text);
+  border:1px solid var(--border);
+}
 .trust{
   display:flex;flex-wrap:wrap;gap:8px 16px;
   padding:14px 0 0;
@@ -149,14 +154,15 @@ a{color:inherit;text-decoration:none}
 
   <main>
     <section class="hero">
-      <h1>Simple digital products.<br>Clear prices. Real checkout.</h1>
-      <p>
+      <h1 id="hero-title">Simple digital products.<br>Clear prices. Real checkout.</h1>
+      <p id="hero-lead">
         Billboard placements, Commander deck help, and developer tools.
         Pay with Stripe. You get what the listing says—nothing invented, nothing inflated.
       </p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy founding tile · NZ$50</a>
-        <a class="btn btn-ghost" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Deck diagnostic · NZ$29</a>
+      <div class="hero-actions" id="hero-actions">
+        <!-- Filled by A/B script -->
+        <a class="btn btn-primary" data-cta="hero-primary" data-sku="tile" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy founding tile · NZ$50</a>
+        <a class="btn btn-ghost" data-cta="hero-secondary" data-sku="diagnostic" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Deck diagnostic · NZ$29</a>
       </div>
       <div class="trust">
         <span><strong>Checkout</strong> by Stripe</span>
@@ -182,7 +188,7 @@ a{color:inherit;text-decoration:none}
             <div class="price">NZ$50</div>
           </div>
           <div class="product-actions">
-            <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy now</a>
+            <a class="btn btn-primary btn-sm" data-cta="card-tile" data-sku="tile" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy now</a>
             <a class="btn btn-ghost btn-sm" href="/billboard">See the board</a>
           </div>
         </article>
@@ -197,7 +203,7 @@ a{color:inherit;text-decoration:none}
             <div class="price">NZ$29</div>
           </div>
           <div class="product-actions">
-            <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy diagnostic</a>
+            <a class="btn btn-primary btn-sm" data-cta="card-diagnostic" data-sku="diagnostic" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy diagnostic</a>
             <a class="btn btn-ghost btn-sm" href="/mtg">Magic page</a>
           </div>
         </article>
@@ -212,7 +218,7 @@ a{color:inherit;text-decoration:none}
             <div class="price">NZ$79</div>
           </div>
           <div class="product-actions">
-            <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy kit</a>
+            <a class="btn btn-primary btn-sm" data-cta="card-webhook" data-sku="webhook" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy kit</a>
           </div>
         </article>
 
@@ -226,7 +232,7 @@ a{color:inherit;text-decoration:none}
             <div class="price">NZ$400</div>
           </div>
           <div class="product-actions">
-            <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Commission a deck</a>
+            <a class="btn btn-primary btn-sm" data-cta="card-commission" data-sku="commission" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Commission a deck</a>
           </div>
         </article>
       </div>
@@ -242,5 +248,113 @@ a{color:inherit;text-decoration:none}
     </span>
   </footer>
 </div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'dl_cta_ab_v1';
+  var FORCE_PARAM = 'ab';
+
+  var VARIANTS = {
+    A: {
+      id: 'A',
+      heroTitle: 'Simple digital products.<br>Clear prices. Real checkout.',
+      heroLead: 'Billboard placements, Commander deck help, and developer tools. Pay with Stripe. You get what the listing says—nothing invented, nothing inflated.',
+      heroPrimary: { sku: 'tile', label: 'Buy founding tile · NZ$50', href: 'https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x' },
+      heroSecondary: { sku: 'diagnostic', label: 'Deck diagnostic · NZ$29', href: 'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l' },
+      cardLabels: {
+        tile: 'Buy now',
+        diagnostic: 'Buy diagnostic',
+        webhook: 'Buy kit',
+        commission: 'Commission a deck'
+      }
+    },
+    B: {
+      id: 'B',
+      heroTitle: 'Get on the board.<br>Or fix your deck today.',
+      heroLead: 'Start with a NZ$50 founding tile or a NZ$29 Commander diagnostic. Stripe checkout. Delivered as described—no fake sales counts.',
+      heroPrimary: { sku: 'diagnostic', label: 'Get diagnostic · NZ$29', href: 'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l' },
+      heroSecondary: { sku: 'tile', label: 'Claim a tile · NZ$50', href: 'https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x' },
+      cardLabels: {
+        tile: 'Get my tile',
+        diagnostic: 'Start diagnostic',
+        webhook: 'Get the kit',
+        commission: 'Book commission'
+      }
+    }
+  };
+
+  function assignVariant() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var forced = (params.get(FORCE_PARAM) || '').toUpperCase();
+      if (forced === 'A' || forced === 'B') {
+        localStorage.setItem(STORAGE_KEY, forced);
+        return forced;
+      }
+      var existing = localStorage.getItem(STORAGE_KEY);
+      if (existing === 'A' || existing === 'B') return existing;
+      var pick = Math.random() < 0.5 ? 'A' : 'B';
+      localStorage.setItem(STORAGE_KEY, pick);
+      return pick;
+    } catch (e) {
+      return 'A';
+    }
+  }
+
+  function tagStripeUrl(url, variant, ctaId, sku) {
+    try {
+      var u = new URL(url);
+      // Stripe Payment Links accept client_reference_id (shows on session if supported)
+      var ref = ['dl', variant, sku || 'x', ctaId || 'cta'].join('_').slice(0, 200);
+      u.searchParams.set('client_reference_id', ref);
+      u.searchParams.set('utm_source', 'dreamledger');
+      u.searchParams.set('utm_medium', 'cta');
+      u.searchParams.set('utm_campaign', 'ab_v1');
+      u.searchParams.set('utm_content', variant + '-' + (ctaId || 'cta'));
+      return u.toString();
+    } catch (e) {
+      return url;
+    }
+  }
+
+  function applyVariant(variantId) {
+    var v = VARIANTS[variantId] || VARIANTS.A;
+    document.documentElement.setAttribute('data-ab', v.id);
+
+    var title = document.getElementById('hero-title');
+    var lead = document.getElementById('hero-lead');
+    if (title) title.innerHTML = v.heroTitle;
+    if (lead) lead.textContent = v.heroLead;
+
+    var actions = document.getElementById('hero-actions');
+    if (actions) {
+      var p = v.heroPrimary;
+      var s = v.heroSecondary;
+      actions.innerHTML =
+        '<a class="btn btn-primary" data-cta="hero-primary" data-sku="' + p.sku + '" href="' + tagStripeUrl(p.href, v.id, 'hero-primary', p.sku) + '">' + p.label + '</a>' +
+        '<a class="btn btn-ghost" data-cta="hero-secondary" data-sku="' + s.sku + '" href="' + tagStripeUrl(s.href, v.id, 'hero-secondary', s.sku) + '">' + s.label + '</a>';
+    }
+
+    document.querySelectorAll('a[data-sku]').forEach(function (el) {
+      var sku = el.getAttribute('data-sku');
+      var cta = el.getAttribute('data-cta') || 'card';
+      var base = el.getAttribute('href');
+      if (!base || base.indexOf('buy.stripe.com') === -1) return;
+      // Re-tag card links (hero already rebuilt)
+      if (cta.indexOf('hero-') === 0) return;
+      el.setAttribute('href', tagStripeUrl(base.split('?')[0], v.id, cta, sku));
+      if (v.cardLabels && v.cardLabels[sku]) {
+        el.textContent = v.cardLabels[sku];
+      }
+    });
+
+    // Optional: expose for debugging / future analytics sink
+    window.__DL_AB = { variant: v.id, test: 'cta_ab_v1' };
+  }
+
+  var variant = assignVariant();
+  applyVariant(variant);
+})();
+</script>
 </body>
 </html>
