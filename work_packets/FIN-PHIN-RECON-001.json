@@ -1,0 +1,44 @@
+{
+  "work_packet_id": "FIN-PHIN-RECON-001",
+  "title": "PHINHAVEN canonical runtime reconciliation",
+  "objective": "Establish the authoritative executable game runtime before any PHINHAVEN feature implementation.",
+  "layer": "INFRASTRUCTURE",
+  "entry_criteria": [
+    "Canonical KelpCoin/DreamLedger repository is available",
+    "Current branch is identified",
+    "No runtime is assumed from database migrations or historical reports"
+  ],
+  "exit_criteria": [
+    "Repository scan completed",
+    "project.godot presence or absence established",
+    "scenes and scripts inventory established",
+    "RPC declarations inventoried",
+    "Kelplantis-era backend evidence inventoried",
+    "PHINHAVEN_RECON_V0.1.json produced by the scanner",
+    "No gameplay implementation performed"
+  ],
+  "inputs": [
+    "repository checkout",
+    "git commit SHA"
+  ],
+  "files": [
+    "ops/phinhaven_recon.py"
+  ],
+  "dependencies": [
+    "Python 3.10+",
+    "Git repository checkout"
+  ],
+  "evidence_required": [
+    "scanner JSON output",
+    "git commit SHA",
+    "scanned root path",
+    "file inventory and classifications"
+  ],
+  "stop_conditions": [
+    "If the repository cannot be scanned, report BLOCKED",
+    "If evidence conflicts and cannot be resolved mechanically, report BLOCKED",
+    "Do not create a replacement Godot runtime from absence of evidence"
+  ],
+  "promotion_gate": "RECON VERIFIED",
+  "status": "DRAFT"
+}
