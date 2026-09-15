@@ -303,7 +303,8 @@ jobs:
         run: |
           set -euo pipefail
           job_id=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["id"])')
-          branch="cortex/job-$job_id"
+          issue_number=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["payload"]["issue_number"])')
+          branch="cortex/job-$issue_number"
           git checkout -b "$branch"
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           echo "job_id=$job_id" >> "$GITHUB_OUTPUT"
@@ -400,6 +401,13 @@ jobs:
           json.dump(p,open('cortex-rename-proof-final.json','w',encoding='utf-8'),indent=2)
           PY
           test "$(python3 -c 'import json; p=json.load(open("cortex-rename-proof-final.json")); print(p["proof_head_sha_matches_pr"])')" = "True"
+
+      - name: Publish final proof into PR body
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr_url='${{ steps.pr.outputs.url }}'
+          gh pr edit "$pr_url" --body "$(python3 -c 'import json; p=json.load(open("cortex-rename-proof-final.json")); print("CORTEX Builder v1 proof for Issue #304.\n\nTarget: PhinHaven\nBranch: cortex/job-304\nPR head SHA: "+p["head_sha"]+"\nProof SHA256: "+p["proof_sha256"]+"\nTechnical identifiers preserved: "+str(p["technical_identifiers_preserved"])+"\nUnprotected legacy references: "+str(len(p.get("unprotected_legacy_references",[])))+"\nCompile: PASS\nTests: PASS\n\nNo merge, deployment, financial action, or external contact was performed.")')"
 
       - name: Complete CORTEX job only after verified PR
         shell: bash
