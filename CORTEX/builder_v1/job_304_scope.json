@@ -1,0 +1,42 @@
+{
+  "job_id": "job-304",
+  "issue": 304,
+  "repository": "KelpCoin/DreamLedger",
+  "base": "main",
+  "branch": "cortex/job-304",
+  "objective": "Rename user-facing Kelplantis/Finhaven references to PhinHaven; preserve technical identifiers",
+  "write_scope": [
+    "user-facing PhinHaven naming",
+    "documentation",
+    "safe UI/game-facing strings",
+    "CORTEX/builder_v1/**",
+    "proof/cortex/job-304/**"
+  ],
+  "forbidden_scope": [
+    "kelplantis_* technical identifiers",
+    "database migrations that rename RPCs/tables",
+    ".github/workflows/**",
+    "deployment configuration",
+    "secrets",
+    "production infrastructure",
+    "Stripe/catalog payment mutation",
+    "external communication"
+  ],
+  "search_replace": {
+    "from": ["Kelplantis", "KELPLANTIS", "Finhaven", "FINHAVEN", "finhaven"],
+    "to_user_facing": "PhinHaven",
+    "preserve_substrings": ["kelplantis_", "kelplantis-", "KELPLANTIS_"]
+  },
+  "max_repairs": 3,
+  "merge": false,
+  "deploy": false,
+  "external_contact": false,
+  "acceptance": {
+    "technical_id_invariant": true,
+    "user_facing_rename": true,
+    "tests_pass": true,
+    "proof_head_sha_equals_pr_head": true,
+    "pr_targets_main": true,
+    "main_unmodified_by_worker": true
+  }
+}
