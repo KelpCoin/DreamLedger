@@ -18,6 +18,7 @@ begin
     select id
     from public.jobs
     where type = 'cortex_builder'
+      and payload->>'builder_version' = 'v1'
       and (
         status = 'pending'
         or (status = 'leased' and leased_until is not null and leased_until < pg_catalog.now())
