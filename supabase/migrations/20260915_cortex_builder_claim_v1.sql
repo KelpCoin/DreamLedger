@@ -1,4 +1,4 @@
-create or replace function public.claim_cortex_builder_job(p_worker_id text, p_lease_seconds integer default 900)
+create or replace function public.claim_cortex_builder_job(p_worker_id text, p_lease_seconds integer default 3600)
 returns public.jobs
 language plpgsql
 security definer
