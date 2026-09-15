@@ -1,0 +1,18 @@
+name: Bridge Freeze Guard
+
+on:
+  pull_request:
+    paths:
+      - 'ops/bridge*'
+      - 'ops/bridge/**'
+      - 'supabase/functions/_shared/**'
+
+jobs:
+  bridge-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require probe-bound blocker
+        env:
+          BRIDGE_BLOCKER: ${{ vars.BRIDGE_BLOCKER }}
+        run: python ops/bridge_freeze_check.py
