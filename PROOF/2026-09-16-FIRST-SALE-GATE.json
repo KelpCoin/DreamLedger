@@ -1,0 +1,55 @@
+{
+  "proof_id": "FIRST-SALE-GATE-2026-09-16",
+  "observed_at": "2026-09-16",
+  "status": "READY_FOR_APPROVAL_GATED_ACQUISITION",
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "external_buyer": false,
+    "settled_payment": false,
+    "attribution": false,
+    "fulfillment": false,
+    "commercial_proof": "UNVERIFIED"
+  },
+  "commercial_surface": {
+    "offer": "DreamLedger 3000 Founding Tile",
+    "price_nzd": 50,
+    "payment_type": "one_time",
+    "placement": "100x100 web billboard tile",
+    "destination_url": "https://dreamledger.org/billboard",
+    "payment_processor": "Stripe",
+    "human_review_required": true,
+    "public_surface_observed": true
+  },
+  "production": {
+    "render_service": "DreamLedger1",
+    "render_service_id": "srv-d8ud55lckfvc73f1t4eg",
+    "latest_observed_live_commit": "cbfa9843205f7a7bfac705862584bec13082bbf5",
+    "latest_observed_live_deploy": "dep-dakjdjeq1p3s73fcl880",
+    "latest_observed_live_status": "live",
+    "storefront_startup": "PASS",
+    "bridge_worker_configured": true,
+    "bridge_worker_runtime_warning": "Bridge lease did not contain a job id"
+  },
+  "gauntlet": {
+    "project": "KEEP",
+    "current_execution_path": "CUT_BACK",
+    "next_gate": "FIRST_EXTERNAL_PAYMENT",
+    "do_not_build": [
+      "new autonomous layer",
+      "new marketplace architecture",
+      "PHINHAVEN expansion",
+      "new acquisition automation before approval"
+    ]
+  },
+  "approval_boundary": {
+    "external_outreach": "REQUIRES_HUMAN_APPROVAL",
+    "public_posting": "REQUIRES_HUMAN_APPROVAL",
+    "live_financial_mutation": "REQUIRES_HUMAN_APPROVAL"
+  },
+  "verification_sources": [
+    "https://dreamledger.org/",
+    "https://dreamledger.org/billboard",
+    "https://github.com/KelpCoin/DreamLedger"
+  ],
+  "terminal_claim": "The smallest existing public commercial offer is live and understandable. The remaining economic gate is a genuine external buyer whose settled payment can be reconciled through attribution, fulfillment, and proof."
+}
