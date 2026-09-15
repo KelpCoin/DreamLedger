@@ -81,7 +81,7 @@ function rename(list) {
 }
 
 function remainingLegacy(list) {
-  const re = /Finhaven|FINHAVEN|finhaven|Kelplantis|KELPLANTIS|kelplantis/gi;
+  const re = /\b(?:Finhaven|FINHAVEN|finhaven|Kelplantis|KELPLANTIS|kelplantis)(?!_[A-Za-z0-9_]+)/g;
   const result = [];
   for (const file of list) {
     const text = readText(file);
