@@ -2,6 +2,10 @@ name: Demand Radar + Silo Factory
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'ops/demand/demand_radar.py'
+      - '.github/workflows/demand-radar-factory.yml'
   schedule:
     - cron: '17 * * * *'
 
