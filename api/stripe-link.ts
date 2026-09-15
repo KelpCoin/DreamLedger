@@ -68,6 +68,7 @@ export default async function handler(request: Request): Promise<Response> {
   form.set('metadata[product_id]', offer.product_id);
   form.set('metadata[silo]', offer.silo);
   form.set('metadata[sku]', offer.sku);
+  form.set('metadata[sku_id]', offer.sku);
   form.set('metadata[product_sku]', offer.sku);
   form.set('metadata[source]', 'stripe_link');
   form.set('payment_intent_data[metadata][product_id]', offer.product_id);
