@@ -1,0 +1,43 @@
+name: RAG Evidence Ingest
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/**'
+      - 'RAG/**'
+      - 'README.md'
+      - 'package.json'
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      GITHUB_TOKEN: ${{ secrets.RAG_GITHUB_TOKEN || github.token }}
+      RAG_GITHUB_REPOS: ${{ vars.RAG_GITHUB_REPOS || 'KelpCoin/DreamLedger' }}
+      RAG_MAX_FILES: '1000'
+      RAG_CHUNK_CHARS: '3500'
+      RAG_EMBEDDING_URL: ${{ secrets.RAG_EMBEDDING_URL }}
+      RAG_EMBEDDING_MODEL: ${{ vars.RAG_EMBEDDING_MODEL }}
+      RAG_EMBEDDING_API_KEY: ${{ secrets.RAG_EMBEDDING_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ingest GitHub evidence
+        run: python3 RAG/ingest_github.py
+      - name: Verify retrieval schema
+        env:
+          RAG_API_KEY: unused
+        run: python3 - <<'PY'
+import os, urllib.request
+url=os.environ['SUPABASE_URL']+'/rest/v1/rag.documents?select=id&limit=1'
+req=urllib.request.Request(url, headers={'apikey':os.environ['SUPABASE_SERVICE_ROLE_KEY'],'Authorization':'Bearer '+os.environ['SUPABASE_SERVICE_ROLE_KEY']})
+with urllib.request.urlopen(req, timeout=30) as r:
+    assert r.status == 200
+print('RAG_SCHEMA_PASS')
+PY
