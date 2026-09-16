@@ -36,23 +36,24 @@ try {
   check('DISCOVERY_PRIVATE_IP', discovery.private_material === 'excluded', `private_material=${discovery.private_material}`);
   check('DISCOVERY_CHECKOUT_ROUTE', discovery.checkout === '/api/offer-checkout/create', `checkout=${discovery.checkout}`);
 
-  let approved = 0;
+  let agentCheckout = 0;
   for (const offer of offers) {
-    const safe = offer.approval_required === true || offer.checkout_available !== true || offer.status !== 'VERIFIED_AVAILABLE';
-    check(`OFFER_POLICY_${offer.offer_id || 'UNKNOWN'}`, safe, 'No unapproved offer may become agent-checkout available');
-    if (offer.approval_required === false && offer.checkout_available === true && offer.status === 'VERIFIED_AVAILABLE') approved += 1;
+    const safe = offer.agent_checkout_available !== true;
+    check(`OFFER_POLICY_${offer.offer_id || 'UNKNOWN'}`, safe, 'Human checkout availability must not implicitly enable agent checkout');
+    if (offer.agent_checkout_available === true) agentCheckout += 1;
   }
 
-  check('AGENT_CHECKOUT_NOT_OPEN_BY_DEFAULT', approved === 0, `verified_available_offers=${approved}`);
+  check('AGENT_CHECKOUT_NOT_OPEN_BY_DEFAULT', agentCheckout === 0, `agent_checkout_available_offers=${agentCheckout}`);
 
   const result = {
     type: 'dreamledger-agentic-commerce-gauntlet',
-    version: 1,
+    version: 2,
     timestamp: new Date().toISOString(),
     status: process.exitCode ? 'FAIL' : 'PASS',
     source_of_truth: discovery.source_of_truth,
     payment_authority: 'existing-stripe-webhook-and-settlement-ledger',
     agent_authentication: 'not-user-agent-based',
+    human_checkout_is_not_agent_checkout: true,
     checks
   };
   fs.writeFileSync(PROOF, JSON.stringify(result, null, 2) + '\n');
@@ -61,7 +62,7 @@ try {
 } catch (err) {
   const result = {
     type: 'dreamledger-agentic-commerce-gauntlet',
-    version: 1,
+    version: 2,
     timestamp: new Date().toISOString(),
     status: 'FAIL',
     error: err.message,
