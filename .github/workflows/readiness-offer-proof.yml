@@ -5,6 +5,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: readiness-offer-proof-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   compile-and-verify:
     runs-on: ubuntu-latest
@@ -68,8 +75,9 @@ jobs:
           if (discord.fulfillment?.payment_gate !== true) throw new Error('Discord payment gate missing');
           const commander = JSON.parse(fs.readFileSync('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json','utf8'));
           if (commander.status !== 'published') throw new Error('Commander Diagnostic is not published');
-          if (commander.fulfillment?.mode !== 'automated') throw new Error('Commander fulfillment is not automated');
-          if (commander.fulfillment?.operator_required !== false) throw new Error('Commander operator_required is not false');
+          const fulfillment = commander.fulfillment || commander.fulfilment;
+          if (fulfillment?.mode !== 'automated') throw new Error('Commander fulfillment is not automated');
+          if (fulfillment?.operator_required !== false) throw new Error('Commander operator_required is not false');
           console.log(JSON.stringify({status:'PASS',commit:process.env.GITHUB_SHA,commander_zero_touch:true,discord_zero_touch:true},null,2));
           NODE
 
