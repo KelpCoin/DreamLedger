@@ -37,3 +37,5 @@ jobs:
           git rm .github/workflows/repair-ci-batch.yml
           git commit -m 'ci: apply current CI batch repair'
           git push
+
+# one-shot trigger
