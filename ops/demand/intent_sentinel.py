@@ -28,12 +28,12 @@ HYPOTHESES = [
 # concrete commercial verb, budget, hiring request, bounty, RFP, quote, or
 # willingness-to-pay signal appears near the problem text.
 INTENT_PATTERNS = [
-    ("explicit_pay", re.compile(r"\\b(willing to pay|will pay|paying|paid|budget|bounty|cash reward|reward)\\b", re.I), 100),
-    ("hire", re.compile(r"\\b(hire|hiring|looking to hire|contractor|freelancer|agency|vendor)\\b", re.I), 80),
-    ("procurement", re.compile(r"\\b(rfp|rfq|request for proposal|request for quote|procurement|proposal|quote)\\b", re.I), 90),
-    ("buy", re.compile(r"\\b(buy|purchase|pricing|price|cost|quote me|how much)\\b", re.I), 60),
-    ("deadline", re.compile(r"\\b(deadline|asap|urgent|this week|need this month)\\b", re.I), 35),
-    ("job", re.compile(r"\\b(job|role|gig|project|client)\\b", re.I), 35),
+    ("explicit_pay", re.compile(r"\b(willing to pay|will pay|paying|paid|budget|bounty|cash reward|reward)\b", re.I), 100),
+    ("hire", re.compile(r"\b(hire|hiring|looking to hire|contractor|freelancer|agency|vendor)\b", re.I), 80),
+    ("procurement", re.compile(r"\b(rfp|rfq|request for proposal|request for quote|procurement|proposal|quote)\b", re.I), 90),
+    ("buy", re.compile(r"\b(buy|purchase|pricing|price|cost|quote me|how much)\b", re.I), 60),
+    ("deadline", re.compile(r"\b(deadline|asap|urgent|this week|need this month)\b", re.I), 35),
+    ("job", re.compile(r"\b(job|role|gig|project|client)\b", re.I), 35),
 ]
 
 
@@ -88,7 +88,7 @@ def relevance(text, terms):
 def candidate_for(source, item, hypothesis):
     title = item.get("title") or item.get("name") or ""
     body = item.get("body") or item.get("story_text") or item.get("text") or ""
-    text = (title + "\\n" + body).strip()
+    text = (title + "\n" + body).strip()
     rel = relevance(text, hypothesis["terms"])
     if not rel:
         return None
