@@ -27,7 +27,9 @@ const kelplantisProof = compileKelplantis();
 if (kelplantisProof.status !== 'PASS') throw new Error('Kelplantis target compiler did not PASS');
 if (kelplantisProof.target !== 'kelplantis-mvp') throw new Error('Wrong Kelplantis target proof');
 if (!kelplantisProof.outputs.some(x => x.path.endsWith('/index.html'))) throw new Error('Kelplantis runtime HTML missing');
-if (kelplantisProof.dungeon.boss_arena.canonical !== true) throw new Error('Kelplantis canonical boss arena missing');
+if (kelplantisProof.acceptance?.fountain_spawn !== 'SOURCE_PRESENT') throw new Error('Kelplantis fountain spawn contract missing');
+if (kelplantisProof.acceptance?.proximity_chat !== 'SOURCE_PRESENT') throw new Error('Kelplantis social-world contract missing');
+if (kelplantisProof.slice !== 'DEPTH_1_SOCIAL_7C') throw new Error('Unexpected Kelplantis depth slice');
 
 console.log(JSON.stringify({
   status: 'PASS',
