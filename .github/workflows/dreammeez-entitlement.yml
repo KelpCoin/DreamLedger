@@ -1,0 +1,30 @@
+name: DreamMeez Paid Entitlement
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/lib/dreammeezPaidEntitlement.js'
+      - 'BEC-PRIME/routes/marketplaceWebhook.js'
+      - 'BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js'
+      - '.github/workflows/dreammeez-entitlement.yml'
+  push:
+    branches:
+      - 'feat/dreammeez-paid-entitlements'
+
+permissions:
+  contents: read
+
+jobs:
+  entitlement-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: |
+          node --check BEC-PRIME/lib/dreammeezPaidEntitlement.js
+          node --check BEC-PRIME/routes/marketplaceWebhook.js
+      - name: Entitlement unit test
+        run: node BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js
