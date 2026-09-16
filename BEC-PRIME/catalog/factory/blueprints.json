@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "concept": "modular_factory",
+  "description": "Pre-built operational factories that can be instantiated, configured, measured, and cloned without creating a new architecture for every workflow.",
+  "placement_model": {
+    "entity": "factory.instance",
+    "blueprint": "factory.blueprint",
+    "execution": "factory.run",
+    "learning": "factory.signal",
+    "queue": "public.orchestrator_tasks",
+    "evidence": "rag.documents + factory.signals",
+    "promotion": "production promotion gate"
+  },
+  "autonomy_levels": {
+    "0": "observe",
+    "1": "propose",
+    "2": "execute_reversible",
+    "3": "execute_verified",
+    "4": "bounded_autonomy",
+    "5": "prepare_promotion_evidence",
+    "6": "human_authorization"
+  },
+  "signal_types": [
+    "POSITIVE",
+    "NEGATIVE",
+    "SYNTHESIZED",
+    "TRIANGULATED"
+  ],
+  "blueprints": [
+    {
+      "slug": "truth-oracle",
+      "role": "external evidence and claim verification",
+      "risk_class": "MEDIUM",
+      "default_autonomy_level": 1,
+      "max_autonomy_level": 4
+    },
+    {
+      "slug": "verification",
+      "role": "independent software and production verification",
+      "risk_class": "HIGH",
+      "default_autonomy_level": 1,
+      "max_autonomy_level": 5
+    },
+    {
+      "slug": "commerce",
+      "role": "bounded offer, checkout, fulfilment and reconciliation operations",
+      "risk_class": "HIGH",
+      "default_autonomy_level": 0,
+      "max_autonomy_level": 3
+    },
+    {
+      "slug": "growth",
+      "role": "bounded demand and conversion experiments",
+      "risk_class": "MEDIUM",
+      "default_autonomy_level": 0,
+      "max_autonomy_level": 3
+    },
+    {
+      "slug": "engineering",
+      "role": "validated implementation, testing and repair",
+      "risk_class": "HIGH",
+      "default_autonomy_level": 1,
+      "max_autonomy_level": 5
+    }
+  ],
+  "guardrails": [
+    "A factory never becomes authoritative merely because an LLM says it succeeded.",
+    "Every material run produces observable state and evidence references.",
+    "Negative signals are retained and can create new guardrails.",
+    "Synthesized signals remain derived, not canonical truth.",
+    "Triangulation records its independent source ancestry.",
+    "External financial actions remain behind existing economic authority gates.",
+    "Autonomy is bounded by blueprint ceiling, instance setting, budget, action count and kill switch.",
+    "Promotion remains separate from execution and requires the existing promotion gate."
+  ]
+}
