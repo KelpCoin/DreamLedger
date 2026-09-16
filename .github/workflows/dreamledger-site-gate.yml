@@ -33,7 +33,7 @@ jobs:
           test -s public/robots.txt
           test -s public/sitemap.xml
           grep -q 'DISCOVER' public/index.html
-          grep -q 'WORTH BUYING' public/index.html
+          grep -q 'See it' public/index.html
           grep -q 'Digital products' public/index.html
           grep -q 'Magic &amp; collectibles' public/index.html
           grep -q 'Games &amp; experiments' public/index.html
