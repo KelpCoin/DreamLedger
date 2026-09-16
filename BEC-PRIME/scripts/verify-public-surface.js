@@ -9,8 +9,8 @@ const forbidden=[/api\/ip/i,/api\/control/i,/\/var\/data\//i,/sk_live_/i,/sk_tes
 const CATALOG_REQUIRED=[
   {label:'DreamLedger', test:/dreamledger/i},
   {label:'Billboard', test:/href=["']\/billboard["']/i},
-  {label:'DreamMeez', test:/href=["']\/dreammeez["']/i},
-  {label:'Truth Oracle', test:/href=["']\/truth-oracle["']/i}
+  {label:'DreamMeez', test:/href=["']\/avatar\.html["']/i},
+  {label:'Truth Oracle', test:/href=["']\/truth-oracle\.html["']/i}
 ];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
