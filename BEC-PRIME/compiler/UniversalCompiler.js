@@ -83,7 +83,24 @@ function compileKelplantis(spec, dir) {
   const { generateDungeon } = require('./kelplantis/KelplantisDungeonGenerator');
   const { buildRuntimeHtml } = require('./kelplantis/KelplantisRuntime');
   const g = spec.game;
-  const dungeon = generateDungeon({ world_seed:g.world.worldSeed, floor_id:g.world.floorId, canonical_boss_id:g.world.bossId, floor_version:g.world.floorVersion, room_count:g.world.roomCount, width:80, height:50 });
+  let dungeon;
+  if (g.world.floorId === 1 && g.world.floorVersion === '1-social') {
+    dungeon = {
+      schema: 'kelplantis/social-world/v1',
+      floor_id: 1,
+      floor_version: '1-social',
+      generation_style: 'safe-town',
+      town: g.town,
+      realtime: g.realtime,
+      rooms: [],
+      corridors: [],
+      populations: [],
+      boss_arena: null,
+      provenance: { world_seed: g.world.worldSeed, floor_id: 1, world_type: 'social' }
+    };
+  } else {
+    dungeon = generateDungeon({ world_seed:g.world.worldSeed, floor_id:g.world.floorId, canonical_boss_id:g.world.bossId, floor_version:g.world.floorVersion, room_count:g.world.roomCount, width:80, height:50 });
+  }
   write(path.join(dir, 'index.html'), buildRuntimeHtml(spec, dungeon));
   write(path.join(dir, 'game.json'), JSON.stringify({ id:spec.id, profile:g.profile, dungeon }, null, 2) + '\n');
   return ['index.html', 'game.json'];
@@ -98,7 +115,7 @@ function compileSpec(spec, source) {
   fs.mkdirSync(dir, { recursive:true });
   const files = spec.target === 'website' ? compileWebsite(spec, dir) : spec.target === 'game' ? compileGame(spec, dir) : compileApp(spec, dir);
   const outputs = files.map(file => ({ path:path.relative(ROOT, path.join(dir, file)).replace(/\\/g,'/'), sha256:sha256(fs.readFileSync(path.join(dir,file),'utf8')) }));
-  return { id:spec.id, target:spec.target, name:spec.name, profile:spec.game && spec.game.profile || null, files:outputs };
+  return { id: spec.id, target: spec.target, name: spec.name, profile: spec.game && spec.game.profile || null, files:outputs };
 }
 
 function compile() {
