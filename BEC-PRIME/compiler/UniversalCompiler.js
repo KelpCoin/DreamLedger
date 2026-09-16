@@ -37,14 +37,21 @@ function validateKelplantis(spec, source) {
   assert(g.world && typeof g.world === 'object', `Kelplantis world config missing: ${source}`);
   assert(String(g.world.worldSeed || '').length > 0, `Kelplantis world seed missing: ${source}`);
   assert(Number.isInteger(Number(g.world.floorId)) && Number(g.world.floorId) >= 1, `Kelplantis floor id invalid: ${source}`);
+  assert(g.town && g.town.safe === true, `Kelplantis safe town missing: ${source}`);
+  assert(g.player && Number(g.player.speed) > 0, `Kelplantis player speed invalid: ${source}`);
+  assert(g.save && (String(g.save.slot || '').length > 0 || String(g.save.slotPrefix || '').length > 0), `Kelplantis save slot missing: ${source}`);
+  if (g.world.floorId === 1 && g.world.floorVersion === '1-social') {
+    assert(Number(g.town.widthTiles) >= 20 && Number(g.town.heightTiles) >= 20, `Kelplantis social town dimensions invalid: ${source}`);
+    assert(g.realtime && typeof g.realtime === 'object', `Kelplantis realtime config missing: ${source}`);
+    assert(String(g.realtime.channel || '').length > 0, `Kelplantis realtime channel missing: ${source}`);
+    return;
+  }
   assert(String(g.world.bossId || '').length > 0, `Kelplantis boss id missing: ${source}`);
   assert(Number(g.world.roomCount) >= 8, `Kelplantis room count invalid: ${source}`);
-  assert(g.town && g.town.safe === true, `Kelplantis safe town missing: ${source}`);
-  assert(g.player && Number(g.player.speed) > 0 && Number(g.player.maxHealth) > 0 && Number(g.player.attackDamage) > 0, `Kelplantis player config invalid: ${source}`);
+  assert(g.player && Number(g.player.maxHealth) > 0 && Number(g.player.attackDamage) > 0, `Kelplantis player combat config invalid: ${source}`);
   assert(Array.isArray(g.enemies) && g.enemies.length >= 2, `Kelplantis enemy roster missing: ${source}`);
   for (const enemy of g.enemies) assert(Number(enemy.health) > 0 && Number(enemy.damage) > 0 && Number(enemy.speed) > 0 && Number(enemy.xp) > 0, `Invalid Kelplantis enemy: ${source}`);
   assert(g.loot && Array.isArray(g.loot.items) && g.loot.items.length > 0, `Kelplantis loot table missing: ${source}`);
-  assert(g.save && String(g.save.slot || '').length > 0, `Kelplantis save slot missing: ${source}`);
 }
 
 function shell(spec, body, extra = '') {
