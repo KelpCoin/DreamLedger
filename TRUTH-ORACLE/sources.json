@@ -1,9 +1,0 @@
-{
-  "schema_version": "1.0",
-  "sources": [
-    {"id":"stats-nz","name":"Stats NZ","authority":"primary","domains":["statistics","groceries"],"url":"https://www.stats.govt.nz/"},
-    {"id":"ahiko","name":"Ahiko","authority":"retail-market-data","domains":["electricity"],"url":"https://ahiko.nz/"},
-    {"id":"grocer-nz","name":"Grocer.nz","authority":"retail-price-data","domains":["groceries"],"url":"https://grocer.nz/"},
-    {"id":"consumer-nz","name":"Consumer NZ","authority":"independent-consumer-research","domains":["electricity","groceries","household","insurance"],"url":"https://www.consumer.org.nz/"}
-  ]
-}
