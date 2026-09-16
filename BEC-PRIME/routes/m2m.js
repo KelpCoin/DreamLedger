@@ -24,11 +24,11 @@ async function ragQuery(payload, caller) {
   if (Array.isArray(payload.embedding) && payload.embedding.length === 384) request.query_embedding = payload.embedding;
   if (!request.query_text) throw new Error('query is required');
   const started = Date.now();
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/hybrid_search`, { method: 'POST', headers, body: JSON.stringify(request) });
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/rag_hybrid_search`, { method: 'POST', headers, body: JSON.stringify(request) });
   if (!response.ok) throw new Error(`RAG retrieval failed (${response.status})`);
   const results = await response.json();
   const event = { query_text: request.query_text, retrieved_chunk_ids: results.map(x => x.id), retrieval_method: request.query_embedding ? 'hybrid' : 'keyword', result_count: results.length, latency_ms: Date.now() - started, caller };
-  await fetch(`${SUPABASE_URL}/rest/v1/rag.retrieval_events`, { method: 'POST', headers, body: JSON.stringify(event) }).catch(() => {});
+  await fetch(`${SUPABASE_URL}/rest/v1/rpc/rag_record_retrieval_event`, { method: 'POST', headers, body: JSON.stringify(event) }).catch(() => {});
   return { query: request.query_text, retrieval_method: event.retrieval_method, result_count: results.length, results };
 }
 async function handle(req, res, url) {
