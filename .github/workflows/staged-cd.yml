@@ -1,0 +1,94 @@
+name: DreamLedger Staged CD
+
+on:
+  push:
+    branches:
+      - main
+      - 'fix/**'
+    paths:
+      - 'BEC-PRIME/**'
+      - '.github/workflows/staged-cd.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/**'
+      - '.github/workflows/staged-cd.yml'
+  workflow_dispatch:
+    inputs:
+      release_stage:
+        description: 'Release stage to execute'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staged-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stage:
+    name: Build and stage release candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.1
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build release candidate
+        run: npm run compile
+
+      - name: Verify production contract
+        run: npm run verify:production-contract
+
+      - name: Verify silo boundaries
+        run: npm run verify:silos
+
+      - name: Verify commercial integration
+        run: npm run verify:integration
+
+      - name: Package staged release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../staged-release
+          tar --exclude=node_modules --exclude=.git -czf ../staged-release/dreamledger-bec-prime-${GITHUB_SHA}.tar.gz .
+          printf '%s\n' "$GITHUB_SHA" > ../staged-release/COMMIT.txt
+          printf '%s\n' "${{ github.event.inputs.release_stage || 'staging' }}" > ../staged-release/STAGE.txt
+
+      - name: Upload staged release
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-staged-release-${{ github.sha }}
+          path: staged-release/
+          if-no-files-found: error
+
+  production-handoff:
+    name: Production handoff
+    needs: stage
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_stage == 'production'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Production deployment gate
+        run: |
+          echo "Production handoff approved for ${GITHUB_SHA}."
+          echo "No production deployment is performed by this staged workflow."
+          echo "Use the configured production deployment system after human approval."
