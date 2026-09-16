@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
 <meta name="theme-color" content="#0b0e11">
-<meta name="description" content="DreamLedger — live catalogue. Real products, live Stripe checkout, no fake inventory.">
+<meta name="description" content="DreamLedger — finite slots. Live Stripe. No fake inventory. Evidence decides.">
 <title>DreamLedger · Buy</title>
 <style>
 :root{
@@ -18,6 +18,7 @@
   --gold2:#fcd535;
   --gold-dim:#c99400;
   --ok:#0ecb81;
+  --warn:#f6465d;
   --max:1100px;
   --thumb:56px;
 }
@@ -32,47 +33,102 @@ body{
   padding-bottom:calc(var(--thumb) + env(safe-area-inset-bottom,0px));
 }
 a{color:inherit;text-decoration:none}
-img{display:block;max-width:100%}
-button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
 
 .nav{
   position:sticky;top:0;z-index:50;
   height:52px;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 14px;
-  background:rgba(11,14,17,.92);
-  backdrop-filter:blur(12px);
+  background:rgba(11,14,17,.94);
+  backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
 }
 .brand{font-size:13px;font-weight:800;letter-spacing:.12em}
 .brand span{color:var(--gold)}
 .nav-right{display:flex;gap:10px;align-items:center}
 .nav-right a{font-size:11px;font-weight:700;color:var(--muted)}
-.nav-right a:active{color:var(--text)}
 
-.hero{padding:28px 14px 18px;max-width:var(--max);margin:0 auto}
+/* SHINY HERO */
+.hero{
+  position:relative;
+  padding:32px 14px 22px;
+  max-width:var(--max);margin:0 auto;
+  overflow:hidden;
+}
+.hero::before{
+  content:"";
+  position:absolute;inset:-20% -10% auto;
+  height:70%;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 0%, rgba(240,185,11,.22), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 20% 30%, rgba(252,213,53,.08), transparent 50%);
+  pointer-events:none;
+}
+.hero-inner{position:relative;z-index:1}
 .kicker{
   font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:8px;
+  color:var(--gold);margin-bottom:10px;
 }
 .hero h1{
-  font-size:clamp(32px,9vw,56px);
-  font-weight:900;letter-spacing:-.04em;line-height:.95;
-  margin-bottom:10px;
+  font-size:clamp(34px,9.5vw,58px);
+  font-weight:900;letter-spacing:-.045em;line-height:.92;
+  margin-bottom:12px;
 }
-.hero h1 em{font-style:normal;color:var(--gold2)}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(105deg,var(--gold2) 0%,var(--gold) 45%,#fff3c4 55%,var(--gold2) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:shine 4.5s ease-in-out infinite;
+}
+@keyframes shine{
+  0%,100%{background-position:0% center}
+  50%{background-position:100% center}
+}
 .lead{color:var(--muted);font-size:14px;max-width:36em;margin-bottom:16px}
-.trust-strip{
-  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;
-}
+
+/* LOSS-AVERSION / SOCIAL PROOF CHIPS */
+.trust-strip{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
 .chip{
-  font-size:10px;font-weight:700;letter-spacing:.04em;
-  padding:5px 9px;border-radius:999px;
+  font-size:10px;font-weight:700;letter-spacing:.03em;
+  padding:6px 10px;border-radius:999px;
   background:var(--surface);border:1px solid var(--line);color:var(--muted);
 }
 .chip.ok{color:var(--ok);border-color:#0a4a35}
+.chip.scarce{
+  color:var(--gold2);
+  border-color:var(--gold-dim);
+  background:rgba(240,185,11,.08);
+}
+.chip.loss{
+  color:#ffb4bc;
+  border-color:#5c2a32;
+  background:rgba(246,70,93,.08);
+}
 
-.section{padding:8px 0 20px;max-width:var(--max);margin:0 auto}
+.silo-row{
+  display:flex;gap:8px;overflow-x:auto;padding:0 14px 10px;
+  scrollbar-width:none;max-width:var(--max);margin:0 auto;
+}
+.silo-row::-webkit-scrollbar{display:none}
+.silo{
+  flex:0 0 auto;padding:8px 12px;border-radius:999px;
+  background:var(--surface);border:1px solid var(--line);
+  font-size:11px;font-weight:800;color:var(--muted);
+}
+.silo.on{border-color:var(--gold);color:var(--gold2)}
+
+.evidence{
+  margin:0 14px 18px;padding:12px 14px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--line);
+  max-width:calc(var(--max) - 28px);
+}
+.evidence strong{color:var(--gold2);font-size:12px;display:block;margin-bottom:4px}
+.evidence p{font-size:12px;color:var(--muted);line-height:1.45}
+
+.section{padding:6px 0 18px;max-width:var(--max);margin:0 auto}
 .section-head{
   display:flex;align-items:baseline;justify-content:space-between;
   padding:0 14px 10px;gap:12px;
@@ -99,10 +155,15 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
   border:1px solid var(--line);
   border-radius:12px;
   padding:14px;
-  display:flex;flex-direction:column;min-height:210px;
-  position:relative;
+  display:flex;flex-direction:column;min-height:220px;
 }
-.card.featured{border-color:var(--gold-dim);background:linear-gradient(160deg,#1a1608 0%,var(--surface) 55%)}
+.card.featured{
+  border-color:var(--gold-dim);
+  background:
+    linear-gradient(145deg,rgba(240,185,11,.12) 0%,transparent 42%),
+    var(--surface);
+  box-shadow:0 0 0 1px rgba(240,185,11,.15), 0 8px 28px rgba(0,0,0,.35);
+}
 .card .tag{
   font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
   color:var(--gold);margin-bottom:6px;
@@ -110,7 +171,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
 .card h3{font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:6px}
 .card p{font-size:12px;color:var(--muted);line-height:1.45;flex:1}
 .card .meta{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;
 }
 .price{font-size:18px;font-weight:900;color:var(--gold2)}
 .price small{font-size:11px;font-weight:700;color:var(--muted);margin-left:2px}
@@ -120,69 +181,50 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
   background:var(--gold);color:#0b0e11;
   font-size:12px;font-weight:900;letter-spacing:.02em;
   white-space:nowrap;
+  box-shadow:0 2px 12px rgba(240,185,11,.35);
 }
 .buy:active{background:var(--gold2);transform:scale(.97)}
 .buy.ghost{
   background:transparent;color:var(--text);
-  border:1px solid var(--line);
+  border:1px solid var(--line);box-shadow:none;
 }
-
 .scarce{
   font-size:10px;font-weight:700;color:var(--gold-dim);
   margin-top:8px;letter-spacing:.02em;
 }
+.scarce.loss{color:#ffb4bc}
 
 .sticky-bar{
   position:fixed;left:0;right:0;bottom:0;z-index:60;
   padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));
-  background:rgba(11,14,17,.96);
+  background:rgba(11,14,17,.97);
   border-top:1px solid var(--line);
   display:flex;gap:10px;align-items:center;
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(14px);
 }
 .sticky-bar .primary{
-  flex:1;min-height:44px;border-radius:10px;
+  flex:1;min-height:46px;border-radius:10px;
   background:var(--gold);color:#0b0e11;
   font-size:13px;font-weight:900;
   display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(240,185,11,.4);
 }
 .sticky-bar .secondary{
-  min-height:44px;padding:0 14px;border-radius:10px;
-  border:1px solid var(--line);font-size:12px;font-weight:800;color:var(--muted);
+  min-height:46px;padding:0 12px;border-radius:10px;
+  border:1px solid var(--line);font-size:11px;font-weight:800;color:var(--muted);
+  text-align:center;line-height:1.2;
 }
-
-.silo-row{
-  display:flex;gap:8px;overflow-x:auto;padding:0 14px 8px;
-  scrollbar-width:none;max-width:var(--max);margin:0 auto;
-}
-.silo-row::-webkit-scrollbar{display:none}
-.silo{
-  flex:0 0 auto;padding:8px 12px;border-radius:999px;
-  background:var(--surface);border:1px solid var(--line);
-  font-size:11px;font-weight:800;color:var(--muted);
-}
-.silo:active,.silo.on{border-color:var(--gold);color:var(--gold2)}
 
 .footer{
   padding:28px 14px 40px;max-width:var(--max);margin:0 auto;
-  border-top:1px solid var(--line);margin-top:12px;
+  border-top:1px solid var(--line);margin-top:8px;
   font-size:11px;color:var(--muted);
   display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:space-between;
 }
-.footer a{color:var(--muted)}
-.footer a:active{color:var(--text)}
-
-.evidence{
-  margin:0 14px 16px;padding:12px 14px;border-radius:10px;
-  background:var(--surface);border:1px solid var(--line);
-  max-width:calc(var(--max) - 28px);
-}
-.evidence strong{color:var(--gold2);font-size:12px;display:block;margin-bottom:4px}
-.evidence p{font-size:12px;color:var(--muted);line-height:1.45}
 
 @media(min-width:720px){
   .card{flex:0 0 240px}
-  .hero{padding:40px 20px 24px}
+  .hero{padding:44px 20px 28px}
   .section-head,.silo-row,.rail{padding-left:20px;padding-right:20px}
   .evidence{margin-left:20px;margin-right:20px}
   .sticky-bar{display:none}
@@ -201,28 +243,32 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
 </header>
 
 <section class="hero">
-  <div class="kicker">Live catalogue · NZD · Stripe</div>
-  <h1>See it.<br><em>Swipe it.</em><br>Buy it.</h1>
-  <p class="lead">Horizontal rails. Every offer is a real product with live checkout. No fake inventory. Payment and fulfilment stay separate from display.</p>
-  <div class="trust-strip">
-    <span class="chip ok">Live Stripe</span>
-    <span class="chip">No fake stock</span>
-    <span class="chip">Evidence decides</span>
+  <div class="hero-inner">
+    <div class="kicker">Finite slots · Live Stripe · NZD</div>
+    <h1>See it.<br><em>Swipe it.</em><br>Own it.</h1>
+    <p class="lead">Horizontal rails. Real products only. Billboard tiles and PhinHaven access are finite — once taken, that position is gone. No fake stock. Evidence decides.</p>
+    <div class="trust-strip">
+      <span class="chip scarce">Finite billboard slots</span>
+      <span class="chip scarce">PhinHaven land is limited</span>
+      <span class="chip loss">Miss a slot → it’s gone</span>
+      <span class="chip ok">Live Stripe settlement</span>
+      <span class="chip">No fake inventory</span>
+    </div>
   </div>
 </section>
 
-<div class="silo-row" id="silos">
+<div class="silo-row">
   <a class="silo on" href="#buy">All</a>
   <a class="silo" href="#featured">Featured</a>
   <a class="silo" href="#mtg">Magic</a>
   <a class="silo" href="#identity">Identity</a>
-  <a class="silo" href="#digital">Digital</a>
+  <a class="silo" href="#phinhaven">PhinHaven</a>
   <a class="silo" href="/billboard">Billboard</a>
 </div>
 
 <div class="evidence">
-  <strong>Operating rule</strong>
-  <p>Demand generates candidates. Evidence promotes them. A real buyer, settled payment, fulfilment and proof turn a listing into a verified outcome.</p>
+  <strong>Engineered scarcity · Evidence decides</strong>
+  <p>Billboard positions and PhinHaven / Floor access are real finite inventory. Demand generates candidates. A settled payment + fulfilment + proof turns a listing into a verified outcome. What is sold is gone.</p>
 </div>
 
 <section class="section" id="buy">
@@ -232,20 +278,20 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
   </div>
   <div class="rail" id="featured">
     <article class="card featured">
-      <div class="tag">Public placement</div>
+      <div class="tag">Public placement · finite</div>
       <h3>Founding Billboard Tile</h3>
-      <p>One permanent 100×100 position on the DreamLedger canvas. One-time payment. Human review before publication.</p>
-      <div class="scarce">Finite canvas · founding tier</div>
+      <p>One permanent 100×100 position on the public canvas. Human review. After it sells, that coordinate is no longer available.</p>
+      <div class="scarce loss">Only founding slots left · miss it and it’s gone</div>
       <div class="meta">
         <span class="price">NZ$50</span>
-        <a class="buy" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy</a>
+        <a class="buy" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Claim slot</a>
       </div>
     </article>
     <article class="card featured">
       <div class="tag">Magic · service</div>
       <h3>Commander Deck Diagnostic</h3>
-      <p>Practical first-pass: power, weaknesses, upgrade priorities and tuning plan. Manual fulfilment first.</p>
-      <div class="scarce">Prove the loop</div>
+      <p>First-pass power, weaknesses, upgrades. Manual fulfilment. Prove the buyer loop before automation.</p>
+      <div class="scarce">Low-friction entry · real fulfilment</div>
       <div class="meta">
         <span class="price">NZ$29</span>
         <a class="buy" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy</a>
@@ -254,8 +300,8 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card featured">
       <div class="tag">Physical · 1 unit</div>
       <h3>EDH_0001 Commander Deck</h3>
-      <p>One physical Commander deck from the current collection. Ships after settled payment.</p>
-      <div class="scarce">Owned inventory</div>
+      <p>One physical deck from current collection. Ships after settled payment. Owned inventory only.</p>
+      <div class="scarce loss">Single unit · once sold, gone</div>
       <div class="meta">
         <span class="price">NZ$400</span>
         <a class="buy" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy</a>
@@ -264,10 +310,38 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Digital kit</div>
       <h3>Discord Webhook Starter</h3>
-      <p>Stripe-to-Discord webhook starter kit with payment handling, templates and setup guidance.</p>
+      <p>Stripe-to-Discord starter with templates and setup guidance.</p>
       <div class="meta">
         <span class="price">NZ$79</span>
         <a class="buy" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="phinhaven">
+  <div class="section-head">
+    <h2>PhinHaven · access</h2>
+    <span class="hint">← swipe →</span>
+  </div>
+  <div class="rail">
+    <article class="card featured">
+      <div class="tag">PhinHaven · limited</div>
+      <h3>Kelplantis Floor 1</h3>
+      <p>Floor 1 access pass. Engineered scarcity on PhinHaven land / access layers. Not infinite.</p>
+      <div class="scarce loss">Limited access · claim before it closes</div>
+      <div class="meta">
+        <span class="price">NZ$19</span>
+        <a class="buy" href="https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P">Claim access</a>
+      </div>
+    </article>
+    <article class="card">
+      <div class="tag">Identity</div>
+      <h3>DreamMeez cosmetics</h3>
+      <p>Hoodie, Cape, Boots and supporter tiers. Granted after settled payment to your account email.</p>
+      <div class="meta">
+        <span class="price">from NZ$5</span>
+        <a class="buy ghost" href="#identity">Browse</a>
       </div>
     </article>
   </div>
@@ -282,7 +356,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Service</div>
       <h3>Commander Diagnostic</h3>
-      <p>Manual first. Prove buyer and fulfilment before automation.</p>
+      <p>Manual first. Prove buyer and fulfilment.</p>
       <div class="meta">
         <span class="price">NZ$29</span>
         <a class="buy" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy</a>
@@ -291,7 +365,8 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Owned inventory</div>
       <h3>EDH_0001 Deck</h3>
-      <p>Physical Commander deck. Ships after payment.</p>
+      <p>Physical Commander deck. One unit.</p>
+      <div class="scarce loss">Single unit</div>
       <div class="meta">
         <span class="price">NZ$400</span>
         <a class="buy" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy</a>
@@ -300,7 +375,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Collectible</div>
       <h3>Palinchron Foil</h3>
-      <p>One collectible card. Checkout currently unavailable from the public catalogue.</p>
+      <p>Checkout currently unavailable from the public catalogue.</p>
       <div class="meta">
         <span class="price">NZ$700</span>
         <a class="buy ghost" href="/mtg">View</a>
@@ -318,7 +393,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Cosmetic</div>
       <h3>Cosmic Hoodie</h3>
-      <p>One-time DreamMeez identity cosmetic. Granted after settled Stripe payment.</p>
+      <p>Granted after settled Stripe payment.</p>
       <div class="meta">
         <span class="price">NZ$5</span>
         <a class="buy" href="https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J">Buy</a>
@@ -327,7 +402,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Cosmetic</div>
       <h3>Cape</h3>
-      <p>One-time DreamMeez identity cosmetic. Matched to account email.</p>
+      <p>Matched to account email on settlement.</p>
       <div class="meta">
         <span class="price">NZ$10</span>
         <a class="buy" href="https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K">Buy</a>
@@ -336,7 +411,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Cosmetic</div>
       <h3>Chrome Boots</h3>
-      <p>One-time DreamMeez identity cosmetic.</p>
+      <p>One-time identity cosmetic.</p>
       <div class="meta">
         <span class="price">NZ$9</span>
         <a class="buy" href="https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L">Buy</a>
@@ -345,7 +420,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Supporter</div>
       <h3>Sprout</h3>
-      <p>Monthly supporter tier. Status + monthly cosmetic drop.</p>
+      <p>Monthly tier + cosmetic drop.</p>
       <div class="meta">
         <span class="price">NZ$3.99<small>/mo</small></span>
         <a class="buy" href="https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M">Buy</a>
@@ -369,15 +444,6 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
         <a class="buy" href="https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O">Buy</a>
       </div>
     </article>
-    <article class="card">
-      <div class="tag">Access</div>
-      <h3>Kelplantis Floor 1</h3>
-      <p>Floor 1 access pass.</p>
-      <div class="meta">
-        <span class="price">NZ$19</span>
-        <a class="buy" href="https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P">Buy</a>
-      </div>
-    </article>
   </div>
 </section>
 
@@ -390,7 +456,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Digital kit</div>
       <h3>Discord Webhook Starter</h3>
-      <p>Stripe-to-Discord webhook starter with templates and setup guidance.</p>
+      <p>Stripe-to-Discord templates and setup.</p>
       <div class="meta">
         <span class="price">NZ$79</span>
         <a class="buy" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy</a>
@@ -399,7 +465,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
     <article class="card">
       <div class="tag">Trust service</div>
       <h3>Maximona IPV</h3>
-      <p>Independent production verification Stripe↔DB. Fixed scope.</p>
+      <p>Independent production verification. Fixed scope.</p>
       <div class="meta">
         <span class="price">NZ$1,500</span>
         <a class="buy" href="https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C">Buy</a>
@@ -409,7 +475,7 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
 </section>
 
 <footer class="footer">
-  <span>DreamLedger · live catalogue · evidence decides</span>
+  <span>DreamLedger · finite slots · evidence decides</span>
   <span>
     <a href="/about.html">About</a> ·
     <a href="/policies.html">Policies</a> ·
@@ -419,8 +485,8 @@ button{font:inherit;border:0;cursor:pointer;background:none;color:inherit}
 </footer>
 
 <div class="sticky-bar">
-  <a class="secondary" href="#featured">Featured</a>
-  <a class="primary" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy tile · NZ$50</a>
+  <a class="secondary" href="#featured">Finite<br>slots</a>
+  <a class="primary" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Claim tile · NZ$50</a>
 </div>
 </body>
 </html>
