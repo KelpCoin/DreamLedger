@@ -3,8 +3,8 @@ name: Promote
 on:
   workflow_dispatch:
     inputs:
-      candidate_id:
-        description: Candidate ID to approve and compile
+      run_id:
+        description: Refinement RUN id to queue and promote
         required: true
         type: string
       silo:
@@ -17,7 +17,7 @@ on:
           - phinhaven
 
 concurrency:
-  group: production-promotion-${{ inputs.candidate_id }}
+  group: production-promotion-${{ inputs.run_id }}
   cancel-in-progress: false
 
 permissions:
@@ -25,46 +25,72 @@ permissions:
   issues: write
 
 jobs:
-  evaluate:
-    name: Verify candidate is READY_FOR_APPROVAL
+  queue:
+    name: Queue READY_FOR_APPROVAL refinement run
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
 
-      - name: Evaluate candidate through Elohim + Gauntlet gate
+      - name: Validate RESULT and create promotion queue adapter
         env:
-          CANDIDATE_ID: ${{ inputs.candidate_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
-          test -s "candidates/${CANDIDATE_ID}.json"
-          node BEC-PRIME/production/ProductionPromotionGate.js "candidates/${CANDIDATE_ID}.json" ".promotion/${CANDIDATE_ID}.promotion-gate.json"
+          node promote.js queue "$RUN_ID"
 
-      - name: Enforce 24-hour cool-off without burning a runner
+      - name: Persist queue entry
         env:
-          CANDIDATE_ID: ${{ inputs.candidate_id }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          git config user.name "promotion-bot"
+          git config user.email "promotion-bot@users.noreply.github.com"
+          git add ".promotion/queue/${RUN_ID}.json"
+          if git diff --cached --quiet; then
+            echo "QUEUE_COMMIT=NO_CHANGE"
+          else
+            git commit -m "promote: queue ${RUN_ID}"
+            git push origin HEAD:main
+          fi
+
+  cooloff:
+    name: Enforce 24-hour cool-off
+    needs: queue
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check ready_at without sleeping a runner
+        env:
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
           node - <<'NODE'
           const fs = require('fs');
-          const id = process.env.CANDIDATE_ID;
-          const c = JSON.parse(fs.readFileSync(`candidates/${id}.json`, 'utf8'));
-          if (c.state !== 'READY_FOR_APPROVAL') throw new Error(`Candidate state is ${c.state}`);
-          if (!c.ready_at) throw new Error('Candidate must contain ready_at for the 24-hour cool-off');
-          const ready = Date.parse(c.ready_at);
-          if (!Number.isFinite(ready)) throw new Error('Candidate ready_at is not a valid ISO timestamp');
-          const elapsed = Date.now() - ready;
-          if (elapsed < 24 * 60 * 60 * 1000) throw new Error(`24-hour cool-off has not elapsed; ${Math.ceil((24*60*60*1000-elapsed)/60000)} minutes remain`);
+          const id = process.env.RUN_ID;
+          if (!/^RUN-[A-Za-z0-9._-]+$/.test(id)) throw new Error('invalid run_id');
+          const q = JSON.parse(fs.readFileSync(`.promotion/queue/${id}.json`, 'utf8'));
+          if (q.state !== 'READY_FOR_APPROVAL') throw new Error(`Queue state is ${q.state}; expected READY_FOR_APPROVAL`);
+          const ready = Date.parse(q.ready_at);
+          if (!Number.isFinite(ready)) throw new Error('Queue ready_at is not a valid ISO timestamp');
+          if (Date.now() < ready) throw new Error(`24-hour cool-off has not elapsed; ${Math.ceil((ready-Date.now())/60000)} minutes remain`);
           console.log('COOLOFF_24H=PASS');
           NODE
 
   approve:
-    name: Human approval
-    needs: evaluate
+    name: Independent human approval
+    needs: cooloff
     runs-on: ubuntu-latest
     timeout-minutes: 330
     steps:
@@ -72,16 +98,17 @@ jobs:
         uses: Delphia/manual-approval@v2
         with:
           secret: ${{ github.TOKEN }}
-          approvers: ${{ github.actor }}
+          approvers: ${{ vars.PROMOTION_APPROVERS }}
           minimum-approvals: 1
-          exclude-workflow-initiator-as-approver: false
-          issue-title: Promote ${{ inputs.candidate_id }} to ${{ inputs.silo }}
+          exclude-workflow-initiator-as-approver: true
+          issue-title: Promote ${{ inputs.run_id }} to ${{ inputs.silo }}
           issue-body: |
-            Candidate: ${{ inputs.candidate_id }}
+            Refinement run: ${{ inputs.run_id }}
             Silo: ${{ inputs.silo }}
             Initiated by: ${{ github.actor }}
 
-            The deterministic 24-hour cool-off has already passed.
+            The deterministic 24-hour cool-off has elapsed.
+            The run is eligible for an independent human approval.
             Comment `approve` to proceed, or `deny` to abort.
           timeout-minutes: 300
 
@@ -89,28 +116,35 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
       - name: Write signed approval receipt
         env:
           SIGNING_KEY: ${{ secrets.PROMOTION_SIGNING_KEY }}
-          CANDIDATE_ID: ${{ inputs.candidate_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
           test -n "$SIGNING_KEY"
+          test -s .promotion/queue/${RUN_ID}.json
+          test -s .promotion/promote.pub
           umask 077
           printf '%s\n' "$SIGNING_KEY" > /tmp/promote.key
-          node promote.js approve "$CANDIDATE_ID" --key /tmp/promote.key
+          node promote.js approve "$RUN_ID" --key /tmp/promote.key
           rm -f /tmp/promote.key
 
-      - name: Commit approval receipt
+      - name: Commit signed approval receipt
         env:
-          CANDIDATE_ID: ${{ inputs.candidate_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
           git config user.name "promotion-bot"
           git config user.email "promotion-bot@users.noreply.github.com"
-          git add "candidates/${CANDIDATE_ID}.json" ".promotion/${CANDIDATE_ID}.approval.json"
-          git commit -m "promote: approve ${CANDIDATE_ID}"
+          git add ".promotion/${RUN_ID}.approval.json" ".promotion/queue/${RUN_ID}.json"
+          git commit -m "promote: approve ${RUN_ID}"
           git push origin HEAD:main
 
   compile:
@@ -122,43 +156,47 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Compile candidate through canonical compiler chain
+      - name: Compile through canonical compiler chain
         env:
-          CANDIDATE_ID: ${{ inputs.candidate_id }}
-        run: node promote.js compile "$CANDIDATE_ID"
+          RUN_ID: ${{ inputs.run_id }}
+        run: node promote.js compile "$RUN_ID"
 
       - name: Verify promotion signatures
-        run: node promote.js verify
+        env:
+          RUN_ID: ${{ inputs.run_id }}
+        run: node promote.js verify "$RUN_ID"
 
       - name: Sign compiled artifact manifest
         env:
           SIGNING_KEY: ${{ secrets.PROMOTION_SIGNING_KEY }}
-          CANDIDATE_ID: ${{ inputs.candidate_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
           test -n "$SIGNING_KEY"
           umask 077
           printf '%s\n' "$SIGNING_KEY" > /tmp/promote.key
-          node promote.js sign "$CANDIDATE_ID" --key /tmp/promote.key
+          node promote.js sign "$RUN_ID" --key /tmp/promote.key
           rm -f /tmp/promote.key
 
-      - name: Commit compiled artifacts and signature
+      - name: Commit compiled artifacts and promotion proof
         env:
-          CANDIDATE_ID: ${{ inputs.candidate_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
           git config user.name "promotion-bot"
           git config user.email "promotion-bot@users.noreply.github.com"
-          git add public BEC-PRIME/compiled "candidates/${CANDIDATE_ID}.json" .promotion
-          git commit -m "promote: compile and sign ${CANDIDATE_ID}"
+          git add public BEC-PRIME/compiled .promotion
+          git commit -m "promote: compile and sign ${RUN_ID}"
           git push origin HEAD:main
 
       - name: Trigger Render deployment for target silo
