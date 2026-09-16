@@ -49,8 +49,12 @@ async function main() {
   assert.equal(event.correlation_id, 'contract-test-correlation');
 
   assert.throws(() => bridge.validateEventEnvelope({
-    event_id: 'bad', correlation_id: 'bad', event_type: 'CANDIDATE_FOUND', agent: 'claude'
-  }), /may only be created by grok/);
+    event_id: 'bad', correlation_id: 'bad', event_type: 'CANDIDATE_FOUND', agent: 'not-an-allowed-agent'
+  }), /agent not allowed/);
+
+  assert.throws(() => bridge.validateEventEnvelope({
+    event_id: 'bad-approval', correlation_id: 'bad-approval', event_type: 'ACTION_APPROVED', agent: 'claude'
+  }), /ACTION_APPROVED requires human\/system/);
 
   const server = http.createServer((req, res) => bridge.handle(req, res));
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
