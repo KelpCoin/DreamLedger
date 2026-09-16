@@ -41,7 +41,7 @@ function producerWindows(text) {
   for (let i = 0; i < lines.length; i++) {
     if (!PRODUCER_MARKERS.some((r) => r.test(lines[i]))) continue;
     const start = Math.max(0, i - 35);
-    const end = Math.min(lines.length, i + 65);
+    const end = Math.min(lines.length, i + 120);
     windows.push({ start: start + 1, end, text: lines.slice(start, end).join('\n') });
   }
   return windows;
