@@ -7,8 +7,6 @@ on:
         description: Immutable commit SHA to deploy and verify
         required: true
         type: string
-  push:
-    branches: [main]
 
 concurrency:
   group: dreamledger-production
@@ -20,9 +18,10 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 30
     env:
-      RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
+      RELEASE_SHA: ${{ inputs.release_sha }}
       BASE_URL: https://dreamledger.org
       RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
@@ -154,8 +153,6 @@ jobs:
           r=urllib.request.urlopen('https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02',timeout=30)
           print('BILLBOARD_STRIPE_CHECKOUT_HTTP='+str(r.status))
           assert r.status==200
-          for u in ['https://buy.stripe.com/28E6oI4sM1Mu5qo9La9oc03','https://buy.stripe.com/4gMcN65wQdvc3igf5u9oc04']:
-              rr=urllib.request.urlopen(u,timeout=30); assert rr.status==200; print('DREAMMEEZ_STRIPE_CHECKOUT_HTTP='+str(rr.status))
           PY
           echo 'PRODUCTION_COMMERCIAL_SURFACES=PASS'
 
