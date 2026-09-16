@@ -14,13 +14,9 @@ const kelp7cBaseDraw=draw;draw=function(){kelp7cBaseDraw();kelp7cDrawNodes();};
 const kelp7cPanel=document.createElement('div');kelp7cPanel.className='panel';kelp7cPanel.id='kelp7c-panel';kelp7cPanel.innerHTML='<b>Depth 1 gathering</b><div id="kelp7c-inventory">Kelp 0 | Gold 0 | Pearls 0</div><span>Walk near a node and press G, or use the button.</span>';document.querySelector('main').insertBefore(kelp7cPanel,document.getElementById('game'));
 const kelp7cButton=document.createElement('button');kelp7cButton.textContent='Harvest Nearby Kelp';kelp7cButton.onclick=async()=>{try{const n=kelp7cNodes.filter(v=>Number(v.amount)>0).sort((a,b)=>Math.hypot(state.x-a.x,state.y-a.y)-Math.hypot(state.x-b.x,state.y-b.y))[0];if(!n)throw new Error('NO_KELP_NODES');await kelp7cHarvestNode(n.id);}catch(e){log('7C harvest: '+e.message);}};document.getElementById('bar').insertBefore(kelp7cButton,document.getElementById('save'));
 addEventListener('keydown',e=>{if(e.key.toLowerCase()==='g'&&document.activeElement.tagName!=='INPUT'){const n=kelp7cNodes.filter(v=>Number(v.amount)>0).sort((a,b)=>Math.hypot(state.x-a.x,state.y-a.y)-Math.hypot(state.x-b.x,state.y-b.y))[0];if(n)kelp7cHarvestNode(n.id).catch(err=>log('7C harvest: '+err.message));else log('No resource nodes available.');}});
-function kelp7cStartBroadcast(){
-  if(!socket)return;
-  const previous=socket.onmessage;
-  socket.onmessage=function(e){let m;try{m=JSON.parse(e.data);}catch(_){m=null;}if(m&&m.event==='broadcast'&&m.payload&&m.payload.type==='broadcast'&&m.payload.payload&&m.payload.payload.table==='kelplantis_resource_nodes'){kelp7cRealtimeUpdates++;kelp7cLoadNodes();}if(previous)previous.call(this,e);};
-  kelp7cJoined=joined;
-}
+function kelp7cStartBroadcast(){if(!socket)return;const previous=socket.onmessage;socket.onmessage=function(e){let m;try{m=JSON.parse(e.data);}catch(_){m=null;}if(m&&m.event==='broadcast'&&m.payload&&m.payload.type==='broadcast'&&m.payload.payload&&m.payload.payload.table==='kelplantis_resource_nodes'){kelp7cRealtimeUpdates++;kelp7cLoadNodes();}if(previous)previous.call(this,e);};kelp7cJoined=joined;}
 window.__KELPLANTIS_7C__={loadNodes:kelp7cLoadNodes,harvest:kelp7cHarvestNode,getNodes:()=>kelp7cNodes,getInventory:()=>({...kelp7cInventory}),getPlayer:kelp7cPlayer,realtimeUpdates:()=>kelp7cRealtimeUpdates,realtimeJoined:()=>kelp7cJoined,moveTo:(x,y)=>{state.x=Number(x);state.y=Number(y);draw();}};
+window.__KELPLANTIS_TEST__={snapshot:()=>({joined:!!joined,peerCount:Array.isArray(peers)?peers.length:0,peers:Array.isArray(peers)?peers.map(p=>({name:p.name,x:p.x,y:p.y,zone:p.zone})):[]}),moveFar:()=>{state.x=35;state.y=35;draw();if(typeof broadcastPosition==='function')broadcastPosition();}};
 kelp7cLoadNodes().then(async()=>{try{await kelp7cLoadInventory();}catch(e){log('7C inventory: '+e.message);}kelp7cStartBroadcast();}).catch(e=>log('7C bootstrap: '+e.message));
 `;
 }
