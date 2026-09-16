@@ -1,0 +1,55 @@
+{
+  "schema": "dreamledger/commercial-nets/v1",
+  "currency": "NZD",
+  "principle": "real_buyer_real_payment_real_fulfilment",
+  "nets": [
+    {
+      "id": "direct-digital",
+      "status": "LIVE",
+      "items": [
+        {"sku":"COSMIC-HOODIE","price":5,"checkout":"https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J"},
+        {"sku":"CAPE","price":10,"checkout":"https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K"},
+        {"sku":"CHROME-BOOTS","price":9,"checkout":"https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L"},
+        {"sku":"CMD-DIAG-29","price":29,"checkout":"https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l"},
+        {"sku":"DISCORD_WEBHOOK_STARTER_KIT","price":79,"checkout":"https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n"},
+        {"sku":"KELP-FLOOR1-001","price":19,"checkout":"https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P"},
+        {"sku":"DREAMLEDGER-BILLBOARD-FOUNDING-001","price":50,"checkout":"https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02"},
+        {"sku":"EDH_0001","price":400,"checkout":"https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J"}
+      ]
+    },
+    {
+      "id": "mtg-liquidation",
+      "status": "INTAKE",
+      "purpose": "Liquidate owned MTG inventory without inventing inventory or prices.",
+      "next_state": "publish_only_after_inventory_and_price_are_verified"
+    },
+    {
+      "id": "music-media",
+      "status": "INTAKE",
+      "purpose": "Liquidate owned vinyl, music and media as individually verified inventory.",
+      "next_state": "publish_only_after_inventory_and_price_are_verified"
+    },
+    {
+      "id": "programmatic-dooh",
+      "status": "READY_GATED",
+      "price_nzd": 500,
+      "purpose": "Verified DOOH campaign package. Do not expose checkout until delivery contract and fulfilment path are verified."
+    },
+    {
+      "id": "data-telemetry",
+      "status": "BUILD",
+      "purpose": "Package non-sensitive, reproducible datasets and telemetry-derived digital products. No customer or private data."
+    },
+    {
+      "id": "information-products",
+      "status": "BUILD",
+      "purpose": "Small fixed-scope digital products built from existing infrastructure and verified artifacts."
+    }
+  ],
+  "rules": [
+    "Never represent simulated, test, internal or unmatched payments as revenue.",
+    "Never publish an owned physical item until title, condition, price and fulfilment method are verified.",
+    "Never sell private, personal or customer data.",
+    "Gated services require a concrete fulfilment contract before checkout is exposed."
+  ]
+}
