@@ -38,6 +38,8 @@
     "verify:beck-empire": "node BEC-PRIME/scripts/Verify-BECKEmpireFactory.js",
     "refine:local": "python BEC-PRIME/refinement/MultiLMRefinementEngine.py",
     "gauntlet:candidate": "node BEC-PRIME/gauntlet/CandidateGauntlet.js",
+    "production:gate": "node BEC-PRIME/production/ProductionPromotionGate.js",
+    "test:production-gate": "node BEC-PRIME/scripts/test-production-promotion-gate.js",
     "economic:cockpit": "node BEC-PRIME/economic/EconomicCockpit.js",
     "verify:maximona:001": "node BEC-PRIME/scripts/Verify-MaximonaExperiment001.js",
     "verify:dooh:gate1": "pwsh -NoProfile -File DOOH/Gate1-Test.ps1 -OutputPath DOOH/mcp-tools.json",
