@@ -1,6 +1,5 @@
 create extension if not exists vector with schema extensions;
 create schema if not exists rag;
-
 create table if not exists rag.documents (
   id uuid primary key default gen_random_uuid(), source_system text not null, source_type text not null,
   source_uri text not null, source_path text, source_sha256 text, observed_at timestamptz not null default now(),
@@ -53,3 +52,14 @@ $$;
 grant usage on schema rag to service_role;
 grant select,insert,update,delete on all tables in schema rag to service_role;
 grant execute on function rag.hybrid_search(text, extensions.vector, integer, integer) to service_role;
+create or replace function public.rag_hybrid_search(query_text text, query_embedding extensions.vector(384) default null, match_count integer default 12, rrf_k integer default 50)
+returns table (id uuid, document_id uuid, content text, source_uri text, source_path text, source_sha256 text, content_sha256 text, title text, metadata jsonb, score double precision)
+language sql stable set search_path = pg_catalog, public, extensions, rag
+as $$ select * from rag.hybrid_search(query_text, query_embedding, match_count, rrf_k); $$;
+revoke execute on function public.rag_hybrid_search(text, extensions.vector, integer, integer) from public, anon, authenticated;
+grant execute on function public.rag_hybrid_search(text, extensions.vector, integer, integer) to service_role;
+create or replace function public.rag_record_retrieval_event(query_text text, retrieved_chunk_ids uuid[], retrieval_method text, result_count integer, latency_ms integer, caller text)
+returns void language sql security invoker set search_path = pg_catalog, public, rag
+as $$ insert into rag.retrieval_events(query_text, retrieved_chunk_ids, retrieval_method, result_count, latency_ms, caller) values ($1,$2,$3,$4,$5,$6); $$;
+revoke execute on function public.rag_record_retrieval_event(text, uuid[], text, integer, integer, text) from public, anon, authenticated;
+grant execute on function public.rag_record_retrieval_event(text, uuid[], text, integer, integer, text) to service_role;
