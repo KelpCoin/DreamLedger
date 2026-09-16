@@ -4,7 +4,7 @@ import os
 import re
 import sys
 import urllib.request
-import urllib.error
+import urllib.parse
 from datetime import datetime, timezone
 
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '').rstrip('/')
@@ -64,18 +64,18 @@ def embedding(text):
     headers = {'Content-Type': 'application/json'}
     if EMBED_KEY:
         headers['Authorization'] = 'Bearer ' + EMBED_KEY
-    body = {'model': EMBED_MODEL, 'input': text}
-    req = urllib.request.Request(EMBED_URL, data=json.dumps(body).encode(), headers=headers, method='POST')
+    req = urllib.request.Request(EMBED_URL, data=json.dumps({'model': EMBED_MODEL, 'input': text}).encode(), headers=headers, method='POST')
     with urllib.request.urlopen(req, timeout=120) as r:
-        data = json.loads(r.read().decode())
-    return data['data'][0]['embedding']
+        return json.loads(r.read().decode())['data'][0]['embedding']
 
 
-def supabase(path, method='POST', body=None):
+def supabase(path, method='POST', body=None, upsert=False):
     if not SUPABASE_URL or not SUPABASE_KEY:
         raise RuntimeError('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required')
-    headers = {'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'}
-    req = urllib.request.Request(SUPABASE_URL + path, data=json.dumps(body).encode(), headers=headers, method=method)
+    prefer = 'resolution=merge-duplicates,return=minimal' if upsert else 'return=minimal'
+    headers = {'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': prefer}
+    data = None if body is None else json.dumps(body).encode()
+    req = urllib.request.Request(SUPABASE_URL + path, data=data, headers=headers, method=method)
     with urllib.request.urlopen(req, timeout=120) as r:
         raw = r.read().decode()
         return json.loads(raw) if raw else None
@@ -119,18 +119,19 @@ def ingest_repo(repo):
                 'title': path, 'content': content, 'metadata': {'repository': repo, 'branch': branch},
                 'content_sha256': sha256(content), 'status': 'ACTIVE'
             }
-            row = supabase('/rest/v1/rag/documents?on_conflict=source_system,source_uri,content_sha256', 'POST', document)
-            # Upsert response is intentionally not relied upon. Look up the document by content hash.
-            docs = supabase('/rest/v1/rag/documents?select=id&source_system=eq.github&source_uri=eq.' + urllib.parse.quote(source_uri, safe='') + '&content_sha256=eq.' + document['content_sha256'])
+            supabase('/rest/v1/rag/documents?on_conflict=source_system,source_uri,content_sha256', 'POST', document, upsert=True)
+            docs = supabase('/rest/v1/rag/documents?select=id&source_system=eq.github&source_uri=eq.' + urllib.parse.quote(source_uri, safe='') + '&content_sha256=eq.' + document['content_sha256'], 'GET')
             if not docs:
                 raise RuntimeError('document insert lookup failed for ' + path)
             doc_id = docs[0]['id']
             for idx, part in enumerate(chunks(content)):
-                emb = embedding(part)
                 chunk = {'document_id': doc_id, 'chunk_index': idx, 'content': part, 'content_sha256': sha256(part), 'token_estimate': max(1, len(part)//4), 'metadata': {'repository': repo, 'branch': branch}}
+                emb = embedding(part)
                 if emb is not None:
+                    if len(emb) != 384:
+                        raise RuntimeError(f'embedding dimension {len(emb)} != 384')
                     chunk['embedding'] = emb
-                supabase('/rest/v1/rag/chunks?on_conflict=document_id,chunk_index', 'POST', chunk)
+                supabase('/rest/v1/rag/chunks?on_conflict=document_id,chunk_index', 'POST', chunk, upsert=True)
             count += 1
             print(f'INGESTED {repo}:{path}')
         except Exception as exc:
@@ -139,7 +140,5 @@ def ingest_repo(repo):
 
 
 if __name__ == '__main__':
-    total = 0
-    for repo in REPOS:
-        total += ingest_repo(repo)
+    total = sum(ingest_repo(repo) for repo in REPOS)
     print(json.dumps({'status':'PASS','repositories':REPOS,'documents_ingested':total}, indent=2))
