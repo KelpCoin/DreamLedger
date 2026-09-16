@@ -1,279 +1,186 @@
 <!doctype html>
-<html lang="en" data-dreamledger-surface="public-v6" data-dreamledger-visual-contract="catalogue-first-v1">
+<html lang="en" data-surface="enterprise-v1">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger catalogue: horizontal CTA rails for Billboard, Magic, digital products and marketplace silos.">
-<meta name="theme-color" content="#07080c">
-<title>DreamLedger 3000 | Catalogue</title>
+<meta name="description" content="DreamLedger — buy billboard tiles, Commander diagnostics, decks and digital kits. Live Stripe. Real inventory. NZD.">
+<meta name="theme-color" content="#0b0e11">
+<title>DreamLedger · Buy</title>
+<link rel="canonical" href="https://dreamledger.org/">
 <style>
 :root{
-  --bg:#07080c;--panel:#10131b;--line:#282e3a;--text:#f6f2e8;--muted:#9da3b0;--dim:#707785;
-  --gold:#e2b95f;--gold2:#f0cc73;--pink:#ff78b7;--green:#69d5b7;--max:1240px;
+  --bg:#0b0e11;--elev:#12161c;--panel:#1e2329;--line:#2b3139;--line2:#3a4250;
+  --text:#eaecef;--muted:#848e9c;--dim:#5e6673;
+  --gold:#f0b90b;--gold2:#fcd535;--gold-d:#c99400;
+  --ok:#0ecb81;--danger:#f6465d;--max:1120px;--bar:58px;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(circle at 85% 0,#211a0b 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45;padding-bottom:calc(var(--bar) + env(safe-area-inset-bottom,0px))}
 a{color:inherit;text-decoration:none}
-.wrap{width:min(var(--max),calc(100% - 24px));margin:auto}
-
-.nav{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;background:#07080cf2;backdrop-filter:blur(16px)}
-.brand{font-size:11px;font-weight:1000;letter-spacing:.16em}.brand span{color:var(--gold)}
-.navlinks{display:flex;gap:14px;color:#aeb2bd;font-size:10px;font-weight:900;overflow-x:auto;white-space:nowrap}
-.navlinks a:hover{color:var(--text)}
-
-.eyebrow{font-size:9px;color:var(--gold);font-weight:1000;letter-spacing:.2em;text-transform:uppercase}
-.hero{padding:48px 0 28px}
-.hero h1{font-size:clamp(44px,10vw,92px);line-height:.86;letter-spacing:-.07em;margin:10px 0 14px;font-weight:900}
-.hero h1 em{font-style:normal;color:var(--pink)}
-.lead{max-width:720px;color:var(--muted);font-size:15px;line-height:1.5;margin:0 0 18px}
-.actions{display:flex;gap:8px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
-.actions::-webkit-scrollbar{display:none}
-.cta,.ghost{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:9px;font-size:11px;font-weight:900}
-.cta{background:var(--gold);color:#0b0b08}
-.ghost{border:1px solid #3a4050}
-.note{margin-top:10px;color:var(--dim);font-size:11px}
-
-.section{padding:28px 0}
-.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:12px}
-.section-head h2{font-size:clamp(28px,5.5vw,48px);line-height:.92;letter-spacing:-.06em;margin:4px 0;font-weight:900}
-.section-head p{max-width:480px;color:#858b98;font-size:12px;margin:0}
-
-.rail{
-  display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
-  overscroll-behavior-x:contain;touch-action:pan-x;
-  padding:4px 2px 14px;scrollbar-width:none;
-  margin-right:calc((100vw - min(var(--max),calc(100vw - 24px)))/-2);
-  padding-right:calc((100vw - min(var(--max),calc(100vw - 24px)))/2);
-}
-.rail::-webkit-scrollbar{display:none}
-
-.card{
-  flex:0 0 min(78vw,340px);min-height:250px;scroll-snap-align:start;
-  border:1px solid var(--line);border-radius:16px;
-  background:linear-gradient(145deg,#11151e,#0c0f15);
-  padding:18px;display:flex;flex-direction:column;justify-content:space-between;
-}
-.card.bill{border-color:#6d5829;background:radial-gradient(circle at 90% 0,#3a2b0f,transparent 45%),linear-gradient(145deg,#17150f,#0c0f15)}
-.card.magic{border-color:#24564e}
-.card.kit{border-color:#3b3d48}
-.card.market{border-color:#3b3d48}
-.card.meez{border-color:#4a3a5a}
-
-.tag{font-size:9px;color:var(--gold);font-weight:1000;letter-spacing:.14em;text-transform:uppercase}
-.card h3{font-size:24px;line-height:.95;letter-spacing:-.04em;margin:8px 0;font-weight:900}
-.card p{color:#9298a5;font-size:12px;line-height:1.45;margin:0;flex:1}
-.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
-.price{font-size:18px;font-weight:1000;color:var(--gold2)}
-.small-cta{display:inline-flex;align-items:center;justify-content:center;padding:9px 13px;border-radius:8px;background:#f2eee3;color:#111;font-size:10px;font-weight:1000}
-
-.hint{display:flex;justify-content:space-between;color:#676f7c;font-size:10px;margin-top:2px}
-.hint strong{color:#9ca3b0}
-
-.footer{border-top:1px solid var(--line);padding:22px 0 40px;color:#656c79;font-size:11px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.footer a:hover{color:var(--text)}
-
-@media(max-width:650px){
-  .wrap{width:calc(100% - 22px)}
-  .navlinks{max-width:55vw}
-  .hero{padding:36px 0 22px}
-  .hero h1{font-size:clamp(40px,13vw,68px)}
-  .lead{font-size:14px}
-  .section-head{display:block}
-  .section-head p{margin-top:6px}
-  .card{min-height:240px}
-  .footer{display:block}
-  .footer span{display:block;margin-bottom:6px}
-}
+.wrap{width:min(var(--max),calc(100% - 28px));margin:0 auto}
+.nav{position:sticky;top:0;z-index:40;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 14px;background:rgba(11,14,17,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.brand{font-size:13px;font-weight:900;letter-spacing:.14em}.brand b{color:var(--gold)}
+.nav-c{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none}
+.nav-c a{font-size:11px;font-weight:800;color:var(--muted);padding:8px 10px;border-radius:8px;white-space:nowrap}
+.nav-c a:hover{color:var(--text);background:var(--elev)}
+.nav-buy{background:var(--gold)!important;color:#0b0e11!important;font-weight:900!important}
+.hero{padding:28px 0 18px;position:relative}
+.hero-poster{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 80% 0%,rgba(240,185,11,.18),transparent 55%),radial-gradient(ellipse 40% 40% at 10% 40%,rgba(252,213,53,.06),transparent 50%)}
+.kicker{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.hero h1{font-size:clamp(36px,9vw,56px);font-weight:900;letter-spacing:-.04em;line-height:.95;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--gold2)}
+.lead{color:var(--muted);font-size:15px;max-width:40em;margin-bottom:16px}
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.chip{font-size:10px;font-weight:800;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--elev);color:var(--muted)}
+.chip.g{color:var(--gold2);border-color:var(--gold-d);background:rgba(240,185,11,.08)}
+.chip.ok{color:var(--ok);border-color:#0a4a35}
+.chip.d{color:#ffb4bc;border-color:#5c2a32;background:rgba(246,70,93,.08)}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:10px;font-size:13px;font-weight:900;border:1px solid transparent}
+.btn-primary{background:var(--gold);color:#0b0e11;box-shadow:0 4px 20px rgba(240,185,11,.35)}
+.btn-ghost{background:transparent;border-color:var(--line2);color:var(--text)}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px;scrollbar-width:none}
+.f{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:800;color:var(--muted)}
+.f.on{border-color:var(--gold);color:var(--gold2);background:rgba(240,185,11,.1)}
+.sec{padding:8px 0 28px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sec-h h2{font-size:20px;font-weight:900}
+.sec-h span{font-size:11px;color:var(--dim);font-weight:700}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;min-height:200px}
+.card.feat{border-color:var(--gold-d);background:linear-gradient(160deg,rgba(240,185,11,.1),transparent 40%),var(--panel)}
+.tag{font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.card h3{font-size:18px;font-weight:900;margin-bottom:6px;line-height:1.15}
+.card p{font-size:13px;color:var(--muted);flex:1;line-height:1.45}
+.scarce{font-size:11px;font-weight:800;color:var(--gold-d);margin:8px 0 0}
+.scarce.d{color:#ffb4bc}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.price{font-size:20px;font-weight:900;color:var(--gold2)}
+.price small{font-size:11px;color:var(--muted);font-weight:700}
+.buy{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:9px;background:var(--gold);color:#0b0e11;font-size:12px;font-weight:900}
+.buy.ghost{background:transparent;color:var(--text);border:1px solid var(--line2)}
+.proof{margin:8px 0 24px;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--elev)}
+.proof strong{display:block;font-size:12px;color:var(--gold2);margin-bottom:4px}
+.proof p{font-size:12px;color:var(--muted)}
+.foot{border-top:1px solid var(--line);padding:24px 0 32px;font-size:11px;color:var(--dim);display:flex;flex-wrap:wrap;gap:12px 20px;justify-content:space-between}
+.foot a{color:var(--muted)}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;gap:10px;align-items:center;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(11,14,17,.97);border-top:1px solid var(--line)}
+.bar .p{flex:1;min-height:48px;border-radius:12px;background:var(--gold);color:#0b0e11;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(240,185,11,.4)}
+.bar .s{min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);font-size:11px;font-weight:800;color:var(--muted);text-align:center;line-height:1.2}
+@media(min-width:900px){.bar{display:none}body{padding-bottom:0}}
 </style>
 </head>
 <body>
-<div class="wrap">
 <header class="nav">
-  <a class="brand" href="/">DREAMLEDGER <span>3000</span></a>
-  <nav class="navlinks">
-    <a href="#buy">Buy</a>
+  <a class="brand" href="/">DREAMLEDGER <b>BUY</b></a>
+  <nav class="nav-c">
+    <a href="#featured">Featured</a>
+    <a href="#mtg">Magic</a>
+    <a href="#digital">Digital</a>
     <a href="/billboard">Billboard</a>
-    <a href="/mtg">Magic</a>
-    <a href="#silos">Silos</a>
+    <a href="/avatar.html">Avatar</a>
+    <a class="nav-buy" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">NZ$50 Tile</a>
   </nav>
 </header>
-
-<main>
+<main class="wrap">
   <section class="hero">
-    <div class="eyebrow">DreamLedger · Catalogue front door</div>
-    <h1>See it.<br><em>Swipe it. Buy it.</em></h1>
-    <p class="lead">Horizontal catalogue rails. Every commercial path is its own CTA card inside its own silo. Swipe on mobile, drag or wheel on desktop.</p>
-    <div class="actions">
-      <a class="cta" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy Tile · NZ$50</a>
-      <a class="ghost" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Diagnostic · NZ$29</a>
-      <a class="ghost" href="/mtg">Open Magic</a>
-    </div>
-    <div class="note">No fake sales. Live Stripe checkout. Payment and fulfilment stay separate from display.</div>
-  </section>
-
-  <section class="section" id="buy">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">Buy now</div>
-        <h2>Commercial rails.</h2>
+    <div class="hero-poster" aria-hidden="true"></div>
+    <div style="position:relative">
+      <div class="kicker">Live Stripe · Real inventory · NZD</div>
+      <h1>Shop like a market.<br><em>Pay like Stripe.</em></h1>
+      <p class="lead">Finite billboard slots, Commander diagnostics, physical decks and digital kits. No fake stock. Checkout is live. A sale only counts when payment settles.</p>
+      <div class="trust">
+        <span class="chip g">Finite billboard slots</span>
+        <span class="chip d">Miss a slot → gone</span>
+        <span class="chip ok">Live Stripe settlement</span>
+        <span class="chip">No fake inventory</span>
       </div>
-      <p>Direct checkout. One tap to Stripe. Each card is a silo entry.</p>
-    </div>
-    <div class="rail">
-      <article class="card bill">
-        <div>
-          <div class="tag">Public placement</div>
-          <h3>Founding Billboard Tile</h3>
-          <p>One permanent 100×100 position on the DreamLedger canvas. One-time payment. Human review before publication.</p>
-        </div>
-        <div class="meta">
-          <span class="price">NZ$50</span>
-          <a class="small-cta" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy now</a>
-        </div>
-      </article>
-      <article class="card magic">
-        <div>
-          <div class="tag">Magic · Manual fulfilment</div>
-          <h3>Commander Deck Diagnostic</h3>
-          <p>Practical first-pass diagnostic: power, weaknesses, upgrade priorities and tuning plan.</p>
-        </div>
-        <div class="meta">
-          <span class="price">NZ$29</span>
-          <a class="small-cta" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy now</a>
-        </div>
-      </article>
-      <article class="card kit">
-        <div>
-          <div class="tag">Digital kit</div>
-          <h3>Discord Webhook Starter</h3>
-          <p>Stripe-to-Discord webhook starter kit with payment handling, templates and setup guidance.</p>
-        </div>
-        <div class="meta">
-          <span class="price">NZ$79</span>
-          <a class="small-cta" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy now</a>
-        </div>
-      </article>
-      <article class="card market">
-        <div>
-          <div class="tag">Physical · 1 unit</div>
-          <h3>EDH_0001 Deck</h3>
-          <p>One physical Commander deck from current collection. Ships after payment.</p>
-        </div>
-        <div class="meta">
-          <span class="price">NZ$400</span>
-          <a class="small-cta" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy now</a>
-        </div>
-      </article>
-    </div>
-    <div class="hint"><span>← swipe / drag →</span><strong>direct Stripe</strong></div>
-  </section>
-
-  <section class="section" id="silos">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">Silos</div>
-        <h2>One catalogue.<br>Separated shelves.</h2>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Claim billboard tile · NZ$50</a>
+        <a class="btn btn-ghost" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Deck diagnostic · NZ$29</a>
       </div>
-      <p>Each silo owns its inventory, terms and checkout. The front door only shows the entry cards.</p>
     </div>
-    <div class="rail">
-      <a class="card bill" href="/billboard">
-        <div>
-          <div class="tag">Placement silo</div>
-          <h3>Billboard</h3>
-          <p>Finite public canvas. Founding tiles. Real position, human review.</p>
-        </div>
-        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
-      </a>
-      <a class="card magic" href="/mtg">
-        <div>
-          <div class="tag">Magic silo</div>
-          <h3>MTG</h3>
-          <p>Commander diagnostics, decks, singles. Existing Stripe contracts only.</p>
-        </div>
-        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
-      </a>
-      <a class="card meez" href="/avatar.html">
-        <div>
-          <div class="tag">Avatar silo</div>
-          <h3>DreamMeez</h3>
-          <p>Identity and avatar surfaces that travel with the account.</p>
-        </div>
-        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
-      </a>
-      <a class="card market" href="/offers.html">
-        <div>
-          <div class="tag">Marketplace silo</div>
-          <h3>B2B / Offers</h3>
-          <p>Seller listings, orders and settlement on the shared substrate.</p>
-        </div>
-        <div class="meta"><span class="price">Enter</span><span class="small-cta">Open →</span></div>
-      </a>
-    </div>
-    <div class="hint"><span>Swipe sideways to browse</span><strong>4 silos</strong></div>
   </section>
-
-  <section class="section" id="mtg-shelf">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">MTG shelf</div>
-        <h2>Magic gets its own rail.</h2>
-      </div>
-      <p>Services and physical inventory share the same storefront surface. Fulfilment stays specific to each listing.</p>
-    </div>
-    <div class="rail">
-      <article class="card magic">
-        <div>
-          <div class="tag">Service</div>
-          <h3>Commander Diagnostic</h3>
-          <p>Manual first. Prove the buyer and fulfilment loop before automating it.</p>
-        </div>
-        <div class="meta"><span class="price">NZ$29</span><a class="small-cta" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy</a></div>
+  <div class="filters">
+    <a class="f on" href="#featured">All</a>
+    <a class="f" href="#featured">Featured</a>
+    <a class="f" href="#mtg">Magic</a>
+    <a class="f" href="#digital">Digital</a>
+    <a class="f" href="#identity">Identity</a>
+    <a class="f" href="/billboard">Billboard</a>
+  </div>
+  <div class="proof">
+    <strong>How buying works</strong>
+    <p>Tap Buy → Stripe Checkout → settled payment → fulfilment. Demand is not intent. Intent is not revenue. Only settled Stripe counts.</p>
+  </div>
+  <section class="sec" id="featured">
+    <div class="sec-h"><h2>Featured</h2><span>Best first buys</span></div>
+    <div class="grid">
+      <article class="card feat">
+        <div class="tag">Public placement · finite</div>
+        <h3>Founding Billboard Tile</h3>
+        <p>One permanent 100×100 position on the public canvas. Human review. After it sells, that coordinate is gone.</p>
+        <div class="scarce d">Founding inventory · claim before it’s gone</div>
+        <div class="meta"><span class="price">NZ$50</span><a class="buy" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Buy now</a></div>
+      </article>
+      <article class="card feat">
+        <div class="tag">Magic · service</div>
+        <h3>Commander Deck Diagnostic</h3>
+        <p>Send your list. Power band, holes, upgrade order. Manual fulfilment after payment.</p>
+        <div class="scarce">Best first purchase</div>
+        <div class="meta"><span class="price">NZ$29</span><a class="buy" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy now</a></div>
+      </article>
+      <article class="card feat">
+        <div class="tag">Physical · 1 unit</div>
+        <h3>EDH_0001 Commander Deck</h3>
+        <p>One physical deck from current collection. Ships after settled payment.</p>
+        <div class="scarce d">Single unit · once sold, gone</div>
+        <div class="meta"><span class="price">NZ$400</span><a class="buy" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy now</a></div>
       </article>
       <article class="card">
-        <div>
-          <div class="tag">Owned inventory</div>
-          <h3>EDH_0001 Deck</h3>
-          <p>Physical Commander deck presented as a marketplace listing.</p>
-        </div>
-        <div class="meta"><span class="price">NZ$400</span><a class="small-cta" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy</a></div>
-      </article>
-      <article class="card">
-        <div>
-          <div class="tag">Collectible</div>
-          <h3>Palinchron Foil</h3>
-          <p>One collectible card. Checkout currently unavailable from the public catalogue.</p>
-        </div>
-        <div class="meta"><span class="price">NZ$700</span><a class="small-cta" href="/mtg">View</a></div>
-      </article>
-      <article class="card market">
-        <div>
-          <div class="tag">Trust service</div>
-          <h3>Maximona IPV</h3>
-          <p>Independent production verification Stripe↔DB. Fixed scope.</p>
-        </div>
-        <div class="meta"><span class="price">NZ$1,500</span><a class="small-cta" href="https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C">Buy</a></div>
+        <div class="tag">Digital kit</div>
+        <h3>Discord Webhook Starter</h3>
+        <p>Stripe-to-Discord starter: templates and setup guidance.</p>
+        <div class="meta"><span class="price">NZ$79</span><a class="buy" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy now</a></div>
       </article>
     </div>
-    <div class="hint"><span>← swipe / drag →</span><strong>MTG + trust</strong></div>
   </section>
-
-  <section class="section">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">Operating rule</div>
-        <h2>Evidence decides.</h2>
-      </div>
-      <p>Demand generates candidates. Evidence promotes them. A real buyer, settled payment, fulfilment and proof turn a listing into a verified outcome.</p>
+  <section class="sec" id="mtg">
+    <div class="sec-h"><h2>Magic</h2><span><a href="/mtg">Full shelf →</a></span></div>
+    <div class="grid">
+      <article class="card"><div class="tag">Service</div><h3>Commander Diagnostic</h3><p>Manual first-pass diagnostic.</p><div class="meta"><span class="price">NZ$29</span><a class="buy" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy</a></div></article>
+      <article class="card"><div class="tag">Owned inventory</div><h3>EDH_0001 Deck</h3><p>Physical. One unit.</p><div class="scarce d">Single unit</div><div class="meta"><span class="price">NZ$400</span><a class="buy" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy</a></div></article>
+      <article class="card"><div class="tag">Collectible</div><h3>Palinchron Foil</h3><p>Checkout off until fulfilment ready.</p><div class="meta"><span class="price">NZ$700</span><a class="buy ghost" href="/mtg">View</a></div></article>
+      <article class="card"><div class="tag">Trust</div><h3>Maximona IPV</h3><p>Independent production verification.</p><div class="meta"><span class="price">NZ$1,500</span><a class="buy" href="https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C">Buy</a></div></article>
     </div>
   </section>
+  <section class="sec" id="digital">
+    <div class="sec-h"><h2>Digital & tools</h2><span>Kits + access</span></div>
+    <div class="grid">
+      <article class="card"><div class="tag">Digital kit</div><h3>Discord Webhook Starter</h3><p>Stripe → Discord templates.</p><div class="meta"><span class="price">NZ$79</span><a class="buy" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy</a></div></article>
+      <article class="card"><div class="tag">PhinHaven</div><h3>Floor 1 access</h3><p>Limited access pass.</p><div class="scarce d">Limited</div><div class="meta"><span class="price">NZ$19</span><a class="buy" href="https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P">Claim</a></div></article>
+    </div>
+  </section>
+  <section class="sec" id="identity">
+    <div class="sec-h"><h2>Identity · DreamMeez</h2><span><a href="/avatar.html">Customize →</a></span></div>
+    <div class="grid">
+      <article class="card"><div class="tag">Cosmetic</div><h3>Cosmic Hoodie</h3><p>After settled payment.</p><div class="meta"><span class="price">NZ$5</span><a class="buy" href="https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J">Buy</a></div></article>
+      <article class="card"><div class="tag">Cosmetic</div><h3>Cape</h3><p>Email-matched on settlement.</p><div class="meta"><span class="price">NZ$10</span><a class="buy" href="https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K">Buy</a></div></article>
+      <article class="card"><div class="tag">Cosmetic</div><h3>Chrome Boots</h3><p>One-time cosmetic.</p><div class="meta"><span class="price">NZ$9</span><a class="buy" href="https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L">Buy</a></div></article>
+      <article class="card"><div class="tag">Supporter</div><h3>Monthly tiers</h3><p>From NZ$3.99/mo.</p><div class="meta"><span class="price">from NZ$3.99</span><a class="buy ghost" href="/avatar.html">Browse</a></div></article>
+    </div>
+  </section>
+  <footer class="foot">
+    <span>DreamLedger · evidence decides · no fake sales</span>
+    <span><a href="/about.html">About</a> · <a href="/policies.html">Policies</a> · <a href="/billboard">Billboard</a> · <a href="/mtg">Magic</a></span>
+  </footer>
 </main>
-
-<footer class="footer">
-  <span>DreamLedger · horizontal catalogue · CTA cards · silo separation</span>
-  <span><a href="/about.html">About</a> · <a href="/policies.html">Policies</a></span>
-</footer>
+<div class="bar">
+  <a class="s" href="#mtg">Magic<br>NZ$29</a>
+  <a class="p" href="https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x">Claim tile · NZ$50</a>
 </div>
 </body>
 </html>
