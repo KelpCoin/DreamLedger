@@ -1,0 +1,38 @@
+name: Operator Automation Contract
+
+on:
+  pull_request:
+    paths:
+      - 'docs/operator-automation/**'
+      - '.github/workflows/operator-automation-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/operator-automation/**'
+      - '.github/workflows/operator-automation-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate poster contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="docs/operator-automation/POSTER_AUTOMATION_CONTRACT.md"
+          test -s "$FILE"
+          for token in \
+            'TRIGGER' 'INPUTS' 'AUTHORITY' 'DECISION' 'ACTION' \
+            'VERIFICATION' 'EVIDENCE' 'FAILURE' 'ESCALATION' 'RESUME' \
+            'RUNBOOK_ID' 'idempotent' 'UNKNOWN' 'Quarantine' 'human'; do
+            grep -qi "$token" "$FILE" || { echo "Missing required contract token: $token"; exit 1; }
+          done
+          echo "Operator automation poster contract: PASS"
