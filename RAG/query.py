@@ -2,7 +2,6 @@ import json
 import os
 import sys
 import urllib.request
-import urllib.parse
 
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '').rstrip('/')
 SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')
@@ -19,7 +18,10 @@ def embedding(text):
         headers['Authorization'] = 'Bearer ' + EMBED_KEY
     req = urllib.request.Request(EMBED_URL, data=json.dumps({'model': EMBED_MODEL, 'input': text}).encode(), headers=headers, method='POST')
     with urllib.request.urlopen(req, timeout=120) as r:
-        return json.loads(r.read().decode())['data'][0]['embedding']
+        vec = json.loads(r.read().decode())['data'][0]['embedding']
+    if len(vec) != 384:
+        raise RuntimeError(f'embedding dimension {len(vec)} != 384')
+    return vec
 
 
 def query(text, count=8):
@@ -30,7 +32,7 @@ def query(text, count=8):
     if vec is not None:
         body['query_embedding'] = vec
     headers = {'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json'}
-    req = urllib.request.Request(SUPABASE_URL + '/rest/v1/rpc/hybrid_search', data=json.dumps(body).encode(), headers=headers, method='POST')
+    req = urllib.request.Request(SUPABASE_URL + '/rest/v1/rpc/rag_hybrid_search', data=json.dumps(body).encode(), headers=headers, method='POST')
     with urllib.request.urlopen(req, timeout=120) as r:
         return json.loads(r.read().decode())
 
