@@ -1,0 +1,152 @@
+{
+  "schema_version": "intent-to-pay-sentinel.v1",
+  "generated_at": "2026-09-16T07:48:19.025890+00:00",
+  "source_policy": "public_observation_only",
+  "does_not_claim_revenue": true,
+  "observations": [
+    {
+      "hypothesis": "stripe-reconciliation",
+      "hypothesis_name": "Stripe Production Reconciliation",
+      "source": "github",
+      "source_url": "https://github.com/haroldson-systems/spiral-ascension-app/pull/8",
+      "title": "PR 3: Billing hardening \u2014 user-bound portal, failed payments, idempotent webhook",
+      "intent_score": 25,
+      "intent_signals": [],
+      "relevance_terms": [
+        "stripe webhook duplicate"
+      ],
+      "observed_at": "2026-09-16T07:47:51.501688+00:00",
+      "price_floor_nzd": 1500
+    },
+    {
+      "hypothesis": "webhook-reliability",
+      "hypothesis_name": "Webhook Reliability Rescue",
+      "source": "github",
+      "source_url": "https://github.com/thevylinoteam/vylino/pull/1",
+      "title": "Phase 2 Vylino Business OS CRM, dashboards and integration foundation",
+      "intent_score": 25,
+      "intent_signals": [],
+      "relevance_terms": [
+        "webhook idempotency"
+      ],
+      "observed_at": "2026-09-16T07:48:07.770604+00:00",
+      "price_floor_nzd": 79
+    },
+    {
+      "hypothesis": "webhook-reliability",
+      "hypothesis_name": "Webhook Reliability Rescue",
+      "source": "hackernews",
+      "source_url": "https://getconvoy.io/blog/webhook-idempotency-launch-week/",
+      "title": "Launching Webhook Idempotency in Convoy",
+      "intent_score": 25,
+      "intent_signals": [],
+      "relevance_terms": [
+        "webhook idempotency"
+      ],
+      "observed_at": "2026-09-16T07:48:08.086786+00:00",
+      "price_floor_nzd": 79
+    },
+    {
+      "hypothesis": "webhook-reliability",
+      "hypothesis_name": "Webhook Reliability Rescue",
+      "source": "hackernews",
+      "source_url": "https://www.svix.com/blog/guaranteeing-webhook-ordering/",
+      "title": "You Can't Guarantee Webhook Ordering",
+      "intent_score": 25,
+      "intent_signals": [],
+      "relevance_terms": [
+        "webhook ordering"
+      ],
+      "observed_at": "2026-09-16T07:48:10.809019+00:00",
+      "price_floor_nzd": 79
+    }
+  ],
+  "hypothesis_summary": {
+    "stripe-reconciliation": {
+      "name": "Stripe Production Reconciliation",
+      "observations": 1,
+      "max_intent": 25,
+      "explicit_pay_signals": 0
+    },
+    "webhook-reliability": {
+      "name": "Webhook Reliability Rescue",
+      "observations": 3,
+      "max_intent": 25,
+      "explicit_pay_signals": 0
+    }
+  },
+  "errors": [
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "source": "github"
+    }
+  ]
+}
