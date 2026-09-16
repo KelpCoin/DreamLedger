@@ -15,6 +15,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: bec-runtime-proof-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   proof:
     runs-on: ubuntu-latest
