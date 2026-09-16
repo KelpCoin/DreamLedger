@@ -16,5 +16,5 @@
   {"id":"viking-helmet","name":"Viking Helmet","emoji":"helmet","slot":"hat","price_nzd":6,"product_id":"VIKING-HELMET"},
   {"id":"moon-bomber","name":"Moon Bomber","emoji":"bomber","slot":"clothing","color":"#8EA0C9","price_nzd":7,"product_id":"MOON-BOMBER"},
   {"id":"pearl-chain","name":"Pearl Chain","emoji":"pearl","slot":"accessory","color":"#F2E9D8","price_nzd":6,"product_id":"PEARL-CHAIN"},
-  {"id":"chrome-boots","name":"Chrome Boots","emoji":"boots","color":"#BFC8D8","slot":"clothing","price_nzd":9,"product_id":"CHROME-BOOTS"}
+  {"id":"chrome-boots","name":"Chrome Boots","emoji":"boots","slot":"clothing","color":"#BFC8D8","price_nzd":9,"product_id":"CHROME-BOOTS"}
 ]
