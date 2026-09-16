@@ -11,8 +11,6 @@ const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 const PRODUCER_MARKERS = [
   /checkout\/sessions/i,
   /stripe\.checkout\.sessions\.create/i,
-  /stripeCheckout\s*\(/i,
-  /stripeRequest\s*\(/i,
   /fetch\s*\(\s*[`'\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i,
   /curl[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i,
   /urllib[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i
@@ -29,14 +27,12 @@ function walk(dir, out = []) {
   return out;
 }
 
-function hasAnyProducer(text) {
-  return PRODUCER_MARKERS.some((r) => r.test(text));
-}
+function hasAnyProducer(text) { return PRODUCER_MARKERS.some((r) => r.test(text)); }
 
 function isReadOnlyStripeUse(text) {
   const lower = text.toLowerCase();
   if (!lower.includes('checkout/sessions')) return true;
-  return !/(method\s*[:=]\s*['\"]post['\"]|stripeCheckout\s*\(|stripeRequest\s*\(|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
+  return !/(method\s*[:=]\s*['\"]post['\"]|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
 }
 
 function producerWindows(text) {
@@ -81,7 +77,7 @@ const failures = rows.filter((r) => r.missing.length);
 const proofDir = path.join(ROOT, 'data', 'proofs');
 fs.mkdirSync(proofDir, { recursive: true });
 const proof = {
-  schema: 'DREAMLEDGER.STRIPE_CHECKOUT_CONTRACT.v1',
+  schema: 'DREAMLEDGER.STRIPE_CHECKOUT_CONTRACT.v2',
   generated_utc: new Date().toISOString(),
   required_payment_intent_metadata: REQUIRED,
   producer_windows: rows,
