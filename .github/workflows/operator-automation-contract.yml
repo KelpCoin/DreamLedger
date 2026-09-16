@@ -4,13 +4,19 @@ on:
   pull_request:
     paths:
       - 'docs/operator-automation/**'
+      - 'BEC-PRIME/operator/**'
       - '.github/workflows/operator-automation-contract.yml'
   push:
     branches: [main]
     paths:
       - 'docs/operator-automation/**'
+      - 'BEC-PRIME/operator/**'
       - '.github/workflows/operator-automation-contract.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -20,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout
+      - name: Checkout exact revision
         uses: actions/checkout@v4
 
       - name: Validate poster contract
@@ -35,4 +41,4 @@ jobs:
             'RUNBOOK_ID' 'idempotent' 'UNKNOWN' 'Quarantine' 'human'; do
             grep -qi "$token" "$FILE" || { echo "Missing required contract token: $token"; exit 1; }
           done
-          echo "Operator automation poster contract: PASS"
+          node BEC-PRIME/operator/validate-automation-contract.mjs
