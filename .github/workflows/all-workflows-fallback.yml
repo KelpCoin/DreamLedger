@@ -1,8 +1,6 @@
 name: DreamLedger Portfolio Controller
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
