@@ -15,7 +15,7 @@ concurrency:
 
 env:
   GH_TOKEN: ${{ github.token }}
-  STRIPE_EXPECTED_ACCOUNT_ID: acct_1NKPLaJt4ieIQDFz
+  STRIPE_EXPECTED_ACCOUNT_ID: acct_1SNVPvEGgEAnUFF9
 
 jobs:
   close-economic-loop:
@@ -125,7 +125,7 @@ Revenue claimed: NZ$0"
               '## Economic loop',
               'Payment -> verified event -> offer-specific fulfillment -> evidence -> next monetization candidate.', '',
               'This issue is generated only from a live Stripe payment event. No synthetic revenue is created.'
-            ].join('\\n');
+            ].join('\n');
             const result = cp.spawnSync('gh', ['issue', 'create', '--title', title, '--body', body], {encoding:'utf8'});
             if (result.status !== 0) throw new Error(result.stderr || result.stdout || 'gh issue create failed');
             console.log(`FULFILLMENT_CREATED ${result.stdout.trim()}`);
