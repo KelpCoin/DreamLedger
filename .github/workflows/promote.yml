@@ -66,10 +66,8 @@ jobs:
     name: Human approval
     needs: evaluate
     runs-on: ubuntu-latest
-    timeout-minutes: 4320
+    timeout-minutes: 330
     steps:
-      - uses: actions/checkout@v4
-
       - name: Await human approval
         uses: Delphia/manual-approval@v2
         with:
@@ -85,7 +83,12 @@ jobs:
 
             The deterministic 24-hour cool-off has already passed.
             Comment `approve` to proceed, or `deny` to abort.
-          timeout-minutes: 4320
+          timeout-minutes: 300
+
+      - name: Checkout approved main
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Write signed approval receipt
         env:
