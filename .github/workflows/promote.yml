@@ -1,0 +1,176 @@
+name: Promote
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_id:
+        description: Candidate ID to approve and compile
+        required: true
+        type: string
+      silo:
+        description: Target silo
+        required: true
+        type: choice
+        options:
+          - dreamledger
+          - amplissa
+          - phinhaven
+
+concurrency:
+  group: production-promotion-${{ inputs.candidate_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  evaluate:
+    name: Verify candidate is READY_FOR_APPROVAL
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Evaluate candidate through Elohim + Gauntlet gate
+        env:
+          CANDIDATE_ID: ${{ inputs.candidate_id }}
+        run: |
+          set -euo pipefail
+          test -s "candidates/${CANDIDATE_ID}.json"
+          node BEC-PRIME/production/ProductionPromotionGate.js "candidates/${CANDIDATE_ID}.json" ".promotion/${CANDIDATE_ID}.promotion-gate.json"
+
+      - name: Enforce 24-hour cool-off without burning a runner
+        env:
+          CANDIDATE_ID: ${{ inputs.candidate_id }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const id = process.env.CANDIDATE_ID;
+          const c = JSON.parse(fs.readFileSync(`candidates/${id}.json`, 'utf8'));
+          if (c.state !== 'READY_FOR_APPROVAL') throw new Error(`Candidate state is ${c.state}`);
+          if (!c.ready_at) throw new Error('Candidate must contain ready_at for the 24-hour cool-off');
+          const ready = Date.parse(c.ready_at);
+          if (!Number.isFinite(ready)) throw new Error('Candidate ready_at is not a valid ISO timestamp');
+          const elapsed = Date.now() - ready;
+          if (elapsed < 24 * 60 * 60 * 1000) throw new Error(`24-hour cool-off has not elapsed; ${Math.ceil((24*60*60*1000-elapsed)/60000)} minutes remain`);
+          console.log('COOLOFF_24H=PASS');
+          NODE
+
+  approve:
+    name: Human approval
+    needs: evaluate
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Await human approval
+        uses: Delphia/manual-approval@v2
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          exclude-workflow-initiator-as-approver: false
+          issue-title: Promote ${{ inputs.candidate_id }} to ${{ inputs.silo }}
+          issue-body: |
+            Candidate: ${{ inputs.candidate_id }}
+            Silo: ${{ inputs.silo }}
+            Initiated by: ${{ github.actor }}
+
+            The deterministic 24-hour cool-off has already passed.
+            Comment `approve` to proceed, or `deny` to abort.
+          timeout-minutes: 4320
+
+      - name: Write signed approval receipt
+        env:
+          SIGNING_KEY: ${{ secrets.PROMOTION_SIGNING_KEY }}
+          CANDIDATE_ID: ${{ inputs.candidate_id }}
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_KEY"
+          umask 077
+          printf '%s\n' "$SIGNING_KEY" > /tmp/promote.key
+          node promote.js approve "$CANDIDATE_ID" --key /tmp/promote.key
+          rm -f /tmp/promote.key
+
+      - name: Commit approval receipt
+        env:
+          CANDIDATE_ID: ${{ inputs.candidate_id }}
+        run: |
+          set -euo pipefail
+          git config user.name "promotion-bot"
+          git config user.email "promotion-bot@users.noreply.github.com"
+          git add "candidates/${CANDIDATE_ID}.json" ".promotion/${CANDIDATE_ID}.approval.json"
+          git commit -m "promote: approve ${CANDIDATE_ID}"
+          git push origin HEAD:main
+
+  compile:
+    name: Compile, sign, and deploy
+    needs: approve
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile candidate through canonical compiler chain
+        env:
+          CANDIDATE_ID: ${{ inputs.candidate_id }}
+        run: node promote.js compile "$CANDIDATE_ID"
+
+      - name: Verify promotion signatures
+        run: node promote.js verify
+
+      - name: Sign compiled artifact manifest
+        env:
+          SIGNING_KEY: ${{ secrets.PROMOTION_SIGNING_KEY }}
+          CANDIDATE_ID: ${{ inputs.candidate_id }}
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_KEY"
+          umask 077
+          printf '%s\n' "$SIGNING_KEY" > /tmp/promote.key
+          node promote.js sign "$CANDIDATE_ID" --key /tmp/promote.key
+          rm -f /tmp/promote.key
+
+      - name: Commit compiled artifacts and signature
+        env:
+          CANDIDATE_ID: ${{ inputs.candidate_id }}
+        run: |
+          set -euo pipefail
+          git config user.name "promotion-bot"
+          git config user.email "promotion-bot@users.noreply.github.com"
+          git add public BEC-PRIME/compiled "candidates/${CANDIDATE_ID}.json" .promotion
+          git commit -m "promote: compile and sign ${CANDIDATE_ID}"
+          git push origin HEAD:main
+
+      - name: Trigger Render deployment for target silo
+        env:
+          HOOK_DREAMLEDGER: ${{ secrets.RENDER_DEPLOY_HOOK_DREAMLEDGER }}
+          HOOK_AMPLISSA: ${{ secrets.RENDER_DEPLOY_HOOK_AMPLISSA }}
+          HOOK_PHINHAVEN: ${{ secrets.RENDER_DEPLOY_HOOK_PHINHAVEN }}
+          SILO: ${{ inputs.silo }}
+        run: |
+          set -euo pipefail
+          case "$SILO" in
+            dreamledger) HOOK="$HOOK_DREAMLEDGER" ;;
+            amplissa) HOOK="$HOOK_AMPLISSA" ;;
+            phinhaven) HOOK="$HOOK_PHINHAVEN" ;;
+            *) echo "Unknown silo"; exit 1 ;;
+          esac
+          test -n "$HOOK"
+          curl --fail-with-body --silent --show-error --retry 3 --retry-delay 5 --max-time 60 -X POST "$HOOK"
