@@ -49,7 +49,7 @@ function grantPaidCosmetic({ eventId, transactionId, session, sku }) {
   if (existing) return { handled: true, ...existing, idempotent: true };
 
   const users = read(USERS, []);
-  const user = users.find(x => normalizeEmail(x.email) === email);
+  const user = users.find(x => normalizeEmail(x.email) === email && x.email_verified === true);
   const record = {
     entitlement_id: `ent_${crypto.randomBytes(10).toString('hex')}`,
     event_id: eventId || null,
