@@ -1,0 +1,5 @@
+Phin Haven MVP playable client on main.
+Date: 2026-09-17
+Path: public/phin-haven.html
+Commit: b68f5e6d5b74df5b31e809133f42e62cad613c9c
+Verify: GET https://dreamledger.org/phin-haven.html returns Depth 1 / The Shallows
