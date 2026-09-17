@@ -10,7 +10,7 @@ if (!global.__dreamledgerSurfaceRepairPreload) {
   const ROOT = __dirname;
   const SERVER = path.join(ROOT, 'server.js');
   const WRONG_CHECKOUT = 'https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00';
-  const COMMANDER_CHECKOUT = 'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l';
+  const COMMANDER_CHECKOUT = 'https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I';
   const FILES = {
     '/digital-products': 'digital-products/index.html',
     '/digital-products/': 'digital-products/index.html',
