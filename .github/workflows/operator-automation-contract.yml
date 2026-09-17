@@ -1,0 +1,83 @@
+name: Operator Automation Contract
+
+on:
+  pull_request:
+    paths:
+      - 'docs/operator-automation/**'
+      - 'BEC-PRIME/operator/**'
+      - '.github/workflows/operator-automation-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/operator-automation/**'
+      - 'BEC-PRIME/operator/**'
+      - '.github/workflows/operator-automation-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate poster contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="docs/operator-automation/POSTER_AUTOMATION_CONTRACT.md"
+          test -s "$FILE"
+          for token in \
+            'TRIGGER' 'INPUTS' 'AUTHORITY' 'DECISION' 'ACTION' \
+            'VERIFICATION' 'EVIDENCE' 'FAILURE' 'ESCALATION' 'RESUME' \
+            'RUNBOOK_ID' 'idempotent' 'UNKNOWN' 'Quarantine' 'human'; do
+            grep -qi "$token" "$FILE" || { echo "Missing required contract token: $token"; exit 1; }
+          done
+          node BEC-PRIME/operator/validate-automation-contract.mjs
+          node BEC-PRIME/operator/validate-revenue-engine-registry.mjs
+
+      - name: Smoke operator packet generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cat > "$tmp/input.json" <<'JSON'
+          {"runbook_id":"SMOKE-OPERATOR-PACKET","subject":"CI smoke","events":[{"event_id":"E1","status":"UNKNOWN","authority":"test","evidence_ref":"fixture:E1","human_action_required":true}],"kill_switch":"OFF"}
+          JSON
+          node BEC-PRIME/operator/OperatorPacket.mjs "$tmp/input.json" "$tmp/operator-packet.json"
+          test -s "$tmp/operator-packet.json"
+
+      - name: Smoke evidence pack generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cat > "$tmp/input.json" <<'JSON'
+          {"runbook_id":"SMOKE-EVIDENCE-PACK","subject":"CI smoke","authority":"test","observations":[{"id":"O1","status":"PASS","source":"fixture","evidence_ref":"fixture:O1"}],"verification":{"status":"PASS"},"kill_switch":"OFF"}
+          JSON
+          node BEC-PRIME/operator/EvidencePack.mjs "$tmp/input.json" "$tmp/evidence-pack.json"
+          test -s "$tmp/evidence-pack.json"
+
+      - name: Smoke append-only audit trail
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cat > "$tmp/event.json" <<'JSON'
+          {"event_id":"E1","runbook_id":"SMOKE-AUDIT","actor":"CI","action":"VERIFY","status":"PASS","authority":"test","evidence_ref":"fixture:E1"}
+          JSON
+          node BEC-PRIME/operator/AuditTrail.mjs "$tmp/event.json" "$tmp/audit.jsonl"
+          test "$(wc -l < "$tmp/audit.jsonl")" -eq 1

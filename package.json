@@ -44,7 +44,9 @@
     "verify:dooh:gate1b": "pwsh -NoProfile -File DOOH/Gate1B-Sandbox.ps1 -OutputDir DOOH/GATE1B",
     "rag:ingest": "python RAG/ingest_github.py",
     "rag:query": "python RAG/query.py",
-    "rag:eval": "python RAG/eval.py"
+    "rag:eval": "python RAG/eval.py",
+    "verify:operator-contract": "node BEC-PRIME/operator/validate-automation-contract.mjs",
+    "verify:revenue-engine-registry": "node BEC-PRIME/operator/validate-revenue-engine-registry.mjs"
   },
   "engines": { "node": ">=20" },
   "dependencies": { "ajv": "^8.17.1", "qrcode": "^1.5.4" }

@@ -5,7 +5,7 @@ services:
     plan: starter
     branch: main
     rootDir: public
-    autoDeployTrigger: commit
+    autoDeployTrigger: off
     renderSubdomainPolicy: enabled
     domains:
       - dreamledger.org

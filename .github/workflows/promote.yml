@@ -1,0 +1,174 @@
+name: Promote
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Optional RUN id. It must already have a persisted queue entry.'
+        required: false
+        type: string
+  schedule:
+    - cron: '0 * * * *'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  select_ready:
+    name: Select cooled queue entry
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.pick.outputs.run_id }}
+      silo: ${{ steps.pick.outputs.silo }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Select a ready entry
+        id: pick
+        env:
+          REQUESTED_RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const requested = process.env.REQUESTED_RUN_ID || '';
+          const dir = path.resolve('.promotion/queue');
+          let selected = null;
+          if (requested) {
+            const file = path.join(dir, `${requested}.json`);
+            if (!fs.existsSync(file)) throw new Error(`queue entry missing: ${file}`);
+            const q = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (q.state !== 'QUEUED') throw new Error(`queue entry is ${q.state}, not QUEUED`);
+            if (Date.parse(q.ready_at) > Date.now()) throw new Error(`cool-off has not elapsed; ready_at=${q.ready_at}`);
+            selected = q;
+          } else if (fs.existsSync(dir)) {
+            for (const file of fs.readdirSync(dir).filter(x => x.endsWith('.json')).sort()) {
+              const q = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+              if (q.state === 'QUEUED' && Date.parse(q.ready_at) <= Date.now()) { selected = q; break; }
+            }
+          }
+          if (!selected) {
+            console.log('No cooled promotion queue entry. Exiting cleanly.');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'run_id=\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'silo=\n');
+            process.exit(0);
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `run_id=${selected.run_id}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `silo=${selected.silo}\n`);
+          NODE
+
+  approve:
+    name: Independent human approval
+    needs: select_ready
+    if: needs.select_ready.outputs.run_id != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Require an explicit approver list
+        env:
+          APPROVERS: ${{ vars.PROMOTION_APPROVERS }}
+        run: test -n "$APPROVERS"
+
+      - name: Await independent human approval
+        uses: Delphia/manual-approval@v2
+        with:
+          secret: ${{ github.token }}
+          approvers: ${{ vars.PROMOTION_APPROVERS }}
+          minimum-approvals: 1
+          exclude-workflow-initiator-as-approver: true
+          issue-title: "Promote ${{ needs.select_ready.outputs.run_id }} to ${{ needs.select_ready.outputs.silo }}"
+          issue-body: |
+            RUN: `${{ needs.select_ready.outputs.run_id }}`
+            Silo: `${{ needs.select_ready.outputs.silo }}`
+            Initiated by: `${{ github.actor }}`
+
+            Approve only after independently checking the queue entry, evidence hashes, and current release state.
+            Comment `approve` to proceed or `deny` to abort.
+
+      - name: Write Ed25519 approval receipt
+        env:
+          SIGNING_KEY: ${{ secrets.PROMOTION_SIGNING_KEY }}
+          PROMOTION_APPROVER: ${{ github.actor }}
+        run: |
+          test -n "$SIGNING_KEY"
+          printf '%s' "$SIGNING_KEY" | base64 -d > /tmp/promotion.key
+          chmod 600 /tmp/promotion.key
+          PROMOTION_KILL_SWITCH=OFF node BEC-PRIME/production/ProductionPromotionGate.js approve '${{ needs.select_ready.outputs.run_id }}' --key /tmp/promotion.key
+          rm -f /tmp/promotion.key
+
+      - name: Persist approval receipt
+        run: |
+          git config user.name 'promotion-bot'
+          git config user.email 'promotion-bot@browneye.local'
+          git add -f .promotion/
+          git diff --cached --quiet || git commit -m "promotion: approve ${{ needs.select_ready.outputs.run_id }}"
+          git push origin HEAD:main
+
+  compile_deploy:
+    name: Compile, verify, sign, deploy
+    needs: [select_ready, approve]
+    if: needs.select_ready.outputs.run_id != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Enforce kill switch
+        env:
+          KILL_SWITCH: ${{ vars.PROMOTION_KILL_SWITCH }}
+        run: test "$KILL_SWITCH" = "OFF"
+
+      - name: Compile from authoritative queued evidence
+        env:
+          PROMOTION_KILL_SWITCH: ${{ vars.PROMOTION_KILL_SWITCH }}
+        run: node BEC-PRIME/production/ProductionPromotionGate.js compile '${{ needs.select_ready.outputs.run_id }}'
+
+      - name: Verify compiled tree
+        env:
+          PROMOTION_KILL_SWITCH: ${{ vars.PROMOTION_KILL_SWITCH }}
+        run: node BEC-PRIME/production/ProductionPromotionGate.js verify '${{ needs.select_ready.outputs.run_id }}'
+
+      - name: Sign compiled receipt
+        env:
+          SIGNING_KEY: ${{ secrets.PROMOTION_SIGNING_KEY }}
+          PROMOTION_KILL_SWITCH: ${{ vars.PROMOTION_KILL_SWITCH }}
+        run: |
+          test -n "$SIGNING_KEY"
+          printf '%s' "$SIGNING_KEY" | base64 -d > /tmp/promotion.key
+          chmod 600 /tmp/promotion.key
+          node BEC-PRIME/production/ProductionPromotionGate.js sign '${{ needs.select_ready.outputs.run_id }}' --key /tmp/promotion.key
+          rm -f /tmp/promotion.key
+
+      - name: Persist signed compiled state
+        run: |
+          git config user.name 'promotion-bot'
+          git config user.email 'promotion-bot@browneye.local'
+          git add -f BEC-PRIME/compiled/website .promotion/
+          git diff --cached --quiet || git commit -m "promotion: compile ${{ needs.select_ready.outputs.run_id }}"
+          git push origin HEAD:main
+
+      - name: Deploy only through the explicit Render hook
+        env:
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_DREAMLEDGER }}
+          KILL_SWITCH: ${{ vars.PROMOTION_KILL_SWITCH }}
+        run: |
+          set -euo pipefail
+          test "$KILL_SWITCH" = "OFF"
+          test -n "$RENDER_HOOK"
+          curl --fail --show-error --silent --location --request POST "$RENDER_HOOK"

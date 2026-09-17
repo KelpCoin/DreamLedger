@@ -1,0 +1,35 @@
+name: Promotion Queue
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'RUN id from BEC-PRIME/data/refinement/'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  queue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Queue only an authoritative READY_FOR_APPROVAL run
+        run: node BEC-PRIME/production/ProductionPromotionGate.js queue '${{ inputs.run_id }}'
+
+      - name: Persist queue entry
+        run: |
+          git config user.name 'promotion-bot'
+          git config user.email 'promotion-bot@browneye.local'
+          git add -f .promotion/queue/
+          git diff --cached --quiet || git commit -m "promotion: queue ${{ inputs.run_id }}"
+          git push origin HEAD:main
