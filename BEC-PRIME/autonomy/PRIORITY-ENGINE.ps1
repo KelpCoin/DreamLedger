@@ -35,7 +35,7 @@ foreach($s in @($reg.silos)) {
 }
 $jobs = @($jobs | Sort-Object priority -Descending)
 $i=0
-foreach($j in $jobs){$i++; $j.rank=$i; WriteJ (Join-Path $Queue ("{0:D2}-{1}.json" -f $i,$j.silo) $j}
+foreach($j in $jobs){$i++; $j.rank=$i; WriteJ (Join-Path $Queue ("{0:D2}-{1}.json" -f $i,$j.silo)) $j}
 $manifest=[ordered]@{schema_version='BEC-PRIME-MISSION-1.0';timestamp=$now.ToUniversalTime().ToString('o');status='PLANNED';verified_revenue_nzd=[int]$state.revenue_nzd_verified;mission_count=$jobs.Count;missions=$jobs}
 $manifestPath=Join-Path $Proof ('MISSION-PLAN-{0}.json' -f $now.ToUniversalTime().ToString('yyyyMMddHHmmss'))
 WriteJ $manifestPath $manifest
