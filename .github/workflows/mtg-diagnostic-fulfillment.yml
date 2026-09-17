@@ -49,7 +49,7 @@ jobs:
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
           $homeHtml = Get-Content BEC-PRIME/compiled/website/index.html -Raw
-          foreach ($token in @('DISCOVER','DreamMeez','TRUTH','DIGITAL','BILLBOARD','class="rail"','href="/billboard"')) {
+          foreach ($token in @('DreamLedger','Catalogue','Billboard','Commander Deck Diagnostic','class="rail"','href="/billboard"')) {
             if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
           }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
