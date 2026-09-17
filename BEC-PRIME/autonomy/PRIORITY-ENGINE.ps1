@@ -35,9 +35,11 @@ foreach($s in @($reg.silos)) {
 }
 $jobs = @($jobs | Sort-Object priority -Descending)
 $i=0
-foreach($j in $jobs){$i++; $j.rank=$i; WriteJ (Join-Path $Queue ("{0:D2}-{1}.json" -f $i,$j.silo)) $j}
+foreach($j in $jobs){$i++; $j.rank=$i; WriteJ (Join-Path $Queue ("{0:D2}-{1}.json" -f $i,$j.silo) $j}
 $manifest=[ordered]@{schema_version='BEC-PRIME-MISSION-1.0';timestamp=$now.ToUniversalTime().ToString('o');status='PLANNED';verified_revenue_nzd=[int]$state.revenue_nzd_verified;mission_count=$jobs.Count;missions=$jobs}
 $manifestPath=Join-Path $Proof ('MISSION-PLAN-{0}.json' -f $now.ToUniversalTime().ToString('yyyyMMddHHmmss'))
 WriteJ $manifestPath $manifest
-WriteJ (Join-Path $Autonomy 'MISSION-STATE.json') ([ordered]@{schema_version='BEC-PRIME-MISSION-STATE-1.0';status='armed';last_plan=$manifestPath;top_silo=$jobs[0].silo;top_priority=$jobs[0].priority;human_approval_required=$true})
+$topSilo = if($jobs.Count -gt 0){$jobs[0].silo}else{$null}
+$topPriority = if($jobs.Count -gt 0){$jobs[0].priority}else{$null}
+WriteJ (Join-Path $Autonomy 'MISSION-STATE.json') ([ordered]@{schema_version='BEC-PRIME-MISSION-STATE-1.0';status='armed';last_plan=$manifestPath;top_silo=$topSilo;top_priority=$topPriority;human_approval_required=$true})
 Write-Output $manifestPath
