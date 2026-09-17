@@ -20,6 +20,22 @@ function patch(file, marker, script) {
   if (!final.includes(marker)) throw new Error(`ACCOUNT_CONTRACT_PATCH_FAILED:${file}`);
 }
 
+function patchCatalogueDoorways() {
+  const target = path.join(SITE, 'index.html');
+  if (!fs.existsSync(target)) throw new Error('ACCOUNT_SURFACE_MISSING:index.html');
+  let html = fs.readFileSync(target, 'utf8');
+  const truthOracle = '<a href="/truth-oracle.html" aria-label="Truth Oracle">Truth Oracle</a>';
+  if (!html.includes('href="/truth-oracle.html"')) {
+    const nav = `<nav aria-label="DreamLedger canonical doors" style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px;font-size:.72rem;font-weight:800">${truthOracle}</nav>`;
+    if (html.includes('</header>')) html = html.replace('</header>', nav + '</header>');
+    else if (html.includes('<body')) html = html.replace(/(<body[^>]*>)/i, '$1' + nav);
+    else html = nav + html;
+    fs.writeFileSync(target, html, 'utf8');
+  }
+  const final = fs.readFileSync(target, 'utf8');
+  if (!final.includes('href="/truth-oracle.html"')) throw new Error('CATALOGUE_DOORWAY_PATCH_FAILED:Truth Oracle');
+}
+
 patch(
   'login.html',
   '/api/account/login',
@@ -38,4 +54,5 @@ patch(
   '(async function(){var s=document.getElementById("state");try{var r=await fetch("/api/account/me",{credentials:"include",cache:"no-store"});var d=await r.json();if(d.authenticated){s.textContent="Signed in as "+(d.account.email||d.account.name||"your DreamLedger account")}else{s.innerHTML="Please <a href=\\"/login.html\\">log in</a> to view your account."}}catch(e){s.textContent="Account service unavailable."}})();'
 );
 
-console.log('PASS: primary DreamLedger account contracts repaired after surface compilation.');
+patchCatalogueDoorways();
+console.log('PASS: primary DreamLedger account contracts and canonical catalogue doors repaired after surface compilation.');
