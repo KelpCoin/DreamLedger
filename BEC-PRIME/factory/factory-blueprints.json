@@ -1,0 +1,53 @@
+{
+  "schema_version": "factory-blueprint-catalog-v1",
+  "factories": [
+    {
+      "id": "truth-oracle",
+      "name": "Truth Oracle Factory",
+      "purpose": "Observe and verify externally grounded claims",
+      "inputs": ["claim", "source_reference"],
+      "outputs": ["verified_claim", "evidence", "signal"],
+      "capabilities": ["retrieve", "compare", "verify", "abstain"],
+      "autonomy_ceiling": "L3",
+      "risk_class": "LOW",
+      "action_budget": 20,
+      "kill_switch": "GLOBAL_FACTORY_KILL_SWITCH"
+    },
+    {
+      "id": "engineering",
+      "name": "Engineering Factory",
+      "purpose": "Implement bounded software changes and verify them",
+      "inputs": ["task", "repository_context"],
+      "outputs": ["patch", "tests", "evidence", "signal"],
+      "capabilities": ["inspect", "edit", "test", "prove"],
+      "autonomy_ceiling": "L2",
+      "risk_class": "MEDIUM",
+      "action_budget": 30,
+      "kill_switch": "GLOBAL_FACTORY_KILL_SWITCH"
+    },
+    {
+      "id": "commerce",
+      "name": "Commerce Factory",
+      "purpose": "Operate bounded commerce workflows without bypassing payment authority",
+      "inputs": ["offer", "customer_context"],
+      "outputs": ["commerce_result", "evidence", "signal"],
+      "capabilities": ["catalog", "checkout", "fulfilment", "reconcile"],
+      "autonomy_ceiling": "L2",
+      "risk_class": "HIGH",
+      "action_budget": 20,
+      "kill_switch": "GLOBAL_FACTORY_KILL_SWITCH"
+    },
+    {
+      "id": "growth",
+      "name": "Growth Factory",
+      "purpose": "Run bounded demand and acquisition experiments",
+      "inputs": ["opportunity", "experiment_constraints"],
+      "outputs": ["experiment_result", "evidence", "signal"],
+      "capabilities": ["research", "experiment", "measure", "learn"],
+      "autonomy_ceiling": "L2",
+      "risk_class": "MEDIUM",
+      "action_budget": 20,
+      "kill_switch": "GLOBAL_FACTORY_KILL_SWITCH"
+    }
+  ]
+}
