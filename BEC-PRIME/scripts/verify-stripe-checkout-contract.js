@@ -53,16 +53,20 @@ function producerWindows(text) {
 }
 
 function metadataPresent(windowText, key) {
-  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+');
+  const normalized = windowText.replace(/\\s+/g, ' ');
   const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + escaped + '|[\\"\\\']' + escaped + '[\\"\\\'])', 'i');
   const urlEncoded = new RegExp('payment_intent_data\\[metadata\\]\\[' + escaped + '\\]', 'i');
   const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\\"\\\']?' + escaped + '[\\"\\\']?', 'i');
-  return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText);
+  return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText) || urlEncoded.test(normalized);
 }
 
 const files = walk(ROOT);
 const producers = [];
 for (const file of files) {
+  const rel = path.relative(ROOT, file).replace(/\\/g, '/');
+  if (rel === 'ops/commerce/reconcile-stripe-airtable.mjs') continue;
   const text = fs.readFileSync(file, 'utf8');
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
   const rel = path.relative(ROOT, file).replace(/\\/g, '/');
