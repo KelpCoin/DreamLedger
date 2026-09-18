@@ -25,12 +25,12 @@ const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.jso
 check('homepage-canonical-doors',
   ['DreamLedger', 'Billboard', 'DreamMeez', 'Truth Oracle'].every((x) => index.toLowerCase().includes(x.toLowerCase())),
   'Homepage exposes the canonical storefront doors required for this release.');
-check('diagnostic-removed-from-public-catalog',
-  !/COMMANDER-DECK-DIAGNOSTIC|Commander Deck Diagnostic/i.test(catalog),
-  'Retired Commander Deck Diagnostic is absent from public/catalog.json.');
-check('diagnostic-removed-from-public-mtg',
-  !/COMMANDER-DECK-DIAGNOSTIC|Commander Deck Diagnostic/i.test(mtg),
-  'Retired Commander Deck Diagnostic is absent from public/mtg.html.');
+check('diagnostic-current-public-catalog',
+  /"id":"COMMANDER-DECK-DIAGNOSTIC-001"[^}]*"sku":"CMD-DIAG-29"[^}]*"price":29[^}]*"status":"published"/i.test(catalog),
+  'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.');
+check('diagnostic-current-public-mtg',
+  /Commander Deck Diagnostic/i.test(mtg) && /29/i.test(mtg),
+  'Current Commander Deck Diagnostic remains discoverable at the canonical NZD 29 public MTG surface.');
 
 const plans = Array.isArray(truthPricing.plans) ? truthPricing.plans : [];
 const expected = { SIGNAL: 4.99, INTELLIGENCE: 7.99, DEEP_EVIDENCE: 9.99 };
