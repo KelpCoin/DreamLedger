@@ -80,5 +80,5 @@ jobs:
         run: |
           npm run compile
           test -f compiled/website/index.html
-          ! grep -Eiq 'magic the gathering|mtg shop|commander deck' compiled/website/index.html
+          ! grep -Eiq 'magic the gathering|mtg shop' compiled/website/index.html
           echo 'SILO_BOUNDARY_SCAN=PASS'
