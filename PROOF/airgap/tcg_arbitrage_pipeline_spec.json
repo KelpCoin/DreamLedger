@@ -1,0 +1,47 @@
+{
+  "name": "airgap-tcg-arbitrage-pipeline",
+  "version": "0.1.0",
+  "mode": "offline_first",
+  "description": "Design spec for local TCG price observation → score → alert. No live execution.",
+  "stages": [
+    "ingest_snapshots",
+    "normalize_identity",
+    "compute_spread",
+    "score_edge",
+    "emit_alert",
+    "human_or_policy_gate",
+    "ledger"
+  ],
+  "identity_key": ["set_code", "collector_number", "condition", "language"],
+  "knobs": {
+    "min_edge_ratio": 0.12,
+    "min_samples": 3,
+    "max_data_age_hours": 24
+  },
+  "alert_envelope": {
+    "alert_id": "uuid",
+    "kind": "tcg_arbitrage",
+    "created_at": "ISO-8601",
+    "card_key": "string",
+    "buy_venue": "string",
+    "sell_venue": "string",
+    "buy_price": "number",
+    "sell_price": "number",
+    "fees_estimate": "number",
+    "edge_ratio": "number",
+    "confidence": "number",
+    "data_age_hours": "number",
+    "status": "open|acknowledged|acted|expired|rejected",
+    "notes": "string"
+  },
+  "outputs": {
+    "alerts": "./out/alerts.jsonl",
+    "ledger": "./out/ledger.jsonl"
+  },
+  "non_goals": [
+    "auto-buy",
+    "auto-sell",
+    "live API dependency for unit tests",
+    "revenue claims from design alone"
+  ]
+}
