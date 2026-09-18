@@ -1,22 +1,3 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const stripeProof = require('../lib/stripeWebhookProof');
-
-const ROOT = path.join(__dirname, '..');
-const PRICING = path.join(ROOT, 'catalog', 'truth-oracle', 'pricing.json');
-const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
-const BILLING_STATE = path.join(DATA_ROOT, 'truth-oracle-billing.json');
-const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
-const COOKIE = 'dreamiez_session';
-
-function read(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
-function write(file, value) { fs.mkdirSync(path.dirname(file), {recursive:true}); const tmp=file+'.tmp-'+process.pid+'-'+Date.now(); fs.writeFileSync(tmp, JSON.stringify(value,null,2)+'\n'); fs.renameSync(tmp,file); }
-function send(res, status, body) { if (res.writableEnded) return true; res.writeHead(status, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}); res.end(JSON.stringify(body)); return true; }
-function form(params) { const out = new URLSearchParams(); for (const [key,value] of Object.entries(params)) out.set(key,String(value)); return out; }
 function plans() { return read(PRICING).plans || []; }
 function paidPlan(tier) { return plans().find(p => p.tier === tier && Number(p.price_nzd_month) > 0 && p.stripe_price_id) || null; }
 function getCookie(req,name) { const raw=String(req.headers.cookie||''); const match=raw.match(new RegExp('(?:^|;\\s*)'+name+'=([^;]+)')); return match ? decodeURIComponent(match[1]) : null; }
@@ -55,6 +36,8 @@ async function handle(req,res,url) {
     let raw=''; for await(const chunk of req){raw+=chunk;if(raw.length>20000)return send(res,413,{error:'Request too large'});}
     let body={};try{body=JSON.parse(raw||'{}');}catch{return send(res,400,{error:'Invalid JSON'});}
     const plan=paidPlan(String(body.tier||'')); if(!plan)return send(res,400,{error:'Unknown or unavailable Truth Oracle tier'});
+    const productSku='TRUTH-ORACLE-'+String(plan.tier).toUpperCase();
+    const offerId='OFFER-TRUTH-ORACLE-'+String(plan.tier).toUpperCase();
     try {
       const session=await stripePost('checkout/sessions',{
         mode:'subscription',
@@ -65,11 +48,19 @@ async function handle(req,res,url) {
         success_url:PUBLIC_BASE+'/truth-oracle?checkout=success&session_id={CHECKOUT_SESSION_ID}',
         cancel_url:PUBLIC_BASE+'/truth-oracle?checkout=cancelled',
         allow_promotion_codes:'true',
+        'metadata[product_sku]':productSku,
+        'metadata[product_id]':productSku,
+        'metadata[offer_id]':offerId,
         'metadata[silo]':'truth-oracle',
+        'metadata[source]':'truth-oracle',
         'metadata[user_id]':user.id,
         'metadata[truth_oracle_tier]':plan.tier,
         'metadata[disclosure_class]':plan.disclosure_class,
+        'subscription_data[metadata][product_sku]':productSku,
+        'subscription_data[metadata][product_id]':productSku,
+        'subscription_data[metadata][offer_id]':offerId,
         'subscription_data[metadata][silo]':'truth-oracle',
+        'subscription_data[metadata][source]':'truth-oracle',
         'subscription_data[metadata][user_id]':user.id,
         'subscription_data[metadata][truth_oracle_tier]':plan.tier,
         'subscription_data[metadata][disclosure_class]':plan.disclosure_class

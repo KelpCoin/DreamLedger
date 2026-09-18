@@ -10,6 +10,8 @@ function hash(v) { return crypto.createHash('sha256').update(JSON.stringify(v)).
 function compile() {
   const offer = JSON.parse(fs.readFileSync(OFFER_FILE, 'utf8'));
   const cfg = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+  const price = Number(offer.price);
+  if (!Number.isFinite(price) || price <= 0) throw new Error('INVALID_BILLBOARD_PRICE_NZD');
   const campaign = {
     schema_version: 'BEC-CAMPAIGN-SPEC-1.0',
     campaign_id: 'D-001',
@@ -17,8 +19,8 @@ function compile() {
     created_by: 'DECK',
     created_at: new Date().toISOString(),
     silo: 'SILO_DREAMLEDGER',
-    offer: { offer_id: offer.id, name: offer.name, price_nzd: Number(offer.price) / 100 },
-    objective: { metric: 'PAYMENT_RECEIVED', target: 1, amount_nzd: 50 },
+    offer: { offer_id: offer.id, name: offer.name, price_nzd: price },
+    objective: { metric: 'PAYMENT_RECEIVED', target: 1, amount_nzd: price },
     audience: { description: 'qualified creators and small businesses', max_targets: 10 },
     channels: [{ type: 'direct_outreach', mode: 'PREPARE_ONLY', external_action_requires_approval: true }],
     doorway: {
@@ -27,7 +29,7 @@ function compile() {
       template: cfg.canonical_url + '?utm_source={source}&utm_medium={medium}&utm_campaign=D-001&experiment_id=EXP-D001&offer_id=' + encodeURIComponent(offer.id)
     },
     qr: { asset_id: cfg.doorway_id, canonical: cfg.canonical_url, placement_variants_allowed: true },
-    success_criteria: { min_payments: 1, payment_amount_nzd: 50 },
+    success_criteria: { min_payments: 1, payment_amount_nzd: price },
     kill_condition: { max_qualified_targets: 10, max_human_minutes: 15 },
     approval: { required: true, status: 'PENDING', public_action_allowed: false },
     human_time_budget_minutes: 15,

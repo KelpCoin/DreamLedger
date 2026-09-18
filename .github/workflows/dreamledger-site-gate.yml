@@ -1,19 +1,15 @@
 name: DreamMeez Public Surface Gate
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
   group: dreammeez-public-surface-${{ github.ref }}
   cancel-in-progress: false
-
 jobs:
   public-surface:
     runs-on: ubuntu-latest
@@ -32,13 +28,12 @@ jobs:
           test -s public/package.json
           test -s public/robots.txt
           test -s public/sitemap.xml
-          grep -q 'DISCOVER' public/index.html
-          grep -q 'WORTH BUYING' public/index.html
-          grep -q 'Digital products' public/index.html
-          grep -q 'Magic &amp; collectibles' public/index.html
-          grep -q 'Games &amp; experiments' public/index.html
-          grep -q 'Digital media' public/index.html
+          grep -q 'DreamLedger' public/index.html
+          grep -q 'Catalogue' public/index.html
+          grep -q 'Billboard' public/index.html
+          grep -q 'Commander Deck Diagnostic' public/index.html
           grep -q '/billboard' public/index.html
+          grep -q '/mtg' public/index.html
           grep -q '/dreammeez' public/index.html
           grep -q "'GET /api/products':true" public/server.js
           grep -q "'POST /api/billboard/submit':true" public/server.js
@@ -46,7 +41,7 @@ jobs:
           grep -Eq "public-v1[4-9]" public/server.js
           grep -q 'https://dreamledger.org/sitemap.xml' public/robots.txt
           grep -q 'https://dreamledger.org/' public/sitemap.xml
-          echo 'PASS: DreamMeez storefront contract is present.'
+          echo 'PASS: DreamLedger storefront contract is present.'
       - name: Scan public assets for internal or cross-silo leakage
         shell: bash
         run: |
@@ -64,6 +59,7 @@ jobs:
           grep -Eq "'/'.*index.html" public/server.js
           grep -Eq "'/billboard'.*billboard.html" public/server.js
           grep -Eq "'/dreammeez'.*avatar.html" public/server.js
+          grep -Eq "'/mtg'.*mtg.html" public/server.js
           grep -Eq "'/sitemap.xml'.*sitemap.xml" public/server.js
           grep -q "if\(!ALLOWED_API\[key\]\)" public/server.js
           echo 'PASS: public routes explicitly allowlisted.'
@@ -81,6 +77,7 @@ jobs:
         run: |
           set -euo pipefail
           node --check public/server.js
+          node --check public/surfaceRepairPreload.js
           echo 'PASS: public server syntax is valid.'
       - name: Emit machine proof
         shell: bash
@@ -89,11 +86,11 @@ jobs:
           mkdir -p PROOF
           cat > PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json <<'JSON'
           {
-            "schema_version": "4.0",
-            "gate": "DREAMMEEZ_PUBLIC_SURFACE",
+            "schema_version": "4.2",
+            "gate": "DREAMLEDGER_PUBLIC_SURFACE",
             "status": "PASS",
             "public_root": "public",
-            "checks": ["catalogue_first","dreammeez_navigation","billboard_contained","sitemap_present","robots_present","api_allowlist_present","language_boundary_passed","credential_scan_passed","server_syntax_passed"],
+            "checks": ["catalogue_first","dreammeez_navigation","billboard_contained","mtg_present","sitemap_present","robots_present","api_allowlist_present","language_boundary_passed","credential_scan_passed","server_syntax_passed"],
             "note": "Live deployment status is established by the production truth probe."
           }
           JSON

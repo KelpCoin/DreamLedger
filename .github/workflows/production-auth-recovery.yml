@@ -87,11 +87,11 @@ jobs:
     needs: local-auth-gate
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    env:
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
     steps:
       - name: Trigger Render deployment when hook is configured
-        if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --max-time 30 -X POST "$RENDER_DEPLOY_HOOK"
@@ -128,7 +128,7 @@ jobs:
             echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "target=https://dreamledger.org"
             echo "local_auth_gate=completed"
-            echo "render_hook_configured=${{ secrets.RENDER_DEPLOY_HOOK != '' }}"
+            echo "render_hook_configured=${RENDER_DEPLOY_HOOK:+true}"
           } > proof/PRODUCTION-AUTH-RECOVERY.txt
 
       - name: Upload production proof

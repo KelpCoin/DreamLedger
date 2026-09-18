@@ -53,7 +53,11 @@ jobs:
           export PORT=4317
           export NODE_ENV=test
           export DREAMIEZ_DATA_DIR="$RUNNER_TEMP/dreamledger-data"
-          mkdir -p "$DREAMIEZ_DATA_DIR"
+          export BEC_LEDGER_DIR="$RUNNER_TEMP/bec-ledger"
+          export LEDGER_DATA_DIR="$RUNNER_TEMP/bec-ledger"
+          export BEC_PROOF_DIR="$RUNNER_TEMP/bec-proofs"
+          export PROOF_DATA_DIR="$RUNNER_TEMP/bec-proofs"
+          mkdir -p "$DREAMIEZ_DATA_DIR" "$BEC_LEDGER_DIR" "$BEC_PROOF_DIR"
           node -r ./lib/authRuntimePreload.js -r ./lib/publicShellPreload.js -r ./lib/m2mPreload.js -r ./lib/qrPreload.js -r ./lib/liveRouteCompatibility.js -r ./lib/marketplacePreload.js start.js > "$RUNNER_TEMP/dreamledger-runtime.log" 2>&1 &
           PID=$!
           trap 'kill $PID 2>/dev/null || true' EXIT
@@ -62,7 +66,11 @@ jobs:
             if curl -fsS http://127.0.0.1:4317/healthz >/dev/null; then ready=1; break; fi
             sleep 1
           done
-          test "$ready" = 1
+          if [ "$ready" != 1 ]; then
+            echo 'FAIL: local runtime did not become ready; runtime log follows:'
+            cat "$RUNNER_TEMP/dreamledger-runtime.log" || true
+            exit 1
+          fi
           EMAIL="ci-${GITHUB_RUN_ID}@example.invalid"
           REGISTER=$(curl -fsS -c "$RUNNER_TEMP/cookies.txt" -H 'Content-Type: application/json' -X POST http://127.0.0.1:4317/api/account/register -d "{\"name\":\"CI Auth Gate\",\"email\":\"$EMAIL\",\"password\":\"CI-Password-123!\"}")
           echo "$REGISTER"

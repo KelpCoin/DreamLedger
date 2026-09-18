@@ -24,7 +24,7 @@ if(!/href=["']\/avatar\.html["']/i.test(html))throw new Error('PUBLIC CATALOGUE 
 if(!/href=["']\/truth-oracle\.html["']/i.test(html))throw new Error('PUBLIC CATALOGUE FAILED: missing Truth Oracle canonical door');
 fs.mkdirSync(path.dirname(DEPLOYED),{recursive:true});
 fs.writeFileSync(DEPLOYED,html,'utf8');
-const discovery={schema:'dreamledger/agent-commerce/v1',service:'DreamLedger',currency:'NZD',source_of_truth:'/api/offers',approval_model:'explicit_human_approval',offers_are_checkout_disabled_by_default:true,private_material:'excluded',checkout:'/api/offer-checkout/create',current_offers:[],generated_at:new Date().toISOString()};
+const discovery={schema:'dreamledger/agent-commerce/v1',service:'DreamLedger',currency:'NZD',source_of_truth:'/api/offers',approval_model:'explicit_human_approval',offers_are_checkout_disabled_by_default:true,private_material:'excluded',capabilities:null,checkout:'/api/offer-checkout/create',current_offers:[],generated_at:new Date().toISOString()};
 fs.mkdirSync(WELL_KNOWN,{recursive:true});
 fs.mkdirSync(DEPLOYED_WELL_KNOWN,{recursive:true});
 const discoveryText=JSON.stringify(discovery,null,2)+'\n';
