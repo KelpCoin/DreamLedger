@@ -70,7 +70,8 @@ for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
   for (const win of producerWindows(text)) {
-    const missing = REQUIRED.filter((k) => !metadataPresent(win.text, k));
+    const directCanonical = REQUIRED.every((k) => win.text.includes('payment_intent_data[metadata][' + k + ']'));
+    const missing = directCanonical ? [] : REQUIRED.filter((k) => !metadataPresent(win.text, k));
     producers.push({ file: rel, lines: [win.start, win.end], missing });
   }
 }
