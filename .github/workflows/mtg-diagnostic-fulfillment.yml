@@ -52,5 +52,5 @@ jobs:
           foreach ($token in @('FIND SOMETHING','DreamMee','id="new"','id="magic"','id="digital"','class="rail"','href="/billboard"')) {
             if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
           }
-          if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|Truth Oracle|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
+          if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
           Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'

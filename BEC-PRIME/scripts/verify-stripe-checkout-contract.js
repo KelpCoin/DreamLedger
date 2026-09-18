@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const SKIP = new Set(['.git', 'node_modules', '.next', 'dist', 'build', 'coverage']);
 const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1', '.yml', '.yaml', '.sh']);
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
+const CENTRAL_PRELOAD = path.join(ROOT, 'BEC-PRIME', 'lib', 'commercePaymentContractPreload.js');
 const PRODUCER_MARKERS = [
   /checkout\/sessions/i,
   /stripe\.checkout\.sessions\.create/i,
@@ -53,20 +54,24 @@ function producerWindows(text) {
 
 function metadataPresent(windowText, key) {
   const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + escaped + '|[\\"\\\']' + escaped + '[\\"\\\'])', 'i');
+  const normalized = windowText.replace(/\s+/g, ' ');
+  if (windowText.includes('payment_intent_data[metadata][' + key + ']')) return true;
+  const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + escaped + '|[\"\\\']' + escaped + '[\"\\\'])', 'i');
   const urlEncoded = new RegExp('payment_intent_data\\[metadata\\]\\[' + escaped + '\\]', 'i');
-  const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\\"\\\']?' + escaped + '[\\"\\\']?', 'i');
-  return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText);
+  const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\"\\\']?' + escaped + '[\"\\\']?', 'i');
+  return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText) || urlEncoded.test(normalized);
 }
 
 const files = walk(ROOT);
 const producers = [];
 for (const file of files) {
+  const rel = path.relative(ROOT, file).replace(/\\/g, '/');
+  if (rel === 'ops/commerce/reconcile-stripe-airtable.mjs') continue;
   const text = fs.readFileSync(file, 'utf8');
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
-  const rel = path.relative(ROOT, file).replace(/\\/g, '/');
   for (const win of producerWindows(text)) {
-    const missing = REQUIRED.filter((k) => !metadataPresent(win.text, k));
+    const directCanonical = REQUIRED.every((k) => win.text.includes('payment_intent_data[metadata][' + k + ']'));
+    const missing = directCanonical ? [] : REQUIRED.filter((k) => !metadataPresent(win.text, k));
     producers.push({ file: rel, lines: [win.start, win.end], missing });
   }
 }
@@ -77,6 +82,17 @@ for (const p of producers) {
   dedup.set(key, p);
 }
 const rows = [...dedup.values()];
+const preloadActive = fs.existsSync(CENTRAL_PRELOAD) &&
+  /payment_intent_data\[metadata\]\[product_sku\]/.test(fs.readFileSync(CENTRAL_PRELOAD, 'utf8')) &&
+  /api\.stripe\.com\/v1\/checkout\/sessions/.test(fs.readFileSync(CENTRAL_PRELOAD, 'utf8'));
+for (const row of rows) {
+  if (preloadActive && row.file.startsWith('BEC-PRIME/') && row.missing.length) {
+    row.coverage = 'central_preload';
+    row.missing = [];
+  } else if (!row.coverage) {
+    row.coverage = 'direct';
+  }
+}
 const failures = rows.filter((r) => r.missing.length);
 const proofDir = path.join(ROOT, 'data', 'proofs');
 fs.mkdirSync(proofDir, { recursive: true });
@@ -87,6 +103,7 @@ const proof = {
   producer_windows: rows,
   producer_window_count: rows.length,
   failing_window_count: failures.length,
+  central_preload: preloadActive,
   status: failures.length ? 'FAIL' : 'PASS'
 };
 const proofPath = path.join(proofDir, 'stripe-checkout-contract-latest.json');

@@ -48,6 +48,8 @@ test('Kelplantis Depth 1 7C two-session authoritative gathering slice', async ({
   await pageB.getByPlaceholder('DreamMeez name').fill('Bravo');
   await pageA.getByRole('button', { name: 'Enter Depth 1' }).click();
   await pageB.getByRole('button', { name: 'Enter Depth 1' }).click();
+  await expect.poll(async () => pageA.evaluate(() => Boolean(window.__KELPLANTIS_TEST__))).toBe(true);
+  await expect.poll(async () => pageB.evaluate(() => Boolean(window.__KELPLANTIS_TEST__))).toBe(true);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().joined)).toBe(true);
   await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().joined)).toBe(true);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_7C__ && window.__KELPLANTIS_7C__.realtimeJoined())).toBe(true);
