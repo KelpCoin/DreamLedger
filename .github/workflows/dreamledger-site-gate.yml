@@ -17,6 +17,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
+        with:
           fetch-depth: 1
       - name: Validate public storefront files
         shell: bash
