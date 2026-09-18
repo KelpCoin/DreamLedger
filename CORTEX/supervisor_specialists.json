@@ -1,0 +1,48 @@
+{
+  "schema": "dreamledger/supervisor-specialists/v1",
+  "purpose": "Map four specialist seats onto existing LocalWorker roles and LM Studio council without inventing a new orchestration stack.",
+  "supervisor_owner": "durable_queue_and_leases_not_any_llm",
+  "priority_rule": "Does this job increase the probability of a real external economic event for an existing asset, or remove a concrete blocker to one?",
+  "existing_execution_plane": {
+    "local_worker": "CORTEX/powershell/LocalWorker.ps1",
+    "mailbox_worker": "CORTEX/local_mailbox_worker.ps1",
+    "lm_studio_config": "CORTEX/local_config.example.json",
+    "lm_studio_council": "BEC-PRIME/scripts/Bootstrap-LMStudioCouncil.ps1",
+    "job_schema": "CORTEX/job_schema.json",
+    "dispatch": ".github/workflows/dispatch-local-task.yml",
+    "supabase_rpcs": ["claim_task", "renew_task_lease_for_worker", "finish_task_for_worker", "claim_orchestrator_task", "renew_orchestrator_task_lease", "finish_orchestrator_task", "reap_orchestrator_tasks"]
+  },
+  "specialist_seats": {
+    "GROK": {
+      "function": "connected_execution",
+      "local_roles": ["noop", "hash_evidence"],
+      "transport": "AgentBridge + GitHub connected tools",
+      "notes": "External execution and verification only; does not invent jobs."
+    },
+    "CLAUDE": {
+      "function": "implementation_factory",
+      "local_roles": ["lm_draft"],
+      "lm_studio_council_role": "coder",
+      "notes": "Bounded draft/implementation proposals only; human approval for irreversible actions."
+    },
+    "GEMINI": {
+      "function": "independent_adversarial_checker",
+      "local_roles": ["lm_skeptic"],
+      "lm_studio_council_role": "critic",
+      "notes": "Returns issues array; never claims revenue."
+    },
+    "DEEPSEEK": {
+      "function": "economic_research_intelligence",
+      "local_roles": ["lm_research"],
+      "lm_studio_council_role": "proposer",
+      "notes": "Evidence-backed research only for existing assets."
+    }
+  },
+  "lm_studio": {
+    "base_url": "http://127.0.0.1:1234/v1",
+    "models_probe": "http://127.0.0.1:1234/v1/models",
+    "required_for_local_inference": true
+  },
+  "human_authority": "Biggie",
+  "forbidden": ["fake_revenue", "self_payment", "unapproved_external_action", "new_commercial_concept_invention"]
+}

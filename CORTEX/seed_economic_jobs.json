@@ -1,0 +1,65 @@
+{
+  "schema": "dreamledger/economic-seed-jobs/v1",
+  "generated_for": "existing_assets_only",
+  "priority_rule": "real_external_economic_event_or_blocker_removal",
+  "jobs": [
+    {
+      "seed_id": "SEED-BILLBOARD-ACQ-001",
+      "lane": "BILLBOARD",
+      "role": "lm_research",
+      "tier": "local",
+      "objective": "Billboard is technically sellable at NZ$50 via Payment Link 00w4gz6HzeWhcizeZedwc2w (SKU DL-BILLBOARD-100X100-3000-001) with zero verified external buyers. Produce a bounded acquisition brief: 3 concrete buyer channels already reachable without inventing new products, one draft outreach message per channel, and explicit human-approval gate before any send.",
+      "risk_class": "observe",
+      "approval_state": "none",
+      "input": {
+        "asset": "billboard",
+        "sku": "DL-BILLBOARD-100X100-3000-001",
+        "price_nzd": 50,
+        "payment_link": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+        "constraint": "technically_ready_zero_buyer_interaction",
+        "forbidden": ["new_product", "fake_scarcity", "revenue_claim"]
+      }
+    },
+    {
+      "seed_id": "SEED-AVATAR-ENTITLEMENT-001",
+      "lane": "AVATAR",
+      "role": "lm_research",
+      "tier": "local",
+      "objective": "Avatar/DreamMeez public identity surface exists. Identify the single smallest existing accessory or entitlement path that can become a real paid checkout without inventing a new product line. List concrete blockers only.",
+      "risk_class": "observe",
+      "approval_state": "none",
+      "input": {
+        "asset": "avatar_ecosystem",
+        "surface": "/dreammeez",
+        "forbidden": ["new_nft", "new_product_line", "revenue_claim"]
+      }
+    },
+    {
+      "seed_id": "SEED-GAME-RUNTIME-001",
+      "lane": "GAME",
+      "role": "lm_research",
+      "tier": "local",
+      "objective": "PHINHAVEN/game runtime is not present in canonical repo (OPS_CURRENT_STATE). Produce a bounded recovery checklist: where the runtime might already exist (local disks, prior artifacts, external repos already known), and the single next verification step. Do not invent monetization.",
+      "risk_class": "observe",
+      "approval_state": "none",
+      "input": {
+        "asset": "existing_game",
+        "status": "BLOCKED_PENDING_CANONICAL_RUNTIME",
+        "forbidden": ["new_game_design", "revenue_claim"]
+      }
+    },
+    {
+      "seed_id": "SEED-MTG-INVENTORY-001",
+      "lane": "MTG_LIQUIDATION",
+      "role": "lm_research",
+      "tier": "local",
+      "objective": "Existing MTG collection liquidation lane. Produce a bounded inventory/pricing preparation checklist for cards already owned: required fields for listing (name, set, condition, language, quantity), and one realistic pricing source method. No product invention.",
+      "risk_class": "observe",
+      "approval_state": "none",
+      "input": {
+        "asset": "existing_mtg_collection",
+        "forbidden": ["buy_inventory", "new_product", "revenue_claim"]
+      }
+    }
+  ]
+}
