@@ -75,21 +75,8 @@ jobs:
         run: |
           set -euo pipefail
           test -s RUN-PROOFS/STAGE-1-LOGIC-GATE.json
-          python3 - <<'PY'
-          import json
-          with open('RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f:
-              p = json.load(f)
-          if p.get('status') != 'PASS': raise SystemExit('STAGE1_STATUS=FAIL')
-          if p.get('mode') != 'SIMULATION': raise SystemExit('STAGE1_MODE=FAIL')
-          if not p.get('lifecycle_complete'): raise SystemExit('STAGE1_LIFECYCLE=FAIL')
-          h = str(p.get('ledger_head_hash') or '')
-          raw_h = h[7:] if h.startswith('sha256:') else h
-          if len(raw_h) != 64: raise SystemExit('STAGE1_LEDGER_HEAD_HASH=FAIL')
-          if p.get('revenue_claimed') is not False: raise SystemExit('REVENUE_CLAIM=FAIL')
-          if p.get('ra_000001_authorized') is not False: raise SystemExit('RA000001_AUTH=FAIL')
-          print('STAGE1_PROOF=PASS')
-          print('LEDGER_HEAD_HASH=' + h)
-          PY
+          node -e "const p=require('./RUN-PROOFS/STAGE-1-LOGIC-GATE.json'); const h=String(p.ledger_head_hash||''); if(p.status!=='PASS'||p.mode!=='SIMULATION'||p.lifecycle_complete!==true||!(h.startsWith('sha256:')?h.slice(7):h).match(/^[0-9a-f]{64}$/)||p.revenue_claimed!==false||p.ra_000001_authorized!==false) process.exit(1); console.log('STAGE1_PROOF=PASS'); console.log('LEDGER_HEAD_HASH='+h)"
+
       - name: Verify critical JavaScript syntax
         shell: bash
         run: |
