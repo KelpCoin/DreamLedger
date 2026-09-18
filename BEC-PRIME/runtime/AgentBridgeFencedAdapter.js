@@ -1,5 +1,6 @@
 'use strict';
 
+const defense = require('../security/AgentBridgeDefense');
 const legacy = require('./AgentBridgeProxyAdapter');
 const crypto = require('crypto');
 
@@ -56,6 +57,8 @@ async function remember(eventId, body) {
 }
 
 async function handle(req, res) {
+  const rate = defense.allowRate(req.socket && req.socket.remoteAddress || req.headers['x-forwarded-for'] || 'bridge');
+  if (!rate.allowed) return send(res, 429, { error: 'Agent bridge rate limit exceeded', retry_after_seconds: 60 }, null);
   const path = String(req.url || '').split('?')[0];
   const nextClaim = path === '/api/agent-bridge/jobs/claim';
   const match = path.match(/^\/api\/agent-bridge\/jobs\/([^/]+)\/(complete|fail|heartbeat)$/);
