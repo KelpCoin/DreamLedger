@@ -23,7 +23,7 @@ concurrency:
 env:
   BASE_URL: https://dreamledger.org
   RENDER_SERVICE_ID: srv-d8ud55lckfvc73f1t4eg
-  FOUNDING_PAYMENT_LINK: https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02
+  FOUNDING_PAYMENT_LINK: https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w
 
 jobs:
   gate:
@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - name: Checkout main
+      - name: Checkout triggering SHA
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           fetch-depth: 1
 
       - name: Record expected SHA
