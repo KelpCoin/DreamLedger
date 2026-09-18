@@ -1,0 +1,100 @@
+name: CORTEX Builder v1 — job-304
+
+# Proving job: Issue #304 PhinHaven rename.
+# Authority: write isolated branch + proof only. Never merge, deploy, or external contact.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cortex/job-304
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  builder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: cortex/job-304
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dry-run rename scan (invariant check)
+        run: python3 CORTEX/builder_v1/rename_phinhaven.py --root . --proof proof/cortex/job-304/rename_scan_dry.json
+
+      - name: Apply rename if invariant holds
+        run: |
+          set -euo pipefail
+          python3 CORTEX/builder_v1/rename_phinhaven.py --root . --apply --proof proof/cortex/job-304/rename_scan_apply.json
+
+      - name: Record head SHA proof
+        id: sha
+        run: |
+          set -euo pipefail
+          HEAD_SHA=$(git rev-parse HEAD)
+          mkdir -p proof/cortex/job-304
+          cat > proof/cortex/job-304/SHA_BOUND_PROOF.json <<EOF
+          {
+            "schema": "browneye/cortex-builder-v1/sha-bound/v1",
+            "job_id": "job-304",
+            "branch": "cortex/job-304",
+            "head_sha": "${HEAD_SHA}",
+            "base": "main",
+            "merge": false,
+            "deploy": false,
+            "external_contact": false,
+            "issue": 304
+          }
+          EOF
+          echo "head_sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
+          cat proof/cortex/job-304/SHA_BOUND_PROOF.json
+
+      - name: Commit proof artifacts on job branch only
+        run: |
+          set -euo pipefail
+          git config user.name "cortex-builder-v1"
+          git config user.email "cortex-builder-v1@users.noreply.github.com"
+          git add proof/cortex/job-304 CORTEX/builder_v1 || true
+          if git diff --staged --quiet; then
+            echo "No staged changes"
+          else
+            git commit -m "CORTEX job-304: PhinHaven rename proof (Builder v1)"
+            git push origin HEAD:cortex/job-304
+          fi
+
+      - name: Ensure PR exists (no auto-merge)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if gh pr list --head cortex/job-304 --base main --json number --jq 'length' | grep -q '^0$'; then
+            gh pr create --base main --head cortex/job-304 \
+              --title "CORTEX job-304: PhinHaven rename (Builder v1)" \
+              --body "Factory Proof 1 for Issue #304.
+
+- User-facing rename toward **PhinHaven**
+- Technical identifiers (kelplantis_*) preserved by invariant check
+- No merge by worker; no deploy; no external contact
+- Review required for DONE"
+          else
+            echo "PR already exists"
+            gh pr list --head cortex/job-304 --base main
+          fi
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-job-304-proof
+          path: proof/cortex/job-304/
+          if-no-files-found: warn
