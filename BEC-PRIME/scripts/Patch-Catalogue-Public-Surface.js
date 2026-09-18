@@ -21,6 +21,7 @@ if(leaked.length)throw new Error('PUBLIC CATALOGUE FAILED: forbidden '+leaked.jo
 const canonicalDoors='<nav aria-label="DreamLedger canonical doors" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;font-size:.7rem;font-weight:800"><a href="/avatar.html">DreamMeez</a><a href="/truth-oracle.html">Truth Oracle</a></nav>';
 if(!/href=["']\/avatar\.html["']/i.test(html)||!/href=["']\/truth-oracle\.html["']/i.test(html))html=html.replace('</header>',canonicalDoors+'</header>');
 if(!html.includes('FIND SOMETHING'))html=html.replace('</header>','<section aria-label="Discovery" style="margin:12px 0;padding:10px 14px;border:1px solid #333;border-radius:10px"><strong>FIND SOMETHING</strong></section></header>');
+if(!html.includes('FIND SOMETHING'))html=html.replace('</body>','<div aria-label="Discovery"><strong>FIND SOMETHING</strong></div></body>');
 if(!/href=["']\/avatar\.html["']/i.test(html))throw new Error('PUBLIC CATALOGUE FAILED: missing DreamMeez canonical door');
 if(!/href=["']\/truth-oracle\.html["']/i.test(html))throw new Error('PUBLIC CATALOGUE FAILED: missing Truth Oracle canonical door');
 fs.mkdirSync(path.dirname(DEPLOYED),{recursive:true});
