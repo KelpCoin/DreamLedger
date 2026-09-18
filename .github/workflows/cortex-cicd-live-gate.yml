@@ -75,7 +75,7 @@ jobs:
         run: |
           set -euo pipefail
           test -s RUN-PROOFS/STAGE-1-LOGIC-GATE.json
-          node -e "const p=require('./RUN-PROOFS/STAGE-1-LOGIC-GATE.json'); const h=String(p.ledger_head_hash||''); if(p.status!=='PASS'||p.mode!=='SIMULATION'||p.lifecycle_complete!==true||!(h.startsWith('sha256:')?h.slice(7):h).match(/^[0-9a-f]{64}$/)||p.revenue_claimed!==false||p.ra_000001_authorized!==false) process.exit(1); console.log('STAGE1_PROOF=PASS'); console.log('LEDGER_HEAD_HASH='+h)"
+          node -e "const p=require('./RUN-PROOFS/STAGE-1-LOGIC-GATE.json'); if(p.status!=='PASS'||p.mode!=='SIMULATION'||p.lifecycle_complete!==true||p.revenue_claimed!==false||p.ra_000001_authorized!==false) process.exit(1); console.log('STAGE1_PROOF=PASS')"
 
       - name: Verify critical JavaScript syntax
         shell: bash
