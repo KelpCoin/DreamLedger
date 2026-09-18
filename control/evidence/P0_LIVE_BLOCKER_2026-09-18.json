@@ -1,0 +1,29 @@
+{
+  "artifact": "P0_LIVE_BLOCKER",
+  "recorded_at": "2026-09-18T08:22:00Z",
+  "ra000001": {
+    "status": "OPEN",
+    "verified_external_revenue_nzd": 0,
+    "verified_payment_count": 0
+  },
+  "render": {
+    "service": "DreamLedger1",
+    "service_id": "srv-d8ud55lckfvc73f1t4eg",
+    "live_deploy_id": "dep-damc50rncjis73deqs30",
+    "live_sha": "0ac5f7d2cdc6e55e91d5c95052395e2a8df11e14",
+    "instance": "srv-d8ud55lckfvc73f1t4eg-pbsd2",
+    "error": "Bridge lease did not contain a job id",
+    "recurrence": "roughly once per minute",
+    "observed_window": "2026-09-18T07:01:43Z to 2026-09-18T07:55:42Z"
+  },
+  "states": {
+    "SOURCE_FIXED": "VERIFIED IN MAIN SOURCE",
+    "DEPLOYED": "VERIFIED",
+    "RUNNING": "VERIFIED, BUT FAILING",
+    "WORKING": "UNPROVEN"
+  },
+  "blocker": "ProductionBridgeWorker is live but failing before adaptJob() when the leased envelope does not yield a usable job id. This blocks P0 runtime/behavior proof.",
+  "distribution": "BLOCKED until payment -> webhook -> entitlement -> fulfillment -> evidence chain is proven.",
+  "next_action": "Trace the live lease response/job lookup contract and patch the actual runNext()/leaseNextJob boundary. Do not replay a live Stripe event or perform external outreach yet.",
+  "evidence": "Supabase control_evidence: 9287c01f-f094-44e0-bdda-6e133cf88cc8"
+}
