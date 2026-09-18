@@ -16,6 +16,7 @@ create index if not exists idx_agent_bridge_security_events_occurred_at on publi
 create index if not exists idx_agent_bridge_security_events_correlation on public.agent_bridge_security_events (correlation_id);
 alter table public.agent_bridge_security_events enable row level security;
 revoke all on table public.agent_bridge_security_events from anon, authenticated;
+revoke delete, update, truncate, references, trigger on table public.agent_bridge_security_events from service_role;
 grant select, insert on table public.agent_bridge_security_events to service_role;
 
 create table if not exists public.bec_component_registry (
@@ -30,6 +31,7 @@ create table if not exists public.bec_component_registry (
 );
 alter table public.bec_component_registry enable row level security;
 revoke all on table public.bec_component_registry from anon, authenticated;
+revoke delete, truncate, references, trigger on table public.bec_component_registry from service_role;
 grant select, insert, update on table public.bec_component_registry to service_role;
 comment on table public.agent_bridge_security_events is 'Server-side defensive audit trail for AgentBridge policy decisions. Not public API data.';
 comment on table public.bec_component_registry is 'Authoritative registry linking Elohim, Gauntlet and Truth Oracle revisions to the economic control plane.';
