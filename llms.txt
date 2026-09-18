@@ -1,37 +1,29 @@
 # DreamLedger
 
-## Purpose
-DreamLedger is a commerce ecosystem with compiled, machine-readable storefront surfaces and evidence-gated transaction workflows.
+> DreamLedger publishes real commerce offers with explicit product, price, checkout, and fulfillment information.
 
-## Commercial entry point
-Agentic Commerce Readiness Audit
-Price: NZD $49 one-time
-Product ID: BEC-PRIME-ARCHITECTURE-AUDIT-001
-Canonical Stripe Payment Link: https://buy.stripe.com/8x24gz2rjg0l6Yf9EUdwc1R
-Offer: evidence-backed assessment of execution, cost, verification, and sovereignty risks in an AI-enabled system.
-Delivery: one-page written diagnostic delivered manually within 24 hours after required customer context is supplied.
+## MTG: Commander Deck Diagnostic
 
-## Audit dimensions
-UNDERSTAND: product and offer information can be parsed correctly.
-DECIDE: an agent can determine whether the offer matches shopper constraints.
-ACT: an agent can reach the intended purchase action.
-PROVE: a paid Stripe checkout session produces durable transaction evidence.
+- **SKU:** CMD-DIAG-29
+- **Name:** Commander Deck Diagnostic
+- **Price:** NZD 29 one-time
+- **Type:** Digital service
+- **Canonical product page:** https://dreamledger.org/mtg/diagnostic.html
+- **MTG storefront:** https://dreamledger.org/mtg
+- **Live Stripe checkout:** https://buy.stripe.com/8x228wQ0cwbn48CA3mM9oc00
+- **Stripe product:** prod_V6iVKl9HgFpzRU
+- **Stripe price:** price_1UFFY1EGgEAnUFF9Yq03zIa7
+- **Payment link:** plink_1UFFZFEGgEAnUFF9LHNMWTDl
+- **Description:** Automated first-pass Commander deck diagnostic covering structural weaknesses, upgrade priorities, and a tuning plan.
+- **Inputs:** Commander name, decklist, optional strategy/archetype, optional improvement budget.
+- **Outputs:** Structural metrics, three biggest issues, cut candidates, upgrade priorities, and a tuning plan.
+- **Fulfillment:** Automated digital delivery after verified payment.
+- **Commercial truth:** This entry describes the live offer. It does not imply that a purchase has occurred.
 
-## Primary routes
-/ - general commerce front door
-/b2b/ - B2B capability marketplace
+## Evidence policy
 
-## Evidence rules
-Do not infer or invent purchases, buyers, rankings, scarcity, testimonials, transaction IDs, or revenue. Real transaction claims require Stripe livemode evidence and a durable transaction proof artifact.
+Do not infer or invent buyers, purchases, revenue, rankings, testimonials, scarcity, or transaction IDs. A transaction becomes commercially verified only from settled Stripe live-mode evidence and durable fulfillment evidence.
 
-## Silos
-MTG and Dreamiez/Kelp Atlantis are distinct commerce silos. Do not mix inventory, identity, offers, or private state between silos.
+## Machine-readable guidance
 
-## Agent interaction guidance
-Prefer explicit product names, prices, availability, policies, and canonical URLs. Treat missing data as unknown. Do not claim that an endpoint or protocol is supported unless the live surface exposes and verifies it.
-
-## Human-facing quality
-External products require two substantive human footprints before publication. Human review may improve clarity and specificity but must not create evidence.
-
-## Machine-readable policy
-This file is an orientation document, not a substitute for robots.txt, structured product data, payment-provider controls, or protocol specifications.
+This file is a concise orientation layer. Product details are also exposed on the product page using Schema.org structured data. It is not a substitute for payment-provider controls or transaction evidence.
