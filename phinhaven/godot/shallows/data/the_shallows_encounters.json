@@ -1,0 +1,26 @@
+{
+  "floor_id": 1,
+  "name": "The Shallows",
+  "version": "0.1.0",
+  "status": "godot_scaffold_data",
+  "resource_nodes": [
+    {
+      "id": "kelp_frond_node",
+      "item_id": "kelp_frond",
+      "display_name": "Kelp Frond",
+      "yield_min": 1,
+      "yield_max": 2
+    }
+  ],
+  "enemy_family": {
+    "id": "tide_skitter",
+    "display_name": "Tide Skitter",
+    "hp_hint": 8,
+    "damage_hint": 2
+  },
+  "clear_targets": [
+    { "type": "defeat_count", "enemy_id": "tide_skitter", "count": 5 },
+    { "type": "gather_count", "item_id": "kelp_frond", "count": 6 }
+  ],
+  "clear_rule": "any_one_clear_target"
+}
