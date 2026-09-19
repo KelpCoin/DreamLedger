@@ -1,0 +1,73 @@
+{
+  "name": "the_shallows_floor_loop",
+  "version": "0.1.0",
+  "authority": "server_intended",
+  "description": "Shared state machine for Floor 1. Client may predict presentation; server owns transitions that affect progress, inventory, or clear.",
+  "states": [
+    {
+      "id": "SANCTUARY",
+      "enter": ["link_avatar_if_needed", "show_floor_gate"],
+      "exits": ["ENTER_FLOOR"]
+    },
+    {
+      "id": "ENTER_FLOOR",
+      "enter": ["kelplantis_enter_floor_or_equivalent", "load_shallows_content"],
+      "exits": ["EXPLORE"]
+    },
+    {
+      "id": "EXPLORE",
+      "enter": ["enable_move", "show_resource_nodes", "allow_engage"],
+      "exits": ["ENCOUNTER", "GATHER", "EXIT_FLOOR", "DEATH"]
+    },
+    {
+      "id": "GATHER",
+      "enter": ["resolve_resource_yield_authoritative"],
+      "exits": ["EXPLORE", "CHECK_CLEAR"]
+    },
+    {
+      "id": "ENCOUNTER",
+      "enter": ["spawn_or_select_pack", "resolve_combat_steps"],
+      "exits": ["EXPLORE", "CHECK_CLEAR", "DEATH"]
+    },
+    {
+      "id": "CHECK_CLEAR",
+      "enter": ["evaluate_clear_targets"],
+      "exits": ["CLEARED", "EXPLORE"]
+    },
+    {
+      "id": "CLEARED",
+      "enter": [
+        "kelplantis_record_floor1_boss_clear_or_equivalent",
+        "set_world_response_flag",
+        "unlock_floor_gate_if_rules_allow"
+      ],
+      "exits": ["SANCTUARY"]
+    },
+    {
+      "id": "DEATH",
+      "enter": ["apply_death_model", "return_to_sanctuary"],
+      "exits": ["SANCTUARY"]
+    },
+    {
+      "id": "EXIT_FLOOR",
+      "enter": ["persist_session_safe_state"],
+      "exits": ["SANCTUARY"]
+    }
+  ],
+  "invariants": [
+    "client cannot self-declare CLEARED",
+    "inventory mutations only on authoritative transitions",
+    "appearance fetch is own-only and optional",
+    "tiers grant cosmetics only, never clear or damage"
+  ],
+  "rpc_binding_hints": [
+    "kelplantis_enter_floor",
+    "kelplantis_move_player",
+    "kelplantis_engage_encounter",
+    "kelplantis_attack",
+    "kelplantis_record_floor1_boss_clear",
+    "kelplantis_get_floor_progress",
+    "kelplantis_get_world_state",
+    "kelplantis_get_own_linked_avatar_appearance (proposed)"
+  ]
+}
