@@ -1,7 +1,13 @@
 {
-  "name":"dreamledger-public-storefront",
-  "private":true,
-  "version":"1.0.2",
-  "engines":{"node":">=24 <25"},
-  "scripts":{"start":"node -r ./discordCommercePreload.js -r ./agentbridge-preload.js -r ./webhook-proxy-preload.js -r ./brand-preload.js server.js"}
+  "name": "dreamledger-public-storefront",
+  "private": true,
+  "version": "1.0.2",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node -r ./discordCommercePreload.js -r ./agentbridge-preload.js -r ./webhook-proxy-preload.js -r ./brand-preload.js server.js",
+    "verify:surface": "node verify-public-surface.js",
+    "build": "npm run verify:surface"
+  }
 }
