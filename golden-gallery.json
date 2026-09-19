@@ -1,0 +1,17 @@
+{
+  "surface_id": "GOLDEN-GALLERY-001",
+  "surface": "DreamLedger public scrollable e-commerce gallery",
+  "economic_anchor": "Golden Layer / Golden CUBE",
+  "oracle_surface": "/truth-oracle",
+  "catalogue_source": "public.marketplace_catalog",
+  "truth_rule": "listing_is_not_revenue",
+  "publication_status": "PUBLISHED",
+  "human_approval_required": false,
+  "verified_paid_event_required": false,
+  "items": [
+    "DL-BILLBOARD-100X100-3000-001",
+    "B2B-EVIDENCE-AUDIT-001",
+    "COMMANDER-DECK-DIAGNOSTIC-001",
+    "EDH_0001"
+  ]
+}
