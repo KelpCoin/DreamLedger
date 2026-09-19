@@ -105,7 +105,7 @@ function Invoke-Dispatcher([string]$ActionId,[object]$Job,[string]$SiloId) {
 
 function Persist-ActionEvidence([string]$SiloId,[string]$JobId,[hashtable]$ActionEvidence) {
   $wire=$ActionEvidence | ConvertTo-Json -Depth 30 -Compress
-  $canonical=$wire | node -e "const canonicalize=require('canonicalize'); let s=''; process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(canonicalize(JSON.parse(s))));"
+  $canonical=$wire | node -e "let s=''; function c(v){if(Array.isArray(v))return '['+v.map(c).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+c(v[k])).join(',')+'}';return JSON.stringify(v)} process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(c(JSON.parse(s))));"
   if ([string]::IsNullOrWhiteSpace($canonical)) { throw "JCS_CANONICALIZATION_FAILED" }
   $sha=[Security.Cryptography.SHA256]::Create()
   try { $hash=(-join ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($canonical)) | ForEach-Object { $_.ToString("x2") })) } finally { $sha.Dispose() }
