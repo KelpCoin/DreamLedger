@@ -11,7 +11,7 @@ services:
       - dreamledger.org
       - www.dreamledger.org
       - qr.dreamledger.org
-    buildCommand: npm install --omit=dev --no-audit --no-fund
+    buildCommand: npm install --omit=dev --no-audit --no-fund && npm run build
     startCommand: npm start
     healthCheckPath: /healthz
     envVars:
