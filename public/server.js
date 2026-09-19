@@ -14,11 +14,12 @@ const ECOSYSTEM_PATH=path.join(ROOT,'ecosystem.json');
 const AGENT_PATH=path.join(ROOT,'agent.json');
 const SURFACES_PATH=path.join(ROOT,'surfaces.json');
 const DISCOVERY_PATH=path.join(ROOT,'.well-known','dreamledger.json');
+const UCP_PATH=path.join(ROOT,'.well-known','ucp');
 const RESERVATION_DIR=path.join(ROOT,'data','billboard-reservations');
 const ACCOUNT_ROOT=path.join(ROOT,'..','BEC-PRIME','compiled','website');
 const DREAMMEEZ_ROOT=path.join(ROOT,'..','BEC-PRIME','silos','SILO_DREAMIEZ','compiled','website');
 const BILLBOARD_CHECKOUT='https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02';
-const PUBLIC_FILES={'/':'index.html','/index.html':'index.html','/billboard':'billboard.html','/billboard/':'billboard.html','/mtg':'mtg.html','/mtg/':'mtg.html','/avatar':'avatar.html','/avatar/':'avatar.html','/avatars':'avatar.html','/avatars/':'avatar.html','/dreammeez':'avatar.html','/dreammeez/':'avatar.html','/dreamiez':'dreamiez.html','/dreamiez/':'dreamiez.html','/robots.txt':'robots.txt','/sitemap.xml':'sitemap.xml','/catalog.json':'catalog.json','/cube.json':'cube.json','/ecosystem.json':'ecosystem.json','/agent.json':'agent.json','/surfaces.json':'surfaces.json'};
+const PUBLIC_FILES={'/':'index.html','/index.html':'index.html','/power.html':'power.html','/truth-oracle.html':'truth-oracle.html','/billboard':'billboard.html','/billboard/':'billboard.html','/mtg':'mtg.html','/mtg/':'mtg.html','/avatar':'avatar.html','/avatar/':'avatar.html','/avatars':'avatar.html','/avatars/':'avatar.html','/dreammeez':'avatar.html','/dreammeez/':'avatar.html','/dreamiez':'dreamiez.html','/dreamiez/':'dreamiez.html','/robots.txt':'robots.txt','/sitemap.xml':'sitemap.xml','/catalog.json':'catalog.json','/cube.json':'cube.json','/ecosystem.json':'ecosystem.json','/agent.json':'agent.json','/surfaces.json':'surfaces.json'};
 const ACCOUNT_PAGES={'/login.html':'login.html','/register.html':'register.html','/account.html':'account.html','/login':'login.html','/login/':'login.html','/register':'register.html','/register/':'register.html','/account':'account.html','/account/':'account.html'};
 const ACCOUNT_API={'GET /api/account/me':true,'POST /api/account/login':true,'POST /api/account/register':true,'POST /api/account/logout':true,'POST /api/account/update':true};
 const ALLOWED_API={'GET /api/molt-beach-inventory':true,'GET /api/products':true,'GET /api/products/':true,'GET /api/offers':true,'GET /api/cube':true,'GET /api/ecosystem':true,'GET /api/agent':true,'GET /api/surfaces':true,'GET /api/billboard/submit':true,'POST /api/billboard/submit':true,'POST /api/offer-checkout/create':true,...ACCOUNT_API};
@@ -63,4 +64,5 @@ if(p==='/dreamiez'||p==='/dreamiez/')return serveFile(res,'dreamiez.html',DREAMM
 if(p==='/avatar'||p==='/avatar/'||p==='/avatars'||p=='/avatars/')return serveFile(res,'avatar.html');
 if(p.startsWith('/api/')){if(!ALLOWED_API[key])return send(res,404,'Not Found','text/plain; charset=utf-8');try{return proxy(req,res,await readBody(req))}catch{return send(res,400,'Bad request','text/plain; charset=utf-8')}}
 if(p==='/.well-known/dreamledger.json'&&req.method==='GET')return serveFile(res,'.well-known/dreamledger.json');
+if(p==='/.well-known/ucp'&&req.method==='GET')return serveFile(res,'.well-known/ucp');
 const file=PUBLIC_FILES[p];if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');serveFile(res,file)}).listen(PORT,'0.0.0.0',()=>console.log('DreamLedger public storefront listening on '+PORT));
