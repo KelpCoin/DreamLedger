@@ -1,0 +1,15 @@
+{
+  "schema_version": "BECK-24H-RECEIPT-1.0",
+  "generated_from": "supabase.public.cube_evidence_vault",
+  "evidence_id": "251ff7d7-318d-4c11-855b-bbc064166326",
+  "source": "beck.24h.receipt",
+  "verification_status": "VERIFIED",
+  "window_start": "2026-09-18T00:33:34.920302+00:00",
+  "window_end": "2026-09-19T00:33:34.920302+00:00",
+  "operational_autonomy": {"observed_heartbeats": 1},
+  "resilience": {"objective_persistent_in_jobs": true, "expired_lease_recovery_available": true},
+  "economic_autonomy": {"status": "NOT_YET_PROVEN", "settled_external_payment_rows_24h": 0, "revenue_nzd_24h": 0},
+  "evidence_rows_24h": 8,
+  "content_hash": "73ae10992ba776fdc53210903263bae722a8bdc2671503d7cf24a02a2022e0de",
+  "generated_from_observed_database_evidence": true
+}

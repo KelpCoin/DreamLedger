@@ -1,0 +1,58 @@
+{
+  "receipt_id": "BECK_SUPERVISED_ECONOMIC_LAYER_2026-09-19",
+  "observed_at": "2026-09-19",
+  "database": "DreamLedger / wbwgroygjeyukkspnqiy",
+  "objective": {
+    "id": "5b1f00e3-2a7e-4e9d-a4fd-9eb2f3ab0fff",
+    "key": "beck_objective_28a834355f6547559a21d091ee1b14e1",
+    "state": "active",
+    "status": "leased",
+    "success_condition_hash": "b18aafa570e1d99030e0498fdd55f7469de16f995237376cd62cb4ebf52a2312"
+  },
+  "epistemic_enforcement": {
+    "model_output_tier": "MODEL_OUTPUT",
+    "verified_tier": "VERIFIED",
+    "economic_verified_tier": "ECONOMIC_VERIFIED",
+    "unauthorized_model_promotion_test": "BLOCKED",
+    "blocked_error": "EPISTEMIC_FORBIDDEN: model output cannot become verified"
+  },
+  "capabilities": [
+    "beck-discovery",
+    "beck-demand",
+    "beck-execution",
+    "beck-economic-reconciliation",
+    "beck-evidence",
+    "beck-learning",
+    "beck-gauntlet"
+  ],
+  "loop_jobs": [
+    "e4afd394-068a-4802-a027-1e9eeb8eee86",
+    "8c6fc0a8-4ee1-4c3f-a017-c0e4928d7ade",
+    "67d97c5c-d0ff-432d-95c6-03470e8c3c8a",
+    "df301db9-800f-4241-8422-f2a99579cb22"
+  ],
+  "gauntlet": {
+    "latest_aut0001_verdict": "PASS",
+    "latest_aut0001_result_sha256": "988524326194b050b6e22324aa66ec74d9d1e6086748a8fdf17197183fb6c70f"
+  },
+  "economic_truth": {
+    "status": "NOT_YET_PROVEN",
+    "paid_orders": 0,
+    "revenue_nzd": 0
+  },
+  "receipt_evidence": {
+    "id": "7825d1c3-ee0a-4eeb-bd9e-e85c0ce6c4f0",
+    "content_hash": "b67ebade84d3dcde8a8ead123637a3da56e735e750bc4416e2c065b89f4471f9"
+  },
+  "github_mirror": {
+    "commit_sha": "48bd36c31476ddaeba152b1797e0e9ada7df4b4a",
+    "path": "supabase/migrations/20260919011200_beck_epistemic_supervised_economic_layer_v1.sql",
+    "branch": "beck-objective-persistence-v1"
+  },
+  "execution_boundary": {
+    "cloud_control_plane": "EXECUTED_AND_VERIFIED",
+    "render_worker": "NO_DEDICATED_BECK_WORKER_SERVICE_OBSERVED",
+    "windows_lm_studio": "NOT_OBSERVED_FROM_THIS_ENVIRONMENT",
+    "physical_autonomy": "UNPROVEN"
+  }
+}
