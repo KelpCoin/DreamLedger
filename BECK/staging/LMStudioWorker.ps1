@@ -132,7 +132,7 @@ function Process-Job([object]$Job) {
   }
   try {
     $parsed=Parse-LMContent (Invoke-LM $task)
-    $record=Invoke-Rpc "beck_record_lm_output" @{ p_job_id=$jobId; p_raw=$parsed.raw; p_structured=$parsed.structured }
+    $record=Invoke-Rpc "beck_record_lm_output" @{ p_job_id=$jobId; p_worker_id=$WorkerId; p_lease_token=[string]$Job.lease_token; p_raw=$parsed.raw; p_structured=$parsed.structured }
     if ([string]$record.status -ne "UNVERIFIED_VALID") { Write-Heartbeat $objectiveId "RETRY"; return }
     $auth=Invoke-Rpc "beck_authorize_action" @{ p_objective_id=$objectiveId; p_action_id=[string]$parsed.structured.action_id }
     if (-not $auth.allowed) { throw ("AUTHORITY_DENIED:" + $auth.reason) }
@@ -141,7 +141,7 @@ function Process-Job([object]$Job) {
     $verify=Invoke-Rpc "beck_verify_loop_evidence" @{ p_job_id=$jobId }
     if ([string]$verify.status -eq "VERIFIED") { Write-Heartbeat $objectiveId "VERIFIED" } else { Write-Heartbeat $objectiveId "BLOCKED" }
   } catch {
-    try { Invoke-Rest "$SupabaseUrl/rest/v1/jobs?id=eq.$jobId&status=eq.leased&worker_id=eq.$WorkerId" "Patch" @{ status="pending"; last_error=$_.Exception.Message; leased_until=$null } | Out-Null } catch {}
+    try { Invoke-Rest "$SupabaseUrl/rest/v1/jobs?id=eq.$jobId&status=eq.leased&worker_id=eq.$WorkerId&lease_token=eq.$([uri]::EscapeDataString([string]$Job.lease_token))" "Patch" @{ status="pending"; last_error=$_.Exception.Message; leased_until=$null } | Out-Null } catch {}
     Write-Heartbeat $objectiveId "RETRY"
   }
 }
