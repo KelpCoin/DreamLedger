@@ -104,7 +104,9 @@ function Invoke-Dispatcher([string]$ActionId,[object]$Job,[string]$SiloId) {
 }
 
 function Persist-ActionEvidence([string]$SiloId,[string]$JobId,[hashtable]$ActionEvidence) {
-  $canonical=$ActionEvidence | ConvertTo-Json -Depth 30 -Compress
+  $wire=$ActionEvidence | ConvertTo-Json -Depth 30 -Compress
+  $canonical=$wire | node -e "const canonicalize=require('canonicalize'); let s=''; process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(canonicalize(JSON.parse(s))));"
+  if ([string]::IsNullOrWhiteSpace($canonical)) { throw "JCS_CANONICALIZATION_FAILED" }
   $sha=[Security.Cryptography.SHA256]::Create()
   try { $hash=(-join ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($canonical)) | ForEach-Object { $_.ToString("x2") })) } finally { $sha.Dispose() }
   $row=@{ silo_id=$SiloId; source=$ActionEvidence.source; observation=$ActionEvidence.observation; verification_status="UNVERIFIED"; source_ref=("beck_job:"+$JobId); content_hash=$hash }
