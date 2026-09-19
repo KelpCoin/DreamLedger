@@ -76,6 +76,52 @@ function Parse-LMContent([object]$Response) {
 
 function Invoke-Dispatcher([string]$ActionId,[object]$Job,[string]$SiloId) {
   switch ($ActionId) {
+    "INSPECT_COMMERCIAL_PATH" {
+      $offers=@(Invoke-Rest "$SupabaseUrl/rest/v1/offers?lifecycle_status=in.(live,sale_ready)&visibility=in.(public,featured)&select=id,title,final_price_cents,currency,lifecycle_status,visibility,slug,exposure_budget,raw_metrics&order=updated_at.desc&limit=20")
+      $cells=@(Invoke-Rest "$SupabaseUrl/rest/v1/commerce_cells?state=eq.SELLABLE&verified_checkout=eq.true&verified_fulfillment=eq.true&verified_webhook=eq.true&select=offer_id,sku,product_id,price_cents,checkout_url,fulfillment_type,state,acquisition_state,approval_required,verified_checkout,verified_fulfillment,verified_webhook&limit=20")
+      $actions=@(Invoke-Rest "$SupabaseUrl/rest/v1/economic_actions?approval_required=eq.true&executed_at=is.null&select=action_id,candidate_id,offer_id,action_type,approved_by,approved_at,result,metadata,created_at&order=created_at.desc&limit=20")
+      return @{ source="beck.economic.inspect"; observation=@{ objective_id=$Job.beck_objective_id; offers=$offers; sellable_cells=$cells; pending_distribution_actions=$actions } }
+    }
+    "ANALYZE_ECONOMICS" {
+      $snapshot=Invoke-Rpc "beck_economic_snapshot" @{ p_objective_id=[string]$Job.beck_objective_id }
+      return @{ source="beck.economic.analysis"; observation=@{ snapshot=$snapshot; rule="verified Stripe revenue is economic truth; model output is not"; margin_gate="meaningful spend requires deterministic price/cost check" } }
+    }
+    "VERIFY_CHECKOUT" {
+      $cells=@(Invoke-Rest "$SupabaseUrl/rest/v1/commerce_cells?state=eq.SELLABLE&select=sku,product_id,price_cents,checkout_url,verified_checkout,verified_fulfillment,verified_webhook,acquisition_state&limit=20")
+      return @{ source="beck.commercial.checkout"; observation=@{ checked_at=(Get-Date).ToUniversalTime().ToString("o"); cells=$cells } }
+    }
+    "DISCOVER_DEMAND" {
+      $signals=@(Invoke-Rest "$SupabaseUrl/rest/v1/economic_demand_signals?status=in.(ACTIVE,VERIFIED,OPEN)&select=signal_id,source,source_ref,problem_text,buyer_intent,estimated_value_nzd,status,source_url,title,observed_at&order=observed_at.desc&limit=20")
+      $prospects=@(Invoke-Rest "$SupabaseUrl/rest/v1/prospecting_candidates?approval_status=eq.pending_human_review&select=id,candidate_name,target_offer,candidate_source,candidate_contact_hint,confidence,approval_status,created_at&order=created_at.desc&limit=20")
+      return @{ source="beck.market.sense"; observation=@{ demand_signals=$signals; prospect_candidates=$prospects } }
+    }
+    "PREPARE_DISTRIBUTION" {
+      $prospects=@(Invoke-Rest "$SupabaseUrl/rest/v1/prospecting_candidates?approval_status=eq.pending_human_review&select=id,candidate_name,target_offer,candidate_source,candidate_contact_hint,confidence,approval_status,created_at&order=created_at.desc&limit=20")
+      $actions=@(Invoke-Rest "$SupabaseUrl/rest/v1/economic_actions?approval_required=eq.true&approved_at=is.null&executed_at=is.null&action_type=eq.OUTREACH_PREPARED&select=action_id,candidate_id,offer_id,action_type,result,metadata,created_at&order=created_at.desc&limit=20")
+      return @{ source="beck.distribution.prepare"; observation=@{ prospects=$prospects; existing_prepared_actions=$actions; execution="NOT_SENT"; approval_required=$true } }
+    }
+    "PREPARE_OUTREACH" {
+      $actions=@(Invoke-Rest "$SupabaseUrl/rest/v1/economic_actions?approval_required=eq.true&approved_at=is.null&executed_at=is.null&action_type=eq.OUTREACH_PREPARED&select=action_id,candidate_id,offer_id,action_type,result,metadata,created_at&order=created_at.desc&limit=20")
+      return @{ source="beck.distribution.queue"; observation=@{ prepared_actions=$actions; execution="NOT_SENT"; approval_required=$true } }
+    }
+    "VERIFY_PAYMENT" {
+      $result=Invoke-Rpc "beck_verify_objective" @{ p_objective_id=[string]$Job.beck_objective_id }
+      return @{ source="beck.economic.payment"; observation=@{ verifier_result=$result } }
+    }
+    "RECONCILE_REVENUE" {
+      $paid=@(Invoke-Rest "$SupabaseUrl/rest/v1/revenue_orders?status=eq.paid&select=id,stripe_event_id,stripe_checkout_session_id,stripe_payment_intent_id,sku_id,amount_nzd,currency,paid_at&order=paid_at.desc&limit=20")
+      $fulfill=@(Invoke-Rest "$SupabaseUrl/rest/v1/fulfillment_requests?select=id,sku_id,status,created_at,updated_at&order=created_at.desc&limit=20")
+      return @{ source="beck.economic.reconciliation"; observation=@{ paid_orders=$paid; fulfillment=$fulfill } }
+    }
+    "FULFIL_ORDER" {
+      $result=Invoke-Rpc "beck_verify_objective" @{ p_objective_id=[string]$Job.beck_objective_id }
+      return @{ source="beck.fulfillment"; observation=@{ verifier_result=$result; note="fulfillment remains bound to existing verified commerce path" } }
+    }
+    "LEARN_FROM_OUTCOME" {
+      $outcomes=@(Invoke-Rest "$SupabaseUrl/rest/v1/economic_outcomes?select=outcome_id,offer_id,outcome_type,amount_nzd,founder_minutes,fulfilment_minutes,acquisition_cost_nzd,payment_fees_nzd,external_reference,observed_at,metadata&order=observed_at.desc&limit=20")
+      $actions=@(Invoke-Rest "$SupabaseUrl/rest/v1/economic_actions?select=action_id,action_type,result,metadata,created_at&order=created_at.desc&limit=20")
+      return @{ source="beck.learning"; observation=@{ outcomes=$outcomes; recent_actions=$actions } }
+    }
     "LOOP_001_OBSERVE" {
       $recent=@(Get-RecentEvidence $SiloId)
       return @{ source="beck.loop.001"; observation=@{ loop=1; observed_at=(Get-Date).ToUniversalTime().ToString("o"); source="existing_database_evidence"; recent_evidence_count=$recent.Count; evidence_ids=@($recent | ForEach-Object { $_.evidence_id }) } }
@@ -88,9 +134,8 @@ function Invoke-Dispatcher([string]$ActionId,[object]$Job,[string]$SiloId) {
       return @{ source="beck.loop.002"; observation=@{ loop=2; observed_at=(Get-Date).ToUniversalTime().ToString("o"); normalized_from=@($deps | ForEach-Object { $_.evidence_id }); normalization="deterministic_reference_normalization" } }
     }
     "LOOP_003_DEMAND_SCAN" {
-      $u="$SupabaseUrl/rest/v1/economic_model_tasks?status=eq.pending&select=task_id,candidate_id,model_name,model_role,created_at&order=created_at.asc&limit=20"
-      $tasks=@(Invoke-Rest $u)
-      return @{ source="beck.loop.003"; observation=@{ loop=3; observed_at=(Get-Date).ToUniversalTime().ToString("o"); demand_task_count=$tasks.Count; task_ids=@($tasks | ForEach-Object { $_.task_id }) } }
+      $signals=@(Invoke-Rest "$SupabaseUrl/rest/v1/economic_demand_signals?select=signal_id,source,problem_text,buyer_intent,estimated_value_nzd,status,source_url,title,observed_at&order=observed_at.desc&limit=20")
+      return @{ source="beck.loop.003"; observation=@{ loop=3; observed_at=(Get-Date).ToUniversalTime().ToString("o"); demand_signal_count=$signals.Count; signal_ids=@($signals | ForEach-Object { $_.signal_id }) } }
     }
     "LOOP_004_SYNTHESIZE" {
       $since=[uri]::EscapeDataString((Get-Date).ToUniversalTime().AddHours(-24).ToString("o"))
@@ -126,9 +171,9 @@ function Process-Job([object]$Job) {
     job_id=$jobId
     objective_id=$objectiveId
     silo_id=$siloId
-    allowed_action_ids=@("LOOP_001_OBSERVE","LOOP_002_NORMALIZE","LOOP_003_DEMAND_SCAN","LOOP_004_SYNTHESIZE")
+    allowed_action_ids=@("INSPECT_COMMERCIAL_PATH","ANALYZE_ECONOMICS","VERIFY_CHECKOUT","DISCOVER_DEMAND","PREPARE_DISTRIBUTION","PREPARE_OUTREACH","VERIFY_PAYMENT","RECONCILE_REVENUE","FULFIL_ORDER","LEARN_FROM_OUTCOME","LOOP_001_OBSERVE","LOOP_002_NORMALIZE","LOOP_003_DEMAND_SCAN","LOOP_004_SYNTHESIZE")
     recent_evidence=@(Get-RecentEvidence $siloId)
-    constraints=@("evidence_first","no_external_action","no_revenue_claim")
+    constraints=@("economic_objective","deterministic_gate","evidence_first","no_external_send_without_approval","no_spending","no_revenue_claim","BusinessTruth_only_for_verified_revenue")
   }
   try {
     $parsed=Parse-LMContent (Invoke-LM $task)
