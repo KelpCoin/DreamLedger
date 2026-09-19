@@ -244,6 +244,12 @@ function compile() {
   const gauntlet = runGauntlet(generated.candidates, capabilities);
   const approvedInput = loadApprovedOffers();
   const approvedResult = compileApprovedOffers(approvedInput, capabilities, gauntlet.passed);
+  const approvedInputIds = approvedInput.map(o => o && o.offer_id).filter(Boolean);
+  const compiledApprovedIds = new Set(approvedResult.approved.map(o => o.offer_id));
+  const missingExplicitApprovals = approvedInputIds.filter(id => !compiledApprovedIds.has(id));
+  if (missingExplicitApprovals.length) {
+    throw new Error(`Approved offer catalog contract failed: explicit approved offer(s) missing from compiled catalog: ${missingExplicitApprovals.join(", ")}`);
+  }
   fs.mkdirSync(OFFERS_DIR, { recursive: true });
   const allRejected = [...generated.rejected, ...gauntlet.rejected, ...approvedResult.errors];
   const approvedIds = new Set(approvedResult.approved.map(o => o.offer_id));
