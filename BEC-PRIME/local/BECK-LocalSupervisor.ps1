@@ -41,9 +41,8 @@ for ($i=0; $i -lt 3; $i++) {
   $psi.Arguments = "runtime/EconomicJobWorkerAdapter.js"
   $psi.WorkingDirectory = $Root
   $psi.UseShellExecute = $false
-  $psi.RedirectStandardOutput = $true
-  $psi.RedirectStandardError = $true
-  $envCopy = @{ BEC_WORKER_ID=$WorkerIds[$i]; BEC_LOCAL_WORKER_ID=$WorkerIds[$i]; BEC_LM_MODEL=$Models[$i]; BEC_LM_URL=("http://{0}:{1}/v1/chat/completions" -f $LmHost,$LmPort); BEC_LM_CONTEXT=$env:BEC_LM_CONTEXT; DREAMLEDGER_AGENT_BRIDGE_TOKEN=$env:DREAMLEDGER_AGENT_BRIDGE_TOKEN; BEC_AGENT_BRIDGE_URL=(if ($env:BEC_AGENT_BRIDGE_URL) { $env:BEC_AGENT_BRIDGE_URL } else { "https://dreamledger.org" }) }
+    $bridgeUrl = if ($env:BEC_AGENT_BRIDGE_URL) { $env:BEC_AGENT_BRIDGE_URL } else { "https://dreamledger.org" }
+  $envCopy = @{ BEC_WORKER_ID=$WorkerIds[$i]; BEC_LOCAL_WORKER_ID=$WorkerIds[$i]; BEC_LM_MODEL=$Models[$i]; BEC_LM_URL=("http://{0}:{1}/v1/chat/completions" -f $LmHost,$LmPort); BEC_LM_CONTEXT=$env:BEC_LM_CONTEXT; DREAMLEDGER_AGENT_BRIDGE_TOKEN=$env:DREAMLEDGER_AGENT_BRIDGE_TOKEN; BEC_AGENT_BRIDGE_URL=$bridgeUrl }
   foreach ($k in $envCopy.Keys) { if ($envCopy[$k]) { $psi.EnvironmentVariables[$k] = [string]$envCopy[$k] } }
   $p = New-Object System.Diagnostics.Process; $p.StartInfo = $psi; [void]$p.Start()
   $children += [pscustomobject]@{ WorkerId=$WorkerIds[$i]; Model=$Models[$i]; Process=$p }
