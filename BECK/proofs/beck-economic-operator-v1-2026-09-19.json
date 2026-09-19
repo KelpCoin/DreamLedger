@@ -1,0 +1,41 @@
+{
+  "schema_version": "BECK-ECONOMIC-OPERATOR-1.0",
+  "observed_at": "2026-09-19",
+  "objective_id": "4a6b91c6-7409-4486-ade8-9c90f241f901",
+  "verified_revenue_nzd": 0,
+  "verified_payment_count": 0,
+  "live_offer": {
+    "title": "DreamLedger Founding Billboard",
+    "sku": "DL-BILLBOARD-100X100-3000-001",
+    "price_nzd": 50,
+    "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+    "state": "SELLABLE",
+    "acquisition_state": "NOT_READY",
+    "verified_checkout": true,
+    "verified_fulfillment": true,
+    "verified_webhook": true
+  },
+  "acquisition_state": {
+    "pending_prospect_count": 4,
+    "pending_distribution_count": 2,
+    "approved_unsent_distribution_count": 1
+  },
+  "controller": {
+    "inspect_commercial_path": "ALLOWED",
+    "send_outreach": "BLOCKED_APPROVAL_REQUIRED",
+    "next_action": "AWAITING_APPROVED_DISTRIBUTION"
+  },
+  "changes": [
+    "deterministic economic snapshot added using existing jobs/offers/commerce_cells/economic_actions/prospecting/revenue/fulfillment primitives",
+    "economic authorization gate added",
+    "LM action allowlist expanded to bounded commercial capabilities",
+    "continuous next-cycle job spawned using existing jobs table"
+  ],
+  "branch": "beck-objective-persistence-v1",
+  "commits": [
+    "9c1d1235d71ab41ceb65d5119268bd388c7a0a8a",
+    "7e19d50fc34f595a736e579e5b0046721daf5f7a",
+    "124778c5f4fef6cf3e13a4ba7782834062821651"
+  ],
+  "economic_truth": "NOT_YET_PROVEN"
+}
