@@ -64,6 +64,7 @@
     "smoke:production": "node scripts/smoke-production.js",
     "smoke:persistent-chat": "node scripts/smoke-persistent-chat.js",
     "smoke:autonomy": "node scripts/smoke-autonomy.js",
+    "test:agentbridge-lease": "node --test scripts/test-agentbridge-lease-contract.js",
     "smoke:worker": "node scripts/smoke-worker-pool.js",
     "runtime:verify": "node scripts/Verify-Runtime.js",
     "worker:enqueue": "node runtime/worker-pool.js enqueue",
