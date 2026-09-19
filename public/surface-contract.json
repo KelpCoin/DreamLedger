@@ -1,0 +1,1 @@
+{"surface":"dreamledger-public-v1","commerce":{"currency":"NZD","checkout_spine":"direct"},"truth":{"states":["VERIFIED","UNKNOWN","CONTRADICTED"],"claim_rule":"no_claim_without_evidence"},"agentic_commerce":{"discovery":"/api/offers","protocol_target":"UCP"}}
