@@ -17,7 +17,8 @@ async function scanOpenJobs(){
   const currency=String(job?.currency||job?.payment_token||"").toUpperCase(); const type=String(job?.job_type||job?.type||"").toLowerCase(); const status=String(job?.status||"open").toLowerCase();
   const reward=Number(job?.reward??job?.reward_amount??job?.amount??0); const text=title+" "+body;
   const github=/github\\.com\\//i.test(text)||/\\b(issue|pull request|repo|repository|bug|fix|regression test|ci)\\b/i.test(text);
-  if(currency==="USDC"&&status==="open") usdcOpen++; if(currency==="WAGE"&&status==="open") wageOpen++; if(github) githubCompatible++;\n  const escrow=Boolean(job?.escrow_verified??job?.escrow?.verified??job?.escrow??false);
+  if(currency==="USDC"&&status==="open") usdcOpen++; if(currency==="WAGE"&&status==="open") wageOpen++; if(github) githubCompatible++;
+  const escrow=Boolean(job?.escrow_verified??job?.escrow?.verified??job?.escrow??false);
   if(!id||currency!=="USDC"||type!=="paid"||status!=="open"||reward<0.50||!escrow||!github) continue;
   const signalId="OPENJOBS-USDC-"+id;
   const{data,error}=await db.from("economic_demand_signals").upsert({signal_id:signalId,source:"openjobs",source_ref:"openjobs:"+id,problem_text:text,observed_at:job?.created_at||new Date().toISOString(),silo_id:"SILO_GENERAL",buyer_intent:1,freshness_score:1,evidence_score:.95,fit_score:.9,status:"UNROUTED",approval_required:true,title,body,raw_data:{...job,metadata:{openjobs_job_id:id,github_issue_url:String(job?.github_issue_url||job?.issue_url||job?.url||""),repository:String(job?.repository||""),payment_token:"USDC",job_type:"paid",reward_usdc:reward,escrow_verified:true}}} ,{onConflict:"signal_id"}).select("signal_id").maybeSingle();
