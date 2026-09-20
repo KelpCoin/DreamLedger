@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sell on DreamLedger | Seller Marketplace</title>
+<meta name="description" content="Sell physical inventory, digital products and professional services through DreamLedger.">
+<style>
+:root{--b:#07080b;--p:#10131a;--p2:#151923;--l:#2a303b;--t:#f6f3eb;--m:#99a1ad;--g:#e7bd58;--ok:#62d1ad}
+*{box-sizing:border-box}body{margin:0;background:var(--b);color:var(--t);font:15px/1.5 system-ui,-apple-system,sans-serif}a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:auto;padding:0 18px 80px}.nav{height:68px;border-bottom:1px solid var(--l);display:flex;align-items:center;gap:20px}.brand{font-weight:950;letter-spacing:-.06em;margin-right:auto}.brand b,.eyebrow,.money{color:var(--g)}.nav a{font-size:.78rem;font-weight:850}
+.hero{padding:64px 0 38px;max-width:850px}.eyebrow{font:900 .64rem ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(3rem,8vw,6.8rem);line-height:.86;letter-spacing:-.09em;margin:12px 0 20px}.hero p{color:var(--m);font-size:1.05rem;max-width:740px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border:1px solid var(--l);border-radius:10px;background:var(--p2);font-weight:900;font-size:.78rem}.primary{background:var(--g);border-color:var(--g);color:#111}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}.panel{background:var(--p);border:1px solid var(--l);border-radius:18px;padding:24px}.panel h2{margin:0 0 14px;font-size:1.35rem}.muted{color:var(--m)}.compare{width:100%;border-collapse:collapse}.compare th,.compare td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--l);vertical-align:top}.compare th{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--m)}.compare td:first-child{font-weight:800}.money{font-weight:950}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.step{border:1px solid var(--l);border-radius:14px;padding:17px}.num{font:900 .7rem ui-monospace,monospace;color:var(--g)}.step h3{margin:8px 0 5px}.step p{color:var(--m);font-size:.84rem}.notice{margin-top:18px;border:1px solid var(--l);border-left:3px solid var(--g);padding:14px 16px;color:var(--m);font-size:.78rem}.fee{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--l)}.fee:last-child{border:0}.fee strong{color:var(--t)}footer{border-top:1px solid var(--l);margin-top:34px;padding-top:22px;color:var(--m);font-size:.74rem}
+@media(max-width:800px){.grid,.steps{grid-template-columns:1fr}.nav a{display:none}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="nav"><a class="brand" href="/">DREAM<b>LEDGER</b></a><a href="/b2b/">Marketplace</a><a href="/collection-import/">Inventory intake</a></header>
+<section class="hero">
+<div class="eyebrow">Seller marketplace · evidence first</div>
+<h1>Sell it here.<br>Keep more of it.</h1>
+<p>DreamLedger is building a marketplace around transparent fees, seller-controlled inventory, API-first listing infrastructure and evidence-backed transactions. Start with inventory you can actually prove, price and fulfil.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:22px"><a class="btn primary" href="/collection-import/">Start with inventory intake</a><a class="btn" href="/b2b/">Browse marketplace</a></div>
+</section>
+
+<section class="grid">
+<article class="panel">
+<h2>Seller economics</h2>
+<table class="compare"><thead><tr><th>Capability</th><th>Trade Me</th><th>DreamLedger</th></tr></thead>
+<tbody>
+<tr><td>Casual listing fee</td><td>$0</td><td>$0 launch target</td></tr>
+<tr><td>Platform transaction fee</td><td>2.19% Ping seller transaction fee</td><td><span class="money">1.95% launch target</span></td></tr>
+<tr><td>API access</td><td>Restricted by seller status</td><td>API-first architecture</td></tr>
+<tr><td>Category data</td><td>Marketplace templates</td><td>Category-specific schema</td></tr>
+<tr><td>Evidence</td><td>Seller/buyer process</td><td>Listing evidence and transaction records</td></tr>
+<tr><td>Combined cart</td><td>Platform dependent</td><td>Cart infrastructure in production</td></tr>
+</tbody></table>
+<div class="notice">The DreamLedger fee figures are launch terms, not a claim that every payment and payout rail is already operational. Payment, payout, shipping and dispute terms are shown as active only when the corresponding production rail is enabled.</div>
+</article>
+<aside class="panel">
+<h2>Launch fee schedule</h2>
+<div class="fee"><span>Listing</span><strong>$0</strong></div>
+<div class="fee"><span>Platform transaction</span><strong>1.95% target</strong></div>
+<div class="fee"><span>Featured placement</span><strong>Not enabled</strong></div>
+<div class="fee"><span>Seller payout</span><strong>Rail pending</strong></div>
+<div class="fee"><span>Bank transfer</span><strong>Not enabled</strong></div>
+<p class="muted" style="font-size:.78rem;margin-top:18px">No hidden success fee is being represented here. The production checkout rail determines the actual payment and payout mechanics for each listing.</p>
+</aside>
+</section>
+
+<section class="panel" style="margin-top:16px">
+<h2>From inventory to sale</h2>
+<div class="steps">
+<div class="step"><div class="num">01 · SUPPLY</div><h3>Bring the inventory</h3><p>Import a collection or prepare a listing. Keep unverified supply private until it passes the publication gate.</p></div>
+<div class="step"><div class="num">02 · PROVE</div><h3>Attach evidence</h3><p>Use photos, condition data and category fields so the listing describes the asset that will actually be fulfilled.</p></div>
+<div class="step"><div class="num">03 · SELL</div><h3>Route to settlement</h3><p>Checkout is exposed only when the listing has a compatible commercial rail. A payment becomes marketplace truth only after settlement is verified.</p></div>
+</div>
+</section>
+
+<section class="panel" style="margin-top:16px">
+<h2>Seller API</h2>
+<p class="muted">The marketplace is being built API-first. The intended seller contract is a single listing resource for create, update, media, inventory and publication state, with evidence and commercial state kept separate from listing copy.</p>
+<div class="notice">Current public intake: authenticated collection import at <a href="/collection-import/" style="color:var(--t);text-decoration:underline">/collection-import/</a>. General seller API credentials and payout onboarding are not being advertised as live until their production controls exist.</div>
+</section>
+
+<footer>DreamLedger commercial truth: a listing is not a sale, a checkout click is not a payment, and payment is not fulfilment. Seller claims and marketplace scale remain subject to evidence.</footer>
+</div></body></html>
