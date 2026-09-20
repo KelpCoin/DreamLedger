@@ -21,6 +21,7 @@ const sentinel = require('./runtime/Sentinel');
 const digitalProxyAssistant = require('./proxy/DigitalProxyAssistant');
 const omniCommerce = require('./routes/omniCommerce');
 const platformCart = require('./routes/platformCart');
+const marketplaceEngineBridge = require('./lib/marketplaceEngineBridge');
 const originalWriteHead = http.ServerResponse.prototype.writeHead;
 const originalEnd = http.ServerResponse.prototype.end;
 http.ServerResponse.prototype.writeHead = function(...args){
@@ -70,9 +71,12 @@ async function b2bSnapshot(){
     b2bFetch('truth_oracle_claims?select=claim_key,subject,verdict,confidence,last_verified_at&order=updated_at.desc&limit=24'),
     b2bFetch('marketplace_payments?select=payment_id&status=eq.paid')
   ]);
+  const external = await marketplaceEngineBridge.snapshot();
+  const externalCatalog = external.configured ? external.offers : [];
   return {
-    schema:'DREAMLEDGER/B2B-MARKETPLACE/v2',
-    catalog:Array.isArray(catalog)?catalog:[],
+    schema:'DREAMLEDGER/B2B-MARKETPLACE/v3',
+    catalog:externalCatalog.length ? externalCatalog : (Array.isArray(catalog)?catalog:[]),
+    catalog_source:externalCatalog.length ? 'mercur' : 'supabase',
     opportunities:Array.isArray(opportunities)?opportunities:[],
     truth:Array.isArray(claims)?claims:[],
     settled_payment_count:Array.isArray(paid)?paid.length:0,
