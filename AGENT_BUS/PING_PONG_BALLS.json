@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "updated": "2026-09-20",
+  "version": 4,
+  "updated": "2026-09-21",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
     "play_lobe": [
@@ -10,7 +10,7 @@
     ],
     "settle_lobe": [
       "Stripe catalog",
-      "stripe-revenue-41104f355d6878cdd6d1f9dc v17",
+      "Commerce Settlement Sync",
       "marketplace_settle_stripe_payment",
       "marketplace-diagnostic-delivery"
     ],
@@ -23,47 +23,40 @@
   },
   "current_truth": {
     "dreamledger_supabase": "ACTIVE_HEALTHY",
+    "first_sale": {
+      "sku": "DL-BILLBOARD-100X100-3000-001",
+      "price_nzd": 50,
+      "payment_link": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
+      "payment_link_id": "plink_1UAN9zJt4ieIQDFzgHeso6Qo",
+      "status": "APPROVED_LIVEMODE",
+      "verified_external_revenue_nzd": 0,
+      "settlement_meter": "Commerce Settlement Sync"
+    },
     "cmd_diag_29": {
       "sku": "CMD-DIAG-29",
       "price_nzd": 29,
-      "active_catalog": true,
-      "payment_link": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
-      "payment_link_id": "plink_1UFFZFEGgEAnUFF9LHNMWTDl",
-      "revenue_orders": 0,
-      "marketplace_fulfillments": 0
-    },
-    "legacy_duplicate_catalog_entry": {
-      "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "price_nzd": 15,
-      "active": true,
-      "fulfillment_type": "manual_pdf",
-      "status": "LEGACY_DUPLICATE_REQUIRES_CONTROLLED_CLEANUP"
-    },
-    "commerce_supervisor": {
-      "deployed": true,
-      "version": 1,
-      "status": "ACTIVE",
-      "limitation": "commerce_cells currently contains billboard and Maximona, not CMD-DIAG-29; supervisor therefore does not monitor CMD-DIAG as a commerce cell."
+      "status": "SECONDARY_OFFER",
+      "note": "Retained as an existing offer; not the current first-sale settlement target."
     }
   },
   "balls": {
     "A": "playable_browser_slice; no further Floor 2 scope before money",
-    "B": "Supabase authority exists; do not alter proven CMD settlement path",
+    "B": "Supabase authority exists; do not alter proven settlement paths without a demonstrated blocker",
     "C": "FIRST SALE: one real external settled payment remains the only revenue gate",
     "D": "bridge active; write durable handoffs and keep cloud economic authority authoritative",
     "E": "human Godot gate remains"
   },
   "immediate_next": [
-    "Fix and test standalone Shallows HTML: replace any >> emoji corruption with >> 8 and replace Claude Artifact window.storage with standard localStorage.",
-    "Verify the public CMD-DIAG CTA resolves to the active NZ$29 Payment Link without changing Stripe or settlement infrastructure.",
-    "Use an approved owned acquisition surface to expose one existing offer to a real buyer.",
-    "On stranger payment, verify settlement, fulfillment, delivery, and write fossil evidence."
+    "Run Commerce Settlement Sync manually and confirm the pre-sale meter remains honestly at NZ$0.",
+    "Verify the public first-sale doorway resolves to the approved NZ$50 Billboard Payment Link.",
+    "Use one approved acquisition surface to expose the existing offer to a real buyer.",
+    "On stranger payment, verify settlement, fulfillment, delivery, and write the fossil."
   ],
   "do_not": [
     "Add a second marketplace_fulfillments writer",
-    "Deploy a new Stripe verification function for CMD-DIAG without a demonstrated blocker",
+    "Deploy a new Stripe verification function without a demonstrated blocker",
     "Count tests, self-payments, clicks, workflow runs, game activity, or documentation as revenue",
-    "Expand game scope before the first economic proof",
-    "Treat the Airtable prospect list as buyer-side demand evidence"
+    "Expand game scope before first economic proof",
+    "Treat internal prospect lists as buyer-side demand evidence"
   ]
 }
