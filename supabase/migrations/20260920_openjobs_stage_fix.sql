@@ -1,0 +1,20 @@
+-- Fix OpenJobs staging to use raw_data metadata because economic_demand_signals has no metadata column.
+-- Production function was corrected directly; this migration preserves the correction in source control.
+create or replace function public.stage_openjobs_bounty(p_signal_id text) returns jsonb language plpgsql security definer set search_path=public as $function$
+declare s public.economic_demand_signals%rowtype; o uuid; p uuid; m jsonb;
+begin
+ select * into s from public.economic_demand_signals where signal_id=p_signal_id;
+ if not found then raise exception 'demand signal not found'; end if;
+ if s.source <> 'openjobs' then raise exception 'signal is not openjobs'; end if;
+ m=coalesce(s.raw_data->'metadata','{}'::jsonb);
+ if coalesce(m->>'payment_token','') <> 'USDC' then update public.economic_demand_signals set status='DID_NOT_CONVERT',updated_at=now() where signal_id=p_signal_id; return jsonb_build_object('status','DID_NOT_CONVERT','reason','payment_token_not_usdc'); end if;
+ if coalesce(m->>'job_type','') <> 'paid' then update public.economic_demand_signals set status='DID_NOT_CONVERT',updated_at=now() where signal_id=p_signal_id; return jsonb_build_object('status','DID_NOT_CONVERT','reason','job_not_paid'); end if;
+ if coalesce((m->>'escrow_verified')::boolean,false) is not true then update public.economic_demand_signals set status='DID_NOT_CONVERT',updated_at=now() where signal_id=p_signal_id; return jsonb_build_object('status','DID_NOT_CONVERT','reason','escrow_unverified'); end if;
+ if coalesce((m->>'reward_usdc')::numeric,0) < 0.50 then update public.economic_demand_signals set status='DID_NOT_CONVERT',updated_at=now() where signal_id=p_signal_id; return jsonb_build_object('status','DID_NOT_CONVERT','reason','reward_below_floor'); end if;
+ select opportunity_id into o from public.cube_opportunities where opportunity_key='OPP-'||p_signal_id limit 1;
+ if o is null then insert into public.cube_opportunities(opportunity_key,silo_id,source,subject,observed_at,evidence,confidence,audience,commercial_relevance,recommended_action,status,outputs,expected_value_nzd,time_budget_minutes,required_capabilities) values('OPP-'||p_signal_id,s.silo_id,s.source,s.problem_text,s.observed_at,jsonb_build_array(jsonb_build_object('source',s.source,'source_ref',s.source_ref,'observed_at',s.observed_at,'openjobs_job_id',m->>'openjobs_job_id')),greatest(s.buyer_intent,s.evidence_score,s.fit_score),jsonb_build_object('source',s.source),greatest(s.buyer_intent,s.evidence_score,s.fit_score),'STAGE_AMBER','VERIFIED','[]'::jsonb,coalesce(s.estimated_value_nzd,(m->>'reward_usdc')::numeric*1.7),30,jsonb_build_array('GITHUB_BOUNTY_WORKER')) returning opportunity_id into o; end if;
+ select packet_id into p from public.economic_execution_packets where opportunity_id=o order by created_at desc limit 1;
+ if p is null then p:=public.create_economic_execution_packet(o,'Prepare the qualifying OpenJobs USDC bounty for AMBER human approval and tested PR submission.',jsonb_build_object('action_type','GITHUB_BOUNTY_STAGE','category','code_execution','reversible',false,'external_effect','pull_request','openjobs_job_id',m->>'openjobs_job_id','github_issue_url',m->>'github_issue_url','repository',m->>'repository','reward_usdc',(m->>'reward_usdc')::numeric,'approval_required',true),jsonb_build_object('stage_ready',true,'pr_submission_requires_human_approval',true),jsonb_build_object('must_return','tested_patch_and_staged_pr_payload'),'GITHUB_BOUNTY_WORKER',jsonb_build_object('max_cost_nzd',0,'time_budget_minutes',30),jsonb_build_array('payment_not_usdc','escrow_unverified','issue_closed','competing_pr','credentials_required','test_failure','human_approval_missing'),jsonb_build_object('required_evidence',jsonb_build_array('openjobs_job','github_issue','repository','tests'),'truth_classification','UNVERIFIED_UNTIL_SETTLEMENT')); end if;
+ update public.economic_demand_signals set status='QUALIFIED',updated_at=now() where signal_id=p_signal_id;
+ return jsonb_build_object('status','QUALIFIED','opportunity_id',o,'packet_id',p,'capability_id','GITHUB_BOUNTY_WORKER','authority','AMBER');
+end; $function$;
