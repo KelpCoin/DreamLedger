@@ -1,3 +1,10 @@
+alter table public.marketplace_orders
+  add column if not exists stripe_transfer_group text;
+
+create unique index if not exists marketplace_orders_stripe_transfer_group_uidx
+  on public.marketplace_orders(stripe_transfer_group)
+  where stripe_transfer_group is not null;
+
 create table if not exists public.marketplace_transfers (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.marketplace_orders(id) on delete cascade,
