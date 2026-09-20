@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "updated": "2026-09-20",
+  "purpose": "Durable nudges for any LLM that contacts GitHub or Supabase. Complete one ball, write a handoff, leave the next loaded.",
+  "figure_eight": {
+    "play_lobe": ["phinhaven/shallows", "phinhaven/godot/shallows", "PROOF/airgap"],
+    "settle_lobe": ["Stripe catalog", "webhook evidence", "entitlements"],
+    "bus": ["AGENT_BUS/", "KelpCoin/llm-supabase-github-bridge"],
+    "dam": "evidence chain before revenue claim",
+    "verified_external_revenue_nzd": 0
+  },
+  "balls": [
+    {
+      "id": "A",
+      "name": "github_playable_surface",
+      "assignee_hint": "github_agent",
+      "actions": [
+        "Verify phinhaven/shallows/index.html still playable",
+        "Expose public URL if hosting available",
+        "No Floor 2 until money ball moves"
+      ],
+      "done_when": "Shareable Floor 1 demo URL or confirmed local path documented in AGENT_BUS"
+    },
+    {
+      "id": "B",
+      "name": "supabase_authority",
+      "assignee_hint": "supabase_agent",
+      "actions": [
+        "Append-only claims/progression",
+        "Own-only appearance RPC if applicable",
+        "Link avatar email to Stripe entitlement on payment"
+      ],
+      "done_when": "Migration or RPC live; handoff notes email match path"
+    },
+    {
+      "id": "C",
+      "name": "money_exhaust",
+      "assignee_hint": "any_with_commerce_access",
+      "priority": 1,
+      "actions": [
+        "Push NZ$50 billboard tile",
+        "Push NZ$29 diagnostic",
+        "NZ$79 Discord kit if auto-delivery",
+        "One stranger payment_intent.succeeded + full proof"
+      ],
+      "done_when": "Fossil exists for first external settlement; update verified_external_revenue_nzd"
+    },
+    {
+      "id": "D",
+      "name": "bridge_dual_llm",
+      "assignee_hint": "bridge_or_github_agent",
+      "actions": [
+        "Read llm-supabase-github-bridge figure-eight-status",
+        "Write AGENT_BUS handoff after state change",
+        "Do not complete local-gpu jobs while worker offline"
+      ],
+      "done_when": "Latest handoff reflects real bus state"
+    },
+    {
+      "id": "E",
+      "name": "godot_human_gate",
+      "assignee_hint": "human_with_godot",
+      "actions": [
+        "Open phinhaven/godot/shallows in Godot 4.2+",
+        "Confirm F5 loop",
+        "Import recovered project over scaffold if found"
+      ],
+      "done_when": "Recon status updated; canonical runtime path recorded"
+    }
+  ],
+  "exhausts": {
+    "money": "required_soon_not_claimed",
+    "playable_demo": "active_browser",
+    "cosmetics_design": "active_sketch",
+    "tcg_alerts_design": "active_airgap_spec",
+    "evidence_fossils": "bridge_schemas"
+  },
+  "do_not": [
+    "Claim revenue without evidence chain",
+    "Treat game activity as DreamLedger business revenue",
+    "Delete progression rows",
+    "Client-authoritative clear in production",
+    "Invent Floor 2 before first money loop"
+  ]
+}
