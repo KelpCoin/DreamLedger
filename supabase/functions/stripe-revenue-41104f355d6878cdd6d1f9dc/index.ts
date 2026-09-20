@@ -18,6 +18,21 @@ Deno.serve(async(req)=>{
  const {data:existingWebhook}=await supabase.from("stripe_webhook_events").select("event_id,processed").eq("event_id",eventId).maybeSingle();
  if(existingWebhook?.processed===true)return Response.json({received:true,duplicate:true,event_id:eventId});
  const {error:webhookInsertError}=await supabase.from("stripe_webhook_events").upsert({event_id:eventId,event_type:eventType,processed:false,processed_at:null,payload:event},{onConflict:"event_id"}); if(webhookInsertError)return new Response("webhook event persistence failed",{status:500});
+ if(eventType==="transfer.created"||eventType==="transfer.updated"||eventType==="transfer.reversed"){
+   const transfer:any=event.data?.object||{};
+   const transferId=String(transfer.id||"");
+   if(transferId){
+     const transferStatus=eventType==="transfer.reversed" ? "reversed" : "created";
+     await supabase.from("marketplace_transfers").update({
+       status:transferStatus,
+       transfer_group:transfer.transfer_group||undefined,
+       stripe_charge_id:transfer.source_transaction||undefined,
+       updated_at:new Date().toISOString()
+     }).eq("stripe_transfer_id",transferId);
+     await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+     return Response.json({received:true,recorded:true,event_id:eventId,transfer_id:transferId,status:transferStatus});
+   }
+ }
  if(eventType!=="checkout.session.completed"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);return Response.json({received:true,ignored:true,event_id:eventId});}
  const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null;
  if(!checkoutSessionId||session.payment_status!=="paid")return new Response("checkout session is not paid",{status:400}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
