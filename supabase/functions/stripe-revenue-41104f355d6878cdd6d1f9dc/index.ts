@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { createMarketplaceSellerTransfers } from "../_shared/marketplace-transfers.ts";
 const FUNCTION_NAME="stripe-revenue-41104f355d6878cdd6d1f9dc";
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
@@ -32,6 +33,25 @@ Deno.serve(async(req)=>{
    if(settlementError)return new Response("marketplace settlement failed",{status:500});
    marketplaceSettlement=settlement;
    sku=listing.sku==="COMMANDER-DECK-DIAGNOSTIC-001" ? "CMD-DIAG-29" : String(listing.sku||"");
+   const marketplaceOrderId=String(marketplaceSettlement?.order_id||"");
+   if(marketplaceOrderId){
+     const transferGroup=`order_${marketplaceOrderId}`;
+     await supabase.from("marketplace_orders").update({stripe_transfer_group:transferGroup}).eq("id",marketplaceOrderId);
+     let stripeChargeId:string|null=null;
+     if(paymentIntentId){
+       const paymentIntent:any=await stripe.paymentIntents.retrieve(paymentIntentId,{expand:["latest_charge"]});
+       stripeChargeId=typeof paymentIntent.latest_charge==="string" ? paymentIntent.latest_charge : (paymentIntent.latest_charge?.id||null);
+       await supabase.from("marketplace_payments").update({stripe_charge_id:stripeChargeId}).eq("order_id",marketplaceOrderId);
+     }
+     const transferLedger=await createMarketplaceSellerTransfers({
+       stripe,
+       supabase,
+       orderId:marketplaceOrderId,
+       stripeChargeId,
+       transferGroup
+     });
+     marketplaceSettlement={...marketplaceSettlement,transfer_ledger:transferLedger};
+   }
  }
  if(!sku)return new Response("missing sku_id",{status:400});
  const {data:catalog,error:catalogError}=await supabase.from("revenue_catalog").select("sku_id,price_nzd,active,fulfillment_type").eq("sku_id",sku).eq("active",true).limit(1).maybeSingle(); if(catalogError)return new Response("catalog lookup failed",{status:500}); if(!catalog)return new Response("unknown or inactive sku",{status:400});
