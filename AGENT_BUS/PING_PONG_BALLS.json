@@ -1,97 +1,69 @@
 {
-  "version": 2,
+  "version": 3,
   "updated": "2026-09-20",
-  "purpose": "Durable nudges for any LLM that contacts GitHub or Supabase. Complete one ball, write a handoff, leave the next loaded.",
+  "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
-    "play_lobe": ["phinhaven/shallows", "phinhaven/godot/shallows", "PROOF/airgap"],
-    "settle_lobe": ["Stripe catalog", "webhook evidence", "entitlements", "ops/commerce"],
-    "bus": ["AGENT_BUS/", "KelpCoin/llm-supabase-github-bridge"],
-    "dam": "evidence chain before revenue claim",
+    "play_lobe": [
+      "phinhaven/shallows",
+      "phinhaven/godot/shallows",
+      "PROOF/airgap"
+    ],
+    "settle_lobe": [
+      "Stripe catalog",
+      "stripe-revenue-41104f355d6878cdd6d1f9dc v17",
+      "marketplace_settle_stripe_payment",
+      "marketplace-diagnostic-delivery"
+    ],
+    "bus": [
+      "AGENT_BUS/",
+      "KelpCoin/llm-supabase-github-bridge"
+    ],
+    "dam": "Evidence chain before revenue claim",
     "verified_external_revenue_nzd": 0
   },
-  "last_agent_note": "2026-09-20 Grok: first-sale checklist + money handoff written; cannot access Stripe secrets this session. Next human/agent: owned-channel distribution + settlement sync run.",
-  "balls": [
-    {
-      "id": "A",
-      "name": "github_playable_surface",
-      "assignee_hint": "github_agent",
-      "status": "playable_offline",
-      "actions": [
-        "Verify phinhaven/shallows/index.html still playable",
-        "Expose public URL if hosting available",
-        "No Floor 2 until money ball moves"
-      ],
-      "done_when": "Shareable Floor 1 demo URL or confirmed local path documented in AGENT_BUS"
+  "current_truth": {
+    "dreamledger_supabase": "ACTIVE_HEALTHY",
+    "cmd_diag_29": {
+      "sku": "CMD-DIAG-29",
+      "price_nzd": 29,
+      "active_catalog": true,
+      "payment_link": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
+      "payment_link_id": "plink_1UFFZFEGgEAnUFF9LHNMWTDl",
+      "revenue_orders": 0,
+      "marketplace_fulfillments": 0
     },
-    {
-      "id": "B",
-      "name": "supabase_authority",
-      "assignee_hint": "supabase_agent",
-      "actions": [
-        "Append-only claims/progression",
-        "Own-only appearance RPC if applicable",
-        "Link avatar email to Stripe entitlement on payment",
-        "Apply llm-supabase-github-bridge evidence migrations if missing"
-      ],
-      "done_when": "Migration or RPC live; handoff notes email match path"
+    "legacy_duplicate_catalog_entry": {
+      "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "price_nzd": 15,
+      "active": true,
+      "fulfillment_type": "manual_pdf",
+      "status": "LEGACY_DUPLICATE_REQUIRES_CONTROLLED_CLEANUP"
     },
-    {
-      "id": "C",
-      "name": "money_exhaust",
-      "assignee_hint": "any_with_commerce_access",
-      "priority": 1,
-      "status": "inlet_links_known_meter_docs_ready_no_verified_sale",
-      "actions": [
-        "Follow ops/economic/FIRST-SALE-EXECUTION-CHECKLIST-2026-09-20.md",
-        "Push NZ$50 billboard tile link on owned channels",
-        "Push NZ$29 diagnostic on owned channels",
-        "Run Commerce Settlement Sync; keep meter honest",
-        "One stranger payment_intent.succeeded + full proof"
-      ],
-      "payment_links": {
-        "tile_nzd_50": "https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x",
-        "diagnostic_nzd_29": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
-        "store": "https://dreamledger.org/?src=dist"
-      },
-      "done_when": "Fossil exists for first external settlement; update verified_external_revenue_nzd"
-    },
-    {
-      "id": "D",
-      "name": "bridge_dual_llm",
-      "assignee_hint": "bridge_or_github_agent",
-      "actions": [
-        "Read llm-supabase-github-bridge figure-eight-status",
-        "Write AGENT_BUS handoff after state change",
-        "Do not complete local-gpu jobs while worker offline",
-        "Seed offers 29/50/79 in bridge offers table when DB available"
-      ],
-      "done_when": "Latest handoff reflects real bus state"
-    },
-    {
-      "id": "E",
-      "name": "godot_human_gate",
-      "assignee_hint": "human_with_godot",
-      "actions": [
-        "Open phinhaven/godot/shallows in Godot 4.2+",
-        "Confirm F5 loop",
-        "Import recovered project over scaffold if found"
-      ],
-      "done_when": "Recon status updated; canonical runtime path recorded"
+    "commerce_supervisor": {
+      "deployed": true,
+      "version": 1,
+      "status": "ACTIVE",
+      "limitation": "commerce_cells currently contains billboard and Maximona, not CMD-DIAG-29; supervisor therefore does not monitor CMD-DIAG as a commerce cell."
     }
-  ],
-  "exhausts": {
-    "money": "required_soon_not_claimed",
-    "playable_demo": "active_browser",
-    "cosmetics_design": "active_sketch",
-    "tcg_alerts_design": "active_airgap_spec",
-    "evidence_fossils": "bridge_schemas"
   },
+  "balls": {
+    "A": "playable_browser_slice; no further Floor 2 scope before money",
+    "B": "Supabase authority exists; do not alter proven CMD settlement path",
+    "C": "FIRST SALE: one real external settled payment remains the only revenue gate",
+    "D": "bridge active; write durable handoffs and keep cloud economic authority authoritative",
+    "E": "human Godot gate remains"
+  },
+  "immediate_next": [
+    "Fix and test standalone Shallows HTML: replace any >> emoji corruption with >> 8 and replace Claude Artifact window.storage with standard localStorage.",
+    "Verify the public CMD-DIAG CTA resolves to the active NZ$29 Payment Link without changing Stripe or settlement infrastructure.",
+    "Use an approved owned acquisition surface to expose one existing offer to a real buyer.",
+    "On stranger payment, verify settlement, fulfillment, delivery, and write fossil evidence."
+  ],
   "do_not": [
-    "Claim revenue without evidence chain",
-    "Treat game activity as DreamLedger business revenue",
-    "Delete progression rows",
-    "Client-authoritative clear in production",
-    "Invent Floor 2 before first money loop",
-    "Count test-mode Stripe as verified external revenue"
+    "Add a second marketplace_fulfillments writer",
+    "Deploy a new Stripe verification function for CMD-DIAG without a demonstrated blocker",
+    "Count tests, self-payments, clicks, workflow runs, game activity, or documentation as revenue",
+    "Expand game scope before the first economic proof",
+    "Treat the Airtable prospect list as buyer-side demand evidence"
   ]
 }
