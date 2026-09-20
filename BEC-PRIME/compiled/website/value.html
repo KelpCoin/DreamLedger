@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DreamLedger verified value: evidence first, useful opportunities second, commerce when the evidence supports it.">
+<link rel="canonical" href="https://dreamledger.org/value">
+<title>Verified Value | DreamLedger</title>
+<style>
+:root{--bg:#080a0e;--panel:#11161d;--line:#29323c;--ink:#f5f3eb;--muted:#98a2ad;--gold:#d8b56b;--green:#72e0b0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1080px;margin:auto;padding:18px 16px 80px}.nav{height:56px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.brand{font-weight:950;letter-spacing:.07em}.brand b{color:var(--gold)}nav a{color:var(--muted);font-size:12px;text-decoration:none;margin-left:14px}
+.hero{padding:58px 0 30px}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:10px;font-weight:950;color:var(--green)}
+h1{font-size:clamp(48px,9vw,94px);line-height:.84;letter-spacing:-.075em;margin:12px 0 20px;max-width:900px}.lead{font-size:18px;color:#c8ced6;max-width:760px}
+.rule{margin:24px 0;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.rule strong{color:var(--gold)}
+section{margin-top:40px}h2{font-size:30px;letter-spacing:-.04em;margin:0 0 8px}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{border:1px solid var(--line);border-radius:17px;padding:18px;background:var(--panel);display:flex;flex-direction:column}.tag{display:inline-block;width:max-content;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:9px;font-weight:950;letter-spacing:.1em}.verified{color:var(--green);border-color:#315846}.card h3{font-size:19px;line-height:1.05;margin:10px 0}.card p{color:var(--muted);font-size:13px}.button{display:inline-block;width:max-content;margin-top:14px;padding:10px 13px;border-radius:9px;background:var(--gold);color:#111;text-decoration:none;font-size:11px;font-weight:950}.button.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+#status{font-size:11px;color:var(--muted)}.empty{padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
+@media(max-width:760px){main{padding:12px 12px 60px}.hero{padding:38px 0 20px}.lead{font-size:15px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<header class="nav"><a class="brand" href="/">DREAM <b>LEDGER</b></a><nav><a href="/truth-oracle">Truth Oracle</a><a href="/buy.html">Shop</a></nav></header>
+<section class="hero">
+<div class="eyebrow">Truth Oracle → useful action</div>
+<h1>FIND VALUE.<br>SEE THE RECEIPT.</h1>
+<p class="lead">DreamLedger uses its Truth Oracle to separate evidence from claims. This page turns public, verified evidence into useful next actions and commerce surfaces. The evidence does not change because something is sold.</p>
+<div class="rule"><strong>Rule:</strong> no invented savings, no fabricated demand, no fake testimonials. If the evidence is incomplete, the page says so.</div>
+<a class="button" href="/truth-oracle">Inspect the evidence layer</a>
+</section>
+<section>
+<h2>Verified signals</h2><p class="muted">Public economic records currently available from the Truth Oracle.</p>
+<div id="claims" class="grid"><div class="empty">Loading evidence...</div></div>
+</section>
+<section>
+<h2>Things you can actually buy</h2><p class="muted">Commerce remains separate from the evidence record. Only currently approved checkoutable offers are shown.</p>
+<div id="offers" class="grid"><div class="empty">Loading live offers...</div></div>
+</section>
+<section>
+<h2>Why this exists</h2>
+<p class="muted">The Oracle is the trust surface. Commerce is downstream. A visitor can inspect the evidence first, then choose an action or product without being asked to trust a marketing claim.</p>
+<p id="status">Live data is loaded directly from the DreamLedger runtime.</p>
+</section>
+</main>
+<script>
+(function(){
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function money(v){return 'NZ$'+(Number(v)/100).toFixed(2)}
+fetch('/api/truth-oracle',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('evidence unavailable');return r.json()}).then(function(d){
+ var claims=Array.isArray(d.claims)?d.claims:[],el=document.getElementById('claims');
+ if(!claims.length){el.innerHTML='<div class="empty">No public economic evidence is currently published.</div>';return}
+ el.innerHTML=claims.slice(0,12).map(function(x){
+   var verdict=String(x.verdict||'UNKNOWN'); var cls=verdict==='VERIFIED'?'verified':'';
+   return '<article class="card"><span class="tag '+cls+'">'+esc(verdict)+'</span><h3>'+esc(x.claim||x.description||x.event_type||'Economic record')+'</h3><p>'+esc(x.category||'ECONOMIC_CLAIM')+' · confidence '+esc(x.confidence==null?'unknown':x.confidence)+'</p></article>'
+ }).join('')
+}).catch(function(){document.getElementById('claims').innerHTML='<div class="empty">Evidence is temporarily unavailable. Nothing is presented as verified.</div>'});
+fetch('/api/offers',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('offers unavailable');return r.json()}).then(function(d){
+ var offers=Array.isArray(d.offers)?d.offers:[],el=document.getElementById('offers');
+ if(!offers.length){el.innerHTML='<div class="empty">No checkoutable offers are currently published.</div>';return}
+ el.innerHTML=offers.slice(0,12).map(function(o){
+   var price=o.price_nzd!=null?money(Number(o.price_nzd)*100):(o.price!=null?money(Number(o.price)*100):'');
+   var href='/buy.html'; if(o.checkout_route&&o.offer_id) href='/buy.html';
+   return '<article class="card"><span class="tag">LIVE OFFER</span><h3>'+esc(o.name||o.display_name||o.offer_id||'Offer')+'</h3><p>'+esc(o.description||'Approved DreamLedger commerce offer.')+(price?' · '+esc(price):'')+'</p><a class="button" href="'+href+'">See offer</a></article>'
+ }).join('')
+}).catch(function(){document.getElementById('offers').innerHTML='<div class="empty">Commerce is temporarily unavailable.</div>'});
+})();
+</script>
+</body>
+</html>
