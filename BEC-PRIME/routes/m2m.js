@@ -10,6 +10,7 @@ const M2M_API_KEY = process.env.M2M_API_KEY || '';
 const RAG_API_KEY = process.env.RAG_API_KEY || '';
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const settlementVerify = require('./settlementVerify');
 
 function send(res, status, body) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); }
 function products() { if (!fs.existsSync(PRODUCT_DIR)) return []; return fs.readdirSync(PRODUCT_DIR).filter(x => x.endsWith('.json')).map(x => JSON.parse(fs.readFileSync(path.join(PRODUCT_DIR, x), 'utf8'))).filter(p => p.status === 'published' && p.commercial_truth?.approval_required === false && Number(p.inventory || 0) > 0); }
@@ -33,6 +34,7 @@ async function ragQuery(payload, caller) {
 }
 async function handle(req, res, url) {
   if (!url.startsWith('/m2m/v1')) return false;
+  if (await settlementVerify.handle(req, res, url)) return true;
   if (req.method === 'GET' && url === '/m2m/v1/catalog/products') return send(res, 200, { products: products().map(machineProduct), pagination: { total: products().length, limit: 100, offset: 0 } });
   if (req.method === 'GET' && url === '/m2m/v1/catalog/auctions') return send(res, 200, { auctions: [] });
   if (req.method === 'POST' && url === '/m2m/v1/catalog/search') { const b = await body(req); const q = String(b.query || '').toLowerCase(); const max = Number(b.filters?.max_price || Infinity); const list = products().map(machineProduct).filter(p => (!q || `${p.name} ${p.agentDescription}`.toLowerCase().includes(q)) && p.price <= max && (!b.filters?.in_stock || p.inventory > 0)); return send(res, 200, { products: list, pagination: { total: list.length, limit: 100, offset: 0 } }); }
