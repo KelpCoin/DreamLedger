@@ -1,0 +1,67 @@
+name: Phin Haven Gauntlet
+
+on:
+  push:
+    paths:
+      - 'public/phin-haven*.html'
+      - 'public/avatar.html'
+      - 'public/billboard.html'
+      - 'BEC-PRIME/**'
+      - 'docs/kelplantis/**'
+  pull_request:
+
+jobs:
+  gauntlet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Canonical public naming
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in public/phin-haven.html public/phin-haven-v5.html; do
+            test -f "$f"
+            grep -qi "Phin Haven" "$f"
+          done
+
+      - name: Passport and Echo surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=public/phin-haven-v5.html
+          grep -q 'id="passport"' "$f"
+          grep -q 'kelplantis_get_passport_for_token' "$f"
+          grep -q 'id="echo"' "$f"
+          grep -q 'kelplantis_set_soul_anchor_for_token' "$f"
+
+      - name: Economic surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=public/billboard.html
+          grep -q 'buy.stripe.com' "$f"
+          grep -q 'permanent' "$f"
+          grep -q 'finite' "$f"
+          grep -q 'Human review' "$f"
+
+      - name: No fake economic proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -RniE 'guaranteed (traffic|impressions|roi|revenue)|fake sale|simulated revenue|test sale' public/phin-haven*.html public/billboard.html
+
+      - name: Avatar surface exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f public/avatar.html
+          grep -q 'IDENTITY PREVIEW' public/avatar.html
+          grep -q 'Save DreamMeez' public/avatar.html
+
+      - name: SQL canonical table check
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d supabase/migrations
+          grep -Rli 'canonicalize_phin_haven_table_names' supabase/migrations >/dev/null
