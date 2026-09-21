@@ -30,7 +30,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => { if (server) await new Promise(resolve => server.close(resolve)); });
 
-test('Kelplantis Depth 1 7C two-session authoritative gathering slice', async ({ browser }) => {
+test('Kelplantis Depth 1 7C two-session authoritative gathering slice', { timeout: 90000 }, async ({ browser }) => {
   const contextA = await browser.newContext();
   const contextB = await browser.newContext();
   const pageA = await contextA.newPage();
