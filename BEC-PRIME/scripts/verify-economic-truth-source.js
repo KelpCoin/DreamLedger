@@ -32,7 +32,7 @@ const forbidden = [
   'BEC-PRIME/demand-radar/n8n-community-collector.js'
 ];
 for (const file of forbidden) {
-  if (fs.existsSync(path.join(process.cwd(), file))) throw new Error('forbidden n8n artifact remains: ' + file);
+  if (fs.existsSync(path.resolve(__dirname, '../..', file))) throw new Error('forbidden n8n artifact remains: ' + file);
 }
 
 console.log(JSON.stringify({
