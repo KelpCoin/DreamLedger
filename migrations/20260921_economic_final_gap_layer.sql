@@ -216,7 +216,7 @@ create table if not exists public.economic_agent_events (
   capability text,
   objective text,
   constraints jsonb not null default '{}'::jsonb,
-  authorization jsonb not null default '{}'::jsonb,
+  authorization_context jsonb not null default '{}'::jsonb,
   input_evidence jsonb not null default '{}'::jsonb,
   output jsonb not null default '{}'::jsonb,
   result jsonb not null default '{}'::jsonb,
