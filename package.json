@@ -45,7 +45,8 @@
     "rag:ingest": "python RAG/ingest_github.py",
     "rag:query": "python RAG/query.py",
     "rag:eval": "python RAG/eval.py",
-    "verify:bec-defensive": "node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js"
+    "verify:bec-defensive": "node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js",
+    "verify:ecosystem": "node BEC-PRIME/scripts/verify-ecosystem.js"
   },
   "engines": {
     "node": ">=20"
