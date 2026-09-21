@@ -45,7 +45,9 @@
     "rag:ingest": "python RAG/ingest_github.py",
     "rag:query": "python RAG/query.py",
     "rag:eval": "python RAG/eval.py",
-    "verify:bec-defensive": "node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js"
+    "verify:bec-defensive": "node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js",
+    "test:actuator-ready": "node --test BEC-PRIME/scripts/test-actuator-ready-contract.js",
+    "verify:economic-truth-source": "node BEC-PRIME/scripts/verify-economic-truth-source.js"
   },
   "engines": {
     "node": ">=20"
