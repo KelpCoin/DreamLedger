@@ -8,10 +8,12 @@ function requireText(text, marker, label) {
   if (!text.includes(marker)) throw new Error(label + ': missing ' + marker);
 }
 
-const migration = read('../supabase/migrations/20260921104725_actuator_ready_truth_hardening.sql');
+const migration = read('../supabase/migrations/20260921113000_business_truth_evidence_binding.sql');
 const webhook = read('../supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
 
 requireText(migration, "v_truth text:='UNVERIFIED'", 'truth recorder');
+requireText(migration, "v_evidence_count", 'truth recorder');
+requireText(migration, "v_meta->>'livemode'", 'truth recorder');
 requireText(migration, "external_buyer", 'truth recorder');
 requireText(migration, "settled_transaction", 'truth recorder');
 requireText(migration, "attributed", 'truth recorder');
