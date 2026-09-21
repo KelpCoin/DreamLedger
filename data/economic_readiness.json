@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/economic-readiness/v1",
-  "generated_at_utc": "2026-09-21T11:46:13.454Z",
+  "generated_at_utc": "2026-09-22T00:00:00Z",
   "branch": "actuator-ready-phase0",
   "merge_allowed": false,
   "external_action_allowed_by_agent": false,
@@ -31,13 +31,24 @@
     "stripe_test_live_boundary": "HARDENED",
     "storefront_contract": "IN_REVALIDATION",
     "public_distribution": "HUMAN_ACTION_PENDING",
-    "external_buyer_payment": "NOT_OBSERVED"
+    "external_buyer_payment": "NOT_OBSERVED",
+    "control_plane_rls": "HARDENED",
+    "elohim_prompt_registry": "IMPLEMENTED",
+    "economic_truth_source_verifier": "FIXED_PENDING_CI",
+    "public_surface_contract": "FIXED_PENDING_CI",
+    "kelplantis_runtime": "FIXED_PENDING_CI",
+    "stage1_proof_path": "FIXED_PENDING_CI"
   },
   "blockers": [
     "No verified external buyer/payment exists.",
     "No credentialed external actuator is authorized for autonomous external action.",
-    "One public distribution placement remains a human-gated external action.",
-    "Targeted CI must be green before merge."
+    "Public distribution remains a human-gated external action.",
+    "CI revalidation is pending after the current fixes."
   ],
-  "claims_policy": "Clicks, tests, self-pays, synthetic transactions and internal events are not external revenue."
+  "claims_policy": "Clicks, tests, self-pays, synthetic transactions and internal events are not external revenue.",
+  "notes": [
+    "Live control-plane RLS enabled on six previously unprotected tables; anon/authenticated direct table grants revoked.",
+    "Canonical Elohim registry contains 150 prompts: 40 council-backed and 110 single-model, with zero external-action permissions.",
+    "Live economic truth counts remain zero. No revenue claim was created by these changes."
+  ]
 }
