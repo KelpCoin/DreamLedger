@@ -63,7 +63,7 @@
     "this_contract": "/agent-commerce.json",
     "products": "/api/products",
     "offers": "/api/offers",
-    "human_market": "/",
+    "human_market": "/",\n    "product_pages": "/product/{product_id}",\n    "purchase_router": "/buy/{product_id}",
     "version": "/version"
   },
   "purchase_loop_for_agents": [
@@ -80,7 +80,7 @@
       "name": "Founding Billboard Tile",
       "price_nzd": 50,
       "currency": "NZD",
-      "checkout_url": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
+      "checkout_url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "fulfillment": "billboard_placement",
       "settlement": "stripe_payment_link",
       "agent_priority": 1
