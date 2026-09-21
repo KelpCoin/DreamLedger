@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-surface="marketplace-v16">
+<html lang="en" data-surface="marketplace-v17">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -12,355 +12,358 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0e11;--elev:#12161c;--panel:#161b22;--panel2:#1c222b;--line:#2b3139;--line2:#3a4250;
-  --text:#eaecef;--muted:#848e9c;--dim:#5e6673;
-  --gold:#f0b90b;--gold2:#fcd535;--gold-d:#c99400;
-  --ok:#0ecb81;--danger:#f6465d;--max:1120px;
+  --bg:#090b0e;--elev:#10141a;--panel:#151a21;--panel-h:#1a2029;--line:#262c36;--line2:#353c48;
+  --text:#f0f2f5;--muted:#8b939e;--dim:#5c6570;
+  --gold:#f0b90b;--gold2:#fcd535;--gold-d:#c99400;--gold-soft:rgba(240,185,11,.12);
+  --ok:#0ecb81;--ok-soft:rgba(14,203,129,.12);
+  --max:1160px;--r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45}
 a{color:inherit;text-decoration:none}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
-.wrap{width:min(var(--max),calc(100% - 32px));margin:0 auto}
+input{font:inherit;color:inherit}
+.wrap{width:min(var(--max),calc(100% - 40px));margin:0 auto}
 
-/* Top bar */
 .topbar{background:var(--elev);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
-.topbar-in{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px;padding:6px 0;flex-wrap:wrap}
-.topbar strong{color:var(--gold2);font-weight:700}
+.topbar-in{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px;padding:6px 0;flex-wrap:wrap}
+.topbar strong{color:var(--gold2)}
 
-/* Nav */
-.nav{position:sticky;top:0;z-index:40;background:rgba(11,14,17,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
-.brand{font-size:15px;font-weight:900;letter-spacing:.08em}
-.brand span{color:var(--gold)}
-.nav-mid{display:flex;gap:4px;align-items:center;overflow-x:auto;scrollbar-width:none}
-.nav-mid a,.nav-mid button{font-size:13px;font-weight:700;color:var(--muted);padding:8px 12px;border-radius:8px;white-space:nowrap}
-.nav-mid a:hover,.nav-mid button:hover,.nav-mid a.on,.nav-mid button.on{color:var(--text);background:var(--panel)}
-.nav-right{display:flex;gap:8px;align-items:center}
-.nav-cta{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:10px;background:var(--gold);color:#0b0e11;font-size:13px;font-weight:900}
+.nav{position:sticky;top:0;z-index:50;background:rgba(9,11,14,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;gap:20px;height:64px}
+.brand{font-size:15px;font-weight:900;letter-spacing:.06em;flex-shrink:0}
+.brand em{font-style:normal;color:var(--gold)}
+.search{flex:1;max-width:420px;position:relative}
+.search input{width:100%;height:42px;padding:0 14px 0 40px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);outline:none;transition:border-color .15s}
+.search input:focus{border-color:var(--gold-d)}
+.search input::placeholder{color:var(--dim)}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.45;pointer-events:none}
+.nav-links{display:flex;gap:2px;margin-left:auto;align-items:center}
+.nav-links a{font-size:13px;font-weight:600;color:var(--muted);padding:8px 12px;border-radius:8px}
+.nav-links a:hover{color:var(--text);background:var(--panel)}
+.nav-cta{display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:10px;background:var(--gold);color:#0b0e11;font-size:13px;font-weight:900;margin-left:8px;box-shadow:0 2px 14px rgba(240,185,11,.25)}
 
-/* Hero */
-.hero{padding:40px 0 28px;position:relative}
-.hero-bg{position:absolute;inset:0;pointer-events:none;background:
-  radial-gradient(ellipse 60% 50% at 85% 10%,rgba(240,185,11,.18),transparent 55%),
-  radial-gradient(ellipse 40% 40% at 10% 60%,rgba(14,203,129,.05),transparent 50%)}
-.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;position:relative}
-.kicker{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.hero h1{font-size:clamp(30px,5.5vw,46px);font-weight:900;letter-spacing:-.035em;line-height:1.08;margin-bottom:12px}
-.hero h1 em{font-style:normal;color:var(--gold2)}
-.lead{color:var(--muted);font-size:15px;max-width:38em;margin-bottom:20px}
-.hero-ctas{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:10px;font-size:14px;font-weight:800;transition:opacity .15s,transform .12s}
-.btn:hover{opacity:.93}.btn:active{transform:scale(.98)}
-.btn-primary{background:var(--gold);color:#0b0e11;box-shadow:0 4px 22px rgba(240,185,11,.3)}
-.btn-ghost{background:var(--panel);color:var(--text);border:1px solid var(--line)}
-.trust{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-size:11px;font-weight:700;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--elev);color:var(--muted)}
-.chip.gold{color:var(--gold2);border-color:var(--gold-d);background:rgba(240,185,11,.08)}
-.chip.ok{color:var(--ok);border-color:#0a4a35}
+.hero{padding:36px 0 8px;position:relative}
+.hero-bg{position:absolute;inset:-20px 0 auto;height:320px;pointer-events:none;background:radial-gradient(ellipse 50% 70% at 90% 0%,rgba(240,185,11,.14),transparent 60%)}
+.hero-row{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:stretch;position:relative}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.hero h1{font-size:clamp(28px,4.8vw,42px);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:12px}
+.hero h1 span{color:var(--gold2)}
+.lead{color:var(--muted);font-size:15px;max-width:36em;margin-bottom:18px}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:800;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.92}.btn:active{transform:scale(.98)}
+.btn-gold{background:var(--gold);color:#0b0e11;box-shadow:0 4px 20px rgba(240,185,11,.28)}
+.btn-dark{background:var(--panel);border:1px solid var(--line2);color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--elev);color:var(--muted)}
+.chip.g{color:var(--gold2);border-color:var(--gold-d);background:var(--gold-soft)}
+.chip.ok{color:var(--ok);border-color:#0a4a35;background:var(--ok-soft)}
 
-/* Hero side card */
-.hero-card{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
-.hero-card .tag{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.hero-card h2{font-size:20px;font-weight:800;margin-bottom:6px}
-.hero-card p{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5}
-.hero-card .price-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.price{font-size:26px;font-weight:900;color:var(--gold2)}
-.buy{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:10px;background:var(--gold);color:#0b0e11;font-size:13px;font-weight:900}
+.feature{background:linear-gradient(165deg,rgba(240,185,11,.1),transparent 50%),var(--panel);border:1px solid var(--gold-d);border-radius:16px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+.feature-media{height:110px;background:
+  linear-gradient(135deg,rgba(240,185,11,.25),rgba(15,20,28,.9)),
+  repeating-linear-gradient(90deg,transparent,transparent 19px,rgba(240,185,11,.08) 19px,rgba(240,185,11,.08) 20px),
+  repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(240,185,11,.08) 19px,rgba(240,185,11,.08) 20px);
+  display:flex;align-items:flex-end;padding:12px 16px}
+.feature-media span{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2);background:rgba(0,0,0,.45);padding:4px 8px;border-radius:6px}
+.feature-body{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column}
+.feature-body h2{font-size:18px;font-weight:800;margin-bottom:6px}
+.feature-body p{font-size:13px;color:var(--muted);line-height:1.5;flex:1;margin-bottom:14px}
+.feature-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.price{font-size:24px;font-weight:900;color:var(--gold2);letter-spacing:-.02em}
+.buy{display:inline-flex;align-items:center;justify-content:center;height:42px;padding:0 16px;border-radius:10px;background:var(--gold);color:#0b0e11;font-size:13px;font-weight:900}
 
-/* Section */
-.section{padding:32px 0 8px}
-.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
-.section-head h2{font-size:22px;font-weight:800;letter-spacing:-.02em}
-.section-head p{font-size:13px;color:var(--muted)}
-
-/* Filters */
-.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:16px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:28px 0 14px;flex-wrap:wrap}
+.toolbar h2{font-size:20px;font-weight:800}
+.toolbar .meta{font-size:13px;color:var(--muted)}
+.filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:16px}
 .filters::-webkit-scrollbar{display:none}
-.filter{flex:0 0 auto;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--elev);font-size:12px;font-weight:700;color:var(--muted)}
-.filter:hover,.filter.on{border-color:var(--gold-d);color:var(--gold2);background:rgba(240,185,11,.08)}
+.filter{flex:0 0 auto;height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--elev);font-size:12px;font-weight:700;color:var(--muted)}
+.filter:hover,.filter.on{border-color:var(--gold-d);color:var(--gold2);background:var(--gold-soft)}
 
-/* Product grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;min-height:220px;transition:border-color .15s,transform .12s}
-.card:hover{border-color:var(--line2);transform:translateY(-2px)}
-.card.featured{border-color:var(--gold-d);background:linear-gradient(165deg,rgba(240,185,11,.1) 0%,transparent 45%),var(--panel)}
-.card .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
-.card h3{font-size:16px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px;line-height:1.2}
-.card .desc{font-size:13px;color:var(--muted);line-height:1.5;flex:1;margin-bottom:14px}
-.card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}
-.card .price{font-size:18px}
-.card .buy{min-height:40px;padding:0 14px;font-size:12px}
-.card .buy.ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none}
-.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(14,203,129,.12);color:var(--ok);margin-bottom:6px}
-.badge.warn{background:rgba(240,185,11,.12);color:var(--gold2)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,transform .12s,box-shadow .15s}
+.card:hover{border-color:var(--line2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.card.feat{border-color:var(--gold-d)}
+.media{height:96px;display:flex;align-items:center;justify-content:center;position:relative;font-size:28px}
+.media.placement{background:linear-gradient(145deg,#1a1608,#12161c 60%),repeating-linear-gradient(90deg,transparent 0 11px,rgba(240,185,11,.07) 11px 12px),repeating-linear-gradient(0deg,transparent 0 11px,rgba(240,185,11,.07) 11px 12px)}
+.media.magic{background:linear-gradient(145deg,#1a1220,#12161c)}
+.media.digital{background:linear-gradient(145deg,#0f1a18,#12161c)}
+.media.play{background:linear-gradient(145deg,#0e1a22,#12161c)}
+.media.identity{background:linear-gradient(145deg,#1a1218,#12161c)}
+.media .badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;background:var(--gold-soft);color:var(--gold2);border:1px solid rgba(240,185,11,.25)}
+.card-body{padding:14px 14px 16px;display:flex;flex-direction:column;flex:1}
+.tag{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.card h3{font-size:15px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;line-height:1.25}
+.card .desc{font-size:12px;color:var(--muted);line-height:1.5;flex:1;margin-bottom:12px}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card .price{font-size:17px}
+.card .buy{height:36px;padding:0 12px;font-size:12px;border-radius:8px}
+.card .buy.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
 
-/* How it works */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.step{background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:16px}
-.step n{display:block;font-size:11px;font-weight:800;color:var(--gold);letter-spacing:.1em;margin-bottom:6px}
+.empty{display:none;padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
+.empty.on{display:block}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:36px}
+.step{background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:18px}
+.step .n{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:.08em;margin-bottom:6px}
 .step h3{font-size:14px;font-weight:800;margin-bottom:4px}
 .step p{font-size:12px;color:var(--muted);line-height:1.45}
 
-/* Note */
 .note{margin:28px 0;padding:16px 18px;border-radius:12px;background:var(--elev);border:1px solid var(--line);font-size:13px;color:var(--muted);line-height:1.55}
 .note strong{color:var(--text)}
 
-/* Footer */
-.footer{margin-top:40px;padding:28px 0 56px;border-top:1px solid var(--line);font-size:12px;color:var(--dim)}
-.footer-in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+.footer{margin-top:36px;padding:28px 0 64px;border-top:1px solid var(--line);font-size:12px;color:var(--dim)}
+.footer-in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px}
 .footer a{color:var(--muted)}.footer a:hover{color:var(--text)}
 .footer-links{display:flex;flex-wrap:wrap;gap:14px}
 
-/* Mobile sticky */
-.sticky{display:none;position:fixed;left:0;right:0;bottom:0;z-index:50;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(11,14,17,.97);border-top:1px solid var(--line);gap:10px;backdrop-filter:blur(12px)}
-.sticky a{flex:1;min-height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900}
+.sticky{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(9,11,14,.97);border-top:1px solid var(--line);gap:8px;backdrop-filter:blur(12px)}
+.sticky a{flex:1;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900}
 .sticky .p{background:var(--gold);color:#0b0e11}
 .sticky .g{border:1px solid var(--line);color:var(--text)}
 
-@media(max-width:860px){
-  .hero-grid{grid-template-columns:1fr}
-  .hero-card{order:-1}
+@media(max-width:980px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){
+  .hero-row{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,1fr)}
   .steps{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .search{max-width:none}
 }
-@media(max-width:560px){
+@media(max-width:520px){
   .wrap{width:calc(100% - 24px)}
-  .nav-mid{display:none}
-  .hero{padding:28px 0 20px}
-  .hero-ctas .btn{width:100%}
+  .grid{grid-template-columns:1fr}
+  .ctas .btn{width:100%}
   .sticky{display:flex}
-  body{padding-bottom:72px}
+  body{padding-bottom:70px}
 }
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="wrap topbar-in">
-    <span>Live Stripe · NZD · Settlement meter: <strong>NZ$0</strong> verified external</span>
-    <span>Evidence decides · No fake sales counts</span>
-  </div>
-</div>
+<div class="topbar"><div class="wrap topbar-in">
+  <span>Live Stripe · NZD · Settlement meter: <strong>NZ$0</strong> verified external</span>
+  <span>Evidence decides · No fake sales counts</span>
+</div></div>
 
-<header class="nav">
-  <div class="wrap nav-in">
-    <a class="brand" href="/">DREAMLEDGER <span>· MARKET</span></a>
-    <nav class="nav-mid" aria-label="Primary">
-      <button type="button" class="on" data-filter="all">All</button>
-      <button type="button" data-filter="placement">Placement</button>
-      <button type="button" data-filter="magic">Magic</button>
-      <button type="button" data-filter="digital">Digital</button>
-      <button type="button" data-filter="identity">Identity</button>
-      <a href="/billboard">Billboard</a>
-      <a href="/phin-haven.html">Play</a>
-    </nav>
-    <div class="nav-right">
-      <a class="nav-cta" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy tile · NZ$50</a>
-    </div>
+<header class="nav"><div class="wrap nav-in">
+  <a class="brand" href="/">DREAMLEDGER <em>· MARKET</em></a>
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+    <input id="q" type="search" placeholder="Search products…" autocomplete="off" aria-label="Search products">
   </div>
-</header>
+  <nav class="nav-links">
+    <a href="/billboard">Billboard</a>
+    <a href="/mtg">Magic</a>
+    <a href="/phin-haven.html">Play</a>
+    <a href="/avatar.html">Identity</a>
+  </nav>
+  <a class="nav-cta" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy tile · NZ$50</a>
+</div></header>
 
 <main class="wrap">
   <section class="hero">
     <div class="hero-bg" aria-hidden="true"></div>
-    <div class="hero-grid">
+    <div class="hero-row">
       <div>
         <div class="kicker">Marketplace · Live checkout · NZD</div>
-        <h1>Buy real offers.<br><em>Pay like Stripe.</em></h1>
-        <p class="lead">A focused marketplace for permanent digital placements, Commander diagnostics, digital kits and identity cosmetics. Every checkout is live Stripe. Verified revenue stays at zero until an external payment settles.</p>
-        <div class="hero-ctas">
-          <a class="btn btn-primary" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Claim tile · NZ$50</a>
-          <a class="btn btn-ghost" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Deck diagnostic · NZ$29</a>
+        <h1>Real products.<br><span>Direct checkout.</span></h1>
+        <p class="lead">Permanent digital placements, Commander diagnostics, kits and cosmetics. Pay on Stripe. What the listing says is what you get.</p>
+        <div class="ctas">
+          <a class="btn btn-gold" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Claim tile · NZ$50</a>
+          <a class="btn btn-dark" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Diagnostic · NZ$29</a>
         </div>
-        <div class="trust">
-          <span class="chip gold">Catalog checkout links</span>
+        <div class="chips">
+          <span class="chip g">Catalog links</span>
           <span class="chip ok">Live Stripe</span>
-          <span class="chip">Finite billboard slots</span>
-          <span class="chip">No invented sales</span>
+          <span class="chip">Finite slots</span>
+          <span class="chip">No fake sales</span>
         </div>
       </div>
-      <aside class="hero-card">
-        <div class="tag">Featured · primary offer</div>
-        <h2>Founding Billboard Tile</h2>
-        <p>One permanent 100×100 placement on the public canvas. You set the title and destination. Publication follows human review.</p>
-        <div class="price-row">
-          <span class="price">NZ$50</span>
-          <a class="buy" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy now</a>
+      <aside class="feature">
+        <div class="feature-media"><span>Featured · primary</span></div>
+        <div class="feature-body">
+          <h2>Founding Billboard Tile</h2>
+          <p>One permanent 100×100 placement on the public canvas. Title and destination at checkout. Human review before publication.</p>
+          <div class="feature-foot">
+            <span class="price">NZ$50</span>
+            <a class="buy" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy now</a>
+          </div>
         </div>
       </aside>
     </div>
   </section>
 
-  <section class="section" id="shop">
-    <div class="section-head">
-      <div>
-        <h2>Shop</h2>
-        <p>Published offers with direct checkout</p>
-      </div>
-    </div>
-    <div class="filters" role="tablist" aria-label="Categories">
-      <button type="button" class="filter on" data-filter="all">All</button>
-      <button type="button" class="filter" data-filter="placement">Placement</button>
-      <button type="button" class="filter" data-filter="magic">Magic</button>
-      <button type="button" class="filter" data-filter="digital">Digital</button>
-      <button type="button" class="filter" data-filter="identity">Identity</button>
-      <button type="button" class="filter" data-filter="play">Play</button>
-    </div>
-    <div class="grid" id="grid">
-      <!-- Placement -->
-      <article class="card featured" data-cat="placement">
-        <span class="badge warn">Primary</span>
+  <div class="toolbar">
+    <h2>Shop</h2>
+    <span class="meta" id="count">Showing all offers</span>
+  </div>
+  <div class="filters" role="tablist">
+    <button type="button" class="filter on" data-filter="all">All</button>
+    <button type="button" class="filter" data-filter="placement">Placement</button>
+    <button type="button" class="filter" data-filter="magic">Magic</button>
+    <button type="button" class="filter" data-filter="digital">Digital</button>
+    <button type="button" class="filter" data-filter="identity">Identity</button>
+    <button type="button" class="filter" data-filter="play">Play</button>
+  </div>
+
+  <div class="grid" id="grid">
+    <article class="card feat" data-cat="placement" data-q="founding billboard tile placement permanent canvas">
+      <div class="media placement"><span class="badge">Primary</span>▦</div>
+      <div class="card-body">
         <div class="tag">Placement · finite</div>
         <h3>Founding Billboard Tile</h3>
-        <p class="desc">Permanent 100×100 public placement. Title + destination at checkout. Human review before publication.</p>
-        <div class="card-foot">
-          <span class="price">NZ$50</span>
-          <a class="buy" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy</a>
-        </div>
-      </article>
-      <!-- Magic -->
-      <article class="card featured" data-cat="magic">
-        <span class="badge warn">Featured</span>
+        <p class="desc">Permanent 100×100 public placement. Title + destination at checkout. Review before publication.</p>
+        <div class="card-foot"><span class="price">NZ$50</span><a class="buy" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card feat" data-cat="magic" data-q="commander deck diagnostic mtg magic">
+      <div class="media magic"><span class="badge">Featured</span>♠</div>
+      <div class="card-body">
         <div class="tag">Magic · service</div>
         <h3>Commander Deck Diagnostic</h3>
-        <p class="desc">First-pass diagnostic: structure, weaknesses, cuts, upgrade priorities. Existing fulfilment path.</p>
-        <div class="card-foot">
-          <span class="price">NZ$29</span>
-          <a class="buy" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy</a>
-        </div>
-      </article>
-      <article class="card" data-cat="magic">
+        <p class="desc">Structure, weaknesses, cuts and upgrade priorities. Existing fulfilment path.</p>
+        <div class="card-foot"><span class="price">NZ$29</span><a class="buy" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="magic" data-q="edh commander deck physical">
+      <div class="media magic">🃏</div>
+      <div class="card-body">
         <div class="tag">Magic · physical</div>
         <h3>EDH_0001 Commander Deck</h3>
-        <p class="desc">One physical Commander deck from the current collection. Ships after settled payment.</p>
-        <div class="card-foot">
-          <span class="price">NZ$400</span>
-          <a class="buy" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy</a>
-        </div>
-      </article>
-      <!-- Digital -->
-      <article class="card" data-cat="digital">
+        <p class="desc">One physical Commander deck. Ships after settled payment.</p>
+        <div class="card-foot"><span class="price">NZ$400</span><a class="buy" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="digital" data-q="discord webhook starter kit stripe">
+      <div class="media digital">⚡</div>
+      <div class="card-body">
         <div class="tag">Digital kit</div>
         <h3>Discord Webhook Starter</h3>
-        <p class="desc">Stripe → Discord templates and setup. Download after settled payment.</p>
-        <div class="card-foot">
-          <span class="price">NZ$79</span>
-          <a class="buy" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy</a>
-        </div>
-      </article>
-      <!-- Play -->
-      <article class="card" data-cat="play">
+        <p class="desc">Stripe → Discord templates. Download after settled payment.</p>
+        <div class="card-foot"><span class="price">NZ$79</span><a class="buy" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="play" data-q="kelplantis floor pass access">
+      <div class="media play">🔑</div>
+      <div class="card-body">
         <div class="tag">Play · access</div>
         <h3>Kelplantis Floor 1 Pass</h3>
-        <p class="desc">One-time digital access to Floor 1 vertical slice and First Garden social hub.</p>
-        <div class="card-foot">
-          <span class="price">NZ$19</span>
-          <a class="buy" href="https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P">Buy</a>
-        </div>
-      </article>
-      <article class="card" data-cat="play">
+        <p class="desc">Digital access to Floor 1 slice and First Garden hub.</p>
+        <div class="card-foot"><span class="price">NZ$19</span><a class="buy" href="https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="play" data-q="phin haven shallows free game">
+      <div class="media play">🌊</div>
+      <div class="card-body">
         <div class="tag">Play · free</div>
         <h3>Phin Haven · The Shallows</h3>
-        <p class="desc">Playable MVP. Create a character, explore, dive the dungeon. Cosmetics via store.</p>
-        <div class="card-foot">
-          <span class="price">Free</span>
-          <a class="buy ghost" href="/phin-haven.html">Play</a>
-        </div>
-      </article>
-      <!-- Identity -->
-      <article class="card" data-cat="identity">
+        <p class="desc">Playable MVP. Explore, dive, beat the boss. Cosmetics via store.</p>
+        <div class="card-foot"><span class="price">Free</span><a class="buy ghost" href="/phin-haven.html">Play</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="identity" data-q="cosmic hoodie dreammeez cosmetic">
+      <div class="media identity">👕</div>
+      <div class="card-body">
         <div class="tag">Identity · cosmetic</div>
         <h3>Cosmic Hoodie</h3>
-        <p class="desc">DreamMeez cosmetic. Matched to account email after settled payment.</p>
-        <div class="card-foot">
-          <span class="price">NZ$5</span>
-          <a class="buy" href="https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J">Buy</a>
-        </div>
-      </article>
-      <article class="card" data-cat="identity">
+        <p class="desc">DreamMeez cosmetic. Matched to email after settlement.</p>
+        <div class="card-foot"><span class="price">NZ$5</span><a class="buy" href="https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="identity" data-q="cape dreammeez cosmetic">
+      <div class="media identity">🦸</div>
+      <div class="card-body">
         <div class="tag">Identity · cosmetic</div>
         <h3>Cape</h3>
-        <p class="desc">DreamMeez identity cosmetic. Granted after settlement.</p>
-        <div class="card-foot">
-          <span class="price">NZ$10</span>
-          <a class="buy" href="https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K">Buy</a>
-        </div>
-      </article>
-      <article class="card" data-cat="identity">
+        <p class="desc">DreamMeez identity cosmetic after settled payment.</p>
+        <div class="card-foot"><span class="price">NZ$10</span><a class="buy" href="https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="identity" data-q="chrome boots dreammeez">
+      <div class="media identity">👢</div>
+      <div class="card-body">
         <div class="tag">Identity · cosmetic</div>
         <h3>Chrome Boots</h3>
         <p class="desc">One-time DreamMeez cosmetic unlock.</p>
-        <div class="card-foot">
-          <span class="price">NZ$9</span>
-          <a class="buy" href="https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L">Buy</a>
-        </div>
-      </article>
-      <article class="card" data-cat="identity">
+        <div class="card-foot"><span class="price">NZ$9</span><a class="buy" href="https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L">Buy</a></div>
+      </div>
+    </article>
+
+    <article class="card" data-cat="identity" data-q="supporter tiers monthly sprout glow depth">
+      <div class="media identity">★</div>
+      <div class="card-body">
         <div class="tag">Identity · supporter</div>
         <h3>Supporter tiers</h3>
-        <p class="desc">Monthly Sprout / Glow / Depth tiers with cosmetic drops. From NZ$3.99/mo.</p>
-        <div class="card-foot">
-          <span class="price">from NZ$3.99</span>
-          <a class="buy ghost" href="/avatar.html">Browse</a>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-head">
-      <div>
-        <h2>How buying works</h2>
-        <p>Same spine as a serious storefront</p>
+        <p class="desc">Monthly Sprout / Glow / Depth with cosmetic drops.</p>
+        <div class="card-foot"><span class="price">from NZ$3.99</span><a class="buy ghost" href="/avatar.html">Browse</a></div>
       </div>
-    </div>
-    <div class="steps">
-      <div class="step"><n>01</n><h3>Choose an offer</h3><p>Only published products with a live Stripe Payment Link appear here.</p></div>
-      <div class="step"><n>02</n><h3>Pay on Stripe</h3><p>Checkout is hosted by Stripe. Card data never touches DreamLedger servers.</p></div>
-      <div class="step"><n>03</n><h3>Fulfilment + evidence</h3><p>Settled payment triggers the fulfilment path. Verified revenue requires external payment + proof.</p></div>
-    </div>
-  </section>
-
-  <div class="note">
-    <strong>Economic truth.</strong> Clicks, tests, self-payments and game activity are not revenue. The settlement meter remains at <strong>NZ$0</strong> until a real external live Checkout Session is recognized, fulfilled and fossilized. This surface is a marketplace doorway — not a claim of sales volume.
+    </article>
   </div>
+  <div class="empty" id="empty">No products match that filter or search.</div>
+
+  <div class="steps">
+    <div class="step"><div class="n">01 — CHOOSE</div><h3>Pick a published offer</h3><p>Only live catalog products with Stripe Payment Links appear here.</p></div>
+    <div class="step"><div class="n">02 — PAY</div><h3>Checkout on Stripe</h3><p>Card data stays on Stripe. DreamLedger never sees it.</p></div>
+    <div class="step"><div class="n">03 — SETTLE</div><h3>Fulfilment + evidence</h3><p>Settled payment triggers fulfilment. Verified revenue needs external proof.</p></div>
+  </div>
+
+  <div class="note"><strong>Economic truth.</strong> Tests, self-pays, clicks and game activity are not revenue. Meter stays at <strong>NZ$0</strong> until a real external live Checkout Session is settled, fulfilled and fossilized.</div>
 </main>
 
-<footer class="footer">
-  <div class="wrap footer-in">
-    <span>DreamLedger · marketplace surface v16 · evidence decides</span>
-    <div class="footer-links">
-      <a href="/billboard">Billboard</a>
-      <a href="/mtg">Magic</a>
-      <a href="/phin-haven.html">Phin Haven</a>
-      <a href="/avatar.html">DreamMeez</a>
-      <a href="/truth-oracle.html">Truth Oracle</a>
-      <a href="/policies.html">Policies</a>
-    </div>
+<footer class="footer"><div class="wrap footer-in">
+  <span>DreamLedger · marketplace v17 · evidence decides</span>
+  <div class="footer-links">
+    <a href="/billboard">Billboard</a>
+    <a href="/mtg">Magic</a>
+    <a href="/phin-haven.html">Phin Haven</a>
+    <a href="/avatar.html">DreamMeez</a>
+    <a href="/truth-oracle.html">Truth Oracle</a>
+    <a href="/policies.html">Policies</a>
   </div>
-</footer>
+</div></footer>
 
-<div class="sticky" aria-label="Quick buy">
+<div class="sticky">
   <a class="g" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Diagnostic NZ$29</a>
   <a class="p" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Tile NZ$50</a>
 </div>
 
 <script>
 (function(){
-  var filters = document.querySelectorAll('[data-filter]');
-  var cards = document.querySelectorAll('#grid .card');
-  function apply(cat){
-    filters.forEach(function(el){
-      el.classList.toggle('on', el.getAttribute('data-filter') === cat);
-    });
+  var filters=document.querySelectorAll('.filter');
+  var cards=[].slice.call(document.querySelectorAll('#grid .card'));
+  var q=document.getElementById('q');
+  var empty=document.getElementById('empty');
+  var count=document.getElementById('count');
+  var cat='all';
+  function apply(){
+    var term=(q.value||'').trim().toLowerCase();
+    var n=0;
     cards.forEach(function(card){
-      var c = card.getAttribute('data-cat');
-      card.style.display = (cat === 'all' || c === cat) ? '' : 'none';
+      var c=card.getAttribute('data-cat');
+      var hay=(card.getAttribute('data-q')||'')+' '+(card.innerText||'').toLowerCase();
+      var okCat=cat==='all'||c===cat;
+      var okQ=!term||hay.indexOf(term)!==-1;
+      var show=okCat&&okQ;
+      card.style.display=show?'':'none';
+      if(show)n++;
     });
+    empty.classList.toggle('on',n===0);
+    count.textContent=n===cards.length?'Showing all offers':('Showing '+n+' offer'+(n===1?'':'s'));
+    filters.forEach(function(el){el.classList.toggle('on',el.getAttribute('data-filter')===cat)});
   }
-  filters.forEach(function(el){
-    el.addEventListener('click', function(){ apply(el.getAttribute('data-filter')); });
-  });
+  filters.forEach(function(el){el.addEventListener('click',function(){cat=el.getAttribute('data-filter');apply()})});
+  q.addEventListener('input',apply);
 })();
 </script>
 </body>
