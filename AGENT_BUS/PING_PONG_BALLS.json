@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "updated": "2026-09-21",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
@@ -30,13 +30,16 @@
       "payment_link_id": "plink_1UAN9zJt4ieIQDFzgHeso6Qo",
       "status": "APPROVED_LIVEMODE",
       "verified_external_revenue_nzd": 0,
-      "settlement_meter": "Commerce Settlement Sync"
+      "settlement_meter": "Commerce Settlement Sync",
+      "note": "Primary workflow target. Both tile and diagnostic are now explicit in ops/commerce/README.md."
     },
     "cmd_diag_29": {
       "sku": "CMD-DIAG-29",
       "price_nzd": 29,
-      "status": "SECONDARY_OFFER",
-      "note": "Retained as an existing offer; not the current first-sale settlement target."
+      "payment_link_catalog": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
+      "payment_link_id": "plink_1UAJyVJt4ieIQDFzj4kA5B7x",
+      "status": "SECONDARY_OFFER_APPROVED",
+      "note": "Settlement-eligible when workflow is pointed at its catalog Payment Link. Not the current primary meter target."
     }
   },
   "balls": {
@@ -48,7 +51,7 @@
   },
   "immediate_next": [
     "Run Commerce Settlement Sync manually and confirm the pre-sale meter remains honestly at NZ$0.",
-    "Verify the public first-sale doorway resolves to the approved NZ$50 Billboard Payment Link.",
+    "Verify the public first-sale doorway resolves to an approved catalog Payment Link (tile or diagnostic).",
     "Use one approved acquisition surface to expose the existing offer to a real buyer.",
     "On stranger payment, verify settlement, fulfillment, delivery, and write the fossil."
   ],
@@ -57,6 +60,10 @@
     "Deploy a new Stripe verification function without a demonstrated blocker",
     "Count tests, self-payments, clicks, workflow runs, game activity, or documentation as revenue",
     "Expand game scope before first economic proof",
-    "Treat internal prospect lists as buyer-side demand evidence"
-  ]
+    "Treat internal prospect lists as buyer-side demand evidence",
+    "Accept a public Payment Link as settled unless it matches the approved catalog and the configured workflow link"
+  ],
+  "session_evidence": {
+    "2026-09-21": "ops/commerce/README.md extended to name both NZ$50 and NZ$29 as settlement-eligible; HANDOFF-2026-09-21-COMMERCE-HARDENING.md written; meter still NZ$0"
+  }
 }
