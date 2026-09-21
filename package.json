@@ -47,7 +47,8 @@
     "rag:eval": "python RAG/eval.py",
     "verify:bec-defensive": "node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js",
     "test:actuator-ready": "node --test BEC-PRIME/scripts/test-actuator-ready-contract.js",
-    "verify:economic-truth-source": "node BEC-PRIME/scripts/verify-economic-truth-source.js"
+    "verify:economic-truth-source": "node BEC-PRIME/scripts/verify-economic-truth-source.js",
+    "report:economic-readiness": "node BEC-PRIME/scripts/Generate-EconomicReadiness.js"
   },
   "engines": {
     "node": ">=20"
