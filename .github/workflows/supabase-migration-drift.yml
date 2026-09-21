@@ -1,7 +1,7 @@
 name: Supabase Migration Drift Gate
 
 on:
-  pull_request:
+  push:
     branches: [main]
     paths:
       - 'supabase/migrations/**'
