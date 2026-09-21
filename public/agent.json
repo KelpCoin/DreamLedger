@@ -5,7 +5,7 @@
   "updated": "2026-09-21",
   "human_entry": "/",
   "discovery": "/api/offers",
-  "catalog": "/api/products",\n  "product_pages": "/product/{product_id}",\n  "purchase_router": "/buy/{product_id}",
+  "catalog": "/api/products",\n  "product_pages": "/products/{product_slug}/",\n  "purchase_router": "/buy/{product_slug}/",
   "agent_commerce": "/agent-commerce.json",
   "ecosystem": "/ecosystem.json",
   "surfaces": "/surfaces.json",
