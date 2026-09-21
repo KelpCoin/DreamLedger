@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-function read(file) { return fs.readFileSync(path.resolve(__dirname, '../..', file), 'utf8'); }
+function read(file) { return fs.readFileSync(path.resolve(process.cwd(), '..', file), 'utf8'); }
 function requireText(text, marker, label) {
   if (!text.includes(marker)) throw new Error(label + ': missing ' + marker);
 }
@@ -32,7 +32,7 @@ const forbidden = [
   'BEC-PRIME/demand-radar/n8n-community-collector.js'
 ];
 for (const file of forbidden) {
-  if (fs.existsSync(path.resolve(__dirname, '../..', file))) throw new Error('forbidden n8n artifact remains: ' + file);
+  if (fs.existsSync(path.resolve(process.cwd(), '..', file))) throw new Error('forbidden n8n artifact remains: ' + file);
 }
 
 console.log(JSON.stringify({
