@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const dns = require('dns').promises;
+const net = require('net');
 const stripeProof = require('../lib/stripeWebhookProof');
 
 const ROOT = path.join(__dirname, '..');
@@ -14,6 +16,78 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const COOKIE = 'dreamiez_session';
 
 function read(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+
+function cleanText(value, max=500) {
+  return String(value || '').replace(/\s+/g,' ').trim().slice(0,max);
+}
+function isPrivateIp(ip) {
+  const v=String(ip||'').toLowerCase();
+  if(net.isIP(v)===4){const p=v.split('.').map(Number);return p[0]===10||p[0]===127||(p[0]===169&&p[1]===254)||(p[0]===172&&p[1]>=16&&p[1]<=31)||(p[0]===192&&p[1]===168)||p[0]===0;}
+  if(net.isIP(v)===6){return v==='::1'||v==='::'||v.startsWith('fc')||v.startsWith('fd')||v.startsWith('fe8')||v.startsWith('fe9')||v.startsWith('fea')||v.startsWith('feb')||v.startsWith('::ffff:127.')||v.startsWith('::ffff:10.')||v.startsWith('::ffff:192.168.');}
+  return true;
+}
+async function assertPublicUrl(raw) {
+  const parsed=new URL(String(raw||''));
+  if(!['http:','https:'].includes(parsed.protocol)) throw new Error('Only http and https product URLs are supported');
+  if(parsed.username||parsed.password) throw new Error('URLs containing credentials are not allowed');
+  const host=parsed.hostname.toLowerCase().replace(/\.$/,'');
+  if(!host||host==='localhost'||host.endsWith('.localhost')||host.endsWith('.local')||host.endsWith('.internal')) throw new Error('Private or local hosts are not allowed');
+  const addresses=await dns.lookup(host,{all:true,verbatim:true});
+  if(!addresses.length||addresses.some(a=>isPrivateIp(a.address))) throw new Error('Private or non-public destination is not allowed');
+  return parsed;
+}
+async function fetchPublicHtml(rawUrl) {
+  let target=String(rawUrl);
+  for(let hop=0;hop<4;hop++){
+    const parsed=await assertPublicUrl(target);
+    const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),8000);
+    let response;
+    try{response=await fetch(parsed,{redirect:'manual',signal:controller.signal,headers:{'User-Agent':'DreamLedger-Truth-Oracle/1.0 (+https://dreamledger.org/truth-oracle)'} });}
+    finally{clearTimeout(timer);}
+    if(response.status>=300&&response.status<400){const location=response.headers.get('location');if(!location)throw new Error('Redirect without destination');target=new URL(location,parsed).toString();continue;}
+    if(!response.ok)throw new Error('Source returned HTTP '+response.status);
+    const type=String(response.headers.get('content-type')||'').toLowerCase();
+    if(type&&!type.includes('text/html')&&!type.includes('application/xhtml+xml'))throw new Error('Source is not an HTML product page');
+    const text=await response.text(); if(text.length>1500000)throw new Error('Source page is too large');
+    return {url:parsed.toString(),html:text};
+  }
+  throw new Error('Too many redirects');
+}
+function metaContent(html,name){
+  const tags=[...html.matchAll(/<meta\b[^>]*>/gi)];
+  for(const m of tags){
+    const tag=m[0], nm=tag.match(/\b(?:name|property)\s*=\s*["']([^"']+)["']/i), ct=tag.match(/\bcontent\s*=\s*["']([^"']*)["']/i);
+    if(nm&&ct&&nm[1].toLowerCase()===name.toLowerCase())return cleanText(ct[1],300);
+  }
+  return '';
+}
+function jsonLdNodes(value){
+  if(!value)return[]; if(Array.isArray(value))return value.flatMap(jsonLdNodes); if(typeof value!=='object')return[];
+  const out=[value]; if(Array.isArray(value['@graph']))out.push(...value['@graph'].flatMap(jsonLdNodes)); return out;
+}
+function findOffer(node){
+  const offers=node&&node.offers, list=Array.isArray(offers)?offers:[offers];
+  for(const offer of list){if(!offer||typeof offer!=='object')continue;const price=Number(offer.price??offer.lowPrice);if(Number.isFinite(price)&&price>=0)return{price,currency:cleanText(offer.priceCurrency||node.priceCurrency||'NZD',10).toUpperCase(),availability:cleanText(offer.availability||node.availability,120),price_valid_until:cleanText(offer.priceValidUntil,40)};}
+  return null;
+}
+function extractObservation(source){
+  const {url,html}=source, scripts=[...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)], nodes=[];
+  for(const match of scripts){try{nodes.push(...jsonLdNodes(JSON.parse(match[1].trim())));}catch{}}
+  let product=null,offer=null;
+  for(const node of nodes){const types=Array.isArray(node?.['@type'])?node['@type']:[node?.['@type']];if(types.some(t=>String(t).toLowerCase()==='product')){product=node;offer=findOffer(node);if(offer)break;}}
+  if(!offer){const amount=Number(metaContent(html,'product:price:amount'));if(Number.isFinite(amount))offer={price:amount,currency:(metaContent(html,'product:price:currency')||'NZD').toUpperCase(),availability:''};}
+  if(!offer)throw new Error('No machine-readable product price found on source page');
+  const title=cleanText(product?.name||metaContent(html,'og:title')||metaContent(html,'twitter:title')||'',220);
+  return{source_url:url,source_host:new URL(url).hostname,product_title:title||'Product',observed_price:Number(offer.price.toFixed(2)),currency:offer.currency,availability:offer.availability||null,price_valid_until:offer.price_valid_until||null,observed_at:new Date().toISOString(),evidence_type:'OBSERVED_WEB_PRICE',truth_status:'UNVERIFIED'};
+}
+async function observePrices(urls){
+  const unique=[...new Set((Array.isArray(urls)?urls:[]).map(x=>String(x||'').trim()).filter(Boolean))].slice(0,5); if(!unique.length)throw new Error('Provide at least one product URL');
+  const results=[];
+  for(const url of unique){try{const page=await fetchPublicHtml(url);results.push({ok:true,...extractObservation(page)});}catch(error){results.push({ok:false,source_url:url,error:cleanText(error?.message||'Could not observe source',220)});}}
+  const usable=results.filter(x=>x.ok), currencies=[...new Set(usable.map(x=>x.currency))]; let comparison=null;
+  if(usable.length>=2&&currencies.length===1){const sorted=[...usable].sort((a,b)=>a.observed_price-b.observed_price),cheapest=sorted[0],highest=sorted[sorted.length-1];comparison={currency:currencies[0],cheapest_source:cheapest.source_host,cheapest_price:cheapest.observed_price,highest_source:highest.source_host,highest_price:highest.observed_price,potential_saving:Number((highest.observed_price-cheapest.observed_price).toFixed(2)),comparison_status:'OBSERVED_NOT_VERIFIED'};}
+  return{schema:'DREAMLEDGER/TRUTH-ORACLE/PRICE-OBSERVATION/v1',observations:results,comparison,disclaimer:'Observed machine-readable prices are evidence, not independent verification. Prices, stock, shipping, membership rules and final checkout totals may differ.'};
+}
 function write(file, value) { fs.mkdirSync(path.dirname(file), {recursive:true}); const tmp=file+'.tmp-'+process.pid+'-'+Date.now(); fs.writeFileSync(tmp, JSON.stringify(value,null,2)+'\n'); fs.renameSync(tmp,file); }
 function send(res, status, body) { if (res.writableEnded) return true; res.writeHead(status, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}); res.end(JSON.stringify(body)); return true; }
 function form(params) { const out = new URLSearchParams(); for (const [key,value] of Object.entries(params)) out.set(key,String(value)); return out; }
@@ -45,6 +119,11 @@ function isoFromUnix(value) { return Number.isFinite(Number(value)) ? new Date(N
 function rememberEvent(record,event) { const events={...(record.provider_events||{})}; events[event.id]={type:event.type,timestamp:event.created||null,livemode:event.livemode===true,processed_at:new Date().toISOString()}; const ids=Object.keys(events); while(ids.length>100){delete events[ids.shift()];} record.provider_events=events; record.last_provider_event_id=event.id; return record; }
 
 async function handle(req,res,url) {
+  if(req.method==='POST'&&url==='/api/truth-oracle/observe') {
+    let raw=''; for await(const chunk of req){raw+=chunk;if(raw.length>30000)return send(res,413,{error:'Request too large'});}
+    let body={}; try{body=JSON.parse(raw||'{}');}catch{return send(res,400,{error:'Invalid JSON'});}
+    try{return send(res,200,await observePrices(body.urls));}catch(err){return send(res,400,{error:err.message||'Price observation failed'});}
+  }
   if(req.method==='GET'&&url==='/api/truth-oracle/plans') return send(res,200,{plans:plans().map(p=>({tier:p.tier,display_name:p.display_name||p.tier,price_nzd_month:Number(p.price_nzd_month),disclosure_class:p.disclosure_class,description:p.description}))});
   if(req.method==='GET'&&url==='/api/truth-oracle/entitlement') {
     const user=currentUser(req); if(!user)return send(res,401,{error:'authentication_required'});
