@@ -29,3 +29,5 @@ jobs:
         run: node --test scripts/test-governed-transition.js
       - name: Verify evidence-gated distribution feedback
         run: node --test scripts/test-distribution-feedback.js
+      - name: Verify authorization firewall
+        run: node --test runtime/AuthorizationFirewall.test.js
