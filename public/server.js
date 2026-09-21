@@ -50,76 +50,8 @@ function productPage(res,product){
   const availability=product.inventory===0?'https://schema.org/OutOfStock':(product.status==='published'?'https://schema.org/InStock':'https://schema.org/PreOrder');
   const productUrl='https://dreamledger.org/product/'+encodeURIComponent(String(product.id));
   const buyUrl=product.checkout_available!==false&&product.checkout_url?'/buy/'+encodeURIComponent(String(product.id)):null;
-  const ld={
-    '@context':'https://schema.org',
-    '@type':'Product',
-    'name':title,
-    'description':description,
-    'url':productUrl,
-    'sku':String(product.sku||product.id),
-    'brand':{'@type':'Brand','name':'DreamLedger'},
-    'offers':{
-      '@type':'Offer',
-      'url':buyUrl?'https://dreamledger.org'+buyUrl:productUrl,
-      'priceCurrency':currency,
-      'price':price.toFixed(2),
-      'availability':availability,
-      'seller':{'@type':'Organization','name':'DreamLedger','url':'https://dreamledger.org/'}
-    }
-  };
-  const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(title)+' · DreamLedger</title><meta name="description" content="'+escapeAttr(description)+'"><link rel="canonical" href="'+productUrl+'"><script type="application/ld+json">'+JSON.stringify(ld)+'</script><style>body{font-family:system-ui,-apple-system,sans-serif;background:#080a0d;color:#eef1f5;max-width:760px;margin:0 auto;padding:32px 20px}a{color:#fcd535}.card{border:1px solid #343c4a;background:#141920;border-radius:16px;padding:24px}h1{font-size:32px}p{color:#aab2bd;line-height:1.6}.price{font-size:28px;font-weight:900;color:#fcd535}.buy{display:inline-block;margin-top:20px;padding:13px 18px;border-radius:10px;background:#f0b90b;color:#080a0d;text-decoration:none;font-weight:900}.meta{font-size:12px;color:#8a93a0}</style></head><body><p><a href="/">DreamLedger</a> / Product</p><main class="card"><div class="meta">'+escapeHtml(String(product.sku||product.id))+'</div><h1>'+escapeHtml(title)+'</h1><p>'+escapeHtml(description)+'</p><div class="price">'+currency+' const safe=path.normalize(path.join(root,file));if(!safe.startsWith(root+path.sep))return send(res,403,'Forbidden','text/plain; charset=utf-8');fs.readFile(safe,(err,data)=>{if(err)return send(res,404,'Not Found','text/plain; charset=utf-8');res.setHeader('Content-Type',MIME[path.extname(file).toLowerCase()]||'application/octet-stream');res.setHeader('Cache-Control','no-store');send(res,200,data)})}
-http.createServer(async(req,res)=>{headers(res);const u=new URL(req.url||'/','http://localhost'),p=u.pathname,key=req.method+' '+p;
-if(req.method==='GET'&&p==='/healthz')return send(res,200,'ok','text/plain; charset=utf-8');
-if(p.startsWith('/api/truth-oracle')){try{const handled=await truthOracleCommerce.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Truth Oracle route failed'}),'application/json; charset=utf-8')}}
-if(p.startsWith('/api/agent-bridge/rail/')){try{const handled=await bridgeRail.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'BridgeRail route failed'}),'application/json; charset=utf-8')}}
-if(p.startsWith('/api/agent-bridge')){try{const handled=await agentBridge.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'AgentBridge route failed'}),'application/json; charset=utf-8')}}
-if(req.method==='GET'&&p==='/version')return send(res,200,JSON.stringify({service:'dreamledger-storefront',commit:COMMIT,surface:'marketplace-v19',cube:'v1',ecosystem:'v1',agent_manifest:'/agent.json',agent_commerce:'/agent-commerce.json',surfaces:'/surfaces.json',discovery:'/.well-known/dreamledger.json',account_auth:'first-party',dreammeez_route:'/dreammeez'}),'application/json; charset=utf-8');
-if(ACCOUNT_PAGES[p]&&req.method==='GET')return serveFile(res,ACCOUNT_PAGES[p],ACCOUNT_ROOT);
-if(ACCOUNT_API[key]){try{if(await auth.handle(req,res,p))return;}catch(e){return send(res,500,JSON.stringify({error:e&&e.message?e.message:'Authentication service failed'}),'application/json; charset=utf-8')}}
-if(req.method==='GET'&&p.startsWith('/product/')){
-  const id=decodeURIComponent(p.slice('/product/'.length));
-  const product=loadPublicCatalog().products.find(x=>String(x.id)===id);
-  return product?productPage(res,product):send(res,404,'Product not found','text/plain; charset=utf-8');
-}
-if(req.method==='GET'&&p.startsWith('/buy/')){
-  const id=decodeURIComponent(p.slice('/buy/'.length));
-  const product=loadPublicCatalog().products.find(x=>String(x.id)===id);
-  if(!product||product.checkout_available===false||!product.checkout_url)return send(res,404,JSON.stringify({error:'Offer unavailable'}),'application/json; charset=utf-8');
-  const ref='DL_'+String(product.id).replace(/[^A-Za-z0-9_-]/g,'_')+'_'+crypto.randomBytes(6).toString('hex');
-  const checkout=new URL(product.checkout_url);
-  checkout.searchParams.set('client_reference_id',ref);
-  checkout.searchParams.set('utm_source','dreamledger');
-  checkout.searchParams.set('utm_medium','machine-commerce');
-  checkout.searchParams.set('utm_campaign',String(product.sku||product.id));
-  res.setHeader('Cache-Control','no-store');
-  res.statusCode=302;
-  res.setHeader('Location',checkout.toString());
-  return res.end();
-}
-if(req.method==='GET'&&p==='/api/products'){try{return send(res,200,JSON.stringify(loadPublicCatalog()),'application/json; charset=utf-8')}catch{return send(res,500,JSON.stringify({error:'Catalogue unavailable'}),'application/json; charset=utf-8')}}
-if(req.method==='GET'&&p==='/api/offers')return send(res,200,JSON.stringify({offers:publicOffers()}),'application/json; charset=utf-8');
-if(req.method==='GET'&&p==='/api/cube')return send(res,200,JSON.stringify(loadCube()),'application/json; charset=utf-8');
-if(req.method==='GET'&&p==='/api/cube/silos')return send(res,200,JSON.stringify(localCubeSilos()),'application/json; charset=utf-8');
-if(req.method==='GET'&&p==='/api/cube/marketplace')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
-if(req.method==='GET'&&p==='/api/ecosystem')return send(res,200,JSON.stringify(loadManifest(ECOSYSTEM_PATH,{schema:'dreamledger/ecosystem/v1',status:'unavailable'})),'application/json; charset=utf-8');
-if(req.method==='GET'&&p==='/api/agent')return send(res,200,JSON.stringify(loadManifest(AGENT_PATH,{schema:'dreamledger/agent/v1',status:'unavailable'})),'application/json; charset=utf-8');
-if(req.method==='GET'&&p==='/api/surfaces')return send(res,200,JSON.stringify(loadManifest(SURFACES_PATH,{schema:'dreamledger/surfaces/v1',status:'unavailable'})),'application/json; charset=utf-8');
-if(req.method==='GET'&&p.startsWith('/api/products/')){try{const id=decodeURIComponent(p.slice('/api/products/'.length));const product=loadPublicCatalog().products.find(x=>x.id===id);return product?send(res,200,JSON.stringify(product),'application/json; charset=utf-8'):send(res,404,JSON.stringify({error:'Product not found'}),'application/json; charset=utf-8')}catch{return send(res,500,JSON.stringify({error:'Catalogue unavailable'}),'application/json; charset=utf-8')}}
-if(p.startsWith('/api/dreamiez/')){try{return await dreamiez.handle(req,res,p)}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e.message||'DreamMeez route failed'}),'application/json; charset=utf-8')}}
-if(req.method==='POST'&&p==='/api/billboard/submit'){let body;try{const raw=(await readBody(req)).toString('utf8');body=req.headers['content-type']&&req.headers['content-type'].toLowerCase().includes('application/json')?JSON.parse(raw):null;if(!body)throw new Error('Use JSON submission');return send(res,200,JSON.stringify(reserveBillboard(body)),'application/json; charset=utf-8')}catch(e){return send(res,400,JSON.stringify({error:e&&e.message?e.message:'Invalid billboard submission'}),'application/json; charset=utf-8')}}
-if(req.method==='POST'&&p==='/api/offer-checkout/create'){let body;try{body=JSON.parse((await readBody(req)).toString('utf8'))}catch{return send(res,400,JSON.stringify({error:'Invalid JSON'}),'application/json; charset=utf-8')}if(body&&body.offer_id==='COMMANDER-DECK-DIAGNOSTIC-001')return send(res,200,JSON.stringify({ok:true,offer_id:body.offer_id,checkout_url:'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l'}),'application/json; charset=utf-8');return proxy(req,res,Buffer.from(JSON.stringify(body)))}
-if(req.method==='GET'&&p==='/marketplace')return serveFile(res,'cube-marketplace.html');
-if(req.method==='GET'&&p==='/api/marketplace/catalog')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
-if(req.method==='GET'&&p.startsWith('/api/marketplace/'))return proxy(req,res,Buffer.alloc(0));
-if(p==='/webhook'&&req.method==='POST'){try{const body=await readBody(req);verifyStripeSignature(body.toString('utf8'),req.headers['stripe-signature']||'');const event=JSON.parse(body.toString('utf8'));if(event&&event.type==='checkout.session.completed'){const obj=event.data&&event.data.object?event.data.object:null;const ref=obj&&obj.client_reference_id?obj.client_reference_id:null;markReservationPaid(ref,event.id)}return send(res,200,JSON.stringify({received:true}),'application/json; charset=utf-8')}catch(e){return send(res,400,JSON.stringify({received:false,error:e&&e.message?e.message:'Webhook rejected'}),'application/json; charset=utf-8')}}
-if(p==='/webhook')return send(res,405,'Method not allowed','text/plain; charset=utf-8');
-if(p==='/dreammeez'||p==='/dreammeez/')return serveFile(res,'avatar.html');
-if(p==='/dreamiez'||p=='/dreamiez/')return serveFile(res,'dreamiez.html',DREAMMEEZ_ROOT);
-if(p=='/avatar'||p=='/avatar/'||p=='/avatars'||p=='/avatars/')return serveFile(res,'avatar.html');
-if(p.startsWith('/api/')){if(!ALLOWED_API[key])return send(res,404,'Not Found','text/plain; charset=utf-8');try{return proxy(req,res,await readBody(req))}catch{return send(res,400,'Bad request','text/plain; charset=utf-8')}}
-if(p==='/.well-known/dreamledger.json'&&req.method==='GET')return serveFile(res,'.well-known/dreamledger.json');
-const file=PUBLIC_FILES[p];if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');serveFile(res,file)}).listen(PORT,'0.0.0.0',()=>console.log('DreamLedger public storefront listening on '+PORT));
-+price.toFixed(2)+'</div>'+ (buyUrl?'<a class="buy" href="'+buyUrl+'">Buy now</a>':'<p>This offer is not currently available for checkout.</p>') +'<p class="meta">Machine-readable product ID: '+escapeHtml(String(product.id))+'</p></main></body></html>';
+  const ld={'@context':'https://schema.org','@type':'Product','name':title,'description':description,'url':productUrl,'sku':String(product.sku||product.id),'brand':{'@type':'Brand','name':'DreamLedger'},'offers':{'@type':'Offer','url':buyUrl?'https://dreamledger.org'+buyUrl:productUrl,'priceCurrency':currency,'price':price.toFixed(2),'availability':availability,'seller':{'@type':'Organization','name':'DreamLedger','url':'https://dreamledger.org/'}}};
+  const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(title)+' · DreamLedger</title><meta name="description" content="'+escapeAttr(description)+'"><link rel="canonical" href="'+productUrl+'"><script type="application/ld+json">'+JSON.stringify(ld)+'</script><style>body{font-family:system-ui,-apple-system,sans-serif;background:#080a0d;color:#eef1f5;max-width:760px;margin:0 auto;padding:32px 20px}a{color:#fcd535}.card{border:1px solid #343c4a;background:#141920;border-radius:16px;padding:24px}h1{font-size:32px}p{color:#aab2bd;line-height:1.6}.price{font-size:28px;font-weight:900;color:#fcd535}.buy{display:inline-block;margin-top:20px;padding:13px 18px;border-radius:10px;background:#f0b90b;color:#080a0d;text-decoration:none;font-weight:900}.meta{font-size:12px;color:#8a93a0}</style></head><body><p><a href="/">DreamLedger</a> / Product</p><main class="card"><div class="meta">'+escapeHtml(String(product.sku||product.id))+'</div><h1>'+escapeHtml(title)+'</h1><p>'+escapeHtml(description)+'</p><div class="price">'+currency+' '+price.toFixed(2)+'</div>'+(buyUrl?'<a class="buy" href="'+buyUrl+'">Buy now</a>':'<p>This offer is not currently available for checkout.</p>')+'<p class="meta">Machine-readable product ID: '+escapeHtml(String(product.id))+'</p></main></body></html>';
   return send(res,200,html,'text/html; charset=utf-8');
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
