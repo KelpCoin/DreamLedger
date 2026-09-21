@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from runtime.attempt_transition import transition_id, idempotency_key, evaluate_preconditions, load_policy
 
 def test_transition_id_is_deterministic():
