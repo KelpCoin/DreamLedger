@@ -24,10 +24,20 @@ function run(gauntlet) {
     'gauntlet/GauntletV6.js',
     'proxy/DigitalProxy.js',
     'runtime/ControlPlane.js',
-    'runtime/DemandRadar.js'
+    'runtime/DemandRadar.js',
+    'runtime/GovernanceState.js',
+    'governance/GovernancePolicy.json'
   ];
   for (const rel of required) checks.push(check(`file:${rel}`, fs.existsSync(path.join(ROOT, rel)), 'required runtime file'));
   checks.push(check('gauntlet:pass', gauntlet && gauntlet.status === 'PASS', gauntlet ? gauntlet.status : 'missing'));
+  try {
+    const policy = JSON.parse(fs.readFileSync(path.join(ROOT, 'governance', 'GovernancePolicy.json'), 'utf8'));
+    checks.push(check('governance:default-deny', policy.default === 'DENY' && policy.authorization?.default === 'DENY', 'governance policy defaults to deny'));
+    checks.push(check('governance:garage', Number(policy.garage?.minimum_hold_hours) >= 24 && policy.garage?.staging_has_no_external_credentials === true, '24-hour garage and credential isolation are required'));
+    checks.push(check('governance:canary', Number(policy.canary?.control_percent) === 90 && Number(policy.canary?.treatment_percent) === 10, '90/10 canary policy is explicit'));
+  } catch (error) {
+    checks.push(check('governance:policy', false, 'governance policy could not be loaded: ' + error.message));
+  }
   checks.push(check('catalog:offers', fs.existsSync(path.join(ROOT, 'catalog', 'offers', 'offers.json')), 'canonical offer catalog exists'));
   checks.push(check('catalog:ip', fs.existsSync(path.join(ROOT, 'catalog', 'ip-capabilities.json')), 'canonical IP catalog exists'));
   checks.push(check('surface:index', fs.existsSync(path.join(ROOT, 'compiled', 'website', 'index.html')), 'compiled homepage exists'));

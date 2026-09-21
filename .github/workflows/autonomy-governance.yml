@@ -1,0 +1,47 @@
+name: autonomy-governance
+
+on:
+  push:
+    paths:
+      - 'BEC-PRIME/governance/**'
+      - 'BEC-PRIME/runtime/AuthorizationFirewall.js'
+      - 'BEC-PRIME/runtime/AuthorizationFirewall.test.js'
+      - 'BEC-PRIME/runtime/GovernanceState.js'
+      - 'BEC-PRIME/runtime/GovernedTransition.js'
+      - 'BEC-PRIME/runtime/ControlPlane.js'
+      - 'BEC-PRIME/runtime/Sentinel.js'
+      - 'BEC-PRIME/runtime/worker-pool.js'
+      - 'BEC-PRIME/distribution/DistributionFeedback.js'
+      - 'BEC-PRIME/scripts/test-governed-transition.js'
+      - 'BEC-PRIME/scripts/test-distribution-feedback.js'
+      - 'BEC-PRIME/package.json'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/governance/**'
+      - 'BEC-PRIME/runtime/AuthorizationFirewall.js'
+      - 'BEC-PRIME/runtime/AuthorizationFirewall.test.js'
+      - 'BEC-PRIME/runtime/GovernanceState.js'
+      - 'BEC-PRIME/runtime/GovernedTransition.js'
+      - 'BEC-PRIME/runtime/ControlPlane.js'
+      - 'BEC-PRIME/runtime/Sentinel.js'
+      - 'BEC-PRIME/runtime/worker-pool.js'
+      - 'BEC-PRIME/distribution/DistributionFeedback.js'
+      - 'BEC-PRIME/scripts/test-governed-transition.js'
+      - 'BEC-PRIME/scripts/test-distribution-feedback.js'
+      - 'BEC-PRIME/package.json'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test scripts/verify-autonomy-governance.js
+      - run: node --test scripts/test-governed-transition.js
+      - run: node --test scripts/test-distribution-feedback.js
+      - run: node --test runtime/AuthorizationFirewall.test.js
