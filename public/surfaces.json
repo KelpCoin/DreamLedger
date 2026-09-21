@@ -39,7 +39,7 @@
       "class": "QR_SURFACE",
       "silo": "core",
       "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "canonical_target": "/billboard",
+      "canonical_target": "/",
       "status": "active"
     },
     {
