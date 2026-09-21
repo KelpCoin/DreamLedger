@@ -10,9 +10,9 @@ function requireText(text, marker, label) {
 }
 
 const recorder = read('supabase/migrations/20260921113100_business_truth_recorder_return_fix.sql');
-const guards = read('../supabase/migrations/20260921104745_economic_truth_guard_record_safe_fix.sql');
-const fullChain = read('../supabase/migrations/20260921120500_economic_truth_full_chain_enforcement.sql');
-const webhook = read('../supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
+const guards = read('supabase/migrations/20260921104745_economic_truth_guard_record_safe_fix.sql');
+const fullChain = read('supabase/migrations/20260921120500_economic_truth_full_chain_enforcement.sql');
+const webhook = read('supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
 
 requireText(recorder, "v_truth text:='UNVERIFIED'", 'truth recorder');
 requireText(recorder, "v_evidence_count", 'truth recorder');
