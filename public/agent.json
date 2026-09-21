@@ -1,27 +1,55 @@
 {
-  "schema": "dreamledger/agent/v1",
+  "schema": "dreamledger/agent/v2",
   "name": "DreamLedger Commerce Agent Interface",
   "status": "active",
+  "updated": "2026-09-21",
   "human_entry": "/",
   "discovery": "/api/offers",
   "catalog": "/api/products",
+  "agent_commerce": "/agent-commerce.json",
   "ecosystem": "/ecosystem.json",
   "surfaces": "/surfaces.json",
   "discovery_manifest": "/.well-known/dreamledger.json",
   "commerce": {
     "supported_action": "purchase",
-    "authorization": "buyer_or_authorized_agent",
-    "payment": "checkout_url",
+    "authorization": "buyer_or_authorized_agent_with_human_handoff",
+    "payment": "stripe_checkout_url",
     "currency": "NZD",
+    "dreamledger_take_rate_bps": 0,
     "evidence_after_payment": true,
-    "economic_event_order": ["authorized","paid","delivered","proven"]
+    "economic_event_order": ["authorized", "paid", "delivered", "proven"],
+    "settlement_authority": "stripe_live_only",
+    "protocol_alignment": {
+      "authorization": "AP2-like human authorization before spend",
+      "checkout": "ACP-like Payment Link handoff",
+      "machine_rails": "x402/MPP not live; reserved"
+    }
   },
   "offers": [
     {
       "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "endpoint": "/billboard",
+      "checkout_url": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
       "action": "purchase",
       "price_nzd": 50,
+      "status": "live"
+    },
+    {
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "endpoint": "/api/offer-checkout/create",
+      "checkout_url": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
+      "action": "purchase",
+      "price_nzd": 29,
+      "status": "live"
+    },
+    {
+      "offer_id": "OFFER-DISCORD-WEBHOOK-STARTER",
+      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "action": "purchase",
+      "price_nzd": 79,
       "status": "live"
     },
     {
@@ -30,26 +58,18 @@
       "action": "purchase",
       "price_nzd": 500,
       "status": "gated",
-      "role": "commercial_campaign",
       "reason": "checkout_disabled_until_delivery_contract_is_verified"
-    },
-    {
-      "offer_id": "OFFER-CMD-DIAG-29-NZD",
-      "endpoint": "/api/offer-checkout/create",
-      "action": "purchase",
-      "price_nzd": 29,
-      "status": "live",
-      "role": "ignition_test_only"
     }
   ],
   "proof": {
     "schema": "dreamledger/proof/v1",
-    "required_fields": ["proof_id","event_id","surface_id","offer_id","product_id","payment_provider","payment_reference","paid_at","delivered_at","delivery_status","asset_sha256","evidence_sha256","verification_status","created_at"]
+    "required_fields": ["proof_id", "event_id", "surface_id", "offer_id", "product_id", "payment_provider", "payment_reference", "paid_at", "delivered_at", "delivery_status", "asset_sha256", "evidence_sha256", "verification_status", "created_at"]
   },
   "safety": {
     "no_claim_without_proof": true,
     "payment_must_be_verified": true,
     "refund_event_supported": true,
-    "silo_isolation": true
+    "silo_isolation": true,
+    "no_autonomous_spend_without_authorization": true
   }
 }
