@@ -91,7 +91,10 @@
     "test:bridge-rail": "node --test runtime/BridgeRail.test.js",
     "test:governed-transition": "node --test scripts/test-governed-transition.js",
     "test:distribution-feedback": "node --test scripts/test-distribution-feedback.js",
-    "test:authorization-firewall": "node --test runtime/AuthorizationFirewall.test.js"
+    "test:authorization-firewall": "node --test runtime/AuthorizationFirewall.test.js",
+    "test:actuator-ready": "node --test scripts/test-actuator-ready-contract.js",
+    "verify:economic-truth-source": "node scripts/verify-economic-truth-source.js",
+    "report:economic-readiness": "node scripts/Generate-EconomicReadiness.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
