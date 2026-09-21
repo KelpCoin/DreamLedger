@@ -51,6 +51,7 @@ function boot() {
     ledger: ledgerResult,
     fossils: fossilResult,
     mcp_security: mcpResult,
+    governance: governanceState.status(),
     truth_oracle: truthOracle.snapshot(),
     workers: scheduler.advertisedWorkers().workers,
     worker_pool: { status: 'READY', queue: workerPool.listJobs().length },
