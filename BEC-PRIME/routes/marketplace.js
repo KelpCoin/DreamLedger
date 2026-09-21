@@ -12,6 +12,12 @@ function json(res,status,data){res.writeHead(status,{'Content-Type':'application
 function htmlFile(res,file){fs.readFile(file,(err,data)=>{if(err){res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'});return res.end('Not Found');}res.writeHead(200,{'Content-Type':MIME,'Cache-Control':'no-store'});res.end(data);});}
 async function cubeData(){const url=process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!url||!key)return {items:[]};const r=await fetch(url+'/rest/v1/b2b_marketplace_catalog?select=*&order=title.asc',{headers:{apikey:key,Authorization:'Bearer '+key}});if(!r.ok)throw new Error('cube catalog unavailable');return {items:await r.json()};}
 async function handle(req,res,url){
+if(req.method==='GET'&&url==='/api/ecosystem'){
+  const market=await cubeData().catch(()=>({items:[]}));
+  let ecosystem={schema:'dreamledger/ecosystem/v1',name:'DreamLedger Commercial Ecosystem',version:'1.0.0',source:'data/ecosystem_manifest.json'};
+  try{ecosystem={...ecosystem,...read(path.join(ROOT,'data','ecosystem_manifest.json'),{})};}catch{}
+  return json(res,200,{...ecosystem,marketplace:{...ecosystem.rails.marketplace,listing_count:(market.items||[]).length}});
+}
 if(req.method==='GET'&&url==='/api/b2b/listings'){
   const market=await cubeData();
   const q=new URL(req.url||url,'http://localhost').searchParams;
