@@ -1,23 +1,11 @@
 {
-  "version": 6,
+  "version": 7,
   "updated": "2026-09-21",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
-    "play_lobe": [
-      "phinhaven/shallows",
-      "phinhaven/godot/shallows",
-      "PROOF/airgap"
-    ],
-    "settle_lobe": [
-      "Stripe catalog",
-      "Commerce Settlement Sync",
-      "marketplace_settle_stripe_payment",
-      "marketplace-diagnostic-delivery"
-    ],
-    "bus": [
-      "AGENT_BUS/",
-      "KelpCoin/llm-supabase-github-bridge"
-    ],
+    "play_lobe": ["phinhaven/shallows", "phinhaven/godot/shallows", "PROOF/airgap"],
+    "settle_lobe": ["Stripe catalog", "Commerce Settlement Sync", "marketplace_settle_stripe_payment", "marketplace-diagnostic-delivery"],
+    "bus": ["AGENT_BUS/", "KelpCoin/llm-supabase-github-bridge"],
     "dam": "Evidence chain before revenue claim",
     "verified_external_revenue_nzd": 0
   },
@@ -27,24 +15,20 @@
       "sku": "DL-BILLBOARD-100X100-3000-001",
       "price_nzd": 50,
       "payment_link": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-      "payment_link_id": "plink_1UAN9zJt4ieIQDFzgHeso6Qo",
       "status": "APPROVED_LIVEMODE",
       "verified_external_revenue_nzd": 0,
-      "settlement_meter": "Commerce Settlement Sync",
-      "note": "Primary workflow target. Storefront CTAs now point at approved catalog links."
+      "settlement_meter": "Commerce Settlement Sync"
     },
     "cmd_diag_29": {
       "sku": "CMD-DIAG-29",
       "price_nzd": 29,
-      "payment_link_catalog": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
-      "payment_link_id": "plink_1UAJyVJt4ieIQDFzj4kA5B7x",
-      "status": "SECONDARY_OFFER_APPROVED",
-      "note": "Settlement-eligible; featured as secondary CTA on cleaned storefront."
+      "payment_link_public_catalog": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
+      "status": "SECONDARY_OFFER_APPROVED"
     },
     "surface": {
-      "storefront": "public/index.html + root index.html focused commerce surface",
-      "status": "CLEANED_2026-09-21",
-      "note": "Clutter removed; primary offers only on first fold; approved links only."
+      "storefront": "public/index.html marketplace-v16",
+      "status": "MARKETPLACE_V16_SHIPPED",
+      "note": "Grid + categories + featured CTAs. Production must redeploy Render to show live."
     }
   },
   "balls": {
@@ -55,22 +39,20 @@
     "E": "human Godot gate remains"
   },
   "immediate_next": [
-    "Confirm production serves the cleaned public/index.html (deploy / cache if needed).",
-    "Run Commerce Settlement Sync; meter must stay honest at NZ$0 until real external payment.",
-    "Human: post tile + diagnostic on owned channels only.",
-    "On stranger payment: settle, fulfil, fossil, then update verified_external_revenue_nzd."
+    "Confirm Render deployed marketplace-v16 (check /version commit and data-surface attribute).",
+    "Human: post tile + diagnostic on owned channels.",
+    "Run Commerce Settlement Sync; keep meter at NZ$0 until real external payment.",
+    "On stranger payment: settle, fulfil, fossil."
   ],
   "do_not": [
-    "Add a second marketplace_fulfillments writer",
-    "Deploy a new Stripe verification function without a demonstrated blocker",
     "Count tests, self-payments, clicks, workflow runs, game activity, or documentation as revenue",
     "Expand game scope before first economic proof",
-    "Treat internal prospect lists as buyer-side demand evidence",
-    "Accept a public Payment Link as settled unless it matches the approved catalog and the configured workflow link",
-    "Re-clutter the homepage with every SKU before first sale"
+    "Re-clutter the homepage with unshipped SKUs or scarcity theatre",
+    "Accept a public Payment Link as settled unless it matches approved catalog + workflow config"
   ],
   "session_evidence": {
-    "2026-09-21-commerce": "ops/commerce/README.md extended for both NZ$50 and NZ$29; HANDOFF-2026-09-21-COMMERCE-HARDENING.md",
-    "2026-09-21-surface": "public/index.html + root index.html cleaned; approved catalog links only; HANDOFF-2026-09-21-SURFACE-CLEAN.md; meter still NZ$0"
+    "2026-09-21-commerce": "ops/commerce/README dual-offer notes",
+    "2026-09-21-surface-clean": "focused surface attempt",
+    "2026-09-21-marketplace-v16": "public/index.html marketplace grid shipped; await Render deploy; meter NZ$0"
   }
 }
