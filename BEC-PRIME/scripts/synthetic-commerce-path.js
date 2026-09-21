@@ -74,7 +74,7 @@ async function main() {
   assert.equal(checkout.mode, 'canonical_payment_link');
   assert.equal(checkout.amount_minor, 5000);
   assert.equal(checkout.currency, 'nzd');
-  assert.equal(checkout.payment_link_id, 'plink_1UAN9zJt4ieIQDFzgHeso6Qo');
+  assert.equal(checkout.payment_link_id, 'plink_1UCrekEGgEAnUFF9XVRM04aG');
 
   writeSyntheticBillboard();
   const event = {
