@@ -12,6 +12,16 @@ function json(res,status,data){res.writeHead(status,{'Content-Type':'application
 function htmlFile(res,file){fs.readFile(file,(err,data)=>{if(err){res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'});return res.end('Not Found');}res.writeHead(200,{'Content-Type':MIME,'Cache-Control':'no-store'});res.end(data);});}
 async function cubeData(){const url=process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!url||!key)return {items:[]};const r=await fetch(url+'/rest/v1/b2b_marketplace_catalog?select=*&order=title.asc',{headers:{apikey:key,Authorization:'Bearer '+key}});if(!r.ok)throw new Error('cube catalog unavailable');return {items:await r.json()};}
 async function handle(req,res,url){
+if(req.method==='GET'&&url==='/api/b2b/marketplace'){
+  try{
+    const market=await cubeData();
+    return json(res,200,{schema:'CUBE/B2B-MARKETPLACE/v2',items:market.items||[],opportunities:[],truth:[],settled_payment_count:0,supply_open:true,source:'public.b2b_marketplace_catalog'});
+  }catch{return json(res,200,{schema:'CUBE/B2B-MARKETPLACE/v2',items:[],opportunities:[],truth:[],settled_payment_count:0,supply_open:true,source:'unavailable'});}
+}
+if(req.method==='GET'&&url==='/api/b2b/distribution-pack'){
+  const market=await cubeData().catch(()=>({items:[]}));
+  return json(res,200,{schema:'dreamledger/b2b-distribution-pack/v1',generated_at:new Date().toISOString(),publication_allowed:false,human_authority_required:true,items:market.items||[]});
+}
 if(req.method==='GET'&&url==='/billboard'){htmlFile(res,path.join(SITE_ROOT,'billboard.html'));return true;}
 if(req.method==='GET'&&url==='/marketplace.html'){htmlFile(res,path.join(SITE_ROOT,'marketplace.html'));return true;}
 if(req.method==='GET'&&url==='/media-music.html'){htmlFile(res,path.join(SITE_ROOT,'media-music.html'));return true;}
