@@ -1379,7 +1379,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K01",
+      "prompt_id": "K11",
       "name": "Channel Map",
       "section": "K",
       "produces": "CHANNEL_MAP",
@@ -1391,7 +1391,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K02",
+      "prompt_id": "K12",
       "name": "Buyer Solvency Check",
       "section": "K",
       "produces": "BUYER_SOLVENCY",
@@ -1403,7 +1403,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K03",
+      "prompt_id": "K13",
       "name": "Buyer Independence Check",
       "section": "K",
       "produces": "BUYER_INDEPENDENCE",
@@ -1415,7 +1415,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K04",
+      "prompt_id": "K14",
       "name": "Trigger Event Finder",
       "section": "K",
       "produces": "TRIGGER_EVENTS",
@@ -1427,7 +1427,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K05",
+      "prompt_id": "K15",
       "name": "Competitor Displacement",
       "section": "K",
       "produces": "DISPLACEMENT_REASONS",
@@ -1439,7 +1439,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K06",
+      "prompt_id": "K16",
       "name": "Anti-Buyer",
       "section": "K",
       "produces": "ANTI_BUYERS",
@@ -1451,7 +1451,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K07",
+      "prompt_id": "K17",
       "name": "Price Band Check",
       "section": "K",
       "produces": "EXTERNAL_PRICE_BAND",
@@ -1463,7 +1463,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K08",
+      "prompt_id": "K18",
       "name": "Contribution Calculator",
       "section": "K",
       "produces": "CONTRIBUTION",
@@ -1475,7 +1475,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K09",
+      "prompt_id": "K19",
       "name": "Human Minute Cost",
       "section": "K",
       "produces": "HUMAN_MINUTE_COST",
@@ -1487,7 +1487,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K10",
+      "prompt_id": "K20",
       "name": "Price Anchor",
       "section": "K",
       "produces": "PRICE_ANCHOR",
@@ -1499,7 +1499,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K01",
+      "prompt_id": "K21",
       "name": "Payment Terms",
       "section": "K",
       "produces": "PAYMENT_TERMS",
@@ -1511,7 +1511,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K02",
+      "prompt_id": "K22",
       "name": "Refund Exposure",
       "section": "K",
       "produces": "REFUND_EXPOSURE",
@@ -1523,7 +1523,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K03",
+      "prompt_id": "K23",
       "name": "Margin Floor",
       "section": "K",
       "produces": "MARGIN_FLOOR",
@@ -1535,7 +1535,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K04",
+      "prompt_id": "K24",
       "name": "Price Test Plan",
       "section": "K",
       "produces": "PRICE_TEST",
@@ -1547,7 +1547,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K05",
+      "prompt_id": "K25",
       "name": "3-Line Cold DM",
       "section": "K",
       "produces": "COLD_DM",
@@ -1559,7 +1559,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K06",
+      "prompt_id": "K26",
       "name": "Problem-Mirror Opener",
       "section": "K",
       "produces": "PROBLEM_OPENER",
@@ -1571,7 +1571,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K07",
+      "prompt_id": "K27",
       "name": "Specific Reference Opener",
       "section": "K",
       "produces": "REFERENCE_OPENER",
@@ -1583,7 +1583,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K08",
+      "prompt_id": "K28",
       "name": "Bounded Offer Reply",
       "section": "K",
       "produces": "BOUNDED_OFFER_REPLY",
@@ -1595,7 +1595,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K09",
+      "prompt_id": "K29",
       "name": "Follow-Up Sequence",
       "section": "K",
       "produces": "FOLLOWUP_SEQUENCE",
@@ -1607,7 +1607,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K10",
+      "prompt_id": "K30",
       "name": "No-Pitch First Contact",
       "section": "K",
       "produces": "NO_PITCH_CONTACT",
@@ -1619,7 +1619,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K01",
+      "prompt_id": "K31",
       "name": "Diagnosis-First Outreach",
       "section": "K",
       "produces": "DIAGNOSIS_OUTREACH",
@@ -1631,7 +1631,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K02",
+      "prompt_id": "K32",
       "name": "Rejection Recovery",
       "section": "K",
       "produces": "REJECTION_RECOVERY",
@@ -1643,7 +1643,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K03",
+      "prompt_id": "K33",
       "name": "Checkout Friction Audit",
       "section": "K",
       "produces": "CHECKOUT_FRICTION",
@@ -1655,7 +1655,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K04",
+      "prompt_id": "K34",
       "name": "Price Presentation Test",
       "section": "K",
       "produces": "PRICE_PRESENTATION",
@@ -1667,7 +1667,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K05",
+      "prompt_id": "K35",
       "name": "Trust Signal Builder",
       "section": "K",
       "produces": "TRUST_SIGNALS",
@@ -1679,7 +1679,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K06",
+      "prompt_id": "K36",
       "name": "Abandonment Reason List",
       "section": "K",
       "produces": "ABANDONMENT_REASONS",
@@ -1691,7 +1691,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K07",
+      "prompt_id": "K37",
       "name": "Payment Path Simplifier",
       "section": "K",
       "produces": "PAYMENT_PATH",
@@ -1703,7 +1703,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K08",
+      "prompt_id": "K38",
       "name": "Post-Payment Confusion Check",
       "section": "K",
       "produces": "POST_PAYMENT_STATE",
@@ -1715,7 +1715,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K09",
+      "prompt_id": "K39",
       "name": "Second Purchase Trigger",
       "section": "K",
       "produces": "SECOND_PURCHASE_TRIGGER",
@@ -1727,7 +1727,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K10",
+      "prompt_id": "K40",
       "name": "Referral Ask",
       "section": "K",
       "produces": "REFERRAL_ASK",
@@ -1739,7 +1739,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K01",
+      "prompt_id": "K41",
       "name": "Retention Signal",
       "section": "K",
       "produces": "RETENTION_SIGNAL",
@@ -1751,7 +1751,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K02",
+      "prompt_id": "K42",
       "name": "Churn Reason Classifier",
       "section": "K",
       "produces": "CHURN_CLASSIFICATION",
@@ -1763,7 +1763,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K03",
+      "prompt_id": "K43",
       "name": "Reactivation Message",
       "section": "K",
       "produces": "REACTIVATION_MESSAGE",
@@ -1775,7 +1775,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K04",
+      "prompt_id": "K44",
       "name": "Lifetime Value Estimate",
       "section": "K",
       "produces": "LTV",
@@ -1787,7 +1787,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K05",
+      "prompt_id": "K45",
       "name": "Asset-to-Offer Map",
       "section": "K",
       "produces": "ASSET_OFFER_MAP",
@@ -1799,7 +1799,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K06",
+      "prompt_id": "K46",
       "name": "Unmonetized Asset Finder",
       "section": "K",
       "produces": "UNMONETIZED_ASSETS",
@@ -1811,7 +1811,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K07",
+      "prompt_id": "K47",
       "name": "Reuse Multiplier",
       "section": "K",
       "produces": "REUSE_MULTIPLIER",
@@ -1823,7 +1823,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K08",
+      "prompt_id": "K48",
       "name": "Productization Distance",
       "section": "K",
       "produces": "PRODUCTIZATION_DISTANCE",
@@ -1835,7 +1835,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K09",
+      "prompt_id": "K49",
       "name": "Cannibalization Check",
       "section": "K",
       "produces": "CANNIBALIZATION",
@@ -1847,7 +1847,7 @@
       "stopping_rule": "bounded_output_complete"
     },
     {
-      "prompt_id": "K10",
+      "prompt_id": "K50",
       "name": "Portfolio Prune",
       "section": "K",
       "produces": "PORTFOLIO_PRUNE",
