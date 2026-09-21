@@ -11,7 +11,7 @@ POLICY_PATH = Path(os.getenv("POLICY_PATH", "ops/policy/transitions.yaml"))
 
 
 def load_policy():
-    with open(POLICY_PATH) as f:
+    with open(POLICY_PATH, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -37,6 +37,7 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
     """Deterministic admission decision; DB schema supplies unique idempotency enforcement."""
     policy = load_policy()["transitions"][policy_name]
     tid = transition_id(offer["id"], policy["from_state"], policy["to_state"])
+    idem = idempotency_key(tid)
 
     existing = db.fetch_one(
         "select outcome from economic_transitions where idempotency_key = %s",
