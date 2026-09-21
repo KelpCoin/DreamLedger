@@ -89,7 +89,8 @@
     "startup:install": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Start-BECPrimeOrchestra.ps1 -Install",
     "startup:verify": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-BECPrimeStartup.ps1",
     "startup:watchdog": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Watch-BECPrimeOrchestra.ps1",
-    "test:governed-transition": "node --test scripts/test-governed-transition.js"
+    "test:governed-transition": "node --test scripts/test-governed-transition.js",
+    "test:distribution-feedback": "node --test scripts/test-distribution-feedback.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
