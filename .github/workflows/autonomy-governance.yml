@@ -27,3 +27,5 @@ jobs:
         run: node --test scripts/verify-autonomy-governance.js
       - name: Verify governed transition and idempotency
         run: node --test scripts/test-governed-transition.js
+      - name: Verify evidence-gated distribution feedback
+        run: node --test scripts/test-distribution-feedback.js
