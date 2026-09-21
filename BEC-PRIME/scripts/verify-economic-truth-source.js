@@ -9,6 +9,7 @@ function requireText(text, marker, label) {
 }
 
 const migration = read('../supabase/migrations/20260921113000_business_truth_evidence_binding.sql');
+const guards = read('../supabase/migrations/20260921104745_economic_truth_guard_record_safe_fix.sql');
 const webhook = read('../supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
 
 requireText(migration, "v_truth text:='UNVERIFIED'", 'truth recorder');
@@ -20,9 +21,9 @@ requireText(migration, "attributed", 'truth recorder');
 requireText(migration, "fulfilled", 'truth recorder');
 requireText(migration, "v_evidence_count", 'evidence binding');
 requireText(migration, "v_meta->>'livemode'", 'livemode binding');
-requireText(migration, "trg_economic_truth_guards_actions", 'action guard');
-requireText(migration, "trg_economic_truth_guards_cells", 'cell guard');
-requireText(migration, "trg_economic_truth_guards_events", 'event guard');
+requireText(guards, "trg_economic_truth_guards_actions", 'action guard');
+requireText(guards, "trg_economic_truth_guards_cells", 'cell guard');
+requireText(guards, "trg_economic_truth_guards_events", 'event guard');
 requireText(webhook, "if(event.livemode!==true)", 'Stripe test/live boundary');
 
 const forbidden = [
