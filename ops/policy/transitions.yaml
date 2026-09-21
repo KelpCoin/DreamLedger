@@ -1,0 +1,37 @@
+version: 1
+transitions:
+  OFFER_READY__OFFER_PUBLISHED:
+    from_state: OFFER_READY
+    to_state: OFFER_PUBLISHED
+    authority_lane: AMBER
+    deterministic_preconditions:
+      - field: offer_exists
+        required: true
+      - field: offer_internally_complete
+        required: true
+      - field: price_present
+        required: true
+      - field: sku_present
+        required: true
+      - field: destination_url_present
+        required: true
+      - field: fulfillment_method_present
+        required: true
+      - field: required_evidence_present
+        required: true
+      - field: publication_authority_granted
+        required: true
+      - field: not_already_published
+        required: true
+      - field: transition_not_already_executed
+        required: true
+    evidence_requirements:
+      - offer_record
+      - price_observation
+      - publication_destination
+    on_precondition_fail: REJECTED
+    on_authority_required: AWAITING_AUTHORIZATION
+    on_authorized: APPROVED
+    then: EXECUTING
+    after_external: PUBLISHED
+    verification: EXTERNAL_OBSERVABLE
