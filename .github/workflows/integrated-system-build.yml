@@ -1,0 +1,49 @@
+name: integrated-system-build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - actuator-ready-phase0
+  workflow_dispatch:
+
+concurrency:
+  group: integrated-system-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+      - run: npm install --no-audit --no-fund
+      - name: Compile complete public system
+        run: npm run compile
+      - name: Verify economic truth source
+        run: npm run verify:economic-truth-source
+      - name: Verify Elohim registry
+        run: npm run verify:elohim-registry
+      - name: Verify ecosystem
+        run: npm run verify:ecosystem
+      - name: Run actuator contract tests
+        run: npm run test:actuator-ready
+      - name: Run bridge rail tests
+        run: npm run test:bridge-rail
+      - name: Run authorization firewall tests
+        run: npm run test:authorization-firewall
+      - name: Run governed transition tests
+        run: npm run test:governed-transition
+      - name: Run distribution feedback tests
+        run: npm run test:distribution-feedback
+      - name: Run truth oracle tests
+        run: npm run test:truth-oracle
+      - name: Run revenue pipeline tests
+        run: npm run test:revenue-pipeline
