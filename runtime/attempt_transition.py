@@ -34,12 +34,13 @@ def evaluate_preconditions(policy: dict, offer: dict) -> tuple[bool, list[str]]:
 
 
 def attempt_transition(offer: dict, policy_name: str, db) -> dict:
+    """Deterministic admission decision; DB schema supplies unique idempotency enforcement."""
     policy = load_policy()["transitions"][policy_name]
     tid = transition_id(offer["id"], policy["from_state"], policy["to_state"])
 
     existing = db.fetch_one(
-        "select outcome from economic_transitions where transition_id = %s",
-        (tid,),
+        "select outcome from economic_transitions where idempotency_key = %s",
+        (idem,),
     )
     if existing:
         return {"outcome": "ALREADY_EXECUTED", "transition_id": tid, "prior": existing["outcome"]}
@@ -48,10 +49,11 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
     if not passed:
         db.execute(
             """insert into economic_transitions
-               (transition_id, offer_id, from_state, to_state, outcome, reason, created_at)
+               (transition_id, offer_id, from_state, to_state, outcome, reason, idempotency_key, created_at)
                values (%s, %s, %s, %s, 'REJECTED', %s, %s)""",
             (tid, offer["id"], policy["from_state"], policy["to_state"],
              json.dumps({"failed_preconditions": failures}),
+             idem,
              datetime.now(timezone.utc)),
         )
         return {"outcome": "REJECTED", "transition_id": tid, "failed": failures}
@@ -59,9 +61,10 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
     if policy["authority_lane"] == "AMBER":
         db.execute(
             """insert into economic_transitions
-               (transition_id, offer_id, from_state, to_state, outcome, created_at)
+               (transition_id, offer_id, from_state, to_state, outcome, idempotency_key, created_at)
                values (%s, %s, %s, %s, 'AWAITING_AUTHORIZATION', %s)""",
             (tid, offer["id"], policy["from_state"], policy["to_state"],
+             idem,
              datetime.now(timezone.utc)),
         )
         return {"outcome": "AWAITING_AUTHORIZATION", "transition_id": tid}
