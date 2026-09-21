@@ -5,7 +5,7 @@
   "updated": "2026-09-21",
   "human_entry": "/",
   "discovery": "/api/offers",
-  "catalog": "/api/products",
+  "catalog": "/api/products",\n  "product_pages": "/product/{product_id}",\n  "purchase_router": "/buy/{product_id}",
   "agent_commerce": "/agent-commerce.json",
   "ecosystem": "/ecosystem.json",
   "surfaces": "/surfaces.json",
@@ -30,7 +30,7 @@
       "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "endpoint": "/billboard",
-      "checkout_url": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
+      "checkout_url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "action": "purchase",
       "price_nzd": 50,
       "status": "live"
