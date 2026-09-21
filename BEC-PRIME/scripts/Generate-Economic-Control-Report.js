@@ -38,7 +38,7 @@ async function main() {
   const [cells, actions, outcomes, events, fulfillment, actuators, experiments, transitions, interventions] = await Promise.all([
     getTable('commerce_cells','cell_id,sku,product_id,offer_id,name,state,canonical_state,approval_required,verified_checkout,verified_fulfillment,verified_webhook,checkout_url,metadata'),
     getTable('economic_actions','action_id,cell_id,action_type,authorization_state,execution_state,expires_at,external_reference,evidence_reference,actuator_id,idempotency_key'),
-    getTable('economic_outcomes','outcome_id,cell_id,action_id,outcome_type,amount_nzd,truth_status,attribution,external_reference,evidence_ids,observed_at'),
+    getTable('economic_outcomes','outcome_id,action_id,outcome_type,amount_nzd,truth_status,attribution,external_reference,evidence_ids,observed_at'),
     getTable('economic_events','event_id,silo_id,sku_id,offer_id,buyer_action_verified,payment_settled,fulfilment_verified,evidence_verified,amount_nzd,stripe_checkout_session,stripe_payment_intent,verification_status,observation_mode,scope,event_timestamp'),
     getTable('fulfillment_requests','id,sku_id,status,canonical_state,manual_fulfillment,fulfillment_reference,confirmation_reference,evidence_reference,evidence_status'),
     getTable('economic_actuators','actuator_id,action_types,status,external_system,credential_requirement,last_observed_at,evidence_reference'),
