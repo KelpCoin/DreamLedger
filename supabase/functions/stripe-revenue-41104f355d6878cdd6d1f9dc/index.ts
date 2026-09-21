@@ -13,7 +13,7 @@ Deno.serve(async(req)=>{
  if(!SUPABASE_URL||!SERVICE_ROLE_KEY||!STRIPE_API_KEY||!STRIPE_WEBHOOK_SIGNING_SECRET||!supabase)return new Response("webhook authentication unavailable",{status:503});
  const {default:Stripe}=await import("npm:stripe@22"); const stripe=new Stripe(STRIPE_API_KEY); const cryptoProvider=Stripe.createSubtleCryptoProvider();
  const signature=req.headers.get("stripe-signature")||""; const raw=await req.text(); let event:any;
- try{event=await stripe.webhooks.constructEventAsync(raw,signature,STRIPE_WEBHOOK_SIGNING_SECRET,undefined,cryptoProvider)}catch(error){return new Response("invalid signature",{status:400})}
+ try{event=await stripe.webhooks.constructEventAsync(raw,signature,STRIPE_WEBHOOK_SIGNING_SECRET,undefined,cryptoProvider)}catch(error){return new Response("invalid signature",{status:400})}\n if(event.livemode!==true)return Response.json({received:true,ignored:true,reason:"test_mode_event",event_id:String(event.id||"")});
  const eventId=String(event.id||""); const eventType=String(event.type||""); if(!eventId)return new Response("missing event id",{status:400});
  const {data:existingWebhook}=await supabase.from("stripe_webhook_events").select("event_id,processed").eq("event_id",eventId).maybeSingle();
  if(existingWebhook?.processed===true)return Response.json({received:true,duplicate:true,event_id:eventId});
