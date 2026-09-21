@@ -16,6 +16,7 @@ const agentAuthority = require('./AgentAuthority');
 const agentBridge = require('./AgentBridge');
 const agentBridgeLiveVerify = require('./AgentBridgeLiveVerify');
 const mcpSecurity = require('../security/MCPGatewaySecurity');
+const governanceState = require('./GovernanceState');
 
 const ROOT = path.join(__dirname, '..');
 let lastBoot = null;
@@ -50,6 +51,7 @@ function boot() {
     ledger: ledgerResult,
     fossils: fossilResult,
     mcp_security: mcpResult,
+    governance: governanceState.status(),
     truth_oracle: truthOracle.snapshot(),
     workers: scheduler.advertisedWorkers().workers,
     worker_pool: { status: 'READY', queue: workerPool.listJobs().length },
@@ -65,6 +67,7 @@ function health() {
     mcp_security: mcpSecurity.verify(),
     scheduler: { registry: scheduler.loadRegistry(), workers: scheduler.advertisedWorkers().workers },
     ledger: ledger.verifyChain(), fossils: fossil.verifyFossils(), truth_oracle: truthOracle.snapshot(),
+    governance: governanceState.status(),
     worker_pool: { status: 'READY', jobs: workerPool.listJobs() }, boot: lastBoot || { status: 'NOT_BOOTED' }
   };
 }
@@ -107,6 +110,10 @@ async function handle(req, res) {
   if (req.method === 'GET' && url === '/api/truth-oracle') return send(200, truthOracle.snapshot());
   if (req.method === 'GET' && url === '/truth-oracle') { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end(truthOracle.html()); }
   if (req.method === 'GET' && url === '/api/control/health') return send(200, health());
+  if (req.method === 'GET' && url === '/api/control/governance') return send(200, governanceState.status());
+  if (req.method === 'POST' && url === '/api/control/governance/kill') { if (rejectMutation(req, send)) return true; try { const input = await readJsonBody(req); return send(200, governanceState.trip(input.reason || 'manual-control-trip', input.actor || 'human-control')); } catch (err) { return send(400, { error: err.message }); } }
+  if (req.method === 'POST' && url === '/api/control/governance/freeze') { if (rejectMutation(req, send)) return true; try { const input = await readJsonBody(req); return send(200, governanceState.freeze(input.reason || 'manual-freeze', input.actor || 'human-control')); } catch (err) { return send(400, { error: err.message }); } }
+  if (req.method === 'POST' && url === '/api/control/governance/reset') { if (rejectMutation(req, send)) return true; try { const input = await readJsonBody(req); return send(200, governanceState.reset(input.actor || 'human-control')); } catch (err) { return send(400, { error: err.message }); } }
   if (req.method === 'GET' && url === '/api/control/sentinel') return send(200, sentinel.run(gauntlet.run()));
   if (req.method === 'GET' && url === '/api/control/demand') return send(200, { summary: demandRadar.summary(), proposal: demandRadar.proposal() });
   if (req.method === 'GET' && url === '/api/control/demand/record') return send(405, { error: 'Use POST to record demand' });
