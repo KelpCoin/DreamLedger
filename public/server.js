@@ -8,6 +8,7 @@ const dreamiez=require('../BEC-PRIME/routes/dreamiez');
 const agentBridge=require('../BEC-PRIME/runtime/AgentBridge');
 const bridgeRail=require('../BEC-PRIME/runtime/BridgeRail');
 const truthOracleCommerce=require('../BEC-PRIME/routes/truthOracleCommerce');
+const marketplaceRoutes=require('../BEC-PRIME/routes/marketplace');
 const PORT=Number(process.env.PORT||10000),ENGINE=process.env.ENGINE_INTERNAL_URL||'',ENGINE_KEY=process.env.ENGINE_INTERNAL_API_KEY||'',STRIPE_WEBHOOK_SECRET=process.env.STRIPE_WEBHOOK_SECRET||'',COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown',ROOT=__dirname;
 const CATALOG_PATH=path.join(ROOT,'catalog.json');
 const CUBE_PATH=path.join(ROOT,'cube.json');
@@ -78,9 +79,14 @@ if(req.method==='GET'&&p.startsWith('/api/products/')){try{const id=decodeURICom
 if(p.startsWith('/api/dreamiez/')){try{return await dreamiez.handle(req,res,p)}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e.message||'DreamMeez route failed'}),'application/json; charset=utf-8')}}
 if(req.method==='POST'&&p==='/api/billboard/submit'){let body;try{const raw=(await readBody(req)).toString('utf8');body=req.headers['content-type']&&req.headers['content-type'].toLowerCase().includes('application/json')?JSON.parse(raw):null;if(!body)throw new Error('Use JSON submission');return send(res,200,JSON.stringify(reserveBillboard(body)),'application/json; charset=utf-8')}catch(e){return send(res,400,JSON.stringify({error:e&&e.message?e.message:'Invalid billboard submission'}),'application/json; charset=utf-8')}}
 if(req.method==='POST'&&p==='/api/offer-checkout/create'){let body;try{body=JSON.parse((await readBody(req)).toString('utf8'))}catch{return send(res,400,JSON.stringify({error:'Invalid JSON'}),'application/json; charset=utf-8')}if(body&&body.offer_id==='COMMANDER-DECK-DIAGNOSTIC-001')return send(res,200,JSON.stringify({ok:true,offer_id:body.offer_id,checkout_url:'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l'}),'application/json; charset=utf-8');return proxy(req,res,Buffer.from(JSON.stringify(body)))}
-if(req.method==='GET'&&p==='/marketplace')return serveFile(res,'cube-marketplace.html');
+if(p==='/marketplace'||p==='/marketplace/'||p==='/marketplace.html'||p==='/b2b'||p==='/b2b/'){
+  try{const handled=await marketplaceRoutes.handle(req,res,p==='/marketplace/'?'/marketplace':p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Marketplace route failed'}),'application/json; charset=utf-8')}
+}
 if(req.method==='GET'&&p==='/api/marketplace/catalog')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
 if(req.method==='GET'&&p.startsWith('/api/marketplace/'))return proxy(req,res,Buffer.alloc(0));
+if(p.startsWith('/api/b2b/')||p==='/api/b2b'){
+  try{const handled=await marketplaceRoutes.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'B2B marketplace route failed'}),'application/json; charset=utf-8')}
+}
 if(p==='/webhook'&&req.method==='POST'){try{const body=await readBody(req);verifyStripeSignature(body.toString('utf8'),req.headers['stripe-signature']||'');const event=JSON.parse(body.toString('utf8'));if(event&&event.type==='checkout.session.completed'){const obj=event.data&&event.data.object?event.data.object:null;const ref=obj&&obj.client_reference_id?obj.client_reference_id:null;markReservationPaid(ref,event.id)}return send(res,200,JSON.stringify({received:true}),'application/json; charset=utf-8')}catch(e){return send(res,400,JSON.stringify({received:false,error:e&&e.message?e.message:'Webhook rejected'}),'application/json; charset=utf-8')}}
 if(p==='/webhook')return send(res,405,'Method not allowed','text/plain; charset=utf-8');
 if(p==='/dreammeez'||p==='/dreammeez/')return serveFile(res,'avatar.html');
