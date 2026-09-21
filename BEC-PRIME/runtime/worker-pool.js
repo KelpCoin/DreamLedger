@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const scheduler = require('./Scheduler');
 const ledger = require('./Ledger');
 const fossil = require('./Fossil');
+const governanceState = require('./GovernanceState');
 
 const ROOT = path.join(__dirname, '..');
 const QUEUE_DIR = path.resolve(process.env.BEC_JOB_QUEUE_DIR || path.join(ROOT, 'data', 'jobs'));
@@ -101,6 +102,11 @@ async function execute(job) {
 }
 
 async function runNext() {
+  const governance = governanceState.status();
+  if (governance.kill_state === 'TRIPPED' || governance.kill_state === 'FROZEN') {
+    ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: 'governance', node_id: 'worker-pool', event_type: 'WORKER_EXECUTION_BLOCKED', silo: 'dreamledger', payload: { reason: governance.kill_reason, kill_state: governance.kill_state }, result: 'FAIL' });
+    return { status: 'BLOCKED', reason: 'governance_kill_switch', kill_state: governance.kill_state, kill_reason: governance.kill_reason };
+  }
   const job = listJobs().find(x => x.status === 'QUEUED'); if (!job) return { status: 'IDLE' };
   ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: 'worker-pool', event_type: 'JOB_STARTED', silo: job.silo, inputs_hash: job.input_hash, payload: { job_id: job.job_id } });
   try { return await execute(job); } catch (error) {
