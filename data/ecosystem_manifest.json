@@ -1,0 +1,60 @@
+{
+  "schema": "dreamledger/ecosystem/v1",
+  "name": "DreamLedger Commercial Ecosystem",
+  "version": "1.0.0",
+  "principle": "Attention -> agent identity -> commerce -> fulfilment -> evidence -> verified outcome",
+  "rails": {
+    "programmatic_dooh": {
+      "status": "CONTRACTED_NOT_LIVE",
+      "contract": "DOOH/DOOH-CUBE-001.json",
+      "provider": "Trillboards",
+      "live_purchase": false,
+      "verified_revenue_nzd": 0
+    },
+    "avatar_ecosystem": {
+      "status": "IMPLEMENTED",
+      "surface": "/dreamiez/",
+      "identity": "account-bound",
+      "external_commerce_authority": false
+    },
+    "agentic_commerce": {
+      "status": "IMPLEMENTED_GATED",
+      "discovery": "/.well-known/agent-commerce.json",
+      "checkout": "/api/offer-checkout/create",
+      "agent_checkout_open": false
+    },
+    "marketplace": {
+      "status": "IMPLEMENTED_CORE",
+      "surface": "/marketplace.html",
+      "listings_api": "/api/b2b/listings",
+      "rfq_execution": "NOT_YET_LIVE"
+    }
+  },
+  "economic_loop": [
+    "DEMAND",
+    "OPPORTUNITY",
+    "OFFER",
+    "AUTHORITY_GATE",
+    "EXTERNAL_ACTION",
+    "PAYMENT",
+    "FULFILMENT",
+    "EVIDENCE",
+    "VERIFIED_OUTCOME",
+    "LEARNING"
+  ],
+  "truth_policy": {
+    "verified_revenue_nzd": 0,
+    "external_buyer_verified": false,
+    "external_action_executed": false,
+    "public_distribution_executed": false,
+    "synthetic_events_count_as_revenue": false
+  },
+  "authority": {
+    "agent_may_discover": true,
+    "agent_may_prepare": true,
+    "agent_may_verify": true,
+    "agent_may_execute_external_media_buy": false,
+    "agent_may_execute_external_outreach": false,
+    "human_authorization_required": true
+  }
+}
