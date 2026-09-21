@@ -10,6 +10,8 @@ const { listJobs } = require('../runtime/worker-pool');
 const repo = path.resolve(__dirname, '..', '..');
 const proofDir = path.join(repo, 'RUN-PROOFS');
 const proofPath = path.join(proofDir, 'STAGE-1-LOGIC-GATE.json');
+const rootProofDir = path.join(repo, 'RUN-PROOFS');
+const rootProofPath = path.join(rootProofDir, 'STAGE-1-LOGIC-GATE.json');
 
 const ledger = verifyChain();
 const fossils = verifyFossils();
@@ -45,6 +47,9 @@ const report = {
 };
 
 fs.mkdirSync(proofDir, { recursive: true });
-fs.writeFileSync(proofPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
+fs.mkdirSync(rootProofDir, { recursive: true });
+const proofJson = JSON.stringify(report, null, 2) + '\n';
+fs.writeFileSync(proofPath, proofJson, 'utf8');
+fs.writeFileSync(rootProofPath, proofJson, 'utf8');
 console.log(JSON.stringify(report, null, 2));
 if (status !== 'PASS') process.exitCode = 1;
