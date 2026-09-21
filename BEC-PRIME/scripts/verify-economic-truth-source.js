@@ -3,12 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 
-function read(file) { return fs.readFileSync(path.resolve(process.cwd(), '..', file), 'utf8'); }
+const repoRoot = path.resolve(__dirname, '../..');
+function read(file) { return fs.readFileSync(path.resolve(repoRoot, file), 'utf8'); }
 function requireText(text, marker, label) {
   if (!text.includes(marker)) throw new Error(label + ': missing ' + marker);
 }
 
-const recorder = read('../supabase/migrations/20260921113100_business_truth_recorder_return_fix.sql');
+const recorder = read('supabase/migrations/20260921113100_business_truth_recorder_return_fix.sql');
 const guards = read('../supabase/migrations/20260921104745_economic_truth_guard_record_safe_fix.sql');
 const fullChain = read('../supabase/migrations/20260921120500_economic_truth_full_chain_enforcement.sql');
 const webhook = read('../supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
@@ -32,7 +33,7 @@ const forbidden = [
   'BEC-PRIME/demand-radar/n8n-community-collector.js'
 ];
 for (const file of forbidden) {
-  if (fs.existsSync(path.resolve(process.cwd(), '..', file))) throw new Error('forbidden n8n artifact remains: ' + file);
+  if (fs.existsSync(path.resolve(repoRoot, file))) throw new Error('forbidden n8n artifact remains: ' + file);
 }
 
 console.log(JSON.stringify({
