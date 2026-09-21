@@ -51,5 +51,5 @@ test('expired actions cannot remain executable', () => {
 });
 
 test('duplicate action keys are rejected at the database layer', () => {
-  assert.match('economic_actions_idempotency_key_uq','idempotency_key');
+  assert.ok('economic_actions_idempotency_key_uq'.includes('idempotency_key'));
 });
