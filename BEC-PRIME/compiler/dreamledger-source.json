@@ -1,8 +1,0 @@
-{
-  "id": "dreamledger",
-  "target": "website",
-  "name": "DreamLedger",
-  "description": "DreamLedger production website source compilation target.",
-  "source": "../../index.html",
-  "production_domain": "https://dreamledger.org"
-}

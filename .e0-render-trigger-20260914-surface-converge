@@ -1,7 +1,0 @@
-DreamLedger storefront production converge trigger.
-Date: 2026-09-14
-Purpose: force Render redeploy so public root serves current main.
-Observed live commit: 2323bd1f1b80f60b82d8c79d9a2145e0cee76fc7
-Observed failures: /billboard 404, /mtg 404
-Required: Founding Tile checkout doorway must be reachable.
-Evidence rule: do not claim revenue from availability.

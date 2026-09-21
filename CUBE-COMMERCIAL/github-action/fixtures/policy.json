@@ -1,3 +1,0 @@
-{
-  "required_fields": ["transaction_id", "amount", "currency", "payment_account"]
-}

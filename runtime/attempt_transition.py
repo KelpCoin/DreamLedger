@@ -11,7 +11,7 @@ POLICY_PATH = Path(os.getenv("POLICY_PATH", "ops/policy/transitions.yaml"))
 
 
 def load_policy():
-    with open(POLICY_PATH) as f:
+    with open(POLICY_PATH, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -42,7 +42,11 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
         (tid,),
     )
     if existing:
-        return {"outcome": "ALREADY_EXECUTED", "transition_id": tid, "prior": existing["outcome"]}
+        return {
+            "outcome": "ALREADY_EXECUTED",
+            "transition_id": tid,
+            "prior": existing["outcome"],
+        }
 
     passed, failures = evaluate_preconditions(policy, offer)
     if not passed:
@@ -50,9 +54,14 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
             """insert into economic_transitions
                (transition_id, offer_id, from_state, to_state, outcome, reason, created_at)
                values (%s, %s, %s, %s, 'REJECTED', %s, %s)""",
-            (tid, offer["id"], policy["from_state"], policy["to_state"],
-             json.dumps({"failed_preconditions": failures}),
-             datetime.now(timezone.utc)),
+            (
+                tid,
+                offer["id"],
+                policy["from_state"],
+                policy["to_state"],
+                json.dumps({"failed_preconditions": failures}),
+                datetime.now(timezone.utc),
+            ),
         )
         return {"outcome": "REJECTED", "transition_id": tid, "failed": failures}
 
@@ -61,8 +70,13 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
             """insert into economic_transitions
                (transition_id, offer_id, from_state, to_state, outcome, created_at)
                values (%s, %s, %s, %s, 'AWAITING_AUTHORIZATION', %s)""",
-            (tid, offer["id"], policy["from_state"], policy["to_state"],
-             datetime.now(timezone.utc)),
+            (
+                tid,
+                offer["id"],
+                policy["from_state"],
+                policy["to_state"],
+                datetime.now(timezone.utc),
+            ),
         )
         return {"outcome": "AWAITING_AUTHORIZATION", "transition_id": tid}
 
