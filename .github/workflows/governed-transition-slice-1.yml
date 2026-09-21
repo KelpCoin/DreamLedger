@@ -1,0 +1,23 @@
+name: governed-transition-slice-1
+
+on:
+  pull_request:
+    paths:
+      - 'ops/policy/transitions.yaml'
+      - 'runtime/attempt_transition.py'
+      - 'migrations/20260921_economic_transitions.sql'
+      - 'tests/test_attempt_transition.py'
+  push:
+    branches:
+      - feat/governed-transition-slice-1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pyyaml
+      - run: pytest tests/test_attempt_transition.py -v
