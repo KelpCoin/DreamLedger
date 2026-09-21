@@ -271,6 +271,7 @@ select
   human.interventions as human_interventions,
   (select count(*) from public.economic_actions where execution_state in ('PREPARED','AUTHORITY_REQUIRED','AUTHORIZED'))::bigint as pending_actions,
   (select count(*) from public.economic_actions where execution_state='SUCCEEDED')::bigint as succeeded_actions,
-  (select count(*) from public.economic_actions where execution_state='ACTUATOR_UNAVAILABLE')::bigint as actuator_blocked_actions;
+  (select count(*) from public.economic_actions where execution_state='ACTUATOR_UNAVAILABLE')::bigint as actuator_blocked_actions
+from verified cross join cells cross join human cross join act;
 
 commit;
