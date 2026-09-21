@@ -121,10 +121,10 @@ button{cursor:pointer}
     <input id="q" type="search" placeholder="Search the market…" autocomplete="off" aria-label="Search">
   </div>
   <div class="nav-r">
-    <a href="/agent-commerce.json">Agents</a>
+    <a href="/guides/">Guides</a><a href="/agent-commerce">Agents</a>
     <a href="/billboard">Billboard</a>
     <a href="/mtg">Magic</a>
-    <a class="nav-buy" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Buy tile · NZ$50</a>
+    <a class="nav-buy" href="/billboard">Buy tile · NZ$50</a>
   </div>
 </header>
 
@@ -134,7 +134,7 @@ button{cursor:pointer}
   <p class="lead">Horizontal commerce rails. Live Stripe checkout. <strong style="color:var(--text)">Zero DreamLedger listing or success fee</strong> on current offers — you pay the NZD price on the card, not a platform skim on top.</p>
   <div class="hero-ctas">
     <a class="btn btn-g" href="https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02">Claim tile · NZ$50</a>
-    <a class="btn btn-d" href="https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l">Diagnostic · NZ$29</a>
+    <a class="btn btn-d" href="/mtg">Diagnostic · NZ$29</a>
   </div>
   <div class="chips">
     <span class="chip g">0% platform take-rate</span>
@@ -329,6 +329,31 @@ button{cursor:pointer}
   </div>
 </section>
 
+<section class="rail-block" id="answers">
+  <div class="rail-head"><h2>Answers · discover before you buy</h2><span class="hint">guides</span></div>
+  <div class="rail">
+    <article class="card wide" data-q="commander deck upgrades guide">
+      <div class="media magic"><span class="badge">Guide</span>?</div>
+      <div class="body"><div class="tag">Commander · NZ · 2026</div><h3>Does your Commander deck actually need upgrades?</h3><p>Five checks before you spend another dollar on cards.</p><div class="foot"><span class="price">Guide</span><a class="buy ghost" href="/guides/commander-deck-upgrades-nz">Read</a></div></div>
+    </article>
+    <article class="card wide" data-q="agentic commerce physical goods">
+      <div class="media agent"><span class="badge">Guide</span>↗</div>
+      <div class="body"><div class="tag">Commerce · NZ</div><h3>What does an AI shopping agent need to buy a physical product?</h3><p>Discovery, authorization, payment, fulfilment and evidence.</p><div class="foot"><span class="price">Guide</span><a class="buy ghost" href="/guides/agentic-commerce-nz">Read</a></div></div>
+    </article>
+    <article class="card wide" data-q="prove transaction evidence">
+      <div class="media agent">✓</div>
+      <div class="body"><div class="tag">Evidence</div><h3>What actually proves an online purchase happened?</h3><p>Separate claims, receipts, recomputation and independent verification.</p><div class="foot"><span class="price">Guide</span><a class="buy ghost" href="/guides/proving-online-transactions">Read</a></div></div>
+    </article>
+  </div>
+</section>
+
+<section class="spine">
+  <h2>Agent-readable physical commerce</h2>
+  <p>DreamLedger is testing a reusable loop: discover a real product → evaluate it → authorize the purchase → pay → fulfil → independently verify the economic event. The MTG lane is the controlled physical-goods experiment, not the final category.</p>
+  <div class="stages"><span>Discover</span><span>Evaluate</span><span>Authorize</span><span>Pay</span><span>Fulfil</span><span>Verify</span></div>
+  <p style="margin-top:12px"><a href="/agent-commerce" style="color:var(--gold2);font-weight:800">Read the full model →</a></p>
+</section>
+
 <div class="spine">
   <h2>Settlement spine</h2>
   <p>Industry agentic stack maps to: authorize (human handoff) → checkout (Stripe Payment Link) → settle (live cs_) → fulfil → fossil. x402/MPP/escrow are reserved rails — not claimed live. Verified revenue stays at zero until external proof.</p>
@@ -347,7 +372,7 @@ button{cursor:pointer}
 <footer class="footer">
   <span>DreamLedger · marketplace v19 · agentic low-fee shelves</span>
   <div class="footer-links">
-    <a href="/agent-commerce.json">Agent contract</a>
+    <a href="/guides/">Guides</a><a href="/agent-commerce">Agent commerce</a><a href="/agent-commerce.json">Agent contract</a>
     <a href="/billboard">Billboard</a>
     <a href="/mtg">Magic</a>
     <a href="/phin-haven.html">Play</a>
