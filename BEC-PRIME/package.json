@@ -94,7 +94,8 @@
     "test:authorization-firewall": "node --test runtime/AuthorizationFirewall.test.js",
     "test:actuator-ready": "node --test scripts/test-actuator-ready-contract.js",
     "verify:economic-truth-source": "node scripts/verify-economic-truth-source.js",
-    "report:economic-readiness": "node scripts/Generate-EconomicReadiness.js"
+    "report:economic-readiness": "node scripts/Generate-EconomicReadiness.js",
+    "verify:elohim-registry": "node scripts/verify-elohim-prompt-registry.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
