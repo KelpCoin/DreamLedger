@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-function read(file) { return fs.readFileSync(path.join(process.cwd(), '..', file), 'utf8'); }
+function read(file) { return fs.readFileSync(path.resolve(__dirname, '../..', file), 'utf8'); }
 function requireText(text, marker, label) {
   if (!text.includes(marker)) throw new Error(label + ': missing ' + marker);
 }
