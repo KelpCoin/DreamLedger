@@ -1,5 +1,5 @@
 'use strict';
-// Production convergence marker: 2026-09-21 marketplace-v19.
+// Production convergence marker: 2026-09-21 public-v19 marketplace-v19.
 // CUBE surface registry: many commercial surfaces, one commerce/proof spine.
 const crypto=require('crypto');
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
