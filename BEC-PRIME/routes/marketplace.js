@@ -19,7 +19,7 @@ if(req.method==='GET'&&url==='/api/b2b/listings'){
   const category=q.get('category')||'';
   const silo=q.get('silo')||'';
   const items=(market.items||[]).filter(x=>(!term||JSON.stringify(x).toLowerCase().includes(term))&&(!category||x.category===category)&&(!silo||x.source_silo===silo));
-  return json(res,200,{schema:'dreamledger/b2b-listings/v1',items,total:items.length});
+  return json(res,200,{schema:'dreamledger/b2b-listings/v1',items,total:items.length,catalog:items,opportunities:[],truth:[],settled_payment_count:0,supply_open:true,source:'public.b2b_marketplace_catalog'});
 }
 if(req.method==='GET'&&url==='/api/b2b/marketplace'){
   try{
