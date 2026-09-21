@@ -25,3 +25,5 @@ jobs:
           node-version: 24
       - name: Verify governed autonomy primitives
         run: node --test scripts/verify-autonomy-governance.js
+      - name: Verify governed transition and idempotency
+        run: node --test scripts/test-governed-transition.js
