@@ -12,6 +12,15 @@ function json(res,status,data){res.writeHead(status,{'Content-Type':'application
 function htmlFile(res,file){fs.readFile(file,(err,data)=>{if(err){res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'});return res.end('Not Found');}res.writeHead(200,{'Content-Type':MIME,'Cache-Control':'no-store'});res.end(data);});}
 async function cubeData(){const url=process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!url||!key)return {items:[]};const r=await fetch(url+'/rest/v1/b2b_marketplace_catalog?select=*&order=title.asc',{headers:{apikey:key,Authorization:'Bearer '+key}});if(!r.ok)throw new Error('cube catalog unavailable');return {items:await r.json()};}
 async function handle(req,res,url){
+if(req.method==='GET'&&url==='/api/b2b/listings'){
+  const market=await cubeData();
+  const q=new URL(req.url||url,'http://localhost').searchParams;
+  const term=(q.get('q')||'').toLowerCase().trim();
+  const category=q.get('category')||'';
+  const silo=q.get('silo')||'';
+  const items=(market.items||[]).filter(x=>(!term||JSON.stringify(x).toLowerCase().includes(term))&&(!category||x.category===category)&&(!silo||x.source_silo===silo));
+  return json(res,200,{schema:'dreamledger/b2b-listings/v1',items,total:items.length});
+}
 if(req.method==='GET'&&url==='/api/b2b/marketplace'){
   try{
     const market=await cubeData();
