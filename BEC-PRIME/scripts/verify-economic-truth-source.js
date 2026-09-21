@@ -23,7 +23,7 @@ for (const marker of ['external_buyer','settled_transaction','attributed','fulfi
 requireText(fullChain, "evidence_valid", 'full-chain guard');
 requireText(fullChain, "economic_outcomes", 'full-chain guard');
 requireText(fullChain, "capture_economic_fulfillment_outcome", 'fulfillment binding');
-for (const marker of ['trg_economic_truth_guards_actions','trg_economic_truth_guards_cells','trg_economic_truth_guards_events']) {
+for (const marker of ["tg_table_name='economic_actions'", "tg_table_name='economic_events'", "tg_table_name='commerce_cells'"]) {
   requireText(guards, marker, 'action/event/cell guard');
 }
 requireText(webhook, "if(event.livemode!==true)", 'Stripe test/live boundary');
