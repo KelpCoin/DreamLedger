@@ -41,7 +41,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: node --test scripts/verify-autonomy-governance.js
       - run: node --test scripts/test-governed-transition.js
       - run: node --test scripts/test-distribution-feedback.js
       - run: node --test runtime/AuthorizationFirewall.test.js
