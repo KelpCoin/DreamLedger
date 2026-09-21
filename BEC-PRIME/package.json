@@ -88,7 +88,10 @@
     "startup:install": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Start-BECPrimeOrchestra.ps1 -Install",
     "startup:verify": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-BECPrimeStartup.ps1",
     "startup:watchdog": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Watch-BECPrimeOrchestra.ps1",
-    "test:bridge-rail": "node --test runtime/BridgeRail.test.js"
+    "test:bridge-rail": "node --test runtime/BridgeRail.test.js",
+    "test:governed-transition": "node --test scripts/test-governed-transition.js",
+    "test:distribution-feedback": "node --test scripts/test-distribution-feedback.js",
+    "test:authorization-firewall": "node --test runtime/AuthorizationFirewall.test.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
