@@ -137,8 +137,8 @@ create table if not exists public.economic_actuators (
 
 insert into public.economic_actuators(actuator_id,action_types,status,credential_requirement,external_system,metadata)
 values
- ('stripe_checkout','["CREATE_CHECKOUT"]'::jsonb::text[],'AVAILABLE','Stripe account authorization','Stripe','{"mode":"live","observed":true}'::jsonb),
- ('generic_external_action','{}','ACTUATOR_UNAVAILABLE','Platform-specific credential/connection','external','{}'::jsonb)
+ ('stripe_checkout',ARRAY['CREATE_CHECKOUT'],'AVAILABLE','Stripe account authorization','Stripe','{"mode":"live","observed":true}'::jsonb),
+ ('generic_external_action',ARRAY[]::text[],'ACTUATOR_UNAVAILABLE','Platform-specific credential/connection','external','{}'::jsonb)
 on conflict (actuator_id) do nothing;
 
 create table if not exists public.economic_human_interventions (
