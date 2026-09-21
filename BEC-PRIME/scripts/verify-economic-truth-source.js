@@ -3,13 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 
-function read(file) { return fs.readFileSync(path.join(process.cwd(), file), 'utf8'); }
+function read(file) { return fs.readFileSync(path.join(process.cwd(), '..', file), 'utf8'); }
 function requireText(text, marker, label) {
   if (!text.includes(marker)) throw new Error(label + ': missing ' + marker);
 }
 
-const migration = read('supabase/migrations/20260921104725_actuator_ready_truth_hardening.sql');
-const webhook = read('supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
+const migration = read('../supabase/migrations/20260921104725_actuator_ready_truth_hardening.sql');
+const webhook = read('../supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
 
 requireText(migration, "v_truth text:='UNVERIFIED'", 'truth recorder');
 requireText(migration, "external_buyer", 'truth recorder');
