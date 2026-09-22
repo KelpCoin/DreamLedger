@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dreamledger/play/guild-ai-action-log",
+  "title": "GuildAIActionLog",
+  "type": "object",
+  "required": ["t", "entity_id", "action"],
+  "properties": {
+    "t": { "type": "string" },
+    "entity_id": { "type": "string" },
+    "guild_id": { "type": ["string", "null"] },
+    "role": {
+      "type": "string",
+      "enum": ["tank", "support", "dps", "gatherer", "scout", "idle_citizen", "none"]
+    },
+    "action": { "type": "string" },
+    "objective_type": { "type": ["string", "null"] },
+    "area_id": { "type": ["string", "null"] },
+    "score": { "type": ["number", "null"] }
+  }
+}
