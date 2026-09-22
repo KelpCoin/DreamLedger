@@ -1,30 +1,27 @@
 # Build the play shard (checklist)
 
-Operator: game needs to be built. This is the ordered checklist for single-shard guild PVE + stealth AI.
-
 ## Must exist
 
-- [ ] Authoritative server process (one shard)  
-- [ ] Character login / logout  
-- [ ] Persist position + area  
-- [ ] Ghost shell on logout (10% strength)  
-- [ ] Movement + PVE combat validation  
-- [ ] Inventory / basic progression  
-- [ ] Guild create/invite/ranks (human + AI same API)  
-- [ ] AI controller submits same command messages as clients  
-- [ ] Spawner: 0–N AI with hard cap (start 3)  
-- [ ] Ops-only `controller` field + behavior logs  
-- [ ] Optional: GPU worker for goal/chat proposals  
+- [ ] Authoritative single-shard server  
+- [ ] Character login/logout + ghost 10%  
+- [ ] Movement + PVE combat  
+- [ ] **Same command API for human client and AI**  
+- [ ] Guilds (create/invite/ranks) for all controllers  
+- [ ] Utility goal layer  
+- [ ] GOAP planner + seed actions (`goap-action-catalog.json`)  
+- [ ] BT (or FSM) action executors  
+- [ ] Economy: nodes, bags, sinks, caps (`NPC-ECONOMY-MODEL.md`)  
+- [ ] Low-N AI spawner (stealth)  
+- [ ] Ops logs (controller flag hidden from client)  
+- [ ] Optional GPU LLM worker  
 
-## Must not
+## Docs
 
-- [ ] AI calling Stripe / wall / revenue APIs  
-- [ ] Client “AI” badge in phase 0  
-- [ ] Unlimited AI count  
+- `GOAP-AND-BEHAVIOR-TREES.md`  
+- `NPC-ECONOMY-MODEL.md`  
+- `GUILD-AI-BEHAVIOR.md`  
+- `STEALTH-AI-POLICY.md`  
 
-## Existing anchors in monorepo
+## Not this lobe
 
-- Phin Haven / Shallows browser and Godot scaffolds under `phinhaven/` (where present)  
-- Design docs under `docs/play/`  
-
-Money path remains Ball C on settle lobe; this checklist is play lobe.
+Stripe / wall / revenue.

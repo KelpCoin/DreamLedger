@@ -1,0 +1,64 @@
+{
+  "schema": "dreamledger/play/goap-actions/v1",
+  "note": "Seed action library for planner; expand carefully.",
+  "atoms": [
+    "InCombat",
+    "HasThreat",
+    "LowHP",
+    "AtObjective",
+    "GuildHasObjective",
+    "NodeAvailable",
+    "InventoryFull",
+    "InventoryHasGoods",
+    "AtDeposit",
+    "InGuild",
+    "IsLeader",
+    "AllyDown"
+  ],
+  "actions": [
+    {
+      "id": "MoveToObjective",
+      "pre": ["GuildHasObjective"],
+      "add": ["AtObjective"],
+      "cost": "distance"
+    },
+    {
+      "id": "AttackThreat",
+      "pre": ["HasThreat"],
+      "add": [],
+      "cost": 1
+    },
+    {
+      "id": "GatherNode",
+      "pre": ["NodeAvailable"],
+      "add": ["InventoryHasGoods"],
+      "forbid": ["InventoryFull"],
+      "cost": 2
+    },
+    {
+      "id": "Deposit",
+      "pre": ["InventoryHasGoods", "AtDeposit"],
+      "del": ["InventoryFull", "InventoryHasGoods"],
+      "cost": 1
+    },
+    {
+      "id": "MoveToDeposit",
+      "pre": ["InventoryHasGoods"],
+      "add": ["AtDeposit"],
+      "cost": "distance"
+    },
+    {
+      "id": "CreateGuild",
+      "pre": [],
+      "add": ["InGuild", "IsLeader"],
+      "forbid": ["InGuild"],
+      "cost": 5
+    },
+    {
+      "id": "Flee",
+      "pre": ["LowHP"],
+      "add": [],
+      "cost": 0.5
+    }
+  ]
+}
