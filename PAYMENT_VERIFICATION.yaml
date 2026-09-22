@@ -1,0 +1,31 @@
+version: "0.1.0"
+note: "The settlement verification contract. This is the truth gate."
+
+verification_sequence:
+  - step: 1
+    action: "Sign in to paypal.com directly — never through a buyer-supplied link"
+  - step: 2
+    action: "Find the payment in your own Activity list"
+  - step: 3
+    action: "Match transaction ID, gross amount, currency, and payer"
+  - step: 4
+    action: "Confirm recipient email is yours"
+  - step: 5
+    action: "Confirm live status is 'Completed' — not 'Pending', not 'On hold', not 'Under review'"
+
+truth_rule: "Only a payment that appears as Completed in your own PayPal Activity can produce settled_sale = true."
+
+what_is_not_verification:
+  - "A buyer's screenshot"
+  - "A forwarded email"
+  - "A 'completed' screen on the buyer's side"
+  - "A webhook payload that has not been checked against Activity"
+  - "A claimed payment from any source"
+
+what_is_not_revenue:
+  - "Checkout starts"
+  - "Payment links"
+  - "Test payments"
+  - "Simulated payments"
+  - "Internal records"
+  - "Buyer intent"
