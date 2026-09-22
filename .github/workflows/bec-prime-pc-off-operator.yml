@@ -8,7 +8,7 @@ on:
     - cron: "*/30 * * * *"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   operate:
