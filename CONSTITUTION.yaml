@@ -1,0 +1,43 @@
+version: "1.0.0"
+status: "LOCKED"
+authority: "Human gatekeeper controls merges and amendments."
+
+hierarchy:
+  - "NORTH_STARS.yaml"
+  - "CONSTITUTION.yaml"
+  - "FACTORY / PRODUCT / STRATEGY manifests"
+  - "runtime + economic events"
+  - "evidence / proofs"
+  - "empirical changes"
+
+can_execute:
+  - "Read GitHub and Supabase."
+  - "Write local disk."
+  - "Write GitHub branches."
+  - "Propose constitution amendments."
+  - "Propose strategy changes."
+
+must_escalate:
+  - "Public publishing."
+  - "Spending."
+  - "Changing payment rail."
+  - "Merging main."
+
+cannot_execute:
+  - "Direct main writes."
+  - "Change the constitution without a human merge."
+  - "Write verified revenue flags."
+  - "Delete economic events or the failure ledger."
+  - "Spend without approval."
+  - "Contact external parties without approval."
+
+economic_truth:
+  settled_sale_requires:
+    - "External buyer."
+    - "Payment settled."
+    - "Correct attribution."
+    - "Fulfillment completed."
+    - "Independent evidence."
+
+roles:
+  principle: "AI roles are replaceable and have no constitutional authority over one another."
