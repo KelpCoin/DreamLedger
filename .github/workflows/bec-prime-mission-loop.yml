@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '17 * * * *'
 permissions:
-  contents: write
+  contents: read
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -16,15 +16,21 @@ jobs:
       - name: Verify mission loop
         shell: pwsh
         run: ./BEC-PRIME/autonomy/Verify-Mission-Loop.ps1
-      - name: Commit mission state and proof
+      - name: Save mission state and proof
         shell: pwsh
         run: |
-          git config user.name 'BEC PRIME'
-          git config user.email 'bec-prime@users.noreply.github.com'
-          git add BEC-PRIME/autonomy/QUEUE/PLANNED BEC-PRIME/autonomy/PROOFS BEC-PRIME/autonomy/MISSION-STATE.json
-          if (git diff --cached --quiet) { Write-Host 'No mission-state changes.'; exit 0 }
-          git commit -m 'BEC PRIME: refresh verified mission plan'
-          git push
+          New-Item -ItemType Directory -Force BEC-PRIME/autonomy/ARTIFACTS | Out-Null
+          Copy-Item BEC-PRIME/autonomy/MISSION-STATE.json BEC-PRIME/autonomy/ARTIFACTS/MISSION-STATE.json -Force
+          if (Test-Path BEC-PRIME/autonomy/PROOFS) {
+            Copy-Item BEC-PRIME/autonomy/PROOFS BEC-PRIME/autonomy/ARTIFACTS/PROOFS -Recurse -Force
+          }
+
+      - name: Upload mission state and proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-prime-mission-state-${{ github.run_id }}
+          path: BEC-PRIME/autonomy/ARTIFACTS/
+
       - name: Publish mission summary
         shell: pwsh
         run: |
