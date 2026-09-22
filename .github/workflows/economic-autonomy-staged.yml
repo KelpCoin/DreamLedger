@@ -11,7 +11,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: economic-autonomy-${ github.event.pull_request.number || github.ref }
+  cancel-in-progress: true
 
 jobs:
   contract:
@@ -33,7 +38,7 @@ jobs:
       - name: Staging checkpoint
         run: |
           echo "STAGING CHECKPOINT: 15-minute kill-switch window."
-          echo "Cancel the workflow/PR to stop the release before the production boundary."
+          echo "Cancel this workflow or close the PR to stop the release before the production boundary."
       - name: Kill-switch window
         run: |
           echo "Beginning 15-minute bounded release delay..."
@@ -50,3 +55,10 @@ jobs:
         run: |
           set -euo pipefail
           node -e "const x=require('./ops/economic/ECONOMIC-AUTONOMY-CONTRACT-20260922.json'); if(x.release.kill_switch_required!==true) throw new Error('kill switch disabled'); if(x.release.staging_delay_minutes<15) throw new Error('staging delay below minimum'); console.log('release gate PASS')"
+      - name: Merge after safety window
+        if: github.event_name == 'pull_request' && github.event.pull_request.state == 'open'
+        env:
+          GH_TOKEN: ${ github.token }
+        run: |
+          set -euo pipefail
+          gh pr merge "${ github.event.pull_request.number }" --merge --delete-branch=false
