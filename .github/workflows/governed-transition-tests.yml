@@ -6,6 +6,9 @@ on:
       - 'ops/policy/transitions.yaml'
       - 'runtime/attempt_transition.py'
       - 'tests/test_attempt_transition.py'
+      - 'ops/policy/actions.yaml'
+      - 'runtime/authorization_firewall.py'
+      - 'tests/test_authorization_firewall.py'
       - 'requirements*.txt'
       - 'pyproject.toml'
   pull_request:
@@ -29,4 +32,4 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest pyyaml
       - name: Run governed transition tests
-        run: pytest tests/test_attempt_transition.py -v
+        run: pytest tests/test_attempt_transition.py tests/test_authorization_firewall.py -v
