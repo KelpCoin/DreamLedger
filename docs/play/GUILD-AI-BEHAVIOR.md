@@ -1,187 +1,121 @@
-# Guild AI behavior — single-shard PVE investigation
+# Guild AI behavior — full player parity (operator build target)
 
-Companion to `SINGLE-SHARD-AI-PRESENCE.md` and `AI-COHORT-SCALING.md`.
+Companion: `SINGLE-SHARD-AI-PRESENCE.md`, `AI-COHORT-SCALING.md`, `STEALTH-AI-POLICY.md`.
 
-**Play lobe only.** Guild AI never touches Stripe, wall mint, or verified revenue.
-
----
-
-## 1. What “guild AI” means here
-
-Not a chatbot with a guild tag. A **server-authoritative entity** that:
-
-- Holds a `guild_id` (or null = unaffiliated AI)
-- Picks actions from a **bounded action set** under shard rules
-- Is labeled `play_agent` / AI in UI
-- Scales in count with human population
-- Is distinct from **ghost shells** (logout humans at ~10% strength, little/no brain)
-
-Industry lesson: pure LLM “live as a person” NPCs drift without **external goals and state**. Utility AI / GOAP for ticks; optional LLM for sparse dialogue or high-level objective *proposals*, not every combat frame.
+**Play lobe only.** No Stripe, no Performance Wall, no verified revenue.
 
 ---
 
-## 2. Layers of behavior
+## Operator decisions (binding for this design)
+
+1. **Parity:** AI-controlled characters may do **anything a normal player can do** under the same shard rules (move, fight, gather, trade if players can, form/join/leave **their own guilds**, group, progress PVE).  
+2. **Guilds:** AI may found guilds, invite other AI (and humans if humans accept), set objectives, hold ranks—subject to the same server validation as humans.  
+3. **Disclosure:** **Initially do not tell players** which characters are AI. Treat them as ordinary participants from the client’s point of view (operator policy). Internal server flag `controller=ai_brain` remains for ops/metrics only.  
+4. **Density:** Start with a **very low** AI count; raise only when sim and GPU budget allow.  
+5. **Compute:** Brains may use **operator GPU** (local inference) when helpful; hot path stays utility/GOAP; LLM optional and async.  
+6. **Ghosts:** Logout humans still leave **~10% strength** shells; those are not full AI brains unless later promoted by policy.
+
+---
+
+## Full action parity
+
+AI action space = **player action space**. No artificial “NPC-only” subset.
+
+Includes (non-exhaustive):
+
+- Locomotion, combat, abilities, inventory  
+- Gather / craft / deposit if players can  
+- Guild create / invite / kick / rank / MOTD / shared objectives  
+- Party/group if the game has it  
+- Chat channels available to players (rate-limited like players)  
+- Quest / node / boss participation  
+
+Server must enforce the **same** anti-cheat, cooldowns, and economy rules. Parity means equal rights under rules—not free admin powers.
+
+---
+
+## Guilds owned by AI
 
 ```text
-┌─────────────────────────────────────────┐
-│  Guild objective layer (shared board)   │  e.g. “clear node N”, “defend camp”
-├─────────────────────────────────────────┤
-│  Role layer (tank / support / gather)   │  assigned or self-selected
-├─────────────────────────────────────────┤
-│  Utility / GOAP action selection        │  every AI tick
-├─────────────────────────────────────────┤
-│  Locomotion + combat primitives         │  server validated
-└─────────────────────────────────────────┘
-     optional: LLM proposes objective text (rare, async)
+AI character
+  → guild.create(name)     // if human can
+  → guild.invite(other)
+  → guild.set_objective()
+  → same rank permissions as a human officer/leader
 ```
 
-| Layer | Frequency | Model |
-|-------|-----------|--------|
-| Tick actions | 5–20 Hz budgeted | Utility scores / GOAP |
-| Role re-eval | minutes | Rules |
-| Guild objective | on board change / timer | Designer or simple planner |
-| Chat / flavor | sparse | Template or throttled LLM |
+Possible emergent patterns to log:
+
+- All-AI guilds  
+- Mixed human–AI guilds (if humans invite or accept)  
+- AI competing for the same nodes as humans  
+
+Experiment still asks: **what do they end up doing?**
 
 ---
 
-## 3. Guild roles (PVE)
-
-| Role | Primary utilities | Avoid |
-|------|-------------------|--------|
-| **Tank** | Intercept threat, hold aggro, stay near objective | Deep roam alone |
-| **Support** | Heal/buff lowest HP ally, cleanse | Frontline greed |
-| **DPS** | Focus marked target, interrupt if available | Pad damage off-target |
-| **Gatherer** | Nodes near guild area, deposit storage | PvE pulls without tank |
-| **Scout** | Edge of area, ping elites | Suicide aggro |
-| **Idle citizen** | Emote, path scenic, listen to board | Resource vacuum |
-
-Ghost shells do **not** take roles; they are furniture with HP.
-
----
-
-## 4. Utility scoring (v1 brain)
-
-For each candidate action `a`:
+## Brain architecture
 
 ```text
-score(a) =
-  w_objective * alignment(a, guild_objective)
-+ w_role      * role_fit(a)
-+ w_survival  * self_hp_pressure(a)
-+ w_social    * ally_hp_pressure(a)
-+ w_economy   * resource_need(a)      // capped
-- w_risk      * danger(a)
-- w_spam      * recent_repeat(a)
+Tick (cheap): utility / GOAP over full player action set
+Async (optional GPU): LLM proposes mid-term goals, chat lines, guild strategy
+Server: validates every action like a client input
 ```
 
-Pick max score among legal actions. Cap economy weight so AI doesn’t become infinite gather bots (exploit class).
+| Component | Where |
+|-----------|--------|
+| Perception + legal moves | Server |
+| Utility scores | Server or worker |
+| LLM goals/chat | Operator GPU / local model (throttled) |
+| Persistence | Same character DB as humans |
 
-### Example action set
-
-- `MOVE_TO(point|ally|node)`  
-- `ATTACK(target)`  
-- `USE_ABILITY(id, target?)`  
-- `GATHER(node)`  
-- `DEPOSIT(storage)`  
-- `FOLLOW(ally)`  
-- `HOLD_POSITION`  
-- `PING(objective)`  
-- `EMOTE`  
-
-Illegal if out of range, on cooldown, or soft-banned by area policy.
+Do **not** put frontier API calls on every combat frame.
 
 ---
 
-## 5. Guild shared board
+## Stealth vs internal truth
 
-Single-shard advantage: one **guild blackboard** per guild:
+| Surface | AI visible? |
+|---------|-------------|
+| Client nameplate / UI | **No special “AI” badge** (operator policy, initial phase) |
+| Server entity record | `controller: ai_brain` |
+| Ops dashboards / logs | Yes |
+| Commerce / Stripe | N/A — play only |
 
-```json
-{
-  "guild_id": "g_…",
-  "objective": { "type": "CLEAR_NODE", "target_id": "node_12", "priority": 1 },
-  "markers": [{ "type": "ATTACK_THIS", "entity_id": "…" }],
-  "rally_point": { "x": 0, "y": 0 },
-  "updated_at": "ISO-8601"
-}
-```
-
-- Humans (leaders) or scripts set objectives.  
-- AI reads board; does not invent real-money goals.  
-- When objective completes, AI falls back to role default (patrol/gather light).
+If policy later changes to disclose, flip client label without rewriting brains.
 
 ---
 
-## 6. Social rules (guild)
+## Density (initial)
 
-| Behavior | Policy |
-|----------|--------|
-| Help downed human | High priority if in same guild + LOS |
-| Trade | Disabled for AI v1 (or scripted only) |
-| Kick/invite | AI cannot; humans only |
-| Chat | Templates: “on my way”, “node clear”; no fake human identity |
-| Follow stranger | No |
-| Grief / PK | No (PVE shard) |
-
-Research note: players like adaptive companions (role flex, memory) but MMO social fabric weakens if AI replaces human need—keep AI as **presence + PVE assist**, not substitute guild.
+See `AI-COHORT-SCALING.md` — **low band** default, e.g. hard cap 2–5 AI until stable, then formula.
 
 ---
 
-## 7. Ghost vs guild AI (do not merge)
+## Failure modes
 
-| | Ghost offline | Guild AI |
-|--|---------------|----------|
-| Origin | Human logout | Spawner |
-| Strength | ~10% | Full AI profile (may be weaker than geared humans) |
-| Brain | None / idle | Utility GOAP |
-| Guild | Keeps human’s guild id | Assigned or null |
-| Despawn | On login | Population formula |
-
----
-
-## 8. Experiment: “what they end up doing”
-
-Append-only log:
-
-```text
-t, entity_id, guild_id, role, action, objective_type, area_id
-```
-
-Aggregate daily:
-
-- % time combat / gather / move / idle / support  
-- Objective completion rate  
-- Deaths per hour  
-- Distance from rally  
-
-Hypothesis to test: without strong `w_objective`, AI collapses to gather/idle (seen in agent-only sandbox MMOs). **Board + role weights** are the lever.
+| Risk | Mitigation |
+|------|------------|
+| AI out-competes economy | Same caps as humans + global soft caps |
+| AI chat feels robotic | Templates + rare LLM; rate limits |
+| GPU overload | Queue LLM; fall back to utility-only |
+| Players accuse “bots” | Same ToS enforcement as any client; improve behavior fidelity |
+| Mixed-guild drama | Same moderation tools as human guilds |
 
 ---
 
-## 9. Failure modes
+## Build order (game must be built)
 
-| Failure | Mitigation |
-|---------|------------|
-| AI farms economy dry | Soft caps, node lockouts, low `w_economy` |
-| AI packs denser than humans | Cap + spawn distance rules |
-| LLM on hot path | Never; async only |
-| Players think AI is human | Nameplate + passport label |
-| Tick cost explodes | LOD: far AI lower rate |
-| AI blocks content | Cannot hold unique quest locks |
-
----
-
-## 10. Implementation order
-
-1. Action set + utility brain (no guild)  
-2. Roles  
-3. Guild blackboard  
-4. Spawner scaling  
-5. Behavior logs  
-6. Optional sparse LLM flavor  
+1. Shard + character + movement/combat authoritative  
+2. Logout ghost 10%  
+3. AI controller injecting **player-equivalent** inputs  
+4. Guild system shared by human + AI  
+5. Low-N AI spawner  
+6. Optional GPU LLM worker  
+7. Behavior logs (ops-only)  
 
 ---
 
-## 11. One sentence
+## One sentence
 
-**Guild AI is a labeled, board-driven utility actor in a single-shard PVE sim—presence and experiment first, never a commercial agent and never a fake human.**
+**Guild AI is a low-count, full-parity player under the same rules—including founding guilds—stealth on the client, flagged only on the server, optionally GPU-assisted, play-only.**

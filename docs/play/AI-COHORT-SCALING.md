@@ -1,27 +1,32 @@
-# AI cohort scaling formula (experiment)
+# AI cohort scaling (low-first)
 
-## Default proposal
+## Phase 0 — initial (now)
 
 ```text
-humans = count(controller == human_session AND online)
-ai_target = clamp(floor(humans * 0.5) + 2, 2, 40)
+ai_hard_cap = 2..5   // operator choice; default 3
+ai_target = min(ai_hard_cap, max(0, floor(humans * 0.1)))
 ```
 
-- At 0 humans: keep a small ambient AI set (2) so the shard is not empty for observers—or 0 if “empty world” is preferred.  
-- At 10 humans: ~7 AI.  
-- Cap 40 to protect single-shard tick budget.
+At low concurrent humans, keep AI **scarce**. Prefer empty-feeling world over obvious bot flood.
 
-Tune `k`, floor, cap after measuring frame time.
+## Phase 1 — after stable sim
+
+```text
+ai_target = clamp(floor(humans * k) + base, min_ai, max_ai)
+// example: k=0.25, base=1, max_ai=20
+```
+
+Raise `k` and `max_ai` only with tick + GPU headroom.
 
 ## Ghosts vs AI
 
-| Type | Scales with |
-|------|-------------|
-| Ghost shells | Logouts (one per character) |
-| AI cohort | Online human count (formula) |
+| Type | Count driver |
+|------|----------------|
+| Ghost shells | Human logouts (1:1 characters) |
+| AI cohort | Formula above |
 
-Ghosts are **not** AI brains; they are attenuated player shells.
+## GPU budget
 
-## Logging
-
-Append-only behavior events: `entity_id`, `t`, `action`, `area_id` — for the “what they end up doing” experiment.
+- Utility AI: CPU server  
+- LLM strategy/chat: operator GPU queue, max N concurrent inferences  
+- If GPU busy: AI still acts via utility only  

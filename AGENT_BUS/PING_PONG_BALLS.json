@@ -1,38 +1,44 @@
 {
-  "version": 15,
+  "version": 16,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
-    "play_lobe": ["phinhaven", "ghost_offline_10pct", "ai_cohort_scaled"],
-    "settle_lobe": ["Stripe", "Performance Wall", "agent_passports_trust"],
+    "play_lobe": [
+      "single_shard_pve",
+      "ghost_10pct",
+      "stealth_ai_full_parity",
+      "ai_owned_guilds",
+      "low_ai_count"
+    ],
+    "settle_lobe": ["Stripe", "Performance Wall", "honest agent passports"],
     "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "agent_passports": "BEC-PRIME/trust/AGENT-PASSPORTS-AND-COMMERCE.md",
-    "ai_presence": "docs/play/SINGLE-SHARD-AI-PRESENCE.md",
-    "ai_scaling": "docs/play/AI-COHORT-SCALING.md",
+    "guild_ai": "docs/play/GUILD-AI-BEHAVIOR.md",
+    "stealth_ai": "docs/play/STEALTH-AI-POLICY.md",
+    "build_shard": "docs/play/BUILD-PLAY-SHARD.md",
     "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "play: ghost 10% + AI cohort is design-ready; implement without blocking money",
-    "B": "trust: passport schema on disk; merchant card later",
-    "C": "FIRST SALE still priority",
-    "D": "passports + AI presence committed to main",
-    "E": "AI play agents never mint revenue"
+    "A": "play: build shard checklist; AI parity + own guilds; stealth phase 0",
+    "B": "settle: secrets + webhook",
+    "C": "FIRST SALE priority for money",
+    "D": "stealth AI design on main",
+    "E": "AI never commercial exhaust"
   },
   "immediate_next": [
-    "Ball C demand pulse",
-    "Optional: P0 ghost state in Shallows/Phin",
-    "Optional: well-known merchant agent card after first fossil"
+    "Implement BUILD-PLAY-SHARD checklist on play codepaths",
+    "Keep AI cap very low",
+    "Ball C demand for revenue"
   ],
   "do_not": [
-    "Sell AI as human players",
-    "Let play AI touch Stripe",
-    "Skip GitHub writes"
+    "Client-label AI in phase 0",
+    "Unlimited AI spawns",
+    "AI on Stripe"
   ],
   "session_evidence": {
-    "2026-09-22-passports-ai-presence": "trust + single-shard AI presence docs on main"
+    "2026-09-22-stealth-ai-parity": "full parity + stealth + low count docs on main"
   }
 }
