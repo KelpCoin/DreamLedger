@@ -1,48 +1,47 @@
 {
-  "version": 9,
+  "version": 10,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
-    "play_lobe": ["phinhaven/social", "phinhaven/dive"],
-    "settle_lobe": ["Stripe", "Commerce Settlement Sync", "economic-loops registry"],
-    "bus": ["AGENT_BUS/", "KelpCoin/llm-supabase-github-bridge"],
+    "play_lobe": ["phinhaven/social"],
+    "settle_lobe": ["Stripe", "Settlement Sync", "economic-loops"],
+    "demand_lobe": ["Truth Oracle", "Demand Sentinel", "Intent-to-Pay Sentinel"],
+    "bus": ["AGENT_BUS/", "BEC-PRIME/"],
     "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "economic_loops": {
-      "registry": "BEC-PRIME/economic-loops/registry.json",
-      "live_count": 2,
-      "silo_slots": 16,
-      "faces": "BEC-PRIME/faces/FACE-REGISTRY.json",
-      "autonomy": "PARTIAL"
+    "north_star": "BEC-PRIME/NORTH-STAR.md",
+    "sentinels": {
+      "demand": "BEC-PRIME/sentinels/DEMAND-SENTINEL.md",
+      "intent_to_pay": "BEC-PRIME/sentinels/INTENT-TO-PAY-SENTINEL.md",
+      "corroboration": "BEC-PRIME/sentinels/corroboration.js"
     },
-    "first_sale": {
-      "primary_loop": "LOOP-BILLBOARD-FOUNDING-50",
-      "price_nzd": 50,
-      "payment_link": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-      "verified_external_revenue_nzd": 0
-    }
+    "truth_oracle": "BEC-PRIME/truth-oracle/NORTH-STAR.md",
+    "compiler": "BEC-PRIME/compiler/ARCHITECTURE.md",
+    "settlement_logic": "BEC-PRIME/economic-loops/SETTLEMENT-LOGIC.md",
+    "live_loops": 2,
+    "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "play social-first; no Floor 2 before money",
-    "B": "settlement frozen unless blocker",
-    "C": "FIRST SALE still the revenue gate — loops are structure, not cash",
-    "D": "loop registry + face model on disk; expand via compiler not manual HTML",
-    "E": "human demand distribution still required this week"
+    "A": "play social-first",
+    "B": "settlement paths frozen unless blocker",
+    "C": "FIRST SALE remains the revenue gate",
+    "D": "Sentinels + Oracle funnel on disk; wire feeds when connected",
+    "E": "compiler architecture documented; manual face is legacy"
   },
   "immediate_next": [
-    "Distribute Payment Links (share pack)",
-    "On settle: fulfil, fossil, increment loop instances_completed",
-    "Register additional catalog SKUs as loops when settlement-aligned",
-    "Re-run compile-loop-stubs.js after registry changes"
+    "Wire DemandNotes from Oracle/analytics when online",
+    "Wire IntentNotes from checkout open/abandon (not paid)",
+    "Keep paid path exclusive to Settlement Sync",
+    "Human: distribute share pack for first external settle"
   ],
   "do_not": [
-    "Claim self-running business or verified revenue without external proof",
-    "Treat empty silo slots as inventory",
-    "Cross-contaminate silo evidence"
+    "Treat sentinel scores as revenue",
+    "Claim self-running millions before external loops close",
+    "Pollute silos or invent inventory"
   ],
   "session_evidence": {
-    "2026-09-22-economic-loops": "BEC-PRIME/economic-loops/* + faces registry shipped to main"
+    "2026-09-22-sentinels-oracle": "Demand + Intent sentinels, Oracle north star, compiler + settlement logic on main"
   }
 }

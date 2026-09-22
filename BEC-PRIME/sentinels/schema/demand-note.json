@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bec-prime/sentinels/demand-note",
+  "title": "DemandNote",
+  "type": "object",
+  "required": ["note_id", "observed_at", "signal", "silo", "source"],
+  "properties": {
+    "note_id": { "type": "string" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "signal": {
+      "type": "string",
+      "enum": ["D-VIEW", "D-SEARCH", "D-CLICK", "D-SHARE", "D-AGENT", "D-RETURN"]
+    },
+    "silo": { "type": "string" },
+    "face_id": { "type": "string" },
+    "offer_id": { "type": ["string", "null"] },
+    "loop_id": { "type": ["string", "null"] },
+    "source": { "type": "string", "description": "analytics|oracle|agent|manual|airgap-log" },
+    "payload": { "type": "object" },
+    "airgap": { "type": "boolean", "default": false }
+  }
+}

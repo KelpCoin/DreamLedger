@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bec-prime/sentinels/intent-note",
+  "title": "IntentNote",
+  "type": "object",
+  "required": ["note_id", "observed_at", "signal", "silo", "source"],
+  "properties": {
+    "note_id": { "type": "string" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "signal": {
+      "type": "string",
+      "enum": ["I-CHECKOUT_OPEN", "I-CHECKOUT_ABANDON", "I-PREFILL", "I-RETURN_PAY", "I-AGENT_HANDOFF", "I-QUOTE_ACCEPT"]
+    },
+    "silo": { "type": "string" },
+    "offer_id": { "type": ["string", "null"] },
+    "loop_id": { "type": ["string", "null"] },
+    "demand_note_ids": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "string" },
+    "payload": { "type": "object" },
+    "airgap": { "type": "boolean", "default": false },
+    "is_payment": { "const": false, "description": "Intent is never settlement" }
+  }
+}
