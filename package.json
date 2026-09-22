@@ -46,7 +46,8 @@
     "rag:query": "python RAG/query.py",
     "rag:eval": "python RAG/eval.py",
     "verify:bec-defensive": "node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js",
-    "verify:ecosystem": "node BEC-PRIME/scripts/verify-ecosystem.js"
+    "verify:ecosystem": "node BEC-PRIME/scripts/verify-ecosystem.js",
+    "verify:vinyl-hunter": "node BEC-PRIME/scripts/verify-vinyl-hunter.js"
   },
   "engines": {
     "node": ">=20"
