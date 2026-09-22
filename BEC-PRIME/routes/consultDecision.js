@@ -78,9 +78,9 @@ function parseJson(text){
   try{return JSON.parse(cleaned)}catch{return null}
 }
 async function runRefinery(request){
-  const url=process.env.BEC_C2_LM_URL||process.env.BEC_CLOUD_LM_URL||process.env.REFINERY_BASE_URL||'';
-  const key=process.env.BEC_C2_LM_API_KEY||process.env.BEC_CLOUD_LM_API_KEY||process.env.BEC_REMOTE_LM_API_KEY||process.env.REFINERY_API_KEY||'';
-  const models=String(process.env.BEC_C2_MODELS||process.env.BEC_CLOUD_LM_MODEL||process.env.REFINERY_MODEL||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,5);
+  const url=process.env.BEC_C2_LM_URL||process.env.BEC_CLOUD_LM_URL||process.env.REFINERY_BASE_URL||process.env.OPENAI_BASE_URL||'';
+  const key=process.env.BEC_C2_LM_API_KEY||process.env.BEC_CLOUD_LM_API_KEY||process.env.BEC_REMOTE_LM_API_KEY||process.env.REFINERY_API_KEY||process.env.OPENAI_API_KEY||'';
+  const models=String(process.env.BEC_C2_MODELS||process.env.BEC_CLOUD_LM_MODEL||process.env.REFINERY_MODEL||process.env.OPENAI_MODEL||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,5);
   if(!url||!models.length)throw new Error('Hosted C2 refinery is not configured. Set BEC_C2_LM_URL and BEC_C2_MODELS.');
   const prompt=JSON.stringify({question:request.question,context:request.context,constraints:request.constraints,output_format:request.output_format});
   const baseSystem='You are a worker in BrownEye Cortex. Analyze the supplied decision problem. Do not invent evidence, payments, customers, credentials, or external actions. Return rigorous analysis and preserve uncertainty.';
