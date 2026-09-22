@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://dreamledger.org/</loc></url>
-  <url><loc>https://dreamledger.org/catalog</loc></url>
-  <url><loc>https://dreamledger.org/digital-products</loc></url>
   <url><loc>https://dreamledger.org/mtg</loc></url>
-  <url><loc>https://dreamledger.org/guides/commander-deck-upgrades-nz</loc></url>
-  <url><loc>https://dreamledger.org/games</loc></url>
-  <url><loc>https://dreamledger.org/media-music</loc></url>
   <url><loc>https://dreamledger.org/billboard</loc></url>
   <url><loc>https://dreamledger.org/dreammeez</loc></url>
-  <url><loc>https://dreamledger.org/security</loc></url>
+  <url><loc>https://dreamledger.org/agent-commerce</loc></url>
+  <url><loc>https://dreamledger.org/phin-haven</loc></url>
+  <url><loc>https://dreamledger.org/guides/commander-deck-upgrades-nz</loc></url>
   <url><loc>https://dreamledger.org/guides/agentic-commerce-nz</loc></url>
   <url><loc>https://dreamledger.org/guides/ai-product-discovery-nz</loc></url>
   <url><loc>https://dreamledger.org/guides/proving-online-transactions</loc></url>
   <url><loc>https://dreamledger.org/guides/nz-physical-goods-price-check</loc></url>
-  <url><loc>https://dreamledger.org/agent-commerce</loc></url>
-  <url><loc>https://dreamledger.org/products/dreamledger-billboard-founding-001/</loc></url>
-  <url><loc>https://dreamledger.org/products/commander-deck-diagnostic-001/</loc></url>
-  <url><loc>https://dreamledger.org/products/discord-webhook-starter-kit-001/</loc></url>
+  <url><loc>https://dreamledger.org/product/DREAMLEDGER-BILLBOARD-FOUNDING-001</loc></url>
+  <url><loc>https://dreamledger.org/product/COMMANDER-DECK-DIAGNOSTIC-001</loc></url>
+  <url><loc>https://dreamledger.org/product/DISCORD-WEBHOOK-STARTER-KIT-001</loc></url>
+  <url><loc>https://dreamledger.org/product/EDH_0001</loc></url>
+  <url><loc>https://dreamledger.org/product/KELP-FLOOR1-001</loc></url>
+  <url><loc>https://dreamledger.org/product/DREAMMEEZ-COSMIC-HOODIE-001</loc></url>
+  <url><loc>https://dreamledger.org/product/DREAMMEEZ-CAPE-001</loc></url>
+  <url><loc>https://dreamledger.org/product/DREAMMEEZ-CHROME-BOOTS-001</loc></url>
 </urlset>
