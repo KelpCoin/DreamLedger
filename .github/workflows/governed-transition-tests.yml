@@ -13,6 +13,8 @@ on:
       - 'runtime/autonomy_budget.py'
       - 'runtime/event_envelope.py'
       - 'runtime/kill_switch.py'
+      - 'tests/test_control_plane_hardening.py'
+      - 'migrations/20260922_control_plane_hardening.sql'
       - 'requirements*.txt'
       - 'pyproject.toml'
   pull_request:
@@ -36,4 +38,4 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest pyyaml
       - name: Run governed transition tests
-        run: pytest tests/test_attempt_transition.py tests/test_authorization_firewall.py tests/test_runtime_boundaries.py -v
+        run: pytest tests/test_attempt_transition.py tests/test_authorization_firewall.py tests/test_runtime_boundaries.py tests/test_control_plane_hardening.py -v
