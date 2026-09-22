@@ -1,1 +1,15 @@
-{"schema":"dreamledger/economic-autonomy/v1","date":"2026-09-22","north_star":"continuous external economic outcomes with minimal founder involvement","truth_rule":{"verified_revenue_requires":["external_buyer","settled_payment","correct_attribution","fulfillment","independent_verification"]},"decision_firewall":{"outcomes":["TEST_NOW","COMMERCIAL_VALIDATE","PRODUCTIZE","PARK","IGNORE"],"required_fields":["signal","confidence","judgment","hypothesis","action","metric","stop_condition","deadline","idempotency_key","authorization_class","kill_condition","evidence_destination"]},"autonomy_classes":{"GREEN":["reconciliation","dedupe","stale_job_cleanup","diagnostics","internal_verification","idempotency","safe_validation","experiment_preparation"],"AMBER":["external_publication","external_outreach","other_external_side_effects"],"RED":["create_charge","spend_money","financial_commitment"]},"release":{"staging_delay_minutes":15,"kill_switch_required":true,"post_deploy_healthcheck_required":true,"unexpected_external_side_effects_are_fatal":true},"experiments":[{"id":"CMD-DIAG-PRICE","metric":"payment_rate","relative_lift_threshold":0.2},{"id":"CMD-DIAG-CLARITY","metric":"checkout_completion_rate","relative_lift_threshold":0.15},{"id":"CMD-DIAG-PAYMENT","metric":"checkout_completion_rate","secondary_metric":"payment_method_selection_rate","relative_lift_threshold":0.1}],"revenue_state":{"verified_external_payments":0,"verified_revenue_nzd":0,"checkout_intents_observed":6}}
+{
+  "schema":"dreamledger/economic-autonomy/v1",
+  "date":"2026-09-22",
+  "north_star":"continuous external economic outcomes with minimal founder involvement",
+  "truth_rule":{"verified_revenue_requires":["external_buyer","settled_payment","correct_attribution","fulfillment","independent_verification"]},
+  "decision_firewall":{"outcomes":["TEST_NOW","COMMERCIAL_VALIDATE","PRODUCTIZE","PARK","IGNORE"],"required_fields":["signal","confidence","judgment","hypothesis","action","metric","stop_condition","deadline","idempotency_key","authorization_class","kill_condition","evidence_destination"]},
+  "autonomy_classes":{"GREEN":["reconciliation","dedupe","stale_job_cleanup","diagnostics","internal_verification","idempotency","safe_validation","experiment_preparation"],"AMBER":["external_publication","external_outreach","other_external_side_effects"],"RED":["create_charge","spend_money","financial_commitment"]},
+  "release":{"staging_delay_minutes":15,"kill_switch_required":true,"post_deploy_healthcheck_required":true,"required_checks_must_pass":true,"unexpected_external_side_effects_are_fatal":true},
+  "experiments":[
+    {"id":"CMD-DIAG-PAYMENT","metric":"checkout_completion_rate","secondary_metrics":["payment_method_selection_rate","attributable_checkout_starts","settled_payments","fulfillment_count"],"intervention":"add_afterpay_to_existing_card_klarna_link_checkout","evaluation_window_days":14,"minimum_starts_for_falsification":5,"material_improvement_threshold_percentage_points":10,"insufficient_data_route":"distribution","falsification_route":"price"},
+    {"id":"CMD-DIAG-PRICE","metric":"payment_rate","relative_lift_threshold":0.2},
+    {"id":"CMD-DIAG-CLARITY","metric":"checkout_completion_rate","relative_lift_threshold":0.15}
+  ],
+  "revenue_state":{"verified_external_payments":0,"verified_revenue_nzd":0,"checkout_intents_observed":6}
+}
