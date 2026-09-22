@@ -1,0 +1,25 @@
+version: "0.1.0"
+note: "The outcome scoring contract. It runs after each sale. It does not gate the first sale."
+
+formula:
+  margin: 0.40
+  liquidity: 0.20
+  confidence: 0.20
+  source_agreement: 0.10
+  spam_penalty: -0.10
+  roi: 0.10
+
+scales:
+  margin: "0-5. Digital product with zero marginal cost = 5."
+  liquidity: "0-5. One sale = 1. Five sales = 3. Twenty sales = 5."
+  confidence: "0-5. First sale = 2. Repeat buyer = 4. Referral = 5."
+  source_agreement: "0-5. Single channel = 1. Two channels = 3. Three+ = 5."
+  spam_penalty: "0 or -1. Applied only if the mechanism generated noise without settlement."
+  roi: "0-5. Margin as percentage of cost."
+
+verdicts:
+  ACCELERATE: ">75. Clone the mechanism. Test replication."
+  FIX: "45-75. Identify the weakest sub-score. Test one change."
+  STOP: "<45. Record in FAILURE_LEDGER. Do not continue."
+
+application_rule: "Scoring runs after the sale. It does not gate the sale. The constitution gates the sale."
