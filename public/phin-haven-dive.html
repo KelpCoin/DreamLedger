@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-surface="phinhaven-dive-v1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Phin Haven — Depth 1 · Dive</title>
+<style>
+:root{--b:#08110c;--p:#13241b;--l:#31503d;--t:#edf5ee;--m:#9eb5a5;--g:#78d399;--y:#d9b35a;--r:#d45b52;--v:#b78fe0}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 0,#1b3929,var(--b) 65%);color:var(--t);font:13px Inter,system-ui,sans-serif;overflow:hidden}
+button{font:inherit;color:var(--t);background:var(--p);border:1px solid var(--l);border-radius:9px;padding:9px 12px}
+button.primary{background:var(--g);color:#07110b;border-color:#9ce5b4;font-weight:700}
+#app{height:100%;display:flex;flex-direction:column}
+header{padding:10px 13px;border-bottom:1px solid var(--l);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+header h1{margin:0;color:var(--g);font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+header a{color:var(--y);font-size:12px;text-decoration:none}
+.body{min-height:0;flex:1;display:flex;flex-direction:column;gap:7px;padding:7px}
+.stage{position:relative;flex:1;min-height:250px;display:flex;align-items:center;justify-content:center}
+.stage canvas{width:min(100%,560px);height:auto;aspect-ratio:4/3;border:1px solid var(--l);border-radius:11px;background:#102017}
+.toast{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:7px 12px;border:1px solid var(--y);border-radius:8px;background:#0b1610ee;color:var(--y);opacity:0;transition:.2s;pointer-events:none;max-width:90%;text-align:center}.toast.show{opacity:1}
+.hud{border-top:1px solid var(--l);padding:7px 0 0;display:flex;flex-direction:column;gap:7px}
+.barrow{display:flex;gap:8px;align-items:center}.stat{flex:1;min-width:130px}
+.small{font-size:10px;color:var(--m);display:flex;justify-content:space-between}
+.bar{height:8px;border:1px solid #3b241f;background:#20120f;border-radius:5px;overflow:hidden}.fill{height:100%;background:var(--g)}
+.grid{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;margin:auto}.grid button{padding:0;font-size:17px}
+.modal{position:fixed;inset:0;background:#06100bdd;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.modal.open{display:flex}
+.card{width:min(360px,100%);background:var(--p);border:1px solid var(--l);border-radius:13px;padding:18px}.card h2{margin:0 0 7px;color:var(--g);font-size:17px}.card p{color:var(--m);line-height:1.45}.row{display:flex;gap:7px}.row>*{flex:1}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <h1>Depth 1 · Dive</h1>
+  <span id="scene" style="color:var(--m);font-size:11px">The Shallows</span>
+  <a href="/phin-haven.html">← Garden chat</a>
+</header>
+<div class="body">
+  <div class="stage"><canvas id="world" width="480" height="360"></canvas><div id="toast" class="toast"></div></div>
+  <div class="hud">
+    <div class="barrow">
+      <div class="stat">
+        <div class="small"><span id="name">Wanderer</span><span id="lvl">Lv.1</span></div>
+        <div class="bar"><div id="hp" class="fill" style="width:100%"></div></div>
+      </div>
+      <button id="sync">Sync</button>
+    </div>
+    <div class="grid">
+      <span></span><button data-d="0,-1">▲</button><span></span>
+      <button data-d="-1,0">◀</button><button id="act">●</button><button data-d="1,0">▶</button>
+      <span></span><button data-d="0,1">▼</button><span></span>
+    </div>
+  </div>
+</div>
+</div>
+<div id="identity" class="modal open"><div class="card">
+  <h2>Dive Depth 1</h2>
+  <p>Optional combat slice. Garden chat remains home.</p>
+  <input id="charname" maxlength="18" placeholder="Character name" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--l);background:#09110d;color:var(--t);margin:0 0 10px">
+  <button class="primary" id="enter" style="width:100%">Enter dungeon path</button>
+</div></div>
+<div id="combat" class="modal"><div class="card">
+  <h2 id="enemy">Encounter</h2>
+  <div class="small"><span>Enemy</span><span id="enemyhp">100%</span></div>
+  <div class="bar"><div id="ehp" class="fill" style="width:100%;background:var(--r)"></div></div>
+  <p id="combatlog">Blocked.</p>
+  <div class="row"><button class="primary" id="attack">Attack</button><button id="flee">Flee</button></div>
+</div></div>
+<script>
+const URL="https://wbwgroygjeyukkspnqiy.supabase.co";
+const KEY="sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj";
+const TOKEN="kelplantis:player_token";
+let player=null,token=null,world=null,gate=null;
+const $=id=>document.getElementById(id);
+async function rpc(name,args){
+  const r=await fetch(`${URL}/rest/v1/rpc/${name}`,{method:"POST",headers:{"Content-Type":"application/json",apikey:KEY,Authorization:`Bearer ${KEY}`},body:JSON.stringify(args)});
+  if(!r.ok)throw Error(name+":"+r.status);
+  return r.json();
+}
+async function storageGet(){try{return localStorage.getItem(TOKEN)}catch(e){return null}}
+async function storageSet(v){try{localStorage.setItem(TOKEN,v)}catch(e){}}
+function toast(s){const e=$("toast");e.textContent=s;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),2500)}
+function iso(gx,gy){return{x:240+(gx-gy)*28,y:70+(gx+gy)*14}}
+function labelSprite(x,gx,gy,label,size){
+  const p=iso(gx,gy);
+  x.fillStyle="#05080599";x.beginPath();x.ellipse(p.x,p.y+7,12*size,5*size,0,0,Math.PI*2);x.fill();
+  x.fillStyle=`hsl(${(player&&player.color_hue)||140},55%,55%)`;
+  x.beginPath();x.roundRect(p.x-9*size,p.y-28*size,18*size,25*size,6*size);x.fill();
+  x.beginPath();x.arc(p.x,p.y-30*size,7*size,0,Math.PI*2);x.fill();
+  x.fillStyle="#edf5ee";x.font="10px sans-serif";x.textAlign="center";x.fillText(label,p.x,p.y-42*size);
+}
+function draw(){
+  const c=$("world"),x=c.getContext("2d");x.clearRect(0,0,480,360);x.fillStyle="#102017";x.fillRect(0,0,480,360);
+  if(!player)return;
+  const tile=(gx,gy,col)=>{const p=iso(gx,gy);x.beginPath();x.moveTo(p.x,p.y-14);x.lineTo(p.x+28,p.y);x.lineTo(p.x,p.y+14);x.lineTo(p.x-28,p.y);x.closePath();x.fillStyle=col;x.fill();x.strokeStyle="#31503d";x.stroke()};
+  if(player.scene!=="DUNGEON"){
+    for(let y=0;y<6;y++)for(let gx=0;gx<6;gx++)tile(gx,y,(gx+y)%2?"#416f4d":"#3a6546");
+    labelSprite(x,player.pos_x,player.pos_y,player.name,1);
+  }else{
+    for(let y=0;y<3;y++)for(let gx=0;gx<5;gx++)tile(gx,y,"#2b4937");
+    labelSprite(x,.7,1.5,player.name,1);
+    if(player.current_encounter)labelSprite(x,3.5,1.5,player.current_encounter.enemy_name,1.2);
+  }
+}
+function render(){
+  if(!player)return;
+  $("name").textContent=player.name+" · HP "+Math.max(0,player.hp)+"/"+player.max_hp;
+  $("lvl").textContent="Lv."+player.level;
+  $("hp").style.width=Math.max(0,player.hp/player.max_hp*100)+"%";
+  draw();
+}
+async function enter(){
+  const name=($("charname").value||"Wanderer").trim().slice(0,18)||"Wanderer";
+  try{
+    player=await rpc("kelplantis_create_player",{p_name:name,p_color_hue:140});
+    token=player.player_token;await storageSet(token);
+    $("identity").classList.remove("open");render();toast("Depth 1 ready");
+  }catch(e){toast("Server RPC unavailable — try garden chat")}
+}
+async function load(){
+  token=await storageGet();
+  if(token){
+    try{player=await rpc("kelplantis_get_player",{p_token:token});$("identity").classList.remove("open");render();return}catch(e){}
+  }
+}
+async function move(dx,dy){
+  if(!player||player.scene==="DUNGEON")return;
+  try{player=await rpc("kelplantis_move_player",{p_token:token,p_dx:dx,p_dy:dy});render()}catch(e){}
+}
+async function act(){
+  if(!player)return;
+  if(player.scene==="DUNGEON"&&!player.current_encounter){
+    try{player=await rpc("kelplantis_engage_encounter",{p_token:token});$("combat").classList.add("open");$("enemy").textContent=player.current_encounter.enemy_name}catch(e){toast("No encounter")}
+  }
+}
+async function attack(){
+  try{
+    player=await rpc("kelplantis_attack",{p_token:token});
+    if(player.current_encounter){
+      const q=player.current_encounter;
+      $("ehp").style.width=Math.max(0,q.enemy_hp/q.enemy_max_hp*100)+"%";
+    }else{$("combat").classList.remove("open");toast("Victory");render()}
+  }catch(e){toast("Attack failed")}
+}
+$("enter").onclick=enter;
+$("sync").onclick=async()=>{try{player=await rpc("kelplantis_get_player",{p_token:token});render();toast("Synced")}catch(e){toast("Sync failed")}};
+$("act").onclick=act;$("attack").onclick=attack;
+$("flee").onclick=async()=>{try{player=await rpc("kelplantis_flee_encounter",{p_token:token})}catch(e){}$("combat").classList.remove("open");render()};
+document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const[x,y]=b.dataset.d.split(",").map(Number);move(x,y)});
+load();
+</script>
+</body>
+</html>

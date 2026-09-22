@@ -1,245 +1,364 @@
 <!doctype html>
-<html lang="en" data-surface="phinhaven-live-v1">
+<html lang="en" data-surface="phinhaven-social-v2">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Phin Haven — Depth 1 · The Shallows</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Phin Haven — The First Garden. A social lobby first. Dive when ready.">
+<meta name="theme-color" content="#070c0a">
+<title>Phin Haven · First Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#09110d;--panel:#13241b;--line:#31503d;--ink:#edf5ee;--muted:#9eb5a5;--gold:#d9b35a;--green:#78d399;--red:#d45b52}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 0,#1b3929,var(--bg) 65%);color:var(--ink);font:13px Georgia,serif;overflow:hidden}
-button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 12px;touch-action:manipulation}
-button.primary{background:var(--green);color:#07110b;border-color:#9ce5b4;font-weight:bold}button:active{transform:translateY(1px)}
-#app{height:100%;display:flex;flex-direction:column}
-header{padding:10px 13px 7px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
-header h1{margin:0;color:var(--green);font-size:15px;letter-spacing:.12em;text-transform:uppercase}
-header a{color:var(--gold);font-size:11px;text-decoration:none}.scene{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
-.body{min-height:0;flex:1;display:flex;flex-direction:column;gap:7px;padding:7px}
-.stage{position:relative;flex:1;min-height:250px;display:flex;align-items:center;justify-content:center}
-.stage canvas{width:min(100%,560px);height:auto;aspect-ratio:4/3;border:1px solid var(--line);border-radius:11px;background:#102017}
-.toast{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:7px 12px;border:1px solid var(--gold);border-radius:8px;background:#0b1610ee;color:var(--gold);opacity:0;transition:.2s;pointer-events:none;max-width:90%;text-align:center}.toast.show{opacity:1}
-.hud{border-top:1px solid var(--line);padding:7px 0 0;display:flex;flex-direction:column;gap:7px}
-.barrow{display:flex;gap:8px;align-items:center}.stat{flex:1;min-width:130px}
-.small{font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
-.bar{height:8px;border:1px solid #3b241f;background:#20120f;border-radius:5px;overflow:hidden}.fill{height:100%;background:var(--green)}
-.xp{height:5px;background:#1d293f}.xp .fill{background:#8baaf5}
-.grid{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;margin:auto}.grid button{padding:0;font-size:17px}
-.side{display:flex;gap:7px;align-items:flex-start;flex-wrap:wrap}
-.chips{display:flex;gap:5px;overflow:auto;flex:1}
-.chip{min-width:58px;height:50px;padding:4px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:9px;text-align:center;color:var(--muted)}.chip.eq{border-color:var(--gold);color:var(--gold)}
-.avatar{min-width:140px;border:1px solid var(--line);border-radius:9px;padding:7px;background:#0d1912}.avatar b{color:var(--green)}.avatar span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
-.modal{position:fixed;inset:0;background:#06100bdd;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.modal.open{display:flex}
-.card{width:min(360px,100%);background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}.card h2{margin:0 0 7px;color:var(--green);font-size:17px}.card p{color:var(--muted);line-height:1.45}.row{display:flex;gap:7px}.row>*{flex:1}
+:root{
+  --bg:#070c0a;--elev:#0c1410;--panel:#111b15;--panel2:#16221b;--line:#24362c;--line2:#355043;
+  --ink:#e8f2ea;--muted:#8fa598;--dim:#5c7366;
+  --mint:#6ee7a8;--mint2:#a7f3c7;--gold:#e4c36a;--violet:#b9a0e8;--rose:#e8a0a8;
+  --glow:rgba(110,231,168,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{background:
+  radial-gradient(ellipse 80% 50% at 20% -10%,rgba(110,231,168,.14),transparent 55%),
+  radial-gradient(ellipse 60% 40% at 100% 0%,rgba(185,160,232,.08),transparent 50%),
+  var(--bg)}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit;border:none;background:none}
+button{cursor:pointer}
+
+.app{height:100%;max-width:1100px;margin:0 auto;display:grid;grid-template-rows:auto 1fr auto;min-height:100dvh}
+
+/* Top */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);backdrop-filter:blur(12px);background:rgba(7,12,10,.7)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,var(--mint),#1a4a32);box-shadow:0 0 24px var(--glow);display:grid;place-items:center;font-size:16px}
+.brand h1{font-family:Fraunces,Georgia,serif;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.brand span{display:block;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+.top-actions{display:flex;gap:8px;align-items:center}
+.pill{font-size:11px;font-weight:700;padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--elev)}
+.pill.live{color:var(--mint2);border-color:#2a5a40}
+.pill.live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mint);margin-right:6px;box-shadow:0 0 8px var(--mint)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 14px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--panel)}
+.btn:hover{border-color:var(--line2)}
+.btn.mint{background:linear-gradient(180deg,var(--mint),#3dbf7a);color:#04140c;border-color:transparent;box-shadow:0 4px 20px rgba(110,231,168,.25)}
+.btn.ghost{background:transparent;color:var(--muted)}
+
+/* Main split: chat primary */
+.main{min-height:0;display:grid;grid-template-columns:1fr 280px;gap:0}
+@media(max-width:820px){.main{grid-template-columns:1fr}.side{display:none}.side.open{display:flex;position:fixed;inset:0;z-index:40;background:var(--bg);flex-direction:column}}
+
+.chat{min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+.room-bar{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.room-bar h2{font-size:13px;font-weight:700}
+.room-bar p{font-size:11px;color:var(--muted);margin-top:2px}
+
+.feed{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.msg{display:grid;grid-template-columns:40px 1fr;gap:10px;max-width:640px;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.av{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,var(--panel2),var(--elev));border:1px solid var(--line);display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.av.system{background:linear-gradient(145deg,#1a2a22,#0e1812);color:var(--mint)}
+.av.npc{background:linear-gradient(145deg,#2a2438,#14101c);color:var(--violet)}
+.av.you{background:linear-gradient(145deg,#1e3a2c,#0f1f16);box-shadow:0 0 12px var(--glow)}
+.bubble{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.bubble .meta{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.bubble .who{font-size:12px;font-weight:700}
+.bubble .who.npc{color:var(--violet)}
+.bubble .who.system{color:var(--mint)}
+.bubble .who.you{color:var(--mint2)}
+.bubble .when{font-size:10px;color:var(--dim)}
+.bubble .text{font-size:13px;line-height:1.5;color:var(--ink)}
+.bubble .text em{color:var(--muted);font-style:normal}
+
+.composer{padding:12px 14px 16px;border-top:1px solid var(--line);background:rgba(12,20,16,.9)}
+.composer-box{display:flex;gap:8px;align-items:flex-end;background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:8px 10px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.composer-box:focus-within{border-color:#3d6b52;box-shadow:0 0 0 3px var(--glow)}
+.composer textarea{flex:1;min-height:40px;max-height:120px;resize:none;padding:8px 6px;line-height:1.4;outline:none}
+.composer textarea::placeholder{color:var(--dim)}
+.send{height:40px;min-width:40px;border-radius:10px;background:var(--mint);color:#04140c;font-weight:800;font-size:14px}
+.hints{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.hint{font-size:10px;font-weight:600;padding:5px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--elev)}
+.hint:hover{color:var(--mint2);border-color:#2a5a40}
+
+/* Side panel */
+.side{display:flex;flex-direction:column;background:var(--elev);min-height:0}
+.side-sec{padding:14px 14px 8px;border-bottom:1px solid var(--line)}
+.side-sec h3{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.presence{display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto}
+.person{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:var(--panel);border:1px solid transparent}
+.person:hover{border-color:var(--line)}
+.person .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}
+.person .dot.off{background:var(--dim);box-shadow:none}
+.person .nm{font-size:12px;font-weight:600}
+.person .rl{font-size:10px;color:var(--muted)}
+
+.garden-card{margin:12px;padding:14px;border-radius:14px;border:1px solid var(--line);background:
+  linear-gradient(160deg,rgba(110,231,168,.1),transparent 50%),var(--panel);position:relative;overflow:hidden}
+.garden-card::after{content:"";position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(185,160,232,.2),transparent 70%)}
+.garden-card h4{font-family:Fraunces,Georgia,serif;font-size:15px;margin-bottom:4px;position:relative}
+.garden-card p{font-size:11px;color:var(--muted);line-height:1.45;margin-bottom:12px;position:relative}
+.garden-art{height:72px;border-radius:10px;margin-bottom:12px;background:
+  linear-gradient(180deg,transparent,rgba(7,12,10,.5)),
+  repeating-linear-gradient(90deg,transparent 0 8px,rgba(110,231,168,.06) 8px 9px),
+  radial-gradient(ellipse at 50% 80%,rgba(110,231,168,.25),transparent 60%),
+  #0e1a14;border:1px solid var(--line);display:grid;place-items:center;font-size:28px;position:relative}
+
+.doors{padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
+.door{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);text-align:left}
+.door:hover{border-color:var(--line2);background:var(--panel2)}
+.door .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--elev);font-size:16px}
+.door b{display:block;font-size:12px;font-weight:700}
+.door span{font-size:10px;color:var(--muted)}
+.door.primary{border-color:#2a5a40;background:linear-gradient(120deg,rgba(110,231,168,.08),transparent)}
+
+/* Identity gate — soft social, not game */
+.gate{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(4,8,6,.85);backdrop-filter:blur(16px)}
+.gate.open{display:flex}
+.gate-card{width:min(400px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:20px;padding:28px 24px;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.gate-card .kicker{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);margin-bottom:8px}
+.gate-card h2{font-family:Fraunces,Georgia,serif;font-size:26px;letter-spacing:-.03em;margin-bottom:8px}
+.gate-card p{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:18px}
+.gate-card input{width:100%;height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--elev);margin-bottom:12px;outline:none}
+.gate-card input:focus{border-color:var(--mint);box-shadow:0 0 0 3px var(--glow)}
+.gate-card .btn{width:100%;height:46px;font-size:14px}
+
+.foot{padding:8px 16px;border-top:1px solid var(--line);font-size:10px;color:var(--dim);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.foot a{color:var(--muted)}
+
+@media(max-width:820px){
+  .mobile-side{display:inline-flex!important}
+}
+.mobile-side{display:none}
 </style>
 </head>
 <body>
-<div id="app">
-<header>
-  <h1>Phin Haven</h1>
-  <span class="scene" id="scene">Depth 1 · The Shallows</span>
-  <a href="/">Store</a>
-</header>
-<div class="body">
-  <div class="stage"><canvas id="world" width="480" height="360"></canvas><div id="toast" class="toast"></div></div>
-  <div class="hud">
-    <div class="barrow">
-      <div class="stat">
-        <div class="small"><span id="name">Wanderer</span><span id="lvl">Lv.1</span></div>
-        <div class="bar"><div id="hp" class="fill" style="width:100%"></div></div>
-        <div class="xp"><div id="xp" class="fill" style="width:0%"></div></div>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">◈</div>
+      <div>
+        <h1>Phin Haven</h1>
+        <span>First Garden · social lobby</span>
       </div>
-      <button id="sync">Sync</button>
-      <button id="new">New</button>
     </div>
-    <div class="side">
-      <div class="grid">
-        <span></span><button data-d="0,-1">▲</button><span></span>
-        <button data-d="-1,0">◀</button><button id="act">●</button><button data-d="1,0">▶</button>
-        <span></span><button data-d="0,1">▼</button><span></span>
+    <div class="top-actions">
+      <span class="pill live" id="status">Lobby</span>
+      <button type="button" class="btn ghost mobile-side" id="toggleSide">People</button>
+      <a class="btn" href="/">Market</a>
+    </div>
+  </header>
+
+  <div class="main">
+    <section class="chat" aria-label="Garden chat">
+      <div class="room-bar">
+        <div>
+          <h2># first-garden</h2>
+          <p>Chat room first. The shallows wait when you’re ready.</p>
+        </div>
+        <button type="button" class="btn" id="clearLocal" title="Clear local session">Reset</button>
       </div>
-      <div class="chips" id="inventory"></div>
-      <div class="avatar" id="avatar"><b>DreamMeez</b><span>unlinked session</span></div>
-    </div>
+      <div class="feed" id="feed" role="log" aria-live="polite"></div>
+      <div class="composer">
+        <div class="composer-box">
+          <textarea id="input" rows="1" placeholder="Say something in the garden…" maxlength="400"></textarea>
+          <button type="button" class="send" id="send" aria-label="Send">↑</button>
+        </div>
+        <div class="hints">
+          <button type="button" class="hint" data-q="Who’s here?">Who’s here?</button>
+          <button type="button" class="hint" data-q="What is this place?">What is this place?</button>
+          <button type="button" class="hint" data-q="How do I dive?">How do I dive?</button>
+          <button type="button" class="hint" data-q="Cosmetics?">Cosmetics?</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side" id="side">
+      <div class="side-sec">
+        <h3>In the garden</h3>
+        <div class="presence" id="presence"></div>
+      </div>
+      <div class="garden-card">
+        <div class="garden-art" id="gardenArt">🌿</div>
+        <h4>The First Garden</h4>
+        <p>Soft light. No combat here. This room is the proof of presence — chat, watch, belong. Dive is optional.</p>
+        <button type="button" class="btn mint" id="genMood" style="width:100%">Refresh garden mood</button>
+      </div>
+      <div class="side-sec" style="border:none">
+        <h3>Doors</h3>
+      </div>
+      <div class="doors">
+        <button type="button" class="door primary" id="dive">
+          <span class="ic">🌊</span>
+          <span><b>Dive the Shallows</b><span>Depth 1 · when you want a game</span></span>
+        </button>
+        <a class="door" href="/avatar.html">
+          <span class="ic">✦</span>
+          <span><b>DreamMeez</b><span>Identity & cosmetics</span></span>
+        </a>
+        <a class="door" href="/">
+          <span class="ic">◈</span>
+          <span><b>Market</b><span>Tiles, kits, live checkout</span></span>
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="foot">
+    <span>Social-first proof · ComfyUI image pipeline reserved</span>
+    <span><a href="/docs-not-linked">Play lobe ≠ revenue</a> · evidence decides on the market</span>
+  </footer>
+</div>
+
+<div class="gate open" id="gate">
+  <div class="gate-card">
+    <div class="kicker">Welcome</div>
+    <h2>Step into the garden</h2>
+    <p>Phin Haven opens as a <strong style="color:var(--ink)">chat room</strong> — not a dungeon. Pick a name, listen, talk. Dive only when you feel like it.</p>
+    <input id="name" maxlength="18" placeholder="Display name" autocomplete="nickname">
+    <button type="button" class="btn mint" id="enter">Enter the First Garden</button>
   </div>
 </div>
+
+<!-- Lightweight dive overlay: keeps game available without owning first emotion -->
+<div class="gate" id="diveGate">
+  <div class="gate-card">
+    <div class="kicker">Optional</div>
+    <h2>The Shallows</h2>
+    <p>Depth 1 combat slice lives behind this door. The garden stays the default home. Full canvas dive can load the classic client when you’re ready.</p>
+    <button type="button" class="btn mint" id="diveGo">Open classic Depth 1</button>
+    <button type="button" class="btn" id="diveBack" style="width:100%;margin-top:8px">Stay in chat</button>
+  </div>
 </div>
-<div id="identity" class="modal open"><div class="card">
-  <h2>Enter The Shallows</h2>
-  <p>Depth 1 of Phin Haven. Beat the boss before Depth 2 opens. Server saves your character.</p>
-  <input id="charname" maxlength="18" placeholder="Character name" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#09110d;color:var(--ink);margin:0 0 10px">
-  <button class="primary" id="enter" style="width:100%">Enter Depth 1</button>
-</div></div>
-<div id="combat" class="modal"><div class="card">
-  <h2 id="enemy">Encounter</h2>
-  <div class="small"><span>Enemy</span><span id="enemyhp">100%</span></div>
-  <div class="bar"><div id="ehp" class="fill" style="width:100%;background:var(--red)"></div></div>
-  <p id="combatlog">The path is blocked.</p>
-  <div class="row"><button class="primary" id="attack">Attack</button><button id="flee">Flee</button></div>
-</div></div>
+
 <script>
-const URL="https://wbwgroygjeyukkspnqiy.supabase.co";
-const KEY="sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj";
-const TOKEN="kelplantis:player_token";
-let player=null,token=null,avatar=null,world=null,gate=null;
-const $=id=>document.getElementById(id);
-async function rpc(name,args){
-  const r=await fetch(`${URL}/rest/v1/rpc/${name}`,{method:"POST",headers:{"Content-Type":"application/json",apikey:KEY,Authorization:`Bearer ${KEY}`},body:JSON.stringify(args)});
-  if(!r.ok)throw Error(`${name}:${r.status}`);
-  return r.json();
-}
-async function storageGet(){
-  try{if(window.storage&&window.storage.get){const r=await window.storage.get(TOKEN);if(r&&r.value)return r.value}}catch(e){}
-  try{return localStorage.getItem(TOKEN)}catch(e){return null}
-}
-async function storageSet(v){
-  try{if(window.storage&&window.storage.set)await window.storage.set(TOKEN,v,false)}catch(e){}
-  try{localStorage.setItem(TOKEN,v)}catch(e){}
-}
-async function storageDelete(){
-  try{if(window.storage&&window.storage.delete)await window.storage.delete(TOKEN,false)}catch(e){}
-  try{localStorage.removeItem(TOKEN)}catch(e){}
-}
-function toast(s){const e=$("toast");e.textContent=s;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),2500)}
-async function bridgeAvatar(){try{avatar=await rpc("kelplantis_bootstrap_dreammeez",{p_token:token});renderAvatar()}catch(e){avatar=null}}
-function renderAvatar(){
-  const e=$("avatar");
-  if(!avatar||!avatar.linked){e.innerHTML="<b>DreamMeez</b><span>unlinked session</span>";return}
-  const a=avatar.appearance||{};
-  e.innerHTML=`<b>DreamMeez linked</b><span>${avatar.display_name||"Avatar"}</span><span>hue ${a.color_hue??"-"}</span>`;
-}
-function sceneLabel(){
-  if(!player)return "";
-  if(player.scene==="HOME")return "Home";
-  if(player.scene==="DUNGEON")return "The Shallows · Dungeon";
-  return "Depth 1 · The Shallows";
-}
-function iso(gx,gy){return{x:240+(gx-gy)*28,y:70+(gx+gy)*14}}
-function draw(){
-  const c=$("world"),x=c.getContext("2d");x.clearRect(0,0,480,360);x.fillStyle="#102017";x.fillRect(0,0,480,360);
-  if(!player)return;
-  const tile=(gx,gy,col)=>{const p=iso(gx,gy);x.beginPath();x.moveTo(p.x,p.y-14);x.lineTo(p.x+28,p.y);x.lineTo(p.x,p.y+14);x.lineTo(p.x-28,p.y);x.closePath();x.fillStyle=col;x.fill();x.strokeStyle="#31503d";x.stroke()};
-  if(player.scene!=="DUNGEON"){
-    for(let y=0;y<6;y++)for(let gx=0;gx<6;gx++)tile(gx,y,(gx+y)%2?"#416f4d":"#3a6546");
-    let h=iso(2,3);x.fillStyle="#d9b35a";x.fillText("HOME",h.x-18,h.y+4);
-    let d=iso(4,4);x.fillStyle="#b78fe0";x.fillText("DUNGEON",d.x-25,d.y+4);
-    if(gate)x.fillText(gate.unlocked?"Depth 2 unlocked":"Depth 2 locked",d.x-25,d.y+18);
-    x.fillStyle="#d9b35a";labelSprite(x,0,0,"Warden",.85);
-    (world&&world.presence||[]).forEach(p=>labelSprite(x,p.pos_x,p.pos_y,p.name,.7));
-    labelSprite(x,player.pos_x,player.pos_y,player.name,1);
-  }else{
-    const ds=player.dungeon_state;if(!ds)return;
-    for(let y=0;y<3;y++)for(let gx=0;gx<5;gx++)tile(gx,y,"#2b4937");
-    const room=ds.rooms&&ds.rooms[ds.room_index];
-    x.fillStyle="#9eb5a5";x.textAlign="center";
-    x.fillText(room&&room.type==="boss"?"SPROUT KING":"Room "+((ds.room_index||0)+1),240,38);
-    labelSprite(x,.7,1.5,player.name,1);
-    if(player.current_encounter)labelSprite(x,3.5,1.5,player.current_encounter.enemy_name,1.2);
-    else if(room&&!room.cleared)labelSprite(x,3.5,1.5,room.enemy_name||"Enemy",1);
+(function(){
+  var KEY='phinhaven:garden-v2';
+  var feed=document.getElementById('feed');
+  var presence=document.getElementById('presence');
+  var input=document.getElementById('input');
+  var nameEl=document.getElementById('name');
+  var me=null;
+  var moods=['🌿','✨','🌙','🍃','🌸','💧','🌤','🕯'];
+
+  function load(){
+    try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}
   }
-  x.textAlign="left";
-}
-function labelSprite(x,gx,gy,label,size){
-  const p=iso(gx,gy);
-  x.fillStyle="#05080599";x.beginPath();x.ellipse(p.x,p.y+7,12*size,5*size,0,0,Math.PI*2);x.fill();
-  x.fillStyle=`hsl(${player.color_hue||140},55%,55%)`;
-  x.beginPath();x.roundRect(p.x-9*size,p.y-28*size,18*size,25*size,6*size);x.fill();
-  x.beginPath();x.arc(p.x,p.y-30*size,7*size,0,Math.PI*2);x.fill();
-  x.fillStyle="#edf5ee";x.font="10px Georgia";x.textAlign="center";x.fillText(label,p.x,p.y-42*size);
-}
-function render(){
-  if(!player)return;
-  $("scene").textContent=sceneLabel();
-  $("name").textContent=`${player.name} · HP ${Math.max(0,player.hp)}/${player.max_hp}`;
-  $("lvl").textContent=`Lv.${player.level}`;
-  $("hp").style.width=Math.max(0,player.hp/player.max_hp*100)+"%";
-  $("xp").style.width=Math.min(100,player.xp/(player.level*20)*100)+"%";
-  $("inventory").innerHTML="";
-  (player.inventory||[]).forEach(i=>{
-    const e=document.createElement("div");
-    e.className="chip"+(player.equipped&&player.equipped[i.slot]&&player.equipped[i.slot].id===i.id?" eq":"");
-    e.textContent=i.name;e.onclick=()=>equip(i.id);$("inventory").appendChild(e);
+  function save(s){
+    try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}
+  }
+
+  function time(){
+    var d=new Date();
+    return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function addMsg(who, role, text){
+    var row=document.createElement('div');
+    row.className='msg';
+    var av=document.createElement('div');
+    av.className='av '+role;
+    av.textContent=role==='system'?'◈':role==='npc'?'⚘':(me&&who===me.name?'·':'○');
+    var bubble=document.createElement('div');
+    bubble.className='bubble';
+    bubble.innerHTML='<div class="meta"><span class="who '+role+'">'+esc(who)+'</span><span class="when">'+time()+'</span></div><div class="text">'+esc(text)+'</div>';
+    row.appendChild(av);row.appendChild(bubble);
+    feed.appendChild(row);
+    feed.scrollTop=feed.scrollHeight;
+  }
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})}
+
+  function renderPresence(list){
+    presence.innerHTML='';
+    list.forEach(function(p){
+      var el=document.createElement('div');
+      el.className='person';
+      el.innerHTML='<span class="dot '+(p.on?'':'off')+'"></span><div><div class="nm">'+esc(p.name)+'</div><div class="rl">'+esc(p.role)+'</div></div>';
+      presence.appendChild(el);
+    });
+  }
+
+  var npcLines={
+    'Who\'s here?':'Warden and whoever left a name in this garden. Presence is soft proof — not a raid roster.',
+    'What is this place?':'The First Garden is Phin Haven\'s social lobby. Chat first. Combat is a door, not the welcome mat.',
+    'How do I dive?':'Use Dive the Shallows when you want Depth 1. You can always come back here.',
+    'Cosmetics?':'DreamMeez identity and store cosmetics live on the Market / Avatar surfaces. Chat stays free.'
+  };
+
+  function replyTo(text){
+    var t=text.trim();
+    setTimeout(function(){
+      var hit=Object.keys(npcLines).find(function(k){return t.toLowerCase().indexOf(k.toLowerCase().slice(0,8))>=0});
+      if(npcLines[t]) addMsg('Garden Warden','npc',npcLines[t]);
+      else if(hit) addMsg('Garden Warden','npc',npcLines[hit]);
+      else if(/dive|dungeon|fight|boss/i.test(t)) addMsg('Garden Warden','npc','The shallows are through the door on the right. This room stays quiet.');
+      else if(/comfy|image|art|render/i.test(t)) addMsg('Garden Warden','npc','Scene and avatar art will plug through a ComfyUI pipeline later. Today the mood tile is local proof.');
+      else addMsg('Garden Warden','npc','Noted. The garden holds space — say more, or open a door when you\'re ready.');
+    },400+Math.random()*500);
+  }
+
+  function boot(name){
+    me={name:name,joined:Date.now()};
+    save(me);
+    document.getElementById('gate').classList.remove('open');
+    document.getElementById('status').textContent='In garden';
+    renderPresence([
+      {name:name,role:'you · local',on:true},
+      {name:'Garden Warden',role:'npc',on:true},
+      {name:'Soft presence',role:'ambient',on:false}
+    ]);
+    addMsg('System','system','Welcome to the First Garden. This is a chat room first — a social proof of place.');
+    addMsg('Garden Warden','npc','Breathe. Talk. Watch the light. Dive only if you want a game.');
+    input.focus();
+  }
+
+  document.getElementById('enter').onclick=function(){
+    var n=(nameEl.value||'').trim().slice(0,18)||'Wanderer';
+    boot(n);
+  };
+  nameEl.addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('enter').click()});
+
+  function send(){
+    var t=(input.value||'').trim();
+    if(!t||!me)return;
+    addMsg(me.name,'you',t);
+    input.value='';
+    replyTo(t);
+  }
+  document.getElementById('send').onclick=send;
+  input.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}
   });
-  if(!(player.inventory&&player.inventory.length)){const e=document.createElement("div");e.className="chip";e.textContent="empty";$("inventory").appendChild(e)}
-  draw();
-}
-async function load(){
-  token=await storageGet();
-  if(token){
-    try{
-      player=await rpc("kelplantis_get_player",{p_token:token});
-      $("identity").classList.remove("open");
-      await syncAll();return;
-    }catch(e){await storageDelete();token=null}
-  }
-  $("identity").classList.add("open");
-}
-async function enter(){
-  const name=($("charname").value||"Wanderer").trim().slice(0,18)||"Wanderer";
-  try{
-    player=await rpc("kelplantis_create_player",{p_name:name,p_color_hue:140});
-    token=player.player_token;await storageSet(token);
-    $("identity").classList.remove("open");
-    await syncAll();toast("Welcome to The Shallows.");
-  }catch(e){toast("Could not enter — check server RPCs.")}
-}
-async function syncAll(){
-  world=await rpc("kelplantis_get_world_state",{p_world_key:"floor1"}).catch(()=>null);
-  gate=await rpc("kelplantis_get_floor_gate",{p_token:token,p_floor_id:2}).catch(()=>null);
-  await bridgeAvatar();render();
-}
-async function move(dx,dy){
-  if(!player||player.scene==="DUNGEON")return;
-  try{
-    player=await rpc("kelplantis_move_player",{p_token:token,p_dx:dx,p_dy:dy});
-    gate=await rpc("kelplantis_get_floor_gate",{p_token:token,p_floor_id:2}).catch(()=>gate);
-    render();
-  }catch(e){}
-}
-async function act(){
-  if(!player)return;
-  if(player.scene==="TOWN"&&player.pos_x===0&&player.pos_y===0){
-    try{const r=await rpc("kelplantis_talk_to_npc",{p_token:token,p_npc_key:"garden_warden"});toast("Warden: "+r.dialogue)}catch(e){}
-  }else if(player.scene==="DUNGEON"&&!player.current_encounter){
-    try{player=await rpc("kelplantis_engage_encounter",{p_token:token});openCombat()}catch(e){toast("Could not open encounter")}
-  }else if(player.scene==="HOME")toast("Home — equip from inventory.");
-}
-function openCombat(){
-  $("combat").classList.add("open");
-  $("enemy").textContent=player.current_encounter.enemy_name;
-  $("combatlog").textContent="The encounter begins.";
-  updateCombat();
-}
-function updateCombat(){
-  if(!player.current_encounter)return;
-  const q=player.current_encounter;
-  $("ehp").style.width=Math.max(0,q.enemy_hp/q.enemy_max_hp*100)+"%";
-  $("enemyhp").textContent=Math.round(q.enemy_hp/q.enemy_max_hp*100)+"%";
-}
-async function attack(){
-  try{
-    player=await rpc("kelplantis_attack",{p_token:token});
-    if(player.current_encounter){$("combatlog").textContent="You strike. The enemy answers.";updateCombat()}
-    else{
-      $("combat").classList.remove("open");
-      const boss=player.floor_progress&&player.floor_progress["1"]&&player.floor_progress["1"].bossDefeated;
-      toast(boss?"Depth 1 boss cleared — Depth 2 may unlock.":"Victory.");
-      await syncAll();
-    }
-    render();
-  }catch(e){toast("Attack failed")}
-}
-async function flee(){
-  try{player=await rpc("kelplantis_flee_encounter",{p_token:token})}catch(e){}
-  $("combat").classList.remove("open");render();
-}
-async function equip(id){
-  try{player=await rpc("kelplantis_equip_item",{p_token:token,p_item_id:id});render();toast("Equipped")}catch(e){toast("Cannot equip")}
-}
-$("enter").onclick=enter;
-$("sync").onclick=async()=>{try{player=await rpc("kelplantis_get_player",{p_token:token});await syncAll();toast("Synced")}catch(e){toast("Sync failed")}};
-$("new").onclick=async()=>{await storageDelete();location.reload()};
-$("act").onclick=act;$("attack").onclick=attack;$("flee").onclick=flee;
-document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const[x,y]=b.dataset.d.split(",").map(Number);move(x,y)});
-load();
+  document.querySelectorAll('.hint').forEach(function(h){
+    h.onclick=function(){input.value=h.getAttribute('data-q');send()}
+  });
+
+  document.getElementById('genMood').onclick=function(){
+    var art=document.getElementById('gardenArt');
+    art.textContent=moods[Math.floor(Math.random()*moods.length)];
+    addMsg('System','system','Garden mood refreshed (local). ComfyUI wire-up is the next art step.');
+  };
+
+  document.getElementById('dive').onclick=function(){
+    document.getElementById('diveGate').classList.add('open');
+  };
+  document.getElementById('diveBack').onclick=function(){
+    document.getElementById('diveGate').classList.remove('open');
+  };
+  document.getElementById('diveGo').onclick=function(){
+    // Classic Depth 1 client remains available as optional surface
+    location.href='/phin-haven-dive.html';
+  };
+
+  document.getElementById('clearLocal').onclick=function(){
+    try{localStorage.removeItem(KEY)}catch(e){}
+    location.reload();
+  };
+  document.getElementById('toggleSide').onclick=function(){
+    document.getElementById('side').classList.toggle('open');
+  };
+
+  var existing=load();
+  if(existing&&existing.name) boot(existing.name);
+})();
 </script>
 </body>
 </html>
