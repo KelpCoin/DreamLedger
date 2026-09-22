@@ -1,0 +1,43 @@
+{
+  "schema_version": "DL-CAPABILITY-MANIFEST-1.0",
+  "economic_validation": "NONE",
+  "capabilities": [
+    {
+      "id": "multi_llm_topology",
+      "status": "ADAPTER_READY",
+      "live_verification": false,
+      "artifacts": ["local-primitives.js", "local-primitives.test.js"],
+      "contract": ["topology_node", "topology_edge", "task_envelope", "proficiency_vector"]
+    },
+    {
+      "id": "dooh_proof_of_play",
+      "status": "ADAPTER_READY",
+      "live_verification": false,
+      "artifacts": ["local-primitives.js", "local-primitives.test.js"],
+      "contract": ["signed_observation", "Ed25519", "fixture_verifier"]
+    },
+    {
+      "id": "cross_rail_economic_events",
+      "status": "ADAPTER_READY",
+      "live_verification": false,
+      "artifacts": ["local-primitives.js", "local-primitives.test.js"],
+      "contract": ["rail_neutral_event", "adapter_health"]
+    },
+    {
+      "id": "public_truth_surface",
+      "status": "ADAPTER_READY",
+      "live_verification": false,
+      "artifacts": ["local-primitives.js", "local-primitives.test.js"],
+      "contract": ["sanitized_record", "access_tier", "live_verification_flags"]
+    },
+    {
+      "id": "discord_render_supabase",
+      "status": "NOT_VERIFIED",
+      "live_verification": false,
+      "artifacts": ["local-primitives.js", "local-primitives.test.js"],
+      "contract": ["adapter_health", "fixture", "credentials_required"]
+    }
+  ],
+  "truth_rule": "NO LIVE SIGNAL does not block LOCAL ENGINEERING; it blocks claims of ECONOMIC VALIDATION.",
+  "external_effects": "All local primitives default to no external effect."
+}
