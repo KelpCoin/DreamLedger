@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
@@ -12,6 +12,8 @@
   },
   "current_truth": {
     "langgraph_persistence": "BEC-PRIME/persistence/LANGGRAPH-CHECKPOINT-STRATEGY.md",
+    "pending_writes": "BEC-PRIME/persistence/LANGGRAPH-PENDING-WRITES.md",
+    "serde": "BEC-PRIME/persistence/LANGGRAPH-SERDE.md",
     "airgap_checkpointer": "BEC-PRIME/persistence/checkpoint_store.py",
     "first_sale_thread": "ops/money/run_first_sale_thread.py",
     "income_now": "ops/money/INCOME-NOW.md",
@@ -21,21 +23,23 @@
   "balls": {
     "A": "play social-first",
     "B": "settlement paths ready",
-    "C": "FIRST SALE — checkpointed thread; human demand pulse required",
-    "D": "LangGraph-style SQLite persistence on disk; optional real LangGraph later",
+    "C": "FIRST SALE — human demand pulse + secrets/webhook",
+    "D": "checkpoints + pending_writes on GitHub main",
     "E": "no FOSSIL_SEALED without proof note"
   },
   "immediate_next": [
-    "Run Run-FirstSaleThread.ps1 boot/next through disk stages",
-    "Operator: secrets + webhook + post Payment Link",
-    "On pay: Settlement Sync → fulfil → fossil → advance sealed stages"
+    "Operator: post Payment Link (income)",
+    "Operator: STRIPE_SECRET_KEY + webhook",
+    "Run first-sale thread PS1 through stages",
+    "On pay: Settlement Sync → fulfil → fossil"
   ],
   "do_not": [
-    "Treat checkpoints as revenue",
-    "Expand architecture before first external settle",
+    "Treat checkpoints or pending writes as revenue",
+    "Leave LangGraph design only in chat — push to main",
     "Commit Stripe secrets"
   ],
   "session_evidence": {
-    "2026-09-22-langgraph-persistence": "checkpoint store + first-sale thread shipped to main"
+    "2026-09-22-langgraph-persistence": "checkpoint store + first-sale thread",
+    "2026-09-22-pending-writes": "pending_writes table + LANGGRAPH-PENDING-WRITES.md + SERDE.md on main"
   }
 }
