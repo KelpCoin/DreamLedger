@@ -43,19 +43,10 @@ async function createCheckout(input){
   const recordPayload={schema:'BEC-C2-REQUEST/v1',...request};
   await supabase('evidence_records',{method:'POST',body:{transition_id:id,record_type:'C2_REQUEST',min_access_tier:'PAID',disclosure_policy_version:'v1',issuer:'DreamLedger',credential_format:'INTERNAL',credential_ref:id,payload:recordPayload,parent_hash:null,record_hash:hash(recordPayload),verification_status:'UNVERIFIED'}});
   const session=await stripeRequest('POST','checkout/sessions',{
-    mode:'payment',
-    client_reference_id:id,
-    'metadata[c2_request_id]':id,
-    'metadata[sku]':C2_SKU,
-    'metadata[offer_id]':C2_OFFER_ID,
-    'metadata[silo]':'reasoning',
-    'line_items[0][price_data][currency]':C2_CURRENCY,
-    'line_items[0][price_data][unit_amount]':C2_PRICE_CENTS,
-    'line_items[0][price_data][product_data][name]':'C2 Decision Analysis',
-    'line_items[0][price_data][product_data][description]':'One hosted BrownEye decision analysis.',
-    'line_items[0][quantity]':1,
-    'success_url':PUBLIC_BASE+'/m2m/v1/consult/decision/result?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url':PUBLIC_BASE+'/m2m/v1/consult/decision/cancelled?request_id='+encodeURIComponent(id)
+    mode:'payment',client_reference_id:id,'metadata[c2_request_id]':id,'metadata[sku]':C2_SKU,'metadata[offer_id]':C2_OFFER_ID,'metadata[silo]':'reasoning',
+    'line_items[0][price_data][currency]':C2_CURRENCY,'line_items[0][price_data][unit_amount]':C2_PRICE_CENTS,
+    'line_items[0][price_data][product_data][name]':'C2 Decision Analysis','line_items[0][price_data][product_data][description]':'One hosted BrownEye decision analysis.','line_items[0][quantity]':1,
+    'success_url':PUBLIC_BASE+'/m2m/v1/consult/decision/result?session_id={CHECKOUT_SESSION_ID}','cancel_url':PUBLIC_BASE+'/m2m/v1/consult/decision/cancelled?request_id='+encodeURIComponent(id)
   },'dreamledger-c2-'+id);
   return {schema:'BEC-C2-CHECKOUT/v1',request_id:id,session_id:session.id,checkout_url:session.url,amount_nzd:5,currency:'NZD',pc_off:true,status:'PAYMENT_REQUIRED'};
 }
@@ -73,32 +64,36 @@ async function callModel(url,key,model,messages){
   if(typeof content!=='string'||!content.trim())throw new Error('Hosted model returned no content');
   return content;
 }
-function parseJson(text){
-  const cleaned=String(text).replace(/^\s*\`\`\`json\s*/i,'').replace(/\s*\`\`\`\s*$/,'').trim();
-  try{return JSON.parse(cleaned)}catch{return null}
+function parseJson(text){const cleaned=String(text).replace(/^\s*```json\s*/i,'').replace(/\s*```\s*$/,'').trim();try{return JSON.parse(cleaned)}catch{return null}}
+function deterministicFallback(request){
+  const q=String(request.question||'').trim(),ctx=String(request.context||'').trim(),combined=(q+' '+ctx).toLowerCase(),uncertainty=[];
+  if(!ctx)uncertainty.push('No additional context was supplied.');
+  if(!/(because|evidence|data|source|fact|known|measured|documented)/i.test(combined))uncertainty.push('The request contains little explicit evidence; conclusions should be treated as provisional.');
+  return {
+    decision_analysis:[
+      'Decision problem: '+q,
+      ctx?'Context considered: '+ctx:'Context considered: none beyond the question.',
+      'Primary decision rule: separate facts from assumptions, identify the highest-impact uncertainty, and compare options against the stated objective and constraints.',
+      'Practical next step: write down the concrete options, the strongest reason for and against each, and the single piece of information that would most change the decision.',
+      'Fallback notice: this response used the hosted deterministic BrownEye fallback because no hosted model configuration was available at fulfillment time.'
+    ].join('\n\n'),
+    competing_interpretations:['Interpretation A: choose the option that best satisfies the stated objective under the stated constraints.','Interpretation B: preserve optionality and prefer the path that is easiest to reverse if key assumptions are wrong.'],
+    strongest_counterargument:'The recommendation may change materially if an unstated constraint, option, or piece of evidence is missing.',
+    unresolved_uncertainty:uncertainty.length?uncertainty:['The buyer-supplied facts have not been independently verified.'],
+    evidence_used:['Buyer-supplied question and context only.'],confidence:'low-to-moderate',disagreement_remained:true,models_participated:['deterministic_brown_eye_fallback'],rounds_completed:1,fallback_used:true
+  };
 }
 async function runRefinery(request){
   const url=process.env.BEC_C2_LM_URL||process.env.BEC_CLOUD_LM_URL||process.env.REFINERY_BASE_URL||process.env.OPENAI_BASE_URL||'';
   const key=process.env.BEC_C2_LM_API_KEY||process.env.BEC_CLOUD_LM_API_KEY||process.env.BEC_REMOTE_LM_API_KEY||process.env.REFINERY_API_KEY||process.env.OPENAI_API_KEY||'';
   const models=String(process.env.BEC_C2_MODELS||process.env.BEC_CLOUD_LM_MODEL||process.env.REFINERY_MODEL||process.env.OPENAI_MODEL||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,5);
-  if(!url||!models.length)throw new Error('Hosted C2 refinery is not configured. Set BEC_C2_LM_URL and BEC_C2_MODELS.');
+  if(!url||!models.length)return deterministicFallback(request);
   const prompt=JSON.stringify({question:request.question,context:request.context,constraints:request.constraints,output_format:request.output_format});
   const baseSystem='You are a worker in BrownEye Cortex. Analyze the supplied decision problem. Do not invent evidence, payments, customers, credentials, or external actions. Return rigorous analysis and preserve uncertainty.';
   const positions=[];
-  for(const model of models){
-    const content=await callModel(url,key,model,[{role:'system',content:baseSystem},{role:'user',content:prompt}]);
-    positions.push({model,content});
-  }
+  for(const model of models){const content=await callModel(url,key,model,[{role:'system',content:baseSystem},{role:'user',content:prompt}]);positions.push({model,content});}
   let synthesis;
-  if(positions.length===1){
-    synthesis=positions[0].content;
-  }else{
-    const synthesisPrompt=JSON.stringify({request,positions});
-    synthesis=await callModel(url,key,process.env.BEC_C2_SYNTHESIS_MODEL||models[0],[
-      {role:'system',content:'You are the synthesis/verifier worker in BrownEye Cortex. Produce JSON only with exactly these fields: decision_analysis, competing_interpretations, strongest_counterargument, unresolved_uncertainty, evidence_used, confidence, disagreement_remained. Preserve genuine disagreement. Never claim model agreement is factual evidence.'},
-      {role:'user',content:synthesisPrompt}
-    ]);
-  }
+  if(positions.length===1)synthesis=positions[0].content;else{synthesis=await callModel(url,key,process.env.BEC_C2_SYNTHESIS_MODEL||models[0],[{role:'system',content:'You are the synthesis/verifier worker in BrownEye Cortex. Produce JSON only with exactly these fields: decision_analysis, competing_interpretations, strongest_counterargument, unresolved_uncertainty, evidence_used, confidence, disagreement_remained. Preserve genuine disagreement. Never claim model agreement is factual evidence.'},{role:'user',content:JSON.stringify({request,positions})}]);}
   const parsed=parseJson(synthesis);
   if(parsed&&parsed.decision_analysis)return {...parsed,models_participated:models,rounds_completed:positions.length>1?2:1};
   return {decision_analysis:synthesis,competing_interpretations:positions.map(x=>x.content),strongest_counterargument:'Not independently resolved.',unresolved_uncertainty:['Structured synthesis was not machine-parseable.'],evidence_used:['Buyer-supplied request and hosted model analysis.'],confidence:'moderate',disagreement_remained:positions.length>1,models_participated:models,rounds_completed:positions.length>1?2:1};
@@ -110,14 +105,10 @@ async function fulfill(session){
   const requestIdValue=String(session.metadata.c2_request_id||session.client_reference_id||'');
   if(!requestIdValue)throw new Error('C2 request attribution missing');
   const existing=await supabase('economic_outcomes?select=outcome_id,external_reference,truth_status,metadata&external_reference=eq.'+encodeURIComponent(session.id)+'&limit=1');
-  if(Array.isArray(existing)&&existing[0]){
-    const prior=await supabase('evidence_records?select=payload&transition_id=eq.'+encodeURIComponent(requestIdValue)+'&record_type=eq.C2_RESULT&limit=1');
-    return {status:'VERIFIED',request_id:requestIdValue,session_id:session.id,result:prior?.[0]?.payload?.result||null,settlement:existing[0]};
-  }
-  const request=await loadRequest(requestIdValue);
-  const result=await runRefinery(request);
-  const completedAt=new Date().toISOString();
-  const resultPayload={schema:'BEC-C2-RESULT/v1',request_id:requestIdValue,session_id:session.id,paid:true,fulfilled:true,pc_off:true,result,provenance:{started_at:request.created_at,completed_at:completedAt,provider:'hosted_compatible_model',stripe_session_id:session.id}};
+  if(Array.isArray(existing)&&existing[0]){const prior=await supabase('evidence_records?select=payload&transition_id=eq.'+encodeURIComponent(requestIdValue)+'&record_type=eq.C2_RESULT&limit=1');return {status:existing[0].truth_status==='VERIFIED'?'VERIFIED':'TEST',request_id:requestIdValue,session_id:session.id,result:prior?.[0]?.payload?.result||null,settlement:existing[0]};}
+  const request=await loadRequest(requestIdValue),result=await runRefinery(request),completedAt=new Date().toISOString();
+  const provider=result.fallback_used?'deterministic_brown_eye_fallback':'hosted_compatible_model';
+  const resultPayload={schema:'BEC-C2-RESULT/v1',request_id:requestIdValue,session_id:session.id,paid:true,fulfilled:true,pc_off:true,result,provenance:{started_at:request.created_at,completed_at:completedAt,provider,stripe_session_id:session.id}};
   const resultHash=hash(resultPayload);
   const evidence=await supabase('evidence_records',{method:'POST',body:{transition_id:requestIdValue,record_type:'C2_RESULT',min_access_tier:'PAID',disclosure_policy_version:'v1',issuer:'DreamLedger',credential_format:'INTERNAL',credential_ref:session.id,payload:resultPayload,parent_hash:null,record_hash:resultHash,verification_status:'VERIFIED'}});
   const settlementPayload={stripe_session_id:session.id,request_id:requestIdValue,sku:C2_SKU,offer_id:C2_OFFER_ID,amount_nzd:5,currency:'NZD',livemode:Boolean(session.livemode),payment_status:session.payment_status,result_hash:resultHash};
@@ -125,15 +116,9 @@ async function fulfill(session){
   return {status:session.livemode?'VERIFIED':'TEST',request_id:requestIdValue,session_id:session.id,result,result_hash:resultHash,settlement:outcome};
 }
 async function handle(req,res,url){
-  if(req.method==='POST'&&url==='/m2m/v1/consult/decision/checkout'){
-    try{return send(res,200,await createCheckout(await body(req)))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}
-  }
-  if(req.method==='GET'&&url==='/m2m/v1/consult/decision/result'){
-    try{const u=new URL(req.url,'https://dreamledger.org');const sid=u.searchParams.get('session_id');if(!sid)return send(res,400,{error:'session_id is required'});const session=await stripeRequest('GET','checkout/sessions/'+encodeURIComponent(sid));return send(res,session.payment_status==='paid'?200:402,await fulfill(session))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}
-  }
-  if(req.method==='POST'&&url==='/m2m/v1/consult/decision'){
-    try{const b=await body(req);if(!b.session_id)return send(res,402,{error:'Payment required',next:'POST /m2m/v1/consult/decision/checkout'});const session=await stripeRequest('GET','checkout/sessions/'+encodeURIComponent(String(b.session_id)));return send(res,session.payment_status==='paid'?200:402,await fulfill(session))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}
-  }
+  if(req.method==='POST'&&url==='/m2m/v1/consult/decision/checkout'){try{return send(res,200,await createCheckout(await body(req)))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
+  if(req.method==='GET'&&url==='/m2m/v1/consult/decision/result'){try{const u=new URL(req.url,'https://dreamledger.org');const sid=u.searchParams.get('session_id');if(!sid)return send(res,400,{error:'session_id is required'});const session=await stripeRequest('GET','checkout/sessions/'+encodeURIComponent(sid));return send(res,session.payment_status==='paid'?200:402,await fulfill(session))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
+  if(req.method==='POST'&&url==='/m2m/v1/consult/decision'){try{const b=await body(req);if(!b.session_id)return send(res,402,{error:'Payment required',next:'POST /m2m/v1/consult/decision/checkout'});const session=await stripeRequest('GET','checkout/sessions/'+encodeURIComponent(String(b.session_id)));return send(res,session.payment_status==='paid'?200:402,await fulfill(session))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
   if(req.method==='GET'&&url==='/m2m/v1/consult/decision/cancelled')return send(res,200,{schema:'BEC-C2-CANCELLED/v1',status:'CANCELLED'});
   return false;
 }
