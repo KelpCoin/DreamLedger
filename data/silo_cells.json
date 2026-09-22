@@ -1,0 +1,26 @@
+{
+  "schema": "dreamledger.silo-cells/v1",
+  "template": "MTG",
+  "principle": "Each silo uses the same economic cell: wanted targets -> live market discovery -> normalization -> ranking -> alert -> human purchase gate -> outcome -> learning.",
+  "initial_silos": [
+    {"id":"vinyl","name":"Vinyl Records","template":"MTG"},
+    {"id":"mtg","name":"Magic: The Gathering","template":"MTG"},
+    {"id":"hiphop","name":"Hip-Hop / Rap Records","template":"MTG"},
+    {"id":"metal","name":"Metal Records","template":"MTG"},
+    {"id":"books","name":"Books / First Editions","template":"MTG"},
+    {"id":"games","name":"Video Games / Retro Games","template":"MTG"},
+    {"id":"film","name":"Film / Blu-ray / DVD","template":"MTG"},
+    {"id":"cameras","name":"Cameras / Lenses","template":"MTG"},
+    {"id":"audio","name":"Hi-Fi / Audio Gear","template":"MTG"},
+    {"id":"sneakers","name":"Sneakers / Footwear","template":"MTG"},
+    {"id":"art","name":"Art / Prints / Posters","template":"MTG"},
+    {"id":"tools","name":"Tools / Workshop Equipment","template":"MTG"}
+  ],
+  "access_tiers": [
+    {"id":"free","rank":0,"market_signal_delay":"72h","alerts":"basic"},
+    {"id":"member","rank":1,"market_signal_delay":"24h","alerts":"expanded"},
+    {"id":"paid","rank":2,"market_signal_delay":"0h","alerts":"priority"},
+    {"id":"premium","rank":3,"market_signal_delay":"0h","alerts":"priority_plus_aggregation"}
+  ],
+  "truth": "Tier priority changes access to aggregated market intelligence, never the privacy of another user's individual wanted list."
+}
