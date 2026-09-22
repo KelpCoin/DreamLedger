@@ -1,0 +1,41 @@
+{
+  "schema": "dreamledger/mission-queue/v1",
+  "missions": [
+    {
+      "mission_id": "MISSION-001-PUBLISH-FIRST-WEDGE",
+      "description": "Publish the approved resolver.eventregret.v1 doorway to the public distribution surface.",
+      "action": "PUBLIC_POST",
+      "public": true,
+      "business_value": 13,
+      "time_criticality": 13,
+      "risk_reduction": 8,
+      "job_size": 2,
+      "spending_nzd": 0,
+      "evidence_required": "published_url + source_hash + incognito_verified + checkout_verified",
+      "escalation_reason": "Public publication requires human authority.",
+      "prepared_action": "Publish the approved doorway.html without changing offer copy or payment rail."
+    },
+    {
+      "mission_id": "MISSION-002-VERIFY-PRODUCTION",
+      "description": "Verify the production front door and checkout contract without changing public state.",
+      "action": "CHECK_DEPLOYMENT",
+      "business_value": 8,
+      "time_criticality": 8,
+      "risk_reduction": 13,
+      "job_size": 3,
+      "spending_nzd": 0,
+      "evidence_required": "verification proof"
+    },
+    {
+      "mission_id": "MISSION-003-RECONCILE-REVENUE",
+      "description": "Reconcile authoritative payment evidence and keep revenue at zero when no settlement is verified.",
+      "action": "CHECK_PAYMENT",
+      "business_value": 13,
+      "time_criticality": 8,
+      "risk_reduction": 13,
+      "job_size": 3,
+      "spending_nzd": 0,
+      "evidence_required": "payment reconciliation proof"
+    }
+  ]
+}

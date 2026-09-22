@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Build and verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Unit policy tests
+        run: npm test
+
+      - name: Revenue pipeline tests
+        run: npm run test:revenue-pipeline
+
+      - name: Truth Oracle economic tests
+        run: npm run test:truth-oracle
+
+      - name: Authorization firewall tests
+        run: npm run test:authorization-firewall
+
+      - name: Governed transition tests
+        run: npm run test:governed-transition
+
+      - name: Compile and verify production contract
+        run: npm run compile
+
+      - name: Verify silo boundaries
+        run: npm run verify:silos
+
+      - name: Verify commercial integration
+        run: npm run verify:integration
+
+      - name: Verify production contract
+        run: npm run verify:production-contract
+
+      - name: Verify economic contract
+        run: npm run verify:economic-contract
+
+      - name: Revenue ledger smoke test
+        run: npm run smoke:revenue-ledger
+
+      - name: Front-door smoke test
+        run: npm run smoke:front-door
+
+      - name: Worker smoke test
+        run: npm run smoke:worker
+
+      - name: Capture proof
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../ci-proof
+          git -C .. status --short > ../ci-proof/git-status.txt
+          cat > ../ci-proof/ci-proof.json <<JSON
+          {
+            "schema": "dreamledger/ci-proof/v1",
+            "sha": "${{ github.sha }}",
+            "run_id": "${{ github.run_id }}",
+            "workflow": "${{ github.workflow }}",
+            "pc_required": false,
+            "truth_rule": "CI success is not economic revenue",
+            "deployment_authority": "CI verifies; release controller promotes"
+          }
+          JSON
+
+      - name: Upload CI proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-proof-${{ github.run_id }}
+          path: ci-proof/
+          if-no-files-found: error

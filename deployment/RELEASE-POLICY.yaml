@@ -1,0 +1,53 @@
+schema: dreamledger/release-policy/v1
+status: ACTIVE_POLICY
+owner: "BrownEye Cortex"
+purpose: "Make production change boring, observable, reversible, and evidence-backed."
+
+release_model:
+  meaningful_change: true
+  stages:
+    - id: CI
+      requirement: "All required CI checks pass on the exact commit."
+      traffic_percent: 0
+    - id: SOAK
+      requirement: "Eligible release candidate remains unchanged for at least 24 hours after CI success."
+      traffic_percent: 0
+    - id: CANARY
+      requirement: "A separate production-equivalent green deployment exists and an external traffic controller can route exactly 10 percent of eligible traffic to it."
+      traffic_percent: 10
+    - id: PROMOTE
+      requirement: "Canary health evidence satisfies release thresholds and human release authority permits promotion."
+      traffic_percent: 100
+
+safety_invariants:
+  - "Never route traffic to an unverified build."
+  - "Never treat CI success as proof of economic success."
+  - "Never promote a canary without independent health evidence."
+  - "Rollback must be a routing change, not a rebuild."
+  - "Only one production release may be active at a time."
+  - "A failed canary blocks promotion."
+  - "A meaningful change cannot bypass the 24-hour soak."
+
+current_topology:
+  production_service: "DreamLedger1"
+  provider: "Render"
+  branch: "main"
+  current_render_mode: "single-service auto-deploy"
+  canary_traffic_controller: "NOT_IMPLEMENTED"
+  blue_green_pair: "NOT_IMPLEMENTED"
+  consequence: "90/10 production canary is BLOCKED until a traffic-splitting layer and second production-equivalent service exist."
+
+required_canary_evidence:
+  - "candidate_commit"
+  - "baseline_commit"
+  - "canary_health"
+  - "baseline_health"
+  - "request_sample"
+  - "error_rate"
+  - "latency_p95"
+  - "economic_path_smoke"
+  - "rollback_target"
+
+promotion_rule:
+  formula: "CI_PASS && SOAK_24H && CANARY_10_PERCENT && HEALTH_PASS && HUMAN_RELEASE_AUTHORITY"
+  automatic_full_promotion: false
