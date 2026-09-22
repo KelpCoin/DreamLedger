@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs'); const path=require('path');
+const root=path.resolve(__dirname,'../..');
+const contract=JSON.parse(fs.readFileSync(path.join(root,'data/domino_economic_optimization.json'),'utf8'));
+const required=['discover_intent','qualify_buyer','construct_offer','prepare_action','human_authority_gate','external_action','external_result','evidence','verify','learn','repeat'];
+for(const x of required) if(!contract.loop.includes(x)) throw new Error('missing loop stage: '+x);
+if(contract.truth.verified_external_payments!==0 || contract.truth.verified_revenue_nzd!==0) throw new Error('truth baseline must remain zero');
+if(contract.constraints.includes('no_n8n')===false) throw new Error('n8n constraint missing');
+if(contract.automation_boundary.includes('External publication')===false) throw new Error('authority boundary missing');
+console.log(JSON.stringify({schema:'dreamledger.domino-economic-optimization-verification/v1',status:'PASS',initial_cell:contract.initial_cell,next_gate:contract.next_gate},null,2));
