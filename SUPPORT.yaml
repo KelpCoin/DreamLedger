@@ -1,0 +1,32 @@
+version: "0.1.0"
+note: "Support is not optional. A digital product with no support path becomes a dispute."
+
+sla:
+  first_response:
+    window: "24 hours on business days"
+    source: "For a solo founder, 24 hours on weekdays is both realistic and genuinely customer-friendly. State it plainly, in the app and in your auto-reply, and then keep it."
+  resolution:
+    window: "3 business days for standard issues"
+    exceptions: "Refund requests are processed within 24 hours of verification"
+
+severity_tiers:
+  P0:
+    definition: "Payment failure, data loss, or complete product unavailability"
+    response: "Same day"
+    escalation: "Direct notification"
+  P1:
+    definition: "Core feature broken for multiple buyers"
+    response: "24 hours"
+    escalation: "Calendar block for same-day investigation"
+  P2:
+    definition: "Everything else — questions, clarifications, minor issues"
+    response: "24 hours standard queue"
+
+channels:
+  - id: "email"
+    address: "support@[domain]"
+    note: "The only required channel for the first 20 sales."
+  - id: "paypal_message"
+    note: "Buyers who pay via PayPal may message through PayPal. Respond within the same SLA."
+
+rule: "A missed SLA is worse than no SLA. Promise first response within one business day — the thing you control."
