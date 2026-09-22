@@ -1,5 +1,5 @@
 {
-  "version": 16,
+  "version": 17,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
@@ -10,7 +10,11 @@
       "ai_owned_guilds",
       "low_ai_count"
     ],
-    "settle_lobe": ["Stripe", "Performance Wall", "honest agent passports"],
+    "settle_lobe": [
+      "Stripe",
+      "Performance Wall",
+      "honest agent passports"
+    ],
     "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
@@ -19,24 +23,29 @@
     "stealth_ai": "docs/play/STEALTH-AI-POLICY.md",
     "build_shard": "docs/play/BUILD-PLAY-SHARD.md",
     "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-    "verified_external_revenue_nzd": 0
+    "verified_external_revenue_nzd": 0,
+    "agent_passports": "BEC-PRIME/trust/AGENT-PASSPORTS.md",
+    "ai_presence": "docs/play/AI-PRESENCE-EXPERIMENT.md"
   },
   "balls": {
     "A": "play: build shard checklist; AI parity + own guilds; stealth phase 0",
     "B": "settle: secrets + webhook",
     "C": "FIRST SALE priority for money",
     "D": "stealth AI design on main",
-    "E": "AI never commercial exhaust"
+    "E": "AI never commercial exhaust",
+    "F": "trust: agent passports + AI presence experiment contracts"
   },
   "immediate_next": [
     "Implement BUILD-PLAY-SHARD checklist on play codepaths",
     "Keep AI cap very low",
-    "Ball C demand for revenue"
+    "Ball C demand for revenue",
+    "Keep Ball C first-sale priority while implementing low-N AI presence"
   ],
   "do_not": [
     "Client-label AI in phase 0",
     "Unlimited AI spawns",
-    "AI on Stripe"
+    "AI on Stripe",
+    "Use agent passports as revenue proof or payment authority"
   ],
   "session_evidence": {
     "2026-09-22-stealth-ai-parity": "full parity + stealth + low count docs on main"
