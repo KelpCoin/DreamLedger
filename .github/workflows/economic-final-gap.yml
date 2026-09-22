@@ -1,0 +1,42 @@
+name: Economic Final Gap Gate
+
+on:
+  push:
+    branches:
+      - feat/economic-final-gap-20260921
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'BEC-PRIME/economic/**'
+      - 'BEC-PRIME/scripts/Generate-Economic-Control-Report.js'
+      - 'BEC-PRIME/package.json'
+      - 'migrations/20260921_economic_final_gap_layer.sql'
+
+jobs:
+  economic-final-gap:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax
+        run: |
+          node --check economic/CanonicalEconomicCell.js
+          node --check economic/ActionContract.js
+          node --check economic/BusinessTruth.js
+          node --check economic/EconomicFinalGap.test.js
+          node --check scripts/Generate-Economic-Control-Report.js
+      - name: Deterministic economic tests
+        run: node --test economic/EconomicFinalGap.test.js
+      - name: Assert no n8n
+        working-directory: .
+        run: |
+          if grep -RniE 'n8n|n8n\.io' BEC-PRIME economic migrations .github --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "n8n reference detected"
+            exit 1
+          fi
