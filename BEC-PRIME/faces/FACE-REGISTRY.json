@@ -1,0 +1,24 @@
+{
+  "schema": "BEC-PRIME/FACE-REGISTRY/v1",
+  "updated": "2026-09-22",
+  "principle": "A face is a compiled public surface of BEC. dreamledger.org is one face among many. Source of truth is catalog + loops + silos — not hand-edited HTML long-term.",
+  "faces": [
+    {
+      "id": "FACE-DREAMLEDGER-ORG",
+      "host": "dreamledger.org",
+      "status": "LIVE",
+      "composition": "MANUAL_LEGACY",
+      "target_composition": "COMPILER_OWNED",
+      "exposes": ["marketplace", "agent-commerce", "phin-haven-social", "billboard", "mtg"],
+      "economic_loops": ["LOOP-BILLBOARD-FOUNDING-50", "LOOP-CMD-DIAG-29"]
+    },
+    {
+      "id": "FACE-AGENT-JSON",
+      "path": "/agent-commerce.json",
+      "status": "LIVE",
+      "composition": "FILE_CANONICAL",
+      "economic_loops": ["LOOP-BILLBOARD-FOUNDING-50", "LOOP-CMD-DIAG-29"]
+    }
+  ],
+  "compiler_rule": "New faces must be generated from loop registry + silo routes; do not manually compose permanent source HTML for new commercial worlds."
+}

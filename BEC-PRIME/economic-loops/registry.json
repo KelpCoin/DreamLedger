@@ -1,0 +1,119 @@
+{
+  "schema": "BEC-PRIME/ECONOMIC-LOOP-REGISTRY/v1",
+  "updated": "2026-09-22",
+  "verified_external_revenue_nzd": 0,
+  "scale": {
+    "live_loops": 2,
+    "seeded_silo_slots": 16,
+    "candidate_pool_note": "BEC-PRIME/catalog/offers/candidates.json + products/ hold expansion mass",
+    "target_trajectory": ["tens", "hundreds", "thousands", "hundreds_of_thousands"],
+    "blocker": "external demand + approval + live settlement; not missing schema"
+  },
+  "loop_stages": [
+    "DISCOVER",
+    "OFFER",
+    "AUTHORIZE",
+    "PAY",
+    "SETTLE",
+    "FULFIL",
+    "PROOF",
+    "LEARN",
+    "RECOMPILE"
+  ],
+  "faces": [
+    {
+      "face_id": "FACE-DREAMLEDGER-ORG",
+      "url": "https://dreamledger.org/",
+      "role": "primary public commerce + play face",
+      "compiled_from": "BEC catalog + public surfaces",
+      "composition": "MANUAL_LEGACY",
+      "future": "COMPILER_OWNED",
+      "loops_exposed": ["LOOP-BILLBOARD-FOUNDING-50", "LOOP-CMD-DIAG-29"]
+    },
+    {
+      "face_id": "FACE-AGENT-COMMERCE",
+      "url": "https://dreamledger.org/agent-commerce.json",
+      "role": "machine-readable offer contract",
+      "composition": "FILE_CANONICAL",
+      "loops_exposed": ["LOOP-BILLBOARD-FOUNDING-50", "LOOP-CMD-DIAG-29"]
+    }
+  ],
+  "loops": [
+    {
+      "loop_id": "LOOP-BILLBOARD-FOUNDING-50",
+      "silo": "dreamledger",
+      "status": "LIVE_AWAITING_EXTERNAL_SETTLE",
+      "isolation": "SILO_ISOLATED",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "sku": "DL-BILLBOARD-100X100-3000-001",
+      "price_nzd": 50,
+      "currency": "NZD",
+      "payment_link": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
+      "payment_link_id": "plink_1UAN9zJt4ieIQDFzgHeso6Qo",
+      "settlement": "stripe_live_checkout_session",
+      "fulfilment": "billboard_placement_after_review",
+      "faces": ["FACE-DREAMLEDGER-ORG", "FACE-AGENT-COMMERCE"],
+      "edges": [],
+      "instances_completed": 0,
+      "verified_revenue_nzd": 0
+    },
+    {
+      "loop_id": "LOOP-CMD-DIAG-29",
+      "silo": "mtg",
+      "status": "LIVE_AWAITING_EXTERNAL_SETTLE",
+      "isolation": "SILO_ISOLATED",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "sku": "CMD-DIAG-29",
+      "price_nzd": 29,
+      "currency": "NZD",
+      "payment_link": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
+      "payment_link_id": "plink_1UAJyVJt4ieIQDFzj4kA5B7y",
+      "settlement": "stripe_live_checkout_session",
+      "fulfilment": "automated_diagnostic_report",
+      "faces": ["FACE-DREAMLEDGER-ORG", "FACE-AGENT-COMMERCE"],
+      "edges": [],
+      "instances_completed": 0,
+      "verified_revenue_nzd": 0
+    }
+  ],
+  "silo_slots": [
+    {"silo": "mtg", "status": "active", "loop_ids": ["LOOP-CMD-DIAG-29"], "expansion": "physical + digital diagnostics"},
+    {"silo": "dreamledger", "status": "active", "loop_ids": ["LOOP-BILLBOARD-FOUNDING-50"], "expansion": "canvas placements"},
+    {"silo": "dreammeez", "status": "active", "loop_ids": [], "expansion": "cosmetics + supporters; checkout exists on public catalog"},
+    {"silo": "digital-products", "status": "active", "loop_ids": [], "expansion": "kits, templates"},
+    {"silo": "media-music", "status": "active", "loop_ids": [], "expansion": "empty until approved offers"},
+    {"silo": "nz-secondhand", "status": "active", "loop_ids": [], "expansion": "empty until approved offers"},
+    {"silo": "b2b", "status": "active", "loop_ids": [], "expansion": "agentic B2B readiness packs"},
+    {"silo": "electronics-appliances", "status": "slot", "loop_ids": [], "expansion": "NZ-AU physical"},
+    {"silo": "home-garden", "status": "slot", "loop_ids": [], "expansion": "NZ-AU physical"},
+    {"silo": "health-beauty", "status": "slot", "loop_ids": [], "expansion": "NZ-AU"},
+    {"silo": "pet", "status": "slot", "loop_ids": [], "expansion": "NZ-AU"},
+    {"silo": "books-stationery", "status": "slot", "loop_ids": [], "expansion": "NZ-AU"},
+    {"silo": "sports-outdoors", "status": "slot", "loop_ids": [], "expansion": "NZ-AU"},
+    {"silo": "baby-kids", "status": "slot", "loop_ids": [], "expansion": "NZ-AU"},
+    {"silo": "automotive", "status": "slot", "loop_ids": [], "expansion": "NZ-AU"},
+    {"silo": "food-pantry", "status": "slot", "loop_ids": [], "expansion": "NZ-AU"},
+    {"silo": "education-courses", "status": "slot", "loop_ids": [], "expansion": "digital courses"}
+  ],
+  "integration_edges_planned": [
+    {
+      "from": "LOOP-BILLBOARD-FOUNDING-50",
+      "to": "dreammeez_identity",
+      "type": "optional_shared_identity",
+      "status": "NOT_LIVE"
+    },
+    {
+      "from": "LOOP-CMD-DIAG-29",
+      "to": "mtg_physical_decks",
+      "type": "upsell_same_silo",
+      "status": "NOT_LIVE"
+    }
+  ],
+  "autonomy": {
+    "system_looks_after_system": "PARTIAL",
+    "compiler_owns_new_faces": false,
+    "settlement_sync": "GitHub Actions commerce-settlement-sync",
+    "human_still_required_for": ["first external demand distribution", "billboard content review", "secret/env configuration"],
+    "do_not_claim": "self-running business without intervention — path exists; runtime autonomy incomplete"
+  }
+}

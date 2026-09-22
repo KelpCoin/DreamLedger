@@ -1,0 +1,55 @@
+{
+  "schema": "BEC-PRIME/LOOP-STUBS/v1",
+  "compiled_at": "2026-09-22T02:16:00.000Z",
+  "verified_external_revenue_nzd": 0,
+  "counts": {
+    "live": 2,
+    "approved_unregistered": 0,
+    "empty_silo_slots": 16,
+    "total_stub_rows": 18
+  },
+  "truth": {
+    "stubs_are_not_revenue": true,
+    "empty_slots_are_not_inventory": true,
+    "scale_requires_external_settlement": true
+  },
+  "loops": [
+    {
+      "loop_id": "LOOP-BILLBOARD-FOUNDING-50",
+      "source": "registry_live",
+      "silo": "dreamledger",
+      "status": "LIVE_AWAITING_EXTERNAL_SETTLE",
+      "price_nzd": 50,
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "checkout_enabled": true,
+      "verified_revenue_nzd": 0
+    },
+    {
+      "loop_id": "LOOP-CMD-DIAG-29",
+      "source": "registry_live",
+      "silo": "mtg",
+      "status": "LIVE_AWAITING_EXTERNAL_SETTLE",
+      "price_nzd": 29,
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "checkout_enabled": true,
+      "verified_revenue_nzd": 0
+    },
+    {"loop_id": "LOOP-SLOT-MTG", "source": "silo_registry", "silo": "mtg", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-DREAMMEEZ", "source": "silo_registry", "silo": "dreammeez", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-MEDIA-MUSIC", "source": "silo_registry", "silo": "media-music", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-DIGITAL-PRODUCTS", "source": "silo_registry", "silo": "digital-products", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-NZ-SECONDHAND", "source": "silo_registry", "silo": "nz-secondhand", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-B2B", "source": "silo_registry", "silo": "b2b", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-ELECTRONICS-APPLIANCES", "source": "silo_registry", "silo": "electronics-appliances", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-HOME-GARDEN", "source": "silo_registry", "silo": "home-garden", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-HEALTH-BEAUTY", "source": "silo_registry", "silo": "health-beauty", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-PET", "source": "silo_registry", "silo": "pet", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-BOOKS-STATIONERY", "source": "silo_registry", "silo": "books-stationery", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-SPORTS-OUTDOORS", "source": "silo_registry", "silo": "sports-outdoors", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-BABY-KIDS", "source": "silo_registry", "silo": "baby-kids", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-AUTOMOTIVE", "source": "silo_registry", "silo": "automotive", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-FOOD-PANTRY", "source": "silo_registry", "silo": "food-pantry", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0},
+    {"loop_id": "LOOP-SLOT-EDUCATION-COURSES", "source": "silo_registry", "silo": "education-courses", "status": "EMPTY_SLOT", "price_nzd": null, "offer_id": null, "checkout_enabled": false, "verified_revenue_nzd": 0}
+  ],
+  "content_sha256": "pending_runtime_recompile"
+}

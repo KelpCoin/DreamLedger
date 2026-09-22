@@ -1,51 +1,48 @@
 {
-  "version": 8,
+  "version": 9,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
-    "play_lobe": ["phinhaven/shallows", "phinhaven/godot/shallows", "PROOF/airgap"],
-    "settle_lobe": ["Stripe catalog", "Commerce Settlement Sync", "marketplace_settle_stripe_payment", "marketplace-diagnostic-delivery"],
+    "play_lobe": ["phinhaven/social", "phinhaven/dive"],
+    "settle_lobe": ["Stripe", "Commerce Settlement Sync", "economic-loops registry"],
     "bus": ["AGENT_BUS/", "KelpCoin/llm-supabase-github-bridge"],
-    "dam": "Evidence chain before revenue claim",
+    "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "storefront": "marketplace-v19 live — horizontal rails, 0% take-rate strip, agent discovery rail",
-    "agent_commerce": "/agent-commerce.json machine contract live",
+    "economic_loops": {
+      "registry": "BEC-PRIME/economic-loops/registry.json",
+      "live_count": 2,
+      "silo_slots": 16,
+      "faces": "BEC-PRIME/faces/FACE-REGISTRY.json",
+      "autonomy": "PARTIAL"
+    },
     "first_sale": {
-      "sku_primary": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "primary_loop": "LOOP-BILLBOARD-FOUNDING-50",
       "price_nzd": 50,
       "payment_link": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-      "status": "APPROVED_LIVEMODE",
       "verified_external_revenue_nzd": 0
-    },
-    "cmd_diag_29": {
-      "price_nzd": 29,
-      "payment_link": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
-      "status": "SECONDARY_OFFER_APPROVED"
-    },
-    "money_blocks_doc": "ops/economic/MONEY-BUILDING-BLOCKS-2026-09-22.md",
-    "share_pack": "ops/economic/SHARE-PACK-2026-09-22.md"
+    }
   },
   "balls": {
-    "A": "playable browser slice; no Floor 2 expansion before money",
-    "B": "settlement paths frozen unless demonstrated blocker",
-    "C": "FIRST SALE: external settled payment is the only revenue gate — human must distribute links",
-    "D": "bridge partial/auth-gated; handoffs are the multi-LLM continuity path",
-    "E": "human Godot gate remains"
+    "A": "play social-first; no Floor 2 before money",
+    "B": "settlement frozen unless blocker",
+    "C": "FIRST SALE still the revenue gate — loops are structure, not cash",
+    "D": "loop registry + face model on disk; expand via compiler not manual HTML",
+    "E": "human demand distribution still required this week"
   },
   "immediate_next": [
-    "Human: post SHARE-PACK tile + diagnostic on owned channels (3+).",
-    "Keep Commerce Settlement Sync ready; meter stays 0 until real external pay.",
-    "On stranger payment: fulfil same day, fossil, update balls + figure-eight.",
-    "Do not prioritise x402 or game scope before first settle."
+    "Distribute Payment Links (share pack)",
+    "On settle: fulfil, fossil, increment loop instances_completed",
+    "Register additional catalog SKUs as loops when settlement-aligned",
+    "Re-run compile-loop-stubs.js after registry changes"
   ],
   "do_not": [
-    "Count tests, self-payments, clicks, CI, bridge 401s, game activity as revenue",
-    "Expand architecture theatre instead of posting Payment Links",
-    "Claim agentic multi-LLM mesh is fully live"
+    "Claim self-running business or verified revenue without external proof",
+    "Treat empty silo slots as inventory",
+    "Cross-contaminate silo evidence"
   ],
   "session_evidence": {
-    "2026-09-22-money-blocks": "ops/economic money building blocks + share pack shipped"
+    "2026-09-22-economic-loops": "BEC-PRIME/economic-loops/* + faces registry shipped to main"
   }
 }
