@@ -1,0 +1,33 @@
+version: "0.1.0"
+note: "Compliance is scoped to the actual footprint. Not every regulation applies to every business."
+
+nz_privacy_act_2020:
+  applies: true
+  obligations:
+    - "Collect personal information for clear, lawful reasons"
+    - "Only collect what you need (data minimisation)"
+    - "Protect data with appropriate security"
+    - "Keep data only as long as necessary"
+    - "Be transparent about how data is used"
+    - "Respect access, correction, and deletion rights"
+
+nz_gst:
+  threshold: "NZ$60,000 in taxable supplies over any rolling 12-month period"
+  current_state: "Not registered. 12,000 sales at NZ$5 required."
+  action: "Register only when approaching the threshold."
+
+gdpr:
+  applies: "Conditional"
+  condition: "GDPR can apply to a NZ business if it processes personal data of people in the EU and the processing is connected to offering goods or services to individuals in the EU."
+  action: "If selling to EU buyers, align with GDPR principles. It makes the business more credible and reduces privacy complaints."
+
+au_cpr:
+  applies: "Conditional"
+  condition: "If selling to Australian buyers, ACL consumer guarantees apply."
+  action: "Refund policy already covers the base requirement."
+
+data_retention:
+  account_data: "Duration of account + 90 days"
+  billing_data: "7 years (legal obligation)"
+  support_logs: "12-24 months"
+  backups: "Overwritten within 15 days"
