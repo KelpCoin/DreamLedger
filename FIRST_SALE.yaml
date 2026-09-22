@@ -1,0 +1,30 @@
+version: "0.1.0"
+note: "The first sale is a concierge event. Every step is manual. Automation comes after the fifth sale, not before the first."
+
+pre_sale:
+  - step: "Confirm PayPal Business account (Goods & Services required)"
+  - step: "Test paypal.me/hornbag666/5 in incognito — confirm NZ$5 preset"
+  - step: "Publish doorway.html to BrewPage"
+  - step: "Confirm public URL loads and PayPal link works"
+  - step: "Write should_i_still_go_pack.txt to the product path"
+
+during_sale:
+  - step: "Receive PayPal notification"
+  - step: "Sign in to paypal.com directly"
+  - step: "Find payment in Activity"
+  - step: "Verify: transaction ID, NZ$5.00, NZD, sender, 'Completed' status"
+
+post_sale:
+  - step: "Reply to buyer's PayPal email with should_i_still_go_pack.txt attached"
+  - step: "Write ledger entry: date, transaction_id, resolver_eventregret, 5.00, buyer_email, delivered_at, proof_path"
+  - step: "Write proof file: resolver_eventregret_proof_<transaction_id>.txt"
+  - step: "Score the outcome"
+  - step: "Record in EXPERIMENTS.yaml as EXP-001 outcome"
+
+ledger_format:
+  fields: ["date", "transaction_id", "sku_id", "amount", "currency", "buyer_email", "delivered_at", "proof_path"]
+  format: "CSV, append-only"
+
+proof_format:
+  fields: ["proof_id", "timestamp_utc", "transaction_id", "sku_id", "amount", "currency", "delivered_at", "delivery_method", "verification_status"]
+  format: "Plain text, one file per sale"
