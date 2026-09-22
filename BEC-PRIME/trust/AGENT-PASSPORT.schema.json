@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BEC Agent Passport",
+  "type": "object",
+  "required": [
+    "passport_version",
+    "agent_id",
+    "issuer",
+    "status",
+    "capabilities",
+    "authority",
+    "evidence_summary"
+  ],
+  "properties": {
+    "passport_version": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string"
+    },
+    "issuer": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ACTIVE",
+        "EXPIRED",
+        "REVOKED",
+        "SUSPENDED"
+      ]
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "verification_method": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "public_key": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DECLARED",
+              "OBSERVED",
+              "VERIFIED",
+              "CONTRADICTED",
+              "EXPIRED"
+            ]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "status",
+        "scope"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "UNKNOWN",
+            "VERIFIED",
+            "EXPIRED",
+            "REVOKED"
+          ]
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "human_authority_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "evidence_summary": {
+      "type": "object",
+      "required": [
+        "execution_count",
+        "verified_execution_count",
+        "verified_settlement_count"
+      ],
+      "properties": {
+        "execution_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verified_execution_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verified_settlement_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rejected_execution_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "economic": {
+      "type": "object",
+      "properties": {
+        "verified_external_revenue_nzd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "settlement_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fulfillment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
