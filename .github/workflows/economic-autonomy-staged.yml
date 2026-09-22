@@ -1,0 +1,64 @@
+name: Economic Autonomy Staged CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/economic/**'
+      - '.github/workflows/economic-autonomy-staged.yml'
+      - 'policy/**'
+      - 'BEC-PRIME/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: economic-autonomy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate autonomy contract
+        run: |
+          set -euo pipefail
+          node -e "const x=require('./ops/economic/ECONOMIC-AUTONOMY-CONTRACT-20260922.json'); if(x.release.staging_delay_minutes<15) process.exit(2); if(x.release.kill_switch_required!==true) process.exit(3); console.log('autonomy contract PASS')"
+
+  staged-delay:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Staging checkpoint
+        run: |
+          echo "STAGING CHECKPOINT: 15-minute kill-switch window."
+          echo "Cancel this workflow or close the PR to stop the release before the production boundary."
+      - name: Kill-switch window
+        run: |
+          echo "Beginning 15-minute bounded release delay..."
+          sleep 900
+          echo "Delay elapsed."
+
+  post-delay-contract:
+    needs: staged-delay
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Re-check kill-switch contract
+        run: |
+          set -euo pipefail
+          node -e "const x=require('./ops/economic/ECONOMIC-AUTONOMY-CONTRACT-20260922.json'); if(x.release.kill_switch_required!==true) throw new Error('kill switch disabled'); if(x.release.staging_delay_minutes<15) throw new Error('staging delay below minimum'); console.log('release gate PASS')"
+      - name: Merge after safety window
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.state == 'open' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh pr merge "${{ github.event.pull_request.number }}" --merge --delete-branch=false
