@@ -1,0 +1,14 @@
+version: 1
+actions:
+  publish_offer:
+    allowed_principals: [cortex, operator]
+    required_scope: [offer:publish]
+    authority_lane: AMBER
+    spend_limit: 0
+    requires_unit: false
+  read_public_observation:
+    allowed_principals: [cortex, oracle, operator]
+    required_scope: [observation:read]
+    authority_lane: GREEN
+    spend_limit: 0
+    requires_unit: false
