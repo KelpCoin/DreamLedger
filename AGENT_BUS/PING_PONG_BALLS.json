@@ -1,45 +1,38 @@
 {
-  "version": 13,
+  "version": 14,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
     "architecture": "BEC-PRIME/architecture/FIGURE-EIGHT.md",
-    "play_lobe": ["phinhaven/social"],
-    "settle_lobe": ["Stripe", "webhook penstock", "Performance Wall", "Settlement Sync"],
-    "demand_lobe": ["Truth Oracle", "Demand Sentinel", "share pack"],
-    "bus": ["AGENT_BUS/"],
-    "dam": "Evidence before revenue claim",
     "default_fulfilment": "performance_wall",
+    "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "figure_eight": "BEC-PRIME/architecture/FIGURE-EIGHT.md",
-    "performance_wall": "BEC-PRIME/fulfillment/PERFORMANCE-WALL.md",
-    "webhook_performance": "BEC-PRIME/commerce/STRIPE-WEBHOOK-PERFORMANCE.md",
-    "wall_impl": "BEC-PRIME/fulfillment/performance_wall.py",
+    "blockers_full": "ops/autonomy/BLOCKERS-AUTONOMOUS-REVENUE-ENGINE.md",
+    "blockers_top": "ops/autonomy/TOP-BLOCKERS.md",
     "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
     "income_now": "ops/money/INCOME-NOW.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "play social-first; no Floor 2 before money",
-    "B": "settlement + webhook ready",
-    "C": "FIRST SALE — demand pulse; wall fulfils digital by default",
-    "D": "figure-eight + performance wall on main",
-    "E": "specialized arms only when registry requires"
+    "A": "play social-first",
+    "B": "secrets + webhook",
+    "C": "FIRST SALE — demand; blocker #250 is the atom",
+    "D": "250 blockers on main for multi-LLM continuity",
+    "E": "do not expand architecture past Ball C"
   },
   "immediate_next": [
-    "Post Payment Link (Ball C demand)",
-    "Wire production webhook → wall mint for digital SKUs",
-    "Keep billboard on specialized allocation path",
-    "On pay: claim cubby + Settlement Sync + fossil"
+    "Post Payment Link",
+    "Prove Settlement Sync + webhook E2E",
+    "On pay: wall/special fulfil + fossil"
   ],
   "do_not": [
-    "Build bespoke fulfilment for every SKU",
-    "Treat wall claim as verified revenue without fossil",
-    "Leave architecture only in chat"
+    "Claim autonomous revenue engine",
+    "Treat docs as demand",
+    "Skip GitHub writes"
   ],
   "session_evidence": {
-    "2026-09-22-figure-eight-wall": "FIGURE-EIGHT.md + PERFORMANCE-WALL + webhook notes + performance_wall.py on main"
+    "2026-09-22-blockers-250": "ops/autonomy/BLOCKERS-AUTONOMOUS-REVENUE-ENGINE.md on main"
   }
 }
