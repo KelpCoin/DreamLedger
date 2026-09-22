@@ -1,0 +1,30 @@
+version: "0.1.0"
+note: "Your refund policy is your first line of defence. It must be visible to the user before purchase."
+
+policy:
+  window: "14 days from purchase"
+  condition: "No questions asked for digital products where the file has been downloaded. 7-14 days is the recommendation."
+  method: "Refund to the original payment method only"
+  processing: "Within 24 hours of request verification"
+
+digital_product_specifics:
+  can_be_returned: false
+  note: "Digital products cannot be 'returned'. Offer a trial or free sample instead."
+  copy_specific: "Offer a full refund within the first 7-14 days no questions asked. This builds trust and reduces disputes."
+
+dispute_rule:
+  voluntary_refund_cost: "0"
+  chargeback_cost: "$15 Stripe fee, not refundable even if you win"
+  golden_rule: "If a customer is unsatisfied, refund them yourself before the customer disputes. A voluntary refund costs $0; a chargeback costs $15 and risks your account."
+
+paypal_specifics:
+  seller_protection: "Digital goods are not covered under PayPal Seller Protection."
+  documentation_required: "Proof of shipment or delivery means compelling evidence to show the item was delivered or the purchase order was fulfilled."
+  response_window: "PayPal chargeback time limit generally gives you 10 days to respond to disputes."
+
+evidence_required:
+  - "payment_confirmation"
+  - "delivery_confirmation"
+  - "product_description_shown_at_checkout"
+  - "refund_policy_disclosure"
+  - "customer_communication_history"
