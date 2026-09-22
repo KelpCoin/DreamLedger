@@ -1,0 +1,37 @@
+name: Economic Superintendent
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '07,22,37,52 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: economic-superintendent
+  cancel-in-progress: true
+
+jobs:
+  supervise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run superintendent
+        env:
+          BEC_AVAILABLE_CAPITAL_NZD: "0"
+        run: node autonomy/EconomicSuperintendent.js
+      - name: Verify superintendent
+        run: node --test autonomy/EconomicSuperintendent.test.js
+      - name: Upload superintendent proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-superintendent-${{ github.run_id }}
+          path: |
+            BEC-PRIME/autonomy/SUPERINTENDENT-STATE.json
+            BEC-PRIME/autonomy/PROOFS/SUPERINTENDENT-LATEST.json
+            BEC-PRIME/autonomy/QUEUE/ESCALATIONS/
