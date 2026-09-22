@@ -1,0 +1,22 @@
+{
+  "schema":"dreamledger.arbitrage-cell/v1",
+  "cell_id":"VINYL-ARBITRAGE-NZ-001",
+  "name":"Vinyl Holy Grail Finder",
+  "status":"DISCOVERY_READY",
+  "objective":"Find genuinely underpriced or hard-to-find vinyl relative to a user's exact target and verified market evidence, then turn successful discovery into a paid sourcing service.",
+  "primary_users":["Biggie","Peggy"],
+  "commercial_offer":{"sku":"VINYL-HOLY-GRAIL-FINDER-001","working_price_nzd":19,"promise":"A ranked shortlist of real vinyl listings matching your target, with edition clues, asking price, shipping, source, comparable evidence and estimated buy-worthiness.","fulfilment":"Digital shortlist; no purchase is made on the customer's behalf without explicit authorization."},
+  "sources":[
+    {"name":"Trade Me","surface":"NZ vinyl marketplace","mode":"public_search","current_signal":"large live LP inventory","evidence":"web-verified 2026-09-22"},
+    {"name":"Discogs","surface":"record database/marketplace","mode":"planned_reference","status":"NOT_YET_CONNECTED"},
+    {"name":"eBay","surface":"international marketplace","mode":"planned_reference","status":"NOT_YET_CONNECTED"}
+  ],
+  "ranking":["exact_release_match","edition_rarity","asking_price","shipping_cost","condition","seller_quality","market_comparables","distance_or_import_cost","time_sensitivity"],
+  "states":["CANDIDATE","QUALIFIED","BUY-WORTHY","REJECTED","STALE","PURCHASED_BY_USER","VERIFIED_FIND"],
+  "truth_rules":["asking_price_is_not_market_value","listing_is_not_sale","candidate_is_not_arbitrage","user_purchase_is_external_event","never_claim_savings_without_comparable_evidence"],
+  "automation":["target parsing","listing discovery","edition/entity matching","price normalization","shipping normalization","duplicate detection","staleness detection","ranking","alert preparation","report generation"],
+  "approval_gates":["buying a record","contacting seller","placing bids","external outreach","spending money"],
+  "service_expansion":["custom holy-grail watchlists","daily/weekly alerts","NZ-only sourcing","global sourcing","collection gap analysis","estate/collection lot triage","dealer inventory scans","sell-side mispricing detection"],
+  "kill_rule":"Do not scale the service until at least one real user independently confirms a useful find and the economics of fulfilment are recorded.",
+  "next_action":"Build target schema + scanner/parser + evidence report against public NZ vinyl listings."
+}
