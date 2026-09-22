@@ -1,0 +1,56 @@
+name: Economic Autonomy Release Controller
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  staged-merge:
+    if: github.repository == 'KelpCoin/DreamLedger'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Find staged autonomy PR
+        id: find
+        env:
+          GH_TOKEN: ${ github.token }
+        run: |
+          set -euo pipefail
+          PR=$(gh pr list --repo KelpCoin/DreamLedger --state open --head autonomy/20260922-economic-loop --json number,createdAt --jq '.[0] // empty')
+          if [ -z "$PR" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          NUMBER=$(echo "$PR" | jq -r '.number')
+          CREATED=$(echo "$PR" | jq -r '.createdAt')
+          NOW=$(date -u +%s)
+          CREATED_TS=$(date -u -d "$CREATED" +%s)
+          AGE=$((NOW-CREATED_TS))
+          echo "PR #$NUMBER age=$AGE seconds"
+          if [ "$AGE" -lt 900 ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+          echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Merge after 15-minute kill-switch window
+        if: steps.find.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${ github.token }
+        run: |
+          set -euo pipefail
+          NUMBER="${ steps.find.outputs.number }"
+          STATE=$(gh pr view "$NUMBER" --repo KelpCoin/DreamLedger --json state --jq '.state')
+          if [ "$STATE" != "OPEN" ]; then
+            echo "PR is no longer open. Kill switch/closure respected."
+            exit 0
+          fi
+          gh pr merge "$NUMBER" --repo KelpCoin/DreamLedger --merge --delete-branch=false
