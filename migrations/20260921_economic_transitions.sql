@@ -11,7 +11,8 @@ create table if not exists economic_transitions (
   checkpoint_id   text,
   created_at      timestamptz not null default now(),
   executed_at     timestamptz,
-  verified_at     timestamptz
+  verified_at     timestamptz,
+  idempotency_key  text not null
 );
 
 create index on economic_transitions (offer_id, created_at desc);
