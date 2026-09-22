@@ -48,10 +48,11 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
     if not passed:
         db.execute(
             """insert into economic_transitions
-               (transition_id, offer_id, from_state, to_state, outcome, reason, created_at)
-               values (%s, %s, %s, %s, 'REJECTED', %s, %s)""",
+               (transition_id, offer_id, from_state, to_state, outcome, reason, idempotency_key, created_at)
+               values (%s, %s, %s, %s, 'REJECTED', %s, %s, %s)""",
             (tid, offer["id"], policy["from_state"], policy["to_state"],
              json.dumps({"failed_preconditions": failures}),
+             idempotency_key(tid),
              datetime.now(timezone.utc)),
         )
         return {"outcome": "REJECTED", "transition_id": tid, "failed": failures}
@@ -59,9 +60,10 @@ def attempt_transition(offer: dict, policy_name: str, db) -> dict:
     if policy["authority_lane"] == "AMBER":
         db.execute(
             """insert into economic_transitions
-               (transition_id, offer_id, from_state, to_state, outcome, created_at)
-               values (%s, %s, %s, %s, 'AWAITING_AUTHORIZATION', %s)""",
+               (transition_id, offer_id, from_state, to_state, outcome, idempotency_key, created_at)
+               values (%s, %s, %s, %s, 'AWAITING_AUTHORIZATION', %s, %s)""",
             (tid, offer["id"], policy["from_state"], policy["to_state"],
+             idempotency_key(tid),
              datetime.now(timezone.utc)),
         )
         return {"outcome": "AWAITING_AUTHORIZATION", "transition_id": tid}
