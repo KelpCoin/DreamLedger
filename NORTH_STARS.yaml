@@ -1,0 +1,12 @@
+version: "1.0.0"
+locked_at: "2026-09-22"
+immutable: true
+
+stars:
+  NS1: "Every action produces evidence."
+  NS2: "Every paid event is independently verified."
+  NS3: "Human minutes per verified event decrease."
+  NS4: "Replication requires two independent verified settlements."
+  NS5: "Local-first intelligence, cloud fallback when justified."
+  NS6: "No new architecture before 20 verified paid events."
+  NS7: "The factory must be economically self-funding."
