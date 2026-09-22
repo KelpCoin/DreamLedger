@@ -48,3 +48,5 @@ def test_preconditions_pass_when_complete():
     passed, failures = evaluate_preconditions(policy, offer)
     assert passed
     assert failures == []
+
+# governed-transition-test-hook
