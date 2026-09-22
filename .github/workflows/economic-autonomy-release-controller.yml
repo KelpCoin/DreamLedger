@@ -18,7 +18,7 @@ jobs:
       - name: Find staged autonomy PR
         id: find
         env:
-          GH_TOKEN: ${ github.token }
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           PR=$(gh pr list --repo KelpCoin/DreamLedger --state open --head autonomy/20260922-economic-loop --json number,createdAt --jq '.[0] // empty')
@@ -42,12 +42,12 @@ jobs:
           echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Merge after 15-minute kill-switch window
-        if: steps.find.outputs.ready == 'true'
+        if: ${{ steps.find.outputs.ready == 'true' }}
         env:
-          GH_TOKEN: ${ github.token }
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          NUMBER="${ steps.find.outputs.number }"
+          NUMBER="${{ steps.find.outputs.number }}"
           STATE=$(gh pr view "$NUMBER" --repo KelpCoin/DreamLedger --json state --jq '.state')
           if [ "$STATE" != "OPEN" ]; then
             echo "PR is no longer open. Kill switch/closure respected."
