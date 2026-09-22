@@ -1,47 +1,41 @@
 {
-  "version": 10,
+  "version": 11,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
     "play_lobe": ["phinhaven/social"],
-    "settle_lobe": ["Stripe", "Settlement Sync", "economic-loops"],
-    "demand_lobe": ["Truth Oracle", "Demand Sentinel", "Intent-to-Pay Sentinel"],
-    "bus": ["AGENT_BUS/", "BEC-PRIME/"],
+    "settle_lobe": ["Stripe", "Settlement Sync", "THREAD-FIRST-SALE checkpoints"],
+    "demand_lobe": ["Truth Oracle", "Demand Sentinel", "share pack"],
+    "bus": ["AGENT_BUS/", "BEC-PRIME/persistence/"],
     "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "north_star": "BEC-PRIME/NORTH-STAR.md",
-    "sentinels": {
-      "demand": "BEC-PRIME/sentinels/DEMAND-SENTINEL.md",
-      "intent_to_pay": "BEC-PRIME/sentinels/INTENT-TO-PAY-SENTINEL.md",
-      "corroboration": "BEC-PRIME/sentinels/corroboration.js"
-    },
-    "truth_oracle": "BEC-PRIME/truth-oracle/NORTH-STAR.md",
-    "compiler": "BEC-PRIME/compiler/ARCHITECTURE.md",
-    "settlement_logic": "BEC-PRIME/economic-loops/SETTLEMENT-LOGIC.md",
-    "live_loops": 2,
+    "langgraph_persistence": "BEC-PRIME/persistence/LANGGRAPH-CHECKPOINT-STRATEGY.md",
+    "airgap_checkpointer": "BEC-PRIME/persistence/checkpoint_store.py",
+    "first_sale_thread": "ops/money/run_first_sale_thread.py",
+    "income_now": "ops/money/INCOME-NOW.md",
+    "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
     "A": "play social-first",
-    "B": "settlement paths frozen unless blocker",
-    "C": "FIRST SALE remains the revenue gate",
-    "D": "Sentinels + Oracle funnel on disk; wire feeds when connected",
-    "E": "compiler architecture documented; manual face is legacy"
+    "B": "settlement paths ready",
+    "C": "FIRST SALE — checkpointed thread; human demand pulse required",
+    "D": "LangGraph-style SQLite persistence on disk; optional real LangGraph later",
+    "E": "no FOSSIL_SEALED without proof note"
   },
   "immediate_next": [
-    "Wire DemandNotes from Oracle/analytics when online",
-    "Wire IntentNotes from checkout open/abandon (not paid)",
-    "Keep paid path exclusive to Settlement Sync",
-    "Human: distribute share pack for first external settle"
+    "Run Run-FirstSaleThread.ps1 boot/next through disk stages",
+    "Operator: secrets + webhook + post Payment Link",
+    "On pay: Settlement Sync → fulfil → fossil → advance sealed stages"
   ],
   "do_not": [
-    "Treat sentinel scores as revenue",
-    "Claim self-running millions before external loops close",
-    "Pollute silos or invent inventory"
+    "Treat checkpoints as revenue",
+    "Expand architecture before first external settle",
+    "Commit Stripe secrets"
   ],
   "session_evidence": {
-    "2026-09-22-sentinels-oracle": "Demand + Intent sentinels, Oracle north star, compiler + settlement logic on main"
+    "2026-09-22-langgraph-persistence": "checkpoint store + first-sale thread shipped to main"
   }
 }
