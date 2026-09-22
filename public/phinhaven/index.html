@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PhinHaven · Town</title>
+<style>
+:root{--bg:#080b10;--panel:#111720;--line:#2b3440;--ink:#f4f1e8;--muted:#8f99a8;--gold:#d8b15a;--green:#70d69a;--blue:#7ca9ff}
+*{box-sizing:border-box}body{margin:0;background:#080b10;color:var(--ink);font:14px/1.4 Inter,system-ui,sans-serif}a{color:inherit}.nav{height:54px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;background:#080b10ee;z-index:5}.brand{font-size:12px;font-weight:950;letter-spacing:.13em}.brand b{color:var(--gold)}.nav a{font-size:10px;color:var(--muted);text-decoration:none;margin-left:12px;font-weight:900}.wrap{max-width:900px;margin:auto;padding:14px}.game{position:relative;display:grid;grid-template-columns:1fr 250px;gap:12px}.world{position:relative;min-height:650px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:linear-gradient(#26334a,#17242a 48%,#163124)}.sky{position:absolute;inset:0;background:radial-gradient(circle at 70% 14%,#f5d98a55,transparent 16%),linear-gradient(#293955 0 38%,#28453e 38% 100%)}.road{position:absolute;left:0;right:0;top:53%;height:170px;background:#6d6357;transform:skewY(-4deg)}.road:after{content:'';position:absolute;left:0;right:0;top:50%;border-top:3px dashed #d8c7a4aa}.plaza{position:absolute;left:12%;top:19%;width:58%;height:45%;border:3px solid #8d7b60;background:#a99879;border-radius:50%;box-shadow:inset 0 0 0 12px #b8aa8f55}.fountain{position:absolute;left:43%;top:37%;width:74px;height:74px;border-radius:50%;background:#557c91;border:7px solid #c7b996;box-shadow:0 0 0 5px #746a59}.house{position:absolute;width:120px;height:100px;background:#b87857;border:3px solid #392b29;border-radius:8px;box-shadow:0 8px 0 #392b2940}.house:before{content:'';position:absolute;left:-12px;top:-55px;border-left:72px solid transparent;border-right:72px solid transparent;border-bottom:58px solid #3b3036}.house:after{content:'SHOP';position:absolute;left:37px;bottom:12px;color:#f8e9c6;font-size:9px;font-weight:950}.h1{left:5%;top:8%}.h2{right:5%;top:14%;background:#6f6a99}.h2:after{content:'GUILD';left:39px}.tree{position:absolute;width:42px;height:75px}.tree:before{content:'';position:absolute;bottom:0;left:18px;width:7px;height:32px;background:#5b4433}.tree:after{content:'';position:absolute;top:0;left:0;width:42px;height:48px;border-radius:50%;background:#397454;box-shadow:0 10px 0 #315e45}.t1{left:9%;top:64%}.t2{right:9%;top:60%}.farm{position:absolute;right:7%;bottom:9%;width:170px;height:125px;border:3px solid #66533c;background:#725b3d;transform:rotate(-3deg)}.farm i{display:block;width:35px;height:35px;float:left;border:2px solid #8b754f;background:#5d824d;margin:7px}.player{position:absolute;left:48%;top:51%;width:34px;height:58px;transform:translate(-50%,-50%);transition:.08s;z-index:3}.phead{width:28px;height:30px;border-radius:48%;background:#e4b08f;border:2px solid #111820;margin:auto;position:relative;z-index:2}.pbody{width:34px;height:30px;background:#242a3b;border:2px solid #111820;border-radius:10px 10px 6px 6px;margin-top:-2px}.pbody:after{content:'✦';color:var(--gold);font-size:10px;position:absolute;margin:8px 0 0 11px}.name{position:absolute;top:-19px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#080b10dd;border:1px solid #ffffff22;border-radius:999px;padding:2px 7px;color:#fff;font-size:9px;font-weight:900}.hotspot{position:absolute;border:2px solid #ffffff66;background:#ffffff10;border-radius:12px;padding:6px 9px;font-size:9px;font-weight:950;cursor:pointer}.hotspot:hover{border-color:var(--gold);background:#d8b15a22}.status{margin-top:8px;min-height:36px;color:var(--muted);font-size:11px}.panel{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;height:max-content}.panel h2{font-size:18px;margin:0 0 5px}.panel p{color:var(--muted);font-size:11px}.stat{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:9px 0;font-size:11px}.stat b{color:var(--gold)}button{width:100%;min-height:42px;margin-top:8px;border-radius:10px;border:1px solid var(--line);background:#0b0f15;color:#fff;font-weight:900;cursor:pointer}button.primary{background:var(--gold);color:#080b10;border-color:var(--gold)}.chat{margin-top:12px}.bubble{background:#0b0f15;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:6px;font-size:10px}.bubble b{color:var(--green)}@media(max-width:760px){.game{grid-template-columns:1fr}.world{min-height:560px}.panel{order:-1}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="brand">PHINHAVEN <b>TOWN</b></div><div><a href="/avatar.html">DREAMMEEZ</a><a href="/">DREAMLEDGER</a></div></header>
+<div class="wrap"><div class="game">
+<section class="world" id="world" aria-label="PhinHaven social town">
+<div class="sky"></div><div class="road"></div><div class="plaza"></div><div class="fountain"></div>
+<div class="house h1"></div><div class="house h2"></div><div class="tree t1"></div><div class="tree t2"></div>
+<div class="farm" id="farm"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<button class="hotspot" style="left:18%;top:43%" data-msg="The plaza is the social hub.">PLAZA</button>
+<button class="hotspot" style="left:73%;top:35%" data-msg="Guild territory starts here.">GUILD HALL</button>
+<button class="hotspot" style="right:13%;bottom:27%" data-msg="Farming and gathering live here first.">FARM</button>
+<div class="player" id="player"><div class="name" id="name">Wanderer</div><div class="phead"></div><div class="pbody"></div></div>
+</section>
+<aside class="panel"><h2>PhinHaven</h2><p>The smallest playable slice: a persistent social town. Walk, meet, decorate, gather, trade identity.</p>
+<div class="stat"><span>World</span><b>Town 1</b></div><div class="stat"><span>Identity</span><b id="identity">Wanderer</b></div><div class="stat"><span>Depth</span><b>Social</b></div>
+<button class="primary" id="avatarBtn">Open DreamMeez</button><button id="farmBtn">Harvest</button>
+<div class="chat"><div class="bubble"><b>Town notice</b><br>Guilds will eventually shape territory.</div><div class="bubble"><b>Adapter</b><br>DreamMeez cosmetics are designed to become in-game items.</div></div><div class="status" id="status">Tap the world to move. Arrow keys / WASD also work.</div></aside>
+</div></div>
+<script>
+(function(){
+var p=document.getElementById('player'), world=document.getElementById('world'), status=document.getElementById('status'), nameEl=document.getElementById('name'), identity=document.getElementById('identity');
+var pos={x:48,y:51}, key='phinhaven_town_v1';
+try{var s=JSON.parse(localStorage.getItem(key)||'null');if(s&&s.x)pos=s}catch(e){}
+try{var link=JSON.parse(localStorage.getItem('phinhaven_avatar_link_v1')||'null');if(link&&link.name){nameEl.textContent=link.name;identity.textContent=link.name}}catch(e){}
+function draw(){p.style.left=pos.x+'%';p.style.top=pos.y+'%';try{localStorage.setItem(key,JSON.stringify(pos))}catch(e){}}
+function move(dx,dy){pos.x=Math.max(4,Math.min(96,pos.x+dx));pos.y=Math.max(8,Math.min(92,pos.y+dy));draw();status.textContent='Exploring Town 1. Your position persists locally.'}
+world.addEventListener('click',function(e){if(e.target.classList.contains('hotspot')){status.textContent=e.target.getAttribute('data-msg');return}var r=world.getBoundingClientRect();pos.x=((e.clientX-r.left)/r.width)*100;pos.y=((e.clientY-r.top)/r.height)*100;draw();status.textContent='Moved through Town 1.'});
+document.addEventListener('keydown',function(e){var m={ArrowUp:[0,-3],ArrowDown:[0,3],ArrowLeft:[-3,0],ArrowRight:[3,0],w:[0,-3],s:[0,3],a:[-3,0],d:[3,0]}[e.key];if(m){e.preventDefault();move(m[0],m[1])}});
+document.getElementById('avatarBtn').onclick=function(){location.href='/avatar.html'};
+document.getElementById('farmBtn').onclick=function(){var n=Number(localStorage.getItem('phinhaven_harvest_v1')||0)+1;localStorage.setItem('phinhaven_harvest_v1',String(n));status.textContent='Harvest recorded: '+n+'. This is the seed of the farming/inventory layer.'};
+draw();
+})();
+</script>
+</body>
+</html>
