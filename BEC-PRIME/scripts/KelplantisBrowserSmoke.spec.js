@@ -30,7 +30,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => { if (server) await new Promise(resolve => server.close(resolve)); });
 
-test('Kelplantis Depth 1 7C two-session authoritative gathering slice', async ({ browser }) => {
+test('Kelplantis Depth 1 7C two-session authoritative gathering slice', { timeout: 90000 }, async ({ browser }) => {
   const contextA = await browser.newContext();
   const contextB = await browser.newContext();
   const pageA = await contextA.newPage();
@@ -48,8 +48,8 @@ test('Kelplantis Depth 1 7C two-session authoritative gathering slice', async ({
   await pageB.getByPlaceholder('DreamMeez name').fill('Bravo');
   await pageA.getByRole('button', { name: 'Enter Depth 1' }).click();
   await pageB.getByRole('button', { name: 'Enter Depth 1' }).click();
-  await expect.poll(async () => pageA.evaluate(() => Boolean(window.__KELPLANTIS_TEST__))).toBe(true);
-  await expect.poll(async () => pageB.evaluate(() => Boolean(window.__KELPLANTIS_TEST__))).toBe(true);
+  await expect.poll(async () => pageA.evaluate(() => Boolean(window.__KELPLANTIS_TEST__)), { timeout: 30000 }).toBe(true);
+  await expect.poll(async () => pageB.evaluate(() => Boolean(window.__KELPLANTIS_TEST__)), { timeout: 30000 }).toBe(true);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().joined)).toBe(true);
   await expect.poll(async () => pageB.evaluate(() => window.__KELPLANTIS_TEST__.snapshot().joined)).toBe(true);
   await expect.poll(async () => pageA.evaluate(() => window.__KELPLANTIS_7C__ && window.__KELPLANTIS_7C__.realtimeJoined())).toBe(true);

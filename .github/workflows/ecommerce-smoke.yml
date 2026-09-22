@@ -32,12 +32,12 @@ jobs:
           test -s billboard.html
           test -s avatar.html
           test -s server.js
-          grep -qi 'AVATAR ACCESSORIES' index.html
-          grep -qi 'DIGITAL BILLBOARDS' index.html
-          grep -qi 'Make your avatar yours' index.html
-          grep -qi 'Put your message on a billboard' index.html
-          grep -q 'href="/avatar"' index.html
+          grep -qi 'Swipe the shelves' index.html
+          grep -qi 'Pay the list price' index.html
+          grep -qi 'Live Stripe' index.html
+          grep -qi 'Agent-readable catalog' index.html
           grep -q 'href="/billboard"' index.html
+          grep -q 'href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001"' index.html
           ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' index.html billboard.html avatar.html server.js
           echo 'SOURCE_STOREFRONT=PASS'
 

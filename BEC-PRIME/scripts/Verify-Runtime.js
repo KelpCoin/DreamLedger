@@ -10,6 +10,9 @@ const { listJobs } = require('../runtime/worker-pool');
 const repo = path.resolve(__dirname, '..', '..');
 const proofDir = path.join(repo, 'RUN-PROOFS');
 const proofPath = path.join(proofDir, 'STAGE-1-LOGIC-GATE.json');
+const rootRepo = path.resolve(repo, '..');
+const rootProofDir = path.join(rootRepo, 'RUN-PROOFS');
+const rootProofPath = path.join(rootProofDir, 'STAGE-1-LOGIC-GATE.json');
 
 const ledger = verifyChain();
 const fossils = verifyFossils();
@@ -19,32 +22,13 @@ const lifecycleComplete = eventCount >= 7 && Boolean(ledgerHeadHash);
 const status = ledger.status === 'PASS' && fossils.status === 'PASS' && lifecycleComplete ? 'PASS' : 'FAIL';
 
 const report = {
-  schema_version: 'BEC-STAGE-1-LOGIC-GATE-1.0',
-  checked_at: new Date().toISOString(),
-  status,
-  gate: 'STAGE_1_LOGIC_GATE',
-  mode: 'SIMULATION',
-  verification_scope: 'runtime-ledger-and-fossil-integrity',
-  lifecycle_required_events: 7,
-  lifecycle_complete: lifecycleComplete,
-  event_count: eventCount,
-  ledger_head_hash: ledgerHeadHash,
-  ledger: ledger,
-  fossils: fossils,
-  workers: advertisedWorkers().workers.map(w => ({
-    worker_id: w.worker_id,
-    availability: w.availability,
-    trust_level: w.trust_level,
-    models: w.models,
-    permissions: w.permissions
-  })),
-  queue: { jobs: listJobs().length },
-  paths: { events: EVENTS_FILE, fossils: FOSSIL_FILE },
-  revenue_claimed: false,
-  ra_000001_authorized: false
+  schema_version: 'BEC-STAGE-1-LOGIC-GATE-1.0', checked_at: new Date().toISOString(), status,
+  gate: 'STAGE_1_LOGIC_GATE', mode: 'SIMULATION', verification_scope: 'runtime-ledger-and-fossil-integrity',
+  lifecycle_required_events: 7, lifecycle_complete: lifecycleComplete, event_count: eventCount,
+  ledger_head_hash: ledgerHeadHash, ledger, fossils,
+  workers: advertisedWorkers().workers.map(w => ({worker_id:w.worker_id,availability:w.availability,trust_level:w.trust_level,models:w.models,permissions:w.permissions})),
+  queue: {jobs:listJobs().length}, paths:{events:EVENTS_FILE,fossils:FOSSIL_FILE}, revenue_claimed:false, ra_000001_authorized:false
 };
-
-fs.mkdirSync(proofDir, { recursive: true });
-fs.writeFileSync(proofPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
-console.log(JSON.stringify(report, null, 2));
-if (status !== 'PASS') process.exitCode = 1;
+fs.mkdirSync(proofDir,{recursive:true}); fs.mkdirSync(rootProofDir,{recursive:true});
+const proofJson=JSON.stringify(report,null,2)+'\n'; fs.writeFileSync(proofPath,proofJson,'utf8'); fs.writeFileSync(rootProofPath,proofJson,'utf8');
+console.log(JSON.stringify(report,null,2)); if(status!=='PASS') process.exitCode=1;

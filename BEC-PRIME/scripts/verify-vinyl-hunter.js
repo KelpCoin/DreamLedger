@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..','..');
+const contract=JSON.parse(fs.readFileSync(path.join(root,'data/vinyl_hunter.json'),'utf8'));
+const route=fs.readFileSync(path.join(root,'BEC-PRIME/routes/vinylHunter.js'),'utf8');
+const page=fs.readFileSync(path.join(root,'public/vinyl-hunter.html'),'utf8');
+for(const k of ['schema','cold_start_policy','economics','truth_states','authority'])if(!contract[k])throw new Error('missing contract field '+k);
+for(const s of ['BUY_CANDIDATE','landed_cost_nzd','external_purchase_executed'])if(!route.includes(s))throw new Error('missing route invariant '+s);
+for(const s of ['Vinyl Grail Hunter','NZ$29','asking price, not a completed sale'])if(!page.includes(s))throw new Error('missing public contract text '+s);
+console.log(JSON.stringify({schema:'dreamledger.vinyl-hunter-verification/v1',status:'PASS',checkout_open:false,external_purchase_executed:false,verified_revenue_nzd:0}));

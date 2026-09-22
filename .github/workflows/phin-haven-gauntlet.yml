@@ -64,4 +64,4 @@ jobs:
         run: |
           set -euo pipefail
           test -d supabase/migrations
-          grep -Rli 'canonicalize_phin_haven_table_names' supabase/migrations >/dev/null
+          grep -Rli 'rename to phinhaven_%I' supabase/migrations >/dev/null

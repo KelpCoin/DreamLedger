@@ -1,0 +1,189 @@
+{
+  "schema": "dreamledger.silo-catalog/v1",
+  "template": "mtg",
+  "tiers": {
+    "FREE": {
+      "signal_lag": "coarse",
+      "alerts": "limited"
+    },
+    "PAID": {
+      "signal_lag": "priority",
+      "alerts": "full"
+    },
+    "PREMIUM": {
+      "signal_lag": "priority",
+      "alerts": "full_plus_early"
+    }
+  },
+  "silos": [
+    {
+      "id": "vinyl",
+      "name": "Vinyl records",
+      "template": "mtg",
+      "fields": [
+        "release",
+        "pressing",
+        "condition",
+        "price",
+        "shipping"
+      ]
+    },
+    {
+      "id": "mtg",
+      "name": "Magic: The Gathering",
+      "template": "mtg",
+      "fields": [
+        "set",
+        "edition",
+        "condition",
+        "price",
+        "language",
+        "foil"
+      ]
+    },
+    {
+      "id": "books",
+      "name": "Books & editions",
+      "template": "mtg",
+      "fields": [
+        "ISBN",
+        "edition",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "comics",
+      "name": "Comics",
+      "template": "mtg",
+      "fields": [
+        "issue",
+        "variant",
+        "grade",
+        "price"
+      ]
+    },
+    {
+      "id": "games",
+      "name": "Video games",
+      "template": "mtg",
+      "fields": [
+        "platform",
+        "region",
+        "edition",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "cameras",
+      "name": "Cameras & lenses",
+      "template": "mtg",
+      "fields": [
+        "model",
+        "mount",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "audio",
+      "name": "Hi-fi & audio",
+      "template": "mtg",
+      "fields": [
+        "model",
+        "condition",
+        "price",
+        "compatibility"
+      ]
+    },
+    {
+      "id": "instruments",
+      "name": "Musical instruments",
+      "template": "mtg",
+      "fields": [
+        "model",
+        "condition",
+        "price",
+        "location"
+      ]
+    },
+    {
+      "id": "sneakers",
+      "name": "Sneakers",
+      "template": "mtg",
+      "fields": [
+        "model",
+        "size",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "watches",
+      "name": "Watches",
+      "template": "mtg",
+      "fields": [
+        "reference",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "film",
+      "name": "Film & photography",
+      "template": "mtg",
+      "fields": [
+        "format",
+        "stock",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "lego",
+      "name": "LEGO",
+      "template": "mtg",
+      "fields": [
+        "set",
+        "completeness",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "toys",
+      "name": "Collectible toys",
+      "template": "mtg",
+      "fields": [
+        "series",
+        "variant",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "sports-cards",
+      "name": "Sports cards",
+      "template": "mtg",
+      "fields": [
+        "player",
+        "set",
+        "grade",
+        "condition",
+        "price"
+      ]
+    },
+    {
+      "id": "art-prints",
+      "name": "Art & prints",
+      "template": "mtg",
+      "fields": [
+        "artist",
+        "edition",
+        "condition",
+        "price"
+      ]
+    }
+  ]
+}

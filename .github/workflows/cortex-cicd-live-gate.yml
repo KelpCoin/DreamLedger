@@ -120,10 +120,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p BEC-PRIME/RUN-PROOFS
+          mkdir -p RUN-PROOFS
           python3 - <<'PY'
           import json, os, time
-          with open('BEC-PRIME/RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f:
+          with open('RUN-PROOFS/STAGE-1-LOGIC-GATE.json', encoding='utf-8') as f:
               stage1 = json.load(f)
           data = {
               'status': 'PASS', 'gate': 'CORTEX_CI', 'release_sha': os.environ['RELEASE_SHA'],
@@ -135,7 +135,7 @@ jobs:
               'public_actions': 'approval-required', 'financial_actions': 'approval-required',
               'ra_000001_authorized': False, 'revenue_claimed': False
           }
-          with open('BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json', 'w', encoding='utf-8') as f:
+          with open('RUN-PROOFS/CORTEX-CI-PROOF.json', 'w', encoding='utf-8') as f:
               json.dump(data, f, indent=2)
           print(json.dumps(data, indent=2))
           PY
@@ -144,8 +144,8 @@ jobs:
         with:
           name: cortex-ci-proof-${{ steps.release.outputs.sha }}
           path: |
-            BEC-PRIME/RUN-PROOFS/CORTEX-CI-PROOF.json
-            BEC-PRIME/RUN-PROOFS/STAGE-1-LOGIC-GATE.json
+            RUN-PROOFS/CORTEX-CI-PROOF.json
+            RUN-PROOFS/STAGE-1-LOGIC-GATE.json
           if-no-files-found: error
           retention-days: 30
 

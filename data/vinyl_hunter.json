@@ -1,0 +1,33 @@
+{
+  "schema":"dreamledger.vinyl-hunter/v1",
+  "status":"PREPARED_NOT_SOLD",
+  "purpose":"Find underpriced or hard-to-find vinyl against a buyer's wanted-list, using observable marketplace listings and explicit landed-cost arithmetic.",
+  "cold_start_policy":"Do not pretend a bargain exists without a current listing or independently observed sale evidence.",
+  "sources":[
+    {"id":"discogs","role":"active_listing","url":"https://www.discogs.com/"},
+    {"id":"trademe","role":"nz_marketplace","url":"https://www.trademe.co.nz/"},
+    {"id":"ebay","role":"active_and_sold_context","url":"https://www.ebay.com/"}
+  ],
+  "target_fields":["artist","title","pressing","catalog_number","country","year","format","condition_min","max_landed_price_nzd"],
+  "listing_fields":["source","listing_url","observed_at","ask_price_nzd","shipping_nzd","condition","pressing_confidence","seller_confidence"],
+  "economics":{
+    "landed_cost":"ask_price_nzd + shipping_nzd + explicit_fees_nzd",
+    "spread":"target_market_value_nzd - landed_cost",
+    "margin_rate":"spread / target_market_value_nzd",
+    "opportunity_rule":"Only classify BUY_CANDIDATE when pressing identity is sufficiently confident and landed cost is below the buyer's configured ceiling."
+  },
+  "truth_states":["UNVERIFIED","OBSERVED","BUY_CANDIDATE","REJECTED","STALE"],
+  "service_ladder":[
+    {"id":"VH-FREE","name":"Grail Watchlist","price_nzd":0,"status":"PREPARED"},
+    {"id":"VH-HUNT-29","name":"Vinyl Grail Hunt","price_nzd":29,"status":"PREPARED_NOT_SOLD","fulfillment":"human_reviewed_candidate_report"},
+    {"id":"VH-CONCIERGE","name":"Vinyl Buying Concierge","price_nzd":0,"status":"DEFERRED","reason":"Requires demonstrated demand and a proven acquisition/fulfilment loop"}
+  ],
+  "authority":{
+    "discover":true,
+    "prepare":true,
+    "rank":true,
+    "external_purchase":false,
+    "external_outreach":false
+  },
+  "forbidden":["counterfeit_records","fake_sale_evidence","listing_price_as_sale_price","synthetic_buyer","synthetic_purchase"]
+}

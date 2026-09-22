@@ -26,6 +26,10 @@ jobs:
           cache-dependency-path: BEC-PRIME/package.json
       - name: Install
         run: npm install
+      - name: Actuator-ready economic contract tests
+        run: npm run test:actuator-ready
+      - name: Economic truth source verification
+        run: npm run verify:economic-truth-source
       - name: Compile
         run: npm run compile
       - name: Kelplantis tests

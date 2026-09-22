@@ -1,0 +1,16 @@
+{
+  "schema": "dreamledger.initial-wanted-targets/v2",
+  "privacy": "PRIVATE",
+  "owner": "initial_private_user",
+  "silo_id": "vinyl",
+  "status": "WANTED",
+  "targets": [
+    {"slot":1,"title":"Cold Water Music","artist":"A.I.M.","target_type":"album","priority":"HOLY_GRAIL"},
+    {"slot":2,"title":"Hypocrisy old records","artist":"Hypocrisy","target_type":"artist_catalogue","priority":"HOLY_GRAIL"},
+    {"slot":3,"title":"Da Storm","artist":"O.G.C.","target_type":"album","priority":"HOLY_GRAIL"},
+    {"slot":4,"title":"Nocturnal","artist":"Heltah Skeltah","target_type":"album","priority":"HOLY_GRAIL"},
+    {"slot":5,"title":"Fantastic Damage","artist":"ELP","target_type":"album","priority":"HOLY_GRAIL"}
+  ],
+  "matching_rule":"Resolve exact release, pressing, edition and condition before ranking a live listing.",
+  "purchase_rule":"Discovery and alerts are automated. Purchase, bid, seller contact and external payment remain human-authorized."
+}

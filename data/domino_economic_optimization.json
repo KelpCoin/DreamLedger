@@ -1,0 +1,14 @@
+{
+  "schema": "dreamledger.domino-economic-optimization/v1",
+  "objective": "maximize_verified_economic_evidence_velocity",
+  "truth": {"verified_external_payments": 0, "verified_revenue_nzd": 0},
+  "priority_rule": "Prefer actions that can produce the next independently verified external economic event with minimal human effort and no truth compromise.",
+  "constraints": ["no_fake_revenue","no_simulated_external_effects","no_unapproved_live_financial_action","no_n8n"],
+  "loop": ["discover_intent","qualify_buyer","construct_offer","prepare_action","human_authority_gate","external_action","external_result","evidence","verify","learn","repeat"],
+  "economic_levers": 100,
+  "initial_cell": {"offer_id": "DL-BILLBOARD-100X100-3000-001", "price_nzd": 50, "payment_link": "plink_1UCrekEGgEAnUFF9XVRM04aG", "status": "PREPARED_NOT_SOLD"},
+  "next_gate": "one_independently_verified_external_payment_and_fulfilment",
+  "scale_rule": "Clone only after repeatable verified outcomes. Kill or downgrade stale non-converting offers.",
+  "automation_boundary": "Discover, qualify, prepare, verify and learn may be automated. External publication, outreach, media purchase and live financial effects remain approval-gated until a scoped actuator is authorized.",
+  "forbidden": ["self_attested_business_truth","test_payment_as_revenue","synthetic_buyer","synthetic_outcome","unbounded_autonomous_spend"]
+}

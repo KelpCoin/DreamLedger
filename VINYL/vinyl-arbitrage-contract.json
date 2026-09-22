@@ -1,0 +1,22 @@
+{
+  "schema":"dreamledger.vinyl-arbitrage/v1",
+  "purpose":"Find wanted vinyl editions, compare legitimate acquisition opportunities, and later package the same research as a buyer-intent service.",
+  "first_customer":"Biggie + Peggy",
+  "commercial_extension":"public buyer-request / rare-record hunt service",
+  "hard_truth":"A listing is an opportunity, not a saving or profit. Purchase, receipt, condition, edition identity and final landed cost must be evidenced.",
+  "identity_fields":["artist","title","release_id","label","catalog_number","country","year","format","barcode","matrix_runout","media_condition","sleeve_condition"],
+  "economics":["listing_price","shipping_nzd","taxes_nzd","fees_nzd","landed_cost_nzd","reference_sale_price_nzd","expected_resale_nzd","spread_nzd","spread_percent"],
+  "ranking":["edition_match","landed_cost","reference_sales","seller_reputation","condition","shipping_to_nz","scarcity","freshness","human_minutes"],
+  "source_policy":{
+    "discogs":"allowed_source_with_attribution_and_terms_review",
+    "trademe":"do_not_build_buyer_side_api_aggregation_without_explicit_approval; current API use-case guidance excludes buyer-side tools and price-monitoring/aggregation",
+    "manual_web_research":"allowed when performed through permitted public access and source terms are respected"
+  },
+  "workflow":["wanted_list","edition_identity","source_discovery","hard_filter","landed_cost","reference_value","opportunity_rank","human_buy_gate","purchase","delivery","condition_verify","learn"],
+  "service_ladder":[
+    {"name":"Holy Grail Hunt","deliverable":"edition-verified shortlist with landed NZD costs and source links","status":"PREPARE_ONLY"},
+    {"name":"Watchlist Monitor","deliverable":"fresh opportunities for named releases","status":"PREPARE_ONLY"},
+    {"name":"Collection Arbitrage Report","deliverable":"underpriced/overpriced candidates from customer-supplied collection","status":"PREPARE_ONLY"}
+  ],
+  "forbidden":["scraping_blocked_sources","fake_savings","fake_purchase","fake_inventory","unapproved_auto_purchase"]
+}
