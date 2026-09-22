@@ -1,53 +1,44 @@
 {
   "version": 17,
   "updated": "2026-09-22",
-  "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
+  "purpose": "Durable economic control state — read this on GitHub, not chat.",
+  "operator_index": "AGENT_BUS/START-HERE-SESSION-2026-09-22.md",
   "figure_eight": {
-    "play_lobe": [
-      "single_shard_pve",
-      "ghost_10pct",
-      "stealth_ai_full_parity",
-      "ai_owned_guilds",
-      "low_ai_count"
-    ],
-    "settle_lobe": [
-      "Stripe",
-      "Performance Wall",
-      "honest agent passports"
-    ],
+    "architecture": "BEC-PRIME/architecture/FIGURE-EIGHT.md",
+    "play_lobe": ["ghost_10pct", "stealth_ai_parity", "GOAP_BT", "guild_ai"],
+    "settle_lobe": ["Stripe", "Performance Wall", "Settlement Sync"],
     "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "guild_ai": "docs/play/GUILD-AI-BEHAVIOR.md",
-    "stealth_ai": "docs/play/STEALTH-AI-POLICY.md",
-    "build_shard": "docs/play/BUILD-PLAY-SHARD.md",
+    "start_here": "AGENT_BUS/START-HERE-SESSION-2026-09-22.md",
+    "income_now": "ops/money/INCOME-NOW.md",
+    "blockers_250": "ops/autonomy/BLOCKERS-AUTONOMOUS-REVENUE-ENGINE.md",
+    "performance_wall": "BEC-PRIME/fulfillment/PERFORMANCE-WALL.md",
+    "supabase_client_builds": "docs/play/SUPABASE-CLIENT-BUILDS-STATUS.md",
+    "table_phinhaven_client_builds": "renamed; recover build into git",
     "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-    "verified_external_revenue_nzd": 0,
-    "agent_passports": "BEC-PRIME/trust/AGENT-PASSPORTS.md",
-    "ai_presence": "docs/play/AI-PRESENCE-EXPERIMENT.md"
+    "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "play: build shard checklist; AI parity + own guilds; stealth phase 0",
-    "B": "settle: secrets + webhook",
-    "C": "FIRST SALE priority for money",
-    "D": "stealth AI design on main",
-    "E": "AI never commercial exhaust",
-    "F": "trust: agent passports + AI presence experiment contracts"
+    "A": "play design on disk; client recover from Supabase",
+    "B": "secrets + webhook",
+    "C": "FIRST SALE — demand pulse",
+    "D": "full session index on main for husband visibility",
+    "E": "no silent Supabase login failure"
   },
   "immediate_next": [
-    "Implement BUILD-PLAY-SHARD checklist on play codepaths",
-    "Keep AI cap very low",
-    "Ball C demand for revenue",
-    "Keep Ball C first-sale priority while implementing low-N AI presence"
+    "git pull main",
+    "Read START-HERE-SESSION-2026-09-22.md",
+    "Post Payment Link",
+    "Recover phinhaven_client_builds into repo"
   ],
   "do_not": [
-    "Client-label AI in phase 0",
-    "Unlimited AI spawns",
-    "AI on Stripe",
-    "Use agent passports as revenue proof or payment authority"
+    "Use chat as source of truth",
+    "Claim revenue without fossil",
+    "Expect Claude/Grok sandbox to query Supabase"
   ],
   "session_evidence": {
-    "2026-09-22-stealth-ai-parity": "full parity + stealth + low count docs on main"
+    "2026-09-22-full-dump": "START-HERE-SESSION + balls v17 — all major paths linked"
   }
 }
