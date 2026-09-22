@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Single Shard AI Presence State",
+  "type": "object",
+  "required": [
+    "character_id",
+    "controller_state",
+    "position",
+    "strength_ratio"
+  ],
+  "properties": {
+    "character_id": {
+      "type": "string"
+    },
+    "controller_state": {
+      "enum": [
+        "HUMAN_ACTIVE",
+        "HUMAN_GHOST",
+        "AI_ACTIVE",
+        "AI_IDLE",
+        "AI_DESPAWNED"
+      ]
+    },
+    "position": {
+      "type": "object",
+      "required": [
+        "shard_id",
+        "area_id"
+      ],
+      "properties": {
+        "shard_id": {
+          "type": "string"
+        },
+        "area_id": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "strength_ratio": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "cohort_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "spawn_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "decision_budget": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "model_runtime": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last_decision_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
