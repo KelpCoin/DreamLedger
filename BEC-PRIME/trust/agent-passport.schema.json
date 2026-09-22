@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bec-prime/trust/agent-passport",
+  "title": "DreamLedgerAgentPassport",
+  "type": "object",
+  "required": ["passport_id", "class", "issued_at", "scopes", "labels"],
+  "properties": {
+    "passport_id": { "type": "string" },
+    "class": {
+      "type": "string",
+      "enum": ["human_buyer", "merchant_face", "commerce_agent", "play_agent", "ops_agent"]
+    },
+    "public_key_or_did": { "type": ["string", "null"] },
+    "display_name": { "type": "string" },
+    "issued_at": { "type": "string" },
+    "expires_at": { "type": ["string", "null"] },
+    "scopes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "mandate_refs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reputation": {
+      "type": "object",
+      "properties": {
+        "settlements_verified": { "type": "integer", "minimum": 0 },
+        "disputes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "labels": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "policy": { "type": "string" }
+  }
+}

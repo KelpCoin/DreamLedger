@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dreamledger/play/ai-presence-entity",
+  "title": "ShardPresenceEntity",
+  "type": "object",
+  "required": ["entity_id", "controller", "strength_multiplier", "area_id"],
+  "properties": {
+    "entity_id": { "type": "string" },
+    "display_name": { "type": "string" },
+    "controller": {
+      "type": "string",
+      "enum": ["human_session", "ghost_shell", "ai_brain"]
+    },
+    "strength_multiplier": { "type": "number", "minimum": 0, "maximum": 1 },
+    "area_id": { "type": "string" },
+    "position": {
+      "type": "object",
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "z": { "type": "number" }
+      }
+    },
+    "guild_id": { "type": ["string", "null"] },
+    "passport_id": { "type": ["string", "null"] },
+    "labels": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "ai_profile": {
+      "type": ["object", "null"],
+      "properties": {
+        "brain": { "type": "string" },
+        "objective": { "type": "string" }
+      }
+    },
+    "policy": {
+      "const": "Play presence only. Not commercial revenue. AI must be labeled."
+    }
+  }
+}

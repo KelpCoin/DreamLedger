@@ -1,38 +1,38 @@
 {
-  "version": 14,
+  "version": 15,
   "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
-    "architecture": "BEC-PRIME/architecture/FIGURE-EIGHT.md",
-    "default_fulfilment": "performance_wall",
+    "play_lobe": ["phinhaven", "ghost_offline_10pct", "ai_cohort_scaled"],
+    "settle_lobe": ["Stripe", "Performance Wall", "agent_passports_trust"],
     "dam": "Evidence before revenue claim",
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "blockers_full": "ops/autonomy/BLOCKERS-AUTONOMOUS-REVENUE-ENGINE.md",
-    "blockers_top": "ops/autonomy/TOP-BLOCKERS.md",
+    "agent_passports": "BEC-PRIME/trust/AGENT-PASSPORTS-AND-COMMERCE.md",
+    "ai_presence": "docs/play/SINGLE-SHARD-AI-PRESENCE.md",
+    "ai_scaling": "docs/play/AI-COHORT-SCALING.md",
     "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-    "income_now": "ops/money/INCOME-NOW.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "play social-first",
-    "B": "secrets + webhook",
-    "C": "FIRST SALE — demand; blocker #250 is the atom",
-    "D": "250 blockers on main for multi-LLM continuity",
-    "E": "do not expand architecture past Ball C"
+    "A": "play: ghost 10% + AI cohort is design-ready; implement without blocking money",
+    "B": "trust: passport schema on disk; merchant card later",
+    "C": "FIRST SALE still priority",
+    "D": "passports + AI presence committed to main",
+    "E": "AI play agents never mint revenue"
   },
   "immediate_next": [
-    "Post Payment Link",
-    "Prove Settlement Sync + webhook E2E",
-    "On pay: wall/special fulfil + fossil"
+    "Ball C demand pulse",
+    "Optional: P0 ghost state in Shallows/Phin",
+    "Optional: well-known merchant agent card after first fossil"
   ],
   "do_not": [
-    "Claim autonomous revenue engine",
-    "Treat docs as demand",
+    "Sell AI as human players",
+    "Let play AI touch Stripe",
     "Skip GitHub writes"
   ],
   "session_evidence": {
-    "2026-09-22-blockers-250": "ops/autonomy/BLOCKERS-AUTONOMOUS-REVENUE-ENGINE.md on main"
+    "2026-09-22-passports-ai-presence": "trust + single-shard AI presence docs on main"
   }
 }
