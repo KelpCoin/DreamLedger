@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "updated": "2026-09-21",
+  "version": 8,
+  "updated": "2026-09-22",
   "purpose": "Durable economic control state for any LLM touching DreamLedger or the bridge.",
   "figure_eight": {
     "play_lobe": ["phinhaven/shallows", "phinhaven/godot/shallows", "PROOF/airgap"],
@@ -10,49 +10,42 @@
     "verified_external_revenue_nzd": 0
   },
   "current_truth": {
-    "dreamledger_supabase": "ACTIVE_HEALTHY",
+    "storefront": "marketplace-v19 live — horizontal rails, 0% take-rate strip, agent discovery rail",
+    "agent_commerce": "/agent-commerce.json machine contract live",
     "first_sale": {
-      "sku": "DL-BILLBOARD-100X100-3000-001",
+      "sku_primary": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "price_nzd": 50,
       "payment_link": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
       "status": "APPROVED_LIVEMODE",
-      "verified_external_revenue_nzd": 0,
-      "settlement_meter": "Commerce Settlement Sync"
+      "verified_external_revenue_nzd": 0
     },
     "cmd_diag_29": {
-      "sku": "CMD-DIAG-29",
       "price_nzd": 29,
-      "payment_link_public_catalog": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
+      "payment_link": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
       "status": "SECONDARY_OFFER_APPROVED"
     },
-    "surface": {
-      "storefront": "public/index.html marketplace-v16",
-      "status": "MARKETPLACE_V16_SHIPPED",
-      "note": "Grid + categories + featured CTAs. Production must redeploy Render to show live."
-    }
+    "money_blocks_doc": "ops/economic/MONEY-BUILDING-BLOCKS-2026-09-22.md",
+    "share_pack": "ops/economic/SHARE-PACK-2026-09-22.md"
   },
   "balls": {
-    "A": "playable_browser_slice; no further Floor 2 scope before money",
-    "B": "Supabase authority exists; do not alter proven settlement paths without a demonstrated blocker",
-    "C": "FIRST SALE: one real external settled payment remains the only revenue gate",
-    "D": "bridge active; write durable handoffs and keep cloud economic authority authoritative",
+    "A": "playable browser slice; no Floor 2 expansion before money",
+    "B": "settlement paths frozen unless demonstrated blocker",
+    "C": "FIRST SALE: external settled payment is the only revenue gate — human must distribute links",
+    "D": "bridge partial/auth-gated; handoffs are the multi-LLM continuity path",
     "E": "human Godot gate remains"
   },
   "immediate_next": [
-    "Confirm Render deployed marketplace-v16 (check /version commit and data-surface attribute).",
-    "Human: post tile + diagnostic on owned channels.",
-    "Run Commerce Settlement Sync; keep meter at NZ$0 until real external payment.",
-    "On stranger payment: settle, fulfil, fossil."
+    "Human: post SHARE-PACK tile + diagnostic on owned channels (3+).",
+    "Keep Commerce Settlement Sync ready; meter stays 0 until real external pay.",
+    "On stranger payment: fulfil same day, fossil, update balls + figure-eight.",
+    "Do not prioritise x402 or game scope before first settle."
   ],
   "do_not": [
-    "Count tests, self-payments, clicks, workflow runs, game activity, or documentation as revenue",
-    "Expand game scope before first economic proof",
-    "Re-clutter the homepage with unshipped SKUs or scarcity theatre",
-    "Accept a public Payment Link as settled unless it matches approved catalog + workflow config"
+    "Count tests, self-payments, clicks, CI, bridge 401s, game activity as revenue",
+    "Expand architecture theatre instead of posting Payment Links",
+    "Claim agentic multi-LLM mesh is fully live"
   ],
   "session_evidence": {
-    "2026-09-21-commerce": "ops/commerce/README dual-offer notes",
-    "2026-09-21-surface-clean": "focused surface attempt",
-    "2026-09-21-marketplace-v16": "public/index.html marketplace grid shipped; await Render deploy; meter NZ$0"
+    "2026-09-22-money-blocks": "ops/economic money building blocks + share pack shipped"
   }
 }
