@@ -1,0 +1,15 @@
+{
+  "schema":"dreamledger.wanted-seed/v1",
+  "owner":"initial_private_user",
+  "silo_id":"vinyl",
+  "status":"WANTED",
+  "targets":[
+    {"title":"Cold Water Music","artist":"Aim","target_type":"album","priority":"HOLY_GRAIL"},
+    {"title":"Da Storm","artist":"Da Storm","target_type":"album","priority":"HIGH"},
+    {"title":"Nocturnal","artist":"Heltah Skeltah","target_type":"album","priority":"HIGH"},
+    {"title":"Fantastic Damage","artist":"EL-P","target_type":"album","priority":"HIGH"},
+    {"title":"Hypocrisy records","artist":"Hypocrisy","target_type":"artist_catalogue","priority":"HIGH"}
+  ],
+  "matching_rule":"Do not collapse masters into a purchase target. Resolve exact release/pressing/edition where available before ranking a live listing.",
+  "purchase_rule":"Discovery and alerts are automated. Purchase, bid, seller contact and external payment remain human-authorized."
+}
