@@ -1,0 +1,24 @@
+version: "0.1.0"
+note: "The recurring revenue contract. It applies only after the first one-time sale is verified."
+
+platform: "Patreon"
+integration: "Discord via Patreon's built-in integration"
+mechanism: "Patreon tier → Discord role → gated access"
+
+setup:
+  prerequisite: "You must be the owner of both the Discord server and the Patreon page to set up the sync."
+  role_mapping: "Each Patreon tier maps to exactly one Discord role. You cannot assign multiple roles to a single tier using the default integration."
+  sync: "Discord offers a built-in integration with Patreon that automatically syncs pledge tiers to server roles."
+  waterfall_release: "Gracefully grant lower Patreon tiers access to older posts without manual Discord announcements."
+
+metrics:
+  primary:
+    - "MRR (monthly recurring revenue)"
+    - "churn rate (logo and revenue)"
+    - "net revenue retention"
+  secondary:
+    - "trial conversion"
+    - "MRR growth rate"
+  note: "Before $10K MRR, you only need to track three things: trial conversion, churn, and MRR growth."
+
+churn_benchmark: "Churn under 5% monthly is the micro-SaaS standard."
