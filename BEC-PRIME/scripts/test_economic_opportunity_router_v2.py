@@ -30,3 +30,6 @@ def test_learning_changes_posterior():
     s=m.RouterState(m.BusinessTruth(),m.AuthorityMap(),[candidate("A","a")],forced_pulls_per_arm=1)
     for _ in range(3): m.record_outcome(s,"PRE_REVENUE","a",True,1,50)
     assert m.stats_for(s,"PRE_REVENUE","a").mean()>0.7
+
+if __name__=="__main__":
+    test_cold_start_round_robin(); test_context_isolation(); test_external_is_hard_blocked(); test_learning_changes_posterior(); print("economic opportunity router tests: PASS")
