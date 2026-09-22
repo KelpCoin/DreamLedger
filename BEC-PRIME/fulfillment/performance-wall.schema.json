@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bec-prime/fulfillment/performance-wall-cubby",
+  "title": "PerformanceWallCubby",
+  "type": "object",
+  "required": [
+    "cubby_id",
+    "checkout_session_id",
+    "offer_id",
+    "key_hash",
+    "status",
+    "opened_at",
+    "expires_at"
+  ],
+  "properties": {
+    "cubby_id": { "type": "string" },
+    "checkout_session_id": { "type": "string" },
+    "payment_intent_id": { "type": ["string", "null"] },
+    "offer_id": { "type": "string" },
+    "silo": { "type": "string" },
+    "key_hash": { "type": "string", "description": "SHA-256 of raw key; raw key never stored" },
+    "status": {
+      "type": "string",
+      "enum": ["OPEN", "CLAIMED", "SEALED", "VOID"]
+    },
+    "payload_ref": {
+      "type": "object",
+      "properties": {
+        "kind": { "enum": ["url", "path", "inline_text"] },
+        "value": { "type": "string" }
+      },
+      "required": ["kind", "value"]
+    },
+    "opened_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "claimed_at": { "type": ["string", "null"] },
+    "ttl_hours": { "type": "number", "default": 24 },
+    "livemode": { "type": "boolean" },
+    "policy": {
+      "const": "Cubby is fulfilment access only. Verified revenue requires Settlement Sync + fossil."
+    }
+  }
+}
