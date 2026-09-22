@@ -26,3 +26,26 @@ def test_preconditions_pass_when_complete():
     offer = {check["field"]: True for check in policy["deterministic_preconditions"]}
     offer["id"] = "offer-1"
     assert evaluate_preconditions(policy, offer) == (True, [])
+
+
+class FakeDB:
+    def __init__(self):
+        self.rows = {}
+        self.inserts = []
+    def fetch_one(self, _sql, params):
+        return self.rows.get(params[0])
+    def execute(self, _sql, params):
+        tid = params[0]
+        self.rows[tid] = {"outcome": params[4] if len(params) > 4 else "UNKNOWN"}
+        self.inserts.append(params)
+
+def test_attempt_transition_enters_amber_once():
+    from runtime.attempt_transition import attempt_transition
+    policy = load_policy()["transitions"]["OFFER_READY__OFFER_PUBLISHED"]
+    offer = {check["field"]: True for check in policy["deterministic_preconditions"]}
+    offer["id"] = "offer-amber"
+    db = FakeDB()
+    first = attempt_transition(offer, "OFFER_READY__OFFER_PUBLISHED", db)
+    second = attempt_transition(offer, "OFFER_READY__OFFER_PUBLISHED", db)
+    assert first["outcome"] == "AWAITING_AUTHORIZATION"
+    assert second["outcome"] == "ALREADY_EXECUTED"
