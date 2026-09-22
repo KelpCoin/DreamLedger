@@ -1,0 +1,13 @@
+{
+  "event_id": "fixture-acp-001",
+  "event_type": "checkout.completed",
+  "rail": "ACP",
+  "economic_status": "SIMULATED",
+  "amount": 1000,
+  "currency": "NZD",
+  "buyer_ref": "SIMULATED_BUYER",
+  "metadata": {
+    "fixture": true,
+    "live_payment": false
+  }
+}
