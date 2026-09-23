@@ -61,7 +61,7 @@ function demandNotesFromSurface(loop, surface) {
       signal: 'D-VIEW',
       loop_id: loop.loop_id,
       source: 'cloud_sentinel',
-      detail: `surface_unreachable status=${surface.status}`,
+      detail: 'surface_unreachable status=' + surface.status,
       observed_at: TS,
       weight_hint: 0,
     });
@@ -74,7 +74,7 @@ function demandNotesFromSurface(loop, surface) {
     signal: 'D-VIEW',
     loop_id: loop.loop_id,
     source: 'cloud_sentinel',
-    detail: `surface_ok ${surface.url}`,
+    detail: 'surface_ok ' + surface.url,
     observed_at: TS,
   });
   if (lower.includes('nz$50') || lower.includes('nz$29') || lower.includes(String(loop.price_nzd))) {
@@ -102,7 +102,7 @@ function demandNotesFromSurface(loop, surface) {
 
 async function intentNotesFromBuyPath(loop) {
   const notes = [];
-  const buy = await fetchText(`${LIVE}${loop.buy_path}`);
+  const buy = await fetchText(LIVE + loop.buy_path);
   const onStripe = /buy\.stripe\.com|checkout\.stripe\.com/i.test(buy.finalUrl || '');
   if (buy.ok && onStripe) {
     notes.push({
@@ -110,7 +110,7 @@ async function intentNotesFromBuyPath(loop) {
       signal: 'I-CHECKOUT_OPEN',
       loop_id: loop.loop_id,
       source: 'cloud_sentinel',
-      detail: `buy_router_reaches_stripe final=${buy.finalUrl}`,
+      detail: 'buy_router_reaches_stripe final=' + buy.finalUrl,
       observed_at: TS,
       implication: 'Path can open checkout; not a paid session',
     });
@@ -120,7 +120,7 @@ async function intentNotesFromBuyPath(loop) {
       signal: 'I-CHECKOUT_ABANDON',
       loop_id: loop.loop_id,
       source: 'cloud_sentinel',
-      detail: `buy_router_issue status=${buy.status} final=${buy.finalUrl} err=${buy.error || ''}`,
+      detail: 'buy_router_issue status=' + buy.status + ' final=' + buy.finalUrl + ' err=' + (buy.error || ''),
       observed_at: TS,
       implication: 'Friction or misconfig — not proof of buyer intent',
     });
@@ -129,7 +129,7 @@ async function intentNotesFromBuyPath(loop) {
 }
 
 async function probeOffers() {
-  const res = await fetchText(`${LIVE}/api/offers`);
+  const res = await fetchText(LIVE + '/api/offers');
   let count = 0;
   let checkoutable = 0;
   try {
@@ -154,13 +154,13 @@ async function main() {
     signal: 'D-AGENT',
     loop_id: 'LOOP-CATALOG',
     source: 'cloud_sentinel',
-    detail: `api_offers status=${offers.status} count=${offers.count} checkoutable=${offers.checkoutable}`,
+    detail: 'api_offers status=' + offers.status + ' count=' + offers.count + ' checkoutable=' + offers.checkoutable,
     observed_at: TS,
   });
 
   for (const loop of LOOPS) {
     for (const p of loop.surface_paths) {
-      const surface = await fetchText(`${LIVE}${p}`);
+      const surface = await fetchText(LIVE + p);
       allDemand.push(...demandNotesFromSurface(loop, surface));
     }
     const intent = await intentNotesFromBuyPath(loop);
@@ -202,7 +202,7 @@ async function main() {
 
   const stamp = TS.replace(/[:.]/g, '-');
   const latestPath = path.join(outDir, 'latest.json');
-  const stampedPath = path.join(outDir, `report-${stamp}.json`);
+  const stampedPath = path.join(outDir, 'report-' + stamp + '.json');
   const demandLatest = path.join(demandDir, 'latest-cloud.json');
 
   const body = JSON.stringify(report, null, 2) + '\n';
@@ -210,8 +210,23 @@ async function main() {
   fs.writeFileSync(stampedPath, body);
   fs.writeFileSync(demandLatest, body);
 
-  // Compact handoff for humans / LLMs
-  const handoff = `# Cloud sentinel report\n\n- run_id: ${RUN_ID}\n- observed_at: ${TS}\n- global_band: **${global.band}**\n- demand_score: ${global.demand_score}\n- intent_score: ${global.intent_score}\n- offers_checkoutable: ${offers.checkoutable}\n- verified_external_revenue_nzd: **0**\n- revenue_claim: NONE\n\nFull JSON: \\`AGENT_BUS/sentinel-reports/latest.json\\`\n\nOperator: still run \\`ops/money/DEMAND-KIT.md\\` — sentinel does not replace posts.\n`;
+  const handoff = [
+    '# Cloud sentinel report',
+    '',
+    '- run_id: ' + RUN_ID,
+    '- observed_at: ' + TS,
+    '- global_band: **' + global.band + '**',
+    '- demand_score: ' + global.demand_score,
+    '- intent_score: ' + global.intent_score,
+    '- offers_checkoutable: ' + offers.checkoutable,
+    '- verified_external_revenue_nzd: **0**',
+    '- revenue_claim: NONE',
+    '',
+    'Full JSON: `AGENT_BUS/sentinel-reports/latest.json`',
+    '',
+    'Operator: still run `ops/money/DEMAND-KIT.md` — sentinel does not replace posts.',
+    '',
+  ].join('\n');
   fs.writeFileSync(path.join(outDir, 'LATEST-HANDOFF.md'), handoff);
 
   console.log(JSON.stringify({ ok: true, band: global.band, wrote: [latestPath, demandLatest] }, null, 2));
