@@ -96,6 +96,20 @@ function Invoke-StripeGet {
     return Invoke-RestMethod -Uri ("https://api.stripe.com/v1/" + $Path.TrimStart("/")) -Method GET -Headers @{ Authorization = "Bearer $($cfg.key)" }
 }
 
+function Invoke-StripeGetRaw {
+    param([Parameter(Mandatory=$true)][string]$Path)
+    $cfg = Get-StripeConfig
+    $requestUri = "https://api.stripe.com/v1/" + $Path.TrimStart("/")
+    $headers = @{ Authorization = "Bearer $($cfg.key)" }
+    $response = Invoke-WebRequest -Uri $requestUri -Method GET -Headers $headers -UseBasicParsing
+    return [ordered]@{
+        status_code = [int]$response.StatusCode
+        uri = $requestUri
+        body = [string]$response.Content
+        body_sha256 = Get-Sha256Text ([string]$response.Content)
+    }
+}
+
 function Invoke-StripePost {
     param(
         [Parameter(Mandatory=$true)][string]$Path,
