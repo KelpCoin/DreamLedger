@@ -1,6 +1,7 @@
 #requires -version 5.1
 [CmdletBinding()] param([int]$Limit=20)
 . (Join-Path $PSScriptRoot '..\FigureEight.Common.ps1')
+function Pick([bool]$Condition,[string]$WhenTrue,[string]$WhenFalse){if($Condition){return $WhenTrue}else{return $WhenFalse}}
 $worker='verifier'; Set-WorkerHeartbeat $worker 'RUNNING'
 try {
   $r=Invoke-FigureEightRpc $worker 'VERIFIER_CANDIDATES' @{limit=$Limit}
@@ -20,7 +21,7 @@ try {
     $hash=Get-Sha256Text ([string]$sess.body + [Environment]::NewLine + [string]$pi.body)
     $input=@{session_id=$id;payment_intent_id=$piid;live_mode=[bool]$s.livemode;session_status=[string]$s.status;payment_status=[string]$s.payment_status;payment_intent_status=[string]$p.status;amount_total=[int64]$s.amount_total;amount_received=[int64]$p.amount_received;currency=[string]$s.currency;amount_match=$amountOk;currency_match=$currencyOk}
     $contentHash=Get-Sha256Text ($hash+'|'+($input|ConvertTo-Json -Compress))
-    $verdict=$(if($verified){'VERIFIED'}else{'REJECTED'})
+    $verdict=Pick ([bool]$verified) 'VERIFIED' 'REJECTED'
     Invoke-FigureEightRpc $worker 'VERIFIER_RECORD' @{
       cell_id=[string]$row.cell_id;reconciliation_event_id=[string]$row.reconciliation_event_id;provenance='OBSERVED'
       source='stripe_api_direct';verdict=$verdict;query_used=($sess.uri+';'+$pi.uri);raw_response_sha256=$hash;verdict_input=$input;content_hash=$contentHash
