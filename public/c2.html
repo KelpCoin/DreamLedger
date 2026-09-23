@@ -40,7 +40,9 @@ const form=document.getElementById('c2'),button=document.getElementById('buy'),s
 form.addEventListener('submit',async e=>{
  e.preventDefault();button.disabled=true;status.textContent='Preparing secure checkout…';
  try{
-  const payload={question:form.question.value.trim(),context:form.context.value.trim(),constraints:[],output_format:form.output_format.value.trim()||'decision_memo'};
+  const params=new URLSearchParams(window.location.search);
+  const attribution={utm_source:params.get('utm_source')||params.get('src')||null,utm_medium:params.get('utm_medium')||null,utm_campaign:params.get('utm_campaign')||null,landing_path:window.location.pathname};
+  const payload={question:form.question.value.trim(),context:form.context.value.trim(),constraints:[],output_format:form.output_format.value.trim()||'decision_memo',attribution};
   const r=await fetch('/m2m/v1/consult/decision/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const data=await r.json();
   if(!r.ok||!data.checkout_url)throw new Error(data.error||'Checkout unavailable');
