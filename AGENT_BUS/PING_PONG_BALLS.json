@@ -1,34 +1,25 @@
 {
-  "version": 22,
+  "version": 23,
   "updated": "2026-09-24",
-  "figure_eight": {
-    "public_surface": "marketplace-v21",
+  "current_truth": {
+    "public_home": "marketplace-v21 customer English",
+    "agent_commerce": "public/agent-commerce.json v2 — no fossil/cs_",
+    "b2b_route": "compiled/website/marketplace.html Business page",
+    "gate": "verify-public-surface.js v16 ops jargon blocked",
+    "why_leak": "AGENT_BUS/HANDOFF-2026-09-24-WHY-PUBLIC-LEAKED.md",
     "verified_external_revenue_nzd": 0
   },
-  "current_truth": {
-    "index": "public/index.html data-surface=marketplace-v21",
-    "b2b_openapi": "public/b2b/catalog.openapi.json",
-    "b2b_docs": "docs/b2b/MARKETPLACE-API-APPLIED.md",
-    "orch": "docs/agents/ORCHESTRATION-APPLIED.md",
-    "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-    "verified_external_revenue_nzd": 0,
-    "live_site_was": "stale pre-v20 until Render catches main"
-  },
   "balls": {
-    "A": "surface v21 on main — force deploy if live stale",
-    "B": "B2B OpenAPI + orchestration docs",
-    "C": "FIRST SALE"
+    "A": "public leak root-caused and patched on main",
+    "C": "FIRST SALE still open"
   },
   "immediate_next": [
-    "Confirm live HTML contains marketplace-v21",
-    "Post tile Payment Link",
-    "Never restore ops meter language to public index"
+    "Confirm live /agent-commerce.json has schema v2",
+    "Confirm live /b2b title is Business not CUBE Marketplace",
+    "Post tile Payment Link"
   ],
   "do_not": [
-    "Put fossil/cs_/spine on homepage",
-    "Parallel catalog authority outside approved offers for settlement"
-  ],
-  "session_evidence": {
-    "2026-09-24-v21": "b2b+orch+marketplace-v21"
-  }
+    "Put fossil/cs_/spine/Elohim/gauntlet on any public JSON or HTML",
+    "Assume homepage-only cleanup fixes /b2b"
+  ]
 }
