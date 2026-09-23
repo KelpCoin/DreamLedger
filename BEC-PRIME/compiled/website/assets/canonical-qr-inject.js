@@ -10,7 +10,7 @@
   img.style.cssText='width:100%;height:100%;object-fit:contain;display:block';
   box.appendChild(img);
   document.body.appendChild(box);
-  fetch('/assets/canonical-qr.b64.txt').then(function(r){return r.text()}).then(function(t){
-    img.src='data:image/jpeg;base64,'+t.trim();
-  }).catch(function(){});
+  Promise.all([0,1,2].map(function(i){return fetch('/assets/canonical-qr-part-'+i+'.b64.txt').then(function(r){return r.text()})}))
+    .then(function(parts){img.src='data:image/jpeg;base64,'+parts.map(function(p){return p.trim()}).join('');})
+    .catch(function(){});
 })();
