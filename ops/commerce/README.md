@@ -11,6 +11,14 @@ This directory contains the first live Revenue Atom for DreamLedger.
 - Reconciliation is idempotent on `STRIPE-CHECKOUT-{checkout_session_id}`.
 - No internal field can manufacture verified revenue.
 
+## Applied pricing policy
+
+See `COMPETITIVE-PRICING-APPLIED.md`. **Keep** live NZ$50 tile and NZ$29 diagnostic until a fossil exists; do not discount-war the founding tile.
+
+## Webhook security
+
+See `BEC-PRIME/commerce/STRIPE-WEBHOOK-SECURITY-APPLIED.md`. Run `node BEC-PRIME/scripts/verify-stripe-webhook-contract.js` before trusting fulfil paths.
+
 ## Approved settlement offers (explicit)
 
 Both of the following are approved in `BEC-PRIME/catalog/offers/approved.json` and are eligible for settlement recognition when the workflow is configured against their Payment Link.
@@ -88,6 +96,6 @@ Expected first-sale settlement state (diagnostic, if configured):
 
 A successful workflow run proves the reconciliation path is executable. It does not by itself prove BusinessTruth. Verified commercial truth additionally requires the external customer, fulfillment, delivery evidence, and independent verification chain.
 
-## Honest meter (2026-09-21)
+## Honest meter
 
 Verified external revenue remains **NZ$0** until a real external live paid Checkout Session is recognized, fulfilled, and fossilized. Game / Shallows activity does not count as business revenue.

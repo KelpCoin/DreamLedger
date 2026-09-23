@@ -1,37 +1,37 @@
 {
-  "version": 19,
+  "version": 20,
   "updated": "2026-09-23",
-  "purpose": "Durable economic control state",
-  "operating_mandate": "AGENT_BUS/OPERATING-MANDATE.md",
+  "purpose": "Durable economic control state — husband reads GitHub not chat",
   "figure_eight": {
     "verified_external_revenue_nzd": 0,
     "dam": "Evidence before revenue claim"
   },
   "current_truth": {
-    "angles_200": "ops/money/MONETIZATION-ANGLES-200.md",
-    "wall_foundations": "BEC-PRIME/fulfillment/PERFORMANCE-WALL-FOUNDATIONS.md",
-    "candidates_seed": "BEC-PRIME/catalog/offers/candidates-from-angles.json",
-    "bridge_money": "docs/bridge/BRIDGE-MONEY-REFINEMENT.md",
+    "pricing_applied": "ops/commerce/COMPETITIVE-PRICING-APPLIED.md",
+    "webhook_security_applied": "BEC-PRIME/commerce/STRIPE-WEBHOOK-SECURITY-APPLIED.md",
+    "passive_skus": "ops/money/PASSIVE-SKUS-201-230.md",
+    "angles": "ops/money/MONETIZATION-ANGLES-200.md",
     "ball_c": "ops/money/BALL-C-ONE-PAGER.md",
     "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
     "payment_link_diagnostic": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "FIRST SALE — post primary plink; angles are not revenue",
-    "D": "200 angles + wall foundations on main"
+    "C": "FIRST SALE — post tile plink",
+    "D": "pricing + webhook security applied on main",
+    "E": "passive SKUs 201-230 candidates only"
   },
   "immediate_next": [
-    "Post https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02 on owned channel",
-    "Wire wall mint on diagnostic webhook when possible",
-    "Do not approve 200 candidates before first fossil"
+    "Post approved tile link on owned channel",
+    "Run verify-stripe-webhook-contract.js in deploy path",
+    "After first fossil: at most one passive SKU from 201-230"
   ],
   "do_not": [
-    "Treat candidates as live checkout",
-    "Fabricate revenue",
-    "Parallel settlement spine"
+    "Discount founding tile without policy change",
+    "Launch 30 new plinks",
+    "Skip signature verify"
   ],
   "session_evidence": {
-    "2026-09-23-angles-200": "MONETIZATION-ANGLES-200 + wall foundations + candidates seed"
+    "2026-09-23-pricing-webhook-skus": "COMPETITIVE-PRICING + WEBHOOK-SECURITY + PASSIVE-201-230"
   }
 }
