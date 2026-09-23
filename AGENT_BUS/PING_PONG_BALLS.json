@@ -1,37 +1,36 @@
 {
-  "version": 20,
-  "updated": "2026-09-23",
-  "purpose": "Durable economic control state — husband reads GitHub not chat",
+  "version": 21,
+  "updated": "2026-09-24",
+  "purpose": "Durable control state — public site is customer-facing; ops stay on the bus",
   "figure_eight": {
+    "public_surface": "marketplace-v20",
     "verified_external_revenue_nzd": 0,
-    "dam": "Evidence before revenue claim"
+    "dam": "Evidence before revenue claim — on AGENT_BUS not in nav chrome"
   },
   "current_truth": {
-    "pricing_applied": "ops/commerce/COMPETITIVE-PRICING-APPLIED.md",
-    "webhook_security_applied": "BEC-PRIME/commerce/STRIPE-WEBHOOK-SECURITY-APPLIED.md",
-    "passive_skus": "ops/money/PASSIVE-SKUS-201-230.md",
-    "angles": "ops/money/MONETIZATION-ANGLES-200.md",
-    "ball_c": "ops/money/BALL-C-ONE-PAGER.md",
-    "payment_link_primary": "https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x",
+    "public_index": "public/index.html data-surface=marketplace-v20",
+    "handoff": "AGENT_BUS/HANDOFF-2026-09-24-PUBLIC-SURFACE-V20.md",
+    "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
     "payment_link_diagnostic": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "FIRST SALE — post tile plink",
-    "D": "pricing + webhook security applied on main",
-    "E": "passive SKUs 201-230 candidates only"
+    "A": "public v20 — no internal jargon on face",
+    "B": "B2B section + agent APIs clean",
+    "C": "FIRST SALE still open",
+    "D": "multi-LLM: read HANDOFF public surface before editing index.html"
   },
   "immediate_next": [
-    "Post approved tile link on owned channel",
-    "Run verify-stripe-webhook-contract.js in deploy path",
-    "After first fossil: at most one passive SKU from 201-230"
+    "Wait Render deploy / hard refresh dreamledger.org",
+    "Post tile Payment Link on owned channel",
+    "Do not reintroduce fossil/meter language into public HTML"
   ],
   "do_not": [
-    "Discount founding tile without policy change",
-    "Launch 30 new plinks",
-    "Skip signature verify"
+    "Put NZ$0 meter in the top bar for customers",
+    "Dump protocol alphabet soup on the homepage",
+    "Claim TradeMe parity until traffic + trust exist — design bar only"
   ],
   "session_evidence": {
-    "2026-09-23-pricing-webhook-skus": "COMPETITIVE-PRICING + WEBHOOK-SECURITY + PASSIVE-201-230"
+    "2026-09-24-v20": "enterprise marketplace front door committed"
   }
 }
