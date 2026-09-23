@@ -25,6 +25,7 @@ $ProofPath=Join-Path $ProofDir "bootstrap-proof.json"
 New-Item -ItemType Directory -Force -Path $ProofDir | Out-Null
 
 function Fail([string]$m){throw $m}
+function Pick([bool]$Condition,[string]$WhenTrue,[string]$WhenFalse){if($Condition){return $WhenTrue}else{return $WhenFalse}}
 function CheckFile([string]$rel){
   $p=Join-Path $Repo $rel
   [pscustomobject]@{name=$rel;present=(Test-Path $p);path=$p}
@@ -57,7 +58,7 @@ $required=@(
 $checks=New-Object System.Collections.Generic.List[object]
 foreach($rel in $required){
   $c=CheckFile $rel
-  $checks.Add([pscustomobject]@{name=$c.name;status=(if($c.present){"PASS"}else{"FAIL"});detail=$c.path})
+  $checks.Add([pscustomobject]@{name=$c.name;status=(Pick ([bool]$c.present) "PASS" "FAIL");detail=$c.path})
 }
 
 # Never create demo revenue, fake customers, fake settlement, or simulated economic proof.
@@ -70,7 +71,7 @@ if($root){
   $checks.Add([pscustomobject]@{name="brown_eye_runtime_root";status="PASS";detail=$root})
   foreach($rel in @("_moneyfarm\StripeFulfillmentV1","_moneyfarm\CashClosure\bin")){
     $p=Join-Path $root $rel
-    $checks.Add([pscustomobject]@{name=("legacy:"+$rel);status=(if(Test-Path $p){"PASS"}else{"WARN"});detail=$p})
+    $checks.Add([pscustomobject]@{name=("legacy:"+$rel);status=(Pick (Test-Path $p) "PASS" "WARN");detail=$p})
   }
 }else{
   $checks.Add([pscustomobject]@{name="brown_eye_runtime_root";status="WARN";detail="No D:\BrownEyeCortex or C:\BrownEyeCortex found. GitHub runtime can still be verified."})
@@ -88,9 +89,9 @@ foreach($rel in @("public\agent.json","public\agent-commerce.json","public\.well
 
 if($RepairMachineSeo){
   $llms=Join-Path $Repo "public\llms.txt"
-  $checks.Add([pscustomobject]@{name="machine:llms.txt";status=(if(Test-Path $llms){"PASS"}else{"WARN"});detail=$llms})
+  $checks.Add([pscustomobject]@{name="machine:llms.txt";status=(Pick (Test-Path $llms) "PASS" "WARN");detail=$llms})
   $sitemap=Join-Path $Repo "public\sitemap.xml"
-  $checks.Add([pscustomobject]@{name="seo:sitemap";status=(if(Test-Path $sitemap){"PASS"}else{"FAIL"});detail=$sitemap})
+  $checks.Add([pscustomobject]@{name="seo:sitemap";status=(Pick (Test-Path $sitemap) "PASS" "FAIL");detail=$sitemap})
 }
 
 if(-not $VerifyOnly -and $Apply){
@@ -119,7 +120,7 @@ $proof=[ordered]@{
   generated_at_utc=(Get-Date).ToUniversalTime().ToString("o")
   repository_root=$Repo
   project_ref=$ProjectRef
-  mode=if($VerifyOnly){"VERIFY_ONLY"}elseif($Apply){"APPLY"}else{"PREFLIGHT"}
+  mode=(Pick $VerifyOnly "VERIFY_ONLY" (Pick $Apply "APPLY" "PREFLIGHT"))
   external_actions_performed=$false
   economic_truth=@{verified_external_revenue_nzd=0;independent_buyers=0;settled_payments=0;verified_economic_loops=0}
   checks=$checks
