@@ -104,6 +104,22 @@ async function fulfill(session){
   if(Number(session.amount_total)!==C2_PRICE_CENTS||String(session.currency).toLowerCase()!==C2_CURRENCY)throw new Error('C2 payment amount/currency mismatch');
   const requestIdValue=String(session.metadata.c2_request_id||session.client_reference_id||'');
   if(!requestIdValue)throw new Error('C2 request attribution missing');
+
+  // C2 may only enter VERIFIED state after the canonical Stripe settlement spine
+  // has observed the live payment and created revenue_orders + fulfillment_requests.
+  // This prevents the result endpoint from manufacturing revenue truth directly.
+  const orders=await supabase('revenue_orders?select=id,status,sku_id,amount_nzd,stripe_checkout_session_id&stripe_checkout_session_id=eq.'+encodeURIComponent(session.id)+'&limit=1');
+  if(!Array.isArray(orders)||!orders[0])return {status:'SETTLEMENT_PENDING',request_id:requestIdValue,session_id:session.id,next:'Await canonical Stripe webhook settlement'};
+  const order=orders[0];
+  if(String(order.status)!=='paid'||String(order.sku_id)!==C2_SKU||Number(order.amount_nzd)!==5)return {status:'SETTLEMENT_CONTRADICTED',request_id:requestIdValue,session_id:session.id,reason:'Canonical revenue order does not match C2 settlement contract'};
+
+  const entitlements=await supabase('revenue_entitlements?select=id,fulfillment_key,status&order_id=eq.'+encodeURIComponent(order.id)+'&limit=1');
+  if(!Array.isArray(entitlements)||!entitlements[0])return {status:'FULFILLMENT_PENDING',request_id:requestIdValue,session_id:session.id,order_id:order.id,next:'Await canonical entitlement creation'};
+  const entitlement=entitlements[0];
+
+  const fulfillments=await supabase('fulfillment_requests?select=id,status,canonical_state,evidence_status&entitlement_id=eq.'+encodeURIComponent(entitlement.id)+'&limit=1');
+  if(!Array.isArray(fulfillments)||!fulfillments[0])return {status:'FULFILLMENT_PENDING',request_id:requestIdValue,session_id:session.id,order_id:order.id,entitlement_id:entitlement.id,next:'Await canonical fulfillment request creation'};
+
   const existing=await supabase('economic_outcomes?select=outcome_id,external_reference,truth_status,metadata&external_reference=eq.'+encodeURIComponent(session.id)+'&limit=1');
   if(Array.isArray(existing)&&existing[0]){const prior=await supabase('evidence_records?select=payload&transition_id=eq.'+encodeURIComponent(requestIdValue)+'&record_type=eq.C2_RESULT&limit=1');return {status:existing[0].truth_status==='VERIFIED'?'VERIFIED':'TEST',request_id:requestIdValue,session_id:session.id,result:prior?.[0]?.payload?.result||null,settlement:existing[0]};}
   const request=await loadRequest(requestIdValue),result=await runRefinery(request),completedAt=new Date().toISOString();
@@ -112,8 +128,10 @@ async function fulfill(session){
   const resultHash=hash(resultPayload);
   const evidence=await supabase('evidence_records',{method:'POST',body:{transition_id:requestIdValue,record_type:'C2_RESULT',min_access_tier:'PAID',disclosure_policy_version:'v1',issuer:'DreamLedger',credential_format:'INTERNAL',credential_ref:session.id,payload:resultPayload,parent_hash:null,record_hash:resultHash,verification_status:'VERIFIED'}});
   const settlementPayload={stripe_session_id:session.id,request_id:requestIdValue,sku:C2_SKU,offer_id:C2_OFFER_ID,amount_nzd:5,currency:'NZD',livemode:Boolean(session.livemode),payment_status:session.payment_status,result_hash:resultHash};
-  const outcome=await supabase('economic_outcomes',{method:'POST',body:{offer_id:C2_OFFER_ID,outcome_type:'FULFILLED',amount_nzd:5,founder_minutes:0,fulfilment_minutes:0,acquisition_cost_nzd:0,payment_fees_nzd:null,external_reference:session.id,observed_at:completedAt,evidence_ids:Array.isArray(evidence)?evidence.map(x=>x.evidence_id).filter(Boolean):[],metadata:settlementPayload,truth_status:session.livemode?'VERIFIED':'TEST',attribution:{request_id:requestIdValue,stripe_session_id:session.id,client_reference_id:session.client_reference_id}}});
-  return {status:session.livemode?'VERIFIED':'TEST',request_id:requestIdValue,session_id:session.id,result,result_hash:resultHash,settlement:outcome};
+  const evidenceIds=Array.isArray(evidence)?evidence.map(x=>x.evidence_id).filter(Boolean):[];
+  const fulfillmentUpdate=await supabase('fulfillment_requests?id=eq.'+encodeURIComponent(fulfillments[0].id),{method:'PATCH',body:{status:'completed',canonical_state:'FULFILLED',fulfillment_reference:resultHash,confirmation_reference:session.id,evidence_reference:resultHash,evidence_status:'VERIFIED'}});
+  const outcome=await supabase('economic_outcomes',{method:'POST',body:{offer_id:C2_OFFER_ID,outcome_type:'FULFILLED',amount_nzd:5,founder_minutes:0,fulfilment_minutes:0,acquisition_cost_nzd:0,payment_fees_nzd:0,external_reference:session.id,observed_at:completedAt,evidence_ids:evidenceIds,metadata:settlementPayload,truth_status:session.livemode?'VERIFIED':'TEST',attribution:{request_id:requestIdValue,stripe_session_id:session.id,client_reference_id:session.client_reference_id,canonical_order_id:order.id,canonical_entitlement_id:entitlement.id,canonical_fulfillment_id:fulfillments[0].id}}});
+  return {status:session.livemode?'VERIFIED':'TEST',request_id:requestIdValue,session_id:session.id,result,result_hash:resultHash,canonical_order_id:order.id,canonical_entitlement_id:entitlement.id,canonical_fulfillment_id:fulfillments[0].id,fulfillment_update:fulfillmentUpdate,settlement:outcome};
 }
 async function handle(req,res,url){
   if(req.method==='POST'&&url==='/m2m/v1/consult/decision/checkout'){try{return send(res,200,await createCheckout(await body(req)))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
