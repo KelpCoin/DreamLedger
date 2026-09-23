@@ -40,7 +40,8 @@ function choose(job) {
   const { registry, workers } = advertisedWorkers();
   const routes = registry.routing[job.kind] || registry.routing.default || [];
   const preference = job.worker_preference || 'auto';
-  const requested = preference === 'auto' ? routes : [preference];
+  const normalizedPreference = ['auto', 'multi_model_diverse'].includes(preference) ? 'auto' : preference;
+  const requested = normalizedPreference === 'auto' ? routes : [normalizedPreference];
   const available = workers.filter(worker => worker.availability === 'online');
   for (const name of requested) {
     if (name === 'local-lmstudio' && available.some(w => w.trust_level === 'local')) return { adapter: 'local-lmstudio', execution_node: process.env.GITHUB_ACTIONS === 'true' ? 'self-hosted-windows' : 'local-process', worker: available.find(w => w.trust_level === 'local') };
