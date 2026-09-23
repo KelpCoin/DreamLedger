@@ -1,28 +1,25 @@
-# START HERE — operator index (updated 2026-09-23)
+# START HERE — operator index
 
-**Husband:** `git pull origin main` then read this + `PING_PONG_BALLS.json`.
+**Husband:** `git pull origin main`
 
-## Money now
+## Money this week (read first)
 
-| Doc | Purpose |
-|-----|---------|
-| `ops/money/BALL-C-ONE-PAGER.md` | What to sell today |
-| `ops/commerce/README.md` | Settlement spine |
-| `ops/commerce/COMPETITIVE-PRICING-APPLIED.md` | Keep $50 / $29 |
-| `BEC-PRIME/commerce/STRIPE-WEBHOOK-SECURITY-APPLIED.md` | Webhook harden |
-| `ops/money/MONETIZATION-ANGLES-200.md` | Angle backlog |
-| `ops/money/PASSIVE-SKUS-201-230.md` | Low-overhead candidates |
-| `BEC-PRIME/fulfillment/PERFORMANCE-WALL-FOUNDATIONS.md` | Digital fulfil |
+1. **`ops/money/THIS-WEEK-COMMAND.md`** — command card + day plan  
+2. **`ops/money/DEMAND-KIT.md`** — copy-paste posts  
+3. **`ops/money/SETTLEMENT-LINK-ALIGNMENT.md`** — make meter match Stripe  
+4. **`ops/money/POST-SALE-PROTOCOL.md`** — when someone pays  
+5. **`ops/money/OPERATOR-SCOREBOARD.md`** — tick boxes  
+6. **`ops/money/AMBITION-14-DAY.md`** — after first traction  
 
-## Live links (catalog)
+## Live sell URLs
 
-- Tile: https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02  
-- Diag: https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00  
+- Tile: https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001  
+- Diagnostic: https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001  
 
 ## Truth
 
-Verified external revenue **NZ$0** until fossil.
+Verified external revenue **NZ$0** until external live pay + recognition + fulfil + fossil.
 
-## NEXT
+## Bus
 
-Post tile link on one owned channel.
+`AGENT_BUS/PING_PONG_BALLS.json`

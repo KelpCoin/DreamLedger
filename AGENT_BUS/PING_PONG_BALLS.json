@@ -1,25 +1,34 @@
 {
-  "version": 23,
+  "version": 24,
   "updated": "2026-09-24",
+  "purpose": "Money execution over architecture theatre",
   "current_truth": {
-    "public_home": "marketplace-v21 customer English",
-    "agent_commerce": "public/agent-commerce.json v2 — no fossil/cs_",
-    "b2b_route": "compiled/website/marketplace.html Business page",
-    "gate": "verify-public-surface.js v16 ops jargon blocked",
-    "why_leak": "AGENT_BUS/HANDOFF-2026-09-24-WHY-PUBLIC-LEAKED.md",
+    "this_week_pack": "ops/money/THIS-WEEK-COMMAND.md",
+    "demand_kit": "ops/money/DEMAND-KIT.md",
+    "link_alignment": "ops/money/SETTLEMENT-LINK-ALIGNMENT.md",
+    "post_sale": "ops/money/POST-SALE-PROTOCOL.md",
+    "scoreboard": "ops/money/OPERATOR-SCOREBOARD.md",
+    "ambition_14d": "ops/money/AMBITION-14-DAY.md",
+    "buy_tile": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "buy_diagnostic": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "public leak root-caused and patched on main",
-    "C": "FIRST SALE still open"
+    "C": "THIS WEEK — align plinks, post demand kit, close first external loop",
+    "D": "14-day ladder only after or with real demand",
+    "E": "no new SKU flood"
   },
   "immediate_next": [
-    "Confirm live /agent-commerce.json has schema v2",
-    "Confirm live /b2b title is Business not CUBE Marketplace",
-    "Post tile Payment Link"
+    "Operator completes SETTLEMENT-LINK-ALIGNMENT.md",
+    "Operator sends DEMAND-KIT posts on owned channels",
+    "On pay: POST-SALE-PROTOCOL.md"
   ],
   "do_not": [
-    "Put fossil/cs_/spine/Elohim/gauntlet on any public JSON or HTML",
-    "Assume homepage-only cleanup fixes /b2b"
-  ]
+    "Fabricate revenue",
+    "Substitute architecture for posts",
+    "Self-pay as BusinessTruth"
+  ],
+  "session_evidence": {
+    "2026-09-24-this-week-pack": "ambitious monetization command pack on main"
+  }
 }
