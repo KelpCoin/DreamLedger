@@ -1,0 +1,42 @@
+{
+  "schema": "ECONOMIC_FINAL_BLOCKERS_V1",
+  "generated_at": "2026-09-24T08:26:00+12:00",
+  "blockers": [
+    {
+      "blocker_id": "EXT-ACTUATOR-001",
+      "category": "EXTERNAL",
+      "description": "No live generic external actuator is connected.",
+      "why_it_exists": "economic_actuators.generic_external_action is ACTUATOR_UNAVAILABLE and the actuator bridge has zero active bridge credentials.",
+      "can_code_remove_it": false,
+      "required_external_authority": "An authorized platform connection/credential capable of performing the selected external action.",
+      "current_status": "EXTERNAL",
+      "next_action": "Connect an authorized actuator and establish its heartbeat.",
+      "evidence_required": "Observed actuator heartbeat plus externally observable action result.",
+      "automation_ready": true
+    },
+    {
+      "blocker_id": "EXT-BROWSER-001",
+      "category": "EXTERNAL",
+      "description": "The connected Opera browser actuator is currently unavailable.",
+      "why_it_exists": "Browser Connector reports that Opera is not connected/authorized for AI control.",
+      "can_code_remove_it": false,
+      "required_external_authority": "User-enabled Opera Browser Connector with an authenticated browser session.",
+      "current_status": "EXTERNAL",
+      "next_action": "Enable Allow AI connection in Opera Browser Connector and sign in.",
+      "evidence_required": "Successful browser actuator connection and observable external page state.",
+      "automation_ready": false
+    }
+  ],
+  "smallest_remaining_human_action": [
+    "Enable the authorized browser actuator connection.",
+    "Provide/establish the authorized bridge credential required by the generic external actuator."
+  ],
+  "automatic_after_boundary": [
+    "Heartbeat the actuator.",
+    "Dispatch an already-authorized compatible economic action.",
+    "Capture external reference/result.",
+    "Verify evidence.",
+    "Record the transition.",
+    "Do not mark revenue VERIFIED until settled payment, attribution, fulfillment, and evidence all exist."
+  ]
+}
