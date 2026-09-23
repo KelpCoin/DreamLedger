@@ -63,7 +63,9 @@
     "this_contract": "/agent-commerce.json",
     "products": "/api/products",
     "offers": "/api/offers",
-    "human_market": "/",\n    "product_pages": "/products/{product_slug}/",\n    "purchase_router": "/buy/{product_slug}/",
+    "human_market": "/",
+    "product_pages": "/products/{product_slug}/",
+    "purchase_router": "/buy/{product_slug}/",
     "version": "/version"
   },
   "purchase_loop_for_agents": [
