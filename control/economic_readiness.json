@@ -1,0 +1,67 @@
+{
+  "schema": "ECONOMIC_READINESS_V1",
+  "generated_at": "2026-09-24T08:26:00+12:00",
+  "scope_exclusions": [
+    "n8n"
+  ],
+  "current_state": "TECHNICALLY_READY_BUT_ECONOMICALLY_UNPROVEN",
+  "verified_revenue_nzd": 0,
+  "verified_payments": 0,
+  "independent_buyers": 0,
+  "external_effects": 0,
+  "business_truth_records": 0,
+  "active_cell_count": 0,
+  "ready_cells": 2,
+  "quarantined_cells": 0,
+  "replicable_cells": 0,
+  "actuator_status": {
+    "stripe_checkout": "AVAILABLE",
+    "generic_external_action": "ACTUATOR_UNAVAILABLE",
+    "bridge_credentials_active": 0,
+    "browser_connector": "UNAVAILABLE"
+  },
+  "evidence_status": {
+    "verified_outcomes": 0,
+    "unverified_outcomes": 0,
+    "contradicted_outcomes": 0,
+    "last_verified_at": null
+  },
+  "gauntlet_status": "IMPLEMENTED_BUT_NO_BUSINESS_TRUTH",
+  "automation_coverage": {
+    "economic_control_report": "EXISTS",
+    "economic_actuator_bridge": "DEPLOYED",
+    "authorization_gate": "IMPLEMENTED",
+    "dispatch_function": "IMPLEMENTED",
+    "fulfillment_functions": "IMPLEMENTED",
+    "stripe_reconciliation_components": "IMPLEMENTED"
+  },
+  "next_external_transition": "EXECUTE_ONE_AUTHORIZED_EXTERNAL_ACTION",
+  "blockers": [
+    {
+      "blocker_id": "EXT-ACTUATOR-001",
+      "category": "EXTERNAL",
+      "description": "No live generic external actuator is connected.",
+      "why_it_exists": "economic_actuators.generic_external_action is ACTUATOR_UNAVAILABLE and the actuator bridge has zero active bridge credentials.",
+      "can_code_remove_it": false,
+      "required_external_authority": "An authorized platform connection/credential capable of performing the selected external action.",
+      "current_status": "EXTERNAL",
+      "next_action": "Connect an authorized actuator and establish its heartbeat.",
+      "evidence_required": "Observed actuator heartbeat plus externally observable action result.",
+      "automation_ready": true
+    },
+    {
+      "blocker_id": "EXT-BROWSER-001",
+      "category": "EXTERNAL",
+      "description": "The connected Opera browser actuator is currently unavailable.",
+      "why_it_exists": "Browser Connector reports that Opera is not connected/authorized for AI control.",
+      "can_code_remove_it": false,
+      "required_external_authority": "User-enabled Opera Browser Connector with an authenticated browser session.",
+      "current_status": "EXTERNAL",
+      "next_action": "Enable Allow AI connection in Opera Browser Connector and sign in.",
+      "evidence_required": "Successful browser actuator connection and observable external page state.",
+      "automation_ready": false
+    }
+  ],
+  "historical_out_of_scope_artifacts": "Existing n8n-derived economic packets remain historical database records and were not used, executed, or extended by this pass.",
+  "economic_truth_immutability": true
+}
