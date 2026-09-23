@@ -102,20 +102,41 @@ if(Test-Path $sitemap){
             $uri=[Uri]$u
             if($uri.Host -ne "dreamledger.org"){ return }
             $path=$uri.AbsolutePath
-            if($path -eq "/" ){ $candidate=Join-Path $RepoRoot "public\index.html" }
+            $candidate=$null
+            $routeMap=@{
+                "/"="index.html"
+                "/truth-oracle"="truth-oracle.html"
+                "/truth-oracle/"="truth-oracle.html"
+                "/overpaying"="overpaying.html"
+                "/overpaying/"="overpaying.html"
+                "/mtg"="mtg.html"
+                "/mtg/"="mtg.html"
+                "/billboard"="billboard.html"
+                "/billboard/"="billboard.html"
+                "/dreammeez"="avatar.html"
+                "/dreammeez/"="avatar.html"
+                "/agent-commerce"="agent-commerce.html"
+                "/agent-commerce/"="agent-commerce.html"
+                "/phin-haven"="phin-haven-v5.html"
+                "/phin-haven/"="phin-haven-v5.html"
+            }
+            if($routeMap.ContainsKey($path)){ $candidate=Join-Path $RepoRoot ("public\"+$routeMap[$path]) }
             elseif($path.EndsWith("/")){ $candidate=Join-Path $RepoRoot ("public"+$path+"index.html") }
             elseif($path.EndsWith(".xml")){ $candidate=Join-Path $RepoRoot ("public"+$path) }
-            else { $candidate=Join-Path $RepoRoot ("public"+$path+".html") }
-            if(-not(Test-Path $candidate)){
-                if($path -eq "/truth-oracle"){ $candidate=Join-Path $RepoRoot "public\truth-oracle\index.html" }
-                elseif($path -eq "/overpaying"){ $candidate=Join-Path $RepoRoot "public\overpaying\index.html" }
-                elseif($path -eq "/mtg"){ $candidate=Join-Path $RepoRoot "public\mtg\index.html" }
-                elseif($path -eq "/billboard"){ $candidate=Join-Path $RepoRoot "public\billboard\index.html" }
-                elseif($path -eq "/dreammeez"){ $candidate=Join-Path $RepoRoot "public\dreammeez\index.html" }
-                elseif($path -eq "/guides"){ $candidate=Join-Path $RepoRoot "public\guides\index.html" }
-                elseif($path -eq "/guides/commander-deck-upgrades-nz"){ $candidate=Join-Path $RepoRoot "public\guides\commander-deck-upgrades-nz\index.html" }
+            elseif($path -match "^/product/[^/]+$"){
+                $catalog=Join-Path $RepoRoot "public\catalog.json"
+                $productId=$path.Substring("/product/".Length)
+                if(Test-Path $catalog){
+                    try{
+                        $catalogObj=Get-Content $catalog -Raw | ConvertFrom-Json
+                        $match=@($catalogObj.products | Where-Object { [string]$_.id -eq $productId -and [string]$_.status -eq "published" })
+                        if($match.Count -gt 0){ $candidate="RUNTIME_PRODUCT:"+$productId }
+                    }catch{}
+                }
             }
-            if(-not(Test-Path $candidate)){ $broken += $u }
+            else { $candidate=Join-Path $RepoRoot ("public"+$path+".html") }
+            if($null -eq $candidate){ $broken += $u }
+            elseif($candidate -notlike "RUNTIME_PRODUCT:*" -and -not(Test-Path $candidate)){ $broken += $u }
         } catch {}
     }
     if($broken.Count -eq 0){ Add-Check "sitemap_local_resolution" "PASS" "all checked URLs resolve to local artifacts" }
