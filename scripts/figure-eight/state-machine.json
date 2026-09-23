@@ -1,0 +1,124 @@
+{
+  "schema": "dreamledger.figure_eight.state_machine.v1",
+  "states": [
+    "SIGNAL",
+    "OPPORTUNITY",
+    "PROPOSITION",
+    "GAUNTLET_PASS",
+    "AWAITING_AUTHORIZATION",
+    "AUTHORIZED",
+    "ACTION_READY",
+    "ACTION_DISPATCHED",
+    "AWAITING_EXTERNAL_RESPONSE",
+    "EXTERNAL_RESPONSE",
+    "SETTLEMENT_PENDING",
+    "SETTLED",
+    "ATTRIBUTION_VERIFIED",
+    "FULFILLMENT_COMPLETE",
+    "INDEPENDENTLY_VERIFIED",
+    "REV_ATOM",
+    "MECHANISM_CANDIDATE",
+    "MECHANISM_VERIFIED",
+    "REPLICATION_QUEUE"
+  ],
+  "transitions": [
+    [
+      "SIGNAL",
+      "OPPORTUNITY",
+      "linked opportunity_id"
+    ],
+    [
+      "OPPORTUNITY",
+      "PROPOSITION",
+      "proposition exists"
+    ],
+    [
+      "PROPOSITION",
+      "GAUNTLET_PASS",
+      "gauntlet verdict PASS"
+    ],
+    [
+      "GAUNTLET_PASS",
+      "AWAITING_AUTHORIZATION",
+      "approval request exists"
+    ],
+    [
+      "AWAITING_AUTHORIZATION",
+      "AUTHORIZED",
+      "durable human approval"
+    ],
+    [
+      "AUTHORIZED",
+      "ACTION_READY",
+      "authorized action exists"
+    ],
+    [
+      "ACTION_READY",
+      "ACTION_DISPATCHED",
+      "outbox dispatch confirmed"
+    ],
+    [
+      "ACTION_DISPATCHED",
+      "AWAITING_EXTERNAL_RESPONSE",
+      "external reference recorded"
+    ],
+    [
+      "AWAITING_EXTERNAL_RESPONSE",
+      "EXTERNAL_RESPONSE",
+      "independent external observation"
+    ],
+    [
+      "EXTERNAL_RESPONSE",
+      "SETTLEMENT_PENDING",
+      "settlement evidence present"
+    ],
+    [
+      "SETTLEMENT_PENDING",
+      "SETTLED",
+      "independent settlement verified"
+    ],
+    [
+      "SETTLED",
+      "ATTRIBUTION_VERIFIED",
+      "cell attribution verified"
+    ],
+    [
+      "ATTRIBUTION_VERIFIED",
+      "FULFILLMENT_COMPLETE",
+      "fulfillment verified"
+    ],
+    [
+      "FULFILLMENT_COMPLETE",
+      "INDEPENDENTLY_VERIFIED",
+      "direct source verification fossil"
+    ],
+    [
+      "INDEPENDENTLY_VERIFIED",
+      "REV_ATOM",
+      "verified Rev Atom materialized"
+    ],
+    [
+      "REV_ATOM",
+      "MECHANISM_CANDIDATE",
+      "mechanism candidate derived"
+    ],
+    [
+      "MECHANISM_CANDIDATE",
+      "MECHANISM_VERIFIED",
+      "candidate verified against verified Rev Atom"
+    ],
+    [
+      "MECHANISM_VERIFIED",
+      "REPLICATION_QUEUE",
+      "eligible opportunity matches queued"
+    ]
+  ],
+  "invariants": [
+    "TEST/SIMULATED/INTERNAL/UNMATCHED never create a REV_ATOM",
+    "Only direct source verification with provenance OBSERVED can create independent verification",
+    "Human approval must precede authorized external action",
+    "External actions use a stable idempotency key",
+    "Append-only fossils and crossing events are never updated or deleted",
+    "Worker restarts must be idempotent"
+  ]
+}
