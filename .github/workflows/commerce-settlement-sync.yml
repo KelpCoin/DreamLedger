@@ -30,7 +30,7 @@ jobs:
       - name: Reconcile settlement evidence
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02
+          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x
           STRIPE_LIVE_ENABLED: 'true'
         run: node ops/commerce/reconcile-stripe-airtable.mjs
 
