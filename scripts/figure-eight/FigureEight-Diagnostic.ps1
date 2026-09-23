@@ -31,6 +31,8 @@ $ProofPath = Join-Path $ProofDir "diagnostic.json"
 New-Item -ItemType Directory -Force -Path $ProofDir | Out-Null
 
 $results = New-Object System.Collections.Generic.List[object]
+function Pick([bool]$Condition,[string]$WhenTrue,[string]$WhenFalse){if($Condition){return $WhenTrue}else{return $WhenFalse}}
+
 function Add-Check {
     param([string]$Name,[ValidateSet("PASS","WARN","FAIL","UNPROVEN")][string]$Status,[string]$Detail)
     $results.Add([pscustomobject]@{ name=$Name; status=$Status; detail=$Detail })
@@ -39,7 +41,7 @@ function Add-Check {
 function Test-File {
     param([string]$Relative,[string]$Name=$Relative)
     $p=Join-Path $RepoRoot $Relative
-    Add-Check $Name (if (Test-Path $p) {"PASS"} else {"FAIL"}) (if (Test-Path $p) {$p} else {"MISSING: $p"})
+    Add-Check $Name (Pick (Test-Path $p) "PASS" "FAIL") (Pick (Test-Path $p) $p ("MISSING: $p"))
 }
 
 Test-File "scripts\figure-eight\FigureEight-Bootstrap.ps1"
@@ -70,7 +72,7 @@ foreach($pair in @(
     $p=Join-Path $RepoRoot ("scripts\figure-eight\"+$pair[0])
     if (Test-Path $p) {
         $txt=Get-Content $p -Raw
-        Add-Check ("function:"+$pair[1]) (if ($txt -match ("function\s+"+[regex]::Escape($pair[1])+"\b")) {"PASS"} else {"FAIL"}) $p
+        Add-Check ("function:"+$pair[1]) (Pick ($txt -match ("function\s+"+[regex]::Escape($pair[1])+"\b")) "PASS" "FAIL") $p
     }
 }
 
@@ -123,8 +125,8 @@ if(Test-Path $sitemap){
 $common=Join-Path $RepoRoot "scripts\figure-eight\FigureEight.Common.ps1"
 if(Test-Path $common){
     $ct=Get-Content $common -Raw
-    Add-Check "stripe_secret_configuration" (if($env:STRIPE_SECRET_KEY){"PASS"}else{"WARN"}) (if($env:STRIPE_SECRET_KEY){"STRIPE_SECRET_KEY present; value not printed"}else{"STRIPE_SECRET_KEY not set in this shell"})
-    Add-Check "supabase_service_configuration" (if($env:SUPABASE_URL -and ($env:SUPABASE_SERVICE_ROLE_KEY -or $env:SUPABASE_SERVICE_KEY)){"PASS"}else{"WARN"}) (if($env:SUPABASE_URL){"SUPABASE_URL present; secret not printed"}else{"SUPABASE_URL not set in this shell"})
+    Add-Check "stripe_secret_configuration" (Pick ([bool]$env:STRIPE_SECRET_KEY) "PASS" "WARN") (Pick ([bool]$env:STRIPE_SECRET_KEY) "STRIPE_SECRET_KEY present; value not printed" "STRIPE_SECRET_KEY not set in this shell")
+    Add-Check "supabase_service_configuration" (Pick ([bool]($env:SUPABASE_URL -and ($env:SUPABASE_SERVICE_ROLE_KEY -or $env:SUPABASE_SERVICE_KEY))) "PASS" "WARN") (Pick ([bool]$env:SUPABASE_URL) "SUPABASE_URL present; secret not printed" "SUPABASE_URL not set in this shell")
 }
 
 # Economic truth is never inferred from files, rows, checkouts, or manifests.
