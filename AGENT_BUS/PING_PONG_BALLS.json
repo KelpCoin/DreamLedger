@@ -1,34 +1,27 @@
 {
-  "version": 24,
+  "version": 25,
   "updated": "2026-09-24",
-  "purpose": "Money execution over architecture theatre",
   "current_truth": {
     "this_week_pack": "ops/money/THIS-WEEK-COMMAND.md",
-    "demand_kit": "ops/money/DEMAND-KIT.md",
-    "link_alignment": "ops/money/SETTLEMENT-LINK-ALIGNMENT.md",
-    "post_sale": "ops/money/POST-SALE-PROTOCOL.md",
-    "scoreboard": "ops/money/OPERATOR-SCOREBOARD.md",
-    "ambition_14d": "ops/money/AMBITION-14-DAY.md",
-    "buy_tile": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "buy_diagnostic": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+    "cloud_sentinels": "BEC-PRIME/sentinels/CLOUD-SENTINELS.md",
+    "sentinel_workflow": ".github/workflows/cloud-demand-intent-sentinels.yml",
+    "sentinel_reports": "AGENT_BUS/sentinel-reports/",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "THIS WEEK — align plinks, post demand kit, close first external loop",
-    "D": "14-day ladder only after or with real demand",
-    "E": "no new SKU flood"
+    "C": "DEMAND-KIT posts + link alignment",
+    "S": "Cloud sentinels probe rails every 6h and write GitHub"
   },
   "immediate_next": [
-    "Operator completes SETTLEMENT-LINK-ALIGNMENT.md",
-    "Operator sends DEMAND-KIT posts on owned channels",
-    "On pay: POST-SALE-PROTOCOL.md"
+    "Run workflow Cloud Demand + Intent Sentinels",
+    "Read AGENT_BUS/sentinel-reports/LATEST-HANDOFF.md after run",
+    "Human posts from DEMAND-KIT"
   ],
   "do_not": [
-    "Fabricate revenue",
-    "Substitute architecture for posts",
-    "Self-pay as BusinessTruth"
+    "Treat HOT band as revenue",
+    "Skip distribution because sentinel is green"
   ],
   "session_evidence": {
-    "2026-09-24-this-week-pack": "ambitious monetization command pack on main"
+    "2026-09-24-cloud-sentinels": "cloud_sentinel_run.mjs + Actions workflow on main"
   }
 }

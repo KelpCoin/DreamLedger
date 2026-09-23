@@ -1,0 +1,66 @@
+name: Cloud Demand + Intent Sentinels
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every 6 hours — cloud, PC-independent
+    - cron: '0 */6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/sentinels/**'
+      - '.github/workflows/cloud-demand-intent-sentinels.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cloud-demand-intent-sentinels
+  cancel-in-progress: true
+
+jobs:
+  probe-and-write:
+    name: Probe live rails + write GitHub reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run cloud sentinels
+        env:
+          LIVE_URL: https://dreamledger.org
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node BEC-PRIME/sentinels/cloud_sentinel_run.mjs
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-sentinel-${{ github.run_id }}
+          path: |
+            AGENT_BUS/sentinel-reports/
+            ops/demand/latest-cloud.json
+          if-no-files-found: error
+          retention-days: 60
+
+      - name: Commit reports to main
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "dreamledger-cloud-sentinel"
+          git config user.email "sentinel@users.noreply.github.com"
+          git add AGENT_BUS/sentinel-reports/ ops/demand/latest-cloud.json || true
+          if git diff --staged --quiet; then
+            echo "No sentinel file changes"
+            exit 0
+          fi
+          git commit -m "sentinel: cloud demand+intent report ${{ github.run_id }}
+
+Automated probe only. verified_external_revenue_nzd unchanged. Not a payment."
+          git push origin HEAD:main
