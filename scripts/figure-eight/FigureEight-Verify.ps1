@@ -4,6 +4,7 @@ param([string]$ProjectRef="wbwgroygjeyukkspnqiy")
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference="Stop"
+function Pick([bool]$Condition,[string]$WhenTrue,[string]$WhenFalse){if($Condition){return $WhenTrue}else{return $WhenFalse}}
 
 $here=(Resolve-Path $PSScriptRoot).Path
 $repo=$here
@@ -22,7 +23,7 @@ function Add-Check([string]$Name,[string]$Status,[string]$Detail){$checks.Add([p
 
 $diag=Join-Path $repo "scripts\figure-eight\FigureEight-Diagnostic.ps1"
 if(Test-Path $diag){
-  try{& $diag -ProjectRef $ProjectRef; $dexit=$LASTEXITCODE;Add-Check "diagnostic" (if($dexit -eq 0){"PASS"}else{"FAIL"}) ("exit="+$dexit)}
+  try{& $diag -ProjectRef $ProjectRef; $dexit=$LASTEXITCODE;Add-Check "diagnostic" (Pick ($dexit -eq 0) "PASS" "FAIL") ("exit="+$dexit)}
   catch{Add-Check "diagnostic" "FAIL" $_.Exception.Message}
 }else{Add-Check "diagnostic" "FAIL" "missing FigureEight-Diagnostic.ps1"}
 
