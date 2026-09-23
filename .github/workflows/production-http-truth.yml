@@ -46,8 +46,17 @@ jobs:
             echo "PASS: $PATHNAME HTTP $STATUS"
           done
 
-          curl -sS -L --retry 4 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL/version" > "$RUNNER_TEMP/version.json"
-          grep -q '271128dd18f108f97a9bb290748640aa8b2aae9f' "$RUNNER_TEMP/version.json"
+          for i in $(seq 1 20); do
+            curl -sS -L --retry 2 --retry-delay 1 --connect-timeout 10 "$PRODUCTION_URL/version" > "$RUNNER_TEMP/version.json" || true
+            if grep -q "${GITHUB_SHA}" "$RUNNER_TEMP/version.json"; then break; fi
+            sleep 3
+          done
+          grep -q "${GITHUB_SHA}" "$RUNNER_TEMP/version.json"
+
+          C2_STATUS="$(curl -sS -L -o "$RUNNER_TEMP/c2.html" -w '%{http_code}' --retry 4 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL/c2?utm_source=exp1&utm_medium=preflight&utm_campaign=controlled_v1&client_ref=EXP1-PREFLIGHT")"
+          test "$C2_STATUS" = "200"
+          grep -q 'client_ref' "$RUNNER_TEMP/c2.html"
+          grep -q 'utm_campaign' "$RUNNER_TEMP/c2.html"
 
           curl -sS -L --retry 4 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL/overpaying" > "$RUNNER_TEMP/overpaying.html"
           grep -qi 'Scan to find out if you.*overpaying' "$RUNNER_TEMP/overpaying.html"
@@ -74,10 +83,11 @@ jobs:
           set -euo pipefail
           mkdir -p proof
           VERSION="$(curl -sS -L --retry 3 --retry-delay 2 https://dreamledger.org/version)"
+          C2_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 'https://dreamledger.org/c2?utm_source=exp1&utm_medium=preflight&utm_campaign=controlled_v1&client_ref=EXP1-PREFLIGHT')"
           OVERPAYING_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/overpaying)"
           ROOT_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/)"
           ACCOUNT_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/api/account/me)"
-          printf '{"schema":"dreamledger-production-http-truth-v2","status":"PASS","sha":"%s","run_id":"%s","url":"https://dreamledger.org","version_response":%s,"root_http_status":%s,"overpaying_http_status":%s,"account_me_http_status":%s,"account_me_authentication":"anonymous"}\n' "$SHA" "$RUN_ID" "$VERSION" "$ROOT_STATUS" "$OVERPAYING_STATUS" "$ACCOUNT_STATUS" > proof/PRODUCTION-HTTP-TRUTH.json
+          printf '{"schema":"dreamledger-production-http-truth-v2","status":"PASS","sha":"%s","run_id":"%s","url":"https://dreamledger.org","version_response":%s,"root_http_status":%s,"c2_http_status":%s,"overpaying_http_status":%s,"account_me_http_status":%s,"account_me_authentication":"anonymous"}\n' "$SHA" "$RUN_ID" "$VERSION" "$ROOT_STATUS" "$C2_STATUS" "$OVERPAYING_STATUS" "$ACCOUNT_STATUS" > proof/PRODUCTION-HTTP-TRUTH.json
           cat proof/PRODUCTION-HTTP-TRUTH.json
 
       - name: Upload production proof
