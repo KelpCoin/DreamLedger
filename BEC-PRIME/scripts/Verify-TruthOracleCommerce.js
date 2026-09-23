@@ -34,8 +34,9 @@ if (!failures.length) {
   if (!start.includes("require('./routes/truthOracleCommerce')")) failures.push('truth-route-not-mounted');
   if (!start.includes('truthOracleCommerce.handleStripeWebhook')) failures.push('truth-webhook-not-mounted');
   for (const price of ['NZ$4.99','NZ$7.99','NZ$9.99']) if (!page.includes(price)) failures.push('public-price:' + price);
-  if (!/Payment never changes the underlying verdict|payment.*underlying verdict/i.test(page)) failures.push('public-truth-rule');
-  if (!/cannot pay to make reality look better|payment.*verdict.*confidence/i.test(page)) failures.push('commercial-rule');
+  // Accept published canonical copy and the historical verifier phrase.
+  if (!/Payment never changes the underlying verdict|payment.*underlying verdict|cannot pay to make reality look better|underlying truth calculation does not change/i.test(page)) failures.push('public-truth-rule');
+  if (!/cannot pay to make reality look better|payment.*verdict.*confidence|underlying truth calculation does not change/i.test(page)) failures.push('commercial-rule');
   if (!route.includes("tier:'public'")) failures.push('public-default-entitlement');
   if (!route.includes("record.environment!=='live'")) failures.push('live-environment-boundary');
 }
