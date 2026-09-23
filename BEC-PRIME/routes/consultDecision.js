@@ -38,12 +38,14 @@ async function supabase(path,options={}){
 }
 async function createCheckout(input){
   const id=requestId();
-  const request={request_id:id,sku:C2_SKU,offer_id:C2_OFFER_ID,question:String(input.question||'').trim(),context:String(input.context||'').trim(),constraints:Array.isArray(input.constraints)?input.constraints.map(String).slice(0,20):[],output_format:String(input.output_format||'decision_memo').trim().slice(0,80),created_at:new Date().toISOString()};
+  const attribution=input.attribution&&typeof input.attribution==='object'?{utm_source:String(input.attribution.utm_source||'').trim().slice(0,120)||null,utm_medium:String(input.attribution.utm_medium||'').trim().slice(0,120)||null,utm_campaign:String(input.attribution.utm_campaign||'').trim().slice(0,120)||null,landing_path:String(input.attribution.landing_path||'').trim().slice(0,300)||null}:null;
+  const request={request_id:id,sku:C2_SKU,offer_id:C2_OFFER_ID,question:String(input.question||'').trim(),context:String(input.context||'').trim(),constraints:Array.isArray(input.constraints)?input.constraints.map(String).slice(0,20):[],output_format:String(input.output_format||'decision_memo').trim().slice(0,80),attribution,created_at:new Date().toISOString()};
   if(request.question.length<8||request.question.length>12000)throw new Error('question must be 8-12000 characters');
   const recordPayload={schema:'BEC-C2-REQUEST/v1',...request};
   await supabase('evidence_records',{method:'POST',body:{transition_id:id,record_type:'C2_REQUEST',min_access_tier:'PAID',disclosure_policy_version:'v1',issuer:'DreamLedger',credential_format:'INTERNAL',credential_ref:id,payload:recordPayload,parent_hash:null,record_hash:hash(recordPayload),verification_status:'UNVERIFIED'}});
   const session=await stripeRequest('POST','checkout/sessions',{
     mode:'payment',client_reference_id:id,'metadata[c2_request_id]':id,'metadata[sku]':C2_SKU,'metadata[offer_id]':C2_OFFER_ID,'metadata[silo]':'reasoning',
+    'metadata[utm_source]':request.attribution?.utm_source||'','metadata[utm_medium]':request.attribution?.utm_medium||'','metadata[utm_campaign]':request.attribution?.utm_campaign||'',
     'line_items[0][price_data][currency]':C2_CURRENCY,'line_items[0][price_data][unit_amount]':C2_PRICE_CENTS,
     'line_items[0][price_data][product_data][name]':'C2 Decision Analysis','line_items[0][price_data][product_data][description]':'One hosted BrownEye decision analysis.','line_items[0][quantity]':1,
     'success_url':PUBLIC_BASE+'/m2m/v1/consult/decision/result?session_id={CHECKOUT_SESSION_ID}','cancel_url':PUBLIC_BASE+'/m2m/v1/consult/decision/cancelled?request_id='+encodeURIComponent(id)
