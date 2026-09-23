@@ -6,6 +6,7 @@ on:
     branches:
       - main
     paths:
+      - 'public/**'
       - 'BEC-PRIME/compiled/website/**'
       - '.github/workflows/production-http-truth.yml'
 
@@ -33,6 +34,26 @@ jobs:
           grep -qi 'DreamLedger' "$RUNNER_TEMP/root.html"
           echo "PASS: production root HTTP $ROOT_STATUS and DreamLedger marker present."
 
+      - name: Probe commercial doorway
+        shell: bash
+        env:
+          PRODUCTION_URL: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          for PATHNAME in /version /healthz /overpaying /overpaying/ /overpaying.html; do
+            STATUS="$(curl -sS -L -o "$RUNNER_TEMP/route.html" -w '%{http_code}' --retry 4 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL$PATHNAME")"
+            test "$STATUS" = "200"
+            echo "PASS: $PATHNAME HTTP $STATUS"
+          done
+
+          curl -sS -L --retry 4 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL/version" > "$RUNNER_TEMP/version.json"
+          grep -q '271128dd18f108f97a9bb290748640aa8b2aae9f' "$RUNNER_TEMP/version.json"
+
+          curl -sS -L --retry 4 --retry-delay 2 --connect-timeout 10 "$PRODUCTION_URL/overpaying" > "$RUNNER_TEMP/overpaying.html"
+          grep -qi 'Scan to find out if you.*overpaying' "$RUNNER_TEMP/overpaying.html"
+
+          echo "PASS: commercial doorway, health endpoint, version convergence, and overpaying marker verified."
+
       - name: Probe anonymous account surface
         shell: bash
         env:
@@ -52,9 +73,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
+          VERSION="$(curl -sS -L --retry 3 --retry-delay 2 https://dreamledger.org/version)"
+          OVERPAYING_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/overpaying)"
           ROOT_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/)"
           ACCOUNT_STATUS="$(curl -sS -L -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 2 https://dreamledger.org/api/account/me)"
-          printf '{"schema":"dreamledger-production-http-truth-v1","status":"PASS","sha":"%s","run_id":"%s","url":"https://dreamledger.org","root_http_status":%s,"account_me_http_status":%s,"account_me_authentication":"anonymous"}\n' "$SHA" "$RUN_ID" "$ROOT_STATUS" "$ACCOUNT_STATUS" > proof/PRODUCTION-HTTP-TRUTH.json
+          printf '{"schema":"dreamledger-production-http-truth-v2","status":"PASS","sha":"%s","run_id":"%s","url":"https://dreamledger.org","version_response":%s,"root_http_status":%s,"overpaying_http_status":%s,"account_me_http_status":%s,"account_me_authentication":"anonymous"}\n' "$SHA" "$RUN_ID" "$VERSION" "$ROOT_STATUS" "$OVERPAYING_STATUS" "$ACCOUNT_STATUS" > proof/PRODUCTION-HTTP-TRUTH.json
           cat proof/PRODUCTION-HTTP-TRUTH.json
 
       - name: Upload production proof
