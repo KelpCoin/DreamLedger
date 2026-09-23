@@ -103,6 +103,9 @@ if(-not $VerifyOnly -and $Apply){
   if($LASTEXITCODE -ne 0){Fail "supabase db push failed."}
 }
 
+$seo=Join-Path $Repo "scripts\figure-eight\FigureEight-SEO-Preflight.ps1"
+if(Test-Path $seo){try{& $seo}catch{ $checks.Add([pscustomobject]@{name="seo_preflight";status="FAIL";detail=$_.Exception.Message}) }}
+
 $diag=Join-Path $Repo "scripts\figure-eight\FigureEight-Diagnostic.ps1"
 if(-not $VerifyOnly -and (Test-Path $diag)){
   try{& $diag -ProjectRef $ProjectRef; $diagExit=$LASTEXITCODE}
