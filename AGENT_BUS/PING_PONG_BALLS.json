@@ -1,36 +1,34 @@
 {
-  "version": 21,
+  "version": 22,
   "updated": "2026-09-24",
-  "purpose": "Durable control state — public site is customer-facing; ops stay on the bus",
   "figure_eight": {
-    "public_surface": "marketplace-v20",
-    "verified_external_revenue_nzd": 0,
-    "dam": "Evidence before revenue claim — on AGENT_BUS not in nav chrome"
-  },
-  "current_truth": {
-    "public_index": "public/index.html data-surface=marketplace-v20",
-    "handoff": "AGENT_BUS/HANDOFF-2026-09-24-PUBLIC-SURFACE-V20.md",
-    "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
-    "payment_link_diagnostic": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
+    "public_surface": "marketplace-v21",
     "verified_external_revenue_nzd": 0
   },
+  "current_truth": {
+    "index": "public/index.html data-surface=marketplace-v21",
+    "b2b_openapi": "public/b2b/catalog.openapi.json",
+    "b2b_docs": "docs/b2b/MARKETPLACE-API-APPLIED.md",
+    "orch": "docs/agents/ORCHESTRATION-APPLIED.md",
+    "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
+    "verified_external_revenue_nzd": 0,
+    "live_site_was": "stale pre-v20 until Render catches main"
+  },
   "balls": {
-    "A": "public v20 — no internal jargon on face",
-    "B": "B2B section + agent APIs clean",
-    "C": "FIRST SALE still open",
-    "D": "multi-LLM: read HANDOFF public surface before editing index.html"
+    "A": "surface v21 on main — force deploy if live stale",
+    "B": "B2B OpenAPI + orchestration docs",
+    "C": "FIRST SALE"
   },
   "immediate_next": [
-    "Wait Render deploy / hard refresh dreamledger.org",
-    "Post tile Payment Link on owned channel",
-    "Do not reintroduce fossil/meter language into public HTML"
+    "Confirm live HTML contains marketplace-v21",
+    "Post tile Payment Link",
+    "Never restore ops meter language to public index"
   ],
   "do_not": [
-    "Put NZ$0 meter in the top bar for customers",
-    "Dump protocol alphabet soup on the homepage",
-    "Claim TradeMe parity until traffic + trust exist — design bar only"
+    "Put fossil/cs_/spine on homepage",
+    "Parallel catalog authority outside approved offers for settlement"
   ],
   "session_evidence": {
-    "2026-09-24-v20": "enterprise marketplace front door committed"
+    "2026-09-24-v21": "b2b+orch+marketplace-v21"
   }
 }
