@@ -1,0 +1,47 @@
+{
+  "schema": "BEC-PRIME/OFFER-CANDIDATES/v1",
+  "note": "NOT checkout-enabled. Promote only via gauntlet + approved.json + live plink.",
+  "verified_external_revenue_nzd": 0,
+  "priority_live": [
+    "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "OFFER-CMD-DIAG-29-NZD"
+  ],
+  "seed_candidates": [
+    {
+      "candidate_id": "CAND-TILE-DIAG-BUNDLE",
+      "name": "Tile + Diagnostic bundle",
+      "suggested_price_nzd": 69,
+      "fulfillment": "billboard_specialized + wall_or_diag_route",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND-DIAG-PACK-3",
+      "name": "Three diagnostic credits",
+      "suggested_price_nzd": 69,
+      "fulfillment": "performance_wall",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND-COSMETIC-STARTER",
+      "name": "Avatar cosmetic starter bundle",
+      "suggested_price_nzd": 15,
+      "fulfillment": "entitlement_plus_wall",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND-ORACLE-PREMIUM-NOTE",
+      "name": "Truth Oracle premium weekly note",
+      "suggested_price_nzd": 9,
+      "fulfillment": "performance_wall",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND-NAIL-SAFETY-PACK",
+      "name": "Home nail safety + practice log pack",
+      "suggested_price_nzd": 19,
+      "fulfillment": "performance_wall",
+      "status": "CANDIDATE",
+      "note": "Content not yet in repo; candidate only"
+    }
+  ]
+}

@@ -1,39 +1,37 @@
 {
-  "version": 18,
+  "version": 19,
   "updated": "2026-09-23",
-  "purpose": "Durable economic control state — read on GitHub, not chat.",
-  "operator_index": "AGENT_BUS/START-HERE-SESSION-2026-09-22.md",
+  "purpose": "Durable economic control state",
   "operating_mandate": "AGENT_BUS/OPERATING-MANDATE.md",
   "figure_eight": {
-    "settle_lobe": ["Stripe", "Settlement Sync", "Performance Wall"],
-    "dam": "Evidence before revenue claim",
-    "verified_external_revenue_nzd": 0
+    "verified_external_revenue_nzd": 0,
+    "dam": "Evidence before revenue claim"
   },
   "current_truth": {
-    "ball_c_one_pager": "ops/money/BALL-C-ONE-PAGER.md",
-    "income_now": "ops/money/INCOME-NOW.md",
-    "commerce_spine": "ops/commerce/README.md",
+    "angles_200": "ops/money/MONETIZATION-ANGLES-200.md",
+    "wall_foundations": "BEC-PRIME/fulfillment/PERFORMANCE-WALL-FOUNDATIONS.md",
+    "candidates_seed": "BEC-PRIME/catalog/offers/candidates-from-angles.json",
+    "bridge_money": "docs/bridge/BRIDGE-MONEY-REFINEMENT.md",
+    "ball_c": "ops/money/BALL-C-ONE-PAGER.md",
     "payment_link_primary": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02",
+    "payment_link_diagnostic": "https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "play design exists; not revenue",
-    "B": "secrets + webhook — operator",
-    "C": "FIRST SALE — demand pulse OPEN",
-    "D": "operating mandate on main",
-    "E": "no fabricated revenue"
+    "C": "FIRST SALE — post primary plink; angles are not revenue",
+    "D": "200 angles + wall foundations on main"
   },
   "immediate_next": [
-    "Human posts https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02 on owned channel",
-    "Confirm settlement-read STRIPE_SECRET_KEY + Settlement Sync",
-    "On pay: fulfil + fossil"
+    "Post https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02 on owned channel",
+    "Wire wall mint on diagnostic webhook when possible",
+    "Do not approve 200 candidates before first fossil"
   ],
   "do_not": [
-    "Architecture without demand",
-    "Chat as source of truth",
-    "Claim NZ$ > 0 without fossil"
+    "Treat candidates as live checkout",
+    "Fabricate revenue",
+    "Parallel settlement spine"
   ],
   "session_evidence": {
-    "2026-09-23-operating-agent": "OPERATING-MANDATE + BALL-C-ONE-PAGER + balls v18"
+    "2026-09-23-angles-200": "MONETIZATION-ANGLES-200 + wall foundations + candidates seed"
   }
 }
