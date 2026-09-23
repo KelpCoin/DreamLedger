@@ -29,8 +29,8 @@ Both of the following are approved in `BEC-PRIME/catalog/offers/approved.json` a
 - Offer ID: `OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001`
 - Price: NZ$50
 - Currency: NZD
-- Stripe Payment Link (approved catalog): `https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02`
-- Stripe Payment Link ID: `plink_1UAN9zJt4ieIQDFzgHeso6Qo`
+- Stripe Payment Link (approved catalog): `https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x`
+- Stripe Payment Link ID: `plink_1UCrekEGgEAnUFF9XVRM04aG`
 - Status: primary first-sale settlement target
 
 ### Secondary (also approved) — Commander Diagnostic NZ$29
