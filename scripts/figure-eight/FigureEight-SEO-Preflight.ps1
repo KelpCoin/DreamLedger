@@ -4,6 +4,7 @@ param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference="Stop"
+function Pick([bool]$Condition,[string]$WhenTrue,[string]$WhenFalse){if($Condition){return $WhenTrue}else{return $WhenFalse}}
 $repo=(Resolve-Path $PSScriptRoot\..\..).Path
 $public=Join-Path $repo "public"
 $proof=Join-Path $repo "proof\figure-eight\seo-preflight.json"
@@ -18,7 +19,7 @@ foreach($f in @("agent.json","agent-commerce.json",".well-known\dreamledger.json
 }
 
 $llms=Join-Path $public "llms.txt"
-Add "llms.txt" (if(Test-Path $llms){"PASS"}else{"FAIL"}) $llms
+Add "llms.txt" (Pick (Test-Path $llms) "PASS" "FAIL") $llms
 
 $sitemap=Join-Path $public "sitemap.xml"
 if(Test-Path $sitemap){
@@ -32,7 +33,7 @@ if(Test-Path $sitemap){
     elseif($path -match '\.html$'){$candidate=Join-Path $public $path.TrimStart('/')}
     elseif($path -match '/$'){$candidate=Join-Path $public ($path.TrimStart('/')+"index.html")}
     else{$candidate=Join-Path $public $path.TrimStart('/')}
-    Add ("sitemap:"+$path) (if(Test-Path $candidate){"PASS"}else{"FAIL"}) (if(Test-Path $candidate){$candidate}else{"missing local artifact"})
+    Add ("sitemap:"+$path) (Pick (Test-Path $candidate) "PASS" "FAIL") (Pick (Test-Path $candidate) $candidate "missing local artifact")
   }
 }else{Add "sitemap.xml" "FAIL" "missing"}
 
