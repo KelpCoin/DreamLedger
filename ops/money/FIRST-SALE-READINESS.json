@@ -1,0 +1,43 @@
+{
+  "schema": "dreamledger/first-sale-readiness/v1",
+  "updated": "2026-09-25",
+  "verified_external_revenue_nzd": 0,
+  "offers": [
+    {
+      "id": "tile-50",
+      "name": "Founding Billboard Tile",
+      "price_nzd": 50,
+      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "live_plink": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "settlement_job": "reconcile-tile",
+      "fulfilment": "billboard_placement_review",
+      "copy_file": "ops/money/COPY-PASTE-NOW.txt"
+    },
+    {
+      "id": "diag-29",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "live_plink": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+      "settlement_job": "reconcile-diagnostic",
+      "fulfillment": "digital_report",
+      "copy_file": "ops/money/COPY-PASTE-NOW.txt"
+    }
+  ],
+  "checklist": [
+    { "id": "secret", "text": "STRIPE_SECRET_KEY present in GitHub Actions", "owner": "operator" },
+    { "id": "sync_dry", "text": "Commerce Settlement Sync run once (expect 0)", "owner": "operator" },
+    { "id": "post", "text": "At least one owned-channel post with buy_router URL", "owner": "operator" },
+    { "id": "warm", "text": "At least three warm DMs", "owner": "operator" },
+    { "id": "pay", "text": "External live paid session", "owner": "market" },
+    { "id": "fulfil", "text": "Deliver product same day", "owner": "operator" },
+    { "id": "fossil", "text": "Proof sealed; balls updated only with evidence", "owner": "operator+agent" }
+  ],
+  "blockers_if_still_zero": [
+    "No posts",
+    "Posts without link",
+    "Wrong audience",
+    "Secret missing so meter blind",
+    "Fulfilment fear delaying promotion"
+  ]
+}

@@ -1,31 +1,29 @@
 {
-  "version": 28,
+  "version": 29,
   "updated": "2026-09-25",
   "current_truth": {
-    "zero_balance_playbook": "ops/money/ZERO-BALANCE-PLAYBOOK.md",
-    "copy_paste_now": "ops/money/COPY-PASTE-NOW.txt",
-    "settlement_workflow": ".github/workflows/commerce-settlement-sync.yml",
-    "live_tile_plink": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-    "live_diagnostic_plink": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
-    "buy_tile": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "buy_diagnostic": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-    "verified_external_revenue_nzd": 0,
-    "note": "Settlement Sync previously watched a stale tile plink; fixed to live destinations"
+    "first_sale_readiness": "ops/money/FIRST-SALE-READINESS.json",
+    "distribution_queue": "ops/money/distribution_queue.json",
+    "keep_building": "ops/money/KEEP-BUILDING.md",
+    "after_pay": "BEC-PRIME/fulfillment/handoff_after_pay.md",
+    "copy_paste": "ops/money/COPY-PASTE-NOW.txt",
+    "settlement": ".github/workflows/commerce-settlement-sync.yml",
+    "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "POST COPY-PASTE-NOW — first external pay",
-    "M": "Meter aligned to live buy routers"
+    "C": "Clear distribution_queue jobs — get paid",
+    "F": "Fulfilment handoff ready for first pay"
   },
   "immediate_next": [
-    "Ensure STRIPE_SECRET_KEY secret",
-    "Run Commerce Settlement Sync",
-    "Post ops/money/COPY-PASTE-NOW.txt on owned channel"
+    "Post dist-001 tile link",
+    "Post dist-002 diagnostic if MTG channel exists",
+    "mark_distribution.py when sent"
   ],
   "do_not": [
-    "Build more products instead of posting",
-    "Claim revenue at 0"
+    "Skip posts for more architecture",
+    "Claim wealth"
   ],
   "session_evidence": {
-    "2026-09-25-plink-align": "dual-offer settlement jobs + zero balance playbook"
+    "2026-09-25-keep-building": "readiness + distro queue + after-pay handoff"
   }
 }

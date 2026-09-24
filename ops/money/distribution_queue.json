@@ -1,0 +1,48 @@
+{
+  "schema": "dreamledger/distribution-queue/v1",
+  "updated": "2026-09-25",
+  "purpose": "Ordered distribution jobs. Agents prepare; humans send on owned channels.",
+  "verified_external_revenue_nzd": 0,
+  "jobs": [
+    {
+      "job_id": "dist-001",
+      "channel": "owned_discord_or_group",
+      "offer": "tile-50",
+      "status": "pending_human",
+      "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
+      "url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "priority": 1
+    },
+    {
+      "job_id": "dist-002",
+      "channel": "owned_mtg_discord",
+      "offer": "diag-29",
+      "status": "pending_human",
+      "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
+      "url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "priority": 2
+    },
+    {
+      "job_id": "dist-003",
+      "channel": "warm_dm_batch",
+      "offer": "tile-50",
+      "status": "pending_human",
+      "count_target": 5,
+      "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
+      "priority": 1
+    },
+    {
+      "job_id": "dist-004",
+      "channel": "email_or_story",
+      "offer": "tile-50",
+      "status": "pending_human",
+      "payload_ref": "ops/money/DEMAND-KIT.md",
+      "priority": 3
+    }
+  ],
+  "rules": [
+    "Never mark job complete without human confirmation of send",
+    "Never auto-post to third-party communities without explicit operator policy",
+    "Prefer buy_router URLs over raw plinks in public posts"
+  ]
+}
