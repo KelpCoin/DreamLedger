@@ -1,0 +1,44 @@
+name: CUBE HTTP Live Proof
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  cube-http-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify representative CUBE routes over public HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://dreamledger.org"
+          routes=(
+            "/cube/auto/0000001"
+            "/cube/auto/0000500"
+            "/cube/auto/0000501"
+            "/cube/auto/0500000"
+            "/cube/auto/0500001"
+            "/cube/auto/0999999"
+            "/cube/auto/1000000"
+          )
+          for route in "${routes[@]}"; do
+            echo "PROBE $route"
+            body="$(curl --fail --silent --show-error --location --max-time 20 "$base$route")"
+            echo "$body" | grep -q "DreamLedger CUBE economic silo."
+            echo "$body" | grep -q "$route"
+            echo "PASS $route HTTP_200"
+          done
+      - name: Verify deterministic route coverage at sampled scale
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://dreamledger.org"
+          for n in 1 10 100 1000 10000 100000 250000 500000 750000 900000 999999 1000000; do
+            route="$(printf '/cube/auto/%07d' "$n")"
+            status="$(curl --silent --output /tmp/cube.html --write-out '%{http_code}' --location --max-time 20 "$base$route")"
+            test "$status" = "200"
+            grep -q "DreamLedger CUBE economic silo." /tmp/cube.html
+            echo "PASS $route HTTP_$status"
+          done
