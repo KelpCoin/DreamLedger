@@ -1,8 +1,6 @@
 name: CUBE Million HTTP Verification
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -11,34 +9,36 @@ concurrency:
 
 jobs:
   million-http-proof:
-    name: Verify routes ${{ matrix.shard }}
+    name: Verify CUBE HTTP shard ${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      max-parallel: 20
+      max-parallel: 4
       matrix:
-        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255]
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
     steps:
-      - name: Execute every assigned public HTTPS route
+      - name: Execute assigned public HTTPS routes with 429-aware backpressure
         env:
           SHARD: ${{ matrix.shard }}
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import concurrent.futures
           import os
           import time
+          import urllib.error
           import urllib.request
 
           BASE = "https://dreamledger.org"
           SHARD = int(os.environ["SHARD"])
-          SHARD_SIZE = 3907
-          START = SHARD * SHARD_SIZE + 1
-          END = min((SHARD + 1) * SHARD_SIZE, 1_000_000)
-          WORKERS = 24
-          RETRIES = 3
+          TOTAL = 1_000_000
+          SHARDS = 20
+          START = (SHARD * TOTAL) // SHARDS + 1
+          END = ((SHARD + 1) * TOTAL) // SHARDS
+          RATE_PER_WORKER = 2.0
+          MAX_RETRIES = 12
+          USER_AGENT = "DreamLedger-CUBE-Million-Verifier/2.0"
 
           def route_for(n):
               if n <= 500:
@@ -48,33 +48,58 @@ jobs:
           def verify(n):
               route = route_for(n)
               url = BASE + route
-              last = ""
-              for attempt in range(RETRIES + 1):
+              delay = 0.0
+              for attempt in range(MAX_RETRIES + 1):
+                  if delay:
+                      time.sleep(delay)
                   try:
-                      req = urllib.request.Request(url, headers={"User-Agent": "DreamLedger-CUBE-Million-Verifier/1.0"}, method="GET")
-                      with urllib.request.urlopen(req, timeout=20) as r:
+                      req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="GET")
+                      with urllib.request.urlopen(req, timeout=30) as r:
                           status = r.status
+                          headers = dict(r.headers.items())
                           body = r.read()
                       text = body.decode("utf-8", "replace")
-                      if status == 200 and "DreamLedger CUBE economic silo." in text and route in text:
+                      marker_ok = "DreamLedger CUBE economic silo." in text
+                      route_ok = route in text
+                      if status == 200 and marker_ok and route_ok:
                           return None
-                      last = f"HTTP {status}, marker={'DreamLedger CUBE economic silo.' in text}, route={route in text}"
+                      if status == 429:
+                          retry_after = headers.get("Retry-After")
+                          delay = min(60.0, max(1.0, float(retry_after))) if retry_after else min(60.0, max(1.0, 2 ** min(attempt, 5)))
+                          continue
+                      return f"{n} {route} HTTP {status} marker={marker_ok} route={route_ok}"
+                  except urllib.error.HTTPError as e:
+                      if e.code == 429:
+                          retry_after = e.headers.get("Retry-After")
+                          try:
+                              delay = min(60.0, max(1.0, float(retry_after))) if retry_after else min(60.0, max(1.0, 2 ** min(attempt, 5)))
+                          except ValueError:
+                              delay = min(60.0, max(1.0, 2 ** min(attempt, 5)))
+                          continue
+                      return f"{n} {route} HTTP {e.code}"
                   except Exception as e:
-                      last = repr(e)
-                  if attempt < RETRIES:
-                      time.sleep(0.5 * (attempt + 1))
-              return f"{n} {route} {last}"
+                      delay = min(30.0, max(0.5, 2 ** min(attempt, 5)))
+                      if attempt == MAX_RETRIES:
+                          return f"{n} {route} {repr(e)}"
+              return f"{n} {route} exhausted retries"
 
           failures = []
-          with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as ex:
-              for idx, result in enumerate(ex.map(verify, range(START, END + 1)), 1):
-                  if result:
-                      failures.append(result)
-                      print("FAIL", result, flush=True)
-                  if idx % 250 == 0:
-                      print(f"PROGRESS shard={SHARD} checked={idx} range={START}-{END}", flush=True)
+          checked = 0
+          next_allowed = time.monotonic()
 
-          checked = END - START + 1
+          for n in range(START, END + 1):
+              now = time.monotonic()
+              if now < next_allowed:
+                  time.sleep(next_allowed - now)
+              result = verify(n)
+              next_allowed = time.monotonic() + (1.0 / RATE_PER_WORKER)
+              checked += 1
+              if result:
+                  failures.append(result)
+                  print("FAIL " + result, flush=True)
+              if checked % 1000 == 0:
+                  print(f"PROGRESS shard={SHARD} checked={checked} range={START}-{END}", flush=True)
+
           print(f"SHARD_COMPLETE shard={SHARD} checked={checked} failures={len(failures)} range={START}-{END}", flush=True)
           if failures:
               raise SystemExit("\n".join(failures[:100]))
