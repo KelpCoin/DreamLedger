@@ -98,7 +98,7 @@ async function createCheckout(req, res) {
     'success_url': PUBLIC_BASE + '/checkout/success?session_id={CHECKOUT_SESSION_ID}',
     'cancel_url': PUBLIC_BASE + '/?checkout_cancelled=1',
     'line_items[0][price_data][currency]': String(p.currency || 'nzd').toLowerCase(),
-    'line_items[0][price_data][unit_amount]': Number(p.price),
+    'line_items[0][price_data][unit_amount]': Math.round(Number(p.price) * 100),
     'line_items[0][price_data][product_data][name]': p.name,
     'line_items[0][price_data][product_data][metadata][product_id]': p.id,
     'line_items[0][quantity]': 1,
@@ -116,7 +116,7 @@ async function createCheckout(req, res) {
     'payment_intent_data[metadata][source]': 'mvp_checkout'
   }, 'dreamledger-mvp-checkout-' + user.id + '-' + p.id + '-' + crypto.randomUUID());
   await db('POST', 'dreamledger_orders', '', { id: 'ord_' + crypto.randomBytes(12).toString('hex'), principal_id: user.id, checkout_session_id: session.id, product_id: p.id, amount_total: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), payment_status: 'pending', customer_email: user.email }, 'return=minimal');
-  return json(res, 200, { ok: true, order_pending: true, session_id: session.id, checkout_url: session.url, amount_minor: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase() });
+  return json(res, 200, { ok: true, order_pending: true, session_id: session.id, checkout_url: session.url, amount_minor: Math.round(Number(p.price) * 100), currency: String(p.currency || 'nzd').toLowerCase() });
 }
 async function stripeWebhook(req, res) {
   const parsed = await body(req, 5000000);
@@ -134,7 +134,7 @@ async function stripeWebhook(req, res) {
   const sessionCurrency = String(session.currency || '').toLowerCase();
   const productCurrency = String(p.currency || 'nzd').toLowerCase();
   const sessionAmount = Number(session.amount_total);
-  const productAmount = Number(p.price);
+  const productAmount = Math.round(Number(p.price) * 100);
   if (!Number.isFinite(sessionAmount) || sessionCurrency !== productCurrency || sessionAmount !== productAmount) return json(res, 400, { error: 'Payment failed canonical server-side validation' });
   const existing = await db('GET', 'dreamledger_orders', '?select=*&checkout_session_id=eq.' + encodeURIComponent(session.id) + '&limit=1');
   let order = Array.isArray(existing) && existing[0] ? existing[0] : null;
