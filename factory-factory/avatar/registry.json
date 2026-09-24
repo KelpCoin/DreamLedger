@@ -1,0 +1,11 @@
+{
+  "provider": "ready-player-me",
+  "status": "CONTRACT_READY_PROVIDER_CONFIGURATION_REQUIRED",
+  "persistence_key": "dreamledger_avatar_id",
+  "capabilities": [
+    "prompt_to_avatar",
+    "wearable_inventory",
+    "cross_surface_identity"
+  ],
+  "truth_policy": "Avatar creation is not economic outcome; only independently observed purchase/settlement is economic truth."
+}
