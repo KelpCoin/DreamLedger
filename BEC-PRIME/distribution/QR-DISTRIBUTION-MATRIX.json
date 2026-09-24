@@ -1,0 +1,195 @@
+{
+  "schema": "DREAMLEDGER/QR-DISTRIBUTION-MATRIX/v1",
+  "status": "PREPARE_ONLY",
+  "canonical": {
+    "doorway_id": "QR-CANONICAL-001",
+    "url": "https://dreamledger.org/go"
+  },
+  "rule": "Every placement is a separate measurable doorway. No external placement is considered executed until explicitly approved and independently evidenced.",
+  "placement_families": [
+    {
+      "id": "CLUB-001",
+      "family": "club",
+      "placement": "local TCG club noticeboard",
+      "source": "tcg-club",
+      "medium": "qr-print",
+      "approval_required": true
+    },
+    {
+      "id": "CLUB-002",
+      "family": "club",
+      "placement": "club tournament table card",
+      "source": "tcg-club",
+      "medium": "table-card",
+      "approval_required": true
+    },
+    {
+      "id": "CLUB-003",
+      "family": "club",
+      "placement": "club Discord resource channel",
+      "source": "tcg-club",
+      "medium": "discord",
+      "approval_required": true
+    },
+    {
+      "id": "LGS-001",
+      "family": "store",
+      "placement": "local game store counter card",
+      "source": "lgs",
+      "medium": "qr-print",
+      "approval_required": true
+    },
+    {
+      "id": "LGS-002",
+      "family": "store",
+      "placement": "LGS event poster",
+      "source": "lgs",
+      "medium": "poster",
+      "approval_required": true
+    },
+    {
+      "id": "EVENT-001",
+      "family": "event",
+      "placement": "tournament registration desk",
+      "source": "event",
+      "medium": "qr-print",
+      "approval_required": true
+    },
+    {
+      "id": "EVENT-002",
+      "family": "event",
+      "placement": "event table tent",
+      "source": "event",
+      "medium": "table-tent",
+      "approval_required": true
+    },
+    {
+      "id": "CREATOR-001",
+      "family": "creator",
+      "placement": "MTG creator resource page",
+      "source": "creator",
+      "medium": "web",
+      "approval_required": true
+    },
+    {
+      "id": "CREATOR-002",
+      "family": "creator",
+      "placement": "creator video description",
+      "source": "creator",
+      "medium": "video",
+      "approval_required": true
+    },
+    {
+      "id": "COMMUNITY-001",
+      "family": "community",
+      "placement": "community forum resource post",
+      "source": "community",
+      "medium": "forum",
+      "approval_required": true
+    },
+    {
+      "id": "COMMUNITY-002",
+      "family": "community",
+      "placement": "community newsletter",
+      "source": "community",
+      "medium": "newsletter",
+      "approval_required": true
+    },
+    {
+      "id": "PRINT-001",
+      "family": "print",
+      "placement": "business card",
+      "source": "print",
+      "medium": "card",
+      "approval_required": true
+    },
+    {
+      "id": "PRINT-002",
+      "family": "print",
+      "placement": "sticker or counter card",
+      "source": "print",
+      "medium": "sticker",
+      "approval_required": true
+    },
+    {
+      "id": "PACK-001",
+      "family": "packaging",
+      "placement": "insert inside fulfilled MTG sale",
+      "source": "dreamledger-fulfillment",
+      "medium": "insert",
+      "approval_required": true
+    },
+    {
+      "id": "PACK-002",
+      "family": "packaging",
+      "placement": "deck box insert",
+      "source": "mtg-product",
+      "medium": "insert",
+      "approval_required": true
+    },
+    {
+      "id": "MARKET-001",
+      "family": "marketplace",
+      "placement": "marketplace listing footer",
+      "source": "marketplace",
+      "medium": "listing",
+      "approval_required": true
+    },
+    {
+      "id": "OWNED-001",
+      "family": "owned",
+      "placement": "DreamLedger MTG catalogue",
+      "source": "dreamledger",
+      "medium": "web",
+      "approval_required": false
+    },
+    {
+      "id": "OWNED-002",
+      "family": "owned",
+      "placement": "DreamLedger product pages",
+      "source": "dreamledger",
+      "medium": "web",
+      "approval_required": false
+    },
+    {
+      "id": "REF-001",
+      "family": "referral",
+      "placement": "buyer referral card",
+      "source": "buyer",
+      "medium": "referral",
+      "approval_required": true
+    },
+    {
+      "id": "PARTNER-001",
+      "family": "partnership",
+      "placement": "club/store partner page",
+      "source": "partner",
+      "medium": "web",
+      "approval_required": true
+    }
+  ],
+  "url_template": "https://dreamledger.org/go?utm_source={source}&utm_medium={medium}&utm_campaign={campaign}&placement={placement}&experiment_id={experiment_id}&offer_id={offer_id}",
+  "measurement": {
+    "capture": [
+      "doorway_visit",
+      "session_id",
+      "source",
+      "medium",
+      "campaign",
+      "placement",
+      "experiment_id",
+      "offer_id",
+      "device",
+      "browser",
+      "os",
+      "referrer"
+    ],
+    "never_claim_from_scan_alone": [
+      "buyer",
+      "payment",
+      "revenue",
+      "fulfillment"
+    ],
+    "promotion_metric": "progression_to_checkout_and_settled_payment"
+  }
+}
