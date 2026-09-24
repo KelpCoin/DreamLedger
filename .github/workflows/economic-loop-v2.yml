@@ -15,7 +15,7 @@ concurrency:
 
 env:
   GH_TOKEN: ${{ github.token }}
-  STRIPE_EXPECTED_ACCOUNT_ID: acct_1NKPLaJt4ieIQDFz
+  STRIPE_EXPECTED_ACCOUNT_ID: acct_1SNVPvEGgEAnUFF9
 
 jobs:
   close-economic-loop:
