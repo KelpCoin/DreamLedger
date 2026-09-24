@@ -1,0 +1,22 @@
+name: BECK private curriculum compile
+on:
+  push:
+    paths:
+      - 'BEC-PRIME/private/BECK/**'
+      - 'BEC-PRIME/compiler/PrivateCurriculumCompiler.js'
+  workflow_dispatch:
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Compile private curriculum
+        run: node BEC-PRIME/compiler/PrivateCurriculumCompiler.js
+      - name: Upload compiled private curriculum
+        uses: actions/upload-artifact@v4
+        with:
+          name: peggy-nail-academy-compiled
+          path: BEC-PRIME/private/compiled/PEGGY-NAIL-ACADEMY-001.html
