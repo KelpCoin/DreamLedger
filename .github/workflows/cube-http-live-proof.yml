@@ -13,7 +13,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base="https://dreamledger.org"
+          base="https://dreamledger1.onrender.com"
           routes=(
             "/cube/auto/0000001"
             "/cube/auto/0000500"
