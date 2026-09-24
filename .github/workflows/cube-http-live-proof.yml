@@ -7,6 +7,9 @@ concurrency:
   group: cube-million-http-verification
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   million-http-proof:
     name: Verify CUBE HTTP shard ${{ matrix.shard }}
@@ -25,6 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
+          import json
           import os
           import time
           import urllib.error
@@ -100,7 +104,70 @@ jobs:
               if checked % 1000 == 0:
                   print(f"PROGRESS shard={SHARD} checked={checked} range={START}-{END}", flush=True)
 
-          print(f"SHARD_COMPLETE shard={SHARD} checked={checked} failures={len(failures)} range={START}-{END}", flush=True)
+          proof={
+              "schema":"dreamledger/cube-million-http-shard-proof/v1",
+              "verdict":"PASS" if not failures else "FAIL",
+              "shard":SHARD,
+              "start":START,
+              "end":END,
+              "checked":checked,
+              "failures":failures[:100],
+              "failure_count":len(failures),
+              "base":BASE,
+              "route_contract":"/cube/auto/0001-0500 then /cube/auto/0000501-1000000",
+              "verified_marker":"DreamLedger CUBE economic silo."
+          }
+          with open(f"cube-proof-shard-{SHARD}.json","w",encoding="utf-8") as f:
+              json.dump(proof,f,indent=2)
+              f.write("\n")
+          print(json.dumps(proof,indent=2),flush=True)
           if failures:
-              raise SystemExit("\n".join(failures[:100]))
+              raise SystemExit("shard failed")
           PY
+      - name: Upload shard proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-proof-shard-${{ matrix.shard }}
+          path: cube-proof-shard-${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 14
+
+  aggregate-proof:
+    name: Aggregate million-route proof
+    needs: million-http-proof
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download shard proofs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cube-proof-shard-*
+          merge-multiple: true
+      - name: Verify complete coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import glob
+          import json
+          files=sorted(glob.glob('cube-proof-shard-*.json'))
+          proofs=[json.load(open(p,encoding='utf-8')) for p in files]
+          proofs.sort(key=lambda x:x['shard'])
+          expected=list(range(20))
+          shards=[p['shard'] for p in proofs]
+          checked=sum(p['checked'] for p in proofs)
+          failures=sum(p['failure_count'] for p in proofs)
+          contiguous=bool(proofs) and proofs[0]['start']==1 and proofs[-1]['end']==1000000 and all(proofs[i]['end']+1==proofs[i+1]['start'] for i in range(len(proofs)-1))
+          verdict='PASS' if shards==expected and checked==1000000 and failures==0 and contiguous else 'FAIL'
+          final={"schema":"dreamledger/cube-million-http-proof/v1","verdict":verdict,"shards":len(proofs),"checked":checked,"failure_count":failures,"contiguous_coverage":contiguous,"first_start":proofs[0]['start'] if proofs else None,"last_end":proofs[-1]['end'] if proofs else None,"base":"https://dreamledger.org"}
+          with open('CUBE-MILLION-HTTP-PROOF.json','w',encoding='utf-8') as f:
+              json.dump(final,f,indent=2); f.write('\n')
+          print(json.dumps(final,indent=2))
+          if verdict!='PASS': raise SystemExit(1)
+          PY
+      - name: Upload final proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-million-http-proof-final
+          path: CUBE-MILLION-HTTP-PROOF.json
+          if-no-files-found: error
+          retention-days: 30
