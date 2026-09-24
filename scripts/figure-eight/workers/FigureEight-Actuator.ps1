@@ -18,6 +18,46 @@ try {
         authorization_hash=(Get-Sha256Text ([string]$c.state_evidence.approval_id))
       }|Out-Null
     }
+    'TRADEME_CREATE_LISTING' {
+      $base=[string]$env:DREAMLEDGER_BROWSER_ACTUATOR_URL
+      if([string]::IsNullOrWhiteSpace($base)){throw 'DREAMLEDGER_BROWSER_ACTUATOR_URL is not configured'}
+      if(-not $action.approval_id){throw 'TRADEME_CREATE_LISTING requires approval_id'}
+      if(-not $action.idempotency_key){throw 'TRADEME_CREATE_LISTING requires idempotency_key'}
+      if($action.financial_impact -and [decimal]$action.financial_impact.amount -gt 0){throw 'Browser actuator refuses spending actions'}
+      $payload=@{
+        action_id=[string]$action.action_id
+        action_type=$type
+        approval_id=[string]$action.approval_id
+        idempotency_key=[string]$action.idempotency_key
+        target_platform='trademe'
+        target_account=[string]$action.target_account
+        exact_payload=$action.exact_payload
+        expected_external_effect=[string]$action.expected_external_effect
+        expected_evidence=$action.expected_evidence
+        verification_method=[string]$action.verification_method
+        risk_class=[string]$action.risk_class
+      }
+      $attempt=Invoke-RestMethod -Method Post -Uri ($base.TrimEnd('/')+'/v1/execute') -ContentType 'application/json' -Body ($payload|ConvertTo-Json -Depth 20 -Compress) -TimeoutSec 120
+      if([string]$attempt.status -ne 'ATTEMPTED'){throw 'Browser adapter did not return ATTEMPTED'}
+      Invoke-FigureEightRpc $worker 'ACTUATOR_MARK_DISPATCHED' @{
+        outbox_id=[string]$o.outbox_id
+        external_ref=[string]$attempt.external_ref
+        external_url=[string]$attempt.external_url
+        request_hash=[string]$attempt.request_hash
+        response_hash=[string]$attempt.response_hash
+        authorization_hash=(Get-Sha256Text ([string]$action.approval_id))
+        receipt=$attempt
+      }|Out-Null
+    }
+    'TRADEME_EDIT_LISTING' {
+      throw 'TRADEME_EDIT_LISTING requires the same authenticated browser adapter and is intentionally not enabled until CREATE_LISTING is verified'
+    }
+    'TRADEME_WITHDRAW_LISTING' {
+      throw 'TRADEME_WITHDRAW_LISTING requires the same authenticated browser adapter and is intentionally not enabled until CREATE_LISTING is verified'
+    }
+    'TRADEME_RELIST' {
+      throw 'TRADEME_RELIST requires the same authenticated browser adapter and is intentionally not enabled until CREATE_LISTING is verified'
+    }
     'CREATE_STRIPE_CHECKOUT_SESSION' {
       $form=@{
         mode='payment'; success_url=[string]$action.success_url; cancel_url=[string]$action.cancel_url
