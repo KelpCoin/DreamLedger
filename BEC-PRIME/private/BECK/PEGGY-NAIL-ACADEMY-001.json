@@ -1,0 +1,200 @@
+{
+  "id": "BECK-NAIL-001",
+  "title": "Peggy Beauty Academy: Nail Technology Foundations",
+  "visibility": "PRIVATE_BECK_ONLY",
+  "status": "READY_FOR_FIRST_SESSION",
+  "purpose": "Private practical training for personal and family use. Not an NZQA qualification, licence, registration, certificate, or substitute for supervised professional training.",
+  "truth_boundary": {
+    "owner_priority": "USER_PRIORITY",
+    "truth_oracle_independent": true,
+    "user_override": "User priority controls scheduling and curriculum priority, but cannot override safety facts, source evidence, or Truth Oracle independence.",
+    "safety_gate": "Any pain, bleeding, open skin, suspected infection, significant inflammation, unexplained change, or task outside current training stops the practical."
+  },
+  "learning_loop": [
+    "See",
+    "Understand",
+    "Practise",
+    "Check",
+    "Reflect",
+    "Choose next"
+  ],
+  "first_session": {
+    "duration_options": [
+      "2 minutes",
+      "5 minutes",
+      "10 minutes",
+      "20-30 minutes"
+    ],
+    "objective": "Identify basic nail structures, set up a clean practice area, and complete a no-product observation drill.",
+    "evidence": [
+      "three clear photos of practice setup/hand or training tip",
+      "six structure identification",
+      "one confident identification",
+      "one item to practise again"
+    ],
+    "prohibited_first_session": [
+      "enhancement chemicals",
+      "cutting live cuticle",
+      "aggressive filing",
+      "working on damaged or inflamed skin"
+    ]
+  },
+  "modules": [
+    {
+      "id": "001",
+      "title": "How to Train",
+      "lessons": [
+        "See-Understand-Practise-Check",
+        "How to stop and ask for help",
+        "How to use the Academy without rushing"
+      ]
+    },
+    {
+      "id": "002",
+      "title": "Nail Anatomy",
+      "lessons": [
+        "Nail plate",
+        "Free edge",
+        "Nail bed",
+        "Proximal nail fold",
+        "Lateral nail folds",
+        "Surrounding skin",
+        "What each structure does"
+      ]
+    },
+    {
+      "id": "003",
+      "title": "Safety Gate",
+      "lessons": [
+        "Stop conditions",
+        "When not to perform a service",
+        "Cuts and blood exposure",
+        "Tool safety",
+        "Workspace hazards"
+      ]
+    },
+    {
+      "id": "004",
+      "title": "Hygiene and Tool Control",
+      "lessons": [
+        "Hand hygiene",
+        "Clean versus disinfect",
+        "Single-use versus reusable items",
+        "Clean-to-dirty workflow",
+        "Waste handling",
+        "After-service reset"
+      ]
+    },
+    {
+      "id": "005",
+      "title": "Kit Intelligence",
+      "lessons": [
+        "Identify every item in the kit",
+        "What each item is for",
+        "What must never be shared",
+        "Manufacturer instructions and labels",
+        "Storage and ventilation"
+      ]
+    },
+    {
+      "id": "006",
+      "title": "Consultation and Service Planning",
+      "lessons": [
+        "Ask before acting",
+        "Client comfort",
+        "Service boundaries",
+        "When to defer",
+        "Simple service plan"
+      ]
+    },
+    {
+      "id": "007",
+      "title": "Natural Nail Preparation",
+      "lessons": [
+        "Workspace setup",
+        "Gentle shaping",
+        "Safe handling",
+        "Avoiding unnecessary trauma",
+        "Practice drill"
+      ]
+    },
+    {
+      "id": "008",
+      "title": "Basic Manicure Workflow",
+      "lessons": [
+        "Sequence",
+        "Tool control",
+        "Surface preparation",
+        "Finishing",
+        "Cleanup"
+      ]
+    },
+    {
+      "id": "009",
+      "title": "Polish Fundamentals",
+      "lessons": [
+        "Preparation",
+        "Thin controlled coats",
+        "Edges",
+        "Drying/curing according to product instructions",
+        "Removal without damage"
+      ]
+    },
+    {
+      "id": "010",
+      "title": "Product Safety",
+      "lessons": [
+        "Read the label",
+        "Follow manufacturer directions",
+        "Ventilation",
+        "Skin contact avoidance",
+        "Allergy/sensitisation awareness",
+        "Spill response"
+      ]
+    },
+    {
+      "id": "011",
+      "title": "Practical Assessment",
+      "lessons": [
+        "Complete a controlled practice service",
+        "Photo evidence",
+        "Self-check against rubric",
+        "Identify one weakness",
+        "Repeat after correction"
+      ]
+    },
+    {
+      "id": "012",
+      "title": "Next-Skill Router",
+      "lessons": [
+        "Choose the next module",
+        "Repeat weak skills",
+        "Unlock product-specific training only after foundations pass",
+        "Record curriculum feedback"
+      ]
+    }
+  ],
+  "assessment": {
+    "knowledge_target": "80% or better",
+    "safety_rule": "Every safety-critical question must be correct.",
+    "practical_rule": "A completed screen never counts as proof of skill. Practical evidence and safe execution are required.",
+    "pass_states": [
+      "PRACTISE_AGAIN",
+      "FOUNDATION_READY"
+    ]
+  },
+  "gauntlet": [
+    "Safety content present",
+    "No medical diagnosis instructions",
+    "No claim of external qualification",
+    "No unsupported product-specific procedure",
+    "Practical evidence required",
+    "Clear stop/defer conditions",
+    "User-choice preserved"
+  ],
+  "sources": [
+    "https://www.health.govt.nz/publications/public-health-guidance-for-hairdressers-and-barbers",
+    "https://www.worksafe.govt.nz/managing-health-and-safety/managing-risks/what-risk-looks-like-in-your-industry/hairdressing"
+  ],
+  "generated_at": "2026-09-24"
+}
