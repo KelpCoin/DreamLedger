@@ -1,0 +1,18 @@
+{
+  "version":"2026-09-24",
+  "status":"ACTIVE",
+  "experiments":[
+    {"id":"PAT-SUGAR-01","pattern":"demand-first sourcing","action":"Mine existing DreamLedger/MTG/opportunity inventory for already-observed buyer demand before creating new offers","status":"READY"},
+    {"id":"PAT-SUGAR-02","pattern":"entry-plus-upgrade","action":"For every viable cell, define a low-friction entry transaction and a higher-value adjacent transaction","status":"READY"},
+    {"id":"PAT-BRANSON-01","pattern":"publicity as distribution","action":"Turn each real milestone into an approval-ready public story and visual asset","status":"READY"},
+    {"id":"PAT-BRANSON-02","pattern":"trust through simplicity","action":"Reduce each offer page to buyer, outcome, price, proof, delivery and next action","status":"READY"},
+    {"id":"PAT-MUSK-01","pattern":"first-principles cost","action":"Calculate human minutes, infrastructure cost, fulfillment cost and gross contribution for each cell","status":"READY"},
+    {"id":"PAT-MUSK-02","pattern":"constraint attack","action":"For each active cell identify the single blocker preventing the next external economic transition","status":"READY"},
+    {"id":"PAT-POLSIA-01","pattern":"failure reactivation","action":"Mine prior failed/abandoned opportunities for warm demand and reusable distribution surfaces","status":"READY"},
+    {"id":"PAT-POLSIA-02","pattern":"channel cloning","action":"When a distribution format produces a meaningful signal, reproduce the same mechanism on two additional relevant channels","status":"READY_FOR_APPROVAL"},
+    {"id":"PAT-POLSIA-03","pattern":"story loop","action":"Maintain a truthful public milestone stream based on real evidence","status":"READY_FOR_APPROVAL"},
+    {"id":"PAT-OVERLAY-01","pattern":"host motion attachment","action":"For each cell search for an existing audience, marketplace, community, API, directory or workflow already carrying relevant intent","status":"READY"},
+    {"id":"PAT-CELL-01","pattern":"winner cloning","action":"Clone only cells with verified external payment and fulfillment evidence","status":"GATED"},
+    {"id":"PAT-CELL-02","pattern":"adjacent mutation","action":"After a verified cell, test the same mechanism against adjacent buyers/problems before inventing new machinery","status":"GATED"}
+  ]
+}
