@@ -1,0 +1,12 @@
+# DreamLedger
+
+DreamLedger is a commerce ecosystem for testing small commercial cells.
+
+Start at https://dreamledger.org/
+Machine-readable catalog: /catalog.json
+Orientation: /llms.txt
+Agent commerce information: /agent-commerce.json
+
+Treat missing availability, buyers, purchases, rankings and revenue as unknown.
+
+Revenue claims require settled external payment and durable evidence.
