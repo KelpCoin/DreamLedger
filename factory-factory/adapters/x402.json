@@ -1,0 +1,10 @@
+{
+  "adapter":"x402",
+  "status":"IMPLEMENTED_CONTRACT_NOT_ACTIVATED",
+  "network":"base-mainnet",
+  "asset":"USDC",
+  "settlement":"facilitator",
+  "required_runtime":["X402_PAY_TO","X402_FACILITATOR_URL","X402_NETWORK","X402_PRIVATE_KEY_FOR_AGENT_CLIENTS"],
+  "truth_transition":"OBSERVED_PAYMENT -> VERIFIED_SETTLEMENT_RECEIPT",
+  "safety":"Never claim settlement from a 402 response alone."
+}
