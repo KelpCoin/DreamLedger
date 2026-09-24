@@ -1,0 +1,20 @@
+{
+  "protocol": "x402",
+  "network": "base-mainnet",
+  "asset": "USDC",
+  "route": "/api/agent/checkout",
+  "required_runtime": [
+    "X402_PAY_TO",
+    "X402_FACILITATOR_URL",
+    "X402_NETWORK",
+    "X402_PRIVATE_KEY_FOR_AGENT_CLIENTS"
+  ],
+  "lifecycle": [
+    "QUOTE",
+    "PAYMENT_REQUIRED",
+    "PAYMENT_AUTHORIZED",
+    "SETTLEMENT_OBSERVED",
+    "VERIFIED"
+  ],
+  "never_claim_verified_without": "independent settlement receipt"
+}
