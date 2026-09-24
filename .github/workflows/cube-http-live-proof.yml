@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: cube-million-http-verification
+  cancel-in-progress: true
+
 jobs:
   million-http-proof:
     name: Verify routes ${{ matrix.shard }}
@@ -33,7 +37,7 @@ jobs:
           SHARD_SIZE = 3907
           START = SHARD * SHARD_SIZE + 1
           END = min((SHARD + 1) * SHARD_SIZE, 1_000_000)
-          WORKERS = 8
+          WORKERS = 24
           RETRIES = 3
 
           def route_for(n):
