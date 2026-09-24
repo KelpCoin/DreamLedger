@@ -106,7 +106,7 @@ function webhook(req, res) {
     if (!p || p.status !== 'published') throw Object.assign(new Error('Unknown or unpublished product for paid Stripe session'), { statusCode: 400 });
     const expectedCurrency = String(p.currency || 'nzd').toLowerCase();
     const actualCurrency = String(session.currency || '').toLowerCase();
-    const expectedAmount = Number(p.price);
+    const expectedAmount = Math.round(Number(p.price) * 100);
     const actualAmount = Number(session.amount_total);
     if (!Number.isFinite(actualAmount) || actualCurrency !== expectedCurrency || actualAmount !== expectedAmount) {
       throw Object.assign(new Error('Payment failed canonical server-side validation'), { statusCode: 400 });
