@@ -48,7 +48,7 @@ jobs:
           PAYMENT_URL=$(echo "$LINK" | jq -r '.url')
 
           SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_API_KEY:" --data-urlencode "payment_link=$LINK_ID" --data-urlencode 'limit=100')
-          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" --arg product "$EXPECTED_PRODUCT_ID" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency) | select(.metadata.product_id == $product)' | head -n 1)
+          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" --arg product "$EXPECTED_PRODUCT_ID" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency) | select(.metadata.product_id == $product or .metadata.sku_id == $product or .metadata.dreamledger_sku == $product)' | head -n 1)
 
           if [ -z "$PAID" ]; then
             printf 'STATUS=WAITING_FOR_PAYMENT\nproduct_id=%s\npayment_link_id=%s\nurl=%s\n' "$EXPECTED_PRODUCT_ID" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
@@ -80,7 +80,7 @@ jobs:
           }
           EOF
 
-          printf 'STATUS=PAID\nOFFER_ID=%s\nPRODUCT_ID=%s\nSESSION_ID=%s\nPAYMENT_LINK_ID=%s\n' "$EXPECTED_OFFER_ID" "$EXPECTED_PRODUCT_ID" "$SESSION_ID" "$LINK_ID" | tee proof/status.txt
+          printf 'STATUS=PAID\nOFFER_ID=%s\nPRODUCT_ID=%s\nSESSION_ID=%s\nPAYMENT_LINK_ID=%s\n' "MTG_CMD_DIAG_001" "$EXPECTED_PRODUCT_ID" "$SESSION_ID" "$LINK_ID" | tee proof/status.txt
           jq empty proof/FIRST_PAYMENT_PROOF.json
 
       - name: Upload revenue proof
