@@ -1,0 +1,143 @@
+{
+  "schema": "DREAMLEDGER/OWN-FIRST-COMPANY-OPERATOR/v1",
+  "version": "1.0.0",
+  "mode": "OWN_FIRST",
+  "mission": "Operate DreamLedger as the first customer of its own company-building machinery. Find, package, distribute, sell, fulfill, prove and improve real economic opportunities before exposing the machinery as a white-label product.",
+  "economic_truth": {
+    "verified_external_revenue_nzd_current": 0,
+    "revenue_definition": "external_buyer_settled_payment_plus_correct_attribution_plus_fulfillment_plus_independent_proof",
+    "never_count_as_revenue": [
+      "checkout_started",
+      "checkout_abandoned",
+      "database_row",
+      "payment_link",
+      "test",
+      "simulation",
+      "internal_event",
+      "generated_asset"
+    ]
+  },
+  "daily_cycle": [
+    "RECONCILE_REALITY",
+    "MINE_EXISTING_ASSETS",
+    "QUALIFY_INTENT_TO_PAY",
+    "COMPILE_SMALLEST_BUYABLE_OFFERS",
+    "VERIFY_PAYMENT_AND_FULFILLMENT_PATHS",
+    "PREPARE_WIDE_DISTRIBUTION",
+    "RUN_SECURITY_AND_BOUNDARY_CHECKS",
+    "MEASURE_TRAFFIC_TO_PAYMENT",
+    "KILL_STALE_OR_NONCOMMERCIAL_WORK",
+    "CLONE_OBSERVED_WINNERS"
+  ],
+  "priority_order": [
+    "settled_payment",
+    "completed_checkout",
+    "checkout_initiation_or_abandonment",
+    "explicit_buy_or_pay_intent_with_price_or_budget",
+    "concrete_request_with_deadline_and_price_discussion",
+    "generic_interest"
+  ],
+  "asset_mining": {
+    "existing_products": true,
+    "approved_offers": true,
+    "mtg_inventory": true,
+    "historical_decks": true,
+    "truth_oracle_evidence": true,
+    "billboard": true,
+    "digital_products": true,
+    "distribution_assets": true,
+    "agent_capabilities": true
+  },
+  "monetization_rules": {
+    "existing_offer_before_new_offer": true,
+    "smallest_fixed_scope_first": true,
+    "zero_incremental_cost_until_first_revenue": true,
+    "no_fake_demand": true,
+    "no_public_action_without_authorization": true,
+    "physical_inventory_may_be_packaged_without_new_purchase": true
+  },
+  "distribution": {
+    "canonical_doorway": "https://dreamledger.org/go",
+    "canonical_qr_id": "QR-CANONICAL-001",
+    "wide_pipeline_required": true,
+    "placement_families": [
+      "clubs",
+      "events",
+      "local_stores",
+      "community_posts",
+      "creator_partnerships",
+      "websites",
+      "newsletters",
+      "print",
+      "packaging",
+      "marketplaces",
+      "referrals",
+      "owned_surfaces"
+    ],
+    "every_variant_requires": [
+      "placement_id",
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "offer_id",
+      "approval_state"
+    ],
+    "external_send_default": "PREPARE_ONLY"
+  },
+  "traffic_resilience": {
+    "assume_bursty_traffic": true,
+    "assume_duplicate_events": true,
+    "assume_replay_attempts": true,
+    "assume_malicious_input": true,
+    "require_idempotency": true,
+    "require_observable_failure_states": true,
+    "fail_closed_on_payment_truth": true
+  },
+  "security": {
+    "baseline": "OWASP_ASVS",
+    "agent_baseline": "OWASP_AISVS_LEVEL_2",
+    "agent_controls": [
+      "least_privilege",
+      "tool_allowlist",
+      "identity_binding",
+      "replay_protection",
+      "prompt_injection_defense",
+      "memory_boundary",
+      "secret_isolation",
+      "auditability",
+      "human_gate_for_high_impact_actions"
+    ],
+    "private_silos_never_public": [
+      "BECK",
+      "adult",
+      "private_inventory",
+      "unpublished_decks"
+    ]
+  },
+  "human_boundary": {
+    "human_approval_required": [
+      "public_posting",
+      "external_outreach",
+      "external_marketplace_publication",
+      "spending",
+      "credential_changes",
+      "irreversible_actions"
+    ],
+    "machine_should_do": [
+      "research",
+      "candidate_generation",
+      "ranking",
+      "copy_drafting",
+      "asset_packaging",
+      "verification",
+      "telemetry",
+      "reconciliation",
+      "failure_mining",
+      "distribution_preparation"
+    ]
+  },
+  "future_white_label": {
+    "enabled": false,
+    "rule": "Only package this machinery for third parties after DreamLedger demonstrates repeatable internal economic loops."
+  }
+}
