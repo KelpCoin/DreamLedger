@@ -1,0 +1,23 @@
+name: CUBE Verification Run Janitor
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  actions: write
+
+jobs:
+  cancel-previous-cube-verifiers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel stale CUBE million-verification runs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          for id in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow cube-http-live-proof.yml --limit 20 --json databaseId,status --jq '.[] | select(.status == "queued" or .status == "in_progress") | .databaseId'); do
+            if [ "$id" != "$GITHUB_RUN_ID" ]; then
+              gh run cancel "$id" --repo "$GITHUB_REPOSITORY" || true
+            fi
+          done
