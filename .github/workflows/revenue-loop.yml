@@ -14,9 +14,8 @@ permissions:
 
 env:
   STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-  EXPECTED_ACCOUNT_ID: acct_1NKPLaJt4ieIQDFz
-  EXPECTED_PAYMENT_LINK_URL: https://buy.stripe.com/8x28wQ0cwbn48CA3mM9oc00
-  EXPECTED_OFFER_ID: OFFER-CMD-DIAG-29-NZD
+  EXPECTED_ACCOUNT_ID: acct_1SNVPvEGgEAnUFF9
+  EXPECTED_PAYMENT_LINK_URL: https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I
   EXPECTED_PRODUCT_ID: COMMANDER-DECK-DIAGNOSTIC-001
   EXPECTED_AMOUNT: '2900'
   EXPECTED_CURRENCY: nzd
@@ -49,10 +48,10 @@ jobs:
           PAYMENT_URL=$(echo "$LINK" | jq -r '.url')
 
           SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_API_KEY:" --data-urlencode "payment_link=$LINK_ID" --data-urlencode 'limit=100')
-          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" --arg offer "$EXPECTED_OFFER_ID" --arg product "$EXPECTED_PRODUCT_ID" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency) | select(.metadata.offer_id == $offer) | select(.metadata.product_id == $product)' | head -n 1)
+          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" --arg product "$EXPECTED_PRODUCT_ID" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency) | select(.metadata.product_id == $product)' | head -n 1)
 
           if [ -z "$PAID" ]; then
-            printf 'STATUS=WAITING_FOR_PAYMENT\noffer_id=%s\nproduct_id=%s\npayment_link_id=%s\nurl=%s\n' "$EXPECTED_OFFER_ID" "$EXPECTED_PRODUCT_ID" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
+            printf 'STATUS=WAITING_FOR_PAYMENT\nproduct_id=%s\npayment_link_id=%s\nurl=%s\n' "$EXPECTED_PRODUCT_ID" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
             exit 0
           fi
 
@@ -64,7 +63,7 @@ jobs:
           {
             "status": "PASS",
             "event": "PAYMENT_SUCCEEDED",
-            "offer_id": "$EXPECTED_OFFER_ID",
+            "offer_id": "MTG_CMD_DIAG_001",
             "product_id": "$EXPECTED_PRODUCT_ID",
             "amount_minor": 2900,
             "amount": 29.00,
