@@ -1,31 +1,31 @@
 {
-  "version": 26,
-  "updated": "2026-09-24",
+  "version": 27,
+  "updated": "2026-09-25",
   "current_truth": {
+    "revenue_engine_spine": "ops/autonomy/REVENUE-ENGINE-SPINE.md",
+    "engine_self_check": "ops/autonomy/ENGINE-SELF-CHECK.md",
     "agent_bridge": "AGENT_BUS/BRIDGE/PROTOCOL.md",
-    "economic_loops": "AGENT_BUS/ECONOMIC-LOOPS/registry.json",
-    "husband_visibility": "AGENT_BUS/HUSBAND-READ-THIS.md",
+    "bridge_router": "scripts/bridge_process_inbox.py",
+    "loop_status": "scripts/loop_status.py",
+    "fulfillment_dispatch": "BEC-PRIME/fulfillment/DISPATCH.md",
     "this_week_pack": "ops/money/THIS-WEEK-COMMAND.md",
-    "demand_kit": "ops/money/DEMAND-KIT.md",
-    "cloud_sentinels": "BEC-PRIME/sentinels/CLOUD-SENTINELS.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "B": "Agent Bridge v1 dual-mode established on bus",
-    "C": "FIRST SALE — DEMAND-KIT + link alignment",
-    "L": "Economic loops registry — internet vs internal faces"
+    "A": "Autonomy spine L0-L6 mapped",
+    "B": "Bridge v1.1 inbox router",
+    "C": "FIRST SALE still open — DEMAND-KIT"
   },
   "immediate_next": [
-    "Open AGENT_BUS/HUSBAND-READ-THIS.md",
-    "Post from ops/money/DEMAND-KIT.md",
-    "Optional: python3 scripts/bridge_ping.py --summary operator-ack --mode hybrid"
+    "python3 scripts/loop_status.py --live",
+    "Run ENGINE-SELF-CHECK.md",
+    "Post DEMAND-KIT"
   ],
   "do_not": [
-    "Claim revenue without Stripe live external pay",
-    "Market internal-only loops as products",
-    "Skip git push if using local_queue"
+    "Claim autonomous revenue engine complete",
+    "Set revenue > 0 without external fossil"
   ],
   "session_evidence": {
-    "2026-09-24-bridge-loops": "PROTOCOL + registry + bridge_ping/pong + HUSBAND-READ-THIS"
+    "2026-09-25-autonomy-spine": "spine + bridge router + loop/fossil scripts"
   }
 }

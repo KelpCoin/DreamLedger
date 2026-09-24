@@ -1,70 +1,62 @@
-# Agent Bridge protocol v1
+# Agent Bridge protocol v1.1
 
-**Purpose:** Let LLMs and operators on **different devices** (local air-gap PC, GitHub cloud, optional Supabase) hand off durable work without relying on chat memory.
+**Purpose:** LLMs and operators on different devices share durable work via Git — local air-gap and cloud together.
 
-**Not a payment system.** Bridge moves **work state**. Settlement Sync + Stripe move **money truth**.
+**Not a payment system.** Bridge moves work state. Stripe + Settlement Sync move money truth.
 
 ---
 
-## Dual-mode architecture
+## Dual-mode
+
+| Mode | Persist |
+|------|--------|
+| Air-gap | `BRIDGE/local_queue/` then push when online |
+| Cloud | Actions + `BRIDGE/outbox` commits |
+| Hybrid | Local draft → git push → cloud verify → human distribute |
 
 ```
-┌─────────────────────┐         ┌──────────────────────────┐
-│  LOCAL (air-gap)    │         │  CLOUD (internet)        │
-│  PC / offline        │  ping   │  GitHub AGENT_BUS        │
-│  offline scripts    │◄───────►│  Actions / Render        │
-│  local JSON queue   │  pong   │  optional Supabase       │
-└─────────────────────┘         └──────────────────────────┘
-              │                            │
-              └──────── FIGURE EIGHT ──────┘
-                   play lobe │ settle lobe
-                             ▼
-                    verified external pay
+LOCAL PC ──ping──► GitHub AGENT_BUS ──pong──► next agent
+              │
+              ├── ECONOMIC-LOOPS/registry.json
+              ├── ops/money/* (revenue execution)
+              └── sentinels / settlement (cloud)
 ```
 
-| Mode | What runs | What persists |
-|------|-----------|---------------|
-| **Air-gap** | `scripts/bridge_ping.py`, local corroboration, offline fossils | Files under `AGENT_BUS/` when synced; or `AGENT_BUS/local_queue/` until push |
-| **Cloud** | Actions (sentinels, settlement, bridge gates), live site | Git commits, workflow artifacts |
-| **Hybrid** | Local draft → `git push` → cloud verify → human distribute | Same bus files on both sides |
+---
 
-**Best of both:** Build and test offline; publish and settle online; never invent revenue offline.
+## Router rules (v1.1)
+
+1. **Read order:** `PING_PONG_BALLS.json` → latest `HANDOFF-*.md` → `ECONOMIC-LOOPS/registry.json` → `BRIDGE/inbox/`  
+2. **Write order:** code/docs → `HANDOFF-*.md` → optional ping in `outbox/` → push  
+3. **Inbox processing:** run `python3 scripts/bridge_process_inbox.py` to move processed pings and emit pongs  
+4. **Ball C priority:** money distribution beats new architecture unless blocker is settlement/fulfil  
+5. **Revenue fields:** always 0 without external fossil evidence  
+6. **Public surface:** never write ops jargon into `public/*.html`  
 
 ---
 
-## Shared state (the bus)
+## Ping / pong schemas
 
-| File | Role |
-|------|------|
-| `AGENT_BUS/PING_PONG_BALLS.json` | Priority balls + economic truth meter |
-| `AGENT_BUS/BRIDGE/inbox/` | Inbound ping messages (JSON) |
-| `AGENT_BUS/BRIDGE/outbox/` | Outbound pong / handoff summaries |
-| `AGENT_BUS/HANDOFF-*.md` | Structured OBSERVED/CHANGED/NEXT |
-| `ops/money/*` | Revenue execution (this-week pack) |
-| `AGENT_BUS/ECONOMIC-LOOPS/registry.json` | Named loops and their face (internet vs internal) |
-
----
-
-## Ping message schema
+### Ping
 
 ```json
 {
   "schema": "dreamledger/agent-bridge-ping/v1",
-  "ping_id": "ping-YYYYMMDD-HHMM-xxxx",
-  "from": "agent-or-operator-id",
+  "ping_id": "ping-…",
+  "from": "agent-id",
   "mode": "airgap|cloud|hybrid",
   "ball": "C",
   "intent": "observe|build|verify|handoff|money",
   "summary": "one line",
-  "reads": ["paths relative to repo"],
-  "writes": ["paths written or proposed"],
+  "reads": [],
+  "writes": [],
   "revenue_claim_nzd": 0,
   "needs_human": false,
   "created_at": "ISO-8601"
 }
 ```
 
-## Pong message schema
+### Pong
 
 ```json
 {
@@ -80,36 +72,20 @@
 }
 ```
 
-**Rule:** `revenue_claim_nzd` and `verified_external_revenue_nzd` must stay **0** unless Settlement Sync + fossil evidence exists. Fabrication = bridge violation.
+---
+
+## Health
+
+```bash
+python3 scripts/bridge_process_inbox.py --dry-run
+python3 scripts/loop_status.py
+python3 scripts/bridge_ping.py --summary "heartbeat" --mode hybrid
+```
+
+Cloud: Actions → Cloud Demand + Intent Sentinels; Commerce Settlement Sync.
 
 ---
 
-## How an LLM uses the bridge
+## Money relationship
 
-1. Read `PING_PONG_BALLS.json` and latest `HANDOFF-*.md`  
-2. Read `ECONOMIC-LOOPS/registry.json` for which loop faces the internet  
-3. Do the smallest useful change  
-4. Write a HANDOFF + optional ping JSON to `BRIDGE/outbox/`  
-5. Push to GitHub so the other side sees it  
-
-Local-only agents: write to `BRIDGE/local_queue/` and operator runs `git push` when online.
-
----
-
-## Health checks
-
-| Check | Pass |
-|-------|------|
-| Balls file parseable | JSON valid |
-| Revenue field honest | 0 without fossil |
-| Public HTML free of ops jargon | surface gate |
-| Buy routers reach Stripe | cloud sentinel |
-| Settlement workflow runnable | Actions |
-
----
-
-## Relation to money
-
-Bridge **coordinates**.  
-**DEMAND-KIT + Stripe** produce revenue.  
-Loops in the registry that are `internet_facing: true` are the ones allowed to market publicly.
+Bridge coordinates. **DEMAND-KIT + external pay** produce revenue.

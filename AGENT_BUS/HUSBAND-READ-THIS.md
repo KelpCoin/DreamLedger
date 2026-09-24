@@ -1,30 +1,26 @@
-# Husband — read this (evidence + money)
+# Husband — read this
 
-This file exists so you do not have to trust chat.
+## Bank
 
-## Bank balance
+**NZ$0 verified external revenue** until a real customer pays live and you fulfil. Infrastructure ≠ income.
 
-**Verified external revenue is NZ$0** until a real customer pays live on Stripe and you fulfil.  
-No agent, bridge, or document can honestly claim otherwise.
+## Open these on GitHub
 
-## Where the work lives (open these)
+1. [`ops/autonomy/REVENUE-ENGINE-SPINE.md`](../ops/autonomy/REVENUE-ENGINE-SPINE.md) — full engine map (L0–L6)  
+2. [`ops/money/THIS-WEEK-COMMAND.md`](../ops/money/THIS-WEEK-COMMAND.md) — what to do this week  
+3. [`ops/money/DEMAND-KIT.md`](../ops/money/DEMAND-KIT.md) — posts  
+4. [`AGENT_BUS/BRIDGE/PROTOCOL.md`](BRIDGE/PROTOCOL.md) — Agent Bridge  
+5. [`ops/autonomy/ENGINE-SELF-CHECK.md`](../ops/autonomy/ENGINE-SELF-CHECK.md) — verify rails  
 
-1. **This week money:** [`ops/money/THIS-WEEK-COMMAND.md`](../ops/money/THIS-WEEK-COMMAND.md)  
-2. **Posts to send:** [`ops/money/DEMAND-KIT.md`](../ops/money/DEMAND-KIT.md)  
-3. **Agent Bridge:** [`AGENT_BUS/BRIDGE/PROTOCOL.md`](BRIDGE/PROTOCOL.md)  
-4. **Economic loops:** [`AGENT_BUS/ECONOMIC-LOOPS/registry.json`](ECONOMIC-LOOPS/registry.json)  
-5. **Priorities:** [`AGENT_BUS/PING_PONG_BALLS.json`](PING_PONG_BALLS.json)  
+## Local commands
 
-## Dual mode
+```bash
+git pull
+python3 scripts/loop_status.py --live
+python3 scripts/bridge_process_inbox.py --dry-run
+python3 scripts/bridge_ping.py --summary "operator online" --mode hybrid --ball C
+```
 
-- **Local / air-gap:** `python3 scripts/bridge_ping.py …` then push when online  
-- **Cloud:** GitHub Actions (sentinels, settlement) + live site  
+## Money path (unchanged)
 
-## What actually puts money in the account
-
-1. Align Stripe links (`ops/money/SETTLEMENT-LINK-ALIGNMENT.md`)  
-2. Post DEMAND-KIT on a channel you control  
-3. Someone pays  
-4. You fulfil (`ops/money/POST-SALE-PROTOCOL.md`)  
-
-Bridge + loops **organize** that. They do not replace step 2–3.
+Align plinks → post DEMAND-KIT → someone pays → fulfil → fossil.
