@@ -15,7 +15,15 @@ const RULES = [
   ['budget', /(?:\$|nzd|usd|budget|under \d|\d+\s*(?:dollars|bucks))/i]
 ];
 
-function cors(res) {\n  res.setHeader('Access-Control-Allow-Origin', '*');\n  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');\n  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');\n  res.setHeader('Access-Control-Max-Age', '600');\n}\n\nfunction json(res, status, data) {\n  cors(res);
+function cors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Max-Age', '600');
+}
+
+function json(res, status, data) {
+  cors(res);
   if (res.writableEnded) return true;
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
