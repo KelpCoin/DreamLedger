@@ -1,0 +1,82 @@
+{
+  "schema": "DREAMLEDGER/QR-DISTRIBUTION-TARGETS-NZ/v1",
+  "generated_for": "OWN_FIRST",
+  "status": "RESEARCHED_PREPARE_ONLY",
+  "canonical": "https://dreamledger.org/go",
+  "targets": [
+    {
+      "id": "NZ-EVENT-HOBBYCON-AKL-20260926",
+      "name": "HobbyCon New Zealand",
+      "type": "large_TCG_event",
+      "city": "Auckland",
+      "date": "2026-09-26",
+      "fit": [
+        "MTG",
+        "TCG",
+        "collectors",
+        "vendors"
+      ],
+      "action": "prepare_qr_event_pack",
+      "approval_required": true
+    },
+    {
+      "id": "NZ-STORE-CARDMERCHANT-TGA",
+      "name": "Card Merchant Tauranga",
+      "type": "local_game_store",
+      "city": "Tauranga",
+      "fit": [
+        "MTG",
+        "Commander",
+        "events"
+      ],
+      "action": "prepare_qr_counter_card",
+      "approval_required": true
+    },
+    {
+      "id": "NZ-STORE-HOBBYLORDS-TGA",
+      "name": "Hobby Lords Tauranga",
+      "type": "local_game_store",
+      "city": "Tauranga",
+      "fit": [
+        "MTG",
+        "TCG",
+        "events"
+      ],
+      "action": "prepare_qr_counter_card",
+      "approval_required": true
+    },
+    {
+      "id": "NZ-STORE-HIDDENDISTRICT-AKL",
+      "name": "Hidden District",
+      "type": "multi_TCG_store",
+      "city": "Auckland",
+      "fit": [
+        "MTG",
+        "Commander",
+        "TCG"
+      ],
+      "action": "prepare_qr_partner_pack",
+      "approval_required": true
+    },
+    {
+      "id": "NZ-WPN-GENERAL",
+      "name": "Wizards Play Network stores",
+      "type": "store_network",
+      "city": "New Zealand",
+      "fit": [
+        "MTG",
+        "FNM",
+        "Commander",
+        "events"
+      ],
+      "action": "prepare_store_partner_template",
+      "approval_required": true
+    }
+  ],
+  "rules": [
+    "No unsolicited external sending",
+    "No claim of partnership before explicit acceptance",
+    "Track every placement with canonical doorway parameters",
+    "Measure progression to checkout and settled payment, not scans alone"
+  ]
+}
