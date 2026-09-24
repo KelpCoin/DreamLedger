@@ -46,7 +46,8 @@
     "rag:query": "python RAG/query.py",
     "rag:eval": "python RAG/eval.py",
     "verify:bec-defensive": "node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js",
-    "verify:sd-jwt": "node --test BEC-PRIME/evidence/BrownEyeEvidenceSdJwt.test.mjs"
+    "verify:sd-jwt": "node --test BEC-PRIME/evidence/BrownEyeEvidenceSdJwt.test.mjs",
+    "verify:cube-chat": "node BEC-PRIME/scripts/verify-cube-chat-signal.js"
   },
   "engines": {
     "node": ">=20"
