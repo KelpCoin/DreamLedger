@@ -30,14 +30,26 @@ var move_cd: float = 0.0
 
 @onready var status_label: Label = $UI/StatusLabel
 @onready var log_label: Label = $UI/LogLabel
+@onready var chat_input: LineEdit = $UI/ChatInput
+@onready var chat_label: Label = $UI/ChatLabel
+
+var sanctuary_pos := Vector2i(6, 6)
+var sanctuary_npcs := [
+	{"name": "Moss", "pos": Vector2i(4, 5)},
+	{"name": "Hobo", "pos": Vector2i(8, 5)},
+	{"name": "Tidekeeper", "pos": Vector2i(6, 8)}
+]
 
 func _ready() -> void:
 	GameState.state_changed.connect(_on_state)
 	GameState.hud_changed.connect(_refresh_hud)
 	GameState.log_line.connect(_on_log)
 	_refresh_hud()
+	chat_input.text_submitted.connect(_on_chat_submitted)
 	if GameState.phase == "SANCTUARY":
-		status_label.text = "Sanctuary — press Enter / Space to enter The Shallows"
+		status_label.text = "PHINHAVEN · Sanctuary | WASD to walk | Enter to enter The Shallows"
+		chat_label.text = "Moss: The town is quiet. The depths are not."
+	queue_redraw()
 
 func _on_state(s: String) -> void:
 	status_label.text = "Phase: %s" % s
@@ -80,6 +92,21 @@ func _process(delta: float) -> void:
 		if Input.is_action_just_pressed("ui_accept"):
 			GameState.reset_run()
 			_spawn()
+			return
+		var dx := 0
+		var dy := 0
+		if Input.is_action_pressed("move_up"):
+			dy = -1
+		elif Input.is_action_pressed("move_down"):
+			dy = 1
+		elif Input.is_action_pressed("move_left"):
+			dx = -1
+		elif Input.is_action_pressed("move_right"):
+			dx = 1
+		if dx != 0 or dy != 0:
+			sanctuary_pos.x = clampi(sanctuary_pos.x + dx, 1, 14)
+			sanctuary_pos.y = clampi(sanctuary_pos.y + dy, 2, 10)
+			queue_redraw()
 		return
 	if GameState.phase != "PLAY" or GameState.busy:
 		return
@@ -138,7 +165,17 @@ func _fight(index: int) -> void:
 	GameState.apply_fight_result(php > 0, php)
 	queue_redraw()
 
+func _on_chat_submitted(text: String) -> void:
+	var clean := text.strip_edges()
+	if clean.is_empty():
+		return
+	chat_label.text = "You: " + clean + "\n" + chat_label.text
+	chat_input.clear()
+
 func _draw() -> void:
+	if GameState.phase == "SANCTUARY":
+		_draw_sanctuary()
+		return
 	for y in range(ROWS):
 		for x in range(COLS):
 			var t: int = map[y][x]
@@ -161,3 +198,24 @@ func _draw() -> void:
 	if GameState.phase == "PLAY" or GameState.phase == "CLEARED":
 		var pc := Vector2(px * TILE + TILE / 2.0, py * TILE + TILE / 2.0)
 		draw_circle(pc, 14.0, GameState.avatar_color)
+
+
+func _draw_sanctuary() -> void:
+	for y in range(12):
+		for x in range(16):
+			var r := Rect2(x * TILE, y * TILE, TILE, TILE)
+			draw_rect(r, Color("10262b") if (x + y) % 2 == 0 else Color("123039"))
+	for x in range(2, 14):
+		draw_rect(Rect2(x * TILE, 3 * TILE, TILE, TILE), Color("31594d"))
+	for y in range(4, 10):
+		draw_rect(Rect2(6 * TILE, y * TILE, TILE, TILE), Color("31594d"))
+	for npc in sanctuary_npcs:
+		var p: Vector2i = npc.pos
+		var pos := Vector2(p.x * TILE + TILE / 2.0, p.y * TILE + TILE / 2.0)
+		draw_circle(pos, 13.0, Color("8b5a2b"))
+		draw_string(ThemeDB.fallback_font, pos + Vector2(-22, -18), npc.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("e8e0c8"))
+	var pc := Vector2(sanctuary_pos.x * TILE + TILE / 2.0, sanctuary_pos.y * TILE + TILE / 2.0)
+	draw_circle(pc, 15.0, GameState.avatar_color)
+	draw_string(ThemeDB.fallback_font, pc + Vector2(-18, 30), "YOU", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("ffffff"))
+	draw_rect(Rect2(2 * TILE, 10 * TILE, 12 * TILE, TILE), Color("6b5635"))
+	draw_string(ThemeDB.fallback_font, Vector2(3 * TILE, 10 * TILE + 30), "GUILD HALL / DEPTH BOARD", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f1d27a"))
