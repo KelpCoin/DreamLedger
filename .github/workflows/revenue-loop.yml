@@ -38,17 +38,28 @@ jobs:
           echo "STRIPE_ACCOUNT=$ACCOUNT_ID"
 
           LINKS=$(curl -fsS -G https://api.stripe.com/v1/payment_links -u "$STRIPE_API_KEY:" --data-urlencode 'limit=100')
-          LINK=$(echo "$LINKS" | jq -c --arg url "$EXPECTED_PAYMENT_LINK_URL" '.data[] | select(.url == $url) | select(.active == true)' | head -n 1)
-          if [ -z "$LINK" ]; then
+          CANONICAL_LINKS=$(echo "$LINKS" | jq -c --arg product "$EXPECTED_PRODUCT_ID" '[.data[] | select(.active == true) | select(.metadata.product_id == $product or .metadata.sku_id == $product or .metadata.dreamledger_sku == $product)]')
+          LINK_COUNT=$(echo "$CANONICAL_LINKS" | jq 'length')
+          if [ "$LINK_COUNT" -eq 0 ]; then
             echo "STATUS=WAITING_FOR_CANONICAL_PAYMENT_LINK" | tee proof/status.txt
             exit 0
           fi
 
-          LINK_ID=$(echo "$LINK" | jq -r '.id')
-          PAYMENT_URL=$(echo "$LINK" | jq -r '.url')
-
-          SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_API_KEY:" --data-urlencode "payment_link=$LINK_ID" --data-urlencode 'limit=100')
-          PAID=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" --arg product "$EXPECTED_PRODUCT_ID" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency) | select(.metadata.product_id == $product or .metadata.sku_id == $product or .metadata.dreamledger_sku == $product)' | head -n 1)
+          PAID=""
+          LINK_ID=""
+          PAYMENT_URL=""
+          for LINK in $(echo "$CANONICAL_LINKS" | jq -c '.[]'); do
+            CANDIDATE_ID=$(echo "$LINK" | jq -r '.id')
+            CANDIDATE_URL=$(echo "$LINK" | jq -r '.url')
+            SESSIONS=$(curl -fsS -G https://api.stripe.com/v1/checkout/sessions -u "$STRIPE_API_KEY:" --data-urlencode "payment_link=$CANDIDATE_ID" --data-urlencode 'limit=100')
+            CANDIDATE=$(echo "$SESSIONS" | jq -c --argjson amount "$EXPECTED_AMOUNT" --arg currency "$EXPECTED_CURRENCY" --arg product "$EXPECTED_PRODUCT_ID" '.data[] | select(.payment_status == "paid") | select(.amount_total == $amount) | select(.currency == $currency) | select(.metadata.product_id == $product or .metadata.sku_id == $product or .metadata.dreamledger_sku == $product or .client_reference_id == $product)' | head -n 1)
+            if [ -n "$CANDIDATE" ]; then
+              PAID="$CANDIDATE"
+              LINK_ID="$CANDIDATE_ID"
+              PAYMENT_URL="$CANDIDATE_URL"
+              break
+            fi
+          done
 
           if [ -z "$PAID" ]; then
             printf 'STATUS=WAITING_FOR_PAYMENT\nproduct_id=%s\npayment_link_id=%s\nurl=%s\n' "$EXPECTED_PRODUCT_ID" "$LINK_ID" "$PAYMENT_URL" | tee proof/status.txt
