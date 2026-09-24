@@ -1,0 +1,93 @@
+{
+  "version":"2026-09-24",
+  "purpose":"Extract reusable operating mechanisms from public business histories and apply them to DreamLedger without copying products, branding, protected expression, confidential information or identity.",
+  "rule":"Copy mechanisms, not products.",
+  "patterns":[
+    {
+      "source":"Alan Sugar / Amstrad",
+      "mechanisms":[
+        "Start from observed demand and a known sale.",
+        "Source cheaply before manufacturing heavily.",
+        "Use price as a wedge and make the complete offer obvious.",
+        "Control critical parts of the value chain when it materially improves cost, speed or reliability.",
+        "Use a low entry price to attract attention, then offer a higher-value version.",
+        "Exploit distribution partnerships and limited launches to create concentrated demand.",
+        "Move into adjacent markets when the current market saturates."
+      ],
+      "dreamledger_translation":"Demand-first cell selection, low-cost tests, explicit entry offer plus higher-value path, distribution partner experiments, adjacent-cell cloning."
+    },
+    {
+      "source":"Richard Branson / Virgin",
+      "mechanisms":[
+        "Make the difference obvious to the customer.",
+        "Use publicity and stunts when paid advertising is inefficient.",
+        "Build trust through simple, direct communication.",
+        "Challenge lazy incumbents where the customer pain is visible.",
+        "Keep the brand human and accountable.",
+        "Expand only where the existing brand/distribution advantage transfers."
+      ],
+      "dreamledger_translation":"Magnetic public surface, truthful build-in-public story, trust/evidence layer, challenge weak customer experiences, clone only transferable distribution advantages."
+    },
+    {
+      "source":"Elon Musk / Tesla/SpaceX",
+      "mechanisms":[
+        "Start with a known market need before attacking the largest long-term market.",
+        "Use first-principles cost decomposition.",
+        "Simplify aggressively.",
+        "Vertically integrate bottlenecks when external dependencies dominate cost or speed.",
+        "Treat the production system itself as a product.",
+        "Iterate rapidly and solve blockers at the constraint rather than adding layers."
+      ],
+      "dreamledger_translation":"Known-demand wedge, cost-per-deliverable accounting, remove unnecessary architecture, own bottleneck capabilities, improve the cell factory itself, attack the current blocker."
+    },
+    {
+      "source":"Ben Cera / Polsia",
+      "mechanisms":[
+        "Use failures as a warm distribution pool.",
+        "Launch early and treat launch as the beginning.",
+        "Contact existing networks and previous users.",
+        "Use high-frequency useful public interaction.",
+        "Clone a working distribution mechanism across multiple channels.",
+        "Turn transparent metrics and behind-the-scenes evidence into distribution.",
+        "Use unusual physical/visual publicity.",
+        "Test channels cheaply before building a permanent media operation.",
+        "Publish the real story repeatedly.",
+        "Treat marketing/distribution as a core production function."
+      ],
+      "dreamledger_translation":"Warm opportunity reactivation, channel cloning, approval-ready distribution packets, truthful telemetry, Billboard as a distribution asset, rapid channel tests, public evidence narrative."
+    }
+  ],
+  "compound_patterns":[
+    {
+      "name":"Parasitic Overlay",
+      "formula":"Host Motion × Conversion Surface × Fulfillment Contract × Receipts",
+      "rule":"Attach to existing demand/motion instead of manufacturing traffic from zero."
+    },
+    {
+      "name":"Factory-of-Cells",
+      "formula":"Signals → Buyers → Cells → Distribution → Payment → Fulfillment → Proof → Learning → Clone",
+      "rule":"The unit of scale is a verified economic mechanism, not a feature."
+    },
+    {
+      "name":"Constraint Attack",
+      "formula":"Find the current transition blocker → remove it → remeasure",
+      "rule":"Do not build generalized infrastructure while a concrete economic transition is blocked."
+    },
+    {
+      "name":"Story-as-Distribution",
+      "formula":"Real event → evidence → compelling narrative → distribution → new demand signal",
+      "rule":"Never fabricate traction. Make actual progress legible."
+    },
+    {
+      "name":"Adjacent Expansion",
+      "formula":"Verified cell → identify transferable capability → test adjacent buyer/problem",
+      "rule":"Clone verified behavior, not assumptions."
+    }
+  ],
+  "gates":{
+    "external_publication":"human approval required unless already explicitly authorized",
+    "external_outreach":"human approval required unless already explicitly authorized",
+    "spend":"human approval required",
+    "revenue_truth":"settled external payment + correct attribution + fulfillment + independent verification"
+  }
+}
