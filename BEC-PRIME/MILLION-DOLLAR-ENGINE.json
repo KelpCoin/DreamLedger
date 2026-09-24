@@ -6,8 +6,8 @@
   "public_actions": "approval_required",
   "first_cash_gate": {
     "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-    "price_nzd": 15,
-    "price_cents": 1500,
+    "price_nzd": 29,
+    "price_cents": 2900,
     "status": "locked_until_production_proof"
   },
   "product_ladder": [
