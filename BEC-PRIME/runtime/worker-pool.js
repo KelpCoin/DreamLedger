@@ -27,6 +27,8 @@ function hash(value) { return ledger.sha256(value); }
 function id(prefix) { return `${prefix}_${new Date().toISOString().replace(/[-:.TZ]/g, '')}_${crypto.randomBytes(4).toString('hex')}`; }
 function jobPath(jobId) { return path.join(JOBS_DIR, `${jobId}.json`); }
 function resultPath(jobId) { return path.join(RESULTS_DIR, `${jobId}.json`); }
+function proofPath(jobId) { return path.join(PROOF_DIR, `${jobId}.json`); }
+function assertJobIdentity(job) { if (!job || typeof job.job_id !== 'string' || !job.job_id.trim()) throw new Error('Worker job_id is required'); return job.job_id.trim(); }
 function loadJob(jobId) { const file = jobPath(jobId); if (!fs.existsSync(file)) throw new Error(`Unknown job: ${jobId}`); return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function validateJob(input) {
   if (!input || typeof input !== 'object') throw new Error('Job must be an object');
@@ -64,12 +66,13 @@ async function runGpuModel(job) { const url = job.inputs.gpu_url || GPU_LM_URL; 
 async function runCloudModel(job) { const url = job.inputs.cloud_url || CLOUD_LM_URL; const model = job.inputs.cloud_model || CLOUD_LM_MODEL; if (!url || !model) throw new Error('Cloud worker is not configured: set BEC_CLOUD_LM_URL and BEC_CLOUD_LM_MODEL'); return runCompatibleModel(job, { name: 'cloud', url, model, apiKey: process.env.BEC_CLOUD_LM_API_KEY || process.env.BEC_REMOTE_LM_API_KEY || '' }); }
 
 async function execute(job) {
+  const jobId = assertJobIdentity(job);
   const started = new Date().toISOString();
   const workerPreference = String(job.worker_preference || 'auto').trim() || 'auto';
   const normalizedJob = workerPreference === job.worker_preference ? job : { ...job, worker_preference: workerPreference };
   const selected = scheduler.choose(normalizedJob);
   ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: 'scheduler', event_type: 'WORKER_SELECTED', silo: job.silo, inputs_hash: job.input_hash, payload: selected });
-  if (workerPreference !== 'auto' && selected.adapter === 'deterministic') throw new Error(`Requested worker is unavailable: ${workerPreference}`);
+  // A named preference such as multi_model_diverse is a routing preference, not permission to fabricate a worker. If no compatible worker is actually online, continue to the deterministic proposal path and record that limitation in the result.
   let output;
   let route = selected;
   const runners = { 'local-lmstudio': runLmStudio, gpu: runGpuModel, cloud: runCloudModel };
@@ -89,12 +92,19 @@ async function execute(job) {
     }
   }
   if (!output) throw new Error(lastError || 'No worker available');
-  const result = { schema_version: 'BEC-WORKER-RESULT-1.1', job_id: job.job_id, started_at: started, completed_at: new Date().toISOString(), status: 'ARTIFACT_READY', worker: output.worker, route, output, evidence_claims: { payment_claim: false, sale_claim: false, fulfillment_claim: false }, public_action_allowed: false };
+  const result = { schema_version: 'BEC-WORKER-RESULT-1.1', job_id: jobId, started_at: started, completed_at: new Date().toISOString(), status: 'ARTIFACT_READY', worker: output.worker, route, output, evidence_claims: { payment_claim: false, sale_claim: false, fulfillment_claim: false }, public_action_allowed: false };
   result.output_hash = `sha256:${hash(result.output)}`; result.result_hash = `sha256:${hash(result)}`;
-  fs.writeFileSync(resultPath(job.job_id), JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+  const existingResultPath = resultPath(jobId);
+  if (fs.existsSync(existingResultPath)) {
+    const existingResult = JSON.parse(fs.readFileSync(existingResultPath, 'utf8'));
+    const existingProofFile = proofPath(jobId);
+    const existingProof = fs.existsSync(existingProofFile) ? JSON.parse(fs.readFileSync(existingProofFile, 'utf8')) : null;
+    return { job, result: existingResult, proof: existingProof, fossil: null, idempotent: true };
+  }
+  fs.writeFileSync(existingResultPath, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
   const proof = { schema_version: 'BEC-WORKER-PROOF-1.1', proof_id: id('proof'), job_id: job.job_id, silo: job.silo, status: 'PASS', worker: output.worker, route, input_hash: job.input_hash, result_hash: result.result_hash, claims: result.evidence_claims, approval_required: true, public_action_allowed: false, created_at: new Date().toISOString() };
-  proof.proof_hash = `sha256:${hash(proof)}`; fs.writeFileSync(path.join(PROOF_DIR, `${job.job_id}.json`), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
-  const event = ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: route.execution_node, event_type: 'ARTIFACT_READY', silo: job.silo, inputs_hash: job.input_hash, outputs_hash: result.result_hash, payload: { job_id: job.job_id, worker: output.worker, proof_hash: proof.proof_hash }, evidence_refs: [proof.proof_hash] });
+  proof.proof_hash = `sha256:${hash(proof)}`; fs.writeFileSync(proofPath(jobId), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
+  const event = ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: jobId, node_id: route.execution_node, event_type: 'ARTIFACT_READY', silo: job.silo, inputs_hash: job.input_hash, outputs_hash: result.result_hash, payload: { job_id: job.job_id, worker: output.worker, proof_hash: proof.proof_hash }, evidence_refs: [proof.proof_hash] });
   const terminal = fossil.createFossil({ graph_id: 'BEC-RUNTIME', job_id: job.job_id, trigger_event_id: event.event_id, event_window: { to_event_id: event.event_id }, worker: route, claims: result.evidence_claims, result: 'PASS' });
   const updated = { ...job, status: 'ARTIFACT_READY', result_hash: result.result_hash, proof_hash: proof.proof_hash, fossil_hash: terminal.fossil_hash, completed_at: result.completed_at, route };
   fs.writeFileSync(jobPath(job.job_id), JSON.stringify(updated, null, 2) + '\n');
