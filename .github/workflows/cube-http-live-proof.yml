@@ -7,7 +7,7 @@ on:
 
 jobs:
   million-http-proof:
-    name: Verify routes \${{ matrix.shard }}
+    name: Verify routes ${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
     strategy:
@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Execute every assigned public HTTPS route
         env:
-          SHARD: \${{ matrix.shard }}
+          SHARD: ${{ matrix.shard }}
         shell: bash
         run: |
           set -euo pipefail
