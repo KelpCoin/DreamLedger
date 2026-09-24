@@ -1,0 +1,22 @@
+-- DREAMLEDGER INTERNAL RLS REMEDIATION DRAFT
+-- Generated after the 2026-09-24 Supabase security inspection.
+-- DO NOT RUN BLINDLY. Enabling RLS without policies blocks anon/authenticated access.
+-- public.cube_qualifier_decisions is internal decision telemetry and should not be public.
+--
+-- Recommended fail-closed posture:
+-- 1. Enable RLS.
+-- 2. Do not create anon/authenticated SELECT/INSERT/UPDATE/DELETE policies.
+-- 3. Let trusted server-side/service-role workflows access the table.
+-- 4. If an authenticated operator UI later needs access, add an explicit operator-only policy.
+--
+ALTER TABLE public.cube_qualifier_decisions ENABLE ROW LEVEL SECURITY;
+--
+-- Intentionally no public policies are created here.
+-- Service-role access bypasses RLS and remains available to trusted server-side jobs.
+--
+-- Other currently flagged RLS-disabled tables require separate policy review:
+-- public.phinhaven_depth_tiles
+-- public.phinhaven_guild_objectives
+-- public.phinhaven_guild_objective_contributions
+-- public.phinhaven_guild_structures
+-- public.phinhaven_guild_control_history
