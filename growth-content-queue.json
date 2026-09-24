@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "principle": "story -> distribution -> evidence -> replication",
+  "approval_required_for_external_publication": true,
+  "items": [
+    {
+      "id": "DL-GROWTH-001",
+      "format": "launch_post",
+      "theme": "building a business-building machine",
+      "status": "READY_FOR_APPROVAL",
+      "claim_boundary": "DreamLedger is building and testing a system for discovering, packaging, distributing, fulfilling and verifying small commercial cells. Current verified external revenue remains NZ$0."
+    },
+    {
+      "id": "DL-GROWTH-002",
+      "format": "build_in_public_series",
+      "theme": "one real economic event at a time",
+      "status": "READY_FOR_APPROVAL"
+    },
+    {
+      "id": "DL-GROWTH-003",
+      "format": "video_episode",
+      "theme": "What happens when the first cell earns a real dollar?",
+      "status": "READY_FOR_APPROVAL",
+      "rule": "Do not publish until the event exists."
+    },
+    {
+      "id": "DL-GROWTH-004",
+      "format": "transparency_update",
+      "theme": "revenue and evidence curve",
+      "status": "READY_FOR_APPROVAL",
+      "value": "NZ$0 verified external revenue"
+    },
+    {
+      "id": "DL-GROWTH-005",
+      "format": "failure_story",
+      "theme": "what a failed commercial cell taught us",
+      "status": "WAITING_FOR_REAL_FAILURE"
+    },
+    {
+      "id": "DL-GROWTH-006",
+      "format": "distribution_test",
+      "theme": "same useful story, multiple channels",
+      "status": "READY_FOR_APPROVAL"
+    }
+  ]
+}
