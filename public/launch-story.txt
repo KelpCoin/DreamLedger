@@ -1,0 +1,29 @@
+DREAMLEDGER LAUNCH STORY
+
+Working title:
+BUILD ONE. PROVE IT. COPY WHAT WORKS.
+
+Core story:
+DreamLedger is an experiment in building a system that can discover commercial opportunities, turn them into concrete offers, distribute them, fulfill them, measure the result and learn which mechanisms deserve replication.
+
+The point is not to pretend that an autonomous business already exists at scale.
+
+The point is to make the first real transaction, preserve the evidence, and use the transaction itself as the instruction for what to build next.
+
+Current truth:
+Verified external revenue: NZ$0.
+Settled external payments: 0.
+Independent external buyers: 0.
+
+Publication rule:
+This file is approval-ready. It is not authorization to publish externally.
+
+Milestone sequence:
+1. First external buyer.
+2. First settled payment.
+3. First independently verified fulfillment.
+4. First repeat transaction.
+5. First cell whose economic mechanism can be cloned with materially less human work.
+6. First portfolio of independently verified cells.
+
+The story gets louder only when reality gives us something true to say.
