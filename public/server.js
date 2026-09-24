@@ -6,6 +6,7 @@ const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('
 const auth=require('../BEC-PRIME/routes/auth');
 const dreamiez=require('../BEC-PRIME/routes/dreamiez');
 const agentBridge=require('../BEC-PRIME/runtime/AgentBridge');
+const cubeChatSignal=require('../BEC-PRIME/routes/cubeChatSignal');
 const bridgeRail=require('../BEC-PRIME/runtime/BridgeRail');
 const truthOracleCommerce=require('../BEC-PRIME/routes/truthOracleCommerce');
 const consultDecision=require('../BEC-PRIME/routes/consultDecision');
@@ -87,7 +88,7 @@ if(req.method==='GET'&&p==='/api/c2/status'){const urlKeys=['BEC_C2_LM_URL','BEC
 if(p.startsWith('/api/truth-oracle')){try{const handled=await truthOracleCommerce.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Truth Oracle route failed'}),'application/json; charset=utf-8')}}
 if(p.startsWith('/m2m/v1/consult/decision')){try{const handled=await consultDecision.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'C2 decision route failed'}),'application/json; charset=utf-8')}}
 if(p.startsWith('/api/agent-bridge/rail/')){try{const handled=await bridgeRail.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'BridgeRail route failed'}),'application/json; charset=utf-8')}}
-if(p.startsWith('/api/agent-bridge')){try{const handled=await agentBridge.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'AgentBridge route failed'}),'application/json; charset=utf-8')}}
+if(p.startsWith('/api/agent-bridge')){try{const handled=await agentBridge.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'AgentBridge route failed'}),'application/json; charset=utf-8')}}if(p==='/api/cube/chat-signal'){try{const handled=await cubeChatSignal.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'CUBE chat signal route failed'}),'application/json; charset=utf-8')}}
 if(req.method==='GET'&&p==='/version')return send(res,200,JSON.stringify({service:'dreamledger-storefront',commit:COMMIT,surface:'marketplace-v19',cube:'v1',ecosystem:'v1',agent_manifest:'/agent.json',agent_commerce:'/agent-commerce.json',surfaces:'/surfaces.json',discovery:'/.well-known/dreamledger.json',account_auth:'first-party',dreammeez_route:'/dreammeez'}),'application/json; charset=utf-8');
 if(ACCOUNT_PAGES[p]&&req.method==='GET')return serveFile(res,ACCOUNT_PAGES[p],ACCOUNT_ROOT);
 if(ACCOUNT_API[key]){try{if(await auth.handle(req,res,p))return;}catch(e){return send(res,500,JSON.stringify({error:e&&e.message?e.message:'Authentication service failed'}),'application/json; charset=utf-8')}}
