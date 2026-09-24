@@ -1,0 +1,97 @@
+{
+  "schema": "dreamledger/economic-loops/v1",
+  "updated": "2026-09-24",
+  "principle": "Many loops may exist; only internet-facing loops may be marketed. Settlement is always Stripe live evidence. verified_external_revenue_nzd defaults to 0.",
+  "verified_external_revenue_nzd": 0,
+  "loops": [
+    {
+      "loop_id": "LOOP-BILLBOARD-FOUNDING-50",
+      "name": "Founding Billboard Tile",
+      "internet_facing": true,
+      "local_first": false,
+      "price_nzd": 50,
+      "buy_url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "fulfilment": "billboard_placement_review",
+      "settlement": "stripe_payment_link",
+      "status": "live_offer",
+      "priority": 1,
+      "money_path": "ops/money/THIS-WEEK-COMMAND.md"
+    },
+    {
+      "loop_id": "LOOP-CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "internet_facing": true,
+      "local_first": true,
+      "price_nzd": 29,
+      "buy_url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "fulfilment": "digital_report",
+      "settlement": "stripe_payment_link",
+      "status": "live_offer",
+      "priority": 2,
+      "money_path": "ops/money/THIS-WEEK-COMMAND.md",
+      "note": "Report can be drafted air-gap; delivery after live pay"
+    },
+    {
+      "loop_id": "LOOP-DISCORD-WEBHOOK-79",
+      "name": "Discord Webhook Starter Kit",
+      "internet_facing": true,
+      "local_first": true,
+      "price_nzd": 79,
+      "buy_url": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "fulfillment": "digital_download",
+      "settlement": "stripe_payment_link",
+      "status": "live_offer",
+      "priority": 3
+    },
+    {
+      "loop_id": "LOOP-PERFORMANCE-WALL-DIGITAL",
+      "name": "Performance Wall digital packs",
+      "internet_facing": true,
+      "local_first": true,
+      "price_nzd": null,
+      "status": "candidate",
+      "priority": 10,
+      "note": "Enable one passive SKU only after first fossil"
+    },
+    {
+      "loop_id": "LOOP-AGENT-BRIDGE-COORD",
+      "name": "Agent Bridge coordination",
+      "internet_facing": false,
+      "local_first": true,
+      "status": "infrastructure",
+      "priority": 0,
+      "note": "Not sold; enables multi-LLM hybrid work"
+    },
+    {
+      "loop_id": "LOOP-CLOUD-SENTINELS",
+      "name": "Cloud demand/intent sentinels",
+      "internet_facing": false,
+      "local_first": false,
+      "status": "infrastructure",
+      "priority": 0,
+      "note": "Observes rails; does not create buyers"
+    },
+    {
+      "loop_id": "LOOP-TRUTH-ORACLE",
+      "name": "Truth Oracle",
+      "internet_facing": true,
+      "local_first": true,
+      "status": "attention_funnel",
+      "priority": 20,
+      "note": "Demand attractor; monetize only via explicit offers"
+    },
+    {
+      "loop_id": "LOOP-PHIN-COSMETICS",
+      "name": "Phin Haven / DreamMeez cosmetics",
+      "internet_facing": true,
+      "local_first": false,
+      "status": "live_micro",
+      "priority": 30,
+      "note": "Micro AOV; do not distract from Ball C"
+    }
+  ],
+  "isolation": {
+    "rule": "Silos stay separate behind clear CTAs; settlement catalog is authority for money recognition",
+    "public_copy": "Customer English only on internet-facing surfaces"
+  }
+}

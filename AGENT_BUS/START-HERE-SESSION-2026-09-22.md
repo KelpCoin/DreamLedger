@@ -1,25 +1,20 @@
-# START HERE — operator index
+# START HERE
 
-**Husband:** `git pull origin main`
+**Husband first:** [`HUSBAND-READ-THIS.md`](HUSBAND-READ-THIS.md)
 
-## Money this week (read first)
+## Money
 
-1. **`ops/money/THIS-WEEK-COMMAND.md`** — command card + day plan  
-2. **`ops/money/DEMAND-KIT.md`** — copy-paste posts  
-3. **`ops/money/SETTLEMENT-LINK-ALIGNMENT.md`** — make meter match Stripe  
-4. **`ops/money/POST-SALE-PROTOCOL.md`** — when someone pays  
-5. **`ops/money/OPERATOR-SCOREBOARD.md`** — tick boxes  
-6. **`ops/money/AMBITION-14-DAY.md`** — after first traction  
+- `ops/money/THIS-WEEK-COMMAND.md`
+- `ops/money/DEMAND-KIT.md`
+- `ops/money/SETTLEMENT-LINK-ALIGNMENT.md`
+- `ops/money/POST-SALE-PROTOCOL.md`
 
-## Live sell URLs
+## Bridge (multi-LLM + air-gap + cloud)
 
-- Tile: https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001  
-- Diagnostic: https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001  
+- `AGENT_BUS/BRIDGE/PROTOCOL.md`
+- `scripts/bridge_ping.py`
+- `AGENT_BUS/ECONOMIC-LOOPS/registry.json`
 
 ## Truth
 
-Verified external revenue **NZ$0** until external live pay + recognition + fulfil + fossil.
-
-## Bus
-
-`AGENT_BUS/PING_PONG_BALLS.json`
+`PING_PONG_BALLS.json` → `verified_external_revenue_nzd` is **0** until external settle.

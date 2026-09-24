@@ -1,27 +1,31 @@
 {
-  "version": 25,
+  "version": 26,
   "updated": "2026-09-24",
   "current_truth": {
+    "agent_bridge": "AGENT_BUS/BRIDGE/PROTOCOL.md",
+    "economic_loops": "AGENT_BUS/ECONOMIC-LOOPS/registry.json",
+    "husband_visibility": "AGENT_BUS/HUSBAND-READ-THIS.md",
     "this_week_pack": "ops/money/THIS-WEEK-COMMAND.md",
+    "demand_kit": "ops/money/DEMAND-KIT.md",
     "cloud_sentinels": "BEC-PRIME/sentinels/CLOUD-SENTINELS.md",
-    "sentinel_workflow": ".github/workflows/cloud-demand-intent-sentinels.yml",
-    "sentinel_reports": "AGENT_BUS/sentinel-reports/",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "DEMAND-KIT posts + link alignment",
-    "S": "Cloud sentinels probe rails every 6h and write GitHub"
+    "B": "Agent Bridge v1 dual-mode established on bus",
+    "C": "FIRST SALE — DEMAND-KIT + link alignment",
+    "L": "Economic loops registry — internet vs internal faces"
   },
   "immediate_next": [
-    "Run workflow Cloud Demand + Intent Sentinels",
-    "Read AGENT_BUS/sentinel-reports/LATEST-HANDOFF.md after run",
-    "Human posts from DEMAND-KIT"
+    "Open AGENT_BUS/HUSBAND-READ-THIS.md",
+    "Post from ops/money/DEMAND-KIT.md",
+    "Optional: python3 scripts/bridge_ping.py --summary operator-ack --mode hybrid"
   ],
   "do_not": [
-    "Treat HOT band as revenue",
-    "Skip distribution because sentinel is green"
+    "Claim revenue without Stripe live external pay",
+    "Market internal-only loops as products",
+    "Skip git push if using local_queue"
   ],
   "session_evidence": {
-    "2026-09-24-cloud-sentinels": "cloud_sentinel_run.mjs + Actions workflow on main"
+    "2026-09-24-bridge-loops": "PROTOCOL + registry + bridge_ping/pong + HUSBAND-READ-THIS"
   }
 }
