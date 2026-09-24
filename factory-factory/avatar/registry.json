@@ -1,11 +1,20 @@
 {
-  "provider": "ready-player-me",
+  "provider": "three.ws",
   "status": "CONTRACT_READY_PROVIDER_CONFIGURATION_REQUIRED",
+  "sdk": "@three-ws/avatar",
+  "mcp": "@three-ws/avatar-agent",
   "persistence_key": "dreamledger_avatar_id",
   "capabilities": [
     "prompt_to_avatar",
+    "auto_rigging",
     "wearable_inventory",
-    "cross_surface_identity"
+    "cross_surface_identity",
+    "agent_mcp_control"
   ],
-  "truth_policy": "Avatar creation is not economic outcome; only independently observed purchase/settlement is economic truth."
+  "economic_surfaces": [
+    "avatar_marketplace",
+    "browser_game",
+    "agent_commerce"
+  ],
+  "truth_policy": "Avatar creation is not an economic outcome; only independently observed purchase and settlement is economic truth."
 }
