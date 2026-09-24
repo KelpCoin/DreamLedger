@@ -1,26 +1,19 @@
-# Husband — read this
+# Husband — zero balance
 
-## Bank
+**Verified external revenue: NZ$0.** Only a live customer payment changes that.
 
-**NZ$0 verified external revenue** until a real customer pays live and you fulfil. Infrastructure ≠ income.
+## Critical fix just made
 
-## Open these on GitHub
+Settlement Sync was watching an **old** Stripe link. Live checkout used a **different** link — so a real sale might not have shown on the meter.  
+**Fixed:** workflow now watches the **live** tile + diagnostic Payment Links.
 
-1. [`ops/autonomy/REVENUE-ENGINE-SPINE.md`](../ops/autonomy/REVENUE-ENGINE-SPINE.md) — full engine map (L0–L6)  
-2. [`ops/money/THIS-WEEK-COMMAND.md`](../ops/money/THIS-WEEK-COMMAND.md) — what to do this week  
-3. [`ops/money/DEMAND-KIT.md`](../ops/money/DEMAND-KIT.md) — posts  
-4. [`AGENT_BUS/BRIDGE/PROTOCOL.md`](BRIDGE/PROTOCOL.md) — Agent Bridge  
-5. [`ops/autonomy/ENGINE-SELF-CHECK.md`](../ops/autonomy/ENGINE-SELF-CHECK.md) — verify rails  
+## Do this next
 
-## Local commands
+1. Open [`ops/money/COPY-PASTE-NOW.txt`](../ops/money/COPY-PASTE-NOW.txt) — post it  
+2. Open [`ops/money/ZERO-BALANCE-PLAYBOOK.md`](../ops/money/ZERO-BALANCE-PLAYBOOK.md)  
+3. GitHub Actions → **Commerce Settlement Sync** → Run (needs `STRIPE_SECRET_KEY`)  
 
-```bash
-git pull
-python3 scripts/loop_status.py --live
-python3 scripts/bridge_process_inbox.py --dry-run
-python3 scripts/bridge_ping.py --summary "operator online" --mode hybrid --ball C
-```
+## Sell URLs
 
-## Money path (unchanged)
-
-Align plinks → post DEMAND-KIT → someone pays → fulfil → fossil.
+- Tile: https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001  
+- Diagnostic: https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001  

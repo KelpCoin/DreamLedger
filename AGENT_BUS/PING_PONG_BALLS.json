@@ -1,31 +1,31 @@
 {
-  "version": 27,
+  "version": 28,
   "updated": "2026-09-25",
   "current_truth": {
-    "revenue_engine_spine": "ops/autonomy/REVENUE-ENGINE-SPINE.md",
-    "engine_self_check": "ops/autonomy/ENGINE-SELF-CHECK.md",
-    "agent_bridge": "AGENT_BUS/BRIDGE/PROTOCOL.md",
-    "bridge_router": "scripts/bridge_process_inbox.py",
-    "loop_status": "scripts/loop_status.py",
-    "fulfillment_dispatch": "BEC-PRIME/fulfillment/DISPATCH.md",
-    "this_week_pack": "ops/money/THIS-WEEK-COMMAND.md",
-    "verified_external_revenue_nzd": 0
+    "zero_balance_playbook": "ops/money/ZERO-BALANCE-PLAYBOOK.md",
+    "copy_paste_now": "ops/money/COPY-PASTE-NOW.txt",
+    "settlement_workflow": ".github/workflows/commerce-settlement-sync.yml",
+    "live_tile_plink": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+    "live_diagnostic_plink": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+    "buy_tile": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "buy_diagnostic": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+    "verified_external_revenue_nzd": 0,
+    "note": "Settlement Sync previously watched a stale tile plink; fixed to live destinations"
   },
   "balls": {
-    "A": "Autonomy spine L0-L6 mapped",
-    "B": "Bridge v1.1 inbox router",
-    "C": "FIRST SALE still open — DEMAND-KIT"
+    "C": "POST COPY-PASTE-NOW — first external pay",
+    "M": "Meter aligned to live buy routers"
   },
   "immediate_next": [
-    "python3 scripts/loop_status.py --live",
-    "Run ENGINE-SELF-CHECK.md",
-    "Post DEMAND-KIT"
+    "Ensure STRIPE_SECRET_KEY secret",
+    "Run Commerce Settlement Sync",
+    "Post ops/money/COPY-PASTE-NOW.txt on owned channel"
   ],
   "do_not": [
-    "Claim autonomous revenue engine complete",
-    "Set revenue > 0 without external fossil"
+    "Build more products instead of posting",
+    "Claim revenue at 0"
   ],
   "session_evidence": {
-    "2026-09-25-autonomy-spine": "spine + bridge router + loop/fossil scripts"
+    "2026-09-25-plink-align": "dual-offer settlement jobs + zero balance playbook"
   }
 }

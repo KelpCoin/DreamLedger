@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  reconcile:
-    name: Reconcile live Stripe -> proof
+  reconcile-tile:
+    name: Reconcile tile NZ$50 (live buy plink)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -27,27 +27,66 @@ jobs:
       - name: Verify runtime
         run: node --version
 
-      - name: Reconcile settlement evidence
+      - name: Reconcile settlement evidence (tile)
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x
+          # MUST match live /buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 destination (2026-09-25 probe)
+          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w
           STRIPE_LIVE_ENABLED: 'true'
         run: node ops/commerce/reconcile-stripe-airtable.mjs
 
-      - name: Hash settlement proof
+      - name: Hash + stage proof (tile)
         shell: bash
         run: |
           set -euo pipefail
           test -s proof/commerce/latest-stripe-airtable-reconciliation.json
-          sha256sum proof/commerce/latest-stripe-airtable-reconciliation.json > proof/commerce/latest-stripe-airtable-reconciliation.sha256
-          cat proof/commerce/latest-stripe-airtable-reconciliation.sha256
+          mkdir -p proof/commerce/tile
+          cp proof/commerce/latest-stripe-airtable-reconciliation.json proof/commerce/tile/reconciliation.json
+          sha256sum proof/commerce/tile/reconciliation.json > proof/commerce/tile/reconciliation.sha256
+          cat proof/commerce/tile/reconciliation.sha256
 
-      - name: Upload settlement proof
+      - name: Upload tile settlement proof
         uses: actions/upload-artifact@v4
         with:
-          name: commerce-settlement-proof-${{ github.run_id }}
+          name: commerce-settlement-tile-${{ github.run_id }}
           path: |
-            proof/commerce/latest-stripe-airtable-reconciliation.json
-            proof/commerce/latest-stripe-airtable-reconciliation.sha256
+            proof/commerce/tile/reconciliation.json
+            proof/commerce/tile/reconciliation.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+  reconcile-diagnostic:
+    name: Reconcile diagnostic NZ$29 (live buy plink)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconcile settlement evidence (diagnostic)
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          # MUST match live /buy/COMMANDER-DECK-DIAGNOSTIC-001 destination (2026-09-25 probe)
+          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R
+          STRIPE_LIVE_ENABLED: 'true'
+        run: node ops/commerce/reconcile-stripe-airtable.mjs
+
+      - name: Hash + stage proof (diagnostic)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s proof/commerce/latest-stripe-airtable-reconciliation.json
+          mkdir -p proof/commerce/diagnostic
+          cp proof/commerce/latest-stripe-airtable-reconciliation.json proof/commerce/diagnostic/reconciliation.json
+          sha256sum proof/commerce/diagnostic/reconciliation.json > proof/commerce/diagnostic/reconciliation.sha256
+          cat proof/commerce/diagnostic/reconciliation.sha256
+
+      - name: Upload diagnostic settlement proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: commerce-settlement-diagnostic-${{ github.run_id }}
+          path: |
+            proof/commerce/diagnostic/reconciliation.json
+            proof/commerce/diagnostic/reconciliation.sha256
           if-no-files-found: error
           retention-days: 90
