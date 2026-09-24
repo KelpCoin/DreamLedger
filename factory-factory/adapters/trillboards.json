@@ -1,0 +1,11 @@
+{
+  "adapter":"trillboards",
+  "package":"@trillboards/ads-sdk",
+  "partner_api":"@trillboards/api-client",
+  "mcp_endpoint":"https://api.trillboards.com/mcp",
+  "inventory_sku":"BILLBOARD-TILE-FOUNDING-001",
+  "price_nzd":50,
+  "required_runtime":["TRILLBOARDS_API_KEY"],
+  "proof":"proof-of-play plus QR attribution",
+  "status":"CONTRACT_READY_CREDENTIAL_REQUIRED"
+}
