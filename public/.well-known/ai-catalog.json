@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "name": "DreamLedger",
+  "url": "https://dreamledger.org/",
+  "description": "Commerce ecosystem for testing and operating small commercial cells.",
+  "entrypoints": [
+    {"path": "/", "purpose": "commerce front door"},
+    {"path": "/growth.html", "purpose": "public operating story"},
+    {"path": "/catalog.json", "purpose": "machine-readable product catalog"},
+    {"path": "/llms.txt", "purpose": "machine-readable orientation"}
+  ],
+  "truth_policy": {
+    "revenue_requires": ["settled_external_payment", "correct_attribution", "fulfillment", "independent_verification"],
+    "do_not_infer": ["buyers", "revenue", "scarcity", "testimonials", "rankings"]
+  }
+}
