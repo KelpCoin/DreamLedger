@@ -1,0 +1,52 @@
+{
+  "protocol": "PHINHAVEN-CLIENT-1.0",
+  "world": "phinhaven",
+  "authority": "supabase",
+  "clients": [
+    "web-canvas",
+    "godot",
+    "unity",
+    "native",
+    "other"
+  ],
+  "gameplay": {
+    "rpc": [
+      "kelplantis_create_player",
+      "kelplantis_get_player",
+      "kelplantis_move_player",
+      "kelplantis_talk_to_npc",
+      "kelplantis_engage_encounter",
+      "kelplantis_attack",
+      "kelplantis_flee_encounter",
+      "kelplantis_equip_item",
+      "kelplantis_get_floor_gate",
+      "kelplantis_get_world_state",
+      "kelplantis_list_town_presence"
+    ]
+  },
+  "persistent_identity": {
+    "player_table": "phinhaven_players",
+    "avatar_table": "dreammeez_avatars",
+    "cosmetics_table": "phinhaven_cosmetics",
+    "ownership_table": "phinhaven_cosmetic_ownership",
+    "rule": "gameplay items may expose a cosmetic/avatar representation without making CUBE authoritative over gameplay"
+  },
+  "world_surfaces": {
+    "billboard_table": "billboard_public",
+    "read_model": "published public placements only",
+    "rule": "billboards are world content; destination navigation is client-controlled and never grants economic truth"
+  },
+  "economic_sidecar": {
+    "cube_signal_endpoint": "https://dreamledger.org/api/cube/chat-signal",
+    "source": "phinhaven_chat",
+    "truth": "SIGNAL_ONLY",
+    "rule": "CUBE may observe and classify signals; it does not own movement, combat, inventory, rendering, or settlement"
+  },
+  "compatibility": {
+    "web": "current reference client",
+    "godot": "implement protocol adapter; do not fork authoritative game rules",
+    "unity": "implement protocol adapter; do not fork authoritative game rules",
+    "roblox": "separate platform adapter/experience; consume compatible server contract where platform permits",
+    "native": "consume same protocol"
+  }
+}
