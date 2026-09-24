@@ -22,7 +22,7 @@ offset_right = 940.0
 offset_bottom = 710.0
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 13
-text = "Space/Enter: enter floor · WASD: move · Walk onto kelp / skitters"
+text = "Space/Enter: enter Depth 2 · WASD: move · Walk onto kelp / skitters"
 
 
 [node name="ChatLabel" type="Label" parent="UI"]
