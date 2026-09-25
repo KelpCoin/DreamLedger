@@ -1,10 +1,10 @@
 {
-  "version": 46,
-  "updated": "2026-09-25",
+  "version": 47,
+  "updated": "2026-09-26",
   "current_truth": {
-    "public": "marketplace-v1 TradeMe-style browse + Shopify buy clarity",
+    "public": "store-v2 premium storefront overhaul",
     "verified_external_revenue_nzd": 0
   },
-  "balls": { "W": "marketplace-v1", "C": "sell" },
-  "immediate_next": ["Redeploy marketplace-v1", "Test on phone + desktop"]
+  "balls": { "W": "store-v2", "C": "sell" },
+  "immediate_next": ["Redeploy for data-surface=store-v2"]
 }

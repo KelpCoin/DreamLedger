@@ -1,290 +1,359 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="marketplace-v1">
+<html lang="en-NZ" data-surface="store-v2">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger marketplace — buy digital products and placements. Secure Stripe checkout. New Zealand.">
-<meta name="theme-color" content="#0f766e">
-<title>DreamLedger · Marketplace</title>
+<meta name="description" content="DreamLedger — digital products and placements. New Zealand. Pay with Stripe.">
+<meta name="theme-color" content="#111111">
+<title>DreamLedger</title>
 <link rel="canonical" href="https://dreamledger.org/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 :root{
-  --teal:#0f766e;--teal-d:#0d5c56;--teal-s:#ccfbf1;
-  --bg:#f4f5f7;--card:#fff;--ink:#1a1a1a;--muted:#5a6570;--line:#dde1e6;
-  --price:#0f766e;--star:#f59e0b;
-  --f:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --max:1100px;
+  --bg:#faf9f7;
+  --ink:#14120f;
+  --muted:#6b6560;
+  --line:#e8e4de;
+  --card:#ffffff;
+  --accent:#c45c26;
+  --accent-h:#a34a1c;
+  --dark:#14120f;
+  --ok:#2f6f4e;
+  --r:16px;
+  --max:1120px;
+  --font:"DM Sans",system-ui,sans-serif;
+  --serif:"Instrument Serif",Georgia,serif;
   --safe:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--f);background:var(--bg);color:var(--ink);line-height:1.4;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-button,input{font:inherit}
+img{max-width:100%;display:block}
 
-/* === TOP BAR (TradeMe-style brand + search) === */
-.site-top{background:var(--teal);color:#fff}
-.site-top .inner{max-width:var(--max);margin:0 auto;padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-.logo{font-weight:800;font-size:1.15rem;letter-spacing:-.03em;white-space:nowrap}
-.search{flex:1;min-width:180px;display:flex;background:#fff;border-radius:8px;overflow:hidden}
-.search input{flex:1;border:0;padding:11px 12px;font-size:15px;color:var(--ink);outline:none;min-width:0}
-.search button{border:0;background:#134e4a;color:#fff;padding:0 16px;font-weight:700;font-size:14px;cursor:pointer}
-.top-links{display:flex;gap:6px;align-items:center}
-.top-links a{font-size:13px;font-weight:600;padding:8px 10px;border-radius:6px;color:#ecfdf5}
-.top-links a:hover{background:rgba(255,255,255,.12)}
-.top-links .sell{background:#fff;color:var(--teal)!important}
+/* Header */
+.hdr{
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,249,247,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.hdr-inner{
+  max-width:var(--max);margin:0 auto;
+  height:60px;padding:0 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.brand{font-family:var(--serif);font-size:1.35rem;font-weight:400;letter-spacing:-.02em}
+.hdr-nav{display:flex;align-items:center;gap:4px}
+.hdr-nav a{
+  font-size:13px;font-weight:600;color:var(--muted);
+  padding:8px 12px;border-radius:999px;
+}
+.hdr-nav a:hover{color:var(--ink);background:#f0eeea}
+.hdr-nav .cta{
+  background:var(--dark);color:#fff!important;margin-left:6px;
+}
+.hdr-nav .cta:hover{background:#2a2724;color:#fff!important}
 
-/* === CATEGORY STRIP === */
-.cats{background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
-.cats::-webkit-scrollbar{display:none}
-.cats .inner{max-width:var(--max);margin:0 auto;padding:0 8px;display:flex;gap:4px;min-width:min-content}
-.cats a{flex:0 0 auto;padding:12px 14px;font-size:13px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
-.cats a:hover,.cats a.on{color:var(--teal);border-bottom-color:var(--teal)}
+/* Hero merchandising */
+.hero{
+  max-width:var(--max);margin:0 auto;
+  padding:36px 20px 28px;
+  display:grid;gap:28px;
+}
+@media(min-width:800px){
+  .hero{grid-template-columns:1.1fr 0.9fr;align-items:center;padding:48px 20px 40px}
+}
+.hero-copy .eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:12px;
+}
+.hero-copy h1{
+  font-family:var(--serif);font-weight:400;
+  font-size:clamp(2rem,5.5vw,3.1rem);
+  line-height:1.08;letter-spacing:-.02em;
+}
+.hero-copy h1 em{font-style:italic;color:var(--accent)}
+.hero-copy p{margin-top:14px;font-size:1.05rem;color:var(--muted);max-width:36ch}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:48px;padding:0 22px;border-radius:999px;
+  font-size:14px;font-weight:700;
+}
+.btn-dark{background:var(--dark);color:#fff}
+.btn-dark:hover{background:#2a2724}
+.btn-line{border:1.5px solid var(--line);background:var(--card)}
+.btn-line:hover{border-color:#ccc}
+.hero-panel{
+  background:var(--dark);color:#f5f2ec;border-radius:24px;
+  padding:28px 24px;min-height:240px;
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.hero-panel .label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.55}
+.hero-panel h2{font-family:var(--serif);font-size:1.75rem;font-weight:400;margin-top:8px;line-height:1.15}
+.hero-panel .price{font-size:1.5rem;font-weight:700;margin-top:16px}
+.hero-panel a{
+  margin-top:20px;align-self:flex-start;
+  background:var(--accent);color:#fff;min-height:48px;padding:0 24px;
+  border-radius:999px;font-weight:700;font-size:14px;
+  display:inline-flex;align-items:center;
+}
+.hero-panel a:hover{background:var(--accent-h)}
 
-/* === HERO BAND === */
-.hero{max-width:var(--max);margin:0 auto;padding:18px 14px 8px}
-.hero h1{font-size:clamp(1.25rem,4vw,1.6rem);font-weight:800;letter-spacing:-.03em}
-.hero p{color:var(--muted);font-size:14px;margin-top:4px}
+/* Trust */
+.trust{
+  max-width:var(--max);margin:0 auto;padding:0 20px 8px;
+  display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+}
+@media(min-width:700px){.trust{grid-template-columns:1fr 1fr 1fr}}
+.trust div{background:var(--card);padding:16px 18px}
+.trust strong{display:block;font-size:13px;font-weight:700}
+.trust span{font-size:12px;color:var(--muted)}
 
-/* === LISTING GRID (Shopify clarity + marketplace density) === */
-.grid-wrap{max-width:var(--max);margin:0 auto;padding:8px 14px 100px}
-.grid-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.grid-head h2{font-size:15px;font-weight:700}
-.grid-head span{font-size:12px;color:var(--muted)}
-.grid{display:grid;grid-template-columns:1fr;gap:12px}
-@media(min-width:520px){.grid{grid-template-columns:1fr 1fr}}
-@media(min-width:860px){.grid{grid-template-columns:1fr 1fr 1fr}}
+/* Section */
+.sec{max-width:var(--max);margin:0 auto;padding:36px 20px 8px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px}
+.sec-h h2{font-family:var(--serif);font-size:1.6rem;font-weight:400}
+.sec-h span{font-size:13px;color:var(--muted)}
+
+/* Product grid */
+.grid{display:grid;gap:16px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr}}
 
 .card{
-  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
   overflow:hidden;display:flex;flex-direction:column;
-  transition:box-shadow .15s,border-color .15s;
+  transition:transform .2s,box-shadow .2s;
 }
-.card:hover{border-color:#cbd5e1;box-shadow:0 8px 24px rgba(15,23,42,.06)}
-.card .pic{
-  aspect-ratio:16/10;background:linear-gradient(145deg,#e0f2f1,#f0fdfa);
+.card:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(20,18,15,.07)}
+.card-media{
+  aspect-ratio:4/3;
+  background:linear-gradient(155deg,#ebe6df,#d9d2c8);
   position:relative;
 }
-.card:nth-child(2) .pic{background:linear-gradient(145deg,#e0e7ff,#eef2ff)}
-.card:nth-child(3) .pic{background:linear-gradient(145deg,#ede9fe,#f5f3ff)}
-.card:nth-child(4) .pic{background:linear-gradient(145deg,#dcfce7,#f0fdf4)}
-.card:nth-child(5) .pic{background:linear-gradient(145deg,#fef3c7,#fffbeb)}
-.card:nth-child(6) .pic{background:linear-gradient(145deg,#fce7f3,#fdf2f8)}
-.card .tag{
-  position:absolute;left:10px;top:10px;
-  background:rgba(15,118,110,.92);color:#fff;
-  font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;
+.card:nth-child(1) .card-media{background:linear-gradient(155deg,#2c2824,#1a1816)}
+.card:nth-child(2) .card-media{background:linear-gradient(155deg,#1e3a5f,#152a45)}
+.card:nth-child(3) .card-media{background:linear-gradient(155deg,#3b2a55,#2a1f3d)}
+.card:nth-child(4) .card-media{background:linear-gradient(155deg,#2a4032,#1c2c22)}
+.card:nth-child(5) .card-media{background:linear-gradient(155deg,#40382a,#2c261c)}
+.card:nth-child(6) .card-media{background:linear-gradient(155deg,#3a3030,#282222)}
+.card-media .chip{
+  position:absolute;left:12px;top:12px;
+  background:rgba(255,255,255,.92);color:var(--ink);
+  font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;
 }
-.card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.card .body h3{font-size:15px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
-.card .body p{font-size:13px;color:var(--muted);flex:1}
-.card .meta{font-size:12px;color:var(--muted)}
-.card .buy-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
-.card .amount{font-size:1.2rem;font-weight:800;color:var(--price);letter-spacing:-.02em}
-.card .amount.free{color:var(--ink)}
-.card .btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-height:44px;padding:0 16px;border-radius:8px;
-  background:var(--teal);color:#fff;font-size:14px;font-weight:700;
+.card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card-body h3{font-size:1.05rem;font-weight:700;letter-spacing:-.02em}
+.card-body p{font-size:13px;color:var(--muted);flex:1}
+.card-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:8px;border-top:1px solid var(--line);margin-top:4px;
 }
-.card .btn:hover{background:var(--teal-d)}
-.card .btn.ghost{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.card-foot .p{font-size:1.15rem;font-weight:700}
+.card-foot a{
+  min-height:42px;padding:0 16px;border-radius:999px;
+  background:var(--dark);color:#fff;font-size:13px;font-weight:700;
+  display:inline-flex;align-items:center;
+}
+.card-foot a:hover{background:#2a2724}
+.card-foot a.soft{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
 
-/* === TRUST STRIP === */
-.trust{max-width:var(--max);margin:0 auto 16px;padding:0 14px}
-.trust-inner{
-  background:#fff;border:1px solid var(--line);border-radius:12px;
-  padding:14px 16px;display:grid;gap:12px;
+/* How it works */
+.how{
+  max-width:var(--max);margin:28px auto;padding:0 20px;
 }
-@media(min-width:640px){.trust-inner{grid-template-columns:1fr 1fr 1fr}}
-.trust-inner div{font-size:13px}
-.trust-inner strong{display:block;font-size:13px;margin-bottom:2px}
-.trust-inner span{color:var(--muted);font-size:12px}
-.marks{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
-.marks span{
-  background:#f8fafc;border:1px solid var(--line);border-radius:6px;
-  padding:4px 8px;font-size:11px;font-weight:700;color:#334155;
+.how-box{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
+  padding:24px;display:grid;gap:20px;
 }
+@media(min-width:700px){.how-box{grid-template-columns:1fr 1fr 1fr}}
+.how-box h3{font-family:var(--serif);font-size:1.25rem;font-weight:400;margin-bottom:12px;grid-column:1/-1}
+.how-box div strong{display:block;font-size:13px;margin-bottom:4px}
+.how-box div span{font-size:13px;color:var(--muted)}
 
-/* === FOOTER === */
-.ftr{background:#0f172a;color:#94a3b8;padding:28px 14px calc(28px + var(--safe))}
-.ftr .inner{max-width:var(--max);margin:0 auto;display:grid;gap:20px}
-@media(min-width:640px){.ftr .inner{grid-template-columns:2fr 1fr 1fr 1fr}}
-.ftr h4{color:#e2e8f0;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-.ftr a,.ftr p{display:block;font-size:13px;margin-bottom:6px;color:#94a3b8}
+/* Footer */
+.ftr{
+  margin-top:48px;background:var(--dark);color:#a8a29e;
+  padding:40px 20px calc(32px + var(--safe));
+}
+.ftr-inner{max-width:var(--max);margin:0 auto;display:grid;gap:28px}
+@media(min-width:720px){.ftr-inner{grid-template-columns:1.5fr 1fr 1fr 1fr}}
+.ftr .b{font-family:var(--serif);color:#faf9f7;font-size:1.25rem;margin-bottom:8px}
+.ftr h4{color:#faf9f7;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.ftr a,.ftr p{display:block;font-size:13px;margin-bottom:8px}
 .ftr a:hover{color:#fff}
-.ftr .brand{color:#fff;font-weight:800;font-size:15px;margin-bottom:6px}
+.pay{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pay span{
+  background:#1c1917;border:1px solid #292524;color:#d6d3d1;
+  font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px;
+}
 
-/* Mobile sticky buy for first featured */
-.m-dock{
-  display:none;position:fixed;left:0;right:0;bottom:0;z-index:50;
-  background:#fff;border-top:1px solid var(--line);
-  padding:10px 14px calc(10px + var(--safe));
-  box-shadow:0 -4px 20px rgba(0,0,0,.06);
+/* Mobile sticky */
+.stick{
+  display:none;position:fixed;left:12px;right:12px;bottom:calc(12px + var(--safe));z-index:60;
+  background:var(--dark);color:#fff;border-radius:16px;
+  padding:12px 14px;align-items:center;gap:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
 }
-@media(max-width:519px){
-  .m-dock{display:flex;align-items:center;gap:12px}
-  .grid-wrap{padding-bottom:90px}
+@media(max-width:559px){
+  .stick{display:flex}
+  body{padding-bottom:88px}
 }
-.m-dock b{flex:1;font-size:14px}
-.m-dock a{
-  min-height:48px;padding:0 22px;border-radius:8px;
-  background:var(--teal);color:#fff;font-weight:800;font-size:15px;
+.stick b{flex:1;font-size:13px;font-weight:600}
+.stick a{
+  background:var(--accent);color:#fff;min-height:44px;padding:0 18px;
+  border-radius:999px;font-size:14px;font-weight:700;
   display:inline-flex;align-items:center;
 }
 </style>
 </head>
 <body>
 
-<div class="site-top">
-  <div class="inner">
-    <a class="logo" href="/">DreamLedger</a>
-    <form class="search" action="/" method="get" role="search" onsubmit="return false">
-      <input type="search" name="q" placeholder="Search listings…" aria-label="Search listings" autocomplete="off">
-      <button type="submit">Search</button>
-    </form>
-    <div class="top-links">
+<header class="hdr">
+  <div class="hdr-inner">
+    <a class="brand" href="/">DreamLedger</a>
+    <nav class="hdr-nav" aria-label="Primary">
+      <a href="#shop">Shop</a>
       <a href="/login">Log in</a>
-      <a class="sell" href="/register">Join</a>
-    </div>
+      <a class="cta" href="/register">Join</a>
+    </nav>
   </div>
-</div>
-
-<nav class="cats" aria-label="Categories">
-  <div class="inner">
-    <a class="on" href="#listings">All</a>
-    <a href="#market">Market</a>
-    <a href="#digital">Digital</a>
-    <a href="#placement">Placements</a>
-    <a href="/billboard">Billboard</a>
-    <a href="/phin-haven">Play</a>
-    <a href="/avatar.html">Avatar</a>
-  </div>
-</nav>
+</header>
 
 <section class="hero">
-  <h1>Browse listings</h1>
-  <p>Digital products and placements. Buy securely with Stripe. Prices in NZD.</p>
+  <div class="hero-copy">
+    <p class="eyebrow">New Zealand marketplace</p>
+    <h1>Buy digital goods &amp; <em>placements</em> without the noise.</h1>
+    <p>Clear prices. Stripe checkout. Delivered after you pay — no auction theatre.</p>
+    <div class="hero-actions">
+      <a class="btn btn-dark" href="#shop">Browse shop</a>
+      <a class="btn btn-line" href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Billboard · NZ$50</a>
+    </div>
+  </div>
+  <aside class="hero-panel" aria-label="Featured">
+    <div>
+      <div class="label">Featured</div>
+      <h2>Founding billboard tile</h2>
+      <p style="margin-top:8px;opacity:.7;font-size:14px">Permanent 100×100 on the public board.</p>
+      <div class="price">NZ$50</div>
+    </div>
+    <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy now</a>
+  </aside>
 </section>
 
-<div class="trust">
-  <div class="trust-inner">
+<div class="trust" aria-label="Why buy here">
+  <div><strong>Stripe checkout</strong><span>Visa, Mastercard, Amex and more</span></div>
+  <div><strong>NZD pricing</strong><span>Listed price is the checkout price</span></div>
+  <div><strong>Digital delivery</strong><span>Files after payment · tiles reviewed</span></div>
+</div>
+
+<section class="sec" id="shop">
+  <div class="sec-h">
+    <h2>Shop</h2>
+    <span>All listings</span>
+  </div>
+  <div class="grid">
+
+    <article class="card">
+      <div class="card-media"><span class="chip">Placement</span></div>
+      <div class="card-body">
+        <h3>Billboard tile</h3>
+        <p>100×100 founding placement on the public board. Title and link at checkout.</p>
+        <div class="card-foot">
+          <span class="p">NZ$50</span>
+          <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media"><span class="chip">Digital</span></div>
+      <div class="card-body">
+        <h3>Commander diagnostic</h3>
+        <p>Deck structure, cuts and upgrade path. Delivered after payment.</p>
+        <div class="card-foot">
+          <span class="p">NZ$29</span>
+          <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media"><span class="chip">Digital</span></div>
+      <div class="card-body">
+        <h3>Discord webhook kit</h3>
+        <p>Payment notification templates. Download after checkout.</p>
+        <div class="card-foot">
+          <span class="p">NZ$79</span>
+          <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media"><span class="chip">Free</span></div>
+      <div class="card-body">
+        <h3>Create account</h3>
+        <p>Email and password. Avatar next.</p>
+        <div class="card-foot">
+          <span class="p">Free</span>
+          <a class="soft" href="/register">Join</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media"><span class="chip">Free</span></div>
+      <div class="card-body">
+        <h3>Phin Haven</h3>
+        <p>Playable world. No purchase required.</p>
+        <div class="card-foot">
+          <span class="p">Free</span>
+          <a class="soft" href="/phin-haven">Play</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media"><span class="chip">Public</span></div>
+      <div class="card-body">
+        <h3>Live billboard</h3>
+        <p>View the public board.</p>
+        <div class="card-foot">
+          <span class="p">Free</span>
+          <a class="soft" href="/billboard">Open</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section class="how">
+  <div class="how-box">
+    <h3>How buying works</h3>
+    <div><strong>1. Pick a listing</strong><span>Open any product and continue to checkout.</span></div>
+    <div><strong>2. Pay with Stripe</strong><span>Cards processed securely. We never store full card numbers.</span></div>
+    <div><strong>3. Get delivery</strong><span>Digital files after payment. Billboard tiles go live after review.</span></div>
+  </div>
+</section>
+
+<footer class="ftr">
+  <div class="ftr-inner">
     <div>
-      <strong>Secure payments</strong>
-      <span>Checkout powered by Stripe. Card details never stored on DreamLedger.</span>
-      <div class="marks" aria-label="Payment methods">
+      <div class="b">DreamLedger</div>
+      <p>Digital products and placements from New Zealand.</p>
+      <div class="pay" aria-label="Payments">
         <span>Stripe</span><span>Visa</span><span>Mastercard</span><span>Amex</span>
       </div>
     </div>
     <div>
-      <strong>Clear NZD prices</strong>
-      <span>What you see is what you pay at checkout. No hidden auction fees on these listings.</span>
-    </div>
-    <div>
-      <strong>Fast digital delivery</strong>
-      <span>Downloads after payment. Billboard tiles reviewed before they go live.</span>
-    </div>
-  </div>
-</div>
-
-<div class="grid-wrap" id="listings">
-  <div class="grid-head">
-    <h2 id="market">Featured listings</h2>
-    <span>3 for sale · 3 free</span>
-  </div>
-  <div class="grid">
-
-    <article class="card" id="placement">
-      <div class="pic"><span class="tag">Placement</span></div>
-      <div class="body">
-        <h3>Founding billboard tile</h3>
-        <p>100×100 permanent spot on the public board. Set your title and link at checkout.</p>
-        <div class="meta">Buy Now · Digital placement</div>
-        <div class="buy-row">
-          <span class="amount">NZ$50</span>
-          <a class="btn" href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy now</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="card" id="digital">
-      <div class="pic"><span class="tag">Digital</span></div>
-      <div class="body">
-        <h3>Commander deck diagnostic</h3>
-        <p>Structure, cuts and upgrade priorities for your Commander deck. Delivered after payment.</p>
-        <div class="meta">Buy Now · Instant digital</div>
-        <div class="buy-row">
-          <span class="amount">NZ$29</span>
-          <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy now</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="card">
-      <div class="pic"><span class="tag">Digital</span></div>
-      <div class="body">
-        <h3>Discord webhook starter kit</h3>
-        <p>Templates for payment notifications and alerts. Download after checkout.</p>
-        <div class="meta">Buy Now · Instant digital</div>
-        <div class="buy-row">
-          <span class="amount">NZ$79</span>
-          <a class="btn" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy now</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="card">
-      <div class="pic"><span class="tag">Account</span></div>
-      <div class="body">
-        <h3>Create your account</h3>
-        <p>Email and password. Manage profile and avatar after sign-up.</p>
-        <div class="meta">Free · Identity</div>
-        <div class="buy-row">
-          <span class="amount free">Free</span>
-          <a class="btn ghost" href="/register">Join free</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="card">
-      <div class="pic"><span class="tag">Play</span></div>
-      <div class="body">
-        <h3>Phin Haven</h3>
-        <p>Enter the playable world. No purchase required.</p>
-        <div class="meta">Free · Explore</div>
-        <div class="buy-row">
-          <span class="amount free">Free</span>
-          <a class="btn ghost" href="/phin-haven">Play</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="card">
-      <div class="pic"><span class="tag">Public</span></div>
-      <div class="body">
-        <h3>Live billboard</h3>
-        <p>See the public board and founding tiles.</p>
-        <div class="meta">Free · View</div>
-        <div class="buy-row">
-          <span class="amount free">Free</span>
-          <a class="btn ghost" href="/billboard">Open board</a>
-        </div>
-      </div>
-    </article>
-
-  </div>
-</div>
-
-<footer class="ftr">
-  <div class="inner">
-    <div>
-      <div class="brand">DreamLedger</div>
-      <p>Marketplace for digital products and placements.</p>
-      <p>© DreamLedger · New Zealand</p>
-    </div>
-    <div>
       <h4>Shop</h4>
       <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Billboard tile</a>
-      <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic</a>
+      <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic</a>
       <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Discord kit</a>
     </div>
     <div>
@@ -294,15 +363,14 @@ button,input{font:inherit}
       <a href="/avatar.html">Avatar</a>
     </div>
     <div>
-      <h4>Help</h4>
+      <h4>Legal</h4>
       <a href="/policies.html">Policies</a>
-      <a href="/billboard">Billboard</a>
     </div>
   </div>
 </footer>
 
-<div class="m-dock" aria-label="Quick buy">
-  <b>Billboard tile · NZ$50</b>
+<div class="stick">
+  <b>Billboard · NZ$50</b>
   <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a>
 </div>
 
