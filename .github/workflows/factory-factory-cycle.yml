@@ -3,10 +3,10 @@ name: Factory-Factory Economic Cycle
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/10 * * * *'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: dreamledger-factory-factory-cycle
@@ -44,6 +44,19 @@ jobs:
           console.log('CELLS=' + x.selected_count);
           console.log('ACQUISITION_PACKETS=' + x.acquisition_packet_count);
           NODE
+
+      - name: Persist factory state
+        shell: bash
+        run: |
+          git config user.name "DreamLedger Factory"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BEC-PRIME/compiled/opportunities BEC-PRIME/data/factory-factory proof/commerce/latest-approved-offer-reconciliation.json
+          if git diff --cached --quiet; then
+            echo "FACTORY_STATE=UNCHANGED"
+            exit 0
+          fi
+          git commit -m "chore: refresh factory-factory economic state"
+          git push
 
       - name: Upload factory evidence
         uses: actions/upload-artifact@v4
