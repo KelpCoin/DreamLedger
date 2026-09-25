@@ -1,4 +1,4 @@
-name: CUBE Cloud Pinball
+name: CUBE Cloud Pinball Swarm x2
 
 on:
   workflow_dispatch:
@@ -14,14 +14,30 @@ concurrency:
 
 jobs:
   pinball:
-    name: CUBE shard ${{ matrix.shard }}
+    name: ${{ matrix.swarm }}-${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       fail-fast: false
-      max-parallel: 8
+      max-parallel: 16
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+        include:
+          - { swarm: figure8-a, shard: 0, global_shard: 0 }
+          - { swarm: figure8-a, shard: 1, global_shard: 1 }
+          - { swarm: figure8-a, shard: 2, global_shard: 2 }
+          - { swarm: figure8-a, shard: 3, global_shard: 3 }
+          - { swarm: figure8-a, shard: 4, global_shard: 4 }
+          - { swarm: figure8-a, shard: 5, global_shard: 5 }
+          - { swarm: figure8-a, shard: 6, global_shard: 6 }
+          - { swarm: figure8-a, shard: 7, global_shard: 7 }
+          - { swarm: figure8-b, shard: 0, global_shard: 8 }
+          - { swarm: figure8-b, shard: 1, global_shard: 9 }
+          - { swarm: figure8-b, shard: 2, global_shard: 10 }
+          - { swarm: figure8-b, shard: 3, global_shard: 11 }
+          - { swarm: figure8-b, shard: 4, global_shard: 12 }
+          - { swarm: figure8-b, shard: 5, global_shard: 13 }
+          - { swarm: figure8-b, shard: 6, global_shard: 14 }
+          - { swarm: figure8-b, shard: 7, global_shard: 15 }
 
     env:
       SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
@@ -32,8 +48,10 @@ jobs:
       CUBE_PINBALL_MODELS: ${{ secrets.CUBE_PINBALL_MODELS }}
       CUBE_PINBALL_BATCH: '2'
       CUBE_PINBALL_TURNS: '4'
-      CUBE_PINBALL_SHARD_INDEX: ${{ matrix.shard }}
-      CUBE_PINBALL_SHARD_COUNT: '8'
+      CUBE_PINBALL_SHARD_INDEX: ${{ matrix.global_shard }}
+      CUBE_PINBALL_SHARD_COUNT: '16'
+      CUBE_PINBALL_SWARM: ${{ matrix.swarm }}
+      CUBE_PINBALL_LOCAL_SHARD: ${{ matrix.shard }}
 
     steps:
       - name: Checkout
@@ -44,7 +62,7 @@ jobs:
         with:
           node-version: '24.14.1'
 
-      - name: Cloud pinball preflight
+      - name: Swarm preflight
         run: |
           node - <<'NODE'
           const required = [
@@ -57,8 +75,9 @@ jobs:
             console.error('CONFIG_MISSING=' + missing.join(','));
             process.exit(2);
           }
-          console.log('CONFIG_OK shard=' + process.env.CUBE_PINBALL_SHARD_INDEX + '/' + process.env.CUBE_PINBALL_SHARD_COUNT);
+          console.log('SWARM_READY=' + process.env.CUBE_PINBALL_SWARM);
+          console.log('SHARD=' + process.env.CUBE_PINBALL_SHARD_INDEX + '/' + process.env.CUBE_PINBALL_SHARD_COUNT);
           NODE
 
-      - name: Run bounded pinball
+      - name: Run bounded pinball cell
         run: node -e "require('./BEC-PRIME/runtime/CubePinball').tick().then(x=>console.log(JSON.stringify(x,null,2))).catch(e=>{console.error(e.stack||e);process.exit(1)})"
