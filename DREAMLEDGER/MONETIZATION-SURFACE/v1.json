@@ -1,0 +1,178 @@
+{
+  "schema": "DREAMLEDGER/MONETIZATION-SURFACE/v1",
+  "generated_at": "2026-09-25",
+  "purpose": "Enumerate monetizable surfaces from existing evidence without converting hypotheses, internal records, or seller advertisements into buyer demand.",
+  "economic_truth": {
+    "external_buyers": 0,
+    "settled_external_payments": 0,
+    "fulfilled_external_orders": 0,
+    "verified_revenue_nzd": 0,
+    "verified_economic_events": 0
+  },
+  "measured_inventory": {
+    "cube_opportunities": 53,
+    "economic_demand_signals": 555,
+    "checkout_intents": 6,
+    "commerce_cells": 5,
+    "marketplace_orders": 1,
+    "marketplace_fulfillments": 0
+  },
+  "surfaces": [
+    {
+      "id": "MS-001",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "evidence": "6 external Stripe checkout abandonment signals for CMD-DIAG-29",
+      "evidence_status": "VERIFIED_SIGNAL_UNPAID",
+      "commercial_state": "SELLABLE",
+      "next_economic_event": "external buyer settles payment",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-002",
+      "name": "AI Workflow Paid Debugging",
+      "price_nzd": null,
+      "evidence": "n8n community signal explicitly requesting paid debugging for WhatsApp/Airtable/OpenAI workflow",
+      "evidence_status": "VERIFIED_PUBLIC_REQUEST_UNVERIFIED_TRANSACTION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "qualified buyer accepts bounded scope and pays",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-003",
+      "name": "n8n Automation / AI Integration Projects",
+      "price_nzd": null,
+      "evidence": "Multiple n8n community requests for paid, ongoing automation help",
+      "evidence_status": "PUBLIC_DEMAND_SIGNAL_UNVERIFIED_TRANSACTION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "qualified buyer accepts bounded scope and pays",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-004",
+      "name": "Australian Charity Register + Decision-Maker Data Scraper",
+      "price_nzd": 850,
+      "evidence": "Upwork listing recorded with estimated value NZ$850, buyer_intent 0.95, evidence_score 0.95",
+      "evidence_status": "VERIFIED_PUBLIC_JOB_SIGNAL_UNVERIFIED_TRANSACTION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "bid/acceptance/payment",
+      "channel_required": "marketplace",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-005",
+      "name": "Workflow Reliability Repair",
+      "price_nzd": null,
+      "evidence": "Public n8n requests involving duplicate orders, retries, unknown outcomes, API/webhook failures",
+      "evidence_status": "PUBLIC_DEMAND_SIGNAL_UNVERIFIED_TRANSACTION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "qualified buyer accepts bounded repair scope and pays",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-006",
+      "name": "AI Lead-Enquiry Automation",
+      "price_nzd": null,
+      "evidence": "Public n8n hiring/request signal for small-business lead-enquiry automation",
+      "evidence_status": "PUBLIC_DEMAND_SIGNAL_UNVERIFIED_TRANSACTION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "qualified buyer accepts scope and pays",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-007",
+      "name": "AI Sales Agent Integration",
+      "price_nzd": null,
+      "evidence": "Public n8n request to build AI sales agent with OpenAI and HubSpot",
+      "evidence_status": "PUBLIC_DEMAND_SIGNAL_UNVERIFIED_TRANSACTION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "qualified buyer accepts scope and pays",
+      "channel_required": "marketplace/external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-008",
+      "name": "Document/PDF to Validated Spreadsheet Conversion",
+      "price_nzd": null,
+      "evidence": "Public n8n service-market signal for PDF/scan to validated Excel and RFQ PDF to Excel",
+      "evidence_status": "MARKET_SIGNAL_UNVERIFIED_BUYER",
+      "commercial_state": "WATCH",
+      "next_economic_event": "fresh buyer request with attributable payment",
+      "channel_required": "marketplace/external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-009",
+      "name": "n8n Workflow Review",
+      "price_nzd": null,
+      "evidence": "Public fixed-price workflow-review service signals",
+      "evidence_status": "MARKET_SIGNAL_UNVERIFIED_BUYER",
+      "commercial_state": "WATCH",
+      "next_economic_event": "fresh buyer request with attributable payment",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-010",
+      "name": "API/Webhook Integration Repair",
+      "price_nzd": null,
+      "evidence": "Public n8n requests for external API help and webhook/API workflow failures",
+      "evidence_status": "PUBLIC_DEMAND_SIGNAL_UNVERIFIED_TRANSACTION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "qualified buyer accepts bounded repair scope and pays",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-011",
+      "name": "MTG Singles / High-Value Inventory Sales",
+      "price_nzd": null,
+      "evidence": "Existing physical MTG inventory including previously identified high-value cards",
+      "evidence_status": "PHYSICAL_ASSET_UNLISTED",
+      "commercial_state": "SELLABLE_AFTER_LISTING",
+      "next_economic_event": "external buyer purchase and settlement",
+      "channel_required": "marketplace",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-012",
+      "name": "MTG Commander Deck Sales",
+      "price_nzd": null,
+      "evidence": "Existing completed Commander deck inventory described in operating records",
+      "evidence_status": "PHYSICAL_ASSET_REQUIRES_INVENTORY_VERIFICATION",
+      "commercial_state": "CANDIDATE",
+      "next_economic_event": "exact deck capsule -> listing -> buyer -> settlement -> fulfillment",
+      "channel_required": "marketplace",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-013",
+      "name": "Founding Billboard",
+      "price_nzd": 50,
+      "evidence": "Existing commerce cell with verified checkout, fulfillment and webhook",
+      "evidence_status": "INFRASTRUCTURE_VERIFIED_ACQUISITION_UNVERIFIED",
+      "commercial_state": "SELLABLE",
+      "next_economic_event": "external buyer settles payment",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    },
+    {
+      "id": "MS-014",
+      "name": "Commercial Truth Stress-Test",
+      "price_nzd": 999,
+      "evidence": "Existing live Stripe product/payment link and catalog entry",
+      "evidence_status": "CHECKOUT_INFRASTRUCTURE_VERIFIED_NO_BUYER",
+      "commercial_state": "SELLABLE",
+      "next_economic_event": "external buyer settles payment",
+      "channel_required": "external_distribution",
+      "authorization_required": true
+    }
+  ],
+  "execution_rule": "Only settled external payment plus attributable fulfillment and independent verification creates an economic event. Public posting, outreach, charging, spending, or production commerce mutation remains human-authorized.",
+  "anti_false_positive_rule": "Do not count seller advertisements, internal checkout rows, generated pages, test marketplace orders, or public job posts as revenue."
+}
