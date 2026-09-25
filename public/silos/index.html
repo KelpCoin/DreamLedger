@@ -1,1 +1,62 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Demand-tested offers | DreamLedger</title><style>body{margin:0;background:#07080c;color:#f6f2e8;font:15px system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:40px 20px}.tag{color:#e2b95f;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}h1{font-size:clamp(42px,8vw,72px);letter-spacing:-.06em;line-height:.9}p{color:#aeb2bd;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}article{border:1px solid #282e3a;border-radius:16px;padding:20px;background:#10131b}h2{font-size:24px}a{color:#f6f2e8;text-decoration:none}small{color:#707785}</style></head><body><main><div class="tag">DreamLedger · demand radar</div><h1>Problems first. Products second.</h1><p>These are live demand probes selected from public signals. A probe graduates only when people show intent. This surface does not claim revenue.</p><div class="grid"><article><div class="tag">Developer / Database</div><h2><a href="/silos/supabase-production-hardening/">Supabase Production Hardening</a></h2><p>Focused production checks for RLS, grants, migrations, data integrity and exposed APIs.</p><strong>NZ$299+</strong><small> · score 63820</small></article><article><div class="tag">B2B / Verification</div><h2><a href="/silos/ai-saas-verification/">AI SaaS Production Verification</a></h2><p>A fixed-scope evidence report for AI-built software that claims to work in production.</p><strong>NZ$1,500+</strong><small> · score 59029</small></article><article><div class="tag">B2B / Trust</div><h2><a href="/silos/stripe-reconciliation/">Stripe Production Reconciliation</a></h2><p>Find mismatches between Stripe payments, orders, entitlements and fulfillment before they become expensive.</p><strong>NZ$1,500+</strong><small> · score 36716</small></article><article><div class="tag">Developer / Reliability</div><h2><a href="/silos/webhook-reliability/">Webhook Reliability Rescue</a></h2><p>Diagnose duplicate events, ordering bugs, signature failures and missing fulfillment.</p><strong>NZ$79+</strong><small> · score 28502</small></article><article><div class="tag">Digital Product</div><h2><a href="/silos/discord-automation/">Discord Automation Starter</a></h2><p>A compact starter implementation for turning payment and business events into reliable Discord actions.</p><strong>NZ$79</strong><small> · score 21113</small></article><article><div class="tag">Commerce / Conversion</div><h2><a href="/silos/digital-offer-audit/">Digital Offer Audit</a></h2><p>Find the gaps between what a page promises, what checkout sells and what the buyer actually receives.</p><strong>NZ$149+</strong><small> · score 18903</small></article><article><div class="tag">B2B / Audit</div><h2><a href="/silos/small-saas-healthcheck/">Small SaaS Healthcheck</a></h2><p>A fixed-scope healthcheck across deployment, payments, database state, monitoring and customer delivery.</p><strong>NZ$299+</strong><small> · score 13172</small></article><article><div class="tag">Commerce / Web</div><h2><a href="/silos/qr-microsite/">QR Microsite Starter</a></h2><p>Fast campaign microsites with measurable destinations instead of a QR code pointing at a dead homepage.</p><strong>NZ$49+</strong><small> · score 4200</small></article><article><div class="tag">Commerce / Analytics</div><h2><a href="/silos/payment-attribution/">Payment Attribution Check</a></h2><p>Trace a payment from checkout through attribution, fulfillment and evidence without trusting the browser redirect.</p><strong>NZ$149+</strong><small> · score 3019</small></article><article><div class="tag">B2B / Ops</div><h2><a href="/silos/production-incident-pack/">Production Incident Pack</a></h2><p>A compact evidence-first incident pack for small software teams that need to establish what actually broke.</p><strong>NZ$199+</strong><small> · score 2524</small></article><article><div class="tag">Gaming / Service</div><h2><a href="/silos/commander-deck-diagnostic/">Commander Deck Diagnostic</a></h2><p>A practical diagnostic that identifies weaknesses, priorities and the cheapest useful upgrades.</p><strong>NZ$29</strong><small> · score 642</small></article><article><div class="tag">Game / B2B</div><h2><a href="/silos/game-economy-audit/">Game Economy Audit</a></h2><p>Audit currency sources, sinks, scarcity, progression and player incentives before an economy runs away.</p><strong>NZ$299+</strong><small> · score 495</small></article></div></main></body></html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CUBE Silo Catalogue | DreamLedger</title>
+<meta name="description" content="Public catalogue of DreamLedger CUBE economic silos. Every numbered CUBE silo has its own canonical URL.">
+<style>
+body{margin:0;background:#07080c;color:#f6f2e8;font:15px system-ui,-apple-system,sans-serif}
+main{max-width:1200px;margin:auto;padding:40px 20px 80px}
+.tag{color:#e2b95f;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:clamp(42px,7vw,72px);letter-spacing:-.06em;line-height:.92;margin:10px 0 16px}
+p{color:#aeb2bd;line-height:1.5}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}
+input,button{font:inherit;border:1px solid #343b49;background:#11151d;color:#f6f2e8;border-radius:10px;padding:11px 13px}
+input{min-width:260px;flex:1}button{cursor:pointer}
+.stats{border:1px solid #282e3a;border-radius:14px;padding:14px;background:#0d1016;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+article{border:1px solid #282e3a;border-radius:14px;padding:18px;background:#10131b;min-height:150px}
+h2{font-size:19px;margin:8px 0}a{color:#f6f2e8;text-decoration:none}a:hover{text-decoration:underline}
+.route{font:12px ui-monospace,SFMono-Regular,monospace;color:#8f98a6;word-break:break-all}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:#858e9c}
+.pager{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+#status{color:#aeb2bd}
+</style></head>
+<body><main>
+<div class="tag">DreamLedger · CUBE</div>
+<h1>Public Silo Catalogue</h1>
+<p>Each numbered CUBE silo is addressable as its own public URL. The catalogue is paginated so the million-row inventory remains usable without attempting to render a million links in one browser response.</p>
+<div class="bar"><input id="q" placeholder="Search silo label or ID"><button id="search">Search</button></div>
+<div class="stats"><strong id="summary">Loading CUBE catalogue…</strong><div id="status"></div></div>
+<section id="grid" class="grid"></section>
+<div class="pager"><button id="prev">Previous</button><span id="page"></span><button id="next">Next</button></div>
+</main>
+<script>
+(function(){
+const pageSize=100;
+let offset=0,query='';
+const grid=document.getElementById('grid'),summary=document.getElementById('summary'),status=document.getElementById('status');
+async function load(){
+ status.textContent='Loading…'; grid.innerHTML='';
+ const url='/api/cube/catalog?limit='+pageSize+'&offset='+offset+(query?'&q='+encodeURIComponent(query):'');
+ try{
+  const r=await fetch(url,{headers:{Accept:'application/json'}});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error||'Catalogue request failed');
+  summary.textContent=(d.total==null?'Available':d.total.toLocaleString())+' public CUBE silos';
+  status.textContent=d.count+' shown · routes are canonical public URLs';
+  grid.innerHTML=d.items.map(function(s){
+   return '<article><div class="tag">'+(s.inventory_mode||'ECONOMIC')+'</div><h2><a href="'+s.public_route+'">'+escapeHtml(s.label||s.id)+'</a></h2><div class="route">'+escapeHtml(s.public_route)+'</div><div class="meta"><span>'+escapeHtml(s.id)+'</span>'+(s.cross_game?'<span>cross-game</span>':'')+(s.cross_silo_view?'<span>cross-silo</span>':'')+'</div></article>';
+  }).join('');
+  document.getElementById('page').textContent='Page '+(Math.floor(offset/pageSize)+1)+' of '+(d.total?Math.max(1,Math.ceil(d.total/pageSize)):'?');
+  document.getElementById('prev').disabled=offset===0;
+  document.getElementById('next').disabled=d.count<pageSize;
+ }catch(e){summary.textContent='Catalogue unavailable';status.textContent=e.message;grid.innerHTML='<article>Retry when the data source is available.</article>'}
+}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+document.getElementById('search').onclick=function(){query=document.getElementById('q').value.trim();offset=0;load()};
+document.getElementById('q').onkeydown=function(e){if(e.key==='Enter')document.getElementById('search').click()};
+document.getElementById('prev').onclick=function(){offset=Math.max(0,offset-pageSize);load()};
+document.getElementById('next').onclick=function(){offset+=pageSize;load()};
+load();
+})();
+</script></body></html>
