@@ -78,7 +78,14 @@ async function reconcileFunds(sessionId) {
   if (!validAmount || !validCurrency || !available) return {handled:true, funds_available:false, reason:'balance_transaction_not_available',balance_transaction_id:bt.id,status:bt.status,available_on:bt.available_on,valid_amount:validAmount,valid_currency:validCurrency};
   const evidence = Object.assign({}, event.evidence || {}, {stripe_payment_intent:pi.id,stripe_charge_id:charge.id,stripe_balance_transaction:bt.id,stripe_balance_transaction_status:bt.status,stripe_available_on:bt.available_on,funds_available_verified_at:new Date().toISOString()});
   await db('PATCH','economic_events','?event_id=eq.'+encodeURIComponent(event.event_id),{payment_settled:true,evidence_verified:true,verification_status:'OBSERVED',resulting_state:'FUNDS_AVAILABLE',evidence},'return=minimal');
-  return {handled:true,funds_available:true,event_id:event.event_id,payment_intent:pi.id,charge_id:charge.id,balance_transaction_id:bt.id,available_on:bt.available_on};
+  const fulfillments = await db('GET','marketplace_fulfillments','?select=fulfillment_id,order_id,status,metadata&metadata->>stripe_checkout_session_id=eq.'+encodeURIComponent(sessionId)+'&limit=1');
+  const fulfillment = Array.isArray(fulfillments) ? fulfillments[0] : null;
+  if (fulfillment?.order_id) {
+    await db('PATCH','marketplace_orders','?id=eq.'+encodeURIComponent(fulfillment.order_id),{order_state:'fulfillment',state_version:3,state_updated_at:new Date().toISOString()},'return=minimal');
+    await db('POST','marketplace_order_state_events','',{order_id:fulfillment.order_id,from_state:'payment_succeeded',to_state:'fulfillment',state_version:3,idempotency_key:'funds:'+event.event_id,reason:'Stripe balance transaction is available'},'resolution=ignore-duplicates,return=minimal');
+    await db('POST','marketplace_audit_events','',{entity_type:'order',entity_id:String(fulfillment.order_id),action:'STRIPE_FUNDS_AVAILABLE',from_state:'payment_succeeded',to_state:'fulfillment',idempotency_key:'funds:'+event.event_id,evidence_ref:'stripe:balance_transaction:'+bt.id,metadata:{stripe_balance_transaction:bt.id,available_on:bt.available_on}},'resolution=ignore-duplicates,return=minimal');
+  }
+  return {handled:true,funds_available:true,event_id:event.event_id,payment_intent:pi.id,charge_id:charge.id,balance_transaction_id:bt.id,available_on:bt.available_on,order_id:fulfillment?.order_id||null};
 }
 
 async function settleSession(session, event) {
@@ -231,6 +238,8 @@ async function status(req,res) {
   const truth=event ? {
     agent_claims_present:Array.isArray(claims)&&claims.length>0,
     external_evidence_present:Boolean(event.stripe_checkout_session&&event.stripe_payment_intent&&event.evidence_ref),
+    payment_succeeded:event.resulting_state==='PAYMENT_SUCCEEDED'||event.resulting_state==='FUNDS_AVAILABLE',
+    funds_available:event.resulting_state==='FUNDS_AVAILABLE'&&event.payment_settled===true,
     payment_settled:event.payment_settled===true,
     fulfillment_verified:event.fulfilment_verified===true,
     evidence_verified:event.evidence_verified===true,
