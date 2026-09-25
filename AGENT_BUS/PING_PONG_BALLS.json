@@ -1,14 +1,10 @@
 {
-  "version": 45,
+  "version": 46,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "feed-v1 phone-first vertical catalog",
-    "ux_notes": "docs/public/MOBILE-FEED-UX.md",
+    "public": "marketplace-v1 TradeMe-style browse + Shopify buy clarity",
     "verified_external_revenue_nzd": 0
   },
-  "balls": {
-    "W": "Thumb-zone vertical feed shop",
-    "C": "Post buy links"
-  },
-  "immediate_next": ["Redeploy + test on phone"]
+  "balls": { "W": "marketplace-v1", "C": "sell" },
+  "immediate_next": ["Redeploy marketplace-v1", "Test on phone + desktop"]
 }
