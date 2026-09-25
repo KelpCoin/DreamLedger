@@ -40,6 +40,9 @@ jobs:
           STRIPE_LIVE_ENABLED: 'true'
         run: npm run reconcile:approved-offers
 
+      - name: Build deterministic domino status
+        run: node BEC-PRIME/runtime/DominoStatus.js proof/commerce/latest-approved-offer-reconciliation.json > proof/domino-status.json
+
       - name: Build immutable engine evidence bundle
         run: |
           set -euo pipefail
@@ -47,6 +50,7 @@ jobs:
           cp BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json proof/domino/economic-gauntlet.json
           cp BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json proof/domino/factory-factory-queue.json
           cp proof/commerce/latest-approved-offer-reconciliation.json proof/domino/approved-offer-reconciliation.json
+          cp proof/domino-status.json proof/domino/domino-status.json
           sha256sum proof/domino/* > proof/domino/SHA256SUMS
           cat proof/domino/SHA256SUMS
 
