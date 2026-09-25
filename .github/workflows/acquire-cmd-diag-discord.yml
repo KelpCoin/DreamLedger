@@ -1,0 +1,80 @@
+name: Acquire CMD-DIAG via Discord
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Discord target label configured by repository secret"
+        required: true
+        type: string
+      approval:
+        description: "Type APPROVED to authorize this external post"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cmd-diag-discord-acquisition
+  cancel-in-progress: false
+
+jobs:
+  post:
+    if: ${{ inputs.approval == 'APPROVED' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate acquisition inputs
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          set -euo pipefail
+          test -n "$DISCORD_WEBHOOK"
+          case "$DISCORD_WEBHOOK" in
+            https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
+            *) echo "Invalid Discord webhook host"; exit 1 ;;
+          esac
+          test -n "${{ inputs.target }}"
+
+      - name: Post CMD-DIAG offer
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, urllib.request
+
+          payload = {
+              "content": (
+                  "Commander Deck Diagnostic — NZ$29\n\n"
+                  "I do written Commander deck diagnostics: power band assessment, "
+                  "structural holes (mana base, card draw, interaction, win conditions), "
+                  "and upgrade priorities. You send me your decklist, I send back a "
+                  "practical first-pass PDF within 24 hours.\n\n"
+                  "One-time purchase, no subscription. NZ$29.\n"
+                  "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R\n\n"
+                  "If you want a second set of eyes on your deck, this is it."
+              )
+          }
+
+          req = urllib.request.Request(
+              os.environ["DISCORD_WEBHOOK"],
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          with urllib.request.urlopen(req, timeout=20) as response:
+              if response.status not in (200, 204):
+                  raise SystemExit(f"Discord returned HTTP {response.status}")
+          print("DISCORD_POST=VERIFIED_RUNTIME")
+          print("EXTERNAL_REVENUE=UNVERIFIED")
+          PY
+
+      - name: Record acquisition state
+        run: |
+          echo "TARGET=${{ inputs.target }}"
+          echo "OFFER=CMD-DIAG-29"
+          echo "POST=RUNTIME_VERIFIED"
+          echo "BUYER=UNVERIFIED"
+          echo "REVENUE=UNVERIFIED"
