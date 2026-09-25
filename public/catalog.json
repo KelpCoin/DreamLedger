@@ -136,7 +136,9 @@
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
       "payment_link_id": "plink_1UJ3NlEGgEAnUFF9wAINPrwZ",
-      "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7"
+      "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
+      "fulfillment": "customer_input -> automatic_commander_worker -> verified_artifact",
+      "fulfillment_input_url": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}"
     },
     {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
