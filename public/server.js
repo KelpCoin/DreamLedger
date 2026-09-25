@@ -96,6 +96,67 @@ if(req.method==='GET'&&p==='/api/products'){try{return send(res,200,JSON.stringi
 if(req.method==='GET'&&p==='/api/offers')return send(res,200,JSON.stringify({offers:publicOffers()}),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/cube')return send(res,200,JSON.stringify(loadCube()),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/cube/silos')return send(res,200,JSON.stringify(localCubeSilos()),'application/json; charset=utf-8');
+if(req.method==='GET'&&p==='/api/cube/catalog'){
+  try{
+    const u=new URL(req.url,'http://localhost');
+    const limit=Math.min(Math.max(Number.parseInt(u.searchParams.get('limit')||'100',10)||100,1),1000);
+    const offset=Math.max(Number.parseInt(u.searchParams.get('offset')||'0',10)||0,0);
+    const q=(u.searchParams.get('q')||'').trim().slice(0,120);
+    const routePattern='^/cube/auto/[0-9]{4,12}
+if(req.method==='GET'&&p==='/api/cube/marketplace')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
+if(req.method==='GET'&&p==='/api/ecosystem')return send(res,200,JSON.stringify(loadManifest(ECOSYSTEM_PATH,{schema:'dreamledger/ecosystem/v1',status:'unavailable'})),'application/json; charset=utf-8');
+if(req.method==='GET'&&p==='/api/agent')return send(res,200,JSON.stringify(loadManifest(AGENT_PATH,{schema:'dreamledger/agent/v1',status:'unavailable'})),'application/json; charset=utf-8');
+if(req.method==='GET'&&p==='/api/surfaces')return send(res,200,JSON.stringify(loadManifest(SURFACES_PATH,{schema:'dreamledger/surfaces/v1',status:'unavailable'})),'application/json; charset=utf-8');
+if(req.method==='GET'&&p.startsWith('/api/products/')){try{const id=decodeURIComponent(p.slice('/api/products/'.length));const product=loadPublicCatalog().products.find(x=>x.id===id);return product?send(res,200,JSON.stringify(product),'application/json; charset=utf-8'):send(res,404,JSON.stringify({error:'Product not found'}),'application/json; charset=utf-8')}catch{return send(res,500,JSON.stringify({error:'Catalogue unavailable'}),'application/json; charset=utf-8')}}
+if(p.startsWith('/api/dreamiez/')){try{return await dreamiez.handle(req,res,p)}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e.message||'DreamMeez route failed'}),'application/json; charset=utf-8')}}
+if(req.method==='POST'&&p==='/api/seller-profit-lead'){let body;try{body=JSON.parse((await readBody(req)).toString('utf8'));const email=String(body&&body.email||'').trim().toLowerCase();if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)||email.length>200)throw new Error('Valid email is required');const raw=body&&body.calculator_payload;const payload=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};const allowed=['preset','sale','cost','platform','payment','fixedfee','shipping','packaging','profit','margin','roi'];const clean={};for(const k of allowed){if(Object.prototype.hasOwnProperty.call(payload,k)){const v=payload[k];if(typeof v==='string'&&v.length<=100)clean[k]=v;else if(typeof v==='number'&&Number.isFinite(v))clean[k]=v}}const response=await fetch(SUPABASE_PUBLIC_URL+'/rest/v1/seller_profit_leads',{method:'POST',headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({email,calculator_payload:clean,source:'nz-seller-profit',consent:true})});if(!response.ok)throw new Error('Lead storage failed ('+response.status+')');return send(res,201,JSON.stringify({ok:true}),'application/json; charset=utf-8')}catch(e){return send(res,400,JSON.stringify({ok:false,error:e&&e.message?e.message:'Invalid lead'}),'application/json; charset=utf-8')}}
+if(req.method==='POST'&&p==='/api/billboard/submit'){let body;try{const raw=(await readBody(req)).toString('utf8');body=req.headers['content-type']&&req.headers['content-type'].toLowerCase().includes('application/json')?JSON.parse(raw):null;if(!body)throw new Error('Use JSON submission');return send(res,200,JSON.stringify(reserveBillboard(body)),'application/json; charset=utf-8')}catch(e){return send(res,400,JSON.stringify({error:e&&e.message?e.message:'Invalid billboard submission'}),'application/json; charset=utf-8')}}
+if(req.method==='POST'&&p==='/api/offer-checkout/create'){let body;try{body=JSON.parse((await readBody(req)).toString('utf8'))}catch{return send(res,400,JSON.stringify({error:'Invalid JSON'}),'application/json; charset=utf-8')}if(body&&body.offer_id==='COMMANDER-DECK-DIAGNOSTIC-001')return send(res,200,JSON.stringify({ok:true,offer_id:body.offer_id,checkout_url:'https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R'}),'application/json; charset=utf-8');return proxy(req,res,Buffer.from(JSON.stringify(body)))}
+if(req.method==='GET'&&p.startsWith('/buy/')){try{const rawId=decodeURIComponent(p.slice('/buy/'.length));const aliases={'cmd-diag-29':'COMMANDER-DECK-DIAGNOSTIC-001','cmd-diag':'COMMANDER-DECK-DIAGNOSTIC-001','cosmic-hoodie':'DREAMMEEZ-COSMIC-HOODIE-001','dreammeez-cape':'DREAMMEEZ-CAPE-001','cape':'DREAMMEEZ-CAPE-001','chrome-boots':'DREAMMEEZ-CHROME-BOOTS-001','supporter-sprout':'DREAMMEEZ-SUPPORTER-SPROUT','supporter-glow':'DREAMMEEZ-SUPPORTER-GLOW','supporter-depth':'DREAMMEEZ-SUPPORTER-DEPTH','kelp-floor1':'KELP-FLOOR1-001','billboard':'DREAMLEDGER-BILLBOARD-FOUNDING-001','discord-webhook':'DISCORD-WEBHOOK-STARTER-KIT-001','edh-deck':'EDH_0001'};const id=aliases[rawId]||rawId;const product=loadPublicCatalog().products.find(x=>x.id===id&&x.status==='published'&&x.checkout_available!==false&&x.checkout_url)||loadPublicCatalog().products.find(x=>productSlug(x)===String(rawId).toLowerCase()&&x.status==='published'&&x.checkout_available!==false&&x.checkout_url);if(!product)return send(res,404,JSON.stringify({error:'Checkout not available'}),'application/json; charset=utf-8');res.statusCode=302;const checkout=new URL(String(product.checkout_url));checkout.searchParams.set('client_reference_id',String(product.id));res.setHeader('Location',checkout.toString());res.setHeader('Cache-Control','no-store');return res.end()}catch{return send(res,400,JSON.stringify({error:'Invalid product'}),'application/json; charset=utf-8')}}
+if(req.method==='GET'&&(p.startsWith('/product/')||p.startsWith('/products/'))){try{const prefix=p.startsWith('/products/')?'/products/':'/product/';const id=decodeURIComponent(p.slice(prefix.length).replace(/\/$/,''));const product=loadPublicCatalog().products.find(x=>x.id===id&&x.status==='published');return product?productPage(res,product):send(res,404,'Not Found','text/plain; charset=utf-8')}catch{return send(res,400,'Invalid product','text/plain; charset=utf-8')}}
+if(req.method==='GET'&&p==='/marketplace')return serveFile(res,'cube-marketplace.html');
+if(req.method==='GET'&&p==='/api/marketplace/catalog')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
+if(req.method==='GET'&&p.startsWith('/api/marketplace/'))return proxy(req,res,Buffer.alloc(0));
+if(p==='/webhook'&&req.method==='POST'){try{const body=await readBody(req);verifyStripeSignature(body.toString('utf8'),req.headers['stripe-signature']||'');const event=JSON.parse(body.toString('utf8'));if(event&&event.type==='checkout.session.completed'){const obj=event.data&&event.data.object?event.data.object:null;const ref=obj&&obj.client_reference_id?obj.client_reference_id:null;markReservationPaid(ref,event.id)}return send(res,200,JSON.stringify({received:true}),'application/json; charset=utf-8')}catch(e){return send(res,400,JSON.stringify({received:false,error:e&&e.message?e.message:'Webhook rejected'}),'application/json; charset=utf-8')}}
+if(p==='/webhook')return send(res,405,'Method not allowed','text/plain; charset=utf-8');
+if(p==='/dreammeez'||p==='/dreammeez/')return serveFile(res,'avatar.html');
+if(p==='/dreamiez'||p=='/dreamiez/')return serveFile(res,'dreamiez.html',DREAMMEEZ_ROOT);
+if(p=='/avatar'||p=='/avatar/'||p=='/avatars'||p=='/avatars/')return serveFile(res,'avatar.html');
+if(p.startsWith('/api/')){if(!ALLOWED_API[key])return send(res,404,'Not Found','text/plain; charset=utf-8');try{return proxy(req,res,await readBody(req))}catch{return send(res,400,'Bad request','text/plain; charset=utf-8')}}
+if(p==='/.well-known/dreamledger.json'&&req.method==='GET')return serveFile(res,'.well-known/dreamledger.json');
+if(p==='/llms.txt'&&req.method==='GET')return send(res,200,[
+'# DreamLedger',
+'',
+'Primary paid offer: Commander Deck Diagnostic',
+'- Price: NZ$29',
+'- Product ID: COMMANDER-DECK-DIAGNOSTIC-001',
+'- Checkout: https://dreamledger.org/buy/cmd-diag-29',
+'- Input: Commander decklist after payment',
+'- Output: power-band assessment, structural weaknesses, upgrade priorities and tuning plan',
+'- Fulfillment: manual MTG diagnostic workflow',
+'- Revenue truth: only settled, attributable Stripe payments count as revenue',
+'',
+'Canonical catalogue: https://dreamledger.org/catalog.json',
+'MTG offer page: https://dreamledger.org/mtg',
+'Agent manifest: https://dreamledger.org/agent.json',
+'Commerce manifest: https://dreamledger.org/agent-commerce.json',
+''].join('\\n'),'text/plain; charset=utf-8');
+if(p==='/.well-known/ai-catalog.json'&&req.method==='GET')return send(res,200,JSON.stringify({schema:'dreamledger/ai-catalog/v1',publisher:'DreamLedger',offers:[{id:'COMMANDER-DECK-DIAGNOSTIC-001',sku:'CMD-DIAG-29',name:'Commander Deck Diagnostic',price:{amount:29,currency:'NZD'},checkout_url:'https://dreamledger.org/buy/cmd-diag-29',input:'Commander decklist',output:['power-band assessment','structural weaknesses','upgrade priorities','tuning plan'],fulfillment:'manual',revenue_rule:'settled_stripe_only'}]},null,2),'application/json; charset=utf-8');
+if(p==='/mcp.json'&&req.method==='GET')return send(res,200,JSON.stringify({schema:'dreamledger/mcp-manifest/v1',name:'DreamLedger',commerce:[{sku:'CMD-DIAG-29',product_id:'COMMANDER-DECK-DIAGNOSTIC-001',checkout_url:'https://dreamledger.org/buy/cmd-diag-29'}]},null,2),'application/json; charset=utf-8');
+if(p==='/.well-known/agent-card.json'&&req.method==='GET')return send(res,200,JSON.stringify({schema:'dreamledger/agent-card/v1',name:'DreamLedger',capabilities:['catalogue','offer_discovery','stripe_checkout','fulfillment_status'],canonical_catalog:'https://dreamledger.org/catalog.json',economic_truth_rule:'Only independently verified settled external payments count as revenue.'},null,2),'application/json; charset=utf-8');
+const file=PUBLIC_FILES[p];if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');serveFile(res,file)}).listen(PORT,'0.0.0.0',()=>console.log('DreamLedger public storefront listening on '+PORT));
+;
+    let endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=not.is.null&public_route=match.'+encodeURIComponent(routePattern)+'&order=public_route.asc&limit='+limit+'&offset='+offset;
+    if(q)endpoint+='&or=(label.ilike.*'+encodeURIComponent(q)+'*,id.ilike.*'+encodeURIComponent(q)+'*)';
+    const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json',Prefer:'count=exact'}});
+    if(!response.ok)throw new Error('CUBE catalog HTTP '+response.status);
+    const rows=await response.json();
+    const range=response.headers.get('content-range')||'';
+    const m=range.match(/\\/([0-9]+)$/);
+    const total=m?Number(m[1]):null;
+    return send(res,200,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'available',total,limit,offset,count:rows.length,items:rows.map(s=>({id:s.id,label:s.label,public_route:s.public_route,canonical_url:'https://dreamledger.org'+s.public_route,inventory_mode:s.inventory_mode,cross_game:!!s.cross_game,cross_silo_view:!!s.cross_silo_view}))}),'application/json; charset=utf-8');
+  }catch(e){return send(res,502,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'error',error:e&&e.message?e.message:'CUBE catalog unavailable'}),'application/json; charset=utf-8')}
+}
 if(req.method==='GET'&&p==='/api/cube/marketplace')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/ecosystem')return send(res,200,JSON.stringify(loadManifest(ECOSYSTEM_PATH,{schema:'dreamledger/ecosystem/v1',status:'unavailable'})),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/agent')return send(res,200,JSON.stringify(loadManifest(AGENT_PATH,{schema:'dreamledger/agent/v1',status:'unavailable'})),'application/json; charset=utf-8');
