@@ -114,6 +114,21 @@ if(req.method==='GET'&&p==='/api/cube/catalog'){
   }catch(e){return send(res,502,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'error',error:e&&e.message?e.message:'CUBE catalog unavailable'}),'application/json; charset=utf-8')}
 }
 
+if(req.method==='GET'&&p.startsWith('/api/cube/silos/')){
+  try{
+    const id=decodeURIComponent(p.slice('/api/cube/silos/'.length));
+    const digits=id.length>=1&&id.length<=12&&id.split('').every(ch=>ch>='0'&&ch<='9');
+    if(!digits)return send(res,400,JSON.stringify({error:'Invalid silo id'}),'application/json; charset=utf-8');
+    const route='/cube/auto/'+id;
+    const endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=eq.'+encodeURIComponent(route)+'&limit=1';
+    const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json'}});
+    if(!response.ok)throw new Error('CUBE silo API HTTP '+response.status);
+    const rows=await response.json();
+    if(!rows[0])return send(res,404,JSON.stringify({error:'CUBE silo not found'}),'application/json; charset=utf-8');
+    const s=rows[0];
+    return send(res,200,JSON.stringify({schema:'dreamledger/cube-silo/v1',id:s.id,label:s.label,public_route:s.public_route,canonical_url:'https://dreamledger.org'+s.public_route,api_url:'https://dreamledger.org/api/cube/silos/'+encodeURIComponent(id),inventory_mode:s.inventory_mode,cross_game:!!s.cross_game,cross_silo_view:!!s.cross_silo_view}),'application/json; charset=utf-8');
+  }catch(e){return send(res,502,JSON.stringify({error:e&&e.message?e.message:'CUBE silo API unavailable'}),'application/json; charset=utf-8')}
+}
 if(req.method==='GET'&&p==='/api/cube/marketplace')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/ecosystem')return send(res,200,JSON.stringify(loadManifest(ECOSYSTEM_PATH,{schema:'dreamledger/ecosystem/v1',status:'unavailable'})),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/agent')return send(res,200,JSON.stringify(loadManifest(AGENT_PATH,{schema:'dreamledger/agent/v1',status:'unavailable'})),'application/json; charset=utf-8');
