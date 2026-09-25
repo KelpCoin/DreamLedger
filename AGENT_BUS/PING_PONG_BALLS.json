@@ -1,10 +1,25 @@
 {
-  "version": 47,
+  "version": 48,
   "updated": "2026-09-26",
   "current_truth": {
-    "public": "store-v2 premium storefront overhaul",
+    "architecture_desk": "ops/architecture/WINNING-PATTERNS-STACK.md",
+    "workers": "ops/workers/",
+    "word_banks": "ops/memory/word_banks/",
+    "public_main": "store-v2",
     "verified_external_revenue_nzd": 0
   },
-  "balls": { "W": "store-v2", "C": "sell" },
-  "immediate_next": ["Redeploy for data-surface=store-v2"]
+  "balls": {
+    "A": "Modular multi-LM stack mapped to cube/compiler",
+    "C": "Distribute Phase-1 buy URLs"
+  },
+  "immediate_next": [
+    "Read WINNING-PATTERNS-STACK.md",
+    "Run LM Studio worker against example job on GPU host",
+    "Post buy URL"
+  ],
+  "do_not": [
+    "Confuse GPU orchestration with revenue",
+    "Let LLM authorize money",
+    "Rebuild payment processor"
+  ]
 }

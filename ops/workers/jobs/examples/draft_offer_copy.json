@@ -1,0 +1,19 @@
+{
+  "job_id": "job_example_001",
+  "type": "draft_copy",
+  "model_preference": ["local_primary", "local_secondary"],
+  "input": {
+    "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "word_bank": "offer_billboard",
+    "tone": "clear_nz_marketplace"
+  },
+  "output_schema": {
+    "headline": "string",
+    "sub": "string",
+    "cta": "string"
+  },
+  "memory_write": {
+    "episodic": true,
+    "promote_to_word_bank": false
+  }
+}

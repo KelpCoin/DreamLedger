@@ -1,0 +1,5 @@
+Secure checkout with Stripe
+Visa, Mastercard and Amex accepted
+Card details never stored on DreamLedger
+Prices in NZD
+Digital delivery after payment
