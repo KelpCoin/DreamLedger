@@ -93,7 +93,8 @@
     "test:governed-transition": "node --test scripts/test-governed-transition.js",
     "test:distribution-feedback": "node --test scripts/test-distribution-feedback.js",
     "test:authorization-firewall": "node --test runtime/AuthorizationFirewall.test.js",
-    "test:execution-gate": "node --test runtime/ExecutionGate.test.js"
+    "test:execution-gate": "node --test runtime/ExecutionGate.test.js",
+    "factory-factory": "node compiler/FactoryFactory.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
