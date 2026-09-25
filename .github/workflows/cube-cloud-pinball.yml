@@ -1,0 +1,64 @@
+name: CUBE Cloud Pinball
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-cube-pinball
+  cancel-in-progress: false
+
+jobs:
+  pinball:
+    name: CUBE shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+
+    env:
+      SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      CUBE_PINBALL_ENABLED: 'true'
+      CUBE_PINBALL_LM_URL: ${{ secrets.CUBE_PINBALL_LM_URL }}
+      CUBE_PINBALL_LM_API_KEY: ${{ secrets.CUBE_PINBALL_LM_API_KEY }}
+      CUBE_PINBALL_MODELS: ${{ secrets.CUBE_PINBALL_MODELS }}
+      CUBE_PINBALL_BATCH: '2'
+      CUBE_PINBALL_TURNS: '4'
+      CUBE_PINBALL_SHARD_INDEX: ${{ matrix.shard }}
+      CUBE_PINBALL_SHARD_COUNT: '8'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v4.0.4
+        with:
+          node-version: '24.14.1'
+
+      - name: Cloud pinball preflight
+        run: |
+          node - <<'NODE'
+          const required = [
+            'SUPABASE_SERVICE_ROLE_KEY',
+            'CUBE_PINBALL_LM_URL',
+            'CUBE_PINBALL_MODELS'
+          ];
+          const missing = required.filter(k => !String(process.env[k] || '').trim());
+          if (missing.length) {
+            console.error('CONFIG_MISSING=' + missing.join(','));
+            process.exit(2);
+          }
+          console.log('CONFIG_OK shard=' + process.env.CUBE_PINBALL_SHARD_INDEX + '/' + process.env.CUBE_PINBALL_SHARD_COUNT);
+          NODE
+
+      - name: Run bounded pinball
+        run: node -e "require('./BEC-PRIME/runtime/CubePinball').tick().then(x=>console.log(JSON.stringify(x,null,2))).catch(e=>{console.error(e.stack||e);process.exit(1)})"
