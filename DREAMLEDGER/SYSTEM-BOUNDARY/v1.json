@@ -1,0 +1,11 @@
+{
+  "schema": "DREAMLEDGER/SYSTEM-BOUNDARY/v1",
+  "layers": ["OBSERVE","MEMORY","RETRIEVE","REASON","GAUNTLET","AUTHORITY","EXPOSE","TRANSACT","SETTLE","FULFILL","VERIFY","LEARN","REPLICATE"],
+  "forward_loop": "CUBE -> ELOHIM -> GAUNTLET -> AUTHORITY -> EXPOSURE -> TRANSACTION -> SETTLEMENT -> FULFILLMENT -> TRUTH -> MEMORY",
+  "reverse_loop": "TRANSACTION_BOUNDARY -> INVERSE_GAUNTLET -> INVERSE_CUBE -> OPPORTUNITY_DISCOVERY",
+  "joined_loop": "CUBE <-> INVERSE_GAUNTLET",
+  "economic_truth": ["external_buyer","settled_payment","correct_attribution","fulfillment","independent_proof"],
+  "truth_labels": ["VERIFIED","UNVERIFIED","CONTRADICTED","STALE","TEST","SIMULATED","INTERNAL","UNMATCHED"],
+  "system_rule": "Internal computation is never itself economic proof.",
+  "replication_rule": "Replicate only mechanisms with independent external verification."
+}
