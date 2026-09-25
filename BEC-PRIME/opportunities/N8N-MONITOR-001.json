@@ -1,0 +1,43 @@
+{
+  "opportunity_id": "N8N-MONITOR-001",
+  "silo": "N8N_MONITORING",
+  "title": "n8n silent-failure monitoring for three workflows",
+  "hypothesis": "n8n operators and small automation teams will pay for monitoring that detects missing heartbeats, empty or anomalously short runs, and alerts them before silent failures become business failures.",
+  "channels": ["n8n Community Jobs", "Discord"],
+  "buyer": "n8n operators, automation agencies, and small teams running production workflows",
+  "offer": "NZ$150/month monitoring for up to 3 n8n workflows, with heartbeat and output-anomaly alerts.",
+  "price_nzd": 150,
+  "test_cost_nzd": 0,
+  "upside_nzd": 450,
+  "smallest_test": "Expose one bounded offer to qualified n8n operators and measure replies, checkout activity, and paid subscriptions without changing the fulfillment promise.",
+  "evidence_required": [
+    "Current external demand signal for paid n8n monitoring",
+    "Buyer identity or attributable inquiry",
+    "Settled payment for any economic claim",
+    "Fulfillment evidence showing monitoring was actually activated"
+  ],
+  "proof_required": [
+    "Source/demand record",
+    "Acquisition publication or attributable inbound",
+    "Stripe payment event",
+    "Monitoring activation/heartbeat evidence",
+    "Independent reconciliation"
+  ],
+  "evidence_score": 8,
+  "risk_score": 2,
+  "speed_score": 10,
+  "public_action": "APPROVAL_REQUIRED",
+  "fulfillment_contract": {
+    "buyer_setup": "Buyer adds one HTTP heartbeat request to each monitored workflow.",
+    "backend": "Hosted heartbeat receiver plus scheduled silence/output checks.",
+    "alert_channels": ["Discord", "email"],
+    "failure_states": ["MISSING_HEARTBEAT", "ZERO_OUTPUT", "ANOMALOUS_OUTPUT"],
+    "manual_work_after_activation": "None required for normal monitoring operation.",
+    "truth_boundary": "Monitoring activation is not revenue proof; revenue requires settled attributable payment and independent fulfillment evidence."
+  },
+  "research_provenance": {
+    "source_type": "USER_SUPPLIED_MARKET_RESEARCH",
+    "status": "UNVERIFIED",
+    "notes": "Candidate incorporates the supplied September 2026 n8n Community demand examples and monitoring-tool landscape. External claims must be independently verified before being used as factual marketing copy."
+  }
+}
