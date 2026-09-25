@@ -1,0 +1,19 @@
+{
+  "id":"SELLER-PROFIT-AUDIT-001",
+  "sku":"SELLER-PROFIT-AUDIT-001",
+  "capability_id":"PRODUCT-SELLER-PROFIT-AUDIT-001",
+  "silo":"seller_tools",
+  "name":"Seller Profit Audit",
+  "description":"Seller-specific NZ profit audit covering marketplace fees, pricing, GST threshold, ACC and income-tax considerations, channel comparison and shipping economics.",
+  "price":29,
+  "price_unit":"major",
+  "currency":"nzd",
+  "inventory":9999,
+  "inventory_type":"digital",
+  "status":"published",
+  "checkout":{"mode":"payment","url":"https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S","success_path":"https://dreamledger.org/tools/seller-profit?paid=1","cancel_path":"https://dreamledger.org/tools/seller-profit-audit"},
+  "commercial_truth":{"approval_required":false,"sellable":true,"payment_surface":"stripe-payment-link","payment_link":"https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S","payment_link_id":"plink_1UJNTzEGgEAnUFF9bzVlFlng","stripe_product_id":"prod_VK1WoQw8ieHpMN","stripe_price_id":"price_1UJNTvEGgEAnUFF9bfGbtrmm"},
+  "fulfilment":{"mode":"manual_pdf","delivery_sla_hours":24,"inputs":["calculator inputs","monthly sales volume","current platforms","GST status","shipping method","average item value","optional historical order export"],"outputs":["seller profit audit PDF","fee and channel comparison","pricing correction","GST threshold analysis","ACC and income-tax considerations","shipping optimization","listing quality checklist"],"operator_required":true},
+  "evidence":{"status":"awaiting_first_payment","transaction_id":null},
+  "experiment":"SELLER-TOOLS-001"
+}
