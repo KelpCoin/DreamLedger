@@ -38,9 +38,10 @@ async function supabaseGet(path){
 }
 async function truthClaims(){
   const rows=await supabaseGet('economic_events?sku_id=eq.CMD-DIAG-29&order=created_at.desc&limit=20');
-  return Array.isArray(rows)?rows.map(x=>({event_id:x.event_id,verification_status:x.verification_status,buyer_action_verified:Boolean(x.buyer_action_verified),payment_settled:Boolean(x.payment_settled),fulfilment_verified:Boolean(x.fulfilment_verified),evidence_verified:Boolean(x.evidence_verified),amount_nzd:x.amount_nzd,resulting_state:x.resulting_state,evidence_ref:x.evidence_ref||null})):[];
+  return Array.isArray(rows)?rows.map(x=>({event_id:x.event_id,verification_status:x.verification_status,buyer_action_verified:Boolean(x.buyer_action_verified),payment_settled:Boolean(x.payment_settled),fulfilment_verified:Boolean(x.fulfilment_verified),evidence_verified:Boolean(x.evidence_verified),amount_nzd:x.amount_nzd,resulting_state:x.resulting_state,evidence_ref:x.evidence_ref||null})): [];
 }
 async function finalizeVerified(session,settlement){
+  if(!session) return {status:'WAITING_SESSION',reason:'session_not_found'};
   const report=mtgDiagnostic.getReport(session.id);
   if(!report) return {status:'WAITING_FULFILLMENT',reason:'buyer_input_or_report_missing'};
   const existing=await supabaseGet('control_evidence?source_reference=eq.'+encodeURIComponent('stripe:balance_transaction:'+String(settlement.balance_transaction_id))+'&limit=1');
@@ -77,19 +78,13 @@ async function scan(){
   try{
     const sessions=await listPaidSessions();
     const claims=await truthClaims();
-    for(const row of rows){ if(row.settlement?.status==='AVAILABLE' && row.fulfillment==='FULFILLED'){ row.finalization=await finalizeVerified(sessions.find(s=>s.id===row.session_id),row.settlement); } }
     const rows=[];
     for(const session of sessions.slice(0,25)){
-      rows.push({
-        session_id:session.id,
-        product_id:PRODUCT_ID,
-        offer_id:OFFER_ID,
-        livemode:session.livemode===true,
-        payment_status:session.payment_status,
-        amount_minor:Number(session.amount_total),
-        currency:String(session.currency).toLowerCase(),
-        settlement:await chargeSettlement(session),fulfillment:mtgDiagnostic.getReport(session.id)?'FULFILLED':'WAITING_INPUT'
-      });
+      const settlement=await chargeSettlement(session);
+      const fulfillment=mtgDiagnostic.getReport(session.id)?'FULFILLED':'WAITING_INPUT';
+      const row={session_id:session.id,product_id:PRODUCT_ID,offer_id:OFFER_ID,livemode:session.livemode===true,payment_status:session.payment_status,amount_minor:Number(session.amount_total),currency:String(session.currency).toLowerCase(),settlement,fulfillment};
+      if(settlement.status==='AVAILABLE' && fulfillment==='FULFILLED') row.finalization=await finalizeVerified(session,settlement);
+      rows.push(row);
     }
     state={...state,status:'PASS',checked_at:new Date().toISOString(),candidates:rows.length,sessions:rows,truth_claims:claims,external_truth_match:rows.some(r=>claims.some(c=>c.event_id&&String(c.event_id).includes(r.session_id)))};
     return state;
