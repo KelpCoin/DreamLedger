@@ -57,7 +57,8 @@
     "factory:run": "npm run compile:opportunities && npm run compile:factory-factory && node BEC-PRIME/factory/FactoryFactory.js && npm run compile:factory-approval",
     "factory:x402": "node BEC-PRIME/factory/X402FactoryFactory.js",
     "verify:x402-factory": "node BEC-PRIME/scripts/Verify-X402FactoryFactory.js",
-    "verify:factory-factory-cycle": "node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js"
+    "verify:factory-factory-cycle": "node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js",
+    "factory:universal": "node BEC-PRIME/factory/UniversalFactoryCompiler.js"
   },
   "engines": {
     "node": ">=20"
