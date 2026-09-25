@@ -7,6 +7,7 @@ const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
 const STRIPE_WEBHOOK_SECRET = String(process.env.STRIPE_WEBHOOK_SECRET || '');
 const INTERNAL_TOKEN = String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN || '');
+const STRIPE_SECRET_KEY = String(process.env.STRIPE_SECRET_KEY || process.env.STRIPE_LIVE_SECRET_KEY || '');
 
 function json(res, status, data) {
   if (res.writableEnded) return true;
@@ -46,6 +47,38 @@ function clean(v) { return String(v || '').trim().slice(0, 500); }
 
 function verify(raw, signature) {
   stripeProof.verifyStripeSignature(raw, signature || '', STRIPE_WEBHOOK_SECRET);
+}
+
+async function stripeGet(pathname, params = {}) {
+  if (!STRIPE_SECRET_KEY) throw Object.assign(new Error('Stripe secret key is not configured for reconciliation'), {statusCode:503});
+  const u = new URL('https://api.stripe.com' + pathname);
+  for (const [k,v] of Object.entries(params)) u.searchParams.append(k,String(v));
+  const response = await fetch(u, {headers:{Authorization:'Basic '+Buffer.from(STRIPE_SECRET_KEY+':').toString('base64'),Accept:'application/json'}});
+  const body = await response.text();
+  let data; try { data = body ? JSON.parse(body) : null; } catch { data = {raw:body}; }
+  if (!response.ok) throw Object.assign(new Error('Stripe API '+response.status), {statusCode:502, detail:data});
+  return data;
+}
+
+async function reconcileFunds(sessionId) {
+  const rows = await db('GET','economic_events','?select=event_id,silo_id,sku_id,offer_id,amount_nzd,stripe_checkout_session,stripe_payment_intent,payment_settled,fulfilment_verified,evidence_verified,verification_status,evidence&stripe_checkout_session=eq.'+encodeURIComponent(sessionId)+'&limit=1');
+  const event = Array.isArray(rows) ? rows[0] : null;
+  if (!event) return {handled:false, reason:'economic_event_not_found'};
+  if (!event.stripe_payment_intent) return {handled:false, reason:'payment_intent_not_found'};
+  if (event.payment_settled === true) return {handled:true, already_verified:true, event_id:event.event_id};
+  const pi = await stripeGet('/v1/payment_intents/'+encodeURIComponent(event.stripe_payment_intent), {'expand[]':'latest_charge.balance_transaction'});
+  if (pi.livemode !== true || pi.status !== 'succeeded') return {handled:true, funds_available:false, reason:'payment_not_live_succeeded',payment_intent:pi.id,status:pi.status};
+  const charge = pi.latest_charge && typeof pi.latest_charge === 'object' ? pi.latest_charge : null;
+  const bt = charge && charge.balance_transaction && typeof charge.balance_transaction === 'object' ? charge.balance_transaction : null;
+  if (!bt) return {handled:true, funds_available:false, reason:'balance_transaction_not_expanded'};
+  const expectedMinor = Math.round(Number(event.amount_nzd || 0) * 100);
+  const validAmount = Number(bt.amount) === expectedMinor;
+  const validCurrency = String(bt.currency || '').toLowerCase() === 'nzd';
+  const available = bt.status === 'available' && Number(bt.available_on || 0) <= Math.floor(Date.now()/1000);
+  if (!validAmount || !validCurrency || !available) return {handled:true, funds_available:false, reason:'balance_transaction_not_available',balance_transaction_id:bt.id,status:bt.status,available_on:bt.available_on,valid_amount:validAmount,valid_currency:validCurrency};
+  const evidence = Object.assign({}, event.evidence || {}, {stripe_payment_intent:pi.id,stripe_charge_id:charge.id,stripe_balance_transaction:bt.id,stripe_balance_transaction_status:bt.status,stripe_available_on:bt.available_on,funds_available_verified_at:new Date().toISOString()});
+  await db('PATCH','economic_events','?event_id=eq.'+encodeURIComponent(event.event_id),{payment_settled:true,evidence_verified:true,verification_status:'OBSERVED',resulting_state:'FUNDS_AVAILABLE',evidence},'return=minimal');
+  return {handled:true,funds_available:true,event_id:event.event_id,payment_intent:pi.id,charge_id:charge.id,balance_transaction_id:bt.id,available_on:bt.available_on};
 }
 
 async function settleSession(session, event) {
@@ -104,7 +137,7 @@ async function settleSession(session, event) {
       sku_id:sku,
       offer_id:offerId || null,
       buyer_action_verified:true,
-      payment_settled:true,
+      payment_settled:false,
       fulfilment_verified:false,
       evidence_verified:true,
       amount_nzd:amount,
@@ -124,7 +157,8 @@ async function settleSession(session, event) {
         marketplace_fulfillment_id:fulfillmentId,
         livemode:true,
         external_buyer:Boolean(session.customer_details?.email || session.customer_email),
-        payment_status:'paid'
+        payment_status:'paid',
+        funds_available:false
       },
       verification_status:'OBSERVED',
       observation_mode:'OBSERVED',
@@ -144,6 +178,8 @@ async function webhook(req,res) {
     const event=JSON.parse(raw);
     if (event.livemode !== true) return json(res,200,{received:true,ignored:true,reason:'not_livemode'});
     if (!event.id) return json(res,400,{error:'missing event id'});
+    if (event.type === 'balance.available') return json(res,200,{received:true,ignored:true,event_type:event.type,observation:'account_balance_changed; per-payment availability requires balance-transaction reconciliation'});
+    if (event.type === 'payment_intent.succeeded' || event.type === 'charge.succeeded') return json(res,200,{received:true,ignored:true,event_type:event.type,observation:'payment_success_observed; awaiting per-payment funds availability reconciliation'});
     if (!['checkout.session.completed'].includes(event.type)) return json(res,200,{received:true,ignored:true,event_type:event.type});
     const existing=await db('GET','economic_events','?select=event_id&event_id=eq.'+encodeURIComponent(event.id)+'&limit=1');
     if (Array.isArray(existing) && existing.length) return json(res,200,{received:true,idempotent:true,event_id:event.id});
@@ -170,6 +206,16 @@ async function input(req,res) {
   if (!storedEmail || storedEmail !== email) return json(res,403,{error:'customer identity mismatch'});
   await rpc('marketplace_submit_diagnostic_input',{p_fulfillment_id:f.fulfillment_id,p_customer_email:email,p_decklist:decklist});
   return json(res,202,{accepted:true,fulfillment_id:f.fulfillment_id,state:'INPUT_SUBMITTED',next:'automatic_fulfillment'});
+}
+
+async function reconcile(req,res) {
+  if (req.method !== 'POST') return json(res,405,{error:'POST required'});
+  if (!INTERNAL_TOKEN || String(req.headers['x-dreamledger-agent-token'] || '') !== INTERNAL_TOKEN) return json(res,401,{error:'unauthorized'});
+  let raw=''; for await(const chunk of req) raw+=chunk;
+  let body; try{body=JSON.parse(raw||'{}')}catch{return json(res,400,{error:'invalid JSON'})}
+  const sessionId=clean(body.session_id);
+  if(!sessionId) return json(res,422,{error:'session_id required'});
+  try{return json(res,200,await reconcileFunds(sessionId));}catch(error){return json(res,error.statusCode||500,{handled:false,error:String(error.message||error),detail:error.detail||null});}
 }
 
 async function status(req,res) {
@@ -220,6 +266,7 @@ async function handle(req,res,path) {
   if (path === '/api/webhooks/stripe') return webhook(req,res);
   if (path === '/api/commercial/input') return input(req,res);
   if (path === '/api/commercial/status') return status(req,res);
+  if (path === '/api/commercial/reconcile') return reconcile(req,res);
   if (path === '/api/commercial/claim') return claim(req,res);
   return false;
 }
