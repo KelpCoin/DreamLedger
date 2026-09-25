@@ -1,0 +1,35 @@
+name: Approved Offer Economic Reconciliation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: approved-offer-economic-reconciliation
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_LIVE_ENABLED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconcile live approved offers
+        run: node ops/commerce/reconcile-approved-offers.mjs
+
+      - name: Upload economic proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: approved-offer-reconciliation
+          path: proof/commerce/latest-approved-offer-reconciliation.json
+          if-no-files-found: error
+          retention-days: 14
