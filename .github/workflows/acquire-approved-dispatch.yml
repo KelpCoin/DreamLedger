@@ -1,0 +1,122 @@
+name: Acquire Approved Catalog Offer via Machine Dispatch
+
+on:
+  repository_dispatch:
+    types:
+      - approved-acquisition
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-discord-acquisition
+  cancel-in-progress: false
+
+jobs:
+  post:
+    if: ${{ github.event.client_payload.approval == 'APPROVED' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate payload
+        env:
+          OFFER: ${{ github.event.client_payload.offer }}
+          TARGET: ${{ github.event.client_payload.target }}
+        run: |
+          set -euo pipefail
+          case "$OFFER" in
+            CMD-DIAG-29|DREAMLEDGER-BILLBOARD-50) ;;
+            *) echo "Offer not allowed"; exit 1 ;;
+          esac
+          test -n "$TARGET"
+
+      - name: Publish through existing verified acquisition rail
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          OFFER: ${{ github.event.client_payload.offer }}
+          TARGET: ${{ github.event.client_payload.target }}
+        run: |
+          set -euo pipefail
+          test -n "$DISCORD_WEBHOOK"
+          case "$DISCORD_WEBHOOK" in
+            https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
+            *) echo "Invalid Discord webhook host"; exit 1 ;;
+          esac
+
+          python3 - <<'PY'
+          import json, os, urllib.parse, urllib.request
+
+          with open("BEC-PRIME/catalog/offers/approved.json", "r", encoding="utf-8") as f:
+              approved_doc = json.load(f)
+
+          aliases = {
+              "CMD-DIAG-29": "CMD-DIAG-29",
+              "DREAMLEDGER-BILLBOARD-50": "DL-BILLBOARD-100X100-3000-001"
+          }
+
+          offer = os.environ["OFFER"]
+          sku = aliases[offer]
+          rows = [
+              x for x in approved_doc.get("approved", [])
+              if x.get("product_sku") == sku
+              and x.get("payment_link_url")
+              and x.get("payment_link_status") == "ACTIVE_LIVEMODE"
+          ]
+          if len(rows) != 1:
+              raise SystemExit("Offer is not uniquely approved and live: " + offer)
+
+          record = rows[0]
+          content = (
+              record["name"] + " - " +
+              record["currency"] + "$" + str(record["price"]) +
+              "\n\n" + record["problem"] +
+              "\n\n" + record["payment_link_url"]
+          )
+
+          base = os.environ["DISCORD_WEBHOOK"]
+          parts = urllib.parse.urlsplit(base)
+          query = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
+          query.append(("wait", "true"))
+          post_url = urllib.parse.urlunsplit(
+              (parts.scheme, parts.netloc, parts.path,
+               urllib.parse.urlencode(query), parts.fragment)
+          )
+
+          req = urllib.request.Request(
+              post_url,
+              data=json.dumps({"content": content}).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST"
+          )
+          with urllib.request.urlopen(req, timeout=20) as response:
+              body = json.loads(response.read().decode())
+
+          message_id = body.get("id")
+          channel_id = body.get("channel_id")
+          if not message_id or not channel_id or record["payment_link_url"] not in body.get("content", ""):
+              raise SystemExit("Publication response failed identity/content verification")
+
+          verify_url = base.rstrip("/") + "/messages/" + urllib.parse.quote(str(message_id), safe="")
+          with urllib.request.urlopen(
+              urllib.request.Request(verify_url, headers={"Accept": "application/json"}),
+              timeout=20
+          ) as response:
+              verified = json.loads(response.read().decode())
+
+          if (
+              verified.get("id") != message_id or
+              verified.get("channel_id") != channel_id or
+              record["payment_link_url"] not in verified.get("content", "")
+          ):
+              raise SystemExit("Published message failed read-back verification")
+
+          print("EXTERNAL_PUBLICATION=VERIFIED_DISCORD_MESSAGE")
+          print("OFFER=" + offer)
+          print("OFFER_ID=" + record["offer_id"])
+          print("DISCORD_MESSAGE_ID=" + message_id)
+          print("DISCORD_CHANNEL_ID=" + channel_id)
+          print("EXTERNAL_REVENUE=UNVERIFIED")
+          PY
