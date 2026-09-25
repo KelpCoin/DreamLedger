@@ -4,8 +4,8 @@ from pathlib import Path
 SUPABASE_URL=os.environ["SUPABASE_URL"].rstrip("/")
 SERVICE_KEY=os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 WORKER_ID=os.environ.get("BEC_WORKER_ID", f"commander-{os.environ.get('COMPUTERNAME','pc')}")
-LM_URL=os.environ.get("LM_STUDIO_URL", "http://127.0.0.1:1234/v1/chat/completions")
-LM_MODEL=os.environ.get("LM_STUDIO_MODEL", "qwen2.5-14b-instruct")
+LM_URL=os.environ.get("LM_STUDIO_URL") or os.environ.get("CLOUD_MODEL_API_URL", "http://127.0.0.1:1234/v1/chat/completions")
+LM_MODEL=os.environ.get("LM_STUDIO_MODEL") or os.environ.get("CLOUD_MODEL_NAME", "qwen2.5-14b-instruct")
 LEASE=int(os.environ.get("BEC_FULFILLMENT_LEASE_SECONDS","900"))
 ROOT=Path(os.environ.get("BEC_WORKER_ROOT", str(Path.home()/"DreamLedgerMarketplace")))
 CACHE=ROOT/"scryfall-cache"; CACHE.mkdir(parents=True,exist_ok=True)
@@ -15,7 +15,7 @@ def req(url, method="GET", body=None, headers=None):
     h={"apikey":SERVICE_KEY,"Authorization":f"Bearer {SERVICE_KEY}","Content-Type":"application/json"}
     if headers: h.update(headers)
     data=json.dumps(body).encode() if body is not None else None
-    r=urllib.request.urlopen(urllib.request.Request(url,data=data,headers=h,method=method),timeout=60)
+    \n    api_key=os.environ.get("LM_STUDIO_API_KEY") or os.environ.get("CLOUD_MODEL_API_KEY")\n    if api_key and "Authorization" not in h: h["Authorization"]=f"Bearer {api_key}"\n    r=urllib.request.urlopen(urllib.request.Request(url,data=data,headers=h,method=method),timeout=60)
     raw=r.read(); return json.loads(raw.decode()) if raw else None
 
 def rpc(name, args): return req(f"{SUPABASE_URL}/rest/v1/rpc/{name}","POST",args)
