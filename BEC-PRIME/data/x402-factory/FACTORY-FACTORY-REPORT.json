@@ -1,0 +1,13 @@
+{
+  "schema": "DREAMLEDGER/X402-FACTORY-FACTORY/v1",
+  "status": "NOT_LIVE",
+  "approved_live_catalog_records": 2,
+  "endpoint_count": 6,
+  "pricing": {
+    "entity": "0.10",
+    "claim": "0.05",
+    "receipt": "0.02"
+  },
+  "reason": "No wallet, network, asset or facilitator configuration has been invented. Live payment activation remains gated.",
+  "factory_loop": "APPROVED SILO -> ENDPOINT SPEC -> DISCOVERY MANIFEST -> PAYMENT RAIL -> EXTERNAL CALL -> SETTLEMENT -> RECEIPT -> TRUTH -> REPLICATION"
+}
