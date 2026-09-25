@@ -1,0 +1,52 @@
+{
+  "schema": "DREAMLEDGER/FACTORY-FACTORY/v2",
+  "purpose": "Compile evidence-backed commercial opportunities into bounded money cells that can be exposed, settled, fulfilled, verified and replicated.",
+  "inputs": [
+    "CUBE opportunities",
+    "approved live offers",
+    "settlement telemetry",
+    "fulfillment evidence",
+    "Truth Oracle evidence"
+  ],
+  "stages": [
+    "DISCOVER",
+    "NORMALIZE",
+    "GAUNTLET",
+    "COMPILE_CELL",
+    "AUTHORIZE",
+    "EXPOSE",
+    "TRANSACT",
+    "SETTLE",
+    "FULFILL",
+    "VERIFY",
+    "LEARN",
+    "REPLICATE"
+  ],
+  "cell_contract": {
+    "required": [
+      "buyer",
+      "offer",
+      "price",
+      "acquisition_channel",
+      "settlement_rail",
+      "fulfillment_route",
+      "truth_requirements",
+      "kill_conditions"
+    ],
+    "revenue_rule": "No revenue claim until external buyer + settled payment + correct attribution + fulfillment + independent proof.",
+    "replication_rule": "Only independently verified economic mechanisms may be cloned."
+  },
+  "factory_of_factories": {
+    "input": "observed demand and approved commercial primitives",
+    "output": "money cells",
+    "cell_output": "a bounded commercial experiment with acquisition, settlement, fulfillment, verification and replication contracts",
+    "recursion": "a verified cell can become a new template input for future compilation"
+  },
+  "authority": {
+    "publication": "APPROVAL_REQUIRED",
+    "outreach": "APPROVAL_REQUIRED",
+    "spend": "APPROVAL_REQUIRED",
+    "charge": "APPROVAL_REQUIRED",
+    "production_mutation": "APPROVAL_REQUIRED"
+  }
+}
