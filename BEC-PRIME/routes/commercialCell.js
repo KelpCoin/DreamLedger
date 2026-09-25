@@ -221,8 +221,16 @@ async function reconcile(req,res) {
   let raw=''; for await(const chunk of req) raw+=chunk;
   let body; try{body=JSON.parse(raw||'{}')}catch{return json(res,400,{error:'invalid JSON'})}
   const sessionId=clean(body.session_id);
-  if(!sessionId) return json(res,422,{error:'session_id required'});
-  try{return json(res,200,await reconcileFunds(sessionId));}catch(error){return json(res,error.statusCode||500,{handled:false,error:String(error.message||error),detail:error.detail||null});}
+  try {
+    if (sessionId) return json(res,200,await reconcileFunds(sessionId));
+    const pending = await db('GET','economic_events','?select=event_id,stripe_checkout_session&resulting_state=eq.PAYMENT_SUCCEEDED&payment_settled=eq.false&stripe_checkout_session=not.is.null&order=created_at.asc&limit=20');
+    const results=[];
+    for (const row of (Array.isArray(pending)?pending:[])) {
+      try { results.push(await reconcileFunds(row.stripe_checkout_session)); }
+      catch (error) { results.push({handled:false,event_id:row.event_id,error:String(error.message||error)}); }
+    }
+    return json(res,200,{handled:true,scanned:results.length,results});
+  } catch(error) { return json(res,error.statusCode||500,{handled:false,error:String(error.message||error),detail:error.detail||null}); }
 }
 
 async function status(req,res) {
