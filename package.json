@@ -53,7 +53,8 @@
     "compile:factory-factory": "node BEC-PRIME/compiler/FactoryFactoryCompiler.js",
     "reconcile:approved-offers": "node ops/commerce/reconcile-approved-offers.mjs",
     "dispatch:approved-acquisition": "node ops/acquisition/dispatch-approved-acquisition.mjs",
-    "compile:factory-approval": "node BEC-PRIME/compiler/FactoryFactoryApprovalPackets.js"
+    "compile:factory-approval": "node BEC-PRIME/compiler/FactoryFactoryApprovalPackets.js",
+    "factory:run": "npm run compile:opportunities && npm run compile:factory-factory && node BEC-PRIME/factory/FactoryFactory.js && npm run compile:factory-approval"
   },
   "engines": {
     "node": ">=20"
