@@ -1,12 +1,20 @@
 {
-  "schema": "DREAMLEDGER/CUBE-CLOUD-RUNTIME/v1",
+  "schema": "DREAMLEDGER/CUBE-CLOUD-RUNTIME/v2",
   "status": "ARMED",
-  "purpose": "Run CUBE refinement as elastic cloud shards while preserving truth and authority boundaries.",
+  "purpose": "Run CUBE refinement as two coordinated eight-shard cloud swarms converging on a shared figure-eight handoff path while preserving truth and authority boundaries.",
+  "topology": {
+    "name": "FIGURE_8",
+    "swarms": 2,
+    "shards_per_swarm": 8,
+    "total_cloud_workers": 16,
+    "shared_memory": "Supabase cube_opportunities + control_bridge_notes",
+    "convergence": "Both loops feed the same Gauntlet/Elohim handoff boundary; no swarm is an economic authority."
+  },
   "schedule": "GitHub Actions every 10 minutes",
-  "shards": 8,
   "batch_per_shard": 2,
   "turns": 4,
-  "max_parallel": 8,
+  "max_parallel": 16,
+  "shard_partition": "global shard index 0..15; deterministic hash partition prevents the two swarms from targeting the same opportunity bucket.",
   "economic_rule": "verified economic return must justify additional resource consumption",
   "authority": {
     "external_publication": "APPROVAL_REQUIRED",
@@ -22,5 +30,6 @@
     "no_buyer": "KILL_PROPOSITION"
   },
   "truth": "Pinball may refine opportunities but may not invent buyers, payments, demand, evidence, revenue, or integrations.",
-  "replication": "Only independently verified economic mechanisms may be promoted for replication."
+  "replication": "Only independently verified economic mechanisms may be promoted for replication.",
+  "local_gpu_lane": "OPTIONAL; cloud swarm remains independently operable when the local machine is offline."
 }
