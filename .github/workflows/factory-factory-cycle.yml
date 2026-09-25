@@ -3,7 +3,7 @@ name: Factory-Factory Economic Cycle
 on:
   workflow_dispatch:
   schedule:
-    - cron: '7,27,47 * * * *'
+    - cron: '*/15 * * * *'
 
 permissions:
   contents: read
@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 10
     env:
       FACTORY_FACTORY_BATCH: '16'
+      STRIPE_LIVE_ENABLED: 'true'
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,7 +28,10 @@ jobs:
         with:
           node-version: '24.14.1'
       - name: Compile and prepare bounded economic cells
-        run: npm run factory:run && node BEC-PRIME/factory/FactoryFactoryOrchestrator.js
+        run: npm run factory:run && node BEC-PRIME/factory/FactoryFactoryOrchestrator.js && node BEC-PRIME/factory/FactoryFactoryCycle.js && node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js && npm run factory:x402 && npm run verify:x402-factory
+      - name: Reconcile approved live offers
+        if: ${{ env.STRIPE_SECRET_KEY != '' }}
+        run: npm run reconcile:approved-offers
       - name: Verify truth boundary
         run: |
           node - <<'NODE'
@@ -39,3 +44,14 @@ jobs:
           console.log('CELLS=' + x.selected_count);
           console.log('ACQUISITION_PACKETS=' + x.acquisition_packet_count);
           NODE
+
+      - name: Upload factory evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-factory-cycle-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/factory-factory/
+            BEC-PRIME/data/x402-factory/
+            proof/commerce/latest-approved-offer-reconciliation.json
+          if-no-files-found: warn
+          retention-days: 14
