@@ -54,12 +54,15 @@ jobs:
           node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js
 
       - name: Dispatch the already-authorized first acquisition once
-        if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && secrets.DISPATCH_TOKEN != '' }}
         env:
           DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          if [ -z "${DISPATCH_TOKEN:-}" ]; then
+            echo "DISPATCH_TOKEN_NOT_CONFIGURED=true"
+            exit 0
+          fi
 
           existing="$(gh issue list --repo KelpCoin/DreamLedger --state open --search "FACTORY-ACQUISITION-LOCK: CMD-DIAG-29 in:title" --json number --jq 'length')"
           if [ "${existing}" -gt 0 ]; then
