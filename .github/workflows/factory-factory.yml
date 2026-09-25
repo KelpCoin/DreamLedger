@@ -1,38 +1,39 @@
-name: DreamLedger Factory-Factory
+name: Factory Factory Economic Compiler
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/15 * * * *"
   push:
     branches: [main]
     paths:
-      - "BEC-PRIME/compiler/**"
-      - "BEC-PRIME/catalog/**"
-      - "BEC-PRIME/factory/**"
-      - "BEC-PRIME/compiled/opportunities/**"
-      - "package.json"
+      - "BEC-PRIME/catalog/offers/approved.json"
+      - "BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json"
+      - "BEC-PRIME/compiler/FactoryFactory.js"
+
 permissions:
   contents: read
 concurrency:
   group: dreamledger-factory-factory
   cancel-in-progress: false
 jobs:
-  build:
+  compile:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm run compile:factory-factory
-      - run: npm run compile:factory-approval
-      - run: node BEC-PRIME/factory/FactoryFactoryEngine.js
-      - run: |
-          test -s BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json
-          test -s BEC-PRIME/data/factory-factory/approval-packets/latest.json
-          test -s BEC-PRIME/data/factory-factory/FACTORY-RUN.json
-      - uses: actions/upload-artifact@v4
+          node-version: 24
+      - name: Compile factory-factory
+        working-directory: BEC-PRIME
+        run: node compiler/FactoryFactory.js
+      - name: Emit boundary
+        working-directory: BEC-PRIME
+        run: node -e "const x=require('./data/factory-factory/FACTORY-FACTORY.json'); console.log(JSON.stringify({FACTORIES:x.factory_count,REPLICATION_GATE:x.replication_gate.status_before_first_verified_event,TOP:x.factories.slice(0,10).map(f=>({id:f.factory_id,state:f.state,buyer:f.economic_cell.buyer,price:f.economic_cell.price_nzd}))},null,2))"
+      - name: Upload factory proof
+        uses: actions/upload-artifact@v4
         with:
-          name: factory-factory-state
-          path: BEC-PRIME/data/factory-factory/
+          name: factory-factory-proof
+          path: BEC-PRIME/data/factory-factory/FACTORY-FACTORY.json
+          if-no-files-found: error
