@@ -34,6 +34,7 @@
     "verify:qr-distribution": "node BEC-PRIME/scripts/verify-qr-distribution.js",
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
     "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",
+    "verify:commercial-cell": "node BEC-PRIME/scripts/verify-commercial-cell.js",
     "verify:edh-one-link": "node BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js",
     "verify:beck-empire": "node BEC-PRIME/scripts/Verify-BECKEmpireFactory.js",
     "refine:local": "python BEC-PRIME/refinement/MultiLMRefinementEngine.py",
