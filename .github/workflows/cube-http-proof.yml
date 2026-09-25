@@ -32,7 +32,7 @@ jobs:
           BASE_URL: https://dreamledger.org
           CUBE_PROOF_COUNT: "500"
           CUBE_PROOF_CONCURRENCY: "20"
-        run: node scripts/verify-cube-http.mjs
+        run: node scripts/verify-cube-http-v2.mjs
 
       - name: Upload proof artifact
         uses: actions/upload-artifact@v4
