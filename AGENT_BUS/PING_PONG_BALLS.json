@@ -1,29 +1,22 @@
 {
-  "version": 29,
+  "version": 30,
   "updated": "2026-09-25",
   "current_truth": {
-    "first_sale_readiness": "ops/money/FIRST-SALE-READINESS.json",
-    "distribution_queue": "ops/money/distribution_queue.json",
-    "keep_building": "ops/money/KEEP-BUILDING.md",
-    "after_pay": "BEC-PRIME/fulfillment/handoff_after_pay.md",
-    "copy_paste": "ops/money/COPY-PASTE-NOW.txt",
-    "settlement": ".github/workflows/commerce-settlement-sync.yml",
+    "approved_catalog": "BEC-PRIME/catalog/offers/approved.json v7 — plinks = live buy routers",
+    "do_now": "ops/money/DO-NOW.txt",
+    "tile": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "diagnostic": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "Clear distribution_queue jobs — get paid",
-    "F": "Fulfilment handoff ready for first pay"
+    "C": "POST DO-NOW.txt — only path to non-zero balance"
   },
   "immediate_next": [
-    "Post dist-001 tile link",
-    "Post dist-002 diagnostic if MTG channel exists",
-    "mark_distribution.py when sent"
+    "Post DO-NOW.txt",
+    "STRIPE_SECRET_KEY + Settlement Sync"
   ],
-  "do_not": [
-    "Skip posts for more architecture",
-    "Claim wealth"
-  ],
+  "do_not": ["More architecture instead of post"],
   "session_evidence": {
-    "2026-09-25-keep-building": "readiness + distro queue + after-pay handoff"
+    "2026-09-25-catalog-align": "approved.json tile plink matched live /buy"
   }
 }

@@ -1,0 +1,13 @@
+POST THIS NOW (tile NZ$50):
+
+Permanent 100x100 on DreamLedger public billboard — NZ$50.
+Title + link at checkout. Stripe.
+https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
+
+OR (MTG NZ$29):
+
+Commander diagnostic NZ$29 — structure, cuts, upgrades.
+https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
+
+THEN: GitHub Actions → Commerce Settlement Sync → Run
+NEED: STRIPE_SECRET_KEY secret on the repo
