@@ -39,6 +39,9 @@ jobs:
       - name: Unit policy tests
         run: npm test
 
+      - name: Execution gate tests
+        run: npm run test:execution-gate
+
       - name: Revenue pipeline tests
         run: npm run test:revenue-pipeline
 
