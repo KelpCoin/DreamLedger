@@ -1,0 +1,17 @@
+{
+  "id": "evt_test_sample_001",
+  "type": "checkout.session.completed",
+  "livemode": false,
+  "data": {
+    "object": {
+      "object": "checkout.session",
+      "id": "cs_test_sample",
+      "amount_total": 2900,
+      "currency": "nzd",
+      "payment_intent": "pi_test_sample",
+      "livemode": false,
+      "client_reference_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "metadata": { "offer_id": "OFFER-CMD-DIAG-29-NZD" }
+    }
+  }
+}

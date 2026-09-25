@@ -1,10 +1,24 @@
 {
-  "version": 40,
+  "version": 41,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "prod-v7 shared header/footer + Stripe/Visa/MC/Amex trust marks",
+    "commercial_layer": "ops/commercial/README.md",
+    "money_pipeline": "ops/commercial/money_pipeline.py",
+    "polsia_lesson": "scheduled workers ordinary; evidence boundary is the product",
     "verified_external_revenue_nzd": 0
   },
-  "balls": { "W": "Institutional trust chrome", "C": "sell" },
-  "immediate_next": ["Redeploy for prod-v7"]
+  "balls": {
+    "M": "Phase 0 money pipe instrumentation",
+    "C": "Phase 1 external buyer still required"
+  },
+  "immediate_next": [
+    "python3 ops/commercial/money_pipeline.py init-db",
+    "Wire webhook verify to ingest",
+    "Post buy URL for Phase 1"
+  ],
+  "do_not": [
+    "Build Polsia nine-agent clone",
+    "Let LLM declare revenue",
+    "Build ads before first economic_event from external pay"
+  ]
 }
