@@ -1,0 +1,80 @@
+name: Factory-Factory Economic Loop
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_external_acquisition:
+        description: "Explicitly allow the pre-authorized CMD-DIAG acquisition dispatch"
+        required: true
+        type: boolean
+        default: false
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-factory-factory
+  cancel-in-progress: false
+
+jobs:
+  compile-and-reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_LIVE_ENABLED: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify runtime
+        run: |
+          set -euo pipefail
+          node --version
+          test -f BEC-PRIME/catalog/offers/approved.json
+          test -f BEC-PRIME/compiler/FactoryFactoryCompiler.js
+          test -f ops/commerce/reconcile-approved-offers.mjs
+
+      - name: Compile demand
+        run: npm run compile:opportunities
+
+      - name: Compile Factory-Factory queue
+        run: npm run compile:factory-factory
+
+      - name: Compile approval packets
+        run: npm run compile:factory-approval
+
+      - name: Reconcile live approved offers
+        run: npm run reconcile:approved-offers
+
+      - name: Verify Factory-Factory cycle
+        run: npm run verify:factory-factory-cycle
+
+      - name: Upload economic state
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-factory-state-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/factory-factory/
+            BEC-PRIME/compiled/opportunities/
+            proof/commerce/
+          if-no-files-found: error
+
+  authorized-acquisition:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_external_acquisition == true }}
+    needs: compile-and-reconcile
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+      OFFER: CMD-DIAG-29
+      TARGET: configured-discord-acquisition
+      APPROVAL: APPROVED
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch pre-authorized CMD-DIAG acquisition
+        run: |
+          set -euo pipefail
+          test -n "$DISPATCH_TOKEN"
+          node ops/acquisition/dispatch-approved-acquisition.mjs
