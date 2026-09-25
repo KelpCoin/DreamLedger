@@ -1,10 +1,14 @@
 {
-  "version": 35,
+  "version": 36,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "shop-v3 ultra-minimal list storefront",
+    "public": "shop-v4 silo horizontal carousels",
+    "silo_rules": "docs/public/SILO-SEPARATION.md",
     "verified_external_revenue_nzd": 0
   },
-  "balls": { "W": "shop-v3", "C": "post buy URL" },
-  "immediate_next": ["Hard refresh for shop-v3"]
+  "balls": {
+    "W": "Silo-separated carousel catalogue",
+    "C": "Market rail buy links still need distribution"
+  },
+  "immediate_next": ["Hard refresh for shop-v4"]
 }
