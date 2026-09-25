@@ -52,6 +52,7 @@ jobs:
           set -euo pipefail
           node BEC-PRIME/factory/FactoryFactoryOrchestrator.js
           node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js
+          node BEC-PRIME/scripts/Verify-FactoryFactoryAssembly.js
 
       - name: Dispatch the already-authorized first acquisition once
         env:
