@@ -1,0 +1,9 @@
+{
+  "schema_version": "DREAMLEDGER/FACTORY-FACTORY-CYCLE/v1",
+  "generated_at_utc": "BUILD_TIME",
+  "selected_count": 0,
+  "external_action": "NOT_PERFORMED",
+  "external_revenue": "UNVERIFIED",
+  "business_truth": "NOT_CLAIMED",
+  "note": "Placeholder replaced by the factory cycle workflow."
+}
