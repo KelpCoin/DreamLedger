@@ -54,7 +54,9 @@
     "reconcile:approved-offers": "node ops/commerce/reconcile-approved-offers.mjs",
     "dispatch:approved-acquisition": "node ops/acquisition/dispatch-approved-acquisition.mjs",
     "compile:factory-approval": "node BEC-PRIME/compiler/FactoryFactoryApprovalPackets.js",
-    "factory:run": "npm run compile:opportunities && npm run compile:factory-factory && node BEC-PRIME/factory/FactoryFactory.js && npm run compile:factory-approval"
+    "factory:run": "npm run compile:opportunities && npm run compile:factory-factory && node BEC-PRIME/factory/FactoryFactory.js && npm run compile:factory-approval",
+    "factory:x402": "node BEC-PRIME/factory/X402FactoryFactory.js",
+    "verify:x402-factory": "node BEC-PRIME/scripts/Verify-X402FactoryFactory.js"
   },
   "engines": {
     "node": ">=20"
