@@ -1,0 +1,126 @@
+{
+  "schema": "DREAMLEDGER/X402-ENDPOINTS/v1",
+  "generated_from": "BEC-PRIME/catalog/offers/approved.json",
+  "endpoints": [
+    {
+      "version": "DREAMLEDGER/X402-ENDPOINT-SPEC/v1",
+      "endpoint_id": "x402-cmd-diag-29-entity",
+      "silo": "mtg",
+      "product_sku": "CMD-DIAG-29",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "method": "POST",
+      "path": "/api/x402/cmd-diag-29/verify/entity",
+      "price_usdc": "0.10",
+      "description": "Machine verification endpoint for entity evidence.",
+      "x402": {
+        "version": 2,
+        "scheme": "exact",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE",
+        "facilitator": "CONFIGURE_BEFORE_LIVE",
+        "status": "SPEC_READY_NOT_LIVE"
+      }
+    },
+    {
+      "version": "DREAMLEDGER/X402-ENDPOINT-SPEC/v1",
+      "endpoint_id": "x402-cmd-diag-29-claim",
+      "silo": "mtg",
+      "product_sku": "CMD-DIAG-29",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "method": "POST",
+      "path": "/api/x402/cmd-diag-29/verify/claim",
+      "price_usdc": "0.05",
+      "description": "Machine verification endpoint for claim evidence.",
+      "x402": {
+        "version": 2,
+        "scheme": "exact",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE",
+        "facilitator": "CONFIGURE_BEFORE_LIVE",
+        "status": "SPEC_READY_NOT_LIVE"
+      }
+    },
+    {
+      "version": "DREAMLEDGER/X402-ENDPOINT-SPEC/v1",
+      "endpoint_id": "x402-cmd-diag-29-receipt",
+      "silo": "mtg",
+      "product_sku": "CMD-DIAG-29",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "method": "POST",
+      "path": "/api/x402/cmd-diag-29/verify/receipt",
+      "price_usdc": "0.02",
+      "description": "Machine verification endpoint for receipt evidence.",
+      "x402": {
+        "version": 2,
+        "scheme": "exact",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE",
+        "facilitator": "CONFIGURE_BEFORE_LIVE",
+        "status": "SPEC_READY_NOT_LIVE"
+      }
+    },
+    {
+      "version": "DREAMLEDGER/X402-ENDPOINT-SPEC/v1",
+      "endpoint_id": "x402-dl-billboard-100x100-3000-001-entity",
+      "silo": "dreamledger",
+      "product_sku": "DL-BILLBOARD-100X100-3000-001",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "method": "POST",
+      "path": "/api/x402/dl-billboard-100x100-3000-001/verify/entity",
+      "price_usdc": "0.10",
+      "description": "Machine verification endpoint for entity evidence.",
+      "x402": {
+        "version": 2,
+        "scheme": "exact",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE",
+        "facilitator": "CONFIGURE_BEFORE_LIVE",
+        "status": "SPEC_READY_NOT_LIVE"
+      }
+    },
+    {
+      "version": "DREAMLEDGER/X402-ENDPOINT-SPEC/v1",
+      "endpoint_id": "x402-dl-billboard-100x100-3000-001-claim",
+      "silo": "dreamledger",
+      "product_sku": "DL-BILLBOARD-100X100-3000-001",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "method": "POST",
+      "path": "/api/x402/dl-billboard-100x100-3000-001/verify/claim",
+      "price_usdc": "0.05",
+      "description": "Machine verification endpoint for claim evidence.",
+      "x402": {
+        "version": 2,
+        "scheme": "exact",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE",
+        "facilitator": "CONFIGURE_BEFORE_LIVE",
+        "status": "SPEC_READY_NOT_LIVE"
+      }
+    },
+    {
+      "version": "DREAMLEDGER/X402-ENDPOINT-SPEC/v1",
+      "endpoint_id": "x402-dl-billboard-100x100-3000-001-receipt",
+      "silo": "dreamledger",
+      "product_sku": "DL-BILLBOARD-100X100-3000-001",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "method": "POST",
+      "path": "/api/x402/dl-billboard-100x100-3000-001/verify/receipt",
+      "price_usdc": "0.02",
+      "description": "Machine verification endpoint for receipt evidence.",
+      "x402": {
+        "version": 2,
+        "scheme": "exact",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE",
+        "facilitator": "CONFIGURE_BEFORE_LIVE",
+        "status": "SPEC_READY_NOT_LIVE"
+      }
+    }
+  ]
+}
