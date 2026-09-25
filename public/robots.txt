@@ -6,3 +6,5 @@ Disallow: /admin/
 Disallow: /internal/
 Disallow: /debug/
 Sitemap: https://dreamledger.org/sitemap.xml
+Agentmap: https://dreamledger.org/.well-known/ai-catalog.json
+Commerce-TXT: https://dreamledger.org/commerce.txt

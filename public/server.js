@@ -11,7 +11,7 @@ const bridgeRail=require('../BEC-PRIME/runtime/BridgeRail');
 const truthOracleCommerce=require('../BEC-PRIME/routes/truthOracleCommerce');
 const consultDecision=require('../BEC-PRIME/routes/consultDecision');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
-const PORT=Number(process.env.PORT||10000),ENGINE=process.env.ENGINE_INTERNAL_URL||'',ENGINE_KEY=process.env.ENGINE_INTERNAL_API_KEY||'',STRIPE_WEBHOOK_SECRET=process.env.STRIPE_WEBHOOK_SECRET||'',COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown',ROOT=__dirname;
+const PORT=Number(process.env.PORT||10000),ENGINE=process.env.ENGINE_INTERNAL_URL||'',ENGINE_KEY=process.env.ENGINE_INTERNAL_API_KEY||'',STRIPE_WEBHOOK_SECRET=process.env.STRIPE_WEBHOOK_SECRET||'',RECONCILE_TOKEN=process.env.DREAMLEDGER_RECONCILE_TOKEN||'',COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown',ROOT=__dirname;
 const CATALOG_PATH=path.join(ROOT,'catalog.json');
 const CUBE_PATH=path.join(ROOT,'cube.json');
 const ECOSYSTEM_PATH=path.join(ROOT,'ecosystem.json');
@@ -82,7 +82,7 @@ function escapeHtml(v){return String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<'
 function escapeAttr(v){return escapeHtml(v).replace(/\n/g,' ')}
 
 function serveFile(res,file,root=ROOT){const safe=path.normalize(path.join(root,file));if(!safe.startsWith(root+path.sep))return send(res,403,'Forbidden','text/plain; charset=utf-8');fs.readFile(safe,(err,data)=>{if(err)return send(res,404,'Not Found','text/plain; charset=utf-8');res.setHeader('Content-Type',MIME[path.extname(file).toLowerCase()]||'application/octet-stream');res.setHeader('Cache-Control','no-store');send(res,200,data)})}
-http.createServer(async(req,res)=>{headers(res);const u=new URL(req.url||'/','http://localhost'),p=u.pathname,key=req.method+' '+p;
+const commercialServer=http.createServer(async(req,res)=>{headers(res);const u=new URL(req.url||'/','http://localhost'),p=u.pathname,key=req.method+' '+p;
 if(req.method==='GET'){const cubeMatch=p.match(/^\/cube\/auto\/(\d{4,12})$/);if(cubeMatch){try{return await cubeSiloPage(res,p)}catch(e){return send(res,502,JSON.stringify({error:e.message||'CUBE route failed'}),'application/json; charset=utf-8')}}}
 if(req.method==='GET'&&p==='/healthz'){const products=loadPublicCatalog().products;const cmd=products.find(x=>x.id==='COMMANDER-DECK-DIAGNOSTIC-001');const checks={catalog_loaded:products.length>0,cmd_diag_published:Boolean(cmd&&cmd.checkout_available!==false&&cmd.checkout_url),cmd_diag_price:Boolean(cmd&&Number(cmd.price)===29&&String(cmd.currency||'').toLowerCase()==='nzd')};const ok=Object.values(checks).every(Boolean);return send(res,ok?200:503,JSON.stringify({ok,service:'dreamledger-storefront',checks,commit:COMMIT}),'application/json; charset=utf-8');}
 if(req.method==='GET'&&p==='/diagnostic-input.html')return serveFile(res,'diagnostic-input.html');
@@ -153,6 +153,7 @@ if(p==='/dreamiez'||p=='/dreamiez/')return serveFile(res,'dreamiez.html',DREAMME
 if(p=='/avatar'||p=='/avatar/'||p=='/avatars'||p=='/avatars/')return serveFile(res,'avatar.html');
 if(p.startsWith('/api/')){if(!ALLOWED_API[key])return send(res,404,'Not Found','text/plain; charset=utf-8');try{return proxy(req,res,await readBody(req))}catch{return send(res,400,'Bad request','text/plain; charset=utf-8')}}
 if(p==='/.well-known/dreamledger.json'&&req.method==='GET')return serveFile(res,'.well-known/dreamledger.json');
+if(p==='/commerce.txt'&&req.method==='GET')return serveFile(res,'commerce.txt');
 if(p==='/llms.txt'&&req.method==='GET')return send(res,200,[
 '# DreamLedger',
 '',
@@ -173,4 +174,16 @@ if(p==='/llms.txt'&&req.method==='GET')return send(res,200,[
 if(p==='/.well-known/ai-catalog.json'&&req.method==='GET')return send(res,200,JSON.stringify({schema:'dreamledger/ai-catalog/v1',publisher:'DreamLedger',offers:[{id:'COMMANDER-DECK-DIAGNOSTIC-001',sku:'CMD-DIAG-29',name:'Commander Deck Diagnostic',price:{amount:29,currency:'NZD'},checkout_url:'https://dreamledger.org/buy/cmd-diag-29',input:'Commander decklist',output:['power-band assessment','structural weaknesses','upgrade priorities','tuning plan'],fulfillment:'manual',revenue_rule:'settled_stripe_only'}]},null,2),'application/json; charset=utf-8');
 if(p==='/mcp.json'&&req.method==='GET')return send(res,200,JSON.stringify({schema:'dreamledger/mcp-manifest/v1',name:'DreamLedger',commerce:[{sku:'CMD-DIAG-29',product_id:'COMMANDER-DECK-DIAGNOSTIC-001',checkout_url:'https://dreamledger.org/buy/cmd-diag-29'}]},null,2),'application/json; charset=utf-8');
 if(p==='/.well-known/agent-card.json'&&req.method==='GET')return send(res,200,JSON.stringify({schema:'dreamledger/agent-card/v1',name:'DreamLedger',capabilities:['catalogue','offer_discovery','stripe_checkout','fulfillment_status'],canonical_catalog:'https://dreamledger.org/catalog.json',economic_truth_rule:'Only independently verified settled external payments count as revenue.'},null,2),'application/json; charset=utf-8');
-const file=PUBLIC_FILES[p];if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');serveFile(res,file)}).listen(PORT,'0.0.0.0',()=>console.log('DreamLedger public storefront listening on '+PORT));
+const file=PUBLIC_FILES[p];if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');serveFile(res,file)}).listen(PORT,'0.0.0.0',()=>{
+  console.log('DreamLedger public storefront listening on '+PORT);
+  if(RECONCILE_TOKEN){
+    const runCommercialReconcile=async()=>{
+      try{
+        const response=await fetch('http://127.0.0.1:'+PORT+'/api/commercial/reconcile',{method:'POST',headers:{'content-type':'application/json','x-dreamledger-reconcile-token':RECONCILE_TOKEN},body:'{}'});
+        if(!response.ok)console.error('commercial reconcile HTTP '+response.status);
+      }catch(error){console.error('commercial reconcile failed',error&&error.message?error.message:error)}
+    };
+    runCommercialReconcile();
+    setInterval(runCommercialReconcile,15*60*1000).unref();
+  }
+});
