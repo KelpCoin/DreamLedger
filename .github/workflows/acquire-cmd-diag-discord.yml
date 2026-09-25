@@ -28,6 +28,7 @@ jobs:
       - name: Validate acquisition inputs
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          TARGET: ${{ inputs.target }}
         run: |
           set -euo pipefail
           test -n "$DISCORD_WEBHOOK"
@@ -35,46 +36,83 @@ jobs:
             https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
             *) echo "Invalid Discord webhook host"; exit 1 ;;
           esac
-          test -n "${{ inputs.target }}"
+          test -n "$TARGET"
 
-      - name: Post CMD-DIAG offer
+      - name: Post CMD-DIAG offer and capture message
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, os, urllib.request
+          import json, os, urllib.parse, urllib.request
 
+          stripe_link = "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R"
           payload = {
               "content": (
-                  "Commander Deck Diagnostic — NZ$29\n\n"
+                  "Commander Deck Diagnostic - NZ$29\n\n"
                   "I do written Commander deck diagnostics: power band assessment, "
                   "structural holes (mana base, card draw, interaction, win conditions), "
                   "and upgrade priorities. You send me your decklist, I send back a "
                   "practical first-pass PDF within 24 hours.\n\n"
                   "One-time purchase, no subscription. NZ$29.\n"
-                  "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R\n\n"
+                  + stripe_link + "\n\n"
                   "If you want a second set of eyes on your deck, this is it."
               )
           }
 
+          base = os.environ["DISCORD_WEBHOOK"]
+          parts = urllib.parse.urlsplit(base)
+          query = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
+          query.append(("wait", "true"))
+          post_url = urllib.parse.urlunsplit(
+              (parts.scheme, parts.netloc, parts.path, urllib.parse.urlencode(query), parts.fragment)
+          )
+
           req = urllib.request.Request(
-              os.environ["DISCORD_WEBHOOK"],
+              post_url,
               data=json.dumps(payload).encode("utf-8"),
               headers={"Content-Type": "application/json"},
               method="POST",
           )
           with urllib.request.urlopen(req, timeout=20) as response:
-              if response.status not in (200, 204):
-                  raise SystemExit(f"Discord returned HTTP {response.status}")
+              if response.status != 200:
+                  raise SystemExit(f"Discord post did not return a message: HTTP {response.status}")
+              body = json.loads(response.read().decode("utf-8"))
+
+          message_id = body.get("id")
+          channel_id = body.get("channel_id")
+          content = body.get("content", "")
+          if not message_id or not channel_id:
+              raise SystemExit("Discord accepted the request but returned no message identity")
+          if stripe_link not in content:
+              raise SystemExit("Discord message identity returned, but the live Stripe link was not present")
+
+          verify_url = base.rstrip("/") + "/messages/" + urllib.parse.quote(str(message_id), safe="")
+          verify_req = urllib.request.Request(verify_url, headers={"Accept": "application/json"}, method="GET")
+          with urllib.request.urlopen(verify_req, timeout=20) as response:
+              if response.status != 200:
+                  raise SystemExit(f"Discord message verification failed: HTTP {response.status}")
+              verified = json.loads(response.read().decode("utf-8"))
+
+          if verified.get("id") != message_id or verified.get("channel_id") != channel_id:
+              raise SystemExit("Discord returned a mismatched message during verification")
+          if stripe_link not in verified.get("content", ""):
+              raise SystemExit("Verified Discord message does not contain the live Stripe link")
+
           print("DISCORD_POST=VERIFIED_RUNTIME")
+          print("EXTERNAL_PUBLICATION=VERIFIED_DISCORD_MESSAGE")
+          print("DISCORD_MESSAGE_ID=" + message_id)
+          print("DISCORD_CHANNEL_ID=" + channel_id)
           print("EXTERNAL_REVENUE=UNVERIFIED")
           PY
 
       - name: Record acquisition state
+        env:
+          TARGET: ${{ inputs.target }}
         run: |
-          echo "TARGET=${{ inputs.target }}"
+          set -euo pipefail
+          echo "TARGET=$TARGET"
           echo "OFFER=CMD-DIAG-29"
-          echo "POST=RUNTIME_VERIFIED"
+          echo "POST=VERIFIED_DISCORD_MESSAGE"
           echo "BUYER=UNVERIFIED"
           echo "REVENUE=UNVERIFIED"
