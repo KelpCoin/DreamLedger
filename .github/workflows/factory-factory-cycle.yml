@@ -1,0 +1,41 @@
+name: Factory-Factory Economic Cycle
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,27,47 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-factory-factory-cycle
+  cancel-in-progress: false
+
+jobs:
+  compile-and-prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      FACTORY_FACTORY_BATCH: '16'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+      - name: Compile and prepare bounded economic cells
+        run: npm run factory:run && node BEC-PRIME/factory/FactoryFactoryOrchestrator.js
+      - name: Verify truth boundary
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = 'BEC-PRIME/data/factory-factory/orchestrator/latest.json';
+          const x = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (x.invariants.some(v => /No (buyer|payment|revenue)/i.test(v) && !v)) process.exit(1);
+          if (x.next_transition.includes('external publication')) process.exit(2);
+          console.log('FACTORY_FACTORY_BOUNDARY=PASS');
+          console.log('CELLS=' + x.selected_count);
+          console.log('ACQUISITION_PACKETS=' + x.acquisition_packet_count);
+          NODE
