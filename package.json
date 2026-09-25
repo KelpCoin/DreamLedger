@@ -50,7 +50,8 @@
     "verify:sd-jwt": "node --test BEC-PRIME/evidence/BrownEyeEvidenceSdJwt.test.mjs",
     "verify:cube-chat": "node BEC-PRIME/scripts/verify-cube-chat-signal.js",
     "test:execution-gate": "node --test BEC-PRIME/runtime/ExecutionGate.test.js",
-    "compile:factory-factory": "node BEC-PRIME/compiler/FactoryFactoryCompiler.js"
+    "compile:factory-factory": "node BEC-PRIME/compiler/FactoryFactoryCompiler.js",
+    "reconcile:approved-offers": "node ops/commerce/reconcile-approved-offers.mjs"
   },
   "engines": {
     "node": ">=20"
