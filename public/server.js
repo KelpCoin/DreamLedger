@@ -104,7 +104,7 @@ if(req.method==='GET'&&p==='/api/cube/catalog'){
     const q=(u.searchParams.get('q')||'').trim().slice(0,120);
     let endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=like./cube/auto/%25&order=public_route.asc&limit='+limit+'&offset='+offset;
     if(q)endpoint+='&or=(label.ilike.*'+encodeURIComponent(q)+'*,id.ilike.*'+encodeURIComponent(q)+'*)';
-    const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json',Prefer:'count=exact'}});
+    const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json',Prefer:'count=planned'}});
     if(!response.ok)throw new Error('CUBE catalog HTTP '+response.status);
     const rows=await response.json();
     const range=response.headers.get('content-range')||'';
