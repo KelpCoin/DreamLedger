@@ -1,0 +1,9 @@
+{
+  "schema": "DREAMLEDGER/AUTHORIZED-ACQUISITION/v1",
+  "offer": "CMD-DIAG-29",
+  "target": "configured-discord-channel",
+  "approval": "APPROVED",
+  "authorized_by": "operator",
+  "authorized_at": "2026-09-26",
+  "purpose": "First external acquisition experiment. Publication is authorized; revenue remains unverified until a real external buyer settles and fulfillment plus independent proof are established."
+}
