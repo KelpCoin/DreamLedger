@@ -1,0 +1,54 @@
+name: DreamLedger Universal Factory
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "BEC-PRIME/factory/**"
+      - "BEC-PRIME/compiler/**"
+      - "BEC-PRIME/catalog/**"
+      - "BEC-PRIME/compiled/opportunities/**"
+      - "package.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-universal-factory
+  cancel-in-progress: false
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run compile:opportunities
+      - run: npm run compile:factory-factory
+      - run: npm run compile:factory-approval
+      - run: npm run factory:universal
+      - run: node BEC-PRIME/factory/FactoryFactoryEngine.js
+      - run: node BEC-PRIME/factory/X402FactoryFactory.js
+      - name: Reconcile live Stripe offers
+        env:
+          STRIPE_LIVE_ENABLED: ${{ secrets.STRIPE_LIVE_ENABLED }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          if [ "${STRIPE_LIVE_ENABLED:-}" = "true" ] && [ -n "${STRIPE_SECRET_KEY:-}" ]; then
+            npm run reconcile:approved-offers
+          else
+            echo "STRIPE_RECONCILIATION=SKIPPED_NO_LIVE_CREDENTIAL"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: universal-factory-state
+          path: |
+            BEC-PRIME/data/factory-factory/
+            BEC-PRIME/data/x402-factory/
+            proof/commerce/
