@@ -1,6 +1,10 @@
 name: Factory One-Shot Acquisition Dispatcher
 
 on:
+  push:
+    paths:
+      - 'BEC-PRIME/data/factory-factory/acquisition-trigger.json'
+      - '.github/workflows/factory-acquisition-dispatch.yml'
   workflow_dispatch:
   schedule:
     - cron: '11,31,51 * * * *'
