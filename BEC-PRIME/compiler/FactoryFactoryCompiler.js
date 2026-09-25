@@ -66,8 +66,8 @@ function compileCandidate(candidate) {
   const buyer = candidate.buyer || null;
   const offer = candidate.offer || null;
   const smallestTest = candidate.smallest_test || null;
-  const inverseGauntlet = inverseGauntlet(candidate);
-  const inverseCube = invertCube(candidate);
+  const gauntletRequirements = inverseGauntlet(candidate);
+  const cubeRequirements = invertCube(candidate);
 
   return {
     experiment_id: `FFX-${hash(JSON.stringify(candidate)).slice(0, 16).toUpperCase()}`,
@@ -85,8 +85,8 @@ function compileCandidate(candidate) {
       price_nzd: price,
       smallest_test: smallestTest
     },
-    inverse_gauntlet: inverseGauntlet,
-    inverse_cube: inverseCube,
+    inverse_gauntlet: gauntletRequirements,
+    inverse_cube: cubeRequirements,
     bidirectional_loop: {
       forward: 'CUBE -> PROPOSITION -> GAUNTLET -> AUTHORITY -> EXPOSURE -> TRANSACTION -> TRUTH',
       reverse: 'TRANSACTION_REQUIREMENTS -> INVERSE_GAUNTLET -> INVERSE_CUBE -> CANDIDATE_DISCOVERY',
