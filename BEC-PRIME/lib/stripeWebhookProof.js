@@ -96,7 +96,6 @@ function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new Error('Invalid Stripe signature');
   let event;
   try { event = JSON.parse(rawBody); } catch { throw new Error('Invalid JSON payload'); }
-  recordTruthOracleWebhookEvent(event);
   return event;
 }
 
@@ -156,7 +155,9 @@ function handleStripeWebhook(rawBody, signatureHeader, opts) {
   const event = verifyStripeSignature(rawBody, signatureHeader, webhookSecret);
   if (event.type !== 'checkout.session.completed') return { received: true, handled: false, type: event.type };
   const session = event.data.object;
+  if (event.livemode !== true) return { received: true, handled: false, type: event.type, reason: 'livemode_false' };
   if (session.payment_status !== 'paid') return { received: true, handled: false, type: event.type, reason: 'payment_status_not_paid', payment_status: session.payment_status };
+  recordTruthOracleWebhookEvent(event);
   const records = buildRecords(session, { getProduct, getProductByPaymentLink, getOffer });
   return { received: true, handled: true, fulfilled: true, ...writeProofArtifacts(records, dirs || resolveDirs()) };
 }
