@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NZ Online Seller Profit Calculator | DreamLedger</title>
+<meta name="description" content="Free New Zealand online seller profit calculator. Enter your sale price, item cost, platform fee, shipping and packaging to see your actual profit and margin.">
+<link rel="canonical" href="https://dreamledger.org/tools/nz-seller-profit">
+<style>
+:root{--bg:#050608;--panel:#0d1016;--line:#242a34;--ink:#f7f4ed;--muted:#9aa2af;--gold:#e0b95f;--violet:#9b86ff;--cyan:#69ddd4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% -10%,#27213b,transparent 35%),var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}.wrap{width:min(920px,calc(100% - 30px));margin:auto}.nav{height:68px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{font-weight:950;letter-spacing:.13em}.brand b{color:var(--gold)}.back{font-size:12px;color:var(--muted)}.hero{padding:52px 0 25px}.eyebrow{font-size:10px;font-weight:950;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}.hero h1{font-size:clamp(43px,8vw,78px);line-height:.9;letter-spacing:-.07em;margin:13px 0 18px;max-width:9ch}.hero p{font-size:17px;color:#b9bec8;max-width:690px}.tool{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:25px 0}.panel{padding:22px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#11151d,#090b10)}.panel h2{margin:0 0 15px;font-size:18px}.field{margin-bottom:14px}.field label{display:block;font-size:11px;font-weight:800;color:#c5cad3;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#080a0e;color:var(--ink);font:inherit}.big{font-size:42px;font-weight:950;color:var(--gold);letter-spacing:-.05em}.muted{color:var(--muted)}.rows{margin-top:15px}.row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.row:last-child{border:0}.good{color:var(--cyan)}.bad{color:#ffb2a8}.method{padding:15px 0 50px}.method h2{font-size:25px;letter-spacing:-.04em}.method p,.method li{color:var(--muted);font-size:13px}.footer{border-top:1px solid var(--line);padding:25px 0 70px;color:#6f7784;font-size:11px}@media(max-width:700px){.tool{grid-template-columns:1fr}.hero{padding-top:40px}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"NZ Online Seller Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NZD"}}</script>
+</head>
+<body><div class="wrap">
+<header class="nav"><a class="brand" href="/">DREAMLEDGER <b>3000</b></a><a class="back" href="/">← DreamLedger</a></header>
+<main>
+<section class="hero"><div class="eyebrow">Free NZ seller tool</div><h1>What do you actually make?</h1><p>Work out the profit left after product cost, selling fees, payment fees, shipping and packaging. Useful before you list, accept an offer or decide whether a sale is worth making.</p></section>
+<section class="tool">
+<div class="panel"><h2>Enter the sale</h2>
+<div class="field"><label for="preset">Fee preset</label><select id="preset" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#080a0e;color:var(--ink);font:inherit"><option value="custom">Custom</option><option value="tm-ping">Trade Me (casual, Ping)</option><option value="tm-afterpay">Trade Me (casual, Afterpay)</option><option value="etsy-domestic">Etsy NZ (domestic)</option><option value="etsy-international">Etsy NZ (international)</option><option value="ebay">eBay (most categories)</option></select></div>
+<div class="field"><label for="sale">Sale price (NZ$)</label><input id="sale" type="number" min="0" value="100" step=".01"></div>
+<div class="field"><label for="cost">Item cost (NZ$)</label><input id="cost" type="number" min="0" value="40" step=".01"></div>
+<div class="field"><label for="platform">Platform fee (%)</label><input id="platform" type="number" min="0" value="7" step=".01"></div>
+<div class="field"><label for="payment">Payment fee (%)</label><input id="payment" type="number" min="0" value="2.19" step=".01"></div>
+<div class="field"><label for="fixedfee">Fixed payment fee (NZ$)</label><input id="fixedfee" type="number" min="0" value="0" step=".01"></div>
+<div class="field"><label for="shipping">Shipping you pay (NZ$)</label><input id="shipping" type="number" min="0" value="9" step=".01"></div>
+<div class="field"><label for="packaging">Packaging (NZ$)</label><input id="packaging" type="number" min="0" value="1" step=".01"></div>
+</div>
+<div class="panel"><h2>Result</h2><div class="muted">Estimated profit per sale</div><div class="big" id="profit">$0.00</div>
+<div class="rows">
+<div class="row"><span>Platform fee</span><strong id="pf">$0.00</strong></div>
+<div class="row"><span>Payment fee</span><strong id="pay">$0.00</strong></div>
+<div class="row"><span>Total selling costs</span><strong id="fees">$0.00</strong></div>
+<div class="row"><span>Profit margin</span><strong id="margin">0%</strong></div>
+<div class="row"><span>Return on item cost</span><strong id="roi">0%</strong></div>
+<div class="row"><span>Keep after listed costs</span><strong id="keep">$0.00</strong></div>
+</div><p class="muted" style="font-size:11px;margin-bottom:0">Presets are reference inputs, not fee guarantees. Check the platform's current terms before listing. Custom lets you enter any fee structure.</p>
+</div>
+</section>
+<section class="method"><h2>The calculation</h2><p>Profit = sale price − item cost − platform fee − payment fee − fixed payment fee − shipping − packaging.</p><p>Margin = profit ÷ sale price. Return on item cost = profit ÷ item cost. Taxes, refunds, returns, insurance and other business costs are not included unless you add them to the relevant inputs.</p><h2>Why sellers use this</h2><ul><li>A sale can look profitable until fees and postage are included.</li><li>Comparing the profit from two selling channels is easier when the same costs are entered for each.</li><li>For high-value inventory, a small percentage fee can change the result by a meaningful amount.</li></ul></section>
+</main><footer class="footer">DreamLedger · Free planning tool · Estimates only, not verified seller revenue.</footer>
+</div>
+<script>
+(()=>{const ids=['sale','cost','platform','payment','fixedfee','shipping','packaging'];const preset=document.getElementById('preset');const presets={custom:null,'tm-ping':{platform:0,payment:2.19,fixed:0,base:'sale+shipping'},'tm-afterpay':{platform:0,payment:4.95,fixed:0,base:'sale+shipping'},'etsy-domestic':{platform:6.5,payment:3,fixed:.30,base:'sale+shipping'},'etsy-international':{platform:6.5,payment:4,fixed:.30,base:'sale+shipping'},ebay:{platform:13.6,payment:0,fixed:.40,base:'sale'}};const e=Object.fromEntries(ids.map(x=>[x,document.getElementById(x)]));const o={profit:document.getElementById('profit'),pf:document.getElementById('pf'),pay:document.getElementById('pay'),fees:document.getElementById('fees'),margin:document.getElementById('margin'),roi:document.getElementById('roi'),keep:document.getElementById('keep')};const m=n=>new Intl.NumberFormat('en-NZ',{style:'currency',currency:'NZD'}).format(n);function calc(){let s=+e.sale.value||0,c=+e.cost.value||0,p=+e.platform.value||0,py=+e.payment.value||0,f=+e.fixedfee.value||0,sh=+e.shipping.value||0,pk=+e.packaging.value||0;let feeBase=(preset.value!=='custom'&&presets[preset.value]?.base==='sale+shipping')?s+sh:s;let pf=feeBase*p/100,pay=feeBase*py/100,fees=pf+pay+f+sh+pk,profit=s-c-fees;o.pf.textContent=m(pf);o.pay.textContent=m(pay);o.fees.textContent=m(fees);o.profit.textContent=m(profit);o.keep.textContent=m(s-pf-pay-f-sh-pk);o.margin.textContent=s?(profit/s*100).toFixed(1)+'%':'N/A';o.roi=c?(profit/c*100).toFixed(1)+'%':'N/A';o.profit.className='big '+(profit>=0?'good':'bad')}ids.forEach(x=>e[x].addEventListener('input',()=>{if(['platform','payment','fixedfee'].includes(x))preset.value='custom';calc()}));preset.addEventListener('change',()=>{const p=presets[preset.value];if(p){e.platform.value=p.platform;e.payment.value=p.payment;e.fixedfee.value=p.fixed}calc()});calc()})();
+</script></body></html>
