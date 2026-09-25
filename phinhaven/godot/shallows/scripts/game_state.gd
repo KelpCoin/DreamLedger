@@ -1,5 +1,5 @@
 extends Node
-## Autoload: shared Floor 1 state. Offline-first; swap to RPC later.
+## Autoload: shared Depth 2 state. Offline-first; swap to RPC later.
 
 signal state_changed(new_state: String)
 signal hud_changed

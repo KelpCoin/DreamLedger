@@ -1,6 +1,6 @@
 extends RefCounted
 class_name ContentLoader
-## Loads Floor 1 design JSON (same numbers as browser MVP / PROOF data).
+## Loads the Depth 2 encounter design JSON (same numbers as browser MVP / PROOF data).
 
 static func load_encounters() -> Dictionary:
 	var path := "res://data/the_shallows_encounters.json"

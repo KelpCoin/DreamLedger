@@ -1,479 +1,259 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-surface="phinhaven-live-v1">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PHINHAVEN — The Shallows (minimal playable)</title>
-  <style>
-    :root {
-      --bg: #07141a;
-      --panel: #0d2229;
-      --teal: #4ecdc4;
-      --sand: #c4a574;
-      --water: #1a4a5c;
-      --kelp: #2d6a4f;
-      --text: #e0f5f2;
-      --muted: #7a9aa3;
-      --danger: #c45c5c;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
-      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    }
-    header {
-      width: 100%; max-width: 640px; padding: 0.75rem 1rem; display: flex; flex-wrap: wrap;
-      gap: 0.5rem 1rem; align-items: center; justify-content: space-between;
-    }
-    h1 { font-size: 1.1rem; margin: 0; color: var(--teal); }
-    .stats { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
-    .stats strong { color: var(--text); }
-    #wrap {
-      position: relative; border: 2px solid #1e3a44; border-radius: 8px; overflow: hidden;
-      box-shadow: 0 0 24px rgba(78, 205, 196, 0.12);
-    }
-    canvas { display: block; background: var(--water); cursor: crosshair; }
-    #overlay {
-      position: absolute; inset: 0; background: rgba(7, 20, 26, 0.88);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 1.5rem; gap: 0.75rem;
-    }
-    #overlay.hidden { display: none; }
-    #overlay h2 { margin: 0; color: var(--teal); font-size: 1.4rem; }
-    #overlay p { margin: 0; color: var(--muted); max-width: 28rem; line-height: 1.45; font-size: 0.95rem; }
-    button {
-      background: var(--teal); color: #042; border: 0; padding: 0.6rem 1.2rem;
-      border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem;
-    }
-    button:hover { filter: brightness(1.08); }
-    button.secondary { background: #234; color: var(--text); }
-    button.danger { background: var(--danger); color: #fff; }
-    footer {
-      max-width: 640px; width: 100%; padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--muted);
-    }
-    .hint { color: var(--sand); }
-    #log {
-      max-width: 640px; width: 100%; height: 88px; overflow-y: auto; padding: 0.5rem 1rem;
-      font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--muted);
-      background: var(--panel); border-top: 1px solid #1e3a44;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Phin Haven — Depth 1 · The Shallows</title>
+<style>
+:root{--bg:#09110d;--panel:#13241b;--line:#31503d;--ink:#edf5ee;--muted:#9eb5a5;--gold:#d9b35a;--green:#78d399;--red:#d45b52}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 0,#1b3929,var(--bg) 65%);color:var(--ink);font:13px Georgia,serif;overflow:hidden}
+button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 12px;touch-action:manipulation}
+button.primary{background:var(--green);color:#07110b;border-color:#9ce5b4;font-weight:bold}button:active{transform:translateY(1px)}
+#app{height:100%;display:flex;flex-direction:column}
+header{padding:10px 13px 7px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+header h1{margin:0;color:var(--green);font-size:15px;letter-spacing:.12em;text-transform:uppercase}
+header a{color:var(--gold);font-size:11px;text-decoration:none}.scene{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.body{min-height:0;flex:1;display:flex;flex-direction:column;gap:7px;padding:7px}
+.stage{position:relative;flex:1;min-height:250px;display:flex;align-items:center;justify-content:center}
+.stage canvas{width:min(100%,560px);height:auto;aspect-ratio:4/3;border:1px solid var(--line);border-radius:11px;background:#102017}
+.toast{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:7px 12px;border:1px solid var(--gold);border-radius:8px;background:#0b1610ee;color:var(--gold);opacity:0;transition:.2s;pointer-events:none;max-width:90%;text-align:center}.toast.show{opacity:1}
+.hud{border-top:1px solid var(--line);padding:7px 0 0;display:flex;flex-direction:column;gap:7px}
+.barrow{display:flex;gap:8px;align-items:center}.stat{flex:1;min-width:130px}
+.small{font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
+.bar{height:8px;border:1px solid #3b241f;background:#20120f;border-radius:5px;overflow:hidden}.fill{height:100%;background:var(--green)}
+.xp{height:5px;background:#1d293f}.xp .fill{background:#8baaf5}
+.grid{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;margin:auto}.grid button{padding:0;font-size:17px}
+.side{display:flex;gap:7px;align-items:flex-start;flex-wrap:wrap}
+.chips{display:flex;gap:5px;overflow:auto;flex:1}
+.chip{min-width:58px;height:50px;padding:4px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:9px;text-align:center;color:var(--muted)}.chip.eq{border-color:var(--gold);color:var(--gold)}
+.avatar{min-width:140px;border:1px solid var(--line);border-radius:9px;padding:7px;background:#0d1912}.avatar b{color:var(--green)}.avatar span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.modal{position:fixed;inset:0;background:#06100bdd;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.modal.open{display:flex}
+.card{width:min(360px,100%);background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}.card h2{margin:0 0 7px;color:var(--green);font-size:17px}.card p{color:var(--muted);line-height:1.45}.row{display:flex;gap:7px}.row>*{flex:1}
+</style>
 </head>
 <body>
-  <header>
-    <h1>PHINHAVEN · The Shallows</h1>
-    <div class="stats">
-      <span>HP <strong id="hp">10</strong>/10</span>
-      <span>Fronds <strong id="fronds">0</strong>/6</span>
-      <span>Skitters <strong id="kills">0</strong>/5</span>
-      <span id="clearBadge" style="display:none;color:var(--teal)">CLEARED</span>
-    </div>
-  </header>
-
-  <div id="wrap">
-    <canvas id="c" width="576" height="576"></canvas>
-    <div id="overlay">
-      <h2 id="ovTitle">Sanctuary</h2>
-      <p id="ovBody">You stand at the edge of Phin Haven. Beyond the tide line lies <strong style="color:var(--teal)">The Shallows</strong> — kelp fringe, tidal pools, Tide Skitters. Gather fronds or drive off skitters to clear the floor. WASD or arrows to move.</p>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center">
-        <button id="btnStart">Enter The Shallows</button>
-        <button id="btnReset" class="secondary">Reset progress</button>
+<div id="app">
+<header>
+  <h1>Phin Haven</h1>
+  <span class="scene" id="scene">Depth 1 · The Shallows</span>
+  <a href="/">Store</a>
+</header>
+<div class="body">
+  <div class="stage"><canvas id="world" width="480" height="360"></canvas><div id="toast" class="toast"></div></div>
+  <div class="hud">
+    <div class="barrow">
+      <div class="stat">
+        <div class="small"><span id="name">Wanderer</span><span id="lvl">Lv.1</span></div>
+        <div class="bar"><div id="hp" class="fill" style="width:100%"></div></div>
+        <div class="xp"><div id="xp" class="fill" style="width:0%"></div></div>
       </div>
+      <button id="sync">Sync</button>
+      <button id="depth2" class="primary" style="display:none">Enter Depth 2</button>
+      <button id="exit" style="display:none">Return</button>
+      <button id="new">New</button>
+    </div>
+    <div class="side">
+      <div class="grid">
+        <span></span><button data-d="0,-1">▲</button><span></span>
+        <button data-d="-1,0">◀</button><button id="act">●</button><button data-d="1,0">▶</button>
+        <span></span><button data-d="0,1">▼</button><span></span>
+      </div>
+      <div class="chips" id="inventory"></div>
+      <div class="avatar" id="avatar"><b>DreamMeez</b><span>unlinked session</span></div>
     </div>
   </div>
-
-  <div id="log"></div>
-  <footer>
-    Minimal browser client for Floor 1 vertical slice. Local-only progress (not production authority).
-    <span class="hint"> Move: WASD / arrows · Walk onto kelp to gather · Walk into skitters to fight</span>
-  </footer>
-
-  <script>
-(function () {
-  'use strict';
-
-  // --- Design constants (match PROOF/airgap/the_shallows_encounters.json) ---
-  const TILE = 48;
-  const COLS = 12;
-  const ROWS = 12;
-  const MAX_HP = 10;
-  const CLEAR_FRONDS = 6;
-  const CLEAR_KILLS = 5;
-  const SKITTER_HP = 8;
-  const SKITTER_DMG = 2;
-  const PLAYER_DMG = 3;
-  const STORAGE_KEY = 'phinhaven_shallows_v1';
-
-  // Tile types: 0 water, 1 sand/path, 2 kelp node, 3 rock
-  const MAP = [
-    [3,3,3,3,3,3,3,3,3,3,3,3],
-    [3,1,1,0,0,0,0,0,1,1,1,3],
-    [3,1,0,0,2,0,0,2,0,0,1,3],
-    [3,0,0,1,1,0,0,1,1,0,0,3],
-    [3,0,2,1,0,0,0,0,1,2,0,3],
-    [3,0,0,0,0,1,1,0,0,0,0,3],
-    [3,0,0,1,0,1,1,0,1,0,0,3],
-    [3,0,2,1,0,0,0,0,1,2,0,3],
-    [3,0,0,1,1,0,0,1,1,0,0,3],
-    [3,1,0,0,2,0,0,2,0,0,1,3],
-    [3,1,1,0,0,0,0,0,1,1,1,3],
-    [3,3,3,3,3,3,3,3,3,3,3,3],
-  ];
-
-  const canvas = document.getElementById('c');
-  const ctx = canvas.getContext('2d');
-  const overlay = document.getElementById('overlay');
-  const ovTitle = document.getElementById('ovTitle');
-  const ovBody = document.getElementById('ovBody');
-
-  let state = 'SANCTUARY'; // SANCTUARY | PLAY | CLEARED | DEAD
-  let px = 5, py = 10;
-  let hp = MAX_HP;
-  let fronds = 0;
-  let kills = 0;
-  let everCleared = false;
-  let avatarColor = '#4ecdc4';
-  let nodes = []; // {x,y,taken}
-  let skitters = []; // {x,y,hp}
-  let keys = {};
-  let moveCooldown = 0;
-  let busy = false; // combat/gather lock
-
-  function log(msg) {
-    const box = document.getElementById('log');
-    const t = new Date().toLocaleTimeString();
-    box.textContent = '[' + t + '] ' + msg + '\n' + box.textContent;
+</div>
+</div>
+<div id="identity" class="modal open"><div class="card">
+  <h2>Enter The Shallows</h2>
+  <p>Depth 1 of Phin Haven. Beat the boss before Depth 2 opens. Server saves your character.</p>
+  <input id="charname" maxlength="18" placeholder="Character name" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#09110d;color:var(--ink);margin:0 0 10px">
+  <button class="primary" id="enter" style="width:100%">Enter Depth 1</button>
+</div></div>
+<div id="combat" class="modal"><div class="card">
+  <h2 id="enemy">Encounter</h2>
+  <div class="small"><span>Enemy</span><span id="enemyhp">100%</span></div>
+  <div class="bar"><div id="ehp" class="fill" style="width:100%;background:var(--red)"></div></div>
+  <p id="combatlog">The path is blocked.</p>
+  <div class="row"><button class="primary" id="attack">Attack</button><button id="flee">Flee</button></div>
+</div></div>
+<script>
+const URL="https://wbwgroygjeyukkspnqiy.supabase.co";
+const KEY="sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj";
+const TOKEN="kelplantis:player_token";
+let player=null,token=null,avatar=null,world=null,gate=null;
+const $=id=>document.getElementById(id);
+async function rpc(name,args){
+  const r=await fetch(`${URL}/rest/v1/rpc/${name}`,{method:"POST",headers:{"Content-Type":"application/json",apikey:KEY,Authorization:`Bearer ${KEY}`},body:JSON.stringify(args)});
+  if(!r.ok)throw Error(`${name}:${r.status}`);
+  return r.json();
+}
+async function storageGet(){
+  try{if(window.storage&&window.storage.get){const r=await window.storage.get(TOKEN);if(r&&r.value)return r.value}}catch(e){}
+  try{return localStorage.getItem(TOKEN)}catch(e){return null}
+}
+async function storageSet(v){
+  try{if(window.storage&&window.storage.set)await window.storage.set(TOKEN,v,false)}catch(e){}
+  try{localStorage.setItem(TOKEN,v)}catch(e){}
+}
+async function storageDelete(){
+  try{if(window.storage&&window.storage.delete)await window.storage.delete(TOKEN,false)}catch(e){}
+  try{localStorage.removeItem(TOKEN)}catch(e){}
+}
+function toast(s){const e=$("toast");e.textContent=s;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),2500)}
+async function bridgeAvatar(){try{avatar=await rpc("kelplantis_bootstrap_dreammeez",{p_token:token});renderAvatar()}catch(e){avatar=null}}
+function renderAvatar(){
+  const e=$("avatar");
+  if(!avatar||!avatar.linked){e.innerHTML="<b>DreamMeez</b><span>unlinked session</span>";return}
+  const a=avatar.appearance||{};
+  e.innerHTML=`<b>DreamMeez linked</b><span>${avatar.display_name||"Avatar"}</span><span>hue ${a.color_hue??"-"}</span>`;
+}
+function sceneLabel(){
+  if(!player)return "";
+  if(player.scene==="HOME")return "Home";
+  if(player.scene==="DUNGEON")return player.dungeon_state && player.dungeon_state.floor_id === 2 ? "Depth 2 · Frontier" : "Depth 1 · The Shallows";
+  return "Depth 1 · The Shallows";
+}
+function iso(gx,gy){return{x:240+(gx-gy)*28,y:70+(gx+gy)*14}}
+function draw(){
+  const c=$("world"),x=c.getContext("2d");x.clearRect(0,0,480,360);x.fillStyle="#102017";x.fillRect(0,0,480,360);
+  if(!player)return;
+  const tile=(gx,gy,col)=>{const p=iso(gx,gy);x.beginPath();x.moveTo(p.x,p.y-14);x.lineTo(p.x+28,p.y);x.lineTo(p.x,p.y+14);x.lineTo(p.x-28,p.y);x.closePath();x.fillStyle=col;x.fill();x.strokeStyle="#31503d";x.stroke()};
+  if(player.scene!=="DUNGEON"){
+    for(let y=0;y<6;y++)for(let gx=0;gx<6;gx++)tile(gx,y,(gx+y)%2?"#416f4d":"#3a6546");
+    let h=iso(2,3);x.fillStyle="#d9b35a";x.fillText("HOME",h.x-18,h.y+4);
+    let d=iso(4,4);x.fillStyle="#b78fe0";x.fillText("DUNGEON",d.x-25,d.y+4);
+    if(gate)x.fillText(gate.unlocked?"Depth 2 unlocked":"Depth 2 locked",d.x-25,d.y+18);
+    x.fillStyle="#d9b35a";labelSprite(x,0,0,"Warden",.85);
+    (world&&world.presence||[]).forEach(p=>labelSprite(x,p.pos_x,p.pos_y,p.name,.7));
+    labelSprite(x,player.pos_x,player.pos_y,player.name,1);
+  }else{
+    const ds=player.dungeon_state;if(!ds)return;
+    for(let y=0;y<3;y++)for(let gx=0;gx<5;gx++)tile(gx,y,"#2b4937");
+    const room=ds.rooms&&ds.rooms[ds.room_index];
+    x.fillStyle="#9eb5a5";x.textAlign="center";
+    x.fillText(ds.floor_id===2?"FRONTIER":"Depth 1 · The Shallows",240,38);
+    labelSprite(x,.7,1.5,player.name,1);
+    if(player.current_encounter)labelSprite(x,3.5,1.5,player.current_encounter.enemy_name,1.2);
+    else if(room&&!room.cleared)labelSprite(x,3.5,1.5,room.enemy_name||"Enemy",1);
   }
-
-  function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        everCleared, avatarColor, frondsBanked: everCleared ? 1 : 0
-      }));
-    } catch (e) {}
-  }
-
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const d = JSON.parse(raw);
-      if (d.everCleared) everCleared = true;
-      if (d.avatarColor) avatarColor = d.avatarColor;
-    } catch (e) {}
-  }
-
-  function refreshHUD() {
-    document.getElementById('hp').textContent = Math.max(0, hp);
-    document.getElementById('fronds').textContent = fronds;
-    document.getElementById('kills').textContent = kills;
-    const badge = document.getElementById('clearBadge');
-    badge.style.display = everCleared ? 'inline' : 'none';
-  }
-
-  function spawnEntities() {
-    nodes = [];
-    skitters = [];
-    for (let y = 0; y < ROWS; y++) {
-      for (let x = 0; x < COLS; x++) {
-        if (MAP[y][x] === 2) nodes.push({ x, y, taken: false });
-      }
-    }
-    // Place up to 6 skitters on water/path tiles not on player start
-    const candidates = [];
-    for (let y = 1; y < ROWS - 1; y++) {
-      for (let x = 1; x < COLS - 1; x++) {
-        if (MAP[y][x] !== 3 && !(x === px && y === py)) candidates.push({ x, y });
-      }
-    }
-    for (let i = 0; i < 6 && candidates.length; i++) {
-      const idx = Math.floor(Math.random() * candidates.length);
-      const c = candidates.splice(idx, 1)[0];
-      skitters.push({ x: c.x, y: c.y, hp: SKITTER_HP });
-    }
-  }
-
-  function showOverlay(title, body, showStart) {
-    ovTitle.textContent = title;
-    ovBody.innerHTML = body;
-    document.getElementById('btnStart').style.display = showStart ? 'inline-block' : 'none';
-    overlay.classList.remove('hidden');
-  }
-
-  function hideOverlay() {
-    overlay.classList.add('hidden');
-  }
-
-  function startRun() {
-    state = 'PLAY';
-    px = 5; py = 10;
-    hp = MAX_HP;
-    fronds = 0;
-    kills = 0;
-    busy = false;
-    spawnEntities();
-    hideOverlay();
-    log('Entered The Shallows. Kelp fringe. Tide Skitters nearby.');
-    refreshHUD();
-  }
-
-  function checkClear() {
-    if (fronds >= CLEAR_FRONDS || kills >= CLEAR_KILLS) {
-      state = 'CLEARED';
-      everCleared = true;
-      save();
-      log('CLEAR — tide line shifts; path marker appears near sanctuary.');
-      showOverlay(
-        'Floor cleared',
-        'You cleared <strong style="color:var(--teal)">The Shallows</strong>. ' +
-        (fronds >= CLEAR_FRONDS ? 'Gather path.' : 'Combat path.') +
-        ' World response flag set locally. In production this would be authoritative.',
-        true
-      );
-      document.getElementById('btnStart').textContent = 'Enter again';
-      refreshHUD();
-      return true;
-    }
-    return false;
-  }
-
-  function die() {
-    state = 'DEAD';
-    fronds = 0;
-    log('DEATH — unbanked fronds lost. Respawn at sanctuary. Cosmetics kept.');
-    showOverlay(
-      'You fell',
-      'The Shallows claimed you. Unbanked session loot is gone. Cosmetics and clear flag (if any) remain.',
-      true
-    );
-    document.getElementById('btnStart').textContent = 'Return to The Shallows';
-    refreshHUD();
-  }
-
-  function tryMove(dx, dy) {
-    if (state !== 'PLAY' || busy || moveCooldown > 0) return;
-    const nx = px + dx;
-    const ny = py + dy;
-    if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return;
-    if (MAP[ny][nx] === 3) return;
-
-    // Skitter collision → fight
-    const si = skitters.findIndex(s => s.x === nx && s.y === ny);
-    if (si >= 0) {
-      busy = true;
-      fightSkitter(si);
-      return;
-    }
-
-    px = nx;
-    py = ny;
-    moveCooldown = 8; // frames
-
-    // Kelp node
-    const node = nodes.find(n => n.x === nx && n.y === ny && !n.taken);
-    if (node) {
-      const got = 1 + Math.floor(Math.random() * 2);
-      node.taken = true;
-      fronds += got;
-      log('Gathered ' + got + ' Kelp Frond(s). (' + fronds + '/' + CLEAR_FRONDS + ')');
-      refreshHUD();
-      checkClear();
-    }
-  }
-
-  function fightSkitter(index) {
-    const s = skitters[index];
-    log('Engaged Tide Skitter!');
-    // Simple resolve: alternate hits until one drops
-    let ehp = s.hp;
-    const steps = [];
-    while (ehp > 0 && hp > 0) {
-      ehp -= PLAYER_DMG;
-      steps.push('You hit (' + Math.max(0, ehp) + ' HP left on skitter)');
-      if (ehp <= 0) break;
-      hp -= SKITTER_DMG;
-      steps.push('Skitter nips — your HP ' + Math.max(0, hp));
-    }
-    steps.forEach((line, i) => setTimeout(() => log(line), i * 180));
-    const delay = steps.length * 180 + 50;
-    setTimeout(() => {
-      if (hp <= 0) {
-        die();
-        busy = false;
-        return;
-      }
-      skitters.splice(index, 1);
-      kills += 1;
-      log('Skitter down. (' + kills + '/' + CLEAR_KILLS + ')');
-      refreshHUD();
-      busy = false;
-      checkClear();
-    }, delay);
-  }
-
-  // --- Input ---
-  window.addEventListener('keydown', (e) => {
-    keys[e.key.toLowerCase()] = true;
-    if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault();
+  x.textAlign="left";
+}
+function labelSprite(x,gx,gy,label,size){
+  const p=iso(gx,gy);
+  x.fillStyle="#05080599";x.beginPath();x.ellipse(p.x,p.y+7,12*size,5*size,0,0,Math.PI*2);x.fill();
+  x.fillStyle=`hsl(${player.color_hue||140},55%,55%)`;
+  x.beginPath();x.roundRect(p.x-9*size,p.y-28*size,18*size,25*size,6*size);x.fill();
+  x.beginPath();x.arc(p.x,p.y-30*size,7*size,0,Math.PI*2);x.fill();
+  x.fillStyle="#edf5ee";x.font="10px Georgia";x.textAlign="center";x.fillText(label,p.x,p.y-42*size);
+}
+function render(){
+  if(!player)return;
+  $("scene").textContent=sceneLabel();
+  $("name").textContent=`${player.name} · HP ${Math.max(0,player.hp)}/${player.max_hp}`;
+  $("lvl").textContent=`Lv.${player.level}`;
+  $("hp").style.width=Math.max(0,player.hp/player.max_hp*100)+"%";
+  $("xp").style.width=Math.min(100,player.xp/(player.level*20)*100)+"%";
+  $("inventory").innerHTML="";
+  (player.inventory||[]).forEach(i=>{
+    const e=document.createElement("div");
+    e.className="chip"+(player.equipped&&player.equipped[i.slot]&&player.equipped[i.slot].id===i.id?" eq":"");
+    e.textContent=i.name;e.onclick=()=>equip(i.id);$("inventory").appendChild(e);
   });
-  window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
-
-  document.getElementById('btnStart').onclick = () => startRun();
-  document.getElementById('btnReset').onclick = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    everCleared = false;
-    fronds = 0;
-    kills = 0;
-    hp = MAX_HP;
-    state = 'SANCTUARY';
-    refreshHUD();
-    showOverlay(
-      'Sanctuary',
-      'Progress wiped. Enter <strong style="color:var(--teal)">The Shallows</strong> when ready.',
-      true
-    );
-    document.getElementById('btnStart').textContent = 'Enter The Shallows';
-    log('Local progress reset.');
-  };
-
-  // --- Render ---
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let y = 0; y < ROWS; y++) {
-      for (let x = 0; x < COLS; x++) {
-        const t = MAP[y][x];
-        const px0 = x * TILE;
-        const py0 = y * TILE;
-        if (t === 3) {
-          ctx.fillStyle = '#1a3038';
-          ctx.fillRect(px0, py0, TILE, TILE);
-        } else if (t === 1) {
-          ctx.fillStyle = '#2a5a4a';
-          ctx.fillRect(px0, py0, TILE, TILE);
-          ctx.fillStyle = 'rgba(196,165,116,0.15)';
-          ctx.fillRect(px0 + 4, py0 + 4, TILE - 8, TILE - 8);
-        } else {
-          // water
-          ctx.fillStyle = (x + y) % 2 === 0 ? '#163d4a' : '#1a4a5c';
-          ctx.fillRect(px0, py0, TILE, TILE);
-        }
-      }
-    }
-
-    // Kelp nodes
-    nodes.forEach(n => {
-      if (n.taken) return;
-      const cx = n.x * TILE + TILE / 2;
-      const cy = n.y * TILE + TILE / 2;
-      ctx.fillStyle = '#2d6a4f';
-      ctx.beginPath();
-      ctx.ellipse(cx, cy + 4, 14, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#52b788';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(cx - 6, cy + 6);
-      ctx.quadraticCurveTo(cx - 2, cy - 12, cx + 4, cy - 4);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(cx + 2, cy + 6);
-      ctx.quadraticCurveTo(cx + 6, cy - 10, cx + 10, cy - 2);
-      ctx.stroke();
-    });
-
-    // Skitters
-    skitters.forEach(s => {
-      const cx = s.x * TILE + TILE / 2;
-      const cy = s.y * TILE + TILE / 2;
-      ctx.fillStyle = '#8b5a2b';
-      ctx.beginPath();
-      ctx.arc(cx, cy, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#e9c46a';
-      ctx.beginPath();
-      ctx.arc(cx - 4, cy - 3, 3, 0, Math.PI * 2);
-      ctx.arc(cx + 4, cy - 3, 3, 0, Math.PI * 2);
-      ctx.fill();
-      // legs
-      ctx.strokeStyle = '#6b4220';
-      ctx.lineWidth = 2;
-      for (let i = -1; i <= 1; i++) {
-        ctx.beginPath();
-        ctx.moveTo(cx - 10, cy + 4);
-        ctx.lineTo(cx - 16, cy + 8 + i * 4);
-        ctx.moveTo(cx + 10, cy + 4);
-        ctx.lineTo(cx + 16, cy + 8 + i * 4);
-        ctx.stroke();
-      }
-    });
-
-    // Player
-    if (state === 'PLAY' || state === 'CLEARED') {
-      const cx = px * TILE + TILE / 2;
-      const cy = py * TILE + TILE / 2;
-      ctx.fillStyle = avatarColor;
-      ctx.beginPath();
-      ctx.arc(cx, cy, 14, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      // simple face
-      ctx.fillStyle = '#042';
-      ctx.beginPath();
-      ctx.arc(cx - 5, cy - 2, 2, 0, Math.PI * 2);
-      ctx.arc(cx + 5, cy - 2, 2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Grid subtle
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x <= COLS; x++) {
-      ctx.beginPath();
-      ctx.moveTo(x * TILE, 0);
-      ctx.lineTo(x * TILE, ROWS * TILE);
-      ctx.stroke();
-    }
-    for (let y = 0; y <= ROWS; y++) {
-      ctx.beginPath();
-      ctx.moveTo(0, y * TILE);
-      ctx.lineTo(COLS * TILE, y * TILE);
-      ctx.stroke();
-    }
+  if(!(player.inventory&&player.inventory.length)){const e=document.createElement("div");e.className="chip";e.textContent="empty";$("inventory").appendChild(e)}
+  draw();
+}
+async function load(){
+  token=await storageGet();
+  if(token){
+    try{
+      player=await rpc("kelplantis_get_player",{p_token:token});
+      $("identity").classList.remove("open");
+      await syncAll();return;
+    }catch(e){await storageDelete();token=null}
   }
-
-  function tick() {
-    if (state === 'PLAY' && !busy) {
-      if (moveCooldown > 0) moveCooldown--;
-      else {
-        let dx = 0, dy = 0;
-        if (keys['w'] || keys['arrowup']) dy = -1;
-        else if (keys['s'] || keys['arrowdown']) dy = 1;
-        else if (keys['a'] || keys['arrowleft']) dx = -1;
-        else if (keys['d'] || keys['arrowright']) dx = 1;
-        if (dx || dy) tryMove(dx, dy);
-      }
+  $("identity").classList.add("open");
+}
+async function enter(){
+  const name=($("charname").value||"Wanderer").trim().slice(0,18)||"Wanderer";
+  try{
+    player=await rpc("kelplantis_create_player",{p_name:name,p_color_hue:140});
+    token=player.player_token;await storageSet(token);
+    $("identity").classList.remove("open");
+    await syncAll();toast("Welcome to The Shallows.");
+  }catch(e){toast("Could not enter — check server RPCs.")}
+}
+async function syncAll(){
+  world=await rpc("kelplantis_get_world_state",{p_world_key:"floor1"}).catch(()=>null);
+  gate=await rpc("kelplantis_get_floor_gate",{p_token:token,p_floor_id:2}).catch(()=>null);
+  await bridgeAvatar();render();
+  const b=$("depth2"); if(b){b.style.display=(player.scene==="TOWN"&&gate&&gate.unlocked)?"inline-block":"none";}
+  const e=$("exit"); if(e)e.style.display=player.scene==="DUNGEON"?"inline-block":"none";
+}
+async function enterDepth2(){
+  try{player=await rpc("kelplantis_enter_floor",{p_token:token,p_floor_id:2});toast("Entered Depth 2.");render();await syncAll()}
+  catch(e){toast(e.message||"Depth 2 is still locked.")}
+}
+async function exitDungeon(){
+  try{player=await rpc("kelplantis_exit_floor",{p_token:token});toast("Returned to Sanctuary.");render();await syncAll()}
+  catch(e){toast(e.message||"Cannot leave this Depth.")}
+}
+async function move(dx,dy){
+  if(!player||player.scene==="DUNGEON")return;
+  try{
+    player=await rpc("kelplantis_move_player",{p_token:token,p_dx:dx,p_dy:dy});
+    gate=await rpc("kelplantis_get_floor_gate",{p_token:token,p_floor_id:2}).catch(()=>gate);
+    render();
+  }catch(e){}
+}
+async function act(){
+  if(!player)return;
+  if(player.scene==="TOWN"&&player.pos_x===0&&player.pos_y===0){
+    try{const r=await rpc("kelplantis_talk_to_npc",{p_token:token,p_npc_key:"garden_warden"});toast("Warden: "+r.dialogue)}catch(e){}
+  }else if(player.scene==="DUNGEON"&&!player.current_encounter){
+    try{player=await rpc("kelplantis_engage_encounter",{p_token:token});openCombat()}catch(e){toast("Could not open encounter")}
+  }else if(player.scene==="HOME")toast("Home — equip from inventory.");
+}
+function openCombat(){
+  $("combat").classList.add("open");
+  $("enemy").textContent=player.current_encounter.enemy_name;
+  $("combatlog").textContent="The encounter begins.";
+  updateCombat();
+}
+function updateCombat(){
+  if(!player.current_encounter)return;
+  const q=player.current_encounter;
+  $("ehp").style.width=Math.max(0,q.enemy_hp/q.enemy_max_hp*100)+"%";
+  $("enemyhp").textContent=Math.round(q.enemy_hp/q.enemy_max_hp*100)+"%";
+}
+async function attack(){
+  try{
+    player=await rpc("kelplantis_attack",{p_token:token});
+    if(player.current_encounter){$("combatlog").textContent="You strike. The enemy answers.";updateCombat()}
+    else{
+      $("combat").classList.remove("open");
+      const boss=player.floor_progress&&player.floor_progress["1"]&&player.floor_progress["1"].bossDefeated;
+      toast(boss?"Depth 1 boss cleared — Depth 2 may unlock.":"Victory.");
+      await syncAll();
     }
-    draw();
-    requestAnimationFrame(tick);
-  }
-
-  // Boot
-  load();
-  refreshHUD();
-  if (everCleared) {
-    showOverlay(
-      'Sanctuary',
-      'You have cleared The Shallows before (local flag). Enter again anytime.',
-      true
-    );
-    document.getElementById('btnStart').textContent = 'Enter The Shallows';
-  }
-  log('PHINHAVEN · The Shallows minimal client ready (local-only).');
-  tick();
-})();
-  </script>
+    render();
+  }catch(e){toast("Attack failed")}
+}
+async function flee(){
+  try{player=await rpc("kelplantis_flee_encounter",{p_token:token})}catch(e){}
+  $("combat").classList.remove("open");render();
+}
+async function equip(id){
+  try{player=await rpc("kelplantis_equip_item",{p_token:token,p_item_id:id});render();toast("Equipped")}catch(e){toast("Cannot equip")}
+}
+$("enter").onclick=enter;
+$("depth2").onclick=enterDepth2;
+$("exit").onclick=exitDungeon;
+$("sync").onclick=async()=>{try{player=await rpc("kelplantis_get_player",{p_token:token});await syncAll();toast("Synced")}catch(e){toast("Sync failed")}};
+$("new").onclick=async()=>{await storageDelete();location.reload()};
+$("act").onclick=act;$("attack").onclick=attack;$("flee").onclick=flee;
+document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const[x,y]=b.dataset.d.split(",").map(Number);move(x,y)});
+load();
+</script>
 </body>
 </html>

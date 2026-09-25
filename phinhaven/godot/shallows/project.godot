@@ -7,7 +7,7 @@ config_version=5
 [application]
 
 config/name="PHINHAVEN The Shallows"
-config/description="Minimal Floor 1 vertical slice scaffold. Offline-first; authority via Supabase later."
+config/description="Minimal PHINHAVEN Depth 1 sanctuary + Depth 2 social/combat vertical slice. Offline-first; authority via Supabase later."
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.2")
 config/icon="res://icon.svg"
