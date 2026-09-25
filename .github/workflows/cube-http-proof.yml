@@ -1,0 +1,42 @@
+name: CUBE 500 HTTP Proof
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/verify-cube-http.mjs"
+      - ".github/workflows/cube-http-proof.yml"
+      - "public/silos/**"
+      - "public/server.js"
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve public DNS
+        run: |
+          set -eux
+          getent ahostsv4 dreamledger.org
+          getent ahostsv4 www.dreamledger.org
+          getent ahostsv4 dreamledger1.onrender.com
+
+      - name: Probe catalog and all 500 public silo URLs
+        env:
+          BASE_URL: https://dreamledger.org
+          CUBE_PROOF_COUNT: "500"
+          CUBE_PROOF_CONCURRENCY: "20"
+        run: node scripts/verify-cube-http.mjs
+
+      - name: Upload proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-500-http-proof
+          path: cube-http-proof.json
+          if-no-files-found: error
