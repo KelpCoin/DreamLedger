@@ -1,11 +1,14 @@
 {
-  "version": 33,
+  "version": 34,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "shop-v1 — public/index.html + shop.css + login/register",
+    "public": "shop-v2 inline CSS (fixed shop.css 404)",
     "verified_external_revenue_nzd": 0
   },
-  "balls": { "W": "Shopify-simple public shop", "C": "Post buy links" },
-  "immediate_next": ["Redeploy live", "Hard refresh dreamledger.org"],
-  "do_not": ["Ops language on public pages", "Fake UI doors"]
+  "balls": {
+    "W": "Storefront must render without external CSS dependency",
+    "C": "Post buy links — site polish ≠ revenue"
+  },
+  "immediate_next": ["Hard refresh dreamledger.org for shop-v2"],
+  "do_not": ["Depend on /shop.css until static map proven"]
 }

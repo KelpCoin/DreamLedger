@@ -4,52 +4,49 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign up · DreamLedger</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="/shop.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f4f5;--card:#fff;--text:#09090b;--muted:#71717a;--line:#e4e4e7;--brand:#18181b;--err:#b91c1c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:inherit;text-decoration:none}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800}
+main{max-width:400px;margin:48px auto;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px}
+h1{font-size:1.35rem;font-weight:800;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:20px}
+label{display:block;font-size:.8rem;font-weight:700;margin:12px 0 6px}
+input{width:100%;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:10px;font:inherit}
+button{width:100%;height:46px;margin-top:18px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:700;font:inherit;cursor:pointer}
+.msg{margin-top:12px;font-size:.875rem}
+.msg.err{color:var(--err)}
+.switch{margin-top:16px;font-size:.875rem;color:var(--muted)}
+.switch a{font-weight:700;text-decoration:underline;color:var(--text)}
+</style>
 </head>
 <body>
-<header class="site-header">
+<header>
   <a class="logo" href="/">DreamLedger</a>
-  <nav class="header-nav">
-    <a href="/login">Log in</a>
-  </nav>
+  <a href="/login" style="font-weight:600;font-size:.875rem">Log in</a>
 </header>
-<div class="auth-wrap">
-  <div class="auth-card">
-    <h1>Create account</h1>
-    <p class="sub">Email and password. Then you can set up your avatar.</p>
-    <form id="register">
+<main>
+  <div class="card">
+    <h1>Sign up</h1>
+    <p class="sub">Create an account with email and password.</p>
+    <form id="f">
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" autocomplete="email" required>
+      <input id="email" type="email" autocomplete="email" required>
       <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8">
-      <button type="submit">Sign up</button>
-      <div id="msg" class="msg" role="alert"></div>
+      <input id="password" type="password" autocomplete="new-password" required minlength="8">
+      <button type="submit">Create account</button>
+      <div id="msg" class="msg"></div>
     </form>
-    <p class="switch">Already have an account? <a href="/login">Log in</a></p>
+    <p class="switch">Already registered? <a href="/login">Log in</a></p>
   </div>
-</div>
+</main>
 <script>
-document.getElementById('register').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const m = document.getElementById('msg');
-  m.textContent = '';
-  m.className = 'msg';
-  try {
-    const r = await fetch('/api/account/register', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value })
-    });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(d.error || 'Could not create account');
-    location.href = d.next || '/avatar.html';
-  } catch (err) {
-    m.className = 'msg error';
-    m.textContent = err.message || 'Could not create account';
-  }
-});
+document.getElementById('f').onsubmit=async(e)=>{e.preventDefault();const m=document.getElementById('msg');m.textContent='';m.className='msg';try{const r=await fetch('/api/account/register',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Sign up failed');location.href=d.next||'/avatar.html'}catch(x){m.className='msg err';m.textContent=x.message}};
 </script>
 </body>
 </html>
