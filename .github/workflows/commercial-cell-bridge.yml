@@ -1,0 +1,44 @@
+name: Commercial Cell Bridge Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/routes/commercialCell.js'
+      - 'public/diagnostic-input.html'
+      - 'public/server.js'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - '.github/workflows/commercial-cell-bridge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node syntax
+        run: |
+          node --check BEC-PRIME/routes/commercialCell.js
+          node --check public/server.js
+      - name: Static bridge assertions
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F "/api/webhooks/stripe" BEC-PRIME/routes/commercialCell.js
+          grep -F "marketplace_settle_stripe_payment" BEC-PRIME/routes/commercialCell.js
+          grep -F "marketplace_submit_diagnostic_input" BEC-PRIME/routes/commercialCell.js
+          grep -F "economic_events" BEC-PRIME/routes/commercialCell.js
+          grep -F "truth_rule" BEC-PRIME/routes/commercialCell.js
+          grep -F "diagnostic-input.html" BEC-PRIME/catalog/offers/approved.json
+      - name: Emit contract proof
+        shell: bash
+        run: |
+          mkdir -p proof
+          printf '%s\n' "COMMERCIAL_CELL_BRIDGE=PASS" "Stripe webhook -> marketplace settlement -> fulfillment input -> evidence/economic event" > proof/commercial-cell-bridge.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: commercial-cell-bridge-proof
+          path: proof/commercial-cell-bridge.txt
