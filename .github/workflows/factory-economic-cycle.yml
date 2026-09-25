@@ -28,8 +28,7 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Compile factory
         run: |
-          npm run compile:factory-factory
-          npm run compile:factory-approval
+          npm run factory:run
       - name: Verify commercial surfaces
         run: |
           npm run verify:commercial-cell
