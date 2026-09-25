@@ -1,0 +1,114 @@
+{
+  "schema": "DREAMLEDGER/X402-MCP-MANIFEST/v1",
+  "status": "DISCOVERY_MANIFEST_READY_NOT_LIVE",
+  "tools": [
+    {
+      "name": "x402-cmd-diag-29-entity",
+      "description": "Machine verification endpoint for entity evidence.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "subject"
+        ]
+      },
+      "x402": {
+        "version": 2,
+        "price_usdc": "0.10",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE"
+      },
+      "endpoint": "/api/x402/cmd-diag-29/verify/entity"
+    },
+    {
+      "name": "x402-cmd-diag-29-claim",
+      "description": "Machine verification endpoint for claim evidence.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "subject"
+        ]
+      },
+      "x402": {
+        "version": 2,
+        "price_usdc": "0.05",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE"
+      },
+      "endpoint": "/api/x402/cmd-diag-29/verify/claim"
+    },
+    {
+      "name": "x402-cmd-diag-29-receipt",
+      "description": "Machine verification endpoint for receipt evidence.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "subject"
+        ]
+      },
+      "x402": {
+        "version": 2,
+        "price_usdc": "0.02",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE"
+      },
+      "endpoint": "/api/x402/cmd-diag-29/verify/receipt"
+    },
+    {
+      "name": "x402-dl-billboard-100x100-3000-001-entity",
+      "description": "Machine verification endpoint for entity evidence.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "subject"
+        ]
+      },
+      "x402": {
+        "version": 2,
+        "price_usdc": "0.10",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE"
+      },
+      "endpoint": "/api/x402/dl-billboard-100x100-3000-001/verify/entity"
+    },
+    {
+      "name": "x402-dl-billboard-100x100-3000-001-claim",
+      "description": "Machine verification endpoint for claim evidence.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "subject"
+        ]
+      },
+      "x402": {
+        "version": 2,
+        "price_usdc": "0.05",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE"
+      },
+      "endpoint": "/api/x402/dl-billboard-100x100-3000-001/verify/claim"
+    },
+    {
+      "name": "x402-dl-billboard-100x100-3000-001-receipt",
+      "description": "Machine verification endpoint for receipt evidence.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "subject"
+        ]
+      },
+      "x402": {
+        "version": 2,
+        "price_usdc": "0.02",
+        "network": "CONFIGURE_BEFORE_LIVE",
+        "asset": "CONFIGURE_BEFORE_LIVE",
+        "payTo": "CONFIGURE_BEFORE_LIVE"
+      },
+      "endpoint": "/api/x402/dl-billboard-100x100-3000-001/verify/receipt"
+    }
+  ]
+}
