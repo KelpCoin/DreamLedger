@@ -1,40 +1,50 @@
 <!doctype html>
-<html lang="en-NZ">
+<html lang="en-NZ" data-surface="prod-v5-auth">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign up · DreamLedger</title>
 <style>
+:root{--bg:#09090b;--elev:#121216;--line:#27272a;--text:#fafafa;--muted:#a1a1aa;--dim:#71717a;--err:#f87171}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#fff;color:#111;min-height:100vh}
+body{font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 a{color:inherit;text-decoration:none}
-.bar{padding:18px 24px;border-bottom:1px solid #eee;display:flex;justify-content:space-between}
-.bar strong{font-size:15px}
-main{max-width:360px;margin:56px auto;padding:0 24px}
-h1{font-size:22px;font-weight:700;margin-bottom:6px}
-.sub{color:#666;font-size:14px;margin-bottom:24px}
-label{display:block;font-size:13px;font-weight:600;margin:0 0 6px}
-input{width:100%;height:44px;border:1px solid #ddd;border-radius:8px;padding:0 12px;font:inherit;margin-bottom:14px}
-button{width:100%;height:44px;border:0;border-radius:8px;background:#111;color:#fff;font-weight:600;font:inherit;cursor:pointer}
-.err{color:#b91c1c;font-size:13px;margin-top:12px}
-.sw{margin-top:20px;font-size:13px;color:#666}
-.sw a{font-weight:600;text-decoration:underline;color:#111}
+.hdr{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--line)}
+.brand{font-weight:700;font-size:15px}
+.hdr a.nav{font-size:13px;font-weight:600;color:var(--muted)}
+main{max-width:400px;margin:48px auto;padding:0 20px}
+.card{background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:28px}
+h1{font-size:20px;font-weight:700;letter-spacing:-.03em;margin-bottom:6px}
+.sub{font-size:14px;color:var(--muted);margin-bottom:22px}
+label{display:block;font-size:12px;font-weight:600;color:var(--dim);margin:0 0 6px}
+input{width:100%;height:44px;padding:0 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:8px;background:#0c0c0e;color:var(--text);font:inherit}
+input:focus{outline:2px solid #3b82f6;outline-offset:1px;border-color:transparent}
+button{width:100%;height:44px;border:0;border-radius:8px;background:#fafafa;color:#09090b;font-weight:700;font:inherit;cursor:pointer}
+button:hover{background:#e4e4e7}
+.err{color:var(--err);font-size:13px;margin-top:12px;min-height:1.2em}
+.sw{margin-top:18px;font-size:13px;color:var(--muted)}
+.sw a{font-weight:600;color:var(--text);text-decoration:underline}
 </style>
 </head>
 <body>
-<div class="bar"><a href="/"><strong>DreamLedger</strong></a><a href="/login" style="font-size:14px;font-weight:600">Log in</a></div>
+<header class="hdr">
+  <a class="brand" href="/">DreamLedger</a>
+  <a class="nav" href="/login">Log in</a>
+</header>
 <main>
-  <h1>Sign up</h1>
-  <p class="sub">Email and password.</p>
-  <form id="f">
-    <label for="email">Email</label>
-    <input id="email" type="email" required autocomplete="email">
-    <label for="password">Password</label>
-    <input id="password" type="password" required minlength="8" autocomplete="new-password">
-    <button type="submit">Create account</button>
-    <div id="msg" class="err"></div>
-  </form>
-  <p class="sw">Have an account? <a href="/login">Log in</a></p>
+  <div class="card">
+    <h1>Create account</h1>
+    <p class="sub">Email and password. Then you can set up your avatar.</p>
+    <form id="f">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="new-password" required minlength="8">
+      <button type="submit">Sign up</button>
+      <div id="msg" class="err" role="alert"></div>
+    </form>
+    <p class="sw">Already registered? <a href="/login">Log in</a></p>
+  </div>
 </main>
 <script>
 document.getElementById('f').onsubmit=async e=>{e.preventDefault();msg.textContent='';try{const r=await fetch('/api/account/register',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Sign up failed');location.href=d.next||'/avatar.html'}catch(x){msg.textContent=x.message}};

@@ -1,14 +1,14 @@
 {
-  "version": 37,
+  "version": 38,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "shop-v4 + no floating QR",
-    "qr_policy": "docs/public/NO-FLOATING-QR.md",
+    "public": "prod-v5 production shell",
+    "docs": "docs/public/PRODUCTION-SHELL.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "W": "Floating QR removed from web inject",
-    "C": "Still need distribution for revenue"
+    "W": "prod-v5 storefront",
+    "C": "Distribution still required for revenue"
   },
-  "immediate_next": ["Redeploy — verify no bottom-right QR on home"]
+  "immediate_next": ["Redeploy + hard refresh for data-surface=prod-v5"]
 }

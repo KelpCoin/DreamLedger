@@ -1,311 +1,315 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="shop-v4">
+<html lang="en-NZ" data-surface="prod-v5">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger — separate product lines. Clear prices. Stripe checkout.">
-<meta name="theme-color" content="#0c0c0e">
+<meta name="description" content="DreamLedger — digital products and placements. Secure Stripe checkout. New Zealand.">
+<meta name="theme-color" content="#09090b">
 <title>DreamLedger</title>
 <link rel="canonical" href="https://dreamledger.org/">
 <style>
 :root{
-  --bg:#0c0c0e;--panel:#141418;--panel2:#1a1a20;--line:#2a2a32;
-  --text:#f4f4f5;--muted:#a1a1aa;--faint:#71717a;
-  --cta:#fafafa;--cta-text:#0c0c0e;
-  --radius:14px;
-  --pad:max(16px, calc((100vw - 1200px) / 2 + 16px));
+  --bg:#09090b;--elev:#121216;--elev2:#18181c;--line:#27272a;
+  --text:#fafafa;--muted:#a1a1aa;--dim:#71717a;
+  --accent:#3b82f6;--accent-h:#2563eb;
+  --ok:#22c55e;
+  --r:12px;
+  --font:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  --pad:max(20px,calc((100vw - 1120px)/2 + 20px));
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg);color:var(--text);
-  line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100vh;
-}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
 a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
 
-/* —— shell —— */
-.top{
-  position:sticky;top:0;z-index:40;
+/* Header */
+.hdr{
+  position:sticky;top:0;z-index:50;
   display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:14px var(--pad);
-  background:rgba(12,12,14,.9);backdrop-filter:blur(12px);
+  padding:0 var(--pad);height:64px;
+  background:rgba(9,9,11,.85);backdrop-filter:blur(16px);
   border-bottom:1px solid var(--line);
 }
-.logo{font-weight:750;font-size:15px;letter-spacing:-.02em}
-.top-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.top-nav a{
+.brand{font-weight:700;font-size:15px;letter-spacing:-.03em}
+.hdr-nav{display:flex;align-items:center;gap:4px}
+.hdr-nav a{
   font-size:13px;font-weight:600;color:var(--muted);
-  padding:8px 12px;border-radius:999px;
+  padding:8px 14px;border-radius:8px;
 }
-.top-nav a:hover{color:var(--text);background:var(--panel)}
-.top-nav .solid{
-  background:var(--cta);color:var(--cta-text);
+.hdr-nav a:hover{color:var(--text);background:var(--elev)}
+.hdr-nav .btn{
+  background:var(--text);color:var(--bg);margin-left:6px;
 }
-.top-nav .solid:hover{opacity:.92;color:var(--cta-text)}
+.hdr-nav .btn:hover{background:#e4e4e7;color:var(--bg)}
 
-.hero{
-  padding:36px var(--pad) 12px;
-  max-width:720px;
+/* Hero */
+.hero{padding:48px var(--pad) 20px;max-width:640px}
+.hero .eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:12px;
 }
 .hero h1{
-  font-size:clamp(1.6rem,3.5vw,2.1rem);
-  font-weight:750;letter-spacing:-.035em;line-height:1.15;
+  font-size:clamp(1.75rem,4vw,2.35rem);
+  font-weight:700;letter-spacing:-.04em;line-height:1.15;
 }
-.hero p{margin-top:10px;color:var(--muted);font-size:15px;max-width:40ch}
+.hero p{margin-top:12px;color:var(--muted);font-size:15px}
 
-/* —— silo rails (strict separation) —— */
-.silo{
-  padding:28px 0 8px;
-  border-top:1px solid transparent;
-}
-.silo-head{
-  display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
-  padding:0 var(--pad) 14px;
-}
-.silo-head h2{
-  font-size:13px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.08em;color:var(--faint);
-}
-.silo-head .name{
-  display:block;margin-top:4px;
-  font-size:18px;font-weight:700;letter-spacing:-.02em;
-  text-transform:none;color:var(--text);
-}
-.silo-head p{font-size:13px;color:var(--muted);max-width:36ch;text-align:right}
-
-.rail-wrap{position:relative}
-.rail{
-  display:flex;gap:14px;
-  overflow-x:auto;overflow-y:hidden;
-  scroll-snap-type:x mandatory;
-  scroll-padding-inline:var(--pad);
-  padding:4px var(--pad) 24px;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
-}
-.rail::-webkit-scrollbar{height:6px}
-.rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
-
-/* CTA card — one product / entry per card */
-.card{
-  flex:0 0 min(300px, 82vw);
-  scroll-snap-align:start;
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  display:flex;flex-direction:column;
-  min-height:280px;
-  overflow:hidden;
-}
-.card-media{
-  height:120px;
-  background:var(--panel2);
+/* Trust strip */
+.trust{
+  display:flex;flex-wrap:wrap;gap:20px 28px;
+  padding:16px var(--pad) 8px;
   border-bottom:1px solid var(--line);
 }
-.card-media.m1{background:linear-gradient(145deg,#1e293b,#141418 60%)}
-.card-media.m2{background:linear-gradient(145deg,#1e3a5f,#141418 60%)}
-.card-media.m3{background:linear-gradient(145deg,#3b0764,#141418 60%)}
-.card-media.m4{background:linear-gradient(145deg,#14532d,#141418 60%)}
-.card-media.m5{background:linear-gradient(145deg,#44403c,#141418 60%)}
-.card-body{padding:16px 16px 12px;flex:1;display:flex;flex-direction:column;gap:6px}
-.card-body .tag{
-  font-size:11px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.06em;color:var(--faint);
+.trust span{
+  font-size:12px;font-weight:600;color:var(--dim);
+  display:inline-flex;align-items:center;gap:8px;
 }
-.card-body h3{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.trust span::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);flex-shrink:0;
+}
+
+/* Silo rails */
+.silo{padding:32px 0 8px}
+.silo-meta{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  padding:0 var(--pad) 14px;
+}
+.silo-meta h2{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.silo-meta p{font-size:13px;color:var(--dim)}
+
+.rail{
+  display:flex;gap:12px;
+  overflow-x:auto;scroll-snap-type:x mandatory;
+  scroll-padding-inline:var(--pad);
+  padding:0 var(--pad) 20px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.rail::-webkit-scrollbar{display:none}
+
+.card{
+  flex:0 0 min(280px,78vw);
+  scroll-snap-align:start;
+  background:var(--elev);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  display:flex;flex-direction:column;
+  min-height:268px;
+  transition:border-color .15s;
+}
+.card:hover{border-color:#3f3f46}
+.card-visual{
+  height:112px;background:var(--elev2);
+  border-bottom:1px solid var(--line);
+  border-radius:var(--r) var(--r) 0 0;
+}
+.card-visual.v1{background:linear-gradient(160deg,#1e3a5f 0%,var(--elev2) 70%)}
+.card-visual.v2{background:linear-gradient(160deg,#1e3a8a 0%,var(--elev2) 70%)}
+.card-visual.v3{background:linear-gradient(160deg,#4c1d95 0%,var(--elev2) 70%)}
+.card-visual.v4{background:linear-gradient(160deg,#14532d 0%,var(--elev2) 70%)}
+.card-visual.v5{background:linear-gradient(160deg,#44403c 0%,var(--elev2) 70%)}
+.card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:6px}
+.card-body .label{font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.card-body h3{font-size:15px;font-weight:650;letter-spacing:-.02em}
 .card-body p{font-size:13px;color:var(--muted);flex:1}
-.card-cta{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:12px 16px 16px;
+.card-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 16px;gap:10px;
 }
-.card-cta .price{font-weight:750;font-size:15px}
-.card-cta .btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  height:36px;padding:0 14px;border-radius:9px;
-  background:var(--cta);color:var(--cta-text);
-  font-size:13px;font-weight:700;
+.card-foot .price{font-size:14px;font-weight:700}
+.card-foot a{
+  height:34px;padding:0 14px;border-radius:8px;
+  background:var(--text);color:var(--bg);
+  font-size:12px;font-weight:700;
+  display:inline-flex;align-items:center;
 }
-.card-cta .btn:hover{opacity:.9}
-.card-cta .btn.ghost{
+.card-foot a:hover{background:#e4e4e7}
+.card-foot a.ghost{
   background:transparent;color:var(--text);
   border:1px solid var(--line);
 }
+.card-foot a.ghost:hover{background:var(--elev2)}
 
-/* silo isolation marker for agents / future wiring — not shown as product jargon */
-.silo[data-silo]{/* reserved */}
-
-.site-foot{
-  margin-top:24px;padding:28px var(--pad);
+/* Footer */
+.ftr{
+  margin-top:40px;padding:32px var(--pad);
   border-top:1px solid var(--line);
-  display:flex;flex-wrap:wrap;gap:12px;
-  justify-content:space-between;align-items:center;
-  font-size:12px;color:var(--faint);
+  display:grid;gap:24px;
 }
-.site-foot nav{display:flex;flex-wrap:wrap;gap:14px}
-.site-foot a{color:var(--muted);font-weight:600}
-.site-foot a:hover{color:var(--text)}
-
-@media(max-width:640px){
-  .silo-head{flex-direction:column;align-items:flex-start}
-  .silo-head p{text-align:left}
-}
+@media(min-width:720px){.ftr{grid-template-columns:1.4fr 1fr 1fr}}
+.ftr h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:10px}
+.ftr p,.ftr a{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+.ftr a:hover{color:var(--text)}
+.ftr .copy{font-size:12px;color:var(--dim);margin-top:8px}
 </style>
 </head>
 <body>
-<header class="top">
-  <a class="logo" href="/">DreamLedger</a>
-  <nav class="top-nav" aria-label="Account">
+<header class="hdr">
+  <a class="brand" href="/">DreamLedger</a>
+  <nav class="hdr-nav" aria-label="Primary">
+    <a href="#market">Shop</a>
     <a href="/login">Log in</a>
-    <a class="solid" href="/register">Sign up</a>
+    <a class="btn" href="/register">Sign up</a>
   </nav>
 </header>
 
 <section class="hero">
-  <h1>Choose a product line</h1>
-  <p>Each row is separate. Pick a card and check out when you are ready.</p>
+  <p class="eyebrow">New Zealand · Stripe checkout</p>
+  <h1>Products by category</h1>
+  <p>Each row is a separate product line. Open a card to buy or continue.</p>
 </section>
 
-<!-- SILO: market — placements & digital goods for sale -->
-<section class="silo" data-silo="market" aria-labelledby="silo-market">
-  <div class="silo-head">
-    <h2 id="silo-market">Shop <span class="name">Market</span></h2>
-    <p>Paid products. Stripe checkout.</p>
-  </div>
-  <div class="rail-wrap">
-    <div class="rail" role="list">
-      <article class="card" role="listitem">
-        <div class="card-media m1" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Placement</span>
-          <h3>Billboard tile</h3>
-          <p>100×100 on the public board. Title and link at checkout.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">NZ$50</span>
-          <a class="btn" href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a>
-        </div>
-      </article>
-      <article class="card" role="listitem">
-        <div class="card-media m2" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Digital</span>
-          <h3>Commander diagnostic</h3>
-          <p>Structure, cuts and upgrades. Delivered after payment.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">NZ$29</span>
-          <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a>
-        </div>
-      </article>
-      <article class="card" role="listitem">
-        <div class="card-media m3" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Digital</span>
-          <h3>Discord webhook kit</h3>
-          <p>Templates for payment alerts. Download after checkout.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">NZ$79</span>
-          <a class="btn" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
+<div class="trust" aria-label="Trust">
+  <span>Secure payments via Stripe</span>
+  <span>Listed prices in NZD</span>
+  <span>Digital delivery after payment</span>
+</div>
 
-<!-- SILO: identity — account & avatar (not mixed into market cart) -->
-<section class="silo" data-silo="identity" aria-labelledby="silo-identity">
-  <div class="silo-head">
-    <h2 id="silo-identity">Account <span class="name">Identity</span></h2>
-    <p>Sign up and manage your profile.</p>
+<!-- Silo: market -->
+<section class="silo" id="market" data-silo="market" aria-labelledby="h-market">
+  <div class="silo-meta">
+    <h2 id="h-market">Market</h2>
+    <p>Paid products</p>
   </div>
-  <div class="rail-wrap">
-    <div class="rail" role="list">
-      <article class="card" role="listitem">
-        <div class="card-media m4" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Free</span>
-          <h3>Create account</h3>
-          <p>Email and password. Separate from purchases.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">Free</span>
-          <a class="btn" href="/register">Sign up</a>
-        </div>
-      </article>
-      <article class="card" role="listitem">
-        <div class="card-media m4" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Free</span>
-          <h3>Log in</h3>
-          <p>Return to your account.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">Free</span>
-          <a class="btn ghost" href="/login">Log in</a>
-        </div>
-      </article>
-      <article class="card" role="listitem">
-        <div class="card-media m4" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Profile</span>
-          <h3>Avatar</h3>
-          <p>Customise DreamMeez after you have an account.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">Free</span>
-          <a class="btn ghost" href="/avatar.html">Open</a>
-        </div>
-      </article>
-    </div>
+  <div class="rail" role="list">
+    <article class="card" role="listitem">
+      <div class="card-visual v1" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Placement</span>
+        <h3>Billboard tile</h3>
+        <p>Permanent 100×100 on the public board. Title and link at checkout.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">NZ$50</span>
+        <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a>
+      </div>
+    </article>
+    <article class="card" role="listitem">
+      <div class="card-visual v2" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Digital</span>
+        <h3>Commander diagnostic</h3>
+        <p>Deck structure, cuts and upgrades. Delivered after payment.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">NZ$29</span>
+        <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a>
+      </div>
+    </article>
+    <article class="card" role="listitem">
+      <div class="card-visual v3" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Digital</span>
+        <h3>Discord webhook kit</h3>
+        <p>Payment notification templates. Download after checkout.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">NZ$79</span>
+        <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a>
+      </div>
+    </article>
   </div>
 </section>
 
-<!-- SILO: play — entertainment; not a checkout silo -->
-<section class="silo" data-silo="play" aria-labelledby="silo-play">
-  <div class="silo-head">
-    <h2 id="silo-play">Play <span class="name">Worlds</span></h2>
-    <p>Optional. No purchase required to try.</p>
+<!-- Silo: identity -->
+<section class="silo" data-silo="identity" aria-labelledby="h-identity">
+  <div class="silo-meta">
+    <h2 id="h-identity">Account</h2>
+    <p>Identity · separate from checkout</p>
   </div>
-  <div class="rail-wrap">
-    <div class="rail" role="list">
-      <article class="card" role="listitem">
-        <div class="card-media m5" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Free</span>
-          <h3>Phin Haven</h3>
-          <p>Enter the playable world.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">Free</span>
-          <a class="btn ghost" href="/phin-haven">Play</a>
-        </div>
-      </article>
-      <article class="card" role="listitem">
-        <div class="card-media m1" aria-hidden="true"></div>
-        <div class="card-body">
-          <span class="tag">Public</span>
-          <h3>Billboard wall</h3>
-          <p>See the live public board.</p>
-        </div>
-        <div class="card-cta">
-          <span class="price">View</span>
-          <a class="btn ghost" href="/billboard">Open</a>
-        </div>
-      </article>
-    </div>
+  <div class="rail" role="list">
+    <article class="card" role="listitem">
+      <div class="card-visual v4" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Free</span>
+        <h3>Create account</h3>
+        <p>Email and password.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">Free</span>
+        <a href="/register">Sign up</a>
+      </div>
+    </article>
+    <article class="card" role="listitem">
+      <div class="card-visual v4" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Free</span>
+        <h3>Log in</h3>
+        <p>Access your existing account.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">Free</span>
+        <a class="ghost" href="/login">Log in</a>
+      </div>
+    </article>
+    <article class="card" role="listitem">
+      <div class="card-visual v4" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Profile</span>
+        <h3>Avatar</h3>
+        <p>Customise after you sign up.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">Free</span>
+        <a class="ghost" href="/avatar.html">Open</a>
+      </div>
+    </article>
   </div>
 </section>
 
-<footer class="site-foot">
-  <span>© DreamLedger</span>
-  <nav>
-    <a href="/policies.html">Policies</a>
+<!-- Silo: play -->
+<section class="silo" data-silo="play" aria-labelledby="h-play">
+  <div class="silo-meta">
+    <h2 id="h-play">Explore</h2>
+    <p>Optional · no purchase required</p>
+  </div>
+  <div class="rail" role="list">
+    <article class="card" role="listitem">
+      <div class="card-visual v5" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Free</span>
+        <h3>Phin Haven</h3>
+        <p>Playable world.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">Free</span>
+        <a class="ghost" href="/phin-haven">Play</a>
+      </div>
+    </article>
+    <article class="card" role="listitem">
+      <div class="card-visual v1" aria-hidden="true"></div>
+      <div class="card-body">
+        <span class="label">Public</span>
+        <h3>Billboard</h3>
+        <p>View the live public board.</p>
+      </div>
+      <div class="card-foot">
+        <span class="price">View</span>
+        <a class="ghost" href="/billboard">Open</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<footer class="ftr">
+  <div>
+    <h3>DreamLedger</h3>
+    <p>Digital products and placements.</p>
+    <p class="copy">© DreamLedger · New Zealand</p>
+  </div>
+  <div>
+    <h3>Shop</h3>
+    <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Billboard tile</a>
+    <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic</a>
+    <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Discord kit</a>
+  </div>
+  <div>
+    <h3>Support</h3>
     <a href="/login">Log in</a>
     <a href="/register">Sign up</a>
-  </nav>
+    <a href="/policies.html">Policies</a>
+  </div>
 </footer>
 </body>
 </html>
