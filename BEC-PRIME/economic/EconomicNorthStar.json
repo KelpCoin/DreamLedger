@@ -1,0 +1,106 @@
+{
+  "schema": "dreamledger/economic-north-star/v1",
+  "purpose": "Turn economic discovery into a repeatable experimental discipline that can discover, test, verify and replicate commercial mechanisms across independent commerce cells.",
+  "primary_objective": "Improve the economic reality of Biggie and Peggy first; pursue world-scale economic leverage as a consequence of mechanisms that actually work.",
+  "unit_of_progress": "verified_economic_mechanism",
+  "economic_truth": {
+    "revenue_requires": [
+      "external_buyer",
+      "settled_payment",
+      "correct_attribution",
+      "fulfillment",
+      "independent_proof"
+    ],
+    "internal_test_is_revenue": false,
+    "checkout_start_is_revenue": false,
+    "database_row_is_revenue": false,
+    "generated_asset_is_revenue": false
+  },
+  "core_loop": [
+    "OBSERVE",
+    "HYPOTHESIZE",
+    "GAUNTLET",
+    "AUTHORIZE",
+    "EXPOSE",
+    "TRANSACT",
+    "SETTLE",
+    "FULFILL",
+    "VERIFY",
+    "EXTRACT_MECHANISM",
+    "REPLICATE"
+  ],
+  "mechanism_definition": {
+    "minimum": [
+      "demand_signal",
+      "buyer_context",
+      "value_proposition",
+      "acquisition_surface",
+      "transaction_rail",
+      "fulfillment_contract",
+      "evidence_chain",
+      "outcome",
+      "boundary_conditions"
+    ],
+    "replication_rule": "Copy the mechanism and its boundary conditions, not merely the product or brand."
+  },
+  "factory_factory": {
+    "role": "Generate bounded commerce experiments from observed demand and known capabilities, then learn from verified outcomes and generate controlled replications.",
+    "current_autonomy": "L0",
+    "promotion_rule": "Autonomy may increase only after measured successful outcomes and preserved human authority boundaries.",
+    "external_effects": {
+      "spend_without_approval": false,
+      "contact_without_approval": false,
+      "publish_without_approval": false
+    }
+  },
+  "scoreboard": [
+    "verified_external_economic_events",
+    "verified_mechanisms",
+    "independently_replicated_mechanisms",
+    "cross_context_replications",
+    "mechanisms_discovered_without_explicit_human_specification",
+    "autonomous_mechanisms_within_authority_bounds",
+    "verified_economic_output_nzd",
+    "experiment_to_transaction_rate",
+    "transaction_to_repeatability_rate",
+    "cost_per_experiment",
+    "time_from_signal_to_transaction"
+  ],
+  "current_state_2026_09_25": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payment_count": 0,
+    "factory_instances": 2,
+    "factory_runs": 5,
+    "factory_outcomes": 1,
+    "cube_opportunities": 53,
+    "cube_silos": 1000016,
+    "cube_silo_registry": 504,
+    "economic_actions": 2739,
+    "economic_outcomes": 0,
+    "truth_oracle_evidence_rows": 60049,
+    "evidence_vault_rows": 606,
+    "note": "Infrastructure is extensive; the binding economic gap remains conversion of verified demand into an independently proven external transaction and then a repeatable mechanism."
+  },
+  "first_money_gate": {
+    "preferred_existing_wedge": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "price_nzd": 29,
+    "stripe_mode": "livemode",
+    "human_approval_required_for_distribution": true,
+    "success_condition": "one external buyer completes a settled purchase, supplies required input, receives the promised fulfillment, and the complete event is independently reconciled."
+  },
+  "portfolio_strategy": {
+    "principle": "One truth-gated economic substrate, many independent commerce cells.",
+    "cells": [
+      "MTG",
+      "DreamLedger",
+      "B2B",
+      "digital products",
+      "future discovered cells"
+    ],
+    "hard_silos": [
+      "private B.E.C.K./Peggy Beauty Academy",
+      "adult/Amplissa"
+    ]
+  },
+  "implementation_rule": "Prefer direct, testable changes to GitHub, Supabase, Stripe and deployment configuration over strategy documents. Never fabricate revenue, buyers, credentials, outreach or proof."
+}
