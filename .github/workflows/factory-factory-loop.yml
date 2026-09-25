@@ -51,6 +51,9 @@ jobs:
       - name: Verify Factory-Factory cycle
         run: npm run verify:factory-factory-cycle
 
+      - name: Run truth-gated replication factory
+        run: npm run factory:replicate
+
       - name: Upload economic state
         uses: actions/upload-artifact@v4
         with:
