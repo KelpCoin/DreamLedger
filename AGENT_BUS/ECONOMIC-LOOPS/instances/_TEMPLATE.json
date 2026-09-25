@@ -1,0 +1,16 @@
+{
+  "schema": "dreamledger/loop-instance/v1",
+  "instance_id": "inst-YYYYMMDD-loopid-xxxx",
+  "loop_id": "LOOP-BILLBOARD-FOUNDING-50",
+  "created_at": "",
+  "stage": "DISTRIBUTE",
+  "stages_done": [],
+  "buyer_external": null,
+  "stripe_session_id": null,
+  "amount_nzd": null,
+  "settled": false,
+  "fulfilled": false,
+  "proof_sealed": false,
+  "counts_as_verified_revenue": false,
+  "notes": "Set counts_as_verified_revenue true only after live external pay + settle + fulfil + proof"
+}

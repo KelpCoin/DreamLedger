@@ -1,22 +1,27 @@
 {
-  "version": 30,
+  "version": 31,
   "updated": "2026-09-25",
   "current_truth": {
-    "approved_catalog": "BEC-PRIME/catalog/offers/approved.json v7 — plinks = live buy routers",
+    "economic_loops": "AGENT_BUS/ECONOMIC-LOOPS/registry.json v2",
+    "loop_instances": "AGENT_BUS/ECONOMIC-LOOPS/instances/",
+    "new_instance": "python3 scripts/loop_instance_new.py LOOP-BILLBOARD-FOUNDING-50",
     "do_now": "ops/money/DO-NOW.txt",
-    "tile": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "diagnostic": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "POST DO-NOW.txt — only path to non-zero balance"
+    "L": "Loop machines defined — run instances",
+    "C": "DISTRIBUTE stage = post the buy URL"
   },
   "immediate_next": [
-    "Post DO-NOW.txt",
-    "STRIPE_SECRET_KEY + Settlement Sync"
+    "loop_instance_new.py LOOP-BILLBOARD-FOUNDING-50",
+    "Post buy URL (DISTRIBUTE)",
+    "On pay: advance PAY→SETTLE→FULFIL→PROOF"
   ],
-  "do_not": ["More architecture instead of post"],
+  "do_not": [
+    "counts_as_verified_revenue without external session",
+    "Open 10 candidate loops before first PROOF"
+  ],
   "session_evidence": {
-    "2026-09-25-catalog-align": "approved.json tile plink matched live /buy"
+    "2026-09-25-loops-v2": "stage graphs + instance runner"
   }
 }

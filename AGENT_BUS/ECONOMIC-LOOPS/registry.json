@@ -1,8 +1,20 @@
 {
-  "schema": "dreamledger/economic-loops/v1",
-  "updated": "2026-09-24",
-  "principle": "Many loops may exist; only internet-facing loops may be marketed. Settlement is always Stripe live evidence. verified_external_revenue_nzd defaults to 0.",
+  "schema": "dreamledger/economic-loops/v2",
+  "updated": "2026-09-25",
+  "principle": "A loop is closed only after PAY+SETTLE+FULFIL+PROOF. Internet-facing loops may be marketed. verified_external_revenue_nzd stays 0 until external evidence.",
   "verified_external_revenue_nzd": 0,
+  "stage_vocabulary": [
+    "DISCOVER",
+    "OFFER",
+    "DISTRIBUTE",
+    "AUTHORIZE",
+    "PAY",
+    "SETTLE",
+    "FULFIL",
+    "PROOF",
+    "LEARN",
+    "REPEAT"
+  ],
   "loops": [
     {
       "loop_id": "LOOP-BILLBOARD-FOUNDING-50",
@@ -10,12 +22,26 @@
       "internet_facing": true,
       "local_first": false,
       "price_nzd": 50,
+      "currency": "NZD",
       "buy_url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "fulfilment": "billboard_placement_review",
-      "settlement": "stripe_payment_link",
+      "plink": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "status": "live_offer",
       "priority": 1,
-      "money_path": "ops/money/THIS-WEEK-COMMAND.md"
+      "stages": {
+        "DISCOVER": ["dreamledger.org", "/billboard", "DEMAND-KIT posts"],
+        "OFFER": ["approved.json", "buy router"],
+        "DISTRIBUTE": ["ops/money/distribution_queue.json dist-001"],
+        "AUTHORIZE": ["buyer completes Stripe Checkout"],
+        "PAY": ["Stripe livemode paid session"],
+        "SETTLE": ["Commerce Settlement Sync reconcile-tile"],
+        "FULFIL": ["billboard allocate → review → publish"],
+        "PROOF": ["stripe record + placement record"],
+        "LEARN": ["bridge handoff + balls"],
+        "REPEAT": ["next tile / referral ask"]
+      },
+      "feeds": ["LOOP-CLOUD-SENTINELS", "LOOP-TRUTH-ORACLE"],
+      "feeds_into": ["LOOP-PHIN-COSMETICS"]
     },
     {
       "loop_id": "LOOP-CMD-DIAG-29",
@@ -23,13 +49,26 @@
       "internet_facing": true,
       "local_first": true,
       "price_nzd": 29,
+      "currency": "NZD",
       "buy_url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "fulfilment": "digital_report",
-      "settlement": "stripe_payment_link",
+      "plink": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
       "status": "live_offer",
       "priority": 2,
-      "money_path": "ops/money/THIS-WEEK-COMMAND.md",
-      "note": "Report can be drafted air-gap; delivery after live pay"
+      "stages": {
+        "DISCOVER": ["/mtg", "MTG owned channels"],
+        "OFFER": ["approved.json"],
+        "DISTRIBUTE": ["distribution_queue dist-002"],
+        "AUTHORIZE": ["Stripe Checkout"],
+        "PAY": ["Stripe livemode"],
+        "SETTLE": ["Commerce Settlement Sync reconcile-diagnostic"],
+        "FULFIL": ["diagnostic report / edge function"],
+        "PROOF": ["stripe + report hash"],
+        "LEARN": ["upgrade list → optional upsell"],
+        "REPEAT": ["credit pack candidate after first fossil"]
+      },
+      "feeds": [],
+      "feeds_into": ["LOOP-PERFORMANCE-WALL-DIGITAL"]
     },
     {
       "loop_id": "LOOP-DISCORD-WEBHOOK-79",
@@ -38,20 +77,33 @@
       "local_first": true,
       "price_nzd": 79,
       "buy_url": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
-      "fulfillment": "digital_download",
-      "settlement": "stripe_payment_link",
       "status": "live_offer",
-      "priority": 3
+      "priority": 3,
+      "stages": {
+        "DISCOVER": ["market digital shelf"],
+        "OFFER": ["catalog"],
+        "DISTRIBUTE": ["builders / Discord ops audience"],
+        "AUTHORIZE": ["Stripe"],
+        "PAY": ["Stripe"],
+        "SETTLE": ["session paid"],
+        "FULFIL": ["digital download"],
+        "PROOF": ["download evidence"],
+        "LEARN": ["kit feedback"],
+        "REPEAT": ["related digital kits"]
+      }
     },
     {
       "loop_id": "LOOP-PERFORMANCE-WALL-DIGITAL",
       "name": "Performance Wall digital packs",
       "internet_facing": true,
       "local_first": true,
-      "price_nzd": null,
       "status": "candidate",
       "priority": 10,
-      "note": "Enable one passive SKU only after first fossil"
+      "gate": "enable_after_first_external_fossil",
+      "stages": {
+        "PAY": ["Stripe"],
+        "FULFIL": ["performance_wall mint key → claim → TTL"]
+      }
     },
     {
       "loop_id": "LOOP-AGENT-BRIDGE-COORD",
@@ -60,38 +112,52 @@
       "local_first": true,
       "status": "infrastructure",
       "priority": 0,
-      "note": "Not sold; enables multi-LLM hybrid work"
+      "stages": {
+        "DISCOVER": ["AGENT_BUS"],
+        "OFFER": ["not sold"],
+        "FULFIL": ["ping/pong handoffs"],
+        "PROOF": ["git commits"]
+      }
     },
     {
       "loop_id": "LOOP-CLOUD-SENTINELS",
       "name": "Cloud demand/intent sentinels",
       "internet_facing": false,
-      "local_first": false,
       "status": "infrastructure",
       "priority": 0,
-      "note": "Observes rails; does not create buyers"
+      "stages": {
+        "DISCOVER": ["probe live surfaces"],
+        "LEARN": ["AGENT_BUS/sentinel-reports"]
+      }
     },
     {
       "loop_id": "LOOP-TRUTH-ORACLE",
-      "name": "Truth Oracle",
+      "name": "Truth Oracle funnel",
       "internet_facing": true,
-      "local_first": true,
       "status": "attention_funnel",
       "priority": 20,
-      "note": "Demand attractor; monetize only via explicit offers"
+      "stages": {
+        "DISCOVER": ["/truth-oracle", "/overpaying"],
+        "OFFER": ["CTA to market offers only — no fake revenue"]
+      },
+      "feeds_into": ["LOOP-BILLBOARD-FOUNDING-50"]
     },
     {
       "loop_id": "LOOP-PHIN-COSMETICS",
-      "name": "Phin Haven / DreamMeez cosmetics",
+      "name": "Phin / DreamMeez cosmetics",
       "internet_facing": true,
-      "local_first": false,
       "status": "live_micro",
       "priority": 30,
-      "note": "Micro AOV; do not distract from Ball C"
+      "stages": {
+        "PAY": ["Stripe micro"],
+        "FULFIL": ["entitlement"]
+      }
     }
   ],
-  "isolation": {
-    "rule": "Silos stay separate behind clear CTAs; settlement catalog is authority for money recognition",
-    "public_copy": "Customer English only on internet-facing surfaces"
-  }
+  "ecosystem_rules": [
+    "Primary money loops while NZ$0: LOOP-BILLBOARD-FOUNDING-50 and LOOP-CMD-DIAG-29",
+    "Infrastructure loops must not be sold as products",
+    "Do not start candidate loops until one primary loop has PROOF",
+    "Instance state files live under AGENT_BUS/ECONOMIC-LOOPS/instances/"
+  ]
 }
