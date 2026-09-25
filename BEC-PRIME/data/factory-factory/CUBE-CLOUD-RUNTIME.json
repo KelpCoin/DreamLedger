@@ -1,0 +1,26 @@
+{
+  "schema": "DREAMLEDGER/CUBE-CLOUD-RUNTIME/v1",
+  "status": "ARMED",
+  "purpose": "Run CUBE refinement as elastic cloud shards while preserving truth and authority boundaries.",
+  "schedule": "GitHub Actions every 10 minutes",
+  "shards": 8,
+  "batch_per_shard": 2,
+  "turns": 4,
+  "max_parallel": 8,
+  "economic_rule": "verified economic return must justify additional resource consumption",
+  "authority": {
+    "external_publication": "APPROVAL_REQUIRED",
+    "external_outreach": "APPROVAL_REQUIRED",
+    "external_spend": "APPROVAL_REQUIRED",
+    "charging": "APPROVAL_REQUIRED",
+    "revenue_claim": "TRUTH_ORACLE_ONLY"
+  },
+  "fallback": {
+    "cloud_llm_unconfigured": "BLOCK_AND_ESCALATE",
+    "supabase_unavailable": "BLOCK_AND_ESCALATE",
+    "no_evidence": "RETURN_TO_OPPORTUNITY_POOL",
+    "no_buyer": "KILL_PROPOSITION"
+  },
+  "truth": "Pinball may refine opportunities but may not invent buyers, payments, demand, evidence, revenue, or integrations.",
+  "replication": "Only independently verified economic mechanisms may be promoted for replication."
+}
