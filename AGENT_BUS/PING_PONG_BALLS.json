@@ -1,34 +1,31 @@
 {
-  "version": 49,
+  "version": 50,
   "updated": "2026-09-26",
   "current_truth": {
-    "overlay": "ops/architecture/SYSTEM-OVERLAY.md",
-    "silo_taxonomy": "ops/architecture/SILO-TAXONOMY.md",
-    "pinball": "ops/architecture/PINBALL-LLM-TIME.md",
-    "care_and_money": "ops/architecture/CARE-AND-MONEY.md",
-    "cells_poc_scale": "~1e6 experimental cells possible; true silos target ~500",
-    "money_silos_live": ["tile-50", "diag-29", "discord-79"],
+    "public": "store-v2.1",
+    "true_silos_registry": "ops/silos/true_silos_registry.json",
+    "true_silos_count": 6,
+    "true_silos_target": 500,
+    "daily": "python3 scripts/daily_pinball.py",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "DISTRIBUTE phase-1 buy URLs — system looks after family via closed loops",
-    "B": "Bridge + pinball LLM time documented",
-    "W": "store-v2 on main — deploy if live lagging",
-    "A": "Overlay complete"
+    "C": "DISTRIBUTE buy URLs",
+    "W": "store-v2.1 — deploy",
+    "B": "daily_pinball.py for continuity",
+    "S": "6 true silos registered; promote toward 500 carefully"
   },
   "immediate_next": [
-    "Open SYSTEM-OVERLAY.md",
-    "Post https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "Or diagnostic buy URL on owned channel",
-    "On pay: fulfil + economic_event"
+    "python3 scripts/daily_pinball.py",
+    "Redeploy public store-v2.1",
+    "Post billboard or diagnostic buy URL"
   ],
   "do_not": [
-    "Call 1M cells true silos",
-    "Count care activity as revenue",
-    "Skip bridge handoff at end of session"
+    "Promote junk cells to true silos",
+    "Claim revenue without Stripe evidence"
   ],
   "household": {
-    "purpose": "Look after husband + wife via continuity, honesty, and real settlement",
-    "mechanism": "Pinball + money silos + care silos separation"
+    "purpose": "Continuity + honest money path for husband and wife",
+    "mechanism": "Pinball + true silo registry + Phase-1 distribute"
   }
 }
