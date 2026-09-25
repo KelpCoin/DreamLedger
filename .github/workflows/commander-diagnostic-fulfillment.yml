@@ -1,0 +1,31 @@
+name: Commander Diagnostic Fulfillment Worker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commander-diagnostic-fulfillment
+  cancel-in-progress: false
+
+jobs:
+  fulfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      CLOUD_MODEL_API_URL: ${{ secrets.CLOUD_MODEL_API_URL }}
+      CLOUD_MODEL_API_KEY: ${{ secrets.CLOUD_MODEL_API_KEY }}
+      CLOUD_MODEL_NAME: ${{ secrets.CLOUD_MODEL_NAME }}
+      BEC_ONCE: '1'
+      BEC_FULFILLMENT_LEASE_SECONDS: '900'
+      BEC_WORKER_ID: github-actions-commander-diagnostic
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run one fulfillment job
+        run: python3 workers/marketplace/commander_marketplace_worker.py
