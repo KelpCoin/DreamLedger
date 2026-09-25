@@ -1,0 +1,26 @@
+{
+  "opportunity_id": "OP-PHASE1-TILE-50",
+  "buyer_segment": "NZ founders, builders, creators who want permanent web presence",
+  "problem": "Want a memorable fixed placement without building a site",
+  "evidence": [
+    "Live product and Payment Link exist",
+    "Public shop CTA live",
+    "No verified external payments yet — acquisition is the open gate"
+  ],
+  "existing_alternatives": ["Domain+hosting", "social bios", "Trade Me ads"],
+  "estimated_value_nzd": 50,
+  "proposed_offer": {
+    "name": "Founding Billboard Tile",
+    "price_nzd": 50,
+    "buy_url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001"
+  },
+  "acquisition_channel": "human_owned_channel",
+  "test_cost_nzd": 0,
+  "expected_signal": "≥1 external livemode Stripe payment",
+  "success_event": "stripe_payment_succeeded_livemode_external ≥ NZ$50",
+  "risk": "low — digital review fulfilment; content policy on tile",
+  "status": "authorized",
+  "phase": 1,
+  "do_now": "Post buy_url on owned channel; run Settlement Sync; on pay fulfil tile"
+}

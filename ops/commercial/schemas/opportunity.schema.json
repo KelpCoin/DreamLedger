@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dreamledger/opportunity/v1",
+  "title": "CommercialOpportunity",
+  "type": "object",
+  "required": ["opportunity_id", "buyer_segment", "problem", "proposed_offer", "acquisition_channel", "success_event", "status"],
+  "properties": {
+    "opportunity_id": { "type": "string" },
+    "buyer_segment": { "type": "string" },
+    "problem": { "type": "string" },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "existing_alternatives": { "type": "array", "items": { "type": "string" } },
+    "estimated_value_nzd": { "type": ["number", "null"] },
+    "proposed_offer": {
+      "type": "object",
+      "required": ["name", "price_nzd", "buy_url"],
+      "properties": {
+        "name": { "type": "string" },
+        "price_nzd": { "type": "number" },
+        "buy_url": { "type": "string" },
+        "offer_id": { "type": "string" }
+      }
+    },
+    "acquisition_channel": { "type": "string" },
+    "test_cost_nzd": { "type": ["number", "null"] },
+    "expected_signal": { "type": "string" },
+    "success_event": { "type": "string" },
+    "risk": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "qualified", "authorized", "active", "won", "lost", "abandoned"]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "opportunity_id": "OP-PHASE1-DIAG-29",
+  "buyer_segment": "Commander players who want deck feedback",
+  "problem": "Need structured cuts and upgrades without a coach hour",
+  "evidence": ["Live Payment Link", "Digital fulfilment path"],
+  "existing_alternatives": ["Discord advice", "human coach"],
+  "estimated_value_nzd": 29,
+  "proposed_offer": {
+    "name": "Commander Deck Diagnostic",
+    "price_nzd": 29,
+    "buy_url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+    "offer_id": "OFFER-CMD-DIAG-29-NZD"
+  },
+  "acquisition_channel": "human_mtg_channel",
+  "test_cost_nzd": 0,
+  "expected_signal": "≥1 external livemode payment",
+  "success_event": "stripe_payment_succeeded_livemode_external ≥ NZ$29",
+  "risk": "low — digital report",
+  "status": "authorized",
+  "phase": 1,
+  "do_now": "Post buy_url in MTG-owned channel"
+}

@@ -1,23 +1,21 @@
 {
-  "version": 43,
+  "version": 44,
   "updated": "2026-09-25",
   "current_truth": {
-    "economic_loop": "ops/commercial/ECONOMIC-OPERATING-LOOP.md",
-    "gap_matrix": "ops/commercial/POLSIA-DREAMLEDGER-GAP-MATRIX.md",
+    "phase1_runbook": "ops/commercial/PHASE1-RUNBOOK.md",
+    "cells": "ops/commercial/cells/",
+    "actionpass": "ops/commercial/actionpass.py",
+    "cell_status": "python3 ops/commercial/cell_status.py",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "E": "Economic state is centre; agents are workers",
-    "C": "Phase 1 cell — external pay"
+    "P1": "Phase-1 cells authorized — DISTRIBUTE",
+    "C": "Post buy URLs"
   },
   "immediate_next": [
-    "Read ECONOMIC-OPERATING-LOOP.md",
-    "Execute Phase 1 commercial cell",
-    "Do not build ten agents"
+    "python3 ops/commercial/cell_status.py",
+    "Post TILE or DIAG buy_url",
+    "On pay: fulfil + economic_event"
   ],
-  "do_not": [
-    "Agent-for-agent Polsia clone",
-    "Orchestrator without state machine",
-    "Learning without events"
-  ]
+  "do_not": ["Build more agents before a won cell"]
 }
