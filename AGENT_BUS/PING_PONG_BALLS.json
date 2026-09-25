@@ -1,25 +1,34 @@
 {
-  "version": 48,
+  "version": 49,
   "updated": "2026-09-26",
   "current_truth": {
-    "architecture_desk": "ops/architecture/WINNING-PATTERNS-STACK.md",
-    "workers": "ops/workers/",
-    "word_banks": "ops/memory/word_banks/",
-    "public_main": "store-v2",
+    "overlay": "ops/architecture/SYSTEM-OVERLAY.md",
+    "silo_taxonomy": "ops/architecture/SILO-TAXONOMY.md",
+    "pinball": "ops/architecture/PINBALL-LLM-TIME.md",
+    "care_and_money": "ops/architecture/CARE-AND-MONEY.md",
+    "cells_poc_scale": "~1e6 experimental cells possible; true silos target ~500",
+    "money_silos_live": ["tile-50", "diag-29", "discord-79"],
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "A": "Modular multi-LM stack mapped to cube/compiler",
-    "C": "Distribute Phase-1 buy URLs"
+    "C": "DISTRIBUTE phase-1 buy URLs — system looks after family via closed loops",
+    "B": "Bridge + pinball LLM time documented",
+    "W": "store-v2 on main — deploy if live lagging",
+    "A": "Overlay complete"
   },
   "immediate_next": [
-    "Read WINNING-PATTERNS-STACK.md",
-    "Run LM Studio worker against example job on GPU host",
-    "Post buy URL"
+    "Open SYSTEM-OVERLAY.md",
+    "Post https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "Or diagnostic buy URL on owned channel",
+    "On pay: fulfil + economic_event"
   ],
   "do_not": [
-    "Confuse GPU orchestration with revenue",
-    "Let LLM authorize money",
-    "Rebuild payment processor"
-  ]
+    "Call 1M cells true silos",
+    "Count care activity as revenue",
+    "Skip bridge handoff at end of session"
+  ],
+  "household": {
+    "purpose": "Look after husband + wife via continuity, honesty, and real settlement",
+    "mechanism": "Pinball + money silos + care silos separation"
+  }
 }
