@@ -7,6 +7,7 @@ const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
 const STRIPE_WEBHOOK_SECRET = String(process.env.STRIPE_WEBHOOK_SECRET || '');
 const INTERNAL_TOKEN = String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN || '');
+const RECONCILE_TOKEN = String(process.env.DREAMLEDGER_RECONCILE_TOKEN || '');
 const STRIPE_SECRET_KEY = String(process.env.STRIPE_SECRET_KEY || process.env.STRIPE_LIVE_SECRET_KEY || '');
 
 function json(res, status, data) {
@@ -217,7 +218,7 @@ async function input(req,res) {
 
 async function reconcile(req,res) {
   if (req.method !== 'POST') return json(res,405,{error:'POST required'});
-  if (!INTERNAL_TOKEN || String(req.headers['x-dreamledger-agent-token'] || '') !== INTERNAL_TOKEN) return json(res,401,{error:'unauthorized'});
+  if (!RECONCILE_TOKEN || String(req.headers['x-dreamledger-reconcile-token'] || '') !== RECONCILE_TOKEN) return json(res,401,{error:'unauthorized'});
   let raw=''; for await(const chunk of req) raw+=chunk;
   let body; try{body=JSON.parse(raw||'{}')}catch{return json(res,400,{error:'invalid JSON'})}
   const sessionId=clean(body.session_id);
