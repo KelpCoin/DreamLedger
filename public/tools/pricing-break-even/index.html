@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pricing & Break-Even Calculator | DreamLedger</title>
+<meta name="description" content="Free pricing and break-even calculator for small businesses. See the sales volume, margin and price you need to cover costs and reach a target profit.">
+<link rel="canonical" href="https://dreamledger.org/tools/pricing-break-even">
+<style>
+:root{--bg:#050608;--panel:#0d1016;--line:#242a34;--ink:#f7f4ed;--muted:#9aa2af;--gold:#e0b95f;--violet:#9b86ff;--good:#69ddd4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% -10%,#27213b,transparent 34%),var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}.wrap{width:min(900px,calc(100% - 30px));margin:auto}.nav{height:68px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{font-weight:950;letter-spacing:.13em}.brand b{color:var(--gold)}.back{color:var(--muted);font-size:12px}.hero{padding:55px 0 25px}.eyebrow{color:var(--gold);font-size:10px;font-weight:950;letter-spacing:.2em;text-transform:uppercase}.hero h1{font-size:clamp(42px,8vw,76px);line-height:.9;letter-spacing:-.07em;margin:13px 0 18px;max-width:10ch}.hero p{color:#b9bec8;max-width:650px;font-size:17px}.tool{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:25px 0}.panel{border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#11151d,#090b10);padding:22px}.panel h2{margin:0 0 15px;font-size:18px}.field{margin:0 0 14px}.field label{display:block;font-size:11px;font-weight:800;color:#c5cad3;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#080a0e;color:var(--ink);font:inherit}.result{border:1px solid #3c3948;border-radius:20px;padding:22px;background:#0c0e14}.big{font-size:42px;font-weight:950;letter-spacing:-.05em;color:var(--gold)}.muted{color:var(--muted)}.rows{margin-top:17px}.row{display:flex;justify-content:space-between;gap:15px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.row:last-child{border:0}.note{font-size:11px;color:#7f8793;margin-top:14px}.method{padding:20px 0 50px}.method h2{font-size:25px;letter-spacing:-.04em}.method p,.method li{color:var(--muted);font-size:13px}.footer{border-top:1px solid var(--line);padding:25px 0 70px;color:#6f7784;font-size:11px}@media(max-width:700px){.tool{grid-template-columns:1fr}.hero{padding-top:40px}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"DreamLedger Pricing & Break-Even Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NZD"}}
+</script>
+</head>
+<body>
+<div class="wrap">
+<header class="nav"><a class="brand" href="/">DREAMLEDGER <b>3000</b></a><a class="back" href="/">← DreamLedger</a></header>
+<main>
+<section class="hero">
+<div class="eyebrow">Free business tool</div>
+<h1>Know what your price has to do.</h1>
+<p>Enter your costs, current price and target profit. The calculator shows your break-even sales volume, contribution margin and the price required to hit your target at a chosen sales volume.</p>
+</section>
+<section class="tool" aria-label="Pricing calculator">
+<div class="panel">
+<h2>Your numbers</h2>
+<div class="field"><label for="fixed">Monthly fixed costs (NZ$)</label><input id="fixed" type="number" min="0" value="2000" step="100"></div>
+<div class="field"><label for="variable">Variable cost per sale (NZ$)</label><input id="variable" type="number" min="0" value="20" step="1"></div>
+<div class="field"><label for="price">Current selling price (NZ$)</label><input id="price" type="number" min="0.01" value="80" step="1"></div>
+<div class="field"><label for="sales">Expected monthly sales</label><input id="sales" type="number" min="1" value="60" step="1"></div>
+<div class="field"><label for="target">Target monthly profit (NZ$)</label><input id="target" type="number" min="0" value="3000" step="100"></div>
+</div>
+<div class="panel">
+<h2>Your result</h2>
+<div class="muted">Break-even sales</div><div class="big" id="breakEven">0</div>
+<div class="rows">
+<div class="row"><span>Contribution per sale</span><strong id="contribution">$0</strong></div>
+<div class="row"><span>Contribution margin</span><strong id="margin">0%</strong></div>
+<div class="row"><span>Profit at expected sales</span><strong id="profit">$0</strong></div>
+<div class="row"><span>Price for target profit</span><strong id="targetPrice">$0</strong></div>
+<div class="row"><span>Sales needed at current price</span><strong id="targetSales">0</strong></div>
+</div>
+<p class="note">This is a planning calculation, not accounting, tax or financial advice. It assumes fixed costs stay fixed and variable cost scales with each sale.</p>
+</div>
+</section>
+<section class="method">
+<h2>How it works</h2>
+<p>Contribution per sale = selling price − variable cost. Break-even sales = fixed costs ÷ contribution per sale. Estimated monthly profit = (selling price − variable cost) × sales − fixed costs.</p>
+<p>For a target profit, required price = variable cost + (fixed costs + target profit) ÷ expected sales.</p>
+<p>These formulas make the result inspectable rather than hiding the calculation behind a black box.</p>
+<h2>Why this matters</h2>
+<ul><li>A low price can require an unrealistic number of sales.</li><li>A higher price does not automatically mean higher profit if it materially reduces sales.</li><li>The useful question is not simply “What should I charge?” but “What price and sales volume make the economics work?”</li></ul>
+</section>
+</main>
+<footer class="footer">DreamLedger · Free planning tool · Results are estimates, not verified business outcomes.</footer>
+</div>
+<script>
+(function(){
+const ids=['fixed','variable','price','sales','target'];
+const el=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
+const out={breakEven:document.getElementById('breakEven'),contribution:document.getElementById('contribution'),margin:document.getElementById('margin'),profit:document.getElementById('profit'),targetPrice:document.getElementById('targetPrice'),targetSales:document.getElementById('targetSales')};
+const money=n=>Number.isFinite(n)?new Intl.NumberFormat('en-NZ',{style:'currency',currency:'NZD',maximumFractionDigits:2}).format(n):'N/A';
+function calc(){
+const fixed=Math.max(0,+el.fixed.value||0), variable=Math.max(0,+el.variable.value||0), price=Math.max(0,+el.price.value||0), sales=Math.max(0,+el.sales.value||0), target=Math.max(0,+el.target.value||0);
+const contribution=price-variable;
+out.contribution.textContent=money(contribution);
+out.margin.textContent=price>0?((contribution/price)*100).toFixed(1)+'%':'N/A';
+if(contribution>0){out.breakEven.textContent=Math.ceil(fixed/contribution).toLocaleString('en-NZ');out.targetSales.textContent=Math.ceil((fixed+target)/contribution).toLocaleString('en-NZ');}
+else{out.breakEven.textContent='Not reachable';out.targetSales.textContent='Not reachable'}
+out.profit.textContent=money(contribution*sales-fixed);
+out.targetPrice.textContent=sales>0?money(variable+(fixed+target)/sales):'N/A';
+}
+ids.forEach(id=>el[id].addEventListener('input',calc));calc();
+})();
+</script>
+</body>
+</html>
