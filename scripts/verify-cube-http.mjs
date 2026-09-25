@@ -6,7 +6,7 @@ const concurrency = Number(process.env.CUBE_PROOF_CONCURRENCY || 20);
 async function get(url) {
   const started = Date.now();
   try {
-    const r = await fetch(url, { redirect: "manual", headers: { "user-agent": "DreamLedger-CUBE-500-Proof/1.1" } });
+    const r = await fetch(url, { redirect: "manual", headers: { "user-agent": "DreamLedger-CUBE-500-Proof/1.2" } });
     const body = await r.text();
     return { url, status: r.status, location: r.headers.get("location"), ms: Date.now() - started, bytes: Buffer.byteLength(body), body };
   } catch (error) {
