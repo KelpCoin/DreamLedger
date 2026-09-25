@@ -23,6 +23,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: catalog-discord-acquisition
@@ -40,6 +41,7 @@ jobs:
       - name: Publish selected approved offer and verify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OFFER: ${{ github.event_name == 'workflow_dispatch' && inputs.offer || github.event.client_payload.offer }}
           TARGET: ${{ github.event_name == 'workflow_dispatch' && inputs.target || github.event.client_payload.target }}
         run: |
@@ -109,6 +111,38 @@ jobs:
           print("DISCORD_MESSAGE_ID=" + message_id)
           print("DISCORD_CHANNEL_ID=" + channel_id)
           print("EXTERNAL_REVENUE=UNVERIFIED")
+
+          # Persistent one-shot lock: only create it after Discord publication
+          # and read-back verification have both succeeded.
+          lock_title = "FACTORY-ACQUISITION-LOCK: " + record["product_sku"]
+          lock_body = (
+              "Created only after VERIFIED_DISCORD_MESSAGE.\\n\\n"
+              "offer_id=" + record["offer_id"] + "\\n"
+              "sku=" + record["product_sku"] + "\\n"
+              "discord_message_id=" + message_id + "\\n"
+              "state=PUBLICATION_VERIFIED_REVENUE_UNVERIFIED"
+          )
+          token = os.environ.get("GITHUB_TOKEN")
+          if not token:
+              raise SystemExit("GITHUB_TOKEN unavailable for acquisition lock")
+          api = "https://api.github.com/repos/KelpCoin/DreamLedger/issues"
+          payload = json.dumps({"title": lock_title, "body": lock_body}).encode()
+          req = urllib.request.Request(
+              api,
+              data=payload,
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + token,
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/json"
+              },
+              method="POST"
+          )
+          with urllib.request.urlopen(req, timeout=20) as response:
+              issue = json.loads(response.read().decode())
+          if not issue.get("number"):
+              raise SystemExit("Acquisition lock creation failed")
+          print("ACQUISITION_LOCK_ISSUE=" + str(issue["number"]))
           PY
 
       - name: State boundary
