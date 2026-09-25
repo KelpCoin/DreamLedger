@@ -123,8 +123,15 @@ async function stripeWebhook(req, res) {
   stripeProof.verifyStripeSignature(parsed.raw, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET || '');
   const event = parsed.value;
   if (!event.id) return json(res, 400, { error: 'Stripe event id is required' });
+  if (event.livemode !== true) return json(res, 200, { received: true, ignored: true, reason: 'non_livemode_event', event_id: event.id });
   if (await stripeEventAlreadyRecorded(event.id)) return json(res, 200, { received: true, already_recorded: true, event_id: event.id });
   if (event.type !== 'checkout.session.completed') return json(res, 200, { received: true, ignored: true });
+  await db('POST', 'stripe_webhook_events', '', {
+    event_id: event.id,
+    event_type: event.type,
+    processed: false,
+    payload: event
+  }, 'resolution=ignore-duplicates,return=minimal');
   const session = event?.data?.object;
   if (!session || session.payment_status !== 'paid') return json(res, 200, { received: true, ignored: true, reason: 'payment_not_paid' });
   const accountId = cleanQuery(session.metadata?.account_id) || null;
@@ -146,7 +153,57 @@ async function stripeWebhook(req, res) {
     order = Array.isArray(rows) ? rows[0] : order;
   }
   try {
-    const evidence = await appendEvidence({ principalId: accountId, action: 'STRIPE_PAYMENT', authority: { source: 'stripe_webhook', stripe_event_id: event.id, checkout_session_id: session.id }, outcome: { allowed: true, status: 'PAID', order_id: order.id, amount_total: sessionAmount, currency: sessionCurrency, product_id: p.id }, eventId: 'stripe_' + event.id });
+    const skuId = String(session.metadata?.product_sku || p.sku || p.id);
+    const offerId = String(session.metadata?.offer_id || p.default_offer_id || p.id);
+    const canonicalRows = await db('POST', 'revenue_orders', '', {
+      stripe_event_id: event.id,
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: session.payment_intent || null,
+      stripe_customer_id: session.customer || null,
+      sku_id: skuId,
+      amount_nzd: sessionAmount / 100,
+      currency: sessionCurrency.toUpperCase(),
+      customer_email: session.customer_details?.email || null,
+      status: 'paid',
+      paid_at: new Date().toISOString(),
+      raw_event: event
+    }, 'resolution=ignore-duplicates,return=representation');
+    const canonicalOrder = Array.isArray(canonicalRows) ? canonicalRows[0] : null;
+    if (canonicalOrder) {
+      const entitlementRows = await db('POST', 'revenue_entitlements', '', {
+        order_id: canonicalOrder.id,
+        sku_id: skuId,
+        fulfillment_key: 'stripe:' + session.id,
+        status: 'ready'
+      }, 'resolution=ignore-duplicates,return=representation');
+      const entitlement = Array.isArray(entitlementRows) ? entitlementRows[0] : null;
+      if (entitlement) {
+        await db('POST', 'economic_attribution', '', {
+          offer_id: offerId,
+          session_id: session.id,
+          transaction_id: session.id,
+          payment_id: session.payment_intent || null,
+          fulfillment_id: null,
+          attribution_status: 'UNVERIFIED',
+          attribution_method: 'EXPLICIT_ID',
+          evidence_reference: null,
+          metadata: {
+            stripe_event_id: event.id,
+            cell_id: session.metadata?.cell_id || null,
+            sku_id: skuId,
+            silo: p.silo || 'dreamledger',
+            livemode: true,
+            settled_payment: true,
+            fulfillment_pending: true
+          }
+        }, 'resolution=ignore-duplicates,return=minimal');
+      }
+    }
+    await db('PATCH', 'stripe_webhook_events', '?event_id=eq.' + encodeURIComponent(event.id), {
+      processed: true,
+      processed_at: new Date().toISOString()
+    }, 'return=minimal');
+    const evidence = await appendEvidence({ principalId: accountId, action: 'STRIPE_PAYMENT', authority: { source: 'stripe_webhook', stripe_event_id: event.id, checkout_session_id: session.id }, outcome: { allowed: true, status: 'PAID', order_id: order.id, amount_total: sessionAmount, currency: sessionCurrency, product_id: p.id, canonical_revenue_order: true, canonical_fulfillment_queued: true } , eventId: 'stripe_' + event.id });
     return json(res, 200, { received: true, order_id: order.id, evidence_event_id: evidence?.event_id || ('stripe_' + event.id) });
   } catch (err) {
     if (err?.detail?.code === '23505' || /duplicate|unique/i.test(String(err?.message || ''))) return json(res, 200, { received: true, already_recorded: true, event_id: event.id });
