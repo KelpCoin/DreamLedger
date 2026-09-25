@@ -1,14 +1,10 @@
 {
-  "version": 34,
+  "version": 35,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "shop-v2 inline CSS (fixed shop.css 404)",
+    "public": "shop-v3 ultra-minimal list storefront",
     "verified_external_revenue_nzd": 0
   },
-  "balls": {
-    "W": "Storefront must render without external CSS dependency",
-    "C": "Post buy links — site polish ≠ revenue"
-  },
-  "immediate_next": ["Hard refresh dreamledger.org for shop-v2"],
-  "do_not": ["Depend on /shop.css until static map proven"]
+  "balls": { "W": "shop-v3", "C": "post buy URL" },
+  "immediate_next": ["Hard refresh for shop-v3"]
 }
