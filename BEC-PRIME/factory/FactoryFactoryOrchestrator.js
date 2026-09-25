@@ -61,7 +61,7 @@ function run(options = {}) {
   compileFactory();
   const runState = buildRun({ limit: options.limit || process.env.FACTORY_FACTORY_BATCH || 16 });
   const queue = readJson(QUEUE, { queue: [] });
-  const selected = Array.isArray(runState.selected) ? runState.selected : [];
+  const selected = Array.isArray(runState.cells) ? runState.cells : [];
 
   const packets = selected.map(buildAcquisitionPacket);
   const byExperiment = Object.fromEntries(packets.map(p => [p.experiment_id, p]));
