@@ -1,4 +1,4 @@
-name: BEC Prime Revenue Loop
+name: BEC Prime Revenue Evidence Loop
 
 on:
   workflow_dispatch:
@@ -15,9 +15,9 @@ permissions:
 env:
   STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
   EXPECTED_ACCOUNT_ID: acct_1SNVPvEGgEAnUFF9
-  EXPECTED_PAYMENT_LINK_URL: https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I
+    EXPECTED_PAYMENT_LINK_URL: https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R
   EXPECTED_PRODUCT_ID: COMMANDER-DECK-DIAGNOSTIC-001
-  EXPECTED_AMOUNT: '2900'
+    EXPECTED_AMOUNT: '2900'
   EXPECTED_CURRENCY: nzd
 
 jobs:
@@ -72,7 +72,7 @@ jobs:
 
           cat > proof/FIRST_PAYMENT_PROOF.json <<EOF
           {
-            "status": "PASS",
+            "status": "SETTLED_PENDING_FULFILLMENT",
             "event": "PAYMENT_SUCCEEDED",
             "offer_id": "MTG_CMD_DIAG_001",
             "product_id": "$EXPECTED_PRODUCT_ID",
@@ -86,15 +86,18 @@ jobs:
             "checkout_session_id": "$SESSION_ID",
             "stripe_created_unix": $PAID_AT,
             "customer_email_present": $( [ -n "$CUSTOMER_EMAIL" ] && echo true || echo false ),
-            "verified": true,
-            "synthetic_revenue": false
+            "settled": true,
+            "correct_attribution": true,
+            "fulfillment": "UNVERIFIED",
+            "independent_proof": "UNVERIFIED",
+            "business_truth": "NOT_CLAIMED"
           }
           EOF
 
-          printf 'STATUS=PAID\nOFFER_ID=%s\nPRODUCT_ID=%s\nSESSION_ID=%s\nPAYMENT_LINK_ID=%s\n' "MTG_CMD_DIAG_001" "$EXPECTED_PRODUCT_ID" "$SESSION_ID" "$LINK_ID" | tee proof/status.txt
+          printf 'STATUS=SETTLED_PENDING_FULFILLMENT\nOFFER_ID=%s\nPRODUCT_ID=%s\nSESSION_ID=%s\nPAYMENT_LINK_ID=%s\n' "MTG_CMD_DIAG_001" "$EXPECTED_PRODUCT_ID" "$SESSION_ID" "$LINK_ID" | tee proof/status.txt
           jq empty proof/FIRST_PAYMENT_PROOF.json
 
-      - name: Upload revenue proof
+      - name: Upload revenue evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
