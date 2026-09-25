@@ -1,0 +1,50 @@
+name: Factory Factory Economic Loop
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dreamledger-factory-factory
+  cancel-in-progress: false
+
+jobs:
+  compile-and-stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+
+      - name: Compile Factory-Factory
+        run: node BEC-PRIME/runtime/FactoryFactoryLoop.js
+
+      - name: Persist generated factory state
+        run: |
+          git config user.name "dreamledger-factory"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BEC-PRIME/data/factory-factory/
+          if git diff --cached --quiet; then
+            echo "FACTORY_STATE=UNCHANGED"
+          else
+            git commit -m "chore: refresh factory-factory state"
+            git push
+          fi
+
+      - name: Emit boundary
+        run: |
+          echo "DISCOVERY=AUTOMATIC"
+          echo "COMPILATION=AUTOMATIC"
+          echo "EXTERNAL_PUBLICATION=APPROVAL_REQUIRED"
+          echo "REVENUE=TRUTH_ORACLE_ONLY"
