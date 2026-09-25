@@ -1,0 +1,1 @@
+CUBE HTTP proof is continuously checked by GitHub Actions against the live DreamLedger public domain. The proof runner resolves public DNS, fetches the live catalog, and probes every route in the first 500 catalog entries.
