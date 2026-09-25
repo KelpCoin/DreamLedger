@@ -40,9 +40,10 @@ async function admit(ticket, suppliedIntent, materialState) {
   if(!receipt?.consumed) throw new Error(String(receipt?.reason||'PAYLOAD_LOCK_REJECTED'));
   return {ticket,admission:receipt};
 }
+async function issueTerminationCertificate(input) { return dbRpc('factory_issue_termination_certificate',{p_cycle_id:input.cycle_id,p_action_id:input.action_id||null,p_authorization_ticket_id:input.authorization_ticket_id||null,p_payload_hash:input.payload_hash||null,p_verification_result:input.verification_result||{},p_stop_reason:input.stop_reason,p_trace_ids:input.trace_ids||[crypto.randomUUID()]}); }
 async function execute(ticket, suppliedIntent, effect, materialState) {
   const trace={started_at:new Date().toISOString(),ticket_id:ticket.ticket_id,payload_hash:ticket.payload_hash};
   try { const admitted=await admit(ticket,suppliedIntent,materialState); trace.admission=admitted.admission; trace.result=await effect(); trace.completed_at=new Date().toISOString(); return {status:'EXECUTED',trace}; }
   catch(error) { trace.completed_at=new Date().toISOString(); trace.error=String(error.message||error); const stop_reason=/STALE|EXPIRED/.test(trace.error)?'STALE_AUTHORIZATION':/CONTRADICT|REVOC/.test(trace.error)?'CONTRADICTED':/APPROV/.test(trace.error)?'AWAITING_APPROVAL':'BLOCKED'; return {status:stop_reason,stop_reason,trace}; }
 }
-module.exports={canonical,sha256,verifyTicketSignature,materialIntent,assertTicketBinding,admit,execute};
+module.exports={canonical,sha256,verifyTicketSignature,materialIntent,assertTicketBinding,admit,issueTerminationCertificate,execute};
