@@ -1,6 +1,8 @@
 name: Acquire Approved Catalog Offer via Discord
 
 on:
+  repository_dispatch:
+    types: [approved-acquisition]
   workflow_dispatch:
     inputs:
       offer:
@@ -28,7 +30,7 @@ concurrency:
 
 jobs:
   post:
-    if: ${{ inputs.approval == 'APPROVED' }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.approval == 'APPROVED') || (github.event_name == 'repository_dispatch' && github.event.client_payload.approval == 'APPROVED') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -38,8 +40,8 @@ jobs:
       - name: Publish selected approved offer and verify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          OFFER: ${{ inputs.offer }}
-          TARGET: ${{ inputs.target }}
+          OFFER: ${{ github.event_name == 'workflow_dispatch' && inputs.offer || github.event.client_payload.offer }}
+          TARGET: ${{ github.event_name == 'workflow_dispatch' && inputs.target || github.event.client_payload.target }}
         run: |
           set -euo pipefail
           test -n "$DISCORD_WEBHOOK"
@@ -111,7 +113,7 @@ jobs:
 
       - name: State boundary
         env:
-          OFFER: ${{ inputs.offer }}
+          OFFER: ${{ github.event_name == 'workflow_dispatch' && inputs.offer || github.event.client_payload.offer }}
         run: |
           echo "OFFER=$OFFER"
           echo "PUBLICATION=VERIFIED_RUNTIME"
