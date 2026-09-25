@@ -1,18 +1,14 @@
-PROFIT SEQUENCE (revenue still 0 until first pay):
+MORE PROFITABLE = SELL HIGHER MARGIN + DON'T DISCOUNT.
 
-1) FIRST DOLLAR — post diagnostic (easiest seal):
-https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
-NZ$29 Commander diagnostic — structure, cuts, upgrades.
+POST NOW (copy from ops/money/SELL-SCRIPTS.txt):
 
-2) MARGIN — post kit:
+1) PRIMARY — NZ$79 kit:
 https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001
-NZ$79 Discord webhook kit — digital download.
 
-3) AOV — create Stripe links for:
-   Builder stack NZ$99 (diag+kit)
-   Founder pack NZ$129 (tile+kit)
-   See ops/money/PROFITABILITY.md
+2) SEAL BREAKER — NZ$29:
+https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
 
-4) On any pay: fulfil fast, keep COGS (time) low.
+3) Create Stripe $99 and $129 links (STRIPE-BUNDLE-CHECKLIST.md)
 
-Warm DM > new architecture.
+RULES: ops/money/PROFIT-RULES.md
+Revenue still 0 until a human pays.

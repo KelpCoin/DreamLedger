@@ -1,18 +1,17 @@
 {
-  "version": 52,
+  "version": 53,
   "updated": "2026-09-26",
   "current_truth": {
-    "profitability": "ops/money/PROFITABILITY.md",
-    "public": "store-v2.2 margin-first merchandising",
+    "profit_rules": "ops/money/PROFIT-RULES.md",
+    "sell_scripts": "ops/money/SELL-SCRIPTS.txt",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "Sell $29 to break seal OR $79 for margin — POST LINK"
+    "C": "Post $79 kit script; create $99/$129 Stripe links"
   },
   "immediate_next": [
-    "Post kit or diagnostic URL today",
-    "Create Stripe Payment Links for $99 bundle and $129 founder pack",
-    "Keep fulfil time low"
+    "Copy SELL-SCRIPTS.txt script 1 into a channel or DM",
+    "Open STRIPE-BUNDLE-CHECKLIST.md and create links"
   ],
-  "do_not": ["Discount into unprofitability", "Ads before first organic pay"]
+  "do_not": ["Discount below floors", "New SKUs before 3 paid fulfils"]
 }
