@@ -59,7 +59,8 @@
     "verify:x402-factory": "node BEC-PRIME/scripts/Verify-X402FactoryFactory.js",
     "verify:factory-factory-cycle": "node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js",
     "factory:universal": "node BEC-PRIME/factory/UniversalFactoryCompiler.js",
-    "factory:replicate": "node BEC-PRIME/factory/MechanismReplicationGate.js"
+    "factory:replicate": "node BEC-PRIME/factory/MechanismReplicationGate.js",
+    "verify:factory-factory-assembly": "node BEC-PRIME/scripts/Verify-FactoryFactoryAssembly.js"
   },
   "engines": {
     "node": ">=20"
