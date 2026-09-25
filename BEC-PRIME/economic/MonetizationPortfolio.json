@@ -1,0 +1,91 @@
+{
+  "schema": "dreamledger/monetization-portfolio/v1",
+  "status": "CANDIDATE_MAPPED_NOT_PUBLICLY_ACTIVATED",
+  "economic_truth": "Only a real external buyer, settled attributable payment, fulfillment, and independent proof count as revenue.",
+  "activation_policy": "DEMAND_GATED",
+  "external_action_policy": "HUMAN_APPROVAL_REQUIRED",
+  "services": [
+    {
+      "id": "MON-001",
+      "name": "Recurring Evidence Monitoring",
+      "price_nzd_month": 9.99,
+      "payment_mode": "SUBSCRIPTION",
+      "existing_stripe_product_id": "prod_V7sI5uxbgtbHFI",
+      "existing_family": "DreamLedger evidence subscriptions",
+      "fulfillment": "evidence observation/analysis with monitoring",
+      "why_selected": "Existing recurring Stripe rail and digital fulfillment with low marginal delivery cost."
+    },
+    {
+      "id": "MON-002",
+      "name": "Workflow Automation / Reconciliation Setup",
+      "price_nzd": 149,
+      "payment_mode": "ONE_TIME",
+      "existing_stripe_product_id": "prod_V8EaaJwxatWcx7",
+      "existing_family": "AP/AR Automation",
+      "fulfillment": "defined workflow setup with human approval for live changes",
+      "why_selected": "Existing live Stripe product, higher ticket than micro-offers, software delivery."
+    },
+    {
+      "id": "MON-003",
+      "name": "Agentic Commerce / Technical Readiness",
+      "price_nzd": 29,
+      "payment_mode": "ONE_TIME",
+      "existing_stripe_product_id": "prod_V7IWyTIXDJUS5z",
+      "existing_family": "Agentic Commerce Readiness Audit",
+      "fulfillment": "digital diagnostic report",
+      "why_selected": "Existing live payment rail and short digital fulfillment path."
+    },
+    {
+      "id": "MON-004",
+      "name": "Market Signal Monitor",
+      "price_nzd": 39,
+      "payment_mode": "ONE_TIME",
+      "fulfillment": "fresh evidence-backed market signal report",
+      "why_selected": "Directly monetizes existing CUBE discovery and Truth Oracle evidence machinery."
+    },
+    {
+      "id": "MON-005",
+      "name": "Lead Evidence Pack",
+      "price_nzd": 49,
+      "payment_mode": "ONE_TIME",
+      "fulfillment": "verified lead set with source evidence and freshness",
+      "why_selected": "Turns observed buyer intent into a bounded information product without inventory."
+    },
+    {
+      "id": "MON-006",
+      "name": "Document / Data Intelligence Pack",
+      "price_nzd": 59,
+      "payment_mode": "ONE_TIME",
+      "fulfillment": "structured extraction, evidence map, exception report",
+      "why_selected": "Digital fulfillment and strong fit with existing evidence/LLM machinery."
+    },
+    {
+      "id": "MON-007",
+      "name": "AI Agent Red-Team / Evidence Review",
+      "price_nzd": 149,
+      "payment_mode": "ONE_TIME",
+      "fulfillment": "adversarial test report with evidence and remediation priorities",
+      "why_selected": "Higher-value digital service that can be fulfilled without physical inventory."
+    }
+  ],
+  "execution_sequence": [
+    "MAP_SERVICE_TO_CUBE_SILO",
+    "FIND_REAL_BUYER_SIGNAL",
+    "GAUNTLET",
+    "HUMAN_AUTHORIZE_EXTERNAL_ACTION",
+    "EXPOSE_EXISTING_CHECKOUT_OR_CREATE_MINIMAL_CHECKOUT",
+    "SETTLE",
+    "FULFILL",
+    "RECONCILE",
+    "EXTRACT_MECHANISM",
+    "REPLICATE"
+  ],
+  "hard_exclusions": [
+    "synthetic revenue",
+    "self-purchases",
+    "cold outreach without approval",
+    "automatic public publication without approval",
+    "autonomous financial trading",
+    "new architecture when an existing rail can be reused"
+  ]
+}
