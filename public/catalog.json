@@ -214,6 +214,24 @@
       "stripe_product_id": "prod_VK1WoQw8ieHpMN",
       "stripe_price_id": "price_1UJNTvEGgEAnUFF9bfGbtrmm",
       "fulfillment": "manual_pdf"
+    },
+    {
+      "id": "DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001",
+      "sku": "COMMERCIAL-TRUTH-STRESS-TEST-001",
+      "silo": "truth_oracle",
+      "name": "Commercial Truth Stress-Test",
+      "description": "A bounded adversarial review of a commercial claim, offer, workflow, or decision. Tests evidence, assumptions, failure modes, and the conditions required for the claim to be considered supported.",
+      "price": 999,
+      "currency": "nzd",
+      "inventory": 100,
+      "inventory_type": "service",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T",
+      "payment_link_id": "plink_1UJSwWEGgEAnUFF9EPmOx8PQ",
+      "stripe_product_id": "prod_VK7AxB6WEZGX9C",
+      "stripe_price_id": "price_1UJSwREGgEAnUFF9kGZjJEma",
+      "fulfillment": "manual_gauntlet_truth_oracle_report"
     }
   ]
 }
