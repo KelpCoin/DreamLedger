@@ -21,24 +21,28 @@ function readJson(file, fallback) {
 }
 
 function buildAcquisitionPacket(experiment) {
+  const channels = Array.isArray(experiment.acquisition?.channels)
+    ? experiment.acquisition.channels.filter(Boolean)
+    : [];
   return {
     packet_id: 'ACQ-' + experiment.experiment_id,
-    schema_version: 'DREAMLEDGER/ACQUISITION-PACKET/v1',
+    schema_version: 'DREAMLEDGER/ACQUISITION-PACKET/v2',
     generated_at_utc: new Date().toISOString(),
     experiment_id: experiment.experiment_id,
     opportunity_id: experiment.opportunity_id,
+    silo: experiment.silo || 'UNKNOWN',
     offer: {
-      title: experiment.title,
-      buyer: experiment.buyer,
-      price_nzd: experiment.price_nzd
+      title: experiment.product?.offer || experiment.experiment_id,
+      buyer: experiment.demand?.buyer || null,
+      price_nzd: Number(experiment.product?.price_nzd || 0)
     },
-    channel: experiment.acquisition_surface || [],
+    channel: channels,
     transaction: {
-      rail: 'existing Stripe/commerce rail where configured',
-      settlement_required: true,
-      attribution_required: true
+      rail: experiment.settlement?.rail || 'existing Stripe/commerce rail where configured',
+      settlement_required: experiment.settlement?.settled_payment_required === true,
+      attribution_required: experiment.settlement?.attribution_required === true
     },
-    fulfillment: experiment.fulfillment || 'existing bounded fulfillment or manual fulfillment',
+    fulfillment: experiment.product?.fulfillment || 'existing bounded fulfillment or manual fulfillment',
     truth: {
       required: ['external_buyer','settled_payment','correct_attribution','fulfillment','independent_proof'],
       revenue_claim: 'TRUTH_ORACLE_ONLY'
