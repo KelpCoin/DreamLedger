@@ -1,0 +1,122 @@
+schemaVersion: v1alpha1
+name: dreamledger-economic-factory
+version: 1.1.0
+
+memory:
+  economic_state: supabase
+  execution_traces: supabase
+  shared_facts: supabase
+  conflicts: supabase
+  mechanism_store: supabase
+  observations: supabase
+
+agents:
+  evaluator:
+    path: agents/evaluator/agent.md
+    purpose: inspect current economic state
+  operator:
+    path: agents/operator/agent.md
+    purpose: prepare the highest-leverage authorized action
+  verifier:
+    path: agents/verifier/agent.md
+    purpose: independently determine whether the action satisfies its contract
+  critic:
+    path: agents/critic/agent.md
+    purpose: review completed runs for recurring failures
+
+scorers:
+  action_correctness:
+    path: scorers/action-correctness/scorer.md
+    criteria: [payload_match, target_match, temporal_validity, result_verified]
+  cost_efficiency:
+    path: scorers/cost-efficiency/scorer.md
+    criteria: [tokens_per_action, wall_clock_per_action]
+  escalation_discipline:
+    path: scorers/escalation-discipline/scorer.md
+    criteria: [correct_authority_boundary, no_silent_autonomy]
+
+automations:
+  nightly_cycle:
+    path: automations/nightly-cycle/automation.md
+    cron: "0 2 * * *"
+    max_actions: 1
+    max_tokens: 50000
+    tiers:
+      observation: always
+      engagement: conditional
+      action: max_one
+  watchdog:
+    path: automations/watchdog/automation.md
+    cron: "* * * * *"
+    mode: deterministic_first
+  weekly_critic:
+    path: automations/weekly-critic/automation.md
+    cron: "0 3 * * 1"
+    batch_size: 7
+
+controls:
+  require_authorization: true
+  require_payload_binding: true
+  require_execution_ticket: true
+  reject_stale_authorization: true
+  max_external_actions_per_cycle: 1
+  actuator_mediation: mandatory
+  no_bypass_path: true
+
+payload_binding:
+  hash_algorithm: sha256
+  covers:
+    - tool_name
+    - arguments
+    - target
+    - target_account
+    - target_platform
+    - sku_id
+    - price_nzd
+    - policy_version
+    - expires_at
+
+temporal_validity:
+  material_dimensions:
+    - target_account
+    - sku_id
+    - price_nzd
+    - policy_version
+  check_location: inside_execution_activity
+  on_drift: non_retryable_error
+
+execution_ticket:
+  type: signed_actionpass
+  signing: ed25519
+  binds: [request_hash, payload_hash, agent_identity, target_tool, policy_version, audit_commit]
+  replay_protection: true
+  mandatory_mediation: true
+  nonce_consumption: atomic_with_admission_receipt
+
+termination:
+  certificate_required: true
+  stop_reasons:
+    - EXECUTED
+    - AWAITING_APPROVAL
+    - BLOCKED
+    - NO_ACTION_AVAILABLE
+    - STALE_AUTHORIZATION
+    - CONTRADICTED
+  verifier: deterministic
+  no_trace_means_no_certificate: true
+
+promotion:
+  facts:
+    minimum_verified_count: 2
+    on_conflict: create_conflict_record
+  mechanisms:
+    minimum_independent_cells: 2
+    require_external_verification: true
+
+human_authority:
+  required_for:
+    - public_outreach
+    - charging
+    - refunds
+    - spending
+    - irreversible_external_actions
