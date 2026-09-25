@@ -1,0 +1,41 @@
+name: x402 Factory-Factory
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+  push:
+    paths:
+      - 'BEC-PRIME/factory/X402FactoryFactory.js'
+      - 'BEC-PRIME/scripts/Verify-X402FactoryFactory.js'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - '.github/workflows/x402-factory-factory.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-x402-factory
+  cancel-in-progress: false
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build factory outputs
+        run: node BEC-PRIME/factory/X402FactoryFactory.js
+      - name: Verify fail-closed outputs
+        run: node BEC-PRIME/scripts/Verify-X402FactoryFactory.js
+      - name: Upload generated manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: x402-factory-output
+          path: |
+            BEC-PRIME/data/x402-factory/endpoint-specs.json
+            BEC-PRIME/data/x402-factory/mcp-manifest.json
+            BEC-PRIME/data/x402-factory/FACTORY-FACTORY-REPORT.json
