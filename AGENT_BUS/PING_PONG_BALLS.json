@@ -1,20 +1,11 @@
 {
-  "version": 32,
+  "version": 33,
   "updated": "2026-09-25",
   "current_truth": {
-    "public_surface": "public/index.html clean-v1",
-    "smoke": "scripts/figure_eight_smoke.sh",
-    "auto_fulfil": "ops/commerce/AUTO-FULFIL-SKUS.md",
+    "public": "shop-v1 — public/index.html + shop.css + login/register",
     "verified_external_revenue_nzd": 0
   },
-  "balls": {
-    "W": "Clean CTA storefront",
-    "C": "Still post buy links for revenue"
-  },
-  "immediate_next": [
-    "Redeploy so clean-v1 is live",
-    "Add ComfyUI hero asset",
-    "bash scripts/figure_eight_smoke.sh"
-  ],
-  "do_not": ["Put internal language on homepage", "Link 500 silos on home"]
+  "balls": { "W": "Shopify-simple public shop", "C": "Post buy links" },
+  "immediate_next": ["Redeploy live", "Hard refresh dreamledger.org"],
+  "do_not": ["Ops language on public pages", "Fake UI doors"]
 }

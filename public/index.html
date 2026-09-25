@@ -1,178 +1,104 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="clean-v1">
+<html lang="en-NZ" data-surface="shop-v1">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger — simple checkout for placements, digital products and identity. New Zealand. Stripe secured.">
-<meta name="theme-color" content="#0a0a0b">
+<meta name="description" content="DreamLedger shop — placements and digital products. Simple prices. Stripe checkout.">
+<meta name="theme-color" content="#ffffff">
 <title>DreamLedger</title>
 <link rel="canonical" href="https://dreamledger.org/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#0a0a0b;--card:#141417;--line:#2a2a30;--text:#fafafa;--muted:#a1a1aa;
-  --accent:#2563eb;--accent-h:#1d4ed8;--ok:#22c55e;
-  --r:16px;--pad:max(20px, calc((100vw - 960px) / 2 + 20px));
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
-a{color:inherit;text-decoration:none}
-img,video{display:block;max-width:100%}
-
-.top{display:flex;align-items:center;justify-content:space-between;padding:16px var(--pad);border-bottom:1px solid var(--line)}
-.logo{font-weight:800;font-size:1rem;letter-spacing:-.02em}
-.nav{display:flex;gap:8px;align-items:center}
-.nav a{font-size:.875rem;font-weight:600;color:var(--muted);padding:8px 12px;border-radius:8px}
-.nav a:hover{color:var(--text);background:var(--card)}
-.nav .solid{background:var(--accent);color:#fff}
-.nav .solid:hover{background:var(--accent-h);color:#fff}
-
-.hero{padding:48px var(--pad) 40px;display:grid;gap:28px}
-@media(min-width:800px){.hero{grid-template-columns:1.1fr .9fr;align-items:center;padding-top:64px}}
-.hero h1{font-size:clamp(1.75rem,4vw,2.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.15;max-width:14ch}
-.hero p{color:var(--muted);margin-top:12px;max-width:36ch;font-size:1.05rem}
-.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 20px;border-radius:12px;font-weight:700;font-size:.9rem}
-.btn-p{background:var(--accent);color:#fff}
-.btn-p:hover{background:var(--accent-h)}
-.btn-g{background:var(--card);border:1px solid var(--line)}
-.btn-g:hover{border-color:#3f3f46}
-
-.hero-media{border-radius:20px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(145deg,#1e293b 0%,#0a0a0b 55%,#172554 100%);aspect-ratio:16/10;position:relative;min-height:200px}
-.hero-media .placeholder{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center}
-.hero-media .placeholder span{font-size:.8rem;font-weight:600;color:var(--muted);max-width:20ch}
-.hero-media video,.hero-media img{width:100%;height:100%;object-fit:cover}
-
-.section{padding:8px var(--pad) 48px}
-.section h2{font-size:1.1rem;font-weight:800;margin-bottom:16px;letter-spacing:-.02em}
-.grid{display:grid;gap:14px;grid-template-columns:1fr}
-@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
-@media(min-width:900px){.grid.three{grid-template-columns:1fr 1fr 1fr}}
-
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:8px;min-height:180px}
-.card .tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
-.card h3{font-size:1.05rem;font-weight:700}
-.card p{font-size:.875rem;color:var(--muted);flex:1}
-.card .row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
-.card .price{font-weight:800;font-size:1.1rem}
-.card .go{height:40px;padding:0 16px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-size:.85rem;display:inline-flex;align-items:center}
-.card .go:hover{background:var(--accent-h)}
-.card .go.soft{background:transparent;border:1px solid var(--line);color:var(--text)}
-
-.account{padding:0 var(--pad) 56px}
-.account-box{border:1px solid var(--line);border-radius:20px;padding:24px;background:var(--card)}
-.account-box h2{font-size:1.15rem;font-weight:800;margin-bottom:8px}
-.account-box > p{color:var(--muted);font-size:.9rem;margin-bottom:16px}
-.account-box .hero-actions{margin-top:0}
-
-.foot{border-top:1px solid var(--line);padding:24px var(--pad);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font-size:.8rem}
-.foot nav{display:flex;flex-wrap:wrap;gap:14px}
-.foot a:hover{color:var(--text)}
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/shop.css">
 </head>
 <body>
-<header class="top">
+<header class="site-header">
   <a class="logo" href="/">DreamLedger</a>
-  <nav class="nav" aria-label="Account">
+  <nav class="header-nav" aria-label="Main">
+    <a href="#products">Products</a>
+    <a href="/avatar.html">Account</a>
     <a href="/login">Log in</a>
-    <a class="solid" href="/register">Create account</a>
+    <a class="btn-cta" href="/register">Sign up</a>
   </nav>
 </header>
 
 <section class="hero">
   <div>
-    <h1>Buy clearly. Pay once.</h1>
-    <p>Placements, digital products and identity — listed prices, Stripe checkout. No clutter.</p>
+    <h1>Your storefront for digital goods</h1>
+    <p class="lede">Clear products. Listed prices. Secure checkout with Stripe.</p>
     <div class="hero-actions">
-      <a class="btn btn-p" href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Billboard tile · NZ$50</a>
-      <a class="btn btn-g" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Deck diagnostic · NZ$29</a>
+      <a class="btn btn-primary" href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Shop billboard · NZ$50</a>
+      <a class="btn btn-secondary" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Deck diagnostic · NZ$29</a>
     </div>
   </div>
-  <div class="hero-media" aria-label="Hero visual">
-    <!-- Drop ComfyUI export here: replace placeholder with <img src="/assets/hero.jpg"> or <video src="/assets/hero.mp4" autoplay muted loop playsinline> -->
-    <div class="placeholder">
-      <span>Hero image or video — add from ComfyUI as /assets/hero.jpg or /assets/hero.mp4</span>
-    </div>
+  <div class="hero-visual">
+    <div class="empty">Add your hero image<br><small style="font-weight:500">public/assets/hero.jpg</small></div>
+    <!-- <img src="/assets/hero.jpg" alt=""> -->
   </div>
 </section>
 
-<section class="section">
-  <h2>Shop</h2>
-  <div class="grid three">
-    <article class="card">
-      <span class="tag">Placement</span>
-      <h3>Founding billboard tile</h3>
-      <p>Permanent 100×100 on the public board. Title and link at checkout. Reviewed before publish.</p>
-      <div class="row">
+<section class="section" id="products">
+  <p class="section-title">Products</p>
+  <div class="product-grid cols-3">
+    <article class="product-card">
+      <span class="eyebrow">Placement</span>
+      <h2>Billboard tile</h2>
+      <p>100×100 on the public board. Title and link at checkout.</p>
+      <div class="foot">
         <span class="price">NZ$50</span>
-        <a class="go" href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a>
+        <a class="buy" href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Add to cart</a>
       </div>
     </article>
-    <article class="card">
-      <span class="tag">Digital</span>
-      <h3>Commander deck diagnostic</h3>
-      <p>Structure, weak points, cuts and upgrades. Delivered after payment.</p>
-      <div class="row">
+    <article class="product-card">
+      <span class="eyebrow">Digital</span>
+      <h2>Commander diagnostic</h2>
+      <p>Structure, cuts and upgrades for your deck. Delivered after payment.</p>
+      <div class="foot">
         <span class="price">NZ$29</span>
-        <a class="go" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a>
+        <a class="buy" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Add to cart</a>
       </div>
     </article>
-    <article class="card">
-      <span class="tag">Digital</span>
-      <h3>Discord webhook kit</h3>
-      <p>Templates to connect payments to Discord. Download after checkout.</p>
-      <div class="row">
+    <article class="product-card">
+      <span class="eyebrow">Digital</span>
+      <h2>Discord webhook kit</h2>
+      <p>Templates for payment notifications. Download after checkout.</p>
+      <div class="foot">
         <span class="price">NZ$79</span>
-        <a class="go" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a>
+        <a class="buy" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Add to cart</a>
       </div>
     </article>
   </div>
 </section>
 
 <section class="section">
-  <h2>Identity &amp; play</h2>
-  <div class="grid">
-    <article class="card">
-      <span class="tag">Account</span>
-      <h3>Your avatar</h3>
-      <p>Create an account, then customise DreamMeez. Cosmetics unlock after purchase.</p>
-      <div class="row">
-        <span class="price">Free to start</span>
-        <a class="go soft" href="/avatar.html">Open</a>
-      </div>
-    </article>
-    <article class="card">
-      <span class="tag">Play</span>
-      <h3>Phin Haven</h3>
-      <p>Enter the playable world. No purchase required to try.</p>
-      <div class="row">
+  <p class="section-title">More</p>
+  <div class="product-grid">
+    <article class="product-card">
+      <span class="eyebrow">Free</span>
+      <h2>Create your avatar</h2>
+      <p>Sign up, then open DreamMeez to customise your look.</p>
+      <div class="foot">
         <span class="price">Free</span>
-        <a class="go soft" href="/phin-haven">Play</a>
+        <a class="buy ghost" href="/register">Sign up</a>
+      </div>
+    </article>
+    <article class="product-card">
+      <span class="eyebrow">Free</span>
+      <h2>Phin Haven</h2>
+      <p>Try the playable world. No purchase required.</p>
+      <div class="foot">
+        <span class="price">Free</span>
+        <a class="buy ghost" href="/phin-haven">Play</a>
       </div>
     </article>
   </div>
 </section>
 
-<section class="account">
-  <div class="account-box">
-    <h2>Account</h2>
-    <p>Log in or create an account to manage identity and purchases.</p>
-    <div class="hero-actions">
-      <a class="btn btn-p" href="/register">Create account</a>
-      <a class="btn btn-g" href="/login">Log in</a>
-      <a class="btn btn-g" href="/avatar.html">Avatar</a>
-    </div>
-  </div>
-</section>
-
-<footer class="foot">
-  <span>© DreamLedger · New Zealand</span>
+<footer class="site-footer">
+  <span>© DreamLedger</span>
   <nav>
-    <a href="/billboard">Billboard</a>
     <a href="/login">Log in</a>
-    <a href="/register">Register</a>
+    <a href="/register">Sign up</a>
+    <a href="/billboard">Billboard</a>
     <a href="/policies.html">Policies</a>
   </nav>
 </footer>
