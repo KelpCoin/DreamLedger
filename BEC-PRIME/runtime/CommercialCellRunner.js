@@ -18,6 +18,18 @@ async function stripeGet(path){
   if(!r.ok) throw new Error(j?.error?.message||'Stripe API '+r.status);
   return j;
 }
+async function supabaseGet(path){
+  const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
+  const key=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
+  if(!base||!key) return [];
+  const r=await fetch(base+'/rest/v1/'+path,{headers:{apikey:key,Authorization:'Bearer '+key}});
+  if(!r.ok) throw new Error('Supabase read '+r.status);
+  return r.json();
+}
+async function truthClaims(){
+  const rows=await supabaseGet('economic_events?sku_id=eq.CMD-DIAG-29&order=created_at.desc&limit=20');
+  return Array.isArray(rows)?rows.map(x=>({event_id:x.event_id,verification_status:x.verification_status,buyer_action_verified:Boolean(x.buyer_action_verified),payment_settled:Boolean(x.payment_settled),fulfilment_verified:Boolean(x.fulfilment_verified),evidence_verified:Boolean(x.evidence_verified),amount_nzd:x.amount_nzd,resulting_state:x.resulting_state,evidence_ref:x.evidence_ref||null})):[];
+}
 async function listPaidSessions(){
   const q=new URLSearchParams({payment_link:PAYMENT_LINK_ID,limit:'100'});
   const j=await stripeGet('checkout/sessions?'+q.toString());
@@ -38,6 +50,7 @@ async function scan(){
   state={...state,status:'RUNNING',checked_at:new Date().toISOString(),last_error:null};
   try{
     const sessions=await listPaidSessions();
+    const claims=await truthClaims();
     const rows=[];
     for(const session of sessions.slice(0,25)){
       rows.push({
@@ -51,10 +64,10 @@ async function scan(){
         settlement:await chargeSettlement(session)
       });
     }
-    state={...state,status:'PASS',checked_at:new Date().toISOString(),candidates:rows.length,sessions:rows};
+    state={...state,status:'PASS',checked_at:new Date().toISOString(),candidates:rows.length,sessions:rows,truth_claims:claims,external_truth_match:rows.some(r=>claims.some(c=>c.event_id&&String(c.event_id).includes(r.session_id)))};
     return state;
   }catch(error){
-    state={...state,status:'ERROR',checked_at:new Date().toISOString(),last_error:error.message,sessions:[]};
+    state={...state,status:'ERROR',checked_at:new Date().toISOString(),last_error:error.message,sessions:[],truth_claims:[]};
     return state;
   }
 }
