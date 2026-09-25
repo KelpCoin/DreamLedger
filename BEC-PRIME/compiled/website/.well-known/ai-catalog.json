@@ -1,0 +1,42 @@
+{
+  "schema": "dreamledger/ai-catalog/v1",
+  "service": "DreamLedger",
+  "version": "1",
+  "publisher": "DreamLedger",
+  "base_url": "https://dreamledger.org",
+  "description": "Machine-readable discovery manifest for DreamLedger commercial surfaces.",
+  "commerce": {
+    "currency": "NZD",
+    "checkout": "https://dreamledger.org/buy/cmd-diag-29",
+    "offers": [
+      {
+        "offer_id": "OFFER-CMD-DIAG-29-NZD",
+        "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+        "sku": "CMD-DIAG-29",
+        "name": "Commander Deck Diagnostic",
+        "price_nzd": 29,
+        "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+        "fulfillment": "automated_digital_after_buyer_input",
+        "truth_floor": [
+          "external_buyer",
+          "live_paid",
+          "funds_available",
+          "correct_attribution",
+          "fulfillment_evidence"
+        ]
+      }
+    ]
+  },
+  "api": {
+    "offers": "https://dreamledger.org/api/offers",
+    "catalog": "https://dreamledger.org/api/cube/catalog",
+    "commercial_cell_status": "https://dreamledger.org/api/commercial-cell/cmd-diag/status"
+  },
+  "policy": {
+    "agent_may_discover": true,
+    "agent_may_propose": true,
+    "agent_may_charge_without_authorization": false,
+    "truth_is_provider_evidence_first": true,
+    "private_material_excluded": true
+  }
+}
