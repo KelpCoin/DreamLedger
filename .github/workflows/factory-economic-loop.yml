@@ -32,6 +32,9 @@ jobs:
       - name: Reconcile approved live offers
         run: npm run reconcile:approved-offers
 
+      - name: Compile approval packets
+        run: npm run compile:factory-approval
+
       - name: Verify factory control plane
         run: node -e "const q=require('./BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json'); if(!q.compiled_count) process.exit(2); console.log(JSON.stringify({compiled:q.compiled_count,offers:q.compiled_offer_count,opportunities:q.compiled_opportunity_count},null,2))"
 
@@ -42,4 +45,5 @@ jobs:
           path: |
             BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json
             proof/commerce/latest-approved-offer-reconciliation.json
+            BEC-PRIME/data/factory-factory/approval-packets/latest.json
           if-no-files-found: error
