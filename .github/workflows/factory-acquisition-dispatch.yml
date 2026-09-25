@@ -1,0 +1,100 @@
+name: Factory One-Shot Acquisition Dispatcher
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '11,31,51 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dreamledger-one-shot-acquisition-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dispatch pending authorized acquisition
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const https = require('https');
+
+          const file = 'BEC-PRIME/data/factory-factory/acquisition-trigger.json';
+          const trigger = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+          if (trigger.state !== 'PENDING') {
+            console.log('DISPATCH_STATE=' + trigger.state);
+            process.exit(0);
+          }
+          if (trigger.offer !== 'CMD-DIAG-29' || trigger.approval !== 'APPROVED') {
+            throw new Error('Trigger failed allowlist/authorization gate');
+          }
+
+          const payload = JSON.stringify({
+            event_type: 'approved-acquisition',
+            client_payload: {
+              offer: trigger.offer,
+              target: trigger.target,
+              approval: trigger.approval,
+              source: 'DreamLedger Factory-Factory one-shot dispatcher',
+              trigger_schema: trigger.schema_version
+            }
+          });
+
+          const req = https.request({
+            hostname: 'api.github.com',
+            path: '/repos/KelpCoin/DreamLedger/dispatches',
+            method: 'POST',
+            headers: {
+              'Accept': 'application/vnd.github+json',
+              'Authorization': 'Bearer ' + process.env.GH_TOKEN,
+              'X-GitHub-Api-Version': '2026-03-10',
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(payload),
+              'User-Agent': 'DreamLedger-Factory-Factory'
+            }
+          }, res => {
+            let body = '';
+            res.on('data', c => body += c);
+            res.on('end', () => {
+              if (res.statusCode !== 204) {
+                console.error(body.slice(0, 1000));
+                process.exit(1);
+              }
+              console.log('DISPATCH_ACCEPTED_BY_GITHUB=true');
+            });
+          });
+          req.on('error', e => { console.error(e); process.exit(1); });
+          req.write(payload);
+          req.end();
+          NODE
+
+      - name: Consume one-shot trigger
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          p = 'BEC-PRIME/data/factory-factory/acquisition-trigger.json'
+          x = json.load(open(p, encoding='utf-8'))
+          if x.get('state') == 'PENDING':
+              x['state'] = 'DISPATCH_ACCEPTED'
+              x['dispatched_at'] = __import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat()
+              json.dump(x, open(p,'w',encoding='utf-8'), indent=2)
+              open(p,'a',encoding='utf-8').write('\n')
+          PY
+          git config user.name "DreamLedger Factory"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BEC-PRIME/data/factory-factory/acquisition-trigger.json
+          git commit -m "chore: consume one-shot acquisition trigger" || true
+          git push
