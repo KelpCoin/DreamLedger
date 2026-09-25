@@ -1,0 +1,59 @@
+name: Domino Economic Engine
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: domino-economic-engine
+  cancel-in-progress: false
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+
+      - name: System self-test
+        run: node BEC-PRIME/runtime/SystemSelfTest.js
+
+      - name: Refresh opportunity compilation
+        run: npm run compile:opportunities
+
+      - name: Compile Factory-Factory queue
+        run: npm run compile:factory-factory
+
+      - name: Reconcile live approved offers
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_LIVE_ENABLED: 'true'
+        run: npm run reconcile:approved-offers
+
+      - name: Build immutable engine evidence bundle
+        run: |
+          set -euo pipefail
+          mkdir -p proof/domino
+          cp BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json proof/domino/economic-gauntlet.json
+          cp BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json proof/domino/factory-factory-queue.json
+          cp proof/commerce/latest-approved-offer-reconciliation.json proof/domino/approved-offer-reconciliation.json
+          sha256sum proof/domino/* > proof/domino/SHA256SUMS
+          cat proof/domino/SHA256SUMS
+
+      - name: Upload domino evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: domino-engine-${{ github.run_id }}
+          path: proof/domino
+          if-no-files-found: error
+          retention-days: 90
