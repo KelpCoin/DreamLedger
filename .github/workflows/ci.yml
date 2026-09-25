@@ -66,6 +66,9 @@ jobs:
       - name: Verify production contract
         run: npm run verify:production-contract
 
+      - name: Verify economic north-star contract
+        run: npm run verify:economic-north-star
+
       - name: Verify economic contract
         run: npm run verify:economic-contract
 
