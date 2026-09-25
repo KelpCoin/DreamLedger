@@ -91,7 +91,8 @@ function webhook(req, res) {
     try { event = JSON.parse(raw); } catch { throw Object.assign(new Error('Invalid JSON payload'), { statusCode: 400 }); }
     if (event.type !== 'checkout.session.completed') return { received: true, ignored: true };
     const session = event?.data?.object;
-    if (!session || event.livemode !== true) return { received: true, ignored: true, reason: 'livemode_false' };\n    if (session.payment_status !== 'paid') return { received: true, ignored: true, reason: 'payment_not_paid' };
+    if (!session || event.livemode !== true) return { received: true, ignored: true, reason: 'livemode_false' };
+    if (session.payment_status !== 'paid') return { received: true, ignored: true, reason: 'payment_not_paid' };
 
     const metadata = session.metadata || {};
     let productId = clean(metadata.product_id);
