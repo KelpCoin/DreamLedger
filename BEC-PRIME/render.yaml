@@ -29,6 +29,20 @@ services:
         value: "false"
       - key: DIGITAL_PROXY_LM_BASE_URL
         value: http://127.0.0.1:1234/v1
+      - key: CUBE_PINBALL_ENABLED
+        value: "false"
+      - key: CUBE_PINBALL_LM_URL
+        sync: false
+      - key: CUBE_PINBALL_LM_API_KEY
+        sync: false
+      - key: CUBE_PINBALL_MODELS
+        sync: false
+      - key: CUBE_PINBALL_INTERVAL_MS
+        value: "60000"
+      - key: CUBE_PINBALL_BATCH
+        value: "3"
+      - key: CUBE_PINBALL_TURNS
+        value: "4"
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
