@@ -1,35 +1,28 @@
-# Commercial execution layer (minimum)
+# Commercial execution layer
 
-**Not a Polsia clone.** See **`POLSIA-DREAMLEDGER-GAP-MATRIX.md`** for full component desk.
+**Economic loop (centre):** see `ECONOMIC-OPERATING-LOOP.md`  
+**Polsia gap desk:** see `POLSIA-DREAMLEDGER-GAP-MATRIX.md`
 
 ```
 LLM proposes → policy / ActionPass-lite → actuator → Stripe
                                                       ↓
-                              verified webhook → payment → fulfil → economic_event
+                         verified webhook → payment → fulfil → economic_event
 ```
 
-LLM **never** holds unrestricted Stripe keys and **never** declares revenue.
+State is the centre. Agents are replaceable workers.
 
 ## Phases
 
-| Phase | Goal | Done when |
-|-------|------|-----------|
-| **0** | Instrumentation | Stripe event → order/payment/evidence/economic_event |
-| **1** | Human-guided cell | External buyer → fulfil → economic_event |
-| **2** | Bounded autonomy | Pre-authorized actions + spend caps |
-| **3+** | Multi-cell / factory | After replication evidence |
+| Phase | Goal |
+|-------|------|
+| 0 | Instrumentation (money_pipeline) |
+| 1 | One cell: offer → pay → fulfil → economic_event (human acquisition OK) |
+| 2 | One acquisition channel + orchestrator-from-state |
+| 3+ | Learning experiments; only then broader autonomy |
 
 ## Key files
 
-| File | Role |
-|------|------|
-| `POLSIA-DREAMLEDGER-GAP-MATRIX.md` | Full Polsia→DL gap desk |
-| `SCHEMA.md` / `schema.sql` | Minimum tables |
-| `money_pipeline.py` | Local verified ingest |
-| `STATE_MACHINE.md` | MVP states |
-| `POLSIA-LESSONS.md` | Short lessons |
-| `DO-NOT-BUILD-YET.md` | Explicit backlog freeze |
-
-## Existing rails
-
-Payment Links, `/buy/...`, Settlement Sync, approved catalog, public shop, Agent Bridge.
+- `ECONOMIC-OPERATING-LOOP.md` — bridge architecture desk  
+- `POLSIA-DREAMLEDGER-GAP-MATRIX.md` — component matrix  
+- `money_pipeline.py` / `schema.sql` / `STATE_MACHINE.md`  
+- `DO-NOT-BUILD-YET.md`  

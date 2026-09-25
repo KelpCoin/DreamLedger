@@ -1,22 +1,23 @@
 {
-  "version": 42,
+  "version": 43,
   "updated": "2026-09-25",
   "current_truth": {
-    "polsia_gap_matrix": "ops/commercial/POLSIA-DREAMLEDGER-GAP-MATRIX.md",
-    "commercial": "ops/commercial/README.md",
+    "economic_loop": "ops/commercial/ECONOMIC-OPERATING-LOOP.md",
+    "gap_matrix": "ops/commercial/POLSIA-DREAMLEDGER-GAP-MATRIX.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "D": "Gap matrix on disk — P0 money pipe + human acquisition",
-    "C": "External pay still required"
+    "E": "Economic state is centre; agents are workers",
+    "C": "Phase 1 cell — external pay"
   },
   "immediate_next": [
-    "Open ops/commercial/POLSIA-DREAMLEDGER-GAP-MATRIX.md",
-    "Execute P0 checklist only"
+    "Read ECONOMIC-OPERATING-LOOP.md",
+    "Execute Phase 1 commercial cell",
+    "Do not build ten agents"
   ],
   "do_not": [
-    "Clone Polsia nine agents",
-    "Treat missing backend/app as cloneable",
-    "Build ads before first external economic_event"
+    "Agent-for-agent Polsia clone",
+    "Orchestrator without state machine",
+    "Learning without events"
   ]
 }
