@@ -1,20 +1,18 @@
 {
-  "version": 51,
+  "version": 52,
   "updated": "2026-09-26",
   "current_truth": {
-    "priority": "HE NEEDS MONEY",
-    "doc": "ops/money/HE-NEEDS-MONEY.md",
+    "profitability": "ops/money/PROFITABILITY.md",
+    "public": "store-v2.2 margin-first merchandising",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "ONLY BALL THAT MATTERS — post buy URL to a human"
+    "C": "Sell $29 to break seal OR $79 for margin — POST LINK"
   },
   "immediate_next": [
-    "Post https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001 OR billboard buy URL",
-    "Warm DM beats perfect architecture"
+    "Post kit or diagnostic URL today",
+    "Create Stripe Payment Links for $99 bundle and $129 founder pack",
+    "Keep fulfil time low"
   ],
-  "do_not": [
-    "Redesign the site instead of posting",
-    "Build more agents before a pay"
-  ]
+  "do_not": ["Discount into unprofitability", "Ads before first organic pay"]
 }

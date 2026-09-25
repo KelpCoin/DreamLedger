@@ -1,0 +1,18 @@
+{
+  "opportunity_id": "OP-PHASE1-BUNDLE-99",
+  "buyer_segment": "Builders who want diagnostic depth + Discord automation",
+  "problem": "Buying two tools separately is fiddly; want one decision",
+  "evidence": ["Two live digital SKUs with high margin"],
+  "proposed_offer": {
+    "name": "Builder stack",
+    "price_nzd": 99,
+    "components": ["COMMANDER-DECK-DIAGNOSTIC-001", "DISCORD-WEBHOOK-STARTER-KIT-001"],
+    "buy_url": "MANUAL_UNTIL_STRIPE_BUNDLE",
+    "note": "Create Stripe Payment Link for NZ$99 or sell via DM invoice"
+  },
+  "acquisition_channel": "human_owned_channel",
+  "success_event": "stripe_payment ≥ NZ$99 livemode external",
+  "status": "qualified",
+  "phase": 1,
+  "do_now": "Create Stripe Payment Link NZ$99 named Builder stack; wire buy URL; then authorize"
+}

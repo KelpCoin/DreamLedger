@@ -1,17 +1,18 @@
-HE NEEDS MONEY. VERIFIED REVENUE = NZ$0.
+PROFIT SEQUENCE (revenue still 0 until first pay):
 
-POST ONE OF THESE TODAY:
-
-TILE NZ$50:
-https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
-
-DIAG NZ$29:
+1) FIRST DOLLAR — post diagnostic (easiest seal):
 https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
+NZ$29 Commander diagnostic — structure, cuts, upgrades.
 
-Copy (tile):
-Permanent 100x100 on the DreamLedger public board — NZ$50. Title + link at checkout.
+2) MARGIN — post kit:
+https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001
+NZ$79 Discord webhook kit — digital download.
 
-Copy (diag):
-Commander deck diagnostic — structure, cuts, upgrades. NZ$29 after payment.
+3) AOV — create Stripe links for:
+   Builder stack NZ$99 (diag+kit)
+   Founder pack NZ$129 (tile+kit)
+   See ops/money/PROFITABILITY.md
 
-After pay: fulfil, then economic_event. Nothing else moves the bank account.
+4) On any pay: fulfil fast, keep COGS (time) low.
+
+Warm DM > new architecture.

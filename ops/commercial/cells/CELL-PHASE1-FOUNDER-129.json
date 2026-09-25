@@ -1,0 +1,18 @@
+{
+  "opportunity_id": "OP-PHASE1-FOUNDER-129",
+  "buyer_segment": "NZ founders wanting visibility + ops kit",
+  "problem": "Want presence + notification tooling in one hit",
+  "evidence": ["Tile + kit live separately"],
+  "proposed_offer": {
+    "name": "Founder pack",
+    "price_nzd": 129,
+    "components": ["DREAMLEDGER-BILLBOARD-FOUNDING-001", "DISCORD-WEBHOOK-STARTER-KIT-001"],
+    "buy_url": "MANUAL_UNTIL_STRIPE_BUNDLE",
+    "note": "Create Stripe Payment Link NZ$129; includes tile review + kit download"
+  },
+  "acquisition_channel": "human_owned_channel",
+  "success_event": "stripe_payment ≥ NZ$129 livemode external",
+  "status": "qualified",
+  "phase": 1,
+  "do_now": "Create Stripe link; then post as premium anchor"
+}
