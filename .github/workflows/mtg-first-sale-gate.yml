@@ -54,11 +54,11 @@ jobs:
         run: |
           $product = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           if ($product.id -ne 'COMMANDER-DECK-DIAGNOSTIC-001') { throw 'wrong canonical product' }
-          if ([int]$product.price -ne 2500) { throw "canonical product price is not 2500 cents: $($product.price)" }
+          if ([int]$product.price -ne 2900) { throw "canonical product price is not 2900 cents: $($product.price)" }
           if ($product.currency -ne 'nzd') { throw 'canonical currency is not nzd' }
           if ($product.checkout.mode -ne 'payment') { throw 'canonical checkout mode is not payment' }
           Write-Host 'CANONICAL_MTG_PRODUCT=PASS'
-          Write-Host 'CANONICAL_PRICE_NZD=25.00'
+          Write-Host 'CANONICAL_PRICE_NZD=29.00'
 
       - name: Probe public offers
         shell: bash
@@ -99,7 +99,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"status":"READY_FOR_FIRST_PAYMENT","sha":"%s","sku":"COMMANDER-DECK-DIAGNOSTIC-001","price_nzd":25,"payment_truth":"AWAITING_FIRST_PAYMENT","public_payment_not_claimed":true}\n' "$RELEASE_SHA" > proof/mtg-first-sale-readiness.json
+          printf '{"status":"READY_FOR_FIRST_PAYMENT","sha":"%s","sku":"COMMANDER-DECK-DIAGNOSTIC-001","price_nzd":29,"payment_truth":"AWAITING_FIRST_PAYMENT","public_payment_not_claimed":true}\n' "$RELEASE_SHA" > proof/mtg-first-sale-readiness.json
           cat proof/mtg-first-sale-readiness.json
 
       - name: Upload first-sale proof
