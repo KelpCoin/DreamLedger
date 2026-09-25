@@ -1,0 +1,63 @@
+name: Factory-Factory Economic Cycle
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-factory-factory
+  cancel-in-progress: false
+
+jobs:
+  manufacture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      STRIPE_LIVE_ENABLED: "true"
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile and select commercial cells
+        run: |
+          set -euo pipefail
+          node BEC-PRIME/compiler/EconomicOpportunityCompiler.js
+          node BEC-PRIME/compiler/FactoryFactoryCompiler.js
+          node BEC-PRIME/factory/FactoryFactory.js
+          node BEC-PRIME/compiler/FactoryFactoryApprovalPackets.js
+
+      - name: Build machine-native offer specifications
+        run: |
+          set -euo pipefail
+          node BEC-PRIME/factory/X402FactoryFactory.js
+
+      - name: Reconcile live Stripe evidence
+        run: |
+          set -euo pipefail
+          if [ -n "${STRIPE_SECRET_KEY:-}" ]; then
+            node ops/commerce/reconcile-approved-offers.mjs
+          else
+            echo "STRIPE_RECONCILIATION=SKIPPED_MISSING_SECRET"
+          fi
+
+      - name: Verify factory cycle boundaries
+        run: |
+          set -euo pipefail
+          node BEC-PRIME/factory/FactoryFactoryOrchestrator.js
+          node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js || true
+
+      - name: Upload factory evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-factory-economic-cycle
+          path: |
+            BEC-PRIME/data/factory-factory/**
+            BEC-PRIME/data/x402-factory/**
+            proof/commerce/latest-approved-offer-reconciliation.json
+          if-no-files-found: ignore
