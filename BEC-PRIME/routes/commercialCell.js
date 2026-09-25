@@ -180,7 +180,17 @@ async function status(req,res) {
   if (!Array.isArray(rows) || !rows[0]) return json(res,404,{error:'fulfillment not found'});
   const f=rows[0];
   const events=await db('GET','economic_events','?select=event_id,payment_settled,fulfilment_verified,evidence_verified,verification_status,evidence_ref,amount_nzd,stripe_checkout_session,stripe_payment_intent&stripe_checkout_session=eq.'+encodeURIComponent(sessionId)+'&limit=1');
-  return json(res,200,{session_id:sessionId,fulfillment:f,economic_event:events?.[0] || null,truth_rule:'agent claims never certify external economic truth; Stripe + fulfillment evidence do'});
+  const claims=await db('GET','economic_agent_events','?select=event_id,agent_id,verb,output,result,timestamp,idempotency_key&task_id=eq.'+encodeURIComponent(sessionId)+'&order=timestamp.desc&limit=20');
+  const event=events?.[0] || null;
+  const truth=event ? {
+    agent_claims_present:Array.isArray(claims)&&claims.length>0,
+    external_evidence_present:Boolean(event.stripe_checkout_session&&event.stripe_payment_intent&&event.evidence_ref),
+    payment_settled:event.payment_settled===true,
+    fulfillment_verified:event.fulfilment_verified===true,
+    evidence_verified:event.evidence_verified===true,
+    oracle_status:event.verification_status
+  } : null;
+  return json(res,200,{session_id:sessionId,fulfillment:f,economic_event:event,agent_claims:claims||[],cross_check:truth,truth_rule:'agent claims never certify external economic truth; Stripe + fulfillment evidence do'});
 }
 
 async function claim(req,res) {
