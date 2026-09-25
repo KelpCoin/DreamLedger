@@ -1,0 +1,64 @@
+name: CUBE 500 HTTP Proof
+
+on:
+  push:
+    paths:
+      - ".github/workflows/cube-500-http-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Verify all 500 public routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, urllib.request, urllib.error, time
+          base="https://dreamledger.org"
+          failures=[]
+          checked=0
+          for n in range(1,501):
+              route=f"/cube/auto/{n:04d}"
+              url=base+route
+              ok=False
+              last=""
+              for attempt in range(6):
+                  try:
+                      req=urllib.request.Request(url,headers={"User-Agent":"DreamLedger-CUBE-500-Proof/1.0"})
+                      with urllib.request.urlopen(req,timeout=20) as r:
+                          body=r.read().decode("utf-8","replace")
+                          status=r.status
+                      marker="DreamLedger CUBE economic silo." in body
+                      route_ok=route in body
+                      ok=status==200 and marker and route_ok
+                      last=f"HTTP {status} marker={marker} route={route_ok}"
+                      if ok: break
+                  except urllib.error.HTTPError as e:
+                      last=f"HTTP {e.code}"
+                      if e.code != 429: break
+                      time.sleep(min(10,2**attempt))
+                  except Exception as e:
+                      last=repr(e)
+                      time.sleep(min(10,2**attempt))
+              checked+=1
+              if not ok:
+                  failures.append({"n":n,"route":route,"result":last})
+          proof={"schema":"dreamledger/cube-500-http-proof/v1","verdict":"PASS" if not failures else "FAIL","base":base,"checked":checked,"expected":500,"failure_count":len(failures),"failures":failures[:100],"first_route":"/cube/auto/0001","last_route":"/cube/auto/0500","verified_marker":"DreamLedger CUBE economic silo."}
+          open("CUBE-500-HTTP-PROOF.json","w").write(json.dumps(proof,indent=2)+"\n")
+          print(json.dumps(proof,indent=2))
+          if failures or checked != 500:
+              raise SystemExit(1)
+          PY
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-500-http-proof
+          path: CUBE-500-HTTP-PROOF.json
+          if-no-files-found: error
+          retention-days: 30
