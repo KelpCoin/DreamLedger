@@ -1,14 +1,14 @@
 {
-  "version": 36,
+  "version": 37,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "shop-v4 silo horizontal carousels",
-    "silo_rules": "docs/public/SILO-SEPARATION.md",
+    "public": "shop-v4 + no floating QR",
+    "qr_policy": "docs/public/NO-FLOATING-QR.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "W": "Silo-separated carousel catalogue",
-    "C": "Market rail buy links still need distribution"
+    "W": "Floating QR removed from web inject",
+    "C": "Still need distribution for revenue"
   },
-  "immediate_next": ["Hard refresh for shop-v4"]
+  "immediate_next": ["Redeploy — verify no bottom-right QR on home"]
 }
