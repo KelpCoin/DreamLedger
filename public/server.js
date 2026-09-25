@@ -102,18 +102,7 @@ if(req.method==='GET'&&p==='/api/cube/catalog'){
     const limit=Math.min(Math.max(Number.parseInt(u.searchParams.get('limit')||'100',10)||100,1),1000);
     const offset=Math.max(Number.parseInt(u.searchParams.get('offset')||'0',10)||0,0);
     const q=(u.searchParams.get('q')||'').trim().slice(0,120);
-    const routePattern='^/cube/auto/[0-9]{4,12}$';
-    let endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=match.'+encodeURIComponent(routePattern)+'&order=public_route.asc&limit='+limit+'&offset='+offset;
-    if(q)endpoint+='&or=(label.ilike.*'+encodeURIComponent(q)+'*,id.ilike.*'+encodeURIComponent(q)+'*)';
-    const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json',Prefer:'count=exact'}});
-    if(!response.ok)throw new Error('CUBE catalog HTTP '+response.status);
-    const rows=await response.json();
-    const range=response.headers.get('content-range')||'';
-    const total=range.includes('/')?Number(range.split('/')[1]):null;
-    
-    return send(res,200,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'available',total,limit,offset,count:rows.length,items:rows.map(s=>({id:s.id,label:s.label,public_route:s.public_route,canonical_url:'https://dreamledger.org'+s.public_route,inventory_mode:s.inventory_mode,cross_game:!!s.cross_game,cross_silo_view:!!s.cross_silo_view}))}),'application/json; charset=utf-8');
-  }catch(e){return send(res,502,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'error',error:e&&e.message?e.message:'CUBE catalog unavailable'}),'application/json; charset=utf-8')}
-}
+    const routePattern='^/cube/auto/[0-9]{4,12}
 if(req.method==='GET'&&p==='/api/cube/marketplace')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/ecosystem')return send(res,200,JSON.stringify(loadManifest(ECOSYSTEM_PATH,{schema:'dreamledger/ecosystem/v1',status:'unavailable'})),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/agent')return send(res,200,JSON.stringify(loadManifest(AGENT_PATH,{schema:'dreamledger/agent/v1',status:'unavailable'})),'application/json; charset=utf-8');
@@ -157,17 +146,17 @@ if(p==='/mcp.json'&&req.method==='GET')return send(res,200,JSON.stringify({schem
 if(p==='/.well-known/agent-card.json'&&req.method==='GET')return send(res,200,JSON.stringify({schema:'dreamledger/agent-card/v1',name:'DreamLedger',capabilities:['catalogue','offer_discovery','stripe_checkout','fulfillment_status'],canonical_catalog:'https://dreamledger.org/catalog.json',economic_truth_rule:'Only independently verified settled external payments count as revenue.'},null,2),'application/json; charset=utf-8');
 const file=PUBLIC_FILES[p];if(!file||req.method!=='GET')return send(res,404,'Not Found','text/plain; charset=utf-8');serveFile(res,file)}).listen(PORT,'0.0.0.0',()=>console.log('DreamLedger public storefront listening on '+PORT));
 ;
-    let endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=not.is.null&public_route=match.'+encodeURIComponent(routePattern)+'&order=public_route.asc&limit='+limit+'&offset='+offset;
+    let endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=match.'+encodeURIComponent(routePattern)+'&order=public_route.asc&limit='+limit+'&offset='+offset;
     if(q)endpoint+='&or=(label.ilike.*'+encodeURIComponent(q)+'*,id.ilike.*'+encodeURIComponent(q)+'*)';
     const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json',Prefer:'count=exact'}});
     if(!response.ok)throw new Error('CUBE catalog HTTP '+response.status);
     const rows=await response.json();
     const range=response.headers.get('content-range')||'';
-    const m=range.match(/\\/([0-9]+)$/);
-    const total=m?Number(m[1]):null;
+    const total=range.includes('/')?Number(range.split('/')[1]):null;
     return send(res,200,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'available',total,limit,offset,count:rows.length,items:rows.map(s=>({id:s.id,label:s.label,public_route:s.public_route,canonical_url:'https://dreamledger.org'+s.public_route,inventory_mode:s.inventory_mode,cross_game:!!s.cross_game,cross_silo_view:!!s.cross_silo_view}))}),'application/json; charset=utf-8');
   }catch(e){return send(res,502,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'error',error:e&&e.message?e.message:'CUBE catalog unavailable'}),'application/json; charset=utf-8')}
 }
+
 if(req.method==='GET'&&p==='/api/cube/marketplace')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/ecosystem')return send(res,200,JSON.stringify(loadManifest(ECOSYSTEM_PATH,{schema:'dreamledger/ecosystem/v1',status:'unavailable'})),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/agent')return send(res,200,JSON.stringify(loadManifest(AGENT_PATH,{schema:'dreamledger/agent/v1',status:'unavailable'})),'application/json; charset=utf-8');
