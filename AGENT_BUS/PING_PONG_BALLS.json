@@ -1,21 +1,14 @@
 {
-  "version": 44,
+  "version": 45,
   "updated": "2026-09-25",
   "current_truth": {
-    "phase1_runbook": "ops/commercial/PHASE1-RUNBOOK.md",
-    "cells": "ops/commercial/cells/",
-    "actionpass": "ops/commercial/actionpass.py",
-    "cell_status": "python3 ops/commercial/cell_status.py",
+    "public": "feed-v1 phone-first vertical catalog",
+    "ux_notes": "docs/public/MOBILE-FEED-UX.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "P1": "Phase-1 cells authorized — DISTRIBUTE",
-    "C": "Post buy URLs"
+    "W": "Thumb-zone vertical feed shop",
+    "C": "Post buy links"
   },
-  "immediate_next": [
-    "python3 ops/commercial/cell_status.py",
-    "Post TILE or DIAG buy_url",
-    "On pay: fulfil + economic_event"
-  ],
-  "do_not": ["Build more agents before a won cell"]
+  "immediate_next": ["Redeploy + test on phone"]
 }
