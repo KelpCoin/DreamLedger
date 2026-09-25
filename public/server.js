@@ -153,6 +153,7 @@ if(p==='/dreamiez'||p=='/dreamiez/')return serveFile(res,'dreamiez.html',DREAMME
 if(p=='/avatar'||p=='/avatar/'||p=='/avatars'||p=='/avatars/')return serveFile(res,'avatar.html');
 if(p.startsWith('/api/')){if(!ALLOWED_API[key])return send(res,404,'Not Found','text/plain; charset=utf-8');try{return proxy(req,res,await readBody(req))}catch{return send(res,400,'Bad request','text/plain; charset=utf-8')}}
 if(p==='/.well-known/dreamledger.json'&&req.method==='GET')return serveFile(res,'.well-known/dreamledger.json');
+if(p==='/commerce.txt'&&req.method==='GET')return serveFile(res,'commerce.txt');
 if(p==='/llms.txt'&&req.method==='GET')return send(res,200,[
 '# DreamLedger',
 '',
