@@ -109,8 +109,8 @@ if(req.method==='GET'&&p==='/api/cube/catalog'){
     if(!response.ok)throw new Error('CUBE catalog HTTP '+response.status);
     const rows=await response.json();
     const range=response.headers.get('content-range')||'';
-    const m=range.match(/\\/([0-9]+)$/);
-    const total=m?Number(m[1]):null;
+    const total=range.includes('/')?Number(range.split('/')[1]):null;
+    
     return send(res,200,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'available',total,limit,offset,count:rows.length,items:rows.map(s=>({id:s.id,label:s.label,public_route:s.public_route,canonical_url:'https://dreamledger.org'+s.public_route,inventory_mode:s.inventory_mode,cross_game:!!s.cross_game,cross_silo_view:!!s.cross_silo_view}))}),'application/json; charset=utf-8');
   }catch(e){return send(res,502,JSON.stringify({schema:'dreamledger/cube-catalog/v1',status:'error',error:e&&e.message?e.message:'CUBE catalog unavailable'}),'application/json; charset=utf-8')}
 }
