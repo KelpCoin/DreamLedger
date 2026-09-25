@@ -1,6 +1,9 @@
 name: Acquire Approved Catalog Offer via Discord
 
 on:
+  push:
+    paths:
+      - ".github/acquisition/approved-dispatch.json"
   repository_dispatch:
     types: [approved-acquisition]
   workflow_dispatch:
@@ -22,7 +25,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 concurrency:
@@ -31,19 +34,45 @@ concurrency:
 
 jobs:
   post:
-    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.approval == 'APPROVED') || (github.event_name == 'repository_dispatch' && github.event.client_payload.approval == 'APPROVED') }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.approval == 'APPROVED') || (github.event_name == 'repository_dispatch' && github.event.client_payload.approval == 'APPROVED') || github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Load approved acquisition
+        id: load
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_OFFER: ${{ inputs.offer }}
+          INPUT_TARGET: ${{ inputs.target }}
+          INPUT_APPROVAL: ${{ inputs.approval }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "push" ]; then
+            test -f .github/acquisition/approved-dispatch.json
+            python3 - <<'PY'
+            import json
+            with open(".github/acquisition/approved-dispatch.json", encoding="utf-8") as f:
+                x=json.load(f)
+            if x.get("approval") != "APPROVED":
+                raise SystemExit("approved-dispatch.json is not approved")
+            print("OFFER=" + x["offer"])
+            print("TARGET=" + x["target"])
+            PY
+          else
+            test "$INPUT_APPROVAL" = "APPROVED"
+            printf 'OFFER=%s\nTARGET=%s\n' "$INPUT_OFFER" "$INPUT_TARGET"
+          fi
+
       - name: Publish selected approved offer and verify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OFFER: ${{ github.event_name == 'workflow_dispatch' && inputs.offer || github.event.client_payload.offer }}
-          TARGET: ${{ github.event_name == 'workflow_dispatch' && inputs.target || github.event.client_payload.target }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_OFFER: ${{ inputs.offer }}
+          INPUT_TARGET: ${{ inputs.target }}
         run: |
           set -euo pipefail
           test -n "$DISCORD_WEBHOOK"
@@ -51,36 +80,37 @@ jobs:
             https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
             *) echo "Invalid Discord webhook host"; exit 1 ;;
           esac
-          test -n "$TARGET"
 
           python3 - <<'PY'
           import json, os, urllib.parse, urllib.request
 
-          with open("BEC-PRIME/catalog/offers/approved.json", "r", encoding="utf-8") as f:
+          with open("BEC-PRIME/catalog/offers/approved.json", encoding="utf-8") as f:
               approved_doc = json.load(f)
+
+          if os.environ["EVENT_NAME"] == "push":
+              with open(".github/acquisition/approved-dispatch.json", encoding="utf-8") as f:
+                  dispatch = json.load(f)
+              offer = dispatch["offer"]
+              target = dispatch["target"]
+          else:
+              offer = os.environ["INPUT_OFFER"]
+              target = os.environ["INPUT_TARGET"]
 
           aliases = {
               "CMD-DIAG-29": "CMD-DIAG-29",
               "DREAMLEDGER-BILLBOARD-50": "DL-BILLBOARD-100X100-3000-001"
           }
-
-          offer = os.environ["OFFER"]
           sku = aliases.get(offer)
-          rows = [
-              x for x in approved_doc.get("approved", [])
-              if x.get("product_sku") == sku
-              and x.get("payment_link_url")
-              and x.get("payment_link_status") == "ACTIVE_LIVEMODE"
-          ]
+          rows = [x for x in approved_doc.get("approved", [])
+                  if x.get("product_sku") == sku
+                  and x.get("payment_link_url")
+                  and x.get("payment_link_status") == "ACTIVE_LIVEMODE"]
           if len(rows) != 1:
               raise SystemExit("Offer is not uniquely approved and live: " + offer)
 
           record = rows[0]
-          title = record["name"]
-          price = record["currency"] + "$" + str(record["price"])
           link = record["payment_link_url"]
-          description = record["problem"]
-          content = title + " - " + price + "\n\n" + description + "\n\n" + link
+          content = record["name"] + " - " + record["currency"] + "$" + str(record["price"]) + "\n\n" + record["problem"] + "\n\n" + link
 
           base = os.environ["DISCORD_WEBHOOK"]
           parts = urllib.parse.urlsplit(base)
@@ -98,7 +128,7 @@ jobs:
               raise SystemExit("Publication response failed identity/content verification")
 
           verify_url = base.rstrip("/") + "/messages/" + urllib.parse.quote(str(message_id), safe="")
-          with urllib.request.urlopen(urllib.request.Request(verify_url, headers={"Accept": "application/json"}), timeout=20) as response:
+          with urllib.request.urlopen(urllib.request.Request(verify_url, headers={"Accept":"application/json"}), timeout=20) as response:
               verified = json.loads(response.read().decode())
 
           if verified.get("id") != message_id or verified.get("channel_id") != channel_id or link not in verified.get("content", ""):
@@ -112,32 +142,14 @@ jobs:
           print("DISCORD_CHANNEL_ID=" + channel_id)
           print("EXTERNAL_REVENUE=UNVERIFIED")
 
-          # Persistent one-shot lock: only create it after Discord publication
-          # and read-back verification have both succeeded.
-          lock_title = "FACTORY-ACQUISITION-LOCK: " + record["product_sku"]
-          lock_body = (
-              "Created only after VERIFIED_DISCORD_MESSAGE.\\n\\n"
-              "offer_id=" + record["offer_id"] + "\\n"
-              "sku=" + record["product_sku"] + "\\n"
-              "discord_message_id=" + message_id + "\\n"
-              "state=PUBLICATION_VERIFIED_REVENUE_UNVERIFIED"
-          )
           token = os.environ.get("GITHUB_TOKEN")
           if not token:
-              raise SystemExit("GITHUB_TOKEN unavailable for acquisition lock")
+              raise SystemExit("GITHUB_TOKEN unavailable")
+
           api = "https://api.github.com/repos/KelpCoin/DreamLedger/issues"
-          payload = json.dumps({"title": lock_title, "body": lock_body}).encode()
-          req = urllib.request.Request(
-              api,
-              data=payload,
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + token,
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "Content-Type": "application/json"
-              },
-              method="POST"
-          )
+          payload = json.dumps({"title":"FACTORY-ACQUISITION-LOCK: " + record["product_sku"],
+                                "body":"Created after verified Discord publication. offer_id=" + record["offer_id"] + " sku=" + record["product_sku"] + " discord_message_id=" + message_id + " state=PUBLICATION_VERIFIED_REVENUE_UNVERIFIED"}).encode()
+          req = urllib.request.Request(api, data=payload, headers={"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json"}, method="POST")
           with urllib.request.urlopen(req, timeout=20) as response:
               issue = json.loads(response.read().decode())
           if not issue.get("number"):
@@ -146,10 +158,7 @@ jobs:
           PY
 
       - name: State boundary
-        env:
-          OFFER: ${{ github.event_name == 'workflow_dispatch' && inputs.offer || github.event.client_payload.offer }}
         run: |
-          echo "OFFER=$OFFER"
           echo "PUBLICATION=VERIFIED_RUNTIME"
           echo "BUYER=UNVERIFIED"
           echo "REVENUE=UNVERIFIED"
