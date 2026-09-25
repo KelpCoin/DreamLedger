@@ -25,8 +25,34 @@ jobs:
         with:
           node-version: '24.14.1'
 
-      - name: Compile Factory-Factory
-        run: node BEC-PRIME/runtime/FactoryFactoryLoop.js
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile opportunities and Factory-Factory
+        run: |
+          npm run compile:opportunities
+          npm run compile:factory-factory
+          node BEC-PRIME/factory/FactoryFactory.js
+          npm run compile:factory-approval
+
+      - name: Reconcile approved live offers
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_LIVE_ENABLED: 'true'
+        run: npm run reconcile:approved-offers
+
+      - name: Compile machine-native x402 specs
+        run: npm run factory:x402
+
+      - name: Upload factory evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-factory-evidence-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/factory-factory/**
+            BEC-PRIME/data/x402-factory/**
+            proof/commerce/latest-approved-offer-reconciliation.json
+          if-no-files-found: warn
 
       - name: Emit boundary
         run: |
