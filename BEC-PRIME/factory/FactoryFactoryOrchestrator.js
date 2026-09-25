@@ -9,6 +9,7 @@ const { buildRun } = require('./FactoryFactory');
 const ROOT = path.join(__dirname, '..');
 const QUEUE = path.join(ROOT, 'data', 'factory-factory', 'FACTORY-FACTORY-QUEUE.json');
 const OUTDIR = path.join(ROOT, 'data', 'factory-factory', 'orchestrator');
+const CYCLE = path.join(ROOT, 'data', 'factory-factory', 'FACTORY-FACTORY-CYCLE.json');
 
 function hash(v) {
   return crypto.createHash('sha256').update(v, 'utf8').digest('hex');
@@ -93,8 +94,22 @@ function run(options = {}) {
   };
 
   output.integrity_sha256 = hash(JSON.stringify(output));
+  const cycle = {
+    schema_version: 'DREAMLEDGER/FACTORY-FACTORY-CYCLE/v1',
+    generated_at_utc: output.generated_at_utc,
+    selected_count: selected.length,
+    selected_experiments: selected.map(x => x.experiment_id),
+    external_action: 'NOT_PERFORMED',
+    external_revenue: 'UNVERIFIED',
+    business_truth: 'NOT_CLAIMED',
+    next_transition: output.next_transition,
+    source_queue_hash: output.source_queue_hash,
+    orchestrator_integrity_sha256: output.integrity_sha256
+  };
+  cycle.integrity_sha256 = hash(JSON.stringify(cycle));
   fs.mkdirSync(OUTDIR, { recursive: true });
   fs.writeFileSync(path.join(OUTDIR, 'latest.json'), JSON.stringify(output, null, 2) + '\n');
+  fs.writeFileSync(CYCLE, JSON.stringify(cycle, null, 2) + '\n');
   for (const p of packets) {
     fs.writeFileSync(path.join(OUTDIR, p.packet_id + '.json'), JSON.stringify(p, null, 2) + '\n');
   }
