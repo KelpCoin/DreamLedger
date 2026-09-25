@@ -1,0 +1,38 @@
+name: DreamLedger Factory-Factory
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "BEC-PRIME/compiler/**"
+      - "BEC-PRIME/catalog/**"
+      - "BEC-PRIME/factory/**"
+      - "BEC-PRIME/compiled/opportunities/**"
+      - "package.json"
+permissions:
+  contents: read
+concurrency:
+  group: dreamledger-factory-factory
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run compile:factory-factory
+      - run: npm run compile:factory-approval
+      - run: node BEC-PRIME/factory/FactoryFactoryEngine.js
+      - run: |
+          test -s BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json
+          test -s BEC-PRIME/data/factory-factory/approval-packets/latest.json
+          test -s BEC-PRIME/data/factory-factory/FACTORY-RUN.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: factory-factory-state
+          path: BEC-PRIME/data/factory-factory/
