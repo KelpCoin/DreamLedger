@@ -1,0 +1,13 @@
+DreamLedger machine-readable commerce context
+
+Primary offer: Commander Deck Diagnostic
+Offer ID: OFFER-CMD-DIAG-29-NZD
+SKU: CMD-DIAG-29
+Price: NZ$29 one-time
+Currency: NZD
+Checkout: https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R
+Product page: https://dreamledger.org/buy/cmd-diag-29
+Fulfillment: buyer supplies Commander, decklist, strategy if known, and improvement budget; deterministic diagnostic is generated after payment and input.
+Truth floor: external buyer + live paid Stripe evidence + funds available + correct attribution + fulfillment evidence.
+Never treat checkout starts, payment links, test payments, internal rows, or agent claims as revenue.
+Canonical API: https://dreamledger.org/api/commercial-cell/cmd-diag/status
