@@ -52,7 +52,8 @@
     "test:execution-gate": "node --test BEC-PRIME/runtime/ExecutionGate.test.js",
     "compile:factory-factory": "node BEC-PRIME/compiler/FactoryFactoryCompiler.js",
     "reconcile:approved-offers": "node ops/commerce/reconcile-approved-offers.mjs",
-    "dispatch:approved-acquisition": "node ops/acquisition/dispatch-approved-acquisition.mjs"
+    "dispatch:approved-acquisition": "node ops/acquisition/dispatch-approved-acquisition.mjs",
+    "compile:factory-approval": "node BEC-PRIME/compiler/FactoryFactoryApprovalPackets.js"
   },
   "engines": {
     "node": ">=20"
