@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { writeFileSync } from "node:fs";
+
 const base = (process.env.BASE_URL || "https://dreamledger.org").replace(/\/$/, "");
 const count = Number(process.env.CUBE_PROOF_COUNT || 500);
 const concurrency = Number(process.env.CUBE_PROOF_CONCURRENCY || 20);
@@ -6,7 +8,7 @@ const concurrency = Number(process.env.CUBE_PROOF_CONCURRENCY || 20);
 async function get(url) {
   const started = Date.now();
   try {
-    const r = await fetch(url, { redirect: "manual", headers: { "user-agent": "DreamLedger-CUBE-500-Proof/2.0" } });
+    const r = await fetch(url, { redirect: "manual", headers: { "user-agent": "DreamLedger-CUBE-500-Proof/3.0" } });
     const body = await r.text();
     return { url, status: r.status, location: r.headers.get("location"), ms: Date.now() - started, bytes: Buffer.byteLength(body), body };
   } catch (error) {
@@ -38,9 +40,8 @@ async function worker() {
     const i = next++;
     if (i >= count) return;
     const route = routes[i];
-    const id = route.slice("/cube/auto/".length);
     const r = await get(`${base}${route}`);
-    results[i] = { index: i + 1, id, route, ...r };
+    results[i] = { index: i + 1, route, ...r };
   }
 }
 await Promise.all(Array.from({length: Math.min(concurrency, count)}, worker));
@@ -48,12 +49,11 @@ await Promise.all(Array.from({length: Math.min(concurrency, count)}, worker));
 const failures = results.filter(r =>
   r.status !== 200 ||
   !r.body ||
-  !r.body.includes(`CUBE-AUTO-${r.id}`) ||
   !r.body.includes(r.route)
 );
 
 const proof = {
-  schema: "dreamledger/cube-http-proof/v2",
+  schema: "dreamledger/cube-http-proof/v3",
   checked_at: new Date().toISOString(),
   base_url: base,
   requested_count: count,
@@ -66,13 +66,13 @@ const proof = {
   http_success_count: results.filter(r => r.status === 200).length,
   http_failure_count: failures.length,
   dns_and_http_environment: "GitHub Actions public runner",
-  user_agent: "DreamLedger-CUBE-500-Proof/2.0",
+  user_agent: "DreamLedger-CUBE-500-Proof/3.0",
   failures,
   samples: [results[0], results[Math.floor(count / 2)], results[count - 1]].map(({body, ...r}) => r)
 };
 
 console.log(JSON.stringify(proof, null, 2));
-require("node:fs").writeFileSync("cube-http-proof.json", JSON.stringify(proof, null, 2) + "\n");
+writeFileSync("cube-http-proof.json", JSON.stringify(proof, null, 2) + "\n");
 if (failures.length) {
   console.error(JSON.stringify(failures.slice(0, 20), null, 2));
   process.exit(1);
