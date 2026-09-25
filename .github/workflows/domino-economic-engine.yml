@@ -34,6 +34,9 @@ jobs:
       - name: Compile Factory-Factory queue
         run: npm run compile:factory-factory
 
+      - name: Compile human approval packets
+        run: npm run compile:factory-approval
+
       - name: Reconcile live approved offers
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
@@ -51,6 +54,7 @@ jobs:
           cp BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json proof/domino/factory-factory-queue.json
           cp proof/commerce/latest-approved-offer-reconciliation.json proof/domino/approved-offer-reconciliation.json
           cp proof/domino-status.json proof/domino/domino-status.json
+          cp BEC-PRIME/data/factory-factory/approval-packets/latest.json proof/domino/factory-approval-packets.json
           sha256sum proof/domino/* > proof/domino/SHA256SUMS
           cat proof/domino/SHA256SUMS
 
