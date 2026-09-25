@@ -1,4 +1,4 @@
-name: CUBE 500 HTTP Proof\n# external-runner-verification-v2
+name: CUBE 500 HTTP Proof\n# external-runner-verification-v3
 
 on:
   workflow_dispatch:
