@@ -1,0 +1,57 @@
+{
+  "schema":"DREAMLEDGER/REVENUE-ENGINE/v1",
+  "status":"EXECUTION_READY",
+  "principle":"CUBE enumerates opportunities; LM Studio and cloud workers refine; Daedalus/Oracle/Truth checks evidence; Gauntlet kills weak propositions; authority gates external actions; DreamLedger records reality.",
+  "economic_truth":{
+    "verified_revenue_nzd":0,
+    "external_buyers_verified":0,
+    "fulfilled_external_orders_verified":0,
+    "economic_events_verified":0,
+    "unmatched_live_stripe_successes":[{"amount_minor":500,"currency":"nzd","status":"SUCCEEDED","attribution":"UNMATCHED"},{"amount_minor":100,"currency":"usd","status":"SUCCEEDED","attribution":"UNMATCHED"}]
+  },
+  "monetization_services":[
+    {"id":"REV-001","service":"Commander Deck Diagnostic","price":"NZD 29","evidence":"6 checkout-intent events","state":"EXECUTE_FIRST_SALE"},
+    {"id":"REV-002","service":"Commander Deck Upgrade Plan","price":"NZD 49-99","evidence":"extension of proven diagnostic workflow","state":"GAUNTLET"},
+    {"id":"REV-003","service":"Commander Deck Full Build/Refit","price":"NZD 149-399","evidence":"existing MTG expertise/inventory","state":"GAUNTLET"},
+    {"id":"REV-004","service":"MTG High-Value Singles Brokerage/Sale","price":"market price","evidence":"physical inventory","state":"LISTING_REQUIRED"},
+    {"id":"REV-005","service":"MTG Commander Deck Sales","price":"market price","evidence":"existing deck inventory","state":"INVENTORY_VERIFY"},
+    {"id":"REV-006","service":"MTG Collection Sorting / Valuation","price":"NZD 49-299","evidence":"existing MTG sorting/catalog capability","state":"GAUNTLET"},
+    {"id":"REV-007","service":"n8n Paid Debugging","price":"fixed scope","evidence":"explicit public paid-debugging requests","state":"DEMAND_SIGNAL"},
+    {"id":"REV-008","service":"n8n Workflow Reliability Repair","price":"fixed scope","evidence":"duplicate/retry/API/webhook failure requests","state":"DEMAND_SIGNAL"},
+    {"id":"REV-009","service":"n8n Automation Build","price":"fixed scope","evidence":"multiple paid automation requests","state":"DEMAND_SIGNAL"},
+    {"id":"REV-010","service":"AI Lead-Enquiry Automation","price":"fixed scope","evidence":"public small-business automation request","state":"DEMAND_SIGNAL"},
+    {"id":"REV-011","service":"AI Sales Agent Integration","price":"fixed scope","evidence":"public OpenAI/HubSpot integration request","state":"DEMAND_SIGNAL"},
+    {"id":"REV-012","service":"API/Webhook Repair","price":"fixed scope","evidence":"public API/webhook failure requests","state":"DEMAND_SIGNAL"},
+    {"id":"REV-013","service":"Workflow Review","price":"NZD 35+","evidence":"public fixed-price review signals","state":"WATCH"},
+    {"id":"REV-014","service":"CSV Order Import Preflight","price":"NZD 250 pilot","evidence":"recorded public fixed-price signal","state":"WATCH"},
+    {"id":"REV-015","service":"PDF/Scan to Validated Spreadsheet","price":"fixed scope","evidence":"service-market signal","state":"WATCH"},
+    {"id":"REV-016","service":"Australian Charity Register + Decision-Maker Dataset","price":"NZD 850 observed listing value","evidence":"recorded Upwork public job signal","state":"DEMAND_SIGNAL"},
+    {"id":"REV-017","service":"Commercial Truth Stress-Test","price":"NZD 999","evidence":"live Stripe checkout infrastructure","state":"SELLABLE_NO_BUYER"},
+    {"id":"REV-018","service":"DreamLedger Founding Billboard","price":"NZD 50","evidence":"live checkout/fulfillment/webhook infrastructure","state":"SELLABLE_NO_BUYER"},
+    {"id":"REV-019","service":"Truth Oracle Evidence Report","price":"fixed scope","evidence":"existing verification capability","state":"GAUNTLET"},
+    {"id":"REV-020","service":"Truth Oracle Alert Feed","price":"subscription","evidence":"existing evidence-page/alert architecture","state":"GAUNTLET"},
+    {"id":"REV-021","service":"Opportunity Radar / Demand Intelligence","price":"subscription","evidence":"CUBE demand-signal substrate","state":"GAUNTLET"},
+    {"id":"REV-022","service":"Decision Analysis / Adversarial Review","price":"NZD 99-299","evidence":"existing decision-analysis offer pattern","state":"GAUNTLET"},
+    {"id":"REV-023","service":"Automation Reliability Audit-to-Repair","price":"fixed scope","evidence":"reliability failure signals","state":"GAUNTLET"},
+    {"id":"REV-024","service":"Evidence/Telemetry Instrumentation","price":"fixed scope","evidence":"checkout and economic telemetry capability","state":"GAUNTLET"},
+    {"id":"REV-025","service":"Economic Mechanism Replication Service","price":"enterprise/custom","evidence":"Factory-Factory mechanism compiler concept","state":"FUTURE_AFTER_PROOF"}
+  ],
+  "execution_policy":{
+    "allowed_without_external_side_effect":"discover, retrieve, score, refine, compile, test, create_draft, create_execution_packet, reconcile, verify",
+    "human_authorization_required":"publish, outreach, marketplace_bid, public_post, charge, spend, delete, production_commerce_mutation",
+    "economic_event":"external_buyer + settled_payment + attribution + fulfillment + independent_verification",
+    "learning_event":"economic_event with immutable provenance and mechanism extraction",
+    "replication":"do_not promote until one mechanism is economically verified and independently repeated"
+  },
+  "resource_model":{
+    "local_lane":"LM Studio / GPU when online",
+    "cloud_lane":"GitHub Actions / Render workers",
+    "shared_memory":"Supabase + DreamLedger",
+    "reasoning":"CUBE Pinball + Elohim",
+    "adversarial":"Gauntlet",
+    "truth":"Truth Oracle / independent settlement and fulfillment evidence",
+    "orchestration":"Cortex / AgentBridge / macro engine",
+    "repair":"Daedalus-style bounded repair and verification lane",
+    "authority":"human approval boundary"
+  }
+}
