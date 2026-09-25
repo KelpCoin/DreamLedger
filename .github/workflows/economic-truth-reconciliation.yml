@@ -1,0 +1,48 @@
+name: Economic Truth Reconciliation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: economic-truth-reconciliation
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+
+      - name: Reconcile approved offers against live Stripe
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_LIVE_ENABLED: 'true'
+        run: node ops/commerce/reconcile-approved-offers.mjs
+
+      - name: Stage proof
+        run: |
+          test -s proof/commerce/latest-approved-offer-reconciliation.json
+          sha256sum proof/commerce/latest-approved-offer-reconciliation.json > proof/commerce/latest-approved-offer-reconciliation.sha256
+          cat proof/commerce/latest-approved-offer-reconciliation.sha256
+
+      - name: Upload reconciliation proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-truth-reconciliation-${{ github.run_id }}
+          path: |
+            proof/commerce/latest-approved-offer-reconciliation.json
+            proof/commerce/latest-approved-offer-reconciliation.sha256
+          if-no-files-found: error
+          retention-days: 90
