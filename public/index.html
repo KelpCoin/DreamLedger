@@ -1,313 +1,321 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="prod-v5">
+<html lang="en-NZ" data-surface="prod-v6">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger — digital products and placements. Secure Stripe checkout. New Zealand.">
+<meta name="description" content="DreamLedger — buy digital products and placements. Stripe checkout. New Zealand.">
 <meta name="theme-color" content="#09090b">
+<meta name="robots" content="index,follow">
 <title>DreamLedger</title>
 <link rel="canonical" href="https://dreamledger.org/">
 <style>
 :root{
-  --bg:#09090b;--elev:#121216;--elev2:#18181c;--line:#27272a;
-  --text:#fafafa;--muted:#a1a1aa;--dim:#71717a;
-  --accent:#3b82f6;--accent-h:#2563eb;
-  --ok:#22c55e;
-  --r:12px;
-  --font:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-  --pad:max(20px,calc((100vw - 1120px)/2 + 20px));
+  --bg:#09090b;--s1:#0f0f12;--s2:#16161a;--s3:#1c1c22;
+  --line:#27272a;--line2:#3f3f46;
+  --t:#fafafa;--m:#a1a1aa;--d:#71717a;
+  --w:#fafafa;--wb:#09090b;
+  --ok:#4ade80;--blue:#60a5fa;
+  --r:10px;
+  --px:max(20px,calc((100vw - 1080px)/2 + 20px));
+  --f:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+body{font-family:var(--f);background:var(--bg);color:var(--t);line-height:1.5;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-img{display:block;max-width:100%}
 
-/* Header */
-.hdr{
-  position:sticky;top:0;z-index:50;
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:0 var(--pad);height:64px;
-  background:rgba(9,9,11,.85);backdrop-filter:blur(16px);
+/* Top bar */
+.bar{
+  position:sticky;top:0;z-index:50;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--px);
+  background:rgba(9,9,11,.92);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
 }
-.brand{font-weight:700;font-size:15px;letter-spacing:-.03em}
-.hdr-nav{display:flex;align-items:center;gap:4px}
-.hdr-nav a{
-  font-size:13px;font-weight:600;color:var(--muted);
-  padding:8px 14px;border-radius:8px;
+.bar .logo{font-size:14px;font-weight:700;letter-spacing:-.03em}
+.bar nav{display:flex;align-items:center;gap:2px}
+.bar nav a{
+  font-size:13px;font-weight:600;color:var(--m);
+  padding:7px 12px;border-radius:7px;
 }
-.hdr-nav a:hover{color:var(--text);background:var(--elev)}
-.hdr-nav .btn{
-  background:var(--text);color:var(--bg);margin-left:6px;
+.bar nav a:hover{color:var(--t);background:var(--s2)}
+.bar nav .p{
+  margin-left:6px;background:var(--w);color:var(--wb);
 }
-.hdr-nav .btn:hover{background:#e4e4e7;color:var(--bg)}
+.bar nav .p:hover{background:#e4e4e7;color:var(--wb)}
 
-/* Hero */
-.hero{padding:48px var(--pad) 20px;max-width:640px}
-.hero .eyebrow{
-  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--dim);margin-bottom:12px;
+/* Intro */
+.intro{padding:40px var(--px) 8px}
+.intro h1{
+  font-size:clamp(22px,3.5vw,30px);
+  font-weight:700;letter-spacing:-.04em;line-height:1.2;
 }
-.hero h1{
-  font-size:clamp(1.75rem,4vw,2.35rem);
-  font-weight:700;letter-spacing:-.04em;line-height:1.15;
-}
-.hero p{margin-top:12px;color:var(--muted);font-size:15px}
+.intro p{margin-top:8px;font-size:14px;color:var(--m);max-width:46ch}
 
-/* Trust strip */
-.trust{
-  display:flex;flex-wrap:wrap;gap:20px 28px;
-  padding:16px var(--pad) 8px;
-  border-bottom:1px solid var(--line);
+/* Metrics / trust */
+.metrics{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  margin:24px var(--px) 0;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;
 }
-.trust span{
-  font-size:12px;font-weight:600;color:var(--dim);
-  display:inline-flex;align-items:center;gap:8px;
-}
-.trust span::before{
-  content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);flex-shrink:0;
-}
+.metrics div{background:var(--s1);padding:14px 16px}
+.metrics strong{display:block;font-size:13px;font-weight:700}
+.metrics span{font-size:12px;color:var(--d)}
+@media(max-width:600px){.metrics{grid-template-columns:1fr}}
 
-/* Silo rails */
-.silo{padding:32px 0 8px}
-.silo-meta{
-  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
-  padding:0 var(--pad) 14px;
+/* Section */
+.sec{padding:28px 0 4px}
+.sec-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--px) 12px;gap:12px;
 }
-.silo-meta h2{font-size:15px;font-weight:700;letter-spacing:-.02em}
-.silo-meta p{font-size:13px;color:var(--dim)}
+.sec-h h2{font-size:13px;font-weight:700;letter-spacing:-.01em}
+.sec-h span{font-size:12px;color:var(--d)}
 
 .rail{
-  display:flex;gap:12px;
-  overflow-x:auto;scroll-snap-type:x mandatory;
-  scroll-padding-inline:var(--pad);
-  padding:0 var(--pad) 20px;
-  -webkit-overflow-scrolling:touch;
+  display:flex;gap:10px;overflow-x:auto;
+  scroll-snap-type:x mandatory;scroll-padding-inline:var(--px);
+  padding:0 var(--px) 16px;-webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
 .rail::-webkit-scrollbar{display:none}
 
 .card{
-  flex:0 0 min(280px,78vw);
-  scroll-snap-align:start;
-  background:var(--elev);
-  border:1px solid var(--line);
-  border-radius:var(--r);
-  display:flex;flex-direction:column;
-  min-height:268px;
-  transition:border-color .15s;
+  flex:0 0 min(260px,80vw);scroll-snap-align:start;
+  background:var(--s1);border:1px solid var(--line);border-radius:var(--r);
+  display:flex;flex-direction:column;min-height:250px;
 }
-.card:hover{border-color:#3f3f46}
-.card-visual{
-  height:112px;background:var(--elev2);
-  border-bottom:1px solid var(--line);
+.card:hover{border-color:var(--line2)}
+.thumb{
+  height:100px;border-bottom:1px solid var(--line);
   border-radius:var(--r) var(--r) 0 0;
 }
-.card-visual.v1{background:linear-gradient(160deg,#1e3a5f 0%,var(--elev2) 70%)}
-.card-visual.v2{background:linear-gradient(160deg,#1e3a8a 0%,var(--elev2) 70%)}
-.card-visual.v3{background:linear-gradient(160deg,#4c1d95 0%,var(--elev2) 70%)}
-.card-visual.v4{background:linear-gradient(160deg,#14532d 0%,var(--elev2) 70%)}
-.card-visual.v5{background:linear-gradient(160deg,#44403c 0%,var(--elev2) 70%)}
-.card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:6px}
-.card-body .label{font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
-.card-body h3{font-size:15px;font-weight:650;letter-spacing:-.02em}
-.card-body p{font-size:13px;color:var(--muted);flex:1}
-.card-foot{
+.thumb.a{background:linear-gradient(150deg,#1e3a5f,var(--s2))}
+.thumb.b{background:linear-gradient(150deg,#1e40af,var(--s2))}
+.thumb.c{background:linear-gradient(150deg,#5b21b6,var(--s2))}
+.thumb.d{background:linear-gradient(150deg,#166534,var(--s2))}
+.thumb.e{background:linear-gradient(150deg,#44403c,var(--s2))}
+.body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:4px}
+.body .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--d)}
+.body h3{font-size:14px;font-weight:650;letter-spacing:-.02em}
+.body p{font-size:12px;color:var(--m);flex:1}
+.foot{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px 16px;gap:10px;
+  padding:10px 14px 14px;gap:8px;
 }
-.card-foot .price{font-size:14px;font-weight:700}
-.card-foot a{
-  height:34px;padding:0 14px;border-radius:8px;
-  background:var(--text);color:var(--bg);
+.foot b{font-size:13px;font-weight:700}
+.foot a{
+  height:32px;padding:0 12px;border-radius:7px;
+  background:var(--w);color:var(--wb);
   font-size:12px;font-weight:700;
   display:inline-flex;align-items:center;
 }
-.card-foot a:hover{background:#e4e4e7}
-.card-foot a.ghost{
-  background:transparent;color:var(--text);
-  border:1px solid var(--line);
+.foot a:hover{background:#e4e4e7}
+.foot a.g{
+  background:transparent;color:var(--t);border:1px solid var(--line);
 }
-.card-foot a.ghost:hover{background:var(--elev2)}
+.foot a.g:hover{background:var(--s2)}
+
+/* Enterprise detail band */
+.band{
+  margin:12px var(--px) 0;padding:20px;
+  background:var(--s1);border:1px solid var(--line);border-radius:var(--r);
+}
+.band h2{font-size:13px;font-weight:700;margin-bottom:10px}
+.band ul{list-style:none;display:grid;gap:8px}
+@media(min-width:700px){.band ul{grid-template-columns:1fr 1fr}}
+.band li{font-size:12px;color:var(--m);padding-left:14px;position:relative}
+.band li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--ok)}
 
 /* Footer */
 .ftr{
-  margin-top:40px;padding:32px var(--pad);
+  margin-top:40px;padding:28px var(--px) 36px;
   border-top:1px solid var(--line);
-  display:grid;gap:24px;
+  display:grid;gap:20px;
 }
-@media(min-width:720px){.ftr{grid-template-columns:1.4fr 1fr 1fr}}
-.ftr h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:10px}
-.ftr p,.ftr a{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-.ftr a:hover{color:var(--text)}
-.ftr .copy{font-size:12px;color:var(--dim);margin-top:8px}
+@media(min-width:720px){.ftr{grid-template-columns:1.5fr 1fr 1fr 1fr}}
+.ftr h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--d);margin-bottom:10px}
+.ftr a,.ftr p{display:block;font-size:13px;color:var(--m);margin-bottom:6px}
+.ftr a:hover{color:var(--t)}
+.ftr .fine{font-size:11px;color:var(--d);margin-top:10px}
 </style>
 </head>
 <body>
-<header class="hdr">
-  <a class="brand" href="/">DreamLedger</a>
-  <nav class="hdr-nav" aria-label="Primary">
-    <a href="#market">Shop</a>
+<header class="bar">
+  <a class="logo" href="/">DreamLedger</a>
+  <nav aria-label="Primary">
+    <a href="#market">Products</a>
     <a href="/login">Log in</a>
-    <a class="btn" href="/register">Sign up</a>
+    <a class="p" href="/register">Sign up</a>
   </nav>
 </header>
 
-<section class="hero">
-  <p class="eyebrow">New Zealand · Stripe checkout</p>
-  <h1>Products by category</h1>
-  <p>Each row is a separate product line. Open a card to buy or continue.</p>
+<section class="intro">
+  <h1>Commerce, organised by product line</h1>
+  <p>Scroll each row for offers. Checkout runs on Stripe. Account and play stay separate.</p>
 </section>
 
-<div class="trust" aria-label="Trust">
-  <span>Secure payments via Stripe</span>
-  <span>Listed prices in NZD</span>
-  <span>Digital delivery after payment</span>
+<div class="metrics" aria-label="Service attributes">
+  <div><strong>Stripe checkout</strong><span>Card payments, NZD prices</span></div>
+  <div><strong>Clear fulfilment</strong><span>Digital delivery after pay</span></div>
+  <div><strong>Separated lines</strong><span>Market · Account · Explore</span></div>
 </div>
 
-<!-- Silo: market -->
-<section class="silo" id="market" data-silo="market" aria-labelledby="h-market">
-  <div class="silo-meta">
-    <h2 id="h-market">Market</h2>
-    <p>Paid products</p>
+<section class="sec" id="market" data-silo="market" aria-labelledby="m-h">
+  <div class="sec-h">
+    <h2 id="m-h">Market</h2>
+    <span>Paid · Stripe</span>
   </div>
   <div class="rail" role="list">
     <article class="card" role="listitem">
-      <div class="card-visual v1" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Placement</span>
+      <div class="thumb a" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Placement</span>
         <h3>Billboard tile</h3>
-        <p>Permanent 100×100 on the public board. Title and link at checkout.</p>
+        <p>100×100 on the public board. Title and link at checkout.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">NZ$50</span>
+      <div class="foot">
+        <b>NZ$50</b>
         <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a>
       </div>
     </article>
     <article class="card" role="listitem">
-      <div class="card-visual v2" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Digital</span>
+      <div class="thumb b" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Digital</span>
         <h3>Commander diagnostic</h3>
-        <p>Deck structure, cuts and upgrades. Delivered after payment.</p>
+        <p>Structure, cuts, upgrades. Delivered after payment.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">NZ$29</span>
+      <div class="foot">
+        <b>NZ$29</b>
         <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a>
       </div>
     </article>
     <article class="card" role="listitem">
-      <div class="card-visual v3" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Digital</span>
+      <div class="thumb c" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Digital</span>
         <h3>Discord webhook kit</h3>
-        <p>Payment notification templates. Download after checkout.</p>
+        <p>Payment alert templates. Download after checkout.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">NZ$79</span>
+      <div class="foot">
+        <b>NZ$79</b>
         <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a>
       </div>
     </article>
   </div>
 </section>
 
-<!-- Silo: identity -->
-<section class="silo" data-silo="identity" aria-labelledby="h-identity">
-  <div class="silo-meta">
-    <h2 id="h-identity">Account</h2>
-    <p>Identity · separate from checkout</p>
+<section class="sec" data-silo="identity" aria-labelledby="i-h">
+  <div class="sec-h">
+    <h2 id="i-h">Account</h2>
+    <span>Identity · free</span>
   </div>
   <div class="rail" role="list">
     <article class="card" role="listitem">
-      <div class="card-visual v4" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Free</span>
-        <h3>Create account</h3>
-        <p>Email and password.</p>
+      <div class="thumb d" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Account</span>
+        <h3>Sign up</h3>
+        <p>Create an account with email and password.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">Free</span>
-        <a href="/register">Sign up</a>
+      <div class="foot">
+        <b>Free</b>
+        <a href="/register">Start</a>
       </div>
     </article>
     <article class="card" role="listitem">
-      <div class="card-visual v4" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Free</span>
+      <div class="thumb d" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Account</span>
         <h3>Log in</h3>
-        <p>Access your existing account.</p>
+        <p>Return to an existing account.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">Free</span>
-        <a class="ghost" href="/login">Log in</a>
+      <div class="foot">
+        <b>Free</b>
+        <a class="g" href="/login">Log in</a>
       </div>
     </article>
     <article class="card" role="listitem">
-      <div class="card-visual v4" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Profile</span>
+      <div class="thumb d" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Profile</span>
         <h3>Avatar</h3>
-        <p>Customise after you sign up.</p>
+        <p>Customise after you have an account.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">Free</span>
-        <a class="ghost" href="/avatar.html">Open</a>
+      <div class="foot">
+        <b>Free</b>
+        <a class="g" href="/avatar.html">Open</a>
       </div>
     </article>
   </div>
 </section>
 
-<!-- Silo: play -->
-<section class="silo" data-silo="play" aria-labelledby="h-play">
-  <div class="silo-meta">
-    <h2 id="h-play">Explore</h2>
-    <p>Optional · no purchase required</p>
+<section class="sec" data-silo="play" aria-labelledby="p-h">
+  <div class="sec-h">
+    <h2 id="p-h">Explore</h2>
+    <span>Optional</span>
   </div>
   <div class="rail" role="list">
     <article class="card" role="listitem">
-      <div class="card-visual v5" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Free</span>
+      <div class="thumb e" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Play</span>
         <h3>Phin Haven</h3>
-        <p>Playable world.</p>
+        <p>Playable world. No purchase required.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">Free</span>
-        <a class="ghost" href="/phin-haven">Play</a>
+      <div class="foot">
+        <b>Free</b>
+        <a class="g" href="/phin-haven">Play</a>
       </div>
     </article>
     <article class="card" role="listitem">
-      <div class="card-visual v1" aria-hidden="true"></div>
-      <div class="card-body">
-        <span class="label">Public</span>
+      <div class="thumb a" aria-hidden="true"></div>
+      <div class="body">
+        <span class="k">Public</span>
         <h3>Billboard</h3>
         <p>View the live public board.</p>
       </div>
-      <div class="card-foot">
-        <span class="price">View</span>
-        <a class="ghost" href="/billboard">Open</a>
+      <div class="foot">
+        <b>View</b>
+        <a class="g" href="/billboard">Open</a>
       </div>
     </article>
   </div>
+</section>
+
+<section class="band" aria-label="How buying works">
+  <h2>How buying works</h2>
+  <ul>
+    <li>Choose a product card in Market</li>
+    <li>Complete Stripe checkout (NZD)</li>
+    <li>Digital items are fulfilled after payment</li>
+    <li>Billboard tiles are reviewed before publish</li>
+    <li>Account is optional for one-off purchases</li>
+    <li>Policies cover refunds and acceptable use</li>
+  </ul>
 </section>
 
 <footer class="ftr">
   <div>
     <h3>DreamLedger</h3>
     <p>Digital products and placements.</p>
-    <p class="copy">© DreamLedger · New Zealand</p>
+    <p class="fine">© DreamLedger · New Zealand</p>
   </div>
   <div>
-    <h3>Shop</h3>
+    <h3>Products</h3>
     <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Billboard tile</a>
     <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic</a>
     <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Discord kit</a>
   </div>
   <div>
-    <h3>Support</h3>
-    <a href="/login">Log in</a>
+    <h3>Account</h3>
     <a href="/register">Sign up</a>
+    <a href="/login">Log in</a>
+    <a href="/avatar.html">Avatar</a>
+  </div>
+  <div>
+    <h3>Legal</h3>
     <a href="/policies.html">Policies</a>
   </div>
 </footer>

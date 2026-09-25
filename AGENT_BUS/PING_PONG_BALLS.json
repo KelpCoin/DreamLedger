@@ -1,14 +1,10 @@
 {
-  "version": 38,
+  "version": 39,
   "updated": "2026-09-25",
   "current_truth": {
-    "public": "prod-v5 production shell",
-    "docs": "docs/public/PRODUCTION-SHELL.md",
+    "public": "prod-v6",
     "verified_external_revenue_nzd": 0
   },
-  "balls": {
-    "W": "prod-v5 storefront",
-    "C": "Distribution still required for revenue"
-  },
-  "immediate_next": ["Redeploy + hard refresh for data-surface=prod-v5"]
+  "balls": { "W": "prod-v6 shell", "C": "sell" },
+  "immediate_next": ["Redeploy for data-surface=prod-v6"]
 }

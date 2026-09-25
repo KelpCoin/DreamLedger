@@ -1,27 +1,25 @@
-# Production shell (prod-v5)
+# Production shell
 
-## This increment
+## Current: prod-v6
 
-- Sticky header, trust strip, silo horizontal carousels
-- CTA card per product / action
-- Footer with shop + support
-- Matching login / register
-- Inline CSS (no broken external sheet)
-- No floating QR, no internal ops language
+Enterprise **increment** (not a claim of parity with Shopify):
 
-## Silo isolation
+- Sticky nav, metrics trust grid
+- Silo horizontal carousels (market / account / explore)
+- CTA cards only
+- “How buying works” band
+- Footer: products, account, legal
+- Matching auth pages (prod-v5+)
+- No floating QR; no ops language on home
 
-| data-silo | Contents |
-|-----------|----------|
-| market | Paid Stripe products only |
-| identity | Account / avatar |
-| play | Phin Haven / billboard view |
+## Remaining to full enterprise
 
-## Not yet enterprise-complete
+1. Apply same tokens to `/billboard`, `/avatar`, product deep pages  
+2. Real media on cards  
+3. Account → orders / downloads  
+4. Formal a11y + Lighthouse pass  
+5. Status / support contact  
 
-- Shared skin on every legacy route (`/billboard` pages still independent)
-- Real product photography
-- Order history UI
-- Full a11y audit
+## Silo rule
 
-Next increments: skin sub-routes, product media, account orders.
+See `SILO-SEPARATION.md`. Do not merge rails without an approved product.
