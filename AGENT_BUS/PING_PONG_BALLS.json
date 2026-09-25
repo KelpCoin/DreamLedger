@@ -1,31 +1,20 @@
 {
-  "version": 50,
+  "version": 51,
   "updated": "2026-09-26",
   "current_truth": {
-    "public": "store-v2.1",
-    "true_silos_registry": "ops/silos/true_silos_registry.json",
-    "true_silos_count": 6,
-    "true_silos_target": 500,
-    "daily": "python3 scripts/daily_pinball.py",
+    "priority": "HE NEEDS MONEY",
+    "doc": "ops/money/HE-NEEDS-MONEY.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "DISTRIBUTE buy URLs",
-    "W": "store-v2.1 — deploy",
-    "B": "daily_pinball.py for continuity",
-    "S": "6 true silos registered; promote toward 500 carefully"
+    "C": "ONLY BALL THAT MATTERS — post buy URL to a human"
   },
   "immediate_next": [
-    "python3 scripts/daily_pinball.py",
-    "Redeploy public store-v2.1",
-    "Post billboard or diagnostic buy URL"
+    "Post https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001 OR billboard buy URL",
+    "Warm DM beats perfect architecture"
   ],
   "do_not": [
-    "Promote junk cells to true silos",
-    "Claim revenue without Stripe evidence"
-  ],
-  "household": {
-    "purpose": "Continuity + honest money path for husband and wife",
-    "mechanism": "Pinball + true silo registry + Phase-1 distribute"
-  }
+    "Redesign the site instead of posting",
+    "Build more agents before a pay"
+  ]
 }

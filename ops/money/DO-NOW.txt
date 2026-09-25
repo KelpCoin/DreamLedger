@@ -1,13 +1,17 @@
-POST THIS NOW (tile NZ$50):
+HE NEEDS MONEY. VERIFIED REVENUE = NZ$0.
 
-Permanent 100x100 on DreamLedger public billboard — NZ$50.
-Title + link at checkout. Stripe.
+POST ONE OF THESE TODAY:
+
+TILE NZ$50:
 https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
 
-OR (MTG NZ$29):
-
-Commander diagnostic NZ$29 — structure, cuts, upgrades.
+DIAG NZ$29:
 https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
 
-THEN: GitHub Actions → Commerce Settlement Sync → Run
-NEED: STRIPE_SECRET_KEY secret on the repo
+Copy (tile):
+Permanent 100x100 on the DreamLedger public board — NZ$50. Title + link at checkout.
+
+Copy (diag):
+Commander deck diagnostic — structure, cuts, upgrades. NZ$29 after payment.
+
+After pay: fulfil, then economic_event. Nothing else moves the bank account.
