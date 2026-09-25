@@ -1,0 +1,45 @@
+name: Factory Economic Loop
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: factory-economic-loop
+  cancel-in-progress: false
+
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_LIVE_ENABLED: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Compile Factory-Factory queue
+        run: npm run compile:factory-factory
+
+      - name: Reconcile approved live offers
+        run: npm run reconcile:approved-offers
+
+      - name: Verify factory control plane
+        run: node -e "const q=require('./BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json'); if(!q.compiled_count) process.exit(2); console.log(JSON.stringify({compiled:q.compiled_count,offers:q.compiled_offer_count,opportunities:q.compiled_opportunity_count},null,2))"
+
+      - name: Upload economic proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-economic-proof-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json
+            proof/commerce/latest-approved-offer-reconciliation.json
+          if-no-files-found: error
