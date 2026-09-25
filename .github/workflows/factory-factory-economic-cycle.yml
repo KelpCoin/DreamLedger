@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: read
 
 concurrency:
   group: dreamledger-factory-factory
@@ -52,10 +53,29 @@ jobs:
           node BEC-PRIME/factory/FactoryFactoryOrchestrator.js
           node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js
 
+      - name: Dispatch the already-authorized first acquisition once
+        if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && secrets.DISPATCH_TOKEN != '' }}
+        env:
+          DISPATCH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          existing="$(gh issue list --repo KelpCoin/DreamLedger --state open --search "FACTORY-ACQUISITION-LOCK: CMD-DIAG-29 in:title" --json number --jq 'length')"
+          if [ "${existing}" -gt 0 ]; then
+            echo "FIRST_ACQUISITION_ALREADY_PUBLISHED=true"
+            exit 0
+          fi
+
+          OFFER=CMD-DIAG-29 TARGET=configured-discord-acquisition APPROVAL=APPROVED node ops/acquisition/dispatch-approved-acquisition.mjs
+          echo "DISPATCH=ACCEPTED_BY_GITHUB"
+          echo "OFFER=CMD-DIAG-29"
+          echo "REVENUE=UNVERIFIED"
+
       - name: Upload factory evidence
         uses: actions/upload-artifact@v4
         with:
-          name: factory-factory-economic-cycle
+          name: factory-factory-economic-cycle-${{ github.run_id }}
           path: |
             BEC-PRIME/data/factory-factory/**
             BEC-PRIME/data/x402-factory/**
