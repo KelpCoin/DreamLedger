@@ -55,6 +55,7 @@
     "compile:control-surface": "node scripts/Publish-CortexControlSurface.js",
     "compile:universal": "node scripts/Smoke-UniversalCompiler.js",
     "verify:production-contract": "node scripts/verify-production-contract.js",
+    "verify:economic-north-star": "node scripts/verify-economic-north-star.js",
     "verify:silos": "node scripts/verify-silo-boundaries.js",
     "verify:integration": "node scripts/verify-commercial-integration.js",
     "integration-truth": "node scripts/integration-truth.js",
