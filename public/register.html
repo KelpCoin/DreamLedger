@@ -1,51 +1,79 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="prod-v5-auth">
+<html lang="en-NZ" data-surface="prod-v7-auth">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign up · DreamLedger</title>
 <style>
-:root{--bg:#09090b;--elev:#121216;--line:#27272a;--text:#fafafa;--muted:#a1a1aa;--dim:#71717a;--err:#f87171}
+:root{--bg:#09090b;--s1:#0f0f12;--s2:#16161a;--line:#27272a;--t:#fafafa;--m:#a1a1aa;--d:#71717a;--w:#fafafa;--wb:#09090b;--err:#f87171;--px:max(20px,calc((100vw - 1080px)/2 + 20px));--f:ui-sans-serif,system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:var(--f);background:var(--bg);color:var(--t);min-height:100vh;display:flex;flex-direction:column}
 a{color:inherit;text-decoration:none}
-.hdr{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--line)}
-.brand{font-weight:700;font-size:15px}
-.hdr a.nav{font-size:13px;font-weight:600;color:var(--muted)}
-main{max-width:400px;margin:48px auto;padding:0 20px}
-.card{background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:28px}
-h1{font-size:20px;font-weight:700;letter-spacing:-.03em;margin-bottom:6px}
-.sub{font-size:14px;color:var(--muted);margin-bottom:22px}
-label{display:block;font-size:12px;font-weight:600;color:var(--dim);margin:0 0 6px}
-input{width:100%;height:44px;padding:0 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:8px;background:#0c0c0e;color:var(--text);font:inherit}
-input:focus{outline:2px solid #3b82f6;outline-offset:1px;border-color:transparent}
-button{width:100%;height:44px;border:0;border-radius:8px;background:#fafafa;color:#09090b;font-weight:700;font:inherit;cursor:pointer}
-button:hover{background:#e4e4e7}
+main{flex:1}
+.site-header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--px);border-bottom:1px solid var(--line);background:rgba(9,9,11,.92)}
+.site-header .logo{font-size:14px;font-weight:700}
+.site-header nav a{font-size:13px;font-weight:600;color:var(--m);padding:7px 12px;border-radius:7px}
+.site-header nav a.primary{background:var(--w);color:var(--wb);margin-left:6px}
+.wrap{max-width:400px;margin:48px auto;padding:0 20px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:28px}
+h1{font-size:20px;font-weight:700;margin-bottom:6px}
+.sub{font-size:14px;color:var(--m);margin-bottom:22px}
+label{display:block;font-size:12px;font-weight:600;color:var(--d);margin:0 0 6px}
+input{width:100%;height:44px;padding:0 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:8px;background:#0c0c0e;color:var(--t);font:inherit}
+button{width:100%;height:44px;border:0;border-radius:8px;background:var(--w);color:var(--wb);font-weight:700;font:inherit;cursor:pointer}
 .err{color:var(--err);font-size:13px;margin-top:12px;min-height:1.2em}
-.sw{margin-top:18px;font-size:13px;color:var(--muted)}
-.sw a{font-weight:600;color:var(--text);text-decoration:underline}
+.sw{margin-top:18px;font-size:13px;color:var(--m)}
+.sw a{font-weight:600;color:var(--t);text-decoration:underline}
+.site-footer{margin-top:auto;border-top:1px solid var(--line);background:var(--s1)}
+.site-footer .cols{padding:28px var(--px) 16px;display:grid;gap:20px}
+@media(min-width:720px){.site-footer .cols{grid-template-columns:1.4fr 1fr 1fr}}
+.site-footer h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--d);margin-bottom:10px}
+.site-footer a,.site-footer p{display:block;font-size:13px;color:var(--m);margin-bottom:6px}
+.pay-trust{border-top:1px solid var(--line);padding:16px var(--px);display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.pay-trust .label{font-size:12px;color:var(--d)}
+.pay-marks{display:flex;flex-wrap:wrap;gap:8px}
+.pay-marks .mark{display:inline-flex;align-items:center;height:28px;padding:0 8px;border-radius:5px;background:#fff;border:1px solid #e4e4e7}
+.pay-marks .mark.stripe{background:#635bff;border-color:#635bff}
+.pay-marks .mark svg{height:14px;width:auto;display:block}
 </style>
 </head>
 <body>
-<header class="hdr">
-  <a class="brand" href="/">DreamLedger</a>
-  <a class="nav" href="/login">Log in</a>
+<header class="site-header">
+  <a class="logo" href="/">DreamLedger</a>
+  <nav><a href="/">Shop</a><a class="primary" href="/login">Log in</a></nav>
 </header>
 <main>
-  <div class="card">
-    <h1>Create account</h1>
-    <p class="sub">Email and password. Then you can set up your avatar.</p>
-    <form id="f">
-      <label for="email">Email</label>
-      <input id="email" type="email" autocomplete="email" required>
-      <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="new-password" required minlength="8">
-      <button type="submit">Sign up</button>
-      <div id="msg" class="err" role="alert"></div>
-    </form>
-    <p class="sw">Already registered? <a href="/login">Log in</a></p>
+  <div class="wrap">
+    <div class="card">
+      <h1>Sign up</h1>
+      <p class="sub">Create an account with email and password.</p>
+      <form id="f">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" required>
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="new-password" required minlength="8">
+        <button type="submit">Create account</button>
+        <div id="msg" class="err" role="alert"></div>
+      </form>
+      <p class="sw">Already registered? <a href="/login">Log in</a></p>
+    </div>
   </div>
 </main>
+<footer class="site-footer">
+  <div class="cols">
+    <div><h3>DreamLedger</h3><p>Digital products and placements.</p></div>
+    <div><h3>Account</h3><a href="/login">Log in</a><a href="/">Shop</a></div>
+    <div><h3>Legal</h3><a href="/policies.html">Policies</a></div>
+  </div>
+  <div class="pay-trust">
+    <p class="label">Checkout secured by Stripe</p>
+    <div class="pay-marks" aria-label="Payments">
+      <span class="mark stripe" title="Stripe"><svg viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#fff" d="M5 12.5c0-2.2 1.8-3.5 4.7-3.5 1.5 0 2.6.3 3.3.6V12c-.7-.3-1.6-.5-2.7-.5-1.1 0-1.6.4-1.6 1s.5.8 1.7 1.1c2 .5 3.3 1.1 3.3 2.9 0 2.1-1.7 3.5-4.8 3.5-1.4 0-2.7-.3-3.6-.7v-2.3c.9.5 2.2.8 3.4.8 1.1 0 1.7-.4 1.7-1 0-.6-.5-.9-1.8-1.2-1.9-.5-3.3-1.2-3.3-2.9zm12.2 6.3h2.9V6.4h-2.9v12.4zm12.3-12.7c-1.2 0-2.2.5-2.9 1.4l-.2-1.1h-2.6v16.1h2.9v-5.5c.7.8 1.7 1.3 2.9 1.3 2.3 0 4.4-1.9 4.4-5.1-.1-3.1-2.2-5.1-4.5-5.1zm-.8 7.8c-1.3 0-2.2-1.1-2.2-2.6 0-1.5.9-2.6 2.2-2.6 1.3 0 2.2 1.1 2.2 2.6 0 1.5-.9 2.6-2.2 2.6zm7.9 4.9h2.9V6.4h-2.9v12.4zm12.6-12.6c-2.7 0-4.8 2-4.8 5.2 0 3.3 2.1 5.2 4.8 5.2 1.5 0 2.7-.5 3.6-1.4V18h.1c-.1 1.4-.9 2.1-2.4 2.1-.9 0-1.6-.2-2.2-.5v2.3c.7.3 1.6.5 2.6.5 2.7 0 4.4-1.5 4.4-4.4V9.1h-2.7l-.1 1.1c-.8-.9-2-1.5-3.3-1.5zm.6 7.8c-1.4 0-2.3-1.1-2.3-2.6 0-1.5.9-2.6 2.3-2.6 1.3 0 2.3 1.1 2.3 2.6 0 1.5-1 2.6-2.3 2.6z"/></svg></span>
+      <span class="mark" title="Visa"><svg viewBox="0 0 48 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#1A1F71" d="M19.5 1.2l-2.9 13.6h-3.3L16.2 1.2h3.3zm13.8 8.8l1.7-4.7.9 4.7h-2.6zm3.5 4.8h3l-2.6-13.6h-2.8c-.6 0-1.1.3-1.3.9l-4.7 12.7h3.5l.7-1.8h4.2l.3 1.8zM24.8 1.2l-5.4 13.6h-3.5l5.4-13.6h3.5zM13.2 1.2L9.9 10.3 9.5 8.4c-.7-2.2-2.8-4.6-5.2-5.8l3 11h3.5L17 1.2h-3.8z"/><path fill="#F9A12E" d="M6.4 1.2H1.1L1 1.5c4.1 1 6.8 3.4 7.9 6.3L7.5 2.1c-.2-.6-.6-.9-1.1-.9z"/></svg></span>
+      <span class="mark" title="Mastercard"><svg viewBox="0 0 40 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="15" cy="12" r="9" fill="#EB001B"/><circle cx="25" cy="12" r="9" fill="#F79E1B"/><path fill="#FF5F00" d="M20 5.3a9 9 0 0 1 0 13.4 9 9 0 0 1 0-13.4z"/></svg></span>
+    </div>
+  </div>
+</footer>
 <script>
 document.getElementById('f').onsubmit=async e=>{e.preventDefault();msg.textContent='';try{const r=await fetch('/api/account/register',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Sign up failed');location.href=d.next||'/avatar.html'}catch(x){msg.textContent=x.message}};
 </script>

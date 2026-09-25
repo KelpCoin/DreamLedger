@@ -1,95 +1,57 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="prod-v6">
+<html lang="en-NZ" data-surface="prod-v7">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger — buy digital products and placements. Stripe checkout. New Zealand.">
+<meta name="description" content="DreamLedger — digital products and placements. Secure checkout with Stripe.">
 <meta name="theme-color" content="#09090b">
-<meta name="robots" content="index,follow">
 <title>DreamLedger</title>
 <link rel="canonical" href="https://dreamledger.org/">
 <style>
 :root{
-  --bg:#09090b;--s1:#0f0f12;--s2:#16161a;--s3:#1c1c22;
-  --line:#27272a;--line2:#3f3f46;
-  --t:#fafafa;--m:#a1a1aa;--d:#71717a;
-  --w:#fafafa;--wb:#09090b;
-  --ok:#4ade80;--blue:#60a5fa;
-  --r:10px;
-  --px:max(20px,calc((100vw - 1080px)/2 + 20px));
-  --f:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --bg:#09090b;--s1:#0f0f12;--s2:#16161a;--line:#27272a;--line2:#3f3f46;
+  --t:#fafafa;--m:#a1a1aa;--d:#71717a;--w:#fafafa;--wb:#09090b;
+  --r:10px;--px:max(20px,calc((100vw - 1080px)/2 + 20px));
+  --f:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--f);background:var(--bg);color:var(--t);line-height:1.5;-webkit-font-smoothing:antialiased}
+body{font-family:var(--f);background:var(--bg);color:var(--t);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
 a{color:inherit;text-decoration:none}
+main{flex:1}
 
-/* Top bar */
-.bar{
+/* ===== SHARED HEADER ===== */
+.site-header{
   position:sticky;top:0;z-index:50;height:56px;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 var(--px);
   background:rgba(9,9,11,.92);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
 }
-.bar .logo{font-size:14px;font-weight:700;letter-spacing:-.03em}
-.bar nav{display:flex;align-items:center;gap:2px}
-.bar nav a{
-  font-size:13px;font-weight:600;color:var(--m);
-  padding:7px 12px;border-radius:7px;
-}
-.bar nav a:hover{color:var(--t);background:var(--s2)}
-.bar nav .p{
-  margin-left:6px;background:var(--w);color:var(--wb);
-}
-.bar nav .p:hover{background:#e4e4e7;color:var(--wb)}
+.site-header .logo{font-size:14px;font-weight:700;letter-spacing:-.03em}
+.site-header nav{display:flex;align-items:center;gap:2px}
+.site-header nav a{font-size:13px;font-weight:600;color:var(--m);padding:7px 12px;border-radius:7px}
+.site-header nav a:hover{color:var(--t);background:var(--s2)}
+.site-header nav a.primary{margin-left:6px;background:var(--w);color:var(--wb)}
+.site-header nav a.primary:hover{background:#e4e4e7;color:var(--wb)}
 
-/* Intro */
-.intro{padding:40px var(--px) 8px}
-.intro h1{
-  font-size:clamp(22px,3.5vw,30px);
-  font-weight:700;letter-spacing:-.04em;line-height:1.2;
-}
-.intro p{margin-top:8px;font-size:14px;color:var(--m);max-width:46ch}
-
-/* Metrics / trust */
-.metrics{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
-  margin:24px var(--px) 0;
-  background:var(--line);border:1px solid var(--line);border-radius:var(--r);
-  overflow:hidden;
-}
+/* ===== PAGE ===== */
+.intro{padding:36px var(--px) 8px}
+.intro h1{font-size:clamp(22px,3.5vw,28px);font-weight:700;letter-spacing:-.04em;line-height:1.2}
+.intro p{margin-top:8px;font-size:14px;color:var(--m);max-width:48ch}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:20px var(--px) 0;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .metrics div{background:var(--s1);padding:14px 16px}
 .metrics strong{display:block;font-size:13px;font-weight:700}
 .metrics span{font-size:12px;color:var(--d)}
 @media(max-width:600px){.metrics{grid-template-columns:1fr}}
-
-/* Section */
 .sec{padding:28px 0 4px}
-.sec-h{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 var(--px) 12px;gap:12px;
-}
-.sec-h h2{font-size:13px;font-weight:700;letter-spacing:-.01em}
+.sec-h{display:flex;align-items:center;justify-content:space-between;padding:0 var(--px) 12px}
+.sec-h h2{font-size:13px;font-weight:700}
 .sec-h span{font-size:12px;color:var(--d)}
-
-.rail{
-  display:flex;gap:10px;overflow-x:auto;
-  scroll-snap-type:x mandatory;scroll-padding-inline:var(--px);
-  padding:0 var(--px) 16px;-webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-}
+.rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--px);padding:0 var(--px) 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
-
-.card{
-  flex:0 0 min(260px,80vw);scroll-snap-align:start;
-  background:var(--s1);border:1px solid var(--line);border-radius:var(--r);
-  display:flex;flex-direction:column;min-height:250px;
-}
+.card{flex:0 0 min(260px,80vw);scroll-snap-align:start;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;min-height:250px}
 .card:hover{border-color:var(--line2)}
-.thumb{
-  height:100px;border-bottom:1px solid var(--line);
-  border-radius:var(--r) var(--r) 0 0;
-}
+.thumb{height:100px;border-bottom:1px solid var(--line);border-radius:var(--r) var(--r) 0 0}
 .thumb.a{background:linear-gradient(150deg,#1e3a5f,var(--s2))}
 .thumb.b{background:linear-gradient(150deg,#1e40af,var(--s2))}
 .thumb.c{background:linear-gradient(150deg,#5b21b6,var(--s2))}
@@ -97,226 +59,169 @@ a{color:inherit;text-decoration:none}
 .thumb.e{background:linear-gradient(150deg,#44403c,var(--s2))}
 .body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:4px}
 .body .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--d)}
-.body h3{font-size:14px;font-weight:650;letter-spacing:-.02em}
+.body h3{font-size:14px;font-weight:650}
 .body p{font-size:12px;color:var(--m);flex:1}
-.foot{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px 14px;gap:8px;
-}
-.foot b{font-size:13px;font-weight:700}
-.foot a{
-  height:32px;padding:0 12px;border-radius:7px;
-  background:var(--w);color:var(--wb);
-  font-size:12px;font-weight:700;
-  display:inline-flex;align-items:center;
-}
-.foot a:hover{background:#e4e4e7}
-.foot a.g{
-  background:transparent;color:var(--t);border:1px solid var(--line);
-}
-.foot a.g:hover{background:var(--s2)}
+.foot-card{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 14px;gap:8px}
+.foot-card b{font-size:13px;font-weight:700}
+.foot-card a{height:32px;padding:0 12px;border-radius:7px;background:var(--w);color:var(--wb);font-size:12px;font-weight:700;display:inline-flex;align-items:center}
+.foot-card a:hover{background:#e4e4e7}
+.foot-card a.g{background:transparent;color:var(--t);border:1px solid var(--line)}
 
-/* Enterprise detail band */
-.band{
-  margin:12px var(--px) 0;padding:20px;
-  background:var(--s1);border:1px solid var(--line);border-radius:var(--r);
-}
-.band h2{font-size:13px;font-weight:700;margin-bottom:10px}
-.band ul{list-style:none;display:grid;gap:8px}
-@media(min-width:700px){.band ul{grid-template-columns:1fr 1fr}}
-.band li{font-size:12px;color:var(--m);padding-left:14px;position:relative}
-.band li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--ok)}
+/* ===== SHARED FOOTER ===== */
+.site-footer{margin-top:40px;border-top:1px solid var(--line);background:var(--s1)}
+.site-footer .cols{padding:32px var(--px) 20px;display:grid;gap:24px}
+@media(min-width:720px){.site-footer .cols{grid-template-columns:1.4fr 1fr 1fr 1fr}}
+.site-footer h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--d);margin-bottom:10px}
+.site-footer a,.site-footer p{display:block;font-size:13px;color:var(--m);margin-bottom:6px}
+.site-footer a:hover{color:var(--t)}
+.site-footer .fine{font-size:11px;color:var(--d);margin-top:8px}
 
-/* Footer */
-.ftr{
-  margin-top:40px;padding:28px var(--px) 36px;
+/* Trust / payments bar */
+.pay-trust{
   border-top:1px solid var(--line);
-  display:grid;gap:20px;
+  padding:20px var(--px);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;
 }
-@media(min-width:720px){.ftr{grid-template-columns:1.5fr 1fr 1fr 1fr}}
-.ftr h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--d);margin-bottom:10px}
-.ftr a,.ftr p{display:block;font-size:13px;color:var(--m);margin-bottom:6px}
-.ftr a:hover{color:var(--t)}
-.ftr .fine{font-size:11px;color:var(--d);margin-top:10px}
+.pay-trust .label{font-size:12px;font-weight:600;color:var(--d);max-width:280px}
+.pay-marks{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.pay-marks .mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:32px;padding:0 10px;border-radius:6px;
+  background:#fff;border:1px solid #e4e4e7;
+}
+.pay-marks .mark svg{display:block;height:18px;width:auto}
+.pay-marks .mark.stripe{background:#635bff;border-color:#635bff}
+.pay-marks .mark.stripe svg{height:16px}
+.pay-trust .secure{font-size:11px;color:var(--d);width:100%;margin-top:4px}
+@media(min-width:720px){.pay-trust .secure{width:auto;margin-top:0}}
 </style>
 </head>
 <body>
-<header class="bar">
+<header class="site-header">
   <a class="logo" href="/">DreamLedger</a>
   <nav aria-label="Primary">
     <a href="#market">Products</a>
     <a href="/login">Log in</a>
-    <a class="p" href="/register">Sign up</a>
+    <a class="primary" href="/register">Sign up</a>
   </nav>
 </header>
 
+<main>
 <section class="intro">
-  <h1>Commerce, organised by product line</h1>
-  <p>Scroll each row for offers. Checkout runs on Stripe. Account and play stay separate.</p>
+  <h1>Products by line</h1>
+  <p>Each row is separate. Checkout is handled securely by Stripe.</p>
 </section>
 
-<div class="metrics" aria-label="Service attributes">
-  <div><strong>Stripe checkout</strong><span>Card payments, NZD prices</span></div>
-  <div><strong>Clear fulfilment</strong><span>Digital delivery after pay</span></div>
-  <div><strong>Separated lines</strong><span>Market · Account · Explore</span></div>
+<div class="metrics">
+  <div><strong>Secure checkout</strong><span>Powered by Stripe</span></div>
+  <div><strong>Cards accepted</strong><span>Visa, Mastercard, Amex &amp; more</span></div>
+  <div><strong>NZD pricing</strong><span>Clear listed prices</span></div>
 </div>
 
-<section class="sec" id="market" data-silo="market" aria-labelledby="m-h">
-  <div class="sec-h">
-    <h2 id="m-h">Market</h2>
-    <span>Paid · Stripe</span>
-  </div>
+<section class="sec" id="market" data-silo="market">
+  <div class="sec-h"><h2>Market</h2><span>Paid</span></div>
   <div class="rail" role="list">
     <article class="card" role="listitem">
-      <div class="thumb a" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Placement</span>
-        <h3>Billboard tile</h3>
-        <p>100×100 on the public board. Title and link at checkout.</p>
-      </div>
-      <div class="foot">
-        <b>NZ$50</b>
-        <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a>
-      </div>
+      <div class="thumb a"></div>
+      <div class="body"><span class="k">Placement</span><h3>Billboard tile</h3><p>100×100 on the public board.</p></div>
+      <div class="foot-card"><b>NZ$50</b><a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a></div>
     </article>
     <article class="card" role="listitem">
-      <div class="thumb b" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Digital</span>
-        <h3>Commander diagnostic</h3>
-        <p>Structure, cuts, upgrades. Delivered after payment.</p>
-      </div>
-      <div class="foot">
-        <b>NZ$29</b>
-        <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a>
-      </div>
+      <div class="thumb b"></div>
+      <div class="body"><span class="k">Digital</span><h3>Commander diagnostic</h3><p>Structure, cuts, upgrades after pay.</p></div>
+      <div class="foot-card"><b>NZ$29</b><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a></div>
     </article>
     <article class="card" role="listitem">
-      <div class="thumb c" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Digital</span>
-        <h3>Discord webhook kit</h3>
-        <p>Payment alert templates. Download after checkout.</p>
-      </div>
-      <div class="foot">
-        <b>NZ$79</b>
-        <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a>
-      </div>
+      <div class="thumb c"></div>
+      <div class="body"><span class="k">Digital</span><h3>Discord webhook kit</h3><p>Templates. Download after checkout.</p></div>
+      <div class="foot-card"><b>NZ$79</b><a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a></div>
     </article>
   </div>
 </section>
 
-<section class="sec" data-silo="identity" aria-labelledby="i-h">
-  <div class="sec-h">
-    <h2 id="i-h">Account</h2>
-    <span>Identity · free</span>
-  </div>
+<section class="sec" data-silo="identity">
+  <div class="sec-h"><h2>Account</h2><span>Free</span></div>
   <div class="rail" role="list">
     <article class="card" role="listitem">
-      <div class="thumb d" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Account</span>
-        <h3>Sign up</h3>
-        <p>Create an account with email and password.</p>
-      </div>
-      <div class="foot">
-        <b>Free</b>
-        <a href="/register">Start</a>
-      </div>
+      <div class="thumb d"></div>
+      <div class="body"><span class="k">Account</span><h3>Sign up</h3><p>Email and password.</p></div>
+      <div class="foot-card"><b>Free</b><a href="/register">Start</a></div>
     </article>
     <article class="card" role="listitem">
-      <div class="thumb d" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Account</span>
-        <h3>Log in</h3>
-        <p>Return to an existing account.</p>
-      </div>
-      <div class="foot">
-        <b>Free</b>
-        <a class="g" href="/login">Log in</a>
-      </div>
+      <div class="thumb d"></div>
+      <div class="body"><span class="k">Account</span><h3>Log in</h3><p>Existing accounts.</p></div>
+      <div class="foot-card"><b>Free</b><a class="g" href="/login">Log in</a></div>
     </article>
     <article class="card" role="listitem">
-      <div class="thumb d" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Profile</span>
-        <h3>Avatar</h3>
-        <p>Customise after you have an account.</p>
-      </div>
-      <div class="foot">
-        <b>Free</b>
-        <a class="g" href="/avatar.html">Open</a>
-      </div>
+      <div class="thumb d"></div>
+      <div class="body"><span class="k">Profile</span><h3>Avatar</h3><p>Customise after sign-up.</p></div>
+      <div class="foot-card"><b>Free</b><a class="g" href="/avatar.html">Open</a></div>
     </article>
   </div>
 </section>
 
-<section class="sec" data-silo="play" aria-labelledby="p-h">
-  <div class="sec-h">
-    <h2 id="p-h">Explore</h2>
-    <span>Optional</span>
-  </div>
+<section class="sec" data-silo="play">
+  <div class="sec-h"><h2>Explore</h2><span>Optional</span></div>
   <div class="rail" role="list">
     <article class="card" role="listitem">
-      <div class="thumb e" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Play</span>
-        <h3>Phin Haven</h3>
-        <p>Playable world. No purchase required.</p>
-      </div>
-      <div class="foot">
-        <b>Free</b>
-        <a class="g" href="/phin-haven">Play</a>
-      </div>
+      <div class="thumb e"></div>
+      <div class="body"><span class="k">Play</span><h3>Phin Haven</h3><p>Playable world.</p></div>
+      <div class="foot-card"><b>Free</b><a class="g" href="/phin-haven">Play</a></div>
     </article>
     <article class="card" role="listitem">
-      <div class="thumb a" aria-hidden="true"></div>
-      <div class="body">
-        <span class="k">Public</span>
-        <h3>Billboard</h3>
-        <p>View the live public board.</p>
-      </div>
-      <div class="foot">
-        <b>View</b>
-        <a class="g" href="/billboard">Open</a>
-      </div>
+      <div class="thumb a"></div>
+      <div class="body"><span class="k">Public</span><h3>Billboard</h3><p>View the live board.</p></div>
+      <div class="foot-card"><b>View</b><a class="g" href="/billboard">Open</a></div>
     </article>
   </div>
 </section>
+</main>
 
-<section class="band" aria-label="How buying works">
-  <h2>How buying works</h2>
-  <ul>
-    <li>Choose a product card in Market</li>
-    <li>Complete Stripe checkout (NZD)</li>
-    <li>Digital items are fulfilled after payment</li>
-    <li>Billboard tiles are reviewed before publish</li>
-    <li>Account is optional for one-off purchases</li>
-    <li>Policies cover refunds and acceptable use</li>
-  </ul>
-</section>
-
-<footer class="ftr">
-  <div>
-    <h3>DreamLedger</h3>
-    <p>Digital products and placements.</p>
-    <p class="fine">© DreamLedger · New Zealand</p>
+<footer class="site-footer">
+  <div class="cols">
+    <div>
+      <h3>DreamLedger</h3>
+      <p>Digital products and placements.</p>
+      <p class="fine">© DreamLedger · New Zealand</p>
+    </div>
+    <div>
+      <h3>Products</h3>
+      <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Billboard tile</a>
+      <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic</a>
+      <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Discord kit</a>
+    </div>
+    <div>
+      <h3>Account</h3>
+      <a href="/register">Sign up</a>
+      <a href="/login">Log in</a>
+      <a href="/avatar.html">Avatar</a>
+    </div>
+    <div>
+      <h3>Legal</h3>
+      <a href="/policies.html">Policies</a>
+    </div>
   </div>
-  <div>
-    <h3>Products</h3>
-    <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Billboard tile</a>
-    <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic</a>
-    <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Discord kit</a>
-  </div>
-  <div>
-    <h3>Account</h3>
-    <a href="/register">Sign up</a>
-    <a href="/login">Log in</a>
-    <a href="/avatar.html">Avatar</a>
-  </div>
-  <div>
-    <h3>Legal</h3>
-    <a href="/policies.html">Policies</a>
+  <div class="pay-trust">
+    <p class="label">Payments processed securely by Stripe. We never store full card numbers on DreamLedger servers.</p>
+    <div class="pay-marks" aria-label="Accepted payment methods">
+      <!-- Stripe -->
+      <span class="mark stripe" title="Stripe">
+        <svg viewBox="0 0 60 25" height="16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#fff" d="M5 12.5c0-2.2 1.8-3.5 4.7-3.5 1.5 0 2.6.3 3.3.6V12c-.7-.3-1.6-.5-2.7-.5-1.1 0-1.6.4-1.6 1s.5.8 1.7 1.1c2 .5 3.3 1.1 3.3 2.9 0 2.1-1.7 3.5-4.8 3.5-1.4 0-2.7-.3-3.6-.7v-2.3c.9.5 2.2.8 3.4.8 1.1 0 1.7-.4 1.7-1 0-.6-.5-.9-1.8-1.2-1.9-.5-3.3-1.2-3.3-2.9zm12.2 6.3h2.9V6.4h-2.9v12.4zm12.3-12.7c-1.2 0-2.2.5-2.9 1.4l-.2-1.1h-2.6v16.1h2.9v-5.5c.7.8 1.7 1.3 2.9 1.3 2.3 0 4.4-1.9 4.4-5.1-.1-3.1-2.2-5.1-4.5-5.1zm-.8 7.8c-1.3 0-2.2-1.1-2.2-2.6 0-1.5.9-2.6 2.2-2.6 1.3 0 2.2 1.1 2.2 2.6 0 1.5-.9 2.6-2.2 2.6zm7.9 4.9h2.9V6.4h-2.9v12.4zm12.6-12.6c-2.7 0-4.8 2-4.8 5.2 0 3.3 2.1 5.2 4.8 5.2 1.5 0 2.7-.5 3.6-1.4V18h.1c-.1 1.4-.9 2.1-2.4 2.1-.9 0-1.6-.2-2.2-.5v2.3c.7.3 1.6.5 2.6.5 2.7 0 4.4-1.5 4.4-4.4V9.1h-2.7l-.1 1.1c-.8-.9-2-1.5-3.3-1.5zm.6 7.8c-1.4 0-2.3-1.1-2.3-2.6 0-1.5.9-2.6 2.3-2.6 1.3 0 2.3 1.1 2.3 2.6 0 1.5-1 2.6-2.3 2.6z"/></svg>
+      </span>
+      <!-- Visa -->
+      <span class="mark" title="Visa">
+        <svg viewBox="0 0 48 16" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#1A1F71" d="M19.5 1.2l-2.9 13.6h-3.3L16.2 1.2h3.3zm13.8 8.8l1.7-4.7.9 4.7h-2.6zm3.5 4.8h3l-2.6-13.6h-2.8c-.6 0-1.1.3-1.3.9l-4.7 12.7h3.5l.7-1.8h4.2l.3 1.8zM24.8 1.2l-5.4 13.6h-3.5l5.4-13.6h3.5zM13.2 1.2L9.9 10.3 9.5 8.4c-.7-2.2-2.8-4.6-5.2-5.8l3 11h3.5L17 1.2h-3.8z"/><path fill="#F9A12E" d="M6.4 1.2H1.1L1 1.5c4.1 1 6.8 3.4 7.9 6.3L7.5 2.1c-.2-.6-.6-.9-1.1-.9z"/></svg>
+      </span>
+      <!-- Mastercard -->
+      <span class="mark" title="Mastercard">
+        <svg viewBox="0 0 40 24" height="18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="15" cy="12" r="9" fill="#EB001B"/><circle cx="25" cy="12" r="9" fill="#F79E1B"/><path fill="#FF5F00" d="M20 5.3a9 9 0 0 1 0 13.4 9 9 0 0 1 0-13.4z"/></svg>
+      </span>
+      <!-- Amex -->
+      <span class="mark" title="American Express" style="background:#2E77BC;border-color:#2E77BC">
+        <svg viewBox="0 0 48 16" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#fff" d="M8.2 4.2L6.5 8.1 4.8 4.2H2.5v7.6h1.7V6.5l2 4.5h1.5l2-4.5v5.3h1.7V4.2H8.2zm7.3 0h-4.2v7.6h4.1c1.9 0 3.2-1.1 3.2-2.8 0-1.1-.6-1.9-1.6-2.3.7-.4 1.2-1.1 1.2-2 0-1.5-1.2-2.5-2.7-2.5zm-.2 3.1h-2.3V5.5h2.3c.6 0 1 .3 1 .8s-.4.9-1 .9zm.1 3.3h-2.4V8.6h2.4c.7 0 1.1.4 1.1 1s-.5 1-1.1 1zM26 4.2l-1.5 7.6h-1.8l-.9-4.5-1 4.5h-1.8l-1.5-7.6h1.9l.9 4.6 1-4.6h1.7l.9 4.6 1-4.6H26zm5.5 0c-1.9 0-3.3 1.3-3.3 3.1v4.5h1.8V9.9h2.1l1 1.9h2l-1.2-2.1c.8-.5 1.3-1.4 1.3-2.4 0-1.8-1.3-3.1-3.7-3.1zm0 1.4c1.1 0 1.8.6 1.8 1.5s-.7 1.5-1.8 1.5h-1.5V5.6h1.5z"/></svg>
+      </span>
+    </div>
+    <p class="secure">SSL encrypted connection · PCI handled by Stripe</p>
   </div>
 </footer>
 </body>
