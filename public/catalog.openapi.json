@@ -1,0 +1,96 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "DreamLedger Catalog API",
+    "version": "1.0.0",
+    "description": "Machine-readable catalog for agents and partners. Settlement: Stripe live. Platform success fee on listed public offers: 0 bps. Economic event order: authorized → paid → delivered → proven."
+  },
+  "servers": [{ "url": "https://dreamledger.org" }],
+  "paths": {
+    "/api/offers": {
+      "get": {
+        "summary": "List checkout-ready offers",
+        "operationId": "listOffers",
+        "responses": {
+          "200": {
+            "description": "Offer collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "offers": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Offer" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "List products",
+        "operationId": "listProducts",
+        "responses": { "200": { "description": "Product collection" } }
+      }
+    },
+    "/agent-commerce.json": {
+      "get": {
+        "summary": "Commerce contract",
+        "operationId": "getCommerceContract",
+        "responses": { "200": { "description": "Contract" } }
+      }
+    },
+    "/agent.json": {
+      "get": {
+        "summary": "Agent interface",
+        "operationId": "getAgentInterface",
+        "responses": { "200": { "description": "Agent interface" } }
+      }
+    },
+    "/buy/{product_id}": {
+      "get": {
+        "summary": "Checkout router (binds client_reference_id)",
+        "operationId": "buyProduct",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "302": { "description": "Redirect to Stripe Payment Link" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Offer": {
+        "type": "object",
+        "properties": {
+          "offer_id": { "type": "string" },
+          "product_id": { "type": "string" },
+          "name": { "type": "string" },
+          "price": { "type": "number" },
+          "currency": { "type": "string" },
+          "checkout_url": { "type": "string", "format": "uri" },
+          "status": { "type": "string" },
+          "silo": { "type": "string" }
+        }
+      }
+    }
+  },
+  "x-dreamledger": {
+    "fee_policy": { "platform_success_fee_bps": 0, "listing_fee_nzd": 0 },
+    "settlement_authority": "stripe_live",
+    "economic_event_order": ["authorized", "paid", "delivered", "proven"],
+    "no_autonomous_spend": true
+  }
+}
