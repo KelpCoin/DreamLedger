@@ -1,0 +1,39 @@
+name: BrownEye Economic Fulfillment Worker
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "workers/economic/**"
+      - ".github/workflows/economic-fulfillment-worker.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brown-eye-economic-fulfillment-worker
+  cancel-in-progress: false
+
+jobs:
+  fulfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BEC_WORKER_ID: github-economic-fulfillment
+      BEC_JOB_LEASE_SECONDS: "1200"
+      BEC_ONCE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify worker syntax
+        run: python -m py_compile workers/economic/economic_fulfillment_worker.py
+      - name: Run one economic fulfillment lease
+        run: python workers/economic/economic_fulfillment_worker.py
+      - name: Record worker heartbeat
+        run: echo "Economic fulfillment cycle complete. Discovery is not fulfillment and fulfillment is not revenue."
