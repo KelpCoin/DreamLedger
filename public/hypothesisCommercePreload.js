@@ -193,8 +193,23 @@ if (!global.__dreamledgerHypothesisCommercePreload) {
     const wrapped = async function hypothesisCommerceHandler(req, res) {
       const pathname = String(req.url || '/').split('?')[0];
 
+      if (req.method === 'GET' && pathname === '/hypotheses/sitemap.xml') {
+        try {
+          const rows = await supabase('/rest/v1/cube_silos?select=id&order=id.asc&limit=50000');
+          const urls = (Array.isArray(rows) ? rows : []).map(s => '<url><loc>' + esc(PUBLIC_BASE + '/hypotheses/' + encodeURIComponent(s.id)) + '</loc></url>').join('');
+          const xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + '</urlset>';
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.end(xml);
+          return;
+        } catch (err) {
+          return json(res, 503, {error: err.message || 'Hypothesis sitemap unavailable'});
+        }
+      }
+
       if (req.method === 'GET' && pathname === '/hypotheses') {
-        const body = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DreamLedger Hypotheses</title></head><body style="font-family:system-ui;background:#07080c;color:#eee;max-width:900px;margin:auto;padding:30px"><h1>CUBE Hypotheses</h1><p>Public, explicitly UNVERIFIED economic hypotheses. There are no buyer claims here unless independently evidenced.</p><p>Individual hypothesis routes are generated from the live CUBE silo registry. Use a silo route such as <code>/hypotheses/CUBE-AUTO-0025</code>.</p></body></html>';
+        const body = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DreamLedger Hypotheses</title></head><body style="font-family:system-ui;background:#07080c;color:#eee;max-width:900px;margin:auto;padding:30px"><h1>CUBE Hypotheses</h1><p>Public, explicitly UNVERIFIED economic hypotheses. There are no buyer claims here unless independently evidenced.</p><p>Individual hypothesis routes are generated from the live CUBE silo registry. Use a silo route such as <code>/hypotheses/CUBE-AUTO-0025</code>.</p><p><a href="/hypotheses/sitemap.xml">Hypothesis sitemap</a></p></body></html>';
         return html(res, 200, body);
       }
 
