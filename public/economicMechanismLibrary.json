@@ -1,0 +1,235 @@
+{
+  "version": "2026-09-26",
+  "purpose": "Reusable economic mechanisms for CUBE hypothesis synthesis. Mechanisms are hypotheses until independently validated by external payment, fulfillment, and evidence.",
+  "promotion_rule": "PROMOTE only after real external settlement + attribution + fulfillment + independent verification; REPEATABLE requires repeated demand.",
+  "mechanisms": [
+    [
+      "public-data",
+      "transform public records into a bounded decision-ready artifact"
+    ],
+    [
+      "monitoring",
+      "sell continuous detection of specified external changes"
+    ],
+    [
+      "alerting",
+      "turn observable events into buyer-defined alerts"
+    ],
+    [
+      "verification",
+      "independently test a customer-supplied claim against public evidence"
+    ],
+    [
+      "benchmarking",
+      "compare a defined subject against a current peer set"
+    ],
+    [
+      "price-gap",
+      "identify observable price discrepancies across markets or configurations"
+    ],
+    [
+      "arbitrage",
+      "find actionable differences created by geography, timing, inventory, or routing"
+    ],
+    [
+      "directory",
+      "produce a verified, criteria-specific shortlist of entities"
+    ],
+    [
+      "research-on-demand",
+      "convert a buyer question into a standardized evidence packet"
+    ],
+    [
+      "data-extraction",
+      "extract and normalize a defined public dataset"
+    ],
+    [
+      "data-refresh",
+      "sell refreshed versions of an existing dataset"
+    ],
+    [
+      "subscription",
+      "turn repeat demand into recurring delivery"
+    ],
+    [
+      "watchlist",
+      "maintain a personalized set of monitored entities"
+    ],
+    [
+      "change-detection",
+      "report what changed, where, and when"
+    ],
+    [
+      "historical-archive",
+      "build a continuously growing historical record"
+    ],
+    [
+      "anomaly-detection",
+      "identify unusual movements against an explicit baseline"
+    ],
+    [
+      "opportunity-index",
+      "rank observable opportunities using transparent rules"
+    ],
+    [
+      "comparison-engine",
+      "continuously refresh a defined comparison"
+    ],
+    [
+      "calculator",
+      "turn public inputs into a reproducible decision calculation"
+    ],
+    [
+      "scoring-model",
+      "apply transparent criteria to a bounded decision"
+    ],
+    [
+      "evidence-map",
+      "map a question to sources, claims, and evidence strength"
+    ],
+    [
+      "competitor-watch",
+      "monitor publicly observable competitor changes"
+    ],
+    [
+      "vendor-watch",
+      "monitor vendor pricing, availability, or product changes"
+    ],
+    [
+      "inventory-watch",
+      "monitor listings, stock, or availability"
+    ],
+    [
+      "property-radar",
+      "screen property events against explicit criteria"
+    ],
+    [
+      "planning-radar",
+      "monitor planning, permit, consent, and development signals"
+    ],
+    [
+      "tender-radar",
+      "monitor public procurement opportunities"
+    ],
+    [
+      "grant-radar",
+      "monitor public funding opportunities"
+    ],
+    [
+      "job-radar",
+      "filter and refresh employment opportunities"
+    ],
+    [
+      "regulatory-watch",
+      "monitor regulatory announcements and effective dates"
+    ],
+    [
+      "construction-watch",
+      "monitor project and construction signals"
+    ],
+    [
+      "business-change",
+      "monitor openings, closures, relocations, and ownership changes"
+    ],
+    [
+      "vehicle-intelligence",
+      "produce current vehicle comparables and availability research"
+    ],
+    [
+      "parts-intelligence",
+      "compare parts availability and prices"
+    ],
+    [
+      "food-price",
+      "compare public grocery or ingredient prices"
+    ],
+    [
+      "energy-watch",
+      "compare public energy prices and tariffs"
+    ],
+    [
+      "software-comparison",
+      "compare documented software, API, or vendor capabilities"
+    ],
+    [
+      "literature-map",
+      "produce structured scientific/technical literature evidence maps"
+    ],
+    [
+      "patent-map",
+      "produce public patent-landscape research"
+    ],
+    [
+      "seo-gap",
+      "identify observable search-intent/content gaps"
+    ],
+    [
+      "domain-research",
+      "research defined domain or naming opportunities"
+    ],
+    [
+      "lead-research",
+      "produce compliant public-business research datasets"
+    ],
+    [
+      "customer-language",
+      "turn recurring public questions into product hypotheses"
+    ],
+    [
+      "api-product",
+      "expose a repeatedly requested transformation as machine-readable output"
+    ],
+    [
+      "report-product",
+      "package a repeatable research recipe as a paid artifact"
+    ],
+    [
+      "evidence-api",
+      "serve structured source/evidence responses"
+    ],
+    [
+      "commission-market",
+      "let buyers voluntarily commission a published hypothesis"
+    ],
+    [
+      "recurring-research",
+      "refresh a proven research product on a schedule"
+    ],
+    [
+      "signal-library",
+      "combine external signals into new product hypotheses"
+    ],
+    [
+      "bundle",
+      "combine two or more proven mechanisms into one workflow"
+    ],
+    [
+      "white-label-data",
+      "deliver a reusable data artifact suitable for a customer's own workflow"
+    ],
+    [
+      "threshold-alert",
+      "notify when a measured value crosses a buyer-defined threshold"
+    ],
+    [
+      "event-triggered-report",
+      "generate a report only when a specified external event occurs"
+    ],
+    [
+      "historical-delta",
+      "sell the change between two verified snapshots"
+    ],
+    [
+      "decision-packet",
+      "compress multiple evidence sources into a single bounded decision artifact"
+    ],
+    [
+      "research-queue",
+      "turn asynchronous buyer requests into a persistent fulfillment queue"
+    ],
+    [
+      "self-serve-vending",
+      "replace bespoke sales with a public checkout and standardized delivery"
+    ]
+  ]
+}
