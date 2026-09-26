@@ -3,87 +3,91 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger shop — horizontal silo rails. Billboard, MTG, digital, B2B. Stripe checkout. NZD.">
+<meta name="description" content="DreamLedger shop — live catalogue from /api/products. Horizontal silo rails. Stripe checkout. NZD.">
 <meta name="theme-color" content="#080a0e">
 <link rel="canonical" href="https://dreamledger.org/shop.html">
 <title>Shop · DreamLedger</title>
 <style>
-:root{--bg:#080a0e;--panel:#0f1419;--panel2:#151b22;--line:#27313b;--ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--gold-d:#b8943f;--ok:#58d6a0;--max:1200px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+:root{--bg:#080a0e;--panel:#0f1419;--panel2:#151b22;--line:#27313b;--ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--ok:#58d6a0;--max:1200px;--font:system-ui,-apple-system,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--font)}
 a{color:inherit;text-decoration:none}
 .shell{max-width:var(--max);margin:0 auto;padding:0 16px}
 .topbar{position:sticky;top:0;z-index:30;background:rgba(8,10,14,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.topbar .inner{max-width:var(--max);margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar .inner{max-width:var(--max);margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-weight:900;letter-spacing:.06em;font-size:13px;text-transform:uppercase}
 .brand span{color:var(--gold)}
-.nav{display:flex;gap:6px;flex-wrap:wrap}
-.nav a{font-size:12px;font-weight:700;padding:8px 11px;border-radius:999px;color:var(--muted)}
+.nav a{font-size:12px;font-weight:700;padding:8px 11px;border-radius:999px;color:var(--muted);margin-left:4px}
 .nav a.primary{background:var(--gold);color:#111}
 .hero{padding:28px 0 12px}
 .kicker{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 h1{font-size:clamp(1.6rem,4vw,2.2rem);letter-spacing:-.03em;margin-bottom:8px}
 .lead{color:var(--muted);font-size:.95rem;max-width:52ch;margin-bottom:12px}
-.fee{display:inline-block;font-size:11px;font-weight:800;color:var(--ok);border:1px solid #2a3d28;background:#121a14;padding:4px 10px;border-radius:999px}
+.meta{font-size:12px;color:#65707b;margin-bottom:8px}
 .rail-section{padding:20px 0 8px}
-.rail-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.rail-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
 .rail-head h2{font-size:1.15rem}
-.rail-head a{font-size:12px;font-weight:700;color:var(--gold)}
-.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;-webkit-overflow-scrolling:touch}
 .card{flex:0 0 min(280px,82vw);scroll-snap-align:start;background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;min-height:220px}
 .card .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .card h3{font-size:1.05rem;margin-bottom:6px;line-height:1.2}
 .card p{font-size:.82rem;color:var(--muted);flex:1;margin-bottom:12px}
 .card .price{font-size:1.35rem;font-weight:900;color:var(--gold);margin-bottom:12px}
-.card .price small{font-size:11px;font-weight:700;color:var(--muted);display:block}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:800;background:var(--gold);color:#111;border:0;width:100%}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:800;background:var(--gold);color:#111;border:0;width:100%;cursor:pointer}
+.btn:disabled,.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .footer{padding:28px 0 40px;border-top:1px solid var(--line);margin-top:24px;font-size:12px;color:#5a6570}
-.trust{font-size:12px;color:#65707b;padding:8px 0 0}
+.empty{color:var(--muted);padding:20px;border:1px dashed var(--line);border-radius:12px}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="inner"><a class="brand" href="/">DREAM<span>LEDGER</span></a>
-<nav class="nav"><a href="/sell.html">Sell</a><a href="/auctions.html">Auctions</a><a href="/trust.html">Trust</a><a class="primary" href="/shop.html">Shop</a></nav></div></header>
+<nav class="nav"><a href="/">Home</a><a href="/mtg">MTG</a><a href="/billboard">Billboard</a><a class="primary" href="/shop.html">Shop</a></nav></div></header>
 <main class="shell">
 <section class="hero">
-<div class="kicker">Horizontal catalogue · one rail per silo</div>
-<h1>Shop the cube</h1>
-<p class="lead">Scroll each silo. Every card is a concrete offer with a purchase path. Fail closed — no filler inventory.</p>
-<span class="fee">0% DreamLedger success fee on current public offers</span>
+<div class="kicker">Evidence-backed catalogue</div>
+<h1>Shop the live cube</h1>
+<p class="lead">Rails are filled from <code>/api/products</code> — only published, checkout-available offers. No invented inventory.</p>
+<p class="meta" id="status">Loading live products…</p>
 </section>
-<section class="rail-section" id="billboard">
-<div class="rail-head"><h2>Billboard</h2><a href="/billboard">Open silo →</a></div>
-<div class="rail">
-<article class="card"><div class="tag">Placement · permanent</div><h3>Founding tile 100×100</h3><p>One finite placement on the Internet Billboard until 1 Jan 3000. Destination URL at checkout. Human review before publication.</p><div class="price">NZ$50 <small>Stripe · verified payment</small></div><a class="btn" href="https://buy.stripe.com/aFa14naXP15r1DVdVadwc2B">Buy founding tile</a></article>
-<article class="card"><div class="tag">Placement · wide</div><h3>Wide billboard slot</h3><p>Larger placement on the public canvas. Same permanence rules. Review gate applies.</p><div class="price">From NZ$50 <small>See billboard silo</small></div><a class="btn ghost" href="/billboard">Browse sizes</a></article>
-<article class="card"><div class="tag">Sell</div><h3>List a placement offer</h3><p>Operators and partners can propose inventory. PENDING_APPROVAL until cleared.</p><div class="price">Free to list <small>0% platform success fee</small></div><a class="btn ghost" href="/sell.html">Seller intake</a></article>
-</div></section>
-<section class="rail-section" id="mtg">
-<div class="rail-head"><h2>Magic: The Gathering</h2><a href="/mtg">Open silo →</a></div>
-<div class="rail">
-<article class="card"><div class="tag">Digital · automated</div><h3>Commander deck diagnostic</h3><p>Structure, cuts, upgrade priorities and a tuning plan. Automated delivery after payment.</p><div class="price">NZ$29 <small>SLA under 1 hour</small></div><a class="btn" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy diagnostic</a></article>
-<article class="card"><div class="tag">Auction</div><h3>Fetchland starter lot</h3><p>Rotating card lot. Timed auction with min increment and anti-sniping.</p><div class="price">From NZ$15 <small>Live auction lane</small></div><a class="btn ghost" href="/auctions.html">Bid now</a></article>
-<article class="card"><div class="tag">Auction</div><h3>Commander upgrade bundle</h3><p>Useful pile of Commander upgrades. Closing lane visible on auctions.</p><div class="price">From NZ$25 <small>Live auction lane</small></div><a class="btn ghost" href="/auctions.html">Bid now</a></article>
-<article class="card"><div class="tag">Physical</div><h3>List sealed or singles</h3><p>Physical MTG inventory via seller intake. Condition and shipping required.</p><div class="price">Free to list <small>PENDING_APPROVAL</small></div><a class="btn ghost" href="/sell.html">List cards</a></article>
-</div></section>
-<section class="rail-section" id="digital">
-<div class="rail-head"><h2>Digital products</h2><a href="/buy.html">All offers →</a></div>
-<div class="rail">
-<article class="card"><div class="tag">Ops · download</div><h3>Discord webhook starter kit</h3><p>Templates for payment notifications and alerts. Instant digital path after checkout.</p><div class="price">NZ$79 <small>Digital delivery</small></div><a class="btn" href="/buy.html?sku=DISCORD-WEBHOOK-STARTER-KIT-001">View offer</a></article>
-<article class="card"><div class="tag">B2B</div><h3>Wholesale / API partner</h3><p>Business listings with GST and MOQ fields. Machine-readable catalog path for partners.</p><div class="price">Talk to us <small>B2B surface</small></div><a class="btn ghost" href="/marketplace.html">B2B marketplace</a></article>
-<article class="card"><div class="tag">Sell</div><h3>Your digital product</h3><p>Upload path via intake. Clear delivery method required before publication.</p><div class="price">0% success fee <small>Current public offers</small></div><a class="btn ghost" href="/sell.html">Start listing</a></article>
-</div></section>
-<section class="rail-section" id="loops">
-<div class="rail-head"><h2>Economic loops</h2><a href="/trust.html">Trust rules →</a></div>
-<div class="rail">
-<article class="card"><div class="tag">Loop 1 · Buy</div><h3>Verified cell → Stripe → proof</h3><p>Buyer pays. Processor evidence. Fulfillment. Only then is revenue recognised.</p><div class="price">Live <small>Fail closed</small></div><a class="btn" href="/buy.html">Open buy door</a></article>
-<article class="card"><div class="tag">Loop 2 · Sell</div><h3>Intake → approve → list</h3><p>Seller submits. PENDING_APPROVAL. Publish only when cleared. Keep more of the sale.</p><div class="price">Free intake <small>0% platform fee</small></div><a class="btn" href="/sell.html">List something</a></article>
-<article class="card"><div class="tag">Loop 3 · Auction</div><h3>Bid → proof → settle</h3><p>Bids write proof artifacts. Anti-sniping. Settlement still needs verified payment.</p><div class="price">Live lanes <small>Min increment</small></div><a class="btn" href="/auctions.html">Open auctions</a></article>
-<article class="card"><div class="tag">Loop 4 · Cube</div><h3>Demand → cell → CTA</h3><p>CUBE only surfaces cells with offer + path + evidence. Horizontal rails expand free as cells clear.</p><div class="price">Expanding <small>Evergreen</small></div><a class="btn ghost" href="/">Front door</a></article>
-</div></section>
-<p class="trust">Economic truth: checkout starts and abandoned carts are not revenue. Verified external payment + fulfillment + proof required. <a href="/trust.html" style="color:var(--gold)">Trust centre</a></p>
+<div id="rails"></div>
+<p class="meta">Source: GET /api/products · Fail closed if API unavailable · Checkout via Stripe payment links on each product</p>
 </main>
-<footer class="footer"><div class="shell">© DreamLedger · <a href="/">Home</a> · <a href="/sell.html">Sell</a> · <a href="/auctions.html">Auctions</a> · <a href="/trust.html">Trust</a></div></footer>
+<footer class="footer"><div class="shell">© DreamLedger · NZD · <a href="/">Home</a></div></footer>
+<script>
+(function(){
+const esc=v=>String(v??'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+const SILO_ORDER=['mtg','media','commerce','seller_tools','dreammeez','kelplantis','other'];
+const SILO_LABEL={mtg:'Magic: The Gathering',media:'Billboard / media',commerce:'Digital / commerce',seller_tools:'Seller tools',dreammeez:'DreamMeez',kelplantis:'Kelplantis',other:'Other'};
+function siloOf(p){const s=String(p.silo||'other').toLowerCase();return SILO_LABEL[s]?s:'other'}
+function card(p){
+  const href=p.checkout_url||('/buy/'+encodeURIComponent(p.id));
+  const can=p.checkout_available!==false&&p.status==='published';
+  return '<article class="card"><div class="tag">'+esc(p.silo||'offer')+(p.inventory_type?' · '+esc(p.inventory_type):'')+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||'')+'</p><div class="price">NZ$'+esc(p.price)+'</div>'+(can?'<a class="btn" href="'+esc(href)+'">Buy now</a>':'<button class="btn ghost" disabled>Unavailable</button>')+'</article>';
+}
+async function load(){
+  const status=document.getElementById('status');
+  const root=document.getElementById('rails');
+  try{
+    const r=await fetch('/api/products',{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const products=(d.products||[]).filter(p=>p&&p.status==='published');
+    status.textContent=products.length+' published products · generated from live API';
+    if(!products.length){root.innerHTML='<div class="empty">No published products returned.</div>';return;}
+    const groups={};
+    products.forEach(p=>{const k=siloOf(p);(groups[k]=groups[k]||[]).push(p)});
+    const order=SILO_ORDER.filter(k=>groups[k]&&groups[k].length);
+    root.innerHTML=order.map(k=>{
+      const items=groups[k].sort((a,b)=>Number(a.price)-Number(b.price));
+      return '<section class="rail-section"><div class="rail-head"><h2>'+esc(SILO_LABEL[k]||k)+'</h2><span class="meta">'+items.length+' offers</span></div><div class="rail">'+items.map(card).join('')+'</div></section>';
+    }).join('');
+  }catch(e){
+    status.textContent='Catalogue API unavailable — fail closed';
+    root.innerHTML='<div class="empty">Could not load /api/products. No simulated catalogue.</div>';
+  }
+}
+load();
+})();
+</script>
 </body>
 </html>
