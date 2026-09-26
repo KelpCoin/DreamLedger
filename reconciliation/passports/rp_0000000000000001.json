@@ -1,6 +1,6 @@
 {
   "passport_version": "1.0",
-  "passport_id": "rp_c2294e0be6b4a47d",
+  "passport_id": "rp_690c61ae4412dc6c",
   "payment_ref": {"processor":"stripe","id":"pi_3T54yoEGgEAnUFF90Hz5yh8c","livemode":true,"amount_minor":100,"currency":"USD","settled_at":"2026-03-05T00:00:00Z"},
   "order_ref": null,
   "fulfillment_ref": null,
@@ -9,8 +9,9 @@
   "evidence_chain": [
     {"event":"payment_detected","source":"stripe_api","ref":"pi_3T54yoEGgEAnUFF90Hz5yh8c","status":"OBSERVED"},
     {"event":"charge_paid","source":"stripe_api","ref":"ch_3T54yoEGgEAnUFF90mGy8lOd","status":"OBSERVED"},
-    {"event":"balance_transaction_available","source":"stripe_api","ref":"txn_3T54yoEGgEAnUFF90wUOZ0ka","status":"OBSERVED"}
+    {"event":"balance_transaction_available","source":"stripe_api","ref":"txn_3T54yoEGgEAnUFF90wUOZ0ka","status":"OBSERVED"},
+    {"event":"previous_passport_hash","source":"reconciliation_passport","hash":"a6a5e705421495ffd02e932e8d8c6de389dfe19820b2d4e986bdc9158af32c32","status":"OBSERVED"}
   ],
   "issued_at":"2026-09-26T18:00:00+12:00",
-  "passport_hash":"c2294e0be6b4a47dc2816b8debd19c17049274ff5088fb6a3633caaa898d2420"
+  "passport_hash":"690c61ae4412dc6c043e920976eff4831e31688b6e3edf1693154d15d4fa7ddd"
 }
