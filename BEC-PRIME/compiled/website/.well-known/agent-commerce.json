@@ -1,16 +1,105 @@
 {
-  "schema": "dreamledger/agent-commerce-manifest/v1",
-  "name": "DreamLedger",
-  "description": "Commerce layer for AI agents.",
-  "private_material": "excluded",
-  "capabilities": null,
-  "current_offers": [],
-  "verified_merchants": [],
-  "first_payment_proof": "NOT_PROVEN",
-  "revenue_nzd": 0,
-  "approval_required_for": [
-    "external_publication",
-    "payment_actions",
-    "customer_contact"
-  ]
+  "schema": "dreamledger/agent-commerce/v2",
+  "updated": "2026-09-26",
+  "purpose": "Public machine-readable commerce contract for partners and shopping agents.",
+  "storefront": "https://dreamledger.org/",
+  "fee_policy": {
+    "platform_listing_fee_nzd": 0,
+    "platform_success_fee_bps": 0,
+    "payment_processor": "Stripe",
+    "note": "Listed NZD price is what the buyer pays for the offer. Stripe processing fees are separate."
+  },
+  "economic_event": {
+    "order": ["authorized", "paid", "delivered", "proven"],
+    "settlement_authority": "stripe_live_only",
+    "rule": "A checkout start is not revenue. Verified revenue requires external Stripe payment evidence plus fulfillment proof.",
+    "client_reference": "Pass product_id as Stripe client_reference_id via /buy/{product_id} when possible."
+  },
+  "how_to_buy": [
+    "GET /api/offers for checkout-ready offers (status VERIFIED_AVAILABLE)",
+    "Present name, price, currency, and checkout_url to the human buyer",
+    "Require human authorization before any spend (no autonomous spend)",
+    "Open checkout_url (or https://dreamledger.org/buy/{product_id} for client_reference_id binding)",
+    "Buyer completes Stripe Checkout",
+    "Treat economic event as paid only after Stripe confirms payment; then deliver and prove"
+  ],
+  "endpoints": {
+    "offers": "https://dreamledger.org/api/offers",
+    "products": "https://dreamledger.org/api/products",
+    "this_contract": "https://dreamledger.org/agent-commerce.json",
+    "agent_interface": "https://dreamledger.org/agent.json",
+    "discovery": "https://dreamledger.org/.well-known/dreamledger.json",
+    "buy": "https://dreamledger.org/buy/{product_id}",
+    "human_shop": "https://dreamledger.org/"
+  },
+  "primary_offers": [
+    {
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "currency": "NZD",
+      "silo": "mtg",
+      "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "delivery": "Automated diagnostic report after payment",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "offer_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Founding Billboard",
+      "price_nzd": 50,
+      "currency": "NZD",
+      "silo": "media",
+      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "delivery": "Public canvas placement after payment and content review",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "offer_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Starter Kit",
+      "price_nzd": 79,
+      "currency": "NZD",
+      "silo": "commerce",
+      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "delivery": "Digital kit download after payment",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "SELLER-PROFIT-AUDIT-001",
+      "offer_id": "SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "price_nzd": 29,
+      "currency": "NZD",
+      "silo": "seller_tools",
+      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+      "delivery": "Manual PDF audit after payment",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "EDH_0001",
+      "offer_id": "EDH_0001",
+      "name": "EDH_0001 Commander Deck",
+      "price_nzd": 400,
+      "currency": "NZD",
+      "silo": "mtg",
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "buy_router": "https://dreamledger.org/buy/EDH_0001",
+      "delivery": "Physical Commander deck",
+      "status": "VERIFIED_AVAILABLE"
+    }
+  ],
+  "catalog_note": "Full live set: GET /api/offers. Prefer checkout_url from that response over any cached list.",
+  "safety": {
+    "no_autonomous_spend_without_buyer_authorization": true,
+    "payment_provider": "Stripe",
+    "do_not_invent_payment_references": true,
+    "do_not_claim_revenue_without_stripe_evidence": true
+  },
+  "public_boundary": "Customer- and partner-facing. Internal ops language excluded."
 }
