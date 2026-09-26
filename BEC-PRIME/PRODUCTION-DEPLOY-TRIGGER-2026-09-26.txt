@@ -1,0 +1,25 @@
+DreamLedger production deployment trigger — 2026-09-26
+
+Purpose: Deploy the enterprise front door, sell intake, B2B marketplace, and buy surface to dreamledger.org.
+
+Render service: dreamledger-bec-prime
+Branch: main
+Domain: https://dreamledger.org
+
+Key commits to include:
+- Enterprise index (silo CTAs, 0% fee messaging, Sell/B2B nav)
+- sell.html (zero success fee seller intake, B2B/GST fields)
+- marketplace.html (B2B fee comparison vs Trade Me)
+- buy.html (verified offers doorway)
+- policies.html
+- SILO-CELLS-SEED.json (for Supabase loader)
+
+Post-deploy verification:
+1. GET / returns new front door (not marketplace-v19 teal storefront)
+2. GET /sell.html returns seller intake
+3. GET /marketplace.html returns B2B surface
+4. GET /buy.html returns commerce doorway
+5. GET /healthz → 200
+6. Stripe checkout links still resolve
+
+No credentials. No revenue claim. Checkout ≠ revenue.
