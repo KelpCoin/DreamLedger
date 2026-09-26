@@ -55,8 +55,12 @@ async function persistPaidCheckout(event) {
   }
 
   const metadata = session.metadata || {};
-  const sku = String(metadata.sku_id || '');
-  if (!sku) return {handled:false};
+  const clientReferenceId = String(session.client_reference_id || '');
+  const hypothesisId = String(metadata.hypothesis_id || (clientReferenceId.startsWith('HYP-') ? clientReferenceId : ''));
+  const isHypothesis = String(metadata.sku_id || '') === 'HYPOTHESIS-COMMISSION-001' || hypothesisId.startsWith('HYP-');
+  if (!isHypothesis) return {handled:false};
+  const sku = 'HYPOTHESIS-COMMISSION-001';
+  const siloId = hypothesisId.startsWith('HYP-') ? hypothesisId.slice(4) : String(metadata.silo_id || '');
 
   const existing = await db('/rest/v1/stripe_webhook_events?event_id=eq.' + encodeURIComponent(event.id) + '&select=event_id,processed&limit=1');
   if (Array.isArray(existing) && existing[0]?.processed) return {handled:true,duplicate:true,event_id:event.id};
@@ -104,7 +108,7 @@ async function persistPaidCheckout(event) {
 
   if (!orderId) throw new Error('Revenue order was not created');
 
-  const fulfillmentKey = 'hypothesis:' + String(metadata.hypothesis_id || session.id);
+  const fulfillmentKey = 'hypothesis:' + String(hypothesisId || session.id);
   const entitlementRows = await db('/rest/v1/revenue_entitlements?order_id=eq.' + encodeURIComponent(orderId) + '&select=id&limit=1');
   let entitlementId = Array.isArray(entitlementRows) && entitlementRows[0]?.id;
 
@@ -134,8 +138,8 @@ async function persistPaidCheckout(event) {
           customer_email:customerEmail,
           payload:{
             type:'hypothesis_research_request',
-            hypothesis_id:metadata.hypothesis_id || null,
-            silo_id:metadata.silo_id || null,
+            hypothesis_id:hypothesisId || null,
+            silo_id:siloId || null,
             stripe_checkout_session_id:session.id,
             source_basis:metadata.source_basis || 'UNKNOWN'
           },
