@@ -1,17 +1,36 @@
 {
-  "version": 53,
+  "version": 54,
   "updated": "2026-09-26",
   "current_truth": {
     "profit_rules": "ops/money/PROFIT-RULES.md",
     "sell_scripts": "ops/money/SELL-SCRIPTS.txt",
+    "demand_kit": "ops/money/DEMAND-KIT.md",
+    "pay_handoff": "AGENT_BUS/HANDOFF-2026-09-26-PAY-PROBABILITY-AND-PINBALL.md",
     "verified_external_revenue_nzd": 0
   },
   "balls": {
-    "C": "Post $79 kit script; create $99/$129 Stripe links"
+    "C": "FORCE DISTRIBUTION: 3 posts (kit $79, diag $29, tile $50) + 5 warm DMs. Then Settlement Sync. Stop coding until pay or EOD."
   },
   "immediate_next": [
-    "Copy SELL-SCRIPTS.txt script 1 into a channel or DM",
-    "Open STRIPE-BUNDLE-CHECKLIST.md and create links"
+    "Human: copy SELL-SCRIPTS.txt scripts 1–3 into owned channels",
+    "Human: 5 warm DMs from DEMAND-KIT",
+    "Operator: STRIPE_SECRET_KEY present + Commerce Settlement Sync once",
+    "Next LLM: if revenue still 0, do not open architecture — only reduce post friction or align plinks",
+    "Next LLM with Supabase: execute Supabase fill brief in PAY-PROBABILITY handoff"
   ],
-  "do_not": ["Discount below floors", "New SKUs before 3 paid fulfils"]
+  "do_not": [
+    "Discount below floors",
+    "New live SKUs before 3 paid fulfils",
+    "Claim revenue without fossil",
+    "Sell candidate loops from candidates-2026-09-26.json"
+  ],
+  "pinball": {
+    "rule": "Only Ball C scores money while revenue is 0",
+    "next_llm_read_order": [
+      "AGENT_BUS/PING_PONG_BALLS.json",
+      "AGENT_BUS/HANDOFF-2026-09-26-PAY-PROBABILITY-AND-PINBALL.md",
+      "AGENT_BUS/BRIDGE/outbox/ping-2026-09-26-pay-probability.json",
+      "ops/money/distribution_queue.json"
+    ]
+  }
 }
