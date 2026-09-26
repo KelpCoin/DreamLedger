@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const http = require('node:http');
 const contract = require('../runtime/ActuatorReadyContract');
 
 test('cell contract validates a complete world-ready cell', () => {
@@ -9,7 +10,7 @@ test('cell contract validates a complete world-ready cell', () => {
     cell_id: 'CELL-001', object: 'Commander Deck Diagnostic',
     buyer: { definition: 'NZ Commander players seeking deck diagnosis' }, demand: { signal: 'purchase_intent' },
     offer: { sku: 'CMD-DIAG-29', price_nzd: 29, currency: 'NZD' }, channel: { type: 'public_checkout' },
-    world_surface: { world_url: 'https://dreamledger.org/buy/cmd-diag-29', transaction_url: 'https://dreamledger.org/buy/cmd-diag-29', http_status: 200, checked_at: '2026-09-26T00:00:00Z' },
+    world_surface: { world_url: 'https://dreamledger.org/buy/cmd-diag-29', transaction_url: 'https://dreamledger.org/buy/cmd-diag-29', verification: { ok: true, world: { ok: true }, transaction: { ok: true }, checked_at: '2026-09-26T00:00:00Z' } },
     fulfillment: { type: 'manual_digital_delivery' }, attribution: { required: true }, evidence: { required: true },
     verification_rules: { require_external_buyer: true, require_settlement: true, require_fulfillment: true, require_evidence: true },
     authority_requirements: { external_action: 'HUMAN_AUTHORITY' }, lifecycle_state: 'READY'
@@ -19,15 +20,15 @@ test('cell contract validates a complete world-ready cell', () => {
 });
 
 test('a candidate without a URL cannot become world-ready', () => {
-  const result = contract.validateWorldSurface({ transaction_url: 'https://dreamledger.org/buy/cmd-diag-29', http_status: 200, checked_at: '2026-09-26T00:00:00Z' });
+  const result = contract.validateWorldSurface({ transaction_url: 'https://dreamledger.org/buy/cmd-diag-29', verification: { ok: true, world: { ok: true }, transaction: { ok: true }, checked_at: '2026-09-26T00:00:00Z' } });
   assert.equal(result.status, 'NOT_WORLD_READY');
   assert.ok(result.missing.includes('world_url'));
 });
 
 test('an HTTP failure cannot become world-ready', () => {
-  const result = contract.validateWorldSurface({ world_url: 'https://example.invalid', transaction_url: 'https://example.invalid', http_status: 500, checked_at: '2026-09-26T00:00:00Z' });
+  const result = contract.validateWorldSurface({ world_url: 'https://example.invalid', transaction_url: 'https://example.invalid', verification: { ok: false, world: { ok: false }, transaction: { ok: false }, checked_at: '2026-09-26T00:00:00Z' } });
   assert.equal(result.status, 'NOT_WORLD_READY');
-  assert.ok(result.missing.includes('http_2xx_3xx'));
+  assert.ok(result.missing.includes('live_http_verification'));
 });
 
 test('business truth cannot verify without the full external chain', () => {
@@ -57,3 +58,34 @@ test('replication requires two independent verified buyers', () => {
 });
 
 test('invalid lifecycle transitions are rejected', () => { assert.throws(() => contract.assertTransition('READY', 'VERIFIED'), /INVALID_TRANSITION/); });
+
+
+test('world-surface verifier performs a real HTTP check before readiness', async () => {
+  const server = http.createServer((req, res) => {
+    if (req.url === '/ok') { res.writeHead(200, {'content-type':'text/plain'}); return res.end('ready'); }
+    res.writeHead(500); res.end('failed');
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const port = server.address().port;
+  try {
+    const ok = await contract.verifyWorldSurface('http://127.0.0.1:' + port + '/ok');
+    const bad = await contract.verifyWorldSurface('http://127.0.0.1:' + port + '/bad');
+    assert.equal(ok.ok, true);
+    assert.equal(ok.http_status, 200);
+    assert.equal(ok.final_url, 'http://127.0.0.1:' + port + '/ok');
+    assert.equal(bad.ok, false);
+    assert.equal(bad.http_status, 500);
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+  }
+});
+
+test('cell cannot be world-ready from a claimed HTTP status alone', () => {
+  const result = contract.validateCell({
+    cell_id:'CELL-FAKE', object:'x', buyer:{}, demand:{}, offer:{sku:'X',price_nzd:1},
+    channel:{}, fulfillment:{}, attribution:{}, evidence:{}, verification_rules:{},
+    authority_requirements:{}, lifecycle_state:'READY',
+    world_surface:{world_url:'https://example.invalid',transaction_url:'https://example.invalid',http_status:200,checked_at:'2026-09-26T00:00:00Z'}
+  });
+  assert.equal(result.status, 'NOT_WORLD_READY');
+});
