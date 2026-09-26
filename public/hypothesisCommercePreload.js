@@ -7,6 +7,7 @@ const SUPABASE_URL = String(process.env.SUPABASE_URL || '');
 const SUPABASE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
 const STRIPE_SECRET = String(process.env.STRIPE_SECRET_KEY || '');
 const PUBLIC_BASE = String(process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
+const HYPOTHESIS_PAYMENT_LINK = String(process.env.HYPOTHESIS_PAYMENT_LINK_URL || 'https://buy.stripe.com/fZu8wP4zrcO9eqHg3idwc2U');
 
 async function readBody(req, max = 100000) {
   const chunks = [];
@@ -181,6 +182,10 @@ async function createCheckout(hypothesis, email) {
   const payload = await response.json();
   if (!response.ok) throw new Error(payload && payload.error && payload.error.message ? payload.error.message : 'Stripe Checkout creation failed');
   return payload;
+}
+
+function stripeUrlForHypothesis(h) {
+  return HYPOTHESIS_PAYMENT_LINK + (HYPOTHESIS_PAYMENT_LINK.includes('?') ? '&' : '?') + 'client_reference_id=' + encodeURIComponent(h.hypothesis_id);
 }
 
 function hypothesisPage(h) {
