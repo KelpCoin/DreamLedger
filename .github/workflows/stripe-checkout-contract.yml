@@ -6,6 +6,8 @@ on:
       - 'BEC-PRIME/**'
       - 'api/**'
       - 'scripts/**'
+      - 'public/hypothesisCommercePreload.js'
+      - 'BEC-PRIME/runtime/BridgeRail.js'
       - '.github/workflows/stripe-checkout-contract.yml'
   pull_request:
     paths:
@@ -29,3 +31,7 @@ jobs:
         run: node BEC-PRIME/scripts/verify-stripe-checkout-contract.js
       - name: Syntax check verifier
         run: node --check BEC-PRIME/scripts/verify-stripe-checkout-contract.js
+      - name: Syntax check public hypothesis surface
+        run: node --check public/hypothesisCommercePreload.js
+      - name: Syntax check bridge rail
+        run: node --check BEC-PRIME/runtime/BridgeRail.js
