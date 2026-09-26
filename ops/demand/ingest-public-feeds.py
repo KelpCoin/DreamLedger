@@ -31,7 +31,7 @@ def fetch_items(url, source):
         if not link:
             l=n.find(".//{*}link")
             link=(l.attrib.get("href","") if l is not None else "")
-        body=text(n,["description","summary","content","encoded"])
+        body=text(n,["description","summary","content","encoded"])[:700]
         if not title and not body:
             continue
         out.append({"source":source,"url":link,"title":title,"body":body})
@@ -84,10 +84,10 @@ def main():
                     "normalized_demand_score":None,
                     "access_tier":"PUBLIC",
                     "payload":{
-                        "title":x["title"],"body":x["body"],"url":x["url"],
+                        "title":x["title"][:240],"body":x["body"][:700],"url":x["url"],"data_use":"discovery_only",
                         "intent_candidate":intent_candidate(x),
                         "provenance":"external_feed",
-                        "status":"RAW_UNFILTERED"
+                        "status":"RAW_UNFILTERED","redistribution":"PROHIBITED","payment_proof":"NEVER_INFER_FROM_LANGUAGE"
                     },
                     "demand_evidence_status":"UNVERIFIED",
                     "payment_intent_status":"UNVERIFIED",
