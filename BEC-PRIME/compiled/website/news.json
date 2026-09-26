@@ -1,7 +1,46 @@
 {
   "news": [
-    {"id":"DL-001","headline":"The marketplace is opening its first live auction lanes","kind":"market","source":"DreamLedger","published_at":"2026-08-12T00:00:00Z"},
-    {"id":"DL-002","headline":"Commander cards and useful digital products now share one storefront","kind":"drop","source":"DreamLedger","published_at":"2026-08-12T00:00:00Z"},
-    {"id":"DZ-001","headline":"Dreamiez is live: build an avatar and keep your streak","kind":"Dreamiez","source":"Dreamiez","published_at":"2026-08-12T00:00:00Z"}
+    {
+      "id": "DL-TRUST-001",
+      "headline": "Trust centre published: economic truth, 0% success fee on current offers, fail-closed CTAs",
+      "kind": "trust",
+      "source": "DreamLedger",
+      "published_at": "2026-09-26T02:00:00Z"
+    },
+    {
+      "id": "DL-AUC-001",
+      "headline": "Auction lanes open with minimum increment, anti-sniping, and bid proof artifacts",
+      "kind": "auction",
+      "source": "DreamLedger",
+      "published_at": "2026-09-26T02:00:00Z"
+    },
+    {
+      "id": "DL-B2B-001",
+      "headline": "B2B seller intake live: GST fields, wholesale type, PENDING_APPROVAL only",
+      "kind": "market",
+      "source": "DreamLedger",
+      "published_at": "2026-09-26T01:00:00Z"
+    },
+    {
+      "id": "DL-FEE-001",
+      "headline": "Platform success fee remains 0% on current public offers — Stripe processing separate",
+      "kind": "fees",
+      "source": "DreamLedger",
+      "published_at": "2026-09-26T00:00:00Z"
+    },
+    {
+      "id": "DL-BILL-001",
+      "headline": "Internet Billboard: permanent placements until 3000; human review before publication",
+      "kind": "billboard",
+      "source": "DreamLedger",
+      "published_at": "2026-08-25T00:00:00Z"
+    },
+    {
+      "id": "DL-MTG-001",
+      "headline": "Commander deck diagnostic available at NZ$29 with automated fulfillment path",
+      "kind": "mtg",
+      "source": "DreamLedger",
+      "published_at": "2026-08-23T00:00:00Z"
+    }
   ]
 }
