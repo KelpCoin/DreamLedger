@@ -1,0 +1,38 @@
+name: CUBE Economic Radar
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: cube-economic-radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      CUBE_REDDIT_SUBREDDITS: ${{ vars.CUBE_REDDIT_SUBREDDITS }}
+      CUBE_SUBSTACK_FEEDS: ${{ vars.CUBE_SUBSTACK_FEEDS }}
+      CUBE_MAX_ITEMS_PER_FEED: "25"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate required configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+      - name: Ingest permitted public discovery feeds
+        run: python ops/demand/ingest-public-feeds.py
+      - name: Match demand to mechanism candidates
+        run: python ops/cube/match-mechanisms.py
+      - name: Emit heartbeat summary
+        run: echo "Radar completed. Candidate generation is not publication, payment, or revenue."
