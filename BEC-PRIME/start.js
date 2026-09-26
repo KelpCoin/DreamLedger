@@ -67,7 +67,7 @@ const CUBE_OBSERVATION_PATHS = Object.freeze(['/buy/','/api/checkout/create','/a
 function cubeObservationCandidate(requestPath){return CUBE_OBSERVATION_PATHS.some(prefix=>requestPath===prefix||requestPath.startsWith(prefix));}
 function cubeSourceIp(req){return String(req.headers['true-client-ip']||req.headers['cf-connecting-ip']||String(req.headers['x-forwarded-for']||'').split(',')[0].trim()||req.socket?.remoteAddress||'').trim()||null;}
 async function persistCubeObservation(req,res,requestPath){
-  const base=String(process.env.SUPABASE_URL||'').replace(/\\/$/,'');
+  const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
   const key=String(process.env.SUPABASE_SERVICE_ROLE_KEY||'');
   if(!base||!key)return;
   const sourceIp=cubeSourceIp(req);
