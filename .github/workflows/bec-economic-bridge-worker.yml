@@ -75,8 +75,8 @@ jobs:
           from pathlib import Path
           data=json.loads(Path('agent.json').read_text())
           assert data.get('schema') == 'dreamledger/agent/v2'
-          assert data.get('agent_bridge',{}).get('status') == 'governed'
-          assert data.get('agent_bridge',{}).get('runtime_rail')
+          assert data.get('bridge',{}).get('status') == 'governed'
+          assert data.get('bridge',{}).get('runtime_rail')
           print('AGENT_BRIDGE_MANIFEST=PASS')
           PY
       - name: Emit bridge health proof
