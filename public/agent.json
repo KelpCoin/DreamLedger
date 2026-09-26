@@ -2,12 +2,12 @@
   "schema": "dreamledger/agent/v2",
   "name": "DreamLedger Commerce Agent Interface",
   "status": "active",
-  "updated": "2026-09-21",
+  "updated": "2026-09-26",
   "human_entry": "/",
   "discovery": "/api/offers",
   "catalog": "/api/products",
   "product_pages": "/products/{product_slug}/",
-  "purchase_router": "/buy/{product_slug}/",
+  "purchase_router": "/buy/{product_id}",
   "agent_commerce": "/agent-commerce.json",
   "ecosystem": "/ecosystem.json",
   "surfaces": "/surfaces.json",
@@ -27,45 +27,69 @@
       "machine_rails": "x402/MPP not live; reserved"
     }
   },
+  "how_to_purchase": [
+    "GET /api/offers",
+    "Select offer with status VERIFIED_AVAILABLE",
+    "Obtain human authorization",
+    "Navigate to buy_router or checkout_url",
+    "Complete Stripe Checkout",
+    "Do not mark economic event paid until Stripe confirms"
+  ],
   "offers": [
-    {
-      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "endpoint": "/billboard",
-      "checkout_url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "action": "purchase",
-      "price_nzd": 50,
-      "status": "live"
-    },
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "endpoint": "/api/offer-checkout/create",
-      "checkout_url": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
+      "name": "Commander Deck Diagnostic",
+      "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
       "action": "purchase",
       "price_nzd": 29,
       "status": "live"
     },
     {
-      "offer_id": "OFFER-DISCORD-WEBHOOK-STARTER",
+      "offer_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard",
+      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "action": "purchase",
+      "price_nzd": 50,
+      "status": "live"
+    },
+    {
+      "offer_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
       "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Starter Kit",
       "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
       "action": "purchase",
       "price_nzd": 79,
       "status": "live"
     },
     {
-      "offer_id": "OFFER-DREAMLEDGER-DOOH-CAMPAIGN-500",
-      "endpoint": "/api/offers",
+      "offer_id": "SELLER-PROFIT-AUDIT-001",
+      "product_id": "SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
       "action": "purchase",
-      "price_nzd": 500,
-      "status": "gated",
-      "reason": "checkout_disabled_until_delivery_contract_is_verified"
+      "price_nzd": 29,
+      "status": "live"
+    },
+    {
+      "offer_id": "EDH_0001",
+      "product_id": "EDH_0001",
+      "name": "EDH_0001 Commander Deck",
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "buy_router": "https://dreamledger.org/buy/EDH_0001",
+      "action": "purchase",
+      "price_nzd": 400,
+      "status": "live"
     }
   ],
   "proof": {
     "schema": "dreamledger/proof/v1",
-    "required_fields": ["proof_id", "event_id", "surface_id", "offer_id", "product_id", "payment_provider", "payment_reference", "paid_at", "delivered_at", "delivery_status", "asset_sha256", "evidence_sha256", "verification_status", "created_at"]
+    "required_fields": ["proof_id", "event_id", "surface_id", "offer_id", "product_id", "payment_provider", "payment_reference", "paid_at", "delivered_at", "delivery_status", "verification_status", "created_at"]
   },
   "safety": {
     "no_claim_without_proof": true,
