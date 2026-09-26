@@ -1,12 +1,28 @@
-# DreamLedger
+# DreamLedger — agent orientation
 
-DreamLedger is a commerce ecosystem for testing small commercial cells.
+Canonical site: https://dreamledger.org/
 
-Start at https://dreamledger.org/
-Machine-readable catalog: /catalog.json
-Orientation: /llms.txt
-Agent commerce information: /agent-commerce.json
+## Purchase (economic events)
+1. GET https://dreamledger.org/api/offers
+2. Prefer status VERIFIED_AVAILABLE
+3. Require human authorization before spend
+4. Open https://dreamledger.org/buy/{product_id}
+   (binds Stripe client_reference_id for attribution)
+5. Economic event order: authorized → paid → delivered → proven
+6. Do not claim revenue without settled Stripe evidence
 
-Treat missing availability, buyers, purchases, rankings and revenue as unknown.
+## Machine contracts
+- https://dreamledger.org/agent-commerce.json
+- https://dreamledger.org/agent.json
+- https://dreamledger.org/.well-known/dreamledger.json
+- https://dreamledger.org/api/products
+- OpenAPI: https://dreamledger.org/b2b/catalog.openapi.json
 
-Revenue claims require settled external payment and durable evidence.
+## Fees
+Platform success fee on listed public offers: 0 bps
+Settlement: Stripe live NZD
+
+## Safety
+No autonomous spend without buyer authorization.
+Checkout start ≠ payment. Payment ≠ fulfillment.
+Treat missing buyers, rankings, and revenue as unknown until proven.
