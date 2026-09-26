@@ -16,7 +16,7 @@ concurrency:
 
 env:
   CANONICAL_URL: https://dreamledger.org
-  FOUNDING_TILE_CHECKOUT: https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x
+  FOUNDING_TILE_CHECKOUT: https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w
 
 jobs:
   build:
@@ -32,13 +32,13 @@ jobs:
           rm -rf _site
           mkdir -p _site
           cp -R public/. _site/
-          cp CNAME _site/CNAME
+          rm -f _site/CNAME
 
           test -s _site/index.html
           test -s _site/automation-rescue.html
           test -s _site/about.html
           test -s _site/policies.html
-          test "$(cat _site/CNAME)" = "dreamledger.org"
+          test ! -e _site/CNAME
           grep -Fq "DREAMLEDGER 3000" _site/index.html
           grep -Fq "THE FRONT DOOR" _site/index.html
           grep -Fq "Billboard" _site/index.html
