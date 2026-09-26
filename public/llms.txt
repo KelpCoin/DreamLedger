@@ -1,35 +1,35 @@
 # DreamLedger
 
-DreamLedger is a NZD commerce and evidence surface. Public commercial truth is Stripe live settlement plus fulfillment evidence. Internal rows, clicks, test mode and checkout intent are not revenue.
+NZD commerce surface. Revenue = settled Stripe payment + attribution + fulfillment evidence only.
+
+## Agent purchase (economic events)
+1. GET https://dreamledger.org/api/offers
+2. Prefer status VERIFIED_AVAILABLE
+3. Require human authorization before spend
+4. Open https://dreamledger.org/buy/{product_id}
+5. Event order: authorized → paid → delivered → proven
+
+## Primary paid offers (live)
+- Commander Deck Diagnostic — NZ$29 — https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
+- Seller Profit Audit — NZ$29 — https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001
+- Founding Billboard 100x100 — NZ$50 — https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
+- Discord Webhook Starter Kit — NZ$79 — https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001
+- EDH_0001 Commander Deck — NZ$400 — https://dreamledger.org/buy/EDH_0001
+
+## Machine surfaces
+- https://dreamledger.org/agent.json
+- https://dreamledger.org/agent-commerce.json
+- https://dreamledger.org/api/offers
+- https://dreamledger.org/api/products
+- https://dreamledger.org/commerce.txt
+- https://dreamledger.org/catalog.json
+- https://dreamledger.org/.well-known/dreamledger.json
 
 ## Human surfaces
 - https://dreamledger.org/
 - https://dreamledger.org/mtg
 - https://dreamledger.org/billboard
-- https://dreamledger.org/dreammeez
-- https://dreamledger.org/agent-commerce
-- https://dreamledger.org/guides/agentic-commerce-nz.html
-- https://dreamledger.org/guides/ai-product-discovery-nz.html
-- https://dreamledger.org/guides/proving-online-transactions.html
-- https://dreamledger.org/guides/nz-physical-goods-price-check.html
 
-## Machine surfaces
-- https://dreamledger.org/.well-known/dreamledger.json
-- https://dreamledger.org/agent.json
-- https://dreamledger.org/agent-commerce.json
-- https://dreamledger.org/api/offers
-- https://dreamledger.org/api/products
-- https://dreamledger.org/sitemap.xml
-
-## Commerce truth
-Supported current payment rail: Stripe Payment Links / Stripe Checkout.
-Settlement authority: Stripe live mode.
-Verified revenue requires external payment evidence, attribution and fulfillment evidence.
-DreamLedger does not treat test payments, self-payments, clicks, rows or claims as revenue.
-
-## Agent behaviour
-Discover offers from machine manifests. Present the listed NZD amount and checkout URL. Human authorization remains required before spend. Do not invent payment references or verified revenue.
-
-## Evidence
-Public proof schema: dreamledger/proof/v1
-Economic loop order: discover -> authorize -> pay -> deliver -> prove.
+## Safety
+No autonomous spend. Do not invent payment references or verified revenue.
+Checkout start is not payment. Payment is not fulfillment.
