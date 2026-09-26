@@ -1,8 +1,9 @@
 {
   "schema": "dreamledger/distribution-queue/v1",
-  "updated": "2026-09-25",
-  "purpose": "Ordered distribution jobs. Agents prepare; humans send on owned channels.",
+  "updated": "2026-09-26",
+  "purpose": "Ordered distribution jobs. Agents prepare; humans send on owned channels. This is the critical path to first external pay.",
   "verified_external_revenue_nzd": 0,
+  "urgency": "CRITICAL_PATH_WHILE_REVENUE_ZERO",
   "jobs": [
     {
       "job_id": "dist-001",
@@ -11,16 +12,28 @@
       "status": "pending_human",
       "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
       "url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "priority": 1
+      "priority": 1,
+      "why": "Public placement story; permanent real-estate angle"
     },
     {
       "job_id": "dist-002",
       "channel": "owned_mtg_discord",
       "offer": "diag-29",
       "status": "pending_human",
-      "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
+      "payload_ref": "ops/money/SELL-SCRIPTS.txt",
       "url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "priority": 2
+      "priority": 1,
+      "why": "Seal-breaker lowest price; MTG audience already warm"
+    },
+    {
+      "job_id": "dist-005",
+      "channel": "owned_builder_or_discord",
+      "offer": "kit-79",
+      "status": "pending_human",
+      "payload_ref": "ops/money/SELL-SCRIPTS.txt",
+      "url": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "priority": 1,
+      "why": "Highest margin live digital; lead with margin after any first pay"
     },
     {
       "job_id": "dist-003",
@@ -28,8 +41,9 @@
       "offer": "tile-50",
       "status": "pending_human",
       "count_target": 5,
-      "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
-      "priority": 1
+      "payload_ref": "ops/money/DEMAND-KIT.md",
+      "priority": 1,
+      "why": "Warm network converts better than cold architecture"
     },
     {
       "job_id": "dist-004",
@@ -37,12 +51,24 @@
       "offer": "tile-50",
       "status": "pending_human",
       "payload_ref": "ops/money/DEMAND-KIT.md",
-      "priority": 3
+      "priority": 2
+    },
+    {
+      "job_id": "dist-006",
+      "channel": "operator_checklist",
+      "offer": "settlement_ready",
+      "status": "pending_human",
+      "payload_ref": "ops/money/FIRST-SALE-READINESS.json",
+      "priority": 0,
+      "why": "STRIPE_SECRET_KEY + one Settlement Sync so a real pay is not invisible"
     }
   ],
   "rules": [
     "Never mark job complete without human confirmation of send",
     "Never auto-post to third-party communities without explicit operator policy",
-    "Prefer buy_router URLs over raw plinks in public posts"
-  ]
+    "Prefer buy_router URLs over raw plinks in public posts",
+    "While revenue is 0, distribution jobs outrank new product work",
+    "Next LLM: if all jobs still pending_human, your job is to reduce friction for the human not to invent SKUs"
+  ],
+  "pinball_for_next_llm": "Read HANDOFF-2026-09-26-PAY-PROBABILITY-AND-PINBALL.md. Ball C only. revenue stays 0 until fossil."
 }
