@@ -60,7 +60,8 @@
     "verify:factory-factory-cycle": "node BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js",
     "factory:universal": "node BEC-PRIME/factory/UniversalFactoryCompiler.js",
     "factory:replicate": "node BEC-PRIME/factory/MechanismReplicationGate.js",
-    "verify:factory-factory-assembly": "node BEC-PRIME/scripts/Verify-FactoryFactoryAssembly.js"
+    "verify:factory-factory-assembly": "node BEC-PRIME/scripts/Verify-FactoryFactoryAssembly.js",
+    "cube:ingest": "python ops/demand/ingest-public-feeds.py"
   },
   "engines": {
     "node": ">=20"
