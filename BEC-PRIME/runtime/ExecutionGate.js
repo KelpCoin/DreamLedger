@@ -16,7 +16,7 @@ function verifyTicketSignature(ticket, publicKeyPem) {
 function materialIntent(ticket) { return {tool_name:ticket.tool_name,arguments:ticket.arguments,target:ticket.target ?? null,amount_nzd:ticket.amount_nzd ?? null,agent_identity:ticket.agent_identity,policy_version:ticket.policy_version}; }
 function assertTicketBinding(ticket, suppliedIntent) {
   const suppliedHash = sha256(suppliedIntent);
-  if (suppliedHash !== ticket.payload_hash) throw new Error('PAYLOAD_HASH_MISMATCH');
+  if (suppliedHash !== ticket.payload_hash) throw new Error('TICKET_PAYLOAD_BINDING_INVALID');
   if (sha256(materialIntent(ticket)) !== ticket.payload_hash) throw new Error('TICKET_PAYLOAD_BINDING_INVALID');
 }
 async function dbRpc(name, payload) {
