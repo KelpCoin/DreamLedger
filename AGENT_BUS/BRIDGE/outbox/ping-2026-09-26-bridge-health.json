@@ -1,0 +1,34 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-26-bridge-health",
+  "from": "grok-session-2026-09-26",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "money",
+  "summary": "Bridge health reviewed; degraded path is human distribution of live $29/$50/$79 offers; revenue still 0; handoff written",
+  "reads": [
+    "AGENT_BUS/BRIDGE/PROTOCOL.md",
+    "AGENT_BUS/PING_PONG_BALLS.json",
+    "AGENT_BUS/ECONOMIC-LOOPS/registry.json",
+    "GOVERNANCE/ECONOMIC_COURT.md",
+    "CONSTITUTION.yaml",
+    "NORTH_STARS.yaml",
+    "ops/money/PROFIT-RULES.md",
+    "ops/money/ZERO-BALANCE-PLAYBOOK.md",
+    "ops/money/FIRST-SALE-READINESS.json",
+    "ops/money/distribution_queue.json"
+  ],
+  "writes": [
+    "AGENT_BUS/HANDOFF-2026-09-26-BRIDGE-HEALTH-AND-DEGRADED-MONETIZATION.md",
+    "AGENT_BUS/BRIDGE/outbox/ping-2026-09-26-bridge-health.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "human_actions": [
+    "Post one owned-channel offer from COPY-PASTE-NOW.txt",
+    "Send three warm DMs",
+    "Confirm STRIPE_SECRET_KEY and run Commerce Settlement Sync once",
+    "Merge branch agent/bridge-health-monetize-2026-09-26 when ready"
+  ],
+  "created_at": "2026-09-26T10:45:00+12:00"
+}
