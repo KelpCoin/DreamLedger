@@ -1,0 +1,31 @@
+{
+  "schema": "dreamledger/repair-proof/v1",
+  "repair": "ci-orchestration-noise",
+  "status": "APPLIED",
+  "date": "2026-09-27",
+  "changes": [
+    {
+      "file": ".github/workflows/all-workflows-fallback.yml",
+      "commit": "df75b6b1ba1420c665b0c8f59b70675d8d480d78",
+      "result": "portfolio controller reduced from 33 dispatched lanes to 8 bounded verification entrypoints"
+    },
+    {
+      "file": ".github/workflows/first-sale-gate.yml",
+      "commit": "00d56c4f205d8bf1b4a924879dec64b2469894c9",
+      "result": "removed unconditional push-to-main trigger; retained workflow_run, schedule, and manual dispatch"
+    }
+  ],
+  "truth_boundary": {
+    "verified_revenue_nzd": 0,
+    "verified_payment_count": 0,
+    "external_distribution_performed": false,
+    "production_spend_changed": false
+  },
+  "approval_boundary": {
+    "buyer_contact": "FORBIDDEN",
+    "public_listing": "FORBIDDEN",
+    "payment_mutation": "FORBIDDEN",
+    "production_deploy": "FORBIDDEN"
+  },
+  "next_verification": "Inspect the next main-branch CI run and confirm the bounded controller no longer floods Actions with historical lane dispatches."
+}
