@@ -1,13 +1,77 @@
 {
+  "schema": "dreamledger/ai-catalog/v1",
   "schema_version": "1.0",
   "name": "DreamLedger",
+  "publisher": "DreamLedger",
   "url": "https://dreamledger.org/",
-  "description": "Commerce ecosystem for testing and operating small commercial cells.",
+  "updated": "2026-09-26",
+  "description": "NZD commerce surface. Agents discover offers, humans authorize spend, Stripe settles.",
+  "currency": "NZD",
+  "settlement": "stripe_live",
+  "economic_event_order": ["authorized", "paid", "delivered", "proven"],
+  "purchase_protocol": {
+    "discover": "https://dreamledger.org/api/offers",
+    "authorize": "human_required",
+    "pay": "https://dreamledger.org/buy/{product_id}",
+    "no_autonomous_spend": true
+  },
   "entrypoints": [
-    {"path": "/", "purpose": "commerce front door"},
-    {"path": "/growth.html", "purpose": "public operating story"},
-    {"path": "/catalog.json", "purpose": "machine-readable product catalog"},
-    {"path": "/llms.txt", "purpose": "machine-readable orientation"}
+    { "path": "/", "purpose": "commerce front door" },
+    { "path": "/api/offers", "purpose": "checkout-ready offers" },
+    { "path": "/api/products", "purpose": "product catalog" },
+    { "path": "/agent.json", "purpose": "agent interface" },
+    { "path": "/agent-commerce.json", "purpose": "commerce contract" },
+    { "path": "/llms.txt", "purpose": "machine orientation" },
+    { "path": "/catalog.json", "purpose": "machine-readable catalog" }
+  ],
+  "offers": [
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "price": { "amount": 29, "currency": "NZD" },
+      "checkout_url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "stripe_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+      "fulfillment_input_url": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}",
+      "fulfillment": "automated_after_paid_input",
+      "revenue_rule": "settled_stripe_only"
+    },
+    {
+      "id": "SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "price": { "amount": 29, "currency": "NZD" },
+      "checkout_url": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+      "stripe_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "fulfillment": "manual_pdf",
+      "revenue_rule": "settled_stripe_only"
+    },
+    {
+      "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard Tile",
+      "price": { "amount": 50, "currency": "NZD" },
+      "checkout_url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "stripe_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "fulfillment": "placement_after_payment_and_review",
+      "revenue_rule": "settled_stripe_only"
+    },
+    {
+      "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Starter Kit",
+      "price": { "amount": 79, "currency": "NZD" },
+      "checkout_url": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "stripe_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "fulfillment": "digital_download",
+      "revenue_rule": "settled_stripe_only"
+    },
+    {
+      "id": "DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "DreamMeez Supporter — Sprout",
+      "price": { "amount": 3.99, "currency": "NZD" },
+      "checkout_url": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+      "stripe_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
+      "fulfillment": "account_grant",
+      "revenue_rule": "settled_stripe_only"
+    }
   ],
   "truth_policy": {
     "revenue_requires": ["settled_external_payment", "correct_attribution", "fulfillment", "independent_verification"],
