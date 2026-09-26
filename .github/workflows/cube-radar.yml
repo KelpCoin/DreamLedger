@@ -23,7 +23,7 @@ jobs:
       CUBE_SUBSTACK_FEEDS: ${{ vars.CUBE_SUBSTACK_FEEDS }}
       CUBE_MAX_ITEMS_PER_FEED: "25"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
       - name: Validate radar secrets
         run: |
           test -n "$SUPABASE_URL"
