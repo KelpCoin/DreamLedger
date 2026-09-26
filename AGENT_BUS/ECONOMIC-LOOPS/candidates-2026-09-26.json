@@ -1,0 +1,75 @@
+{
+  "schema": "dreamledger/economic-loops-candidates/v1",
+  "updated": "2026-09-26",
+  "principle": "Candidates are not live offers. Do not create public buy CTAs or Stripe products for these until gate clears. Primary live loops remain billboard $50, diagnostic $29, kit $79.",
+  "gate": "enable_after_first_external_fossil_or_explicit_human_override",
+  "verified_external_revenue_nzd": 0,
+  "candidates": [
+    {
+      "loop_id": "LOOP-MTG-LIQUIDATION-LOT",
+      "vision": "Liquidate Magic the Gathering collection",
+      "status": "candidate",
+      "first_money_shape": "Curated lot listing; market-clear pricing; escrow-style proof of shipment",
+      "prereqs": ["inventory_csv", "photos", "condition_grades", "shipping_policy"],
+      "feeds_into": ["LOOP-MTG-EDH-RETAINER"]
+    },
+    {
+      "loop_id": "LOOP-MTG-EDH-RETAINER",
+      "vision": "EDH diagnostic productization",
+      "status": "candidate",
+      "first_money_shape": "NZ$99 multi-list or season pack after ≥3 single diagnostics paid",
+      "prereqs": ["3_closed_LOOP-CMD-DIAG-29", "template_under_45min"]
+    },
+    {
+      "loop_id": "LOOP-B2B-TRUST-ATTEST",
+      "vision": "B2B marketplace trust and validation layer",
+      "status": "candidate",
+      "first_money_shape": "NZ$199 one-time merchant surface attestation pack",
+      "prereqs": ["Economic_Court_first_gate", "attestation_schema", "public_verify_endpoint"]
+    },
+    {
+      "loop_id": "LOOP-AGENTIC-COMMERCE-RAIL",
+      "vision": "Agentic commerce",
+      "status": "candidate_infra",
+      "first_money_shape": "0% take on listed offers; later settlement/attestation fee",
+      "existing_surfaces": ["https://dreamledger.org/agent-commerce.json", "https://dreamledger.org/api/offers"],
+      "prereqs": ["first_external_fossil", "agent_passport_stable"]
+    },
+    {
+      "loop_id": "LOOP-DOOH-PROGRAMMATIC",
+      "vision": "Programmatic DOOH",
+      "status": "candidate",
+      "first_money_shape": "DOOH_CUBE_001 style NZ$50 flight + Ed25519 proof-of-play",
+      "source": "DOOH/DOOH-CUBE-001.json",
+      "prereqs": ["human_approval_first_live_booking", "provider_sandbox_pass"]
+    },
+    {
+      "loop_id": "LOOP-MILLION-PIXEL-BOARD",
+      "vision": "Million-pixel inspired billboards",
+      "status": "candidate",
+      "first_money_shape": "Scale grid beyond founding 100x100 tiles",
+      "prereqs": ["LOOP-BILLBOARD-FOUNDING-50 PROOF", "inventory_rules", "moderation_SLA"]
+    },
+    {
+      "loop_id": "LOOP-AVATAR-COSMETIC-B2C",
+      "vision": "Game and avatar ecosystem",
+      "status": "candidate",
+      "first_money_shape": "DreamMeez entitlement micro after email↔Stripe match",
+      "prereqs": ["entitlement_table", "email_match"]
+    },
+    {
+      "loop_id": "LOOP-WHITELABEL-SANDBOX",
+      "vision": "White-label sandbox; Trade Me / Shopify replacement path",
+      "status": "candidate",
+      "first_money_shape": "Founder white-label sandbox fee",
+      "prereqs": ["NS6_20_verified_paid_events", "boilerplate_repo_stable"]
+    },
+    {
+      "loop_id": "LOOP-MUSIC-MEDIA-LOT",
+      "vision": "Music and media liquidation",
+      "status": "candidate",
+      "first_money_shape": "Digital lot or license sale",
+      "prereqs": ["rights_clear", "inventory"]
+    }
+  ]
+}
