@@ -1,9 +1,6 @@
 name: BEC Prime First Sale Gate
 
 on:
-  push:
-    branches:
-      - main
   workflow_run:
     workflows:
       - Deploy DreamLedger to Render
@@ -25,6 +22,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: first-sale-gate
+  cancel-in-progress: true
 
 env:
   FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001' }}
@@ -88,7 +89,7 @@ jobs:
         run: |
           set -euo pipefail
           OFFER_ID="$FIRST_SALE_OFFER_ID"
-          curl --fail --silent --show-error --max-time 60 -X POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data "{\"offer_id\":\"$OFFER_ID\",\"silo\":\"$TARGET_SILO\"}" | tee checkout.json
+          curl --fail --silent --show-error --max-time 60 -X POST "$BASE_URL/api/offer-checkout/create" -H 'Content-Type: application/json' --data "{"offer_id":"$OFFER_ID","silo":"$TARGET_SILO"}" | tee checkout.json
           node <<'NODE'
           const x = require('./checkout.json');
           const u = x.url || x.checkout_url;
