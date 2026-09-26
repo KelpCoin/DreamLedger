@@ -1,18 +1,14 @@
 name: Render Recovery Fallback
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: "*/30 * * * *"
 
 permissions:
   contents: read
 
 concurrency:
   group: dreamledger-render-recovery
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy-and-prove:
@@ -29,7 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           sha="$GITHUB_SHA"
-          trigger="AUTO_DEPLOY"
+          trigger="AUTO_DEPLOY_EXPECTED"
           hook="${RENDER_DEPLOY_HOOK_URL:-}"
           if [ -z "$hook" ]; then hook="${RENDER_DEPLOY_HOOK:-}"; fi
 
@@ -47,7 +43,7 @@ jobs:
             fi
           fi
 
-          if [ "$trigger" = "AUTO_DEPLOY" ] && [ -n "${RENDER_API_KEY:-}" ] && [ -n "${RENDER_SERVICE_ID:-}" ]; then
+          if [ "$trigger" = "AUTO_DEPLOY_EXPECTED" ] && [ -n "${RENDER_API_KEY:-}" ] && [ -n "${RENDER_SERVICE_ID:-}" ]; then
             echo "Trying Render API deploy for commit $sha"
             code=$(curl --silent --show-error --output /tmp/render-api.json --write-out '%{http_code}' \
               -X POST "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
