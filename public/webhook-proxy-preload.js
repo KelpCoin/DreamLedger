@@ -6,6 +6,7 @@ const { URL } = require('url');
 const { Readable } = require('stream');
 const distributionDoorway = require('../BEC-PRIME/routes/distributionDoorway');
 const mtgDiagnostic = require('../BEC-PRIME/lib/mtgDiagnosticFulfillment');
+const paidCheckoutWebhook = require('./paidCheckoutWebhook');
 
 function replayRequest(req, body) {
   const replay = Readable.from([body]);
@@ -169,6 +170,34 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           }
         }
         if (res.writableEnded) return;
+        try {
+          const event = JSON.parse(body.toString('utf8'));
+          if (event && event.type === 'checkout.session.completed') {
+            const verified = req.headers['stripe-signature'];
+            paidCheckoutWebhook.verify(body.toString('utf8'), verified);
+            const result = await paidCheckoutWebhook.persistPaidCheckout(event);
+            if (result && result.handled) {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json; charset=utf-8');
+              res.setHeader('Cache-Control', 'no-store');
+              res.end(JSON.stringify({received:true, economic_persistence:result}));
+              return;
+            }
+          }
+        } catch (err) {
+          if (err && /STRIPE_WEBHOOK_SECRET|Invalid Stripe signature|Expired Stripe signature/.test(err.message || '')) {
+            res.statusCode = 400;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.end(JSON.stringify({ error: err.message }));
+            return;
+          }
+          if (process.env.WEBHOOK_PERSISTENCE_STRICT === 'true') {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.end(JSON.stringify({ error: err.message || 'Economic webhook persistence failed' }));
+            return;
+          }
+        }
         return handler(replayRequest(req, body), res);
       }
 
