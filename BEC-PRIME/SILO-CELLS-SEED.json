@@ -1,133 +1,41 @@
 {
-  "schema": "DREAMLEDGER/SILO-CELLS-SEED/v1",
-  "generated_at": "2026-09-26T01:56:00Z",
-  "purpose": "Machine-readable silo and cell definitions for Supabase population. Push via GitHub; another agent loads into catalog / CUBE tables.",
+  "schema": "DREAMLEDGER/SILO-CELLS-SEED/v2",
+  "generated_at": "2026-09-26T03:20:00Z",
+  "purpose": "Machine-readable silo, cell, and economic-loop definitions for Supabase/CUBE. Push via GitHub; loader populates catalog-cta.",
   "silos": [
-    {
-      "id": "identity",
-      "slug": "dream-ledger",
-      "name": "Dream Ledger",
-      "kind": "core",
-      "public": true,
-      "cta": {
-        "label": "Open identity silo",
-        "href": "/dream-ledger.html"
-      },
-      "description": "Persistent public identity. Projects, collections, links and a permanent place on the ledger.",
-      "boundary": "No commerce inventory mixed into identity surface."
-    },
-    {
-      "id": "billboard",
-      "slug": "billboard",
-      "name": "Billboard",
-      "kind": "commerce",
-      "public": true,
-      "cta": {
-        "label": "Open billboard silo",
-        "href": "/billboard"
-      },
-      "description": "Finite digital real estate. Permanent placements until 3000. Human review before publication.",
-      "boundary": "Independent inventory and review gate."
-    },
-    {
-      "id": "mtg",
-      "slug": "mtg",
-      "name": "Magic: The Gathering",
-      "kind": "commerce",
-      "public": true,
-      "cta": {
-        "label": "Open MTG silo",
-        "href": "/mtg"
-      },
-      "description": "Commander diagnostics, collectibles and physical inventory.",
-      "boundary": "Independent commercial boundary."
-    },
-    {
-      "id": "avatar",
-      "slug": "dreammeez",
-      "name": "DreamMeez / Avatar",
-      "kind": "identity",
-      "public": true,
-      "cta": {
-        "label": "Open avatar silo",
-        "href": "/avatar.html"
-      },
-      "description": "Visual identity and avatar surfaces.",
-      "boundary": "Kept separate from commerce inventory."
-    },
-    {
-      "id": "truth-oracle",
-      "slug": "truth-oracle",
-      "name": "Truth Oracle",
-      "kind": "evidence",
-      "public": true,
-      "cta": {
-        "label": "Open evidence silo",
-        "href": "/truth-oracle"
-      },
-      "description": "Public evidence, provenance, contradictions and explicit uncertainty.",
-      "boundary": "Evidence only; no commerce."
-    },
-    {
-      "id": "bbw",
-      "slug": "bbw",
-      "name": "BBW / Creator",
-      "kind": "creator",
-      "public": true,
-      "cta": {
-        "label": "Open creator silo",
-        "href": "/bbw"
-      },
-      "description": "Isolated creator silo.",
-      "boundary": "No cross-contamination with other commercial or identity payloads."
-    }
+    {"id": "identity", "slug": "dream-ledger", "name": "Dream Ledger", "kind": "core", "public": true, "cta": {"label": "Open identity silo", "href": "/dream-ledger.html"}, "shop_rail": null},
+    {"id": "billboard", "slug": "billboard", "name": "Billboard", "kind": "commerce", "public": true, "cta": {"label": "Open billboard silo", "href": "/billboard"}, "shop_rail": "/shop.html#billboard"},
+    {"id": "mtg", "slug": "mtg", "name": "Magic: The Gathering", "kind": "commerce", "public": true, "cta": {"label": "Open MTG silo", "href": "/mtg"}, "shop_rail": "/shop.html#mtg"},
+    {"id": "digital", "slug": "digital", "name": "Digital products", "kind": "commerce", "public": true, "cta": {"label": "Shop digital", "href": "/shop.html#digital"}, "shop_rail": "/shop.html#digital"},
+    {"id": "auctions", "slug": "auctions", "name": "Auctions", "kind": "commerce", "public": true, "cta": {"label": "Open auctions", "href": "/auctions.html"}, "shop_rail": "/auctions.html"},
+    {"id": "b2b", "slug": "marketplace", "name": "B2B Marketplace", "kind": "commerce", "public": true, "cta": {"label": "Open B2B", "href": "/marketplace.html"}, "shop_rail": "/shop.html#loops"},
+    {"id": "avatar", "slug": "dreammeez", "name": "DreamMeez / Avatar", "kind": "identity", "public": true, "cta": {"label": "Open avatar silo", "href": "/avatar.html"}, "shop_rail": null},
+    {"id": "truth-oracle", "slug": "truth-oracle", "name": "Truth Oracle", "kind": "evidence", "public": true, "cta": {"label": "Open evidence silo", "href": "/truth-oracle"}, "shop_rail": null}
   ],
   "cells_eligible_for_cta": [
-    {
-      "sku": "CMD-DIAG-29",
-      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "silo": "mtg",
-      "name": "Commander Deck Diagnostic",
-      "description": "Structure, cuts and upgrade priorities for your Commander deck. Delivered after payment.",
-      "price_nzd": 29,
-      "checkout_available": true,
-      "evidence_status": "awaiting_first_payment"
-    },
-    {
-      "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "product_id": "BILLBOARD-SMALL",
-      "silo": "billboard",
-      "name": "Founding Billboard Tile 100×100",
-      "description": "Permanent 100×100 spot on the public board until 3000. Human review before live.",
-      "price_nzd": 50,
-      "checkout_available": true,
-      "evidence_status": "awaiting_first_payment"
-    },
-    {
-      "sku": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "silo": "commerce",
-      "name": "Discord Webhook Starter Kit",
-      "description": "Templates for payment notifications and alerts. Instant digital delivery.",
-      "price_nzd": 79,
-      "checkout_available": true,
-      "evidence_status": "awaiting_first_payment"
-    }
+    {"sku": "CMD-DIAG-29", "product_id": "COMMANDER-DECK-DIAGNOSTIC-001", "silo": "mtg", "name": "Commander Deck Diagnostic", "description": "Structure, cuts and upgrade priorities. Delivered after payment.", "price_nzd": 29, "checkout_available": true, "cta_url": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I", "evidence_status": "awaiting_first_payment"},
+    {"sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001", "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001", "silo": "billboard", "name": "Founding Billboard Tile 100x100", "description": "Permanent 100x100 spot until 3000. Human review before live.", "price_nzd": 50, "checkout_available": true, "cta_url": "https://buy.stripe.com/aFa14naXP15r1DVdVadwc2B", "evidence_status": "awaiting_first_payment"},
+    {"sku": "DISCORD-WEBHOOK-STARTER-KIT-001", "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001", "silo": "digital", "name": "Discord Webhook Starter Kit", "description": "Templates for payment notifications. Digital delivery.", "price_nzd": 79, "checkout_available": true, "cta_url": "/buy.html?sku=DISCORD-WEBHOOK-STARTER-KIT-001", "evidence_status": "awaiting_first_payment"},
+    {"sku": "AUC-MTG-FETCHLAND-001", "product_id": "AUC-MTG-FETCHLAND-001", "silo": "auctions", "name": "MTG Fetchland Starter Lot", "description": "Timed auction. Min increment. Bid is not settlement.", "price_nzd": 15, "checkout_available": true, "cta_url": "/auctions.html", "evidence_status": "auction_live"},
+    {"sku": "AUC-MTG-COMMANDER-002", "product_id": "AUC-MTG-COMMANDER-002", "silo": "auctions", "name": "Commander Upgrade Bundle", "description": "Auction lane for Commander upgrades.", "price_nzd": 25, "checkout_available": true, "cta_url": "/auctions.html", "evidence_status": "auction_live"},
+    {"sku": "SELL-INTAKE-001", "product_id": "SELL-INTAKE-001", "silo": "b2b", "name": "Seller intake", "description": "Free listing. 0% success fee on current offers. PENDING_APPROVAL.", "price_nzd": 0, "checkout_available": true, "cta_url": "/sell.html", "evidence_status": "intake_open"}
+  ],
+  "economic_loops": [
+    {"id": "LOOP_BUY", "entry": "/buy.html", "steps": ["verified_cell", "stripe_checkout", "payment_evidence", "fulfillment", "proof"]},
+    {"id": "LOOP_SELL", "entry": "/sell.html", "steps": ["intake", "pending_approval", "publish", "buyer_payment", "seller_payout_rules"]},
+    {"id": "LOOP_AUCTION", "entry": "/auctions.html", "steps": ["list_lot", "bid_with_proof", "close", "verified_payment", "fulfillment"]},
+    {"id": "LOOP_CUBE", "entry": "/shop.html", "steps": ["demand_signal", "cell_clears_contract", "public_cta", "horizontal_rail"]}
   ],
   "rules": {
-    "cta_requires": [
-      "concrete_offer",
-      "reachable_purchase_path",
-      "required_evidence_or_explicit_awaiting_first_payment"
-    ],
+    "cta_requires": ["concrete_offer", "reachable_purchase_path", "required_evidence_or_explicit_awaiting_first_payment"],
     "fail_closed": true,
     "no_invented_offers": true,
     "private_silos_never_public": ["BECK", "adult", "private_inventory", "unpublished_decks"]
   },
   "notes_for_supabase_loader": [
-    "Upsert silos into public.silos or equivalent.",
-    "Upsert cells_eligible_for_cta into the source read by functions/v1/catalog-cta.",
+    "Upsert silos and cells_eligible_for_cta into sources read by functions/v1/catalog-cta.",
     "Do not publish cells that fail commercial_truth.sellable or lack checkout path.",
-    "Homepage (compiled/website/index.html) only renders items returned by catalog-cta."
+    "Horizontal rails on /shop.html expand as cells clear — CUBE evergreen growth.",
+    "This seed file is not revenue."
   ]
 }
