@@ -2,16 +2,25 @@
   "schema": "dreamledger/agent/v2",
   "name": "DreamLedger Commerce Agent Interface",
   "status": "active",
-  "updated": "2026-09-26",
+  "updated": "2026-09-27",
   "human_entry": "/",
   "discovery": "/api/offers",
   "catalog": "/api/products",
-  "product_pages": "/products/{product_slug}/",
+  "product_pages": "/product/{product_id}",
   "purchase_router": "/buy/{product_id}",
   "agent_commerce": "/agent-commerce.json",
   "ecosystem": "/ecosystem.json",
   "surfaces": "/surfaces.json",
   "discovery_manifest": "/.well-known/dreamledger.json",
+  "bridge": {
+    "status": "governed",
+    "purpose": "Durable handoff between agents, local execution and cloud commerce.",
+    "public_capability": "Agents can discover offers, request governed work, and hand off execution without exposing bridge credentials.",
+    "runtime_rail": "/api/agent-bridge/rail/manifest",
+    "authorization": "authenticated_agent_token",
+    "settlement": "Stripe live only",
+    "economic_truth": "Bridge activity is not revenue. Revenue requires independently verified external payment plus fulfillment proof."
+  },
   "commerce": {
     "supported_action": "purchase",
     "authorization": "buyer_or_authorized_agent_with_human_handoff",
@@ -29,67 +38,30 @@
   },
   "how_to_purchase": [
     "GET /api/offers",
-    "Select offer with status VERIFIED_AVAILABLE",
+    "Select an offer with status VERIFIED_AVAILABLE",
     "Obtain human authorization",
     "Navigate to buy_router or checkout_url",
     "Complete Stripe Checkout",
     "Do not mark economic event paid until Stripe confirms"
   ],
   "offers": [
-    {
-      "offer_id": "OFFER-CMD-DIAG-29-NZD",
-      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "name": "Commander Deck Diagnostic",
-      "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "action": "purchase",
-      "price_nzd": 29,
-      "status": "live"
-    },
-    {
-      "offer_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "name": "Founding Billboard",
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "action": "purchase",
-      "price_nzd": 50,
-      "status": "live"
-    },
-    {
-      "offer_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "name": "Discord Webhook Starter Kit",
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
-      "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
-      "action": "purchase",
-      "price_nzd": 79,
-      "status": "live"
-    },
-    {
-      "offer_id": "SELLER-PROFIT-AUDIT-001",
-      "product_id": "SELLER-PROFIT-AUDIT-001",
-      "name": "Seller Profit Audit",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
-      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
-      "action": "purchase",
-      "price_nzd": 29,
-      "status": "live"
-    },
-    {
-      "offer_id": "EDH_0001",
-      "product_id": "EDH_0001",
-      "name": "EDH_0001 Commander Deck",
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-      "buy_router": "https://dreamledger.org/buy/EDH_0001",
-      "action": "purchase",
-      "price_nzd": 400,
-      "status": "live"
-    }
+    {"offer_id":"DREAMMEEZ-COSMIC-HOODIE-001","product_id":"DREAMMEEZ-COSMIC-HOODIE-001","name":"DreamMeez Cosmic Hoodie","checkout_url":"https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J","buy_router":"https://dreamledger.org/buy/DREAMMEEZ-COSMIC-HOODIE-001","action":"purchase","price_nzd":5,"status":"live"},
+    {"offer_id":"DREAMMEEZ-CAPE-001","product_id":"DREAMMEEZ-CAPE-001","name":"DreamMeez Cape","checkout_url":"https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K","buy_router":"https://dreamledger.org/buy/DREAMMEEZ-CAPE-001","action":"purchase","price_nzd":10,"status":"live"},
+    {"offer_id":"DREAMMEEZ-CHROME-BOOTS-001","product_id":"DREAMMEEZ-CHROME-BOOTS-001","name":"DreamMeez Chrome Boots","checkout_url":"https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L","buy_router":"https://dreamledger.org/buy/DREAMMEEZ-CHROME-BOOTS-001","action":"purchase","price_nzd":9,"status":"live"},
+    {"offer_id":"DREAMMEEZ-SUPPORTER-SPROUT","product_id":"DREAMMEEZ-SUPPORTER-SPROUT","name":"DreamMeez Supporter - Sprout","checkout_url":"https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M","buy_router":"https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT","action":"purchase","price_nzd":3.99,"status":"live"},
+    {"offer_id":"DREAMMEEZ-SUPPORTER-GLOW","product_id":"DREAMMEEZ-SUPPORTER-GLOW","name":"DreamMeez Supporter - Glow","checkout_url":"https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N","buy_router":"https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW","action":"purchase","price_nzd":5.99,"status":"live"},
+    {"offer_id":"DREAMMEEZ-SUPPORTER-DEPTH","product_id":"DREAMMEEZ-SUPPORTER-DEPTH","name":"DreamMeez Supporter - Depth","checkout_url":"https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O","buy_router":"https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-DEPTH","action":"purchase","price_nzd":9.99,"status":"live"},
+    {"offer_id":"KELP-FLOOR1-001","product_id":"KELP-FLOOR1-001","name":"Kelplantis Floor 1 Access Pass","checkout_url":"https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P","buy_router":"https://dreamledger.org/buy/KELP-FLOOR1-001","action":"purchase","price_nzd":19,"status":"live"},
+    {"offer_id":"DREAMLEDGER-BILLBOARD-FOUNDING-001","product_id":"DREAMLEDGER-BILLBOARD-FOUNDING-001","name":"DreamLedger Founding Billboard","checkout_url":"https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w","buy_router":"https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001","action":"purchase","price_nzd":50,"status":"live"},
+    {"offer_id":"OFFER-CMD-DIAG-29-NZD","product_id":"COMMANDER-DECK-DIAGNOSTIC-001","name":"Commander Deck Diagnostic","checkout_url":"https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R","buy_router":"https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001","action":"purchase","price_nzd":29,"status":"live"},
+    {"offer_id":"DISCORD-WEBHOOK-STARTER-KIT-001","product_id":"DISCORD-WEBHOOK-STARTER-KIT-001","name":"Discord Webhook Starter Kit","checkout_url":"https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n","buy_router":"https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001","action":"purchase","price_nzd":79,"status":"live"},
+    {"offer_id":"EDH_0001","product_id":"EDH_0001","name":"EDH_0001 Commander Deck","checkout_url":"https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J","buy_router":"https://dreamledger.org/buy/EDH_0001","action":"purchase","price_nzd":400,"status":"live"},
+    {"offer_id":"SELLER-PROFIT-AUDIT-001","product_id":"SELLER-PROFIT-AUDIT-001","name":"Seller Profit Audit","checkout_url":"https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S","buy_router":"https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001","action":"purchase","price_nzd":29,"status":"live"},
+    {"offer_id":"DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001","product_id":"DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001","name":"Commercial Truth Stress-Test","checkout_url":"https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T","buy_router":"https://dreamledger.org/buy/DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001","action":"purchase","price_nzd":999,"status":"live"}
   ],
   "proof": {
     "schema": "dreamledger/proof/v1",
-    "required_fields": ["proof_id", "event_id", "surface_id", "offer_id", "product_id", "payment_provider", "payment_reference", "paid_at", "delivered_at", "delivery_status", "verification_status", "created_at"]
+    "required_fields": ["proof_id","event_id","surface_id","offer_id","product_id","payment_provider","payment_reference","paid_at","delivered_at","delivery_status","verification_status","created_at"]
   },
   "safety": {
     "no_claim_without_proof": true,
