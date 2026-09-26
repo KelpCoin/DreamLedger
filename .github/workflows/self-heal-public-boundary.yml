@@ -3,6 +3,8 @@ name: BEC-PRIME Self Heal Public Boundary
 on:
   push:
     branches: [main]
+    paths:
+      - "BEC-PRIME/routes/frontDoor.js"
   workflow_dispatch:
 
 permissions:
