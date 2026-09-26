@@ -17,12 +17,16 @@ Source: https://www.upwork.com/freelance-jobs/apply/Automation-Specialist-for-Pa
 - Job payload reason: PACKET_NOT_AUTHORIZED_FOR_EXTERNAL_ACTION
 - Economic gate: NO_REVENUE
 - Execution packet: dc14406d-d8a3-4dce-824d-d3be581a6fdf
-- Packet current status: STAGED
+- Packet current status: AUTHORIZED
+- Packet job_id: null
 - Packet capability: beck-execution
+- Packet exact action: UPWORK_QUALIFICATION_PREPARE
+- Packet authority: GREEN / POLICY_MATCH / authorized=true
 - Opportunity status: INTERESTING
 - Required capability recorded by opportunity: fulfillment_engine
 - No fulfillment_engine capability binding exists in capability_registry.
 - bec_capability_registry contains beck-execution as AVAILABLE, CONTRACT_VERIFIED, but this is a worker capability, not proof of fulfillment_engine.
+- The economic action record was reconciled from the legacy OUTREACH_PREPARED label to UPWORK_QUALIFICATION_PREPARE.
 
 ## Bridge truth
 
