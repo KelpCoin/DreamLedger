@@ -1,0 +1,35 @@
+{
+  "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+  "sku": "DISCORD-WEBHOOK-STARTER-KIT-001",
+  "silo": "digital",
+  "name": "Discord Webhook Starter Kit",
+  "description": "Templates for payment notifications and operational alerts. Digital delivery after verified payment.",
+  "price": 79,
+  "price_unit": "major",
+  "currency": "nzd",
+  "inventory": 999,
+  "inventory_type": "digital",
+  "status": "published",
+  "checkout": {
+    "mode": "payment",
+    "url": "/buy.html?sku=DISCORD-WEBHOOK-STARTER-KIT-001",
+    "success_path": "/buy.html",
+    "cancel_path": "/shop.html#digital"
+  },
+  "commercial_truth": {
+    "approval_required": false,
+    "sellable": true,
+    "reason": "Digital kit listed for public CTA; payment path via buy surface.",
+    "payment_surface": "stripe-or-buy-router",
+    "checkoutable_without_connected_account": true
+  },
+  "fulfillment": {
+    "mode": "digital_download",
+    "delivery_sla_hours": 1,
+    "operator_required": false
+  },
+  "evidence": {
+    "status": "awaiting_first_payment",
+    "transaction_id": null
+  }
+}
