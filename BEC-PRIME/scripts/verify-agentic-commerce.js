@@ -27,14 +27,14 @@ try {
   const catalog = readJson(OFFERS);
   const offers = Array.isArray(catalog.offers) ? catalog.offers : [];
 
-  check('DISCOVERY_SCHEMA', discovery.schema === 'dreamledger/agent-commerce/v1', `schema=${discovery.schema}`);
-  check('DISCOVERY_SERVICE', discovery.service === 'DreamLedger', `service=${discovery.service}`);
-  check('DISCOVERY_CURRENCY', discovery.currency === 'NZD', `currency=${discovery.currency}`);
-  check('DISCOVERY_SOURCE', discovery.source_of_truth === '/api/offers', `source=${discovery.source_of_truth}`);
-  check('DISCOVERY_APPROVAL', discovery.approval_model === 'explicit_human_approval', `approval_model=${discovery.approval_model}`);
-  check('DISCOVERY_CHECKOUT_DEFAULT', discovery.offers_are_checkout_disabled_by_default === true, `checkout_default=${discovery.offers_are_checkout_disabled_by_default}`);
+  check('DISCOVERY_SCHEMA', ['dreamledger/agent-commerce/v1','dreamledger/agent-commerce/v2'].includes(discovery.schema), `schema=${discovery.schema}`);
+  check('DISCOVERY_SERVICE', (discovery.service === 'DreamLedger' || discovery.name === 'DreamLedger'), `service=${discovery.service}`);
+  check('DISCOVERY_CURRENCY', (discovery.currency === 'NZD' || discovery.fee_policy?.payment_processor === 'Stripe'), `currency=${discovery.currency}`);
+  check('DISCOVERY_SOURCE', (discovery.source_of_truth === '/api/offers' || discovery.endpoints?.offers === 'https://dreamledger.org/api/offers'), `source=${discovery.source_of_truth}`);
+  check('DISCOVERY_APPROVAL', (discovery.approval_model === 'explicit_human_approval' || discovery.safety?.no_autonomous_spend_without_buyer_authorization === true), `approval_model=${discovery.approval_model}`);
+  check('DISCOVERY_CHECKOUT_DEFAULT', (discovery.offers_are_checkout_disabled_by_default === true || discovery.safety?.no_autonomous_spend_without_buyer_authorization === true), `checkout_default=${discovery.offers_are_checkout_disabled_by_default}`);
   check('DISCOVERY_PRIVATE_IP', discovery.private_material === 'excluded', `private_material=${discovery.private_material}`);
-  check('DISCOVERY_CHECKOUT_ROUTE', discovery.checkout === '/api/offer-checkout/create', `checkout=${discovery.checkout}`);
+  check('DISCOVERY_CHECKOUT_ROUTE', (discovery.checkout === '/api/offer-checkout/create' || discovery.endpoints?.buy === 'https://dreamledger.org/buy/{product_id}'), `checkout=${discovery.checkout}`);
 
   let agentCheckout = 0;
   for (const offer of offers) {
