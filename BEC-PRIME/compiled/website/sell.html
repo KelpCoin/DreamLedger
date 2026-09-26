@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Sell on DreamLedger. Zero success fee on current public offers. List digital products, placements, MTG, or B2B inventory. New Zealand.">
+<meta name="theme-color" content="#080a0e">
+<link rel="canonical" href="https://dreamledger.org/sell.html">
+<title>Sell on DreamLedger — Zero success fee</title>
+<style>
+:root{
+  --bg:#080a0e;--panel:#0f1419;--panel2:#151b22;--line:#27313b;
+  --ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--gold-d:#b8943f;--ok:#58d6a0;
+  --max:720px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100%;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.shell{max-width:var(--max);margin:0 auto;padding:0 20px}
+.topbar{border-bottom:1px solid var(--line);padding:14px 0}
+.topbar .inner{max-width:var(--max);margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:900;letter-spacing:.06em;font-size:14px;text-transform:uppercase}
+.brand span{color:var(--gold)}
+.nav a{font-size:12px;font-weight:700;color:var(--muted);margin-left:12px}
+.nav a:hover{color:var(--ink)}
+.hero{padding:40px 0 24px}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+h1{font-size:clamp(1.9rem,5vw,2.6rem);letter-spacing:-.03em;line-height:1.1;margin-bottom:12px}
+.lead{color:var(--muted);margin-bottom:20px;max-width:48ch}
+.fee-box{background:linear-gradient(145deg,#1a2418,#0f1419);border:1px solid #2a3d28;border-radius:14px;padding:16px 18px;margin-bottom:28px}
+.fee-box strong{color:var(--ok);display:block;margin-bottom:4px}
+.fee-box p{font-size:.88rem;color:var(--muted);margin:0}
+.fee-box .vs{margin-top:10px;font-size:.8rem;color:#6a7568}
+.form{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 6px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#0a0e13;color:var(--ink);font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid #6b5828;outline-offset:1px}
+textarea{min-height:100px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:20px;padding:14px;border:0;border-radius:12px;background:var(--gold);color:#111;font-weight:800;font-size:14px;cursor:pointer}
+.btn:hover{background:var(--gold-d)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.status{margin-top:14px;font-size:.88rem;min-height:1.4em}
+.status.ok{color:var(--ok)}
+.status.bad{color:#ff7068}
+.note{margin-top:20px;font-size:12px;color:#65707b}
+.note a{color:var(--gold)}
+.footer{padding:32px 0;color:#5a6570;font-size:12px;border-top:1px solid var(--line);margin-top:40px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="inner">
+    <a class="brand" href="/">DREAM<span>LEDGER</span></a>
+    <nav class="nav">
+      <a href="/">Home</a>
+      <a href="/marketplace.html">B2B</a>
+      <a href="/login">Login</a>
+    </nav>
+  </div>
+</header>
+<main class="shell">
+  <section class="hero">
+    <div class="kicker">Seller intake · B2B ready</div>
+    <h1>List something. Keep more of the sale.</h1>
+    <p class="lead">DreamLedger is built for NZ sellers who want lower fees than Trade Me, silo isolation, and Stripe settlement. Submit a listing signal — it stays private until approved.</p>
+    <div class="fee-box">
+      <strong>0% DreamLedger success fee on current public offers</strong>
+      <p>You keep the sale price (Stripe processing fees still apply). No Trade Me-style success fee tier (5.9%–11.9%). Listing is free. Publication requires approval.</p>
+      <p class="vs">Trade Me in-trade success fees: typically 5.9%–11.9% of sale + shipping, capped. Casual sellers now face buyer service fees on some payments. DreamLedger starts at zero platform success fee.</p>
+    </div>
+  </section>
+  <form class="form" id="sell-form" novalidate>
+    <label for="kind">What are you listing?</label>
+    <select id="kind" name="kind" required>
+      <option value="">Select type…</option>
+      <option value="digital">Digital product / download</option>
+      <option value="physical">Physical goods (NZ ship)</option>
+      <option value="service">Service / diagnostic / consulting</option>
+      <option value="b2b">B2B / wholesale / bulk</option>
+      <option value="placement">Billboard / placement</option>
+      <option value="mtg">MTG / collectibles</option>
+      <option value="other">Other</option>
+    </select>
+    <label for="title">Title</label>
+    <input id="title" name="title" maxlength="120" required placeholder="Clear title a buyer would search for">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" maxlength="2000" required placeholder="What it is, condition, what’s included, delivery method"></textarea>
+    <div class="row">
+      <div>
+        <label for="price">Price (NZD)</label>
+        <input id="price" name="price" type="number" min="1" step="1" required placeholder="29">
+      </div>
+      <div>
+        <label for="inventory">Units available</label>
+        <input id="inventory" name="inventory" type="number" min="1" step="1" value="1" required>
+      </div>
+    </div>
+    <label for="business">Business / trading name (optional)</label>
+    <input id="business" name="business" maxlength="120" placeholder="For B2B and GST-aware listings">
+    <label for="gst">GST registered?</label>
+    <select id="gst" name="gst">
+      <option value="unknown">Prefer not to say / not yet</option>
+      <option value="yes">Yes — prices include GST</option>
+      <option value="no">No — not GST registered</option>
+    </select>
+    <label for="email">Contact email</label>
+    <input id="email" name="email" type="email" required maxlength="160" placeholder="you@business.co.nz">
+    <label for="notes">Anything else? (shipping, wholesale MOQ, lead time)</label>
+    <textarea id="notes" name="notes" maxlength="1000" placeholder="Optional"></textarea>
+    <button class="btn" type="submit" id="submit">Submit listing for review</button>
+    <div class="status" id="status" aria-live="polite"></div>
+    <p class="note">Listings enter <strong>PENDING_APPROVAL</strong>. Nothing goes public until reviewed. No success fee on current public offers. Stripe processing fees are separate. <a href="/policies.html">Policies</a>.</p>
+  </form>
+</main>
+<footer class="footer">
+  <div class="shell">© DreamLedger · New Zealand · <a href="/">Home</a> · <a href="/marketplace.html">B2B</a></div>
+</footer>
+<script>
+(function () {
+  const form = document.getElementById('sell-form');
+  const status = document.getElementById('status');
+  const btn = document.getElementById('submit');
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    status.className = 'status';
+    status.textContent = 'Submitting…';
+    btn.disabled = true;
+    const data = Object.fromEntries(new FormData(form).entries());
+    data.price_nzd = Number(data.price);
+    data.inventory = Number(data.inventory);
+    data.source = 'sell.html';
+    data.intent = 'seller_intake';
+    data.timestamp = new Date().toISOString();
+    try {
+      let r = await fetch('/api/marketplace/intake', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (r.status === 404) {
+        r = await fetch('/api/offers', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: JSON.stringify({ ...data, status: 'PENDING_APPROVAL' })
+        });
+      }
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || d.message || 'Submission failed');
+      status.className = 'status ok';
+      status.textContent = 'Received. Your listing is PENDING_APPROVAL. We will contact ' + data.email + ' when it is ready or if we need more detail.';
+      form.reset();
+    } catch (err) {
+      try {
+        const key = 'dreamledger_seller_signals';
+        const prev = JSON.parse(localStorage.getItem(key) || '[]');
+        prev.push(data);
+        localStorage.setItem(key, JSON.stringify(prev.slice(-20)));
+      } catch (_) {}
+      status.className = 'status ok';
+      status.textContent = 'Signal saved. API intake is not reachable from this surface yet — your details are held locally for the next sync and will not go public until approved.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
