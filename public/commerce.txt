@@ -8,22 +8,32 @@ Name: DreamLedger | URL: https://dreamledger.org | Currency: NZD
 RevenueTruth: REAL_EXTERNAL_BUYER + LIVE_STRIPE_PAYMENT + FUNDS_AVAILABLE + ATTRIBUTABLE_FULFILLMENT + INDEPENDENT_EVIDENCE
 InternalOrTestPayments: NEVER_COUNT_AS_REVENUE
 Checkout: Stripe
-RefundPolicy: Evidence and fulfillment state are retained; refunded or disputed transactions are not VERIFIED revenue.
+PlatformSuccessFeeBps: 0
+EconomicEventOrder: authorized -> paid -> delivered -> proven
+RefundPolicy: Refunded or disputed transactions are not VERIFIED revenue.
 
 # @OFFER
-- Name: Commander Deck Diagnostic | SKU: CMD-DIAG-29 | Price: 29 | Currency: NZD | Availability: InStock | URL: https://dreamledger.org/product/COMMANDER-DECK-DIAGNOSTIC-001 | Checkout: https://dreamledger.org/buy/cmd-diag-29
-  Input: Commander decklist
-  Output: structural weaknesses; upgrade priorities; tuning plan
-  Fulfillment: automated diagnostic workflow
-  Evidence: Stripe event; Stripe balance transaction; attributable fulfillment artifact
+- Name: Commander Deck Diagnostic | ID: COMMANDER-DECK-DIAGNOSTIC-001 | Price: 29 | Currency: NZD | Checkout: https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001 | Stripe: https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R
+  Fulfillment: automated diagnostic after payment
+- Name: Seller Profit Audit | ID: SELLER-PROFIT-AUDIT-001 | Price: 29 | Currency: NZD | Checkout: https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001 | Stripe: https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S
+  Fulfillment: manual PDF
+- Name: Founding Billboard | ID: DREAMLEDGER-BILLBOARD-FOUNDING-001 | Price: 50 | Currency: NZD | Checkout: https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 | Stripe: https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w
+  Fulfillment: placement after payment + content review
+- Name: Discord Webhook Starter Kit | ID: DISCORD-WEBHOOK-STARTER-KIT-001 | Price: 79 | Currency: NZD | Checkout: https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001 | Stripe: https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n
+  Fulfillment: digital download after payment
+- Name: EDH_0001 Commander Deck | ID: EDH_0001 | Price: 400 | Currency: NZD | Checkout: https://dreamledger.org/buy/EDH_0001 | Stripe: https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J
+  Fulfillment: physical deck
 
 # @DISCOVERY
-Catalogue: https://dreamledger.org/api/products
-AgentCatalog: https://dreamledger.org/.well-known/ai-catalog.json
-CUBE: https://dreamledger.org/api/cube/catalog
-Silos: https://dreamledger.org/silos
+Offers: https://dreamledger.org/api/offers
+Products: https://dreamledger.org/api/products
+Agent: https://dreamledger.org/agent.json
+AgentCommerce: https://dreamledger.org/agent-commerce.json
+Catalogue: https://dreamledger.org/catalog.json
 
 # @PAYMENT
-Methods: Stripe Checkout
+Methods: Stripe Checkout / Payment Links
 Currency: NZD
+BuyRouter: https://dreamledger.org/buy/{product_id} (sets client_reference_id)
 PaymentState: CHECKOUT -> PAYMENT_SUCCEEDED -> FUNDS_AVAILABLE -> FULFILLED -> ECONOMIC_EVENT
+NoAutonomousSpend: true
