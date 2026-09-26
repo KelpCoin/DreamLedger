@@ -61,7 +61,7 @@ export default async function handler(request: Request): Promise<Response> {
   form.set('line_items[0][price_data][product_data][metadata][sku]', offer.sku);
   form.set('line_items[0][price_data][product_data][metadata][product_id]', offer.product_id);
   form.set('line_items[0][price_data][unit_amount]', String(offer.amount_nzd_cents));
-  form.set('line_items[0][quantity]', '1');
+  form.set('line_items[0][quantity]', '1');\n  form.set('payment_intent_data[metadata][product_sku]', offer.sku);\n  form.set('payment_intent_data[metadata][product_id]', offer.product_id);\n  form.set('payment_intent_data[metadata][offer_id]', requested || offer.sku);\n  form.set('payment_intent_data[metadata][silo]', offer.silo);\n  form.set('payment_intent_data[metadata][source]', 'stripe_link');\n
   form.set('success_url', 'https://dreamledger.org/success?session_id={CHECKOUT_SESSION_ID}');
   form.set('cancel_url', 'https://dreamledger.org/cancel');
   form.set('metadata[offer_id]', requested || offer.sku);
