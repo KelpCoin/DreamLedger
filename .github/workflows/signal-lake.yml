@@ -1,0 +1,42 @@
+name: Signal Lake
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: signal-lake
+  cancel-in-progress: false
+
+jobs:
+  ingest-and-normalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Ingest configured Substack feeds
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUBSTACK_FEEDS: ${{ secrets.SUBSTACK_FEEDS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUBSTACK_FEEDS:-}" ]; then
+            echo "SUBSTACK_FEEDS is not configured. Nothing ingested."
+            exit 0
+          fi
+          python BEC-PRIME/signal_lake/substack_ingest.py ${SUBSTACK_FEEDS}
+
+      - name: Normalize Bronze into Silver
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python BEC-PRIME/signal_lake/gormlet.py
