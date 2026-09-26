@@ -2,128 +2,38 @@
 <html lang="en-NZ">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger B2B marketplace — list, discover, checkout. Zero platform success fee on current offers. NZD. Stripe. Catalogue APIs for partners.">
-<meta name="theme-color" content="#080a0e">
-<link rel="canonical" href="https://dreamledger.org/marketplace.html">
-<title>B2B Marketplace · DreamLedger</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DreamLedger for business — catalogue APIs, placements, and partner integrations.">
+<title>Business · DreamLedger</title>
+<link rel="canonical" href="https://dreamledger.org/b2b">
 <style>
-:root{
-  --bg:#080a0e;--panel:#0f1419;--panel2:#151b22;--line:#27313b;
-  --ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--gold-d:#b8943f;--ok:#58d6a0;
-  --max:1100px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
+:root{--bg:#0b0f14;--card:#171e28;--line:#273041;--text:#f4f6f9;--muted:#95a0b3;--blue:#2563eb}
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100%;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-.shell{max-width:var(--max);margin:0 auto;padding:0 20px}
-.topbar{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(8,10,14,.9);backdrop-filter:blur(12px);z-index:20}
-.topbar .inner{max-width:var(--max);margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{font-weight:900;letter-spacing:.06em;font-size:14px;text-transform:uppercase}
-.brand span{color:var(--gold)}
-.nav{display:flex;gap:8px;flex-wrap:wrap}
-.nav a{font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;color:var(--muted)}
-.nav a:hover{color:var(--ink)}
-.nav a.primary{background:var(--gold);color:#111}
-.hero{padding:48px 0 32px}
-.kicker{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-h1{font-size:clamp(2rem,5vw,3rem);letter-spacing:-.04em;line-height:1.05;margin-bottom:14px;max-width:18ch}
-.lead{color:var(--muted);max-width:56ch;margin-bottom:24px}
-.actions{display:flex;flex-wrap:wrap;gap:10px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 18px;border-radius:12px;font-size:13px;font-weight:800;border:1px solid var(--line);background:var(--panel2)}
-.btn.gold{background:var(--gold);color:#111;border-color:var(--gold)}
-.btn.gold:hover{background:var(--gold-d)}
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}
-.compare article{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
-.compare h3{font-size:14px;margin-bottom:8px}
-.compare ul{list-style:none;font-size:.88rem;color:var(--muted)}
-.compare li{padding:4px 0}
-.compare .win{color:var(--ok)}
-.section{padding:36px 0}
-.section h2{font-size:1.4rem;margin-bottom:8px;letter-spacing:-.02em}
-.section p{color:var(--muted);margin-bottom:18px;max-width:55ch}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;min-height:140px}
-.card h3{font-size:1rem;margin-bottom:6px}
-.card p{font-size:.85rem;color:var(--muted);flex:1}
-.card .cta{margin-top:12px;font-size:12px;font-weight:800;color:var(--gold)}
-.footer{padding:28px 0 40px;border-top:1px solid var(--line);color:#5a6570;font-size:12px;margin-top:24px}
-@media(max-width:640px){.compare{grid-template-columns:1fr}}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:32px 20px 64px}
+a{color:var(--blue);text-decoration:none}
+main{max-width:880px;margin:0 auto}
+h1{font-size:1.75rem;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.lead{color:var(--muted);margin-bottom:28px;max-width:42ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h2{font-size:1rem;margin-bottom:6px}
+.card p{font-size:.875rem;color:var(--muted)}
+.back{display:inline-block;margin-bottom:20px;font-weight:600;font-size:.875rem}
 </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="inner">
-    <a class="brand" href="/">DREAM<span>LEDGER</span></a>
-    <nav class="nav">
-      <a href="/sell.html">Sell</a>
-      <a href="/buy.html">Buy</a>
-      <a href="/billboard">Billboard</a>
-      <a class="primary" href="/sell.html">List now</a>
-    </nav>
+<main>
+  <a class="back" href="/">← Market</a>
+  <h1>For business</h1>
+  <p class="lead">Catalogue and checkout endpoints for partners. Same listed NZD prices as the public market. No DreamLedger success fee on current public offers.</p>
+  <div class="grid">
+    <a class="card" href="/api/offers"><h2>Offers API</h2><p>Checkout-ready products and prices.</p></a>
+    <a class="card" href="/agent-commerce.json"><h2>Commerce contract</h2><p>Fees, buy loop, and endpoints.</p></a>
+    <a class="card" href="/agent.json"><h2>Agent interface</h2><p>Machine-readable offer interface.</p></a>
+    <a class="card" href="/billboard"><h2>Billboard</h2><p>Public placement inventory.</p></a>
+    <a class="card" href="/guides/"><h2>Guides</h2><p>Plain-language buyer and partner help.</p></a>
+    <a class="card" href="/"><h2>Storefront</h2><p>Human marketplace home.</p></a>
   </div>
-</header>
-<main class="shell">
-  <section class="hero">
-    <div class="kicker">B2B marketplace · New Zealand</div>
-    <h1>Commerce without Trade Me success fees.</h1>
-    <p class="lead">List digital products, physical inventory, services, or B2B wholesale. Discovery, Stripe checkout, and silo isolation. Platform success fee on current public offers: <strong style="color:var(--ok)">0%</strong>.</p>
-    <div class="actions">
-      <a class="btn gold" href="/sell.html">List something</a>
-      <a class="btn" href="/buy.html">Browse verified offers</a>
-      <a class="btn" href="#api">Partner APIs</a>
-    </div>
-  </section>
-  <section class="compare" aria-label="Fee comparison">
-    <article>
-      <h3>Trade Me (in-trade)</h3>
-      <ul>
-        <li>Success fees typically 5.9%–11.9%</li>
-        <li>Max success fee often $499</li>
-        <li>Buyer service fees on some casual sales</li>
-        <li>Ping / payment product fees extra</li>
-        <li>Strong audience — higher cost to sell</li>
-      </ul>
-    </article>
-    <article>
-      <h3>DreamLedger (current public offers)</h3>
-      <ul>
-        <li class="win">0% platform success fee</li>
-        <li class="win">Free listing intake</li>
-        <li class="win">Stripe settlement (processor fee only)</li>
-        <li class="win">Silo boundaries (MTG, billboard, B2B separate)</li>
-        <li>Smaller network today — lower friction to start</li>
-      </ul>
-    </article>
-  </section>
-  <section class="section">
-    <h2>What you can sell</h2>
-    <p>Each category keeps its own rules and review gate. Nothing is mixed into the wrong silo.</p>
-    <div class="grid">
-      <a class="card" href="/sell.html"><h3>Digital products</h3><p>Downloads, diagnostics, kits, templates. Instant delivery after payment.</p><span class="cta">List digital →</span></a>
-      <a class="card" href="/sell.html"><h3>Physical / NZ ship</h3><p>Goods you hold. GST fields available. Fulfillment evidence required.</p><span class="cta">List physical →</span></a>
-      <a class="card" href="/sell.html"><h3>B2B & wholesale</h3><p>Bulk, MOQ, lead times, business trading name. Built for invoices later.</p><span class="cta">List B2B →</span></a>
-      <a class="card" href="/billboard"><h3>Billboard placements</h3><p>Permanent digital real estate until 3000. Finite inventory.</p><span class="cta">Open billboard →</span></a>
-      <a class="card" href="/mtg"><h3>MTG & collectibles</h3><p>Isolated silo. Diagnostics and physical inventory.</p><span class="cta">Open MTG →</span></a>
-      <a class="card" href="/sell.html"><h3>Services</h3><p>Diagnostics, consulting, fixed-scope work with clear delivery.</p><span class="cta">List service →</span></a>
-    </div>
-  </section>
-  <section class="section" id="api">
-    <h2>Partner & agent surfaces</h2>
-    <p>Same NZD prices as the public market. Machine-readable contracts for catalogues and checkout.</p>
-    <div class="grid">
-      <a class="card" href="/api/offers"><h3>Offers API</h3><p>Checkout-ready products and prices.</p><span class="cta">Open →</span></a>
-      <a class="card" href="/api/products"><h3>Products API</h3><p>Catalogue endpoint for partners.</p><span class="cta">Open →</span></a>
-      <a class="card" href="/.well-known/agent-commerce.json"><h3>Commerce contract</h3><p>Fees, loops, endpoints.</p><span class="cta">Open →</span></a>
-      <a class="card" href="/buy.html"><h3>Buy doorway</h3><p>Human-facing verified offers.</p><span class="cta">Open →</span></a>
-    </div>
-  </section>
 </main>
-<footer class="footer">
-  <div class="shell">
-    DreamLedger B2B · 0% success fee on current public offers · Stripe processing separate ·
-    <a href="/sell.html">Sell</a> · <a href="/">Home</a> · <a href="/policies.html">Policies</a>
-  </div>
-</footer>
 </body>
 </html>
