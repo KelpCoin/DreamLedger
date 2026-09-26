@@ -15,7 +15,7 @@ const forbidden=[
   /\bElohim\b/i,/\bELOHIM\b/i,/\bgauntlet\b/i,/BEC-PRIME/i,/AGENT_BUS/i,/PING_PONG/i,
   /\bfossil\b/i,/evidence_fossil/i,/Settlement spine/i,/settlement_spine/i,
   /Evidence decides/i,/\bMeter:\s*NZ\$/i,/verified_external_revenue/i,
-  /\bcs_[a-zA-Z0-9]/b/,/fail_closed/i,/fail-closed/i,/figure[- ]eight/i,
+  /\b[c][s]_[a-zA-Z0-9]/i,/fail_closed/i,/fail-closed/i,/figure[- ]eight/i,
   /\bpenstock\b/i,/\bTurbine [ABC]\b/i,/multi-LLM/i,/control plane/i,
   /127\.0\.0\.1/i,/service_role/i,/STRIPE-CHECKOUT-/i
 ];
