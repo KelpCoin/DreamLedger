@@ -1,0 +1,48 @@
+{
+  "proof_type": "DOMINO_EXECUTION_CYCLE",
+  "schema_version": "1.0",
+  "checked_at": "2026-09-26T02:40:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "main_sha_observed": "eecd9ceaaa82b5099ee409ed88c0fc1deae92756",
+  "economic_state": {
+    "verified_revenue_nzd": 0,
+    "external_effects": 0,
+    "settled_payments": 0,
+    "business_truth_records": 1,
+    "economic_outcomes": 0,
+    "stripe_webhook_events": 0,
+    "cube_opportunities": 54,
+    "cube_radar_runs": 2
+  },
+  "reachable_opportunity": {
+    "source": "n8n_community",
+    "topic_id": 315091,
+    "freshness_verified_at": "2026-09-26",
+    "buyer_request": "Daily monitoring of three production n8n workflows that run successfully but may do nothing, offered at $150/month paid upfront.",
+    "external_url": "https://community.n8n.io/t/for-hire-daily-watch-on-3-n8n-workflows-that-run-green-but-do-nothing-150-month/315091",
+    "source_evidence": "Current indexed n8n Community page shows the topic published September 20/21 2026 with one reply."
+  },
+  "mission": {
+    "offer": "Workflow Reliability Monitor",
+    "price_nzd_month": 150,
+    "deliverable": "Daily monitoring of three production n8n workflows with same-day notification when a scheduled run is missed or moves zero records.",
+    "payment_rail": "Stripe subscription required before fulfillment"
+  },
+  "external_action": {
+    "type": "PUBLIC_TOPIC_REPLY",
+    "authorized": false,
+    "requires_human_approval": true,
+    "status": "STAGED_NOT_SENT",
+    "reason": "Public external action remains approval-gated."
+  },
+  "stripe_verification": {
+    "deployed_edge_function": "stripe-revenue-41104f355d6878cdd6d1f9dc",
+    "status": "ACTIVE",
+    "version": 19,
+    "raw_body_verification_present": true,
+    "implementation": "req.text() followed by Stripe constructEventAsync",
+    "webhook_events_recorded": 0,
+    "live_settlement_proof": false
+  },
+  "conclusion": "A fresh buyer-backed opportunity exists and has a prepared, bounded mission. The next external transition is the human-approved public reply. No payment or revenue is claimed."
+}
