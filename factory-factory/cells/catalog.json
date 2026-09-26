@@ -1,0 +1,8 @@
+{
+  "products":[
+    {"sku":"CMD-DIAG-29","name":"Commander Deck Diagnostic","price_nzd":29,"rail":["stripe","x402"]},
+    {"sku":"MTG-SPREAD-SCAN","name":"MTG Spread Scan","price_mode":"cell_defined","rail":["stripe","x402"]},
+    {"sku":"INDEPENDENT-VERIFICATION","name":"Independent Verification","price_mode":"cell_defined","rail":["stripe","x402"]},
+    {"sku":"BILLBOARD-TILE-FOUNDING-001","name":"Founding Billboard Tile","price_nzd":50,"rail":["stripe","x402"]}
+  ]
+}

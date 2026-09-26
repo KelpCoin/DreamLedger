@@ -1,0 +1,25 @@
+{
+  "inventory_id": "dreamledger-dooh-001",
+  "rail": "trillboards",
+  "status": "CONTRACT_READY_CREDENTIAL_REQUIRED",
+  "products": [
+    {
+      "sku": "BILLBOARD-TILE-FOUNDING-001",
+      "price_nzd": 50,
+      "attribution": [
+        "qr",
+        "proof_of_play",
+        "campaign_id"
+      ]
+    }
+  ],
+  "required_runtime": [
+    "TRILLBOARDS_API_KEY"
+  ],
+  "truth_events": [
+    "CAMPAIGN_CREATED",
+    "IMPRESSION_OBSERVED",
+    "PROOF_OF_PLAY_OBSERVED",
+    "ATTRIBUTED_ACTION_OBSERVED"
+  ]
+}

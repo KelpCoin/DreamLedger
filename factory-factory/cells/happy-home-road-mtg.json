@@ -1,0 +1,18 @@
+{
+  "cell_id":"cell_mtg_liquidation_001",
+  "silo":"happy-home-road",
+  "economic_object":"physical MTG singles liquidation",
+  "buyer_definition":"collectors and competitive players",
+  "demand_signal":"LIQUID_MARKET_PRICE_DIVERGENCE",
+  "offer":{"type":"individual_single","candidate":"Palinchron ULG foil LP","target_price_nzd":800,"minimum_price_nzd":20},
+  "transaction_channel":"marketplace_listing",
+  "fulfillment_method":"physical_shipping",
+  "attribution_requirements":["listing_id","buyer_identity","payment_reference","shipment_tracking"],
+  "evidence_requirements":["listing_published","condition_photos","buyer_purchased","tracked_shipping_receipt","buyer_confirmation","payout_confirmation"],
+  "verification_rules":["listing_published","buyer_purchased","item_shipped","buyer_confirmed_receipt","payout_settled"],
+  "authority_requirements":{"listing_publish":"HUMAN_APPROVAL","price_change":"HUMAN_APPROVAL","shipping_after_sale":"AUTONOMOUS"},
+  "failure_conditions":["no_buyer","payment_failed","shipment_failed","refund","evidence_missing"],
+  "lifecycle_state":"READY",
+  "owner_authority_requirements":"inventory_owner",
+  "truth_status":"UNVERIFIED"
+}
