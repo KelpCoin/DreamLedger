@@ -1,0 +1,48 @@
+{
+  "schema": "dreamledger/economic-route-test/v1",
+  "generated_utc": "2026-09-26T00:00:00Z",
+  "truth_status": "UNVERIFIED",
+  "verified_external_revenue_nzd": 0,
+  "routes": [
+    {
+      "id": "cmd_diag_reactivation",
+      "offer": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "price_nzd": 29,
+      "test": "one human-approved relevant Commander help exposure",
+      "success": "external checkout completes and survives attribution, settlement, fulfillment and independent proof",
+      "failure": "no purchase or any attribution/fulfillment break",
+      "next_action_on_success": "repeat same route before adding another product",
+      "next_action_on_failure": "change acquisition surface or proposition using observed evidence"
+    },
+    {
+      "id": "mtg_single_inventory",
+      "offer": "MTG-CATALOG-LISTINGS",
+      "price_nzd": "variable",
+      "test": "catalogue and expose one genuinely available card with exact identity, condition, price and fulfilment",
+      "success": "external buyer settles payment and receives the card",
+      "failure": "no buyer after qualified exposure, or inventory/fulfillment cannot be proven",
+      "next_action_on_success": "list adjacent inventory with the same proven pattern",
+      "next_action_on_failure": "change price/surface/listing quality, not system architecture"
+    },
+    {
+      "id": "billboard_founder_tile",
+      "offer": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "price_nzd": 50,
+      "test": "one human-approved exposure of the live founder tile offer",
+      "success": "external settled purchase + publication + proof",
+      "failure": "no purchase or fulfillment/attribution break",
+      "next_action_on_success": "repeat with additional tile inventory",
+      "next_action_on_failure": "inspect proposition and distribution"
+    },
+    {
+      "id": "paid_alert_subscription",
+      "offer": "TRUTH-ORACLE-ALERT",
+      "price_nzd": 5,
+      "test": "validate one recurring information need before building subscription machinery",
+      "success": "external buyer pays for a defined recurring alert and receives it",
+      "failure": "no buyer or no repeatable need",
+      "next_action_on_success": "test retention and a second alert definition",
+      "next_action_on_failure": "kill or redesign"
+    }
+  ]
+}
