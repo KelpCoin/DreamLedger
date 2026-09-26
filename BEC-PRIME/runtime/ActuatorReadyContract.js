@@ -32,14 +32,69 @@ function canonical(value) {
 }
 function hash(value) { return crypto.createHash('sha256').update(canonical(value),'utf8').digest('hex'); }
 
+async function verifyWorldSurface(url, options = {}) {
+  const requested = String(url || '').trim();
+  const timeoutMs = Math.max(1000, Math.min(Number(options.timeout_ms) || 10000, 30000));
+  let parsed;
+  try {
+    parsed = new URL(requested);
+    if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('UNSUPPORTED_PROTOCOL');
+  } catch (error) {
+    return { ok:false, status:'NOT_WORLD_READY', requested_url:requested, http_status:null, final_url:null, checked_at:new Date().toISOString(), error:String(error.message || error) };
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(parsed.toString(), {
+      method: 'GET',
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: { 'User-Agent': 'DreamLedger-CUBE-WorldVerifier/1.0' }
+    });
+    return {
+      ok: response.status >= 200 && response.status < 400,
+      status: response.status >= 200 && response.status < 400 ? 'WORLD_READY' : 'NOT_WORLD_READY',
+      requested_url: requested,
+      final_url: response.url,
+      http_status: response.status,
+      checked_at: new Date().toISOString(),
+      content_type: response.headers.get('content-type') || null
+    };
+  } catch (error) {
+    return { ok:false, status:'NOT_WORLD_READY', requested_url:requested, http_status:null, final_url:null, checked_at:new Date().toISOString(), error:String(error.name === 'AbortError' ? 'TIMEOUT' : (error.message || error)) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function verifyCellWorldSurface(cell) {
+  const value = cell && typeof cell === 'object' ? cell : {};
+  const surface = value.world_surface && typeof value.world_surface === 'object' ? value.world_surface : {};
+  const [world, transaction] = await Promise.all([
+    verifyWorldSurface(surface.world_url),
+    verifyWorldSurface(surface.transaction_url)
+  ]);
+  return {
+    ...value,
+    world_surface: {
+      ...surface,
+      world_url: world.requested_url,
+      transaction_url: transaction.requested_url,
+      verification: { world, transaction, ok: world.ok && transaction.ok, checked_at: new Date().toISOString() }
+    }
+  };
+}
+
 function validateWorldSurface(surface) {
   const value = surface && typeof surface === 'object' ? surface : {};
   const missing = [];
   if (!/^https?:\\/\\/[^\\s]+$/i.test(String(value.world_url || ''))) missing.push('world_url');
   if (!/^https?:\\/\\/[^\\s]+$/i.test(String(value.transaction_url || ''))) missing.push('transaction_url');
-  if (!Number.isFinite(Number(value.http_status))) missing.push('http_status');
-  else if (Number(value.http_status) < 200 || Number(value.http_status) >= 400) missing.push('http_2xx_3xx');
-  if (!value.checked_at) missing.push('checked_at');
+  const verification = value.verification && typeof value.verification === 'object' ? value.verification : {};
+  if (verification.ok !== true) missing.push('live_http_verification');
+  if (!verification.world || verification.world.ok !== true) missing.push('world_http_2xx_3xx');
+  if (!verification.transaction || verification.transaction.ok !== true) missing.push('transaction_http_2xx_3xx');
+  if (!verification.checked_at) missing.push('checked_at');
   return { ok: missing.length === 0, status: missing.length ? 'NOT_WORLD_READY' : 'WORLD_READY', missing };
 }
 
@@ -86,4 +141,4 @@ function replicationStatus(outcomes){ const verified=Array.isArray(outcomes)?out
 function quarantine(reason,context={}){ return {state:'QUARANTINED',reason:String(reason||'UNSPECIFIED'),context,preserved:true,quarantined_at:new Date().toISOString()}; }
 function buildReadinessReport(input={}){ return {schema:'dreamledger.economic-readiness.v1',verified_revenue_nzd:Number(input.verified_revenue_nzd||0),verified_external_payments:Number(input.verified_external_payments||0),active_cells:Array.isArray(input.active_cells)?input.active_cells:[],next_external_transition:input.next_external_transition||'NONE',blockers:Array.isArray(input.blockers)?input.blockers:[],actuator_status:input.actuator_status||'ACTUATOR_UNAVAILABLE',human_authority_requirements:Array.isArray(input.human_authority_requirements)?input.human_authority_requirements:[],generated_at:new Date().toISOString()}; }
 function attentionEvent(input={}){ return {schema:'dreamledger.human-attention.v1',event_id:input.event_id||idempotencyKey(input),action_id:input.action_id||null,minutes:Number.isFinite(Number(input.minutes))?Number(input.minutes):0,intervention_type:input.intervention_type||'AUTHORITY',recorded:true}; }
-module.exports={STATES,TRANSITIONS,canonical,hash,validateWorldSurface,validateCell,assertTransition,idempotencyKey,prepareAuthority,evaluateBusinessTruth,executeWithActuator,replicationStatus,quarantine,buildReadinessReport,attentionEvent};
+module.exports={STATES,TRANSITIONS,canonical,hash,verifyWorldSurface,verifyCellWorldSurface,validateWorldSurface,validateCell,assertTransition,idempotencyKey,prepareAuthority,evaluateBusinessTruth,executeWithActuator,replicationStatus,quarantine,buildReadinessReport,attentionEvent};
