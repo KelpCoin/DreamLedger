@@ -1,0 +1,90 @@
+# Economic Compounding Routes v1
+#
+# Purpose: turn the existing commerce spine into a small-loop compounding system.
+# This file is a routing policy, not a revenue claim. A route becomes VERIFIED
+# only after external buyer + settled payment + attribution + fulfillment + proof.
+#
+# Operating rule:
+# 1. Prefer an existing callable offer over creating a new product.
+# 2. Prefer repeatable demand surfaces over one-off custom work.
+# 3. Every failed route produces evidence for CUBE.
+# 4. No route may self-certify revenue.
+#
+# Route order is operational priority, not a claim that one route will outperform another.
+
+routes:
+  - id: cmd_diag_reactivation
+    offer: COMMANDER-DECK-DIAGNOSTIC-001
+    price_nzd: 29
+    buyer_job: "Commander player wants a fast deck diagnosis and concrete upgrades."
+    delivery: "automated diagnostic PDF + receipt/fossil proof"
+    acquisition_surfaces:
+      - "observed deck-help discussions where a direct helpful answer is permitted"
+      - "DreamLedger public buy surface"
+      - "Commander/EDH communities with human-approved participation"
+    repeat_unit: "one deck diagnostic per buyer"
+    next_sale_target: 1
+    compound_signal: "repeat buyer or referral to another deck owner"
+    forbidden: ["n8n_community", "cold_spam", "invented_demand"]
+
+  - id: mtg_single_inventory
+    offer: MTG-CATALOG-LISTINGS
+    price_nzd: "per item"
+    buyer_job: "NZ MTG buyer wants a specific card at a transparent price."
+    delivery: "physical card via pickup or NZ Post"
+    acquisition_surfaces:
+      - "Trade Me"
+      - "DreamLedger approved catalogue"
+      - "other buyer-led NZ card-market surfaces"
+    repeat_unit: "one settled card order"
+    next_sale_target: 1
+    compound_signal: "multi-item cart or repeat buyer"
+    prerequisite: "inventory must be catalogued with exact card identity, condition, price and fulfilment method"
+    forbidden: ["counting inventory as revenue", "self-purchases"]
+
+  - id: billboard_founder_tile
+    offer: DREAMLEDGER-BILLBOARD-FOUNDING-001
+    price_nzd: 50
+    buyer_job: "Buyer wants a persistent public tile/message on the DreamLedger billboard."
+    delivery: "published tile after approved submission"
+    acquisition_surfaces:
+      - "DreamLedger billboard page"
+      - "human-approved relevant communities"
+    repeat_unit: "one tile purchase"
+    next_sale_target: 1
+    compound_signal: "additional tile purchases"
+    forbidden: ["counting impressions as sales", "self-purchases"]
+
+  - id: paid_alert_subscription
+    offer: "TRUTH-ORACLE-ALERT"
+    price_nzd: 5
+    buyer_job: "Buyer wants a verified opportunity/price alert delivered when a defined condition occurs."
+    delivery: "evidence page + webhook/Discord alert"
+    acquisition_surfaces:
+      - "public evidence pages"
+      - "agent-readable discovery surfaces"
+    repeat_unit: "one recurring subscriber"
+    compound_signal: "retention + additional alert definitions"
+    prerequisite: "must identify a real recurring information need and demonstrate an external buyer willing to pay"
+    forbidden: ["fabricated alerts", "simulated subscribers", "counting page views as revenue"]
+
+compounding:
+  baseline: "NZ$0 VERIFIED external revenue"
+  unit_economics_rule: "Do not optimize theoretical margin before first settled sale."
+  after_first_sale:
+    - "record buyer, offer, amount, attribution and fulfillment proof"
+    - "measure time-to-fulfillment and buyer acquisition path"
+    - "duplicate only the route that produces independently verified demand"
+  after_three_sales:
+    - "test repeat purchase/referral behavior"
+    - "reduce fulfillment time"
+    - "create one adjacent variant only if supported by observed buyer behavior"
+  kill_rule:
+    - "If a route receives repeated qualified exposure with no buyer conversion, record the failure and redesign the proposition or acquisition surface."
+    - "Do not respond to non-conversion by generating more internal scaffolding."
+
+governance:
+  external_action: "human approval required"
+  revenue_claim: "settled external payment + attribution + fulfillment + independent proof"
+  source_exclusion:
+    - n8n_community
