@@ -28,3 +28,16 @@ jobs:
         run: node --check server.js && node --check start.js && node --check dreamiez-account.js && node --check scripts/smoke-dreamiez.js
       - name: Dreamiez end-to-end smoke test
         run: npm run smoke:dreamiez
+      - name: Hypothesis public surface and Stripe smoke
+        env:
+          HYPOTHESIS_ID: b2b
+        run: |
+          set -euo pipefail
+          curl -fsS https://dreamledger.org/hypotheses >/tmp/hyp-index.html
+          grep -q 'CUBE Hypotheses' /tmp/hyp-index.html
+          curl -fsS https://dreamledger.org/hypotheses/sitemap.xml >/tmp/hyp-sitemap.xml
+          grep -q 'sitemapindex' /tmp/hyp-sitemap.xml
+          curl -fsS "https://dreamledger.org/hypotheses/${HYPOTHESIS_ID}" >/tmp/hyp-page.html
+          grep -q 'UNVERIFIED' /tmp/hyp-page.html
+          curl -fsS -X POST -H 'Content-Type: application/json' --data "{\"silo_id\":\"${HYPOTHESIS_ID}\"}" https://dreamledger.org/api/hypothesis-checkout >/tmp/hyp-checkout.json
+          node -e "const x=require('/tmp/hyp-checkout.json'); if(!x.id || !String(x.id).startsWith('cs_') || !x.url || !String(x.url).startsWith('https://')) process.exit(1); console.log('hypothesis Stripe Checkout session created:', x.id)"
