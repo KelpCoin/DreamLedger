@@ -17,13 +17,14 @@ permissions:
 
 concurrency:
   group: dreamledger-portfolio-controller
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   portfolio:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Dispatch safe portfolio lanes
+      - name: Dispatch bounded verification spine
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -32,79 +33,49 @@ jobs:
         run: |
           set -euo pipefail
 
+          # This controller is orchestration only. It intentionally dispatches
+          # verification entrypoints, not every historical or economic worker.
           SAFE_PATHS=(
-            '.github/workflows/bec-prime-mission-loop.yml'
-            '.github/workflows/bec-economic-bridge-worker.yml'
-            '.github/workflows/bridge-http-acceptance.yml'
+            '.github/workflows/ci.yml'
             '.github/workflows/agentbridge-contract-gate.yml'
-            '.github/workflows/economic-loop-v2.yml'
-            '.github/workflows/economic-opportunity-compiler.yml'
-            '.github/workflows/economic-supervisor.yml'
-            '.github/workflows/economic-truth-pulse.yml'
+            '.github/workflows/truth-oracle.yml'
+            '.github/workflows/offer-catalog-contract.yml'
             '.github/workflows/q1-gauntlet.yml'
             '.github/workflows/gauntlet-release-gate.yml'
-            '.github/workflows/cube-marketplace-gate.yml'
-            '.github/workflows/commerce-sentinel.yml'
-            '.github/workflows/commerce-settlement-sync.yml'
-            '.github/workflows/offer-catalog-contract.yml'
-            '.github/workflows/first-sale-commerce-contract.yml'
-            '.github/workflows/readiness-offer-proof.yml'
-            '.github/workflows/revenue-readiness.yml'
-            '.github/workflows/revenue-operator-proof.yml'
-            '.github/workflows/live-stripe-revenue-health-probe.yml'
-            '.github/workflows/truth-oracle.yml'
-            '.github/workflows/truth-oracle-ledger-gate.yml'
-            '.github/workflows/evidence-sealer.yml'
-            '.github/workflows/redteam-meta.yml'
-            '.github/workflows/redteam-regression.yml'
-            '.github/workflows/beck-empire-factory-gate.yml'
-            '.github/workflows/beck-production-heartbeat.yml'
-            '.github/workflows/dreamiez-smoke.yml'
-            '.github/workflows/dreamiez-smoke-proof.yml'
-            '.github/workflows/dreamiez-account-live-proof.yml'
-            '.github/workflows/empire-health.yml'
-            '.github/workflows/demand-radar.yml'
-            '.github/workflows/demand-radar-n8n.yml'
-            '.github/workflows/wealth-engine-verify.yml'
+            '.github/workflows/security-baseline.yml'
+            '.github/workflows/ecosystem-integrity.yml'
           )
 
           for path in "${SAFE_PATHS[@]}"; do
             echo "DISPATCH $path"
-            if gh api --method POST \
-              -H 'Accept: application/vnd.github+json' \
-              -H 'X-GitHub-Api-Version: 2022-11-28' \
-              "/repos/${REPO}/actions/workflows/${path##*/}/dispatches" \
-              -f ref="$REF" >/dev/null 2>&1; then
+            if gh api --method POST               -H 'Accept: application/vnd.github+json'               -H 'X-GitHub-Api-Version: 2022-11-28'               "/repos/${REPO}/actions/workflows/${path##*/}/dispatches"               -f ref="${REF}" >/dev/null 2>&1; then
               echo "OK $path"
             else
-              echo "SKIP $path (not dispatchable or rejected)"
+              echo "FAIL $path"
+              exit 1
             fi
           done
 
       - name: Emit controller proof
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p proof
           cat > proof/dreamledger_portfolio_controller.json <<EOF
           {
+            "schema": "dreamledger/portfolio-controller/v2",
             "controller": "DreamLedger Portfolio Controller",
-            "mode": "approval_safe",
+            "mode": "bounded_verification",
             "ref": "${{ inputs.ref || 'main' }}",
-            "lanes": [
-              "agented_commerce",
-              "pragmatic_dao",
-              "economic_arbitrage",
-              "beck_game",
-              "avatar_ecosystem",
-              "truth_and_redteam"
-            ],
+            "entrypoint_count": 8,
             "forbidden": [
               "autonomous_spend",
               "wallet_funding",
               "buyer_contact",
               "public_listing",
               "payment_mutation",
-              "production_deploy"
+              "production_deploy",
+              "blind_dispatch_of_historical_workflows"
             ],
             "truth_rule": "external_buyer + settled_payment + attribution + fulfillment + proof",
             "generated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
