@@ -6,7 +6,7 @@ Hard authority/dependency filters run before scoring. State is JSON serializable
 No external action is executed here.
 """
 from __future__ import annotations
-import json, math, random, sys
+import json, math, random, sys, urllib.error, urllib.request, datetime
 from dataclasses import dataclass, asdict, field
 from typing import Any
 
@@ -46,6 +46,8 @@ class Candidate:
     value_if_successful_nzd: float = 0.0
     is_duplicate_of_resolved: bool = False
     dependency_in_flight: bool = False
+    world_url: str = ''
+    transaction_url: str = ''
 
 @dataclass
 class ArmStats:
@@ -76,7 +78,33 @@ def stats_for(s, ctx, arm):
     s.bandits[ctx].setdefault(arm, ArmStats())
     return s.bandits[ctx][arm]
 
+def verify_world_url(url: str, timeout: float = 8.0) -> dict[str, Any]:
+    requested = str(url or '').strip()
+    if not requested.lower().startswith(('http://', 'https://')):
+        return {'ok': False, 'status': 'NOT_WORLD_READY', 'url': requested, 'http_status': None, 'error': 'INVALID_HTTP_URL'}
+    request = urllib.request.Request(requested, headers={'User-Agent': 'DreamLedger-CUBE-WorldVerifier/1.0'})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            status = int(response.status)
+            return {'ok': 200 <= status < 400, 'status': 'WORLD_READY' if 200 <= status < 400 else 'NOT_WORLD_READY',
+                    'url': requested, 'final_url': response.geturl(), 'http_status': status,
+                    'checked_at': datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    except urllib.error.HTTPError as error:
+        return {'ok': False, 'status': 'NOT_WORLD_READY', 'url': requested, 'final_url': error.geturl(),
+                'http_status': int(error.code), 'checked_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                'error': 'HTTP_ERROR'}
+    except Exception as error:
+        return {'ok': False, 'status': 'NOT_WORLD_READY', 'url': requested, 'http_status': None,
+                'checked_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                'error': type(error).__name__}
+
 def hard_filter(c, s):
+    if not c.world_url: return False, "WORLD_URL_REQUIRED"
+    if not c.transaction_url: return False, "TRANSACTION_URL_REQUIRED"
+    world = verify_world_url(c.world_url)
+    if not world['ok']: return False, "WORLD_URL_NOT_REACHABLE"
+    transaction = verify_world_url(c.transaction_url)
+    if not transaction['ok']: return False, "TRANSACTION_URL_NOT_REACHABLE"
     if not s.authority_map.permits(c.authority_required): return False, "AUTHORITY_NOT_PERMITTED"
     if not c.dependencies_met: return False, "DEPENDENCIES_NOT_MET"
     if c.dependency_in_flight: return False, "DEPENDENCY_IN_FLIGHT"
