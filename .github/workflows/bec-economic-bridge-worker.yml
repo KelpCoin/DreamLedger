@@ -1,112 +1,99 @@
-name: BEC Economic Bridge Worker
+name: BEC Economic Bridge Health
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      worker_id:
-        description: Worker identity for the signed BridgeRail lease
-        required: true
-        default: github-worker
-        type: string
   schedule:
     - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: bec-economic-bridge-worker
+  group: bec-economic-bridge-health
   cancel-in-progress: true
 
 jobs:
-  lease-and-execute:
+  production-health:
+    name: Verify Render economic bridge surface
     runs-on: ubuntu-latest
-    environment: production
-    timeout-minutes: 30
+    timeout-minutes: 10
     env:
-      BEC_AGENT_BRIDGE_URL: https://dreamledger.org
-      DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      BEC_WORKER_ID: ${{ inputs.worker_id || 'github-worker' }}
-    defaults:
-      run:
-        working-directory: BEC-PRIME
+      BASE_URL: https://dreamledger.org
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: BEC-PRIME/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Verify required secrets are present
+      - name: Verify production version
+        shell: bash
         run: |
-          missing=0
-          for var in DREAMLEDGER_AGENT_BRIDGE_TOKEN SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
-            if [ -z "${!var}" ]; then
-              echo "::error::Missing required secret: $var"
-              missing=1
-            fi
-          done
-          if [ "$missing" = "1" ]; then
-            exit 1
-          fi
-          echo "OK: all required bridge secrets are present"
-
-      - name: Lease and execute production economic job
-        run: node runtime/EconomicJobWorkerAdapter.js | tee bridge-worker-result.json
-
-      - name: Validate Worker A result
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 4 --retry-delay 2 --connect-timeout 10 "$BASE_URL/version" > version.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('version.json').read_text())
+          assert data.get('service') == 'dreamledger-storefront'
+          assert data.get('commit')
+          print('PRODUCTION_VERSION=PASS')
+          print('commit='+str(data['commit']))
+          PY
+      - name: Verify storefront health
+        shell: bash
         run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const result = JSON.parse(fs.readFileSync('bridge-worker-result.json', 'utf8'));
-          if (!['IDLE', 'LEASED_AND_EXECUTED'].includes(result.status)) throw new Error(`Unexpected worker status: ${result.status}`);
-          if (result.status === 'LEASED_AND_EXECUTED') {
-            const lease = result.lease;
-            if (lease.envelope.job_id !== lease.job.id) throw new Error('Lease job identity mismatch');
-            if (lease.envelope.worker_id !== process.env.BEC_WORKER_ID.toLowerCase()) throw new Error('Worker identity mismatch');
-            if (!result.stage_a?.accepted) throw new Error('Worker A result was not durably staged');
-            console.log(JSON.stringify({ JOB_ID: lease.envelope.job_id, WORKER_ID: lease.envelope.worker_id, LEASE_ID: lease.envelope.lease_id, STATUS: lease.job.status, STAGE_A: result.stage_a, RAIL_SCHEMA: lease.envelope.schema_version }, null, 2));
-          } else {
-            console.log('No pending production job was available.');
-          }
-          NODE
-
-      - name: Independently verify Worker A and stage Worker B
-        if: success()
-        env:
-          BEC_VERIFIER_ID: truth-oracle
-        run: node runtime/BridgeRailVerifier.js bridge-worker-result.json | tee bridge-verifier-result.json
-
-      - name: Validate BridgeRail completion
-        if: success()
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 4 --retry-delay 2 --connect-timeout 10 "$BASE_URL/healthz" > health.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('health.json').read_text())
+          assert data.get('ok') is True, data
+          print('STOREFRONT_HEALTH=PASS')
+          PY
+      - name: Verify live commerce discovery
+        shell: bash
         run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const worker = JSON.parse(fs.readFileSync('bridge-worker-result.json', 'utf8'));
-          const verifier = JSON.parse(fs.readFileSync('bridge-verifier-result.json', 'utf8'));
-          if (worker.status !== 'LEASED_AND_EXECUTED') throw new Error('No production lease was executed');
-          if (verifier.stage !== 'WORKER_B_RESULT' || verifier.actor_id !== 'truth-oracle') throw new Error('Independent verifier stage missing');
-          if (verifier.job_id !== worker.lease.envelope.job_id) throw new Error('Verifier/job identity mismatch');
-          console.log(JSON.stringify({ JOB_ID: verifier.job_id, LEASE_ID: verifier.lease_id, WORKER_A: worker.lease.envelope.worker_id, WORKER_B: verifier.actor_id, FINAL_STAGE: verifier.stage }, null, 2));
-          NODE
-
-      - name: Upload bridge evidence
-        if: always()
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 4 --retry-delay 2 --connect-timeout 10 "$BASE_URL/api/offers" > offers.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('offers.json').read_text())
+          offers=data.get('offers',[])
+          assert offers, 'no public offers'
+          assert any(x.get('product_id') == 'COMMANDER-DECK-DIAGNOSTIC-001' for x in offers)
+          print('COMMERCE_DISCOVERY=PASS')
+          print('offers='+str(len(offers)))
+          PY
+      - name: Verify Agent Bridge manifest is published
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 4 --retry-delay 2 --connect-timeout 10 "$BASE_URL/agent.json" > agent.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('agent.json').read_text())
+          assert data.get('schema') == 'dreamledger/agent/v2'
+          assert data.get('agent_bridge',{}).get('status') == 'governed'
+          assert data.get('agent_bridge',{}).get('runtime_rail')
+          print('AGENT_BRIDGE_MANIFEST=PASS')
+          PY
+      - name: Emit bridge health proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, os, time
+          from pathlib import Path
+          proof={'schema':'dreamledger/bec-economic-bridge-health/v1','status':'PASS','timestamp_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'commit':os.environ.get('GITHUB_SHA'),'production_executor':'Render','github_role':'deployment_and_health_verification','economic_truth':'GitHub health is not revenue; only independently verified settled external payment plus fulfillment counts.','secret_boundary':'Production executor credentials remain outside GitHub health verification.'}
+          Path('proof/BEC-ECONOMIC-BRIDGE-HEALTH.json').write_text(json.dumps(proof,indent=2)+'\n')
+          print(json.dumps(proof,indent=2))
+          PY
+      - name: Upload bridge health proof
         uses: actions/upload-artifact@v4
         with:
-          name: bec-economic-bridge-${{ github.run_id }}
-          path: |
-            BEC-PRIME/bridge-worker-result.json
-            BEC-PRIME/bridge-verifier-result.json
-          if-no-files-found: warn
+          name: bec-economic-bridge-health-${{ github.run_id }}
+          path: proof/BEC-ECONOMIC-BRIDGE-HEALTH.json
+          if-no-files-found: error
