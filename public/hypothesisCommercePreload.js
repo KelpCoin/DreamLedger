@@ -157,7 +157,7 @@ async function createCheckout(hypothesis, email) {
   form.set('line_items[0][price_data][unit_amount]', String(hypothesis.price_nzd * 100));
   form.set('line_items[0][price_data][product_data][name]', hypothesis.title);
   form.set('line_items[0][price_data][product_data][description]', 'UNVERIFIED hypothesis commission. Payment commissions a source-grounded evaluation; payment does not prove the hypothesis.');
-  form.set('line_items[0][quantity]', '1');
+  form.set('line_items[0][quantity]', '1');\n  form.set('payment_intent_data[metadata][product_sku]', 'HYPOTHESIS-COMMISSION-001');\n  form.set('payment_intent_data[metadata][product_id]', hypothesis.hypothesis_id);\n  form.set('payment_intent_data[metadata][offer_id]', hypothesis.hypothesis_id);\n  form.set('payment_intent_data[metadata][silo]', hypothesis.silo_id);\n  form.set('payment_intent_data[metadata][source]', 'hypothesis_commerce');\n
   form.set('metadata[hypothesis_id]', hypothesis.hypothesis_id);
   form.set('metadata[silo_id]', hypothesis.silo_id);
   form.set('metadata[truth_status]', hypothesis.truth_status);
