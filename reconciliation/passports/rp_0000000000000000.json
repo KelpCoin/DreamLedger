@@ -1,42 +1,16 @@
 {
   "passport_version": "1.0",
-  "passport_id": "rp_0000000000000000",
-  "payment_ref": {
-    "processor": "stripe",
-    "id": "pi_3TApftEGgEAnUFF903eC3JeK",
-    "livemode": true,
-    "amount_minor": 500,
-    "currency": "NZD",
-    "settled_at": "2026-03-20T00:00:00Z"
-  },
+  "passport_id": "rp_a6a5e705421495ff",
+  "payment_ref": {"processor":"stripe","id":"pi_3TApftEGgEAnUFF903eC3JeK","livemode":true,"amount_minor":500,"currency":"NZD","settled_at":"2026-03-20T00:00:00Z"},
   "order_ref": null,
   "fulfillment_ref": null,
-  "attribution": {
-    "status": "UNMATCHED",
-    "buyer_ref": null,
-    "reason": "NO_ATTRIBUTION_ID_IN_PAYMENT_METADATA"
-  },
+  "attribution": {"status":"UNMATCHED","buyer_ref":null,"reason":"NO_ATTRIBUTION_ID_IN_PAYMENT_METADATA"},
   "truth_status": "UNMATCHED",
   "evidence_chain": [
-    {
-      "event": "payment_detected",
-      "source": "stripe_api",
-      "ref": "pi_3TApftEGgEAnUFF903eC3JeK",
-      "status": "OBSERVED"
-    },
-    {
-      "event": "charge_paid",
-      "source": "stripe_api",
-      "ref": "ch_3TApftEGgEAnUFF90ur4sZc5",
-      "status": "OBSERVED"
-    },
-    {
-      "event": "balance_transaction_available",
-      "source": "stripe_api",
-      "ref": "txn_3TApftEGgEAnUFF90SYBvl7k",
-      "status": "OBSERVED"
-    }
+    {"event":"payment_detected","source":"stripe_api","ref":"pi_3TApftEGgEAnUFF903eC3JeK","status":"OBSERVED"},
+    {"event":"charge_paid","source":"stripe_api","ref":"ch_3TApftEGgEAnUFF90ur4sZc5","status":"OBSERVED"},
+    {"event":"balance_transaction_available","source":"stripe_api","ref":"txn_3TApftEGgEAnUFF90SYBvl7k","status":"OBSERVED"}
   ],
-  "issued_at": "2026-09-26T18:00:00+12:00",
-  "passport_hash": "PENDING_CANONICAL_HASH"
+  "issued_at":"2026-09-26T18:00:00+12:00",
+  "passport_hash":"a6a5e705421495ffd02e932e8d8c6de389dfe19820b2d4e986bdc9158af32c32"
 }
