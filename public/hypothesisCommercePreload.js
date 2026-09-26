@@ -105,7 +105,7 @@ const MECHANISMS = [
   ['fact-pack','a concise source-linked fact pack answering a buyer-defined question'],
   ['due-diligence','a bounded public-source due-diligence packet'],
   ['anomaly-detection','an anomaly report identifying unusual changes in public data'],
-  ['forecast-inputs','a source-grounded dataset of observable inputs for a buyer's own forecast'],
+  ['forecast-inputs',"a source-grounded dataset of observable inputs for a buyer's own forecast"],
   ['migration-map','a migration or transition opportunity map from public signals'],
   ['vendor-watch','a vendor pricing, availability, or product-change monitor'],
   ['product-watch','a product availability and price-change monitor'],
