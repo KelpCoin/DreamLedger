@@ -1,10 +1,96 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Commander Deck Diagnostic | DreamLedger</title>
-<style>body{font-family:system-ui,-apple-system,sans-serif;background:#080a0d;color:#eef1f5;max-width:760px;margin:0 auto;padding:28px 18px}main{background:#141920;border:1px solid #343c4a;border-radius:16px;padding:24px}label{display:block;margin:18px 0 7px;color:#c8ced7}input,textarea{width:100%;box-sizing:border-box;background:#0c1015;color:#eef1f5;border:1px solid #3b4554;border-radius:10px;padding:12px;font:inherit}textarea{min-height:260px}.buy{display:inline-block;margin-top:18px;padding:12px 16px;background:#f0b90b;color:#080a0d;border-radius:9px;text-decoration:none;font-weight:800}button{margin-top:18px;padding:12px 16px;border:0;border-radius:9px;background:#f0b90b;color:#080a0d;font-weight:800;cursor:pointer}#status{margin-top:18px;white-space:pre-wrap;color:#b9c2ce}</style></head>
-<body><p><a href="/">DreamLedger</a> / MTG</p><main><h1>Commander Deck Diagnostic</h1><p>NZ$29. Your payment is verified by Stripe before the fulfillment job is accepted.</p>
-<form id="f"><label>Email used at checkout</label><input id="email" type="email" required><label>Checkout Session ID</label><input id="session_id" required><label>Commander decklist</label><textarea id="decklist" placeholder="1 Sol Ring&#10;1 Command Tower&#10;..."></textarea><button>Submit decklist</button></form><div id="status"></div></main>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Submit decklist · Commander Diagnostic | DreamLedger</title>
+<meta name="description" content="Post-payment Commander decklist input. Stripe-verified session required before fulfillment.">
+<style>
+:root{--bg:#080a0d;--panel:#141920;--line:#343c4a;--ink:#eef1f5;--muted:#9aa4b1;--gold:#f0b90b;--ok:#58d6a0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);max-width:760px;margin:0 auto;padding:28px 18px}
+a{color:var(--gold)}
+main{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-top:12px}
+h1{font-size:1.5rem;margin-bottom:8px}
+.lead{color:var(--muted);margin-bottom:16px;font-size:.95rem}
+.badge{display:inline-block;font-size:11px;font-weight:800;color:var(--ok);border:1px solid #2a4a32;padding:4px 10px;border-radius:999px;margin-bottom:14px}
+label{display:block;margin:16px 0 7px;color:#c8ced7;font-size:.9rem}
+input,textarea{width:100%;background:#0c1015;color:var(--ink);border:1px solid #3b4554;border-radius:10px;padding:12px;font:inherit}
+textarea{min-height:260px;resize:vertical}
+button,.btn{display:inline-block;margin-top:18px;padding:12px 16px;border:0;border-radius:9px;background:var(--gold);color:#080a0d;font-weight:800;cursor:pointer;text-decoration:none;font-size:14px}
+button:disabled{opacity:.5;cursor:not-allowed}
+#status{margin-top:18px;white-space:pre-wrap;color:#b9c2ce;font-size:.9rem}
+.hint{font-size:12px;color:#727c89;margin-top:6px}
+.nav{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<p class="nav"><a href="/">DreamLedger</a> · <a href="/mtg">MTG</a> · <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy diagnostic</a></p>
+<main>
+  <span class="badge">Step: paid → deliver</span>
+  <h1>Submit your Commander decklist</h1>
+  <p class="lead">NZ$29 Commander Deck Diagnostic. Payment must be verified by Stripe before the fulfillment job is accepted. After submit, processing is queued automatically.</p>
+
+  <div id="need-pay" hidden>
+    <p class="lead">No checkout session on this page. If you have not paid yet:</p>
+    <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Pay NZ$29 securely</a>
+    <p class="hint">After Stripe payment, return here with the session id (success URL should include session_id).</p>
+  </div>
+
+  <form id="f">
+    <label for="email">Email used at checkout</label>
+    <input id="email" type="email" required autocomplete="email" placeholder="you@example.com">
+
+    <label for="session_id">Checkout session ID</label>
+    <input id="session_id" required placeholder="cs_live_..." autocomplete="off">
+    <p class="hint">From the Stripe success redirect or your receipt. Starts with cs_.</p>
+
+    <label for="decklist">Commander decklist</label>
+    <textarea id="decklist" required minlength="20" placeholder="1 Sol Ring&#10;1 Command Tower&#10;1 Your Commander&#10;..."></textarea>
+    <p class="hint">Paste the full list (at least 20 characters).</p>
+
+    <button type="submit" id="submit">Submit decklist for fulfillment</button>
+  </form>
+  <div id="status" role="status"></div>
+</main>
 <script>
-const q=new URLSearchParams(location.search); if(q.get('session_id'))document.getElementById('session_id').value=q.get('session_id');
-document.getElementById('f').addEventListener('submit',async e=>{e.preventDefault();const status=document.getElementById('status');status.textContent='Submitting…';const r=await fetch('/api/commercial/input',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value,session_id:document.getElementById('session_id').value,decklist:document.getElementById('decklist').value})});const d=await r.json().catch(()=>({}));status.textContent=r.ok?'Accepted. Fulfillment is now queued for automatic processing.':(d.error||'Submission failed');});
-</script></body></html>
+(function () {
+  const q = new URLSearchParams(location.search);
+  const session = q.get('session_id') || q.get('sessionId') || '';
+  const email = q.get('email') || '';
+  if (session) document.getElementById('session_id').value = session;
+  if (email) document.getElementById('email').value = email;
+  if (!session) document.getElementById('need-pay').hidden = false;
+
+  document.getElementById('f').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('status');
+    const btn = document.getElementById('submit');
+    status.textContent = 'Submitting…';
+    btn.disabled = true;
+    try {
+      const r = await fetch('/api/commercial/input', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value.trim(),
+          session_id: document.getElementById('session_id').value.trim(),
+          decklist: document.getElementById('decklist').value
+        })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok) {
+        status.textContent = 'Accepted. Fulfillment is queued for automatic processing.\nEconomic event path: paid → delivered → proven.';
+      } else {
+        status.textContent = d.error || 'Submission failed (' + r.status + ')';
+        btn.disabled = false;
+      }
+    } catch (err) {
+      status.textContent = 'Network error. Try again.';
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
