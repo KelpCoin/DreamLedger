@@ -1,1 +1,109 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agentic Commerce for Physical Goods | DreamLedger</title><meta name="description" content="DreamLedger explores agent-readable physical commerce: discovery, authorization, payment, fulfilment and independent economic verification."><link rel="canonical" href="https://dreamledger.org/agent-commerce"><style>:root{--bg:#080a0d;--p:#11161d;--l:#29313d;--t:#eef1f5;--m:#9aa4b1;--g:#f0b90b;--g2:#fcd535}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.7 system-ui,sans-serif}.wrap{max-width:900px;margin:auto;padding:0 20px}.nav{padding:22px 0;border-bottom:1px solid var(--l)}.nav a{color:var(--g2);text-decoration:none;font-weight:900}.hero{padding:64px 0 30px}.eyebrow{color:var(--g);font-weight:900;font-size:12px;letter-spacing:.15em;text-transform:uppercase}.hero h1{font-size:clamp(40px,8vw,76px);line-height:.96;letter-spacing:-.06em;margin:12px 0}.lead{font-size:20px;color:var(--m);max-width:760px}.block{padding:28px 0;border-top:1px solid var(--l)}h2{font-size:28px;line-height:1.15}.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}.step{padding:18px;border:1px solid var(--l);border-radius:12px;background:var(--p)}.n{color:var(--g);font-weight:900}.step h3{margin:5px 0;font-size:17px}.step p{margin:0;color:var(--m);font-size:14px}.cta{padding:25px;border:1px solid var(--g);border-radius:14px;background:#15140c;margin:30px 0 70px}.cta a{display:inline-block;padding:12px 17px;border-radius:9px;background:var(--g);color:#080a0d;text-decoration:none;font-weight:900}.muted{color:var(--m)}footer{border-top:1px solid var(--l);padding:25px 0 60px;color:#727c89}</style></head><body><div class="wrap"><nav class="nav"><a href="/">DREAMLEDGER · MARKET</a></nav><main><section class="hero"><div class="eyebrow">The experiment</div><h1>Make physical commerce readable to agents.</h1><p class="lead">DreamLedger is testing a simple proposition: a software agent should be able to discover a real product, understand the offer, obtain the buyer's authorization, initiate payment, observe fulfilment and produce independently checkable evidence of the economic event.</p></section><section class="block"><h2>The loop</h2><div class="steps"><div class="step"><div class="n">01</div><h3>Discover</h3><p>Machine-readable product, price, availability and terms.</p></div><div class="step"><div class="n">02</div><h3>Evaluate</h3><p>Match the item against the buyer's actual constraints.</p></div><div class="step"><div class="n">03</div><h3>Authorize</h3><p>The buyer controls what the agent may purchase and under what limits.</p></div><div class="step"><div class="n">04</div><h3>Pay</h3><p>Use the merchant's legitimate checkout and payment rail.</p></div><div class="step"><div class="n">05</div><h3>Fulfil</h3><p>The seller delivers the actual physical product.</p></div><div class="step"><div class="n">06</div><h3>Verify</h3><p>Independent evidence establishes what happened rather than trusting the agent's claim.</p></div></div></section><section class="block"><h2>What DreamLedger is not claiming</h2><p class="muted">A machine-readable catalogue is not a completed transaction. A checkout URL is not payment. A payment receipt is not fulfilment. A seller assertion is not independent verification. DreamLedger's public meter remains NZ$0 until an external economic event satisfies the evidence contract.</p></section><section class="block"><h2>Why start with physical collectibles?</h2><p class="muted">A single trading card provides a bounded experiment: identifiable object, observable price, finite inventory, known buyer community and straightforward physical fulfilment. If the same transaction machinery survives a category change, the machinery is more important than the card.</p></section><section class="block"><h2>Build once, generalize later</h2><p class="muted">The objective is not to create a Magic-only marketplace. The objective is to find the smallest reusable transaction primitive that can later support other physical goods without rebuilding the economic control and evidence layer from scratch.</p></section><div class="cta"><h2>Test the commercial surface</h2><p class="muted">The current marketplace exposes live offers and Stripe checkout. The next proof is external: a real buyer, real payment, real fulfilment and independent verification.</p><a href="/mtg">Open the MTG test surface →</a></div></main><footer><a href="/">Market</a> · <a href="/guides/">Guides</a> · <a href="/agent-commerce.json">Machine-readable contract</a></footer></div></body></html>
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent commerce · DreamLedger</title>
+<meta name="description" content="Machine-readable offers for agents: discover, authorize, pay via Stripe, deliver, prove. Live /api/offers.">
+<link rel="canonical" href="https://dreamledger.org/agent-commerce.html">
+<style>
+:root{--bg:#080a0d;--p:#11161d;--l:#29313d;--t:#eef1f5;--m:#9aa4b1;--g:#f0b90b;--ok:#58d6a0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t);font:16px/1.55 system-ui,sans-serif}
+a{color:var(--g);text-decoration:none}
+.wrap{max-width:960px;margin:auto;padding:0 18px}
+.nav{padding:18px 0;border-bottom:1px solid var(--l);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.nav a{font-weight:800;font-size:13px}
+.hero{padding:40px 0 20px}
+.eyebrow{color:var(--g);font-weight:900;font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.04em;line-height:1.05;margin-bottom:12px}
+.lead{color:var(--m);max-width:56ch;margin-bottom:16px}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.step{font-size:11px;font-weight:800;padding:6px 10px;border-radius:999px;border:1px solid var(--l);color:var(--m)}
+.step.on{color:var(--ok);border-color:#2a4a32}
+.panel{border:1px solid var(--l);border-radius:12px;padding:16px;background:var(--p);margin:16px 0 24px}
+.panel h2{font-size:14px;color:var(--g);margin-bottom:8px}
+.panel ol{padding-left:1.2em;color:var(--m);font-size:.9rem}
+.panel li{margin-bottom:6px}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+.status{font-size:12px;color:#727c89;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;padding-bottom:40px}
+.card{background:var(--p);border:1px solid var(--l);border-radius:12px;padding:16px;display:flex;flex-direction:column}
+.card .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--m);margin-bottom:8px}
+.card h3{font-size:1.05rem;margin-bottom:6px}
+.card p{font-size:.82rem;color:var(--m);flex:1;margin-bottom:12px}
+.price{font-size:1.35rem;font-weight:900;color:var(--g);margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:9px;font-size:12px;font-weight:900;background:var(--g);color:#080a0d;width:100%}
+footer{border-top:1px solid var(--l);padding:20px 0 48px;color:#727c89;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav">
+  <a href="/">DREAMLEDGER</a>
+  <span>
+    <a href="/agent-commerce.json">Contract</a> ·
+    <a href="/agent.json">Agent</a> ·
+    <a href="/api/offers">Offers API</a>
+  </span>
+</nav>
+<main>
+<section class="hero">
+  <div class="eyebrow">Agent purchase · economic events</div>
+  <h1>Discover → authorize → pay → deliver → prove</h1>
+  <p class="lead">Live offers from <code>/api/offers</code>. Agents present checkout to a human. Stripe settles. Revenue only after paid + delivered + proven.</p>
+  <div class="steps">
+    <span class="step on">1 discover</span>
+    <span class="step on">2 authorize</span>
+    <span class="step on">3 pay</span>
+    <span class="step">4 deliver</span>
+    <span class="step">5 prove</span>
+  </div>
+</section>
+<div class="panel">
+  <h2>Agent protocol (live)</h2>
+  <ol>
+    <li><strong>GET</strong> <span class="mono">https://dreamledger.org/api/offers</span></li>
+    <li>Use offers with <span class="mono">status === VERIFIED_AVAILABLE</span></li>
+    <li>Require human authorization (no autonomous spend)</li>
+    <li>Open <span class="mono">/buy/{product_id}</span> (binds Stripe <span class="mono">client_reference_id</span>)</li>
+    <li>After Stripe success: fulfill, then mark economic event proven</li>
+  </ol>
+  <p class="mono" style="margin-top:10px">Machine contract: /agent-commerce.json</p>
+</div>
+<p class="status" id="status">Loading offers…</p>
+<section class="grid" id="offers" aria-live="polite"></section>
+</main>
+<footer>
+  0% platform success fee on listed offers · Settlement: Stripe live NZD ·
+  <a href="/agent-commerce.json">agent-commerce.json</a>
+</footer>
+</div>
+<script>
+(function(){
+const esc=v=>String(v??'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+async function load(){
+  const status=document.getElementById('status');
+  const root=document.getElementById('offers');
+  try{
+    const r=await fetch('/api/offers',{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const offers=(d.offers||[]).filter(o=>o&&String(o.status||'').includes('VERIFIED'));
+    status.textContent=offers.length+' verified offers · /api/offers';
+    if(!offers.length){root.innerHTML='<p class="status">No verified offers.</p>';return;}
+    offers.sort((a,b)=>Number(a.price)-Number(b.price));
+    root.innerHTML=offers.map(o=>{
+      const id=o.product_id||o.offer_id;
+      const buy='/buy/'+encodeURIComponent(id);
+      return '<article class="card"><div class="tag">'+esc(o.silo||'offer')+'</div><h3>'+esc(o.name)+'</h3><p>'+esc(o.description||'Verified offer')+'</p><div class="price">NZ$'+esc(o.price)+'</div><a class="btn" href="'+esc(buy)+'">Purchase (human auth)</a></article>';
+    }).join('');
+  }catch(e){
+    status.textContent='Offers API unavailable — fail closed';
+  }
+}
+load();
+})();
+</script>
+</body>
+</html>
