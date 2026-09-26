@@ -24,3 +24,12 @@ For a suspected vulnerability, do not publish credentials, tokens, private custo
 ## Scope
 
 This policy applies to the repository and all automated workflows derived from it. Vertical-specific rules remain in their silo policy files. Universal governance rules may only be strengthened, never weakened, by downstream policy.
+
+
+## CUBE radar controls
+
+- Public Reddit/Substack inputs are discovery-only and are not themselves payment evidence.
+- Do not retain or republish source user content beyond what is required for the permitted discovery function.
+- Missing secrets, stale evidence, malformed execution packets, contradictory evidence, and missing authority are fail-closed states.
+- The scheduled radar uses least-privilege repository permissions and immutable action references.
+- Mechanism candidates never become public offers or revenue without the normal Truth, Gauntlet, authority, payment, fulfillment, and independent-verification gates.
