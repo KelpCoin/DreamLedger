@@ -1,0 +1,18 @@
+DreamLedger deploy trigger — 2026-09-26 shop rails / economic loops
+
+Render: dreamledger-bec-prime / dreamledger-storefront
+Branch: main
+
+Ship:
+- /shop.html horizontal silo carousels (billboard, MTG, digital, economic loops)
+- SILO-CELLS-SEED v2 with auction + sell intake cells
+- DISCORD-WEBHOOK-STARTER-KIT-001 catalog product
+- Prior: sell, auctions, trust, buy, policies, enterprise index
+
+Verify after live:
+1. /shop.html 200 with scrollable rails
+2. Stripe founding tile + commander diagnostic links open
+3. /auctions.html reachable
+4. catalog-cta can load expanded cells once Supabase seeded
+
+No revenue claim. Checkout ≠ bank balance.
