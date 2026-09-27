@@ -40,9 +40,26 @@ function choose(job) {
   const { registry, workers } = advertisedWorkers();
   const routes = registry.routing[job.kind] || registry.routing.default || [];
   const preference = job.worker_preference || 'auto';
-  const normalizedPreference = ['auto', 'multi_model_diverse'].includes(preference) ? 'auto' : preference;
-  const requested = normalizedPreference === 'auto' ? routes : [normalizedPreference];
   const available = workers.filter(worker => worker.availability === 'online');
+
+  if (preference === 'multi_model_diverse') {
+    const executionWorker = available.find(w => w.trust_level === 'local')
+      || available.find(w => w.worker_id.startsWith('gpu-'))
+      || available.find(w => w.worker_id.startsWith('cloud-'));
+    if (executionWorker) {
+      return {
+        adapter: 'multi-model-refinement',
+        execution_node: executionWorker.trust_level === 'local'
+          ? (process.env.GITHUB_ACTIONS === 'true' ? 'self-hosted-windows' : 'local-process')
+          : (executionWorker.worker_id.startsWith('gpu-') ? 'gpu-node' : 'cloud-gpu-or-api'),
+        worker: executionWorker,
+        stages: ['scout', 'critic', 'synthesis']
+      };
+    }
+    return { adapter: 'deterministic', execution_node: 'none', worker: null, stages: ['scout', 'critic', 'synthesis'] };
+  }
+
+  const requested = preference === 'auto' ? routes : [preference];
   for (const name of requested) {
     if (name === 'local-lmstudio' && available.some(w => w.trust_level === 'local')) return { adapter: 'local-lmstudio', execution_node: process.env.GITHUB_ACTIONS === 'true' ? 'self-hosted-windows' : 'local-process', worker: available.find(w => w.trust_level === 'local') };
     if (name === 'gpu' && available.some(w => w.worker_id.startsWith('gpu-'))) return { adapter: 'gpu', execution_node: 'gpu-node', worker: available.find(w => w.worker_id.startsWith('gpu-')) };
