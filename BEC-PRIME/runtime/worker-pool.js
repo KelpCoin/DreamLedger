@@ -6,6 +6,7 @@ const scheduler = require('./Scheduler');
 const ledger = require('./Ledger');
 const fossil = require('./Fossil');
 const governanceState = require('./GovernanceState');
+const multiModelRefinement = require('./MultiModelRefinement');
 
 const ROOT = path.join(__dirname, '..');
 const QUEUE_DIR = path.resolve(process.env.BEC_JOB_QUEUE_DIR || path.join(ROOT, 'data', 'jobs'));
@@ -75,20 +76,61 @@ async function execute(job) {
   // A named preference such as multi_model_diverse is a routing preference, not permission to fabricate a worker. If no compatible worker is actually online, continue to the deterministic proposal path and record that limitation in the result.
   let output;
   let route = selected;
-  const runners = { 'local-lmstudio': runLmStudio, gpu: runGpuModel, cloud: runCloudModel };
-  const candidates = workerPreference === 'auto' ? [selected.adapter, 'gpu', 'cloud', 'deterministic'] : [selected.adapter];
   let lastError = null;
-  for (const adapter of candidates) {
-    if (adapter === 'deterministic') { output = { worker: 'deterministic', message: 'No compatible model worker is configured; this is a deterministic proposal only', task: job.task }; route = { ...selected, adapter: 'deterministic', execution_node: 'none', fallback_reason: lastError }; break; }
-    const candidateRoute = adapter === selected.adapter ? selected : scheduler.choose({ ...normalizedJob, worker_preference: adapter });
-    const candidateRunner = runners[adapter];
-    if (!candidateRunner || candidateRoute.adapter === 'deterministic') continue;
+
+  if (workerPreference === 'multi_model_diverse') {
+    route = {
+      ...selected,
+      adapter: 'multi-model-refinement',
+      execution_node: selected.execution_node || 'multi-model-orchestrator',
+      worker: {
+        worker_id: 'bec-three-model-refiner',
+        stages: ['scout', 'critic', 'synthesis']
+      }
+    };
+    ledger.appendEvent({
+      graph_id: 'BEC-RUNTIME',
+      branch_id: job.job_id,
+      node_id: 'multi-model-orchestrator',
+      event_type: 'WORKER_ATTEMPT',
+      silo: job.silo,
+      inputs_hash: job.input_hash,
+      payload: { adapter: 'multi-model-refinement', stages: 3 }
+    });
     try {
-      ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: 'scheduler', event_type: 'WORKER_ATTEMPT', silo: job.silo, inputs_hash: job.input_hash, payload: { adapter, worker: candidateRoute.worker } });
-      output = await candidateRunner(job); route = candidateRoute; break;
+      output = await multiModelRefinement.run(job);
     } catch (error) {
-      lastError = `${adapter}: ${error.message}`;
-      ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: 'scheduler', event_type: 'WORKER_UNAVAILABLE', silo: job.silo, inputs_hash: job.input_hash, payload: { adapter, error: error.message }, result: 'FAIL' });
+      lastError = 'multi-model-refinement: ' + error.message;
+      ledger.appendEvent({
+        graph_id: 'BEC-RUNTIME',
+        branch_id: job.job_id,
+        node_id: 'multi-model-orchestrator',
+        event_type: 'WORKER_UNAVAILABLE',
+        silo: job.silo,
+        inputs_hash: job.input_hash,
+        payload: { adapter: 'multi-model-refinement', error: error.message },
+        result: 'FAIL'
+      });
+    }
+  } else {
+    const runners = { 'local-lmstudio': runLmStudio, gpu: runGpuModel, cloud: runCloudModel };
+    const candidates = workerPreference === 'auto' ? [selected.adapter, 'gpu', 'cloud', 'deterministic'] : [selected.adapter];
+    for (const adapter of candidates) {
+      if (adapter === 'deterministic') {
+        output = { worker: 'deterministic', message: 'No compatible model worker is configured; this is a deterministic proposal only', task: job.task };
+        route = { ...selected, adapter: 'deterministic', execution_node: 'none', fallback_reason: lastError };
+        break;
+      }
+      const candidateRoute = adapter === selected.adapter ? selected : scheduler.choose({ ...normalizedJob, worker_preference: adapter });
+      const candidateRunner = runners[adapter];
+      if (!candidateRunner || candidateRoute.adapter === 'deterministic') continue;
+      try {
+        ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: 'scheduler', event_type: 'WORKER_ATTEMPT', silo: job.silo, inputs_hash: job.input_hash, payload: { adapter, worker: candidateRoute.worker } });
+        output = await candidateRunner(job); route = candidateRoute; break;
+      } catch (error) {
+        lastError = `${adapter}: ${error.message}`;
+        ledger.appendEvent({ graph_id: 'BEC-RUNTIME', branch_id: job.job_id, node_id: 'scheduler', event_type: 'WORKER_UNAVAILABLE', silo: job.silo, inputs_hash: job.input_hash, payload: { adapter, error: error.message }, result: 'FAIL' });
+      }
     }
   }
   if (!output) throw new Error(lastError || 'No worker available');
