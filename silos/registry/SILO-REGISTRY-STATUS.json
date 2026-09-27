@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-09-27T03:23:16.671Z",
+  "registry": "economic_silo_registry",
+  "capacity_target": 500000,
+  "current_candidates": 5000,
+  "qualified": 0,
+  "sellable": 0,
+  "active": 0,
+  "public_visible": 0,
+  "settled_external_payments": 0,
+  "verified_outcomes": 0,
+  "truth_status": "UNVERIFIED_CANDIDATE_REGISTRY",
+  "factory": "silo-factory",
+  "orchestrator": "silo-orchestrator",
+  "elohim": "elohim-cube",
+  "gauntlet": "gauntlet-cube",
+  "truth_oracle": "truth-oracle-execute",
+  "storage_note": "Bulk expansion to 250000 was attempted but Supabase returned no space left on device. Registry was therefore seeded at 5000 candidate rows only.",
+  "human_authority_boundary": "public_release_and_live_financial_action_require_human_approval"
+}
