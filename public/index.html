@@ -1,190 +1,357 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="store-v2.2">
+<html lang="en-NZ" data-surface="store-v2.3">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger — NZ digital products. Commander diagnostic NZ$29, billboard tiles, Discord kit. Stripe checkout.">
-<meta name="theme-color" content="#14120f">
-<meta property="og:title" content="DreamLedger — Digital products · NZD">
-<meta property="og:description" content="Clear prices. Live Stripe checkout. Commander diagnostic, billboard tiles, and digital kits.">
+<meta name="description" content="DreamLedger — buy digital products in NZD. Commander diagnostic NZ$29. Stripe checkout. Expanding catalogue.">
+<meta name="theme-color" content="#1a1510">
+<meta property="og:title" content="DreamLedger — Worth buying">
+<meta property="og:description" content="Clear prices. Secure Stripe checkout. From NZ$3.99.">
 <meta property="og:url" content="https://dreamledger.org/">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
-<title>DreamLedger — Digital products · NZD</title>
+<title>DreamLedger — Buy digital products · NZD</title>
 <link rel="canonical" href="https://dreamledger.org/">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf9f7;--ink:#14120f;--muted:#6b6560;--line:#e8e4de;--card:#fff;--accent:#c45c26;--accent-h:#a34a1c;--dark:#14120f;--max:1120px;--font:"DM Sans",system-ui,sans-serif;--serif:"Instrument Serif",Georgia,serif;--safe:env(safe-area-inset-bottom,0px)}
+:root{
+  --bg:#f7f3ec;
+  --bg2:#efe8dc;
+  --ink:#1a1510;
+  --muted:#6e6458;
+  --line:#e2d8c8;
+  --card:#fffcf7;
+  --gold:#c48a2b;
+  --gold-d:#a8721f;
+  --espresso:#1a1510;
+  --cream:#fff9f0;
+  --max:1100px;
+  --serif:"Fraunces",Georgia,serif;
+  --sans:"Inter",system-ui,-apple-system,sans-serif;
+  --safe:env(safe-area-inset-bottom,0px);
+  --r:18px;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(76px + var(--safe));
+}
 a{color:inherit;text-decoration:none}
-.hdr{position:sticky;top:0;z-index:50;background:rgba(250,249,247,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.hdr-inner{max-width:var(--max);margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
-.brand{font-family:var(--serif);font-size:1.35rem}
-.hdr-nav{display:flex;gap:2px;align-items:center;flex-wrap:wrap}
-.hdr-nav a{font-size:13px;font-weight:600;color:var(--muted);padding:8px 12px;border-radius:999px}
-.hdr-nav a:hover{color:var(--ink);background:#f0eeea}
-.hdr-nav .cta{background:var(--dark);color:#fff!important;margin-left:4px}
-.hero{max-width:var(--max);margin:0 auto;padding:36px 20px 24px;display:grid;gap:24px}
-@media(min-width:800px){.hero{grid-template-columns:1.1fr .9fr;align-items:center;padding:48px 20px 36px}}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,5.5vw,3.1rem);line-height:1.08}
-.hero h1 em{font-style:italic;color:var(--accent)}
-.hero p{margin-top:14px;color:var(--muted);max-width:40ch}
-.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:999px;font-size:14px;font-weight:700}
-.btn-dark{background:var(--dark);color:#fff}.btn-line{border:1.5px solid var(--line);background:var(--card)}
-.hero-panel{background:var(--dark);color:#f5f2ec;border-radius:24px;padding:28px 24px;display:flex;flex-direction:column;justify-content:space-between;min-height:240px}
-.hero-panel .label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.55}
-.hero-panel h2{font-family:var(--serif);font-size:1.7rem;font-weight:400;margin-top:8px}
-.hero-panel .price{font-size:1.5rem;font-weight:700;margin-top:12px}
-.hero-panel a{margin-top:18px;align-self:flex-start;background:var(--accent);color:#fff;min-height:48px;padding:0 22px;border-radius:999px;font-weight:700;display:inline-flex;align-items:center}
-.anchor{max-width:var(--max);margin:0 auto;padding:0 20px 8px}
-.anchor-box{background:linear-gradient(135deg,#1c1917,#292524);color:#fafaf9;border-radius:16px;padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
-.anchor-box strong{font-size:14px}.anchor-box span{font-size:13px;opacity:.8}.anchor-box .p{font-weight:800;color:#fdba74}
-.trust{max-width:var(--max);margin:12px auto 0;padding:0 20px;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+
+/* Header */
+.hdr{
+  position:sticky;top:0;z-index:50;
+  background:rgba(247,243,236,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.hdr-inner{
+  max-width:var(--max);margin:0 auto;height:58px;
+  padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.brand{font-family:var(--serif);font-size:1.4rem;font-weight:600;letter-spacing:-.02em}
+.hdr-nav{display:flex;align-items:center;gap:2px}
+.hdr-nav a{
+  font-size:13px;font-weight:600;color:var(--muted);
+  padding:10px 12px;min-height:44px;display:inline-flex;align-items:center;border-radius:999px;
+}
+.hdr-nav a:hover{color:var(--ink);background:rgba(0,0,0,.04)}
+.hdr-nav .buy{
+  background:var(--gold)!important;color:#fff!important;margin-left:4px;
+  box-shadow:0 2px 8px rgba(196,138,43,.35);
+}
+
+/* Hero */
+.hero{
+  max-width:var(--max);margin:0 auto;
+  padding:32px 16px 20px;
+}
+@media(min-width:800px){
+  .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center;padding:48px 16px 32px}
+}
+.eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;
+}
+.hero h1{
+  font-family:var(--serif);font-weight:500;
+  font-size:clamp(2.15rem,6.5vw,3.35rem);
+  line-height:1.05;letter-spacing:-.03em;
+}
+.hero h1 em{font-style:italic;color:var(--gold-d)}
+.hero .lead{
+  margin-top:14px;color:var(--muted);font-size:1.05rem;max-width:36ch;line-height:1.5;
+}
+.hero-actions{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+@media(min-width:480px){.hero-actions{flex-direction:row;flex-wrap:wrap}}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:52px;padding:0 22px;border-radius:999px;
+  font-size:15px;font-weight:700;
+}
+.btn-gold{
+  background:linear-gradient(180deg,#d4a03a,#c48a2b);
+  color:#fff;box-shadow:0 4px 14px rgba(196,138,43,.4);
+}
+.btn-gold:active{transform:scale(.98)}
+.btn-line{background:var(--card);border:1.5px solid var(--line);color:var(--ink)}
+
+.hero-card{
+  margin-top:20px;
+  background:linear-gradient(160deg,#2a2218 0%,#1a1510 100%);
+  color:#f7f3ec;border-radius:24px;padding:24px 22px;
+  box-shadow:0 20px 50px rgba(26,21,16,.25);
+}
+@media(min-width:800px){.hero-card{margin-top:0}}
+.hero-card .lbl{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.55}
+.hero-card h2{font-family:var(--serif);font-size:1.65rem;font-weight:500;margin-top:8px}
+.hero-card p{margin-top:8px;opacity:.72;font-size:14px}
+.hero-card .price{
+  font-family:var(--serif);font-size:2.1rem;font-weight:600;
+  color:#e8c878;margin-top:14px;letter-spacing:-.02em;
+}
+.hero-card .btn-gold{margin-top:16px;width:100%}
+
+/* Micro pay strip — permission at low friction */
+.micro{
+  max-width:var(--max);margin:8px auto 0;padding:0 16px;
+}
+.micro-inner{
+  background:var(--bg2);border:1px solid var(--line);border-radius:16px;
+  padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+}
+.micro strong{font-size:14px}.micro span{font-size:13px;color:var(--muted)}
+.micro a{
+  font-weight:700;font-size:14px;color:var(--gold-d);
+  min-height:44px;display:inline-flex;align-items:center;padding:8px 4px;
+}
+
+/* Trust */
+.trust{
+  max-width:var(--max);margin:16px auto 0;padding:0 16px;
+  display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+}
 @media(min-width:700px){.trust{grid-template-columns:1fr 1fr 1fr}}
-.trust div{background:var(--card);padding:14px 16px}.trust strong{display:block;font-size:13px}.trust span{font-size:12px;color:var(--muted)}
-.sec{max-width:var(--max);margin:0 auto;padding:32px 20px 8px}
-.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
-.sec-h h2{font-family:var(--serif);font-size:1.6rem;font-weight:400}.sec-h span{font-size:13px;color:var(--muted)}
+.trust div{background:var(--card);padding:14px 16px}
+.trust strong{display:block;font-size:13px;font-weight:700}
+.trust span{font-size:12px;color:var(--muted)}
+
+/* Sections */
+.sec{max-width:var(--max);margin:0 auto;padding:36px 16px 8px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.sec-h h2{font-family:var(--serif);font-size:1.65rem;font-weight:500;letter-spacing:-.02em}
+.sec-h span{font-size:13px;color:var(--muted)}
+
+/* Product grid */
 .grid{display:grid;gap:14px}
 @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
 @media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
-.card-media{aspect-ratio:4/3;position:relative}
-.card:nth-child(1) .card-media{background:linear-gradient(155deg,#1e3a5f,#152a45)}
-.card:nth-child(2) .card-media{background:linear-gradient(155deg,#2c2824,#1a1816)}
-.card:nth-child(3) .card-media{background:linear-gradient(155deg,#3b2a55,#2a1f3d)}
-.card:nth-child(4) .card-media{background:linear-gradient(155deg,#2a4032,#1c2c22)}
-.chip{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.92);font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px}
-.chip.hot{background:var(--accent);color:#fff}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;display:flex;flex-direction:column;
+  transition:box-shadow .2s,transform .15s;
+}
+.card:active{transform:scale(.99)}
+.card-media{aspect-ratio:16/10;position:relative}
+.c1{background:linear-gradient(145deg,#3d4f6f,#243048)}
+.c2{background:linear-gradient(145deg,#4a3f32,#2c261c)}
+.c3{background:linear-gradient(145deg,#4a3a5c,#2d2438)}
+.c4{background:linear-gradient(145deg,#3a4a3c,#243028)}
+.c5{background:linear-gradient(145deg,#5c4030,#3a281c)}
+.chip{
+  position:absolute;left:12px;top:12px;
+  background:rgba(255,252,247,.95);font-size:11px;font-weight:700;
+  padding:5px 10px;border-radius:999px;
+}
+.chip.hot{background:var(--gold);color:#fff}
 .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
-.card-body h3{font-size:1.02rem;font-weight:700}.card-body p{font-size:13px;color:var(--muted);flex:1}
-.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px solid var(--line);margin-top:4px}
-.card-foot .p{font-size:1.12rem;font-weight:700}
-.card-foot a{min-height:42px;padding:0 14px;border-radius:999px;background:var(--dark);color:#fff;font-size:13px;font-weight:700;display:inline-flex;align-items:center}
-.explore{display:flex;flex-wrap:wrap;gap:10px;padding-top:8px}
-.explore a{font-size:13px;font-weight:600;color:var(--muted);padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
-.explore a:hover{color:var(--ink)}
-.ftr{margin-top:40px;background:var(--dark);color:#a8a29e;padding:36px 20px calc(28px + var(--safe))}
+.card-body h3{font-size:1.05rem;font-weight:700}
+.card-body p{font-size:13px;color:var(--muted);flex:1;line-height:1.4}
+.card-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding-top:10px;border-top:1px solid var(--line);margin-top:4px;
+}
+.card-foot .p{font-family:var(--serif);font-size:1.2rem;font-weight:600;color:var(--ink)}
+.card-foot a{
+  min-height:48px;padding:0 16px;border-radius:999px;
+  background:var(--espresso);color:#fff;font-size:13px;font-weight:700;
+  display:inline-flex;align-items:center;
+}
+
+/* Silo / cube rails — permission to expand */
+.rails{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.rails::-webkit-scrollbar{display:none}
+.rail{
+  flex:0 0 min(72vw,260px);scroll-snap-align:start;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;
+}
+.rail h3{font-size:1rem;font-weight:700;margin-bottom:6px}
+.rail p{font-size:12px;color:var(--muted);margin-bottom:12px;min-height:2.8em}
+.rail a{font-size:13px;font-weight:700;color:var(--gold-d)}
+
+/* Footer */
+.ftr{margin-top:40px;background:var(--espresso);color:#a89f92;padding:36px 16px calc(24px + var(--safe))}
 .ftr-inner{max-width:var(--max);margin:0 auto;display:grid;gap:24px}
-@media(min-width:720px){.ftr-inner{grid-template-columns:1.5fr 1fr 1fr 1fr}}
-.ftr .b{font-family:var(--serif);color:#faf9f7;font-size:1.2rem;margin-bottom:8px}
-.ftr h4{color:#faf9f7;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-.ftr a,.ftr p{display:block;font-size:13px;margin-bottom:6px}.ftr a:hover{color:#fff}
+@media(min-width:720px){.ftr-inner{grid-template-columns:1.4fr 1fr 1fr 1fr}}
+.ftr .b{font-family:var(--serif);color:#f7f3ec;font-size:1.25rem;margin-bottom:8px}
+.ftr h4{color:#f7f3ec;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.ftr a,.ftr p{display:block;font-size:13px;margin-bottom:6px}
+.ftr a:hover{color:#fff}
 .pay{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.pay span{background:#1c1917;border:1px solid #292524;font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;color:#d6d3d1}
-.stick{display:none;position:fixed;left:12px;right:12px;bottom:calc(12px + var(--safe));z-index:60;background:var(--dark);color:#fff;border-radius:16px;padding:12px 14px;align-items:center;gap:12px}
-@media(max-width:559px){.stick{display:flex}body{padding-bottom:88px}}
-.stick b{flex:1;font-size:13px}.stick a{background:var(--accent);color:#fff;min-height:44px;padding:0 18px;border-radius:999px;font-weight:700;display:inline-flex;align-items:center}
+.pay span{background:#2a241c;border:1px solid #3d352c;font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;color:#d4cdc2}
+
+/* Sticky pay */
+.stick{
+  position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe));z-index:60;
+  background:var(--espresso);color:#fff;border-radius:18px;
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.35);
+}
+.stick b{flex:1;font-size:13px;font-weight:600}
+.stick small{display:block;font-weight:400;opacity:.65;font-size:11px}
+.stick a{
+  background:linear-gradient(180deg,#d4a03a,#c48a2b);color:#fff;
+  min-height:48px;padding:0 20px;border-radius:999px;font-weight:700;
+  display:inline-flex;align-items:center;font-size:14px;
+  box-shadow:0 2px 10px rgba(196,138,43,.45);
+}
 </style>
 </head>
 <body>
 <header class="hdr"><div class="hdr-inner">
   <a class="brand" href="/">DreamLedger</a>
   <nav class="hdr-nav">
-    <a href="/shop.html">Shop</a>
+    <a href="#shop">Shop</a>
     <a href="/mtg">MTG</a>
-    <a href="/billboard">Billboard</a>
-    <a href="/about.html">About</a>
-    <a href="/login">Log in</a>
-    <a class="cta" href="/register">Join</a>
+    <a class="buy" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy · $29</a>
   </nav>
 </div></header>
 
 <section class="hero">
   <div>
-    <p class="eyebrow">Digital products · New Zealand · NZD</p>
-    <h1>Start at NZ$29. <em>Buy the diagnostic.</em></h1>
-    <p>Clear price. Secure Stripe checkout. Digital delivery after payment — no guesswork on what you are buying.</p>
+    <p class="eyebrow">New Zealand · NZD · Stripe</p>
+    <h1>Something worth <em>paying for.</em></h1>
+    <p class="lead">Clear price. Secure checkout. Instant next step after you pay — no ambiguity.</p>
     <div class="hero-actions">
-      <a class="btn btn-dark" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic · NZ$29</a>
-      <a class="btn btn-line" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Discord kit · NZ$79</a>
+      <a class="btn btn-gold" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Get diagnostic · NZ$29</a>
+      <a class="btn btn-line" href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Start at NZ$3.99</a>
     </div>
   </div>
-  <aside class="hero-panel">
-    <div>
-      <div class="label">Most popular path</div>
-      <h2>Commander deck diagnostic</h2>
-      <p style="margin-top:8px;opacity:.7;font-size:14px">Structure, cuts, and upgrade priorities. Submit your list after payment.</p>
-      <div class="price">NZ$29</div>
-    </div>
-    <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy diagnostic</a>
+  <aside class="hero-card">
+    <div class="lbl">Ready to buy</div>
+    <h2>Commander deck diagnostic</h2>
+    <p>Structure, cuts, and upgrade priorities for your list.</p>
+    <div class="price">NZ$29</div>
+    <a class="btn btn-gold" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Pay with card</a>
   </aside>
 </section>
 
-<div class="anchor"><div class="anchor-box">
-  <div><strong>Want a permanent billboard tile?</strong><br><span>Founding 100×100 placement on the public board</span></div>
-  <div class="p">NZ$50 · <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001" style="color:#fdba74;text-decoration:underline">Buy tile</a></div>
+<div class="micro"><div class="micro-inner">
+  <div><strong>Small yes first</strong><br><span>Supporter Sprout — lowest-friction paid cell</span></div>
+  <a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">NZ$3.99 →</a>
 </div></div>
 
 <div class="trust">
   <div><strong>Stripe checkout</strong><span>Visa · Mastercard · Amex</span></div>
-  <div><strong>NZD pricing</strong><span>The price you see is the price you pay</span></div>
-  <div><strong>Digital delivery</strong><span>Clear next step after payment</span></div>
+  <div><strong>Price is the price</strong><span>Shown in NZD before you pay</span></div>
+  <div><strong>Ledgered sales only</strong><span>Payment evidence, not page views</span></div>
 </div>
 
 <section class="sec" id="shop">
-  <div class="sec-h"><h2>Shop</h2><span><a href="/shop.html" style="color:var(--muted)">Full catalogue →</a></span></div>
+  <div class="sec-h">
+    <h2>Choose what to buy</h2>
+    <span>Live checkout</span>
+  </div>
   <div class="grid">
     <article class="card">
-      <div class="card-media"><span class="chip hot">Live</span></div>
+      <div class="card-media c1"><span class="chip hot">Popular</span></div>
       <div class="card-body">
         <h3>Commander diagnostic</h3>
-        <p>Structural metrics, upgrade priorities, and a practical tuning plan.</p>
+        <p>Power band, structural holes, upgrade order.</p>
         <div class="card-foot"><span class="p">NZ$29</span><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a></div>
       </div>
     </article>
     <article class="card">
-      <div class="card-media"><span class="chip">Live</span></div>
+      <div class="card-media c2"><span class="chip">Live</span></div>
       <div class="card-body">
         <h3>Billboard tile</h3>
-        <p>Founding 100×100 on the public board until 3000.</p>
+        <p>Founding 100×100 on the public board.</p>
         <div class="card-foot"><span class="p">NZ$50</span><a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Buy</a></div>
       </div>
     </article>
     <article class="card">
-      <div class="card-media"><span class="chip">Live</span></div>
+      <div class="card-media c3"><span class="chip">Live</span></div>
       <div class="card-body">
         <h3>Discord webhook kit</h3>
-        <p>Templates for payment notifications and alerts. Digital download.</p>
+        <p>Payment alerts and templates. Digital download.</p>
         <div class="card-foot"><span class="p">NZ$79</span><a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy</a></div>
       </div>
     </article>
     <article class="card">
-      <div class="card-body" style="padding-top:16px">
+      <div class="card-media c4"><span class="chip">Live</span></div>
+      <div class="card-body">
         <h3>Seller profit audit</h3>
-        <p>NZ fees, pricing, GST threshold and channel economics.</p>
+        <p>NZ fees, GST threshold, channel math.</p>
         <div class="card-foot"><span class="p">NZ$29</span><a href="/buy/SELLER-PROFIT-AUDIT-001">Buy</a></div>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card-media c5"><span class="chip">From $3.99</span></div>
+      <div class="card-body">
+        <h3>DreamMeez supporter</h3>
+        <p>Smallest paid cell — Sprout, Glow, or Depth.</p>
+        <div class="card-foot"><span class="p">NZ$3.99</span><a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Buy</a></div>
       </div>
     </article>
   </div>
 </section>
 
 <section class="sec">
-  <div class="sec-h"><h2>Explore</h2><span>More</span></div>
-  <div class="explore">
-    <a href="/shop.html">Full shop</a>
-    <a href="/billboard">Live billboard</a>
-    <a href="/mtg">MTG</a>
-    <a href="/about.html">About</a>
-    <a href="/policies.html">Policies</a>
-    <a href="/diagnostic-input.html">Paid? Submit decklist</a>
+  <div class="sec-h">
+    <h2>More doors</h2>
+    <span>Each silo can grow on its own</span>
+  </div>
+  <div class="rails">
+    <div class="rail">
+      <h3>MTG</h3>
+      <p>Diagnostics and decks. Independent inventory.</p>
+      <a href="/mtg">Open MTG →</a>
+    </div>
+    <div class="rail">
+      <h3>Billboard</h3>
+      <p>Permanent placements until 3000.</p>
+      <a href="/billboard">Open board →</a>
+    </div>
+    <div class="rail">
+      <h3>Ledger</h3>
+      <p>What counts as paid, proven truth.</p>
+      <a href="/ledger.html">Read ledger →</a>
+    </div>
+    <div class="rail">
+      <h3>Account</h3>
+      <p>Join free. Pay when you are ready.</p>
+      <a href="/register">Create account →</a>
+    </div>
   </div>
 </section>
 
 <footer class="ftr"><div class="ftr-inner">
   <div>
     <div class="b">DreamLedger</div>
-    <p>Digital products · New Zealand</p>
+    <p>Settlement-backed commerce · NZ</p>
     <div class="pay"><span>Stripe</span><span>Visa</span><span>Mastercard</span><span>Amex</span></div>
   </div>
   <div>
-    <h4>Shop</h4>
+    <h4>Buy</h4>
     <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic NZ$29</a>
+    <a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Sprout NZ$3.99</a>
     <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Tile NZ$50</a>
-    <a href="/shop.html">Full catalogue</a>
   </div>
   <div>
     <h4>Account</h4>
@@ -192,12 +359,15 @@ a{color:inherit;text-decoration:none}
     <a href="/login">Log in</a>
   </div>
   <div>
-    <h4>Company</h4>
-    <a href="/about.html">About</a>
+    <h4>Trust</h4>
     <a href="/policies.html">Policies</a>
+    <a href="/ledger.html">Ledger</a>
   </div>
 </div></footer>
 
-<div class="stick"><b>Diagnostic · NZ$29</b><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a></div>
+<div class="stick">
+  <b>Diagnostic<small>Card checkout · NZ$29</small></b>
+  <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy now</a>
+</div>
 </body>
 </html>
