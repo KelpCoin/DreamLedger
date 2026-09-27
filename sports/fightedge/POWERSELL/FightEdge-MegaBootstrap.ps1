@@ -106,31 +106,35 @@ $supabaseUrl=$env:FIGHTEDGE_SUPABASE_URL
 $supabaseKey=$env:FIGHTEDGE_SUPABASE_SERVICE_ROLE_KEY
 
 if($supabaseUrl -and $supabaseKey){
-  $headers=@{
-    apikey=$supabaseKey
-    Authorization="Bearer $supabaseKey"
-    'Content-Type'='application/json'
-  }
+  try {
+    $headers=@{
+      apikey=$supabaseKey
+      Authorization="Bearer $supabaseKey"
+      'Content-Type'='application/json'
+    }
 
-  $uri="$supabaseUrl/rest/v1/commerce_cells?select=cell_id,silo,name,state&or=(silo.is.null,silo.eq.)&limit=1"
-  $rows=Invoke-RestMethod -Method Get -Uri $uri -Headers $headers
+    $uri="$supabaseUrl/rest/v1/commerce_cells?select=cell_id,silo,name,state&or=(silo.is.null,silo.eq.)&limit=1"
+    $rows=@(Invoke-RestMethod -Method Get -Uri $uri -Headers $headers)
 
-  if($rows.Count -gt 0){
-    $cellId=$rows[0].cell_id
-    $patch=@{
-      silo='FIGHTEDGE'; name='Fight Edge'; state='ACTIVE'; acquisition_state='RESEARCH'
-      approval_required=$true; verified_checkout=$false
-      verified_fulfillment=$false; verified_webhook=$false
-      metadata=@{
-        public_brand='Fight Edge'; domain='combat_sports'
-        initial_focus='UFC'; public_language_mode='CLEAN'
-      }
-    } | ConvertTo-Json -Depth 8
-    $patchUri="$supabaseUrl/rest/v1/commerce_cells?cell_id=eq.$cellId"
-    Invoke-RestMethod -Method Patch -Uri $patchUri -Headers $headers -Body $patch | Out-Null
-    $remoteStatus='CELL_BOUND'
-  } else {
-    $remoteStatus='NO_UNUSED_CELL_FOUND'
+    if($rows.Count -gt 0){
+      $cellId=$rows[0].cell_id
+      $patch=@{
+        silo='FIGHTEDGE'; name='Fight Edge'; state='ACTIVE'; acquisition_state='RESEARCH'
+        approval_required=$true; verified_checkout=$false
+        verified_fulfillment=$false; verified_webhook=$false
+        metadata=@{
+          public_brand='Fight Edge'; domain='combat_sports'
+          initial_focus='UFC'; public_language_mode='CLEAN'
+        }
+      } | ConvertTo-Json -Depth 8
+      $patchUri="$supabaseUrl/rest/v1/commerce_cells?cell_id=eq.$cellId"
+      Invoke-RestMethod -Method Patch -Uri $patchUri -Headers $headers -Body $patch | Out-Null
+      $remoteStatus='CELL_BOUND'
+    } else {
+      $remoteStatus='NO_UNUSED_CELL_FOUND'
+    }
+  } catch {
+    $remoteStatus="REMOTE_BIND_ERROR: $($_.Exception.Message)"
   }
 }
 
@@ -142,10 +146,11 @@ $proof=@{
   wager_recorded=$true; auto_wager=$false
   public_release_requires_approval=$true
   note='Local scaffold and pre-event wager record only. This script does not place wagers.'
-} | ConvertTo-Json -Depth 8
+}
 
 $proofPath="$Proof\$($proof.proof_id).json"
-$proof | Set-Content $proofPath -Encoding ASCII
+$proofJson=$proof | ConvertTo-Json -Depth 8
+$proofJson | Set-Content $proofPath -Encoding ASCII
 "[$Stamp] FIGHTEDGE bootstrap complete: $proofPath" | Add-Content "$Log\bootstrap.log" -Encoding ASCII
 
 Write-Host 'FIGHTEDGE READY'
