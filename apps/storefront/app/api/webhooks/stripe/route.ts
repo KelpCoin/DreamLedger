@@ -1,0 +1,1 @@
+export async function POST(req:Request){const signature=req.headers.get("stripe-signature");if(!signature)return Response.json({error:"missing_signature"},{status:400});const raw=await req.text();return Response.json({status:"RECEIVED_PENDING_VERIFICATION",bytes:raw.length})}
