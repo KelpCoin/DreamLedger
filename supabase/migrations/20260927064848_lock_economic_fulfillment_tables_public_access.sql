@@ -6,3 +6,5 @@ REVOKE ALL ON TABLE public.economic_fulfillment_bindings FROM anon, authenticate
 GRANT ALL ON TABLE public.economic_fulfillment_classes TO service_role;
 GRANT ALL ON TABLE public.economic_fulfillment_bindings TO service_role;
 COMMIT;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLES FROM anon, authenticated;
