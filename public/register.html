@@ -1,51 +1,143 @@
 <!doctype html>
-<html lang="en-NZ" data-surface="store-v2-auth">
+<html lang="en-NZ">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf9f7">
 <title>Join · DreamLedger</title>
+<meta name="description" content="Create a free DreamLedger account. Shop digital products in NZD with Stripe checkout.">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf9f7;--ink:#14120f;--muted:#6b6560;--line:#e8e4de;--card:#fff;--dark:#14120f;--err:#b91c1c}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"DM Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+:root{
+  --bg:#faf9f7;--ink:#14120f;--muted:#6b6560;--line:#e8e4de;--card:#fff;
+  --dark:#14120f;--accent:#c45c26;--err:#b91c1c;--ok:#15803d;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:"DM Sans",system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--ink);min-height:100dvh;
+  padding-bottom:calc(16px + var(--safe-b));
+  -webkit-font-smoothing:antialiased;
+}
 a{color:inherit;text-decoration:none}
-.hdr{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--line)}
-.brand{font-family:"Instrument Serif",serif;font-size:1.25rem}
-main{max-width:400px;margin:48px auto;padding:0 20px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
-h1{font-family:"Instrument Serif",serif;font-size:1.75rem;font-weight:400;margin-bottom:6px}
-.sub{color:var(--muted);font-size:14px;margin-bottom:22px}
-label{display:block;font-size:12px;font-weight:700;margin:0 0 6px}
-input{width:100%;height:48px;padding:0 14px;margin-bottom:14px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff}
-button{width:100%;height:48px;border:0;border-radius:999px;background:var(--dark);color:#fff;font-weight:700;font:inherit;cursor:pointer}
-.err{color:var(--err);font-size:13px;margin-top:12px;min-height:1.2em}
-.sw{margin-top:18px;font-size:13px;color:var(--muted)}
-.sw a{font-weight:700;text-decoration:underline;color:var(--ink)}
+.hdr{
+  position:sticky;top:0;z-index:10;
+  height:56px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;border-bottom:1px solid var(--line);
+  background:rgba(250,249,247,.94);backdrop-filter:blur(12px);
+}
+.brand{font-family:"Instrument Serif",Georgia,serif;font-size:1.3rem}
+.hdr a.nav{font-size:14px;font-weight:700;padding:12px 14px;min-height:44px;display:inline-flex;align-items:center}
+main{max-width:420px;margin:0 auto;padding:20px 16px 32px}
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.trust span{
+  font-size:11px;font-weight:700;color:var(--muted);
+  background:var(--card);border:1px solid var(--line);
+  padding:6px 10px;border-radius:999px;
+}
+.card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:22px 18px 24px;
+}
+h1{font-family:"Instrument Serif",Georgia,serif;font-size:1.7rem;font-weight:400;margin-bottom:6px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:20px;line-height:1.4}
+label{display:block;font-size:13px;font-weight:700;margin:0 0 8px}
+input{
+  width:100%;min-height:52px;padding:0 14px;margin-bottom:14px;
+  border:1.5px solid var(--line);border-radius:14px;
+  font:inherit;font-size:16px;background:#fff;color:var(--ink);
+}
+input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.hint{font-size:12px;color:var(--muted);margin:-8px 0 14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.toggle{
+  font-size:13px;font-weight:700;color:var(--muted);
+  background:none;border:0;padding:8px;min-height:44px;cursor:pointer;font-family:inherit;
+}
+button[type=submit]{
+  width:100%;min-height:52px;border:0;border-radius:999px;
+  background:var(--dark);color:#fff;font-weight:700;font:inherit;font-size:16px;
+  cursor:pointer;margin-top:4px;
+}
+button[type=submit]:disabled{opacity:.55;cursor:wait}
+.msg{font-size:14px;margin-top:14px;min-height:1.3em;line-height:1.35}
+.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
+.sw{margin-top:18px;font-size:14px;color:var(--muted);text-align:center}
+.sw a{font-weight:700;text-decoration:underline;color:var(--ink);padding:8px;display:inline-block}
+.foot-trust{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;line-height:1.45}
+.foot-trust a{text-decoration:underline}
 </style>
 </head>
 <body>
 <header class="hdr">
   <a class="brand" href="/">DreamLedger</a>
-  <a href="/login" style="font-size:13px;font-weight:700">Log in</a>
+  <a class="nav" href="/login">Log in</a>
 </header>
 <main>
+  <div class="trust">
+    <span>Free to join</span>
+    <span>Stripe for cards</span>
+    <span>NZ business</span>
+  </div>
   <div class="card">
-    <h1>Join</h1>
-    <p class="sub">Create an account with email and password.</p>
-    <form id="f">
+    <h1>Join free</h1>
+    <p class="sub">Email and password only. No card required to create an account.</p>
+    <form id="f" novalidate>
       <label for="email">Email</label>
-      <input id="email" type="email" required autocomplete="email">
-      <label for="password">Password</label>
-      <input id="password" type="password" required minlength="8" autocomplete="new-password">
-      <button type="submit">Create account</button>
-      <div id="msg" class="err" role="alert"></div>
+      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" autocorrect="off" required placeholder="you@example.com">
+      <div class="row">
+        <label for="password" style="margin:0">Password</label>
+        <button type="button" class="toggle" id="showPw" aria-pressed="false">Show</button>
+      </div>
+      <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters">
+      <p class="hint">Minimum 8 characters. You can change this later.</p>
+      <button type="submit" id="go">Create account</button>
+      <div id="msg" class="msg" role="alert" aria-live="polite"></div>
     </form>
     <p class="sw">Already joined? <a href="/login">Log in</a></p>
   </div>
+  <p class="foot-trust">By joining you can save account details for future purchases.<br>Payments always go through Stripe. <a href="/policies.html">Policies</a></p>
 </main>
 <script>
-document.getElementById('f').onsubmit=async e=>{e.preventDefault();msg.textContent='';try{const r=await fetch('/api/account/register',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Sign up failed');location.href=d.next||'/avatar.html'}catch(x){msg.textContent=x.message}};
+(function(){
+  var f=document.getElementById('f');
+  var msg=document.getElementById('msg');
+  var go=document.getElementById('go');
+  var email=document.getElementById('email');
+  var password=document.getElementById('password');
+  var showPw=document.getElementById('showPw');
+  showPw.addEventListener('click',function(){
+    var on=password.type==='password';
+    password.type=on?'text':'password';
+    showPw.textContent=on?'Hide':'Show';
+    showPw.setAttribute('aria-pressed',on?'true':'false');
+  });
+  f.addEventListener('submit',async function(e){
+    e.preventDefault();
+    msg.textContent='';msg.className='msg';
+    var em=(email.value||'').trim();
+    if(!em||em.indexOf('@')<1){msg.textContent='Enter a valid email.';msg.className='msg err';email.focus();return;}
+    if(!password.value||password.value.length<8){
+      msg.textContent='Password needs at least 8 characters.';msg.className='msg err';password.focus();return;
+    }
+    go.disabled=true;go.textContent='Creating account…';
+    try{
+      var r=await fetch('/api/account/register',{
+        method:'POST',credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:em,password:password.value})
+      });
+      var d=await r.json().catch(function(){return {};});
+      if(!r.ok)throw new Error(d.error||'Could not create account.');
+      msg.textContent='Account created.';msg.className='msg ok';
+      location.href=d.next||'/';
+    }catch(x){
+      msg.textContent=x.message||'Sign up failed';msg.className='msg err';
+      go.disabled=false;go.textContent='Create account';
+    }
+  });
+})();
 </script>
 </body>
 </html>
