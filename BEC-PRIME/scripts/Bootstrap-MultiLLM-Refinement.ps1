@@ -23,7 +23,7 @@ Write-Host "Node: $Version" -ForegroundColor Gray
 
 $BaseUrl = $env:BEC_LM_URL
 if (-not $BaseUrl) {
-  $BaseUrl = 'http://127.0.0.1:1234/v1/chat/completions'
+  $BaseUrl = 'http://127.0.0.1:1235/v1/chat/completions'
 }
 
 $config = [ordered]@{
