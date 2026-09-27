@@ -15,5 +15,11 @@
   "webhook_function": "stripe-revenue-41104f355d6878cdd6d1f9dc",
   "webhook_deployed_version": 21,
   "timestamp": "2026-09-27T05:49:57.835Z",
-  "truth_state": "NO_VERIFIED_EXTERNAL_REVENUE_UNTIL_REAL_BUYER_PAYMENT_AND_FULFILLMENT_EVIDENCE"
+  "truth_state": "NO_VERIFIED_EXTERNAL_REVENUE_UNTIL_REAL_BUYER_PAYMENT_AND_FULFILLMENT_EVIDENCE",
+  "final_repo_commit": "f2b46234b740413828a627f095f46bea7790a5bf",
+  "worker_commit": "9a9a6ce65f9f995192e5cda9b4a9889c0da475f9",
+  "webhook_repo_commit": "ff2b0cdb4031a71073e0527fa61cf364032fd95",
+  "catalog_sku": "ACNC-CHARITY-DD-99",
+  "webhook_live_deployed": true,
+  "updated_at": "2026-09-27T05:50:44.186Z"
 }
