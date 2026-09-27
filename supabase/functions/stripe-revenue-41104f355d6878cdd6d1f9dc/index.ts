@@ -34,12 +34,12 @@ Deno.serve(async(req)=>{
    }
  }
  if(eventType!=="checkout.session.completed"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);return Response.json({received:true,ignored:true,event_id:eventId});}
- const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null;
+ const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null; const customFields=Array.isArray(session.custom_fields)?session.custom_fields:[]; const charityField=customFields.find((field:any)=>String(field?.key||"")==="charity"); const charityIdentifier=String(charityField?.text?.value||"").trim();
  if(!checkoutSessionId||session.payment_status!=="paid")return new Response("checkout session is not paid",{status:400}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
  const marketplaceListingId=String(metadata.marketplace_listing_id||"");
  let marketplaceSettlement:any=null;
  let marketplaceListing:any=null;
- let sku=String(metadata.sku_id||metadata.sku||"");
+ let sku=String(metadata.sku_id||metadata.sku||""); if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS") sku="ACNC-CHARITY-DD-99";
  if(marketplaceListingId){
    const {data:listing,error:listingError}=await supabase.from("marketplace_listings").select("id,sku,title,price_nzd,status,inventory,seller_id,organization_id,fulfillment_type,metadata").eq("id",marketplaceListingId).single();
    if(listingError||!listing)return new Response("marketplace listing not found",{status:400});
@@ -68,7 +68,7 @@ Deno.serve(async(req)=>{
      marketplaceSettlement={...marketplaceSettlement,transfer_ledger:transferLedger};
    }
  }
- if(!sku)return new Response("missing sku_id",{status:400});
+ if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS"&&!charityIdentifier)return new Response("missing required ACNC charity identifier",{status:400}); if(!sku)return new Response("missing sku_id",{status:400});
  const {data:catalog,error:catalogError}=await supabase.from("revenue_catalog").select("sku_id,price_nzd,active,fulfillment_type").eq("sku_id",sku).eq("active",true).limit(1).maybeSingle(); if(catalogError)return new Response("catalog lookup failed",{status:500}); if(!catalog)return new Response("unknown or inactive sku",{status:400});
  const amountNzd=amountMinor/100; if(Number(catalog.price_nzd)!==amountNzd)return new Response("amount does not match catalog price",{status:400});
  const {data:skuRow,error:skuError}=await supabase.from("skus").select("id,silo_id,status").eq("id",sku).limit(1).maybeSingle(); if(skuError)return new Response("sku lookup failed",{status:500}); if(!skuRow||skuRow.status!=="active")return new Response("sku is not present in authoritative sku registry",{status:400});
@@ -77,7 +77,41 @@ Deno.serve(async(req)=>{
  const {error:ledgerInsertError}=await supabase.from("event_ledger").upsert({idempotency_key:eventId,stripe_event_id:eventId,type:"payment.observed",amount_minor:amountMinor,currency:currency.toLowerCase(),sku_id:sku,raw:event},{onConflict:"idempotency_key"}); if(ledgerInsertError)return new Response("ledger write failed",{status:500});
  let entitlement:any=null; const {data:existingEntitlement}=await supabase.from("revenue_entitlements").select("id,fulfillment_key,status").eq("order_id",orderId).limit(1).maybeSingle(); if(existingEntitlement)entitlement=existingEntitlement; else {const fulfillmentKey=`DL-${sku}-${crypto.randomUUID().replaceAll("-","").slice(0,20).toUpperCase()}`; const {data:createdEntitlement,error:entitlementError}=await supabase.from("revenue_entitlements").insert({order_id:orderId,sku_id:sku,fulfillment_key:fulfillmentKey,status:"ready"}).select("id,fulfillment_key,status").single(); if(entitlementError||!createdEntitlement)return new Response("entitlement creation failed",{status:500}); entitlement=createdEntitlement;}
  let fulfillment:any=null; const {data:existingFulfillment,error:fulfillmentLookupError}=await supabase.from("fulfillment_requests").select("id,status").eq("entitlement_id",entitlement.id).limit(1).maybeSingle(); if(fulfillmentLookupError)return new Response("fulfillment lookup failed",{status:500}); if(existingFulfillment)fulfillment=existingFulfillment; else {const {data:createdFulfillment,error:fulfillmentError}=await supabase.from("fulfillment_requests").insert({entitlement_id:entitlement.id,sku_id:sku,customer_email:customerEmail,payload:{source:"stripe_revenue_webhook",stripe_event_id:eventId,stripe_checkout_session_id:checkoutSessionId,stripe_payment_intent_id:paymentIntentId,offer_id:metadata.offer_id?String(metadata.offer_id):null,fulfillment_type:catalog.fulfillment_type||null},status:"queued"}).select("id,status").single(); if(fulfillmentError||!createdFulfillment)return new Response("fulfillment request creation failed",{status:500}); fulfillment=createdFulfillment;}
- const economicEvent={event_id:eventId,opportunity_id:null,event_pattern_id:"STRIPE_CHECKOUT_SESSION_COMPLETED",silo_id:skuRow.silo_id,sku_id:sku,offer_id:metadata.offer_id?String(metadata.offer_id):null,buyer_action_verified:true,payment_settled:true,fulfilment_verified:false,evidence_verified:false,amount_nzd:amountNzd,stripe_checkout_session:checkoutSessionId,stripe_payment_intent:paymentIntentId,evidence_ref:`stripe:event:${eventId}`}; const {error:economicEventError}=await supabase.from("economic_events").upsert(economicEvent,{onConflict:"event_id"}); if(economicEventError)return new Response("economic event write failed",{status:500});
+ let economicJob:any=null;
+ if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS"){
+   const {data:packets,error:packetError}=await supabase.from("economic_execution_packets").select("packet_id,opportunity_id,status,capability_id").eq("capability_id","ACNC_RESEARCH_WORKER").eq("status","AUTHORIZED").limit(20);
+   if(packetError)return new Response("ACNC execution packet lookup failed",{status:500});
+   const packet=(packets||[])[0];
+   if(!packet)return new Response("ACNC authorized execution packet not found",{status:409});
+   const {data:job,error:jobError}=await supabase.rpc("queue_economic_fulfillment_job",{
+     p_type:"economic_fulfillment_public_research",
+     p_payload:{
+       job_type:"ACNC_CHARITY_DUE_DILIGENCE",
+       worker_id:"ACNC_RESEARCH_WORKER",
+       charity_identifier:charityIdentifier,
+       opportunity_id:metadata.opportunity_id,
+       packet_id:packet.packet_id,
+       stripe_event_id:eventId,
+       stripe_checkout_session_id:checkoutSessionId,
+       stripe_payment_intent_id:paymentIntentId,
+       order_id:orderId,
+       entitlement_id:entitlement.id,
+       fulfillment_request_id:fulfillment.id
+     },
+     p_contract_reference:String(packet.packet_id),
+     p_buyer_reference:customerEmail||checkoutSessionId,
+     p_authorization_state:"APPROVED"
+   });
+   if(jobError||!job)return new Response("ACNC fulfillment job queue failed",{status:500});
+   economicJob=job;
+   const {error:frUpdateError}=await supabase.from("fulfillment_requests").update({
+     canonical_state:"PAYMENT_SETTLED",
+     fulfillment_reference:"economic_job:"+String(job.id),
+     evidence_status:"UNVERIFIED"
+   }).eq("id",fulfillment.id);
+   if(frUpdateError)return new Response("ACNC fulfillment request update failed",{status:500});
+ }
+ const economicEvent={event_id:eventId,opportunity_id:metadata.opportunity_id==="ACNC_RESEARCH_001"?(economicJob?.authority_policy?.opportunity_id||null):null,event_pattern_id:"STRIPE_CHECKOUT_SESSION_COMPLETED",silo_id:skuRow.silo_id,sku_id:sku,offer_id:metadata.offer_id?String(metadata.offer_id):null,buyer_action_verified:true,payment_settled:true,fulfilment_verified:false,evidence_verified:false,amount_nzd:amountNzd,stripe_checkout_session:checkoutSessionId,stripe_payment_intent:paymentIntentId,evidence_ref:`stripe:event:${eventId}`}; const {error:economicEventError}=await supabase.from("economic_events").upsert(economicEvent,{onConflict:"event_id"}); if(economicEventError)return new Response("economic event write failed",{status:500});
  const {data:reconciliation}=await supabase.from("control_reconciliations").select("reconciliation_id").eq("stripe_event_id",eventId).limit(1).maybeSingle(); if(!reconciliation){const {error:reconciliationError}=await supabase.from("control_reconciliations").insert({payment_reference:paymentIntentId||checkoutSessionId,stripe_event_id:eventId,stripe_payment_intent_id:paymentIntentId,order_reference:orderId,ledger_reference:eventId,payment_amount_nzd:amountNzd,order_amount_nzd:amountNzd,ledger_amount_nzd:amountNzd,payment_exists:true,order_exists:true,ledger_exists:true,amounts_match:true,fulfillment_verified:false,checked_at:new Date().toISOString(),checked_by:FUNCTION_NAME,notes:"Stripe event observed and attributed. Reconciliation remains pending until fulfillment evidence is verified."}); if(reconciliationError)return new Response("control reconciliation write failed",{status:500});}
- const {error:webhookUpdateError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId); if(webhookUpdateError)return new Response("webhook finalization failed",{status:500}); return Response.json({received:true,recorded:true,event_id:eventId,sku_id:sku,order_id:orderId,entitlement_id:entitlement.id,fulfillment_request_id:fulfillment.id,marketplace:!!marketplaceListingId,marketplace_settlement:marketplaceSettlement,ra000001_promoted:false});
+ const {error:webhookUpdateError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId); if(webhookUpdateError)return new Response("webhook finalization failed",{status:500}); return Response.json({received:true,recorded:true,event_id:eventId,sku_id:sku,order_id:orderId,entitlement_id:entitlement.id,fulfillment_request_id:fulfillment.id,economic_fulfillment_job_id:economicJob?.id||null,marketplace:!!marketplaceListingId,marketplace_settlement:marketplaceSettlement,ra000001_promoted:false});
 });
