@@ -1,0 +1,1 @@
+export async function POST(req:Request){const body=await req.json().catch(()=>null);if(!body?.payment_id)return Response.json({error:"payment_required"},{status:402});return Response.json({error:"payment_verification_required"},{status:409})} export async function GET(){return Response.json({data:[],economic_truth:{revenue_minor:0,orders:0}})}

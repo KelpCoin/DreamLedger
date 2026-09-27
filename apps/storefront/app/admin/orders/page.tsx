@@ -1,0 +1,1 @@
+export default function Orders(){return <main className="shell"><nav className="nav"><a className="brand" href="/admin">DREAM<span className="gold">LEDGER</span></a></nav><section className="section"><h1>Orders</h1><div className="card"><p className="muted">No verified external orders.</p><strong>NZ$0.00 revenue</strong></div></section></main>
