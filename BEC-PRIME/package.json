@@ -62,6 +62,8 @@
     "verify:economic-contract": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Verify-EconomicContract.ps1",
     "economic:bootstrap": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/DreamLedger-Economic-Bootstrap.ps1",
     "refine:iterative": "node scripts/iterative-refinement.js",
+    "refine:multi-model": "node -e \"const r=require('./runtime/MultiModelRefinement'); r.validateConfig(r.loadConfig()); console.log('MULTI_MODEL_CONFIG=PASS')\"",
+    "bootstrap:multi-model": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Bootstrap-MultiLLM-Refinement.ps1",
     "smoke:front-door": "node scripts/smoke-front-door.js",
     "smoke:revenue-ledger": "node scripts/smoke-revenue-ledger.js",
     "smoke:production": "node scripts/smoke-production.js",
