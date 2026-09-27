@@ -39,6 +39,7 @@ declare
   v_reversible boolean;
   v_exclusion record;
   v_policy jsonb;
+  v_authority public.economic_authority_policies%rowtype;
   v_approval jsonb;
   v_decision text;
   v_reason text;
@@ -84,12 +85,51 @@ begin
     );
   end if;
 
-  v_policy := public.authorize_economic_action(
-    p_action,
-    v_cost,
-    v_category,
-    v_reversible
-  );
+  select * into v_authority
+  from public.economic_authority_policies
+  where active and action_type=p_action
+  order by created_at desc
+  limit 1;
+
+  if not found then
+    v_policy := jsonb_build_object(
+      'authorized',false,
+      'lane','RED',
+      'reason','NO_POLICY',
+      'action_type',p_action
+    );
+  elsif v_authority.lane='RED' then
+    v_policy := jsonb_build_object(
+      'authorized',false,
+      'lane','RED',
+      'reason','HUMAN_APPROVAL_REQUIRED',
+      'policy_version',v_authority.policy_version,
+      'human_approval_required',v_authority.human_approval_required
+    );
+  elsif coalesce(v_cost,0) > v_authority.max_cost_nzd then
+    v_policy := jsonb_build_object(
+      'authorized',false,
+      'lane',v_authority.lane,
+      'reason','COST_EXCEEDS_POLICY',
+      'max_cost_nzd',v_authority.max_cost_nzd,
+      'policy_version',v_authority.policy_version
+    );
+  elsif v_authority.lane='GREEN' and v_reversible=false and v_authority.reversible=true then
+    v_policy := jsonb_build_object(
+      'authorized',false,
+      'lane','GREEN',
+      'reason','REVERSIBILITY_MISMATCH',
+      'policy_version',v_authority.policy_version
+    );
+  else
+    v_policy := jsonb_build_object(
+      'authorized',v_authority.lane='GREEN',
+      'lane',v_authority.lane,
+      'human_approval_required',v_authority.human_approval_required,
+      'reason',case when v_authority.lane='GREEN' then 'POLICY_MATCH' else 'STAGED_FOR_APPROVAL' end,
+      'policy_version',v_authority.policy_version
+    );
+  end if;
 
   if coalesce((v_policy->>'lane'),'RED') = 'RED'
      or not coalesce((v_policy->>'authorized')::boolean,false)
@@ -155,6 +195,38 @@ revoke all on function public.evaluate_economic_authorization(text,text,text,jso
   from public, anon, authenticated;
 grant execute on function public.evaluate_economic_authorization(text,text,text,jsonb)
   to service_role;
+
+
+-- Legacy callers remain supported, but the legacy seam is now only a thin
+-- compatibility wrapper around the canonical PDP. It cannot make a decision
+-- independently.
+create or replace function public.authorize_economic_action(
+  p_action_type text,
+  p_cost_nzd numeric default 0,
+  p_category text default 'general',
+  p_reversible boolean default true
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $function$
+begin
+  return public.evaluate_economic_authorization(
+    'legacy-authorize-caller',
+    p_action_type,
+    'legacy-resource:'||coalesce(p_action_type,'UNKNOWN'),
+    jsonb_build_object(
+      'category',coalesce(p_category,'general'),
+      'max_cost_nzd',coalesce(p_cost_nzd,0),
+      'reversible',coalesce(p_reversible,true)
+    )
+  );
+end;
+$function$;
+
+revoke all on function public.authorize_economic_action(text,numeric,text,boolean) from public, anon, authenticated;
+grant execute on function public.authorize_economic_action(text,numeric,text,boolean) to service_role;
 
 -- Approval consumption must consult the PDP after the human decision and before
 -- any packet becomes AUTHORIZED. Exclusions therefore remain non-overridable.
