@@ -1,0 +1,19 @@
+{
+  "schema": "dreamledger/acnc-checkout-proof/v1",
+  "opportunity_id": "ACNC_RESEARCH_001",
+  "gauntlet_verdict": "PASS",
+  "price_nzd": 99,
+  "stripe_payment_link_id": "plink_1UKAu6EGgEAnUFF93oLQlZiR",
+  "stripe_payment_link_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
+  "stripe_price_id": "price_1UKAu0EGgEAnUFF9OrBC80OU",
+  "stripe_product_id": "prod_VKqbagbW5pSxO1",
+  "execution_packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
+  "execution_packet_status": "AUTHORIZED",
+  "fulfillment_worker_id": "ACNC_RESEARCH_WORKER",
+  "revenue_catalog_sku": "ACNC-CHARITY-DD-99",
+  "page_url": "https://dreamledger.org/buy/acnc-charity-due-diligence/",
+  "webhook_function": "stripe-revenue-41104f355d6878cdd6d1f9dc",
+  "webhook_deployed_version": 21,
+  "timestamp": "2026-09-27T05:49:57.835Z",
+  "truth_state": "NO_VERIFIED_EXTERNAL_REVENUE_UNTIL_REAL_BUYER_PAYMENT_AND_FULFILLMENT_EVIDENCE"
+}
