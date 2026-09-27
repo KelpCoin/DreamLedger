@@ -232,6 +232,23 @@
       "stripe_product_id": "prod_VK7AxB6WEZGX9C",
       "stripe_price_id": "price_1UJSwREGgEAnUFF9kGZjJEma",
       "fulfillment": "manual_gauntlet_truth_oracle_report"
+    },
+    {
+      "id": "ACNC-CHARITY-DD-99",
+      "sku": "ACNC-CHARITY-DD-99",
+      "silo": "research",
+      "name": "ACNC Charity Due Diligence Report",
+      "description": "Fixed-scope written due diligence report on one Australian charity using public ACNC register data and verifiable source records.",
+      "price": 99,
+      "currency": "nzd",
+      "inventory": 999,
+      "inventory_type": "research",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
+      "payment_link_id": "plink_1UKAu6EGgEAnUFF93oLQlZiR",
+      "stripe_price_id": "price_1UKAu0EGgEAnUFF9OrBC80OU",
+      "fulfillment": "checkout -> ACNC_RESEARCH_WORKER -> evidence-backed report"
     }
   ]
 }
