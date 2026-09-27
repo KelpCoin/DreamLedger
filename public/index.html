@@ -21,7 +21,7 @@ a{color:inherit;text-decoration:none}
 .hdr{position:sticky;top:0;z-index:50;background:rgba(250,249,247,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .hdr-inner{max-width:var(--max);margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-family:var(--serif);font-size:1.35rem}
-.hdr-nav{display:flex;gap:2px;align-items:center}
+.hdr-nav{display:flex;gap:2px;align-items:center;flex-wrap:wrap}
 .hdr-nav a{font-size:13px;font-weight:600;color:var(--muted);padding:8px 12px;border-radius:999px}
 .hdr-nav a:hover{color:var(--ink);background:#f0eeea}
 .hdr-nav .cta{background:var(--dark);color:#fff!important;margin-left:4px}
@@ -64,7 +64,6 @@ a{color:inherit;text-decoration:none}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px solid var(--line);margin-top:4px}
 .card-foot .p{font-size:1.12rem;font-weight:700}
 .card-foot a{min-height:42px;padding:0 14px;border-radius:999px;background:var(--dark);color:#fff;font-size:13px;font-weight:700;display:inline-flex;align-items:center}
-.card-foot a.soft{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
 .explore{display:flex;flex-wrap:wrap;gap:10px;padding-top:8px}
 .explore a{font-size:13px;font-weight:600;color:var(--muted);padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
 .explore a:hover{color:var(--ink)}
@@ -85,9 +84,10 @@ a{color:inherit;text-decoration:none}
 <header class="hdr"><div class="hdr-inner">
   <a class="brand" href="/">DreamLedger</a>
   <nav class="hdr-nav">
-    <a href="#shop">Shop</a>
+    <a href="/shop.html">Shop</a>
     <a href="/mtg">MTG</a>
     <a href="/billboard">Billboard</a>
+    <a href="/about.html">About</a>
     <a href="/login">Log in</a>
     <a class="cta" href="/register">Join</a>
   </nav>
@@ -126,7 +126,7 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <section class="sec" id="shop">
-  <div class="sec-h"><h2>Shop</h2><span>Live checkout</span></div>
+  <div class="sec-h"><h2>Shop</h2><span><a href="/shop.html" style="color:var(--muted)">Full catalogue →</a></span></div>
   <div class="grid">
     <article class="card">
       <div class="card-media"><span class="chip hot">Live</span></div>
@@ -153,8 +153,7 @@ a{color:inherit;text-decoration:none}
       </div>
     </article>
     <article class="card">
-      <div class="card-media"><span class="chip">Live</span></div>
-      <div class="card-body">
+      <div class="card-body" style="padding-top:16px">
         <h3>Seller profit audit</h3>
         <p>NZ fees, pricing, GST threshold and channel economics.</p>
         <div class="card-foot"><span class="p">NZ$29</span><a href="/buy/SELLER-PROFIT-AUDIT-001">Buy</a></div>
@@ -164,12 +163,13 @@ a{color:inherit;text-decoration:none}
 </section>
 
 <section class="sec">
-  <div class="sec-h"><h2>Explore</h2><span>Free surfaces</span></div>
+  <div class="sec-h"><h2>Explore</h2><span>More</span></div>
   <div class="explore">
+    <a href="/shop.html">Full shop</a>
     <a href="/billboard">Live billboard</a>
-    <a href="/mtg">MTG silo</a>
-    <a href="/dreammeez">DreamMeez</a>
-    <a href="/register">Create account</a>
+    <a href="/mtg">MTG</a>
+    <a href="/about.html">About</a>
+    <a href="/policies.html">Policies</a>
     <a href="/diagnostic-input.html">Paid? Submit decklist</a>
   </div>
 </section>
@@ -184,7 +184,7 @@ a{color:inherit;text-decoration:none}
     <h4>Shop</h4>
     <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic NZ$29</a>
     <a href="/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001">Tile NZ$50</a>
-    <a href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Discord kit NZ$79</a>
+    <a href="/shop.html">Full catalogue</a>
   </div>
   <div>
     <h4>Account</h4>
@@ -192,9 +192,9 @@ a{color:inherit;text-decoration:none}
     <a href="/login">Log in</a>
   </div>
   <div>
-    <h4>Legal</h4>
+    <h4>Company</h4>
+    <a href="/about.html">About</a>
     <a href="/policies.html">Policies</a>
-    <a href="/agent-commerce.json">Agent commerce</a>
   </div>
 </div></footer>
 
