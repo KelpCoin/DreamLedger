@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/proof.schema.json",
+  "title": "DreamLedger economic event proof",
+  "description": "Evidence required before an event may be treated as ledgered commercial truth.",
+  "type": "object",
+  "required": [
+    "schema",
+    "product_id",
+    "payment_provider",
+    "payment_reference",
+    "amount",
+    "currency",
+    "paid_at",
+    "verification_status"
+  ],
+  "properties": {
+    "schema": { "const": "dreamledger/proof/v1" },
+    "proof_id": { "type": "string" },
+    "event_id": { "type": "string" },
+    "product_id": { "type": "string" },
+    "offer_id": { "type": "string" },
+    "client_reference_id": { "type": "string" },
+    "payment_provider": { "const": "stripe" },
+    "payment_reference": {
+      "type": "string",
+      "description": "Stripe Checkout Session id (cs_...) or Payment Intent id"
+    },
+    "amount": { "type": "number" },
+    "currency": { "type": "string", "const": "NZD" },
+    "paid_at": { "type": "string", "format": "date-time" },
+    "delivered_at": { "type": ["string", "null"], "format": "date-time" },
+    "delivery_status": {
+      "type": "string",
+      "enum": ["pending", "delivered", "failed", "not_applicable"]
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": ["unverified", "paid", "delivered", "ledgered", "refunded", "disputed"]
+    },
+    "buyer_authorization": {
+      "type": "string",
+      "enum": ["human", "agent_with_human_handoff"]
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}
