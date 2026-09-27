@@ -1,0 +1,25 @@
+{
+  "proof_id": "RLS-REMEDIATION-2026-09-27",
+  "observed_at_utc": "2026-09-27T06:18:48Z",
+  "project_ref": "wbwgroygjeyukkspnqiy",
+  "tables": {
+    "public.economic_fulfillment_classes": {
+      "rls_enabled": true,
+      "rls_forced": false,
+      "anon_grants": [],
+      "authenticated_grants": [],
+      "service_role_full_access": true
+    },
+    "public.economic_fulfillment_bindings": {
+      "rls_enabled": true,
+      "rls_forced": false,
+      "anon_grants": [],
+      "authenticated_grants": [],
+      "service_role_full_access": true
+    }
+  },
+  "method": "ALTER TABLE ENABLE RLS; REVOKE ALL FROM anon, authenticated; GRANT ALL TO service_role",
+  "anonymous_probe": "NOT_EXECUTED_FROM_CONNECTED_RUNTIME",
+  "truth_status": "VERIFIED_CONFIGURATION_CHANGE",
+  "note": "service_role bypasses RLS; no service_role policy was created."
+}
