@@ -343,3 +343,20 @@ alter function public.authorize_economic_action(text,numeric,text,boolean)
 
 comment on function public.evaluate_economic_authorization(text,text,text,jsonb) is
 'Canonical economic PDP. Exclusion deny takes precedence; human approval is an obligation re-evaluated by this same seam.';
+
+-- Make every public-schema view security-invoker. This prevents a view owner from
+-- bypassing the querying role's RLS. Existing view-specific policies remain the
+-- source of access semantics; this migration only removes owner-rights bypass.
+do $$
+declare
+  v record;
+begin
+  for v in
+    select c.oid::regclass as view_name
+    from pg_class c
+    join pg_namespace n on n.oid=c.relnamespace
+    where n.nspname='public' and c.relkind='v'
+  loop
+    execute format('alter view %s set (security_invoker = on)', v.view_name);
+  end loop;
+end $$;
