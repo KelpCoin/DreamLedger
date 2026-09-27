@@ -238,7 +238,7 @@
       "sku": "ACNC-CHARITY-DD-99",
       "silo": "research",
       "name": "ACNC Charity Due Diligence Report",
-      "description": "Fixed-scope written due diligence report on one Australian charity using public ACNC register data and verifiable source records.",
+      "description": "Fixed-scope, source-backed due diligence report on one Australian charity using the ACNC public register, annual reports, governance records and other verifiable primary sources. A free Australian Red Cross sample is published.",
       "price": 99,
       "currency": "nzd",
       "inventory": 999,
@@ -248,7 +248,16 @@
       "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
       "payment_link_id": "plink_1UKAu6EGgEAnUFF93oLQlZiR",
       "stripe_price_id": "price_1UKAu0EGgEAnUFF9OrBC80OU",
-      "fulfillment": "checkout -> ACNC_RESEARCH_WORKER -> evidence-backed report"
+      "fulfillment": "checkout -> ACNC_RESEARCH_WORKER -> evidence-backed report",
+      "sample_url": "https://dreamledger.org/buy/acnc-charity-due-diligence/",
+      "scope": [
+        "registration",
+        "responsible_persons",
+        "financial_summary",
+        "diligence_flags",
+        "risk_rating",
+        "source_trail"
+      ]
     }
   ]
 }
