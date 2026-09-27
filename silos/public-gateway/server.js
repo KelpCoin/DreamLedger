@@ -45,7 +45,7 @@ function html(title, description, status, slug) {
 
 const server = http.createServer((req,res)=>{
   const u = new URL(req.url, 'http://localhost');
-  const slug = u.pathname.replace(/^\\/+|\\/+$/g,'');
+  const slug = u.pathname.split('/').filter(Boolean)[0] || '';
   if (slug === '' || slug === 'healthz') {
     const body = slug === 'healthz' ? JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length}) : html('DreamLedger Silo Gateway','Public HTTP surfaces for verified silo candidates.','LIVE','index');
     res.writeHead(200, {'content-type': slug === 'healthz' ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8','cache-control':'no-store'});
