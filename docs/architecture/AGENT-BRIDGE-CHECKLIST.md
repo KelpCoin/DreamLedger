@@ -18,6 +18,10 @@
 - [ ] Feed observations into Truth Oracle
 - [ ] Promote only qualifying verified outcomes
 - [ ] Add automated end-to-end synthetic bridge test
+- [x] Add canonical source/category exclusion gate before packet creation
+- [x] Add second exclusion gate before economic packet dispatch
+- [x] Add fail-closed RLS hardening migration for seven exposed security-sensitive tables
+- [x] Mark commerce operational view for security-invoker semantics
 
 ## Invariant
 
