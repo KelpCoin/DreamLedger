@@ -3,6 +3,7 @@
   "routing": {
     "default": ["local-lmstudio", "self-hosted-windows", "gpu", "cloud"],
     "lm_refinement": ["local-lmstudio", "gpu", "cloud"],
+    "multi_model_diverse": ["multi-model-refinement"],
     "code_change": ["self-hosted-windows", "gpu", "cloud"],
     "analysis": ["local-lmstudio", "gpu", "cloud"],
     "compile": ["self-hosted-windows", "cloud"],
@@ -26,6 +27,13 @@
       "endpoint_env": "BEC_GPU_LM_URL",
       "api_key_env": "BEC_GPU_LM_API_KEY",
       "offline_capable": false
+    },
+    "multi-model-refinement": {
+      "class": "three-stage-orchestrator",
+      "stages": ["scout", "critic", "synthesis"],
+      "persistent_memory": true,
+      "distinct_models_required": true,
+      "irreversible_effects_allowed": false
     },
     "cloud": {
       "class": "openai-compatible-cloud",
