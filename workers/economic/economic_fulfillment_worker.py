@@ -162,7 +162,10 @@ def write_artifacts(job_id,result):
     with open(folder/"results.csv","w",newline="",encoding="utf-8") as handle:
         writer=csv.DictWriter(handle,fieldnames=keys or ["_empty"]); writer.writeheader()
         for row in rows: writer.writerow(row)
-    lines=["# BrownEye Economic Fulfillment","","- Job: `" + str(job_id) + "`","- Generated: `" + datetime.now(timezone.utc).isoformat() + "`","- Rows: `" + str(len(rows)) + "`","- Source-derived identity data is never fabricated.","","## Evidence",""]
+    lines=["# BrownEye Economic Fulfillment","","- Job: `" + str(job_id) + "`","- Generated: `" + datetime.now(timezone.utc).isoformat() + "`","- Rows: `" + str(len(rows)) + "`","- Source-derived identity data is never fabricated.",""]
+    if result.get("job_type") == "ACNC_CHARITY_DUE_DILIGENCE":
+        lines.extend(["## ACNC Due Diligence Scope","", "- Identifier supplied: `" + str(result.get("charity_identifier","")) + "`", "- Match status: `" + str(result.get("match_status","UNKNOWN")) + "`", "- Scope: " + str(result.get("report_scope","")),""])
+    lines.extend(["## Evidence",""])
     lines.extend("- " + e["url"] + " | HTTP " + str(e["http_status"]) + " | SHA256 `" + e["sha256"] + "`" for e in result["evidence"])
     (folder/"report.md").write_text("\n".join(lines)+"\n",encoding="utf-8"); return folder
 
