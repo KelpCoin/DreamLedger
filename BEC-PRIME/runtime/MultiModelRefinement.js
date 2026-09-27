@@ -23,7 +23,7 @@ function endpointHeaders(apiKey) {
 }
 
 function defaultConfig() {
-  const baseUrl = process.env.BEC_LM_URL || 'http://127.0.0.1:1234/v1/chat/completions';
+  const baseUrl = process.env.BEC_LM_URL || 'http://127.0.0.1:1235/v1/chat/completions';
   return {
     scout: {
       role: 'scout',
