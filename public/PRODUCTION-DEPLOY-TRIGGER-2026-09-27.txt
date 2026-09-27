@@ -1,0 +1,14 @@
+Deploy trigger 2026-09-27
+
+Must ship from public/:
+- index.html (customer language, /buy routers)
+- shop.html + shop.css
+- policies.html + about.html
+- success.html + cancel.html
+- diagnostic-input.html
+
+Live was stuck on older commit while main already had commerce fixes.
+After deploy, verify:
+  curl -I https://dreamledger.org/shop.html
+  curl -I https://dreamledger.org/policies.html
+  curl -s https://dreamledger.org/ | grep -o "Most popular"
