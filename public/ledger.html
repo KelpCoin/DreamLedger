@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ledger · commercial truth · DreamLedger</title>
+<meta name="description" content="DreamLedger is a settlement-backed ledger for commercial truth. Agents discover. Humans authorize. Stripe settles. Only proven payments count.">
+<link rel="canonical" href="https://dreamledger.org/ledger.html">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf9f7;--ink:#14120f;--muted:#6b6560;--line:#e8e4de;--card:#fff;--accent:#c45c26;--dark:#14120f;--ok:#15803d}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+.hdr{position:sticky;top:0;z-index:10;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line);background:rgba(250,249,247,.94);backdrop-filter:blur(12px)}
+.brand{font-family:"Instrument Serif",Georgia,serif;font-size:1.3rem;color:var(--ink)}
+.hdr nav{display:flex;gap:4px;flex-wrap:wrap}
+.hdr nav a{font-size:13px;font-weight:700;color:var(--muted);padding:10px 12px;min-height:44px;display:inline-flex;align-items:center}
+main{max-width:640px;margin:0 auto;padding:28px 16px 64px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-size:clamp(1.8rem,5vw,2.4rem);font-weight:400;line-height:1.1;margin-bottom:12px}
+.lead{color:var(--muted);font-size:1.05rem;margin-bottom:24px}
+h2{font-size:1.05rem;margin:28px 0 10px}
+p,li{color:var(--muted);font-size:.95rem;margin-bottom:8px}
+ul{padding-left:1.2em;margin-bottom:12px}
+strong{color:var(--ink)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 24px}
+.flow span{font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card)}
+.flow span.on{border-color:#bbf7d0;color:var(--ok);background:#f0fdf4}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0}
+.card a.btn{display:flex;align-items:center;justify-content:center;min-height:52px;margin-top:12px;border-radius:999px;background:var(--dark);color:#fff;font-weight:700}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+.ftr{border-top:1px solid var(--line);padding:20px 16px;font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a class="brand" href="/">DreamLedger</a>
+  <nav>
+    <a href="/shop.html">Shop</a>
+    <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy NZ$29</a>
+  </nav>
+</header>
+<main>
+  <p class="eyebrow">The ledger</p>
+  <h1>Commercial truth, not theatre.</h1>
+  <p class="lead">DreamLedger is named for the job: keep a disciplined record of what was authorized, paid, delivered, and proven. In an agentic commerce boom, that validation layer is the product.</p>
+
+  <div class="flow">
+    <span class="on">1 discover</span>
+    <span class="on">2 authorize</span>
+    <span class="on">3 pay</span>
+    <span>4 deliver</span>
+    <span>5 prove</span>
+    <span>6 ledger</span>
+  </div>
+
+  <h2>What gets ledgered</h2>
+  <ul>
+    <li><strong>Paid</strong> — Stripe live settlement in NZD</li>
+    <li><strong>Attributed</strong> — product id via <span class="mono">/buy/{product_id}</span></li>
+    <li><strong>Delivered</strong> — fulfillment path completed for that offer</li>
+    <li><strong>Proven</strong> — evidence matches <span class="mono">proof.schema.json</span></li>
+  </ul>
+
+  <h2>What never counts as revenue</h2>
+  <ul>
+    <li>Page views, clicks, or “interest”</li>
+    <li>Checkout starts without payment</li>
+    <li>Agent claims without Stripe evidence</li>
+    <li>Test-mode or unverified self-payments</li>
+  </ul>
+
+  <div class="card">
+    <strong>Take money now</strong>
+    <p style="margin-top:8px">Live Stripe checkout. Clearest first purchase:</p>
+    <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · NZ$29</a>
+    <a class="btn" style="background:transparent;color:var(--ink);border:1.5px solid var(--line);margin-top:8px" href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Or Sprout · NZ$3.99</a>
+  </div>
+
+  <h2>For agents</h2>
+  <p>Machine contract: <a href="/agent-commerce.json">agent-commerce.json</a></p>
+  <p>Discovery: <a href="/.well-known/dreamledger.json">.well-known/dreamledger.json</a></p>
+  <p>Offers: <a href="/api/offers">/api/offers</a></p>
+  <p>Proof schema: <a href="/proof.schema.json">proof.schema.json</a></p>
+  <p>Rule: human authorization before spend. Prefer buy router over raw Payment Links.</p>
+
+  <h2>Institutional posture</h2>
+  <p>0% platform success fee on current public offers. Card processing still goes through Stripe. Policies: <a href="/policies.html">policies.html</a>.</p>
+</main>
+<footer class="ftr">DreamLedger · New Zealand · settlement-backed commercial truth</footer>
+</body>
+</html>
