@@ -1,0 +1,45 @@
+{
+  "proof_id": "FIGHTEDGE-REMOTE-20260927",
+  "module": "FIGHTEDGE",
+  "status": "REMOTE_SCAFFOLD_WRITTEN",
+  "github": {
+    "repository": "KelpCoin/DreamLedger",
+    "root": "sports/fightedge",
+    "commits": [
+      "150ad11914afb5511dfe2a6678f2e4cf2352b2d1",
+      "7fcfcea0e42f1fe1c7b0a9537d6b2dc8ac479826",
+      "460f8ef1dc7f38de8d9d21e14c357cbc58d87929",
+      "c3361ae42dc8e46133227e622ecb72a507e0341e",
+      "a7128f8f999f4dd6002f4cb159aacd757da7ef21"
+    ]
+  },
+  "supabase": {
+    "project": "wbwgroygjeyukkspnqiy",
+    "schema": "fightedge",
+    "verified_tables": [
+      "claims",
+      "contradictions",
+      "events",
+      "market_snapshots",
+      "outcomes",
+      "proof_events",
+      "pundit_attributions",
+      "sources",
+      "theses"
+    ]
+  },
+  "airtable": {
+    "base": "appvD7w5Y33VCVDWB",
+    "name": "FIGHTEDGE Cross-Sport Intelligence"
+  },
+  "vercel": {
+    "team": "team_HNsRrUI7JZV4iwejNlqJjXvR",
+    "projects_found": 0,
+    "status": "READY_FOR_IMPORT_NOT_DEPLOYED"
+  },
+  "safety": {
+    "automatic_wager": false,
+    "public_release_requires_approval": true,
+    "live_financial_action_requires_approval": true
+  }
+}
