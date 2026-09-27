@@ -86,7 +86,58 @@ def extract_links(spec):
         if href: rows.append({"url":urljoin(spec["url"],href),"text":text,"_source_url":spec["url"],"_source_status":status})
     return rows,body,status,ctype
 
+def run_acnc(payload):
+    identifier = str(payload.get("charity_identifier") or "").strip()
+    if not identifier:
+        raise ValueError("ACNC charity identifier is required")
+    from urllib.parse import quote
+    resource_id = "8fb32972-24e9-4c95-885e-7140be51be8a"
+    url = "https://data.gov.au/data/api/action/datastore_search?resource_id=" + resource_id + "&limit=5&q=" + quote(identifier)
+    status, ctype, body = fetch(url)
+    source_hash = sha256_bytes(body)
+    data = json.loads(body.decode("utf-8-sig"))
+    records = (((data or {}).get("result") or {}).get("records") or [])
+    ident_norm = "".join(ch for ch in identifier.upper() if ch.isalnum())
+    matches = []
+    for row in records:
+        abn = "".join(ch for ch in str(row.get("ABN") or "").upper() if ch.isalnum())
+        legal = str(row.get("Charity_Legal_Name") or "").strip()
+        if (ident_norm.isdigit() and abn == ident_norm) or (not ident_norm.isdigit() and legal.upper() == identifier.upper()):
+            matches.append(row)
+    selected = matches[0] if matches else (records[0] if len(records) == 1 else None)
+    retrieved = datetime.now(timezone.utc).isoformat()
+    evidence = [{
+        "url": url,
+        "type": "acnc_datastore_search",
+        "http_status": status,
+        "content_type": ctype,
+        "sha256": source_hash,
+        "retrieved_at": retrieved,
+        "resource_id": resource_id
+    }]
+    rows = []
+    if selected:
+        row = dict(selected)
+        row["_source_url"] = url
+        row["_source_status"] = status
+        row["_source_sha256"] = source_hash
+        row["_retrieved_at"] = retrieved
+        row["_evidence_status"] = "VERIFIED_SOURCE_RETRIEVAL" if status == 200 else "UNVERIFIED_SOURCE_STATUS"
+        row["_match_status"] = "EXACT_IDENTIFIER_MATCH" if matches else "SINGLE_SEARCH_RESULT_REVIEW_REQUIRED"
+        rows.append(row)
+    return {
+        "job_type": "ACNC_CHARITY_DUE_DILIGENCE",
+        "charity_identifier": identifier,
+        "match_status": "MATCHED" if matches else ("SINGLE_RESULT" if selected else "NO_MATCH"),
+        "row_count": len(rows),
+        "rows": rows,
+        "evidence": evidence,
+        "report_scope": "ACNC registered-charity identity and public-register fields; this is not a guarantee of safety, solvency, compliance, or suitability for funding."
+    }
+
 def run(payload):
+    if str(payload.get("job_type") or "") == "ACNC_CHARITY_DUE_DILIGENCE":
+        return run_acnc(payload)
     specs=payload.get("sources") or []
     if not specs: raise ValueError("No public source specifications supplied")
     rows=[]; evidence=[]
