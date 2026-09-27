@@ -1,0 +1,44 @@
+name: production-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  production-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate catalogue JSON
+        run: python -m json.tool public/catalog.json >/dev/null
+      - name: Validate public HTML entrypoints
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          required = [
+              Path("public/index.html"),
+              Path("public/buy/acnc-charity-due-diligence/index.html"),
+          ]
+          for path in required:
+              text = path.read_text(encoding="utf-8")
+              assert "<!doctype html>" in text.lower(), path
+              assert "<title>" in text.lower(), path
+              assert "</html>" in text.lower(), path
+          print("public HTML checks passed")
+          PY
+      - name: Validate ACNC product continuity
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open("public/catalog.json",encoding="utf-8"))
+          p=next(x for x in data["products"] if x["sku"]=="ACNC-CHARITY-DD-99")
+          assert p["price"] == 99
+          assert p["checkout_available"] is True
+          assert p["sample_url"].startswith("https://dreamledger.org/")
+          print("ACNC catalogue checks passed")
+          PY
