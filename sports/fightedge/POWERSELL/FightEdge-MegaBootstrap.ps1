@@ -3,12 +3,12 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $Root = 'C:\BrownEyeCortex\Silos\FIGHTEDGE'
-$Proof = 'D:\BrownEyeCortex\FIGHTEDGE\Proof'
+$ProofDir = 'D:\BrownEyeCortex\FIGHTEDGE\Proof'
 $Log = 'D:\BrownEyeCortex\FIGHTEDGE\Logs'
 $Stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
 
 $Dirs = @(
-  $Root,$Proof,$Log,
+  $Root,$ProofDir,$Log,
   "$Root\Config","$Root\Registry","$Root\Evidence","$Root\Punditry",
   "$Root\Market","$Root\Thesis","$Root\Outcome","$Root\Oracle",
   "$Root\Gauntlet","$Root\Products","$Root\Public","$Root\Private","$Root\Bets"
@@ -219,7 +219,7 @@ if($supabaseUrl -and $supabaseKey){
 
 $proofRecord=@{
   proof_id="FIGHTEDGE-BOOT-$Stamp"; module='FIGHTEDGE'; created_utc=$Stamp
-  root=$Root; proof_dir=$Proof; log_dir=$Log; status='BOOTSTRAP_READY'
+  root=$Root; proof_dir=$ProofDir; log_dir=$Log; status='BOOTSTRAP_READY'
   master_pattern='MTG_STRUCTURE_ONLY'; public_surface='CLEAN'; public_name='Fight Edge - MMA/Boxing'
   remote_cell_status=$remoteStatus; remote_cell_id=$cellId
   wager_recorded=$true; auto_wager=$false
@@ -227,7 +227,7 @@ $proofRecord=@{
   note='Local scaffold and pre-event wager record only. This script does not place wagers.'
 }
 
-$proofPath="$Proof\$($proofRecord.proof_id).json"
+$proofPath=Join-Path $ProofDir ("FIGHTEDGE-BOOT-$Stamp.json")
 $proofJson=$proofRecord | ConvertTo-Json -Depth 8
 $proofJson | Set-Content $proofPath -Encoding ASCII
 "[$Stamp] FIGHTEDGE bootstrap complete: $proofPath" | Add-Content "$Log\bootstrap.log" -Encoding ASCII
