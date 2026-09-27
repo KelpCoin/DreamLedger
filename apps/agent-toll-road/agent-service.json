@@ -1,0 +1,27 @@
+{
+  "name": "DreamLedger Truth Toll Road",
+  "protocol": "x402",
+  "network": "eip155:8453",
+  "endpoints": [
+    {
+      "path": "/v1/reconcile",
+      "method": "POST",
+      "price_usd": "0.02",
+      "purpose": "payment/order reconciliation"
+    },
+    {
+      "path": "/v1/contradictions",
+      "method": "POST",
+      "price_usd": "0.02",
+      "purpose": "economic contradiction detection"
+    },
+    {
+      "path": "/v1/passport",
+      "method": "POST",
+      "price_usd": "0.05",
+      "purpose": "evidence passport generation"
+    }
+  ],
+  "payment_mode": "x402",
+  "status": "requires_runtime_payment_rail_configuration"
+}
