@@ -217,7 +217,7 @@ if($supabaseUrl -and $supabaseKey){
   }
 }
 
-$proof=@{
+$proofRecord=@{
   proof_id="FIGHTEDGE-BOOT-$Stamp"; module='FIGHTEDGE'; created_utc=$Stamp
   root=$Root; proof_dir=$Proof; log_dir=$Log; status='BOOTSTRAP_READY'
   master_pattern='MTG_STRUCTURE_ONLY'; public_surface='CLEAN'; public_name='Fight Edge - MMA/Boxing'
@@ -227,8 +227,8 @@ $proof=@{
   note='Local scaffold and pre-event wager record only. This script does not place wagers.'
 }
 
-$proofPath="$Proof\$($proof.proof_id).json"
-$proofJson=$proof | ConvertTo-Json -Depth 8
+$proofPath="$Proof\$($proofRecord.proof_id).json"
+$proofJson=$proofRecord | ConvertTo-Json -Depth 8
 $proofJson | Set-Content $proofPath -Encoding ASCII
 "[$Stamp] FIGHTEDGE bootstrap complete: $proofPath" | Add-Content "$Log\bootstrap.log" -Encoding ASCII
 
