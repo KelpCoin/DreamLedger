@@ -122,6 +122,22 @@ begin
   end if;
 end $$;
 
+-- The legacy authorize function is now a compatibility wrapper, not a second PDP.
+do $
+declare
+  src text;
+begin
+  select p.prosrc into src
+  from pg_proc p
+  join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public'
+    and p.proname='authorize_economic_action';
+
+  if position('evaluate_economic_authorization' in coalesce(src,''))=0 then
+    raise exception 'TEST_FAIL:legacy authorize seam does not delegate to canonical PDP';
+  end if;
+end $;
+
 -- Truth-boundary schema guard. A verified economic outcome must have the
 -- independent evidence fields available to the Truth Oracle.
 do $$
