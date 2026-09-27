@@ -169,6 +169,7 @@ set search_path = public, extensions, pg_temp
 as $function$
 declare
   v record;
+  p public.economic_execution_packets%rowtype;
   v_hash text;
   v_pdp jsonb;
 begin
@@ -199,6 +200,14 @@ begin
     return jsonb_build_object('authorized',false,'reason','REQUEST_HASH_MISMATCH');
   end if;
 
+  select * into p
+  from public.economic_execution_packets
+  where packet_id=p_packet_id;
+
+  if not found then
+    return jsonb_build_object('authorized',false,'reason','PACKET_NOT_FOUND');
+  end if;
+
   select public.evaluate_economic_authorization(
     coalesce(v.approver_id,'human_approver'),
     coalesce(p.exact_action->>'action_type','SEND_OUTREACH'),
@@ -214,13 +223,7 @@ begin
         'approver_id',v.approver_id
       )
     )
-  ) into v_pdp
-  from public.economic_execution_packets p
-  where p.packet_id=p_packet_id;
-
-  if v_pdp is null then
-    return jsonb_build_object('authorized',false,'reason','PACKET_NOT_FOUND');
-  end if;
+  ) into v_pdp;
 
   if v.decision <> 'APPROVE' then
     return jsonb_build_object(
