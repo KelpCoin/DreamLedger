@@ -4,39 +4,45 @@ const catalog = [
   {
     title: 'UFC',
     text: 'Fight information, evidence, form, matchup context and historical results.',
-    cta: 'Explore UFC'
+    cta: 'Explore UFC',
+    href: '/ufc'
   },
   {
     title: 'Boxing',
     text: 'Bout context, fighter records, styles, form and historical comparisons.',
-    cta: 'Explore Boxing'
+    cta: 'Explore Boxing',
+    href: '/boxing'
   },
   {
     title: 'Fighters',
     text: 'Clean fighter profiles built from documented records and source-backed facts.',
-    cta: 'Browse Fighters'
+    cta: 'Browse Fighters',
+    href: '/fighters'
   },
   {
     title: 'Events',
     text: 'Upcoming and completed cards with matchup details and result history.',
-    cta: 'View Events'
+    cta: 'View Events',
+    href: '/events'
   },
   {
     title: 'Analysis',
     text: 'Evidence-led breakdowns that separate facts, attributed views and uncertainty.',
-    cta: 'Read Analysis'
+    cta: 'Read Analysis',
+    href: '/analysis'
   },
   {
     title: 'Results',
     text: 'Post-fight outcomes, method of victory and retrospective audits.',
-    cta: 'View Results'
+    cta: 'View Results',
+    href: '/results'
   }
 ]
 
 const actions = [
-  { title: 'Upcoming fights', text: 'See the next MMA and boxing cards in one place.' },
-  { title: 'Fighter files', text: 'Open a clean evidence-led profile.' },
-  { title: 'Fight analysis', text: 'Read matchup context before the bell.' },
+  { title: 'Upcoming fights', text: 'See the next MMA and boxing cards in one place.', href: '/events' },
+  { title: 'Fighter files', text: 'Open a clean evidence-led profile.', href: '/fighters' },
+  { title: 'Fight analysis', text: 'Read matchup context before the bell.', href: '/analysis' },
   { title: 'Results & history', text: 'Track what happened after the event.' }
 ]
 
@@ -72,7 +78,7 @@ export default function Home() {
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </div>
-              <a className="card-cta" href="#">{item.cta}<span>→</span></a>
+              <a className="card-cta" href={item.href}>{item.cta}<span>→</span></a>
             </article>
           ))}
         </div>
@@ -88,7 +94,7 @@ export default function Home() {
 
         <div className="cta-carousel" aria-label="Fight Edge quick actions">
           {actions.map((item) => (
-            <a className="action-card" href="#" key={item.title}>
+            <a className="action-card" href={item.href} key={item.title}>
               <span className="action-title">{item.title}</span>
               <span className="action-text">{item.text}</span>
               <span className="action-arrow">→</span>
