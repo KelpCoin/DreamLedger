@@ -1,0 +1,22 @@
+name: Economic State Transition Contract
+
+on:
+  push:
+    paths:
+      - "runtime/economic/state_transition_engine.py"
+      - "runtime/economic/test_state_transition_engine.py"
+      - ".github/workflows/economic-state-transition-contract.yml"
+  pull_request:
+    paths:
+      - "runtime/economic/state_transition_engine.py"
+      - "runtime/economic/test_state_transition_engine.py"
+      - ".github/workflows/economic-state-transition-contract.yml"
+
+jobs:
+  transitions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run transition tests
+        working-directory: runtime/economic
+        run: python3 test_state_transition_engine.py
