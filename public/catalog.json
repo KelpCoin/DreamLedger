@@ -172,7 +172,7 @@
       "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
       "fulfillment": "automatic_paid_session_download",
       "fulfillment_contract": {
-        "fulfillment_capability": "DIGITAL_OFFER_AUDIT",
+        "fulfillment_capability": "PAID_DIGITAL_DELIVERY",
         "buyer_inputs": [
           "download/session identity"
         ],
@@ -247,7 +247,7 @@
       "stripe_price_id": "price_1UJNTvEGgEAnUFF9bfGbtrmm",
       "fulfillment": "manual_pdf",
       "fulfillment_contract": {
-        "fulfillment_capability": "STRIPE_RECONCILIATION",
+        "fulfillment_capability": "SELLER_PROFIT_AUDIT",
         "buyer_inputs": [
           "seller transaction export",
           "fee/shipping inputs"
@@ -282,7 +282,7 @@
       "stripe_price_id": "price_1UJSwREGgEAnUFF9kGZjJEma",
       "fulfillment": "manual_gauntlet_truth_oracle_report",
       "fulfillment_contract": {
-        "fulfillment_capability": "DIGITAL_OFFER_AUDIT",
+        "fulfillment_capability": "COMMERCIAL_TRUTH_REVIEW",
         "buyer_inputs": [
           "claim or workflow",
           "supporting evidence"
