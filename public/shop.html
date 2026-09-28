@@ -5,88 +5,55 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Shop · DreamLedger</title>
 <meta name="description" content="Horizontal catalogue — swipe silos. NZD. Stripe checkout.">
-<meta name="theme-color" content="#1a1510">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#080a0e">
 <style>
-:root{--bg:#0c0a08;--ink:#f7f3ec;--muted:#9a9084;--line:#2a241c;--card:#1a1510;--gold:#c48a2b;--gold-d:#d4a03a;--serif:"Fraunces",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--safe:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100dvh;padding-bottom:calc(80px + var(--safe));-webkit-font-smoothing:antialiased}
+:root{--bg:#080a0e;--panel:#151b22;--line:#27313b;--ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--safe:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:calc(72px + var(--safe))}
 a{color:inherit;text-decoration:none}
-.hdr{position:sticky;top:0;z-index:40;background:rgba(12,10,8,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
-.brand{font-family:var(--serif);font-size:1.25rem;font-weight:600}
-.hdr a.pill{background:var(--gold);color:#111;font-weight:700;font-size:13px;padding:10px 14px;border-radius:999px;min-height:44px;display:inline-flex;align-items:center}
-.hero{padding:24px 16px 8px}
-.hero h1{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.4rem);font-weight:500}
-.hero p{color:var(--muted);font-size:14px;margin-top:8px;max-width:40ch}
-.rail-block{padding:20px 0 8px}
-.rail-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 16px 12px}
-.rail-head h2{font-family:var(--serif);font-size:1.25rem;font-weight:500}
-.rail-head span{font-size:12px;color:var(--muted)}
+.hdr{position:sticky;top:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line);background:rgba(8,10,14,.92)}
+.brand{font-weight:900;letter-spacing:.06em;font-size:13px}.brand span{color:var(--gold)}
+.pill{background:var(--gold);color:#111;font-weight:800;font-size:13px;padding:10px 14px;border-radius:999px}
+.hero{padding:24px 16px}.hero h1{font-size:1.8rem;margin-bottom:8px}.hero p{color:var(--muted);font-size:14px}
+.rail-block{padding:16px 0}.rail-head{display:flex;justify-content:space-between;padding:0 16px 10px}.rail-head h2{font-size:1.15rem}
 .rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 16px 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
-.tile{flex:0 0 min(78vw,280px);scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
-.tile-art{aspect-ratio:16/10;background:linear-gradient(145deg,#3d3428,#1a1510)}
-.tile-art.mtg{background:linear-gradient(145deg,#2a3a5c,#152030)}
-.tile-art.media{background:linear-gradient(145deg,#4a3a28,#2a2018)}
-.tile-art.commerce{background:linear-gradient(145deg,#3a2a4a,#1e1528)}
-.tile-art.support{background:linear-gradient(145deg,#2a4030,#152018)}
-.tile-body{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.tile-body h3{font-size:1rem;font-weight:700}
-.tile-body p{font-size:12px;color:var(--muted);flex:1}
-.tile-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
-.price{font-family:var(--serif);font-size:1.2rem;font-weight:600;color:var(--gold-d)}
-.tile-foot a{min-height:48px;padding:0 16px;border-radius:999px;background:linear-gradient(180deg,#d4a03a,#c48a2b);color:#111;font-size:13px;font-weight:800;display:inline-flex;align-items:center}
-.empty{padding:24px 16px;color:var(--muted);font-size:14px}
-.stick{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe));z-index:50;background:#1a1510;border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px}
-.stick b{flex:1;font-size:13px}.stick a{background:linear-gradient(180deg,#d4a03a,#c48a2b);color:#111;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;display:inline-flex;align-items:center}
+.tile{flex:0 0 min(78vw,280px);scroll-snap-align:start;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;min-height:200px}
+.tile h3{font-size:1rem;margin-bottom:6px}.tile p{font-size:12px;color:var(--muted);flex:1}.price{font-size:1.25rem;font-weight:900;color:var(--gold);margin:10px 0}
+.tile a{display:flex;align-items:center;justify-content:center;min-height:48px;background:var(--gold);color:#111;font-weight:800;border-radius:10px}
+.stick{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe));background:#151b22;border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.stick b{flex:1;font-size:13px}.stick a{background:var(--gold);color:#111;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;display:inline-flex;align-items:center}
+.empty{padding:24px 16px;color:var(--muted)}
 </style>
 </head>
 <body>
-<header class="hdr">
-  <a class="brand" href="/">DreamLedger</a>
-  <a class="pill" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy · $29</a>
-</header>
-<section class="hero">
-  <h1>Swipe the catalogue</h1>
-  <p>Thumb-first rails by silo. Pay only what is live on Stripe.</p>
-</section>
-<div id="root"><p class="empty">Loading rails…</p></div>
+<header class="hdr"><a class="brand" href="/">DREAM<span>LEDGER</span></a><a class="pill" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy · $29</a></header>
+<section class="hero"><h1>Swipe the catalogue</h1><p>Thumb-first rails by silo. Live products only.</p></section>
+<div id="root"><p class="empty">Loading…</p></div>
 <div class="stick"><b>Diagnostic · NZ$29</b><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a></div>
 <script>
 (function(){
-  var esc=function(v){return String(v==null?'':v).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');};
-  var siloOrder=['mtg','media','commerce','seller_tools','dreammeez','other'];
-  var siloLabel={mtg:'Magic',media:'Billboard & media',commerce:'Digital tools',seller_tools:'Seller tools',dreammeez:'DreamMeez',other:'More'};
-  var siloArt={mtg:'mtg',media:'media',commerce:'commerce',seller_tools:'commerce',dreammeez:'support',other:''};
-  function siloOf(p){
-    var s=(p.silo||'').toLowerCase();
-    if(siloLabel[s])return s;
-    var id=(p.id||'').toUpperCase();
-    if(id.indexOf('CMD')>=0||id.indexOf('EDH')>=0||id.indexOf('MTG')>=0)return 'mtg';
-    if(id.indexOf('BILLBOARD')>=0)return 'media';
-    if(id.indexOf('DISCORD')>=0||id.indexOf('WEBHOOK')>=0)return 'commerce';
-    if(id.indexOf('SELLER')>=0)return 'seller_tools';
-    if(id.indexOf('DREAMMEEZ')>=0||id.indexOf('SPROUT')>=0)return 'dreammeez';
-    return 'other';
-  }
-  fetch('/api/products',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('x');return r.json();}).then(function(d){
-    var products=(d.products||[]).filter(function(p){return p&&p.status==='published';});
-    products.sort(function(a,b){return Number(a.price)-Number(b.price);});
-    var groups={};
-    products.forEach(function(p){var s=siloOf(p);(groups[s]=groups[s]||[]).push(p);});
-    var html='';
-    siloOrder.forEach(function(s){
-      var list=groups[s];if(!list||!list.length)return;
-      html+='<section class="rail-block"><div class="rail-head"><h2>'+esc(siloLabel[s]||s)+'</h2><span>'+list.length+' live</span></div><div class="rail">';
-      list.forEach(function(p){
-        html+='<article class="tile"><div class="tile-art '+esc(siloArt[s]||'')+'"></div><div class="tile-body"><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||'')+'</p><div class="tile-foot"><span class="price">NZ$'+esc(p.price)+'</span><a href="/buy/'+encodeURIComponent(p.id)+'">Buy</a></div></div></article>';
-      });
-      html+='</div></section>';
+function esc(v){return String(v==null?'':v).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');}
+var order=['mtg','media','dreammeez','commerce','seller_tools','kelplantis','research','other'];
+var label={mtg:'Magic',media:'Billboard',dreammeez:'DreamMeez',commerce:'Digital tools',seller_tools:'Seller tools',kelplantis:'Kelplantis',research:'Research',other:'More'};
+function siloOf(p){var s=String(p.silo||'').toLowerCase();return label[s]?s:'other';}
+fetch('/api/products',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+  var products=(d.products||[]).filter(function(p){return p&&p.status==='published';});
+  var groups={};
+  products.forEach(function(p){var s=siloOf(p);(groups[s]=groups[s]||[]).push(p);});
+  var html='';
+  order.forEach(function(s){
+    var list=groups[s];if(!list||!list.length)return;
+    list.sort(function(a,b){return Number(a.price)-Number(b.price);});
+    html+='<section class="rail-block"><div class="rail-head"><h2>'+esc(label[s])+'</h2><span style="color:#65707b;font-size:12px">'+list.length+'</span></div><div class="rail">';
+    list.forEach(function(p){
+      html+='<article class="tile"><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||'')+'</p><div class="price">NZ$'+esc(p.price)+'</div><a href="/buy/'+encodeURIComponent(p.id)+'">Buy</a></article>';
     });
-    document.getElementById('root').innerHTML=html||'<p class="empty">No published products.</p>';
-  }).catch(function(){
-    document.getElementById('root').innerHTML='<p class="empty">Catalogue unavailable. <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001" style="color:var(--gold)">Buy diagnostic →</a></p>';
+    html+='</div></section>';
   });
+  document.getElementById('root').innerHTML=html||'<p class="empty">No products.</p>';
+}).catch(function(){
+  document.getElementById('root').innerHTML='<p class="empty"><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001" style="color:#d8b56b">Buy diagnostic →</a></p>';
+});
 })();
 </script>
 </body>
