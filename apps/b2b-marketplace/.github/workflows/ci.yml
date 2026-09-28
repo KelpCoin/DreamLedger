@@ -7,10 +7,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults: {run: {working-directory: apps/b2b-marketplace}}
+    defaults:
+      run:
+        working-directory: apps/b2b-marketplace
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: {node-version: 22, cache: npm, cache-dependency-path: apps/b2b-marketplace/package-lock.json}
+        with:
+          node-version: 22
       - run: npm install
       - run: npm run build
