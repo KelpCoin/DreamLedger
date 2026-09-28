@@ -28,5 +28,12 @@ class EconomicComputeTraceTests(unittest.TestCase):
         self.assertEqual(data["http_status"], 502)
         self.assertEqual(data["worker_resource_status"], "FAILED")
 
+    def test_http_502_is_resource_failure(self):
+        trace = start_trace("EA-3", "OP-3")
+        finish_trace(trace, "FAILED", "WORKER_RESOURCE_LIMIT", 502, "HTTP_502")
+        self.assertEqual(trace["failure_class"], "WORKER_RESOURCE_LIMIT")
+        self.assertEqual(trace["http_status"], 502)
+        self.assertEqual(trace["resource_condition"], "HTTP_502")
+
 if __name__ == "__main__":
     unittest.main()
