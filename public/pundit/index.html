@@ -59,8 +59,8 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);color:v
 <h3>Capture a claim</h3>
 <div class="field"><label for="claim">Claim / question</label><textarea id="claim" placeholder="Example: Is this fight matchup being described accurately?"></textarea></div>
 <div class="field"><label for="source">Source URL</label><input id="source" type="url" placeholder="https://example.com/source"></div>
-<div class="field"><label for="note">Observation / excerpt</label><textarea id="note" placeholder="Record what the source actually says."></textarea></div>
-<div class="buttons"><button class="btn primary" id="save">Index evidence</button><button class="btn" id="clear">Clear local index</button></div>
+<div class="field"><label for="note">Observation / excerpt</label><textarea id="note" placeholder="Record what the source actually says."></textarea></div><div class="field"><label for="query">Search indexed evidence</label><input id="query" type="search" placeholder="Search claims, sources or observations"></div>
+<div class="buttons"><button class="btn primary" id="save">Index evidence</button><button class="btn" id="export">Export packet</button><button class="btn" id="clear">Clear local index</button></div>
 <div id="status" class="result">Local index is empty.</div>
 </div>
 <div class="card">
@@ -88,10 +88,12 @@ const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
 function write(x){localStorage.setItem(KEY,JSON.stringify(x))}
 function render(){
- const rows=read(), el=$('index');
+ const rows=read(), el=$('index'), q=($('query')?.value||'').trim().toLowerCase();
+ const filtered=q?rows.filter(x=>[x.claim,x.source,x.note].some(v=>String(v||'').toLowerCase().includes(q))):rows;
  if(!rows.length){el.innerHTML='<p class="small">Nothing indexed yet.</p>';$('status').textContent='Local index is empty.';return}
- el.innerHTML=rows.slice().reverse().map(x=>'<div class="source-row"><strong>'+esc(x.claim)+'</strong><a href="'+esc(x.source)+'" target="_blank" rel="noopener noreferrer">'+esc(x.source)+'</a><span>'+esc(x.note)+' · indexed '+esc(x.created_at)+'</span></div>').join('');
- $('status').textContent=rows.length+' evidence record'+(rows.length===1?'':'s')+' indexed locally. Status: UNVERIFIED until an external verification path supports the claim.';
+ if(!filtered.length){el.innerHTML='<p class="small">No indexed evidence matches this query.</p>';$('status').textContent=rows.length+' evidence records indexed locally. 0 match the current query.';return}
+ el.innerHTML=filtered.slice().reverse().map(x=>'<div class="source-row"><strong>'+esc(x.claim)+'</strong><a href="'+esc(x.source)+'" target="_blank" rel="noopener noreferrer">'+esc(x.source)+'</a><span>'+esc(x.note)+' · indexed '+esc(x.created_at)+'</span></div>').join('');
+ $('status').textContent=rows.length+' evidence record'+(rows.length===1?'':'s')+' indexed locally; showing '+filtered.length+'. Status: UNVERIFIED until an external verification path supports the claim.';
 }
 $('save').addEventListener('click',()=>{
  const claim=$('claim').value.trim(),source=$('source').value.trim(),note=$('note').value.trim();
