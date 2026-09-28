@@ -25,6 +25,9 @@ def api(url, method="GET", body=None):
     return json.loads(raw.decode()) if raw else None
 
 def rpc(name, args):
+    if TRACE is not None:
+        TRACE["current_operation"] = "SUPABASE_RPC"
+        TRACE["current_dependency"] = SUPABASE_URL + "/rest/v1/rpc/" + name
     return api(SUPABASE_URL + "/rest/v1/rpc/" + name, "POST", args)
 
 TRACE = None
@@ -33,6 +36,8 @@ def fetch(url):
     global TRACE
     if TRACE is not None:
         observe_tool(TRACE)
+        TRACE["current_operation"] = "SOURCE_FETCH"
+        TRACE["current_dependency"] = url
     req = Request(url, headers={"User-Agent": "BrownEye-Economic-Fulfillment/1.0", "Accept": "*/*"})
     with urlopen(req, timeout=60) as r:
         return r.status, r.headers.get("content-type", ""), r.read()
@@ -192,6 +197,9 @@ def sha256_file(path):
     return digest.hexdigest()
 
 def upload(path,storage_path):
+    if TRACE is not None:
+        TRACE["current_operation"] = "STORAGE_UPLOAD"
+        TRACE["current_dependency"] = SUPABASE_URL
     body=path.read_bytes(); url=SUPABASE_URL+"/storage/v1/object/marketplace-fulfillment/"+storage_path
     req=Request(url,data=body,headers={"apikey":SERVICE_KEY,"Authorization":"Bearer "+SERVICE_KEY,"Content-Type":"application/octet-stream","x-upsert":"true"},method="POST")
     with urlopen(req,timeout=60) as response: return response.status
@@ -254,6 +262,9 @@ def run_once():
         elif isinstance(exc, URLError):
             failure_class="DEPENDENCY_FAILURE"
             resource_condition="URL_ERROR"
+        failed_dependency = TRACE.get("current_dependency")
+        if failed_dependency:
+            TRACE["dependency_cut_set"] = [failed_dependency]
         finish_trace(TRACE, "FAILED", failure_class, http_status, resource_condition)
         folder=ROOT/str(job["id"])
         folder.mkdir(parents=True,exist_ok=True)
