@@ -1,0 +1,2 @@
+# Primary durable orchestration substrate for DreamLedger discovery workflows.
+dapr-agents==1.0.6
