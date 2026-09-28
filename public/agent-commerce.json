@@ -1,14 +1,36 @@
 {
-  "schema": "dreamledger/agent-commerce/v3",
-  "updated": "2026-09-27",
+  "schema": "dreamledger/agent-commerce/v4",
+  "updated": "2026-09-28",
   "purpose": "Machine-readable commerce contract. DreamLedger is the validation layer: discover → authorize → pay (Stripe) → deliver → prove → ledger.",
   "storefront": "https://dreamledger.org/",
-  "thesis": "In an agentic commerce boom, the scarce asset is not discovery — it is trusted settlement and post-payment proof. DreamLedger ledgers only what Stripe and fulfillment can support.",
+  "human_shop_horizontal": "https://dreamledger.org/shop.html",
+  "thesis": "In an agentic commerce boom, the scarce asset is trusted settlement and post-payment proof. Discovery can be open; the bridge and ledger are the toll road.",
+  "agent_bridge": {
+    "status": "governed",
+    "human_page": "https://dreamledger.org/agent-bridge.html",
+    "runtime_rail": "https://dreamledger.org/api/agent-bridge/rail/manifest",
+    "authorization": "authenticated_agent_token",
+    "public_without_token": false,
+    "settlement": "stripe_live_nzd",
+    "economic_truth": "Bridge activity is not revenue. Revenue requires Stripe payment evidence plus fulfillment proof.",
+    "toll_model": {
+      "discovery": "public_free_enough_to_try",
+      "bridge_rail": "token_gated_toll_road",
+      "proof_attestation": "chargeable_validation",
+      "human_checkout": "stripe_payment_link_or_buy_router",
+      "platform_success_fee_bps_on_public_offers": 0
+    },
+    "protocol_alignment": {
+      "authorization": "AP2-like human authorization before spend",
+      "checkout": "ACP-like Payment Link / buy router handoff",
+      "machine_settlement_reserved": ["x402", "mpp"]
+    }
+  },
   "fee_policy": {
     "platform_listing_fee_nzd": 0,
     "platform_success_fee_bps": 0,
     "payment_processor": "Stripe",
-    "note": "Listed NZD price is what the buyer pays for the offer. Stripe processing fees are separate."
+    "note": "Listed NZD price is what the buyer pays for the offer. Stripe processing fees are separate. Bridge/token access is a separate product surface."
   },
   "economic_event": {
     "order": ["authorized", "paid", "delivered", "proven", "ledgered"],
@@ -20,22 +42,23 @@
     "human": "https://dreamledger.org/ledger.html",
     "proof_schema": "https://dreamledger.org/proof.schema.json",
     "discovery": "https://dreamledger.org/.well-known/dreamledger.json",
-    "immutable_claim": "false",
-    "note": "Public claims remain fail-closed until independent payment evidence exists. The ledger is the discipline, not a marketing meter."
+    "immutable_claim": false,
+    "note": "Public claims remain fail-closed until independent payment evidence exists."
   },
   "how_to_buy": [
-    "GET https://dreamledger.org/api/offers — prefer status VERIFIED_AVAILABLE",
-    "Present name, NZD price, and buy_router to the human",
-    "Require human authorization (no autonomous spend)",
+    "GET https://dreamledger.org/api/offers",
+    "Prefer status VERIFIED_AVAILABLE",
+    "Require human authorization before spend",
     "Open https://dreamledger.org/buy/{product_id}",
     "Buyer completes Stripe Checkout",
-    "Mark paid only after Stripe confirms; then deliver; then prove; then ledger"
+    "Mark paid only after Stripe confirms; then deliver; prove; ledger"
   ],
   "endpoints": {
     "offers": "https://dreamledger.org/api/offers",
     "products": "https://dreamledger.org/api/products",
     "this_contract": "https://dreamledger.org/agent-commerce.json",
     "agent_interface": "https://dreamledger.org/agent.json",
+    "agent_bridge_page": "https://dreamledger.org/agent-bridge.html",
     "discovery": "https://dreamledger.org/.well-known/dreamledger.json",
     "buy": "https://dreamledger.org/buy/{product_id}",
     "ledger": "https://dreamledger.org/ledger.html",
@@ -50,16 +73,15 @@
       "currency": "NZD",
       "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
       "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
-      "fulfillment_input": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}",
       "status": "VERIFIED_AVAILABLE"
     },
     {
-      "product_id": "SELLER-PROFIT-AUDIT-001",
-      "name": "Seller Profit Audit",
-      "price_nzd": 29,
+      "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "DreamMeez Supporter — Sprout",
+      "price_nzd": 3.99,
       "currency": "NZD",
-      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
       "status": "VERIFIED_AVAILABLE"
     },
     {
@@ -81,17 +103,16 @@
       "status": "VERIFIED_AVAILABLE"
     },
     {
-      "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
-      "name": "DreamMeez Supporter — Sprout",
-      "price_nzd": 3.99,
+      "product_id": "SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "price_nzd": 29,
       "currency": "NZD",
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
-      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
-      "status": "VERIFIED_AVAILABLE",
-      "note": "Lowest-friction paid event for testing attribution"
+      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "status": "VERIFIED_AVAILABLE"
     }
   ],
-  "catalog_note": "Authoritative live set: GET /api/offers. Prefer that response over any cached primary_offers list.",
+  "catalog_note": "Authoritative live set: GET /api/offers. Human UI: horizontal rails at /shop.html.",
   "safety": {
     "no_autonomous_spend_without_buyer_authorization": true,
     "payment_provider": "Stripe",
