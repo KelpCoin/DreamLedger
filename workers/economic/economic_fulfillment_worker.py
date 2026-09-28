@@ -6,6 +6,8 @@ from pathlib import Path
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
 
+from acnc_contacts_pipeline import run_acnc_contacts
+
 SUPABASE_URL = os.environ["SUPABASE_URL"].rstrip("/")
 SERVICE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 WORKER_ID = os.environ.get("BEC_WORKER_ID", "economic-fulfillment-worker")
@@ -136,8 +138,11 @@ def run_acnc(payload):
     }
 
 def run(payload):
-    if str(payload.get("job_type") or "") == "ACNC_CHARITY_DUE_DILIGENCE":
+    job_type = str(payload.get("job_type") or "")
+    if job_type == "ACNC_CHARITY_DUE_DILIGENCE":
         return run_acnc(payload)
+    if job_type == "ACNC_CHARITY_CONTACTS":
+        return run_acnc_contacts(payload)
     specs=payload.get("sources") or []
     if not specs: raise ValueError("No public source specifications supplied")
     rows=[]; evidence=[]
@@ -165,6 +170,8 @@ def write_artifacts(job_id,result):
     lines=["# BrownEye Economic Fulfillment","","- Job: `" + str(job_id) + "`","- Generated: `" + datetime.now(timezone.utc).isoformat() + "`","- Rows: `" + str(len(rows)) + "`","- Source-derived identity data is never fabricated.",""]
     if result.get("job_type") == "ACNC_CHARITY_DUE_DILIGENCE":
         lines.extend(["## ACNC Due Diligence Scope","", "- Identifier supplied: `" + str(result.get("charity_identifier","")) + "`", "- Match status: `" + str(result.get("match_status","UNKNOWN")) + "`", "- Scope: " + str(result.get("report_scope","")),""])
+    if result.get("job_type") == "ACNC_CHARITY_CONTACTS":
+        lines.extend(["## ACNC Contact Project","", "- States: `" + ",".join(result.get("states") or []) + "`", "- Fulfillment status: `" + str(result.get("fulfillment_status","UNKNOWN")) + "`", "- Provider state: `" + json.dumps(result.get("provider_state") or {}, sort_keys=True) + "`",""])
     lines.extend(["## Evidence",""])
     lines.extend("- " + e["url"] + " | HTTP " + str(e["http_status"]) + " | SHA256 `" + e["sha256"] + "`" for e in result["evidence"])
     (folder/"report.md").write_text("\n".join(lines)+"\n",encoding="utf-8"); return folder
