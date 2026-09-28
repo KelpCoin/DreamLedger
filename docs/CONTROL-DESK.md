@@ -131,6 +131,20 @@ Stripe = payment rail.
 
 Notion is not authoritative for economic truth.
 
+## Live implementation audit
+
+Direct Supabase inspection found that the existing authorization functions recorded policy and approval state but did not enforce candidate freshness at the persisted authorization-decision boundary.
+
+A fail-closed database trigger is now installed on public.economic_authorization_decisions. When an authorization context contains candidate_id, the trigger requires economic_candidate_control_state.all_fresh = true. Invalid candidate identifiers or stale/unknown freshness reject the authorization decision.
+
+Current control-state check: 1 candidate control state exists; 0 are currently fresh; 1 is stale or unknown. Candidate-bound economic authorization is therefore currently blocked until the Supervisor/Truth Oracle pipeline establishes fresh state. This is intentional fail-closed behavior.
+
+GitHub control desk commit: 9c1235b88988e46774ebfd4dd0fbf40b4dae84f5.
+Supabase control desk: public.cross_system_control_desk.
+Airtable canonical doctrine: DREAMLEDGER_CANONICAL_NORTH_STAR_V1, updated to v2.
+
+This changes the control plane, not economic truth. Verified external revenue remains NZ$0.00.
+
 ## Canonical references
 
 Notion control desk: https://app.notion.com/p/3e92ee9b45db8142a556c3af4d08fc3e
