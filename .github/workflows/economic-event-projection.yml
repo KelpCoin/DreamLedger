@@ -1,20 +1,13 @@
 name: Economic Event Projection
 
+# FROZEN: deterministic projection coverage is exercised by the authoritative
+# Economic Production Observation Contract. Manual dispatch remains available.
 concurrency:
-  group: dreamledger-economic-event-projection.yml-${{ github.ref }}
+  group: dreamledger-economic-event-projection-manual
   cancel-in-progress: true
 
 on:
-  push:
-    paths:
-      - "runtime/economic/event_projection.py"
-      - "runtime/economic/test_event_projection.py"
-      - ".github/workflows/economic-event-projection.yml"
-  pull_request:
-    paths:
-      - "runtime/economic/event_projection.py"
-      - "runtime/economic/test_event_projection.py"
-      - ".github/workflows/economic-event-projection.yml"
+  workflow_dispatch:
 
 jobs:
   projection:
