@@ -2,36 +2,35 @@
 
 ## Purpose
 
-Record a live execution-substrate observation that currently blocks verification of the economic compute trace without misclassifying the failure as an application or worker failure.
+Record the live execution-substrate condition blocking verification of the economic compute trace, without misclassifying CI cancellation as an application or worker failure.
 
-## Observed state
+## Corrected live observation
 
 Repository: KelpCoin/DreamLedger
 
-Latest compute-trace commits:
-- `63a0847cf00c2d58337f55de8f2df0ff0e6a8b4`
-- `0195bd942e356e239a9cea877ccb64e873948084`
+Worker workflow: `BrownEye Economic Fulfillment Worker`
 
-The existing `BrownEye Economic Fulfillment Worker` workflow was observed in GitHub Actions as:
+Run `36428667876`:
+- head: `63a0847cf00c2d58337f55de8f2df0ff0e6a8b4`
+- event: push
+- status: `completed`
+- conclusion: `cancelled`
+- run duration: approximately 9 seconds
+- instantiated workflow jobs: `0`
 
-- Run `36428667876`
-- Head: `63a0847cf00c2d58337f55de8f2df0ff0e6a8b4`
-- Status: `pending`
-- No workflow jobs were instantiated when queried.
+The earlier record described this run as pending. That was an intermediate observation. The terminal state is now known and replaces it.
 
-Earlier economic-fulfillment runs were also queued/pending:
-- `36428250138`
-- `36428262116`
+GitHub exposed no job-level execution evidence for this run. Therefore the cancellation cause is not established.
 
-A direct Supabase query of `public.jobs` found zero rows whose type begins with `economic_fulfillment` at observation time.
+Earlier economic-fulfillment runs `36428250138` and `36428262116` were also observed in the same execution-substrate problem window.
 
-Therefore there is currently no genuine fulfillment job available for the worker to claim, and GitHub has not instantiated a job for the latest worker workflow run.
+A direct Supabase query of `public.jobs` found zero rows whose type begins with `economic_fulfillment` at the prior observation time.
 
 ## Classification
 
 This is a CI/execution-substrate observation.
 
-It is NOT currently classified as:
+It is NOT classified as:
 - WORKER_FAILURE
 - WORKER_RESOURCE_LIMIT
 - DEPENDENCY_FAILURE
@@ -39,39 +38,52 @@ It is NOT currently classified as:
 - REVENUE evidence
 - FULFILLMENT evidence
 
-No claim is made about the cause of GitHub's pending state because no runner/job-level evidence is available.
+The absence of instantiated jobs means the worker code did not execute in this run. The cancellation therefore cannot be used as evidence about the worker's compute trace implementation.
 
 ## Economic consequence
 
 The compute-trace acceptance gate remains OPEN and UNPROVEN.
 
-Required proof is still:
+Required proof remains:
 
 `economic action -> fulfillment job -> economic_trace_id -> source/tool observation -> worker/resource observation -> artifact -> preserved result`
 
-A queued workflow is not execution evidence.
+A cancelled workflow with zero jobs is not execution evidence.
 
-A zero-row fulfillment queue is not evidence that demand is zero. It only means the current worker queue has no claimable economic fulfillment job.
+A zero-row fulfillment queue is not evidence that demand is zero. It only establishes that no claimable economic fulfillment job was present when that queue was inspected.
 
-## Routing
+External economic truth remains unchanged.
 
-1. Preserve the GitHub pending state as substrate evidence.
-2. Do not manufacture a test fulfillment job merely to create a trace.
-3. Do not convert CI availability into an economic failure.
-4. When a genuine fulfillment job exists and a runner is instantiated, capture the first real trace.
-5. If GitHub runner/job instantiation remains unavailable while a genuine job exists, classify the dependency as a platform execution cut and evaluate an existing alternate execution surface rather than building another ledger.
-6. External economic truth remains unchanged.
+## Immediate routing decision
 
-## New trace capability
+1. Preserve the terminal cancellation as execution-substrate evidence.
+2. Do not manufacture a fulfillment job solely to exercise tracing.
+3. Do not label the cancellation as a worker or resource failure.
+4. Do not expand substrate architecture to compensate for an unproven GitHub failure mode.
+5. The next genuine fulfillment job must be allowed to produce the first real trace.
+6. If a genuine job exists while GitHub continues to instantiate zero jobs, treat GitHub execution as a dependency cut and evaluate an already-existing execution surface before creating anything new.
 
-The fulfillment worker now records:
-- `current_operation`
-- `current_dependency`
-- `dependency_cut_set` on failure
+## New operational boundary
 
-This lets a real failure identify the dependency actually active at the failure boundary instead of assigning a generic dependency label.
+The worker workflow currently performs, in order:
+- checkout
+- Python setup
+- syntax verification
+- worker unit tests
+- one economic fulfillment lease
+- heartbeat
+
+Because this run instantiated zero jobs, none of those steps can be credited as executed.
+
+Therefore no CI pass claim is made for the compute-trace tests.
 
 ## Stop condition
 
-Do not expand substrate monitoring from this incident until one genuine economic path produces an immutable compute trace with an observed dependency boundary.
-
+Do not broaden substrate monitoring from this incident until one genuine economic path produces an immutable compute trace with:
+- real action lineage
+- observed model/tool activity
+- observed worker/resource state
+- attributable or explicitly unknown cost
+- active dependency
+- preserved success/failure result
+- unchanged external-truth semantics
