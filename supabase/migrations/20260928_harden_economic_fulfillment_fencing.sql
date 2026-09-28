@@ -53,3 +53,7 @@ grant execute on function public.queue_economic_fulfillment_job(text,jsonb,text,
 grant execute on function public.claim_economic_fulfillment_job(text,integer) to service_role;
 grant execute on function public.complete_economic_fulfillment_job(uuid,text,uuid,text,text,bigint,jsonb) to service_role;
 grant execute on function public.fail_economic_fulfillment_job(uuid,text,uuid,text) to service_role;
+
+-- Remove legacy unfenced finalization overloads so there is one execution path.
+drop function if exists public.complete_economic_fulfillment_job(uuid,text,text,text,bigint,jsonb);
+drop function if exists public.fail_economic_fulfillment_job(uuid,text,text);
