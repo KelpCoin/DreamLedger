@@ -1,5 +1,9 @@
 name: Economic Event Projection
 
+concurrency:
+  group: dreamledger-economic-event-projection.yml-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     paths:
