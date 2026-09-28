@@ -50,12 +50,8 @@ class AcncPipelineTests(unittest.TestCase):
 
         with patch("acnc_contacts_pipeline._request", side_effect=fake_fetch):
             with patch.dict(os.environ, {"HUNTER_API_KEY": "", "APOLLO_API_KEY": ""}, clear=False):
-                result = run_acnc_contacts({"states": ["WA"], "limit": 1})
-        self.assertEqual(result["row_count"], 1)
-        row = result["rows"][0]
-        self.assertEqual(row["decision_maker_email"], "")
-        self.assertEqual(row["decision_maker_phone"], "")
-        self.assertEqual(row["contact_status"], "NO_RESPONSIBLE_PEOPLE_PARSED")
+                with self.assertRaisesRegex(RuntimeError, "ACNC_ENRICHMENT_PROVIDER_REQUIRED"):
+                    run_acnc_contacts({"states": ["WA"], "limit": 1})
 
 if __name__ == "__main__":
     unittest.main()
