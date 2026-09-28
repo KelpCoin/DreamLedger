@@ -3,15 +3,11 @@ name: Economic Production Observation Contract
 on:
   push:
     paths:
-      - 'runtime/economic/production_observation_contract.py'
-      - 'runtime/economic/event_projection.py'
-      - 'runtime/economic/state_transition_engine.py'
+      - 'runtime/economic/**'
       - '.github/workflows/economic-production-observation-contract.yml'
   pull_request:
     paths:
-      - 'runtime/economic/production_observation_contract.py'
-      - 'runtime/economic/event_projection.py'
-      - 'runtime/economic/state_transition_engine.py'
+      - 'runtime/economic/**'
       - '.github/workflows/economic-production-observation-contract.yml'
 
 jobs:
@@ -22,10 +18,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify observation contract
+      - name: Verify observation contracts
         working-directory: runtime/economic
         run: |
-          python3 -m py_compile production_observation_contract.py event_projection.py state_transition_engine.py
+          python3 -m py_compile *.py
           python3 test_production_observation_probe.py
           python3 test_event_projection.py
           python3 test_state_transition_engine.py
+          python3 test_stripe_observation_adapter.py
