@@ -37,6 +37,8 @@ jobs:
           python-version: "3.12"
       - name: Verify worker syntax
         run: python -m py_compile workers/economic/economic_fulfillment_worker.py
+      - name: Run ACNC fulfillment unit tests
+        run: python -m unittest discover -s workers/economic -p "test_*.py"
       - name: Run one economic fulfillment lease
         run: python workers/economic/economic_fulfillment_worker.py
       - name: Record worker heartbeat
