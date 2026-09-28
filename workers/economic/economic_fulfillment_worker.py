@@ -5,6 +5,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 
 from acnc_contacts_pipeline import run_acnc_contacts
 from economic_compute_trace import start_trace, observe_tool, finish_trace, write_trace
@@ -242,7 +243,18 @@ def run_once():
         complete(job,result,folder)
         return True
     except Exception as exc:
-        finish_trace(TRACE, "FAILED", "WORKER_FAILURE")
+        failure_class="WORKER_FAILURE"
+        http_status=None
+        resource_condition=None
+        if isinstance(exc, HTTPError):
+            http_status=exc.code
+            if exc.code == 502:
+                failure_class="WORKER_RESOURCE_LIMIT"
+                resource_condition="HTTP_502"
+        elif isinstance(exc, URLError):
+            failure_class="DEPENDENCY_FAILURE"
+            resource_condition="URL_ERROR"
+        finish_trace(TRACE, "FAILED", failure_class, http_status, resource_condition)
         folder=ROOT/str(job["id"])
         folder.mkdir(parents=True,exist_ok=True)
         write_trace(TRACE, folder)
@@ -250,9 +262,16 @@ def run_once():
             trace_path=folder/"economic_compute_trace.json"
             storage_path="economic-jobs/"+str(job["id"])+"/economic_compute_trace.json"
             upload(trace_path, storage_path)
-            reason="WORKER_FAILED | trace="+TRACE["economic_trace_id"]+" | trace_storage="+storage_path+" | "+str(exc)
+            reason=(
+                "WORKER_FAILED | trace="+TRACE["economic_trace_id"]+
+                " | failure_class="+failure_class+
+                " | http_status="+str(http_status)+
+                " | resource_condition="+str(resource_condition)+
+                " | trace_storage="+storage_path+
+                " | "+str(exc)
+            )
         except Exception:
-            reason="WORKER_FAILED | trace="+TRACE["economic_trace_id"]+" | trace_upload_failed | "+str(exc)
+            reason="WORKER_FAILED | trace="+TRACE["economic_trace_id"]+" | failure_class="+failure_class+" | trace_upload_failed | "+str(exc)
         fail(job,reason)
         return True
 
