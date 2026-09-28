@@ -1,124 +1,68 @@
 {
-  "schema": "dreamledger/agent-commerce/v4",
+  "schema": "dreamledger/agent-commerce/v5",
   "updated": "2026-09-28",
-  "purpose": "Machine-readable commerce contract. DreamLedger is the validation layer: discover → authorize → pay (Stripe) → deliver → prove → ledger.",
+  "purpose": "Machine commerce contract + economic loops. discover → authorize → pay → deliver → prove → ledger → repeat.",
   "storefront": "https://dreamledger.org/",
   "human_shop_horizontal": "https://dreamledger.org/shop.html",
-  "thesis": "In an agentic commerce boom, the scarce asset is trusted settlement and post-payment proof. Discovery can be open; the bridge and ledger are the toll road.",
+  "economic_loops": "https://dreamledger.org/economic-loops.json",
+  "thesis": "Queue and CUBE scale silos. Agents discover offers; humans authorize; Stripe settles; loops close only with proof.",
   "agent_bridge": {
-    "status": "governed",
-    "human_page": "https://dreamledger.org/agent-bridge.html",
-    "runtime_rail": "https://dreamledger.org/api/agent-bridge/rail/manifest",
-    "authorization": "authenticated_agent_token",
-    "public_without_token": false,
-    "settlement": "stripe_live_nzd",
-    "economic_truth": "Bridge activity is not revenue. Revenue requires Stripe payment evidence plus fulfillment proof.",
-    "toll_model": {
-      "discovery": "public_free_enough_to_try",
-      "bridge_rail": "token_gated_toll_road",
-      "proof_attestation": "chargeable_validation",
-      "human_checkout": "stripe_payment_link_or_buy_router",
-      "platform_success_fee_bps_on_public_offers": 0
-    },
-    "protocol_alignment": {
-      "authorization": "AP2-like human authorization before spend",
-      "checkout": "ACP-like Payment Link / buy router handoff",
-      "machine_settlement_reserved": ["x402", "mpp"]
-    }
+    "status": "rail_public_live",
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
+    "manifest": "https://dreamledger.org/api/agent-bridge/manifest",
+    "rail_configured": true,
+    "work_auth_header": "x-dreamledger-agent-token",
+    "economic_truth": "Bridge activity is not revenue."
   },
   "fee_policy": {
     "platform_listing_fee_nzd": 0,
     "platform_success_fee_bps": 0,
-    "payment_processor": "Stripe",
-    "note": "Listed NZD price is what the buyer pays for the offer. Stripe processing fees are separate. Bridge/token access is a separate product surface."
+    "payment_processor": "Stripe"
   },
   "economic_event": {
     "order": ["authorized", "paid", "delivered", "proven", "ledgered"],
     "settlement_authority": "stripe_live_only",
-    "rule": "A checkout start is not revenue. Ledgered revenue requires external Stripe payment evidence, product attribution, and fulfillment proof.",
-    "client_reference": "Always use https://dreamledger.org/buy/{product_id} so Stripe client_reference_id binds the product_id."
-  },
-  "ledger": {
-    "human": "https://dreamledger.org/ledger.html",
-    "proof_schema": "https://dreamledger.org/proof.schema.json",
-    "discovery": "https://dreamledger.org/.well-known/dreamledger.json",
-    "immutable_claim": false,
-    "note": "Public claims remain fail-closed until independent payment evidence exists."
+    "client_reference": "Use https://dreamledger.org/buy/{product_id}"
   },
   "how_to_buy": [
     "GET https://dreamledger.org/api/offers",
     "Prefer status VERIFIED_AVAILABLE",
-    "Require human authorization before spend",
+    "Require human authorization",
     "Open https://dreamledger.org/buy/{product_id}",
-    "Buyer completes Stripe Checkout",
-    "Mark paid only after Stripe confirms; then deliver; prove; ledger"
+    "Complete Stripe Checkout",
+    "Fulfil per silo; prove; only then close the loop"
   ],
   "endpoints": {
     "offers": "https://dreamledger.org/api/offers",
     "products": "https://dreamledger.org/api/products",
-    "this_contract": "https://dreamledger.org/agent-commerce.json",
-    "agent_interface": "https://dreamledger.org/agent.json",
-    "agent_bridge_page": "https://dreamledger.org/agent-bridge.html",
-    "discovery": "https://dreamledger.org/.well-known/dreamledger.json",
+    "economic_loops": "https://dreamledger.org/economic-loops.json",
+    "agent_commerce": "https://dreamledger.org/agent-commerce.json",
+    "agent": "https://dreamledger.org/agent.json",
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
     "buy": "https://dreamledger.org/buy/{product_id}",
-    "ledger": "https://dreamledger.org/ledger.html",
-    "proof_schema": "https://dreamledger.org/proof.schema.json",
-    "human_shop": "https://dreamledger.org/shop.html"
+    "shop": "https://dreamledger.org/shop.html",
+    "cube": "https://dreamledger.org/cube.json"
   },
   "primary_offers": [
-    {
-      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "name": "Commander Deck Diagnostic",
-      "price_nzd": 29,
-      "currency": "NZD",
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
-      "status": "VERIFIED_AVAILABLE"
-    },
-    {
-      "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
-      "name": "DreamMeez Supporter — Sprout",
-      "price_nzd": 3.99,
-      "currency": "NZD",
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
-      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
-      "status": "VERIFIED_AVAILABLE"
-    },
-    {
-      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "name": "Founding Billboard Tile",
-      "price_nzd": 50,
-      "currency": "NZD",
-      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "status": "VERIFIED_AVAILABLE"
-    },
-    {
-      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "name": "Discord Webhook Starter Kit",
-      "price_nzd": 79,
-      "currency": "NZD",
-      "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
-      "status": "VERIFIED_AVAILABLE"
-    },
-    {
-      "product_id": "SELLER-PROFIT-AUDIT-001",
-      "name": "Seller Profit Audit",
-      "price_nzd": 29,
-      "currency": "NZD",
-      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
-      "status": "VERIFIED_AVAILABLE"
-    }
+    {"product_id": "COMMANDER-DECK-DIAGNOSTIC-001", "name": "Commander Deck Diagnostic", "price_nzd": 29, "silo": "mtg", "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001", "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-CMD-DIAG-29"},
+    {"product_id": "DREAMMEEZ-SUPPORTER-SPROUT", "name": "DreamMeez Supporter — Sprout", "price_nzd": 3.99, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT", "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-SPROUT-3.99"},
+    {"product_id": "DREAMMEEZ-SUPPORTER-GLOW", "name": "DreamMeez Supporter — Glow", "price_nzd": 5.99, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW", "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N", "status": "VERIFIED_AVAILABLE"},
+    {"product_id": "DREAMMEEZ-SUPPORTER-DEPTH", "name": "DreamMeez Supporter — Depth", "price_nzd": 9.99, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-DEPTH", "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O", "status": "VERIFIED_AVAILABLE"},
+    {"product_id": "DREAMMEEZ-COSMIC-HOODIE-001", "name": "DreamMeez Cosmic Hoodie", "price_nzd": 5, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-COSMIC-HOODIE-001", "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J", "status": "VERIFIED_AVAILABLE"},
+    {"product_id": "DREAMMEEZ-CAPE-001", "name": "DreamMeez Cape", "price_nzd": 10, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CAPE-001", "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K", "status": "VERIFIED_AVAILABLE"},
+    {"product_id": "DREAMMEEZ-CHROME-BOOTS-001", "name": "DreamMeez Chrome Boots", "price_nzd": 9, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CHROME-BOOTS-001", "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L", "status": "VERIFIED_AVAILABLE"},
+    {"product_id": "KELP-FLOOR1-001", "name": "Kelplantis Floor 1 Access Pass", "price_nzd": 19, "silo": "kelplantis", "buy_router": "https://dreamledger.org/buy/KELP-FLOOR1-001", "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-KELP-FLOOR1-19"},
+    {"product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001", "name": "Founding Billboard", "price_nzd": 50, "silo": "media", "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001", "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-BILLBOARD-FOUNDING-50"},
+    {"product_id": "SELLER-PROFIT-AUDIT-001", "name": "Seller Profit Audit", "price_nzd": 29, "silo": "seller_tools", "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001", "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-SELLER-AUDIT-29"},
+    {"product_id": "DISCORD-WEBHOOK-STARTER-KIT-001", "name": "Discord Webhook Starter Kit", "price_nzd": 79, "silo": "commerce", "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001", "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-DISCORD-KIT-79"},
+    {"product_id": "ACNC-CHARITY-DD-99", "name": "ACNC Charity Due Diligence Report", "price_nzd": 99, "silo": "research", "buy_router": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99", "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-ACNC-DD-99"},
+    {"product_id": "EDH_0001", "name": "EDH_0001 Commander Deck", "price_nzd": 400, "silo": "mtg", "buy_router": "https://dreamledger.org/buy/EDH_0001", "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J", "status": "VERIFIED_AVAILABLE"}
   ],
-  "catalog_note": "Authoritative live set: GET /api/offers. Human UI: horizontal rails at /shop.html.",
+  "catalog_note": "Authoritative live set always: GET /api/offers (14 VERIFIED_AVAILABLE). primary_offers is a convenience mirror.",
   "safety": {
     "no_autonomous_spend_without_buyer_authorization": true,
     "payment_provider": "Stripe",
     "do_not_invent_payment_references": true,
-    "do_not_claim_revenue_without_stripe_evidence": true,
-    "do_not_claim_ledgered_without_proof": true
-  },
-  "public_boundary": "Customer- and agent-facing. Internal ops language excluded."
+    "do_not_claim_revenue_without_stripe_evidence": true
+  }
 }
