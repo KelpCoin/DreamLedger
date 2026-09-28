@@ -3,90 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger shop — live catalogue from /api/products. Horizontal silo rails. Stripe checkout. NZD.">
+<meta name="description" content="DreamLedger shop — horizontal silo rails. Live /api/products. Stripe via /buy/{id}.">
 <meta name="theme-color" content="#080a0e">
-<link rel="canonical" href="https://dreamledger.org/shop.html">
 <title>Shop · DreamLedger</title>
 <style>
-:root{--bg:#080a0e;--panel:#0f1419;--panel2:#151b22;--line:#27313b;--ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--ok:#58d6a0;--max:1200px;--font:system-ui,-apple-system,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--font)}
+:root{--bg:#080a0e;--panel:#0f1419;--panel2:#151b22;--line:#27313b;--ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--max:1200px;--safe:env(safe-area-inset-bottom,0px);--font:system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--font);padding-bottom:calc(72px + var(--safe))}
 a{color:inherit;text-decoration:none}
 .shell{max-width:var(--max);margin:0 auto;padding:0 16px}
 .topbar{position:sticky;top:0;z-index:30;background:rgba(8,10,14,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .topbar .inner{max-width:var(--max);margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-weight:900;letter-spacing:.06em;font-size:13px;text-transform:uppercase}
 .brand span{color:var(--gold)}
-.nav a{font-size:12px;font-weight:700;padding:8px 11px;border-radius:999px;color:var(--muted);margin-left:4px}
+.nav a{font-size:12px;font-weight:700;padding:8px 11px;border-radius:999px;color:var(--muted)}
 .nav a.primary{background:var(--gold);color:#111}
 .hero{padding:28px 0 12px}
 .kicker{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 h1{font-size:clamp(1.6rem,4vw,2.2rem);letter-spacing:-.03em;margin-bottom:8px}
-.lead{color:var(--muted);font-size:.95rem;max-width:52ch;margin-bottom:12px}
-.meta{font-size:12px;color:#65707b;margin-bottom:8px}
+.lead{color:var(--muted);font-size:.95rem;max-width:52ch}
+.meta{font-size:12px;color:#65707b;margin:10px 0}
 .rail-section{padding:20px 0 8px}
 .rail-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
 .rail-head h2{font-size:1.15rem}
-.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;-webkit-overflow-scrolling:touch}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
 .card{flex:0 0 min(280px,82vw);scroll-snap-align:start;background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;min-height:220px}
 .card .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .card h3{font-size:1.05rem;margin-bottom:6px;line-height:1.2}
 .card p{font-size:.82rem;color:var(--muted);flex:1;margin-bottom:12px}
 .card .price{font-size:1.35rem;font-weight:900;color:var(--gold);margin-bottom:12px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:800;background:var(--gold);color:#111;border:0;width:100%;cursor:pointer}
-.btn:disabled,.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:800;background:var(--gold);color:#111;border:0;width:100%}
 .footer{padding:28px 0 40px;border-top:1px solid var(--line);margin-top:24px;font-size:12px;color:#5a6570}
 .empty{color:var(--muted);padding:20px;border:1px dashed var(--line);border-radius:12px}
+.stick{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe));z-index:40;background:#151b22;border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.stick b{flex:1;font-size:13px}.stick a{background:var(--gold);color:#111;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;display:inline-flex;align-items:center}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="inner"><a class="brand" href="/">DREAM<span>LEDGER</span></a>
-<nav class="nav"><a href="/">Home</a><a href="/mtg">MTG</a><a href="/billboard">Billboard</a><a class="primary" href="/shop.html">Shop</a></nav></div></header>
+<nav class="nav"><a href="/">Home</a><a href="/mtg">MTG</a><a class="primary" href="/shop.html">Shop</a></nav></div></header>
 <main class="shell">
 <section class="hero">
-<div class="kicker">Evidence-backed catalogue</div>
-<h1>Shop the live cube</h1>
-<p class="lead">Rails are filled from <code>/api/products</code> — only published, checkout-available offers. No invented inventory.</p>
-<p class="meta" id="status">Loading live products…</p>
+<div class="kicker">Live cube catalogue</div>
+<h1>Swipe silos. Buy real offers.</h1>
+<p class="lead">Horizontal rails from <code>/api/products</code>. Checkout uses <code>/buy/{id}</code> so payments attribute correctly.</p>
+<p class="meta" id="status">Loading…</p>
 </section>
 <div id="rails"></div>
-<p class="meta">Source: GET /api/products · Fail closed if API unavailable · Checkout via Stripe payment links on each product</p>
 </main>
-<footer class="footer"><div class="shell">© DreamLedger · NZD · <a href="/">Home</a></div></footer>
+<footer class="footer"><div class="shell">© DreamLedger · NZD · <a href="/economic-loops.json">Economic loops</a></div></footer>
+<div class="stick"><b>Diagnostic · NZ$29</b><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a></div>
 <script>
 (function(){
-const esc=v=>String(v??'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
-const SILO_ORDER=['mtg','media','commerce','seller_tools','dreammeez','kelplantis','other'];
-const SILO_LABEL={mtg:'Magic: The Gathering',media:'Billboard / media',commerce:'Digital / commerce',seller_tools:'Seller tools',dreammeez:'DreamMeez',kelplantis:'Kelplantis',other:'Other'};
-function siloOf(p){const s=String(p.silo||'other').toLowerCase();return SILO_LABEL[s]?s:'other'}
+function esc(v){return String(v==null?'':v).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');}
+var SILO_ORDER=['mtg','media','dreammeez','commerce','seller_tools','kelplantis','research','other'];
+var SILO_LABEL={mtg:'Magic',media:'Billboard',dreammeez:'DreamMeez',commerce:'Digital tools',seller_tools:'Seller tools',kelplantis:'Kelplantis',research:'Research',other:'Other'};
+function siloOf(p){var s=String(p.silo||'other').toLowerCase();return SILO_LABEL[s]?s:'other';}
 function card(p){
-  const href=p.checkout_url||('/buy/'+encodeURIComponent(p.id));
-  const can=p.checkout_available!==false&&p.status==='published';
-  return '<article class="card"><div class="tag">'+esc(p.silo||'offer')+(p.inventory_type?' · '+esc(p.inventory_type):'')+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||'')+'</p><div class="price">NZ$'+esc(p.price)+'</div>'+(can?'<a class="btn" href="'+esc(href)+'">Buy now</a>':'<button class="btn ghost" disabled>Unavailable</button>')+'</article>';
+  var href='/buy/'+encodeURIComponent(p.id);
+  return '<article class="card"><div class="tag">'+esc(p.silo||'offer')+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||'')+'</p><div class="price">NZ$'+esc(p.price)+'</div><a class="btn" href="'+esc(href)+'">Buy now</a></article>';
 }
-async function load(){
-  const status=document.getElementById('status');
-  const root=document.getElementById('rails');
-  try{
-    const r=await fetch('/api/products',{cache:'no-store'});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    const products=(d.products||[]).filter(p=>p&&p.status==='published');
-    status.textContent=products.length+' published products · generated from live API';
-    if(!products.length){root.innerHTML='<div class="empty">No published products returned.</div>';return;}
-    const groups={};
-    products.forEach(p=>{const k=siloOf(p);(groups[k]=groups[k]||[]).push(p)});
-    const order=SILO_ORDER.filter(k=>groups[k]&&groups[k].length);
-    root.innerHTML=order.map(k=>{
-      const items=groups[k].sort((a,b)=>Number(a.price)-Number(b.price));
-      return '<section class="rail-section"><div class="rail-head"><h2>'+esc(SILO_LABEL[k]||k)+'</h2><span class="meta">'+items.length+' offers</span></div><div class="rail">'+items.map(card).join('')+'</div></section>';
-    }).join('');
-  }catch(e){
-    status.textContent='Catalogue API unavailable — fail closed';
-    root.innerHTML='<div class="empty">Could not load /api/products. No simulated catalogue.</div>';
-  }
-}
-load();
+fetch('/api/products',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('x');return r.json();}).then(function(d){
+  var products=(d.products||[]).filter(function(p){return p&&p.status==='published';});
+  document.getElementById('status').textContent=products.length+' published · live API';
+  var groups={};
+  products.forEach(function(p){var k=siloOf(p);(groups[k]=groups[k]||[]).push(p);});
+  var html=SILO_ORDER.filter(function(k){return groups[k]&&groups[k].length;}).map(function(k){
+    var items=groups[k].sort(function(a,b){return Number(a.price)-Number(b.price);});
+    return '<section class="rail-section"><div class="rail-head"><h2>'+esc(SILO_LABEL[k])+'</h2><span class="meta">'+items.length+'</span></div><div class="rail">'+items.map(card).join('')+'</div></section>';
+  }).join('');
+  document.getElementById('rails').innerHTML=html||'<div class="empty">No products.</div>';
+}).catch(function(){
+  document.getElementById('status').textContent='API unavailable';
+  document.getElementById('rails').innerHTML='<div class="empty"><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001" style="color:var(--gold)">Buy diagnostic NZ$29 →</a></div>';
+});
 })();
 </script>
 </body>
