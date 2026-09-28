@@ -2,75 +2,91 @@
 <html lang="en-NZ">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Shop · DreamLedger</title>
-<meta name="description" content="Live DreamLedger catalogue. NZD. Stripe checkout.">
-<link rel="canonical" href="https://dreamledger.org/shop.html">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/shop.css">
+<meta name="description" content="Horizontal catalogue — swipe silos. NZD. Stripe checkout.">
+<meta name="theme-color" content="#1a1510">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-.hero{padding:36px 0 12px}
-.hero h1{font-size:clamp(1.8rem,4vw,2.6rem);margin:8px 0}
-.status{font-size:13px;color:var(--muted);margin:12px 0 20px}
-.card-media{aspect-ratio:16/10;background:linear-gradient(155deg,#292524,#1c1917)}
-.empty{padding:24px;border:1px dashed var(--line);border-radius:16px;color:var(--muted)}
+:root{--bg:#0c0a08;--ink:#f7f3ec;--muted:#9a9084;--line:#2a241c;--card:#1a1510;--gold:#c48a2b;--gold-d:#d4a03a;--serif:"Fraunces",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--safe:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100dvh;padding-bottom:calc(80px + var(--safe));-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.hdr{position:sticky;top:0;z-index:40;background:rgba(12,10,8,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.brand{font-family:var(--serif);font-size:1.25rem;font-weight:600}
+.hdr a.pill{background:var(--gold);color:#111;font-weight:700;font-size:13px;padding:10px 14px;border-radius:999px;min-height:44px;display:inline-flex;align-items:center}
+.hero{padding:24px 16px 8px}
+.hero h1{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.4rem);font-weight:500}
+.hero p{color:var(--muted);font-size:14px;margin-top:8px;max-width:40ch}
+.rail-block{padding:20px 0 8px}
+.rail-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 16px 12px}
+.rail-head h2{font-family:var(--serif);font-size:1.25rem;font-weight:500}
+.rail-head span{font-size:12px;color:var(--muted)}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 16px 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.tile{flex:0 0 min(78vw,280px);scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.tile-art{aspect-ratio:16/10;background:linear-gradient(145deg,#3d3428,#1a1510)}
+.tile-art.mtg{background:linear-gradient(145deg,#2a3a5c,#152030)}
+.tile-art.media{background:linear-gradient(145deg,#4a3a28,#2a2018)}
+.tile-art.commerce{background:linear-gradient(145deg,#3a2a4a,#1e1528)}
+.tile-art.support{background:linear-gradient(145deg,#2a4030,#152018)}
+.tile-body{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tile-body h3{font-size:1rem;font-weight:700}
+.tile-body p{font-size:12px;color:var(--muted);flex:1}
+.tile-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.price{font-family:var(--serif);font-size:1.2rem;font-weight:600;color:var(--gold-d)}
+.tile-foot a{min-height:48px;padding:0 16px;border-radius:999px;background:linear-gradient(180deg,#d4a03a,#c48a2b);color:#111;font-size:13px;font-weight:800;display:inline-flex;align-items:center}
+.empty{padding:24px 16px;color:var(--muted);font-size:14px}
+.stick{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe));z-index:50;background:#1a1510;border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.stick b{flex:1;font-size:13px}.stick a{background:linear-gradient(180deg,#d4a03a,#c48a2b);color:#111;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;display:inline-flex;align-items:center}
 </style>
 </head>
 <body>
-<header class="hdr"><div class="hdr-inner">
+<header class="hdr">
   <a class="brand" href="/">DreamLedger</a>
-  <nav class="hdr-nav">
-    <a href="/shop.html">Shop</a>
-    <a href="/mtg">MTG</a>
-    <a href="/billboard">Billboard</a>
-    <a href="/login">Log in</a>
-    <a class="cta" href="/register">Join</a>
-  </nav>
-</div></header>
-
-<main class="shell">
-  <section class="hero">
-    <p class="eyebrow">Live catalogue</p>
-    <h1>Shop</h1>
-    <p class="muted">Filled from <code>/api/products</code>. Only published offers with checkout. Prefer buy router so payments attribute.</p>
-    <p class="status" id="status">Loading…</p>
-  </section>
-  <section class="grid-3" id="grid" aria-live="polite"></section>
-</main>
-
-<footer class="ftr"><div class="shell" style="font-size:13px">
-  <a href="/" style="color:#d6d3d1">Home</a> ·
-  <a href="/policies.html" style="color:#d6d3d1">Policies</a> ·
-  <a href="/api/offers" style="color:#d6d3d1">Offers API</a>
-</div></footer>
-
+  <a class="pill" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy · $29</a>
+</header>
+<section class="hero">
+  <h1>Swipe the catalogue</h1>
+  <p>Thumb-first rails by silo. Pay only what is live on Stripe.</p>
+</section>
+<div id="root"><p class="empty">Loading rails…</p></div>
+<div class="stick"><b>Diagnostic · NZ$29</b><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy</a></div>
 <script>
 (function(){
-  const esc=v=>String(v??'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
-  const status=document.getElementById('status');
-  const grid=document.getElementById('grid');
-  fetch('/api/products',{cache:'no-store'})
-    .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(d=>{
-      const products=(d.products||[]).filter(p=>p&&p.status==='published'&&p.checkout_available!==false);
-      products.sort((a,b)=>Number(a.price)-Number(b.price));
-      status.textContent=products.length+' published products';
-      if(!products.length){grid.innerHTML='<div class="empty">No published products.</div>';return;}
-      grid.innerHTML=products.map(p=>{
-        const href='/buy/'+encodeURIComponent(p.id);
-        return '<article class="card"><div class="card-media"></div><div class="card-body">'
-          +'<span class="chip live">'+esc(p.silo||'offer')+'</span>'
-          +'<h3>'+esc(p.name)+'</h3>'
-          +'<p>'+esc(p.description||'')+'</p>'
-          +'<div class="card-foot"><span class="price">NZ$'+esc(p.price)+'</span>'
-          +'<a class="btn btn-dark" style="min-height:42px;padding:0 14px;font-size:13px" href="'+esc(href)+'">Buy</a>'
-          +'</div></div></article>';
-      }).join('');
-    })
-    .catch(()=>{
-      status.textContent='Catalogue unavailable';
-      grid.innerHTML='<div class="empty">Could not load /api/products.</div>';
+  var esc=function(v){return String(v==null?'':v).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');};
+  var siloOrder=['mtg','media','commerce','seller_tools','dreammeez','other'];
+  var siloLabel={mtg:'Magic',media:'Billboard & media',commerce:'Digital tools',seller_tools:'Seller tools',dreammeez:'DreamMeez',other:'More'};
+  var siloArt={mtg:'mtg',media:'media',commerce:'commerce',seller_tools:'commerce',dreammeez:'support',other:''};
+  function siloOf(p){
+    var s=(p.silo||'').toLowerCase();
+    if(siloLabel[s])return s;
+    var id=(p.id||'').toUpperCase();
+    if(id.indexOf('CMD')>=0||id.indexOf('EDH')>=0||id.indexOf('MTG')>=0)return 'mtg';
+    if(id.indexOf('BILLBOARD')>=0)return 'media';
+    if(id.indexOf('DISCORD')>=0||id.indexOf('WEBHOOK')>=0)return 'commerce';
+    if(id.indexOf('SELLER')>=0)return 'seller_tools';
+    if(id.indexOf('DREAMMEEZ')>=0||id.indexOf('SPROUT')>=0)return 'dreammeez';
+    return 'other';
+  }
+  fetch('/api/products',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('x');return r.json();}).then(function(d){
+    var products=(d.products||[]).filter(function(p){return p&&p.status==='published';});
+    products.sort(function(a,b){return Number(a.price)-Number(b.price);});
+    var groups={};
+    products.forEach(function(p){var s=siloOf(p);(groups[s]=groups[s]||[]).push(p);});
+    var html='';
+    siloOrder.forEach(function(s){
+      var list=groups[s];if(!list||!list.length)return;
+      html+='<section class="rail-block"><div class="rail-head"><h2>'+esc(siloLabel[s]||s)+'</h2><span>'+list.length+' live</span></div><div class="rail">';
+      list.forEach(function(p){
+        html+='<article class="tile"><div class="tile-art '+esc(siloArt[s]||'')+'"></div><div class="tile-body"><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||'')+'</p><div class="tile-foot"><span class="price">NZ$'+esc(p.price)+'</span><a href="/buy/'+encodeURIComponent(p.id)+'">Buy</a></div></div></article>';
+      });
+      html+='</div></section>';
     });
+    document.getElementById('root').innerHTML=html||'<p class="empty">No published products.</p>';
+  }).catch(function(){
+    document.getElementById('root').innerHTML='<p class="empty">Catalogue unavailable. <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001" style="color:var(--gold)">Buy diagnostic →</a></p>';
+  });
 })();
 </script>
 </body>
