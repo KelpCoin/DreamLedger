@@ -1,0 +1,28 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-28-bridge-widen",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "build",
+  "summary": "Public bridge health routes + toll catalog + horizontal shop; BridgeRail restored with /rail/public",
+  "reads": [
+    "BEC-PRIME/runtime/BridgeRail.js",
+    "public/bridge-tolls.json",
+    "public/shop.html"
+  ],
+  "writes": [
+    "BEC-PRIME/runtime/BridgeRail.js",
+    "public/bridge-tolls.json",
+    "public/agent-bridge.html",
+    "public/agent-commerce.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "human_actions": [
+    "Confirm Render env: SUPABASE_URL, DREAMLEDGER_AGENT_BRIDGE_TOKEN, AGENT_BRIDGE_PROXY_URL, BECK_BRIDGE_SIGNING_SECRET",
+    "After deploy: GET /api/agent-bridge/rail/public should return 200 without token",
+    "Sell adjacent tolls via existing /buy routers until dedicated bridge SKUs exist"
+  ],
+  "created_at": "2026-09-28T10:33:00Z"
+}
