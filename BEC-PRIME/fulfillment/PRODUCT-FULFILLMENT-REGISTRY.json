@@ -10,9 +10,19 @@
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
       "operator_required": false,
       "idempotency_key": "stripe_checkout_session_id",
-      "buyer_inputs": ["tile_image_url", "destination_url", "tile_alt_text"],
+      "buyer_inputs": [
+        "tile_image_url",
+        "destination_url",
+        "tile_alt_text"
+      ],
       "scarcity": "100 founding-equivalent 100x100 positions per market",
-      "delivery_proof": ["fulfillment_id", "transaction_id", "grid_position", "delivery_url", "proof_url"],
+      "delivery_proof": [
+        "fulfillment_id",
+        "transaction_id",
+        "grid_position",
+        "delivery_url",
+        "proof_url"
+      ],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent"
     },
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001": {
@@ -22,24 +32,108 @@
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
       "operator_required": false,
       "idempotency_key": "stripe_checkout_session_id",
-      "buyer_inputs": ["destination_url", "tile_alt_text", "tile_image_url"],
+      "buyer_inputs": [
+        "destination_url",
+        "tile_alt_text",
+        "tile_image_url"
+      ],
       "scarcity": "100 founding-equivalent 100x100 positions per market",
-      "delivery_proof": ["fulfillment_id", "transaction_id", "grid_position", "delivery_url", "proof_url"],
+      "delivery_proof": [
+        "fulfillment_id",
+        "transaction_id",
+        "grid_position",
+        "delivery_url",
+        "proof_url"
+      ],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
       "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001"
     },
-    "BILLBOARD-MEDIUM": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
-    "BILLBOARD-WIDE": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
-    "BILLBOARD-LARGE": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
-    "BILLBOARD-TAKEOVER": {"ready": false, "operator_required": false, "reason": "not approved for sale"},
-    "COMMANDER-DECK-DIAGNOSTIC-001": {"ready": true, "operator_required": false, "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."},
-    "BEC-PRIME-ARCHITECTURE-AUDIT-001": {"ready": false, "operator_required": false, "reason": "fulfillment contract requires human release and is therefore not publicly sellable"},
-    "EDH_0001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
-    "BESPOKE-ARTISAN-EDH-DECK-001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
-    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
-    "DREAMIEZ-BEAUTY-BRUSH-001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
-    "DREAMIEZ-BEAUTY-MIRROR-001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
-    "DREAMIEZ-BEAUTY-POUCH-001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"},
-    "DREAMIEZ-BEAUTY-VANITY-001": {"ready": false, "operator_required": false, "reason": "physical dispatch is not zero-human fulfillment"}
+    "BILLBOARD-MEDIUM": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "not approved for sale"
+    },
+    "BILLBOARD-WIDE": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "not approved for sale"
+    },
+    "BILLBOARD-LARGE": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "not approved for sale"
+    },
+    "BILLBOARD-TAKEOVER": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "not approved for sale"
+    },
+    "COMMANDER-DECK-DIAGNOSTIC-001": {
+      "ready": true,
+      "operator_required": false,
+      "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."
+    },
+    "BEC-PRIME-ARCHITECTURE-AUDIT-001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "fulfillment contract requires human release and is therefore not publicly sellable"
+    },
+    "EDH_0001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "physical dispatch is not zero-human fulfillment"
+    },
+    "BESPOKE-ARTISAN-EDH-DECK-001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "physical dispatch is not zero-human fulfillment"
+    },
+    "MTG-URZAS-LEGACY-PALINCHRON-FOIL-001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "physical dispatch is not zero-human fulfillment"
+    },
+    "DREAMIEZ-BEAUTY-BRUSH-001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "physical dispatch is not zero-human fulfillment"
+    },
+    "DREAMIEZ-BEAUTY-MIRROR-001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "physical dispatch is not zero-human fulfillment"
+    },
+    "DREAMIEZ-BEAUTY-POUCH-001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "physical dispatch is not zero-human fulfillment"
+    },
+    "DREAMIEZ-BEAUTY-VANITY-001": {
+      "ready": false,
+      "operator_required": false,
+      "reason": "physical dispatch is not zero-human fulfillment"
+    },
+    "UPWORK-ACNC-CHARITY-CONTACTS-850": {
+      "ready": false,
+      "type": "automatic_data_extraction_and_contact_enrichment",
+      "delivery_target": "economic fulfillment storage artifact (CSV + evidence manifest)",
+      "activation": "approved fulfillment job -> ACNC weekly register retrieval -> state filter -> public Responsible People extraction -> optional Hunter/Apollo enrichment -> source hashes -> CSV/report artifact -> durable fulfillment proof",
+      "operator_required": false,
+      "idempotency_key": "economic_fulfillment_job_id",
+      "buyer_inputs": [
+        "target_state",
+        "charity_filter",
+        "delivery_scope"
+      ],
+      "current_scope": "~47,098 Australian charity records; WA first",
+      "current_blocker": "external enrichment provider connection required for decision-maker email/phone; no provider credentials are currently connected",
+      "evidence_policy": "No contact value is inferred or fabricated; unresolved records are explicitly classified.",
+      "external_sources": [
+        "https://www.acnc.gov.au/charity/about-charity-register/download-charity-register-data",
+        "https://data.gov.au/"
+      ],
+      "implementation": "workers/economic/acnc_contacts_pipeline.py",
+      "status": "CAPABILITY_BUILT_PROVIDER_CONNECTION_REQUIRED"
+    }
   }
 }
