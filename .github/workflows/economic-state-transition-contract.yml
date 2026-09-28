@@ -1,5 +1,9 @@
 name: Economic State Transition Contract
 
+concurrency:
+  group: dreamledger-economic-state-transition-contract.yml-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     paths:
