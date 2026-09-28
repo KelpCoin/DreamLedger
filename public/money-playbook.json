@@ -1,0 +1,30 @@
+{
+  "schema": "dreamledger/money-playbook/public/v1",
+  "updated": "2026-09-28",
+  "canonical_repo_paths": [
+    "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json",
+    "AGENT_BUS/MONEY-PLAYBOOK-README.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-paths-001-100.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-paths-101-200.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-paths-201-300.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-paths-301-400.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-paths-401-500.md"
+  ],
+  "rule": "Agents must not restart money strategy from zero. Execute LIVE_LOOP and DIST paths. Revenue only after Stripe livemode.",
+  "this_week": [
+    "Post https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001 in 3 NZ MTG groups",
+    "Post https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT as NZ$3.99 test",
+    "Message 10 businesses for https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "Message 10 sellers for https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"
+  ],
+  "live_buy_routers": {
+    "COMMANDER-DECK-DIAGNOSTIC-001": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+    "DREAMMEEZ-SUPPORTER-SPROUT": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+    "DREAMLEDGER-BILLBOARD-FOUNDING-001": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "SELLER-PROFIT-AUDIT-001": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+    "DISCORD-WEBHOOK-STARTER-KIT-001": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+    "KELP-FLOOR1-001": "https://dreamledger.org/buy/KELP-FLOOR1-001",
+    "ACNC-CHARITY-DD-99": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99"
+  }
+}
