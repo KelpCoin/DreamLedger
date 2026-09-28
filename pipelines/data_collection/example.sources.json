@@ -1,0 +1,1 @@
+{"sources":[{"name":"example-json","url":"https://example.com/data.json","format":"json","records_path":["items"],"field_map":{"id":"external_id","name":"name"}}]}
