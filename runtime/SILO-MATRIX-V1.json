@@ -1,0 +1,12 @@
+{
+  "version":"1.0",
+  "silos":[
+    {"id":"MUSIC_MEDIA","mode":"DEMAND_RESEARCH","economic_truth":"UNVERIFIED"},
+    {"id":"RETRO_GAMES","mode":"DEMAND_RESEARCH","economic_truth":"UNVERIFIED"},
+    {"id":"BESPOKE_LEARNING","mode":"PRIVATE_AND_DEMAND_RESEARCH","economic_truth":"UNVERIFIED"},
+    {"id":"COURSES","mode":"PRODUCT_RESEARCH","economic_truth":"UNVERIFIED"},
+    {"id":"HORSE_RACING","mode":"RESEARCH_ONLY","economic_truth":"UNVERIFIED"}
+  ],
+  "shared_engine":"DISCOVERY_QUALIFICATION_TRAVERSABILITY_CAPABILITY_OFFER_TRANSACTION_FULFILLMENT_VERIFIED_TRUTH",
+  "rule":"Internal activity never becomes economic truth without an independent external transaction."
+}
