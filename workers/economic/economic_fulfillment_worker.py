@@ -196,10 +196,10 @@ def claim():
 
 def complete(job,result,folder):
     artifact=folder/"report.md"; digest=sha256_file(artifact); storage="economic-jobs/"+str(job["id"])+"/report.md"; upload(artifact,storage)
-    return rpc("complete_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_storage_path":storage,"p_sha256":digest,"p_byte_size":artifact.stat().st_size,"p_result":{"row_count":result["row_count"],"evidence":result["evidence"],"artifact_sha256":digest,"worker_id":WORKER_ID}})
+    return rpc("complete_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],"p_storage_path":storage,"p_sha256":digest,"p_byte_size":artifact.stat().st_size,"p_result":{"row_count":result["row_count"],"evidence":result["evidence"],"artifact_sha256":digest,"worker_id":WORKER_ID}})
 
 def fail(job,reason):
-    return rpc("fail_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_reason":reason[:2000]})
+    return rpc("fail_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],"p_reason":reason[:2000]})
 
 def run_once():
     job=claim()
