@@ -1,0 +1,28 @@
+{
+  "schema": "dreamledger/money-playbook/v1",
+  "count": 500,
+  "canonical_md": "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+  "purpose": "Canonical money source for all agents. Close live Stripe loops before new architecture.",
+  "principles": [
+    "Revenue only after Stripe livemode + fulfilment proof",
+    "Prefer /buy/{product_id}",
+    "Bridge activity is not revenue",
+    "CUBE: paid then clone"
+  ],
+  "live_buy_routers": {
+    "COMMANDER-DECK-DIAGNOSTIC-001": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+    "DREAMMEEZ-SUPPORTER-SPROUT": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+    "DREAMLEDGER-BILLBOARD-FOUNDING-001": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "SELLER-PROFIT-AUDIT-001": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+    "DISCORD-WEBHOOK-STARTER-KIT-001": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+    "KELP-FLOOR1-001": "https://dreamledger.org/buy/KELP-FLOOR1-001",
+    "ACNC-CHARITY-DD-99": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99"
+  },
+  "this_week_order": [
+    "Post diagnostic in 3 NZ MTG Facebook groups + 1 Discord",
+    "Sticky Sprout NZ$3.99 on every surface",
+    "Message 10 businesses for billboard NZ$50",
+    "Message 10 sellers for audit NZ$29",
+    "First Stripe payment: fulfil same day; proof; repeat"
+  ]
+}
