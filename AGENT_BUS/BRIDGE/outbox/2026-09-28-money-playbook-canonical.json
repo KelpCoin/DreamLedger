@@ -1,0 +1,22 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-28-money-playbook",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "money",
+  "summary": "Canonical MONEY-PLAYBOOK-500.md + INDEX.json pushed. Agents: execute LIVE_LOOP and DIST paths; do not invent architecture instead of selling.",
+  "reads": [
+    "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json",
+    "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+    "https://dreamledger.org/api/offers"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "human_actions": [
+    "Today: post /buy/COMMANDER-DECK-DIAGNOSTIC-001 in NZ MTG groups",
+    "Today: post /buy/DREAMMEEZ-SUPPORTER-SPROUT as NZ$3.99 test purchase",
+    "Read AGENT_BUS/MONEY-PLAYBOOK-500.md before next agent session"
+  ],
+  "created_at": "2026-09-28T10:42:00Z"
+}
