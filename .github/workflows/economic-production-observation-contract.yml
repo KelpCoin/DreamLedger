@@ -1,5 +1,9 @@
 name: Economic Production Observation Contract
 
+concurrency:
+  group: dreamledger-economic-production-observation-contract.yml-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     paths:
