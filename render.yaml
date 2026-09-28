@@ -32,6 +32,8 @@ services:
           type: pserv
           name: dreamledger-engine
           envVarKey: SUPABASE_URL
+      - key: SUPABASE_PUBLISHABLE_KEY
+        value: sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj
       - key: SUPABASE_SERVICE_ROLE_KEY
         fromService:
           type: pserv
