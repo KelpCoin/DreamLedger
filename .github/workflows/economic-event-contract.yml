@@ -1,0 +1,33 @@
+name: Economic Event Contract
+
+on:
+  push:
+    paths:
+      - "runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md"
+      - "runtime/economic/**"
+      - ".github/workflows/economic-event-contract.yml"
+  pull_request:
+    paths:
+      - "runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md"
+      - "runtime/economic/**"
+      - ".github/workflows/economic-event-contract.yml"
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify event contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
+          grep -q "PAYMENT_SETTLED" runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
+          grep -q "ECONOMIC_OUTCOME_VERIFIED" runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
+          grep -q "MCP is an adapter" runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
+          grep -q "Retrieval is not truth" runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
+          grep -q "VERIFIED_EXTERNAL_REVENUE = NZ\$0.00" runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
+      - name: Verify existing deterministic admission tests
+        run: |
+          python3 runtime/opportunity/test_mass_admission.py
+          python3 runtime/fulfillment/test_job_fulfillment_gate.py
