@@ -94,7 +94,7 @@ a{color:inherit;text-decoration:none}
   <aside class="hero-card">
     <div class="lbl">DreamLedger</div>
     <h2>One front door. Many markets.</h2>
-    <p>Explore business commerce, services, collections, specialist silos and public offers without turning one product into the identity of the whole platform.</p>
+    <p>Explore business commerce, services, collections, specialist markets and public offers without turning one product into the identity of the whole platform.</p>
     <a class="btn btn-gold" href="/marketplace">Explore the marketplace</a>
   </aside>
 </section>
@@ -120,7 +120,7 @@ a{color:inherit;text-decoration:none}
   <div class="sec-h"><h2>Explore worlds</h2><span id="world-count">Live worlds</span></div>
   <p class="catalog-state">Browse specialist markets and categories across DreamLedger. Each world has its own offers, products and ways to participate.</p>
   <div id="world-rail" class="rails world-rail" aria-label="DreamLedger worlds"><article class="rail"><div class="meta">Worlds</div><h3>Loading worlds</h3><p>Connecting to the live catalogue.</p></article></div>
-  <a class="catalog-more" href="/silos">Explore all worlds →</a>
+  <a class="catalog-more" href="/worlds">Explore all worlds →</a>
 </section>
 
 <section class="sec">
@@ -152,7 +152,7 @@ a{color:inherit;text-decoration:none}
       const d=await r.json(); const items=Array.isArray(d.products)?d.products.filter(x=>x&&x.status==='published'):[]; count.textContent=items.length+' published offers';
       rail.innerHTML=items.slice(0,12).map(p=>{
         const buy=p.checkout_available!==false&&p.checkout_url?'/buy/'+encodeURIComponent(p.id):'/product/'+encodeURIComponent(p.id);
-        return '<article class="rail"><div class="meta">'+esc(p.silo||'catalogue')+'</div><h3>'+esc(p.name||p.id)+'</h3><p>'+esc(p.description||'')+'</p><div class="price">'+money(p.price,p.currency)+'</div><a class="cta" href="'+buy+'">'+(p.checkout_available!==false?'Buy →':'View offer →')+'</a></article>';
+        return '<article class="rail"><div class="meta">'+esc(p.world||'catalogue')+'</div><h3>'+esc(p.name||p.id)+'</h3><p>'+esc(p.description||'')+'</p><div class="price">'+money(p.price,p.currency)+'</div><a class="cta" href="'+buy+'">'+(p.checkout_available!==false?'Buy →':'View offer →')+'</a></article>';
       }).join('') || '<article class="rail"><div class="meta">Catalogue</div><h3>No published offers</h3><p>The live catalogue currently contains no published offers.</p></article>';
     }catch(e){count.textContent='Catalogue unavailable';rail.innerHTML='<article class="rail"><div class="meta">Catalogue</div><h3>Live catalogue unavailable</h3><p>The storefront could not load its published offer feed.</p></article>'}
   }
