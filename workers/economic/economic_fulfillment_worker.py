@@ -9,6 +9,7 @@ from urllib.error import HTTPError, URLError
 
 from acnc_contacts_pipeline import run_acnc_contacts
 from economic_compute_trace import start_trace, observe_tool, finish_trace, write_trace
+from substrate_admission import assess_trace
 
 SUPABASE_URL = os.environ["SUPABASE_URL"].rstrip("/")
 SERVICE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
@@ -182,8 +183,11 @@ def write_artifacts(job_id,result):
         writer=csv.DictWriter(handle,fieldnames=keys or ["_empty"]); writer.writeheader()
         for row in rows: writer.writerow(row)
     lines=["# BrownEye Economic Fulfillment","","- Job: `" + str(job_id) + "`","- Generated: `" + datetime.now(timezone.utc).isoformat() + "`","- Rows: `" + str(len(rows)) + "`","- Source-derived identity data is never fabricated.",""]
+    admission=result.get("_substrate_admission")
+    if admission:
+        lines.extend(["## Substrate Admission","","- Decision: `" + str(admission.get("admission")) + "`","- Trace: `" + str(admission.get("economic_trace_id")) + "`","- Dependency failed: `" + str(admission.get("dependency_failed")) + "`","- Material cost unknown: `" + str(admission.get("material_cost_unknown")) + "`",""])
     if result.get("job_type") == "ACNC_CHARITY_DUE_DILIGENCE":
-        lines.extend(["## ACNC Due Diligence Scope","", "- Identifier supplied: `" + str(result.get("charity_identifier","")) + "`", "- Match status: `" + str(result.get("match_status","UNKNOWN")) + "`", "- Scope: " + str(result.get("report_scope","")),""])
+        lines.extend(["## ACNC Due Diligence Scope","", "- Identifier supplied: `" + str(result.get("charity_identifier","")) + "`", "- Match status: `" + str(result.get("match_status","UNKNOWN")) + "`", "- Scope: " + str(result.get("report_scope","")), ""])
     if result.get("job_type") == "ACNC_CHARITY_CONTACTS":
         lines.extend(["## ACNC Contact Project","", "- States: `" + ",".join(result.get("states") or []) + "`", "- Fulfillment status: `" + str(result.get("fulfillment_status","UNKNOWN")) + "`", "- Provider state: `" + json.dumps(result.get("provider_state") or {}, sort_keys=True) + "`",""])
     lines.extend(["## Evidence",""])
@@ -230,6 +234,7 @@ def complete(job,result,folder):
             "row_count":result["row_count"],"evidence":result["evidence"],
             "artifact_sha256":report["sha256"],"worker_id":WORKER_ID,
             "artifacts":artifacts,
+            "substrate_admission":result.get("_substrate_admission"),
         },
     })
 
@@ -247,6 +252,23 @@ def run_once():
     try:
         result=run(payload)
         finish_trace(TRACE, "AVAILABLE")
+        admission=assess_trace(TRACE)
+        result["_substrate_admission"]=admission
+        if admission["admission"] != "SURVIVES":
+            TRACE["failure_class"]="SUBSTRATE_ADMISSION"
+            TRACE["resource_condition"]=admission["admission"]
+            finish_trace(TRACE, "FAILED", "SUBSTRATE_ADMISSION", None, admission["admission"])
+            folder=write_artifacts(job["id"],result)
+            trace_path=folder/"economic_compute_trace.json"
+            storage_path="economic-jobs/"+str(job["id"])+"/economic_compute_trace.json"
+            upload(trace_path,storage_path)
+            reason=("SUBSTRATE_ADMISSION | trace="+TRACE["economic_trace_id"]+
+                    " | admission="+admission["admission"]+
+                    " | action="+str(action_id)+
+                    " | opportunity="+str(opportunity_id)+
+                    " | trace_storage="+storage_path)
+            fail(job,reason)
+            return True
         folder=write_artifacts(job["id"],result)
         complete(job,result,folder)
         return True
