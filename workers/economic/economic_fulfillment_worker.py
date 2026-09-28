@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 from urllib.request import Request, urlopen
 
 from acnc_contacts_pipeline import run_acnc_contacts
+from economic_compute_trace import start_trace, observe_tool, finish_trace, write_trace
 
 SUPABASE_URL = os.environ["SUPABASE_URL"].rstrip("/")
 SERVICE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
@@ -25,7 +26,12 @@ def api(url, method="GET", body=None):
 def rpc(name, args):
     return api(SUPABASE_URL + "/rest/v1/rpc/" + name, "POST", args)
 
+TRACE = None
+
 def fetch(url):
+    global TRACE
+    if TRACE is not None:
+        observe_tool(TRACE)
     req = Request(url, headers={"User-Agent": "BrownEye-Economic-Fulfillment/1.0", "Accept": "*/*"})
     with urlopen(req, timeout=60) as r:
         return r.status, r.headers.get("content-type", ""), r.read()
@@ -162,6 +168,8 @@ def run(payload):
 
 def write_artifacts(job_id,result):
     folder=ROOT/str(job_id); folder.mkdir(parents=True,exist_ok=True)
+    if TRACE is not None:
+        write_trace(TRACE, folder)
     (folder/"result.json").write_text(json.dumps(result,indent=2,ensure_ascii=True),encoding="utf-8")
     rows=result["rows"]; keys=sorted({k for row in rows for k in row})
     with open(folder/"results.csv","w",newline="",encoding="utf-8") as handle:
@@ -194,7 +202,7 @@ def claim():
 def complete(job,result,folder):
     root="economic-jobs/"+str(job["id"])
     artifacts=[]
-    for filename in ("report.md","results.csv","result.json"):
+    for filename in ("report.md","results.csv","result.json","economic_compute_trace.json"):
         path=folder/filename
         storage=root+"/"+filename
         upload(path,storage)
@@ -220,12 +228,33 @@ def fail(job,reason):
     return rpc("fail_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],"p_reason":reason[:2000]})
 
 def run_once():
+    global TRACE
     job=claim()
     if not job: return False
+    payload=job.get("payload") or {}
+    action_id=payload.get("action_id") or payload.get("economic_action_id") or job.get("action_id")
+    opportunity_id=payload.get("opportunity_id") or job.get("opportunity_id")
+    TRACE=start_trace(action_id, opportunity_id)
     try:
-        result=run(job.get("payload") or {}); folder=write_artifacts(job["id"],result); complete(job,result,folder); return True
+        result=run(payload)
+        finish_trace(TRACE, "AVAILABLE")
+        folder=write_artifacts(job["id"],result)
+        complete(job,result,folder)
+        return True
     except Exception as exc:
-        fail(job,str(exc)); return True
+        finish_trace(TRACE, "FAILED", "WORKER_FAILURE")
+        folder=ROOT/str(job["id"])
+        folder.mkdir(parents=True,exist_ok=True)
+        write_trace(TRACE, folder)
+        try:
+            trace_path=folder/"economic_compute_trace.json"
+            storage_path="economic-jobs/"+str(job["id"])+"/economic_compute_trace.json"
+            upload(trace_path, storage_path)
+            reason="WORKER_FAILED | trace="+TRACE["economic_trace_id"]+" | trace_storage="+storage_path+" | "+str(exc)
+        except Exception:
+            reason="WORKER_FAILED | trace="+TRACE["economic_trace_id"]+" | trace_upload_failed | "+str(exc)
+        fail(job,reason)
+        return True
 
 if __name__=="__main__":
     if os.environ.get("BEC_ONCE")=="1": run_once()
