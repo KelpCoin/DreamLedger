@@ -1,0 +1,22 @@
+name: Economic Event Projection
+
+on:
+  push:
+    paths:
+      - "runtime/economic/event_projection.py"
+      - "runtime/economic/test_event_projection.py"
+      - ".github/workflows/economic-event-projection.yml"
+  pull_request:
+    paths:
+      - "runtime/economic/event_projection.py"
+      - "runtime/economic/test_event_projection.py"
+      - ".github/workflows/economic-event-projection.yml"
+
+jobs:
+  projection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deterministic projection tests
+        working-directory: runtime/economic
+        run: python3 test_event_projection.py
