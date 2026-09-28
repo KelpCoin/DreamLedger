@@ -486,6 +486,8 @@ def run_acnc_contacts(payload):
         "apollo_phone_reveal_enabled": APOLLO_REVEAL_PHONE,
         "automated_contact_enrichment_available": bool(HUNTER_KEY or (APOLLO_KEY and APOLLO_REVEAL_PHONE)),
     }
+    if not provider_state["automated_contact_enrichment_available"]:
+        raise RuntimeError("ACNC_ENRICHMENT_PROVIDER_REQUIRED")
     return {
         "job_type": "ACNC_CHARITY_CONTACTS",
         "states": states,
