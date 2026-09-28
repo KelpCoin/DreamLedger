@@ -1,0 +1,30 @@
+name: Swarm Orchestration Contract
+
+on:
+  push:
+    paths:
+      - "runtime/swarm/**"
+      - "runtime/opportunity/**"
+      - ".github/workflows/swarm-orchestration-contract.yml"
+  pull_request:
+    paths:
+      - "runtime/swarm/**"
+      - "runtime/opportunity/**"
+      - ".github/workflows/swarm-orchestration-contract.yml"
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install orchestration dependency
+        run: python -m pip install -r runtime/swarm/dapr_requirements.txt
+      - name: Import adapter
+        run: python -c "from runtime.swarm.dapr_discovery_workflow import DiscoveryBatch, build_discovery_plan; print(build_discovery_plan(DiscoveryBatch('ci', ('test',))))"
+      - name: Run mass-admission tests
+        run: python runtime/opportunity/test_mass_admission.py
+      - name: Run fulfillment gate tests
+        run: python runtime/fulfillment/test_job_fulfillment_gate.py

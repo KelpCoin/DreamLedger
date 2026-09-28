@@ -138,7 +138,24 @@
       "payment_link_id": "plink_1UJ3NlEGgEAnUFF9wAINPrwZ",
       "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
       "fulfillment": "customer_input -> automatic_commander_worker -> verified_artifact",
-      "fulfillment_input_url": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}"
+      "fulfillment_input_url": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}",
+      "fulfillment_contract": {
+        "fulfillment_capability": "COMMANDER_DIAGNOSTIC",
+        "buyer_inputs": [
+          "decklist"
+        ],
+        "automated_work": [
+          "deck structure analysis",
+          "diagnostic report",
+          "upgrade plan"
+        ],
+        "validation": [
+          "artifact_created",
+          "schema_valid"
+        ],
+        "human_gate": null,
+        "completion_condition": "Validated diagnostic artifact is generated and made available to the buyer."
+      }
     },
     {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
@@ -153,7 +170,22 @@
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
-      "fulfillment": "automatic_paid_session_download"
+      "fulfillment": "automatic_paid_session_download",
+      "fulfillment_contract": {
+        "fulfillment_capability": "PAID_DIGITAL_DELIVERY",
+        "buyer_inputs": [
+          "download/session identity"
+        ],
+        "automated_work": [
+          "paid-session delivery"
+        ],
+        "validation": [
+          "payment-settlement verification",
+          "artifact availability"
+        ],
+        "human_gate": null,
+        "completion_condition": "Paid digital artifact is made available after verified settlement."
+      }
     },
     {
       "id": "EDH_0001",
@@ -213,7 +245,24 @@
       "payment_link_id": "plink_1UJNTzEGgEAnUFF9bzVlFlng",
       "stripe_product_id": "prod_VK1WoQw8ieHpMN",
       "stripe_price_id": "price_1UJNTvEGgEAnUFF9bfGbtrmm",
-      "fulfillment": "manual_pdf"
+      "fulfillment": "manual_pdf",
+      "fulfillment_contract": {
+        "fulfillment_capability": "SELLER_PROFIT_AUDIT",
+        "buyer_inputs": [
+          "seller transaction export",
+          "fee/shipping inputs"
+        ],
+        "automated_work": [
+          "profit calculation",
+          "fee comparison",
+          "shipping economics"
+        ],
+        "validation": [
+          "calculation_reconciliation"
+        ],
+        "human_gate": "Manual review where source data is ambiguous.",
+        "completion_condition": "Validated PDF audit is delivered."
+      }
     },
     {
       "id": "DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001",
@@ -231,7 +280,24 @@
       "payment_link_id": "plink_1UJSwWEGgEAnUFF9EPmOx8PQ",
       "stripe_product_id": "prod_VK7AxB6WEZGX9C",
       "stripe_price_id": "price_1UJSwREGgEAnUFF9kGZjJEma",
-      "fulfillment": "manual_gauntlet_truth_oracle_report"
+      "fulfillment": "manual_gauntlet_truth_oracle_report",
+      "fulfillment_contract": {
+        "fulfillment_capability": "COMMERCIAL_TRUTH_REVIEW",
+        "buyer_inputs": [
+          "claim or workflow",
+          "supporting evidence"
+        ],
+        "automated_work": [
+          "evidence intake",
+          "structured gap analysis"
+        ],
+        "validation": [
+          "evidence_index",
+          "claim_scope_check"
+        ],
+        "human_gate": "Human review for final adversarial report.",
+        "completion_condition": "Final reviewed report is delivered to the buyer."
+      }
     },
     {
       "id": "ACNC-CHARITY-DD-99",
@@ -257,7 +323,26 @@
         "diligence_flags",
         "risk_rating",
         "source_trail"
-      ]
+      ],
+      "fulfillment_contract": {
+        "fulfillment_capability": "ACNC_CHARITY_DUE_DILIGENCE",
+        "buyer_inputs": [
+          "charity identifier"
+        ],
+        "automated_work": [
+          "public-register retrieval",
+          "record matching",
+          "source hashing",
+          "bounded report generation"
+        ],
+        "validation": [
+          "source_hashes",
+          "record_match",
+          "report_scope_check"
+        ],
+        "human_gate": null,
+        "completion_condition": "Source-backed report and source trail are generated and validated."
+      }
     }
   ]
 }

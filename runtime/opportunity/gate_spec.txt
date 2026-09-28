@@ -1,0 +1,2 @@
+states: OBSERVED, QUALIFIABLE, CAPABILITY_MATCHED, TRAVERSABLE, EXECUTABLE
+unknown authorization must not become allow

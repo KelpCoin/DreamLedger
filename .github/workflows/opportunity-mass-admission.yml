@@ -1,0 +1,22 @@
+name: Opportunity Mass Admission
+
+on:
+  push:
+    branches: ["build/fulfillment-capability-monetization-v1"]
+    paths:
+      - "runtime/opportunity/**"
+  pull_request:
+    paths:
+      - "runtime/opportunity/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run admission regression tests
+        working-directory: runtime/opportunity
+        run: python test_mass_admission.py
