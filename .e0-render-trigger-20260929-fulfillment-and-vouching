@@ -1,0 +1,7 @@
+2026-09-29
+TRIGGER: LEDGER-VOUCHING-EVIDENCE-ADAPTER + FULFILLMENT-STATUS-AND-OPPORTUNITY-STATE
+COMMITS:
+  fd85c5f353474ce69d27113d07d98899e02f7f61  (ledger-vouching adapter)
+  b42d8313dde5c5b85c766a50bb7b54deec20fc17  (fulfillment status + opportunity state)
+INTENT: Close provenance and fulfillment-state gaps before first external fulfillment.
+BLOCKER: Explicit Render workspace selection still required for production promote.
