@@ -1,0 +1,17 @@
+{
+  "schema": "dreamledger/bridge-tolls/v1",
+  "updated": "2026-09-28",
+  "thesis": "Discovery open. Bridge is the toll road. Human checkout is Stripe.",
+  "public_discovery": {
+    "offers": "https://dreamledger.org/api/offers",
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
+    "economic_loops": "https://dreamledger.org/economic-loops.json",
+    "agent_commerce": "https://dreamledger.org/agent-commerce.json"
+  },
+  "toll_tiers": [
+    {"id": "TOLL-DISCOVERY-FREE", "price_nzd": 0, "status": "live"},
+    {"id": "TOLL-IGNITION", "price_nzd": 3.99, "buy": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT", "status": "live"},
+    {"id": "TOLL-PRIMARY", "price_nzd": 29, "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001", "status": "live"},
+    {"id": "TOLL-CUBE-CELL", "price_nzd": 50, "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001", "status": "live"}
+  ]
+}
