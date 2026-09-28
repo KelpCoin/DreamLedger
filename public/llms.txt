@@ -1,38 +1,45 @@
 # DreamLedger
 
 Settlement-backed commercial ledger (NZD). Revenue = Stripe payment + attribution + fulfillment evidence only.
-Thesis: in agentic commerce, the scarce asset is trusted settlement and post-payment proof.
 
-## Agent purchase (economic events)
-1. GET https://dreamledger.org/api/offers
-2. Prefer status VERIFIED_AVAILABLE
-3. Require human authorization before spend
-4. Open https://dreamledger.org/buy/{product_id} (binds client_reference_id)
-5. Event order: authorized → paid → delivered → proven → ledgered
+## Economic loops
+GET https://dreamledger.org/economic-loops.json
+Stages: DISCOVER → OFFER → AUTHORIZE → PAY → SETTLE → FULFIL → PROOF → LEARN → REPEAT
 
-## Primary paid offers (live)
+## Agent purchase
+1. GET https://dreamledger.org/api/offers (14+ VERIFIED_AVAILABLE)
+2. Require human authorization before spend
+3. Open https://dreamledger.org/buy/{product_id}
+4. Event order: authorized → paid → delivered → proven → ledgered
+
+## Agent Bridge
+- Public rail health: https://dreamledger.org/api/agent-bridge/rail/public
+- Manifest: https://dreamledger.org/api/agent-bridge/manifest
+- Work routes require header: x-dreamledger-agent-token
+- Bridge activity is not revenue
+
+## Priority paid offers
 - Commander Deck Diagnostic — NZ$29 — https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
-- Seller Profit Audit — NZ$29 — https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001
-- Founding Billboard 100x100 — NZ$50 — https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
-- Discord Webhook Starter Kit — NZ$79 — https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001
 - DreamMeez Supporter Sprout — NZ$3.99 — https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT
+- Founding Billboard — NZ$50 — https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
+- Seller Profit Audit — NZ$29 — https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001
+- Discord Webhook Kit — NZ$79 — https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001
+- Kelplantis Floor 1 — NZ$19 — https://dreamledger.org/buy/KELP-FLOOR1-001
+- ACNC Charity DD — NZ$99 — https://dreamledger.org/buy/ACNC-CHARITY-DD-99
 
-## Machine surfaces (validation layer)
-- https://dreamledger.org/.well-known/dreamledger.json
+## Machine surfaces
 - https://dreamledger.org/agent-commerce.json
 - https://dreamledger.org/agent.json
 - https://dreamledger.org/api/offers
 - https://dreamledger.org/api/products
-- https://dreamledger.org/proof.schema.json
-- https://dreamledger.org/ledger.html
-- https://dreamledger.org/llms.txt
+- https://dreamledger.org/economic-loops.json
+- https://dreamledger.org/bridge-tolls.json
+- https://dreamledger.org/cube.json
 
-## Human surfaces
-- https://dreamledger.org/
-- https://dreamledger.org/shop.html
+## Human
+- https://dreamledger.org/shop.html (horizontal silo rails)
 - https://dreamledger.org/mtg
 - https://dreamledger.org/billboard
 
 ## Safety
 No autonomous spend. Do not invent payment references or ledgered revenue.
-Checkout start ≠ payment. Payment ≠ fulfillment. Fulfillment ≠ proven.
