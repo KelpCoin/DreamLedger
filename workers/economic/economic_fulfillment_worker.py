@@ -188,15 +188,33 @@ def upload(path,storage_path):
     with urlopen(req,timeout=60) as response: return response.status
 
 def claim():
-    try:
-        rows=rpc("claim_economic_fulfillment_job",{"p_worker_id":WORKER_ID,"p_lease_seconds":LEASE_SECONDS})
-        return rows[0] if rows else None
-    except Exception:
-        return None
+    rows=rpc("claim_economic_fulfillment_job",{"p_worker_id":WORKER_ID,"p_lease_seconds":LEASE_SECONDS})
+    return rows[0] if rows else None
 
 def complete(job,result,folder):
-    artifact=folder/"report.md"; digest=sha256_file(artifact); storage="economic-jobs/"+str(job["id"])+"/report.md"; upload(artifact,storage)
-    return rpc("complete_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],"p_storage_path":storage,"p_sha256":digest,"p_byte_size":artifact.stat().st_size,"p_result":{"row_count":result["row_count"],"evidence":result["evidence"],"artifact_sha256":digest,"worker_id":WORKER_ID}})
+    root="economic-jobs/"+str(job["id"])
+    artifacts=[]
+    for filename in ("report.md","results.csv","result.json"):
+        path=folder/filename
+        storage=root+"/"+filename
+        upload(path,storage)
+        artifacts.append({
+            "filename":filename,
+            "storage_path":storage,
+            "sha256":sha256_file(path),
+            "byte_size":path.stat().st_size,
+        })
+    report=next(item for item in artifacts if item["filename"]=="report.md")
+    return rpc("complete_economic_fulfillment_job",{
+        "p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],
+        "p_storage_path":report["storage_path"],"p_sha256":report["sha256"],
+        "p_byte_size":report["byte_size"],
+        "p_result":{
+            "row_count":result["row_count"],"evidence":result["evidence"],
+            "artifact_sha256":report["sha256"],"worker_id":WORKER_ID,
+            "artifacts":artifacts,
+        },
+    })
 
 def fail(job,reason):
     return rpc("fail_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],"p_reason":reason[:2000]})
