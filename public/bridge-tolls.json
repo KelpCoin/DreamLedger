@@ -1,0 +1,67 @@
+{
+  "schema": "dreamledger/bridge-tolls/v1",
+  "updated": "2026-09-28",
+  "thesis": "Discovery is open. The bridge is a toll road. Human checkout stays Stripe. Ledger truth stays fail-closed.",
+  "public_discovery": {
+    "offers": "https://dreamledger.org/api/offers",
+    "products": "https://dreamledger.org/api/products",
+    "agent_commerce": "https://dreamledger.org/agent-commerce.json",
+    "bridge_public": "https://dreamledger.org/api/agent-bridge/public",
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
+    "manifest": "https://dreamledger.org/api/agent-bridge/manifest"
+  },
+  "work_requires": {
+    "header": "x-dreamledger-agent-token",
+    "routes": [
+      "/api/agent-bridge/events",
+      "/api/agent-bridge/jobs",
+      "/api/agent-bridge/rail/lease",
+      "/api/agent-bridge/rail/stage",
+      "/api/agent-bridge/rail/manifest"
+    ]
+  },
+  "toll_tiers": [
+    {
+      "id": "TOLL-DISCOVERY-FREE",
+      "name": "Discovery",
+      "price_nzd": 0,
+      "includes": ["GET /api/offers", "GET /agent-commerce.json", "horizontal shop"],
+      "status": "live"
+    },
+    {
+      "id": "TOLL-BRIDGE-SESSION",
+      "name": "Bridge session access",
+      "price_nzd": 29,
+      "currency": "NZD",
+      "includes": ["Authenticated rail lease cycle", "job claim/complete under governance"],
+      "adjacent_purchase": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "note": "Until dedicated bridge SKU is live, primary paid ignition remains NZ$29 diagnostic",
+      "status": "adjacent_live"
+    },
+    {
+      "id": "TOLL-PROOF-ATTEST",
+      "name": "Proof attestation",
+      "price_nzd": 9.99,
+      "currency": "NZD",
+      "includes": ["proof.schema.json validation posture", "ledger citation for agent claims"],
+      "adjacent_purchase": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW",
+      "status": "adjacent_live"
+    },
+    {
+      "id": "TOLL-CUBE-CELL",
+      "name": "CUBE cell publish",
+      "price_nzd": 50,
+      "currency": "NZD",
+      "includes": ["New commercial cell on a silo", "billboard-class permanence option"],
+      "adjacent_purchase": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "status": "adjacent_live",
+      "scale": "clone_after_paid_proof"
+    }
+  ],
+  "cube_scale": {
+    "principle": "many_surfaces_one_commerce_spine",
+    "rule": "paid_verified_then_clone",
+    "surface_classes": ["WEB_OFFER", "AGENT_ENDPOINT", "DIGITAL_PRODUCT", "TRUST_PROOF", "QR_SURFACE", "DOOH_SCREEN"]
+  },
+  "economic_truth": "Toll payment is Stripe. Bridge events are not revenue until paid+proven."
+}
