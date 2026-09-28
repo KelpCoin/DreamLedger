@@ -1,0 +1,62 @@
+name: Economic Substrate Live Path
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "workers/economic/**"
+      - ".github/workflows/economic-substrate-live-path.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run economic worker substrate tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd workers/economic
+          python3 -m unittest -v test_substrate_survival_gate.py test_substrate_admission.py test_economic_compute_trace.py test_economic_fulfillment_substrate_path.py
+
+      - name: Emit proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          python3 - <<'PY'
+          import json, time, os
+          from pathlib import Path
+          proof = {
+              "schema": "dreamledger/economic-substrate-live-path/v1",
+              "status": "PASS",
+              "commit": os.environ.get("GITHUB_SHA"),
+              "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "tests": [
+                  "substrate_survival_gate",
+                  "substrate_admission",
+                  "economic_compute_trace",
+                  "economic_fulfillment_substrate_path"
+              ],
+              "economic_truth_mutation": False,
+              "public_action": False,
+              "revenue_claim": False,
+              "purpose": "Verify that a fulfillment worker trace reaches substrate admission before completion."
+          }
+          Path("proof/ECONOMIC-SUBSTRATE-LIVE-PATH.json").write_text(json.dumps(proof, indent=2) + "\n")
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-substrate-live-path-${{ github.run_id }}
+          path: proof/ECONOMIC-SUBSTRATE-LIVE-PATH.json
+          if-no-files-found: error
