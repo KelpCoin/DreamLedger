@@ -1,0 +1,18 @@
+name: Fulfillment Gate
+
+on:
+  push:
+    branches: ["build/fulfillment-capability-monetization-v1"]
+  pull_request:
+    paths:
+      - "runtime/fulfillment/**"
+      - "runtime/FULFILLMENT-FIRST-DOLLAR-V1-2026-09-29.md"
+      - "public/catalog.json"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deterministic fulfillment gate tests
+        run: python3 runtime/fulfillment/test_job_fulfillment_gate.py
