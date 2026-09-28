@@ -11,13 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        location:
-          - {name: Auckland, lat: -36.8509, lng: 174.7645}
-          - {name: Tauranga, lat: -37.6878, lng: 176.1651}
-          - {name: Hamilton, lat: -37.7870, lng: 175.2793}
-          - {name: Wellington, lat: -41.2866, lng: 174.7756}
-          - {name: Christchurch, lat: -43.5321, lng: 172.6362}
-          - {name: Dunedin, lat: -45.8788, lng: 170.5028}
+        location: [Auckland, Tauranga, Hamilton, Wellington, Christchurch, Dunedin]
     steps:
       - name: Ingest fuel observations
         env:
@@ -25,4 +19,8 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
-          curl --fail-with-body --retry 3 -X POST -H "Authorization: Bearer $SUPABASE_ANON_KEY" -H "Content-Type: application/json" "$SUPABASE_URL/functions/v1/truth-oracle-fuel-ingest" --data '${{ toJSON(matrix.location) }}'
+          curl --fail-with-body --retry 3 -X POST \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            "$SUPABASE_URL/functions/v1/truth-oracle-fuel-ingest-v2" \
+            --data "{\"name\":\"${{ matrix.location }}\"}"
