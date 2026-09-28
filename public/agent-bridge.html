@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Agent Bridge · DreamLedger</title>
+<meta name="description" content="DreamLedger Agent Bridge — governed handoff, settlement-backed truth, tolls for agentic commerce validation.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f3ec;--ink:#1a1510;--muted:#6e6458;--line:#e2d8c8;--gold:#c48a2b;--card:#fffcf7}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+a{color:var(--gold)}header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.brand{font-family:Fraunces,Georgia,serif;font-size:1.25rem;font-weight:600;color:var(--ink);text-decoration:none}
+main{max-width:640px;margin:0 auto;padding:28px 16px 64px}h1{font-family:Fraunces,Georgia,serif;font-size:clamp(1.8rem,5vw,2.4rem);font-weight:500;margin-bottom:12px}
+.lead{color:var(--muted);margin-bottom:24px}h2{font-size:1.05rem;margin:28px 0 10px}p,li{color:var(--muted);font-size:.95rem;margin-bottom:8px}ul{padding-left:1.2em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;background:#1a1510;color:#fff;font-weight:700;text-decoration:none;margin-top:12px}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="/">DreamLedger</a>
+  <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001" style="font-weight:700;font-size:13px">Buy NZ$29</a>
+</header>
+<main>
+  <h1>Agent Bridge</h1>
+  <p class="lead">Governed handoff between agents and cloud commerce. The bridge is a road. Tolls are paid for access and validation — not for inventing revenue.</p>
+
+  <h2>What it is today</h2>
+  <ul>
+    <li><strong>Status:</strong> governed (authenticated agent token required)</li>
+    <li><strong>Rail:</strong> <span class="mono">/api/agent-bridge/rail/manifest</span> (401 without credentials)</li>
+    <li><strong>Settlement:</strong> Stripe live NZD only</li>
+    <li><strong>Truth rule:</strong> bridge activity ≠ revenue; revenue needs Stripe + fulfillment proof</li>
+  </ul>
+
+  <h2>Where tolls fit (agentic commerce boom)</h2>
+  <div class="card">
+    <p><strong>Discovery is free enough to try.</strong> Machine contracts stay public:</p>
+    <p class="mono">/api/offers · /agent-commerce.json · /.well-known/dreamledger.json</p>
+    <p style="margin-top:12px"><strong>Validation is the product.</strong> Agents that want governed handoff, attribution binding, and ledger proof pay for the road:</p>
+    <ul>
+      <li>Bridge session / rail access (tokenised agents)</li>
+      <li>Proof attestation against <span class="mono">proof.schema.json</span></li>
+      <li>Human checkout remains Stripe (0% platform success fee on current public offers)</li>
+    </ul>
+  </div>
+
+  <h2>Alignment with the industry stack</h2>
+  <ul>
+    <li><strong>AP2-like:</strong> human authorization before spend</li>
+    <li><strong>ACP-like:</strong> Payment Link / buy-router handoff</li>
+    <li><strong>x402 / MPP:</strong> reserved, not live on DreamLedger yet</li>
+  </ul>
+
+  <h2>Humans still buy here</h2>
+  <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · NZ$29</a>
+  <a class="btn" style="background:transparent;color:var(--ink);border:1.5px solid var(--line)" href="/shop.html">Horizontal shop →</a>
+
+  <h2>Machine entry</h2>
+  <p><a href="/agent.json">agent.json</a> · <a href="/agent-commerce.json">agent-commerce.json</a> · <a href="/ledger.html">ledger.html</a></p>
+</main>
+</body>
+</html>
