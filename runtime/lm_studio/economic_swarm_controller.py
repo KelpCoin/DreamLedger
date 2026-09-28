@@ -1,116 +1,42 @@
-import json
-import os
-import sys
-import time
-import urllib.request
-import urllib.error
+import json, os, sys, time, urllib.request, urllib.parse
+from datetime import datetime, timezone
+BASE=os.environ.get("LM_STUDIO_BASE_URL","http://localhost:1234")
+MODEL=os.environ.get("DREAMLEDGER_LM_MODEL") or os.environ.get("BECK_LM_MODEL")
+INTERVAL=int(os.environ.get("DREAMLEDGER_SWARM_INTERVAL_SECONDS","60"))
+SUPA=os.environ.get("SUPABASE_URL","").rstrip("/")
+KEY=os.environ.get("SUPABASE_ANON_KEY","")
+ROOT=os.environ.get("DREAMLEDGER_ROOT") or os.getcwd()
+LOG=os.path.join(ROOT,"runtime","lm_studio","runs"); os.makedirs(LOG,exist_ok=True)
 
-BASE = os.environ.get("LM_STUDIO_BASE_URL", "http://localhost:1234")
-MODEL = os.environ.get("DREAMLEDGER_LM_MODEL") or os.environ.get("BECK_LM_MODEL")
+def get(url,headers=None,timeout=15):
+    r=urllib.request.Request(url,headers=headers or {"Accept":"application/json"})
+    with urllib.request.urlopen(r,timeout=timeout) as x: return json.loads(x.read().decode())
 
-def get_json(path):
-    req = urllib.request.Request(BASE + path, headers={"Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=10) as r:
-        return json.loads(r.read().decode("utf-8"))
+def snapshot():
+    e={"timestamp_utc":datetime.now(timezone.utc).isoformat(),"economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},"first_dollar_target":{"offer_id":"DREAMMEEZ-COSMIC-HOODIE-001","price_nzd":5},"constraints":["no self purchase","no simulated revenue","no fake buyers","no autonomous outreach or proposal submission","no autonomous spending","no credential or secret handling","no bypass of platform controls","human gate for irreversible external action"]}
+    if SUPA and KEY:
+        try:
+            q=urllib.parse.urlencode({"select":"opportunity_id,source,subject,status,expected_value_nzd,expected_cost_nzd,time_budget_minutes,authority_lane,observed_at","order":"expected_value_nzd.asc.nullslast","limit":"50"})
+            e["opportunities"]=get(SUPA+"/rest/v1/cube_opportunities?"+q,{"apikey":KEY,"Authorization":"Bearer "+KEY})
+        except Exception as ex: e["opportunities_error"]=str(ex)
+    return e
 
-def ask_model(evidence):
-    schema = {
-        "type": "json_schema",
-        "json_schema": {
-            "name": "economic_swarm_decision",
-            "strict": True,
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "decision": {"type": "string"},
-                    "opportunity_id": {"type": "string"},
-                    "confidence": {"type": "number"},
-                    "evidence_refs": {"type": "array", "items": {"type": "string"}},
-                    "blockers": {"type": "array", "items": {"type": "string"}},
-                    "next_action": {"type": "string"},
-                    "human_gate": {"type": "boolean"},
-                    "estimated_value_nzd": {"type": "number"},
-                    "expiry": {"type": "string"}
-                },
-                "required": ["decision","opportunity_id","confidence","evidence_refs","blockers","next_action","human_gate","estimated_value_nzd","expiry"],
-                "additionalProperties": False
-            }
-        }
-    }
-    body = {
-        "model": MODEL,
-        "messages": [
-            {"role":"system","content":(
-                "You are the DreamLedger economic swarm controller. "
-                "Reason only from supplied evidence. Never invent buyers, payments, revenue, credentials, "
-                "or external outcomes. UNKNOWN never becomes PASS. Never authorize spending, outreach, "
-                "submission, account access, payment, or public release. Those require human_gate=true. "
-                "Return only the requested JSON."
-            )},
-            {"role":"user","content":json.dumps(evidence, separators=(",",":"))}
-        ],
-        "response_format": schema,
-        "temperature": 0.1,
-        "stream": False
-    }
-    raw = json.dumps(body).encode("utf-8")
-    req = urllib.request.Request(
-        BASE + "/v1/chat/completions",
-        data=raw,
-        headers={"Content-Type":"application/json","Accept":"application/json"},
-        method="POST"
-    )
-    with urllib.request.urlopen(req, timeout=120) as r:
-        out=json.loads(r.read().decode("utf-8"))
-    content=out["choices"][0]["message"]["content"]
-    result=json.loads(content)
-    return result
+def decide(e,model):
+    schema={"type":"json_schema","json_schema":{"name":"economic_swarm_decision","strict":True,"schema":{"type":"object","properties":{"decision":{"type":"string"},"opportunity_id":{"type":"string"},"confidence":{"type":"number"},"evidence_refs":{"type":"array","items":{"type":"string"}},"blockers":{"type":"array","items":{"type":"string"}},"next_action":{"type":"string"},"human_gate":{"type":"boolean"},"estimated_value_nzd":{"type":"number"},"expiry":{"type":"string"}},"required":["decision","opportunity_id","confidence","evidence_refs","blockers","next_action","human_gate","estimated_value_nzd","expiry"],"additionalProperties":False}}}
+    body={"model":model,"messages":[{"role":"system","content":"You are the DreamLedger economic swarm controller. Use only supplied evidence. UNKNOWN never becomes PASS. Discover, qualify, compare, stale-check, prioritize and prepare. Never invent buyers, payments, revenue, credentials, evidence or outcomes. Any irreversible external action requires human_gate=true. Prefer the shortest legitimate route to the first verified NZ$5 transaction."},{"role":"user","content":json.dumps(e,separators=(",",":"))}],"response_format":schema,"temperature":0.1,"stream":False}
+    r=urllib.request.Request(BASE+"/v1/chat/completions",data=json.dumps(body).encode(),headers={"Content-Type":"application/json"},method="POST")
+    with urllib.request.urlopen(r,timeout=120) as x: return json.loads(json.loads(x.read().decode())["choices"][0]["message"]["content"])
 
-def main():
-    try:
-        models=get_json("/v1/models")
-    except Exception as e:
-        print(json.dumps({"status":"BLOCKED","reason":"LM_STUDIO_UNAVAILABLE","error":str(e)}))
-        return 2
-    ids=[str(x.get("id")) for x in models.get("data",[])]
-    if not MODEL:
-        print(json.dumps({"status":"BLOCKED","reason":"NO_MODEL_CONFIGURED","available_models":ids}))
-        return 2
-    if MODEL not in ids:
-        print(json.dumps({"status":"BLOCKED","reason":"MODEL_NOT_VISIBLE","model":MODEL,"available_models":ids}))
-        return 2
+def cycle():
+    models=get(BASE+"/v1/models").get("data",[]); ids=[str(x.get("id")) for x in models]; model=MODEL or (ids[0] if ids else "")
+    if not model or model not in ids: return {"status":"BLOCKED","reason":"NO_USABLE_LM_STUDIO_MODEL","available_models":ids}
+    d=decide(snapshot(),model); out={"status":"READY","model":model,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
+    fn=os.path.join(LOG,"swarm-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
+    open(fn,"w",encoding="utf-8").write(json.dumps(out,indent=2)); out["run_file"]=fn; return out
 
-    evidence={
-        "objective":"first verified external NZ$5",
-        "economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},
-        "known_offer":{
-            "id":"DREAMMEEZ-COSMIC-HOODIE-001",
-            "price_nzd":5,
-            "status":"published",
-            "checkout_available":True
-        },
-        "constraints":[
-            "no self purchase",
-            "no simulated revenue",
-            "no fake buyers",
-            "no autonomous outreach or submission",
-            "no autonomous spending",
-            "human gate for irreversible external actions"
-        ]
-    }
-    try:
-        decision=ask_model(evidence)
-    except Exception as e:
-        print(json.dumps({"status":"BLOCKED","reason":"MODEL_CALL_FAILED","error":str(e)}))
-        return 2
-
-    print(json.dumps({
-        "status":"READY",
-        "model":MODEL,
-        "decision":decision,
-        "timestamp_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
-    }, indent=2))
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
+once="--once" in sys.argv
+while True:
+    try: print(json.dumps(cycle(),indent=2),flush=True)
+    except Exception as ex: print(json.dumps({"status":"BLOCKED","reason":"SWARM_CYCLE_FAILED","error":str(ex)}),flush=True)
+    if once: break
+    time.sleep(INTERVAL)
