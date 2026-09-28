@@ -26,6 +26,8 @@ jobs:
       BEC_WORKER_ID: github-economic-fulfillment
       BEC_JOB_LEASE_SECONDS: "1200"
       BEC_ONCE: "1"
+      HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
+      APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
