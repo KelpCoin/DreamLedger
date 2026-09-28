@@ -1,6 +1,6 @@
 'use strict';
-// Production convergence marker: 2026-09-28 CUBE-ROUTE-EXPANSION-v1.
-// CUBE surface registry: many commercial surfaces, one commerce/proof spine.
+// Production convergence marker: 2026-09-28 Worlds-ROUTE-EXPANSION-v1.
+// Worlds surface registry: many commercial surfaces, one commerce/proof spine.
 const crypto=require('crypto');
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const auth=require('../BEC-PRIME/routes/auth');
@@ -13,7 +13,7 @@ const consultDecision=require('../BEC-PRIME/routes/consultDecision');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const PORT=Number(process.env.PORT||10000),ENGINE=process.env.ENGINE_INTERNAL_URL||'',ENGINE_KEY=process.env.ENGINE_INTERNAL_API_KEY||'',STRIPE_WEBHOOK_SECRET=process.env.STRIPE_WEBHOOK_SECRET||'',RECONCILE_TOKEN=process.env.DREAMLEDGER_RECONCILE_TOKEN||'',COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown',ROOT=__dirname;
 const CATALOG_PATH=path.join(ROOT,'catalog.json');
-const CUBE_PATH=path.join(ROOT,'cube.json');
+const Worlds_PATH=path.join(ROOT,'cube.json');
 const ECOSYSTEM_PATH=path.join(ROOT,'ecosystem.json');
 const AGENT_PATH=path.join(ROOT,'agent.json');
 const SURFACES_PATH=path.join(ROOT,'surfaces.json');
@@ -31,7 +31,7 @@ function headers(res){res.setHeader('Strict-Transport-Security','max-age=3153600
 function send(res,s,b,t){if(res.writableEnded)return;res.statusCode=s;if(t)res.setHeader('Content-Type',t);res.end(b)}
 function readJson(file){return JSON.parse(fs.readFileSync(file,'utf8'))}
 function loadPublicCatalog(){if(!fs.existsSync(CATALOG_PATH))return {schema:'dreamledger/public-catalogue/v1',products:[]};const d=readJson(CATALOG_PATH);return {schema:d.schema||'dreamledger/public-catalogue/v1',products:Array.isArray(d.products)?d.products.filter(p=>p&&p.status==='published'):[]}}
-function loadCube(){if(!fs.existsSync(CUBE_PATH))return {schema:'dreamledger/cube/v1',status:'unavailable'};return readJson(CUBE_PATH)}
+function loadCube(){if(!fs.existsSync(Worlds_PATH))return {schema:'dreamledger/cube/v1',status:'unavailable'};return readJson(Worlds_PATH)}
 function loadManifest(file,fallback){if(!fs.existsSync(file))return fallback;try{return readJson(file)}catch{return fallback}}
 function localCubeSilos(){return {silos:[{id:'core',label:'DreamLedger Core',inventory_mode:'digital_and_dooH',route:'/'},{id:'mtg',label:'MTG',inventory_mode:'physical_inventory',route:'/mtg'}]}}
 function localCubeMarketplace(){const products=loadPublicCatalog().products;return {items:products.filter(p=>p&&p.status==='published').map(p=>({product_id:String(p.id),source_silo:String(p.silo||'core'),title:String(p.name||p.title||p.id),description:String(p.description||''),price_nzd:Number(p.price||0),seller_name:String(p.seller_name||'DreamLedger')}))}}
@@ -43,23 +43,23 @@ function reserveBillboard(body){const owner=body.name||body.owner_name;if(!valid
 function markReservationPaid(id,eventId){if(!id||!fs.existsSync(RESERVATION_DIR))return false;const file=path.join(RESERVATION_DIR,id+'.json');if(!fs.existsSync(file))return false;const record=readJson(file);record.payment_status='paid';record.payment_event_id=eventId||null;record.paid_at=new Date().toISOString();record.publication_status='paid_pending_review';fs.writeFileSync(file,JSON.stringify(record,null,2)+'\n','utf8');return true}
 function verifyStripeSignature(payload,header){if(!STRIPE_WEBHOOK_SECRET||!header)throw new Error('Webhook verification not configured');let timestamp=null;const signatures=[];for(const part of String(header).split(',')){const i=part.indexOf('=');if(i<0)continue;const k=part.slice(0,i),v=part.slice(i+1);if(k==='t')timestamp=v;if(k==='v1')signatures.push(v)}if(!timestamp||!signatures.length)throw new Error('Invalid Stripe signature');const age=Math.abs(Date.now()/1000-Number(timestamp));if(!Number.isFinite(age)||age>300)throw new Error('Expired Stripe signature');const expected=crypto.createHmac('sha256',STRIPE_WEBHOOK_SECRET).update(timestamp+'.'+payload).digest('hex');if(!signatures.some(sig=>{try{return crypto.timingSafeEqual(Buffer.from(expected,'utf8'),Buffer.from(sig,'utf8'))}catch{return false}}))throw new Error('Invalid Stripe signature');return true}
 function proxy(req,res,body){if(!ENGINE||!ENGINE_KEY)return send(res,503,'Service unavailable','text/plain; charset=utf-8');let target;try{target=new URL('http://'+ENGINE)}catch{return send(res,502,'Invalid engine address','text/plain; charset=utf-8')}const headersOut={'x-dreamledger-internal-key':ENGINE_KEY,'content-type':req.headers['content-type']||'','content-length':body.length,'stripe-signature':req.headers['stripe-signature']||''};if(req.headers.cookie)headersOut.cookie=req.headers.cookie;const up=http.request({hostname:target.hostname,port:Number(target.port||80),path:req.url,method:req.method,headers:headersOut},r=>{res.statusCode=r.statusCode||502;for(const[k,v]of Object.entries(r.headers)){if(k!=='connection'&&k!=='transfer-encoding'&&v!==undefined)res.setHeader(k,v)}r.pipe(res)});up.setTimeout(20000,()=>up.destroy());up.on('error',()=>{if(!res.writableEnded)send(res,502,'Service unavailable','text/plain; charset=utf-8')});up.end(body)}
-const CUBE_ROUTE_CACHE=new Map();
-const CUBE_ROUTE_CACHE_LIMIT=512;
+const Worlds_ROUTE_CACHE=new Map();
+const Worlds_ROUTE_CACHE_LIMIT=512;
 const SUPABASE_PUBLIC_URL=process.env.SUPABASE_URL||'https://wbwgroygjeyukkspnqiy.supabase.co';
 const SUPABASE_PUBLIC_KEY=process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_ANON_KEY||'';
 function cubeEscape(v){return escapeHtml(String(v??''))}
 async function cubeSiloPage(res,route){
   if(!SUPABASE_PUBLIC_KEY)return send(res,503,'World catalogue data unavailable','text/plain; charset=utf-8');
-  let silo=CUBE_ROUTE_CACHE.get(route);
+  let silo=Worlds_ROUTE_CACHE.get(route);
   if(!silo){
     const endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=eq.'+encodeURIComponent(route)+'&limit=1';
     const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json'}});
-    if(!response.ok)throw new Error('CUBE data source HTTP '+response.status);
+    if(!response.ok)throw new Error('Worlds data source HTTP '+response.status);
     const rows=await response.json();
     silo=Array.isArray(rows)?rows[0]:null;
-    if(silo){CUBE_ROUTE_CACHE.set(route,silo);if(CUBE_ROUTE_CACHE.size>CUBE_ROUTE_CACHE_LIMIT)CUBE_ROUTE_CACHE.delete(CUBE_ROUTE_CACHE.keys().next().value);}
+    if(silo){Worlds_ROUTE_CACHE.set(route,silo);if(Worlds_ROUTE_CACHE.size>Worlds_ROUTE_CACHE_LIMIT)Worlds_ROUTE_CACHE.delete(Worlds_ROUTE_CACHE.keys().next().value);}
   }
-  if(!silo)return send(res,404,'CUBE silo not found','text/plain; charset=utf-8');
+  if(!silo)return send(res,404,'Worlds silo not found','text/plain; charset=utf-8');
   const title=cubeEscape(silo.label||silo.id),id=cubeEscape(silo.id),publicRoute=cubeEscape(silo.public_route),mode=cubeEscape(silo.inventory_mode||'ECONOMIC');
   const offers=[
     {name:'Commander Deck Diagnostic',price:'NZ$29',url:'https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R',desc:'Fixed-scope Commander deck diagnostic.'},
@@ -68,7 +68,7 @@ async function cubeSiloPage(res,route){
     {name:'Small Business One-Automation Build',price:'NZ$299',url:'https://buy.stripe.com/eVqaEY1gA76OdWU2iI9oc0q',desc:'One narrowly defined business automation with a fixed outcome.'}
   ];
   const cards=offers.map(o=>'<div class="offer"><h2>'+cubeEscape(o.name)+'</h2><p>'+cubeEscape(o.desc)+'</p><strong>'+o.price+'</strong><br><a class="buy" href="'+o.url+'">Pay / view checkout</a></div>').join('');
-  const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow"><link rel="canonical" href="https://dreamledger.org'+publicRoute+'"><title>'+title+' | DreamLedger CUBE</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#080a0d;color:#eef1f5;max-width:900px;margin:0 auto;padding:32px 20px}main{border:1px solid #343c4a;background:#141920;border-radius:16px;padding:24px}dt{color:#8a93a0;font-size:12px;margin-top:14px}dd{margin:4px 0}.offers{display:grid;gap:14px;margin-top:24px}.offer{border:1px solid #343c4a;border-radius:12px;padding:18px}.offer h2{margin:0 0 8px;font-size:20px}.offer p{color:#aab2bd}.buy{display:inline-block;margin-top:10px;padding:10px 14px;border-radius:8px;background:#f0b90b;color:#080a0d;text-decoration:none;font-weight:800}</style></head><body><main><p><a href="/">DreamLedger</a> / CUBE</p><h1>'+title+'</h1><p>DreamLedger CUBE economic silo. Public route: '+publicRoute+'</p><dl><dt>Silo ID</dt><dd>'+id+'</dd><dt>Inventory mode</dt><dd>'+mode+'</dd></dl><h2>Available paid operations</h2><div class="offers">'+cards+'</div></main></body></html>';
+  const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow"><link rel="canonical" href="https://dreamledger.org'+publicRoute+'"><title>'+title+' | DreamLedger Worlds</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#080a0d;color:#eef1f5;max-width:900px;margin:0 auto;padding:32px 20px}main{border:1px solid #343c4a;background:#141920;border-radius:16px;padding:24px}dt{color:#8a93a0;font-size:12px;margin-top:14px}dd{margin:4px 0}.offers{display:grid;gap:14px;margin-top:24px}.offer{border:1px solid #343c4a;border-radius:12px;padding:18px}.offer h2{margin:0 0 8px;font-size:20px}.offer p{color:#aab2bd}.buy{display:inline-block;margin-top:10px;padding:10px 14px;border-radius:8px;background:#f0b90b;color:#080a0d;text-decoration:none;font-weight:800}</style></head><body><main><p><a href="/">DreamLedger</a> / Worlds</p><h1>'+title+'</h1><p>DreamLedger Worlds economic silo. Public route: '+publicRoute+'</p><dl><dt>Silo ID</dt><dd>'+id+'</dd><dt>Inventory mode</dt><dd>'+mode+'</dd></dl><h2>Available paid operations</h2><div class="offers">'+cards+'</div></main></body></html>';
   return send(res,200,html,'text/html; charset=utf-8');
 }
 function productSlug(p){return String(p.id||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
@@ -90,15 +90,15 @@ function escapeAttr(v){return escapeHtml(v).replace(/\n/g,' ')}
 
 function serveFile(res,file,root=ROOT){const safe=path.normalize(path.join(root,file));if(!safe.startsWith(root+path.sep))return send(res,403,'Forbidden','text/plain; charset=utf-8');fs.readFile(safe,(err,data)=>{if(err)return send(res,404,'Not Found','text/plain; charset=utf-8');res.setHeader('Content-Type',MIME[path.extname(file).toLowerCase()]||'application/octet-stream');res.setHeader('Cache-Control','no-store');send(res,200,data)})}
 const commercialServer=http.createServer(async(req,res)=>{headers(res);const u=new URL(req.url||'/','http://localhost'),p=u.pathname,key=req.method+' '+p;
-if(req.method==='GET'){const cubeMatch=p.match(/^\/cube\/auto\/(\d{4,12})$/);if(cubeMatch){try{return await cubeSiloPage(res,p)}catch(e){return send(res,502,JSON.stringify({error:e.message||'CUBE route failed'}),'application/json; charset=utf-8')}}}
+if(req.method==='GET'){const cubeMatch=p.match(/^\/cube\/auto\/(\d{4,12})$/);if(cubeMatch){try{return await cubeSiloPage(res,p)}catch(e){return send(res,502,JSON.stringify({error:e.message||'Worlds route failed'}),'application/json; charset=utf-8')}}}
 if(req.method==='GET'&&p==='/healthz'){const products=loadPublicCatalog().products;const cmd=products.find(x=>x.id==='COMMANDER-DECK-DIAGNOSTIC-001');const checks={catalog_loaded:products.length>0,cmd_diag_published:Boolean(cmd&&cmd.checkout_available!==false&&cmd.checkout_url),cmd_diag_price:Boolean(cmd&&Number(cmd.price)===29&&String(cmd.currency||'').toLowerCase()==='nzd')};const ok=Object.values(checks).every(Boolean);return send(res,ok?200:503,JSON.stringify({ok,service:'dreamledger-storefront',checks,commit:COMMIT}),'application/json; charset=utf-8');}
 if(req.method==='GET'&&p==='/diagnostic-input.html')return serveFile(res,'diagnostic-input.html');
 if(req.method==='GET'&&p==='/api/c2/status'){const urlKeys=['BEC_C2_LM_URL','BEC_CLOUD_LM_URL','REFINERY_BASE_URL','OPENAI_BASE_URL'];const modelKeys=['BEC_C2_MODELS','BEC_CLOUD_LM_MODEL','REFINERY_MODEL','OPENAI_MODEL'];const keyKeys=['BEC_C2_LM_API_KEY','BEC_CLOUD_LM_API_KEY','BEC_REMOTE_LM_API_KEY','REFINERY_API_KEY','OPENAI_API_KEY'];return send(res,200,JSON.stringify({service:'c2',hosted_url_configured:urlKeys.some(k=>Boolean(process.env[k])),url_keys:urlKeys.map(k=>({key:k,set:Boolean(process.env[k])})),model_configured:modelKeys.some(k=>Boolean(process.env[k])),model_keys:modelKeys.map(k=>({key:k,set:Boolean(process.env[k])})),api_key_configured:keyKeys.some(k=>Boolean(process.env[k]))}),'application/json; charset=utf-8')}
 if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){try{const handled=await commercialCell.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Commercial route failed'}),'application/json; charset=utf-8')}}
-if(p.startsWith('/api/truth-oracle')){try{const handled=await truthOracleCommerce.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Truth Oracle route failed'}),'application/json; charset=utf-8')}}
+if(p.startsWith('/api/truth-oracle')){try{const handled=await truthOracleCommerce.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Evidence route failed'}),'application/json; charset=utf-8')}}
 if(p.startsWith('/m2m/v1/consult/decision')){try{const handled=await consultDecision.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'C2 decision route failed'}),'application/json; charset=utf-8')}}
 if(p.startsWith('/api/agent-bridge/rail/')){try{const handled=await bridgeRail.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'BridgeRail route failed'}),'application/json; charset=utf-8')}}
-if(p.startsWith('/api/agent-bridge')){try{const handled=await agentBridge.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'AgentBridge route failed'}),'application/json; charset=utf-8')}}if(p==='/api/cube/chat-signal'){try{const handled=await cubeChatSignal.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'CUBE chat signal route failed'}),'application/json; charset=utf-8')}}
+if(p.startsWith('/api/agent-bridge')){try{const handled=await agentBridge.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'AgentBridge route failed'}),'application/json; charset=utf-8')}}if(p==='/api/cube/chat-signal'){try{const handled=await cubeChatSignal.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Worlds chat signal route failed'}),'application/json; charset=utf-8')}}
 if(req.method==='GET'&&p==='/version')return send(res,200,JSON.stringify({service:'dreamledger-storefront',commit:COMMIT,surface:'marketplace-v19',cube:'v1',ecosystem:'v1',agent_manifest:'/agent.json',agent_commerce:'/agent-commerce.json',surfaces:'/surfaces.json',discovery:'/.well-known/dreamledger.json',account_auth:'first-party',dreammeez_route:'/dreammeez'}),'application/json; charset=utf-8');
 if(ACCOUNT_PAGES[p]&&req.method==='GET')return serveFile(res,ACCOUNT_PAGES[p],ACCOUNT_ROOT);
 if(ACCOUNT_API[key]){try{if(await auth.handle(req,res,p))return;}catch(e){return send(res,500,JSON.stringify({error:e&&e.message?e.message:'Authentication service failed'}),'application/json; charset=utf-8')}}
@@ -115,7 +115,7 @@ if(req.method==='GET'&&p==='/api/cube/catalog'){
     let endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=like./cube/auto/%25&order=public_route.asc&limit='+limit+'&offset='+offset;
     if(q)endpoint+='&or=(label.ilike.*'+encodeURIComponent(q)+'*,id.ilike.*'+encodeURIComponent(q)+'*)';
     const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json',Prefer:'count=planned'}});
-    if(!response.ok)throw new Error('CUBE catalog HTTP '+response.status);
+    if(!response.ok)throw new Error('Worlds catalog HTTP '+response.status);
     const rows=await response.json();
     const range=response.headers.get('content-range')||'';
     const slash=range.indexOf('/');
@@ -132,12 +132,12 @@ if(req.method==='GET'&&p.startsWith('/api/cube/silos/')){
     const route='/cube/auto/'+id;
     const endpoint=SUPABASE_PUBLIC_URL+'/rest/v1/cube_silos?select=id,label,public_route,inventory_mode,cross_game,cross_silo_view&public_route=eq.'+encodeURIComponent(route)+'&limit=1';
     const response=await fetch(endpoint,{headers:{apikey:SUPABASE_PUBLIC_KEY,Authorization:'Bearer '+SUPABASE_PUBLIC_KEY,Accept:'application/json'}});
-    if(!response.ok)throw new Error('CUBE silo API HTTP '+response.status);
+    if(!response.ok)throw new Error('Worlds silo API HTTP '+response.status);
     const rows=await response.json();
-    if(!rows[0])return send(res,404,JSON.stringify({error:'CUBE silo not found'}),'application/json; charset=utf-8');
+    if(!rows[0])return send(res,404,JSON.stringify({error:'Worlds silo not found'}),'application/json; charset=utf-8');
     const s=rows[0];
     return send(res,200,JSON.stringify({schema:'dreamledger/world/v1',id:s.id,label:s.label,public_route:s.public_route,canonical_url:'https://dreamledger.org'+s.public_route,api_url:'https://dreamledger.org/api/cube/silos/'+encodeURIComponent(id),inventory_mode:s.inventory_mode,cross_game:!!s.cross_game,cross_silo_view:!!s.cross_silo_view}),'application/json; charset=utf-8');
-  }catch(e){return send(res,502,JSON.stringify({error:e&&e.message?e.message:'CUBE silo API unavailable'}),'application/json; charset=utf-8')}
+  }catch(e){return send(res,502,JSON.stringify({error:e&&e.message?e.message:'Worlds silo API unavailable'}),'application/json; charset=utf-8')}
 }
 if(req.method==='GET'&&p==='/api/cube/marketplace')return send(res,200,JSON.stringify(localCubeMarketplace()),'application/json; charset=utf-8');
 if(req.method==='GET'&&p==='/api/ecosystem')return send(res,200,JSON.stringify(loadManifest(ECOSYSTEM_PATH,{schema:'dreamledger/ecosystem/v1',status:'unavailable'})),'application/json; charset=utf-8');
