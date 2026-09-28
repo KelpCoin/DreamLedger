@@ -16,10 +16,11 @@ Deno.serve(async req=>{
   if(!packetId) return out({error:"PACKET_ID_REQUIRED"},400);
 
   const {data:packet,error:pe}=await db.from("economic_execution_packets")
-    .select("packet_id,capability_id,status,exact_action,fulfillment_class_id,fulfillment_binding_id")
+    .select("packet_id,capability_id,status,dispatch_state,authorization_verdict,exact_action,fulfillment_class_id,fulfillment_binding_id")
     .eq("packet_id",packetId).single();
   if(pe||!packet) return out({error:"PACKET_NOT_FOUND"},404);
-  if(packet.status!=="AUTHORIZED") return out({error:"PACKET_NOT_AUTHORIZED",status:packet.status},409);
+  const dispatchAuthorized = packet.status==="AUTHORIZED" || (packet.status==="DISPATCHED" && packet.dispatch_state==="INTERNAL_ROUTED" && packet.authorization_verdict==="allow");
+  if(!dispatchAuthorized) return out({error:"PACKET_NOT_AUTHORIZED",status:packet.status,dispatch_state:packet.dispatch_state,authorization_verdict:packet.authorization_verdict},409);
   if(packet.capability_id!=="ACNC_RESEARCH_WORKER") return out({error:"UNSUPPORTED_CAPABILITY",capability_id:packet.capability_id},422);
 
   const signalId=String(packet.exact_action?.signal_id||"");
