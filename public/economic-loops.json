@@ -1,0 +1,93 @@
+{
+  "schema": "dreamledger/economic-loops/public/v1",
+  "updated": "2026-09-28",
+  "principle": "A loop closes only after authorize → pay → settle → fulfil → proof. Bridge coordinates; Stripe settles.",
+  "verified_external_revenue_nzd": 0,
+  "agent_bridge": {
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
+    "manifest": "https://dreamledger.org/api/agent-bridge/manifest",
+    "status": "rail_public_live_configured",
+    "work_auth": "x-dreamledger-agent-token"
+  },
+  "cube": {
+    "principle": "many_surfaces_one_commerce_spine",
+    "scale": "paid_verified_then_clone",
+    "offers": "https://dreamledger.org/api/offers",
+    "products": "https://dreamledger.org/api/products"
+  },
+  "priority_loops": [
+    {
+      "loop_id": "LOOP-CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "silo": "mtg",
+      "price_nzd": 29,
+      "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "status": "live",
+      "fulfil": "diagnostic-input after Stripe",
+      "priority": 1
+    },
+    {
+      "loop_id": "LOOP-SPROUT-3.99",
+      "name": "DreamMeez Supporter Sprout",
+      "silo": "dreammeez",
+      "price_nzd": 3.99,
+      "buy": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+      "status": "live",
+      "role": "lowest_friction_paid_event",
+      "priority": 2
+    },
+    {
+      "loop_id": "LOOP-BILLBOARD-FOUNDING-50",
+      "name": "Founding Billboard Tile",
+      "silo": "media",
+      "price_nzd": 50,
+      "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "status": "live",
+      "priority": 3
+    },
+    {
+      "loop_id": "LOOP-SELLER-AUDIT-29",
+      "name": "Seller Profit Audit",
+      "silo": "seller_tools",
+      "price_nzd": 29,
+      "buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+      "status": "live",
+      "priority": 4
+    },
+    {
+      "loop_id": "LOOP-DISCORD-KIT-79",
+      "name": "Discord Webhook Starter Kit",
+      "silo": "commerce",
+      "price_nzd": 79,
+      "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "status": "live",
+      "priority": 5
+    },
+    {
+      "loop_id": "LOOP-KELP-FLOOR1-19",
+      "name": "Kelplantis Floor 1",
+      "silo": "kelplantis",
+      "price_nzd": 19,
+      "buy": "https://dreamledger.org/buy/KELP-FLOOR1-001",
+      "status": "live",
+      "priority": 6
+    },
+    {
+      "loop_id": "LOOP-ACNC-DD-99",
+      "name": "ACNC Charity Due Diligence",
+      "silo": "research",
+      "price_nzd": 99,
+      "buy": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99",
+      "status": "live",
+      "priority": 7
+    }
+  ],
+  "stages": ["DISCOVER", "OFFER", "AUTHORIZE", "PAY", "SETTLE", "FULFIL", "PROOF", "LEARN", "REPEAT"],
+  "how_agents_participate": [
+    "GET /api/offers for VERIFIED_AVAILABLE",
+    "Present buy_router to human",
+    "No autonomous spend",
+    "After Stripe paid: fulfilment path for that silo",
+    "Do not claim loop closed without payment evidence"
+  ]
+}
