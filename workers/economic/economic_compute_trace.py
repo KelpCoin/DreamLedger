@@ -31,6 +31,8 @@ def start_trace(action_id=None, opportunity_id=None, phase="EXECUTION"):
         "compute_cost_status": "UNKNOWN",
         "worker_resource_status": "AVAILABLE",
         "dependency_cut_set": [],
+        "current_operation": None,
+        "current_dependency": None,
         "runtime_integrity": "UNKNOWN",
         "failure_class": None,
         "http_status": None,
