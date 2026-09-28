@@ -2,10 +2,147 @@
   "schema": "dreamledger/fulfillment-capability-registry/v1",
   "rule": "A job is executable only when every required deliverable has a capable, accessible, authorized, validated path.",
   "capabilities": [
-    {"id":"COMMANDER_DIAGNOSTIC","outputs":["diagnostic_report","upgrade_plan"],"inputs":["customer_deck_input"],"automation":"FULL","validation":["schema_valid","artifact_created"],"external_gates":[]},
-    {"id":"ACNC_CHARITY_DUE_DILIGENCE","outputs":["source_backed_due_diligence_report","source_trail"],"inputs":["charity_identifier","public_sources"],"automation":"FULL","validation":["source_hashes","record_match","report_scope_check"],"external_gates":[]},
-    {"id":"ACNC_CHARITY_CONTACTS","outputs":["structured_contact_dataset","provenance_manifest"],"inputs":["public_acnc_data","public_professional_sources"],"automation":"PARTIAL","validation":["schema_valid","provenance_check","no_personal_contact_inference"],"external_gates":["decision_maker_enrichment_when_no_authoritative_public_source"]},
-    {"id":"DIGITAL_OFFER_AUDIT","outputs":["offer_audit_report","gap_list"],"inputs":["public_offer_url_or_export"],"automation":"PARTIAL","validation":["evidence_index","claim_scope_check"],"external_gates":["authenticated_customer_surface_when_required"]},
-    {"id":"STRIPE_RECONCILIATION","outputs":["reconciliation_report","mismatch_list"],"inputs":["stripe_export","order_export"],"automation":"FULL","validation":["row_counts","amount_reconciliation","unmatched_payment_report"],"external_gates":[]}
+    {
+      "id": "COMMANDER_DIAGNOSTIC",
+      "outputs": [
+        "diagnostic_report",
+        "upgrade_plan"
+      ],
+      "inputs": [
+        "customer_deck_input"
+      ],
+      "automation": "FULL",
+      "validation": [
+        "schema_valid",
+        "artifact_created"
+      ],
+      "external_gates": []
+    },
+    {
+      "id": "ACNC_CHARITY_DUE_DILIGENCE",
+      "outputs": [
+        "source_backed_due_diligence_report",
+        "source_trail"
+      ],
+      "inputs": [
+        "charity_identifier",
+        "public_sources"
+      ],
+      "automation": "FULL",
+      "validation": [
+        "source_hashes",
+        "record_match",
+        "report_scope_check"
+      ],
+      "external_gates": []
+    },
+    {
+      "id": "ACNC_CHARITY_CONTACTS",
+      "outputs": [
+        "structured_contact_dataset",
+        "provenance_manifest"
+      ],
+      "inputs": [
+        "public_acnc_data",
+        "public_professional_sources"
+      ],
+      "automation": "PARTIAL",
+      "validation": [
+        "schema_valid",
+        "provenance_check",
+        "no_personal_contact_inference"
+      ],
+      "external_gates": [
+        "decision_maker_enrichment_when_no_authoritative_public_source"
+      ]
+    },
+    {
+      "id": "DIGITAL_OFFER_AUDIT",
+      "outputs": [
+        "offer_audit_report",
+        "gap_list"
+      ],
+      "inputs": [
+        "public_offer_url_or_export"
+      ],
+      "automation": "PARTIAL",
+      "validation": [
+        "evidence_index",
+        "claim_scope_check"
+      ],
+      "external_gates": [
+        "authenticated_customer_surface_when_required"
+      ]
+    },
+    {
+      "id": "STRIPE_RECONCILIATION",
+      "outputs": [
+        "reconciliation_report",
+        "mismatch_list"
+      ],
+      "inputs": [
+        "stripe_export",
+        "order_export"
+      ],
+      "automation": "FULL",
+      "validation": [
+        "row_counts",
+        "amount_reconciliation",
+        "unmatched_payment_report"
+      ],
+      "external_gates": []
+    },
+    {
+      "id": "PAID_DIGITAL_DELIVERY",
+      "outputs": [
+        "paid_artifact"
+      ],
+      "inputs": [
+        "settled_payment",
+        "buyer_identity"
+      ],
+      "automation": "FULL",
+      "validation": [
+        "payment_settlement",
+        "artifact_available"
+      ],
+      "external_gates": []
+    },
+    {
+      "id": "COMMERCIAL_TRUTH_REVIEW",
+      "outputs": [
+        "adversarial_review_report",
+        "gap_list"
+      ],
+      "inputs": [
+        "claim_or_workflow",
+        "supporting_evidence"
+      ],
+      "automation": "PARTIAL",
+      "validation": [
+        "evidence_index",
+        "claim_scope_check"
+      ],
+      "external_gates": [
+        "human_final_review"
+      ]
+    },
+    {
+      "id": "SELLER_PROFIT_AUDIT",
+      "outputs": [
+        "profit_audit_report"
+      ],
+      "inputs": [
+        "seller_transaction_export",
+        "fee_shipping_inputs"
+      ],
+      "automation": "PARTIAL",
+      "validation": [
+        "calculation_reconciliation"
+      ],
+      "external_gates": [
+        "human_review_when_source_data_ambiguous"
+      ]
+    }
   ]
 }
