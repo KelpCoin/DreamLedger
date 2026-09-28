@@ -145,6 +145,16 @@ Airtable canonical doctrine: DREAMLEDGER_CANONICAL_NORTH_STAR_V1, updated to v2.
 
 This changes the control plane, not economic truth. Verified external revenue remains NZ$0.00.
 
+## Fresh-state execution receipt — 2026-09-28
+
+Supervisor + CUBE controller tick executed at 09:50 UTC and dispatched 6 CUBE refinery research jobs through the existing Elohim → Truth Oracle → Gauntlet → Dealer Hand path. No external action was performed and no revenue was claimed.
+
+Truth Oracle catalog verification ran at 09:50 UTC: 32 catalog SKUs checked, 12 verified and 20 contradicted. This is verification activity, not economic revenue.
+
+Candidate control state was re-read after the Oracle run: candidate `c29b82ec-0357-4da1-b9ee-9521134c97db`, 1 assessment, score 0.78, 0 open disagreements, `all_fresh=false`, gate `WAITING_ASSESSMENTS`. Candidate-bound authorization remains blocked. No synthetic freshness evidence was inserted.
+
+Freshness invariant: STALE → NOT GAUNTLET-VALID → REFRESH / RESEARCH / QUARANTINE → FRESH STATE → GAUNTLET RE-EVALUATION. NO FRESHNESS → NO AUTHORIZATION.
+
 ## Canonical references
 
 Notion control desk: https://app.notion.com/p/3e92ee9b45db8142a556c3af4d08fc3e
