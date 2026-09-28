@@ -101,6 +101,17 @@ $('save').addEventListener('click',()=>{
  try{new URL(source)}catch{$('status').textContent='Source URL is invalid.';return}
  const rows=read(); rows.push({claim,source,note,created_at:new Date().toISOString(),status:'UNVERIFIED'});write(rows);$('claim').value='';$('source').value='';$('note').value='';render();
 });
+$('query').addEventListener('input',render);
+$('export').addEventListener('click',()=>{
+ const rows=read();
+ const packet={schema_version:'PUNDIT-EVIDENCE-PACKET-1.0',generated_at:new Date().toISOString(),status:'UNVERIFIED',
+ sources:rows.map((x,i)=>({source_id:'src_'+(i+1),url:x.source,observed_at:x.created_at,note:x.note})),
+ claims:rows.map((x,i)=>({claim_id:'clm_'+(i+1),text:x.claim,status:'UNVERIFIED',source_ids:['src_'+(i+1)]})),
+ verification:{mode:'EXTERNAL_TRUTH_ORACLE_REQUIRED'}};
+ const blob=new Blob([JSON.stringify(packet,null,2)],{type:'application/json'});
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pundit-evidence-packet.json'; a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
 $('clear').addEventListener('click',()=>{localStorage.removeItem(KEY);render()});
 render();
 })();
