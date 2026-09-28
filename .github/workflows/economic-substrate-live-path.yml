@@ -1,5 +1,9 @@
 name: Economic Substrate Live Path
 
+concurrency:
+  group: dreamledger-economic-substrate-live-path.yml-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
