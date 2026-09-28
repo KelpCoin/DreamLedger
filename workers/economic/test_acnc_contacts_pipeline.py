@@ -1,0 +1,44 @@
+import os
+import unittest
+from unittest.mock import patch
+
+from acnc_contacts_pipeline import (
+    enrich_person,
+    parse_responsible_people,
+    run_acnc_contacts,
+)
+
+class AcncPipelineTests(unittest.TestCase):
+    def test_parse_public_responsible_people(self):
+        html = b"<main>Jane Citizen Role: Chairperson Associated charities John Doe Role: Treasurer Associated charities</main>"
+        people = parse_responsible_people(html)
+        self.assertEqual(people[0]["name"], "Jane Citizen")
+        self.assertEqual(people[0]["role"], "Chairperson")
+        self.assertEqual(people[1]["name"], "John Doe")
+        self.assertEqual(people[1]["role"], "Treasurer")
+
+    def test_no_provider_is_explicit(self):
+        with patch.dict(os.environ, {"HUNTER_API_KEY": "", "APOLLO_API_KEY": ""}, clear=False):
+            result = enrich_person({"name": "Jane Citizen", "role": "Chairperson"}, "example.org")
+            self.assertEqual(result["contact_status"], "ENRICHMENT_PROVIDER_NOT_CONFIGURED")
+            self.assertEqual(result["decision_maker_email"], "")
+            self.assertEqual(result["decision_maker_phone"], "")
+
+    def test_pipeline_never_fabricates_missing_people(self):
+        def fake_fetch(url, method="GET", body=None, headers=None):
+            if "datastore_search" in url:
+                body = b'{"result":{"records":[{"ABN":"123","Charity_Legal_Name":"Example Charity","State":"WA","Website":"https://example.org","ACNC_Entity_ID":"abc"}]}}'
+                return 200, "application/json", body
+            return 200, "text/html", b"<main>Example Charity</main>"
+
+        with patch("acnc_contacts_pipeline._request", side_effect=fake_fetch):
+            with patch.dict(os.environ, {"HUNTER_API_KEY": "", "APOLLO_API_KEY": ""}, clear=False):
+                result = run_acnc_contacts({"states": ["WA"], "limit": 1})
+        self.assertEqual(result["row_count"], 1)
+        row = result["rows"][0]
+        self.assertEqual(row["decision_maker_email"], "")
+        self.assertEqual(row["decision_maker_phone"], "")
+        self.assertEqual(row["contact_status"], "NO_RESPONSIBLE_PEOPLE_PARSED")
+
+if __name__ == "__main__":
+    unittest.main()
