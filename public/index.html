@@ -161,9 +161,9 @@ a{color:inherit;text-decoration:none}
     try{
       const r=await fetch('/api/cube/catalog?limit=500&offset=0',{cache:'no-store'}); if(!r.ok) throw new Error('cube '+r.status);
       const d=await r.json(); const items=Array.isArray(d.items)?d.items:[]; const total=Number.isFinite(Number(d.total))?Number(d.total):items.length;
-      count.textContent=total.toLocaleString()+' live CUBE silos';
-      rail.innerHTML=items.map(s=>'<article class="rail"><div class="meta">CUBE · '+esc(s.id)+'</div><h3>'+esc(s.label||('Silo '+s.id))+'</h3><p>'+esc(s.inventory_mode||'Economic silo')+(s.cross_game?' · cross-game':'')+(s.cross_silo_view?' · cross-silo':'')+'</p><a class="cta" href="'+esc(s.canonical_url||('/cube/auto/'+encodeURIComponent(s.id)))+'">Open silo →</a></article>').join('') || '<article class="rail"><div class="meta">CUBE</div><h3>No live silos returned</h3><p>The public CUBE catalogue returned zero rows.</p></article>';
-    }catch(e){count.textContent='CUBE catalogue unavailable';rail.innerHTML='<article class="rail"><div class="meta">CUBE</div><h3>Live silo catalogue unavailable</h3><p>The storefront could not load the CUBE route feed.</p></article>'}
+      count.textContent=total.toLocaleString()+' live worlds';
+      rail.innerHTML=items.map(s=>'<article class="rail"><div class="meta">World · '+esc(s.id)+'</div><h3>'+esc(s.label||('Silo '+s.id))+'</h3><p>'+esc(s.inventory_mode||'Economic silo')+(s.cross_game?' · cross-game':'')+(s.cross_silo_view?' · cross-silo':'')+'</p><a class="cta" href="'+esc(s.canonical_url||('/cube/auto/'+encodeURIComponent(s.id)))+'">Open silo →</a></article>').join('') || '<article class="rail"><div class="meta">Worlds</div><h3>No live worlds returned</h3><p>The public CUBE catalogue returned zero rows.</p></article>';
+    }catch(e){count.textContent='World catalogue unavailable';rail.innerHTML='<article class="rail"><div class="meta">Worlds</div><h3>Live world catalogue unavailable</h3><p>The storefront could not load the CUBE route feed.</p></article>'}
   }
   loadProducts(); loadCube();
 })();
