@@ -1,20 +1,13 @@
 name: Economic State Transition Contract
 
+# FROZEN: transition coverage is exercised by the authoritative Economic
+# Production Observation Contract. Manual dispatch remains available.
 concurrency:
-  group: dreamledger-economic-state-transition-contract.yml-${{ github.ref }}
+  group: dreamledger-economic-state-transition-contract-manual
   cancel-in-progress: true
 
 on:
-  push:
-    paths:
-      - "runtime/economic/state_transition_engine.py"
-      - "runtime/economic/test_state_transition_engine.py"
-      - ".github/workflows/economic-state-transition-contract.yml"
-  pull_request:
-    paths:
-      - "runtime/economic/state_transition_engine.py"
-      - "runtime/economic/test_state_transition_engine.py"
-      - ".github/workflows/economic-state-transition-contract.yml"
+  workflow_dispatch:
 
 jobs:
   transitions:
