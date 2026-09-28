@@ -1,0 +1,20 @@
+{
+  "schema": "dreamledger/economic-loops/public/v1",
+  "updated": "2026-09-28",
+  "principle": "A loop closes only after authorize → pay → settle → fulfil → proof.",
+  "verified_external_revenue_nzd": 0,
+  "agent_bridge": {
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
+    "manifest": "https://dreamledger.org/api/agent-bridge/manifest"
+  },
+  "priority_loops": [
+    {"loop_id": "LOOP-CMD-DIAG-29", "name": "Commander Deck Diagnostic", "price_nzd": 29, "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001", "silo": "mtg", "status": "live"},
+    {"loop_id": "LOOP-SPROUT-3.99", "name": "Supporter Sprout", "price_nzd": 3.99, "buy": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT", "silo": "dreammeez", "status": "live"},
+    {"loop_id": "LOOP-BILLBOARD-50", "name": "Founding Billboard", "price_nzd": 50, "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001", "silo": "media", "status": "live"},
+    {"loop_id": "LOOP-SELLER-29", "name": "Seller Profit Audit", "price_nzd": 29, "buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001", "silo": "seller_tools", "status": "live"},
+    {"loop_id": "LOOP-DISCORD-79", "name": "Discord Webhook Kit", "price_nzd": 79, "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001", "silo": "commerce", "status": "live"},
+    {"loop_id": "LOOP-KELP-19", "name": "Kelplantis Floor 1", "price_nzd": 19, "buy": "https://dreamledger.org/buy/KELP-FLOOR1-001", "silo": "kelplantis", "status": "live"},
+    {"loop_id": "LOOP-ACNC-99", "name": "ACNC Charity DD", "price_nzd": 99, "buy": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99", "silo": "research", "status": "live"}
+  ],
+  "stages": ["DISCOVER", "OFFER", "AUTHORIZE", "PAY", "SETTLE", "FULFIL", "PROOF", "LEARN", "REPEAT"]
+}
