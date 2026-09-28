@@ -11,7 +11,7 @@ Deno.serve(async req=>{
     const state=String(b.state||"").trim().toUpperCase();
     const keyword=String(b.keyword||"").trim();
     const limit=Math.min(Math.max(Number(b.limit||500),1),5000);
-    const meta=await fetch(CKNC);
+    const meta=await fetch(CKAN);
     if(!meta.ok)throw Error("DATASET_METADATA_FETCH_FAILED:"+meta.status);
     const pkg=await meta.json();
     const rs=pkg?.result?.resources||[];
