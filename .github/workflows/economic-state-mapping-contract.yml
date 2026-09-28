@@ -1,0 +1,29 @@
+name: Economic State Mapping Contract
+
+on:
+  push:
+    paths:
+      - "runtime/ECONOMIC-STATE-EVENT-MAPPING-V1-2026-09-29.md"
+      - ".github/workflows/economic-state-mapping-contract.yml"
+  pull_request:
+    paths:
+      - "runtime/ECONOMIC-STATE-EVENT-MAPPING-V1-2026-09-29.md"
+      - ".github/workflows/economic-state-mapping-contract.yml"
+
+jobs:
+  mapping-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate mapping boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=runtime/ECONOMIC-STATE-EVENT-MAPPING-V1-2026-09-29.md
+          test -s "$f"
+          grep -q "dispatch_state" "$f"
+          grep -q "PaymentIntent" "$f"
+          grep -q "UNKNOWN or UNOBSERVABLE" "$f"
+          grep -q "economic state" "$f" || true
+          grep -q "EXTERNAL_ACTION_SENT" "$f"
+          grep -q "ECONOMIC_OUTCOME_VERIFIED" runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
