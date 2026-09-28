@@ -6,6 +6,8 @@ from acnc_contacts_pipeline import (
     enrich_person,
     parse_responsible_people,
     run_acnc_contacts,
+    parse_profile_contacts,
+    derive_subtypes,
 )
 
 class AcncPipelineTests(unittest.TestCase):
@@ -16,6 +18,21 @@ class AcncPipelineTests(unittest.TestCase):
         self.assertEqual(people[0]["role"], "Chairperson")
         self.assertEqual(people[1]["name"], "John Doe")
         self.assertEqual(people[1]["role"], "Treasurer")
+
+    def test_profile_contact_parser_reads_public_charity_contacts(self):
+        html = b"<main>Email: info@example.org Address For Service email: acnc@example.org Website: example.org Phone: 03 1234 5678</main>"
+        parsed = parse_profile_contacts(html)
+        self.assertEqual(parsed["charity_email"], "info@example.org")
+        self.assertEqual(parsed["address_for_service_email"], "acnc@example.org")
+        self.assertEqual(parsed["charity_phone"], "03 1234 5678")
+        self.assertEqual(parsed["charity_website_public"], "example.org")
+
+    def test_subtypes_derive_from_official_register_flags(self):
+        raw = {"Advancing_Education": "Y", "Advancing_Health": "true", "PBI": "1"}
+        self.assertEqual(
+            derive_subtypes(raw),
+            ["Public Benevolent Institution", "Advancing education", "Advancing health"],
+        )
 
     def test_no_provider_is_explicit(self):
         with patch.dict(os.environ, {"HUNTER_API_KEY": "", "APOLLO_API_KEY": ""}, clear=False):
