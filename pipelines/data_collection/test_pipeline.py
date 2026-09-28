@@ -19,4 +19,14 @@ class PipelineTests(unittest.TestCase):
                 result=DataCollectionPipeline(cfg).collect()
             self.assertEqual(result["records_unique"],0); self.assertEqual(result["source_errors"][0]["error"],"network")
             self.assertFalse(result["revenue_claimed"])
+    def test_unknown_source_policy_blocks_collection(self):
+        from .source_policy import SourcePolicy
+        with tempfile.TemporaryDirectory() as tmp:
+            policy=SourcePolicy("https://example.invalid",robots_checked=False,terms_reviewed=False)
+            cfg=PipelineConfig((Source("policy","https://example.invalid",policy=policy),),Path(tmp),retries=0)
+            with patch("pipelines.data_collection.pipeline._fetch", side_effect=RuntimeError("should_not_fetch")):
+                result=DataCollectionPipeline(cfg).collect()
+            self.assertTrue(result["source_errors"])
+            self.assertIn("source_policy_unknown", result["source_errors"][0]["error"])
+
 if __name__=="__main__": unittest.main()
