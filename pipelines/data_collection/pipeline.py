@@ -8,6 +8,9 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from .rate_limit import RateLimiter
+from .source_policy import SourcePolicy, validate_public_url
+
 @dataclass(frozen=True)
 class Source:
     name: str
@@ -17,6 +20,8 @@ class Source:
     params: dict[str, str] = field(default_factory=dict)
     headers: dict[str, str] = field(default_factory=dict)
     field_map: dict[str, str] = field(default_factory=dict)
+    policy: SourcePolicy | None = None
+    requests_per_second: float = 1.0
 
 @dataclass(frozen=True)
 class PipelineConfig:
@@ -41,12 +46,18 @@ def _walk(value: Any, path: tuple[str, ...]) -> Any:
     return value
 
 def _fetch(source: Source, cfg: PipelineConfig) -> tuple[bytes, str]:
+    validate_public_url(source.url)
+    if source.policy is not None:
+        verdict = source.policy.gate()
+        if verdict != "PASS":
+            raise RuntimeError(f"source_policy_{verdict.lower()}:{source.name}")
     query = urlencode(source.params)
     url = source.url + ((("&" if "?" in source.url else "?") + query) if query else "")
     headers = {"User-Agent": cfg.user_agent, "Accept": "application/json, text/csv, */*", **source.headers}
     last_error = None
     for attempt in range(cfg.retries + 1):
         try:
+            self._limiters[source.name].wait()
             req = Request(url, headers=headers, method="GET")
             with urlopen(req, timeout=cfg.timeout_seconds) as response:
                 return response.read(), response.headers.get("content-type", "")
@@ -75,6 +86,7 @@ class DataCollectionPipeline:
     def __init__(self, config: PipelineConfig):
         self.config = config
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
+        self._limiters = {s.name: RateLimiter(max(0.01, s.requests_per_second)) for s in config.sources}
 
     def collect(self, validator: Callable[[dict[str, Any]], Iterable[str]] | None = None) -> dict[str, Any]:
         run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
