@@ -1,16 +1,13 @@
 name: Swarm Orchestration Contract
 
+# FROZEN: mass-admission and fulfillment checks are covered by the
+# authoritative Economic Event Contract. Manual dispatch remains available.
+concurrency:
+  group: dreamledger-swarm-orchestration-contract-manual
+  cancel-in-progress: true
+
 on:
-  push:
-    paths:
-      - "runtime/swarm/**"
-      - "runtime/opportunity/**"
-      - ".github/workflows/swarm-orchestration-contract.yml"
-  pull_request:
-    paths:
-      - "runtime/swarm/**"
-      - "runtime/opportunity/**"
-      - ".github/workflows/swarm-orchestration-contract.yml"
+  workflow_dispatch:
 
 jobs:
   contract:
