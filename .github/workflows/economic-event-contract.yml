@@ -1,5 +1,9 @@
 name: Economic Event Contract
 
+concurrency:
+  group: dreamledger-economic-event-contract.yml-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     paths:
