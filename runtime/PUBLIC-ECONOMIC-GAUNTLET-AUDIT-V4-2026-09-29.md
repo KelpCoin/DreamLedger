@@ -35,3 +35,12 @@ No verified public video/replay currently proves autonomous end-to-end external 
 
 ## Objective
 Convert internal swarm capacity into real external outcomes while keeping internal machinery private and claims exactly matched to independent evidence.
+
+## Latest substrate snapshot
+Checked after the public activity work: cube_silos=1,000,017; opportunities=131; economic_actions=2,746; economic_outcomes=0; external_sent=0; external_results=0.
+
+## Public activity replay
+A new public `/activity` surface and `/api/activity/replay` endpoint expose a sanitized window of real recorded workflow activity. It deliberately does not expose internal role names or implementation details, and it explicitly states that recorded processing is not proof of external commerce. This is a genuine trace-backed activity view, not fabricated footage.
+
+## Deployment state
+Render `dreamledger-org` has successfully served the latest audited commit `07128599f050b1b4c182ebbccd73484568dca15e` and is now processing the subsequent public activity commits. The custom domain `dreamledger.org` still resolves in external web inspection to the legacy Dream Ledger Deck surface, so the remaining production gap is custom-domain routing/DNS, not GitHub-to-Render deployment.
