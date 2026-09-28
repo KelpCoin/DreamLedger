@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "mode": "OBSERVE_ONLY",
+  "sources": [
+    {"id": "public_job_markets", "class": "PUBLIC_DEMAND", "enabled": false},
+    {"id": "public_procurement", "class": "PUBLIC_DEMAND", "enabled": false},
+    {"id": "public_software_data_requests", "class": "PUBLIC_DEMAND", "enabled": false},
+    {"id": "public_recurring_service_demand", "class": "PUBLIC_DEMAND", "enabled": false}
+  ],
+  "rules": {
+    "no_private_credentials": true,
+    "no_unauthorized_scraping": true,
+    "no_outreach": true,
+    "no_bidding": true,
+    "no_external_action": true,
+    "no_synthetic_opportunities": true,
+    "no_synthetic_buyers": true
+  }
+}
