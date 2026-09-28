@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pundit Sandbox | DreamLedger</title>
+<meta name="description" content="Pundit Sandbox: evidence, tools, assets and revenue-path experiments in one inspectable workspace.">
+<style>
+:root{--bg:#080a0d;--panel:#11151b;--panel2:#151a21;--line:#303742;--text:#f3f5f7;--muted:#a2aab5;--gold:#d4af37;--green:#72e0b0;--red:#ff8d8d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#262016 0,transparent 34%),var(--bg);color:var(--text);font:15px/1.55 Inter,system-ui,sans-serif}a{color:inherit;text-decoration:none}
+main{max-width:1180px;margin:auto;padding:22px 18px 80px}.nav{display:flex;justify-content:space-between;align-items:center;padding:12px 0 20px;border-bottom:1px solid var(--line)}.brand{font-weight:900;letter-spacing:.04em}.brand span{color:var(--gold)}
+.hero{padding:58px 0 30px}.eyebrow{color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.hero h1{font-size:clamp(46px,8vw,90px);line-height:.9;letter-spacing:-.07em;margin:12px 0}.hero p{max-width:800px;color:var(--muted);font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:var(--panel);border:1px solid var(--line);padding:20px;border-radius:16px}.card h2,.card h3{margin:8px 0}.card p{color:var(--muted)}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.1em}.live{color:var(--green);border-color:#345d4e}.gap{color:var(--red);border-color:#673d3d}
+section{margin-top:38px}.section-title{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px}.section-title h2{margin:0;font-size:30px;letter-spacing:-.04em}.small{font-size:11px;color:var(--muted)}
+.workspace{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{margin:10px 0}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.field input,.field textarea{width:100%;box-sizing:border-box;background:#0b0e12;color:var(--text);border:1px solid var(--line);padding:11px;border-radius:9px;font:inherit}.field textarea{min-height:110px;resize:vertical}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btn{border:1px solid var(--line);background:#0c0f13;color:var(--text);padding:10px 14px;border-radius:9px;font-weight:800;cursor:pointer}.btn.primary{background:var(--gold);border-color:var(--gold);color:#090909}.btn:disabled{opacity:.5;cursor:not-allowed}
+.result{margin-top:12px;padding:13px;background:#0b0e12;border:1px solid var(--line);border-radius:10px;white-space:pre-wrap;color:#cbd1d8}.source-row{border-top:1px solid var(--line);padding:12px 0}.source-row:first-child{border-top:0}.source-row a{color:#d8bc79}.source-row span{display:block;color:var(--muted);font-size:11px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+@media(max-width:800px){.grid,.workspace{grid-template-columns:1fr}.hero{padding-top:40px}.hero h1{font-size:56px}}
+</style>
+</head>
+<body>
+<main>
+<header class="nav"><a class="brand" href="/">DREAMLEDGER <span>/ PUNDIT</span></a><a class="small" href="/">Back to storefront</a></header>
+
+<section class="hero">
+<div class="eyebrow">Pundit Sandbox</div>
+<h1>Question → evidence → disparity → action.</h1>
+<p>This is the experimental workbench for the public Pundit layer. It treats every surface as an inspectable sandbox: source assets, tools, indexing, evidence, RAG inputs, opportunity signals and commerce paths stay separate until evidence connects them.</p>
+</section>
+
+<section>
+<div class="section-title"><h2>Existing assets</h2><span class="small">Real routes, not placeholders</span></div>
+<div class="grid">
+<a class="card" href="/truth-oracle"><span class="tag live">LIVE</span><h3>Truth Oracle</h3><p>Public evidence layer. Claims, provenance, contradictions and explicit unknowns.</p></a>
+<a class="card" href="/sports/fightedge"><span class="tag live">LIVE</span><h3>Fight Edge</h3><p>MMA and boxing sandbox. The first Punditry vertical for testing evidence-led analysis.</p></a>
+<a class="card" href="/tools"><span class="tag live">LIVE</span><h3>Seller tools</h3><p>Free calculators and paid seller-specific analysis already connected to commerce.</p></a>
+<a class="card" href="/marketplace"><span class="tag live">LIVE</span><h3>CUBE marketplace</h3><p>Published economic surfaces and checkout-capable offers.</p></a>
+<a class="card" href="/guides"><span class="tag live">LIVE</span><h3>Guides</h3><p>Public explanatory assets that can become source material and demand entry points.</p></a>
+<a class="card" href="/agent-commerce"><span class="tag live">LIVE</span><h3>Agent commerce</h3><p>Machine-readable commerce and discovery surfaces already exposed by DreamLedger.</p></a>
+</div>
+</section>
+
+<section>
+<div class="section-title"><h2>What the GitHub reuse closes</h2><span class="small">Patterns adopted, not architecture theatre</span></div>
+<div class="grid">
+<div class="card"><span class="tag live">APPLIED PATTERN</span><h3>Evidence reports</h3><p>ProofSignal-style rule: no mystery probability. A result must expose the evidence state and the sources behind it.</p></div>
+<div class="card"><span class="tag live">APPLIED PATTERN</span><h3>Source-grounded research</h3><p>Providence/OpenErrata-style workflow: investigate from retrieved source material, preserve the investigation trail, and keep uncertainty visible.</p></div>
+<div class="card"><span class="tag live">APPLIED PATTERN</span><h3>Deterministic proof</h3><p>Ethos-style boundary: model interpretation is not the verifier. Evidence state remains an explicit machine-readable fact.</p></div>
+<div class="card"><span class="tag live">APPLIED PATTERN</span><h3>Provenance</h3><p>ClaimTrace-style boundary: source identity, observation time and evidence references travel with the claim.</p></div>
+<div class="card"><span class="tag gap">CAPABILITY GAP</span><h3>Deep retrieval</h3><p>The public sandbox does not yet claim internet-wide RAG. That becomes a real build target only when a live use case proves retrieval is the blocker.</p></div>
+<div class="card"><span class="tag gap">CAPABILITY GAP</span><h3>External action</h3><p>Analysis can prepare an action, but external outreach and live financial actions remain explicitly gated. No fake action is counted as progress.</p></div>
+</div>
+</section>
+
+<section>
+<div class="section-title"><h2>Sandbox workspace</h2><span class="small">Local browser index · no claim is published by this tool</span></div>
+<div class="workspace">
+<div class="card">
+<h3>Capture a claim</h3>
+<div class="field"><label for="claim">Claim / question</label><textarea id="claim" placeholder="Example: Is this fight matchup being described accurately?"></textarea></div>
+<div class="field"><label for="source">Source URL</label><input id="source" type="url" placeholder="https://example.com/source"></div>
+<div class="field"><label for="note">Observation / excerpt</label><textarea id="note" placeholder="Record what the source actually says."></textarea></div>
+<div class="buttons"><button class="btn primary" id="save">Index evidence</button><button class="btn" id="clear">Clear local index</button></div>
+<div id="status" class="result">Local index is empty.</div>
+</div>
+<div class="card">
+<h3>Indexed evidence</h3>
+<div id="index"><p class="small">Nothing indexed yet.</p></div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="section-title"><h2>First vertical: Fight Edge</h2><span class="small">Punditry test cell</span></div>
+<div class="card">
+<p><strong>Current disparity:</strong> the public shell has catalog navigation, but its sections are mostly empty of live fight evidence. The next useful test is not another UI layer. It is one real event, one named fight, real source material, one evidence-backed analysis, and one recorded outcome.</p>
+<div class="buttons"><a class="btn primary" href="/sports/fightedge">Open Fight Edge</a><a class="btn" href="/sports/fightedge/analysis">Open analysis surface</a><a class="btn" href="/sports/fightedge/events">Open events surface</a></div>
+</div>
+</section>
+
+<footer>Truth rule: the sandbox can collect and organize evidence, but it cannot promote an internal record into external truth. Pundit depth can become commercial later without changing the underlying evidence.</footer>
+</main>
+<script>
+(function(){
+const KEY='dreamledger:pundit:sandbox:v1';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
+function write(x){localStorage.setItem(KEY,JSON.stringify(x))}
+function render(){
+ const rows=read(), el=$('index');
+ if(!rows.length){el.innerHTML='<p class="small">Nothing indexed yet.</p>';$('status').textContent='Local index is empty.';return}
+ el.innerHTML=rows.slice().reverse().map(x=>'<div class="source-row"><strong>'+esc(x.claim)+'</strong><a href="'+esc(x.source)+'" target="_blank" rel="noopener noreferrer">'+esc(x.source)+'</a><span>'+esc(x.note)+' · indexed '+esc(x.created_at)+'</span></div>').join('');
+ $('status').textContent=rows.length+' evidence record'+(rows.length===1?'':'s')+' indexed locally. Status: UNVERIFIED until an external verification path supports the claim.';
+}
+$('save').addEventListener('click',()=>{
+ const claim=$('claim').value.trim(),source=$('source').value.trim(),note=$('note').value.trim();
+ if(!claim||!source){$('status').textContent='Claim and source URL are required.';return}
+ try{new URL(source)}catch{$('status').textContent='Source URL is invalid.';return}
+ const rows=read(); rows.push({claim,source,note,created_at:new Date().toISOString(),status:'UNVERIFIED'});write(rows);$('claim').value='';$('source').value='';$('note').value='';render();
+});
+$('clear').addEventListener('click',()=>{localStorage.removeItem(KEY);render()});
+render();
+})();
+</script>
+</body>
+</html>
