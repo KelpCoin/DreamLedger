@@ -1,0 +1,37 @@
+{
+  "version": "1",
+  "primary": {
+    "name": "dapr-agents",
+    "repository": "dapr/dapr-agents",
+    "role": "durable_orchestration",
+    "license": "Apache-2.0",
+    "use": [
+      "durable workflows",
+      "fanout_fanin",
+      "retries",
+      "state",
+      "event_driven_triggers",
+      "mcp_tool_discovery"
+    ]
+  },
+  "secondary": {
+    "name": "fleetq",
+    "repository": "escapeboy/agent-fleet-o",
+    "role": "dag_mcp_human_gate_reference",
+    "license": "AGPL-3.0",
+    "use": [
+      "dag_reference",
+      "mcp_reference",
+      "human_gate_reference",
+      "queue_reference",
+      "audit_reference"
+    ],
+    "dependency_status": "reference_only"
+  },
+  "dreamledger_authority": {
+    "truth": "dreamledger",
+    "economic_state": "dreamledger",
+    "external_action": "human_authorized_only",
+    "self_escalation": false
+  }
+}
