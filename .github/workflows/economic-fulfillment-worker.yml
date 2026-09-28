@@ -28,6 +28,7 @@ jobs:
       BEC_ONCE: "1"
       HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
       APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
+      ACNC_APOLLO_REVEAL_PHONE: ${{ secrets.ACNC_APOLLO_REVEAL_PHONE }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
