@@ -64,24 +64,26 @@ No proposal was submitted.
 ## Cloud deployment
 
 GitHub main observed at:
-82f4660ecf91fea62b3df34ee10f9716640fe297
+05b11ebe72c2be6cabfb56e6a137512fd78b192e
 
 Render service:
 dreamledger-org
 Deploy:
-dep-datgj4n7kmgc73e22hqg
+dep-datgm6gu01pc73f9r8s0
 Status:
 LIVE
 
-Render logs show the 2026-09-29 deployment completed and the site became live at 00:43:47Z.
+Render reports the 2026-09-29 deployment for commit 05b11ebe72c2be6cabfb56e6a137512fd78b192e completed and is live.
 
 ## CI
 
-For commit 82f4660ecf91fea62b3df34ee10f9716640fe297:
+For commit 05b11ebe72c2be6cabfb56e6a137512fd78b192e:
 - combined commit statuses = empty
 - PR-triggered workflow run query = no runs returned
 
 CI_HEALTH = NOT_PROVEN.
+
+The current commit has no combined status checks and no PR-triggered workflow runs returned by the connected GitHub surface. No green state is inferred.
 
 An empty status/run result is not treated as green.
 
@@ -103,4 +105,7 @@ EXPECTED_ECONOMIC_EFFECT = one legitimate proposal submission followed by an ext
 
 No revenue, payment, buyer, external submission, or verified outcome was inferred from internal rows.
 
-Next safe machine action is observation/recovery of the same frontier when authenticated external access becomes available. No additional architecture is justified by the measured blocker.
+Current requeue probe remains:
+{"requeued":0,"external_actuator_ready":false}
+
+The connected browser surface remains unavailable, so the authenticated external session is still UNOBSERVABLE. No safe automated Upwork submission is available from the current authority/access state. No additional architecture is justified by the measured blocker.
