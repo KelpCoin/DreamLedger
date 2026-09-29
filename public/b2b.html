@@ -1,1 +1,163 @@
-<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DreamLedger B2B Exchange</title><style>body{margin:0;background:#080808;color:#eee;font:16px/1.5 system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:42px 20px 80px}.k{color:#d5b45c;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}h1{font-size:48px;line-height:1.02;margin:12px 0}.lead{max-width:780px;color:#bbb}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:24px}.card{border:1px solid #292929;background:#111;padding:20px;border-radius:12px}.tag{display:inline-block;border:1px solid #3a3a3a;border-radius:999px;padding:4px 9px;color:#d5b45c;font-size:12px}.price{font-size:24px;font-weight:800;margin:12px 0}a{color:#d5b45c;text-decoration:none}.flow{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.flow span{border:1px solid #333;padding:8px 10px;border-radius:8px;color:#ccc}.muted{color:#999;font-size:14px}</style></head><body><main><div class="k">DreamLedger · B2B Exchange</div><h1>Business trade without the spreadsheet maze.</h1><p class="lead">A transaction layer for business buying and selling: structured requirements, comparable offers, counterparty evidence, payment, delivery, acceptance and reconciliation.</p><div class="flow"><span>Requirement</span><span>RFQ</span><span>Offers</span><span>Trust</span><span>Payment</span><span>Delivery</span><span>Acceptance</span><span>Evidence</span><span>Repeat</span></div><section><h2>Current transaction services</h2><div id="offers" class="grid"></div></section><section><h2>Exchange layers</h2><div class="grid"><div class="card"><span class="tag">BUY</span><h3>Procurement</h3><p>Turn supplier quotes into comparable offers, expose scope gaps and preserve source evidence.</p><a href="/toll-booths">Start with quote comparison</a></div><div class="card"><span class="tag">SELL</span><h3>Business listings</h3><p>Structured listings for equipment, surplus, services and repeatable B2B supply.</p><p class="muted">Seller settlement and onboarding use the shared transaction spine.</p></div><div class="card"><span class="tag">TRUST</span><h3>Transaction passport</h3><p>Keep identity, agreement, payment, delivery, acceptance and dispute evidence attached to one transaction.</p><p class="muted">Internal activity never certifies external truth.</p></div></div></section><p class="muted">Live public surface. Published catalogue entries are real offers; economic truth remains unchanged until an independent external transaction settles and the contracted outcome is fulfilled and evidenced.</p></main><script>fetch('/api/marketplace').then(r=>r.json()).then(d=>{const e=document.getElementById('offers');const items=(d.items||[]).filter(x=>x.price_nzd>0);e.innerHTML=items.map(x=>'<div class="card"><span class="tag">'+String(x.source_silo||'market').toUpperCase()+'</span><h3>'+String(x.title||'Offer')+'</h3><p>'+String(x.description||'')+'</p><div class="price">NZ$'+Number(x.price_nzd||0).toFixed(2)+'</div><a href="/product/'+encodeURIComponent(x.product_id)+'">View offer</a></div>').join('')||'<div class="card">No checkout-ready offers are currently published.</div>'}).catch(()=>{document.getElementById('offers').innerHTML='<div class="card">Marketplace catalogue temporarily unavailable.</div>'});</script></body></html>
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="DreamLedger B2B — NZ specialist marketplace rails for MTG, retro games, and vinyl. 0% success fees. Listing tools and business plans.">
+<meta name="theme-color" content="#11130f">
+<title>B2B Marketplace · DreamLedger NZ</title>
+<link rel="canonical" href="https://dreamledger.org/b2b.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f6f3;--surface:#fff;--ink:#11130f;--muted:#5c5f58;--line:#d9dbd4;
+  --gold:#b18a3a;--gold-d:#8a6a28;--black:#11130f;--max:920px;
+  --sans:Inter,system-ui,-apple-system,sans-serif;--safe:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:calc(88px + var(--safe))}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+.hdr{position:sticky;top:0;z-index:20;background:rgba(246,246,243,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hdr .wrap{height:60px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800;letter-spacing:-.03em;font-size:1.05rem}
+.brand span{opacity:.55;font-weight:600}
+.nav a{font-size:13px;font-weight:600;color:var(--muted);margin-left:14px}
+.hero{padding:40px 0 28px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-d);margin-bottom:12px}
+h1{font-size:clamp(1.75rem,5vw,2.35rem);letter-spacing:-.035em;line-height:1.15;margin-bottom:12px}
+.lead{color:var(--muted);font-size:1.05rem;max-width:36em;margin-bottom:22px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.grid{display:grid;gap:14px;margin:28px 0}
+@media(min-width:720px){.grid.plans{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h2{font-size:1.05rem;margin-bottom:6px}
+.card .price{font-size:1.75rem;font-weight:800;letter-spacing:-.03em;margin:10px 0}
+.card .price small{font-size:.9rem;font-weight:600;color:var(--muted)}
+.card ul{margin:12px 0 0 18px;color:var(--muted);font-size:14px}
+.card ul li{margin-bottom:6px}
+.card.featured{border-color:var(--gold);box-shadow:0 0 0 1px rgba(177,138,58,.25)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 20px;border-radius:12px;font-weight:800;font-size:15px;background:var(--black);color:#fff;width:100%;margin-top:16px}
+.btn.gold{background:linear-gradient(180deg,#d4a94a,#b18a3a);color:#111}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.section{margin:36px 0}
+.section h2{font-size:1.25rem;margin-bottom:10px;letter-spacing:-.02em}
+.section p,.section li{color:var(--muted);font-size:15px}
+.section ul{margin:10px 0 0 18px}
+.table{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px}
+.table th,.table td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line)}
+.table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.stick{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--safe));background:var(--black);color:#fff;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;z-index:30}
+.stick b{flex:1;font-size:13px;font-weight:600}
+.stick a{background:linear-gradient(180deg,#d4a94a,#b18a3a);color:#111;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;display:inline-flex;align-items:center;white-space:nowrap}
+.footer{padding:28px 0 120px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="wrap">
+  <a class="brand" href="/">Dream<span>Ledger</span></a>
+  <nav class="nav">
+    <a href="/shop.html">Shop</a>
+    <a href="/fees.html">Fees</a>
+    <a href="/buy/SELLER-PROFIT-AUDIT-001">Audit $29</a>
+  </nav>
+</div></header>
+<main class="wrap">
+  <section class="hero">
+    <p class="eyebrow">B2B · New Zealand</p>
+    <h1>Specialist trade rails for cards, retro & vinyl</h1>
+    <p class="lead">0% platform success fee on merchandise. You pay for verification, listing capacity, and tools — not a cut of every sale. Built for LGS, dealers, and serious sellers.</p>
+    <div class="pills">
+      <span class="pill">MTG</span>
+      <span class="pill">Retro games</span>
+      <span class="pill">Vinyl</span>
+      <span class="pill">NZD</span>
+    </div>
+  </section>
+  <section class="section">
+    <h2>Business plans</h2>
+    <div class="grid plans">
+      <article class="card">
+        <h2>Starter</h2>
+        <p class="price">$49 <small>/ mo</small></p>
+        <ul>
+          <li>Business badge (after verify)</li>
+          <li>10 listing slots / month</li>
+          <li>Support queue</li>
+        </ul>
+        <a class="btn ghost" href="/buy/SELLER-PROFIT-AUDIT-001">Start with $29 audit</a>
+      </article>
+      <article class="card featured">
+        <h2>Pro</h2>
+        <p class="price">$99 <small>/ mo</small></p>
+        <ul>
+          <li>40 listing slots / month</li>
+          <li>1× featured listing / week</li>
+          <li>RFQ inbox (when live)</li>
+        </ul>
+        <a class="btn gold" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Partner kit $99</a>
+      </article>
+      <article class="card">
+        <h2>Partner kit</h2>
+        <p class="price">$99 <small>once</small></p>
+        <ul>
+          <li>Discord / commerce starter</li>
+          <li>20 listing credits</li>
+          <li>Manual verify priority</li>
+        </ul>
+        <a class="btn" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy kit</a>
+      </article>
+    </div>
+  </section>
+  <section class="section">
+    <h2>Listing fees (not success %)</h2>
+    <table class="table">
+      <thead><tr><th>Item</th><th>NZD</th></tr></thead>
+      <tbody>
+        <tr><td>Listing slot · 30 days</td><td><strong>$7</strong></td></tr>
+        <tr><td>Pack of 5 slots</td><td><strong>$29</strong></td></tr>
+        <tr><td>Pack of 20 slots</td><td><strong>$99</strong></td></tr>
+        <tr><td>Featured · 7 days</td><td><strong>$15</strong></td></tr>
+      </tbody>
+    </table>
+    <p class="note">Platform success fee on peer merchandise: <strong>0%</strong>. Stripe processing applies on platform SKUs.</p>
+  </section>
+  <section class="section">
+    <h2>How verify works</h2>
+    <ul>
+      <li>Trading name + city + category (MTG / retro / vinyl)</li>
+      <li>Store or social proof link</li>
+      <li>Optional NZBN</li>
+      <li>Manual review 24–48h · badge = DreamLedger verified seller</li>
+    </ul>
+  </section>
+  <section class="section">
+    <h2>Sell with us today</h2>
+    <div class="grid">
+      <article class="card">
+        <h2>Seller profit audit</h2>
+        <p class="price">$29</p>
+        <p style="color:var(--muted);font-size:14px">Fee vs take-home math for Trade Me–heavy sellers.</p>
+        <a class="btn gold" href="/buy/SELLER-PROFIT-AUDIT-001">Buy audit</a>
+      </article>
+      <article class="card">
+        <h2>Commander diagnostic</h2>
+        <p class="price">$29</p>
+        <p style="color:var(--muted);font-size:14px">MTG service · 24h turnaround.</p>
+        <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy diagnostic</a>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="footer wrap">
+  DreamLedger · NZD · Specialist rails — not a general auction house.<br>
+  <a href="/fees.html">Fees</a> · <a href="/">Home</a>
+</footer>
+<div class="stick">
+  <b>B2B entry · Audit NZ$29</b>
+  <a href="/buy/SELLER-PROFIT-AUDIT-001">Pay</a>
+</div>
+</body>
+</html>
