@@ -16,6 +16,91 @@ const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: fal
 
 const app = new Hono();
 
+function decodeSettlementReceipt(header: string | null): any | null {
+  if (!header) return null;
+  try {
+    const json = atob(header);
+    const receipt = JSON.parse(json);
+    return receipt && typeof receipt === "object" ? receipt : null;
+  } catch {
+    return null;
+  }
+}
+
+async function observeQuoteSettlement(c: any, next: any) {
+  await next();
+  if (c.req.path !== "/v1/compare_quotes") return;
+
+  const receipt = decodeSettlementReceipt(c.res.headers.get("PAYMENT-RESPONSE"));
+  if (!receipt || receipt.success !== true) return;
+
+  const request_hash = c.get("quote_request_hash");
+  if (!request_hash) return;
+
+  const { data: call } = await db.from("agent_toll_calls")
+    .select("call_id,product_id,result,result_hash,payment_network,settlement_status")
+    .eq("request_hash", request_hash)
+    .eq("product_id", "truth.quote_compare")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!call) return;
+
+  const tx = receipt.transaction || receipt.txHash || receipt.tx_hash || null;
+  const payer = receipt.payer || null;
+  const settlement_status = TESTNET ? "SETTLED_TESTNET" : "SETTLED";
+
+  await db.from("agent_toll_calls").update({
+    payer,
+    payment_tx: tx,
+    settlement_status,
+    settled_at: new Date().toISOString()
+  }).eq("call_id", call.call_id);
+
+  const event_id = `X402-${call.call_id}`;
+  const { data: existing } = await db.from("economic_events")
+    .select("event_id")
+    .eq("event_id", event_id)
+    .maybeSingle();
+  if (existing) return;
+
+  await db.from("economic_events").insert({
+    event_id,
+    silo_id: "agent-toll-road",
+    sku_id: "QUOTE-COMPARE-X402",
+    buyer_action_verified: true,
+    payment_settled: true,
+    fulfilment_verified: true,
+    evidence_verified: false,
+    evidence_ref: call.result?.evidence_packet_hash || null,
+    verification_status: TESTNET ? "TESTNET_ONLY" : "UNMATCHED",
+    observation_mode: TESTNET ? "TESTNET_OBSERVED" : "SETTLEMENT_OBSERVED",
+    scope: "EXTERNAL",
+    event_type: "X402_SETTLEMENT_OBSERVED",
+    state_before: "UNMATCHED",
+    state_after: TESTNET ? "TESTNET_SETTLED" : "UNMATCHED",
+    settlement_state: "SETTLED",
+    fulfillment_state: "FULFILLED",
+    verification_state: TESTNET ? "TESTNET_ONLY" : "UNMATCHED",
+    source: "agent-toll-road",
+    source_system: "x402",
+    source_record_id: String(call.call_id),
+    external_reference: tx,
+    input_hash: request_hash,
+    output_hash: call.result_hash,
+    metadata: {
+      network: receipt.network || NETWORK,
+      payer,
+      transaction: tx,
+      testnet: TESTNET,
+      scoreboard_eligible: !TESTNET
+    }
+  });
+}
+
+app.use("*", observeQuoteSettlement);
+
 app.get("/healthz", c => c.json({
   ok: true,
   service: "agent-toll-road",
@@ -138,7 +223,7 @@ function compareQuotes(rows: any[]) {
 async function recordCall(body: any, result: any, settlement_status: string) {
   const request_hash = await hashObject(body);
   const result_hash = await hashObject(result);
-  await db.from("agent_toll_calls").insert({
+  const { data, error } = await db.from("agent_toll_calls").insert({
     product_id: "truth.quote_compare",
     payer: "",
     payment_tx: null,
@@ -148,8 +233,9 @@ async function recordCall(body: any, result: any, settlement_status: string) {
     request_hash,
     result_hash,
     result
-  });
-  return { request_hash, result_hash };
+  }).select("call_id").single();
+  if (error) throw error;
+  return { call_id: data.call_id, request_hash, result_hash };
 }
 
 let paymentConfigured = false;
@@ -207,8 +293,9 @@ app.post("/v1/compare_quotes", async c => {
     comparison,
     evidence_packet_hash: packet_hash
   };
-  await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT");
-  return c.json(result);
+  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT");
+  c.set("quote_request_hash", call.request_hash);
+  return c.json({ ...result, toll_call_id: call.call_id });
 });
 
 app.post("/v1/reconcile", async c => {
