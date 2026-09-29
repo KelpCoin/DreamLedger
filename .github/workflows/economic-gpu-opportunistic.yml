@@ -1,0 +1,75 @@
+name: Economic GPU Opportunistic Worker
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: economic-gpu-opportunistic
+  cancel-in-progress: true
+
+jobs:
+  gpu:
+    runs-on: [self-hosted, gpu]
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: GPU telemetry
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          nvidia-smi --query-gpu=name,memory.total,memory.used,utilization.gpu,temperature.gpu,power.draw --format=csv,noheader
+          nvidia-smi -L
+
+      - name: Check local LM Studio
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          try {
+            $r = Invoke-RestMethod -Uri "http://127.0.0.1:1234/v1/models" -TimeoutSec 5
+            $r | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
+            Write-Host "LM_STUDIO=ONLINE"
+          } catch {
+            '{"online":false,"reason":"LM Studio unavailable; GPU worker remains non-blocking."}' | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
+            Write-Host "LM_STUDIO=OFFLINE"
+          }
+
+      - name: Bounded local inference probe
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ((Get-Content gpu-lmstudio-models.json -Raw) -notmatch '"online"') {
+            exit 0
+          }
+          try {
+            $body = @{
+              model = "local"
+              messages = @(
+                @{ role="system"; content="Return concise machine-readable JSON. Do not claim revenue or external demand. Identify three adjacent, low-risk, machine-fulfillable service ideas from this task: economic opportunity selection, competitive intelligence, public-record research, quote comparison, contradiction detection, agent tooling." },
+                @{ role="user"; content="Generate ideas only. Each object must contain name, buyer, deliverable, likely price_band_nzd, fulfillment_mode, evidence_required, and why_it_is_adjacent." }
+              )
+              temperature = 0.2
+              max_tokens = 800
+            } | ConvertTo-Json -Depth 8
+            $resp = Invoke-RestMethod -Uri "http://127.0.0.1:1234/v1/chat/completions" -Method Post -ContentType "application/json" -Body $body -TimeoutSec 120
+            $resp | ConvertTo-Json -Depth 12 | Set-Content -Encoding UTF8 gpu-adjacent-offer-research.json
+            Write-Host "LOCAL_INFERENCE=PASS"
+          } catch {
+            '{"status":"SKIPPED","reason":"Local inference endpoint unavailable or rejected the bounded probe."}' | Set-Content -Encoding UTF8 gpu-adjacent-offer-research.json
+            Write-Host "LOCAL_INFERENCE=SKIPPED"
+          }
+
+      - name: Upload GPU research
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-gpu-research-${{ github.run_id }}
+          path: |
+            gpu-lmstudio-models.json
+            gpu-adjacent-offer-research.json
+          if-no-files-found: warn
+          retention-days: 14
