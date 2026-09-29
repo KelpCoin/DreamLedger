@@ -1,0 +1,100 @@
+{
+  "schema": "DREAMLEDGER/777/EARNING-UNIT-PLAYBOOK/v1",
+  "purpose": "Convert existing DreamLedger capability into independently verified earning units, then integrate only proven units.",
+  "operating_mode": "ZERO_INCREMENTAL_SPEND_HUMAN_GATED_EXTERNAL_ACTIONS",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "atomic_earning_unit": {
+    "one_buyer": true,
+    "one_mission": true,
+    "one_bounded_deliverable": true,
+    "one_acceptance_contract": true,
+    "one_fulfillment_path": true,
+    "one_independent_evidence_chain": true,
+    "counts_as_verified_only_when": [
+      "independent external buyer",
+      "settled external payment",
+      "correct attribution",
+      "deliverable fulfilled",
+      "independent evidence"
+    ]
+  },
+  "optimization_loop": [
+    "INVENTORY existing offers and actual fulfillment workers",
+    "SELECT one offer with a concrete buyer problem and zero-cost test path",
+    "DEFINE inputs, output schema, acceptance criteria, refusal cases, evidence and turnaround",
+    "PROBE live dependencies read-only; stale or unreachable capability fails closed",
+    "TEST locally or with non-paying fixtures, labelled TEST and excluded from revenue truth",
+    "GAUNTLET-check security, scope, attribution, unit economics, fulfillment and failure recovery",
+    "HUMAN-GATE public listing, outreach, live financial action and irreversible publication",
+    "OBSERVE genuine external transaction only after authorization",
+    "RECONCILE payment, order, entitlement, fulfillment, artifact hash and independent evidence",
+    "PROMOTE only after verified outcome; otherwise record exact failure and smallest repair"
+  ],
+  "selection_score": {
+    "dimensions": [
+      "external demand evidence",
+      "existing capability completeness",
+      "deterministic acceptance",
+      "zero incremental cost",
+      "fulfillment reliability",
+      "independent verifiability",
+      "time and attention burden",
+      "security and authorization risk"
+    ],
+    "rule": "Use as a comparison aid, not a substitute for hard gates. Any missing fulfillment path, unclear authorization, unsafe payment boundary or unverifiable outcome blocks activation."
+  },
+  "initial_candidates": [
+    {
+      "sku": "QUOTE-COMPARE-49",
+      "reason": "Live quote-intake and quote-fulfillment functions identified; output artifacts are HTML and CSV.",
+      "blockers": [
+        "live schema probe timed out",
+        "atomic checkout/order idempotency not yet proven",
+        "real end-to-end acceptance contract and evidence chain need read-only verification"
+      ],
+      "state": "CAPABILITY_MAPPED_NOT_GATEWAY_FULL"
+    },
+    {
+      "sku": "SUPPLIER-VERIFICATION-CHECK",
+      "reason": "Existing offer and Truth Oracle/evidence capabilities may support a bounded evidence receipt.",
+      "blockers": [
+        "actual worker and input/output contract must be verified",
+        "sources, verdict limits and independent evidence must be defined"
+      ],
+      "state": "UNQUALIFIED"
+    }
+  ],
+  "sunrise_integration_rule": {
+    "merge": "Only proven earning units and their reusable contracts, tests, evidence adapters and failure handling.",
+    "do_not_merge": [
+      "unverified demand signals",
+      "internal test events as revenue",
+      "unproven workers",
+      "unapproved public actions",
+      "private silos or secrets",
+      "duplicate truth ledgers"
+    ],
+    "integration_order": [
+      "shared offer/contract schema",
+      "shared idempotency and transaction identity",
+      "shared fulfillment/evidence envelope",
+      "shared reconciliation and truth oracle",
+      "shared monitoring and failure queue",
+      "replication of a unit only after independent verified transaction"
+    ]
+  },
+  "hard_boundaries": [
+    "No fake buyers, payments, evidence, or outcomes",
+    "No self-purchase",
+    "No spending without explicit authorization",
+    "No external outreach or publication without explicit authorization",
+    "No payment acceptance when fulfillment is not currently proven",
+    "No promotion from TEST or UNVERIFIED to VERIFIED without independent evidence",
+    "Do not introduce n8n"
+  ]
+}
