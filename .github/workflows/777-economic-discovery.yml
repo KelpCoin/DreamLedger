@@ -1,0 +1,89 @@
+name: 777 Reality-First Economic Discovery
+
+on:
+  schedule:
+    - cron: "2/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-777-discovery
+  cancel-in-progress: false
+
+jobs:
+  discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Run existing public demand radar
+        run: npm run cube:radar
+
+      - name: Run public market demand research
+        run: python3 BEC-PRIME/scripts/777-public-market-radar.py
+
+      - name: Compile opportunity corpus
+        run: npm run compile:opportunities
+
+      - name: Compile Factory-Factory queue
+        run: npm run compile:factory-factory
+
+      - name: Run 777 combinatorial search
+        run: node BEC-PRIME/scripts/Run-777.js
+
+      - name: Compile universal economic cells
+        run: npm run factory:universal
+
+      - name: Verify factory cycle
+        run: npm run verify:factory-factory-cycle
+
+      - name: Hard truth guard
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const x = JSON.parse(fs.readFileSync('BEC-PRIME/data/777/777-LATEST.json','utf8'));
+          const expected = {
+            verified_external_revenue_nzd: 0,
+            settled_external_payments: 0,
+            independent_external_buyers: 0,
+            verified_economic_outcomes: 0
+          };
+          for (const [k,v] of Object.entries(expected)) {
+            if (x.truth[k] !== v) {
+              console.error('TRUTH GUARD FAILED:', k, x.truth[k], 'expected', v);
+              process.exit(9);
+            }
+          }
+          console.log(JSON.stringify(x.truth, null, 2));
+          NODE
+
+      - name: Upload overnight discovery evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-777-discovery-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/777/public-market-radar.json
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json
+            BEC-PRIME/data/factory-factory/UNIVERSAL-MONEY-CELLS.json
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY-RUN.json
+          if-no-files-found: error
+          retention-days: 7
