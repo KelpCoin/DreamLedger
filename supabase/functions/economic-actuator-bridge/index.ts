@@ -45,6 +45,8 @@ Deno.serve(async (req) => {
     claim_external_action_job: "claim_external_action_job",
     complete_job: "complete_job",
     fail_job: "fail_job",
+    reconcile_external_frontier: "requeue_internal_routed_external_packets",
+    record_external_action_result: "record_external_action_result",
   };
   const rpc = rpcMap[op];
   if (!rpc) return json({ error: "operation not allowed" }, 403);
