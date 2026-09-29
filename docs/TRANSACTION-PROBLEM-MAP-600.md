@@ -304,48 +304,6 @@ The first 300 pain vectors are in `docs/UNIVERSAL-PAIN-OBSERVATORY.md`. This map
 | P598 | SCHEDULE | matching service capacity to urgency |
 | P599 | SCHEDULE | tracking arrival windows |
 | P600 | SCHEDULE | coordinating multi-party site visits |
-| P601 | FOLLOWUP | tracking promised actions |
-| P602 | FOLLOWUP | chasing unanswered supplier quotes |
-| P603 | FOLLOWUP | tracking customer commitments |
-| P604 | FOLLOWUP | reminding owners about obligations |
-| P605 | FOLLOWUP | following up unresolved exceptions |
-| P606 | FOLLOWUP | closing open service tasks |
-| P607 | CUSTOMER | capturing sales-to-delivery handoffs |
-| P608 | CUSTOMER | tracking customer promises |
-| P609 | CUSTOMER | organizing onboarding requirements |
-| P610 | CUSTOMER | recording customer acceptance |
-| P611 | CUSTOMER | tracking post-sale issues |
-| P612 | CUSTOMER | preserving customer transaction history |
-| P613 | REVENUE | attributing payments to services |
-| P614 | REVENUE | tracking revenue by customer |
-| P615 | REVENUE | mapping sales to fulfilment |
-| P616 | REVENUE | detecting revenue leakage |
-| P617 | REVENUE | reconciling marketplace commissions |
-| P618 | REVENUE | tracking recurring customer value |
-| P619 | MARGIN | calculating job margin |
-| P620 | MARGIN | calculating supplier margin |
-| P621 | MARGIN | calculating customer profitability |
-| P622 | MARGIN | calculating service-line profitability |
-| P623 | MARGIN | calculating quote margin |
-| P624 | MARGIN | calculating repeat-order economics |
-| P625 | EVIDENCE | building transaction evidence packs |
-| P626 | EVIDENCE | sharing minimum necessary evidence |
-| P627 | EVIDENCE | proving document provenance |
-| P628 | EVIDENCE | assembling dispute evidence |
-| P629 | EVIDENCE | creating audit-ready transaction records |
-| P630 | EVIDENCE | recording evidence freshness |
-| P631 | PASSPORT | creating portable supplier transaction histories |
-| P632 | PASSPORT | creating buyer transaction histories |
-| P633 | PASSPORT | sharing project completion histories |
-| P634 | PASSPORT | porting verified service records |
-| P635 | PASSPORT | sharing procurement histories |
-| P636 | PASSPORT | creating portable delivery histories |
-| P637 | REPEAT | creating reorder prompts |
-| P638 | REPEAT | reusing prior supplier comparisons |
-| P639 | REPEAT | creating recurring RFQs |
-| P640 | REPEAT | remembering negotiated terms |
-| P641 | REPEAT | suggesting replacement purchases |
-| P642 | REPEAT | triggering next-service workflows |
 
 ## Economic boundary
 
