@@ -1,30 +1,31 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-NZ">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamLedger Founding Tile</title>
-<meta name="description" content="Claim a permanent DreamLedger Founding Tile for NZ$50.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buy · RIVET · DreamLedger</title>
+<link rel="canonical" href="https://dreamledger.org/buy.html">
 <style>
-body{margin:0;background:#0a0c11;color:#f4f6f8;font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}main{width:min(860px,calc(100% - 32px));margin:0 auto;padding:56px 0 72px}a{color:inherit}.eyebrow{font-size:11px;letter-spacing:.12em;font-weight:900;color:#a7b0c0}.hero h1{font-size:clamp(50px,10vw,92px);line-height:.84;letter-spacing:-.075em;margin:10px 0 18px}.hero p{color:#aab3c0;max-width:680px}.card{border:1px solid #343d4b;border-radius:22px;background:#11161f;padding:28px;margin-top:30px}.card h2{font-size:32px;line-height:1;margin:8px 0}.price{font-size:54px;font-weight:1000;letter-spacing:-.06em;margin:14px 0 8px}.card p{color:#9aa5b4;max-width:680px}.button{display:inline-block;text-decoration:none;border:1px solid #3d4758;border-radius:12px;padding:13px 17px;font-weight:900;background:#7be1b4;color:#07110c;border-color:#7be1b4;margin-top:8px}.meta{font-size:11px;color:#7d8898;margin-top:12px}.fine{font-size:13px;color:#7d8898;margin-top:24px}.back{display:inline-block;margin-bottom:28px;font-size:12px;color:#9da7b5}
+:root{--bg:#080a0e;--panel:#0f1419;--line:#27313b;--ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--font:system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font)}a{color:inherit;text-decoration:none}.shell{max-width:960px;margin:0 auto;padding:20px}.brand{font-weight:900;letter-spacing:.06em}.brand span{color:var(--gold)}nav a{margin-left:12px;color:var(--muted);font-size:13px;font-weight:700}.hero{padding:32px 0 20px}.kicker{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}h1{font-size:clamp(2rem,5vw,3rem);margin:10px 0}.lead{color:var(--muted);max-width:40ch}.grid{display:grid;gap:14px;margin-top:24px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}.tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.price{font-size:1.75rem;font-weight:900;color:var(--gold);margin:10px 0}.card p{color:var(--muted);font-size:.9rem;margin-bottom:14px}.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;background:var(--gold);color:#111;font-weight:800}.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 </style>
 </head>
 <body>
-<main>
-<a class="back" href="/">← DreamLedger</a>
+<div class="shell">
+<header style="display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line)">
+<a class="brand" href="/">DREAM<span>LEDGER</span></a>
+<nav><a href="/b2b.html">RIVET</a><a href="/sell.html">Sell</a><a href="/marketplace.html">Market</a></nav>
+</header>
 <section class="hero">
-<div class="eyebrow">DIRECT PURCHASE · ONE PAYMENT</div>
-<h1>Own a piece of DreamLedger.</h1>
-<p>A permanent 100×100 Founding Tile on the DreamLedger public board. One label, one HTTPS destination URL, one fixed-supply placement. Payment is handled by the live Stripe checkout.</p>
+<div class="kicker">RIVET · Verified commerce</div>
+<h1>Buy something real.</h1>
+<p class="lead">Stripe checkout. Fail-closed revenue rules.</p>
 </section>
-<section class="card">
-<div class="eyebrow">FOUNDING TILE · 100×100</div>
-<h2>DreamLedger Founding Tile</h2>
-<div class="price">NZ$50</div>
-<p>Claim one 100×100 placement. Supply is finite. After payment, the existing DreamLedger fulfillment path collects the label and destination URL and routes the placement through the existing review/publication process.</p>
-<a class="button" href="https://buy.stripe.com/dRm4gA6AU62KdWUbTi9oc0x">Claim the tile →</a>
-<div class="meta">Live Stripe rail · no subscription · no account required before checkout</div>
+<section class="grid">
+<article class="card"><div class="tag">Billboard</div><h2>Founding tile</h2><div class="price">NZ$50</div><p>Permanent placement. Human review.</p><a class="btn" href="https://buy.stripe.com/aFa14naXP15r1DVdVadwc2B">Buy</a></article>
+<article class="card"><div class="tag">MTG</div><h2>Commander diagnostic</h2><div class="price">NZ$29</div><p>Structure, cuts, upgrades.</p><a class="btn" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy</a></article>
+<article class="card"><div class="tag">Sell</div><h2>List your offer</h2><p>0% success fee intake.</p><a class="btn ghost" href="/sell.html">Open intake</a></article>
 </section>
-<p class="fine">Payment evidence is not counted as revenue until the existing reconciliation and RA_000001 verification rules pass.</p>
-</main>
+</div>
 </body>
 </html>
