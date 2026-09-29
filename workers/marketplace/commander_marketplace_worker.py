@@ -1,7 +1,9 @@
 import hashlib, json, os, re, sys, time, urllib.parse, urllib.request
 from pathlib import Path
 
-SUPABASE_URL=os.environ["SUPABASE_URL"].rstrip("/")
+SUPABASE_URL=(os.environ.get("SUPABASE_URL") or os.environ.get("PROJECT_URL") or "").rstrip("/")
+if not SUPABASE_URL:
+    raise RuntimeError("SUPABASE_URL is required")
 SERVICE_KEY=os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 WORKER_ID=os.environ.get("BEC_WORKER_ID", f"commander-{os.environ.get('COMPUTERNAME','pc')}")
 LM_URL=os.environ.get("LM_STUDIO_URL") or os.environ.get("CLOUD_MODEL_API_URL", "http://127.0.0.1:1234/v1/chat/completions")
