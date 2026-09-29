@@ -26,7 +26,7 @@ jobs:
       - name: Compile RDTI evidence extraction
         run: |
           set -euo pipefail
-          python3 tools/rdti_evidence_pack.py --repo . --limit 50 --output rdti-evidence-pack.json
+          python3 tools/rdti_evidence_pack.py --repo . --limit 50 --output rdti-evidence-pack.json --html-output rdti-evidence-pack.html
           python3 - <<'PY'
           import json
           p=json.load(open('rdti-evidence-pack.json',encoding='utf-8'))
@@ -47,4 +47,5 @@ jobs:
           path: |
             evidence-compilation.json
             rdti-evidence-pack.json
+            rdti-evidence-pack.html
           retention-days: 14
