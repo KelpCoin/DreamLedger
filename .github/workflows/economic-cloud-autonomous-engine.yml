@@ -43,6 +43,22 @@ jobs:
           print(p["evidence_hash"])
           PY
 
+      - name: Compile RDTI evidence extraction packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/rdti_evidence_pack.py --repo . --limit 50 --output rdti-evidence-pack.json | tee rdti-evidence-pack-run.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open("rdti-evidence-pack.json",encoding="utf-8"))
+          assert p["truth_status"] == "INTERNAL"
+          assert p["promotion_status"] == "NOT_ELIGIBLE"
+          assert p["evidence_hash"]
+          assert all(v == "NOT_ESTABLISHED" for v in p["rdti_review_fields"].values())
+          print("RDTI_EVIDENCE_EXTRACTION=READY")
+          print(p["evidence_hash"])
+          PY
+
       - name: Expire stale human gates
         shell: bash
         run: |
@@ -174,5 +190,7 @@ jobs:
             economic-cloud-engine-proof.json
             evidence-compilation.json
             evidence-compilation-run.json
+            rdti-evidence-pack.json
+            rdti-evidence-pack-run.json
           if-no-files-found: warn
           retention-days: 30
