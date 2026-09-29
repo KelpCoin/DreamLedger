@@ -8,8 +8,9 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const PAY_TO = Deno.env.get("X402_PAY_TO") || "";
-const FACILITATOR_URL = Deno.env.get("X402_FACILITATOR_URL") || "";
-const NETWORK = Deno.env.get("X402_NETWORK") || "eip155:8453";
+const TESTNET = Deno.env.get("X402_TESTNET") !== "false";
+const FACILITATOR_URL = Deno.env.get("X402_FACILITATOR_URL") || (TESTNET ? "https://x402.org/facilitator" : "");
+const NETWORK = Deno.env.get("X402_NETWORK") || (TESTNET ? "eip155:84532" : "eip155:8453");
 const QUOTE_ENABLED = Deno.env.get("X402_QUOTE_ENABLED") === "true";
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
@@ -151,19 +152,12 @@ async function recordCall(body: any, result: any, settlement_status: string) {
   return { request_hash, result_hash };
 }
 
-app.use("*", async (c, next) => {
-  if (!PAY_TO || !FACILITATOR_URL) return c.json({
-    error: "PAYMENT_RAIL_NOT_CONFIGURED",
-    service: "agent-toll-road"
-  }, 503);
-  return next();
-});
-
-const facilitator = new HTTPFacilitatorClient({ url: FACILITATOR_URL });
-const x402 = new x402ResourceServer(facilitator);
-registerExactEvmScheme(x402);
-
-app.use(paymentMiddleware({
+let paymentConfigured = false;
+if (PAY_TO && FACILITATOR_URL) {
+  const facilitator = new HTTPFacilitatorClient({ url: FACILITATOR_URL });
+  const x402 = new x402ResourceServer(facilitator);
+  registerExactEvmScheme(x402);
+  app.use(paymentMiddleware({
   "POST /v1/reconcile": {
     accepts: [{ scheme: "exact", price: "$0.02", network: NETWORK, payTo: PAY_TO }],
     description: "Reconcile a supplied payment/order reference against durable commerce truth.",
@@ -184,9 +178,12 @@ app.use(paymentMiddleware({
     description: "Compare 2-5 supplier quotes using deterministic extraction, normalization and evidence checks.",
     mimeType: "application/json"
   }
-}, x402));
+  }, x402));
+  paymentConfigured = true;
+}
 
 app.post("/v1/compare_quotes", async c => {
+  if (!paymentConfigured) return c.json({ error: "PAYMENT_RAIL_NOT_CONFIGURED", service: "agent-toll-road" }, 503);
   if (!QUOTE_ENABLED) return c.json({ error: "QUOTE_COMPARE_DISABLED" }, 503);
   const body = await c.req.json().catch(() => ({}));
   const documents = Array.isArray(body.documents) ? body.documents : [];
