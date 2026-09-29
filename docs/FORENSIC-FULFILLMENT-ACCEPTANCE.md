@@ -146,6 +146,15 @@ EXTERNAL RESULT -> FULFILLMENT -> PAYMENT -> EVIDENCE -> VERIFIED OUTCOME
 
 These layers must not be collapsed.
 
+## Canonical economic scoreboard
+
+CI and fulfillment acceptance never change these values without independent external evidence:
+
+VERIFIED_EXTERNAL_REVENUE = NZ$0.00
+SETTLED_EXTERNAL_PAYMENTS = 0
+INDEPENDENT_EXTERNAL_BUYERS = 0
+VERIFIED_ECONOMIC_OUTCOMES = 0
+
 ## CI acceptance
 
 The repository CI validator checks:
