@@ -29,14 +29,21 @@ function decodeSettlementReceipt(header: string | null): any | null {
 
 async function observeQuoteSettlement(c: any, next: any) {
   await next();
-  if (c.req.path !== "/v1/compare_quotes") return;
+  const productByPath: Record<string, {product_id:string; price:number}> = {
+    "/v1/compare_quotes": {product_id:"truth.quote_compare", price:0.50},
+    "/v1/reconcile": {product_id:"truth.reconcile", price:0.02},
+    "/v1/contradictions": {product_id:"truth.contradictions", price:0.02},
+    "/v1/passport": {product_id:"truth.passport", price:0.05}
+  };
+  const product = productByPath[c.req.path];
+  if (!product) return;
   const receipt = decodeSettlementReceipt(c.res.headers.get("PAYMENT-RESPONSE"));
   if (!receipt || receipt.success !== true) return;
   const request_hash = c.get("quote_request_hash");
   if (!request_hash) return;
   const { data: call } = await db.from("agent_toll_calls")
     .select("call_id,product_id,result,result_hash,payment_network,settlement_status")
-    .eq("request_hash", request_hash).eq("product_id", "truth.quote_compare")
+    .eq("request_hash", request_hash).eq("product_id", product.product_id)
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (!call) return;
   const tx = receipt.transaction || receipt.txHash || receipt.tx_hash || null;
@@ -48,7 +55,7 @@ async function observeQuoteSettlement(c: any, next: any) {
   const settlementKey = `x402:${call.call_id}:${tx}`;
   const { error: settlementError } = await db.from("x402_settlements").upsert({
     toll_call_id: call.call_id, idempotency_key: settlementKey, network: NETWORK, asset,
-    amount_atomics: "500000", amount_usdc: 0.50, payer_address: payer, payee_address: PAY_TO,
+    amount_atomics: String(Math.round(product.price * 1_000_000)), amount_usdc: product.price, payer_address: payer, payee_address: PAY_TO,
     tx_hash: tx, facilitator_url: FACILITATOR_URL, facilitator_response: receipt,
     status: "PENDING", settled_at: new Date().toISOString()
   }, { onConflict: "idempotency_key" });
@@ -71,7 +78,7 @@ async function observeQuoteSettlement(c: any, next: any) {
     execution_id: call.call_id, toll_call_id: call.call_id, proof_type: "DELIVERY_RECEIPT",
     request_hash, response_hash: call.result_hash || "", artifact_hash: evidence_hash, chain_hash,
     source_reference: tx, source_system: "agent-toll-road",
-    metadata: { decision_id, network: NETWORK, testnet: TESTNET, payer, payee: PAY_TO }
+    metadata: { decision_id, product_id: product.product_id, price_usd: product.price, network: NETWORK, testnet: TESTNET, payer, payee: PAY_TO }
   }).select("proof_id").single();
   if (!proof) return;
   const event_id = `X402-${call.call_id}`;
@@ -79,7 +86,7 @@ async function observeQuoteSettlement(c: any, next: any) {
     .eq("event_id", event_id).maybeSingle();
   if (existing) return;
   await db.from("economic_events").insert({
-    event_id, silo_id: "agent-toll-road", sku_id: "QUOTE-COMPARE-X402",
+    event_id, silo_id: "agent-toll-road", sku_id: product.product_id,
     buyer_action_verified: true, payment_settled: true, fulfilment_verified: true, evidence_verified: true,
     evidence_ref: proof.proof_id, payment_reference: tx, verification_status: "UNMATCHED",
     observation_mode: "OBSERVED", scope: "EXTERNAL", event_type: "X402_SETTLEMENT_OBSERVED",
@@ -88,7 +95,7 @@ async function observeQuoteSettlement(c: any, next: any) {
     verification_state: "UNMATCHED", source: "agent-toll-road", source_system: "x402",
     source_record_id: String(call.call_id), external_reference: payer,
     input_hash: request_hash, output_hash: call.result_hash,
-    metadata: { network: NETWORK, payer, payee: PAY_TO, transaction: tx, testnet: TESTNET,
+    metadata: { network: NETWORK, payer, payee: PAY_TO, transaction: tx, testnet: TESTNET, product_id: product.product_id, price_usd: product.price,
       scoreboard_eligible: !TESTNET, toll_call_id: String(call.call_id), decision_id,
       settlement_idempotency_key: settlementKey }
   });
@@ -103,6 +110,22 @@ app.get("/healthz", c => c.json({
   quote_compare_mode: QUOTE_ENABLED && PAY_TO && FACILITATOR_URL ? "ENABLED" : "DISABLED",
   network: NETWORK
 }));
+
+app.get("/.well-known/x402", async c => {
+  const { data, error } = await db.from("agent_toll_products")
+    .select("product_id,name,price_usd,endpoint,description").eq("active", true).order("product_id");
+  if (error) return c.json({ error:"DISCOVERY_UNAVAILABLE" },503);
+  return c.json({
+    x402Version: 2,
+    service: "DreamLedger Truth Toll Road",
+    network: NETWORK,
+    asset: NETWORK === "eip155:84532"
+      ? "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+      : "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    payTo: PAY_TO || null,
+    products: data
+  });
+});
 
 app.get("/catalog", async c => {
   const { data, error } = await db.from("agent_toll_products")
@@ -215,11 +238,11 @@ function compareQuotes(rows: any[]) {
   };
 }
 
-async function recordCall(body: any, result: any, settlement_status: string) {
+async function recordCall(body: any, result: any, settlement_status: string, product_id = "truth.quote_compare") {
   const request_hash = await hashObject(body);
   const result_hash = await hashObject(result);
   const { data, error } = await db.from("agent_toll_calls").insert({
-    product_id: "truth.quote_compare",
+    product_id,
     payer: "",
     payment_tx: null,
     payment_network: NETWORK,
@@ -317,7 +340,9 @@ app.post("/v1/reconcile", async c => {
     external_truth_established: Boolean((orders || []).some((o:any) => o.status === "paid") && (attrs || []).some((a:any) => a.attribution_status === "VERIFIED"))
   };
   const result_hash = await hashObject(result);
-  return c.json({ ...result, result_hash });
+  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.reconcile");
+  c.set("quote_request_hash", call.request_hash);
+  return c.json({ ...result, result_hash, toll_call_id: call.call_id });
 });
 
 app.post("/v1/contradictions", async c => {
@@ -338,7 +363,9 @@ app.post("/v1/contradictions", async c => {
   }
   const result = { verdict: contradictions.length ? "CONTRADICTED" : "NO_CONTRADICTION_FOUND", contradictions };
   const result_hash = await hashObject(result);
-  return c.json({ ...result, result_hash });
+  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.contradictions");
+  c.set("quote_request_hash", call.request_hash);
+  return c.json({ ...result, result_hash, toll_call_id: call.call_id });
 });
 
 app.post("/v1/passport", async c => {
@@ -354,7 +381,9 @@ app.post("/v1/passport", async c => {
     verdict: "INCOMPLETE"
   };
   const result_hash = await hashObject(result);
-  return c.json({ ...result, result_hash });
+  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.passport");
+  c.set("quote_request_hash", call.request_hash);
+  return c.json({ ...result, result_hash, toll_call_id: call.call_id });
 });
 
 Deno.serve(app.fetch);
