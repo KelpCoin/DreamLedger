@@ -1,0 +1,69 @@
+{
+  "schema": "dreamledger/adjacent-offer-candidates/v1",
+  "status": "INTERNAL_CANDIDATES_ONLY",
+  "public_release": false,
+  "candidates": [
+    {
+      "id": "AGENT-READINESS-AUDIT-001",
+      "name": "Agent / MCP Readiness Audit",
+      "buyer": "SMB, agency, SaaS or developer shipping agent-facing workflows",
+      "deliverable": "Evidence-backed audit of authentication, tool permissions, machine-readable offer surfaces, payment boundaries, logging and recovery",
+      "fulfillment": "deterministic checklist + sourced report",
+      "price_band_nzd": [79, 499],
+      "adjacency": "Direct extension of DreamLedger authority, truth and execution-gate work"
+    },
+    {
+      "id": "COMPETITOR-INTEL-SNAPSHOT-001",
+      "name": "Competitor Intelligence Snapshot",
+      "buyer": "SMB, agency, product or sales team",
+      "deliverable": "Sourced competitor pricing, positioning, product-change and distribution snapshot",
+      "fulfillment": "public-source research + evidence bundle",
+      "price_band_nzd": [49, 299],
+      "adjacency": "Extends demand radar and economic selection into a buyer-facing intelligence artifact"
+    },
+    {
+      "id": "AGENT-VISIBILITY-AUDIT-001",
+      "name": "AI / Agent Visibility Audit",
+      "buyer": "Businesses trying to become discoverable to AI agents",
+      "deliverable": "Machine-legibility, discoverability, offer clarity and evidence-surface audit",
+      "fulfillment": "public-web inspection + structured report",
+      "price_band_nzd": [79, 399],
+      "adjacency": "Turns the internal agent-discovery problem into a sellable diagnostic"
+    },
+    {
+      "id": "PUBLIC-RECORD-RESEARCH-001",
+      "name": "Public-Record Research Pack",
+      "buyer": "Organizations needing sourced public-record intelligence",
+      "deliverable": "Structured record set with source URLs, timestamps, extraction notes and uncertainty",
+      "fulfillment": "public-record collection + evidence packet",
+      "price_band_nzd": [50, 850],
+      "adjacency": "Directly overlaps the existing ACNC research capability and can be templated"
+    },
+    {
+      "id": "QUOTE-CONTRADICTION-001",
+      "name": "Quote / Contract Contradiction Audit",
+      "buyer": "SMBs comparing vendor quotes, proposals or terms",
+      "deliverable": "Normalized comparison, contradiction list, missing-term detection and decision evidence",
+      "fulfillment": "document ingestion + deterministic comparison + sourced findings",
+      "price_band_nzd": [49, 399],
+      "adjacency": "Extends the existing quote-comparison and Truth Oracle substrate"
+    },
+    {
+      "id": "DATA-FRESHNESS-WATCH-001",
+      "name": "Evidence Freshness Watch",
+      "buyer": "Teams relying on changing public facts, prices or vendor claims",
+      "deliverable": "Scheduled change detection with source-linked alerts and stale-evidence flags",
+      "fulfillment": "read-only public-source monitoring",
+      "price_band_nzd": [19, 149],
+      "adjacency": "Turns heartbeat, demand radar and evidence freshness into a recurring service"
+    }
+  ],
+  "selection_policy": {
+    "machine_may_research": true,
+    "machine_may_score": true,
+    "machine_may_prepare_offer": true,
+    "machine_may_publish_without_approval": false,
+    "machine_may_contact_buyer_without_approval": false,
+    "machine_may_claim_revenue_without_external_evidence": false
+  }
+}
