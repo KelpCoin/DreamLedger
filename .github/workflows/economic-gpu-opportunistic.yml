@@ -78,7 +78,11 @@ jobs:
             $candidate | ConvertTo-Json -Depth 20 | Set-Content -Encoding UTF8 gpu-adjacent-offer-research.json
             Write-Host "LOCAL_INFERENCE=PASS"
           } catch {
-            '{"status":"SKIPPED","reason":"Local inference endpoint unavailable or rejected the bounded probe."}' | Set-Content -Encoding UTF8 gpu-adjacent-offer-research.json
+            $skip = [ordered]@{ research_id=[guid]::NewGuid().ToString(); generated_at=(Get-Date).ToUniversalTime().ToString("o"); gpu_node="self-hosted"; capability="adjacent_service_research"; inputs=[ordered]@{candidate_count=6;mechanisms=@()}; outputs=[ordered]@{candidates=@()}; bounded_cost_usd=0.00; evidence_hash=$null; status="SKIPPED"; reason="Local inference endpoint unavailable or rejected the bounded probe." }
+            $canonical=$skip | ConvertTo-Json -Depth 20 -Compress
+            $sha=[System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canonical))
+            $skip.evidence_hash="sha256:"+(($sha | ForEach-Object { $_.ToString("x2") }) -join "")
+            $skip | ConvertTo-Json -Depth 20 | Set-Content -Encoding UTF8 gpu-adjacent-offer-research.json
             Write-Host "LOCAL_INFERENCE=SKIPPED"
           }
 
