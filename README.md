@@ -31,4 +31,4 @@ Production serves compiled website artifacts from BEC-PRIME/compiled/website. Co
 
 ## Universal pain research
 
-The canonical universal-pain and B2B marketplace research corpus is maintained at [docs/UNIVERSAL-PAIN-OBSERVATORY.md](docs/UNIVERSAL-PAIN-OBSERVATORY.md). It is research input, not economic proof.
+The canonical universal-pain and B2B marketplace research corpus is maintained at [docs/UNIVERSAL-PAIN-OBSERVATORY.md](docs/UNIVERSAL-PAIN-OBSERVATORY.md). It now contains 300 distinct pain vectors plus the product-factory and silo-readiness contract. It is research input, not economic proof.
