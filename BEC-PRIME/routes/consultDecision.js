@@ -135,11 +135,42 @@ async function fulfill(session){
   const outcome=await supabase('economic_outcomes',{method:'POST',body:{offer_id:C2_OFFER_ID,outcome_type:'FULFILLED',amount_nzd:5,founder_minutes:0,fulfilment_minutes:0,acquisition_cost_nzd:0,payment_fees_nzd:0,external_reference:session.id,observed_at:completedAt,evidence_ids:evidenceIds,metadata:settlementPayload,truth_status:session.livemode?'VERIFIED':'TEST',attribution:{request_id:requestIdValue,stripe_session_id:session.id,client_reference_id:session.client_reference_id,utm_source:request.attribution?.utm_source||null,utm_medium:request.attribution?.utm_medium||null,utm_campaign:request.attribution?.utm_campaign||null,client_ref:request.attribution?.client_ref||null,canonical_order_id:order.id,canonical_entitlement_id:entitlement.id,canonical_fulfillment_id:fulfillments[0].id}}});
   return {status:session.livemode?'VERIFIED':'TEST',request_id:requestIdValue,session_id:session.id,result,result_hash:resultHash,canonical_order_id:order.id,canonical_entitlement_id:entitlement.id,canonical_fulfillment_id:fulfillments[0].id,fulfillment_update:fulfillmentUpdate,settlement:outcome};
 }
+function validateRDTIQualification(input){
+  if(!input||typeof input!=='object'||Array.isArray(input))return {ok:false,error:'A qualification form is required'};
+  const need=String(input.need||'').trim();
+  const project=String(input.project_description||'').trim();
+  const authority=String(input.repository_authority||'').trim();
+  const adviser=String(input.adviser_status||'').trim();
+  const role=String(input.respondent_role||'').trim();
+  if(!['organize','reviewer-pack','gap-map','provider-partner','unsure'].includes(need))return {ok:false,error:'Choose the type of support you need'};
+  if(project.length<20||project.length>3000)return {ok:false,error:'Project description must be 20-3000 characters'};
+  if(!['owner','authorized','private-no-link'].includes(authority))return {ok:false,error:'Repository ownership or permission must be confirmed'};
+  if(input.authorized_submission!==true||input.storage_consent!==true)return {ok:false,error:'Submission authority and storage consent are required'};
+  if(!['engaged','seeking','none','not-claiming'].includes(adviser))return {ok:false,error:'Choose your adviser status'};
+  if(!['claimant','provider','technical','other'].includes(role))return {ok:false,error:'Choose your role'};
+  const repo=String(input.repository_url||'').trim();
+  if(repo){
+    let parsed;try{parsed=new URL(repo)}catch{return {ok:false,error:'Repository URL is invalid'}};
+    if(parsed.protocol!=='https:'||!['github.com','gitlab.com','bitbucket.org'].includes(parsed.hostname.toLowerCase()))return {ok:false,error:'Repository URL must use HTTPS on GitHub, GitLab, or Bitbucket'};
+  }
+  return {ok:true,value:{schema:'DREAMLEDGER-RDTI-QUALIFICATION/v1',need,project_description:project,repository_url:repo||null,repository_authority:authority,relevant_period:String(input.relevant_period||'').trim().slice(0,120)||null,adviser_status:adviser,respondent_role:role,authorized_submission:true,storage_consent:true,source_page:String(input.source_page||'/rdti-evidence-pack').slice(0,200),status:'QUALIFICATION_RECEIVED',commercial_status:'UNQUOTED',truth_status:'INTERNAL',external_contact_authorized:false,payment_status:'NOT_REQUESTED',received_at:new Date().toISOString()}};
+}
+async function createRDTIQualification(input){
+  const checked=validateRDTIQualification(input);
+  if(!checked.ok)throw new Error(checked.error);
+  const value=checked.value;
+  const requestId='rdti_'+crypto.randomUUID();
+  const payload={...value,request_id:requestId};
+  const recordHash=hash(payload);
+  await supabase('evidence_records',{method:'POST',body:{transition_id:requestId,record_type:'RDTI_QUALIFICATION_REQUEST',min_access_tier:'INTERNAL',disclosure_policy_version:'v1',issuer:'DreamLedger',credential_format:'INTERNAL',credential_ref:requestId,payload,parent_hash:null,record_hash:recordHash,verification_status:'UNVERIFIED'}});
+  return {schema:'DREAMLEDGER-RDTI-QUALIFICATION-RECEIPT/v1',request_id:requestId,status:'QUALIFICATION_RECEIVED',commercial_status:'UNQUOTED',payment_requested:false,external_contact_triggered:false,truth_status:'INTERNAL'};
+}
 async function handle(req,res,url){
+  if(req.method==='POST'&&url==='/m2m/v1/rdti/evidence-pack/qualify'){try{return send(res,201,await createRDTIQualification(await body(req)))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
   if(req.method==='POST'&&url==='/m2m/v1/consult/decision/checkout'){try{return send(res,200,await createCheckout(await body(req)))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
   if(req.method==='GET'&&url==='/m2m/v1/consult/decision/result'){try{const u=new URL(req.url,'https://dreamledger.org');const sid=u.searchParams.get('session_id');if(!sid)return send(res,400,{error:'session_id is required'});const session=await stripeRequest('GET','checkout/sessions/'+encodeURIComponent(sid));return send(res,session.payment_status==='paid'?200:402,await fulfill(session))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
   if(req.method==='POST'&&url==='/m2m/v1/consult/decision'){try{const b=await body(req);if(!b.session_id)return send(res,402,{error:'Payment required',next:'POST /m2m/v1/consult/decision/checkout'});const session=await stripeRequest('GET','checkout/sessions/'+encodeURIComponent(String(b.session_id)));return send(res,session.payment_status==='paid'?200:402,await fulfill(session))}catch(err){return send(res,err.message.includes('configured')?503:400,{error:err.message})}}
   if(req.method==='GET'&&url==='/m2m/v1/consult/decision/cancelled')return send(res,200,{schema:'BEC-C2-CANCELLED/v1',status:'CANCELLED'});
   return false;
 }
-module.exports={handle};
+module.exports={handle,validateRDTIQualification};
