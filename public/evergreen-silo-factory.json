@@ -1,0 +1,698 @@
+{
+  "schema": "dreamledger/evergreen-silo-factory/v1",
+  "date": "2026-09-29",
+  "live_adapters": [
+    {
+      "slug": "construction-subcontractor-quotes",
+      "name": "Construction Subcontractor Quote Comparison",
+      "description": "Compare 2-5 subcontractor quotes for scope, stated total, lead time, MOQ and payment terms.",
+      "route": "/silos/construction-subcontractor-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "it-hardware-quotes",
+      "name": "IT Hardware Quote Comparison",
+      "description": "Compare reseller quotes for laptops, servers and networking equipment.",
+      "route": "/silos/it-hardware-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "freight-quotes",
+      "name": "Freight Quote Comparison",
+      "description": "Compare freight-forwarder quotes while preserving Incoterms, lead-time and surcharge unknowns.",
+      "route": "/silos/freight-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "manufacturing-supplier-quotes",
+      "name": "Manufacturing Supplier Quote Comparison",
+      "description": "Compare component supplier quotes for price, MOQ, lead time and payment terms.",
+      "route": "/silos/manufacturing-supplier-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "marketing-agency-quotes",
+      "name": "Marketing Agency Quote Comparison",
+      "description": "Compare agency proposals for scope, deliverables, project or retainer pricing and exclusions.",
+      "route": "/silos/marketing-agency-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "event-vendor-quotes",
+      "name": "Event Vendor Quote Comparison",
+      "description": "Compare venue, catering and AV proposals on inclusions, exclusions and minimums.",
+      "route": "/silos/event-vendor-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "fleet-repair-quotes",
+      "name": "Fleet Repair Quote Comparison",
+      "description": "Compare maintenance quotes for parts, labour, warranty and turnaround.",
+      "route": "/silos/fleet-repair-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "saas-vendor-quotes",
+      "name": "SaaS Vendor Quote Comparison",
+      "description": "Compare SaaS proposals for seat pricing, implementation fees and renewal terms.",
+      "route": "/silos/saas-vendor-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "professional-services-quotes",
+      "name": "Professional Services Proposal Comparison",
+      "description": "Compare accounting, legal or consulting proposals for scope, rates and assumptions.",
+      "route": "/silos/professional-services-quotes",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "slug": "supplier-price-list-comparison",
+      "name": "Supplier Price List Comparison",
+      "description": "Compare supplier price lists and identify price, MOQ and lead-time differences.",
+      "route": "/silos/supplier-price-list-comparison",
+      "state": "LIVE_ADAPTER",
+      "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    }
+  ],
+  "pain_vectors": [
+    {
+      "id": "UP-001",
+      "pain": "Reconcile invoices",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-002",
+      "pain": "Reconcile supplier quotes",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-003",
+      "pain": "Reconcile supplier records",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-004",
+      "pain": "Reconcile contracts",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-005",
+      "pain": "Reconcile shipments",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-006",
+      "pain": "Reconcile inventory records",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-007",
+      "pain": "Reconcile assets",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-008",
+      "pain": "Reconcile expenses",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-009",
+      "pain": "Reconcile documents",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-010",
+      "pain": "Reconcile service jobs",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-011",
+      "pain": "Compare invoices",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-012",
+      "pain": "Compare supplier quotes",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-013",
+      "pain": "Compare supplier records",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-014",
+      "pain": "Compare contracts",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-015",
+      "pain": "Compare shipments",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-016",
+      "pain": "Compare inventory records",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-017",
+      "pain": "Compare assets",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-018",
+      "pain": "Compare expenses",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-019",
+      "pain": "Compare documents",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-020",
+      "pain": "Compare service jobs",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-021",
+      "pain": "Verify invoices",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-022",
+      "pain": "Verify supplier quotes",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-023",
+      "pain": "Verify supplier records",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-024",
+      "pain": "Verify contracts",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-025",
+      "pain": "Verify shipments",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-026",
+      "pain": "Verify inventory records",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-027",
+      "pain": "Verify assets",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-028",
+      "pain": "Verify expenses",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-029",
+      "pain": "Verify documents",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-030",
+      "pain": "Verify service jobs",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-031",
+      "pain": "Extract invoices",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-032",
+      "pain": "Extract supplier quotes",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-033",
+      "pain": "Extract supplier records",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-034",
+      "pain": "Extract contracts",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-035",
+      "pain": "Extract shipments",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-036",
+      "pain": "Extract inventory records",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-037",
+      "pain": "Extract assets",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-038",
+      "pain": "Extract expenses",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-039",
+      "pain": "Extract documents",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-040",
+      "pain": "Extract service jobs",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-041",
+      "pain": "Normalize invoices",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-042",
+      "pain": "Normalize supplier quotes",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-043",
+      "pain": "Normalize supplier records",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-044",
+      "pain": "Normalize contracts",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-045",
+      "pain": "Normalize shipments",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-046",
+      "pain": "Normalize inventory records",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-047",
+      "pain": "Normalize assets",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-048",
+      "pain": "Normalize expenses",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-049",
+      "pain": "Normalize documents",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-050",
+      "pain": "Normalize service jobs",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-051",
+      "pain": "Match invoices",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-052",
+      "pain": "Match supplier quotes",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-053",
+      "pain": "Match supplier records",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-054",
+      "pain": "Match contracts",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-055",
+      "pain": "Match shipments",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-056",
+      "pain": "Match inventory records",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-057",
+      "pain": "Match assets",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-058",
+      "pain": "Match expenses",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-059",
+      "pain": "Match documents",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-060",
+      "pain": "Match service jobs",
+      "primitive": "matching",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-061",
+      "pain": "Detect anomalies in invoices",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-062",
+      "pain": "Detect anomalies in supplier quotes",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-063",
+      "pain": "Detect anomalies in supplier records",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-064",
+      "pain": "Detect anomalies in contracts",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-065",
+      "pain": "Detect anomalies in shipments",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-066",
+      "pain": "Detect anomalies in inventory records",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-067",
+      "pain": "Detect anomalies in assets",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-068",
+      "pain": "Detect anomalies in expenses",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-069",
+      "pain": "Detect anomalies in documents",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-070",
+      "pain": "Detect anomalies in service jobs",
+      "primitive": "anomaly detection",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-071",
+      "pain": "Assemble evidence for invoices",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-072",
+      "pain": "Assemble evidence for supplier quotes",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-073",
+      "pain": "Assemble evidence for supplier records",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-074",
+      "pain": "Assemble evidence for contracts",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-075",
+      "pain": "Assemble evidence for shipments",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-076",
+      "pain": "Assemble evidence for inventory records",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-077",
+      "pain": "Assemble evidence for assets",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-078",
+      "pain": "Assemble evidence for expenses",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-079",
+      "pain": "Assemble evidence for documents",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-080",
+      "pain": "Assemble evidence for service jobs",
+      "primitive": "evidence",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-081",
+      "pain": "Monitor expiry of invoices",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-082",
+      "pain": "Monitor expiry of supplier quotes",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-083",
+      "pain": "Monitor expiry of supplier records",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-084",
+      "pain": "Monitor expiry of contracts",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-085",
+      "pain": "Monitor expiry of shipments",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-086",
+      "pain": "Monitor expiry of inventory records",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-087",
+      "pain": "Monitor expiry of assets",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-088",
+      "pain": "Monitor expiry of expenses",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-089",
+      "pain": "Monitor expiry of documents",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-090",
+      "pain": "Monitor expiry of service jobs",
+      "primitive": "expiry monitoring",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-091",
+      "pain": "Track follow-up for invoices",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-092",
+      "pain": "Track follow-up for supplier quotes",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-093",
+      "pain": "Track follow-up for supplier records",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-094",
+      "pain": "Track follow-up for contracts",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-095",
+      "pain": "Track follow-up for shipments",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-096",
+      "pain": "Track follow-up for inventory records",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-097",
+      "pain": "Track follow-up for assets",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-098",
+      "pain": "Track follow-up for expenses",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-099",
+      "pain": "Track follow-up for documents",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-100",
+      "pain": "Track follow-up for service jobs",
+      "primitive": "follow-up",
+      "state": "HYPOTHESIS"
+    }
+  ]
+}
