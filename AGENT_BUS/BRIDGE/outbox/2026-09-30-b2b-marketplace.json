@@ -1,0 +1,11 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-30-b2b-marketplace",
+  "from": "grok-cloud",
+  "ball": "C",
+  "intent": "build",
+  "summary": "B2B marketplace spec: 0% success fee, earn on plans/slots. Phase A = kits+verify+manual board. Full cart/Connect is Phase C.",
+  "reads": ["AGENT_BUS/SILOS/B2B-MARKETPLACE.md", "AGENT_BUS/SILOS/b2b-marketplace.json"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-09-30T02:09:00Z"
+}
