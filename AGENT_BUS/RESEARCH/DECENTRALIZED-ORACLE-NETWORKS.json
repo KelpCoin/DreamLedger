@@ -1,0 +1,18 @@
+{
+  "schema": "dreamledger/research/decentralized-oracle-networks/v1",
+  "title": "Decentralized Oracle Networks investigation",
+  "updated": "2026-09-30",
+  "canonical_md": "AGENT_BUS/RESEARCH/DECENTRALIZED-ORACLE-NETWORKS.md",
+  "summary": "DONs source, aggregate, and deliver off-chain data on-chain via multi-operator consensus. Push vs pull is the main delivery split. Chainlink is general-purpose; Pyth/RedStone/API3/Band specialize.",
+  "phases": ["source", "aggregate", "sign_and_deliver"],
+  "delivery_models": ["push", "pull", "hybrid"],
+  "major_networks": [
+    {"name": "Chainlink", "fit": "general DeFi, institutions, CCIP, full stack"},
+    {"name": "Pyth", "fit": "first-party low-latency market data"},
+    {"name": "RedStone", "fit": "modular, many chains, yield collateral"},
+    {"name": "API3", "fit": "first-party Airnode, source transparency"},
+    {"name": "Band", "fit": "configurable scripts, Cosmos orientation"}
+  ],
+  "dreamledger_note": "DON does not replace Stripe NZD settlement. Conceptual parallel only to agent-bridge tolls and proof attestation.",
+  "revenue_claim_nzd": 0
+}
