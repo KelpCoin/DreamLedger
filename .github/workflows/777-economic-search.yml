@@ -1,0 +1,70 @@
+name: 777 Economic Search Loop
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "BEC-PRIME/scripts/Run-777.js"
+      - ".github/workflows/777-economic-search.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-777
+  cancel-in-progress: false
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Refresh public demand radar
+        run: npm run cube:radar
+
+      - name: Compile opportunity corpus
+        run: npm run compile:opportunities
+
+      - name: Compile bidirectional Factory queue
+        run: npm run compile:factory-factory
+
+      - name: Run 777 search
+        run: node BEC-PRIME/scripts/Run-777.js
+
+      - name: Compile universal economic cells
+        run: npm run factory:universal
+
+      - name: Verify factory cycle
+        run: npm run verify:factory-factory-cycle
+
+      - name: Emit truth guard
+        run: |
+          node -e "const x=require('./BEC-PRIME/data/777/777-LATEST.json'); if(x.truth.verified_external_revenue_nzd!==0 || x.truth.settled_external_payments!==0 || x.truth.independent_external_buyers!==0 || x.truth.verified_economic_outcomes!==0) process.exit(9); console.log(JSON.stringify(x.truth,null,2))"
+
+      - name: Upload 777 proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-777-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json
+            BEC-PRIME/data/factory-factory/UNIVERSAL-MONEY-CELLS.json
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY-RUN.json
+          if-no-files-found: error
+          retention-days: 7
