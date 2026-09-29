@@ -1,0 +1,58 @@
+{
+  "schema": "DREAMLEDGER/777/PROOF-BOUND-COMMERCE/v1",
+  "status": "SPECIMEN_ONLY",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "offer": {
+    "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "price_nzd": 29,
+    "payment_recognition": "NOT_RECOGNIZED_BY_THIS_SPECIMEN"
+  },
+  "commercial_contract": {
+    "buyer_reference": "EXTERNAL_BUYER_REFERENCE_REQUIRED",
+    "mission": "Produce a commander deck diagnostic from buyer-supplied deck data.",
+    "deliverable": "A completed diagnostic artifact matching the published output schema.",
+    "acceptance_criteria": [
+      "Input is attributable to the buyer transaction.",
+      "Diagnostic artifact exists.",
+      "Artifact passes schema validation.",
+      "Artifact contains the required diagnostic fields.",
+      "Artifact is linked to the same transaction/fulfillment identity."
+    ],
+    "required_evidence": [
+      "buyer_or_transaction_reference",
+      "input_receipt",
+      "artifact_hash_or_stable_identifier",
+      "schema_validation_result",
+      "fulfillment_record"
+    ],
+    "verification_verdicts": [
+      "PASS",
+      "FAIL",
+      "INSUFFICIENT_EVIDENCE"
+    ],
+    "settlement_rule": "A PASS verdict does not itself create revenue truth. Revenue requires independent external buyer evidence, settled external payment, correct attribution, fulfilled deliverable, and independent proof."
+  },
+  "state_machine": [
+    "INTENT_UNVERIFIED",
+    "AUTHORIZED",
+    "PAYMENT_OBSERVED",
+    "FULFILLMENT_IN_PROGRESS",
+    "DELIVERED",
+    "VERIFICATION_PENDING",
+    "VERIFIED",
+    "FAILED",
+    "INSUFFICIENT_EVIDENCE"
+  ],
+  "hard_boundaries": {
+    "no_self_purchase": true,
+    "no_simulated_buyer": true,
+    "no_simulated_payment": true,
+    "no_internal_event_counts_as_revenue": true,
+    "external_activation_requires_human_gate": true
+  }
+}
