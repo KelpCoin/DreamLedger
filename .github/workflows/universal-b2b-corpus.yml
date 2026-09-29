@@ -1,0 +1,17 @@
+name: universal-b2b-corpus
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/UNIVERSAL-B2B-PAIN-CORPUS-004.md
+      - scripts/validate_universal_b2b_corpus.py
+      - .github/workflows/universal-b2b-corpus.yml
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python scripts/validate_universal_b2b_corpus.py
