@@ -1,0 +1,138 @@
+name: Economic Cloud Autonomous Engine
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: economic-cloud-autonomous-engine
+  cancel-in-progress: false
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - name: Preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          echo "CLOUD_ENGINE=READY"
+
+      - name: Reconcile external settlement evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 90             -X POST "$SUPABASE_URL/functions/v1/x402-reconcile"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{}' | tee x402-reconcile.json
+
+      - name: Compile live economic opportunities
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 90             -X POST "$SUPABASE_URL/functions/v1/economic-opportunity-compiler-live"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{"limit":250,"top_per_signal":2}' | tee economic-compiler.json
+          node -e 'const x=require("./economic-compiler.json"); if(x.ok!==true) process.exit(1); console.log(JSON.stringify(x,null,2));'
+
+      - name: Refresh autonomous supervisor
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 90             -X POST "$SUPABASE_URL/functions/v1/company-autopilot"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{"trigger":"github_cloud_engine","mode":"ECONOMIC_LOOP"}' | tee company-autopilot.json
+
+      - name: Read economic state without changing truth
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 60             "$SUPABASE_URL/rest/v1/cube_opportunities?select=opportunity_id,opportunity_key,status,authority_lane,expected_value_nzd,expected_cost_nzd,commercial_relevance,subject,last_evaluated_at&order=commercial_relevance.desc&limit=20"             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" | tee top-opportunities.json
+          curl -fsS --max-time 60             "$SUPABASE_URL/rest/v1/economic_outcomes?select=outcome_id,amount_nzd,truth_status&limit=100"             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" | tee economic-outcomes.json
+
+      - name: Probe for an online idle local GPU runner
+        id: gpu
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          response="$(curl -fsS             -H "Accept: application/vnd.github+json"             -H "Authorization: Bearer $GH_TOKEN"             -H "X-GitHub-Api-Version: 2026-03-10"             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runners?per_page=100")" || {
+              echo "GPU_PROBE=UNAVAILABLE"
+              echo "available=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            }
+          echo "$response" > runners.json
+          available="$(node - <<'NODE'
+          const x=require('./runners.json');
+          const ok=(x.runners||[]).some(r =>
+            r.status === 'online' && r.busy === false &&
+            (r.labels||[]).some(l => String(l.name).toLowerCase() === 'gpu')
+          );
+          process.stdout.write(ok ? 'true' : 'false');
+          NODE
+          )"
+          echo "available=$available" >> "$GITHUB_OUTPUT"
+          echo "GPU_RUNNER_AVAILABLE=$available"
+
+      - name: Dispatch bounded GPU enrichment when available
+        if: steps.gpu.outputs.available == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run economic-gpu-opportunistic.yml --repo "$GITHUB_REPOSITORY" --ref main
+
+      - name: Emit cloud engine proof
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const parse=(p)=>fs.existsSync(p)?JSON.parse(fs.readFileSync(p,'utf8')):null;
+          const outcomes=parse('economic-outcomes.json')||[];
+          const verified=outcomes.filter(x=>x.truth_status==='VERIFIED');
+          const compiler=parse('economic-compiler.json')||{};
+          const proof={
+            schema:'dreamledger/economic-cloud-autonomous-engine/v1',
+            timestamp_utc:new Date().toISOString(),
+            commit:process.env.GITHUB_SHA,
+            cloud_only:true,
+            local_pc_required:false,
+            compiler:{
+              source_signals:compiler.source_signals||0,
+              mechanisms:compiler.mechanisms||0,
+              candidates_written:compiler.candidates_written||0,
+              selected:compiler.selected||0
+            },
+            verified_outcomes:verified.length,
+            verified_revenue_mutation:false,
+            public_outreach:false,
+            public_execution:false,
+            gpu_runner_dispatched:process.env.GPU_RUNNER_DISPATCHED||'unknown',
+            degradation_policy:'cloud continues when local GPU/PC is offline; GPU enrichment is opportunistic only'
+          };
+          fs.writeFileSync('economic-cloud-engine-proof.json',JSON.stringify(proof,null,2)+'\n');
+          console.log(JSON.stringify(proof,null,2));
+          NODE
+
+      - name: Upload engine evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-cloud-engine-${{ github.run_id }}
+          path: |
+            x402-reconcile.json
+            economic-compiler.json
+            company-autopilot.json
+            top-opportunities.json
+            economic-outcomes.json
+            economic-cloud-engine-proof.json
+          if-no-files-found: warn
+          retention-days: 30
