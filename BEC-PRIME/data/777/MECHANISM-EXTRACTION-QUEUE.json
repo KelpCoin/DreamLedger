@@ -7,7 +7,7 @@
     "independent_external_buyers": 0,
     "verified_economic_outcomes": 0
   },
-  "selection_rule": "Prefer externally demonstrated mechanisms that are executable with existing capability, have a clear payment boundary, and can produce independent evidence without copying protected implementation.",
+  "selection_rule": "Advance mechanisms with public evidence of a paid problem, existing DreamLedger capability, a bounded deliverable, and a defensible evidence trail. Do not activate externally without human authorization.",
   "lanes": [
     {
       "id": "MECH-001",
@@ -15,8 +15,9 @@
       "primitive": "verify identity/authorization/claim -> collect evidence -> issue bounded verdict -> retain evidence receipt",
       "existing_capability": ["Truth Oracle", "Evidence objects", "supplier verification check"],
       "payment_path": "existing fixed-price verification offer",
-      "gauntlet_state": "UNQUALIFIED",
-      "next_test": "Map one existing supplier-verification offer to a deterministic evidence contract. No external activation."
+      "gauntlet_state": "ADVANCE_TO_CONTRACT_TEST",
+      "evidence": "NZ Government Procurement explicitly requires independent supplier due diligence and documented evidence; current commercial providers sell supplier verification as a service. citeturn0search3turn0search5",
+      "next_test": "Define a $5 Supplier Verification Check contract: required input, source classes, PASS/FAIL/INSUFFICIENT_EVIDENCE verdict, evidence receipt, and fulfillment artifact. No external activation."
     },
     {
       "id": "MECH-002",
@@ -24,8 +25,9 @@
       "primitive": "collect supplier inputs -> normalize price/terms -> reconcile differences -> produce attributable comparison artifact",
       "existing_capability": ["supplier quote comparison", "reconciliation"],
       "payment_path": "existing fixed-price comparison offer",
-      "gauntlet_state": "UNQUALIFIED",
-      "next_test": "Define acceptance criteria and required evidence for one bounded comparison. No external activation."
+      "gauntlet_state": "ADVANCE_TO_CONTRACT_TEST",
+      "evidence": "NZ Government Procurement identifies supplier, price, competition, alternatives and market behaviour as procurement-analysis inputs; current procurement platforms expose structured quote comparison and evidence-backed supplier information. citeturn0search0turn0search13",
+      "next_test": "Define a $49 Supplier Quote Comparison contract with fixed input schema, comparison fields, discrepancy rules, artifact schema, and evidence receipt. No external activation."
     },
     {
       "id": "MECH-003",
@@ -33,8 +35,9 @@
       "primitive": "settled payment/authorized entitlement -> issue license identifier -> bind entitlement to deliverable -> retain issuance evidence",
       "existing_capability": ["payment boundary", "digital fulfillment"],
       "payment_path": "existing digital offers",
-      "gauntlet_state": "UNQUALIFIED",
-      "next_test": "Determine whether license issuance can be added without new paid infrastructure or weakening attribution."
+      "gauntlet_state": "HOLD",
+      "evidence": "The mechanism is technically established, but this pass did not establish a sufficiently specific external buyer/problem/payment signal to justify adding integration work.",
+      "next_test": "Do not build yet. Keep as slipstream reference until a concrete paid use case appears."
     },
     {
       "id": "MECH-004",
@@ -42,8 +45,9 @@
       "primitive": "detect exception -> classify -> propose authorized action -> execute only when gated -> record outcome",
       "existing_capability": ["reconciliation", "evidence", "approval gates"],
       "payment_path": "NOT_YET_MAPPED",
-      "gauntlet_state": "UNQUALIFIED",
-      "next_test": "Find an existing paid, fulfillable exception-resolution use case before building anything."
+      "gauntlet_state": "OBSERVED_DEMAND_NOT_BUYABLE_YET",
+      "evidence": "Current products demonstrate commercial activity around exception detection and resolution, but DreamLedger does not yet have a mapped buyer, offer, price, and fulfillment boundary for this mechanism. citeturn0search9turn0search14",
+      "next_test": "Search for a bounded, independently fulfillable exception-resolution job with an explicit buyer/payment surface before implementation."
     }
   ],
   "proof_bound_commerce_anchor": {
