@@ -1,0 +1,47 @@
+name: Fulfillment Acceptance
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md"
+      - "docs/TRANSACTION-PRIMITIVE-FACTORY.md"
+      - "docs/TRANSACTION-PROBLEM-MAP-600.md"
+      - "docs/UNIVERSAL-PAIN-OBSERVATORY.md"
+      - "scripts/validate_fulfillment_acceptance.py"
+      - ".github/workflows/fulfillment-acceptance.yml"
+      - "README.md"
+  pull_request:
+    paths:
+      - "docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md"
+      - "docs/TRANSACTION-PRIMITIVE-FACTORY.md"
+      - "docs/TRANSACTION-PROBLEM-MAP-600.md"
+      - "docs/UNIVERSAL-PAIN-OBSERVATORY.md"
+      - "scripts/validate_fulfillment_acceptance.py"
+      - ".github/workflows/fulfillment-acceptance.yml"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fulfillment-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate fulfillment acceptance contract
+        run: python3 scripts/validate_fulfillment_acceptance.py
+
+      - name: Emit non-economic acceptance record
+        run: |
+          echo "FULFILLMENT_ACCEPTANCE=PASS"
+          echo "This CI result validates repository contract integrity only."
+          echo "It does not create revenue, payment, buyer, fulfillment, or verified economic outcome."
