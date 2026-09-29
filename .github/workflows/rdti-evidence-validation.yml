@@ -19,6 +19,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Test evidence pack against synthetic text and binary Git history
+        run: |
+          set -euo pipefail
+          python3 tools/test_rdti_evidence_pack.py
       - name: Compile repository evidence
         run: |
           set -euo pipefail
