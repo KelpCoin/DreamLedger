@@ -1,0 +1,9 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-30-rivet-pushed",
+  "from": "grok-cloud",
+  "summary": "RIVET build-mode package pushed to RIVET/ on main (marketplace, sell, buy, shop, auctions, trust, seed).",
+  "reads": ["RIVET/README.md"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-09-30T00:33:00Z"
+}

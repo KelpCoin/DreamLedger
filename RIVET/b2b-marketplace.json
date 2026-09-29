@@ -1,0 +1,17 @@
+{
+  "schema": "dreamledger/b2b-marketplace/v1",
+  "updated": "2026-09-30",
+  "system": "RIVET",
+  "platform_success_fee_bps": 0,
+  "currency": "NZD",
+  "silos": ["mtg", "retro_games", "vinyl"],
+  "phases": {"A": "kits+manual verify+board", "B": "self-serve slots", "C": "RFQ+wholesale+optional Connect"},
+  "plans": [
+    {"id": "biz_starter", "nzd_month": 49, "slots_month": 10},
+    {"id": "biz_pro", "nzd_month": 99, "slots_month": 40},
+    {"id": "partner_kit", "nzd_once": 99, "slots": 20}
+  ],
+  "listing_fees": {"slot_30d": 7, "pack_5": 29, "pack_20": 99, "featured_7d": 15, "pin_7d": 40},
+  "verify_fee_nzd": 29,
+  "revenue_claim_nzd": 0
+}
