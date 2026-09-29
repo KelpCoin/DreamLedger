@@ -1,0 +1,61 @@
+{
+  "schema": "dreamledger/silo-pack/v1",
+  "id": "crypto-tcg-church",
+  "updated": "2026-09-30",
+  "principle": "paid_verified_then_clone",
+  "brand": {
+    "name": "Crypto TCG Church",
+    "metaphor": "congregation_not_religion",
+    "tagline": "Provenance, fair play, settlement truth"
+  },
+  "infrastructure_reuse": [
+    "/buy/{product_id}",
+    "/api/offers",
+    "/api/products",
+    "shop.html horizontal rails",
+    "agent-commerce.json",
+    "CUBE many_surfaces_one_commerce_spine",
+    "existing mtg diagnostic as confession ignition"
+  ],
+  "host_status_at_write": "dreamledger.org Service Suspended 503",
+  "silos": [
+    {
+      "id": "tcg_church",
+      "purpose": "membership_community_tithes",
+      "fee_rate_percent": 0,
+      "products": [
+        {"product_id": "TCG-CHURCH-SEEKER-001", "name": "Seeker Pass 7-day", "price_nzd": 3.99, "status": "planned", "bootstrap": "DREAMMEEZ-SUPPORTER-SPROUT"},
+        {"product_id": "TCG-CHURCH-MEMBER-001", "name": "Member month", "price_nzd": 19, "status": "planned", "bootstrap": "KELP-FLOOR1-001"},
+        {"product_id": "TCG-CHURCH-ELDER-001", "name": "Elder quarter", "price_nzd": 49, "status": "planned", "bootstrap": "DREAMLEDGER-BILLBOARD-FOUNDING-001"},
+        {"product_id": "TCG-CHURCH-TITHE-001", "name": "Freewill tithe", "price_nzd": 5, "status": "planned", "bootstrap": "DREAMMEEZ-SUPPORTER-GLOW"}
+      ]
+    },
+    {
+      "id": "crypto_tcg",
+      "purpose": "digital_packs_provenance_guides",
+      "fee_rate_percent": 0,
+      "products": [
+        {"product_id": "CRYPTO-TCG-PACK-SIM-001", "name": "Digital pack sim + checklist", "price_nzd": 9, "status": "planned", "bootstrap": "DREAMMEEZ-CHROME-BOOTS-001"},
+        {"product_id": "CRYPTO-TCG-PROVENANCE-001", "name": "Card provenance report", "price_nzd": 29, "status": "planned", "bootstrap": "COMMANDER-DECK-DIAGNOSTIC-001"},
+        {"product_id": "CRYPTO-TCG-BINDER-AUDIT-001", "name": "Collection value audit", "price_nzd": 39, "status": "planned", "bootstrap": "SELLER-PROFIT-AUDIT-001"},
+        {"product_id": "CRYPTO-TCG-SET-GUIDE-001", "name": "Set guide PDF", "price_nzd": 12, "status": "planned", "bootstrap": null}
+      ],
+      "honest_boundary": "No on-chain mint claims without real contracts"
+    },
+    {
+      "id": "sanctum",
+      "purpose": "clinics_events_host_kits",
+      "fee_rate_percent": 0,
+      "products": [
+        {"product_id": "SANCTUM-CLINIC-30-001", "name": "30-min deck clinic", "price_nzd": 15, "status": "planned", "bootstrap": null},
+        {"product_id": "SANCTUM-SERVICE-TICKET-001", "name": "Community service ticket", "price_nzd": 10, "status": "planned", "bootstrap": null},
+        {"product_id": "SANCTUM-HOST-KIT-001", "name": "LGS host kit", "price_nzd": 79, "status": "planned", "bootstrap": "DISCORD-WEBHOOK-STARTER-KIT-001"}
+      ]
+    }
+  ],
+  "ignition": [
+    {"label": "Confession", "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001", "price_nzd": 29},
+    {"label": "Seeker tithe stand-in", "buy": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT", "price_nzd": 3.99}
+  ],
+  "revenue_claim_nzd": 0
+}

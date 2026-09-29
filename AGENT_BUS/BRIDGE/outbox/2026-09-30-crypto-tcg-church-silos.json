@@ -1,0 +1,23 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-30-crypto-tcg-church",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "build",
+  "summary": "Three silos specified: tcg_church, crypto_tcg, sanctum. Reuse mtg diagnostic + Sprout for ignition. Host was 503 suspended — restore before public rails.",
+  "reads": [
+    "AGENT_BUS/SILOS/CRYPTO-TCG-CHURCH.md",
+    "AGENT_BUS/SILOS/crypto-tcg-church-silos.json",
+    "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "human_actions": [
+    "Restore dreamledger.org (Service Suspended)",
+    "Sell diagnostic as Church confession today",
+    "Create Stripe links for TCG-CHURCH-MEMBER-001 and CRYPTO-TCG-PACK-SIM-001",
+    "Tag catalogue silos when host is back"
+  ],
+  "created_at": "2026-09-30T02:01:00Z"
+}
