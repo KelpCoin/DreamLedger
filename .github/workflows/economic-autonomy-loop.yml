@@ -17,6 +17,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Reconcile independently observed x402 settlements
+        env:
+          SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl -fsS --max-time 120 \
+            -X POST "${SUPABASE_URL}/functions/v1/x402-reconcile" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            --data '{}')"
+          printf '%s\n' "$response"
+          node -e 'const x=JSON.parse(process.argv[1]); if(x.ok!==true) process.exit(1);' "$response"
       - name: Wake economic loop
         env:
           SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
