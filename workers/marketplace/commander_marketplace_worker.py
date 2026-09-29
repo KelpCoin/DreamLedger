@@ -15,7 +15,9 @@ def req(url, method="GET", body=None, headers=None):
     h={"apikey":SERVICE_KEY,"Authorization":f"Bearer {SERVICE_KEY}","Content-Type":"application/json"}
     if headers: h.update(headers)
     data=json.dumps(body).encode() if body is not None else None
-    \n    api_key=os.environ.get("LM_STUDIO_API_KEY") or os.environ.get("CLOUD_MODEL_API_KEY")\n    if api_key and "Authorization" not in h: h["Authorization"]=f"Bearer {api_key}"\n    r=urllib.request.urlopen(urllib.request.Request(url,data=data,headers=h,method=method),timeout=60)
+    api_key=os.environ.get("LM_STUDIO_API_KEY") or os.environ.get("CLOUD_MODEL_API_KEY")
+    if api_key and "Authorization" not in h: h["Authorization"]=f"Bearer {api_key}"
+    r=urllib.request.urlopen(urllib.request.Request(url,data=data,headers=h,method=method),timeout=60)
     raw=r.read(); return json.loads(raw.decode()) if raw else None
 
 def rpc(name, args): return req(f"{SUPABASE_URL}/rest/v1/rpc/{name}","POST",args)
