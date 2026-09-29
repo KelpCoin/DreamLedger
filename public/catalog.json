@@ -378,6 +378,60 @@
         "human_gate": "Human review before final delivery where source data is ambiguous.",
         "completion_condition": "Validated comparison decision packet is delivered to the buyer."
       }
+    },
+    {
+      "id": "DOC-EXTRACT-50",
+      "sku": "DOC-EXTRACT-50",
+      "silo": "toll-booths",
+      "name": "Document Extraction",
+      "description": "PDF to structured data, with source references and unknowns preserved.",
+      "price": 5,
+      "currency": "nzd",
+      "inventory": 9999,
+      "inventory_type": "service",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/00wdR9ea14hDgyPbN2dwc33",
+      "payment_link_id": "plink_1UKqD6EGgEAnUFF9u9GanhSX",
+      "stripe_price_id": "price_1UKqCvEGgEAnUFF9RnTtUUpH",
+      "fulfillment": "manual_mvp",
+      "toll_unit": "per_document"
+    },
+    {
+      "id": "SUPPLIER-CHECK-50",
+      "sku": "SUPPLIER-CHECK-50",
+      "silo": "toll-booths",
+      "name": "Supplier Verification Check",
+      "description": "Entity and registry verification with source-backed findings.",
+      "price": 5,
+      "currency": "nzd",
+      "inventory": 9999,
+      "inventory_type": "service",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/8x28wPc1T5lH6YfdVadwc34",
+      "payment_link_id": "plink_1UKqD9EGgEAnUFF9NUPlLvyp",
+      "stripe_price_id": "price_1UKqCxEGgEAnUFF9gj639uka",
+      "fulfillment": "manual_mvp",
+      "toll_unit": "per_check"
+    },
+    {
+      "id": "EVIDENCE-PACKET-10",
+      "sku": "EVIDENCE-PACKET-10",
+      "silo": "toll-booths",
+      "name": "Evidence Packet",
+      "description": "Source bundle plus integrity/hash receipt for a defined claim or transaction.",
+      "price": 10,
+      "currency": "nzd",
+      "inventory": 9999,
+      "inventory_type": "service",
+      "status": "published",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/28E14n6HzbK582j4kAdwc35",
+      "payment_link_id": "plink_1UKqDBEGgEAnUFF946wIyU9k",
+      "stripe_price_id": "price_1UKqD0EGgEAnUFF9eJjEjHBb",
+      "fulfillment": "manual_mvp",
+      "toll_unit": "per_packet"
     }
   ]
 }
