@@ -1,0 +1,22 @@
+name: b2b-marketplace-validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/b2b.html'
+      - 'public/server.js'
+      - 'public/catalog.json'
+      - 'docs/UNIVERSAL-PAIN-OBSERVATORY-P301-P400.md'
+      - 'docs/B2B-MARKETPLACE-TRANSACTION-OS.md'
+      - 'scripts/validate_b2b_marketplace.py'
+      - '.github/workflows/b2b-marketplace.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/validate_b2b_marketplace.py
