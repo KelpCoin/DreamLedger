@@ -6,6 +6,7 @@ on:
     paths:
       - 'tools/dreamledger_compiler.py'
       - 'tools/rdti_evidence_pack.py'
+      - 'tools/test_rdti_evidence_pack.py'
       - 'docs/rdti/**'
       - '.github/workflows/rdti-evidence-validation.yml'
   workflow_dispatch:
