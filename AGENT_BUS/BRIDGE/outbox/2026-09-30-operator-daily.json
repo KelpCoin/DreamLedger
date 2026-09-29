@@ -1,0 +1,11 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-30-operator-daily",
+  "from": "grok-cloud",
+  "ball": "C",
+  "intent": "money",
+  "summary": "Operator daily: 3h money day, copy deck, SLA, 503 fallback. Rich = repeated paid fulfilments.",
+  "reads": ["AGENT_BUS/SILOS/RICH-OPERATOR-DAILY.md"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-09-30T02:10:00Z"
+}
