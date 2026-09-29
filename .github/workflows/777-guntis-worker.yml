@@ -1,0 +1,85 @@
+name: 777 Guntis Bounded Solver
+
+on:
+  schedule:
+    - cron: "37 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dreamledger-777-guntis-solver
+  cancel-in-progress: false
+
+jobs:
+  solver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout DreamLedger
+        uses: actions/checkout@v4
+
+      - name: Checkout public puzzle research
+        run: git clone --depth 1 https://github.com/floflo777/open-crypto-puzzles.git /tmp/open-crypto-puzzles
+
+      - name: Install bounded solver dependencies
+        run: python3 -m pip install --disable-pip-version-check coincurve pycryptodome bip-utils mnemonic
+
+      - name: Restore solver ledger
+        run: |
+          mkdir -p BEC-PRIME/data/777/guntis
+          if [ -f BEC-PRIME/data/777/guntis/sweep_paths.tsv ]; then
+            cp BEC-PRIME/data/777/guntis/sweep_paths.tsv /tmp/open-crypto-puzzles/1-big-prizes/guntis-vitolins-metamask-8-6eth/sweep_paths.tsv
+          fi
+
+      - name: Certified self-test
+        run: |
+          cd /tmp/open-crypto-puzzles/1-big-prizes/guntis-vitolins-metamask-8-6eth
+          python3 tools/sweep_paths.py --selftest --wordlist ../../engines/lib/bip39_english.txt
+
+      - name: Run resumable bounded search slice
+        continue-on-error: true
+        run: |
+          cd /tmp/open-crypto-puzzles/1-big-prizes/guntis-vitolins-metamask-8-6eth
+          timeout 9m python3 tools/sweep_paths.py --run --resume --workers 3 --log sweep_paths.tsv --wordlist ../../engines/lib/bip39_english.txt
+
+      - name: Persist public research ledger
+        run: |
+          cp /tmp/open-crypto-puzzles/1-big-prizes/guntis-vitolins-metamask-8-6eth/sweep_paths.tsv BEC-PRIME/data/777/guntis/sweep_paths.tsv
+          cat > BEC-PRIME/data/777/guntis/STATUS.json <<'EOF'
+          {
+            "status": "RESEARCH_ONLY",
+            "target": "Guntis Vitolins 10 ETH Challenge",
+            "method": "certified alternate MetaMask-style derivation-path sweep",
+            "paths": ["m/44'/60'/0'/0/0", "m/44'/60'/0'/0/1", "m/44'/60'/0'/0/2", "m/44'/60'/0'/0/3", "m/44'/60'/0'/0/4", "m/44'/60'/1'/0/0", "m/44'/60'/2'/0/0"],
+            "secret_material_policy": "never commit mnemonic/private-key hit material",
+            "updated_by": "GitHub Actions 777"
+          }
+          EOF
+          if [ -f /tmp/open-crypto-puzzles/1-big-prizes/guntis-vitolins-metamask-8-6eth/hit_paths.txt ]; then
+            printf '%s\n' 'MATCH_FOUND: exact oracle hit detected; secret material intentionally withheld.' > BEC-PRIME/data/777/guntis/MATCH_FOUND.txt
+          fi
+
+      - name: Commit progress
+        run: |
+          git config user.name "DreamLedger 777"
+          git config user.email "777@users.noreply.github.com"
+          git add BEC-PRIME/data/777/guntis/
+          if git diff --cached --quiet; then
+            echo "No new solver progress to commit."
+          else
+            git commit -m "777: persist bounded Guntis solver progress"
+            git push
+          fi
+
+      - name: Upload solver evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-777-guntis-solver-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/777/guntis/sweep_paths.tsv
+            BEC-PRIME/data/777/guntis/STATUS.json
+            BEC-PRIME/data/777/guntis/MATCH_FOUND.txt
+          if-no-files-found: warn
+          retention-days: 7
