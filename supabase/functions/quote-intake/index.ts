@@ -66,13 +66,11 @@ Deno.serve(async req=>{
       const payload={...existingPayload,source:"quote_intake",requirements,input_files:inputFiles,finalized_at:new Date().toISOString()};
       const {error:updateError}=await db.from("fulfillment_requests").update({payload,status:"queued",canonical_state:"INPUTS_READY",evidence_status:"UNVERIFIED"}).eq("id",fr.id);
       if(updateError)return out({error:"FULFILLMENT_UPDATE_FAILED"},500);
-      const {data:existingJob}=await db.from("jobs").select("id,status").eq("type","ECONOMIC_FULFILLMENT").contains("payload",{fulfillment_request_id:fr.id}).limit(1).maybeSingle();
-      let job=existingJob;
-      if(!job){
-        const {data,error}=await db.rpc("queue_economic_fulfillment_job",{p_type:"economic_fulfillment_quote_comparison",p_payload:{job_type:"QUOTE_COMPARISON",sku_id:SKU,order_id:ctx.order.id,fulfillment_request_id:fr.id,customer_email:ctx.order.customer_email,requirements,input_files:inputFiles,stripe_checkout_session_id:ctx.session.id,stripe_payment_intent_id:typeof ctx.session.payment_intent==="string"?ctx.session.payment_intent:null},p_contract_reference:fr.id,p_buyer_reference:ctx.order.customer_email||ctx.session.id,p_authorization_state:"APPROVED"});
-        if(error||!data)return out({error:"FULFILLMENT_QUEUE_FAILED"},500);job=data;
-      }
-      return out({ok:true,action,fulfillment_request_id:fr.id,job_id:job?.id||null,status:"queued"});
+      const workerUrl=SUPABASE_URL+"/functions/v1/quote-fulfillment";
+      const worker=await fetch(workerUrl,{method:"POST",headers:{Authorization:"Bearer "+SERVICE_ROLE_KEY,apikey:SERVICE_ROLE_KEY,"Content-Type":"application/json"},body:JSON.stringify({fulfillment_request_id:fr.id})});
+      const wt=await worker.text();let wd:any;try{wd=JSON.parse(wt)}catch{wd={raw:wt}};
+      if(!worker.ok||wd?.ok===false)return out({error:"FULFILLMENT_WORKER_FAILED",fulfillment_request_id:fr.id,worker:wd,status:"queued"},502);
+      return out({ok:true,action,fulfillment_request_id:fr.id,status:wd.status||"fulfilled",fulfillment_reference:wd.fulfillment_reference||null,evidence_reference:wd.evidence_reference||null});
     }
     if(action==="status"){
       let download_url=null;
