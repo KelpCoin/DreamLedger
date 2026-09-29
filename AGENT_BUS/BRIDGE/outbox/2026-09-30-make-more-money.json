@@ -1,0 +1,11 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-30-make-more-money",
+  "from": "grok-cloud",
+  "ball": "C",
+  "intent": "money",
+  "summary": "MAKE-MORE-MONEY playbook: sell live $29 links, rush $49, upsell, B2B $99, stop feature work before 10 sales.",
+  "reads": ["AGENT_BUS/SILOS/MAKE-MORE-MONEY.md", "AGENT_BUS/SILOS/PROFIT-PLAYBOOK-NZ.md"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-09-30T02:06:00Z"
+}
