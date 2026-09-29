@@ -28,6 +28,21 @@ jobs:
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           echo "CLOUD_ENGINE=READY"
 
+      - name: Compile repository evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/dreamledger_compiler.py --repo . --limit 25 --output evidence-compilation.json | tee evidence-compilation-run.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open("evidence-compilation.json",encoding="utf-8"))
+          assert p["truth_status"] == "INTERNAL"
+          assert p["promotion_status"] == "NOT_ELIGIBLE"
+          assert p["evidence_hash"]
+          print("EVIDENCE_COMPILATION=READY")
+          print(p["evidence_hash"])
+          PY
+
       - name: Expire stale human gates
         shell: bash
         run: |
@@ -157,5 +172,7 @@ jobs:
             top-opportunities.json
             economic-outcomes.json
             economic-cloud-engine-proof.json
+            evidence-compilation.json
+            evidence-compilation-run.json
           if-no-files-found: warn
           retention-days: 30
