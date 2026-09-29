@@ -7,7 +7,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const PAY_TO = Deno.env.get("X402_PAY_TO") || "";
+const PAY_TO = Deno.env.get("X402_PAY_TO_ADDRESS") || Deno.env.get("X402_PAY_TO") || "";
 const TESTNET = Deno.env.get("X402_TESTNET") !== "false";
 const FACILITATOR_URL = Deno.env.get("X402_FACILITATOR_URL") || (TESTNET ? "https://x402.org/facilitator" : "");
 const NETWORK = Deno.env.get("X402_NETWORK") || (TESTNET ? "eip155:84532" : "eip155:8453");
