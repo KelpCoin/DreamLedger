@@ -29,6 +29,11 @@ The runtime includes deterministic agent and HTTP controls. Security work should
 Production serves compiled website artifacts from BEC-PRIME/compiled/website. Compiler changes are not sufficient unless the compiled artifacts are regenerated and deployed.
 
 
+
+## Forensic fulfillment acceptance
+
+The canonical fulfillment contract is [docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md](docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md). It enforces ten independent gates from observed opportunity through external action and keeps internal execution separate from fulfillment and verified economic truth. Repository CI validates this contract without changing the economic scoreboard.
+
 ## Universal pain research
 
 The canonical universal-pain and B2B marketplace research corpus is maintained at [docs/UNIVERSAL-PAIN-OBSERVATORY.md](docs/UNIVERSAL-PAIN-OBSERVATORY.md). It now contains 300 distinct pain vectors plus the product-factory and silo-readiness contract. It is research input, not economic proof.
