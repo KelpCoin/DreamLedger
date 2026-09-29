@@ -1,0 +1,31 @@
+name: evergreen-silo-factory
+
+on:
+  push:
+    paths:
+      - "docs/UNIVERSAL-EVERYDAY-PAINS-100.md"
+      - "public/evergreen-silo-factory.json"
+      - "public/silos/**"
+      - "public/server.js"
+      - "public/sitemap.xml"
+      - "scripts/validate_evergreen_silos.py"
+      - ".github/workflows/evergreen-silo-factory.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-evergreen-silo-factory
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate factory registry
+        run: python scripts/validate_evergreen_silos.py
