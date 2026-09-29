@@ -32,7 +32,7 @@ async function observeQuoteSettlement(c: any, next: any) {
   const productByPath: Record<string, {product_id:string; price:number}> = {
     "/v1/compare_quotes": {product_id:"truth.quote_compare", price:0.50},
     "/v1/reconcile": {product_id:"truth.reconcile", price:0.02},
-    "/v1/contradictions": {product_id:"truth.contradictions", price:0.02},
+    "/v1/contradictions": {product_id:"truth.contradiction", price:0.02},
     "/v1/passport": {product_id:"truth.passport", price:0.05}
   };
   const product = productByPath[c.req.path];
@@ -363,7 +363,7 @@ app.post("/v1/contradictions", async c => {
   }
   const result = { verdict: contradictions.length ? "CONTRADICTED" : "NO_CONTRADICTION_FOUND", contradictions };
   const result_hash = await hashObject(result);
-  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.contradictions");
+  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.contradiction");
   c.set("quote_request_hash", call.request_hash);
   return c.json({ ...result, result_hash, toll_call_id: call.call_id });
 });
