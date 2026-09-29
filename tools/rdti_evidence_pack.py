@@ -26,8 +26,13 @@ def git(repo: Path, *args: str) -> str:
     ).strip()
 
 
-def sha256(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+def sha256(value: str | bytes) -> str:
+    raw = value if isinstance(value, bytes) else value.encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def git_bytes(repo: Path, *args: str) -> bytes:
+    return subprocess.check_output(["git", "-C", str(repo), *args], stderr=subprocess.DEVNULL)
 
 
 def render_html(packet: dict) -> str:
@@ -102,7 +107,7 @@ def main() -> int:
             continue
         commit_sha, authored_at, author, subject = parts
         names = git(repo, "show", "--format=", "--name-only", commit_sha).splitlines()
-        patch = git(repo, "show", "--format=", "--binary", commit_sha)
+        patch = git_bytes(repo, "show", "--format=", "--binary", commit_sha)
         rows.append({
             "record_type": "repository_activity",
             "commit_sha": commit_sha,
