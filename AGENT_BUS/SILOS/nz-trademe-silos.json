@@ -2,68 +2,52 @@
   "schema": "dreamledger/silo-pack/v1",
   "id": "nz-trademe-alternative",
   "updated": "2026-09-30",
-  "positioning": "Specialist NZ lanes (MTG, retro, vinyl) with 0% platform success fee vs Trade Me success fees",
+  "profit_doc": "AGENT_BUS/SILOS/PROFIT-PLAYBOOK-NZ.md",
   "primary_silo": "mtg",
-  "principle": "paid_verified_then_clone",
   "platform_success_fee_bps": 0,
-  "currency": "NZD",
-  "host_status_at_write": "service_suspended_503",
+  "listing_slot_nzd": 7,
+  "listing_slot_5pack_nzd": 29,
   "silos": [
     {
       "id": "mtg",
       "priority": 1,
-      "label": "Magic: The Gathering NZ",
-      "live_products": [
-        {"product_id": "COMMANDER-DECK-DIAGNOSTIC-001", "price_nzd": 29, "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"},
-        {"product_id": "EDH_0001", "price_nzd": 400, "buy": "https://dreamledger.org/buy/EDH_0001"}
+      "live": [
+        {"product_id": "COMMANDER-DECK-DIAGNOSTIC-001", "price_nzd": 29},
+        {"product_id": "SELLER-PROFIT-AUDIT-001", "price_nzd": 29},
+        {"product_id": "EDH_0001", "price_nzd": 400}
       ],
-      "planned_products": [
-        {"product_id": "MTG-SINGLE-LISTING-SLOT-001", "price_nzd": 5, "type": "listing_fee"},
-        {"product_id": "MTG-COLLECTION-AUDIT-001", "price_nzd": 39, "type": "digital_service"},
-        {"product_id": "MTG-WANT-LIST-MATCH-001", "price_nzd": 15, "type": "digital_service"},
-        {"product_id": "MTG-LOCAL-PICKUP-PASS-001", "price_nzd": 9, "type": "event"},
-        {"product_id": "MTG-LGS-PARTNER-KIT-001", "price_nzd": 79, "type": "b2b"}
+      "planned": [
+        {"product_id": "MTG-RUSH-DIAG-001", "price_nzd": 49},
+        {"product_id": "MTG-LISTING-SLOT-001", "price_nzd": 7},
+        {"product_id": "MTG-LISTING-5PACK-001", "price_nzd": 29},
+        {"product_id": "MTG-COLLECTION-AUDIT-001", "price_nzd": 39},
+        {"product_id": "MTG-LGS-KIT-001", "price_nzd": 99},
+        {"product_id": "MTG-BUNDLE-STARTER-PRO-001", "price_nzd": 49},
+        {"product_id": "MTG-BUNDLE-SELLER-ESCAPE-001", "price_nzd": 49}
       ]
     },
     {
       "id": "retro_games",
       "priority": 2,
-      "label": "Retro games NZ",
-      "planned_products": [
-        {"product_id": "RETRO-CONDITION-REPORT-001", "price_nzd": 29, "type": "digital_service"},
-        {"product_id": "RETRO-LISTING-SLOT-001", "price_nzd": 5, "type": "listing_fee"},
-        {"product_id": "RETRO-BUNDLE-GUIDE-001", "price_nzd": 12, "type": "digital"},
-        {"product_id": "RETRO-SELLER-AUDIT-001", "price_nzd": 29, "type": "digital_service"},
-        {"product_id": "RETRO-LOCAL-MEET-001", "price_nzd": 9, "type": "event"}
-      ],
-      "bootstrap_buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"
+      "planned": [
+        {"product_id": "RETRO-CONDITION-REPORT-001", "price_nzd": 35},
+        {"product_id": "RETRO-LISTING-SLOT-001", "price_nzd": 7},
+        {"product_id": "RETRO-LISTING-5PACK-001", "price_nzd": 29},
+        {"product_id": "RETRO-GUIDE-001", "price_nzd": 15},
+        {"product_id": "RETRO-PARTNER-KIT-001", "price_nzd": 99}
+      ]
     },
     {
       "id": "vinyl",
       "priority": 3,
-      "label": "Vinyl & music media NZ",
-      "planned_products": [
-        {"product_id": "VINYL-CONDITION-GRADE-001", "price_nzd": 19, "type": "digital_service"},
-        {"product_id": "VINYL-LISTING-SLOT-001", "price_nzd": 5, "type": "listing_fee"},
-        {"product_id": "VINYL-COLLECTION-AUDIT-001", "price_nzd": 39, "type": "digital_service"},
-        {"product_id": "VINYL-WANT-LIST-001", "price_nzd": 15, "type": "digital_service"},
-        {"product_id": "VINYL-PRESSING-ID-001", "price_nzd": 12, "type": "digital_service"}
-      ],
-      "bootstrap_buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"
+      "planned": [
+        {"product_id": "VINYL-CONDITION-GRADE-001", "price_nzd": 25},
+        {"product_id": "VINYL-COLLECTION-AUDIT-001", "price_nzd": 45},
+        {"product_id": "VINYL-LISTING-SLOT-001", "price_nzd": 7},
+        {"product_id": "VINYL-PRESSING-ID-001", "price_nzd": 15},
+        {"product_id": "VINYL-WANT-LIST-001", "price_nzd": 19}
+      ]
     }
-  ],
-  "shared_mechanics": [
-    "listing_fee_not_success_percent",
-    "service_skus_before_inventory",
-    "nzd_stripe_settlement",
-    "horizontal_shop_rails_per_silo",
-    "b2b_partner_kits"
-  ],
-  "ignition_order": [
-    "COMMANDER-DECK-DIAGNOSTIC-001",
-    "SELLER-PROFIT-AUDIT-001",
-    "RETRO-CONDITION-REPORT-001",
-    "VINYL-CONDITION-GRADE-001"
   ],
   "revenue_claim_nzd": 0
 }
