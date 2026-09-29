@@ -359,24 +359,34 @@
       "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
       "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
       "stripe_price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
-      "fulfillment": "manual_decision_packet",
+      "fulfillment": "automated_quote_comparison",
       "fulfillment_contract": {
         "fulfillment_capability": "SUPPLIER_QUOTE_COMPARISON",
         "buyer_inputs": [
-          "2-5 supplier quotes",
+          "2-5 PDF, CSV, JSON or Markdown supplier quotes",
           "purchase requirements or scope"
         ],
         "automated_work": [
-          "quote extraction and normalization",
-          "side-by-side comparison",
-          "exception identification"
+          "verified paid-session intake",
+          "private source upload",
+          "source hashing",
+          "text extraction",
+          "quote normalization",
+          "stated-total comparison",
+          "MOQ/lead-time/payment-term extraction",
+          "exception detection",
+          "evidence-backed Markdown decision packet",
+          "private digital delivery"
         ],
         "validation": [
-          "source traceability",
-          "normalization completeness"
+          "settled Stripe session",
+          "source artifact hashes",
+          "extraction trace",
+          "comparison completeness",
+          "unknown preservation"
         ],
-        "human_gate": "Human review before final delivery where source data is ambiguous.",
-        "completion_condition": "Validated comparison decision packet is delivered to the buyer."
+        "human_gate": null,
+        "completion_condition": "Validated decision packet is automatically delivered after verified settlement and buyer inputs."
       }
     },
     {
