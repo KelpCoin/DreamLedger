@@ -134,6 +134,29 @@
       ],
       "implementation": "workers/economic/acnc_contacts_pipeline.py",
       "status": "CAPABILITY_BUILT_PROVIDER_CONNECTION_REQUIRED"
+    },
+    "QUOTE-COMPARE-49": {
+      "ready": true,
+      "type": "automatic_service_fulfillment",
+      "delivery_target": "private marketplace-fulfillment storage with signed buyer download",
+      "activation": "verified_paid_stripe_session -> secure upload intake -> source hashing -> PDF/CSV/JSON/Markdown extraction -> normalization -> comparison -> evidence packet -> signed digital delivery",
+      "operator_required": false,
+      "idempotency_key": "stripe_checkout_session_id",
+      "buyer_inputs": [
+        "2-5 PDF/CSV/JSON/Markdown supplier quotes",
+        "purchase requirements or scope"
+      ],
+      "scarcity": "9999",
+      "delivery_proof": [
+        "fulfillment_request_id",
+        "economic_job_id",
+        "source_sha256",
+        "output_sha256",
+        "signed_download_url"
+      ],
+      "failure_behavior": "payment remains recorded; fulfillment stays non-verified and retries through the existing fenced worker path",
+      "implementation": "supabase/functions/quote-intake + workers/economic/economic_fulfillment_worker.py",
+      "status": "AUTOMATED_ZERO_HUMAN"
     }
   }
 }
