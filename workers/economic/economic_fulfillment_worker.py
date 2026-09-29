@@ -263,7 +263,7 @@ def write_artifacts(job_id,result):
     if result.get("job_type") == "QUOTE_COMPARISON":
         (folder/"quote-decision-packet.md").write_text(result.get("report_markdown",""),encoding="utf-8")
     (folder/"result.json").write_text(json.dumps(result,indent=2,ensure_ascii=True),encoding="utf-8")
-    rows=result["rows"]; keys=sorted({k for row in rows for k in row})
+    rows=result.get("rows") or result.get("comparisons") or []; keys=sorted({k for row in rows for k in row})
     with open(folder/"results.csv","w",newline="",encoding="utf-8") as handle:
         writer=csv.DictWriter(handle,fieldnames=keys or ["_empty"]); writer.writeheader()
         for row in rows: writer.writerow(row)
@@ -316,7 +316,7 @@ def complete(job,result,folder):
         "p_storage_path":report["storage_path"],"p_sha256":report["sha256"],
         "p_byte_size":report["byte_size"],
         "p_result":{
-            "row_count":result["row_count"],"evidence":result["evidence"],
+            "row_count":result.get("row_count",result.get("quote_count",0)),"evidence":result["evidence"],
             "artifact_sha256":report["sha256"],"worker_id":WORKER_ID,
             "artifacts":artifacts,
             "substrate_admission":result.get("_substrate_admission"),
