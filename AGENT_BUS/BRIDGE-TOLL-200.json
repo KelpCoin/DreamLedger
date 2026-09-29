@@ -1,0 +1,23 @@
+{
+  "schema": "dreamledger/bridge-toll-monetization/v1",
+  "title": "Agent Bridge as toll road — 200 paths",
+  "count": 200,
+  "default_micro_toll_usd": 0.02,
+  "canonical_md": "AGENT_BUS/BRIDGE-TOLL-200.md",
+  "productize_order": [
+    "Meter authenticated work at ~$0.02",
+    "Sell named route leases",
+    "Sell Gauntlet-as-a-Service",
+    "Sell trust/attestation",
+    "Small cut on agent-originated commerce"
+  ],
+  "categories": {
+    "MICRO_TOLL": "1-40 per-call metering",
+    "ROUTE_LEASE": "41-80 pipelines leased per route",
+    "GAUNTLET": "81-120 human approval as a service",
+    "TRUST_TOLL": "121-150 validation layer",
+    "COMMERCE_PLATFORM": "151-180 storefront takes",
+    "EXPAND": "181-200 anything-and-everything"
+  },
+  "note": "Human goods still settle on Stripe. Bridge meters access, routes, decisions. No revenue claim without payment evidence."
+}
