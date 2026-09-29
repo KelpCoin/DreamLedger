@@ -40,3 +40,18 @@ A useful response to an existing buyer problem is preferred over unsolicited pit
 
 ## Stop condition
 Do not add another agent, offer, marketplace subsystem, landing page, or automation merely to avoid the commercial test. New infrastructure requires evidence that an existing bottleneck actually requires it.
+
+
+## Autonomous Silo Promotion Gate v2
+
+A silo may enter autonomous acquisition only if the system can execute the normal transaction from paid intake to delivered artifact without owner labour. Required stages: PAYMENT_VERIFIED -> INTAKE_ACCEPTED -> INPUT_VALIDATED -> PROCESSING -> GAUNTLET_VALIDATED -> ARTIFACT_SEALED -> DIGITAL_DELIVERY -> DELIVERY_EVIDENCE -> ECONOMIC_RECONCILIATION.
+
+If any stage requires owner labour, the silo is BUILD_REQUIRED or HUMAN_GATED and must not receive autonomous demand. The CUBE owns routing and prioritisation; the Swarm discovers and builds; the Gauntlet rejects unsafe or incomplete outputs; Elohim proposes changes; Truth Oracle controls evidence acceptance. Owner interaction is reserved for unavoidable external authority boundaries.
+
+### Marketplace direction
+
+The product is a B2B transaction operating system around a marketplace: business identity -> catalogue/listing -> requirement -> RFQ -> supplier discovery -> quote normalization -> trust evidence -> agreement -> payment -> logistics -> acceptance -> reconciliation -> dispute -> repeat. A Trade Me-like listing surface is a distribution component, not the core economic moat.
+
+### Universal product factory
+
+Pain candidates are grouped by invariant transaction substrate rather than industry: money, identity, documents, requirements, price, supplier, inventory, logistics, obligations, approvals, evidence, disputes, service delivery, data quality and recurring operations. One working primitive can be cloned across silos when input/output contracts remain valid.
