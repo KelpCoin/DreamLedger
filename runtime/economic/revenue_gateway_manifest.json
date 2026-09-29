@@ -1,0 +1,45 @@
+{
+  "artifact_type": "REVENUE_GATEWAY_BUNDLE",
+  "version": "1.0",
+  "target_sku": "QUOTE-COMPARE-49",
+  "economic_effect": 0,
+  "external_dispatch": false,
+  "payment_created": false,
+  "requires_live_verification": true,
+  "truth_boundaries": {
+    "gateway_decision": "INTERNAL",
+    "probe": "UNVERIFIED",
+    "offline_tests": "TEST",
+    "revenue_truth": "UNCHANGED_UNLESS_INDEPENDENT_EXTERNAL_EVIDENCE"
+  },
+  "production_dependencies": [
+    "public.revenue_catalog",
+    "public.revenue_orders",
+    "public.revenue_entitlements",
+    "public.fulfillment_requests",
+    "Supabase Storage bucket marketplace-fulfillment",
+    "Supabase Edge Function quote-fulfillment",
+    "Stripe live payment boundary",
+    "existing Stripe webhook settlement path"
+  ],
+  "offline_artifacts": [
+    "runtime/economic/revenue_gateway_contract.py",
+    "runtime/economic/revenue_gateway_contract_test.py",
+    "runtime/economic/revenue_gateway_health.py"
+  ],
+  "production_artifacts": [
+    "supabase/migrations/20260929170600_revenue_gateway.sql",
+    "supabase/functions/revenue-gateway/index.ts",
+    "supabase/functions/revenue-gateway/types.ts",
+    "runtime/economic/revenue_gateway_probe.py"
+  ],
+  "human_gates": [
+    "schema_compatibility",
+    "commercial_contract_alignment",
+    "queued_mode_policy",
+    "payment_boundary_changes",
+    "public_release",
+    "production_deployment"
+  ],
+  "known_live_issue_at_build_time": "Stripe payment-link metadata declares manual_decision_packet while revenue_catalog declares automated_quote_comparison. Treat as commercial contract conflict until live operator resolves."
+}
