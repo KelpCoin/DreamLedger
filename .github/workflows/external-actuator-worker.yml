@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   external-actuator:
-    if: \${{ secrets.EXTERNAL_ACTUATOR_STORAGE_STATE_B64 != '' && secrets.EXTERNAL_ACTUATOR_TOKEN != '' }}
+    if: ${{ vars.EXTERNAL_ACTUATOR_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -34,10 +34,10 @@ jobs:
       - name: Run governed external actuator
         env:
           SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
-          EXTERNAL_ACTUATOR_TOKEN: \${{ secrets.EXTERNAL_ACTUATOR_TOKEN }}
-          EXTERNAL_ACTUATOR_STORAGE_STATE_B64: \${{ secrets.EXTERNAL_ACTUATOR_STORAGE_STATE_B64 }}
+          EXTERNAL_ACTUATOR_TOKEN: ${{ secrets.EXTERNAL_ACTUATOR_TOKEN }}
+          EXTERNAL_ACTUATOR_STORAGE_STATE_B64: ${{ secrets.EXTERNAL_ACTUATOR_STORAGE_STATE_B64 }}
           ACTUATOR_ID: generic_external_action
-          WORKER_ID: github-actions-external-actuator-\${{ github.run_id }}
+          WORKER_ID: github-actions-external-actuator-${{ github.run_id }}
           BROWSER_HEADLESS: 'true'
           MAX_JOBS: '1'
         run: node ops/external/external-actuator.mjs
