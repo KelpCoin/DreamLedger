@@ -1,0 +1,68 @@
+{
+  "schema": "DREAMLEDGER/777/LIVE-FULFILLMENT-MAP/v1",
+  "sku": "QUOTE-COMPARE-49",
+  "status": "FULFILLMENT_CONTRACT_IDENTIFIED",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "live_functions": {
+    "intake": {
+      "name": "quote-intake",
+      "version": 2,
+      "role": "paid-session context, input upload/finalization, dispatch to fulfillment"
+    },
+    "fulfillment": {
+      "name": "quote-fulfillment",
+      "version": 2,
+      "role": "download 2-5 quote inputs, extract fields, compare totals, write HTML/CSV artifacts, update fulfillment state"
+    }
+  },
+  "observed_contract": {
+    "payment_prerequisites": [
+      "live Stripe Checkout session",
+      "payment_status=paid",
+      "expected payment link",
+      "SKU metadata match",
+      "matching revenue_orders record",
+      "matching revenue_entitlements record",
+      "matching fulfillment_requests record"
+    ],
+    "input_contract": {
+      "quote_count": "2-5",
+      "accepted_extensions": ["pdf", "csv", "json", "md"],
+      "max_file_bytes": 10485760,
+      "requirements_required": true
+    },
+    "fulfillment_outputs": [
+      "quote-comparison.html",
+      "quote-comparison.csv"
+    ],
+    "fulfillment_state": "FULFILLED",
+    "evidence_status_after_worker": "UNVERIFIED",
+    "revenue_claimed_by_worker": false
+  },
+  "gateway_implication": {
+    "chain_is_now_mapped": true,
+    "reachable_function_names": ["quote-intake", "quote-fulfillment"],
+    "full_capability_claim": "BLOCKED",
+    "reason": "The live database schema probe timed out during this run, and no safe probe was executed against a paid checkout session. The gateway must not infer FULL from function existence alone.",
+    "atomicity_gap": "The observed intake path updates fulfillment_requests and then invokes quote-fulfillment. The gateway/order-creation boundary still requires a durable idempotency claim before any live payment acceptance is authorized."
+  },
+  "next_777_test": [
+    "Retry read-only sku_registry schema inspection when database connectivity is available.",
+    "Inspect the gateway decision schema and migration against live columns.",
+    "Implement or verify a single-operation idempotency claim at the real checkout/order boundary.",
+    "Use non-paying/read-only capability checks only; never manufacture a paid session for testing.",
+    "Keep gateway truth_status INTERNAL or UNVERIFIED until independent external evidence exists."
+  ],
+  "hard_boundaries": [
+    "No self-purchase",
+    "No simulated payment",
+    "No external activation",
+    "No revenue recognition",
+    "No deployment of a gateway that can authorize an unverified fulfillment path"
+  ]
+}
