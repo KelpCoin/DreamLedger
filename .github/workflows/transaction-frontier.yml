@@ -1,0 +1,35 @@
+name: Transaction Frontier Acceptance
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "docs/TRANSACTION-FRONTIER.md"
+      - "docs/TRANSACTION-PRIMITIVE-FACTORY.md"
+      - "docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md"
+      - "scripts/validate_transaction_frontier.py"
+      - ".github/workflows/transaction-frontier.yml"
+  pull_request:
+    paths:
+      - "docs/TRANSACTION-FRONTIER.md"
+      - "docs/TRANSACTION-PRIMITIVE-FACTORY.md"
+      - "docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md"
+      - "scripts/validate_transaction_frontier.py"
+      - ".github/workflows/transaction-frontier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: transaction-frontier-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate transaction frontier
+        run: python3 scripts/validate_transaction_frontier.py
