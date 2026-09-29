@@ -296,3 +296,156 @@ VERIFIED_EXTERNAL_REVENUE = NZ$0.00
 SETTLED_EXTERNAL_PAYMENTS = 0
 INDEPENDENT_EXTERNAL_BUYERS = 0
 VERIFIED_ECONOMIC_OUTCOMES = 0
+
+
+## V3: universal everyday pain corpus (P201-P300)
+
+201. Finding every recurring subscription and its next renewal date.
+202. Detecting duplicate subscriptions across cards/accounts.
+203. Comparing household/business utility plans.
+204. Forecasting the next unusually large bill.
+205. Splitting shared bills fairly.
+206. Collecting money owed by friends or customers without repeated chasing.
+207. Tracking invoices that are nearly overdue.
+208. Turning receipts into searchable records.
+209. Finding missing receipts for transactions.
+210. Matching bank transactions to receipts.
+211. Preparing a tax-ready transaction bundle.
+212. Finding expenses that lack supporting evidence.
+213. Detecting accidental double payments.
+214. Finding forgotten store credits and vouchers.
+215. Comparing insurance policies by actual coverage and exclusions.
+216. Preparing a claim timeline from messages, receipts and photos.
+217. Storing warranties against the actual item purchased.
+218. Finding products still under warranty before paying for repair.
+219. Comparing repair versus replacement cost.
+220. Finding a qualified repair provider for a specific item.
+221. Scheduling repairs without back-and-forth messages.
+222. Collecting technician arrival windows.
+223. Capturing before/after repair evidence.
+224. Keeping a portable service history for appliances.
+225. Finding compatible replacement parts from model numbers.
+226. Translating a product manual into task-specific instructions.
+227. Finding the exact page in a long manual that answers a question.
+228. Tracking household maintenance intervals.
+229. Remembering when filters, batteries and consumables need replacement.
+230. Comparing quotes for home or business maintenance.
+231. Checking whether a quote includes all expected work.
+232. Detecting quote exclusions that materially change price.
+233. Comparing recurring service contracts before renewal.
+234. Finding cheaper equivalent service plans.
+235. Coordinating multiple contractors on one job.
+236. Keeping a shared job status visible to everyone involved.
+237. Capturing approvals before work starts.
+238. Recording changes to agreed scope.
+239. Capturing customer acceptance after work.
+240. Turning photos and notes into a structured inspection report.
+241. Organizing documents for a move.
+242. Tracking address changes across providers.
+243. Finding accounts that still have an old address.
+244. Coordinating utility connection/disconnection during a move.
+245. Comparing moving-service quotes on equivalent scope.
+246. Tracking possessions during a move.
+247. Recording condition of valuable items before transport.
+248. Matching lost-property reports to found-property records.
+249. Coordinating pickup and delivery between two parties.
+250. Finding a convenient meeting or handover window.
+251. Collecting required information before an appointment.
+252. Reducing no-shows with confirmation and rescheduling workflows.
+253. Turning appointment notes into follow-up tasks.
+254. Finding open appointments across fragmented providers.
+255. Comparing service availability by location and time.
+256. Finding a local provider with the required capability.
+257. Verifying provider credentials before booking.
+258. Checking whether a provider's insurance or licence is current.
+259. Comparing provider quotes with different scopes.
+260. Preserving the evidence behind a provider recommendation.
+261. Managing school, course or training paperwork.
+262. Tracking application deadlines and missing documents.
+263. Comparing courses by total cost, duration and outcomes.
+264. Finding prerequisite gaps before enrolling.
+265. Turning course material into a personal action checklist.
+266. Tracking certificates and renewal dates.
+267. Matching skills to short-term work opportunities.
+268. Finding temporary capacity for routine business tasks.
+269. Coordinating freelancers around a defined deliverable.
+270. Comparing freelancer proposals on scope and evidence.
+271. Verifying that a digital deliverable meets an agreed checklist.
+272. Tracking revisions against the original scope.
+273. Recording final acceptance of digital work.
+274. Keeping reusable briefs for recurring work.
+275. Turning repeated requests into standardized intake forms.
+276. Detecting missing fields before a request reaches staff.
+277. Routing requests to the correct person or supplier.
+278. Showing request status without another email.
+279. Escalating overdue requests automatically.
+280. Measuring time from request to completion.
+281. Finding bottlenecks in a recurring workflow.
+282. Detecting work that is repeatedly re-entered into multiple systems.
+283. Converting spreadsheets into controlled shared workflows.
+284. Comparing versions of important documents.
+285. Detecting when a document changed after approval.
+286. Proving who approved a document and when.
+287. Finding stale links and missing attachments.
+288. Extracting structured data from PDFs.
+289. Extracting structured data from photos of paperwork.
+290. Matching names across inconsistent documents.
+291. Detecting conflicting dates across records.
+292. Finding records that cannot be reconciled.
+293. Building an evidence packet from scattered files.
+294. Sharing only the minimum evidence required for a transaction.
+295. Tracking who has received sensitive commercial documents.
+296. Expiring access to shared transaction documents.
+297. Creating a portable transaction history between counterparties.
+298. Turning completed transactions into reusable procurement memory.
+299. Finding the next transaction after a completed one.
+300. Operating a trusted business transaction from requirement through repeat purchase without re-keying the same facts.
+
+## Universal product factory
+
+The 300-vector corpus now spans transaction friction, finance, procurement, logistics, identity, compliance, property, field service, workforce, information management, household administration and recurring commerce.
+
+The factory rule is deliberately stricter than "build 300 silos":
+
+1. A pain vector is a research candidate, not a product.
+2. A candidate becomes a product hypothesis when a specific buyer, input, output and transaction boundary can be named.
+3. A product becomes a sellable silo only when DreamLedger can fulfil the promised output with existing capability, at a known cost, without pretending that automation exists where it does not.
+4. A live public silo requires a real route, public page, exact offer, fulfilment contract, payment path or explicit human-gated purchase path, evidence boundary, health check and CI/deployment verification.
+5. A paid silo is not economically verified until an independent buyer pays, the payment settles, the contracted work is fulfilled and the evidence chain is independently recorded.
+6. Candidate silos must never be marked live merely because a page, Stripe link, database row or internal workflow exists.
+7. The swarm may discover, qualify, prepare, test and monitor. It does not manufacture demand or count internal activity as money.
+8. Build order is determined by real buyer access, transaction density, fulfilment capability, proofability and human-minute cost, not by how interesting the problem sounds.
+9. A clone is useful only when the underlying transaction primitive is reusable. Clone the mechanism, not the false evidence.
+10. The first reusable mechanism for the Trade Me direction is: requirement -> structured RFQ -> quote normalization -> counterparty evidence -> decision -> transaction -> delivery/acceptance -> reconciliation -> repeat.
+
+## Silo readiness contract
+
+A silo is READY only when all are true:
+
+- public URL resolves to the intended surface;
+- route is present in the canonical public router;
+- offer has a unique product/offer identifier;
+- price and currency are explicit;
+- buyer inputs are explicit;
+- fulfilment capability exists and is testable;
+- payment path is real if payment is advertised;
+- human gates are explicit;
+- evidence output is defined;
+- health check passes;
+- CI/CD has a relevant successful run;
+- no claim on the public surface exceeds verified evidence.
+
+Otherwise the silo remains CANDIDATE, PREPARED, GATED or BLOCKED.
+
+## Current build frontier
+
+The first B2B marketplace wedge remains the RFQ/quote-normalization primitive. It is intentionally not promoted to VERIFIED or revenue-producing status until a real buyer transaction exists. The immediate build target is therefore a production-grade, manually fulfillable RFQ comparison surface that can later accept a real payment without changing the truth rules.
+
+## Economic truth boundary
+
+Research, candidate generation, public pages, Stripe products, payment links, registrations, listings, traffic, internal workflow actions and AI activity do not change the economic scoreboard.
+
+VERIFIED_EXTERNAL_REVENUE = NZ$0.00
+SETTLED_EXTERNAL_PAYMENTS = 0
+INDEPENDENT_EXTERNAL_BUYERS = 0
+VERIFIED_ECONOMIC_OUTCOMES = 0
