@@ -36,4 +36,4 @@ The canonical fulfillment contract is [docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md](
 
 ## Universal pain research
 
-The canonical universal-pain and B2B marketplace research corpus is maintained at [docs/UNIVERSAL-PAIN-OBSERVATORY.md](docs/UNIVERSAL-PAIN-OBSERVATORY.md). It now contains 300 distinct pain vectors plus the product-factory and silo-readiness contract. It is research input, not economic proof.
+The canonical universal-pain and B2B marketplace research corpus is maintained at [docs/UNIVERSAL-PAIN-OBSERVATORY.md](docs/UNIVERSAL-PAIN-OBSERVATORY.md) and extended by [docs/UNIVERSAL-PAIN-OBSERVATORY-P301-P400.md](docs/UNIVERSAL-PAIN-OBSERVATORY-P301-P400.md). The B2B transaction operating model is [docs/B2B-MARKETPLACE-TRANSACTION-OS.md](docs/B2B-MARKETPLACE-TRANSACTION-OS.md), with the public exchange at /b2b. Research remains separate from economic proof.
