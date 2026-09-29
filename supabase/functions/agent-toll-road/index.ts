@@ -30,72 +30,67 @@ function decodeSettlementReceipt(header: string | null): any | null {
 async function observeQuoteSettlement(c: any, next: any) {
   await next();
   if (c.req.path !== "/v1/compare_quotes") return;
-
   const receipt = decodeSettlementReceipt(c.res.headers.get("PAYMENT-RESPONSE"));
   if (!receipt || receipt.success !== true) return;
-
   const request_hash = c.get("quote_request_hash");
   if (!request_hash) return;
-
   const { data: call } = await db.from("agent_toll_calls")
     .select("call_id,product_id,result,result_hash,payment_network,settlement_status")
-    .eq("request_hash", request_hash)
-    .eq("product_id", "truth.quote_compare")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
+    .eq("request_hash", request_hash).eq("product_id", "truth.quote_compare")
+    .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (!call) return;
-
   const tx = receipt.transaction || receipt.txHash || receipt.tx_hash || null;
-  const payer = receipt.payer || null;
-  const settlement_status = TESTNET ? "SETTLED_TESTNET" : "SETTLED";
-
+  const payer = receipt.payer || receipt.from || null;
+  if (!tx || !payer) return;
+  const asset = NETWORK === "eip155:84532"
+    ? "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    : "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+  const settlementKey = `x402:${call.call_id}:${tx}`;
+  const { error: settlementError } = await db.from("x402_settlements").upsert({
+    toll_call_id: call.call_id, idempotency_key: settlementKey, network: NETWORK, asset,
+    amount_atomics: "500000", amount_usdc: 0.50, payer_address: payer, payee_address: PAY_TO,
+    tx_hash: tx, facilitator_url: FACILITATOR_URL, facilitator_response: receipt,
+    status: "PENDING", settled_at: new Date().toISOString()
+  }, { onConflict: "idempotency_key" });
+  if (settlementError) return;
   await db.from("agent_toll_calls").update({
-    payer,
-    payment_tx: tx,
-    settlement_status,
+    payer, payment_tx: tx,
+    settlement_status: TESTNET ? "SETTLED_TESTNET_PENDING_CONFIRMATION" : "SETTLED_PENDING_CONFIRMATION",
     settled_at: new Date().toISOString()
   }).eq("call_id", call.call_id);
-
+  const result = call.result || {};
+  const decision_id = result.decision_id || `quote-${call.call_id}`;
+  const evidence_hash = result.evidence_packet_hash || call.result_hash || "";
+  const proofPayload = { decision_id, toll_call_id: String(call.call_id), tx_hash: tx, payer,
+    evidence_hash, request_hash, response_hash: call.result_hash || "" };
+  const proofDigest = await crypto.subtle.digest("SHA-256",
+    new TextEncoder().encode(canonical(proofPayload)));
+  const chain_hash = Array.from(new Uint8Array(proofDigest))
+    .map(x => x.toString(16).padStart(2, "0")).join("");
+  const { data: proof } = await db.from("runtime_proofs").insert({
+    execution_id: call.call_id, toll_call_id: call.call_id, proof_type: "DELIVERY_RECEIPT",
+    request_hash, response_hash: call.result_hash || "", artifact_hash: evidence_hash, chain_hash,
+    source_reference: tx, source_system: "agent-toll-road",
+    metadata: { decision_id, network: NETWORK, testnet: TESTNET, payer, payee: PAY_TO }
+  }).select("proof_id").single();
+  if (!proof) return;
   const event_id = `X402-${call.call_id}`;
-  const { data: existing } = await db.from("economic_events")
-    .select("event_id")
-    .eq("event_id", event_id)
-    .maybeSingle();
+  const { data: existing } = await db.from("economic_events").select("event_id")
+    .eq("event_id", event_id).maybeSingle();
   if (existing) return;
-
   await db.from("economic_events").insert({
-    event_id,
-    silo_id: "agent-toll-road",
-    sku_id: "QUOTE-COMPARE-X402",
-    buyer_action_verified: true,
-    payment_settled: true,
-    fulfilment_verified: true,
-    evidence_verified: false,
-    evidence_ref: call.result?.evidence_packet_hash || null,
-    verification_status: TESTNET ? "TESTNET_ONLY" : "UNMATCHED",
-    observation_mode: TESTNET ? "TESTNET_OBSERVED" : "SETTLEMENT_OBSERVED",
-    scope: "EXTERNAL",
-    event_type: "X402_SETTLEMENT_OBSERVED",
-    state_before: "UNMATCHED",
-    state_after: TESTNET ? "TESTNET_SETTLED" : "UNMATCHED",
-    settlement_state: "SETTLED",
-    fulfillment_state: "FULFILLED",
-    verification_state: TESTNET ? "TESTNET_ONLY" : "UNMATCHED",
-    source: "agent-toll-road",
-    source_system: "x402",
-    source_record_id: String(call.call_id),
-    external_reference: tx,
-    input_hash: request_hash,
-    output_hash: call.result_hash,
-    metadata: {
-      network: receipt.network || NETWORK,
-      payer,
-      transaction: tx,
-      testnet: TESTNET,
-      scoreboard_eligible: !TESTNET
-    }
+    event_id, silo_id: "agent-toll-road", sku_id: "QUOTE-COMPARE-X402",
+    buyer_action_verified: true, payment_settled: true, fulfilment_verified: true, evidence_verified: true,
+    evidence_ref: proof.proof_id, payment_reference: tx, verification_status: "UNMATCHED",
+    observation_mode: "OBSERVED", scope: "EXTERNAL", event_type: "X402_SETTLEMENT_OBSERVED",
+    state_before: "UNMATCHED", state_after: "UNMATCHED",
+    settlement_state: "SETTLED_PENDING_CONFIRMATION", fulfillment_state: "FULFILLED",
+    verification_state: "UNMATCHED", source: "agent-toll-road", source_system: "x402",
+    source_record_id: String(call.call_id), external_reference: payer,
+    input_hash: request_hash, output_hash: call.result_hash,
+    metadata: { network: NETWORK, payer, payee: PAY_TO, transaction: tx, testnet: TESTNET,
+      scoreboard_eligible: !TESTNET, toll_call_id: String(call.call_id), decision_id,
+      settlement_idempotency_key: settlementKey }
   });
 }
 
