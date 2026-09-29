@@ -1,0 +1,19 @@
+{
+  "schema": "dreamledger/silo-cells-seed/v1",
+  "purpose": "Populate CUBE/Supabase commercial cells. Only cells with concrete offer + purchase path belong on public CTAs.",
+  "updated": "2026-09-26",
+  "system": "RIVET",
+  "silos": [
+    {"id": "SILO_BILLBOARD", "name": "Internet Billboard", "cta_path": "/billboard", "shop_rail": "/shop.html#billboard"},
+    {"id": "SILO_MTG", "name": "Magic: The Gathering", "cta_path": "/mtg", "shop_rail": "/shop.html#mtg"},
+    {"id": "SILO_DIGITAL", "name": "Digital products", "cta_path": "/buy.html", "shop_rail": "/shop.html#digital"},
+    {"id": "SILO_B2B", "name": "B2B Marketplace", "cta_path": "/marketplace.html", "shop_rail": "/shop.html#loops"},
+    {"id": "SILO_AUCTIONS", "name": "Auctions", "cta_path": "/auctions.html", "shop_rail": "/auctions.html"}
+  ],
+  "cells": [
+    {"sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001", "silo": "SILO_BILLBOARD", "name": "Founding tile 100x100", "price_nzd": 50, "cta_url": "https://buy.stripe.com/aFa14naXP15r1DVdVadwc2B", "public_cta": true},
+    {"sku": "CMD-DIAG-29", "silo": "SILO_MTG", "name": "Commander deck diagnostic", "price_nzd": 29, "cta_url": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I", "public_cta": true},
+    {"sku": "DISCORD-WEBHOOK-STARTER-KIT-001", "silo": "SILO_DIGITAL", "name": "Discord webhook starter kit", "price_nzd": 79, "cta_url": "/buy.html?sku=DISCORD-WEBHOOK-STARTER-KIT-001", "public_cta": true},
+    {"sku": "SELL-INTAKE-001", "silo": "SILO_B2B", "name": "Seller intake (0% success fee)", "price_nzd": 0, "cta_url": "/sell.html", "public_cta": true}
+  ]
+}
