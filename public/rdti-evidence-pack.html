@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RDTI Technical Evidence Pack | DreamLedger</title>
+<meta name="description" content="Check whether a repository-based technical evidence pack may fit your RDTI record-keeping workflow. Not tax advice or an eligibility decision.">
+<style>
+:root{color-scheme:dark}body{font:16px/1.55 system-ui,sans-serif;background:#080a0d;color:#eef1f5;max-width:820px;margin:0 auto;padding:26px 18px}
+a{color:#fcd535}.card{border:1px solid #343c4a;background:#141920;border-radius:16px;padding:24px;margin:18px 0}
+h1{font-size:32px;line-height:1.15}.muted{color:#aab2bd}.notice{border-left:4px solid #f0b90b;padding:12px 14px;background:#211d10}
+label{display:block;margin:16px 0 6px;font-weight:700}input,select,textarea{box-sizing:border-box;width:100%;padding:11px;border-radius:9px;border:1px solid #454f5f;background:#0d1117;color:#eef1f5;font:inherit}
+textarea{min-height:95px}input[type=checkbox]{width:auto;margin-right:9px}.check{display:flex;align-items:flex-start;gap:6px;font-weight:500}.check input{margin-top:7px}
+button{margin-top:18px;border:0;border-radius:10px;padding:13px 18px;background:#f0b90b;color:#080a0d;font-weight:900;font-size:16px;cursor:pointer}button:disabled{opacity:.5}
+#status{margin-top:15px;overflow-wrap:anywhere}.small{font-size:14px}
+</style>
+</head>
+<body>
+<p><a href="/">DreamLedger</a> / RDTI Technical Evidence Pack</p>
+<main class="card">
+<h1>Technical evidence pack</h1>
+<p class="muted">A bounded, repository-based evidence input intended to help organize technical work for later review by your RDTI adviser or qualified reviewer.</p>
+<div class="notice"><strong>Scope boundary</strong><br>This is an intake and qualification step, not an eligibility assessment, tax advice, expenditure calculation, or claim submission. Git history alone cannot establish RDTI eligibility. No payment is taken on this page.</div>
+<h2>Tell us what you need</h2>
+<form id="rdti">
+<label for="need">What outcome are you looking for?</label>
+<select id="need" required>
+<option value="">Choose one</option>
+<option value="organize">Organize existing technical records</option>
+<option value="reviewer-pack">Prepare a reviewer-ready evidence index</option>
+<option value="gap-map">Identify missing evidence and documentation gaps</option>
+<option value="provider-partner">Explore a provider / adviser workflow partnership</option>
+<option value="unsure">Not sure yet</option>
+</select>
+<label for="project">Brief description of the technical project</label>
+<textarea id="project" minlength="20" maxlength="3000" required placeholder="Describe the software, engineering, or technical work in general terms. Do not include confidential or personal data."></textarea>
+<label for="repo">Repository URL (optional)</label>
+<input id="repo" type="url" maxlength="500" placeholder="https://github.com/your-org/your-repo">
+<label for="access">Your authority to share the repository</label>
+<select id="access" required>
+<option value="">Choose one</option>
+<option value="owner">I own or administer it</option>
+<option value="authorized">I have explicit permission to share it for this review</option>
+<option value="not-authorized">I do not currently have permission</option>
+<option value="private-no-link">The source is private and I do not want to provide a URL yet</option>
+</select>
+<label for="period">Relevant work period (optional)</label>
+<input id="period" maxlength="120" placeholder="e.g. July 2025 to June 2026">
+<label for="adviser">RDTI adviser / approved provider involvement</label>
+<select id="adviser" required>
+<option value="">Choose one</option>
+<option value="engaged">We already have an adviser / provider</option>
+<option value="seeking">We are looking for an adviser / provider</option>
+<option value="none">No adviser currently involved</option>
+<option value="not-claiming">We are not currently preparing a claim</option>
+</select>
+<label for="buyer-role">Your role</label>
+<select id="buyer-role" required>
+<option value="">Choose one</option>
+<option value="claimant">Business / claimant representative</option>
+<option value="provider">RDTI adviser / provider</option>
+<option value="technical">Technical lead / engineering team</option>
+<option value="other">Other</option>
+</select>
+<label class="check"><input id="authority" type="checkbox" required><span>I confirm I am authorized to submit the information above. I will not provide secrets, credentials, personal tax identifiers, or confidential material I am not authorized to share.</span></label>
+<label class="check"><input id="consent" type="checkbox" required><span>I consent to DreamLedger storing this qualification request so it can be reviewed for service fit. This is not consent to contact third parties or submit a tax claim.</span></label>
+<button id="submit" type="submit">Submit qualification request</button>
+<div id="status" role="status" aria-live="polite"></div>
+</form>
+</main>
+<p class="muted small">If the request appears suitable, the next step is a clearly scoped sample and service proposal. Scope, price, turnaround, data handling, and human review must be agreed before payment. No automatic outreach is triggered.</p>
+<script>
+const form=document.getElementById('rdti'),button=document.getElementById('submit'),status=document.getElementById('status');
+form.addEventListener('submit',async event=>{
+ event.preventDefault();button.disabled=true;status.textContent='Submitting qualification request…';
+ const access=document.getElementById('access').value;
+ if(access==='not-authorized'){status.textContent='Please obtain permission to share the repository before proceeding. No request was sent.';button.disabled=false;return;}
+ const payload={
+  need:document.getElementById('need').value,
+  project_description:document.getElementById('project').value.trim(),
+  repository_url:document.getElementById('repo').value.trim()||null,
+  repository_authority:access,
+  relevant_period:document.getElementById('period').value.trim()||null,
+  adviser_status:document.getElementById('adviser').value,
+  respondent_role:document.getElementById('buyer-role').value,
+  authorized_submission:document.getElementById('authority').checked,
+  storage_consent:document.getElementById('consent').checked,
+  source_page:location.pathname
+ };
+ try{
+  const response=await fetch('/m2m/v1/rdti/evidence-pack/qualify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.error||'Qualification service unavailable');
+  status.textContent='Request recorded. Reference: '+data.request_id+'. Status: '+data.status+'. No payment or external contact was triggered.';
+  form.reset();
+ }catch(error){status.textContent=(error.message||'Request failed')+'. Your request was not confirmed; please retry later.';button.disabled=false;}
+});
+</script>
+</body>
+</html>
