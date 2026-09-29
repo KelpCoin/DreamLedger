@@ -28,6 +28,29 @@ jobs:
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           echo "CLOUD_ENGINE=READY"
 
+      - name: Expire stale human gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          curl -fsS --max-time 60 -X PATCH "$SUPABASE_URL/rest/v1/approval_queue?status=eq.PENDING&expires_at=lte.$now" -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" -H "Content-Type: application/json" -H "Prefer: return=minimal" --data "{\"status\":\"EXPIRED\",\"resolution\":\"HUMAN_GATE_EXPIRED\",\"resolved_at\":\"$now\",\"decision\":\"REJECT\",\"decision_at\":\"$now\",\"decided_by\":\"SYSTEM\"}"
+          echo "STALE_HUMAN_GATES=EXPIRED_WHERE_DUE"
+
+      - name: Write cloud heartbeat
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const crypto=require('crypto'),https=require('https');
+          const envelope={tick_id:'cloud_hb_'+process.env.GITHUB_RUN_ID,agent_id:'browneye-cortex-cloud',ts:new Date().toISOString(),commit_sha:process.env.GITHUB_SHA,probes:{github_actions:'OK',supabase:'OK'},policy:{state:'OK',reasons:[]},autonomy_level:'A2_SELF_DIRECTED'};
+          const body=JSON.stringify(envelope);
+          const hash=crypto.createHash('sha256').update(body).digest('hex');
+          const req=https.request(process.env.SUPABASE_URL+'/rest/v1/runtime_proofs',{method:'POST',headers:{apikey:process.env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+process.env.SUPABASE_SERVICE_ROLE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}},res=>{let d='';res.on('data',x=>d+=x);res.on('end',()=>{if(res.statusCode>=300){console.error(d);process.exit(1)}console.log('CLOUD_HEARTBEAT=RECORDED')})});
+          req.on('error',e=>{console.error(e);process.exit(1)});
+          req.write(JSON.stringify({execution_id:crypto.randomUUID(),proof_type:'HEARTBEAT',artifact_hash:hash,chain_hash:hash,source_reference:envelope.tick_id,source_system:'github_actions',observed_at:envelope.ts,metadata:envelope}));
+          req.end();
+          NODE
+
       - name: Reconcile external settlement evidence
         shell: bash
         run: |
