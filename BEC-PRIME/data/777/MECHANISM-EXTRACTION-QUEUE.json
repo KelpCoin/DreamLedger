@@ -1,0 +1,63 @@
+{
+  "schema": "DREAMLEDGER/777/MECHANISM-EXTRACTION/v1",
+  "status": "RESEARCH_AND_GAUNTLET_QUEUE",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "selection_rule": "Prefer externally demonstrated mechanisms that are executable with existing capability, have a clear payment boundary, and can produce independent evidence without copying protected implementation.",
+  "lanes": [
+    {
+      "id": "MECH-001",
+      "mechanism": "Supplier verification evidence pack",
+      "primitive": "verify identity/authorization/claim -> collect evidence -> issue bounded verdict -> retain evidence receipt",
+      "existing_capability": ["Truth Oracle", "Evidence objects", "supplier verification check"],
+      "payment_path": "existing fixed-price verification offer",
+      "gauntlet_state": "UNQUALIFIED",
+      "next_test": "Map one existing supplier-verification offer to a deterministic evidence contract. No external activation."
+    },
+    {
+      "id": "MECH-002",
+      "mechanism": "Procurement comparison report",
+      "primitive": "collect supplier inputs -> normalize price/terms -> reconcile differences -> produce attributable comparison artifact",
+      "existing_capability": ["supplier quote comparison", "reconciliation"],
+      "payment_path": "existing fixed-price comparison offer",
+      "gauntlet_state": "UNQUALIFIED",
+      "next_test": "Define acceptance criteria and required evidence for one bounded comparison. No external activation."
+    },
+    {
+      "id": "MECH-003",
+      "mechanism": "Digital deliverable licensing",
+      "primitive": "settled payment/authorized entitlement -> issue license identifier -> bind entitlement to deliverable -> retain issuance evidence",
+      "existing_capability": ["payment boundary", "digital fulfillment"],
+      "payment_path": "existing digital offers",
+      "gauntlet_state": "UNQUALIFIED",
+      "next_test": "Determine whether license issuance can be added without new paid infrastructure or weakening attribution."
+    },
+    {
+      "id": "MECH-004",
+      "mechanism": "Supply-chain exception resolution",
+      "primitive": "detect exception -> classify -> propose authorized action -> execute only when gated -> record outcome",
+      "existing_capability": ["reconciliation", "evidence", "approval gates"],
+      "payment_path": "NOT_YET_MAPPED",
+      "gauntlet_state": "UNQUALIFIED",
+      "next_test": "Find an existing paid, fulfillable exception-resolution use case before building anything."
+    }
+  ],
+  "proof_bound_commerce_anchor": {
+    "specimen": "BEC-PRIME/data/777/PROOF-BOUND-COMMERCE-001.json",
+    "status": "SPECIMEN_ONLY",
+    "rule": "Payment observation never equals completed economic outcome. Verification requires attributable buyer evidence, settled payment, fulfillment, and independent proof."
+  },
+  "hard_boundaries": [
+    "No self-purchase",
+    "No simulated buyer",
+    "No simulated payment",
+    "No proprietary code or confidential implementation copying",
+    "No public outreach without human authorization",
+    "No spending without human authorization",
+    "No revenue recognition from internal events"
+  ]
+}
