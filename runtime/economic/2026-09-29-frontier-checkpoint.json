@@ -1,15 +1,19 @@
 {
-  "schema": "dreamledger/economic-frontier-checkpoint/v1",
-  "observed_at": "2026-09-29T03:11:08Z",
-  "commit": "46187595213d1b008a607f22438248a284ea4ec9",
+  "schema": "dreamledger/economic-frontier-checkpoint/v2",
+  "observed_at": "2026-09-29T03:35:00Z",
+  "commit_observed": "625b828e27e301403c7816c70ffc0cae1bd762ec",
   "scoreboard": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
     "independent_external_buyers": 0,
     "verified_economic_outcomes": 0
   },
-  "economic_actions": 2746,
-  "economic_disagreements": 3,
+  "economic_state": {
+    "economic_actions": 2746,
+    "economic_outcomes": 0,
+    "conversions": 0,
+    "economic_disagreements": 3
+  },
   "dispatch_counts": {
     "EXTERNAL_BLOCKED": 4,
     "INTERNAL_ROUTED": 1,
@@ -24,22 +28,49 @@
     "worker": "quote-fulfillment",
     "worker_status": "ACTIVE",
     "intake": "quote-intake",
-    "intake_status": "ACTIVE"
+    "intake_status": "ACTIVE",
+    "fulfillment_requests_observed": 0
+  },
+  "stripe": {
+    "livemode": true,
+    "quote_comparison_payment_link_active": true,
+    "quote_comparison_sku": "QUOTE-COMPARE-49",
+    "quote_comparison_amount_nzd": 49,
+    "truth_rule": "settled_stripe_only"
   },
   "deployment": {
     "service": "dreamledger-org",
-    "commit": "46187595213d1b008a607f22438248a284ea4ec9",
+    "commit": "625b828e27e301403c7816c70ffc0cae1bd762ec",
     "status": "live",
-    "deploy_id": "dep-datinq4r1upc73fcgsg"
+    "deploy_id": "dep-datip0eq1p3s73ffbt30",
+    "finished_at": "2026-09-29T03:12:35.974244Z"
   },
   "ci": {
     "status": "NOT_PROVEN",
-    "reason": "GitHub connector exposes no completed workflow run for this commit"
+    "reason": "No completed workflow run or combined status was returned for the observed commit"
   },
   "local_runtime": {
     "status": "UNOBSERVABLE",
-    "reason": "local Windows/browser connector unavailable"
+    "reason": "Opera Browser Connector is not connected"
   },
-  "frontier": "paid checkout -> automated fulfillment -> delivery evidence -> verification",
-  "truth_rule": "No revenue or verified outcome is created by internal deployment, payment-link existence, or fulfillment code."
+  "economic_frontier": {
+    "closest_machine_ready_path": "QUOTE-COMPARE-49",
+    "current_boundary": "acquisition",
+    "external_action_sent": false,
+    "external_result_observed": false,
+    "buyer_observed": false,
+    "payment_settled": false,
+    "fulfillment_observed": false,
+    "verification_observed": false
+  },
+  "human_gate": {
+    "type": "EXTERNAL_SUBMISSION",
+    "status": "PENDING",
+    "opportunity": "OPP-SIG-20260920-UPWORK-001",
+    "external_reference": "022095771458407616263",
+    "expected_value_usd": 850,
+    "cost_nzd": 0,
+    "action": "Submit the prepared proposal through the owner's authenticated Upwork account; then record the external submission reference and stop."
+  },
+  "truth_rule": "No revenue or verified outcome is created by internal deployment, payment-link existence, authorization, or fulfillment code."
 }
