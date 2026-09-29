@@ -63,6 +63,7 @@ jobs:
           name: dreamledger-777-${{ github.run_id }}
           path: |
             BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/777/public-market-radar.json
             BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json
             BEC-PRIME/data/factory-factory/UNIVERSAL-MONEY-CELLS.json
             BEC-PRIME/data/factory-factory/FACTORY-FACTORY-RUN.json
