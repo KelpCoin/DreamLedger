@@ -1,0 +1,14 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-09-30-silos-split",
+  "from": "grok-cloud",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "CORRECTED: no crypto-TCG hybrid. mtg silo is TCG only. crypto would be a separate silo. NZ lanes: mtg + retro_games + vinyl.",
+  "reads": [
+    "AGENT_BUS/SILOS/README.md",
+    "AGENT_BUS/SILOS/NZ-TRADEME-ALTERNATIVE.md"
+  ],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-09-30T02:03:00Z"
+}
