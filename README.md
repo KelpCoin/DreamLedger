@@ -27,3 +27,8 @@ The runtime includes deterministic agent and HTTP controls. Security work should
 ## Public production surface
 
 Production serves compiled website artifacts from BEC-PRIME/compiled/website. Compiler changes are not sufficient unless the compiled artifacts are regenerated and deployed.
+
+
+## Universal pain research
+
+The canonical universal-pain and B2B marketplace research corpus is maintained at [docs/UNIVERSAL-PAIN-OBSERVATORY.md](docs/UNIVERSAL-PAIN-OBSERVATORY.md). It is research input, not economic proof.
