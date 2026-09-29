@@ -1,0 +1,50 @@
+name: RDTI Evidence Extraction Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/dreamledger_compiler.py'
+      - 'tools/rdti_evidence_pack.py'
+      - 'docs/rdti/**'
+      - '.github/workflows/rdti-evidence-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile repository evidence
+        run: |
+          set -euo pipefail
+          python3 tools/dreamledger_compiler.py --repo . --limit 25 --output evidence-compilation.json
+      - name: Compile RDTI evidence extraction
+        run: |
+          set -euo pipefail
+          python3 tools/rdti_evidence_pack.py --repo . --limit 50 --output rdti-evidence-pack.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('rdti-evidence-pack.json',encoding='utf-8'))
+          assert p['schema'] == 'dreamledger/rdti-evidence-pack/v1'
+          assert p['truth_status'] == 'INTERNAL'
+          assert p['promotion_status'] == 'NOT_ELIGIBLE'
+          assert p['evidence_hash']
+          assert p['record_count'] > 0
+          assert all(v == 'NOT_ESTABLISHED' for v in p['rdti_review_fields'].values())
+          print('RDTI_EVIDENCE_VALIDATION=PASS')
+          print('RECORDS='+str(p['record_count']))
+          print('HASH='+p['evidence_hash'])
+          PY
+      - name: Upload validation packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: rdti-evidence-validation-${{ github.run_id }}
+          path: |
+            evidence-compilation.json
+            rdti-evidence-pack.json
+          retention-days: 14
