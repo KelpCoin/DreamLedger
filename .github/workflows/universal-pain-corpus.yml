@@ -1,0 +1,18 @@
+name: universal-pain-corpus
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/UNIVERSAL-PAIN-OBSERVATORY.md
+      - scripts/validate_universal_pain_corpus.py
+      - .github/workflows/universal-pain-corpus.yml
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/validate_universal_pain_corpus.py
