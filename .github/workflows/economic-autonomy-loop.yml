@@ -1,0 +1,54 @@
+name: DreamLedger Economic Autonomy Loop
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-economic-autonomy
+  cancel-in-progress: false
+
+jobs:
+  loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wake economic loop
+        env:
+          SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            echo "SUPABASE_SERVICE_ROLE_KEY GitHub secret is not configured"
+            exit 2
+          fi
+          response="$(curl -fsS --max-time 120 \
+            -X POST "${SUPABASE_URL}/functions/v1/company-autopilot" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            --data '{"trigger":"github_schedule","mode":"ECONOMIC_LOOP"}')"
+          printf '%s\n' "$response"
+          node -e 'const x=JSON.parse(process.argv[1]); if(x.ok!==true && x.status!=="SKIPPED_RECENT_RUN") process.exit(1);' "$response"
+
+      - name: Assert economic scoreboard remains truth-bound
+        env:
+          SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl -fsS --max-time 60 "${SUPABASE_URL}/rest/v1/economic_outcomes?select=outcome_id,amount_nzd,truth_status&limit=100" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}")"
+          node -e '
+            const rows=JSON.parse(process.argv[1]);
+            const verified=rows.filter(x=>x.truth_status==="VERIFIED");
+            console.log(JSON.stringify({economic_outcomes:rows.length,verified_outcomes:verified.length},null,2));
+          ' "$response"
