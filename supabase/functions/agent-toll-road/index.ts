@@ -27,6 +27,29 @@ function decodeSettlementReceipt(header: string | null): any | null {
   }
 }
 
+async function reserveX402Replay(c: any): Promise<Response | null> {
+  const header = c.req.header("X-Payment");
+  if (!header || !paymentConfigured) return null;
+  let payload: any;
+  try { payload = JSON.parse(atob(header)); } catch { return c.json({ error: "INVALID_PAYMENT_PAYLOAD" }, 402); }
+  const auth = payload?.payload?.authorization;
+  const from = typeof auth?.from === "string" ? auth.from : "";
+  const nonce = typeof auth?.nonce === "string" ? auth.nonce : "";
+  if (!/^0x[0-9a-fA-F]{40}$/.test(from) || !/^0x[0-9a-fA-F]{64}$/.test(nonce)) return c.json({ error: "PAYMENT_AUTHORIZATION_NOT_IDENTIFIABLE" }, 402);
+  const asset = NETWORK === "eip155:84532" ? "0x036cbd53842c5426634e7929541eC2318f3dCF7e" : "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+  const replayKey = `x402:${NETWORK}:${asset.toLowerCase()}:${from.toLowerCase()}:${nonce.toLowerCase()}`;
+  const resource = new URL(c.req.url); resource.hash = "";
+  const validBefore = Number(auth?.validBefore);
+  const expiresAt = Number.isFinite(validBefore) && validBefore > Math.floor(Date.now() / 1000) ? new Date(validBefore * 1000).toISOString() : new Date(Date.now() + 120000).toISOString();
+  const tokenBytes = crypto.getRandomValues(new Uint8Array(16));
+  const reservationToken = Array.from(tokenBytes).map(x => x.toString(16).padStart(2, "0")).join("");
+  try {
+    const { data, error } = await db.rpc("x402_replay_reserve", { p_replay_key: replayKey, p_resource: resource.toString(), p_reservation_token: reservationToken, p_expires_at: expiresAt });
+    if (error || data !== "RESERVED") return c.json({ error: data === "RESOURCE_MISMATCH" ? "PAYMENT_RESOURCE_REPLAY" : "PAYMENT_AUTHORIZATION_ALREADY_USED" }, 402);
+    return null;
+  } catch { return c.json({ error: "PAYMENT_REPLAY_GUARD_UNAVAILABLE" }, 503); }
+}
+
 async function observeQuoteSettlement(c: any, next: any) {
   await next();
   const productByPath: Record<string, {product_id:string; price:number}> = {
@@ -285,6 +308,15 @@ if (PAY_TO && FACILITATOR_URL) {
   }, x402));
   paymentConfigured = true;
 }
+
+app.use("*", async (c, next) => {
+  if (!paymentConfigured) return next();
+  const paidPaths = new Set(["/v1/reconcile","/v1/contradictions","/v1/passport","/v1/compare_quotes"]);
+  if (!paidPaths.has(c.req.path) || c.req.method !== "POST") return next();
+  const guardResponse = await reserveX402Replay(c);
+  if (guardResponse) return guardResponse;
+  return next();
+});
 
 app.post("/v1/compare_quotes", async c => {
   if (!paymentConfigured) return c.json({ error: "PAYMENT_RAIL_NOT_CONFIGURED", service: "agent-toll-road" }, 503);
