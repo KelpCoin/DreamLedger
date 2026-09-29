@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import csv, hashlib, json, os, time
+import csv, hashlib, json, os, time, io, re
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urljoin
+from urllib.parse import urljoin, quote
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
@@ -150,8 +150,91 @@ def run_acnc(payload):
         "report_scope": "ACNC registered-charity identity and public-register fields; this is not a guarantee of safety, solvency, compliance, or suitability for funding."
     }
 
+def download_storage(storage_path):
+    if TRACE is not None:
+        TRACE["current_operation"]="STORAGE_DOWNLOAD"
+        TRACE["current_dependency"]=SUPABASE_URL
+    url=SUPABASE_URL+"/storage/v1/object/authenticated/marketplace-fulfillment/"+"/".join(quote(part) for part in storage_path.split("/"))
+    req=Request(url,headers={"User-Agent":"BrownEye-Economic-Fulfillment/1.0","Authorization":"Bearer "+SERVICE_KEY,"apikey":SERVICE_KEY})
+    with urlopen(req,timeout=60) as r:
+        return r.status,r.headers.get("content-type",""),r.read()
+
+def extract_quote_file(name, raw):
+    ext=name.lower().rsplit(".",1)[-1] if "." in name else ""
+    if ext=="pdf":
+        try:
+            from pypdf import PdfReader
+            reader=PdfReader(io.BytesIO(raw))
+            text="\n".join((page.extract_text() or "") for page in reader.pages)
+        except Exception as exc:
+            raise ValueError("PDF_TEXT_EXTRACTION_FAILED:"+str(exc))
+    elif ext=="csv":
+        rows=list(csv.DictReader(io.StringIO(raw.decode("utf-8-sig","replace"))))
+        text="\n".join(" | ".join(f"{k}: {v}" for k,v in row.items()) for row in rows)
+    elif ext=="json":
+        text=json.dumps(json.loads(raw.decode("utf-8-sig")),indent=2,ensure_ascii=True)
+    elif ext=="md":
+        text=raw.decode("utf-8","replace")
+    else:
+        raise ValueError("UNSUPPORTED_QUOTE_FILE_TYPE:"+ext)
+    return text
+
+MONEY_RE=re.compile(r"(?i)(NZD|NZ\\$|USD|US\\$|AUD|AU\\$|EUR|GBP|\\$)\\s*([0-9][0-9,]*(?:\\.[0-9]{1,2})?)")
+def quote_fields(name,text):
+    lines=[" ".join(line.split()) for line in text.splitlines() if line.strip()]
+    supplier=Path(name).stem.replace("_"," ").replace("-"," ").strip()
+    for line in lines[:40]:
+        if re.search(r"(?i)\\b(supplier|vendor|company)\\b",line):
+            supplier=line.split(":",1)[-1].strip() or supplier
+            break
+    total=None; total_label=None
+    for line in lines:
+        if re.search(r"(?i)\\b(grand total|total due|total|amount due|quote total)\\b",line):
+            hits=list(MONEY_RE.finditer(line))
+            if hits:
+                hit=hits[-1]; total={"currency":hit.group(1).upper().replace("\\$","$"),"amount":float(hit.group(2).replace(",",""))}; total_label=line
+                break
+    amounts=[]
+    for line in lines:
+        for m in MONEY_RE.finditer(line): amounts.append({"currency":m.group(1).upper().replace("\\$","$"),"amount":float(m.group(2).replace(",","")),"context":line})
+    moq=next((line for line in lines if re.search(r"(?i)\\bMOQ\\b|minimum order",line)),None)
+    lead=next((line for line in lines if re.search(r"(?i)lead time|delivery time|days? to deliver|weeks? to deliver",line)),None)
+    terms=next((line for line in lines if re.search(r"(?i)payment terms|net \\d+|deposit|due on delivery|prepay",line)),None)
+    return {"supplier":supplier,"stated_total":total,"total_source_line":total_label,"amounts_found":amounts[:100],"moq":moq,"lead_time":lead,"payment_terms":terms,"line_count":len(lines),"extracted_text_sha256":sha256_bytes(text.encode("utf-8"))}
+
+def run_quote_comparison(payload):
+    files=payload.get("input_files") or []
+    if len(files)<2 or len(files)>5: raise ValueError("QUOTE_COMPARISON_REQUIRES_2_TO_5_FILES")
+    comparisons=[]; evidence=[]
+    for f in files:
+        status,ctype,raw=download_storage(str(f["path"]))
+        source_hash=sha256_bytes(raw)
+        text=extract_quote_file(str(f["name"]),raw)
+        fields=quote_fields(str(f["name"]),text)
+        fields.update({"filename":f["name"],"storage_path":f["path"],"source_sha256":source_hash,"retrieved_at":datetime.now(timezone.utc).isoformat(),"source_status":status})
+        comparisons.append(fields)
+        evidence.append({"storage_path":f["path"],"filename":f["name"],"http_status":status,"content_type":ctype,"sha256":source_hash,"bytes":len(raw)})
+    stated=[x for x in comparisons if x.get("stated_total")]
+    lines=["# Supplier Quote Comparison","","## Purchase requirements",str(payload.get("requirements") or "").strip(),"","## Normalized comparison","","| Supplier | Stated total | MOQ | Lead time | Payment terms |","|---|---:|---|---|---|"]
+    for q in comparisons:
+        total=q.get("stated_total"); total_s=(str(total["currency"])+" "+format(total["amount"],",.2f")) if total else "UNKNOWN"
+        lines.append("| "+q["supplier"].replace("|","/")+" | "+total_s+" | "+str(q.get("moq") or "UNKNOWN").replace("|","/")+" | "+str(q.get("lead_time") or "UNKNOWN").replace("|","/")+" | "+str(q.get("payment_terms") or "UNKNOWN").replace("|","/")+" |")
+    lines.extend(["","## Exceptions and unknowns",""])
+    if not stated: lines.append("- No explicit stated total was reliably extracted from any quote. No total was invented.")
+    elif len({x["stated_total"]["currency"] for x in stated})>1: lines.append("- Currency mismatch: stated totals use multiple currencies. No FX conversion was invented.")
+    else:
+        ordered=sorted(stated,key=lambda x:x["stated_total"]["amount"]); lines.append("- Lowest stated total: "+ordered[0]["supplier"]+" at "+ordered[0]["stated_total"]["currency"]+" "+format(ordered[0]["stated_total"]["amount"],",.2f")+" based only on the stated total.")
+    for q in comparisons:
+        for label in ("moq","lead_time","payment_terms"):
+            if not q.get(label): lines.append("- "+q["supplier"]+": "+label.replace("_"," ")+" is UNKNOWN.")
+    lines.extend(["","## Evidence",""])
+    for e in evidence: lines.append("- "+e["filename"]+" | SHA256 `"+e["sha256"]+"` | "+str(e["bytes"])+" bytes")
+    lines.extend(["","## Decision boundary","","This packet compares stated source data. It does not invent missing values, silently convert currencies, or make a purchasing decision on the buyer's behalf."])
+    return {"job_type":"QUOTE_COMPARISON","requirements":payload.get("requirements"),"quote_count":len(comparisons),"comparisons":comparisons,"evidence":evidence,"report_markdown":"\n".join(lines)+"\n"}
 def run(payload):
     job_type = str(payload.get("job_type") or "")
+    if job_type == "QUOTE_COMPARISON":
+        return run_quote_comparison(payload)
     if job_type == "ACNC_CHARITY_DUE_DILIGENCE":
         return run_acnc(payload)
     if job_type == "ACNC_CHARITY_CONTACTS":
@@ -177,6 +260,8 @@ def write_artifacts(job_id,result):
     folder=ROOT/str(job_id); folder.mkdir(parents=True,exist_ok=True)
     if TRACE is not None:
         write_trace(TRACE, folder)
+    if result.get("job_type") == "QUOTE_COMPARISON":
+        (folder/"quote-decision-packet.md").write_text(result.get("report_markdown",""),encoding="utf-8")
     (folder/"result.json").write_text(json.dumps(result,indent=2,ensure_ascii=True),encoding="utf-8")
     rows=result["rows"]; keys=sorted({k for row in rows for k in row})
     with open(folder/"results.csv","w",newline="",encoding="utf-8") as handle:
@@ -215,7 +300,7 @@ def claim():
 def complete(job,result,folder):
     root="economic-jobs/"+str(job["id"])
     artifacts=[]
-    for filename in ("report.md","results.csv","result.json","economic_compute_trace.json"):
+    for filename in ("report.md","quote-decision-packet.md","results.csv","result.json","economic_compute_trace.json"):
         path=folder/filename
         storage=root+"/"+filename
         upload(path,storage)
@@ -225,8 +310,8 @@ def complete(job,result,folder):
             "sha256":sha256_file(path),
             "byte_size":path.stat().st_size,
         })
-    report=next(item for item in artifacts if item["filename"]=="report.md")
-    return rpc("complete_economic_fulfillment_job",{
+    report=next(item for item in artifacts if item["filename"]=="quote-decision-packet.md") if result.get("job_type")=="QUOTE_COMPARISON" else next(item for item in artifacts if item["filename"]=="report.md")
+    completed=rpc("complete_economic_fulfillment_job",{
         "p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],
         "p_storage_path":report["storage_path"],"p_sha256":report["sha256"],
         "p_byte_size":report["byte_size"],
@@ -237,6 +322,14 @@ def complete(job,result,folder):
             "substrate_admission":result.get("_substrate_admission"),
         },
     })
+    if result.get("job_type")=="QUOTE_COMPARISON":
+        fr_id=str(result.get("fulfillment_request_id") or "")
+        if fr_id:
+            api(SUPABASE_URL+"/rest/v1/fulfillment_requests?id=eq."+fr_id,"PATCH",{"status":"fulfilled","canonical_state":"DELIVERED","fulfillment_reference":report["storage_path"],"evidence_reference":json.dumps({"artifacts":artifacts,"source_evidence":result.get("evidence",[])}),"evidence_status":"VERIFIED","updated_at":datetime.now(timezone.utc).isoformat()})
+            sess=str(result.get("stripe_checkout_session_id") or "")
+            if sess:
+                api(SUPABASE_URL+"/rest/v1/economic_events?stripe_checkout_session=eq."+quote(sess),"PATCH",{"fulfilment_verified":True,"evidence_verified":True,"fulfillment_state":"DELIVERED","verification_state":"VERIFIED","output_hash":report["sha256"],"updated_at":datetime.now(timezone.utc).isoformat()})
+    return completed
 
 def fail(job,reason):
     return rpc("fail_economic_fulfillment_job",{"p_job_id":job["id"],"p_worker_id":WORKER_ID,"p_lease_token":job["lease_token"],"p_reason":reason[:2000]})
@@ -251,6 +344,9 @@ def run_once():
     TRACE=start_trace(action_id, opportunity_id)
     try:
         result=run(payload)
+        if result.get("job_type")=="QUOTE_COMPARISON":
+            result["fulfillment_request_id"]=payload.get("fulfillment_request_id")
+            result["stripe_checkout_session_id"]=payload.get("stripe_checkout_session_id")
         finish_trace(TRACE, "AVAILABLE")
         admission=assess_trace(TRACE)
         result["_substrate_admission"]=admission
