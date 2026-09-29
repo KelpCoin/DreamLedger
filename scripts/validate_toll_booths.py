@@ -20,4 +20,5 @@ for sku,price in required.items():
     assert p.get("checkout_url","").startswith("https://buy.stripe.com/"), f"{sku} checkout is not Stripe"
 
 print("TOLL_BOOTH_MVP_VALIDATION=PASS")
+print("CI_TRIGGER=push")
 print("ECONOMIC_TRUTH=UNCHANGED_UNTIL_SETTLED_EXTERNAL_PAYMENT")
