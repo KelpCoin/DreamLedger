@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal } = require('../economic/EconomicEvidenceLadder');
+const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal, hasExplicitPaymentIntent } = require('../economic/EconomicEvidenceLadder');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
@@ -59,8 +59,7 @@ function classifyEvidence(seed) {
   if (source === 'CHECKOUT' || source === 'STRIPE_CHECKOUT') return ['CHECKOUT', EVIDENCE_PRIORITY.CHECKOUT];
   if (source === 'REPEAT_CHECKOUT') return ['REPEAT_CHECKOUT', EVIDENCE_PRIORITY.REPEAT_CHECKOUT];
   if (source === 'PUBLIC_BUYER_SIGNAL') {
-    const evidence = seed.economic_evidence || seed;
-    if (evidence.payment_intent_type && evidence.payment_intent_source) {
+    if (hasExplicitPaymentIntent(seed)) {
       return ['EXPLICIT_BUYING_INTENT', EVIDENCE_PRIORITY.EXPLICIT_BUYING_INTENT];
     }
     return ['GENERAL_PROBLEM_SIGNAL', EVIDENCE_PRIORITY.GENERAL_PROBLEM_SIGNAL];
