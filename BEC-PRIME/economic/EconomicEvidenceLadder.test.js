@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { assessEconomicEvidence, summarizeEvidenceLadder } = require('./EconomicEvidenceLadder');
+const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal } = require('./EconomicEvidenceLadder');
 
 test('public radar candidate without verbatim quote and author hash does not become sourced pain evidence', () => {
   const result = assessEconomicEvidence({
@@ -92,4 +92,20 @@ test('recurrence summary counts only explicitly keyed pain categories', () => {
   assert.equal(summary.input_count, 3);
   assert.equal(summary.recurrence_counts.PROCUREMENT, 2);
   assert.equal(summary.verified_economic_outcomes, 0);
+});
+
+test('buyer action is blocked without rung-one evidence and verified surface permission', () => {
+  const candidate = {
+    url: 'https://example.test/post/1',
+    source_observed_at: '2026-09-30',
+    observed_problem: 'A person asks for help',
+    permission: 'UNVERIFIED_SURFACE_RULES'
+  };
+  assert.equal(isActionableBuyerSignal(candidate), false);
+  candidate.exact_quote = 'I need help comparing these quotes.';
+  candidate.author_hash = 'sha256:author';
+  candidate.permission = 'UNVERIFIED_SURFACE_RULES';
+  assert.equal(isActionableBuyerSignal(candidate), false);
+  candidate.permission = 'VERIFIED_PERMITTED';
+  assert.equal(isActionableBuyerSignal(candidate), true);
 });
