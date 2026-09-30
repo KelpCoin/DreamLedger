@@ -30,12 +30,32 @@ import os
 import re
 import subprocess
 import sys
+import shutil
 import urllib.error
 import urllib.request
 
 
 def now():
     return dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
+
+
+
+def run_lms(lms_path, args, timeout=180):
+    proc = subprocess.run([lms_path] + args, capture_output=True, text=True, timeout=timeout)
+    if proc.returncode != 0:
+        raise RuntimeError("lms command failed (%s): %s" % (proc.returncode, (proc.stderr or proc.stdout)[-2000:]))
+    return proc.stdout
+
+
+def load_model(lms_path, model, gpu, context_length):
+    return run_lms(lms_path, ["load", model, "--gpu", str(gpu), "--context-length", str(context_length), "--yes"], timeout=300)
+
+
+def unload_all(lms_path):
+    try:
+        run_lms(lms_path, ["unload", "--all"], timeout=120)
+    except Exception:
+        pass
 
 
 def post_chat(url, model, system, user, timeout=120):
@@ -79,14 +99,20 @@ def extract_json(text):
     raise RuntimeError("Model did not return valid JSON: %s" % text[:1200])
 
 
-def call_json(url, model, role, task, context):
+def call_json(url, model, role, task, context, lms_path=None, sequential_load=False, gpu='0.35', context_length=4096):
     system = (
         "You are the %s in BEC PRIME. Work on commercial reality, not hype. "
         "Do not invent demand, buyers, payments, integrations, or evidence. "
         "Return JSON only. Keep the offer narrow enough to sell within 48 hours."
     ) % role
     user = task + "\n\nCURRENT CONTEXT:\n" + json.dumps(context, ensure_ascii=False, indent=2)
-    raw = post_chat(url, model, system, user)
+    if sequential_load:
+        load_model(lms_path, model, gpu, context_length)
+    try:
+        raw = post_chat(url, model, system, user)
+    finally:
+        if sequential_load:
+            unload_all(lms_path)
     return {"model": model, "role": role, "raw": raw, "json": extract_json(raw)}
 
 
