@@ -1,0 +1,55 @@
+{
+  "schema": "DREAMLEDGER/777_ACCEPTANCE_CONTRACT/v1",
+  "status": "LOCKED",
+  "phases": {
+    "1_find_the_hole": ["signal", "existing_cell", "attribution"],
+    "2_stretch_the_hole": ["verified_mechanism", "controlled_lanes", "telemetry", "survivor"],
+    "3_replicate_the_hole": ["mechanism_fossil", "isolated_cell", "controlled_probe", "settlement", "fulfillment", "verification"]
+  },
+  "invariants": {
+    "signal": ["observed_problem != null", "signal_id != null"],
+    "commercial_identity": ["offer_id != null", "price_nzd > 0", "payment_link != null"],
+    "attribution": ["offer_id <-> payment_link", "candidate <-> signal_id", "candidate <-> silo_id"],
+    "experiment": ["lane_id != null", "experiment_id != null", "telemetry_id != null"],
+    "human_gate": ["external_action = REVIEW_AND_APPROVE_EXTERNAL_REPLY", "send_status != SENT before approval"],
+    "reality": ["settled_payment", "fulfillment", "evidence", "truth_status = VERIFIED"],
+    "expansion": ["VERIFIED -> mechanism_fossil -> replication", "otherwise HOLD/KILL and no cloning"]
+  },
+  "failure_ladder": [
+    "BAD_SIGNAL",
+    "BAD_CELL",
+    "BAD_ATTRIBUTION",
+    "BAD_EXPERIMENT",
+    "BAD_DISTRIBUTION",
+    "NO_BUYER",
+    "NO_PAYMENT",
+    "BAD_FULFILLMENT",
+    "INSUFFICIENT_EVIDENCE",
+    "NO_CLONE"
+  ],
+  "equation": "EXPANSION_PERMISSION = VERIFIED_MECHANISM * AVAILABLE_SUBSTRATE * ATTRIBUTION_INTEGRITY",
+  "truth_separations": [
+    "activity != expansion",
+    "candidate != winner",
+    "checkout != payment",
+    "payment != fulfillment",
+    "fulfillment != verified outcome",
+    "verified outcome = permission to replicate"
+  ],
+  "fossil_fields": [
+    "mechanism_id",
+    "signal_id",
+    "offer_id",
+    "checkout_id",
+    "payment_id",
+    "fulfillment_id",
+    "evidence_id",
+    "buyer_class",
+    "acquisition_lane",
+    "fulfillment_cost_nzd",
+    "human_touches",
+    "time_to_fulfill",
+    "verification_status"
+  ],
+  "clone_rule": "A mechanism fossil is immutable evidence, not inherited revenue. A cloned cell resets to UNVERIFIED and must independently earn its own evidence."
+}
