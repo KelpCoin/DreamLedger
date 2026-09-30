@@ -169,14 +169,14 @@ def run(args):
         "Return fields: offer_id, name, problem, target_buyer, deliverable, delivery_mechanism, "
         "price, currency, payment_adapter, checkout_route, approval_required, checkout_available, "
         "status, proof_of_delivery, verification_rules, provenance, silo, demand_evidence, "
-        "why_buyer_pays_now, kill_condition.", signal)
+        "why_buyer_pays_now, kill_condition.", signal, lms_path, args.sequential_load, args.gpu, args.context_length)
     transcript.append(proposer)
 
     critic = call_json(
         args.url, models[1], "CRITIC",
         "Attack the proposed offer. Identify unsupported assumptions, weak urgency, fake differentiation, "
         "bad pricing, delivery risk, privacy/silo leakage, and anything that would prevent a real buyer "
-        "from paying. Return: verdict, failures, required_fixes, revised_offer.", proposer["json"])
+        "from paying. Return: verdict, failures, required_fixes, revised_offer.", proposer["json"], lms_path, args.sequential_load, args.gpu, args.context_length)
     transcript.append(critic)
 
     monetizer = call_json(
@@ -184,7 +184,7 @@ def run(args):
         "Convert the surviving concept into a cash-first offer. Prefer a concrete result over consulting. "
         "Specify price, delivery time, payment path, buyer trigger, proof artifact, and a single next action. "
         "Return: verdict, offer, buyer_trigger, payment_path, delivery_sla, proof_artifact, next_action, kill_condition.",
-        {"proposal": proposer["json"], "critique": critic["json"]})
+        {"proposal": proposer["json"], "critique": critic["json"]}, lms_path, args.sequential_load, args.gpu, args.context_length)
     transcript.append(monetizer)
 
     synth = call_json(
@@ -192,7 +192,7 @@ def run(args):
         "Synthesize one canonical candidate from the proposal, critique, and monetizer. Do not add claims "
         "that are not evidenced. Return only the candidate offer object with the exact fields needed by "
         "the deterministic Candidate Gauntlet. Set approval_required=true and checkout_available=false.",
-        {"proposal": proposer["json"], "critique": critic["json"], "monetizer": monetizer["json"]})
+        {"proposal": proposer["json"], "critique": critic["json"], "monetizer": monetizer["json"]}, lms_path, args.sequential_load, args.gpu, args.context_length)
     transcript.append(synth)
 
     candidate = synth["json"]
@@ -231,6 +231,7 @@ def run(args):
         "gauntlet_path": proof_path,
         "public_execution": "BLOCKED_UNTIL_HUMAN_APPROVAL",
         "models": models,
+        "execution": {"sequential_load": bool(args.sequential_load), "gpu": args.gpu, "context_length": args.context_length, "lms_path": lms_path},
         "completed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
     with open(os.path.join(out_dir, "RESULT.json"), "w", encoding="utf-8") as f:
