@@ -44,7 +44,7 @@ jobs:
         id: enqueue
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           ROLE: ${{ inputs.role }}
           OBJECTIVE: ${{ inputs.objective }}
           SCHEMA: ${{ inputs.required_output_schema }}
@@ -68,7 +68,7 @@ jobs:
       - name: Poll mailbox
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           TASK_ID: ${{ steps.enqueue.outputs.task_id }}
           TIMEOUT: ${{ inputs.timeout_seconds }}
         run: |
