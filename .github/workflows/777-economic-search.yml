@@ -39,7 +39,12 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
 
       - name: Refresh public demand radar
+        if: env.SUPABASE_URL != '' && env.SUPABASE_SERVICE_ROLE_KEY != ''
         run: npm run cube:radar
+
+      - name: Record cloud radar degraded mode
+        if: env.SUPABASE_URL == '' || env.SUPABASE_SERVICE_ROLE_KEY == ''
+        run: echo "CUBE_RADAR=DEGRADED: GitHub Supabase credentials are not configured; continuing with existing local/public evidence only."
 
       - name: Refresh Commander buyer-signal radar
         run: python3 BEC-PRIME/scripts/777-public-market-radar.py
