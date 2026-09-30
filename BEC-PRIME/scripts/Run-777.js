@@ -9,6 +9,8 @@ const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.j
 const APPROVED = path.join(ROOT, 'catalog', 'offers', 'approved.json');
 const LIVE_COMMERCE = path.join(ROOT, 'catalog', 'commerce-live.json');
 const BUYER_SIGNALS = path.join(ROOT, 'data', '777', 'BUYER-SIGNAL-HUNT-001.json');
+const EVERGREEN_FACTORY = path.join(path.dirname(ROOT), '..', 'public', 'evergreen-silo-factory.json');
+const CUBE_POLICY = path.join(ROOT, 'economic', 'CUBE_EXPERIMENT_POLICY.json');
 const OUT_DIR = path.join(ROOT, 'data', '777');
 const OUT = path.join(OUT_DIR, '777-LATEST.json');
 
@@ -169,6 +171,85 @@ function candidates() {
     return true;
   });
 }
+function buildEvergreenExpansion(seed) {
+  const factory = loadJson(EVERGREEN_FACTORY, { live_adapters: [] });
+  const policy = loadJson(CUBE_POLICY, { cube_state_machine: [], promotion_rules: {} });
+  const adapters = Array.isArray(factory.live_adapters) ? factory.live_adapters : [];
+  if (!seed || adapters.length === 0) {
+    return {
+      status: 'HOLD',
+      reason: seed ? 'NO_EXISTING_EVERGREEN_ADAPTERS' : 'NO_QUALIFIED_SEED',
+      batch_size: 0,
+      variants: [],
+      telemetry: [],
+      promotion: policy.promotion_rules || {}
+    };
+  }
+
+  // Recombine existing commercial substrate only. This creates an experiment
+  // packet, not a public launch and not a revenue claim.
+  const batchSize = Math.min(10, adapters.length);
+  const selected = adapters.slice(0, batchSize);
+  const marketingLanes = [
+    'SEARCH_INTENT',
+    'COMMUNITY_EDUCATION',
+    'BUYER_PROBLEM_CONTENT',
+    'DIRECTORY_DISCOVERY',
+    'REFERRAL'
+  ];
+
+  const variants = selected.map((adapter, i) => ({
+    variant_id: 'EVERGREEN-777-' + String(i + 1).padStart(2, '0'),
+    silo_slug: adapter.slug,
+    brand_name: adapter.name,
+    source_adapter: adapter.slug,
+    source_checkout_url: adapter.checkout_url || null,
+    offer_family: adapter.fulfillment || 'UNSPECIFIED',
+    state: 'PROBING',
+    public_launch: 'APPROVAL_REQUIRED',
+    buyer_signal_binding: seed.opportunity_id || seed.candidate_id || null,
+    evidence_class: classifyEvidence(seed)[0],
+    evidence_priority: classifyEvidence(seed)[1],
+    marketing_lane: marketingLanes[i % marketingLanes.length],
+    telemetry: {
+      exposures: 0,
+      qualified_clicks: 0,
+      checkout_starts: 0,
+      settled_payments: 0,
+      fulfilled_orders: 0,
+      verified_outcomes: 0,
+      acquisition_cost_nzd: 0,
+      fulfillment_cost_nzd: 0,
+      conversion: null,
+      margin_nzd: null
+    },
+    promotion_gate: 'NO_PROMOTION_UNTIL_EXTERNAL_EVIDENCE',
+    kill_gate: 'KILL_OR_HOLD_IF_NO_QUALIFIED_DEMAND_OR_FULFILLMENT_PROOF',
+    inventory_claim: 'NONE'
+  }));
+
+  return {
+    status: 'READY_FOR_GAUNTLET',
+    batch_size: variants.length,
+    batch_rule: 'LAUNCH_IN_BATCHES_OF_5_OR_10',
+    allocation_rule: 'SUPPORT_ONLY_TOP_1_OR_2_AFTER_OBSERVED_EVIDENCE; HOLD_OR_KILL_THE_REST',
+    source_substrate: 'EXISTING_EVERGREEN_SILO_FACTORY',
+    seed_opportunity_id: seed.opportunity_id || seed.candidate_id || null,
+    seed_evidence_class: classifyEvidence(seed)[0],
+    variants,
+    telemetry: {
+      ranking_fields: ['settled_payments','verified_outcomes','checkout_starts','qualified_clicks','exposures','acquisition_cost_nzd','fulfillment_cost_nzd','margin_nzd'],
+      truth_rule: 'telemetry_does_not_equal_revenue',
+      winner_rule: policy.promotion_rules?.WINNER || 'EXTERNAL_EVIDENCE_REQUIRED',
+      clone_rule: 'ONLY_INDEPENDENTLY_VERIFIED_ECONOMIC_MECHANISMS_MAY_BE_REPLICATED'
+    },
+    supabase_role: 'SILO_HOME_AND_TELEMETRY_AUTHORITY',
+    local_llm_role: 'LM_STUDIO_WORKER_POOL_PROPOSES_AND_COMPILES_ONLY',
+    supervisor_role: 'ALLOCATE_AVAILABLE_LOCAL_GPU_TO_BOUNDED_WORK; NEVER_AUTHORIZE_EXTERNAL_ACTION',
+    external_action: 'NONE'
+  };
+}
+
 function build() {
   const base = candidates();
   const top = base.slice(0, 49);
@@ -276,6 +357,18 @@ function build() {
     .sort((a, b) => b.evidence_priority - a.evidence_priority || String(a.candidate_id).localeCompare(String(b.candidate_id)));
 
   const nextBuyerSignal = buyerSignalQueue[0] || null;
+  const evergreenSeed = nextBuyerSignal
+    ? {
+        opportunity_id: nextBuyerSignal.candidate_id,
+        candidate_id: nextBuyerSignal.candidate_id,
+        title: nextBuyerSignal.title,
+        buyer: nextBuyerSignal.buyer,
+        offer: nextBuyerSignal.offer,
+        price_nzd: nextBuyerSignal.price_nzd,
+        source_type: 'PUBLIC_BUYER_SIGNAL'
+      }
+    : base.find(x => x.evidence_class === 'CHECKOUT' || x.evidence_class === 'REPEAT_CHECKOUT') || null;
+  const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
   const nextHumanAction = nextBuyerSignal
     ? {
         required: true,
@@ -308,6 +401,7 @@ function build() {
     buyer_signal_count: buyerSignals.length,
     buyer_signal_queue: buyerSignalQueue,
     next_human_action: nextHumanAction,
+    evergreen_expansion: evergreenExpansion,
     candidates: rows.slice(0, 777),
     truth: {
       verified_external_revenue_nzd: 0,
@@ -337,4 +431,4 @@ if (require.main === module) {
   }, null, 2));
 }
 
-module.exports = { build, LENSES, TRANSFORMS, GATES };
+module.exports = { build, buildEvergreenExpansion, LENSES, TRANSFORMS, GATES };
