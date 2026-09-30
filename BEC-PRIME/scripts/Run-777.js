@@ -369,6 +369,30 @@ function build() {
       }
     : base.find(x => x.evidence_class === 'CHECKOUT' || x.evidence_class === 'REPEAT_CHECKOUT') || null;
   const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
+  evergreenExpansion.cube_handoff = {
+    state: 'DRAFT_INTERNAL_HANDOFF',
+    registry_authority: 'SUPABASE_CUBE_SILO_REGISTRY',
+    creation_gate: 'HUMAN_APPROVAL_REQUIRED',
+    public_launch: 'BLOCKED',
+    variants: evergreenExpansion.variants.map(v => ({
+      variant_id: v.variant_id,
+      silo_slug: v.silo_slug,
+      brand_name: v.brand_name,
+      buyer_signal_binding: v.buyer_signal_binding,
+      marketing_lane: v.marketing_lane,
+      telemetry_schema: Object.keys(v.telemetry),
+      promotion_gate: v.promotion_gate,
+      kill_gate: v.kill_gate
+    })),
+    worker_roles: {
+      cube: 'store silo identity, state, evidence and telemetry authority',
+      swarm: 'rank bounded internal probes from observed evidence',
+      elohim: 'produce internal deliverable/proposal only',
+      gauntlet: 'adversarial qualification before promotion',
+      truth_oracle: 'verify external evidence only',
+      local_supervisor: 'allocate available LM Studio capacity to reversible internal work only'
+    }
+  };
   const nextHumanAction = nextBuyerSignal
     ? {
         required: true,
