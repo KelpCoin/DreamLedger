@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { assessEconomicEvidence, summarizeEvidenceLadder } = require('../economic/EconomicEvidenceLadder');
+const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal } = require('../economic/EconomicEvidenceLadder');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
@@ -87,6 +87,11 @@ function candidates() {
   const liveCommerce = loadJson(LIVE_COMMERCE, { offers: [] });
   const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [], offer: {} });
   const buyerSignalOffer = buyerSignalHunt.offer || {};
+  const evergreenFactory = loadJson(EVERGREEN_FACTORY, { live_adapters: [] });
+  const quoteComparisonAdapter = (evergreenFactory.live_adapters || []).find(x =>
+    x.slug === 'construction-subcontractor-quotes' ||
+    x.slug === 'supplier-price-list-comparison'
+  );
 
   const approvedOffers = Array.isArray(approved.approved)
     ? approved.approved.map(x => ({
@@ -178,8 +183,31 @@ function candidates() {
       }))
     : [];
 
+  const quoteCompareCandidates = quoteComparisonAdapter ? [{
+    opportunity_id: 'QUOTE-COMPARE-49',
+    candidate_id: 'QUOTE-COMPARE-49',
+    title: 'Supplier quote comparison (existing B2B offer candidate)',
+    buyer: 'Business or operator already holding supplier quotes',
+    offer: 'NZ$49 like-for-like quote comparison with scope gaps, exclusions, and unknowns preserved',
+    price_nzd: 49,
+    channels: [quoteComparisonAdapter.route || 'existing_b2b_offer_surface'],
+    hypothesis: 'UNVALIDATED_HYPOTHESIS: a buyer with 2-5 supplier quotes may pay for a source-referenced comparison decision packet',
+    source_type: 'EXISTING_B2B_OFFER_CANDIDATE',
+    source_url: null,
+    source_observed_at: null,
+    commercial_activation: {
+      offer_id: null,
+      payment_link_url: null,
+      payment_link_status: 'BLOCKED_SHARED_CHECKOUT_UNVERIFIED',
+      fulfillment_route: null,
+      proof_of_delivery: 'Source-referenced comparison artifact plus delivery evidence',
+      approval_required: true,
+      reconciliation: 'UNVERIFIED_ROUTE_CHECKOUT_AND_ATTRIBUTION'
+    }
+  }] : [];
+
   const seen = new Set();
-  return [...approvedOffers, ...liveOffers, ...buyerSignals, ...discovered].filter(x => {
+  return [...approvedOffers, ...liveOffers, ...buyerSignals, ...discovered, ...quoteCompareCandidates].filter(x => {
     const id = x.opportunity_id || x.offer_id || x.product_sku || x.title;
     if (!id || seen.has(id)) return false;
     seen.add(id);
@@ -446,7 +474,7 @@ function build() {
       queue_rank: index + 1
     }));
 
-  const nextBuyerSignal = buyerSignalQueue[0] || null;
+  const nextBuyerSignal = buyerSignalQueue.find(isActionableBuyerSignal) || null;
   // Public signals are Phase-1 inputs, not Phase-2 mechanisms. Evergreen only
   // receives a seed after an independent VERIFIED mechanism exists.
   const evergreenSeed = base.find(x => x.verification_status === 'VERIFIED') || null;
@@ -589,6 +617,12 @@ function build() {
     pricing_research: PRICING_RESEARCH,
     buyer_signal_count: buyerSignals.length,
     buyer_signal_queue: buyerSignalQueue,
+    buyer_signal_gate: {
+      eligible_count: buyerSignalQueue.filter(isActionableBuyerSignal).length,
+      blocked_count: buyerSignalQueue.filter(x => !isActionableBuyerSignal(x)).length,
+      rule: 'No buyer action without rung-one sourced evidence and explicit VERIFIED_PERMITTED surface status.',
+      external_action_performed: false
+    },
     next_human_action: nextHumanAction,
     acceptance_contract: acceptanceContract,
     commerce_handoff: commerceHandoff,
