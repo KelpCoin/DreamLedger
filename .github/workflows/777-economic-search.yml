@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: dreamledger-777
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   search:
