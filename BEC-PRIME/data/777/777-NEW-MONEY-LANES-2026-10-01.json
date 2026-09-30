@@ -1,0 +1,103 @@
+{
+  "schema": "dreamledger/777-new-money-lanes/v1",
+  "generated_at": "2026-10-01",
+  "status": "UNVERIFIED",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "purpose": "Extract seven distinct monetisation lanes from existing DreamLedger substrate without treating active payment links, offers, or internal records as revenue.",
+  "selection_rule": "Prefer existing demand, explicit deliverable, active payment rail, digital fulfillment, measurable evidence, low human minutes, and potential repeatability.",
+  "lanes": [
+    {
+      "rank": 1,
+      "lane": "COMMERCIAL-TRUTH-STRESS-TEST",
+      "price_nzd": 999,
+      "stripe_payment_link": "plink_1UJSwWEGgEAnUFF9EPmOx8PQ",
+      "stripe_status": "ACTIVE_LIVE",
+      "fulfillment": "manual_gauntlet_truth_oracle_report",
+      "offer_id": "OFFER-COMMERCIAL-TRUTH-STRESS-TEST-999-NZD",
+      "test": "Can a buyer pay for an independent stress-test of a commercial claim, offer, or transaction path?",
+      "first_gate": "independent external buyer",
+      "kill_condition": "no credible buyer path after bounded distribution tests"
+    },
+    {
+      "rank": 2,
+      "lane": "ACNC-CHARITY-DUE-DILIGENCE",
+      "price_nzd": 99,
+      "stripe_payment_link": "plink_1UKAu6EGgEAnUFF93oLQlZiR",
+      "stripe_status": "ACTIVE_LIVE",
+      "fulfillment": "ACNC_RESEARCH_WORKER",
+      "opportunity_id": "ACNC_RESEARCH_001",
+      "test": "Can a buyer pay for a bounded charity due-diligence report from public registry evidence?",
+      "first_gate": "independent external buyer",
+      "kill_condition": "source access or fulfillment cannot be made deterministic"
+    },
+    {
+      "rank": 3,
+      "lane": "CONSTRUCTION-QUOTE-COMPARE",
+      "price_nzd": 49,
+      "stripe_payment_link": "plink_1UKqi4EGgEAnUFF9E11kGYWa",
+      "stripe_status": "ACTIVE_LIVE",
+      "fulfillment": "supplier_quote_comparison",
+      "test": "Can a buyer pay to normalize and compare 2-5 supplier quotes against requirements?",
+      "first_gate": "independent external buyer",
+      "kill_condition": "intake or comparison output remains too manual"
+    },
+    {
+      "rank": 4,
+      "lane": "SUPPLIER-CHECK",
+      "price_nzd": 50,
+      "stripe_payment_link": "plink_1UKqD9EGgEAnUFF946wIyU9k",
+      "stripe_status": "ACTIVE_LIVE",
+      "fulfillment": "supplier entity and registry check",
+      "test": "Can a buyer pay for a bounded supplier/entity verification report?",
+      "first_gate": "independent external buyer",
+      "kill_condition": "authoritative registry evidence cannot be joined reliably"
+    },
+    {
+      "rank": 5,
+      "lane": "DOCUMENT-EXTRACT",
+      "price_nzd": 50,
+      "stripe_payment_link": "plink_1UKqD6EGgEAnUFF9u9GanhSX",
+      "stripe_status": "ACTIVE_LIVE",
+      "fulfillment": "PDF to structured data",
+      "test": "Can a buyer pay to convert a document into structured, usable data?",
+      "first_gate": "independent external buyer",
+      "kill_condition": "input variability makes fulfillment uneconomic"
+    },
+    {
+      "rank": 6,
+      "lane": "SELLER-PROFIT-AUDIT",
+      "price_nzd": 29,
+      "stripe_payment_link": "plink_1UJNTzEGgEAnUFF9bzVlFlng",
+      "stripe_status": "ACTIVE_LIVE",
+      "fulfillment": "manual_pdf",
+      "offer_id": "OFFER-SELLER-PROFIT-AUDIT-29-NZD",
+      "test": "Can a seller pay for a bounded audit that identifies profit leakage in an existing selling operation?",
+      "first_gate": "independent external buyer",
+      "kill_condition": "buyer cannot supply enough evidence for a useful audit"
+    },
+    {
+      "rank": 7,
+      "lane": "EVIDENCE-PACKET",
+      "price_nzd": 10,
+      "stripe_payment_link": "plink_1UKqDBEGgEAnUFF946wIyU9k",
+      "stripe_status": "ACTIVE_LIVE",
+      "fulfillment": "source bundle and hash receipt",
+      "test": "Can a buyer pay for a compact evidence packet with source material and integrity receipt?",
+      "first_gate": "independent external buyer",
+      "kill_condition": "buyers do not value provenance enough to pay"
+    }
+  ],
+  "external_context": {
+    "x402_mcp": {
+      "status": "RESEARCH_ONLY",
+      "note": "Current x402 MCP documentation supports paid MCP tool calls with PaymentRequired, payment retry, settlement response, and discovery of paid MCP resources. No DreamLedger x402 revenue is claimed."
+    }
+  },
+  "next_action": "Rank these seven by shortest verified path from existing substrate to an independent buyer, then expose only the smallest human gate required for authorized distribution.",
+  "hard_rule": "ACTIVE_LIVE payment link != buyer != settled payment != fulfillment != verified economic outcome."
+}
