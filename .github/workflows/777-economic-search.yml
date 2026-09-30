@@ -8,6 +8,9 @@ on:
     branches: ["main"]
     paths:
       - "BEC-PRIME/scripts/Run-777.js"
+      - "BEC-PRIME/scripts/777-public-market-radar.py"
+      - "BEC-PRIME/economic/EconomicEvidenceLadder.js"
+      - "BEC-PRIME/economic/EconomicEvidenceLadder.test.js"
       - ".github/workflows/777-economic-search.yml"
 
 permissions:
@@ -46,7 +49,8 @@ jobs:
             echo "CUBE_RADAR=DEGRADED: GitHub Supabase credentials are not configured; continuing with existing local/public evidence only."
           fi
 
-      - name: Refresh Commander buyer-signal radar
+      - name: Refresh quote-normalization buyer-signal radar
+        if: ${{ github.event_name != 'schedule' || github.run_number % 6 == 0 }}
         run: python3 BEC-PRIME/scripts/777-public-market-radar.py
 
       - name: Compile opportunity corpus
