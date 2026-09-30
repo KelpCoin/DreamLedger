@@ -13,7 +13,7 @@ test('public radar candidate without verbatim quote and author hash does not bec
   assert.equal(result.evidence_rung, 0);
   assert.equal(result.rung_name, 'UNCLASSIFIED_INCOMPLETE_SOURCE');
   assert.equal(result.replication_eligible, false);
-  assert.deepEqual(result.missing_requirements, ['source_url', 'source_timestamp', 'exact_quote', 'author_hash']);
+  assert.deepEqual(result.missing_requirements, ['source_url', 'source_timestamp', 'exact_quote', 'author_hash', 'first_person_complaint=true']);
 });
 
 test('full nine-rung evidence chain qualifies only with all required evidence', () => {
@@ -23,6 +23,7 @@ test('full nine-rung evidence chain qualifies only with all required evidence', 
       source_timestamp: '2026-09-01T12:00:00Z',
       exact_quote: 'I spend ten hours each month fixing this manually.',
       author_hash: 'sha256:person-1',
+      first_person_complaint: true,
       workaround_description: 'Maintains a spreadsheet and manually reconciles rows.',
       economic_cost_type: 'LABOUR_TIME',
       economic_cost_amount: 10,
@@ -108,4 +109,20 @@ test('buyer action is blocked without rung-one evidence and verified surface per
   assert.equal(isActionableBuyerSignal(candidate), false);
   candidate.permission = 'VERIFIED_PERMITTED';
   assert.equal(isActionableBuyerSignal(candidate), true);
+});
+
+test('a workaround or industry observation cannot be promoted to pain rung without first-person complaint classification', () => {
+  const result = assessEconomicEvidence({
+    economic_evidence: {
+      source_url: 'https://example.test/thread/comment',
+      source_timestamp: '2026-09-02T08:49:16Z',
+      exact_quote: 'I have seen procurement teams manually compare quotes.',
+      author_hash: 'sha256:observer',
+      first_person_complaint: false,
+      workaround_description: 'Quotes are compared manually in spreadsheets.'
+    }
+  });
+  assert.equal(result.evidence_rung, 0);
+  assert.equal(result.rung_name, 'UNCLASSIFIED_INCOMPLETE_SOURCE');
+  assert.equal(result.first_person_complaint, false);
 });
