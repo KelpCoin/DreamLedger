@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 const url=Deno.env.get("SUPABASE_URL")!,key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});let token="";
 const out=(x:unknown,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{"content-type":"application/json"}});
-async function auth(req:Request){const a=req.headers.get("x-economic-activation-token")||"";if(!a)return false;const{data}=await db.from("economic_activation_auth").select("token_sha256").eq("singleton",true).maybeSingle();if(!data)return false;const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(a)),h=Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("");return h===data.token_sha256}
+async function auth(req:Request){const bearer=req.headers.get("authorization")||"";if(bearer==="Bearer "+key)return true;const a=req.headers.get("x-economic-activation-token")||"";if(!a)return false;const{data}=await db.from("economic_activation_auth").select("token_sha256").eq("singleton",true).maybeSingle();if(!data)return false;const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(a)),h=Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("");return h===data.token_sha256}
 async function invoke(n:string,b:any){
   const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),2500);
   try{
