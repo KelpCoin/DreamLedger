@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="DreamLedger auctions — timed lots, min increment, anti-sniping, bid proofs. NZD.">
+<meta name="theme-color" content="#0c0d0b">
+<title>Auctions · DreamLedger</title>
+<link rel="canonical" href="https://dreamledger.org/auctions.html">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/dl-enterprise.css">
+<style>
+.ticker{overflow:hidden;border-bottom:1px solid var(--dl-line);background:#ebe8e0}
+.ticker-track{display:flex;gap:40px;padding:10px 0;animation:mq 45s linear infinite;white-space:nowrap}
+.ticker-track span{font-size:12px;font-weight:600;color:var(--dl-muted)}
+.ticker-track strong{color:var(--dl-gold)}
+@keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.chip{font-size:11px;font-weight:700;padding:6px 10px;border-radius:999px;border:1px solid var(--dl-line);color:var(--dl-muted);display:inline-block;margin:0 6px 6px 0}
+.lot-grid{display:grid;grid-template-columns:1fr;gap:14px;padding:8px 0 32px}
+@media(min-width:720px){.lot-grid{grid-template-columns:1fr 1fr}}
+.lot{background:var(--dl-surface);border:1px solid var(--dl-line);border-radius:var(--dl-radius);padding:20px;display:flex;flex-direction:column;min-height:260px;box-shadow:var(--dl-shadow)}
+.lot .silo{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dl-gold);margin-bottom:8px}
+.lot h2{font-family:var(--dl-serif);font-size:1.35rem;font-weight:400;margin:0 0 8px}
+.lot .desc{font-size:14px;color:var(--dl-muted);flex:1;margin-bottom:12px}
+.meta{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:12px}
+.price{font-size:1.5rem;font-weight:700}.price small{display:block;font-size:11px;font-weight:600;color:var(--dl-muted)}
+.ends{font-size:13px;font-weight:700;color:#a33b32;text-align:right}.ends.ok{color:var(--dl-ok)}
+.bid-row{display:flex;gap:8px}.bid-row input{flex:1;padding:12px;border:1px solid var(--dl-line);border-radius:12px;background:#fff;font:inherit}
+.status{font-size:12px;margin-top:8px;color:var(--dl-muted)}.status.ok{color:var(--dl-ok)}.status.bad{color:var(--dl-danger)}
+.empty{text-align:center;padding:40px 16px;color:var(--dl-muted);border:1px dashed var(--dl-line);border-radius:16px}
+</style>
+</head>
+<body class="dl-body">
+<header class="dl-hdr"><div class="dl-hdr-inner">
+  <a class="dl-brand" href="/">Dream<em>Ledger</em></a>
+  <nav class="dl-nav">
+    <a href="/b2b.html">RIVET</a>
+    <a href="/sandbox-tools.html">Tools</a>
+    <a href="/buy.html">Buy</a>
+    <a class="dl-nav-cta" href="/auctions.html">Auctions</a>
+  </nav>
+</div></header>
+<div class="ticker"><div class="ticker-track" id="ticker-track"><span>Loading…</span></div></div>
+<main class="dl-wrap">
+  <section class="dl-section" style="padding-bottom:12px">
+    <p class="dl-eyebrow">Timed lots · NZD</p>
+    <h1 class="dl-h1">Auction lanes</h1>
+    <p class="dl-lead">Min increment, anti-snipe, reserve, hashed bidder IDs. <strong>A bid is not settlement.</strong></p>
+    <span class="chip">Min increment</span><span class="chip">Anti-snipe</span><span class="chip">Reserve</span><span class="chip">Bid proof</span>
+  </section>
+  <section class="lot-grid" id="lots"><div class="empty">Loading…</div></section>
+</main>
+<footer class="dl-footer dl-wrap"><a href="/trust.html">Trust</a><a href="/sell.html">Sell</a><a href="/">Home</a></footer>
+<script>
+(function(){
+const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function timeLeft(ms){if(ms<=0)return 'Ended';const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60),sec=s%60;if(d>0)return d+'d '+h+'h left';return h+'h '+m+'m '+sec+'s left';}
+function bidderId(){let id=localStorage.getItem('dreamledger_bidder_id');if(!id){id='web_'+Math.random().toString(36).slice(2,12);localStorage.setItem('dreamledger_bidder_id',id);}return id;}
+async function loadNews(){const track=document.getElementById('ticker-track');try{const r=await fetch('/news.json',{cache:'no-store'});const d=await r.json();const items=Array.isArray(d.news)?d.news:[];if(!items.length)throw 0;const html=items.map(n=>'<span><strong>'+esc(n.kind)+'</strong> · '+esc(n.headline)+'</span>').join('');track.innerHTML=html+html;}catch(e){track.innerHTML=('<span><strong>auction</strong> · Bid ≠ settlement</span>').repeat(4);}}
+function renderLot(a){const canBid=a.checkout_available!==false&&a.status!=='ended';const min=Number(a.current_price||a.start_price||0)+Number(a.minimum_increment||1);const endsMs=Number(a.ends_at)-Date.now();
+return '<article class="lot" data-id="'+esc(a.auction_id)+'"><div class="silo">'+esc(String(a.silo||'LOT'))+' · '+esc(a.status||'live')+'</div><h2>'+esc(a.title)+'</h2><p class="desc">'+esc(a.description||'')+'</p><div class="meta"><div class="price">NZ$'+esc(a.current_price||a.start_price)+'<small>'+esc(a.bid_count||0)+' bids · +'+esc(a.minimum_increment||1)+'</small></div><div class="ends'+(endsMs>3600000?' ok':'')+'" data-end="'+esc(a.ends_at)+'">'+timeLeft(endsMs)+'</div></div>'+(canBid?'<div class="bid-row"><input type="number" min="'+min+'" value="'+min+'"><button class="dl-btn dl-btn-gold" type="button" data-min="'+min+'">Place bid</button></div>':'<button class="dl-btn dl-btn-ghost" disabled>Ended</button>')+'<div class="status"></div></article>';}
+async function loadAuctions(){const root=document.getElementById('lots');let list=[];try{const r=await fetch('/api/auctions',{cache:'no-store'});if(r.ok){const d=await r.json();list=Array.isArray(d.auctions)?d.auctions:(Array.isArray(d)?d:[]);}}catch(e){}
+if(!list.length){list=[
+{auction_id:'AUC-MTG-FETCHLAND-001',silo:'MTG',title:'MTG Fetchland starter lot',description:'Rotating card lot. Condition before settlement.',start_price:15,current_price:15,minimum_increment:2,ends_at:Date.now()+6*3600000,status:'live',bid_count:0,checkout_available:true},
+{auction_id:'AUC-MTG-COMMANDER-002',silo:'MTG',title:'Commander upgrade bundle',description:'Timed Commander upgrades.',start_price:25,current_price:25,minimum_increment:3,ends_at:Date.now()+18*3600000,status:'live',bid_count:0,checkout_available:true},
+{auction_id:'AUC-VINYL-001',silo:'VINYL',title:'NZ vinyl mystery crate',description:'Media silo sandbox lot.',start_price:20,current_price:20,minimum_increment:2,ends_at:Date.now()+30*3600000,status:'live',bid_count:0,checkout_available:true}
+];}
+root.innerHTML=list.map(renderLot).join('');
+root.querySelectorAll('.lot').forEach(lot=>{const btn=lot.querySelector('button[data-min]');if(!btn)return;
+btn.addEventListener('click',async()=>{const input=lot.querySelector('input');const status=lot.querySelector('.status');const amount=Number(input.value);const min=Number(btn.getAttribute('data-min'));
+if(!(amount>=min)){status.className='status bad';status.textContent='Min NZ$'+min;return;}
+btn.disabled=true;status.textContent='Submitting…';
+const body={auction_id:lot.getAttribute('data-id'),amount_nzd:amount,bidder_public_id:bidderId()};
+try{let r=await fetch('/api/auctions/bid',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+if(r.status===404){const k='dreamledger_bid_proofs';const p=JSON.parse(localStorage.getItem(k)||'[]');p.push({...body,ts:new Date().toISOString(),mode:'local_sandbox'});localStorage.setItem(k,JSON.stringify(p.slice(-50)));status.className='status ok';status.textContent='Sandbox bid saved locally. Not settlement.';}
+else{if(!r.ok)throw new Error('Bid failed');status.className='status ok';status.textContent='Bid accepted.';loadAuctions();}
+}catch(err){status.className='status bad';status.textContent=err.message||'Failed';}finally{btn.disabled=false;}});});}
+setInterval(()=>{document.querySelectorAll('.ends[data-end]').forEach(el=>{el.textContent=timeLeft(Number(el.getAttribute('data-end'))-Date.now());});},1000);
+loadNews();loadAuctions();
+})();
+</script>
+</body>
+</html>
