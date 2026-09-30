@@ -67,8 +67,11 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          test -n "$SUPABASE_URL"
-          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "777_HANDOFF=BLOCKED_MISSING_SUPABASE_RUNTIME_SECRETS"
+            echo "No handoff was sent. Internal search may continue, but runtime state was not written."
+            exit 0
+          fi
           node - <<'NODE'
           const fs=require('fs');
           const https=require('https');
@@ -101,7 +104,15 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          curl -fsS --max-time 120 -X POST "$SUPABASE_URL/functions/v1/economic-activation"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{}' | tee 777-economic-activation.json
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "ECONOMIC_ACTIVATION=BLOCKED_MISSING_SUPABASE_RUNTIME_SECRETS"
+            echo "No runtime activation was attempted; do not infer a worker heartbeat or external effect."
+            exit 0
+          fi
+          curl -fsS --max-time 120 -X POST "$SUPABASE_URL/functions/v1/economic-activation" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Content-Type: application/json" \
+            --data '{}' | tee 777-economic-activation.json
           node -e 'const x=require("./777-economic-activation.json"); if(x.ok!==true) process.exit(1); console.log(JSON.stringify({seeded:x.seeded,claimed:x.claimed,results:x.results,external_action_performed:x.external_action_performed,revenue_claimed:x.revenue_claimed},null,2));'
 
       - name: Compile universal economic cells
