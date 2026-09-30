@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 8
     env:
       SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
       - name: Preflight
         shell: bash
