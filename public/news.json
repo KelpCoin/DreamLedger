@@ -1,0 +1,9 @@
+{
+  "news": [
+    {"id": "DL-AUC-001", "headline": "Auction lanes: min increment, anti-sniping, bid proof", "kind": "auction", "published_at": "2026-10-01T00:00:00Z"},
+    {"id": "DL-FEE-001", "headline": "0% platform success fee on current public peer offers", "kind": "fees", "published_at": "2026-10-01T00:00:00Z"},
+    {"id": "DL-RIVET-001", "headline": "RIVET B2B hub: list, market, plans", "kind": "b2b", "published_at": "2026-10-01T00:00:00Z"},
+    {"id": "DL-MTG-001", "headline": "Commander diagnostic NZ$29", "kind": "mtg", "published_at": "2026-10-01T00:00:00Z"},
+    {"id": "DL-TOOL-001", "headline": "Sandbox tools: fee calculator and auction helper", "kind": "tools", "published_at": "2026-10-01T00:00:00Z"}
+  ]
+}

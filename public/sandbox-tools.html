@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="DreamLedger sandbox tools — fee calculator, listing checklist, auction helper. NZ.">
+<meta name="theme-color" content="#0c0d0b">
+<title>Sandbox tools · DreamLedger</title>
+<link rel="canonical" href="https://dreamledger.org/sandbox-tools.html">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/dl-enterprise.css">
+</head>
+<body class="dl-body">
+<header class="dl-hdr"><div class="dl-hdr-inner">
+  <a class="dl-brand" href="/">Dream<em>Ledger</em></a>
+  <nav class="dl-nav">
+    <a href="/auctions.html">Auctions</a>
+    <a href="/b2b.html">RIVET</a>
+    <a class="dl-nav-cta" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">$29</a>
+  </nav>
+</div></header>
+<main class="dl-wrap">
+  <section class="dl-section">
+    <p class="dl-eyebrow">Sandbox</p>
+    <h1 class="dl-h1">Tools that earn their keep</h1>
+    <p class="dl-lead">Lightweight utilities for NZ sellers and collectors. Not a substitute for paid diagnostics.</p>
+  </section>
+  <section class="dl-section" style="padding-top:0">
+    <div class="dl-grid dl-grid-2">
+      <article class="dl-card">
+        <h2 class="dl-h2">Trade Me fee vs keep</h2>
+        <p class="dl-muted" style="font-size:14px;margin-bottom:12px">Rough success-fee sketch (not official TM quote).</p>
+        <label class="dl-label" for="sale">Sale price (NZD)</label>
+        <input class="dl-input" id="sale" type="number" min="1" value="100">
+        <label class="dl-label" for="rate">Success fee %</label>
+        <input class="dl-input" id="rate" type="number" min="0" max="20" step="0.1" value="7.9">
+        <p style="margin-top:16px;font-size:1.2rem;font-weight:700">You keep: <span id="keep">$92.10</span></p>
+        <p class="dl-muted" style="font-size:13px">DreamLedger peer success fee target: <strong>0%</strong>.</p>
+        <a class="dl-btn dl-btn-gold dl-btn-block" style="margin-top:14px" href="/buy/SELLER-PROFIT-AUDIT-001">Full audit $29</a>
+      </article>
+      <article class="dl-card">
+        <h2 class="dl-h2">Listing checklist</h2>
+        <ul class="dl-muted" style="font-size:14px;margin:0;padding-left:1.2em;line-height:1.7">
+          <li>Clear title + condition</li>
+          <li>Price in NZD</li>
+          <li>Photos / decklist</li>
+          <li>Shipping or pickup city</li>
+          <li>GST stance (if business)</li>
+        </ul>
+        <a class="dl-btn dl-btn-primary dl-btn-block" style="margin-top:16px" href="/sell.html">Open seller intake</a>
+      </article>
+      <article class="dl-card">
+        <h2 class="dl-h2">Auction helper</h2>
+        <p class="dl-muted" style="font-size:14px;margin-bottom:12px">Min next bid from current + increment.</p>
+        <label class="dl-label" for="cur">Current bid</label>
+        <input class="dl-input" id="cur" type="number" value="15">
+        <label class="dl-label" for="inc">Increment</label>
+        <input class="dl-input" id="inc" type="number" value="2">
+        <p style="margin-top:16px;font-size:1.2rem;font-weight:700">Min next: <span id="next">$17</span></p>
+        <a class="dl-btn dl-btn-ghost dl-btn-block" style="margin-top:14px" href="/auctions.html">Open auctions</a>
+      </article>
+      <article class="dl-card">
+        <h2 class="dl-h2">Commander fast path</h2>
+        <p class="dl-muted" style="font-size:14px;margin-bottom:12px">Structured write-up is paid.</p>
+        <a class="dl-btn dl-btn-gold dl-btn-block" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic $29</a>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="dl-footer dl-wrap"><a href="/">Home</a><a href="/trust.html">Trust</a></footer>
+<script>
+(function(){
+  function money(n){return '$'+Number(n).toFixed(2)}
+  function fee(){const sale=Number(document.getElementById('sale').value)||0;const rate=Number(document.getElementById('rate').value)||0;document.getElementById('keep').textContent=money(sale*(1-rate/100));}
+  function nxt(){const c=Number(document.getElementById('cur').value)||0;const i=Number(document.getElementById('inc').value)||0;document.getElementById('next').textContent=money(c+i);}
+  ['sale','rate'].forEach(id=>document.getElementById(id).addEventListener('input',fee));
+  ['cur','inc'].forEach(id=>document.getElementById(id).addEventListener('input',nxt));
+  fee();nxt();
+})();
+</script>
+</body>
+</html>
