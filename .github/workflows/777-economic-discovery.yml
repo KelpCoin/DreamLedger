@@ -34,7 +34,17 @@ jobs:
         run: npm install --ignore-scripts --no-package-lock
 
       - name: Run existing public demand radar
-        run: npm run cube:radar
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -n "${SUPABASE_URL:-}" ] && [ -n "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            npm run cube:radar
+          else
+            echo "CUBE_RADAR=DEGRADED_MISSING_SUPABASE_RUNTIME_SECRETS"
+            echo "Public-source discovery continues. No cloud write or cloud heartbeat is claimed."
+          fi
 
       - name: Run public market demand research
         run: python3 BEC-PRIME/scripts/777-public-market-radar.py
