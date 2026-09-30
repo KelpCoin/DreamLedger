@@ -67,6 +67,7 @@ test('a gap blocks rung promotion rather than skipping missing prerequisites', (
       source_timestamp: '2026-09-01T12:00:00Z',
       exact_quote: 'I spend ten hours each month fixing this manually.',
       author_hash: 'sha256:person-1',
+      first_person_complaint: true,
       workaround_description: 'Manual spreadsheet',
       economic_cost_type: 'LABOUR_TIME',
       economic_cost_amount: 10,
