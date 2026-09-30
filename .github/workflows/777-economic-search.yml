@@ -21,7 +21,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      secrets_ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - name: Check required Supabase runtime secrets
+        id: check
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          missing=""
+          [ -z "$SUPABASE_URL" ] && missing="$missing SUPABASE_URL"
+          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && missing="$missing SUPABASE_SERVICE_ROLE_KEY"
+          if [ -n "$missing" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::DEGRADED_MISSING_SUPABASE_RUNTIME_SECRETS:$missing"
+            {
+              echo "## 777 preflight"
+              echo ""
+              echo "DEGRADED_MISSING_SUPABASE_RUNTIME_SECRETS"
+              echo "Missing:$missing"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "Supabase runtime secrets are present."
+          fi
+
   search:
+    needs: preflight
+    if: needs.preflight.outputs.secrets_ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 12
 
