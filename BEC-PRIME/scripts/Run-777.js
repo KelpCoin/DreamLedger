@@ -190,6 +190,11 @@ function buildEvergreenExpansion(seed) {
   // packet, not a public launch and not a revenue claim.
   const batchSize = Math.min(10, adapters.length);
   const selected = adapters.slice(0, batchSize);
+  const checkoutCounts = new Map();
+  for (const adapter of selected) {
+    const url = adapter.checkout_url || null;
+    if (url) checkoutCounts.set(url, (checkoutCounts.get(url) || 0) + 1);
+  }
   const marketingLanes = [
     'SEARCH_INTENT',
     'COMMUNITY_EDUCATION',
@@ -211,6 +216,12 @@ function buildEvergreenExpansion(seed) {
     evidence_class: classifyEvidence(seed)[0],
     evidence_priority: classifyEvidence(seed)[1],
     marketing_lane: marketingLanes[i % marketingLanes.length],
+    attribution: {
+      checkout_url: adapter.checkout_url || null,
+      checkout_identity: adapter.checkout_url || null,
+      status: adapter.checkout_url && checkoutCounts.get(adapter.checkout_url) === 1 ? 'READY_UNIQUE_CHECKOUT' : 'BLOCKED_SHARED_CHECKOUT',
+      requirement: 'Each evergreen variant must have independently attributable payment identity before winner promotion.'
+    },
     telemetry: {
       exposures: 0,
       qualified_clicks: 0,
@@ -228,9 +239,15 @@ function buildEvergreenExpansion(seed) {
     inventory_claim: 'NONE'
   }));
 
+  const attributionBlocked = variants.filter(v => v.attribution.status !== 'READY_UNIQUE_CHECKOUT');
   return {
-    status: 'READY_FOR_GAUNTLET',
+    status: attributionBlocked.length ? 'HOLD_ATTRIBUTION_REQUIRED' : 'READY_FOR_GAUNTLET',
     batch_size: variants.length,
+    attribution: {
+      status: attributionBlocked.length ? 'BLOCKED' : 'READY',
+      blocked_variant_count: attributionBlocked.length,
+      rule: 'Do not treat shared checkout identity as variant-level revenue attribution.'
+    },
     batch_rule: 'LAUNCH_IN_BATCHES_OF_5_OR_10',
     allocation_rule: 'SUPPORT_ONLY_TOP_1_OR_2_AFTER_OBSERVED_EVIDENCE; HOLD_OR_KILL_THE_REST',
     source_substrate: 'EXISTING_EVERGREEN_SILO_FACTORY',
