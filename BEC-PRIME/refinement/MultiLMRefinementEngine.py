@@ -31,7 +31,6 @@ import re
 import subprocess
 import sys
 import shutil
-import shutil
 import urllib.error
 import urllib.request
 
@@ -129,18 +128,11 @@ def call_json(url, model, role, task, context, lms_path=None, sequential_load=Fa
     if sequential_load:
         load_model(lms_path, model, gpu, context_length)
     try:
-        if sequential_load:
-        load_model(lms_path, model, gpu, context_length)
-    try:
         raw = post_chat(url, model, system, user)
     finally:
         if sequential_load:
             unload_all(lms_path)
-    finally:
-        if sequential_load:
-            unload_all(lms_path)
     return {"model": model, "role": role, "raw": raw, "json": extract_json(raw)}
-
 
 def run(args):
     run_id = "RUN-" + now()
