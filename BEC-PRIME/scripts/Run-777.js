@@ -532,6 +532,41 @@ function build() {
   };
 
 
+  // Canonical Phase-1 -> Commerce handoff. Internal only. It carries
+  // existing 777 identity into the existing commerce/fulfillment substrate.
+  const approvedOffer = acceptanceOfferId ? (approvedCatalog.approved || []).find(x => x.offer_id === acceptanceOfferId) : null;
+  const commerceHandoff = {
+    schema_version: 'DREAMLEDGER/777/COMMERCE-HANDOFF/v1',
+    handoff_id: acceptanceExperimentId ? '777-COMMERCE-' + acceptanceExperimentId : null,
+    lifecycle_state: acceptanceSignalId && acceptanceOfferId && acceptancePaymentLink && acceptanceSiloId
+      ? 'COMMERCE_READY'
+      : 'COMMERCE_BLOCKED_MISSING_IDENTITY',
+    signal_id: acceptanceSignalId,
+    silo_id: acceptanceSiloId,
+    cell_id: acceptanceExperimentId,
+    experiment_id: acceptanceExperimentId,
+    offer_id: acceptanceOfferId,
+    lane_id: acceptanceLaneId,
+    telemetry_id: acceptanceTelemetryId,
+    price_nzd: Number(approvedOffer?.price || nextBuyerSignal?.price_nzd || 0),
+    currency: approvedOffer?.currency || 'NZD',
+    checkout_url: acceptancePaymentLink,
+    payment_adapter: approvedOffer?.payment_adapter || 'stripe',
+    fulfillment_contract: {
+      route: approvedOffer?.fulfillment_route || nextBuyerSignal?.fulfillment_route || null,
+      proof_of_delivery: approvedOffer?.proof_of_delivery || null,
+      delivery_mechanism: approvedOffer?.delivery_mechanism || null
+    },
+    truth_contract: {
+      required: ['real_external_buyer','settled_payment','correct_attribution','actual_fulfillment','durable_proof','independent_verification'],
+      current_status: 'UNVERIFIED'
+    },
+    human_gate: { required: true, action: 'REVIEW_AND_APPROVE_EXTERNAL_REPLY', send_status: 'NOT_SENT' },
+    external_action: 'BLOCKED_UNTIL_HUMAN_APPROVAL',
+    reality: { checkout_observed: false, payment_settled: false, fulfillment_verified: false, external_evidence_verified: false, revenue_claimed_nzd: 0 },
+    mechanism: { fossilized: false, expansion_permission: 0 }
+  };
+
   const out = {
     schema_version: 'DREAMLEDGER/777/v1',
     generated_at_utc: new Date().toISOString(),
@@ -551,6 +586,7 @@ function build() {
     buyer_signal_queue: buyerSignalQueue,
     next_human_action: nextHumanAction,
     acceptance_contract: acceptanceContract,
+    commerce_handoff: commerceHandoff,
     evergreen_expansion: evergreenExpansion,
     candidates: rows.slice(0, 777),
     truth: {
