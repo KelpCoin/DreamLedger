@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { assessEconomicEvidence, summarizeEvidenceLadder } = require('../economic/EconomicEvidenceLadder');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
@@ -345,6 +346,7 @@ function build() {
           search_mode: '777_HYPOTHESIS_GENERATION',
           evidence_class,
           evidence_priority,
+          economic_evidence: assessEconomicEvidence(seed),
           lens,
           transform,
           gate,
@@ -435,7 +437,8 @@ function build() {
     .map(x => ({
       ...x,
       evidence_class: classifyEvidence(x)[0],
-      evidence_priority: classifyEvidence(x)[1]
+      evidence_priority: classifyEvidence(x)[1],
+      economic_evidence: assessEconomicEvidence(x)
     }))
     .sort((a, b) => b.evidence_priority - a.evidence_priority || String(a.candidate_id).localeCompare(String(b.candidate_id)))
     .map((x, index) => ({
@@ -580,6 +583,7 @@ function build() {
     },
     seed_count: top.length,
     candidate_count: rows.length,
+    economic_evidence_ladder: summarizeEvidenceLadder(base),
     activation_candidate_count: activation_candidates.length,
     activation_candidates,
     pricing_research: PRICING_RESEARCH,
