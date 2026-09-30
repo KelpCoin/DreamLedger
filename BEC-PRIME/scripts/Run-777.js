@@ -73,7 +73,8 @@ function candidates() {
   const source = loadJson(SOURCE, { results: [] });
   const approved = loadJson(APPROVED, { approved: [] });
   const liveCommerce = loadJson(LIVE_COMMERCE, { offers: [] });
-  const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [] });
+  const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [], offer: {} });
+  const buyerSignalOffer = buyerSignalHunt.offer || {};
 
   const approvedOffers = Array.isArray(approved.approved)
     ? approved.approved.map(x => ({
@@ -136,15 +137,17 @@ function candidates() {
         opportunity_id: x.candidate_id || null,
         title: x.title || null,
         buyer: x.buyer || x.target_buyer || 'PUBLICLY_OBSERVED_RELEVANT_HUMAN',
-        offer: x.offer || x.proposed_offer || null,
-        price_nzd: Number(x.price_nzd || 0),
+        offer: x.offer || x.proposed_offer || buyerSignalOffer.product_id || buyerSignalOffer.offer_id || null,
+        price_nzd: Number(x.price_nzd || buyerSignalOffer.price_nzd || 0),
+        observed_problem: x.observed_problem || x.problem || null,
+        signal_terms: Array.isArray(x.signal_terms) ? x.signal_terms : [],
         channels: [x.surface || x.channel || 'public_surface'],
         hypothesis: x.observed_problem || x.problem || null,
         source_type: 'PUBLIC_BUYER_SIGNAL',
         commercial_activation: {
-          offer_id: x.offer_id || null,
-          payment_link_url: x.payment_link || null,
-          payment_link_status: x.payment_link ? 'CONFIGURED' : 'NOT_CONFIGURED',
+          offer_id: x.offer_id || buyerSignalOffer.offer_id || null,
+          payment_link_url: x.payment_link || buyerSignalOffer.payment_link || null,
+          payment_link_status: (x.payment_link || buyerSignalOffer.payment_link) ? 'CONFIGURED' : 'NOT_CONFIGURED',
           fulfillment_route: x.fulfillment_route || null,
           proof_of_delivery: x.proof_of_delivery || null,
           approval_required: true,
@@ -375,8 +378,10 @@ function build() {
         candidate_id: x.candidate_id || null,
         title: x.title || null,
         buyer: x.buyer || x.target_buyer || 'PUBLICLY_OBSERVED_RELEVANT_HUMAN',
-        offer: x.offer || x.proposed_offer || null,
-        price_nzd: Number(x.price_nzd || 0),
+        offer: x.offer || x.proposed_offer || buyerSignalOffer.product_id || buyerSignalOffer.offer_id || null,
+        price_nzd: Number(x.price_nzd || buyerSignalOffer.price_nzd || 0),
+        observed_problem: x.observed_problem || x.problem || null,
+        signal_terms: Array.isArray(x.signal_terms) ? x.signal_terms : [],
         surface: x.surface || x.channel || 'public_surface',
         url: x.url || null,
         offer_id: x.offer_id || null,
