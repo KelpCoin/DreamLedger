@@ -1,0 +1,104 @@
+{
+  "schema": "DREAMLEDGER/777/BUYER-SIGNAL-HUNT/v1",
+  "generated_at_utc": "2026-09-30T00:00:00Z",
+  "objective": "Surface publicly observed Commander deck-tuning problems for internal Gauntlet review. Never contact, post, DM, or invent buyer/payment evidence.",
+  "experiment": {
+    "unit": "ONE_PUBLICLY_OBSERVED_DECK_TUNING_PROBLEM -> ONE_RELEVANT_HUMAN -> ONE_PERMISSION_RESPECTING_REPLY -> ONE_NZD29_COMMANDER_DIAGNOSTIC_LINK",
+    "scale_target": 1000,
+    "current_observed_candidates": 4
+  },
+  "offer": {
+    "offer_id": "OFFER-CMD-DIAG-29-NZD",
+    "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "price_nzd": 29,
+    "payment_surface": "stripe_payment_link",
+    "payment_link": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+    "evidence_status": "awaiting_first_payment"
+  },
+  "candidates": [
+    {
+      "candidate_id": "BUYER-SIGNAL-2026-09-26-001",
+      "surface": "Reddit r/mtg",
+      "title": "New precon upgrade help",
+      "url": "https://www.reddit.com/r/mtg/comments/1wqqbxl/new_precon_upgrade_help/",
+      "observed_problem": "Player asks for Commander precon upgrades and explicitly asks what to remove and add.",
+      "signal_terms": [
+        "upgrades",
+        "remove",
+        "add"
+      ],
+      "fit": "DIRECT",
+      "permission": "UNVERIFIED_SURFACE_RULES",
+      "external_action": "BLOCKED_PENDING_GAUNTLET_AND_HUMAN_APPROVAL",
+      "source_observed_at": "2026-09-26"
+    },
+    {
+      "candidate_id": "BUYER-SIGNAL-2026-09-25-002",
+      "surface": "Reddit r/mtg",
+      "title": "Some help with Precon Upgrading",
+      "url": "https://www.reddit.com/r/mtg/comments/1wpza5q/some_help_with_precon_upgrading/",
+      "observed_problem": "New player asks what upgrades to make and what cards to keep or cut.",
+      "signal_terms": [
+        "upgrading",
+        "keep",
+        "cut"
+      ],
+      "fit": "DIRECT",
+      "permission": "UNVERIFIED_SURFACE_RULES",
+      "external_action": "BLOCKED_PENDING_GAUNTLET_AND_HUMAN_APPROVAL",
+      "source_observed_at": "2026-09-25"
+    },
+    {
+      "candidate_id": "BUYER-SIGNAL-2026-09-24-003",
+      "surface": "Reddit r/mtg",
+      "title": "Commander deck help",
+      "url": "https://www.reddit.com/r/mtg/comments/1wpfv8l/commander_deck_help/",
+      "observed_problem": "New Commander player asks how to improve a deck and what to remove for upgrades.",
+      "signal_terms": [
+        "deck help",
+        "remove",
+        "upgrades",
+        "route"
+      ],
+      "fit": "DIRECT",
+      "permission": "UNVERIFIED_SURFACE_RULES",
+      "external_action": "BLOCKED_PENDING_GAUNTLET_AND_HUMAN_APPROVAL",
+      "source_observed_at": "2026-09-24"
+    },
+    {
+      "candidate_id": "BUYER-SIGNAL-2026-09-07-004",
+      "surface": "Reddit r/mtg",
+      "title": "Purge the heretic - Commander Upgrades or changes?",
+      "url": "https://www.reddit.com/r/mtg/comments/1wa3ofg/purge_the_heretic_commander_upgrades_or_changes/",
+      "observed_problem": "Player provides a Commander decklist and asks what to cut, change, or remove within a stated upgrade budget.",
+      "signal_terms": [
+        "cut",
+        "change",
+        "remove",
+        "decklist",
+        "upgrade budget"
+      ],
+      "fit": "DIRECT",
+      "permission": "UNVERIFIED_SURFACE_RULES",
+      "external_action": "BLOCKED_PENDING_GAUNTLET_AND_HUMAN_APPROVAL",
+      "source_observed_at": "2026-09-07"
+    }
+  ],
+  "gauntlet_queue": {
+    "status": "PENDING",
+    "proposed_first_candidate": "BUYER-SIGNAL-2026-09-26-001",
+    "reason": "Most recent observed post with explicit remove/add request and direct Commander-upgrade need.",
+    "required_judgments": [
+      "surface_rules_permit_commercial_reply",
+      "reply_can_be_useful_without_spam",
+      "offer_fit",
+      "wording_is_permission_respecting"
+    ]
+  },
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  }
+}
