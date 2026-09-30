@@ -1,4 +1,5 @@
 // 777 runtime trigger: execute the already-assembled acceptance substrate on the next scheduled/push run.
+// 777 runtime wake: reassemble existing CUBE -> SILO -> ELOHIM -> TRUTH -> GAUNTLET -> COMMERCE substrate.
 'use strict';
 
 const fs = require('fs');
