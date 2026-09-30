@@ -11,6 +11,7 @@ const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.j
 const APPROVED = path.join(ROOT, 'catalog', 'offers', 'approved.json');
 const LIVE_COMMERCE = path.join(ROOT, 'catalog', 'commerce-live.json');
 const BUYER_SIGNALS = path.join(ROOT, 'data', '777', 'BUYER-SIGNAL-HUNT-001.json');
+const PUBLIC_MARKET_RADAR = path.join(ROOT, 'data', '777', 'public-market-radar.json');
 const EVERGREEN_FACTORY = path.join(ROOT, '..', 'public', 'evergreen-silo-factory.json');
 const CUBE_POLICY = path.join(ROOT, 'economic', 'CUBE_EXPERIMENT_POLICY.json');
 const OUT_DIR = path.join(ROOT, 'data', '777');
@@ -87,6 +88,33 @@ function candidates() {
   const liveCommerce = loadJson(LIVE_COMMERCE, { offers: [] });
   const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [], offer: {} });
   const buyerSignalOffer = buyerSignalHunt.offer || {};
+  const publicMarketRadar = loadJson(PUBLIC_MARKET_RADAR, { candidates: [] });
+  const radarGeneratedAt = Date.parse(publicMarketRadar.generated_at_utc || '');
+  const publicRadarFresh = Number.isFinite(radarGeneratedAt) && radarGeneratedAt <= Date.now() && (Date.now() - radarGeneratedAt) <= 30 * 60 * 1000;
+  const publicRadarSignals = publicRadarFresh && Array.isArray(publicMarketRadar.candidates)
+    ? publicMarketRadar.candidates.map(x => ({
+        ...x,
+        opportunity_id: x.candidate_id || x.url || null,
+        buyer: 'UNVERIFIED_AUTHOR_ROLE',
+        offer: 'QUOTE-COMPARE-49 offer hypothesis only',
+        offer_id: 'QUOTE-COMPARE-49',
+        price_nzd: 49,
+        source_type: 'PUBLIC_BUYER_SIGNAL',
+        permission: 'UNVERIFIED_SURFACE_RULES',
+        economic_evidence: x.economic_evidence || assessEconomicEvidence(x),
+        commercial_activation: {
+          offer_id: 'QUOTE-COMPARE-49',
+          payment_link_url: null,
+          payment_link_status: 'UNVERIFIED',
+          fulfillment_route: null,
+          proof_of_delivery: null,
+          approval_required: true,
+          source_url: x.url || null,
+          permission_status: 'UNKNOWN_REQUIRES_SURFACE_RULE_CHECK',
+          gauntlet_status: 'PENDING'
+        }
+      }))
+    : [];
   const evergreenFactory = loadJson(EVERGREEN_FACTORY, { live_adapters: [] });
   const quoteComparisonAdapter = (evergreenFactory.live_adapters || []).find(x =>
     x.slug === 'construction-subcontractor-quotes' ||
@@ -149,7 +177,7 @@ function candidates() {
       })
     : [];
 
-  const buyerSignals = Array.isArray(buyerSignalHunt.candidates)
+  const staticBuyerSignals = Array.isArray(buyerSignalHunt.candidates)
     ? buyerSignalHunt.candidates.map(x => ({
         opportunity_id: x.candidate_id || null,
         title: x.title || null,
@@ -175,8 +203,10 @@ function candidates() {
       }))
     : [];
 
+  const buyerSignals = [...publicRadarSignals, ...staticBuyerSignals];
+
   const discovered = Array.isArray(source.results)
-    ? source.results.filter(x => x && x.verdict === 'PASS').map(x => ({
+    ? source.results.filter(x => x && x.verdict === 'PASS' && assessEconomicEvidence(x).evidence_rung >= 1).map(x => ({
         ...x,
         source_type: x.source_type || 'DISCOVERED_OPPORTUNITY',
         commercial_activation: x.commercial_activation || null
