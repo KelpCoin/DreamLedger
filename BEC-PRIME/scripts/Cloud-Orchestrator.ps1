@@ -33,7 +33,7 @@ function RunOrchestrator {
                 if([string]::IsNullOrWhiteSpace($api)-or[string]::IsNullOrWhiteSpace($ck)-or[string]::IsNullOrWhiteSpace($model)){throw 'Cloud reasoning fallback unavailable'}
                 $input=@{role=$task.role;objective=$task.objective;input=$task.input;required_output_schema=$task.required_output_schema;max_turns=$task.max_turns;max_tool_calls=$task.max_tool_calls}
                 $body=@{model=$model;messages=@(@{role='system';content='Return only JSON. Never claim external actions, payments, approvals, or verification without evidence.'},@{role='user';content=($input|ConvertTo-Json -Depth 40 -Compress)});temperature=0}|ConvertTo-Json -Depth 40 -Compress
-                $result=@{handler='cloud_model';response=(Invoke-RestMethod -Uri $api -Headers @{Authorization="Bearer $ck";'Content-Type'='application/json'} -Method Post -Body $body -TimeoutSec ([Math]::Min([int]$task.timeout_seconds,240))}
+                $result=@{handler='cloud_model';response=(Invoke-RestMethod -Uri $api -Headers @{Authorization="Bearer $ck";'Content-Type'='application/json'} -Method Post -Body $body -TimeoutSec ([Math]::Min([int]$task.timeout_seconds,240)))}
             }
         }catch{$status='failed';$err=$_.Exception.Message}
         $resultText=$result|ConvertTo-Json -Depth 50 -Compress
