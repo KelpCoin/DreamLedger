@@ -15,6 +15,13 @@ New-Item -ItemType Directory -Force -Path $Root,$LogDir,$MemoryDir,$ConfigDir | 
 Start-Transcript -Path $Log -Force | Out-Null
 
 function Write-Event([string]$Message) { Write-Host $Message; Add-Content -Path $Log -Value $Message }
+function Get-LmServerStatus {
+    try {
+        $raw = & $env:ComSpec /c "lms server status --json --quiet" 2>$null | Out-String
+        if ([string]::IsNullOrWhiteSpace($raw)) { return $null }
+        return $raw | ConvertFrom-Json
+    } catch { return $null }
+}
 function Get-LmModels {
     try {
         $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/models' -Method Get -TimeoutSec 8
@@ -34,8 +41,16 @@ function Pick([string[]]$Patterns) {
 Write-Event 'LM STUDIO COUNCIL BOOTSTRAP'
 Write-Event ('UTC: ' + [DateTime]::UtcNow.ToString('o'))
 
+$serverStatus = Get-LmServerStatus
 $models = Get-LmModels
-if ($models.Count -eq 0) {
+if ($null -eq $serverStatus -or -not $serverStatus.running) {
+    Write-Event 'LM Studio server is not running; attempting local server start.'
+    try { & lms server start --port 1234 2>&1 | Out-Null } catch { }
+    Start-Sleep -Seconds 2
+    $serverStatus = Get-LmServerStatus
+}
+$models = Get-LmModels
+if ($null -eq $serverStatus -or -not $serverStatus.running -or $models.Count -eq 0) {
     Write-Event 'FAIL: LM Studio server not reachable or no models visible at http://127.0.0.1:1234.'
     Write-Event 'Start the LM Studio local server, then rerun this script. No cloud call is made by this bootstrap.'
     Stop-Transcript | Out-Null
@@ -66,7 +81,10 @@ if ($coreMissing.Count -gt 0) {
         models = $names
         config = $Config
     }
-    $proof | ConvertTo-Json -Depth 8 | Set-Content -Path $ProofPath -Encoding UTF8
+    $proofJson = $proof | ConvertTo-Json -Depth 8
+$proofHash = [Convert]::ToHexString(([Security.Cryptography.SHA256]::Create()).ComputeHash([Text.Encoding]::UTF8.GetBytes($proofJson))).ToLowerInvariant()
+$proofJson | Set-Content -Path $ProofPath -Encoding UTF8
+Write-Event ('Proof SHA256: ' + $proofHash)
     Write-Event ('FAIL: missing core roles: ' + ($coreMissing -join ', '))
     Write-Event ('Proof: ' + $ProofPath)
     Stop-Transcript | Out-Null
@@ -85,6 +103,8 @@ $council = [ordered]@{
         stateful_api = '/api/v1/chat'
         models_api = '/v1/models'
         sequential_loading = $true
+        status_probe = 'lms server status --json --quiet'
+        inference = 'http://127.0.0.1:1234/v1/chat/completions'
     }
     execution = [ordered]@{
         strategy = 'SEQUENTIAL_ROLE_EXECUTION'
