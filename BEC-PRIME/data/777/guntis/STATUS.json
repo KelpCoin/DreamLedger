@@ -1,0 +1,8 @@
+{
+  "status": "RESEARCH_ONLY",
+  "target": "Guntis Vitolins 10 ETH Challenge",
+  "method": "certified alternate MetaMask-style derivation-path sweep",
+  "paths": ["m/44'/60'/0'/0/0", "m/44'/60'/0'/0/1", "m/44'/60'/0'/0/2", "m/44'/60'/0'/0/3", "m/44'/60'/0'/0/4", "m/44'/60'/1'/0/0", "m/44'/60'/2'/0/0"],
+  "secret_material_policy": "never commit mnemonic/private-key hit material",
+  "updated_by": "GitHub Actions 777"
+}
