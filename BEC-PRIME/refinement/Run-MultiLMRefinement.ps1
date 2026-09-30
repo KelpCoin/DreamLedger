@@ -17,7 +17,10 @@ param(
     [ValidateSet('mtg','commerce','media','digital')][string]$Silo = 'mtg',
     [string]$LMStudioUrl = 'http://localhost:1234/v1/chat/completions',
     [string]$Models = 'qwen2.5-coder-14b-instruct,phi-3-mini-4k-instruct,qwen2.5-coder-14b-instruct',
-    [string]$Root = 'D:\BrownEyeCortex'
+    [string]$Root = 'D:\BrownEyeCortex',
+    [switch]$SequentialLoad,
+    [string]$Gpu = '0.35',
+    [int]$ContextLength = 4096
 )
 
 $ErrorActionPreference = 'Stop'
@@ -50,6 +53,7 @@ $Args = @(
     '--models', $Models,
     '--out-dir', $OutDir
 )
+if ($SequentialLoad) { $Args += @('--sequential-load','--gpu',$Gpu,'--context-length',[string]$ContextLength) }
 
 & $Python.Source @Args 2>&1 | Tee-Object -FilePath $Log -Append
 $ExitCode = $LASTEXITCODE
