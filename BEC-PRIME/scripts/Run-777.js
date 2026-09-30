@@ -188,8 +188,28 @@ function buildEvergreenExpansion(seed) {
 
   // Recombine existing commercial substrate only. This creates an experiment
   // packet, not a public launch and not a revenue claim.
-  const batchSize = Math.min(10, adapters.length);
-  const selected = adapters.slice(0, batchSize);
+  const seedText = JSON.stringify(seed).toLowerCase();
+  const relevant = adapters.filter(adapter => {
+    const adapterText = JSON.stringify(adapter).toLowerCase();
+    const tokens = seedText.match(/[a-z0-9]{4,}/g) || [];
+    const meaningful = tokens.filter(t => !['publicly','observed','relevant','human','signal','help','some','with','new'].includes(t));
+    return meaningful.some(t => adapterText.includes(t));
+  });
+  if (relevant.length === 0) {
+    return {
+      status: 'HOLD_NO_RELEVANT_EXISTING_SUBSTRATE',
+      reason: 'No existing evergreen adapter matched the observed buyer/problem seed; do not manufacture relevance.',
+      batch_size: 0,
+      variants: [],
+      telemetry: [],
+      promotion: policy.promotion_rules || {},
+      source_substrate: 'EXISTING_EVERGREEN_SILO_FACTORY',
+      seed_opportunity_id: seed.opportunity_id || seed.candidate_id || null,
+      seed_evidence_class: classifyEvidence(seed)[0]
+    };
+  }
+  const batchSize = Math.min(10, relevant.length);
+  const selected = relevant.slice(0, batchSize);
   const checkoutCounts = new Map();
   for (const adapter of selected) {
     const url = adapter.checkout_url || null;
@@ -365,13 +385,16 @@ function build() {
     : [];
 
   const buyerSignalQueue = buyerSignals
-    .map((x, index) => ({
+    .map(x => ({
       ...x,
       evidence_class: classifyEvidence(x)[0],
-      evidence_priority: classifyEvidence(x)[1],
-      queue_rank: index + 1
+      evidence_priority: classifyEvidence(x)[1]
     }))
-    .sort((a, b) => b.evidence_priority - a.evidence_priority || String(a.candidate_id).localeCompare(String(b.candidate_id)));
+    .sort((a, b) => b.evidence_priority - a.evidence_priority || String(a.candidate_id).localeCompare(String(b.candidate_id)))
+    .map((x, index) => ({
+      ...x,
+      queue_rank: index + 1
+    }));
 
   const nextBuyerSignal = buyerSignalQueue[0] || null;
   const evergreenSeed = nextBuyerSignal
