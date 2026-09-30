@@ -18,7 +18,7 @@ jobs:
       contents: read
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       GITHUB_TOKEN: ${{ secrets.RAG_GITHUB_TOKEN || github.token }}
       RAG_GITHUB_REPOS: ${{ vars.RAG_GITHUB_REPOS || 'KelpCoin/DreamLedger' }}
       RAG_MAX_FILES: '1000'
