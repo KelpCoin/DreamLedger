@@ -384,7 +384,11 @@ function build() {
         signal_terms: Array.isArray(x.signal_terms) ? x.signal_terms : [],
         surface: x.surface || x.channel || 'public_surface',
         url: x.url || null,
-        offer_id: x.offer_id || null,
+        offer_id: x.offer_id || buyerSignalOffer.offer_id || null,
+        payment_link: x.payment_link || buyerSignalOffer.payment_link || null,
+        payment_link_status: (x.payment_link || buyerSignalOffer.payment_link) ? 'CONFIGURED' : 'NOT_CONFIGURED',
+        fulfillment_route: x.fulfillment_route || null,
+        silo_id: x.silo_id || x.domain_id || null,
         permission: x.permission || 'UNVERIFIED_SURFACE_RULES'
       }))
     : [];
@@ -451,6 +455,52 @@ function build() {
         payment_link_required: true
       }
     : null;
+  const nextVariant = evergreenExpansion.variants?.[0] || null;
+  const acceptanceSignalId = nextBuyerSignal?.candidate_id || null;
+  const acceptanceOfferId = nextBuyerSignal?.offer_id || nextVariant?.source_adapter || null;
+  const acceptancePaymentLink = nextBuyerSignal?.payment_link || nextVariant?.source_checkout_url || null;
+  const acceptanceSiloId = nextBuyerSignal?.silo_id || nextVariant?.silo_slug || null;
+  const acceptanceLaneId = nextVariant?.marketing_lane || 'LANE-UNASSIGNED';
+  const acceptanceExperimentId = nextVariant
+    ? 'EXP-' + sha(JSON.stringify({ acceptanceSignalId, acceptanceLaneId, silo: acceptanceSiloId })).slice(0, 16).toUpperCase()
+    : null;
+  const acceptanceTelemetryId = nextVariant
+    ? 'TEL-' + sha(JSON.stringify({ acceptanceExperimentId, acceptanceSiloId })).slice(0, 16).toUpperCase()
+    : null;
+  const acceptanceAttribution = {
+    offer_matches_payment: Boolean(acceptanceOfferId && acceptancePaymentLink),
+    candidate_matches_signal: Boolean(acceptanceSignalId),
+    candidate_matches_silo: Boolean(acceptanceSignalId && acceptanceSiloId)
+  };
+  const acceptanceContract = {
+    status: 'LOCKED',
+    phase: 'FIND_THE_HOLE',
+    signal_id: acceptanceSignalId,
+    observed_problem: nextBuyerSignal?.observed_problem || null,
+    offer_id: acceptanceOfferId,
+    price_nzd: Number(nextBuyerSignal?.price_nzd || nextVariant?.price_nzd || 0),
+    payment_link: acceptancePaymentLink,
+    silo_id: acceptanceSiloId,
+    lane_id: acceptanceLaneId,
+    experiment_id: acceptanceExperimentId,
+    telemetry_id: acceptanceTelemetryId,
+    attribution: acceptanceAttribution,
+    human_gate: {
+      external_action: 'REVIEW_AND_APPROVE_EXTERNAL_REPLY',
+      send_status: 'NOT_SENT',
+      approval_required: true
+    },
+    reality: {
+      settled_payment: false,
+      fulfillment: false,
+      evidence: false,
+      truth_status: 'UNVERIFIED'
+    },
+    expansion_permission: 0,
+    disposition: 'HOLD_OR_KILL_NO_CLONE',
+    mechanism_fossil: null
+  };
+
 
   const out = {
     schema_version: 'DREAMLEDGER/777/v1',
@@ -470,6 +520,7 @@ function build() {
     buyer_signal_count: buyerSignals.length,
     buyer_signal_queue: buyerSignalQueue,
     next_human_action: nextHumanAction,
+    acceptance_contract: acceptanceContract,
     evergreen_expansion: evergreenExpansion,
     candidates: rows.slice(0, 777),
     truth: {
