@@ -46,7 +46,7 @@ jobs:
       - name: Require bridge secrets
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
         shell: bash
         run: |
@@ -81,7 +81,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
           BRIDGE_URL: https://dreamledger.org
         shell: bash
