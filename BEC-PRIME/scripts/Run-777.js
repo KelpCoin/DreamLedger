@@ -1,3 +1,4 @@
+// 777 runtime trigger: execute the already-assembled acceptance substrate on the next scheduled/push run.
 'use strict';
 
 const fs = require('fs');
