@@ -137,4 +137,9 @@ function isActionableBuyerSignal(candidate = {}) {
   return assessment.evidence_rung >= 1 && candidate.permission === 'VERIFIED_PERMITTED';
 }
 
-module.exports = { RUNG_NAMES, assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal };
+function hasExplicitPaymentIntent(seed = {}) {
+  const evidence = seed.economic_evidence || seed.evidence || seed;
+  return Boolean(evidence.payment_intent_type && evidence.payment_intent_source);
+}
+
+module.exports = { RUNG_NAMES, assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal, hasExplicitPaymentIntent };
