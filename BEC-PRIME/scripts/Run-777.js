@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
 const APPROVED = path.join(ROOT, 'catalog', 'offers', 'approved.json');
+const LIVE_COMMERCE = path.join(ROOT, 'catalog', 'commerce-live.json');
 const OUT_DIR = path.join(ROOT, 'data', '777');
 const OUT = path.join(OUT_DIR, '777-LATEST.json');
 
@@ -32,6 +33,7 @@ function loadJson(file, fallback) {
 function candidates() {
   const source = loadJson(SOURCE, { results: [] });
   const approved = loadJson(APPROVED, { approved: [] });
+  const liveCommerce = loadJson(LIVE_COMMERCE, { offers: [] });
   const approvedOffers = Array.isArray(approved.approved)
     ? approved.approved.map(x => ({
         opportunity_id: 'APPROVED-OFFER:' + (x.offer_id || x.product_sku || 'UNKNOWN'),
@@ -53,13 +55,34 @@ function candidates() {
       }))
     : [];
 
+  const liveOffers = Array.isArray(liveCommerce.offers)
+    ? liveCommerce.offers.map(x => ({
+        opportunity_id: 'LIVE-COMMERCE:' + (x.offer_id || 'UNKNOWN'),
+        title: x.offer_id || 'Live commercial offer',
+        buyer: null,
+        offer: x.offer_id || null,
+        price_nzd: Number(x.price_nzd || 0),
+        channels: ['stripe_payment_link'],
+        hypothesis: 'Existing operator-authorized live commerce surface',
+        source_type: 'LIVE_COMMERCE',
+        commercial_activation: {
+          offer_id: x.offer_id || null,
+          payment_link_url: x.checkout || null,
+          payment_link_status: x.status || null,
+          fulfillment_route: null,
+          proof_of_delivery: 'Stripe-confirmed external payment plus canonical fulfillment evidence',
+          approval_required: false
+        }
+      }))
+    : [];
+
   const discovered = Array.isArray(source.results)
     ? source.results.filter(x => x && x.verdict === 'PASS')
     : [];
 
   // Keep already-approved commercial substrate first-class in 777.
   const seen = new Set();
-  const base = [...approvedOffers, ...discovered].filter(x => {
+  const base = [...approvedOffers, ...liveOffers, ...discovered].filter(x => {
     const id = x.opportunity_id || x.offer_id || x.product_sku || x.title;
     if (seen.has(id)) return false;
     seen.add(id);
