@@ -1,0 +1,86 @@
+{
+  "schema": "dreamledger/hands-off-economic-audit/v1",
+  "observed_at": "2026-10-01T00:00:00+13:00",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0,
+    "rule": "No internal row, simulated swarm, queued action, or live checkout changes these values."
+  },
+  "blocker": {
+    "BLOCKED_AT": "HUMAN_GATE",
+    "BECAUSE": "One complete commercial path is prepared, but external outreach is an owner-authorized external action and has not been approved/sent.",
+    "REQUIRED": "Human SEND/DONT SEND decision for the prepared CJPJ PH26-001 outreach.",
+    "FALLBACK": "Do not send. Keep the path UNVERIFIED and wait for a different authorized prospect/action.",
+    "OWNER_ACTION": "Review the prepared prospect, message, offer and kill condition; choose SEND or DONT SEND.",
+    "HUMAN_MINUTES": 1,
+    "EXPECTED_ECONOMIC_EFFECT": "If sent, may produce an external response. No revenue is expected or claimed until independent buyer attribution, settled payment, fulfillment and evidence verification exist."
+  },
+  "infrastructure": {
+    "github_head": "1ea5067f58f3837c6c2af6fe1050c0cc7af91721",
+    "github_head_message": "Elohim: prepare one real commercial path to human gate",
+    "workflows_total": 206,
+    "ci_health": "NOT_PROVEN",
+    "ci_failure": {
+      "workflow": "MTG Diagnostic Fulfillment Gate",
+      "run_id": 36720824644,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_id": 109905199440
+    },
+    "render": {
+      "dreamledger_org": "not_suspended",
+      "dreamledger_org_url": "https://dreamledger-org.onrender.com",
+      "cube_economic_heartbeat": "not_suspended",
+      "cube_economic_heartbeat_schedule": "*/15 * * * *"
+    },
+    "supabase": {
+      "project_id": "wbwgroygjeyukkspnqiy",
+      "project_status": "ACTIVE_HEALTHY",
+      "database_version": "17.6.1.127",
+      "database_observation": "UNOBSERVABLE",
+      "reason": "Supabase SQL/list-table calls terminated by connection timeout during live audit.",
+      "edge_functions": "LIST_OBSERVED",
+      "schema_mutation": "NONE"
+    },
+    "local_runtime": {
+      "windows_machine": "UNOBSERVABLE",
+      "lm_studio": "UNOBSERVABLE",
+      "scheduled_tasks": "UNOBSERVABLE",
+      "local_queues": "UNOBSERVABLE",
+      "proof_directories": "UNOBSERVABLE",
+      "reason": "No connected local Windows execution/control channel is available in this session."
+    },
+    "stripe": {
+      "live_account": "acct_1SNVPvEGgEAnUFF9",
+      "recent_live_payment_intents": 2,
+      "succeeded_unmatched_observations": "NZ$5 and US$1, metadata empty; excluded from DreamLedger verified revenue",
+      "gets_opportunity_brief_payment_link": "plink_1ULLBtEGgEAnUFF9TLwkHTaQ",
+      "gets_opportunity_brief_checkout": "ACTIVE_LIVE"
+    }
+  },
+  "economic_path": {
+    "demand_id": "GETS-PH26-001",
+    "capability_id": "BEC-PRIME-TRUTH-PROOF",
+    "prospect": "CJPJ & ASSOCIATES LIMITED",
+    "prospect_status": "PROSPECT_HYPOTHESIS",
+    "offer_sku": "GETS-OPPORTUNITY-BRIEF-49",
+    "price_nzd": 49,
+    "checkout_status": "ACTIVE_LIVE",
+    "outreach_status": "DRAFT_READY_NOT_SENT",
+    "fulfillment_status": "READY_AFTER_SETTLEMENT",
+    "truth_status": "UNVERIFIED"
+  },
+  "swarm_claims": {
+    "x20000": "SIMULATED/UNVERIFIED",
+    "gauntlet_passed_16000": "SIMULATED/UNVERIFIED",
+    "pipeline_capacity_nzd": 624000,
+    "capacity_truth": "NOT ECONOMIC VALUE; no buyer/payment evidence",
+    "master_fossil": "INTERNAL_ARTIFACT_ONLY",
+    "live_webhook_connection": "NOT_PERFORMED",
+    "reason": "The supplied swarm metrics do not constitute external demand, buyer, settlement, fulfillment or verified outcome evidence. Connecting an unverified synthetic scaler directly to production economic state would violate the existing truth boundary."
+  },
+  "next_safe_step": "HUMAN SEND/DONT SEND GATE",
+  "stop_condition": "Stop engineering when the human gate is the only remaining blocker; resume automatically only after a new external event or explicit owner authorization."
+}
