@@ -24,6 +24,7 @@ test('full nine-rung evidence chain qualifies only with all required evidence', 
       exact_quote: 'I spend ten hours each month fixing this manually.',
       author_hash: 'sha256:person-1',
       first_person_complaint: true,
+      first_person_complaint: true,
       workaround_description: 'Maintains a spreadsheet and manually reconciles rows.',
       economic_cost_type: 'LABOUR_TIME',
       economic_cost_amount: 10,
@@ -105,6 +106,7 @@ test('buyer action is blocked without rung-one evidence and verified surface per
   assert.equal(isActionableBuyerSignal(candidate), false);
   candidate.exact_quote = 'I need help comparing these quotes.';
   candidate.author_hash = 'sha256:author';
+  candidate.first_person_complaint = true;
   candidate.permission = 'UNVERIFIED_SURFACE_RULES';
   assert.equal(isActionableBuyerSignal(candidate), false);
   candidate.permission = 'VERIFIED_PERMITTED';
