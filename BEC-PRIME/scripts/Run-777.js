@@ -32,19 +32,40 @@ function loadJson(file, fallback) {
 function candidates() {
   const source = loadJson(SOURCE, { results: [] });
   const approved = loadJson(APPROVED, { approved: [] });
-  const base = [
-    ...(Array.isArray(source.results) ? source.results.filter(x => x && x.verdict === 'PASS') : []),
-    ...(Array.isArray(approved.approved) ? approved.approved.map(x => ({
-      opportunity_id: 'APPROVED-OFFER:' + (x.offer_id || x.product_sku || 'UNKNOWN'),
-      title: x.name || x.product_sku,
-      buyer: x.target_buyer || null,
-      offer: x.deliverable || x.name || null,
-      price_nzd: Number(x.price || 0),
-      channels: [x.acquisition_surface || 'configured'],
-      hypothesis: x.problem || null,
-      source_type: 'APPROVED_OFFER'
-    })) : [])
-  ];
+  const approvedOffers = Array.isArray(approved.approved)
+    ? approved.approved.map(x => ({
+        opportunity_id: 'APPROVED-OFFER:' + (x.offer_id || x.product_sku || 'UNKNOWN'),
+        title: x.name || x.product_sku,
+        buyer: x.target_buyer || null,
+        offer: x.deliverable || x.name || null,
+        price_nzd: Number(x.price || 0),
+        channels: [x.acquisition_surface || 'configured'],
+        hypothesis: x.problem || null,
+        source_type: 'APPROVED_OFFER',
+        commercial_activation: {
+          offer_id: x.offer_id || null,
+          payment_link_url: x.payment_link_url || null,
+          payment_link_status: x.payment_link_status || null,
+          fulfillment_route: x.fulfillment_route || null,
+          proof_of_delivery: x.proof_of_delivery || null,
+          approval_required: x.approved_by ? true : false
+        }
+      }))
+    : [];
+
+  const discovered = Array.isArray(source.results)
+    ? source.results.filter(x => x && x.verdict === 'PASS')
+    : [];
+
+  // Keep already-approved commercial substrate first-class in 777.
+  const seen = new Set();
+  const base = [...approvedOffers, ...discovered].filter(x => {
+    const id = x.opportunity_id || x.offer_id || x.product_sku || x.title;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+
   return base;
 }
 
@@ -86,6 +107,7 @@ function build() {
             revenue_claim: false,
             fulfillment_claim: false
           },
+          commercial_activation: seed.commercial_activation || null,
           status: 'HYPOTHESIS_UNVERIFIED',
           next_test: gate,
           external_action: 'APPROVAL_REQUIRED'
@@ -103,6 +125,23 @@ function build() {
     return bv - av;
   });
 
+  const activation_candidates = rows
+    .filter(x => x.commercial_activation && x.commercial_activation.payment_link_url)
+    .map(x => ({
+      candidate_id: x.candidate_id,
+      seed_opportunity_id: x.seed_opportunity_id,
+      title: x.seed_title,
+      offer: x.hypothesis.offer,
+      price_nzd: x.hypothesis.price_nzd,
+      payment_link_url: x.commercial_activation.payment_link_url,
+      payment_link_status: x.commercial_activation.payment_link_status,
+      fulfillment_route: x.commercial_activation.fulfillment_route,
+      proof_of_delivery: x.commercial_activation.proof_of_delivery,
+      next_test: x.next_test,
+      status: x.status,
+      external_action: x.external_action
+    }));
+
   const out = {
     schema_version: 'DREAMLEDGER/777/v1',
     generated_at_utc: new Date().toISOString(),
@@ -115,6 +154,8 @@ function build() {
     },
     seed_count: top.length,
     candidate_count: rows.length,
+    activation_candidate_count: activation_candidates.length,
+    activation_candidates,
     candidates: rows.slice(0, 777),
     truth: {
       verified_external_revenue_nzd: 0,
