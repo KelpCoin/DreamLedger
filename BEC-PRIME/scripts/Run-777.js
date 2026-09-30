@@ -236,6 +236,7 @@ function build() {
     candidate_count: rows.length,
     activation_candidate_count: activation_candidates.length,
     activation_candidates,
+    pricing_research: PRICING_RESEARCH,
     buyer_signal_count: buyerSignals.length,
     buyer_signal_queue: buyerSignals,
     candidates: rows.slice(0, 777),
