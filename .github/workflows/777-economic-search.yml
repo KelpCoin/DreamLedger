@@ -55,6 +55,9 @@ jobs:
       - name: Compile bidirectional Factory queue
         run: npm run compile:factory-factory
 
+      - name: Test economic evidence ladder
+        run: node --test BEC-PRIME/economic/EconomicEvidenceLadder.test.js
+
       - name: Run 777 search
         run: node BEC-PRIME/scripts/Run-777.js
 
