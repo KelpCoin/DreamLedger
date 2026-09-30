@@ -28,6 +28,16 @@ const GATES = [
   'DEMAND','CAPABILITY','ZERO_COST','FULFILLMENT','PAYMENT','REPEAT','CONTRADICTION'
 ];
 
+// Phase-2 controlled experiment identities. These are lanes, not brands,
+// public launches, or economic claims. They activate only after VERIFIED.
+const EXPERIMENT_LANES = [
+  { lane_id: 'LANE-A', strategy: 'PROBLEM_FIRST' },
+  { lane_id: 'LANE-B', strategy: 'AUDIT_FIRST' },
+  { lane_id: 'LANE-C', strategy: 'SAVINGS_FIRST' },
+  { lane_id: 'LANE-D', strategy: 'RISK_FIRST' },
+  { lane_id: 'LANE-E', strategy: 'OUTCOME_FIRST' }
+];
+
 // Evidence proximity to money. Higher means closer to an independently verifiable
 // economic event. This orders machine attention, not revenue truth.
 const EVIDENCE_PRIORITY = {
@@ -175,6 +185,27 @@ function candidates() {
   });
 }
 function buildEvergreenExpansion(seed) {
+  // Phase 2 is downstream of Phase 1 reality. Prepare the machinery, but do
+  // not create or activate an expansion population before a verified mechanism.
+  if (!seed || seed.verification_status !== 'VERIFIED') {
+    return {
+      status: 'HOLD_UNTIL_VERIFIED_MECHANISM',
+      reason: 'Phase 2 requires an independently verified external transaction chain.',
+      batch_size: 0,
+      variants: [],
+      telemetry: {
+        lanes: EXPERIMENT_LANES,
+        ranking_fields: ['qualified_signals','checkout_starts','settled_payments','fulfilled_orders','verified_outcomes','human_touches','time_to_fulfill','margin_nzd'],
+        truth_rule: 'telemetry_does_not_equal_revenue',
+        winner_rule: 'NO_WINNER_UNTIL_EXTERNAL_EVIDENCE',
+        clone_rule: 'ONLY_VERIFIED_MECHANISMS_MAY_BE_REPLICATED'
+      },
+      source_substrate: 'EXISTING_EVERGREEN_SILO_FACTORY',
+      external_action: 'NONE',
+      phase: 'STRETCH_THE_HOLE'
+    };
+  }
+
   const factory = loadJson(EVERGREEN_FACTORY, { live_adapters: [] });
   const policy = loadJson(CUBE_POLICY, { cube_state_machine: [], promotion_rules: {} });
   const adapters = Array.isArray(factory.live_adapters) ? factory.live_adapters : [];
@@ -412,17 +443,9 @@ function build() {
     }));
 
   const nextBuyerSignal = buyerSignalQueue[0] || null;
-  const evergreenSeed = nextBuyerSignal
-    ? {
-        opportunity_id: nextBuyerSignal.candidate_id,
-        candidate_id: nextBuyerSignal.candidate_id,
-        title: nextBuyerSignal.title,
-        buyer: nextBuyerSignal.buyer,
-        offer: nextBuyerSignal.offer,
-        price_nzd: nextBuyerSignal.price_nzd,
-        source_type: 'PUBLIC_BUYER_SIGNAL'
-      }
-    : base.find(x => x.evidence_class === 'CHECKOUT' || x.evidence_class === 'REPEAT_CHECKOUT') || null;
+  // Public signals are Phase-1 inputs, not Phase-2 mechanisms. Evergreen only
+  // receives a seed after an independent VERIFIED mechanism exists.
+  const evergreenSeed = base.find(x => x.verification_status === 'VERIFIED') || null;
   const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
   evergreenExpansion.cube_handoff = {
     state: 'DRAFT_INTERNAL_HANDOFF',
@@ -466,11 +489,11 @@ function build() {
   const acceptanceOfferId = nextBuyerSignal?.offer_id || null;
   const acceptancePaymentLink = nextBuyerSignal?.payment_link || nextVariant?.source_checkout_url || null;
   const acceptanceSiloId = nextBuyerSignal?.silo_id || nextVariant?.silo_slug || null;
-  const acceptanceLaneId = nextVariant?.marketing_lane || 'LANE-UNASSIGNED';
-  const acceptanceExperimentId = nextVariant
+  const acceptanceLaneId = EXPERIMENT_LANES[0].lane_id;
+  const acceptanceExperimentId = acceptanceSignalId
     ? 'EXP-' + sha(JSON.stringify({ acceptanceSignalId, acceptanceLaneId, silo: acceptanceSiloId })).slice(0, 16).toUpperCase()
     : null;
-  const acceptanceTelemetryId = nextVariant
+  const acceptanceTelemetryId = acceptanceExperimentId
     ? 'TEL-' + sha(JSON.stringify({ acceptanceExperimentId, acceptanceSiloId })).slice(0, 16).toUpperCase()
     : null;
   const identity = acceptanceOfferId ? approvedIdentity.get(acceptanceOfferId) : null;
@@ -558,4 +581,4 @@ if (require.main === module) {
   }, null, 2));
 }
 
-module.exports = { build, buildEvergreenExpansion, LENSES, TRANSFORMS, GATES };
+module.exports = { build, buildEvergreenExpansion, LENSES, TRANSFORMS, GATES, EXPERIMENT_LANES };
