@@ -41,7 +41,7 @@ jobs:
 
     env:
       SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       CUBE_PINBALL_ENABLED: 'true'
       CUBE_PINBALL_LM_URL: ${{ secrets.CUBE_PINBALL_LM_URL }}
       CUBE_PINBALL_LM_API_KEY: ${{ secrets.CUBE_PINBALL_LM_API_KEY }}
