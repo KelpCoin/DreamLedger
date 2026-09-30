@@ -1,0 +1,15 @@
+{
+  "schema_version": "BEC-ECONOMIC-FIGURE-EIGHT-SEEDS-1.0",
+  "claim_boundary": "HYPOTHESIS_ONLY_NO_REVENUE_CLAIM",
+  "seeds": [
+    {"id":"ARCH-AUDIT","family":"audit-review","signal":"Businesses with a concrete technical or architecture problem need a fixed-scope independent review with actionable defects and remediation priorities.","silo":"economic-portfolio"},
+    {"id":"AGENT-READINESS","family":"agent-readiness","signal":"Teams adopting AI agents need a fixed-scope readiness review that identifies operational, security, evidence, and deployment gaps before production.","silo":"economic-portfolio"},
+    {"id":"EVIDENCE-MONITOR","family":"evidence-monitoring","signal":"Operators need recurring monitoring that detects specified changes, contradictions, or evidence failures and delivers a concise verified report.","silo":"economic-portfolio"},
+    {"id":"RECONCILIATION","family":"workflow-reconciliation","signal":"Operators with fragmented transaction or workflow records need a reconciliation artifact that identifies mismatches and gives a bounded resolution path.","silo":"economic-portfolio"},
+    {"id":"MARKET-INTELLIGENCE","family":"market-signal-report","signal":"Niche operators need a concise evidence-backed market signal brief that identifies a specific buyer problem and a smallest commercial test.","silo":"economic-portfolio"},
+    {"id":"LEAD-EVIDENCE","family":"lead-evidence-pack","signal":"Small businesses need a qualified evidence pack around a specific commercial lead or opportunity, with sources, fit criteria, and next-step evidence.","silo":"economic-portfolio"},
+    {"id":"DOCUMENT-INTELLIGENCE","family":"document-data-intelligence","signal":"Operators need a bounded document or data intelligence result that extracts decision-relevant facts, contradictions, and required actions from supplied material.","silo":"economic-portfolio"},
+    {"id":"DIGITAL-KIT","family":"digital-artifact-kit","signal":"Builders and operators need a focused, usable commercial kit assembled from an existing artifact, with clear scope, usage instructions, and proof of contents.","silo":"economic-portfolio"},
+    {"id":"FIGHTEDGE","family":"sports-analysis-education","signal":"A regional combat-sports fighter or gym with a booked competitive matchup may value a reviewed opponent and strategy blueprint, but premium demand and price are unproven.","silo":"fightedge","constraints":["sports analytics and education only","no betting or prediction-market execution signals","premium demand is hypothesis","human approval required before external action"]}
+  ]
+}
