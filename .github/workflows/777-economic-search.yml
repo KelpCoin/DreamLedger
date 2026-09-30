@@ -32,7 +32,7 @@ jobs:
           node-version: "24"
 
       - name: Install
-        run: npm ci --ignore-scripts
+        run: npm install --ignore-scripts --no-audit --no-fund
 
       - name: Refresh public demand radar
         run: npm run cube:radar
