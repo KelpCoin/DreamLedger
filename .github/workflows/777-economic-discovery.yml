@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: "2/5 * * * *"
   workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/777-economic-discovery.yml"
+      - "BEC-PRIME/scripts/Run-777.js"
+      - "BEC-PRIME/scripts/777-public-market-radar.py"
+      - "BEC-PRIME/scripts/777-slipstream-radar.py"
 
 permissions:
   contents: read
