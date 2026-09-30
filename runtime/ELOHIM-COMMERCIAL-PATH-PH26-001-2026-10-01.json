@@ -1,0 +1,66 @@
+{
+  "schema": "dreamledger/elohim-commercial-path/v1",
+  "generated_at": "2026-10-01T00:00:00+13:00",
+  "state": "HUMAN_GATE_REQUIRED",
+  "truth_status": "UNVERIFIED",
+  "demand": {
+    "id": "GETS-PH26-001",
+    "title": "Kaiawhina Workforce RFP",
+    "buyer": "Health New Zealand | Te Whatu Ora",
+    "close_date": "2026-10-05T17:00:00+13:00",
+    "source_url": "https://www.gets.govt.nz/HEALTHNZ/ExternalTenderDetails.htm?id=34839722",
+    "evidence": [
+      "Current RFP seeks suitably qualified Pacific providers for a nationally consistent Pacific Kaiāwhina Navigation Service.",
+      "Providers must demonstrate Pacific governance, community relationships, workforce sustainability, reporting capability and related delivery capacity."
+    ]
+  },
+  "capability": {
+    "id": "BEC-PRIME-TRUTH-PROOF",
+    "name": "Truth and Proof Engine",
+    "commercialization": "audit_or_proof_system"
+  },
+  "prospect": {
+    "name": "CJPJ & ASSOCIATES LIMITED",
+    "buyer_status": "PROSPECT_HYPOTHESIS",
+    "basis": "GETS records show CJPJ & ASSOCIATES LIMITED was awarded the Pacific Health Science Academy Programme procurement in November 2025, with total spend reported as NZ$1,537,627. This establishes relevant Pacific-health procurement experience, not current intent to buy.",
+    "evidence_url": "https://www.gets.govt.nz/HEALTHNZ/ExternalTenderDetails.htm?id=32598599"
+  },
+  "offer": {
+    "sku": "GETS-OPPORTUNITY-BRIEF-49",
+    "name": "GETS Opportunity Brief",
+    "price_nzd": 49,
+    "checkout_status": "LIVE",
+    "stripe_payment_link_id": "plink_1ULLBtEGgEAnUFF9TLwkHTaQ",
+    "checkout_url": "https://buy.stripe.com/7sY4gz1nfaG1dmD8AQdwc37",
+    "stripe_truth": "Payment link is active in live mode; this is not evidence of a buyer or revenue."
+  },
+  "message": {
+    "status": "DRAFT_READY",
+    "send_status": "NOT_SENT",
+    "text": "Kia ora CJPJ team,\n\nI saw the current Health NZ Kaiawhina Workforce RFP (PH26-001), which closes 5 October. Given CJPJ's previous Pacific Health Science Academy procurement work, I thought this might be relevant.\n\nWe have a small NZ$49 service that turns a GETS tender into a concise evidence-backed brief: closing date, mandatory requirements, capability fit/gaps, key risks or questions, and source references. If useful, I can send you the link and we can prepare one against PH26-001.\n\nNo obligation at all. If it is not relevant, no problem.\n\nRegards,\nJosh"
+  },
+  "fulfillment": {
+    "deliverable": "One evidence-backed GETS tender brief.",
+    "procedure": [
+      "Read the supplied GETS tender source.",
+      "Extract close date, mandatory requirements, scope and explicit evaluation/delivery constraints.",
+      "Map requested capability against the supplied supplier context.",
+      "List material gaps, risks and unanswered questions.",
+      "Attach source references and preserve the source URL.",
+      "Deliver the completed brief after settled payment."
+    ],
+    "evidence_required": [
+      "settled Stripe payment",
+      "source tender URL",
+      "completed brief",
+      "delivery record"
+    ]
+  },
+  "gates": {
+    "outreach": "HUMAN_APPROVAL_REQUIRED",
+    "payment": "BUYER_INITIATED",
+    "fulfillment": "AFTER_SETTLEMENT",
+    "truth": "AFTER_COMPLETE_EVIDENCE_JOIN"
+  },
+  "kill_condition": "Do not send if the human reviewer rejects the prospect/message, if the prospect says the tender is irrelevant, or if the scope cannot be fulfilled from authoritative public source material."
+}
