@@ -59,8 +59,8 @@ function classifyEvidence(seed) {
   if (source === 'CHECKOUT' || source === 'STRIPE_CHECKOUT') return ['CHECKOUT', EVIDENCE_PRIORITY.CHECKOUT];
   if (source === 'REPEAT_CHECKOUT') return ['REPEAT_CHECKOUT', EVIDENCE_PRIORITY.REPEAT_CHECKOUT];
   if (source === 'PUBLIC_BUYER_SIGNAL') {
-    const text = JSON.stringify(seed).toLowerCase();
-    if (/\bpaid\b|\bpaying\b|\bbudget\b|\bprice\b/.test(text)) {
+    const evidence = seed.economic_evidence || seed;
+    if (evidence.payment_intent_type && evidence.payment_intent_source) {
       return ['EXPLICIT_BUYING_INTENT', EVIDENCE_PRIORITY.EXPLICIT_BUYING_INTENT];
     }
     return ['GENERAL_PROBLEM_SIGNAL', EVIDENCE_PRIORITY.GENERAL_PROBLEM_SIGNAL];
