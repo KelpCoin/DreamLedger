@@ -6,6 +6,7 @@ INTERVAL=int(os.environ.get("DREAMLEDGER_SWARM_INTERVAL_SECONDS","60"))
 SUPA=os.environ.get("SUPABASE_URL","").rstrip("/")
 KEY=os.environ.get("SUPABASE_ANON_KEY","")
 ROOT=os.environ.get("DREAMLEDGER_ROOT") or os.getcwd()
+777_PATH=os.path.join(ROOT,"BEC-PRIME","data","777","777-LATEST.json")
 LOG=os.path.join(ROOT,"runtime","lm_studio","runs"); os.makedirs(LOG,exist_ok=True)
 
 def get(url,headers=None,timeout=15):
@@ -13,7 +14,17 @@ def get(url,headers=None,timeout=15):
     with urllib.request.urlopen(r,timeout=timeout) as x: return json.loads(x.read().decode())
 
 def snapshot():
-    e={"timestamp_utc":datetime.now(timezone.utc).isoformat(),"economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},"first_dollar_target":{"offer_id":"DREAMMEEZ-COSMIC-HOODIE-001","price_nzd":5},"constraints":["no self purchase","no simulated revenue","no fake buyers","no autonomous outreach or proposal submission","no autonomous spending","no credential or secret handling","no bypass of platform controls","human gate for irreversible external action"]}
+    e={"timestamp_utc":datetime.now(timezone.utc).isoformat(),"economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},"constraints":["no self purchase","no simulated revenue","no fake buyers","no autonomous outreach or proposal submission","no autonomous spending","no credential or secret handling","no bypass of platform controls","human gate for irreversible external action"]}
+    if os.path.exists(777_PATH):
+        try:
+            latest=json.loads(open(777_PATH,encoding="utf-8").read())
+            e["777"]= {
+                "buyer_signal_queue": latest.get("buyer_signal_queue",[])[:10],
+                "next_human_action": latest.get("next_human_action"),
+                "evergreen_expansion": latest.get("evergreen_expansion",{}),
+                "truth": latest.get("truth",{})
+            }
+        except Exception as ex: e["777_error"]=str(ex)
     if SUPA and KEY:
         try:
             q=urllib.parse.urlencode({"select":"opportunity_id,source,subject,status,expected_value_nzd,expected_cost_nzd,time_budget_minutes,authority_lane,observed_at","order":"expected_value_nzd.asc.nullslast","limit":"50"})
