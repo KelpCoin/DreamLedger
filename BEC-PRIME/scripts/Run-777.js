@@ -8,6 +8,7 @@ const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
 const APPROVED = path.join(ROOT, 'catalog', 'offers', 'approved.json');
 const LIVE_COMMERCE = path.join(ROOT, 'catalog', 'commerce-live.json');
+const BUYER_SIGNALS = path.join(ROOT, 'data', '777', 'BUYER-SIGNAL-HUNT-001.json');
 const OUT_DIR = path.join(ROOT, 'data', '777');
 const OUT = path.join(OUT_DIR, '777-LATEST.json');
 
@@ -34,6 +35,7 @@ function candidates() {
   const source = loadJson(SOURCE, { results: [] });
   const approved = loadJson(APPROVED, { approved: [] });
   const liveCommerce = loadJson(LIVE_COMMERCE, { offers: [] });
+  const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [] });
   const approvedOffers = Array.isArray(approved.approved)
     ? approved.approved.map(x => ({
         opportunity_id: 'APPROVED-OFFER:' + (x.offer_id || x.product_sku || 'UNKNOWN'),
@@ -80,13 +82,37 @@ function candidates() {
       }))
     : [];
 
+  const buyerSignals = Array.isArray(buyerSignalHunt.candidates)
+    ? buyerSignalHunt.candidates.map(x => ({
+        opportunity_id: x.candidate_id || null,
+        title: x.title || null,
+        buyer: 'PUBLICLY_OBSERVED_RELEVANT_HUMAN',
+        offer: 'COMMANDER-DECK-DIAGNOSTIC-001',
+        price_nzd: 29,
+        channels: [x.surface || 'public_surface'],
+        hypothesis: x.observed_problem || null,
+        source_type: 'PUBLIC_BUYER_SIGNAL',
+        commercial_activation: {
+          offer_id: 'OFFER-CMD-DIAG-29-NZD',
+          payment_link_url: null,
+          payment_link_status: 'EXTERNAL_ACTION_BLOCKED',
+          fulfillment_route: 'existing_commander_diagnostic_fulfillment',
+          proof_of_delivery: 'Stripe-confirmed payment plus canonical fulfillment evidence',
+          approval_required: true,
+          source_url: x.url || null,
+          permission_status: x.permission || 'UNVERIFIED_SURFACE_RULES',
+          gauntlet_status: 'PENDING'
+        }
+      }))
+    : [];
+
   const discovered = Array.isArray(source.results)
     ? source.results.filter(x => x && x.verdict === 'PASS')
     : [];
 
   // Keep already-approved commercial substrate first-class in 777.
   const seen = new Set();
-  const base = [...approvedOffers, ...liveOffers, ...discovered].filter(x => {
+  const base = [...buyerSignals, ...approvedOffers, ...liveOffers, ...discovered].filter(x => {
     const id = x.opportunity_id || x.offer_id || x.product_sku || x.title;
     if (seen.has(id)) return false;
     seen.add(id);
