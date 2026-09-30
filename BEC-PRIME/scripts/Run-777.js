@@ -55,6 +55,7 @@ function candidates() {
       }))
     : [];
 
+  const approvedById = new Map(approvedOffers.map(x => [x.commercial_activation?.offer_id, x]));
   const liveOffers = Array.isArray(liveCommerce.offers)
     ? liveCommerce.offers.map(x => ({
         opportunity_id: 'LIVE-COMMERCE:' + (x.offer_id || 'UNKNOWN'),
@@ -71,7 +72,10 @@ function candidates() {
           payment_link_status: x.status || null,
           fulfillment_route: null,
           proof_of_delivery: 'Stripe-confirmed external payment plus canonical fulfillment evidence',
-          approval_required: false
+          approval_required: false,
+          reconciliation: approvedById.has(x.offer_id)
+            ? (approvedById.get(x.offer_id).commercial_activation.payment_link_url === x.checkout ? 'MATCH' : 'CONFLICT')
+            : 'UNMATCHED_LIVE_CATALOG'
         }
       }))
     : [];
@@ -149,7 +153,8 @@ function build() {
   });
 
   const activation_candidates = rows
-    .filter(x => x.commercial_activation && x.commercial_activation.payment_link_url)
+    .filter(x => x.commercial_activation && x.commercial_activation.payment_link_url &&
+      (!x.commercial_activation.reconciliation || x.commercial_activation.reconciliation === 'MATCH'))
     .map(x => ({
       candidate_id: x.candidate_id,
       seed_opportunity_id: x.seed_opportunity_id,
@@ -162,7 +167,8 @@ function build() {
       proof_of_delivery: x.commercial_activation.proof_of_delivery,
       next_test: x.next_test,
       status: x.status,
-      external_action: x.external_action
+      external_action: x.external_action,
+      reconciliation: x.commercial_activation.reconciliation || 'APPROVED_ONLY'
     }));
 
   const out = {
