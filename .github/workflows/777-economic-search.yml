@@ -50,8 +50,16 @@ jobs:
           fi
 
       - name: Refresh quote-normalization buyer-signal radar
-        if: ${{ github.event_name != 'schedule' || github.run_number % 6 == 0 }}
-        run: python3 BEC-PRIME/scripts/777-public-market-radar.py
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            minute="$(date -u +%M)"
+            minute_num=$((10#$minute))
+            if [ $((minute_num % 30)) -ge 5 ]; then
+              echo "QUOTE_RADAR=SKIPPED_BY_30_MINUTE_DISCOVERY_CADENCE"
+              exit 0
+            fi
+          fi
+          python3 BEC-PRIME/scripts/777-public-market-radar.py
 
       - name: Compile opportunity corpus
         run: npm run compile:opportunities
