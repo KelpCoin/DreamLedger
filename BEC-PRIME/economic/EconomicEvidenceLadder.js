@@ -130,4 +130,9 @@ function summarizeEvidenceLadder(records = []) {
   };
 }
 
-module.exports = { RUNG_NAMES, assessEconomicEvidence, summarizeEvidenceLadder };
+function isActionableBuyerSignal(candidate = {}) {
+  const assessment = candidate.economic_evidence || assessEconomicEvidence(candidate);
+  return assessment.evidence_rung >= 1 && candidate.permission === 'VERIFIED_PERMITTED';
+}
+
+module.exports = { RUNG_NAMES, assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal };
