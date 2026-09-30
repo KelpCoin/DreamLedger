@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal } = require('./EconomicEvidenceLadder');
+const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal, hasExplicitPaymentIntent } = require('./EconomicEvidenceLadder');
 
 test('public radar candidate without verbatim quote and author hash does not become sourced pain evidence', () => {
   const result = assessEconomicEvidence({
@@ -127,4 +127,9 @@ test('a workaround or industry observation cannot be promoted to pain rung witho
   assert.equal(result.evidence_rung, 0);
   assert.equal(result.rung_name, 'UNCLASSIFIED_INCOMPLETE_SOURCE');
   assert.equal(result.first_person_complaint, false);
+});
+
+test('mentioning price or budget is not payment intent without an explicit sourced event', () => {
+  assert.equal(hasExplicitPaymentIntent({title:'What is the price?', body:'We have a budget of $49.'}), false);
+  assert.equal(hasExplicitPaymentIntent({economic_evidence:{payment_intent_type:'QUOTE_REQUEST',payment_intent_source:'https://example.test/quote'}}), true);
 });
