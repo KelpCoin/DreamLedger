@@ -27,6 +27,7 @@ function assessEconomicEvidence(seed = {}) {
   const sourceTimestamp = firstDefined(e.source_timestamp, seed.source_timestamp, seed.source_observed_at, seed.published, seed.timestamp);
   const exactQuote = firstDefined(e.exact_quote, seed.exact_quote);
   const authorHash = firstDefined(e.author_hash, seed.author_hash, e.author_id, seed.author_id);
+  const firstPersonComplaint = e.first_person_complaint === true || seed.first_person_complaint === true;
   const workaround = firstDefined(e.workaround_description, seed.workaround_description);
   const costType = firstDefined(e.economic_cost_type, seed.economic_cost_type);
   const costAmount = firstDefined(e.economic_cost_amount, seed.economic_cost_amount);
@@ -52,7 +53,7 @@ function assessEconomicEvidence(seed = {}) {
   const truthVerified = e.truth_oracle_verified === true || seed.truth_oracle_verified === true;
 
   const checks = [
-    Boolean(sourceUrl && sourceTimestamp && exactQuote && authorHash),
+    Boolean(sourceUrl && sourceTimestamp && exactQuote && authorHash && firstPersonComplaint),
     Boolean(workaround),
     Boolean(costType && positiveAmount(costAmount) && costCurrency && costPeriod),
     Boolean(positiveAmount(spendAmount) && spendCurrency && spendPeriod && spendSupplier),
@@ -67,7 +68,7 @@ function assessEconomicEvidence(seed = {}) {
   while (evidenceRung < checks.length && checks[evidenceRung]) evidenceRung += 1;
 
   const missingByRung = [
-    ['source_url', 'source_timestamp', 'exact_quote', 'author_hash'],
+    ['source_url', 'source_timestamp', 'exact_quote', 'author_hash', 'first_person_complaint=true'],
     ['workaround_description'],
     ['economic_cost_type', 'economic_cost_amount', 'economic_cost_currency', 'economic_cost_period'],
     ['current_spend_amount', 'current_spend_currency', 'current_spend_period', 'current_spend_supplier'],
@@ -89,6 +90,7 @@ function assessEconomicEvidence(seed = {}) {
     source_timestamp: sourceTimestamp || null,
     exact_quote_present: Boolean(exactQuote),
     author_hash_present: Boolean(authorHash),
+    first_person_complaint: firstPersonComplaint,
     recurrence_key: firstDefined(e.pain_category, seed.pain_category, e.recurrence_key, seed.recurrence_key) || null,
     recurrence_count: Number.isInteger(e.recurrence_count) && e.recurrence_count >= 0
       ? e.recurrence_count
