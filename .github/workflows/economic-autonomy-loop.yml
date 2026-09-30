@@ -20,7 +20,7 @@ jobs:
       - name: Reconcile independently observed x402 settlements
         env:
           SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         shell: bash
         run: |
           set -euo pipefail
@@ -34,7 +34,7 @@ jobs:
       - name: Wake economic loop
         env:
           SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         shell: bash
         run: |
           set -euo pipefail
@@ -54,7 +54,7 @@ jobs:
       - name: Assert economic scoreboard remains truth-bound
         env:
           SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         shell: bash
         run: |
           set -euo pipefail
