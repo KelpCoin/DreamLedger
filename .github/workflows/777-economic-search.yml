@@ -58,6 +58,49 @@ jobs:
       - name: Run 777 search
         run: node BEC-PRIME/scripts/Run-777.js
 
+      - name: Bridge 777 acceptance into commerce substrate
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          node - <<'NODE'
+          const fs=require('fs');
+          const https=require('https');
+          const handoff=require('./BEC-PRIME/data/777/777-LATEST.json').commerce_handoff;
+          if(!handoff || handoff.lifecycle_state!=='COMMERCE_READY') {
+            console.log('777_HANDOFF=NOT_READY');
+            process.exit(0);
+          }
+          const body=JSON.stringify({p_handoff:handoff});
+          const url=new URL(process.env.SUPABASE_URL+'/rest/v1/rpc/ingest_777_commerce_handoff');
+          const req=https.request(url,{method:'POST',headers:{
+            apikey:process.env.SUPABASE_SERVICE_ROLE_KEY,
+            Authorization:'Bearer '+process.env.SUPABASE_SERVICE_ROLE_KEY,
+            'Content-Type':'application/json',
+            Prefer:'return=representation'
+          }},res=>{
+            let data=''; res.on('data',x=>data+=x); res.on('end',()=>{
+              process.stdout.write(data+'\\n');
+              if(res.statusCode>=300) process.exit(1);
+              fs.writeFileSync('777-commerce-handoff-result.json',data+'\\n');
+            });
+          });
+          req.on('error',e=>{console.error(e);process.exit(1)});
+          req.write(body); req.end();
+          NODE
+
+      - name: Run economic activation from 777 handoff
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 120 -X POST "$SUPABASE_URL/functions/v1/economic-activation"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{}' | tee 777-economic-activation.json
+          node -e 'const x=require("./777-economic-activation.json"); if(x.ok!==true) process.exit(1); console.log(JSON.stringify({seeded:x.seeded,claimed:x.claimed,results:x.results,external_action_performed:x.external_action_performed,revenue_claimed:x.revenue_claimed},null,2));'
+
       - name: Compile universal economic cells
         run: npm run factory:universal
 
