@@ -40,24 +40,6 @@ def now():
 
 
 
-def run_lms(lms_path, args, timeout=180):
-    proc = subprocess.run([lms_path] + args, capture_output=True, text=True, timeout=timeout)
-    if proc.returncode != 0:
-        raise RuntimeError("lms command failed (%s): %s" % (proc.returncode, (proc.stderr or proc.stdout)[-2000:]))
-    return proc.stdout
-
-
-def load_model(lms_path, model, gpu, context_length):
-    return run_lms(lms_path, ["load", model, "--gpu", str(gpu), "--context-length", str(context_length), "--yes"], timeout=300)
-
-
-def unload_all(lms_path):
-    try:
-        run_lms(lms_path, ["unload", "--all"], timeout=120)
-    except Exception:
-        pass
-
-
 
 def run_lms(lms_path, args, timeout=180):
     proc = subprocess.run([lms_path] + args, capture_output=True, text=True, timeout=timeout)
@@ -138,6 +120,10 @@ def run(args):
     run_id = "RUN-" + now()
     out_dir = os.path.abspath(os.path.join(args.out_dir, run_id))
     os.makedirs(out_dir, exist_ok=True)
+
+    lms_path = args.lms_path or shutil.which("lms") or shutil.which("lms.exe")
+    if args.sequential_load and not lms_path:
+        raise RuntimeError("Sequential LM lane requested but lms executable was not found")
 
     models = [m.strip() for m in args.models.split(",") if m.strip()]
     if not models:
@@ -236,7 +222,11 @@ def run(args):
 def main():
     p = argparse.ArgumentParser(description="BEC PRIME local multi-LM refinement -> deterministic gauntlet")
     p.add_argument("--signal", required=True)
-    p.add_argument("--silo", default="mtg")
+    p.add_argument("--silo", default="economic-portfolio")
+    p.add_argument("--sequential-load", action="store_true")
+    p.add_argument("--gpu", default="0.35")
+    p.add_argument("--context-length", type=int, default=4096)
+    p.add_argument("--lms-path", default=None)
     p.add_argument("--url", default="http://localhost:1234/v1/chat/completions")
     p.add_argument("--models", default="qwen2.5-coder-14b-instruct,phi-3-mini-4k-instruct,qwen2.5-coder-14b-instruct")
     p.add_argument("--out-dir", default=os.path.join("BEC-PRIME", "data", "refinement"))
