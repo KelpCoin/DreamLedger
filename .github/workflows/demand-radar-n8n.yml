@@ -20,5 +20,5 @@ jobs:
       - name: Run read-only n8n demand collector
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: node BEC-PRIME/demand-radar/n8n-community-collector.js
