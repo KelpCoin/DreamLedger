@@ -251,6 +251,21 @@ function build() {
       reconciliation: x.commercial_activation.reconciliation || 'APPROVED_ONLY'
     }));
 
+  const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [] });
+  const buyerSignals = Array.isArray(buyerSignalHunt.candidates)
+    ? buyerSignalHunt.candidates.map(x => ({
+        candidate_id: x.candidate_id || null,
+        title: x.title || null,
+        buyer: x.buyer || x.target_buyer || 'PUBLICLY_OBSERVED_RELEVANT_HUMAN',
+        offer: x.offer || x.proposed_offer || null,
+        price_nzd: Number(x.price_nzd || 0),
+        surface: x.surface || x.channel || 'public_surface',
+        url: x.url || null,
+        offer_id: x.offer_id || null,
+        permission: x.permission || 'UNVERIFIED_SURFACE_RULES'
+      }))
+    : [];
+
   const buyerSignalQueue = buyerSignals
     .map((x, index) => ({
       ...x,
@@ -268,9 +283,10 @@ function build() {
         candidate_id: nextBuyerSignal.candidate_id,
         surface: nextBuyerSignal.surface,
         source_url: nextBuyerSignal.url,
-        offer_id: nextBuyerSignal.offer_id || 'OFFER-CMD-DIAG-29-NZD',
-        price_nzd: Number(nextBuyerSignal.price_nzd || 29),
-        boundary: 'NO_SEND_UNTIL_HUMAN_APPROVAL'
+        offer_id: nextBuyerSignal.offer_id || null,
+        price_nzd: Number(nextBuyerSignal.price_nzd || 0),
+        boundary: 'NO_SEND_UNTIL_HUMAN_APPROVAL',
+        payment_link_required: true
       }
     : null;
 
