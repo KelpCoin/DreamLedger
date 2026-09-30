@@ -3,139 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#faf9f7">
+<meta name="theme-color" content="#0c0d0b">
 <title>Log in · DreamLedger</title>
-<meta name="description" content="Log in to your DreamLedger account. Secure Stripe checkout. New Zealand.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#faf9f7;--ink:#14120f;--muted:#6b6560;--line:#e8e4de;--card:#fff;
-  --dark:#14120f;--accent:#c45c26;--err:#b91c1c;--ok:#15803d;
-  --safe-b:env(safe-area-inset-bottom,0px);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{
-  font-family:"DM Sans",system-ui,-apple-system,sans-serif;
-  background:var(--bg);color:var(--ink);min-height:100dvh;
-  padding-bottom:calc(16px + var(--safe-b));
-  -webkit-font-smoothing:antialiased;
-}
-a{color:inherit;text-decoration:none}
-.hdr{
-  position:sticky;top:0;z-index:10;
-  height:56px;display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;border-bottom:1px solid var(--line);
-  background:rgba(250,249,247,.94);backdrop-filter:blur(12px);
-}
-.brand{font-family:"Instrument Serif",Georgia,serif;font-size:1.3rem}
-.hdr a.nav{font-size:14px;font-weight:700;padding:12px 14px;min-height:44px;display:inline-flex;align-items:center}
-main{max-width:420px;margin:0 auto;padding:20px 16px 32px}
-.trust{
-  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;
-}
-.trust span{
-  font-size:11px;font-weight:700;color:var(--muted);
-  background:var(--card);border:1px solid var(--line);
-  padding:6px 10px;border-radius:999px;
-}
-.card{
-  background:var(--card);border:1px solid var(--line);
-  border-radius:20px;padding:22px 18px 24px;
-}
-h1{font-family:"Instrument Serif",Georgia,serif;font-size:1.7rem;font-weight:400;margin-bottom:6px}
-.sub{color:var(--muted);font-size:14px;margin-bottom:20px;line-height:1.4}
-label{display:block;font-size:13px;font-weight:700;margin:0 0 8px}
-input{
-  width:100%;min-height:52px;padding:0 14px;margin-bottom:14px;
-  border:1.5px solid var(--line);border-radius:14px;
-  font:inherit;font-size:16px;background:#fff;color:var(--ink);
-}
-input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
-.toggle{
-  font-size:13px;font-weight:700;color:var(--muted);
-  background:none;border:0;padding:8px;min-height:44px;cursor:pointer;font-family:inherit;
-}
-button[type=submit]{
-  width:100%;min-height:52px;border:0;border-radius:999px;
-  background:var(--dark);color:#fff;font-weight:700;font:inherit;font-size:16px;
-  cursor:pointer;margin-top:4px;
-}
-button[type=submit]:disabled{opacity:.55;cursor:wait}
-.msg{font-size:14px;margin-top:14px;min-height:1.3em;line-height:1.35}
-.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
-.sw{margin-top:18px;font-size:14px;color:var(--muted);text-align:center}
-.sw a{font-weight:700;text-decoration:underline;color:var(--ink);padding:8px;display:inline-block}
-.foot-trust{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;line-height:1.45}
-.foot-trust a{text-decoration:underline}
-</style>
+<link rel="canonical" href="https://dreamledger.org/login.html">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/dl-enterprise.css">
 </head>
-<body>
-<header class="hdr">
-  <a class="brand" href="/">DreamLedger</a>
-  <a class="nav" href="/register">Join</a>
-</header>
-<main>
-  <div class="trust">
-    <span>Stripe payments</span>
-    <span>NZD pricing</span>
-    <span>No spam signup</span>
+<body class="dl-body">
+<header class="dl-hdr"><div class="dl-hdr-inner">
+  <a class="dl-brand" href="/">Dream<em>Ledger</em></a>
+  <nav class="dl-nav">
+    <a href="/b2b.html">RIVET</a>
+    <a href="/buy.html">Buy</a>
+    <a class="dl-nav-cta" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">$29</a>
+  </nav>
+</div></header>
+<main class="dl-wrap dl-section" style="max-width:440px">
+  <p class="dl-eyebrow">Account</p>
+  <h1 class="dl-h1" style="max-width:none;font-size:2.2rem">Log in</h1>
+  <p class="dl-lead">Phone-first. One form. No clutter.</p>
+  <form class="dl-card" method="post" action="/api/auth/login" id="login-form">
+    <label class="dl-label" for="email">Email</label>
+    <input class="dl-input" id="email" name="email" type="email" autocomplete="email" required inputmode="email">
+    <label class="dl-label" for="password">Password</label>
+    <input class="dl-input" id="password" name="password" type="password" autocomplete="current-password" required>
+    <button class="dl-btn dl-btn-gold dl-btn-block" type="submit" style="margin-top:20px">Continue</button>
+    <p class="dl-muted" style="font-size:13px;margin-top:14px">No account? <a href="/register" style="font-weight:700;color:var(--dl-ink)">Create one</a> · or buy without an account via checkout.</p>
+  </form>
+  <div class="dl-cta-card" style="margin-top:20px">
+    <h3>Skip the account</h3>
+    <p>Most offers checkout with Stripe — no login required.</p>
+    <a class="dl-btn dl-btn-primary dl-btn-block" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · $29</a>
   </div>
-  <div class="card">
-    <h1>Log in</h1>
-    <p class="sub">Use the email and password you joined with.</p>
-    <form id="f" novalidate>
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" autocorrect="off" required placeholder="you@example.com">
-      <div class="row">
-        <label for="password" style="margin:0">Password</label>
-        <button type="button" class="toggle" id="showPw" aria-pressed="false">Show</button>
-      </div>
-      <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Your password" minlength="1">
-      <button type="submit" id="go">Log in</button>
-      <div id="msg" class="msg" role="alert" aria-live="polite"></div>
-    </form>
-    <p class="sw">No account? <a href="/register">Create one free</a></p>
-  </div>
-  <p class="foot-trust">Secure account access. Checkout is handled by Stripe.<br><a href="/policies.html">Policies</a> · <a href="/">Continue shopping</a></p>
 </main>
-<script>
-(function(){
-  var f=document.getElementById('f');
-  var msg=document.getElementById('msg');
-  var go=document.getElementById('go');
-  var email=document.getElementById('email');
-  var password=document.getElementById('password');
-  var showPw=document.getElementById('showPw');
-  showPw.addEventListener('click',function(){
-    var on=password.type==='password';
-    password.type=on?'text':'password';
-    showPw.textContent=on?'Hide':'Show';
-    showPw.setAttribute('aria-pressed',on?'true':'false');
-  });
-  f.addEventListener('submit',async function(e){
-    e.preventDefault();
-    msg.textContent='';msg.className='msg';
-    var em=(email.value||'').trim();
-    if(!em||em.indexOf('@')<1){msg.textContent='Enter a valid email.';msg.className='msg err';email.focus();return;}
-    if(!password.value){msg.textContent='Enter your password.';msg.className='msg err';password.focus();return;}
-    go.disabled=true;go.textContent='Logging in…';
-    try{
-      var r=await fetch('/api/account/login',{
-        method:'POST',credentials:'include',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({email:em,password:password.value})
-      });
-      var d=await r.json().catch(function(){return {};});
-      if(!r.ok)throw new Error(d.error||'Login failed. Check email and password.');
-      msg.textContent='Welcome back.';msg.className='msg ok';
-      location.href=d.next||'/';
-    }catch(x){
-      msg.textContent=x.message||'Login failed';msg.className='msg err';
-      go.disabled=false;go.textContent='Log in';
-    }
-  });
-})();
-</script>
+<footer class="dl-footer dl-wrap"><a href="/">Home</a><a href="/policies.html">Policies</a></footer>
 </body>
 </html>
