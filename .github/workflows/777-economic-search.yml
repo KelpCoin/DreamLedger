@@ -38,6 +38,9 @@ jobs:
       - name: Refresh public demand radar
         run: npm run cube:radar
 
+      - name: Refresh Commander buyer-signal radar
+        run: python3 BEC-PRIME/scripts/777-public-market-radar.py
+
       - name: Compile opportunity corpus
         run: npm run compile:opportunities
 
