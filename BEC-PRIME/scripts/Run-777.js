@@ -372,7 +372,13 @@ function build() {
       reconciliation: x.commercial_activation.reconciliation || 'APPROVED_ONLY'
     }));
 
-  const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [] });
+  const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [], offer: {} });
+  const buyerSignalOffer = buyerSignalHunt.offer || {};
+  const approvedCatalog = loadJson(APPROVED, { approved: [] });
+  const approvedIdentity = new Map((approvedCatalog.approved || []).map(x => [
+    x.offer_id,
+    { payment_link: x.payment_link_url || null, silo_id: x.silo || null, price_nzd: Number(x.price || 0) }
+  ]));
   const buyerSignals = Array.isArray(buyerSignalHunt.candidates)
     ? buyerSignalHunt.candidates.map(x => ({
         candidate_id: x.candidate_id || null,
@@ -388,7 +394,7 @@ function build() {
         payment_link: x.payment_link || buyerSignalOffer.payment_link || null,
         payment_link_status: (x.payment_link || buyerSignalOffer.payment_link) ? 'CONFIGURED' : 'NOT_CONFIGURED',
         fulfillment_route: x.fulfillment_route || null,
-        silo_id: x.silo_id || x.domain_id || null,
+        silo_id: x.silo_id || x.domain_id || approvedIdentity.get(x.offer_id || buyerSignalOffer.offer_id)?.silo_id || null,
         permission: x.permission || 'UNVERIFIED_SURFACE_RULES'
       }))
     : [];
@@ -457,7 +463,7 @@ function build() {
     : null;
   const nextVariant = evergreenExpansion.variants?.[0] || null;
   const acceptanceSignalId = nextBuyerSignal?.candidate_id || null;
-  const acceptanceOfferId = nextBuyerSignal?.offer_id || nextVariant?.source_adapter || null;
+  const acceptanceOfferId = nextBuyerSignal?.offer_id || null;
   const acceptancePaymentLink = nextBuyerSignal?.payment_link || nextVariant?.source_checkout_url || null;
   const acceptanceSiloId = nextBuyerSignal?.silo_id || nextVariant?.silo_slug || null;
   const acceptanceLaneId = nextVariant?.marketing_lane || 'LANE-UNASSIGNED';
@@ -467,10 +473,11 @@ function build() {
   const acceptanceTelemetryId = nextVariant
     ? 'TEL-' + sha(JSON.stringify({ acceptanceExperimentId, acceptanceSiloId })).slice(0, 16).toUpperCase()
     : null;
+  const identity = acceptanceOfferId ? approvedIdentity.get(acceptanceOfferId) : null;
   const acceptanceAttribution = {
-    offer_matches_payment: Boolean(acceptanceOfferId && acceptancePaymentLink),
+    offer_matches_payment: Boolean(identity && identity.payment_link && identity.payment_link === acceptancePaymentLink),
     candidate_matches_signal: Boolean(acceptanceSignalId),
-    candidate_matches_silo: Boolean(acceptanceSignalId && acceptanceSiloId)
+    candidate_matches_silo: Boolean(acceptanceSignalId && acceptanceSiloId && identity && identity.silo_id === acceptanceSiloId)
   };
   const acceptanceContract = {
     status: 'LOCKED',
