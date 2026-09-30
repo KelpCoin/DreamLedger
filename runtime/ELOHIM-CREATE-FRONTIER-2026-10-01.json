@@ -1,0 +1,84 @@
+{
+  "schema": "dreamledger/elohim-create-frontier/v1",
+  "generated_at": "2026-10-01T00:00:00+13:00",
+  "truth_status": "UNVERIFIED",
+  "purpose": "Make Elohim CREATE a first-class commercial stage instead of only scoring pre-existing products.",
+  "observed_gap": {
+    "source": "BEC-PRIME/council/Elohim.js",
+    "prior_behavior": "Accepted products, ran SniperLoop, applied FirstSaleGate, and built only after an existing product passed.",
+    "missing_capability": "No capability-to-product candidate creation stage."
+  },
+  "new_contract": {
+    "module": "BEC-PRIME/council/ElohimCreate.js",
+    "test": "BEC-PRIME/council/ElohimCreate.test.js",
+    "behavior": [
+      "Capability becomes a deterministic ELOHIM_CREATED_CANDIDATE.",
+      "Candidate records demand/provenance when supplied.",
+      "Price is a proposal, explicitly UNVERIFIED.",
+      "Checkout remains disabled.",
+      "Human approval remains required.",
+      "Creation is distinct from authorization, dispatch, payment, fulfillment, and verification."
+    ]
+  },
+  "creation_batch": [
+    {
+      "capability_id": "BEC-PRIME-ELOHIM",
+      "commercialization": "architecture_or_implementation",
+      "price_proposal_nzd": [
+        49
+      ],
+      "price_status": "UNVERIFIED"
+    },
+    {
+      "capability_id": "BEC-PRIME-TRUTH-PROOF",
+      "commercialization": "audit_or_proof_system",
+      "price_proposal_nzd": [
+        49
+      ],
+      "price_status": "UNVERIFIED"
+    },
+    {
+      "capability_id": "BEC-PRIME-REVENUE-OS",
+      "commercialization": "revenue_system_design",
+      "price_proposal_nzd": [
+        49
+      ],
+      "price_status": "UNVERIFIED"
+    },
+    {
+      "capability_id": "BEC-PRIME-COMMERCE-KERNEL",
+      "commercialization": "commerce_architecture",
+      "price_proposal_nzd": [
+        49
+      ],
+      "price_status": "UNVERIFIED"
+    },
+    {
+      "capability_id": "BEC-PRIME-AGENT-COMMERCE",
+      "commercialization": "agentic_commerce_architecture",
+      "price_proposal_nzd": [
+        49
+      ],
+      "price_status": "UNVERIFIED"
+    },
+    {
+      "capability_id": "BEC-PRIME-READINESS-AUDIT",
+      "commercialization": "readiness_audit",
+      "price_proposal_nzd": [
+        49,
+        149,
+        499
+      ],
+      "price_status": "UNVERIFIED"
+    },
+    {
+      "capability_id": "BEC-PRIME-SENTINEL",
+      "commercialization": "reliability_or_governance_service",
+      "price_proposal_nzd": [
+        49
+      ],
+      "price_status": "UNVERIFIED"
+    }
+  ],
+  "economic_boundary": "No revenue, buyer, payment, or external execution is claimed by this artifact."
+}
