@@ -4,11 +4,13 @@ const sniper = require('../brain/SniperLoop');
 const builder = require('../factory/BuilderBoss');
 const firstSaleGate = require('../gauntlet/FirstSaleGate');
 const elohimCreate = require('./ElohimCreate');
+const elohimCommercialPath = require('./ElohimCommercialPath');
 
 function run(input) {
   const config = Array.isArray(input) ? { products: input } : (input || {});
   const products = Array.isArray(config.products) ? config.products : (Array.isArray(input) ? input : []);
   const createdCandidates = elohimCreate.createCandidates(config.capabilities || [], config.demandSignals || []);
+  const commercialPath = config.commercialPath ? elohimCommercialPath.buildCommercialPath(config.commercialPath) : null;
   const opportunities = sniper.run(products);
   const selected = opportunities.find(x => x.status === 'CANDIDATE') || null;
   const product = selected ? products.find(p => p.id === selected.source) : null;
@@ -19,6 +21,7 @@ function run(input) {
     schema_version: 'BEC-ELOHIM-3.0',
     created_candidates: createdCandidates,
     creation_count: createdCandidates.length,
+    commercial_path: commercialPath,
     verdict: approved ? 'SHIP_TO_BUYER_GATE' : 'KILL',
     breakdown: selected,
     path: approved ? ['ELOHIM_CREATE', 'SNIPER_LOOP', 'FIRST_SALE_GAUNTLET', 'BUILDER_BOSS', 'BUYER_INITIATED_CHECKOUT'] : ['ELOHIM_CREATE', 'SNIPER_LOOP', 'FIRST_SALE_GAUNTLET', 'KILL'],
