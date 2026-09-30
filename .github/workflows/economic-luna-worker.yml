@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       LLM_API_URL: https://api.openai.com/v1/chat/completions
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       LLM_MODEL: gpt-5.6-luna
