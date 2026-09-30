@@ -110,6 +110,31 @@ function candidates() {
     ? source.results.filter(x => x && x.verdict === 'PASS')
     : [];
 
+  const buyerSignals = Array.isArray(publicRadar.candidates)
+    ? publicRadar.candidates
+        .filter(x => x && x.url && x.title && x.signal_type === 'PUBLIC_DECK_TUNING_PROBLEM')
+        .map(x => ({
+          candidate_id: x.candidate_id || null,
+          title: x.title,
+          url: x.url,
+          surface: x.surface || null,
+          subreddit: x.subreddit || null,
+          published: x.published || null,
+          matched_signal: x.matched_signal || null,
+          problem_signal: x.problem_signal || 'OBSERVED_PUBLIC_REQUEST_FOR_DECK_HELP',
+          buyer_signal: x.buyer_signal || 'DEMONSTRATED_PROBLEM',
+          commercial_fit: x.commercial_fit || 'DIRECT_TO_COMMANDER_DIAGNOSTIC',
+          offer_id: x.offer_id || 'OFFER-CMD-DIAG-29-NZD',
+          price_nzd: Number(x.price_nzd || 29),
+          permission_status: x.permission_status || 'UNKNOWN_REQUIRES_SURFACE_RULE_CHECK',
+          external_action: 'HUMAN_APPROVAL_REQUIRED',
+          outreach_status: 'NOT_CONTACTED',
+          truth_status: 'UNVERIFIED_DEMAND_SIGNAL',
+          gauntlet_status: 'PENDING_SURFACE_JUDGMENT'
+        }))
+        .slice(0, 1000)
+    : [];
+
   // Keep already-approved commercial substrate first-class in 777.
   const seen = new Set();
   const base = [...buyerSignals, ...approvedOffers, ...liveOffers, ...discovered].filter(x => {
@@ -211,6 +236,8 @@ function build() {
     candidate_count: rows.length,
     activation_candidate_count: activation_candidates.length,
     activation_candidates,
+    buyer_signal_count: buyerSignals.length,
+    buyer_signal_queue: buyerSignals,
     candidates: rows.slice(0, 777),
     truth: {
       verified_external_revenue_nzd: 0,
