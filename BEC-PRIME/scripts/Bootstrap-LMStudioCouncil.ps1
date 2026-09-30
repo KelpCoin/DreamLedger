@@ -82,9 +82,9 @@ if ($coreMissing.Count -gt 0) {
         config = $Config
     }
     $proofJson = $proof | ConvertTo-Json -Depth 8
-$proofHash = [Convert]::ToHexString(([Security.Cryptography.SHA256]::Create()).ComputeHash([Text.Encoding]::UTF8.GetBytes($proofJson))).ToLowerInvariant()
+    $proofHash = [Convert]::ToHexString(([Security.Cryptography.SHA256]::Create()).ComputeHash([Text.Encoding]::UTF8.GetBytes($proofJson))).ToLowerInvariant()
 $proofJson | Set-Content -Path $ProofPath -Encoding UTF8
-Write-Event ('Proof SHA256: ' + $proofHash)
+    Write-Event ('Proof SHA256: ' + $proofHash)
     Write-Event ('FAIL: missing core roles: ' + ($coreMissing -join ', '))
     Write-Event ('Proof: ' + $ProofPath)
     Stop-Transcript | Out-Null
@@ -142,6 +142,7 @@ $proof = [ordered]@{
     status = 'PASS'
     generated_utc = [DateTime]::UtcNow.ToString('o')
     lm_studio_server = 'http://127.0.0.1:1234'
+    server_status = $serverStatus
     visible_model_count = $models.Count
     assigned_role_count = $available
     optional_visual_critic_assigned = [bool]$roles.visual_critic
@@ -150,7 +151,10 @@ $proof = [ordered]@{
     models = $names
     role_models = $roles
 }
-$proof | ConvertTo-Json -Depth 8 | Set-Content -Path $ProofPath -Encoding UTF8
+$proofJson = $proof | ConvertTo-Json -Depth 8
+$proofHash = [Convert]::ToHexString(([Security.Cryptography.SHA256]::Create()).ComputeHash([Text.Encoding]::UTF8.GetBytes($proofJson))).ToLowerInvariant()
+$proofJson | Set-Content -Path $ProofPath -Encoding UTF8
+Write-Event ('Proof SHA256: ' + $proofHash)
 
 Write-Event ('Assigned roles: ' + $available)
 Write-Event ('Config: ' + $Config)
