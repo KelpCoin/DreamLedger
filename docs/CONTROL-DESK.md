@@ -173,3 +173,34 @@ No fake buyers.
 No fake revenue.
 No architecture theatre.
 No reset.
+
+
+## Distribution wedge — 2026-09-30
+
+The immediate commercial wedge is the GETS Opportunity Brief, treated as an offer hypothesis rather than a validated market.
+
+Buyer definition: NZ SME supplier considering government work through GETS.
+Qualification: "Have you bid on a GETS tender in the last 12 months?"
+Offer hypothesis: evidence-backed tender decoding, including mandatory requirements, supplier fit/gaps, deadline and source/page references.
+Intended price hypothesis: NZ$49.
+Public checkout state: NOT ATTACHED / NOT VERIFIED. Do not reuse another product's Stripe link.
+Fulfillment contract: one sourced brief delivered to the buyer with traceable source references and an attributable delivery record.
+
+Smallest viable distribution system:
+1. Three warm-introduction requests per week.
+2. One LinkedIn carousel per week.
+3. One useful community contribution per week.
+4. One free sample brief published.
+5. One canonical destination.
+
+Distribution scoreboard is separate from economic truth:
+WARM_INTROS_SENT=0
+LINKEDIN_CAROUSELS_PUBLISHED=0
+COMMUNITY_CONTRIBUTIONS=0
+FREE_SAMPLE_BRIEFS=1 when the sample page is publicly reachable
+CANONICAL_DESTINATION=GETS Opportunity Brief page
+STRIPE_PAYMENT_LINK=UNVERIFIED for this offer
+
+Important distinction: the six proposed dominant failure classes are now recorded as the operating hypothesis for the experiment. They are not promoted to statistically confirmed truth by internal records alone. External claims about conversion rates, procurement statistics, QR concentration, or social engagement require source verification before they become canonical evidence.
+
+The system must not create fake distribution events, fake warm introductions, fake buyers, fake payments or fake outcomes. Public outreach remains a human gate. This plan moves the lowest unresolved external gate without adding a new architecture.
