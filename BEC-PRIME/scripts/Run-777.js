@@ -26,6 +26,34 @@ const GATES = [
   'DEMAND','CAPABILITY','ZERO_COST','FULFILLMENT','PAYMENT','REPEAT','CONTRADICTION'
 ];
 
+// Evidence proximity to money. Higher means closer to an independently verifiable
+// economic event. This orders machine attention, not revenue truth.
+const EVIDENCE_PRIORITY = {
+  SETTLED_PAYMENT: 100,
+  CHECKOUT: 90,
+  REPEAT_CHECKOUT: 80,
+  EXPLICIT_PAID_REQUEST: 70,
+  EXPLICIT_BUYING_INTENT: 60,
+  GENERAL_PROBLEM_SIGNAL: 10,
+  INTERNAL: 0
+};
+
+function classifyEvidence(seed) {
+  const source = String(seed.source_type || '').toUpperCase();
+  if (source === 'SETTLED_PAYMENT') return ['SETTLED_PAYMENT', EVIDENCE_PRIORITY.SETTLED_PAYMENT];
+  if (source === 'CHECKOUT' || source === 'STRIPE_CHECKOUT') return ['CHECKOUT', EVIDENCE_PRIORITY.CHECKOUT];
+  if (source === 'REPEAT_CHECKOUT') return ['REPEAT_CHECKOUT', EVIDENCE_PRIORITY.REPEAT_CHECKOUT];
+  if (source === 'PUBLIC_BUYER_SIGNAL') {
+    const text = JSON.stringify(seed).toLowerCase();
+    if (/\bpaid\b|\bpaying\b|\bbudget\b|\bprice\b/.test(text)) {
+      return ['EXPLICIT_BUYING_INTENT', EVIDENCE_PRIORITY.EXPLICIT_BUYING_INTENT];
+    }
+    return ['GENERAL_PROBLEM_SIGNAL', EVIDENCE_PRIORITY.GENERAL_PROBLEM_SIGNAL];
+  }
+  if (source === 'APPROVED_OFFER' || source === 'LIVE_COMMERCE') return ['INTERNAL', EVIDENCE_PRIORITY.INTERNAL];
+  return ['GENERAL_PROBLEM_SIGNAL', EVIDENCE_PRIORITY.GENERAL_PROBLEM_SIGNAL];
+}
+
 const PRICING_RESEARCH = {
   schema: 'DREAMLEDGER/PRICING-ELASTICITY/v1',
   status: 'HYPOTHESIS_ONLY',
@@ -148,6 +176,7 @@ function build() {
   let sequence = 0;
 
   for (const seed of top) {
+    const [evidence_class, evidence_priority] = classifyEvidence(seed);
     for (const lens of LENSES) {
       for (const transform of TRANSFORMS) {
         const gate = GATES[sequence % GATES.length];
@@ -161,6 +190,8 @@ function build() {
           seed_opportunity_id: seed.opportunity_id || null,
           seed_title: seed.title || null,
           search_mode: '777_HYPOTHESIS_GENERATION',
+          evidence_class,
+          evidence_priority,
           lens,
           transform,
           gate,
@@ -192,6 +223,7 @@ function build() {
   }
 
   rows.sort((a,b) => {
+    if (b.evidence_priority !== a.evidence_priority) return b.evidence_priority - a.evidence_priority;
     const av = Number(a.hypothesis.price_nzd || 0);
     const bv = Number(b.hypothesis.price_nzd || 0);
     return bv - av;
@@ -219,6 +251,29 @@ function build() {
       reconciliation: x.commercial_activation.reconciliation || 'APPROVED_ONLY'
     }));
 
+  const buyerSignalQueue = buyerSignals
+    .map((x, index) => ({
+      ...x,
+      evidence_class: classifyEvidence(x)[0],
+      evidence_priority: classifyEvidence(x)[1],
+      queue_rank: index + 1
+    }))
+    .sort((a, b) => b.evidence_priority - a.evidence_priority || String(a.candidate_id).localeCompare(String(b.candidate_id)));
+
+  const nextBuyerSignal = buyerSignalQueue[0] || null;
+  const nextHumanAction = nextBuyerSignal
+    ? {
+        required: true,
+        type: 'REVIEW_AND_APPROVE_EXTERNAL_REPLY',
+        candidate_id: nextBuyerSignal.candidate_id,
+        surface: nextBuyerSignal.surface,
+        source_url: nextBuyerSignal.url,
+        offer_id: nextBuyerSignal.offer_id || 'OFFER-CMD-DIAG-29-NZD',
+        price_nzd: Number(nextBuyerSignal.price_nzd || 29),
+        boundary: 'NO_SEND_UNTIL_HUMAN_APPROVAL'
+      }
+    : null;
+
   const out = {
     schema_version: 'DREAMLEDGER/777/v1',
     generated_at_utc: new Date().toISOString(),
@@ -235,7 +290,8 @@ function build() {
     activation_candidates,
     pricing_research: PRICING_RESEARCH,
     buyer_signal_count: buyerSignals.length,
-    buyer_signal_queue: buyerSignals,
+    buyer_signal_queue: buyerSignalQueue,
+    next_human_action: nextHumanAction,
     candidates: rows.slice(0, 777),
     truth: {
       verified_external_revenue_nzd: 0,
