@@ -1,0 +1,12 @@
+{
+  "schema":"dreamledger.network-nudge.v1",
+  "status":"CANONICAL",
+  "classes":["PROVEN","PROMISING","NEGATIVE","UNTESTED","BLOCKED","STALE","CONTRADICTED"],
+  "source":"777",
+  "fact_authority":"existing economic truth boundary",
+  "selection_rule":"bias next legal 777 experiment using provenance-bound observed evidence while preserving exploration",
+  "dollar_rule":"trace verified economic outcomes backward through offer,audience,message,surface,cta,response,payment,fulfillment,evidence",
+  "fields":["nudge_id","created_at","source_cell_id","offer","audience","message","surface","cta","observation","response_count","qualified_response_count","payment_count","settled_revenue","fulfillment_state","evidence_refs","truth_state","human_minutes","context","mutation_suggestion","confidence","expiry","author_agent","authorization_scope"],
+  "learning_loop":["OBSERVE","RECORD","CLASSIFY","NUDGE","SELECT","EXPOSE","OBSERVE_AGAIN"],
+  "rules":{"llm_confidence_cannot_create_proven":true,"synthetic_demand_never_counts":true,"one_transaction_is_not_repeatability":true}
+}
