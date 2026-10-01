@@ -7,7 +7,7 @@
     "capabilities": 15,
     "candidates": 31,
     "passed": 29,
-    "approved": 0,
+    "approved": 1,
     "rejected": 3
   },
   "candidates": [
@@ -1773,9 +1773,9 @@
       ]
     },
     {
-      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
       "errors": [
-        "missing:refund_rules"
+        "unknown_capability"
       ]
     }
   ]
