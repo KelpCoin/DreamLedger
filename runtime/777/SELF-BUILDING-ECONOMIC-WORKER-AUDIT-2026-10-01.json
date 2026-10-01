@@ -1,0 +1,107 @@
+{
+  "schema": "DREAMLEDGER/777/SELF_BUILDING_ECONOMIC_WORKER_AUDIT/v1",
+  "observed_at": "2026-10-01",
+  "repository": "KelpCoin/DreamLedger",
+  "implementation": {
+    "local_worker": "BEC-PRIME/scripts/economic-local-worker.js",
+    "tests": "BEC-PRIME/scripts/economic-local-worker.test.js",
+    "ci_workflow": ".github/workflows/777-economic-search.yml",
+    "commits": {
+      "worker": "4fbef510dde5494ba6cb6de91af0a2f414765169",
+      "tests": "d7136410dc817b6b9fd19c8135578fe8b0c28a0a",
+      "ci": "b278bf818878d755937fac9fd91febbe1c15d69c"
+    },
+    "status": "COMMITTED_NOT_YET_CI_VERIFIED_OR_RUN_ON_OPERATOR_MACHINE"
+  },
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0,
+    "no_revenue_or_buyer_state_changed": true
+  },
+  "live_database_observations": {
+    "project_ref": "wbwgroygjeyukkspnqiy",
+    "economic_model_tasks": {
+      "pending": 76,
+      "completed": 1,
+      "pending_attempt_count_at_or_above_5": 68,
+      "pending_rows_with_last_error": 76,
+      "pending_rows_with_active_lease": 0
+    },
+    "economic_task_bridge_notes": {
+      "ready": 8,
+      "retryable": 304,
+      "quarantined": 45,
+      "retryable_missing_provider_secret_error_notes": 63,
+      "retryable_expired_lease_error_notes": 181
+    },
+    "cron_observation": {
+      "existing_dispatcher": "beck-economic-task-dispatcher",
+      "existing_lease_watchdog": "beck-economic-task-lease-watchdog",
+      "existing_claim_function": "public.claim_economic_model_task",
+      "existing_atomic_claim_pattern": "FOR UPDATE SKIP LOCKED",
+      "finding": "The queue failure is not absence of a claim function. Existing tasks and bridge notes show repeated missing provider-secret errors and expired leases."
+    },
+    "observed_provider_errors": [
+      "MISSING_ENV:ANTHROPIC_API_KEY",
+      "MISSING_ENV:XAI_API_KEY",
+      "MISSING_ENV:DEEPSEEK_API_KEY"
+    ],
+    "rls": {
+      "critical_tables_with_rls_disabled": [
+        "public.economic_latency_events",
+        "public.mechanism_match_cache",
+        "public.economic_circuit_breakers",
+        "public.economic_rate_buckets",
+        "public.economic_saga_steps",
+        "public.economic_sagas"
+      ],
+      "remediation": "Do not blanket-enable RLS without mapping legitimate service access and policies. Review grants as well as policies."
+    }
+  },
+  "decision": {
+    "do_not": [
+      "Add another queue, ledger, orchestrator, or task factory.",
+      "Create more tasks merely to keep the system busy.",
+      "Reset exhausted attempts without fixing the provider dependency.",
+      "Promote model assessments to economic truth.",
+      "Allow the worker to perform external actions, outreach, purchases, publishing, or fulfillment."
+    ],
+    "do": [
+      "Use the existing queue and lease-fenced RPCs.",
+      "Use the local LM Studio worker for assessment generation when the operator machine is online.",
+      "Require the local model to pass JSON contract validation before writing an assessment.",
+      "Write a local SHA-256 proof artifact for each completed task.",
+      "Keep payment, buyer, fulfillment, and revenue truth unchanged unless independent external evidence exists.",
+      "Run the canonical 777 CI workflow and verify the run ID, commit SHA, status, conclusion, and test step before calling CI healthy."
+    ]
+  },
+  "local_worker_contract": {
+    "entrypoint": "node BEC-PRIME/scripts/economic-local-worker.js",
+    "continuous_mode": "node BEC-PRIME/scripts/economic-local-worker.js --loop",
+    "required_environment": [
+      "SUPABASE_URL",
+      "SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY"
+    ],
+    "local_model": "LM Studio OpenAI-compatible endpoint, default http://127.0.0.1:1234/v1",
+    "model_selection": "LMSTUDIO_MODEL if set, otherwise first model returned by /models",
+    "proof_directory": "runtime/777/local-worker-proofs",
+    "guardrails": [
+      "Processes existing tasks only; never seeds or manufactures tasks.",
+      "Uses existing bridge claim, fenced assessment, and bridge completion RPCs.",
+      "Requires valid lease and matching run_lease.",
+      "Does not make external requests except local LM Studio and configured Supabase API.",
+      "Does not claim revenue or authorize consequential actions."
+    ]
+  },
+  "verification_status": {
+    "live_schema_and_function_inspection": "PASS",
+    "root_cause_evidence_for_missing_provider_keys": "PASS",
+    "worker_unit_tests": "COMMITTED_NOT_RUN_IN_THIS_SESSION",
+    "canonical_ci": "PENDING_AFTER_COMMIT",
+    "local_lm_studio_inference": "UNOBSERVABLE_FROM_CONNECTED_TOOLS",
+    "local_worker_task_completion": "NOT_RUN",
+    "external_revenue": "NZD_0.00"
+  }
+}
