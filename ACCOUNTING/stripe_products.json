@@ -1,0 +1,34 @@
+{
+  "silo": "ACCOUNTING",
+  "status": "READY_TO_PUBLISH",
+  "currency": "NZD",
+  "products": [
+    {
+      "sku": "ACCOUNTING-DIAGNOSTIC",
+      "name": "Accounting Diagnostic",
+      "price_nzd": 29,
+      "stripe_product_id": "prod_V8Eajyt2hDffHR",
+      "stripe_price_id": "price_1U7y7YEGgEAnUFF9IOmG2h1t",
+      "payment_link": "https://buy.stripe.com/14A5kD7LD3dzgyPbN2dwc27",
+      "billing": "one_time"
+    },
+    {
+      "sku": "APAR-AUTOMATION",
+      "name": "AP/AR Automation",
+      "price_nzd": 149,
+      "stripe_product_id": "prod_V8EaaJwxatWcx7",
+      "stripe_price_id": "price_1U7y7jEGgEAnUFF9xxed7MY2",
+      "payment_link": "https://buy.stripe.com/5kQcN59TL9BX3M32csdwc28",
+      "billing": "one_time"
+    },
+    {
+      "sku": "AI-BOOKKEEPING-AGENT",
+      "name": "AI Bookkeeping Agent",
+      "price_nzd_month": 499,
+      "stripe_product_id": "prod_V8Eb2phmVX3SKP",
+      "stripe_price_id": "price_1U7y7tEGgEAnUFF9XKwVqDtO",
+      "payment_link": "https://buy.stripe.com/3cI7sL7LDdSdfuL2csdwc29",
+      "billing": "monthly"
+    }
+  ]
+}
