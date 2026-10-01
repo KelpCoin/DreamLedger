@@ -12,8 +12,18 @@ from typing import Any
 def project_action(row: dict[str, Any]) -> list[dict[str, Any]]:
     events: list[dict[str, Any]] = []
     state = str(row.get("status") or row.get("state") or "").upper()
+    action_type = str(row.get("action_type") or "").upper()
     dispatch = str(row.get("dispatch_state") or "").upper()
     authorization = str(row.get("authorization_verdict") or "").lower()
+
+    # BUILD_EXECUTION_PACKET is an internal planning/assembly action. It is
+    # not an external economic action and therefore must never be projected
+    # into ACTION_PREPARED/ACTION_AUTHORIZED/ACTION_DISPATCHED lifecycle
+    # events. Its persisted packet may be internally routed without any
+    # external effect. Keep the canonical economic state machine closed over
+    # actual economic actions.
+    if action_type == "BUILD_EXECUTION_PACKET":
+        return events
 
     if state in {"PREPARED", "READY"}:
         events.append({"event_type": "ACTION_PREPARED"})
