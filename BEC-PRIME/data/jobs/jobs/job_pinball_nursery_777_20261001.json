@@ -15,6 +15,5 @@
   "worker_preference": "multi_model_diverse",
   "approval_required": true,
   "public_action_allowed": false,
-  "previous_result_hash": null,
-  "input_hash": "pending-local-worker-canonical-hash"
+  "previous_result_hash": null
 }
