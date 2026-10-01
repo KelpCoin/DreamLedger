@@ -8,7 +8,7 @@
     "cube": "BEC-PRIME/scripts/Run-777.js",
     "silo_home": "Supabase economic_silo_registry + cube_silo_registry",
     "silo_factory": "Supabase silo-factory",
-    "silo_orchestrator": "Supabase silo-orchestrator v9",
+    "silo_orchestrator": "Supabase silo-orchestrator v10",
     "elohim": "Supabase elohim-cube v9",
     "gauntlet": "Supabase gauntlet-cube v6",
     "truth_oracle": "Supabase truth-oracle-execute v10 + truth-oracle-public v2",
@@ -71,11 +71,12 @@
   },
   "live_change": {
     "component": "silo-orchestrator",
-    "previous_version": 8,
-    "current_version": 9,
-    "change": "Gauntlet now judges Elohim output before Truth Oracle economic verification; failed Gauntlet stops the chain.",
+    "previous_version": 9,
+    "current_version": 10,
+    "change": "Gauntlet now judges Elohim output first; Truth Oracle is checked only after Gauntlet PASS, and internal CUBE proposition readiness cannot be promoted to external economic truth.",
     "external_action": "none",
-    "revenue_effect": "none"
+    "revenue_effect": "none",
+    "contract": "CUBE -> SILO -> ELOHIM -> GAUNTLET -> TRUTH ORACLE -> AUTHORIZATION -> EXTERNAL ACTION"
   },
   "current_frontier": "TECHNICAL PROOF + HUMAN EXTERNAL DISPATCH",
   "anti_inflation": "No internal row, Gauntlet PASS, checkout, authorization, model output, or ledger entry can create verified economic truth."
