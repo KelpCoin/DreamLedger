@@ -1,0 +1,52 @@
+{
+  "artifact": "STATE_DERIVATION_DECISION",
+  "observed_at": "2026-10-01T02:26:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "canonical_commit": "d36168f68561c0d73ff3bd8a858ae6d46605b82e",
+  "decision": "DO_NOT_ADD_CANONICAL_AUTHORIZED_PROJECTION",
+  "reason": [
+    "The persisted economic action is action_type=BUILD_EXECUTION_PACKET, which the existing event_projection.py explicitly excludes from ACTION_PREPARED, ACTION_AUTHORIZED and ACTION_DISPATCHED economic lifecycle events.",
+    "The linked execution packet is DISPATCHED with dispatch_state=INTERNAL_ROUTED and has no external execution evidence. It is an internal planning/routing artifact.",
+    "The linked CUBE opportunity is status=INTERESTING with qualification_reason=AWAITING_ECONOMIC_ASSESSMENT, economic_state=UNCONVERTED, next_external_gate=HUMAN_SUBMISSION_REQUIRED and external_action_allowed=false.",
+    "Therefore AUTHORIZED + PREPARED must not be promoted to a canonical economic AUTHORIZED state for this BUILD_EXECUTION_PACKET row.",
+    "The proposed shortcut mapping HUMAN_SUBMISSION_REQUIRED -> AUTHORIZED is also rejected because it would convert an explicit missing human gate into authorization."
+  ],
+  "authoritative_observation": {
+    "opportunity_id": "645c95cd-2e69-4f07-9ca2-c987af49f7b6",
+    "action_id": "45f98b88-78dd-4549-b5bb-b6f4a1a7482e",
+    "packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
+    "action_type": "BUILD_EXECUTION_PACKET",
+    "authorization_state": "AUTHORIZED",
+    "execution_state": "PREPARED",
+    "packet_status": "DISPATCHED",
+    "dispatch_state": "INTERNAL_ROUTED",
+    "executed_at": null,
+    "external_reference": null,
+    "evidence_reference": null,
+    "cube_status": "INTERESTING",
+    "qualification_reason": "AWAITING_ECONOMIC_ASSESSMENT",
+    "economic_state": "UNCONVERTED",
+    "next_external_gate": "HUMAN_SUBMISSION_REQUIRED",
+    "external_action_allowed": false
+  },
+  "truth_boundary": {
+    "external_action_sent": false,
+    "external_result_observed": false,
+    "verified_revenue_nzd": 0,
+    "data_mutations": 0,
+    "new_tables": 0,
+    "new_ledgers": 0,
+    "invented_transitions": 0
+  },
+  "next_blocker": {
+    "classification": "ECONOMIC_ASSESSMENT_AND_HUMAN_GATE",
+    "machine_action": "Do not dispatch or reinterpret the planning packet. Continue from the existing opportunity assessment path and only surface an external submission when the authoritative state permits it.",
+    "human_action": "If pursuing the observed Upwork opportunity, the owner must perform the external submission through the owner's authenticated account.",
+    "expected_value_nzd": 850
+  },
+  "humanizer_decision": {
+    "status": "NOT_PRODUCTION_READY",
+    "reason": "The proposed density thresholds are uncalibrated and some deterministic replacements can invent provenance, for example replacing vague authority with 'In our experience' or 'We have seen'. Those transformations are not truth-preserving.",
+    "safe_scope": "Use as a clarity/style review only after a human-labeled calibration set exists. It must never be an external-dispatch authority and must not claim to make text indistinguishable from human writing."
+  }
+}
