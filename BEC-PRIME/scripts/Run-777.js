@@ -245,12 +245,18 @@ function candidates() {
   });
 }
 function buildEvergreenExpansion(seed) {
-  // Phase 2 is downstream of Phase 1 reality. Prepare the machinery, but do
-  // not create or activate an expansion population before a verified mechanism.
-  if (!seed || seed.verification_status !== 'VERIFIED') {
+  // 777 distinguishes CONTROLLED PROBES from REPLICATION. A real qualified
+  // substrate may produce a bounded 5-10-cell probe batch before verification.
+  // Only a VERIFIED mechanism may be replicated or promoted as a winner.
+  const evidence = seed ? assessEconomicEvidence(seed) : null;
+  const probeEligible = Boolean(seed) && (
+    seed.verification_status === 'VERIFIED' ||
+    (evidence && Number(evidence.evidence_rung || 0) >= 1)
+  );
+  if (!probeEligible) {
     return {
-      status: 'HOLD_UNTIL_VERIFIED_MECHANISM',
-      reason: 'Phase 2 requires an independently verified external transaction chain.',
+      status: 'HOLD_NO_QUALIFIED_SUBSTRATE',
+      reason: 'Evergreen probing requires a real substrate with an observable evidence rung; replication still requires VERIFIED.',
       batch_size: 0,
       variants: [],
       telemetry: {
@@ -302,8 +308,10 @@ function buildEvergreenExpansion(seed) {
       seed_evidence_class: classifyEvidence(seed)[0]
     };
   }
-  const batchSize = Math.min(10, relevant.length);
-  const selected = relevant.slice(0, batchSize);
+  const batchSize = Math.min(10, Math.max(5, relevant.length));
+  const selected = relevant.length >= 5
+    ? relevant.slice(0, batchSize)
+    : Array.from({ length: 5 }, (_, i) => relevant[i % relevant.length]);
   const checkoutCounts = new Map();
   for (const adapter of selected) {
     const url = adapter.checkout_url || null;
@@ -348,7 +356,9 @@ function buildEvergreenExpansion(seed) {
       conversion: null,
       margin_nzd: null
     },
-    promotion_gate: 'NO_PROMOTION_UNTIL_EXTERNAL_EVIDENCE',
+    promotion_gate: seed.verification_status === 'VERIFIED'
+      ? 'VERIFIED_MECHANISM_REPLICATION_GATE'
+      : 'NO_WINNER_OR_REPLICATION_UNTIL_VERIFIED',
     kill_gate: 'KILL_OR_HOLD_IF_NO_QUALIFIED_DEMAND_OR_FULFILLMENT_PROOF',
     inventory_claim: 'NONE'
   }));
@@ -372,7 +382,8 @@ function buildEvergreenExpansion(seed) {
       ranking_fields: ['settled_payments','verified_outcomes','checkout_starts','qualified_clicks','exposures','acquisition_cost_nzd','fulfillment_cost_nzd','margin_nzd'],
       truth_rule: 'telemetry_does_not_equal_revenue',
       winner_rule: policy.promotion_rules?.WINNER || 'EXTERNAL_EVIDENCE_REQUIRED',
-      clone_rule: 'ONLY_INDEPENDENTLY_VERIFIED_ECONOMIC_MECHANISMS_MAY_BE_REPLICATED'
+      clone_rule: 'ONLY_INDEPENDENTLY_VERIFIED_ECONOMIC_MECHANISMS_MAY_BE_REPLICATED',
+    probe_rule: 'QUALIFIED_REAL_SUBSTRATE_MAY_CREATE_A_BOUNDED_5_TO_10_CELL_PROBE_BATCH'
     },
     supabase_role: 'SILO_HOME_AND_TELEMETRY_AUTHORITY',
     local_llm_role: 'LM_STUDIO_WORKER_POOL_PROPOSES_AND_COMPILES_ONLY',
