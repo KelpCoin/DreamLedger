@@ -11,6 +11,7 @@ on:
       - "BEC-PRIME/scripts/777-public-market-radar.py"
       - "BEC-PRIME/economic/EconomicEvidenceLadder.js"
       - "BEC-PRIME/economic/EconomicEvidenceLadder.test.js"
+      - "runtime/humanizer/**"
       - ".github/workflows/777-economic-search.yml"
 
 permissions:
