@@ -1,0 +1,73 @@
+/* DreamLedger MASTER SILO stencil — MTG is the reference clone */
+:root{
+  --silo-bg:#0a0b0f;--silo-bg-elev:#12141c;--silo-surface:#161922;--silo-surface-2:#1c2030;
+  --silo-ink:#f4f1ea;--silo-muted:#9aa0b0;--silo-dim:#6d7385;--silo-line:#2a3040;
+  --silo-accent:#d4a84b;--silo-accent-bright:#e8c06a;--silo-accent-soft:rgba(212,168,75,.12);
+  --silo-ok:#3d9b6e;--silo-ok-soft:rgba(61,155,110,.12);
+  --silo-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --silo-sans:"DM Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --silo-max:1120px;--silo-radius:18px;--silo-radius-sm:12px;
+  --silo-safe:env(safe-area-inset-bottom,0px);--silo-name:"MTG";
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body.silo-body{
+  margin:0;font-family:var(--silo-sans);font-size:16px;line-height:1.55;
+  background:var(--silo-bg);color:var(--silo-ink);-webkit-font-smoothing:antialiased;
+  padding-bottom:calc(100px + var(--silo-safe));
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% -10%,rgba(75,125,201,.14),transparent 50%),
+    radial-gradient(ellipse 60% 40% at 90% 0%,rgba(212,168,75,.10),transparent 45%);
+  background-attachment:fixed;
+}
+.silo-body a{color:inherit;text-decoration:none}
+.silo-wrap{max-width:var(--silo-max);margin:0 auto;padding:0 20px}
+.silo-display{font-family:var(--silo-serif);font-size:clamp(2.4rem,7.5vw,3.6rem);font-weight:400;letter-spacing:-.03em;line-height:1.06;margin:0 0 14px}
+.silo-display em,.silo-display span{font-style:italic;color:var(--silo-accent-bright);font-weight:400}
+.silo-h2{font-family:var(--silo-serif);font-size:clamp(1.45rem,3.5vw,1.85rem);font-weight:400;letter-spacing:-.02em;margin:0 0 12px}
+.silo-h3{font-family:var(--silo-serif);font-size:1.3rem;font-weight:400;letter-spacing:-.02em;margin:0 0 8px}
+.silo-lead{font-size:1.08rem;color:var(--silo-muted);max-width:36em;margin:0 0 22px;line-height:1.6}
+.silo-eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--silo-accent);margin:0 0 12px}
+.silo-small{font-size:13px;color:var(--silo-dim)}
+.silo-hdr{position:sticky;top:0;z-index:40;background:rgba(10,11,15,.88);backdrop-filter:blur(18px) saturate(1.15);border-bottom:1px solid var(--silo-line)}
+.silo-hdr-inner{max-width:var(--silo-max);margin:0 auto;height:64px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.silo-logo{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.02em}
+.silo-logo-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(145deg,#1a1e2a,#0e1018);border:1px solid var(--silo-line);display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.silo-logo-mark svg{width:22px;height:22px}
+.silo-logo em{font-family:var(--silo-serif);font-style:italic;color:var(--silo-accent-bright);font-weight:400}
+.silo-nav{display:flex;flex-wrap:wrap;align-items:center;gap:2px;justify-content:flex-end}
+.silo-nav a{font-size:13px;font-weight:600;color:var(--silo-muted);padding:8px 12px;border-radius:999px;min-height:44px;display:inline-flex;align-items:center}
+.silo-nav a:hover{color:var(--silo-ink)}
+.silo-nav .silo-cta{background:linear-gradient(180deg,var(--silo-accent-bright),var(--silo-accent));color:#14120c!important;font-weight:800;padding:8px 16px}
+.silo-actions{display:flex;flex-wrap:wrap;gap:10px}
+.silo-btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 20px;border-radius:14px;font-size:15px;font-weight:700;border:1px solid transparent;font-family:inherit;cursor:pointer}
+.silo-btn-gold{background:linear-gradient(180deg,var(--silo-accent-bright),var(--silo-accent));color:#14120c}
+.silo-btn-ghost{background:var(--silo-surface);border-color:var(--silo-line);color:var(--silo-ink)}
+.silo-btn-line{background:transparent;border-color:var(--silo-line);color:var(--silo-ink)}
+.silo-btn-block{width:100%}
+.silo-pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;border:1px solid var(--silo-line);background:var(--silo-surface);color:var(--silo-muted);margin:0 6px 6px 0}
+.silo-pill-gold{border-color:rgba(212,168,75,.4);color:var(--silo-accent-bright);background:var(--silo-accent-soft)}
+.silo-pill-ok{border-color:rgba(61,155,110,.4);color:#7dcea6;background:var(--silo-ok-soft)}
+.silo-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.silo-rail::-webkit-scrollbar{display:none}
+.silo-tile{flex:0 0 min(82vw,300px);scroll-snap-align:start;background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:var(--silo-radius);padding:20px;display:flex;flex-direction:column;min-height:220px}
+.silo-tile .tag{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--silo-accent);margin-bottom:10px}
+.silo-tile p{font-size:14px;color:var(--silo-muted);flex:1;line-height:1.45}
+.silo-price{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;margin:14px 0 12px}
+.silo-price small{font-size:.8rem;font-weight:600;color:var(--silo-dim)}
+.silo-tile .go{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:var(--silo-radius-sm);font-weight:800;font-size:14px;background:linear-gradient(180deg,var(--silo-accent-bright),var(--silo-accent));color:#14120c}
+.silo-tile .go.ghost{background:var(--silo-surface-2);border:1px solid var(--silo-line);color:var(--silo-ink)}
+.silo-panel{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:var(--silo-radius);padding:24px}
+.silo-panel-accent{border-color:rgba(212,168,75,.35);background:linear-gradient(160deg,var(--silo-accent-soft),var(--silo-surface))}
+.silo-section{padding:36px 0}
+.silo-section-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.silo-section-h a{font-size:13px;font-weight:700;color:var(--silo-accent-bright)}
+.silo-footer{padding:36px 0 24px;border-top:1px solid var(--silo-line);margin-top:20px;font-size:13px;color:var(--silo-dim)}
+.silo-footer a{color:var(--silo-muted);font-weight:600;margin-right:14px}
+.silo-stick{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--silo-safe));z-index:50;background:var(--silo-bg-elev);border:1px solid var(--silo-line);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 16px 48px rgba(0,0,0,.45)}
+.silo-stick b{flex:1;font-size:13px;font-weight:600}
+.silo-stick a{background:linear-gradient(180deg,var(--silo-accent-bright),var(--silo-accent));color:#14120c;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;font-size:14px;display:inline-flex;align-items:center;white-space:nowrap}
+@media(min-width:800px){.silo-stick{max-width:420px;left:auto;right:24px}}
+.silo-label{display:block;font-size:12px;font-weight:700;color:var(--silo-muted);margin:14px 0 6px}
+.silo-input,.silo-select,.silo-textarea{width:100%;padding:12px 14px;border-radius:var(--silo-radius-sm);border:1px solid var(--silo-line);background:var(--silo-surface);color:var(--silo-ink);font:inherit}
+.silo-textarea{min-height:100px;resize:vertical}
