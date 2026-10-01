@@ -1,0 +1,38 @@
+{
+  "schema_version": "BEC-FIRST-DOLLAR-HUMAN-GATE-1.0",
+  "updated_utc": "2026-10-01T01:02:00Z",
+  "objective": "Move one qualified Commander demand signal across the external-action boundary without manufacturing commerce.",
+  "offer": {
+    "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "price_nzd": 29,
+    "checkout": "EXISTING_LIVE_STRIPE_CHECKOUT",
+    "fulfillment": "EXISTING_COMMANDER_DIAGNOSTIC"
+  },
+  "source": {
+    "platform": "Reddit",
+    "community": "r/mtg",
+    "demand_signal": "Current first-Commander / deck-building help requests remain observable.",
+    "fresh_example_url": "https://www.reddit.com/r/mtg/comments/1wpqwf3/new_to_mtg_and_scared_to_go_to_lgs/",
+    "source_state": "OBSERVED",
+    "note": "This is a contextual demand surface, not evidence of buyer intent for DreamLedger."
+  },
+  "dispatch": {
+    "state": "NOT_DISPATCHED",
+    "authorization": "HUMAN_REQUIRED",
+    "external_account": "OWNER_REDDIT_ACCOUNT",
+    "machine_posting_capability": "UNAVAILABLE"
+  },
+  "exact_human_action": "Post one genuinely helpful, non-spammy reply in a currently relevant Commander/deck-building thread. Mention the NZ$29 diagnostic only if it is directly relevant to the poster's stated problem. Do not mass-post, scrape users, or imply endorsement.",
+  "prepared_reply": "You’re describing the exact sort of problem I built a small Commander deck diagnostic for: if you already have a decklist, I can go through the weak spots, expensive choices, cuts and upgrades and give you a clear direction rather than just handing you another generic decklist. It’s NZ$29 for a proper pass. If you’d rather keep it free, posting the list and your budget will still get you useful advice from the community.",
+  "expected_next_state": "EXTERNAL_SENT",
+  "evidence_required": [
+    "Native Reddit permalink or screenshot showing the actual posted contribution",
+    "Any subsequent buyer response",
+    "Stripe payment_intent.succeeded for an attributable buyer",
+    "Fulfillment artifact",
+    "Independent evidence sufficient for Truth Oracle verification"
+  ],
+  "kill_condition": "Do not post if the thread rules prohibit commercial/self-promotional replies or if the reply would not be genuinely useful without the offer.",
+  "human_minutes": 2,
+  "economic_scoreboard_effect_now": "NONE"
+}
