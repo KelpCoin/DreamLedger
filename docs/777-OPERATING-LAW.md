@@ -9,6 +9,62 @@ Date: 2026-10-01
 
 The machine continuously converts economically interesting real-world substrate into bounded cells, tests those cells against external reality, records verified mechanisms, and returns only eligible mechanisms to CUBE for controlled replication.
 
+
+
+## The actual 777 moment found in the existing runtime
+
+The existing `BEC-PRIME/scripts/Run-777.js` is the concrete compiler behind this law.
+
+It already contains seven search lenses:
+- BUYER
+- PROBLEM
+- OFFER
+- CHANNEL
+- PRICE
+- FULFILLMENT
+- PROOF
+
+It already contains seven transformations:
+- NARROW
+- BUNDLE
+- SPLIT
+- REPEAT
+- MONITOR
+- VERIFY
+- BROKER
+
+It already contains seven gates:
+- DEMAND
+- CAPABILITY
+- ZERO_COST
+- FULFILLMENT
+- PAYMENT
+- REPEAT
+- CONTRADICTION
+
+That is the important discovery: the substrate is not waiting for a new 777 engine. The 777 search grammar already exists in the runtime.
+
+The runtime then:
+1. reads existing approved offers, live commerce, buyer signals, public market radar, compiled opportunities, and existing evergreen adapters;
+2. compiles bounded hypotheses from those inputs;
+3. ranks them by evidence proximity to money;
+4. binds an actionable buyer signal to an existing offer when the identities reconcile;
+5. emits a canonical `DREAMLEDGER/777/COMMERCE-HANDOFF/v1`;
+6. hands that identity into the existing Supabase economic substrate;
+7. runs existing economic activation;
+8. keeps external action behind authorization;
+9. keeps the Truth Oracle scoreboard at zero until external reality proves the chain.
+
+The runtime also caps its emitted candidate population at 777 records. The number is therefore not decorative: 777 is already encoded as the bounded search population while the seven-by-seven-by-seven grammar supplies the generation axes.
+
+The evergreen factory is already present as ten existing quote-comparison adapters. They currently share a checkout identity, so they are substrate and fulfillment capability, not ten independently attributable winners. The system must not promote them as ten commercial winners until attribution is independently separable.
+
+Therefore the correct construction is not another factory. It is the existing factory becoming generational:
+
+`SUBSTRATE -> CUBE -> CELL -> ELOHIM -> GAUNTLET -> AUTHORIZATION -> EXTERNAL REALITY -> TRUTH ORACLE -> BECK -> TELEMETRY -> VERIFIED MECHANISM -> CUBE`.
+
+The first verified mechanism is the permission to multiply. Before that event, the system may prepare the 5-10-cell expansion machinery, but it must not manufacture a winner or pretend shared checkout activity is independent performance.
+
 ## Canonical loop
 
 WORLD
