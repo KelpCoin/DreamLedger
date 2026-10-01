@@ -1,0 +1,55 @@
+{
+  "artifact": "DREAMLEDGER_PRODUCTION_OBSERVATION",
+  "observed_at": "2026-10-01",
+  "project_id": "wbwgroygjeyukkspnqiy",
+  "source_tables": [
+    "economic_actions",
+    "economic_execution_packets"
+  ],
+  "source_row": {
+    "action_id": "45f98b88-78dd-4549-b5bb-b6f4a1a7482e",
+    "packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
+    "opportunity_id": "645c95cd-2e69-4f07-9ca2-c987af49f7b6",
+    "action_type": "BUILD_EXECUTION_PACKET",
+    "target": "ACNC_RESEARCH_WORKER",
+    "action_execution_state": "PREPARED",
+    "packet_status": "DISPATCHED",
+    "packet_dispatch_state": "INTERNAL_ROUTED",
+    "authorization_verdict": "allow",
+    "authorization_state": "AUTHORIZED",
+    "worker_trace_present": false,
+    "external_reference": null,
+    "evidence_reference": null
+  },
+  "observation_contract": {
+    "modules": [
+      "runtime/economic/production_observation_contract.py",
+      "runtime/economic/production_observation_probe.py",
+      "runtime/economic/event_projection.py",
+      "runtime/economic/state_transition_engine.py"
+    ],
+    "input_normalization": {
+      "status": "PREPARED",
+      "dispatch_state": "INTERNAL_ROUTED",
+      "authorization_verdict": "allow",
+      "opportunity_state": "AUTHORIZED",
+      "transition_context": {}
+    },
+    "projected_events": [
+      "ACTION_PREPARED",
+      "ACTION_AUTHORIZED",
+      "ACTION_DISPATCHED"
+    ],
+    "result": "EXACT_BLOCKER",
+    "event_type": "ACTION_PREPARED",
+    "state_before": "AUTHORIZED",
+    "error_class": "STATE_TRANSITION_INVALID",
+    "dependency_state": "blocked",
+    "missing_field": "AUTHORIZED:ACTION_PREPARED"
+  },
+  "interpretation": "The persisted packet/action contains conflicting state dimensions. The execution packet reports PREPARED while the opportunity was normalized as AUTHORIZED. The canonical transition engine therefore rejects ACTION_PREPARED before it can evaluate dispatch. No state mutation was performed.",
+  "economic_effect": "NONE",
+  "external_action_claimed": false,
+  "verified_revenue_nzd": 0,
+  "next_blocker": "Production state normalization/schema mapping must reconcile the authoritative opportunity state with the action status before a valid transition can be evaluated. Do not mutate until authoritative state columns are identified."
+}
