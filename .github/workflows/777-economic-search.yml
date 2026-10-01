@@ -11,6 +11,8 @@ on:
       - "BEC-PRIME/scripts/777-public-market-radar.py"
       - "BEC-PRIME/economic/EconomicEvidenceLadder.js"
       - "BEC-PRIME/economic/EconomicEvidenceLadder.test.js"
+      - "BEC-PRIME/scripts/economic-local-worker.js"
+      - "BEC-PRIME/scripts/economic-local-worker.test.js"
       - "runtime/humanizer/**"
       - ".github/workflows/777-economic-search.yml"
 
@@ -85,6 +87,9 @@ jobs:
           assert result["ready_for_gauntlet_review"] is True
           print("HUMANIZER_BOUNDARY=PASS")
           PY
+
+      - name: Test local LM Studio economic worker contract
+        run: node --test BEC-PRIME/scripts/economic-local-worker.test.js
 
       - name: Refresh public demand radar
         run: |
