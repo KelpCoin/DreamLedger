@@ -1,0 +1,197 @@
+{
+  "schema": "DREAMLEDGER/MONEY-FIRST-AUDIT/v1",
+  "observed_at": "2026-10-01",
+  "repository": "KelpCoin/DreamLedger",
+  "purpose": "Harsh economic audit: follow the dollar, separate proven facts from architecture claims, and minimize owner attention.",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "paid_fulfilled_orders": 0,
+    "verified_economic_outcomes": 0,
+    "rule": "These values must not move without independent external evidence."
+  },
+  "strongest_existing_commercial_evidence": {
+    "asset": "HappyHomarid MTG/Commander inventory and prior customer history",
+    "historical_edh_sales": 156,
+    "interpretation": "This is stronger first-dollar evidence than internal swarm activity because it represents prior external transactions. It does not prove current demand or guarantee a new product will sell.",
+    "economic_priority": "Use the existing buyer/product/inventory relationship before building broad new machinery."
+  },
+  "current_commander_path": {
+    "status": "CONCEPT_VALIDATED_NOT_DEPLOYED",
+    "80_20_rule": "Start with 1 sellable Commander configuration, then 5 pilots only after the first transaction path is proven.",
+    "minimum_product": [
+      "one frozen deck",
+      "five_to_ten curated inventory-backed upgrades",
+      "simple configuration choice",
+      "one payment",
+      "deterministic pick list",
+      "physical fulfillment proof"
+    ],
+    "not_required_for_first_dollar": [
+      "100000-card inventory ingestion",
+      "AI deck generation",
+      "UCB1 pricing",
+      "five-screen configurator",
+      "Airtable synchronization",
+      "new swarm",
+      "new economic ledger",
+      "new Truth system"
+    ],
+    "inventory_authority": "Supabase if and when inventory is implemented; GitHub holds product definitions; Scryfall is reference metadata; physical_location connects records to cardboard."
+  },
+  "what_is_being_done_right": [
+    "External economic truth is not being fabricated.",
+    "Human authorization remains a real boundary.",
+    "Stripe fulfillment now independently retrieves and verifies the PaymentIntent before delivery.",
+    "Humanizer has been correctly demoted to a permanent non-authoritative review component.",
+    "Existing infrastructure is being reused rather than replaced.",
+    "There is a real historical MTG transaction base and physical inventory rather than zero commercial assets.",
+    "The repository leaves dated proof artifacts and explicit blocker classifications.",
+    "The current 777 workflow already uses concurrency cancellation."
+  ],
+  "what_is_being_done_wrong": [
+    {
+      "problem": "Architecture has become a substitute for customer acquisition.",
+      "economic_effect": "Internal progress can continue indefinitely while revenue remains NZ$0.",
+      "correction": "Every engineering step must shorten a path to a buyer, payment, fulfillment, or proof. Otherwise defer it."
+    },
+    {
+      "problem": "Market validation is being confused with buyer validation.",
+      "economic_effect": "Commander demand, TCG prices, personalization research, and historical sales do not equal a current buyer for this exact offer.",
+      "correction": "Treat the first stranger paying for the exact offer as the validation event."
+    },
+    {
+      "problem": "The system has accumulated too many internal success signals.",
+      "economic_effect": "Rows, tasks, silos, workflows, model calls, registry counts, and scheduled jobs can look productive without economic effect.",
+      "correction": "Use external buyer, settled payment, fulfillment, delivery/evidence, and independent verification as economic milestones."
+    },
+    {
+      "problem": "The proposed Commander configurator is initially oversized.",
+      "economic_effect": "More UI and inventory work delays the first transaction.",
+      "correction": "Build one deterministic configuration path first."
+    },
+    {
+      "problem": "The queue-consumption diagnosis has been stated too strongly.",
+      "economic_effect": "A missing claim function has not been proven as the root cause merely because repository search did not find it.",
+      "correction": "Classify the junction as UNPROVEN until one live task is traced through claim, lease, execution, and completion."
+    },
+    {
+      "problem": "CI work can become economically dominant relative to the first sale.",
+      "economic_effect": "CI correctness matters, but perfect CI does not create a buyer.",
+      "correction": "Make CI boring and bounded. Do not let CI become the product."
+    },
+    {
+      "problem": "Supabase security debt is materially larger than the earlier six-table description suggested.",
+      "economic_effect": "The current security advisor reports 213 RLS-enabled tables with no policies, plus multiple SECURITY DEFINER functions callable by authenticated roles. This requires deliberate remediation, but blindly changing hundreds of policies would create more risk and owner load.",
+      "correction": "Prioritize exposed commerce/economic/security-critical surfaces, map actual callers first, then make the smallest verified changes. Do not mass-change policies blindly."
+    },
+    {
+      "problem": "The owner is carrying too much operational complexity.",
+      "economic_effect": "Human attention is being spent supervising machinery rather than approving money-producing gates.",
+      "correction": "The desired owner interface is only MONEY or REAL HUMAN GATE REQUIRED FOR MONEY."
+    }
+  ],
+  "all_seeing_economic_funnel": {
+    "demand": {
+      "status": "PARTIALLY_PROVEN",
+      "evidence": "156 historical EDH sales and existing inventory.",
+      "gap": "No current paid buyer for the proposed Commander customization product."
+    },
+    "offer": {
+      "status": "NOT_DEPLOYED",
+      "evidence": "Commander customization concept and existing MTG diagnostic rail.",
+      "gap": "Exact new offer, price, landing surface, and fulfillment path are not yet proven by a stranger purchase."
+    },
+    "distribution": {
+      "status": "BLOCKER",
+      "evidence": "No verified current acquisition event for the new Commander product.",
+      "gap": "A product without a buyer path is inventory plus software, not revenue."
+    },
+    "checkout": {
+      "status": "PARTIALLY_PROVEN",
+      "evidence": "Existing Stripe commerce code and independent PaymentIntent verification.",
+      "gap": "Canonical payment_intent.succeeded-only webhook subscription remains UNOBSERVABLE."
+    },
+    "settlement": {
+      "status": "UNPROVEN_FOR_NEW_COMMANDER_PRODUCT",
+      "evidence": "Existing Stripe verification logic is hardened.",
+      "gap": "No new Commander customer settlement exists."
+    },
+    "fulfillment": {
+      "status": "PARTIALLY_PROVEN",
+      "evidence": "Existing diagnostic fulfillment and deterministic reporting; proposed Commander pick-list flow is not deployed.",
+      "gap": "Physical Commander fulfillment has not been closed through the new product path."
+    },
+    "verification": {
+      "status": "PROVEN_AS_A_RULE_NOT_AS_AN_OUTCOME",
+      "evidence": "Truth boundary and scoreboard controls exist.",
+      "gap": "There is no verified economic outcome to record."
+    }
+  },
+  "current_engineering_blockers": [
+    {
+      "blocked_at": "SUPABASE_OBSERVABILITY",
+      "status": "UNOBSERVABLE_THIS_RUN",
+      "because": "Direct SQL and table-list reads timed out during this audit.",
+      "required": "Stable read path before live database mutations."
+    },
+    {
+      "blocked_at": "ECONOMIC_MODEL_TASK_CONSUMPTION",
+      "status": "UNPROVEN",
+      "because": "Historical artifact reports 76 pending and 1 completed, but current live task state and exact consumer behavior could not be re-read during this run.",
+      "required": "One real task trace: pending -> claim/lease -> execution -> result -> completion or exact blocker."
+    },
+    {
+      "blocked_at": "CI/CD",
+      "status": "NOT_PROVEN",
+      "because": "The canonical 777 workflow has concurrency cancellation, but no successful completed run was observed in the available commit-run query. That API is PR-only, so an empty result is not evidence that no runs exist.",
+      "required": "Observe an actual completed canonical run with run ID, commit SHA, conclusion, and key tests."
+    },
+    {
+      "blocked_at": "SUPABASE_SECURITY",
+      "status": "HIGH_PRIORITY",
+      "because": "Current security advisor reports 213 RLS-enabled tables with no policies and multiple SECURITY DEFINER functions callable by authenticated roles.",
+      "required": "Targeted exposure/caller audit before remediation. Do not mass-change policies blindly."
+    },
+    {
+      "blocked_at": "COMMANDER_COMMERCE",
+      "status": "NOT_DEPLOYED",
+      "because": "The proposed 80/20 product exists as a specification, not a verified commercial loop.",
+      "required": "One exact offer, one buyer path, one payment, one physical fulfillment."
+    }
+  ],
+  "money_priority": {
+    "priority_1": "Convert the strongest existing asset into a current buyer event: the existing MTG/Commander relationship and inventory.",
+    "priority_2": "Make the smallest possible Commander offer that can be purchased and physically fulfilled without a bespoke deckbuilding engine.",
+    "priority_3": "Use the existing Stripe and economic truth substrate rather than creating another commerce rail.",
+    "priority_4": "Only after a buyer pays, expand inventory coverage, configurator UX, recommendation logic, pricing experiments, and replication.",
+    "priority_5": "Keep infrastructure repair proportional to economic risk. Security-critical issues must be repaired deliberately, but do not use security work as an excuse to postpone the first legitimate commercial test."
+  },
+  "owner_action": {
+    "current_machine_goal": "Prepare one phone-sized money gate.",
+    "desired_gate": "A real buyer has selected a real Commander offer and the machine presents the exact authorized external action required from the owner.",
+    "owner_should_not_do": [
+      "manually operate the database",
+      "supervise workers",
+      "interpret internal queues",
+      "catalogue 100000 cards before validation",
+      "choose architecture repeatedly"
+    ],
+    "owner_should_do": [
+      "approve the smallest real commercial action when surfaced",
+      "physically fulfill a paid Commander order when one exists",
+      "provide evidence only where the external world requires the owner"
+    ]
+  },
+  "stop_building_until": [
+    "A current Commander offer is purchasable.",
+    "A real buyer has an observable path to that offer.",
+    "One real payment settles.",
+    "One physical fulfillment closes.",
+    "One verified economic outcome is recorded."
+  ],
+  "economic_verdict": "The biggest failure is not missing technology. It is that the system has become very good at preparing to make money and has not yet forced itself through the smallest uncomfortable external transaction. The MTG asset base is the clearest existing commercial bridge. The 80/20 idea is viable as a thin product, but the configurator should be treated as a means to a sale, not the project itself.",
+  "next_loop": "ONE OFFER -> ONE BUYER -> ONE PAYMENT -> ONE FULFILLMENT -> ONE PROOF -> REPLICATE",
+  "truth_boundary": "No revenue, buyer, payment, fulfillment, or verified economic outcome was manufactured by this audit."
+}
