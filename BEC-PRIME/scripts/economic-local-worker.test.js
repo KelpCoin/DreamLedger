@@ -66,3 +66,12 @@ test("hash is stable and SHA-256 shaped", () => {
   assert.equal(sha256("proof"), sha256("proof"));
   assert.match(sha256("proof"), /^[a-f0-9]{64}$/);
 });
+
+test("refuses stale bridge notes when the task is pending or its lease is expired", () => {
+  const { noteMatchesCurrentLease } = require("./economic-local-worker.js");
+  const note = { body: JSON.stringify({ run_lease: 7 }) };
+  assert.equal(noteMatchesCurrentLease(note, { status: "pending", run_lease: 7, leased_until: new Date(Date.now() + 60000).toISOString() }), false);
+  assert.equal(noteMatchesCurrentLease(note, { status: "leased", run_lease: 7, leased_until: new Date(Date.now() - 1000).toISOString() }), false);
+  assert.equal(noteMatchesCurrentLease(note, { status: "leased", run_lease: 8, leased_until: new Date(Date.now() + 60000).toISOString() }), false);
+  assert.equal(noteMatchesCurrentLease(note, { status: "leased", run_lease: 7, leased_until: new Date(Date.now() + 60000).toISOString() }), true);
+});

@@ -143,6 +143,60 @@ async function claimBridgeNote(config) {
   return data || null;
 }
 
+function noteMatchesCurrentLease(note, task) {
+  if (!note || !task || task.status !== "leased" || !task.leased_until) return false;
+  if (new Date(task.leased_until).getTime() <= Date.now()) return false;
+  let body;
+  try { body = JSON.parse(String(note.body || "{}")); } catch (_) { return false; }
+  return String(body.run_lease) === String(task.run_lease);
+}
+
+async function quarantineStaleBridgeNotes(config) {
+  const query = new URLSearchParams({
+    select: "note_id,correlation_id,subject,execution_status,body,lease_until,response_note_id,created_at",
+    subject: "like.ECONOMIC_TASK:*",
+    response_note_id: "is.null",
+    execution_status: "in.(READY,CLAIMED,RUNNING)",
+    order: "created_at.asc",
+    limit: "10"
+  });
+  const notes = await requestJson(config.supabaseUrl + "/rest/v1/control_bridge_notes?" + query.toString(), {
+    method: "GET",
+    headers: supabaseHeaders(config)
+  });
+  let quarantined = 0;
+  for (const note of (Array.isArray(notes) ? notes : [])) {
+    const task = await getTask(config, String(note.correlation_id || ""));
+    if (noteMatchesCurrentLease(note, task)) continue;
+    const patch = new URLSearchParams({
+      note_id: "eq." + note.note_id,
+      response_note_id: "is.null",
+      execution_status: "eq." + note.execution_status
+    });
+    const result = await requestJson(config.supabaseUrl + "/rest/v1/control_bridge_notes?" + patch.toString(), {
+      method: "PATCH",
+      headers: { ...supabaseHeaders(config), Prefer: "return=representation" },
+      body: JSON.stringify({
+        execution_status: "QUARANTINED",
+        claimed_by: null,
+        claimed_at: null,
+        lease_until: null,
+        last_error: "STALE_BRIDGE_NOTE_TASK_LEASE_INVALID_LOCAL_REDISPATCH"
+      })
+    });
+    if (Array.isArray(result) && result.length) quarantined++;
+  }
+  return quarantined;
+}
+
+async function dispatchOnePendingTask(config) {
+  return requestJson(config.supabaseUrl + "/rest/v1/rpc/beck_economic_task_dispatch_tick", {
+    method: "POST",
+    headers: supabaseHeaders(config),
+    body: JSON.stringify({ p_batch: 1 })
+  });
+}
+
 async function getTask(config, taskId) {
   const query = new URLSearchParams({
     select: "task_id,candidate_id,model_name,model_role,input_snapshot,contract_version,status,run_lease,leased_until",
@@ -343,7 +397,16 @@ async function run() {
     console.log(JSON.stringify({ event: "LOCAL_WORKER_READY", worker: WORKER, model, loop }));
     do {
       try {
-        const note = await claimBridgeNote(config);
+        const quarantined = await quarantineStaleBridgeNotes(config);
+        let note = await claimBridgeNote(config);
+        let dispatch = null;
+        if (!note) {
+          dispatch = await dispatchOnePendingTask(config);
+          note = await claimBridgeNote(config);
+        }
+        if (quarantined || dispatch) {
+          console.log(JSON.stringify({ event: "QUEUE_RECONCILIATION", quarantined_stale_notes: quarantined, dispatch_result: dispatch }));
+        }
         if (note) {
           const result = await processOne(config, model, note);
           console.log(JSON.stringify({ event: "TASK_COMPLETED", ...result }));
@@ -369,4 +432,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseJsonOnly, validateAssessment, buildPrompt, sha256 };
+module.exports = { parseJsonOnly, validateAssessment, buildPrompt, sha256, noteMatchesCurrentLease };
