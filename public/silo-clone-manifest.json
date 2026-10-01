@@ -1,0 +1,74 @@
+{
+  "schema": "dreamledger/silo-clone/v1",
+  "master": {
+    "id": "mtg",
+    "path": "mtg",
+    "css": "/assets/silo-master.css",
+    "template": "public/silo-template.html",
+    "reference": "public/mtg.html",
+    "satellites": ["mtg-list", "mtg-search", "mtg-mod", "mtg-welcome"]
+  },
+  "rules": {
+    "buy_without_account": true,
+    "sell_requires_free_account": true,
+    "platform_success_fee_bps": 0,
+    "tone": "constructive",
+    "typography": "Instrument Serif + DM Sans",
+    "class_prefix": "silo-"
+  },
+  "clone_steps": [
+    "Copy public/assets/silo-master.css (shared)",
+    "Copy public/silo-template.html → public/{silo}.html",
+    "Fill placeholders from clones[] in this manifest",
+    "Optional: set --silo-accent",
+    "Add path to surfaces.json",
+    "Deploy; prefer extensionless /{silo}"
+  ],
+  "clones": [
+    {
+      "id": "mtg",
+      "status": "master_live",
+      "SILO_ID": "mtg",
+      "SILO_NAME": "MTG",
+      "SILO_PATH": "mtg",
+      "SILO_TITLE": "MTG",
+      "SILO_DESCRIPTION": "New Zealand Magic: The Gathering — buy, sell, trade with 0% success fees.",
+      "HERO_TITLE": "Cards move. <span>Fees don’t.</span>",
+      "HERO_LEAD": "Magic in New Zealand — buy without an account, list when you’re ready to sell.",
+      "PRIMARY_CTA_HREF": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "PRIMARY_CTA_LABEL": "Commander diagnostic · $29",
+      "SELL_CATEGORIES": "Singles, lots, sealed, EDH",
+      "ACCENT_OVERRIDE": ""
+    },
+    {
+      "id": "retro_games",
+      "status": "ready_to_clone",
+      "SILO_ID": "retro_games",
+      "SILO_NAME": "Retro",
+      "SILO_PATH": "retro",
+      "SILO_TITLE": "Retro games",
+      "SILO_DESCRIPTION": "NZ retro games — buy, sell, trade with 0% success fees.",
+      "HERO_TITLE": "Old games. <span>Fair trades.</span>",
+      "HERO_LEAD": "Consoles, cartridges, and discs in New Zealand — searchable listings, free account to sell.",
+      "PRIMARY_CTA_HREF": "/register",
+      "PRIMARY_CTA_LABEL": "Start listing · free",
+      "SELL_CATEGORIES": "Consoles, carts, discs, accessories",
+      "ACCENT_OVERRIDE": "--silo-accent:#6b9ae0;--silo-accent-bright:#8eb6f0;"
+    },
+    {
+      "id": "vinyl",
+      "status": "ready_to_clone",
+      "SILO_ID": "vinyl",
+      "SILO_NAME": "Vinyl",
+      "SILO_PATH": "vinyl",
+      "SILO_TITLE": "Vinyl",
+      "SILO_DESCRIPTION": "NZ vinyl — buy, sell, trade with 0% success fees.",
+      "HERO_TITLE": "Records that <span>find a home.</span>",
+      "HERO_LEAD": "Vinyl in New Zealand — clear condition, city, and price. Account only to sell.",
+      "PRIMARY_CTA_HREF": "/register",
+      "PRIMARY_CTA_LABEL": "Start listing · free",
+      "SELL_CATEGORIES": "LPs, EPs, 7-inch, collections",
+      "ACCENT_OVERRIDE": "--silo-accent:#c44b6a;--silo-accent-bright:#e07a94;"
+    }
+  ]
+}
