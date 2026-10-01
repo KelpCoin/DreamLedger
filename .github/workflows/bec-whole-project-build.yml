@@ -1,0 +1,108 @@
+name: BEC Whole Project Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, "build/**"]
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Compile complete commerce surface
+        run: npm run compile
+
+      - name: Run core policy tests
+        run: npm test
+
+      - name: Run economic truth tests
+        run: npm run test:truth-oracle
+
+      - name: Run revenue pipeline tests
+        run: npm run test:revenue-pipeline
+
+      - name: Verify production contract
+        run: npm run verify:production-contract
+
+      - name: Verify silo boundaries
+        run: npm run verify:silos
+
+      - name: Verify commercial integration
+        run: npm run verify:integration
+
+      - name: Verify evidence
+        run: npm run verify:evidence
+
+      - name: Verify fulfillment contracts
+        run: npm run verify:fulfillment
+
+      - name: Verify public offers
+        run: npm run verify:public-offers
+
+      - name: Verify billboard
+        run: npm run verify:billboard
+
+      - name: Verify distribution engine
+        run: npm run verify:distribution
+
+      - name: Verify OmniCommerce
+        run: npm run verify:omni
+
+      - name: Run Kelplantis unit tests
+        run: npm run kelplantis:test
+
+      - name: Run autonomy smoke test
+        run: npm run smoke:autonomy
+
+      - name: Run revenue ledger smoke test
+        run: npm run smoke:revenue-ledger
+
+      - name: Run production smoke test
+        run: npm run smoke:production
+
+      - name: Build proof manifest
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p build-proof
+          cat > build-proof/WHOLE_PROJECT_BUILD.json <<EOF
+          {
+            "schema": "BEC-WHOLE-PROJECT-BUILD-1",
+            "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "repository": "KelpCoin/DreamLedger",
+            "commit": "${GITHUB_SHA}",
+            "commercial_public_actions_executed": false,
+            "approval_boundary": "REQUIRED",
+            "note": "Build and verification only. No public outreach, financial action, or autonomous publication is authorized by this workflow."
+          }
+          EOF
+
+      - name: Upload build proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-whole-project-build-proof
+          path: BEC-PRIME/build-proof/WHOLE_PROJECT_BUILD.json
+          if-no-files-found: error
