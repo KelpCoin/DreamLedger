@@ -1,0 +1,83 @@
+{
+  "schema": "DREAMLEDGER/REDTEAM-DISPOSITION/v1",
+  "observed_at": "2026-10-01T03:06:00Z",
+  "head_commit": "eed80177cf9d21ef759dae95d547d3acf933d4c2",
+  "scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "paid_fulfilled_orders": 0,
+    "verified_economic_outcomes": 0
+  },
+  "dispositions": {
+    "x402": {
+      "status": "FAIL_CLOSED_NOT_LIVE",
+      "evidence": "BEC-PRIME/data/x402-factory/FACTORY-FACTORY-REPORT.json declares production_status NOT_LIVE and payment rail configuration intentionally blocked.",
+      "action": "No live x402 delivery path was found to harden. Existing reconciliation already waits for mined transaction, required confirmations, transfer-log match, payer match and payee/asset match before settlement confirmation.",
+      "remaining": "If x402 is ever enabled, delivery must consume settlement-confirmed state only."
+    },
+    "stripe": {
+      "signature_verification": "IMPLEMENTED_FAIL_CLOSED",
+      "secret_presence": "UNOBSERVABLE",
+      "canonical_event_subscription": "UNOBSERVABLE",
+      "event_model": "Existing commerce handlers still use checkout.session.completed as their webhook trigger; this is a contract divergence from the stricter payment_intent.succeeded-only rule.",
+      "action": "Do not call Stripe webhook subscription healthy until Dashboard evidence exists. Do not promote webhook receipt to independent truth without provider verification."
+    },
+    "llm_judge": {
+      "status": "NON_AUTHORITATIVE",
+      "calibration": "NOT_PROVEN",
+      "action": "No judge output is permitted to authorize economic state. Humanizer remains non-authoritative and Gauntlet/Truth Oracle retain decision authority."
+    },
+    "rdti": {
+      "current_compiler_boundary": "Evidence input only; eligibility and claim conclusions remain NOT_ESTABLISHED.",
+      "contemporaneous_records": "Git commit history and patch hashes are preserved.",
+      "commercial_risk_policy": "No evidence in the inspected compiler promotes commercial uncertainty into RDTI eligibility.",
+      "remaining": "A dedicated qualification/policy audit is still required before selling an audit-oriented claim product as compliance advice."
+    },
+    "idempotency": {
+      "checkout_keys": "High-entropy crypto.randomUUID/randomBytes are already used in inspected Stripe checkout paths.",
+      "database_guards": "Existing event/order idempotency constraints are present.",
+      "remaining": "A repository-wide payload-binding audit was not proven from the available search interface."
+    },
+    "agentic_liability": {
+      "authority_boundary": "Human approval gates exist for externally consequential actions.",
+      "action": "No automatic external purchase/submission authority was added."
+    },
+    "meta_flaw": {
+      "status": "CONFIRMED",
+      "evidence": "76 economic_model_tasks are pending versus 1 completed; 21 economic_silo_loops are ACTIVE; verified revenue remains zero.",
+      "action": "Next engineering work is queue consumption/claim-path proof, not another architecture layer."
+    }
+  },
+  "changes_since_prior_audit": [
+    {
+      "commit": "eed80177cf9d21ef759dae95d547d3acf933d4c2",
+      "change": "Commander diagnostic fulfillment now performs an independent Stripe PaymentIntent lookup and blocks delivery unless the live PaymentIntent status is succeeded and amount/currency match the Checkout Session."
+    },
+    {
+      "commit": "d988675e81cb2add6a3fa2aa56d47b85de1121e5",
+      "change": "Humanizer non-authoritative boundary verification added to the canonical 777 economic-search workflow."
+    },
+    {
+      "commit": "a86021fb36752fb525ad10a084a3392d3137db47",
+      "change": "Duplicate 777 discovery schedule frozen."
+    },
+    {
+      "commit": "67d8289e6c6b5b4a5444842ee93d927b227d00d6",
+      "change": "Stale commercial front-door verification corrected."
+    }
+  ],
+  "ci": {
+    "status": "NOT_PROVEN",
+    "latest_commit_runs": "multiple workflows failed immediately with zero jobs exposed by the connected GitHub run API",
+    "implication": "CI control-plane failure is itself a blocker and cannot be represented as green."
+  },
+  "next_blocker": {
+    "blocked_at": "QUEUE_WORKER",
+    "because": "economic_model_tasks has 76 pending and 1 completed; no claim_economic_model_task implementation was found in repository search, while Supabase cron shows orchestrator activity.",
+    "required": "Observe the authoritative task claim/lease consumer, identify why pending work is not being consumed, repair the existing path, and prove one task through completion without fabricating economic state.",
+    "owner_action": "Only when the machine surfaces a real external economic gate.",
+    "human_minutes": "0 until an actual authorized external action is ready"
+  },
+  "truth_boundary": "No revenue, buyer, payment, fulfillment or verified economic outcome was manufactured."
+}
