@@ -16,7 +16,7 @@
     "product": "DreamLedger Founding Billboard 100x100",
     "sku": "DL-BILLBOARD-100X100-3000-001",
     "price_nzd": 50,
-    "stripe_payment_link_id": "plink_1U9JGTEGAnUFF9WRg3CKk3",
+    "stripe_payment_link_id": "plink_1U9JGTEGgEAnUFF9WRg3CKk3",
     "stripe_payment_link": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
     "stripe_price_id": "price_1U8xD6EGgEAnUFF9KGrq2t7X",
     "stripe_link_active": true,
