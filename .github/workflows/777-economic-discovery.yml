@@ -1,8 +1,10 @@
 name: 777 Reality-First Economic Discovery
 
 on:
-  schedule:
-    - cron: "2/5 * * * *"
+  # FROZEN: duplicate 777 discovery cadence. 777-economic-search.yml is the
+  # canonical scheduled discovery path because it also performs the guarded
+  # commerce handoff and economic-activation step. Keep manual dispatch and
+  # path-triggered verification available; do not delete historical workflow.
   workflow_dispatch:
   push:
     branches: ["main"]
