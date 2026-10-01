@@ -1,0 +1,14 @@
+{
+  "schema":"dreamledger.777.mtg-tcg-seed-batch.v1",
+  "status":"CANONICAL_SEEDS_NOT_VALIDATED",
+  "domain":"MTG TCG",
+  "cells":[
+    {"cell_id":"MTG-PROFILE-001","offer":"Free MTG TCG profile","audience":"NZ MTG players","message":"Your cards, wants, trades and play style in one free profile","surface":"MTG TCG profile","cta":"Create my profile"},
+    {"cell_id":"MTG-SELL-001","offer":"Free peer card listing","audience":"NZ collectors liquidating cards","message":"List cards without a marketplace success fee","surface":"MTG TCG marketplace","cta":"List my cards"},
+    {"cell_id":"MTG-WANT-001","offer":"Wanted-card matching","audience":"NZ Commander players","message":"Tell the community what you want and let sellers find you","surface":"MTG TCG want board","cta":"Add my wants"},
+    {"cell_id":"MTG-TRADE-001","offer":"Have/want trade matching","audience":"NZ MTG traders","message":"Find someone who wants what you have","surface":"MTG TCG profile","cta":"Match my cards"},
+    {"cell_id":"MTG-LOCAL-001","offer":"Local NZ card discovery","audience":"NZ MTG buyers","message":"Find the card locally before importing it","surface":"MTG TCG search","cta":"Find my card"}
+  ],
+  "validation_rule":"Only attributable independent external human response counts. Payment requires settled payment plus fulfillment and evidence for verified economic outcome.",
+  "next_mutation_rule":"After response, mutate one dimension at a time and search neighboring cells."
+}
