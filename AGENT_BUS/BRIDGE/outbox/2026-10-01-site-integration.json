@@ -1,0 +1,10 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-01-site-integration",
+  "from": "grok-cloud",
+  "summary": "Live site up. Wired surfaces+discovery to /b2b RIVET, /marketplace, /mtg, buy router, agent-commerce. Map in SITE-INTEGRATION-MAP.md. Pending: deploy auctions/fees/trust/sell routes.",
+  "reads": ["AGENT_BUS/SITE-INTEGRATION-MAP.md", "public/surfaces.json", "public/.well-known/dreamledger.json"],
+  "live_verified": ["/", "/b2b", "/marketplace", "/api/offers", "/buy/COMMANDER-DECK-DIAGNOSTIC-001"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-10-01T12:37:00Z"
+}

@@ -1,93 +1,41 @@
 {
   "schema": "dreamledger/surfaces/v1",
   "status": "active",
-  "purpose": "canonical commercial surface registry",
+  "updated": "2026-10-01",
+  "purpose": "canonical commercial surface registry — human + agent",
   "rules": {
     "every_surface_has_surface_id": true,
     "every_surface_maps_to_offer_id": true,
     "every_paid_event_maps_to_economic_event": true,
     "every_delivery_emits_proof": true,
-    "scale_rule": "paid_verified_then_clone"
+    "scale_rule": "paid_verified_then_clone",
+    "nav_rule": "prefer_extensionless_routes_on_live"
   },
   "surface_classes": {
-    "DOOH_SCREEN": "physical advertising inventory",
-    "QR_SURFACE": "physical-to-digital doorway",
     "WEB_OFFER": "human-facing offer",
     "AGENT_ENDPOINT": "machine-readable commerce doorway",
     "DIGITAL_PRODUCT": "automated digital fulfillment",
-    "TRUST_PROOF": "portable transaction and delivery evidence"
+    "TRUST_PROOF": "portable transaction and delivery evidence",
+    "B2B_MARKETPLACE": "RIVET business trade rails",
+    "AUCTION_LANE": "timed lots with bid proofs"
   },
   "active_surfaces": [
-    {
-      "surface_id": "DL-WEB-BILLBOARD-001",
-      "class": "WEB_OFFER",
-      "silo": "core",
-      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "path": "/billboard",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-AGENT-001",
-      "class": "AGENT_ENDPOINT",
-      "silo": "core",
-      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "path": "/agent.json",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-QR-001",
-      "class": "QR_SURFACE",
-      "silo": "core",
-      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "canonical_target": "/",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-TRUST-001",
-      "class": "TRUST_PROOF",
-      "silo": "core",
-      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "proof_schema": "dreamledger/proof/v1",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-WEB-CMD-DIAG-001",
-      "class": "WEB_OFFER",
-      "silo": "mtg",
-      "offer_id": "OFFER-CMD-DIAG-29-NZD",
-      "path": "/mtg",
-      "status": "active",
-      "role": "ignition_test_only"
-    }
+    {"surface_id": "DL-WEB-HOME-001", "class": "WEB_OFFER", "path": "/", "status": "active", "role": "front_door"},
+    {"surface_id": "DL-WEB-B2B-RIVET-001", "class": "B2B_MARKETPLACE", "path": "/b2b", "status": "active", "role": "rivet_hub"},
+    {"surface_id": "DL-WEB-MARKETPLACE-001", "class": "B2B_MARKETPLACE", "path": "/marketplace", "status": "active"},
+    {"surface_id": "DL-WEB-BILLBOARD-001", "class": "WEB_OFFER", "path": "/billboard", "status": "active"},
+    {"surface_id": "DL-WEB-CMD-DIAG-001", "class": "WEB_OFFER", "path": "/mtg", "status": "active", "role": "ignition"},
+    {"surface_id": "DL-AGENT-001", "class": "AGENT_ENDPOINT", "path": "/agent.json", "status": "active"},
+    {"surface_id": "DL-AGENT-COMMERCE-001", "class": "AGENT_ENDPOINT", "path": "/agent-commerce.json", "status": "active"},
+    {"surface_id": "DL-WELLKNOWN-001", "class": "AGENT_ENDPOINT", "path": "/.well-known/dreamledger.json", "status": "active"},
+    {"surface_id": "DL-TRUST-001", "class": "TRUST_PROOF", "path": "/trust.html", "status": "pending_deploy"},
+    {"surface_id": "DL-AUCTIONS-001", "class": "AUCTION_LANE", "path": "/auctions.html", "status": "pending_deploy"}
   ],
-  "expansion_surfaces": [
-    {
-      "surface_id_prefix": "DL-DOOH-",
-      "class": "DOOH_SCREEN",
-      "silo": "core",
-      "offer_family": "PDOOH_PROGRAMMATIC_CAMPAIGN",
-      "state": "ready_to_clone_after_paid_proof"
-    },
-    {
-      "surface_id_prefix": "DL-QR-",
-      "class": "QR_SURFACE",
-      "silo": "core",
-      "offer_family": "QR_COMMERCE_DOORWAY",
-      "state": "ready_to_clone_after_paid_proof"
-    },
-    {
-      "surface_id_prefix": "DL-DIGITAL-",
-      "class": "DIGITAL_PRODUCT",
-      "silo": "core",
-      "offer_family": "DIGITAL_PRODUCT_LADDER",
-      "state": "ready_to_clone_after_paid_proof"
-    },
-    {
-      "surface_id_prefix": "DL-AGENT-",
-      "class": "AGENT_ENDPOINT",
-      "silo": "core",
-      "offer_family": "AGENTIC_COMMERCE_TRUST_WEDGE",
-      "state": "ready_to_clone_after_paid_proof"
-    }
-  ]
+  "human_nav_priority": ["/", "/b2b", "/marketplace", "/mtg", "/billboard", "/buy/COMMANDER-DECK-DIAGNOSTIC-001"],
+  "agent_nav_priority": ["/.well-known/dreamledger.json", "/agent-commerce.json", "/api/offers", "/api/products", "/buy/{product_id}"],
+  "trade_me_positioning": {
+    "success_fee_bps": 0,
+    "earn_on": ["listing_tools", "diagnostics", "partner_kits", "plans", "slots"],
+    "not_claiming": "full_parity_with_trade_me_volume"
+  }
 }

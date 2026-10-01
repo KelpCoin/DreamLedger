@@ -2,52 +2,36 @@
   "schema": "dreamledger/discovery/v3",
   "service": "DreamLedger",
   "status": "active",
-  "updated": "2026-09-27",
-  "thesis": "DreamLedger is a settlement-backed ledger for commercial truth: agents discover offers, humans authorize spend, Stripe settles, fulfillment is proven, and only then is the event ledgered.",
+  "updated": "2026-10-01",
+  "thesis": "Settlement-backed ledger for commercial truth: agents discover, humans authorize, Stripe settles, fulfillment is proven, then ledgered.",
   "canonical": {
     "market": "/",
-    "shop": "/shop.html",
+    "b2b_rivet": "/b2b",
+    "marketplace": "/marketplace",
+    "mtg": "/mtg",
+    "billboard": "/billboard",
     "agent": "/agent.json",
     "agent_commerce": "/agent-commerce.json",
     "offers": "/api/offers",
     "products": "/api/products",
     "buy": "/buy/{product_id}",
-    "ledger": "/ledger.html",
-    "proof_schema": "/proof.schema.json",
+    "surfaces": "/surfaces.json",
     "llms": "/llms.txt",
     "commerce_context": "/commerce.txt",
-    "ai_catalog": "/.well-known/ai-catalog.json"
+    "ai_catalog": "/.well-known/ai-catalog.json",
+    "health": "/healthz",
+    "version": "/version"
   },
   "commerce": {
     "flow": ["discover", "authorize", "pay", "deliver", "prove", "ledger"],
     "settlement": "stripe_live_nzd",
     "buy_router": "https://dreamledger.org/buy/{product_id}",
-    "client_reference_id": "product_id bound by buy router",
-    "fee_policy": {
-      "platform_success_fee_bps": 0,
-      "platform_listing_fee_nzd": 0
-    },
+    "fee_policy": {"platform_success_fee_bps": 0, "platform_listing_fee_nzd": 0},
     "primary_paid_offers": [
-      {
-        "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-        "price_nzd": 29,
-        "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"
-      },
-      {
-        "product_id": "SELLER-PROFIT-AUDIT-001",
-        "price_nzd": 29,
-        "buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"
-      },
-      {
-        "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-        "price_nzd": 50,
-        "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001"
-      },
-      {
-        "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-        "price_nzd": 79,
-        "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"
-      }
+      {"product_id": "COMMANDER-DECK-DIAGNOSTIC-001", "price_nzd": 29, "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"},
+      {"product_id": "SELLER-PROFIT-AUDIT-001", "price_nzd": 29, "buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"},
+      {"product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001", "price_nzd": 50, "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001"},
+      {"product_id": "DISCORD-WEBHOOK-STARTER-KIT-001", "price_nzd": 79, "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"}
     ],
     "agentic_rails": {
       "live": ["stripe_payment_link", "buy_router_with_client_reference_id"],
@@ -55,23 +39,14 @@
     },
     "scale_rule": "paid_verified_then_clone"
   },
-  "ledger": {
-    "role": "immutable commercial truth layer for agentic commerce",
-    "what_counts": "external Stripe payment + attribution (client_reference_id) + fulfillment evidence",
-    "what_does_not_count": [
-      "page views",
-      "checkout starts",
-      "test mode",
-      "self-payments without external verification",
-      "agent claims without Stripe evidence"
-    ],
-    "economic_event_order": ["authorized", "paid", "delivered", "proven", "ledgered"],
-    "proof_schema": "dreamledger/proof/v1"
+  "trust_layer": {
+    "rule": "Checkout start is not revenue. Verified revenue requires Stripe evidence + fulfillment proof.",
+    "fail_closed": true,
+    "surfaces": ["/agent-commerce.json", "/commerce.txt", "/llms.txt", "/healthz"]
   },
-  "safety": {
-    "human_authorization_required_before_spend": true,
-    "no_autonomous_spend": true,
-    "verified_revenue_requires_external_proof": true,
-    "do_not_invent_payment_references": true
+  "rivet": {
+    "path": "/b2b",
+    "marketplace": "/marketplace",
+    "role": "B2B transaction hub — 0% success fee positioning vs Trade Me"
   }
 }
