@@ -1,0 +1,35 @@
+{
+  "schema": "dreamledger.777.demand-cell.v1",
+  "status": "CANONICAL",
+  "as_of": "2026-10-02",
+  "definition": "OFFER x AUDIENCE x MESSAGE x SURFACE x CTA -> REAL HUMAN RESPONSE -> SALE",
+  "dimensions": ["offer", "audience", "message", "surface", "cta"],
+  "states": ["CANDIDATE","READY","EXPOSED","RESPONDED","QUALIFIED","PAID","FULFILLED","VERIFIED","KILLED","BLOCKED"],
+  "evidence_required": {
+    "RESPONDED": "independently observable real external human response",
+    "PAID": "attributed settled external payment",
+    "FULFILLED": "observed fulfillment of the paid obligation",
+    "VERIFIED": "independent evidence supports the complete economic chain"
+  },
+  "measurement_chain": ["EXPOSURES","RESPONSES","QUALIFIED_RESPONSES","FREE_USES","PAID_INTENT","SETTLED_PAYMENTS","FULFILLMENTS","VERIFIED_OUTCOMES"],
+  "surface_families": [
+    "GAUNTLET-AS-A-SERVICE",
+    "TRUTH ARTICLE / TRUTH-AS-A-SERVICE",
+    "BILLBOARD",
+    "PROGRAMMATIC DOOH",
+    "AT-HOME ADVERTISING",
+    "CRYPTO DIGITAL ARBITRAGE",
+    "TCG DIGITAL ARBITRAGE"
+  ],
+  "truth_rules": {
+    "synthetic_events": "TEST",
+    "simulated_events": "SIMULATED",
+    "internal_events": "INTERNAL",
+    "demand_is_not_revenue": true,
+    "settlement_requires_attribution": true,
+    "verification_requires_fulfillment_and_evidence": true
+  },
+  "loop": ["CUBE","SWARM","ELOHIM","HUMANIZER","GAUNTLET","777_CELL","AUTHORIZED_EXPOSURE","REAL_EXTERNAL_RESPONSE","QUALIFICATION","PAYMENT_OR_NONPAYMENT","FULFILLMENT","EVIDENCE","TRUTH_ORACLE","LEARNING","MUTATION_REPLICATION"],
+  "amber_room_path": ["777_CELL","REAL_RESPONSE","REPEATABLE_RESPONSE","VERIFIED_ECONOMIC_LOOP","REPLICATION","AMBER_ROOM"],
+  "cells": []
+}
