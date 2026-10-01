@@ -1,0 +1,82 @@
+{
+  "schema": "DREAMLEDGER/777/ASSEMBLY-CHECKPOINT/v1",
+  "observed_at": "2026-10-01",
+  "purpose": "Machine-readable checkpoint proving the existing substrate has been assembled into the 777 operating loop.",
+  "repository": "KelpCoin/DreamLedger",
+  "main_commit": "6722dee5c9ac75c15460fcde005ed34ae5ff29c9",
+  "substrate": {
+    "cube": "BEC-PRIME/scripts/Run-777.js",
+    "silo_home": "Supabase economic_silo_registry + cube_silo_registry",
+    "silo_factory": "Supabase silo-factory",
+    "silo_orchestrator": "Supabase silo-orchestrator v9",
+    "elohim": "Supabase elohim-cube v9",
+    "gauntlet": "Supabase gauntlet-cube v6",
+    "truth_oracle": "Supabase truth-oracle-execute v10 + truth-oracle-public v2",
+    "commerce": "existing Stripe/fulfillment substrate",
+    "ledger": "BECK immutable internal record after Truth Oracle verification",
+    "local_llm": "LM Studio/BECK worker pool",
+    "supervisor": "compute allocation boundary"
+  },
+  "seven_sevens": {
+    "lenses": [
+      "BUYER",
+      "PROBLEM",
+      "OFFER",
+      "CHANNEL",
+      "PRICE",
+      "FULFILLMENT",
+      "PROOF"
+    ],
+    "transformations": [
+      "NARROW",
+      "BUNDLE",
+      "SPLIT",
+      "REPEAT",
+      "MONITOR",
+      "VERIFY",
+      "BROKER"
+    ],
+    "gates": [
+      "DEMAND",
+      "CAPABILITY",
+      "ZERO_COST",
+      "FULFILLMENT",
+      "PAYMENT",
+      "REPEAT",
+      "CONTRADICTION"
+    ],
+    "candidate_cap": 777
+  },
+  "evergreen": {
+    "rule": "qualified real substrate may create bounded 5-10 probes; only independently verified mechanisms may replicate",
+    "telemetry": [
+      "qualified_signals",
+      "checkout_starts",
+      "settled_payments",
+      "fulfilled_orders",
+      "verified_outcomes",
+      "human_touches",
+      "time_to_fulfill",
+      "margin_nzd"
+    ],
+    "allocation": "support observed survivors; hold or kill non-survivors"
+  },
+  "authority_order": "SUBSTRATE -> CUBE -> SILO -> ELOHIM -> GAUNTLET -> AUTHORIZATION -> EXTERNAL ACTION -> EXTERNAL RESULT -> SETTLEMENT -> FULFILLMENT -> INDEPENDENT EVIDENCE -> TRUTH ORACLE -> BECK LEDGER -> TELEMETRY -> REPLICATION -> CUBE",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "paid_fulfilled_orders": 0,
+    "verified_economic_outcomes": 0
+  },
+  "live_change": {
+    "component": "silo-orchestrator",
+    "previous_version": 8,
+    "current_version": 9,
+    "change": "Gauntlet now judges Elohim output before Truth Oracle economic verification; failed Gauntlet stops the chain.",
+    "external_action": "none",
+    "revenue_effect": "none"
+  },
+  "current_frontier": "TECHNICAL PROOF + HUMAN EXTERNAL DISPATCH",
+  "anti_inflation": "No internal row, Gauntlet PASS, checkout, authorization, model output, or ledger entry can create verified economic truth."
+}
