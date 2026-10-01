@@ -1,0 +1,63 @@
+{
+  "artifact": "FIRST-DOLLAR-FRONTIER-2026-10-01",
+  "observed_at": "2026-10-01T04:01:39.580538Z",
+  "scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "excluded_stripe_history": {
+    "reason": "Owner confirmed prior NZ$5 and US$1 Stripe payments were wife test transactions.",
+    "economic_status": "TEST",
+    "counted_as_revenue": false
+  },
+  "live_frontier": {
+    "product": "DreamLedger Founding Billboard 100x100",
+    "sku": "DL-BILLBOARD-100X100-3000-001",
+    "price_nzd": 50,
+    "stripe_payment_link_id": "plink_1U9JGTEGAnUFF9WRg3CKk3",
+    "stripe_payment_link": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+    "stripe_price_id": "price_1U8xD6EGgEAnUFF9KGrq2t7X",
+    "stripe_link_active": true,
+    "stripe_restriction_completed_sessions": 0,
+    "stripe_metadata": {
+      "approval_policy": "human_review_for_placement",
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "silo": "DREAMLEDGER",
+      "sku": "DL-BILLBOARD-100X100-3000-001"
+    },
+    "supabase_published_listing_count": 3,
+    "supabase_marketplace_orders": 1,
+    "supabase_marketplace_payments": 0,
+    "supabase_dreamledger_orders": 0,
+    "supabase_stripe_webhook_events": 0,
+    "supabase_first_payment_proofs": 0
+  },
+  "state": "REAL_OFFER_READY_HUMAN_DEMAND_REQUIRED",
+  "next_external_boundary": "INDEPENDENT_BUYER_PAYMENT",
+  "human_gate": {
+    "required": true,
+    "action": "Place the live founding Billboard offer in front of a real independent prospective buyer and allow that buyer to decide whether to pay.",
+    "estimated_minutes": 5,
+    "machine_can_do": [
+      "observe Stripe settlement",
+      "correlate payment metadata",
+      "persist webhook evidence",
+      "run fulfillment intake",
+      "record delivery/proof",
+      "evaluate verification"
+    ],
+    "machine_must_not_do": [
+      "self-purchase",
+      "simulate a buyer",
+      "fabricate a Stripe event",
+      "count owner or spouse test payments",
+      "mark revenue verified before the evidence join"
+    ]
+  },
+  "engineering_conclusion": "The live Stripe founding-Billboard route is active and correctly priced at NZ$50. No Stripe mutation is required to make the offer payable. The remaining 7_3 boundary is independent external demand and payment. Further internal architecture work is not the measured first-dollar blocker.",
+  "verification_rule": "A Stripe success event alone remains insufficient for VERIFIED_ECONOMIC_OUTCOME; require independent buyer attribution, settled payment, fulfillment, delivery/evidence, and the existing Truth Oracle verification boundary.",
+  "production_mutation": false
+}
