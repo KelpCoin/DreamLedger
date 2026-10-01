@@ -1,0 +1,16 @@
+{
+  "schema_version":"BEC-STRIPE-SETTLEMENT-BLOCKER-1.0",
+  "observed_utc":"2026-10-01T01:03:00Z",
+  "status":"BLOCKED",
+  "component":"Supabase Edge Function stripe-revenue-41104f355d6878cdd6d1f9dc",
+  "project_ref":"wbwgroygjeyukkspnqiy",
+  "current_trigger":"checkout.session.completed",
+  "current_guard":"session.payment_status === \"paid\"",
+  "required_settlement_signal":"payment_intent.succeeded",
+  "required_change":"Subscribe canonical endpoint to payment_intent.succeeded and make settlement event the authority for fulfillment/economic settlement. Retain checkout.session.completed as checkout observation only.",
+  "delayed_payment_signal":"checkout.session.async_payment_succeeded",
+  "production_mutation":"NOT_PERFORMED",
+  "reason_not_performed":"Connected Stripe API could not expose an eligible account operation for webhook mutation, and direct live Supabase financial-function deployment was blocked by the execution safety boundary.",
+  "truth_effect_now":"NONE",
+  "scoreboard_change_allowed":"NO"
+}
