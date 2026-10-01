@@ -18,7 +18,7 @@ function readOpportunities() {
     const file = path.join(INPUT_DIR, name);
     const raw = fs.readFileSync(file, 'utf8');
     return { file: name, hash: sha256(raw), value: JSON.parse(raw) };
-  });
+  }).filter(record => record.value.status !== 'INTERNAL_CANDIDATES_ONLY');
 }
 
 function normalise(record) {
