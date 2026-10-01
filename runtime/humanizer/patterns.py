@@ -1,0 +1,48 @@
+"""Stable Humanizer pattern catalog.
+
+Pattern detection is advisory. Pattern presence never means text is false.
+Semantic-risk patterns are review flags and are never auto-rewritten.
+"""
+
+PATTERNS = {
+    "A01_NEGATIVE_PARALLELISM": ("structure", 2),
+    "A02_CORRELATIVE_NOT_ONLY": ("structure", 2),
+    "A03_RULE_OF_THREE": ("structure", 1),
+    "A04_FALSE_RANGE": ("structure", 2),
+    "A05_TRAILING_PARTICIPLE_EDITORIALIZATION": ("structure", 2),
+    "A06_COPULA_AVOIDANCE": ("structure", 1),
+    "A07_SYNONYM_CYCLING": ("structure", 2),
+    "A08_STACCATO_FRAGMENTS": ("structure", 1),
+    "A09_HEDGING_STACK": ("structure", 2),
+    "A10_WORDY_CONSTRUCTION": ("structure", 1),
+    "A11_UNIFORM_RHYTHM": ("structure", 1),
+    "B01_INFLATED_SIGNIFICANCE": ("authority", 3),
+    "B02_BORROWED_AUTHORITY": ("authority", 4),
+    "B03_SALES_LANGUAGE": ("authority", 2),
+    "B04_VAGUE_CONNECTION": ("authority", 2),
+    "C01_EM_DASH_OVERUSE": ("formatting", 1),
+    "C02_BOLD_DECORATION": ("formatting", 1),
+    "C03_DECORATIVE_HEADINGS": ("formatting", 1),
+    "C04_CURLY_QUOTES": ("formatting", 1),
+    "C05_HYPHENATED_PAIRS": ("formatting", 1),
+    "C06_HEADING_REPETITION": ("formatting", 2),
+    "D01_PLEASANTRY": ("chatbot", 1),
+    "D02_KNOWLEDGE_LIMIT_DISCLAIMER": ("chatbot", 2),
+    "D03_STAGED_RUN_UP": ("chatbot", 2),
+    "D04_REPEATED_CLOSER": ("chatbot", 1),
+    "E01_AI_LEXICON": ("vocabulary", 2),
+    "E02_APHORISM": ("vocabulary", 2),
+    "E03_ARGUING_WITH_NO_ONE": ("vocabulary", 2),
+    "E04_OVEREXPLAINING": ("vocabulary", 1),
+    "E05_GENERIC_TRANSITION": ("vocabulary", 1),
+    "E06_GENERIC_CONCLUSION": ("vocabulary", 1),
+    "E07_UNSUPPORTED_CONFIDENCE": ("vocabulary", 3),
+    "E08_URGENCY_LANGUAGE": ("vocabulary", 2),
+    "E09_TEMPLATE_OPENING": ("vocabulary", 2),
+    "E10_TEMPLATE_CTA": ("vocabulary", 2),
+    "E11_REPETITION": ("vocabulary", 1),
+    "E12_JARGON_DENSITY": ("vocabulary", 1),
+    "E13_VAGUE_ADJECTIVE": ("vocabulary", 1),
+    "E14_META_WRITING": ("vocabulary", 2),
+    "E15_PROMPT_ECHO": ("vocabulary", 2),
+}
