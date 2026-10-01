@@ -3,6 +3,9 @@
 begin;
 
 alter table public.dreamledger_auctions
+  alter column current_bid type bigint using current_bid::bigint;
+
+alter table public.dreamledger_auctions
   add column if not exists auction_path text not null default 'A',
   add column if not exists seller_id uuid references auth.users(id),
   add column if not exists seller_trader_disclosure boolean not null default false,
@@ -172,7 +175,7 @@ begin
   returning id into v_bid_id;
 
   update public.dreamledger_auctions
-  set current_bid = p_amount_minor::integer
+  set current_bid = p_amount_minor
   where id = v_auction.id;
 
   return query select v_bid_id, p_amount_minor, v_auction.ends_at;
