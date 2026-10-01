@@ -10,139 +10,106 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/silo-master.css">
 <style>
-:root{
-  --bg:#0a0b0f;--bg-elev:#12141c;--surface:#161922;--surface-2:#1c2030;--ink:#f4f1ea;--muted:#9aa0b0;--dim:#6d7385;
-  --line:#2a3040;--gold:#d4a84b;--gold-bright:#e8c06a;--ok:#3d9b6e;--max:1120px;
-  --serif:"Instrument Serif",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif;
-  --safe:env(safe-area-inset-bottom,0px);--radius:18px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:calc(100px + var(--safe));
-background-image:radial-gradient(ellipse 80% 50% at 10% -10%,rgba(75,125,201,.18),transparent 50%),radial-gradient(ellipse 60% 40% at 90% 0%,rgba(212,168,75,.12),transparent 45%);background-attachment:fixed}
-a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
-.logo{display:inline-flex;align-items:center;gap:10px;font-weight:700}
-.logo-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(145deg,#1a1e2a,#0e1018);border:1px solid var(--line);display:grid;place-items:center}
-.logo-mark svg{width:22px;height:22px}.logo-text{font-size:15px}.logo-text em{font-family:var(--serif);font-style:italic;color:var(--gold-bright);font-weight:400}
-.hdr{position:sticky;top:0;z-index:40;background:rgba(10,11,15,.85);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
-.hdr-inner{max-width:var(--max);margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.nav{display:flex;flex-wrap:wrap;align-items:center;gap:4px;justify-content:flex-end}
-.nav a{font-size:13px;font-weight:600;color:var(--muted);padding:8px 12px;border-radius:999px;min-height:44px;display:inline-flex;align-items:center}
-.nav a:hover{color:var(--ink)}.nav .cta{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#14120c!important;font-weight:800;padding:8px 16px}
-.hero{padding:40px 0 28px}.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-.badge{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
-.badge.gold{border-color:rgba(212,168,75,.4);color:var(--gold-bright);background:rgba(212,168,75,.08)}
-.badge.ok{border-color:rgba(61,155,110,.4);color:#7dcea6;background:rgba(61,155,110,.1)}
-h1{font-family:var(--serif);font-size:clamp(2.5rem,8vw,3.75rem);font-weight:400;letter-spacing:-.03em;line-height:1.05;margin-bottom:14px;max-width:14ch}
-h1 span{font-style:italic;color:var(--gold-bright)}
-.lead{font-size:1.1rem;color:var(--muted);max-width:36em;margin-bottom:24px;line-height:1.6}
-.actions{display:flex;flex-wrap:wrap;gap:10px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 20px;border-radius:14px;font-size:15px;font-weight:700;border:1px solid transparent}
-.btn-gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#14120c}
-.btn-ghost{background:var(--surface);border-color:var(--line)}.btn-line{background:transparent;border-color:var(--line)}
-.pips{display:flex;gap:8px;margin:28px 0 8px}.pip{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.15)}
-.pip.w{background:linear-gradient(145deg,#f5f0e6,#c9c2b4)}.pip.u{background:linear-gradient(145deg,#6b9ae0,#3a5f9e)}.pip.b{background:linear-gradient(145deg,#4a4550,#1e1c22)}.pip.r{background:linear-gradient(145deg,#e07060,#9a3530)}.pip.g{background:linear-gradient(145deg,#5cb88a,#2d6b4a)}
-.section{padding:36px 0}.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.section h2{font-family:var(--serif);font-size:clamp(1.5rem,3.5vw,1.9rem);font-weight:400}.section .more{font-size:13px;font-weight:700;color:var(--gold-bright)}
-.rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.rail::-webkit-scrollbar{display:none}
-.tile{flex:0 0 min(82vw,300px);scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;min-height:230px}
-.tile .tag{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.tile h3{font-family:var(--serif);font-size:1.35rem;font-weight:400;margin-bottom:8px}.tile p{font-size:14px;color:var(--muted);flex:1}
-.tile .price{font-size:1.55rem;font-weight:700;margin:14px 0 12px}.tile .price small{font-size:.8rem;color:var(--dim)}
-.tile .go{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;font-weight:800;font-size:14px;background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#14120c}
-.tile .go.ghost{background:var(--surface-2);border:1px solid var(--line);color:var(--ink)}
+/* Master silo only — minimal local: pips + grids */
+.hero{padding:40px 0 28px}
+@media(min-width:800px){.hero{padding:56px 0 36px}}
+.pips{display:flex;gap:8px;margin:28px 0 8px}
+.pip{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.15)}
+.pip.w{background:linear-gradient(145deg,#f5f0e6,#c9c2b4)}.pip.u{background:linear-gradient(145deg,#6b9ae0,#3a5f9e)}
+.pip.b{background:linear-gradient(145deg,#4a4550,#1e1c22)}.pip.r{background:linear-gradient(145deg,#e07060,#9a3530)}.pip.g{background:linear-gradient(145deg,#5cb88a,#2d6b4a)}
 .split{display:grid;gap:14px}@media(min-width:720px){.split{grid-template-columns:1fr 1fr}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
-.panel h3{font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:8px}.panel p{color:var(--muted);font-size:14px;margin-bottom:16px}
-.panel ul{margin:0 0 18px 1.1em;color:var(--muted);font-size:14px}.panel ul li{margin-bottom:6px}
-.panel.sell{border-color:rgba(212,168,75,.35);background:linear-gradient(160deg,rgba(212,168,75,.07),var(--surface))}
-.feat-grid{display:grid;gap:12px;grid-template-columns:1fr}@media(min-width:640px){.feat-grid{grid-template-columns:1fr 1fr}}@media(min-width:900px){.feat-grid{grid-template-columns:repeat(3,1fr)}}
-.feat{background:var(--bg-elev);border:1px solid var(--line);border-radius:16px;padding:18px}.feat h3{font-size:15px;font-weight:700;margin-bottom:6px}.feat p{font-size:13px;color:var(--muted)}
+.feat-grid{display:grid;gap:12px}@media(min-width:640px){.feat-grid{grid-template-columns:1fr 1fr}}@media(min-width:900px){.feat-grid{grid-template-columns:repeat(3,1fr)}}
+.feat{background:var(--silo-bg-elev);border:1px solid var(--silo-line);border-radius:16px;padding:18px}
+.feat h3{font-size:15px;font-weight:700;margin-bottom:6px}.feat p{font-size:13px;color:var(--silo-muted)}
 .steps{display:grid;gap:12px}@media(min-width:700px){.steps{grid-template-columns:repeat(3,1fr)}}
-.step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}.step n{font-family:var(--serif);font-size:1.8rem;color:var(--gold);display:block;margin-bottom:8px}.step h3{font-size:15px;font-weight:700;margin-bottom:6px}.step p{font-size:13px;color:var(--muted)}
-.safety{background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--radius);padding:22px}.safety h3{font-family:var(--serif);font-size:1.3rem;font-weight:400;margin-bottom:10px}.safety ul{margin:0;padding-left:1.15em;color:var(--muted);font-size:14px}.safety li{margin-bottom:6px}
-.footer{padding:36px 0 24px;border-top:1px solid var(--line);margin-top:20px;font-size:13px;color:var(--dim)}.footer a{color:var(--muted);font-weight:600;margin-right:14px}
-.stick{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--safe));z-index:50;background:#12141c;border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 16px 48px rgba(0,0,0,.45)}
-.stick b{flex:1;font-size:13px;font-weight:600}.stick a{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#14120c;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;font-size:14px;display:inline-flex;align-items:center;white-space:nowrap}
-@media(min-width:800px){.stick{max-width:420px;left:auto;right:24px}.hero{padding:56px 0 36px}}
+.step{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:16px;padding:18px}
+.step n{font-family:var(--silo-serif);font-size:1.8rem;color:var(--silo-accent);display:block;margin-bottom:8px}
+.step h3{font-size:15px;font-weight:700;margin-bottom:6px}.step p{font-size:13px;color:var(--silo-muted)}
+.safety{background:var(--silo-bg-elev);border:1px solid var(--silo-line);border-radius:var(--silo-radius);padding:22px}
+.safety ul{margin:0;padding-left:1.15em;color:var(--silo-muted);font-size:14px}.safety li{margin-bottom:6px}
+.panel p{color:var(--silo-muted);font-size:14px;margin-bottom:16px}
+.panel ul{margin:0 0 18px 1.1em;color:var(--silo-muted);font-size:14px}.panel ul li{margin-bottom:6px}
 </style>
 </head>
-<body>
-<header class="hdr"><div class="hdr-inner">
-  <a class="logo" href="/mtg">
-    <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.2 4.6L19 9l-3.5 3.2.9 4.8L12 14.8 7.6 17l.9-4.8L5 9l4.8-1.4L12 3z" stroke="#e8c06a" stroke-width="1.4" fill="rgba(232,192,106,.15)"/></svg></span>
-    <span class="logo-text">Dream<em>Ledger</em> · MTG</span>
+<body class="silo-body">
+<header class="silo-hdr"><div class="silo-hdr-inner">
+  <a class="silo-logo" href="/mtg">
+    <span class="silo-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.2 4.6L19 9l-3.5 3.2.9 4.8L12 14.8 7.6 17l.9-4.8L5 9l4.8-1.4L12 3z" stroke="#e8c06a" stroke-width="1.4" fill="rgba(232,192,106,.15)"/></svg></span>
+    <span>Dream<em>Ledger</em> · MTG</span>
   </a>
-  <nav class="nav">
-    <a href="#buy">Buy</a><a href="#sell">Sell</a><a href="#trade">Trade</a>
+  <nav class="silo-nav">
+    <a href="/mtg-search">Search</a>
+    <a href="#buy">Buy</a>
+    <a href="#sell">Sell</a>
     <a href="/login">Log in</a>
-    <a class="cta" href="/register">Sell · free account</a>
+    <a class="silo-cta" href="/register">Sell · free account</a>
   </nav>
 </div></header>
-<main class="wrap">
+<main class="silo-wrap">
   <section class="hero">
-    <div class="badge-row">
-      <span class="badge gold">0% success fee</span>
-      <span class="badge ok">NZ · NZD</span>
-      <span class="badge">No Facebook chaos</span>
-    </div>
-    <h1>Cards move. <span>Fees don’t.</span></h1>
-    <p class="lead">Magic in New Zealand — buy without an account, list only when you sell. Built to replace group threads that bury deals and burn trust.</p>
-    <div class="actions">
-      <a class="btn btn-gold" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · $29</a>
-      <a class="btn btn-ghost" href="/register">Create free seller account</a>
-      <a class="btn btn-line" href="#trade">How trade works</a>
+    <p class="silo-eyebrow">Master silo · New Zealand</p>
+    <span class="silo-pill silo-pill-gold">0% success fee</span>
+    <span class="silo-pill silo-pill-ok">NZ · NZD</span>
+    <span class="silo-pill">Searchable listings</span>
+    <h1 class="silo-display" style="margin-top:16px;max-width:14ch">Cards move. <span>Fees don’t.</span></h1>
+    <p class="silo-lead">Magic in New Zealand — buy without an account, list when you’re ready to sell. Clear structure so deals stay easy to find and fair to complete.</p>
+    <div class="silo-actions">
+      <a class="silo-btn silo-btn-gold" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · $29</a>
+      <a class="silo-btn silo-btn-ghost" href="/register">Create free seller account</a>
+      <a class="silo-btn silo-btn-line" href="/mtg-search">Search listings</a>
     </div>
     <div class="pips" aria-hidden="true"><span class="pip w"></span><span class="pip u"></span><span class="pip b"></span><span class="pip r"></span><span class="pip g"></span></div>
   </section>
-  <section class="section" id="buy">
-    <div class="section-h"><h2>Buy · no account needed</h2><a class="more" href="/">All offers →</a></div>
-    <div class="rail">
-      <article class="tile"><div class="tag">Service</div><h3>Commander diagnostic</h3><p>Power level, cuts, upgrades. Stripe — no login.</p><div class="price">$29 <small>NZD</small></div><a class="go" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy now</a></article>
-      <article class="tile"><div class="tag">Physical</div><h3>EDH deck listing</h3><p>When published — checkout via buy router.</p><div class="price">from $400</div><a class="go ghost" href="/buy/EDH_0001">View EDH_0001</a></article>
-      <article class="tile"><div class="tag">Silo</div><h3>Singles & sealed</h3><p>Peer listings, 0% success fee. Sellers need accounts; buyers don’t.</p><a class="go ghost" href="/register">Free account to list</a></article>
+  <section class="silo-section" id="buy">
+    <div class="silo-section-h"><h2 class="silo-h2">Buy · no account needed</h2><a href="/mtg-search">Search →</a></div>
+    <div class="silo-rail">
+      <article class="silo-tile"><div class="tag">Service</div><h3 class="silo-h3">Commander diagnostic</h3><p>Power level, cuts, upgrades. Stripe — no login.</p><div class="silo-price">$29 <small>NZD</small></div><a class="go" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy now</a></article>
+      <article class="silo-tile"><div class="tag">Physical</div><h3 class="silo-h3">EDH deck listing</h3><p>When published — checkout via buy router.</p><div class="silo-price">from $400</div><a class="go ghost" href="/buy/EDH_0001">View EDH_0001</a></article>
+      <article class="silo-tile"><div class="tag">Silo</div><h3 class="silo-h3">Singles & sealed</h3><p>Peer listings, 0% success fee. Sellers need accounts; buyers don’t.</p><a class="go ghost" href="/mtg-list">List a card</a></article>
     </div>
   </section>
-  <section class="section" id="sell">
-    <div class="section-h"><h2>Sell & trade · free to join</h2></div>
+  <section class="silo-section" id="sell">
+    <div class="silo-section-h"><h2 class="silo-h2">Sell & trade · free to join</h2></div>
     <div class="split">
-      <div class="panel">
-        <h3>Buy as a guest</h3>
+      <div class="silo-panel">
+        <h3 class="silo-h3">Buy as a guest</h3>
         <p>Diagnostics and verified offers on Stripe. No password wall.</p>
         <ul><li>Browse free</li><li>0% success fee on peer card sales</li><li>Pay only what you choose</li></ul>
-        <a class="btn btn-line" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Shop diagnostic</a>
+        <a class="silo-btn silo-btn-line" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Shop diagnostic</a>
       </div>
-      <div class="panel sell">
-        <h3>Sell with a free account</h3>
-        <p>Account required to list — so sellers are reachable, not random group aliases.</p>
+      <div class="silo-panel silo-panel-accent">
+        <h3 class="silo-h3">Sell with a free account</h3>
+        <p>Account required to list — so sellers are reachable and deals stay clear.</p>
         <ul><li>Free to create</li><li>No success fee on peer trades</li><li>Singles, lots, sealed, EDH</li></ul>
-        <a class="btn btn-gold" href="/register">Create seller account</a>
-        <p style="margin-top:12px;font-size:13px;color:var(--dim)">Already in? <a href="/login" style="color:var(--gold-bright);font-weight:700">Log in</a></p>
+        <a class="silo-btn silo-btn-gold" href="/register">Create seller account</a>
+        <p class="silo-small" style="margin-top:12px">Already in? <a href="/login" style="color:var(--silo-accent-bright);font-weight:700">Log in</a></p>
       </div>
     </div>
   </section>
-  <section class="section" id="trade">
-    <div class="section-h"><h2>Why this beats Facebook groups</h2></div>
+  <section class="silo-section" id="trade">
+    <div class="silo-section-h"><h2 class="silo-h2">Built for simple trades</h2></div>
     <div class="feat-grid">
-      <div class="feat"><h3>Searchable</h3><p>Structured offers — not buried under memes.</p></div>
-      <div class="feat"><h3>0% success fee</h3><p>We earn on optional tools, not a cut of every card.</p></div>
-      <div class="feat"><h3>Account to sell only</h3><p>Buyers frictionless; sellers known.</p></div>
-      <div class="feat"><h3>NZ logistics</h3><p>City, pickup, postage on the listing.</p></div>
-      <div class="feat"><h3>Want / have lists</h3><p>Match without exposing the whole binder.</p></div>
-      <div class="feat"><h3>Trust on-surface</h3><p>Checkout ≠ sale until Stripe settles tools; peer trades stay clear.</p></div>
+      <div class="feat"><h3>Searchable</h3><p>Structured offers you can filter — name, city, condition.</p></div>
+      <div class="feat"><h3>0% success fee</h3><p>Optional tools are paid; peer card sales aren’t cut.</p></div>
+      <div class="feat"><h3>Account to sell only</h3><p>Buyers stay frictionless; sellers are known.</p></div>
+      <div class="feat"><h3>NZ logistics</h3><p>City, pickup, and postage on the listing.</p></div>
+      <div class="feat"><h3>Want / have lists</h3><p>Match without dumping the whole binder in a thread.</p></div>
+      <div class="feat"><h3>Calm culture</h3><p>Mods welcome — safety and kindness by design.</p></div>
     </div>
   </section>
-  <section class="section">
-    <div class="section-h"><h2>How it works</h2></div>
+  <section class="silo-section">
+    <div class="silo-section-h"><h2 class="silo-h2">How it works</h2></div>
     <div class="steps">
       <div class="step"><n>1</n><h3>Browse or diagnose</h3><p>Buy tools without an account.</p></div>
       <div class="step"><n>2</n><h3>Free account to list</h3><p>Register once. List with condition and city.</p></div>
       <div class="step"><n>3</n><h3>Trade local or post</h3><p>Agree terms. Platform success fee stays 0%.</p></div>
     </div>
   </section>
-  <section class="section">
+  <section class="silo-section">
     <div class="safety">
-      <h3>Trade safer than a group chat</h3>
+      <h3 class="silo-h3">Trade with care</h3>
       <ul>
         <li>Public pickup spots; tell someone where you’re going.</li>
         <li>Photos of the actual card — not only a database image.</li>
@@ -152,10 +119,10 @@ h1 span{font-style:italic;color:var(--gold-bright)}
     </div>
   </section>
 </main>
-<footer class="footer wrap">
-  <div><a href="/">Home</a><a href="/b2b">RIVET</a><a href="/marketplace">Marketplace</a><a href="/login">Log in</a><a href="/register">Register</a></div>
-  <p style="margin-top:12px">DreamLedger MTG · NZ · 0% platform success fee on peer merchandise</p>
+<footer class="silo-footer silo-wrap">
+  <div><a href="/">Home</a><a href="/mtg-search">Search</a><a href="/mtg-list">List</a><a href="/mtg-mod">Mod team</a><a href="/mtg-welcome">Welcome</a><a href="/register">Register</a></div>
+  <p style="margin-top:12px">DreamLedger MTG · master silo · NZ · 0% platform success fee on peer merchandise</p>
 </footer>
-<div class="stick"><b>Buy free · Sell with free account</b><a href="/register">Start</a></div>
+<div class="silo-stick"><b>Buy free · Sell with free account</b><a href="/register">Start</a></div>
 </body>
 </html>
