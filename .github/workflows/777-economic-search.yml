@@ -72,6 +72,19 @@ jobs:
       - name: Install
         run: npm install --ignore-scripts --no-audit --no-fund
 
+      - name: Verify permanent Humanizer boundary
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from runtime.humanizer.output_boundary import prepare_output
+          result = prepare_output("Plain text for a bounded review.")
+          assert result["humanizer_authority"] == "NON_AUTHORITATIVE"
+          assert result["economic_truth_effect"] == "NONE"
+          assert result["external_action_effect"] == "NONE"
+          assert result["ready_for_gauntlet_review"] is True
+          print("HUMANIZER_BOUNDARY=PASS")
+          PY
+
       - name: Refresh public demand radar
         run: |
           if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
