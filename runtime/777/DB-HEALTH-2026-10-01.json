@@ -1,0 +1,39 @@
+{
+  "schema": "DREAMLEDGER/777/DB-HEALTH/v1",
+  "observed_at": "2026-10-01T01:25:00Z",
+  "project_ref": "wbwgroygjeyukkspnqiy",
+  "observations": [
+    {
+      "query": "select 1",
+      "result": "PASS"
+    },
+    {
+      "query": "count(economic_activation_auth)",
+      "result": "PASS",
+      "rows": 1
+    },
+    {
+      "query": "count(economic_actions)",
+      "result": "PASS",
+      "rows": 2746
+    },
+    {
+      "query": "count(economic_candidate_assessments)",
+      "result": "CONNECTION_TIMEOUT"
+    },
+    {
+      "query": "PGRST002 edge logs",
+      "result": "NO_CURRENT_MATCH_IN_LATEST_QUERY"
+    }
+  ],
+  "classification": "DATABASE_INTERMITTENT",
+  "exact_blocker": "Supabase SQL connection path remains intermittent; a simple query and economic_actions count succeed, while the next production-table query can terminate with connection timeout.",
+  "required": "stable repeated reads of authoritative economic tables and successful activation observation",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "paid_fulfilled_orders": 0,
+    "verified_economic_outcomes": 0
+  }
+}
