@@ -1,0 +1,20 @@
+{
+  "schema_version": "BEC-WORKER-JOB-1.1",
+  "job_id": "job_pinball_nursery_777_20261001",
+  "created_at": "2026-10-01T10:58:43.201Z",
+  "status": "QUEUED",
+  "silo": "SILO_GENERAL",
+  "kind": "lm_refinement",
+  "task": "Use the supplied local-worker mechanics and commercial objective as a bounded refinement brief. Identify concrete, evidence-grounded commercial junctions that existing BEC/CUBE substrate can test. Do not invent buyers, demand, payments, evidence, integrations, or revenue. Produce candidate hypotheses only. Prefer a narrow smallest test, identifiable buyer, deliverable, price hypothesis, evidence source, and kill condition. This artifact is not an external action.",
+  "inputs": {
+    "objective": "777 AMBER ROOM: move from existing substrate toward one real independent buyer and settled payment.",
+    "rat_message": "Local file worker queue is queued JSON under data/jobs; allowed kinds are analysis, code_change, gauntlet, compile, test, lm_refinement; irreversible effects are blocked; local artifacts cannot move economic truth. CUBE Pinball is the bounded iterative refinement path and must remain non-authoritative.",
+    "temperature": 0.2
+  },
+  "effects": [],
+  "worker_preference": "multi_model_diverse",
+  "approval_required": true,
+  "public_action_allowed": false,
+  "previous_result_hash": null,
+  "input_hash": "pending-local-worker-canonical-hash"
+}
