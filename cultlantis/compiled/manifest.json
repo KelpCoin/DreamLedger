@@ -1,0 +1,12 @@
+{
+  "schema": "CULTLANTIS/MVP-COMPILER/v1",
+  "status": "PASS",
+  "source": "source/index.html",
+  "output": "compiled/index.html",
+  "sha256": "19ffc79705dd82da242fdf3c872719ea4d6c593105daffb641f23835847de2aa",
+  "game_loop": "harvest kelp -> oxygen -> colony awakening",
+  "deterministic_target": true,
+  "runtime": "browser-static",
+  "payment_claims_created": false,
+  "external_actions_created": false
+}

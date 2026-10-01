@@ -1,0 +1,18 @@
+'use strict';
+const fs=require('fs');
+const path=require('path');
+const crypto=require('crypto');
+const root=path.join(__dirname,'..');
+const source=path.join(root,'source','index.html');
+const outDir=path.join(root,'compiled');
+const out=path.join(outDir,'index.html');
+const manifest=path.join(outDir,'manifest.json');
+fs.mkdirSync(outDir,{recursive:true});
+const html=fs.readFileSync(source,'utf8').replace(/\r\n/g,'\n');
+if(!html.includes('CULTLANTIS / MVP-001')) throw new Error('Cultlantis source marker missing');
+if(!html.includes('function reset()')) throw new Error('Playable loop missing');
+fs.writeFileSync(out,html,'utf8');
+const sha=crypto.createHash('sha256').update(html,'utf8').digest('hex');
+const result={schema:'CULTLANTIS/MVP-COMPILER/v1',status:'PASS',source:'source/index.html',output:'compiled/index.html',sha256:sha,game_loop:'harvest kelp -> oxygen -> colony awakening',compiled_at:new Date().toISOString()};
+fs.writeFileSync(manifest,JSON.stringify(result,null,2)+'\n','utf8');
+console.log(JSON.stringify(result));
