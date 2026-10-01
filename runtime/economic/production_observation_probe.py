@@ -12,8 +12,18 @@ from state_transition_engine import transition_opportunity
 
 
 def inspect_action(row: dict[str, Any]) -> dict[str, Any]:
+    action_type = str(row.get("action_type") or "").upper()
     events = project_action(row)
     current = str(row.get("opportunity_state") or "").upper()
+
+    if action_type == "BUILD_EXECUTION_PACKET":
+        return {
+            "result": "EXACT_BLOCKER",
+            "error_class": "INTERNAL_PLANNING_ACTION",
+            "dependency_state": "OBSERVED_INTERNAL_ROUTING",
+            "missing_field": "external_economic_action",
+            "events": events,
+        }
     if not current:
         return {
             "result": "EXACT_BLOCKER",
