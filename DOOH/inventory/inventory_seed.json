@@ -1,0 +1,87 @@
+{
+  "schema": "DOOH-INVENTORY-SEED/1.0",
+  "source": "commerce/dreamledger-regional-billboard-offers.json",
+  "truth": {
+    "revenue_nzd_verified": 0,
+    "note": "No sale is claimed until settled payment evidence exists."
+  },
+  "skus": [
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-NZ-100X100",
+      "product": "DreamLedger Founding Billboard",
+      "board": "New Zealand",
+      "tier": "FOUNDING",
+      "dimensions": "100x100",
+      "price_nzd": 50,
+      "capacity": 100,
+      "sellable": true,
+      "gate": null
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-WORLDWIDE-100X100",
+      "product": "DreamLedger Founding Billboard",
+      "board": "Worldwide",
+      "tier": "FOUNDING",
+      "dimensions": "100x100",
+      "price_nzd": 50,
+      "capacity": 100,
+      "sellable": true,
+      "gate": null
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-AU-100X100",
+      "product": "DreamLedger Founding Billboard",
+      "board": "Australia",
+      "tier": "FOUNDING",
+      "dimensions": "100x100",
+      "price_nzd": 50,
+      "capacity": 100,
+      "sellable": true,
+      "gate": null
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-MEDIUM-001",
+      "product": "DreamLedger Billboard Medium",
+      "board": "New Zealand",
+      "tier": "MEDIUM",
+      "dimensions": "200x100",
+      "price_nzd": 99,
+      "capacity": 50,
+      "sellable": true,
+      "gate": null
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-WIDE-001",
+      "product": "DreamLedger Billboard Wide",
+      "board": "New Zealand",
+      "tier": "WIDE",
+      "dimensions": "500x200",
+      "price_nzd": 249,
+      "capacity": 10,
+      "sellable": true,
+      "gate": null
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-LARGE-001",
+      "product": "DreamLedger Billboard Large",
+      "board": "New Zealand",
+      "tier": "LARGE",
+      "dimensions": "500x500",
+      "price_nzd": 499,
+      "capacity": 4,
+      "sellable": true,
+      "gate": null
+    },
+    {
+      "sku": "DOOH-CAMPAIGN-500",
+      "product": "DreamLedger Verified DOOH Campaign",
+      "board": "Campaign",
+      "tier": "CAMPAIGN",
+      "dimensions": "flight",
+      "price_nzd": 500,
+      "capacity": 1,
+      "sellable": false,
+      "gate": "HUMAN_FULFILLMENT_NOT_READY"
+    }
+  ]
+}
