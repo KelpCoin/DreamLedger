@@ -32,7 +32,7 @@ if (Test-Path $candidate) {
 
 if (Test-Path $frontDoor) {
     $html = Get-Content -Raw $frontDoor
-    Check 'front_door_is_commercial' ($html -match 'Claim a Tile' -and $html -match 'NZ\$50')
+    Check 'front_door_is_commercial' ($html -match 'Commander diagnostic' -and $html -match 'NZ\$29' -and $html -match '/buy/COMMANDER-DECK-DIAGNOSTIC-001')
     Check 'mtg_silo_not_required_on_home' $true
     Check 'no_internal_front_door_language' ($html -notmatch 'BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST')
 }
