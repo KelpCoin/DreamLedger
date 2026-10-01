@@ -1,0 +1,84 @@
+{
+  "schema": "DREAMLEDGER/777/ECONOMIC-CATALYST-AUDIT/v1",
+  "observed_at": "2026-10-01T02:53:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "head_commit": "d988675e81cb2add6a3fa2aa56d47b85de1121e5",
+  "scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "seven_seven_environment": {
+    "checkpoint": "runtime/777/ASSEMBLY-CHECKPOINT-2026-10-01.json",
+    "substrate": [
+      "CUBE",
+      "SILO",
+      "ELOHIM",
+      "GAUNTLET",
+      "TRUTH_ORACLE",
+      "AUTHORIZATION",
+      "EXTERNAL_ACTION"
+    ],
+    "silo_orchestrator_version": 10,
+    "humanizer": "permanent_non_authoritative_cross_silo_review_component"
+  },
+  "humanizer": {
+    "clips_onto": "cross-silo output boundary, not a fixed silo count",
+    "canonical_module_root": "runtime/humanizer",
+    "wired_into": "777-economic-search CI verification spine",
+    "authority": "NON_AUTHORITATIVE",
+    "economic_truth_effect": "NONE",
+    "external_action_effect": "NONE",
+    "calibration": "UNCALIBRATED"
+  },
+  "silo_count": {
+    "economic_silo_registry_rows": 6770,
+    "url_http_dns_all_verified": "UNOBSERVABLE",
+    "reason": "Supabase direct reads of authoritative registry timed out during JSON verification after schema discovery succeeded. No count was inferred from total rows."
+  },
+  "ci": {
+    "health": "NOT_PROVEN",
+    "observed_failure": "wealth-engine-verify run 36806627177 failed because front_door_is_commercial still expected obsolete Claim a Tile / NZ$50 language.",
+    "corrective_commit": "67d8289e6c6b5b4a5444842ee93d927b227d00d6",
+    "duplicate_777_schedule_frozen_in": "a86021fb36752fb525ad10a084a3392d3137db47",
+    "humanizer_verification_commit": "d988675e81cb2add6a3fa2aa56d47b85de1121e5"
+  },
+  "database": {
+    "project_ref": "wbwgroygjeyukkspnqiy",
+    "stable_select_observed": true,
+    "economic_actions_rows": 2746,
+    "economic_candidate_assessments_rows": 1,
+    "economic_silo_registry_rows": 6770,
+    "intermittent_sql_timeout": true,
+    "rls_critical_tables_disabled": 6
+  },
+  "blockers": [
+    {
+      "blocked_at": "DATABASE",
+      "because": "authoritative silo verification reads are intermittently timing out",
+      "required": "stable repeated reads of economic_silo_registry and verification metadata"
+    },
+    {
+      "blocked_at": "CI/CD",
+      "because": "repository has broad push-triggered workflow fan-out and current main has pending/failed runs; relevant success is not yet observed",
+      "required": "one completed successful run of the canonical 777 search path after the changes"
+    },
+    {
+      "blocked_at": "HUMAN_GATE",
+      "because": "observed production opportunity explicitly has HUMAN_SUBMISSION_REQUIRED and external_action_allowed=false",
+      "required": "owner-authorized external submission through authenticated account"
+    },
+    {
+      "blocked_at": "LOCAL_COMPUTE",
+      "because": "current local Windows/LM Studio state is not observable through connected tools in this run",
+      "required": "direct local machine reachability or an existing cloud/local bridge proof"
+    }
+  ],
+  "changes_made": [
+    "Fixed stale wealth-engine commercial-front-door assertion to match current Commander Diagnostic NZ$29 route.",
+    "Froze duplicate 777-economic-discovery schedule while preserving manual/path triggers; 777-economic-search remains the canonical scheduled path because it includes guarded commerce handoff and economic activation.",
+    "Added permanent Humanizer boundary verification to the canonical 777 economic search workflow."
+  ],
+  "truth_boundary": "No economic truth, payment, buyer, fulfillment, or revenue state was fabricated or promoted."
+}
