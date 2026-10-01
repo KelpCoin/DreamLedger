@@ -1,0 +1,441 @@
+name: CORTEX Builder v1
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+concurrency:
+  group: cortex-builder-v1
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  admit-and-claim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has_job: ${{ steps.claim.outputs.has_job }}
+      job_json: ${{ steps.claim.outputs.job_json }}
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Inspect Issue #304 contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          body=$(gh api repos/KelpCoin/DreamLedger/issues/304)
+          python3 - <<'PY' "$body"
+          import json,sys
+          data=json.loads(sys.argv[1])
+          assert data.get('state') == 'open', 'ISSUE_304_NOT_OPEN'
+          assert data.get('title') == 'Canonical game rename: Kelplantis -> PhinHaven', 'ISSUE_304_CONTRACT_MISMATCH'
+          text=data.get('body','')
+          for required in ['PhinHaven','Preserve','kelplantis_*','Finhaven']:
+              assert required in text, f'ISSUE_304_MISSING={required}'
+          print('ISSUE_304_CONTRACT=PASS')
+          PY
+
+      - name: Recover expired worker leases
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/reclaim_expired_jobs" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+            -H 'Content-Type: application/json' \
+            --data '{"p_limit":100}'
+
+      - name: Read canonical main SHA
+        id: main
+        shell: bash
+        run: |
+          set -euo pipefail
+          main_sha=$(gh api repos/KelpCoin/DreamLedger/git/ref/heads/main --jq '.object.sha')
+          test -n "$main_sha"
+          echo "sha=$main_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Admit Issue #304 if not already represented
+        shell: bash
+        env:
+          MAIN_SHA: ${{ steps.main.outputs.sha }}
+        run: |
+          set -euo pipefail
+          existing=$(curl --fail-with-body --silent --show-error \
+            "$SUPABASE_URL/rest/v1/jobs?select=id,status,attempt_count,payload,last_error&payload->>job_key=eq.phinhaven-issue-304&order=created_at.desc&limit=1" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY")
+          count=$(python3 -c 'import json,sys; print(len(json.loads(sys.argv[1])))' "$existing")
+          if [ "$count" = "0" ]; then
+            python3 - <<'PY' > job.json
+          import json,os
+          print(json.dumps({
+            'type':'cortex_builder',
+            'status':'pending',
+            'payload':{
+              'builder_version':'v1',
+              'job_key':'phinhaven-issue-304',
+              'job_mode':'phinhaven_rename_304',
+              'issue_number':304,
+              'repository':'KelpCoin/DreamLedger',
+              'base_branch':'main',
+              'base_sha':os.environ['MAIN_SHA'],
+              'write_scope_mode':'phinhaven_user_facing_rename_only',
+              'forbidden_scope':['kelplantis_* technical identifiers','supabase/migrations/**','proof/**','BEC-PRIME/RUN-PROOFS/**','commercial silos','Stripe truth','MTG/HappyHomarid','Amplissa/adult','.github/workflows/**'],
+              'max_repairs':3,
+              'merge':False,
+              'deploy':False,
+              'external_contact':False,
+              'financial_action':False
+            }
+          }))
+          PY
+            curl --fail-with-body --silent --show-error \
+              -X POST "$SUPABASE_URL/rest/v1/jobs" \
+              -H "apikey: $SUPABASE_SECRET_KEY" \
+              -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+              -H 'Content-Type: application/json' \
+              -H 'Prefer: return=minimal' \
+              --data-binary @job.json
+          else
+            echo "CORTEX_QUEUE_ALREADY_HAS_ISSUE_304_JOB"
+          fi
+
+      - name: Claim one CORTEX Builder job
+        id: claim
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(curl --fail-with-body --silent --show-error \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/claim_cortex_builder_job" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+            -H 'Content-Type: application/json' \
+            --data '{"p_worker_id":"github-cortex-builder-v1","p_lease_seconds":3600}')
+          if [ "$response" = "null" ] || [ -z "$response" ]; then
+            echo 'has_job=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo 'has_job=true' >> "$GITHUB_OUTPUT"
+          echo "job_json=$(printf '%s' "$response" | base64 -w0)" >> "$GITHUB_OUTPUT"
+          printf '%s' "$response" > claimed-job.json
+
+      - name: Upload claim envelope
+        if: steps.claim.outputs.has_job == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-builder-claim-${{ github.run_id }}
+          path: claimed-job.json
+          if-no-files-found: error
+
+  builder:
+    needs: admit-and-claim
+    if: needs.admit-and-claim.outputs.has_job == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      JOB_B64: ${{ needs.admit-and-claim.outputs.job_json }}
+    steps:
+      - name: Checkout exact canonical main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        run: npm ci --ignore-scripts
+
+      - name: Decode claim and enforce base SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p BEC-PRIME/data/cortex-builder
+          printf '%s' "$JOB_B64" | base64 -d > BEC-PRIME/data/cortex-builder/claimed-job.json
+          expected=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["payload"]["base_sha"])')
+          actual=$(git rev-parse HEAD)
+          test "$expected" = "$actual"
+
+      - name: Build and verify with bounded repair loop
+        shell: bash
+        run: |
+          set -euo pipefail
+          max_repairs=$(python3 -c 'import json; print(int(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["payload"].get("max_repairs",3)))')
+          repair=0
+          previous=''
+          while true; do
+            rm -f BEC-PRIME/data/cortex-builder/attempt.log
+            set +e
+            {
+              node BEC-PRIME/autonomy/cortex-builder-v1.js
+              git diff --check
+              cd BEC-PRIME
+              npm run compile
+              npm test
+            } > BEC-PRIME/data/cortex-builder/attempt.log 2>&1
+            rc=$?
+            set -e
+            cat BEC-PRIME/data/cortex-builder/attempt.log
+            if [ "$rc" -eq 0 ]; then
+              echo "repair_count=$repair" > BEC-PRIME/data/cortex-builder/repair-result.txt
+              break
+            fi
+            fingerprint=$( { cat BEC-PRIME/data/cortex-builder/attempt.log; git diff --binary; } | sha256sum | cut -d' ' -f1 )
+            if [ "$fingerprint" = "$previous" ]; then
+              echo 'REPEAT_FAILURE_ESCALATION=TRUE'
+              exit 42
+            fi
+            previous="$fingerprint"
+            if [ "$repair" -ge "$max_repairs" ]; then
+              echo 'MAX_REPAIRS_EXCEEDED=TRUE'
+              exit 43
+            fi
+            repair=$((repair+1))
+            echo "REPAIR_ATTEMPT=$repair"
+            git reset --hard HEAD
+            git clean -fdx -- BEC-PRIME/data/cortex-builder || true
+            mkdir -p BEC-PRIME/data/cortex-builder
+            printf '%s' "$JOB_B64" | base64 -d > BEC-PRIME/data/cortex-builder/claimed-job.json
+          done
+
+      - name: Produce candidate patch and evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --binary -- . ':(exclude)BEC-PRIME/data/cortex-builder/claimed-job.json' > BEC-PRIME/data/cortex-builder/builder.patch
+          git diff --name-only > BEC-PRIME/data/cortex-builder/changed-paths.txt
+          test -s BEC-PRIME/data/cortex-builder/builder.patch
+          test "$(grep -c '"status": "PASS"' BEC-PRIME/data/cortex-builder/rename-builder-proof.json)" -eq 1
+
+      - name: Upload builder output
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-builder-output-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/cortex-builder/claimed-job.json
+            BEC-PRIME/data/cortex-builder/builder.patch
+            BEC-PRIME/data/cortex-builder/changed-paths.txt
+            BEC-PRIME/data/cortex-builder/rename-builder-proof.json
+            BEC-PRIME/data/cortex-builder/repair-result.txt
+            BEC-PRIME/data/cortex-builder/attempt.log
+          if-no-files-found: error
+
+  builder-failure:
+    needs: [admit-and-claim, builder]
+    if: always() && needs.admit-and-claim.outputs.has_job == 'true' && needs.builder.result != 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      JOB_B64: ${{ needs.admit-and-claim.outputs.job_json }}
+    steps:
+      - name: Fail claimed job with evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          job_id=$(printf '%s' "$JOB_B64" | base64 -d | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
+          token=$(printf '%s' "$JOB_B64" | base64 -d | python3 -c 'import json,sys; print(json.load(sys.stdin)["lease_token"])')
+          curl --fail-with-body --silent --show-error \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/fail_job" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+            -H 'Content-Type: application/json' \
+            --data "{\"p_job_id\":\"$job_id\",\"p_lease_token\":\"$token\",\"p_error\":\"CORTEX_BUILDER_FAILURE\"}"
+
+  safe-output:
+    needs: [admit-and-claim, builder]
+    if: needs.builder.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      JOB_B64: ${{ needs.admit-and-claim.outputs.job_json }}
+    steps:
+      - name: Checkout exact canonical main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download builder output
+        uses: actions/download-artifact@v4
+        with:
+          name: cortex-builder-output-${{ github.run_id }}
+          path: BEC-PRIME/data/cortex-builder
+
+      - name: Re-assert base SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["payload"]["base_sha"])')
+          actual=$(git rev-parse HEAD)
+          test "$expected" = "$actual"
+
+      - name: Create exact job branch
+        id: branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          job_id=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["id"])')
+          issue_number=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["payload"]["issue_number"])')
+          branch="cortex/job-$issue_number"
+          git checkout -b "$branch"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "job_id=$job_id" >> "$GITHUB_OUTPUT"
+
+      - name: Apply candidate patch and enforce scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --index BEC-PRIME/data/cortex-builder/builder.patch
+          changed=$(git diff --cached --name-only)
+          printf '%s\n' "$changed"
+          if printf '%s\n' "$changed" | grep -E '^(supabase/migrations/|proof/|BEC-PRIME/RUN-PROOFS/|.github/workflows/|.*(billboard|maximona|automation-rescue|mtg|happyhomarid|collectorscoast|amplissa))'; then
+            echo 'FORBIDDEN_SCOPE_CHANGE=FAIL'
+            exit 1
+          fi
+
+      - name: Commit candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'CORTEX Builder'
+          git config user.email 'cortex-builder@users.noreply.github.com'
+          git commit -m 'CORTEX: execute Issue #304 PhinHaven rename'
+          git push --set-upstream origin "${{ steps.branch.outputs.branch }}"
+
+      - name: Re-test exact candidate SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd BEC-PRIME
+          npm ci --ignore-scripts
+          npm run compile
+          npm test
+
+      - name: Open unmerged PR
+        id: pr
+        shell: bash
+        run: |
+          set -euo pipefail
+          head_sha=$(git rev-parse HEAD)
+          base_sha=$(git rev-parse origin/main)
+          body=$(python3 - <<'PY'
+          import json
+          p=json.load(open('BEC-PRIME/data/cortex-builder/rename-builder-proof.json',encoding='utf-8'))
+          print('CORTEX Builder v1 proof for Issue #304.\n\n'
+                'Target: PhinHaven\n'
+                'Scope: user-facing rename only\n'
+                'Technical identifiers preserved: '+str(p['technical_identifiers_preserved'])+'\n'
+                'Remaining unprotected legacy references: '+str(len(p.get('unprotected_legacy_references',[])))+'\n'
+                'Compile: PASS\nTests: PASS\n'
+                'Candidate base SHA: '+p['base_sha']+'\n\n'
+                'The final PR head SHA is verified against the proof before job completion.\n'
+                'No merge, deployment, financial action, or external contact was performed.')
+          PY
+          )
+          url=$(gh pr create --base main --head "${{ steps.branch.outputs.branch }}" --title 'CORTEX: Issue #304 PhinHaven rename' --body "$body")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Verify PR identity and SHA-bound proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr_json=$(gh pr view "${{ steps.pr.outputs.url }}" --json number,url,headRefName,headRefOid,baseRefName,baseRefOid)
+          python3 - <<'PY' "$pr_json" "${{ steps.pr.outputs.head_sha }}" "${{ steps.pr.outputs.base_sha }}" "${{ steps.branch.outputs.branch }}"
+          import json,sys
+          pr=json.loads(sys.argv[1])
+          expected_head=sys.argv[2]
+          expected_base=sys.argv[3]
+          expected_branch=sys.argv[4]
+          assert pr['headRefName'] == expected_branch, 'PR_BRANCH_MISMATCH'
+          assert pr['baseRefName'] == 'main', 'PR_BASE_BRANCH_MISMATCH'
+          assert pr['headRefOid'] == expected_head, 'PR_HEAD_SHA_MISMATCH'
+          assert pr['baseRefOid'] == expected_base, 'PR_BASE_SHA_MISMATCH'
+          proof=json.load(open('BEC-PRIME/data/cortex-builder/rename-builder-proof.json',encoding='utf-8'))
+          assert proof['status'] == 'PASS', 'BUILDER_PROOF_NOT_PASS'
+          assert proof['base_sha'] == expected_base, 'PROOF_BASE_SHA_MISMATCH'
+          assert proof['technical_identifiers_before'] == proof['technical_identifiers_after'], 'TECHNICAL_IDENTIFIERS_CHANGED'
+          assert len(proof.get('unprotected_legacy_references',[])) == 0, 'LEGACY_REFERENCES_REMAIN'
+          print(json.dumps({'pr_number':pr['number'],'pr_url':pr['url'],'head_sha':pr['headRefOid'],'proof_base_sha':proof['base_sha']},indent=2))
+          PY
+
+      - name: Write final SHA-bound proof artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' "${{ steps.pr.outputs.url }}" "${{ steps.pr.outputs.head_sha }}" "${{ steps.pr.outputs.base_sha }}"
+          import json,hashlib,sys,time
+          pr_url,head_sha,base_sha=sys.argv[1:]
+          p=json.load(open('BEC-PRIME/data/cortex-builder/rename-builder-proof.json',encoding='utf-8'))
+          p.update({'schema':'BROWNEYE-CORTEX/RENAME-PROOF/v2','pr_url':pr_url,'candidate_head_sha':head_sha,'head_sha':head_sha,'pr_head_sha':head_sha,'pr_base_sha':base_sha,'proof_head_sha_matches_pr':True,'generated_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())})
+          p['proof_sha256']=hashlib.sha256(json.dumps(p,sort_keys=True).encode()).hexdigest()
+          json.dump(p,open('cortex-rename-proof-final.json','w',encoding='utf-8'),indent=2)
+          PY
+          test "$(python3 -c 'import json; p=json.load(open("cortex-rename-proof-final.json")); print(p["proof_head_sha_matches_pr"])')" = "True"
+
+      - name: Publish final proof into PR body
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr_url='${{ steps.pr.outputs.url }}'
+          gh pr edit "$pr_url" --body "$(python3 -c 'import json; p=json.load(open("cortex-rename-proof-final.json")); print("CORTEX Builder v1 proof for Issue #304.\n\nTarget: PhinHaven\nBranch: cortex/job-304\nPR head SHA: "+p["head_sha"]+"\nProof SHA256: "+p["proof_sha256"]+"\nTechnical identifiers preserved: "+str(p["technical_identifiers_preserved"])+"\nUnprotected legacy references: "+str(len(p.get("unprotected_legacy_references",[])))+"\nCompile: PASS\nTests: PASS\n\nNo merge, deployment, financial action, or external contact was performed.")')"
+
+      - name: Complete CORTEX job only after verified PR
+        shell: bash
+        run: |
+          set -euo pipefail
+          job_id=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["id"])')
+          token=$(python3 -c 'import json; print(json.load(open("BEC-PRIME/data/cortex-builder/claimed-job.json"))["lease_token"])')
+          pr_url='${{ steps.pr.outputs.url }}'
+          head_sha='${{ steps.pr.outputs.head_sha }}'
+          proof_sha=$(python3 -c 'import json; print(json.load(open("cortex-rename-proof-final.json"))["proof_sha256"])')
+          curl --fail-with-body --silent --show-error \
+            -X PATCH "$SUPABASE_URL/rest/v1/jobs?id=eq.$job_id&lease_token=eq.$token" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+            -H 'Content-Type: application/json' \
+            -H 'Prefer: return=minimal' \
+            --data "{\"result_payload\":{\"status\":\"DONE\",\"pr_url\":\"$pr_url\",\"head_sha\":\"$head_sha\",\"proof_sha256\":\"$proof_sha\",\"merge\":false,\"deploy\":false}}"
+          curl --fail-with-body --silent --show-error \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/complete_job" \
+            -H "apikey: $SUPABASE_SECRET_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+            -H 'Content-Type: application/json' \
+            --data "{\"p_job_id\":\"$job_id\",\"p_lease_token\":\"$token\"}"
+
+      - name: Upload final proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-proof-${{ github.run_id }}
+          path: cortex-rename-proof-final.json
+          if-no-files-found: warn
