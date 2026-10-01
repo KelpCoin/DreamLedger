@@ -1,0 +1,41 @@
+{
+  "artifact": "DREAMLEDGER_PRODUCTION_OBSERVATION_CORRECTION",
+  "observed_at": "2026-10-01",
+  "supersedes": "runtime/777/PRODUCTION-OBSERVATION-2026-10-01.json",
+  "correction": "The earlier artifact overstated the observation by treating AUTHORIZED as a persisted opportunity state. The live cube_opportunities row actually has status INTERESTING and contains no canonical opportunity_state column.",
+  "source": {
+    "cube_opportunities": {
+      "opportunity_id": "645c95cd-2e69-4f07-9ca2-c987af49f7b6",
+      "status": "INTERESTING",
+      "authority_lane": "GREEN",
+      "execution_packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
+      "expected_value_nzd": 850,
+      "expected_cost_nzd": 0,
+      "time_budget_minutes": 30
+    },
+    "economic_execution_packets": {
+      "packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
+      "status": "DISPATCHED",
+      "dispatch_state": "INTERNAL_ROUTED",
+      "authorization_verdict": "allow"
+    },
+    "economic_actions": {
+      "action_id": "45f98b88-78dd-4549-b5bb-b6f4a1a7482e",
+      "authorization_state": "AUTHORIZED",
+      "execution_state": "PREPARED",
+      "external_reference": null,
+      "evidence_reference": null
+    }
+  },
+  "result": {
+    "result": "EXACT_BLOCKER",
+    "error_class": "DATA_FAILURE",
+    "dependency_state": "OBSERVED_ROW_INCOMPLETE",
+    "missing_field": "opportunity_state",
+    "state_before": null,
+    "external_action_sent": false,
+    "external_result_observed": false,
+    "economic_effect_nzd": 0
+  },
+  "conclusion": "The existing observation contract correctly refuses to infer a canonical economic state from cube_opportunities.status=INTERESTING. No database mutation is justified. The ACNC path remains non-external and does not alter the first-dollar scoreboard."
+}
