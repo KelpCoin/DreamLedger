@@ -63,6 +63,12 @@ create index if not exists auction_bids_auction_amount_idx
 alter table public.auction_seller_compliance_records enable row level security;
 alter table public.auction_bids enable row level security;
 
+-- Auction state is backend-controlled. Clients may read public listing state, but may not
+-- insert/update/delete auctions or mutate current_bid outside the atomic bid RPC.
+revoke insert, update, delete, truncate, references, trigger
+  on public.dreamledger_auctions from anon, authenticated;
+grant select on public.dreamledger_auctions to anon, authenticated;
+
 -- No client-facing policies on the sensitive compliance table.
 revoke all on public.auction_seller_compliance_records from anon, authenticated;
 grant all on public.auction_seller_compliance_records to service_role;
