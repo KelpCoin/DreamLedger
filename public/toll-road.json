@@ -1,0 +1,33 @@
+{
+  "schema":"dreamledger/toll-road/v1",
+  "version":"1.0",
+  "thesis":"The substrate becomes a toll road without handing customer keys internal authority.",
+  "services":[
+    {
+      "id":"GAUNTLET-RUN",
+      "name":"Automated Gauntlet",
+      "unit":"one candidate run",
+      "human_minutes":0,
+      "route":"/api/toll/v1/gauntlet",
+      "scope":"gauntlet",
+      "fulfillment":"automatic",
+      "external_action":"none",
+      "truth_effect":"none"
+    },
+    {
+      "id":"TRUTH-ORACLE-ACCESS",
+      "name":"Evidence/Truth Oracle Access",
+      "unit":"one evidence evaluation request",
+      "human_minutes":0,
+      "route":"/api/toll/v1/truth",
+      "scope":"truth",
+      "fulfillment":"automatic",
+      "external_action":"none",
+      "truth_effect":"none"
+    }
+  ],
+  "wall":"x-dreamledger-toll-key",
+  "key_lifecycle":"settled payment -> entitlement -> signed key -> wall -> automated response -> revocation/expiry",
+  "owner_involvement":"none after product/payment configuration",
+  "internal_rail":"never exposed through customer toll keys"
+}
