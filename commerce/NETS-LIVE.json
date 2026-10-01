@@ -1,0 +1,22 @@
+{
+  "schema": "dreamledger/nets-live/v1",
+  "as_of": "2026-09-16",
+  "storefront": "https://dreamledger.org",
+  "api_offers": "https://dreamledger.org/api/offers",
+  "revenue_rule": "Stripe succeeded only",
+  "render_block": "RENDER_DEPLOY_HOOK_URL and RENDER_API_KEY empty on emergency-render-release",
+  "priority": [
+    {"silo": "dreammeez", "name": "Cosmic Hoodie", "nzd": 5, "url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J"},
+    {"silo": "dreammeez", "name": "Chrome Boots", "nzd": 9, "url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L"},
+    {"silo": "dreammeez", "name": "Cape", "nzd": 10, "url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K"},
+    {"silo": "dreammeez", "name": "Sprout", "nzd": 3.99, "url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M"},
+    {"silo": "kelplantis", "name": "Floor 1", "nzd": 19, "url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P"},
+    {"silo": "billboard", "name": "Founding Billboard", "nzd": 50, "url": "https://buy.stripe.com/dRmbJ2cZi9eW4mk9La9oc02"},
+    {"silo": "mtg", "name": "CMD Diagnostic", "nzd": 29, "url": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l"},
+    {"silo": "mtg", "name": "EDH_0001", "nzd": 400, "url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J"},
+    {"silo": "digital", "name": "Discord Kit", "nzd": 79, "url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n"},
+    {"silo": "service", "name": "n8n Rescue", "nzd": 99, "url": "https://buy.stripe.com/6oU28r7LD6pL4Q74kAdwc2z"},
+    {"silo": "service", "name": "Maximona IPV", "nzd": 1500, "url": "https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C"}
+  ],
+  "missing_silos": ["vinyl", "music_media", "pdooh_500_campaign"]
+}
