@@ -1,0 +1,48 @@
+name: Economic Event Probe
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: economic-event-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    name: Probe live Stripe economic events
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify runtime
+        run: node --version
+
+      - name: Run read-only economic probe
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: node ops/commerce/probe-economic-events.mjs
+
+      - name: Verify proof exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s proof/commerce/latest-economic-event-probe.json
+          sha256sum proof/commerce/latest-economic-event-probe.json > proof/commerce/latest-economic-event-probe.sha256
+          cat proof/commerce/latest-economic-event-probe.sha256
+
+      - name: Upload economic probe proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-event-probe-${{ github.run_id }}
+          path: |
+            proof/commerce/latest-economic-event-probe.json
+            proof/commerce/latest-economic-event-probe.sha256
+          if-no-files-found: error
+          retention-days: 90

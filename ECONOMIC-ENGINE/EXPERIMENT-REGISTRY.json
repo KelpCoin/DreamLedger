@@ -1,0 +1,108 @@
+{
+  "schema": "DREAMLEDGER-ECONOMIC-EXPERIMENTS/v1",
+  "purpose": "Permanent passive registry for revenue probes, diagnostics, and adjacent commercial experiments.",
+  "authority": "Stripe live settlement evidence",
+  "public_actions": "approval_gated",
+  "money_claim_rule": "No revenue is recognized unless an external live Stripe paid Checkout Session is matched to a registered offer.",
+  "experiments": [
+    {
+      "id": "AGENTIC-SOVEREIGNTY-DIAGNOSTIC",
+      "status": "active_probe",
+      "silo": "dreamledger",
+      "type": "one_time_diagnostic",
+      "price_nzd": 29,
+      "event": "paid_checkout",
+      "outcome": "diagnostic_delivered",
+      "next_offer": "AGENTIC-COMMERCE-READINESS-049",
+      "hypothesis": "Businesses will pay for evidence-first review of agentic commerce trust gaps."
+    },
+    {
+      "id": "AGENTIC-COMMERCE-READINESS-049",
+      "status": "active_probe",
+      "silo": "dreamledger",
+      "type": "one_time_audit",
+      "price_nzd": 49,
+      "event": "paid_checkout",
+      "outcome": "readiness_report_delivered",
+      "next_offer": "DREAMLEDGER-ANALYST",
+      "hypothesis": "A low-ticket readiness audit can convert uncertainty into a paid implementation path."
+    },
+    {
+      "id": "PERSONAL-COMMERCE-CONSTITUTION",
+      "status": "active_probe",
+      "silo": "dreamledger",
+      "type": "one_time_setup",
+      "price_nzd": 29,
+      "event": "paid_checkout",
+      "outcome": "policy_setup_delivered",
+      "next_offer": "DREAMLEDGER-OBSERVER",
+      "hypothesis": "Users will pay to turn personal agent permissions into an explicit commerce policy."
+    },
+    {
+      "id": "DREAMLEDGER-OBSERVER",
+      "status": "active_probe",
+      "silo": "dreamledger",
+      "type": "recurring_observation",
+      "price_nzd": 9,
+      "event": "subscription_started",
+      "outcome": "evidence_observation_active",
+      "next_offer": "DREAMLEDGER-ANALYST",
+      "hypothesis": "Evidence monitoring is valuable enough to support a low-friction recurring rail."
+    },
+    {
+      "id": "DREAMLEDGER-ANALYST",
+      "status": "active_probe",
+      "silo": "dreamledger",
+      "type": "recurring_analysis",
+      "price_nzd": 29,
+      "event": "subscription_started",
+      "outcome": "analysis_access_active",
+      "next_offer": "DREAMLEDGER-OPERATOR",
+      "hypothesis": "Customers will pay monthly for recurring evidence analysis and prioritization."
+    },
+    {
+      "id": "DREAMLEDGER-OPERATOR",
+      "status": "active_probe",
+      "silo": "dreamledger",
+      "type": "recurring_operator",
+      "price_nzd": 99,
+      "event": "subscription_started",
+      "outcome": "operator_layer_active",
+      "next_offer": "DREAMLEDGER-WHITE-LABEL",
+      "hypothesis": "High-value operational evidence work can support a recurring operator tier."
+    },
+    {
+      "id": "BEC-PRIME-ARCHITECTURE-AUDIT",
+      "status": "active_probe",
+      "silo": "bec-prime",
+      "type": "one_time_audit",
+      "price_nzd": 49,
+      "event": "paid_checkout",
+      "outcome": "architecture_audit_delivered",
+      "next_offer": "AI-COMMERCE-BUILD-2500",
+      "hypothesis": "The private factory can sell bounded architecture audits without exposing private implementation material."
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC",
+      "status": "isolated_probe",
+      "silo": "mtg",
+      "type": "one_time_diagnostic",
+      "price_nzd": 29,
+      "event": "paid_checkout",
+      "outcome": "deck_diagnostic_delivered",
+      "next_offer": null,
+      "hypothesis": "The historical MTG diagnostic signal remains monetizable while staying isolated from the DreamLedger agentic-commerce thesis."
+    }
+  ],
+  "permanent_rules": [
+    "Probes observe before they mutate.",
+    "A checkout link is not revenue evidence.",
+    "Test payments never count as revenue.",
+    "Paid live Stripe evidence is the settlement authority.",
+    "Every observed economic event gets a deterministic event identifier.",
+    "No public publication is triggered by this module.",
+    "No offer is activated by this module.",
+    "No silo may consume another silo's customer or evidence data.",
+    "A failed or inconclusive experiment is still recorded as evidence."
+  ]
+}
