@@ -1,6 +1,6 @@
 {
   "artifact": "DREAMLEDGER_HANDS_OFF_BOTTLENECK_AUDIT",
-  "observed_at": "2026-10-01T01:36:00Z",
+  "observed_at": "2026-10-01T01:40:00Z",
   "repository": "KelpCoin/DreamLedger",
   "canonical_commit": "9102b3cd2edaee8dc3f5a5a74adc5a2f471cc91e",
   "scoreboard": {
@@ -39,15 +39,34 @@
       "fallback": "No schema mutation. Retry later through an independent observation path."
     },
     "production_observation": {
-      "classification": "STATE_TRANSITION",
+      "classification": "STATE_MAPPING",
       "state": "BLOCKED",
-      "blocker": "STATE_TRANSITION_INVALID",
-      "exact": "AUTHORIZED:ACTION_PREPARED",
-      "source_action_id": "45f98b88-78dd-4549-b5bb-b6f4a1a7482e",
-      "source_packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
-      "dispatch_state": "INTERNAL_ROUTED",
-      "external_action_sent": false,
-      "external_result_observed": false
+      "source_of_truth": {
+        "table": "cube_opportunities",
+        "opportunity_id": "645c95cd-2e69-4f07-9ca2-c987af49f7b6",
+        "status": "INTERESTING",
+        "authority_lane": "GREEN",
+        "execution_packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
+        "output_economic_state": "UNCONVERTED",
+        "next_external_gate": "HUMAN_SUBMISSION_REQUIRED",
+        "external_action_allowed": false
+      },
+      "action": {
+        "table": "economic_actions",
+        "action_id": "45f98b88-78dd-4549-b5bb-b6f4a1a7482e",
+        "authorization_state": "AUTHORIZED",
+        "execution_state": "PREPARED",
+        "executed_at": null,
+        "external_reference": null,
+        "evidence_reference": null
+      },
+      "packet": {
+        "status": "DISPATCHED",
+        "dispatch_state": "INTERNAL_ROUTED"
+      },
+      "observation_result": "The prior observation incorrectly normalized the cube opportunity to AUTHORIZED. The authoritative cube row is INTERESTING. The existing transition engine is canonical and does not define INTERESTING as an economic lifecycle state. Therefore no transition is inferred and no mutation is safe.",
+      "exact_blocker": "SOURCE_STATE_MAPPING_UNRESOLVED",
+      "economic_effect": "NONE"
     },
     "stripe_subscription": {
       "classification": "OBSERVABILITY",
@@ -69,13 +88,13 @@
     }
   },
   "first_real_blocker": {
-    "BLOCKED_AT": "STATE_TRANSITION",
-    "BECAUSE": "A real persisted execution packet/action projects ACTION_PREPARED, but the normalized opportunity state is AUTHORIZED, so the existing transition engine correctly rejects the first event as an illegal transition.",
-    "REQUIRED": "Identify authoritative state columns and reconcile action status with opportunity state before any state mutation or dispatch.",
-    "FALLBACK": "Do not dispatch externally; preserve current row and inspect authoritative schema when the database path is stable.",
-    "OWNER_ACTION": "None yet. The machine blocker precedes the human gate.",
-    "HUMAN_MINUTES": 0,
-    "EXPECTED_ECONOMIC_EFFECT": "Restore a truthful observable path toward EXTERNAL_ACTION_SENT without fabricating dispatch or payment."
+    "BLOCKED_AT": "CONFIGURATION",
+    "BECAUSE": "The production observation adapter has no measured mapping from cube_opportunities.status=INTERESTING to the canonical economic state machine. The same row explicitly reports UNCONVERTED and HUMAN_SUBMISSION_REQUIRED, so mapping INTERESTING to AUTHORIZED or EXECUTED would fabricate progress.",
+    "REQUIRED": "Define or discover the existing authoritative mapping from cube opportunity status to canonical economic state. If none exists, add only a read-only normalization adapter after confirming the intended mapping.",
+    "FALLBACK": "Treat the opportunity as UNCONVERTED / HUMAN_SUBMISSION_REQUIRED and do not dispatch.",
+    "OWNER_ACTION": "If this opportunity is selected, the remaining external gate is a human Upwork submission requiring owner identity/account action.",
+    "HUMAN_MINUTES": 1,
+    "EXPECTED_ECONOMIC_EFFECT": "Potential path to the observed NZ$850 opportunity, but no revenue is claimed until external submission, buyer response, settlement, fulfillment and evidence occur."
   },
   "next_safe_step": "Schema/state mapping inspection only. No database mutation, no Stripe mutation, no external posting."
 }
