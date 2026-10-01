@@ -33,6 +33,8 @@
     "verify:empire-silos": "node BEC-PRIME/scripts/Verify-BECKEmpireSilos.js",
     "verify:qr-distribution": "node BEC-PRIME/scripts/verify-qr-distribution.js",
     "smoke:public": "node BEC-PRIME/scripts/first-party-smoke.js",
+    "smoke:commerce-scale": "node BEC-PRIME/scripts/scale-commerce-smoke.js",
+    "verify:commerce-scale": "powershell -NoProfile -ExecutionPolicy Bypass -File BEC-PRIME/scripts/Verify-Scale-Commerce.ps1",
     "verify:production-version": "node BEC-PRIME/scripts/verify-production-version.js",
     "verify:commercial-cell": "node BEC-PRIME/scripts/verify-commercial-cell.js",
     "verify:edh-one-link": "node BEC-PRIME/edh/Verify-EDHOneLinkPipeline.js",
