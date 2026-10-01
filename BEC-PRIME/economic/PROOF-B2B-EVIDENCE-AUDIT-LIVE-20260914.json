@@ -1,0 +1,36 @@
+{
+  "artifact": "PROOF-B2B-EVIDENCE-AUDIT-LIVE-20260914",
+  "status": "IMPLEMENTATION_READY",
+  "observed_at": "2026-09-14",
+  "sku": "B2B-EVIDENCE-AUDIT-001",
+  "price_nzd": 49,
+  "stripe": {
+    "account": "acct_1SNVPvEGgEAnUFF9",
+    "livemode": true,
+    "payment_link_id": "plink_1UFFLkEGgEAnUFF99odtbKCA",
+    "payment_link_active": true,
+    "custom_fields": ["source_url", "claim"],
+    "after_completion": "b2b-evidence-audit-fulfillment"
+  },
+  "supabase": {
+    "project_id": "wbwgroygjeyukkspnqiy",
+    "fulfillment_function": "b2b-evidence-audit-fulfillment",
+    "function_version": 1,
+    "function_status": "ACTIVE",
+    "artifact_bucket": "marketplace-fulfillment",
+    "artifact_verification": "SHA-256"
+  },
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "external_buyer_verified": false,
+    "settled_payment_verified": false,
+    "attribution_verified": false,
+    "fulfillment_completed_for_real_order": false
+  },
+  "remaining_gates": [
+    "Run one real external customer transaction before declaring BusinessTruth VERIFIED.",
+    "Verify the generated artifact and delivery path from the real settled session.",
+    "Merge the GitHub implementation branch only after human review of the production deployment boundary."
+  ],
+  "guardrail": "No test, simulated, internal, or self-payment counts as revenue."
+}

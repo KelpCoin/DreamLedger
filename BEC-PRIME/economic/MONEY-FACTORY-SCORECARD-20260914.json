@@ -1,0 +1,79 @@
+{
+  "date": "2026-09-14",
+  "status": "READY_FOR_APPROVAL_BOUNDARY",
+  "verified_external_revenue_nzd": 0,
+  "candidates": [
+    {
+      "sku": "B2B-EVIDENCE-AUDIT-001",
+      "name": "B2B Evidence Audit",
+      "price_nzd": 49,
+      "buyer": "small business/operator with a factual claim or source needing verification",
+      "speed_to_sale": 9,
+      "pain": 8,
+      "fulfillment_automation": 6,
+      "upsell": 8,
+      "recurring": 6,
+      "evidence_quality": 8,
+      "status": "PROMOTE_TO_FULFILLMENT_BUILD",
+      "reason": "Already published with explicit source_url and claim inputs, one-hour digital SLA, and active checkout. No paid order exists yet. Fulfillment path must be made generic and proven before public scaling."
+    },
+    {
+      "sku": "AUT_0001",
+      "name": "Automation Reliability Audit",
+      "price_nzd": 99,
+      "buyer": "n8n/automation operator with a broken or unreliable workflow",
+      "speed_to_sale": 8,
+      "pain": 9,
+      "fulfillment_automation": 7,
+      "upsell": 10,
+      "recurring": 9,
+      "evidence_quality": 8,
+      "status": "PROMOTE",
+      "reason": "Live NZ$99 Stripe offer with clear commercial identity and a strong remediation/monitoring ladder. Current blocker is service-intake fulfillment readiness and public doorway convergence."
+    },
+    {
+      "sku": "N8N-RESCUE-001",
+      "name": "n8n Workflow Rescue",
+      "price_nzd": 99,
+      "buyer": "n8n user whose workflow is broken",
+      "speed_to_sale": 8,
+      "pain": 10,
+      "fulfillment_automation": 5,
+      "upsell": 9,
+      "recurring": 8,
+      "evidence_quality": 7,
+      "status": "REVIEW",
+      "reason": "Live checkout exists, but the public automation-rescue route currently returns 404. Do not advertise until doorway and fulfillment are repaired."
+    },
+    {
+      "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Founding Tile",
+      "price_nzd": 50,
+      "buyer": "person or business wanting a permanent founding tile/link",
+      "speed_to_sale": 7,
+      "pain": 3,
+      "fulfillment_automation": 8,
+      "upsell": 4,
+      "recurring": 2,
+      "evidence_quality": 9,
+      "status": "KEEP_ACTIVE",
+      "reason": "Already public and technically bounded, but weaker urgent buyer pain than diagnostic offers."
+    }
+  ],
+  "selected_sequence": [
+    "B2B-EVIDENCE-AUDIT-001",
+    "AUT_0001",
+    "N8N-RESCUE-001",
+    "DREAMLEDGER-BILLBOARD-FOUNDING-001"
+  ],
+  "next_engineering_action": "Build and deterministically verify a generic B2B evidence-audit fulfillment path without touching production/public state.",
+  "approval_required_before": [
+    "production merge",
+    "production deploy",
+    "public customer-facing copy change",
+    "outreach",
+    "new payment creation",
+    "price change"
+  ],
+  "truth_rule": "Only external settled Stripe payment reconciled to canonical evidence counts as revenue."
+}
