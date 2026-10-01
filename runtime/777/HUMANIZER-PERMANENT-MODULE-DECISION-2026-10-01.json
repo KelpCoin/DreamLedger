@@ -1,0 +1,68 @@
+{
+  "artifact": "HUMANIZER_PERMANENT_MODULE_DECISION",
+  "recorded_at": "2026-10-01",
+  "repository": "KelpCoin/DreamLedger",
+  "decision": "MAKE_HUMANIZER_PERMANENT_NON_AUTHORITATIVE_REVIEW_COMPONENT",
+  "purpose": "Run output-producing Branai Cortex Kingdom content through a permanent Humanizer review loop and expose its scorecard to Gauntlet without granting authority.",
+  "canonical_loop": [
+    "ELOHIM_DRAFT",
+    "HUMANIZER_ANALYZE",
+    "SAFE_REFINEMENT",
+    "HUMANIZER_RECHECK",
+    "GAUNTLET_SCORECARD",
+    "OUTPUT"
+  ],
+  "authority_boundary": {
+    "authority": "NON_AUTHORITATIVE",
+    "production_gate": false,
+    "economic_truth_effect": "NONE",
+    "external_action_effect": "NONE",
+    "authorization_effect": "NONE",
+    "payment_effect": "NONE",
+    "fulfillment_effect": "NONE",
+    "verification_effect": "NONE"
+  },
+  "calibration": {
+    "status": "UNCALIBRATED",
+    "allowed_dispositions": [
+      "LOW_PATTERN_DENSITY",
+      "REVIEW_REQUIRED",
+      "BLOCKED_BY_PATTERN_DENSITY"
+    ],
+    "forbidden_claim": "HUMAN_OR_INDISTINGUISHABLE_FROM_HUMAN"
+  },
+  "truth_preservation": {
+    "safe_transforms_only": true,
+    "never_manufacture_authority": true,
+    "never_invent_experience": true,
+    "never_change_factual_or_causal_claims_for_style": true
+  },
+  "gauntlet": {
+    "humanizer_is_a_scorecard_dimension": true,
+    "humanizer_can_surface_review": true,
+    "humanizer_cannot_authorize": true,
+    "humanizer_cannot_create_economic_truth": true
+  },
+  "economic_boundary_preserved": {
+    "BUILD_EXECUTION_PACKET_is_internal": true,
+    "HUMAN_SUBMISSION_REQUIRED_is_not_authorization": true,
+    "EXTERNAL_ACTION_SENT_requires_actual_external_effect": true,
+    "verified_revenue_requires_independent_evidence": true
+  },
+  "implementation": {
+    "module_root": "runtime/humanizer",
+    "files": [
+      "patterns.py",
+      "review.py",
+      "transform.py",
+      "scorecard.py",
+      "closed_loop.py",
+      "gauntlet_adapter.py",
+      "output_boundary.py",
+      "kingdom_loop.py",
+      "test_humanizer.py"
+    ]
+  },
+  "verification_status": "CODE_WRITTEN_AND_RE_READ; CI_EXECUTION_NOT_PROVEN",
+  "operating_rule": "Do not rebuild this decision from scratch in a future turn. Treat this artifact and the runtime/humanizer module as the canonical Humanizer design unless newer evidence explicitly changes it."
+}
