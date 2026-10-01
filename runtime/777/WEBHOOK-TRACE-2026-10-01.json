@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-02",
+  "status": "PARTIAL_READ_ONLY_TRACE",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "coordinator/stripe-inbox-trace-2026-10-02",
+  "actions": {
+    "1_webhook_trace": {
+      "canonical_handler": "supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts",
+      "blob_sha": "c81d75a83dbadba398473aacfcc82c1f12f73885",
+      "behavior": [
+        "Validates Stripe signature.",
+        "Reads stripe_webhook_events by event_id and returns duplicate when processed=true.",
+        "Upserts the Stripe event into stripe_webhook_events with processed=false.",
+        "Processes checkout.session.completed inline in the same HTTP handler.",
+        "Creates/updates revenue order, event ledger, entitlement, fulfillment request and economic event records.",
+        "Marks stripe_webhook_events processed=true only at the end of the inline path.",
+        "Also handles transfer events inline."
+      ],
+      "important_finding": "The repository already contains a second settlement inbox, processed_webhook_events, and a database trigger that copies every inserted stripe_webhook_events row into it. Therefore the requested claim that stripe_webhook_events is the sole existing inbox is not true in the current repository."
+    },
+    "2_schema_trace": {
+      "repository_evidence": "supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql",
+      "processed_webhook_events": {
+        "status": [
+          "pending",
+          "processing",
+          "done",
+          "failed"
+        ],
+        "lease_fields": [
+          "lease_owner",
+          "lease_expires_at"
+        ],
+        "retry_fields": [
+          "attempt_count"
+        ],
+        "timestamps": [
+          "received_at",
+          "started_at",
+          "completed_at"
+        ],
+        "error_field": "error",
+        "claim": "FOR UPDATE SKIP LOCKED with pending or expired processing leases",
+        "finish": "terminal update from processing",
+        "rls": "enabled; anon/authenticated revoked"
+      },
+      "stripe_webhook_events": "Live schema could not be queried because the connected Supabase MCP database connection timed out. Repository source proves it has event_id, event_type, processed, processed_at and payload fields because the deployed handler and settlement trigger reference them. Exact live constraints/indexes/status values remain UNOBSERVABLE until the database connection succeeds."
+    },
+    "3_inbox_state_machine": {
+      "status": "BLOCKED_BEFORE_WRITE",
+      "reason": "A live schema read timed out. Writing an additive migration without confirming the live stripe_webhook_events schema would violate the source-first requirement and could create a competing inbox.",
+      "no_production_change": true
+    },
+    "4_commerce_worker": {
+      "status": "NOT_IMPLEMENTED",
+      "reason": "The repository already has settlement_claim_batch over processed_webhook_events. The current stripe-revenue handler itself performs commerce settlement inline. A new worker must not be created until the live consumer/deployment topology is verified."
+    },
+    "5_tests": {
+      "status": "NOT_RUN",
+      "reason": "No repository change was made to the payment path, so no new test run was claimed. No passing run ID exists."
+    },
+    "6_economic_model_task_trace": {
+      "worker": "BEC-PRIME/runtime/EconomicModelTaskWorker.js",
+      "worker_blob_sha": "",
+      "flow": [
+        "claimTask() calls RPC claim_economic_model_task with p_model_name, p_model_role and p_lease_seconds.",
+        "The worker then calls LLM_API_URL/BEC_CLOUD_LM_URL with LLM_API_KEY/BEC_CLOUD_LM_API_KEY and LLM_MODEL/BEC_CLOUD_LM_MODEL.",
+        "It records an assessment through record_economic_assessment.",
+        "It PATCHes economic_model_tasks to completed or failed."
+      ],
+      "important_finding": "The inspected 20260908_economic_task_and_prediction_guardrails_v1.sql defines an earlier claim_economic_model_task signature taking p_task_id and p_lease_seconds, not the model-name/model-role signature used by the current worker. This indicates a schema/function-version boundary that must be resolved against live Supabase before execution can be trusted.",
+      "lm_studio_finding": "The worker does not directly reference a Windows LM Studio port. It depends on the configured LLM_API_URL/BEC_CLOUD_LM_URL. Therefore local LM Studio availability is not established by this source. The exact runtime failure point cannot be proven without live function/database/runtime evidence."
+    }
+  },
+  "known_existing_settlement_design": {
+    "migration": "supabase/migrations/20260912_settlement_and_work_ledger_hardening.sql",
+    "commit": "02484bce59a1ec370e6ea86ef3520dd6b3b3b027",
+    "design": "stripe_webhook_events INSERT -> processed_webhook_events queue -> settlement_claim_batch -> settlement_finish",
+    "implication": "The correct repair target may be the existing settlement queue rather than adding another stripe-specific inbox."
+  },
+  "prohibited_changes_per_instruction": [
+    "No production deployment",
+    "No RLS enablement",
+    "No live database mutation",
+    "No Stripe settings mutation"
+  ]
+}
