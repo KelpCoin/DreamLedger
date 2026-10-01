@@ -1,8 +1,8 @@
 {
   "artifact": "DREAMLEDGER_HANDS_OFF_BOTTLENECK_AUDIT",
-  "observed_at": "2026-10-01T01:40:00Z",
+  "observed_at": "2026-10-01T02:15:00Z",
   "repository": "KelpCoin/DreamLedger",
-  "canonical_commit": "9102b3cd2edaee8dc3f5a5a74adc5a2f471cc91e",
+  "canonical_commit": "9c33376f6f6a3866c5e9747d60e52139c08ba01f",
   "scoreboard": {
     "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
     "SETTLED_EXTERNAL_PAYMENTS": 0,
@@ -13,9 +13,13 @@
     "github_ci": {
       "classification": "CI",
       "state": "NOT_PROVEN",
-      "evidence": "Combined commit status for canonical commit returned zero statuses. Workflow configuration is present, but no completed successful run was observable through connected GitHub tooling.",
-      "required": "A completed successful relevant GitHub Actions run with run ID, conclusion and key tests.",
-      "fallback": "Keep repository change minimal and continue verification when a run becomes observable."
+      "evidence": [
+        "Combined commit status for canonical commit returned zero statuses.",
+        "A push-triggered workflow on the latest commit completed with failure and zero jobs (run 36804751263), so empty status cannot be treated as green.",
+        "Canonical release spine for the immediately preceding repair commit was still queued at observation."
+      ],
+      "required": "A completed successful relevant DreamLedger runtime proof run with run ID, conclusion and key tests.",
+      "fallback": "Do not call CI green; continue verification without adding redundant workflows."
     },
     "render": {
       "classification": "CD",
@@ -39,12 +43,13 @@
       "fallback": "No schema mutation. Retry later through an independent observation path."
     },
     "production_observation": {
-      "classification": "STATE_MAPPING",
-      "state": "BLOCKED",
+      "classification": "INTERNAL_PLANNING_BOUNDARY",
+      "state": "BLOCKED_FOR_CANONICAL_ECONOMIC_TRANSITION",
       "source_of_truth": {
         "table": "cube_opportunities",
         "opportunity_id": "645c95cd-2e69-4f07-9ca2-c987af49f7b6",
         "status": "INTERESTING",
+        "qualification_reason": "AWAITING_ECONOMIC_ASSESSMENT",
         "authority_lane": "GREEN",
         "execution_packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
         "output_economic_state": "UNCONVERTED",
@@ -54,18 +59,22 @@
       "action": {
         "table": "economic_actions",
         "action_id": "45f98b88-78dd-4549-b5bb-b6f4a1a7482e",
+        "action_type": "BUILD_EXECUTION_PACKET",
         "authorization_state": "AUTHORIZED",
         "execution_state": "PREPARED",
         "executed_at": null,
         "external_reference": null,
-        "evidence_reference": null
+        "evidence_reference": null,
+        "result": "AbortError: The signal has been aborted"
       },
       "packet": {
         "status": "DISPATCHED",
-        "dispatch_state": "INTERNAL_ROUTED"
+        "dispatch_state": "INTERNAL_ROUTED",
+        "job_id": "1729fe8a-fb9c-4165-9301-2e24beac7c43"
       },
-      "observation_result": "The prior observation incorrectly normalized the cube opportunity to AUTHORIZED. The authoritative cube row is INTERESTING. The existing transition engine is canonical and does not define INTERESTING as an economic lifecycle state. Therefore no transition is inferred and no mutation is safe.",
-      "exact_blocker": "SOURCE_STATE_MAPPING_UNRESOLVED",
+      "authoritative_function_evidence": "economic_operating_tick creates BUILD_EXECUTION_PACKET only after a completed candidate assessment and concrete capability binding. create_economic_execution_packet records authorization for packet construction. Therefore BUILD_EXECUTION_PACKET is an internal planning/assembly action, not an external economic lifecycle event.",
+      "observation_result": "The prior probe incorrectly projected BUILD_EXECUTION_PACKET/PREPARED/allow/INTERNAL_ROUTED into the canonical economic action lifecycle. That projection has been removed. The persisted row remains stale/internal and is not evidence of external dispatch.",
+      "exact_blocker": "INTERNAL_PLANNING_ACTION",
       "economic_effect": "NONE"
     },
     "stripe_subscription": {
@@ -88,13 +97,13 @@
     }
   },
   "first_real_blocker": {
-    "BLOCKED_AT": "CONFIGURATION",
-    "BECAUSE": "The production observation adapter has no measured mapping from cube_opportunities.status=INTERESTING to the canonical economic state machine. The same row explicitly reports UNCONVERTED and HUMAN_SUBMISSION_REQUIRED, so mapping INTERESTING to AUTHORIZED or EXECUTED would fabricate progress.",
-    "REQUIRED": "Define or discover the existing authoritative mapping from cube opportunity status to canonical economic state. If none exists, add only a read-only normalization adapter after confirming the intended mapping.",
-    "FALLBACK": "Treat the opportunity as UNCONVERTED / HUMAN_SUBMISSION_REQUIRED and do not dispatch.",
-    "OWNER_ACTION": "If this opportunity is selected, the remaining external gate is a human Upwork submission requiring owner identity/account action.",
+    "BLOCKED_AT": "HUMAN_GATE",
+    "BECAUSE": "The observed opportunity explicitly reports UNCONVERTED and HUMAN_SUBMISSION_REQUIRED. The internal BUILD_EXECUTION_PACKET row cannot satisfy that external gate and contains no external reference or evidence.",
+    "REQUIRED": "Owner-controlled submission on the external platform, if the owner selects this opportunity.",
+    "FALLBACK": "Keep the opportunity unconverted and continue searching for another approved, traversable demand path. Do not dispatch externally.",
+    "OWNER_ACTION": "Submit the prepared external proposal through the owner's account.",
     "HUMAN_MINUTES": 1,
-    "EXPECTED_ECONOMIC_EFFECT": "Potential path to the observed NZ$850 opportunity, but no revenue is claimed until external submission, buyer response, settlement, fulfillment and evidence occur."
+    "EXPECTED_ECONOMIC_EFFECT": "Potential path to the observed NZ$850 opportunity; no revenue claim until buyer response, settlement, fulfillment and independent evidence."
   },
-  "next_safe_step": "Schema/state mapping inspection only. No database mutation, no Stripe mutation, no external posting."
+  "next_safe_step": "Re-run production observation against the corrected projection and then inspect approved demand candidates. No database mutation, no Stripe mutation, no external posting."
 }
