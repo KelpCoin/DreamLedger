@@ -44,5 +44,4 @@ PATTERNS = {
     "E12_JARGON_DENSITY": ("vocabulary", 1),
     "E13_VAGUE_ADJECTIVE": ("vocabulary", 1),
     "E14_META_WRITING": ("vocabulary", 2),
-    "E15_PROMPT_ECHO": ("vocabulary", 2),
 }
