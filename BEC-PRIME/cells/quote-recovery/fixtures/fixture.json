@@ -1,0 +1,9 @@
+{
+  "business_type": "plumbing",
+  "records": [
+    {"record_id":"Q001","lead_source":"website","enquiry_type":"hot-water","response_time_hours":2,"quote_sent":true,"quote_value_nzd":3200,"follow_up_date":null,"outcome":"pending"},
+    {"record_id":"Q002","lead_source":"phone","enquiry_type":"drainage","response_time_hours":30,"quote_sent":false,"quote_value_nzd":0,"follow_up_date":null,"outcome":"no_response"},
+    {"record_id":"Q003","lead_source":"website","enquiry_type":"leak-repair","response_time_hours":4,"quote_sent":true,"quote_value_nzd":650,"follow_up_date":"2026-08-18","outcome":"won"},
+    {"record_id":"Q004","lead_source":"referral","enquiry_type":"renovation","response_time_hours":8,"quote_sent":true,"quote_value_nzd":1200,"follow_up_date":null,"outcome":"no_response"}
+  ]
+}
