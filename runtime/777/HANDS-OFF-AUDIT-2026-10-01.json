@@ -1,0 +1,81 @@
+{
+  "artifact": "DREAMLEDGER_HANDS_OFF_BOTTLENECK_AUDIT",
+  "observed_at": "2026-10-01T01:36:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "canonical_commit": "9102b3cd2edaee8dc3f5a5a74adc5a2f471cc91e",
+  "scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "systems": {
+    "github_ci": {
+      "classification": "CI",
+      "state": "NOT_PROVEN",
+      "evidence": "Combined commit status for canonical commit returned zero statuses. Workflow configuration is present, but no completed successful run was observable through connected GitHub tooling.",
+      "required": "A completed successful relevant GitHub Actions run with run ID, conclusion and key tests.",
+      "fallback": "Keep repository change minimal and continue verification when a run becomes observable."
+    },
+    "render": {
+      "classification": "CD",
+      "state": "LIVE",
+      "service": "dreamledger-org",
+      "deploy_id": "dep-daurhdlg1s2s73cv9rgg",
+      "commit": "9102b3cd2edaee8dc3f5a5a74adc5a2f471cc91e",
+      "status": "live"
+    },
+    "supabase": {
+      "classification": "DATABASE",
+      "state": "INTERMITTENT",
+      "evidence": [
+        "economic_actions count succeeded: 2746",
+        "economic_candidate_assessments count succeeded: 1",
+        "economic_activation_auth count succeeded: 1",
+        "economic_activation_auth singleton count succeeded: 1",
+        "at least one subsequent production query terminated by connection timeout"
+      ],
+      "required": "Stable repeated production-row reads.",
+      "fallback": "No schema mutation. Retry later through an independent observation path."
+    },
+    "production_observation": {
+      "classification": "STATE_TRANSITION",
+      "state": "BLOCKED",
+      "blocker": "STATE_TRANSITION_INVALID",
+      "exact": "AUTHORIZED:ACTION_PREPARED",
+      "source_action_id": "45f98b88-78dd-4549-b5bb-b6f4a1a7482e",
+      "source_packet_id": "bf10b05e-b6ef-488d-bf6c-017a20fe37cd",
+      "dispatch_state": "INTERNAL_ROUTED",
+      "external_action_sent": false,
+      "external_result_observed": false
+    },
+    "stripe_subscription": {
+      "classification": "OBSERVABILITY",
+      "state": "UNOBSERVABLE",
+      "required": "Authoritative confirmation of payment_intent.succeeded subscription on canonical settlement endpoint.",
+      "fallback": "No Stripe mutation."
+    },
+    "local_runtime": {
+      "classification": "LOCAL_COMPUTE",
+      "state": "UNOBSERVABLE",
+      "required": "Reachable machine observation of LM Studio, Windows tasks and local workers.",
+      "fallback": "Cloud remains authoritative."
+    },
+    "human_gate_queue": {
+      "classification": "HUMAN_GATE",
+      "state": "UNOBSERVABLE_FROM_CONNECTED_SUPABASE_PATH",
+      "required": "Current human gate record.",
+      "fallback": "Existing known external-distribution gate remains NOT_DISPATCHED / HUMAN_GATE_REQUIRED until owner action is observed."
+    }
+  },
+  "first_real_blocker": {
+    "BLOCKED_AT": "STATE_TRANSITION",
+    "BECAUSE": "A real persisted execution packet/action projects ACTION_PREPARED, but the normalized opportunity state is AUTHORIZED, so the existing transition engine correctly rejects the first event as an illegal transition.",
+    "REQUIRED": "Identify authoritative state columns and reconcile action status with opportunity state before any state mutation or dispatch.",
+    "FALLBACK": "Do not dispatch externally; preserve current row and inspect authoritative schema when the database path is stable.",
+    "OWNER_ACTION": "None yet. The machine blocker precedes the human gate.",
+    "HUMAN_MINUTES": 0,
+    "EXPECTED_ECONOMIC_EFFECT": "Restore a truthful observable path toward EXTERNAL_ACTION_SENT without fabricating dispatch or payment."
+  },
+  "next_safe_step": "Schema/state mapping inspection only. No database mutation, no Stripe mutation, no external posting."
+}
