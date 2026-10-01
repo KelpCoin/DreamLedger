@@ -3,86 +3,29 @@
   "observed_at":"2026-10-01T16:42+13:00",
   "repository":"KelpCoin/DreamLedger",
   "production_project_ref":"wbwgroygjeyukkspnqiy",
-  "truth":{
-    "verified_external_revenue_nzd":0,
-    "settled_external_payments":0,
-    "independent_external_buyers":0,
-    "verified_economic_outcomes":0
-  },
+  "truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0,"verified_economic_outcomes":0},
   "canonicality":{
-    "stripe_production_endpoint":"https://dreamledger1.onrender.com/api/webhooks/stripe",
-    "status":"ENABLED",
-    "enabled_events":["checkout.session.completed","checkout.session.expired","payment_intent.succeeded","charge.succeeded","balance.available"],
-    "endpoint_id":"we_1UJMwWEGgEAnUFF9gG1QCek5",
-    "finding":"The live Stripe account has an enabled Render production webhook. It is not the deployed Supabase dreamledger-stripe-webhook-v3 function.",
-    "supabase_dreamledger_stripe_webhook_v3":{
-      "status":"ACTIVE",
-      "version":9,
-      "sha256":"4ba374fdd1bb3aba096ea0bc981b8d1085f15c4d4687ef9e23e00d3c3dbb612e",
-      "finding":"Deployed but no matching source path exists on the current main branch."
-    },
-    "canonical_revenue_endpoint":{
-      "endpoint_id":"we_1UDJ6DEGgEAnUFF9Zgzefuzr",
-      "url":"https://wbwgroyroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc",
-      "status":"ENABLED",
-      "deployed_version":24,
-      "deployed_sha256":"347bbccc701af18d37050a02ba4c083eb244bcadc3cfe399c432620212ff3737",
-      "repository_file":"supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts",
-      "repository_sha":"c81d75a83dbadba398473aacfcc82c1f12f73885",
-      "finding":"The live canonical revenue endpoint is stripe-revenue, not dreamledger-stripe-webhook-v3. Its deployed source persists stripe_webhook_events before downstream processing but still performs downstream commerce work inline before acknowledging."
-    }
+    "stripe_production_endpoint":{"id":"we_1UJMwWEGgEAnUFF9gG1QCek5","url":"https://dreamledger1.onrender.com/api/webhooks/stripe","status":"enabled","events":["checkout.session.completed","checkout.session.expired","payment_intent.succeeded","charge.succeeded","balance.available"]},
+    "dreamledger_stripe_webhook_v3":{"status":"ACTIVE","version":9,"sha256":"4ba374fdd1bb3aba096ea0bc981b8d1085f15c4d4687ef9e23e00d3c3dbb612e","repo_source":"ABSENT_ON_MAIN","finding":"Deployed Supabase function exists but has no matching source path on current main."},
+    "canonical_revenue_endpoint":{"id":"we_1UDJ6DEGgEAnUFF9Zgzefuzr","url":"https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc","status":"enabled","version":24,"deployed_sha256":"347bbccc701af18d37050a02ba4c083eb244bcadc3cfe399c432620212ff3737","repo_path":"supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts","repo_sha":"c81d75a83dbadba398473aacfcc82c1f12f73885","finding":"This is the enabled canonical revenue endpoint. It durably inserts stripe_webhook_events before downstream work, but still performs downstream commerce inline before acknowledgement."}
   },
   "inbox":{
-    "stripe_webhook_events":{
-      "columns":["event_id text NOT NULL","event_type text NOT NULL","processed boolean NOT NULL DEFAULT false","processed_at timestamptz NULL","payload jsonb NOT NULL","created_at timestamptz NOT NULL DEFAULT now()"],
-      "rows_live":0,
-      "trigger":"trg_stripe_webhook_to_settlement_queue AFTER INSERT",
-      "finding":"No lease/retry/error fields exist on this table."
-    },
-    "existing_execution_queue":{
-      "table":"processed_webhook_events",
-      "rows_live":1,
-      "columns":["provider_event_id primary key","payload jsonb","received_at","status pending|processing|done|failed","lease_owner","lease_expires_at","attempt_count","started_at","completed_at","error"],
-      "finding":"An existing commerce/settlement queue already provides durable leasing and SKIP LOCKED claiming. Creating another competing queue would be unnecessary."
-    },
-    "queue_trigger_path":"INSERT stripe_webhook_events -> AFTER INSERT trigger -> settlement_enqueue_webhook -> processed_webhook_events",
-    "live_pending_queue_row":"gate5-test-9b476c67-9cf4-49c4-9a16-f4a3695d7b20"
+    "stripe_webhook_events":{"rows_live":0,"columns":["event_id","event_type","processed","processed_at","payload","created_at"],"leases_or_retry_fields":false,"trigger":"trg_stripe_webhook_to_settlement_queue AFTER INSERT"},
+    "processed_webhook_events":{"rows_live":1,"status_values":["pending","processing","done","failed"],"lease_fields":["lease_owner","lease_expires_at"],"retry_field":"attempt_count","error_field":"error","claim_rpc":"settlement_claim_batch","completion_rpc":"settlement_finish"},
+    "queue_path":"stripe_webhook_events INSERT -> AFTER INSERT trigger -> settlement_enqueue_webhook -> processed_webhook_events"
   },
-  "critical_failure":{
-    "finding":"The durable queue trigger is only useful if stripe_webhook_events is inserted before downstream work. The deployed dreamledger-stripe-webhook-v3 writes the receipt only after its CUBE reconciliation work, so it is not a durable intake boundary.",
-    "additional_finding":"The deployed stripe-revenue handler does insert stripe_webhook_events before downstream processing, but it then continues processing inline. This leaves a recoverable receipt but not a pure enqueue-and-ack webhook.",
-    "recommended_path":"Preserve stripe_webhook_events as the event receipt/idempotency record and preserve processed_webhook_events as the existing execution queue. Refactor the canonical revenue endpoint toward verify -> durable receipt -> acknowledge, then let the existing queue consumer own downstream processing."
-  },
-  "existing_consumer":{
-    "repository_file":"money/settlement_consumer.py",
-    "claim_rpc":"settlement_claim_batch",
-    "lease_seconds":120,
-    "claim_semantics":"pending or expired processing rows, FOR UPDATE SKIP LOCKED",
-    "completion_rpc":"settlement_finish",
-    "finding":"A commerce settlement worker already exists. It handles checkout.session.completed, checkout.session.async_payment_succeeded, payment_intent.succeeded and charge.refunded for marketplace settlement."
-  },
-  "consumer_gap":{
-    "finding":"The existing settlement consumer does not reproduce the full stripe-revenue handler. The full revenue path also creates revenue_orders, event_ledger, entitlements, fulfillment_requests, economic_events and control_reconciliations. Therefore a pure enqueue refactor requires either moving those operations into a commerce worker or extracting shared idempotent processing code. Do not deploy a webhook-only refactor until this downstream ownership is implemented."
-  },
-  "economic_model_task_trace":{
-    "task_id":"3e2e36c6-ad57-485e-a21a-741b5b64bc8b",
-    "candidate_id":"c29b82ec-0357-4da1-b9ee-9521134c97db",
-    "model_name":"deepseek",
-    "model_role":"adversary",
-    "status":"pending",
-    "attempt_count":2,
-    "last_error":"DISPATCH_PAYLOAD_FENCE_REPAIRED",
-    "consumer_file":"BEC-PRIME/runtime/EconomicModelTaskWorker.js",
-    "claim_rpc":"claim_economic_model_task(text,text,integer)",
-    "claim_rpc_live":"verified",
-    "claim_rpc_semantics":"Selects pending or expired leased task matching model_name/model_role with FOR UPDATE SKIP LOCKED, leases it and increments attempt_count/run_lease.",
-    "local_execution":"UNVERIFIED",
-    "failure_point":"Not observable from the connected cloud-only source because actual worker process execution and its environment/model endpoint were not executed in this trace."
-  },
-  "repository_state":{
-    "main_sha":"1e1de4051053d59f069b486292fff64f7db4e1b8",
-    "repair_branch":"repair/stripe-webhook-durable-inbox-20261001",
-    "changes_made":"trace artifact only",
-    "production_mutation":"none"
-  }
+  "critical_findings":[
+    "dreamledger-stripe-webhook-v3 is not the live Stripe production endpoint identified from the connected Stripe account.",
+    "dreamledger-stripe-webhook-v3 writes its stripe_webhook_events receipt only after CUBE reconciliation work, so it is not a durable intake boundary.",
+    "stripe-revenue is the enabled canonical revenue endpoint and writes stripe_webhook_events before downstream processing, but remains a synchronous processor.",
+    "The existing processed_webhook_events queue already supplies durable lease/claim infrastructure. Creating another competing queue is unnecessary.",
+    "The existing settlement consumer covers marketplace settlement but not the complete stripe-revenue downstream path."
+  ],
+  "existing_consumer":{"repo_path":"money/settlement_consumer.py","claim_rpc":"settlement_claim_batch","lease_seconds":120,"events":["checkout.session.completed","checkout.session.async_payment_succeeded","payment_intent.succeeded","charge.refunded"]},
+  "consumer_gap":"The full stripe-revenue path additionally creates or reconciles revenue_orders, event_ledger, revenue_entitlements, fulfillment_requests, economic_events and control_reconciliations. Those operations need an owned worker path before the canonical webhook can safely become enqueue-and-ack.",
+  "live_queue_row":{"provider_event_id":"gate5-test-9b476c67-9cf4-49c4-9a16-f4a3695d7b20","status":"pending","attempt_count":0},
+  "economic_model_task_trace":{"task_id":"3e2e36c6-ad57-485e-a21a-741b5b64bc8b","candidate_id":"c29b82ec-0357-4da1-b9ee-9521134c97db","model_name":"deepseek","model_role":"adversary","status":"pending","attempt_count":2,"last_error":"DISPATCH_PAYLOAD_FENCE_REPAIRED","consumer":"BEC-PRIME/runtime/EconomicModelTaskWorker.js","claim_rpc":"claim_economic_model_task(text,text,integer)","claim_rpc_verified_live":true,"local_execution":"UNVERIFIED","exact_failure_point":"Cloud-connected tooling cannot execute the user's Windows/LM Studio process; repository and database trace can establish the consumer and claim path but not a local inference run."},
+  "branch":"repair/stripe-webhook-durable-inbox-20261001",
+  "trace_commit":"54bfb535d2ca85051830dac6bf5e2bed9ceab135",
+  "production_mutation":false
 }
