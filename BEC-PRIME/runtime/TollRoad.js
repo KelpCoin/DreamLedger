@@ -105,8 +105,8 @@ function publicManifest(){
     customer_boundary:'payment does not grant private-system access',
     truth_boundary:'payment and fulfilment status are checked from settlement evidence',
     services:[
-      {id:'DECISION-CHECK',name:'Decision Check',route:'/api/toll/v1/gauntlet',scope:'gauntlet',checkout_configured:Boolean(c.gauntletPriceNzd>0),human_minutes:0},
-      {id:'EVIDENCE-CHECK',name:'Evidence Check',route:'/api/toll/v1/truth',scope:'truth',checkout_configured:Boolean(c.truthPriceNzd>0),human_minutes:0}
+      {id:'DECISION-CHECK',name:'Decision Check',route:'/api/toll/v1/decision-check',checkout_configured:Boolean(c.gauntletPriceNzd>0),human_minutes:0},
+      {id:'EVIDENCE-CHECK',name:'Evidence Check',route:'/api/toll/v1/evidence-check',checkout_configured:Boolean(c.truthPriceNzd>0),human_minutes:0}
     ]
   };
 }
