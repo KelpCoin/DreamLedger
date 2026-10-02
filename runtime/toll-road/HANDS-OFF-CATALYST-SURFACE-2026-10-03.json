@@ -1,0 +1,105 @@
+{
+  "artifact": "DREAMLEDGER_HANDS_OFF_CATALYST_SURFACE",
+  "date": "2026-10-03",
+  "source_commit": "b5ce2133b11e7b0acd41b0ccdbf67739b1b45a14",
+  "status": "SUBSTRATE_MINED",
+  "economic_scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "finding": {
+    "blocker": "EXTERNAL_RESPONSE",
+    "because": "Existing substrate contains multiple machine-callable toll surfaces, but live settlement configuration and independent buyer activity are not currently observable through the connected control plane.",
+    "required": "One independently attributed external buyer must cross one live toll wall and receive automated fulfillment.",
+    "owner_action": "Only a genuine external-action or financial authorization gate. No owner fulfillment should be required.",
+    "human_minutes_target": "<2"
+  },
+  "existing_toll_surfaces": [
+    {
+      "id": "truth.quote_compare",
+      "endpoint": "POST /v1/compare_quotes",
+      "price_usd": 0.5,
+      "function": "Deterministic 2-5 supplier quote comparison with evidence checks.",
+      "payment_wall": "x402",
+      "live_status": "UNOBSERVABLE",
+      "testnet_default": true
+    },
+    {
+      "id": "truth.reconcile",
+      "endpoint": "POST /v1/reconcile",
+      "price_usd": 0.02,
+      "function": "Reconcile supplied payment/order references against durable commerce truth.",
+      "payment_wall": "x402",
+      "live_status": "UNOBSERVABLE",
+      "testnet_default": true
+    },
+    {
+      "id": "truth.contradiction",
+      "endpoint": "POST /v1/contradictions",
+      "price_usd": 0.02,
+      "function": "Check supplied economic claims against durable DreamLedger records.",
+      "payment_wall": "x402",
+      "live_status": "UNOBSERVABLE",
+      "testnet_default": true
+    },
+    {
+      "id": "truth.passport",
+      "endpoint": "POST /v1/passport",
+      "price_usd": 0.05,
+      "function": "Build a machine-readable evidence passport from durable commerce truth.",
+      "payment_wall": "x402",
+      "live_status": "UNOBSERVABLE",
+      "testnet_default": true
+    }
+  ],
+  "wall_model": {
+    "discovery": "public machine-readable catalog",
+    "authorization": "x402 signed payment payload",
+    "entitlement": "successful paid call/toll_call_id",
+    "execution": "existing endpoint capability",
+    "delivery": "existing JSON result and result hash",
+    "evidence": "existing runtime_proofs plus settlement evidence",
+    "verification": "existing economic event + reconciliation path",
+    "important_boundary": "A payment credential authorizes one paid capability call; it does not itself create verified revenue."
+  },
+  "no_new_core": {
+    "new_ledger": false,
+    "new_event_vocabulary": false,
+    "new_database": false,
+    "new_swarm": false,
+    "new_truth_system": false
+  },
+  "demand_signal": {
+    "source": "Reddit r/smallbusiness",
+    "observed": "2026-09-29",
+    "subject": "MRO bid/RFQ analysis and supplier selection",
+    "relevance": "Direct current demand signal for quote normalization, supplier comparison, alternative-part evaluation and commercial decision support.",
+    "evidence_url": "https://www.reddit.com/r/smallbusiness/comments/1wtpddn/how_to_do_a_mro_bid_rfq_analysis_and_supplier/",
+    "truth_label": "DEMAND_SIGNAL"
+  },
+  "competitor_signal": {
+    "source": "Upwork",
+    "observed": "2026-10-03",
+    "example": "Supplier Shortlist & Procurement Analysis",
+    "visible_tiers_usd": [
+      20,
+      45,
+      80
+    ],
+    "relevance": "Confirms buyers already pay for supplier research and quotation comparison.",
+    "evidence_url": "https://www.upwork.com/services/product/admin-customer-support-a-supplier-shortlist-procurement-analysis-for-your-business-2104529063110105319",
+    "truth_label": "MARKET_SIGNAL"
+  },
+  "next_gate": {
+    "type": "REAL_HUMAN_GATE_REQUIRED_FOR_MONEY",
+    "action": "If a lawful, genuinely relevant demand surface permits a useful response or listing, authorize only that specific external action. Do not authorize generic outreach or spam.",
+    "kill_conditions": [
+      "promotion is prohibited",
+      "surface is not genuinely relevant",
+      "action requires paid credits or spend",
+      "action would require impersonation or unauthorized account activity"
+    ]
+  }
+}
