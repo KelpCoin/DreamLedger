@@ -3,141 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger — transaction infrastructure for specialist commerce. Clear pricing, Stripe checkout, controlled fulfilment, and evidence-led payment handling.">
-<meta name="theme-color" content="#0c0d0b">
-<title>DreamLedger · New Zealand</title>
+<meta name="description" content="DreamLedger: concrete paid tools and specialist commerce with clear pricing and Stripe checkout.">
 <link rel="canonical" href="https://dreamledger.org/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<title>DreamLedger · Buy something useful</title>
 <style>
-:root{
-  --bg:#f3f1eb;--bg-deep:#0c0d0b;--surface:#fffcf7;--ink:#141510;--ink-soft:#3d3f38;
-  --muted:#6b6e64;--line:#d5d1c6;--gold:#9a7b2f;--gold-bright:#c4a24a;--ok:#2f6b4f;
-  --max:1080px;--serif:"Instrument Serif",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif;
-  --safe:env(safe-area-inset-bottom,0px);--radius:18px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:calc(96px + var(--safe))}
-a{color:inherit;text-decoration:none}
-.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
-.hdr{position:sticky;top:0;z-index:40;background:rgba(243,241,235,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-.hdr-inner{max-width:var(--max);margin:0 auto;height:64px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{font-family:var(--serif);font-size:1.45rem;letter-spacing:-.02em}
-.brand em{font-style:italic;color:var(--gold)}
-.nav{display:flex;align-items:center;gap:2px;flex-wrap:wrap;justify-content:flex-end}
-.nav a{font-size:13px;font-weight:600;color:var(--muted);padding:10px 12px;border-radius:999px;min-height:44px;display:inline-flex;align-items:center}
-.nav a:hover{color:var(--ink)}
-.nav .cta{background:var(--ink);color:#f7f4ec!important;margin-left:6px;padding:10px 16px}
-.hero{padding:48px 0 36px}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
-.hero h1{font-family:var(--serif);font-size:clamp(2.4rem,7vw,3.6rem);font-weight:400;letter-spacing:-.03em;line-height:1.05;margin-bottom:16px;max-width:14ch}
-.hero h1 span{font-style:italic;color:var(--gold)}
-.lead{font-size:1.1rem;color:var(--ink-soft);max-width:34em;margin-bottom:28px;line-height:1.6}
-.actions{display:flex;flex-wrap:wrap;gap:10px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:14px;font-size:15px;font-weight:700;border:1px solid transparent}
-.btn-primary{background:var(--ink);color:#f7f4ec}
-.btn-gold{background:linear-gradient(180deg,#d4b45c,#9a7b2f);color:#141510}
-.btn-ghost{background:var(--surface);border-color:var(--line)}
-.trust{display:flex;flex-wrap:wrap;gap:10px 18px;padding:18px 0 8px;border-top:1px solid var(--line);margin-top:36px}
-.trust span{font-size:12px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
-.trust i{width:6px;height:6px;border-radius:50%;background:var(--ok);display:inline-block}
-.section{padding:40px 0}
-.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-.section h2{font-family:var(--serif);font-size:clamp(1.5rem,3.5vw,1.85rem);font-weight:400;letter-spacing:-.02em}
-.section .more{font-size:13px;font-weight:700;color:var(--gold)}
-.rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.rail::-webkit-scrollbar{display:none}
-.tile{flex:0 0 min(78vw,280px);scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;min-height:220px;box-shadow:0 1px 0 rgba(20,21,16,.04)}
-.tile .tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.tile h3{font-family:var(--serif);font-size:1.35rem;font-weight:400;letter-spacing:-.02em;margin-bottom:8px}
-.tile p{font-size:14px;color:var(--muted);flex:1;line-height:1.45}
-.tile .price{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;margin:14px 0 12px}
-.tile .price small{font-size:.85rem;font-weight:600;color:var(--muted)}
-.tile .go{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;background:var(--ink);color:#f7f4ec;font-weight:700;font-size:14px}
-.tile .go.gold{background:linear-gradient(180deg,#d4b45c,#9a7b2f);color:#141510}
-.rivet{margin:12px 0 8px;background:var(--bg-deep);color:#f3f1eb;border-radius:24px;padding:36px 24px;position:relative;overflow:hidden}
-.rivet::before{content:"";position:absolute;inset:auto -20% -40% auto;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(196,162,74,.22),transparent 70%);pointer-events:none}
-.rivet .eyebrow{color:var(--gold-bright)}
-.rivet h2{font-family:var(--serif);font-size:clamp(1.7rem,4vw,2.2rem);font-weight:400;letter-spacing:-.02em;margin-bottom:12px;max-width:16ch}
-.rivet p{color:#b8b6ad;max-width:36em;margin-bottom:22px;font-size:1.02rem}
-.rivet .actions .btn-ghost{background:transparent;border-color:#3a3b36;color:#f3f1eb}
-.rivet .actions .btn-primary{background:var(--gold-bright);color:#141510}
-.features{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:700px){.features{grid-template-columns:repeat(3,1fr)}}
-.feat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
-.feat h3{font-size:15px;font-weight:700;margin-bottom:6px}
-.feat p{font-size:13px;color:var(--muted);line-height:1.5}
-.footer{padding:40px 0 24px;border-top:1px solid var(--line);margin-top:24px;font-size:13px;color:var(--muted)}
-.footer a{color:var(--ink-soft);font-weight:600;margin-right:14px}
-.footer .row{display:flex;flex-wrap:wrap;gap:8px 0;margin-bottom:12px}
-.stick{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--safe));z-index:50;background:var(--bg-deep);color:#f3f1eb;border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.28)}
-.stick b{flex:1;font-size:13px;font-weight:600}
-.stick a{background:linear-gradient(180deg,#d4b45c,#9a7b2f);color:#141510;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;font-size:14px;display:inline-flex;align-items:center;white-space:nowrap}
-@media(min-width:800px){.hero{padding:64px 0 48px}.stick{max-width:420px;left:auto;right:24px}}
+:root{--bg:#f3f1eb;--ink:#141510;--muted:#62655c;--line:#d5d1c6;--gold:#b18b36;--card:#fffdf8;--dark:#0c0d0b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;line-height:1.55}main{max-width:920px;margin:auto;padding:28px 20px 110px}.brand{font-weight:800;letter-spacing:-.03em;font-size:20px}.eyebrow{margin-top:56px;color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.hero h1{font-size:clamp(42px,8vw,76px);line-height:.98;letter-spacing:-.055em;max-width:780px;margin:14px 0}.hero p{font-size:18px;color:var(--muted);max-width:650px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:38px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;min-height:250px}.tag{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:.12em;text-transform:uppercase}.card h2{font-size:25px;letter-spacing:-.03em;margin:10px 0}.card p{color:var(--muted);flex:1}.price{font-size:27px;font-weight:800;margin:12px 0}.btn{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:12px;background:var(--dark);color:white;text-decoration:none;font-weight:800}.btn.gold{background:var(--gold);color:var(--ink)}.free{margin-top:16px;background:var(--dark);color:#f3f1eb;border-radius:18px;padding:24px}.free h2{margin:0 0 8px}.free p{color:#c5c6bd;margin:0 0 16px}.free a{color:#f3f1eb;font-weight:800}.foot{margin-top:42px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:20px}
 </style>
 </head>
 <body>
-<header class="hdr"><div class="hdr-inner">
-  <a class="brand" href="/">Dream<em>Ledger</em></a>
-  <nav class="nav">
-    <a href="/b2b.html">RIVET</a>
-    <a href="/marketplace.html">Market</a>
-    <a href="/sell.html">Sell</a>
-    <a href="/buy.html">Buy</a>
-    <a class="cta" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">$29</a>
-  </nav>
-</div></header>
-<main class="wrap">
-  <section class="hero">
-    <p class="eyebrow">Transaction infrastructure · New Zealand</p>
-    <h1>Buy, sell, and <span>prove</span> the transaction.</h1>
-    <p class="lead">Specialist commerce surfaces with clear prices, Stripe checkout, controlled fulfilment, and evidence-led payment handling. Start with a concrete product, not a pitch deck.</p>
-    <div class="actions">
-      <a class="btn btn-gold" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · $29</a>
-      <a class="btn btn-primary" href="/b2b.html">Open RIVET B2B</a>
-      <a class="btn btn-ghost" href="/sell.html">List something</a>
-    </div>
-    <div class="trust">
-      <span><i></i> NZD pricing</span>
-      <span><i></i> Stripe checkout</span>
-      <span><i></i> Payment ≠ revenue until verified</span>
-      <span><i></i> Controlled fulfilment</span>
-      <span><i></i> Phone-first checkout</span>
-    </div>
-  </section>
-  <section class="section">
-    <div class="section-head"><h2>Live offers</h2><a class="more" href="/buy.html">All offers →</a></div>
-    <div class="rail" aria-label="Offers">
-      <article class="tile"><div class="tag">MTG</div><h3>Commander diagnostic</h3><p>Power level, cuts, and upgrade priorities.</p><div class="price">$29 <small>NZD</small></div><a class="go gold" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Buy now</a></article>
-      <article class="tile"><div class="tag">Seller</div><h3>Seller profit audit</h3><p>Fee vs take-home for Trade Me–heavy sellers.</p><div class="price">$29 <small>NZD</small></div><a class="go gold" href="/buy/SELLER-PROFIT-AUDIT-001">Buy audit</a></article>
-      <article class="tile"><div class="tag">B2B</div><h3>Partner kit</h3><p>Discord / commerce starter for stores.</p><div class="price">$99 <small>NZD</small></div><a class="go" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Get kit</a></article>
-      <article class="tile"><div class="tag">Support</div><h3>Sprout</h3><p>Small support for the NZ lane.</p><div class="price">$3.99 <small>NZD</small></div><a class="go" href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Support</a></article>
-    </div>
-  </section>
-  <section class="rivet">
-    <p class="eyebrow">RIVET · B2B layer</p>
-    <h2>Business trade without the spreadsheet maze</h2>
-    <p>List, discover, and settle with transparent tools pricing — not a cut of every sale.</p>
-    <div class="actions">
-      <a class="btn btn-primary" href="/marketplace.html">Marketplace</a>
-      <a class="btn btn-ghost" href="/sell.html">Seller intake</a>
-      <a class="btn btn-ghost" href="/b2b.html">Plans & fees</a>
-    </div>
-  </section>
-  <section class="section">
-    <div class="section-head"><h2>Built around the transaction</h2></div>
-    <div class="features">
-      <div class="feat"><h3>Clear offer</h3><p>Price and scope are visible before checkout. No mystery quote required for the listed products.</p></div>
-      <div class="feat"><h3>Controlled payment</h3><p>Checkout runs through Stripe. Payment is recorded separately from verified DreamLedger revenue.</p></div>
-      <div class="feat"><h3>Evidence after fulfilment</h3><p>Commercial state is not promoted to success until the underlying transaction and fulfilment can be verified.</p></div>
-    </div>
-  </section>
+<main>
+<div class="brand">DreamLedger</div>
+<section class="hero">
+<div class="eyebrow">New Zealand · concrete commerce</div>
+<h1>Buy something useful. Sell something better.</h1>
+<p>No pitch deck required. Start with a fixed-price tool, a clear deliverable, and a real checkout.</p>
+</section>
+<section class="grid">
+<article class="card">
+<div class="tag">MTG</div>
+<h2>Commander Deck Diagnostic</h2>
+<p>A practical assessment of power band, structural weaknesses, upgrade priorities and tuning plan.</p>
+<div class="price">NZ$29</div>
+<a class="btn gold" href="/mtg/commander-deck-diagnostic">View diagnostic</a>
+</article>
+<article class="card">
+<div class="tag">Seller</div>
+<h2>Seller Profit Audit</h2>
+<p>Seller-specific review of marketplace fees, pricing, GST position, ACC/income-tax considerations and shipping economics.</p>
+<div class="price">NZ$29</div>
+<a class="btn gold" href="/tools/seller-profit-audit">View audit</a>
+</article>
+</section>
+<section class="free">
+<h2>Free first step for NZ sellers</h2>
+<p>Calculate what you actually keep after marketplace fees, payment fees, shipping, packaging and item cost.</p>
+<a href="/tools/seller-profit">Open the free seller calculator →</a>
+</section>
+<div class="foot">Stripe checkout is used where applicable. A checkout is not counted as revenue until external payment, attribution, fulfilment and evidence are verified.</div>
 </main>
-<footer class="footer wrap">
-  <div class="row"><a href="/b2b.html">RIVET</a><a href="/fees.html">Fees</a><a href="/trust.html">Trust</a><a href="/policies.html">Policies</a><a href="/sell.html">Sell</a></div>
-  <p>DreamLedger · New Zealand · Clear pricing · Controlled commerce · Evidence-led operations</p>
-</footer>
-<div class="stick"><b>Commander diagnostic · NZ$29</b><a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Pay</a></div>
 </body>
 </html>
