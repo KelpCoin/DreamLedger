@@ -7,7 +7,7 @@
     "capabilities": 15,
     "candidates": 31,
     "passed": 29,
-    "approved": 0,
+    "approved": 1,
     "rejected": 3
   },
   "offers": [
@@ -1547,6 +1547,67 @@
         "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
         "private_material": "excluded"
       }
+    },
+    {
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "product_sku": "DL-BILLBOARD-100X100-3000-001",
+      "capability_id": "PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "silo": "dreamledger",
+      "name": "DreamLedger Founding Tile",
+      "problem": "Own a permanent 100x100 placement on a finite one-million-pixel Internet Billboard.",
+      "input": "Stripe Checkout collects billboard title and destination URL; an optional NZ$100 image add-on can be selected for manual review.",
+      "output": "A real 100x100 placement allocated on the finite canvas and published only after human approval.",
+      "delivery_mechanism": "stripe_payment -> signed_webhook -> atomic_grid_allocation -> paid_pending_review -> human_approval -> publication",
+      "deliverable": "Permanent 100x100 Internet Billboard placement held until January 1, 3000 unless removed under the published content policy.",
+      "target_buyer": "Businesses, creators, projects and internet-native collectors wanting a memorable permanent web placement.",
+      "eligibility": "Buyer supplies a valid destination URL and acceptable content. Image placement requires personal approval.",
+      "constraints": [
+        "DreamLedger silo only",
+        "No credential collection",
+        "No fake scarcity",
+        "No invented traffic claims",
+        "Human approval before publication",
+        "Finite 1,000,000-pixel canvas",
+        "Until 3000 retention term"
+      ],
+      "price": 50,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "payment_link_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "payment_link_status": "ACTIVE_LIVEMODE",
+      "payment_link_id": "plink_LIVE_TILE_BUY_ROUTER_ALIGNED",
+      "image_addon_price_nzd": 100,
+      "checkout_route": "stripe_payment_link",
+      "fulfillment_route": "supabase_billboard_webhook -> finite_allocation -> manual_review -> publication",
+      "proof_of_delivery": "stripe_payment_record + billboard_placement_record + published_canvas_state",
+      "scarcity": {
+        "canvas_pixels": 1000000,
+        "unit_dimensions": "100x100",
+        "placement_pixels": 10000,
+        "allocation": "atomic_first_available_or_requested_coordinates"
+      },
+      "verification_rules": [
+        "canonical_product",
+        "stripe_livemode",
+        "payment_paid",
+        "currency_nzd",
+        "amount_matches_offer",
+        "silo_isolated",
+        "schema_valid"
+      ],
+      "provenance": {
+        "product_source": "BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json",
+        "private_material": "excluded"
+      },
+      "payment_link_note": "Aligned 2026-09-25 to live /buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 redirect",
+      "version": "offer-v1",
+      "pricing_tier": "snapshot",
+      "approval_required": false,
+      "checkout_available": true,
+      "status": "VERIFIED_AVAILABLE"
     }
   ]
 }

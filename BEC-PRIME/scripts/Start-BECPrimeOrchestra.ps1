@@ -81,7 +81,17 @@ try {
         & node.exe $cycle *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "autonomy-cycle.log") | Out-Host
         $cycleStatus = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
     }
-    $proof = [ordered]@{schema="BEC-PRIME-STARTUP-ORCHESTRA-1.0";status="PASS";lm_studio="RUNNING";model=$selected;model_loaded=$true;server="http://127.0.0.1:1234";autonomous_spend_nzd=0;public_actions="APPROVAL_REQUIRED";autonomy_cycle=$cycleStatus;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}
+    $pinballStatus = "DISABLED"
+    $pinball = Join-Path $RepoRoot "runtime\CubePinball.js"
+    if (([string]$env:CUBE_PINBALL_ENABLED).ToLowerInvariant() -eq "true" -and (Test-Path -LiteralPath $pinball)) {
+        if ([string]::IsNullOrWhiteSpace([string]$env:SUPABASE_URL) -or [string]::IsNullOrWhiteSpace([string]$env:SUPABASE_SERVICE_ROLE_KEY)) { throw "CUBE_PINBALL_ENABLED requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY." }
+        $env:CUBE_PINBALL_LM_URL = "http://127.0.0.1:1234/v1/chat/completions"
+        $env:CUBE_PINBALL_MODELS = $selected
+        $env:CUBE_PINBALL_BATCH = if ([string]::IsNullOrWhiteSpace([string]$env:CUBE_PINBALL_BATCH)) { "3" } else { $env:CUBE_PINBALL_BATCH }
+        $pinballRaw = & node.exe -e "require('./runtime/CubePinball').tick().then(r=>console.log(JSON.stringify(r))).catch(e=>{console.error(e.message);process.exit(1)})" *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "cube-pinball.log")
+        $pinballStatus = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+    }
+    $proof = [ordered]@{schema="BEC-PRIME-STARTUP-ORCHESTRA-1.2";status="PASS";lm_studio="RUNNING";model=$selected;model_loaded=$true;server="http://127.0.0.1:1234";autonomous_spend_nzd=0;public_actions="APPROVAL_REQUIRED";autonomy_cycle=$cycleStatus;cube_pinball=$pinballStatus;pinball_requires_local_enable=true;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}
     Write-Json (Join-Path $ProofRoot "STARTUP-ORCHESTRA-LATEST.json") $proof
 } catch {
     $proof = [ordered]@{schema="BEC-PRIME-STARTUP-ORCHESTRA-1.0";status="FAIL";error=$_.Exception.Message;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}

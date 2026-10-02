@@ -4,8 +4,8 @@
   "compiler": "offer-compiler-v1",
   "generated_at": null,
   "git_commit": null,
-  "input_capabilities_sha256": "2a6dc589a150eee0ee1514c35ecd2433e7f505e6c003a1e1bab4bbfcdc5663d0",
-  "approved_offers_sha256": "d0af9750918e053ddf863ff94773094e17cff8937638f551adeeca1a8c719756",
+  "input_capabilities_sha256": "a0d4fa5d06e57e14308813f63405bdc9d4ba9c97b5aa0aa646c77b194784bfad",
+  "approved_offers_sha256": "59e2ba9a968ee5a4684cd1de90a1bec226d3104088adda19a432718c340c5140",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
@@ -13,7 +13,7 @@
     "capabilities": 15,
     "candidates": 31,
     "passed": 29,
-    "approved": 0,
+    "approved": 1,
     "rejected": 3
   },
   "passed_offer_ids": [
@@ -45,12 +45,13 @@
     "OFFER-BEC-PRIME-DEMAND-RADAR-AUDIT",
     "OFFER-BEC-PRIME-SENTINEL-AUDIT",
     "OFFER-PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001-DIAGNOSTIC",
-    "OFFER-PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001-AUDIT"
+    "OFFER-PRODUCT-DREAMLEDGER-BILLBOARD-FOUNDING-001-AUDIT",
+    "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
     "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC",
-    "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001"
+    "OFFER-CMD-DIAG-29-NZD"
   ],
   "approval_required_for_generated_offers": true,
   "checkout_disabled_for_generated_offers": true,
