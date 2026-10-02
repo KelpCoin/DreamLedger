@@ -116,7 +116,8 @@ async function redeemRoad(slug,sessionId){
   const expiresAt=new Date(Date.now()+c.agentBridgeTtlDays*86400000).toISOString();
   const result=await supabaseRpc('upsert_toll_entitlement',{p_entitlement_id:'ENT_'+keyId,p_road_id:Toll.AGENT_BRIDGE_ROAD_ID,p_buyer_reference_hash:crypto.createHash('sha256').update(String(data.customer_details?.email||data.customer_email||sessionId)).digest('hex'),p_stripe_payment_id:String(data.payment_intent||sessionId),p_key_id:keyId,p_calls_remaining:c.agentBridgeCalls,p_expires_at:expiresAt,p_reference:sessionId});
   const callsRemaining=Number(result?.calls_remaining||0);
-  const key=Toll.issueKey({keyId,tier:'agent_bridge',roadId:Toll.AGENT_BRIDGE_ROAD_ID,callsRemaining:Math.max(callsRemaining,1),expiresAt:result?.expires_at||expiresAt,reference:sessionId});
+  if(callsRemaining<1)throw Object.assign(new Error('Toll entitlement exhausted'),{statusCode:409});
+  const key=Toll.issueKey({keyId,tier:'agent_bridge',roadId:Toll.AGENT_BRIDGE_ROAD_ID,callsRemaining,expiresAt:result?.expires_at||expiresAt,reference:sessionId});
   return {status:'ENTITLED',key,road_id:Toll.AGENT_BRIDGE_ROAD_ID,calls_remaining:callsRemaining,expires_at:result?.expires_at||expiresAt};
 }
 async function handleAgentBridge(req,res,path){
