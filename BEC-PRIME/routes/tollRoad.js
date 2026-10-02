@@ -7,10 +7,12 @@ const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
 async function createCheckout(scope){
-  const priceId=scope==='gauntlet'?Toll.config().gauntletPriceId:Toll.config().truthPriceId;
-  if(!STRIPE_SECRET_KEY||!priceId)throw Object.assign(new Error('Dedicated toll price is not configured'),{statusCode:503});
+  const cfg=Toll.config();
+  const priceNzd=scope==='gauntlet'?cfg.gauntletPriceNzd:cfg.truthPriceNzd;
+  if(!STRIPE_SECRET_KEY||!(priceNzd>0))throw Object.assign(new Error('Toll checkout is not configured'),{statusCode:503});
   const sessionId='toll_'+crypto.randomUUID();
-  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price]':priceId,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,success_url:PUBLIC_BASE+'/toll-road?checkout=success&scope='+scope+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
+  const productName=scope==='gauntlet'?'DreamLedger Automated Gauntlet Access':'DreamLedger Truth / Evidence Wall Access';
+  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':Math.round(priceNzd*100),'line_items[0][price_data][product_data][name]':productName,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,'metadata[toll_price_nzd]':String(priceNzd),'metadata[toll_product]':productName,'payment_intent_data[metadata][toll_scope]':scope,'payment_intent_data[metadata][toll_request_id]':sessionId,success_url:PUBLIC_BASE+'/toll-road?checkout=success&scope='+scope+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
   return data;
@@ -21,11 +23,11 @@ async function redeem(scope,sessionId){
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe session lookup failed'),{statusCode:502});
   if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.toll_scope!==scope)throw Object.assign(new Error('Settled payment required before key issuance'),{statusCode:402});
-  const priceId=scope==='gauntlet'?Toll.config().gauntletPriceId:Toll.config().truthPriceId;
-  if(priceId&&Array.isArray(data.line_items?.data)&&data.line_items.data.length){
-    const paidPrice=String(data.line_items.data[0]?.price?.id||'');
-    if(paidPrice&&paidPrice!==priceId)throw Object.assign(new Error('Checkout price attribution mismatch'),{statusCode:409});
-  }
+  const cfg=Toll.config();
+  const expectedPriceNzd=scope==='gauntlet'?cfg.gauntletPriceNzd:cfg.truthPriceNzd;
+  const expectedAmount=Math.round(expectedPriceNzd*100);
+  const line=data.line_items?.data?.[0];
+  if(line && Number(line.amount_total||line.price?.unit_amount||0)!==expectedAmount)throw Object.assign(new Error('Checkout amount attribution mismatch'),{statusCode:409});
   return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,callsRemaining:scope==='gauntlet'?10:10,reference:sessionId})};
 }
 
