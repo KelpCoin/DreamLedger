@@ -1,0 +1,53 @@
+{
+  "schema": "DREAMLEDGER/777/LM-STUDIO-AUTONOMOUS-RUNTIME-PROOF/v1",
+  "created_at_utc": "2026-10-02T04:21:34.271Z",
+  "status": "IMPLEMENTED_NOT_YET_RUN_ON_OPERATOR_MACHINE",
+  "objective": "Move continuous local DreamLedger economic assessment from phone/manual operation to the existing Windows LM Studio substrate.",
+  "changed_files": [
+    {
+      "path": "BEC-PRIME/scripts/economic-local-worker.js",
+      "commit": "0c0977f6690a50d144a28a1a35c80da3bdaa8161",
+      "change": "Auto-start llmster/server when the local endpoint is unavailable; support LM_API_TOKEN; preserve existing Supabase lease/assessment/completion contracts; remain local-only and fail-closed."
+    },
+    {
+      "path": "BEC-PRIME/scripts/Start-DreamLedgerAutonomous.ps1",
+      "commit": "dd53ab9a8fca4593e8bf4c9522d593787d640bfb",
+      "change": "Thin Windows launcher for llmster/server plus existing economic-local-worker --loop."
+    },
+    {
+      "path": "BEC-PRIME/scripts/Install-DreamLedgerAutonomousStartup.ps1",
+      "commit": "fb745ecb401f90280b37b5c3b05eec53c2649459",
+      "change": "Registers the launcher with Windows Task Scheduler at user logon; writes no secrets."
+    }
+  ],
+  "existing_substrate_reused": [
+    "BEC-PRIME/scripts/economic-local-worker.js",
+    "existing Supabase economic task/bridge RPCs",
+    "existing lease fencing",
+    "existing local-worker proof artifacts",
+    "existing LM Studio OpenAI-compatible endpoint"
+  ],
+  "lm_studio_mode": {
+    "daemon": "llmster",
+    "server": "local localhost endpoint",
+    "jit": "expected/compatible with current LM Studio JIT mode",
+    "external_network_requirement": false
+  },
+  "guardrails": [
+    "No new DreamLedger queue",
+    "No new ledger",
+    "No new scheduler/control plane",
+    "No external action",
+    "No revenue claim",
+    "No payment mutation",
+    "No secret persistence"
+  ],
+  "verification": {
+    "repository_files_refetched": true,
+    "local_windows_runtime_executed": false,
+    "lm_studio_gpu_observed": false,
+    "economic_task_completed": false,
+    "external_revenue_nzd": 0
+  },
+  "next_machine_event": "Power on Windows machine; run Install-DreamLedgerAutonomousStartup.ps1 once; start or log in; launcher starts LM Studio and the existing economic worker continuously."
+}
