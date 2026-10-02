@@ -1,0 +1,95 @@
+name: DOMINO 02 lease fencing
+
+on:
+  push:
+    branches:
+      - domino02-lease-fencing
+  workflow_dispatch:
+
+jobs:
+  lease-fencing:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dreamledger_domino02
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d dreamledger_domino02"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test runtime
+        run: npm install --no-save pg
+
+      - name: Provision isolated test substrate
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d dreamledger_domino02 -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+          psql -h 127.0.0.1 -U postgres -d dreamledger_domino02 -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE TABLE public.economic_actions (
+            id uuid PRIMARY KEY,
+            result jsonb,
+            claimed_by text,
+            lease_expires_at timestamptz,
+            fencing_token bigint NOT NULL DEFAULT 0
+          );
+          SQL
+
+      - name: Apply DOMINO 02 migration
+        env:
+          PGPASSWORD: postgres
+        run: psql -h 127.0.0.1 -U postgres -d dreamledger_domino02 -v ON_ERROR_STOP=1 -f supabase/migrations/20261002141900_domino02_lease_fencing.sql
+
+      - name: Run real test and capture output
+        id: test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/dreamledger_domino02
+          DOMINO_RUN_ID: ${{ github.run_id }}
+          DOMINO_PROOF_PATH: proof-domino02.json
+        shell: bash
+        run: |
+          set +e
+          node --test test-lease-fencing.js 2>&1 | tee domino02-test-output.log
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
+
+      - name: Verify execution and proof
+        if: always()
+        shell: bash
+        run: |
+          test -s domino02-test-output.log
+          test -s proof-domino02.json
+          node -e "const p=require('./proof-domino02.json'); if(p.TEST_COMMAND!=='node --test test-lease-fencing.js'||p.EXIT_CODE!==0||p.PASS_COUNT!==10||p.FAIL_COUNT!==0) process.exit(1)"
+          grep -Eq 'tests [1-9][0-9]*|pass' domino02-test-output.log
+
+      - name: Calculate proof SHA256
+        if: always()
+        run: sha256sum test-lease-fencing.js proof-domino02.json domino02-test-output.log
+
+      - name: Upload DOMINO 02 proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proof-domino02-${{ github.run_id }}
+          path: |
+            proof-domino02.json
+            domino02-test-output.log
+          if-no-files-found: error
