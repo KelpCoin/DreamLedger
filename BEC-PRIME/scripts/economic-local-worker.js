@@ -23,6 +23,7 @@ const crypto = require("node:crypto");
 const WORKER = "BECK_LOCAL_LMSTUDIO_V1";
 const LEASE_SECONDS = 1200;
 const POLL_MS = 15000;
+const LM_START_WAIT_MS = 1000;
 const ERROR_BACKOFF_MS = 30000;
 const REQUIRED_KEYS = [
   "overall_score", "evidence_tier", "freshness_days", "buyer_intent",
@@ -101,6 +102,54 @@ function envConfig() {
   };
 }
 
+function lmHeaders(config, extra = {}) {
+  return {
+    "Content-Type": "application/json",
+    ...(config.lmApiToken ? { Authorization: "Bearer " + config.lmApiToken } : {}),
+    ...extra
+  };
+}
+
+async function ensureLocalLmStudio(config) {
+  try {
+    await requestJson(config.lmBase + "/models", {
+      method: "GET",
+      headers: lmHeaders(config)
+    });
+    return { started: false, reachable: true };
+  } catch (_) {}
+
+  const lms = process.platform === "win32" ? "lms.exe" : "lms";
+  try {
+    await new Promise((resolve, reject) => {
+      const child = require("node:child_process").spawn(lms, ["daemon", "up"], {
+        stdio: "ignore",
+        windowsHide: true
+      });
+      child.on("error", reject);
+      child.on("exit", () => resolve());
+    });
+  } catch (_) {}
+
+  try {
+    await new Promise((resolve, reject) => {
+      const child = require("node:child_process").spawn(lms, ["server", "start"], {
+        stdio: "ignore",
+        windowsHide: true
+      });
+      child.on("error", reject);
+      child.on("exit", () => resolve());
+    });
+  } catch (_) {}
+
+  await new Promise(resolve => setTimeout(resolve, LM_START_WAIT_MS));
+  await requestJson(config.lmBase + "/models", {
+    method: "GET",
+    headers: lmHeaders(config)
+  });
+  return { started: true, reachable: true };
+}
+
 async function requestJson(url, options = {}) {
   const response = await fetch(url, options);
   const body = await response.text();
@@ -122,7 +171,11 @@ function supabaseHeaders(config) {
 }
 
 async function getLocalModel(config) {
-  const data = await requestJson(config.lmBase + "/models", { method: "GET" });
+  await ensureLocalLmStudio(config);
+  const data = await requestJson(config.lmBase + "/models", {
+    method: "GET",
+    headers: lmHeaders(config)
+  });
   const models = Array.isArray(data?.data) ? data.data : [];
   if (!models.length) throw new Error("LMSTUDIO_NO_MODELS_LOADED");
   if (config.preferredModel) {
@@ -211,9 +264,10 @@ async function getTask(config, taskId) {
 }
 
 async function assessLocally(config, model, task) {
+  await ensureLocalLmStudio(config);
   const data = await requestJson(config.lmBase + "/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: lmHeaders(config),
     body: JSON.stringify({
       model,
       messages: [
@@ -394,7 +448,7 @@ async function run() {
   try {
     const config = envConfig();
     const model = await getLocalModel(config);
-    console.log(JSON.stringify({ event: "LOCAL_WORKER_READY", worker: WORKER, model, loop }));
+    console.log(JSON.stringify({ event: "LOCAL_WORKER_READY", worker: WORKER, model, loop, lm_base_url: config.lmBase, local_only: true }));
     do {
       try {
         const quarantined = await quarantineStaleBridgeNotes(config);
