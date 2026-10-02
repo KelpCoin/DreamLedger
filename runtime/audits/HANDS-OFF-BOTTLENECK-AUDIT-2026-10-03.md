@@ -1,54 +1,56 @@
 # DreamLedger Hands-Off Economic Catalyst — Bottleneck Audit
 
-Date: 2026-10-03  
+Date: 2026-10-03 (updated same day after re-measure)  
 Mode: REPAIR / CONNECT / EXPOSE / VERIFY  
 Scoreboard (unchanged): VERIFIED_EXTERNAL_REVENUE = NZ$0.00
 
-## Live observations
+## Corrected live observations
 
 | Surface | Result |
 |---------|--------|
-| dreamledger.org homepage | New enterprise copy live; commit 024f41d7 on Render |
-| GET /healthz | 200 — catalog_loaded, cmd_diag_published, cmd_diag_price |
-| GET /api/toll/v1/manifest | 200 ARMED — claims checkout_configured=true for Gauntlet NZ$19, Truth NZ$9, Road pack |
-| POST /api/toll/v1/gauntlet | **401 invalid_toll_key** — wall is live |
-| POST /api/toll/v1/truth | **401 invalid_toll_key** — wall is live |
-| POST /api/toll/v1/checkout/* | **404 Not Found** — cannot buy a key |
-| POST /api/toll/v1/redeem | **404 Not Found** |
-| GET /toll-road | 200 — UI advertises Decision Check NZ$19 / Evidence Check NZ$9 Buy access |
-| GET /go | 404 DOORWAY_FAILED |
-| Stripe Payment Links | CMD-DIAG-29 and QUOTE-COMPARE-49 VERIFIED_AVAILABLE with buy.stripe.com URLs |
-| stripe-revenue Edge Function GET | healthy; configured=false; stripe_api_key=false; webhook_secret=true |
-| agent-toll-road /healthz | payment_mode=DISABLED_UNCONFIGURED; quote_compare_mode=DISABLED |
-| PR #439 | Stripe webhook independent of optional API key — open, unstable CI, production hotfix claimed v25 |
-| PR #438 | Agent Bridge monetization — open, empty CI status, base drifted from main |
+| GET /api/toll/v1/manifest | 200 ARMED |
+| GET /api/toll/v1/checkout/gauntlet | **303 → live Stripe Checkout** (cs_live_*) |
+| GET /api/toll/v1/checkout/truth | **303 → live Stripe Checkout** |
+| GET /api/toll/v1/redeem/{scope}?session_id= | works (400 without session; issues key after paid) |
+| POST /api/toll/v1/gauntlet | 401 invalid_toll_key (wall live) |
+| POST /api/toll/v1/truth | 401 invalid_toll_key (wall live) |
+| POST checkout/redeem | was 404 (method not handled); **fixed in commit 5c2b3a8** |
+| /toll-road UI | Buy links = GET checkout; success page auto-redeems key |
+| Stripe Payment Links | CMD-DIAG-29, QUOTE-COMPARE-49 VERIFIED_AVAILABLE |
+| DB SQL | UNOBSERVABLE (control plane healthy; transport ECONNREFUSED) |
 
-## First measured blocker
+## Prior false diagnosis
+
+Earlier probes used **POST** against checkout/redeem. The live UI and route table only implemented **GET**. That produced plain 404 fall-through and was incorrectly reported as "buy path dead."
+
+## Repair applied
+
+Commit `5c2b3a816fb163ddc8dc73bb56581d0a0388d932`:
+- POST `/api/toll/v1/checkout/{scope}` → JSON `{url, session_id}`
+- POST `/api/toll/v1/redeem/{scope}` with `session_id` in body or query
+- GET behaviour unchanged (303 redirect / query redeem)
+
+## Hands-off product path (now mechanically complete on the edge)
 
 ```
-BLOCKED_AT = CONFIGURATION / COMMERCE
-BECAUSE    = Toll wall authenticates (401 without key) but checkout and redeem routes return 404.
-             Manifest and /toll-road UI advertise buyable services; the buy path is not wired on the live storefront/engine route table.
-REQUIRED   = Smallest repair: expose POST /api/toll/v1/checkout/{scope} and redeem against existing TollRoad v2 + Stripe Payment Link or Checkout Session creation already present in substrate (or wire UI to existing buy.stripe.com links for Decision/Evidence packs).
-FALLBACK   = Use existing live Stripe Payment Links (CMD-DIAG-29, QUOTE-COMPARE-49) for first external payment while toll checkout is repaired — still requires settlement→entitlement→fulfillment observation.
-OWNER_ACTION = None for inspection. Optional: confirm Stripe Dashboard webhook endpoint points at current stripe-revenue function and that STRIPE_API_KEY is intentionally absent vs missing secret.
-HUMAN_MINUTES = 0 for this audit; ~15–30 if owner confirms Stripe secrets once.
-EXPECTED_ECONOMIC_EFFECT = Unblocks "Buy key → wall admits → capability runs" for Decision Check / Evidence Check without human delivery.
+BUY (GET or POST checkout)
+  → Stripe settled payment
+  → REDEEM (session_id)
+  → signed dlk_ key
+  → POST /api/toll/v1/gauntlet or /truth with x-dreamledger-toll-key
+  → automated result
 ```
 
-## Closest path to money (ranked)
+No key without `payment_status=paid` + scope match + amount match.
 
-1. **Repair toll checkout routes** (measured 404) so NZ$19 / NZ$9 key purchase works against already-armed wall.
-2. **Existing Stripe Payment Links** for Commander Diagnostic NZ$29 / Quote Compare NZ$49 — links live; settlement/fulfillment path must be observed after a real buyer pays.
-3. **x402 agent-toll-road** — blocked at SECRETS (X402_PAY_TO / facilitator unconfigured).
+## Remaining frontiers
+
+1. **One independent buyer** pays NZ$19 or NZ$9 (or CMD-DIAG / Quote Compare Payment Links).
+2. **DB observability** — authorized SQL path still blocked; cannot yet answer entitlement row binary questions from this sandbox.
+3. **Deploy** — Render autoDeploy on commit; verify POST checkout after deploy lands.
 
 ## Do not
 
-- Merge PR #438 blindly (base drifted; CI empty).
-- Invent Session Pooler credentials or new entitlement architecture.
-- Claim revenue from link existence or 401 wall responses.
-- Expand agent-name public copy.
-
-## Next engineering step
-
-Locate storefront/engine route registration for `/api/toll/v1/*` and add the missing checkout + redeem handlers using existing TollRoad.issueKey / issueEntitlementForRoad and existing Stripe checkout creation codepaths. Test: POST checkout → Stripe URL → (manual external pay later) → redeem → POST gauntlet with key → non-401 result.
+- Claim revenue from checkout session creation or 303 redirects.
+- Invent DB credentials.
+- Expand architecture.
