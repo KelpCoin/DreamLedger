@@ -1,0 +1,7 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),b=require('./source-grounded-council');
+test('DOMINO04 structural independence contract',()=>{const r=b.selfTest();assert.equal(r.status,'PASS');for(const [,ok] of r.tests)assert.equal(ok,true)});
+test('state hash is stable for identical state',()=>{const s=b.buildState(),crypto=require('crypto');const h=crypto.createHash('sha256').update(JSON.stringify(s),'utf8').digest('hex');assert.equal(h.length,64)});
+test('source pack is public-source analytical simulation only',()=>{const p=b.sourcePack();assert.equal(p.boundary,'PUBLIC_SOURCE_ANALYTICAL_SIMULATION_ONLY');assert.equal(p.sources.length,3);for(const s of p.sources)assert.ok(s.path&&s.id&&s.claim_scope)});
+test('authority and economic boundaries are fail-closed',()=>{const s=b.buildState();assert.equal(s.authority.council,'ADVISORY_ONLY');assert.equal(s.authority.stripe_mutation,'NOT_AUTHORIZED');assert.equal(s.live_services.external_dispatch,'NO');assert.equal(s.economic_truth.VERIFIED_EXTERNAL_REVENUE_NZD,0)});
+test('post-independence synthesis preserves disagreement',()=>{const o=[{role:'SOURCE_GROUNDED_PERSONA',content:'source A; falsifier X'},{role:'SKEPTICAL_OPERATOR',content:'skeptic B; falsifier Y'},{role:'ECONOMIC_ANALYST',content:'economic C; falsifier Z'}];const s=b.deterministicSynthesis(o);assert.equal(s.disagreement_count,3);assert.equal(s.status,'ADVISORY_ONLY');assert.equal(s.raw_output_hashes.length,3)});

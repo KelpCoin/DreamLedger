@@ -1,0 +1,9 @@
+{
+  "schema_version":"DOMINO04-SOURCE-PACK-1.0",
+  "boundary":"PUBLIC_SOURCE_ANALYTICAL_SIMULATION_ONLY",
+  "sources":[
+    {"id":"DL-LM-COUNCIL-README","title":"DreamLedger LM Studio Council README","path":"BEC-PRIME/autonomy/LM-STUDIO-COUNCIL-README.md","claim_scope":"Existing local council transport, resource strategy, guardrails and economic-authority boundary."},
+    {"id":"DL-CANDIDATE-GAUNTLET","title":"DreamLedger Candidate Gauntlet","path":"BEC-PRIME/gauntlet/CandidateGauntlet.js","claim_scope":"Existing candidate validation and human-approval boundary."},
+    {"id":"DL-RELEASE-GATE","title":"DreamLedger Gauntlet Release Gate","path":".github/workflows/gauntlet-release-gate.yml","claim_scope":"Existing release verification, checkout contract, and explicit non-purchase proof."}
+  ]
+}

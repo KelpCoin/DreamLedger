@@ -1,0 +1,46 @@
+name: DOMINO 04 Live Three-Model Council Benchmark
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/autonomy/council-benchmark/**'
+      - '.github/workflows/domino04-live-three-model-council.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  structural:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run: {working-directory: BEC-PRIME}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Structural benchmark tests
+        run: node --test autonomy/council-benchmark/source-grounded-council.test.js
+      - name: Self-test proof
+        run: node autonomy/council-benchmark/source-grounded-council.js --self-test
+  live-local-benchmark:
+    if: \${{ vars.DOMINO04_LM_STUDIO_RUNNER == 'true' }}
+    runs-on: [self-hosted, Windows, LMStudio]
+    timeout-minutes: 60
+    defaults:
+      run: {working-directory: BEC-PRIME}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Run real local benchmark
+        env:
+          LM_STUDIO_SERVER: \${{ vars.DOMINO04_LM_STUDIO_SERVER || 'http://127.0.0.1:1234' }}
+        run: node autonomy/council-benchmark/source-grounded-council.js
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: domino04-proof-\${{ github.run_id }}
+          path: D:\\BrownEyeCortex\\ARTIFACTS\\DOMINO-04\\
+          if-no-files-found: warn
+          retention-days: 30
