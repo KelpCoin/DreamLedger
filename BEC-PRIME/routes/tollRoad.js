@@ -55,7 +55,7 @@ function authorize(req,tier){
   if(!checked.ok)throw Object.assign(new Error(checked.error),{statusCode:checked.error==='toll_wall_not_configured'?503:401});
   return checked.payload;
 }
-
+const PUBLIC_SCOPE_MAP=Object.freeze({'decision-check':'gauntlet','evidence-check':'truth'});
 
 async function supabaseRpc(name, body){
   const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
@@ -152,12 +152,14 @@ async function handle(req,res,path){
   if(await handleAgentBridge(req,res,path))return true;
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest());
   if(path.startsWith('/api/toll/v1/checkout/')&&req.method==='GET'){
-    const scope=path.split('/').pop();
+    const requested=path.split('/').pop();
+    const scope=PUBLIC_SCOPE_MAP[requested]||requested;
     if(!['gauntlet','truth'].includes(scope))return send(res,404,{error:'unknown_toll_scope'});
     try{const session=await createCheckout(scope);res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});res.end();return true;}catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
   if(path.startsWith('/api/toll/v1/redeem/')&&req.method==='GET'){
-    const scope=path.split('/').pop();
+    const requested=path.split('/').pop();
+    const scope=PUBLIC_SCOPE_MAP[requested]||requested;
     const u=new URL(req.url,'https://dreamledger.org');
     const sessionId=u.searchParams.get('session_id');
     if(!['gauntlet','truth'].includes(scope)||!sessionId)return send(res,400,{error:'scope_and_session_id_required'});
