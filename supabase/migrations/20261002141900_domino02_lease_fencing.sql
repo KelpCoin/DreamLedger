@@ -73,12 +73,12 @@ BEGIN
     RETURN;
   END IF;
 
-  UPDATE public.economic_actions
+  UPDATE public.economic_actions AS ea
      SET claimed_by = p_worker,
          lease_expires_at = clock_timestamp() + make_interval(secs => p_lease_seconds),
          fencing_token = r.fencing_token + 1
-   WHERE id = r.id
-  RETURNING id::text, claimed_by, fencing_token, lease_expires_at
+   WHERE ea.id = r.id
+  RETURNING ea.id::text, ea.claimed_by, ea.fencing_token, ea.lease_expires_at
        INTO task_id, worker, fencing_token, lease_expires_at;
 
   RETURN QUERY SELECT true,
@@ -131,14 +131,14 @@ BEGIN
     RETURN;
   END IF;
 
-  UPDATE public.economic_actions
+  UPDATE public.economic_actions AS ea
      SET result = p_result,
          lease_expires_at = NULL
-   WHERE id = r.id
-     AND fencing_token = p_fencing_token
-     AND claimed_by = p_worker
-     AND result IS NULL
-  RETURNING id::text, fencing_token, result
+   WHERE ea.id = r.id
+     AND ea.fencing_token = p_fencing_token
+     AND ea.claimed_by = p_worker
+     AND ea.result IS NULL
+  RETURNING ea.id::text, ea.fencing_token, ea.result
        INTO task_id, fencing_token, final_result;
 
   IF NOT FOUND THEN
