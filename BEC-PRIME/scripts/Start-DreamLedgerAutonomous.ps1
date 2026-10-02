@@ -9,22 +9,45 @@ This is a thin machine bootstrap, not a new queue/orchestrator.
 It starts the existing LM Studio headless service/server and then hands
 continuous work to the existing economic-local-worker.
 
-Required:
-  SUPABASE_URL
-  SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY
+Local credentials may be loaded from the Windows-user DPAPI store created by
+Set-DreamLedgerLocalCredentials.ps1. No secret is committed to the repository.
 
 Optional:
   LMSTUDIO_BASE_URL   default http://127.0.0.1:1234/v1
   LMSTUDIO_MODEL      preferred downloaded LM Studio model
   LM_API_TOKEN        only if LM Studio API authentication is enabled
-
-LM Studio JIT loading is intentionally used. Models load when inference
-arrives and can be auto-unloaded by LM Studio, reducing idle GPU/RAM use.
 #>
 
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = (Resolve-Path (Join-Path $ScriptRoot '..\..')).Path
 $Worker = Join-Path $RepoRoot 'BEC-PRIME\scripts\economic-local-worker.js'
+$CredentialPath = Join-Path $env:LOCALAPPDATA 'DreamLedger\local-secrets.json'
+
+function Convert-SecureStringToPlainText {
+    param([Parameter(Mandatory=$true)][Security.SecureString]$SecureString)
+    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
+    try {
+        return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
+    } finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+    }
+}
+
+function Import-DreamLedgerLocalCredentials {
+    if ($env:SUPABASE_URL -and ($env:SUPABASE_SERVICE_ROLE_KEY -or $env:SUPABASE_SECRET_KEY)) {
+        return
+    }
+    if (-not (Test-Path $CredentialPath)) {
+        throw 'LOCAL_CREDENTIALS_NOT_CONFIGURED: run BEC-PRIME\scripts\Set-DreamLedgerLocalCredentials.ps1 once'
+    }
+    $doc = Get-Content -LiteralPath $CredentialPath -Raw | ConvertFrom-Json
+    if (-not $doc.supabase_url -or -not $doc.supabase_service_role_key_dpapi) {
+        throw 'LOCAL_CREDENTIALS_INVALID'
+    }
+    $secure = ConvertTo-SecureString -String ([string]$doc.supabase_service_role_key_dpapi)
+    $env:SUPABASE_URL = [string]$doc.supabase_url
+    $env:SUPABASE_SERVICE_ROLE_KEY = Convert-SecureStringToPlainText $secure
+}
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
     throw 'NODE_NOT_FOUND'
@@ -32,6 +55,7 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
 if (-not (Get-Command lms -ErrorAction SilentlyContinue)) {
     throw 'LM_STUDIO_CLI_NOT_FOUND'
 }
+Import-DreamLedgerLocalCredentials
 if (-not $env:SUPABASE_URL) {
     throw 'MISSING_ENV:SUPABASE_URL'
 }
@@ -55,8 +79,7 @@ Write-Host 'Starting LM Studio headless daemon...'
 Write-Host 'Starting LM Studio local server...'
 & lms server start | Out-Host
 
-# Discover the actual server port. Do not assume 1234 because LM Studio
-# can restore a previously selected port.
+# Discover the actual server port. LM Studio may restore a previously selected port.
 $serverStatus = $null
 try {
     $serverStatus = (& lms server status --json --quiet 2>$null | ConvertFrom-Json)
@@ -69,9 +92,8 @@ if ($serverStatus -and $serverStatus.running -and $serverStatus.port) {
     Write-Host ('LM Studio using configured endpoint ' + $env:LMSTUDIO_BASE_URL)
 }
 
-# IMPORTANT: /v1/models can list downloaded models while JIT loading is enabled.
-# That does not prove a model is actually resident in memory. Explicitly load
-# one model, then verify with lms ps --json.
+# /v1/models can list downloaded models while JIT loading is enabled.
+# Explicitly load one model, then verify residency with lms ps --json.
 $downloadedRaw = & lms ls --llm --json 2>$null
 if (-not $downloadedRaw) {
     throw 'LM_STUDIO_NO_DOWNLOADED_LLM_MODELS'
@@ -88,9 +110,6 @@ if ($modelKey) {
         throw 'LMSTUDIO_MODEL_NOT_DOWNLOADED:' + $modelKey
     }
 } else {
-    # Prefer the known tool-capable Qwen 2.5 7B class, then a small Phi model,
-    # then fall back to the first downloaded LLM. The environment variable
-    # remains the authoritative override.
     $match = $downloaded | Where-Object { $_.modelKey -match 'qwen2\.5-7b-instruct' } | Select-Object -First 1
     if (-not $match) {
         $match = $downloaded | Where-Object { $_.modelKey -match 'phi-3-mini' } | Select-Object -First 1
