@@ -58,15 +58,40 @@ function authorize(req,tier){
 
 async function handle(req,res,path){
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest());
-  if(path.startsWith('/api/toll/v1/checkout/')&&req.method==='GET'){
+
+  // Checkout: GET redirects to Stripe; POST returns JSON {url, session_id} for API clients
+  if(path.startsWith('/api/toll/v1/checkout/')&&(req.method==='GET'||req.method==='POST')){
     const scope=path.split('/').pop();
     if(!['gauntlet','truth'].includes(scope))return send(res,404,{error:'unknown_toll_scope'});
-    try{const session=await createCheckout(scope);res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});res.end();return true;}catch(e){return send(res,e.statusCode||502,{error:e.message});}
+    try{
+      const session=await createCheckout(scope);
+      if(req.method==='GET'){
+        res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});
+        res.end();
+        return true;
+      }
+      return send(res,200,{
+        schema:'dreamledger/toll-checkout/v1',
+        scope,
+        session_id:session.id,
+        url:session.url,
+        amount_nzd:scope==='gauntlet'?Toll.config().gauntletPriceNzd:Toll.config().truthPriceNzd,
+        note:'Pay on Stripe. On success, redeem with session_id to receive the access key. No key without settled payment.'
+      });
+    }catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
-  if(path.startsWith('/api/toll/v1/redeem/')&&req.method==='GET'){
+
+  // Redeem: GET query session_id or POST body {session_id}
+  if(path.startsWith('/api/toll/v1/redeem/')&&(req.method==='GET'||req.method==='POST')){
     const scope=path.split('/').pop();
     const u=new URL(req.url,'https://dreamledger.org');
-    const sessionId=u.searchParams.get('session_id');
+    let sessionId=u.searchParams.get('session_id');
+    if(!sessionId&&req.method==='POST'){
+      try{
+        const body=await readJson(req);
+        sessionId=body&&body.session_id?String(body.session_id):null;
+      }catch(e){return send(res,e.statusCode||400,{error:e.message});}
+    }
     if(!['gauntlet','truth'].includes(scope)||!sessionId)return send(res,400,{error:'scope_and_session_id_required'});
     try{return send(res,200,{schema:'dreamledger/toll-redeem/v1',...(await redeem(scope,sessionId))});}catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
