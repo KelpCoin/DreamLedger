@@ -1,0 +1,48 @@
+{
+  "schema": "dreamledger/hands-off-economic-catalyst/proof/v2",
+  "observed_at": "2026-10-03T01:41:00+13:00",
+  "scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "substrate_traversal": [
+    "existing CandidateGauntlet",
+    "existing Stripe checkout",
+    "existing DreamLedger HTTP runtime",
+    "existing Truth/Evidence boundary",
+    "existing public storefront"
+  ],
+  "live": [
+    {
+      "surface": "/api/toll/v1/manifest",
+      "status": "ARMED",
+      "human_minutes_after_settlement": 0
+    },
+    {
+      "surface": "/toll-road",
+      "status": "LIVE"
+    },
+    {
+      "surface": "/api/toll/v1/checkout/gauntlet",
+      "status": "CHECKOUT_SESSION_CREATED_AND_REDIRECTED_TO_STRIPE"
+    },
+    {
+      "surface": "/api/toll/v1/checkout/truth",
+      "status": "CHECKOUT_ROUTE_REACHED"
+    }
+  ],
+  "guardrails": [
+    "payment settlement is required before key issuance",
+    "customer key does not delegate internal worker authority",
+    "checkout creation is not revenue",
+    "truth/evidence service cannot create verified economic truth",
+    "no owner audit or manual fulfilment is required by the toll services"
+  ],
+  "engineering_changes": [
+    "mounted tollRoad route in BEC-PRIME/start.js",
+    "expanded Stripe Checkout Session line_items during redemption so amount attribution is checked rather than silently skipped"
+  ],
+  "next_frontier": "External buyer completes one toll-road purchase; settlement then becomes the next machine-observable event."
+}
