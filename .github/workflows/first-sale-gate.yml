@@ -31,7 +31,7 @@ env:
   FIRST_SALE_OFFER_ID: ${{ inputs.OFFER_ID || 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001' }}
   CREATE_CHECKOUT: ${{ inputs.CREATE_CHECKOUT || 'false' }}
   BASE_URL: "https://dreamledger.org"
-  TARGET_SILO: "dreamledger"
+  TARGET_SILO: "media"
   EXPECTED_PRICE_NZD: "50"
 
 jobs:
