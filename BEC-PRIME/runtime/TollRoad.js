@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const KEY_SCHEMA = 'DREAMLEDGER-TOLL-KEY-1.0';
 const DEFAULT_TTL_DAYS = 365;
 const MAX_CALLS = 100000;
+const AGENT_BRIDGE_ROAD_ID = 'AGENT-BRIDGE-EVENTS-001';
 
 function config(){
   return {
@@ -12,7 +13,10 @@ function config(){
     gauntletPriceId:String(process.env.DREAMLEDGER_GAUNTLET_PRICE_ID||'NZD_19'),
     truthPriceId:String(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_ID||'NZD_9'),
     gauntletPriceNzd:Number(process.env.DREAMLEDGER_GAUNTLET_PRICE_NZD||19),
-    truthPriceNzd:Number(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_NZD||9)
+    truthPriceNzd:Number(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_NZD||9),
+    agentBridgePriceNzd:Number(process.env.DREAMLEDGER_AGENT_BRIDGE_PRICE_NZD||19),
+    agentBridgeCalls:Number(process.env.DREAMLEDGER_AGENT_BRIDGE_CALLS||100),
+    agentBridgeTtlDays:Number(process.env.DREAMLEDGER_AGENT_BRIDGE_TTL_DAYS||30)
   };
 }
 
@@ -33,7 +37,7 @@ function sign(body){
   return crypto.createHmac('sha256',config().secret).update(body).digest('base64url');
 }
 
-function issueKey({keyId,tier='gauntlet',expiresAt,callsRemaining=1,reference}={}){
+function issueKey({keyId,tier='gauntlet',roadId=null,expiresAt,callsRemaining=1,reference}={}){
   if(!configured())throw new Error('Toll key secret is not configured');
   const now=new Date();
   const exp=expiresAt||new Date(now.getTime()+DEFAULT_TTL_DAYS*86400000).toISOString();
@@ -41,6 +45,7 @@ function issueKey({keyId,tier='gauntlet',expiresAt,callsRemaining=1,reference}={
     schema:KEY_SCHEMA,
     key_id:String(keyId||crypto.randomUUID()),
     tier:String(tier),
+    road_id:roadId?String(roadId):null,
     issued_at:now.toISOString(),
     expires_at:exp,
     calls_remaining:Math.min(Math.max(Number(callsRemaining)||1,1),MAX_CALLS),
@@ -69,6 +74,23 @@ function verifyKey(token,requiredTier){
   return {ok:true,payload};
 }
 
+async function consumeKey(payload){
+  const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
+  const serviceKey=String(process.env.SUPABASE_SERVICE_ROLE_KEY||'');
+  if(!base||!serviceKey)return {ok:false,error:'toll_quota_store_not_configured'};
+  const response=await fetch(base+'/rest/v1/rpc/consume_toll_entitlement',{
+    method:'POST',
+    headers:{apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':'application/json'},
+    body:JSON.stringify({p_key_id:String(payload.key_id),p_road_id:String(payload.road_id||''),p_calls:1})
+  });
+  const text=await response.text(); let data;
+  try{data=JSON.parse(text||'null')}catch{data=null}
+  if(!response.ok)return {ok:false,error:'toll_quota_consume_failed'};
+  const row=Array.isArray(data)?data[0]:data;
+  if(!row||row.consumed!==true)return {ok:false,error:'toll_key_exhausted'};
+  return {ok:true,calls_remaining:Number(row.calls_remaining||0)};
+}
+
 function headerKey(req){
   return String(req.headers['x-dreamledger-toll-key']||'').trim();
 }
@@ -89,4 +111,4 @@ function publicManifest(){
   };
 }
 
-module.exports={config,configured,issueKey,verifyKey,headerKey,publicManifest,KEY_SCHEMA};
+module.exports={config,configured,issueKey,verifyKey,consumeKey,headerKey,publicManifest,KEY_SCHEMA,AGENT_BRIDGE_ROAD_ID};

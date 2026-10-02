@@ -56,7 +56,95 @@ function authorize(req,tier){
   return checked.payload;
 }
 
+
+async function supabaseRpc(name, body){
+  const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
+  const key=String(process.env.SUPABASE_SERVICE_ROLE_KEY||'');
+  if(!base||!key)throw Object.assign(new Error('Toll entitlement store is not configured'),{statusCode:503});
+  const r=await fetch(base+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const text=await r.text();let data;try{data=JSON.parse(text||'null')}catch{data=null}
+  if(!r.ok)throw Object.assign(new Error('Toll entitlement store request failed'),{statusCode:502});
+  return data;
+}
+function roadCatalog(){
+  const c=Toll.config();
+  return [{
+    road_id:Toll.AGENT_BRIDGE_ROAD_ID,
+    slug:'agent-bridge-events',
+    title:'Agent Bridge Events',
+    description:'POST structured events and receive a deterministic receipt. 100 calls for NZ$19, valid for 30 days.',
+    price_nzd:c.agentBridgePriceNzd,
+    calls_per_pack:c.agentBridgeCalls,
+    ttl_days:c.agentBridgeTtlDays,
+    route:'/api/agent-bridge/events',
+    checkout:'/api/toll/v1/checkout/road/agent-bridge-events',
+    status:'published'
+  }];
+}
+async function createRoadCheckout(slug){
+  if(slug!=='agent-bridge-events')throw Object.assign(new Error('unknown_road'),{statusCode:404});
+  const c=Toll.config();
+  if(!STRIPE_SECRET_KEY||!(c.agentBridgePriceNzd>0))throw Object.assign(new Error('Road checkout is not configured'),{statusCode:503});
+  const sessionId='road_'+crypto.randomUUID();
+  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-road-'+sessionId},body:stripeForm({
+    mode:'payment',client_reference_id:sessionId,
+    'line_items[0][price_data][currency]':'nzd',
+    'line_items[0][price_data][unit_amount]':Math.round(c.agentBridgePriceNzd*100),
+    'line_items[0][price_data][product_data][name]':'DreamLedger Agent Bridge - 100 event calls',
+    'line_items[0][quantity]':'1',
+    'metadata[road_id]':Toll.AGENT_BRIDGE_ROAD_ID,
+    'metadata[road_slug]':'agent-bridge-events',
+    'metadata[calls_per_pack]':String(c.agentBridgeCalls),
+    'metadata[ttl_days]':String(c.agentBridgeTtlDays),
+    success_url:PUBLIC_BASE+'/toll-road?checkout=road-success&road=agent-bridge-events&session_id={CHECKOUT_SESSION_ID}',
+    cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&road=agent-bridge-events'
+  })});
+  const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
+  if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
+  return data;
+}
+async function redeemRoad(slug,sessionId){
+  if(slug!=='agent-bridge-events')throw Object.assign(new Error('unknown_road'),{statusCode:404});
+  if(!STRIPE_SECRET_KEY)throw Object.assign(new Error('Stripe secret key is not configured'),{statusCode:503});
+  const response=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(sessionId)+'?expand[]=line_items',{headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
+  const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
+  if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe session lookup failed'),{statusCode:502});
+  const c=Toll.config(), expected=Math.round(c.agentBridgePriceNzd*100), line=data.line_items?.data?.[0];
+  if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.road_id!==Toll.AGENT_BRIDGE_ROAD_ID)throw Object.assign(new Error('Settled payment required before key issuance'),{statusCode:402});
+  if(!line||Number(line.amount_total||line.price?.unit_amount||0)!==expected)throw Object.assign(new Error('Checkout amount attribution mismatch'),{statusCode:409});
+  const keyId='ROAD_'+String(sessionId).slice(-24);
+  const key=Toll.issueKey({keyId,tier:'agent_bridge',roadId:Toll.AGENT_BRIDGE_ROAD_ID,callsRemaining:c.agentBridgeCalls,expiresAt:new Date(Date.now()+c.agentBridgeTtlDays*86400000).toISOString(),reference:sessionId});
+  const result=await supabaseRpc('upsert_toll_entitlement',{p_entitlement_id:'ENT_'+keyId,p_road_id:Toll.AGENT_BRIDGE_ROAD_ID,p_buyer_reference_hash:crypto.createHash('sha256').update(String(data.customer_details?.email||data.customer_email||sessionId)).digest('hex'),p_stripe_payment_id:String(data.payment_intent||sessionId),p_key_id:keyId,p_calls_remaining:c.agentBridgeCalls,p_expires_at:new Date(Date.now()+c.agentBridgeTtlDays*86400000).toISOString(),p_reference:sessionId});
+  return {status:'ENTITLED',key,road_id:Toll.AGENT_BRIDGE_ROAD_ID,calls_remaining:Number(result?.calls_remaining||c.agentBridgeCalls),expires_at:result?.expires_at||null};
+}
+async function handleAgentBridge(req,res,path){
+  if(path==='/api/toll/v1/catalog'&&req.method==='GET')return send(res,200,{schema:'dreamledger/toll-catalog/v1',roads:roadCatalog()});
+  if(path==='/api/toll/v1/checkout/road/agent-bridge-events'&&req.method==='GET'){
+    try{const session=await createRoadCheckout('agent-bridge-events');res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});res.end();return true}catch(e){return send(res,e.statusCode||502,{error:e.message});}
+  }
+  if(path==='/api/toll/v1/redeem/road/agent-bridge-events'&&req.method==='GET'){
+    const u=new URL(req.url,'https://dreamledger.org'),sid=u.searchParams.get('session_id');
+    if(!sid)return send(res,400,{error:'session_id_required'});
+    try{return send(res,200,{schema:'dreamledger/toll-road-redeem/v1',...(await redeemRoad('agent-bridge-events',sid))});}catch(e){return send(res,e.statusCode||502,{error:e.message});}
+  }
+  if(path==='/api/agent-bridge/events'&&req.method==='POST'){
+    const checked=Toll.verifyKey(Toll.headerKey(req),'agent_bridge');
+    if(!checked.ok)return send(res,402,{error:checked.error,buy:'/toll-road'});
+    if(checked.payload.road_id!==Toll.AGENT_BRIDGE_ROAD_ID)return send(res,403,{error:'road_scope_denied'});
+    const consumed=await Toll.consumeKey(checked.payload);
+    if(!consumed.ok)return send(res,402,{error:consumed.error,buy:'/toll-road'});
+    const body=await readJson(req);
+    const eventId='evt_'+crypto.randomUUID();
+    const inputHash=crypto.createHash('sha256').update(JSON.stringify(body)).digest('hex');
+    const output={schema:'dreamledger/agent-bridge-event-receipt/v1',event_id:eventId,road_id:Toll.AGENT_BRIDGE_ROAD_ID,key_id:checked.payload.key_id,accepted:true,input_hash:inputHash,received_at:new Date().toISOString(),calls_remaining:consumed.calls_remaining,fulfillment:'automated_receipt'};
+    try{await supabaseRpc('record_toll_call',{p_road_id:Toll.AGENT_BRIDGE_ROAD_ID,p_key_id:checked.payload.key_id,p_event_id:eventId,p_input_hash:inputHash,p_output:output});}catch(e){return send(res,502,{error:e.message});}
+    return send(res,200,output);
+  }
+  return false;
+}
+
 async function handle(req,res,path){
+  if(await handleAgentBridge(req,res,path))return true;
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest());
   if(path.startsWith('/api/toll/v1/checkout/')&&req.method==='GET'){
     const scope=path.split('/').pop();
