@@ -76,15 +76,15 @@ function headerKey(req){
 function publicManifest(){
   const c=config();
   return {
-    schema:'dreamledger/toll-road/v1',
+    schema:'dreamledger/automated-services/v2',
     status:configured()?'ARMED':'NOT_CONFIGURED',
-    model:'customer pays -> settled payment -> entitlement -> signed key -> API wall -> automated fulfillment',
-    human_gate:'none for automated digital services after payment',
-    internal_authority:'never delegated to customer keys',
-    truth_boundary:'payment and economic truth remain external-evidence governed',
+    model:'customer pays -> settlement -> entitlement -> scoped credential -> automated result',
+    human_gate:'none after payment for automated digital services',
+    customer_boundary:'payment does not grant private-system access',
+    truth_boundary:'payment and fulfilment status are checked from settlement evidence',
     services:[
-      {id:'GAUNTLET-RUN',route:'/api/toll/v1/gauntlet',scope:'gauntlet',checkout_configured:Boolean(c.gauntletPriceNzd>0),human_minutes:0},
-      {id:'TRUTH-ORACLE-ACCESS',route:'/api/toll/v1/truth',scope:'truth',checkout_configured:Boolean(c.truthPriceNzd>0),human_minutes:0}
+      {id:'DECISION-CHECK',name:'Decision Check',route:'/api/toll/v1/gauntlet',scope:'gauntlet',checkout_configured:Boolean(c.gauntletPriceNzd>0),human_minutes:0},
+      {id:'EVIDENCE-CHECK',name:'Evidence Check',route:'/api/toll/v1/truth',scope:'truth',checkout_configured:Boolean(c.truthPriceNzd>0),human_minutes:0}
     ]
   };
 }
