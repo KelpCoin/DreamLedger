@@ -9,8 +9,10 @@ const MAX_CALLS = 100000;
 function config(){
   return {
     secret:String(process.env.DREAMLEDGER_TOLL_KEY_SECRET||''),
-    gauntletPriceId:String(process.env.DREAMLEDGER_GAUNTLET_PRICE_ID||''),
-    truthPriceId:String(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_ID||'')
+    gauntletPriceId:String(process.env.DREAMLEDGER_GAUNTLET_PRICE_ID||'NZD_19'),
+    truthPriceId:String(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_ID||'NZD_9'),
+    gauntletPriceNzd:Number(process.env.DREAMLEDGER_GAUNTLET_PRICE_NZD||19),
+    truthPriceNzd:Number(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_NZD||9)
   };
 }
 
@@ -81,8 +83,8 @@ function publicManifest(){
     internal_authority:'never delegated to customer keys',
     truth_boundary:'payment and economic truth remain external-evidence governed',
     services:[
-      {id:'GAUNTLET-RUN',route:'/api/toll/v1/gauntlet',scope:'gauntlet',checkout_configured:Boolean(c.gauntletPriceId),human_minutes:0},
-      {id:'TRUTH-ORACLE-ACCESS',route:'/api/toll/v1/truth',scope:'truth',checkout_configured:Boolean(c.truthPriceId),human_minutes:0}
+      {id:'GAUNTLET-RUN',route:'/api/toll/v1/gauntlet',scope:'gauntlet',checkout_configured:Boolean(c.gauntletPriceNzd>0),human_minutes:0},
+      {id:'TRUTH-ORACLE-ACCESS',route:'/api/toll/v1/truth',scope:'truth',checkout_configured:Boolean(c.truthPriceNzd>0),human_minutes:0}
     ]
   };
 }
