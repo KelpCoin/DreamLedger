@@ -1,0 +1,14 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-02-revenue-now",
+  "from": "grok-cloud",
+  "summary": "Revenue operator pack + public/money.html funnel. Live Stripe buy paths verified. Priority: outbound $29 diagnostic/audit. Claimed revenue NZD 0.",
+  "reads": ["AGENT_BUS/REVENUE-NOW-2026-10-02.md", "public/money.html"],
+  "primary_links": [
+    "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+    "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+    "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT"
+  ],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-10-02T12:33:00+13:00"
+}

@@ -1,10 +1,9 @@
-# NEXT AGENT — read this first
+# NEXT AGENT
 
-1. **Canonical handoff:** `AGENT_BUS/HANDOFF-2026-10-02-GROK-CANONICAL.md`
-2. **Enterprise gap / DOOH / QR / thesis:** `AGENT_BUS/ENTERPRISE-GAP-AND-SURFACE-THESIS.md`
-3. **Clone kit:** `public/silo-clone-manifest.json` + `public/silo-template.html` + `/assets/silo-master.css`
-4. **Live now:** `/` `/mtg` `/b2b` `/healthz` — **not yet live:** `/retro` `/vinyl` `/boardgames` until deploy
-5. **Money path:** `/buy/COMMANDER-DECK-DIAGNOSTIC-001` (Stripe) — do not invent revenue
-6. **Tone:** constructive toward NZ FB groups; fortress before bridges burn
+1. `AGENT_BUS/REVENUE-NOW-2026-10-02.md` — **do outbound $29 links**
+2. `AGENT_BUS/HANDOFF-2026-10-02-GROK-CANONICAL.md` — full gap + DOOH + QR
+3. Deploy `public/money.html` → `/money`
+4. Live money: `/buy/COMMANDER-DECK-DIAGNOSTIC-001` (Stripe verified)
+5. Do not invent revenue. Seed real MTG listings when operator can.
 
-**Grok waz ere · 2026-10-02**
+**Grok · 2026-10-02 · economic output = Stripe + fulfill**
