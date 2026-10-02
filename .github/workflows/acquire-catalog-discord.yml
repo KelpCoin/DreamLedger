@@ -66,6 +66,52 @@ jobs:
             printf 'OFFER=%s\nTARGET=%s\n' "$INPUT_OFFER" "$INPUT_TARGET"
           fi
 
+      - name: Elohim-Gauntlet authorization gate
+        env:
+          APPROVAL_FILE: .github/acquisition/approved-dispatch.json
+        run: |
+          set -euo pipefail
+          test -f "$APPROVAL_FILE"
+          python3 - <<'PY'
+          import json
+          with open(".github/acquisition/approved-dispatch.json", encoding="utf-8") as f:
+              dispatch = json.load(f)
+          if dispatch.get("approval") != "APPROVED":
+              raise SystemExit("EXTERNAL_AUTHORIZATION_MISSING")
+          if dispatch.get("offer") != "CMD-DIAG-29":
+              raise SystemExit("FIRST_DOLLAR_OFFER_MISMATCH")
+          print("ELOHIM_AUTHORIZATION=APPROVED_OPERATOR_ARTIFACT")
+          PY
+
+          node - <<'NODE'
+          const fs = require('fs');
+          const { run } = require('./BEC-PRIME/gauntlet/GauntletV6');
+          const proof = run({ writeProof: true });
+          if (proof.status !== 'PASS') {
+            console.error(JSON.stringify(proof, null, 2));
+            process.exit(1);
+          }
+          if (!proof.approved_offer_ids.includes('CMD-DIAG-29')) {
+            throw new Error('GAUNTLET_APPROVED_OFFER_MISSING');
+          }
+          const scorecard = JSON.parse(fs.readFileSync('BEC-PRIME/economic/ELOHIM_GAUNTLET_SCORECARD.json', 'utf8'));
+          if (scorecard.elohim?.may?.includes('refine') !== true || scorecard.gauntlet?.judges_all_elohim_output !== true) {
+            throw new Error('ELOHIM_GAUNTLET_CONTRACT_INVALID');
+          }
+          const authorization = {
+            schema: 'DREAMLEDGER/EXTERNAL-ACTION-AUTHORIZATION/v1',
+            offer: 'CMD-DIAG-29',
+            gauntlet_status: proof.status,
+            gauntlet_source_hash: proof.source_hash,
+            operator_approval: true,
+            external_revenue_status: 'UNVERIFIED',
+            authorization_scope: 'ONE_DISCORD_PUBLICATION',
+            created_at: new Date().toISOString()
+          };
+          fs.writeFileSync('/tmp/dreamledger-external-authorization.json', JSON.stringify(authorization, null, 2));
+          console.log(JSON.stringify(authorization));
+          NODE
+
       - name: Publish selected approved offer and verify
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
