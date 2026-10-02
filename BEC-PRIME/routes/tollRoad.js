@@ -166,12 +166,12 @@ async function handle(req,res,path){
     try{return send(res,200,{schema:'dreamledger/toll-redeem/v1',...(await redeem(scope,sessionId))});}catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
 
-  if(path==='/api/toll/v1/gauntlet'&&req.method==='POST'){
+  if((path==='/api/toll/v1/gauntlet'||path==='/api/toll/v1/decision-check')&&req.method==='POST'){
     const key=authorize(req,'gauntlet');
     const candidate=await readJson(req);
     const proof=runGauntlet(candidate);
     return send(res,proof.status==='PASS'?200:422,{
-      schema:'dreamledger/toll-gauntlet-result/v1',
+      schema:'dreamledger/toll-decision-result/v1',
       key_id:key.key_id,
       service:'DECISION-CHECK',
       human_minutes:0,
@@ -180,14 +180,14 @@ async function handle(req,res,path){
     });
   }
 
-  if(path==='/api/toll/v1/truth'&&req.method==='POST'){
+  if((path==='/api/toll/v1/truth'||path==='/api/toll/v1/evidence-check')&&req.method==='POST'){
     const key=authorize(req,'truth');
     const body=await readJson(req);
     const evidence=Array.isArray(body.evidence)?body.evidence:[];
     const contradictions=Array.isArray(body.contradictions)?body.contradictions:[];
     const unresolved=Array.isArray(body.unresolved)?body.unresolved:[];
     const result={
-      schema:'dreamledger/toll-truth-input/v1',
+      schema:'dreamledger/toll-evidence-input/v1',
       key_id:key.key_id,
       service:'EVIDENCE-CHECK',
       verdict:contradictions.length?'CONTRADICTED':(evidence.length?'OBSERVED':'UNVERIFIED'),
