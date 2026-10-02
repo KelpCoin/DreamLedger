@@ -98,6 +98,7 @@ function envConfig() {
     supabaseUrl: base.replace(/\/+$/, ""),
     supabaseKey: key,
     lmBase: (process.env.LMSTUDIO_BASE_URL || "http://127.0.0.1:1234/v1").replace(/\/+$/, ""),
+    lmApiToken: process.env.LM_API_TOKEN || "",
     preferredModel: process.env.LMSTUDIO_MODEL || ""
   };
 }
