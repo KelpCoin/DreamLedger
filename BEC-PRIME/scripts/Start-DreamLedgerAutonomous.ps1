@@ -55,23 +55,92 @@ Write-Host 'Starting LM Studio headless daemon...'
 Write-Host 'Starting LM Studio local server...'
 & lms server start | Out-Host
 
-$deadline = (Get-Date).AddSeconds(15)
-$modelsUrl = $env:LMSTUDIO_BASE_URL.TrimEnd('/') + '/models'
-do {
-    try {
-        $headers = @{}
-        if ($env:LM_API_TOKEN) { $headers.Authorization = 'Bearer ' + $env:LM_API_TOKEN }
-        $models = Invoke-RestMethod -Uri $modelsUrl -Headers $headers -TimeoutSec 3
-        if (@($models.data).Count -gt 0) { break }
-    } catch {}
-    Start-Sleep -Milliseconds 750
-} while ((Get-Date) -lt $deadline)
+# Discover the actual server port. Do not assume 1234 because LM Studio
+# can restore a previously selected port.
+$serverStatus = $null
+try {
+    $serverStatus = (& lms server status --json --quiet 2>$null | ConvertFrom-Json)
+} catch {}
 
-if ((Get-Date) -ge $deadline) {
-    throw 'LM_STUDIO_UNAVAILABLE_OR_NO_DOWNLOADED_MODELS'
+if ($serverStatus -and $serverStatus.running -and $serverStatus.port) {
+    $env:LMSTUDIO_BASE_URL = 'http://127.0.0.1:' + [int]$serverStatus.port + '/v1'
+    Write-Host ('LM Studio discovered at ' + $env:LMSTUDIO_BASE_URL)
+} else {
+    Write-Host ('LM Studio using configured endpoint ' + $env:LMSTUDIO_BASE_URL)
 }
 
-Write-Host ('LM Studio models visible: ' + @($models.data).Count)
+# IMPORTANT: /v1/models can list downloaded models while JIT loading is enabled.
+# That does not prove a model is actually resident in memory. Explicitly load
+# one model, then verify with lms ps --json.
+$downloadedRaw = & lms ls --llm --json 2>$null
+if (-not $downloadedRaw) {
+    throw 'LM_STUDIO_NO_DOWNLOADED_LLM_MODELS'
+}
+$downloaded = @($downloadedRaw | ConvertFrom-Json)
+if ($downloaded.Count -eq 0) {
+    throw 'LM_STUDIO_NO_DOWNLOADED_LLM_MODELS'
+}
+
+$modelKey = $env:LMSTUDIO_MODEL
+if ($modelKey) {
+    $match = $downloaded | Where-Object { $_.modelKey -eq $modelKey } | Select-Object -First 1
+    if (-not $match) {
+        throw 'LMSTUDIO_MODEL_NOT_DOWNLOADED:' + $modelKey
+    }
+} else {
+    # Prefer the known tool-capable Qwen 2.5 7B class, then a small Phi model,
+    # then fall back to the first downloaded LLM. The environment variable
+    # remains the authoritative override.
+    $match = $downloaded | Where-Object { $_.modelKey -match 'qwen2\.5-7b-instruct' } | Select-Object -First 1
+    if (-not $match) {
+        $match = $downloaded | Where-Object { $_.modelKey -match 'phi-3-mini' } | Select-Object -First 1
+    }
+    if (-not $match) {
+        $match = $downloaded | Select-Object -First 1
+    }
+    $modelKey = [string]$match.modelKey
+}
+
+Write-Host ('Selected LM Studio model: ' + $modelKey)
+
+$loadedRaw = & lms ps --json 2>$null
+$loaded = @()
+if ($loadedRaw) {
+    try { $loaded = @($loadedRaw | ConvertFrom-Json) } catch {}
+}
+$isLoaded = $loaded | Where-Object {
+    ([string]$_.modelKey -eq $modelKey) -or
+    ([string]$_.path -like ('*' + $modelKey + '*')) -or
+    ([string]$_.identifier -eq $modelKey)
+} | Select-Object -First 1
+
+if (-not $isLoaded) {
+    Write-Host 'Loading selected model into memory...'
+    & lms load $modelKey --gpu auto --context-length 8192 --yes | Out-Host
+}
+
+$verifyDeadline = (Get-Date).AddMinutes(2)
+do {
+    $loadedRaw = & lms ps --json 2>$null
+    if ($loadedRaw) {
+        try {
+            $loaded = @($loadedRaw | ConvertFrom-Json)
+            $isLoaded = $loaded | Where-Object {
+                ([string]$_.modelKey -eq $modelKey) -or
+                ([string]$_.path -like ('*' + $modelKey + '*')) -or
+                ([string]$_.identifier -eq $modelKey)
+            } | Select-Object -First 1
+            if ($isLoaded) { break }
+        } catch {}
+    }
+    Start-Sleep -Seconds 2
+} while ((Get-Date) -lt $verifyDeadline)
+
+if (-not $isLoaded) {
+    throw 'LM_STUDIO_MODEL_LOAD_NOT_CONFIRMED'
+}
+
+Write-Host ('LM Studio model loaded and verified: ' + $modelKey)
 Write-Host 'Starting existing DreamLedger economic local worker in continuous mode.'
 Write-Host 'No new queue, ledger, scheduler, or external-action authority is created by this launcher.'
 
