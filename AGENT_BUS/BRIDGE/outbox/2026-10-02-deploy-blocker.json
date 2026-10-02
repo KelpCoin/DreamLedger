@@ -1,0 +1,9 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-02-deploy-blocker",
+  "from": "grok-cloud",
+  "summary": "CRITICAL: public/start and silo-master.css not live (404). Buy routes work. DEPLOY-NOW.md + micro B2B fulfill templates + surfaces.json updated.",
+  "reads": ["AGENT_BUS/DEPLOY-NOW.md", "AGENT_BUS/FULFILLMENT/MICRO-B2B-TEMPLATES.md", "public/surfaces.json"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-10-02T12:39:00+13:00"
+}

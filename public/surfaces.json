@@ -1,7 +1,7 @@
 {
   "schema": "dreamledger/surfaces/v1",
   "status": "active",
-  "updated": "2026-10-01",
+  "updated": "2026-10-02",
   "purpose": "canonical commercial surface registry — human + agent",
   "rules": {
     "every_surface_has_surface_id": true,
@@ -17,25 +17,34 @@
     "DIGITAL_PRODUCT": "automated digital fulfillment",
     "TRUST_PROOF": "portable transaction and delivery evidence",
     "B2B_MARKETPLACE": "RIVET business trade rails",
-    "AUCTION_LANE": "timed lots with bid proofs"
+    "AUCTION_LANE": "timed lots with bid proofs",
+    "SILO": "vertical catalogue lane (cube clone)"
   },
   "active_surfaces": [
     {"surface_id": "DL-WEB-HOME-001", "class": "WEB_OFFER", "path": "/", "status": "active", "role": "front_door"},
+    {"surface_id": "DL-WEB-START-001", "class": "WEB_OFFER", "path": "/start", "status": "pending_deploy", "role": "conversion_funnel"},
+    {"surface_id": "DL-WEB-MONEY-001", "class": "WEB_OFFER", "path": "/money", "status": "pending_deploy"},
     {"surface_id": "DL-WEB-B2B-RIVET-001", "class": "B2B_MARKETPLACE", "path": "/b2b", "status": "active", "role": "rivet_hub"},
     {"surface_id": "DL-WEB-MARKETPLACE-001", "class": "B2B_MARKETPLACE", "path": "/marketplace", "status": "active"},
     {"surface_id": "DL-WEB-BILLBOARD-001", "class": "WEB_OFFER", "path": "/billboard", "status": "active"},
     {"surface_id": "DL-WEB-CMD-DIAG-001", "class": "WEB_OFFER", "path": "/mtg", "status": "active", "role": "ignition"},
+    {"surface_id": "DL-SILO-MTG-001", "class": "SILO", "path": "/mtg", "status": "active", "role": "master_silo"},
+    {"surface_id": "DL-SILO-RETRO-001", "class": "SILO", "path": "/retro", "status": "pending_deploy"},
+    {"surface_id": "DL-SILO-VINYL-001", "class": "SILO", "path": "/vinyl", "status": "pending_deploy"},
+    {"surface_id": "DL-SILO-BOARD-001", "class": "SILO", "path": "/boardgames", "status": "pending_deploy"},
+    {"surface_id": "DL-FULFILL-CMD-001", "class": "DIGITAL_PRODUCT", "path": "/diagnostic-input.html", "status": "active"},
+    {"surface_id": "DL-FULFILL-AUDIT-001", "class": "DIGITAL_PRODUCT", "path": "/seller-audit-input.html", "status": "pending_deploy"},
     {"surface_id": "DL-AGENT-001", "class": "AGENT_ENDPOINT", "path": "/agent.json", "status": "active"},
     {"surface_id": "DL-AGENT-COMMERCE-001", "class": "AGENT_ENDPOINT", "path": "/agent-commerce.json", "status": "active"},
     {"surface_id": "DL-WELLKNOWN-001", "class": "AGENT_ENDPOINT", "path": "/.well-known/dreamledger.json", "status": "active"},
     {"surface_id": "DL-TRUST-001", "class": "TRUST_PROOF", "path": "/trust.html", "status": "pending_deploy"},
     {"surface_id": "DL-AUCTIONS-001", "class": "AUCTION_LANE", "path": "/auctions.html", "status": "pending_deploy"}
   ],
-  "human_nav_priority": ["/", "/b2b", "/marketplace", "/mtg", "/billboard", "/buy/COMMANDER-DECK-DIAGNOSTIC-001"],
+  "human_nav_priority": ["/", "/start", "/mtg", "/b2b", "/buy/COMMANDER-DECK-DIAGNOSTIC-001", "/buy/SELLER-PROFIT-AUDIT-001"],
   "agent_nav_priority": ["/.well-known/dreamledger.json", "/agent-commerce.json", "/api/offers", "/api/products", "/buy/{product_id}"],
   "trade_me_positioning": {
     "success_fee_bps": 0,
-    "earn_on": ["listing_tools", "diagnostics", "partner_kits", "plans", "slots"],
+    "earn_on": ["listing_tools", "diagnostics", "partner_kits", "plans", "slots", "b2b_micro"],
     "not_claiming": "full_parity_with_trade_me_volume"
   }
 }
