@@ -59,7 +59,7 @@ async function handle(req,res,path){
   if(path.startsWith('/api/toll/v1/checkout/')&&req.method==='GET'){
     const scope=path.split('/').pop();
     if(!['gauntlet','truth'].includes(scope))return send(res,404,{error:'unknown_toll_scope'});
-    try{const session=await createCheckout(scope);res.writeHead(303,{Location:session.url,Cache-Control:'no-store'});res.end();return true;}catch(e){return send(res,e.statusCode||502,{error:e.message});}
+    try{const session=await createCheckout(scope);res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});res.end();return true;}catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
   if(path.startsWith('/api/toll/v1/redeem/')&&req.method==='GET'){
     const scope=path.split('/').pop();
