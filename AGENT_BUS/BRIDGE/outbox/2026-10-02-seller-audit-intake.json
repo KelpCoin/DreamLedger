@@ -1,0 +1,9 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-02-seller-audit-intake",
+  "from": "grok-cloud",
+  "summary": "Seller audit intake page + Stripe success URL map + outbound CSV. Both $29 products have fulfill UI paths. Claimed NZD 0.",
+  "reads": ["public/seller-audit-input.html", "AGENT_BUS/STRIPE-SUCCESS-URLS.md", "AGENT_BUS/REVENUE-DAILY-CHECKLIST.md"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-10-02T12:36:00+13:00"
+}
