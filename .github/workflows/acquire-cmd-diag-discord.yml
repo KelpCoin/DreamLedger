@@ -46,7 +46,7 @@ jobs:
           python - <<'PY'
           import json, os, urllib.parse, urllib.request
 
-          stripe_link = "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R"
+          stripe_link = "https://buy.stripe.com/eVqeZdc1T01n1DV3gwdwc30"
           payload = {
               "content": (
                   "Commander Deck Diagnostic - NZ$29\n\n"
