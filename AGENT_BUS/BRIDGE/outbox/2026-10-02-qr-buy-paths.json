@@ -1,0 +1,9 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-02-qr-buy-paths",
+  "from": "grok-cloud",
+  "summary": "QR primary destination retargeted to live Commander diagnostic Stripe buy URL. Short q/diagnostic and q/audit pages in compiled website. /start still 404 until production deploy.",
+  "primary_qr": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-10-02T12:42:00+13:00"
+}
