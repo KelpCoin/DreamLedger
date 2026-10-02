@@ -5,12 +5,12 @@ import { createMarketplaceSellerTransfers } from "./shared/marketplace-transfers
 const FUNCTION_NAME="stripe-revenue-41104f355d6878cdd6d1f9dc";
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
-const STRIPE_WEBHOOK_SIGNING_SECRET=Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||"";
+const STRIPE_WEBHOOK_SIGNING_SECRET=Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||Deno.env.get("STRIPE_WEBHOOK_SECRET")||"";
 const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET_KEY")||"";
 const supabase=SUPABASE_URL&&SERVICE_ROLE_KEY?createClient(SUPABASE_URL,SERVICE_ROLE_KEY):null;
 const stripe=STRIPE_API_KEY?new Stripe(STRIPE_API_KEY):null;
 Deno.serve(async(req)=>{
- if(req.method==="GET")return Response.json({service:FUNCTION_NAME,status:"healthy",configured:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY&&STRIPE_API_KEY&&STRIPE_WEBHOOK_SIGNING_SECRET)});
+ if(req.method==="GET")return Response.json({service:FUNCTION_NAME,status:"healthy",configured:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY&&STRIPE_API_KEY&&STRIPE_WEBHOOK_SIGNING_SECRET),configuration:{supabase_url:Boolean(SUPABASE_URL),service_role_key:Boolean(SERVICE_ROLE_KEY),stripe_api_key:Boolean(STRIPE_API_KEY),stripe_webhook_secret:Boolean(STRIPE_WEBHOOK_SIGNING_SECRET)}});
  if(req.method!=="POST")return new Response("POST only",{status:405});
  if(!SUPABASE_URL||!SERVICE_ROLE_KEY||!STRIPE_WEBHOOK_SIGNING_SECRET||!supabase)return new Response("webhook authentication unavailable",{status:503});
  const cryptoProvider=Stripe.createSubtleCryptoProvider();
@@ -35,9 +35,28 @@ Deno.serve(async(req)=>{
      return Response.json({received:true,recorded:true,event_id:eventId,transfer_id:transferId,status:transferStatus});
    }
  }
- if(eventType!=="checkout.session.completed"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);return Response.json({received:true,ignored:true,event_id:eventId});}
- const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null; const customFields=Array.isArray(session.custom_fields)?session.custom_fields:[]; const charityField=customFields.find((field:any)=>String(field?.key||"")==="charity"); const charityIdentifier=String(charityField?.text?.value||"").trim();
- if(!checkoutSessionId||session.payment_status!=="paid")return new Response("checkout session is not paid",{status:400}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
+ let session:any=null;
+ if(eventType==="payment_intent.succeeded"){
+   if(!stripe)return new Response("stripe api key required for payment_intent reconciliation",{status:503});
+   const paymentIntent:any=event.data?.object||{};
+   const sessions=await stripe.checkout.sessions.list({payment_intent:String(paymentIntent.id||"")},{limit:10});
+   session=sessions.data?.find((candidate:any)=>candidate.payment_status==="paid")||sessions.data?.[0]||null;
+   if(!session){
+     await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+     return Response.json({received:true,ignored:true,event_id:eventId,reason:"no_checkout_session_for_settled_payment"});
+   }
+ } else if(eventType==="checkout.session.async_payment_succeeded" || eventType==="checkout.session.completed"){
+   session=event.data?.object||{};
+ } else {
+   await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+   return Response.json({received:true,ignored:true,event_id:eventId});
+ } const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null; const customFields=Array.isArray(session.custom_fields)?session.custom_fields:[]; const charityField=customFields.find((field:any)=>String(field?.key||"")==="charity"); const charityIdentifier=String(charityField?.text?.value||"").trim();
+ if(!checkoutSessionId)return new Response("missing checkout session",{status:400});
+ if(eventType==="checkout.session.completed" && session.payment_status!=="paid"){
+   await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+   return Response.json({received:true,ignored:true,event_id:eventId,reason:"checkout_not_settled"});
+ }
+ if((eventType==="payment_intent.succeeded" || eventType==="checkout.session.async_payment_succeeded") && session.payment_status!=="paid")return new Response("settlement event is not paid",{status:409}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
  const marketplaceListingId=String(metadata.marketplace_listing_id||"");
  let marketplaceSettlement:any=null;
  let marketplaceListing:any=null;
@@ -114,7 +133,7 @@ Deno.serve(async(req)=>{
    }).eq("id",fulfillment.id);
    if(frUpdateError)return new Response("ACNC fulfillment request update failed",{status:500});
  }
- const economicEvent={event_id:eventId,opportunity_id:economicOpportunityId,event_pattern_id:"STRIPE_CHECKOUT_SESSION_COMPLETED",silo_id:skuRow.silo_id,sku_id:sku,offer_id:metadata.offer_id?String(metadata.offer_id):null,buyer_action_verified:true,payment_settled:true,fulfilment_verified:false,evidence_verified:false,amount_nzd:amountNzd,stripe_checkout_session:checkoutSessionId,stripe_payment_intent:paymentIntentId,evidence_ref:`stripe:event:${eventId}`}; const {error:economicEventError}=await supabase.from("economic_events").upsert(economicEvent,{onConflict:"event_id"}); if(economicEventError)return new Response("economic event write failed",{status:500});
+ const economicEvent={event_id:eventId,opportunity_id:economicOpportunityId,event_pattern_id:"STRIPE_PAYMENT_SETTLED",silo_id:skuRow.silo_id,sku_id:sku,offer_id:metadata.offer_id?String(metadata.offer_id):null,buyer_action_verified:true,payment_settled:true,fulfilment_verified:false,evidence_verified:false,amount_nzd:amountNzd,stripe_checkout_session:checkoutSessionId,stripe_payment_intent:paymentIntentId,evidence_ref:`stripe:event:${eventId}`}; const {error:economicEventError}=await supabase.from("economic_events").upsert(economicEvent,{onConflict:"event_id"}); if(economicEventError)return new Response("economic event write failed",{status:500});
  const {data:reconciliation}=await supabase.from("control_reconciliations").select("reconciliation_id").eq("stripe_event_id",eventId).limit(1).maybeSingle(); if(!reconciliation){const {error:reconciliationError}=await supabase.from("control_reconciliations").insert({payment_reference:paymentIntentId||checkoutSessionId,stripe_event_id:eventId,stripe_payment_intent_id:paymentIntentId,order_reference:orderId,ledger_reference:eventId,payment_amount_nzd:amountNzd,order_amount_nzd:amountNzd,ledger_amount_nzd:amountNzd,payment_exists:true,order_exists:true,ledger_exists:true,amounts_match:true,fulfillment_verified:false,checked_at:new Date().toISOString(),checked_by:FUNCTION_NAME,notes:"Stripe event observed and attributed. Reconciliation remains pending until fulfillment evidence is verified."}); if(reconciliationError)return new Response("control reconciliation write failed",{status:500});}
  const {error:webhookUpdateError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId); if(webhookUpdateError)return new Response("webhook finalization failed",{status:500}); return Response.json({received:true,recorded:true,event_id:eventId,sku_id:sku,order_id:orderId,entitlement_id:entitlement.id,fulfillment_request_id:fulfillment.id,economic_fulfillment_job_id:economicJob?.id||null,marketplace:!!marketplaceListingId,marketplace_settlement:marketplaceSettlement,ra000001_promoted:false});
 });
