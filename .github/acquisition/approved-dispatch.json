@@ -5,5 +5,7 @@
   "approval": "APPROVED",
   "authorized_by": "operator",
   "authorized_at": "2026-09-26",
-  "purpose": "First external acquisition experiment. Publication is authorized; revenue remains unverified until a real external buyer settles and fulfillment plus independent proof are established."
+  "purpose": "First external acquisition experiment. Publication is authorized; revenue remains unverified until a real external buyer settles and fulfillment plus independent proof are established.",
+  "gauntlet_required": true,
+  "authorization_mode": "ELOHIM_GAUNTLET_BRIDGED_ONE_SHOT"
 }
