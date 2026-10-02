@@ -1,0 +1,55 @@
+{
+  "schema_version": "DL-SOURCE-PACK-1.0",
+  "subject": {
+    "name": "Jeff Bezos",
+    "representation": "PUBLIC_SOURCE_ANALYTICAL_SIMULATION_ONLY"
+  },
+  "sources": [
+    {
+      "id": "bezos-1997",
+      "source": "Amazon",
+      "title": "Amazon's original 1997 letter to shareholders",
+      "date": "1997",
+      "url": "https://www.aboutamazon.com/news/company-news/amazons-original-1997-letter-to-shareholders",
+      "extraction_timestamp_utc": "2026-10-02T00:00:00Z",
+      "content_sha256": "5a139f2f84466fb2d01ade80b70738e0ef01bca19f5ab806f12910e222b9ed39",
+      "claims": [
+        "customer focus",
+        "analytical measurement and abandonment of weak-return programs",
+        "learning from success and failure",
+        "long-term market leadership"
+      ]
+    },
+    {
+      "id": "bezos-2016",
+      "source": "Amazon",
+      "title": "2016 Letter to Shareholders",
+      "date": "2016",
+      "url": "https://www.aboutamazon.com/news/company-news/2016-letter-to-shareholders",
+      "extraction_timestamp_utc": "2026-10-02T00:00:00Z",
+      "content_sha256": "d66f2a5636771f6593ac297631790320e696585457ac5c2eb83d5fbd7b570059",
+      "claims": [
+        "customer obsession",
+        "resist proxies",
+        "external trends",
+        "high-velocity decision making",
+        "reversible decisions can use lighter process"
+      ]
+    },
+    {
+      "id": "bezos-2019",
+      "source": "Amazon",
+      "title": "6 tips from Jeff Bezos' re:MARS fireside chat",
+      "date": "2019",
+      "url": "https://www.aboutamazon.com/news/innovation-at-amazon/6-tips-from-jeff-bezos-re-mars-fireside-chat",
+      "extraction_timestamp_utc": "2026-10-02T00:00:00Z",
+      "content_sha256": "6c0f7f9cae282293a34efce2931e23b622da1f40ef455dd0019eefab84c2456e",
+      "claims": [
+        "listening and changing one's mind",
+        "disagree and commit",
+        "business as experiment",
+        "customer obsession"
+      ]
+    }
+  ]
+}
