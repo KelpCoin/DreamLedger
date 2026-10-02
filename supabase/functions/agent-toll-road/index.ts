@@ -14,7 +14,7 @@ const NETWORK = Deno.env.get("X402_NETWORK") || (TESTNET ? "eip155:84532" : "eip
 const QUOTE_ENABLED = Deno.env.get("X402_QUOTE_ENABLED") === "true";
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
-const app = new Hono();
+const app = new Hono().basePath('/agent-toll-road');
 
 function decodeSettlementReceipt(header: string | null): any | null {
   if (!header) return null;
