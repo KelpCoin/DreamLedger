@@ -1,0 +1,32 @@
+{
+  "schema": "dreamledger/health-surface/v1",
+  "updated": "2026-10-02",
+  "canonical_checks": [
+    {"path": "/healthz", "expect": "ok true"},
+    {"path": "/version", "expect": "commit present"},
+    {"path": "/.well-known/dreamledger.json", "expect": "schema dreamledger/discovery"},
+    {"path": "/api/offers", "expect": "offers array"},
+    {"path": "/mtg", "expect": "200 master silo"},
+    {"path": "/b2b", "expect": "200 RIVET"}
+  ],
+  "dns": {
+    "apex": "dreamledger.org",
+    "prefer": "https apex",
+    "tls": "required"
+  },
+  "ci_cd": {
+    "source": ".github/workflows",
+    "deploy_must_include": ["public/", "extensionless routes"],
+    "post_deploy": ["GET /healthz"]
+  },
+  "silo_urls": {
+    "master": "/mtg",
+    "clones": ["/retro", "/vinyl"],
+    "css": "/assets/silo-master.css"
+  },
+  "canonical_qr_targets": [
+    "https://dreamledger.org/",
+    "https://dreamledger.org/mtg",
+    "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"
+  ]
+}
