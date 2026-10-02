@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import Stripe from "npm:stripe@22";
 import { createMarketplaceSellerTransfers } from "./shared/marketplace-transfers.ts";
 const FUNCTION_NAME="stripe-revenue-41104f355d6878cdd6d1f9dc";
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
@@ -7,12 +8,12 @@ const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const STRIPE_WEBHOOK_SIGNING_SECRET=Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||"";
 const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET_KEY")||"";
 const supabase=SUPABASE_URL&&SERVICE_ROLE_KEY?createClient(SUPABASE_URL,SERVICE_ROLE_KEY):null;
-const stripe=STRIPE_API_KEY?new (await import("npm:stripe@22")).default(STRIPE_API_KEY):null;
+const stripe=STRIPE_API_KEY?new Stripe(STRIPE_API_KEY):null;
 Deno.serve(async(req)=>{
  if(req.method==="GET")return Response.json({service:FUNCTION_NAME,status:"healthy",configured:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY&&STRIPE_API_KEY&&STRIPE_WEBHOOK_SIGNING_SECRET)});
  if(req.method!=="POST")return new Response("POST only",{status:405});
  if(!SUPABASE_URL||!SERVICE_ROLE_KEY||!STRIPE_WEBHOOK_SIGNING_SECRET||!supabase)return new Response("webhook authentication unavailable",{status:503});
- const {default:Stripe}=await import("npm:stripe@22"); const cryptoProvider=Stripe.createSubtleCryptoProvider();
+ const cryptoProvider=Stripe.createSubtleCryptoProvider();
  const signature=req.headers.get("stripe-signature")||""; const raw=await req.text(); let event:any;
  try{event=await stripe.webhooks.constructEventAsync(raw,signature,STRIPE_WEBHOOK_SIGNING_SECRET,undefined,cryptoProvider)}catch(error){return new Response("invalid signature",{status:400})}
  const eventId=String(event.id||""); const eventType=String(event.type||""); if(!eventId)return new Response("missing event id",{status:400});
