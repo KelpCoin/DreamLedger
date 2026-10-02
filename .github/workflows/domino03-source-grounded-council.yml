@@ -1,0 +1,48 @@
+name: DOMINO 03 source-grounded council experiment
+
+on:
+  push:
+    branches: [domino03-source-grounded-council]
+  workflow_dispatch:
+
+jobs:
+  council-boundary-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run source-grounded council tests
+        id: tests
+        shell: bash
+        run: |
+          set +e
+          node --test BEC-PRIME/autonomy/council-benchmark/source-grounded-council.test.js 2>&1 | tee council-test-output.log
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
+      - name: Verify real execution
+        if: always()
+        run: |
+          test -s council-test-output.log
+          grep -Eq '# tests [1-9][0-9]*' council-test-output.log
+          grep -Eq '# pass [1-9][0-9]*' council-test-output.log
+          grep -Eq '# fail 0' council-test-output.log
+      - name: Write proof
+        if: always()
+        shell: bash
+        run: |
+          node BEC-PRIME/autonomy/council-benchmark/write-proof.js
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: domino03-council-proof-${{ github.run_id }}
+          path: |
+            proof-domino03-council.json
+            council-test-output.log
+          if-no-files-found: error
