@@ -67,7 +67,7 @@ jobs:
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           # MUST match live /buy/COMMANDER-DECK-DIAGNOSTIC-001 destination (2026-09-25 probe)
-          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R
+          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/eVqeZdc1T01n1DV3gwdwc30
           STRIPE_LIVE_ENABLED: 'true'
         run: node ops/commerce/reconcile-stripe-airtable.mjs
 
