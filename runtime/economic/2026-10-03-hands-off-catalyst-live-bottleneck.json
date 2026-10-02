@@ -1,0 +1,16 @@
+{
+  "audit_date":"2026-10-03",
+  "mode":"HANDS_OFF_ECONOMIC_CATALYST",
+  "blocked_at":"DATABASE",
+  "because":"Supabase control plane is ACTIVE_HEALTHY but read-only Postgres inspection returns ECONNREFUSED against the project database IPv6 endpoint.",
+  "required":"Restore production database observability, then inspect revenue_entitlements, revenue_orders, fulfillment_requests, constraints, triggers, functions and live rows.",
+  "fallback":"Repository inspection only. quote-intake declares settlement, SKU, order, entitlement and fulfillment checks, but live DB state remains unobservable.",
+  "owner_action":"NONE_YET",
+  "human_minutes":0,
+  "scoreboard":{"VERIFIED_EXTERNAL_REVENUE_NZD":0,"SETTLED_EXTERNAL_PAYMENTS":0,"INDEPENDENT_EXTERNAL_BUYERS":0,"VERIFIED_ECONOMIC_OUTCOMES":0},
+  "render":{"auto_deploy":"yes","live_commit":"bc78d17de62b0138f1ffafbe77275e23c7628d9e","main_commit":"b5ce2133b11e7b0acd41b0ccdbf67739b1b45a14"},
+  "ci_status":"NOT_PROVEN",
+  "local_runtime":"UNOBSERVABLE",
+  "decision":"NO_NEW_ENTITLEMENT_TABLE; NO_NEW_PAYMENT_RAIL; NO_SCOREBOARD_PROMOTION; NO_PRODUCTION_SCHEMA_MUTATION_UNTIL_DB_OBSERVABLE",
+  "next_blocker":"DATABASE_OBSERVABILITY"
+}
