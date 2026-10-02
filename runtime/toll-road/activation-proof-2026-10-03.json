@@ -1,0 +1,68 @@
+{
+  "schema": "dreamledger/toll-road/activation-proof/v1",
+  "observed_at": "2026-10-03T00:35:30+13:00",
+  "objective": "Expose existing DreamLedger Gauntlet and Truth/Evidence capabilities as zero-human digital toll-road services.",
+  "changes": [
+    {
+      "commit": "f9e27a2908f9ce3bb2ee0eae7b7b811d41756253",
+      "path": "BEC-PRIME/runtime/TollRoad.js",
+      "effect": "inline NZD pricing and armed manifest without dedicated Stripe price IDs"
+    },
+    {
+      "commit": "5244b4c8a0e6104047bc261bf68edbabda397bfe",
+      "path": "BEC-PRIME/routes/tollRoad.js",
+      "effect": "Stripe Checkout Sessions created with inline one-time price_data; live settlement required before key issuance"
+    },
+    {
+      "commit": "86fc38e161290e736ecd83da20f7e73209695ca4",
+      "path": "public/toll-road.html",
+      "effect": "published NZ$19 Gauntlet and NZ$9 Truth/Evidence access pricing"
+    },
+    {
+      "commit": "05b28c9b0e0cbac85c0d47946728e17f22336645",
+      "path": "public/index.html",
+      "effect": "storefront entry point to toll road"
+    }
+  ],
+  "render": {
+    "service": "DreamLedger1",
+    "service_id": "srv-d8ud55lckfvc73f1t4eg",
+    "deploy": "dep-davq9fmnfi0s738517j0",
+    "status": "live",
+    "commit": "05b28c9b0e0cbac85c0d47946728e17f22336645"
+  },
+  "live_verification": [
+    {
+      "url": "https://dreamledger.org/api/toll/v1/manifest",
+      "result": "ARMED",
+      "services": [
+        "GAUNTLET-RUN checkout_configured=true human_minutes=0",
+        "TRUTH-ORACLE-ACCESS checkout_configured=true human_minutes=0"
+      ]
+    },
+    {
+      "url": "https://dreamledger.org/toll-road",
+      "result": "LIVE_PUBLIC_PAGE"
+    },
+    {
+      "url": "https://dreamledger.org/",
+      "result": "LIVE_STOREFRONT_LINK"
+    },
+    {
+      "url": "https://dreamledger.org/api/toll/v1/checkout/gauntlet",
+      "result": "LIVE_STRIPE_CHECKOUT_SESSION_CREATED"
+    },
+    {
+      "url": "https://dreamledger.org/api/toll/v1/checkout/truth",
+      "result": "LIVE_STRIPE_CHECKOUT_SESSION_CREATED"
+    }
+  ],
+  "economics": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0,
+    "checkout_creation_is_not_revenue": true
+  },
+  "boundary": "Customer toll keys can invoke only the purchased automated service. They cannot authorize external actions, lease internal workers, create payments, or create verified economic truth."
+}
