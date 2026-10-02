@@ -1,88 +1,27 @@
 'use strict';
-/**
- * SAFE minimal adapter after accidental truncation.
- * Full historical implementation: git blob f098790ed1f8275a524beb1c933624de504305c3
- * Restore with: git show f098790ed1f8:BEC-PRIME/runtime/AgentBridgeProxyAdapter.js
- */
+
+const defense = require('../security/AgentBridgeDefense');
 const BRIDGE_SCHEMA_VERSION = 'BECK-AGENT-BRIDGE-1.3';
 const EVENT_SCHEMA_VERSION = 'BECK-STRUCTURED-EVENT-1.1';
+const ALLOWED_AGENTS = new Set(['chatgpt','claude','luna','deepseek','grok','monetizer','humanizer','truth_oracle','gauntlet','system','human','cortex']);
+const STRUCTURED_EVENT_TYPES = new Set(['CANDIDATE_FOUND','EVIDENCE_ATTACHED','DELIVERY_ASSESSMENT','COMMERCIAL_ATTACK','COURT_REVIEW','COURT_VERDICT','ACTION_PROPOSED','ACTION_APPROVED','ACTION_EXECUTED','ACTION_FAILED','PAYMENT_DETECTED','FULFILLMENT_COMPLETED','RECONCILIATION_COMPLETED']);
+const NOTE_TYPES = new Set(['HANDOFF','QUESTION','FINDING','WARNING','DECISION','LOVE_NOTE','STRUCTURED_EVENT']);
+const ROUTING_LANES = new Set(['discovery','evidence','evaluation','approval','execution','payment','fulfillment','reconciliation','arbitrage']);
 
-function send(res, status, body) {
-  if (res.writableEnded) return true;
-  res.writeHead(status, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': 'no-store'
-  });
-  res.end(JSON.stringify(body));
-  return true;
-}
-
-function configured() {
-  const url = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
-  const token = String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN || '');
-  const proxy = String(process.env.AGENT_BRIDGE_PROXY_URL || '');
-  return Boolean(url && token && proxy);
-}
-
-async function handle(req, res) {
-  const url = String(req.url || '').split('?')[0];
-  if (!url.startsWith('/api/agent-bridge')) return false;
-
-  // Public discovery — no token (traffic anticipation)
-  if (
-    req.method === 'GET' &&
-    (url === '/api/agent-bridge/health' ||
-      url === '/api/agent-bridge/status' ||
-      url === '/api/agent-bridge/public' ||
-      url === '/api/agent-bridge/manifest')
-  ) {
-    return send(res, 200, {
-      schema: 'dreamledger/agent-bridge-public/v1',
-      service: 'DreamLedger',
-      schema_version: BRIDGE_SCHEMA_VERSION,
-      status: configured() ? 'public_ok_work_routes_limited' : 'degraded_missing_env',
-      configured: configured(),
-      authentication_required_for_work: true,
-      authentication_header: 'x-dreamledger-agent-token',
-      public_routes: [
-        '/api/agent-bridge/manifest',
-        '/api/agent-bridge/health',
-        '/api/agent-bridge/status',
-        '/api/agent-bridge/public',
-        '/api/agent-bridge/rail/public',
-        '/api/agent-bridge/rail/health'
-      ],
-      work_routes_note: 'Full job/event rail requires restored ProxyAdapter from blob f098790ed1f8',
-      economic_truth: 'Bridge activity is not revenue',
-      toll_catalog: 'https://dreamledger.org/bridge-tolls.json',
-      shop: 'https://dreamledger.org/shop.html',
-      offers: 'https://dreamledger.org/api/offers'
-    });
-  }
-
-  if (req.method === 'GET' || req.method === 'POST') {
-    return send(res, 503, {
-      error: 'Agent bridge work routes temporarily limited — restore full AgentBridgeProxyAdapter from git blob f098790ed1f8275a524beb1c933624de504305c3',
-      public: 'https://dreamledger.org/api/agent-bridge/public',
-      toll_catalog: 'https://dreamledger.org/bridge-tolls.json'
-    });
-  }
-  return send(res, 405, { error: 'Method not allowed' });
-}
-
-module.exports = {
-  handle,
-  configured,
-  BRIDGE_SCHEMA_VERSION,
-  EVENT_SCHEMA_VERSION,
-  ALLOWED_AGENTS: new Set(['grok', 'claude', 'chatgpt', 'luna', 'deepseek', 'system', 'human']),
-  STRUCTURED_EVENT_TYPES: new Set(['CANDIDATE_FOUND', 'COURT_REVIEW', 'ACTION_PROPOSED']),
-  ROUTING_LANES: new Set(['discovery', 'evaluation', 'execution', 'payment']),
-  claimJob: async () => null,
-  completeJob: async () => null,
-  failJob: async () => null,
-  listJobs: async () => [],
-  validateEventEnvelope: (i) => i,
-  recordDoorwaySession: async () => null,
-  normalizedJob: (j) => j
-};
+function config(){const url=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');const token=String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN||'');const proxy=String(process.env.AGENT_BRIDGE_PROXY_URL||`${url}/functions/v1/agent-bridge-proxy`).replace(/\/$/,'');return {url,token,proxy};}
+function configured(){const c=config();return Boolean(c.url&&c.token&&c.proxy);}
+function authorized(req){const c=config();return configured()&&String(req.headers['x-dreamledger-agent-token']||'')===c.token;}
+function send(res,status,body){if(res.writableEnded)return;res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(body));}
+async function readJson(req){let body='';for await(const chunk of req){body+=chunk;if(body.length>200000)throw Object.assign(new Error('Request too large'),{statusCode:413});}try{return JSON.parse(body||'{}')}catch{throw Object.assign(new Error('Invalid JSON'),{statusCode:400})}}
+async function supabase(path,options={}){const c=config();if(!configured())throw Object.assign(new Error('Agent bridge is not configured'),{statusCode:503});const method=String(options.method||'GET').toUpperCase();const r=await fetch(c.proxy,{method:'POST',headers:{'Content-Type':'application/json','x-dreamledger-agent-token':c.token},body:JSON.stringify({path,method,prefer:options.prefer||'return=representation',body:method==='GET'?undefined:JSON.parse(options.body||'{}')})});const text=await r.text();let data;try{data=JSON.parse(text||'null')}catch{data={raw:text}}if(!r.ok){const e=Object.assign(new Error(data&&data.error?data.error:`Bridge proxy failed (${r.status})`),{statusCode:r.status});throw e;}return data;}
+function validateEventEnvelope(input){const i=input&&typeof input==='object'?input:{};if(!STRUCTURED_EVENT_TYPES.has(String(i.event_type||'')))throw Object.assign(new Error('invalid event_type'),{statusCode:400});if(!ALLOWED_AGENTS.has(String(i.agent||'').toLowerCase()))throw Object.assign(new Error('invalid agent'),{statusCode:400});const event_id=String(i.event_id||'').trim();if(!event_id)throw Object.assign(new Error('event_id required'),{statusCode:400});const correlation_id=String(i.correlation_id||'').trim()||event_id;return {event_id,correlation_id,event_type:String(i.event_type),agent:String(i.agent).toLowerCase(),subject_type:i.subject_type?String(i.subject_type).slice(0,64):null,subject_id:i.subject_id?String(i.subject_id).slice(0,128):null,claim:i.claim?String(i.claim).slice(0,4000):null,evidence:i.evidence||null,confidence:Number.isFinite(Number(i.confidence))?Math.max(0,Math.min(1,Number(i.confidence))):null,requested_action:i.requested_action?String(i.requested_action).slice(0,256):null,lane:ROUTING_LANES.has(String(i.lane||'').toLowerCase())?String(i.lane).toLowerCase():'discovery',priority:Number.isInteger(Number(i.priority))?Math.max(0,Math.min(100,Number(i.priority))):50,silo_id:String(i.silo_id||'SILO_GENERAL').slice(0,64),source_system:i.source_system?String(i.source_system).slice(0,128):'agentbridge',ttl_seconds:Number.isInteger(Number(i.ttl_seconds))?Math.max(60,Math.min(604800,Number(i.ttl_seconds))):null,expires_at:i.expires_at||null,parent_event_id:i.parent_event_id?String(i.parent_event_id).slice(0,128):null,economic_intent:i.economic_intent?String(i.economic_intent).slice(0,128):null,required_capabilities:Array.isArray(i.required_capabilities)?i.required_capabilities.slice(0,20).map(String):[],suggested_next_agents:Array.isArray(i.suggested_next_agents)?i.suggested_next_agents.slice(0,12).map(String):[]};}
+async function findExistingEvent(eventId){const rows=await supabase(`control_bridge_notes?note_type=eq.STRUCTURED_EVENT&event_id=eq.${encodeURIComponent(eventId)}&select=note_id,body&limit=1`);if(!Array.isArray(rows)||!rows.length)return null;try{return {note_id:rows[0].note_id,event:JSON.parse(rows[0].body||'{}')};}catch{return null;}}
+async function ingestEvent(validated){const existing=await findExistingEvent(validated.event_id);if(existing)return {idempotent:true,event:existing.event,note_id:existing.note_id};const row={from_agent:validated.agent,to_agent:'system',note_type:'STRUCTURED_EVENT',subject:`EVENT:${validated.event_type}:${validated.event_id}`,body:JSON.stringify(validated),requires_response:false,event_id:validated.event_id,correlation_id:validated.correlation_id,lane:validated.lane,priority:validated.priority,silo_id:validated.silo_id,source_system:validated.source_system,expires_at:validated.expires_at};try{const created=await supabase('control_bridge_notes',{method:'POST',body:JSON.stringify(row)});const note=Array.isArray(created)?created[0]:created;return {idempotent:false,event:validated,note_id:note&&note.note_id};}catch(e){if(Number(e.statusCode)!==409)throw e;const raced=await findExistingEvent(validated.event_id);if(raced)return {idempotent:true,event:raced.event,note_id:raced.note_id};throw e;}}
+async function claimJob(workerId,leaseSeconds){return supabase('rpc/claim_job',{method:'POST',body:JSON.stringify({p_worker_id:workerId,p_lease_seconds:leaseSeconds})});}
+async function completeJob(jobId,leaseToken){return supabase('rpc/complete_job',{method:'POST',body:JSON.stringify({p_job_id:jobId,p_lease_token:leaseToken})});}
+async function failJob(jobId,leaseToken,error){return supabase('rpc/fail_job',{method:'POST',body:JSON.stringify({p_job_id:jobId,p_lease_token:leaseToken,p_error:String(error||'worker failure').slice(0,4000)})});}
+async function listJobs(status,limit){const q=`economic_jobs?status=eq.${encodeURIComponent(status||'pending')}&select=*&order=created_at.asc&limit=${Math.max(1,Math.min(100,Number(limit)||10))}`;return supabase(q);}
+function normalizedJob(job){if(!job)return null;return {job_id:job.id,job_type:job.type,state:job.status,payload:job.payload||{},worker_id:job.worker_id||null,attempt_count:Number(job.attempt_count||0),started_at:job.started_at||null,leased_until:job.leased_until||null};}
+async function recordDoorwaySession(){return null;}
+async function handle(req,res){const url=String(req.url||'').split('?')[0];if(!url.startsWith('/api/agent-bridge'))return false;try{if(req.method==='GET'&&(url==='/api/agent-bridge/health'||url==='/api/agent-bridge/status'||url==='/api/agent-bridge/public'||url==='/api/agent-bridge/manifest')){return send(res,200,{schema:'dreamledger/agent-bridge-public/v1',service:'DreamLedger',schema_version:BRIDGE_SCHEMA_VERSION,status:configured()?'ok':'degraded_missing_env',configured:configured(),authentication_required_for_work:true,authentication_header:'x-dreamledger-agent-token',external_actions:'human_approval_required',economic_truth:'Bridge activity is not revenue',public_routes:['/api/agent-bridge/manifest','/api/agent-bridge/health','/api/agent-bridge/status','/api/agent-bridge/public'],work_routes:['/api/agent-bridge/events','/api/agent-bridge/jobs','/api/agent-bridge/correlations/:id']});}if(!configured())return send(res,503,{error:'Agent bridge is not configured'});if(!authorized(req)&&!(req.method==='GET'&&(url==='/api/agent-bridge/health'||url==='/api/agent-bridge/status'||url==='/api/agent-bridge/public'||url==='/api/agent-bridge/manifest')))return send(res,401,{error:'Agent bridge authentication required'});if(req.method==='GET'&&url==='/api/agent-bridge/state'){return send(res,200,{schema_version:BRIDGE_SCHEMA_VERSION,state:{status:'OPEN',verified_payment_count:0,revenue_nzd:0}});}if(req.method==='GET'&&url.startsWith('/api/agent-bridge/jobs')){const u=new URL(req.url,'http://local');const status=u.searchParams.get('status')||'pending';const limit=u.searchParams.get('limit')||10;const jobs=await listJobs(status,limit);return send(res,200,{schema_version:'BECK-ECONOMIC-JOB-1.0',jobs:Array.isArray(jobs)?jobs.map(normalizedJob):[]});}if(req.method==='POST'&&url==='/api/agent-bridge/notes'){const i=await readJson(req);const row={from_agent:String(i.from_agent||'system'),to_agent:String(i.to_agent||'system'),note_type:NOTE_TYPES.has(String(i.note_type||''))?String(i.note_type):'HANDOFF',subject:String(i.subject||'').slice(0,256),body:String(i.body||'').slice(0,20000),requires_response:Boolean(i.requires_response),event_id:i.event_id||null,correlation_id:i.correlation_id||null,lane:ROUTING_LANES.has(String(i.lane||'').toLowerCase())?String(i.lane).toLowerCase():'discovery',priority:Number.isInteger(Number(i.priority))?Math.max(0,Math.min(100,Number(i.priority))):50,silo_id:String(i.silo_id||'SILO_GENERAL').slice(0,64),expires_at:i.expires_at||null,source_system:i.source_system?String(i.source_system).slice(0,128):'agentbridge'};const created=await supabase('control_bridge_notes',{method:'POST',body:JSON.stringify(row)});return send(res,201,{note:Array.isArray(created)?created[0]:created});}if(req.method==='POST'&&url==='/api/agent-bridge/events'){const input=await readJson(req);const validated=validateEventEnvelope(input);const boundary=defense.validateActionBoundary(validated);if(!boundary.allowed)return send(res,403,{error:'defensive control plane rejected event',reasons:boundary.errors});const result=await ingestEvent(validated);return send(res,result.idempotent?200:201,{schema_version:EVENT_SCHEMA_VERSION,idempotent:result.idempotent,event:result.event,note_id:result.note_id,defensive_control:'PASS'});}const m=url.match(/^\/api\/agent-bridge\/events\/([^/]+)$/);if(req.method==='GET'&&m){const rows=await supabase(`control_bridge_notes?note_type=eq.STRUCTURED_EVENT&event_id=eq.${encodeURIComponent(decodeURIComponent(m[1]))}&select=note_id,body,created_at&limit=1`);if(!rows.length)return send(res,404,{error:'Event not found'});return send(res,200,{schema_version:EVENT_SCHEMA_VERSION,event:{...JSON.parse(rows[0].body),_note_id:rows[0].note_id,_stored_at:rows[0].created_at}});}const c=url.match(/^\/api\/agent-bridge\/correlations\/([^/]+)$/);if(req.method==='GET'&&c){const id=decodeURIComponent(c[1]),rows=await supabase(`control_bridge_notes?note_type=eq.STRUCTURED_EVENT&correlation_id=eq.${encodeURIComponent(id)}&select=note_id,body,created_at&order=created_at.asc&limit=500`);return send(res,200,{schema_version:EVENT_SCHEMA_VERSION,correlation_id:id,count:rows.length,events:rows.map(r=>({...JSON.parse(r.body),_note_id:r.note_id,_stored_at:r.created_at}))});}return send(res,404,{error:'Agent bridge route not found'});}catch(e){return send(res,e.statusCode||500,{error:e.message||'Agent bridge failure'});}}
+module.exports={handle,configured,recordDoorwaySession,normalizedJob,listJobs,validateEventEnvelope,STRUCTURED_EVENT_TYPES,ALLOWED_AGENTS,ROUTING_LANES,BRIDGE_SCHEMA_VERSION,EVENT_SCHEMA_VERSION,claimJob,completeJob,failJob};
