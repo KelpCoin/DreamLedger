@@ -78,9 +78,9 @@ async function handle(req,res,path){
     return send(res,proof.status==='PASS'?200:422,{
       schema:'dreamledger/toll-gauntlet-result/v1',
       key_id:key.key_id,
-      service:'GAUNTLET-RUN',
+      service:'DECISION-CHECK',
       human_minutes:0,
-      public_execution:'NO_EXTERNAL_ACTION',
+      public_execution:'AUTOMATED_DIGITAL_RESULT',
       result:proof
     });
   }
@@ -94,13 +94,13 @@ async function handle(req,res,path){
     const result={
       schema:'dreamledger/toll-truth-input/v1',
       key_id:key.key_id,
-      service:'TRUTH-ORACLE-ACCESS',
+      service:'EVIDENCE-CHECK',
       verdict:contradictions.length?'CONTRADICTED':(evidence.length?'OBSERVED':'UNVERIFIED'),
       evidence_count:evidence.length,
       contradiction_count:contradictions.length,
       unresolved_count:unresolved.length,
       economic_truth_unchanged:true,
-      note:'This service reports the supplied evidence state. It does not create payment, buyer, settlement, fulfillment, or verified economic truth.'
+      note:'This service classifies the supplied evidence state. It does not create or alter payment, buyer, settlement, fulfilment or other external economic facts.'
     };
     return send(res,200,result);
   }
