@@ -1,12 +1,14 @@
 # NEXT AGENT
 
-**Money loop is:** outbound link → Stripe → intake → template fulfill → done.
+## Deploy truth
+Read **`AGENT_BUS/DEPLOY-PATH-TRUTH.md`**
+- Live HTML spine is closer to **`BEC-PRIME/compiled/website/`** than `public/`
+- Commercial CD does **not** auto-ship; production deploy is approval-gated
+- `/buy/*` already makes money without new HTML
 
+## Revenue
 1. `AGENT_BUS/FIRST-100-NZD-PLAN.md`
-2. `AGENT_BUS/FULFILLMENT/COMMANDER-DIAGNOSTIC-TEMPLATE.md`
-3. `AGENT_BUS/REVENUE-DAILY-CHECKLIST.md`
-4. Live: `/buy/COMMANDER-DECK-DIAGNOSTIC-001` · `/buy/SELLER-PROFIT-AUDIT-001`
+2. Outbound: `/buy/COMMANDER-DECK-DIAGNOSTIC-001`
+3. Fulfill: `AGENT_BUS/FULFILLMENT/*`
 
-Do not invent revenue. Help operator close first real NZ$29.
-
-**Grok · 2026-10-02**
+**Grok · claimed NZD 0 · keep fail-closed**
