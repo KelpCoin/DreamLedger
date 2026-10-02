@@ -113,9 +113,11 @@ async function redeemRoad(slug,sessionId){
   if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.road_id!==Toll.AGENT_BRIDGE_ROAD_ID)throw Object.assign(new Error('Settled payment required before key issuance'),{statusCode:402});
   if(!line||Number(line.amount_total||line.price?.unit_amount||0)!==expected)throw Object.assign(new Error('Checkout amount attribution mismatch'),{statusCode:409});
   const keyId='ROAD_'+String(sessionId).slice(-24);
-  const key=Toll.issueKey({keyId,tier:'agent_bridge',roadId:Toll.AGENT_BRIDGE_ROAD_ID,callsRemaining:c.agentBridgeCalls,expiresAt:new Date(Date.now()+c.agentBridgeTtlDays*86400000).toISOString(),reference:sessionId});
-  const result=await supabaseRpc('upsert_toll_entitlement',{p_entitlement_id:'ENT_'+keyId,p_road_id:Toll.AGENT_BRIDGE_ROAD_ID,p_buyer_reference_hash:crypto.createHash('sha256').update(String(data.customer_details?.email||data.customer_email||sessionId)).digest('hex'),p_stripe_payment_id:String(data.payment_intent||sessionId),p_key_id:keyId,p_calls_remaining:c.agentBridgeCalls,p_expires_at:new Date(Date.now()+c.agentBridgeTtlDays*86400000).toISOString(),p_reference:sessionId});
-  return {status:'ENTITLED',key,road_id:Toll.AGENT_BRIDGE_ROAD_ID,calls_remaining:Number(result?.calls_remaining||c.agentBridgeCalls),expires_at:result?.expires_at||null};
+  const expiresAt=new Date(Date.now()+c.agentBridgeTtlDays*86400000).toISOString();
+  const result=await supabaseRpc('upsert_toll_entitlement',{p_entitlement_id:'ENT_'+keyId,p_road_id:Toll.AGENT_BRIDGE_ROAD_ID,p_buyer_reference_hash:crypto.createHash('sha256').update(String(data.customer_details?.email||data.customer_email||sessionId)).digest('hex'),p_stripe_payment_id:String(data.payment_intent||sessionId),p_key_id:keyId,p_calls_remaining:c.agentBridgeCalls,p_expires_at:expiresAt,p_reference:sessionId});
+  const callsRemaining=Number(result?.calls_remaining||0);
+  const key=Toll.issueKey({keyId,tier:'agent_bridge',roadId:Toll.AGENT_BRIDGE_ROAD_ID,callsRemaining:Math.max(callsRemaining,1),expiresAt:result?.expires_at||expiresAt,reference:sessionId});
+  return {status:'ENTITLED',key,road_id:Toll.AGENT_BRIDGE_ROAD_ID,calls_remaining:callsRemaining,expires_at:result?.expires_at||expiresAt};
 }
 async function handleAgentBridge(req,res,path){
   if(path==='/api/toll/v1/catalog'&&req.method==='GET')return send(res,200,{schema:'dreamledger/toll-catalog/v1',roads:roadCatalog()});
@@ -131,13 +133,15 @@ async function handleAgentBridge(req,res,path){
     const checked=Toll.verifyKey(Toll.headerKey(req),'agent_bridge');
     if(!checked.ok)return send(res,402,{error:checked.error,buy:'/toll-road'});
     if(checked.payload.road_id!==Toll.AGENT_BRIDGE_ROAD_ID)return send(res,403,{error:'road_scope_denied'});
-    const consumed=await Toll.consumeKey(checked.payload);
-    if(!consumed.ok)return send(res,402,{error:consumed.error,buy:'/toll-road'});
     const body=await readJson(req);
     const eventId='evt_'+crypto.randomUUID();
     const inputHash=crypto.createHash('sha256').update(JSON.stringify(body)).digest('hex');
-    const output={schema:'dreamledger/agent-bridge-event-receipt/v1',event_id:eventId,road_id:Toll.AGENT_BRIDGE_ROAD_ID,key_id:checked.payload.key_id,accepted:true,input_hash:inputHash,received_at:new Date().toISOString(),calls_remaining:consumed.calls_remaining,fulfillment:'automated_receipt'};
-    try{await supabaseRpc('record_toll_call',{p_road_id:Toll.AGENT_BRIDGE_ROAD_ID,p_key_id:checked.payload.key_id,p_event_id:eventId,p_input_hash:inputHash,p_output:output});}catch(e){return send(res,502,{error:e.message});}
+    const output={schema:'dreamledger/agent-bridge-event-receipt/v1',event_id:eventId,road_id:Toll.AGENT_BRIDGE_ROAD_ID,key_id:checked.payload.key_id,accepted:true,input_hash:inputHash,received_at:new Date().toISOString(),fulfillment:'automated_receipt'};
+    try{
+      const consumed=await supabaseRpc('consume_and_record_toll_call',{p_road_id:Toll.AGENT_BRIDGE_ROAD_ID,p_key_id:checked.payload.key_id,p_event_id:eventId,p_input_hash:inputHash,p_output:output,p_calls:1});
+      if(!consumed?.consumed)return send(res,402,{error:consumed?.error||'toll_key_exhausted',buy:'/toll-road'});
+      output.calls_remaining=Number(consumed.calls_remaining||0);
+    }catch(e){return send(res,502,{error:e.message});}
     return send(res,200,output);
   }
   return false;
