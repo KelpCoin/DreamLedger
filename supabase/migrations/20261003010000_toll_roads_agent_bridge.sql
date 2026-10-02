@@ -41,6 +41,13 @@ create index if not exists toll_entitlements_road_key_idx on public.toll_entitle
 create index if not exists toll_entitlements_expiry_idx on public.toll_entitlements(expires_at);
 create index if not exists toll_calls_road_created_idx on public.toll_calls(road_id,created_at desc);
 
+alter table public.toll_roads enable row level security;
+alter table public.toll_entitlements enable row level security;
+alter table public.toll_calls enable row level security;
+
+revoke all on public.toll_roads, public.toll_entitlements, public.toll_calls from public, anon, authenticated;
+grant all on public.toll_roads, public.toll_entitlements, public.toll_calls to service_role;
+
 insert into public.toll_roads
 (road_id,owner_passport_id,silo_id,slug,title,description,price_nzd,calls_per_pack,ttl_days,status,public_route,fulfillment)
 values
@@ -58,10 +65,16 @@ declare r public.toll_entitlements;
 begin
   insert into public.toll_entitlements(entitlement_id,road_id,buyer_reference_hash,stripe_payment_id,calls_remaining,expires_at,key_id,reference)
   values(p_entitlement_id,p_road_id,p_buyer_reference_hash,p_stripe_payment_id,p_calls_remaining,p_expires_at,p_key_id,p_reference)
-  on conflict (reference) do update set
-    calls_remaining=greatest(public.toll_entitlements.calls_remaining,excluded.calls_remaining),
-    expires_at=greatest(public.toll_entitlements.expires_at,excluded.expires_at)
-  returning * into r;
+  on conflict (reference) do nothing;
+
+  select * into r
+    from public.toll_entitlements
+   where reference=p_reference;
+
+  if r.road_id<>p_road_id or r.stripe_payment_id<>p_stripe_payment_id then
+    raise exception 'toll entitlement reference attribution mismatch';
+  end if;
+
   return r;
 end;
 $$;
@@ -73,11 +86,16 @@ language plpgsql security definer set search_path=public
 as $$
 declare r public.toll_entitlements;
 begin
+  if p_calls<1 then
+    return jsonb_build_object('consumed',false,'calls_remaining',0,'error','invalid_call_count');
+  end if;
+
   update public.toll_entitlements
      set calls_remaining=calls_remaining-p_calls
    where key_id=p_key_id and road_id=p_road_id
      and expires_at>now() and calls_remaining>=p_calls
    returning * into r;
+
   if not found then return jsonb_build_object('consumed',false,'calls_remaining',0); end if;
   return jsonb_build_object('consumed',true,'calls_remaining',r.calls_remaining,'expires_at',r.expires_at);
 end;
