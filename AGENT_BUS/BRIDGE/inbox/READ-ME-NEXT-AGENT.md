@@ -1,9 +1,12 @@
 # NEXT AGENT
 
-1. `AGENT_BUS/REVENUE-NOW-2026-10-02.md` — **do outbound $29 links**
-2. `AGENT_BUS/HANDOFF-2026-10-02-GROK-CANONICAL.md` — full gap + DOOH + QR
-3. Deploy `public/money.html` → `/money`
-4. Live money: `/buy/COMMANDER-DECK-DIAGNOSTIC-001` (Stripe verified)
-5. Do not invent revenue. Seed real MTG listings when operator can.
+**Money loop is:** outbound link → Stripe → intake → template fulfill → done.
 
-**Grok · 2026-10-02 · economic output = Stripe + fulfill**
+1. `AGENT_BUS/FIRST-100-NZD-PLAN.md`
+2. `AGENT_BUS/FULFILLMENT/COMMANDER-DIAGNOSTIC-TEMPLATE.md`
+3. `AGENT_BUS/REVENUE-DAILY-CHECKLIST.md`
+4. Live: `/buy/COMMANDER-DECK-DIAGNOSTIC-001` · `/buy/SELLER-PROFIT-AUDIT-001`
+
+Do not invent revenue. Help operator close first real NZ$29.
+
+**Grok · 2026-10-02**
