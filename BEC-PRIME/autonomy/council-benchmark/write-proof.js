@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('fs'),crypto=require('crypto');
+const pack=require('./source-pack.json');
+const out=fs.readFileSync('council-test-output.log','utf8');
+const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const tests=Number((out.match(/# tests (\d+)/)||[])[1]||0);
+const pass=Number((out.match(/# pass (\d+)/)||[])[1]||0);
+const fail=Number((out.match(/# fail (\d+)/)||[])[1]||0);
+const proof={DOMINO_ID:'DOMINO-03-COUNCIL',RUN_ID:process.env.GITHUB_RUN_ID||'UNOBSERVABLE',COMMIT_SHA:process.env.GITHUB_SHA||'UNOBSERVABLE',TEST_COMMAND:'node --test BEC-PRIME/autonomy/council-benchmark/source-grounded-council.test.js',TEST_FILE_SHA256:sha('BEC-PRIME/autonomy/council-benchmark/source-grounded-council.test.js'),SOURCE_PACK_SHA256:sha('BEC-PRIME/autonomy/council-benchmark/source-pack.json'),SOURCE_COUNT:pack.sources.length,TEST_COUNT:tests,PASS_COUNT:pass,FAIL_COUNT:fail,LM_STUDIO_STATUS:'UNOBSERVABLE_IN_GITHUB_HOSTED_RUNNER',MODEL_USED:'UNOBSERVABLE',DECISION_QUALITY_BENCHMARK:'UNOBSERVABLE_UNTIL_LIVE_MODEL_RUN',SUPABASE_MUTATION:'NO',STRIPE_MUTATION:'NO',EXTERNAL_DISPATCH:'NO',ECONOMIC_TRUTH_MUTATION:'NO',TIMESTAMP_UTC:new Date().toISOString()};
+fs.writeFileSync('proof-domino03-council.json',JSON.stringify(proof,null,2)+'\n');
+if(tests<1||pass!==tests||fail!==0) process.exit(1);
