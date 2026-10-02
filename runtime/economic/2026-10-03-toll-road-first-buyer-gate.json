@@ -1,0 +1,61 @@
+{
+  "schema_version": "BEC-TOLL-ROAD-FIRST-BUYER-GATE-1.0",
+  "observed_utc": "2026-10-03T10:00:00Z",
+  "main_commit_observed": "b5ce2133b11e7b0acd41b0ccdbf67739b1b45a14",
+  "scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "surface": {
+    "sku": "QUOTE-COMPARE-49",
+    "price_nzd": 49,
+    "status": "PUBLISHED",
+    "checkout": "LIVE_STRIPE_PAYMENT_LINK_IN_PUBLIC_CATALOG",
+    "fulfillment": "AUTOMATED_QUOTE_COMPARISON",
+    "human_gate_required_for_fulfillment": false
+  },
+  "machine_state": {
+    "repository": "KelpCoin/DreamLedger",
+    "render": "LIVE",
+    "render_latest_commit": "b5ce2133b11e7b0acd41b0ccdbf67739b1b45a14",
+    "ci_combined_status": "NOT_PROVEN",
+    "supabase_control_plane": "UNOBSERVABLE",
+    "supabase_blocker": "Connected Supabase database calls currently return ECONNREFUSED against the project database endpoint. Do not reinterpret this as zero rows or healthy state.",
+    "x402_default": "TESTNET_UNLESS_EXPLICITLY_CONFIGURED_FALSE",
+    "zero_spend": true
+  },
+  "demand_signal": {
+    "platform": "Reddit",
+    "surface": "r/smallbusiness",
+    "thread": "MRO bid / RFQ analysis and supplier selection",
+    "url": "https://www.reddit.com/r/smallbusiness/comments/1wtpddn/how_to_do_a_mro_bid_rfq_analysis_and_supplier/",
+    "signal_state": "OBSERVED_DEMAND",
+    "buyer_state": "UNCONFIRMED",
+    "commercial_intent": "Plausible but not established",
+    "action": "HUMAN_REQUIRED"
+  },
+  "exact_human_gate": {
+    "what": "Review the thread and, only if subreddit rules and thread context permit, post one genuinely useful non-spam response that offers the existing NZ$49 quote-comparison service as an optional solution.",
+    "who": "Owner authenticated Reddit account",
+    "why": "Cross the acquisition boundary for the already-built toll booth without creating a new product or spending money.",
+    "value": "Potential first independent buyer for QUOTE-COMPARE-49",
+    "current_state": "DEMAND_OBSERVED / NOT_DISPATCHED",
+    "expected_next_state": "EXTERNAL_RESPONSE",
+    "human_minutes": 2,
+    "spend_nzd": 0,
+    "kill_condition": "Do not post if rules prohibit promotion, the thread is not genuinely relevant, or the response would not be useful without the offer."
+  },
+  "proof_required": [
+    "native external post permalink or equivalent independent evidence",
+    "buyer response identifying actual need",
+    "Stripe payment_intent.succeeded attributable to that buyer",
+    "revenue order and entitlement observed",
+    "quote inputs received through the paid-session intake",
+    "automated fulfillment artifact",
+    "delivery evidence",
+    "independent evidence join sufficient for Truth Oracle verification"
+  ],
+  "truth_rule": "Demand signal, public post, checkout availability, internal fulfillment rows, or model output do not create revenue. Scoreboard remains unchanged until independent settlement, fulfillment, delivery, and verification are evidenced."
+}
