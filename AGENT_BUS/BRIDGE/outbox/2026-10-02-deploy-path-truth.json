@@ -1,0 +1,9 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-02-deploy-path-truth",
+  "from": "grok-cloud",
+  "summary": "Root cause: CD watches BEC-PRIME/compiled/website not public/. Mirrored start/money/silo-master/seller-audit into compiled website. Live deploy still needs production-approved release-operator.",
+  "reads": ["AGENT_BUS/DEPLOY-PATH-TRUTH.md", "AGENT_BUS/DEPLOY-NOW.md"],
+  "revenue_claim_nzd": 0,
+  "created_at": "2026-10-02T12:40:00+13:00"
+}
