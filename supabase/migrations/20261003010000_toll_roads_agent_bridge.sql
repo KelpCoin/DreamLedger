@@ -121,3 +121,39 @@ revoke all on function public.record_toll_call(text,text,text,text,jsonb) from p
 grant execute on function public.upsert_toll_entitlement(text,text,text,text,text,integer,timestamptz,text) to service_role;
 grant execute on function public.consume_toll_entitlement(text,text,integer) to service_role;
 grant execute on function public.record_toll_call(text,text,text,text,jsonb) to service_role;
+
+
+create or replace function public.consume_and_record_toll_call(
+  p_key_id text,p_road_id text,p_event_id text,p_input_hash text,p_output jsonb,p_calls integer default 1
+) returns jsonb
+language plpgsql security definer set search_path=public
+as $$
+declare r public.toll_entitlements;
+begin
+  if p_calls<1 then
+    return jsonb_build_object('consumed',false,'calls_remaining',0,'error','invalid_call_count');
+  end if;
+
+  update public.toll_entitlements
+     set calls_remaining=calls_remaining-p_calls
+   where key_id=p_key_id and road_id=p_road_id
+     and expires_at>now() and calls_remaining>=p_calls
+   returning * into r;
+
+  if not found then
+    return jsonb_build_object('consumed',false,'calls_remaining',0,'error','toll_key_exhausted');
+  end if;
+
+  insert into public.toll_calls(road_id,key_id,event_id,input_hash,output)
+  values(p_road_id,p_key_id,p_event_id,p_input_hash,p_output);
+
+  return jsonb_build_object(
+    'consumed',true,
+    'calls_remaining',r.calls_remaining,
+    'expires_at',r.expires_at
+  );
+end;
+$$;
+
+revoke all on function public.consume_and_record_toll_call(text,text,text,text,jsonb,integer) from public,anon,authenticated;
+grant execute on function public.consume_and_record_toll_call(text,text,text,text,jsonb,integer) to service_role;
