@@ -1,16 +1,36 @@
 {
-  "audit_date":"2026-10-03",
-  "mode":"HANDS_OFF_ECONOMIC_CATALYST",
-  "blocked_at":"DATABASE",
-  "because":"Supabase control plane is ACTIVE_HEALTHY but read-only Postgres inspection returns ECONNREFUSED against the project database IPv6 endpoint.",
-  "required":"Restore production database observability, then inspect revenue_entitlements, revenue_orders, fulfillment_requests, constraints, triggers, functions and live rows.",
-  "fallback":"Repository inspection only. quote-intake declares settlement, SKU, order, entitlement and fulfillment checks, but live DB state remains unobservable.",
-  "owner_action":"NONE_YET",
-  "human_minutes":0,
-  "scoreboard":{"VERIFIED_EXTERNAL_REVENUE_NZD":0,"SETTLED_EXTERNAL_PAYMENTS":0,"INDEPENDENT_EXTERNAL_BUYERS":0,"VERIFIED_ECONOMIC_OUTCOMES":0},
-  "render":{"auto_deploy":"yes","live_commit":"bc78d17de62b0138f1ffafbe77275e23c7628d9e","main_commit":"b5ce2133b11e7b0acd41b0ccdbf67739b1b45a14"},
-  "ci_status":"NOT_PROVEN",
-  "local_runtime":"UNOBSERVABLE",
-  "decision":"NO_NEW_ENTITLEMENT_TABLE; NO_NEW_PAYMENT_RAIL; NO_SCOREBOARD_PROMOTION; NO_PRODUCTION_SCHEMA_MUTATION_UNTIL_DB_OBSERVABLE",
-  "next_blocker":"DATABASE_OBSERVABILITY"
+  "audit_date": "2026-10-03",
+  "mode": "HANDS_OFF_ECONOMIC_CATALYST",
+  "blocked_at": "SETTLEMENT",
+  "because": "Live Supabase function observation shows stripe-revenue is configured=false because STRIPE_API_KEY is absent; recent POST webhook invocations returned HTTP 503. This blocks authoritative payment observation before fulfillment. Direct Postgres inspection also remains UNOBSERVABLE because the connector attempts the IPv6 database endpoint and receives ECONNREFUSED.",
+  "required": "Preserve the currently deployed Stripe webhook behavior while removing the unnecessary global STRIPE_API_KEY prerequisite for checkout.session.completed; keep payment_intent reconciliation and marketplace transfer paths fail-closed when the API key is absent. Then obtain CI proof, deploy through the normal path, re-check the live webhook, and restore authorized database observability.",
+  "fallback": "Repository and deployed Edge Function inspection only. The deployed function is version 24 and contains payment_intent.succeeded handling absent from main; do not downgrade production behavior. No production schema mutation and no scoreboard promotion.",
+  "owner_action": "NONE_YET",
+  "human_minutes": 0,
+  "expected_economic_effect": "Restores the possibility of recording settled Stripe Checkout payments for non-marketplace checkout flows without weakening signature verification. It does not create revenue and cannot promote the scoreboard.",
+  "evidence": {
+    "stripe_webhook_get": "configured=false; supabase_url=true; service_role_key=true; stripe_api_key=false; stripe_webhook_secret=true",
+    "recent_webhook_503s": [
+      "2026-10-02T19:09:22.754000",
+      "2026-10-02T17:57:09.364000",
+      "2026-10-02T15:07:11.479000",
+      "2026-10-02T14:07:36.103000",
+      "2026-10-02T04:31:33.776000"
+    ],
+    "deployed_edge_function_version": 24,
+    "deployed_edge_function_sha256": "347bbccc701af18d37050a02ba4c083eb244bcadc3cfe399c432620212ff3737",
+    "github_fix_commit": "3b630d2064ce648f360430902e5d0b6808c267f8",
+    "pull_request": 439
+  },
+  "scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "ci_status": "NOT_PROVEN",
+  "ci_observation": "PR 439 has many concurrent queued/in-progress workflows and several completed failures; no completed relevant workflow proving this head is green yet.",
+  "render": "UNOBSERVABLE without selected Render workspace",
+  "local_runtime": "UNOBSERVABLE",
+  "next_blocker": "CI_OR_PRODUCTION_DEPLOY_VERIFICATION"
 }
