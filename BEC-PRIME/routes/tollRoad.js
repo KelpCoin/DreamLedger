@@ -19,7 +19,7 @@ async function createCheckout(scope){
 }
 async function redeem(scope,sessionId){
   if(!STRIPE_SECRET_KEY)throw Object.assign(new Error('Stripe secret key is not configured'),{statusCode:503});
-  const response=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(sessionId),{headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
+  const response=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(sessionId)+'?expand[]=line_items',{headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe session lookup failed'),{statusCode:502});
   if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.toll_scope!==scope)throw Object.assign(new Error('Settled payment required before key issuance'),{statusCode:402});
@@ -28,7 +28,7 @@ async function redeem(scope,sessionId){
   const expectedAmount=Math.round(expectedPriceNzd*100);
   const line=data.line_items?.data?.[0];
   if(line && Number(line.amount_total||line.price?.unit_amount||0)!==expectedAmount)throw Object.assign(new Error('Checkout amount attribution mismatch'),{statusCode:409});
-  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,callsRemaining:scope==='gauntlet'?10:10,reference:sessionId})};
+  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,callsRemaining:100000,reference:sessionId})};
 }
 
 function send(res,status,body){
