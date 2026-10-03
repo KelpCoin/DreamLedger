@@ -1,0 +1,67 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_product_feed_cleaning_49",
+  "substrate_type": "product_catalogue_feeds",
+  "substrate_requirements": {
+    "required_fields": [
+      "1_product_feed_file",
+      "stable_product_identifier",
+      "declared_normalization_rules"
+    ],
+    "minimum_sample": 10
+  },
+  "demand_family": "catalogue_data_normalization",
+  "transformation": {
+    "name": "PRODUCT_FEED_CLEANING",
+    "worker": "EXISTING_PRIMITIVE:DATA_NORMALIZATION",
+    "steps": [
+      "hash_source",
+      "parse_feed",
+      "normalize_columns",
+      "canonicalize_units_and_field_names",
+      "detect_duplicates",
+      "detect_missing_required_fields",
+      "detect_anomalies",
+      "preserve_source_values",
+      "emit_cleaned_feed_and_exception_list",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "normalized_catalogue_package",
+    "contains": [
+      "cleaned_csv_or_json",
+      "normalization_map",
+      "duplicate_list",
+      "missing_field_list",
+      "anomaly_list",
+      "source_references",
+      "source_hash",
+      "exception_summary"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 49,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_PRIMITIVE:DATA_NORMALIZATION",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "feed cannot be parsed deterministically",
+    "stable product identifiers are absent",
+    "normalization rules cannot be bounded",
+    "cannot preserve source values",
+    "cannot produce evidence-backed exception list",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
