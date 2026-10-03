@@ -39,12 +39,12 @@ if (-not (Test-Path $offerPath)) { throw "Missing compiled offer catalog: $offer
 
 $product = Get-Content $productPath -Raw | ConvertFrom-Json
 if ($product.id -ne 'COMMANDER-DECK-DIAGNOSTIC-001') { throw 'Unexpected activation SKU' }
-if ($product.price -ne 2500 -or $product.currency -ne 'nzd') { throw 'Activation SKU price/currency changed; refusing to activate' }
+if ($product.price -ne 29 -or $product.currency -ne 'nzd') { throw 'Activation SKU price/currency changed; refusing to activate' }
 
 $product.commercial_truth.approval_required = $false
 $product.commercial_truth.activation_gate = 'FIRST_REVENUE_GATES_PASS'
 $product.commercial_truth.activation_timestamp = (Get-Date).ToUniversalTime().ToString('o')
-$product.commercial_truth.payment_surface = 'engine-generated-stripe-checkout'
+$product.commercial_truth.payment_surface = 'stripe-payment-link'
 $product.evidence.status = 'awaiting_first_payment'
 
 $backup = "$productPath.pre-activation.json"
@@ -55,7 +55,7 @@ $proof = [ordered]@{
     type = 'dreamledger-first-revenue-activation-gate'
     status = 'PASS'
     sku = $product.id
-    price_nzd = [math]::Round($product.price / 100, 2)
+    price_nzd = [math]::Round([double]$product.price, 2)
     gates = $gates
     activation_rule = 'No activation occurs unless all required verification gates exit successfully.'
     payment_proof_status = 'AWAITING_FIRST_PAYMENT'
