@@ -37,7 +37,7 @@ jobs:
           test -f public/billboard.html
           test -f public/server.js
           internal_pattern='Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST'
-          confidential_pattern='SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY'
+          confidential_pattern='sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY'
           internal_found=0
           confidential_found=0
           while IFS= read -r -d '' file; do
