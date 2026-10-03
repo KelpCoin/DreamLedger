@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/agent-commerce/v2",
-  "updated": "2026-09-26",
+  "updated": "2026-10-03",
   "purpose": "Public machine-readable commerce contract for partners and shopping agents.",
   "storefront": "https://dreamledger.org/",
   "fee_policy": {
@@ -10,7 +10,12 @@
     "note": "Listed NZD price is what the buyer pays for the offer. Stripe processing fees are separate."
   },
   "economic_event": {
-    "order": ["authorized", "paid", "delivered", "proven"],
+    "order": [
+      "authorized",
+      "paid",
+      "delivered",
+      "proven"
+    ],
     "settlement_authority": "stripe_live_only",
     "rule": "A checkout start is not revenue. Verified revenue requires external Stripe payment evidence plus fulfillment proof.",
     "client_reference": "Pass product_id as Stripe client_reference_id via /buy/{product_id} when possible."
@@ -101,5 +106,30 @@
     "do_not_invent_payment_references": true,
     "do_not_claim_revenue_without_stripe_evidence": true
   },
-  "public_boundary": "Customer- and partner-facing. Internal ops language excluded."
+  "public_boundary": "Customer- and partner-facing. Internal ops language excluded.",
+  "marketplace": {
+    "schema": "dreamledger-agent-commerce/v2",
+    "capabilities": "https://dreamledger.org/api/marketplace/v2/capabilities",
+    "catalog": "https://dreamledger.org/api/marketplace/v2/agent-catalog",
+    "authority_manifest": "https://dreamledger.org/api/marketplace/v2/agent-access/manifest",
+    "purchase_rule": "Discovery and cart preparation may be automated. Purchase requires separately approved authority.",
+    "idempotency": "Mutating marketplace requests support Idempotency-Key.",
+    "reservation_ttl_minutes": 15,
+    "fees": {
+      "listing_nzd": 0,
+      "success_nzd": 0,
+      "buyer_mandatory_nzd": 0
+    },
+    "commerce": [
+      "discovery",
+      "cart_prepare",
+      "offers",
+      "checkout",
+      "shipping",
+      "delivery_confirmation",
+      "disputes",
+      "reputation"
+    ],
+    "truth_rule": "Settled external payment plus fulfillment plus independent evidence is required before verified economic truth."
+  }
 }
