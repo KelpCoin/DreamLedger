@@ -1,0 +1,65 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_buyer_requirement_matching_29",
+  "substrate_type": "buyer_brief_plus_catalogue",
+  "substrate_requirements": {
+    "required_fields": [
+      "buyer_requirement_brief",
+      "product_catalogue",
+      "stable_product_identifier"
+    ],
+    "minimum_sample": 1
+  },
+  "demand_family": "buyer_supplier_matching",
+  "transformation": {
+    "name": "BUYER_REQUIREMENT_MATCHING",
+    "worker": "EXISTING_PRIMITIVE:CATALOG_MATCHING",
+    "steps": [
+      "hash_inputs",
+      "normalize_buyer_requirements",
+      "normalize_catalogue_fields",
+      "match_by_explicit_requirements",
+      "score_only_declared_match_fields",
+      "flag_missing_or_conflicting_requirements",
+      "preserve_unknowns",
+      "emit_match_table_and_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "buyer_match_packet",
+    "contains": [
+      "matched_products",
+      "match_reasons",
+      "unmatched_requirements",
+      "missing_fields",
+      "conflicts",
+      "source_references",
+      "unknowns",
+      "source_hashes"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 29,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_PRIMITIVE:CATALOG_MATCHING",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "buyer requirements cannot be represented in bounded fields",
+    "catalogue lacks sufficient explicit attributes",
+    "matching requires unsupported inference",
+    "cannot preserve unknowns",
+    "cannot emit evidence-backed match reasons",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
