@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<title>Sell · DreamLedger</title>
+<style>
+:root{--bg:#0a0a0a;--surface:#141414;--text:#f4f2eb;--text-2:#b5b2a8;--text-3:#7a776f;--border:#2a2a2a;--accent:#e8e4d6;--positive:#6bcf8e;--r:10px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.top{padding:calc(.55rem + var(--st)) 1rem .45rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.top a{color:var(--text-2);text-decoration:none;font-size:.85rem;font-weight:500}.top h1{font-size:.95rem;font-weight:600}
+.badge{font-size:.65rem;font-weight:700;color:var(--positive);border:1px solid rgba(107,207,142,.25);background:rgba(107,207,142,.1);padding:.22rem .5rem;border-radius:999px;text-transform:uppercase}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem}
+h2{font-size:1.25rem;letter-spacing:-.03em;margin-bottom:.35rem}.sub{color:var(--text-2);font-size:.88rem;margin-bottom:1rem}
+.pts{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1.1rem}.pts span{font-size:.68rem;color:var(--text-3);border:1px solid var(--border);background:var(--surface);padding:.28rem .5rem;border-radius:7px}
+label{display:block;font-size:.68rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--text-3);margin:.75rem 0 .32rem}
+input,select,textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font:inherit;font-size:1rem;padding:.72rem .8rem;outline:none;-webkit-appearance:none}
+textarea{min-height:96px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.note{margin-top:1rem;padding:.7rem .8rem;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);font-size:.78rem;color:var(--text-2)}.note strong{color:var(--text)}
+.money{border-color:rgba(107,207,142,.25);background:rgba(107,207,142,.06)}.money strong{color:var(--positive)}
+.bot{padding:.6rem 1rem calc(.7rem + var(--sb));border-top:1px solid var(--border)}
+.cta{width:100%;height:50px;border:none;border-radius:var(--r);background:var(--accent);color:#111;font-weight:600;font-size:.95rem}.cta:disabled{opacity:.4}
+.fee{text-align:center;color:var(--positive);font-size:.7rem;font-weight:500;margin-top:.35rem}
+.done{display:none;text-align:center;padding:2rem 1rem}.done.show{display:block}
+.done a,.done button{display:flex;align-items:center;justify-content:center;height:46px;border-radius:var(--r);font-weight:600;text-decoration:none;margin:.4rem auto;max-width:280px;width:100%;border:none;cursor:pointer}
+.done .p{background:var(--accent);color:#111}.done .s{background:transparent;color:var(--accent);border:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header class="top"><a href="/catalogue.html">← Catalogue</a><h1>List an item</h1><span class="badge">$0 fees</span></header>
+<div class="scroll">
+<div id="fw">
+<h2>Put it up for sale</h2>
+<p class="sub">Zero listing fees. Zero success fees. You keep what you make.</p>
+<div class="pts"><span>Free to list</span><span>NZ only</span><span>Truth-first</span><span>No take rate</span></div>
+<form id="f">
+<label for="title">What are you selling?</label>
+<input id="title" required maxlength="80" placeholder="e.g. Vintage wool jersey, size M"/>
+<label for="category">Category</label>
+<select id="category" required><option value="" disabled selected>Choose category</option><option value="clothing">Clothing</option><option value="home">Home</option><option value="electronics">Electronics</option><option value="sport">Sport</option><option value="collectibles">Collectibles</option><option value="mtg">MTG / cards</option><option value="vehicles">Vehicles</option><option value="services">Services</option><option value="other">Other</option></select>
+<div class="row"><div><label for="price">Price (NZD)</label><input id="price" type="number" inputmode="decimal" min="0" step="1" required placeholder="0"/></div>
+<div><label for="condition">Condition</label><select id="condition" required><option value="" disabled selected>Select</option><option value="new">New</option><option value="like-new">Like new</option><option value="good">Good</option><option value="fair">Fair</option><option value="parts">For parts</option></select></div></div>
+<label for="location">Location</label><input id="location" required placeholder="e.g. Wellington"/>
+<label for="desc">Description</label><textarea id="desc" required maxlength="1200" placeholder="Condition, size, pickup/delivery."></textarea>
+<div class="note"><strong>Truth gate.</strong> Misrepresented items get removed.</div>
+<div class="note money"><strong>How we make money:</strong> not on your listing — platform offers only.</div>
+</form>
+</div>
+<div class="done" id="done"><h2>It's in the catalogue</h2><p class="sub">Live for buyers. $0 fees.</p>
+<a class="p" href="/catalogue.html">See it in catalogue</a>
+<button type="button" class="s" id="again">List another</button></div>
+</div>
+<footer class="bot" id="bar"><button class="cta" id="go" type="submit" form="f" disabled>Publish listing · free</button><p class="fee">$0 listing fee · $0 success fee</p></footer>
+<script src="/app.js"></script>
+<script>
+const f=document.getElementById('f'),go=document.getElementById('go'),done=document.getElementById('done'),fw=document.getElementById('fw'),bar=document.getElementById('bar');
+function ok(){return f.title.value.trim()&&f.category.value&&f.price.value!==''&&f.condition.value&&f.location.value.trim()&&f.desc.value.trim()}
+f.addEventListener('input',()=>{go.disabled=!ok()});
+f.addEventListener('submit',e=>{e.preventDefault();if(!ok()||!window.DL)return;DL.saveListing({id:'L'+Date.now(),title:f.title.value.trim(),category:f.category.value,price:Number(f.price.value),condition:f.condition.value,location:f.location.value.trim(),description:f.desc.value.trim(),photos:0,fee:0,status:'live',createdAt:new Date().toISOString()});fw.style.display='none';bar.style.display='none';done.classList.add('show')});
+document.getElementById('again').onclick=()=>{f.reset();go.disabled=true;fw.style.display='';bar.style.display='';done.classList.remove('show')};
+</script>
+</body>
+</html>
