@@ -1,0 +1,66 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_price_anomaly_detection_49",
+  "substrate_type": "historical_or_multi_supplier_sku_prices",
+  "substrate_requirements": {
+    "required_fields": [
+      "5_or_more_sku_price_records",
+      "stable_product_identifier",
+      "price_source_or_timestamp"
+    ],
+    "minimum_sample": 5
+  },
+  "demand_family": "procurement_exception_detection",
+  "transformation": {
+    "name": "PRICE_ANOMALY_DETECTION",
+    "worker": "EXISTING_PRIMITIVE:DATA_NORMALIZATION_PLUS_COMPARISON",
+    "steps": [
+      "hash_source",
+      "normalize_sku_price_records",
+      "group_comparable_skus",
+      "calculate_reference_price",
+      "flag_material_outliers",
+      "separate_missing_from_anomalous",
+      "preserve_unknowns",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "price_anomaly_report",
+    "contains": [
+      "sku",
+      "observed_prices",
+      "reference_price",
+      "delta",
+      "anomaly_flag",
+      "source_context",
+      "missing_data",
+      "unknowns",
+      "source_hash"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 49,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_PRIMITIVE:DATA_NORMALIZATION_PLUS_COMPARISON",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "insufficient comparable observations",
+    "reference price cannot be explained or reproduced",
+    "outlier threshold cannot be bounded before execution",
+    "cannot preserve unknowns",
+    "cannot emit evidence-backed anomaly records",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
