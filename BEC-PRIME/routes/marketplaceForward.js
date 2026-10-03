@@ -48,6 +48,24 @@ async function stripeCheckout(listing,orderId,email){
 async function handle(req,res,url){
  if(!url.startsWith('/api/marketplace/v2/'))return false;
  try{
+  if(req.method==='POST'&&url==='/api/marketplace/v2/agent-access'){
+   const {id}=requireVerified(req),b=await body(req),name=String(b.name||'').trim().slice(0,100),scope=String(b.scope||'DISCOVERY'),max=Number(b.max_nzd||0);
+   const scopes=new Set(['DISCOVERY','CART_PREPARE','PURCHASE_AUTHORIZE']);
+   if(!name||!scopes.has(scope)||!Number.isFinite(max)||max<0)return json(res,422,{error:'valid name, scope and non-negative max_nzd required'});
+   const file=SOCIAL('marketplace-agent-access'),items=read(file,[]);
+   const item={id:'aga_'+crypto.randomBytes(10).toString('hex'),owner_id:id,name,scope,max_nzd:Math.round(max*100)/100,status:'PENDING_APPROVAL',created_at:new Date().toISOString(),revoked_at:null};
+   items.push(item);write(file,items);
+   return json(res,201,{ok:true,item,authority:'NOT_GRANTED'});
+  }
+  if(req.method==='GET'&&url==='/api/marketplace/v2/agent-access'){
+   const id=requireUser(req),items=read(SOCIAL('marketplace-agent-access'),[]).filter(x=>x.owner_id===id);
+   return json(res,200,{items});
+  }
+  if(req.method==='GET'&&url==='/api/marketplace/v2/agent-catalog'){
+   const u=new URL(req.url,'http://localhost'),q=String(u.searchParams.get('q')||'').trim().toLowerCase(),limit=Math.min(100,Math.max(1,Number(u.searchParams.get('limit')||50)));
+   const items=read(LISTINGS,[]).filter(x=>x.status==='APPROVED').filter(x=>{const hay=[x.title,x.description,x.category,x.location].join(' ').toLowerCase();return !q||hay.includes(q)}).slice(0,limit);
+   return json(res,200,{protocol:'dreamledger-agent-commerce/v1',authority:{discovery:true,cart_prepare:true,purchase_requires_explicit_authorization:true},fees:{listing:0,success:0,buyer_mandatory:0},items:items.map(x=>({id:x.id,title:x.title,category:x.category,price_nzd:x.price,quantity:x.quantity,reserved:x.reserved,condition:x.condition,location:x.location,seller_id:x.seller_id,checkout:'AUTHORIZATION_REQUIRED'}))});
+  }
   if(req.method==='GET'&&url==='/api/marketplace/v2/manifest')return json(res,200,{schema:'dreamledger/marketplace-forward/v1',fees:{listing_nzd:0,success_nzd:0,buyer_mandatory_nzd:0},payment:'Stripe',fulfillment:'external-payment -> evidence -> reputation',status:'LIVE_CODE_PATH'});
   if(req.method==='GET'&&url==='/api/marketplace/v2/listings'){
    const u=new URL(req.url,'http://localhost'),q=String(u.searchParams.get('q')||'').trim().toLowerCase(),cat=String(u.searchParams.get('category')||'').trim().toLowerCase(),sort=String(u.searchParams.get('sort')||'new'),limit=Math.min(100,Math.max(1,Number(u.searchParams.get('limit')||40))),offset=Math.max(0,Number(u.searchParams.get('offset')||0));
