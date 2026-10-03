@@ -12,6 +12,8 @@ const PAYMENT_LINK="plink_1UKq77EGgEAnUFF9KOr1SuUY";
 const SKU="QUOTE-COMPARE-49";
 const MAX_FILES=5;
 const MAX_BYTES=10*1024*1024;
+const MAX_UPLOAD_INITS=5;
+const MAX_FINALIZE_ATTEMPTS=3;
 const cors={"Access-Control-Allow-Origin":"https://dreamledger.org","Access-Control-Allow-Headers":"content-type","Access-Control-Allow-Methods":"POST,OPTIONS"};
 const out=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"content-type":"application/json","cache-control":"no-store",...cors}});
 function safeName(name:string){const cleaned=name.normalize("NFKC").replace(/[^a-zA-Z0-9._-]+/g,"_").replace(/^\.+/,"").slice(0,140);return cleaned||"quote";}
@@ -37,6 +39,10 @@ Deno.serve(async req=>{
   try{
     const ctx=await sessionContext(sessionId);const fr=ctx.fulfillment;
     if(action==="initialize"){
+      if(fr.status==="fulfilled")return out({error:"ALREADY_FULFILLED",fulfillment_request_id:fr.id},409);
+      const pl=(fr.payload&&typeof fr.payload==="object")?fr.payload:{};
+      const inits=Number((pl as any).upload_inits||0);
+      if(inits>=MAX_UPLOAD_INITS)return out({error:"UPLOAD_LIMIT_REACHED"},429);
       const supplied=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];
       if(supplied.length<2||supplied.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const uploads=[];
@@ -47,9 +53,15 @@ Deno.serve(async req=>{
         if(error||!data)return out({error:"SIGNED_UPLOAD_URL_FAILED"},500);
         uploads.push({path,token:data.token,name:original});
       }
+      const {error:ie}=await db.from("fulfillment_requests").update({payload:{...pl,upload_inits:inits+1}}).eq("id",fr.id);
+      if(ie)return out({error:"FULFILLMENT_UPDATE_FAILED"},500);
       return out({ok:true,action,fulfillment_request_id:fr.id,order_id:ctx.order.id,uploads});
     }
     if(action==="finalize"){
+      if(fr.status==="fulfilled")return out({error:"ALREADY_FULFILLED",fulfillment_request_id:fr.id},409);
+      const pl=(fr.payload&&typeof fr.payload==="object")?fr.payload:{};
+      const attempts=Number((pl as any).finalize_attempts||0);
+      if(attempts>=MAX_FINALIZE_ATTEMPTS)return out({error:"ATTEMPT_LIMIT_REACHED"},429);
       const files=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const requirements=String(body.requirements||"").trim().slice(0,12000);if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
       const inputFiles=[];
@@ -62,14 +74,13 @@ Deno.serve(async req=>{
         if(!listed.data?.some(x=>p.endsWith("/"+x.name)))return out({error:"UPLOADED_FILE_NOT_FOUND",file:name},400);
         inputFiles.push({path:p,name,size,sha256:String(file.sha256||"")||null});
       }
-      const existingPayload=(fr.payload&&typeof fr.payload==="object")?fr.payload:{};
-      const payload={...existingPayload,source:"quote_intake",requirements,input_files:inputFiles,finalized_at:new Date().toISOString()};
+      const payload={...pl,source:"quote_intake",requirements,input_files:inputFiles,finalized_at:new Date().toISOString(),finalize_attempts:attempts+1};
       const {error:updateError}=await db.from("fulfillment_requests").update({payload,status:"queued",canonical_state:"INPUTS_READY",evidence_status:"UNVERIFIED"}).eq("id",fr.id);
       if(updateError)return out({error:"FULFILLMENT_UPDATE_FAILED"},500);
       const workerUrl=SUPABASE_URL+"/functions/v1/quote-fulfillment";
       const worker=await fetch(workerUrl,{method:"POST",headers:{Authorization:"Bearer "+SERVICE_ROLE_KEY,apikey:SERVICE_ROLE_KEY,"Content-Type":"application/json"},body:JSON.stringify({fulfillment_request_id:fr.id})});
       const wt=await worker.text();let wd:any;try{wd=JSON.parse(wt)}catch{wd={raw:wt}};
-      if(!worker.ok||wd?.ok===false)return out({error:"FULFILLMENT_WORKER_FAILED",fulfillment_request_id:fr.id,worker:wd,status:"queued"},502);
+      if(!worker.ok||wd?.ok===false)return out({error:"FULFILLMENT_WORKER_FAILED",fulfillment_request_id:fr.id,worker:wd,status:"queued",attempts_remaining:MAX_FINALIZE_ATTEMPTS-(attempts+1)},502);
       return out({ok:true,action,fulfillment_request_id:fr.id,status:wd.status||"fulfilled",fulfillment_reference:wd.fulfillment_reference||null,evidence_reference:wd.evidence_reference||null});
     }
     if(action==="status"){
