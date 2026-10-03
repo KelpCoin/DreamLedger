@@ -1,0 +1,306 @@
+{
+  "schema": "dreamledger/service-surface-monetization-inventory/v1",
+  "observed_at": "2026-10-04T10:14:00+13:00",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "main",
+  "commit_before_change": "f29b70cf30d99ec98ae313b1f81211dd6c61ed46",
+  "rule": "Observed capability only. No revenue inference.",
+  "services": [
+    {
+      "service_id": "QUOTE-COMPARE-49",
+      "capability_id": "SUPPLIER_QUOTE_COMPARISON",
+      "customer_problem": "Compare 2-5 supplier quotes on a common basis.",
+      "buyer_class": "procurement buyer",
+      "customer_input": [
+        "2-5 PDF/CSV/JSON/Markdown supplier quotes",
+        "purchase requirements or scope"
+      ],
+      "automated_process": [
+        "secure paid-session intake",
+        "source hashing",
+        "text extraction",
+        "quote normalization",
+        "stated-total comparison",
+        "MOQ/lead-time/payment-term extraction",
+        "exception detection"
+      ],
+      "deliverable": "decision packet plus CSV/HTML delivery artifacts",
+      "existing_substrate": [
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json",
+        "supabase/functions/quote-intake",
+        "supabase/functions/quote-fulfillment"
+      ],
+      "existing_endpoint": "https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/quote-intake",
+      "existing_fulfillment": "supabase/functions/quote-fulfillment",
+      "existing_evidence": "source SHA-256, fulfillment_reference, evidence_reference, fulfillment state",
+      "payment_path": "Stripe payment link for QUOTE-COMPARE-49",
+      "entitlement_path": "revenue_orders -> revenue_entitlements -> fulfillment_requests",
+      "key_path": "No separate customer key observed; Stripe checkout session plus canonical entitlement is the existing access boundary.",
+      "service_wall": "quote-intake sessionContext verifies live Stripe paid state, exact payment link, SKU, revenue order, entitlement and fulfillment request before intake.",
+      "automated_delivery_allowed": true,
+      "human_gate_required": false,
+      "owner_minutes": 0,
+      "estimated_customer_value": "NZ$49 one-time decision packet",
+      "repeatability": "9999 inventory in public catalog",
+      "current_blocker": "No observed public post-payment quote input page in the repository before this change.",
+      "smallest_required_change": "Add a static customer intake surface that calls the existing quote-intake wall and existing quote-fulfillment worker.",
+      "economic_path": "payment -> canonical settlement -> entitlement -> quote-intake wall -> existing worker -> signed delivery",
+      "status": "READY_FOR_SERVICE",
+      "provenance": [
+        "public/catalog.json",
+        "public/quote-comparison/index.html",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json",
+        "Supabase quote-intake v2",
+        "Supabase quote-fulfillment v2"
+      ]
+    },
+    {
+      "service_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "capability_id": "COMMANDER_DIAGNOSTIC",
+      "customer_problem": "Get an automated first-pass Commander deck diagnostic and upgrade plan.",
+      "buyer_class": "Commander player",
+      "customer_input": [
+        "decklist"
+      ],
+      "automated_process": [
+        "paid-session validation",
+        "deck analysis",
+        "diagnostic report",
+        "upgrade plan"
+      ],
+      "deliverable": "validated diagnostic artifact",
+      "existing_substrate": [
+        "public/diagnostic-input.html",
+        "BEC-PRIME/routes/mtgDiagnostic.js",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ],
+      "existing_endpoint": "/api/commercial/input and existing MTG diagnostic route",
+      "existing_fulfillment": "existing MTG diagnostic fulfillment library",
+      "existing_evidence": "report hash plus economic outcome RPC path",
+      "payment_path": "Stripe payment link for COMMANDER-DECK-DIAGNOSTIC-001",
+      "entitlement_path": "existing commercial/fulfillment path; exact runtime rows not independently queried in this audit",
+      "key_path": "Stripe session ID is the observed access credential.",
+      "service_wall": "public diagnostic input requires a Stripe session ID and passes it to the existing commercial input route.",
+      "automated_delivery_allowed": true,
+      "human_gate_required": false,
+      "owner_minutes": 0,
+      "estimated_customer_value": "NZ$29 one-time diagnostic",
+      "repeatability": "999 inventory in public catalog",
+      "current_blocker": "No observed live paid transaction in this audit.",
+      "smallest_required_change": "None required from repository inspection for the customer-facing input path.",
+      "economic_path": "Stripe payment -> session-gated input -> diagnostic fulfillment -> report artifact",
+      "status": "READY_FOR_DELIVERY",
+      "provenance": [
+        "public/catalog.json",
+        "public/diagnostic-input.html",
+        "BEC-PRIME/routes/mtgDiagnostic.js",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ]
+    },
+    {
+      "service_id": "TRUTH-ORACLE-PUBLIC",
+      "capability_id": "TRUTH_ORACLE",
+      "customer_problem": "Assess supplied evidence and preserve explicit verification states.",
+      "buyer_class": "evidence-conscious buyer",
+      "customer_input": [
+        "evidence set or claim context"
+      ],
+      "automated_process": [
+        "evidence classification and deterministic verification paths observed in existing functions"
+      ],
+      "deliverable": "structured verification state",
+      "existing_substrate": [
+        "public/truth-oracle.html",
+        "Supabase truth-oracle-public",
+        "Supabase truth-oracle-execute",
+        "BEC-PRIME/routes/truthOracleCommerce.js"
+      ],
+      "existing_endpoint": "Supabase truth-oracle public/execute functions and existing Truth Oracle commerce routes",
+      "existing_fulfillment": "Entitlement/access code exists; complete paid evidence-analysis delivery path was not fully observed.",
+      "existing_evidence": "VERIFIED/UNVERIFIED/CONTRADICTED/STALE/TEST/SIMULATED/INTERNAL/UNMATCHED states",
+      "payment_path": "Truth Oracle subscription checkout exists in BEC-PRIME/routes/truthOracleCommerce.js",
+      "entitlement_path": "truth-oracle billing state",
+      "key_path": "Authenticated account session, not a separate service key.",
+      "service_wall": "existing entitlement endpoint /api/truth-oracle/access",
+      "automated_delivery_allowed": true,
+      "human_gate_required": false,
+      "owner_minutes": 0,
+      "estimated_customer_value": "Paid Truth Oracle tiers exist, exact current production price not revalidated here.",
+      "repeatability": "subscription model",
+      "current_blocker": "Complete paid customer analysis-to-delivery path not fully observed.",
+      "smallest_required_change": "Do not change until the complete execution/delivery path is traced.",
+      "economic_path": "subscription checkout -> entitlement -> Truth Oracle execution -> result",
+      "status": "UNPROVEN",
+      "provenance": [
+        "public/truth-oracle.html",
+        "BEC-PRIME/routes/truthOracleCommerce.js",
+        "Supabase truth-oracle-public",
+        "Supabase truth-oracle-execute"
+      ]
+    },
+    {
+      "service_id": "BILLBOARD-FOUNDING",
+      "capability_id": "BILLBOARD_PLACEMENT",
+      "customer_problem": "Buy a finite permanent web placement.",
+      "buyer_class": "brand/project buyer",
+      "customer_input": [
+        "destination URL",
+        "tile metadata",
+        "creative"
+      ],
+      "automated_process": [
+        "paid session verification",
+        "inventory allocation",
+        "media persistence",
+        "publication path",
+        "proof"
+      ],
+      "deliverable": "public billboard placement",
+      "existing_substrate": [
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json",
+        "public billboard surface"
+      ],
+      "existing_endpoint": "existing billboard commerce route/webhook",
+      "existing_fulfillment": "automatic activation contract exists",
+      "existing_evidence": "fulfillment_id, transaction_id, grid_position, delivery_url, proof_url",
+      "payment_path": "existing Stripe checkout",
+      "entitlement_path": "payment-backed fulfillment state",
+      "key_path": "No separate customer key observed.",
+      "service_wall": "existing paid-session webhook/fulfillment path",
+      "automated_delivery_allowed": false,
+      "human_gate_required": true,
+      "owner_minutes": "unknown per transaction",
+      "estimated_customer_value": "NZ$50 founding tile",
+      "repeatability": "finite founding inventory",
+      "current_blocker": "Existing contract requires content review before publication.",
+      "smallest_required_change": "None for the present automated-plus-review contract.",
+      "economic_path": "payment -> review -> allocation -> publication -> proof",
+      "status": "AUTHORITY_BLOCKED",
+      "provenance": [
+        "public billboard surface",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ]
+    },
+    {
+      "service_id": "SELLER-PROFIT-AUDIT-001",
+      "capability_id": "SELLER_PROFIT_AUDIT",
+      "customer_problem": "Reconcile seller exports, fees and shipping into profit economics.",
+      "buyer_class": "marketplace seller",
+      "customer_input": [
+        "seller transaction export",
+        "fee/shipping inputs"
+      ],
+      "automated_process": [
+        "profit calculation",
+        "fee comparison",
+        "shipping economics"
+      ],
+      "deliverable": "PDF audit",
+      "existing_substrate": [
+        "public/catalog.json",
+        "BEC-PRIME fulfillment registry"
+      ],
+      "existing_endpoint": "existing Stripe checkout; no automated customer execution wall observed",
+      "existing_fulfillment": "manual PDF",
+      "existing_evidence": "calculation reconciliation",
+      "payment_path": "Stripe payment link",
+      "entitlement_path": "not observed",
+      "key_path": "not observed",
+      "service_wall": "not observed",
+      "automated_delivery_allowed": false,
+      "human_gate_required": true,
+      "owner_minutes": "unknown",
+      "estimated_customer_value": "NZ$29",
+      "repeatability": "9999 inventory",
+      "current_blocker": "Manual PDF fulfillment contract.",
+      "smallest_required_change": "Automation of existing calculation and delivery would be required, but that is larger than the current toll-road repair and was not performed.",
+      "economic_path": "payment -> manual fulfillment -> PDF",
+      "status": "BLOCKED",
+      "provenance": [
+        "public/catalog.json",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ]
+    },
+    {
+      "service_id": "ACNC-CHARITY-DD-99",
+      "capability_id": "ACNC_CHARITY_DUE_DILIGENCE",
+      "customer_problem": "Obtain a source-backed fixed-scope charity due-diligence report.",
+      "buyer_class": "research buyer",
+      "customer_input": [
+        "charity identifier"
+      ],
+      "automated_process": [
+        "public register retrieval",
+        "record matching",
+        "source hashing",
+        "bounded report generation"
+      ],
+      "deliverable": "source-backed report and source trail",
+      "existing_substrate": [
+        "public/catalog.json",
+        "Supabase acnc-research-worker",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ],
+      "existing_endpoint": "existing ACNC research worker",
+      "existing_fulfillment": "ACNC worker + evidence trail",
+      "existing_evidence": "source hashes and record match",
+      "payment_path": "Stripe payment link",
+      "entitlement_path": "not fully observed",
+      "key_path": "not observed",
+      "service_wall": "not fully observed",
+      "automated_delivery_allowed": true,
+      "human_gate_required": false,
+      "owner_minutes": 0,
+      "estimated_customer_value": "NZ$99",
+      "repeatability": "999",
+      "current_blocker": "Full payment-to-entitlement-to-delivery wall not fully traced.",
+      "smallest_required_change": "Trace existing ACNC paid fulfillment path before changing anything.",
+      "economic_path": "payment -> ACNC worker -> evidence-backed report",
+      "status": "UNPROVEN",
+      "provenance": [
+        "public/catalog.json",
+        "Supabase acnc-research-worker",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ]
+    },
+    {
+      "service_id": "TOLL-GAUNTLET",
+      "capability_id": "GAUNTLET_CANDIDATE_ANALYSIS",
+      "customer_problem": "Run a bounded candidate/offer analysis without exposing internal machinery.",
+      "buyer_class": "technical/commercial buyer",
+      "customer_input": "bounded JSON candidate",
+      "automated_process": [
+        "paid checkout",
+        "settlement check",
+        "key issuance",
+        "Gauntlet validation"
+      ],
+      "deliverable": "structured analysis result",
+      "existing_substrate": [
+        "BEC-PRIME/routes/tollRoad.js",
+        "BEC-PRIME/gauntlet/CandidateGauntlet.js",
+        "runtime TollRoad"
+      ],
+      "existing_endpoint": "/api/toll/v1/checkout/gauntlet, /api/toll/v1/redeem/gauntlet, /api/toll/v1/gauntlet",
+      "existing_fulfillment": "inline deterministic result",
+      "existing_evidence": "Gauntlet proof JSON",
+      "payment_path": "runtime TollRoad dynamically creates Stripe checkout",
+      "entitlement_path": "Toll.issueKey after Stripe live paid session verification",
+      "key_path": "Toll key",
+      "service_wall": "Authorization Bearer key verified by Toll.verifyKey",
+      "automated_delivery_allowed": true,
+      "human_gate_required": false,
+      "owner_minutes": 0,
+      "estimated_customer_value": "Configured price not revalidated in this audit.",
+      "repeatability": "100000 calls per issued key in route code",
+      "current_blocker": "Live customer-facing execution not independently exercised in this audit; current CI/status environment is not a payment test.",
+      "smallest_required_change": "No code change until live wall can be safely exercised without a real purchase.",
+      "economic_path": "Stripe settlement -> Toll key -> service wall -> CandidateGauntlet -> result",
+      "status": "READY_FOR_SERVICE",
+      "provenance": [
+        "BEC-PRIME/routes/tollRoad.js",
+        "BEC-PRIME/gauntlet/CandidateGauntlet.js"
+      ]
+    }
+  ]
+}

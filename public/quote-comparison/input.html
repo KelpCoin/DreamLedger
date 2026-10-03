@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Submit supplier quotes | DreamLedger</title>
+<meta name="description" content="Post-payment supplier quote comparison intake. Verified Stripe session required before fulfillment.">
+<style>
+body{margin:0;background:#090909;color:#eee;font:16px/1.55 system-ui,sans-serif}
+main{max-width:720px;margin:auto;padding:48px 20px 90px}
+.box{border:1px solid #333;background:#111;padding:24px;border-radius:16px}
+.k{color:#d5b45c;font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+label{display:block;font-weight:700;margin:18px 0 7px}
+input,textarea{box-sizing:border-box;width:100%;padding:11px 12px;background:#0b0b0b;color:#eee;border:1px solid #444;border-radius:9px}
+textarea{min-height:130px;resize:vertical}
+button{margin-top:20px;padding:13px 18px;border:0;border-radius:9px;background:#d5b45c;color:#090909;font-weight:800;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+#status{white-space:pre-wrap;margin-top:18px;color:#bbb}
+a{color:#d5b45c}
+.hint{color:#888;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<div class="k">DreamLedger - paid service</div>
+<h1>Submit supplier quotes</h1>
+<div class="box">
+<p>Payment must be settled before this intake wall opens. Submit 2-5 PDF, CSV, JSON or Markdown quotes and the purchase requirements. The existing quote-comparison worker performs extraction, normalization, comparison and digital delivery.</p>
+<label for="session_id">Stripe checkout session ID</label>
+<input id="session_id" autocomplete="off" placeholder="cs_live_...">
+<p class="hint">Use the session ID from the Stripe success URL or receipt.</p>
+<label for="requirements">Purchase requirements or scope</label>
+<textarea id="requirements" maxlength="12000" required placeholder="What are you buying, and what matters when comparing the suppliers?"></textarea>
+<label for="files">Supplier quotes</label>
+<input id="files" type="file" multiple accept=".pdf,.csv,.json,.md">
+<p class="hint">2-5 files. Maximum 10 MB per file.</p>
+<button id="submit" type="button">Submit quotes for automatic comparison</button>
+<div id="status" role="status"></div>
+</div>
+<p><a href="/quote-comparison/">Back to quote comparison</a></p>
+</main>
+<script type="module">
+const SUPABASE_URL = "https://wbwgroygjeyukkspnqiy.supabase.co";
+const SUPABASE_PUBLIC_KEY = "sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj";
+const FUNCTION_URL = SUPABASE_URL + "/functions/v1/quote-intake";
+const BUCKET = "marketplace-fulfillment";
+const q = new URLSearchParams(location.search);
+const sessionInput = document.getElementById("session_id");
+const requirementsInput = document.getElementById("requirements");
+const filesInput = document.getElementById("files");
+const button = document.getElementById("submit");
+const status = document.getElementById("status");
+const initialSession = q.get("session_id") || q.get("sessionId") || "";
+if (initialSession) sessionInput.value = initialSession;
+
+async function sha256(file) {
+  const buffer = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+async function api(body) {
+  const response = await fetch(FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_PUBLIC_KEY
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || ("Intake request failed (" + response.status + ")"));
+  return data;
+}
+
+async function uploadSigned(upload, file) {
+  const response = await fetch(SUPABASE_URL + "/storage/v1/object/upload/sign/" + encodeURIComponent(upload.path) + "?token=" + encodeURIComponent(upload.token), {
+    method: "PUT",
+    headers: {"Content-Type": file.type || "application/octet-stream"},
+    body: file
+  });
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error("Upload failed for " + file.name + ": " + body.slice(0,200));
+  }
+}
+
+async function submit() {
+  const sessionId = sessionInput.value.trim();
+  const requirements = requirementsInput.value.trim();
+  const files = Array.from(filesInput.files || []);
+  if (!sessionId) throw new Error("Stripe checkout session ID is required.");
+  if (!/^cs_[A-Za-z0-9_]+$/.test(sessionId)) throw new Error("Invalid Stripe checkout session ID.");
+  if (!requirements) throw new Error("Purchase requirements or scope are required.");
+  if (files.length < 2 || files.length > 5) throw new Error("Submit 2-5 supplier quotes.");
+  if (files.some(f => f.size <= 0 || f.size > 10 * 1024 * 1024)) throw new Error("Each file must be between 1 byte and 10 MB.");
+  const allowed = new Set(["pdf","csv","json","md"]);
+  for (const file of files) {
+    const ext = file.name.toLowerCase().split(".").pop() || "";
+    if (!allowed.has(ext)) throw new Error("Unsupported file type: " + file.name);
+  }
+
+  status.textContent = "Verifying payment and opening the service wall...";
+  const initialized = await api({
+    action: "initialize",
+    session_id: sessionId,
+    files: files.map(file => ({name:file.name}))
+  });
+
+  status.textContent = "Uploading " + files.length + " quote files...";
+  const prepared = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const upload = initialized.uploads[i];
+    await uploadSigned(upload, file);
+    prepared.push({
+      path: upload.path,
+      name: file.name,
+      size: file.size,
+      sha256: await sha256(file)
+    });
+  }
+
+  status.textContent = "Running automatic comparison...";
+  const finished = await api({
+    action: "finalize",
+    session_id: sessionId,
+    requirements,
+    files: prepared
+  });
+
+  if (finished.status === "fulfilled") {
+    const result = await api({action:"status", session_id:sessionId});
+    status.textContent = "Comparison complete.\nDownload: " + (result.download_url || "delivery URL not yet available");
+    if (result.download_url) {
+      const link = document.createElement("a");
+      link.href = result.download_url;
+      link.textContent = "Open your decision packet";
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.style.display = "block";
+      link.style.marginTop = "12px";
+      status.appendChild(link);
+    }
+    return;
+  }
+
+  status.textContent = "Accepted. Fulfillment state: " + String(finished.status || "queued") + ".";
+}
+
+button.addEventListener("click", async () => {
+  button.disabled = true;
+  try { await submit(); }
+  catch (error) { status.textContent = error instanceof Error ? error.message : String(error); }
+  finally { button.disabled = false; }
+});
+</script>
+</body>
+</html>
