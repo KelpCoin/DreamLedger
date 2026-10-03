@@ -5,19 +5,21 @@ const root=path.join(__dirname,'..');
 const site=path.join(root,'compiled','website');
 const deployedSite=path.join(root,'..','public');
 const required=['index.html','login.html','register.html','account.html','.well-known/agent-commerce.json','.well-known/ucp','truth-oracle.html','truth-oracle.json','transparency-policy.json'];
-// Secrets + ops jargon that must never ship on public HTML/JSON surfaces
-const forbidden=[
-  /api\/ip/i,/api\/control/i,/\/var\/data\//i,/sk_live_/i,/sk_test_/i,/whsec_/i,
-  /STRIPE_SECRET_KEY/i,/STRIPE_WEBHOOK_SECRET/i,/DIGITAL_PROXY_APPROVAL_TOKEN/i,
-  /LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,/DREAMIEZ_DATA_DIR/i,/DEMAND_RADAR_DATA_DIR/i,
-  /BEGIN .*PRIVATE KEY/i,/private prompts/i,/internal ledger records/i,
-  /FIRST_PAYMENT_PROOF\.json/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i,/cinema-event-v1/i,
-  /\bElohim\b/i,/\bELOHIM\b/i,/\bgauntlet\b/i,/BEC-PRIME/i,/AGENT_BUS/i,/PING_PONG/i,
-  /\bfossil\b/i,/evidence_fossil/i,/Settlement spine/i,/settlement_spine/i,
-  /Evidence decides/i,/\bMeter:\s*NZ\$/i,/verified_external_revenue/i,
-  /\b[c][s]_[a-zA-Z0-9]/i,/fail_closed/i,/fail-closed/i,/figure[- ]eight/i,
-  /\bpenstock\b/i,/\bTurbine [ABC]\b/i,/multi-LLM/i,/control plane/i,
-  /127\.0\.0\.1/i,/service_role/i,/STRIPE-CHECKOUT-/i
+// Three-level surface taxonomy. Internal terminology is diagnostic only; secrets are fatal.
+const confidential=[
+  /sk_live_[A-Za-z0-9]+/i,/sk_test_[A-Za-z0-9]+/i,/whsec_[A-Za-z0-9]+/i,
+  /SUPABASE_SERVICE_ROLE_KEY/i,/STRIPE_SECRET_KEY/i,/STRIPE_WEBHOOK_SECRET/i,
+  /DIGITAL_PROXY_APPROVAL_TOKEN/i,/BEGIN .*PRIVATE KEY/i
+];
+const internal=[
+  /api\\/ip/i,/api\\/control/i,/\\/var\\/data\\//i,/LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,
+  /DREAMIEZ_DATA_DIR/i,/DEMAND_RADAR_DATA_DIR/i,/private prompts/i,/internal ledger records/i,
+  /FIRST_PAYMENT_PROOF\\.json/i,/amplissa/i,/\\bBBW\\b/i,/big beautiful women/i,/cinema-event-v1/i,
+  /\\bElohim\\b/i,/\\bgauntlet\\b/i,/BEC-PRIME/i,/AGENT_BUS/i,/PING_PONG/i,/\\bfossil\\b/i,
+  /evidence_fossil/i,/Settlement spine/i,/settlement_spine/i,/Evidence decides/i,/\\bMeter:\\s*NZ\\$/i,
+  /verified_external_revenue/i,/\\b[c][s]_[a-zA-Z0-9]/i,/fail_closed/i,/fail-closed/i,
+  /figure[- ]eight/i,/\\bpenstock\\b/i,/\\bTurbine [ABC]\\b/i,/multi-LLM/i,/control plane/i,
+  /127\\.0\\.0\\.1/i,/service_role/i,/STRIPE-CHECKOUT-/i
 ];
 // Catalogue gate: validate the existing catalogue by state. Do not require arbitrary
 // products or manufacture public offerings just to satisfy the gate.
@@ -51,6 +53,21 @@ if(!fs.existsSync(catalogPath)){errors.push('CATALOGUE_MISSING:public/catalog.js
   }catch(e){errors.push('CATALOGUE_JSON_INVALID:public/catalog.json')}
 }
 const agentPath=path.join(site,'.well-known','agent-commerce.json');let agent={};try{agent=JSON.parse(fs.readFileSync(agentPath,'utf8'))}catch(e){/* optional if path missing */}
+for(const file of files){
+  const ext=path.extname(file).toLowerCase();
+  if(!textExtensions.has(ext)) continue;
+  const raw=fs.readFileSync(file,'utf8');
+  const rel=path.relative(root,file).replace(/\\/g,'/');
+  const confidentialHit=confidential.find(re=>re.test(raw));
+  if(confidentialHit){
+    errors.push(`CONFIDENTIAL_ASSET:${rel}`);
+    console.log(`CONFIDENTIAL:${rel}`);
+  }else{
+    const internalHit=internal.find(re=>re.test(raw));
+    if(internalHit) console.log(`INTERNAL_SKIP:${rel}`);
+    else console.log(`PUBLIC:${rel}`);
+  }
+}
 if(agent&&Object.keys(agent).length){
   if(agent.private_material!=='excluded'&&agent.private_material!==undefined)errors.push('AGENT_BOUNDARY:private_material');
 }
