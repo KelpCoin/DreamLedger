@@ -89,7 +89,7 @@ async function handle(req,res,url){
    const listings=read(LISTINGS,[]),listing=listings.find(x=>x.id===listingId&&x.status==='APPROVED');
    if(!listing)return json(res,404,{error:'listing not found'});if(listing.seller_id===id)return json(res,403,{error:'seller cannot buy own listing'});
    let reservation;
-   try{reservation=marketplaceCommerce.reserveCart(id,[{listing_id:listing.id,quantity:1}],key||('order_'+crypto.randomBytes(12).toString('hex')));}
+   try{reservation=marketplaceCommerce.reserveCart(id,[{listing_id:listing.id,quantity:1}], 'reservation_'+crypto.randomBytes(16).toString('hex'));}
    catch(e){return json(res,e.statusCode||409,{error:e.message});}
    const fileOrders=read(file,[]),order={id:'mkt_'+crypto.randomBytes(8).toString('hex'),listing_id:listing.id,cart_id:reservation.cart.id,idempotency_key:key||null,buyer_id:id,buyer_name:user.name||'Buyer',seller_id:listing.seller_id,seller_name:listing.seller_name,title:listing.title,total_nzd:listing.price,currency:'NZD',status:'PENDING_PAYMENT',payment_status:'UNPAID',fulfilment_status:'NOT_STARTED',delivery_status:'NOT_STARTED',evidence_status:'UNPROVEN',marketplace_fee_nzd:0,created_at:new Date().toISOString()};
    fileOrders.push(order);write(file,fileOrders);
