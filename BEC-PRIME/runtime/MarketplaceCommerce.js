@@ -213,7 +213,7 @@ async function handle(req,res,url){
         o.shipping={carrier,tracking_number:tracking,status,updated_at:new Date().toISOString()};
         o.delivery_status=status==='DELIVERED'?'DELIVERED':'IN_TRANSIT';o.updated_at=new Date().toISOString();write(ORDERS,orders);
         return {ok:true,order:o,commercial_truth:'SHIPPING_STATUS_OBSERVED_NOT_VERIFIED'};
-      };
+      });
       return json(res,result.status||200,result.error?{error:result.error}:result);
     }catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
