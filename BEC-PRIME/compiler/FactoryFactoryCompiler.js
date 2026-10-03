@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
 const APPROVED_SOURCE = path.join(ROOT, 'catalog', 'offers', 'approved.json');
+const SUBSTRATE_SOURCE = path.join(ROOT, '..', 'runtime', 'cube', 'substrate_inventory.json');
 const OUT_DIR = path.join(ROOT, 'data', 'factory-factory');
 const OUT = path.join(OUT_DIR, 'FACTORY-FACTORY-QUEUE.json');
 
@@ -149,6 +150,79 @@ function compileApprovedOffer(offer) {
   };
 }
 
+function compileSubstrateLane(lane) {
+  const laneId = String(lane.id || 'UNKNOWN-LANE');
+  const price = Number(lane.price_nzd || 0);
+  const surface = lane.current_surface || null;
+  const proof = lane.proof || 'settled payment + fulfillment + independent proof';
+  return {
+    experiment_id: `FFS-${hash(JSON.stringify(lane)).slice(0,16).toUpperCase()}`,
+    opportunity_id: `SUBSTRATE:${laneId}`,
+    silo: laneId.split('_')[0] || 'UNKNOWN',
+    title: laneId,
+    state: 'COMPILED_AWAITING_AUTHORIZATION',
+    demand: { buyer: lane.buyer || null, hypothesis: lane.hypothesis || null, evidence_required: lane.evidence_required || [] },
+    proposition: {
+      offer: lane.offer || laneId,
+      price_nzd: price,
+      smallest_test: lane.smallest_test || 'One authorized exposure and settlement attempt.'
+    },
+    inverse_gauntlet: {
+      required_buyer: lane.buyer || null,
+      required_offer: lane.offer || laneId,
+      required_price_nzd: price,
+      required_evidence: lane.evidence_required || [],
+      required_proof: [proof],
+      transaction_conditions: {
+        identifiable_external_buyer: true,
+        settled_payment: true,
+        correct_attribution: true,
+        fulfillment: true,
+        independent_proof: true
+      },
+      channel_constraints: [{
+        channel: surface || 'existing_authorized_surface',
+        publication: 'APPROVAL_REQUIRED',
+        transaction: 'APPROVAL_REQUIRED',
+        truth_claim: 'TRUTH_ORACLE_ONLY'
+      }]
+    },
+    inverse_cube: {
+      search_target: 'Find qualified buyers for this existing substrate capability without changing its truth boundary.',
+      buyer: lane.buyer || null,
+      offer: lane.offer || laneId,
+      price_nzd: price,
+      required_evidence: lane.evidence_required || [],
+      required_proof: [proof],
+      allowed_channels: surface ? [surface] : [],
+      smallest_test: lane.smallest_test || 'One authorized exposure and settlement attempt.',
+      kill_condition: 'No transaction after the approved exposure window, or fulfillment/proof cannot be delivered.',
+      exposure_multiplier: 1,
+      expansion_rule: 'Replicate only after an externally verified economic outcome.'
+    },
+    bidirectional_loop: {
+      forward: 'SUBSTRATE -> TRANSFORMATION -> GAUNTLET -> AUTHORITY -> EXPOSURE -> TRANSACTION -> TRUTH',
+      reverse: 'TRANSACTION_REQUIREMENTS -> INVERSE_GAUNTLET -> INVERSE_CUBE -> SUBSTRATE_DISCOVERY',
+      join: 'Existing substrate may become a test cell without becoming revenue.'
+    },
+    economics: { test_cost_nzd: 0, upside_nzd: price, spend_allowed_without_authorization: false },
+    execution: {
+      acquisition_surface: surface ? [surface] : [],
+      transaction_rail: lane.rail || 'existing commerce rail',
+      fulfillment: lane.rail || 'existing bounded fulfillment adapter',
+      next_action: 'prepare one authorized exposure packet; no Stripe mutation is implied',
+      external_action_required: true,
+      approval_required: true
+    },
+    truth: {
+      revenue_claim_allowed: false,
+      verification_required: ['external_buyer','settled_payment','correct_attribution','fulfillment','independent_proof']
+    },
+    provenance: { source: 'runtime/cube/substrate_inventory.json', lane_id: laneId, source_refs: lane.source_refs || [] },
+    kill_conditions: ['no identifiable buyer','no feasible fulfillment path','contradictory evidence','no transaction after approved exposure window']
+  };
+}
+
 function compileCandidate(candidate) {
   const id = String(candidate.opportunity_id || '');
   const price = Number(candidate.price_nzd || 0);
@@ -230,7 +304,19 @@ function run(options = {}) {
   const offerQueue = approvedOffers
     .filter(x => x.payment_link_url && x.payment_link_status === 'ACTIVE_LIVEMODE')
     .map(compileApprovedOffer);
-  const queue = [...offerQueue, ...opportunityQueue];
+
+  const substrateDoc = fs.existsSync(SUBSTRATE_SOURCE)
+    ? JSON.parse(fs.readFileSync(SUBSTRATE_SOURCE, 'utf8'))
+    : { money_lanes: [] };
+  const substrateLanes = Array.isArray(substrateDoc.money_lanes) ? substrateDoc.money_lanes : [];
+  const substrateQueue = substrateLanes.map(compileSubstrateLane);
+
+  const seenOpportunityIds = new Set();
+  const queue = [...offerQueue, ...opportunityQueue, ...substrateQueue].filter(item => {
+    if (seenOpportunityIds.has(item.opportunity_id)) return false;
+    seenOpportunityIds.add(item.opportunity_id);
+    return true;
+  });
 
   const payload = {
     schema_version: 'DREAMLEDGER/FACTORY-FACTORY-QUEUE/v2',
@@ -249,6 +335,7 @@ function run(options = {}) {
     approved_offer_count: approvedOffers.length,
     compiled_opportunity_count: opportunityQueue.length,
     compiled_offer_count: offerQueue.length,
+    compiled_substrate_count: substrateQueue.length,
     compiled_count: queue.length,
     queue,
     source_hash: hash(fs.readFileSync(source, 'utf8')),
