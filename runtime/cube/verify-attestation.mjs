@@ -1,0 +1,3 @@
+import {readFileSync} from "node:fs";import {importPublicB64,verifyAttestation,ATTEST_SCOPE} from "./evidence.mjs";
+const[pf,af,pk]=process.argv.slice(2);if(!pf||!af||!pk){console.error("usage: node verify-attestation.mjs packet.json attestation.json PUBLIC_KEY_B64");process.exit(2)}
+const v=await verifyAttestation(JSON.parse(readFileSync(pf,"utf8")),JSON.parse(readFileSync(af,"utf8")),await importPublicB64(pk));console.log(JSON.stringify(v,null,2));console.log(v.valid?"VALID (integrity and origin only)":"INVALID");console.log("SCOPE: "+ATTEST_SCOPE);process.exit(v.valid?0:1)
