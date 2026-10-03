@@ -8,6 +8,8 @@ const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
 const APPROVED_SOURCE = path.join(ROOT, 'catalog', 'offers', 'approved.json');
 const SUBSTRATE_SOURCE = path.join(ROOT, '..', 'runtime', 'cube', 'substrate_inventory.json');
+
+const LANE_MANIFEST_DIR = path.join(ROOT, '..', 'runtime', 'cube', 'manifests');
 const OUT_DIR = path.join(ROOT, 'data', 'factory-factory');
 const OUT = path.join(OUT_DIR, 'FACTORY-FACTORY-QUEUE.json');
 
@@ -223,6 +225,124 @@ function compileSubstrateLane(lane) {
   };
 }
 
+
+function compileLaneManifest(manifest, manifestPath) {
+  const price = Number(manifest.commercial_boundary && manifest.commercial_boundary.price_nzd || 0);
+  const transformation = manifest.transformation || {};
+  const output = manifest.buyer_output || {};
+  const commerce = manifest.commerce_path || {};
+  const demandFamily = manifest.demand_family || 'economic_transformation';
+
+  return {
+    experiment_id: 'FFM-' + hash(JSON.stringify(manifest)).slice(0, 16).toUpperCase(),
+    opportunity_id: 'LANE-MANIFEST:' + String(manifest.candidate_id || path.basename(manifestPath, '.json')),
+    silo: String(manifest.substrate_type || 'UNKNOWN').split('_')[0] || 'UNKNOWN',
+    title: transformation.name || manifest.candidate_id,
+    state: 'COMPILED_AWAITING_AUTHORIZATION',
+    structure: /match|compare|reconciliation|anomaly/i.test(demandFamily + ' ' + (transformation.name || '')) ? 'VERIFICATION' : 'SERVICE',
+    demand_signal: demandFamily,
+    buyer_class: null,
+    offer_shape: output.format || transformation.name || 'bounded transformation',
+    price_band: price,
+    acquisition_surface: [],
+    fulfillment_contract: commerce.fulfillment || 'existing bounded fulfillment adapter',
+    truth_boundary: ['external_buyer','settled_payment','correct_attribution','fulfillment','independent_proof'],
+    kill_conditions: Array.isArray(manifest.kill_criteria) ? manifest.kill_criteria : [],
+    demand: {
+      buyer: null,
+      hypothesis: demandFamily + ' on ' + (manifest.substrate_type || 'unknown substrate'),
+      evidence_required: Array.isArray(output.contains) ? output.contains : []
+    },
+    proposition: {
+      offer: transformation.name || manifest.candidate_id,
+      price_nzd: price,
+      smallest_test: 'One authorized exposure and settlement attempt.'
+    },
+    inverse_gauntlet: {
+      required_buyer: null,
+      required_offer: transformation.name || manifest.candidate_id,
+      required_price_nzd: price,
+      required_evidence: Array.isArray(output.contains) ? output.contains : [],
+      required_proof: commerce.proof ? [commerce.proof] : ['EXISTING_PROOF_SPINE'],
+      transaction_conditions: {
+        identifiable_external_buyer: true,
+        settled_payment: true,
+        correct_attribution: true,
+        fulfillment: true,
+        independent_proof: true
+      },
+      channel_constraints: [{
+        channel: commerce.checkout || 'existing commerce boundary',
+        publication: 'APPROVAL_REQUIRED',
+        transaction: 'APPROVAL_REQUIRED',
+        truth_claim: 'TRUTH_ORACLE_ONLY'
+      }]
+    },
+    inverse_cube: {
+      search_target: 'Find qualified buyers for the bounded lane without changing its substrate requirements or truth boundary.',
+      buyer: null,
+      offer: transformation.name || manifest.candidate_id,
+      price_nzd: price,
+      required_evidence: Array.isArray(output.contains) ? output.contains : [],
+      required_proof: commerce.proof ? [commerce.proof] : ['EXISTING_PROOF_SPINE'],
+      allowed_channels: [],
+      smallest_test: 'One authorized exposure and settlement attempt.',
+      kill_condition: 'Use the manifest kill criteria; no external exposure without authorization.',
+      exposure_multiplier: 1,
+      expansion_rule: 'Clone only after an independently verified external economic outcome.'
+    },
+    bidirectional_loop: {
+      forward: 'SUBSTRATE -> TRANSFORMATION -> GAUNTLET -> AUTHORITY -> EXPOSURE -> TRANSACTION -> TRUTH',
+      reverse: 'TRANSACTION_REQUIREMENTS -> INVERSE_GAUNTLET -> INVERSE_CUBE -> NEXT BUYER',
+      join: 'Lane manifest is a candidate transformation, not economic proof.'
+    },
+    economics: {
+      test_cost_nzd: 0,
+      upside_nzd: price,
+      spend_allowed_without_authorization: false
+    },
+    execution: {
+      acquisition_surface: [],
+      transaction_rail: commerce.checkout || 'existing commerce boundary',
+      fulfillment: commerce.fulfillment || 'existing bounded fulfillment adapter',
+      next_action: 'prepare candidate review packet; no Stripe mutation or external publication implied',
+      external_action_required: true,
+      approval_required: true
+    },
+    truth: {
+      revenue_claim_allowed: false,
+      verification_required: ['external_buyer','settled_payment','correct_attribution','fulfillment','independent_proof']
+    },
+    provenance: {
+      source: path.relative(ROOT, manifestPath).replace(/\\/g, '/'),
+      candidate_id: manifest.candidate_id || null,
+      substrate_requirements: manifest.substrate_requirements || null
+    }
+  };
+}
+
+function readLaneManifests() {
+  if (!fs.existsSync(LANE_MANIFEST_DIR)) return [];
+  return fs.readdirSync(LANE_MANIFEST_DIR)
+    .filter(name => name.endsWith('.json'))
+    .map(name => {
+      const full = path.join(LANE_MANIFEST_DIR, name);
+      try {
+        return compileLaneManifest(JSON.parse(fs.readFileSync(full, 'utf8')), full);
+      } catch (error) {
+        return {
+          opportunity_id: 'LANE-MANIFEST-INVALID:' + name,
+          title: name,
+          state: 'INCOMPLETE',
+          provenance: {
+            source: path.relative(ROOT, full).replace(/\\/g, '/'),
+            error: error.message
+          }
+        };
+      }
+    });
+}
+
 function compileCandidate(candidate) {
   const id = String(candidate.opportunity_id || '');
   const price = Number(candidate.price_nzd || 0);
@@ -310,9 +430,10 @@ function run(options = {}) {
     : { money_lanes: [] };
   const substrateLanes = Array.isArray(substrateDoc.money_lanes) ? substrateDoc.money_lanes : [];
   const substrateQueue = substrateLanes.map(compileSubstrateLane);
+  const laneManifestQueue = readLaneManifests();
 
   const seenOpportunityIds = new Set();
-  const queue = [...offerQueue, ...opportunityQueue, ...substrateQueue].filter(item => {
+  const queue = [...offerQueue, ...opportunityQueue, ...substrateQueue, ...laneManifestQueue].filter(item => {
     if (seenOpportunityIds.has(item.opportunity_id)) return false;
     seenOpportunityIds.add(item.opportunity_id);
     return true;
@@ -336,6 +457,8 @@ function run(options = {}) {
     compiled_opportunity_count: opportunityQueue.length,
     compiled_offer_count: offerQueue.length,
     compiled_substrate_count: substrateQueue.length,
+    lane_manifest_count: laneManifestQueue.length,
+    compiled_lane_manifest_count: laneManifestQueue.length,
     compiled_count: queue.length,
     queue,
     source_hash: hash(fs.readFileSync(source, 'utf8')),
@@ -354,6 +477,7 @@ if (require.main === module) {
     status: 'PASS',
     candidates: r.candidate_count,
     compiled: r.compiled_count,
+    lane_manifests: r.lane_manifest_count,
     bidirectional_loop: r.loop,
     output: OUT,
     next: r.queue.slice(0, 5).map(x => ({
@@ -366,4 +490,4 @@ if (require.main === module) {
   }, null, 2));
 }
 
-module.exports = { run, compileCandidate, compileApprovedOffer, inverseGauntlet, invertCube };
+module.exports = { run, compileCandidate, compileApprovedOffer, compileLaneManifest, inverseGauntlet, invertCube };
