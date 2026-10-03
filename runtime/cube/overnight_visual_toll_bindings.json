@@ -1,0 +1,120 @@
+{
+  "schema": "dreamledger/cube/overnight-visual-toll-bindings/v1",
+  "status": "CANDIDATE",
+  "economic_truth": "UNVERIFIED",
+  "candidates": [
+    {
+      "candidate_id": "cand_tradie_whiteboard_job_sheet_19",
+      "silo_home": "agentic_commerce",
+      "existing_capability_chain": [
+        "DOC-EXTRACT-50",
+        "LOCAL_VISION_REFINEMENT",
+        "EXISTING_PROOF_SPINE"
+      ],
+      "cube": {
+        "substrate": "tradie_whiteboard_photos",
+        "transformation": "WHITEBOARD_TO_JOB_SHEET",
+        "output": "structured_job_sheet",
+        "experiment": "paid_verified_then_clone"
+      },
+      "public_surface": {
+        "state": "NOT_PUBLISHED",
+        "url": "https://dreamledger.org/b2b-marketplace.html",
+        "method": "GET",
+        "role": "existing B2B discovery surface"
+      },
+      "toll_rail": {
+        "manifest_url": "https://dreamledger.org/api/toll/v1/manifest",
+        "manifest_http": "GET",
+        "key_check_url": "https://dreamledger.org/api/toll/v1/key/check",
+        "key_check_http": "GET",
+        "truth_url": "https://dreamledger.org/api/toll/v1/truth",
+        "truth_http": "POST",
+        "note": "Existing toll-road endpoints only. No new route or key issuer is created by this candidate."
+      },
+      "local_gpu": {
+        "runtime": "llmster / lms",
+        "models_required": 3,
+        "creator_model_env": "DREAMLEDGER_CREATOR_MODEL",
+        "critic_vision_model_env": "DREAMLEDGER_CRITIC_MODEL",
+        "synthesis_model_env": "DREAMLEDGER_SYNTHESIS_MODEL",
+        "vision_model_env": "DREAMLEDGER_VISION_MODEL",
+        "models_url": "http://127.0.0.1:{LMS_SERVER_PORT}/v1/models",
+        "models_http": "GET",
+        "inference_url": "http://127.0.0.1:{LMS_SERVER_PORT}/v1/chat/completions",
+        "inference_http": "POST",
+        "port_source": "lms server status --json"
+      },
+      "hosting": {
+        "render_service": "DreamLedger1",
+        "render_origin": "https://dreamledger1.onrender.com",
+        "public_origin": "https://dreamledger.org",
+        "custom_domain_dns_status": "UNOBSERVABLE_FROM_CONNECTED_RUNTIME",
+        "origin_dns_status": "UNOBSERVABLE_FROM_CONNECTED_RUNTIME",
+        "no_dns_mutation": true
+      }
+    },
+    {
+      "candidate_id": "cand_supplier_price_list_photo_csv_29",
+      "silo_home": "agentic_commerce",
+      "existing_capability_chain": [
+        "DOC-EXTRACT-50",
+        "PRODUCT_FEED_CLEANING",
+        "LOCAL_VISION_REFINEMENT",
+        "EXISTING_PROOF_SPINE"
+      ],
+      "cube": {
+        "substrate": "supplier_price_list_photos",
+        "transformation": "SUPPLIER_PRICE_PHOTO_TO_CSV",
+        "output": "normalized_supplier_price_feed",
+        "experiment": "paid_verified_then_clone"
+      },
+      "public_surface": {
+        "state": "NOT_PUBLISHED",
+        "url": "https://dreamledger.org/b2b-marketplace.html",
+        "method": "GET",
+        "role": "existing B2B discovery surface"
+      },
+      "toll_rail": {
+        "manifest_url": "https://dreamledger.org/api/toll/v1/manifest",
+        "manifest_http": "GET",
+        "key_check_url": "https://dreamledger.org/api/toll/v1/key/check",
+        "key_check_http": "GET",
+        "truth_url": "https://dreamledger.org/api/toll/v1/truth",
+        "truth_http": "POST",
+        "note": "Existing toll-road endpoints only. No new route or key issuer is created by this candidate."
+      },
+      "local_gpu": {
+        "runtime": "llmster / lms",
+        "models_required": 3,
+        "creator_model_env": "DREAMLEDGER_CREATOR_MODEL",
+        "critic_vision_model_env": "DREAMLEDGER_CRITIC_MODEL",
+        "synthesis_model_env": "DREAMLEDGER_SYNTHESIS_MODEL",
+        "vision_model_env": "DREAMLEDGER_VISION_MODEL",
+        "models_url": "http://127.0.0.1:{LMS_SERVER_PORT}/v1/models",
+        "models_http": "GET",
+        "inference_url": "http://127.0.0.1:{LMS_SERVER_PORT}/v1/chat/completions",
+        "inference_http": "POST",
+        "port_source": "lms server status --json"
+      },
+      "hosting": {
+        "render_service": "DreamLedger1",
+        "render_origin": "https://dreamledger1.onrender.com",
+        "public_origin": "https://dreamledger.org",
+        "custom_domain_dns_status": "UNOBSERVABLE_FROM_CONNECTED_RUNTIME",
+        "origin_dns_status": "UNOBSERVABLE_FROM_CONNECTED_RUNTIME",
+        "no_dns_mutation": true
+      }
+    }
+  ],
+  "boundaries": {
+    "stripe_mutation": false,
+    "external_publication": false,
+    "autonomous_contact": false,
+    "payment_claim_allowed": false,
+    "revenue_claim_allowed": false,
+    "new_queue": false,
+    "new_database": false,
+    "new_orchestrator": false
+  }
+}
