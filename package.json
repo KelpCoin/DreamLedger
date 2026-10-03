@@ -62,7 +62,8 @@
     "factory:replicate": "node BEC-PRIME/factory/MechanismReplicationGate.js",
     "verify:factory-factory-assembly": "node BEC-PRIME/scripts/Verify-FactoryFactoryAssembly.js",
     "cube:ingest": "python ops/demand/ingest-public-feeds.py",
-    "cube:radar": "python ops/demand/ingest-public-feeds.py && python ops/cube/resolve-mechanisms.py"
+    "cube:radar": "python ops/demand/ingest-public-feeds.py && python ops/cube/resolve-mechanisms.py",
+    "verify:b2b-marketplace": "node BEC-PRIME/scripts/verify-b2b-marketplace-contract.js"
   },
   "engines": {
     "node": ">=20"
