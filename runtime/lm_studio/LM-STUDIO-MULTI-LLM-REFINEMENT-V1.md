@@ -1,47 +1,54 @@
-# LM Studio Multi-LLM Iterative Refinement v1
+# LM Studio Multi-LLM Iterative Refinement v2
 
-The local swarm is a panel, not a single-model oracle.
+The local refinement loop requires three distinct local model identities.
 
-## Roles
-- SCOUT: broad discovery, extraction and opportunity generation.
-- ANALYST: qualification, economics, traversability and capability analysis.
-- BUILDER: turns qualified work into concrete deliverables and execution plans.
-- CRITIC: attacks assumptions, evidence quality, freshness and failure modes.
-- GAUNTLET: adversarial authority/safety gate.
-- SYNTHESIZER: reconciles the panel into one next-action packet.
+`CREATOR -> CRITIC/VISION -> SYNTHESIS`
 
-Any available local LM Studio model may fill a role. Roles are configured independently through environment variables, allowing heterogeneous models.
+The minimum viable panel is three models. The CRITIC role is also the designated visual/OCR role when image inputs are supplied.
 
-## Iterative loop
-1. CUBE supplies the current evidence packet.
-2. SCOUT expands or refreshes candidates.
-3. ANALYST scores factual fit without creating economic truth.
-4. BUILDER proposes the smallest useful artifact or next internal action.
-5. CRITIC attempts to falsify it.
-6. GAUNTLET checks authority, access, legality/platform constraints and external-action boundaries.
-7. SYNTHESIZER incorporates accepted criticism and emits the next state.
-8. Repeat until convergence, a new external fact appears, or HUMAN_GATE/STOP is reached.
+## Required model configuration
 
-## Refinement rules
-- A later model cannot silently erase an earlier blocker.
-- Every accepted change cites evidence.
-- Contradictory outputs are preserved, not averaged into false certainty.
-- UNKNOWN remains UNKNOWN.
-- Confidence is not evidence.
-- Consensus is not truth.
-- The final synthesizer cannot authorize an action prohibited by Gauntlet.
-- Iteration stops when the packet is materially unchanged for three rounds or when the configured maximum rounds is reached.
+Set three distinct exposed model identifiers:
 
-## Model allocation
-Environment variables:
-- DREAMLEDGER_SCOUT_MODEL
-- DREAMLEDGER_ANALYST_MODEL
-- DREAMLEDGER_BUILDER_MODEL
+- DREAMLEDGER_CREATOR_MODEL
 - DREAMLEDGER_CRITIC_MODEL
-- DREAMLEDGER_GAUNTLET_MODEL
 - DREAMLEDGER_SYNTHESIS_MODEL
 
-If a role is not configured, the orchestrator may select an available local model. A missing required role blocks that stage rather than inventing a result.
+Optional:
+
+- DREAMLEDGER_VISION_MODEL
+
+When DREAMLEDGER_VISION_MODEL is set, it must equal one of the three configured models. By default the CRITIC model is the visual model.
+
+The orchestrator refuses to start when fewer than three distinct models are configured or exposed. It never silently assigns one model to multiple roles.
+
+Legacy variables may supply role values when the new role-specific variables are absent, but the final assignments must still be three distinct models.
+
+## Iteration
+
+Each round performs three model calls:
+
+1. CREATOR constructs or expands the bounded candidate, artifact or execution plan.
+2. CRITIC attacks the creator output. When image inputs exist, the designated vision model performs visual inspection/OCR.
+3. SYNTHESIS reconciles the creator and critic outputs and emits the next evidence-backed state.
+4. Repeat for the configured maximum rounds or until materially unchanged.
+
+Gauntlet and economic-truth boundaries remain outside model consensus. Consensus cannot create truth, authorization, payment or revenue.
+
+## 16 GB GPU operating rule
+
+Three models must be installed. They do not need to be simultaneously resident in VRAM. The Windows worker may load the active role model sequentially and use lms load with GPU offload. This avoids assuming that three model weights plus context will fit concurrently.
+
+LM Studio exposes loaded-model state through lms ps and model discovery through /v1/models. The worker must verify both before inference.
+
+## Image inputs
+
+Set DREAMLEDGER_VISION_IMAGE_PATHS to a semicolon-separated list of local PNG, JPEG or WebP files. Those images are supplied only to the designated vision model during the CRITIC stage.
+
+PDFs should be converted to page images by the existing document pipeline before visual inspection.
+
+LM Studio documents VLM image input for JPEG, PNG and WebP and supports OpenAI-compatible text-and-image chat requests.
 
 ## Economic rule
-More models do not create more revenue. They create a stronger decision process. Only independent external evidence can change verified economic truth.
+
+More models strengthen creation, criticism and synthesis. They do not create revenue. Only independent external payment, attribution, fulfillment and proof can change verified economic truth.
