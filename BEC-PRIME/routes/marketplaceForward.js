@@ -11,6 +11,7 @@ const SOCIAL=name=>path.join(DATA_ROOT,name+'.json');
 const STRIPE_SECRET=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
 const BLOCKED=/\b(stolen|counterfeit|weapons?|firearms?|ammunition|explosives?|illegal drugs?|child sexual|csam)\b/i;
+const marketplaceCommerce=require('../runtime/MarketplaceCommerce');
 
 function read(file,fallback){try{return JSON.parse(fs.readFileSync(file,'utf8'));}catch{return fallback;}}
 function write(file,value){fs.mkdirSync(path.dirname(file),{recursive:true});const tmp=file+'.tmp-'+process.pid+'-'+Date.now();fs.writeFileSync(tmp,JSON.stringify(value,null,2)+'\n');fs.renameSync(tmp,file);}
@@ -82,12 +83,18 @@ async function handle(req,res,url){
    listings.push(item);write(LISTINGS,listings);return json(res,201,{ok:true,item:publicListing(item)});
   }
   if(req.method==='POST'&&url==='/api/marketplace/v2/orders/create'){
-   const {id,user}=requireVerified(req),b=await body(req),listingId=String(b.listing_id||''),listings=read(LISTINGS,[]),listing=listings.find(x=>x.id===listingId&&x.status==='APPROVED');
-   if(!listing)return json(res,404,{error:'listing not found'});if(listing.seller_id===id)return json(res,403,{error:'seller cannot buy own listing'});if(Number(listing.reserved||0)>=Number(listing.quantity||1))return json(res,409,{error:'listing currently reserved'});
-   const file=SOCIAL('marketplace-orders'),orders=read(file,[]),order={id:'mkt_'+crypto.randomBytes(8).toString('hex'),listing_id:listing.id,buyer_id:id,buyer_name:user.name||'Buyer',seller_id:listing.seller_id,seller_name:listing.seller_name,title:listing.title,total_nzd:listing.price,currency:'NZD',status:'PENDING_PAYMENT',payment_status:'UNPAID',fulfilment_status:'NOT_STARTED',delivery_status:'NOT_STARTED',evidence_status:'UNPROVEN',marketplace_fee_nzd:0,created_at:new Date().toISOString()};
-   orders.push(order);listing.reserved=Number(listing.reserved||0)+1;write(file,orders);write(LISTINGS,listings);
-   try{const session=await stripeCheckout(listing,order.id,user.email);order.stripe_checkout_session=session.id;order.checkout_url=session.url;write(file,orders);return json(res,201,{ok:true,order,checkout_url:session.url,commercial_truth:'PAYMENT_PENDING_NOT_REVENUE'});}
-   catch(e){listing.reserved=Math.max(0,Number(listing.reserved||0)-1);write(LISTINGS,listings);orders.splice(orders.findIndex(x=>x.id===order.id),1);write(file,orders);throw e;}
+   const {id,user}=requireVerified(req),b=await body(req),listingId=String(b.listing_id||''),key=String(req.headers['idempotency-key']||b.idempotency_key||'').trim().slice(0,180);
+   const file=SOCIAL('marketplace-orders'),orders=read(file,[]);
+   if(key){const prior=orders.find(x=>x.idempotency_key===key&&x.buyer_id===id);if(prior)return json(res,200,{ok:true,order:prior,checkout_url:prior.checkout_url||null,commercial_truth:prior.payment_status==='PAID'?'SETTLED_PAYMENT_OBSERVED_NOT_YET_VERIFIED':'PAYMENT_PENDING_NOT_REVENUE',idempotent:true});}
+   const listings=read(LISTINGS,[]),listing=listings.find(x=>x.id===listingId&&x.status==='APPROVED');
+   if(!listing)return json(res,404,{error:'listing not found'});if(listing.seller_id===id)return json(res,403,{error:'seller cannot buy own listing'});
+   let reservation;
+   try{reservation=marketplaceCommerce.reserveCart(id,[{listing_id:listing.id,quantity:1}],key||('order_'+crypto.randomBytes(12).toString('hex')));}
+   catch(e){return json(res,e.statusCode||409,{error:e.message});}
+   const fileOrders=read(file,[]),order={id:'mkt_'+crypto.randomBytes(8).toString('hex'),listing_id:listing.id,cart_id:reservation.cart.id,idempotency_key:key||null,buyer_id:id,buyer_name:user.name||'Buyer',seller_id:listing.seller_id,seller_name:listing.seller_name,title:listing.title,total_nzd:listing.price,currency:'NZD',status:'PENDING_PAYMENT',payment_status:'UNPAID',fulfilment_status:'NOT_STARTED',delivery_status:'NOT_STARTED',evidence_status:'UNPROVEN',marketplace_fee_nzd:0,created_at:new Date().toISOString()};
+   fileOrders.push(order);write(file,fileOrders);
+   try{const session=await stripeCheckout(listing,order.id,user.email);order.stripe_checkout_session=session.id;order.checkout_url=session.url;write(file,fileOrders);return json(res,201,{ok:true,order,checkout_url:session.url,commercial_truth:'PAYMENT_PENDING_NOT_REVENUE'});}
+   catch(e){marketplaceCommerce.releaseCart(reservation.cart.id,id);const fresh=read(file,[]);const idx=fresh.findIndex(x=>x.id===order.id);if(idx>=0)fresh.splice(idx,1);write(file,fresh);throw e;}
   }
   if(req.method==='GET'&&url==='/api/marketplace/v2/orders'){const id=requireUser(req);return json(res,200,{items:read(SOCIAL('marketplace-orders'),[]).filter(x=>x.buyer_id===id||x.seller_id===id)});}
   if(req.method==='POST'&&url==='/api/marketplace/v2/orders/evidence'){const id=requireUser(req),b=await body(req),file=SOCIAL('marketplace-orders'),items=read(file,[]),o=items.find(x=>x.id===String(b.order_id||'')&&(x.buyer_id===id||x.seller_id===id));if(!o)return json(res,404,{error:'order not found'});o.evidence_status='SUBMITTED';o.evidence={by:id,type:String(b.type||'OTHER').slice(0,40),reference:String(b.reference||'').slice(0,500),at:new Date().toISOString()};write(file,items);return json(res,200,{ok:true,order:o});}
