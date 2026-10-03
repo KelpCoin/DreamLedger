@@ -23,7 +23,12 @@ async function queueLocalBuildTask(s:any){
   const {data:existing,error:qe}=await q;
   if(qe) throw qe;
   if(Array.isArray(existing)&&existing.length) return {created:false,task_id:existing[0].task_id,status:existing[0].status};
-  const laneManifestPath=String(s?.raw_data?.lane_manifest_path||"").trim()||null;
+  const offerId=String(s?.raw_data?.offer_id||s?.raw_data?.offer?.offer_id||"").trim();
+  const knownLaneManifests={
+    "QUOTE-COMPARE-49":"runtime/cube/manifests/quote_compare_49.json",
+    "INVOICE-VS-QUOTE-50":"runtime/cube/manifests/invoice_vs_quote_50.json"
+  };
+  const laneManifestPath=String(s?.raw_data?.lane_manifest_path||knownLaneManifests[offerId]||"").trim()||null;
   const input={
     signal_id:signalId,
     source_reference:String(s?.source_ref||s?.source||""),
