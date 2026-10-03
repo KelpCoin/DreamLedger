@@ -290,5 +290,121 @@
     }
   ],
   "factory_rule": "For every substrate, generate bounded transformations that reuse an existing worker, commerce boundary, fulfillment path, and proof path wherever possible. Payment and verified fulfillment determine promotion.",
-  "do_not_infer": "No candidate, live checkout, Airtable row, Notion page, code artifact, or payment link is revenue."
+  "do_not_infer": "No candidate, live checkout, Airtable row, Notion page, code artifact, or payment link is revenue.",
+  "correlation_rules": {
+    "version": 1,
+    "home_selection_order": [
+      "EXISTING_SILO",
+      "EXISTING_CUBE_CELL",
+      "EXISTING_LANE_MANIFEST",
+      "EXISTING_FACTORYFACTORY_GAUNTLET",
+      "NEW_SILO_OR_CELL_ONLY_IF_NO_COMPATIBLE_HOME"
+    ],
+    "build_admission": {
+      "required": [
+        "external_demand_evidence",
+        "buyer_intent_evidence",
+        "bounded_transformation",
+        "existing_or_authorized_commerce_path",
+        "economic_envelope"
+      ],
+      "otherwise": "SEARCH_OR_DEFER",
+      "revenue_claim_allowed": false
+    },
+    "transformation_to_existing_home": [
+      {
+        "transformation": "DOCUMENT_TO_DECISION",
+        "homes": [
+          "QUOTE_COMPARE_49",
+          "DOC_EXTRACT_50"
+        ],
+        "status": "READY_FOR_CORRELATION"
+      },
+      {
+        "transformation": "PUBLIC_RECORD_TO_REPORT",
+        "homes": [
+          "ACNC_DUE_DILIGENCE_99"
+        ],
+        "status": "READY_FOR_CORRELATION"
+      },
+      {
+        "transformation": "SELLER_EXPORT_TO_PROFIT",
+        "homes": [
+          "SELLER_PROFIT_AUDIT_29"
+        ],
+        "status": "READY_FOR_CORRELATION"
+      },
+      {
+        "transformation": "CLAIM_TO_EVIDENCE_REVIEW",
+        "homes": [
+          "COMMERCIAL_TRUTH_STRESS_TEST_999",
+          "EVIDENCE_PACKET_10"
+        ],
+        "status": "READY_FOR_CORRELATION"
+      },
+      {
+        "transformation": "INVENTORY_TO_CHECKOUT",
+        "homes": [
+          "EDH_0001",
+          "BILLBOARD_FOUNDING_50",
+          "COMMANDER_DIAGNOSTIC_29"
+        ],
+        "status": "READY_FOR_CORRELATION"
+      },
+      {
+        "transformation": "DATA_TO_PAY_PER_USE_API",
+        "homes": [
+          "TOLL_ROAD_V2",
+          "EVIDENCE_PACKET_10"
+        ],
+        "status": "READY_FOR_CORRELATION"
+      },
+      {
+        "transformation": "QUOTE_AND_INVOICE_COMPARISON",
+        "homes": [
+          "INVOICE_VS_QUOTE_50"
+        ],
+        "status": "CANDIDATE_MANIFEST_EXISTS"
+      },
+      {
+        "transformation": "AGENTIC_COMMERCE_READINESS",
+        "homes": [
+          "AGENTIC_COMMERCE_READINESS_AUDIT"
+        ],
+        "status": "READY_FOR_CORRELATION"
+      }
+    ],
+    "discovery_sources": {
+      "github": [
+        "public issues",
+        "repository signals",
+        "code/integration pain",
+        "automation/debugging requests"
+      ],
+      "existing_777": [
+        "public-market-radar",
+        "777 slipstream radar",
+        "opportunity corpus"
+      ],
+      "public_procurement": [
+        "NZ GETS"
+      ],
+      "rule": "Discover broadly, correlate narrowly, build only after external demand and buyer intent."
+    },
+    "lineage_target": [
+      "signal_id",
+      "opportunity_id",
+      "silo_id",
+      "cell_id",
+      "lane_id",
+      "manifest_id",
+      "build_job_id",
+      "artifact_hash",
+      "gauntlet_result",
+      "exposure_id",
+      "transaction_id",
+      "fulfillment_id",
+      "proof_id"
+    ]
+  }
 }
