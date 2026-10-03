@@ -6,6 +6,8 @@ on:
       - 'public/catalog.json'
       - 'public/server.js'
       - 'public/toll-booths.html'
+      - 'BEC-PRIME/routes/marketplaceForward.js'
+      - 'BEC-PRIME/routes/marketplaceForwardWebhook.js'
       - 'scripts/validate_toll_booths.py'
       - '.github/workflows/toll-booth-mvp.yml'
   workflow_dispatch:
@@ -18,3 +20,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/validate_toll_booths.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node --check BEC-PRIME/routes/marketplaceForward.js
+      - run: node --check BEC-PRIME/routes/marketplaceForwardWebhook.js
+      - run: node --check public/server.js
