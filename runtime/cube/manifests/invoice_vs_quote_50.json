@@ -1,0 +1,69 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_invoice_vs_quote_50",
+  "substrate_type": "quote_and_invoice_documents",
+  "substrate_requirements": {
+    "required_fields": [
+      "source_quote",
+      "supplier_invoice"
+    ],
+    "minimum_sample": 2
+  },
+  "demand_family": "procurement_exception_detection",
+  "transformation": {
+    "name": "INVOICE_VS_QUOTE",
+    "worker": "EXISTING_DOCUMENT_COMPARISON_PRIMITIVE",
+    "steps": [
+      "hash_source",
+      "extract_text",
+      "normalize_line_items",
+      "match_quote_to_invoice",
+      "compare_quantities",
+      "compare_unit_prices",
+      "compare_totals",
+      "detect_added_or_removed_items",
+      "detect_freight_tax_and_term_differences",
+      "preserve_unknowns",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "discrepancy_report",
+    "contains": [
+      "matched_items",
+      "quantity_differences",
+      "unit_price_differences",
+      "new_charges",
+      "missing_credits",
+      "freight_differences",
+      "scope_differences",
+      "arithmetic_checks",
+      "unresolved_items",
+      "source_references",
+      "unknowns"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 50,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_WORKER:QUOTE_AND_DOCUMENT_COMPARISON",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "cannot defensibly match quote and invoice line items",
+    "cannot be bounded to supplied documents",
+    "cannot be fulfilled by existing extraction/comparison capability",
+    "cannot emit evidence-backed discrepancy output",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
