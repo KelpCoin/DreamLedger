@@ -70,7 +70,7 @@ function reserveCart(ownerId,items,key){
     }
     if(!normalized.length)throw Object.assign(new Error('cart_items_required'),{statusCode:422});
     const now=new Date(),expires=new Date(now.getTime()+15*60*1000).toISOString();
-    const cart={id:id('cart'),buyer_id:ownerId,items:normalized,total_nzd:Math.round(total*100)/100,status:'RESERVED',expires_at:expires,created_at:now.toISOString(),updated_at:now.toISOString()};
+    const cart={id:idFn('cart'),buyer_id:ownerId,items:normalized,total_nzd:Math.round(total*100)/100,status:'RESERVED',expires_at:expires,created_at:now.toISOString(),updated_at:now.toISOString()};
     carts.push(cart);write(LISTINGS,listings);write(CARTS,carts);
     const response={ok:true,cart:cartPublic(cart),commercial_truth:'CART_RESERVED_NOT_REVENUE'};
     remember(key,'cart_prepare',response);
@@ -94,7 +94,7 @@ async function handle(req,res,url){
 
   const cartMatch=url.match(/^\/api\/marketplace\/v2\/cart\/([^/]+)$/);
   if(req.method==='GET'&&cartMatch){
-    try{const {id}=verifiedUser(req),cart=read(CARTS,[]).find(x=>x.id===decodeURIComponent(cartMatch[1])&&x.buyer_id===userId);return cart?json(res,200,{cart:cartPublic(cart)}):json(res,404,{error:'cart_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
+    try{const {id:userId}=verifiedUser(req),cart=read(CARTS,[]).find(x=>x.id===decodeURIComponent(cartMatch[1])&&x.buyer_id===userId);return cart?json(res,200,{cart:cartPublic(cart)}):json(res,404,{error:'cart_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
 
   if(req.method==='POST'&&url==='/api/marketplace/v2/offers'){
@@ -117,18 +117,18 @@ async function handle(req,res,url){
 
   const offerMatch=url.match(/^\/api\/marketplace\/v2\/offers\/([^/]+)$/);
   if(req.method==='GET'&&offerMatch){
-    try{const {id}=verifiedUser(req),o=read(OFFERS,[]).find(x=>x.id===decodeURIComponent(offerMatch[1])&&(x.buyer_id===userId||x.seller_id===userId));return o?json(res,200,{offer:offerPublic(o)}):json(res,404,{error:'offer_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
+    try{const {id:userId}=verifiedUser(req),o=read(OFFERS,[]).find(x=>x.id===decodeURIComponent(offerMatch[1])&&(x.buyer_id===userId||x.seller_id===userId));return o?json(res,200,{offer:offerPublic(o)}):json(res,404,{error:'offer_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
   if(req.method==='POST'&&offerMatch){
     try{
-      const {id}=verifiedUser(req),b=await body(req),action=String(b.action||'').toUpperCase();
+      const {id:userId}=verifiedUser(req),b=await body(req),action=String(b.action||'').toUpperCase();
       if(!['ACCEPT','DECLINE','COUNTER','CANCEL'].includes(action))return json(res,422,{error:'action must be ACCEPT, DECLINE, COUNTER or CANCEL'});
       const result=withLock(()=>{
         const offers=read(OFFERS,[]),o=offers.find(x=>x.id===decodeURIComponent(offerMatch[1]));if(!o)return {status:404,error:'offer_not_found'};
-        const sellerAction=id===o.seller_id,buyerAction=id===o.buyer_id;if(!sellerAction&&!buyerAction)return {status:403,error:'not_a_party'};
+        const sellerAction=userId===o.seller_id,buyerAction=userId===o.buyer_id;if(!sellerAction&&!buyerAction)return {status:403,error:'not_a_party'};
         if(o.status!=='PENDING_SELLER'&&o.status!=='PENDING_BUYER')return {status:409,error:'offer_not_actionable'};
         const now=new Date().toISOString();
-        if(action==='ACCEPT'){o.status='ACCEPTED';o.accepted_by=userId;o.updated_at=now;}
+        if(action==='ACCEPT'){o.status='ACCEPTED';o.accepted_by:userId;o.updated_at=now;}
         else if(action==='DECLINE'||action==='CANCEL'){if(action==='DECLINE'&&!sellerAction)return {status:403,error:'only_seller_can_decline'};if(action==='CANCEL'&&!buyerAction)return {status:403,error:'only_buyer_can_cancel'};o.status=action==='DECLINE'?'DECLINED':'CANCELLED';o.updated_at=now;}
         else {const amount=Number(b.amount_nzd);if(!sellerAction||!Number.isFinite(amount)||amount<=0)return {status:422,error:'seller counter requires positive amount_nzd'};o.amount_nzd=Math.round(amount*100)/100;o.status='PENDING_BUYER';o.updated_at=now;}
         write(OFFERS,offers);return {status:200,offer:offerPublic(o),commercial_truth:o.status==='ACCEPTED'?'ACCEPTED_OFFER_NOT_PAID':'OFFER_STATE_ONLY'};
@@ -138,16 +138,16 @@ async function handle(req,res,url){
   }
 
   if(req.method==='GET'&&url==='/api/marketplace/v2/disputes'){
-    try{const {id}=verifiedUser(req),items=read(DISPUTES,[]).filter(x=>x.buyer_id===userId||x.seller_id===userId);return json(res,200,{items});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
+    try{const {id:userId}=verifiedUser(req),items=read(DISPUTES,[]).filter(x=>x.buyer_id===userId||x.seller_id===userId);return json(res,200,{items});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
   if(req.method==='POST'&&url==='/api/marketplace/v2/disputes'){
     try{
-      const {id}=verifiedUser(req),b=await body(req),orderId=String(b.order_id||''),reason=String(b.reason||'').trim().slice(0,1000);
+      const {id:userId}=verifiedUser(req),b=await body(req),orderId=String(b.order_id||''),reason=String(b.reason||'').trim().slice(0,1000);
       if(!orderId||!reason)return json(res,422,{error:'order_id and reason required'});
       const result=withLock(()=>{
         const orders=read(ORDERS,[]),o=orders.find(x=>x.id===orderId&&(x.buyer_id===userId||x.seller_id===userId));if(!o)return {status:404,error:'order_not_found'};
         const items=read(DISPUTES,[]);if(items.some(x=>x.order_id===orderId&&x.status==='OPEN'))return {status:409,error:'open_dispute_exists'};
-        const d={id:idFn('dsp'),order_id:orderId,buyer_id:o.buyer_id,seller_id:o.seller_id,opened_by:userIdreason,status:'OPEN',resolution:null,created_at:new Date().toISOString(),updated_at:new Date().toISOString()};items.push(d);write(DISPUTES,items);o.dispute_status='OPEN';write(ORDERS,orders);return {ok:true,dispute:d,commercial_truth:'DISPUTE_OPEN_NOT_REFUNDED'};
+        const d={id:idFn('dsp'),order_id:orderId,buyer_id:o.buyer_id,seller_id:o.seller_id,opened_by:userId,reason,status:'OPEN',resolution:null,created_at:new Date().toISOString(),updated_at:new Date().toISOString()};items.push(d);write(DISPUTES,items);o.dispute_status='OPEN';write(ORDERS,orders);return {ok:true,dispute:d,commercial_truth:'DISPUTE_OPEN_NOT_REFUNDED'};
       });
       return json(res,result.status||201,result.error?{error:result.error}:result);
     }catch(e){return json(res,e.statusCode||400,{error:e.message});}
