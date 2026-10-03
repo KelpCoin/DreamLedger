@@ -1,0 +1,64 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_quote_compare_49",
+  "substrate_type": "supplier_quotes",
+  "substrate_requirements": {
+    "required_fields": [
+      "2_to_5_quote_documents",
+      "purchase_requirements_or_scope"
+    ],
+    "minimum_sample": 2
+  },
+  "demand_family": "procurement_decision",
+  "transformation": {
+    "name": "QUOTE_COMPARE",
+    "worker": "QUOTE-COMPARE-49",
+    "steps": [
+      "hash_source",
+      "extract_text",
+      "normalize_quotes",
+      "compare_stated_totals",
+      "extract_moq_lead_time_payment_terms",
+      "detect_exceptions",
+      "preserve_unknowns",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "decision_packet",
+    "contains": [
+      "supplier_comparison",
+      "normalized_stated_totals",
+      "scope_differences",
+      "moq",
+      "lead_time",
+      "payment_terms",
+      "missing_or_unclear_information",
+      "material_exceptions",
+      "source_references",
+      "unknowns"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 49,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "EXISTING_STRIPE:QUOTE-COMPARE-49",
+    "fulfillment": "EXISTING_WORKER:SUPPLIER_QUOTE_COMPARISON",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "COMPILED",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "cannot be bounded to 2-5 usable quote documents",
+    "cannot be fulfilled by existing supplier quote comparison worker",
+    "cannot emit evidence-backed output",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
