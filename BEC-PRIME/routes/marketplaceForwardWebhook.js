@@ -3,6 +3,8 @@ const fs=require('fs');
 const path=require('path');
 const crypto=require('crypto');
 const stripeProof=require('../lib/stripeWebhookProof');
+const revenueLedger=require('../lib/revenueLedger');
+const marketplacePolicy=require('../lib/marketplacePolicy');
 
 const ROOT=path.join(__dirname,'..');
 const DATA_ROOT=process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data')&&fs.statSync('/var/data').isDirectory())?'/var/data/dreamiez':path.join(ROOT,'data','dreamiez'));
@@ -32,11 +34,15 @@ async function handle(req,res){
   const orders=read(ORDERS,[]),order=orders.find(x=>x.id===orderId);if(!order)throw Object.assign(new Error('order not found'),{statusCode:404});
   if(order.payment_status==='PAID')return json(res,200,{received:true,idempotent:true,order_id:order.id});
   if(order.stripe_checkout_session&&order.stripe_checkout_session!==session.id)throw Object.assign(new Error('checkout session mismatch'),{statusCode:409});
-  order.stripe_checkout_session=session.id;order.stripe_payment_intent=session.payment_intent||null;order.status='PAID';order.payment_status='PAID';order.fulfilment_status='READY';order.paid_at=new Date().toISOString();order.external_buyer=true;order.payment_evidence={event_id:event.id,checkout_session_id:session.id,payment_intent:session.payment_intent||null,livemode:true,amount_nzd:Number(session.amount_total||0)/100,currency:String(session.currency||'').toUpperCase()};
+  const amountMinor=Number(session.amount_total||0);const currency=String(session.currency||'nzd').toUpperCase();
+  const fee=marketplacePolicy.calculateMarketplaceFee(listing.seller_id,'MARKETPLACE',amountMinor/100);
+  const payment=revenueLedger.recordPayment({eventId:event.id,transactionId:session.id,amountMinor,currency,productId:listing.id,offerId:null,silo:'MARKETPLACE'});
+  const fulfillment=revenueLedger.createFulfillment({transactionId:session.id,productId:listing.id,offerId:null,silo:'MARKETPLACE',amountMinor,currency,customerEmail:session.customer_details?.email||session.customer_email});
+  order.stripe_checkout_session=session.id;order.stripe_payment_intent=session.payment_intent||null;order.platform_fee_nzd=fee.fee_amount;order.net_to_seller_nzd=fee.net_to_seller;order.ledger_payment_journal_id=payment.journal_id||null;order.fulfillment_id=fulfillment.fulfillment?.fulfillment_id||null;order.status='PAID';order.payment_status='PAID';order.fulfilment_status='READY';order.paid_at=new Date().toISOString();order.external_buyer=true;order.payment_evidence={event_id:event.id,checkout_session_id:session.id,payment_intent:session.payment_intent||null,livemode:true,amount_nzd:Number(session.amount_total||0)/100,currency:String(session.currency||'').toUpperCase()};
   listing.reserved=Math.max(0,Number(listing.reserved||0)-1);listing.sold=Number(listing.sold||0)+1;if(Number(listing.sold||0)>=Number(listing.quantity||1))listing.status='SOLD';
   write(ORDERS,orders);write(LISTINGS,listings);
   fs.mkdirSync(PROOFS,{recursive:true});
-  const proof={type:'dreamledger-marketplace-forward-payment-proof',status:'PAYMENT_OBSERVED',event_id:event.id,order_id:order.id,listing_id:listing.id,amount_nzd:Number(session.amount_total||0)/100,currency:String(session.currency||'').toUpperCase(),payment_intent:session.payment_intent||null,checkout_session_id:session.id,independent_buyer:Boolean(session.customer_details?.email||session.customer_email),payment_status:'paid',fulfilment_status:order.fulfilment_status,verification_status:'UNVERIFIED_UNTIL_FULFILLMENT',recorded_at:new Date().toISOString()};
+  const proof={type:'dreamledger-marketplace-forward-payment-proof',status:'PAYMENT_OBSERVED',event_id:event.id,order_id:order.id,listing_id:listing.id,amount_nzd:Number(session.amount_total||0)/100,currency:String(session.currency||'').toUpperCase(),payment_intent:session.payment_intent||null,checkout_session_id:session.id,independent_buyer:Boolean(session.customer_details?.email||session.customer_email),payment_status:'paid',fulfilment_status:order.fulfilment_status,ledger_payment_recorded:Boolean(payment&&!payment.duplicate),fulfillment_id:fulfillment.fulfillment?.fulfillment_id||null,platform_fee_nzd:fee.fee_amount,verification_status:'UNVERIFIED_UNTIL_FULFILLMENT',recorded_at:new Date().toISOString()};
   const proofFile=path.join(PROOFS,'marketplace-'+order.id+'.json');if(!fs.existsSync(proofFile))write(proofFile,proof);
   return json(res,200,{received:true,order_id:order.id,listing_id:listing.id,payment_observed:true,commercial_truth:'SETTLED_PAYMENT_OBSERVED_NOT_YET_VERIFIED'});
  }catch(e){return json(res,e.statusCode||400,{received:false,error:e.message||'marketplace webhook failed'});}
