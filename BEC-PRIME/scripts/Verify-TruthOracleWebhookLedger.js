@@ -10,6 +10,8 @@ const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-truth-oracle-'))
 process.env.LEDGER_DATA_DIR = path.join(root, 'ledger');
 process.env.BEC_LEDGER_DIR = process.env.LEDGER_DATA_DIR;
 process.env.PROOF_DATA_DIR = path.join(root, 'proofs');
+fs.mkdirSync(process.env.LEDGER_DATA_DIR, { recursive: true });
+fs.mkdirSync(process.env.PROOF_DATA_DIR, { recursive: true });
 
 const stripeWebhookProof = require('../lib/stripeWebhookProof');
 
