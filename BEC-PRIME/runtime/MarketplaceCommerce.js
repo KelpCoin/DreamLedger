@@ -128,7 +128,7 @@ async function handle(req,res,url){
         const sellerAction=userId===o.seller_id,buyerAction=userId===o.buyer_id;if(!sellerAction&&!buyerAction)return {status:403,error:'not_a_party'};
         if(o.status!=='PENDING_SELLER'&&o.status!=='PENDING_BUYER')return {status:409,error:'offer_not_actionable'};
         const now=new Date().toISOString();
-        if(action==='ACCEPT'){o.status='ACCEPTED';o.accepted_by:userId;o.updated_at=now;}
+        if(action==='ACCEPT'){o.status='ACCEPTED';o.accepted_by=userId;o.updated_at=now;}
         else if(action==='DECLINE'||action==='CANCEL'){if(action==='DECLINE'&&!sellerAction)return {status:403,error:'only_seller_can_decline'};if(action==='CANCEL'&&!buyerAction)return {status:403,error:'only_buyer_can_cancel'};o.status=action==='DECLINE'?'DECLINED':'CANCELLED';o.updated_at=now;}
         else {const amount=Number(b.amount_nzd);if(!sellerAction||!Number.isFinite(amount)||amount<=0)return {status:422,error:'seller counter requires positive amount_nzd'};o.amount_nzd=Math.round(amount*100)/100;o.status='PENDING_BUYER';o.updated_at=now;}
         write(OFFERS,offers);return {status:200,offer:offerPublic(o),commercial_truth:o.status==='ACCEPTED'?'ACCEPTED_OFFER_NOT_PAID':'OFFER_STATE_ONLY'};
