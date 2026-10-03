@@ -1,0 +1,65 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_stock_anomaly_detection_19",
+  "substrate_type": "inventory_feeds",
+  "substrate_requirements": {
+    "required_fields": [
+      "inventory_feed",
+      "stable_product_identifier",
+      "quantity_field"
+    ],
+    "minimum_sample": 10
+  },
+  "demand_family": "inventory_exception_detection",
+  "transformation": {
+    "name": "STOCK_ANOMALY_DETECTION",
+    "worker": "EXISTING_PRIMITIVE:DATA_NORMALIZATION",
+    "steps": [
+      "hash_source",
+      "parse_inventory_feed",
+      "normalize_quantities",
+      "detect_negative_or_impossible_quantities",
+      "detect_low_stock_against_bounded_threshold",
+      "detect_ghost_or_duplicate_skus",
+      "preserve_unknowns",
+      "emit_exception_list_and_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "inventory_exception_report",
+    "contains": [
+      "sku",
+      "quantity",
+      "exception_type",
+      "threshold_basis",
+      "duplicate_flags",
+      "source_references",
+      "unknowns",
+      "source_hash"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 19,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_PRIMITIVE:DATA_NORMALIZATION",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "inventory feed cannot be parsed deterministically",
+    "stable product identifiers are absent",
+    "threshold basis cannot be bounded or disclosed",
+    "cannot distinguish unknown from exception",
+    "cannot emit evidence-backed exception list",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
