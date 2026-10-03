@@ -49,8 +49,25 @@ function qty(n){const q=Number(n);return Number.isInteger(q)&&q>0&&q<=1000?q:nul
 function offerPublic(o){return {id:o.id,listing_id:o.listing_id,buyer_id:o.buyer_id,seller_id:o.seller_id,amount_nzd:o.amount_nzd,quantity:o.quantity,status:o.status,expires_at:o.expires_at,created_at:o.created_at,updated_at:o.updated_at};}
 function cartPublic(c){return {id:c.id,buyer_id:c.buyer_id,items:c.items,status:c.status,total_nzd:c.total_nzd,expires_at:c.expires_at,created_at:c.created_at,updated_at:c.updated_at};}
 
+function reapExpiredReservations(){
+  const carts=read(CARTS,[]),listings=read(LISTINGS,[]),now=Date.now();
+  let changed=false;
+  for(const cart of carts){
+    if(cart.status==='RESERVED'&&Date.parse(cart.expires_at||'')<=now){
+      for(const item of cart.items||[]){
+        const listing=listings.find(x=>x.id===item.listing_id);
+        if(listing){listing.reserved=Math.max(0,Number(listing.reserved||0)-Number(item.quantity||0));changed=true;}
+      }
+      cart.status='EXPIRED';cart.updated_at=new Date().toISOString();changed=true;
+    }
+  }
+  if(changed){write(LISTINGS,listings);write(CARTS,carts);}
+  return changed;
+}
+
 function reserveCart(ownerId,items,key){
   return withLock(()=>{
+    reapExpiredReservations();
     const existing=key?replay(key,'cart_prepare'):null;if(existing)return existing;
     const listings=read(LISTINGS,[]),carts=read(CARTS,[]);
     const normalized=[];
