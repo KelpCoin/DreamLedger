@@ -1,4 +1,6 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const { URL } = require('url');
 
 const silos = {
@@ -44,6 +46,16 @@ const silos = {
   }
 };
 
+const candidateRegistryPath = path.join(__dirname, 'silo-candidates-200.json');
+try {
+  const registry = JSON.parse(fs.readFileSync(candidateRegistryPath, 'utf8'));
+  for (const candidate of registry.silos || []) {
+    silos[candidate.slug] = candidate;
+  }
+} catch (error) {
+  console.error('SILO_CANDIDATE_REGISTRY_UNAVAILABLE', error.message);
+}
+
 function esc(value) {
   return String(value || '').replace(/[&<>"]/g, function(c) {
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
@@ -68,7 +80,7 @@ const server = http.createServer((req,res)=>{
   const slug = u.pathname.split('/').filter(Boolean)[0] || '';
   if (slug === '' || slug === 'healthz') {
     const body = slug === 'healthz'
-      ? JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length})
+      ? JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length,public_silos:Object.values(silos).filter(s => s.public !== false).length,internal_candidates:Object.values(silos).filter(s => s.public === false).length})
       : page('DreamLedger Silo Gateway','Public HTTP surfaces for defined silo candidates.','LIVE','index');
     res.writeHead(200, {'content-type': slug === 'healthz' ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8','cache-control':'no-store'});
     return res.end(body);
@@ -78,7 +90,7 @@ const server = http.createServer((req,res)=>{
     return res.end('<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GETS Opportunity Brief | DreamLedger</title></head><body style="font-family:system-ui;max-width:900px;margin:0 auto;padding:48px 24px;background:#f5f0e7;color:#171512"><a href="/">DreamLedger</a><h1>GETS Opportunity Brief</h1><p>Evidence-backed tender decoding for NZ suppliers.</p><h2>NZ$49 price hypothesis</h2><p>Checkout is not attached until the payment route and fulfillment contract are explicitly approved and verified.</p><h2>Free sample</h2><ul><li>Tender identity and closing date</li><li>Mandatory requirements with source/page references</li><li>Capability fit and visible gaps</li><li>Questions to resolve before submission</li><li>Evidence trail for material claims</li></ul><p>This page is a product demonstration. It does not claim a buyer, payment or revenue.</p></body></html>');
   }
   const silo = silos[slug];
-  if (!silo) {
+  if (!silo || silo.public === false) {
     res.writeHead(404, {'content-type':'text/plain; charset=utf-8'});
     return res.end('Silo not found');
   }
