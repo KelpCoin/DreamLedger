@@ -244,6 +244,69 @@ function candidates() {
     return true;
   });
 }
+function buildEconomicBeliefs(seeds, candidates) {
+  // Economic beliefs are machine-maintained hypotheses, never economic facts.
+  // They may strengthen or weaken from observed evidence, but only the existing
+  // Truth/settlement substrate can establish a VERIFIED economic outcome.
+  const beliefRows = (seeds || []).map(seed => {
+    const evidence = assessEconomicEvidence(seed);
+    const [evidenceClass, evidencePriority] = classifyEvidence(seed);
+    const candidateCount = (candidates || []).filter(x =>
+      x.seed_opportunity_id === seed.opportunity_id
+    ).length;
+    const explicitIntent = hasExplicitPaymentIntent(seed);
+    const checkout = Boolean(seed.commercial_activation?.payment_link_url);
+    const settled = evidenceClass === 'SETTLED_PAYMENT';
+    const beliefState = settled
+      ? 'STRONG_BUT_REQUIRES_SETTLEMENT_RECONCILIATION'
+      : explicitIntent
+        ? 'HIGHER_CONFIDENCE_HYPOTHESIS'
+        : evidencePriority >= EVIDENCE_PRIORITY.CHECKOUT
+          ? 'COMMERCE_SIGNAL_HYPOTHESIS'
+          : 'UNVERIFIED_HYPOTHESIS';
+    return {
+      belief_id: 'BEL-' + sha(JSON.stringify({
+        opportunity_id: seed.opportunity_id,
+        evidence_class: evidenceClass
+      })).slice(0, 16).toUpperCase(),
+      opportunity_id: seed.opportunity_id || null,
+      belief: {
+        buyer_problem_exists: Boolean(seed.hypothesis || seed.observed_problem || seed.offer),
+        buyer_willingness_to_pay: Boolean(explicitIntent || settled),
+        offer_can_be_fulfilled: Boolean(seed.commercial_activation?.fulfillment_route),
+        payment_path_exists: checkout,
+        economic_mechanism_verified: false
+      },
+      state: beliefState,
+      evidence_class: evidenceClass,
+      evidence_priority: evidencePriority,
+      evidence_ladder: evidence,
+      derived_candidate_count: candidateCount,
+      next_observation: settled
+        ? 'RECONCILE_SETTLEMENT_AND_FULFILLMENT'
+        : explicitIntent
+          ? 'AUTHORIZED_EXTERNAL_RESPONSE_OR_CHECKOUT_OBSERVATION'
+          : 'OBSERVE_INDEPENDENT_EXTERNAL_BUYER_SIGNAL',
+      truth_boundary: {
+        revenue_claimed_nzd: 0,
+        settled_payment: false,
+        fulfillment_verified: false,
+        independent_verification: false,
+        promotion_permission: 0
+      }
+    };
+  });
+  beliefRows.sort((a, b) => b.evidence_priority - a.evidence_priority);
+  return {
+    schema: 'DREAMLEDGER/ECONOMIC-BELIEF/v1',
+    authority: 'MACHINE_HYPOTHESIS_ONLY',
+    purpose: 'Maintain explicit, falsifiable economic beliefs from observed substrate evidence.',
+    update_rule: 'NEW_EXTERNAL_EVIDENCE_MAY_UPDATE_BELIEF; INTERNAL_ACTIVITY_MAY_NOT_CREATE_TRUTH',
+    promotion_rule: 'ONLY_TRUTH_ORACLE_VERIFIED_EXTERNAL_OUTCOME_MAY_GRANT_REPLICATION_PERMISSION',
+    beliefs: beliefRows
+  };
+}
+
 function buildEvergreenExpansion(seed) {
   // 777 distinguishes CONTROLLED PROBES from REPLICATION. A real qualified
   // substrate may produce a bounded 5-10-cell probe batch before verification.
@@ -653,6 +716,7 @@ function build() {
     seed_count: top.length,
     candidate_count: rows.length,
     economic_evidence_ladder: summarizeEvidenceLadder(base),
+    economic_beliefs: buildEconomicBeliefs(base, rows),
     activation_candidate_count: activation_candidates.length,
     activation_candidates,
     pricing_research: PRICING_RESEARCH,
