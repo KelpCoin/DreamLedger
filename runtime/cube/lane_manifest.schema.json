@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/runtime/cube/lane_manifest.schema.json",
+  "title": "DreamLedger CUBE Lane Manifest",
+  "description": "Small deterministic contract for compiling a Gauntlet-surviving economic candidate into a testable commercial surface using existing commerce rails.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "candidate_id",
+    "substrate_type",
+    "substrate_requirements",
+    "demand_family",
+    "transformation",
+    "buyer_output",
+    "commercial_boundary",
+    "commerce_path",
+    "experiment",
+    "kill_criteria"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dreamledger/cube/lane-manifest/v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "candidate_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "substrate_type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "substrate_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_fields",
+        "minimum_sample"
+      ],
+      "properties": {
+        "required_fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true
+        },
+        "minimum_sample": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        }
+      }
+    },
+    "demand_family": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "worker",
+        "steps"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[A-Z0-9_:-]+$"
+        },
+        "worker": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "minItems": 1,
+          "maxItems": 50
+        }
+      }
+    },
+    "buyer_output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "contains"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "contains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true
+        }
+      }
+    },
+    "commercial_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "price_nzd",
+        "unit"
+      ],
+      "properties": {
+        "price_nzd": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "commerce_path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkout",
+        "fulfillment",
+        "proof"
+      ],
+      "properties": {
+        "checkout": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "fulfillment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "proof": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      }
+    },
+    "experiment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "success_signal",
+        "promotion_rule"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "CANDIDATE",
+            "COMPILED",
+            "EXPOSED",
+            "PAID",
+            "VERIFIED",
+            "KILLED"
+          ]
+        },
+        "success_signal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "promotion_rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "kill_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "minItems": 1,
+      "maxItems": 20
+    }
+  }
+}
