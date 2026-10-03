@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/economic-gateway-mtg-traverse/v1",
-  "observed_at": "2026-10-04",
+  "observed_at": "2026-10-04T02:00:00+13:00",
   "branch": "catalyst/factory-assets-2026-10-04",
   "base": "main@9e11f33a0dd69a47b9e5bd293d51bdbb6c5916b8",
   "economic_truth": {
@@ -98,5 +98,19 @@
       "MTG physical dispatch automation"
     ]
   },
-  "truth_boundary": "UNVERIFIED"
+  "truth_boundary": "UNVERIFIED",
+  "head": "ac9412cad6e4c8b492a04223d472e7d48a7e3551",
+  "next_loop": {
+    "quote_fulfillment": "PATCHED_FAIL_CLOSED_BEFORE_ARTIFACT_EXPOSURE",
+    "quote_contract_cases": [
+      "COMPLETE",
+      "PARTIAL",
+      "INSUFFICIENT"
+    ],
+    "x402": "PATCHED_NO_ECONOMIC_EVENT_UNTIL_AUTHORITATIVE_CHAIN_CONFIRMATION",
+    "entitlement_wall": "SOURCE_OBSERVED_PAYMENT_SESSION_TO_ORDER_TO_ENTITLEMENT_TO_FULFILLMENT_REQUEST; LIVE_POSTGRES_UNOBSERVABLE",
+    "ci": "IN_PROGRESS",
+    "deployment": "NOT_PERFORMED",
+    "stripe_mutation": "NOT_PERFORMED"
+  }
 }
