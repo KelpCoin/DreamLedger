@@ -41,7 +41,8 @@ const signature = crypto.createHmac('sha256', secret).update(`${timestamp}.${raw
 const header = `t=${timestamp},v1=${signature}`;
 
 stripeWebhookProof.verifyStripeSignature(raw, header, secret);
-stripeWebhookProof.verifyStripeSignature(raw, header, secret);
+stripeWebhookProof.recordTruthOracleWebhookEvent(event);
+stripeWebhookProof.recordTruthOracleWebhookEvent(event);
 
 const events = JSON.parse('[' + fs.readFileSync(path.join(process.env.LEDGER_DATA_DIR, 'EVENTS.jsonl'), 'utf8').trim().split(/\r?\n/).join(',') + ']');
 assert.strictEqual(events.length, 1, 'duplicate Stripe event must produce one ledger event');
