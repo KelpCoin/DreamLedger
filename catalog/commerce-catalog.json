@@ -13,9 +13,9 @@
       "price_nzd": 29,
       "billing": "one_time",
       "status": "sale_ready",
-      "stripe_payment_link": "https://buy.stripe.com/9B6aEX5DvdSd4Q73gwdwc1V",
+      "stripe_payment_link": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
       "stripe_product": "prod_V6iVKl9HgFpzRU",
-      "stripe_price": "price_1U7OJkEGgEAnUFF95GIzLolj",
+      "stripe_price": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
       "role": "first_payment_proof_candidate"
     },
     {
