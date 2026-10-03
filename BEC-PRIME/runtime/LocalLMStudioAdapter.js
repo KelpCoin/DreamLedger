@@ -54,6 +54,13 @@ class LocalLMStudioAdapter {
     if (!isLoaded) {
       const load = require('node:child_process').spawnSync(cli, ['load', this.model, '--gpu', this.gpuMode], { encoding: 'utf8', windowsHide: true, timeout: 120000 });
       if (load.status !== 0) throw new Error('MODEL_LOAD_FAILED:' + String(load.stderr || load.stdout || '').slice(0, 1000));
+      const verify = require('node:child_process').spawnSync(cli, ['ps', '--json'], { encoding: 'utf8', windowsHide: true, timeout: 15000 });
+      try { loaded = JSON.parse(String(verify.stdout || '')); } catch (_) { loaded = []; }
+      const loadedAfter = Array.isArray(loaded) && loaded.some(item =>
+        String(item.identifier || item.id || item.model || '').trim() === this.model ||
+        String(item.modelKey || item.path || '').trim() === this.model
+      );
+      if (!loadedAfter) throw new Error('MODEL_LOAD_NOT_VISIBLE_IN_LMS_PS');
     }
     return { status: 'MODEL_LOADED', model: this.model, gpuStatus: 'UNOBSERVABLE', models };
   }
