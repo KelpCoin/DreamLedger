@@ -1,416 +1,189 @@
 #Requires -Version 5.1
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
-
+[CmdletBinding()]
 param(
-    [string]$BridgeUrl = $env:DREAMLEDGER_AGENT_BRIDGE_URL,
-    [string]$BridgeToken = $env:DREAMLEDGER_AGENT_BRIDGE_TOKEN,
-    [string]$WorkerId = $env:DREAMLEDGER_LMSTUDIO_WORKER_ID,
-    [string]$LMStudioUrl = $(if ($env:LM_STUDIO_URL) { $env:LM_STUDIO_URL } elseif ($env:LM_STUDIO_BASE_URL) { $env:LM_STUDIO_BASE_URL } else { '' }),
-    [int]$PollSeconds = 15,
-    [int]$MaxOutputTokens = 1400,
-    [switch]$Once
+  [string]$BridgeUrl=$env:DREAMLEDGER_AGENT_BRIDGE_URL,
+  [string]$BridgeToken=$env:DREAMLEDGER_AGENT_BRIDGE_TOKEN,
+  [string]$WorkerId=$env:DREAMLEDGER_LMSTUDIO_WORKER_ID,
+  [string]$LMStudioUrl=$env:LM_STUDIO_BASE_URL,
+  [int]$PollSeconds=15,
+  [int]$MaxOutputTokens=1400,
+  [switch]$Once
 )
+Set-StrictMode -Version Latest
+$ErrorActionPreference='Stop'
+[Console]::OutputEncoding=[Text.Encoding]::ASCII
 
-function Fail([string]$Message) { throw $Message }
+function Fail([string]$m){throw $m}
+if([string]::IsNullOrWhiteSpace($BridgeUrl)){Fail 'DREAMLEDGER_AGENT_BRIDGE_URL is required'}
+if([string]::IsNullOrWhiteSpace($BridgeToken)){Fail 'DREAMLEDGER_AGENT_BRIDGE_TOKEN is required'}
+if([string]::IsNullOrWhiteSpace($WorkerId)){$WorkerId='lmstudio-economic-'+$env:COMPUTERNAME}
+$BridgeUrl=$BridgeUrl.TrimEnd('/'); $LMStudioUrl=$LMStudioUrl.TrimEnd('/')
 
-if ([string]::IsNullOrWhiteSpace($BridgeUrl)) { Fail 'DREAMLEDGER_AGENT_BRIDGE_URL is required' }
-if ([string]::IsNullOrWhiteSpace($BridgeToken)) { Fail 'DREAMLEDGER_AGENT_BRIDGE_TOKEN is required' }
-if ([string]::IsNullOrWhiteSpace($WorkerId)) { $WorkerId = 'lmstudio-economic-' + $env:COMPUTERNAME }
-
-$BridgeUrl = $BridgeUrl.TrimEnd('/')
-$LMStudioUrl = $LMStudioUrl.TrimEnd('/')
-
-function Get-LmsExecutable {
-    $c = Get-Command lms.exe -ErrorAction SilentlyContinue
-    if ($c) { return $c.Source }
-    $c = Get-Command lms -ErrorAction SilentlyContinue
-    if ($c) { return $c.Source }
-    foreach ($p in @((Join-Path $env:USERPROFILE '.lmstudio\\bin\\lms.exe'),(Join-Path $env:LOCALAPPDATA 'LM-Studio\\bin\\lms.exe'))) {
-        if (Test-Path -LiteralPath $p) { return $p }
-    }
-    Fail 'LMS_EXECUTABLE_NOT_FOUND'
+function Get-Lms {
+  $c=Get-Command lms.exe -ErrorAction SilentlyContinue
+  if($c){return $c.Source}
+  $c=Get-Command lms -ErrorAction SilentlyContinue
+  if($c){return $c.Source}
+  foreach($p in @((Join-Path $env:USERPROFILE '.lmstudio\bin\lms.exe'),(Join-Path $env:LOCALAPPDATA 'LM-Studio\bin\lms.exe'))){
+    if(Test-Path -LiteralPath $p){return $p}
+  }
+  Fail 'LMS_EXECUTABLE_NOT_FOUND'
 }
-
-function Invoke-LmsJson([string]$Lms,[string[]]$Args) {
-    $o = & $Lms @Args 2>&1
-    if ($LASTEXITCODE -ne 0) { Fail ('LMS_COMMAND_FAILED:' + ($o -join ' ')) }
-    try { return ($o -join [Environment]::NewLine | ConvertFrom-Json) } catch { Fail ('LMS_JSON_INVALID:' + ($o -join ' ')) }
+function LmsRaw([string]$l,[string[]]$a){
+  $o=& $l @a 2>&1
+  if($LASTEXITCODE -ne 0){Fail ('LMS_COMMAND_FAILED:'+($o -join ' '))}
+  ($o -join [Environment]::NewLine).Trim()
 }
-
-function Ensure-LmsRuntime([string]$Lms) {
-    $d = Invoke-LmsJson $Lms @('daemon','status','--json')
-    if ([string]$d.status -ne 'running') { [void](& $Lms daemon up); $d = Invoke-LmsJson $Lms @('daemon','status','--json') }
-    if ([string]$d.status -ne 'running') { Fail 'SERVER_UNAVAILABLE:LLMSTER_DAEMON' }
-    $s = Invoke-LmsJson $Lms @('server','status','--json','--quiet')
-    if (-not [bool]$s.running) { [void](& $Lms server start); $s = Invoke-LmsJson $Lms @('server','status','--json','--quiet') }
-    if (-not [bool]$s.running -or [int]$s.port -le 0) { Fail 'SERVER_UNAVAILABLE:LM_SERVER' }
-    if ([string]::IsNullOrWhiteSpace($script:LMStudioUrl)) { $script:LMStudioUrl = 'http://127.0.0.1:' + [int]$s.port }
-    $script:LMStudioUrl = $script:LMStudioUrl.TrimEnd('/')
-    if ($script:LMStudioUrl -notmatch '/v1
-
-$Headers = @{
-    'x-dreamledger-agent-token' = $BridgeToken
-    'Accept' = 'application/json'
+function LmsJson([string]$l,[string[]]$a){
+  $r=LmsRaw $l $a
+  try{return $r|ConvertFrom-Json}catch{Fail ('LMS_JSON_INVALID:'+ $r)}
 }
-
-function Invoke-Json {
-    param(
-        [string]$Method,
-        [string]$Url,
-        [object]$Body = $null,
-        [hashtable]$ExtraHeaders = @{}
-    )
-    $h = @{}
-    foreach ($k in $Headers.Keys) { $h[$k] = $Headers[$k] }
-    foreach ($k in $ExtraHeaders.Keys) { $h[$k] = $ExtraHeaders[$k] }
-    $p = @{ Uri=$Url; Method=$Method; Headers=$h; ErrorAction='Stop'; TimeoutSec=120 }
-    if ($null -ne $Body) {
-        $p.ContentType='application/json'
-        $p.Body=($Body | ConvertTo-Json -Depth 30 -Compress)
-    }
-    return Invoke-RestMethod @p
+function EnsureRuntime([string]$l){
+  $d=LmsJson $l @('daemon','status','--json')
+  if([string]$d.status -ne 'running'){
+    [void](LmsRaw $l @('daemon','up'))
+    $d=LmsJson $l @('daemon','status','--json')
+  }
+  if([string]$d.status -ne 'running'){Fail 'SERVER_UNAVAILABLE:LLMSTER_DAEMON'}
+  $s=LmsJson $l @('server','status','--json','--quiet')
+  if(-not [bool]$s.running){
+    [void](LmsRaw $l @('server','start'))
+    $s=LmsJson $l @('server','status','--json','--quiet')
+  }
+  $port=0; try{$port=[int]$s.port}catch{}
+  if(-not [bool]$s.running -or $port -le 0){Fail 'SERVER_UNAVAILABLE:LM_SERVER'}
+  $port
 }
-
-function Get-LMModel([string]$Lms) {
-    $r = Invoke-RestMethod -Uri ($LMStudioUrl + '/v1/models') -Method Get -TimeoutSec 15
-    $m = @($r.data | Where-Object { $_.id } | Select-Object -First 1)
-    if ($m.Count -eq 0) { Fail 'MODEL_DISCOVERED:NO_MODELS_RETURNED' }
-    $model = if ($env:LM_STUDIO_MODEL) { [string]$env:LM_STUDIO_MODEL } else { [string]$m[0].id }
-    if (@($m.id) -notcontains $model) { Fail 'MODEL_NOT_EXPOSED:' + $model }
-    $loaded = Get-LoadedModelIds $Lms
-    if ($loaded -notcontains $model) {
-        $help = & $Lms load --help 2>&1
-        $args = @('load',$model)
-        if (($help -join ' ') -match '--gpu') { $args += '--gpu=max' }
-        [void](& $Lms @args)
-        $loaded = Get-LoadedModelIds $Lms
-    }
-    if ($loaded -notcontains $model) { Fail 'MODEL_LOADED_FALSE:' + $model }
-    return $model
+function InstalledModels([string]$l){
+  $r=LmsJson $l @('ls','--llm','--json')
+  $items=@()
+  if($r -is [Array]){$items=@($r)}
+  elseif($null -ne $r.models){$items=@($r.models)}
+  elseif($null -ne $r.data){$items=@($r.data)}
+  elseif($null -ne $r.items){$items=@($r.items)}
+  else{$items=@($r)}
+  @($items|ForEach-Object{
+    if($null -ne $_.modelKey){[string]$_.modelKey}
+    elseif($null -ne $_.model_key){[string]$_.model_key}
+    elseif($null -ne $_.key){[string]$_.key}
+    elseif($null -ne $_.id){[string]$_.id}
+  }|Where-Object{$_}|Select-Object -Unique)
 }
-
-function Get-GpuStatus([string]$Lms) {
-    $p = Invoke-LmsJson $Lms @('ps','--json') | ConvertTo-Json -Depth 30 -Compress
-    if ($p -match '(?i)gpu' -and $p -match '(?i)(offload|gpu_memory|gpu.*[0-9]+|[0-9]+.*gpu)') { return 'VERIFIED_FROM_LMS_PS' }
-    return 'UNOBSERVABLE'
+function Assignments([string]$l){
+  $installed=InstalledModels $l
+  if($installed.Count -lt 3){Fail ('THREE_LLM_MINIMUM_NOT_MET:installed='+$installed.Count+' required=3; run .\runtime\lm_studio\Ensure-ThreeModelLocalStack.ps1 -InstallVisionModel')}
+  $c=[string]$env:DREAMLEDGER_CREATOR_MODEL; $k=[string]$env:DREAMLEDGER_CRITIC_MODEL; $s=[string]$env:DREAMLEDGER_SYNTHESIS_MODEL
+  if([string]::IsNullOrWhiteSpace($c)){$c=$installed[0]}
+  if([string]::IsNullOrWhiteSpace($k)){$k=$installed[1]}
+  if([string]::IsNullOrWhiteSpace($s)){$s=$installed[2]}
+  $u=@($c,$k,$s)|Select-Object -Unique
+  if($u.Count -lt 3){Fail 'MINIMUM_THREE_DISTINCT_MODELS_REQUIRED'}
+  foreach($m in @($c,$k,$s)){if($installed -notcontains $m){Fail ('MODEL_NOT_INSTALLED:'+ $m)}}
+  $v=[string]$env:DREAMLEDGER_VISION_MODEL
+  if([string]::IsNullOrWhiteSpace($v)){$v=$k}
+  if(@($c,$k,$s) -notcontains $v){Fail 'VISION_MODEL_MUST_BE_ONE_OF_THREE'}
+  [ordered]@{CREATOR=$c;CRITIC=$k;SYNTHESIS=$s;VISION=$v;installed_count=$installed.Count}
 }
-
-function Write-BuildArtifact([object]$BuildJob,[string]$Model,[string]$ResultText,[string]$GpuStatus) {
-    $root = Join-Path $PSScriptRoot '..\\..'; $artifactDir = Join-Path $root 'runtime\\777\\local-build-artifacts'; $manifestDir = Join-Path $root 'runtime\\cube\\manifests'; $proofDir = Join-Path $root 'runtime\\777\\local-worker-proofs'
-    New-Item -ItemType Directory -Force -Path $artifactDir,$manifestDir,$proofDir | Out-Null
-    $inputJson = $BuildJob | ConvertTo-Json -Depth 30 -Compress
-    $inputHash = [System.BitConverter]::ToString(([System.Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($inputJson)))).Replace('-','').ToLower()
-    $artifactPath = Join-Path $artifactDir ($BuildJob.job_id + '.json')
-    $artifact = [ordered]@{schema_version='DREAMLEDGER/LOCAL-BUILD-ARTIFACT/v1';job_id=$BuildJob.job_id;signal_id=$BuildJob.signal_id;source_reference=$BuildJob.source_reference;model_identifier=$Model;input_hash=$inputHash;output=$ResultText;status='ARTIFACT_READY';external_action_performed=$false;revenue_claimed=$false;payment_claimed=$false;fulfillment_claimed=$false;verification_claimed=$false;provenance=$BuildJob.provenance}
-    $artifactJson = $artifact | ConvertTo-Json -Depth 40
-    [IO.File]::WriteAllText($artifactPath,$artifactJson + [Environment]::NewLine,(New-Object Text.UTF8Encoding($false)))
-    $outputHash = (Get-FileHash -LiteralPath $artifactPath -Algorithm SHA256).Hash.ToLower()
-    $manifestPath = Join-Path $manifestDir ($BuildJob.job_id + '.json')
-    $manifest = [ordered]@{candidate_id=$BuildJob.job_id;substrate_type=$BuildJob.substrate_reference;substrate_requirements=$BuildJob.substrate_reference;signal_id=$BuildJob.signal_id;demand_family=$BuildJob.demand_family;transformation=@{name=$BuildJob.transformation_family;worker_role=$BuildJob.worker_role;model_identifier=$Model};buyer_output=@{format='structured_artifact';artifact_reference=$artifactPath;output_hash=$outputHash;contains=@('source-grounded internal artifact')};commercial_boundary=@{price_nzd=0;external_action_required=$true;approval_required=$true;revenue_claim_allowed=$false};commerce_path=@{checkout='existing commerce rail';fulfillment='existing bounded fulfillment adapter';proof='EXISTING_PROOF_SPINE'};kill_criteria=@('source becomes stale','artifact validation fails','contradictory evidence');provenance=@{signal_id=$BuildJob.signal_id;build_job_id=$BuildJob.job_id;source_reference=$BuildJob.source_reference;input_hash=$inputHash;artifact_hash=$outputHash}}
-    $manifest | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
-    $proofPath = Join-Path $proofDir ($BuildJob.job_id + '.json')
-    @{schema_version='DREAMLEDGER/LOCAL-BUILD-WORKER-PROOF/v1';job_id=$BuildJob.job_id;signal_id=$BuildJob.signal_id;model_id=$Model;server_endpoint=$LMStudioUrl;inference_status='READY_INFERENCE';gpu_status=$GpuStatus;artifact_path=$artifactPath;manifest_path=$manifestPath;input_hash=$inputHash;output_hash=$outputHash;external_action_performed=$false;revenue_claimed=$false} | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $proofPath -Encoding ASCII
-    return @{artifact_path=$artifactPath;manifest_path=$manifestPath;proof_path=$proofPath;input_hash=$inputHash;output_hash=$outputHash;gpu_status=$GpuStatus}
+function VisibleModels{
+  $r=Invoke-RestMethod -Uri ($script:LMStudioUrl+'/v1/models') -Method Get -TimeoutSec 30
+  @($r.data|Where-Object{$_.id}|ForEach-Object{[string]$_.id}|Select-Object -Unique)
 }
-
-function Invoke-LM {
-    param([string]$Model,[string]$Objective,[object]$Job)
-    $system = @'
-You are the local economic worker for DreamLedger/BrownEye.
-
-Operate as a bounded Worker A. You may inspect, reason, classify, propose,
-compile, test, and prepare evidence. You must not claim external revenue,
-invent buyers, invent payments, publish externally, spend money, alter
-authorization, reveal secrets, or certify economic truth.
-
-Treat external reality as authoritative.
-Treat UNVERIFIED as UNVERIFIED.
-Prefer the smallest executable action.
-Return JSON-compatible structured prose with:
-status, decision, actions, evidence_needed, risks, next_step.
-
-If the job requests an irreversible/public/financial action, stop at the
-approval boundary and report APPROVAL_REQUIRED rather than performing it.
-'@
-    $user = @{
-        objective=$Objective
-        job_type=[string]$Job.job_type
-        job_id=[string]$Job.job_id
-        payload=$Job.payload
-        approval_gate=$Job.approval_gate
-        next_permitted_action=$Job.next_permitted_action
-        instruction='Execute only within the Worker A boundary. Produce an implementation/result artifact, not a revenue claim.'
-    }
-    $body = @{
-        model=$Model
-        messages=@(
-            @{role='system';content=$system},
-            @{role='user';content=($user | ConvertTo-Json -Depth 30)}
-        )
-        temperature=0.1
-        max_tokens=$MaxOutputTokens
-        stream=$false
-    }
-    $r = Invoke-RestMethod -Uri ($LMStudioUrl + '/v1/chat/completions') -Method Post -ContentType 'application/json' -Body ($body | ConvertTo-Json -Depth 30) -TimeoutSec 600
-    $text = [string]$r.choices[0].message.content
-    if ([string]::IsNullOrWhiteSpace($text)) { Fail 'LM Studio returned no worker result' }
-    return $text
+function LoadModel([string]$l,[string]$m){
+  $help=LmsRaw $l @('load','--help')
+  $a=@('load',$m)
+  if($help -match '(?i)--gpu'){$a+=@('--gpu','max')}
+  if($help -match '(?i)(-y|--yes)'){$a+='--yes'}
+  [void](LmsRaw $l $a)
+  $deadline=(Get-Date).AddSeconds(60)
+  do{
+    try{if((VisibleModels)-contains $m){return $m}}catch{}
+    Start-Sleep -Seconds 1
+  }while((Get-Date)-lt $deadline)
+  Fail ('MODEL_NOT_EXPOSED_AFTER_LOAD:'+ $m)
 }
-
-function Run-Once {
-    $correlation = [guid]::NewGuid().ToString()
-    $claim = Invoke-Json 'POST' ($BridgeUrl + '/api/agent-bridge/jobs/claim') @{
-        worker_id=$WorkerId
-        lease_seconds=900
-    } @{ 'x-correlation-id'=$correlation }
-
-    if (-not $claim.claimed) {
-        return @{status='IDLE';worker_id=$WorkerId;correlation_id=$correlation}
-    }
-
-    $job = $claim.job
-    $leaseToken = [string]$claim.lease_token
-    if ([string]::IsNullOrWhiteSpace($leaseToken)) { Fail 'Bridge lease did not return lease_token' }
-
-    try {
-        $lms = Get-LmsExecutable
-        [void](Ensure-LmsRuntime $lms)
-        $model = Get-LMModel $lms
-        $objective = [string]$job.objective
-        if ([string]::IsNullOrWhiteSpace($objective)) {
-            $objective = [string]$job.payload.mission
-        }
-        if ([string]::IsNullOrWhiteSpace($objective)) {
-            $objective = [string]$job.job_type
-        }
-
-        $buildJob = $job.payload.build_job
-        $resultText = Invoke-LM $model $objective $job
-        $buildArtifact = $null
-        if ($null -ne $buildJob) {
-            $gpuStatus = Get-GpuStatus $lms
-            $buildArtifact = Write-BuildArtifact $buildJob $model $resultText $gpuStatus
-        }
-        $result = [ordered]@{
-            schema_version='BEC-LMSTUDIO-WORKER-1.0'
-            worker_id=$WorkerId
-            model=$model
-            job_id=[string]$job.job_id
-            job_type=[string]$job.job_type
-            correlation_id=$correlation
-            status='ARTIFACT_READY'
-            external_action_taken=$false
-            irreversible_effects_triggered=$false
-            revenue_claim=$false
-            sale_claim=$false
-            payment_claim=$false
-            fulfillment_claim=$false
-            result=$resultText
-            build_artifact=$buildArtifact
-            gpu_status=$(if($buildArtifact){$buildArtifact.gpu_status}else{'UNOBSERVABLE'})
-        }
-
-        $completePath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$job.job_id) + '/complete'
-        $done = Invoke-Json 'POST' ($BridgeUrl + $completePath) @{
-            worker_id=$WorkerId
-            lease_token=$leaseToken
-            result=$result
-        } @{ 'x-correlation-id'=$correlation }
-
-        return @{status='COMPLETED';job_id=$job.job_id;model=$model;bridge=$done;correlation_id=$correlation}
-    }
-    catch {
-        $message = $_.Exception.Message
-        $failPath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$job.job_id) + '/fail'
-        try {
-            $failed = Invoke-Json 'POST' ($BridgeUrl + $failPath) @{
-                worker_id=$WorkerId
-                lease_token=$leaseToken
-                error=$message
-                retryable=$true
-            } @{ 'x-correlation-id'=$correlation }
-            return @{status='FAILED';job_id=$job.job_id;bridge=$failed;error=$message;correlation_id=$correlation}
-        }
-        catch {
-            return @{status='FAILED_UNRECORDED';job_id=$job.job_id;error=$message;failure_persistence_error=$_.Exception.Message;correlation_id=$correlation}
-        }
-    }
+function UnloadModel([string]$l,[string]$m){try{[void](LmsRaw $l @('unload',$m))}catch{}}
+function ImageParts([string]$list){
+  $out=@()
+  if([string]::IsNullOrWhiteSpace($list)){return $out}
+  foreach($x in ($list -split ';')){
+    $p=$x.Trim(); if(-not $p){continue}
+    if(-not(Test-Path -LiteralPath $p -PathType Leaf)){Fail ('VISION_IMAGE_NOT_FOUND:'+ $p)}
+    $ext=([IO.Path]::GetExtension($p)).ToLowerInvariant()
+    $mime=switch($ext){'.png'{'image/png'}'.jpg'{'image/jpeg'}'.jpeg'{'image/jpeg'}'.webp'{'image/webp'}default{Fail ('UNSUPPORTED_VISION_IMAGE_TYPE:'+ $ext)}}
+    $b64=[Convert]::ToBase64String([IO.File]::ReadAllBytes($p))
+    $out+=@{type='image_url';image_url=@{url=('data:'+ $mime+';base64,'+$b64)}}
+  }
+  $out
 }
-
-do {
-    try {
-        $result = Run-Once
-        $result | ConvertTo-Json -Depth 30 -Compress
-    }
-    catch {
-        @{status='WORKER_ERROR';error=$_.Exception.Message;worker_id=$WorkerId} | ConvertTo-Json -Depth 20 -Compress
-    }
-    if ($Once) { break }
-    Start-Sleep -Seconds ([Math]::Max(5,$PollSeconds))
-} while ($true)
-) { $script:LMStudioUrl += '/v1' }
-    return $s
+function Stage([string]$Model,[string]$Role,[object]$Packet,[bool]$Vision){
+  $sys=@{
+    CREATOR='Create the strongest bounded internal artifact or transformation from supplied evidence. Never invent buyers, payments, revenue, fulfillment, authorization or external results.'
+    CRITIC='Attack the current candidate. Find contradictions, stale evidence, ambiguity, unsupported inference and economic leakage. When images are supplied, perform visual inspection/OCR. Never certify truth.'
+    SYNTHESIS='Reconcile creator and critic outputs into one evidence-backed state. Preserve unresolved blockers. Never authorize prohibited external action.'
+  }
+  $content=@(@{type='text';text=(ConvertTo-Json @{role=$Role;packet=$Packet} -Depth 50 -Compress)})
+  if($Role -eq 'CRITIC' -and $Vision){$content+=ImageParts ([string]$env:DREAMLEDGER_VISION_IMAGE_PATHS)}
+  $body=@{model=$Model;messages=@(
+    @{role='system';content=($sys[$Role]+' UNKNOWN remains UNKNOWN. Consensus is not evidence.')},
+    @{role='user';content=$content}
+  );temperature=0.1;max_tokens=$MaxOutputTokens;stream=$false}
+  $r=Invoke-RestMethod -Uri ($script:LMStudioUrl+'/v1/chat/completions') -Method Post -ContentType 'application/json' -Body ($body|ConvertTo-Json -Depth 60) -TimeoutSec 900
+  $t=[string]$r.choices[0].message.content
+  if([string]::IsNullOrWhiteSpace($t)){Fail ('MODEL_EMPTY_OUTPUT:'+ $Role)}
+  $t
 }
-
-function Get-LoadedModelIds([string]$Lms) {
-    $p = Invoke-LmsJson $Lms @('ps','--json')
-    $items = if ($p.models) { @($p.models) } elseif ($p.data) { @($p.data) } elseif ($p -is [array]) { @($p) } else { @() }
-    return @($items | ForEach-Object { if ($_.identifier) { [string]$_.identifier } else { [string]$_.id } } | Where-Object { $_ })
+function Sha256([string]$t){
+  $sha=[Security.Cryptography.SHA256]::Create()
+  try{return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($t)))).Replace('-','').ToLowerInvariant()}finally{$sha.Dispose()}
 }
-
-$Headers = @{
-    'x-dreamledger-agent-token' = $BridgeToken
-    'Accept' = 'application/json'
+function BridgeJson([string]$method,[string]$url,[object]$body){
+  $h=@{'x-dreamledger-agent-token'=$BridgeToken;Accept='application/json'}
+  $p=@{Uri=$url;Method=$method;Headers=$h;ErrorAction='Stop';TimeoutSec=120}
+  if($null -ne $body){$p.ContentType='application/json';$p.Body=($body|ConvertTo-Json -Depth 60 -Compress)}
+  Invoke-RestMethod @p
 }
-
-function Invoke-Json {
-    param(
-        [string]$Method,
-        [string]$Url,
-        [object]$Body = $null,
-        [hashtable]$ExtraHeaders = @{}
-    )
-    $h = @{}
-    foreach ($k in $Headers.Keys) { $h[$k] = $Headers[$k] }
-    foreach ($k in $ExtraHeaders.Keys) { $h[$k] = $ExtraHeaders[$k] }
-    $p = @{ Uri=$Url; Method=$Method; Headers=$h; ErrorAction='Stop'; TimeoutSec=120 }
-    if ($null -ne $Body) {
-        $p.ContentType='application/json'
-        $p.Body=($Body | ConvertTo-Json -Depth 30 -Compress)
-    }
-    return Invoke-RestMethod @p
+function WriteBuild([object]$job,[object]$a,[string]$creator,[string]$critic,[string]$synthesis){
+  $root=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+  $ad=Join-Path $root 'runtime\777\local-build-artifacts'; $md=Join-Path $root 'runtime\cube\manifests'; $pd=Join-Path $root 'runtime\777\local-worker-proofs'
+  New-Item -ItemType Directory -Force -Path $ad,$md,$pd|Out-Null
+  $ap=Join-Path $ad ([string]$job.job_id+'.json')
+  $artifact=[ordered]@{schema_version='DREAMLEDGER/LOCAL-BUILD-ARTIFACT/v2';job_id=[string]$job.job_id;signal_id=[string]$job.signal_id;source_reference=[string]$job.source_reference;model_identifier=[string]$a.SYNTHESIS;input_hash=[string]$job.input_hash;output=$synthesis;status='ARTIFACT_READY';external_action_performed=$false;revenue_claimed=$false;payment_claimed=$false;fulfillment_claimed=$false;verification_claimed=$false;provenance=$job.provenance;model_panel=@{creator=$creator;critic_vision=$critic;synthesis=$synthesis}}
+  ($artifact|ConvertTo-Json -Depth 70)|Set-Content -LiteralPath $ap -Encoding UTF8
+  $oh=(Get-FileHash -LiteralPath $ap -Algorithm SHA256).Hash.ToLowerInvariant()
+  $mp=Join-Path $md ([string]$job.job_id+'.json')
+  $manifest=[ordered]@{schema='dreamledger/cube/lane-manifest/v1';schema_version=1;candidate_id=[string]$job.job_id;substrate_type=[string]$job.substrate_reference;substrate_requirements=@{required_fields=@([string]$job.requested_output);minimum_sample=1};demand_family=[string]$job.demand_family;transformation=@{name=([string]$job.transformation_family).ToUpperInvariant();worker='LOCAL_THREE_MODEL_REFINEMENT';steps=@('hash_source','visual_or_text_extract','normalize','compare_or_transform','preserve_unknowns','emit_evidence_packet')};buyer_output=@{format='structured_artifact';contains=@('source_reference','artifact_reference','output_hash','unknowns')};commercial_boundary=@{price_nzd=0;unit='candidate_only'};commerce_path=@{checkout='existing commerce rail; human gate';fulfillment='existing bounded fulfillment adapter';proof='EXISTING_PROOF_SPINE'};experiment=@{status='CANDIDATE';success_signal='external_settled_payment';promotion_rule='paid_verified_then_clone'};kill_criteria=@('source becomes stale','artifact validation fails','contradictory evidence','night batch exceeds economic envelope','paid trials -> zero verified outcomes')}
+  ($manifest|ConvertTo-Json -Depth 70)|Set-Content -LiteralPath $mp -Encoding UTF8
+  $pp=Join-Path $pd ([string]$job.job_id+'.json')
+  $proof=[ordered]@{schema_version='DREAMLEDGER/LOCAL-BUILD-WORKER-PROOF/v2';job_id=[string]$job.job_id;signal_id=[string]$job.signal_id;model_assignments=@{creator=$a.CREATOR;critic_vision=$a.VISION;synthesis=$a.SYNTHESIS};server_endpoint=$script:LMStudioUrl;inference_status='READY_INFERENCE';gpu_status='UNOBSERVABLE';artifact_path=$ap;manifest_path=$mp;input_hash=[string]$job.input_hash;artifact_hash=$oh;external_action_performed=$false;revenue_claimed=$false}
+  ($proof|ConvertTo-Json -Depth 60)|Set-Content -LiteralPath $pp -Encoding ASCII
+  [ordered]@{artifact_path=$ap;manifest_path=$mp;proof_path=$pp;artifact_hash=$oh}
 }
-
-function Get-LMModel {
-    $r = Invoke-RestMethod -Uri ($LMStudioUrl + '/v1/models') -Method Get -TimeoutSec 15
-    $m = @($r.data | Where-Object { $_.id } | Select-Object -First 1)
-    if ($m.Count -eq 0) { Fail 'No LM Studio model is visible at ' + $LMStudioUrl }
-    return [string]$m[0].id
+function RunOnce{
+  $corr=[guid]::NewGuid().ToString()
+  $claim=BridgeJson 'POST' ($BridgeUrl+'/api/agent-bridge/jobs/claim') @{worker_id=$WorkerId;lease_seconds=900}
+  if(-not $claim.claimed){return [ordered]@{status='IDLE';worker_id=$WorkerId;correlation_id=$corr}}
+  $job=$claim.job; $lease=[string]$claim.lease_token
+  try{
+    $lms=Get-Lms; $port=EnsureRuntime $lms
+    if([string]::IsNullOrWhiteSpace($script:LMStudioUrl)){$script:LMStudioUrl='http://127.0.0.1:'+ $port}
+    $script:LMStudioUrl=$script:LMStudioUrl.TrimEnd('/')
+    if($script:LMStudioUrl -notmatch '/v1$'){$script:LMStudioUrl+='/v1'}
+    $a=Assignments $lms
+    $packet=[ordered]@{economic_truth=@{verified_external_revenue_nzd=0;settled_external_payments=0;independent_external_buyers=0};job=$job;mode='THREE_MODEL_ITERATIVE_REFINEMENT';external_action_policy='HUMAN_GATE'}
+    [void](LoadModel $lms ([string]$a.CREATOR)); $creator=Stage ([string]$a.CREATOR) 'CREATOR' $packet $false; UnloadModel $lms ([string]$a.CREATOR)
+    $packet.creator=$creator
+    [void](LoadModel $lms ([string]$a.CRITIC)); $critic=Stage ([string]$a.CRITIC) 'CRITIC' $packet ([string]$a.VISION -eq [string]$a.CRITIC); UnloadModel $lms ([string]$a.CRITIC)
+    $packet.critic=$critic
+    [void](LoadModel $lms ([string]$a.SYNTHESIS)); $synthesis=Stage ([string]$a.SYNTHESIS) 'SYNTHESIS' $packet $false; UnloadModel $lms ([string]$a.SYNTHESIS)
+    $build=$null; try{$build=$job.payload.build_job}catch{}
+    $bo=$null; if($null -ne $build){$bo=WriteBuild $build $a $creator $critic $synthesis}
+    $result=[ordered]@{schema_version='BEC-LMSTUDIO-THREE-MODEL-WORKER-1.0';worker_id=$WorkerId;job_id=[string]$job.job_id;job_type=[string]$job.job_type;correlation_id=$corr;status='ARTIFACT_READY';model_assignments=@{creator=$a.CREATOR;critic_vision=$a.VISION;synthesis=$a.SYNTHESIS};server_endpoint=$script:LMStudioUrl;refinement_round=1;creator=$creator;critic=$critic;synthesis=$synthesis;build_artifact=$bo;external_action_taken=$false;irreversible_effects_triggered=$false;revenue_claim=$false;sale_claim=$false;payment_claim=$false;fulfillment_claim=$false}
+    $done=BridgeJson 'POST' ($BridgeUrl+'/api/agent-bridge/jobs/'+[uri]::EscapeDataString([string]$job.job_id)+'/complete') @{worker_id=$WorkerId;lease_token=$lease;result=$result}
+    [ordered]@{status='COMPLETED';job_id=$job.job_id;model_assignments=$result.model_assignments;server_endpoint=$script:LMStudioUrl;bridge=$done;correlation_id=$corr}
+  }catch{
+    $msg=$_.Exception.Message
+    try{$fail=BridgeJson 'POST' ($BridgeUrl+'/api/agent-bridge/jobs/'+[uri]::EscapeDataString([string]$job.job_id)+'/fail') @{worker_id=$WorkerId;lease_token=$lease;error=$msg;retryable=$true};[ordered]@{status='FAILED';job_id=$job.job_id;error=$msg;bridge=$fail;correlation_id=$corr}}
+    catch{[ordered]@{status='FAILED_UNRECORDED';job_id=$job.job_id;error=$msg;failure_persistence_error=$_.Exception.Message;correlation_id=$corr}}
+  }
 }
-
-function Invoke-LM {
-    param([string]$Model,[string]$Objective,[object]$Job)
-    $system = @'
-You are the local economic worker for DreamLedger/BrownEye.
-
-Operate as a bounded Worker A. You may inspect, reason, classify, propose,
-compile, test, and prepare evidence. You must not claim external revenue,
-invent buyers, invent payments, publish externally, spend money, alter
-authorization, reveal secrets, or certify economic truth.
-
-Treat external reality as authoritative.
-Treat UNVERIFIED as UNVERIFIED.
-Prefer the smallest executable action.
-Return JSON-compatible structured prose with:
-status, decision, actions, evidence_needed, risks, next_step.
-
-If the job requests an irreversible/public/financial action, stop at the
-approval boundary and report APPROVAL_REQUIRED rather than performing it.
-'@
-    $user = @{
-        objective=$Objective
-        job_type=[string]$Job.job_type
-        job_id=[string]$Job.job_id
-        payload=$Job.payload
-        approval_gate=$Job.approval_gate
-        next_permitted_action=$Job.next_permitted_action
-        instruction='Execute only within the Worker A boundary. Produce an implementation/result artifact, not a revenue claim.'
-    }
-    $body = @{
-        model=$Model
-        messages=@(
-            @{role='system';content=$system},
-            @{role='user';content=($user | ConvertTo-Json -Depth 30)}
-        )
-        temperature=0.1
-        max_tokens=$MaxOutputTokens
-        stream=$false
-    }
-    $r = Invoke-RestMethod -Uri ($LMStudioUrl + '/v1/chat/completions') -Method Post -ContentType 'application/json' -Body ($body | ConvertTo-Json -Depth 30) -TimeoutSec 600
-    $text = [string]$r.choices[0].message.content
-    if ([string]::IsNullOrWhiteSpace($text)) { Fail 'LM Studio returned no worker result' }
-    return $text
-}
-
-function Run-Once {
-    $correlation = [guid]::NewGuid().ToString()
-    $claim = Invoke-Json 'POST' ($BridgeUrl + '/api/agent-bridge/jobs/claim') @{
-        worker_id=$WorkerId
-        lease_seconds=900
-    } @{ 'x-correlation-id'=$correlation }
-
-    if (-not $claim.claimed) {
-        return @{status='IDLE';worker_id=$WorkerId;correlation_id=$correlation}
-    }
-
-    $job = $claim.job
-    $leaseToken = [string]$claim.lease_token
-    if ([string]::IsNullOrWhiteSpace($leaseToken)) { Fail 'Bridge lease did not return lease_token' }
-
-    try {
-        $model = Get-LMModel
-        $objective = [string]$job.objective
-        if ([string]::IsNullOrWhiteSpace($objective)) {
-            $objective = [string]$job.payload.mission
-        }
-        if ([string]::IsNullOrWhiteSpace($objective)) {
-            $objective = [string]$job.job_type
-        }
-
-        $resultText = Invoke-LM $model $objective $job
-        $result = [ordered]@{
-            schema_version='BEC-LMSTUDIO-WORKER-1.0'
-            worker_id=$WorkerId
-            model=$model
-            job_id=[string]$job.job_id
-            job_type=[string]$job.job_type
-            correlation_id=$correlation
-            status='ARTIFACT_READY'
-            external_action_taken=$false
-            irreversible_effects_triggered=$false
-            revenue_claim=$false
-            sale_claim=$false
-            payment_claim=$false
-            fulfillment_claim=$false
-            result=$resultText
-        }
-
-        $completePath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$job.job_id) + '/complete'
-        $done = Invoke-Json 'POST' ($BridgeUrl + $completePath) @{
-            worker_id=$WorkerId
-            lease_token=$leaseToken
-            result=$result
-        } @{ 'x-correlation-id'=$correlation }
-
-        return @{status='COMPLETED';job_id=$job.job_id;model=$model;bridge=$done;correlation_id=$correlation}
-    }
-    catch {
-        $message = $_.Exception.Message
-        $failPath = '/api/agent-bridge/jobs/' + [uri]::EscapeDataString([string]$job.job_id) + '/fail'
-        try {
-            $failed = Invoke-Json 'POST' ($BridgeUrl + $failPath) @{
-                worker_id=$WorkerId
-                lease_token=$leaseToken
-                error=$message
-                retryable=$true
-            } @{ 'x-correlation-id'=$correlation }
-            return @{status='FAILED';job_id=$job.job_id;bridge=$failed;error=$message;correlation_id=$correlation}
-        }
-        catch {
-            return @{status='FAILED_UNRECORDED';job_id=$job.job_id;error=$message;failure_persistence_error=$_.Exception.Message;correlation_id=$correlation}
-        }
-    }
-}
-
-do {
-    try {
-        $result = Run-Once
-        $result | ConvertTo-Json -Depth 30 -Compress
-    }
-    catch {
-        @{status='WORKER_ERROR';error=$_.Exception.Message;worker_id=$WorkerId} | ConvertTo-Json -Depth 20 -Compress
-    }
-    if ($Once) { break }
-    Start-Sleep -Seconds ([Math]::Max(5,$PollSeconds))
-} while ($true)
+do{try{RunOnce|ConvertTo-Json -Depth 70 -Compress}catch{@{status='WORKER_ERROR';error=$_.Exception.Message;worker_id=$WorkerId}|ConvertTo-Json -Depth 30 -Compress};if($Once){break};Start-Sleep -Seconds ([Math]::Max(5,$PollSeconds))}while($true)
