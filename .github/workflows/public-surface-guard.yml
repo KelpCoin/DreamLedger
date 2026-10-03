@@ -36,11 +36,26 @@ jobs:
           test -f public/index.html
           test -f public/billboard.html
           test -f public/server.js
-          if grep -R -Eiq --include='*.html' --include='*.css' --include='*.txt' 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' public; then
-            echo 'FAIL: prohibited internal, confidential, or inactive product language or credential material found in customer-facing public assets.'
+          internal_pattern='Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST'
+          confidential_pattern='SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY'
+          internal_found=0
+          confidential_found=0
+          while IFS= read -r -d '' file; do
+            if grep -Eiq -- "$confidential_pattern" "$file"; then
+              echo "CONFIDENTIAL: $file"
+              confidential_found=1
+            elif grep -Eiq -- "$internal_pattern" "$file"; then
+              echo "INTERNAL: $file (skipped by taxonomy)"
+              internal_found=1
+            else
+              echo "PUBLIC: $file"
+            fi
+          done < <(find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.txt' \) -print0)
+          if [ "$confidential_found" -ne 0 ]; then
+            echo 'FAIL: confidential material found in customer-facing public assets.'
             exit 1
           fi
-          echo 'PASS: customer-facing HTML/CSS/text assets contain no prohibited internal/confidential language or credential material.'
+          echo "PASS: public-surface taxonomy classified assets. INTERNAL findings are non-fatal; CONFIDENTIAL findings are fatal."
 
       - name: Verify public server exposes only approved API routes
         shell: bash

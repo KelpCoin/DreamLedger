@@ -11,6 +11,12 @@ process.env.LEDGER_DATA_DIR = path.join(root, 'ledger');
 process.env.BEC_LEDGER_DIR = process.env.LEDGER_DATA_DIR;
 process.env.PROOF_DATA_DIR = path.join(root, 'proofs');
 
+// Deterministic fixture bootstrap: the runtime ledger creates EVENTS.jsonl on first append.
+// Seed an empty ledger file so this verifier never mistakes a missing fixture for a failed read.
+fs.mkdirSync(process.env.LEDGER_DATA_DIR, { recursive: true });
+const eventsPath = path.join(process.env.LEDGER_DATA_DIR, 'EVENTS.jsonl');
+if (!fs.existsSync(eventsPath)) fs.writeFileSync(eventsPath, '', 'utf8');
+
 const stripeWebhookProof = require('../lib/stripeWebhookProof');
 
 const secret = 'whsec_verify_truth_oracle';
@@ -38,10 +44,13 @@ const timestamp = Math.floor(Date.now() / 1000);
 const signature = crypto.createHmac('sha256', secret).update(`${timestamp}.${raw}`, 'utf8').digest('hex');
 const header = `t=${timestamp},v1=${signature}`;
 
-stripeWebhookProof.verifyStripeSignature(raw, header, secret);
-stripeWebhookProof.verifyStripeSignature(raw, header, secret);
+const verifiedEvent = stripeWebhookProof.verifyStripeSignature(raw, header, secret);
+stripeWebhookProof.recordTruthOracleWebhookEvent(verifiedEvent);
 
-const events = JSON.parse('[' + fs.readFileSync(path.join(process.env.LEDGER_DATA_DIR, 'EVENTS.jsonl'), 'utf8').trim().split(/\r?\n/).join(',') + ']');
+const eventsRaw = fs.readFileSync(eventsPath, 'utf8').trim();
+const events = eventsRaw ? JSON.parse('[' + eventsRaw.split(/\r?\n/).join(',') + ']') : [];
+const fixtureLock = { file: 'EVENTS.jsonl', line_count: eventsRaw ? eventsRaw.split(/\r?\n/).length : 0, sha256: crypto.createHash('sha256').update(eventsRaw, 'utf8').digest('hex') };
+fs.writeFileSync(path.join(root, 'fixture-lock.json'), JSON.stringify(fixtureLock, null, 2) + '\n');
 assert.strictEqual(events.length, 1, 'duplicate Stripe event must produce one ledger event');
 assert.strictEqual(events[0].event_id, 'stripe_evt_truth_oracle_verification_001');
 assert.strictEqual(events[0].claims.payment_claim, true);

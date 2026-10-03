@@ -26,8 +26,8 @@ jobs:
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfilment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfilment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
+          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
+          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
           if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
           if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
           Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
@@ -49,8 +49,8 @@ jobs:
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
           $homeHtml = Get-Content BEC-PRIME/compiled/website/index.html -Raw
-          foreach ($token in @('FIND SOMETHING','DreamMee','id="new"','id="magic"','id="digital"','class="rail"','href="/billboard"')) {
-            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
+          foreach ($token in @('Supplier Quote Comparison','Commander Deck Diagnostic','href="/toll-road"','href="/mtg/commander-deck-diagnostic"')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue service token missing: $token" }
           }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
           Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'

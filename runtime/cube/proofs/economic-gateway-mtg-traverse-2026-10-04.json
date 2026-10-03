@@ -1,0 +1,116 @@
+{
+  "schema": "dreamledger/economic-gateway-mtg-traverse/v1",
+  "observed_at": "2026-10-04T02:00:00+13:00",
+  "branch": "catalyst/factory-assets-2026-10-04",
+  "base": "main@9e11f33a0dd69a47b9e5bd293d51bdbb6c5916b8",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "verified_economic_outcomes": 0,
+    "independent_external_buyers": "UNPROVEN",
+    "rule": "No internal artifact or checkout state changes these values."
+  },
+  "control_plane": {
+    "supabase_project": "wbwgroygjeyukkspnqiy",
+    "project_status": "ACTIVE_HEALTHY",
+    "postgres_rows": "UNOBSERVABLE",
+    "postgres_blocker": "ECONNREFUSED"
+  },
+  "existing_zero_human_surfaces": [
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "price_nzd": 29,
+      "payment": "Stripe payment link",
+      "fulfillment": "automated",
+      "operator_required": false,
+      "customer_input": "Commander decklist",
+      "evidence": "canonical product + fulfillment registry + deployed marketplace diagnostic input/delivery/verify functions"
+    },
+    {
+      "id": "B2B-EVIDENCE-AUDIT-001",
+      "payment": "Stripe",
+      "fulfillment": "automated evidence retrieval, hashing, artifact persistence and fulfillment transition",
+      "operator_required": false,
+      "evidence": "deployed b2b-evidence-audit-fulfillment function"
+    },
+    {
+      "id": "QUOTE-COMPARE-49",
+      "price_nzd": 49,
+      "payment": "Stripe",
+      "fulfillment": "automated quote intake and comparison",
+      "operator_required": false,
+      "evidence": "canonical product + fulfillment registry + deployed quote-intake/quote-fulfillment"
+    }
+  ],
+  "mtg_physical": {
+    "EDH_0001": {
+      "price_nzd": 400,
+      "status": "published",
+      "zero_human_fulfillment": false,
+      "reason": "physical dispatch requires a human or an authorized physical fulfillment provider"
+    }
+  },
+  "current_measured_blockers": [
+    {
+      "class": "DATABASE",
+      "blocked_at": "SUPABASE_DATABASE",
+      "because": "Postgres connector returns ECONNREFUSED",
+      "required": "live schema and row observation",
+      "fallback": "source-level contract inspection only",
+      "owner_action": "none yet",
+      "human_minutes": 0
+    },
+    {
+      "class": "CI",
+      "blocked_at": "MTG_DIAGNOSTIC_FULFILLMENT_GATE",
+      "because": "workflow referenced stale 'fulfilment' property while canonical product uses 'fulfillment'; historical run failed before later compile checks",
+      "required": "workflow correction or regenerated run against corrected contract",
+      "fallback": "canonical product/registry checks already establish the intended zero-human contract",
+      "owner_action": "none",
+      "human_minutes": 0
+    },
+    {
+      "class": "SECURITY",
+      "blocked_at": "DEPENDENCY_AUDIT",
+      "because": "Security Baseline reported one high-severity production dependency vulnerability",
+      "required": "dependency identification and smallest compatible patch",
+      "fallback": "do not weaken the gate",
+      "owner_action": "none",
+      "human_minutes": 0
+    },
+    {
+      "class": "PAYMENT_CONFIG",
+      "blocked_at": "X402",
+      "because": "live payment configuration and settlement evidence are not observable through the current connector path",
+      "required": "verified payee/network/facilitator configuration and real settlement observation",
+      "fallback": "existing Stripe rail",
+      "owner_action": "only if external financial authorization is required",
+      "human_minutes": 0
+    }
+  ],
+  "decision": {
+    "next_frontier": "COMMANDER_DECK_DIAGNOSTIC_001",
+    "reason": "Existing paid surface, bounded customer input, automated fulfillment, digital delivery and no transaction-level human gate.",
+    "do_not_build": [
+      "new economic ledger",
+      "new entitlement table before live schema observation",
+      "new orchestrator",
+      "new payment rail",
+      "MTG physical dispatch automation"
+    ]
+  },
+  "truth_boundary": "UNVERIFIED",
+  "head": "ac9412cad6e4c8b492a04223d472e7d48a7e3551",
+  "next_loop": {
+    "quote_fulfillment": "PATCHED_FAIL_CLOSED_BEFORE_ARTIFACT_EXPOSURE",
+    "quote_contract_cases": [
+      "COMPLETE",
+      "PARTIAL",
+      "INSUFFICIENT"
+    ],
+    "x402": "PATCHED_NO_ECONOMIC_EVENT_UNTIL_AUTHORITATIVE_CHAIN_CONFIRMATION",
+    "entitlement_wall": "SOURCE_OBSERVED_PAYMENT_SESSION_TO_ORDER_TO_ENTITLEMENT_TO_FULFILLMENT_REQUEST; LIVE_POSTGRES_UNOBSERVABLE",
+    "ci": "IN_PROGRESS",
+    "deployment": "NOT_PERFORMED",
+    "stripe_mutation": "NOT_PERFORMED"
+  }
+}
