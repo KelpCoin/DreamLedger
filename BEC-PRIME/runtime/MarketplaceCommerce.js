@@ -193,6 +193,42 @@ async function handle(req,res,url){
     }
   }
 
+  const orderMatch=url.match(/^\/api\/marketplace\/v2\/orders\/([^/]+)$/);
+  if(req.method==='GET'&&orderMatch){
+    try{
+      const {id:userId}=verifiedUser(req),order=read(ORDERS,[]).find(x=>x.id===decodeURIComponent(orderMatch[1])&&(x.buyer_id===userId||x.seller_id===userId));
+      return order?json(res,200,{order}):json(res,404,{error:'order_not_found'});
+    }catch(e){return json(res,e.statusCode||400,{error:e.message});}
+  }
+  const shippingMatch=url.match(/^\/api\/marketplace\/v2\/orders\/([^/]+)\/shipping$/);
+  if(req.method==='POST'&&shippingMatch){
+    try{
+      const {id:userId}=verifiedUser(req),b=await body(req),orderId=decodeURIComponent(shippingMatch[1]);
+      const result=marketplaceCommerce.withLock?marketplaceCommerce.withLock(()=>{
+        const orders=read(ORDERS,[]),o=orders.find(x=>x.id===orderId&&(x.buyer_id===userId||x.seller_id===userId));
+        if(!o)return {status:404,error:'order_not_found'};
+        if(o.seller_id!==userId)return {status:403,error:'only_seller_can_update_shipping'};
+        const carrier=String(b.carrier||'').trim().slice(0,80),tracking=String(b.tracking_number||'').trim().slice(0,160),status=String(b.status||'').toUpperCase();
+        if(!carrier||!tracking||!['LABEL_CREATED','SHIPPED','IN_TRANSIT','DELIVERED'].includes(status))return {status:422,error:'carrier, tracking_number and valid shipping status required'};
+        o.shipping={carrier,tracking_number:tracking,status,updated_at:new Date().toISOString()};
+        o.delivery_status=status==='DELIVERED'?'DELIVERED':'IN_TRANSIT';o.updated_at=new Date().toISOString();write(ORDERS,orders);
+        return {ok:true,order:o,commercial_truth:'SHIPPING_STATUS_OBSERVED_NOT_VERIFIED'};
+      }):{status:503,error:'marketplace_state_lock_unavailable'};
+      return json(res,result.status||200,result.error?{error:result.error}:result);
+    }catch(e){return json(res,e.statusCode||400,{error:e.message});}
+  }
+  const deliveryMatch=url.match(/^\/api\/marketplace\/v2\/orders\/([^/]+)\/delivery-confirmation$/);
+  if(req.method==='POST'&&deliveryMatch){
+    try{
+      const {id:userId}=verifiedUser(req),b=await body(req),orderId=decodeURIComponent(deliveryMatch[1]),result=marketplaceCommerce.withLock(()=>{
+        const orders=read(ORDERS,[]),o=orders.find(x=>x.id===orderId&&x.buyer_id===userId);if(!o)return {status:404,error:'order_not_found'};
+        o.delivery_confirmation={confirmed:true,reference:String(b.reference||'').slice(0,500),at:new Date().toISOString(),by:userId};o.delivery_status='DELIVERED_CONFIRMED';o.fulfilment_status='EVIDENCE_PENDING';o.updated_at=new Date().toISOString();write(ORDERS,orders);
+        return {ok:true,order:o,commercial_truth:'DELIVERY_CONFIRMED_NOT_VERIFIED'};
+      });
+      return json(res,result.status||200,result.error?{error:result.error}:result);
+    }catch(e){return json(res,e.statusCode||400,{error:e.message});}
+  }
+
   if(req.method==='GET'&&url==='/api/marketplace/v2/disputes'){
     try{const {id:userId}=verifiedUser(req),items=read(DISPUTES,[]).filter(x=>x.buyer_id===userId||x.seller_id===userId);return json(res,200,{items});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
