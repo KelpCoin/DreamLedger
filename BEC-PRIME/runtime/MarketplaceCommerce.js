@@ -153,6 +153,39 @@ async function handle(req,res,url){
     }catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
 
+  const offerCheckout=url.match(/^\/api\/marketplace\/v2\/offers\/([^/]+)\/checkout$/);
+  if(req.method==='POST'&&offerCheckout){
+    try{
+      const {id:userId,user}=verifiedUser(req),offerId=decodeURIComponent(offerCheckout[1]),b=await body(req),key=idem(req,b);
+      const orders=read(ORDERS,[]),prior=key?orders.find(x=>x.idempotency_key===key&&x.buyer_id===userId):null;
+      if(prior)return json(res,200,{ok:true,order:prior,checkout_url:prior.checkout_url||null,idempotent:true,commercial_truth:prior.payment_status==='PAID'?'SETTLED_PAYMENT_OBSERVED_NOT_YET_VERIFIED':'PAYMENT_PENDING_NOT_REVENUE'});
+      const result=withLock(()=>{
+        const offers=read(OFFERS,[]),offer=offers.find(x=>x.id===offerId&&x.buyer_id===userId&&x.status==='ACCEPTED');
+        if(!offer)return {status:404,error:'accepted_offer_not_found'};
+        const listings=read(LISTINGS,[]),listing=listings.find(x=>x.id===offer.listing_id&&x.status==='APPROVED');
+        if(!listing)return {status:404,error:'listing_not_found'};
+        const available=Number(listing.quantity||0)-Number(listing.reserved||0)-Number(listing.sold||0);
+        if(available<1)return {status:409,error:'insufficient_inventory'};
+        listing.reserved=Number(listing.reserved||0)+1;
+        const now=new Date(),order={id:idFn('mkt'),listing_id:listing.id,offer_id:offer.id,idempotency_key:key||null,buyer_id:userId,buyer_name:user.name||'Buyer',seller_id:listing.seller_id,seller_name:listing.seller_name,title:listing.title,total_nzd:Number(offer.amount_nzd),currency:'NZD',status:'PENDING_PAYMENT',payment_status:'UNPAID',fulfilment_status:'NOT_STARTED',delivery_status:'NOT_STARTED',evidence_status:'UNPROVEN',marketplace_fee_nzd:0,created_at:now.toISOString()};
+        orders.push(order);write(LISTINGS,listings);write(ORDERS,orders);return {status:201,order};
+      });
+      if(result.error)return json(res,result.status||400,{error:result.error});
+      const order=result.order,amountMinor=Math.round(Number(order.total_nzd)*100);
+      const secret=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
+      if(!secret)throw Object.assign(new Error('Stripe checkout is not configured'),{statusCode:503});
+      const form=new URLSearchParams();
+      const base=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
+      const values={mode:'payment',client_reference_id:order.id,customer_email:user.email||'','line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':amountMinor,'line_items[0][price_data][product_data][name]':String(order.title).slice(0,120),'line_items[0][quantity]':1,success_url:base+'/marketplace-forward.html?checkout=success&session_id={CHECKOUT_SESSION_ID}',cancel_url:base+'/marketplace-forward.html?checkout=cancelled&order_id='+order.id,'metadata[dreamledger_sku]':'MARKETPLACE-LISTING','metadata[marketplace_listing_id]':order.listing_id,'metadata[marketplace_order_id]':order.id,'metadata[marketplace_offer_id]':order.offer_id,'metadata[silo]':'MARKETPLACE'};
+      for(const [k,v] of Object.entries(values))form.set(k,String(v));
+      const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+secret,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-marketplace-offer-'+order.id},body:form});
+      const raw=await response.text();let session;try{session=JSON.parse(raw||'{}')}catch{session={}};
+      if(!response.ok)throw Object.assign(new Error(session?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
+      const fresh=read(ORDERS,[]),saved=fresh.find(x=>x.id===order.id);if(saved){saved.stripe_checkout_session=session.id;saved.checkout_url=session.url;write(ORDERS,fresh);}
+      return json(res,201,{ok:true,order:saved||order,checkout_url:session.url,commercial_truth:'PAYMENT_PENDING_NOT_REVENUE'});
+    }catch(e){return json(res,e.statusCode||400,{error:e.message});}
+  }
+
   if(req.method==='GET'&&url==='/api/marketplace/v2/disputes'){
     try{const {id:userId}=verifiedUser(req),items=read(DISPUTES,[]).filter(x=>x.buyer_id===userId||x.seller_id===userId);return json(res,200,{items});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
