@@ -78,6 +78,22 @@ function reserveCart(ownerId,items,key){
   });
 }
 
+function releaseCart(cartId,ownerId){
+  return withLock(()=>{
+    const carts=read(CARTS,[]),cart=carts.find(x=>x.id===cartId&&(!ownerId||x.buyer_id===ownerId));
+    if(!cart)return {ok:false,error:'cart_not_found'};
+    if(cart.status==='RELEASED'||cart.status==='CONVERTED')return {ok:true,idempotent:true,cart:cartPublic(cart)};
+    const listings=read(LISTINGS,[]);
+    for(const item of cart.items||[]){
+      const listing=listings.find(x=>x.id===item.listing_id);
+      if(listing)listing.reserved=Math.max(0,Number(listing.reserved||0)-Number(item.quantity||0));
+    }
+    cart.status='RELEASED';cart.updated_at=new Date().toISOString();
+    write(LISTINGS,listings);write(CARTS,carts);
+    return {ok:true,cart:cartPublic(cart)};
+  });
+}
+
 async function handle(req,res,url){
   if(!url.startsWith('/api/marketplace/v2/'))return false;
 
@@ -159,4 +175,4 @@ async function handle(req,res,url){
   return false;
 }
 
-module.exports={handle,reserveCart,withLock,paths:{LISTINGS,ORDERS,OFFERS,CARTS,DISPUTES,IDEMPOTENCY}};
+module.exports={handle,reserveCart,releaseCart,withLock,paths:{LISTINGS,ORDERS,OFFERS,CARTS,DISPUTES,IDEMPOTENCY}};
