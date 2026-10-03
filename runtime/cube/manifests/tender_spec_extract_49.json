@@ -1,0 +1,68 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_tender_spec_extract_49",
+  "substrate_type": "tender_and_rfp_documents",
+  "substrate_requirements": {
+    "required_fields": [
+      "1_tender_or_rfp_document",
+      "declared_extraction_objective"
+    ],
+    "minimum_sample": 1
+  },
+  "demand_family": "procurement_requirement_extraction",
+  "transformation": {
+    "name": "TENDER_SPEC_EXTRACTION",
+    "worker": "EXISTING_WORKER:DOC-EXTRACT-50",
+    "steps": [
+      "hash_source",
+      "classify_tender",
+      "extract_text",
+      "segment_requirements",
+      "extract_scope_deliverables_deadlines_and_submission_fields",
+      "map_source_references",
+      "detect_missing_or_ambiguous_requirements",
+      "preserve_unknowns",
+      "validate_against_source",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "tender_requirements_packet",
+    "contains": [
+      "scope",
+      "mandatory_requirements",
+      "deliverables",
+      "deadlines",
+      "commercial_requirements",
+      "submission_fields",
+      "ambiguities",
+      "unknowns",
+      "source_references",
+      "source_hash"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 49,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_WORKER:DOC-EXTRACT-50",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "cannot produce bounded requirement extraction",
+    "source is unreadable or materially incomplete",
+    "requirements cannot be traced to source",
+    "cannot preserve unknowns",
+    "cannot emit evidence-backed output",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
