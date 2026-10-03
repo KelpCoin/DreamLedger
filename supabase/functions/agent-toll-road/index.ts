@@ -80,13 +80,13 @@ async function observeQuoteSettlement(c: any, next: any) {
     toll_call_id: call.call_id, idempotency_key: settlementKey, network: NETWORK, asset,
     amount_atomics: String(Math.round(product.price * 1_000_000)), amount_usdc: product.price, payer_address: payer, payee_address: PAY_TO,
     tx_hash: tx, facilitator_url: FACILITATOR_URL, facilitator_response: receipt,
-    status: "PENDING", settled_at: new Date().toISOString()
+    status: "PENDING", settled_at: null
   }, { onConflict: "idempotency_key" });
   if (settlementError) return;
   await db.from("agent_toll_calls").update({
     payer, payment_tx: tx,
     settlement_status: TESTNET ? "SETTLED_TESTNET_PENDING_CONFIRMATION" : "SETTLED_PENDING_CONFIRMATION",
-    settled_at: new Date().toISOString()
+    settled_at: null
   }).eq("call_id", call.call_id);
   const result = call.result || {};
   const decision_id = result.decision_id || `quote-${call.call_id}`;
@@ -104,24 +104,9 @@ async function observeQuoteSettlement(c: any, next: any) {
     metadata: { decision_id, product_id: product.product_id, price_usd: product.price, network: NETWORK, testnet: TESTNET, payer, payee: PAY_TO }
   }).select("proof_id").single();
   if (!proof) return;
-  const event_id = `X402-${call.call_id}`;
-  const { data: existing } = await db.from("economic_events").select("event_id")
-    .eq("event_id", event_id).maybeSingle();
-  if (existing) return;
-  await db.from("economic_events").insert({
-    event_id, silo_id: "agent-toll-road", sku_id: product.product_id,
-    buyer_action_verified: true, payment_settled: true, fulfilment_verified: true, evidence_verified: true,
-    evidence_ref: proof.proof_id, payment_reference: tx, verification_status: "UNMATCHED",
-    observation_mode: "OBSERVED", scope: "EXTERNAL", event_type: "X402_SETTLEMENT_OBSERVED",
-    state_before: "UNMATCHED", state_after: "UNMATCHED",
-    settlement_state: "SETTLED_PENDING_CONFIRMATION", fulfillment_state: "FULFILLED",
-    verification_state: "UNMATCHED", source: "agent-toll-road", source_system: "x402",
-    source_record_id: String(call.call_id), external_reference: payer,
-    input_hash: request_hash, output_hash: call.result_hash,
-    metadata: { network: NETWORK, payer, payee: PAY_TO, transaction: tx, testnet: TESTNET, product_id: product.product_id, price_usd: product.price,
-      scoreboard_eligible: !TESTNET, toll_call_id: String(call.call_id), decision_id,
-      settlement_idempotency_key: settlementKey }
-  });
+  // Facilitator observation is not final economic truth. Wait for authoritative chain confirmation.
+  // The existing economic reconciler remains the authority for payment_settled and VERIFIED outcomes.
+
 }
 
 app.use("*", observeQuoteSettlement);
