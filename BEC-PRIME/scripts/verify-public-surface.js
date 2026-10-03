@@ -12,7 +12,7 @@ const confidential=[
   /DIGITAL_PROXY_APPROVAL_TOKEN/i,/BEGIN .*PRIVATE KEY/i
 ];
 const internal=[
-  /api\/ip/i,/api\\/control/i,/\/var\/data\//i,/LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,
+  /api\/ip/i,/api\/control/i,/\/var\/data\//i,/LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,
   /DREAMIEZ_DATA_DIR/i,/DEMAND_RADAR_DATA_DIR/i,/private prompts/i,/internal ledger records/i,
   /FIRST_PAYMENT_PROOF\.json/i,/amplissa/i,/\bBBW\b/i,/big beautiful women/i,/cinema-event-v1/i,
   /\bElohim\b/i,/\bgauntlet\b/i,/BEC-PRIME/i,/AGENT_BUS/i,/PING_PONG/i,/\bfossil\b/i,
