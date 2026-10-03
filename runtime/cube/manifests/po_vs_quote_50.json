@@ -1,0 +1,69 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_po_vs_quote_50",
+  "substrate_type": "purchase_order_and_supplier_quote_documents",
+  "substrate_requirements": {
+    "required_fields": [
+      "source_quote",
+      "purchase_order"
+    ],
+    "minimum_sample": 2
+  },
+  "demand_family": "procurement_exception_detection",
+  "transformation": {
+    "name": "PO_VS_QUOTE",
+    "worker": "EXISTING_WORKER:QUOTE_AND_DOCUMENT_COMPARISON",
+    "steps": [
+      "hash_sources",
+      "extract_text",
+      "normalize_line_items",
+      "match_po_to_quote",
+      "compare_quantities",
+      "compare_unit_prices",
+      "compare_totals",
+      "detect_terms_and_date_differences",
+      "detect_added_or_removed_items",
+      "preserve_unknowns",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "procurement_discrepancy_report",
+    "contains": [
+      "matched_items",
+      "quantity_differences",
+      "unit_price_differences",
+      "new_or_removed_items",
+      "total_differences",
+      "term_differences",
+      "date_differences",
+      "unresolved_items",
+      "source_references",
+      "unknowns"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 50,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_WORKER:QUOTE_AND_DOCUMENT_COMPARISON",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "cannot defensibly match purchase order and quote",
+    "documents are materially incomplete",
+    "cannot distinguish source disagreement from missing data",
+    "cannot be fulfilled by existing comparison capability",
+    "cannot emit evidence-backed discrepancy output",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
