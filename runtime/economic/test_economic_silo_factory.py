@@ -1,5 +1,6 @@
-import json,tempfile,unittest
+import json,tempfile,unittest,sys
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from economic_silo_factory import MAX_CELLS,SCHEMA,generate_cells,write_outputs
 
 def src():
