@@ -1,0 +1,89 @@
+{
+  "schema": "dreamledger/service-surface-rules/v1",
+  "purpose": "Reusable packaging rules for turning existing capabilities into bounded customer-facing toll-road surfaces.",
+  "authority": "candidate_inventory_only",
+  "non_goals": [
+    "new_economic_ledger",
+    "new_queue",
+    "new_orchestrator",
+    "automatic_external_action",
+    "revenue_assertion"
+  ],
+  "wall_contract": {
+    "required_sequence": [
+      "BUYER",
+      "PAYMENT_SETTLED",
+      "ENTITLEMENT",
+      "SERVICE_WALL",
+      "EXISTING_CAPABILITY",
+      "RESULT",
+      "EVIDENCE"
+    ],
+    "credential_properties": [
+      "bound_to_entitlement",
+      "bound_to_offer",
+      "single_use_or_idempotent",
+      "expiry",
+      "revocation",
+      "replay_safe"
+    ]
+  },
+  "delivery_policy": {
+    "FULL": "AUTOMATED_DELIVERY_ALLOWED",
+    "PARTIAL": "HUMAN_GATE_OR_ADDITIONAL_AUTHORITY_REQUIRED",
+    "UNKNOWN": "BLOCKED"
+  },
+  "human_gate_policy": [
+    "identity",
+    "consent",
+    "account_action",
+    "legal_submission",
+    "platform_confirmation",
+    "financial_authorization"
+  ],
+  "candidate_templates": [
+    {
+      "template_id": "DOCUMENT_TO_DECISION",
+      "input_shape": "documents",
+      "output_shape": "decision_report_and_evidence",
+      "delivery": "automatic_when_capability_validation_passes"
+    },
+    {
+      "template_id": "PUBLIC_RECORD_TO_REPORT",
+      "input_shape": "public_identifier",
+      "output_shape": "source_backed_report_and_provenance",
+      "delivery": "automatic_when_scope_is_bounded"
+    },
+    {
+      "template_id": "EXPORT_TO_RECONCILIATION",
+      "input_shape": "transaction_exports",
+      "output_shape": "reconciliation_and_mismatch_list",
+      "delivery": "automatic_when_source_data_is_complete"
+    },
+    {
+      "template_id": "CLAIM_TO_EVIDENCE",
+      "input_shape": "claim_and_supporting_sources",
+      "output_shape": "evidence_packet_and_gap_list",
+      "delivery": "automatic_when_no_external_authority_is_required"
+    },
+    {
+      "template_id": "DATA_TO_PAY_PER_USE",
+      "input_shape": "bounded_api_request",
+      "output_shape": "deterministic_result_and_receipt",
+      "delivery": "automatic_after_settlement"
+    }
+  ],
+  "commercial_gate": {
+    "required": [
+      "external_demand_evidence",
+      "clear_deliverable",
+      "existing_capability",
+      "authorized_payment_path",
+      "fulfillment_path",
+      "delivery_path",
+      "evidence_path"
+    ],
+    "promotion_rule": "PAID_FULFILLED_PROVEN",
+    "unproven_rule": "SEARCH_OR_DEFER"
+  }
+}
