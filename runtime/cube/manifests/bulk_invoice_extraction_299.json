@@ -1,0 +1,74 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_bulk_invoice_extraction_299",
+  "substrate_type": "supplier_invoices",
+  "substrate_requirements": {
+    "required_fields": [
+      "100_to_1000_invoice_documents",
+      "declared_extraction_fields"
+    ],
+    "minimum_sample": 100
+  },
+  "demand_family": "bulk_document_extraction",
+  "transformation": {
+    "name": "BULK_INVOICE_EXTRACTION",
+    "worker": "EXISTING_WORKER:DOC-EXTRACT-50",
+    "steps": [
+      "hash_source_documents",
+      "batch_classify_invoices",
+      "extract_text_or_visual_ocr",
+      "reconstruct_invoice_tables",
+      "extract_supplier_invoice_number_date_currency_sku_description_qty_unit_price_tax_freight_total",
+      "map_source_references",
+      "detect_missing_or_ambiguous_fields",
+      "preserve_unknowns",
+      "validate_extracted_values_against_source",
+      "emit_structured_json_or_csv",
+      "emit_batch_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "batch_invoice_data_package",
+    "contains": [
+      "normalized_invoice_records",
+      "line_items",
+      "supplier_fields",
+      "quantities",
+      "unit_prices",
+      "tax",
+      "freight",
+      "invoice_totals",
+      "source_references",
+      "missing_fields",
+      "ambiguous_fields",
+      "source_hashes",
+      "extraction_trace",
+      "batch_summary"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 299,
+    "unit": "100_to_1000_invoice_batch"
+  },
+  "commerce_path": {
+    "checkout": "EXISTING_COMMERCE_RAIL_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_WORKER:DOC-EXTRACT-50",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "cannot reliably process bounded invoice batches",
+    "OCR or source quality prevents evidence-backed extraction",
+    "requested fields cannot be validated against source",
+    "cannot preserve unknowns",
+    "cannot emit evidence-backed structured output",
+    "batch runtime or cost exceeds economic envelope",
+    "3 qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
