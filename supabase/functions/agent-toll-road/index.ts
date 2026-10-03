@@ -53,10 +53,7 @@ async function reserveX402Replay(c: any): Promise<Response | null> {
 async function observeQuoteSettlement(c: any, next: any) {
   await next();
   const productByPath: Record<string, {product_id:string; price:number}> = {
-    "/v1/compare_quotes": {product_id:"truth.quote_compare", price:0.50},
-    "/v1/reconcile": {product_id:"truth.reconcile", price:0.02},
-    "/v1/contradictions": {product_id:"truth.contradiction", price:0.02},
-    "/v1/passport": {product_id:"truth.passport", price:0.05}
+    "/v1/compare_quotes": {product_id:"truth.quote_compare", price:0.50}
   };
   const product = productByPath[c.req.path];
   if (!product) return;
@@ -121,7 +118,7 @@ app.get("/healthz", c => c.json({
 
 app.get("/.well-known/x402", async c => {
   const { data, error } = await db.from("agent_toll_products")
-    .select("product_id,name,price_usd,endpoint,description").eq("active", true).order("product_id");
+    .select("product_id,name,price_usd,endpoint,description").eq("active", true).eq("product_id", "truth.quote_compare").order("product_id");
   if (error) return c.json({ error:"DISCOVERY_UNAVAILABLE" },503);
   return c.json({
     x402Version: 2,
@@ -139,6 +136,7 @@ app.get("/catalog", async c => {
   const { data, error } = await db.from("agent_toll_products")
     .select("product_id,name,price_usd,endpoint,description")
     .eq("active", true)
+    .eq("product_id", "truth.quote_compare")
     .order("product_id");
   if (error) return c.json({ error: "CATALOG_UNAVAILABLE" }, 503);
   return c.json({ service: "DreamLedger Truth Toll Road", products: data });
@@ -270,21 +268,6 @@ if (PAY_TO && FACILITATOR_URL) {
   const x402 = new x402ResourceServer(facilitator);
   registerExactEvmScheme(x402);
   app.use(paymentMiddleware({
-  "POST /v1/reconcile": {
-    accepts: [{ scheme: "exact", price: "$0.02", network: NETWORK, payTo: PAY_TO }],
-    description: "Reconcile a supplied payment/order reference against durable commerce truth.",
-    mimeType: "application/json"
-  },
-  "POST /v1/contradictions": {
-    accepts: [{ scheme: "exact", price: "$0.02", network: NETWORK, payTo: PAY_TO }],
-    description: "Check supplied economic claims against durable DreamLedger records.",
-    mimeType: "application/json"
-  },
-  "POST /v1/passport": {
-    accepts: [{ scheme: "exact", price: "$0.05", network: NETWORK, payTo: PAY_TO }],
-    description: "Build a machine-readable evidence passport from durable commerce truth.",
-    mimeType: "application/json"
-  },
   "POST /v1/compare_quotes": {
     accepts: [{ scheme: "exact", price: "$0.50", network: NETWORK, payTo: PAY_TO }],
     description: "Compare 2-5 supplier quotes using deterministic extraction, normalization and evidence checks.",
@@ -296,7 +279,7 @@ if (PAY_TO && FACILITATOR_URL) {
 
 app.use("*", async (c, next) => {
   if (!paymentConfigured) return next();
-  const paidPaths = new Set(["/v1/reconcile","/v1/contradictions","/v1/passport","/v1/compare_quotes"]);
+  const paidPaths = new Set(["/v1/compare_quotes"]);
   if (!paidPaths.has(c.req.path) || c.req.method !== "POST") return next();
   const guardResponse = await reserveX402Replay(c);
   if (guardResponse) return guardResponse;
@@ -308,6 +291,7 @@ app.post("/v1/compare_quotes", async c => {
   if (!QUOTE_ENABLED) return c.json({ error: "QUOTE_COMPARE_DISABLED" }, 503);
   const body = await c.req.json().catch(() => ({}));
   const documents = Array.isArray(body.documents) ? body.documents : [];
+  if (documents.some((d: any) => String(d?.content || "").length > 200_000)) return c.json({ error: "DOCUMENT_TOO_LARGE" }, 413);
   if (documents.length < 2 || documents.length > 5) return c.json({ error: "DOCUMENT_COUNT_MUST_BE_2_TO_5" }, 400);
   const rows = [];
   for (let i = 0; i < documents.length; i++) rows.push(await normalizeQuote(documents[i], i));
@@ -331,76 +315,6 @@ app.post("/v1/compare_quotes", async c => {
   const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT");
   c.set("quote_request_hash", call.request_hash);
   return c.json({ ...result, toll_call_id: call.call_id });
-});
-
-app.post("/v1/reconcile", async c => {
-  const body = await c.req.json().catch(() => ({}));
-  const { payment_intent_id, checkout_session_id, order_id } = body;
-  const { data: orders, error } = await db.from("revenue_orders")
-    .select("id,stripe_payment_intent_id,stripe_checkout_session_id,sku_id,amount_nzd,currency,status,paid_at,created_at")
-    .or([
-      payment_intent_id ? `stripe_payment_intent_id.eq.${payment_intent_id}` : "",
-      checkout_session_id ? `stripe_checkout_session_id.eq.${checkout_session_id}` : "",
-      order_id ? `id.eq.${order_id}` : ""
-    ].filter(Boolean).join(","));
-  if (error) return c.json({ error: "TRUTH_QUERY_FAILED" }, 500);
-  const { data: attrs } = await db.from("economic_attribution")
-    .select("attribution_id,outcome_id,attribution_status,attribution_method,payment_id,fulfillment_id,evidence_reference")
-    .or([
-      payment_intent_id ? `payment_id.eq.${payment_intent_id}` : "",
-      order_id ? `outcome_id.eq.${order_id}` : ""
-    ].filter(Boolean).join(","));
-  const result = {
-    verdict: orders?.length ? "MATCHED_ORDER" : "NO_MATCH",
-    revenue_orders: orders || [],
-    attribution: attrs || [],
-    external_truth_established: Boolean((orders || []).some((o:any) => o.status === "paid") && (attrs || []).some((a:any) => a.attribution_status === "VERIFIED"))
-  };
-  const result_hash = await hashObject(result);
-  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.reconcile");
-  c.set("quote_request_hash", call.request_hash);
-  return c.json({ ...result, result_hash, toll_call_id: call.call_id });
-});
-
-app.post("/v1/contradictions", async c => {
-  const body = await c.req.json().catch(() => ({}));
-  const claims = Array.isArray(body.claims) ? body.claims : [];
-  const contradictions: any[] = [];
-  for (const claim of claims) {
-    if (!claim || typeof claim !== "object") continue;
-    if (claim.revenue_nzd !== undefined) {
-      const { data } = await db.from("economic_outcomes").select("amount_nzd,truth_status").eq("truth_status", "VERIFIED");
-      const observed = (data || []).reduce((n:any, r:any) => n + Number(r.amount_nzd || 0), 0);
-      if (Number(claim.revenue_nzd) !== observed) contradictions.push({ claim, observed_revenue_nzd: observed, code: "REVENUE_MISMATCH" });
-    }
-    if (claim.verified_external_revenue === true) {
-      const { count } = await db.from("economic_outcomes").select("outcome_id", { count: "exact", head: true }).eq("truth_status", "VERIFIED");
-      if ((count || 0) === 0) contradictions.push({ claim, observed_verified_outcomes: 0, code: "NO_VERIFIED_OUTCOME" });
-    }
-  }
-  const result = { verdict: contradictions.length ? "CONTRADICTED" : "NO_CONTRADICTION_FOUND", contradictions };
-  const result_hash = await hashObject(result);
-  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.contradiction");
-  c.set("quote_request_hash", call.request_hash);
-  return c.json({ ...result, result_hash, toll_call_id: call.call_id });
-});
-
-app.post("/v1/passport", async c => {
-  const body = await c.req.json().catch(() => ({}));
-  const { order_id, outcome_id } = body;
-  const { data: order } = order_id ? await db.from("revenue_orders").select("*").eq("id", order_id).maybeSingle() : { data: null };
-  const { data: outcome } = outcome_id ? await db.from("economic_outcomes").select("*").eq("outcome_id", outcome_id).maybeSingle() : { data: null };
-  const result = {
-    passport_version: "DL-TRUTH-1",
-    order,
-    outcome,
-    claims: { payment: Boolean(order?.status === "paid"), attribution: false, fulfillment: false, independent_evidence: false },
-    verdict: "INCOMPLETE"
-  };
-  const result_hash = await hashObject(result);
-  const call = await recordCall(body, result, "VERIFIED_FOR_FULFILLMENT_PENDING_SETTLEMENT", "truth.passport");
-  c.set("quote_request_hash", call.request_hash);
-  return c.json({ ...result, result_hash, toll_call_id: call.call_id });
 });
 
 Deno.serve(app.fetch);
