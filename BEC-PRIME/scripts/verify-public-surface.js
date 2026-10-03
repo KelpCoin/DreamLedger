@@ -28,15 +28,15 @@ const CATALOG_REQUIRED=[
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
 for(const rel of ['login.html','register.html','account.html']){const p=path.join(site,rel);if(!fs.existsSync(p))continue;const raw=fs.readFileSync(p,'utf8');if(!/\/api\/account\//i.test(raw))errors.push(`ACCOUNT_CONTRACT:${rel}:missing /api/account/`);}
-const files=[];const textExtensions=new Set(['.html','.htm','.js','.json','.css','.txt','.xml','.svg','.md','.webmanifest']);const privateImplementationDirs=new Set(['lib','scripts']);const excludedPublicPaths=new Set(['dreamiez','cinema']);const excludedPublicFiles=new Set(['cinema.html']);
-function walk(dir){if(!fs.existsSync(dir))return;for(const name of fs.readdirSync(dir)){const p=path.join(dir,name);const s=fs.statSync(p);const rel=path.relative(site,p).replace(/\\/g,'/');const top=rel.split('/')[0];if(s.isDirectory()&&(privateImplementationDirs.has(top)||excludedPublicPaths.has(top)))continue;if(s.isDirectory())walk(p);else if(!excludedPublicFiles.has(rel))files.push(p)}}
-if(fs.existsSync(site))walk(site);
-// Also scan repo public/ index + agent contracts
-for(const rel of ['index.html','agent-commerce.json','agent.json']){
-  const p=path.join(deployedSite,rel);
-  if(fs.existsSync(p))files.push(p);
-}
-for(const p of files){const rel=path.relative(root,p).replace(/\\/g,'/');if(!textExtensions.has(path.extname(p).toLowerCase()))continue;const raw=fs.readFileSync(p,'utf8');for(const re of forbidden){if(re.test(raw))errors.push(`PUBLIC_LEAK:${rel}:${re}`)}};
+const files=[];const textExtensions=new Set(['.html','.htm','.js','.json','.css','.txt','.xml','.svg','.md','.webmanifest']);
+const excludedPublicPaths=new Set(['dreamiez','cinema']);
+const excludedPublicFiles=new Set(['cinema.html']);
+const compiledPublicFiles=new Set(required);
+function walk(dir,baseDir){if(!fs.existsSync(dir))return;for(const name of fs.readdirSync(dir)){const p=path.join(dir,name);const s=fs.statSync(p);const rel=path.relative(baseDir,p).replace(/\\/g,'/');const top=rel.split('/')[0];if(s.isDirectory()&&excludedPublicPaths.has(top))continue;if(s.isDirectory())walk(p,baseDir);else if(!excludedPublicFiles.has(rel))files.push(p)}}
+if(fs.existsSync(deployedSite))walk(deployedSite,deployedSite);
+// compiled/website is a build workspace, not the Vercel deployment root.
+// Scan only canonical compiled contract files required above, not private control artifacts.
+for(const rel of compiledPublicFiles){const p=path.join(site,rel);if(fs.existsSync(p))files.push(p)}
 const indexPath=path.join(deployedSite,'index.html');let index='';try{index=fs.readFileSync(indexPath,'utf8')}catch(e){errors.push('CATALOGUE_SURFACE:public/index.html unreadable')}
 for(const requiredEntry of CATALOG_REQUIRED){if(!requiredEntry.test.test(index))errors.push(`CATALOGUE_REQUIRED_MISSING:${requiredEntry.label}`)}
 const agentPath=path.join(site,'.well-known','agent-commerce.json');let agent={};try{agent=JSON.parse(fs.readFileSync(agentPath,'utf8'))}catch(e){/* optional if path missing */}
