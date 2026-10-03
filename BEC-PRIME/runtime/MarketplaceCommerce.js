@@ -204,7 +204,7 @@ async function handle(req,res,url){
   if(req.method==='POST'&&shippingMatch){
     try{
       const {id:userId}=verifiedUser(req),b=await body(req),orderId=decodeURIComponent(shippingMatch[1]);
-      const result=marketplaceCommerce.withLock?marketplaceCommerce.withLock(()=>{
+      const result=withLock(()=>{
         const orders=read(ORDERS,[]),o=orders.find(x=>x.id===orderId&&(x.buyer_id===userId||x.seller_id===userId));
         if(!o)return {status:404,error:'order_not_found'};
         if(o.seller_id!==userId)return {status:403,error:'only_seller_can_update_shipping'};
@@ -213,14 +213,14 @@ async function handle(req,res,url){
         o.shipping={carrier,tracking_number:tracking,status,updated_at:new Date().toISOString()};
         o.delivery_status=status==='DELIVERED'?'DELIVERED':'IN_TRANSIT';o.updated_at=new Date().toISOString();write(ORDERS,orders);
         return {ok:true,order:o,commercial_truth:'SHIPPING_STATUS_OBSERVED_NOT_VERIFIED'};
-      }):{status:503,error:'marketplace_state_lock_unavailable'};
+      };
       return json(res,result.status||200,result.error?{error:result.error}:result);
     }catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
   const deliveryMatch=url.match(/^\/api\/marketplace\/v2\/orders\/([^/]+)\/delivery-confirmation$/);
   if(req.method==='POST'&&deliveryMatch){
     try{
-      const {id:userId}=verifiedUser(req),b=await body(req),orderId=decodeURIComponent(deliveryMatch[1]),result=marketplaceCommerce.withLock(()=>{
+      const {id:userId}=verifiedUser(req),b=await body(req),orderId=decodeURIComponent(deliveryMatch[1]),result=withLock(()=>{
         const orders=read(ORDERS,[]),o=orders.find(x=>x.id===orderId&&x.buyer_id===userId);if(!o)return {status:404,error:'order_not_found'};
         o.delivery_confirmation={confirmed:true,reference:String(b.reference||'').slice(0,500),at:new Date().toISOString(),by:userId};o.delivery_status='DELIVERED_CONFIRMED';o.fulfilment_status='EVIDENCE_PENDING';o.updated_at=new Date().toISOString();write(ORDERS,orders);
         return {ok:true,order:o,commercial_truth:'DELIVERY_CONFIRMED_NOT_VERIFIED'};
