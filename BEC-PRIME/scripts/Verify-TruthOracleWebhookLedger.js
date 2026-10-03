@@ -44,8 +44,8 @@ const timestamp = Math.floor(Date.now() / 1000);
 const signature = crypto.createHmac('sha256', secret).update(`${timestamp}.${raw}`, 'utf8').digest('hex');
 const header = `t=${timestamp},v1=${signature}`;
 
-stripeWebhookProof.verifyStripeSignature(raw, header, secret);
-stripeWebhookProof.verifyStripeSignature(raw, header, secret);
+const verifiedEvent = stripeWebhookProof.verifyStripeSignature(raw, header, secret);
+stripeWebhookProof.recordTruthOracleWebhookEvent(verifiedEvent);
 
 const eventsRaw = fs.readFileSync(eventsPath, 'utf8').trim();
 const events = eventsRaw ? JSON.parse('[' + eventsRaw.split(/\r?\n/).join(',') + ']') : [];
