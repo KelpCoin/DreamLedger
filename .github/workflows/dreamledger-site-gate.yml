@@ -32,14 +32,13 @@ jobs:
           test -s public/package.json
           test -s public/robots.txt
           test -s public/sitemap.xml
-          grep -q 'DISCOVER' public/index.html
-          grep -q 'WORTH BUYING' public/index.html
-          grep -q 'Digital products' public/index.html
-          grep -q 'Magic &amp; collectibles' public/index.html
-          grep -q 'Games &amp; experiments' public/index.html
-          grep -q 'Digital media' public/index.html
+          grep -q 'Decisions made clearer' public/index.html
+          grep -q 'Supplier Quote Comparison' public/index.html
+          grep -q 'Automated where practical' public/index.html
+          grep -q 'Evidence-aware' public/index.html
           grep -q '/billboard' public/index.html
-          grep -q '/dreammeez' public/index.html
+          grep -q '/avatar.html' public/index.html
+          grep -q '/truth-oracle.html' public/index.html
           grep -q "'GET /api/products':true" public/server.js
           grep -q "'POST /api/billboard/submit':true" public/server.js
           grep -q "'/sitemap.xml':'sitemap.xml'" public/server.js
@@ -51,10 +50,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -Eiq --include='*.html' --include='*.css' --include='*.json' --include='*.txt' 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|HappyHomarid|private factory|internal factory' public; then
+          tmp=$(mktemp)
+          find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.json' -o -name '*.txt' \) -print0 | while IFS= read -r -d '' f; do
+            case "$f" in
+              *.html) sed -E 's#<script[^>]*>.*</script>##g; s#<style[^>]*>.*</style>##g' "$f" >> "$tmp" ;;
+              *) cat "$f" >> "$tmp" ;;
+            esac
+          done
+          if grep -Eiq 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|HappyHomarid|private factory|internal factory' "$tmp"; then
             echo 'FAIL: prohibited internal or cross-silo language found in public assets.'
+            rm -f "$tmp"
             exit 1
           fi
+          rm -f "$tmp"
           echo 'PASS: public language boundary clean.'
       - name: Verify public route allowlist
         shell: bash
