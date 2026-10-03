@@ -155,6 +155,7 @@ async function handle(req,res,url){
 
   const offerCheckout=url.match(/^\/api\/marketplace\/v2\/offers\/([^/]+)\/checkout$/);
   if(req.method==='POST'&&offerCheckout){
+    let createdOfferOrder=null;
     try{
       const {id:userId,user}=verifiedUser(req),offerId=decodeURIComponent(offerCheckout[1]),b=await body(req),key=idem(req,b);
       const orders=read(ORDERS,[]),prior=key?orders.find(x=>x.idempotency_key===key&&x.buyer_id===userId):null;
@@ -171,7 +172,8 @@ async function handle(req,res,url){
         orders.push(order);write(LISTINGS,listings);write(ORDERS,orders);return {status:201,order};
       });
       if(result.error)return json(res,result.status||400,{error:result.error});
-      const order=result.order,amountMinor=Math.round(Number(order.total_nzd)*100);
+      const order=result.order;createdOfferOrder=order;
+      const amountMinor=Math.round(Number(order.total_nzd)*100);
       const secret=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
       if(!secret)throw Object.assign(new Error('Stripe checkout is not configured'),{statusCode:503});
       const form=new URLSearchParams();
@@ -183,7 +185,12 @@ async function handle(req,res,url){
       if(!response.ok)throw Object.assign(new Error(session?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
       const fresh=read(ORDERS,[]),saved=fresh.find(x=>x.id===order.id);if(saved){saved.stripe_checkout_session=session.id;saved.checkout_url=session.url;write(ORDERS,fresh);}
       return json(res,201,{ok:true,order:saved||order,checkout_url:session.url,commercial_truth:'PAYMENT_PENDING_NOT_REVENUE'});
-    }catch(e){return json(res,e.statusCode||400,{error:e.message});}
+    }catch(e){
+      if(createdOfferOrder&&createdOfferOrder.payment_status==='UNPAID'){
+        try{withLock(()=>{const listings=read(LISTINGS,[]),orders=read(ORDERS,[]),listing=listings.find(x=>x.id===createdOfferOrder.listing_id);if(listing)listing.reserved=Math.max(0,Number(listing.reserved||0)-1);const idx=orders.findIndex(x=>x.id===createdOfferOrder.id);if(idx>=0)orders.splice(idx,1);write(LISTINGS,listings);write(ORDERS,orders);});}catch{}
+      }
+      return json(res,e.statusCode||400,{error:e.message});
+    }
   }
 
   if(req.method==='GET'&&url==='/api/marketplace/v2/disputes'){
