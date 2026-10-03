@@ -44,7 +44,7 @@ function replay(key,operation){
   const hit=read(IDEMPOTENCY,[]).find(x=>x.key===key&&x.operation===operation);
   return hit?hit.response:null;
 }
-function id(prefix){return prefix+'_'+crypto.randomBytes(10).toString('hex');}
+function idFn(prefix){return prefix+'_'+crypto.randomBytes(10).toString('hex');}
 function qty(n){const q=Number(n);return Number.isInteger(q)&&q>0&&q<=1000?q:null;}
 function offerPublic(o){return {id:o.id,listing_id:o.listing_id,buyer_id:o.buyer_id,seller_id:o.seller_id,amount_nzd:o.amount_nzd,quantity:o.quantity,status:o.status,expires_at:o.expires_at,created_at:o.created_at,updated_at:o.updated_at};}
 function cartPublic(c){return {id:c.id,buyer_id:c.buyer_id,items:c.items,status:c.status,total_nzd:c.total_nzd,expires_at:c.expires_at,created_at:c.created_at,updated_at:c.updated_at};}
@@ -87,27 +87,27 @@ async function handle(req,res,url){
 
   if(req.method==='POST'&&url==='/api/marketplace/v2/cart/prepare'){
     try{
-      const {id}=verifiedUser(req),b=await body(req),key=idem(req,b);
-      return json(res,201,reserveCart(id,b.items,key));
+      const {id:userId}=verifiedUser(req),b=await body(req),key=idem(req,b);
+      return json(res,201,reserveCart(userId,b.items,key));
     }catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
 
   const cartMatch=url.match(/^\/api\/marketplace\/v2\/cart\/([^/]+)$/);
   if(req.method==='GET'&&cartMatch){
-    try{const {id}=verifiedUser(req),cart=read(CARTS,[]).find(x=>x.id===decodeURIComponent(cartMatch[1])&&x.buyer_id===id);return cart?json(res,200,{cart:cartPublic(cart)}):json(res,404,{error:'cart_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
+    try{const {id}=verifiedUser(req),cart=read(CARTS,[]).find(x=>x.id===decodeURIComponent(cartMatch[1])&&x.buyer_id===userId);return cart?json(res,200,{cart:cartPublic(cart)}):json(res,404,{error:'cart_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
 
   if(req.method==='POST'&&url==='/api/marketplace/v2/offers'){
     try{
-      const {id}=verifiedUser(req),b=await body(req),key=idem(req,b);
+      const {id:userId}=verifiedUser(req),b=await body(req),key=idem(req,b);
       const prior=replay(key,'offer_create');if(prior)return json(res,200,prior);
       const listingId=String(b.listing_id||''),amount=Number(b.amount_nzd),quantity=qty(b.quantity||1);
       if(!listingId||!Number.isFinite(amount)||amount<=0||!quantity)return json(res,422,{error:'listing_id, positive amount_nzd and valid quantity required'});
       const response=withLock(()=>{
         const listings=read(LISTINGS,[]),offers=read(OFFERS,[]),listing=listings.find(x=>x.id===listingId&&x.status==='APPROVED');
         if(!listing)return {error:'listing_not_found'};
-        if(listing.seller_id===id)return {error:'seller_cannot_offer_on_own_listing'};
-        const now=new Date(),o={id:id('off'),listing_id:listingId,buyer_id:id,seller_id:listing.seller_id,amount_nzd:Math.round(amount*100)/100,quantity,status:'PENDING_SELLER',expires_at:new Date(now.getTime()+48*60*60*1000).toISOString(),created_at:now.toISOString(),updated_at:now.toISOString()};
+        if(listing.seller_id===userId)return {error:'seller_cannot_offer_on_own_listing'};
+        const now=new Date(),o={id:idFn('off'),listing_id:listingId,buyer_id:userId,seller_id:listing.seller_id,amount_nzd:Math.round(amount*100)/100,quantity,status:'PENDING_SELLER',expires_at:new Date(now.getTime()+48*60*60*1000).toISOString(),created_at:now.toISOString(),updated_at:now.toISOString()};
         offers.push(o);write(OFFERS,offers);const out={ok:true,offer:offerPublic(o),commercial_truth:'OFFER_PENDING_NOT_REVENUE'};remember(key,'offer_create',out);return out;
       });
       if(response.error)return json(res,response.error==='listing_not_found'?404:403,response);
@@ -117,7 +117,7 @@ async function handle(req,res,url){
 
   const offerMatch=url.match(/^\/api\/marketplace\/v2\/offers\/([^/]+)$/);
   if(req.method==='GET'&&offerMatch){
-    try{const {id}=verifiedUser(req),o=read(OFFERS,[]).find(x=>x.id===decodeURIComponent(offerMatch[1])&&(x.buyer_id===id||x.seller_id===id));return o?json(res,200,{offer:offerPublic(o)}):json(res,404,{error:'offer_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
+    try{const {id}=verifiedUser(req),o=read(OFFERS,[]).find(x=>x.id===decodeURIComponent(offerMatch[1])&&(x.buyer_id===userId||x.seller_id===userId));return o?json(res,200,{offer:offerPublic(o)}):json(res,404,{error:'offer_not_found'});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
   if(req.method==='POST'&&offerMatch){
     try{
@@ -128,7 +128,7 @@ async function handle(req,res,url){
         const sellerAction=id===o.seller_id,buyerAction=id===o.buyer_id;if(!sellerAction&&!buyerAction)return {status:403,error:'not_a_party'};
         if(o.status!=='PENDING_SELLER'&&o.status!=='PENDING_BUYER')return {status:409,error:'offer_not_actionable'};
         const now=new Date().toISOString();
-        if(action==='ACCEPT'){o.status='ACCEPTED';o.accepted_by=id;o.updated_at=now;}
+        if(action==='ACCEPT'){o.status='ACCEPTED';o.accepted_by=userId;o.updated_at=now;}
         else if(action==='DECLINE'||action==='CANCEL'){if(action==='DECLINE'&&!sellerAction)return {status:403,error:'only_seller_can_decline'};if(action==='CANCEL'&&!buyerAction)return {status:403,error:'only_buyer_can_cancel'};o.status=action==='DECLINE'?'DECLINED':'CANCELLED';o.updated_at=now;}
         else {const amount=Number(b.amount_nzd);if(!sellerAction||!Number.isFinite(amount)||amount<=0)return {status:422,error:'seller counter requires positive amount_nzd'};o.amount_nzd=Math.round(amount*100)/100;o.status='PENDING_BUYER';o.updated_at=now;}
         write(OFFERS,offers);return {status:200,offer:offerPublic(o),commercial_truth:o.status==='ACCEPTED'?'ACCEPTED_OFFER_NOT_PAID':'OFFER_STATE_ONLY'};
@@ -138,16 +138,16 @@ async function handle(req,res,url){
   }
 
   if(req.method==='GET'&&url==='/api/marketplace/v2/disputes'){
-    try{const {id}=verifiedUser(req),items=read(DISPUTES,[]).filter(x=>x.buyer_id===id||x.seller_id===id);return json(res,200,{items});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
+    try{const {id}=verifiedUser(req),items=read(DISPUTES,[]).filter(x=>x.buyer_id===userId||x.seller_id===userId);return json(res,200,{items});}catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
   if(req.method==='POST'&&url==='/api/marketplace/v2/disputes'){
     try{
       const {id}=verifiedUser(req),b=await body(req),orderId=String(b.order_id||''),reason=String(b.reason||'').trim().slice(0,1000);
       if(!orderId||!reason)return json(res,422,{error:'order_id and reason required'});
       const result=withLock(()=>{
-        const orders=read(ORDERS,[]),o=orders.find(x=>x.id===orderId&&(x.buyer_id===id||x.seller_id===id));if(!o)return {status:404,error:'order_not_found'};
+        const orders=read(ORDERS,[]),o=orders.find(x=>x.id===orderId&&(x.buyer_id===userId||x.seller_id===userId));if(!o)return {status:404,error:'order_not_found'};
         const items=read(DISPUTES,[]);if(items.some(x=>x.order_id===orderId&&x.status==='OPEN'))return {status:409,error:'open_dispute_exists'};
-        const d={id:id('dsp'),order_id:orderId,buyer_id:o.buyer_id,seller_id:o.seller_id,opened_by:id,reason,status:'OPEN',resolution:null,created_at:new Date().toISOString(),updated_at:new Date().toISOString()};items.push(d);write(DISPUTES,items);o.dispute_status='OPEN';write(ORDERS,orders);return {ok:true,dispute:d,commercial_truth:'DISPUTE_OPEN_NOT_REFUNDED'};
+        const d={id:idFn('dsp'),order_id:orderId,buyer_id:o.buyer_id,seller_id:o.seller_id,opened_by:userIdreason,status:'OPEN',resolution:null,created_at:new Date().toISOString(),updated_at:new Date().toISOString()};items.push(d);write(DISPUTES,items);o.dispute_status='OPEN';write(ORDERS,orders);return {ok:true,dispute:d,commercial_truth:'DISPUTE_OPEN_NOT_REFUNDED'};
       });
       return json(res,result.status||201,result.error?{error:result.error}:result);
     }catch(e){return json(res,e.statusCode||400,{error:e.message});}
