@@ -1,4 +1,15 @@
 #Requires -Version 5.1
+param(
+    [string]$BridgeUrl = $env:DREAMLEDGER_AGENT_BRIDGE_URL,
+    [string]$BridgeToken = $env:DREAMLEDGER_AGENT_BRIDGE_TOKEN,
+    [string]$WorkerId = $env:DREAMLEDGER_LMSTUDIO_WORKER_ID,
+    [string]$LMStudioBaseUrl = $env:LM_STUDIO_BASE_URL,
+    [int]$PollSeconds = 15,
+    [int]$MaxOutputTokens = 1400,
+    [switch]$Once
+)
+
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
