@@ -1,0 +1,34 @@
+{
+  "schema": "DREAMLEDGER/SEARCH-BUILD-BOUNDARY-PROOF/v1",
+  "status": "CONTRACT_READY_WINDOWS_EXECUTION_REQUIRED",
+  "repository": "KelpCoin/DreamLedger",
+  "observed_base": "eb9b79c872fb94e9ab7ca086ba43bf5e51a74f4c",
+  "changes": [
+    "BEC-PRIME/runtime/EconomicBuildJobContract.js",
+    "BEC-PRIME/runtime/EconomicBuildJobContract.test.js",
+    "BEC-PRIME/runtime/LocalLMStudioAdapter.js",
+    "BEC-PRIME/runtime/LocalLMStudioAdapter.test.js",
+    "BEC-PRIME/scripts/Run-LMStudioEconomicAutopilot.ps1",
+    "supabase/functions/economic-activation/index.ts"
+  ],
+  "contract_test": {
+    "executed": "node --test EconomicBuildJobContract.test.js",
+    "result": "PASS",
+    "tests": 4
+  },
+  "live_edge_function": {
+    "function": "economic-activation",
+    "deployed_version": 18,
+    "external_action_performed": false,
+    "revenue_claimed": false
+  },
+  "economic_truth": {
+    "verified_external_revenue": "UNCHANGED",
+    "settled_external_payments": "UNCHANGED",
+    "independent_external_buyers": "UNCHANGED",
+    "verified_economic_outcomes": "UNCHANGED"
+  },
+  "windows_execution": "UNOBSERVABLE_FROM_CONNECTED_ENVIRONMENT",
+  "gpu_status": "UNOBSERVABLE",
+  "proof_limit": "This artifact proves the repository contract and live function deployment only. It does not prove Windows LM Studio execution, GPU usage, buyer, payment, fulfillment, or verification."
+}
