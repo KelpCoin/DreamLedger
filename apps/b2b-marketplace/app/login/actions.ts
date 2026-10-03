@@ -1,0 +1,4 @@
+"use server";
+import {redirect} from "next/navigation";import {createClient} from "../../lib/supabase/server";
+export async function login(formData:FormData){const supabase=await createClient();const {error}=await supabase.auth.signInWithPassword({email:String(formData.get("email")),password:String(formData.get("password"))});if(error)redirect("/login?error=login_failed");redirect("/dashboard")}
+export async function signup(formData:FormData){const supabase=await createClient();const {data,error}=await supabase.auth.signUp({email:String(formData.get("email")),password:String(formData.get("password"))});if(error||!data.user)redirect("/login?error=signup_failed");redirect("/dashboard")}
