@@ -1,0 +1,60 @@
+{
+  "schema": "dreamledger/cube/factory-factory/v1",
+  "objective": "Turn existing DreamLedger substrate into many bounded money experiments without creating a new commerce architecture.",
+  "inputs": {
+    "primary_snapshot": "runtime/cube/substrate_inventory.json",
+    "existing_opportunities": "BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json",
+    "approved_offers": "BEC-PRIME/catalog/offers/approved.json",
+    "offer_catalog": "public/catalog.json",
+    "surface_registry": "public/surfaces.json",
+    "cube_registry": "public/cube.json",
+    "toll_roads": "public/toll-road.json"
+  },
+  "source_roles": {
+    "GitHub": "implementation, workers, public offers, surfaces, proof contracts",
+    "Notion": "candidate history, demand hypotheses, market evidence, constraints",
+    "Airtable": "economic opportunities, offer inventory, operational state, telemetry",
+    "Stripe": "settlement evidence only",
+    "Supabase": "runtime/economic truth only when observable"
+  },
+  "generation": {
+    "unit": "substrate fragment × demand family × reusable transformation",
+    "batch_target": 100,
+    "gauntlet_target": 20,
+    "offer_compile_target": 3,
+    "required_candidate_fields": [
+      "substrate",
+      "requirements",
+      "demand_family",
+      "transformation",
+      "buyer_output",
+      "commercial_boundary",
+      "commerce_path",
+      "experiment",
+      "kill_criteria"
+    ],
+    "promotion_rule": "PAID + FULFILLED + PROVEN = PROMOTION",
+    "test_rule": "UNTESTED is not FAILED; FAILED is not permanently DEAD"
+  },
+  "reuse_rule": "Prefer an existing worker, existing Stripe boundary, existing entitlement/toll road, existing fulfillment path, existing evidence packet, and existing public surface. A new primitive requires a measured blocker.",
+  "output": {
+    "artifact": "runtime/cube/manifests/*.json",
+    "runtime_queue": "BEC-PRIME/data/factory-factory/FACTORY-FACTORY-QUEUE.json",
+    "dashboard": "runtime/cube/factory_dashboard.json"
+  },
+  "authority": {
+    "scan": "ALLOWED",
+    "extract": "ALLOWED",
+    "compile": "ALLOWED",
+    "gauntlet": "ALLOWED",
+    "prepare": "ALLOWED",
+    "rank": "ALLOWED",
+    "publish": "HUMAN_GATE",
+    "external_contact": "HUMAN_GATE",
+    "spend": "HUMAN_GATE",
+    "stripe_mutation": "HUMAN_GATE",
+    "revenue_claim": "TRUTH_ORACLE_ONLY"
+  },
+  "economic_gate": "No internal computation, checkout start, database row, model output, or payment link counts as revenue.",
+  "factory_direction": "Many substrate fragments in; many bounded candidate transformations out; existing commerce spine tests them; verified payment and fulfillment determine which transformations replicate."
+}
