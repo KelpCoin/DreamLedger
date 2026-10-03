@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>DreamLedger · Live catalogue</title>
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --surface-2: #1c1c1c; --surface-3: #242424;
+      --text: #f4f2eb; --text-2: #b5b2a8; --text-3: #7a776f;
+      --border: #2a2a2a; --border-strong: #3a3a3a; --accent: #e8e4d6; --accent-dim: #c5c0b0;
+      --positive: #6bcf8e; --radius: 14px; --radius-sm: 10px; --cta-h: 48px;
+      --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
+    .top { flex-shrink: 0; padding: calc(0.5rem + var(--safe-top)) 1rem 0.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .brand { display: flex; align-items: center; gap: 0.4rem; }
+    .brand h1 { font-size: 0.92rem; font-weight: 600; letter-spacing: -0.03em; }
+    .locale { font-size: 0.62rem; color: var(--text-3); border: 1px solid var(--border); padding: 0.12rem 0.35rem; border-radius: 5px; }
+    .top-actions { display: flex; align-items: center; gap: 0.4rem; }
+    .sell-chip { font-size: 0.68rem; font-weight: 700; color: var(--positive); text-decoration: none; padding: 0.28rem 0.55rem; border: 1px solid rgba(107,207,142,0.28); border-radius: 999px; background: rgba(107,207,142,0.1); }
+    .streak-pill { display: flex; align-items: center; gap: 0.25rem; font-size: 0.68rem; font-weight: 600; color: var(--positive); background: rgba(107,207,142,0.08); border: 1px solid rgba(107,207,142,0.2); border-radius: 999px; padding: 0.25rem 0.5rem; }
+    .silo { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .section-label { padding: 0 1rem 0.35rem; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
+    .catalogue { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+    .track { display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: 1rem; -webkit-overflow-scrolling: touch; padding: 0.25rem 1rem 0.5rem; scrollbar-width: none; }
+    .track::-webkit-scrollbar { display: none; }
+    .card { flex: 0 0 min(78vw, 300px); scroll-snap-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; transition: border-color 0.2s var(--ease); }
+    .card.is-active { border-color: var(--border-strong); box-shadow: 0 0 0 1px rgba(126,200,255,0.15), 0 0 24px rgba(74,163,255,0.08); }
+    .card.spark { animation: cardSpark 0.35s ease-out; }
+    @keyframes cardSpark { 0% { box-shadow: 0 0 0 1px rgba(180,220,255,0.7), 0 0 32px rgba(100,180,255,0.35); } 100% { box-shadow: 0 0 0 1px rgba(126,200,255,0.15), 0 0 24px rgba(74,163,255,0.08); } }
+    .hero { position: relative; width: 100%; aspect-ratio: 16/10; background: var(--surface-2); overflow: hidden; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; opacity: 0.35; }
+    .hero-badge { position: absolute; top: 0.4rem; left: 0.4rem; z-index: 2; font-size: 0.56rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(0,0,0,0.6); color: #fff; padding: 0.2rem 0.4rem; border-radius: 5px; }
+    .hero-badge.live, .hero-badge.fee { background: rgba(107,207,142,0.9); color: #0a0a0a; }
+    .card-body { padding: 0.65rem 0.8rem 0.4rem; display: flex; flex-direction: column; flex: 1; gap: 0.12rem; }
+    .card-tag { font-size: 0.58rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
+    .card h2 { font-size: 0.92rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.2; }
+    .card p { font-size: 0.74rem; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 0.4rem; margin-top: 0.35rem; }
+    .card-price { font-size: 0.92rem; font-weight: 600; color: var(--accent); }
+    .card-price small { font-size: 0.66rem; font-weight: 400; color: var(--text-3); margin-left: 0.12rem; }
+    .card-trust { font-size: 0.6rem; color: var(--text-3); font-weight: 500; }
+    .cta-wrap { padding: 0 0.65rem 0.65rem; }
+    .cta { display: flex; align-items: center; justify-content: center; width: 100%; height: var(--cta-h); background: var(--accent); color: #111; font-size: 0.86rem; font-weight: 600; border: none; border-radius: var(--radius-sm); text-decoration: none; }
+    .cta:active { background: var(--accent-dim); transform: scale(0.975); }
+    .cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+    .bottom { flex-shrink: 0; padding: 0.2rem 1rem calc(0.55rem + var(--safe-bottom)); display: flex; flex-direction: column; gap: 0.4rem; background: linear-gradient(to top, var(--bg) 75%, transparent); }
+    .swipe-bar { display: flex; justify-content: space-between; font-size: 0.66rem; color: var(--text-3); }
+    .swipe-bar .count { font-weight: 600; color: var(--text-2); }
+    .swipe-bar .fire { color: var(--positive); font-weight: 500; }
+    .dots { display: flex; justify-content: center; gap: 5px; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border); }
+    .dot.active { background: var(--accent); transform: scale(1.35); }
+    .daily { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem 0.65rem; display: flex; align-items: center; gap: 0.55rem; }
+    .daily-info { flex: 1; min-width: 0; }
+    .daily-info .label { font-size: 0.58rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); }
+    .daily-info .reward { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .daily-info .reward.claimed { color: var(--text-3); font-weight: 500; }
+    .claim-btn { flex-shrink: 0; height: 36px; padding: 0 0.8rem; background: var(--positive); color: #0a0a0a; font-size: 0.78rem; font-weight: 700; border: none; border-radius: 9px; }
+    .claim-btn:disabled { background: var(--surface-2); color: var(--text-3); }
+    .trust { display: flex; justify-content: center; gap: 0.65rem; font-size: 0.58rem; color: var(--text-3); }
+    .trust span::before { content: "·"; margin-right: 0.65rem; opacity: 0.45; }
+    .trust span:first-child::before { display: none; }
+    .toast { position: fixed; left: 50%; bottom: calc(5.2rem + var(--safe-bottom)); transform: translateX(-50%) translateY(120%); background: var(--surface-3); border: 1px solid var(--border-strong); color: var(--text); font-size: 0.8rem; font-weight: 500; padding: 0.6rem 0.95rem; border-radius: 11px; white-space: nowrap; z-index: 50; opacity: 0; transition: 0.3s; pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .current-flash { pointer-events: none; position: fixed; inset: 0; z-index: 40; opacity: 0; mix-blend-mode: screen; }
+    .current-flash.on { animation: currentBurst 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    @keyframes currentBurst { 0% { opacity: 0; } 12% { opacity: 1; } 55% { opacity: 0.55; } 100% { opacity: 0; } }
+    .current-flash svg { width: 100%; height: 100%; }
+    .current-flash path { fill: none; stroke: #e8f7ff; stroke-width: 1.5; stroke-linecap: round; filter: drop-shadow(0 0 4px #7ec8ff) drop-shadow(0 0 12px #4aa3ff); }
+    .current-flash path.hot { stroke: #fff; stroke-width: 2.2; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px #9ad4ff); }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><h1>DreamLedger</h1><span class="locale">NZD</span></div>
+    <div class="top-actions">
+      <a class="sell-chip" href="/sell.html">Sell · $0</a>
+      <div class="streak-pill" id="loginStreak"><span>🔥</span><span class="num">0</span><span>d</span></div>
+    </div>
+  </header>
+  <main class="silo">
+    <div class="section-label" id="sectionLabel">Live catalogue</div>
+    <section class="catalogue"><div class="track" id="track" role="list"></div></section>
+  </main>
+  <footer class="bottom">
+    <div class="swipe-bar"><span>Swipe streak <span class="count" id="swipeCount">0</span></span><span class="fire" id="swipeMsg">Keep going</span></div>
+    <div class="dots" id="dots"></div>
+    <div class="daily">
+      <div class="daily-info"><div class="label">Today's cosmetic</div><div class="reward" id="rewardName">—</div></div>
+      <button class="claim-btn" id="claimBtn" type="button">Claim</button>
+    </div>
+    <div class="trust"><span>$0 listing fees</span><span>Stripe on platform offers</span><span>Settled only</span></div>
+  </footer>
+  <div class="current-flash" id="currentFlash" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="hot" id="boltA" d="" /><path id="boltB" d="" /><path id="boltC" d="" /></svg></div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="/app.js"></script>
+  <script>
+    const PLATFORM = [
+      { kind:'platform', badge:'Best first', tag:'Service', title:'Commander Deck Diagnostic', desc:'Practical first-pass: power band, holes, upgrade order.', price:'NZ$29', priceNote:'one-time', trust:'Stripe', cta:'Buy diagnostic', href:'/mtg', img:'https://images.unsplash.com/photo-1611195974224-db706f0d0e5b?w=640&q=80' },
+      { kind:'platform', badge:'Founding', tag:'Placement', title:'Public Billboard Tile', desc:'Permanent digital placement on the public canvas.', price:'NZ$50', priceNote:'permanent', trust:'Stripe', cta:'Claim tile', href:'/billboard.html', img:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=640&q=80' },
+      { kind:'sell-cta', badge:'$0 fees', badgeClass:'fee', tag:'Seller', title:'List something for sale', desc:'Free listings. No success fees. Keep what you make.', price:'$0 to list', trust:'No take rate', cta:'Start listing', href:'/sell.html', img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=640&q=80' },
+      { kind:'platform', badge:'Evidence', tag:'Truth', title:'Truth Oracle', desc:'Public evidence layer. Missing data stays UNKNOWN.', price:'Free · paid depth', trust:'Evidence', cta:'Open Oracle', ctaClass:'ghost', href:'/overpaying.html', img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&q=80' }
+    ];
+    const EMOJI = { clothing:'👕', home:'🏠', electronics:'🔧', sport:'⚽', collectibles:'🃏', mtg:'🎴', vehicles:'🚗', services:'💼', other:'📦' };
+    function listingCard(L) {
+      return { kind:'listing', badge: L.status==='live'?'Live':'Pending', badgeClass: L.status==='live'?'live':'', tag:(L.location||'NZ')+' · '+DL.conditionLabel(L.condition), title:L.title, desc:L.description, price:DL.formatPrice(L.price), priceNote:'$0 fee', trust:L.seed?'Demo':'Seller', cta:L.status==='live'?'View offer':'In review', ctaClass:L.status==='live'?'':'ghost', href:'#', emoji:EMOJI[L.category]||'📦', id:L.id };
+    }
+    function cardHTML(c) {
+      const bcls = 'hero-badge' + (c.badgeClass ? ' '+c.badgeClass : '');
+      const media = c.img ? '<img src="'+c.img+'" alt="" loading="lazy" />' : '<div class="hero-fallback">'+(c.emoji||'📦')+'</div>';
+      const note = c.priceNote ? ' <small>'+c.priceNote+'</small>' : '';
+      const ctaCls = c.ctaClass ? 'cta '+c.ctaClass : 'cta';
+      return '<article class="card" role="listitem"><div class="hero">'+media+'<div class="'+bcls+'">'+c.badge+'</div></div><div class="card-body"><div class="card-tag">'+c.tag+'</div><h2>'+c.title+'</h2><p>'+c.desc+'</p><div class="card-meta"><div class="card-price">'+c.price+note+'</div><div class="card-trust">'+c.trust+'</div></div></div><div class="cta-wrap"><a class="'+ctaCls+'" href="'+c.href+'">'+c.cta+'</a></div></article>';
+    }
+    DL.ensureSeedListings();
+    const listings = DL.getListings().filter(l => l.status==='live' || l.status==='pending_truth_check');
+    const sellCta = PLATFORM.find(p => p.kind==='sell-cta');
+    const offers = PLATFORM.filter(p => p.kind==='platform');
+    const all = [sellCta, ...listings.map(listingCard), ...offers];
+    const track = document.getElementById('track');
+    track.innerHTML = all.map(cardHTML).join('');
+    const liveCount = listings.filter(l => l.status==='live').length;
+    document.getElementById('sectionLabel').textContent = liveCount ? 'Live catalogue · '+liveCount+' seller offer'+(liveCount===1?'':'s') : 'Live catalogue · list something';
+    const cards = [...track.querySelectorAll('.card')];
+    const dotsEl = document.getElementById('dots');
+    cards.forEach((_, i) => { const d = document.createElement('div'); d.className = 'dot'+(i===0?' active':''); dotsEl.appendChild(d); });
+    const dots = [...dotsEl.children];
+    if (cards[0]) cards[0].classList.add('is-active');
+    let swipeStreak = 0, lastIndex = 0; const seen = new Set([0]);
+    const MSGS = [{at:0,msg:'Keep going'},{at:3,msg:'Nice flow'},{at:5,msg:'On a roll'},{at:8,msg:'Catalogue explorer'}];
+    function haptic(p) { if (navigator.vibrate) try { navigator.vibrate(p); } catch(_){} }
+    function hapticSnap() { haptic([6,18,10,12,4]); }
+    function fireCurrent() {
+      const flash = document.getElementById('currentFlash');
+      const y = 25 + Math.random()*50;
+      function jag(x0,y0,x1,y1,segs,j) { let d='M '+x0+' '+y0; for(let i=1;i<segs;i++){ const t=i/segs; d+=' L '+(x0+(x1-x0)*t+(Math.random()-0.5)*j).toFixed(1)+' '+(y0+(y1-y0)*t+(Math.random()-0.5)*j).toFixed(1);} return d+' L '+x1+' '+y1; }
+      document.getElementById('boltA').setAttribute('d', jag(0,y,100,y+(Math.random()-0.5)*20,9,10));
+      document.getElementById('boltB').setAttribute('d', jag(5,y+8,95,y-6,7,14));
+      document.getElementById('boltC').setAttribute('d', jag(10,y-10,90,y+12,6,11));
+      flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on');
+    }
+    function getIndex() {
+      if (!cards.length) return 0;
+      const gap = parseFloat(getComputedStyle(track).gap)||12;
+      const w = cards[0].offsetWidth + gap;
+      return Math.max(0, Math.min(Math.round(track.scrollLeft/w), cards.length-1));
+    }
+    track.addEventListener('scroll', () => requestAnimationFrame(() => {
+      const index = getIndex();
+      dots.forEach((d,i)=>d.classList.toggle('active', i===index));
+      cards.forEach((c,i)=>c.classList.toggle('is-active', i===index));
+      if (index !== lastIndex) {
+        hapticSnap(); fireCurrent();
+        const card = cards[index]; if (card) { card.classList.remove('spark'); void card.offsetWidth; card.classList.add('spark'); }
+        if (!seen.has(index)) {
+          seen.add(index); swipeStreak++;
+          document.getElementById('swipeCount').textContent = swipeStreak;
+          let msg = MSGS[0].msg; for (const m of MSGS) if (swipeStreak>=m.at) msg=m.msg;
+          document.getElementById('swipeMsg').textContent = msg;
+        }
+        lastIndex = index;
+      }
+    }), { passive: true });
+    const REWARDS = [{min:1,items:['Basic Aura','Soft Glow']},{min:3,items:['Ember Trail','Cool Tint']},{min:5,items:['Nebula Ring','Silver Pin']},{min:8,items:['Aurora Veil','Rare Crest']},{min:12,items:['Void Crown','Mythic Frame']},{min:20,items:['Eternal Halo','Dreamfire Wings']},{min:30,items:['Sovereign Core','Origin Seal']}];
+    function getReward(streak) {
+      let tier=REWARDS[0]; for (const t of REWARDS) if (streak>=t.min) tier=t;
+      const seed=DL.todayKey()+streak; let h=0; for (let i=0;i<seed.length;i++) h=(h*31+seed.charCodeAt(i))|0;
+      return tier.items[Math.abs(h)%tier.items.length];
+    }
+    function updateLoginStreak() {
+      const s=DL.getStreakState(); const today=DL.todayKey();
+      const y=new Date(); y.setDate(y.getDate()-1);
+      const yesterday=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+      if (s.lastLogin===today) {}
+      else if (s.lastLogin===yesterday) { s.streak=(s.streak||0)+1; s.lastLogin=today; s.claimedToday=false; }
+      else { s.streak=1; s.lastLogin=today; s.claimedToday=false; }
+      DL.saveStreakState(s); return s;
+    }
+    function refreshDaily() {
+      const s=DL.getStreakState(); const streak=s.streak||1; const reward=getReward(streak);
+      document.querySelector('#loginStreak .num').textContent=streak;
+      const rn=document.getElementById('rewardName'); const btn=document.getElementById('claimBtn');
+      if (s.claimedToday) { rn.textContent=reward+' · claimed'; rn.classList.add('claimed'); btn.textContent='Done'; btn.disabled=true; }
+      else { rn.textContent=reward; rn.classList.remove('claimed'); btn.textContent='Claim'; btn.disabled=false; }
+    }
+    document.getElementById('claimBtn').onclick = () => {
+      const s=DL.getStreakState(); if (s.claimedToday) return;
+      const reward=getReward(s.streak||1);
+      s.claimedToday=true; s.inventory=s.inventory||[]; s.inventory.push({item:reward,day:DL.todayKey(),streak:s.streak});
+      DL.saveStreakState(s); haptic([12,24,8,40,20]); fireCurrent(); refreshDaily();
+      const t=document.getElementById('toast'); t.textContent='Got '+reward; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400);
+    };
+    updateLoginStreak(); refreshDaily();
+  </script>
+</body>
+</html>
