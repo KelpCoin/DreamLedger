@@ -1,0 +1,72 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_supplier_price_list_photo_csv_29",
+  "substrate_type": "supplier_price_list_photos",
+  "substrate_requirements": {
+    "required_fields": [
+      "1_to_20_price_list_photos",
+      "supplier_or_catalogue_identifier"
+    ],
+    "minimum_sample": 1
+  },
+  "demand_family": "catalogue_visual_ocr",
+  "transformation": {
+    "name": "SUPPLIER_PRICE_PHOTO_TO_CSV",
+    "worker": "EXISTING_WORKER:DOC-EXTRACT-50 -> EXISTING_TRANSFORMATION:PRODUCT_FEED_CLEANING",
+    "steps": [
+      "hash_source_images",
+      "visual_ocr_price_list_tables",
+      "reconstruct_rows_and_columns",
+      "extract_sku_description_price_currency_moq_and_terms_when_present",
+      "normalize_units_and_currency_without_inventing_missing_values",
+      "detect_duplicate_or_conflicting_rows",
+      "flag_unreadable_or_ambiguous_cells",
+      "preserve_unknowns",
+      "validate_records_against_source_images",
+      "emit_normalized_csv_json_and_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "normalized_supplier_price_feed",
+    "contains": [
+      "sku",
+      "description",
+      "price",
+      "currency",
+      "moq",
+      "terms",
+      "source_image_references",
+      "ambiguous_fields",
+      "missing_fields",
+      "duplicate_conflicts",
+      "source_hashes",
+      "reconstruction_trace",
+      "evidence_packet"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 29,
+    "unit": "one_photo_batch"
+  },
+  "commerce_path": {
+    "checkout": "EXISTING_COMMERCE_RAIL_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_WORKER:DOC-EXTRACT-50 -> EXISTING_TRANSFORMATION:PRODUCT_FEED_CLEANING",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "table reconstruction is not reliably bounded",
+    "source image quality prevents evidence-backed extraction",
+    "currency or units cannot be preserved without unsupported inference",
+    "cannot preserve unknowns",
+    "cannot emit normalized CSV/JSON plus evidence",
+    "night batch runtime or cost exceeds economic envelope",
+    "3 qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
