@@ -1,0 +1,64 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_catalogue_api_pack_50",
+  "substrate_type": "product_catalogue_feeds",
+  "substrate_requirements": {
+    "required_fields": [
+      "normalized_product_feed",
+      "stable_product_identifier",
+      "declared_query_fields"
+    ],
+    "minimum_sample": 10
+  },
+  "demand_family": "machine_readable_catalogue_access",
+  "transformation": {
+    "name": "CATALOGUE_TO_MACHINE_READABLE_API_PACK",
+    "worker": "EXISTING_PRIMITIVE:TOLLROAD_API_ENTITLEMENT",
+    "steps": [
+      "hash_source",
+      "validate_normalized_feed",
+      "define_bounded_query_fields",
+      "compile_machine_readable_schema",
+      "compile_query_examples",
+      "preserve_source_references",
+      "emit_api_pack_and_schema_evidence"
+    ]
+  },
+  "buyer_output": {
+    "format": "machine_readable_catalogue_api_pack",
+    "contains": [
+      "api_schema",
+      "query_fields",
+      "response_schema",
+      "sample_queries",
+      "source_references",
+      "source_hash",
+      "coverage_notes",
+      "unknowns"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 50,
+    "unit": "one_pack"
+  },
+  "commerce_path": {
+    "checkout": "NEW_TOLL_ROAD_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_PRIMITIVE:TOLLROAD_API_ENTITLEMENT",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "catalogue cannot be normalized into stable machine-readable records",
+    "query fields cannot be bounded",
+    "api output cannot preserve source references",
+    "cannot fulfill through existing toll-road entitlement primitive",
+    "cannot emit evidence-backed schema package",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
