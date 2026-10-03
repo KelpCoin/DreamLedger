@@ -73,7 +73,7 @@ function Invoke-Json {
 }
 
 function Get-LMModel([string]$Lms) {
-    $r = Invoke-RestMethod -Uri ($LMStudioUrl + '/models') -Method Get -TimeoutSec 15
+    $r = Invoke-RestMethod -Uri ($LMStudioUrl + '/v1/models') -Method Get -TimeoutSec 15
     $m = @($r.data | Where-Object { $_.id } | Select-Object -First 1)
     if ($m.Count -eq 0) { Fail 'MODEL_DISCOVERED:NO_MODELS_RETURNED' }
     $model = if ($env:LM_STUDIO_MODEL) { [string]$env:LM_STUDIO_MODEL } else { [string]$m[0].id }
