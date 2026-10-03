@@ -10,6 +10,8 @@ const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-truth-oracle-'))
 process.env.LEDGER_DATA_DIR = path.join(root, 'ledger');
 process.env.BEC_LEDGER_DIR = process.env.LEDGER_DATA_DIR;
 process.env.PROOF_DATA_DIR = path.join(root, 'proofs');
+fs.mkdirSync(process.env.LEDGER_DATA_DIR, { recursive: true });
+fs.mkdirSync(process.env.PROOF_DATA_DIR, { recursive: true });
 
 const stripeWebhookProof = require('../lib/stripeWebhookProof');
 
@@ -39,7 +41,8 @@ const signature = crypto.createHmac('sha256', secret).update(`${timestamp}.${raw
 const header = `t=${timestamp},v1=${signature}`;
 
 stripeWebhookProof.verifyStripeSignature(raw, header, secret);
-stripeWebhookProof.verifyStripeSignature(raw, header, secret);
+stripeWebhookProof.recordTruthOracleWebhookEvent(event);
+stripeWebhookProof.recordTruthOracleWebhookEvent(event);
 
 const events = JSON.parse('[' + fs.readFileSync(path.join(process.env.LEDGER_DATA_DIR, 'EVENTS.jsonl'), 'utf8').trim().split(/\r?\n/).join(',') + ']');
 assert.strictEqual(events.length, 1, 'duplicate Stripe event must produce one ledger event');

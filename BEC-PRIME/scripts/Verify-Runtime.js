@@ -8,7 +8,7 @@ const { advertisedWorkers } = require('../runtime/Scheduler');
 const { listJobs } = require('../runtime/worker-pool');
 
 const repo = path.resolve(__dirname, '..', '..');
-const proofDir = path.join(repo, 'RUN-PROOFS');
+const proofDir = path.join(repo, 'BEC-PRIME', 'RUN-PROOFS');
 const proofPath = path.join(proofDir, 'STAGE-1-LOGIC-GATE.json');
 
 const ledger = verifyChain();
