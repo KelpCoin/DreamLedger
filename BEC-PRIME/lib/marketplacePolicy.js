@@ -2,7 +2,7 @@
 
 const PLATFORM_SELLER_ID = 'HappyHomarid';
 const EXTERNAL_RATE = 0.05;
-const ZERO_FEE_SILOS = new Set(['MTG', 'SILO_MTG', 'MAGIC', 'MAGIC_THE_GATHERING']);
+const ZERO_FEE_SILOS = new Set(['MTG', 'SILO_MTG', 'MAGIC', 'MAGIC_THE_GATHERING', 'MARKETPLACE', 'B2B', 'RIVET']);
 
 function calculateMarketplaceFee(seller, silo, amountNzd) {
   const amount = Number(amountNzd);
