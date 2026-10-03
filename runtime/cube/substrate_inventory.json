@@ -1,0 +1,294 @@
+{
+  "schema": "dreamledger/cube/substrate-inventory/v1",
+  "purpose": "Normalized snapshot of existing economic substrate discovered across GitHub, Notion, and Airtable. This is candidate inventory, not revenue truth.",
+  "sources": [
+    {
+      "system": "GitHub",
+      "repository": "KelpCoin/DreamLedger",
+      "role": "implementation_and_public_commerce_evidence"
+    },
+    {
+      "system": "Notion",
+      "workspace": "Biggie’s space",
+      "role": "strategy_research_and_candidate_history"
+    },
+    {
+      "system": "Airtable",
+      "base": "BEC PRIME Economic Evidence",
+      "role": "economic_opportunity_and_offer_control"
+    },
+    {
+      "system": "Airtable",
+      "base": "Sales Pipeline",
+      "role": "economic_opportunity_control"
+    }
+  ],
+  "reusable_transformations": [
+    {
+      "id": "DOCUMENT_TO_DECISION",
+      "input": [
+        "PDF",
+        "CSV",
+        "JSON",
+        "Markdown"
+      ],
+      "steps": [
+        "hash",
+        "extract",
+        "normalize",
+        "compare_or_transform",
+        "preserve_unknowns",
+        "evidence_packet"
+      ],
+      "existing_rail": "QUOTE-COMPARE-49 fulfillment/proof spine"
+    },
+    {
+      "id": "PUBLIC_RECORD_TO_REPORT",
+      "input": [
+        "public registry",
+        "public filing",
+        "public identifier"
+      ],
+      "steps": [
+        "retrieve",
+        "record_match",
+        "hash_sources",
+        "bounded_report",
+        "source_trail"
+      ],
+      "existing_rail": "ACNC worker + evidence proof"
+    },
+    {
+      "id": "SELLER_EXPORT_TO_PROFIT",
+      "input": [
+        "seller transaction export",
+        "fees",
+        "shipping"
+      ],
+      "steps": [
+        "normalize transactions",
+        "calculate net",
+        "compare channels",
+        "flag economics"
+      ],
+      "existing_rail": "SELLER-PROFIT-AUDIT"
+    },
+    {
+      "id": "CLAIM_TO_EVIDENCE_REVIEW",
+      "input": [
+        "commercial claim",
+        "supporting evidence"
+      ],
+      "steps": [
+        "scope claim",
+        "index evidence",
+        "find gaps",
+        "flag contradictions",
+        "deliver report"
+      ],
+      "existing_rail": "COMMERCIAL-TRUTH-STRESS-TEST"
+    },
+    {
+      "id": "INVENTORY_TO_CHECKOUT",
+      "input": [
+        "real inventory item",
+        "real seller authorization"
+      ],
+      "steps": [
+        "validate listing",
+        "publish approved surface",
+        "checkout",
+        "fulfill",
+        "prove"
+      ],
+      "existing_rail": "marketplace + Stripe + proof spine"
+    },
+    {
+      "id": "DATA_TO_PAY_PER_USE_API",
+      "input": [
+        "structured dataset",
+        "bounded query"
+      ],
+      "steps": [
+        "authorize",
+        "settle",
+        "issue entitlement",
+        "execute",
+        "return result"
+      ],
+      "existing_rail": "TollRoad v2"
+    }
+  ],
+  "money_lanes": [
+    {
+      "id": "QUOTE_COMPARE_49",
+      "price_nzd": 49,
+      "state": "COMPILED",
+      "current_surface": "https://dreamledger.org/quote-comparison/",
+      "rail": "existing automated quote intake + Stripe + evidence proof",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "GitHub:public/quote-comparison/index.html",
+        "Notion:2026-10-03 Money-First Execution Reset"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "DOC_EXTRACT_50",
+      "price_nzd": 50,
+      "state": "CANDIDATE",
+      "current_catalog_price_nzd": 5,
+      "rail": "existing document extraction toll booth",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "Notion:777 New Money Lanes | 2026-10-01"
+      ],
+      "discrepancy": "Notion records a NZ$50 target/live lane while GitHub public catalog currently prices DOC-EXTRACT-50 at NZ$5. Do not change price automatically.",
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "SUPPLIER_CHECK_50",
+      "price_nzd": 50,
+      "state": "CANDIDATE",
+      "current_catalog_price_nzd": 5,
+      "rail": "existing supplier verification toll booth",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "Notion:777 New Money Lanes | 2026-10-01"
+      ],
+      "discrepancy": "Notion records NZ$50 while GitHub public catalog currently prices SUPPLIER-CHECK-50 at NZ$5. Do not change price automatically.",
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "EVIDENCE_PACKET_10",
+      "price_nzd": 10,
+      "state": "PUBLISHED",
+      "rail": "existing evidence packet toll booth",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "Notion:777 New Money Lanes | 2026-10-01"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "SELLER_PROFIT_AUDIT_29",
+      "price_nzd": 29,
+      "state": "PUBLISHED",
+      "rail": "existing manual_pdf fulfillment contract",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "Airtable:BEC PRIME Economic Evidence/Economic Opportunity Queue"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "COMMERCIAL_TRUTH_STRESS_TEST_999",
+      "price_nzd": 999,
+      "state": "PUBLISHED",
+      "rail": "existing manual Gauntlet/Truth Oracle report",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "Notion:777 New Money Lanes | 2026-10-01"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "ACNC_DUE_DILIGENCE_99",
+      "price_nzd": 99,
+      "state": "PUBLISHED",
+      "rail": "existing ACNC research worker + evidence trail",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "Notion:777 New Money Lanes | 2026-10-01"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "BILLBOARD_FOUNDING_50",
+      "price_nzd": 50,
+      "state": "PUBLISHED",
+      "rail": "existing Stripe + finite allocation + publication proof",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "GitHub:BEC-PRIME/catalog/offers/approved.json",
+        "Airtable:BEC PRIME Economic Evidence/Economic Opportunity Queue"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "COMMANDER_DIAGNOSTIC_29",
+      "price_nzd": 29,
+      "state": "PUBLISHED",
+      "rail": "existing automated customer-input fulfillment + Stripe",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "GitHub:BEC-PRIME/catalog/offers/approved.json"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "EDH_0001",
+      "price_nzd": 400,
+      "state": "PUBLISHED",
+      "rail": "existing physical inventory checkout path",
+      "source_refs": [
+        "GitHub:public/catalog.json",
+        "Airtable:BEC PRIME Economic Evidence/Economic Opportunity Queue"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "AGENTIC_COMMERCE_READINESS_AUDIT",
+      "price_nzd": 49,
+      "state": "READY",
+      "rail": "existing B2B/audit surface",
+      "source_refs": [
+        "Airtable:BEC PRIME Economic Evidence/Economic Opportunity Queue"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "AI_COMMERCE_IMPLEMENTATION_STARTER",
+      "price_nzd": 499,
+      "state": "ARMED",
+      "rail": "existing Stripe offer record; fulfillment proof requires verification before promotion",
+      "source_refs": [
+        "Airtable:BEC PRIME Economic Evidence/Offers"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "AI_COMMERCE_PRODUCTIZED_BUILD",
+      "price_nzd": 2500,
+      "state": "ARMED",
+      "rail": "existing Stripe offer record; fulfillment proof requires verification before promotion",
+      "source_refs": [
+        "Airtable:BEC PRIME Economic Evidence/Offers"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "AI_COMMERCE_SYSTEM_DEPLOYMENT",
+      "price_nzd": 10000,
+      "state": "ARMED",
+      "rail": "existing Stripe offer record; fulfillment proof requires verification before promotion",
+      "source_refs": [
+        "Airtable:BEC PRIME Economic Evidence/Offers"
+      ],
+      "economic_status": "UNVERIFIED"
+    },
+    {
+      "id": "AI_FAILURE_POST_MORTEM",
+      "price_nzd": 2500,
+      "state": "CANDIDATE",
+      "rail": "public incident evidence -> bounded forensic report -> human-approved engagement",
+      "source_refs": [
+        "Notion:Universal Pain Observatory + B2B Marketplace Direction"
+      ],
+      "economic_status": "UNVERIFIED",
+      "caution": "Specific incident/loss claims must be independently verified before use in external acquisition."
+    }
+  ],
+  "factory_rule": "For every substrate, generate bounded transformations that reuse an existing worker, commerce boundary, fulfillment path, and proof path wherever possible. Payment and verified fulfillment determine promotion.",
+  "do_not_infer": "No candidate, live checkout, Airtable row, Notion page, code artifact, or payment link is revenue."
+}
