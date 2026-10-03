@@ -26,8 +26,8 @@ jobs:
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfilment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfilment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
+          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
+          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
           if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
           if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
           Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
