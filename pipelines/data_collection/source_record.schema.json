@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["source_url","observed_at","access_verdict","data_classification"],
+  "properties": {
+    "source_url":{"type":"string","format":"uri"},
+    "terms_url":{"type":["string","null"],"format":"uri"},
+    "robots_checked_at":{"type":["string","null"]},
+    "terms_reviewed_at":{"type":["string","null"]},
+    "access_verdict":{"enum":["PASS","BLOCKED","UNKNOWN","EXPIRED"]},
+    "jurisdiction":{"type":["string","null"]},
+    "data_classification":{"enum":["PUBLIC_NON_PERSONAL","PUBLIC_PERSONAL","SENSITIVE","LICENSED","UNKNOWN"]},
+    "retention_rule":{"type":["string","null"]},
+    "observed_at":{"type":"string"}
+  }
+}

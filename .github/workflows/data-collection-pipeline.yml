@@ -1,0 +1,19 @@
+name: data-collection-pipeline
+on:
+  push:
+    paths:
+      - "pipelines/data_collection/**"
+      - ".github/workflows/data-collection-pipeline.yml"
+  pull_request:
+    paths:
+      - "pipelines/data_collection/**"
+      - ".github/workflows/data-collection-pipeline.yml"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s pipelines/data_collection -p "test_*.py" -v

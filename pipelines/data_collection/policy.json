@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "rules": {
+    "prefer_official_api_or_licensed_feed": true,
+    "require_source_terms_review": true,
+    "require_robots_check": true,
+    "default_automated_access": "UNKNOWN",
+    "never_bypass_authentication": true,
+    "never_bypass_paywalls": true,
+    "never_bypass_captcha": true,
+    "never_evade_rate_limits_or_ip_blocks": true,
+    "never_collect_sensitive_personal_data_without_authorized_basis": true,
+    "minimize_personal_data": true,
+    "retain_source_url_and_observed_at": true,
+    "retain_policy_evidence": true,
+    "stop_on_policy_change": true
+  },
+  "required_source_record": [
+    "source_url",
+    "terms_url",
+    "robots_checked_at",
+    "terms_reviewed_at",
+    "access_verdict",
+    "jurisdiction",
+    "data_classification",
+    "retention_rule"
+  ]
+}
