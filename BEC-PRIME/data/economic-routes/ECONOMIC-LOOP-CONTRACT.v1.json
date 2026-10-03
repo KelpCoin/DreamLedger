@@ -1,0 +1,48 @@
+{
+  "schema_version": "DREAMLEDGER/ECONOMIC-LOOP/v1",
+  "name": "Reusable Monetized Economic Loop",
+  "contract": {
+    "demand_source": "canonical Gold signal",
+    "buyer_definition": "identifiable external buyer",
+    "proposition": "single bounded paid outcome",
+    "acquisition_channels": "adapter list with capability and authority constraints",
+    "transaction_rail": "configured payment or marketplace rail",
+    "fulfillment_method": "bounded delivery adapter",
+    "attribution_method": "immutable signal -> offer -> action -> transaction -> fulfillment chain",
+    "truth_requirements": [
+      "identifiable_external_buyer",
+      "settled_payment",
+      "correct_attribution",
+      "fulfillment",
+      "independent_proof"
+    ],
+    "unit_economics": "price - authorized variable cost - fulfillment cost",
+    "kill_conditions": "explicit measurable failure conditions",
+    "replication_rule": "one verified external economic event before cloning",
+    "commerce_cell_template": "offer + price + buyer + acquisition + payment + fulfillment + attribution + truth + kill + replication"
+  },
+  "cube_behavior": {
+    "input": "Gold signals plus existing proven commerce cells",
+    "output": [
+      "economic_loop",
+      "commerce_cell",
+      "silo_candidate"
+    ],
+    "silo_rule": "A silo is a presentation/distribution tenant of an economic loop, not the economic loop itself.",
+    "promotion_rule": "Do not treat exposure, clicks, rows, generated pages, or payment links as revenue.",
+    "authority_rule": "External effects remain approval-gated until a channel has an explicitly authorized machine-action policy."
+  },
+  "white_label": {
+    "tenant_isolation": [
+      "tenant_id",
+      "organization_id",
+      "silo_id"
+    ],
+    "shared_engine": true,
+    "shared_contract": true,
+    "separate_branding": true,
+    "separate_catalog": true,
+    "separate_domain_or_path": true,
+    "public_surface": "DreamLedger compiled surface first; domain-neutral renderer later"
+  }
+}

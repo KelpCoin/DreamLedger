@@ -1,0 +1,65 @@
+name: Bounded Builder
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 3 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bounded-builder
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate bounded proposal
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p BEC-PRIME/data/builder-proposals
+          python BEC-PRIME/economic_builder/bounded_builder.py > BEC-PRIME/data/builder-proposals/LATEST.json
+
+      - name: Enforce proposal-only paths
+        run: |
+          set -euo pipefail
+          changed=$(git status --short | awk '{print $2}')
+          for f in $changed; do
+            case "$f" in
+              BEC-PRIME/data/builder-proposals/*) ;;
+              *) echo "Blocked path mutation: $f"; exit 1 ;;
+            esac
+          done
+
+      - name: Open draft proposal PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "No new builder proposal."
+            exit 0
+          fi
+          branch="builder/proposal-${{ github.run_id }}"
+          git checkout -b "$branch"
+          git config user.name "DreamLedger Bounded Builder"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BEC-PRIME/data/builder-proposals/LATEST.json
+          git commit -m "chore: record bounded economic mutation proposal"
+          git push origin "$branch"
+          gh pr create --draft --base main --head "$branch"             --title "Bounded builder proposal ${{ github.run_id }}"             --body "Proposal-only mutation packet. No production code or external commerce action is changed."

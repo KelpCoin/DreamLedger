@@ -1,0 +1,185 @@
+{
+  "schema_version": "DREAMLEDGER/ECONOMIC-ROUTES/v1",
+  "objective": "Establish repeatable routes from observed demand or owned supply to a measurable external economic effect without fabricating revenue.",
+  "optimization_order": [
+    "FIRST_VERIFIED_DOLLAR",
+    "VERIFIED_RECURRING_REVENUE",
+    "AUTONOMOUS_ECONOMIC_LOOPS",
+    "LONG_TERM_ECONOMIC_VALUE"
+  ],
+  "route_contract": [
+    "signal",
+    "buyer",
+    "proposition",
+    "acquisition",
+    "transaction",
+    "fulfillment",
+    "attribution",
+    "truth",
+    "measurement",
+    "kill",
+    "replication"
+  ],
+  "authority": {
+    "ingest": "AUTONOMOUS",
+    "normalize": "AUTONOMOUS",
+    "analyze": "AUTONOMOUS",
+    "candidate_generation": "AUTONOMOUS",
+    "loop_compilation": "AUTONOMOUS",
+    "code_change_proposal": "AUTONOMOUS_BOUNDED",
+    "testing": "AUTONOMOUS",
+    "deployment": "AUTONOMOUS_AFTER_VERIFICATION",
+    "external_publication": "APPROVAL_REQUIRED",
+    "external_outreach": "APPROVAL_REQUIRED",
+    "spend": "APPROVAL_REQUIRED",
+    "charging": "APPROVAL_REQUIRED",
+    "legal_commitment": "APPROVAL_REQUIRED",
+    "revenue_claim": "TRUTH_ORACLE_ONLY"
+  },
+  "routes": [
+    {
+      "route_id": "ER-MTG-INVENTORY-001",
+      "name": "Owned MTG Inventory -> External Buyer",
+      "status": "READY_FOR_AUTHORIZED_ACQUISITION",
+      "silo": "HAPPYHOMARID",
+      "signal": {
+        "type": "SUPPLY_GAP",
+        "source": "OWNED_INVENTORY",
+        "evidence": "Existing physical Magic inventory with known candidate cards and prices."
+      },
+      "buyer": "NZ Magic: The Gathering buyer seeking a specific card",
+      "proposition": "One accurately described physical card with exact condition, edition and price.",
+      "acquisition": [
+        "TRADE_ME",
+        "FACEBOOK_MARKETPLACE",
+        "OTHER_NZ_CARD_MARKETPLACES"
+      ],
+      "transaction": "Channel-supported buyer payment",
+      "fulfillment": "NZ shipping or pickup using the authorized channel workflow",
+      "attribution": "Listing ID -> buyer/payment -> inventory item -> fulfillment proof",
+      "truth": "External buyer + settled payment + correct attribution + fulfillment + independent proof",
+      "measurement": [
+        "listing_published",
+        "buyer_contact",
+        "payment_settled",
+        "fulfillment_completed",
+        "verified_revenue_nzd"
+      ],
+      "kill": [
+        "no buyer signal",
+        "payment unavailable",
+        "condition mismatch",
+        "fulfillment failure",
+        "contradictory evidence"
+      ],
+      "replication": "Only after one independently verified sale, replicate the same listing mechanism to additional proven inventory."
+    },
+    {
+      "route_id": "ER-CMD-DIAG-001",
+      "name": "Known Pain -> CMD Diagnostic Purchase",
+      "status": "PAYMENT_RAIL_EXISTS_EXTERNAL_ACTION_UNPROVEN",
+      "silo": "DREAMLEDGER",
+      "signal": {
+        "type": "PAIN",
+        "source": "COMMERCIAL_SIGNAL_OR_BUYER_INTENT",
+        "evidence_required": "Named buyer problem matching the published diagnostic proposition."
+      },
+      "buyer": "Person or operator with the exact problem covered by CMD-DIAG",
+      "proposition": "CMD-DIAG-29 at NZ$29 with bounded deliverable and truth floor.",
+      "acquisition": [
+        "DREAMLEDGER_PUBLIC_SURFACE",
+        "AUTHORIZED_EXTERNAL_DISTRIBUTION"
+      ],
+      "transaction": "LIVE STRIPE PAYMENT LINK",
+      "fulfillment": "Existing CMD-DIAG fulfillment route",
+      "attribution": "Payment event -> offer SKU -> buyer/order -> fulfillment",
+      "truth": "Stripe livemode settled event plus fulfillment and independent proof",
+      "measurement": [
+        "checkout_reached",
+        "payment_started",
+        "payment_settled",
+        "fulfillment_completed",
+        "verified_revenue_nzd"
+      ],
+      "kill": [
+        "payment rail inactive",
+        "attribution missing",
+        "fulfillment unavailable",
+        "truth evidence incomplete"
+      ],
+      "replication": "Repeat only after a verified external purchase."
+    },
+    {
+      "route_id": "ER-N8N-MONITOR-001",
+      "name": "Observed Workflow Failure -> Monitoring Subscription",
+      "status": "STAGED_NOT_SENT",
+      "silo": "DREAMLEDGER",
+      "signal": {
+        "type": "FAILURE",
+        "source": "N8N_COMMUNITY",
+        "evidence": "Buyer-requested monitoring of three production workflows."
+      },
+      "buyer": "The named n8n workflow operator from the observed opportunity",
+      "proposition": "Daily monitoring of three production n8n workflows for one month with same-day notification of missed runs or zero-record movement.",
+      "price_nzd": 150,
+      "acquisition": [
+        "N8N_COMMUNITY_TOPIC_REPLY"
+      ],
+      "transaction": "Buyer-approved payment rail",
+      "fulfillment": "Monitor the specified three workflows and provide the promised notifications.",
+      "attribution": "Opportunity ID -> authorized response -> buyer -> payment -> fulfillment",
+      "truth": "Do not claim revenue until payment settles and fulfillment is evidenced.",
+      "measurement": [
+        "authorized_reply",
+        "buyer_response",
+        "payment_settled",
+        "monitoring_started",
+        "month_fulfilled"
+      ],
+      "kill": [
+        "no authorization",
+        "buyer declines",
+        "payment unavailable",
+        "workflow access unavailable",
+        "fulfillment cannot meet promise"
+      ],
+      "replication": "One paid fulfilled subscription must precede cloning the offer."
+    },
+    {
+      "route_id": "ER-SUBSTACK-ARBITRAGE-001",
+      "name": "Public Content Signal -> Digital Arbitrage Candidate",
+      "status": "SENSING_ENABLED_NOT_MONETIZED",
+      "silo": "TRUTH_ORACLE",
+      "signal": {
+        "type": "BUY_INTENT_OR_PRICE_GAP",
+        "source": "SUBSTACK_RSS"
+      },
+      "buyer": "To be discovered from promoted Gold signals",
+      "proposition": "Generated by Elohim only after a qualified signal exists.",
+      "acquisition": [
+        "CHANNEL_ADAPTER_SELECTED_BY_GAUNTLET"
+      ],
+      "transaction": "Approved commerce rail",
+      "fulfillment": "Bounded digital deliverable or verified arbitrage result",
+      "attribution": "Signal -> proposition -> acquisition -> transaction -> fulfillment",
+      "truth": "Same five-part economic truth contract",
+      "measurement": [
+        "signal_promoted",
+        "candidate_created",
+        "gauntlet_passed",
+        "external_effect",
+        "settled_payment"
+      ],
+      "kill": [
+        "signal weakens",
+        "buyer cannot be identified",
+        "unit economics fail",
+        "proof unavailable"
+      ],
+      "replication": "Replicate only demonstrated proposition and unit economics."
+    }
+  ],
+  "loop_model": "SIGNAL -> GORMLET -> GOLD -> ELOHIM -> GAUNTLET -> CUBE -> COMMERCE_CELL -> ACQUISITION -> TRANSACTION -> FULFILLMENT -> TRUTH -> LEARNING -> NEXT_SIGNAL",
+  "first_external_effect_rule": "A prepared packet is not an economic effect. Publication, buyer action and settled payment are external events.",
+  "pc_dependency": "NONE_FOR_CLOUD_PIPELINE"
+}

@@ -1,0 +1,115 @@
+{
+  "schema_version": "DREAMLEDGER/SIGNAL-LAKE/v1",
+  "purpose": "Canonical economic sensing spine: Bronze raw observations -> Silver normalized signals -> Gold promoted economic signals.",
+  "authoritative_state": "SUPABASE_POSTGRES",
+  "local_replica": "DUCKDB_PARQUET_WHEN_PC_AVAILABLE",
+  "raw_retention": "PERMANENT_IMMUTABLE",
+  "layers": {
+    "bronze": {
+      "write_policy": "APPEND_ONLY",
+      "purpose": "Preserve source payload exactly as received with provenance and content hash.",
+      "required_fields": [
+        "source",
+        "source_item_id",
+        "source_url",
+        "observed_at",
+        "published_at",
+        "raw_content",
+        "raw_metadata",
+        "content_hash",
+        "source_type",
+        "provenance"
+      ]
+    },
+    "silver": {
+      "processor": "GORMLET",
+      "purpose": "Deterministic cleansing, deduplication, normalization and conservative LLM-assisted ambiguity resolution.",
+      "required_fields": [
+        "source",
+        "source_item_id",
+        "source_url",
+        "observed_at",
+        "published_at",
+        "author",
+        "raw_content",
+        "raw_metadata",
+        "content_hash",
+        "source_type",
+        "language",
+        "topic",
+        "entities",
+        "intent_signals",
+        "demand_signals",
+        "commercial_signals",
+        "confidence",
+        "dedupe_group",
+        "processing_state",
+        "provenance"
+      ],
+      "rules": {
+        "dedupe": "content_hash + source_item_id + conservative record linkage",
+        "currency": "canonical NZD plus original currency",
+        "time": "UTC internally",
+        "merge": "never merge conflicting observations without provenance",
+        "llm": "ambiguity resolver only; deterministic rules remain authoritative"
+      }
+    },
+    "gold": {
+      "consumer": [
+        "CUBE",
+        "ELOHIM",
+        "TRUTH_ORACLE",
+        "DIGITAL_ARBITRAGE"
+      ],
+      "purpose": "Promoted, scored and linked signals suitable for economic-loop formation.",
+      "signal_types": [
+        "DEMAND",
+        "BUY_INTENT",
+        "PRICE_GAP",
+        "SUPPLY_GAP",
+        "PAIN",
+        "COMPETITOR",
+        "TREND",
+        "QUESTION",
+        "TRANSACTION",
+        "FAILURE"
+      ],
+      "promotion_rule": "Evidence-backed signal with provenance, confidence and commercial relevance; no promotion creates a revenue claim."
+    }
+  },
+  "initial_sources": {
+    "production": [
+      {
+        "source": "SUBSTACK_RSS",
+        "status": "ENABLED",
+        "credentials_required": false
+      }
+    ],
+    "designed_not_deployed": [
+      {
+        "source": "REDDIT",
+        "status": "DEFERRED",
+        "reason": "Commercial use requires an appropriate agreement; do not make Reddit a production dependency."
+      }
+    ]
+  },
+  "economic_truth": {
+    "revenue_requires": [
+      "identifiable_external_buyer",
+      "settled_payment",
+      "correct_attribution",
+      "fulfillment",
+      "independent_proof"
+    ],
+    "truth_statuses": [
+      "VERIFIED",
+      "UNVERIFIED",
+      "CONTRADICTED",
+      "STALE",
+      "TEST",
+      "SIMULATED",
+      "INTERNAL",
+      "UNMATCHED"
+    ]
+  }
+}
