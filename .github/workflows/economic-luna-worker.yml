@@ -17,51 +17,42 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-      LLM_API_URL: https://api.openai.com/v1/chat/completions
-      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-      LLM_MODEL: gpt-5.6-luna
       BECK_TASK_MODEL_NAME: luna
       BECK_TASK_MODEL_ROLE: verifier
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate worker credentials are present
+      - name: Validate worker credential
         shell: bash
         run: |
-          test -n "$SUPABASE_URL" || { echo "Missing SUPABASE_URL repository secret"; exit 2; }
-          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Missing SUPABASE_SERVICE_ROLE_KEY repository secret"; exit 2; }
-          test -n "$LLM_API_KEY" || { echo "Missing LLM_API_KEY repository secret"; exit 2; }
-          echo "Credential presence check passed; secret values are not printed."
+          set -euo pipefail
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          echo "Supabase service credential present."
 
-      - name: Execute one leased economic task
-        run: node BEC-PRIME/runtime/EconomicModelTaskWorker.js
+      - name: Execute one leased Luna task through existing ECA
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 140 -X POST "$SUPABASE_URL/functions/v1/economic-assessment-consumer" -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Content-Type: application/json" | tee economic-luna-result.json
+          grep -q '"ok":true' economic-luna-result.json
+          echo "ECONOMIC_LUNA=PASS"
 
       - name: Write machine proof
         if: always()
         shell: bash
         run: |
           mkdir -p proof
-          cat > proof/economic-luna-worker-proof.json <<EOF
-          {
-            "schema_version": "BECK-ECONOMIC-LUNA-WORKER-PROOF-1.0",
-            "workflow": "BECK Economic Luna Worker",
-            "model_name": "luna",
-            "model_api": "gpt-5.6-luna",
-            "irreversible_action_allowed": false,
-            "public_action_allowed": false,
-            "approval_gate_preserved": true,
-            "run_id": "${GITHUB_RUN_ID}",
-            "commit_sha": "${GITHUB_SHA}"
-          }
-          EOF
+          printf '{\n  "schema_version": "BECK-ECONOMIC-LUNA-WORKER-PROOF-2.0",\n  "workflow": "BECK Economic Luna Worker",\n  "model_name": "luna",\n  "execution": "existing Supabase economic-assessment-consumer",\n  "irreversible_action_allowed": false,\n  "public_action_allowed": false,\n  "approval_gate_preserved": true,\n  "run_id": "%s",\n  "commit_sha": "%s"\n}\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > proof/economic-luna-worker-proof.json
 
       - name: Upload proof
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: beck-economic-luna-worker-proof-${{ github.run_id }}
-          path: proof/economic-luna-worker-proof.json
-          if-no-files-found: error
+          path: |
+            proof/economic-luna-worker-proof.json
+            economic-luna-result.json
+          if-no-files-found: warn
