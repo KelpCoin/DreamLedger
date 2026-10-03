@@ -6,6 +6,8 @@ const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('
 const auth=require('../BEC-PRIME/routes/auth');
 const mtgMarketplace=require('../BEC-PRIME/routes/mtgMarketplace');
 const dreamiez=require('../BEC-PRIME/routes/dreamiez');
+const marketplaceForward=require('../BEC-PRIME/routes/marketplaceForward');
+const marketplaceForwardWebhook=require('../BEC-PRIME/routes/marketplaceForwardWebhook');
 const agentBridge=require('../BEC-PRIME/runtime/AgentBridge');
 const cubeChatSignal=require('../BEC-PRIME/routes/cubeChatSignal');
 const bridgeRail=require('../BEC-PRIME/runtime/BridgeRail');
@@ -96,6 +98,8 @@ if(req.method==='GET'){const cubeMatch=p.match(/^\/cube\/auto\/(\d{4,12})$/);con
 if(req.method==='GET'&&p==='/healthz'){const products=loadPublicCatalog().products;const cmd=products.find(x=>x.id==='COMMANDER-DECK-DIAGNOSTIC-001');const checks={catalog_loaded:products.length>0,cmd_diag_published:Boolean(cmd&&cmd.checkout_available!==false&&cmd.checkout_url),cmd_diag_price:Boolean(cmd&&Number(cmd.price)===29&&String(cmd.currency||'').toLowerCase()==='nzd')};const ok=Object.values(checks).every(Boolean);return send(res,ok?200:503,JSON.stringify({ok,service:'dreamledger-storefront',checks,commit:COMMIT}),'application/json; charset=utf-8');}
 if(req.method==='GET'&&p==='/diagnostic-input.html')return serveFile(res,'diagnostic-input.html');
 if(req.method==='GET'&&p==='/api/c2/status'){const urlKeys=['BEC_C2_LM_URL','BEC_CLOUD_LM_URL','REFINERY_BASE_URL','OPENAI_BASE_URL'];const modelKeys=['BEC_C2_MODELS','BEC_CLOUD_LM_MODEL','REFINERY_MODEL','OPENAI_MODEL'];const keyKeys=['BEC_C2_LM_API_KEY','BEC_CLOUD_LM_API_KEY','BEC_REMOTE_LM_API_KEY','REFINERY_API_KEY','OPENAI_API_KEY'];return send(res,200,JSON.stringify({service:'c2',hosted_url_configured:urlKeys.some(k=>Boolean(process.env[k])),url_keys:urlKeys.map(k=>({key:k,set:Boolean(process.env[k])})),model_configured:modelKeys.some(k=>Boolean(process.env[k])),model_keys:modelKeys.map(k=>({key:k,set:Boolean(process.env[k])})),api_key_configured:keyKeys.some(k=>Boolean(process.env[k]))}),'application/json; charset=utf-8')}
+if(p==='/api/marketplace/v2/webhook'){try{const handled=await marketplaceForwardWebhook.handle(req,res);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Marketplace webhook failed'}),'application/json; charset=utf-8')}}
+if(p.startsWith('/api/marketplace/v2/')){try{const handled=await marketplaceForward.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Marketplace forward route failed'}),'application/json; charset=utf-8')}}
 if(p.startsWith('/api/toll/v1')){try{const handled=await tollRoad.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Toll road route failed'}),'application/json; charset=utf-8')}}
 if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){try{const handled=await commercialCell.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Commercial route failed'}),'application/json; charset=utf-8')}}
 if(p.startsWith('/api/truth-oracle')){try{const handled=await truthOracleCommerce.handle(req,res,p);if(handled)return;}catch(e){return send(res,e.statusCode||500,JSON.stringify({error:e&&e.message?e.message:'Evidence route failed'}),'application/json; charset=utf-8')}}
