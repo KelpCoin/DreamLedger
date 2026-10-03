@@ -26,3 +26,5 @@ jobs:
       - run: node --check BEC-PRIME/routes/marketplaceForward.js
       - run: node --check BEC-PRIME/routes/marketplaceForwardWebhook.js
       - run: node --check public/server.js
+      - run: node --test BEC-PRIME/runtime/TollRoad.test.js
+      - run: node -e "const p=require('./BEC-PRIME/lib/marketplacePolicy'); if(p.calculateMarketplaceFee('external-seller','MARKETPLACE',100).fee_amount!==0) process.exit(1)"
