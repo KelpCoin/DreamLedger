@@ -1,0 +1,2 @@
+import {writeFileSync} from "node:fs";import {generateKeyPair,exportPublicB64,exportPrivateB64} from "./evidence.mjs";
+const out=process.argv[2]||"./attest_private.key.txt";const kp=await generateKeyPair();writeFileSync(out,await exportPrivateB64(kp.privateKey),{mode:0o600});console.log("PUBLIC_KEY_B64="+await exportPublicB64(kp.publicKey));console.log("PRIVATE_KEY_FILE="+out+" (secret: never commit, never paste into chat or a model prompt; delete after storing it as a secret)")
