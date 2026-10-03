@@ -1,0 +1,357 @@
+{
+  "schema": "dreamledger/economic-surface-factory/v1",
+  "purpose": "Correlating box for traversing existing demand, substrate, offers, lanes, and commerce rails without creating duplicate silos or queues.",
+  "authority": "candidate_inventory_only",
+  "revenue_truth": "external_settlement_plus_attributed_checkout_plus_fulfillment_plus_independent_proof",
+  "selection_order": [
+    "EXISTING_SILO",
+    "EXISTING_CUBE_CELL",
+    "EXISTING_LANE_MANIFEST",
+    "EXISTING_FACTORYFACTORY_GAUNTLET",
+    "NEW_SILO_OR_CELL_ONLY_IF_NO_COMPATIBLE_HOME"
+  ],
+  "admission_required": [
+    "external_demand_evidence",
+    "buyer_intent_evidence",
+    "bounded_transformation",
+    "existing_or_authorized_commerce_path",
+    "economic_envelope"
+  ],
+  "existing_lanes": [
+    [
+      "LANE-DL-001",
+      "agentic_commerce",
+      "AGENTIC_COMMERCE_READINESS_AUDIT",
+      29,
+      "LIVE RAIL"
+    ],
+    [
+      "LANE-DL-002",
+      "agentic_commerce",
+      "AI_COMMERCE_REMEDIATION_BLUEPRINT",
+      149,
+      "CANDIDATE"
+    ],
+    [
+      "TRUTH-ORACLE-DISTRIBUTION-001",
+      "truth_oracle",
+      "TRUTH_ORACLE_DISTRIBUTION",
+      0,
+      "CANDIDATE"
+    ],
+    [
+      "PHYSICAL-HAND-001",
+      "mtg_physical",
+      "MTG_EXTERNAL_LISTING_FULFILLMENT",
+      0,
+      "CANDIDATE"
+    ],
+    [
+      "LANE-DL-004",
+      "agentic_commerce",
+      "AI_COMMERCE_PRODUCTIZED_BUILD",
+      2500,
+      "CANDIDATE"
+    ],
+    [
+      "LANE-MTG-001",
+      "commander_diagnostic",
+      "COMMANDER_DIAGNOSTIC_29",
+      29,
+      "ARMED"
+    ],
+    [
+      "LANE-DL-003",
+      "agentic_commerce",
+      "AI_COMMERCE_IMPLEMENTATION_STARTER",
+      499,
+      "CANDIDATE"
+    ]
+  ],
+  "existing_transformations": [
+    [
+      "DOCUMENT_TO_DECISION",
+      [
+        "quote_compare",
+        "doc_extract"
+      ]
+    ],
+    [
+      "QUOTE_AND_INVOICE_COMPARISON",
+      [
+        "invoice_vs_quote"
+      ]
+    ],
+    [
+      "PUBLIC_RECORD_TO_REPORT",
+      [
+        "acnc_due_diligence",
+        "truth_oracle"
+      ]
+    ],
+    [
+      "SELLER_EXPORT_TO_PROFIT",
+      [
+        "seller_profit_audit"
+      ]
+    ],
+    [
+      "CLAIM_TO_EVIDENCE_REVIEW",
+      [
+        "commercial_truth",
+        "evidence_packet"
+      ]
+    ],
+    [
+      "INVENTORY_TO_CHECKOUT",
+      [
+        "mtg_physical",
+        "commander_diagnostic",
+        "billboard"
+      ]
+    ],
+    [
+      "DATA_TO_PAY_PER_USE_API",
+      [
+        "toll_road",
+        "truth_oracle"
+      ]
+    ]
+  ],
+  "opportunity_families": [
+    [
+      "OPP-PET-001",
+      "pet_care",
+      "SEARCH_ONLY",
+      19,
+      "pet_care_kit"
+    ],
+    [
+      "OPP-FIT-001",
+      "fitness_wellness",
+      "SEARCH_ONLY",
+      19,
+      "fitness_wellness_kit"
+    ],
+    [
+      "OPP-CREATOR-001",
+      "creator",
+      "SEARCH_ONLY",
+      29,
+      "creator_kit"
+    ],
+    [
+      "ECO-B2B-AUDIT-001",
+      "agentic_commerce",
+      "EXISTING_LANE",
+      49,
+      "LANE-DL-001"
+    ],
+    [
+      "OPP-CAREER-001",
+      "career",
+      "SEARCH_ONLY",
+      29,
+      "career_kit"
+    ],
+    [
+      "OPP-EDUSTUDY-001",
+      "education",
+      "SEARCH_ONLY",
+      29,
+      "education_kit"
+    ],
+    [
+      "ECO-MUSIC-001",
+      "media_music",
+      "RECEIVER_REQUIRED",
+      0,
+      "existing_marketplace_rail"
+    ],
+    [
+      "BILLBOARD-FIRST-SALE-001",
+      "billboard",
+      "EXISTING_LANE",
+      29,
+      "billboard"
+    ],
+    [
+      "OPP-FINANCE-001",
+      "finance_templates",
+      "SEARCH_ONLY",
+      29,
+      "finance_kit"
+    ],
+    [
+      "OPP-DIGBOOK-001",
+      "digital_products",
+      "SEARCH_ONLY",
+      19,
+      "digital_planner"
+    ],
+    [
+      "ECO-MTG-EDH0001",
+      "mtg",
+      "EXISTING_INVENTORY",
+      400,
+      "EDH_0001"
+    ],
+    [
+      "OPP-HOME-001",
+      "home_diy",
+      "SEARCH_ONLY",
+      19,
+      "home_planner"
+    ],
+    [
+      "ECO-SECONDHAND-001",
+      "nz_secondhand",
+      "RECEIVER_REQUIRED",
+      0,
+      "existing_marketplace_rail"
+    ],
+    [
+      "ECO-DIG-CDD-001",
+      "commander_diagnostic",
+      "EXISTING_LANE",
+      29,
+      "COMMANDER_DIAGNOSTIC_29"
+    ],
+    [
+      "OPP-EVENTS-001",
+      "events_wedding",
+      "SEARCH_ONLY",
+      39,
+      "event_kit"
+    ],
+    [
+      "ECO-DMZ-STREAK-001",
+      "dreammeez",
+      "RETENTION_EXPERIMENT",
+      0,
+      "existing_dreammeez"
+    ],
+    [
+      "CUBE-QUEUE-20260916-001",
+      "billboard",
+      "EXISTING_LANE",
+      50,
+      "DL-BILLBOARD-100X100-3000-001"
+    ],
+    [
+      "OPP-SMB-001",
+      "small_business_ops",
+      "SEARCH_ONLY",
+      49,
+      "smb_ops_kit"
+    ],
+    [
+      "CUBE-500-PUBLIC-MONETIZATION-001",
+      "cross_surface",
+      "EXISTING_OFFERS",
+      29,
+      "existing_live_offers"
+    ]
+  ],
+  "routing_rules": [
+    {
+      "match": [
+        "document_compare",
+        "quote_normalization",
+        "price_comparison"
+      ],
+      "home": "quote_compare"
+    },
+    {
+      "match": [
+        "invoice_reconciliation",
+        "procurement_exception_detection"
+      ],
+      "home": "invoice_vs_quote"
+    },
+    {
+      "match": [
+        "public_record",
+        "evidence_verification",
+        "freshness_check"
+      ],
+      "home": "truth_oracle"
+    },
+    {
+      "match": [
+        "ai_commerce_readiness",
+        "catalogue_normalization",
+        "commerce_remediation"
+      ],
+      "home": "agentic_commerce"
+    },
+    {
+      "match": [
+        "seller_profit",
+        "margin_reconciliation",
+        "channel_comparison"
+      ],
+      "home": "seller_profit_audit"
+    },
+    {
+      "match": [
+        "inventory_listing",
+        "physical_fulfillment",
+        "mtg_inventory"
+      ],
+      "home": "mtg_physical"
+    },
+    {
+      "match": [
+        "deck_diagnostic",
+        "commander_power_budget"
+      ],
+      "home": "commander_diagnostic"
+    },
+    {
+      "match": [
+        "billboard_inventory",
+        "finite_slot_sale"
+      ],
+      "home": "billboard"
+    },
+    {
+      "match": [
+        "pay_per_use",
+        "entitlement",
+        "bounded_api"
+      ],
+      "home": "toll_road"
+    }
+  ],
+  "build_policy": {
+    "UNPROVEN": "SEARCH_OR_DEFER",
+    "QUALIFIED": "CORRELATE_TO_EXISTING_HOME",
+    "BUILD_READY": "USE_EXISTING_WORKER_OR_MANIFEST",
+    "NEW_HOME": "ONLY_WHEN_NO_COMPATIBLE_EXISTING_HOME",
+    "PROMOTION": "PAID_FULFILLED_PROVEN"
+  },
+  "lineage": [
+    "signal_id",
+    "opportunity_id",
+    "silo_id",
+    "cell_id",
+    "lane_id",
+    "manifest_id",
+    "build_job_id",
+    "artifact_hash",
+    "gauntlet_result",
+    "exposure_id",
+    "transaction_id",
+    "fulfillment_id",
+    "proof_id"
+  ],
+  "constraints": [
+    "no_new_queue",
+    "no_new_orchestrator",
+    "no_new_database",
+    "no_stripe_mutation",
+    "no_external_action_without_authorization",
+    "no_revenue_claim_from_internal_activity"
+  ]
+}
