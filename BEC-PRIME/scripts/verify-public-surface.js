@@ -8,8 +8,7 @@ const required=['index.html','login.html','register.html','account.html','.well-
 // Three-level surface taxonomy. Internal terminology is diagnostic only; secrets are fatal.
 const confidential=[
   /sk_live_[A-Za-z0-9]+/i,/sk_test_[A-Za-z0-9]+/i,/whsec_[A-Za-z0-9]+/i,
-  /SUPABASE_SERVICE_ROLE_KEY/i,/STRIPE_SECRET_KEY/i,/STRIPE_WEBHOOK_SECRET/i,
-  /DIGITAL_PROXY_APPROVAL_TOKEN/i,/BEGIN .*PRIVATE KEY/i
+  /BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY/i
 ];
 const internal=[
   /api\/ip/i,/api\/control/i,/\/var\/data\//i,/LEDGER_DATA_DIR/i,/PROOF_DATA_DIR/i,
