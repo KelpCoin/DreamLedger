@@ -1,0 +1,65 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_doc_extract_50",
+  "substrate_type": "business_documents",
+  "substrate_requirements": {
+    "required_fields": [
+      "1_to_10_source_documents",
+      "declared_extraction_objective"
+    ],
+    "minimum_sample": 1
+  },
+  "demand_family": "structured_document_data",
+  "transformation": {
+    "name": "DOCUMENT_EXTRACT",
+    "worker": "DOC-EXTRACT-50",
+    "steps": [
+      "hash_source",
+      "classify_document",
+      "extract_text",
+      "reconstruct_tables_when_possible",
+      "extract_requested_fields",
+      "map_source_references",
+      "detect_missing_fields",
+      "preserve_unknowns",
+      "validate_against_source",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "structured_extraction_package",
+    "contains": [
+      "structured_json_or_csv",
+      "extracted_fields",
+      "source_references",
+      "missing_fields",
+      "ambiguous_fields",
+      "extraction_trace",
+      "source_hash"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 50,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_WORKER:DOC-EXTRACT-50",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "cannot be bounded by a declared extraction objective",
+    "source is unreadable or materially incomplete",
+    "requested fields cannot be validated against source",
+    "cannot preserve unknowns",
+    "cannot emit evidence-backed structured output",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
