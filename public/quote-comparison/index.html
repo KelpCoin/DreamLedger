@@ -1,1 +1,59 @@
-<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Supplier Quote Comparison | DreamLedger</title><meta name="description" content="Automated supplier quote comparison for 2–5 quotes. Normalize pricing, MOQ, lead time and payment terms into an evidence-backed decision packet."><link rel="canonical" href="https://dreamledger.org/quote-comparison/"><style>body{margin:0;background:#090909;color:#eee;font:16px/1.55 system-ui,sans-serif}main{max-width:900px;margin:auto;padding:48px 20px 90px}.k{color:#d5b45c;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}h1{font-size:48px;line-height:1.05}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{border:1px solid #333;background:#111;padding:18px}a{color:#d5b45c}.price{font-size:30px;font-weight:900;color:#d5b45c}</style></head><body><main><div class="k">DreamLedger · Automated procurement</div><h1>Supplier Quote Comparison</h1><p>Turn 2–5 supplier quotations into one normalized, evidence-backed decision packet. The service is designed for buyers who already have quotes and need the differences made explicit.</p><div class="card"><div class="price">NZ$49 one-time</div><p>Paid checkout → secure intake → extraction → normalization → comparison → evidence packet → digital delivery.</p><p><a href="https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32?utm_source=organic&utm_medium=search&utm_campaign=quote_comparison&utm_content=core">Start the service</a></p></div><h2>Use-case entry points</h2><div class="grid"><div class="card"><a href="/quote-comparison/construction">Construction Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/manufacturing">Manufacturing Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/lighting">Lighting Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/electrical">Electrical Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/import">Import Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/hospitality">Hospitality Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/packaging">Packaging Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/ecommerce">E-commerce Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/wholesale">Wholesale Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/operations">Operations Procurement Quote Comparison</a></div></div></main></body></html>
+<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Supplier Quote Comparison | DreamLedger</title><meta name="description" content="Automated supplier quote comparison for 2–5 quotes. Normalize pricing, MOQ, lead time and payment terms into an evidence-backed decision packet."><link rel="canonical" href="https://dreamledger.org/quote-comparison/"><style>body{margin:0;background:#090909;color:#eee;font:16px/1.55 system-ui,sans-serif}main{max-width:900px;margin:auto;padding:48px 20px 90px}.k{color:#d5b45c;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}h1{font-size:48px;line-height:1.05}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{border:1px solid #333;background:#111;padding:18px}a{color:#d5b45c}.price{font-size:30px;font-weight:900;color:#d5b45c}</style></head><body><main><div class="k">DreamLedger · Automated procurement</div><h1>Supplier Quote Comparison</h1><p>Turn 2–5 supplier quotations into one normalized, evidence-backed decision packet. The service is designed for buyers who already have quotes and need the differences made explicit.</p><div class="card"><div class="price">NZ$49 one-time</div><p>Paid checkout → secure intake → extraction → normalization → comparison → evidence packet → digital delivery.</p><p><a href="https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32?utm_source=organic&utm_medium=search&utm_campaign=quote_comparison&utm_content=core">Start the service</a></p></div><h2>Use-case entry points</h2><div class="grid"><div class="card"><a href="/quote-comparison/construction">Construction Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/manufacturing">Manufacturing Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/lighting">Lighting Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/electrical">Electrical Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/import">Import Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/hospitality">Hospitality Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/packaging">Packaging Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/ecommerce">E-commerce Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/wholesale">Wholesale Supplier Quote Comparison</a></div><div class="card"><a href="/quote-comparison/operations">Operations Procurement Quote Comparison</a></div><section class="card" style="margin-top:18px">
+<h2>Already paid? Open your service wall</h2>
+<p>Enter the Stripe checkout session from your receipt, then submit 2-5 supplier quotes and your comparison requirements. Payment is re-verified server-side before any upload or fulfillment begins.</p>
+<label for="qc-session">Stripe checkout session ID</label>
+<input id="qc-session" placeholder="cs_live_..." autocomplete="off" style="box-sizing:border-box;width:100%;padding:10px;background:#0b0b0b;color:#eee;border:1px solid #444;border-radius:8px">
+<label for="qc-requirements" style="display:block;margin-top:12px">Purchase requirements or scope</label>
+<textarea id="qc-requirements" maxlength="12000" style="box-sizing:border-box;width:100%;min-height:110px;padding:10px;background:#0b0b0b;color:#eee;border:1px solid #444;border-radius:8px"></textarea>
+<label for="qc-files" style="display:block;margin-top:12px">Supplier quotes, 2-5 files, max 10 MB each</label>
+<input id="qc-files" type="file" multiple accept=".pdf,.csv,.json,.md">
+<button id="qc-submit" type="button" style="margin-top:14px;padding:11px 16px;background:#d5b45c;color:#090909;border:0;border-radius:8px;font-weight:800">Open service wall</button>
+<pre id="qc-status" style="white-space:pre-wrap;color:#aaa"></pre>
+</section>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search);
+  var sid=q.get('session_id')||q.get('sessionId')||'';
+  var s=document.getElementById('qc-session'), r=document.getElementById('qc-requirements');
+  var fs=document.getElementById('qc-files'), b=document.getElementById('qc-submit'), out=document.getElementById('qc-status');
+  if(sid)s.value=sid;
+  var base='https://wbwgroygjeyukkspnqiy.supabase.co';
+  var fn=base+'/functions/v1/quote-intake';
+  var key='sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
+  async function api(body){
+    var x=await fetch(fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':key},body:JSON.stringify(body)});
+    var d=await x.json().catch(function(){return{}});
+    if(!x.ok)throw new Error(d.error||('Request failed ('+x.status+')')); return d;
+  }
+  async function hash(file){
+    var d=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());
+    return Array.from(new Uint8Array(d)).map(function(v){return v.toString(16).padStart(2,'0')}).join('');
+  }
+  async function upload(u,file){
+    var x=await fetch(base+'/storage/v1/object/upload/sign/'+encodeURIComponent(u.path)+'?token='+encodeURIComponent(u.token),{method:'PUT',headers:{'Content-Type':file.type||'application/octet-stream'},body:file});
+    if(!x.ok)throw new Error('Upload failed: '+file.name);
+  }
+  b.onclick=async function(){
+    b.disabled=true;
+    try{
+      var session=s.value.trim(), req=r.value.trim(), files=Array.from(fs.files||[]);
+      if(!/^cs_[A-Za-z0-9_]+$/.test(session))throw new Error('Valid Stripe checkout session ID required.');
+      if(!req)throw new Error('Purchase requirements or scope required.');
+      if(files.length<2||files.length>5)throw new Error('Submit 2-5 supplier quotes.');
+      if(files.some(function(f){return f.size<=0||f.size>10*1024*1024}))throw new Error('Each file must be between 1 byte and 10 MB.');
+      out.textContent='Verifying payment and opening the service wall...';
+      var init=await api({action:'initialize',session_id:session,files:files.map(function(f){return{name:f.name}})});
+      var prepared=[];
+      for(var i=0;i<files.length;i++){await upload(init.uploads[i],files[i]);prepared.push({path:init.uploads[i].path,name:files[i].name,size:files[i].size,sha256:await hash(files[i])});}
+      out.textContent='Running automatic comparison...';
+      var done=await api({action:'finalize',session_id:session,requirements:req,files:prepared});
+      if(done.status==='fulfilled'){
+        var result=await api({action:'status',session_id:session});
+        out.textContent=result.download_url?'Comparison complete. Opening delivery...':'Comparison fulfilled. Delivery URL not yet available.';
+        if(result.download_url)window.location.href=result.download_url;
+      }else out.textContent='Accepted. Fulfillment state: '+String(done.status||'queued')+'.';
+    }catch(e){out.textContent=e&&e.message?e.message:String(e)}
+    finally{b.disabled=false}
+  };
+})();
+</script></div></main></body></html>
