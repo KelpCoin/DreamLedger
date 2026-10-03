@@ -1,0 +1,69 @@
+{
+  "schema": "dreamledger/cube/lane-manifest/v1",
+  "schema_version": 1,
+  "candidate_id": "cand_po_extract_29",
+  "substrate_type": "purchase_orders",
+  "substrate_requirements": {
+    "required_fields": [
+      "1_to_10_purchase_order_documents",
+      "declared_extraction_fields"
+    ],
+    "minimum_sample": 1
+  },
+  "demand_family": "structured_document_data",
+  "transformation": {
+    "name": "PO_EXTRACTION",
+    "worker": "EXISTING_WORKER:DOC-EXTRACT-50",
+    "steps": [
+      "hash_source",
+      "classify_purchase_order",
+      "extract_text",
+      "reconstruct_tables_when_possible",
+      "extract_item_codes_descriptions_quantities_prices_terms",
+      "map_source_references",
+      "detect_missing_fields",
+      "preserve_unknowns",
+      "validate_against_source",
+      "emit_evidence_packet"
+    ]
+  },
+  "buyer_output": {
+    "format": "structured_po_package",
+    "contains": [
+      "po_number",
+      "supplier",
+      "line_items",
+      "quantities",
+      "unit_prices",
+      "requested_dates",
+      "payment_terms",
+      "source_references",
+      "missing_fields",
+      "ambiguous_fields",
+      "source_hash"
+    ]
+  },
+  "commercial_boundary": {
+    "price_nzd": 29,
+    "unit": "one_run"
+  },
+  "commerce_path": {
+    "checkout": "NEW_STRIPE_BOUNDARY_REQUIRES_HUMAN_GATE",
+    "fulfillment": "EXISTING_WORKER:DOC-EXTRACT-50",
+    "proof": "EXISTING_PROOF_SPINE"
+  },
+  "experiment": {
+    "status": "CANDIDATE",
+    "success_signal": "external_settled_payment",
+    "promotion_rule": "paid_verified_then_clone"
+  },
+  "kill_criteria": [
+    "cannot extract bounded purchase-order fields",
+    "source is unreadable or materially incomplete",
+    "requested fields cannot be validated against source",
+    "cannot preserve unknowns",
+    "cannot emit evidence-backed structured output",
+    "N qualified exposures -> zero checkout intent",
+    "paid trials -> zero verified outcomes"
+  ]
+}
