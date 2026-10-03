@@ -1,5 +1,6 @@
 'use strict';
 // Production convergence marker: 2026-09-28 Worlds-ROUTE-EXPANSION-v1.
+// Marketplace control-plane convergence: reservation + offers + shipping + delivery + disputes + agent capability contract.
 // Worlds surface registry: many commercial surfaces, one commerce/proof spine.
 const crypto=require('crypto');
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
