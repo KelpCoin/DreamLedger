@@ -79,7 +79,6 @@ function moneyRoute(id){
 function serviceTargets(route){
   const routeId=encodeURIComponent(route.id);
   const procurementAudience=['SME','PROC','TRADE','PRO'].includes(route.audience);
-  const collectorAudience=['COLLECTOR','CLUB'].includes(route.audience);
   const targets=[];
 
   if (procurementAudience) {
@@ -91,14 +90,6 @@ function serviceTargets(route){
     });
   }
 
-  if (collectorAudience) {
-    targets.push({
-      label:'Commander Deck Diagnostic',
-      price:'NZ$29 one-time',
-      href:'https://dreamledger.org/mtg/commander-deck-diagnostic?route_id='+routeId,
-      description:'Use the existing paid Commander diagnostic workflow for a submitted decklist.'
-    });
-  }
 
   targets.push({
     label:'Truth Oracle',
