@@ -1,19 +1,49 @@
 {
-  "schema":"dreamledger/ai-catalog/v1",
-  "name":"DreamLedger",
-  "url":"https://dreamledger.org/",
-  "seller":"DreamLedger",
-  "currency":"NZD",
-  "discovery":{
-    "agent_manifest":"https://dreamledger.org/.well-known/dreamledger.json",
-    "agent_commerce":"https://dreamledger.org/agent-commerce.json",
-    "offers":"https://dreamledger.org/api/offers",
-    "products":"https://dreamledger.org/api/products",
-    "product_feed":"https://dreamledger.org/agent-products.json",
-    "commerce_context":"https://dreamledger.org/commerce.txt",
-    "llms":"https://dreamledger.org/llms.txt"
+  "schema": "dreamledger/agent-commerce/v6",
+  "name": "DreamLedger",
+  "url": "https://dreamledger.org/",
+  "seller": "DreamLedger",
+  "currency": "NZD",
+  "discovery": {
+    "ai_catalog": "https://dreamledger.org/ai-catalog.json",
+    "agent_products": "https://dreamledger.org/agent-products.json",
+    "llms": "https://dreamledger.org/llms.txt"
   },
-  "commerce":{"agentic_commerce":true,"human_authorization_required":true,"autonomous_spend":false,"payment":"Stripe Checkout","purchase_router":"https://dreamledger.org/buy/{product_id}"},
-  "priority_offer":{"id":"QUOTE-COMPARE-49","title":"Supplier Quote Comparison","description":"One-time comparison of 2-5 supplier quotes into a source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.","url":"https://dreamledger.org/quote-comparison/","price":49,"currency":"NZD","availability":"in_stock","required_input":"2-5 supplier quotes plus purchase requirements or scope","checkout":"https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"},
-  "trust":{"unknown_data_preserved":true,"fabricated_evidence":false,"checkout_is_revenue":false,"revenue_requires_settlement_and_fulfillment_proof":true}
+  "commerce": {
+    "agentic_commerce": true,
+    "human_authorization_required": true,
+    "autonomous_spend": false,
+    "payment": "Stripe Checkout",
+    "purchase_router": "https://dreamledger.org/buy/{product_id}"
+  },
+  "priority_offer": {
+    "id": "QUOTE-COMPARE-49",
+    "title": "Supplier Quote Comparison",
+    "description": "One-time comparison of 2-5 supplier quotes into a source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.",
+    "url": "https://dreamledger.org/quote-comparison/",
+    "price": 49,
+    "currency": "NZD",
+    "availability": "in_stock",
+    "required_input": "2-5 supplier quotes plus purchase requirements or scope",
+    "checkout": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+  },
+  "trust": {
+    "unknown_data_preserved": true,
+    "fabricated_evidence": false,
+    "checkout_is_revenue": false,
+    "revenue_requires_settlement_and_fulfillment_proof": true
+  },
+  "updated": "2026-10-05",
+  "primary_offers": [
+    {
+      "product_id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "price_nzd": 49,
+      "silo": "procurement",
+      "buy_router": "https://dreamledger.org/quote-comparison/",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-QUOTE-COMPARE-49"
+    }
+  ]
 }
