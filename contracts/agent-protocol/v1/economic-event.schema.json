@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/contracts/agent-protocol/v1/economic-event.schema.json",
+  "title": "DreamLedger Economic Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id", "event", "economic_state", "handler", "external_transaction_id",
+    "amount", "currency", "observed_at", "evidence_source"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "event": { "type": "string", "enum": ["PAYMENT_OBSERVED", "PAYMENT_REVERSED", "PAYMENT_REFUNDED", "FULFILLMENT_OBSERVED", "DELIVERY_OBSERVED"] },
+    "economic_state": {
+      "type": "string",
+      "enum": ["UNVERIFIED", "VERIFIED", "CONTRADICTED", "STALE", "TEST", "SIMULATED", "INTERNAL", "UNMATCHED"]
+    },
+    "handler": { "type": "string", "minLength": 1 },
+    "rail": { "type": "string", "minLength": 1 },
+    "asset": { "type": "string", "minLength": 1 },
+    "external_transaction_id": { "type": "string", "minLength": 1 },
+    "amount": { "type": "number", "exclusiveMinimum": 0 },
+    "currency": { "type": "string", "minLength": 1 },
+    "payer_ref": { "type": "string" },
+    "recipient_ref": { "type": "string" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "evidence_source": { "type": "string", "enum": ["PROVIDER_RECORD", "SIGNED_WEBHOOK", "BANK_RECORD", "CHAIN_RECORD", "OTHER_EXTERNAL"] },
+    "signature_verified": { "type": "boolean" },
+    "independent_proof_ref": { "$ref": "task-ref.schema.json" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "economic_state": { "const": "VERIFIED" } } },
+      "then": {
+        "required": ["signature_verified"],
+        "properties": {
+          "signature_verified": { "const": true },
+          "evidence_source": { "enum": ["SIGNED_WEBHOOK", "BANK_RECORD", "CHAIN_RECORD", "OTHER_EXTERNAL"] }
+        }
+      }
+    }
+  ]
+}
