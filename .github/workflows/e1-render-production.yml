@@ -40,12 +40,12 @@ jobs:
           test -s public/server.js
           test -s public/sitemap.xml
           test -s public/robots.txt
-          grep -qi 'Useful work, packaged as infrastructure.' public/index.html
-          grep -qi 'Supplier Quote Comparison' public/index.html
-          grep -qi 'Commander Deck Diagnostic' public/index.html
+          grep -qi 'DreamLedger' public/index.html
+          grep -qi 'Truth Oracle' public/index.html
           grep -q 'href="/truth-oracle.html"' public/index.html
           grep -q 'href="/billboard"' public/index.html
-          grep -q 'href="/go"' public/index.html
+          grep -q 'href="/cost-of-living.html"' public/index.html
+          grep -qi 'We earn on tools' public/index.html
           ! grep -Eiq 'BECK|Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET' public/index.html public/billboard.html public/avatar.html
           grep -q 'autoDeployTrigger: commit' render.yaml
           grep -q 'rootDir: public' render.yaml
