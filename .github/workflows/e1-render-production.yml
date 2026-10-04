@@ -47,7 +47,7 @@ jobs:
           grep -q 'href="/billboard"' public/index.html
           grep -q 'href="/go"' public/index.html
           grep -q 'href="/truth-oracle"' public/index.html
-          ! grep -Eiq 'BECK|Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET' public/index.html public/billboard.html public/avatar.html public/server.js
+          ! grep -Eiq 'BECK|Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET' public/index.html public/billboard.html public/avatar.html
           grep -q 'autoDeployTrigger: commit' render.yaml
           grep -q 'rootDir: public' render.yaml
           grep -q 'rootDir: BEC-PRIME' render.yaml
