@@ -1,0 +1,113 @@
+{
+  "schema": "dreamledger/service-surface-five-state-classification/v1",
+  "observed_at": "2026-10-04T13:40:00+13:00",
+  "repository": "KelpCoin/DreamLedger",
+  "production_commit": "2a007f2be50e8052954a36d783bfaac7f0472863",
+  "rule": "BUILDABLE != EXISTS != SELLABLE != AUTOMATIC != VERIFIED. AUTOMATIC requires one observed end-to-end paid fulfillment run. VERIFIED requires independent external buyer plus settlement, delivery and evidence.",
+  "scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "stripe_reconciliation": {
+    "account": "acct_1SNVPvEGgEAnUFF9",
+    "livemode": true,
+    "quote_compare": {
+      "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
+      "active": true,
+      "amount_nzd": 49,
+      "currency": "nzd",
+      "url": "https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32",
+      "public_catalog_url_matches": true,
+      "intake_expected_payment_link_matches": true,
+      "payment_created": false
+    },
+    "other_live_toll_like_links": [
+      {
+        "sku": "EVIDENCE-PACKET-10",
+        "amount_nzd": 10,
+        "active": true,
+        "livemode": true
+      },
+      {
+        "sku": "SUPPLIER-CHECK-50",
+        "amount_nzd": 5,
+        "active": true,
+        "livemode": true
+      },
+      {
+        "sku": "DOC-EXTRACT-50",
+        "amount_nzd": 5,
+        "active": true,
+        "livemode": true
+      },
+      {
+        "sku": "CONSTRUCTION-QUOTE-COMPARE-49",
+        "amount_nzd": 49,
+        "active": true,
+        "livemode": true
+      }
+    ]
+  },
+  "services": [
+    {
+      "service_id": "QUOTE-COMPARE-49",
+      "state": "SELLABLE",
+      "reason": "Live NZ$49 Stripe Payment Link and matching quote-intake/quote-fulfillment path observed; no real external paid end-to-end run observed."
+    },
+    {
+      "service_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "state": "SELLABLE",
+      "reason": "Live Stripe Payment Link and session-gated diagnostic input/delivery functions observed; no real external paid end-to-end run observed."
+    },
+    {
+      "service_id": "BILLBOARD-FOUNDING",
+      "state": "SELLABLE",
+      "reason": "Live Stripe checkout and fulfillment path exist, but publication retains a human authority gate."
+    },
+    {
+      "service_id": "SELLER-PROFIT-AUDIT-001",
+      "state": "SELLABLE",
+      "reason": "Live Stripe Payment Link exists, but fulfillment is explicitly manual PDF and therefore not zero-touch."
+    },
+    {
+      "service_id": "TRUTH-ORACLE-PUBLIC",
+      "state": "EXISTS",
+      "reason": "Truth Oracle public surface and active Supabase Truth Oracle functions exist; complete paid analysis-to-delivery path is not fully observed."
+    },
+    {
+      "service_id": "TOLL-GAUNTLET",
+      "state": "BUILDABLE",
+      "reason": "Existing TollRoad/Gauntlet code and active gauntlet-cube substrate exist, but production /api/toll/v1/manifest returned 404 because public/server.js did not mount the existing route."
+    },
+    {
+      "service_id": "ACNC-CHARITY-DD-99",
+      "state": "EXISTS",
+      "reason": "Active acnc-research-worker exists, but complete paid entitlement-to-delivery wall was not fully observed."
+    }
+  ],
+  "zero_touch_candidates": [
+    {
+      "service_id": "QUOTE-COMPARE-49",
+      "status": "zero_touch_contract_observed_not_run"
+    },
+    {
+      "service_id": "TOLL-GAUNTLET",
+      "status": "zero_touch_code_path_exists_public_wall_restore_pending"
+    },
+    {
+      "service_id": "TRUTH-ORACLE-PUBLIC",
+      "status": "automated_substrate_exists_paid_delivery_unproven"
+    }
+  ],
+  "measured_blocker": {
+    "blocked_at": "CI_CD",
+    "because": "PR #459 restores the existing Toll Road wall, but no workflow run is currently associated with head commit. Current main also has existing failing release gates, including Stripe link drift in verify-production-contract.",
+    "required": "A relevant CI run must complete successfully before merge/deploy. Then externally verify /api/toll/v1/manifest and the key-wall routes.",
+    "owner_action": "None for internal repair until CI/deployment evidence is available.",
+    "human_minutes": 0,
+    "expected_economic_effect": "Restore a callable existing customer payment -> entitlement -> key -> automated service wall without introducing a new commerce architecture."
+  },
+  "next_frontier": "After the wall is restored and externally verified, Quote Comparison remains the strongest first-dollar path. No payment or revenue is manufactured."
+}
