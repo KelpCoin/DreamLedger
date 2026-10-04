@@ -1,45 +1,37 @@
 # DreamLedger
 
-Settlement-backed commercial ledger (NZD). Revenue = Stripe payment + attribution + fulfillment evidence only.
+DreamLedger is a New Zealand commerce storefront publishing machine-readable offers for human search, AI assistants and agentic commerce discovery.
 
-## Economic loops
-GET https://dreamledger.org/economic-loops.json
-Stages: DISCOVER → OFFER → AUTHORIZE → PAY → SETTLE → FULFIL → PROOF → LEARN → REPEAT
+## Canonical machine discovery
+- AI catalog: https://dreamledger.org/ai-catalog.json
+- Agent product feed: https://dreamledger.org/agent-products.json
+- Discovery manifest: https://dreamledger.org/.well-known/dreamledger.json
+- Agent Commerce manifest: https://dreamledger.org/agent-commerce.json
+- Offers: https://dreamledger.org/api/offers
+- Products: https://dreamledger.org/api/products
+- Commerce context: https://dreamledger.org/commerce.txt
 
-## Agent purchase
-1. GET https://dreamledger.org/api/offers (14+ VERIFIED_AVAILABLE)
-2. Require human authorization before spend
-3. Open https://dreamledger.org/buy/{product_id}
-4. Event order: authorized → paid → delivered → proven → ledgered
+## Priority commercial offer
+Supplier Quote Comparison — QUOTE-COMPARE-49
+- Price: NZ$49 one-time
+- URL: https://dreamledger.org/quote-comparison/
+- Buyer state: has 2-5 supplier quotes and needs a purchasing comparison
+- Inputs: 2-5 PDF, CSV, JSON or Markdown supplier quotes plus purchase requirements or scope
+- Output: source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms
+- Unknown source information remains unknown
+- Checkout: https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32
 
-## Agent Bridge
-- Public rail health: https://dreamledger.org/api/agent-bridge/rail/public
-- Manifest: https://dreamledger.org/api/agent-bridge/manifest
-- Work routes require header: x-dreamledger-agent-token
-- Bridge activity is not revenue
+## Agentic commerce
+Agents may discover and recommend offers. Human authorization is required before spending. Checkout starts are not revenue. Verified economic truth requires settled external payment, attribution, fulfillment and independent evidence.
 
-## Priority paid offers
-- Commander Deck Diagnostic — NZ$29 — https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
-- DreamMeez Supporter Sprout — NZ$3.99 — https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT
-- Founding Billboard — NZ$50 — https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
-- Seller Profit Audit — NZ$29 — https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001
-- Discord Webhook Kit — NZ$79 — https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001
-- Kelplantis Floor 1 — NZ$19 — https://dreamledger.org/buy/KELP-FLOOR1-001
-- ACNC Charity DD — NZ$99 — https://dreamledger.org/buy/ACNC-CHARITY-DD-99
-
-## Machine surfaces
-- https://dreamledger.org/agent-commerce.json
-- https://dreamledger.org/agent.json
-- https://dreamledger.org/api/offers
-- https://dreamledger.org/api/products
-- https://dreamledger.org/economic-loops.json
-- https://dreamledger.org/bridge-tolls.json
-- https://dreamledger.org/cube.json
-
-## Human
-- https://dreamledger.org/shop.html (horizontal silo rails)
-- https://dreamledger.org/mtg
-- https://dreamledger.org/billboard
-
-## Safety
-No autonomous spend. Do not invent payment references or ledgered revenue.
+## Search/discovery language
+supplier quote comparison
+vendor quote comparison
+RFQ comparison
+procurement quote analysis
+compare supplier pricing
+compare supplier quotes
+compare MOQ and lead time
+supplier decision support
+compare landed supplier costs
+purchase quote comparison
