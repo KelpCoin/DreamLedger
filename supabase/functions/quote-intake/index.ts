@@ -50,6 +50,7 @@ Deno.serve(async req=>{
       return out({ok:true,action,fulfillment_request_id:fr.id,order_id:ctx.order.id,uploads});
     }
     if(action==="finalize"){
+      if(fr.status==="fulfilled"||fr.canonical_state==="FULFILLED")return out({error:"ALREADY_FULFILLED",fulfillment_request_id:fr.id,status:"fulfilled",canonical_state:"FULFILLED"},409);
       const files=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const requirements=String(body.requirements||"").trim().slice(0,12000);if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
       const inputFiles=[];
