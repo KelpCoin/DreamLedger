@@ -106,7 +106,7 @@ jobs:
           grep -q '/fulfilment.html?session_id=' public/automation-rescue.html
           grep -Fq 'NZ$99' public/automation-rescue.html
           test -s public/billboard.html
-          grep -Fq 'Buy Founding Tile · NZ$50' public/billboard.html
+          grep -Fq 'Buy Founding Tile NZ$50' public/billboard.html
           grep -q 'https://buy.stripe.com/' public/billboard.html
           test -s public/maximona.html
           grep -q 'Independent Production Verification' public/maximona.html
@@ -209,7 +209,7 @@ jobs:
         run: |
           set -euo pipefail
           body=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/billboard")
-          grep -Fq 'Buy Founding Tile · NZ$50' <<< "$body"
+          grep -Fq 'Buy Founding Tile NZ$50' <<< "$body"
           grep -q 'https://buy.stripe.com/' <<< "$body"
           echo 'LIVE_BILLBOARD=PASS'
       - name: Write production proof
