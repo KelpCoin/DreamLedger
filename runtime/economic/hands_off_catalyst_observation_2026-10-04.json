@@ -1,0 +1,73 @@
+{
+  "schema": "dreamledger/hands-off-economic-catalyst-observation/v1",
+  "observed_at": "2026-10-04T07:00:00Z",
+  "objective": "Traverse existing customer-facing service walls toward a real economic outcome without owner supervision of routine machinery.",
+  "scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "blocker": {
+    "BLOCKED_AT": "DATABASE",
+    "BECAUSE": "Supabase production PostgreSQL access returned ECONNREFUSED for project wbwgroygjeyukkspnqiy.",
+    "REQUIRED": "Authoritative production observation joining existing settled Stripe events to attribution, fulfillment, delivery/evidence, and verification.",
+    "FALLBACK": "Do not promote or mutate economic state. Preserve unmatched Stripe payments as UNMATCHED and continue only with non-economic deployment/read-only inspection.",
+    "OWNER_ACTION": "NONE",
+    "HUMAN_MINUTES": 0,
+    "EXPECTED_ECONOMIC_EFFECT": "No immediate economic-state change; prevents false attribution and preserves the path to a real first-dollar proof."
+  },
+  "deployment": {
+    "render_service": "DreamLedger1",
+    "service_id": "srv-d8ud55lckfvc73f1t4eg",
+    "root_dir": "public",
+    "latest_live_commit": "3485fa67fe8116b3ab24f34ee642aad83a76e60f",
+    "deploy_id": "dep-db0vi8avcj2c739n56t0",
+    "deploy_status": "live",
+    "toll_manifest_observation": "HTTP 200 observed in Render request logs after prior 404 regression was repaired",
+    "current_source_mounts_toll_route": true
+  },
+  "toll_wall": {
+    "source": "BEC-PRIME/routes/tollRoad.js",
+    "primitive": "BUY -> SETTLEMENT -> KEY -> WALL -> DETERMINISTIC WORK -> RESULT/EVIDENCE",
+    "scopes": [
+      "gauntlet",
+      "truth"
+    ],
+    "human_minutes_for_runtime_service": 0,
+    "payment_required_before_key": true,
+    "economic_truth_mutation_by_truth_service": false,
+    "road_pack_status": "NOT_ADVERTISED_AS_VERIFIED"
+  },
+  "stripe_observation": {
+    "account": "acct_1SNVPvEGgEAnUFF9",
+    "livemode": true,
+    "succeeded_payment_intents_observed": 2,
+    "disposition": "UNMATCHED",
+    "observations": [
+      {
+        "amount_minor": 500,
+        "currency": "nzd",
+        "status": "succeeded",
+        "metadata_present": false
+      },
+      {
+        "amount_minor": 100,
+        "currency": "usd",
+        "status": "succeeded",
+        "metadata_present": false
+      }
+    ],
+    "rule": "Neither payment is promoted to buyer, order, fulfillment, evidence, or verified revenue without authoritative attribution."
+  },
+  "ci_cd": {
+    "latest_render_deploy_is_live": true,
+    "ci_health": "NOT_PROVEN_FROM_CURRENT_COMMIT_STATUS_OBSERVATION",
+    "note": "Render live deployment is observed; this artifact does not infer GitHub CI green from deployment success."
+  },
+  "frontier": {
+    "next_safe_machine_step": "restore authoritative Supabase production observability",
+    "next_economic_step_after_observability": "reconcile every settled Stripe event through attribution -> fulfillment -> evidence -> verification",
+    "replication": "DISALLOWED until one independent external buyer transaction closes the complete economic chain"
+  }
+}
