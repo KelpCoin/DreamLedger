@@ -1,44 +1,198 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="RIVET B2B marketplace on DreamLedger — 0% success fee. NZD. Stripe.">
-<meta name="theme-color" content="#080a0e">
-<link rel="canonical" href="https://dreamledger.org/marketplace.html">
-<title>RIVET Marketplace · DreamLedger</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#07090c"/>
+<meta name="description" content="DreamLedger Marketplace — NZ buy & sell. 0% platform success fee. B2B + consumer. Settled commerce."/>
+<link rel="canonical" href="https://dreamledger.org/marketplace.html"/>
+<title>Marketplace · DreamLedger NZ</title>
 <style>
-:root{--bg:#080a0e;--panel:#0f1419;--panel2:#151b22;--line:#27313b;--ink:#f5f3eb;--muted:#8b96a3;--gold:#d8b56b;--gold-d:#b8943f;--ok:#58d6a0;--max:1100px;--font:system-ui,-apple-system,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}body{min-height:100%;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font)}a{color:inherit;text-decoration:none}.shell{max-width:var(--max);margin:0 auto;padding:0 20px}.topbar{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(8,10,14,.9);backdrop-filter:blur(12px);z-index:20}.topbar .inner{max-width:var(--max);margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:900;letter-spacing:.06em;font-size:14px;text-transform:uppercase}.brand span{color:var(--gold)}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;color:var(--muted)}.nav a.primary{background:var(--gold);color:#111}.hero{padding:48px 0 32px}.kicker{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}h1{font-size:clamp(2rem,5vw,3rem);letter-spacing:-.04em;line-height:1.05;margin-bottom:14px;max-width:18ch}.lead{color:var(--muted);max-width:56ch;margin-bottom:24px}.actions{display:flex;flex-wrap:wrap;gap:10px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 18px;border-radius:12px;font-size:13px;font-weight:800;border:1px solid var(--line);background:var(--panel2)}.btn.gold{background:var(--gold);color:#111;border-color:var(--gold)}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}.compare article{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}.compare h3{font-size:14px;margin-bottom:8px}.compare ul{list-style:none;font-size:.88rem;color:var(--muted)}.compare li{padding:4px 0}.compare .win{color:var(--ok)}.section{padding:36px 0}.section h2{font-size:1.4rem;margin-bottom:8px}.section p{color:var(--muted);margin-bottom:18px;max-width:55ch}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;min-height:140px}.card h3{font-size:1rem;margin-bottom:6px}.card p{font-size:.85rem;color:var(--muted);flex:1}.card .cta{margin-top:12px;font-size:12px;font-weight:800;color:var(--gold)}.footer{padding:28px 0 40px;border-top:1px solid var(--line);color:#5a6570;font-size:12px;margin-top:24px}@media(max-width:640px){.compare{grid-template-columns:1fr}}
+:root{
+  --bg:#07090c;--p:#10141a;--p2:#161b23;--line:#2a3340;--ink:#f2f4f7;--mut:#8b95a3;
+  --ok:#3dd68c;--gold:#d8b56b;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+  --font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--max:1120px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.w{max-width:var(--max);margin:0 auto;padding:0 1rem}
+.top{position:sticky;top:0;z-index:30;background:rgba(7,9,12,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:calc(.5rem + var(--st)) 0 .5rem}
+.top .in{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.logo{font-weight:800;font-size:.9rem}.logo span{color:var(--gold)}
+.nav{display:flex;gap:.3rem;flex-wrap:wrap}
+.nav a{font-size:.7rem;font-weight:650;padding:.32rem .55rem;border-radius:999px;color:var(--mut);border:1px solid transparent}
+.nav a.on{background:var(--ok);color:#062016}
+.nav a.g{border-color:var(--line);color:var(--ink)}
+.hero{padding:1.25rem 0 1rem}
+.k{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);letter-spacing:-.03em;line-height:1.1;margin-bottom:.4rem}
+.lead{color:var(--mut);font-size:.88rem;margin-bottom:.85rem;max-width:42ch}
+.search{display:flex;gap:.45rem;margin-bottom:.85rem}
+.search input{flex:1;min-height:48px;background:var(--p);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:inherit;padding:0 .85rem}
+.search button{min-height:48px;padding:0 1rem;border:none;border-radius:12px;background:var(--ok);color:#062016;font-weight:800;font-size:.85rem}
+.filters{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.75rem;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;font-size:.7rem;font-weight:700;padding:.4rem .7rem;border-radius:999px;border:1px solid var(--line);background:var(--p);color:var(--mut)}
+.chip.on{border-color:var(--ok);color:var(--ok);background:rgba(61,214,140,.08)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:1rem}
+.m{background:var(--p);border:1px solid var(--line);border-radius:12px;padding:.65rem;text-align:center}
+.m b{display:block;font-size:1rem;color:var(--ok)}.m span{font-size:.62rem;color:var(--mut)}
+.sec{padding:.5rem 0 1rem}
+.sec h2{font-size:1rem;margin-bottom:.55rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.sec h2 a{font-size:.72rem;font-weight:700;color:var(--gold)}
+.grid{display:grid;grid-template-columns:1fr;gap:.55rem}
+@media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:960px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--p);border:1px solid var(--line);border-radius:14px;padding:.85rem;display:flex;flex-direction:column;min-height:150px}
+.card .tag{font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:.25rem}
+.card h3{font-size:.92rem;margin-bottom:.3rem;letter-spacing:-.02em}
+.card p{font-size:.76rem;color:var(--mut);flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.65rem}
+.card .price{font-weight:800;font-size:.95rem;color:var(--ink)}
+.card .price.free{color:var(--ok)}
+.card .cta{font-size:.72rem;font-weight:800;color:#062016;background:var(--ok);padding:.4rem .7rem;border-radius:8px}
+.card .cta.ghost{background:transparent;color:var(--gold);border:1px solid var(--line)}
+.empty{color:var(--mut);font-size:.85rem;padding:1rem 0}
+.foot{border-top:1px solid var(--line);padding:1rem 0 calc(1rem + var(--sb));font-size:.68rem;color:var(--mut);display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between}
+.banner{background:linear-gradient(90deg,rgba(61,214,140,.12),rgba(216,181,107,.08));border:1px solid rgba(61,214,140,.25);border-radius:12px;padding:.7rem .85rem;font-size:.78rem;margin-bottom:1rem}
+.banner strong{color:var(--ok)}
 </style>
 </head>
 <body>
-<header class="topbar"><div class="inner"><a class="brand" href="/">DREAM<span>LEDGER</span></a><nav class="nav"><a href="/b2b.html">RIVET</a><a href="/sell.html">Sell</a><a href="/buy.html">Buy</a><a href="/trust.html">Trust</a><a class="primary" href="/sell.html">List now</a></nav></div></header>
-<main class="shell">
+<header class="top"><div class="w in">
+  <a class="logo" href="/">Dream<span>Ledger</span></a>
+  <nav class="nav">
+    <a class="g" href="/b2b.html">B2B</a>
+    <a class="g" href="/sell.html">Sell</a>
+    <a class="on" href="/sell.html">List free</a>
+  </nav>
+</div></header>
+
+<main class="w">
   <section class="hero">
-    <div class="kicker">RIVET · B2B marketplace · New Zealand</div>
-    <h1>Commerce without Trade Me success fees.</h1>
-    <p class="lead">List digital, physical, services, or B2B wholesale. Platform success fee on current public offers: <strong style="color:var(--ok)">0%</strong>.</p>
-    <div class="actions">
-      <a class="btn gold" href="/b2b-marketplace.html">Open B2B marketplace</a>
-      <a class="btn" href="/buy.html">Browse verified offers</a>
-      <a class="btn" href="/b2b.html">Plans &amp; fees</a>
+    <div class="k">Marketplace · New Zealand · Enterprise rails</div>
+    <h1>Buy & sell. 0% platform success fee.</h1>
+    <p class="lead">Consumer + B2B on one spine. Settled Stripe payments only. Truth-gated listings. We don't take a cut of peer sales.</p>
+    <div class="search">
+      <input id="q" type="search" placeholder="Search offers, tools, categories…" autocomplete="off"/>
+      <button type="button" id="go">Search</button>
     </div>
+    <div class="filters" id="filters">
+      <button type="button" class="chip on" data-f="all">All</button>
+      <button type="button" class="chip" data-f="b2b">B2B</button>
+      <button type="button" class="chip" data-f="consumer">Consumer</button>
+      <button type="button" class="chip" data-f="service">Services</button>
+      <button type="button" class="chip" data-f="mtg">MTG</button>
+      <button type="button" class="chip" data-f="free">Free</button>
+    </div>
+    <div class="metrics">
+      <div class="m"><b>0%</b><span>Success fee</span></div>
+      <div class="m"><b id="count">—</b><span>Live offers</span></div>
+      <div class="m"><b>NZD</b><span>Settled only</span></div>
+    </div>
+    <div class="banner"><strong>Enterprise policy:</strong> Platform listing success fee on peer merchandise is 0%. Revenue is tools, diagnostics, billboard, and paid depth — not a rake on your sale.</div>
   </section>
-  <section class="compare">
-    <article><h3>Trade Me</h3><ul><li>Success fees ~5.9%–11.9%</li><li>Max fee often $499</li><li>Strong audience — higher cost</li></ul></article>
-    <article><h3>RIVET / DreamLedger</h3><ul><li class="win">0% platform success fee</li><li class="win">Free listing intake</li><li class="win">Stripe processor fee only</li><li class="win">Silo boundaries (MTG, B2B, billboard)</li></ul></article>
+
+  <section class="sec">
+    <h2>Live catalogue <a href="/sell.html">List something →</a></h2>
+    <div class="grid" id="grid"><p class="empty">Loading offers…</p></div>
   </section>
-  <section class="section">
-    <h2>What you can sell</h2>
+
+  <section class="sec">
+    <h2>Always on rails</h2>
     <div class="grid">
-      <a class="card" href="/sell.html"><h3>Digital</h3><p>Diagnostics, kits, downloads.</p><span class="cta">List →</span></a>
-      <a class="card" href="/sell.html"><h3>Physical / NZ</h3><p>GST fields. Fulfillment evidence.</p><span class="cta">List →</span></a>
-      <a class="card" href="/sell.html"><h3>B2B wholesale</h3><p>MOQ, lead times, trading name.</p><span class="cta">List →</span></a>
-      <a class="card" href="/sell.html"><h3>MTG</h3><p>Isolated collectibles silo.</p><span class="cta">List →</span></a>
+      <a class="card" href="/b2b.html"><div class="tag">B2B</div><h3>Post RFQ / wholesale</h3><p>Procurement demand and supplier listings.</p><div class="row"><span class="price free">$0 RFQ</span><span class="cta">Open B2B</span></div></a>
+      <a class="card" href="/cost-of-living.html"><div class="tag">Truth Oracle</div><h3>Cost of living</h3><p>Free evidence-first NZ living cost advice.</p><div class="row"><span class="price free">Free</span><span class="cta ghost">Open</span></div></a>
+      <a class="card" href="/sell.html"><div class="tag">Seller</div><h3>List with $0 fees</h3><p>No listing fee. No success fee. Truth gate.</p><div class="row"><span class="price free">$0</span><span class="cta">List</span></div></a>
     </div>
   </section>
+
+  <footer class="foot">
+    <span>DreamLedger Marketplace · NZ</span>
+    <span><a href="/">Home</a> · <a href="/b2b.html">B2B</a> · <a href="/agent-commerce.json">Agents</a> · <a href="/api/offers">API offers</a></span>
+  </footer>
 </main>
-<footer class="footer"><div class="shell">RIVET · <a href="/b2b.html">B2B hub</a> · <a href="/policies.html">Policies</a> · <a href="/">Home</a></div></footer>
+
+<script>
+(function(){
+  var grid=document.getElementById('grid');
+  var countEl=document.getElementById('count');
+  var q=document.getElementById('q');
+  var filter='all';
+  var items=[];
+
+  var fallback=[
+    {name:'Commander Deck Diagnostic',description:'Fixed-scope Commander power-band and upgrade order.',price:29,currency:'NZD',silo:'mtg',kind:'service',href:'/buy/COMMANDER-DECK-DIAGNOSTIC-001',status:'live'},
+    {name:'Seller Profit Audit',description:'Channel fees, shipping, margin leaks.',price:29,currency:'NZD',silo:'b2b',kind:'service',href:'/buy/SELLER-PROFIT-AUDIT-001',status:'live'},
+    {name:'Supplier Quote Comparison',description:'2–5 quotes → normalized decision packet.',price:49,currency:'NZD',silo:'b2b',kind:'service',href:'https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32',status:'live'},
+    {name:'Public Billboard Tile',description:'Permanent digital placement.',price:50,currency:'NZD',silo:'consumer',kind:'service',href:'/billboard',status:'live'},
+    {name:'Cost of living advice',description:'Truth Oracle free COL guidance for NZ.',price:0,currency:'NZD',silo:'free',kind:'free',href:'/cost-of-living.html',status:'live'},
+    {name:'List an item',description:'Peer marketplace listing. 0% platform success fee.',price:0,currency:'NZD',silo:'consumer',kind:'free',href:'/sell.html',status:'live'},
+    {name:'B2B RFQ',description:'Post procurement demand. Free intake.',price:0,currency:'NZD',silo:'b2b',kind:'free',href:'/b2b.html#rfq',status:'live'},
+    {name:'DreamMeez identity',description:'Avatar + daily cosmetics streak.',price:0,currency:'NZD',silo:'consumer',kind:'free',href:'/avatar.html',status:'live'}
+  ];
+
+  function norm(o){
+    return {
+      name:o.name||o.title||o.product_id||'Offer',
+      description:o.description||'',
+      price:Number(o.price!=null?o.price:(o.price_nzd!=null?o.price_nzd:0)),
+      currency:(o.currency||'NZD').toUpperCase(),
+      silo:String(o.silo||o.category||'consumer').toLowerCase(),
+      kind:o.kind||(Number(o.price||o.price_nzd||0)===0?'free':'service'),
+      href:o.checkout_url||o.buy_router||o.href||('/buy/'+encodeURIComponent(o.product_id||o.offer_id||'')),
+      status:o.status||'live'
+    };
+  }
+
+  function match(it,f,query){
+    if(f==='b2b'&&it.silo.indexOf('b2b')<0&&it.silo.indexOf('wholesale')<0) return false;
+    if(f==='consumer'&&(it.silo==='b2b'||it.silo==='mtg')) return false;
+    if(f==='service'&&it.kind==='free') return false;
+    if(f==='mtg'&&it.silo.indexOf('mtg')<0) return false;
+    if(f==='free'&&it.price!==0) return false;
+    if(query){
+      var hay=(it.name+' '+it.description+' '+it.silo).toLowerCase();
+      if(hay.indexOf(query)<0) return false;
+    }
+    return true;
+  }
+
+  function render(){
+    var query=(q.value||'').trim().toLowerCase();
+    var list=items.filter(function(it){return match(it,filter,query)});
+    countEl.textContent=String(list.length);
+    if(!list.length){grid.innerHTML='<p class="empty">No offers match. Try another filter or list something.</p>';return;}
+    grid.innerHTML=list.map(function(it){
+      var price=it.price===0?'$0':('NZ$'+it.price);
+      var pc=it.price===0?'price free':'price';
+      var cta=it.price===0?'cta ghost':'cta';
+      return '<a class="card" href="'+it.href+'"><div class="tag">'+(it.silo||'offer')+'</div><h3>'+it.name+'</h3><p>'+it.description+'</p><div class="row"><span class="'+pc+'">'+price+'</span><span class="'+cta+'">'+(it.price===0?'Open':'Buy')+'</span></div></a>';
+    }).join('');
+  }
+
+  function load(){
+    fetch('/api/offers').then(function(r){return r.ok?r.json():Promise.reject()}).then(function(data){
+      var arr=Array.isArray(data)?data:(data.offers||data.products||[]);
+      items=arr.map(norm).concat(fallback.map(norm));
+      // de-dupe by name
+      var seen={};items=items.filter(function(x){if(seen[x.name])return false;seen[x.name]=1;return true;});
+      render();
+    }).catch(function(){items=fallback.map(norm);render();});
+  }
+
+  document.getElementById('filters').addEventListener('click',function(e){
+    var t=e.target.closest('.chip');if(!t)return;
+    filter=t.getAttribute('data-f')||'all';
+    document.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',c===t)});
+    render();
+  });
+  document.getElementById('go').onclick=render;
+  q.addEventListener('input',function(){render()});
+  load();
+})();
+</script>
 </body>
 </html>
