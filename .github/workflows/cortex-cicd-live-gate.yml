@@ -104,13 +104,13 @@ jobs:
           grep -q 'https://buy.stripe.com/' public/automation-rescue.html
           grep -q 'session_id' public/automation-rescue.html
           grep -q '/fulfilment.html?session_id=' public/automation-rescue.html
-          grep -q 'NZ$99' public/automation-rescue.html
+          grep -Fq 'NZ$99' public/automation-rescue.html
           test -s public/billboard.html
-          grep -q 'Buy Founding Tile · NZ$50' public/billboard.html
+          grep -Fq 'Buy Founding Tile · NZ$50' public/billboard.html
           grep -q 'https://buy.stripe.com/' public/billboard.html
           test -s public/maximona.html
           grep -q 'Independent Production Verification' public/maximona.html
-          grep -q 'NZ$1,500' public/maximona.html
+          grep -Fq 'NZ$1,500' public/maximona.html
           grep -q 'https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C' public/maximona.html
           test -s public/offers.html
           echo 'LIVE_COMMERCE_SURFACES=PASS'
@@ -190,7 +190,7 @@ jobs:
           set -euo pipefail
           body=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/maximona")
           grep -q 'Independent Production Verification' <<< "$body"
-          grep -q 'NZ$1,500' <<< "$body"
+          grep -Fq 'NZ$1,500' <<< "$body"
           grep -q 'https://buy.stripe.com/dRmcN54zr29v2HZbN2dwc2C' <<< "$body"
           echo 'LIVE_MAXIMONA=PASS'
       - name: Verify live Automation Rescue purchase surface
@@ -202,14 +202,14 @@ jobs:
           grep -q 'https://buy.stripe.com/' <<< "$body"
           grep -q 'session_id' <<< "$body"
           grep -q '/fulfilment.html?session_id=' <<< "$body"
-          grep -q 'NZ$99' <<< "$body"
+          grep -Fq 'NZ$99' <<< "$body"
           echo 'LIVE_AUTOMATION_RESCUE=PASS'
       - name: Verify live Billboard purchase surface
         shell: bash
         run: |
           set -euo pipefail
           body=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/billboard")
-          grep -q 'Buy Founding Tile · NZ$50' <<< "$body"
+          grep -Fq 'Buy Founding Tile · NZ$50' <<< "$body"
           grep -q 'https://buy.stripe.com/' <<< "$body"
           echo 'LIVE_BILLBOARD=PASS'
       - name: Write production proof
