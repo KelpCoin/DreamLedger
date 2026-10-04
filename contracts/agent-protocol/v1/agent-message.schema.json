@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/contracts/agent-protocol/v1/agent-message.schema.json",
+  "title": "DreamLedger Agent Message v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "message_id", "type", "created_at", "state_ref", "payload"],
+  "properties": {
+    "protocol": { "const": "dreamledger-agent-protocol" },
+    "version": { "const": "1.0" },
+    "message_id": { "type": "string", "minLength": 1 },
+    "type": {
+      "type": "string",
+      "enum": ["OBSERVE", "CLAIM", "EVIDENCE", "CONSTRAINT", "DECISION", "ACTION", "RESULT"]
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "state_ref": { "$ref": "task-ref.schema.json" },
+    "payload": { "type": "object" }
+  }
+}
