@@ -72,7 +72,10 @@ function copyFor(deck: {
 
 function adminClient() {
   const url = Deno.env.get("SUPABASE_URL");
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  let serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SECRET_KEY");
+  if (!serviceKey) {
+    try { serviceKey = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}").default; } catch {}
+  }
   if (!url || !serviceKey) throw new Error("server_configuration_incomplete");
   return createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 }
