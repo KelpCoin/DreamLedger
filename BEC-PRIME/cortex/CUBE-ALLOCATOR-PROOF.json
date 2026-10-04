@@ -1,0 +1,17 @@
+{
+  "schema": "CUBE/ALLOCATOR/v1",
+  "status": "IMPLEMENTED",
+  "decision_rule": "deterministic_information_value_per_compute",
+  "condition_schema_version": "CUBE-CONDITIONS-1",
+  "allocator_accuracy_fields": [
+    "predicted_information_value",
+    "actual_information_value",
+    "prediction_error",
+    "compute_allocated",
+    "compute_consumed",
+    "allocation_outcome"
+  ],
+  "promotion_authority": "not_this_module",
+  "economic_truth_authority": "not_this_module",
+  "external_actions": false
+}
