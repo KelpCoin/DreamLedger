@@ -1,0 +1,80 @@
+name: Front Door Proof Gate
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - ".github/workflows/front-door-proof.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "index.html"
+      - ".github/workflows/front-door-proof.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject redirect front door
+        run: |
+          set -euo pipefail
+          if grep -q 'http-equiv="refresh"' index.html; then
+            echo "FAIL: root index is still a redirect"
+            exit 1
+          fi
+      - name: Verify front-door markers
+        run: |
+          set -euo pipefail
+          grep -F 'dreamledger-surface=public-v7' index.html
+          grep -F 'dreamledger-visual-contract=catalogue-first-v1' index.html
+          grep -F 'DISCOVER' index.html
+          grep -F 'THINGS WORTH BUYING' index.html
+          grep -F 'Evidence before hype' index.html
+      - name: Verify real local destinations
+        run: |
+          set -euo pipefail
+          for f in quote-comparison.html mtg-diagnostic.html truth-oracle.html mtg-catalog.html money-10000.html sell.html revenue.html; do
+            test -f "$f" || { echo "FAIL: missing $f"; exit 1; }
+          done
+      - name: Reject painted-door copy
+        run: |
+          set -euo pipefail
+          if grep -Fq 'Dream Ledger Deck' index.html; then
+            echo "FAIL: forbidden legacy title found"
+            exit 1
+          fi
+
+  live-proof:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: static-contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch production front door
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 30 https://dreamledger.org/ > /tmp/dreamledger-index.html
+          grep -F 'THINGS WORTH BUYING' /tmp/dreamledger-index.html
+          grep -F 'dreamledger-surface=public-v7' /tmp/dreamledger-index.html
+          if grep -q 'http-equiv="refresh"' /tmp/dreamledger-index.html; then
+            echo "FAIL: production front door still redirects"
+            exit 1
+          fi
+      - name: Emit proof
+        run: |
+          set -euo pipefail
+          {
+            echo "FRONT_DOOR_PROOF=PASS"
+            echo "COMMIT=${GITHUB_SHA}"
+            echo "URL=https://dreamledger.org/"
+            echo "TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } | tee front-door-proof.txt
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: front-door-proof
+          path: front-door-proof.txt
