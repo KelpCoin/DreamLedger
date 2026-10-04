@@ -1,5 +1,5 @@
 'use strict';
-// Restored storefront server — static whitelist includes catalogue.
+// Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -14,12 +14,14 @@ const PUBLIC_FILES={
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
   '/mtg':'mtg.html','/mtg/':'mtg.html','/mtg.html':'mtg.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
+  '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
+  '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
+  '/truth-oracle.html':'truth-oracle.html','/truth-oracle':'truth-oracle.html',
   '/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
   '/catalog.json':'catalog.json','/surfaces.json':'surfaces.json',
   '/robots.txt':'robots.txt','/sitemap.xml':'sitemap.xml',
   '/overpaying':'overpaying.html','/overpaying.html':'overpaying.html',
-  '/avatar.html':'avatar.html','/avatar':'avatar.html',
-  '/marketplace':'cube-marketplace.html','/marketplace/':'cube-marketplace.html'
+  '/avatar.html':'avatar.html','/avatar':'avatar.html'
 };
 const MIME={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.xml':'application/xml; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon'};
 function send(res,s,b,t){if(res.writableEnded)return;res.statusCode=s;if(t)res.setHeader('Content-Type',t);res.end(b)}
@@ -57,7 +59,6 @@ http.createServer((req,res)=>{
   if(req.method!=='GET') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
-  // Fallback: direct file under public if it exists and is safe
   if(p.indexOf('..')!==-1) return send(res,403,'Forbidden','text/plain; charset=utf-8');
   const rel=p.replace(/^\//,'');
   if(rel && fs.existsSync(path.join(ROOT,rel)) && fs.statSync(path.join(ROOT,rel)).isFile()){
