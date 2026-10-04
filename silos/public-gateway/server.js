@@ -22,7 +22,8 @@ const silos = {
     description:'Structured decision analysis delivered through a hosted endpoint.',
     status:'READY'
   },
-  // MTG is intentionally NOT exposed from the DreamLedger gateway.\n  // Canonical MTG commerce lives in the separate MTG/HappyHomarid/CollectorsCoast silo.\n  'evidence-ledger': {
+  // MTG is intentionally NOT exposed from the DreamLedger gateway.
+  // Canonical MTG commerce lives in the separate MTG/HappyHomarid/CollectorsCoast silo.\n  'evidence-ledger': {
     title:'Evidence Ledger Access',
     description:'Sourced observations, estimates, uncertainty labels and provenance.',
     status:'APPROVAL_REQUIRED'
