@@ -44,17 +44,89 @@ const silos = {
   }
 };
 
+const fs = require('fs');
+const path = require('path');
+
+let economicEvents = [];
+try {
+  const manifestPath = path.resolve(__dirname, '../../BEC-PRIME/economics/CUBE-ECONOMIC-EVENTS-100.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  economicEvents = Array.isArray(manifest.events) ? manifest.events : [];
+} catch (error) {
+  console.error('M10K_EVENT_MANIFEST_LOAD_FAILED', error.message);
+}
+
 const audiences=['SME','PROC','TRADE','CONSUMER','PRO','LOCAL','CLUB','CREATOR','COLLECTOR','EDU'];
 const angles=['price-comparison','time-saving-processing','decision-ready-shortlist','exception-detection','supplier-buyer-matching','bundle-optimization','replenishment-planning','surplus-liquidation','purchase-preparation','evidence-packet'];
+
 function moneyRoute(id){
   const m=id.match(/^M10K-(\d{3})-(\d{3})$/); if(!m)return null;
-  const event=Number(m[1]), variant=Number(m[2]); if(event<1||event>100||variant<1||variant>100)return null;
-  const audience=audiences[Math.floor((variant-1)/10)], angle=angles[(variant-1)%10];
-  return {id,title:'DreamLedger '+id+' service silo',description:'Candidate commercial route '+id+' generated from the existing DreamLedger economic-event substrate.',status:'CANDIDATE',event,variant,audience,angle};
+  const event=Number(m[1]), variant=Number(m[2]);
+  if(event<1||event>100||variant<1||variant>100)return null;
+  const sourceEvent=economicEvents[event-1] || null;
+  const audience=audiences[Math.floor((variant-1)/10)];
+  const angle=angles[(variant-1)%10];
+  return {
+    id,
+    event,
+    variant,
+    event_id:sourceEvent ? sourceEvent.id : null,
+    silo:sourceEvent ? sourceEvent.silo : 'unresolved',
+    event_name:sourceEvent ? sourceEvent.event : 'unresolved',
+    buyer:sourceEvent ? sourceEvent.buyer : 'unresolved',
+    audience,
+    angle
+  };
+}
+
+function serviceTargets(route){
+  const routeId=encodeURIComponent(route.id);
+  const procurementAudience=['SME','PROC','TRADE','PRO'].includes(route.audience);
+  const collectorAudience=['COLLECTOR','CLUB'].includes(route.audience);
+  return [
+    procurementAudience ? {
+      label:'Supplier Quote Comparison',
+      price:'NZ$49 one-time',
+      href:'https://dreamledger.org/quote-comparison/?route_id='+routeId,
+      description:'Pay, submit 2–5 supplier quotes, and receive the existing automated comparison and evidence packet.'
+    } : null,
+    collectorAudience ? {
+      label:'Commander Deck Diagnostic',
+      price:'NZ$29 one-time',
+      href:'https://dreamledger.org/mtg/commander-deck-diagnostic?route_id='+routeId,
+      description:'Use the existing paid Commander diagnostic workflow for a submitted decklist.'
+    } : null,
+    {
+      label:'DreamLedger Evidence',
+      price:'Public service',
+      href:'https://dreamledger.org/truth-oracle.html?route_id='+routeId,
+      description:'Use the existing evidence surface to inspect observations, provenance, contradictions and unknowns.'
+    },
+    {
+      label:'Supplier Quote Comparison',
+      price:'NZ$49 one-time',
+      href:'https://dreamledger.org/quote-comparison/?route_id='+routeId,
+      description:'Existing paid service wall for buyers who already have supplier quotations.'
+    },
+    {
+      label:'Commander Deck Diagnostic',
+      price:'NZ$29 one-time',
+      href:'https://dreamledger.org/mtg/commander-deck-diagnostic?route_id='+routeId,
+      description:'Existing paid service wall for Commander deck diagnosis.'
+    }
+  ].filter(Boolean).slice(0,3);
+}
+
+function routePage(route){
+  const targets=serviceTargets(route);
+  const cards=targets.map(function(t){
+    return '<div style="border:1px solid #333;background:#111;padding:18px;border-radius:10px"><p style="margin:0 0 6px;color:#d5b45c;font-weight:800">'+esc(t.price)+'</p><h2 style="font-size:22px;margin:0 0 8px">'+esc(t.label)+'</h2><p style="line-height:1.5;color:#746f67">'+esc(t.description)+'</p><p><a href="'+esc(t.href)+'" style="color:#d5b45c;font-weight:800">Open live service →</a></p></div>';
+  }).join('');
+  return '<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(route.event_name)+' · '+esc(route.id)+' | DreamLedger</title><meta name="description" content="'+esc('Live DreamLedger entry surface for '+route.event_name+' serving '+route.buyer+'.')+'"></head><body style="font-family:system-ui;max-width:1000px;margin:0 auto;padding:42px 22px;background:#f5f0e7;color:#171512"><p style="letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:#9a6d19">DreamLedger service gateway</p><h1 style="font-size:clamp(2.2rem,6vw,4.5rem);line-height:.95">'+esc(route.event_name)+'</h1><p style="font-size:20px;line-height:1.5;color:#746f67">Route '+esc(route.id)+' is a real entry surface into existing DreamLedger service walls. It is not a claim that this economic event has a buyer, settlement or verified outcome.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:28px 0"><div><b>Source event</b><br>'+esc(route.event_id||'unresolved')+'</div><div><b>Buyer class</b><br>'+esc(route.buyer)+'</div><div><b>Audience</b><br>'+esc(route.audience)+'</div><div><b>Commercial angle</b><br>'+esc(route.angle)+'</div></div><h2>Open a live service</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">'+cards+'</div><p style="margin-top:28px;font-size:13px;color:#746f67">Route readiness is separate from economic truth. A payment is counted only through the existing authoritative settlement and fulfillment chain.</p><p><a href="/" style="color:#9a6d19">Back to silo gateway</a></p></body></html>';
 }
 
 function esc(value) {
-  return String(value || '').replace(/[&<>"]/g, function(c) {
+  return String(value || '').replace(/[&<>\"]/g, function(c) {
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
   });
 }
