@@ -44,6 +44,15 @@ const silos = {
   }
 };
 
+const audiences=['SME','PROC','TRADE','CONSUMER','PRO','LOCAL','CLUB','CREATOR','COLLECTOR','EDU'];
+const angles=['price-comparison','time-saving-processing','decision-ready-shortlist','exception-detection','supplier-buyer-matching','bundle-optimization','replenishment-planning','surplus-liquidation','purchase-preparation','evidence-packet'];
+function moneyRoute(id){
+  const m=id.match(/^M10K-(\\d{3})-(\\d{3})$/); if(!m)return null;
+  const event=Number(m[1]), variant=Number(m[2]); if(event<1||event>100||variant<1||variant>100)return null;
+  const audience=audiences[Math.floor((variant-1)/10)], angle=angles[(variant-1)%10];
+  return {id,title:'DreamLedger '+id+' service silo',description:'Candidate commercial route '+id+' generated from the existing DreamLedger economic-event substrate.',status:'CANDIDATE',event,variant,audience,angle};
+}
+
 function esc(value) {
   return String(value || '').replace(/[&<>"]/g, function(c) {
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
@@ -68,7 +77,7 @@ const server = http.createServer((req,res)=>{
   const slug = u.pathname.split('/').filter(Boolean)[0] || '';
   if (slug === '' || slug === 'healthz') {
     const body = slug === 'healthz'
-      ? JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length})
+      ? JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length,money_routes:10000})
       : page('DreamLedger Silo Gateway','Public HTTP surfaces for defined silo candidates.','LIVE','index');
     res.writeHead(200, {'content-type': slug === 'healthz' ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8','cache-control':'no-store'});
     return res.end(body);
@@ -76,6 +85,11 @@ const server = http.createServer((req,res)=>{
   if (u.pathname === '/gets-opportunity-brief.html') {
     res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'no-store'});
     return res.end('<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GETS Opportunity Brief | DreamLedger</title></head><body style="font-family:system-ui;max-width:900px;margin:0 auto;padding:48px 24px;background:#f5f0e7;color:#171512"><a href="/">DreamLedger</a><h1>GETS Opportunity Brief</h1><p>Evidence-backed tender decoding for NZ suppliers.</p><h2>NZ$49 price hypothesis</h2><p>Checkout is not attached until the payment route and fulfillment contract are explicitly approved and verified.</p><h2>Free sample</h2><ul><li>Tender identity and closing date</li><li>Mandatory requirements with source/page references</li><li>Capability fit and visible gaps</li><li>Questions to resolve before submission</li><li>Evidence trail for material claims</li></ul><p>This page is a product demonstration. It does not claim a buyer, payment or revenue.</p></body></html>');
+  }
+  const route = moneyRoute(slug);
+  if (route) {
+    res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'public, max-age=300'});
+    return res.end(page(route.title,route.description,route.status,route.id));
   }
   const silo = silos[slug];
   if (!silo) {
