@@ -107,7 +107,15 @@
     "required": "A relevant CI run must complete successfully before merge/deploy. Then externally verify /api/toll/v1/manifest and the key-wall routes.",
     "owner_action": "None for internal repair until CI/deployment evidence is available.",
     "human_minutes": 0,
-    "expected_economic_effect": "Restore a callable existing customer payment -> entitlement -> key -> automated service wall without introducing a new commerce architecture."
+    "expected_economic_effect": "Restore a callable existing customer payment -> entitlement -> key -> automated service wall without introducing a new commerce architecture.",
+    "ci_trigger_observation": {
+      "pr_head": "c815f9f0a9fca06442d8de7fcf76e55c05d9526e",
+      "observed_run": "37165662943",
+      "observed_run_sha": "1af588747bdbed6515b2aea992339df4ab570203",
+      "observed_run_conclusion": "failure",
+      "failure": "verify-production-contract STRIPE_LINK_DRIFT",
+      "interpretation": "observed run was not for PR head; workflow_dispatch already exists; synchronize/reopen did not yield a head-associated run through the connected GitHub interface"
+    }
   },
   "next_frontier": "After the wall is restored and externally verified, Quote Comparison remains the strongest first-dollar path. No payment or revenue is manufactured."
 }
