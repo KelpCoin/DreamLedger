@@ -1,0 +1,323 @@
+{
+  "schema": "dreamledger/500k-demand-cell-manifest/v1",
+  "generated_at": "2026-10-05",
+  "status": "CANDIDATE_ONLY",
+  "cardinality": {
+    "events": 100,
+    "variants": 100,
+    "terms": 50,
+    "cells": 500000
+  },
+  "source_dimensions": {
+    "events": "public/money-10000.html:EVENTS",
+    "variants": "public/money-10000.html:VARIANTS",
+    "terms": "public/evergreen-silo-factory.json:pain_vectors[0:50]"
+  },
+  "url_template": "https://dreamledger.org/money-500000.html?cell={cell_id}",
+  "cell_id_formula": "((event_index * 100) + variant_index) * 50 + term_index + 1",
+  "truth": "Candidate cells are not demand, buyers, sales, revenue, fulfillment, or verified outcomes.",
+  "indexing_policy": "NOINDEX until an individual cell has substantive user-facing value and passes readiness/approval.",
+  "replication_policy": "Only VERIFIED outcomes may earn replication.",
+  "terms": [
+    {
+      "id": "UP-001",
+      "term": "Reconcile invoices",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-002",
+      "term": "Reconcile supplier quotes",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-003",
+      "term": "Reconcile supplier records",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-004",
+      "term": "Reconcile contracts",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-005",
+      "term": "Reconcile shipments",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-006",
+      "term": "Reconcile inventory records",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-007",
+      "term": "Reconcile assets",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-008",
+      "term": "Reconcile expenses",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-009",
+      "term": "Reconcile documents",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-010",
+      "term": "Reconcile service jobs",
+      "primitive": "reconciliation",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-011",
+      "term": "Compare invoices",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-012",
+      "term": "Compare supplier quotes",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-013",
+      "term": "Compare supplier records",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-014",
+      "term": "Compare contracts",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-015",
+      "term": "Compare shipments",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-016",
+      "term": "Compare inventory records",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-017",
+      "term": "Compare assets",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-018",
+      "term": "Compare expenses",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-019",
+      "term": "Compare documents",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-020",
+      "term": "Compare service jobs",
+      "primitive": "comparison",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-021",
+      "term": "Verify invoices",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-022",
+      "term": "Verify supplier quotes",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-023",
+      "term": "Verify supplier records",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-024",
+      "term": "Verify contracts",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-025",
+      "term": "Verify shipments",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-026",
+      "term": "Verify inventory records",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-027",
+      "term": "Verify assets",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-028",
+      "term": "Verify expenses",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-029",
+      "term": "Verify documents",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-030",
+      "term": "Verify service jobs",
+      "primitive": "verification",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-031",
+      "term": "Extract invoices",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-032",
+      "term": "Extract supplier quotes",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-033",
+      "term": "Extract supplier records",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-034",
+      "term": "Extract contracts",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-035",
+      "term": "Extract shipments",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-036",
+      "term": "Extract inventory records",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-037",
+      "term": "Extract assets",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-038",
+      "term": "Extract expenses",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-039",
+      "term": "Extract documents",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-040",
+      "term": "Extract service jobs",
+      "primitive": "structured extraction",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-041",
+      "term": "Normalize invoices",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-042",
+      "term": "Normalize supplier quotes",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-043",
+      "term": "Normalize supplier records",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-044",
+      "term": "Normalize contracts",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-045",
+      "term": "Normalize shipments",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-046",
+      "term": "Normalize inventory records",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-047",
+      "term": "Normalize assets",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-048",
+      "term": "Normalize expenses",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-049",
+      "term": "Normalize documents",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    },
+    {
+      "id": "UP-050",
+      "term": "Normalize service jobs",
+      "primitive": "normalization",
+      "state": "HYPOTHESIS"
+    }
+  ]
+}
