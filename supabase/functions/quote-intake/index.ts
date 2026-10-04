@@ -37,6 +37,8 @@ Deno.serve(async req=>{
   try{
     const ctx=await sessionContext(sessionId);const fr=ctx.fulfillment;
     if(action==="initialize"){
+      if(fr.status==="fulfilled" || fr.canonical_state==="FULFILLED")return out({ok:true,action,status:"fulfilled",already_fulfilled:true,fulfillment_request_id:fr.id},200);
+      if(!["queued","processing"].includes(fr.status))return out({error:"FULFILLMENT_NOT_READY",status:fr.status,canonical_state:fr.canonical_state||null},409);
       const supplied=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];
       if(supplied.length<2||supplied.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const uploads=[];
@@ -50,6 +52,8 @@ Deno.serve(async req=>{
       return out({ok:true,action,fulfillment_request_id:fr.id,order_id:ctx.order.id,uploads});
     }
     if(action==="finalize"){
+      if(fr.status==="fulfilled" || fr.canonical_state==="FULFILLED")return out({ok:true,action,status:"fulfilled",already_fulfilled:true,fulfillment_request_id:fr.id,fulfillment_reference:fr.fulfillment_reference||null,evidence_reference:fr.evidence_reference||null},200);
+      if(!["queued","processing"].includes(fr.status))return out({error:"FULFILLMENT_NOT_READY",status:fr.status,canonical_state:fr.canonical_state||null},409);
       const files=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const requirements=String(body.requirements||"").trim().slice(0,12000);if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
       const inputFiles=[];
