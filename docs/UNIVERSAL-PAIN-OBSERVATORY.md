@@ -401,6 +401,124 @@ VERIFIED_ECONOMIC_OUTCOMES = 0
 299. Finding the next transaction after a completed one.
 300. Operating a trusted business transaction from requirement through repeat purchase without re-keying the same facts.
 
+
+## V4: Buyer-acquisition friction corpus (P301-P400)
+
+These vectors are not a second acquisition system. They are buyer-facing acquisition problems spliced into the existing pain corpus so CUBE/Cortex can connect an observed problem to the existing offer, discovery surface, checkout boundary and economic truth boundary.
+
+301. A buyer needs to compare supplier quotes but does not know the service exists.
+302. A buyer searches for a quote-comparison spreadsheet instead of a comparison service.
+303. A buyer searches for "compare supplier quotes" but cannot find a result matching a one-off need.
+304. A buyer receives 2-5 quotes and does not know which fields should be compared.
+305. A buyer cannot tell whether quoted totals include delivery or freight.
+306. A buyer cannot tell whether quoted prices include tax or other charges.
+307. A buyer cannot compare different supplier scopes without manually rewriting them.
+308. A buyer cannot compare minimum order quantities without building a spreadsheet.
+309. A buyer cannot compare lead times stated in different formats.
+310. A buyer cannot compare payment terms without reading every quotation.
+311. A buyer suspects a cheap quote contains exclusions.
+312. A buyer wants an independent second look before committing to a supplier.
+313. A buyer has no procurement specialist available for a small purchase.
+314. A buyer is too busy to normalize several quotations manually.
+315. A buyer has quotations scattered across email attachments.
+316. A buyer has quotations in PDF, spreadsheet and document formats.
+317. A buyer has revised quotations and is unsure which version is current.
+318. A buyer cannot quickly identify missing information in a quotation.
+319. A buyer needs a decision-ready comparison for a manager.
+320. A buyer needs evidence for an internal purchasing approval.
+321. A buyer needs to explain why a supplier was selected.
+322. A buyer fears choosing the lowest headline price and paying more later.
+323. A buyer cannot see the commercial trade-offs between price and lead time.
+324. A buyer cannot see the commercial trade-offs between MOQ and unit economics.
+325. A buyer cannot see the commercial trade-offs between payment terms and cash flow.
+326. A buyer cannot distinguish materially different supplier assumptions.
+327. A buyer wants comparison without purchasing procurement software.
+328. A buyer needs a one-off comparison rather than a subscription.
+329. A buyer does not know whether a small comparison service is trustworthy.
+330. A buyer cannot tell exactly what they receive after paying.
+331. A buyer cannot tell how many quotes are supported.
+332. A buyer cannot tell whether freight and scope are included in the comparison.
+333. A buyer cannot tell how quickly the comparison will be delivered.
+334. A buyer cannot tell whether their documents will be handled confidentially.
+335. A buyer cannot tell what happens if a quotation lacks a required field.
+336. A buyer cannot tell whether unknown information will be guessed or left unknown.
+337. A buyer wants a concrete example output before purchasing.
+338. A buyer wants to know what input documents are required before checkout.
+339. A buyer encounters a page that describes the problem but not the transaction.
+340. A buyer encounters a page that has a price but not a clear deliverable.
+341. A buyer encounters a page with a call to action but unclear post-payment steps.
+342. A buyer encounters several competing calls to action and does not know which to choose.
+343. A buyer lands on a generic procurement page instead of the exact problem page.
+344. A buyer searches using "supplier quote comparison" while the page uses different terminology.
+345. A buyer searches using "compare vendor quotes" while the page uses "supplier quotes".
+346. A buyer searches using "RFQ comparison" while the page does not mention RFQ language.
+347. A buyer searches by industry rather than by the generic procurement problem.
+348. A buyer searches by job role rather than by the task name.
+349. A buyer searches by the document they possess rather than the decision they need.
+350. A buyer searches for a manual workaround rather than a paid outcome.
+351. A buyer searches for a calculator or template because they do not recognize the service category.
+352. A buyer searches for "quote analysis" rather than "quote comparison".
+353. A buyer searches for "vendor comparison" rather than "supplier comparison".
+354. A buyer searches for "procurement quote comparison" rather than a generic phrase.
+355. A buyer searches for a specific purchasing situation rather than a general procurement term.
+356. A buyer searches immediately before a purchasing deadline and needs a fast answer.
+357. A buyer searches after receiving the second or third competing quote.
+358. A buyer searches after realizing that the cheapest quote is not obviously the best.
+359. A buyer searches after discovering inconsistent supplier terms.
+360. A buyer searches after a manager asks for a side-by-side comparison.
+361. A buyer searches after a supplier changes price or terms.
+362. A buyer searches after receiving a revised quote.
+363. A buyer searches after discovering freight was omitted from an earlier comparison.
+364. A buyer searches after a spreadsheet comparison becomes too time-consuming.
+365. A buyer searches after an internal approval is blocked by missing comparison evidence.
+366. A buyer does not trust a comparison that cannot show its source quotations.
+367. A buyer does not trust claims that exceed what the supplied quotations establish.
+368. A buyer needs source-grounded output rather than generic procurement advice.
+369. A buyer wants limitations stated clearly before paying.
+370. A buyer wants a human-readable result rather than another software dashboard.
+371. A buyer wants a downloadable or shareable decision packet.
+372. A buyer wants the comparison tied directly to the documents they supplied.
+373. A buyer wants the comparison to preserve unknowns instead of inventing values.
+374. A buyer wants contradictory supplier information surfaced rather than silently reconciled.
+375. A buyer wants missing commercial terms explicitly identified.
+376. A buyer wants the comparison usable by someone who did not collect the quotes.
+377. A buyer wants to avoid creating another account merely to obtain a one-off comparison.
+378. A buyer abandons when checkout requires unnecessary information.
+379. A buyer abandons when the price is hidden until late in the process.
+380. A buyer abandons when currency is unclear.
+381. A buyer abandons when the offer sounds like consulting instead of a defined service.
+382. A buyer abandons when turnaround time is missing.
+383. A buyer abandons when refund terms are missing.
+384. A buyer abandons when there is no obvious route from payment to document submission.
+385. A buyer abandons when the checkout destination looks unrelated to the problem they searched for.
+386. A buyer abandons when the offer requires more preparation than the value justifies.
+387. A buyer abandons when the supported quote count is unclear.
+388. A buyer abandons when the service appears designed for large enterprises rather than a small purchasing decision.
+389. A buyer abandons when the service appears too generic to understand their specific purchasing problem.
+390. A buyer abandons when the page contains claims that cannot be independently supported.
+391. A buyer needs reassurance that the comparison is grounded in supplied evidence.
+392. A buyer needs reassurance that the service will not fabricate missing commercial facts.
+393. A buyer needs reassurance that the output is decision support, not a guarantee of supplier performance.
+394. A buyer needs reassurance that the service can handle ordinary messy quotation formats.
+395. A buyer needs reassurance that the service can compare incomplete quotations honestly.
+396. A buyer needs reassurance that payment creates a concrete fulfillment obligation.
+397. A buyer needs a single obvious next action after understanding the offer.
+398. A buyer needs the acquisition page to match the language used in their purchasing problem.
+399. A buyer needs the acquisition surface, offer, checkout and fulfillment promise to form one continuous transaction path.
+400. A buyer needs enough confidence to cross from problem recognition to an independently settled purchase without invented urgency, social proof or traction.
+
+## Buyer-acquisition operating rule
+
+P301-P400 are acquisition-friction observations attached to the existing pain corpus. They do not create new products, acquisition engines, demand registries or economic outcomes.
+
+For each vector, the preferred progression is:
+
+**buyer problem -> buyer language -> discovery surface -> existing offer -> clear transaction boundary -> settled payment -> fulfilment -> independent evidence**
+
+A page view, search impression, click, checkout start or internal qualification remains non-economic.
+
+The corpus should be used to improve discovery and conversion of existing offers before creating additional products. The current first-dollar wedge remains QUOTE-COMPARE-49.
+
 ## Universal product factory
 
 The 300-vector corpus now spans transaction friction, finance, procurement, logistics, identity, compliance, property, field service, workforce, information management, household administration and recurring commerce.
