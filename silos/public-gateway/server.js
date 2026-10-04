@@ -22,12 +22,7 @@ const silos = {
     description:'Structured decision analysis delivered through a hosted endpoint.',
     status:'READY'
   },
-  'palinchron-liquidation': {
-    title:'MTG Liquidation: Palinchron ULG Foil LP',
-    description:'Physical Magic: The Gathering collector listing. Listing publication remains human-approved.',
-    status:'READY_FOR_HUMAN_APPROVAL'
-  },
-  'evidence-ledger': {
+  // MTG is intentionally NOT exposed from the DreamLedger gateway.\n  // Canonical MTG commerce lives in the separate MTG/HappyHomarid/CollectorsCoast silo.\n  'evidence-ledger': {
     title:'Evidence Ledger Access',
     description:'Sourced observations, estimates, uncertainty labels and provenance.',
     status:'APPROVAL_REQUIRED'
@@ -131,6 +126,34 @@ function esc(value) {
   });
 }
 
+function securityHeaders(contentType) {
+  return {
+    'content-type': contentType,
+    'cache-control': 'no-store',
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+    'permissions-policy': 'camera=(), microphone=(), geolocation=()'
+  };
+}
+
+function routeJson(route) {
+  return {
+    route_id: route.id,
+    source_event: route.event_id,
+    event_name: route.event_name,
+    buyer_class: route.buyer,
+    audience: route.audience,
+    commercial_angle: route.angle,
+    status: 'CANDIDATE_PUBLIC_ENTRY',
+    economic_truth: 'UNVERIFIED',
+    services: serviceTargets(route).map(function(t) {
+      return {label:t.label, price:t.price, href:t.href};
+    })
+  };
+}
+
 function page(title, description, status, slug) {
   return '<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' +
     esc(title) + ' | DreamLedger</title><meta name="description" content="' + esc(description) +
@@ -147,20 +170,57 @@ function page(title, description, status, slug) {
 const server = http.createServer((req,res)=>{
   const u = new URL(req.url, 'http://localhost');
   const slug = u.pathname.split('/').filter(Boolean)[0] || '';
+  if (u.pathname === '/robots.txt') {
+    res.writeHead(200, securityHeaders('text/plain; charset=utf-8'));
+    return res.end('User-agent: *\\nAllow: /\\nSitemap: https://dreamledger-silo-gateway.onrender.com/sitemap.xml\\n');
+  }
+  if (u.pathname === '/sitemap.xml') {
+    const urls = [];
+    for (let event = 1; event <= 100; event++) {
+      for (let variant = 1; variant <= 100; variant++) {
+        urls.push('https://dreamledger-silo-gateway.onrender.com/M10K-' + String(event).padStart(3,'0') + '-' + String(variant).padStart(3,'0'));
+      }
+    }
+    res.writeHead(200, {'content-type':'application/xml; charset=utf-8','cache-control':'public, max-age=300','x-content-type-options':'nosniff'});
+    return res.end('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls.map(function(x){ return '<url><loc>'+x+'</loc></url>'; }).join('') + '</urlset>');
+  }
+  if (u.pathname === '/api/healthz') {
+    res.writeHead(200, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length,money_routes:10000,economic_truth:'UNVERIFIED'}));
+  }
+  if (u.pathname === '/api/routes') {
+    const sample = [];
+    for (let event = 1; event <= 100; event++) {
+      for (let variant = 1; variant <= 100; variant++) {
+        sample.push(moneyRoute('M10K-' + String(event).padStart(3,'0') + '-' + String(variant).padStart(3,'0')));
+      }
+    }
+    res.writeHead(200, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify({count:sample.length,status:'CANDIDATE_PUBLIC_ENTRY',economic_truth:'UNVERIFIED',routes:sample}));
+  }
+  if (u.pathname === '/api/route') {
+    const route = moneyRoute(u.searchParams.get('id') || '');
+    if (!route) {
+      res.writeHead(404, securityHeaders('application/json; charset=utf-8'));
+      return res.end(JSON.stringify({error:'route_not_found'}));
+    }
+    res.writeHead(200, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify(routeJson(route)));
+  }
   if (slug === '' || slug === 'healthz') {
     const body = slug === 'healthz'
       ? JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length,money_routes:10000})
       : page('DreamLedger Silo Gateway','Public HTTP surfaces for defined silo candidates.','LIVE','index');
-    res.writeHead(200, {'content-type': slug === 'healthz' ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8','cache-control':'no-store'});
+    res.writeHead(200, securityHeaders(slug === 'healthz' ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8'));
     return res.end(body);
   }
   if (u.pathname === '/gets-opportunity-brief.html') {
-    res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'no-store'});
+    res.writeHead(200, securityHeaders('text/html; charset=utf-8'));
     return res.end('<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GETS Opportunity Brief | DreamLedger</title></head><body style="font-family:system-ui;max-width:900px;margin:0 auto;padding:48px 24px;background:#f5f0e7;color:#171512"><a href="/">DreamLedger</a><h1>GETS Opportunity Brief</h1><p>Evidence-backed tender decoding for NZ suppliers.</p><h2>NZ$49 price hypothesis</h2><p>Checkout is not attached until the payment route and fulfillment contract are explicitly approved and verified.</p><h2>Free sample</h2><ul><li>Tender identity and closing date</li><li>Mandatory requirements with source/page references</li><li>Capability fit and visible gaps</li><li>Questions to resolve before submission</li><li>Evidence trail for material claims</li></ul><p>This page is a product demonstration. It does not claim a buyer, payment or revenue.</p></body></html>');
   }
   const route = moneyRoute(slug);
   if (route) {
-    res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'public, max-age=300'});
+    res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'public, max-age=300','x-content-type-options':'nosniff','x-frame-options':'DENY','referrer-policy':'strict-origin-when-cross-origin'});
     return res.end(routePage(route));
   }
   const silo = silos[slug];
