@@ -57,6 +57,27 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',commit:COMMIT,surface:'marketplace-v19'}),'application/json; charset=utf-8');
   }
+  if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
+    try{
+      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      const products=Array.isArray(catalogue.products)?catalogue.products:[];
+      const offers=products.filter(x=>x&&x.status==='published'&&x.checkout_available===true).map(x=>({
+        product_id:x.id, sku:x.sku||null, name:x.name, description:x.description||null,
+        price_nzd:x.currency==='nzd'?x.price:null, currency:x.currency||'nzd', silo:x.silo||null,
+        checkout_url:x.checkout_url||null, fulfillment:x.fulfillment||null, status:'VERIFIED_AVAILABLE'
+      }));
+      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:offers.length,offers,truth_rule:'settled_stripe_only'}),'application/json; charset=utf-8');
+    }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
+  }
+  if(req.method==='GET' && p.startsWith('/buy/')){
+    try{
+      const productId=decodeURIComponent(p.slice('/buy/'.length)).replace(/\\//g,'');
+      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      const product=(Array.isArray(catalogue.products)?catalogue.products:[]).find(x=>x&&x.id===productId&&x.status==='published'&&x.checkout_available===true&&typeof x.checkout_url==='string');
+      if(!product) return send(res,404,'Not Found','text/plain; charset=utf-8');
+      res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
+    }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
+  }
   if(p.startsWith('/api/toll/v1/')){
     try{
       const handled=await tollRoad.handle(req,res,p);
