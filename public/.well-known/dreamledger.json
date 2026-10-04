@@ -2,7 +2,7 @@
   "schema": "dreamledger/discovery/v3",
   "service": "DreamLedger",
   "status": "active",
-  "updated": "2026-10-01",
+  "updated": "2026-10-05",
   "thesis": "Settlement-backed ledger for commercial truth: agents discover, humans authorize, Stripe settles, fulfillment is proven, then ledgered.",
   "canonical": {
     "market": "/",
@@ -18,7 +18,8 @@
     "surfaces": "/surfaces.json",
     "llms": "/llms.txt",
     "commerce_context": "/commerce.txt",
-    "ai_catalog": "/.well-known/ai-catalog.json",
+    "ai_catalog": "/ai-catalog.json",
+    "agent_products": "/agent-products.json",
     "health": "/healthz",
     "version": "/version"
   },
