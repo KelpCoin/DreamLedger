@@ -1,0 +1,65 @@
+{
+  "schema": "dreamledger/hands-off-economic-catalyst-proof/v1",
+  "observed_at": "2026-10-04T06:55:00Z",
+  "source_commit": "9a3cf469fdc1ed0a1a88481f35f235d57137118f",
+  "production_service": "DreamLedger1",
+  "production_service_id": "srv-d8ud55lckfvc73f1t4eg",
+  "deployment_id": "dep-db0ve2ad0e5s73dcsrv0",
+  "deployment_status": "live",
+  "deployment_commit_match": true,
+  "live_observation": {
+    "version": {
+      "url": "https://dreamledger.org/version",
+      "status": 200,
+      "commit": "9a3cf469fdc1ed0a1a88481f35f235d57137118f"
+    },
+    "toll_manifest": {
+      "url": "https://dreamledger.org/api/toll/v1/manifest",
+      "status": 200,
+      "status_value": "ARMED"
+    },
+    "toll_storefront": {
+      "url": "https://dreamledger.org/toll-road",
+      "status": 200
+    },
+    "protected_gauntlet_get": {
+      "status": 404,
+      "interpretation": "POST-only execution endpoint; not a public GET surface"
+    },
+    "protected_truth_get": {
+      "status": 404,
+      "interpretation": "POST-only execution endpoint; not a public GET surface"
+    }
+  },
+  "supabase": {
+    "project_ref": "wbwgroygjeyukkspnqiy",
+    "project_status": "ACTIVE_HEALTHY",
+    "sql_observation": "UNOBSERVABLE",
+    "error": "ECONNREFUSED 2406:da18:1691:a200::3484:5432",
+    "economic_state_mutation": "FORBIDDEN_UNTIL_RESTORED"
+  },
+  "stripe": {
+    "known_settled_payment_intents": [
+      "NZ$5",
+      "US$1"
+    ],
+    "disposition": "UNMATCHED",
+    "verified_revenue_nzd": 0
+  },
+  "blocker": {
+    "blocked_at": "DATABASE",
+    "because": "Authoritative Supabase PostgreSQL is refusing connections, so attribution/order/fulfillment/evidence cannot be reconciled.",
+    "required": "Restore authoritative Supabase connectivity, then reconcile every settled Stripe PaymentIntent through attribution, fulfillment and independent proof.",
+    "fallback": "Preserve unmatched payments as UNMATCHED; no economic promotion.",
+    "owner_action": "None",
+    "human_minutes": 0,
+    "expected_economic_effect": "Permit truthful reconciliation of existing external payment events; no revenue is manufactured."
+  },
+  "economic_scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "verdict": "TOLL_WALL_LIVE_DATABASE_OBSERVATION_BLOCKED"
+}
