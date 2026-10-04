@@ -1,39 +1,54 @@
 {
   "schema": "dreamledger/agent-commerce/v6",
-  "name": "DreamLedger",
-  "url": "https://dreamledger.org/",
-  "seller": "DreamLedger",
-  "currency": "NZD",
-  "discovery": {
-    "ai_catalog": "https://dreamledger.org/ai-catalog.json",
-    "agent_products": "https://dreamledger.org/agent-products.json",
-    "llms": "https://dreamledger.org/llms.txt"
-  },
-  "commerce": {
-    "agentic_commerce": true,
-    "human_authorization_required": true,
-    "autonomous_spend": false,
-    "payment": "Stripe Checkout",
-    "purchase_router": "https://dreamledger.org/buy/{product_id}"
-  },
-  "priority_offer": {
-    "id": "QUOTE-COMPARE-49",
-    "title": "Supplier Quote Comparison",
-    "description": "One-time comparison of 2-5 supplier quotes into a source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.",
-    "url": "https://dreamledger.org/quote-comparison/",
-    "price": 49,
-    "currency": "NZD",
-    "availability": "in_stock",
-    "required_input": "2-5 supplier quotes plus purchase requirements or scope",
-    "checkout": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
-  },
-  "trust": {
-    "unknown_data_preserved": true,
-    "fabricated_evidence": false,
-    "checkout_is_revenue": false,
-    "revenue_requires_settlement_and_fulfillment_proof": true
-  },
   "updated": "2026-10-05",
+  "purpose": "Machine commerce contract + economic loops. discover → authorize → pay → deliver → prove → ledger → repeat.",
+  "storefront": "https://dreamledger.org/",
+  "human_shop_horizontal": "https://dreamledger.org/shop.html",
+  "economic_loops": "https://dreamledger.org/economic-loops.json",
+  "thesis": "Queue and CUBE scale silos. Agents discover offers; humans authorize; Stripe settles; loops close only with proof.",
+  "agent_bridge": {
+    "status": "rail_public_live",
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
+    "manifest": "https://dreamledger.org/api/agent-bridge/manifest",
+    "rail_configured": true,
+    "work_auth_header": "x-dreamledger-agent-token",
+    "economic_truth": "Bridge activity is not revenue."
+  },
+  "fee_policy": {
+    "platform_listing_fee_nzd": 0,
+    "platform_success_fee_bps": 0,
+    "payment_processor": "Stripe"
+  },
+  "economic_event": {
+    "order": [
+      "authorized",
+      "paid",
+      "delivered",
+      "proven",
+      "ledgered"
+    ],
+    "settlement_authority": "stripe_live_only",
+    "client_reference": "Use https://dreamledger.org/buy/{product_id}"
+  },
+  "how_to_buy": [
+    "GET https://dreamledger.org/api/offers",
+    "Prefer status VERIFIED_AVAILABLE",
+    "Require human authorization",
+    "Open https://dreamledger.org/buy/{product_id}",
+    "Complete Stripe Checkout",
+    "Fulfil per silo; prove; only then close the loop"
+  ],
+  "endpoints": {
+    "offers": "https://dreamledger.org/api/offers",
+    "products": "https://dreamledger.org/api/products",
+    "economic_loops": "https://dreamledger.org/economic-loops.json",
+    "agent_commerce": "https://dreamledger.org/agent-commerce.json",
+    "agent": "https://dreamledger.org/agent.json",
+    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
+    "buy": "https://dreamledger.org/buy/{product_id}",
+    "shop": "https://dreamledger.org/shop.html",
+    "cube": "https://dreamledger.org/cube.json"
+  },
   "primary_offers": [
     {
       "product_id": "QUOTE-COMPARE-49",
@@ -41,9 +56,145 @@
       "price_nzd": 49,
       "silo": "procurement",
       "buy_router": "https://dreamledger.org/quote-comparison/",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+      "checkout_url": "https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32",
       "status": "VERIFIED_AVAILABLE",
       "loop": "LOOP-QUOTE-COMPARE-49"
+    },
+    {
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "silo": "mtg",
+      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "checkout_url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-CMD-DIAG-29"
+    },
+    {
+      "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "DreamMeez Supporter — Sprout",
+      "price_nzd": 3.99,
+      "silo": "dreammeez",
+      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-SPROUT-3.99"
+    },
+    {
+      "product_id": "DREAMMEEZ-SUPPORTER-GLOW",
+      "name": "DreamMeez Supporter — Glow",
+      "price_nzd": 5.99,
+      "silo": "dreammeez",
+      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW",
+      "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "DREAMMEEZ-SUPPORTER-DEPTH",
+      "name": "DreamMeez Supporter — Depth",
+      "price_nzd": 9.99,
+      "silo": "dreammeez",
+      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-DEPTH",
+      "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "DREAMMEEZ-COSMIC-HOODIE-001",
+      "name": "DreamMeez Cosmic Hoodie",
+      "price_nzd": 5,
+      "silo": "dreammeez",
+      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-COSMIC-HOODIE-001",
+      "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "DREAMMEEZ-CAPE-001",
+      "name": "DreamMeez Cape",
+      "price_nzd": 10,
+      "silo": "dreammeez",
+      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CAPE-001",
+      "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "DREAMMEEZ-CHROME-BOOTS-001",
+      "name": "DreamMeez Chrome Boots",
+      "price_nzd": 9,
+      "silo": "dreammeez",
+      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CHROME-BOOTS-001",
+      "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L",
+      "status": "VERIFIED_AVAILABLE"
+    },
+    {
+      "product_id": "KELP-FLOOR1-001",
+      "name": "Kelplantis Floor 1 Access Pass",
+      "price_nzd": 19,
+      "silo": "kelplantis",
+      "buy_router": "https://dreamledger.org/buy/KELP-FLOOR1-001",
+      "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-KELP-FLOOR1-19"
+    },
+    {
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard",
+      "price_nzd": 50,
+      "silo": "media",
+      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-BILLBOARD-FOUNDING-50"
+    },
+    {
+      "product_id": "SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "price_nzd": 29,
+      "silo": "seller_tools",
+      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
+      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-SELLER-AUDIT-29"
+    },
+    {
+      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Starter Kit",
+      "price_nzd": 79,
+      "silo": "commerce",
+      "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-DISCORD-KIT-79"
+    },
+    {
+      "product_id": "ACNC-CHARITY-DD-99",
+      "name": "ACNC Charity Due Diligence Report",
+      "price_nzd": 99,
+      "silo": "research",
+      "buy_router": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99",
+      "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
+      "status": "VERIFIED_AVAILABLE",
+      "loop": "LOOP-ACNC-DD-99"
+    },
+    {
+      "product_id": "EDH_0001",
+      "name": "EDH_0001 Commander Deck",
+      "price_nzd": 400,
+      "silo": "mtg",
+      "buy_router": "https://dreamledger.org/buy/EDH_0001",
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "status": "VERIFIED_AVAILABLE"
     }
-  ]
+  ],
+  "catalog_note": "Authoritative live set always: GET /api/offers (14 VERIFIED_AVAILABLE). primary_offers is a convenience mirror.",
+  "safety": {
+    "no_autonomous_spend_without_buyer_authorization": true,
+    "payment_provider": "Stripe",
+    "do_not_invent_payment_references": true,
+    "do_not_claim_revenue_without_stripe_evidence": true
+  },
+  "discovery": {
+    "ai_catalog": "https://dreamledger.org/ai-catalog.json",
+    "agent_products": "https://dreamledger.org/agent-products.json",
+    "llms": "https://dreamledger.org/llms.txt"
+  }
 }
