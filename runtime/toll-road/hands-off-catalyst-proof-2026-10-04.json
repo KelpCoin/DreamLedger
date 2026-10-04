@@ -1,0 +1,41 @@
+{
+  "proof_type": "HANDS_OFF_TOLL_ROAD_TRAVERSAL",
+  "observed_at": "2026-10-04",
+  "branch": "economic-surface-compiler-v1",
+  "latest_commit": "e89e07eb2d386f214a66d9ef4747f220b40ca4a7",
+  "measured_blocker": {
+    "blocked_at": "DELIVERY",
+    "because": "customer-facing /toll-road doorway was observed returning 404 while /api/toll/v1/manifest was armed",
+    "required": "public storefront must resolve to the existing compiled toll-road service; deployment gate must verify the storefront and manifest",
+    "fallback": "none; do not claim the toll road is customer-reachable until live deployment converges",
+    "owner_action": "none for machine work",
+    "human_minutes": 0,
+    "expected_economic_effect": "remove a measured delivery boundary failure without claiming revenue"
+  },
+  "changes": [
+    {
+      "commit": "b17240c9741bd5c9dd33332c4525e79bdc807b49",
+      "change": "expose existing compiled toll-road storefront at /toll-road and /toll-road/"
+    },
+    {
+      "commit": "e89e07eb2d386f214a66d9ef4747f220b40ca4a7",
+      "change": "stop advertising unimplemented /api/toll/v1/roads in the public toll manifest"
+    },
+    {
+      "commit": "088eaae25daa316653fa1403a3d01b83ebfa79f2",
+      "change": "make existing Surface Deploy Gate verify /toll-road and /api/toll/v1/manifest"
+    }
+  ],
+  "verification": {
+    "source_inspection": "PASS",
+    "manifest_route_truth": "PASS: gauntlet and truth routes are implemented; unimplemented roads route removed from manifest",
+    "storefront_source": "PASS: BEC-PRIME/compiled/website/toll-road.html exists on branch",
+    "live_deployment": "NOT_PROVEN: current live deployment has not converged to this branch",
+    "ci": "NOT_PROVEN: branch is not a main-triggered Surface Deploy Gate run",
+    "revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "next_blocker": "DEPLOYMENT/CI: branch must reach the existing Render deployment and complete the existing Surface Deploy Gate before public reachability can be claimed"
+}
