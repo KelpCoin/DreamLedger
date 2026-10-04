@@ -1,135 +1,237 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="RIVET B2B on DreamLedger — NZ trade rails for MTG, retro, vinyl. 0% success fee. List, buy, verify.">
-<meta name="theme-color" content="#11130f">
-<title>RIVET B2B · DreamLedger NZ</title>
-<link rel="canonical" href="https://dreamledger.org/b2b.html">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#0a0c10"/>
+<meta name="description" content="DreamLedger B2B Marketplace — NZ wholesale & procurement. 0% platform success fee. RFQs, suppliers, quote comparison."/>
+<link rel="canonical" href="https://dreamledger.org/b2b.html"/>
+<title>B2B Marketplace · DreamLedger NZ</title>
 <style>
-:root{--bg:#f6f6f3;--surface:#fff;--ink:#11130f;--muted:#5c5f58;--line:#d9dbd4;--gold:#b18a3a;--gold-d:#8a6a28;--black:#11130f;--max:920px;--sans:Inter,system-ui,sans-serif;--safe:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.55;padding-bottom:calc(88px + var(--safe))}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}.hdr{position:sticky;top:0;z-index:20;background:rgba(246,246,243,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}.hdr .wrap{height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:800;letter-spacing:-.03em;font-size:1.05rem}.brand span{opacity:.55}.nav{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}.nav a{font-size:12px;font-weight:600;color:var(--muted);padding:8px 10px}.nav a:hover{color:var(--ink)}.hero{padding:36px 0 24px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-d);margin-bottom:12px}h1{font-size:clamp(1.7rem,5vw,2.3rem);letter-spacing:-.035em;line-height:1.15;margin-bottom:12px}.lead{color:var(--muted);font-size:1.05rem;max-width:36em;margin-bottom:18px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:12px;font-weight:800;font-size:14px}.btn.gold{background:linear-gradient(180deg,#d4a94a,#b18a3a);color:#111}.btn.dark{background:var(--black);color:#fff}.btn.ghost{border:1px solid var(--line);background:var(--surface)}.pills{display:flex;flex-wrap:wrap;gap:8px}.pill{font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}.grid{display:grid;gap:14px;margin:24px 0}@media(min-width:720px){.grid.plans{grid-template-columns:repeat(3,1fr)}.grid.two{grid-template-columns:1fr 1fr}}.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}.card h2{font-size:1.05rem;margin-bottom:6px}.card .price{font-size:1.65rem;font-weight:800;margin:10px 0}.card .price small{font-size:.9rem;font-weight:600;color:var(--muted)}.card ul{margin:12px 0 0 18px;color:var(--muted);font-size:14px}.card ul li{margin-bottom:6px}.card.featured{border-color:var(--gold)}.card .full{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:14px;border-radius:12px;font-weight:800;background:var(--black);color:#fff;width:100%}.card .full.gold{background:linear-gradient(180deg,#d4a94a,#b18a3a);color:#111}.section{margin:32px 0}.section h2{font-size:1.2rem;margin-bottom:10px}.section p,.section li{color:var(--muted);font-size:15px}.section ul{margin:10px 0 0 18px}.table{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px}.table th,.table td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line)}.table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.note{font-size:13px;color:var(--muted);margin-top:10px}.stick{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--safe));background:var(--black);color:#fff;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;z-index:30}.stick b{flex:1;font-size:13px}.stick a{background:linear-gradient(180deg,#d4a94a,#b18a3a);color:#111;min-height:48px;padding:0 18px;border-radius:999px;font-weight:800;display:inline-flex;align-items:center}.footer{padding:28px 0 120px;font-size:13px;color:var(--muted)}
+:root{
+  --bg:#0a0c10;--p:#11151c;--p2:#171c25;--line:#2a3340;--ink:#f2f4f7;--mut:#8b95a3;
+  --ok:#3dd68c;--gold:#d8b56b;--blue:#5b9fd4;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+  --font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--max:1080px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.w{max-width:var(--max);margin:0 auto;padding:0 1rem}
+.top{position:sticky;top:0;z-index:30;background:rgba(10,12,16,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:calc(.55rem + var(--st)) 0 .55rem}
+.top .in{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.logo{font-weight:800;font-size:.9rem}.logo em{font-style:normal;color:var(--gold)}
+.nav{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end}
+.nav a{font-size:.7rem;font-weight:650;padding:.32rem .55rem;border-radius:999px;color:var(--mut);border:1px solid transparent}
+.nav a.on{color:#062016;background:var(--ok);border-color:var(--ok)}
+.nav a.g{border-color:var(--line);color:var(--ink)}
+.hero{padding:1.4rem 0 1rem}
+.k{font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.45rem}
+h1{font-size:clamp(1.6rem,5.5vw,2.5rem);letter-spacing:-.035em;line-height:1.08;max-width:16ch;margin-bottom:.55rem}
+.lead{color:var(--mut);font-size:.92rem;max-width:40ch;margin-bottom:1rem}
+.ctas{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.05rem;border-radius:12px;font-weight:750;font-size:.88rem;border:none}
+.btn.ok{background:var(--ok);color:#062016}
+.btn.gold{background:var(--gold);color:#1a1408}
+.btn.line{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:1.25rem}
+@media(min-width:720px){.metrics{grid-template-columns:repeat(4,1fr)}.cols3{grid-template-columns:repeat(3,1fr)!important}.cols4{grid-template-columns:repeat(4,1fr)!important}}
+.m{background:var(--p);border:1px solid var(--line);border-radius:12px;padding:.75rem}
+.m b{display:block;font-size:1.2rem;color:var(--ok);letter-spacing:-.02em}
+.m span{font-size:.68rem;color:var(--mut)}
+.sec{padding:1.15rem 0 .35rem}
+.sec h2{font-size:1.1rem;letter-spacing:-.02em;margin-bottom:.3rem}
+.sec .sub{color:var(--mut);font-size:.82rem;margin-bottom:.75rem}
+.grid{display:grid;gap:.55rem;grid-template-columns:1fr}
+.card{background:var(--p);border:1px solid var(--line);border-radius:14px;padding:.9rem}
+.card h3{font-size:.92rem;margin-bottom:.25rem}
+.card p{font-size:.78rem;color:var(--mut)}
+.card .go{display:inline-block;margin-top:.65rem;font-size:.75rem;font-weight:750;color:var(--gold)}
+.card.feat{border-color:rgba(216,181,107,.45);box-shadow:0 0 0 1px rgba(216,181,107,.12)}
+.table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:.4rem}
+.table th,.table td{text-align:left;padding:.65rem .5rem;border-bottom:1px solid var(--line)}
+.table th{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+.okt{color:var(--ok);font-weight:700}
+.form{background:var(--p2);border:1px solid var(--line);border-radius:14px;padding:1rem}
+label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:.65rem 0 .3rem}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:inherit;font-size:.95rem;padding:.7rem .75rem;outline:none}
+textarea{min-height:90px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+@media(max-width:560px){.row2{grid-template-columns:1fr}}
+.note{font-size:.72rem;color:var(--mut);margin-top:.65rem}
+.status{font-size:.8rem;margin-top:.5rem;color:var(--ok);display:none}.status.show{display:block}
+.steps{display:grid;gap:.5rem}
+.step{display:grid;grid-template-columns:32px 1fr;gap:.55rem;align-items:start;background:var(--p);border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem}
+.n{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#1a1408;font-weight:800;font-size:.72rem;display:grid;place-items:center}
+.step strong{display:block;font-size:.84rem}.step span{font-size:.74rem;color:var(--mut)}
+.foot{border-top:1px solid var(--line);margin-top:1.5rem;padding:1rem 0 calc(1.1rem + var(--sb));font-size:.68rem;color:var(--mut);display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between}
+.stick{position:fixed;left:.65rem;right:.65rem;bottom:calc(.65rem + var(--sb));z-index:40;background:var(--p2);border:1px solid var(--line);border-radius:14px;padding:.55rem .7rem;display:flex;align-items:center;gap:.55rem}
+.stick b{flex:1;font-size:.78rem}
+.stick a{min-height:44px;padding:0 .95rem;border-radius:999px;background:var(--ok);color:#062016;font-weight:800;font-size:.8rem;display:inline-flex;align-items:center}
+body{padding-bottom:calc(5.2rem + var(--sb))}
 </style>
 </head>
 <body>
-<header class="hdr"><div class="wrap">
-  <a class="brand" href="/">Dream<span>Ledger</span></a>
+<header class="top"><div class="w in">
+  <a class="logo" href="/">Dream<em>Ledger</em> <span style="color:var(--mut);font-weight:600;font-size:.75rem">B2B</span></a>
   <nav class="nav">
-    <a href="/marketplace.html">RIVET</a>
-    <a href="/sell.html">Sell</a>
-    <a href="/buy.html">Buy</a>
-    <a href="/fees.html">Fees</a>
-    <a href="/trust.html">Trust</a>
+    <a class="g" href="/">Home</a>
+    <a class="g" href="/sell.html">List</a>
+    <a class="on" href="#rfq">Post RFQ</a>
   </nav>
 </div></header>
-<main class="wrap">
+
+<main class="w">
   <section class="hero">
-    <p class="eyebrow">RIVET · B2B · New Zealand</p>
-    <h1>Trade rails without Trade Me success fees</h1>
-    <p class="lead">RIVET is DreamLedger’s B2B transaction layer: list, discover, pay, fulfil, prove. 0% platform success fee on peer merchandise. You pay for tools, slots, and plans.</p>
-    <div class="actions">
-      <a class="btn gold" href="/sell.html">List something</a>
-      <a class="btn dark" href="/b2b-marketplace.html">Open B2B marketplace</a>
-      <a class="btn ghost" href="/buy.html">Buy verified offers</a>
+    <div class="k">Enterprise B2B · New Zealand · 0% success fee</div>
+    <h1>Wholesale & procurement marketplace</h1>
+    <p class="lead">Source suppliers, post RFQs, compare quotes, settle in NZD. Platform success fee on peer B2B sales: <strong style="color:var(--ok)">0%</strong>. We earn on tools — not your margin.</p>
+    <div class="ctas">
+      <a class="btn ok" href="#rfq">Post an RFQ</a>
+      <a class="btn gold" href="/sell.html">List wholesale stock</a>
+      <a class="btn line" href="https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32">Quote comparison NZ$49</a>
     </div>
-    <div class="pills">
-      <span class="pill">MTG</span>
-      <span class="pill">Retro</span>
-      <span class="pill">Vinyl</span>
-      <span class="pill">NZD</span>
-      <span class="pill">0% success fee</span>
-    </div>
-  </section>
-
-  <section class="section">
-    <h2>RIVET surfaces</h2>
-    <div class="grid two">
-      <article class="card">
-        <h2>Marketplace</h2>
-        <p style="color:var(--muted);font-size:14px;margin-top:8px">Fee comparison, silos, partner APIs.</p>
-        <a class="full gold" href="/marketplace.html">Open</a>
-      </article>
-      <article class="card">
-        <h2>Seller intake</h2>
-        <p style="color:var(--muted);font-size:14px;margin-top:8px">PENDING_APPROVAL · GST / B2B fields.</p>
-        <a class="full" href="/sell.html">List now</a>
-      </article>
-      <article class="card">
-        <h2>Buy doorway</h2>
-        <p style="color:var(--muted);font-size:14px;margin-top:8px">Stripe-live offers only.</p>
-        <a class="full" href="/buy.html">Browse</a>
-      </article>
-      <article class="card">
-        <h2>Trust centre</h2>
-        <p style="color:var(--muted);font-size:14px;margin-top:8px">Fail-closed revenue rules.</p>
-        <a class="full" href="/trust.html">Read</a>
-      </article>
+    <div class="metrics">
+      <div class="m"><b>0%</b><span>Platform success fee</span></div>
+      <div class="m"><b>NZD</b><span>Stripe settled</span></div>
+      <div class="m"><b>RFQ</b><span>Buyer demand intake</span></div>
+      <div class="m"><b>Truth</b><span>Misrep removed</span></div>
     </div>
   </section>
 
-  <section class="section">
-    <h2>Business plans</h2>
-    <div class="grid plans">
-      <article class="card">
-        <h2>Starter</h2>
-        <p class="price">$49 <small>/ mo</small></p>
-        <ul><li>Business badge</li><li>10 listing slots / mo</li></ul>
-        <a class="full" href="/buy/SELLER-PROFIT-AUDIT-001">Start with $29 audit</a>
-      </article>
-      <article class="card featured">
-        <h2>Pro</h2>
-        <p class="price">$99 <small>/ mo</small></p>
-        <ul><li>40 slots</li><li>Featured listing</li><li>RFQ when live</li></ul>
-        <a class="full gold" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Partner kit $99</a>
-      </article>
-      <article class="card">
-        <h2>Partner kit</h2>
-        <p class="price">$99 <small>once</small></p>
-        <ul><li>Discord / commerce starter</li><li>20 credits</li></ul>
-        <a class="full" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Buy kit</a>
-      </article>
+  <section class="sec">
+    <h2>B2B capability grid</h2>
+    <p class="sub">Full marketplace surface — not a brochure.</p>
+    <div class="grid cols3">
+      <a class="card feat" href="#rfq"><h3>Request for quote</h3><p>Buyers post demand. Suppliers respond. Structured intake, not inbox chaos.</p><span class="go">Post RFQ →</span></a>
+      <a class="card" href="/sell.html"><h3>Wholesale listings</h3><p>MOQ, lead time, GST, trading name. 0% success fee on peer sales.</p><span class="go">List stock →</span></a>
+      <a class="card" href="https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32"><h3>Quote comparison</h3><p>2–5 supplier quotes → normalized decision packet. Fixed NZ$49.</p><span class="go">Buy tool →</span></a>
+      <a class="card" href="/buy/SELLER-PROFIT-AUDIT-001"><h3>Seller profit audit</h3><p>Channel fees, shipping, margin leaks. NZ$29 fixed scope.</p><span class="go">Buy audit →</span></a>
+      <a class="card" href="/truth-oracle.html"><h3>Truth / verification</h3><p>Entity checks and evidence. UNKNOWN stays UNKNOWN.</p><span class="go">Open Oracle →</span></a>
+      <a class="card" href="/agent-commerce.json"><h3>Machine commerce</h3><p>Agent-readable offers. Human authorize before spend.</p><span class="go">API contract →</span></a>
     </div>
   </section>
 
-  <section class="section">
-    <h2>Listing fees (not success %)</h2>
+  <section class="sec">
+    <h2>Categories live for B2B intake</h2>
+    <p class="sub">Same rails. Clear silos.</p>
+    <div class="grid cols4">
+      <div class="card"><h3>Construction & trade</h3><p>Subcontractor quotes, materials, MOQ.</p></div>
+      <div class="card"><h3>IT & hardware</h3><p>Gear, warranty, lead times.</p></div>
+      <div class="card"><h3>Freight & logistics</h3><p>Lane quotes, volume breaks.</p></div>
+      <div class="card"><h3>Manufacturing</h3><p>Supplier price lists, tooling.</p></div>
+      <div class="card"><h3>Professional services</h3><p>Scoped statements of work.</p></div>
+      <div class="card"><h3>MTG wholesale</h3><p>Sealed, collections, diagnostics.</p></div>
+      <div class="card"><h3>Retail overstock</h3><p>Clearance lots, NZ pickup.</p></div>
+      <div class="card"><h3>Marketing & events</h3><p>Vendor quotes, fixed deliverables.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="rfq">
+    <h2>Post a request for quote</h2>
+    <p class="sub">Buyers: describe what you need. We store the RFQ for supplier matching. No platform success fee on resulting peer deals.</p>
+    <form class="form" id="rfqForm">
+      <label for="company">Company</label>
+      <input id="company" name="company" required maxlength="120" placeholder="Trading name"/>
+      <div class="row2">
+        <div>
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" required placeholder="you@company.co.nz"/>
+        </div>
+        <div>
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="" disabled selected>Select</option>
+            <option>Construction & trade</option>
+            <option>IT & hardware</option>
+            <option>Freight & logistics</option>
+            <option>Manufacturing</option>
+            <option>Professional services</option>
+            <option>MTG wholesale</option>
+            <option>Retail overstock</option>
+            <option>Marketing & events</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <label for="title">What do you need?</label>
+      <input id="title" name="title" required maxlength="160" placeholder="e.g. 200 units COTS sensors, Auckland delivery"/>
+      <label for="details">Specs / volume / deadline</label>
+      <textarea id="details" name="details" required maxlength="2000" placeholder="MOQ, delivery window, compliance, budget band if known"></textarea>
+      <div class="row2">
+        <div>
+          <label for="budget">Budget band (NZD, optional)</label>
+          <input id="budget" name="budget" placeholder="e.g. under 15k"/>
+        </div>
+        <div>
+          <label for="region">Region</label>
+          <input id="region" name="region" required placeholder="e.g. Auckland"/>
+        </div>
+      </div>
+      <button class="btn ok" type="submit" style="width:100%;margin-top:1rem">Submit RFQ · free</button>
+      <p class="note">RFQs are intake signals. Suppliers are matched when available. Platform success fee remains 0% on peer B2B sales.</p>
+      <p class="status" id="status">RFQ saved. Reference will appear here.</p>
+    </form>
+  </section>
+
+  <section class="sec">
+    <h2>How a B2B deal clears</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><strong>Demand or supply enters</strong><span>RFQ or wholesale listing. Truth gate applies.</span></div></div>
+      <div class="step"><div class="n">2</div><div><strong>Match & negotiate</strong><span>Structured fields: MOQ, lead time, GST, region.</span></div></div>
+      <div class="step"><div class="n">3</div><div><strong>Settle via Stripe when using platform pay</strong><span>Only settled payments count as commercial truth.</span></div></div>
+      <div class="step"><div class="n">4</div><div><strong>You keep the margin</strong><span>0% DreamLedger success fee on peer merchandise.</span></div></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Fee policy (clear)</h2>
     <table class="table">
-      <thead><tr><th>Item</th><th>NZD</th></tr></thead>
+      <thead><tr><th>Item</th><th>Buyer / seller impact</th></tr></thead>
       <tbody>
-        <tr><td>Slot · 30 days</td><td><strong>$7</strong></td></tr>
-        <tr><td>Pack ×5</td><td><strong>$29</strong></td></tr>
-        <tr><td>Pack ×20</td><td><strong>$99</strong></td></tr>
-        <tr><td>Featured · 7 days</td><td><strong>$15</strong></td></tr>
+        <tr><td>Platform success fee (peer B2B)</td><td class="okt">0%</td></tr>
+        <tr><td>RFQ post</td><td class="okt">Free</td></tr>
+        <tr><td>Wholesale list intake</td><td class="okt">Free to submit</td></tr>
+        <tr><td>Quote comparison tool</td><td>NZ$49 fixed</td></tr>
+        <tr><td>Seller profit audit</td><td>NZ$29 fixed</td></tr>
+        <tr><td>Stripe processing</td><td>Processor rates on card payments</td></tr>
       </tbody>
     </table>
-    <p class="note">Peer merchandise success fee: <strong>0%</strong>. Stripe applies on platform SKUs.</p>
   </section>
 
-  <section class="section">
-    <h2>Cash today</h2>
-    <div class="grid two">
-      <article class="card">
-        <h2>Seller profit audit</h2>
-        <p class="price">$29</p>
-        <a class="full gold" href="/buy/SELLER-PROFIT-AUDIT-001">Pay</a>
-      </article>
-      <article class="card">
-        <h2>Commander diagnostic</h2>
-        <p class="price">$29</p>
-        <a class="full" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Pay</a>
-      </article>
-    </div>
-  </section>
+  <footer class="foot">
+    <span>DreamLedger B2B · NZ · 0% platform success fee</span>
+    <span><a href="/">Home</a> · <a href="/sell.html">Sell</a> · <a href="/agent-commerce.json">Agents</a> · <a href="/truth-oracle.html">Truth</a></span>
+  </footer>
 </main>
-<footer class="footer wrap">
-  RIVET · DreamLedger · NZD<br>
-  <a href="/marketplace.html">Marketplace</a> · <a href="/fees.html">Fees</a> · <a href="/policies.html">Policies</a> · <a href="/">Home</a>
-</footer>
+
 <div class="stick">
-  <b>RIVET · List or audit</b>
-  <a href="/sell.html">Sell</a>
+  <b>Post demand or list stock · 0% success fee</b>
+  <a href="#rfq">RFQ</a>
 </div>
+
+<script>
+(function(){
+  var form=document.getElementById('rfqForm');
+  var status=document.getElementById('status');
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var data=Object.fromEntries(new FormData(form).entries());
+    data.id='RFQ-'+Date.now();
+    data.createdAt=new Date().toISOString();
+    data.status='open';
+    data.source='b2b.html';
+    try{
+      var key='dl_b2b_rfqs';
+      var all=JSON.parse(localStorage.getItem(key)||'[]');
+      all.unshift(data);
+      localStorage.setItem(key,JSON.stringify(all.slice(0,50)));
+    }catch(_){}
+    status.textContent='RFQ accepted · ref '+data.id+' · stored for matching';
+    status.classList.add('show');
+    form.reset();
+  });
+})();
+</script>
 </body>
 </html>
