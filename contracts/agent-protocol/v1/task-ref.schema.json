@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/contracts/agent-protocol/v1/task-ref.schema.json",
+  "title": "DreamLedger Canonical State Reference v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ref_type", "ref_id"],
+  "properties": {
+    "ref_type": {
+      "type": "string",
+      "enum": ["TASK", "DEMAND_SIGNAL", "OFFER", "ECONOMIC_ACTION", "ECONOMIC_EVENT", "FULFILLMENT", "EVIDENCE"]
+    },
+    "ref_id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 }
+  }
+}
