@@ -1,46 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://dreamledger.org/</loc></url>
-  <url><loc>https://dreamledger.org/truth-oracle.html</loc></url>
-  <url><loc>https://dreamledger.org/overpaying.html</loc></url>
-  <url><loc>https://dreamledger.org/mtg</loc></url>
-  <url><loc>https://dreamledger.org/billboard</loc></url>
-  <url><loc>https://dreamledger.org/dreammeez</loc></url>
-  <url><loc>https://dreamledger.org/agent-commerce</loc></url>
-  <url><loc>https://dreamledger.org/c2</loc></url>
-  <url><loc>https://dreamledger.org/consult</loc></url>
-  <url><loc>https://dreamledger.org/phin-haven</loc></url>
-  <url><loc>https://dreamledger.org/guides/agentic-commerce-nz</loc></url>
-  <url><loc>https://dreamledger.org/guides/ai-product-discovery-nz</loc></url>
-  <url><loc>https://dreamledger.org/guides/proving-online-transactions</loc></url>
-  <url><loc>https://dreamledger.org/guides/nz-physical-goods-price-check</loc></url>
-  <url><loc>https://dreamledger.org/product/DREAMLEDGER-BILLBOARD-FOUNDING-001</loc></url>
-  <url><loc>https://dreamledger.org/product/COMMANDER-DECK-DIAGNOSTIC-001</loc></url>
-  <url><loc>https://dreamledger.org/product/DISCORD-WEBHOOK-STARTER-KIT-001</loc></url>
-  <url><loc>https://dreamledger.org/product/EDH_0001</loc></url>
-  <url><loc>https://dreamledger.org/product/KELP-FLOOR1-001</loc></url>
-  <url><loc>https://dreamledger.org/product/DREAMMEEZ-COSMIC-HOODIE-001</loc></url>
-  <url><loc>https://dreamledger.org/product/DREAMMEEZ-CAPE-001</loc></url>
-  <url><loc>https://dreamledger.org/product/DREAMMEEZ-CHROME-BOOTS-001</loc></url>
-  <url><loc>https://dreamledger.org/pundit</loc></url>
-  <url><loc>https://dreamledger.org/sports/fightedge</loc></url>
-  <url><loc>https://dreamledger.org/tools</loc></url>
-  <url><loc>https://dreamledger.org/tools/seller-profit</loc></url>
-  <url><loc>https://dreamledger.org/tools/seller-profit-audit</loc></url>
-  <url><loc>https://dreamledger.org/product/SELLER-PROFIT-AUDIT-001</loc></url>
-  <url><loc>https://dreamledger.org/silos/evergreen.html</loc></url>
-  <url><loc>https://dreamledger.org/silos/construction-subcontractor-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/it-hardware-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/freight-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/manufacturing-supplier-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/marketing-agency-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/event-vendor-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/fleet-repair-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/saas-vendor-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/professional-services-quotes</loc></url>
-  <url><loc>https://dreamledger.org/silos/supplier-price-list-comparison</loc></url>
+  <url><loc>https://dreamledger.org/agentic-commerce.html</loc></url>
+  <url><loc>https://dreamledger.org/ai-catalog.json</loc></url>
+  <url><loc>https://dreamledger.org/agent-products.json</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/construction</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/manufacturing</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/lighting</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/electrical</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/import</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/hospitality</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/packaging</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/ecommerce</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/wholesale</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/operations</loc></url>
   <url><loc>https://dreamledger.org/quote-comparison.html</loc></url>
   <url><loc>https://dreamledger.org/supplier-quote-comparison.html</loc></url>
   <url><loc>https://dreamledger.org/compare-supplier-quotes.html</loc></url>
   <url><loc>https://dreamledger.org/rfq-quote-comparison.html</loc></url>
+  <url><loc>https://dreamledger.org/agent-commerce</loc></url>
+  <url><loc>https://dreamledger.org/guides/agentic-commerce-nz</loc></url>
+  <url><loc>https://dreamledger.org/guides/ai-product-discovery-nz</loc></url>
 </urlset>
