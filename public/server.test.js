@@ -16,3 +16,10 @@ test('Truth Oracle API is handled locally before generic engine proxying', () =>
   assert.match(source, /if\(p\.startsWith\('\/api\/truth-oracle'\)/);
   assert.match(source, /truthOracleCommerce\.handle\(req,res,p\)/);
 });
+
+
+test('Toll Road API is mounted before the generic GET-only storefront handler', () => {
+  assert.match(source, /const tollRoad=require\('\.\.\/BEC-PRIME\/routes\/tollRoad'\)/);
+  assert.match(source, /if\(p\.startsWith\('\/api\/toll\/v1\/'\)\)/);
+  assert.match(source, /tollRoad\.handle\(req,res,p\)/);
+});
