@@ -3,179 +3,153 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#070706"/>
-<meta name="description" content="DreamLedger — NZ marketplace. Free cost of living truth. Zero listing fees. Thumb-first catalogue."/>
+<meta name="theme-color" content="#060708"/>
+<meta name="description" content="DreamLedger — NZ marketplace with 0% platform fees. Buy and sell with more protection than Facebook Marketplace. B2B + consumer."/>
 <link rel="canonical" href="https://dreamledger.org/"/>
-<title>DreamLedger · Live</title>
+<title>DreamLedger · NZ Marketplace · 0% fees</title>
 <style>
 :root{
-  --bg:#070706;--surface:#121210;--s2:#1a1a17;--text:#f4f2eb;--t2:#b0ada4;--t3:#6e6b63;
-  --border:#2a2a26;--accent:#e8e2d0;--pos:#6bcf8e;--gold:#d7b65b;
+  --bg:#060708;--panel:#0e1116;--panel2:#141820;--line:#243040;--ink:#f3f5f7;--muted:#8b96a3;
+  --gold:#d8b56b;--ok:#3dd68c;--blue:#5b9fd4;--max:1100px;
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-.top{flex-shrink:0;padding:calc(.55rem + var(--st)) 1rem .4rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-bottom:1px solid var(--border)}
-.brand{font-size:.95rem;font-weight:700;letter-spacing:-.03em}
-.brand span{color:var(--gold)}
-.top-right{display:flex;align-items:center;gap:.4rem}
-.chip{font-size:.68rem;font-weight:700;text-decoration:none;padding:.28rem .55rem;border-radius:999px}
-.chip.sell{color:var(--pos);border:1px solid rgba(107,207,142,.3);background:rgba(107,207,142,.1)}
-.chip.free{color:var(--gold);border:1px solid rgba(215,182,91,.35);background:rgba(215,182,91,.1)}
-.silo{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.label{padding:.55rem 1rem .25rem;font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--t3)}
-.track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:1rem;-webkit-overflow-scrolling:touch;padding:.3rem 1rem .6rem;scrollbar-width:none;flex:1;align-items:center}
-.track::-webkit-scrollbar{display:none}
-.card{flex:0 0 min(82vw,320px);scroll-snap-align:center;background:var(--surface);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;min-height:280px}
-.card.magnet{border-color:rgba(215,182,91,.45);box-shadow:0 0 0 1px rgba(215,182,91,.2),0 0 40px rgba(215,182,91,.08)}
-.hero{position:relative;aspect-ratio:16/10;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:2.4rem}
-.badge{position:absolute;top:.45rem;left:.45rem;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.2rem .4rem;border-radius:6px;background:rgba(0,0,0,.65);color:#fff}
-.badge.free{background:var(--gold);color:#111}
-.badge.live{background:var(--pos);color:#0a0a0a}
-.body{padding:.75rem .85rem .5rem;flex:1;display:flex;flex-direction:column;gap:.2rem}
-.tag{font-size:.58rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
-.card h2{font-size:1.05rem;font-weight:650;letter-spacing:-.03em;line-height:1.15}
-.card p{font-size:.8rem;color:var(--t2);line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:.45rem}
-.price{font-size:1rem;font-weight:700;color:var(--accent)}
-.price.free{color:var(--gold)}
-.trust{font-size:.62rem;color:var(--t3);font-weight:500}
-.cta-wrap{padding:0 .75rem .75rem}
-.cta{display:flex;align-items:center;justify-content:center;width:100%;height:50px;background:var(--accent);color:#111;font-size:.9rem;font-weight:700;border:none;border-radius:12px;text-decoration:none}
-.cta:active{transform:scale(.975);opacity:.92}
-.cta.ghost{background:transparent;color:var(--accent);border:1px solid var(--border)}
-.cta.gold{background:var(--gold);color:#111}
-.bot{flex-shrink:0;padding:.35rem 1rem calc(.7rem + var(--sb));border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.4rem}
-.dots{display:flex;justify-content:center;gap:5px}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--border)}
-.dot.on{background:var(--accent);transform:scale(1.35)}
-.strip{display:flex;justify-content:center;gap:.7rem;font-size:.6rem;color:var(--t3)}
-.strip span::before{content:"·";margin-right:.7rem;opacity:.4}
-.strip span:first-child::before{display:none}
-.cf{pointer-events:none;position:fixed;inset:0;z-index:40;opacity:0;mix-blend-mode:screen}
-.cf.on{animation:burst .36s ease-out forwards}
-@keyframes burst{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
-.cf svg{width:100%;height:100%}
-.cf path{fill:none;stroke:#e8f7ff;stroke-width:1.5;stroke-linecap:round;filter:drop-shadow(0 0 6px #7ec8ff)}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 1rem}
+.top{position:sticky;top:0;z-index:20;background:rgba(6,7,8,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:calc(.65rem + var(--st)) 0 .65rem}
+.top .inner{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.logo{font-weight:800;font-size:.95rem;letter-spacing:-.02em}
+.logo span{color:var(--gold)}
+.nav{display:flex;gap:.35rem;flex-wrap:wrap;justify-content:flex-end}
+.nav a{font-size:.72rem;font-weight:650;color:var(--muted);padding:.35rem .55rem;border-radius:999px;border:1px solid transparent}
+.nav a.primary{color:#0a0a0a;background:var(--ok);border-color:var(--ok)}
+.nav a.ghost{border-color:var(--line);color:var(--ink)}
+.hero{padding:1.5rem 0 1.25rem}
+.hero h1{font-size:clamp(1.75rem,6vw,2.75rem);line-height:1.08;letter-spacing:-.035em;max-width:18ch;margin-bottom:.65rem}
+.hero p{color:var(--muted);font-size:.95rem;max-width:36ch;margin-bottom:1rem}
+.hero-cta{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.1rem;border-radius:12px;font-weight:700;font-size:.9rem;border:none}
+.btn.ok{background:var(--ok);color:#062016}
+.btn.gold{background:var(--gold);color:#1a1408}
+.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.fees{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:1rem 0 1.25rem}
+.fee{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.85rem}
+.fee strong{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.03em;color:var(--ok)}
+.fee span{font-size:.72rem;color:var(--muted)}
+.compare{display:grid;gap:.55rem;margin-bottom:1.5rem}
+.cmp{display:grid;grid-template-columns:1fr auto;gap:.35rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem;font-size:.8rem}
+.cmp .name{font-weight:650}
+.cmp .bad{color:#e07a7a}
+.cmp .good{color:var(--ok);font-weight:700}
+.section{padding:1.25rem 0 0.5rem}
+.section h2{font-size:1.15rem;letter-spacing:-.025em;margin-bottom:.35rem}
+.section .sub{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}
+.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}
+@media(min-width:720px){.cats{grid-template-columns:repeat(4,1fr)}.fees{grid-template-columns:repeat(4,1fr)}}
+.cat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.9rem .8rem;min-height:110px;display:flex;flex-direction:column;justify-content:space-between}
+.cat .ico{font-size:1.35rem;margin-bottom:.35rem}
+.cat h3{font-size:.88rem;font-weight:700;margin-bottom:.2rem}
+.cat p{font-size:.72rem;color:var(--muted);flex:1}
+.cat .go{font-size:.72rem;font-weight:700;color:var(--gold);margin-top:.5rem}
+.rails{display:grid;gap:.55rem;margin-top:.75rem}
+.rail{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;display:grid;grid-template-columns:auto 1fr;gap:.65rem;align-items:start}
+.rail .n{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#1a1408;font-weight:800;font-size:.75rem;display:grid;place-items:center}
+.rail strong{display:block;font-size:.85rem}
+.rail span{font-size:.75rem;color:var(--muted)}
+.protect{display:grid;gap:.5rem;margin-top:.75rem}
+.prot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem;font-size:.8rem}
+.prot strong{color:var(--ok)}
+.bottom-cta{margin:1.5rem 0 calc(1.5rem + var(--sb));background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:1.15rem;text-align:center}
+.bottom-cta h2{font-size:1.2rem;margin-bottom:.35rem}
+.bottom-cta p{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}
+.bottom-cta .row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.foot{border-top:1px solid var(--line);padding:1rem 0 calc(1rem + var(--sb));color:var(--muted);font-size:.7rem;display:flex;flex-wrap:wrap;gap:.75rem;justify-content:space-between}
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="brand">Dream<span>Ledger</span></div>
-  <div class="top-right">
-    <a class="chip free" href="/cost-of-living.html">Free COL</a>
-    <a class="chip sell" href="/sell.html">Sell · $0</a>
-  </div>
-</header>
+<header class="top"><div class="wrap inner">
+  <a class="logo" href="/">Dream<span>Ledger</span></a>
+  <nav class="nav">
+    <a class="ghost" href="/b2b.html">B2B</a>
+    <a class="ghost" href="/sell.html">Sell</a>
+    <a class="primary" href="/sell.html">List free</a>
+  </nav>
+</div></header>
 
-<main class="silo">
-  <div class="label">Swipe · everything equal weight</div>
-  <div class="track" id="track" role="list">
+<main class="wrap">
+  <section class="hero">
+    <h1>NZ marketplace.<br/>0% platform fees.</h1>
+    <p>Facebook Marketplace simplicity. Trade Me reach ambition. Stronger protection than either. We make money elsewhere — not on your sale.</p>
+    <div class="hero-cta">
+      <a class="btn ok" href="/sell.html">List an item · free</a>
+      <a class="btn line" href="/b2b.html">B2B wholesale</a>
+      <a class="btn gold" href="/cost-of-living.html">Free cost of living</a>
+    </div>
+    <div class="fees">
+      <div class="fee"><strong>0%</strong><span>Listing fee</span></div>
+      <div class="fee"><strong>0%</strong><span>Success fee</span></div>
+      <div class="fee"><strong>NZ</strong><span>Built for Kiwis</span></div>
+      <div class="fee"><strong>Stripe</strong><span>Settled sales only</span></div>
+    </div>
+    <div class="compare">
+      <div class="cmp"><span class="name">Trade Me success fees</span><span class="bad">~5.9%–11.9%</span></div>
+      <div class="cmp"><span class="name">Facebook Marketplace</span><span class="good">$0 · weak protection</span></div>
+      <div class="cmp"><span class="name">DreamLedger</span><span class="good">$0 platform · truth-gated</span></div>
+    </div>
+  </section>
 
-    <article class="card magnet" role="listitem">
-      <div class="hero">🧭<div class="badge free">Free</div></div>
-      <div class="body">
-        <div class="tag">Truth Oracle</div>
-        <h2>Cost of living advice</h2>
-        <p>Free. Evidence-first numbers for NZ living costs. No paywall. Truth stays free.</p>
-        <div class="meta"><div class="price free">$0</div><div class="trust">Always free</div></div>
-      </div>
-      <div class="cta-wrap"><a class="cta gold" href="/cost-of-living.html">Get free advice</a></div>
-    </article>
+  <section class="section">
+    <h2>Shop by world</h2>
+    <p class="sub">Same commerce spine. Clear silos. No fee rake on peer sales.</p>
+    <div class="cats">
+      <a class="cat" href="/sell.html"><div class="ico">🏠</div><h3>Home & living</h3><p>Furniture, tools, local pickup.</p><span class="go">Browse / list →</span></a>
+      <a class="cat" href="/sell.html"><div class="ico">👕</div><h3>Fashion</h3><p>Clothing, gear, condition tagged.</p><span class="go">Browse / list →</span></a>
+      <a class="cat" href="/mtg"><div class="ico">🎴</div><h3>MTG & cards</h3><p>Diagnostics + collectibles silo.</p><span class="go">Open MTG →</span></a>
+      <a class="cat" href="/b2b.html"><div class="ico">🏭</div><h3>B2B / wholesale</h3><p>RFQs, MOQ, supplier quotes.</p><span class="go">Open B2B →</span></a>
+      <a class="cat" href="/sell.html"><div class="ico">🔧</div><h3>Electronics</h3><p>Tested, described, local.</p><span class="go">Browse / list →</span></a>
+      <a class="cat" href="/billboard"><div class="ico">📺</div><h3>Billboard</h3><p>Permanent digital placement.</p><span class="go">Claim tile →</span></a>
+      <a class="cat" href="/cost-of-living.html"><div class="ico">🧭</div><h3>Cost of living</h3><p>Truth Oracle · always free.</p><span class="go">Free advice →</span></a>
+      <a class="cat" href="/avatar.html"><div class="ico">◎</div><h3>DreamMeez</h3><p>Identity + daily cosmetics.</p><span class="go">Create →</span></a>
+    </div>
+  </section>
 
-    <article class="card" role="listitem">
-      <div class="hero">🛒<div class="badge live">$0 fees</div></div>
-      <div class="body">
-        <div class="tag">Marketplace</div>
-        <h2>List something for sale</h2>
-        <p>Zero listing fees. Zero success fees. Keep what you make. Built for Kiwis.</p>
-        <div class="meta"><div class="price free">$0 to list</div><div class="trust">No take rate</div></div>
-      </div>
-      <div class="cta-wrap"><a class="cta" href="/sell.html">Start listing</a></div>
-    </article>
+  <section class="section">
+    <h2>How money moves</h2>
+    <p class="sub">Enterprise rails. Simple for buyers and sellers.</p>
+    <div class="rails">
+      <div class="rail"><div class="n">1</div><div><strong>List free</strong><span>No listing fee. No success fee. Truth gate on misrepresentation.</span></div></div>
+      <div class="rail"><div class="n">2</div><div><strong>Buyer pays via Stripe</strong><span>Settled payment only counts. No fake buy buttons.</span></div></div>
+      <div class="rail"><div class="n">3</div><div><strong>You keep the sale</strong><span>Platform does not take a cut of peer marketplace sales.</span></div></div>
+      <div class="rail"><div class="n">4</div><div><strong>We earn elsewhere</strong><span>Diagnostics, billboard, paid depth, B2B tools — not your margin.</span></div></div>
+    </div>
+  </section>
 
-    <article class="card" role="listitem">
-      <div class="hero">🎴<div class="badge">Best first</div></div>
-      <div class="body">
-        <div class="tag">MTG · Service</div>
-        <h2>Commander Deck Diagnostic</h2>
-        <p>Practical first-pass: power band, holes, upgrade order. Fixed scope.</p>
-        <div class="meta"><div class="price">NZ$29</div><div class="trust">Stripe</div></div>
-      </div>
-      <div class="cta-wrap"><a class="cta" href="/mtg">Buy diagnostic</a></div>
-    </article>
+  <section class="section">
+    <h2>More protection than Marketplace</h2>
+    <div class="protect">
+      <div class="prot"><strong>Truth gate.</strong> Misrepresented listings get removed. UNKNOWN stays UNKNOWN.</div>
+      <div class="prot"><strong>Settled only.</strong> Sale = Stripe payment recorded — not a chat promise.</div>
+      <div class="prot"><strong>Silo boundaries.</strong> MTG, B2B, consumer — clear rules per world.</div>
+      <div class="prot"><strong>Evidence spine.</strong> Optional depth via Truth Oracle when claims need proof.</div>
+    </div>
+  </section>
 
-    <article class="card" role="listitem">
-      <div class="hero">📺<div class="badge">Founding</div></div>
-      <div class="body">
-        <div class="tag">Placement</div>
-        <h2>Public Billboard Tile</h2>
-        <p>Permanent digital placement on the public canvas. One-time price.</p>
-        <div class="meta"><div class="price">NZ$50</div><div class="trust">Stripe</div></div>
-      </div>
-      <div class="cta-wrap"><a class="cta" href="/billboard">Claim tile</a></div>
-    </article>
+  <section class="bottom-cta">
+    <h2>Put it up. Keep the margin.</h2>
+    <p>No Trade Me cut. Stronger than a Facebook post. Built for New Zealand.</p>
+    <div class="row">
+      <a class="btn ok" href="/sell.html">List free</a>
+      <a class="btn gold" href="/b2b.html">Sell B2B</a>
+      <a class="btn line" href="/cost-of-living.html">Free COL advice</a>
+    </div>
+  </section>
 
-    <article class="card" role="listitem">
-      <div class="hero">◎<div class="badge">Identity</div></div>
-      <div class="body">
-        <div class="tag">Avatar</div>
-        <h2>DreamMeez</h2>
-        <p>Create an identity. Daily cosmetics improve with login streak.</p>
-        <div class="meta"><div class="price free">Free to start</div><div class="trust">Daily claim</div></div>
-      </div>
-      <div class="cta-wrap"><a class="cta ghost" href="/avatar.html">Create DreamMeez</a></div>
-    </article>
-
-    <article class="card" role="listitem">
-      <div class="hero">⚖<div class="badge">Truth</div></div>
-      <div class="body">
-        <div class="tag">Evidence</div>
-        <h2>Truth Oracle</div>
-        <p>Public evidence layer. Missing data stays UNKNOWN. Paid depth optional.</p>
-        <div class="meta"><div class="price">Free · paid depth</div><div class="trust">Evidence</div></div>
-      </div>
-      <div class="cta-wrap"><a class="cta ghost" href="/truth-oracle.html">Open Oracle</a></div>
-    </article>
-
-    <article class="card" role="listitem">
-      <div class="hero">📋<div class="badge">B2B</div></div>
-      <div class="body">
-        <div class="tag">Business</div>
-        <h2>Supplier Quote Comparison</h2>
-        <p>2–5 quotes in. Normalized decision packet out. Fixed scope.</p>
-        <div class="meta"><div class="price">NZ$49</div><div class="trust">Stripe</div></div>
-      </div>
-      <div class="cta-wrap"><a class="cta" href="https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32">Buy comparison</a></div>
-    </article>
-
-  </div>
+  <footer class="foot">
+    <span>DreamLedger · 0% platform fees · NZ</span>
+    <span><a href="/sell.html">Sell</a> · <a href="/b2b.html">B2B</a> · <a href="/truth-oracle.html">Truth Oracle</a> · <a href="/agent-commerce.json">Agents</a></span>
+  </footer>
 </main>
-
-<footer class="bot">
-  <div class="dots" id="dots"></div>
-  <div class="strip">
-    <span>$0 listing fees</span>
-    <span>Free cost of living</span>
-    <span>Settled sales only</span>
-  </div>
-</footer>
-
-<div class="cf" id="cf" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path id="b1" d=""/><path id="b2" d=""/></svg></div>
-
-<script>
-const track=document.getElementById('track');
-const cards=[...track.querySelectorAll('.card')];
-const dotsEl=document.getElementById('dots');
-cards.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');dotsEl.appendChild(d)});
-const dots=[...dotsEl.children];
-let last=0;
-function idx(){if(!cards.length)return 0;const g=12,w=cards[0].offsetWidth+g;return Math.max(0,Math.min(Math.round(track.scrollLeft/w),cards.length-1))}
-function jag(x0,y0,x1,y1,s,j){let d='M '+x0+' '+y0;for(let i=1;i<s;i++){const t=i/s;d+=' L '+(x0+(x1-x0)*t+(Math.random()-.5)*j).toFixed(1)+' '+(y0+(y1-y0)*t+(Math.random()-.5)*j).toFixed(1)}return d+' L '+x1+' '+y1}
-function fire(){const y=30+Math.random()*40;document.getElementById('b1').setAttribute('d',jag(0,y,100,y+8,8,12));document.getElementById('b2').setAttribute('d',jag(0,y+10,100,y-5,7,14));const f=document.getElementById('cf');f.classList.remove('on');void f.offsetWidth;f.classList.add('on')}
-track.addEventListener('scroll',()=>requestAnimationFrame(()=>{const i=idx();dots.forEach((d,k)=>d.classList.toggle('on',k===i));if(i!==last){fire();if(navigator.vibrate)try{navigator.vibrate([6,18,8])}catch(_){}last=i}}),{passive:true});
-</script>
 </body>
 </html>
