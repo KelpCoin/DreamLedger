@@ -106,5 +106,8 @@ http.createServer(async (req,res)=>{
   if(rel && fs.existsSync(path.join(ROOT,rel)) && fs.statSync(path.join(ROOT,rel)).isFile()){
     return serveFile(res,rel);
   }
+  if(rel && fs.existsSync(path.join(ROOT,rel,'index.html')) && fs.statSync(path.join(ROOT,rel,'index.html')).isFile()){
+    return serveFile(res,path.join(rel,'index.html'));
+  }
   return send(res,404,'Not Found','text/plain; charset=utf-8');
 }).listen(PORT,'0.0.0.0',()=>console.log('storefront listening',PORT,'commit',COMMIT));
