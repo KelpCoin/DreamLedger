@@ -46,7 +46,9 @@ jobs:
           if grep -Eiq 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' "$tmp"; then
             echo 'FAIL: prohibited internal, confidential, or inactive product language or credential material found in customer-facing public assets.'
             echo 'MATCHING_PUBLIC_ASSETS:'
-            grep -Eil 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' public || true
+            while IFS= read -r f; do
+              if grep -Eiq 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' "$f"; then echo "$f"; fi
+            done < <(find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.txt' \))
             rm -f "$tmp"
             exit 1
           fi
