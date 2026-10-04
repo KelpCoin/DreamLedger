@@ -98,7 +98,7 @@ function serviceTargets(route){
     description:'Inspect observations, provenance, contradictions and unknowns without treating model output as economic truth.'
   });
 
-  if (!procurementAudience && !collectorAudience) {
+  if (!procurementAudience) {
     targets.push({
       label:'List or Match Supply',
       price:'No listing fee',
