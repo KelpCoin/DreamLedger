@@ -44,6 +44,7 @@
     "cube": "https://dreamledger.org/cube.json"
   },
   "primary_offers": [
+    {"product_id": "QUOTE-COMPARE-49", "name": "Supplier Quote Comparison", "price_nzd": 49, "silo": "procurement", "buy_router": "https://dreamledger.org/quote-comparison/", "checkout_url": "https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-QUOTE-COMPARE-49"},
     {"product_id": "COMMANDER-DECK-DIAGNOSTIC-001", "name": "Commander Deck Diagnostic", "price_nzd": 29, "silo": "mtg", "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001", "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-CMD-DIAG-29"},
     {"product_id": "DREAMMEEZ-SUPPORTER-SPROUT", "name": "DreamMeez Supporter — Sprout", "price_nzd": 3.99, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT", "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M", "status": "VERIFIED_AVAILABLE", "loop": "LOOP-SPROUT-3.99"},
     {"product_id": "DREAMMEEZ-SUPPORTER-GLOW", "name": "DreamMeez Supporter — Glow", "price_nzd": 5.99, "silo": "dreammeez", "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW", "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N", "status": "VERIFIED_AVAILABLE"},
