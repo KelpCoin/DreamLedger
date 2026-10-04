@@ -23,7 +23,8 @@ const silos = {
     status:'READY'
   },
   // MTG is intentionally NOT exposed from the DreamLedger gateway.
-  // Canonical MTG commerce lives in the separate MTG/HappyHomarid/CollectorsCoast silo.\n  'evidence-ledger': {
+  // Canonical MTG commerce lives in the separate MTG/HappyHomarid/CollectorsCoast silo.
+  'evidence-ledger': {
     title:'Evidence Ledger Access',
     description:'Sourced observations, estimates, uncertainty labels and provenance.',
     status:'APPROVAL_REQUIRED'
