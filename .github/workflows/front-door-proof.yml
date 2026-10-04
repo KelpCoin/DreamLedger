@@ -38,7 +38,7 @@ jobs:
       - name: Verify real local destinations
         run: |
           set -euo pipefail
-          for f in quote-comparison.html mtg-diagnostic.html truth-oracle.html mtg-catalog.html money-10000.html sell.html revenue.html; do
+          for f in quote-comparison.html truth-oracle.html money-10000.html sell.html revenue.html robots.txt sitemap.xml 404.html; do
             test -f "$f" || { echo "FAIL: missing $f"; exit 1; }
           done
       - name: Verify gateway JavaScript syntax
