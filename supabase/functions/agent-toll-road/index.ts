@@ -107,7 +107,7 @@ async function observeQuoteSettlement(c: any, next: any) {
   // The facilitator response is not the same thing as durable settlement confirmation.
   // Keep the toll call, settlement record and delivery proof observable, but do not mint
   // an economic event while settlement remains PENDING / PENDING_CONFIRMATION.
-  return;
+  if (TESTNET || call.settlement_status === "SETTLED_PENDING_CONFIRMATION" || call.settlement_status === "SETTLED_TESTNET_PENDING_CONFIRMATION") return;
 
   const event_id = `X402-${call.call_id}`;
   const { data: existing } = await db.from("economic_events").select("event_id")
