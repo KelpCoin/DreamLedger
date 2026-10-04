@@ -1,0 +1,57 @@
+{
+  "project": "PHINHAVEN",
+  "feature": "guild_world_objectives_v1",
+  "status": "IMPLEMENTATION_READY",
+  "principles": [
+    "A depth can be partitioned into persistent tiles.",
+    "Guild presence is accumulated through player actions, not a single toggle.",
+    "Guild objectives are shared projects with visible progress.",
+    "Completed structures alter the persistent world.",
+    "Defended structures can remain indefinitely while defence conditions are maintained.",
+    "Destruction changes state rather than erasing history.",
+    "Destroyed structures return a configured fraction of stored components as salvage.",
+    "Every state change is represented by an authoritative event.",
+    "Client presentation never decides ownership, completion, destruction, or salvage."
+  ],
+  "example_objective": {
+    "objective_type": "FORTRESS",
+    "title": "Raise the Tidewall",
+    "depth_id": 2,
+    "target": {
+      "tile_count": 1,
+      "presence_required": 1000,
+      "fortification_required": 500,
+      "defence_required": 250
+    },
+    "required_components": {
+      "stone": 500,
+      "timber": 300,
+      "iron": 100
+    },
+    "completion_effect": {
+      "structure_type": "FORTRESS",
+      "control_modifier": 2,
+      "resource_protection": 0.25,
+      "respawn_anchor": true
+    },
+    "destruction": {
+      "salvage_ratio": 0.5,
+      "history_preserved": true,
+      "control_can_change": true
+    }
+  },
+  "macro_loop": [
+    "guild forms",
+    "guild chooses depth/tile",
+    "members contribute resources/labour/defence",
+    "presence grows",
+    "objective completes",
+    "structure becomes world object",
+    "guild defends it",
+    "attackers can damage or destroy it",
+    "salvage returns configured components",
+    "guild can rebuild",
+    "world history records every stage"
+  ],
+  "mvp_rule": "The Shallows remains the playable proof. Guild world objectives are persistence architecture for later depths and must not block the first walkable social release."
+}
