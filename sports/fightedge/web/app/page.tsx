@@ -43,7 +43,7 @@ const actions = [
   { title: 'Upcoming fights', text: 'See the next MMA and boxing cards in one place.', href: '/events' },
   { title: 'Fighter files', text: 'Open a clean evidence-led profile.', href: '/fighters' },
   { title: 'Fight analysis', text: 'Read matchup context before the bell.', href: '/analysis' },
-  { title: 'Results & history', text: 'Track what happened after the event.' }
+  { title: 'Results & history', text: 'Track what happened after the event.', href: '/results' }
 ]
 
 export default function Home() {
