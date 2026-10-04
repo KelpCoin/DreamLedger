@@ -41,6 +41,11 @@ jobs:
           for f in quote-comparison.html mtg-diagnostic.html truth-oracle.html mtg-catalog.html money-10000.html sell.html revenue.html; do
             test -f "$f" || { echo "FAIL: missing $f"; exit 1; }
           done
+      - name: Verify gateway JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check silos/public-gateway/server.js
+
       - name: Reject painted-door copy
         run: |
           set -euo pipefail
