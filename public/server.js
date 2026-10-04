@@ -16,6 +16,7 @@ const PUBLIC_FILES={
   '/mtg':'mtg.html','/mtg/':'mtg.html','/mtg.html':'mtg.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
   '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
+  '/go':'marketplace.html','/go/':'marketplace.html',
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html','/truth-oracle':'truth-oracle.html',
   '/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
