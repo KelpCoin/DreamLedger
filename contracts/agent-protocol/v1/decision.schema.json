@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/contracts/agent-protocol/v1/decision.schema.json",
+  "title": "DreamLedger Agent Decision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "decision", "reason"],
+  "properties": {
+    "type": { "const": "DECISION" },
+    "decision": {
+      "type": "string",
+      "enum": ["DO_NOT_EXECUTE", "WAIT", "REQUEST_AUTHORIZATION", "EXECUTE", "FULFILL", "VERIFY", "REJECT", "ESCALATE"]
+    },
+    "reason": { "type": "string", "minLength": 1 },
+    "required": { "type": "string" },
+    "authority": {
+      "type": "string",
+      "enum": ["MODEL", "SYSTEM", "HUMAN", "EXTERNAL_PROVIDER"]
+    },
+    "evidence_ref": { "$ref": "task-ref.schema.json" }
+  }
+}
