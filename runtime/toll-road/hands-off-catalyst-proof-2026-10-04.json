@@ -2,7 +2,7 @@
   "proof_type": "HANDS_OFF_TOLL_ROAD_TRAVERSAL",
   "observed_at": "2026-10-04",
   "branch": "economic-surface-compiler-v1",
-  "latest_commit": "de49a55e0b907a1eaf6948ef9e00232e6fcc9d19",
+  "latest_commit": "640ffebcf20856f6266e97e204d0b11e6a1e5d83",
   "measured_blocker": {
     "blocked_at": "DELIVERY",
     "because": "customer-facing /toll-road doorway was observed returning 404 while /api/toll/v1/manifest was armed",
@@ -36,6 +36,10 @@
     {
       "commit": "de49a55e0b907a1eaf6948ef9e00232e6fcc9d19",
       "change": "remove duplicate unused BEC-PRIME compiled storefront"
+    },
+    {
+      "commit": "640ffebcf20856f6266e97e204d0b11e6a1e5d83",
+      "change": "prevent quote finalization from resetting an already fulfilled request to queued"
     }
   ],
   "verification": {
@@ -50,5 +54,15 @@
     "verified_economic_outcomes": 0,
     "render_root_observation": "PASS: Render service DreamLedger1 uses rootDir=public, auto-deploys main"
   },
-  "next_blocker": "CI_QUEUE_AND_MAIN_DEPLOY: PR checks must complete; then main must receive the minimal public/server.js + manifest + deploy-gate changes before live reachability can be re-observed"
+  "next_blocker": "CI_QUEUE_AND_MAIN_DEPLOY: current PR check remains in_progress; after CI completion, main deployment must converge before live storefront and first-dollar boundary can be re-observed",
+  "777_moment": {
+    "determination": "existing Stripe settlement -> revenue_entitlements -> fulfillment_requests -> quote-intake -> quote-fulfillment -> evidence -> economic verification seam",
+    "source_artifact": "docs/economic/777-moment-existing-substrate-2026-10-04.md",
+    "strongest_offer": "QUOTE-COMPARE-49",
+    "price_nzd": 49,
+    "owner_minutes": 0,
+    "replication_rule": "5-10 bounded probes only after independently verified mechanisms; support survivors and kill non-survivors",
+    "roles": "CUBE allocates substrate; SILO holds cell state; ELOHIM creates/refines/repairs; GAUNTLET judges; Truth Oracle verifies economic reality; BECK ledger records immutable verified truth; telemetry feeds Evergreen; supervisor allocates compute; LM Studio supplies local workers",
+    "next_engineering_boundary": "harden the existing paid-session/fulfillment wall, then observe one independent buyer transaction"
+  }
 }
