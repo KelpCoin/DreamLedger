@@ -104,6 +104,11 @@ async function observeQuoteSettlement(c: any, next: any) {
     metadata: { decision_id, product_id: product.product_id, price_usd: product.price, network: NETWORK, testnet: TESTNET, payer, payee: PAY_TO }
   }).select("proof_id").single();
   if (!proof) return;
+  // The facilitator response is not the same thing as durable settlement confirmation.
+  // Keep the toll call, settlement record and delivery proof observable, but do not mint
+  // an economic event while settlement remains PENDING / PENDING_CONFIRMATION.
+  return;
+
   const event_id = `X402-${call.call_id}`;
   const { data: existing } = await db.from("economic_events").select("event_id")
     .eq("event_id", event_id).maybeSingle();
