@@ -1,6 +1,7 @@
 'use strict';
-// Restored storefront server — static whitelist includes catalogue.
+// Restored storefront server — static whitelist includes catalogue and the existing Toll Road API wall.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
+const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
@@ -38,7 +39,7 @@ function serveFile(res,file){
     send(res,200,data,MIME[ext]||'application/octet-stream');
   });
 }
-http.createServer((req,res)=>{
+http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
@@ -47,6 +48,15 @@ http.createServer((req,res)=>{
   }
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',commit:COMMIT,surface:'marketplace-v19'}),'application/json; charset=utf-8');
+  }
+  if(p.startsWith('/api/toll/v1/')){
+    try{
+      const handled=await tollRoad.handle(req,res,p);
+      if(handled)return;
+    }catch(error){
+      return send(res,error.statusCode||500,JSON.stringify({error:String(error&&error.message||error)}),'application/json; charset=utf-8');
+    }
+    return send(res,404,'Not Found','text/plain; charset=utf-8');
   }
   if(req.method!=='GET') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
   const file=PUBLIC_FILES[p];
