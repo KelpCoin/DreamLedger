@@ -51,10 +51,10 @@ jobs:
           grep -q 'autoDeployTrigger: commit' render.yaml
           grep -q 'rootDir: public' render.yaml
           grep -q 'rootDir: BEC-PRIME' render.yaml
-          grep -q "'/api/products'" public/server.js
+          grep -q "p.startsWith('/api/toll/v1/')" public/server.js
+          grep -q "tollRoad.handle(req,res,p)" public/server.js
           grep -q "'/sitemap.xml'" public/server.js
-          grep -q "'/avatars'" public/server.js
-          grep -q "'/api/offers'" public/server.js
+          grep -q "'/toll-road'" public/server.js
           echo "SOURCE_STOREFRONT=PASS"
           echo "RELEASE_SHA=$RELEASE_SHA"
 
@@ -67,7 +67,7 @@ jobs:
           import hashlib,json,sys,time
           files=['public/index.html','public/avatar.html','public/billboard.html','public/server.js','public/sitemap.xml','public/robots.txt','render.yaml']
           hashes={p:hashlib.sha256(open(p,'rb').read()).hexdigest() for p in files}
-          data={'schema':'dreamledger/source-storefront-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'internet-garden','public_root':'public','private_root':'BEC-PRIME','customer_products':['internet-garden-plots','digital-billboards'],'forbidden_public_terms':True,'source_checks_only':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
+          data={'schema':'dreamledger/source-storefront-proof/v2','verdict':'PASS','source_commit':sys.argv[1],'target':'https://dreamledger.org','surface':'service-boundary','public_root':'public','private_root':'BEC-PRIME','customer_products':['supplier-quote-comparison','commander-deck-diagnostic','truth-oracle-access','toll-road-services'],'forbidden_public_terms':True,'source_checks_only':True,'revenue_proven_nzd':0,'checked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'sha256':hashes}
           json.dump(data,open('proof/SOURCE_STOREFRONT_PROOF.json','w'),indent=2)
           print(json.dumps(data,indent=2))
           PY
