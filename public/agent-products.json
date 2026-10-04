@@ -1,0 +1,25 @@
+[
+  {
+    "item_id":"QUOTE-COMPARE-49",
+    "title":"Supplier Quote Comparison",
+    "description":"One-time service for buyers with 2-5 supplier quotes. Normalizes price, scope, missing costs, MOQ, lead time and payment terms into a source-backed decision packet. Missing information remains marked unknown.",
+    "url":"https://dreamledger.org/quote-comparison/",
+    "brand":"DreamLedger",
+    "seller_name":"DreamLedger",
+    "seller_url":"https://dreamledger.org/",
+    "price":"49 NZD",
+    "availability":"in_stock",
+    "sku":"QUOTE-COMPARE-49",
+    "category":"Procurement / Supplier Quote Comparison",
+    "checkout_url":"https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+    "buy_router":"https://dreamledger.org/buy/QUOTE-COMPARE-49",
+    "fulfillment":"automated_quote_comparison",
+    "required_input":"2-5 PDF, CSV, JSON or Markdown supplier quotes plus purchase requirements or scope",
+    "one_time_purchase":true,
+    "subscription":false,
+    "human_authorization_required":true,
+    "enable_search":true,
+    "enable_checkout":true,
+    "machine_discovery":["https://dreamledger.org/.well-known/ai-catalog.json","https://dreamledger.org/.well-known/dreamledger.json","https://dreamledger.org/agent-commerce.json","https://dreamledger.org/api/offers","https://dreamledger.org/api/products"]
+  }
+]
