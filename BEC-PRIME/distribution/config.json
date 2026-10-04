@@ -2,9 +2,9 @@
   "schema_version": "BEC-DISTRIBUTION-CONFIG-1.0",
   "doorway_id": "QR-CANONICAL-001",
   "canonical_url": "https://dreamledger.org/go",
-  "destination_path": "/billboard",
+  "destination_path": "/quote-comparison/",
   "default_campaign": "D-001",
-  "default_offer": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+  "default_offer": "QUOTE-COMPARE-49",
   "approval_policy": "NO_EXTERNAL_ACTION_WITHOUT_APPROVAL",
   "attribution_window_days": 30
 }
