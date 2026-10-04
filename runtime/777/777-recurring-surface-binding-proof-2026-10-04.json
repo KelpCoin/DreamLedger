@@ -1,0 +1,50 @@
+{
+  "schema": "DREAMLEDGER/777/RECURRING-SURFACE-BINDING/v1",
+  "generated_at": "2026-10-04T05:15:00Z",
+  "commit": "921166de68128c3d3512a1200a84872903f7eda4",
+  "change": {
+    "file": "BEC-PRIME/scripts/Run-777.js",
+    "action": "Feed existing Truth Oracle paid subscription plans into the existing 777 candidate corpus.",
+    "reused": [
+      "BEC-PRIME/catalog/truth-oracle/pricing.json",
+      "BEC-PRIME/routes/truthOracleCommerce.js",
+      "existing 777 lenses",
+      "existing 777 transformations",
+      "existing 777 gates",
+      "existing CUBE/Evergreen machinery"
+    ],
+    "new_architecture": false,
+    "external_action": false,
+    "stripe_mutation": false
+  },
+  "recurring_surface": {
+    "tiers": [
+      "SIGNAL",
+      "INTELLIGENCE",
+      "DEEP_EVIDENCE"
+    ],
+    "existing_checkout_endpoint": "/api/truth-oracle/checkout",
+    "existing_access_endpoint": "/api/truth-oracle/access",
+    "recurring_state": "subscription",
+    "promotion": "UNVERIFIED_UNTIL_EXTERNAL_EVIDENCE"
+  },
+  "safety": {
+    "no_buyer_invented": true,
+    "no_payment_invented": true,
+    "no_revenue_claim": true,
+    "no_self_purchase": true,
+    "no_replication_before_verification": true
+  },
+  "verification": {
+    "syntax_check": "NOT_RUN",
+    "ci": "NOT_OBSERVED_FOR_BRANCH_HEAD",
+    "deployment": "NOT_PROVEN",
+    "economic_truth": {
+      "verified_external_revenue": "NZ$0.00",
+      "settled_external_payments": 0,
+      "independent_external_buyers": 0,
+      "verified_economic_outcomes": 0
+    }
+  },
+  "next_blocker": "CI/deployment observation, then independent external subscription transaction. Renewal is the recurring-business proof."
+}

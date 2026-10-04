@@ -1,0 +1,76 @@
+{
+  "schema": "dreamledger/economic-surface-compiler-proof/v1",
+  "generated_at": "2026-10-04",
+  "branch": "economic-surface-compiler-v1",
+  "source_file": "runtime/cube/service_surface_monetization_inventory_2026-10-04.json",
+  "source_inventory_commit": "f29b70cf30d99ec98ae313b1f81211dd6c61ed46",
+  "compiler_file": "tools/economic_surface_compiler.js",
+  "observed_services": 7,
+  "capability_families": 7,
+  "ranked_surfaces": [
+    {
+      "service_id": "TOLL-GAUNTLET",
+      "capability_id": "GAUNTLET_CANDIDATE_ANALYSIS",
+      "status": "READY_FOR_SERVICE",
+      "evidence_class": "OBSERVED_READY",
+      "substrate_leverage_score": 100,
+      "observed_price_basis": "Configured price not revalidated in this audit."
+    },
+    {
+      "service_id": "QUOTE-COMPARE-49",
+      "capability_id": "SUPPLIER_QUOTE_COMPARISON",
+      "status": "READY_FOR_SERVICE",
+      "evidence_class": "OBSERVED_READY",
+      "substrate_leverage_score": 87.5,
+      "observed_price_basis": "NZ$49 one-time decision packet"
+    },
+    {
+      "service_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "capability_id": "COMMANDER_DIAGNOSTIC",
+      "status": "READY_FOR_DELIVERY",
+      "evidence_class": "OBSERVED_READY",
+      "substrate_leverage_score": 87.5,
+      "observed_price_basis": "NZ$29 one-time diagnostic"
+    },
+    {
+      "service_id": "TRUTH-ORACLE-PUBLIC",
+      "capability_id": "TRUTH_ORACLE",
+      "status": "UNPROVEN",
+      "evidence_class": "OBSERVED_INCOMPLETE",
+      "substrate_leverage_score": 87.5,
+      "observed_price_basis": "Paid Truth Oracle tiers exist, exact current production price not revalidated here."
+    },
+    {
+      "service_id": "ACNC-CHARITY-DD-99",
+      "capability_id": "ACNC_CHARITY_DUE_DILIGENCE",
+      "status": "UNPROVEN",
+      "evidence_class": "OBSERVED_INCOMPLETE",
+      "substrate_leverage_score": 87.5,
+      "observed_price_basis": "NZ$99"
+    },
+    {
+      "service_id": "BILLBOARD-FOUNDING",
+      "capability_id": "BILLBOARD_PLACEMENT",
+      "status": "AUTHORITY_BLOCKED",
+      "evidence_class": "OBSERVED_BLOCKED",
+      "substrate_leverage_score": 62.5,
+      "observed_price_basis": "NZ$50 founding tile"
+    },
+    {
+      "service_id": "SELLER-PROFIT-AUDIT-001",
+      "capability_id": "SELLER_PROFIT_AUDIT",
+      "status": "BLOCKED",
+      "evidence_class": "OBSERVED_BLOCKED",
+      "substrate_leverage_score": 50,
+      "observed_price_basis": "NZ$29"
+    }
+  ],
+  "economic_truth": {
+    "VERIFIED_EXTERNAL_REVENUE": "NZ$0.00",
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "result": "PASS",
+  "rule": "Compilation is observation/ranking only. No revenue, buyer, settlement, or outcome promotion occurred."
+}

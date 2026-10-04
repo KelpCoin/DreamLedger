@@ -1,0 +1,98 @@
+{
+  "schema": "DREAMLEDGER/777/RECURRING-FRONTIER/v1",
+  "observed_at": "2026-10-04",
+  "repository": "KelpCoin/DreamLedger",
+  "thesis_input": "Ruben Hassid Bubble-Burst affordability/adoption thesis",
+  "economic_interpretation": "The affordability curve strengthens automated recurring service economics, but it does not constitute buyer or revenue evidence.",
+  "existing_777_substrate": {
+    "seven_sevens": {
+      "lenses": [
+        "BUYER",
+        "PROBLEM",
+        "OFFER",
+        "CHANNEL",
+        "PRICE",
+        "FULFILLMENT",
+        "PROOF"
+      ],
+      "transformations": [
+        "NARROW",
+        "BUNDLE",
+        "SPLIT",
+        "REPEAT",
+        "MONITOR",
+        "VERIFY",
+        "BROKER"
+      ],
+      "gates": [
+        "DEMAND",
+        "CAPABILITY",
+        "ZERO_COST",
+        "FULFILLMENT",
+        "PAYMENT",
+        "REPEAT",
+        "CONTRADICTION"
+      ]
+    },
+    "evergreen": "Qualified real substrate may create bounded 5-10 probes; only independently verified mechanisms replicate."
+  },
+  "recurring_candidates": [
+    {
+      "id": "TRUTH-ORACLE-SUBSCRIPTION",
+      "source": "BEC-PRIME/catalog/truth-oracle/pricing.json + BEC-PRIME/routes/truthOracleCommerce.js",
+      "status": "EXISTING_IMPLEMENTED_RECURRING_SURFACE",
+      "tiers": [
+        {
+          "tier": "SIGNAL",
+          "monthly_nzd": 4.99,
+          "price_id": "price_1UBQ1RJt4ieIQDFzRIItEG0Z"
+        },
+        {
+          "tier": "INTELLIGENCE",
+          "monthly_nzd": 7.99,
+          "price_id": "price_1UBQ1bJt4ieIQDFzv2rsdyKe"
+        },
+        {
+          "tier": "DEEP_EVIDENCE",
+          "monthly_nzd": 9.99,
+          "price_id": "price_1UBQ1mJt4ieIQDFzgCNY2sS8"
+        }
+      ],
+      "existing_mechanics": [
+        "Stripe Checkout mode=subscription",
+        "subscription metadata binds user and tier",
+        "checkout.session.completed grants entitlement",
+        "invoice.paid renews active entitlement",
+        "invoice.payment_failed moves account to past_due",
+        "customer.subscription.updated tracks status and period end",
+        "customer.subscription.deleted revokes access",
+        "Truth Oracle verdict is independent of paid tier"
+      ],
+      "machine_shape": "BUY -> STRIPE SUBSCRIPTION -> WEBHOOK -> ENTITLEMENT -> GATED TRUTH ORACLE ACCESS -> RENEW/REVOKE",
+      "owner_minutes_target": 0,
+      "next_proof": "independent live subscriber + settled initial payment + later settled renewal + entitlement evidence"
+    },
+    {
+      "id": "TOLL-TRUTH-GAUNTLET-ACCESS",
+      "source": "existing toll-road wall and manifest",
+      "status": "EXISTING_IMPLEMENTED_ACCESS_SURFACE",
+      "machine_shape": "BUY ACCESS -> SETTLEMENT -> SIGNED KEY -> API WALL -> AUTOMATED SERVICE",
+      "recurring_form": "usage/access can be recurring economically, but no recurring settlement evidence is observed",
+      "next_proof": "independent buyer settlement followed by authenticated service use and fulfillment/evidence"
+    }
+  ],
+  "non_recurring_but_replication_ready": [
+    "QUOTE-COMPARE-49 vertical adapters",
+    "COMMANDER-DECK-DIAGNOSTIC-001"
+  ],
+  "critical_attribution_blocker": "The Evergreen quote adapters currently share one checkout identity, so they cannot honestly be promoted as independently attributable brands.",
+  "replication_rule": "Do not replicate or promote a recurring mechanism until external payment and entitlement/fulfillment evidence exists.",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "conclusion": "The recurring business is not missing from the substrate. Truth Oracle already contains a subscription commerce loop. The 777 moment is the existing 7x7 search/qualification machinery feeding an already-implemented recurring wall, then using independently observed retention/renewal as the replication signal.",
+  "next_machine_frontier": "VERIFY LIVE DEPLOYMENT AND CI, THEN OBSERVE ONE INDEPENDENT TRUTH-ORACLE SUBSCRIPTION TRANSACTION WITHOUT SELF-PURCHASE OR SYNTHETIC EVIDENCE."
+}

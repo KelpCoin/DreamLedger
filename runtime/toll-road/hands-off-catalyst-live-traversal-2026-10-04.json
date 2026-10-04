@@ -1,0 +1,76 @@
+{
+  "schema": "dreamledger/hands-off-economic-catalyst/live-traversal/v1",
+  "observed_at": "2026-10-04T16:00:00+13:00",
+  "objective": "Traverse existing toll-road substrate for hands-off monetization without manufacturing revenue.",
+  "scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE": "NZ$0.00",
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "live_observations": [
+    {
+      "surface": "https://dreamledger.org/api/toll/v1/manifest",
+      "status": "OBSERVED",
+      "http_status": 200,
+      "manifest_status": "ARMED",
+      "model": "customer pays -> settled payment -> entitlement -> signed key -> API wall -> automated fulfillment"
+    },
+    {
+      "surface": "https://dreamledger.org/toll-road",
+      "status": "BLOCKED",
+      "http_status": 404,
+      "blocker": "customer-facing toll storefront is not currently reachable at the advertised route"
+    },
+    {
+      "surface": "https://dreamledger.org/api/toll/v1/checkout/gauntlet",
+      "status": "NOT_EXERCISED",
+      "reason": "would initiate real commerce; no purchase authorized"
+    },
+    {
+      "surface": "https://dreamledger.org/api/toll/v1/checkout/truth",
+      "status": "NOT_EXERCISED",
+      "reason": "would initiate real commerce; no purchase authorized"
+    }
+  ],
+  "substrate_observation": {
+    "gauntlet_wall": "existing TollRoad signed key + Authorization Bearer wall",
+    "truth_wall": "existing TollRoad signed key + Authorization Bearer wall",
+    "key_issue_condition": "live Stripe checkout session payment_status=paid, livemode=true, matching toll scope and amount",
+    "human_minutes_after_settlement": 0,
+    "owner_audit_required": false
+  },
+  "blockers": [
+    {
+      "class": "DELIVERY",
+      "blocked_at": "customer-facing storefront",
+      "because": "live /toll-road returns 404 despite source public/toll-road.html and manifest being armed",
+      "required": "deploy the compiled toll-road storefront and verify HTTP 200",
+      "fallback": "direct API manifest/checkout routes remain available",
+      "owner_action": "NONE_YET",
+      "human_minutes": 0,
+      "economic_effect": "restores discoverability and purchase-to-key path; does not itself create revenue"
+    },
+    {
+      "class": "DATABASE",
+      "blocked_at": "production observation",
+      "because": "Supabase SQL connector returned ECONNREFUSED to db.wbwgroygjeyukkspnqiy.supabase.co:5432",
+      "required": "reachable production DB observation path",
+      "fallback": "UNOBSERVABLE",
+      "owner_action": "NONE_YET",
+      "human_minutes": 0,
+      "economic_effect": "prevents claiming current persisted-row state from DB"
+    },
+    {
+      "class": "CI_CD",
+      "blocked_at": "CI health",
+      "because": "latest branch push produced skipped/failing workflow runs; successful relevant CI for the storefront change is not proven",
+      "required": "completed successful relevant workflow",
+      "fallback": "manual test plus later CI verification",
+      "owner_action": "NONE_YET",
+      "human_minutes": 0,
+      "economic_effect": "blocks safe promotion until verified"
+    }
+  ],
+  "rule": "Availability, checkout creation, entitlement issuance, or key issuance never count as revenue. Verified economic truth remains unchanged."
+}

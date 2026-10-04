@@ -61,6 +61,8 @@ jobs:
           billboard="$(probe /billboard proof/surface-gate/billboard.html)"
           mtg="$(probe /mtg proof/surface-gate/mtg.html)"
           home="$(probe / proof/surface-gate/home.html)"
+          toll="$(probe /toll-road proof/surface-gate/toll-road.html)"
+          toll_manifest="$(probe /api/toll/v1/manifest proof/surface-gate/toll-manifest.json)"
           checkout="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$FOUNDING_PAYMENT_LINK" || true)"
 
           live_sha=''
@@ -74,11 +76,15 @@ jobs:
           echo "billboard=$billboard" | tee -a proof/surface-gate/baseline.txt
           echo "mtg=$mtg" | tee -a proof/surface-gate/baseline.txt
           echo "home=$home" | tee -a proof/surface-gate/baseline.txt
+          echo "toll=$toll" | tee -a proof/surface-gate/baseline.txt
+          echo "toll_manifest=$toll_manifest" | tee -a proof/surface-gate/baseline.txt
           echo "checkout=$checkout" | tee -a proof/surface-gate/baseline.txt
 
           echo "live_sha=$live_sha" >> "$GITHUB_OUTPUT"
           echo "billboard=$billboard" >> "$GITHUB_OUTPUT"
           echo "mtg=$mtg" >> "$GITHUB_OUTPUT"
+          echo "toll=$toll" >> "$GITHUB_OUTPUT"
+          echo "toll_manifest=$toll_manifest" >> "$GITHUB_OUTPUT"
 
       - name: Trigger Render deploy when drifted or doorways broken
         if: always()
@@ -88,12 +94,14 @@ jobs:
           LIVE_SHA: ${{ steps.baseline.outputs.live_sha }}
           BILLBOARD: ${{ steps.baseline.outputs.billboard }}
           MTG: ${{ steps.baseline.outputs.mtg }}
+          TOLL: ${{ steps.baseline.outputs.toll }}
+          TOLL_MANIFEST: ${{ steps.baseline.outputs.toll_manifest }}
         shell: bash
         run: |
           set -euo pipefail
           need_deploy=false
           if [ "$LIVE_SHA" != "$EXPECTED_SHA" ]; then need_deploy=true; fi
-          if [ "$BILLBOARD" != '200' ] || [ "$MTG" != '200' ]; then need_deploy=true; fi
+          if [ "$BILLBOARD" != '200' ] || [ "$MTG" != '200' ] || [ "$TOLL" != '200' ] || [ "$TOLL_MANIFEST" != '200' ]; then need_deploy=true; fi
 
           if [ "$need_deploy" != 'true' ]; then
             echo 'No deploy required.'
@@ -135,12 +143,14 @@ jobs:
             fi
             billboard="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/billboard" || true)"
             mtg="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/mtg" || true)"
+            toll="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/toll-road" || true)"
+            toll_manifest="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/api/toll/v1/manifest" || true)"
             home="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/" || true)"
             health="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$BASE_URL/healthz" || true)"
 
-            echo "live_sha=$live_sha billboard=$billboard mtg=$mtg home=$home health=$health"
+            echo "live_sha=$live_sha billboard=$billboard mtg=$mtg toll=$toll toll_manifest=$toll_manifest home=$home health=$health"
 
-            if [ "$live_sha" = "$EXPECTED_SHA" ] && [ "$billboard" = '200' ] && [ "$mtg" = '200' ] && [ "$home" = '200' ] && [ "$health" = '200' ]; then
+            if [ "$live_sha" = "$EXPECTED_SHA" ] && [ "$billboard" = '200' ] && [ "$mtg" = '200' ] && [ "$toll" = '200' ] && [ "$toll_manifest" = '200' ] && [ "$home" = '200' ] && [ "$health" = '200' ]; then
               ok=true
               break
             fi
@@ -159,6 +169,8 @@ jobs:
                 version_sha_must_match_main:true,
                 billboard_must_be_200:true,
                 mtg_must_be_200:true,
+                toll_road_must_be_200:true,
+                toll_manifest_must_be_200:true,
                 health_must_be_200:true,
                 no_revenue_from_availability:true
               }

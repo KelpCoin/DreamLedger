@@ -1,0 +1,68 @@
+{
+  "proof_type": "HANDS_OFF_TOLL_ROAD_TRAVERSAL",
+  "observed_at": "2026-10-04",
+  "branch": "economic-surface-compiler-v1",
+  "latest_commit": "640ffebcf20856f6266e97e204d0b11e6a1e5d83",
+  "measured_blocker": {
+    "blocked_at": "DELIVERY",
+    "because": "customer-facing /toll-road doorway was observed returning 404 while /api/toll/v1/manifest was armed",
+    "required": "public storefront must resolve to the existing compiled toll-road service; deployment gate must verify the storefront and manifest",
+    "fallback": "none; do not claim the toll road is customer-reachable until live deployment converges",
+    "owner_action": "none for machine work",
+    "human_minutes": 0,
+    "expected_economic_effect": "remove a measured delivery boundary failure without claiming revenue"
+  },
+  "changes": [
+    {
+      "commit": "b17240c9741bd5c9dd33332c4525e79bdc807b49",
+      "change": "expose existing compiled toll-road storefront at /toll-road and /toll-road/"
+    },
+    {
+      "commit": "e89e07eb2d386f214a66d9ef4747f220b40ca4a7",
+      "change": "stop advertising unimplemented /api/toll/v1/roads in the public toll manifest"
+    },
+    {
+      "commit": "088eaae25daa316653fa1403a3d01b83ebfa79f2",
+      "change": "make existing Surface Deploy Gate verify /toll-road and /api/toll/v1/manifest"
+    },
+    {
+      "commit": "63463ea8b2be84b9ea09b748bfb151522482cd55",
+      "change": "expose existing public/toll-road.html through the actual Render root public/server.js"
+    },
+    {
+      "commit": "8378bba69aea31266bd75d923cbc63fe61202d2f",
+      "change": "remove irrelevant BEC-PRIME storefront alias; Render service root is public"
+    },
+    {
+      "commit": "de49a55e0b907a1eaf6948ef9e00232e6fcc9d19",
+      "change": "remove duplicate unused BEC-PRIME compiled storefront"
+    },
+    {
+      "commit": "640ffebcf20856f6266e97e204d0b11e6a1e5d83",
+      "change": "prevent quote finalization from resetting an already fulfilled request to queued"
+    }
+  ],
+  "verification": {
+    "source_inspection": "PASS",
+    "manifest_route_truth": "PASS: gauntlet and truth routes are implemented; unimplemented roads route removed from manifest",
+    "storefront_source": "PASS: BEC-PRIME/compiled/website/toll-road.html exists on branch",
+    "live_deployment": "NOT_PROVEN: current live deployment has not converged to this branch",
+    "ci": "NOT_PROVEN: branch is not a main-triggered Surface Deploy Gate run",
+    "revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0,
+    "render_root_observation": "PASS: Render service DreamLedger1 uses rootDir=public, auto-deploys main"
+  },
+  "next_blocker": "CI_QUEUE_AND_MAIN_DEPLOY: current PR check remains in_progress; after CI completion, main deployment must converge before live storefront and first-dollar boundary can be re-observed",
+  "777_moment": {
+    "determination": "existing Stripe settlement -> revenue_entitlements -> fulfillment_requests -> quote-intake -> quote-fulfillment -> evidence -> economic verification seam",
+    "source_artifact": "docs/economic/777-moment-existing-substrate-2026-10-04.md",
+    "strongest_offer": "QUOTE-COMPARE-49",
+    "price_nzd": 49,
+    "owner_minutes": 0,
+    "replication_rule": "5-10 bounded probes only after independently verified mechanisms; support survivors and kill non-survivors",
+    "roles": "CUBE allocates substrate; SILO holds cell state; ELOHIM creates/refines/repairs; GAUNTLET judges; Truth Oracle verifies economic reality; BECK ledger records immutable verified truth; telemetry feeds Evergreen; supervisor allocates compute; LM Studio supplies local workers",
+    "next_engineering_boundary": "harden the existing paid-session/fulfillment wall, then observe one independent buyer transaction"
+  }
+}

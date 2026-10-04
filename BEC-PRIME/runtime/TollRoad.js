@@ -188,7 +188,6 @@ function publicManifest(extraServices = []) {
   const base = [
     { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, checkout_configured: c.gauntletPriceNzd > 0 },
     { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, checkout_configured: c.truthPriceNzd > 0 },
-    { id: 'ROAD-PACK-DEFAULT', route: '/api/toll/v1/roads', scope: 'road', price_nzd: c.defaultPackPriceNzd, calls: c.defaultPackCalls, checkout_configured: true }
   ];
   return {
     schema: 'dreamledger/toll-road/v2',

@@ -15,6 +15,7 @@ const BUYER_SIGNALS = path.join(ROOT, 'data', '777', 'BUYER-SIGNAL-HUNT-001.json
 const PUBLIC_MARKET_RADAR = path.join(ROOT, 'data', '777', 'public-market-radar.json');
 const EVERGREEN_FACTORY = path.join(ROOT, '..', 'public', 'evergreen-silo-factory.json');
 const CUBE_POLICY = path.join(ROOT, 'economic', 'CUBE_EXPERIMENT_POLICY.json');
+const TRUTH_ORACLE_PRICING = path.join(ROOT, 'catalog', 'truth-oracle', 'pricing.json');
 const OUT_DIR = path.join(ROOT, 'data', '777');
 const OUT = path.join(OUT_DIR, '777-LATEST.json');
 
@@ -116,6 +117,30 @@ function candidates() {
       }))
     : [];
   const evergreenFactory = loadJson(EVERGREEN_FACTORY, { live_adapters: [] });
+  const truthOraclePricing = loadJson(TRUTH_ORACLE_PRICING, { plans: [] });
+  const recurringTruthOracleOffers = Array.isArray(truthOraclePricing.plans)
+    ? truthOraclePricing.plans.filter(x => Number(x.price_nzd_month || 0) > 0 && x.stripe_price_id).map(x => ({
+        opportunity_id: 'TRUTH-ORACLE-SUBSCRIPTION:' + String(x.tier || 'UNKNOWN'),
+        title: 'Truth Oracle ' + String(x.display_name || x.tier || 'subscription'),
+        buyer: 'Independent buyer seeking recurring economic evidence access',
+        offer: x.description || 'Recurring Truth Oracle evidence access',
+        price_nzd: Number(x.price_nzd_month || 0),
+        channels: ['existing_truth_oracle_subscription_surface'],
+        hypothesis: 'EXISTING_RECURRING_SURFACE: monthly access to deeper economic evidence without changing the verdict',
+        source_type: 'EXISTING_RECURRING_SURFACE',
+        repeatability: 'subscription',
+        commercial_activation: {
+          offer_id: 'TRUTH-ORACLE-SUBSCRIPTION:' + String(x.tier || 'UNKNOWN'),
+          payment_link_url: '/api/truth-oracle/checkout',
+          payment_link_status: 'EXISTING_SUBSCRIPTION_CHECKOUT_ENDPOINT',
+          fulfillment_route: '/api/truth-oracle/access',
+          proof_of_delivery: 'Entitlement plus gated Truth Oracle access and provider renewal evidence',
+          approval_required: true,
+          reconciliation: 'EXISTING_IMPLEMENTED_RECURRING_SURFACE',
+          stripe_price_id: x.stripe_price_id
+        }
+      }))
+    : [];
   const quoteComparisonAdapter = (evergreenFactory.live_adapters || []).find(x =>
     x.slug === 'construction-subcontractor-quotes' ||
     x.slug === 'supplier-price-list-comparison'
@@ -205,6 +230,8 @@ function candidates() {
 
   const buyerSignals = [...publicRadarSignals, ...staticBuyerSignals];
 
+  const recurringSurfaces = recurringTruthOracleOffers;
+
   const discovered = Array.isArray(source.results)
     ? source.results.filter(x => x && x.verdict === 'PASS' && assessEconomicEvidence(x).evidence_rung >= 1).map(x => ({
         ...x,
@@ -237,7 +264,7 @@ function candidates() {
   }] : [];
 
   const seen = new Set();
-  return [...approvedOffers, ...liveOffers, ...buyerSignals, ...discovered, ...quoteCompareCandidates].filter(x => {
+  return [...approvedOffers, ...liveOffers, ...recurringSurfaces, ...buyerSignals, ...discovered, ...quoteCompareCandidates].filter(x => {
     const id = x.opportunity_id || x.offer_id || x.product_sku || x.title;
     if (!id || seen.has(id)) return false;
     seen.add(id);

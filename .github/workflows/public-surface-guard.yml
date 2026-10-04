@@ -43,8 +43,12 @@ jobs:
               *) cat "$f" >> "$tmp" ;;
             esac
           done
-          if grep -Eiq 'Gauntlet|Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' "$tmp"; then
+          if grep -Eiq 'Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' "$tmp"; then
             echo 'FAIL: prohibited internal, confidential, or inactive product language or credential material found in customer-facing public assets.'
+            echo 'MATCHING_PUBLIC_ASSETS:'
+            while IFS= read -r f; do
+              if grep -Eiq 'Economic Court|Trust Engine|ELOHIM|BrownEye Cortex|BEC-PRIME|Dream Ledger Deck|conversations is not defined|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE_KEY|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+' "$f"; then echo "$f"; fi
+            done < <(find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.txt' \))
             rm -f "$tmp"
             exit 1
           fi
@@ -55,11 +59,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "'GET /api/molt-beach-inventory':true" public/server.js
-          grep -q "'GET /api/products':true" public/server.js
-          grep -q "'POST /api/billboard/submit':true" public/server.js
-          grep -q "if(!ALLOWED_API\[key\])" public/server.js
-          echo 'PASS: public API allowlist is explicit.'
+          grep -q "p.startsWith('/api/toll/v1/')" public/server.js
+          grep -q "tollRoad.handle(req,res,p)" public/server.js
+          grep -q "ENGINE_INTERNAL_URL" public/server.js
+          grep -q "/api/swarm-100k/" public/server.js
+          grep -q "return send(res,404,'Not Found'" public/server.js
+          echo 'PASS: public API boundary is explicit for toll, bounded swarm proxy, and 404 fallback.'
 
       - name: Check for obvious credential literals
         shell: bash
@@ -71,5 +76,5 @@ jobs:
           fi
           echo 'PASS: no obvious secret material found in public assets.'
 
-# Public machine manifests are intentionally public API metadata. Customer-facing language remains scanned separately.
+# Public machine manifests are intentionally public API metadata. Customer-facing language remains scanned separately. Gauntlet is an approved public service name; internal implementation names remain blocked.
 # Credential scans intentionally match secret-value formats, not STRIPE_* environment-variable names.
