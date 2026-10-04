@@ -161,7 +161,7 @@ const server = http.createServer((req,res)=>{
   const route = moneyRoute(slug);
   if (route) {
     res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'public, max-age=300'});
-    return res.end(page(route.title,route.description,route.status,route.id));
+    return res.end(routePage(route));
   }
   const silo = silos[slug];
   if (!silo) {
