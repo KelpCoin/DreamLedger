@@ -4,24 +4,18 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#060708"/>
-<meta name="description" content="DreamLedger — NZ marketplace with 0% platform fees. Buy and sell with more protection than Facebook Marketplace. B2B + consumer."/>
+<meta name="description" content="DreamLedger — NZ marketplace with 0% platform fees. B2B + consumer. Enterprise commerce rails."/>
 <link rel="canonical" href="https://dreamledger.org/"/>
 <title>DreamLedger · NZ Marketplace · 0% fees</title>
 <style>
-:root{
-  --bg:#060708;--panel:#0e1116;--panel2:#141820;--line:#243040;--ink:#f3f5f7;--muted:#8b96a3;
-  --gold:#d8b56b;--ok:#3dd68c;--blue:#5b9fd4;--max:1100px;
-  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
-}
+:root{--bg:#060708;--panel:#0e1116;--panel2:#141820;--line:#243040;--ink:#f3f5f7;--muted:#8b96a3;--gold:#d8b56b;--ok:#3dd68c;--max:1100px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 1rem}
 .top{position:sticky;top:0;z-index:20;background:rgba(6,7,8,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:calc(.65rem + var(--st)) 0 .65rem}
 .top .inner{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
-.logo{font-weight:800;font-size:.95rem;letter-spacing:-.02em}
-.logo span{color:var(--gold)}
+.logo{font-weight:800;font-size:.95rem;letter-spacing:-.02em}.logo span{color:var(--gold)}
 .nav{display:flex;gap:.35rem;flex-wrap:wrap;justify-content:flex-end}
 .nav a{font-size:.72rem;font-weight:650;color:var(--muted);padding:.35rem .55rem;border-radius:999px;border:1px solid transparent}
 .nav a.primary{color:#0a0a0a;background:var(--ok);border-color:var(--ok)}
@@ -31,40 +25,25 @@ a{color:inherit;text-decoration:none}
 .hero p{color:var(--muted);font-size:.95rem;max-width:36ch;margin-bottom:1rem}
 .hero-cta{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.1rem;border-radius:12px;font-weight:700;font-size:.9rem;border:none}
-.btn.ok{background:var(--ok);color:#062016}
-.btn.gold{background:var(--gold);color:#1a1408}
-.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ok{background:var(--ok);color:#062016}.btn.gold{background:var(--gold);color:#1a1408}.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line)}
 .fees{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:1rem 0 1.25rem}
+@media(min-width:720px){.fees{grid-template-columns:repeat(4,1fr)}.cats{grid-template-columns:repeat(4,1fr)!important}}
 .fee{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.85rem}
-.fee strong{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.03em;color:var(--ok)}
-.fee span{font-size:.72rem;color:var(--muted)}
+.fee strong{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.03em;color:var(--ok)}.fee span{font-size:.72rem;color:var(--muted)}
 .compare{display:grid;gap:.55rem;margin-bottom:1.5rem}
 .cmp{display:grid;grid-template-columns:1fr auto;gap:.35rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem;font-size:.8rem}
-.cmp .name{font-weight:650}
-.cmp .bad{color:#e07a7a}
-.cmp .good{color:var(--ok);font-weight:700}
-.section{padding:1.25rem 0 0.5rem}
-.section h2{font-size:1.15rem;letter-spacing:-.025em;margin-bottom:.35rem}
-.section .sub{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}
+.cmp .bad{color:#e07a7a}.cmp .good{color:var(--ok);font-weight:700}
+.section{padding:1.25rem 0 .5rem}.section h2{font-size:1.15rem;letter-spacing:-.025em;margin-bottom:.35rem}.section .sub{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}
 .cats{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}
-@media(min-width:720px){.cats{grid-template-columns:repeat(4,1fr)}.fees{grid-template-columns:repeat(4,1fr)}}
-.cat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.9rem .8rem;min-height:110px;display:flex;flex-direction:column;justify-content:space-between}
-.cat .ico{font-size:1.35rem;margin-bottom:.35rem}
-.cat h3{font-size:.88rem;font-weight:700;margin-bottom:.2rem}
-.cat p{font-size:.72rem;color:var(--muted);flex:1}
-.cat .go{font-size:.72rem;font-weight:700;color:var(--gold);margin-top:.5rem}
+.cat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.9rem .8rem;min-height:110px;display:flex;flex-direction:column}
+.cat .ico{font-size:1.35rem;margin-bottom:.35rem}.cat h3{font-size:.88rem;font-weight:700;margin-bottom:.2rem}.cat p{font-size:.72rem;color:var(--muted);flex:1}.cat .go{font-size:.72rem;font-weight:700;color:var(--gold);margin-top:.5rem}
 .rails{display:grid;gap:.55rem;margin-top:.75rem}
-.rail{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;display:grid;grid-template-columns:auto 1fr;gap:.65rem;align-items:start}
+.rail{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;display:grid;grid-template-columns:auto 1fr;gap:.65rem}
 .rail .n{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#1a1408;font-weight:800;font-size:.75rem;display:grid;place-items:center}
-.rail strong{display:block;font-size:.85rem}
-.rail span{font-size:.75rem;color:var(--muted)}
-.protect{display:grid;gap:.5rem;margin-top:.75rem}
-.prot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem;font-size:.8rem}
-.prot strong{color:var(--ok)}
+.rail strong{display:block;font-size:.85rem}.rail span{font-size:.75rem;color:var(--muted)}
+.protect{display:grid;gap:.5rem;margin-top:.75rem}.prot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem;font-size:.8rem}.prot strong{color:var(--ok)}
 .bottom-cta{margin:1.5rem 0 calc(1.5rem + var(--sb));background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:1.15rem;text-align:center}
-.bottom-cta h2{font-size:1.2rem;margin-bottom:.35rem}
-.bottom-cta p{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}
-.bottom-cta .row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.bottom-cta h2{font-size:1.2rem;margin-bottom:.35rem}.bottom-cta p{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}.bottom-cta .row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
 .foot{border-top:1px solid var(--line);padding:1rem 0 calc(1rem + var(--sb));color:var(--muted);font-size:.7rem;display:flex;flex-wrap:wrap;gap:.75rem;justify-content:space-between}
 </style>
 </head>
@@ -72,19 +51,19 @@ a{color:inherit;text-decoration:none}
 <header class="top"><div class="wrap inner">
   <a class="logo" href="/">Dream<span>Ledger</span></a>
   <nav class="nav">
+    <a class="ghost" href="/marketplace.html">Market</a>
     <a class="ghost" href="/b2b.html">B2B</a>
     <a class="ghost" href="/sell.html">Sell</a>
     <a class="primary" href="/sell.html">List free</a>
   </nav>
 </div></header>
-
 <main class="wrap">
   <section class="hero">
     <h1>NZ marketplace.<br/>0% platform fees.</h1>
-    <p>Facebook Marketplace simplicity. Trade Me reach ambition. Stronger protection than either. We make money elsewhere — not on your sale.</p>
+    <p>Enterprise commerce rails. Facebook simplicity. Trade Me ambition. Stronger protection. We don't take a cut of peer sales.</p>
     <div class="hero-cta">
-      <a class="btn ok" href="/sell.html">List an item · free</a>
-      <a class="btn line" href="/b2b.html">B2B wholesale</a>
+      <a class="btn ok" href="/marketplace.html">Open marketplace</a>
+      <a class="btn line" href="/b2b.html">B2B / RFQ</a>
       <a class="btn gold" href="/cost-of-living.html">Free cost of living</a>
     </div>
     <div class="fees">
@@ -94,61 +73,55 @@ a{color:inherit;text-decoration:none}
       <div class="fee"><strong>Stripe</strong><span>Settled sales only</span></div>
     </div>
     <div class="compare">
-      <div class="cmp"><span class="name">Trade Me success fees</span><span class="bad">~5.9%–11.9%</span></div>
-      <div class="cmp"><span class="name">Facebook Marketplace</span><span class="good">$0 · weak protection</span></div>
-      <div class="cmp"><span class="name">DreamLedger</span><span class="good">$0 platform · truth-gated</span></div>
+      <div class="cmp"><span>Trade Me success fees</span><span class="bad">~5.9%–11.9%</span></div>
+      <div class="cmp"><span>Facebook Marketplace</span><span class="good">$0 · weak protection</span></div>
+      <div class="cmp"><span>DreamLedger</span><span class="good">$0 platform · truth-gated</span></div>
     </div>
   </section>
-
   <section class="section">
     <h2>Shop by world</h2>
-    <p class="sub">Same commerce spine. Clear silos. No fee rake on peer sales.</p>
+    <p class="sub">Same spine. Clear silos.</p>
     <div class="cats">
-      <a class="cat" href="/sell.html"><div class="ico">🏠</div><h3>Home & living</h3><p>Furniture, tools, local pickup.</p><span class="go">Browse / list →</span></a>
-      <a class="cat" href="/sell.html"><div class="ico">👕</div><h3>Fashion</h3><p>Clothing, gear, condition tagged.</p><span class="go">Browse / list →</span></a>
-      <a class="cat" href="/mtg"><div class="ico">🎴</div><h3>MTG & cards</h3><p>Diagnostics + collectibles silo.</p><span class="go">Open MTG →</span></a>
-      <a class="cat" href="/b2b.html"><div class="ico">🏭</div><h3>B2B / wholesale</h3><p>RFQs, MOQ, supplier quotes.</p><span class="go">Open B2B →</span></a>
-      <a class="cat" href="/sell.html"><div class="ico">🔧</div><h3>Electronics</h3><p>Tested, described, local.</p><span class="go">Browse / list →</span></a>
-      <a class="cat" href="/billboard"><div class="ico">📺</div><h3>Billboard</h3><p>Permanent digital placement.</p><span class="go">Claim tile →</span></a>
-      <a class="cat" href="/cost-of-living.html"><div class="ico">🧭</div><h3>Cost of living</h3><p>Truth Oracle · always free.</p><span class="go">Free advice →</span></a>
-      <a class="cat" href="/avatar.html"><div class="ico">◎</div><h3>DreamMeez</h3><p>Identity + daily cosmetics.</p><span class="go">Create →</span></a>
+      <a class="cat" href="/marketplace.html"><div class="ico">🛒</div><h3>Full marketplace</h3><p>Search, filter, live offers.</p><span class="go">Open →</span></a>
+      <a class="cat" href="/b2b.html"><div class="ico">🏭</div><h3>B2B / wholesale</h3><p>RFQs, MOQ, quotes.</p><span class="go">Open B2B →</span></a>
+      <a class="cat" href="/mtg"><div class="ico">🎴</div><h3>MTG & cards</h3><p>Diagnostics + silo.</p><span class="go">Open MTG →</span></a>
+      <a class="cat" href="/sell.html"><div class="ico">📦</div><h3>List free</h3><p>0% success fee.</p><span class="go">List →</span></a>
+      <a class="cat" href="/billboard"><div class="ico">📺</div><h3>Billboard</h3><p>Permanent placement.</p><span class="go">Claim →</span></a>
+      <a class="cat" href="/cost-of-living.html"><div class="ico">🧭</div><h3>Cost of living</h3><p>Truth Oracle · free.</p><span class="go">Free advice →</span></a>
+      <a class="cat" href="/avatar.html"><div class="ico">◎</div><h3>DreamMeez</h3><p>Identity + streaks.</p><span class="go">Create →</span></a>
+      <a class="cat" href="/agent-commerce.json"><div class="ico">🤖</div><h3>Agent commerce</h3><p>Machine-readable offers.</p><span class="go">API →</span></a>
     </div>
   </section>
-
   <section class="section">
     <h2>How money moves</h2>
-    <p class="sub">Enterprise rails. Simple for buyers and sellers.</p>
     <div class="rails">
-      <div class="rail"><div class="n">1</div><div><strong>List free</strong><span>No listing fee. No success fee. Truth gate on misrepresentation.</span></div></div>
-      <div class="rail"><div class="n">2</div><div><strong>Buyer pays via Stripe</strong><span>Settled payment only counts. No fake buy buttons.</span></div></div>
-      <div class="rail"><div class="n">3</div><div><strong>You keep the sale</strong><span>Platform does not take a cut of peer marketplace sales.</span></div></div>
-      <div class="rail"><div class="n">4</div><div><strong>We earn elsewhere</strong><span>Diagnostics, billboard, paid depth, B2B tools — not your margin.</span></div></div>
+      <div class="rail"><div class="n">1</div><div><strong>List free</strong><span>No listing fee. No success fee. Truth gate.</span></div></div>
+      <div class="rail"><div class="n">2</div><div><strong>Buyer pays via Stripe</strong><span>Settled payment only counts.</span></div></div>
+      <div class="rail"><div class="n">3</div><div><strong>You keep the sale</strong><span>No platform cut on peer sales.</span></div></div>
+      <div class="rail"><div class="n">4</div><div><strong>We earn on tools</strong><span>Diagnostics, billboard, B2B tools.</span></div></div>
     </div>
   </section>
-
   <section class="section">
-    <h2>More protection than Marketplace</h2>
+    <h2>Protection</h2>
     <div class="protect">
-      <div class="prot"><strong>Truth gate.</strong> Misrepresented listings get removed. UNKNOWN stays UNKNOWN.</div>
-      <div class="prot"><strong>Settled only.</strong> Sale = Stripe payment recorded — not a chat promise.</div>
-      <div class="prot"><strong>Silo boundaries.</strong> MTG, B2B, consumer — clear rules per world.</div>
-      <div class="prot"><strong>Evidence spine.</strong> Optional depth via Truth Oracle when claims need proof.</div>
+      <div class="prot"><strong>Truth gate.</strong> Misrepresentation removed.</div>
+      <div class="prot"><strong>Settled only.</strong> Stripe recorded — not chat promises.</div>
+      <div class="prot"><strong>Silos.</strong> MTG, B2B, consumer boundaries.</div>
+      <div class="prot"><strong>Evidence.</strong> Truth Oracle when claims need proof.</div>
     </div>
   </section>
-
   <section class="bottom-cta">
-    <h2>Put it up. Keep the margin.</h2>
-    <p>No Trade Me cut. Stronger than a Facebook post. Built for New Zealand.</p>
+    <h2>Enterprise rails. Zero rake.</h2>
+    <p>dreamledger.org — NZ marketplace engine.</p>
     <div class="row">
-      <a class="btn ok" href="/sell.html">List free</a>
-      <a class="btn gold" href="/b2b.html">Sell B2B</a>
-      <a class="btn line" href="/cost-of-living.html">Free COL advice</a>
+      <a class="btn ok" href="/marketplace.html">Marketplace</a>
+      <a class="btn gold" href="/b2b.html">B2B</a>
+      <a class="btn line" href="/sell.html">List free</a>
     </div>
   </section>
-
   <footer class="foot">
-    <span>DreamLedger · 0% platform fees · NZ</span>
-    <span><a href="/sell.html">Sell</a> · <a href="/b2b.html">B2B</a> · <a href="/truth-oracle.html">Truth Oracle</a> · <a href="/agent-commerce.json">Agents</a></span>
+    <span>DreamLedger · dreamledger.org · NZ</span>
+    <span><a href="/marketplace.html">Market</a> · <a href="/b2b.html">B2B</a> · <a href="/sell.html">Sell</a> · <a href="/agent-commerce.json">Agents</a></span>
   </footer>
 </main>
 </body>
