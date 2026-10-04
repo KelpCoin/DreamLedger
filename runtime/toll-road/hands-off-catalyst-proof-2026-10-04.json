@@ -2,7 +2,7 @@
   "proof_type": "HANDS_OFF_TOLL_ROAD_TRAVERSAL",
   "observed_at": "2026-10-04",
   "branch": "economic-surface-compiler-v1",
-  "latest_commit": "e89e07eb2d386f214a66d9ef4747f220b40ca4a7",
+  "latest_commit": "de49a55e0b907a1eaf6948ef9e00232e6fcc9d19",
   "measured_blocker": {
     "blocked_at": "DELIVERY",
     "because": "customer-facing /toll-road doorway was observed returning 404 while /api/toll/v1/manifest was armed",
@@ -24,6 +24,18 @@
     {
       "commit": "088eaae25daa316653fa1403a3d01b83ebfa79f2",
       "change": "make existing Surface Deploy Gate verify /toll-road and /api/toll/v1/manifest"
+    },
+    {
+      "commit": "63463ea8b2be84b9ea09b748bfb151522482cd55",
+      "change": "expose existing public/toll-road.html through the actual Render root public/server.js"
+    },
+    {
+      "commit": "8378bba69aea31266bd75d923cbc63fe61202d2f",
+      "change": "remove irrelevant BEC-PRIME storefront alias; Render service root is public"
+    },
+    {
+      "commit": "de49a55e0b907a1eaf6948ef9e00232e6fcc9d19",
+      "change": "remove duplicate unused BEC-PRIME compiled storefront"
     }
   ],
   "verification": {
@@ -35,7 +47,8 @@
     "revenue_nzd": 0,
     "settled_external_payments": 0,
     "independent_external_buyers": 0,
-    "verified_economic_outcomes": 0
+    "verified_economic_outcomes": 0,
+    "render_root_observation": "PASS: Render service DreamLedger1 uses rootDir=public, auto-deploys main"
   },
-  "next_blocker": "DEPLOYMENT/CI: branch must reach the existing Render deployment and complete the existing Surface Deploy Gate before public reachability can be claimed"
+  "next_blocker": "CI_QUEUE_AND_MAIN_DEPLOY: PR checks must complete; then main must receive the minimal public/server.js + manifest + deploy-gate changes before live reachability can be re-observed"
 }
