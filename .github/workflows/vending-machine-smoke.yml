@@ -1,0 +1,43 @@
+name: Vending Machine Smoke Gate
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check public DreamLedger pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          for url in             "https://dreamledger.org/"             "https://dreamledger.org/b2b.html"             "https://dreamledger.org/quote-comparison.html"             "https://dreamledger.org/supplier-quote-comparison.html"             "https://dreamledger.org/robots.txt"             "https://dreamledger.org/sitemap.xml"
+          do
+            echo "CHECK $url"
+            body="$(curl -fsSL --max-time 20 "$url")"
+            test -n "$body"
+          done
+
+      - name: Check Render origin serves the new offer
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl -fsSL --max-time 20 "https://dreamledger-org.onrender.com/supplier-quote-comparison.html")"
+          grep -q "NZ\$49" <<< "$body"
+          grep -q "Buy the comparison" <<< "$body"
+
+      - name: Check checkout endpoint is reachable
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+          body="$(curl -fsSL --max-time 20 "$url")"
+          if grep -qiE "page you were looking for could not be found|something went wrong|not found" <<< "$body"; then
+            echo "FAIL: configured checkout endpoint reports an error."
+            exit 1
+          fi
+          echo "Checkout endpoint returned content without a known error marker."
