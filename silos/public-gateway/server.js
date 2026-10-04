@@ -80,38 +80,43 @@ function serviceTargets(route){
   const routeId=encodeURIComponent(route.id);
   const procurementAudience=['SME','PROC','TRADE','PRO'].includes(route.audience);
   const collectorAudience=['COLLECTOR','CLUB'].includes(route.audience);
-  return [
-    procurementAudience ? {
+  const targets=[];
+
+  if (procurementAudience) {
+    targets.push({
       label:'Supplier Quote Comparison',
       price:'NZ$49 one-time',
       href:'https://dreamledger.org/quote-comparison/?route_id='+routeId,
-      description:'Pay, submit 2–5 supplier quotes, and receive the existing automated comparison and evidence packet.'
-    } : null,
-    collectorAudience ? {
+      description:'Normalize 2–5 supplier quotes into a decision-ready comparison covering total, MOQ, lead time and payment terms.'
+    });
+  }
+
+  if (collectorAudience) {
+    targets.push({
       label:'Commander Deck Diagnostic',
       price:'NZ$29 one-time',
       href:'https://dreamledger.org/mtg/commander-deck-diagnostic?route_id='+routeId,
       description:'Use the existing paid Commander diagnostic workflow for a submitted decklist.'
-    } : null,
-    {
-      label:'DreamLedger Evidence',
-      price:'Public service',
-      href:'https://dreamledger.org/truth-oracle.html?route_id='+routeId,
-      description:'Use the existing evidence surface to inspect observations, provenance, contradictions and unknowns.'
-    },
-    {
-      label:'Supplier Quote Comparison',
-      price:'NZ$49 one-time',
-      href:'https://dreamledger.org/quote-comparison/?route_id='+routeId,
-      description:'Existing paid service wall for buyers who already have supplier quotations.'
-    },
-    {
-      label:'Commander Deck Diagnostic',
-      price:'NZ$29 one-time',
-      href:'https://dreamledger.org/mtg/commander-deck-diagnostic?route_id='+routeId,
-      description:'Existing paid service wall for Commander deck diagnosis.'
-    }
-  ].filter(Boolean).slice(0,3);
+    });
+  }
+
+  targets.push({
+    label:'Truth Oracle',
+    price:'Public evidence surface',
+    href:'https://dreamledger.org/truth-oracle.html?route_id='+routeId,
+    description:'Inspect observations, provenance, contradictions and unknowns without treating model output as economic truth.'
+  });
+
+  if (!procurementAudience && !collectorAudience) {
+    targets.push({
+      label:'List or Match Supply',
+      price:'No listing fee',
+      href:'https://dreamledger.org/sell.html?route_id='+routeId,
+      description:'Move from this demand pattern to a real supply or marketplace action.'
+    });
+  }
+
+  return targets.slice(0,3);
 }
 
 function routePage(route){
