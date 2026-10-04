@@ -1,0 +1,36 @@
+{
+  "schema": "dreamledger/service-wall-repair/v1",
+  "observed_at": "2026-10-04T03:23:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "commit_sha": "705d86ddf2122b26af0b49acab37f0d5af3659ce",
+  "change": "Mounted existing BEC-PRIME/routes/tollRoad.js before the generic storefront method gate in public/server.js.",
+  "measured_blocker": {
+    "blocked_at": "ACCESS",
+    "because": "Existing /api/toll/v1/manifest was returning HTTP 404 on the live DreamLedger storefront while the toll wall implementation already existed in the repository.",
+    "required": "Make the existing toll wall externally callable without introducing a new payment rail, ledger, queue, or authority system."
+  },
+  "pre_change_evidence": {
+    "render_service": "DreamLedger1",
+    "service_id": "srv-d8ud55lckfvc73f1t4eg",
+    "observed_404s": true,
+    "last_observed_404": "2026-10-04T00:47:18.318925586Z"
+  },
+  "deployment": {
+    "status": "live",
+    "deploy_id": "dep-db0scp2vcj2c739kvlvg",
+    "started_at": "2026-10-04T03:22:12.197965Z",
+    "finished_at": "2026-10-04T03:22:37.415352Z"
+  },
+  "ci": {
+    "status": "NOT_PROVEN",
+    "reason": "No workflow run was associated with the new commit through the connected GitHub workflow interface."
+  },
+  "external_endpoint_verification": "UNOBSERVABLE_FROM_CURRENT_CONNECTORS",
+  "economic_scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "next_frontier": "Independent external buyer completes a real settled transaction through an existing service wall."
+}
