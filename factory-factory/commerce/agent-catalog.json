@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "settlement_rails": [
+    "stripe",
+    "x402"
+  ],
+  "truth_policy": "Only settled external payment plus independent attribution can transition to VERIFIED.",
+  "products": [
+    {
+      "sku": "CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "rail": [
+        "stripe",
+        "x402"
+      ],
+      "status": "READY"
+    },
+    {
+      "sku": "MTG-SPREAD-SCAN",
+      "name": "MTG Spread Scan",
+      "price_nzd": null,
+      "rail": [
+        "stripe",
+        "x402"
+      ],
+      "status": "CELL_DEFINED"
+    },
+    {
+      "sku": "INDEPENDENT-VERIFICATION",
+      "name": "Independent Verification",
+      "price_nzd": null,
+      "rail": [
+        "stripe",
+        "x402"
+      ],
+      "status": "CELL_DEFINED"
+    }
+  ],
+  "agent_checkout": {
+    "protocol": "HTTP",
+    "payment_negotiation": "x402",
+    "human_approval_for_first_activation": true
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "adapter":"ready-player-me",
+  "targets":["web","react","unity","unreal"],
+  "persistence_key":"dreamledger_avatar_id",
+  "marketplace_object":"wearable",
+  "game_utility":true,
+  "status":"CONTRACT_READY_PROVIDER_CONFIGURATION_REQUIRED"
+}

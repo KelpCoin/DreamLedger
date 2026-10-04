@@ -1,0 +1,35 @@
+{
+  "transport": "streamable-http",
+  "tools": [
+    {
+      "name": "catalog_list",
+      "auth": "public-read"
+    },
+    {
+      "name": "quote_get",
+      "auth": "public-read"
+    },
+    {
+      "name": "checkout_create",
+      "auth": "agent-authenticated"
+    },
+    {
+      "name": "settlement_status",
+      "auth": "agent-authenticated"
+    },
+    {
+      "name": "proof_get",
+      "auth": "agent-authenticated"
+    },
+    {
+      "name": "cell_status",
+      "auth": "agent-authenticated"
+    },
+    {
+      "name": "opportunity_scan",
+      "auth": "agent-authenticated"
+    }
+  ],
+  "truth_policy": "No tool may claim VERIFIED without observed external settlement evidence.",
+  "external_actions": "authority-gated"
+}

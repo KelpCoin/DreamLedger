@@ -1,0 +1,11 @@
+{
+  "factory_id":"economic-factory-factory",
+  "version":"1.0.0",
+  "objective":"compile economic cells into executable, authority-gated workflows",
+  "truth_policy":{"observed_to_verified_only":true,"revenue_requires_external_buyer":true,"revenue_requires_settled_payment":true,"revenue_requires_independent_proof":true},
+  "states":["WATCH","READY","ACTIVE","QUARANTINED","REPLICABLE"],
+  "rails":["stripe","x402"],
+  "first_silo":"happy-home-road",
+  "local_root":"D:\\BrownEyeCortexData",
+  "cloud_project":"wbwgroygjeyukkspnqiy"
+}
