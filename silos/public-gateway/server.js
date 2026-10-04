@@ -48,7 +48,7 @@ const silos = {
 const audiences=['SME','PROC','TRADE','CONSUMER','PRO','LOCAL','CLUB','CREATOR','COLLECTOR','EDU'];
 const angles=['price-comparison','time-saving-processing','decision-ready-shortlist','exception-detection','supplier-buyer-matching','bundle-optimization','replenishment-planning','surplus-liquidation','purchase-preparation','evidence-packet'];
 function moneyRoute(id){
-  const m=id.match(/^M10K-(\\d{3})-(\\d{3})$/); if(!m)return null;
+  const m=id.match(/^M10K-(\d{3})-(\d{3})$/); if(!m)return null;
   const event=Number(m[1]), variant=Number(m[2]); if(event<1||event>100||variant<1||variant>100)return null;
   const audience=audiences[Math.floor((variant-1)/10)], angle=angles[(variant-1)%10];
   return {id,title:'DreamLedger '+id+' service silo',description:'Candidate commercial route '+id+' generated from the existing DreamLedger economic-event substrate.',status:'CANDIDATE',event,variant,audience,angle};
