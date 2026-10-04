@@ -11,6 +11,16 @@ on:
       - "BEC-PRIME/compiler/**"
       - "BEC-PRIME/catalog/**"
       - "BEC-PRIME/compiled/opportunities/**"
+      - "runtime/economic/**"
+      - "package.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "BEC-PRIME/factory/**"
+      - "BEC-PRIME/compiler/**"
+      - "BEC-PRIME/catalog/**"
+      - "BEC-PRIME/compiled/opportunities/**"
+      - "runtime/economic/**"
       - "package.json"
 
 permissions:
@@ -29,6 +39,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test economic silo factory
+        run: python -m unittest runtime/economic/test_economic_silo_factory.py
+      - name: Generate economic silo catalog
+        run: |
+          python runtime/economic/economic_silo_factory.py             --source runtime/economic/ECONOMIC-SILO-TRAVERSE-2026-10-04.json             --out-dir runtime/economic             --limit 10000
       - run: npm run compile:opportunities
       - run: npm run compile:factory-factory
       - run: npm run compile:factory-approval
@@ -52,3 +70,7 @@ jobs:
             BEC-PRIME/data/factory-factory/
             BEC-PRIME/data/x402-factory/
             proof/commerce/
+            runtime/economic/ECONOMIC-SILO-CATALOG-2026-10-04.json
+            runtime/economic/ECONOMIC-SILO-BLOCKERS-2026-10-04.json
+            runtime/economic/ECONOMIC-SILO-PROMOTION-2026-10-04.json
+            runtime/economic/ECONOMIC-SILO-FACTORY-PROOF-2026-10-04.json
