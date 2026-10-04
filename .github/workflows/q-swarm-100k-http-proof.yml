@@ -1,0 +1,92 @@
+name: Q-SWARM 100K Portfolio HTTP Proof
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "BEC-PRIME/swarm/**"
+      - "BEC-PRIME/routes/qSwarm100k.js"
+      - "BEC-PRIME/scripts/Generate-QSwarm100K.js"
+      - "BEC-PRIME/start.js"
+      - "public/server.js"
+      - ".github/workflows/q-swarm-100k-http-proof.yml"
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generate and Gauntlet 100000 candidates
+        run: node BEC-PRIME/scripts/Generate-QSwarm100K.js
+      - name: Assert truth remains zero
+        run: |
+          python3 - <<'PY'
+          import json
+          p=json.load(open('BEC-PRIME/data/q-swarm-100k/Q-SWARM-100K-PROOF.json'))
+          assert p['generated_candidates']==100000
+          assert p['truth']['verified_external_revenue_nzd']==0
+          assert p['truth']['settled_external_payments']==0
+          assert p['truth']['independent_external_buyers']==0
+          assert p['truth']['verified_economic_outcomes']==0
+          print(json.dumps(p,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q-swarm-100k-manifest-proof
+          path: |
+            BEC-PRIME/data/q-swarm-100k/Q-SWARM-100K-MANIFEST.jsonl
+            BEC-PRIME/data/q-swarm-100k/Q-SWARM-100K-PROOF.json
+          retention-days: 30
+  static-contract:
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check
+        run: |
+          node --check BEC-PRIME/swarm/QSwarmOfferFactory.js
+          node --check BEC-PRIME/routes/qSwarm100k.js
+          node --check BEC-PRIME/scripts/Generate-QSwarm100K.js
+          node --check public/server.js
+  http-proof:
+    needs: generate
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9]
+    steps:
+      - name: Verify public survivor API URLs
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error
+          shard=int(os.environ['SHARD']); total=100000; start=(shard*total)//10+1; end=((shard+1)*total)//10
+          checked=live=dead=0; failures=[]
+          for i in range(start,end+1):
+              try:
+                  with urllib.request.urlopen('https://dreamledger.org/api/swarm-100k/'+str(i),timeout=15) as r:
+                      body=r.read().decode('utf-8','replace')
+                      if r.status==200 and 'QSWARM-' in body and 'UNVERIFIED_CANDIDATE' in body: live+=1
+                      else: failures.append(str(i)+':HTTP '+str(r.status))
+              except urllib.error.HTTPError as e:
+                  if e.code==404: dead+=1
+                  else: failures.append(str(i)+':HTTP '+str(e.code))
+              except Exception as e: failures.append(str(i)+':'+str(e))
+              checked+=1
+          proof={'shard':shard,'start':start,'end':end,'checked':checked,'live':live,'dead':dead,'failure_count':len(failures),'failures':failures[:50]}
+          open('q-swarm-http-'+str(shard)+'.json','w').write(json.dumps(proof,indent=2));print(json.dumps(proof,indent=2))
+          if failures: raise SystemExit(1)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q-swarm-http-${{ matrix.shard }}
+          path: q-swarm-http-${{ matrix.shard }}.json
+          retention-days: 30
