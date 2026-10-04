@@ -1,0 +1,65 @@
+{
+  "observation_type": "production_economic_observation",
+  "observed_at": "2026-10-04T20:24:00+13:00",
+  "repository": "KelpCoin/DreamLedger",
+  "supabase_project_ref": "wbwgroygjeyukkspnqiy",
+  "mode": "READ_ONLY",
+  "economic_state_mutated": false,
+  "stripe_mutated": false,
+  "SUPABASE_CONNECTIVITY": "ECONNREFUSED",
+  "AUTHORITATIVE_SCHEMA_OBSERVABLE": false,
+  "DATABASE": "UNOBSERVABLE",
+  "NZ5_PAYMENT_DISPOSITION": "UNMATCHED",
+  "US1_PAYMENT_DISPOSITION": "UNMATCHED",
+  "ATTRIBUTION_STATUS": "UNOBSERVABLE",
+  "FULFILLMENT_STATUS": "UNOBSERVABLE",
+  "EVIDENCE_STATUS": "UNOBSERVABLE",
+  "TRUTH_STATUS": "UNOBSERVABLE",
+  "VERIFIED_REVENUE": "UNOBSERVABLE",
+  "SETTLED_EXTERNAL_PAYMENTS": "UNOBSERVABLE",
+  "INDEPENDENT_EXTERNAL_BUYERS": "UNOBSERVABLE",
+  "VERIFIED_ECONOMIC_OUTCOMES": "UNOBSERVABLE",
+  "BLOCKED_AT": "DATABASE_CONNECTIVITY",
+  "BECAUSE": "Supabase project control-plane metadata is reachable and reports ACTIVE_HEALTHY, but production Postgres observation attempts returned ECONNREFUSED. The existing observation machinery therefore cannot read the authoritative production schema or rows. UNOBSERVABLE is not interpreted as zero.",
+  "REQUIRED": "Restore read-only connectivity to the production Postgres database for project wbwgroygjeyukkspnqiy, then rerun the existing production observation machinery against actual persisted rows.",
+  "FALLBACK": "Do not promote economic state, do not attribute the NZ$5 or US$1 succeeded PaymentIntents, do not create or modify buyers, orders, fulfillment, evidence, payments, or revenue. Preserve both known PaymentIntents as UNMATCHED pending independent database evidence.",
+  "OWNER_ACTION": "Restore/verify production database connectivity. No economic promotion or Stripe mutation is authorized by this observation.",
+  "HUMAN_MINUTES": 0,
+  "EXPECTED_ECONOMIC_EFFECT": 0,
+  "observed_control_plane": {
+    "project_status": "ACTIVE_HEALTHY",
+    "database_version": "17.6.1.127",
+    "postgres_engine": "17",
+    "region": "ap-southeast-1"
+  },
+  "connectivity_attempts": [
+    {
+      "operation": "list_tables",
+      "result": "ECONNREFUSED",
+      "endpoint": "2406:da18:1691:a200::3484:5432"
+    },
+    {
+      "operation": "execute_sql",
+      "query": "select 1 as connectivity_probe",
+      "result": "ECONNREFUSED",
+      "endpoint": "2406:da18:1691:a200::3484:5432"
+    }
+  ],
+  "existing_observation_modules_inspected": [
+    "runtime/economic/production_observation_contract.py",
+    "runtime/economic/production_observation_probe.py",
+    "runtime/economic/event_projection.py",
+    "runtime/economic/state_transition_engine.py",
+    "runtime/economic/stripe_observation_adapter.py"
+  ],
+  "module_invariants_confirmed": [
+    "Observation modules consume supplied persisted rows and do not write economic truth.",
+    "Payment observation projects settlement but does not establish revenue verification.",
+    "Verification requires independent buyer, settled payment, fulfillment, evidence, and predicate pass.",
+    "BUILD_EXECUTION_PACKET is internal planning and is not an external economic action.",
+    "Stripe observation adapter does not call Stripe, write state, attribute buyers, or declare revenue."
+  ],
+  "promotion_status": "STOPPED",
+  "promotion_reason": "DATABASE = UNOBSERVABLE",
+  "commit_reason": "This dated machine-readable observation artifact was explicitly required under runtime/economic/. No economic state was changed."
+}
