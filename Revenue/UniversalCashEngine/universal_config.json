@@ -1,0 +1,19 @@
+{
+  "engine_name": "UniversalCashEngine",
+  "payment_url": "https://paypal.me/hornbag666/5",
+  "landing_file": "D:\\BrownEyeCortex\\Revenue\\UniversalCashEngine\\doorway.html",
+  "proof_dir": "D:\\Proofs\\UniversalCashEngine",
+  "ledger_file": "D:\\Logs\\UniversalCashEngine\\ledger.csv",
+  "status": "UNVERIFIED",
+  "last_verified_utc": "",
+  "skus": {
+    "resolver_eventregret": {
+      "name": "Should I Still Go",
+      "price_nzd": 5,
+      "intake_dir": "D:\\BrownEyeCortex\\Revenue\\UniversalCashEngine\\skus\\resolver_eventregret\\intake",
+      "output_dir": "D:\\BrownEyeCortex\\Revenue\\UniversalCashEngine\\skus\\resolver_eventregret\\output",
+      "contract_file": "D:\\BrownEyeCortex\\Revenue\\UniversalCashEngine\\skus\\resolver_eventregret\\intake_contract.md",
+      "description": "Short decision pack for when you've agreed to an event and are wondering whether to attend."
+    }
+  }
+}
