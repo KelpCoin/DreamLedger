@@ -1,0 +1,86 @@
+{
+  "artifact": "economic-frontier-observation",
+  "date": "2026-10-04",
+  "repository": "KelpCoin/DreamLedger",
+  "base_branch": "main",
+  "code_change_commit": "63aed4f501eb29c1e10c5dd8e3c20f08ccf97646",
+  "pull_request": 456,
+  "scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "observations": [
+    {
+      "surface": "public_quote_comparison",
+      "url": "https://dreamledger.org/quote-comparison/index.html",
+      "status": "LIVE",
+      "price_nzd": 49,
+      "human_minutes_after_payment": 0,
+      "fulfillment": "automatic"
+    },
+    {
+      "surface": "stripe_payment_link",
+      "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
+      "status": "ACTIVE_LIVEMODE",
+      "currency": "nzd",
+      "amount_minor": 4900,
+      "sku": "QUOTE-COMPARE-49",
+      "price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
+      "after_completion": "https://dreamledger.org/quote-intake.html?session_id={CHECKOUT_SESSION_ID}"
+    },
+    {
+      "surface": "quote_intake",
+      "deployed_version": 2,
+      "expected_payment_link": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
+      "expected_sku": "QUOTE-COMPARE-49",
+      "payment_gate": "livemode + paid + payment_link + sku + revenue_order + entitlement + fulfillment_request"
+    },
+    {
+      "surface": "quote_fulfillment",
+      "deployed_version": 2,
+      "behavior": "automatic HTML and CSV artifact generation",
+      "terminal_state": "FULFILLED"
+    },
+    {
+      "surface": "public_toll_wall",
+      "url": "https://dreamledger.org/toll-road.html",
+      "status": "LIVE_BROCHURE",
+      "services": ["DECISION-CHECK", "EVIDENCE-CHECK"],
+      "human_minutes_after_payment": 0,
+      "buy_links_observed": false
+    },
+    {
+      "surface": "agent_toll_road",
+      "deployed_version": 12,
+      "health": "DISABLED_UNCONFIGURED",
+      "network": "eip155:84532",
+      "catalog_endpoint": "503"
+    },
+    {
+      "surface": "x402_reconcile",
+      "deployed_version": 3,
+      "role": "independent chain confirmation before VERIFIED",
+      "status": "ACTIVE"
+    },
+    {
+      "surface": "supabase_postgres",
+      "status": "UNOBSERVABLE",
+      "reason": "ECONNREFUSED"
+    },
+    {
+      "surface": "ci_for_pr456_head",
+      "commit": "63aed4f501eb29c1e10c5dd8e3c20f08ccf97646",
+      "status": "NOT_PROVEN",
+      "workflow_runs_observed": 0
+    }
+  ],
+  "economic_frontier": {
+    "closest_existing_service": "QUOTE-COMPARE-49",
+    "reason": "real livemode Stripe link + server-side payment verification + entitlement wall + automatic fulfillment + digital delivery path",
+    "next_external_boundary": "independent buyer settles NZ$49 checkout",
+    "owner_action_required_now": false
+  },
+  "truth_note": "No revenue, settlement, buyer, or verified outcome is claimed by this artifact."
+}
