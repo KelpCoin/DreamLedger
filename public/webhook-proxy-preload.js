@@ -96,12 +96,8 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           const handled = await distributionDoorway.handle(req, res);
           if (handled) return;
         } catch (err) {
-          if (!res.writableEnded) {
-            res.statusCode = 500;
-            res.setHeader('Content-Type', 'application/json; charset=utf-8');
-            res.setHeader('Cache-Control', 'no-store');
-            res.end(JSON.stringify({ error: err && err.message ? err.message : 'Doorway failed', code: 'DOORWAY_FAILED' }));
-          }
+          // Doorway analytics is optional. A tracking/bridge failure must never block the commercial wall.
+          if (!res.writableEnded) return handler(req, res);
           return;
         }
       }
