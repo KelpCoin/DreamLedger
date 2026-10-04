@@ -16,3 +16,10 @@ test('Truth Oracle API is handled locally before generic engine proxying', () =>
   assert.match(source, /if\(p\.startsWith\('\/api\/truth-oracle'\)/);
   assert.match(source, /truthOracleCommerce\.handle\(req,res,p\)/);
 });
+
+
+test('Stripe webhook is mounted before generic GET-only rejection', () => {
+  assert.match(source, /const commercialCell=require\('\.\.\/BEC-PRIME\/routes\/commercialCell'\);/);
+  assert.match(source, /p\.startsWith\('\/api\/commercial\/'\) \|\| p==='\/api\/webhooks\/stripe'/);
+  assert.match(source, /commercialCell\.handle\(req,res,p\)/);
+});

@@ -2,6 +2,7 @@
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
+const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
@@ -68,6 +69,14 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET' && /^\/swarm\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && /^\/api\/swarm-100k\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && p==='/api/swarm-100k/summary') return proxySwarm(req,res,p);
+  if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
+    try{
+      const handled=await commercialCell.handle(req,res,p);
+      if(handled)return;
+    }catch(error){
+      return send(res,error.statusCode||500,JSON.stringify({error:String(error&&error.message||error)}),'application/json; charset=utf-8');
+    }
+  }
   if(req.method!=='GET') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
