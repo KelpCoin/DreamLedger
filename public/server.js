@@ -22,6 +22,7 @@ const PUBLIC_FILES={
   '/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
   '/catalog.json':'catalog.json','/surfaces.json':'surfaces.json',
   '/robots.txt':'robots.txt','/sitemap.xml':'sitemap.xml',
+  '/quote-comparison':'quote-comparison/index.html','/quote-comparison/':'quote-comparison/index.html','/quote-comparison.html':'quote-comparison.html',
   '/overpaying':'overpaying.html','/overpaying.html':'overpaying.html',
   '/avatar.html':'avatar.html','/avatar':'avatar.html'
 };
