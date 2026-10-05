@@ -1,0 +1,48 @@
+name: Economic Fulfillment Container
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "workers/economic/**"
+      - ".github/workflows/economic-fulfillment-container.yml"
+  pull_request:
+    paths:
+      - "workers/economic/**"
+      - ".github/workflows/economic-fulfillment-container.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build production image
+        run: |
+          set -euo pipefail
+          docker build -f workers/economic/Dockerfile -t dreamledger-economic-fulfillment:ci .
+          docker image inspect dreamledger-economic-fulfillment:ci >/dev/null
+          echo "DOCKER_BUILD=PASS"
+
+      - name: Verify worker entrypoint
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            --entrypoint python \
+            dreamledger-economic-fulfillment:ci \
+            -c "import economic_fulfillment_worker; print('WORKER_IMPORT=PASS')"
+
+      - name: Verify pinned dependency
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            --entrypoint python \
+            dreamledger-economic-fulfillment:ci \
+            -c "import pypdf; print('PYPDF_VERSION=' + pypdf.__version__)"
