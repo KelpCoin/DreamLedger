@@ -7,8 +7,8 @@
  *   Gauntlet = decision gate (structured PASS/FAIL on candidates)
  *   Bridge  = agent coordination (passport, notes, rooms, events)
  *
- * One composition: identity → decision → coordination, under evidence law.
- * Money only moves via existing Toll Road (settled Stripe → key → wall).
+ * Composition: truth_boundary → decision_gate → coordination
+ * Money only via Toll Road (settled Stripe → key → wall).
  */
 
 const crypto = require('crypto');
@@ -43,22 +43,31 @@ function gauntletDecide(candidate) {
     status: proof.status,
     checks: proof.checks,
     candidate_hash: proof.candidate_hash,
+    candidate_offer_id: proof.candidate_offer_id || null,
     public_execution: proof.public_execution || 'AUTOMATED_DIGITAL_RESULT'
   };
 }
 
-function bridgeCoordinate({ agentId, roomHint, note }) {
+function bridgeCoordinate({ agentId, roomHint, note, issuePassport }) {
   const passportId = 'PASS-' + crypto.randomUUID().slice(0, 12).toUpperCase();
   const roomId = roomHint || ('ROOM-' + crypto.randomUUID().slice(0, 10).toUpperCase());
-  return {
+  const agent = String(agentId || 'anonymous').slice(0, 64);
+  const out = {
     role: 'AGENT_BRIDGE',
     function: 'coordination',
-    agent_id: String(agentId || 'anonymous').slice(0, 64),
+    agent_id: agent,
     passport_id: passportId,
     room_id: roomId,
     note_accepted: Boolean(note),
     presence: 'ATTESTED'
   };
+  if (issuePassport) {
+    // Lightweight unsigned handle for composition response; full signed token
+    // is issued by the toll route when secret is configured (see agent-passport).
+    out.passport_handle = passportId;
+    out.coordination_status = 'OPEN';
+  }
+  return out;
 }
 
 /**
@@ -68,16 +77,21 @@ function bridgeCoordinate({ agentId, roomHint, note }) {
 function runTrinity(input, meta) {
   const elohim = elohimClassify(input?.evidence_state || input?.elohim || {});
   const gauntlet = gauntletDecide(input?.candidate || input?.gauntlet || {});
+
+  // Bridge only coordinates fully when not blocked by truth;
+  // Gauntlet FAIL still records bridge presence for audit but marks blocked.
+  const blockedByTruth = elohim.verdict === 'CONTRADICTED';
   const bridge = bridgeCoordinate({
     agentId: input?.agent_id || input?.bridge?.agent_id,
     roomHint: input?.room_id || input?.bridge?.room_id,
-    note: input?.note || input?.bridge?.note
+    note: input?.note || input?.bridge?.note,
+    issuePassport: !blockedByTruth
   });
 
-  const synergy =
-    elohim.verdict !== 'CONTRADICTED' && gauntlet.status === 'PASS'
-      ? 'ALIGNED'
-      : (elohim.verdict === 'CONTRADICTED' ? 'BLOCKED_BY_TRUTH' : 'BLOCKED_BY_GAUNTLET');
+  let synergy;
+  if (blockedByTruth) synergy = 'BLOCKED_BY_TRUTH';
+  else if (gauntlet.status !== 'PASS') synergy = 'BLOCKED_BY_GAUNTLET';
+  else synergy = 'ALIGNED';
 
   return {
     schema: SCHEMA,
@@ -85,11 +99,24 @@ function runTrinity(input, meta) {
     elohim,
     gauntlet,
     bridge,
-    composition: 'identity_optional → truth_boundary → decision_gate → coordination',
+    composition: 'truth_boundary → decision_gate → coordination',
     economic_truth_unchanged: true,
     key_id: meta?.key_id || null,
     ran_at: new Date().toISOString(),
     note: 'Trinity classifies and coordinates. It does not invent revenue, buyers, or settlements.'
+  };
+}
+
+/** Minimal deterministic self-check (no I/O, no secrets). */
+function selfCheck() {
+  const blocked = runTrinity({
+    evidence_state: { contradictions: ['test contradiction'] },
+    candidate: { offer_id: 'x' }
+  });
+  const empty = runTrinity({});
+  return {
+    ok: blocked.synergy === 'BLOCKED_BY_TRUTH' && empty.synergy === 'BLOCKED_BY_GAUNTLET',
+    samples: { blocked: blocked.synergy, empty: empty.synergy }
   };
 }
 
@@ -98,5 +125,6 @@ module.exports = {
   elohimClassify,
   gauntletDecide,
   bridgeCoordinate,
-  runTrinity
+  runTrinity,
+  selfCheck
 };
