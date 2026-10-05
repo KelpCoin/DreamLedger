@@ -46,14 +46,8 @@ function sign(body) {
 }
 
 function issueKey({
-  keyId,
-  tier = 'gauntlet',
-  roadId = null,
-  ownerPassportId = null,
-  entitlementId = null,
-  expiresAt,
-  callsRemaining = 1,
-  reference = ''
+  keyId, tier = 'gauntlet', roadId = null, ownerPassportId = null, entitlementId = null,
+  expiresAt, callsRemaining = 1, reference = ''
 } = {}) {
   if (!configured()) throw new Error('Toll key secret is not configured');
   const now = new Date();
@@ -78,7 +72,6 @@ function verifyKey(token, opts) {
   const options = (typeof opts === 'string') ? { requiredTier: opts } : (opts || {});
   const requiredTier = options.requiredTier || null;
   const requiredRoadId = options.requiredRoadId || null;
-
   if (!configured()) return { ok: false, error: 'toll_wall_not_configured' };
   const raw = String(token || '').trim();
   const parts = raw.split('.');
@@ -91,19 +84,11 @@ function verifyKey(token, opts) {
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return { ok: false, error: 'invalid_toll_key' };
   let payload;
   try { payload = decode(body); } catch { return { ok: false, error: 'invalid_toll_key' }; }
-  if (payload.schema !== KEY_SCHEMA && payload.schema !== 'DREAMLEDGER-TOLL-KEY-1.0') {
-    return { ok: false, error: 'unsupported_key_schema' };
-  }
-  if (payload.expires_at && Date.parse(payload.expires_at) <= Date.now()) {
-    return { ok: false, error: 'toll_key_expired' };
-  }
+  if (payload.schema !== KEY_SCHEMA && payload.schema !== 'DREAMLEDGER-TOLL-KEY-1.0') return { ok: false, error: 'unsupported_key_schema' };
+  if (payload.expires_at && Date.parse(payload.expires_at) <= Date.now()) return { ok: false, error: 'toll_key_expired' };
   if (Number(payload.calls_remaining) <= 0) return { ok: false, error: 'toll_key_exhausted' };
-  if (requiredTier && payload.tier !== requiredTier && payload.tier !== 'all') {
-    return { ok: false, error: 'toll_key_scope_denied' };
-  }
-  if (requiredRoadId && payload.road_id && payload.road_id !== requiredRoadId) {
-    return { ok: false, error: 'toll_key_road_denied' };
-  }
+  if (requiredTier && payload.tier !== requiredTier && payload.tier !== 'all') return { ok: false, error: 'toll_key_scope_denied' };
+  if (requiredRoadId && payload.road_id && payload.road_id !== requiredRoadId) return { ok: false, error: 'toll_key_road_denied' };
   return { ok: true, payload };
 }
 
@@ -112,16 +97,8 @@ function headerKey(req) {
 }
 
 function createRoadDescriptor({
-  roadId,
-  ownerPassportId,
-  slug,
-  title,
-  description = '',
-  priceNzd = 19,
-  callsPerPack = 100,
-  ttlDays = 30,
-  siloId = 'api-access',
-  status = 'draft'
+  roadId, ownerPassportId, slug, title, description = '', priceNzd = 19,
+  callsPerPack = 100, ttlDays = 30, siloId = 'api-access', status = 'draft'
 } = {}) {
   if (!ownerPassportId) throw new Error('owner_passport_id required');
   if (!slug) throw new Error('slug required');
@@ -172,20 +149,35 @@ function issueEntitlementForRoad(road, paymentReference, buyerRef = null) {
 function publicManifest(extraServices = []) {
   const c = config();
   const base = [
-    { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, checkout_configured: c.gauntletPriceNzd > 0, description: 'Single automated decision / approval run' },
-    { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, checkout_configured: c.truthPriceNzd > 0, description: 'Evidence classification wall access' },
-    { id: 'AGENT-BRIDGE-EVENTS-100', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, checkout_configured: c.bridgeEventsPriceNzd > 0, description: '100 metered Agent Bridge events / notes (30-day pack)' },
-    { id: 'ROUTE-LEASE-BASIC', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, checkout_configured: c.routeLeasePriceNzd > 0, description: 'Named pipeline / route lease (shared capacity, 30 days)' },
-    { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, checkout_configured: c.gauntletPackPriceNzd > 0, description: '20 automated gauntlet approvals pack' },
-    { id: 'MICRO-EVENT-INGEST', route: '/api/toll/v1/micro-ingest', scope: 'micro-ingest', price_nzd: 5, checkout_configured: true, description: '500 authenticated bridge event ingests' },
-    { id: 'MICRO-JOB-CLAIM', route: '/api/toll/v1/job-claim', scope: 'job-claim', price_nzd: 9, checkout_configured: true, description: '200 agent job claims / lease starts' },
-    { id: 'MICRO-HEARTBEAT', route: '/api/toll/v1/heartbeat', scope: 'heartbeat', price_nzd: 4, checkout_configured: true, description: '1000 job heartbeat renewals' },
-    { id: 'ROUTE-LEASE-EXCLUSIVE', route: '/api/toll/v1/route-exclusive', scope: 'route-exclusive', price_nzd: 99, checkout_configured: true, description: 'Exclusive named route lease 30 days' },
-    { id: 'ROUTE-LEASE-SHARED', route: '/api/toll/v1/route-shared', scope: 'route-shared', price_nzd: 9, checkout_configured: true, description: 'Shared contended route lease' },
-    { id: 'GAUNTLET-RUSH', route: '/api/toll/v1/gauntlet-rush', scope: 'gauntlet-rush', price_nzd: 5, checkout_configured: true, description: '5 rush (15-min SLA) gauntlet tickets' },
-    { id: 'GAUNTLET-ASYNC', route: '/api/toll/v1/gauntlet-async', scope: 'gauntlet-async', price_nzd: 8, checkout_configured: true, description: '20 async 24h SLA gauntlet tickets' },
-    { id: 'BRIDGE-NOTE-WRITE', route: '/api/toll/v1/note-write', scope: 'note-write', price_nzd: 7, checkout_configured: true, description: '200 durable control ledger note writes' }
-  ];
+    { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, description: 'Single automated decision / approval run' },
+    { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, description: 'Evidence classification wall access' },
+    { id: 'AGENT-BRIDGE-EVENTS-100', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, description: '100 metered Agent Bridge events' },
+    { id: 'ROUTE-LEASE-BASIC', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, description: 'Named pipeline / route lease' },
+    { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, description: '20 automated gauntlet approvals' },
+    { id: 'MICRO-EVENT-INGEST', route: '/api/toll/v1/micro-ingest', scope: 'micro-ingest', price_nzd: 5, description: '500 authenticated event ingests' },
+    { id: 'MICRO-JOB-CLAIM', route: '/api/toll/v1/job-claim', scope: 'job-claim', price_nzd: 9, description: '200 agent job claims' },
+    { id: 'MICRO-HEARTBEAT', route: '/api/toll/v1/heartbeat', scope: 'heartbeat', price_nzd: 4, description: '1000 job heartbeats' },
+    { id: 'ROUTE-LEASE-EXCLUSIVE', route: '/api/toll/v1/route-exclusive', scope: 'route-exclusive', price_nzd: 99, description: 'Exclusive named route lease' },
+    { id: 'ROUTE-LEASE-SHARED', route: '/api/toll/v1/route-shared', scope: 'route-shared', price_nzd: 9, description: 'Shared route lease' },
+    { id: 'GAUNTLET-RUSH', route: '/api/toll/v1/gauntlet-rush', scope: 'gauntlet-rush', price_nzd: 5, description: '5 rush gauntlet tickets' },
+    { id: 'GAUNTLET-ASYNC', route: '/api/toll/v1/gauntlet-async', scope: 'gauntlet-async', price_nzd: 8, description: '20 async gauntlet tickets' },
+    { id: 'BRIDGE-NOTE-WRITE', route: '/api/toll/v1/note-write', scope: 'note-write', price_nzd: 7, description: '200 durable note writes' },
+    { id: 'TRUST-ATTEST', route: '/api/toll/v1/trust-attest', scope: 'trust-attest', price_nzd: 12, description: 'Payment-evidence attestations' },
+    { id: 'TRUST-SCORE-AGENT', route: '/api/toll/v1/trust-agent', scope: 'trust-agent', price_nzd: 10, description: 'Agent identity trust scores' },
+    { id: 'SEAT-AGENT-TOKEN', route: '/api/toll/v1/seat-agent', scope: 'seat-agent', price_nzd: 9, description: 'Per-seat agent token 5k' },
+    { id: 'ORG-BRIDGE-KEY', route: '/api/toll/v1/org-key', scope: 'org-key', price_nzd: 49, description: 'Org bridge key 50k events' },
+    { id: 'PRIORITY-LANE', route: '/api/toll/v1/priority', scope: 'priority', price_nzd: 25, description: 'Emergency priority lane' },
+    { id: 'PREPAID-10K', route: '/api/toll/v1/prepaid-10k', scope: 'prepaid-10k', price_nzd: 150, description: 'Prepaid 10k events pack' },
+    { id: 'WEBHOOK-EGRESS', route: '/api/toll/v1/webhook-egress', scope: 'webhook-egress', price_nzd: 12, description: 'Webhook egress allowlist' },
+    { id: 'AUDIT-EXPORT', route: '/api/toll/v1/audit-export', scope: 'audit-export', price_nzd: 35, description: 'Audit export API' },
+    { id: 'SHADOW-ROUTE', route: '/api/toll/v1/shadow-route', scope: 'shadow-route', price_nzd: 8, description: 'Shadow route (no side effects)' },
+    { id: 'QUARANTINE-ROUTE', route: '/api/toll/v1/quarantine', scope: 'quarantine', price_nzd: 22, description: 'Quarantine route for risky agents' },
+    { id: 'ACADEMIC-ROUTE', route: '/api/toll/v1/academic', scope: 'academic', price_nzd: 3, description: 'Academic / research route' },
+    { id: 'TRANSPARENCY-LOG', route: '/api/toll/v1/transparency', scope: 'transparency', price_nzd: 15, description: 'Public transparency log' },
+    { id: 'AGENT-PASSPORT', route: '/api/toll/v1/agent-passport', scope: 'agent-passport', price_nzd: 29, description: 'Signed agent passport + presence attestation' },
+    { id: 'MULTI-AGENT-ROOM', route: '/api/toll/v1/multi-agent-room', scope: 'multi-agent-room', price_nzd: 39, description: 'Multi-agent coordination room' },
+    { id: 'CAPACITY-FUTURES', route: '/api/toll/v1/capacity-futures', scope: 'capacity-futures', price_nzd: 75, description: 'Prepaid burst capacity futures' }
+  ].map(s => Object.assign({ checkout_configured: true }, s));
   return {
     schema: 'dreamledger/toll-road/v2',
     status: configured() ? 'ARMED' : 'NOT_CONFIGURED',
@@ -197,20 +189,12 @@ function publicManifest(extraServices = []) {
     key_schema: KEY_SCHEMA,
     services: base.concat(extraServices),
     header: 'x-dreamledger-toll-key',
-    next_batch_registry: 'AGENT_BUS/TOLL-ROADS-NEXT-BATCH.json'
+    next_batch_registry: 'AGENT_BUS/TOLL-ROADS-NEXT-BATCH.json',
+    groundbreaking: ['agent-passport', 'multi-agent-room', 'capacity-futures', 'trust attestation without inventing economic truth']
   };
 }
 
 module.exports = {
-  config,
-  configured,
-  issueKey,
-  verifyKey,
-  headerKey,
-  publicManifest,
-  createRoadDescriptor,
-  issueEntitlementForRoad,
-  KEY_SCHEMA,
-  MAX_ROADS_SOFT,
-  MAX_CALLS
+  config, configured, issueKey, verifyKey, headerKey, publicManifest,
+  createRoadDescriptor, issueEntitlementForRoad, KEY_SCHEMA, MAX_ROADS_SOFT, MAX_CALLS
 };
