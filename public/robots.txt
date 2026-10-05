@@ -10,5 +10,7 @@ Sitemap: https://dreamledger.org/hypotheses/sitemap.xml
 Sitemap: https://dreamledger.org/quote-comparison-sitemap.xml
 Agentmap: https://dreamledger.org/.well-known/dreamledger.json
 AI-Catalog: https://dreamledger.org/ai-catalog.json
+AI-Catalog-WellKnown: https://dreamledger.org/.well-known/ai-catalog.json
+AI-Discovery: https://dreamledger.org/.well-known/ai
 AI-Products: https://dreamledger.org/agent-products.json
 Commerce-TXT: https://dreamledger.org/commerce.txt
