@@ -1,9 +1,6 @@
 name: Acquire CMD-DIAG via Discord
 
 on:
-  push:
-    paths:
-      - ".github/acquisition/approved-dispatch.json"
   workflow_dispatch:
     inputs:
       target:
@@ -24,14 +21,13 @@ concurrency:
 
 jobs:
   post:
-    # Authorization is enforced in the first step for both push and manual runs.
+    if: ${{ inputs.approval == 'APPROVED' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Validate acquisition inputs
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          EVENT_NAME: ${{ github.event_name }}
           TARGET: ${{ inputs.target }}
         run: |
           set -euo pipefail
@@ -40,24 +36,7 @@ jobs:
             https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
             *) echo "Invalid Discord webhook host"; exit 1 ;;
           esac
-          if [ "$EVENT_NAME" = "push" ]; then
-            test -f .github/acquisition/approved-dispatch.json
-            python3 - <<'PY'
-            import json
-            with open(".github/acquisition/approved-dispatch.json", encoding="utf-8") as f:
-                x = json.load(f)
-            if x.get("approval") != "APPROVED":
-                raise SystemExit("EXTERNAL_AUTHORIZATION_MISSING")
-            if x.get("offer") != "CMD-DIAG-29":
-                raise SystemExit("FIRST_DOLLAR_OFFER_MISMATCH")
-            if not x.get("target"):
-                raise SystemExit("DISCORD_TARGET_MISSING")
-            print("PUSH_APPROVAL=VERIFIED")
-            print("TARGET=" + str(x["target"]))
-            PY
-          else
-            test -n "$TARGET"
-          fi
+          test -n "$TARGET"
 
       - name: Post CMD-DIAG offer and capture message
         env:
@@ -129,20 +108,9 @@ jobs:
 
       - name: Record acquisition state
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_TARGET: ${{ inputs.target }}
+          TARGET: ${{ inputs.target }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = "push" ]; then
-            TARGET="$(python3 - <<'PY'
-import json
-with open(".github/acquisition/approved-dispatch.json", encoding="utf-8") as f:
-    print(json.load(f)["target"])
-PY
-)"
-          else
-            TARGET="$INPUT_TARGET"
-          fi
           echo "TARGET=$TARGET"
           echo "OFFER=CMD-DIAG-29"
           echo "POST=VERIFIED_DISCORD_MESSAGE"
