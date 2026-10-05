@@ -150,7 +150,8 @@ function publicManifest(extraServices = []) {
   const c = config();
   const base = [
     { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, description: 'Single automated decision / approval run' },
-    { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, description: 'Evidence classification wall access' },
+    { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, description: 'Elohim evidence classification wall' },
+    { id: 'TRINITY-RUN', route: '/api/toll/v1/trinity', scope: 'trinity', price_nzd: 49, description: 'Elohim + Gauntlet + Agent Bridge composition (25 runs)' },
     { id: 'AGENT-BRIDGE-EVENTS-100', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, description: '100 metered Agent Bridge events' },
     { id: 'ROUTE-LEASE-BASIC', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, description: 'Named pipeline / route lease' },
     { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, description: '20 automated gauntlet approvals' },
@@ -176,7 +177,11 @@ function publicManifest(extraServices = []) {
     { id: 'TRANSPARENCY-LOG', route: '/api/toll/v1/transparency', scope: 'transparency', price_nzd: 15, description: 'Public transparency log' },
     { id: 'AGENT-PASSPORT', route: '/api/toll/v1/agent-passport', scope: 'agent-passport', price_nzd: 29, description: 'Signed agent passport + presence attestation' },
     { id: 'MULTI-AGENT-ROOM', route: '/api/toll/v1/multi-agent-room', scope: 'multi-agent-room', price_nzd: 39, description: 'Multi-agent coordination room' },
-    { id: 'CAPACITY-FUTURES', route: '/api/toll/v1/capacity-futures', scope: 'capacity-futures', price_nzd: 75, description: 'Prepaid burst capacity futures' }
+    { id: 'CAPACITY-FUTURES', route: '/api/toll/v1/capacity-futures', scope: 'capacity-futures', price_nzd: 75, description: 'Prepaid burst capacity futures' },
+    { id: 'ENTERPRISE-WALL', route: '/api/toll/v1/enterprise-wall', scope: 'enterprise-wall', price_nzd: 499, description: 'Enterprise wall 500k calls' },
+    { id: 'ENTERPRISE-PRO', route: '/api/toll/v1/enterprise-pro', scope: 'enterprise-pro', price_nzd: 1499, description: 'Enterprise pro 2M calls + SLA' },
+    { id: 'WHITE-LABEL', route: '/api/toll/v1/white-label', scope: 'white-label', price_nzd: 999, description: 'White-label route namespace' },
+    { id: 'SLA-CREDIT', route: '/api/toll/v1/sla-credit', scope: 'sla-credit', price_nzd: 250, description: 'SLA credit pack' }
   ].map(s => Object.assign({ checkout_configured: true }, s));
   return {
     schema: 'dreamledger/toll-road/v2',
@@ -184,13 +189,14 @@ function publicManifest(extraServices = []) {
     model: 'customer pays -> settled payment -> entitlement -> signed key -> API wall -> automated fulfillment',
     human_gate: 'CUBE approval required before a road is published',
     internal_authority: 'never delegated to customer keys',
-    truth_boundary: 'payment and economic truth remain external-evidence governed',
+    truth_boundary: 'payment and economic truth remain external-evidence governed (Elohim)',
+    trinity: 'Elohim truth + Gauntlet decision + Agent Bridge coordination',
     design_target_roads: MAX_ROADS_SOFT,
     key_schema: KEY_SCHEMA,
     services: base.concat(extraServices),
     header: 'x-dreamledger-toll-key',
     next_batch_registry: 'AGENT_BUS/TOLL-ROADS-NEXT-BATCH.json',
-    groundbreaking: ['agent-passport', 'multi-agent-room', 'capacity-futures', 'trust attestation without inventing economic truth']
+    groundbreaking: ['trinity', 'agent-passport', 'multi-agent-room', 'capacity-futures', 'elohim truth boundary without inventing economic truth']
   };
 }
 
