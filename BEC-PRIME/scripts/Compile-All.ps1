@@ -9,7 +9,10 @@ $ProofDir = Join-Path $Root 'RUN-PROOFS'
 New-Item -ItemType Directory -Force -Path $ProofDir | Out-Null
 Write-Host '=== BEC-PRIME FULL COMPILER ===' -ForegroundColor Cyan
 if (Test-Path (Join-Path $Root 'package.json')) { npm install --no-audit --no-fund; if ($LASTEXITCODE -ne 0) { throw 'npm install failed.' } }
-Write-Host '[1/6] Compiling DreamLedger surface...' -ForegroundColor Yellow
+Write-Host '[1/6] Verifying trend flywheel...' -ForegroundColor Yellow
+npm run test:trend-flywheel
+if ($LASTEXITCODE -ne 0) { throw 'Trend flywheel tests failed.' }
+Write-Host '[2/6] Compiling DreamLedger surface...' -ForegroundColor Yellow
 npm run compile
 if ($LASTEXITCODE -ne 0) { throw 'DreamLedger npm compile failed.' }
 $loginPath = Join-Path $Root 'compiled/website/login.html'
