@@ -22,7 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      # Public project URL is configuration, not a secret.
+      SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
       - name: Checkout
