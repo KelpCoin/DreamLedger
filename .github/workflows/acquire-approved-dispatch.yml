@@ -39,8 +39,8 @@ jobs:
       - name: Publish through existing verified acquisition rail
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          OFFER: ${{ github.event.client_payload.offer }}
-          TARGET: ${{ github.event.client_payload.target }}
+          OFFER: ${{ github.event_name == 'push' && 'QUOTE-COMPARE-49' || github.event.client_payload.offer }}
+          TARGET: ${{ github.event_name == 'push' && 'configured-discord-acquisition' || github.event.client_payload.target }}
         run: |
           set -euo pipefail
           test -n "$DISCORD_WEBHOOK"
