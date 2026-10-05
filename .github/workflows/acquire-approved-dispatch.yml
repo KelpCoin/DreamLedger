@@ -28,7 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$OFFER" in
-            CMD-DIAG-29|DREAMLEDGER-BILLBOARD-50) ;;
+            CMD-DIAG-29|DREAMLEDGER-BILLBOARD-50|QUOTE-COMPARE-49) ;;
             *) echo "Offer not allowed"; exit 1 ;;
           esac
           test -n "$TARGET"
@@ -54,6 +54,7 @@ jobs:
 
           aliases = {
               "CMD-DIAG-29": "CMD-DIAG-29",
+              "QUOTE-COMPARE-49": "QUOTE-COMPARE-49",
               "DREAMLEDGER-BILLBOARD-50": "DL-BILLBOARD-100X100-3000-001"
           }
 
