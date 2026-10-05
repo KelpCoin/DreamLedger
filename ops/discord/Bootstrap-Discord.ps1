@@ -1,4 +1,4 @@
-'# DreamLedger Discord webhook bootstrap for Windows PowerShell 5.1
+# DreamLedger Discord webhook bootstrap for Windows PowerShell 5.1
 [CmdletBinding()]
 param(
   [switch]$TestOnly
@@ -61,4 +61,3 @@ $startup = @{
 Invoke-RestMethod -Method Post -Uri $digestUrl -ContentType "application/json" -Body $startup | Out-Null
 Write-Host "Discord bridge is ready."
 Write-Host "Next: use Send-DiscordSpike.ps1 for each spike/event."
-'
