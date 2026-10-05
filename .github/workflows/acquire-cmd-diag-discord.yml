@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   post:
-    if: ${{ github.event_name == 'push' || inputs.approval == 'APPROVED' }}
+    # Authorization is enforced in the first step for both push and manual runs.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
