@@ -83,7 +83,7 @@ jobs:
             console.error(JSON.stringify(proof, null, 2));
             process.exit(1);
           }
-          if (!proof.approved_offer_ids.includes('CMD-DIAG-29')) {
+          if (!proof.approved_offer_ids.includes('OFFER-CMD-DIAG-29-NZD')) {
             throw new Error('GAUNTLET_APPROVED_OFFER_MISSING');
           }
           const scorecard = JSON.parse(fs.readFileSync('BEC-PRIME/economic/ELOHIM_GAUNTLET_SCORECARD.json', 'utf8'));
