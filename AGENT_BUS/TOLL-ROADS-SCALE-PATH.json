@@ -1,0 +1,50 @@
+{
+  "schema": "dreamledger/toll-roads-scale-path/v1",
+  "updated": "2026-10-06",
+  "north_star_constraint": "Verified external revenue only. No fabrication. NZ$0 until independent settlements + fossils.",
+  "design_target_roads": 200000,
+  "current_wired_scopes": 28,
+  "multimillion_path": {
+    "unit_economics": {
+      "micro_toll_avg_nzd": 8,
+      "route_lease_avg_nzd": 35,
+      "org_key_nzd": 49,
+      "enterprise_floor_nzd": 499,
+      "note": "Revenue = real external buyers × pack price. Scale comes from density of roads + retention, not invented volume."
+    },
+    "phases": [
+      {
+        "phase": 1,
+        "name": "First external dollars",
+        "target": "1–20 independent settled payments",
+        "actions": ["Ship 28-scope manifest", "Clear public CTAs on /toll-road", "Point existing distribution at live checkouts"]
+      },
+      {
+        "phase": 2,
+        "name": "Road density",
+        "target": "500–2000 published roads (silo/pipeline/attestation each becomes a lease)",
+        "actions": ["Auto-generate road descriptors from silo registry", "CUBE gate still required for publish", "Catalogue remains source of pricing posture"]
+      },
+      {
+        "phase": 3,
+        "name": "Agent economy surface",
+        "target": "Agents pay other agents via metered bridge; passports + rooms + capacity futures compound",
+        "actions": ["Agent passport as portable identity", "Multi-agent rooms as default coordination", "Capacity futures for load spikes"]
+      },
+      {
+        "phase": 4,
+        "name": "Enterprise + white-label",
+        "target": "Org keys, dedicated SLAs, OEM embed, white-label toll walls",
+        "actions": ["Enterprise tier packs NZ$499–4999", "White-label route namespaces", "Audit/compliance packs"]
+      }
+    ],
+    "honest_math": "1000 active org keys at NZ$49/mo = ~NZ$49k/mo. 10k route leases at NZ$20 avg = NZ$200k/mo. Scale is density × retention × real buyers, not a single product."
+  },
+  "next_wiring_priority": [
+    "enterprise-wall",
+    "white-label-namespace",
+    "silo-road-factory",
+    "agent-to-agent-settlement-signal",
+    "sla-credit-pack"
+  ]
+}
