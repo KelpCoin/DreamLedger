@@ -1,31 +1,37 @@
 {
-  "schema": "dreamledger/toll-roads-next-batch/v1",
-  "updated": "2026-10-05",
+  "schema": "dreamledger/toll-roads-next-batch/v2",
+  "updated": "2026-10-06",
   "live_status": "ARMED",
   "design_target": 200000,
-  "current_live_scopes": ["gauntlet", "truth", "bridge-events", "route-lease", "gauntlet-pack"],
-  "next_batch": [
-    {"id": "MICRO-EVENT-INGEST", "scope": "micro-ingest", "price_nzd": 5, "calls": 500, "from_catalogue": 1, "description": "500 authenticated bridge event ingests"},
-    {"id": "MICRO-JOB-CLAIM", "scope": "job-claim", "price_nzd": 9, "calls": 200, "from_catalogue": 4, "description": "200 agent job claims / lease starts"},
-    {"id": "MICRO-HEARTBEAT", "scope": "heartbeat", "price_nzd": 4, "calls": 1000, "from_catalogue": 5, "description": "1000 job heartbeat renewals"},
-    {"id": "ROUTE-LEASE-EXCLUSIVE", "scope": "route-exclusive", "price_nzd": 99, "calls": 50000, "from_catalogue": 42, "description": "Exclusive named route lease 30 days"},
-    {"id": "ROUTE-LEASE-SHARED", "scope": "route-shared", "price_nzd": 9, "calls": 5000, "from_catalogue": 43, "description": "Shared contended route lease"},
-    {"id": "GAUNTLET-RUSH", "scope": "gauntlet-rush", "price_nzd": 5, "calls": 5, "from_catalogue": 84, "description": "5 rush (15-min SLA) gauntlet tickets"},
-    {"id": "GAUNTLET-ASYNC", "scope": "gauntlet-async", "price_nzd": 8, "calls": 20, "from_catalogue": 85, "description": "20 async 24h SLA gauntlet tickets"},
-    {"id": "TRUST-ATTEST", "scope": "trust-attest", "price_nzd": 12, "calls": 50, "from_catalogue": 122, "description": "50 payment-evidence attestations"},
-    {"id": "TRUST-SCORE-AGENT", "scope": "trust-agent", "price_nzd": 10, "calls": 30, "from_catalogue": 126, "description": "Agent identity trust score queries"},
-    {"id": "BRIDGE-NOTE-WRITE", "scope": "note-write", "price_nzd": 7, "calls": 200, "from_catalogue": 17, "description": "200 durable control ledger note writes"},
-    {"id": "SEAT-AGENT-TOKEN", "scope": "seat-agent", "price_nzd": 9, "calls": 5000, "from_catalogue": 25, "description": "Per-seat agent token 5k events"},
-    {"id": "ORG-BRIDGE-KEY", "scope": "org-key", "price_nzd": 49, "calls": 50000, "from_catalogue": 26, "description": "Org bridge key 50k events"},
-    {"id": "PRIORITY-LANE", "scope": "priority", "price_nzd": 25, "calls": 50, "from_catalogue": 19, "description": "50 emergency priority lane skips"},
-    {"id": "PREPAID-10K", "scope": "prepaid-10k", "price_nzd": 150, "calls": 10000, "from_catalogue": 23, "description": "Prepaid 10k events pack"},
-    {"id": "WEBHOOK-EGRESS", "scope": "webhook-egress", "price_nzd": 12, "calls": 1000, "from_catalogue": 67, "description": "Webhook egress allowlist slot"},
-    {"id": "AUDIT-EXPORT", "scope": "audit-export", "price_nzd": 35, "calls": 30, "from_catalogue": 72, "description": "Audit export API access"},
-    {"id": "SHADOW-ROUTE", "scope": "shadow-route", "price_nzd": 8, "calls": 5000, "from_catalogue": 75, "description": "Shadow route (mirror, no side effects)"},
-    {"id": "QUARANTINE-ROUTE", "scope": "quarantine", "price_nzd": 22, "calls": 2000, "from_catalogue": 76, "description": "Quarantine route for risky agents"},
-    {"id": "ACADEMIC-ROUTE", "scope": "academic", "price_nzd": 3, "calls": 2000, "from_catalogue": 78, "description": "Academic / research discounted route"},
-    {"id": "TRANSPARENCY-LOG", "scope": "transparency", "price_nzd": 15, "calls": 100, "from_catalogue": 150, "description": "Public transparency log access"}
+  "wired_on_branch": [
+    "gauntlet", "truth", "bridge-events", "route-lease", "gauntlet-pack",
+    "micro-ingest", "job-claim", "heartbeat", "route-exclusive", "route-shared",
+    "gauntlet-rush", "gauntlet-async", "note-write"
   ],
-  "wiring_rule": "Each item becomes a scope in SCOPES + optional thin /api/toll/v1/{scope} handler that only authorizes the key and returns a bounded automated result. No new payment rail.",
+  "next_to_wire": [
+    {"id": "TRUST-ATTEST", "scope": "trust-attest", "price_nzd": 12, "calls": 50, "description": "Payment-evidence attestation checks"},
+    {"id": "TRUST-SCORE-AGENT", "scope": "trust-agent", "price_nzd": 10, "calls": 30, "description": "Agent identity trust score queries"},
+    {"id": "SEAT-AGENT-TOKEN", "scope": "seat-agent", "price_nzd": 9, "calls": 5000, "description": "Per-seat agent token 5k events"},
+    {"id": "ORG-BRIDGE-KEY", "scope": "org-key", "price_nzd": 49, "calls": 50000, "description": "Org bridge key 50k events"},
+    {"id": "PRIORITY-LANE", "scope": "priority", "price_nzd": 25, "calls": 50, "description": "Emergency priority lane skips"},
+    {"id": "PREPAID-10K", "scope": "prepaid-10k", "price_nzd": 150, "calls": 10000, "description": "Prepaid 10k events pack"},
+    {"id": "WEBHOOK-EGRESS", "scope": "webhook-egress", "price_nzd": 12, "calls": 1000, "description": "Webhook egress allowlist slot"},
+    {"id": "AUDIT-EXPORT", "scope": "audit-export", "price_nzd": 35, "calls": 30, "description": "Audit export API access"},
+    {"id": "SHADOW-ROUTE", "scope": "shadow-route", "price_nzd": 8, "calls": 5000, "description": "Shadow route (mirror, no side effects)"},
+    {"id": "QUARANTINE-ROUTE", "scope": "quarantine", "price_nzd": 22, "calls": 2000, "description": "Quarantine route for risky agents"},
+    {"id": "ACADEMIC-ROUTE", "scope": "academic", "price_nzd": 3, "calls": 2000, "description": "Academic / research discounted route"},
+    {"id": "TRANSPARENCY-LOG", "scope": "transparency", "price_nzd": 15, "calls": 100, "description": "Public transparency log access"},
+    {"id": "AGENT-PASSPORT", "scope": "agent-passport", "price_nzd": 29, "calls": 100, "description": "Signed agent passport + presence attestation"},
+    {"id": "MULTI-AGENT-ROOM", "scope": "multi-agent-room", "price_nzd": 39, "calls": 50, "description": "Multi-agent coordination room (N agents, metered)"},
+    {"id": "CAPACITY-FUTURES", "scope": "capacity-futures", "price_nzd": 75, "calls": 1, "description": "Prepaid burst capacity futures (high-load window)"}
+  ],
+  "groundbreaking_direction": [
+    "Agent passport as portable, signed identity that other agents and humans can verify",
+    "Multi-agent rooms as first-class metered coordination surface",
+    "Capacity futures so agents can reserve infrastructure ahead of load",
+    "Trust attestation that never invents economic truth — only classifies evidence",
+    "Scale to 200k roads by treating every silo / pipeline / attestation as a leaseable road"
+  ],
+  "wiring_rule": "Each scope = SCOPES entry + thin /api/toll/v1/{scope} that only authorizes key and returns bounded automated result. No new payment rail.",
   "revenue_rule": "NZ$0 claimed until independent external Stripe settlement + fossil + Truth Oracle PASS."
 }
