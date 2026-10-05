@@ -20,6 +20,7 @@ jobs:
     env:
       SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      REVIEW_WIP_LIMIT: 1
     steps:
       - name: Preflight
         shell: bash
@@ -73,7 +74,7 @@ jobs:
         run: |
           set -euo pipefail
           limit="${REVIEW_WIP_LIMIT:-1}"
-          response="$(curl -fsS --max-time 60             "$SUPABASE_URL/rest/v1/approval_queue?select=id&status=eq.PENDING&limit=100"             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY")"
+          response="$(curl -fsS --max-time 60             "$SUPABASE_URL/rest/v1/approval_queue?select=*&status=eq.PENDING&limit=100"             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY")"
           pending="$(node -e 'const x=JSON.parse(process.argv[1]); process.stdout.write(String(Array.isArray(x)?x.length:0))' "$response")"
           if [ "$pending" -ge "$limit" ]; then
             echo "HUMAN_REVIEW_WIP=AT_CAP"
