@@ -21,6 +21,9 @@ function config() {
     truthPriceId: String(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_ID || 'NZD_9'),
     gauntletPriceNzd: Number(process.env.DREAMLEDGER_GAUNTLET_PRICE_NZD || 19),
     truthPriceNzd: Number(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_NZD || 9),
+    bridgeEventsPriceNzd: Number(process.env.DREAMLEDGER_BRIDGE_EVENTS_PRICE_NZD || 19),
+    routeLeasePriceNzd: Number(process.env.DREAMLEDGER_ROUTE_LEASE_PRICE_NZD || 29),
+    gauntletPackPriceNzd: Number(process.env.DREAMLEDGER_GAUNTLET_PACK_PRICE_NZD || 15),
     defaultPackPriceNzd: Number(process.env.DREAMLEDGER_TOLL_DEFAULT_PACK_NZD || 19),
     defaultPackCalls: Number(process.env.DREAMLEDGER_TOLL_DEFAULT_PACK_CALLS || 100)
   };
@@ -186,8 +189,11 @@ function issueEntitlementForRoad(road, paymentReference, buyerRef = null) {
 function publicManifest(extraServices = []) {
   const c = config();
   const base = [
-    { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, checkout_configured: c.gauntletPriceNzd > 0 },
-    { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, checkout_configured: c.truthPriceNzd > 0 },
+    { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, checkout_configured: c.gauntletPriceNzd > 0, description: 'Single automated decision / approval run' },
+    { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, checkout_configured: c.truthPriceNzd > 0, description: 'Evidence classification wall access' },
+    { id: 'AGENT-BRIDGE-EVENTS-100', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, checkout_configured: c.bridgeEventsPriceNzd > 0, description: '100 metered Agent Bridge events / notes (30-day pack)' },
+    { id: 'ROUTE-LEASE-BASIC', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, checkout_configured: c.routeLeasePriceNzd > 0, description: 'Named pipeline / route lease (shared capacity, 30 days)' },
+    { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, checkout_configured: c.gauntletPackPriceNzd > 0, description: '20 automated gauntlet approvals pack' }
   ];
   return {
     schema: 'dreamledger/toll-road/v2',
