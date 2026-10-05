@@ -317,7 +317,10 @@ const proof = {
     currency: o.currency,
     canonical_url: o.canonical_url,
     checkout: o.checkout,
-    activation_state: o.activation_state
+    activation_state: o.activation_state,
+    trend_state: o.trend.trend_state,
+    trend_score: o.trend.trend_score,
+    recommended_action: o.trend.recommended_action
   })),
   guarantees: {
     existing_approval_gate_reused: true,
