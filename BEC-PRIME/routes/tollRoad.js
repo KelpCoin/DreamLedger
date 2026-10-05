@@ -34,7 +34,11 @@ const SCOPES = {
   'transparency': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Transparency Log Access', calls: 100, fixedPrice: 15 },
   'agent-passport': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Agent Passport + Presence', calls: 100, fixedPrice: 29 },
   'multi-agent-room': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Multi-Agent Coordination Room', calls: 50, fixedPrice: 39 },
-  'capacity-futures': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Capacity Futures (burst window)', calls: 1, fixedPrice: 75 }
+  'capacity-futures': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Capacity Futures (burst window)', calls: 1, fixedPrice: 75 },
+  'enterprise-wall': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Enterprise Toll Wall (500k calls)', calls: 500000, fixedPrice: 499 },
+  'enterprise-pro': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Enterprise Pro (2M calls + SLA)', calls: 2000000, fixedPrice: 1499 },
+  'white-label': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger White-Label Route Namespace', calls: 100000, fixedPrice: 999 },
+  'sla-credit': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger SLA Credit Pack', calls: 10, fixedPrice: 250 }
 };
 
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
@@ -203,7 +207,6 @@ async function handle(req,res,path){
     }));
   }
 
-  // Thin metered endpoints (authorize + accept only)
   const thinMeters = {
     '/api/toll/v1/bridge-events': 'bridge-events',
     '/api/toll/v1/micro-ingest': 'micro-ingest',
@@ -228,7 +231,11 @@ async function handle(req,res,path){
     '/api/toll/v1/quarantine': 'quarantine',
     '/api/toll/v1/academic': 'academic',
     '/api/toll/v1/transparency': 'transparency',
-    '/api/toll/v1/capacity-futures': 'capacity-futures'
+    '/api/toll/v1/capacity-futures': 'capacity-futures',
+    '/api/toll/v1/enterprise-wall': 'enterprise-wall',
+    '/api/toll/v1/enterprise-pro': 'enterprise-pro',
+    '/api/toll/v1/white-label': 'white-label',
+    '/api/toll/v1/sla-credit': 'sla-credit'
   };
   if(req.method==='POST' && thinMeters[path]){
     const tier = thinMeters[path];
