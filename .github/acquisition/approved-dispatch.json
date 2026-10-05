@@ -7,5 +7,7 @@
   "authorized_at": "2026-09-26",
   "purpose": "First external acquisition experiment. Publication is authorized; revenue remains unverified until a real external buyer settles and fulfillment plus independent proof are established.",
   "gauntlet_required": true,
-  "authorization_mode": "ELOHIM_GAUNTLET_BRIDGED_ONE_SHOT"
+  "authorization_mode": "ELOHIM_GAUNTLET_BRIDGED_ONE_SHOT",
+  "dispatch_request_id": "FIRST-DOLLAR-CMD-DIAG-ONE-SHOT-2026-10-05",
+  "dispatch_requested_at": "2026-10-05T07:10:00Z"
 }
