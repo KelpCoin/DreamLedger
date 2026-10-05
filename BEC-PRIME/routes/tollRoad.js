@@ -42,13 +42,50 @@ const SCOPES = {
 };
 
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
-
 function priceFor(scope){
   const cfg=Toll.config();
   const def=SCOPES[scope];
   if(!def) return 0;
   if(def.fixedPrice != null) return Number(def.fixedPrice);
   return Number(cfg[def.priceKey] || 0);
+}
+
+function passportSecret(){
+  return String(process.env.DREAMLEDGER_TOLL_KEY_SECRET||'');
+}
+function signPassport(body){
+  return crypto.createHmac('sha256', passportSecret()).update(body).digest('base64url');
+}
+function issuePassportToken({agentId, passportId, issuedByKeyId, ttlHours=24}){
+  const now=new Date();
+  const exp=new Date(now.getTime()+(ttlHours*3600000)).toISOString();
+  const payload={
+    schema:'dreamledger/agent-passport/v1',
+    passport_id:passportId,
+    agent_id:agentId,
+    issued_at:now.toISOString(),
+    expires_at:exp,
+    issued_by_key:issuedByKeyId||null,
+    presence:'ATTESTED'
+  };
+  const body=Buffer.from(JSON.stringify(payload),'utf8').toString('base64url');
+  return 'dlp_'+body+'.'+signPassport(body);
+}
+function verifyPassportToken(token){
+  if(!passportSecret()) return {ok:false,error:'passport_not_configured'};
+  const raw=String(token||'').trim();
+  const parts=raw.split('.');
+  if(parts.length!==2||!parts[0].startsWith('dlp_')) return {ok:false,error:'invalid_passport'};
+  const body=parts[0].slice(4);
+  const sig=parts[1];
+  const expected=signPassport(body);
+  const a=Buffer.from(sig); const b=Buffer.from(expected);
+  if(a.length!==b.length||!crypto.timingSafeEqual(a,b)) return {ok:false,error:'invalid_passport'};
+  let payload;
+  try{payload=JSON.parse(Buffer.from(body,'base64url').toString('utf8'));}catch{return {ok:false,error:'invalid_passport'};}
+  if(payload.schema!=='dreamledger/agent-passport/v1') return {ok:false,error:'unsupported_passport_schema'};
+  if(payload.expires_at&&Date.parse(payload.expires_at)<=Date.now()) return {ok:false,error:'passport_expired'};
+  return {ok:true,payload};
 }
 
 async function createCheckout(scope){
@@ -83,25 +120,19 @@ function send(res,status,body){
   res.end(JSON.stringify(body));
   return true;
 }
-
 function readJson(req){
   return new Promise((resolve,reject)=>{
     let raw='';
-    req.on('data',chunk=>{
-      raw+=chunk;
-      if(raw.length>500000){reject(Object.assign(new Error('Request too large'),{statusCode:413}));req.destroy();}
-    });
+    req.on('data',chunk=>{raw+=chunk;if(raw.length>500000){reject(Object.assign(new Error('Request too large'),{statusCode:413}));req.destroy();}});
     req.on('end',()=>{try{resolve(JSON.parse(raw||'{}'));}catch{reject(Object.assign(new Error('Invalid JSON'),{statusCode:400}));}});
     req.on('error',reject);
   });
 }
-
 function authorize(req,tier){
   const checked=Toll.verifyKey(Toll.headerKey(req),tier);
   if(!checked.ok)throw Object.assign(new Error(checked.error),{statusCode:checked.error==='toll_wall_not_configured'?503:401});
   return checked.payload;
 }
-
 function meterResult(key, service, extra){
   return Object.assign({
     schema: 'dreamledger/toll-metered-result/v1',
@@ -116,24 +147,30 @@ function meterResult(key, service, extra){
 async function handle(req,res,path){
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest());
 
+  // Public passport verify — no toll key required (cutting-edge: other agents can check identity)
+  if(path==='/api/toll/v1/passport/verify'&&req.method==='POST'){
+    const body=await readJson(req).catch(()=>({}));
+    const token=body.passport||body.token||body.passport_token||'';
+    const result=verifyPassportToken(token);
+    if(!result.ok)return send(res,401,{schema:'dreamledger/agent-passport-verify/v1',ok:false,error:result.error});
+    return send(res,200,{
+      schema:'dreamledger/agent-passport-verify/v1',
+      ok:true,
+      passport_id:result.payload.passport_id,
+      agent_id:result.payload.agent_id,
+      presence:result.payload.presence,
+      expires_at:result.payload.expires_at,
+      note:'Verification only. Does not grant authority or create economic truth.'
+    });
+  }
+
   if(path.startsWith('/api/toll/v1/checkout/')&&(req.method==='GET'||req.method==='POST')){
     const scope=path.split('/').pop();
     if(!SCOPES[scope])return send(res,404,{error:'unknown_toll_scope'});
     try{
       const session=await createCheckout(scope);
-      if(req.method==='GET'){
-        res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});
-        res.end();
-        return true;
-      }
-      return send(res,200,{
-        schema:'dreamledger/toll-checkout/v1',
-        scope,
-        session_id:session.id,
-        url:session.url,
-        amount_nzd:priceFor(scope),
-        note:'Pay on Stripe. On success, redeem with session_id to receive the access key. No key without settled payment.'
-      });
+      if(req.method==='GET'){res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});res.end();return true;}
+      return send(res,200,{schema:'dreamledger/toll-checkout/v1',scope,session_id:session.id,url:session.url,amount_nzd:priceFor(scope),note:'Pay on Stripe. On success, redeem with session_id to receive the access key. No key without settled payment.'});
     }catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
 
@@ -142,10 +179,7 @@ async function handle(req,res,path){
     const u=new URL(req.url,'https://dreamledger.org');
     let sessionId=u.searchParams.get('session_id');
     if(!sessionId&&req.method==='POST'){
-      try{
-        const body=await readJson(req);
-        sessionId=body&&body.session_id?String(body.session_id):null;
-      }catch(e){return send(res,e.statusCode||400,{error:e.message});}
+      try{const body=await readJson(req);sessionId=body&&body.session_id?String(body.session_id):null;}catch(e){return send(res,e.statusCode||400,{error:e.message});}
     }
     if(!SCOPES[scope]||!sessionId)return send(res,400,{error:'scope_and_session_id_required'});
     try{return send(res,200,{schema:'dreamledger/toll-redeem/v1',...(await redeem(scope,sessionId))});}catch(e){return send(res,e.statusCode||502,{error:e.message});}
@@ -155,14 +189,7 @@ async function handle(req,res,path){
     const key=authorize(req,'gauntlet');
     const candidate=await readJson(req);
     const proof=runGauntlet(candidate);
-    return send(res,proof.status==='PASS'?200:422,{
-      schema:'dreamledger/toll-gauntlet-result/v1',
-      key_id:key.key_id,
-      service:'DECISION-CHECK',
-      human_minutes:0,
-      public_execution:'AUTOMATED_DIGITAL_RESULT',
-      result:proof
-    });
+    return send(res,proof.status==='PASS'?200:422,{schema:'dreamledger/toll-gauntlet-result/v1',key_id:key.key_id,service:'DECISION-CHECK',human_minutes:0,public_execution:'AUTOMATED_DIGITAL_RESULT',result:proof});
   }
 
   if(path==='/api/toll/v1/truth'&&req.method==='POST'){
@@ -171,28 +198,23 @@ async function handle(req,res,path){
     const evidence=Array.isArray(body.evidence)?body.evidence:[];
     const contradictions=Array.isArray(body.contradictions)?body.contradictions:[];
     const unresolved=Array.isArray(body.unresolved)?body.unresolved:[];
-    return send(res,200,{
-      schema:'dreamledger/toll-truth-input/v1',
-      key_id:key.key_id,
-      service:'EVIDENCE-CHECK',
-      verdict:contradictions.length?'CONTRADICTED':(evidence.length?'OBSERVED':'UNVERIFIED'),
-      evidence_count:evidence.length,
-      contradiction_count:contradictions.length,
-      unresolved_count:unresolved.length,
-      economic_truth_unchanged:true,
-      note:'This service classifies the supplied evidence state. It does not create or alter payment, buyer, settlement, fulfilment or other external economic facts.'
-    });
+    return send(res,200,{schema:'dreamledger/toll-truth-input/v1',key_id:key.key_id,service:'EVIDENCE-CHECK',verdict:contradictions.length?'CONTRADICTED':(evidence.length?'OBSERVED':'UNVERIFIED'),evidence_count:evidence.length,contradiction_count:contradictions.length,unresolved_count:unresolved.length,economic_truth_unchanged:true,note:'This service classifies the supplied evidence state. It does not create or alter payment, buyer, settlement, fulfilment or other external economic facts.'});
   }
 
+  // Cutting-edge: issue signed portable agent passport
   if(path==='/api/toll/v1/agent-passport'&&req.method==='POST'){
     const key=authorize(req,'agent-passport');
     const body=await readJson(req).catch(()=>({}));
     const agentId=String(body.agent_id||body.id||'anonymous').slice(0,64);
+    const passportId='PASS-'+crypto.randomUUID().slice(0,12).toUpperCase();
+    const passportToken=issuePassportToken({agentId,passportId,issuedByKeyId:key.key_id,ttlHours:Number(body.ttl_hours)||24});
     return send(res,200,meterResult(key,'AGENT-PASSPORT',{
-      passport_id:'PASS-'+crypto.randomUUID().slice(0,12).toUpperCase(),
+      passport_id:passportId,
       agent_id:agentId,
       presence:'ATTESTED',
-      note:'Signed presence attestation only. Does not create economic truth or authority.'
+      passport:passportToken,
+      verify_url:PUBLIC_BASE+'/api/toll/v1/passport/verify',
+      note:'Signed presence attestation. Other agents can POST the passport token to verify_url. Does not create economic truth or authority.'
     }));
   }
 
