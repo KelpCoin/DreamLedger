@@ -85,9 +85,9 @@
       "pricing_strategy": "fixed",
       "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
       "payment_adapter": "stripe",
-      "payment_link_url": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
+      "payment_link_url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
       "payment_link_status": "ACTIVE_LIVEMODE",
-      "payment_link_id": "plink_1UFFZFEGgEAnUFF9LHNMWTDl",
+      "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
       "checkout_route": "stripe_payment_link",
       "fulfillment_route": "/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}",
       "proof_of_delivery": "Stripe live checkout evidence + marketplace fulfillment artifact + economic event evidence",
@@ -107,7 +107,7 @@
       },
       "approved_by": "operator",
       "approved_at": "2026-08-23",
-      "payment_link_note": "Aligned to live /buy/COMMANDER-DECK-DIAGNOSTIC-001 redirect"
+      "payment_link_note": "Aligned 2026-10-05 to the active Stripe livemode link observed for CMD-DIAG-29 and the public product feed."
     },
     {
       "offer_id": "OFFER-QUOTE-COMPARE-49-NZD",
