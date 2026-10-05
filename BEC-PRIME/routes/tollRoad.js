@@ -5,30 +5,48 @@ const {run:runGauntlet}=require('../gauntlet/CandidateGauntlet');
 const Toll=require('../runtime/TollRoad');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
+
+const SCOPES = {
+  gauntlet: { priceKey: 'gauntletPriceNzd', product: 'DreamLedger Automated Gauntlet Access', calls: 100000 },
+  truth: { priceKey: 'truthPriceNzd', product: 'DreamLedger Truth / Evidence Wall Access', calls: 100000 },
+  'bridge-events': { priceKey: 'bridgeEventsPriceNzd', product: 'DreamLedger Agent Bridge Events Pack (100 calls)', calls: 100 },
+  'route-lease': { priceKey: 'routeLeasePriceNzd', product: 'DreamLedger Route Lease (basic, 30 days)', calls: 10000 },
+  'gauntlet-pack': { priceKey: 'gauntletPackPriceNzd', product: 'DreamLedger Gauntlet Pack (20 approvals)', calls: 20 }
+};
+
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
-async function createCheckout(scope){
+
+function priceFor(scope){
   const cfg=Toll.config();
-  const priceNzd=scope==='gauntlet'?cfg.gauntletPriceNzd:cfg.truthPriceNzd;
+  const def=SCOPES[scope];
+  if(!def) return 0;
+  return Number(cfg[def.priceKey] || 0);
+}
+
+async function createCheckout(scope){
+  const priceNzd=priceFor(scope);
   if(!STRIPE_SECRET_KEY||!(priceNzd>0))throw Object.assign(new Error('Toll checkout is not configured'),{statusCode:503});
+  const def=SCOPES[scope];
   const sessionId='toll_'+crypto.randomUUID();
-  const productName=scope==='gauntlet'?'DreamLedger Automated Gauntlet Access':'DreamLedger Truth / Evidence Wall Access';
+  const productName=def.product;
   const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':Math.round(priceNzd*100),'line_items[0][price_data][product_data][name]':productName,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,'metadata[toll_price_nzd]':String(priceNzd),'metadata[toll_product]':productName,'payment_intent_data[metadata][toll_scope]':scope,'payment_intent_data[metadata][toll_request_id]':sessionId,success_url:PUBLIC_BASE+'/toll-road?checkout=success&scope='+scope+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
   return data;
 }
+
 async function redeem(scope,sessionId){
   if(!STRIPE_SECRET_KEY)throw Object.assign(new Error('Stripe secret key is not configured'),{statusCode:503});
   const response=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(sessionId)+'?expand[]=line_items',{headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe session lookup failed'),{statusCode:502});
   if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.toll_scope!==scope)throw Object.assign(new Error('Settled payment required before key issuance'),{statusCode:402});
-  const cfg=Toll.config();
-  const expectedPriceNzd=scope==='gauntlet'?cfg.gauntletPriceNzd:cfg.truthPriceNzd;
+  const expectedPriceNzd=priceFor(scope);
   const expectedAmount=Math.round(expectedPriceNzd*100);
   const line=data.line_items?.data?.[0];
   if(line && Number(line.amount_total||line.price?.unit_amount||0)!==expectedAmount)throw Object.assign(new Error('Checkout amount attribution mismatch'),{statusCode:409});
-  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,callsRemaining:100000,reference:sessionId})};
+  const def=SCOPES[scope]||{calls:100};
+  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,callsRemaining:def.calls,reference:sessionId})};
 }
 
 function send(res,status,body){
@@ -62,7 +80,7 @@ async function handle(req,res,path){
   // Checkout: GET redirects to Stripe; POST returns JSON {url, session_id} for API clients
   if(path.startsWith('/api/toll/v1/checkout/')&&(req.method==='GET'||req.method==='POST')){
     const scope=path.split('/').pop();
-    if(!['gauntlet','truth'].includes(scope))return send(res,404,{error:'unknown_toll_scope'});
+    if(!SCOPES[scope])return send(res,404,{error:'unknown_toll_scope'});
     try{
       const session=await createCheckout(scope);
       if(req.method==='GET'){
@@ -75,7 +93,7 @@ async function handle(req,res,path){
         scope,
         session_id:session.id,
         url:session.url,
-        amount_nzd:scope==='gauntlet'?Toll.config().gauntletPriceNzd:Toll.config().truthPriceNzd,
+        amount_nzd:priceFor(scope),
         note:'Pay on Stripe. On success, redeem with session_id to receive the access key. No key without settled payment.'
       });
     }catch(e){return send(res,e.statusCode||502,{error:e.message});}
@@ -92,7 +110,7 @@ async function handle(req,res,path){
         sessionId=body&&body.session_id?String(body.session_id):null;
       }catch(e){return send(res,e.statusCode||400,{error:e.message});}
     }
-    if(!['gauntlet','truth'].includes(scope)||!sessionId)return send(res,400,{error:'scope_and_session_id_required'});
+    if(!SCOPES[scope]||!sessionId)return send(res,400,{error:'scope_and_session_id_required'});
     try{return send(res,200,{schema:'dreamledger/toll-redeem/v1',...(await redeem(scope,sessionId))});}catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
 
@@ -128,6 +146,21 @@ async function handle(req,res,path){
       note:'This service classifies the supplied evidence state. It does not create or alter payment, buyer, settlement, fulfilment or other external economic facts.'
     };
     return send(res,200,result);
+  }
+
+  // Metered Agent Bridge events (requires bridge-events key)
+  if(path==='/api/toll/v1/bridge-events'&&req.method==='POST'){
+    const key=authorize(req,'bridge-events');
+    const body=await readJson(req);
+    return send(res,200,{
+      schema:'dreamledger/toll-bridge-event/v1',
+      key_id:key.key_id,
+      service:'AGENT-BRIDGE-EVENT',
+      accepted:true,
+      note:'Event accepted under existing entitlement. No economic truth changed.',
+      received_at:new Date().toISOString(),
+      payload_echo:typeof body==='object'?Object.keys(body):[]
+    });
   }
 
   if(path==='/api/toll/v1/key/check'&&req.method==='GET'){
