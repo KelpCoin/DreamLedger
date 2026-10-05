@@ -21,33 +21,84 @@
     "ai_catalog": "/ai-catalog.json",
     "agent_products": "/agent-products.json",
     "health": "/healthz",
-    "version": "/version"
+    "version": "/version",
+    "ai_discovery": "/.well-known/ai",
+    "ai_catalog_well_known": "/.well-known/ai-catalog.json"
   },
   "commerce": {
-    "flow": ["discover", "authorize", "pay", "deliver", "prove", "ledger"],
+    "flow": [
+      "discover",
+      "authorize",
+      "pay",
+      "deliver",
+      "prove",
+      "ledger"
+    ],
     "settlement": "stripe_live_nzd",
     "buy_router": "https://dreamledger.org/buy/{product_id}",
-    "fee_policy": {"platform_success_fee_bps": 0, "platform_listing_fee_nzd": 0},
+    "fee_policy": {
+      "platform_success_fee_bps": 0,
+      "platform_listing_fee_nzd": 0
+    },
     "primary_paid_offers": [
-      {"product_id": "COMMANDER-DECK-DIAGNOSTIC-001", "price_nzd": 29, "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"},
-      {"product_id": "SELLER-PROFIT-AUDIT-001", "price_nzd": 29, "buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"},
-      {"product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001", "price_nzd": 50, "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001"},
-      {"product_id": "DISCORD-WEBHOOK-STARTER-KIT-001", "price_nzd": 79, "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"}
+      {
+        "product_id": "QUOTE-COMPARE-49",
+        "price_nzd": 49,
+        "buy": "https://dreamledger.org/buy/QUOTE-COMPARE-49"
+      },
+      {
+        "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+        "price_nzd": 29,
+        "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"
+      },
+      {
+        "product_id": "SELLER-PROFIT-AUDIT-001",
+        "price_nzd": 29,
+        "buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"
+      },
+      {
+        "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+        "price_nzd": 50,
+        "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001"
+      },
+      {
+        "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+        "price_nzd": 79,
+        "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"
+      }
     ],
     "agentic_rails": {
-      "live": ["stripe_payment_link", "buy_router_with_client_reference_id"],
-      "reserved": ["x402", "mpp", "escrow"]
+      "live": [
+        "stripe_payment_link",
+        "buy_router_with_client_reference_id"
+      ],
+      "reserved": [
+        "x402",
+        "mpp",
+        "escrow"
+      ]
     },
     "scale_rule": "paid_verified_then_clone"
   },
   "trust_layer": {
     "rule": "Checkout start is not revenue. Verified revenue requires Stripe evidence + fulfillment proof.",
     "fail_closed": true,
-    "surfaces": ["/agent-commerce.json", "/commerce.txt", "/llms.txt", "/healthz"]
+    "surfaces": [
+      "/agent-commerce.json",
+      "/commerce.txt",
+      "/llms.txt",
+      "/healthz"
+    ]
   },
   "rivet": {
     "path": "/b2b",
     "marketplace": "/marketplace",
     "role": "B2B transaction hub — 0% success fee positioning vs Trade Me"
+  },
+  "discovery": {
+    "ai_discovery": "https://dreamledger.org/.well-known/ai",
+    "ai_catalog_well_known": "https://dreamledger.org/.well-known/ai-catalog.json",
+    "ai_catalog": "https://dreamledger.org/ai-catalog.json",
+    "agent_products": "https://dreamledger.org/agent-products.json"
   }
 }
