@@ -177,6 +177,7 @@ function publicManifest(extraServices = []) {
     { id: 'AGENT-PASSPORT', route: '/api/toll/v1/agent-passport', scope: 'agent-passport', price_nzd: 29, description: 'Signed agent passport + presence attestation' },
     { id: 'MULTI-AGENT-ROOM', route: '/api/toll/v1/multi-agent-room', scope: 'multi-agent-room', price_nzd: 39, description: 'Multi-agent coordination room' },
     { id: 'CAPACITY-FUTURES', route: '/api/toll/v1/capacity-futures', scope: 'capacity-futures', price_nzd: 75, description: 'Prepaid burst capacity futures' }
+    ,{ id: 'TOLL-NEXUS', route: '/api/toll/v1/nexus', scope: 'nexus', price_nzd: 49, description: 'One paid run composing truth, Gauntlet, passport, rooms, capacity, seats, and org coordination' }
   ].map(s => Object.assign({ checkout_configured: true }, s));
   return {
     schema: 'dreamledger/toll-road/v2',
