@@ -14,7 +14,7 @@ if (approval !== 'APPROVED') {
   console.error('APPROVAL must equal APPROVED; refusing external acquisition.');
   process.exit(3);
 }
-if (!['CMD-DIAG-29', 'DREAMLEDGER-BILLBOARD-50'].includes(offer)) {
+if (!['CMD-DIAG-29', 'DREAMLEDGER-BILLBOARD-50', 'QUOTE-COMPARE-49'].includes(offer)) {
   console.error('Offer is not in the machine-dispatch allowlist.');
   process.exit(4);
 }
