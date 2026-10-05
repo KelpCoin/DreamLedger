@@ -1,0 +1,31 @@
+{
+  "aiendpoint": "1.0",
+  "service": {
+    "name": "DreamLedger",
+    "description": "A service for bounded commercial work, including supplier quote comparison into a decision-ready evidence packet.",
+    "category": [
+      "ecommerce",
+      "productivity"
+    ],
+    "language": [
+      "en-NZ"
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "supplier_quote_comparison",
+      "description": "Inspect the NZ$49 supplier quote comparison offer for 2-5 quotes and its purchase requirements.",
+      "endpoint": "https://dreamledger.org/quote-comparison/",
+      "method": "GET",
+      "returns": "HTML offer page with price, required inputs, delivery description and checkout path"
+    }
+  ],
+  "auth": {
+    "type": "none"
+  },
+  "meta": {
+    "last_updated": "2026-10-05",
+    "changelog": "https://dreamledger.org/",
+    "status": "https://dreamledger.org/healthz"
+  }
+}
