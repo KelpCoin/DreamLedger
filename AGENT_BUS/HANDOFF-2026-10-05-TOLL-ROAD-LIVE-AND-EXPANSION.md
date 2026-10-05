@@ -1,52 +1,40 @@
-# HANDOFF 2026-10-05 — Toll Road live + Agent Bridge monetisation expansion
+# HANDOFF 2026-10-06 — Toll Road expansion toward groundbreaking agent infrastructure
 
 **From:** Grok agent (bridge session)
 **Mode:** hybrid
 **Ball priority:** C (money / passive infrastructure revenue)
-**Revenue claim:** NZ$0 (no external settlement observed this session)
+**Revenue claim:** NZ$0
 
-## Live status (verified 2026-10-05)
+## Live (production)
+- Toll Road **ARMED** at `/api/toll/v1/manifest`
+- Existing Gauntlet NZ$19 + Truth NZ$9 already purchasable
 
-- `GET https://dreamledger.org/api/toll/v1/manifest` → 200, status **ARMED** (pre-this-branch)
-- Schema: dreamledger/toll-road/v2
-- Model: customer pays → settled Stripe payment → entitlement → signed key (`x-dreamledger-toll-key`) → API wall → automated fulfilment
-- Design target in runtime: **200 000** roads
-- Existing catalogue: `AGENT_BUS/BRIDGE-TOLL-200.md` (200 paths)
-- Next concrete batch: `AGENT_BUS/TOLL-ROADS-NEXT-BATCH.json` (20 defined)
-- Stripe already connected; no new account required
+## On this branch (28 scopes)
+All share: Stripe checkout → settled payment → signed key → API wall.
 
-## Wired scopes on this branch (13 total)
+### Core + micro
+gauntlet, truth, bridge-events, route-lease, gauntlet-pack, micro-ingest, job-claim, heartbeat, note-write
 
-| Scope | Price NZ$ | Calls | Endpoint |
-|-------|-----------|-------|----------|
-| gauntlet | 19 | 100000 | /api/toll/v1/gauntlet |
-| truth | 9 | 100000 | /api/toll/v1/truth |
-| bridge-events | 19 | 100 | /api/toll/v1/bridge-events |
-| route-lease | 29 | 10000 | /api/toll/v1/route-lease |
-| gauntlet-pack | 15 | 20 | /api/toll/v1/gauntlet-pack |
-| micro-ingest | 5 | 500 | /api/toll/v1/micro-ingest |
-| job-claim | 9 | 200 | /api/toll/v1/job-claim |
-| heartbeat | 4 | 1000 | /api/toll/v1/heartbeat |
-| route-exclusive | 99 | 50000 | /api/toll/v1/route-exclusive |
-| route-shared | 9 | 5000 | /api/toll/v1/route-shared |
-| gauntlet-rush | 5 | 5 | /api/toll/v1/gauntlet-rush |
-| gauntlet-async | 8 | 20 | /api/toll/v1/gauntlet-async |
-| note-write | 7 | 200 | /api/toll/v1/note-write |
+### Capacity & routes
+route-exclusive (NZ$99), route-shared, priority, prepaid-10k (NZ$150), webhook-egress, shadow-route, quarantine, academic
 
-All share the same checkout → redeem → key flow. Thin meters only authorize the key and return a bounded automated result. No new payment rail.
+### Trust & attestation
+trust-attest, trust-agent, transparency, audit-export
 
-## Immediate next steps after merge + deploy
+### Groundbreaking (new this session)
+- **agent-passport** (NZ$29) — signed agent presence attestation
+- **multi-agent-room** (NZ$39) — metered multi-agent coordination room
+- **capacity-futures** (NZ$75) — prepaid burst capacity window
+- **org-key** (NZ$49) / **seat-agent** (NZ$9) — org and per-seat scale
 
-1. Confirm `GET /api/toll/v1/manifest` lists all 13 services.
-2. Smoke-test one new checkout URL (do not claim revenue).
-3. Pull the next 10 items from `TOLL-ROADS-NEXT-BATCH.json` into SCOPES + thin handlers.
-4. Keep public copy customer-English only.
-5. Update `PING_PONG_BALLS.json` only when verified_external_revenue_nzd changes from real settlement.
+Design target remains **200 000** roads. Registry: `AGENT_BUS/TOLL-ROADS-NEXT-BATCH.json`.
 
-## Do not
+## Direction
+Agent Bridge as the metered nervous system: passports, rooms, capacity futures, and trust classification that never invents economic truth. Scale by treating every pipeline, silo, and attestation as a leaseable road.
 
-- Claim revenue from green CI or internal keys.
-- Create parallel payment rails.
-- Publish roads that require new architecture before 20 verified paid events (NS6).
+## After merge + deploy
+1. Confirm manifest lists all 28.
+2. First external settlement still the only thing that moves verified revenue off NZ$0.
+3. Keep expanding thin scopes from the 200 catalogue.
 
-North Stars remain in force.
+North Stars in force. No fabrication.
