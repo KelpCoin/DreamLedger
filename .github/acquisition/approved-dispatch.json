@@ -9,5 +9,7 @@
   "gauntlet_required": true,
   "authorization_mode": "ELOHIM_GAUNTLET_BRIDGED_ONE_SHOT",
   "dispatch_request_id": "FIRST-DOLLAR-CMD-DIAG-ONE-SHOT-2026-10-05",
-  "dispatch_requested_at": "2026-10-05T07:10:00Z"
+  "dispatch_requested_at": "2026-10-05T07:10:00Z",
+  "dispatch_attempt": 2,
+  "dispatch_attempt_at": "2026-10-05T07:11:30Z"
 }
