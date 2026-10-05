@@ -7,32 +7,41 @@
 
 ## Live status (verified 2026-10-05)
 
-- `GET https://dreamledger.org/api/toll/v1/manifest` → 200, status **ARMED**
+- `GET https://dreamledger.org/api/toll/v1/manifest` → 200, status **ARMED** (pre-this-branch)
 - Schema: dreamledger/toll-road/v2
 - Model: customer pays → settled Stripe payment → entitlement → signed key (`x-dreamledger-toll-key`) → API wall → automated fulfilment
-- Live services:
-  - GAUNTLET-RUN `/api/toll/v1/gauntlet` NZ$19
-  - TRUTH-ORACLE-ACCESS `/api/toll/v1/truth` NZ$9
-- Design target in runtime: 200 000 roads
+- Design target in runtime: **200 000** roads
 - Existing catalogue: `AGENT_BUS/BRIDGE-TOLL-200.md` (200 paths)
+- Next concrete batch: `AGENT_BUS/TOLL-ROADS-NEXT-BATCH.json` (20 defined)
 - Stripe already connected; no new account required
 
-## Immediate passive revenue actions (legal, evidence-gated)
+## Wired scopes on this branch (13 total)
 
-1. Keep the two live roads public and discoverable.
-2. Add the next three low-friction roads from the 200-path list as descriptors + endpoints that reuse the exact same checkout → redeem → key flow:
-   - AGENT-BRIDGE-EVENTS pack (micro-toll / 100 calls)
-   - ROUTE-LEASE basic shared pipeline
-   - GAUNTLET pack (20 approvals)
-3. Do not invent buyers or revenue. Every new road stays UNVERIFIED until an independent external Stripe settlement + fossil appears.
-4. Public copy stays customer-English only (no ops jargon on public HTML).
+| Scope | Price NZ$ | Calls | Endpoint |
+|-------|-----------|-------|----------|
+| gauntlet | 19 | 100000 | /api/toll/v1/gauntlet |
+| truth | 9 | 100000 | /api/toll/v1/truth |
+| bridge-events | 19 | 100 | /api/toll/v1/bridge-events |
+| route-lease | 29 | 10000 | /api/toll/v1/route-lease |
+| gauntlet-pack | 15 | 20 | /api/toll/v1/gauntlet-pack |
+| micro-ingest | 5 | 500 | /api/toll/v1/micro-ingest |
+| job-claim | 9 | 200 | /api/toll/v1/job-claim |
+| heartbeat | 4 | 1000 | /api/toll/v1/heartbeat |
+| route-exclusive | 99 | 50000 | /api/toll/v1/route-exclusive |
+| route-shared | 9 | 5000 | /api/toll/v1/route-shared |
+| gauntlet-rush | 5 | 5 | /api/toll/v1/gauntlet-rush |
+| gauntlet-async | 8 | 20 | /api/toll/v1/gauntlet-async |
+| note-write | 7 | 200 | /api/toll/v1/note-write |
 
-## Next agent actions
+All share the same checkout → redeem → key flow. Thin meters only authorize the key and return a bounded automated result. No new payment rail.
 
-- Merge any open Toll Road restore / expansion PRs that pass CI.
-- Publish additional road descriptors via existing TollRoad.createRoadDescriptor + CUBE approval gate.
-- Wire one new `/api/toll/v1/` service that meters Agent Bridge note / event traffic once entitlement exists.
-- Update `PING_PONG_BALLS.json` only when verified_external_revenue_nzd changes from real settlement.
+## Immediate next steps after merge + deploy
+
+1. Confirm `GET /api/toll/v1/manifest` lists all 13 services.
+2. Smoke-test one new checkout URL (do not claim revenue).
+3. Pull the next 10 items from `TOLL-ROADS-NEXT-BATCH.json` into SCOPES + thin handlers.
+4. Keep public copy customer-English only.
+5. Update `PING_PONG_BALLS.json` only when verified_external_revenue_nzd changes from real settlement.
 
 ## Do not
 
