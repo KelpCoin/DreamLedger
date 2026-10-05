@@ -11,7 +11,15 @@ const SCOPES = {
   truth: { priceKey: 'truthPriceNzd', product: 'DreamLedger Truth / Evidence Wall Access', calls: 100000 },
   'bridge-events': { priceKey: 'bridgeEventsPriceNzd', product: 'DreamLedger Agent Bridge Events Pack (100 calls)', calls: 100 },
   'route-lease': { priceKey: 'routeLeasePriceNzd', product: 'DreamLedger Route Lease (basic, 30 days)', calls: 10000 },
-  'gauntlet-pack': { priceKey: 'gauntletPackPriceNzd', product: 'DreamLedger Gauntlet Pack (20 approvals)', calls: 20 }
+  'gauntlet-pack': { priceKey: 'gauntletPackPriceNzd', product: 'DreamLedger Gauntlet Pack (20 approvals)', calls: 20 },
+  'micro-ingest': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Micro Event Ingest (500)', calls: 500, fixedPrice: 5 },
+  'job-claim': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Job Claim Pack (200)', calls: 200, fixedPrice: 9 },
+  'heartbeat': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Heartbeat Pack (1000)', calls: 1000, fixedPrice: 4 },
+  'route-exclusive': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Exclusive Route Lease', calls: 50000, fixedPrice: 99 },
+  'route-shared': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Shared Route Lease', calls: 5000, fixedPrice: 9 },
+  'gauntlet-rush': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Gauntlet Rush (5 tickets)', calls: 5, fixedPrice: 5 },
+  'gauntlet-async': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Gauntlet Async Pack (20)', calls: 20, fixedPrice: 8 },
+  'note-write': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Durable Note Write Pack (200)', calls: 200, fixedPrice: 7 }
 };
 
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
@@ -20,6 +28,7 @@ function priceFor(scope){
   const cfg=Toll.config();
   const def=SCOPES[scope];
   if(!def) return 0;
+  if(def.fixedPrice != null) return Number(def.fixedPrice);
   return Number(cfg[def.priceKey] || 0);
 }
 
@@ -74,10 +83,20 @@ function authorize(req,tier){
   return checked.payload;
 }
 
+function meterResult(key, service, extra){
+  return Object.assign({
+    schema: 'dreamledger/toll-metered-result/v1',
+    key_id: key.key_id,
+    service,
+    accepted: true,
+    economic_truth_unchanged: true,
+    received_at: new Date().toISOString()
+  }, extra || {});
+}
+
 async function handle(req,res,path){
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest());
 
-  // Checkout: GET redirects to Stripe; POST returns JSON {url, session_id} for API clients
   if(path.startsWith('/api/toll/v1/checkout/')&&(req.method==='GET'||req.method==='POST')){
     const scope=path.split('/').pop();
     if(!SCOPES[scope])return send(res,404,{error:'unknown_toll_scope'});
@@ -99,7 +118,6 @@ async function handle(req,res,path){
     }catch(e){return send(res,e.statusCode||502,{error:e.message});}
   }
 
-  // Redeem: GET query session_id or POST body {session_id}
   if(path.startsWith('/api/toll/v1/redeem/')&&(req.method==='GET'||req.method==='POST')){
     const scope=path.split('/').pop();
     const u=new URL(req.url,'https://dreamledger.org');
@@ -148,19 +166,30 @@ async function handle(req,res,path){
     return send(res,200,result);
   }
 
-  // Metered Agent Bridge events (requires bridge-events key)
   if(path==='/api/toll/v1/bridge-events'&&req.method==='POST'){
     const key=authorize(req,'bridge-events');
     const body=await readJson(req);
-    return send(res,200,{
-      schema:'dreamledger/toll-bridge-event/v1',
-      key_id:key.key_id,
-      service:'AGENT-BRIDGE-EVENT',
-      accepted:true,
-      note:'Event accepted under existing entitlement. No economic truth changed.',
-      received_at:new Date().toISOString(),
-      payload_echo:typeof body==='object'?Object.keys(body):[]
-    });
+    return send(res,200,meterResult(key,'AGENT-BRIDGE-EVENT',{payload_echo:typeof body==='object'?Object.keys(body):[]}));
+  }
+
+  // Thin metered endpoints for next-batch scopes (authorize + accept only)
+  const thinMeters = {
+    '/api/toll/v1/micro-ingest': 'micro-ingest',
+    '/api/toll/v1/job-claim': 'job-claim',
+    '/api/toll/v1/heartbeat': 'heartbeat',
+    '/api/toll/v1/note-write': 'note-write',
+    '/api/toll/v1/route-lease': 'route-lease',
+    '/api/toll/v1/route-exclusive': 'route-exclusive',
+    '/api/toll/v1/route-shared': 'route-shared',
+    '/api/toll/v1/gauntlet-pack': 'gauntlet-pack',
+    '/api/toll/v1/gauntlet-rush': 'gauntlet-rush',
+    '/api/toll/v1/gauntlet-async': 'gauntlet-async'
+  };
+  if(req.method==='POST' && thinMeters[path]){
+    const tier = thinMeters[path];
+    const key = authorize(req, tier);
+    const body = await readJson(req).catch(()=>({}));
+    return send(res,200,meterResult(key, tier.toUpperCase(), {payload_keys: typeof body==='object' ? Object.keys(body) : []}));
   }
 
   if(path==='/api/toll/v1/key/check'&&req.method==='GET'){
