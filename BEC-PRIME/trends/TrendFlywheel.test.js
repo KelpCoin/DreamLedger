@@ -10,6 +10,12 @@ test('missing evidence stays UNKNOWN', () => {
   assert.equal(r.trend_score,null);
 });
 
+test('sparse volume evidence remains UNKNOWN without directional signal depth', () => {
+  const r=trendScore({demand_signal_volume:.9,age_days:1});
+  assert.equal(r.trend_state,'UNKNOWN');
+  assert.equal(r.recommended_action,'OBSERVE');
+});
+
 test('fresh accelerating demand can become HOT', () => {
   const r=trendScore({
     demand_signal_velocity:.95,
