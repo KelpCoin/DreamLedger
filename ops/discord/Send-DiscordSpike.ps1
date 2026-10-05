@@ -1,4 +1,4 @@
-'[CmdletBinding()]
+[CmdletBinding()]
 param(
   [Parameter(Mandatory=$true)][ValidateSet("critical","digest")][string]$Channel,
   [Parameter(Mandatory=$true)][string]$SpikeId,
@@ -30,4 +30,3 @@ $payload = @{
 
 Invoke-RestMethod -Method Post -Uri $url -ContentType "application/json" -Body $payload | Out-Null
 Write-Host "Sent $SpikeId to $Channel."
-'
