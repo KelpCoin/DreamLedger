@@ -108,6 +108,58 @@
       "approved_by": "operator",
       "approved_at": "2026-08-23",
       "payment_link_note": "Aligned to live /buy/COMMANDER-DECK-DIAGNOSTIC-001 redirect"
+    },
+    {
+      "offer_id": "OFFER-QUOTE-COMPARE-49-NZD",
+      "product_id": "QUOTE-COMPARE-49",
+      "product_sku": "QUOTE-COMPARE-49",
+      "capability_id": "PRODUCT-QUOTE-COMPARE-49",
+      "silo": "dreamledger",
+      "name": "Supplier Quote Comparison",
+      "problem": "Turn 2-5 supplier quotations into one normalized, source-backed decision packet.",
+      "input": "2-5 PDF, CSV, JSON or Markdown supplier quotes plus purchase requirements or scope.",
+      "output": "Source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.",
+      "delivery_mechanism": "stripe_payment -> revenue_webhook -> revenue_order -> entitlement -> fulfillment_request -> quote_fulfillment -> digital_delivery",
+      "deliverable": "Normalized supplier quote comparison decision packet.",
+      "target_buyer": "Buyer with 2-5 supplier quotes who needs the differences made explicit before choosing a supplier.",
+      "eligibility": "Buyer supplies 2-5 supported supplier quote files plus purchase requirements or scope.",
+      "constraints": [
+        "DreamLedger silo only",
+        "One-time NZD purchase",
+        "No invented missing information",
+        "Missing fields remain unknown",
+        "Automated digital fulfillment",
+        "No credential collection"
+      ],
+      "price": 49,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "payment_link_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+      "payment_link_status": "ACTIVE_LIVEMODE",
+      "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
+      "checkout_route": "stripe_payment_link",
+      "fulfillment_route": "quote-intake -> quote-fulfillment -> marketplace-fulfillment",
+      "proof_of_delivery": "fulfilled quote comparison artifact + Stripe live payment evidence + fulfillment evidence",
+      "verification_rules": [
+        "canonical_product",
+        "stripe_livemode",
+        "payment_paid",
+        "currency_nzd",
+        "amount_matches_offer",
+        "sku_attribution",
+        "fulfillment_artifact",
+        "evidence_present",
+        "schema_valid"
+      ],
+      "provenance": {
+        "product_source": "public/agent-products.json",
+        "private_material": "excluded"
+      },
+      "approved_by": "operator",
+      "approved_at": "2026-10-05",
+      "payment_link_note": "Aligned to live QUOTE-COMPARE-49 checkout used by quote-intake."
     }
   ]
 }
