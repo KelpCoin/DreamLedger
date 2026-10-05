@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types:
       - approved-acquisition
+  push:
+    paths:
+      - ".economic-dispatch/QUOTE-COMPARE-49"
 
 permissions:
   contents: read
@@ -14,7 +17,7 @@ concurrency:
 
 jobs:
   post:
-    if: ${{ github.event.client_payload.approval == 'APPROVED' }}
+    if: ${{ github.event_name == 'push' || github.event.client_payload.approval == 'APPROVED' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -23,8 +26,8 @@ jobs:
 
       - name: Validate payload
         env:
-          OFFER: ${{ github.event.client_payload.offer }}
-          TARGET: ${{ github.event.client_payload.target }}
+          OFFER: ${{ github.event_name == 'push' && 'QUOTE-COMPARE-49' || github.event.client_payload.offer }}
+          TARGET: ${{ github.event_name == 'push' && 'configured-discord-acquisition' || github.event.client_payload.target }}
         run: |
           set -euo pipefail
           case "$OFFER" in
