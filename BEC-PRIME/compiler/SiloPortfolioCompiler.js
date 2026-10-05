@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { trendScore, rankOffers } = require('../trends/TrendFlywheel');
 
 const ROOT = path.join(__dirname, '..');
 const APPROVED = path.join(ROOT, 'catalog', 'offers', 'approved.json');
@@ -10,6 +11,8 @@ const OUT_DIR = path.join(ROOT, 'compiled', 'website', 'portfolio');
 const CATALOG_DIR = path.join(ROOT, 'catalog', 'compiled');
 const CATALOG = path.join(CATALOG_DIR, 'silo-portfolio.json');
 const PROOF = path.join(ROOT, 'PROOF-SILO-PORTFOLIO-COMPILATION.json');
+const SILO_REGISTRY = path.join(ROOT, 'catalog', 'silos', 'CUBE-SILO-REGISTRY.json');
+const CAROUSEL_OUT = path.join(ROOT, '..', 'public', 'portfolio', 'carousel-manifest.json');
 
 function must(file) {
   if (!fs.existsSync(file)) throw new Error(`Portfolio compiler input missing: ${path.relative(ROOT, file)}`);
@@ -80,6 +83,7 @@ const compiled = eligible.map((offer, index) => ({
   fulfillment_route: offer.fulfillment_route,
   proof_of_delivery: offer.proof_of_delivery,
   activation_state: 'ACTIVE_CHECKOUT',
+  trend: trendScore(offer.trend || {}),
   source: 'BEC-PRIME/catalog/offers/approved.json'
 }));
 
@@ -103,6 +107,59 @@ const catalog = {
 };
 
 fs.writeFileSync(CATALOG, JSON.stringify(catalog, null, 2) + '\n', 'utf8');
+
+const registry = readJson(SILO_REGISTRY);
+const silos = Array.isArray(registry.silos) ? registry.silos : [];
+const bySilo = new Map();
+for (const silo of silos) bySilo.set(silo.id, []);
+for (const offer of compiled) {
+  if (!bySilo.has(offer.silo)) bySilo.set(offer.silo, []);
+  bySilo.get(offer.silo).push(offer);
+}
+
+const carouselManifest = {
+  schema: 'BEC-PRIME/SILO-CAROUSEL-MANIFEST/v1',
+  status: 'COMPILED',
+  compiler: 'SiloPortfolioCompiler',
+  trend_engine: 'BEC-PRIME/trends/TrendFlywheel.js',
+  compiled_at: catalog.compiled_at,
+  source_hash: catalog.source_hash,
+  rules: {
+    approved_offers_only: true,
+    unknown_is_not_zero: true,
+    stale_evidence_decays: true,
+    trend_changes_do_not_create_revenue: true,
+    no_new_external_action: true
+  },
+  silos: silos.map(silo => {
+    const offersForSilo = rankOffers(bySilo.get(silo.id) || []);
+    return {
+      silo_id: silo.id,
+      route: silo.route,
+      status: silo.status,
+      offer_count: offersForSilo.length,
+      carousel: offersForSilo.map((offer, position) => ({
+        position: position + 1,
+        offer_id: offer.offer_id,
+        name: offer.name,
+        canonical_url: offer.canonical_url,
+        price: offer.price,
+        currency: offer.currency,
+        trend_state: offer.trend.trend_state,
+        trend_score: offer.trend.trend_score,
+        confidence: offer.trend.confidence,
+        momentum: offer.trend.momentum,
+        crowding: offer.trend.crowding,
+        freshness: offer.trend.freshness,
+        recommended_action: offer.trend.recommended_action
+      }))
+    };
+  })
+};
+
+fs.mkdirSync(path.dirname(CAROUSEL_OUT), { recursive: true });
+fs.writeFileSync(CAROUSEL_OUT, JSON.stringify(carouselManifest, null, 2) + '\n', 'utf8');
+
 
 function page(offer) {
   const title = esc(offer.name);
