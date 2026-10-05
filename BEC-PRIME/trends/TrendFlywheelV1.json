@@ -1,0 +1,47 @@
+{
+  "schema":"DREAMLEDGER/TREND-FLYWHEEL/v1",
+  "purpose":"Continuously age, rank and retire silo offers without changing the economic truth layer.",
+  "states":["UNKNOWN","HEATING_UP","ON_RISE","HOT","CROWDED","OVERCROWDED","DYING","DEAD","HATED","MISSED","REVIVED"],
+  "principles":{
+    "unknown_is_not_zero":"Missing evidence never becomes a neutral trend score.",
+    "recency_decay":"Old evidence loses influence unless refreshed.",
+    "velocity_matters":"Acceleration/deceleration matters in addition to volume.",
+    "crowding_is_negative":"More competing offers reduce commercial attractiveness.",
+    "revival_requires_new_evidence":"A dead or hated trend can return only after fresh positive evidence.",
+    "no_revenue_claims":"Trend state never creates or modifies verified economic outcomes.",
+    "no_auto_external_action":"Trend changes may reorder, quarantine or propose offers; consequential external publication remains governed by existing authority."
+  },
+  "inputs":[
+    "demand_signal_velocity",
+    "demand_signal_volume",
+    "buyer_intent_strength",
+    "freshness",
+    "competition_density",
+    "engagement_velocity",
+    "search_interest_delta",
+    "fulfillment_health",
+    "conversion_evidence"
+  ],
+  "outputs":[
+    "trend_state",
+    "trend_score",
+    "confidence",
+    "momentum",
+    "crowding",
+    "freshness",
+    "recommended_action"
+  ],
+  "recommended_actions":{
+    "UNKNOWN":"OBSERVE",
+    "HEATING_UP":"PROMOTE_CANDIDATE",
+    "ON_RISE":"PROMOTE",
+    "HOT":"FEATURE",
+    "CROWDED":"DEFEND_OR_DIFFERENTIATE",
+    "OVERCROWDED":"DEPRIORITIZE",
+    "DYING":"REDUCE_EXPOSURE",
+    "DEAD":"QUARANTINE",
+    "HATED":"QUARANTINE",
+    "MISSED":"RETEST_IF_NEW_SIGNAL",
+    "REVIVED":"RETEST_AND_FEATURE"
+  }
+}
