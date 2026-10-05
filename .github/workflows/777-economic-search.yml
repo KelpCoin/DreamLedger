@@ -33,7 +33,7 @@ jobs:
       - name: Check required Supabase runtime secrets
         id: check
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
           missing=""
@@ -60,7 +60,7 @@ jobs:
     timeout-minutes: 12
 
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
 
     steps:
@@ -133,7 +133,7 @@ jobs:
 
       - name: Bridge 777 acceptance into commerce substrate
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
           set -euo pipefail
@@ -170,7 +170,7 @@ jobs:
 
       - name: Run economic activation from 777 handoff
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
           set -euo pipefail
