@@ -55,6 +55,41 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+  reconcile-quote:
+    name: Reconcile quote comparison NZ$49 (live buy plink)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconcile settlement evidence (quote comparison)
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_PAYMENT_LINK_URL: https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32
+          STRIPE_LIVE_ENABLED: 'true'
+        run: node ops/commerce/reconcile-stripe-airtable.mjs
+
+      - name: Hash + stage proof (quote comparison)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s proof/commerce/latest-stripe-airtable-reconciliation.json
+          mkdir -p proof/commerce/quote-comparison
+          cp proof/commerce/latest-stripe-airtable-reconciliation.json proof/commerce/quote-comparison/reconciliation.json
+          sha256sum proof/commerce/quote-comparison/reconciliation.json > proof/commerce/quote-comparison/reconciliation.sha256
+          cat proof/commerce/quote-comparison/reconciliation.sha256
+
+      - name: Upload quote comparison settlement proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: commerce-settlement-quote-${{ github.run_id }}
+          path: |
+            proof/commerce/quote-comparison/reconciliation.json
+            proof/commerce/quote-comparison/reconciliation.sha256
+          if-no-files-found: error
+          retention-days: 90
+
   reconcile-diagnostic:
     name: Reconcile diagnostic NZ$29 (live buy plink)
     runs-on: ubuntu-latest
