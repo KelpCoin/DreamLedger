@@ -14,6 +14,7 @@ const PROOF = path.join(ROOT, 'PROOF-SILO-PORTFOLIO-COMPILATION.json');
 const SILO_REGISTRY = path.join(ROOT, 'catalog', 'silos', 'CUBE-SILO-REGISTRY.json');
 const CAROUSEL_OUT = path.join(ROOT, '..', 'public', 'portfolio', 'carousel-manifest.json');
 const PUBLIC_PORTFOLIO_INDEX = path.join(ROOT, '..', 'public', 'portfolio', 'index.html');
+const DEMAND_RADAR = path.join(ROOT, '..', 'ops', 'demand', 'latest.json');
 
 function must(file) {
   if (!fs.existsSync(file)) throw new Error(`Portfolio compiler input missing: ${path.relative(ROOT, file)}`);
@@ -44,6 +45,33 @@ function digest(value) {
 
 const source = readJson(APPROVED);
 const offers = Array.isArray(source.approved) ? source.approved : [];
+
+function demandEvidenceForOffer(offer, radar) {
+  if (!radar || !Array.isArray(radar.active)) return null;
+  const target = slug(offer.name);
+  const hit = radar.active.find(x => slug(x.slug || x.name || '') === target);
+  if (!hit) return null;
+
+  const signals = Array.isArray(hit.signals) ? hit.signals : [];
+  const total = signals.reduce((sum, s) => sum + Math.max(0, Number(s.count) || 0), 0);
+  const sources = new Set(signals.map(s => String(s.source || '').trim()).filter(Boolean));
+  const maxComparable = Math.max(
+    1,
+    ...radar.active.map(x => (Array.isArray(x.signals) ? x.signals : [])
+      .reduce((sum, s) => sum + Math.max(0, Number(s.count) || 0), 0))
+  );
+
+  return {
+    demand_signal_volume: Number((Math.log1p(total) / Math.log1p(maxComparable)).toFixed(4)),
+    signal_count: signals.length,
+    source_count: sources.size,
+    observed_score: Number(hit.score) || null,
+    observed_at: radar.generated_at || null,
+    provenance: 'ops/demand/latest.json'
+  };
+}
+
+const demandRadar = fs.existsSync(DEMAND_RADAR) ? readJson(DEMAND_RADAR) : null;
 if (!offers.length) throw new Error('No explicitly approved offers found. Refusing to publish an empty commercial portfolio.');
 
 const eligible = offers.filter(o =>
@@ -64,7 +92,19 @@ if (!eligible.length) {
 fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.mkdirSync(CATALOG_DIR, { recursive: true });
 
-const compiled = eligible.map((offer, index) => ({
+const compiled = eligible.map((offer, index) => {
+  const demandEvidence = demandEvidenceForOffer(offer, demandRadar);
+  const trendInput = {
+    ...(offer.trend || {}),
+    ...(demandEvidence ? {
+      demand_signal_volume: demandEvidence.demand_signal_volume,
+      age_days: demandEvidence.observed_at
+        ? Math.max(0, (Date.now() - Date.parse(demandEvidence.observed_at)) / 86400000)
+        : undefined
+    } : {})
+  };
+
+  return {
   portfolio_id: `PORTFOLIO-${String(index + 1).padStart(3, '0')}`,
   offer_id: offer.offer_id,
   product_id: offer.product_id || null,
@@ -84,9 +124,11 @@ const compiled = eligible.map((offer, index) => ({
   fulfillment_route: offer.fulfillment_route,
   proof_of_delivery: offer.proof_of_delivery,
   activation_state: 'ACTIVE_CHECKOUT',
-  trend: trendScore(offer.trend || {}),
+  trend: trendScore(trendInput),
+  signal_evidence: demandEvidence,
   source: 'BEC-PRIME/catalog/offers/approved.json'
-}));
+  };
+});
 
 const catalog = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
@@ -320,7 +362,8 @@ const proof = {
     activation_state: o.activation_state,
     trend_state: o.trend.trend_state,
     trend_score: o.trend.trend_score,
-    recommended_action: o.trend.recommended_action
+    recommended_action: o.trend.recommended_action,
+    signal_evidence: o.signal_evidence
   })),
   guarantees: {
     existing_approval_gate_reused: true,
