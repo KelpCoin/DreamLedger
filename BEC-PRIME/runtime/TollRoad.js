@@ -11,8 +11,8 @@ const crypto = require('crypto');
 
 const KEY_SCHEMA = 'DREAMLEDGER-TOLL-KEY-2.0';
 const DEFAULT_TTL_DAYS = 30;
-const MAX_CALLS = 1000000;          // hard ceiling per key
-const MAX_ROADS_SOFT = 200000;      // design target
+const MAX_CALLS = 1000000;
+const MAX_ROADS_SOFT = 200000;
 
 function config() {
   return {
@@ -45,10 +45,6 @@ function sign(body) {
   return crypto.createHmac('sha256', config().secret).update(body).digest('base64url');
 }
 
-/**
- * Issue a signed toll key.
- * New in v2: road_id, owner_passport_id, entitlement_id.
- */
 function issueKey({
   keyId,
   tier = 'gauntlet',
@@ -78,13 +74,7 @@ function issueKey({
   return 'dlk_' + body + '.' + sign(body);
 }
 
-/**
- * Verify a toll key.
- * Optionally require a specific road_id or tier.
- * Accepts both v1 and v2 key schemas.
- */
 function verifyKey(token, opts) {
-  // backward compat: old call signature verifyKey(token, requiredTier)
   const options = (typeof opts === 'string') ? { requiredTier: opts } : (opts || {});
   const requiredTier = options.requiredTier || null;
   const requiredRoadId = options.requiredRoadId || null;
@@ -121,10 +111,6 @@ function headerKey(req) {
   return String(req.headers['x-dreamledger-toll-key'] || '').trim();
 }
 
-/**
- * Create a road descriptor (CUBE / registry will persist it).
- * Pure data — no side effects.
- */
 function createRoadDescriptor({
   roadId,
   ownerPassportId,
@@ -157,9 +143,6 @@ function createRoadDescriptor({
   };
 }
 
-/**
- * After Stripe settles, issue entitlement + key for a road.
- */
 function issueEntitlementForRoad(road, paymentReference, buyerRef = null) {
   if (!road || !road.road_id) throw new Error('road required');
   const entitlementId = 'ENT-' + crypto.randomUUID().slice(0, 12).toUpperCase();
@@ -193,7 +176,15 @@ function publicManifest(extraServices = []) {
     { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, checkout_configured: c.truthPriceNzd > 0, description: 'Evidence classification wall access' },
     { id: 'AGENT-BRIDGE-EVENTS-100', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, checkout_configured: c.bridgeEventsPriceNzd > 0, description: '100 metered Agent Bridge events / notes (30-day pack)' },
     { id: 'ROUTE-LEASE-BASIC', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, checkout_configured: c.routeLeasePriceNzd > 0, description: 'Named pipeline / route lease (shared capacity, 30 days)' },
-    { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, checkout_configured: c.gauntletPackPriceNzd > 0, description: '20 automated gauntlet approvals pack' }
+    { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, checkout_configured: c.gauntletPackPriceNzd > 0, description: '20 automated gauntlet approvals pack' },
+    { id: 'MICRO-EVENT-INGEST', route: '/api/toll/v1/micro-ingest', scope: 'micro-ingest', price_nzd: 5, checkout_configured: true, description: '500 authenticated bridge event ingests' },
+    { id: 'MICRO-JOB-CLAIM', route: '/api/toll/v1/job-claim', scope: 'job-claim', price_nzd: 9, checkout_configured: true, description: '200 agent job claims / lease starts' },
+    { id: 'MICRO-HEARTBEAT', route: '/api/toll/v1/heartbeat', scope: 'heartbeat', price_nzd: 4, checkout_configured: true, description: '1000 job heartbeat renewals' },
+    { id: 'ROUTE-LEASE-EXCLUSIVE', route: '/api/toll/v1/route-exclusive', scope: 'route-exclusive', price_nzd: 99, checkout_configured: true, description: 'Exclusive named route lease 30 days' },
+    { id: 'ROUTE-LEASE-SHARED', route: '/api/toll/v1/route-shared', scope: 'route-shared', price_nzd: 9, checkout_configured: true, description: 'Shared contended route lease' },
+    { id: 'GAUNTLET-RUSH', route: '/api/toll/v1/gauntlet-rush', scope: 'gauntlet-rush', price_nzd: 5, checkout_configured: true, description: '5 rush (15-min SLA) gauntlet tickets' },
+    { id: 'GAUNTLET-ASYNC', route: '/api/toll/v1/gauntlet-async', scope: 'gauntlet-async', price_nzd: 8, checkout_configured: true, description: '20 async 24h SLA gauntlet tickets' },
+    { id: 'BRIDGE-NOTE-WRITE', route: '/api/toll/v1/note-write', scope: 'note-write', price_nzd: 7, checkout_configured: true, description: '200 durable control ledger note writes' }
   ];
   return {
     schema: 'dreamledger/toll-road/v2',
@@ -205,7 +196,8 @@ function publicManifest(extraServices = []) {
     design_target_roads: MAX_ROADS_SOFT,
     key_schema: KEY_SCHEMA,
     services: base.concat(extraServices),
-    header: 'x-dreamledger-toll-key'
+    header: 'x-dreamledger-toll-key',
+    next_batch_registry: 'AGENT_BUS/TOLL-ROADS-NEXT-BATCH.json'
   };
 }
 
