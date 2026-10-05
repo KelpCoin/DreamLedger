@@ -67,6 +67,24 @@ jobs:
           curl -fsS --max-time 60 -X PATCH "$SUPABASE_URL/rest/v1/approval_queue?status=eq.PENDING&expires_at=lte.$now" -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" -H "Content-Type: application/json" -H "Prefer: return=minimal" --data "{\"status\":\"EXPIRED\",\"resolution\":\"HUMAN_GATE_EXPIRED\",\"resolved_at\":\"$now\",\"decision\":\"REJECT\",\"decision_at\":\"$now\",\"decided_by\":\"SYSTEM\"}"
           echo "STALE_HUMAN_GATES=EXPIRED_WHERE_DUE"
 
+      - name: Enforce human-review WIP capacity
+        id: review_wip
+        shell: bash
+        run: |
+          set -euo pipefail
+          limit="${REVIEW_WIP_LIMIT:-1}"
+          response="$(curl -fsS --max-time 60             "$SUPABASE_URL/rest/v1/approval_queue?select=id&status=eq.PENDING&limit=100"             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY")"
+          pending="$(node -e 'const x=JSON.parse(process.argv[1]); process.stdout.write(String(Array.isArray(x)?x.length:0))' "$response")"
+          if [ "$pending" -ge "$limit" ]; then
+            echo "HUMAN_REVIEW_WIP=AT_CAP"
+            echo "pending=$pending limit=$limit"
+            echo "capacity=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "HUMAN_REVIEW_WIP=CAPACITY_AVAILABLE"
+            echo "pending=$pending limit=$limit"
+            echo "capacity=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Write cloud heartbeat
         shell: bash
         run: |
@@ -96,6 +114,7 @@ jobs:
           node -e 'const x=require("./economic-compiler.json"); if(x.ok!==true) process.exit(1); console.log(JSON.stringify(x,null,2));'
 
       - name: Refresh autonomous supervisor
+        if: steps.review_wip.outputs.capacity == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -134,7 +153,7 @@ jobs:
           echo "GPU_RUNNER_AVAILABLE=$available"
 
       - name: Dispatch bounded GPU enrichment when available
-        if: steps.gpu.outputs.available == 'true'
+        if: steps.gpu.outputs.available == 'true' && steps.review_wip.outputs.capacity == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
