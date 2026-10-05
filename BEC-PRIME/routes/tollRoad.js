@@ -19,7 +19,22 @@ const SCOPES = {
   'route-shared': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Shared Route Lease', calls: 5000, fixedPrice: 9 },
   'gauntlet-rush': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Gauntlet Rush (5 tickets)', calls: 5, fixedPrice: 5 },
   'gauntlet-async': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Gauntlet Async Pack (20)', calls: 20, fixedPrice: 8 },
-  'note-write': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Durable Note Write Pack (200)', calls: 200, fixedPrice: 7 }
+  'note-write': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Durable Note Write Pack (200)', calls: 200, fixedPrice: 7 },
+  'trust-attest': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Trust Attestation Pack (50)', calls: 50, fixedPrice: 12 },
+  'trust-agent': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Agent Trust Score Pack (30)', calls: 30, fixedPrice: 10 },
+  'seat-agent': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Per-Seat Agent Token (5k)', calls: 5000, fixedPrice: 9 },
+  'org-key': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Org Bridge Key (50k)', calls: 50000, fixedPrice: 49 },
+  'priority': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Priority Lane Pack (50)', calls: 50, fixedPrice: 25 },
+  'prepaid-10k': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Prepaid 10k Events', calls: 10000, fixedPrice: 150 },
+  'webhook-egress': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Webhook Egress Slot', calls: 1000, fixedPrice: 12 },
+  'audit-export': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Audit Export Access', calls: 30, fixedPrice: 35 },
+  'shadow-route': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Shadow Route', calls: 5000, fixedPrice: 8 },
+  'quarantine': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Quarantine Route', calls: 2000, fixedPrice: 22 },
+  'academic': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Academic Route', calls: 2000, fixedPrice: 3 },
+  'transparency': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Transparency Log Access', calls: 100, fixedPrice: 15 },
+  'agent-passport': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Agent Passport + Presence', calls: 100, fixedPrice: 29 },
+  'multi-agent-room': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Multi-Agent Coordination Room', calls: 50, fixedPrice: 39 },
+  'capacity-futures': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Capacity Futures (burst window)', calls: 1, fixedPrice: 75 }
 };
 
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
@@ -152,7 +167,7 @@ async function handle(req,res,path){
     const evidence=Array.isArray(body.evidence)?body.evidence:[];
     const contradictions=Array.isArray(body.contradictions)?body.contradictions:[];
     const unresolved=Array.isArray(body.unresolved)?body.unresolved:[];
-    const result={
+    return send(res,200,{
       schema:'dreamledger/toll-truth-input/v1',
       key_id:key.key_id,
       service:'EVIDENCE-CHECK',
@@ -162,18 +177,35 @@ async function handle(req,res,path){
       unresolved_count:unresolved.length,
       economic_truth_unchanged:true,
       note:'This service classifies the supplied evidence state. It does not create or alter payment, buyer, settlement, fulfilment or other external economic facts.'
-    };
-    return send(res,200,result);
+    });
   }
 
-  if(path==='/api/toll/v1/bridge-events'&&req.method==='POST'){
-    const key=authorize(req,'bridge-events');
-    const body=await readJson(req);
-    return send(res,200,meterResult(key,'AGENT-BRIDGE-EVENT',{payload_echo:typeof body==='object'?Object.keys(body):[]}));
+  if(path==='/api/toll/v1/agent-passport'&&req.method==='POST'){
+    const key=authorize(req,'agent-passport');
+    const body=await readJson(req).catch(()=>({}));
+    const agentId=String(body.agent_id||body.id||'anonymous').slice(0,64);
+    return send(res,200,meterResult(key,'AGENT-PASSPORT',{
+      passport_id:'PASS-'+crypto.randomUUID().slice(0,12).toUpperCase(),
+      agent_id:agentId,
+      presence:'ATTESTED',
+      note:'Signed presence attestation only. Does not create economic truth or authority.'
+    }));
   }
 
-  // Thin metered endpoints for next-batch scopes (authorize + accept only)
+  if(path==='/api/toll/v1/multi-agent-room'&&req.method==='POST'){
+    const key=authorize(req,'multi-agent-room');
+    const body=await readJson(req).catch(()=>({}));
+    const roomId='ROOM-'+crypto.randomUUID().slice(0,10).toUpperCase();
+    return send(res,200,meterResult(key,'MULTI-AGENT-ROOM',{
+      room_id:roomId,
+      max_agents:Number(body.max_agents)||8,
+      note:'Coordination room opened under entitlement. No side effects outside the room contract.'
+    }));
+  }
+
+  // Thin metered endpoints (authorize + accept only)
   const thinMeters = {
+    '/api/toll/v1/bridge-events': 'bridge-events',
     '/api/toll/v1/micro-ingest': 'micro-ingest',
     '/api/toll/v1/job-claim': 'job-claim',
     '/api/toll/v1/heartbeat': 'heartbeat',
@@ -183,7 +215,20 @@ async function handle(req,res,path){
     '/api/toll/v1/route-shared': 'route-shared',
     '/api/toll/v1/gauntlet-pack': 'gauntlet-pack',
     '/api/toll/v1/gauntlet-rush': 'gauntlet-rush',
-    '/api/toll/v1/gauntlet-async': 'gauntlet-async'
+    '/api/toll/v1/gauntlet-async': 'gauntlet-async',
+    '/api/toll/v1/trust-attest': 'trust-attest',
+    '/api/toll/v1/trust-agent': 'trust-agent',
+    '/api/toll/v1/seat-agent': 'seat-agent',
+    '/api/toll/v1/org-key': 'org-key',
+    '/api/toll/v1/priority': 'priority',
+    '/api/toll/v1/prepaid-10k': 'prepaid-10k',
+    '/api/toll/v1/webhook-egress': 'webhook-egress',
+    '/api/toll/v1/audit-export': 'audit-export',
+    '/api/toll/v1/shadow-route': 'shadow-route',
+    '/api/toll/v1/quarantine': 'quarantine',
+    '/api/toll/v1/academic': 'academic',
+    '/api/toll/v1/transparency': 'transparency',
+    '/api/toll/v1/capacity-futures': 'capacity-futures'
   };
   if(req.method==='POST' && thinMeters[path]){
     const tier = thinMeters[path];
