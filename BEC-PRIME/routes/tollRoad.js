@@ -3,6 +3,7 @@
 const crypto=require('crypto');
 const {run:runGauntlet}=require('../gauntlet/CandidateGauntlet');
 const Toll=require('../runtime/TollRoad');
+const Trinity=require('../runtime/Trinity');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
 
@@ -38,7 +39,8 @@ const SCOPES = {
   'enterprise-wall': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Enterprise Toll Wall (500k calls)', calls: 500000, fixedPrice: 499 },
   'enterprise-pro': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Enterprise Pro (2M calls + SLA)', calls: 2000000, fixedPrice: 1499 },
   'white-label': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger White-Label Route Namespace', calls: 100000, fixedPrice: 999 },
-  'sla-credit': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger SLA Credit Pack', calls: 10, fixedPrice: 250 }
+  'sla-credit': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger SLA Credit Pack', calls: 10, fixedPrice: 250 },
+  trinity: { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Trinity Run (Elohim+Gauntlet+Bridge)', calls: 25, fixedPrice: 49 }
 };
 
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
@@ -59,15 +61,7 @@ function signPassport(body){
 function issuePassportToken({agentId, passportId, issuedByKeyId, ttlHours=24}){
   const now=new Date();
   const exp=new Date(now.getTime()+(ttlHours*3600000)).toISOString();
-  const payload={
-    schema:'dreamledger/agent-passport/v1',
-    passport_id:passportId,
-    agent_id:agentId,
-    issued_at:now.toISOString(),
-    expires_at:exp,
-    issued_by_key:issuedByKeyId||null,
-    presence:'ATTESTED'
-  };
+  const payload={schema:'dreamledger/agent-passport/v1',passport_id:passportId,agent_id:agentId,issued_at:now.toISOString(),expires_at:exp,issued_by_key:issuedByKeyId||null,presence:'ATTESTED'};
   const body=Buffer.from(JSON.stringify(payload),'utf8').toString('base64url');
   return 'dlp_'+body+'.'+signPassport(body);
 }
@@ -134,34 +128,18 @@ function authorize(req,tier){
   return checked.payload;
 }
 function meterResult(key, service, extra){
-  return Object.assign({
-    schema: 'dreamledger/toll-metered-result/v1',
-    key_id: key.key_id,
-    service,
-    accepted: true,
-    economic_truth_unchanged: true,
-    received_at: new Date().toISOString()
-  }, extra || {});
+  return Object.assign({schema:'dreamledger/toll-metered-result/v1',key_id:key.key_id,service,accepted:true,economic_truth_unchanged:true,received_at:new Date().toISOString()},extra||{});
 }
 
 async function handle(req,res,path){
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest());
 
-  // Public passport verify — no toll key required (cutting-edge: other agents can check identity)
   if(path==='/api/toll/v1/passport/verify'&&req.method==='POST'){
     const body=await readJson(req).catch(()=>({}));
     const token=body.passport||body.token||body.passport_token||'';
     const result=verifyPassportToken(token);
     if(!result.ok)return send(res,401,{schema:'dreamledger/agent-passport-verify/v1',ok:false,error:result.error});
-    return send(res,200,{
-      schema:'dreamledger/agent-passport-verify/v1',
-      ok:true,
-      passport_id:result.payload.passport_id,
-      agent_id:result.payload.agent_id,
-      presence:result.payload.presence,
-      expires_at:result.payload.expires_at,
-      note:'Verification only. Does not grant authority or create economic truth.'
-    });
+    return send(res,200,{schema:'dreamledger/agent-passport-verify/v1',ok:true,passport_id:result.payload.passport_id,agent_id:result.payload.agent_id,presence:result.payload.presence,expires_at:result.payload.expires_at,note:'Verification only. Does not grant authority or create economic truth.'});
   }
 
   if(path.startsWith('/api/toll/v1/checkout/')&&(req.method==='GET'||req.method==='POST')){
@@ -198,35 +176,32 @@ async function handle(req,res,path){
     const evidence=Array.isArray(body.evidence)?body.evidence:[];
     const contradictions=Array.isArray(body.contradictions)?body.contradictions:[];
     const unresolved=Array.isArray(body.unresolved)?body.unresolved:[];
-    return send(res,200,{schema:'dreamledger/toll-truth-input/v1',key_id:key.key_id,service:'EVIDENCE-CHECK',verdict:contradictions.length?'CONTRADICTED':(evidence.length?'OBSERVED':'UNVERIFIED'),evidence_count:evidence.length,contradiction_count:contradictions.length,unresolved_count:unresolved.length,economic_truth_unchanged:true,note:'This service classifies the supplied evidence state. It does not create or alter payment, buyer, settlement, fulfilment or other external economic facts.'});
+    return send(res,200,{schema:'dreamledger/toll-truth-input/v1',key_id:key.key_id,service:'EVIDENCE-CHECK',role:'ELOHIM',verdict:contradictions.length?'CONTRADICTED':(evidence.length?'OBSERVED':'UNVERIFIED'),evidence_count:evidence.length,contradiction_count:contradictions.length,unresolved_count:unresolved.length,economic_truth_unchanged:true,note:'Elohim truth boundary. Classifies evidence only. Does not invent payment, buyer, or settlement facts.'});
   }
 
-  // Cutting-edge: issue signed portable agent passport
+  // TRINITY — Elohim + Gauntlet + Agent Bridge in one paid composition
+  if(path==='/api/toll/v1/trinity'&&req.method==='POST'){
+    const key=authorize(req,'trinity');
+    const body=await readJson(req).catch(()=>({}));
+    const result=Trinity.runTrinity(body,{key_id:key.key_id});
+    const code=result.synergy==='ALIGNED'?200:422;
+    return send(res,code,result);
+  }
+
   if(path==='/api/toll/v1/agent-passport'&&req.method==='POST'){
     const key=authorize(req,'agent-passport');
     const body=await readJson(req).catch(()=>({}));
     const agentId=String(body.agent_id||body.id||'anonymous').slice(0,64);
     const passportId='PASS-'+crypto.randomUUID().slice(0,12).toUpperCase();
     const passportToken=issuePassportToken({agentId,passportId,issuedByKeyId:key.key_id,ttlHours:Number(body.ttl_hours)||24});
-    return send(res,200,meterResult(key,'AGENT-PASSPORT',{
-      passport_id:passportId,
-      agent_id:agentId,
-      presence:'ATTESTED',
-      passport:passportToken,
-      verify_url:PUBLIC_BASE+'/api/toll/v1/passport/verify',
-      note:'Signed presence attestation. Other agents can POST the passport token to verify_url. Does not create economic truth or authority.'
-    }));
+    return send(res,200,meterResult(key,'AGENT-PASSPORT',{passport_id:passportId,agent_id:agentId,presence:'ATTESTED',passport:passportToken,verify_url:PUBLIC_BASE+'/api/toll/v1/passport/verify',note:'Signed presence attestation. Other agents can POST the passport token to verify_url. Does not create economic truth or authority.'}));
   }
 
   if(path==='/api/toll/v1/multi-agent-room'&&req.method==='POST'){
     const key=authorize(req,'multi-agent-room');
     const body=await readJson(req).catch(()=>({}));
     const roomId='ROOM-'+crypto.randomUUID().slice(0,10).toUpperCase();
-    return send(res,200,meterResult(key,'MULTI-AGENT-ROOM',{
-      room_id:roomId,
-      max_agents:Number(body.max_agents)||8,
-      note:'Coordination room opened under entitlement. No side effects outside the room contract.'
-    }));
+    return send(res,200,meterResult(key,'MULTI-AGENT-ROOM',{room_id:roomId,max_agents:Number(body.max_agents)||8,note:'Coordination room opened under entitlement. No side effects outside the room contract.'}));
   }
 
   const thinMeters = {
