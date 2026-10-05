@@ -4,6 +4,7 @@ const crypto=require('crypto');
 const {run:runGauntlet}=require('../gauntlet/CandidateGauntlet');
 const Toll=require('../runtime/TollRoad');
 const Trinity=require('../runtime/Trinity');
+const TollNexus=require('../runtime/TollNexus');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
 
@@ -40,7 +41,8 @@ const SCOPES = {
   'enterprise-pro': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Enterprise Pro (2M calls + SLA)', calls: 2000000, fixedPrice: 1499 },
   'white-label': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger White-Label Route Namespace', calls: 100000, fixedPrice: 999 },
   'sla-credit': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger SLA Credit Pack', calls: 10, fixedPrice: 250 },
-  trinity: { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Trinity Run (Elohim+Gauntlet+Bridge)', calls: 25, fixedPrice: 49 }
+  trinity: { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Trinity Run (Elohim+Gauntlet+Bridge)', calls: 25, fixedPrice: 49 },
+  nexus: { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Toll Nexus (Truth+Gauntlet+Agent Bridge)', calls: 25, fixedPrice: 49 }
 };
 
 function stripeForm(values){const form=new URLSearchParams();for(const [k,v] of Object.entries(values))form.set(k,String(v));return form;}
@@ -179,7 +181,16 @@ async function handle(req,res,path){
     return send(res,200,{schema:'dreamledger/toll-truth-input/v1',key_id:key.key_id,service:'EVIDENCE-CHECK',role:'ELOHIM',verdict:contradictions.length?'CONTRADICTED':(evidence.length?'OBSERVED':'UNVERIFIED'),evidence_count:evidence.length,contradiction_count:contradictions.length,unresolved_count:unresolved.length,economic_truth_unchanged:true,note:'Elohim truth boundary. Classifies evidence only. Does not invent payment, buyer, or settlement facts.'});
   }
 
-  // TRINITY — Elohim + Gauntlet + Agent Bridge in one paid composition
+  // TOLL NEXUS — replacement for the old Gold Button / Trinity presentation layer
+  if(path==='/api/toll/v1/nexus'&&req.method==='POST'){
+    const key=authorize(req,'nexus');
+    const body=await readJson(req).catch(()=>({}));
+    const result=TollNexus.runNexus(body,{key_id:key.key_id});
+    const code=result.synergy==='ALIGNED'?200:422;
+    return send(res,code,result);
+  }
+
+  // Backward-compatible Trinity road. New traffic should use Toll Nexus.
   if(path==='/api/toll/v1/trinity'&&req.method==='POST'){
     const key=authorize(req,'trinity');
     const body=await readJson(req).catch(()=>({}));
