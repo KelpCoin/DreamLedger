@@ -13,6 +13,7 @@ const CATALOG = path.join(CATALOG_DIR, 'silo-portfolio.json');
 const PROOF = path.join(ROOT, 'PROOF-SILO-PORTFOLIO-COMPILATION.json');
 const SILO_REGISTRY = path.join(ROOT, 'catalog', 'silos', 'CUBE-SILO-REGISTRY.json');
 const CAROUSEL_OUT = path.join(ROOT, '..', 'public', 'portfolio', 'carousel-manifest.json');
+const PUBLIC_PORTFOLIO_INDEX = path.join(ROOT, '..', 'public', 'portfolio', 'index.html');
 
 function must(file) {
   if (!fs.existsSync(file)) throw new Error(`Portfolio compiler input missing: ${path.relative(ROOT, file)}`);
@@ -159,6 +160,35 @@ const carouselManifest = {
 
 fs.mkdirSync(path.dirname(CAROUSEL_OUT), { recursive: true });
 fs.writeFileSync(CAROUSEL_OUT, JSON.stringify(carouselManifest, null, 2) + '\n', 'utf8');
+
+const publicCards = rankOffers(compiled).map(offer => `
+<article class="card">
+<div class="eyebrow">${esc(offer.silo)} · ${esc(offer.trend.trend_state)}</div>
+<h2>${esc(offer.name)}</h2>
+<p>${esc(offer.problem)}</p>
+<div class="price">${esc(offer.currency)} ${Number(offer.price).toFixed(2)}</div>
+<p><span class="state">${esc(offer.trend.recommended_action)}</span></p>
+<a class="buy" href="${esc(offer.canonical_url)}">View offer</a>
+</article>`).join('\\n');
+
+const publicIndex = `<!doctype html>
+<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="index,follow"><link rel="canonical" href="https://dreamledger.org/portfolio/">
+<title>DreamLedger Commercial Portfolio</title>
+<meta name="description" content="Current DreamLedger commercial inventory ranked by the trend-aware portfolio compiler.">
+<style>
+body{margin:0;background:#080a0d;color:#f5f3eb;font:16px/1.55 system-ui}.wrap{max-width:1100px;margin:auto;padding:32px 20px 70px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}.card{border:1px solid #303541;background:#151820;border-radius:18px;padding:22px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#a8adb8}.price{font-size:28px;font-weight:900}.state{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#d8b66b}
+a{color:#d8b56b}.buy{display:inline-block;padding:12px 18px;border-radius:10px;background:#d8b66b;color:#111;text-decoration:none;font-weight:900}
+</style></head><body><main class="wrap"><p class="eyebrow">ONE COMMERCE SUBSTRATE · TREND-AWARE INVENTORY</p>
+<h1>DreamLedger Commercial Portfolio</h1>
+<p>Approved, live-checkout offers ranked by the existing trend flywheel. Unknown market evidence remains unknown. Trend state does not imply revenue.</p>
+<section class="grid">${publicCards}</section>
+<p style="color:#a8adb8">Settlement, fulfillment and economic verification remain governed by the existing commerce and Truth machinery.</p>
+</main></body></html>`;
+
+fs.writeFileSync(PUBLIC_PORTFOLIO_INDEX, publicIndex, 'utf8');
 
 
 function page(offer) {
