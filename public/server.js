@@ -69,9 +69,20 @@ http.createServer(async (req,res)=>{
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:offers.length,offers,truth_rule:'settled_stripe_only'}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
+  if(req.method==='GET' && (p==='/.well-known/ai'||p==='/.well-known/ai-catalog.json')){
+    const file=p==='/.well-known/ai' ? '.well-known/ai' : '.well-known/ai-catalog.json';
+    return serveFile(res,file);
+  }
+  if(req.method==='GET' && p==='/buy/QUOTE-COMPARE-49'){
+    res.statusCode=302;
+    res.setHeader('Location','https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32');
+    res.setHeader('Cache-Control','no-store');
+    res.setHeader('X-DreamLedger-Buy-Router','QUOTE-COMPARE-49');
+    return res.end();
+  }
   if(req.method==='GET' && p.startsWith('/buy/')){
     try{
-      const productId=decodeURIComponent(p.slice('/buy/'.length)).replace(/\\//g,'');
+      const productId=decodeURIComponent(p.slice('/buy/'.length));
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
       const product=(Array.isArray(catalogue.products)?catalogue.products:[]).find(x=>x&&x.id===productId&&x.status==='published'&&x.checkout_available===true&&typeof x.checkout_url==='string');
       if(!product) return send(res,404,'Not Found','text/plain; charset=utf-8');
