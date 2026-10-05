@@ -64,7 +64,7 @@ jobs:
           set -euo pipefail
           git config user.name "BEC-PRIME Compiler"
           git config user.email "bec-prime@users.noreply.github.com"
-          git add BEC-PRIME/catalog/compiled BEC-PRIME/compiled/website/economics BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/proof BEC-PRIME/RUN-PROOFS
+          git add BEC-PRIME/catalog/compiled BEC-PRIME/compiled/website/economics public/portfolio/carousel-manifest.json BEC-PRIME/compiled/website/truth-oracle.html BEC-PRIME/compiled/website/truth-oracle.json BEC-PRIME/compiled/website/transparency-policy.json BEC-PRIME/PROOF-ECONOMIC-TREE-COMPILATION.json BEC-PRIME/PROOF-MTG-CATALOG-COMPILATION.json BEC-PRIME/proof BEC-PRIME/RUN-PROOFS
           if git diff --cached --quiet; then
             echo "No generated changes."
             exit 0
