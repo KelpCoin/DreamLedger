@@ -1,0 +1,114 @@
+{
+  "schema": "BEC-PRIME/SILO-CAROUSEL-MANIFEST/v1",
+  "status": "COMPILED",
+  "compiler": "SiloPortfolioCompiler",
+  "trend_engine": "BEC-PRIME/trends/TrendFlywheel.js",
+  "compiled_at": "2026-10-05T10:54:40.387Z",
+  "source_hash": "PENDING_COMPILER_RECALCULATION",
+  "rules": {
+    "approved_offers_only": true,
+    "unknown_is_not_zero": true,
+    "stale_evidence_decays": true,
+    "trend_changes_do_not_create_revenue": true,
+    "no_new_external_action": true
+  },
+  "silos": [
+    {
+      "silo_id": "mtg",
+      "offer_count": 1,
+      "carousel": [
+        {
+          "offer_id": "OFFER-CMD-DIAG-29-NZD",
+          "name": "Commander Deck Diagnostic",
+          "silo": "mtg",
+          "canonical_url": "/portfolio/commander-deck-diagnostic.html",
+          "price": 29,
+          "currency": "NZD",
+          "position": 1,
+          "trend_state": "UNKNOWN",
+          "trend_score": null,
+          "confidence": 0,
+          "momentum": 0,
+          "crowding": null,
+          "freshness": null,
+          "recommended_action": "OBSERVE"
+        }
+      ]
+    },
+    {
+      "silo_id": "dreammeez",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "media-music",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "digital-products",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "nz-secondhand",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "b2b",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "electronics-appliances",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "home-garden",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "health-beauty",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "pet",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "books-stationery",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "sports-outdoors",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "baby-kids",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "automotive",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "food-pantry",
+      "offer_count": 0,
+      "carousel": []
+    },
+    {
+      "silo_id": "education-courses",
+      "offer_count": 0,
+      "carousel": []
+    }
+  ]
+}
