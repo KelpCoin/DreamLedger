@@ -27,6 +27,6 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_LIVE_ENABLED: ${{ vars.STRIPE_LIVE_ENABLED }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          CHECKOUT_SIGNAL_PAYMENT_LINK_IDS: plink_1UAN9zJt4ieIQDFzgHeso6Qo,plink_1UAJyVJt4ieIQDFzj4kA5B7x
+          CHECKOUT_SIGNAL_PAYMENT_LINK_IDS: plink_1UAN9zJt4ieIQDFzgHeso6Qo,plink_1UAJyVJt4ieIQDFzj4kA5B7x,plink_1UKq77EGgEAnUFF9KOr1SuUY
           CHECKOUT_SIGNAL_RECENT_DAYS: '14'
         run: node scripts/Detect-CheckoutSignals.mjs
