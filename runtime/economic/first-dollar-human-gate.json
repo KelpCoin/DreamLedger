@@ -1,38 +1,47 @@
 {
-  "schema_version": "BEC-FIRST-DOLLAR-HUMAN-GATE-1.0",
-  "updated_utc": "2026-10-01T01:02:00Z",
+  "schema_version": "BEC-FIRST-DOLLAR-HUMAN-GATE-1.1",
+  "updated_utc": "2026-10-05T02:28:34.214Z",
   "objective": "Move one qualified Commander demand signal across the external-action boundary without manufacturing commerce.",
   "offer": {
-    "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "sku": "CMD-DIAG-29",
+    "offer_id": "OFFER-CMD-DIAG-29-NZD",
     "price_nzd": 29,
     "checkout": "EXISTING_LIVE_STRIPE_CHECKOUT",
+    "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
+    "payment_link_url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
     "fulfillment": "EXISTING_COMMANDER_DIAGNOSTIC"
   },
   "source": {
     "platform": "Reddit",
     "community": "r/mtg",
-    "demand_signal": "Current first-Commander / deck-building help requests remain observable.",
-    "fresh_example_url": "https://www.reddit.com/r/mtg/comments/1wpqwf3/new_to_mtg_and_scared_to_go_to_lgs/",
-    "source_state": "OBSERVED",
-    "note": "This is a contextual demand surface, not evidence of buyer intent for DreamLedger."
+    "thread_url": "https://www.reddit.com/r/mtg/comments/1ww5m02/first_selfmade_commander_deck_having_some/",
+    "author": "u/Zazugud",
+    "observed_at": "2026-10-05",
+    "published_at": "2026-10-02T21:22:24.453Z",
+    "demand_signal": "Poster says they made their first Commander deck on Moxfield, wants second opinions on whether it is good, and wants advice on buying cards cheaply.",
+    "source_state": "LIVE_OBSERVED",
+    "liveness_evidence": "Thread fetched directly; post is live and not deleted; AutoModerator confirms Commander-related content is welcome.",
+    "buyer_intent": "UNPROVEN",
+    "note": "This is a live qualified demand surface, not evidence of willingness to pay."
   },
   "dispatch": {
     "state": "NOT_DISPATCHED",
     "authorization": "HUMAN_REQUIRED",
     "external_account": "OWNER_REDDIT_ACCOUNT",
-    "machine_posting_capability": "UNAVAILABLE"
+    "machine_posting_capability": "UNAVAILABLE",
+    "blocker": "No authenticated Reddit account/actuator is connected to DreamLedger; existing machine acquisition rail targets Discord, not Reddit."
   },
-  "exact_human_action": "Post one genuinely helpful, non-spammy reply in a currently relevant Commander/deck-building thread. Mention the NZ$29 diagnostic only if it is directly relevant to the poster's stated problem. Do not mass-post, scrape users, or imply endorsement.",
-  "prepared_reply": "You’re describing the exact sort of problem I built a small Commander deck diagnostic for: if you already have a decklist, I can go through the weak spots, expensive choices, cuts and upgrades and give you a clear direction rather than just handing you another generic decklist. It’s NZ$29 for a proper pass. If you’d rather keep it free, posting the list and your budget will still get you useful advice from the community.",
+  "exact_human_action": "Post the prepared reply once, as a genuinely useful contextual response to this specific thread, using the owner's authenticated Reddit account. Do not mass-post, DM, scrape users, or imply endorsement.",
+  "prepared_reply": "Since you already have the Moxfield list and you're looking for a second opinion, this is exactly the kind of decklist I can do a structured pass on. I look at mana/ramp, draw, interaction, curve, commander synergy, weak slots, and prioritize the cheapest useful changes. It's NZ$29 if you want that level of review: https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30. If you'd rather keep it community-only, no worries, and the thread can stay focused on free advice.",
+  "kill_condition": "Do not post if the current subreddit rules prohibit this commercial reply, if the poster's thread is no longer live, or if the reply cannot be made genuinely useful without the offer.",
   "expected_next_state": "EXTERNAL_SENT",
   "evidence_required": [
-    "Native Reddit permalink or screenshot showing the actual posted contribution",
+    "Native Reddit permalink showing the posted reply",
     "Any subsequent buyer response",
-    "Stripe payment_intent.succeeded for an attributable buyer",
-    "Fulfillment artifact",
+    "Stripe payment_intent.succeeded or equivalent settled live payment evidence attributable to the offer and buyer",
+    "Fulfillment artifact from the Commander diagnostic path",
     "Independent evidence sufficient for Truth Oracle verification"
   ],
-  "kill_condition": "Do not post if the thread rules prohibit commercial/self-promotional replies or if the reply would not be genuinely useful without the offer.",
-  "human_minutes": 2,
-  "economic_scoreboard_effect_now": "NONE"
+  "economic_scoreboard_effect_now": "NONE",
+  "human_minutes": 2
 }
