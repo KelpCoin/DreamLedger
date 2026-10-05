@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Buy access · DreamLedger</title>
+<meta name="description" content="Canonical buy page. Fixed-price automated tools. Settled Stripe only."/>
+<meta property="og:title" content="DreamLedger · Automated tools from NZ$9"/>
+<meta property="og:description" content="Pay once. Get the defined result. Evidence check NZ$9 · Decision check NZ$19."/>
+<meta property="og:url" content="https://dreamledger.org/go"/>
+<link rel="canonical" href="https://dreamledger.org/go"/>
+<style>
+:root{--bg:#070809;--card:#12151a;--line:#2a3340;--ink:#f2f4f6;--muted:#8b96a3;--gold:#d8b56b;--ok:#3dd68c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px}
+.wrap{width:100%;max-width:420px}
+.k{color:var(--gold);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+h1{font-size:clamp(1.75rem,7vw,2.25rem);line-height:1.1;letter-spacing:-.03em;margin-bottom:8px}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:22px;line-height:1.45}
+.qr-box{background:#fff;border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px}
+.qr-box img{width:220px;height:220px;display:block}
+.qr-box span{color:#333;font-size:12px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:12px}
+.card h2{font-size:1.05rem;margin-bottom:6px}
+.card p{color:var(--muted);font-size:.82rem;margin-bottom:12px;line-height:1.4}
+.price{font-size:1.6rem;font-weight:900;letter-spacing:-.02em;margin-bottom:12px}
+.btn{display:block;text-align:center;text-decoration:none;font-weight:800;font-size:.95rem;padding:14px 16px;border-radius:10px;min-height:48px}
+.btn.primary{background:var(--ok);color:#062016}
+.btn.gold{background:var(--gold);color:#1a1408}
+.btn.line{border:1px solid var(--line);color:var(--ink);margin-top:10px}
+.status{font-size:11px;border:1px solid var(--line);display:inline-block;padding:4px 10px;border-radius:999px;margin-bottom:16px;color:var(--muted)}
+.foot{margin-top:24px;font-size:12px;color:var(--muted);text-align:center;line-height:1.5}
+.foot a{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="k">DreamLedger · canonical buy</div>
+  <h1>Pay once.<br/>Get the result.</h1>
+  <p class="sub">Fixed-price automated tools. Stripe settles before access is issued. Share this page or the QR.</p>
+  <div id="status" class="status">Checking…</div>
+
+  <div class="qr-box">
+    <img id="qr" alt="QR code to DreamLedger buy page" width="220" height="220"
+      src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fdreamledger.org%2Fgo"/>
+    <span>Scan → dreamledger.org/go</span>
+  </div>
+
+  <article class="card">
+    <h2>Evidence Check</h2>
+    <p>Classify an evidence state. Supported facts, contradictions, unknowns kept visible.</p>
+    <div class="price">NZ$9</div>
+    <a id="truth" class="btn primary" href="/api/toll/v1/checkout/truth">Buy NZ$9 access</a>
+  </article>
+
+  <article class="card">
+    <h2>Decision Check</h2>
+    <p>Structured check on a candidate: evidence, commercial fit, privacy, payment path.</p>
+    <div class="price">NZ$19</div>
+    <a id="gauntlet" class="btn gold" href="/api/toll/v1/checkout/gauntlet">Buy NZ$19 access</a>
+  </article>
+
+  <a class="btn line" href="/toll-road">Full tools page</a>
+
+  <p class="foot">
+    Settled payment only counts as revenue.<br/>
+    <a href="/">dreamledger.org</a> · <a href="/toll-road.json">machine manifest</a>
+  </p>
+</div>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('/api/toll/v1/manifest',{cache:'no-store'});
+    const d=await r.json();
+    const el=document.getElementById('status');
+    el.textContent=d.status==='ARMED'?'LIVE · SERVICES AVAILABLE':'CONFIGURATION CHECK';
+    el.style.color=d.status==='ARMED'?'#3dd68c':'';
+  }catch(e){
+    document.getElementById('status').textContent='STATUS UNAVAILABLE';
+  }
+})();
+</script>
+</body>
+</html>
