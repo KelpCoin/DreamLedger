@@ -52,15 +52,7 @@ jobs:
           set -euo pipefail
           if [ "$EVENT_NAME" = "push" ]; then
             test -f .github/acquisition/approved-dispatch.json
-            python3 - <<'PY'
-            import json
-            with open(".github/acquisition/approved-dispatch.json", encoding="utf-8") as f:
-                x=json.load(f)
-            if x.get("approval") != "APPROVED":
-                raise SystemExit("approved-dispatch.json is not approved")
-            print("OFFER=" + x["offer"])
-            print("TARGET=" + x["target"])
-            PY
+            python3 -c 'import json; x=json.load(open(".github/acquisition/approved-dispatch.json", encoding="utf-8")); assert x.get("approval") == "APPROVED", "approved-dispatch.json is not approved"; assert x.get("offer") == "CMD-DIAG-29", "FIRST_DOLLAR_OFFER_MISMATCH"; assert x.get("target"), "DISCORD_TARGET_MISSING"; print("PUSH_APPROVAL=VERIFIED")'
           else
             test "$INPUT_APPROVAL" = "APPROVED"
             printf 'OFFER=%s\nTARGET=%s\n' "$INPUT_OFFER" "$INPUT_TARGET"
