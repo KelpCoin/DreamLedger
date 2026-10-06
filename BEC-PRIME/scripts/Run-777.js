@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal, hasExplicitPaymentIntent } = require('../economic/EconomicEvidenceLadder');
-const { buildFactoryFactory } = require('./FactoryFactory');
+const { buildModularFactories } = require('../compiler/FactoryFactory');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
@@ -617,7 +617,19 @@ function build() {
     base[0] || null;
   const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
   const golden_allocation = buildGoldenAllocation(rows);
-  const factory_factory = buildFactoryFactory(loadJson(EVERGREEN_FACTORY, { live_adapters: [] }).live_adapters, evergreenSeed);
+  const modularFactories = buildModularFactories(loadJson(EVERGREEN_FACTORY, { live_adapters: [] }).live_adapters, evergreenSeed?.opportunity_id || evergreenSeed?.candidate_id || 'UNBOUND-SEED');
+  const factory_factory = {
+    schema_version: 'DREAMLEDGER/777/FACTORY-FACTORY/v1',
+    status: 'READY_FOR_INTERNAL_CUBE_GAUNTLET',
+    authority: 'ALLOCATION_ONLY',
+    truth_authority: 'TRUTH_ORACLE',
+    source_substrate: 'EVERGREEN_SILO_FACTORY',
+    template_count: modularFactories.length,
+    factory_instance_count: modularFactories.reduce((n, x) => n + x.instances.length, 0),
+    factories: modularFactories,
+    external_action: 'BLOCKED',
+    replication: 'FORBIDDEN_UNTIL_INDEPENDENT_VERIFIED_OUTCOME'
+  };
   evergreenExpansion.cube_handoff = {
     state: 'DRAFT_INTERNAL_HANDOFF',
     registry_authority: 'SUPABASE_CUBE_SILO_REGISTRY',
