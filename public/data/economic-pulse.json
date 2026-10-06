@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-07T00:00:00Z",
+  "generated_at_utc": "2026-10-06T23:34:39+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -10,40 +10,15 @@
   },
   "signals": [
     {
-      "id": "BUYER-SIGNAL-2026-09-26-001",
-      "type": "PUBLIC_BUYER_SIGNAL",
-      "title": "Commander upgrade demand",
+      "id": "d802a7f2-c8f3-5ecf-aeae-e205b17c9245",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Wairoa Airport Runway Extension",
       "status": "UNVERIFIED",
-      "source": "Reddit r/mtg",
-      "observed_at": "2026-09-26",
-      "evidence": "Explicit request for cards to remove/add."
-    },
-    {
-      "id": "BUYER-SIGNAL-2026-09-25-002",
-      "type": "PUBLIC_BUYER_SIGNAL",
-      "title": "Precon upgrade demand",
-      "status": "UNVERIFIED",
-      "source": "Reddit r/mtg",
-      "observed_at": "2026-09-25",
-      "evidence": "Explicit request for keep/cut recommendations."
-    },
-    {
-      "id": "BUYER-SIGNAL-2026-09-24-003",
-      "type": "PUBLIC_BUYER_SIGNAL",
-      "title": "Commander deck help",
-      "status": "UNVERIFIED",
-      "source": "Reddit r/mtg",
-      "observed_at": "2026-09-24",
-      "evidence": "Explicit request for deck improvement and upgrades."
-    },
-    {
-      "id": "BUYER-SIGNAL-2026-09-07-004",
-      "type": "PUBLIC_BUYER_SIGNAL",
-      "title": "Commander upgrade budget",
-      "status": "UNVERIFIED",
-      "source": "Reddit r/mtg",
-      "observed_at": "2026-09-07",
-      "evidence": "Decklist plus stated upgrade budget."
+      "source": "GETS",
+      "observed_at": "2026-10-06T23:34:35+00:00",
+      "url": "https://www.gets.govt.nz/WAIRDC/ExternalTenderDetails.htm?id=34954354",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-wairoa-airport-runway-extension-89836f7e67.html"
     }
   ],
   "cells": [

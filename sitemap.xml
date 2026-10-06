@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://dreamledger.org/</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison.html</loc></url>
-  <url><loc>https://dreamledger.org/supplier-quote-comparison.html</loc></url>
-  <url><loc>https://dreamledger.org/compare-supplier-quotes.html</loc></url>
-  <url><loc>https://dreamledger.org/rfq-quote-comparison.html</loc></url>
-  <url><loc>https://dreamledger.org/truth-oracle.html</loc></url>
-  <url><loc>https://dreamledger.org/mtg/</loc></url>
-  <url><loc>https://dreamledger.org/money-10000.html</loc></url>
-  <url><loc>https://dreamledger.org/sell.html</loc></url>
-  <url><loc>https://dreamledger.org/revenue.html</loc></url>
   <url><loc>https://dreamledger-silo-gateway.onrender.com/sitemap.xml</loc></url>
+  <url><loc>https://dreamledger.org/</loc></url>
+  <url><loc>https://dreamledger.org/agent-commerce</loc></url>
+  <url><loc>https://dreamledger.org/agent-products.json</loc></url>
+  <url><loc>https://dreamledger.org/agentic-commerce.html</loc></url>
+  <url><loc>https://dreamledger.org/ai-catalog.json</loc></url>
+  <url><loc>https://dreamledger.org/compare-supplier-quotes.html</loc></url>
+  <url><loc>https://dreamledger.org/economic/</loc></url>
+  <url><loc>https://dreamledger.org/economic/procurement-wairoa-airport-runway-extension-89836f7e67.html</loc></url>
+  <url><loc>https://dreamledger.org/guides/agentic-commerce-nz</loc></url>
+  <url><loc>https://dreamledger.org/guides/ai-product-discovery-nz</loc></url>
+  <url><loc>https://dreamledger.org/money-10000.html</loc></url>
+  <url><loc>https://dreamledger.org/mtg/</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison.html</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/construction</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/ecommerce</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/electrical</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/hospitality</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/import</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/lighting</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/manufacturing</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/operations</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/packaging</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/wholesale</loc></url>
+  <url><loc>https://dreamledger.org/revenue.html</loc></url>
+  <url><loc>https://dreamledger.org/rfq-quote-comparison.html</loc></url>
+  <url><loc>https://dreamledger.org/sell.html</loc></url>
+  <url><loc>https://dreamledger.org/supplier-quote-comparison.html</loc></url>
+  <url><loc>https://dreamledger.org/truth-oracle.html</loc></url>
 </urlset>
