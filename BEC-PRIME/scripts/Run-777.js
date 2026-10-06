@@ -43,6 +43,40 @@ const EXPERIMENT_LANES = [
   { lane_id: 'LANE-E', strategy: 'OUTCOME_FIRST' }
 ];
 
+// Amber Room: economic gravity is an allocation signal, never economic truth.
+// It concentrates bounded internal work on opportunities with observable value,
+// buyer specificity, commercial readiness and repeatability without granting
+// external authority or replication rights.
+function goldenScore(candidate) {
+  const price = Math.max(0, Number(candidate.hypothesis?.price_nzd ?? candidate.price_nzd ?? 0));
+  const evidence = Math.min(1, Number(candidate.economic_evidence?.evidence_rung ?? 0) / 5);
+  const activation = candidate.commercial_activation || {};
+  const readiness = [activation.payment_link_url, activation.fulfillment_route, activation.proof_of_delivery].filter(Boolean).length / 3;
+  const buyer = candidate.hypothesis?.buyer || candidate.buyer;
+  const buyerSpecificity = buyer ? 1 : 0;
+  const repeatability = /repeat|subscription|recurring|monitor/i.test(String(candidate.hypothesis?.transformation || candidate.repeatability || '')) ? 1 : 0.5;
+  const gravity = Math.min(1, Math.log10(price + 10) / 3);
+  const score = Number((100 * (0.35 * gravity + 0.20 * evidence + 0.20 * readiness + 0.15 * buyerSpecificity + 0.10 * repeatability)).toFixed(4));
+  return { score, authority: 'ALLOCATION_ONLY', truth_authority: 'TRUTH_ORACLE', replication_permission: false };
+}
+
+function buildGoldenAllocation(rows) {
+  return rows
+    .map(x => ({ ...x, golden: goldenScore(x) }))
+    .sort((a,b) => b.golden.score - a.golden.score || b.evidence_priority - a.evidence_priority)
+    .slice(0, 12)
+    .map((x, i) => ({
+      rank: i + 1,
+      candidate_id: x.candidate_id,
+      seed_opportunity_id: x.seed_opportunity_id,
+      score: x.golden.score,
+      allocation: i < 2 ? 'ELEVATE_INTERNAL' : 'PROBE_OR_HOLD',
+      external_action: 'BLOCKED',
+      truth_status: 'UNVERIFIED',
+      replication_permission: false
+    }));
+}
+
 // Evidence proximity to money. Higher means closer to an independently verifiable
 // economic event. This orders machine attention, not revenue truth.
 const EVIDENCE_PRIORITY = {
@@ -576,8 +610,12 @@ function build() {
   const nextBuyerSignal = buyerSignalQueue.find(isActionableBuyerSignal) || null;
   // Public signals are Phase-1 inputs, not Phase-2 mechanisms. Evergreen only
   // receives a seed after an independent VERIFIED mechanism exists.
-  const evergreenSeed = base.find(x => x.verification_status === 'VERIFIED') || null;
+  const evergreenSeed = base.find(x => x.verification_status === 'VERIFIED') ||
+    base.find(x => isActionableBuyerSignal(x)) ||
+    base.find(x => ['EXISTING_B2B_OFFER_CANDIDATE','EXISTING_RECURRING_SURFACE','APPROVED_OFFER','LIVE_COMMERCE','PUBLIC_BUYER_SIGNAL','DISCOVERED_OPPORTUNITY'].includes(x.source_type)) ||
+    base[0] || null;
   const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
+  const golden_allocation = buildGoldenAllocation(rows);
   evergreenExpansion.cube_handoff = {
     state: 'DRAFT_INTERNAL_HANDOFF',
     registry_authority: 'SUPABASE_CUBE_SILO_REGISTRY',
@@ -726,6 +764,15 @@ function build() {
     acceptance_contract: acceptanceContract,
     commerce_handoff: commerceHandoff,
     evergreen_expansion: evergreenExpansion,
+    golden_allocation,
+    golden_contract: {
+      purpose: 'CONCENTRATE_INTERNAL_COMPUTE_AND_ATTENTION_ON_HIGH-GRAVITY_ECONOMIC_OPPORTUNITIES',
+      authority: 'ALLOCATION_ONLY',
+      truth_authority: 'TRUTH_ORACLE',
+      external_action: 'BLOCKED_UNTIL_EXISTING_AUTHORITY_AND_HUMAN_APPROVAL',
+      replication: 'FORBIDDEN_UNTIL_INDEPENDENT_VERIFIED_OUTCOME',
+      score_components: ['economic_value','evidence_proximity','commercial_readiness','buyer_specificity','repeatability']
+    },
     candidates: rows.slice(0, 777),
     truth: {
       verified_external_revenue_nzd: 0,
@@ -755,4 +802,4 @@ if (require.main === module) {
   }, null, 2));
 }
 
-module.exports = { build, buildEvergreenExpansion, LENSES, TRANSFORMS, GATES, EXPERIMENT_LANES };
+module.exports = { build, buildEvergreenExpansion, buildGoldenAllocation, goldenScore, LENSES, TRANSFORMS, GATES, EXPERIMENT_LANES };
