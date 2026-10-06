@@ -28,6 +28,7 @@ test('Elohim creates proposals without granting authority', () => {
   assert.equal(p.checkout_available, false);
   assert.equal(p.external_action, 'BLOCKED');
   assert.equal(p.replication_permission, false);
+  assert.ok(Array.isArray(p.scorecard.checks));
 });
 
 test('777 assembles a bounded five-cell population and judges every Elohim output', () => {
