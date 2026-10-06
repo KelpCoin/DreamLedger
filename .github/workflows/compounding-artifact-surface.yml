@@ -5,7 +5,6 @@ on:
     workflows: ["777 Economic Search Loop"]
     types: [completed]
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   actions: read
@@ -17,7 +16,7 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -25,7 +24,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download completed 777 artifact
-        if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@v5
         with:
           name: dreamledger-777-${{ github.event.workflow_run.id }}
