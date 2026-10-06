@@ -330,21 +330,38 @@ article{{border:1px solid #d9e0db;border-radius:14px;padding:18px;background:#fa
 """
 
 def update_sitemaps(events: list[dict]):
-    urls = [
+    existing_urls = set()
+    for path in (SITEMAP_ROOT, SITEMAP_PUBLIC):
+        if path.exists():
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            existing_urls.update(re.findall(r"<loc>(.*?)</loc>", text, flags=re.S))
+
+    existing_urls.update([
         f"{BASE}/",
         f"{BASE}/economic/",
         f"{BASE}/truth-oracle.html",
         f"{BASE}/supplier-quote-comparison.html",
+    ])
+    existing_urls.update(
+        f"{BASE}/economic/{x['slug']}.html"
+        for x in events[:5000]
+    )
+
+    body = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
     ]
-    urls += [f"{BASE}/economic/{x['slug']}.html" for x in events[:5000]]
-    body = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for url in dict.fromkeys(urls):
+    for url in sorted(existing_urls):
         body.append(f"  <url><loc>{html.escape(url)}</loc></url>")
     body.append("</urlset>")
     xml = "\n".join(body) + "\n"
     SITEMAP_ROOT.write_text(xml, encoding="utf-8")
     SITEMAP_PUBLIC.write_text(xml, encoding="utf-8")
-    ROBOTS_PUBLIC.write_text("User-agent: *\nAllow: /\nSitemap: https://dreamledger.org/sitemap.xml\n", encoding="utf-8")
+
+    existing_robots = ROBOTS_PUBLIC.read_text(encoding="utf-8", errors="ignore") if ROBOTS_PUBLIC.exists() else ""
+    if "Sitemap: https://dreamledger.org/sitemap.xml" not in existing_robots:
+        existing_robots = existing_robots.rstrip() + "\nSitemap: https://dreamledger.org/sitemap.xml\n"
+    ROBOTS_PUBLIC.write_text(existing_robots, encoding="utf-8")
 
 def supabase_post(path: str, payload, key: str, on_conflict: str | None = None):
     base = "https://wbwgroygjeyukkspnqiy.supabase.co"
