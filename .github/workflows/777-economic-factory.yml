@@ -50,6 +50,10 @@ jobs:
         working-directory: BEC-PRIME
         run: node scripts/test-777-amber-room.js
 
+      - name: Compile canonical FactoryFactory artifact
+        working-directory: BEC-PRIME
+        run: npm run factory-factory
+
       - name: Verify modular factory-factory contract
         working-directory: BEC-PRIME
         run: node scripts/test-777-factory-factory.js
@@ -68,6 +72,8 @@ jobs:
           if (x.golden_contract?.replication !== 'FORBIDDEN_UNTIL_INDEPENDENT_VERIFIED_OUTCOME') throw new Error('replication gate changed');
           if (x.golden_contract?.external_action !== 'BLOCKED_UNTIL_EXISTING_AUTHORITY_AND_HUMAN_APPROVAL') throw new Error('external action gate changed');
           if (!Number.isFinite(x.seed_count) || !Number.isFinite(x.candidate_count)) throw new Error('invalid factory counts');
+          if (!Number.isFinite(x.factory_factory?.template_count) || x.factory_factory.template_count < 1) throw new Error('factory-factory template output missing');
+          if (!Number.isFinite(x.factory_factory?.factory_instance_count) || x.factory_factory.factory_instance_count < x.factory_factory.template_count * 5) throw new Error('factory-factory instance population too small');
           console.log(JSON.stringify({
             seed_count: x.seed_count,
             candidate_count: x.candidate_count,
@@ -83,5 +89,6 @@ jobs:
           name: 777-economic-factory-${{ github.run_id }}
           path: |
             BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY.json
           if-no-files-found: error
           retention-days: 14
