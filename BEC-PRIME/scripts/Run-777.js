@@ -272,18 +272,20 @@ function candidates() {
   });
 }
 function buildEvergreenExpansion(seed) {
-  // 777 distinguishes CONTROLLED PROBES from REPLICATION. A real qualified
-  // substrate may produce a bounded 5-10-cell probe batch before verification.
-  // Only a VERIFIED mechanism may be replicated or promoted as a winner.
+  // 777 core rule: economically interesting substrate may enter a bounded CUBE
+  // probe before verification. Verification is required for REPLICATION, not
+  // for DISCOVERY/PROBING. This breaks the old chicken-and-egg condition where
+  // Evergreen could only populate from an already VERIFIED mechanism.
   const evidence = seed ? assessEconomicEvidence(seed) : null;
-  const probeEligible = Boolean(seed) && (
-    seed.verification_status === 'VERIFIED' ||
-    (evidence && Number(evidence.evidence_rung || 0) >= 1)
+  const hasSubstrate = Boolean(seed) && (
+    Number(evidence?.evidence_rung || 0) >= 0 &&
+    Boolean(seed.opportunity_id || seed.candidate_id || seed.title)
   );
-  if (!probeEligible) {
+
+  if (!hasSubstrate) {
     return {
-      status: 'HOLD_NO_QUALIFIED_SUBSTRATE',
-      reason: 'Evergreen probing requires a real substrate with an observable evidence rung; replication still requires VERIFIED.',
+      status: 'HOLD_NO_SUBSTRATE',
+      reason: 'CUBE probing requires an observable economic substrate; replication still requires VERIFIED.',
       batch_size: 0,
       variants: [],
       telemetry: {
@@ -293,132 +295,161 @@ function buildEvergreenExpansion(seed) {
         winner_rule: 'NO_WINNER_UNTIL_EXTERNAL_EVIDENCE',
         clone_rule: 'ONLY_VERIFIED_MECHANISMS_MAY_BE_REPLICATED'
       },
-      source_substrate: 'EXISTING_EVERGREEN_SILO_FACTORY',
+      source_substrate: 'ECONOMIC_SUBSTRATE',
       external_action: 'NONE',
-      phase: 'STRETCH_THE_HOLE'
+      phase: 'FIND_THE_HOLE'
     };
   }
 
   const factory = loadJson(EVERGREEN_FACTORY, { live_adapters: [] });
   const policy = loadJson(CUBE_POLICY, { cube_state_machine: [], promotion_rules: {} });
   const adapters = Array.isArray(factory.live_adapters) ? factory.live_adapters : [];
-  if (!seed || adapters.length === 0) {
-    return {
-      status: 'HOLD',
-      reason: seed ? 'NO_EXISTING_EVERGREEN_ADAPTERS' : 'NO_QUALIFIED_SEED',
-      batch_size: 0,
-      variants: [],
-      telemetry: [],
-      promotion: policy.promotion_rules || {}
-    };
-  }
 
-  // Recombine existing commercial substrate only. This creates an experiment
-  // packet, not a public launch and not a revenue claim.
+  const approved = loadJson(APPROVED, { approved: [] });
+  const liveCommerce = loadJson(LIVE_COMMERCE, { offers: [] });
+  const capabilitySubstrate = [
+    ...adapters.map(x => ({
+      source_type: 'EVERGREEN_ADAPTER',
+      slug: x.slug,
+      name: x.name,
+      checkout_url: x.checkout_url || null,
+      fulfillment: x.fulfillment || null
+    })),
+    ...(Array.isArray(approved.approved) ? approved.approved.map(x => ({
+      source_type: 'APPROVED_OFFER',
+      slug: x.offer_id || x.product_sku || null,
+      name: x.name || x.offer_id || x.product_sku || null,
+      checkout_url: x.payment_link_url || null,
+      fulfillment: x.fulfillment_route || null
+    })) : []),
+    ...(Array.isArray(liveCommerce.offers) ? liveCommerce.offers.map(x => ({
+      source_type: 'LIVE_COMMERCE',
+      slug: x.offer_id || null,
+      name: x.offer_id || null,
+      checkout_url: x.checkout || null,
+      fulfillment: null
+    })) : [])
+  ].filter(x => x.slug);
+
   const seedText = JSON.stringify(seed).toLowerCase();
-  const relevant = adapters.filter(adapter => {
-    const adapterText = JSON.stringify(adapter).toLowerCase();
-    const tokens = seedText.match(/[a-z0-9]{4,}/g) || [];
-    const meaningful = tokens.filter(t => !['publicly','observed','relevant','human','signal','help','some','with','new'].includes(t));
-    return meaningful.some(t => adapterText.includes(t));
+  const tokens = (seedText.match(/[a-z0-9]{4,}/g) || [])
+    .filter(t => !['publicly','observed','relevant','human','signal','help','some','with','new','null','true','false'].includes(t));
+
+  const relevant = capabilitySubstrate.filter(item => {
+    const itemText = JSON.stringify(item).toLowerCase();
+    return tokens.some(t => itemText.includes(t));
   });
-  if (relevant.length === 0) {
+
+  const pool = relevant.length ? relevant : capabilitySubstrate;
+  if (pool.length === 0) {
     return {
-      status: 'HOLD_NO_RELEVANT_EXISTING_SUBSTRATE',
-      reason: 'No existing evergreen adapter matched the observed buyer/problem seed; do not manufacture relevance.',
+      status: 'HOLD_NO_EXISTING_CAPABILITY_SUBSTRATE',
+      reason: 'No existing Evergreen/approved/live commerce capability is available to populate a CUBE probe. Do not invent capability.',
       batch_size: 0,
       variants: [],
       telemetry: [],
       promotion: policy.promotion_rules || {},
-      source_substrate: 'EXISTING_EVERGREEN_SILO_FACTORY',
-      seed_opportunity_id: seed.opportunity_id || seed.candidate_id || null,
-      seed_evidence_class: classifyEvidence(seed)[0]
+      source_substrate: 'ECONOMIC_SUBSTRATE',
+      seed_opportunity_id: seed.opportunity_id || seed.candidate_id || null
     };
   }
-  const batchSize = Math.min(10, Math.max(5, relevant.length));
-  const selected = relevant.length >= 5
-    ? relevant.slice(0, batchSize)
-    : Array.from({ length: 5 }, (_, i) => relevant[i % relevant.length]);
-  const checkoutCounts = new Map();
-  for (const adapter of selected) {
-    const url = adapter.checkout_url || null;
-    if (url) checkoutCounts.set(url, (checkoutCounts.get(url) || 0) + 1);
-  }
+
+  const batchSize = Math.min(10, Math.max(5, pool.length));
   const marketingLanes = [
     'SEARCH_INTENT',
     'COMMUNITY_EDUCATION',
     'BUYER_PROBLEM_CONTENT',
     'DIRECTORY_DISCOVERY',
-    'REFERRAL'
+    'REFERRAL',
+    'OUTCOME_FIRST',
+    'SAVINGS_FIRST',
+    'RISK_FIRST',
+    'AUDIT_FIRST',
+    'PROBLEM_FIRST'
   ];
 
-  const variants = selected.map((adapter, i) => ({
-    variant_id: 'EVERGREEN-777-' + String(i + 1).padStart(2, '0'),
-    silo_slug: adapter.slug,
-    brand_name: adapter.name,
-    source_adapter: adapter.slug,
-    source_checkout_url: adapter.checkout_url || null,
-    offer_family: adapter.fulfillment || 'UNSPECIFIED',
-    state: 'PROBING',
-    public_launch: 'APPROVAL_REQUIRED',
-    buyer_signal_binding: seed.opportunity_id || seed.candidate_id || null,
-    evidence_class: classifyEvidence(seed)[0],
-    evidence_priority: classifyEvidence(seed)[1],
-    marketing_lane: marketingLanes[i % marketingLanes.length],
-    attribution: {
-      checkout_url: adapter.checkout_url || null,
-      checkout_identity: adapter.checkout_url || null,
-      status: adapter.checkout_url && checkoutCounts.get(adapter.checkout_url) === 1 ? 'READY_UNIQUE_CHECKOUT' : 'BLOCKED_SHARED_CHECKOUT',
-      requirement: 'Each evergreen variant must have independently attributable payment identity before winner promotion.'
-    },
-    telemetry: {
-      exposures: 0,
-      qualified_clicks: 0,
-      checkout_starts: 0,
-      settled_payments: 0,
-      fulfilled_orders: 0,
-      verified_outcomes: 0,
-      acquisition_cost_nzd: 0,
-      fulfillment_cost_nzd: 0,
-      conversion: null,
-      margin_nzd: null
-    },
-    promotion_gate: seed.verification_status === 'VERIFIED'
-      ? 'VERIFIED_MECHANISM_REPLICATION_GATE'
-      : 'NO_WINNER_OR_REPLICATION_UNTIL_VERIFIED',
-    kill_gate: 'KILL_OR_HOLD_IF_NO_QUALIFIED_DEMAND_OR_FULFILLMENT_PROOF',
-    inventory_claim: 'NONE'
-  }));
+  const selected = Array.from({ length: batchSize }, (_, i) => pool[i % pool.length]);
+  const variants = selected.map((capability, i) => {
+    const lane = marketingLanes[i % marketingLanes.length];
+    const variantId = 'CUBE-777-' + String(i + 1).padStart(2, '0');
+    return {
+      variant_id: variantId,
+      silo_slug: 'CUBE-PROBE-' + String(i + 1).padStart(2, '0'),
+      brand_name: capability.name || capability.slug,
+      source_capability: capability.slug,
+      source_type: capability.source_type,
+      source_checkout_url: capability.checkout_url,
+      offer_family: capability.fulfillment || 'INTERNAL_PROBE',
+      state: 'PROBING',
+      public_launch: 'APPROVAL_REQUIRED',
+      buyer_signal_binding: seed.opportunity_id || seed.candidate_id || null,
+      marketing_lane: lane,
+      evidence_class: classifyEvidence(seed)[0],
+      evidence_priority: classifyEvidence(seed)[1],
+      telemetry: {
+        exposures: 0,
+        qualified_clicks: 0,
+        checkout_starts: 0,
+        settled_payments: 0,
+        fulfilled_orders: 0,
+        verified_outcomes: 0,
+        acquisition_cost_nzd: 0,
+        fulfillment_cost_nzd: 0,
+        human_touches: 0,
+        time_to_fulfill: null,
+        conversion: null,
+        margin_nzd: null
+      },
+      authority: {
+        external_action: 'BLOCKED',
+        max_loss_nzd: 0,
+        public_contact: false,
+        live_financial_action: false,
+        destructive_action: false
+      },
+      promotion_gate: 'VERIFIED_EXTERNAL_OUTCOME_REQUIRED',
+      kill_gate: 'NO_QUALIFIED_DEMAND_OR_NO_FULFILLMENT_PROOF',
+      replication: 'FORBIDDEN_UNTIL_VERIFIED',
+      inventory_claim: 'NONE'
+    };
+  });
 
-  const attributionBlocked = variants.filter(v => v.attribution.status !== 'READY_UNIQUE_CHECKOUT');
   return {
-    status: attributionBlocked.length ? 'HOLD_ATTRIBUTION_REQUIRED' : 'READY_FOR_GAUNTLET',
+    status: 'READY_FOR_CUBE_GAUNTLET',
+    phase: 'FIND_THE_HOLE',
     batch_size: variants.length,
-    attribution: {
-      status: attributionBlocked.length ? 'BLOCKED' : 'READY',
-      blocked_variant_count: attributionBlocked.length,
-      rule: 'Do not treat shared checkout identity as variant-level revenue attribution.'
-    },
     batch_rule: 'LAUNCH_IN_BATCHES_OF_5_OR_10',
-    allocation_rule: 'SUPPORT_ONLY_TOP_1_OR_2_AFTER_OBSERVED_EVIDENCE; HOLD_OR_KILL_THE_REST',
-    source_substrate: 'EXISTING_EVERGREEN_SILO_FACTORY',
+    allocation_rule: 'TELEMETRY_SELECTS_TOP_1_OR_2; LOSERS_HOLD_OR_KILL; NO_REPLICATION_UNTIL_VERIFIED',
+    source_substrate: 'ECONOMIC_SUBSTRATE',
     seed_opportunity_id: seed.opportunity_id || seed.candidate_id || null,
     seed_evidence_class: classifyEvidence(seed)[0],
     variants,
     telemetry: {
-      ranking_fields: ['settled_payments','verified_outcomes','checkout_starts','qualified_clicks','exposures','acquisition_cost_nzd','fulfillment_cost_nzd','margin_nzd'],
+      ranking_fields: ['settled_payments','verified_outcomes','checkout_starts','qualified_clicks','exposures','acquisition_cost_nzd','fulfillment_cost_nzd','margin_nzd','human_touches','time_to_fulfill'],
       truth_rule: 'telemetry_does_not_equal_revenue',
       winner_rule: policy.promotion_rules?.WINNER || 'EXTERNAL_EVIDENCE_REQUIRED',
       clone_rule: 'ONLY_INDEPENDENTLY_VERIFIED_ECONOMIC_MECHANISMS_MAY_BE_REPLICATED',
-    probe_rule: 'QUALIFIED_REAL_SUBSTRATE_MAY_CREATE_A_BOUNDED_5_TO_10_CELL_PROBE_BATCH'
+      support_rule: 'SUPPORT_ONLY_TOP_1_OR_2_AFTER_OBSERVED_EVIDENCE'
     },
-    supabase_role: 'SILO_HOME_AND_TELEMETRY_AUTHORITY',
-    local_llm_role: 'LM_STUDIO_WORKER_POOL_PROPOSES_AND_COMPILES_ONLY',
-    supervisor_role: 'ALLOCATE_AVAILABLE_LOCAL_GPU_TO_BOUNDED_WORK; NEVER_AUTHORIZE_EXTERNAL_ACTION',
-    external_action: 'NONE'
+    cube_handoff: {
+      state: 'DRAFT_INTERNAL_HANDOFF',
+      registry_authority: 'SUPABASE_CUBE_SILO_REGISTRY',
+      creation_gate: 'INTERNAL_AUTOMATION_ALLOWED',
+      public_launch: 'BLOCKED',
+      worker_roles: {
+        cube: 'store silo identity, state, substrate, evidence and telemetry authority',
+        swarm: 'explore bounded internal mutations',
+        elohim: 'create/refine/repair internal proposals and scorecards',
+        gauntlet: 'adversarially judge every Elohim output',
+        truth_oracle: 'independently verify external economic evidence',
+        beck_ledgers: 'immutable internal activity/economic-event record',
+        local_supervisor: 'allocate available LM Studio capacity to reversible internal work only'
+      }
+    },
+    external_action: 'NONE',
+    replication_permission: seed.verification_status === 'VERIFIED' ? 1 : 0
   };
 }
-
 function build() {
   const base = candidates();
   const top = base.slice(0, 49);

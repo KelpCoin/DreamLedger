@@ -90,5 +90,32 @@
       "destructive_actions"
     ]
   },
-  "capital_rule": "Do not scale theoretical lanes. Allocate additional resources only to observed winners."
+  "capital_rule": "Do not scale theoretical lanes. Allocate additional resources only to observed winners.",
+  "substrate_ingress": {
+    "enabled": true,
+    "rule": "Observable economic substrate may create a bounded internal CUBE probe before verification.",
+    "allowed_sources": [
+      "PUBLIC_BUYER_SIGNAL",
+      "DISCOVERED_OPPORTUNITY",
+      "APPROVED_OFFER",
+      "LIVE_COMMERCE",
+      "EXISTING_B2B_OFFER_CANDIDATE",
+      "EXISTING_RECURRING_SURFACE"
+    ],
+    "batch_sizes": [
+      5,
+      10
+    ],
+    "external_action": "BLOCKED",
+    "public_launch": "APPROVAL_REQUIRED",
+    "financial_action": "BLOCKED",
+    "replication": "FORBIDDEN_UNTIL_VERIFIED"
+  },
+  "selection": {
+    "telemetry_is_selection_signal": true,
+    "telemetry_is_not_economic_truth": true,
+    "support_top_n": 2,
+    "losers": "HOLD_OR_KILL",
+    "verified_mechanism_required_for_clone": true
+  }
 }
