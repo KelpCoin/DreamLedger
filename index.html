@@ -3,72 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger: bounded digital services with one clear path to purchase.">
+<meta name="description" content="DreamLedger turns messy business inputs into clear, usable results. Start with a supplier quote comparison.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://dreamledger.org/">
-<title>DreamLedger | One useful result</title>
+<title>DreamLedger | Clear business results</title>
 <style>
-:root{color-scheme:dark;--bg:#07090d;--panel:#10141a;--panel2:#151b23;--line:#29313c;--text:#f5f7fa;--muted:#9aa5b1;--accent:#a8f3c8;--gold:#efd17b;--max:1180px}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
-a{color:inherit;text-decoration:none}
-.wrap{width:min(calc(100% - 36px),var(--max));margin:auto}
-header{border-bottom:1px solid var(--line)}
-.nav{min-height:72px;display:flex;align-items:center}
-.brand{font-size:21px;font-weight:950;letter-spacing:-.055em}
-.brand span{color:var(--gold)}
-.hero{padding:88px 0 48px}
-.eyebrow{font-size:10px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
-h1{font-size:clamp(56px,9vw,112px);line-height:.86;letter-spacing:-.08em;max-width:8ch;margin:18px 0 22px}
-.lede{max-width:650px;color:var(--muted);font-size:18px;line-height:1.6;margin:0}
-.cta{display:inline-flex;align-items:center;justify-content:center;margin-top:30px;min-height:54px;padding:0 25px;border-radius:13px;background:var(--accent);color:#07120d;font-size:14px;font-weight:950;box-shadow:0 14px 35px rgba(168,243,200,.08)}
-.cta:hover{transform:translateY(-1px)}
-.catalog{padding:30px 0 82px}
-.section-head{margin-bottom:18px}
-.section-head h2{margin:0;font-size:30px;letter-spacing:-.045em}
-.note{margin:6px 0 0;color:var(--muted);font-size:13px}
-.carousel{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 22px;scroll-snap-type:x mandatory;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
-.card{flex:0 0 min(350px,84vw);min-height:330px;display:flex;flex-direction:column;scroll-snap-align:start;padding:24px;border:1px solid var(--line);border-radius:21px;background:linear-gradient(155deg,var(--panel2),var(--panel))}
-.tag{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--gold)}
-.card h3{margin:12px 0 10px;font-size:28px;line-height:1.03;letter-spacing:-.05em}
-.card p{margin:0;color:var(--muted);font-size:14px;line-height:1.62;flex:1}
-.card .cta{margin-top:20px;width:100%}
-.price{margin-top:18px;font-size:25px;font-weight:950;letter-spacing:-.04em}
-footer{border-top:1px solid var(--line);padding:24px 0 42px;color:#68737e;font-size:11px}
-footer strong{color:#aeb7c0}
-@media(max-width:650px){.wrap{width:min(calc(100% - 24px),var(--max))}.hero{padding-top:58px}h1{font-size:54px}.lede{font-size:16px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.cta:hover{transform:none}}
+:root{color-scheme:dark;--bg:#07090d;--panel:#0f141b;--panel2:#131a23;--line:#27313c;--text:#f5f7fa;--muted:#98a4b2;--accent:#b7f5d0;--gold:#f0d37c;--max:1160px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 80% 0%,#16231e 0,transparent 34%),var(--bg);color:var(--text);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(calc(100% - 36px),var(--max));margin:auto}
+header{border-bottom:1px solid var(--line);background:#07090dcc;backdrop-filter:blur(14px);position:sticky;top:0;z-index:10}.nav{height:68px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:950;letter-spacing:-.05em;font-size:21px}.brand i{font-style:normal;color:var(--gold)}.nav-cta{font-size:13px;font-weight:850;padding:10px 15px;border:1px solid #405047;border-radius:999px;background:#111914}
+.hero{padding:92px 0 58px}.eyebrow{color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}h1{font-size:clamp(44px,7vw,78px);line-height:.98;letter-spacing:-.065em;max-width:850px;margin:16px 0 24px}h1 span{color:var(--accent)}.lede{max-width:650px;color:var(--muted);font-size:19px}.actions{margin-top:30px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}.button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:12px;background:var(--accent);color:#08100b;font-weight:950;box-shadow:0 10px 30px #b7f5d014}.note{font-size:12px;color:var(--muted)}
+.section{padding:36px 0 80px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:18px}.section-head h2{margin:0;font-size:24px;letter-spacing:-.035em}.section-head p{margin:0;color:var(--muted);font-size:13px}
+.rail{display:flex;gap:14px;overflow-x:auto;padding:8px 2px 20px;scroll-snap-type:x mandatory;scrollbar-width:thin}.card{flex:0 0 300px;min-height:230px;scroll-snap-align:start;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,var(--panel2),var(--panel));padding:22px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .2s,border-color .2s}.card:hover{transform:translateY(-3px);border-color:#536259}.num{font:700 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--gold)}.card h3{font-size:22px;letter-spacing:-.04em;margin:12px 0 8px}.card p{color:var(--muted);font-size:14px;margin:0}.card-link{margin-top:22px;color:var(--accent);font-size:13px;font-weight:900}.rail::-webkit-scrollbar{height:7px}.rail::-webkit-scrollbar-thumb{background:#303a45;border-radius:99px}
+.proof{border-top:1px solid var(--line);padding:28px 0 80px}.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.proof-box{padding:20px;border:1px solid var(--line);border-radius:15px;background:#0b1016}.proof-box strong{display:block;margin-bottom:5px}.proof-box span{color:var(--muted);font-size:13px}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:20px}
+@media(max-width:720px){.hero{padding-top:64px}.lede{font-size:17px}.card{flex-basis:82vw}.proof-grid{grid-template-columns:1fr}.nav-cta{padding:9px 12px}.section{padding-bottom:55px}footer{flex-direction:column}}
 </style>
 </head>
 <body>
-<header><div class="wrap nav"><a class="brand" href="/" aria-label="DreamLedger home">Dream<span>Ledger</span></a></div></header>
-<main class="wrap">
-<section class="hero" aria-labelledby="title">
-<div class="eyebrow">Bounded services · clear outcomes</div>
-<h1 id="title">One useful result.</h1>
-<p class="lede">DreamLedger turns a defined input into a defined deliverable. No maze, no dashboard tour, no architecture on the sales page.</p>
-<a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=QUOTE-COMPARE-49">Start with a quote comparison · NZ$49</a>
-</section>
-<section class="catalog" aria-labelledby="catalog-title">
-<div class="section-head">
-<h2 id="catalog-title">What the same rail can handle</h2>
-<p class="note">Swipe horizontally. Every card uses the same single purchase path.</p>
-</div>
-<div class="carousel">
-<article class="card"><span class="tag">01 · Procurement</span><h3>Supplier comparisons</h3><p>Normalize competing supplier quotes into a decision-ready comparison of price, scope, missing costs, lead time and terms.</p><div class="price">From NZ$49</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=PROCUREMENT">Start</a></article>
-<article class="card"><span class="tag">02 · Documents</span><h3>Document extraction</h3><p>Turn messy source documents into structured information that can be reviewed, compared or reused.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=DOCUMENTS">Start</a></article>
-<article class="card"><span class="tag">03 · Verification</span><h3>Verification</h3><p>Separate what a source actually supports from what is merely asserted, inferred or missing.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=VERIFICATION">Start</a></article>
-<article class="card"><span class="tag">04 · Evidence</span><h3>Evidence packets</h3><p>Package source material, findings and boundaries into a compact artifact that another person can inspect.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=EVIDENCE">Start</a></article>
-<article class="card"><span class="tag">05 · Research</span><h3>Research briefs</h3><p>Compress a bounded research question into a concise brief with explicit source and uncertainty boundaries.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=RESEARCH">Start</a></article>
-<article class="card"><span class="tag">06 · Seller economics</span><h3>Seller economics</h3><p>Turn an item or offer into a compact view of costs, fees, likely net value and listing decisions.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=SELLER-ECONOMICS">Start</a></article>
-<article class="card"><span class="tag">07 · Truth claims</span><h3>Truth claims</h3><p>Test a specific claim against the available evidence and expose the exact boundary of what can be concluded.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=TRUTH-CLAIMS">Start</a></article>
-<article class="card"><span class="tag">08 · Micro utility</span><h3>Small utilities</h3><p>Single-purpose transformations where the input, output and acceptance condition can be stated without a product tour.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=MICRO-UTILITY">Start</a></article>
-<article class="card"><span class="tag">09 · Billboard</span><h3>Digital placement</h3><p>Finite, clearly defined billboard placements with explicit purchase terms and no hidden subscription machinery.</p><div class="price">NZ$50</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=BILLBOARD">Start</a></article>
-<article class="card"><span class="tag">10 · Meetings</span><h3>Meeting outputs</h3><p>Convert a bounded meeting input into a structured decision record, action list or evidence-backed follow-up.</p><div class="price">Defined at checkout</div><a class="cta" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=landing_single_cta&utm_content=MEETINGS">Start</a></article>
-</div>
-</section>
+<header><div class="wrap nav"><a class="brand" href="/" aria-label="DreamLedger home">Dream<span>Ledger</span></a><a class="nav-cta" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=nav&utm_campaign=quote_compare_49">Start at NZ$49</a></div></header>
+<main>
+<section class="hero"><div class="wrap"><div class="eyebrow">Useful work, clearly delivered</div><h1>Turn messy inputs into a <span>decision-ready result.</span></h1><p class="lede">DreamLedger provides focused digital services for business tasks that are tedious to compare, extract, verify, or organize. Start with a supplier quote comparison.</p><div class="actions"><a class="button" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=hero&utm_campaign=quote_compare_49">Compare supplier quotes · NZ$49</a><span class="note">No subscription. One defined input. One defined result.</span></div></div></section>
+<section class="section"><div class="wrap"><div class="section-head"><h2>Browse the work</h2><p>Every card leads to the same purchase path.</p></div><div class="rail" id="rail" aria-label="DreamLedger service categories">
+<a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=procurement" aria-label="Procurement: start at NZ$49"><div><div class="num">01</div><h3>Procurement</h3><p>Compare supplier quotes, line items, quantities, shipping, GST and currency.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=document-extraction" aria-label="Document Extraction: start at NZ$49"><div><div class="num">02</div><h3>Document Extraction</h3><p>Turn dense documents into structured, usable information.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=verification" aria-label="Verification: start at NZ$49"><div><div class="num">03</div><h3>Verification</h3><p>Check claims, fields and source material against defined criteria.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=evidence" aria-label="Evidence: start at NZ$49"><div><div class="num">04</div><h3>Evidence</h3><p>Create clear evidence packets from supplied records and files.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=research" aria-label="Research: start at NZ$49"><div><div class="num">05</div><h3>Research</h3><p>Reduce a defined research task to a concise decision-ready output.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=seller-economics" aria-label="Seller Economics: start at NZ$49"><div><div class="num">06</div><h3>Seller Economics</h3><p>Compare offers, costs and commercial inputs without spreadsheet churn.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=truth-claims" aria-label="Truth Claims: start at NZ$49"><div><div class="num">07</div><h3>Truth Claims</h3><p>Separate supplied evidence from assumptions and unsupported claims.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=micro-utility" aria-label="Micro Utility: start at NZ$49"><div><div class="num">08</div><h3>Micro Utility</h3><p>Small, bounded jobs that remove repetitive digital work.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=billboard" aria-label="Billboard: start at NZ$49"><div><div class="num">09</div><h3>Billboard</h3><p>Turn a defined message or inventory brief into a usable commercial asset.</p></div><div class="card-link">Start with NZ$49 →</div></a><a class="card" href="https://dreamledger.org/buy/quote_compare_49?price=4900&utm_source=site&utm_medium=carousel&utm_campaign=quote_compare_49&utm_content=meetings" aria-label="Meetings: start at NZ$49"><div><div class="num">10</div><h3>Meetings</h3><p>Convert supplied meeting material into structured actions and decisions.</p></div><div class="card-link">Start with NZ$49 →</div></a>
+</div></div></section>
+<section class="proof"><div class="wrap"><div class="proof-grid"><div class="proof-box"><strong>Defined input</strong><span>Give us the material the task actually depends on.</span></div><div class="proof-box"><strong>Defined output</strong><span>Receive a focused result instead of another software dashboard.</span></div><div class="proof-box"><strong>One purchase path</strong><span>Every category points to the same simple starting offer.</span></div></div></div></section>
 </main>
-<footer><div class="wrap"><strong>DreamLedger</strong> · One purchase path. Defined input. Defined output.</div></footer>
+<footer class="wrap"><span>DreamLedger</span><span>One purchase path. Defined input. Defined output.</span></footer>
+<script>
+(()=>{const r=document.getElementById("rail");let down=false,start=0,left=0;r.addEventListener("pointerdown",e=>{down=true;start=e.clientX;left=r.scrollLeft;r.setPointerCapture(e.pointerId)});r.addEventListener("pointerup",()=>down=false);r.addEventListener("pointercancel",()=>down=false);r.addEventListener("pointermove",e=>{if(down)r.scrollLeft=left-(e.clientX-start)});})();
+</script>
 </body>
 </html>
