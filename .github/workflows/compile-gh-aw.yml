@@ -3,6 +3,7 @@ name: Compile GitHub Agentic Workflows
 on:
   push:
     paths:
+      - ".github/workflows/777-research.md"
       - ".github/workflows/*.md"
   workflow_dispatch:
 
@@ -12,17 +13,20 @@ permissions:
 jobs:
   compile:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install gh-aw
+      - name: Install or upgrade gh-aw
         shell: bash
-        run: gh extension install github/gh-aw
+        run: |
+          gh extension install github/gh-aw 2>/dev/null || gh extension upgrade github/gh-aw
+          gh aw version || gh aw --version || true
 
       - name: Compile agentic workflows
         shell: bash
-        run: gh aw compile --strict
+        run: gh aw compile --strict --verbose
 
       - name: Commit generated lock files
         shell: bash
