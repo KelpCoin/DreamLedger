@@ -72,7 +72,7 @@ def cycle():
     if not model or model not in ids: return {"status":"BLOCKED","reason":"NO_USABLE_LM_STUDIO_MODEL","available_models":ids}
     seven=run_777()
     snap=snapshot(); d=decide(snap,model); out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
-    trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v1","timestamp_utc":out["timestamp_utc"],"model":model,"cell_count":len(snap.get("substrate_population",[])),"population":snap.get("substrate_population",[]),"decision":d,"economic_truth":out["seven_seven_seven"],"rule":"internal computation is not revenue"})
+    trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v1","timestamp_utc":out["timestamp_utc"],"model":model,"cell_count":len(snap.get("substrate_population",[])),"population":snap.get("substrate_population",[]),"decision":d,"economic_truth":snap["economic_truth"],"rule":"internal computation is not revenue"})
     fn=os.path.join(LOG,"swarm-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     open(fn,"w",encoding="utf-8").write(json.dumps(out,indent=2)); out["run_file"]=fn; return out
 
