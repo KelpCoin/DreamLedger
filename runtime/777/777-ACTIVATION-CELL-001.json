@@ -1,0 +1,92 @@
+{
+  "schema": "DREAMLEDGER/777/ACTIVATION/v1",
+  "status": "ACTIVATION_CONTRACT",
+  "purpose": "Bind the existing DreamLedger economic substrate into one reproducible 777 cell without creating a new ledger, queue, orchestrator, or truth system.",
+  "canonical_loop": [
+    "WORLD_SUBSTRATE",
+    "ELOHIM_CREATE_REFINE_REPAIR",
+    "CUBE_DISCOVERY",
+    "SWARM_5_TO_10",
+    "ELOHIM_FORGE",
+    "GAUNTLET_JUDGE",
+    "777_CELL",
+    "AUTHORIZED_EXTERNAL_ACTION",
+    "REAL_RESPONSE",
+    "PAYMENT",
+    "FULFILLMENT",
+    "TRUTH_ORACLE",
+    "BECK",
+    "TELEMETRY",
+    "EVERGREEN_REPLICATION"
+  ],
+  "authority": {
+    "elohim": "creates/refines/repairs candidates and scorecards; never certifies economic truth",
+    "cube": "searches/compresses existing economic substrate; never certifies demand",
+    "swarm": "generates bounded populations of 5-10; internal computation only",
+    "gauntlet": "adversarially judges Elohim output and kills/blocks weak cells",
+    "777": "persistent experiment identity and attribution contract",
+    "truth_oracle": "public economic truth boundary; independent evidence required",
+    "beck": "immutable internal memory and attribution; never substitutes for external settlement",
+    "telemetry": "allocation signal; winners require observed evidence",
+    "supervisor": "delegates existing compute/runtime capacity only; no new queue or authority layer"
+  },
+  "cell_factory": {
+    "input": "economically_interesting_substrate",
+    "population_size": 10,
+    "bounded_dimensions": ["offer", "audience", "message", "surface", "cta"],
+    "winner_policy": "support_top_1_or_2_after_external_evidence",
+    "loser_policy": "KILLED_OR_BLOCKED",
+    "replication_policy": "replicate_only_independently_verified_mechanisms"
+  },
+  "proving_cell": {
+    "cell_id": "CMD-DIAG-29-QR-001",
+    "offer_id": "CMD-DIAG-29",
+    "surface": "existing_777_distribution_substrate",
+    "destination": "https://dreamledger.org/go",
+    "attribution_required": true,
+    "external_publication": "authorization_required",
+    "success_condition": "independent buyer + settled payment + fulfillment + evidence + attribution"
+  },
+  "recurring_surface": {
+    "offer_id": "TRUTH-ORACLE-SUBSCRIPTION",
+    "existing_machine": "BUY -> STRIPE SUBSCRIPTION -> WEBHOOK -> ENTITLEMENT -> GATED TRUTH ORACLE ACCESS -> RENEW/REVOKE",
+    "replication_gate": "independent settled subscriber before replication"
+  },
+  "evidence_ladder": [
+    "CANDIDATE",
+    "READY",
+    "EXPOSED",
+    "RESPONDED",
+    "QUALIFIED",
+    "PAID",
+    "FULFILLED",
+    "VERIFIED"
+  ],
+  "truth_rules": [
+    "internal generation never promotes itself to RESPONDED",
+    "checkout availability is not revenue",
+    "clicks are not buyers",
+    "synthetic or test events never count",
+    "settled payment alone is insufficient without attribution, fulfillment and evidence"
+  ],
+  "scale_lock": {
+    "cube_swarm_trace_required": true,
+    "required_trace": "runtime/777/cube-swarm-traces.jsonl",
+    "until_observed": "do_not_claim_swarm_success_or_scale"
+  },
+  "worker_binding": {
+    "existing_worker": "BEC-PRIME/scripts/economic-local-worker.js",
+    "mode": "existing_tasks_only",
+    "model": "LM Studio",
+    "proof_directory": "runtime/777/local-worker-proofs",
+    "external_action": false
+  },
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "independent_external_buyers": 0,
+    "settled_external_payments": 0,
+    "verified_economic_outcomes": 0
+  },
+  "activation_law": "INSPECT -> CHANGE -> VERIFY -> PROOF",
+  "next_transition": "RUN_EXISTING_WORKER_AND_CUBE_TRACE -> POPULATE_10_BOUNDED_CELLS -> GAUNTLET -> AUTHORIZE_ONE_CELL -> OBSERVE_REAL_EXTERNAL_RESULT"
+}
