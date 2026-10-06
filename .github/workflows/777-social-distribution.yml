@@ -1,0 +1,144 @@
+name: 777 Social Distribution
+
+on:
+  schedule:
+    - cron: "17 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only, no external publication"
+        required: true
+        default: true
+        type: boolean
+      cell_id:
+        description: "777 cell identity"
+        required: true
+        default: "CMD-DIAG-29-QR-001"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 777-social-distribution
+  cancel-in-progress: false
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build attributable distribution packet
+        id: packet
+        env:
+          CELL_ID: ${{ inputs.cell_id || 'CMD-DIAG-29-QR-001' }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, hashlib
+          cell=os.environ["CELL_ID"]
+          target="https://dreamledger.org/?utm_source=777&utm_medium=social&utm_campaign=cmd_diag_29&utm_content="+cell
+          text=("Commander players: if your deck is doing something weird but you cannot tell which "
+                "slots are actually responsible, DreamLedger offers a NZ$29 Commander Diagnostic. "
+                "It checks curve, ramp, draw, interaction, commander synergy, weak slots and economical upgrades. "
+                "No hype, just a bounded diagnostic. "+target)
+          packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v1","cell_id":cell,
+                  "offer_id":"CMD-DIAG-29","surface_family":"SOCIAL","target_url":target,
+                  "message":text,"authorization":"PREAUTHORIZED_PIPELINE_ONLY",
+                  "external_revenue_status":"UNVERIFIED"}
+          packet["packet_sha256"]=hashlib.sha256(json.dumps(packet,sort_keys=True).encode()).hexdigest()
+          os.makedirs("operator-proof",exist_ok=True)
+          json.dump(packet,open("operator-proof/777-distribution-packet.json","w"),indent=2)
+          PY
+
+      - name: Publish to Tumblr when explicitly enabled
+        if: ${{ inputs.dry_run != true && secrets.TUMBLR_ENABLED == 'true' }}
+        env:
+          TUMBLR_ENABLED: ${{ secrets.TUMBLR_ENABLED }}
+          TUMBLR_CONSUMER_KEY: ${{ secrets.TUMBLR_CONSUMER_KEY }}
+          TUMBLR_CONSUMER_SECRET: ${{ secrets.TUMBLR_CONSUMER_SECRET }}
+          TUMBLR_TOKEN: ${{ secrets.TUMBLR_TOKEN }}
+          TUMBLR_TOKEN_SECRET: ${{ secrets.TUMBLR_TOKEN_SECRET }}
+          TUMBLR_BLOG: ${{ secrets.TUMBLR_BLOG }}
+        run: |
+          set -euo pipefail
+          test -n "$TUMBLR_CONSUMER_KEY"
+          test -n "$TUMBLR_CONSUMER_SECRET"
+          test -n "$TUMBLR_TOKEN"
+          test -n "$TUMBLR_TOKEN_SECRET"
+          test -n "$TUMBLR_BLOG"
+          python3 - <<'PY'
+          import json, os, time, hmac, hashlib, urllib.parse, urllib.request, secrets
+          p=json.load(open("operator-proof/777-distribution-packet.json"))
+          base=f"https://api.tumblr.com/v2/blog/{os.environ['TUMBLR_BLOG']}/posts"
+          params={"type":"text","state":"published","title":"Commander deck diagnostic","body":p["message"]}
+          oauth={
+            "oauth_consumer_key":os.environ["TUMBLR_CONSUMER_KEY"],
+            "oauth_token":os.environ["TUMBLR_TOKEN"],
+            "oauth_nonce":secrets.token_hex(16),
+            "oauth_timestamp":str(int(time.time())),
+            "oauth_signature_method":"HMAC-SHA1",
+            "oauth_version":"1.0"
+          }
+          allp={**params,**oauth}
+          enc=lambda x: urllib.parse.quote(str(x),safe="~-._")
+          normalized="&".join(f"{enc(k)}={enc(allp[k])}" for k in sorted(allp))
+          base_string="&".join([enc("POST"),enc(base),enc(normalized)])
+          key=enc(os.environ["TUMBLR_CONSUMER_SECRET"])+"&"+enc(os.environ["TUMBLR_TOKEN_SECRET"])
+          oauth["oauth_signature"]=base64=hmac.new(key.encode(),base_string.encode(),hashlib.sha1).digest()
+          import base64
+          oauth["oauth_signature"]=base64.b64encode(base64).decode()
+          auth="OAuth "+", ".join(f'{enc(k)}="{enc(v)}"' for k,v in sorted(oauth.items()))
+          data=urllib.parse.urlencode(params).encode()
+          req=urllib.request.Request(base,data=data,headers={"Authorization":auth,"User-Agent":"DreamLedger-777/1.0"},method="POST")
+          with urllib.request.urlopen(req,timeout=30) as r:
+            result=json.loads(r.read().decode())
+          assert result.get("meta",{}).get("status")==201, result
+          json.dump(result,open("operator-proof/tumblr-result.json","w"),indent=2)
+          PY
+
+      - name: Publish to X when explicitly enabled
+        if: ${{ inputs.dry_run != true && secrets.X_ENABLED == 'true' }}
+        env:
+          X_ENABLED: ${{ secrets.X_ENABLED }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$X_ACCESS_TOKEN"
+          python3 - <<'PY'
+          import json, os, urllib.request
+          p=json.load(open("operator-proof/777-distribution-packet.json"))
+          body=json.dumps({"text":p["message"]}).encode()
+          req=urllib.request.Request("https://api.x.com/2/tweets",data=body,
+              headers={"Authorization":"Bearer "+os.environ["X_ACCESS_TOKEN"],
+                       "Content-Type":"application/json","Accept":"application/json"},
+              method="POST")
+          with urllib.request.urlopen(req,timeout=30) as r:
+            result=json.loads(r.read().decode())
+          assert result.get("data",{}).get("id"), result
+          json.dump(result,open("operator-proof/x-result.json","w"),indent=2)
+          PY
+
+      - name: Always emit telemetry
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          packet=json.load(open("operator-proof/777-distribution-packet.json"))
+          out={"schema":"DREAMLEDGER/777-SOCIAL-TELEMETRY/v1",
+               "cell_id":packet["cell_id"],"offer_id":packet["offer_id"],
+               "target_url":packet["target_url"],
+               "tumblr_published":os.path.exists("operator-proof/tumblr-result.json"),
+               "x_published":os.path.exists("operator-proof/x-result.json"),
+               "revenue_nzd":0,"buyer_count":0,"settled_payment_count":0,
+               "truth":"UNVERIFIED","git_sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()}
+          json.dump(out,open("operator-proof/777-social-telemetry.json","w"),indent=2)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 777-social-distribution-proof
+          path: operator-proof/
