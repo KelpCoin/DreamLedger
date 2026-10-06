@@ -1,0 +1,33 @@
+name: 777 Economic Pulse
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate economic pulse
+        env:
+          CTA_URL: ${{ vars.DREAMLEDGER_CTA_URL }}
+        run: python scripts/777_cycle.py
+
+      - name: Commit new pulse if changed
+        run: |
+          git config user.name "DreamLedger 777"
+          git config user.email "777@dreamledger.org"
+          git add webapp/pulse webapp/index.html
+          if git diff --cached --quiet; then
+            echo "No new economic signal."
+            exit 0
+          fi
+          git commit -m "777: publish new economic pulse"
+          git push
