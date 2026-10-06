@@ -1,0 +1,96 @@
+{
+  "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
+  "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
+  "generated_at_utc": "2026-10-07T00:00:00Z",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "signals": [
+    {
+      "id": "BUYER-SIGNAL-2026-09-26-001",
+      "type": "PUBLIC_BUYER_SIGNAL",
+      "title": "Commander upgrade demand",
+      "status": "UNVERIFIED",
+      "source": "Reddit r/mtg",
+      "observed_at": "2026-09-26",
+      "evidence": "Explicit request for cards to remove/add."
+    },
+    {
+      "id": "BUYER-SIGNAL-2026-09-25-002",
+      "type": "PUBLIC_BUYER_SIGNAL",
+      "title": "Precon upgrade demand",
+      "status": "UNVERIFIED",
+      "source": "Reddit r/mtg",
+      "observed_at": "2026-09-25",
+      "evidence": "Explicit request for keep/cut recommendations."
+    },
+    {
+      "id": "BUYER-SIGNAL-2026-09-24-003",
+      "type": "PUBLIC_BUYER_SIGNAL",
+      "title": "Commander deck help",
+      "status": "UNVERIFIED",
+      "source": "Reddit r/mtg",
+      "observed_at": "2026-09-24",
+      "evidence": "Explicit request for deck improvement and upgrades."
+    },
+    {
+      "id": "BUYER-SIGNAL-2026-09-07-004",
+      "type": "PUBLIC_BUYER_SIGNAL",
+      "title": "Commander upgrade budget",
+      "status": "UNVERIFIED",
+      "source": "Reddit r/mtg",
+      "observed_at": "2026-09-07",
+      "evidence": "Decklist plus stated upgrade budget."
+    }
+  ],
+  "cells": [
+    {
+      "id": "CMD-DIAG-29-QR-001",
+      "name": "Commander Deck Diagnostic",
+      "status": "UNVERIFIED",
+      "price_nzd": 29,
+      "silo": "mtg"
+    },
+    {
+      "id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "status": "UNVERIFIED",
+      "price_nzd": 49,
+      "silo": "dreamledger"
+    }
+  ],
+  "verified_mechanisms": [],
+  "commercial_surfaces": [
+    {
+      "id": "OFFER-QUOTE-COMPARE-49-NZD",
+      "name": "Supplier Quote Comparison",
+      "price_nzd": 49,
+      "status": "CHECKOUT_ENABLED",
+      "silo": "dreamledger",
+      "checkout": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+    },
+    {
+      "id": "OFFER-CMD-DIAG-29-NZD",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "status": "CHECKOUT_ENABLED",
+      "silo": "mtg",
+      "checkout": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30"
+    },
+    {
+      "id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Founding Tile",
+      "price_nzd": 50,
+      "status": "CHECKOUT_ENABLED",
+      "silo": "dreamledger",
+      "checkout": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w"
+    }
+  ],
+  "replication": {
+    "evergreen_status": "ARMED_FOR_VERIFIED_MECHANISMS_ONLY",
+    "rule": "UNVERIFIED hypotheses may be probed internally; replication requires independently verified economic outcome."
+  }
+}
