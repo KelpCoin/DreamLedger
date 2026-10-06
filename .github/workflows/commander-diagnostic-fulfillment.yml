@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       CLOUD_MODEL_API_URL: ${{ secrets.CLOUD_MODEL_API_URL }}
       CLOUD_MODEL_API_KEY: ${{ secrets.CLOUD_MODEL_API_KEY }}
