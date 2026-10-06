@@ -165,6 +165,197 @@ function page(title, description, status, slug) {
     '<hr><p style="font-size:13px;color:#746f67">Silo: ' + esc(slug) + ' · Infrastructure readiness is not revenue.</p></body></html>';
 }
 
+
+const OIDC_ISSUER = 'https://token.actions.githubusercontent.com';
+const OIDC_AUDIENCE = 'dreamledger-discord-dispatch';
+const TRUSTED_REPOSITORY = 'KelpCoin/DreamLedger';
+const TRUSTED_WORKFLOW = 'KelpCoin/DreamLedger/.github/workflows/acquire-catalog-discord.yml@refs/heads/main';
+let oidcJwksCache = null;
+let oidcJwksFetchedAt = 0;
+
+function b64urlJson(part) {
+  return JSON.parse(Buffer.from(part.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(part.length/4)*4,'='), 'base64').toString('utf8'));
+}
+
+function b64urlBytes(part) {
+  return Buffer.from(part.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(part.length/4)*4,'='), 'base64');
+}
+
+async function getOidcJwks() {
+  if (oidcJwksCache && Date.now() - oidcJwksFetchedAt < 10 * 60 * 1000) return oidcJwksCache;
+  const response = await fetch(OIDC_ISSUER + '/.well-known/jwks', {headers:{accept:'application/json'}});
+  if (!response.ok) throw new Error('OIDC_JWKS_FETCH_FAILED');
+  oidcJwksCache = await response.json();
+  oidcJwksFetchedAt = Date.now();
+  return oidcJwksCache;
+}
+
+async function verifyGitHubOidc(token) {
+  const parts = String(token || '').split('.');
+  if (parts.length !== 3) throw new Error('OIDC_TOKEN_INVALID');
+  const header = b64urlJson(parts[0]);
+  const claims = b64urlJson(parts[1]);
+  if (header.alg !== 'RS256' || !header.kid) throw new Error('OIDC_ALGORITHM_INVALID');
+  if (claims.iss !== OIDC_ISSUER || claims.aud !== OIDC_AUDIENCE) throw new Error('OIDC_TRUST_CLAIMS_INVALID');
+  if (claims.repository !== TRUSTED_REPOSITORY || claims.ref !== 'refs/heads/main') throw new Error('OIDC_REPOSITORY_OR_REF_INVALID');
+  if (claims.workflow_ref !== TRUSTED_WORKFLOW) throw new Error('OIDC_WORKFLOW_INVALID');
+  if (claims.event_name !== 'push') throw new Error('OIDC_EVENT_INVALID');
+  const now = Math.floor(Date.now()/1000);
+  if (typeof claims.exp !== 'number' || claims.exp < now - 30 || (typeof claims.nbf === 'number' && claims.nbf > now + 30)) {
+    throw new Error('OIDC_TOKEN_EXPIRED');
+  }
+  const jwks = await getOidcJwks();
+  const jwk = (jwks.keys || []).find(k => k.kid === header.kid);
+  if (!jwk) throw new Error('OIDC_KEY_NOT_FOUND');
+  const publicKey = require('crypto').createPublicKey({key:jwk,format:'jwk'});
+  const signingInput = Buffer.from(parts[0] + '.' + parts[1]);
+  const valid = require('crypto').verify('RSA-SHA256', signingInput, publicKey, b64urlBytes(parts[2]));
+  if (!valid) throw new Error('OIDC_SIGNATURE_INVALID');
+  return claims;
+}
+
+async function readJson(url) {
+  const response = await fetch(url, {headers:{accept:'application/json'}});
+  if (!response.ok) throw new Error('REMOTE_JSON_FETCH_FAILED');
+  return response.json();
+}
+
+async function publishDiscordFromAuthorizedWorkflow(req, res, body) {
+  try {
+    const auth = String(req.headers.authorization || '');
+    if (!auth.startsWith('Bearer ')) throw new Error('OIDC_AUTHORIZATION_REQUIRED');
+    const claims = await verifyGitHubOidc(auth.slice(7));
+    if (!body || body.authorization_scope !== 'ONE_DISCORD_PUBLICATION' || body.gauntlet_status !== 'PASS' || body.offer !== 'CMD-DIAG-29') {
+      throw new Error('EXTERNAL_AUTHORIZATION_CONTRACT_INVALID');
+    }
+    const approved = await readJson('https://raw.githubusercontent.com/KelpCoin/DreamLedger/main/BEC-PRIME/catalog/offers/approved.json');
+    const record = (approved.approved || []).find(x =>
+      x.product_sku === 'CMD-DIAG-29' &&
+      x.payment_link_status === 'ACTIVE_LIVEMODE' &&
+      x.payment_link_url
+    );
+    if (!record) throw new Error('APPROVED_LIVE_OFFER_NOT_FOUND');
+    const webhook = process.env.DISCORD_WEBHOOK;
+    if (!webhook || !/^https:\/\/(discord(?:app)?\.com)\/api\/webhooks\//.test(webhook)) {
+      throw new Error('DISCORD_WEBHOOK_NOT_CONFIGURED');
+    }
+    const content = record.name + ' - ' + record.currency + '
+  const u = new URL(req.url, 'http://localhost');
+  const slug = u.pathname.split('/').filter(Boolean)[0] || '';
+  if (u.pathname === '/robots.txt') {
+    res.writeHead(200, securityHeaders('text/plain; charset=utf-8'));
+    return res.end('User-agent: *\\nAllow: /\\nSitemap: https://dreamledger-silo-gateway.onrender.com/sitemap.xml\\n');
+  }
+  if (u.pathname === '/sitemap.xml') {
+    const urls = [];
+    for (let event = 1; event <= 100; event++) {
+      for (let variant = 1; variant <= 100; variant++) {
+        urls.push('https://dreamledger-silo-gateway.onrender.com/M10K-' + String(event).padStart(3,'0') + '-' + String(variant).padStart(3,'0'));
+      }
+    }
+    res.writeHead(200, {'content-type':'application/xml; charset=utf-8','cache-control':'public, max-age=300','x-content-type-options':'nosniff'});
+    return res.end('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls.map(function(x){ return '<url><loc>'+x+'</loc></url>'; }).join('') + '</urlset>');
+  }
+  if (u.pathname === '/api/external-dispatch/discord' && req.method === 'POST') {
+    let raw = '';
+    req.on('data', chunk => { raw += chunk; if (raw.length > 20000) req.destroy(); });
+    req.on('end', async () => {
+      let body;
+      try { body = JSON.parse(raw || '{}'); } catch (_) {
+        res.writeHead(400, securityHeaders('application/json; charset=utf-8'));
+        return res.end(JSON.stringify({state:'EXTERNAL_BLOCKED',error:'INVALID_JSON'}));
+      }
+      await publishDiscordFromAuthorizedWorkflow(req, res, body);
+    });
+    return;
+  }
+  if (u.pathname === '/api/healthz') {
+    res.writeHead(200, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length,money_routes:10000,economic_truth:'UNVERIFIED'}));
+  }
+  if (u.pathname === '/api/routes') {
+    const sample = [];
+    for (let event = 1; event <= 100; event++) {
+      for (let variant = 1; variant <= 100; variant++) {
+        sample.push(moneyRoute('M10K-' + String(event).padStart(3,'0') + '-' + String(variant).padStart(3,'0')));
+      }
+    }
+    res.writeHead(200, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify({count:sample.length,status:'CANDIDATE_PUBLIC_ENTRY',economic_truth:'UNVERIFIED',routes:sample}));
+  }
+  if (u.pathname === '/api/route') {
+    const route = moneyRoute(u.searchParams.get('id') || '');
+    if (!route) {
+      res.writeHead(404, securityHeaders('application/json; charset=utf-8'));
+      return res.end(JSON.stringify({error:'route_not_found'}));
+    }
+    res.writeHead(200, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify(routeJson(route)));
+  }
+  if (slug === '' || slug === 'healthz') {
+    const body = slug === 'healthz'
+      ? JSON.stringify({status:'ok',service:'dreamledger-silo-gateway',silos:Object.keys(silos).length,money_routes:10000})
+      : page('DreamLedger Silo Gateway','Public HTTP surfaces for defined silo candidates.','LIVE','index');
+    res.writeHead(200, securityHeaders(slug === 'healthz' ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8'));
+    return res.end(body);
+  }
+  if (u.pathname === '/gets-opportunity-brief.html') {
+    res.writeHead(200, securityHeaders('text/html; charset=utf-8'));
+    return res.end('<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GETS Opportunity Brief | DreamLedger</title></head><body style="font-family:system-ui;max-width:900px;margin:0 auto;padding:48px 24px;background:#f5f0e7;color:#171512"><a href="/">DreamLedger</a><h1>GETS Opportunity Brief</h1><p>Evidence-backed tender decoding for NZ suppliers.</p><h2>NZ$49 price hypothesis</h2><p>Checkout is not attached until the payment route and fulfillment contract are explicitly approved and verified.</p><h2>Free sample</h2><ul><li>Tender identity and closing date</li><li>Mandatory requirements with source/page references</li><li>Capability fit and visible gaps</li><li>Questions to resolve before submission</li><li>Evidence trail for material claims</li></ul><p>This page is a product demonstration. It does not claim a buyer, payment or revenue.</p></body></html>');
+  }
+  const route = moneyRoute(slug);
+  if (route) {
+    res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'public, max-age=300','x-content-type-options':'nosniff','x-frame-options':'DENY','referrer-policy':'strict-origin-when-cross-origin'});
+    return res.end(routePage(route));
+  }
+  const silo = silos[slug];
+  if (!silo) {
+    res.writeHead(404, {'content-type':'text/plain; charset=utf-8'});
+    return res.end('Silo not found');
+  }
+  res.writeHead(200, {'content-type':'text/html; charset=utf-8','cache-control':'no-store'});
+  res.end(page(silo.title,silo.description,silo.status,slug));
+});
+
+const port = Number(process.env.PORT || 10000);
+server.listen(port,'0.0.0.0',()=>console.log('SILO_GATEWAY_READY '+port));
+ + String(record.price) + '\\n\\n' + record.problem + '\\n\\n' + record.payment_link_url;
+    const url = new URL(webhook);
+    url.searchParams.set('wait','true');
+    const post = await fetch(url, {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({content})
+    });
+    if (!post.ok) throw new Error('DISCORD_POST_FAILED_' + post.status);
+    const message = await post.json();
+    if (!message.id || !message.channel_id || !String(message.content || '').includes(record.payment_link_url)) {
+      throw new Error('DISCORD_PUBLICATION_IDENTITY_FAILED');
+    }
+    const verifyUrl = webhook.replace(/\/$/,'') + '/messages/' + encodeURIComponent(String(message.id));
+    const verify = await fetch(verifyUrl, {headers:{accept:'application/json'}});
+    if (!verify.ok) throw new Error('DISCORD_READBACK_FAILED_' + verify.status);
+    const verified = await verify.json();
+    if (verified.id !== message.id || verified.channel_id !== message.channel_id || !String(verified.content || '').includes(record.payment_link_url)) {
+      throw new Error('DISCORD_READBACK_IDENTITY_FAILED');
+    }
+    res.writeHead(200, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify({
+      state:'EXTERNAL_SENT',
+      publication:'VERIFIED_DISCORD_MESSAGE',
+      offer:body.offer,
+      offer_id:record.offer_id,
+      message_id:message.id,
+      channel_id:message.channel_id,
+      run_id:claims.run_id,
+      revenue:'UNVERIFIED'
+    }));
+  } catch (error) {
+    res.writeHead(403, securityHeaders('application/json; charset=utf-8'));
+    return res.end(JSON.stringify({state:'EXTERNAL_BLOCKED', error:error.message}));
+  }
+}
+
 const server = http.createServer((req,res)=>{
   const u = new URL(req.url, 'http://localhost');
   const slug = u.pathname.split('/').filter(Boolean)[0] || '';
