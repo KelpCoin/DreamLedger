@@ -28,13 +28,29 @@ jobs:
         if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@v5
         with:
-          name: dreamledger-777-\${{ github.event.workflow_run.id }}
+          name: dreamledger-777-${{ github.event.workflow_run.id }}
           path: .
-          run-id: \${{ github.event.workflow_run.id }}
-          github-token: \${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Compounding Artifact
         run: node BEC-PRIME/scripts/update-compounding-artifact.js
+
+      - name: Add public observatory link
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          s = p.read_text()
+          marker = '<a href="/economic-pulse.html">'
+          if marker not in s:
+              needle = '<strong>Defined output</strong><span>Receive a focused result instead of another software dashboard.</span></div>'
+              replacement = needle + '<div class="proof-box"><strong>Compounding Artifact</strong><span><a href="/economic-pulse.html">See what the economic machine knows →</a></span></div>'
+              if needle not in s:
+                  raise SystemExit("Homepage proof section changed; refusing blind edit.")
+              p.write_text(s.replace(needle, replacement, 1))
+          PY
 
       - name: Update sitemap
         shell: bash
@@ -45,7 +61,7 @@ jobs:
           s = p.read_text()
           url = "https://dreamledger.org/economic-pulse.html"
           if url not in s:
-              s = s.replace("</urlset>", f"  <url><loc>{url}</loc></url>\\n</urlset>")
+              s = s.replace("</urlset>", f"  <url><loc>{url}</loc></url>\n</urlset>")
               p.write_text(s)
           PY
 
@@ -55,7 +71,7 @@ jobs:
           set -euo pipefail
           git config user.name "dreamledger-compounding-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add economic-pulse.html sitemap.xml
+          git add economic-pulse.html index.html sitemap.xml
           if git diff --cached --quiet; then
             echo "COMPOUNDING_ARTIFACT=UNCHANGED"
             exit 0
