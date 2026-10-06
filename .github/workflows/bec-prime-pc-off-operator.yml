@@ -46,6 +46,38 @@ jobs:
       - name: Run 777 economic search heartbeat
         run: npm run 777:run
 
+      - name: Materialize 777 telemetry proof
+        if: always()
+        run: |
+          set -euo pipefail
+          test -f data/777/777-LATEST.json
+          python3 - <<'PY'
+          import json, os, subprocess
+          p="data/777/777-LATEST.json"
+          with open(p,encoding="utf-8") as f: latest=json.load(f)
+          truth=latest.get("truth",{}) if isinstance(latest,dict) else {}
+          telemetry={
+            "schema":"DREAMLEDGER/777-HEARTBEAT-TELEMETRY/v1",
+            "git_sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),
+            "workflow_run_id":os.environ.get("GITHUB_RUN_ID"),
+            "generated_at_utc":latest.get("generated_at_utc"),
+            "candidate_count":len(latest.get("candidates",[]) or []),
+            "buyer_signal_count":len(latest.get("buyer_signal_queue",[]) or []),
+            "truth":truth,
+            "economic_truth":{
+              "verified_external_revenue_nzd":0,
+              "settled_external_payments":0,
+              "independent_external_buyers":0,
+              "verified_outcomes":0
+            },
+            "rule":"heartbeat telemetry is operational evidence, never revenue evidence"
+          }
+          os.makedirs("operator-proof",exist_ok=True)
+          with open("operator-proof/777-HEARTBEAT-TELEMETRY.json","w",encoding="utf-8") as f:
+            json.dump(telemetry,f,indent=2)
+          PY
+          cp data/777/777-LATEST.json operator-proof/777-LATEST.json
+
       - name: Run revenue autonomy cycle
         run: npm run autonomy:cycle
 
