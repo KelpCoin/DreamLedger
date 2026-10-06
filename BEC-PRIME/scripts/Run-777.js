@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal, hasExplicitPaymentIntent } = require('../economic/EconomicEvidenceLadder');
+const { buildFactoryFactory } = require('./FactoryFactory');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
@@ -616,6 +617,7 @@ function build() {
     base[0] || null;
   const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
   const golden_allocation = buildGoldenAllocation(rows);
+  const factory_factory = buildFactoryFactory(loadJson(EVERGREEN_FACTORY, { live_adapters: [] }).live_adapters, evergreenSeed);
   evergreenExpansion.cube_handoff = {
     state: 'DRAFT_INTERNAL_HANDOFF',
     registry_authority: 'SUPABASE_CUBE_SILO_REGISTRY',
@@ -765,6 +767,7 @@ function build() {
     commerce_handoff: commerceHandoff,
     evergreen_expansion: evergreenExpansion,
     golden_allocation,
+    factory_factory,
     golden_contract: {
       purpose: 'CONCENTRATE_INTERNAL_COMPUTE_AND_ATTENTION_ON_HIGH-GRAVITY_ECONOMIC_OPPORTUNITIES',
       authority: 'ALLOCATION_ONLY',
