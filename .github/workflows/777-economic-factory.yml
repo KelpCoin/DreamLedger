@@ -1,0 +1,94 @@
+name: 777 Economic Factory
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "BEC-PRIME/scripts/Run-777.js"
+      - "BEC-PRIME/scripts/test-777-amber-room.js"
+      - "BEC-PRIME/scripts/test-777-factory-factory.js"
+      - "BEC-PRIME/scripts/FactoryFactory.js"
+      - "BEC-PRIME/economic/**"
+      - "BEC-PRIME/catalog/**"
+      - "BEC-PRIME/data/777/**"
+      - "public/evergreen-silo-factory.json"
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 777-economic-factory
+  cancel-in-progress: true
+
+jobs:
+  factory:
+    name: Generate and adversarially check bounded economic factories
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install
+        working-directory: BEC-PRIME
+        run: npm ci
+
+      - name: Run 777 factory compiler
+        working-directory: BEC-PRIME
+        run: npm run 777:run
+
+      - name: Verify Amber Room allocation boundary
+        working-directory: BEC-PRIME
+        run: node scripts/test-777-amber-room.js
+
+      - name: Compile canonical FactoryFactory artifact
+        working-directory: BEC-PRIME
+        run: npm run factory-factory
+
+      - name: Verify modular factory-factory contract
+        working-directory: BEC-PRIME
+        run: node scripts/test-777-factory-factory.js
+
+      - name: Verify generated factory artifact
+        working-directory: BEC-PRIME
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = 'data/777/777-LATEST.json';
+          if (!fs.existsSync(p)) throw new Error('777 output missing');
+          const x = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (x.truth?.verified_external_revenue_nzd !== 0) throw new Error('truth boundary changed');
+          if (x.truth?.settled_external_payments !== 0) throw new Error('settlement boundary changed');
+          if (x.golden_contract?.authority !== 'ALLOCATION_ONLY') throw new Error('allocation authority changed');
+          if (x.golden_contract?.replication !== 'FORBIDDEN_UNTIL_INDEPENDENT_VERIFIED_OUTCOME') throw new Error('replication gate changed');
+          if (x.golden_contract?.external_action !== 'BLOCKED_UNTIL_EXISTING_AUTHORITY_AND_HUMAN_APPROVAL') throw new Error('external action gate changed');
+          if (!Number.isFinite(x.seed_count) || !Number.isFinite(x.candidate_count)) throw new Error('invalid factory counts');
+          if (!Number.isFinite(x.factory_factory?.template_count) || x.factory_factory.template_count < 1) throw new Error('factory-factory template output missing');
+          if (!Number.isFinite(x.factory_factory?.factory_instance_count) || x.factory_factory.factory_instance_count < x.factory_factory.template_count * 5) throw new Error('factory-factory instance population too small');
+          console.log(JSON.stringify({
+            seed_count: x.seed_count,
+            candidate_count: x.candidate_count,
+            activation_candidate_count: x.activation_candidate_count,
+            buyer_signal_count: x.buyer_signal_count,
+            verified_external_revenue_nzd: x.truth.verified_external_revenue_nzd
+          }, null, 2));
+          NODE
+
+      - name: Publish factory artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-economic-factory-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY.json
+          if-no-files-found: error
+          retention-days: 14
