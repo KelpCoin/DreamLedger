@@ -1,0 +1,179 @@
+{
+  "schema": "DREAMLEDGER/777-MOMENT-CANON/v2",
+  "status": "CANONICAL_EXISTING_SUBSTRATE_BINDING",
+  "purpose": "Bind the existing economic sensing, CUBE, silo, Swarm, Elohim, Gauntlet, authority, commerce, Truth Oracle, BECK and telemetry substrate into one evidence-gated Evergreen reproduction loop without creating a new ledger, queue, orchestrator, or truth system.",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_buyers": 0,
+    "verified_outcomes": 0,
+    "replication_permission": "FORBIDDEN_UNTIL_INDEPENDENT_VERIFIED_OUTCOME"
+  },
+  "777": {
+    "definition": "UNLIMITED_HYPOTHESES_BOUNDED_DOWNSIDE_VERIFIED_WINNERS_ASYMMETRIC_REPLICATION",
+    "cell": "ECONOMIC_EVENT + BUYER + PROBLEM + OFFER + SURFACE + MESSAGE + CTA + FULFILLMENT + EVIDENCE",
+    "batch": { "min": 5, "max": 10, "support_after_evidence": 2 },
+    "winner_rule": "TELEMETRY_ALLOCATES_ATTENTION; TRUTH_DETERMINES_ECONOMIC_WINNER"
+  },
+  "lineage": [
+    "economic_event_id",
+    "silo_id",
+    "cell_id",
+    "variant_id",
+    "experiment_id",
+    "telemetry_id",
+    "exposure",
+    "response",
+    "qualification",
+    "payment",
+    "fulfillment",
+    "truth",
+    "beck_event",
+    "mechanism_fossil",
+    "replication_permission"
+  ],
+  "operating_graph": [
+    "WORLD",
+    "ECONOMIC_GRAVITY",
+    "CUBE",
+    "SUPABASE_SILO",
+    "ONE_INITIAL_CELL",
+    "SWARM_5_TO_10",
+    "ELOHIM_CREATE_REFINE_REPAIR",
+    "ELOHIM_SCORECARD_PROPOSAL",
+    "GAUNTLET_ADVERSARIAL_JUDGMENT",
+    "AUTHORITY_GATE",
+    "AUTHORIZED_EXTERNAL_EXPOSURE",
+    "REAL_BUYER",
+    "SETTLED_PAYMENT",
+    "FULFILLMENT",
+    "TRUTH_ORACLE",
+    "BECK",
+    "TELEMETRY",
+    "MECHANISM_EXTRACTION",
+    "EVERGREEN",
+    "CUBE"
+  ],
+  "roles": {
+    "cube": "Compile economically interesting substrate into bounded experimental cells and silos. Never certify demand or truth.",
+    "supabase": "Canonical silo home for identity, state, lineage, evidence and telemetry.",
+    "swarm": "Generate bounded 5-10 variants inside the existing sandbox. Never create authority.",
+    "elohim": "Create, refine and repair candidates and propose Gauntlet scorecards. Never certify truth.",
+    "gauntlet": "Adversarially judge every Elohim output and fail closed on policy, evidence, authority or blast-radius violations.",
+    "authority_gate": "Permit external effects only when existing authority and the required human gate are present.",
+    "truth_oracle": "Public economic truth boundary. Independent external evidence outranks internal telemetry.",
+    "beck": "Immutable internal ledger of system activity, attribution and economic events. BECK does not create external truth.",
+    "telemetry": "Allocate compute and attention from observed signals. Telemetry does not promote a mechanism to verified truth.",
+    "evergreen": "Replicate only an independently verified mechanism, preserving lineage and requiring fresh authorization for each external surface.",
+    "supervisor": "Allocate available LM Studio/GPU capacity between CUBE and Swarm. Compute allocation never creates authority or truth.",
+    "lm_studio": "Local reasoning and BECK worker capacity; cloud remains authoritative and may provide fallback acceleration."
+  },
+  "existing_substrate": {
+    "cube_runtime": "BEC-PRIME/scripts/Run-777.js",
+    "cube_policy": "BEC-PRIME/economic/CUBE_EXPERIMENT_POLICY.json",
+    "factory": "BEC-PRIME/compiler/FactoryFactory.js",
+    "evergreen_factory": "public/evergreen-silo-factory.json",
+    "economic_evidence": "BEC-PRIME/economic/EconomicEvidenceLadder.js",
+    "commerce": "Existing approved offers, Stripe payment rail and fulfillment routes",
+    "truth": "Existing Truth Oracle and economic observation contracts",
+    "worker": "BEC-PRIME/scripts/economic-local-worker.js",
+    "runtime_contracts": [
+      "runtime/economic/production_observation_contract.py",
+      "runtime/economic/production_observation_probe.py",
+      "runtime/economic/event_projection.py",
+      "runtime/economic/state_transition_engine.py",
+      "runtime/economic/stripe_observation_adapter.py"
+    ]
+  },
+  "economic_event_cell": {
+    "state_machine": [
+      "CANDIDATE",
+      "READY",
+      "EXPOSED",
+      "RESPONDED",
+      "QUALIFIED",
+      "PAID",
+      "FULFILLED",
+      "VERIFIED"
+    ],
+    "terminal_states": ["KILLED", "BLOCKED"],
+    "external_action_default": "BLOCKED",
+    "truth_sequence": [
+      "REAL_DEMAND",
+      "REAL_BUYER",
+      "AUTHORIZED_ACTION",
+      "EXTERNAL_RESULT",
+      "SETTLED_PAYMENT",
+      "FULFILLMENT",
+      "DELIVERY_EVIDENCE",
+      "VERIFIED_OUTCOME"
+    ]
+  },
+  "blast_radius": {
+    "promotion_axes": [
+      "reachability",
+      "action_class",
+      "chain_depth",
+      "external_reach",
+      "reversibility_window",
+      "identity_scope"
+    ],
+    "default": "FAIL_CLOSED",
+    "irreversible_external_effects": "HUMAN_AUTHORITY_REQUIRED"
+  },
+  "selection": {
+    "economic_gravity": [
+      "magnitude",
+      "recurrence",
+      "margin",
+      "repeatability",
+      "leverage"
+    ],
+    "risk_adjustment": "CAPITAL_AND_EXTERNAL_EXPOSURE_SCALE_WITH_EVIDENCE",
+    "support_rule": "TOP_1_TO_2_AFTER_OBSERVED_EVIDENCE",
+    "loser_rule": "KILL_OR_HOLD_WITH_LINEAGE_PRESERVED",
+    "replication_rule": "ONLY_VERIFIED_MECHANISM_MAY_ENTER_EVERGREEN"
+  },
+  "control_laws": [
+    "INTERNAL_GENERATION_NEVER_EQUALS_EXTERNAL_DEMAND",
+    "CHECKOUT_NEVER_EQUALS_SETTLED_PAYMENT",
+    "PAYMENT_NEVER_EQUALS_FULFILLMENT",
+    "FULFILLMENT_NEVER_EQUALS_VERIFIED_OUTCOME",
+    "TELEMETRY_NEVER_EQUALS_TRUTH",
+    "COMPUTE_NEVER_EQUALS_AUTHORITY",
+    "PUBLIC_SIGNAL_NEVER_EQUALS_BUYER",
+    "REPLICATION_NEVER_PRECEDES_INDEPENDENT_VERIFICATION",
+    "EVERY_EXTERNAL_ACTION_RETAINS_ATTRIBUTION_TO_ITS_EVENT_CELL",
+    "FAILED_MECHANISMS_DIE_SMALL_VERIFIED_MECHANISMS_MAY_GROW"
+  ],
+  "first_proving_cell": {
+    "cell_id": "CMD-DIAG-29-QR-001",
+    "offer_id": "CMD-DIAG-29",
+    "status": "UNVERIFIED",
+    "external_action": "BLOCKED_UNTIL_AUTHORIZED",
+    "success_requires": [
+      "INDEPENDENT_BUYER",
+      "SETTLED_PAYMENT",
+      "FULFILLMENT",
+      "DELIVERY_EVIDENCE",
+      "CORRECT_ATTRIBUTION",
+      "TRUTH_ORACLE_VERIFICATION"
+    ]
+  },
+  "activation": {
+    "phase_1": "INGEST_ECONOMICALLY_INTERESTING_SUBSTRATE",
+    "phase_2": "CREATE_OR_REUSE_SUPABASE_SILO",
+    "phase_3": "START_ONE_CELL",
+    "phase_4": "GENERATE_5_TO_10_SWARM_VARIANTS",
+    "phase_5": "ELOHIM_REFINE_AND_PROPOSE_SCORECARDS",
+    "phase_6": "GAUNTLET_JUDGE",
+    "phase_7": "AUTHORIZE_ONE_SURVIVOR",
+    "phase_8": "OBSERVE_EXTERNAL_RESPONSE_PAYMENT_FULFILLMENT",
+    "phase_9": "TRUTH_ORACLE_VERIFY",
+    "phase_10": "BECK_RECORD_AND_TELEMETRY_ALLOCATE",
+    "phase_11": "EXTRACT_MECHANISM_FOSSIL",
+    "phase_12": "EVERGREEN_REPLICATE_ONLY_IF_VERIFIED"
+  },
+  "reassembly_law": "DO_NOT_BUILD_A_SECOND_SYSTEM. CONNECT_THE_EXISTING_SYSTEM_UNTIL_THE_EXISTING_SYSTEM_CAN_COMPLETE_ONE_ATTRIBUTABLE_ECONOMIC_EVENT_CELL.",
+  "next_runtime_transition": "ECONOMIC_EVENT_INGESTION -> CUBE_SILO -> ONE_CELL -> SWARM_TRACE -> GAUNTLET -> AUTHORIZED_EXPOSURE -> REAL_EXTERNAL_RESULT -> TRUTH_ORACLE -> BECK -> EVERGREEN"
+}
