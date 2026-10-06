@@ -1,4 +1,4 @@
-import json, os, sys, time, urllib.request, urllib.parse
+import json, os, sys, time, subprocess, urllib.request, urllib.parse
 from datetime import datetime, timezone
 BASE=os.environ.get("LM_STUDIO_BASE_URL","http://localhost:1234")
 MODEL=os.environ.get("DREAMLEDGER_LM_MODEL") or os.environ.get("BECK_LM_MODEL")
@@ -7,6 +7,7 @@ SUPA=os.environ.get("SUPABASE_URL","").rstrip("/")
 KEY=os.environ.get("SUPABASE_ANON_KEY","")
 ROOT=os.environ.get("DREAMLEDGER_ROOT") or os.getcwd()
 777_PATH=os.path.join(ROOT,"BEC-PRIME","data","777","777-LATEST.json")
+RUN777=os.path.join(ROOT,"BEC-PRIME","scripts","Run-777.js")
 LOG=os.path.join(ROOT,"runtime","lm_studio","runs"); os.makedirs(LOG,exist_ok=True)
 
 def get(url,headers=None,timeout=15):
@@ -38,10 +39,15 @@ def decide(e,model):
     r=urllib.request.Request(BASE+"/v1/chat/completions",data=json.dumps(body).encode(),headers={"Content-Type":"application/json"},method="POST")
     with urllib.request.urlopen(r,timeout=120) as x: return json.loads(json.loads(x.read().decode())["choices"][0]["message"]["content"])
 
+def run_777():
+    p=subprocess.run(["node",RUN777],cwd=ROOT,capture_output=True,text=True,timeout=120)
+    return {"returncode":p.returncode,"stdout":p.stdout[-4000:],"stderr":p.stderr[-2000:]}
+
 def cycle():
     models=get(BASE+"/v1/models").get("data",[]); ids=[str(x.get("id")) for x in models]; model=MODEL or (ids[0] if ids else "")
     if not model or model not in ids: return {"status":"BLOCKED","reason":"NO_USABLE_LM_STUDIO_MODEL","available_models":ids}
-    d=decide(snapshot(),model); out={"status":"READY","model":model,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
+    seven=run_777()
+    d=decide(snapshot(),model); out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
     fn=os.path.join(LOG,"swarm-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     open(fn,"w",encoding="utf-8").write(json.dumps(out,indent=2)); out["run_file"]=fn; return out
 
