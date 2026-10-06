@@ -1,6 +1,9 @@
 name: 777 Social Distribution
 
 on:
+  push:
+    paths:
+      - ".github/777/social-trigger.json"
   schedule:
     - cron: "17 9,21 * * *"
   workflow_dispatch:
@@ -67,14 +70,8 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
-          if [ "$DRY_RUN" = "true" ] && [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            echo "TUMBLR=DRY_RUN"
-            exit 0
-          fi
-          if [ -z "$TUMBLR_CONSUMER_KEY" ] || [ -z "$TUMBLR_CONSUMER_SECRET" ] || [ -z "$TUMBLR_TOKEN" ] || [ -z "$TUMBLR_TOKEN_SECRET" ] || [ -z "$TUMBLR_BLOG" ]; then
-            echo "TUMBLR=SKIPPED_CREDENTIALS_NOT_CONFIGURED"
-            exit 0
-          fi
+          if [ "$DRY_RUN" = "true" ] && [ "$EVENT_NAME" = "workflow_dispatch" ]; then echo "TUMBLR=DRY_RUN"; exit 0; fi
+          if [ -z "$TUMBLR_CONSUMER_KEY" ] || [ -z "$TUMBLR_CONSUMER_SECRET" ] || [ -z "$TUMBLR_TOKEN" ] || [ -z "$TUMBLR_TOKEN_SECRET" ] || [ -z "$TUMBLR_BLOG" ]; then echo "TUMBLR=SKIPPED_CREDENTIALS_NOT_CONFIGURED"; exit 0; fi
           python3 - <<'PY'
           import json, os, time, hmac, hashlib, urllib.parse, urllib.request, secrets, base64
           p=json.load(open("operator-proof/777-distribution-packet.json"))
@@ -100,14 +97,8 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
-          if [ "$DRY_RUN" = "true" ] && [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            echo "X=DRY_RUN"
-            exit 0
-          fi
-          if [ -z "$X_ACCESS_TOKEN" ]; then
-            echo "X=SKIPPED_CREDENTIALS_NOT_CONFIGURED"
-            exit 0
-          fi
+          if [ "$DRY_RUN" = "true" ] && [ "$EVENT_NAME" = "workflow_dispatch" ]; then echo "X=DRY_RUN"; exit 0; fi
+          if [ -z "$X_ACCESS_TOKEN" ]; then echo "X=SKIPPED_CREDENTIALS_NOT_CONFIGURED"; exit 0; fi
           python3 - <<'PY'
           import json, os, urllib.request
           p=json.load(open("operator-proof/777-distribution-packet.json"))
