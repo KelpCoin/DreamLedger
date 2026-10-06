@@ -1,0 +1,161 @@
+{
+  "schema": "DREAMLEDGER/777-MOMENT-CANON/v1",
+  "status": "ASSEMBLED_ON_EXISTING_SUBSTRATE",
+  "objective": "Continuously convert economically interesting substrate into bounded CUBE/Silo experiments, expose only authorized commercial mechanisms, verify real economic outcomes, and replicate only mechanisms that earn replication rights.",
+  "ambition": {
+    "search": "GLOBAL_CONTINUOUS",
+    "surface": ["INTERNET", "DIGITAL_ECONOMY", "PUBLIC_AUTHORIZED_DATA", "COMMERCIAL_WORKFLOWS", "PHYSICAL_ECONOMY"],
+    "strategic_ceiling": "PURSUE_A_PATH_TOWARD_10_PERCENT_OF_GLOBAL_ECONOMIC_VALUE",
+    "qualification": "ASPIRATIONAL_CEILING_NOT_FORECAST"
+  },
+  "existing_substrate": {
+    "discovery": [
+      "BEC-PRIME/scripts/777-public-market-radar.py",
+      "BEC-PRIME/scripts/777-slipstream-radar.py",
+      "BEC-PRIME/scripts/Run-777.js",
+      "BEC-PRIME/compiler/EconomicOpportunityCompiler.js"
+    ],
+    "factory": [
+      "BEC-PRIME/compiler/FactoryFactory.js",
+      "public/evergreen-silo-factory.json"
+    ],
+    "economic_contracts": [
+      "BEC-PRIME/data/777/777-EARNING-UNIT-PLAYBOOK.json",
+      "BEC-PRIME/data/777/777-NEW-MONEY-LANES-2026-10-01.json",
+      "BEC-PRIME/data/777/MECHANISM-EXTRACTION-QUEUE.json",
+      "BEC-PRIME/data/777/QUOTE-COMPARE-49-LIVE-FULFILLMENT-MAP.json"
+    ],
+    "control": [
+      "BEC-PRIME/CONTROL_PLANE/SYSTEM_BUILDER.md",
+      "BEC-PRIME/runtime/777/RUNTIME-CANON.json"
+    ],
+    "commerce": [
+      "BEC-PRIME/COMMERCE/PURCHASE-TO-SHARE-LOOP-v1.json"
+    ],
+    "local_reasoning": [
+      "BEC-PRIME/scripts/Bootstrap-LMStudioCouncil.ps1",
+      "BEC-PRIME/scripts/Bootstrap-LocalLMStudioSubstrate.ps1"
+    ]
+  },
+  "operating_graph": [
+    "ECONOMICALLY_INTERESTING_SUBSTRATE",
+    "CUBE_INTAKE",
+    "SUPABASE_SILO_HOME",
+    "SWARM_BOUNDED_VARIANTS",
+    "ELOHIM_CREATE_REFINE_REPAIR",
+    "ELOHIM_SCORECARD_PROPOSAL",
+    "GAUNTLET_ADVERSARIAL_JUDGMENT",
+    "AUTHORITY_GATE",
+    "AUTHORIZED_EXPOSURE",
+    "REAL_BUYER",
+    "SETTLED_PAYMENT",
+    "FULFILLMENT",
+    "TRUTH_ORACLE_PUBLIC_ECONOMIC_TRUTH",
+    "BECK_IMMUTABLE_INTERNAL_LEDGER",
+    "TELEMETRY",
+    "MECHANISM_EXTRACTION",
+    "EVERGREEN_REPLICATION",
+    "NEW_SUBSTRATE"
+  ],
+  "cell_model": {
+    "rule": "ONE_SUBSTRATE_PROBLEM_BUYER_OFFER_CHANNEL_FULFILLMENT_EVIDENCE_UNIT",
+    "silo_home": "SUPABASE",
+    "initial_scale": "ONE_CELL",
+    "identity": "CUBE_SILO_ID",
+    "memory": "SILO_STATE_AND_EVIDENCE",
+    "external_action_default": "BLOCKED"
+  },
+  "swarm_model": {
+    "purpose": "BOUNDED_SEARCH_AND_VARIATION",
+    "launch_batch": [5, 10],
+    "variant_dimensions": ["PROBLEM_FRAME", "OFFER_FRAME", "PRICE", "MESSAGE", "CHANNEL", "CTA", "FULFILLMENT_PRESENTATION"],
+    "selection": "TELEMETRY_IS_ALLOCATION_SIGNAL_ONLY",
+    "promotion": "ONE_OR_TWO_BEST_PERFORMERS_AFTER_EVIDENCE",
+    "kill": "DROP_NONPERFORMERS_OR_UNPROVEN_VARIANTS",
+    "replication": "VERIFIED_MECHANISM_ONLY"
+  },
+  "brand_surface": {
+    "batch_size": [5, 10],
+    "marketing": "CONTROLLED_VARIANTS",
+    "telemetry": [
+      "EXPOSURES",
+      "QUALIFIED_CLICKS",
+      "CHECKOUT_STARTS",
+      "SETTLED_PAYMENTS",
+      "FULFILLED_ORDERS",
+      "VERIFIED_OUTCOMES",
+      "HUMAN_TOUCHES",
+      "TIME_TO_FULFILL",
+      "FULFILLMENT_COST_NZD",
+      "MARGIN_NZD"
+    ],
+    "winner_rule": "TELEMETRY_PRIORITIZES_ATTENTION;_TRUTH_DETERMINES_ECONOMIC_WINNER"
+  },
+  "llm_compute": {
+    "base": "LM_STUDIO",
+    "role": "BECK_LLM_REASONING_AND_LOCAL_WORKER_CAPACITY",
+    "supervisor": "EXISTING_ORCHESTRATOR_SUPERVISOR",
+    "allocation": "DELEGATE_AVAILABLE_GPU_TO_CUBE_AND_SWARM",
+    "fallback": "CLOUD_ACCELERATION_WHEN_LOCAL_COMPUTE_UNAVAILABLE",
+    "rule": "COMPUTE_ALLOCATION_NEVER_CREATES_AUTHORITY_OR_TRUTH"
+  },
+  "roles": {
+    "cube": "POPULATE_AND_BOUND_EXPERIMENTAL_SUBSTRATE",
+    "silo": "IDENTITY_STATE_MEMORY_EVIDENCE_TELEMETRY",
+    "swarm": "GENERATE_BOUNDED_VARIANTS",
+    "elohim": "CREATE_REFINE_REPAIR_AND_PROPOSE_GAUNTLET_SCORECARDS",
+    "gauntlet": "ADVERSARIALLY_JUDGE_ELOHIM_OUTPUT",
+    "authority_gate": "DECIDE_WHETHER_EXTERNAL_EFFECT_IS_PERMITTED",
+    "truth_oracle": "PUBLIC_INDEPENDENT_SOURCE_OF_ECONOMIC_TRUTH",
+    "beck": "IMMUTABLE_INTERNAL_LEDGER_OF_SYSTEM_ACTIVITY_AND_ECONOMIC_EVENTS",
+    "evergreen": "REPRODUCE_VERIFIED_MECHANISMS_INTO_NEW_SUBSTRATE",
+    "supervisor": "ALLOCATE_COMPUTE_CAPACITY_WITHOUT_CHANGING_TRUTH_OR_AUTHORITY"
+  },
+  "truth_contract": {
+    "sequence": [
+      "REAL_DEMAND",
+      "REAL_BUYER",
+      "AUTHORIZED_ACTION",
+      "EXTERNAL_RESULT",
+      "SETTLED_PAYMENT",
+      "FULFILLMENT",
+      "DELIVERY_EVIDENCE",
+      "VERIFIED_OUTCOME"
+    ],
+    "non_equivalences": [
+      "PREDICTION != AUTHORITY",
+      "TELEMETRY != TRUTH",
+      "CANDIDATE != WINNER",
+      "CHECKOUT != PAYMENT",
+      "PAYMENT != FULFILLMENT",
+      "FULFILLMENT != VERIFIED_OUTCOME"
+    ],
+    "current_verified_external_revenue_nzd": 0,
+    "replication_gate": "VERIFIED_EXTERNAL_OUTCOME_REQUIRED"
+  },
+  "human_gate": {
+    "required_for": [
+      "IDENTITY",
+      "CONSENT",
+      "PAYMENT_ACCOUNT_ACTION",
+      "AUTHORITY",
+      "EXTERNAL_PUBLICATION",
+      "IRREVERSIBLE_OR_HIGH_RISK_EXTERNAL_ACTION"
+    ],
+    "not_required_for": [
+      "INTERNAL_DISCOVERY",
+      "CANDIDATE_GENERATION",
+      "LOCAL_ANALYSIS",
+      "GAUNTLET_SIMULATION",
+      "TELEMETRY_PROCESSING",
+      "INTERNAL_KILL_OR_HOLD"
+    ]
+  },
+  "no_new_architecture": {
+    "rule": "REASSEMBLE_EXISTING_SUBSTRATE_BEFORE_CREATING_NEW_SYSTEMS",
+    "prohibited": ["NEW_LEDGER", "NEW_QUEUE", "NEW_TRUTH_SYSTEM", "N8N"],
+    "authority": "CLOUD_AUTHORITATIVE_LOCAL_ACCELERATION"
+  },
+  "777_definition": "GLOBAL_SUBSTRATE -> CUBE -> SILO -> SWARM -> ELOHIM -> GAUNTLET -> AUTHORITY -> AUTHORIZED_EXPOSURE -> REAL_ECONOMIC_EVENT -> TRUTH_ORACLE -> BECK -> TELEMETRY -> SELECTION -> EVERGREEN -> RECOMBINATION -> CUBE",
+  "economic_permission": "ONLY_VERIFIED_MECHANISMS_MAY_BE_REPLICATED"
+}
