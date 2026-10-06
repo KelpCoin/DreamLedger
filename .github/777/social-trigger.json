@@ -1,0 +1,8 @@
+{
+  "schema": "DREAMLEDGER/777-SOCIAL-TRIGGER/v1",
+  "cell_id": "CMD-DIAG-29-QR-001",
+  "offer_id": "CMD-DIAG-29",
+  "authorization": "STANDING_EXTERNAL_ACTION_ENVELOPE",
+  "purpose": "one-shot governed Tumblr/X publication with attributable doorway",
+  "created_at": "2026-10-07T00:20:00+13:00"
+}
