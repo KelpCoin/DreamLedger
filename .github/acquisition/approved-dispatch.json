@@ -8,8 +8,8 @@
   "purpose": "First external acquisition experiment. Publication is authorized; revenue remains unverified until a real external buyer settles and fulfillment plus independent proof are established.",
   "gauntlet_required": true,
   "authorization_mode": "ELOHIM_GAUNTLET_BRIDGED_ONE_SHOT",
-  "dispatch_request_id": "FIRST-DOLLAR-CMD-DIAG-ONE-SHOT-2026-10-05",
-  "dispatch_requested_at": "2026-10-05T07:10:00Z",
-  "dispatch_attempt": 5,
-  "dispatch_attempt_at": "2026-10-05T21:47:00Z"
+  "dispatch_request_id": "FIRST-DOLLAR-CMD-DIAG-ONE-SHOT-2026-10-06",
+  "dispatch_requested_at": "2026-10-06T08:45:00Z",
+  "dispatch_attempt": 6,
+  "dispatch_attempt_at": "2026-10-06T08:45:00Z"
 }
