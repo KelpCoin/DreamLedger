@@ -1,0 +1,15 @@
+{
+  "schema": "DREAMLEDGER/RUNTIME-CANON-CLOUD-MIRROR/v1",
+  "status": "CANONICAL",
+  "authority": "repository_runtime_root",
+  "source_of_truth": "../../runtime/777/RUNTIME-CANON.json",
+  "chat_is_not_runtime": true,
+  "economic_priority": "RA_000001",
+  "local_heartbeat": {
+    "worker": "runtime/lm_studio/LM-Studio-Swarm.ps1"
+  },
+  "cloud_heartbeat": {
+    "workflow": ".github/workflows/bec-prime-pc-off-operator.yml"
+  },
+  "rule": "This file exists only because the BEC-Prime cloud workflow executes from BEC-PRIME/. It mirrors the canonical root runtime authority and is not a second runtime."
+}
