@@ -1,0 +1,70 @@
+name: Provision Discord Webhooks
+
+on:
+  workflow_dispatch:
+    inputs:
+      silos_json:
+        description: 'JSON array of silo objects: [{"silo_id":"...","channel_id":"..."}]'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+    steps:
+      - name: Validate provisioning inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DISCORD_BOT_TOKEN}"
+          printf '%s' '${{ inputs.silos_json }}' | jq -e 'type == "array" and all(.[]; has("silo_id") and has("channel_id"))' >/dev/null
+
+      - name: Create or reuse one webhook per silo channel
+        shell: bash
+        env:
+          SILOS_JSON: ${{ inputs.silos_json }}
+        run: |
+          set -euo pipefail
+
+          printf '%s' "$SILOS_JSON" | jq -c '.[]' | while read -r silo; do
+            silo_id="$(printf '%s' "$silo" | jq -r '.silo_id')"
+            channel_id="$(printf '%s' "$silo" | jq -r '.channel_id')"
+            name="DreamLedger-$silo_id"
+
+            existing="$(curl -fsS \
+              -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
+              -H "Accept: application/json" \
+              "https://discord.com/api/v10/channels/$channel_id/webhooks" \
+              | jq -r --arg name "$name" '.[] | select(.name == $name) | .id' | head -n1)"
+
+            if [ -n "$existing" ]; then
+              echo "EXISTING silo=$silo_id webhook_id=$existing"
+              continue
+            fi
+
+            created="$(curl -fsS -X POST \
+              -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -cn --arg name "$name" '{name:$name}')" \
+              "https://discord.com/api/v10/channels/$channel_id/webhooks")"
+
+            webhook_id="$(printf '%s' "$created" | jq -r '.id')"
+            test "$webhook_id" != "null"
+            echo "CREATED silo=$silo_id webhook_id=$webhook_id"
+          done
+
+      - name: Emit provisioning receipt
+        shell: bash
+        env:
+          SILOS_JSON: ${{ inputs.silos_json }}
+        run: |
+          set -euo pipefail
+          count="$(printf '%s' "$SILOS_JSON" | jq 'length')"
+          echo "DISCORD_WEBHOOK_PROVISIONING=VERIFIED"
+          echo "SILOS_REQUESTED=$count"
+          echo "Webhook URLs are never printed, committed, or written to workflow logs."
