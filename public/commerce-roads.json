@@ -46,6 +46,16 @@
       "rail": "Discord webhook",
       "entry": "https://dreamledger.org/agent-bridge.html",
       "truth": "publication is not revenue; buyer settlement still required"
+    },
+    {
+      "id": "BILLBOARD-STRIPE",
+      "category": "fiat",
+      "status": "PUBLIC",
+      "rail": "Stripe",
+      "settlement": "stripe_live_only",
+      "entry": "https://buy.stripe.com/9B6fZh6HzcO9eqHdVadwc38",
+      "price": "NZ$50",
+      "truth": "settled payment + placement published + evidence logged"
     }
   ]
 }
