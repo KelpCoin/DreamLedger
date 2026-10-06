@@ -1,0 +1,20 @@
+name: CUBE empirical gate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/cube_empirical_gate.py"
+      - "runtime/777/cube-swarm-traces.jsonl"
+      - ".github/workflows/cube-empirical-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  empirical-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run CUBE empirical gate
+        run: python3 tools/cube_empirical_gate.py
