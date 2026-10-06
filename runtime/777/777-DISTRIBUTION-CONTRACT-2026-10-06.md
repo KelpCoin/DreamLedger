@@ -1,6 +1,6 @@
 # 777 DISTRIBUTION CONTRACT
 
-The 777 cell is now connected to a reusable social-distribution actuator contract.
+The 777 cell is now connected to the existing DreamLedger distribution substrate: QR-DISTRIBUTION-MATRIX, QRAssetCompiler, BECK-Executor and DistributionFeedback, plus the new Tumblr/X actuator. The existing QR matrix remains canonical; no second QR system is required.
 
 The actuator supports authorized publication to owned/authorized Tumblr and X accounts only. It does not scrape, DM strangers, bypass platform controls, or manufacture engagement.
 
@@ -12,6 +12,9 @@ Default behavior is dry-run. External publication requires the explicit reposito
 
 Current proving cell:
 CMD-DIAG-29-QR-001
+
+Existing canonical doorway:
+https://dreamledger.org/go
 
 Canonical destination:
 https://dreamledger.org/?utm_source=777&utm_medium=social&utm_campaign=cmd_diag_29&utm_content=CMD-DIAG-29-QR-001
