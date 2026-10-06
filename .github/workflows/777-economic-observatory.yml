@@ -1,0 +1,68 @@
+name: 777 Economic Observatory
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dreamledger-777-economic-observatory
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: \${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Observe and publish one economic signal
+        run: |
+          set -euo pipefail
+          python3 BEC-PRIME/scripts/Publish-777-EconomicObservatory.py | tee 777-observatory-run.json
+
+      - name: Validate generated public surface
+        run: |
+          set -euo pipefail
+          python3 -m json.tool public/data/economic-pulse.json >/dev/null
+          python3 -m json.tool public/data/economic-events-manifest.json >/dev/null
+          test -f public/economic/index.html
+          test -f public/sitemap.xml
+          grep -q "https://dreamledger.org/sitemap.xml" public/robots.txt
+          echo "PUBLIC_OBSERVATORY_CONTRACT=PASS"
+
+      - name: Commit new observatory state
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- public/ BEC-PRIME/data/777/ sitemap.xml; then
+            echo "No new public economic signal was published."
+            exit 0
+          fi
+          git config user.name "DreamLedger 777"
+          git config user.email "777@users.noreply.github.com"
+          git add public/economic public/data/economic-pulse.json public/data/economic-events-manifest.json public/sitemap.xml public/robots.txt sitemap.xml
+          git commit -m "777: publish economic observatory signal"
+          git push
+
+      - name: Upload cycle proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-777-observatory-\${{ github.run_id }}
+          path: |
+            777-observatory-run.json
+            public/data/economic-pulse.json
+            public/data/economic-events-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
