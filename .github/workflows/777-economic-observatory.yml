@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/777-economic-observatory.yml"
+      - "BEC-PRIME/scripts/Publish-777-EconomicObservatory.py"
 
 permissions:
   contents: write
