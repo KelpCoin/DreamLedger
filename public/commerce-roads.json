@@ -1,0 +1,51 @@
+{
+  "schema": "dreamledger/commerce-roads/v1",
+  "purpose": "Public discovery map for fiat, crypto, TCG and evidence distribution. Readiness is not revenue.",
+  "economic_truth": "UNVERIFIED",
+  "roads": [
+    {
+      "id": "FIAT-STRIPE",
+      "category": "fiat",
+      "status": "PUBLIC",
+      "rail": "Stripe",
+      "settlement": "stripe_live_only",
+      "entry": "https://dreamledger.org/api/offers",
+      "truth": "settled payment + fulfillment + evidence"
+    },
+    {
+      "id": "CRYPTO-X402-BASE",
+      "category": "crypto",
+      "status": "CONFIGURATION_REQUIRED",
+      "rail": "x402",
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "entry": "https://dreamledger-quote-verifier-prime.onrender.com/api/verify-quote",
+      "discovery": "https://dreamledger-quote-verifier-prime.onrender.com/.well-known/x402",
+      "truth": "real external settlement only; PAY_TO not configured"
+    },
+    {
+      "id": "TCG-MTG",
+      "category": "tcg",
+      "status": "PUBLIC_SURFACE",
+      "rail": "DreamLedger + dedicated MTG silo",
+      "entry": "https://dreamledger.org/mtg",
+      "truth": "catalog/listing/payment/fulfillment remain silo-scoped"
+    },
+    {
+      "id": "TRUTH-ORACLE",
+      "category": "evidence",
+      "status": "PUBLIC",
+      "rail": "Truth Oracle",
+      "entry": "https://dreamledger.org/truth-oracle.html",
+      "truth": "explicit evidence states; payment never changes underlying truth"
+    },
+    {
+      "id": "DISCORD-DISTRIBUTION",
+      "category": "distribution",
+      "status": "AUTHORIZATION_READY_CREDENTIAL_MISSING",
+      "rail": "Discord webhook",
+      "entry": "https://dreamledger.org/agent-bridge.html",
+      "truth": "publication is not revenue; buyer settlement still required"
+    }
+  ]
+}
