@@ -7,6 +7,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { assessEconomicEvidence, summarizeEvidenceLadder, isActionableBuyerSignal, hasExplicitPaymentIntent } = require('../economic/EconomicEvidenceLadder');
 const { buildModularFactories } = require('../compiler/FactoryFactory');
+const { assemble: assembleEvergreenRuntime } = require('../runtime/777/777-EvergreenRuntime');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'compiled', 'opportunities', 'ECONOMIC_GAUNTLET.json');
@@ -616,6 +617,13 @@ function build() {
     base.find(x => ['EXISTING_B2B_OFFER_CANDIDATE','EXISTING_RECURRING_SURFACE','APPROVED_OFFER','LIVE_COMMERCE','PUBLIC_BUYER_SIGNAL','DISCOVERED_OPPORTUNITY'].includes(x.source_type)) ||
     base[0] || null;
   const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
+  // 777 execution seam: assemble the existing substrate into real internal
+  // CUBE cells, then force every Elohim proposal through the existing Gauntlet.
+  // This produces no external effect and does not write fake Supabase rows.
+  const evergreenRuntime = assembleEvergreenRuntime(
+    evergreenSeed,
+    (evergreenExpansion.variants || []).slice(0, 10)
+  );
   const golden_allocation = buildGoldenAllocation(rows);
   const modularFactories = buildModularFactories(loadJson(EVERGREEN_FACTORY, { live_adapters: [] }).live_adapters, evergreenSeed?.opportunity_id || evergreenSeed?.candidate_id || 'UNBOUND-SEED');
   const factory_factory = {
@@ -778,6 +786,7 @@ function build() {
     acceptance_contract: acceptanceContract,
     commerce_handoff: commerceHandoff,
     evergreen_expansion: evergreenExpansion,
+    evergreen_runtime: evergreenRuntime,
     golden_allocation,
     factory_factory,
     golden_contract: {
