@@ -50,7 +50,18 @@ $log = Join-Path $LogRoot "startup-orchestra.log"
 Start-Transcript -LiteralPath $log -Append | Out-Null
 try {
     Invoke-Lms @("daemon","up","--json") | Out-Null
-    Invoke-Lms @("server","start","--port","1234","--bind","127.0.0.1") | Out-Null
+    $serverStatus = $null
+    try { $serverStatus = Invoke-Lms @("server","status","--json","--quiet") | ConvertFrom-Json } catch {}
+    if (-not $serverStatus -or -not $serverStatus.running) {
+        Invoke-Lms @("server","start") | Out-Null
+        for ($i=0; $i -lt 20; $i++) {
+            Start-Sleep -Seconds 1
+            try { $serverStatus = Invoke-Lms @("server","status","--json","--quiet") | ConvertFrom-Json } catch {}
+            if ($serverStatus -and $serverStatus.running -and $serverStatus.port) { break }
+        }
+    }
+    if (-not $serverStatus -or -not $serverStatus.running -or -not $serverStatus.port) { throw "LM Studio server did not become ready." }
+    $ServerPort = [int]$serverStatus.port
     $selected = $Model
     $config = Join-Path $DataRoot "lmstudio-model.json"
     if ([string]::IsNullOrWhiteSpace($selected) -and (Test-Path -LiteralPath $config)) {
