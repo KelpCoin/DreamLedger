@@ -1,129 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-NZ">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#060708"/>
-<meta name="description" content="DreamLedger — NZ marketplace with 0% platform fees. B2B + consumer. Enterprise commerce rails."/>
-<link rel="canonical" href="https://dreamledger.org/"/>
-<title>DreamLedger · NZ Marketplace · 0% fees</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090c">
+<meta name="description" content="DreamLedger: a public commerce and evidence surface for permanent media, digital identity, TCG commerce, B2B tools and machine-readable services.">
+<link rel="canonical" href="https://dreamledger.org/">
+<title>DreamLedger | Commerce, Evidence, Identity</title>
 <style>
-:root{--bg:#060708;--panel:#0e1116;--panel2:#141820;--line:#243040;--ink:#f3f5f7;--muted:#8b96a3;--gold:#d8b56b;--ok:#3dd68c;--max:1100px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-.wrap{max-width:var(--max);margin:0 auto;padding:0 1rem}
-.top{position:sticky;top:0;z-index:20;background:rgba(6,7,8,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:calc(.65rem + var(--st)) 0 .65rem}
-.top .inner{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
-.logo{font-weight:800;font-size:.95rem;letter-spacing:-.02em}.logo span{color:var(--gold)}
-.nav{display:flex;gap:.35rem;flex-wrap:wrap;justify-content:flex-end}
-.nav a{font-size:.72rem;font-weight:650;color:var(--muted);padding:.35rem .55rem;border-radius:999px;border:1px solid transparent}
-.nav a.primary{color:#0a0a0a;background:var(--ok);border-color:var(--ok)}
-.nav a.ghost{border-color:var(--line);color:var(--ink)}
-.hero{padding:1.5rem 0 1.25rem}
-.hero h1{font-size:clamp(1.75rem,6vw,2.75rem);line-height:1.08;letter-spacing:-.035em;max-width:18ch;margin-bottom:.65rem}
-.hero p{color:var(--muted);font-size:.95rem;max-width:36ch;margin-bottom:1rem}
-.hero-cta{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.1rem;border-radius:12px;font-weight:700;font-size:.9rem;border:none}
-.btn.ok{background:var(--ok);color:#062016}.btn.gold{background:var(--gold);color:#1a1408}.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.fees{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:1rem 0 1.25rem}
-@media(min-width:720px){.fees{grid-template-columns:repeat(4,1fr)}.cats{grid-template-columns:repeat(4,1fr)!important}}
-.fee{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.85rem}
-.fee strong{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.03em;color:var(--ok)}.fee span{font-size:.72rem;color:var(--muted)}
-.compare{display:grid;gap:.55rem;margin-bottom:1.5rem}
-.cmp{display:grid;grid-template-columns:1fr auto;gap:.35rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem;font-size:.8rem}
-.cmp .bad{color:#e07a7a}.cmp .good{color:var(--ok);font-weight:700}
-.section{padding:1.25rem 0 .5rem}.section h2{font-size:1.15rem;letter-spacing:-.025em;margin-bottom:.35rem}.section .sub{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}
-.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}
-.cat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.9rem .8rem;min-height:110px;display:flex;flex-direction:column}
-.cat .ico{font-size:1.35rem;margin-bottom:.35rem}.cat h3{font-size:.88rem;font-weight:700;margin-bottom:.2rem}.cat p{font-size:.72rem;color:var(--muted);flex:1}.cat .go{font-size:.72rem;font-weight:700;color:var(--gold);margin-top:.5rem}
-.rails{display:grid;gap:.55rem;margin-top:.75rem}
-.rail{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;display:grid;grid-template-columns:auto 1fr;gap:.65rem}
-.rail .n{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#1a1408;font-weight:800;font-size:.75rem;display:grid;place-items:center}
-.rail strong{display:block;font-size:.85rem}.rail span{font-size:.75rem;color:var(--muted)}
-.protect{display:grid;gap:.5rem;margin-top:.75rem}.prot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem;font-size:.8rem}.prot strong{color:var(--ok)}
-.bottom-cta{margin:1.5rem 0 calc(1.5rem + var(--sb));background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:1.15rem;text-align:center}
-.bottom-cta h2{font-size:1.2rem;margin-bottom:.35rem}.bottom-cta p{color:var(--muted);font-size:.85rem;margin-bottom:.85rem}.bottom-cta .row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
-.foot{border-top:1px solid var(--line);padding:1rem 0 calc(1rem + var(--sb));color:var(--muted);font-size:.7rem;display:flex;flex-wrap:wrap;gap:.75rem;justify-content:space-between}
+:root{--bg:#07090c;--panel:#0d1117;--panel2:#121923;--line:#263241;--ink:#f5f7fa;--muted:#94a0ad;--gold:#e1bd70;--green:#52e09b;--blue:#75b9ff;--max:1120px}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:radial-gradient(circle at 80% 0%,#172233 0,#07090c 38%);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 20px}
+header{position:sticky;top:0;z-index:20;background:rgba(7,9,12,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.bar{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:900;letter-spacing:-.04em}.brand span{color:var(--gold)}nav{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}nav a{font-size:13px;color:var(--muted);padding:8px 11px;border:1px solid transparent;border-radius:999px}nav a:hover{border-color:var(--line);color:var(--ink)}
+.hero{padding:76px 0 52px}.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:850}.hero h1{font-size:clamp(48px,8vw,94px);line-height:.91;letter-spacing:-.065em;max-width:10ch;margin:16px 0 22px}.hero p{font-size:clamp(18px,2.2vw,24px);color:var(--muted);max-width:720px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:12px;font-weight:800;font-size:14px;border:1px solid var(--line)}.btn.primary{background:var(--green);border-color:var(--green);color:#06150e}.btn.gold{background:var(--gold);border-color:var(--gold);color:#171106}.btn.dark{background:var(--panel);color:var(--ink)}
+.section{padding:42px 0}.section h2{font-size:clamp(28px,4vw,44px);letter-spacing:-.04em}.lead{color:var(--muted);max-width:700px;margin-top:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px;margin-top:22px}.card{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px;min-height:190px;display:flex;flex-direction:column}.tag{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);font-weight:850}.card h3{font-size:22px;letter-spacing:-.025em;margin:10px 0 7px}.card p{color:var(--muted);font-size:14px;flex:1}.go{margin-top:16px;color:var(--green);font-weight:800;font-size:13px}
+.road{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:22px}.road .card{min-height:0}.status{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:11px;color:var(--muted);margin-top:12px}.status.live{color:var(--green);border-color:#2e6b50}.status.blocked{color:var(--gold)}
+.truth{border:1px solid #3b4d62;background:linear-gradient(145deg,#101923,#0b1017);border-radius:20px;padding:24px;margin-top:22px}.truth strong{color:var(--blue)}.truth p{color:var(--muted);margin-top:7px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#b8c5d3;margin-top:14px;word-break:break-word}
+.footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);font-size:12px}.links{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}.links a{color:var(--ink)}
+@media(max-width:760px){.hero{padding-top:52px}.road{grid-template-columns:1fr}nav a:nth-child(n+4){display:none}}
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap inner">
-  <a class="logo" href="/">Dream<span>Ledger</span></a>
-  <nav class="nav">
-    <a class="ghost" href="/marketplace.html">Market</a>
-    <a class="ghost" href="/b2b.html">B2B</a>
-    <a class="ghost" href="/sell.html">Sell</a>
-    <a class="primary" href="/sell.html">List free</a>
-  </nav>
-</div></header>
+<header><div class="wrap bar"><a class="brand" href="/">Dream<span>Ledger</span></a><nav><a href="/billboard">Billboard</a><a href="/avatar.html">DreamMeez</a><a href="/marketplace.html">Market</a><a href="/truth-oracle.html">Truth Oracle</a><a href="/agentic-commerce.html">Agents</a></nav></div></header>
 <main class="wrap">
-  <section class="hero">
-    <h1>NZ marketplace.<br/>0% platform fees.</h1>
-    <p>Enterprise commerce rails. Facebook simplicity. Trade Me ambition. Stronger protection. We don't take a cut of peer sales.</p>
-    <div class="hero-cta">
-      <a class="btn ok" href="/marketplace.html">Open marketplace</a>
-      <a class="btn line" href="/b2b.html">B2B / RFQ</a>
-      <a class="btn gold" href="/cost-of-living.html">Free cost of living</a>\n      <a class="btn line" href="/quote-comparison/">Supplier quote comparison · NZ$49</a>
-    </div>
-    <div class="fees">
-      <div class="fee"><strong>0%</strong><span>Listing fee</span></div>
-      <div class="fee"><strong>0%</strong><span>Success fee</span></div>
-      <div class="fee"><strong>NZ</strong><span>Built for Kiwis</span></div>
-      <div class="fee"><strong>Stripe</strong><span>Settled sales only</span></div>
-    </div>
-    <div class="compare">
-      <div class="cmp"><span>Trade Me success fees</span><span class="bad">~5.9%–11.9%</span></div>
-      <div class="cmp"><span>Facebook Marketplace</span><span class="good">$0 · weak protection</span></div>
-      <div class="cmp"><span>DreamLedger</span><span class="good">$0 platform · truth-gated</span></div>
-    </div>
-  </section>
-  <section class="section">
-    <h2>Shop by world</h2>
-    <p class="sub">Same spine. Clear silos.</p>
-    <div class="cats">
-      <a class="cat" href="/marketplace.html"><div class="ico">🛒</div><h3>Full marketplace</h3><p>Search, filter, live offers.</p><span class="go">Open →</span></a>
-      <a class="cat" href="/b2b.html"><div class="ico">🏭</div><h3>B2B / wholesale</h3><p>RFQs, MOQ, quotes.</p><span class="go">Open B2B →</span></a>
-      <a class="cat" href="/mtg"><div class="ico">🎴</div><h3>MTG & cards</h3><p>Diagnostics + silo.</p><span class="go">Open MTG →</span></a>
-      <a class="cat" href="/sell.html"><div class="ico">📦</div><h3>List free</h3><p>0% success fee.</p><span class="go">List →</span></a>
-      <a class="cat" href="/billboard"><div class="ico">📺</div><h3>Billboard</h3><p>Permanent placement.</p><span class="go">Claim →</span></a>
-      <a class="cat" href="/cost-of-living.html"><div class="ico">🧭</div><h3>Cost of living</h3><p>Truth Oracle · free.</p><span class="go">Free advice →</span></a>
-      <a class="cat" href="/truth-oracle.html"><div class="ico">✓</div><h3>Truth Oracle</h3><p>Evidence-aware checks.</p><span class="go">Open →</span></a>
-      <a class="cat" href="/avatar.html"><div class="ico">◎</div><h3>DreamMeez</h3><p>Identity + streaks.</p><span class="go">Create →</span></a>
-      <a class="cat" href="/agent-commerce.json"><div class="ico">🤖</div><h3>Agent commerce</h3><p>Machine-readable offers.</p><span class="go">API →</span></a>
-    </div>
-  </section>
-  <section class="section">
-    <h2>How money moves</h2>
-    <div class="rails">
-      <div class="rail"><div class="n">1</div><div><strong>List free</strong><span>No listing fee. No success fee. Truth gate.</span></div></div>
-      <div class="rail"><div class="n">2</div><div><strong>Buyer pays via Stripe</strong><span>Settled payment only counts.</span></div></div>
-      <div class="rail"><div class="n">3</div><div><strong>You keep the sale</strong><span>No platform cut on peer sales.</span></div></div>
-      <div class="rail"><div class="n">4</div><div><strong>We earn on tools</strong><span>Diagnostics, billboard, B2B tools.</span></div></div>
-    </div>
-  </section>
-  <section class="section">
-    <h2>Protection</h2>
-    <div class="protect">
-      <div class="prot"><strong>Truth gate.</strong> Misrepresentation removed.</div>
-      <div class="prot"><strong>Settled only.</strong> Stripe recorded — not chat promises.</div>
-      <div class="prot"><strong>Silos.</strong> MTG, B2B, consumer boundaries.</div>
-      <div class="prot"><strong>Evidence.</strong> Truth Oracle when claims need proof.</div>
-    </div>
-  </section>
-  <section class="bottom-cta">
-    <h2>Enterprise rails. Zero rake.</h2>
-    <p>dreamledger.org — NZ marketplace engine.</p>
-    <div class="row">
-      <a class="btn ok" href="/marketplace.html">Marketplace</a>
-      <a class="btn gold" href="/b2b.html">B2B</a>
-      <a class="btn line" href="/sell.html">List free</a>
-    </div>
-  </section>
-  <footer class="foot">
-    <span>DreamLedger · dreamledger.org · NZ</span>
-    <span><a href="/marketplace.html">Market</a> · <a href="/b2b.html">B2B</a> · <a href="/sell.html">Sell</a> · <a href="/agent-commerce.json">Agents</a></span>
-  </footer>
+<section class="hero">
+<div class="eyebrow">Public commerce infrastructure</div>
+<h1>Commerce with a memory.</h1>
+<p>Permanent media, digital identity, TCG commerce, B2B tools and machine-readable services on one evidence-aware surface. Discoverable first. Paid only when payment actually settles. Truth stays separate from marketing.</p>
+<div class="actions"><a class="btn primary" href="/billboard">Explore the Billboard</a><a class="btn gold" href="/truth-oracle.html">Open Truth Oracle</a><a class="btn dark" href="/agentic-commerce.html">Agent commerce</a></div>
+</section>
+
+<section class="section">
+<div class="eyebrow">The five roads</div><h2>Where the economic substrate goes.</h2><p class="lead">The website is the public front door. The workshop stays behind it. Each road can use the same discovery, payment, fulfillment and evidence boundaries.</p>
+<div class="grid">
+<a class="card" href="/billboard"><span class="tag">01 · Media</span><h3>Internet Billboard</h3><p>A finite, permanent digital canvas. Founding placements are real inventory, paid through Stripe and reviewed before publication.</p><span class="go">Open surface →</span></a>
+<a class="card" href="/avatar.html"><span class="tag">02 · Identity</span><h3>DreamMeez</h3><p>Avatar identity and cosmetics with an account-backed path into PhinHaven. No fake users and no invented ownership.</p><span class="go">Build identity →</span></a>
+<a class="card" href="/agentic-commerce.html"><span class="tag">03 · Commerce</span><h3>Commerce engine</h3><p>Machine-readable offers, Stripe checkout, B2B comparison and bounded automated services.</p><span class="go">View machine rails →</span></a>
+<a class="card" href="/marketplace.html"><span class="tag">04 · TCG + market</span><h3>Marketplace</h3><p>Consumer and TCG entry surfaces remain separated from the MTG reference silo while sharing the commercial spine.</p><span class="go">Open market →</span></a>
+<a class="card" href="/b2b.html"><span class="tag">05 · B2B</span><h3>Buyer ↔ supplier</h3><p>RFQs, supplier quote comparison and decision-ready procurement tools for real commercial demand.</p><span class="go">Open B2B →</span></a>
+</div>
+</section>
+
+<section class="section">
+<div class="eyebrow">Toll roads</div><h2>One public map for fiat, crypto and evidence.</h2>
+<div class="road">
+<div class="card"><span class="tag">Fiat rail</span><h3>Stripe settled commerce</h3><p>Current fiat offers use the existing Stripe checkout and settlement observation chain. Checkout creation is not revenue. Settlement plus fulfillment plus evidence is the boundary.</p><span class="status live">PUBLIC · STRIPE</span><span class="go">Browse offers →</span></div>
+<div class="card"><span class="tag">Crypto rail</span><h3>x402 / USDC on Base</h3><p>The deterministic quote-verifier rail is deployed separately and prepared for x402 discovery. It remains economically unarmed until a legitimate receiving address is configured.</p><span class="status blocked">CONFIGURATION REQUIRED · NO REVENUE CLAIM</span><span class="go">Machine endpoint →</span></div>
+</div>
+<div class="truth"><strong>Truth Oracle is the common evidence layer.</strong><p>Claims, prices, TCG facts, currency observations and commercial outcomes can be surfaced through explicit evidence states. The Oracle does not turn an assertion into a fact just because someone paid to see it.</p><div class="mono">/truth-oracle.html · /agent-commerce.json · /toll-road.json · /commerce-roads.json</div></div>
+</section>
+
+<section class="section">
+<div class="eyebrow">Distribution</div><h2>Same payload. Multiple doors.</h2>
+<div class="grid">
+<a class="card" href="/truth-oracle.html"><span class="tag">Truth Oracle</span><h3>Public evidence</h3><p>Best default distribution surface for evidence-backed claims, comparisons and machine-readable results.</p><span class="go">Open Oracle →</span></a>
+<a class="card" href="/agent-commerce.json"><span class="tag">Machines</span><h3>Agent discovery</h3><p>Offers, products, buy routes and economic-boundary rules are exposed as structured data.</p><span class="go">Read manifest →</span></a>
+<a class="card" href="/toll-booths.html"><span class="tag">Fiat</span><h3>Toll booths</h3><p>Existing bounded services and live Stripe paths, without counting infrastructure activity as revenue.</p><span class="go">Open toll booths →</span></a>
+<a class="card" href="/agent-bridge.html"><span class="tag">Discord</span><h3>Authorized distribution</h3><p>Discord remains an external publication adapter, not the truth source. Publication requires the existing authorization boundary and webhook credential.</p><span class="go">Inspect bridge →</span></a>
+</div>
+</section>
+
+<section class="section">
+<div class="eyebrow">Economic boundary</div><h2>NZ$0 means NZ$0.</h2>
+<p class="lead">DreamLedger does not count routes, checkouts, scans, internal jobs, test payments, candidate buyers or generated receipts as revenue. The scoreboard changes only after an independent buyer pays and the existing fulfillment and evidence chain verifies the outcome.</p>
+</section>
 </main>
-</body>
-</html>
+<footer class="wrap footer">DreamLedger · NZ · public commerce + evidence surface<div class="links"><a href="/marketplace.html">Market</a><a href="/billboard">Billboard</a><a href="/avatar.html">DreamMeez</a><a href="/truth-oracle.html">Truth Oracle</a><a href="/agent-commerce.json">Agent API</a><a href="/commerce-roads.json">Commerce roads</a></div></footer>
+</body></html>
