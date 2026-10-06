@@ -178,6 +178,10 @@ function publicManifest(extraServices = []) {
     { id: 'MULTI-AGENT-ROOM', route: '/api/toll/v1/multi-agent-room', scope: 'multi-agent-room', price_nzd: 39, description: 'Multi-agent coordination room' },
     { id: 'CAPACITY-FUTURES', route: '/api/toll/v1/capacity-futures', scope: 'capacity-futures', price_nzd: 75, description: 'Prepaid burst capacity futures' }
     ,{ id: 'TOLL-NEXUS', route: '/api/toll/v1/nexus', scope: 'nexus', price_nzd: 49, description: 'One paid run composing truth, Gauntlet, passport, rooms, capacity, seats, and org coordination' }
+    ,{ id: 'TRINITY-RUN', route: '/api/toll/v1/trinity', scope: 'trinity', price_nzd: 49, description: '25 automated runs composing Elohim truth, Gauntlet decision, and Agent Bridge coordination' }
+    ,{ id: 'ENTERPRISE-WALL', route: '/api/toll/v1/enterprise-wall', scope: 'enterprise-wall', price_nzd: 499, description: '500k-call enterprise toll wall' }
+    ,{ id: 'ENTERPRISE-PRO', route: '/api/toll/v1/enterprise-pro', scope: 'enterprise-pro', price_nzd: 1499, description: '2M-call enterprise tier with SLA' }
+    ,{ id: 'WHITE-LABEL', route: '/api/toll/v1/white-label', scope: 'white-label', price_nzd: 999, description: '100k-call white-label route namespace' }
   ].map(s => Object.assign({ checkout_configured: true }, s));
   return {
     schema: 'dreamledger/toll-road/v2',
