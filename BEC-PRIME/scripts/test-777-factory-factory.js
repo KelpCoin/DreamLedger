@@ -14,4 +14,8 @@ assert.equal(new Set(ids).size,ids.length);
 assert.ok(factories.every(x=>x.instances.every(i=>i.external_action==='BLOCKED')));
 assert.ok(factories.every(x=>x.instances.every(i=>i.replication_permission===false)));
 assert.ok(factories.every(x=>x.instances.every(i=>i.truth_status==='UNVERIFIED')));
+const repeat=buildModularFactories(adapters,'SEED-001');
+assert.deepEqual(ids,repeat.flatMap(x=>x.instances.map(i=>i.factory_instance_id)));
+const next=buildModularFactories(adapters,'SEED-002');
+assert.notDeepEqual(ids,next.flatMap(x=>x.instances.map(i=>i.factory_instance_id)));
 console.log('777_FACTORY_FACTORY_TEST=PASS');
