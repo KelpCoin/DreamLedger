@@ -32,4 +32,8 @@ if($items2.Count -eq 1 -and $items2[0].models){$items2=@($items2[0].models)}
 $ok=$items2|Where-Object{([string]$_.identifier)-eq$model -or([string]$_.modelKey)-eq$model}
 if(-not$ok){throw "Configured model is not loaded: $model"}
 [ordered]@{schema="BEC-LMSTUDIO-WATCHDOG-1.0";status="PASS";model=$model;server="http://127.0.0.1:1234";checked_at_utc=(Get-Date).ToUniversalTime().ToString("o")}|ConvertTo-Json|Set-Content -LiteralPath $proof -Encoding UTF8
-Write-Host "PASS: LM Studio watchdog verified $model"
+$swarm=if(Test-Path "D:\BrownEyeCortex\runtime\lm_studio\LM-Studio-Swarm.ps1"){"D:\BrownEyeCortex\runtime\lm_studio\LM-Studio-Swarm.ps1"}elseif(Test-Path "C:\BrownEyeCortex\runtime\lm_studio\LM-Studio-Swarm.ps1"){"C:\BrownEyeCortex\runtime\lm_studio\LM-Studio-Swarm.ps1"}else{$null}
+$swarmRunning=Get-CimInstance Win32_Process -ErrorAction SilentlyContinue|Where-Object{$_.CommandLine -like "*LM-Studio-Swarm.ps1*"}
+if($swarm -and -not $swarmRunning){Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$swarm`"" -WindowStyle Hidden}
+[ordered]@{schema="BEC-LMSTUDIO-WATCHDOG-1.1";status="PASS";model=$model;server="http://127.0.0.1:1234";swarm=if($swarmRunning){"RUNNING"}elseif($swarm){"RESTARTED"}else{"NOT_FOUND"};checked_at_utc=(Get-Date).ToUniversalTime().ToString("o")}|ConvertTo-Json|Set-Content -LiteralPath $proof -Encoding UTF8
+Write-Host "PASS: LM Studio watchdog verified $model; swarm heartbeat checked"
