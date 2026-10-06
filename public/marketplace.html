@@ -79,11 +79,11 @@ h1{font-size:clamp(1.45rem,4.8vw,2.1rem);letter-spacing:-.03em;line-height:1.1;m
     </div>
     <div class="metrics">
       <div class="m"><b>0%</b><span>Success fee</span></div>
-      <div class="m"><b id="nList">—</b><span>Listings</span></div>
-      <div class="m"><b id="nRfq">—</b><span>Open RFQs</span></div>
+      <div class="m"><b id="nList">0</b><span>Live listings</span></div>
+      <div class="m"><b id="nRfq">0</b><span>Live RFQs</span></div>
       <div class="m"><b>NZD</b><span>Stripe settle</span></div>
     </div>
-    <div class="banner"><strong>Honest scope:</strong> This is a working marketplace board (list · RFQ · browse · tools). Full Trade Me parity needs messaging, disputes, logistics, and scale — roadmap, not fake claims.</div>
+    <div class="banner"><strong>Live-data rule:</strong> only real listings and RFQs are published. Empty inventory is shown as empty. The platform does not manufacture sellers, buyers, suppliers or demand to make the marketplace look busy.</div>
     <div class="tabs" id="tabs">
       <button type="button" class="tab on" data-t="listings">Listings</button>
       <button type="button" class="tab" data-t="rfqs">RFQ board</button>
@@ -97,12 +97,12 @@ h1{font-size:clamp(1.45rem,4.8vw,2.1rem);letter-spacing:-.03em;line-height:1.1;m
   </section>
 
   <section class="panel on" id="p-listings">
-    <div class="sec-h">Wholesale & retail listings <a href="/sell.html">Add listing →</a></div>
+    <div class="sec-h">Wholesale & retail listings <a href="/sell.html">Add listing →</a></div><p class="empty">No verified live listings are currently published. That is intentional. Submit a real listing to populate this board.</p>
     <div class="grid g3" id="listings"></div>
   </section>
 
   <section class="panel" id="p-rfqs">
-    <div class="sec-h">Open RFQs <a href="/b2b.html#rfq">Post RFQ →</a></div>
+    <div class="sec-h">Open RFQs <a href="/b2b.html#rfq">Post RFQ →</a></div><p class="empty">No verified live RFQs are currently published.</p>
     <div class="grid" id="rfqs"></div>
   </section>
 
@@ -124,26 +124,10 @@ h1{font-size:clamp(1.45rem,4.8vw,2.1rem);letter-spacing:-.03em;line-height:1.1;m
 
 <script>
 (function(){
-  var SEED_LISTINGS=[
-    {id:'W1',title:'Pallet lot · mixed power tools',cat:'Trade supplies',price:2400,moq:1,region:'Auckland',seller:'Northside Trade Ltd',type:'b2b',desc:'Customer returns + overstock. Mixed brands. Photos on request. Local pickup preferred.'},
-    {id:'W2',title:'Commercial coffee machine · 2-group',cat:'Hospitality',price:3200,moq:1,region:'Wellington',seller:'Harbour Hospo Supply',type:'b2b',desc:'Serviced 2025. Includes group handles. Buyer freight.'},
-    {id:'W3',title:'MTG wholesale sealed case · Modern horizons',cat:'MTG',price:8900,moq:1,region:'Christchurch',seller:'South Island Cards',type:'mtg',desc:'Factory sealed. Invoice available. GST registered.'},
-    {id:'W4',title:'Office chairs ×40 · mesh ergonomic',cat:'Office',price:4800,moq:10,region:'Hamilton',seller:'Waikato Fitout Co',type:'b2b',desc:'Ex-corporate. Good condition. Unit price drops at 20+.'},
-    {id:'W5',title:'Safety PPE carton mix',cat:'Construction',price:650,moq:5,region:'Tauranga',seller:'Bay Safety Wholesale',type:'b2b',desc:'Gloves, glasses, hi-vis. Mixed sizes. NZ standards marked.'},
-    {id:'W6',title:'Vintage wool jersey · size M',cat:'Consumer',price:45,moq:1,region:'Dunedin',seller:'Private seller',type:'consumer',desc:'Smoke-free home. Pickup or tracked post.'},
-    {id:'W7',title:'IT hardware lot · switches & AP',cat:'IT',price:1750,moq:1,region:'Auckland',seller:'CloudEdge NZ',type:'b2b',desc:'Decommissioned enterprise gear. Tested power-on.'},
-    {id:'W8',title:'Event AV package weekend hire',cat:'Services',price:890,moq:1,region:'Auckland',seller:'StageRight AV',type:'b2b',desc:'Speakers, mixer, mics. Operator optional extra.'}
-  ];
-  var SEED_SUPPLIERS=[
-    {name:'Northside Trade Ltd',region:'Auckland',cats:'Trade · tools',note:'Wholesale lots, fast pickup'},
-    {name:'Harbour Hospo Supply',region:'Wellington',cats:'Hospitality',note:'Equipment + consumables'},
-    {name:'South Island Cards',region:'Christchurch',cats:'MTG · sealed',note:'GST invoices'},
-    {name:'Bay Safety Wholesale',region:'Tauranga',cats:'PPE · construction',note:'Carton pricing'},
-    {name:'CloudEdge NZ',region:'Auckland',cats:'IT hardware',note:'Enterprise decomm'},
-    {name:'StageRight AV',region:'Auckland',cats:'Events · AV',note:'Hire + operator'}
-  ];
+  var SEED_LISTINGS=[];
+  var SEED_SUPPLIERS=[];
   var TOOLS=[
-    {name:'Supplier Quote Comparison',price:'NZ$49',href:'https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32',desc:'2–5 quotes → decision packet'},
+    {name:'Supplier Quote Comparison',price:'UNAVAILABLE',href:'/supplier-quote-comparison.html',desc:'NZ$49 offer. Checkout currently cold-fails; do not purchase until restored.'},
     {name:'Seller Profit Audit',price:'NZ$29',href:'/buy/SELLER-PROFIT-AUDIT-001',desc:'Fees, shipping, margin leaks'},
     {name:'Commander Deck Diagnostic',price:'NZ$29',href:'/buy/COMMANDER-DECK-DIAGNOSTIC-001',desc:'MTG power band + upgrades'},
     {name:'Billboard tile',price:'NZ$50',href:'/billboard',desc:'Permanent public placement'},
@@ -163,12 +147,7 @@ h1{font-size:clamp(1.45rem,4.8vw,2.1rem);letter-spacing:-.03em;line-height:1.1;m
 
   var listings=SEED_LISTINGS.concat(loadLocalListings());
   var rfqs=loadRfqs();
-  if(!rfqs.length){
-    rfqs=[
-      {id:'RFQ-DEMO-1',title:'200× COTS temperature sensors',category:'IT & hardware',region:'Auckland',company:'AgriSense NZ',details:'Need datasheet + 30-day lead. Budget under 18k.',createdAt:new Date().toISOString()},
-      {id:'RFQ-DEMO-2',title:'Fit-out quote · 120m² office',category:'Construction & trade',region:'Wellington',company:'Harbour Advisors',details:'Partitions, data, paint. Site visit required.',createdAt:new Date().toISOString()}
-    ];
-  }
+  if(!rfqs.length){ rfqs=[]; }
 
   document.getElementById('nList').textContent=String(listings.length);
   document.getElementById('nRfq').textContent=String(rfqs.length);
