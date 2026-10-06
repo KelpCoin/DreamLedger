@@ -24,8 +24,9 @@ function Invoke-Heartbeat {
 
   if (Test-Path -LiteralPath $LmSwarm) {
     try {
-      $existing=Get-Process powershell -ErrorAction SilentlyContinue | Where-Object { $_.Path -and $_.CommandLine -match "LM-Studio-Swarm.ps1" }
-      if(-not $existing) {
+      $existing = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue |
+        Where-Object { [string]$_.CommandLine -match "LM-Studio-Swarm\.ps1" })
+      if($existing.Count -eq 0) {
         Start-Process powershell.exe -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-File",$LmSwarm -WindowStyle Hidden | Out-Null
         $lmStatus="STARTED"
       } else { $lmStatus="ALREADY_RUNNING" }
