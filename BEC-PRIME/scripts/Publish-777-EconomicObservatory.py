@@ -466,8 +466,6 @@ def main():
         published.append(chosen)
 
     manifest["events"] = manifest["events"][:5000]
-    manifest["updated_at_utc"] = now_iso()
-    write_json(MANIFEST, manifest)
 
     pulse = load_json(PULSE, {
         "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
@@ -497,6 +495,9 @@ def main():
             "changed": False
         }, indent=2))
         return 0
+
+    manifest["updated_at_utc"] = now_iso()
+    write_json(MANIFEST, manifest)
 
     pulse["generated_at_utc"] = now_iso()
     pulse["status"] = "UNVERIFIED_SUBSTRATE_SNAPSHOT"
