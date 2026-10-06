@@ -7,6 +7,7 @@ on:
       - "BEC-PRIME/scripts/Run-777.js"
       - "BEC-PRIME/scripts/test-777-amber-room.js"
       - "BEC-PRIME/scripts/test-777-factory-factory.js"
+      - "BEC-PRIME/runtime/777/**"
       - "BEC-PRIME/scripts/FactoryFactory.js"
       - "BEC-PRIME/economic/**"
       - "BEC-PRIME/catalog/**"
@@ -57,6 +58,10 @@ jobs:
       - name: Verify modular factory-factory contract
         working-directory: BEC-PRIME
         run: node scripts/test-777-factory-factory.js
+
+      - name: Verify executable Evergreen runtime assembly
+        working-directory: BEC-PRIME
+        run: node --test runtime/777/777-EvergreenRuntime.test.js
 
       - name: Verify generated factory artifact
         working-directory: BEC-PRIME
