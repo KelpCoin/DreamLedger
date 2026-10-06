@@ -2,7 +2,7 @@ name: 777 Social Distribution
 
 on:
   schedule:
-    - cron: "17 */4 * * *"
+    - cron: "17 9,21 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -39,10 +39,15 @@ jobs:
           import json, os, hashlib
           cell=os.environ["CELL_ID"]
           target="https://dreamledger.org/go?utm_source=777&utm_medium=social&utm_campaign=cmd_diag_29&utm_content="+cell
-          text=("Commander players: if your deck is doing something weird but you cannot tell which "
-                "slots are actually responsible, DreamLedger offers a NZ$29 Commander Diagnostic. "
-                "It checks curve, ramp, draw, interaction, commander synergy, weak slots and economical upgrades. "
-                "No hype, just a bounded diagnostic. "+target)
+          variants=[
+            "Commander deck stuck in the middle? A NZ$29 diagnostic checks curve, ramp, draw, interaction, commander synergy and weak slots, then gives economical upgrade directions. "+target,
+            "Bought cards, changed the deck, still not sure what is actually weak? DreamLedger does a NZ$29 structured Commander Diagnostic with evidence-backed measurements and upgrade priorities. "+target,
+            "Deck advice gets noisy fast. The DreamLedger NZ$29 Commander Diagnostic turns a decklist into a bounded report on curve, ramp, draw, interaction, synergy and upgrade priorities. "+target,
+            "If your Commander deck dies in the details, the details are what we measure. NZ$29 for a structured diagnostic and economical upgrade path. "+target,
+            "One decklist. One structured pass. Curve, ramp, draw, interaction, commander synergy, weak slots and economical upgrades for NZ$29. "+target
+          ]
+          import datetime
+          text=variants[datetime.datetime.utcnow().timetuple().tm_yday % len(variants)]
           packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v1","cell_id":cell,
                   "offer_id":"CMD-DIAG-29","surface_family":"SOCIAL","target_url":target,
                   "message":text,"authorization":"PREAUTHORIZED_PIPELINE_ONLY",
