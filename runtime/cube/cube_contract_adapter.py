@@ -54,6 +54,13 @@ def validate_trace(trace: dict[str, Any]) -> list[str]:
         errors.append("DELIVERABLE_NOT_OBJECT")
     if not _nonempty(trace.get("output_hash")):
         errors.append("OUTPUT_HASH_MISSING")
+    elif trace["output_hash"] != sha256_json(trace.get("deliverable")):
+        errors.append("OUTPUT_HASH_MISMATCH")
+    hop_count = trace.get("hop_count")
+    if hop_count is not None and (not isinstance(hop_count, int) or hop_count < 0 or hop_count > 16):
+        errors.append("HOP_COUNT_OUT_OF_RANGE")
+    if trace.get("parent_trace_id") and not trace.get("previous_receipt_hash"):
+        errors.append("PREVIOUS_RECEIPT_HASH_MISSING")
     return errors
 
 
@@ -94,12 +101,14 @@ def adapt(trace: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any]:
     required = _required_fields(contract)
     bindings: list[dict[str, Any]] = []
     missing: list[str] = []
+    covered_source_fields: set[str] = set()
 
     for clause_id, field in enumerate(required, start=1):
         value, source_key = _resolve(deliverable, field)
         if source_key is None:
             missing.append(field)
             continue
+        covered_source_fields.add(source_key)
         bindings.append({
             "clause_id": f"REQ-{clause_id:03d}",
             "contract_field": field,
@@ -114,12 +123,18 @@ def adapt(trace: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(evidence_refs, list) or not isinstance(artifact_refs, list):
         raise ValueError("EVIDENCE_OR_ARTIFACT_REFS_NOT_LIST")
 
+    # ZFT-style reverse coverage: every deliverable element must be justified
+    # by a declared contract field. This prevents silent scope creep.
+    unbound_deliverable_fields = sorted(set(deliverable) - covered_source_fields)
+
     coverage = {
         "required_clause_count": len(required),
         "covered_clause_count": len(bindings),
         "missing_clause_count": len(missing),
         "bidirectional_scope_ok": bool(required and not missing) if required else True,
         "missing_contract_fields": missing,
+        "unbound_deliverable_fields": unbound_deliverable_fields,
+        "reverse_coverage_ok": not unbound_deliverable_fields,
     }
 
     deterministic_input = {
@@ -146,11 +161,12 @@ def adapt(trace: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any]:
     result = {
         "adapter_schema": "dreamledger/cube/contract-adapter/v1",
         "adapter_version": 1,
-        "status": "READY" if not missing else "BLOCKED",
+        "status": "READY" if not missing and not unbound_deliverable_fields else "BLOCKED",
         "trace_schema_version": trace["trace_schema_version"],
         "contract": contract.get("candidate_id") or contract.get("schema"),
         "bindings": bindings,
         "missing": missing,
+        "unbound_deliverable_fields": unbound_deliverable_fields,
         "deterministic_input": deterministic_input,
     }
     result["adapter_hash"] = sha256_json(result)
