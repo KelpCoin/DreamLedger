@@ -483,6 +483,21 @@ def main():
         "verified_mechanisms": [],
         "commercial_surfaces": [],
     })
+    if not chosen:
+        print(json.dumps({
+            "status": "PASS",
+            "discovered": len(discovered),
+            "new_candidates": len(candidates),
+            "published_this_cycle": 0,
+            "supabase": "NOT_ATTEMPTED",
+            "manifest_count": len(manifest["events"]),
+            "truth": pulse.get("truth", {}),
+            "external_action": "NONE",
+            "verification": "UNVERIFIED",
+            "changed": False
+        }, indent=2))
+        return 0
+
     pulse["generated_at_utc"] = now_iso()
     pulse["status"] = "UNVERIFIED_SUBSTRATE_SNAPSHOT"
     pulse["truth"] = {
