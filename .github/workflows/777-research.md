@@ -108,7 +108,7 @@ Every generated public artifact must clearly distinguish:
 
 OBSERVED SIGNAL from REAL DEMAND, REAL BUYER, PAYMENT, and VERIFIED OUTCOME.
 
-The 777 system is successful when durable knowledge and commercially testable surfaces accumulate while false economic proof does not.
+The 777 system is successful when durable knowledge and commercially testable surfaces accumulate while false economic proof does not.\n\n## First commercial gravity test\n\nWhen a signal is strong enough to support a candidate, prefer a specific buyer class and measurable commercial friction over a generic sector summary. For education construction, treat subcontractor quote normalisation for main contractors as a candidate hypothesis only until an external response or payment independently verifies it.
 
 ## PR rule
 
