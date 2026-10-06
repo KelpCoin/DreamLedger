@@ -53,7 +53,7 @@
       "status": "PUBLIC",
       "rail": "Stripe",
       "settlement": "stripe_live_only",
-      "entry": "https://buy.stripe.com/9B6fZh6HzcO9eqHdVadwc38",
+      "entry": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
       "price": "NZ$50",
       "truth": "settled payment + placement published + evidence logged"
     }
