@@ -63,6 +63,12 @@ function elohimProposal(seed, variant, scorecard) {
       variant_id: variant.variant_id
     },
     kill_condition: variant.kill_gate || 'NO_QUALIFIED_DEMAND_OR_NO_FULFILLMENT_PROOF',
+    scorecard: {
+      schema: scorecard?.schema || null,
+      checks: scorecard?.gauntlet?.checks || [],
+      verdicts: scorecard?.gauntlet?.verdicts || ['PASS','HOLD','KILL','CONTRADICTED'],
+      promotion_rule: scorecard?.gauntlet?.promotion_rule || 'VERIFIED_EXTERNAL_OUTCOME_REQUIRED'
+    },
     scorecard_schema: scorecard?.schema || null,
     external_action: 'BLOCKED',
     replication_permission: false
