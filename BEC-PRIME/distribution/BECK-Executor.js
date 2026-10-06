@@ -34,7 +34,8 @@ async function execute() {
   const state = fs.existsSync(STATE) ? read(STATE) : prepare();
   if (state.status !== 'APPROVED' || state.public_action_allowed !== true) throw new Error('HARD GATE: campaign must be explicitly APPROVED before execution');
   fs.mkdirSync(ASSETS, { recursive: true });
-  const trackedUrl = c.doorway.template.replace('{source}', 'direct_outreach').replace('{medium}', 'direct').replace('{campaign}', encodeURIComponent(c.campaign_id)).replace('{placement}', 'campaign').replace('{experiment_id}', encodeURIComponent(c.campaign_id)).replace('{offer_id}', encodeURIComponent(c.offer.offer_id));
+  const doorwayTemplate = c.doorway.template || 'https://dreamledger.org/go?utm_source={source}&utm_medium={medium}&utm_campaign={campaign}&placement={placement}&experiment_id={experiment_id}&offer_id={offer_id}';
+  const trackedUrl = doorwayTemplate.replace('{source}', 'direct_outreach').replace('{medium}', 'direct').replace('{campaign}', encodeURIComponent(c.campaign_id)).replace('{placement}', 'campaign').replace('{experiment_id}', encodeURIComponent(c.campaign_id)).replace('{offer_id}', encodeURIComponent(c.offer.offer_id));
   const qrPath = path.join(ASSETS, 'D-001-canonical.svg');
   await QRCode.toFile(qrPath, trackedUrl, { type: 'svg', errorCorrectionLevel: 'M', margin: 2, width: 800 });
   const handoff = { campaign_id: c.campaign_id, tracked_url: trackedUrl, qr_asset: qrPath, external_actions: [{ channel: 'direct_outreach', target_count: c.audience.max_targets, mode: 'STAGED_NOT_SENT', approval_required: true }], message_template: 'I built a finite digital billboard where a founding tile stays visible until 3000. The founding tile is NZ$50. If you want one, the details are here: ' + trackedUrl };
