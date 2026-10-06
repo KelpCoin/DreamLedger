@@ -1,0 +1,94 @@
+{
+  "schema": "DREAMLEDGER/RUNTIME-CANON/v1",
+  "status": "CANONICAL",
+  "authority": "repository_runtime",
+  "chat_is_not_runtime": true,
+  "economic_priority": "RA_000001",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "independent_external_buyers": 0,
+    "settled_external_payments": 0,
+    "verified_economic_outcomes": 0
+  },
+  "topology": [
+    "WORLD+SUBSTRATE",
+    "ELOHIM",
+    "CUBE",
+    "SWARM",
+    "ELOHIM_FORGE",
+    "GAUNTLET",
+    "777_CELL",
+    "AUTHORIZED_EXTERNAL_ACTION",
+    "REAL_WORLD",
+    "PAYMENT_FULFILLMENT",
+    "TRUTH_ORACLE",
+    "BECK",
+    "TELEMETRY",
+    "EVERGREEN_REPLICATION"
+  ],
+  "cloud_heartbeat": {
+    "workflow": ".github/workflows/bec-prime-pc-off-operator.yml",
+    "cadence": "*/5 * * * *",
+    "pc_required": false,
+    "purpose": "compile_verify_gauntlet_777_telemetry_autonomy_smoke"
+  },
+  "local_heartbeat": {
+    "entrypoint": "runtime/777/Start-BEC-Runtime.ps1",
+    "worker": "runtime/lm_studio/LM-Studio-Swarm.ps1",
+    "gpu_policy": "auto_discover_and_max",
+    "purpose": "keep_local_CUBE_SWARM_BECK_compute_alive"
+  },
+  "autonomy_policy": {
+    "automatic": [
+      "discover",
+      "search_substrate",
+      "generate_bounded_5_or_10_candidates",
+      "refine",
+      "repair",
+      "gauntlet",
+      "quarantine",
+      "retry_safe_work",
+      "attribute",
+      "telemetry",
+      "prepare_external_action"
+    ],
+    "human_gate_only": [
+      "identity",
+      "consent",
+      "new_credentials",
+      "spending",
+      "contract_acceptance",
+      "irreversible_external_authority"
+    ],
+    "forbidden": [
+      "self_purchase",
+      "fake_buyer",
+      "synthetic_settlement",
+      "fabricated_exposure",
+      "platform_bypass",
+      "secret_exfiltration",
+      "revenue_claim_without_attribution_fulfillment_evidence"
+    ]
+  },
+  "cell_identity": {
+    "required": true,
+    "continuity": [
+      "acquisition",
+      "checkout",
+      "settlement",
+      "fulfillment",
+      "evidence",
+      "telemetry"
+    ]
+  },
+  "evergreen": {
+    "batch_size": [5, 10],
+    "support_after_evidence": 2,
+    "replicate_only": "independently_verified_mechanisms"
+  },
+  "first_cell": {
+    "cell_id": "CMD-DIAG-29-QR-001",
+    "offer_id": "CMD-DIAG-29",
+    "price_nzd": 29
+  }
+}
