@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: bec-prime-economic-heartbeat
+  cancel-in-progress: false
+
 jobs:
   operate:
     runs-on: ubuntu-latest
@@ -90,10 +94,10 @@ jobs:
           mkdir -p operator-proof
           printf '{\n  "workflow": "BEC Prime PC-Off Operator",\n  "pc_required": false,\n  "utc": "%s",\n  "compile": "executed",\n  "truth_oracle_commerce": "executed",\n  "truth_oracle_tests": "executed",\n  "gauntlet": "executed",\n  "revenue_autonomy": "executed",\n  "revenue_ledger_smoke": "executed"\n}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > operator-proof/AUTONOMOUS_OPERATOR_PROOF.json
 
-      - name: Upload proof
+      - name: Upload complete operator proof bundle
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bec-prime-operator-proof
-          path: BEC-PRIME/operator-proof/AUTONOMOUS_OPERATOR_PROOF.json
+          path: BEC-PRIME/operator-proof/
           if-no-files-found: error
