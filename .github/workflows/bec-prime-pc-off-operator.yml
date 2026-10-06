@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: read
@@ -42,6 +42,9 @@ jobs:
 
       - name: Run Gauntlet
         run: npm run gauntlet
+
+      - name: Run 777 economic search heartbeat
+        run: npm run 777:run
 
       - name: Run revenue autonomy cycle
         run: npm run autonomy:cycle
