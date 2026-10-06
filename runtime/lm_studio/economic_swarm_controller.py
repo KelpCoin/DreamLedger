@@ -1,4 +1,4 @@
-import json, os, sys, time, subprocess, urllib.request, urllib.parse
+import json, os, sys, time, hashlib, subprocess, urllib.request, urllib.parse
 from datetime import datetime, timezone
 BASE=os.environ.get("LM_STUDIO_BASE_URL","http://localhost:1234")
 MODEL=os.environ.get("DREAMLEDGER_LM_MODEL") or os.environ.get("BECK_LM_MODEL")
@@ -9,13 +9,37 @@ ROOT=os.environ.get("DREAMLEDGER_ROOT") or os.getcwd()
 777_PATH=os.path.join(ROOT,"BEC-PRIME","data","777","777-LATEST.json")
 RUN777=os.path.join(ROOT,"BEC-PRIME","scripts","Run-777.js")
 LOG=os.path.join(ROOT,"runtime","lm_studio","runs"); os.makedirs(LOG,exist_ok=True)
+SUBSTRATE=os.path.join(ROOT,"runtime","cube","substrate_inventory.json")
+TRACE=os.path.join(ROOT,"runtime","777","cube-swarm-traces.jsonl")
+os.makedirs(os.path.dirname(TRACE),exist_ok=True)
+
+def load_substrate():
+    try: return json.load(open(SUBSTRATE,encoding="utf-8"))
+    except Exception as ex: return {"load_error":str(ex),"money_lanes":[],"reusable_transformations":[]}
+
+def population(substrate):
+    lanes=substrate.get("money_lanes",[]) if isinstance(substrate,dict) else []
+    transforms=substrate.get("reusable_transformations",[]) if isinstance(substrate,dict) else []
+    surfaces=["SEARCH","COMMUNITY","DIRECTORY","QR","TUMBLR","X","BILLBOARD","OWNED_SITE"]
+    out=[]
+    for lane in lanes[:10]:
+        for transform in transforms[:3]:
+            x={"lane_id":lane.get("id"),"transformation_id":transform.get("id"),"surface":surfaces[len(out)%len(surfaces)]}
+            x["cell_id"]="CUBE-"+hashlib.sha256(json.dumps(x,sort_keys=True).encode()).hexdigest()[:16].upper()
+            out.append(x)
+            if len(out)>=10:return out
+    return out
+
+def trace(record):
+    with open(TRACE,"a",encoding="utf-8") as f:f.write(json.dumps(record,separators=(",",":"))+"\n")
 
 def get(url,headers=None,timeout=15):
     r=urllib.request.Request(url,headers=headers or {"Accept":"application/json"})
     with urllib.request.urlopen(r,timeout=timeout) as x: return json.loads(x.read().decode())
 
 def snapshot():
-    e={"timestamp_utc":datetime.now(timezone.utc).isoformat(),"economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},"constraints":["no self purchase","no simulated revenue","no fake buyers","no autonomous outreach or proposal submission","no autonomous spending","no credential or secret handling","no bypass of platform controls","human gate for irreversible external action"]}
+    sub=load_substrate(); pop=population(sub)
+    e={"timestamp_utc":datetime.now(timezone.utc).isoformat(),"economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},"substrate_population":pop,"constraints":["no self purchase","no simulated revenue","no fake buyers","no autonomous outreach or proposal submission","no autonomous spending","no credential or secret handling","no bypass of platform controls","human gate for irreversible external action"]}
     if os.path.exists(777_PATH):
         try:
             latest=json.loads(open(777_PATH,encoding="utf-8").read())
@@ -47,7 +71,8 @@ def cycle():
     models=get(BASE+"/v1/models").get("data",[]); ids=[str(x.get("id")) for x in models]; model=MODEL or (ids[0] if ids else "")
     if not model or model not in ids: return {"status":"BLOCKED","reason":"NO_USABLE_LM_STUDIO_MODEL","available_models":ids}
     seven=run_777()
-    d=decide(snapshot(),model); out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
+    snap=snapshot(); d=decide(snap,model); out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
+    trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v1","timestamp_utc":out["timestamp_utc"],"model":model,"cell_count":len(snap.get("substrate_population",[])),"population":snap.get("substrate_population",[]),"decision":d,"economic_truth":out["seven_seven_seven"],"rule":"internal computation is not revenue"})
     fn=os.path.join(LOG,"swarm-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     open(fn,"w",encoding="utf-8").write(json.dumps(out,indent=2)); out["run_file"]=fn; return out
 
