@@ -1,0 +1,18 @@
+{
+  "schema": "DREAMLEDGER/VERIFIED-EXTERNAL-TARGET/v1",
+  "verified_at": "2026-10-06T07:34:00Z",
+  "offer": "CMD-DIAG-29",
+  "source": "reddit",
+  "community": "r/EDH",
+  "post_url": "https://www.reddit.com/r/EDH/comments/1wwsvkj/looking_for_some_help_with_upgrading_the_gisa/",
+  "post_title": "Looking for some help with upgrading the Gisa foundations deck",
+  "author": "twofatslugs",
+  "published_date": "2026-10-03T17:30:18.969Z",
+  "liveness": "CONFIRMED",
+  "explicit_problem": "Poster bought the Wretched Ranks deck, added owned cards, wants it more competitive, and specifically wants more graveyard access and ways for creatures not to be one-and-done after dying.",
+  "commercial_fit": "High: structured Commander deck diagnostic directly addresses weak slots, curve, ramp, draw, interaction, commander synergy and economical upgrades.",
+  "existing_checkout": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
+  "external_send_status": "BLOCKED_ACTUATOR",
+  "blocker": "Reddit browser posting actuator unavailable because TinyFish wallet is depleted; no comment was published.",
+  "truth_boundary": "Target evidence is verified. Buyer, payment, fulfillment and revenue remain unverified."
+}
