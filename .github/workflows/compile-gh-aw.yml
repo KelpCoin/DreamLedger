@@ -1,0 +1,38 @@
+name: Compile GitHub Agentic Workflows
+
+on:
+  push:
+    paths:
+      - ".github/workflows/*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install gh-aw
+        shell: bash
+        run: gh extension install github/gh-aw
+
+      - name: Compile agentic workflows
+        shell: bash
+        run: gh aw compile --strict
+
+      - name: Commit generated lock files
+        shell: bash
+        run: |
+          git config user.name "DreamLedger gh-aw compiler"
+          git config user.email "777@dreamledger.org"
+          git add .github/workflows/*.lock.yml
+          if git diff --cached --quiet; then
+            echo "No lock-file changes."
+            exit 0
+          fi
+          git commit -m "777: compile agentic workflow"
+          git push
