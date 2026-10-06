@@ -31,7 +31,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build attributable distribution packet
-        id: packet
         env:
           CELL_ID: ${{ inputs.cell_id || 'CMD-DIAG-29-QR-001' }}
         run: |
@@ -54,7 +53,6 @@ jobs:
           PY
 
       - name: Publish to Tumblr when explicitly enabled
-        if: ${{ inputs.dry_run != true && secrets.TUMBLR_ENABLED == 'true' }}
         env:
           TUMBLR_ENABLED: ${{ secrets.TUMBLR_ENABLED }}
           TUMBLR_CONSUMER_KEY: ${{ secrets.TUMBLR_CONSUMER_KEY }}
@@ -64,13 +62,18 @@ jobs:
           TUMBLR_BLOG: ${{ secrets.TUMBLR_BLOG }}
         run: |
           set -euo pipefail
+          if [ "${{ inputs.dry_run }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ] && [ "$TUMBLR_ENABLED" != "true" ]; then
+            echo "TUMBLR=SKIPPED_NOT_ENABLED"
+            exit 0
+          fi
+          test "$TUMBLR_ENABLED" = "true"
           test -n "$TUMBLR_CONSUMER_KEY"
           test -n "$TUMBLR_CONSUMER_SECRET"
           test -n "$TUMBLR_TOKEN"
           test -n "$TUMBLR_TOKEN_SECRET"
           test -n "$TUMBLR_BLOG"
           python3 - <<'PY'
-          import json, os, time, hmac, hashlib, urllib.parse, urllib.request, secrets
+          import json, os, time, hmac, hashlib, urllib.parse, urllib.request, secrets, base64
           p=json.load(open("operator-proof/777-distribution-packet.json"))
           base=f"https://api.tumblr.com/v2/blog/{os.environ['TUMBLR_BLOG']}/posts"
           params={"type":"text","state":"published","title":"Commander deck diagnostic","body":p["message"]}
@@ -82,17 +85,16 @@ jobs:
             "oauth_signature_method":"HMAC-SHA1",
             "oauth_version":"1.0"
           }
-          allp={**params,**oauth}
           enc=lambda x: urllib.parse.quote(str(x),safe="~-._")
+          allp={**params,**oauth}
           normalized="&".join(f"{enc(k)}={enc(allp[k])}" for k in sorted(allp))
           base_string="&".join([enc("POST"),enc(base),enc(normalized)])
           key=enc(os.environ["TUMBLR_CONSUMER_SECRET"])+"&"+enc(os.environ["TUMBLR_TOKEN_SECRET"])
-          oauth["oauth_signature"]=base64=hmac.new(key.encode(),base_string.encode(),hashlib.sha1).digest()
-          import base64
-          oauth["oauth_signature"]=base64.b64encode(base64).decode()
+          digest=hmac.new(key.encode(),base_string.encode(),hashlib.sha1).digest()
+          oauth["oauth_signature"]=base64.b64encode(digest).decode()
           auth="OAuth "+", ".join(f'{enc(k)}="{enc(v)}"' for k,v in sorted(oauth.items()))
           data=urllib.parse.urlencode(params).encode()
-          req=urllib.request.Request(base,data=data,headers={"Authorization":auth,"User-Agent":"DreamLedger-777/1.0"},method="POST")
+          req=urllib.request.Request(base,data=data,headers={"Authorization":auth,"User-Agent":"DreamLedger-777/1.0","Content-Type":"application/x-www-form-urlencoded"},method="POST")
           with urllib.request.urlopen(req,timeout=30) as r:
             result=json.loads(r.read().decode())
           assert result.get("meta",{}).get("status")==201, result
@@ -100,12 +102,16 @@ jobs:
           PY
 
       - name: Publish to X when explicitly enabled
-        if: ${{ inputs.dry_run != true && secrets.X_ENABLED == 'true' }}
         env:
           X_ENABLED: ${{ secrets.X_ENABLED }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
+          if [ "${{ inputs.dry_run }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ] && [ "$X_ENABLED" != "true" ]; then
+            echo "X=SKIPPED_NOT_ENABLED"
+            exit 0
+          fi
+          test "$X_ENABLED" = "true"
           test -n "$X_ACCESS_TOKEN"
           python3 - <<'PY'
           import json, os, urllib.request
