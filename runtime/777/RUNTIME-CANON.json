@@ -1,5 +1,5 @@
 {
-  "schema": "DREAMLEDGER/RUNTIME-CANON/v1",
+  "schema": "DREAMLEDGER/RUNTIME-CANON/v2",
   "status": "CANONICAL",
   "authority": "repository_runtime",
   "chat_is_not_runtime": true,
@@ -82,7 +82,10 @@
     ]
   },
   "evergreen": {
-    "batch_size": [5, 10],
+    "batch_size": [
+      5,
+      10
+    ],
     "support_after_evidence": 2,
     "replicate_only": "independently_verified_mechanisms"
   },
@@ -90,5 +93,65 @@
     "cell_id": "CMD-DIAG-29-QR-001",
     "offer_id": "CMD-DIAG-29",
     "price_nzd": 29
+  },
+  "human_attention": {
+    "mode": "EXCEPTION_ONLY",
+    "chat_is_not_approval_bus": true,
+    "repeated_prompting": false,
+    "interrupt_only_for": [
+      "one_time_authenticated_actuator_enrollment",
+      "new_identity_or_credentials",
+      "new_spending_budget",
+      "contract_acceptance",
+      "irreversible_authority_not_covered_by_standing_envelope",
+      "verified_external_economic_event",
+      "machine_failure_requiring_unavailable_authority"
+    ],
+    "ordinary_work_stays_machine_owned": true
+  },
+  "standing_external_action_envelope": {
+    "status": "USER_DIRECTIVE_2026-10-06",
+    "purpose": "remove repeated chat approval from routine acquisition while preserving hard safety gates",
+    "allowed_routine_public_actions": [
+      "PUBLISH_APPROVED_SOCIAL_POST_TO_CONFIGURED_TUMBLR",
+      "PUBLISH_APPROVED_SOCIAL_POST_TO_CONFIGURED_X",
+      "REGENERATE_CANONICAL_QR_ASSET",
+      "PUBLISH_EXISTING_APPROVED_COMMERCE_DOORWAY"
+    ],
+    "forbidden_without_new_authorization": [
+      "DIRECT_MESSAGE",
+      "REPLY_TO_INDIVIDUAL",
+      "NEW_ACCOUNT_CREATION",
+      "NEW_CREDENTIALS",
+      "PAID_AD_SPEND",
+      "CONTRACT_ACCEPTANCE",
+      "PAYMENT_OR_TRANSFER",
+      "SELF_PURCHASE",
+      "PLATFORM_POLICY_BYPASS"
+    ],
+    "caps": {
+      "social_public_posts_per_surface_per_day": 2,
+      "concurrent_external_jobs": 1,
+      "paid_spend_nzd_per_day": 0
+    },
+    "execution_adapter": ".github/workflows/external-actuator-worker.yml",
+    "social_pipeline": ".github/workflows/777-social-distribution.yml",
+    "attribution_required": true
+  },
+  "graceful_degradation": {
+    "local_lm_available": "GPU_SWARM",
+    "local_lm_unavailable": "CLOUD_DETERMINISTIC_PLUS_CLOUD_LLM_IF_CONFIGURED",
+    "cloud_unavailable": "LOCAL_RUNTIME_CONTINUES",
+    "supabase_unavailable": "READ_ONLY_LOCAL_CANDIDATE_WORK_AND_TELEMETRY; NO_AUTHORITATIVE_ECONOMIC_PROMOTION",
+    "actuator_unavailable": "PREPARE_AND_TELEMETRY_ONLY; NO_EXTERNAL_EFFECT_CLAIM",
+    "stripe_unavailable": "DISCOVERY_AND_PREPARATION_CONTINUE; NO_SETTLEMENT_CLAIM",
+    "all_llm_unavailable": "DETERMINISTIC_COMPILERS_GATES_TELEMETRY_AND_QUEUES_CONTINUE"
+  },
+  "first_dollar_runtime": {
+    "cell_id": "CMD-DIAG-29-QR-001",
+    "offer_id": "CMD-DIAG-29",
+    "priority": "RA_000001",
+    "winner_rule": "independent_buyer + attributable_settled_payment + fulfillment + evidence",
+    "no_revenue_from_heartbeat": true
   }
 }
