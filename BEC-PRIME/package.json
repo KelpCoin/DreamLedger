@@ -100,7 +100,9 @@
     "factory-factory": "node compiler/FactoryFactory.js",
     "compile:factory-factory": "node compiler/FactoryFactoryCompiler.js",
     "compile:factory-approval": "node compiler/FactoryFactoryApprovalPackets.js",
-    "factory:universal": "node factory/UniversalFactoryCompiler.js"
+    "factory:universal": "node factory/UniversalFactoryCompiler.js",
+    "777:run": "node scripts/Run-777.js",
+    "autonomy:heartbeat": "node scripts/Run-777.js && node autonomy/RevenueAutonomy.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
