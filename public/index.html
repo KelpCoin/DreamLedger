@@ -2,68 +2,42 @@
 <html lang="en-NZ">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07090c">
-<meta name="description" content="DreamLedger: a public commerce and evidence surface for permanent media, digital identity, TCG commerce, B2B tools and machine-readable services.">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DreamLedger. Bounded digital services. Pick a result and start.">
 <link rel="canonical" href="https://dreamledger.org/">
-<title>DreamLedger | Bounded work. Real outcomes.</title>
+<title>DreamLedger | Pick a result</title>
 <style>
-:root{--bg:#07090c;--panel:#0d1117;--panel2:#121923;--line:#263241;--ink:#f5f7fa;--muted:#94a0ad;--gold:#e1bd70;--green:#52e09b;--blue:#75b9ff;--max:1120px}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:radial-gradient(circle at 80% 0%,#172233 0,#07090c 38%);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 20px}
-header{position:sticky;top:0;z-index:20;background:rgba(7,9,12,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.bar{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:900;letter-spacing:-.04em}.brand span{color:var(--gold)}nav{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}nav a{font-size:13px;color:var(--muted);padding:8px 11px;border:1px solid transparent;border-radius:999px}nav a:hover{border-color:var(--line);color:var(--ink)}
-.hero{padding:76px 0 52px}.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:850}.hero h1{font-size:clamp(48px,8vw,94px);line-height:.91;letter-spacing:-.065em;max-width:10ch;margin:16px 0 22px}.hero p{font-size:clamp(18px,2.2vw,24px);color:var(--muted);max-width:720px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:12px;font-weight:800;font-size:14px;border:1px solid var(--line)}.btn.primary{background:var(--green);border-color:var(--green);color:#06150e}.btn.gold{background:var(--gold);border-color:var(--gold);color:#171106}.btn.dark{background:var(--panel);color:var(--ink)}
-.section{padding:42px 0}.section h2{font-size:clamp(28px,4vw,44px);letter-spacing:-.04em}.lead{color:var(--muted);max-width:700px;margin-top:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px;margin-top:22px}.card{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px;min-height:190px;display:flex;flex-direction:column}.tag{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);font-weight:850}.card h3{font-size:22px;letter-spacing:-.025em;margin:10px 0 7px}.card p{color:var(--muted);font-size:14px;flex:1}.go{margin-top:16px;color:var(--green);font-weight:800;font-size:13px}
-.road{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:22px}.road .card{min-height:0}.status{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:11px;color:var(--muted);margin-top:12px}.status.live{color:var(--green);border-color:#2e6b50}.status.blocked{color:var(--gold)}
-.truth{border:1px solid #3b4d62;background:linear-gradient(145deg,#101923,#0b1017);border-radius:20px;padding:24px;margin-top:22px}.truth strong{color:var(--blue)}.truth p{color:var(--muted);margin-top:7px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#b8c5d3;margin-top:14px;word-break:break-word}
-.footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);font-size:12px}.links{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}.links a{color:var(--ink)}
-@media(max-width:760px){.hero{padding-top:52px}.road{grid-template-columns:1fr}nav a:nth-child(n+4){display:none}}
+:root{--bg:#080a0d;--card:#11161d;--line:#28313c;--ink:#f7f8fa;--muted:#9aa5b1;--accent:#7ee2ad;--accent2:#f0ca72;--max:1180px}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 20px}
+header{padding:22px 0;border-bottom:1px solid var(--line)}.brand{font-weight:900;letter-spacing:-.05em;font-size:22px}.brand span{color:var(--accent2)}
+.hero{padding:72px 0 34px}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:11px;color:var(--accent2);font-weight:850}
+h1{font-size:clamp(52px,9vw,104px);line-height:.9;letter-spacing:-.07em;max-width:9ch;margin:16px 0}.hero p{max-width:650px;color:var(--muted);font-size:18px;margin:0}
+.cta{display:inline-flex;align-items:center;justify-content:center;margin-top:26px;padding:15px 22px;border-radius:12px;background:var(--accent);color:#06140d;font-weight:900}
+.catalog{padding:30px 0 70px}.catalog-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:16px}.catalog h2{font-size:30px;letter-spacing:-.04em;margin:0}.catalog-note{color:var(--muted);font-size:13px}
+.carousel{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;scrollbar-width:thin}.card{scroll-snap-align:start;flex:0 0 min(330px,82vw);min-height:300px;background:linear-gradient(150deg,#151b23,#0f1319);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent2);font-weight:850}.card h3{font-size:25px;letter-spacing:-.04em;margin:11px 0 8px}.card p{color:var(--muted);font-size:14px;line-height:1.55;flex:1}.price{font-size:25px;font-weight:900;margin:16px 0}.buy{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:11px;background:var(--accent);color:#06140d;font-weight:900;font-size:14px}.buy.alt{background:var(--accent2);color:#171106}
+.fine{border-top:1px solid var(--line);padding:20px 0 42px;color:#737f8b;font-size:11px}.fine strong{color:#aab4bf}
+@media(max-width:650px){.hero{padding-top:48px}.catalog-head{display:block}.catalog-note{margin-top:5px}}
 </style>
 </head>
 <body>
-<header><div class="wrap bar"><a class="brand" href="/">Dream<span>Ledger</span></a><nav><a href="/billboard">Billboard</a><a href="/avatar.html">DreamMeez</a><a href="/marketplace.html">Market</a><a href="/truth-oracle.html">Truth Oracle</a><a href="/agentic-commerce.html">Agents</a></nav></div></header>
+<header><div class="wrap"><a class="brand" href="/">Dream<span>Ledger</span></a></div></header>
 <main class="wrap">
 <section class="hero">
-<div class="eyebrow">Bounded services · real commerce</div>
-<h1>Work that ends in an answer.</h1>
-<p>DreamLedger turns ugly, repetitive work into bounded services with a clean economic boundary. Pick the outcome. Pay once. Send the inputs. Get the result.</p>
-<div class="truth" style="margin-top:22px"><strong>PAY → DO → DELIVER → PROVE</strong><p>Checkout is only the doorway. Settlement, fulfillment and evidence are what count.</p><div class="mono">VERIFIED_EXTERNAL_REVENUE: NZ$0.00</div></div>
-<div class="actions"><a class="btn primary" href="/b2b.html">Start with a real problem</a><a class="btn gold" href="https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30">Commander Diagnostic · NZ$29</a><a class="btn dark" href="/truth-oracle.html">Open Truth Oracle</a></div>
+<div class="eyebrow">New Zealand · bounded services</div>
+<h1>Pick a result.</h1>
+<p>Clear inputs. Clear outputs. Clear price. Start with one useful thing and let the machinery stay behind the door.</p>
+<a class="cta" href="#catalog">Browse the catalogue</a>
 </section>
-
-<section class="section">
-<div class="eyebrow">Start with a real problem</div><h2>Useful work, packaged cleanly.</h2><p class="lead">Choose a bounded outcome. The public surface stays simple while the machinery behind it handles routing, payment, fulfillment and evidence.</p>
-<div class="grid">
-<a class="card" href="/billboard"><span class="tag">01 · Media</span><h3>Internet Billboard</h3><p>A finite, permanent digital canvas. Founding placements are real inventory, paid through Stripe and reviewed before publication.</p><span class="go">Open surface →</span></a>
-<a class="card" href="/avatar.html"><span class="tag">02 · Identity</span><h3>DreamMeez</h3><p>Avatar identity and cosmetics with an account-backed path into PhinHaven. No fake users and no invented ownership.</p><span class="go">Build identity →</span></a>
-<a class="card" href="/agentic-commerce.html"><span class="tag">03 · First dollar</span><h3>Commander Diagnostic · NZ$29</h3><p>A structured decklist pass covering weak slots, curve, ramp, draw, interaction, commander synergy and economical upgrades.</p><span class="go">View machine rails →</span></a>
-<a class="card" href="/marketplace.html"><span class="tag">04 · TCG + market</span><h3>Marketplace</h3><p>Consumer and TCG entry surfaces remain separated from the MTG reference silo while sharing the commercial spine.</p><span class="go">Open market →</span></a>
-<a class="card" href="/b2b.html"><span class="tag">05 · B2B</span><h3>Supplier Quote Comparison · NZ$49</h3><p>Turn messy supplier quotes into a decision-ready comparison without building another spreadsheet by hand.</p><span class="go">Open B2B →</span></a>
+<section class="catalog" id="catalog">
+<div class="catalog-head"><div><h2>Available now</h2><div class="catalog-note">Swipe the cards. Choose one road.</div></div></div>
+<div class="carousel">
+<article class="card"><span class="tag">Commander · Digital</span><h3>Commander Deck Diagnostic</h3><p>Structured deck analysis covering curve, ramp, draw, interaction, commander synergy, weak slots and economical upgrade priorities.</p><div class="price">NZ$29</div><a class="buy" href="https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30?utm_source=dreamledger&utm_medium=site&utm_campaign=catalog_cmd_diag">Start diagnostic</a></article>
+<article class="card"><span class="tag">Procurement · Digital</span><h3>Supplier Quote Comparison</h3><p>Turn 2–5 supplier quotations into one source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.</p><div class="price">NZ$49</div><a class="buy alt" href="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32?utm_source=dreamledger&utm_medium=site&utm_campaign=catalog_quote_compare">Start comparison</a></article>
+<article class="card"><span class="tag">Media · Permanent placement</span><h3>Founding Tile</h3><p>Own a finite 100×100 placement on the DreamLedger Internet Billboard, subject to the published content policy and review.</p><div class="price">NZ$50</div><a class="buy" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?utm_source=dreamledger&utm_medium=site&utm_campaign=catalog_billboard">Claim a tile</a></article>
 </div>
-</section>
-
-<section class="section">
-<div class="eyebrow">Simple on purpose</div><h2>One engine. Many bounded roads.</h2>
-<div class="road">
-<div class="card"><span class="tag">Fiat rail</span><h3>Stripe settled commerce</h3><p>Current fiat offers use the existing Stripe checkout and settlement observation chain. Checkout creation is not revenue. Settlement plus fulfillment plus evidence is the boundary.</p><span class="status live">PUBLIC · STRIPE</span><span class="go">Browse offers →</span></div>
-<div class="card"><span class="tag">Crypto rail</span><h3>x402 / USDC on Base</h3><p>The deterministic quote-verifier rail is deployed separately and prepared for x402 discovery. It remains economically unarmed until a legitimate receiving address is configured.</p><span class="status blocked">CONFIGURATION REQUIRED · NO REVENUE CLAIM</span><span class="go">Machine endpoint →</span></div>
-</div>
-<div class="truth"><strong>Truth Oracle is the common evidence layer.</strong><p>Claims, prices, TCG facts, currency observations and commercial outcomes can be surfaced through explicit evidence states. The Oracle does not turn an assertion into a fact just because someone paid to see it.</p><div class="mono">/truth-oracle.html · /agent-commerce.json · /toll-road.json · /commerce-roads.json</div></div>
-</section>
-
-<section class="section">
-<div class="eyebrow">Trust is a product feature</div><h2>Claims stay separate from proof.</h2>
-<div class="grid">
-<a class="card" href="/truth-oracle.html"><span class="tag">Truth Oracle</span><h3>Public evidence</h3><p>Best default distribution surface for evidence-backed claims, comparisons and machine-readable results.</p><span class="go">Open Oracle →</span></a>
-<a class="card" href="/agent-commerce.json"><span class="tag">Machines</span><h3>Agent discovery</h3><p>Offers, products, buy routes and economic-boundary rules are exposed as structured data.</p><span class="go">Read manifest →</span></a>
-<a class="card" href="/toll-booths.html"><span class="tag">Fiat</span><h3>Toll booths</h3><p>Existing bounded services and live Stripe paths, without counting infrastructure activity as revenue.</p><span class="go">Open toll booths →</span></a>
-<a class="card" href="/agent-bridge.html"><span class="tag">Discord</span><h3>Authorized distribution</h3><p>Discord remains an external publication adapter, not the truth source. Publication requires the existing authorization boundary and webhook credential.</p><span class="go">Inspect bridge →</span></a>
-</div>
-</section>
-
-<section class="section">
-<div class="eyebrow">Economic boundary</div><h2>NZ$0 means NZ$0.</h2>
-<p class="lead">DreamLedger does not count routes, checkouts, scans, internal jobs, test payments, candidate buyers or generated receipts as revenue. We earn on tools only when an independent buyer actually pays and the existing fulfillment and evidence chain verifies the outcome. The scoreboard changes only after an independent buyer pays and the existing fulfillment and evidence chain verifies the outcome.</p>
 </section>
 </main>
-<footer class="wrap footer">DreamLedger · NZ · public commerce + evidence surface<div class="links"><a href="/marketplace.html">Market</a><a href="/billboard">Billboard</a><a href="/avatar.html">DreamMeez</a><a href="/truth-oracle.html">Truth Oracle</a><a href="/agent-commerce.json">Agent API</a><a href="/commerce-roads.json">Commerce roads</a><a href="/cost-of-living.html">Cost of Living</a></div></footer>
-</body></html>
+<footer class="wrap fine"><strong>DreamLedger</strong> · Checkout is a doorway, not proof of revenue. Independent settlement and fulfilment remain the economic boundary.</footer>
+</body>
+</html>
