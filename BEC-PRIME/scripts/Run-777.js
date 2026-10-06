@@ -450,6 +450,69 @@ function buildEvergreenExpansion(seed) {
     replication_permission: seed.verification_status === 'VERIFIED' ? 1 : 0
   };
 }
+function goldenScore(candidate) {
+  const price = Math.max(0, Number(candidate.hypothesis?.price_nzd || 0));
+  const valueScore = Math.min(100, Math.round((Math.log10(price + 1) / Math.log10(100001)) * 100));
+  const evidenceScore = Math.min(100, Number(candidate.evidence_priority || 0));
+  const activation = candidate.commercial_activation || {};
+  const readinessScore =
+    (activation.payment_link_url ? 35 : 0) +
+    (activation.fulfillment_route ? 35 : 0) +
+    (activation.proof_of_delivery ? 20 : 0) +
+    (['MATCH', 'APPROVED'].includes(activation.reconciliation) ? 10 : 0);
+  const repeatabilityScore =
+    String(candidate.seed_opportunity_id || '').includes('TRUTH-ORACLE-SUBSCRIPTION') ? 100 :
+    /subscription|recurring|repeat/i.test(String(candidate.hypothesis?.offer || '') + ' ' + String(candidate.hypothesis?.problem || '')) ? 80 :
+    40;
+  const buyerScore = candidate.hypothesis?.buyer &&
+    !String(candidate.hypothesis.buyer).includes('UNVERIFIED') ? 100 : 35;
+
+  // Golden allocates internal attention only. It never declares truth, a winner,
+  // authorization, or replication permission.
+  const score = Math.round(
+    evidenceScore * 0.30 +
+    valueScore * 0.25 +
+    readinessScore * 0.20 +
+    repeatabilityScore * 0.15 +
+    buyerScore * 0.10
+  );
+
+  return {
+    score,
+    components: {
+      evidence: evidenceScore,
+      economic_value: valueScore,
+      commercial_readiness: readinessScore,
+      repeatability: repeatabilityScore,
+      buyer_specificity: buyerScore
+    },
+    authority: 'ALLOCATION_ONLY',
+    truth_authority: 'TRUTH_ORACLE',
+    replication_permission: false
+  };
+}
+
+function buildGoldenAllocation(rows) {
+  return rows
+    .map(candidate => ({
+      candidate_id: candidate.candidate_id,
+      seed_opportunity_id: candidate.seed_opportunity_id,
+      title: candidate.seed_title,
+      offer: candidate.hypothesis?.offer || null,
+      price_nzd: Number(candidate.hypothesis?.price_nzd || 0),
+      golden: goldenScore(candidate)
+    }))
+    .sort((a, b) => b.golden.score - a.golden.score || b.price_nzd - a.price_nzd)
+    .slice(0, 12)
+    .map((x, index) => ({
+      ...x,
+      allocation_rank: index + 1,
+      disposition: index < 2 ? 'ELEVATE_INTERNAL' : 'PROBE_OR_HOLD',
+      external_action: 'BLOCKED_UNTIL_EXISTING_AUTHORITY_AND_HUMAN_APPROVAL',
+      verification_status: 'UNVERIFIED'
+    }));
+}
+
 function build() {
   const base = candidates();
   const top = base.slice(0, 49);
@@ -510,6 +573,8 @@ function build() {
     const bv = Number(b.hypothesis.price_nzd || 0);
     return bv - av;
   });
+
+  const golden_allocation = buildGoldenAllocation(rows);
 
   const activation_candidates = rows
     .filter(x => x.commercial_activation &&
@@ -574,9 +639,16 @@ function build() {
     }));
 
   const nextBuyerSignal = buyerSignalQueue.find(isActionableBuyerSignal) || null;
-  // Public signals are Phase-1 inputs, not Phase-2 mechanisms. Evergreen only
-  // receives a seed after an independent VERIFIED mechanism exists.
-  const evergreenSeed = base.find(x => x.verification_status === 'VERIFIED') || null;
+  // 777 seam: VERIFIED mechanisms may replicate, but economically interesting
+  // substrate may still enter bounded internal CUBE probing before verification.
+  // Prefer the strongest real substrate available so the factory can discover
+  // the first verified mechanism without manufacturing economic truth.
+  const evergreenSeed =
+    base.find(x => x.verification_status === 'VERIFIED') ||
+    base.find(isActionableBuyerSignal) ||
+    base.find(x => ['EXISTING_B2B_OFFER_CANDIDATE', 'EXISTING_RECURRING_SURFACE', 'APPROVED_OFFER', 'LIVE_COMMERCE'].includes(x.source_type)) ||
+    base[0] ||
+    null;
   const evergreenExpansion = buildEvergreenExpansion(evergreenSeed);
   evergreenExpansion.cube_handoff = {
     state: 'DRAFT_INTERNAL_HANDOFF',
@@ -713,6 +785,15 @@ function build() {
     economic_evidence_ladder: summarizeEvidenceLadder(base),
     activation_candidate_count: activation_candidates.length,
     activation_candidates,
+    golden_allocation,
+    golden_contract: {
+      role: 'ASYMMETRIC_INTERNAL_ALLOCATION',
+      optimizes: ['economic_gravity', 'evidence_proximity', 'commercial_readiness', 'repeatability', 'buyer_specificity'],
+      may: ['rank', 'allocate_internal_compute', 'elevate_top_1_or_2_for_gauntlet'],
+      may_not: ['declare_truth', 'declare_winner', 'authorize_external_action', 'create_buyer', 'create_payment', 'grant_replication'],
+      truth_authority: 'TRUTH_ORACLE',
+      reality_rule: 'MODEL_SCORE_NEVER_OVERRIDES_EXTERNAL_EVIDENCE'
+    },
     pricing_research: PRICING_RESEARCH,
     buyer_signal_count: buyerSignals.length,
     buyer_signal_queue: buyerSignalQueue,
@@ -755,4 +836,4 @@ if (require.main === module) {
   }, null, 2));
 }
 
-module.exports = { build, buildEvergreenExpansion, LENSES, TRANSFORMS, GATES, EXPERIMENT_LANES };
+module.exports = { build, buildEvergreenExpansion, buildGoldenAllocation, goldenScore, LENSES, TRANSFORMS, GATES, EXPERIMENT_LANES };
