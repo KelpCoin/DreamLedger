@@ -89,3 +89,20 @@ Biggie should only be surfaced for:
 Everything else is machine work.
 
 Current truth: VERIFIED_EXTERNAL_REVENUE = NZ$0.00.
+
+
+## Runtime contract
+
+The machine-readable authority is `runtime/777/RUNTIME-CANON.json`.
+
+The local entrypoint is `runtime/777/Start-BEC-Runtime.ps1`. One-time enrollment:
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File runtime/777/Start-BEC-Runtime.ps1 -Install`
+
+After installation, Windows starts the runtime at user logon and restarts it after failure. The runtime supervises the existing Run-777 and LM-Studio-Swarm processes. No recurring chat instruction is required.
+
+The cloud counterpart remains `.github/workflows/bec-prime-pc-off-operator.yml`, scheduled every five minutes.
+
+The external actuator is already present at `.github/workflows/external-actuator-worker.yml`. It remains disabled until the owner enrolls the authenticated browser session and enables the repository variable. This is an authorization/credential gate, not a missing architecture component.
+
+Human-load rule: one-time enrollment, then exception-only attention. Genuine economic events and unavailable authority may interrupt; ordinary discovery, compilation, judging, retries, telemetry and preparation must not.
