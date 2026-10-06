@@ -38,7 +38,7 @@ jobs:
           python3 - <<'PY'
           import json, os, hashlib
           cell=os.environ["CELL_ID"]
-          target="https://dreamledger.org/?utm_source=777&utm_medium=social&utm_campaign=cmd_diag_29&utm_content="+cell
+          target="https://dreamledger.org/go?utm_source=777&utm_medium=social&utm_campaign=cmd_diag_29&utm_content="+cell
           text=("Commander players: if your deck is doing something weird but you cannot tell which "
                 "slots are actually responsible, DreamLedger offers a NZ$29 Commander Diagnostic. "
                 "It checks curve, ramp, draw, interaction, commander synergy, weak slots and economical upgrades. "
