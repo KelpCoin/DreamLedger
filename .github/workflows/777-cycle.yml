@@ -16,6 +16,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: 777-cycle-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   pulse:
     runs-on: ubuntu-latest
