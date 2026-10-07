@@ -1,4 +1,4 @@
-name: 777 Economic Engine
+name: 777 Economic Engine v2
 
 on:
   workflow_dispatch:
@@ -23,6 +23,8 @@ permissions:
 concurrency:
   group: 777-economic-engine
   cancel-in-progress: true
+
+run-name: 777 economic engine · ${{ github.event_name }} · ${{ github.run_number }}
 
 jobs:
   engine:
