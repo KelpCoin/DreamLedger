@@ -3,6 +3,10 @@ const fs=require('fs'),path=require('path');
 const root=path.join(__dirname,'..');
 const checks=[
  ['B2B_UI',fs.existsSync(path.join(root,'..','public','b2b-marketplace.html'))],
+ ['TRADE_MARKETPLACE_UI',fs.existsSync(path.join(root,'..','public','marketplace.html'))],
+ ['A2A_AGENT_MANIFEST',fs.existsSync(path.join(root,'..','public','marketplace','agent.json'))],
+ ['TRADE_MARKETPLACE_SCHEMA',fs.existsSync(path.join(root,'..','data','schema','trade-marketplace-v1.json'))],
+ ['LOCAL_POWERSHELL_RUNNER',fs.existsSync(path.join(root,'..','ops','marketplace','Invoke-TradeMarketplaceLocal.ps1'))],
  ['B2B_ROUTE_SEARCH',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/b2b/search')],
  ['B2B_ROUTE_RFQ',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/b2b/rfqs')],
  ['B2B_ROUTE_OFFERS',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/b2b/offers')],
