@@ -1,0 +1,14 @@
+{
+  "version":"777.2",
+  "status":"UNVERIFIED",
+  "name":"DreamLedger 777 Evergreen Economic Expansion Control Plane",
+  "principle":"Use existing substrate and rails. Add selection and routing, not a second ledger, queue, orchestrator, or truth system.",
+  "inputs":{"economic_substrate":"777/substrate.json","existing_silo_catalog":"public/evergreen-silo-factory.json","knowledge_cycle":".github/workflows/777-research.md","gauntlet_contract":"777/gauntlet-scorecard.md"},
+  "existing_rails":{"silo_factory":"public/evergreen-silo-factory.json","commerce":"existing DreamLedger commerce/checkout rail","truth_public":"Truth Oracle","truth_internal":"BECK immutable ledgers","authority":"existing Authority Gate","fulfillment":"existing fulfillment adapters"},
+  "cell_lifecycle":["SUBSTRATE_ACCEPTED","CUBE_CELL_CREATED","SILO_BOUND","ELOHIM_PROPOSES","GAUNTLET_JUDGES","AUTHORITY_GATED","EXPOSED","RESPONSE_OBSERVED","PAYMENT_OBSERVED","FULFILLMENT_OBSERVED","EVIDENCE_OBSERVED","VERIFIED_OR_DROPPED"],
+  "swarm_policy":{"seed_size":1,"expansion_size":"5-10","variant_axes":["offer","audience","message","surface","cta"],"minimum_signal":"specific economic gravity plus affected buyer","promotion":"telemetry","winner_count":"1-2","loser_action":"drop_or_freeze","winner_action":"refine_and_allocate_more_substrate"},
+  "supervisor":{"role":"resource allocator over existing workers","local_runtime":"LM Studio","worker_roles":["BECK","ELOHIM","GAUNTLET","EVIDENCE_EXTRACTION"],"allocation_rule":"allocate available GPU to the highest-priority unblocked cell according to telemetry and Gauntlet state","must_not":["declare_revenue","certify_truth","bypass_authority","create_parallel_ledger","create_parallel_queue","create_parallel_truth_system"],"fallback":"cloud inference when local runtime unavailable"},
+  "truth":{"public":"Truth Oracle is the public economic truth surface","internal":"BECK ledgers are immutable internal sources of truth","verification":["REAL_DEMAND","REAL_BUYER","AUTHORIZED_ACTION","EXTERNAL_RESULT","SETTLED_PAYMENT","FULFILLMENT","EVIDENCE","VERIFIED"],"dispatched_is_external_sent":false},
+  "initial_silo":{"domain":"education_construction_procurement","seed_cell":"EDU-01","existing_offer_surface":"quote_compare_49","price_nzd":49,"state":"UNVERIFIED"},
+  "evergreen_rule":"A cycle must either improve economic substrate or produce independently observed economic evidence. Otherwise it does not expand."
+}
