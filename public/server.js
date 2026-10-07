@@ -89,14 +89,6 @@ http.createServer(async (req,res)=>{
       res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
     }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
   }
-  if(req.method==='GET' && p==='/api/toll/v1/manifest'){
-    try{
-      const manifest=tollRoad.publicManifest();
-      return send(res,200,JSON.stringify(manifest),'application/json; charset=utf-8');
-    }catch(error){
-      return send(res,500,JSON.stringify({error:'TOLL_MANIFEST_UNAVAILABLE',message:String(error&&error.message||error)}),'application/json; charset=utf-8');
-    }
-  }
   if(p.startsWith('/api/toll/v1/')){
     try{
       const handled=await tollRoad.handle(req,res,p);
