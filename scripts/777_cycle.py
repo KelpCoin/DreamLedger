@@ -231,6 +231,11 @@ for signal in signals:
     seen.add(key)
     deduped.append(signal)
 
+if "--local" in os.sys.argv:
+    # Local mode is a sensor/qualification input only. It never writes the public site.
+    print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:50],"source_errors":source_errors}, ensure_ascii=False))
+    raise SystemExit(0)
+
 if deduped:
     signal = deduped[0]
     key_material = json.dumps(signal, sort_keys=True)
