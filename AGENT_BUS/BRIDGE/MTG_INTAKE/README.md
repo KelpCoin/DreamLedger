@@ -1,71 +1,47 @@
-# MTG Agent Bridge intake
+# MTG Agent Bridge
 
-This is the first live Agent Bridge capacity test.
+The MTG bridge uses the existing DreamLedger Agent Bridge bus. It does not create a second queue or ledger.
 
-## North Star
+Human/LLM flow:
 
-Two independent human/LLM nodes must be able to submit MTG deck intake from different phones and converge on the same DreamLedger MTG silo without manually copying work between chats.
+PHONE → GROK → AGENT_BUS/BRIDGE/MTG_INTAKE/inbox → intake workflow → canonical MTG record → work receipt → downstream MTG workers.
 
-Flow:
+The human supplies the facts. Grok normalizes the voice/text input and writes the submission. The intake workflow assigns the canonical MTG id and records evidence.
 
-PHONE / LLM
--> Agent Bridge
--> AGENT_BUS/BRIDGE/MTG_INTAKE
--> canonical MTG intake
--> DreamLedger /mtg
--> only after canonical acceptance may a record become HappyHomarid/public inventory.
+The first downstream worker is the primer worker. It reads the canonical deck record and writes the primer back to the same deck workspace. Later workers may consume the primer for deck analysis, Monte Carlo experiments, ComfyUI media generation and publication preparation.
 
-## Human payload
+Public publication is a separate stage. Intake and enrichment do not publish anything.
 
-For each EDH deck, the human supplies only:
+See:
+- PROTOCOL.md for the existing Agent Bridge protocol.
+- inbox/README.md for the phone/Grok workflow.
+- data/schema/mtg-agent-bridge-intake-v1.json for the canonical record contract.
+- data/schema/mtg-agent-bridge-submission-v1.json for the low-friction submission contract.
+- BEC-PRIME/scripts/ingest-mtg-bridge.js for deterministic ingestion.
+- .github/workflows/mtg-intake.yml for the automatic intake trigger.
 
-- commander name
-- optional deck name
-- optional rough price or ?
-- optional note
+## The only thing Grok needs to do
 
-Do not require card-by-card enumeration.
+When the human says:
 
-## Canonical receipt
+"Submit this deck to the DreamLedger MTG Agent Bridge."
 
-Every accepted submission must preserve:
+Grok should write one submission JSON file into:
 
-- intake_id
-- source_worker
-- source_device
-- submitted_by
-- submitted_at
-- canonical_destination
-- truth_state
-- publication_state
-- raw_human_input
-- normalized fields
-- evidence pointer
+AGENT_BUS/BRIDGE/MTG_INTAKE/inbox/
 
-Truth defaults to UNVERIFIED.
+The submission must preserve the dictated decklist exactly when one is supplied. Grok must not invent missing cards, prices, condition or commander identity.
 
-Publication defaults to NOT_PUBLISHED.
+The workflow creates:
 
-## Acceptance test
+MTG-#### canonical record
++
+WR-MTG-#### work receipt
 
-PASS only when:
+with:
 
-1. phone A submits a deck;
-2. phone B submits a different deck;
-3. both submissions are visible from the shared canonical project state;
-4. each has an attributable work receipt;
-5. neither becomes public before canonical acceptance;
-6. the MTG silo can enumerate both records.
+truth_state = UNVERIFIED
+publication_state = NOT_PUBLISHED
+next_stage = MTG_PRIMER
 
-A sandbox-only result is not a pass.
-
-## Existing bridge
-
-Use the existing Agent Bridge bus. Do not create another queue or ledger.
-
-The existing protocol is:
-AGENT_BUS/BRIDGE/PROTOCOL.md
-
-The existing shared state is GitHub AGENT_BUS plus the canonical MTG data layer.
-
-Revenue remains NZ$0 until independently verified settlement evidence exists.
+Nothing is automatically posted to Facebook, HappyHomarid, Patreon or a marketplace by the intake workflow.
