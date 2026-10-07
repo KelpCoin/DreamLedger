@@ -1,0 +1,100 @@
+{
+  "schema": "DREAMLEDGER/PROCUREMENT-OPPORTUNITY/v1",
+  "observed_at_utc": "2026-10-07T15:00:00+13:00",
+  "source": "GETS",
+  "truth_status": "UNVERIFIED",
+  "qualification_rule": "VALUE_CONFIRMED or VALUE_RANGE_CONFIRMED with >= NZ$10M economic object => PROC-PURSUIT-25K; otherwise QUOTE-COMPARE-49",
+  "opportunities": [
+    {
+      "event_id": "GETS-34938525",
+      "rfx_id": "34938525",
+      "buyer": "Horizons Regional Council",
+      "title": "Bus Services Real Time Information",
+      "tender_type": "ROI",
+      "close_date": "7 Oct 2026 4:00 PM",
+      "source": "GETS",
+      "value_status": "VALUE_UNKNOWN",
+      "value_band": null,
+      "qualified_offer": "QUOTE-COMPARE-49",
+      "primary_surface": "https://www.gets.govt.nz/ExternalIndex.htm"
+    },
+    {
+      "event_id": "GETS-34230723",
+      "rfx_id": "34230723",
+      "buyer": "Kāinga Ora – Homes and Communities",
+      "title": "RFP: Integrated Housing Maintenance Services",
+      "tender_type": "RFP",
+      "close_date": "8 Oct 2026 12:00 PM",
+      "source": "GETS",
+      "value_status": "VALUE_UNKNOWN",
+      "value_band": null,
+      "qualified_offer": "QUOTE-COMPARE-49",
+      "primary_surface": "https://www.gets.govt.nz/ExternalIndex.htm"
+    },
+    {
+      "event_id": "GETS-34909155",
+      "rfx_id": "34909155",
+      "buyer": "Ministry of Education - School Infrastructure",
+      "title": "Main Contractor for Block 2: Window Facade Replacement at Glendene School",
+      "tender_type": "RFT",
+      "close_date": "8 Oct 2026 5:00 PM",
+      "source": "GETS",
+      "value_status": "VALUE_UNKNOWN",
+      "value_band": null,
+      "qualified_offer": "QUOTE-COMPARE-49",
+      "primary_surface": "https://www.gets.govt.nz/ExternalIndex.htm"
+    },
+    {
+      "event_id": "GETS-34911996",
+      "rfx_id": "34911996",
+      "buyer": "KiwiRail Group",
+      "title": "Electricity Supply",
+      "tender_type": "RFP",
+      "close_date": "12 Oct 2026 12:00 PM",
+      "source": "GETS",
+      "value_status": "VALUE_UNKNOWN",
+      "value_band": null,
+      "qualified_offer": "QUOTE-COMPARE-49",
+      "primary_surface": "https://www.gets.govt.nz/ExternalIndex.htm"
+    },
+    {
+      "event_id": "GETS-34911639",
+      "rfx_id": "34911639",
+      "buyer": "KiwiRail Group",
+      "title": "Virtual Power Purchasing Agreement",
+      "tender_type": "RFP",
+      "close_date": "12 Oct 2026 12:00 PM",
+      "source": "GETS",
+      "value_status": "VALUE_UNKNOWN",
+      "value_band": null,
+      "qualified_offer": "QUOTE-COMPARE-49",
+      "primary_surface": "https://www.gets.govt.nz/ExternalIndex.htm"
+    },
+    {
+      "event_id": "GETS-35037403",
+      "rfx_id": "35037403",
+      "buyer": "Tauranga City Council",
+      "title": "LWDW HR and Payroll System",
+      "tender_type": "RFP",
+      "close_date": "15 Oct 2026 2:00 PM",
+      "source": "GETS",
+      "value_status": "VALUE_UNKNOWN",
+      "value_band": null,
+      "qualified_offer": "QUOTE-COMPARE-49",
+      "primary_surface": "https://www.gets.govt.nz/ExternalIndex.htm"
+    },
+    {
+      "event_id": "GETS-34977310",
+      "rfx_id": "34977310",
+      "buyer": "New Zealand Police",
+      "title": "RPAS (Remotely Piloted Aircraft System) replacement and maintenance services",
+      "tender_type": "RFP",
+      "close_date": "16 Oct 2026 12:00 PM",
+      "source": "GETS",
+      "value_status": "VALUE_UNKNOWN",
+      "value_band": null,
+      "qualified_offer": "QUOTE-COMPARE-49",
+      "primary_surface": "https://www.gets.govt.nz/ExternalIndex.htm"
+    }
+  ]
+}
