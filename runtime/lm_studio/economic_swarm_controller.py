@@ -1,12 +1,13 @@
 import json, os, sys, time, hashlib, subprocess, urllib.request, urllib.parse
 from datetime import datetime, timezone
-BASE=os.environ.get("LM_STUDIO_BASE_URL","http://localhost:1234")
+BASE=os.environ.get("LM_STUDIO_BASE_URL","http://localhost:12340")
 MODEL=os.environ.get("DREAMLEDGER_LM_MODEL") or os.environ.get("BECK_LM_MODEL")
 INTERVAL=int(os.environ.get("DREAMLEDGER_SWARM_INTERVAL_SECONDS","60"))
 SUPA=os.environ.get("SUPABASE_URL","").rstrip("/")
 KEY=os.environ.get("SUPABASE_ANON_KEY","")
 ROOT=os.environ.get("DREAMLEDGER_ROOT") or os.getcwd()
 777_PATH=os.path.join(ROOT,"BEC-PRIME","data","777","777-LATEST.json")
+SENSOR_PATH=os.path.join(ROOT,"scripts","777_cycle.py")
 RUN777=os.path.join(ROOT,"BEC-PRIME","scripts","Run-777.js")
 LOG=os.path.join(ROOT,"runtime","lm_studio","runs"); os.makedirs(LOG,exist_ok=True)
 SUBSTRATE=os.path.join(ROOT,"runtime","cube","substrate_inventory.json")
@@ -37,9 +38,19 @@ def get(url,headers=None,timeout=15):
     r=urllib.request.Request(url,headers=headers or {"Accept":"application/json"})
     with urllib.request.urlopen(r,timeout=timeout) as x: return json.loads(x.read().decode())
 
+def local_private_signals():
+    try:
+        p=subprocess.run([sys.executable,SENSOR_PATH,"--local"],cwd=ROOT,capture_output=True,text=True,timeout=90)
+        if p.returncode != 0: return {"status":"ERROR","error":p.stderr[-2000:]}
+        lines=[x for x in p.stdout.splitlines() if x.strip()]
+        return json.loads(lines[-1]) if lines else {"status":"EMPTY","signals":[]}
+    except Exception as ex:
+        return {"status":"ERROR","error":str(ex)}
+
 def snapshot():
     sub=load_substrate(); pop=population(sub)
     e={"timestamp_utc":datetime.now(timezone.utc).isoformat(),"economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},"substrate_population":pop,"constraints":["no self purchase","no simulated revenue","no fake buyers","no autonomous outreach or proposal submission","no autonomous spending","no credential or secret handling","no bypass of platform controls","human gate for irreversible external action"]}
+    e["local_private_signals"]=local_private_signals()
     if os.path.exists(777_PATH):
         try:
             latest=json.loads(open(777_PATH,encoding="utf-8").read())
@@ -70,8 +81,7 @@ def run_777():
 def cycle():
     models=get(BASE+"/v1/models").get("data",[]); ids=[str(x.get("id")) for x in models]; model=MODEL or (ids[0] if ids else "")
     if not model or model not in ids: return {"status":"BLOCKED","reason":"NO_USABLE_LM_STUDIO_MODEL","available_models":ids}
-    seven=run_777()
-    snap=snapshot(); d=decide(snap,model); out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
+    snap=snapshot(); d=decide(snap,model); seven=run_777(); out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
     trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v1","timestamp_utc":out["timestamp_utc"],"model":model,"cell_count":len(snap.get("substrate_population",[])),"population":snap.get("substrate_population",[]),"decision":d,"economic_truth":snap["economic_truth"],"rule":"internal computation is not revenue"})
     fn=os.path.join(LOG,"swarm-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     open(fn,"w",encoding="utf-8").write(json.dumps(out,indent=2)); out["run_file"]=fn; return out
