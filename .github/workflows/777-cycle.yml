@@ -36,3 +36,4 @@ jobs:
           git push
 
 # 777 probe: force one fresh economic cycle for evidence capture.
+# Probe timestamp: 2026-10-07T14:00+13:00
