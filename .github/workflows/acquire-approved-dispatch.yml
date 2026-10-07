@@ -39,15 +39,23 @@ jobs:
       - name: Publish through existing verified acquisition rail
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_ACQUISITION_CHANNEL_ID: ${{ vars.DISCORD_ACQUISITION_CHANNEL_ID }}
           OFFER: ${{ github.event_name == 'push' && 'QUOTE-COMPARE-49' || github.event.client_payload.offer }}
           TARGET: ${{ github.event_name == 'push' && 'configured-discord-acquisition' || github.event.client_payload.target }}
         run: |
           set -euo pipefail
-          test -n "$DISCORD_WEBHOOK"
-          case "$DISCORD_WEBHOOK" in
-            https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
-            *) echo "Invalid Discord webhook host"; exit 1 ;;
-          esac
+          if [ -z "$DISCORD_WEBHOOK" ] && { [ -z "$DISCORD_BOT_TOKEN" ] || [ -z "$DISCORD_ACQUISITION_CHANNEL_ID" ]; }; then
+            echo "No Discord publication adapter is configured."
+            echo "Configure either DISCORD_WEBHOOK or the reusable bot transport: DISCORD_BOT_TOKEN + DISCORD_ACQUISITION_CHANNEL_ID"
+            exit 1
+          fi
+          if [ -n "$DISCORD_WEBHOOK" ]; then
+            case "$DISCORD_WEBHOOK" in
+              https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
+              *) echo "Invalid Discord webhook host"; exit 1 ;;
+            esac
+          fi
 
           python3 - <<'PY'
           import json, os, urllib.parse, urllib.request
@@ -80,36 +88,38 @@ jobs:
               "\n\n" + record["payment_link_url"]
           )
 
-          base = os.environ["DISCORD_WEBHOOK"]
-          parts = urllib.parse.urlsplit(base)
-          query = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
-          query.append(("wait", "true"))
-          post_url = urllib.parse.urlunsplit(
-              (parts.scheme, parts.netloc, parts.path,
-               urllib.parse.urlencode(query), parts.fragment)
-          )
+          webhook = os.environ.get("DISCORD_WEBHOOK", "").strip()
+          bot_token = os.environ.get("DISCORD_BOT_TOKEN", "").strip()
+          configured_channel = os.environ.get("DISCORD_ACQUISITION_CHANNEL_ID", "").strip()
 
-          req = urllib.request.Request(
-              post_url,
-              data=json.dumps({"content": content}).encode(),
-              headers={"Content-Type": "application/json"},
-              method="POST"
-          )
-          with urllib.request.urlopen(req, timeout=20) as response:
-              body = json.loads(response.read().decode())
+          if webhook:
+              parts = urllib.parse.urlsplit(webhook)
+              query = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
+              query.append(("wait", "true"))
+              post_url = urllib.parse.urlunsplit((parts.scheme, parts.netloc, parts.path, urllib.parse.urlencode(query), parts.fragment))
+              req = urllib.request.Request(post_url, data=json.dumps({"content": content}).encode(), headers={"Content-Type": "application/json"}, method="POST")
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  body = json.loads(response.read().decode())
+              message_id = body.get("id")
+              channel_id = body.get("channel_id")
+              if not message_id or not channel_id:
+                  raise SystemExit("Webhook publication response failed identity verification")
+              verify_req = urllib.request.Request(webhook.rstrip("/") + "/messages/" + urllib.parse.quote(str(message_id), safe=""), headers={"Accept": "application/json"})
+          else:
+              if not bot_token or not configured_channel:
+                  raise SystemExit("Bot transport requires DISCORD_BOT_TOKEN and DISCORD_ACQUISITION_CHANNEL_ID")
+              channel_id = configured_channel
+              post_url = "https://discord.com/api/v10/channels/" + urllib.parse.quote(channel_id, safe="") + "/messages"
+              req = urllib.request.Request(post_url, data=json.dumps({"content": content}).encode(), headers={"Authorization": "Bot " + bot_token, "Content-Type": "application/json", "Accept": "application/json"}, method="POST")
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  body = json.loads(response.read().decode())
+              message_id = body.get("id")
+              if not message_id or body.get("channel_id") != channel_id:
+                  raise SystemExit("Bot publication response failed identity verification")
+              verify_req = urllib.request.Request("https://discord.com/api/v10/channels/" + urllib.parse.quote(channel_id, safe="") + "/messages/" + urllib.parse.quote(str(message_id), safe=""), headers={"Authorization": "Bot " + bot_token, "Accept": "application/json"})
 
-          message_id = body.get("id")
-          channel_id = body.get("channel_id")
-          if not message_id or not channel_id or record["payment_link_url"] not in body.get("content", ""):
-              raise SystemExit("Publication response failed identity/content verification")
-
-          verify_url = base.rstrip("/") + "/messages/" + urllib.parse.quote(str(message_id), safe="")
-          with urllib.request.urlopen(
-              urllib.request.Request(verify_url, headers={"Accept": "application/json"}),
-              timeout=20
-          ) as response:
-              verified = json.loads(response.read().decode())
-
+          if record["payment_link_url"] not in body.get("content", ""):
+              raise SystemExit("Publication response failed content verification")
           if (
               verified.get("id") != message_id or
               verified.get("channel_id") != channel_id or
