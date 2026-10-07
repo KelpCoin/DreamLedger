@@ -1,0 +1,108 @@
+{
+  "version": "777.1",
+  "status": "UNVERIFIED",
+  "purpose": "Machine-readable substrate contract for one-cell-to-swarm economic selection.",
+  "truth_boundary": {
+    "public_truth": "Truth Oracle",
+    "internal_truth": "BECK immutable ledgers",
+    "economic_verification": "REAL DEMAND -> REAL BUYER -> AUTHORIZED ACTION -> EXTERNAL RESULT -> SETTLED PAYMENT -> FULFILLMENT -> EVIDENCE -> VERIFIED",
+    "dispatched_is_external_sent": false
+  },
+  "scaling": {
+    "seed_cells": 1,
+    "swarm_min": 5,
+    "swarm_max": 10,
+    "selection": "telemetry",
+    "loser_policy": "drop",
+    "winner_policy": "refine_and_allocate_more_substrate"
+  },
+  "pipeline": [
+    "WORLD",
+    "ECONOMIC_GRAVITY",
+    "ECONOMIC_EVENT",
+    "CUBE_CELL",
+    "SUPABASE_SILO",
+    "SWARM",
+    "ELOHIM",
+    "GAUNTLET",
+    "AUTHORITY_GATE",
+    "EXTERNAL_RESPONSE",
+    "PAYMENT",
+    "FULFILLMENT",
+    "EVIDENCE",
+    "VERIFIED_OUTCOME",
+    "KNOWLEDGE_COMPOUND"
+  ],
+  "signal_priority": [
+    "funding_or_contract",
+    "expansion_or_mobilisation",
+    "leadership_change",
+    "hiring_surge",
+    "named_procurement",
+    "sector_gravity"
+  ],
+  "first_silo": {
+    "domain": "education_construction_procurement",
+    "buyer": "main_contractor_bidding on education projects",
+    "existing_surface": "quote_compare_49",
+    "price_nzd": 49,
+    "verification_state": "UNVERIFIED"
+  },
+  "swarm": [
+    {
+      "id": "EDU-01",
+      "offer": "Quote Normalisation",
+      "input": "2-5 subcontractor quotes",
+      "output": "matched comparison matrix with source evidence"
+    },
+    {
+      "id": "EDU-02",
+      "offer": "Tender Risk Scan",
+      "input": "tender and scope documents",
+      "output": "flagged risk, missing scope and compliance evidence"
+    },
+    {
+      "id": "EDU-03",
+      "offer": "Bid Pack Reconciliation",
+      "input": "bid pack and requirements",
+      "output": "requirements-to-evidence reconciliation"
+    },
+    {
+      "id": "EDU-04",
+      "offer": "Education Project Cost Evidence",
+      "input": "project cost records",
+      "output": "source-backed benchmarking evidence receipt"
+    },
+    {
+      "id": "EDU-05",
+      "offer": "Supplier Comparison API",
+      "input": "structured supplier quote payload",
+      "output": "machine-readable comparison response"
+    }
+  ],
+  "elohim": {
+    "may": ["create", "refine", "repair", "propose_scorecard", "identify_missing_evidence"],
+    "may_not": ["certify_truth", "authorize_external_effect", "declare_revenue"]
+  },
+  "gauntlet": {
+    "dimensions": [
+      "evidence_quality",
+      "buyer_specificity",
+      "economic_gravity",
+      "outcome_clarity",
+      "time_compression",
+      "risk_reversal",
+      "proof_density",
+      "cost_of_inaction",
+      "fulfillment_feasibility",
+      "truth_boundary_compliance"
+    ],
+    "failure_policy": "refine_or_drop"
+  },
+  "model_runtime": {
+    "local_base": "LM Studio",
+    "role": "BECK/Elohim worker inference",
+    "supervisor": "allocate available GPU across CUBE, Elohim, Gauntlet and evidence extraction",
+    "cloud_fallback": true
+  }
+}
