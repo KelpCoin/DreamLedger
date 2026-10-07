@@ -1,0 +1,28 @@
+{
+  "schema": "DREAMLEDGER/EXTERNAL-DEMAND-SEED/v1",
+  "observed_at": "2026-10-07T15:00:00+13:00",
+  "event_id": "SAM-FA248826RB001",
+  "source": "SAM.gov",
+  "source_url": "https://sam.gov/workspace/contract/opp/38002fb95ebe455bb61ec9e5dc185539/view",
+  "solicitation": "FA248826RB001",
+  "title": "Construct Concrete Targets",
+  "buyer": "U.S. Department of the Air Force, Air Force Test Center, Eglin AFB",
+  "status": "ACTIVE",
+  "response_deadline": "2026-10-09T15:00:00-05:00",
+  "economic_stake_usd": 19000000,
+  "value_status": "VALUE_CONFIRMED",
+  "qualification": "HIGH_TICKET_PURSUIT",
+  "set_aside": "Total Small Business Set-Aside",
+  "naics": "238110",
+  "psc": "Y1PZ",
+  "primary_contact": "John Sarver",
+  "primary_contact_email": "john.sarver.2@us.af.mil",
+  "incumbent_signal": {
+    "source_url": "https://www.eglin.af.mil/Portals/56/documents/Small_Business_Office/Base%20Contracts%20List.pdf",
+    "contractor": "NWF Contractors, Inc.",
+    "existing_contract": "Construct Concrete Targets IDIQ",
+    "existing_estimated_value_usd": 9800000,
+    "existing_expiration": "2026-12-17"
+  },
+  "truth_status": "UNVERIFIED"
+}
