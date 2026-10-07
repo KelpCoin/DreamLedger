@@ -65,11 +65,9 @@ jobs:
 # 2026-10-08 live probe trigger: execute immediately; harvest strongest non-duplicate economic component; do not repeat prior signals.
 # 2026-10-08 live probe trigger: 10:31 NZDT; execute fresh private-sector cycle; money first, otherwise one non-duplicate durable component.
 # 2026-10-08 live probe trigger: 10:xx NZDT — fresh execution requested; reject Alfanar/C3-InfraRed/Nova-BMP repeats; money first, otherwise a new durable component.
-
 # 2026-10-08 live probe trigger: 10:00+13:00 — fresh private-sector cycle; money first; otherwise non-duplicate durable component; reject prior Alfanar/C3-InfraRed/Nova-BMP signals.
-
 # 2026-10-08 live probe trigger: fresh execution requested; money first; otherwise one new non-duplicate durable component; reject Alfanar/C3-InfraRed/Nova-BMP/Brookfield-ESR repeats.
-
 # 2026-10-08 live probe trigger: 10:00+13:00 — fresh private-sector cycle; money first; otherwise one new non-duplicate durable component; reject Alfanar/C3-InfraRed/Nova-BMP/Brookfield-ESR repeats.
 # 2026-10-08 execution nonce: fresh-cycle-20261008T1000-NONREPEAT-02
 # 2026-10-08 execution nonce: fresh-cycle-20261008T1143-NONREPEAT-04
+# 2026-10-08 execution nonce: fresh-cycle-20261008T1150-UPSCale-01
