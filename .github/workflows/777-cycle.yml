@@ -34,3 +34,5 @@ jobs:
           fi
           git commit -m "777: publish new economic pulse"
           git push
+
+# 777 probe: force one fresh economic cycle for evidence capture.
