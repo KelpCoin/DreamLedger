@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-06T23:34:39+00:00",
+  "updated_at_utc": "2026-10-07T09:13:45+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "WDC-26-151 - Whakatāne Floodwall Integration – Quay St and the Strand demolition work",
+      "url": "https://www.gets.govt.nz/WHDC/ExternalTenderDetails.htm?id=34982081",
+      "observed_at": "2026-10-07T09:13:40+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "82e24426591a23484ca01b60342260fe9efe0e1608eb2af9eef6744d35d8793e",
+      "event_id": "59abbe05-b4ff-5841-bc38-141adb3b594e",
+      "silo_id": "ECO-82E24426591A2348",
+      "slug": "procurement-wdc-26-151-whakat-ne-floodwall-integration-quay-st-and-the-s-82e2442659"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
