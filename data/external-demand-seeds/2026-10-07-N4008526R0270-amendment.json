@@ -1,0 +1,23 @@
+{
+  "schema":"DREAMLEDGER/PROCUREMENT-AMENDMENT-DELTA/v1",
+  "observed_at":"2026-10-07T15:20:00+13:00",
+  "event_id":"SAM-AMENDMENT-N4008526R0270-2026-10-05",
+  "source":"SAM.gov",
+  "source_url":"https://sam.gov/opp/3a8825040fa943c7971453b08f7a1f35/view",
+  "solicitation":"N4008526R0270",
+  "title":"Inspection & Testing of Electric and Diesel Fire Pumps, Engines, Controllers, and Oil/Water Separator at NWS Earle, BLDG R38",
+  "buyer":"U.S. Department of the Navy, Naval Weapons Station Earle",
+  "status":"ACTIVE",
+  "latest_update":"2026-10-05",
+  "original_due":"2026-10-07T11:00:00-04:00",
+  "current_due":"2026-10-14T11:00:00-04:00",
+  "delta_type":"DEADLINE_EXTENSION",
+  "delta_summary":"Offer deadline moved from October 7 to October 14 after solicitation updates and site-visit/RFI activity.",
+  "set_aside":"100% Small Business Set-Aside",
+  "naics":"811310",
+  "contact":"Jessica Mercurio",
+  "contact_email":"jessica.a.mercurio.civ@us.navy.mil",
+  "truth_status":"UNVERIFIED",
+  "commercial_route":"QUOTE-COMPARE-49",
+  "qualification":"CHANGE-SENSITIVE PROCUREMENT"
+}
