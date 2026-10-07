@@ -10,6 +10,7 @@ on:
       - "scripts/777_cycle.py"
       - "scripts/external_demand_transition.py"
       - "data/external-demand-seeds/**"
+      - "scripts/procurement_amendment_delta.py"
 
 permissions:
   contents: write
@@ -20,6 +21,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Generate procurement amendment delta
+        run: python scripts/procurement_amendment_delta.py
 
       - name: Generate external demand transition
         run: python scripts/external_demand_transition.py
