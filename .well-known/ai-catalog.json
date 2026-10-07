@@ -1,0 +1,33 @@
+{
+  "schema": "dreamledger/ai-catalog/v1",
+  "name": "DreamLedger Agent Commerce",
+  "description": "Machine-readable access to bounded economic evidence and paid API capabilities.",
+  "economic_truth": "VERIFIED_EXTERNAL_REVENUE = NZ$0.00 until an independent settled payment and attributable fulfillment are observed.",
+  "offers": [
+    {
+      "id": "TOLL-PROBE-50C",
+      "name": "777 Toll Probe",
+      "price": {"currency": "NZD", "amount": 0.50},
+      "payment": {
+        "type": "stripe_checkout",
+        "url": "https://buy.stripe.com/6oU5kD4zrdSdciz3gwdwc3b"
+      },
+      "discovery": {
+        "manifest": "https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest",
+        "machine_spec": "https://dreamledger.org/api/agent-commerce/toll-probe.json"
+      },
+      "fulfillment": {
+        "sequence": ["SETTLED_PAYMENT", "ENTITLEMENT", "SCOPED_KEY", "AUTHENTICATED_API_CALL", "RECEIPT"],
+        "checkout": "https://dreamledger-silo-gateway.onrender.com/api/toll/v1/checkout/toll-probe",
+        "redeem": "https://dreamledger-silo-gateway.onrender.com/api/toll/v1/redeem/toll-probe",
+        "probe": "https://dreamledger-silo-gateway.onrender.com/api/toll/v1/probe",
+        "method": "POST"
+      },
+      "truth": {
+        "checkout_is_not_settlement": true,
+        "settlement_required": true,
+        "fulfillment_evidence_required": true
+      }
+    }
+  ]
+}
