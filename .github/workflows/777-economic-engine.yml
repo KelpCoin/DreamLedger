@@ -25,6 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 run-name: 777 economic engine · ${{ github.event_name }} · ${{ github.run_number }}
+# Cycle probe: 2026-10-07T15:05+13:00; execute fresh compiler pass after market-rule component addition.
 
 jobs:
   engine:
