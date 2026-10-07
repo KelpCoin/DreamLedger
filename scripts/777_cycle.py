@@ -59,8 +59,11 @@ class ProcurementParser(HTMLParser):
         if self.in_cell and tag in ("td", "th"):
             value = re.sub(r"\s+", " ", "".join(self.buf)).strip()
             self.cells.append(value)
+            if self.href:
+                self.links.append(self.href)
             self.in_cell = False
             self.buf = []
+            self.href = None
         elif self.in_tr and tag == "tr":
             if self.cells:
                 self.rows.append((self.cells[:], self.links[:]))
@@ -138,7 +141,10 @@ def parse_gets(raw):
             "tender_type": tender_type,
             "close_date": close_date,
             "organisation": organisation,
-            "url": "https://www.gets.govt.nz/ExternalIndex.htm",
+            "url": absolute(links[0]) if links else "https://www.gets.govt.nz/ExternalIndex.htm",
+            "value_status": "VALUE_UNKNOWN",
+            "value_band": None,
+            "qualified_offer": "QUOTE-COMPARE-49",
         })
     return out
 
