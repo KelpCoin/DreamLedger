@@ -1,0 +1,74 @@
+{
+  "schema_version": "dreamledger.trade-marketplace.v1",
+  "purpose": "Universal A2A+B2B marketplace substrate replacing fragmented listing, RFQ and agent-discovery surfaces while reusing the existing commerce, authority, evidence and settlement rails.",
+  "surfaces": [
+    "profile",
+    "listing",
+    "requirement",
+    "rfq",
+    "offer",
+    "order",
+    "payment",
+    "fulfillment",
+    "evidence",
+    "agent_endpoint",
+    "artifact"
+  ],
+  "protocols": [
+    "human_web",
+    "A2A",
+    "machine_json",
+    "existing_commerce_gateway"
+  ],
+  "lifecycle": [
+    "IDENTITY",
+    "LIST",
+    "DISCOVER",
+    "REQUIREMENT",
+    "RFQ",
+    "OFFER",
+    "NEGOTIATE",
+    "AUTHORITY_GATE",
+    "PAYMENT",
+    "FULFILLMENT",
+    "EVIDENCE",
+    "REPUTATION",
+    "COMPOUNDING_ARTIFACT"
+  ],
+  "routes": [
+    "/marketplace.html",
+    "/b2b-marketplace.html",
+    "/api/marketplace/listings",
+    "/api/b2b/search",
+    "/api/b2b/rfqs",
+    "/api/b2b/offers",
+    "/api/b2b/orders",
+    "/marketplace/agent.json"
+  ],
+  "monetization": [
+    "seller_tools",
+    "quote_comparison",
+    "verified_evidence_access",
+    "agent_calls",
+    "promoted_discovery",
+    "fulfillment_entitlements",
+    "api_tolls"
+  ],
+  "zero_fee_rule": "Peer marketplace success fee remains 0% unless a separately disclosed paid service is selected.",
+  "qr_distribution": "Successful toll-road/API responses may display a disclosed publisher-owned Counterclinical QR discovery surface without hidden profiling.",
+  "truth_rules": [
+    "Listing is not demand.",
+    "RFQ is not an order.",
+    "Order creation is not payment.",
+    "Payment intent is not settled revenue.",
+    "Dispatch is not external result.",
+    "Only settled payment plus fulfillment and evidence can become VERIFIED revenue."
+  ],
+  "non_goals": [
+    "new ledger",
+    "new queue",
+    "new orchestrator",
+    "hidden user tracking",
+    "automatic external spend without authority"
+  ]
+}
