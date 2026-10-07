@@ -9,7 +9,12 @@ from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 
-SOURCE = "https://www.stats.govt.nz/information-releases/"
+SOURCE_CANDIDATES = [
+    "https://www.stats.govt.nz/information-releases/",
+    "https://www.stats.govt.nz/publications/",
+    "https://www.stats.govt.nz/insights/",
+    "https://www.stats.govt.nz/",
+]
 ROOT = Path("webapp")
 PULSE = ROOT / "pulse"
 INDEX = ROOT / "index.html"
@@ -25,7 +30,7 @@ class LinkParser(HTMLParser):
         if tag == "a":
             d = dict(attrs)
             href = d.get("href", "")
-            if href.startswith("/") and ("information-releases" in href or "news" in href):
+            if href.startswith("/") and any(x in href for x in ("information-releases", "publications", "insights", "news")):
                 self.href = href
                 self.buf = []
     def handle_data(self, data):
@@ -39,9 +44,9 @@ class LinkParser(HTMLParser):
             self.href = None
             self.buf = []
 
-def fetch():
+def fetch(source):
     req = urllib.request.Request(
-        SOURCE,
+        source,
         headers={"User-Agent": "DreamLedger-777/1.0 (+https://dreamledger.org)"}
     )
     with urllib.request.urlopen(req, timeout=30) as r:
@@ -53,9 +58,22 @@ def slug(s):
 def absolute(href):
     return "https://www.stats.govt.nz" + href if href.startswith("/") else href
 
-raw = fetch()
-p = LinkParser()
-p.feed(raw)
+signals = []
+fetch_errors = []
+for source in SOURCE_CANDIDATES:
+    try:
+        raw = fetch(source)
+        p = LinkParser()
+        p.feed(raw)
+        for href, title in p.links:
+            signals.append((href, title))
+        if signals:
+            break
+    except Exception as exc:
+        fetch_errors.append(f"{source}: {type(exc).__name__}")
+
+if not signals:
+    raise SystemExit("No Stats NZ signal found across official source surfaces.")
 
 seen = set()
 signals = []
