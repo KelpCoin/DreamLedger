@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-07T16:31:35+00:00",
+  "generated_at_utc": "2026-10-07T21:31:00+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "8340d9e7-729e-5082-9dc8-c367e8edaca2",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Tokanui toilet upgrade",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-07T21:30:56+00:00",
+      "url": "https://www.gets.govt.nz/SLDC/ExternalTenderDetails.htm?id=34854135",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-tokanui-toilet-upgrade-7a5a369dfa.html"
+    },
     {
       "id": "57cb8116-8c85-5c4c-930d-37f86df4cbf5",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
