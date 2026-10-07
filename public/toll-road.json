@@ -1,1 +1,39 @@
-{"schema":"dreamledger/automated-services/v2","version":"2.0","services":[{"id":"DECISION-CHECK","name":"Decision Check","unit":"one bounded evaluation","human_minutes_after_payment":0,"scope":"gauntlet","fulfillment":"automatic","external_action":"none","truth_effect":"none"},{"id":"EVIDENCE-CHECK","name":"Evidence Check","unit":"one bounded evidence evaluation","human_minutes_after_payment":0,"scope":"truth","fulfillment":"automatic","external_action":"none","truth_effect":"none"}],"payment":"one-time Stripe Checkout","access":"settled payment -> entitlement -> scoped credential -> automated response","customer_boundary":"payment does not grant access to private systems or unrelated customer accounts"}
+{
+  "schema": "dreamledger/automated-services/v2",
+  "version": "2.0",
+  "services": [
+    {
+      "id": "TOLL-PROBE-50C",
+      "name": "777 Toll Probe",
+      "unit": "one paid API probe",
+      "price_nzd": 0.5,
+      "scope": "toll-probe",
+      "checkout": "/api/toll/v1/checkout/toll-probe",
+      "fulfillment": "settled payment -> scoped key -> /api/toll/v1/probe",
+      "truth_rule": "settled_stripe_only"
+    },
+    {
+      "id": "DECISION-CHECK",
+      "name": "Decision Check",
+      "unit": "one bounded evaluation",
+      "human_minutes_after_payment": 0,
+      "scope": "gauntlet",
+      "fulfillment": "automatic",
+      "external_action": "none",
+      "truth_effect": "none"
+    },
+    {
+      "id": "EVIDENCE-CHECK",
+      "name": "Evidence Check",
+      "unit": "one bounded evidence evaluation",
+      "human_minutes_after_payment": 0,
+      "scope": "truth",
+      "fulfillment": "automatic",
+      "external_action": "none",
+      "truth_effect": "none"
+    }
+  ],
+  "payment": "one-time Stripe Checkout",
+  "access": "settled payment -> entitlement -> scoped credential -> automated response",
+  "customer_boundary": "payment does not grant access to private systems or unrelated customer accounts"
+}
