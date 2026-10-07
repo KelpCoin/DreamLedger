@@ -104,7 +104,8 @@
     "777:run": "node scripts/Run-777.js",
     "autonomy:heartbeat": "node scripts/Run-777.js && node autonomy/RevenueAutonomy.js",
     "runtime:once": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Once",
-    "runtime:install": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Install"
+    "runtime:install": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Install",
+    "syndicate:tumblr": "node scripts/sync-evergreen-to-tumblr.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
