@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-07-private-commercial-saudi-arabia-s-alfanar-gets-75mn-funding-for-renewable-energy-projects-utilities-middle-east-eeb2e88761359acb.html"
+  ],
+  "observed_at": "2026-10-07T20:58:56.918241+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
