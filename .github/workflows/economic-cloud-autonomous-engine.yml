@@ -29,6 +29,21 @@ jobs:
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           echo "CLOUD_ENGINE=READY"
 
+      - name: Execute 777 economic engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          node BEC-PRIME/scripts/Run-777.js
+          test -s BEC-PRIME/data/777/777-LATEST.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='BEC-PRIME/data/777/777-LATEST.json';
+          const x=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(x.truth?.verified_external_revenue_nzd!==0) throw new Error('777 truth guard: verified revenue changed');
+          if(x.truth?.settled_external_payments!==0) throw new Error('777 truth guard: settled payments changed');
+          console.log(JSON.stringify({seed_count:x.seed_count??null,candidate_count:x.candidate_count??null,activation_candidate_count:x.activation_candidate_count??null,buyer_signal_count:x.buyer_signal_count??null,verified_external_revenue_nzd:x.truth?.verified_external_revenue_nzd??null,settled_external_payments:x.truth?.settled_external_payments??null},null,2));
+          NODE
+
       - name: Compile repository evidence
         shell: bash
         run: |
@@ -212,5 +227,6 @@ jobs:
             evidence-compilation-run.json
             rdti-evidence-pack.json
             rdti-evidence-pack-run.json
+            BEC-PRIME/data/777/777-LATEST.json
           if-no-files-found: warn
           retention-days: 30
