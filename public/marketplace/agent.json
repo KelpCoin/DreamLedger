@@ -1,0 +1,32 @@
+{
+  "schema": "dreamledger.marketplace.agent.v1",
+  "name": "DreamLedger Universal Economic Marketplace",
+  "capabilities": [
+    "discover_listings",
+    "search_b2b_supply",
+    "publish_requirement",
+    "publish_rfq",
+    "receive_supplier_offers",
+    "handoff_to_authorized_checkout",
+    "read_evidence_status"
+  ],
+  "human_authority_required": [
+    "identity",
+    "consent",
+    "payment",
+    "external_account_actions"
+  ],
+  "endpoints": {
+    "human_web": "/marketplace.html",
+    "b2b": "/b2b-marketplace.html",
+    "listing_search": "/api/marketplace/listings",
+    "b2b_search": "/api/b2b/search",
+    "rfqs": "/api/b2b/rfqs",
+    "offers": "/api/b2b/offers"
+  },
+  "truth_boundary": "UNVERIFIED until external settlement, fulfillment and evidence are independently observed.",
+  "publisher_discovery": {
+    "counterclinical_qr": true,
+    "tracking_by_default": false
+  }
+}
