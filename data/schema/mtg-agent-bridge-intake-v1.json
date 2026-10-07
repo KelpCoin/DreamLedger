@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dreamledger/mtg-agent-bridge-intake-v1",
+  "title": "DreamLedger MTG Agent Bridge Intake",
+  "type": "object",
+  "required": ["schema","intake_id","source_worker","source_device","submitted_by","submitted_at","canonical_destination","truth_state","publication_state","raw_human_input","normalized"],
+  "properties": {
+    "schema": {"const": "dreamledger/mtg-agent-bridge-intake/v1"},
+    "intake_id": {"type": "string", "pattern": "^MTG-[0-9]{4,}$"},
+    "source_worker": {"type": "string"},
+    "source_device": {"type": "string"},
+    "submitted_by": {"type": "string"},
+    "submitted_at": {"type": "string", "format": "date-time"},
+    "canonical_destination": {"const": "DREAMLEDGER_MTG"},
+    "truth_state": {"enum": ["UNVERIFIED","VERIFIED","CONTRADICTED","STALE","TEST","SIMULATED","INTERNAL","UNMATCHED"]},
+    "publication_state": {"enum": ["NOT_PUBLISHED","CANONICAL","PUBLISHED"]},
+    "raw_human_input": {"type": "string"},
+    "normalized": {
+      "type": "object",
+      "required": ["item_type","commander","deck_name","ballpark_price_nzd","condition","notes"],
+      "properties": {
+        "item_type": {"const": "EDH_DECK"},
+        "commander": {"type": ["string","null"]},
+        "deck_name": {"type": ["string","null"]},
+        "ballpark_price_nzd": {"type": ["number","null"]},
+        "condition": {"type": "string"},
+        "notes": {"type": ["string","null"]}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "work_receipt": {"type": "string"},
+        "canonical_record": {"type": "string"},
+        "source_message": {"type": ["string","null"]}
+      }
+    }
+  }
+}
