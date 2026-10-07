@@ -37,11 +37,17 @@ The workflow itself does not grant public-posting authority. It only provisions 
 
 ## Secret boundary
 
-The current first-dollar `DISCORD_WEBHOOK` remains the one-shot publication credential for the existing acquisition workflow.
+The current first-dollar `DISCORD_WEBHOOK` remains a supported publication credential, but it is no longer the only transport. The acquisition workflow can use either a shared webhook or the reusable bot transport (`DISCORD_BOT_TOKEN` + `DISCORD_ACQUISITION_CHANNEL_ID`).
 
 The scalable provisioning rail requires a separate protected `DISCORD_BOT_TOKEN` secret. GitHub's Actions Secrets API supports encrypted repository secrets, but the currently connected GitHub tool surface does not expose secret-write operations.
 
 Do not put either credential in source control.
+
+## Biggie one-time setup
+
+Run `ops/discord/Configure-Discord-Transports.ps1 -SyncGitHub` once from Windows when the credentials are available. It collects the shared CONTROL_ROOM, ACQUISITION, CRITICAL and DIGEST webhooks in one pass, stores them locally with Windows DPAPI, and can sync them to GitHub Actions through the authenticated GitHub CLI. Do not paste webhook URLs into chat.
+
+After that, new silos should reuse an existing shared webhook or use the bot provisioning rail. Individual silo creation must not stop because a new webhook URL has not been manually created.
 
 ## Failure protocol
 
