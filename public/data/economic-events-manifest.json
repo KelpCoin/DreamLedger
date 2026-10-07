@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-07T09:13:45+00:00",
+  "updated_at_utc": "2026-10-07T16:31:35+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Town hall Floor Upgrade",
+      "url": "https://www.gets.govt.nz/DCC/ExternalTenderDetails.htm?id=34920325",
+      "observed_at": "2026-10-07T16:31:30+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "82009d5e3d86a6074b56077af918fe19f93dcbfcb980b1d2fcbd68acdddfb7d8",
+      "event_id": "57cb8116-8c85-5c4c-930d-37f86df4cbf5",
+      "silo_id": "ECO-82009D5E3D86A607",
+      "slug": "procurement-town-hall-floor-upgrade-82009d5e3d"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",

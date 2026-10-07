@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-07T09:13:45+00:00",
+  "generated_at_utc": "2026-10-07T16:31:35+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "57cb8116-8c85-5c4c-930d-37f86df4cbf5",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Town hall Floor Upgrade",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-07T16:31:30+00:00",
+      "url": "https://www.gets.govt.nz/DCC/ExternalTenderDetails.htm?id=34920325",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-town-hall-floor-upgrade-82009d5e3d.html"
+    },
     {
       "id": "59abbe05-b4ff-5841-bc38-141adb3b594e",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
