@@ -122,6 +122,7 @@ def google_news_url(query):
 
 
 def parse_private_rss(raw):
+    now = datetime.now(timezone.utc)
     try:
         root = ET.fromstring(raw)
     except Exception:
@@ -150,6 +151,12 @@ def parse_private_rss(raw):
             "renewal", "facility", "commitment", "partnership"
         ]
         if not any(term in low for term in commercial_terms):
+            continue
+        try:
+            published = datetime.strptime(pub, "%a, %d %b %Y %H:%M:%S %Z").replace(tzinfo=timezone.utc)
+        except Exception:
+            published = None
+        if published is not None and (now - published).total_seconds() > 7 * 86400:
             continue
         rows.append({
             "source": "PRIVATE_SECTOR_RSS",
@@ -215,7 +222,7 @@ signals = []
 source_errors = []
 
 for query in PRIVATE_SEARCHES:
-    source_url = google_news_url(query)
+    source_url = google_news_url(query + " when:7d")
     try:
         signals.extend(parse_private_rss(fetch(source_url)))
     except Exception as exc:
@@ -237,7 +244,39 @@ if "--local" in os.sys.argv:
     raise SystemExit(0)
 
 if deduped:
-    signal = deduped[0]
+    existing_titles = set()
+    existing_urls = set()
+    for existing in PULSE.glob("*-private-commercial-*.html"):
+        try:
+            text = existing.read_text(encoding="utf-8", errors="ignore")
+            m = re.search(r"<h1>(.*?)</h1>", text, re.S)
+            if m:
+                existing_titles.add(re.sub(r"<[^>]+>", "", m.group(1)).strip().lower())
+            for href in re.findall(r'href="(https?://[^"]+)"', text):
+                existing_urls.add(href)
+        except Exception:
+            continue
+
+    def candidate_key(item):
+        title = item["title"].lower()
+        freshness = 0
+        try:
+            freshness = datetime.strptime(item["published_at"], "%a, %d %b %Y %H:%M:%S %Z").timestamp()
+        except Exception:
+            pass
+        commercial = sum(
+            term in title
+            for term in ("contract", "agreement", "financing", "funding", "purchase", "capacity", "supplier", "commitment", "renewal")
+        )
+        return (commercial, freshness)
+
+    fresh = [
+        item for item in deduped
+        if item["title"].lower() not in existing_titles and item["url"] not in existing_urls
+    ]
+    if not fresh:
+        raise SystemExit("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: all admissible recent signals already exist in the corpus.")
+    signal = max(fresh, key=candidate_key)
     key_material = json.dumps(signal, sort_keys=True)
     key = hashlib.sha256(key_material.encode()).hexdigest()[:16]
     filename = f"{now.date().isoformat()}-private-commercial-{slug(signal['title'])}-{key}.html"
@@ -267,6 +306,7 @@ if deduped:
 <section><h2>Commercial response surface</h2>
 <p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
 <p><a href="{checkout}">Open the existing NZ$49 Supplier Quote Comparison checkout</a></p>
+<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">NZ$0.50 Agent/API Probe</a> for machine-readable toll access. Pay → key → call → receipt.</p>
 </section>
 <section><h2>Truth boundary</h2>
 <p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
