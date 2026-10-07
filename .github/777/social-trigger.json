@@ -4,5 +4,7 @@
   "offer_id": "CMD-DIAG-29",
   "authorization": "STANDING_EXTERNAL_ACTION_ENVELOPE",
   "purpose": "one-shot governed Tumblr/X publication with attributable doorway",
-  "created_at": "2026-10-07T00:20:00+13:00"
+  "created_at": "2026-10-07T00:20:00+13:00",
+  "dispatch_attempt": 2,
+  "dispatch_requested_at": "2026-10-07T00:33:45.842Z"
 }
