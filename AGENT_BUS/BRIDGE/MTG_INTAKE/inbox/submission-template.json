@@ -1,0 +1,11 @@
+{
+  "schema": "dreamledger/mtg-agent-bridge-submission/v1",
+  "source_worker": "GROK",
+  "source_device": "WIFE_PHONE",
+  "submitted_by": "WIFE",
+  "commander": null,
+  "deck_name": null,
+  "ballpark_price_nzd": null,
+  "notes": null,
+  "decklist_text": null
+}
