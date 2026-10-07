@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-06T23:34:39+00:00",
+  "generated_at_utc": "2026-10-07T03:00:00+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -19,6 +19,17 @@
       "url": "https://www.gets.govt.nz/WAIRDC/ExternalTenderDetails.htm?id=34954354",
       "category": "PROCUREMENT",
       "public_route": "/economic/procurement-wairoa-airport-runway-extension-89836f7e67.html"
+    },
+    {
+      "id": "GRID-POWER-CONSTRAINT-2026-10-07",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Google–Constellation 890 MW PJM nuclear capacity agreement",
+      "status": "UNVERIFIED",
+      "source": "Constellation / EIA",
+      "observed_at": "2026-10-07T00:00:00+00:00",
+      "url": "https://www.constellationenergy.com/news/2026/10/google-and-constellation-announce-landmark-agreement-to-bring-890-mw-of-new-nuclear-capacity-to-pjm-grid.html",
+      "category": "ENERGY_INFRASTRUCTURE",
+      "public_route": "/power-availability-intelligence.html"
     }
   ],
   "cells": [
@@ -35,6 +46,13 @@
       "status": "UNVERIFIED",
       "price_nzd": 49,
       "silo": "dreamledger"
+    },
+    {
+      "id": "GRID-POWER-CONSTRAINT-2026-10-07",
+      "name": "AI Power Availability Intelligence",
+      "status": "UNVERIFIED",
+      "price_nzd": 25000,
+      "silo": "energy"
     }
   ],
   "verified_mechanisms": [],
@@ -62,6 +80,14 @@
       "status": "CHECKOUT_ENABLED",
       "silo": "dreamledger",
       "checkout": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w"
+    },
+    {
+      "id": "OFFER-POWER-AVAIL-25K",
+      "name": "AI Power Availability Intelligence Sprint",
+      "price_nzd": 25000,
+      "status": "CHECKOUT_ENABLED",
+      "silo": "energy",
+      "checkout": "https://buy.stripe.com/3cIbJ16Hz29vaar7wMdwc3a"
     }
   ],
   "replication": {
