@@ -20,11 +20,16 @@ def run():
     if not seeds:
         return None
 
-    signal = max(seeds, key=lambda x: float(x.get("economic_stake_usd") or 0))
     now = datetime.now(timezone.utc)
-    key = hashlib.sha256(json.dumps(signal, sort_keys=True).encode()).hexdigest()[:16]
-    filename = f"{now.date().isoformat()}-demand-transition-{signal['solicitation']}-{key}.html"
-    target = PULSE / filename
+    unseen = []
+    for signal in seeds:
+        key = hashlib.sha256(json.dumps(signal, sort_keys=True).encode()).hexdigest()[:16]
+        filename = f"{now.date().isoformat()}-demand-transition-{signal['solicitation']}-{key}.html"
+        if not (PULSE / filename).exists():
+            unseen.append((signal, PULSE / filename))
+    if not unseen:
+        return None
+    signal, target = max(unseen, key=lambda pair: float(pair[0].get("economic_stake_usd") or 0))
     if not target.exists():
         incumbent = signal.get("incumbent_signal") or {}
         target.write_text("""<!doctype html>
