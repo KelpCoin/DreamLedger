@@ -1,0 +1,64 @@
+{
+  "schema": "dreamledger.readiness-matrix.v1",
+  "purpose": "Reusable regulatory-readiness observatory component",
+  "pipeline": [
+    "REGULATION",
+    "DATA_POINTS",
+    "EFFECTIVE_DATE",
+    "EVIDENCE",
+    "READINESS",
+    "GAP",
+    "COMMERCIAL_ACTION"
+  ],
+  "fields": {
+    "requirement_id": "stable identifier",
+    "requirement_text": "source-derived requirement",
+    "applicability": [
+      "required",
+      "optional",
+      "conditional",
+      "not_yet_required",
+      "unknown"
+    ],
+    "effective_date": "ISO-8601 date or null",
+    "jurisdiction": "jurisdiction code",
+    "product_category": "category label",
+    "evidence_url": "primary-source URL",
+    "legal_basis": "legal citation",
+    "evidence_checked_at": "ISO-8601 timestamp",
+    "readiness_status": [
+      "covered",
+      "partial",
+      "gap",
+      "unknown"
+    ],
+    "gap_action": "concrete next action",
+    "truth_status": [
+      "VERIFIED",
+      "UNVERIFIED",
+      "CONTRADICTED",
+      "STALE"
+    ],
+    "source_priority": [
+      "PRIMARY",
+      "SECONDARY"
+    ]
+  },
+  "quality_gates": [
+    "Do not invent regulatory requirements",
+    "Every public requirement row must have evidence",
+    "Keep effective dates separate from publication dates",
+    "Expose unknown rather than infer compliance",
+    "Do not claim buyer demand or revenue without external verification",
+    "Generate category, deadline, evidence and gap views from the same canonical rows"
+  ],
+  "current_candidate": {
+    "name": "Battery Passport Readiness Matrix v1",
+    "regulatory_anchor": "Regulation (EU) 2023/1542 Article 77",
+    "guidance_date": "2026-08-21",
+    "mandatory_battery_passport_date": "2027-02-18",
+    "commission_guidance_data_points_reported": 71,
+    "truth_status": "UNVERIFIED",
+    "revenue_nzd": 0
+  }
+}
