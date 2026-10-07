@@ -23,3 +23,8 @@ test('Stripe webhook is mounted before generic GET-only rejection', () => {
   assert.match(source, /p\.startsWith\('\/api\/commercial\/'\) \|\| p==='\/api\/webhooks\/stripe'/);
   assert.match(source, /commercialCell\.handle\(req,res,p\)/);
 });
+
+test('Toll manifest is handled explicitly at the storefront boundary', () => {
+  assert.match(source, /p==='\/api\/toll\/v1\/manifest'/);
+  assert.match(source, /tollRoad\.publicManifest\(\)/);
+});
