@@ -34,6 +34,9 @@ jobs:
           CTA_URL: ${{ vars.DREAMLEDGER_CTA_URL }}
         run: python scripts/777_cycle.py
 
+      - name: Enforce compounding output
+        run: python scripts/777_compounding_gate.py
+
       - name: Commit new pulse if changed
         run: |
           git config user.name "DreamLedger 777"
