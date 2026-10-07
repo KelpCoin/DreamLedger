@@ -210,6 +210,7 @@ def parse_stats(raw):
         for href, title in p.links
     ]
 
+now = datetime.now(timezone.utc)
 signals = []
 source_errors = []
 
@@ -276,14 +277,14 @@ if deduped:
         items.append(f'<li><a href="pulse/{html.escape(f.name, quote=True)}">{html.escape(t)}</a></li>')
 
     existing_index = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
-    section_start = "<h2>Latest private commercial pulses</h2>\\n<ul>"
+    section_start = "<h2>Latest private commercial pulses</h2>\n<ul>"
     start_index = existing_index.find(section_start)
     if start_index >= 0:
         list_end = existing_index.find("</ul>", start_index)
         if list_end >= 0:
             replacement = section_start + "\n".join(items[:100]) + "</ul>"
             INDEX.write_text(
-                existing_index[:start_index] + replacement + existing_index[list_end + len("</ul"):],
+                existing_index[:start_index] + replacement + existing_index[list_end + len("</ul>"):],
                 encoding="utf-8",
             )
     else:
