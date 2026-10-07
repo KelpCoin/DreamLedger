@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DreamLedger | Artifact Exchange</title>
+<meta name="description" content="Enterprise intake and evidence surface for DreamLedger compounding artifacts.">
+<style>
+body{margin:0;background:#070b10;color:#eef3f7;font:16px/1.55 Inter,system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:44px 22px}a{color:#a8d8ff;text-decoration:none}.nav{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.nav a{margin-left:16px}.eyebrow{color:#79c8ff;text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800;margin-top:70px}h1{font-size:clamp(42px,7vw,76px);line-height:.96;max-width:850px;margin:16px 0}.lede{color:#aab8c5;max-width:760px;font-size:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:38px 0}.card,.intake{background:#0d151e;border:1px solid #263543;border-radius:16px;padding:22px}.card strong{display:block;margin-bottom:8px}.muted{color:#94a6b5}.intake{margin-top:34px}input,textarea,button{font:inherit}input[type=file]{width:100%;padding:18px;border:1px dashed #4c6377;border-radius:12px;background:#081018;color:#bdcad5}textarea{width:100%;min-height:110px;margin-top:12px;padding:12px;border:1px solid #334858;border-radius:10px;background:#081018;color:#eef3f7}button{margin-top:12px;padding:12px 18px;border:0;border-radius:10px;background:#e6f2ff;color:#071018;font-weight:800;cursor:pointer}pre{white-space:pre-wrap;overflow:auto;color:#a9bdd0;font-size:12px}footer{margin-top:60px;border-top:1px solid #263543;padding-top:20px;color:#718394;font-size:12px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style></head>
+<body><main>
+<div class="nav"><strong>DreamLedger</strong><span><a href="../">Observatory</a><a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">API / Toll Road</a><a href="https://fightedge-web-live.onrender.com">FightEdge</a></span></div>
+<div class="eyebrow">Economic Observatory · Enterprise Artifact Exchange</div>
+<h1>Attach the evidence. Preserve the chain. Compound the asset.</h1>
+<p class="lede">This is the intake membrane for reusable artifacts recovered by 777 expeditions. Evidence remains source-bound, truth-labelled and distinct from payment proof. Useful artifacts can become commercial surfaces, API capabilities, agent inputs or paid entitlements.</p>
+<div class="grid">
+<div class="card"><strong>Evidence</strong><span class="muted">Source, identity, timestamp and truth state remain attached.</span></div>
+<div class="card"><strong>Commercialization</strong><span class="muted">Map a discovery to a buyer problem, offer, API capability or action.</span></div>
+<div class="card"><strong>Compounding</strong><span class="muted">Promote durable components instead of publishing disposable research pages.</span></div>
+</div>
+<section class="intake"><h2>Prepare an artifact package</h2>
+<p class="muted">Select one or more files. The browser will generate a manifest for authorized downstream handling. Selecting files is not external submission, payment, fulfillment or verification.</p>
+<input id="files" type="file" multiple>
+<textarea id="notes" placeholder="Optional: event, company, buyer problem, offer fit, source notes"></textarea>
+<button id="prepare">Prepare manifest</button><pre id="out"></pre></section>
+<footer>Truth boundary: UNVERIFIED until the authoritative economic chain independently proves the relevant external result.</footer>
+<script>
+document.getElementById('prepare').onclick=()=>{
+ const fs=[...document.getElementById('files').files],notes=document.getElementById('notes').value||null,out=document.getElementById('out');
+ if(!fs.length){out.textContent='Select at least one attachment.';return}
+ out.textContent=JSON.stringify({schema:'DREAMLEDGER/ARTIFACT-MANIFEST/v1',prepared_at:new Date().toISOString(),truth_status:'UNVERIFIED',external_submission:false,attachments:fs.map(f=>({name:f.name,size:f.size,type:f.type||'application/octet-stream',lastModified:new Date(f.lastModified).toISOString()})),notes},null,2);
+};
+</script></main></body></html>
