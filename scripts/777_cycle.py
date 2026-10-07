@@ -5,18 +5,24 @@ import json
 import os
 import re
 import urllib.request
+import urllib.parse
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 
 # 777 sensing order: buyer-adjacent procurement first, then Stats NZ economic releases.
 # A failed source is never interpreted as zero demand.
-SOURCE_CANDIDATES = [
-    ("GETS", "https://www.gets.govt.nz/ExternalIndex.htm"),
-    ("STATS_NZ", "https://www.stats.govt.nz/information-releases/"),
-    ("STATS_NZ", "https://www.stats.govt.nz/publications/"),
-    ("STATS_NZ", "https://www.stats.govt.nz/insights/"),
-    ("STATS_NZ", "https://www.stats.govt.nz/"),
+# 777 sensing universe: private-sector commercial events only.
+# Government, schools, hospitals, universities and public-sector procurement are
+# explicitly excluded from the buyer universe. Google News RSS is a discovery
+# transport; the linked publisher remains the source that must be corroborated.
+PRIVATE_SEARCHES = [
+    '"signed agreement" contract supplier financing -government -school -hospital -university -council -ministry -municipality',
+    '"customer prepayment" OR "prepayment" contract cloud supplier -government -school -hospital -university',
+    '"forward flow" OR "purchase agreement" financing "commercial" -government -school -hospital -university',
+    '"milestone payment" agreement company contract -government -school -hospital -university',
+    '"capacity reservation" OR "capacity commitment" company customer contract -government -school -hospital -university',
 ]
 ROOT = Path("webapp")
 PULSE = ROOT / "pulse"
@@ -109,6 +115,54 @@ def fetch(source):
     with urllib.request.urlopen(req, timeout=30) as r:
         return r.read().decode("utf-8", "replace")
 
+
+def google_news_url(query):
+    q = urllib.parse.quote(query)
+    return "https://news.google.com/rss/search?q=" + q + "&hl=en-US&gl=US&ceid=US:en"
+
+
+def parse_private_rss(raw):
+    try:
+        root = ET.fromstring(raw)
+    except Exception:
+        return []
+    rows = []
+    for item in root.findall(".//item"):
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        pub = (item.findtext("pubDate") or "").strip()
+        source = item.findtext("source")
+        source = (source or "").strip()
+        if not title or not link:
+            continue
+        low = title.lower()
+        blocked = [
+            "government", "ministry", "council", "municipal", "city of ",
+            "school", "schools", "university", "universities", "hospital",
+            "health system", "public health", "state agency", "federal agency",
+            "department of", "procurement notice", "tender notice", "rfq"
+        ]
+        if any(term in low for term in blocked):
+            continue
+        commercial_terms = [
+            "agreement", "contract", "financing", "prepayment", "purchase",
+            "supplier", "capacity", "funding", "milestone", "acquisition",
+            "renewal", "facility", "commitment", "partnership"
+        ]
+        if not any(term in low for term in commercial_terms):
+            continue
+        rows.append({
+            "source": "PRIVATE_SECTOR_RSS",
+            "title": title,
+            "url": link,
+            "published_at": pub,
+            "publisher": source or "UNKNOWN_PUBLISHER",
+            "value_status": "UNKNOWN",
+            "qualified_offer": "QUOTE-COMPARE-49",
+            "truth_status": "UNVERIFIED"
+        })
+    return rows
+
 def absolute(href):
     if href.startswith("http"):
         return href
@@ -156,30 +210,31 @@ def parse_stats(raw):
         for href, title in p.links
     ]
 
-procurement = []
-fallback_stats = []
+signals = []
 source_errors = []
 
-for source_name, source_url in SOURCE_CANDIDATES:
+for query in PRIVATE_SEARCHES:
+    source_url = google_news_url(query)
     try:
-        raw = fetch(source_url)
-        if source_name == "GETS":
-            procurement.extend(parse_gets(raw))
-            if procurement:
-                break
-        else:
-            fallback_stats.extend(parse_stats(raw))
-            if fallback_stats:
-                break
+        signals.extend(parse_private_rss(fetch(source_url)))
     except Exception as exc:
-        source_errors.append(f"{source_name}:{source_url}:{type(exc).__name__}")
+        source_errors.append(f"PRIVATE_RSS:{type(exc).__name__}")
 
-now = datetime.now(timezone.utc)
-if procurement:
-    signal = procurement[0]
+# Stable de-duplication, then prefer the newest discovery with a named publisher.
+seen = set()
+deduped = []
+for signal in signals:
+    key = (signal["title"].lower(), signal["url"])
+    if key in seen:
+        continue
+    seen.add(key)
+    deduped.append(signal)
+
+if deduped:
+    signal = deduped[0]
     key_material = json.dumps(signal, sort_keys=True)
     key = hashlib.sha256(key_material.encode()).hexdigest()[:16]
-    filename = f"{now.date().isoformat()}-procurement-{slug(signal['title'])}-{key}.html"
+    filename = f"{now.date().isoformat()}-private-commercial-{slug(signal['title'])}-{key}.html"
     target = PULSE / filename
 
     if not target.exists():
@@ -188,74 +243,58 @@ if procurement:
         checkout = html.escape(QUOTE_CHECKOUT, quote=True)
         body = f"""<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>777 Procurement Signal: {title}</title>
+<title>777 Private Commercial Signal: {title}</title>
 <meta name="robots" content="index,follow">
-<meta name="description" content="Source-bound procurement signal observed through New Zealand GETS.">
+<meta name="description" content="Source-bound private-sector commercial signal observed through a public news discovery feed.">
 </head><body><main>
-<p><a href="/">DreamLedger</a> / 777 Procurement</p>
+<p><a href="/">DreamLedger</a> / 777 Private Commercial</p>
 <h1>{title}</h1>
-<p><strong>Observed:</strong> {now.isoformat()} · <strong>Source:</strong> GETS</p>
+<p><strong>Observed:</strong> {now.isoformat()} · <strong>Publisher:</strong> {html.escape(signal["publisher"])}</p>
 <section><h2>Primary observation</h2>
 <ul>
-<li>RFx ID: {html.escape(signal["rfx_id"])}</li>
-<li>Reference: {html.escape(signal["reference"])}</li>
-<li>Tender type: {html.escape(signal["tender_type"])}</li>
-<li>Close date: {html.escape(signal["close_date"])}</li>
-<li>Organisation: {html.escape(signal["organisation"])}</li>
+<li>Publisher: {html.escape(signal["publisher"])}</li>
+<li>Published: {html.escape(signal["published_at"])}</li>
+<li>Discovery source: Google News RSS</li>
 </ul>
-<p><a href="{source_url}" rel="noopener noreferrer">Open the primary GETS surface</a></p>
+<p><a href="{source_url}" rel="noopener noreferrer">Open the publisher source</a></p>
 </section>
 <section><h2>Commercial response surface</h2>
-<p>This observation identifies procurement activity. It does not establish contract value, buyer intent, award probability, or revenue. If you are preparing a bid and already have supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
-<p><a href="{checkout}">Open the NZ$49 Supplier Quote Comparison checkout</a></p>
+<p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
+<p><a href="{checkout}">Open the existing NZ$49 Supplier Quote Comparison checkout</a></p>
 </section>
 <section><h2>Truth boundary</h2>
-<p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this page.</p>
+<p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
 </section>
 </main></body></html>"""
         target.write_text(body, encoding="utf-8")
 
-    # Deterministic procurement index update, preserving the existing observatory corpus.
     items = []
-    for f in sorted(PULSE.glob("*-procurement-*.html"), reverse=True):
+    for f in sorted(PULSE.glob("*-private-commercial-*.html"), reverse=True):
         text = f.read_text(encoding="utf-8", errors="ignore")
         m = re.search(r"<h1>(.*?)</h1>", text, re.S)
         t = re.sub("<[^>]+>", "", m.group(1)).strip() if m else f.stem
         items.append(f'<li><a href="pulse/{html.escape(f.name, quote=True)}">{html.escape(t)}</a></li>')
 
     existing_index = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
-    section_start = "<h2>Latest procurement pulses</h2>\n<ul>"
-    start = existing_index.find(section_start)
-    if start >= 0:
-        list_end = existing_index.find("</ul>", start)
+    section_start = "<h2>Latest private commercial pulses</h2>\\n<ul>"
+    start_index = existing_index.find(section_start)
+    if start_index >= 0:
+        list_end = existing_index.find("</ul>", start_index)
         if list_end >= 0:
             replacement = section_start + "\n".join(items[:100]) + "</ul>"
             INDEX.write_text(
-                existing_index[:start] + replacement + existing_index[list_end + len("</ul>"):],
+                existing_index[:start_index] + replacement + existing_index[list_end + len("</ul"):],
                 encoding="utf-8",
             )
     else:
-        print("INDEX_PRESERVED=no_procurement_section_found")
-    print(f"PROCUREMENT_SIGNAL={signal['rfx_id']}|{signal['title']}")
+        print("INDEX_PRESERVED=private_commercial_section_not_present")
+
+    print(f"PRIVATE_COMMERCIAL_SIGNAL={signal['title']}")
     print(f"PULSE={target}")
     print("TRUTH=UNVERIFIED")
     raise SystemExit(0)
 
-if fallback_stats:
-    signal = fallback_stats[0]
-    key = hashlib.sha256((signal["url"] + "|" + signal["title"]).encode()).hexdigest()[:16]
-    filename = f"{now.date().isoformat()}-stats-{slug(signal['title'])}-{key}.html"
-    target = PULSE / filename
-    if not target.exists():
-        target.write_text(
-            f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><title>777 Economic Pulse: {html.escape(signal["title"])}</title></head><body><main><p><a href="/">DreamLedger</a></p><h1>{html.escape(signal["title"])}</h1><p>Observed {now.isoformat()} · Source: <a href="{html.escape(signal["url"], quote=True)}">Stats NZ</a></p><p>UNVERIFIED external economic signal. No buyer, payment, fulfillment, or revenue is inferred.</p></main></body></html>""",
-            encoding="utf-8",
-        )
-    print(f"STATS_SIGNAL={signal['title']}")
-    print("TRUTH=UNVERIFIED")
-    raise SystemExit(0)
-
 raise SystemExit(
-    "NO_ATTRIBUTABLE_ECONOMIC_SIGNAL: all configured source surfaces unavailable or unparsable; "
+    "NO_PRIVATE_COMMERCIAL_SIGNAL: configured private-sector discovery feeds returned no admissible signal; "
     + ";".join(source_errors)
 )
