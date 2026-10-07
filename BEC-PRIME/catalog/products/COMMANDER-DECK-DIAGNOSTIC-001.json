@@ -22,7 +22,7 @@
     "sellable": true,
     "reason": "Operator authorized automated MTG digital fulfillment on 2026-08-23.",
     "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
+    "payment_link": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
     "payment_link_id": "plink_1UFFZFEGgEAnUFF9LHNMWTDl",
     "stripe_product_id": "prod_V6iVKl9HgFpzRU",
     "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7"
