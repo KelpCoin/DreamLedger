@@ -1,0 +1,73 @@
+# Customer Prepayment Commitment: Boost Run / Cohere
+
+Date: 2026-10-07
+
+## Primitive
+
+A customer prepayment is a commercial structure in which the buyer pays part of a contracted future service commitment before the provider has delivered the contracted capacity or service.
+
+This is materially different from a capacity reservation. A reservation can secure priority access or manufacturing capacity without the same cash conversion. A prepayment converts part of future contracted demand into cash earlier, while the buyer typically retains delivery, acceptance, refund, or termination protections.
+
+## Source-bound event
+
+Boost Run and Cohere executed a service agreement effective 30 September 2026 for dedicated GPU cloud infrastructure and related services. Boost Run's SEC-filed agreement records Cohere as the customer. The disclosed commitment is approximately US$525.6 million over the agreement term, with a portion payable as a prepayment. Initial infrastructure acceptance is expected in Q2 2027.
+
+The agreement also creates a critical evidence boundary: if a specified minimum amount of infrastructure has not been accepted by 15 July 2027, Cohere may terminate and receive a refund of prepaid amounts. The commercial state is therefore not simply "large contract signed". It is a state machine linking advance cash to future acceptance.
+
+## Reusable state machine
+
+NAMED BUYER → SIGNED SERVICE AGREEMENT → PREPAYMENT → DELIVERY / ACCEPTANCE → SERVICE COMMENCEMENT → EARNED REVENUE → FULFILLMENT EVIDENCE
+
+Failure branch:
+
+PREPAYMENT → ACCEPTANCE THRESHOLD MISSED → TERMINATION RIGHT → REFUND OF UNAPPLIED PREPAYMENT
+
+## Why this is a new component
+
+This is not take-or-pay. Take-or-pay establishes a minimum purchase obligation over a future term.
+
+This is not capacity reservation. Capacity reservation secures future supply access.
+
+This is not forward-flow capital. Forward-flow monetizes a portfolio of receivables or contracted cash flows through a financing structure.
+
+Customer prepayment is the distinct primitive: cash moves forward in time from buyer to supplier against a future delivery obligation, with acceptance and refund logic defining the boundary between cash received and revenue earned.
+
+## Commercial extraction
+
+Reusable offer hypothesis: **Prepayment Structure Brief**.
+
+Potential buyer class: suppliers, infrastructure providers, SaaS businesses, manufacturers, cloud operators, and other providers with long lead-time delivery and identifiable enterprise customers.
+
+The useful output is not a generic contract summary. It is a compact analysis of:
+- what is prepaid;
+- when cash becomes due;
+- what acceptance condition protects the buyer;
+- what portion is refundable;
+- when the provider can recognize or earn the economics;
+- what evidence proves conversion from prepaid commitment to delivered value.
+
+## Evidence
+
+Primary source: SEC-filed Boost Run / Cohere Service Agreement, effective 2026-09-30. citeturn2search0
+
+Primary company source: Boost Run investor-relations site, which lists the 2026-10-06 US$525.6M five-year AI cloud services announcement. citeturn2search1
+
+Truth state: PRIMARY-SOURCE VERIFIED.
+
+Commercial state: STRUCTURAL PRIMITIVE / COMMERCIAL HYPOTHESIS.
+
+Economic outcome: UNVERIFIED. No DreamLedger revenue is claimed.
+
+## 777 implication
+
+The reusable detector is:
+
+**PREPAYMENT_DETECTOR**
+- named customer exists;
+- contracted future service exists;
+- prepayment exists;
+- acceptance or delivery threshold exists;
+- refund / termination mechanics are explicit;
+- future fulfillment can generate evidence.
+
+This detector can scan future commercial announcements for a cash-conversion structure that is stronger than an unsigned pipeline but does not falsely treat contracted value as settled revenue.
