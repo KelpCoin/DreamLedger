@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"DreamLedger 777 CUBE Silo Cell",
+  "type":"object",
+  "required":["cell_id","silo","substrate","buyer","gravity","offer","surface","cta","truth_status","telemetry"],
+  "properties":{
+    "cell_id":{"type":"string"},"silo":{"type":"string"},"substrate":{"type":"object"},"buyer":{"type":"string"},"gravity":{"type":"string"},"measurable_friction":{"type":"string"},"offer":{"type":"string"},"audience":{"type":"string"},"message":{"type":"string"},"surface":{"type":"string"},"cta":{"type":"string"},"price_nzd":{"type":["number","null"]},
+    "truth_status":{"enum":["UNVERIFIED","VERIFIED","CONTRADICTED","STALE","TEST","SIMULATED","INTERNAL","UNMATCHED"]},
+    "telemetry":{"type":"object","required":["exposures","responses","qualified_responses","checkouts","settled_payments","fulfillments","evidence"],"properties":{"exposures":{"type":"integer","minimum":0},"responses":{"type":"integer","minimum":0},"qualified_responses":{"type":"integer","minimum":0},"checkouts":{"type":"integer","minimum":0},"settled_payments":{"type":"integer","minimum":0},"fulfillments":{"type":"integer","minimum":0},"evidence":{"type":"integer","minimum":0}}},
+    "gauntlet_score":{"type":["number","null"]},"selection_state":{"enum":["SEED","REFINE","SWARM","WINNER","DROP","FROZEN"]},"provenance":{"type":"array","items":{"type":"string"}}
+  }
+}
