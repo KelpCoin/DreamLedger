@@ -1,0 +1,85 @@
+name: 777 Economic Engine
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "BEC-PRIME/scripts/Run-777.js"
+      - "BEC-PRIME/compiler/FactoryFactory.js"
+      - "BEC-PRIME/scripts/test-777-amber-room.js"
+      - "BEC-PRIME/scripts/test-777-factory-factory.js"
+      - "BEC-PRIME/runtime/777/**"
+      - "BEC-PRIME/economic/**"
+      - "BEC-PRIME/catalog/**"
+      - "BEC-PRIME/data/777/**"
+      - "public/evergreen-silo-factory.json"
+      - ".github/workflows/777-economic-engine.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 777-economic-engine
+  cancel-in-progress: true
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install
+        working-directory: BEC-PRIME
+        run: npm ci --no-audit --no-fund
+
+      - name: Run 777 economic compiler
+        working-directory: BEC-PRIME
+        run: npm run 777:run
+
+      - name: Run FactoryFactory
+        working-directory: BEC-PRIME
+        run: npm run factory-factory
+
+      - name: Run 777 adversarial checks
+        working-directory: BEC-PRIME
+        run: |
+          node scripts/test-777-amber-room.js
+          node scripts/test-777-factory-factory.js
+
+      - name: Verify economic truth boundary
+        working-directory: BEC-PRIME
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = 'data/777/777-LATEST.json';
+          if (!fs.existsSync(p)) throw new Error('777 output missing');
+          const x = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (x.truth?.verified_external_revenue_nzd !== 0) throw new Error('verified revenue boundary changed');
+          if (x.truth?.settled_external_payments !== 0) throw new Error('settlement boundary changed');
+          console.log(JSON.stringify({
+            seed_count: x.seed_count ?? null,
+            candidate_count: x.candidate_count ?? null,
+            activation_candidate_count: x.activation_candidate_count ?? null,
+            buyer_signal_count: x.buyer_signal_count ?? null,
+            verified_external_revenue_nzd: x.truth?.verified_external_revenue_nzd ?? null
+          }, null, 2));
+          NODE
+
+      - name: Publish proof artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-economic-engine-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/factory-factory/FACTORY-FACTORY.json
+          if-no-files-found: error
+          retention-days: 14
