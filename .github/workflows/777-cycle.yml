@@ -53,21 +53,7 @@ jobs:
           git commit -m "777: publish new economic pulse"
           git push
 
-# 777 probe: force one fresh economic cycle for evidence capture.
-# Manual probe requested 2026-10-07: run now and harvest the resulting component.
-# Probe marker: 2026-10-07T19:35+13:00
-# Cycle directive: non-repeating wide-funnel economic search; prefer a new buyer/problem or a reusable website primitive.
-# Probe request: 2026-10-07 second live cycle; inspect generated artifact before promotion.
-# Cycle objective: return verified money OR one durable, non-duplicate compounding artifact/component.
-# 2026-10-08 fresh-cycle trigger: execute one new pulse; inspect output before any promotion.
-# 2026-10-08 live-cycle probe: rerun requested; private-sector economic demand only; money first, durable component second.
-# 2026-10-08 live probe trigger: 2026-10-07T21:11:40.041Z — private-sector only; money first, durable component second.
-# 2026-10-08 live probe trigger: execute immediately; harvest strongest non-duplicate economic component; do not repeat prior signals.
-# 2026-10-08 live probe trigger: 10:31 NZDT; execute fresh private-sector cycle; money first, otherwise one non-duplicate durable component.
-# 2026-10-08 live probe trigger: 10:xx NZDT — fresh execution requested; reject Alfanar/C3-InfraRed/Nova-BMP repeats; money first, otherwise a new durable component.
-# 2026-10-08 live probe trigger: 10:00+13:00 — fresh private-sector cycle; money first; otherwise non-duplicate durable component; reject prior Alfanar/C3-InfraRed/Nova-BMP signals.
-# 2026-10-08 live probe trigger: fresh execution requested; money first; otherwise one new non-duplicate durable component; reject Alfanar/C3-InfraRed/Nova-BMP/Brookfield-ESR repeats.
-# 2026-10-08 live probe trigger: 10:00+13:00 — fresh private-sector cycle; money first; otherwise one new non-duplicate durable component; reject Alfanar/C3-InfraRed/Nova-BMP/Brookfield-ESR repeats.
-# 2026-10-08 execution nonce: fresh-cycle-20261008T1000-NONREPEAT-02
-# 2026-10-08 execution nonce: fresh-cycle-20261008T1143-NONREPEAT-04
-# 2026-10-08 execution nonce: fresh-cycle-20261008T1150-UPSCale-01
+# 777 execution directive: upscale fresh cycle.
+# Objective: MONEY first. If no settlement, return exactly one new durable non-duplicate component.
+# Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR.
+# Execution nonce: fresh-cycle-20261008T1150-UPSCale-02
