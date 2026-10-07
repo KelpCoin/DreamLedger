@@ -1,0 +1,81 @@
+name: Cloud Elohim Website Gauntlet
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "BEC-PRIME/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/cloud-elohim-website-gauntlet.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-elohim-website-gauntlet-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cloud-elohim-gauntlet:
+    name: Cloud Elohim + Gauntlet
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Cloud Elohim compile
+        run: npm run compile
+
+      - name: Cloud Elohim worker proof
+        run: |
+          npm run smoke:worker
+          npm run worker:verify
+
+      - name: Cloud Gauntlet
+        run: npm run gauntlet
+
+      - name: Elohim module verification
+        run: node -e "const E=require('./elohim/ElohimV6'); console.log('ELOHIM_LOAD=PASS'); console.log(typeof E)"
+
+      - name: Website surface checks
+        working-directory: .
+        run: |
+          test -s index.html
+          grep -q "Pay for" index.html
+          grep -q "Quote Compare" index.html
+          grep -q "Commercial Truth Stress-Test" index.html
+          grep -q "NZ\$49" index.html
+          grep -q "NZ\$999" index.html
+          grep -q "verified" index.html
+          echo "WEBSITE_SURFACE=PASS"
+
+      - name: Emit candidate judgment
+        working-directory: .
+        run: |
+          mkdir -p proof
+          printf '{"status":"PASS","judge":"cloud-elohim-gauntlet","sha":"%s","website_surface":"PASS","commercial_truth":"checkout_is_not_revenue"}\n' "${GITHUB_SHA}" > proof/cloud-elohim-gauntlet.json
+          cat proof/cloud-elohim-gauntlet.json
+
+      - name: Upload judgment
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-elohim-gauntlet-${{ github.run_id }}
+          path: proof/cloud-elohim-gauntlet.json
+          if-no-files-found: error
+          retention-days: 30
