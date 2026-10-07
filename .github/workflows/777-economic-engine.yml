@@ -14,6 +14,8 @@ on:
       - "BEC-PRIME/data/777/**"
       - "public/evergreen-silo-factory.json"
       - ".github/workflows/777-economic-engine.yml"
+  schedule:
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: read
@@ -70,7 +72,10 @@ jobs:
             candidate_count: x.candidate_count ?? null,
             activation_candidate_count: x.activation_candidate_count ?? null,
             buyer_signal_count: x.buyer_signal_count ?? null,
-            verified_external_revenue_nzd: x.truth?.verified_external_revenue_nzd ?? null
+            verified_external_revenue_nzd: x.truth?.verified_external_revenue_nzd ?? null,
+            settled_external_payments: x.truth?.settled_external_payments ?? null,
+            independent_external_buyers: x.truth?.independent_external_buyers ?? null,
+            verified_economic_outcomes: x.truth?.verified_economic_outcomes ?? null
           }, null, 2));
           NODE
 
