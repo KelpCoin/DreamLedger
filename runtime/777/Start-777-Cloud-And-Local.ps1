@@ -91,9 +91,10 @@ if ($InstallTask) {
   $taskName = "BEC-777-Inversion-Guardrail"
   $arg = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -RunOnce' -f $PSCommandPath
   $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument $arg
-  $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1)
-  Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Force | Out-Null
-  Write-Log "Installed scheduled task $taskName."
+  $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 3650)
+  $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RunOnlyIfNetworkAvailable -MultipleInstances IgnoreNew
+  Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Force | Out-Null
+  Write-Log "Installed recurring scheduled task $taskName every 15 minutes while the PC is available."
 }
 
 Write-Log "777 inversion guardrail run complete."
