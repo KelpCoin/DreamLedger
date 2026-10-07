@@ -11,6 +11,7 @@ const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org')
 const SCOPES = {
   gauntlet: { priceKey: 'gauntletPriceNzd', product: 'DreamLedger Automated Gauntlet Access', calls: 100000 },
   truth: { priceKey: 'truthPriceNzd', product: 'DreamLedger Truth / Evidence Wall Access', calls: 100000 },
+  'toll-probe': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Toll Probe (one live API probe)', calls: 1, fixedPrice: 0.50 },
   'bridge-events': { priceKey: 'bridgeEventsPriceNzd', product: 'DreamLedger Agent Bridge Events Pack (100 calls)', calls: 100 },
   'route-lease': { priceKey: 'routeLeasePriceNzd', product: 'DreamLedger Route Lease (basic, 30 days)', calls: 10000 },
   'gauntlet-pack': { priceKey: 'gauntletPackPriceNzd', product: 'DreamLedger Gauntlet Pack (20 approvals)', calls: 20 },
@@ -163,6 +164,11 @@ async function handle(req,res,path){
     }
     if(!SCOPES[scope]||!sessionId)return send(res,400,{error:'scope_and_session_id_required'});
     try{return send(res,200,{schema:'dreamledger/toll-redeem/v1',...(await redeem(scope,sessionId))});}catch(e){return send(res,e.statusCode||502,{error:e.message});}
+  }
+
+  if(path==='/api/toll/v1/probe'&&req.method==='POST'){
+    const key=authorize(req,'toll-probe');
+    return send(res,200,meterResult(key,'TOLL-PROBE',{probe_id:'TOLL-PROBE-50C',route:'/api/toll/v1/probe',price_nzd:0.50,result:'LIVE_TOLL_WALL_REACHED',issued_at:new Date().toISOString(),note:'This response proves access through the paid toll wall. It does not itself create economic truth.'}));
   }
 
   if(path==='/api/toll/v1/gauntlet'&&req.method==='POST'){
