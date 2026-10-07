@@ -1,0 +1,65 @@
+{
+  "schema_version": "dreamledger.economic-identity-marketplace.v1",
+  "purpose": "Shared economic identity substrate combining profile, storefront, buyer requirements, agent endpoint, evidence and compounding artifacts.",
+  "primitives": [
+    "identity",
+    "capability",
+    "want",
+    "offer",
+    "requirement",
+    "evidence",
+    "agent",
+    "commerce_event",
+    "artifact"
+  ],
+  "lifecycle": [
+    "IDENTITY",
+    "CAPABILITY",
+    "WANT",
+    "OFFER",
+    "DISCOVERY",
+    "AGENT_MATCH",
+    "AUTHORITY_GATE",
+    "PAYMENT",
+    "FULFILLMENT",
+    "EVIDENCE",
+    "COMPOUNDING_ARTIFACT"
+  ],
+  "routes": [
+    "/people/:slug",
+    "/companies/:slug",
+    "/agents/:slug",
+    "/offers/:slug",
+    "/requirements/:slug"
+  ],
+  "truth_rules": [
+    "Never equate listing with demand.",
+    "Never equate checkout creation with payment.",
+    "Never equate dispatch with external result.",
+    "Only settled payment plus fulfillment evidence becomes VERIFIED revenue."
+  ],
+  "monetization": [
+    "transaction_fee",
+    "seller_subscription",
+    "agent_calls",
+    "verified_evidence_access",
+    "premium_matching",
+    "fulfillment_entitlement"
+  ],
+  "v1_scope": [
+    "Profile card",
+    "Offers",
+    "Requirements",
+    "Agent-readable JSON",
+    "Evidence/status",
+    "Marketplace discovery",
+    "Commerce handoff"
+  ],
+  "non_goals": [
+    "social-feed clone",
+    "new ledger",
+    "new queue",
+    "new orchestrator",
+    "automatic external actions without authority"
+  ]
+}
