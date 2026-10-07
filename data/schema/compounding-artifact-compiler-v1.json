@@ -1,0 +1,80 @@
+{
+  "schema_version": "dreamledger.compounding-artifact-compiler.v1",
+  "purpose": "Compile public demand, reusable assets, agent capabilities and economic outcomes into new sellable cells without requiring a new platform for each cell.",
+  "compiler_loop": [
+    "DEMAND_SIGNAL",
+    "CAPTURE",
+    "ARTIFACT",
+    "RECOMBINE",
+    "SANDBOX",
+    "PUBLIC_RESPONSE",
+    "PAID_EVENT",
+    "FULFILLMENT",
+    "EVIDENCE",
+    "REUSE"
+  ],
+  "artifact_classes": [
+    "GAME_RULESET",
+    "GAME_ASSET",
+    "AVATAR_COSMETIC",
+    "WORLD_FRAGMENT",
+    "AGENT_SKILL",
+    "API_CAPABILITY",
+    "AD_PLACEMENT",
+    "DOOH_CREATIVE",
+    "MARKETPLACE_LISTING",
+    "PRIMER",
+    "SIMULATION_RESULT",
+    "BUYER_SIGNAL"
+  ],
+  "economic_surfaces": [
+    "API_TOLL",
+    "DIGITAL_ITEM",
+    "AVATAR_COSMETIC",
+    "GAME_PASS",
+    "SPONSORED_PLACEMENT",
+    "PROGRAMMATIC_DOOH",
+    "AGENT_TO_AGENT_SERVICE",
+    "MARKETPLACE_TRANSACTION",
+    "VERIFIED_EVIDENCE_ACCESS"
+  ],
+  "cross_pollination": {
+    "avatar_to_game": "cosmetic becomes owned/reusable game asset",
+    "game_to_avatar": "player/world achievement becomes cosmetic or identity asset",
+    "game_to_dooh": "game telemetry selects creative/context for authorized placement",
+    "dooh_to_game": "QR/shortlink/offer resolves into a playable sandbox or paid item",
+    "api_to_game": "paid API capability becomes a game mechanic or creator tool",
+    "game_to_api": "game-generated demand becomes an API offer or service cell"
+  },
+  "gpu_roles": [
+    "asset_generation",
+    "texture_and_video_generation",
+    "simulation_and_monte_carlo",
+    "gameplay_variant_generation",
+    "embedding_and_retrieval",
+    "quality_scoring",
+    "artifact_compilation",
+    "batch experimentation"
+  ],
+  "economic_rule": "GPU work is capital only when the output is retained as a reusable artifact, measurable advantage, or paid fulfillment. Otherwise classify it as compute expense.",
+  "metricool_role": {
+    "when_connected": [
+      "distribution_sensor",
+      "best-time sensor",
+      "post performance sensor",
+      "cross-platform publication rail",
+      "campaign feedback loop"
+    ],
+    "not_a_core_dependency": true
+  },
+  "agentic_commerce": {
+    "discovery": "agent-readable offer and capability manifests",
+    "authorization": "human or policy authority gate",
+    "payment": "existing commerce rail",
+    "fulfillment": "signed entitlement or API result",
+    "evidence": "settlement plus fulfillment receipt",
+    "protocol_strategy": "remain protocol-neutral at the artifact layer; adapt at the edge to MCP/A2A/commerce/payment protocols"
+  },
+  "factory_unit": "CELL -> ARTIFACT -> REUSE -> MEASURED_ADVANTAGE -> NEW_CELL",
+  "first_test": "Compile one public demand signal into one reusable digital artifact, expose one paid toll or digital item, and retain the resulting evidence for the next compilation cycle."
+}
