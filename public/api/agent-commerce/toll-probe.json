@@ -1,0 +1,25 @@
+{
+  "schema_version": "dreamledger.agent-commerce-offer.v1",
+  "offer_id": "TOLL-PROBE-50C",
+  "name": "DreamLedger 777 Toll Probe",
+  "price": {"currency": "NZD", "amount": 0.50},
+  "discovery": {
+    "human_surface": "/toll-road",
+    "machine_surface": "/api/toll/v1/manifest",
+    "checkout": "/api/toll/v1/checkout/toll-probe"
+  },
+  "fulfillment": {
+    "sequence": ["SETTLED_PAYMENT", "ENTITLEMENT", "SIGNED_KEY", "API_CALL", "RECEIPT"],
+    "endpoint": "/api/toll/v1/probe"
+  },
+  "truth": {
+    "checkout_is_not_payment": true,
+    "settlement_required": true,
+    "fulfillment_evidence_required": true
+  },
+  "factory": {
+    "artifact_reuse": true,
+    "cross_pollination_targets": ["GAME", "AVATAR", "DOOH", "AGENT", "API"],
+    "gpu_role": "generate_and_score_reusable_artifacts"
+  }
+}
