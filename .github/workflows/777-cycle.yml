@@ -11,6 +11,7 @@ on:
       - "scripts/external_demand_transition.py"
       - "data/external-demand-seeds/**"
       - "scripts/procurement_amendment_delta.py"
+      - "webapp/pulse/777-manual-probe-2026-10-07.md"
 
 permissions:
   contents: write
