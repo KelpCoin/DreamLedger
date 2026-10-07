@@ -1,0 +1,51 @@
+name: 777 inversion guardrail audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7,17,27,37,47,57 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  guardrail-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify doctrine anchor
+        shell: bash
+        run: |
+          test -f webapp/pulse/2026-10-07-777-economic-engine-essay.md
+          test -f runtime/777/777-inversion-guardrails.md
+          grep -q "9a822c9ad8cf745177a6195969a4bd1bf8971392" runtime/777/777-inversion-guardrails.md
+
+      - name: Verify allocation
+        shell: bash
+        run: |
+          grep -q "70% HUNT" runtime/777/777-inversion-guardrails.md
+          grep -q "20% CONVERT" runtime/777/777-inversion-guardrails.md
+          grep -q "10% INFRASTRUCTURE" runtime/777/777-inversion-guardrails.md
+
+      - name: Verify fail-closed language
+        shell: bash
+        run: |
+          grep -q "NO_REPLICATION" runtime/777/777-inversion-guardrails.md
+          grep -q "UNMATCHED" runtime/777/777-inversion-guardrails.md
+          grep -q "BLOCK_EXTERNAL_EFFECT" runtime/777/777-inversion-guardrails.md
+          grep -q "CLOUD_CONTINUES" runtime/777/777-inversion-guardrails.md
+
+      - name: Verify economic zero boundary
+        shell: bash
+        run: |
+          grep -q "VERIFIED_EXTERNAL_REVENUE = NZ\$0.00" runtime/777/777-inversion-guardrails.md
+          grep -q "SETTLED_EXTERNAL_PAYMENTS = 0" runtime/777/777-inversion-guardrails.md
+          grep -q "INDEPENDENT_EXTERNAL_BUYERS = 0" runtime/777/777-inversion-guardrails.md
+          grep -q "VERIFIED_ECONOMIC_OUTCOMES = 0" runtime/777/777-inversion-guardrails.md
+
+      - name: Verify local runner
+        shell: bash
+        run: |
+          test -f runtime/777/Start-777-Cloud-And-Local.ps1
+          grep -q "LM Studio" runtime/777/Start-777-Cloud-And-Local.ps1
