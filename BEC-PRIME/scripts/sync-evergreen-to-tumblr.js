@@ -38,7 +38,10 @@ async function api(path,method='GET',body={}){
   const form=new URLSearchParams();
   for(const [k,v] of Object.entries(body)) form.set(k,String(v));
   const params={};
-  if(method==='GET') for(const [k,v] of Object.entries(body)) params[k]=v;
+  if(method==='GET') {
+    for(const [k,v] of new URL(url).searchParams.entries()) params[k]=v;
+    for(const [k,v] of Object.entries(body)) params[k]=v;
+  }
   const headers={Accept:'application/json',Authorization:oauthHeader(method,url,params)};
   const opts={method,headers};
   if(method!=='GET'){headers['Content-Type']='application/x-www-form-urlencoded';opts.body=form.toString();}
