@@ -120,6 +120,10 @@ jobs:
 
           if record["payment_link_url"] not in body.get("content", ""):
               raise SystemExit("Publication response failed content verification")
+
+          with urllib.request.urlopen(verify_req, timeout=20) as response:
+              verified = json.loads(response.read().decode())
+
           if (
               verified.get("id") != message_id or
               verified.get("channel_id") != channel_id or
