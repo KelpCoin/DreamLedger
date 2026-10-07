@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Commercial Truth Stress-Test · DreamLedger</title>
+<meta name="description" content="Bounded adversarial review of a commercial claim, offer, workflow, or decision.">
+<link rel="canonical" href="https://dreamledger.org/commercial-truth-stress-test">
+<style>
+body{margin:0;background:#07090d;color:#f4f7fa;font:16px/1.6 system-ui,sans-serif}
+main{max-width:860px;margin:auto;padding:56px 22px 90px}
+.k{color:#e7c56b;font:800 11px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}
+h1{font-size:clamp(42px,8vw,76px);line-height:.95;letter-spacing:-.06em;margin:16px 0}
+p,li{color:#9aa6b3}
+.card{border:1px solid #29333e;border-radius:18px;background:#101720;padding:24px;margin:28px 0}
+.price{font-size:38px;font-weight:950;color:#a9f5cf}
+a{color:#a9f5cf;font-weight:850}
+.badge{display:inline-block;border:1px solid #315c48;border-radius:999px;padding:5px 9px;color:#a9f5cf;font:800 10px ui-monospace,monospace}
+</style>
+</head>
+<body>
+<main>
+<div class="k">DreamLedger · Truth Oracle</div>
+<h1>Commercial Truth Stress-Test</h1>
+<p>A bounded adversarial review of one commercial claim, offer, workflow, or consequential decision.</p>
+<div class="card">
+<span class="badge">SETTLED STRIPE PAYMENT REQUIRED</span>
+<div class="price">NZ$999 one-time</div>
+<p>We test the evidence boundary, assumptions, failure modes, and conditions required for the claim to be considered supported.</p>
+<p><a href="https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T?utm_source=dreamledger&utm_medium=truth_stress_test&utm_campaign=first_dollar">Start the stress-test →</a></p>
+</div>
+<h2>What you receive</h2>
+<ul>
+<li>Exact claim and scope registration</li>
+<li>Primary and independent evidence assessment</li>
+<li>Quantifier and scope traps</li>
+<li>Direct-versus-adjacent evidence separation</li>
+<li>Unproven bridge identification</li>
+<li>Risk and consequence assessment</li>
+<li>Cheapest useful proof path</li>
+<li>Clear supported / unsupported boundary</li>
+</ul>
+<p>Missing evidence stays missing. A confident conclusion is never substituted for proof.</p>
+<p><a href="/">Return to DreamLedger →</a></p>
+</main>
+</body>
+</html>
