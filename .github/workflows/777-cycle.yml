@@ -69,3 +69,6 @@ jobs:
 # 2026-10-08 live probe trigger: 10:00+13:00 — fresh private-sector cycle; money first; otherwise non-duplicate durable component; reject prior Alfanar/C3-InfraRed/Nova-BMP signals.
 
 # 2026-10-08 live probe trigger: fresh execution requested; money first; otherwise one new non-duplicate durable component; reject Alfanar/C3-InfraRed/Nova-BMP/Brookfield-ESR repeats.
+
+# 2026-10-08 live probe trigger: 10:00+13:00 — fresh private-sector cycle; money first; otherwise one new non-duplicate durable component; reject Alfanar/C3-InfraRed/Nova-BMP/Brookfield-ESR repeats.
+# 2026-10-08 execution nonce: fresh-cycle-20261008T1000-NONREPEAT-01
