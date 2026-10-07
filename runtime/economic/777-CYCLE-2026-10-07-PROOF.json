@@ -1,0 +1,36 @@
+{
+  "schema": "DREAMLEDGER/777/CYCLE-PROOF/v1",
+  "cycle_at_utc": "2026-10-07T03:08:53+00:00",
+  "executor": "grok-agent-sandbox",
+  "note": "Publisher ran against partial clone; MUST NOT overwrite main public/ corpus. Candidate observed for full-repo workflow to publish monotonically.",
+  "status": "PASS_OBSERVE_PARTIAL",
+  "discovered": 182,
+  "published_this_cycle_in_sandbox": 1,
+  "candidate": {
+    "id": "59abbe05-b4ff-5841-bc38-141adb3b594e",
+    "title": "WDC-26-151 - Whakatāne Floodwall Integration – Quay St and the Strand demolition work",
+    "source": "GETS",
+    "source_url": "https://www.gets.govt.nz/WHDC/ExternalTenderDetails.htm?id=34982081",
+    "category": "PROCUREMENT",
+    "verification": "UNVERIFIED",
+    "external_action": "NONE",
+    "proposed_public_route": "/economic/procurement-wdc-26-151-whakat-ne-floodwall-integration-quay-st-and-the-s-82e2442659.html"
+  },
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "gauntlet_commercial": {
+    "decision": "FAIL",
+    "reasons": [
+      "SPECIFIC_BUYER_UNKNOWN",
+      "NO_DREAMLEDGER_OFFER_ATTACHED",
+      "PROCUREMENT_IS_OBSERVATION_NOT_PRODUCT"
+    ],
+    "authority_gate": "NOT_REACHED"
+  },
+  "monotonic": "SANDBOX_MUST_NOT_COMMIT_PUBLIC_OVERWRITE",
+  "required_followup": "Run workflow_dispatch on 777-economic-observatory.yml on full main so publisher appends against full manifest"
+}
