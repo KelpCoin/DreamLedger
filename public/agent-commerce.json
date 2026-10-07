@@ -56,10 +56,10 @@
       "price_nzd": 49,
       "silo": "procurement",
       "buy_router": "https://dreamledger.org/quote-comparison/",
-      "checkout_url": null,
-      "status": "UNAVAILABLE_COLD_CHECKOUT",
+      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+      "status": "VERIFIED_AVAILABLE",
       "loop": "LOOP-QUOTE-COMPARE-49",
-      "note": "Live cold test on 2026-10-06 reached Stripe but returned Page Not Found. Do not present as purchasable until existing checkout is restored and re-tested."
+      "note": "Live Stripe API read on 2026-10-07 confirms the payment link is active in livemode and carries SKU QUOTE-COMPARE-49 metadata. Canonical buy router restored at /buy/quote_compare_49/."
     },
     {
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
