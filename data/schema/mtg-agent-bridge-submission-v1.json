@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dreamledger/mtg-agent-bridge-submission-v1",
+  "title": "DreamLedger MTG Agent Bridge Submission",
+  "type": "object",
+  "required": ["schema","source_worker","source_device","submitted_by","commander","deck_name","ballpark_price_nzd","notes","decklist_text"],
+  "properties": {
+    "schema": {"const": "dreamledger/mtg-agent-bridge-submission/v1"},
+    "source_worker": {"type": "string"},
+    "source_device": {"type": "string"},
+    "submitted_by": {"type": "string"},
+    "commander": {"type": ["string","null"]},
+    "deck_name": {"type": ["string","null"]},
+    "ballpark_price_nzd": {"type": ["number","null"]},
+    "notes": {"type": ["string","null"]},
+    "decklist_text": {"type": ["string","null"]}
+  },
+  "additionalProperties": false
+}
