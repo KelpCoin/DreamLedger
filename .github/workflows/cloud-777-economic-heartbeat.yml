@@ -1,6 +1,8 @@
 name: Cloud 777 Economic Heartbeat
 
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: "17,47 * * * *"
   workflow_dispatch:
@@ -14,6 +16,7 @@ concurrency:
 
 jobs:
   economic-heartbeat:
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, 'chore: fossilize cloud 777 economic artifact')
     name: Build and fossilize the next 777 artifact
     runs-on: ubuntu-latest
     timeout-minutes: 20
