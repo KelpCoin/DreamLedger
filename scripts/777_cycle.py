@@ -215,19 +215,27 @@ if procurement:
 </main></body></html>"""
         target.write_text(body, encoding="utf-8")
 
-    # Deterministic index of generated procurement pulses.
+    # Deterministic procurement index update, preserving the existing observatory corpus.
     items = []
     for f in sorted(PULSE.glob("*-procurement-*.html"), reverse=True):
         text = f.read_text(encoding="utf-8", errors="ignore")
         m = re.search(r"<h1>(.*?)</h1>", text, re.S)
         t = re.sub("<[^>]+>", "", m.group(1)).strip() if m else f.stem
         items.append(f'<li><a href="pulse/{html.escape(f.name, quote=True)}">{html.escape(t)}</a></li>')
-    INDEX.write_text(
-        "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>DreamLedger 777</title></head><body><main><h1>DreamLedger 777</h1><p>WORLD → PROCUREMENT SIGNAL → ATTRIBUTABLE ARTIFACT → RESPONSE SURFACE → MEASURABLE OUTCOME.</p><h2>Latest procurement pulses</h2><ul>"
-        + "\n".join(items[:100])
-        + "</ul></main></body></html>",
-        encoding="utf-8",
-    )
+
+    existing_index = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
+    section_start = "<h2>Latest procurement pulses</h2>\n<ul>"
+    start = existing_index.find(section_start)
+    if start >= 0:
+        list_end = existing_index.find("</ul>", start)
+        if list_end >= 0:
+            replacement = section_start + "\n".join(items[:100]) + "</ul>"
+            INDEX.write_text(
+                existing_index[:start] + replacement + existing_index[list_end + len("</ul>"):],
+                encoding="utf-8",
+            )
+    else:
+        print("INDEX_PRESERVED=no_procurement_section_found")
     print(f"PROCUREMENT_SIGNAL={signal['rfx_id']}|{signal['title']}")
     print(f"PULSE={target}")
     print("TRUTH=UNVERIFIED")
