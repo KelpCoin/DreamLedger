@@ -52,7 +52,7 @@ async function proxyFightEdge(req,res,u){
     let body=req.method==='HEAD'?'':await upstream.text();
     if(type.includes('text/html')){
       body=body.replace(/(href|src|action)=(["'])\/(?!\/)/gi,'$1=$2/fightedge/');
-      body=body.replace(/url\\((["']?)\/(?!\/)/gi,'url($1/fightedge/');
+      body=body.replace(/url\((["']?)\/(?!\/)/gi,'url($1/fightedge/');
     }
     res.statusCode=upstream.status;
     res.setHeader('Content-Type',type);
