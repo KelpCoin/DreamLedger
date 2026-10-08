@@ -63,7 +63,8 @@
     "verify:factory-factory-assembly": "node BEC-PRIME/scripts/Verify-FactoryFactoryAssembly.js",
     "cube:ingest": "python ops/demand/ingest-public-feeds.py",
     "cube:radar": "python ops/demand/ingest-public-feeds.py && python ops/cube/resolve-mechanisms.py",
-    "verify:b2b-marketplace": "node BEC-PRIME/scripts/verify-b2b-marketplace-contract.js"
+    "verify:b2b-marketplace": "node BEC-PRIME/scripts/verify-b2b-marketplace-contract.js",
+    "verify:a2a-marketplace": "node BEC-PRIME/scripts/verify-a2a-marketplace-contract.js"
   },
   "engines": {
     "node": ">=20"
