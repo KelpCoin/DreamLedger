@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-08-private-commercial-xrp-handles-8m-x402-payments-in-30-days-as-ai-agent-activity-accelerates-the-crypto-basic-986164deb60b6f93.html"
+  ],
+  "observed_at": "2026-10-08T04:43:31.722236+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
