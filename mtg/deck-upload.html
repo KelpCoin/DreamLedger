@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>List a Commander Deck | DreamLedger MTG</title>
+<style>
+:root{--bg:#080a0d;--panel:#10151b;--line:#27313a;--ink:#f5f3eb;--muted:#9ca7b2;--gold:#d8b56b;--good:#8fd3a2;--bad:#ef9292}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}.wrap{max-width:820px;margin:auto;padding:18px 14px 70px}a{color:var(--gold)}.nav{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}.nav span{font-weight:950;letter-spacing:.08em}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:14px}.kicker{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:900}h1{font-size:clamp(2.3rem,9vw,4.8rem);line-height:.9;letter-spacing:-.06em;margin:10px 0}h2{margin-top:0}p{color:var(--muted)}label{display:block;color:var(--muted);font-size:.8rem;margin:12px 0 5px}input,textarea,select{width:100%;background:#0b0e12;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit}textarea{min-height:220px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}.btn{border:0;border-radius:10px;padding:13px 16px;background:var(--gold);color:#111;font-weight:950;cursor:pointer}.btn.secondary{background:#171c23;color:var(--ink);text-decoration:none}.btn:disabled{opacity:.45}.drop{border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;cursor:pointer}.drop.drag{border-color:var(--gold)}.drop input{display:none}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.step{padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--muted)}.step b{display:block;color:var(--ink);font-size:1.05rem}.preview{white-space:pre-wrap;background:#0b0e12;border:1px solid var(--line);border-radius:10px;padding:12px;font:12px ui-monospace,monospace;color:var(--muted);max-height:190px;overflow:auto}.status{margin-top:12px;min-height:24px;color:var(--muted)}.good{color:var(--good)}.bad{color:var(--bad)}.output{white-space:pre-wrap;background:#0b0e12;border:1px solid var(--line);border-radius:10px;padding:14px;font:12px ui-monospace,monospace;color:var(--muted)}.row{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none!important}@media(max-width:650px){.grid,.steps{grid-template-columns:1fr}.full{grid-column:auto}.btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="nav"><span>MAGIC / DREAMLEDGER</span><nav><a href="/mtg/">Catalogue</a> · <a href="/">DreamLedger</a></nav></header>
+
+<section class="panel">
+<div class="kicker">Master silo / physical inventory</div>
+<h1>List your deck.<br>Three steps.</h1>
+<div class="steps">
+<div class="step"><b>1. Give us the list</b>Paste it or choose a file.</div>
+<div class="step"><b>2. Check it</b>DreamLedger counts the cards.</div>
+<div class="step"><b>3. Publish</b>One canonical listing. Done.</div>
+</div>
+<p>No HTML editing. No JSON. No separate Facebook or Patreon inventory. Your listing becomes the source record and the carousel reads from it.</p>
+</section>
+
+<section id="auth" class="panel">
+<div class="kicker">Access</div>
+<h2>Sign in once</h2>
+<p>Enter your email and DreamLedger will send you a sign-in link. If you are already signed in, this box disappears.</p>
+<div class="row">
+<input id="email" type="email" autocomplete="email" placeholder="you@example.com" style="flex:1;min-width:220px">
+<button id="magic" class="btn" type="button">Email me a sign-in link</button>
+</div>
+<div id="authStatus" class="status">Checking your session...</div>
+</section>
+
+<form id="form" class="panel">
+<div class="kicker">Step 1</div>
+<h2>Give us the decklist</h2>
+<div id="drop" class="drop">
+<label for="file" style="margin:0;color:var(--ink);font-size:1rem;cursor:pointer">Choose a deck file</label>
+<div>or drag .txt, .csv, .dec or .dek here</div>
+<input id="file" type="file" accept=".txt,.csv,.dec,.dek,text/plain,text/csv">
+</div>
+<label for="decklist">Or paste the decklist</label>
+<textarea id="decklist" name="decklist_text" required placeholder="1 Sol Ring
+1 Arcane Signet
+1 Command Tower
+...
+1 Your Commander"></textarea>
+<div id="parseStatus" class="status">Waiting for a decklist.</div>
+<div id="preview" class="preview hidden"></div>
+
+<div class="kicker" style="margin-top:20px">Step 2</div>
+<h2>Only the facts you know</h2>
+<div class="grid">
+<div><label>Deck name *</label><input name="title" required placeholder="Grixis Pirates"></div>
+<div><label>Commander *</label><input name="commander" required placeholder="Edward Kenway"></div>
+<div><label>Price NZD *</label><input name="price_nzd" type="number" min="0.01" step="0.01" required placeholder="400"></div>
+<div><label>Physical units *</label><input name="inventory" type="number" min="1" step="1" value="1" required></div>
+<div><label>Condition</label><select name="condition"><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option><option>Damaged</option><option>Unspecified</option></select></div>
+<div><label>Cover image URL <span>(optional)</span></label><input name="image_url" type="url" placeholder="https://..."></div>
+<div class="full"><label>Description <span>(optional)</span></label><textarea name="description" style="min-height:90px" maxlength="2000" placeholder="Anything a buyer should know"></textarea></div>
+</div>
+
+<div class="kicker" style="margin-top:20px">Step 3</div>
+<div class="row"><button id="publish" class="btn" type="submit">Publish to MTG carousel</button><a class="btn secondary" href="/mtg/">Cancel</a></div>
+<div id="status" class="status">Sign in above to publish.</div>
+</form>
+
+<section id="result" class="panel hidden">
+<div class="kicker">Published</div><h2 id="resultTitle"></h2><p id="resultMeta"></p>
+<div class="output" id="fb"></div>
+<div class="row" style="margin-top:10px">
+<button class="btn" id="copyFb">Copy Facebook post</button>
+<button class="btn" id="copyPatreon">Copy Patreon post</button>
+<a class="btn secondary" id="openDeck" target="_blank" rel="noopener">Open catalogue</a>
+</div>
+<p>Distribution is copy-first. External publication remains human-authorized.</p>
+</section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://wbwgroygjeyukkspnqiy.supabase.co';
+const SUPABASE_KEY='sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
+const S=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let session=null;
+
+function countCards(text){
+  const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  let total=0,unique=new Set();
+  for(const line of lines){
+    const m=line.replace(/^[-*]\s*/,'').match(/^(\d+)\s*x?\s+(.+)$/i);
+    if(!m)continue;
+    total+=Math.max(1,Number(m[1]));
+    unique.add(m[2].replace(/\s+\(.*\)$/,'').trim().toLowerCase());
+  }
+  return {total,unique:unique.size};
+}
+function showParse(){
+  const text=$('decklist').value;
+  if(!text.trim()){ $('parseStatus').textContent='Waiting for a decklist.';$('preview').classList.add('hidden');return; }
+  const c=countCards(text);
+  $('parseStatus').textContent=c.total?'Detected '+c.total+' cards across '+c.unique+' unique cards.':'I could not detect quantity + card-name lines yet. Paste lines like “1 Sol Ring”.';
+  $('parseStatus').className='status '+(c.total?'good':'bad');
+  $('preview').textContent=text.split(/\r?\n/).filter(Boolean).slice(0,12).join('\n')+(text.split(/\r?\n/).filter(Boolean).length>12?'\n...':'');
+  $('preview').classList.remove('hidden');
+}
+async function init(){
+  const r=await S.auth.getSession(); session=r.data.session;
+  if(session){ $('auth').classList.add('hidden');$('status').textContent='Signed in. Ready to publish.';$('publish').disabled=false; }
+  else { $('publish').disabled=true;$('status').textContent='Sign in above to publish.'; }
+}
+$('magic').onclick=async()=>{
+  const email=$('email').value.trim();
+  if(!email){$('authStatus').textContent='Enter your email first.';return;}
+  $('magic').disabled=true;$('authStatus').textContent='Sending sign-in link...';
+  const r=await S.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.href}});
+  $('authStatus').textContent=r.error?r.error.message:'Check your email for the sign-in link.';
+  $('magic').disabled=false;
+};
+$('decklist').addEventListener('input',showParse);
+$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;$('decklist').value=await f.text();showParse();});
+['dragenter','dragover'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('drag');}));
+$('drop').addEventListener('drop',async e=>{const f=e.dataTransfer.files[0];if(!f)return;$('decklist').value=await f.text();showParse();});
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault(); if(!session)return;
+  $('publish').disabled=true;$('status').textContent='Publishing...';
+  const fd=new FormData(e.currentTarget),body=Object.fromEntries(fd.entries()); body.publish=true;
+  try{
+    const r=await fetch(SUPABASE_URL+'/functions/v1/mtg-deck-catalog',{method:'POST',headers:{'Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json(); if(!r.ok)throw new Error(d.error||'Publish failed');
+    $('result').classList.remove('hidden');$('resultTitle').textContent=d.deck.title;
+    $('resultMeta').textContent='Commander: '+d.deck.commander+' · NZ$'+Number(d.deck.price_nzd).toFixed(2)+' · '+d.deck.card_count+' cards · '+d.deck.unique_card_count+' unique';
+    $('fb').textContent=d.distribution.facebook;$('openDeck').href=d.public_url||'/mtg/';
+    $('copyFb').onclick=()=>navigator.clipboard.writeText(d.distribution.facebook);
+    $('copyPatreon').onclick=()=>navigator.clipboard.writeText(d.distribution.patreon);
+    $('status').className='status good';$('status').textContent='Published. The catalogue can now read this canonical listing.';
+    window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  }catch(err){$('status').className='status bad';$('status').textContent=err.message;}
+  finally{$('publish').disabled=false;}
+});
+init();
+</script>
+</body>
+</html>

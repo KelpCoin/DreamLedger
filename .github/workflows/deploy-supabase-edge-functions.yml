@@ -66,3 +66,41 @@ jobs:
         run: |
           set -euo pipefail
           echo "Deployed Supabase function ${FUNCTION_NAME} from commit ${GITHUB_SHA}"
+
+  deploy-mtg-deck-catalog:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: wbwgroygjeyukkspnqiy
+      FUNCTION_NAME: mtg-deck-catalog
+      FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/mtg-deck-catalog
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Validate MTG deck catalog source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'mtg_decks' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'COPY_ONLY_UNTIL_EXTERNAL_CHANNEL_AUTHORIZATION_EXISTS' "supabase/functions/${FUNCTION_NAME}/index.ts"
+      - name: Deploy MTG deck catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase functions deploy "${FUNCTION_NAME}" --project-ref "${PROJECT_ID}"
+      - name: Verify MTG deck catalog endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 "${FUNCTION_URL}")"
+          echo "${body}" | grep -F 'DREAMLEDGER/MTG-DECK-CATALOG/v1'
