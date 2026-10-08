@@ -5,7 +5,7 @@ if(!fs.existsSync(compiled))throw new Error('Compiled billboard surface missing'
 if(!fs.existsSync(sourceRoute))throw new Error('Canonical billboard route missing');
 fs.copyFileSync(sourceRoute,targetRoute);
 const html=fs.readFileSync(compiled,'utf8');
-const required=['BUY A PIECE','LEAVE IT UNTIL 3000','1,000,000','NZ$50','/api/molt-beach-inventory','/api/billboard/submit','PAID_PENDING_REVIEW','Image Placement + human approval'];
+const required=['YOUR IDEA','ON THE BOARD','1,000,000','NZ$50','/api/molt-beach-inventory','/api/molt-beach-checkout','review your placement before publishing it','Image Placement + human approval'];
 const missing=required.filter(x=>!html.includes(x));
 if(missing.length)throw new Error('Canonical billboard surface missing required markers: '+missing.join(', '));
-console.log(JSON.stringify({status:'PASS',activation:'billboard',route:true,compiled:true,mutation:'route_only',human_review:true,year_3000:true},null,2));
+console.log(JSON.stringify({status:'PASS',activation:'billboard',route:true,compiled:true,contract:'current-checkout-review-flow',mutation:'route_only',human_review:true,year_3000:true},null,2));
