@@ -26,21 +26,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Generate procurement amendment delta
         run: python scripts/procurement_amendment_delta.py
-
       - name: Generate external demand transition
         run: python scripts/external_demand_transition.py
-
       - name: Generate economic pulse
         env:
           CTA_URL: ${{ vars.DREAMLEDGER_CTA_URL }}
         run: python scripts/777_cycle.py
-
       - name: Enforce compounding output
         run: python scripts/777_compounding_gate.py
-
       - name: Commit new pulse if changed
         run: |
           git config user.name "DreamLedger 777"
@@ -74,4 +69,4 @@ jobs:
 # Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem, Nylas IAM scoped API keys.
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
 # HUGE decomposition: select at most 5 bounded jobs from issue #497, rank by economic leverage, execute highest-value job, emit evidence.
-# Execution nonce: fresh-cycle-20261008T1715-BRIDGE-HUGE-497-R3
+# Execution nonce: fresh-cycle-20261008T2200-NZ-BRIDGE-HUGE-497-R4
