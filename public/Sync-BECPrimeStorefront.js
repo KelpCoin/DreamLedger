@@ -31,7 +31,7 @@ for(const rel of required){
 }
 const listFile=path.join(DEST,'mtg-list.html');
 let list=fs.readFileSync(listFile,'utf8');
-list=list.replace(/Buyers never need one\\.?/gi,'Buying from another player requires a free DreamLedger account.');
-list=list.replace(/buyers stay frictionless; sellers are known\\.?/gi,'Marketplace participants have a persistent account identity.');
+list=list.replace(/Buyers never need one\.?/gi,'Buying from another player requires a free DreamLedger account.');
+list=list.replace(/buyers stay frictionless; sellers are known\.?/gi,'Marketplace participants have a persistent account identity.');
 fs.writeFileSync(listFile,list);
 console.log(JSON.stringify({status:'PASS',source:SOURCE,destination:DEST,required,account_contract:'PASS'}));
