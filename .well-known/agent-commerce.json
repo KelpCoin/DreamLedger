@@ -1,0 +1,28 @@
+{
+  "schema": "dreamledger/agent-commerce/v3",
+  "updated": "2026-10-08",
+  "purpose": "Machine-readable discovery contract for DreamLedger B2B and agent-commerce offers.",
+  "marketplace": "https://dreamledger.org/marketplace.html",
+  "catalog": "https://dreamledger.org/.well-known/ai-catalog.json",
+  "capabilities": [
+    "discover_offers",
+    "discover_b2b_actions",
+    "present_authorization",
+    "handoff_to_checkout"
+  ],
+  "authorization": {
+    "human_required": true,
+    "autonomous_spend": false
+  },
+  "endpoints": {
+    "offers": "https://dreamledger.org/.well-known/ai-catalog.json",
+    "toll_manifest": "https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest",
+    "marketplace": "https://dreamledger.org/marketplace.html"
+  },
+  "truth_boundary": "Discovery and checkout are not revenue. VERIFIED requires independent external settlement, attribution, fulfillment and evidence.",
+  "fee_policy": {
+    "marketplace_success_fee_bps": 0,
+    "processor": "Stripe",
+    "note": "Payment processing and separately disclosed paid tools are distinct from marketplace success fees."
+  }
+}
