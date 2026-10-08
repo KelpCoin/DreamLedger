@@ -253,7 +253,8 @@ if "--local" in os.sys.argv:
 if deduped:
     existing_titles = set()
     existing_urls = set()
-    for existing in PULSE.glob("*-private-commercial-*.html"):
+    # Cross-artifact dedupe: observatory and other pulse pages count too, not only prior private-commercial cards.
+    for existing in PULSE.glob("*.html"):
         try:
             text = existing.read_text(encoding="utf-8", errors="ignore")
             m = re.search(r"<h1>(.*?)</h1>", text, re.S)
