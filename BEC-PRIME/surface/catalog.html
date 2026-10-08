@@ -1,159 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-NZ" data-focus-offer="QUOTE-COMPARE-49">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger is a playful catalogue of useful, curious and collectible things.">
-<title>DreamLedger | Find something good</title>
+<meta name="theme-color" content="#f5f0e7">
+<meta name="description" content="Upload 2–5 supplier quotes. Get a source-backed comparison of price, scope, missing costs, lead time and payment terms for NZ$49.">
+<link rel="canonical" href="https://dreamledger.org/">
+<title>Supplier Quote Comparison | DreamLedger</title>
 <style>
-:root{--bg:#f5f0e7;--paper:#fffdf8;--ink:#171512;--muted:#746f67;--line:#ddd5c8;--purple:#5d43d8;--gold:#d59d2f;--dark:#1b1813;--max:1180px}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-a{color:inherit;text-decoration:none}
-button{font:inherit}
-.wrap{width:min(var(--max),calc(100% - 28px));margin:auto}
-.nav{height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;background:#f5f0e7ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-.brand{font-weight:950;letter-spacing:-.065em;font-size:1.15rem}
-.brand span{color:var(--purple)}
-.navlinks{display:flex;gap:10px;color:var(--muted);font-size:.74rem;font-weight:800;max-width:75%;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}.navlinks::-webkit-scrollbar{display:none}
-.navlinks a:hover{color:var(--ink)}
-.dreammee{position:fixed;right:14px;top:10px;z-index:70;width:44px;height:44px;border:2px solid var(--ink);border-radius:50%;background:linear-gradient(145deg,#fff,#e7dcff);box-shadow:0 8px 24px #17151222;display:grid;place-items:center;cursor:pointer}
-.face{position:relative;width:25px;height:21px;border-radius:45%;background:var(--ink)}
-.face:before,.face:after{content:"";position:absolute;top:7px;width:3px;height:3px;border-radius:50%;background:#fff}
-.face:before{left:6px}.face:after{right:6px}
-.dreammee .spark{position:absolute;right:-2px;bottom:-2px;width:15px;height:15px;border-radius:50%;background:var(--purple);color:#fff;font-size:9px;display:grid;place-items:center}
-.dreammee-tip{position:fixed;right:68px;top:11px;z-index:69;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:7px 10px;font-size:.66rem;color:var(--muted);box-shadow:0 10px 30px #17151218;opacity:0;transform:translateY(-3px);pointer-events:none;transition:.18s}
-.dreammee:hover + .dreammee-tip{opacity:1;transform:none}
-.billboard-peek{display:inline-flex;align-items:center;gap:8px;width:min(210px,100%);margin-bottom:18px;border-radius:15px;border:1px solid #594b2f;background:var(--dark);color:#fff;box-shadow:0 10px 25px #17151216;overflow:hidden;padding:10px 12px}
-.billboard-peek:before{content:"";width:34px;height:26px;border-radius:5px;background:repeating-linear-gradient(0deg,#e4b94f 0 3px,transparent 3px 6px);flex:0 0 auto}
-.billboard-peek div{position:relative}
-.billboard-peek b{display:block;font-size:.62rem;letter-spacing:.04em}
-.billboard-peek span{display:block;margin-top:2px;font-size:.54rem;color:#dbc99c}
-.hero{padding:54px 0 30px;max-width:780px}
-.eyebrow{font-size:.61rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--purple)}
-h1{font-size:clamp(3.5rem,9vw,7.5rem);line-height:.8;letter-spacing:-.095em;margin:11px 0 17px}
-.lead{font-size:1.03rem;color:var(--muted);max-width:650px}
-.hero-note{display:inline-flex;margin-top:17px;padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:#fff9;font-size:.68rem;color:var(--muted)}
-.section{padding:29px 0;border-top:1px solid var(--line)}
-.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:11px}
-.section-head h2{font-size:clamp(1.8rem,4vw,3rem);line-height:.9;letter-spacing:-.07em;margin:5px 0}
-.section-head p{max-width:450px;color:var(--muted);font-size:.76rem;margin:0}
-.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-inline:contain;padding:5px 2px 15px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.rail::-webkit-scrollbar{display:none}
-.card{flex:0 0 min(270px,78vw);min-height:325px;scroll-snap-align:start;background:var(--paper);border:1px solid var(--line);border-radius:19px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 25px #1715120b;transition:transform .18s,box-shadow .18s}
-.card:hover{transform:translateY(-3px);box-shadow:0 15px 34px #17151216}
-.card.featured{border-color:#b78d39;box-shadow:0 9px 28px #17151212}
-.art{height:142px;border-radius:13px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#ebe4d7,#d9cfbd);position:relative}
-.art:before{content:"";width:74px;height:74px;border-radius:22px;background:linear-gradient(145deg,#fff,#d7c9ff);box-shadow:0 13px 28px #17151220;transform:rotate(8deg)}
-.art.cards{background:linear-gradient(145deg,#d9d0bd,#aaa08e)}
-.art.cards:before{background:linear-gradient(145deg,#d9b55c,#4a371b)}
-.art.bill{background:linear-gradient(145deg,#241b0d,#090909)}
-.art.bill:before{width:112px;height:68px;border-radius:5px;background:repeating-linear-gradient(0deg,#e4b94f 0 4px,transparent 4px 9px)}
-.art.diagnostic:before{width:86px;height:58px;border-radius:10px;background:linear-gradient(145deg,#7e68ee,#2e245f);box-shadow:inset 0 0 0 8px #ffffff18,0 13px 28px #17151220}
-.tag{font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-top:11px}
-.card h3{font-size:1.23rem;line-height:.95;letter-spacing:-.045em;margin:7px 0}
-.card p{font-size:.74rem;color:var(--muted);margin:0}
-.price{font-size:1.2rem;font-weight:950;margin-top:11px}
-.price small{font-size:.63rem;color:var(--muted);font-weight:600}
-.btn{display:flex;align-items:center;justify-content:center;min-height:42px;margin-top:11px;border-radius:11px;background:var(--ink);color:#fff;font-weight:900;font-size:.72rem;border:0;cursor:pointer}
-.btn.purple{background:var(--purple)}
-.btn.gold{background:var(--gold);color:#171512}
-.billboard-module{margin-top:9px;border-radius:20px;background:var(--dark);color:#fff;border:1px solid #594b2f;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:18px}
-.billboard-module .eyebrow{color:#e4b94f}
-.billboard-module h2{font-size:clamp(1.8rem,4vw,3rem);line-height:.88;letter-spacing:-.07em;margin:7px 0}
-.billboard-module p{color:#c9bfad;max-width:590px;font-size:.78rem;margin:0}
-.billboard-module .btn{background:#fff;color:var(--ink);min-width:145px}
-.more-note{padding:15px;border:1px dashed var(--line);border-radius:15px;color:var(--muted);font-size:.75rem}
-.drawer{position:fixed;right:13px;top:62px;width:min(315px,calc(100% - 26px));padding:15px;background:var(--paper);border:1px solid var(--line);border-radius:15px;box-shadow:0 18px 60px #17151225;z-index:65;display:none}
-.drawer.open{display:block}
-.drawer h3{margin:0 0 4px;font-size:1.1rem}
-.drawer p{margin:0;color:var(--muted);font-size:.75rem}
-.drawer a{display:block;margin-top:9px;padding:9px 10px;border-radius:10px;background:#f0e9de;font-weight:800;font-size:.72rem}
-.footer{padding:35px 0 25px;border-top:1px solid var(--line);color:var(--muted);font-size:.67rem;display:flex;justify-content:space-between;gap:15px}
-.loading{color:var(--muted);padding:18px 2px}
-.noscript{margin-top:10px;color:var(--muted);font-size:.72rem}
-@media(max-width:700px){.nav{gap:8px}.navlinks{max-width:72%;gap:9px;font-size:.68rem}.navlinks a{flex:0 0 auto}.hero{padding-top:38px}.billboard-peek{width:min(190px,100%);margin-bottom:15px}.dreammee{right:11px}.dreammee-tip{display:none}.billboard-module{align-items:flex-start;flex-direction:column}.footer{flex-direction:column}}
+:root{--bg:#f5f0e7;--paper:#fffdf8;--ink:#171512;--muted:#746f67;--line:#ddd5c8;--purple:#5d43d8;--gold:#d59d2f}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.nav{position:sticky;top:0;z-index:40;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px;background:#f5f0e7f2;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.brand{font-size:1.15rem;font-weight:950;letter-spacing:-.06em;white-space:nowrap}.brand span{color:var(--purple)}.navlinks{display:flex;gap:14px;align-items:center;overflow-x:auto;white-space:nowrap;max-width:75%;font-size:.75rem;font-weight:800;color:var(--muted)}.navlinks a{flex:0 0 auto}.hero{max-width:1060px;margin:auto;padding:clamp(50px,10vw,110px) 22px 44px}.eyebrow{font-size:.7rem;font-weight:900;letter-spacing:.17em;text-transform:uppercase;color:var(--purple)}h1{max-width:900px;font-size:clamp(3.3rem,9.5vw,7.8rem);line-height:.86;letter-spacing:-.095em;margin:18px 0 24px}.lead{max-width:650px;color:#514d47;font-size:clamp(1.1rem,2.4vw,1.45rem)}.sub{max-width:650px;color:var(--muted);font-size:.94rem}.offer{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:30px}.price{font-size:2.1rem;font-weight:950;letter-spacing:-.06em}.cta{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 22px;border-radius:12px;background:var(--ink);color:#fff;font-weight:900}.proof{max-width:1060px;margin:auto;padding:0 22px 76px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.point{padding:19px;border:1px solid var(--line);border-radius:15px;background:var(--paper)}.point strong{display:block;margin-bottom:6px}.point p{margin:0;color:var(--muted);font-size:.88rem}footer{padding:20px 22px 36px;border-top:1px solid var(--line);color:var(--muted);font-size:.75rem}@media(max-width:650px){.nav{padding:0 12px}.navlinks{gap:10px;max-width:72%;font-size:.68rem}.hero{padding-top:58px}.proof{grid-template-columns:1fr;padding-bottom:44px}}
 </style>
 </head>
 <body>
-<button class="dreammee" id="dreammee" aria-label="Meet DreamMee"><span class="face"></span><span class="spark">+</span></button>
-<div class="dreammee-tip">Create your avatar</div>
-<div class="drawer" id="drawer"><h3>Your avatar</h3><p>Make a look that is yours.</p><a href="/avatar.html">Create or edit your avatar</a><a href="/billboard">Visit the Billboard</a><a href="#new">Browse new arrivals</a></div>
-<div class="wrap">
 <header class="nav">
 <a class="brand" href="/">Dream<span>Ledger</span></a>
-<nav class="navlinks" aria-label="Main navigation"><a href="/avatar.html">Create avatar</a><a href="/billboard">Billboard</a><a href="/marketplace.html">Shop</a><a href="#magic">Magic</a></nav>
-<a class="btn purple" style="padding:8px 13px;min-height:36px;margin:0" href="#new">Browse</a>
+<nav class="navlinks" aria-label="Main navigation"><a href="/billboard">Billboard</a><a href="/truth-oracle.html">Truth Oracle</a></nav>
 </header>
 <main>
-<section class="hero">
-<a class="billboard-peek" href="/billboard" aria-label="Visit the DreamLedger Billboard"><div><b>BILLBOARD · FROM NZ$50</b><span>Put your idea on the board</span></div></a>
-<div class="eyebrow">Welcome to DreamLedger</div>
-<h1>FIND SOMETHING<br>GOOD.</h1>
-<p class="lead">Useful finds, curious products and services worth a closer look.</p>
-<div class="hero-note">Swipe to explore.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn purple" style="display:inline-flex;padding:0 14px" href="/silos">Browse all 500 lanes</a><a class="btn" style="display:inline-flex;padding:0 14px" href="/register">Create your account</a><a class="btn gold" style="display:inline-flex;padding:0 14px" href="/gets-opportunity-brief.html">GETS Brief · NZ$49</a><a class="btn" style="display:inline-flex;padding:0 14px" href="/canonical-qr.html">Canonical QR</a></div>
+<section class="hero" aria-labelledby="title">
+<div class="eyebrow">Procurement · One clear result</div>
+<h1 id="title">Upload 2+ supplier quotes. Discover the cheapest path in 60 seconds.</h1>
+<p class="lead">Turn 2–5 supplier quotes into one side-by-side decision packet, with prices and terms compared on the same basis.</p>
+<p class="sub">Built for buyers who already have quotes and need to see the real differences before choosing a supplier. Missing information stays marked unknown. No invented savings claims.</p>
+<div class="offer"><span class="price">NZ$49 once</span><a class="cta" href="/quote-comparison/">Compare my quotes</a></div>
 </section>
-
-<!-- DREAMLEDGER_MONEY_MEMBRANE_START -->
-<section class="section" id="money"><div class="section-head"><div><div class="eyebrow">Money membrane</div><h2>Need a second set of eyes?</h2></div><p>Turn 2-5 supplier quotes into one normalized, source-backed decision packet.</p></div><article class="card featured" style="max-width:430px"><div><div class="art"></div><div class="tag">One-off</div><h3>Supplier Quote Comparison</h3><p>Compare price, scope, missing costs, MOQ, lead time and payment terms. Unknown fields stay unknown.</p><div class="price">NZ$49</div></div><a class="btn gold" href="/buy/quote_compare_49?price=4900">Start the comparison</a></article></section>
-<!-- DREAMLEDGER_MONEY_MEMBRANE_END -->
-<section class="section" id="new">
-<div class="section-head"><div><div class="eyebrow">Fresh shelf</div><h2>New & interesting</h2></div><p>Small products, odd ideas and useful things. The catalogue is the main event.</p></div>
-<div class="rail" id="newRail"><div class="loading">Loading the catalogue...</div></div>
-<noscript><div class="noscript">Live catalogue: Commander Deck Diagnostic NZ$29, Product Evidence Passport NZ$10, and DreamLedger Billboard space NZ$50.</div></noscript>
-</section>
-
-<section class="section" id="magic">
-<div class="section-head"><div><div class="eyebrow">Magic</div><h2>Cards & decks</h2></div><p>MTG gets its own shelf. It does not get to swallow the shop.</p></div>
-<div class="rail" id="magicRail"><div class="loading">Loading Magic...</div></div>
-</section>
-
-<section class="section" id="digital">
-<div class="section-head"><div><div class="eyebrow">Digital</div><h2>Little corners of the Internet</h2></div><p>Digital products and experiments live here without becoming the whole identity of DreamLedger.</p></div>
-<div class="billboard-module">
-<div><div class="eyebrow">Pioneer product</div><h2>A tiny corner of the Internet.</h2><p>The billboard is still here. It is simply one interesting product among many.</p></div>
-<a class="btn" href="/billboard">Peek at the wall</a>
-</div>
-</section>
-
-<section class="section" id="more">
-<div class="section-head"><div><div class="eyebrow">More to explore</div><h2>Keep swiping</h2></div><p>More shelves can be added without rebuilding the front door.</p></div>
-<div class="rail">
-<article class="card"><div><div class="art diagnostic"></div><div class="tag">Try it</div><h3>Commander Deck Diagnostic</h3><p>A practical first-pass look at a Commander deck and what to improve.</p><div class="price">NZ$29</div></div><a class="btn purple" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Start the diagnostic</a></article>
-<article class="card"><div><div class="art"></div><div class="tag">Procurement</div><h3>GETS Opportunity Brief</h3><p>Evidence-backed tender decoding for an NZ supplier considering a government bid.</p><div class="price">NZ$49</div></div><a class="btn gold" href="/gets-opportunity-brief.html">View the brief</a></article><article class="card"><div><div class="art"></div><div class="tag">Simple</div><h3>Product Evidence Passport</h3><p>A clean record for keeping the important details of a product together.</p><div class="price">NZ$10</div></div><a class="btn" href="#new">See the catalogue</a></article>
-<article class="card"><div><div class="art bill"></div><div class="tag">Pioneer</div><h3>DreamLedger Billboard</h3><p>Put something of your own on a defined space on the canvas.</p><div class="price">NZ$50</div></div><a class="btn gold" href="/billboard">See the wall</a></article>
-</div>
+<section class="proof" aria-label="What you get">
+<article class="point"><strong>Price and scope</strong><p>Normalize stated prices, line items and scope differences.</p></article>
+<article class="point"><strong>Costs and terms</strong><p>Flag missing costs, MOQ, lead times and payment terms where stated.</p></article>
+<article class="point"><strong>Source-backed report</strong><p>Keep evidence references attached so you can check the comparison.</p></article>
 </section>
 </main>
-<footer class="footer"><span>DreamLedger</span><span>Things worth discovering.</span></footer>
-</div>
-<script>
-(function(){
-var drawer=document.getElementById("drawer"),mee=document.getElementById("dreammee");
-mee.addEventListener("click",function(){drawer.classList.toggle("open")});
-document.addEventListener("click",function(e){if(!drawer.contains(e.target)&&!mee.contains(e.target))drawer.classList.remove("open")});
-var esc=function(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
-var money=function(p){var n=Number(p.price||0);var unit=String(p.price_unit||"minor").toLowerCase();return "NZ$"+(unit==="major"?n:n/100).toFixed(2)};
-var art=function(p){var s=String(p.silo||"").toLowerCase();if(s==="billboard"||String(p.id||"").indexOf("BILLBOARD")>=0)return "bill";if(s==="mtg")return "cards";return "diagnostic"};
-var link=function(p){var id=String(p.id||"");if(id==="COMMANDER-DECK-DIAGNOSTIC-001")return "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I";if(id==="EDH_0001")return "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J";if(id==="BESPOKE-ARTISAN-EDH-DECK-001")return "https://buy.stripe.com/fZuaEX3vn15r4Q74kAdwc1S";if(id.indexOf("BILLBOARD")>=0)return "/billboard";return "/mtg"};
-var card=function(p){var s=String(p.silo||"").toLowerCase(),live=String(p.status||"").toLowerCase()==="published"&&Number(p.inventory||0)>0;return '<article class="card '+(p.id==="COMMANDER-DECK-DIAGNOSTIC-001"?"featured":"")+'"><div><div class="art '+art(p)+'"></div><div class="tag">'+esc(s==="mtg"?"Magic":s==="billboard"?"Digital":"Useful")+'</div><h3>'+esc(p.name||p.id)+'</h3><p>'+esc(p.description||"A DreamLedger product.")+'</p><div class="price">'+money(p)+(p.price_unit==="major"?"":"")+'</div></div><a class="btn '+(s==="billboard"?"gold":s==="mtg"?"purple":"")+'" href="'+link(p)+'">'+(live?"Take a look":"See details")+'</a></article>'};
-async function load(){
-try{
-var r=await fetch("/api/products",{cache:"no-store"});
-if(!r.ok)throw Error("catalogue unavailable");
-var d=await r.json(),items=(d.products||[]).filter(function(p){return String(p.status||"")!=="sold"});
-var fresh=items.filter(function(p){return String(p.silo||"").toLowerCase()!=="mtg"}).slice(0,4);
-var mtg=items.filter(function(p){return String(p.silo||"").toLowerCase()==="mtg"}).slice(0,6);
-document.getElementById("newRail").innerHTML=fresh.map(card).join("")||'<div class="loading">Nothing new yet.</div>';
-document.getElementById("magicRail").innerHTML=mtg.map(card).join("")||'<div class="loading">Magic shelf is quiet.</div>';
-}catch(e){
-document.getElementById("newRail").innerHTML='<article class="card"><div><div class="art"></div><div class="tag">Available</div><h3>Commander Deck Diagnostic</h3><p>A practical first-pass look at a Commander deck.</p><div class="price">NZ$29</div></div><a class="btn purple" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Start the diagnostic</a></article><article class="card"><div><div class="art bill"></div><div class="tag">Pioneer</div><h3>DreamLedger Billboard</h3><p>A defined space on the canvas.</p><div class="price">NZ$50</div></div><a class="btn gold" href="/billboard">See the wall</a></article>';
-document.getElementById("magicRail").innerHTML='<article class="card"><div><div class="art cards"></div><div class="tag">Commander</div><h3>EDH_0001 Commander Deck</h3><p>One physical deck from the current collection.</p><div class="price">NZ$400</div></div><a class="btn purple" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J">View deck</a></article><article class="card"><div><div class="art cards"></div><div class="tag">Collectible</div><h3>Bespoke Artisan EDH Commander Deck</h3><p>One physical deck, ready to ship.</p><div class="price">NZ$385</div></div><a class="btn purple" href="https://buy.stripe.com/fZuaEX3vn15r4Q74kAdwc1S">View deck</a></article><article class="card"><div><div class="art cards"></div><div class="tag">Collectible</div><h3>Palinchron - Urza's Legacy Foil</h3><p>LP condition, one card.</p><div class="price">NZ$700</div></div><a class="btn purple" href="/mtg">View collection</a></article>';
-}
-}
-load();
-})();
-</script>
+<footer>DreamLedger · One-time NZ$49 service · Compare the source quotes before you decide.</footer>
 </body>
 </html>
