@@ -1,6 +1,6 @@
 {
   "schema": "DREAMLEDGER/OWN-FIRST-COMPANY-OPERATOR/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "mode": "OWN_FIRST",
   "mission": "Operate DreamLedger as the first customer of its own company-building machinery. Find, package, distribute, sell, fulfill, prove and improve real economic opportunities before exposing the machinery as a white-label product.",
   "economic_truth": {
@@ -139,5 +139,98 @@
   "future_white_label": {
     "enabled": false,
     "rule": "Only package this machinery for third parties after DreamLedger demonstrates repeatable internal economic loops."
+  },
+  "narrowing_chain": {
+    "schema": "DREAMLEDGER/ECONOMIC-NARROWING-CHAIN/v1",
+    "mode": "FIRST_EXTERNAL_PAYMENT",
+    "objective": "Obtain the first independently verified external payment with the smallest existing offer and no incremental spend.",
+    "decision_rule": "Commit to one offer and one distribution channel for each experiment; do not expand scope before the evidence gate is evaluated.",
+    "offer": {
+      "id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "price_nzd": 49,
+      "source": "existing published offer; availability and checkout must be rechecked before distribution"
+    },
+    "channel": {
+      "id": "DIRECT_BUYER_OUTREACH",
+      "definition": "One-to-one outreach to a relevant business or person who already has supplier quotes to compare",
+      "authorization": "PREPARE_ONLY until recipient, channel rules, and send authorization are confirmed"
+    },
+    "stages": [
+      {
+        "step": 1,
+        "name": "NARROW",
+        "input": [
+          "existing_capabilities",
+          "published_offers",
+          "observed_market_signals",
+          "constraints"
+        ],
+        "output": [
+          "one_offer",
+          "one_channel"
+        ],
+        "rule": "Choose the fastest plausible existing paid offer; do not invent demand."
+      },
+      {
+        "step": 2,
+        "name": "BOUND",
+        "output": [
+          "single_buyer_problem",
+          "fixed_deliverable",
+          "price",
+          "next_action"
+        ],
+        "rule": "Zero incremental spend; reuse the current checkout and fulfillment rail; no new platform or queue."
+      },
+      {
+        "step": 3,
+        "name": "MODEL",
+        "output": [
+          "evidence_based_playbook"
+        ],
+        "rule": "Use a real comparable business as a source of tactics, not a fictional identity or fabricated results."
+      },
+      {
+        "step": 4,
+        "name": "SIMPLIFY",
+        "output": [
+          "minimum_viable_action"
+        ],
+        "rule": "Remove every task that does not increase qualified buyer contact, payment completion, fulfillment, or evidence quality."
+      }
+    ],
+    "evidence_gates": {
+      "before_distribution": [
+        "offer_is_published",
+        "checkout_url_is_live",
+        "scope_and_price_are_consistent",
+        "fulfillment_path_is_observed",
+        "recipient_and_channel_authorized"
+      ],
+      "verified_revenue": [
+        "independent_external_buyer",
+        "settled_payment",
+        "correct_offer_attribution",
+        "fulfillment_evidence",
+        "independent_proof"
+      ],
+      "never_count": [
+        "impressions",
+        "generated_leads_without_buyer_intent",
+        "checkout_start",
+        "test_payment",
+        "internal_routing",
+        "deployment_success",
+        "simulation"
+      ]
+    },
+    "stop_rules": [
+      "If offer, checkout, or fulfillment cannot be verified, stop distribution and report the exact blocker.",
+      "If the first channel produces no qualified buyer signal after a defined test window, report the observed result before changing one variable.",
+      "Do not multiply offers or channels until the current experiment has an evidence-backed result."
+    ],
+    "authority_boundary": "Planning may be autonomous. External messages, account actions, payments, and other consequential actions require existing authorization. This contract does not authorize sending or spending.",
+    "truth_boundary": "VERIFIED_EXTERNAL_REVENUE remains unchanged until all required independent evidence exists."
   }
 }
