@@ -48,4 +48,7 @@ if(!fs.existsSync(cssFile) || fs.readFileSync(cssFile,'utf8')!==canonical) fs.wr
 if(!fs.existsSync(path.join(ROOT,'mtg','index.html'))) throw new Error('Required MTG compiled surface missing');
 const mtg=fs.readFileSync(path.join(ROOT,'mtg','index.html'),'utf8');
 if(!mtg.includes(CSS_HREF) || !mtg.includes(MARKER)) throw new Error('MTG compiled surface did not receive canonical brand layer');
-console.log(JSON.stringify({status:'PASS',brand:'DreamLedger Core v1',changed,scanned,css:CSS_HREF,mtg_brand:'PASS'}));
+if(!canonical.includes('DreamLedger Core v1') || !canonical.includes('--dl-font:')) throw new Error('Canonical brand asset is incomplete');
+const deployedCss=fs.readFileSync(cssFile,'utf8');
+if(deployedCss!==canonical) throw new Error('Compiled brand asset diverged from canonical source');
+console.log(JSON.stringify({status:'PASS',brand:'DreamLedger Core v1',changed,scanned,css:CSS_HREF,mtg_brand:'PASS',brand_asset:'PASS'}));
