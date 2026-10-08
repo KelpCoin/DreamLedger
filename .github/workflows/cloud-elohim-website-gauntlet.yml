@@ -64,7 +64,7 @@ jobs:
             test -s "$file"
             grep -q 'dreamledger-core.css' "$file"
           done
-          grep -q 'DreamLedger Core v1' compiled/website/assets/dreamledger-core.css
+          node -e "const fs=require('fs'); const p='compiled/website/assets/dreamledger-core.css'; const s=fs.readFileSync(p,'utf8'); if(!s.includes('DreamLedger Core v1')) { console.error('BRAND_ASSET_MARKER_MISSING',p); process.exit(1) } console.log('BRAND_ASSET_MARKER=PASS')"
           echo "MTG_BRAND_SURFACE=PASS"
 
       - name: MTG source route recovery contract
