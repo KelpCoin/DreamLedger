@@ -1,0 +1,6 @@
+{
+  "id": "sig_bus_fixture_001",
+  "title": "Supplier quote parsing failure",
+  "text": "Our procurement team spends 15 hours a week manually re-keying supplier quote PDFs into SAP. We are looking for an automated PDF matrix extraction tool and already pay staff to do the work.",
+  "url": "https://dreamledger.org/bus/sig_bus_fixture_001"
+}
