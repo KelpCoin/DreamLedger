@@ -20,6 +20,20 @@ The intended loop is: reality -> asset mining -> intent qualification -> offer -
 
 https://dreamledger.org/go is the canonical doorway. QR-CANONICAL-001 is the canonical QR identity. Distribution variants are measurable but external posting remains authorization-gated.
 
+## Live machine-payment test
+
+If you build agents, MCP tools, or paid APIs, DreamLedger has one deliberately small live commerce experiment: **TOLL-PROBE-50C, NZ$0.50**.
+
+**Buyer job:** prove that a real payment can become a scoped machine capability and leave an attributable receipt.
+
+**Flow:** discover → authorize payment → settlement → entitlement → scoped key → authenticated probe → receipt.
+
+- Checkout: https://buy.stripe.com/6oU5kD4zrdSdciz3gwdwc3b
+- Machine manifest: https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest
+- Buyer experiment: [GitHub issue #490](https://github.com/KelpCoin/DreamLedger/issues/490)
+
+This is a live buyer experiment, not a revenue claim. Revenue remains zero until an independent settlement and fulfilled probe are evidenced.
+
 ## Security
 
 The runtime includes deterministic agent and HTTP controls. Security work should follow OWASP ASVS and OWASP AI/agent security guidance. Internal RLS findings are tracked separately and must be remediated with explicit policies rather than blindly enabling RLS.
