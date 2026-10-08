@@ -46,10 +46,22 @@ jobs:
       - name: Brand contract
         run: node scripts/Apply-DreamLedgerBrand.js
 
+      - name: Start compiled runtime
+        run: |
+          nohup node start.js > /tmp/dreamledger.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3000/healthz >/tmp/health.json; then
+              cat /tmp/health.json
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:3000/healthz
+
       - name: First-party smoke against compiled runtime
         run: node scripts/first-party-smoke.js
         env:
-          DREAMLEDGER_BASE_URL: https://dreamledger.org
+          DREAMLEDGER_BASE_URL: http://127.0.0.1:3000
 
       - name: Gauntlet
         run: npm run gauntlet
