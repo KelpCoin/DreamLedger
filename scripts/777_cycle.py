@@ -32,7 +32,7 @@ PULSE.mkdir(parents=True, exist_ok=True)
 
 QUOTE_CHECKOUT = os.environ.get(
     "QUOTE_COMPARE_CHECKOUT",
-    "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+    "https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e",
 )
 
 class ProcurementParser(HTMLParser):
