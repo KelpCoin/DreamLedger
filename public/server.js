@@ -16,6 +16,7 @@ const PUBLIC_FILES={
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
   '/mtg':'mtg/index.html','/mtg/':'mtg/index.html','/mtg.html':'mtg/index.html',
   '/demand-services':'demand-services.html','/demand-services/':'demand-services.html',
+  '/fightedge':'fightedge/index.html','/fightedge/':'fightedge/index.html',
   '/commander-guide':'commander-guide.html','/commander-guide/':'commander-guide.html',
   '/agent-commerce':'agent-commerce.html','/agent-commerce/':'agent-commerce.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
