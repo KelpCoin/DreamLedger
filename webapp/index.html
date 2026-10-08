@@ -3,35 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamLedger Economic Observatory</title>
-<meta name="description" content="DreamLedger Economic Observatory: source-bound economic signals, reusable compounding artifacts, machine access and commercial action.">
+<title>DreamLedger | Supplier Quote Comparison</title>
+<meta name="description" content="Normalize competing supplier quotes into a clean side-by-side procurement matrix. Free schema, NZ$49 automated comparison.">
 <style>
-body{margin:0;background:#071018;color:#e9edf5;font-family:Inter,system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:56px 24px}nav{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}a{color:#9fd4ff;text-decoration:none}nav a{margin-left:18px}.k{color:#7ed0ff;letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:700}h1{font-size:clamp(48px,8vw,88px);line-height:.94;max-width:900px;margin:22px 0}p{color:#aebdcd;line-height:1.65;max-width:780px}.cta{display:flex;gap:12px;flex-wrap:wrap;margin:32px 0}.btn{padding:13px 18px;border:1px solid #385067;border-radius:10px;background:#0c1722}.primary{background:#dfeeff;color:#071018}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:55px}.card{border:1px solid #233343;border-radius:15px;padding:20px;background:#0c1722}.card strong{display:block;margin-bottom:8px}.section{margin-top:65px}.truth{border-left:3px solid #55718a;padding-left:18px}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:500px){.grid{grid-template-columns:1fr}}
+body{margin:0;background:#071018;color:#e9edf5;font-family:Inter,system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:44px 24px}nav{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}a{color:#9fd4ff;text-decoration:none}nav a{margin-left:18px}.k{color:#7ed0ff;letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:700}h1{font-size:clamp(44px,7vw,76px);line-height:.95;max-width:900px;margin:20px 0}p{color:#aebdcd;line-height:1.6;max-width:800px}.cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0}.btn{padding:14px 18px;border:1px solid #385067;border-radius:10px;background:#0c1722}.primary{background:#dfeeff;color:#071018}.section{margin-top:54px}.box{border:1px solid #233343;border-radius:15px;padding:20px;background:#0c1722;overflow:auto}.choice{display:grid;grid-template-columns:1fr 1fr;gap:14px}.choice .box{height:100%}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:12px;border-bottom:1px solid #233343}th{color:#7ed0ff}.truth{border-left:3px solid #55718a;padding-left:18px}@media(max-width:700px){.choice{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
-<nav><strong>DreamLedger</strong><span><a href="artifacts/">Artifact Exchange</a><a href="pulse/">Signals</a><a href="api/">API</a><a href="fightedge/">FightEdge</a></span></nav>
+<nav><strong>DreamLedger</strong><span><a href="artifacts/">Artifact Exchange</a><a href="pulse/">Signals</a><a href="api/">API / Toll Road</a></span></nav>
 <section class="section">
-<div class="k">Economic Observatory</div>
-<h1>Watch the economy. Attach the evidence. Put the opportunity on rails.</h1>
-<p>DreamLedger turns source-bound economic events into durable, reusable artifacts that can feed commercial offers, machine-readable APIs, agent workflows and paid entitlements.</p>
-<div class="cta"><a class="btn primary" href="artifacts/">Attach an artifact</a><a class="btn" href="pulse/">Explore signals</a><a class="btn" href="api/">API / Toll Road</a></div>
+<div class="k">Procurement utility</div>
+<h1>Turn 2–5 supplier quotes into one decision matrix.</h1>
+<p>Stop manually reconciling Incoterms, MOQ, lead times, freight, packaging, exclusions and delivered cost across competing supplier documents. Use the open schema below, or pay NZ$49 for the automated comparison surface.</p>
+<div class="cta"><a class="btn primary" href="https://buy.stripe.com/14AdP97LD6pLfuLdVadwc32">Automate my comparison — NZ$49</a><a class="btn" href="#schema">Use the free schema</a></div>
 </section>
-<section class="grid">
-<div class="card"><strong>Observe</strong>Commercial events and economic signals.</div>
-<div class="card"><strong>Evidence</strong>Source-bound, truth-labelled artifacts.</div>
-<div class="card"><strong>Access</strong>Machine-readable APIs and toll-road surfaces.</div>
-<div class="card"><strong>Act</strong>Offers, entitlements and fulfillment.</div>
+<section class="section choice">
+<div class="box"><strong>FREE</strong><p>Copy the schema and map your supplier documents yourself. No payment required.</p><pre id="schema">{
+  "supplier": "",
+  "incoterms_2020": "",
+  "currency": "",
+  "unit_price": 0,
+  "moq": 0,
+  "lead_time_days": 0,
+  "freight": 0,
+  "packaging": "",
+  "exclusions": "",
+  "delivered_cost": 0,
+  "notes": ""
+}</pre></div>
+<div class="box"><strong>NZ$49</strong><p>Upload 2–5 raw supplier PDFs or text. The existing commercial path is designed to normalize the documents into a side-by-side comparison matrix.</p><p><a href="https://buy.stripe.com/14AdP97LD6pLfuLdVadwc32">Open the live checkout →</a></p></div>
 </section>
 <section class="section">
-<h2>Compounding artifact exchange</h2>
-<p>777 expeditions do not need to produce another disposable article. A useful discovery becomes a reusable commercial component: detector, evidence packet, comparison surface, offer, API capability, or machine-consumable signal.</p>
-<p><a href="artifacts/">Open the enterprise artifact intake →</a></p>
+<h2>Example output</h2>
+<p>Illustrative sample only. It demonstrates the shape of the deliverable, not a claim about any real supplier or quote.</p>
+<div class="box"><table><thead><tr><th>Decision field</th><th>Supplier A</th><th>Supplier B</th><th>Supplier C</th></tr></thead><tbody>
+<tr><td>Incoterms 2020</td><td>FOB</td><td>CIF</td><td>EXW</td></tr>
+<tr><td>MOQ</td><td>500</td><td>1,000</td><td>500</td></tr>
+<tr><td>Lead time</td><td>28 days</td><td>42 days</td><td>21 days</td></tr>
+<tr><td>Unit price</td><td>US$8.40</td><td>US$7.95</td><td>US$9.10</td></tr>
+<tr><td>Freight / included cost</td><td>Separate</td><td>Included to port</td><td>Separate</td></tr>
+<tr><td>Packaging</td><td>Standard</td><td>Export carton</td><td>Reinforced carton</td></tr>
+<tr><td>Exclusions</td><td>Freight, duty</td><td>Duty</td><td>Freight, duty</td></tr>
+<tr><td><strong>Decision note</strong></td><td>Lower MOQ</td><td>Lowest stated unit price</td><td>Shortest lead time</td></tr>
+</tbody></table></div>
 </section>
 <section class="section truth">
 <strong>Economic truth</strong>
-<p>VERIFIED_EXTERNAL_REVENUE = NZ$0.00. Publication, API visibility, attachment, clicks and internal execution are not payment evidence. Settlement and fulfillment remain independently verified.</p>
+<p>VERIFIED_EXTERNAL_REVENUE = NZ$0.00. The checkout is a live commercial surface, not proof of a sale. A sale counts only after independent settlement and fulfillment evidence.</p>
 </section>
 </main>
 </body>
