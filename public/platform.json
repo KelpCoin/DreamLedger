@@ -1,0 +1,119 @@
+{
+  "schema": "dreamledger/universal-platform/v1",
+  "name": "DreamLedger",
+  "thesis": "One evidence-gated substrate for human commerce, B2B procurement, A2A resources, media and compute.",
+  "surfaces": [
+    {
+      "id": "mtg",
+      "route": "/mtg",
+      "mode": "human_marketplace",
+      "status": "live"
+    },
+    {
+      "id": "b2b",
+      "route": "/b2b",
+      "mode": "free_b2b",
+      "status": "live"
+    },
+    {
+      "id": "marketplace",
+      "route": "/marketplace",
+      "mode": "universal_catalogue",
+      "status": "live"
+    },
+    {
+      "id": "agent-commerce",
+      "route": "/agent-commerce.json",
+      "mode": "a2a_discovery",
+      "status": "live"
+    },
+    {
+      "id": "toll-road",
+      "route": "/toll-road",
+      "mode": "machine_payment",
+      "status": "live"
+    },
+    {
+      "id": "compute",
+      "route": "/compute.json",
+      "mode": "gpu_capacity",
+      "status": "capability_contract"
+    },
+    {
+      "id": "dooh",
+      "route": "/billboard",
+      "mode": "programmatic_media",
+      "status": "live"
+    },
+    {
+      "id": "identity",
+      "route": "/avatar",
+      "mode": "optional_identity",
+      "status": "live"
+    },
+    {
+      "id": "truth",
+      "route": "/truth-oracle.html",
+      "mode": "evidence",
+      "status": "live"
+    }
+  ],
+  "resource_types": [
+    "physical_goods",
+    "digital_goods",
+    "templates",
+    "boilerplate",
+    "stencils",
+    "word_banks",
+    "data",
+    "reports",
+    "queries",
+    "comparisons",
+    "apis",
+    "agent_tools",
+    "models",
+    "inference",
+    "batch_jobs",
+    "rendering",
+    "media_inventory",
+    "procurement",
+    "services"
+  ],
+  "canonical_resource": {
+    "fields": [
+      "resource_id",
+      "silo_id",
+      "capability_id",
+      "input_schema",
+      "output_schema",
+      "price",
+      "currency",
+      "payment_method",
+      "authorization_policy",
+      "fulfillment_handler",
+      "proof_contract",
+      "truth_state",
+      "availability",
+      "version",
+      "telemetry_id"
+    ]
+  },
+  "economic_sequence": [
+    "REAL_DEMAND",
+    "REAL_BUYER",
+    "AUTHORIZED_ACTION",
+    "EXTERNAL_RESULT",
+    "SETTLED_PAYMENT",
+    "FULFILLMENT",
+    "DELIVERY_EVIDENCE",
+    "VERIFIED"
+  ],
+  "expansion_rule": "Promote verified mechanisms; clone and adapt only after evidence. Empty capacity is not a business.",
+  "fee_policy": {
+    "b2b_platform_success_fee_bps": 0,
+    "marketplace_listing_fee_nzd": 0,
+    "a2a_strategy": "low-friction, capability-specific pricing",
+    "compute_strategy": "metered capacity pricing after authorization"
+  },
+  "homepage": "https://dreamledger.org/marketplace"
+}
