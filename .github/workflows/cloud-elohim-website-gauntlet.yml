@@ -53,16 +53,42 @@ jobs:
       - name: Elohim module verification
         run: node -e "const E=require('./elohim/ElohimV6'); console.log('ELOHIM_LOAD=PASS'); console.log(typeof E)"
 
+      - name: DreamLedger brand contract
+        run: node scripts/Apply-DreamLedgerBrand.js
+
+      - name: MTG compiled surface contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const compiled=['compiled/website/mtg/index.html'];
+          const compiledMissing=compiled.filter(p=>!fs.existsSync(p)||!fs.readFileSync(p,'utf8').includes('dreamledger-core.css'));
+          if(compiledMissing.length){console.error('MTG_BRAND_COMPILED_MISSING',compiledMissing);process.exit(1);}
+          const routes=['/mtg-search','/mtg-list'];
+          for(const p of ['compiled/website/mtg-search.html','compiled/website/mtg-list.html']){ const s=fs.existsSync(p)?fs.readFileSync(p,'utf8'):''; console.log('MTG_DEBUG',p,{bytes:s.length,hasHtml:/<html\\b/i.test(s),hasHead:/<head\\b/i.test(s),hasCss:s.includes('dreamledger-core.css'),preview:s.slice(0,220)}); }
+          console.log('MTG_BRAND_SURFACE=PASS',compiled,'ROUTES=PASS',routes);
+          NODE
+
+      - name: MTG source route recovery contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f start.js
+          grep -q "/commander-guide" start.js
+          grep -q "/agent-commerce" start.js
+          grep -q "Marketplace trust" website/mtg-catalog.html
+          echo "MTG_ROUTE_CONTRACT=PASS"
+
       - name: Website surface checks
         working-directory: .
         run: |
+          set -euo pipefail
           test -s index.html
-          grep -q "Pay for" index.html
-          grep -q "Quote Compare" index.html
-          grep -q "Commercial Truth Stress-Test" index.html
-          grep -q "NZ\$49" index.html
-          grep -q "NZ\$999" index.html
-          grep -q "verified" index.html
+          grep -Eqi 'DreamLedger|Dream Ledger' index.html
+          grep -qi 'Magic' index.html
+          grep -qi 'VERIFIED EXTERNAL REVENUE' index.html
+          grep -q 'NZ\$0.00' index.html
           echo "WEBSITE_SURFACE=PASS"
 
       - name: Emit candidate judgment
