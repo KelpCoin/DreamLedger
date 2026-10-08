@@ -104,3 +104,43 @@ jobs:
           set -euo pipefail
           body="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 "${FUNCTION_URL}")"
           echo "${body}" | grep -F 'DREAMLEDGER/MTG-DECK-CATALOG/v1'
+  deploy-dreammeez-cosmetic-checkout:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: wbwgroygjeyukkspnqiy
+      FUNCTION_NAME: dreammeez-cosmetic-checkout
+      FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/dreammeez-cosmetic-checkout
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Validate DreamMeez checkout source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'dreammeez_cosmetic_id' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'checkout.sessions.create' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'auth.getUser' "supabase/functions/${FUNCTION_NAME}/index.ts"
+      - name: Deploy DreamMeez checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase functions deploy "${FUNCTION_NAME}" --project-ref "${PROJECT_ID}" --import-map "supabase/functions/${FUNCTION_NAME}/deno.json"
+      - name: Verify public function health boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o /tmp/body -w '%{http_code}' -X POST "${FUNCTION_URL}" -H 'content-type: application/json' --data '{"cosmetic_id":"dreammeez-founder-cloak"}')"
+          test "${code}" = "401"
+          grep -F 'authorization required' /tmp/body
+
