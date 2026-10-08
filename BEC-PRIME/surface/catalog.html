@@ -16,7 +16,7 @@ button{font:inherit}
 .nav{height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;background:#f5f0e7ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
 .brand{font-weight:950;letter-spacing:-.065em;font-size:1.15rem}
 .brand span{color:var(--purple)}
-.navlinks{display:flex;gap:18px;color:var(--muted);font-size:.74rem;font-weight:800}
+.navlinks{display:flex;gap:10px;color:var(--muted);font-size:.74rem;font-weight:800;max-width:75%;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}.navlinks::-webkit-scrollbar{display:none}
 .navlinks a:hover{color:var(--ink)}
 .dreammee{position:fixed;right:14px;top:10px;z-index:70;width:44px;height:44px;border:2px solid var(--ink);border-radius:50%;background:linear-gradient(145deg,#fff,#e7dcff);box-shadow:0 8px 24px #17151222;display:grid;place-items:center;cursor:pointer}
 .face{position:relative;width:25px;height:21px;border-radius:45%;background:var(--ink)}
@@ -73,26 +73,26 @@ h1{font-size:clamp(3.5rem,9vw,7.5rem);line-height:.8;letter-spacing:-.095em;marg
 .footer{padding:35px 0 25px;border-top:1px solid var(--line);color:var(--muted);font-size:.67rem;display:flex;justify-content:space-between;gap:15px}
 .loading{color:var(--muted);padding:18px 2px}
 .noscript{margin-top:10px;color:var(--muted);font-size:.72rem}
-@media(max-width:700px){.navlinks{display:none}.hero{padding-top:46px}.billboard-peek{width:min(190px,100%);margin-bottom:15px}.dreammee{right:11px}.dreammee-tip{display:none}.billboard-module{align-items:flex-start;flex-direction:column}.footer{flex-direction:column}}
+@media(max-width:700px){.nav{gap:8px}.navlinks{max-width:72%;gap:9px;font-size:.68rem}.navlinks a{flex:0 0 auto}.hero{padding-top:38px}.billboard-peek{width:min(190px,100%);margin-bottom:15px}.dreammee{right:11px}.dreammee-tip{display:none}.billboard-module{align-items:flex-start;flex-direction:column}.footer{flex-direction:column}}
 </style>
 </head>
 <body>
 <button class="dreammee" id="dreammee" aria-label="Meet DreamMee"><span class="face"></span><span class="spark">+</span></button>
-<div class="dreammee-tip">Need a suggestion?</div>
-<div class="drawer" id="drawer"><h3>DreamMee</h3><p>A tiny guide for wandering around the shop.</p><a href="#new">Show me something new</a><a href="#magic">Show me Magic</a><a href="/billboard">Show me the wall</a></div>
+<div class="dreammee-tip">Create your avatar</div>
+<div class="drawer" id="drawer"><h3>Your avatar</h3><p>Make a look that is yours.</p><a href="/avatar.html">Create or edit your avatar</a><a href="/billboard">Visit the Billboard</a><a href="#new">Browse new arrivals</a></div>
 <div class="wrap">
 <header class="nav">
 <a class="brand" href="/">Dream<span>Ledger</span></a>
-<nav class="navlinks"><a href="/silos">500 Lanes</a><a href="#new">New</a><a href="#magic">Magic</a><a href="#digital">Digital</a><a href="#more">More</a></nav>
+<nav class="navlinks" aria-label="Main navigation"><a href="/avatar.html">Create avatar</a><a href="/billboard">Billboard</a><a href="/marketplace.html">Shop</a><a href="#magic">Magic</a></nav>
 <a class="btn purple" style="padding:8px 13px;min-height:36px;margin:0" href="#new">Browse</a>
 </header>
 <main>
 <section class="hero">
-<div class="billboard-peek" role="note"><div><b>A LITTLE SPACE</b><span>One small corner of the Internet.</span></div></div>
+<a class="billboard-peek" href="/billboard" aria-label="Visit the DreamLedger Billboard"><div><b>BILLBOARD · FROM NZ$50</b><span>Put your idea on the board</span></div></a>
 <div class="eyebrow">Welcome to DreamLedger</div>
 <h1>FIND SOMETHING<br>GOOD.</h1>
-<p class="lead">A growing catalogue of useful things, curious things and things you probably did not know you wanted until five seconds ago.</p>
-<div class="hero-note">Swipe sideways. Tap whatever catches your eye.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn purple" style="display:inline-flex;padding:0 14px" href="/silos">Browse all 500 lanes</a><a class="btn" style="display:inline-flex;padding:0 14px" href="/register">Create your account</a><a class="btn gold" style="display:inline-flex;padding:0 14px" href="/gets-opportunity-brief.html">GETS Brief · NZ$49</a><a class="btn" style="display:inline-flex;padding:0 14px" href="/canonical-qr.html">Canonical QR</a></div>
+<p class="lead">Useful finds, curious products and services worth a closer look.</p>
+<div class="hero-note">Swipe to explore.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn purple" style="display:inline-flex;padding:0 14px" href="/silos">Browse all 500 lanes</a><a class="btn" style="display:inline-flex;padding:0 14px" href="/register">Create your account</a><a class="btn gold" style="display:inline-flex;padding:0 14px" href="/gets-opportunity-brief.html">GETS Brief · NZ$49</a><a class="btn" style="display:inline-flex;padding:0 14px" href="/canonical-qr.html">Canonical QR</a></div>
 </section>
 
 <!-- DREAMLEDGER_MONEY_MEMBRANE_START -->
