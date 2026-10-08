@@ -1,0 +1,136 @@
+{
+  "type": "dreamledger-candidate-gauntlet-proof",
+  "version": "1.0",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "candidate.offer_id",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.name",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.problem",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.target_buyer",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.deliverable",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.delivery_mechanism",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.price",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.currency",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.payment_adapter",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.checkout_route",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.approval_required",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.checkout_available",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.status",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.proof_of_delivery",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.verification_rules",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.provenance",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.silo",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.kill_condition",
+      "status": "PASS",
+      "message": "Present"
+    },
+    {
+      "id": "candidate.price_positive",
+      "status": "PASS",
+      "message": "Price is greater than zero"
+    },
+    {
+      "id": "candidate.approval",
+      "status": "PASS",
+      "message": "Human approval gate is locked"
+    },
+    {
+      "id": "candidate.checkout_blocked",
+      "status": "PASS",
+      "message": "Checkout remains blocked until approval"
+    },
+    {
+      "id": "candidate.privacy",
+      "status": "PASS",
+      "message": "Private material excluded"
+    },
+    {
+      "id": "candidate.silo_boundary",
+      "status": "PASS",
+      "message": "Silo boundary clean"
+    },
+    {
+      "id": "candidate.payment_path",
+      "status": "PASS",
+      "message": "Payment path is explicit"
+    },
+    {
+      "id": "candidate.proof",
+      "status": "PASS",
+      "message": "Proof and verification are explicit"
+    }
+  ],
+  "checked_at": "2026-10-08T13:31:10.845Z",
+  "candidate_hash": "b281c75fa4a9c92694d82df1ea51222b6c4cf044aa4db18c6bf85bee4ac103ab",
+  "candidate_offer_id": "QUOTE-COMPARE-49",
+  "public_execution": "BLOCKED_UNTIL_HUMAN_APPROVAL"
+}

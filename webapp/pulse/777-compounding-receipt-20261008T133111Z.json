@@ -1,0 +1,15 @@
+{
+  "artifact_count": 4,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-08-private-commercial-wasabicard-showcases-compliance-focused-white-label-payment-infrastructure-at-token2049-the-manila-t-8582ab0f626e00f4.html",
+    "webapp/pulse/777-cloud-execution-candidate.json",
+    "webapp/pulse/777-cloud-execution-receipt.json",
+    "webapp/pulse/777-cloud-gauntlet-proof.json"
+  ],
+  "observed_at": "2026-10-08T13:31:11.001756+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
