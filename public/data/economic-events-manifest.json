@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-07T21:31:00+00:00",
+  "updated_at_utc": "2026-10-08T01:14:34+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Terms and conditions",
+      "url": "https://www.gets.govt.nz/GetsTermsAndConditions.htm",
+      "observed_at": "2026-10-08T01:14:28+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "71caf165c68c007e46d2bfcc1569e03a88e4ac3a4fa904108d468673e3840685",
+      "event_id": "eaf3d60c-e9ae-5438-9ff0-387181a9c5a4",
+      "silo_id": "ECO-71CAF165C68C007E",
+      "slug": "procurement-terms-and-conditions-71caf165c6"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",

@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-07T21:31:00+00:00",
+  "generated_at_utc": "2026-10-08T01:14:34+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "eaf3d60c-e9ae-5438-9ff0-387181a9c5a4",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Terms and conditions",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-08T01:14:28+00:00",
+      "url": "https://www.gets.govt.nz/GetsTermsAndConditions.htm",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-terms-and-conditions-71caf165c6.html"
+    },
     {
       "id": "8340d9e7-729e-5082-9dc8-c367e8edaca2",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
