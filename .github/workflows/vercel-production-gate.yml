@@ -58,6 +58,9 @@ jobs:
       - name: Runtime module verification
         run: node -e "require('./runtime/ControlPlane'); require('./runtime/worker-pool'); require('./proxy/DigitalProxy'); console.log('RUNTIME_LOAD=PASS')"
 
+      - name: Brand contract verification
+        run: node scripts/Apply-DreamLedgerBrand.js
+
   vercel-live:
     name: Canonical Production HTTP Check
     needs: ci-gauntlet-elohim
@@ -80,6 +83,7 @@ jobs:
           done
           test "$code" = "200"
           grep -Eqi 'DreamLedger|Dream Ledger' /tmp/dreamledger.html
+          grep -Eqi 'Inter|system-ui|Segoe UI' /tmp/dreamledger.html
 
       - name: Probe health endpoint
         shell: bash
@@ -98,6 +102,27 @@ jobs:
           grep -q '{' /tmp/offers.json
           echo "PRODUCTION_OFFERS_HTTP=200"
 
+      - name: Verify deployed commit parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L -sS --retry 5 --retry-delay 5 --max-time 15 "$LIVE_URL/version" -o /tmp/version.json
+          node -e "const p=require('/tmp/version.json'); if(p.commit!=='\${GITHUB_SHA}') { console.error('DEPLOY_COMMIT_MISMATCH',p.commit,'expected','\${GITHUB_SHA}'); process.exit(1) } console.log('DEPLOY_COMMIT_PARITY=PASS',p.commit)"
+
+      - name: MTG production surface sweep
+        shell: bash
+        run: |
+          set -euo pipefail
+          routes=(/mtg /mtg-search /mtg-list /login /register /commander-guide /agent-commerce)
+          for route in "\${routes[@]}"; do
+            body="/tmp/route.html"
+            code=$(curl -L -sS -o "$body" -w '%{http_code}' --retry 3 --retry-delay 2 --max-time 15 "$LIVE_URL$route" || true)
+            test "$code" = "200"
+            test -s "$body"
+            grep -Eqi 'DreamLedger|Dream Ledger|Magic|Commander|Commerce' "$body"
+            echo "MTG_ROUTE_PASS=$route HTTP=$code"
+          done
+
       - name: Probe anonymous account session
         shell: bash
         run: |
@@ -112,7 +137,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"status":"PASS","url":"https://dreamledger.org","source_sha":"%s","checks":["http_200","dreamledger_surface","healthz_200","offers_200","account_me_200_anonymous","ci","gauntlet","elohim","runtime"]}\n' "${GITHUB_SHA}" > proof/vercel-production-proof.json
+          printf '{"status":"PASS","url":"https://dreamledger.org","source_sha":"%s","checks":["http_200","deploy_commit_parity","mtg_surface_sweep","dreamledger_surface","healthz_200","offers_200","account_me_200_anonymous","ci","gauntlet","elohim","runtime","brand_contract"]}\n' "${GITHUB_SHA}" > proof/vercel-production-proof.json
           cat proof/vercel-production-proof.json
 
       - name: Upload production proof
