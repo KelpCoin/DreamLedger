@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-08-private-commercial-meta-s-muse-reached-more-than-half-of-customers-cequence-studied-in-two-weeks-without-identifying-it-dca9a5922497c88f.html"
+  ],
+  "observed_at": "2026-10-08T13:26:03.155634+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
