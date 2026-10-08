@@ -11,18 +11,19 @@ from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 
-# 777 sensing order: buyer-adjacent procurement first, then Stats NZ economic releases.
+# 777 sensing order: human/SMB/developer pain first. Follow the dollar, not prestige.
 # A failed source is never interpreted as zero demand.
-# 777 sensing universe: private-sector commercial events only.
-# Government, schools, hospitals, universities and public-sector procurement are
-# explicitly excluded from the buyer universe. Google News RSS is a discovery
-# transport; the linked publisher remains the source that must be corroborated.
+# Target universe: people, freelancers, creators, merchants, small businesses,
+# startups, developers and machine/agent buyers with a concrete operational pain.
+# Exclude public-sector demand and large-enterprise headline events unless the
+# signal contains a directly usable human/API pain surface. Google News RSS is
+# discovery transport; the linked publisher remains the source to corroborate.
 PRIVATE_SEARCHES = [
-    '"signed agreement" contract supplier financing -government -school -hospital -university -council -ministry -municipality',
-    '"customer prepayment" OR "prepayment" contract cloud supplier -government -school -hospital -university',
-    '"forward flow" OR "purchase agreement" financing "commercial" -government -school -hospital -university',
-    '"milestone payment" agreement company contract -government -school -hospital -university',
-    '"capacity reservation" OR "capacity commitment" company customer contract -government -school -hospital -university',
+    '"small business" invoice OR receipt OR quote OR document automation API -government -school -hospital -university -council -ministry',
+    'freelancer OR creator payment OR invoice OR tax OR document API -government -school -hospital -university',
+    'developer API integration OR webhook OR data extraction OR verification pain -government -school -hospital -university',
+    'merchant OR ecommerce seller shipping OR returns OR product data OR pricing API -government -school -hospital -university',
+    '"AI agent" API payment OR tool OR data OR verification OR automation -government -school -hospital -university',
 ]
 ROOT = Path("webapp")
 PULSE = ROOT / "pulse"
@@ -141,16 +142,22 @@ def parse_private_rss(raw):
             "government", "ministry", "council", "municipal", "city of ",
             "school", "schools", "university", "universities", "hospital",
             "health system", "public health", "state agency", "federal agency",
-            "department of", "procurement notice", "tender notice", "rfq"
+            "department of", "procurement notice", "tender notice", "rfq",
+            "solar plant", "power plant", "infrastructure project",
+            "acquisition", "merger", "partnership", "funding round",
+            "financing facility", "enterprise-wide", "multibillion",
+            "billion-dollar", "billion dollar"
         ]
         if any(term in low for term in blocked):
             continue
-        commercial_terms = [
-            "agreement", "contract", "financing", "prepayment", "purchase",
-            "supplier", "capacity", "funding", "milestone", "acquisition",
-            "renewal", "facility", "commitment", "partnership"
+        pain_terms = [
+            "api", "automation", "invoice", "receipt", "quote", "pricing",
+            "payment", "shipping", "returns", "document", "pdf", "ocr",
+            "extract", "verify", "verification", "webhook", "integration",
+            "data", "csv", "developer", "freelancer", "creator", "merchant",
+            "seller", "small business", "startup", "agent"
         ]
-        if not any(term in low for term in commercial_terms):
+        if not any(term in low for term in pain_terms):
             continue
         try:
             published = datetime.strptime(pub, "%a, %d %b %Y %H:%M:%S %Z").replace(tzinfo=timezone.utc)
@@ -264,11 +271,14 @@ if deduped:
             freshness = datetime.strptime(item["published_at"], "%a, %d %b %Y %H:%M:%S %Z").timestamp()
         except Exception:
             pass
-        commercial = sum(
+        pain = sum(
             term in title
-            for term in ("contract", "agreement", "financing", "funding", "purchase", "capacity", "supplier", "commitment", "renewal")
+            for term in ("api", "automation", "invoice", "receipt", "quote", "pricing",
+                         "payment", "shipping", "returns", "document", "extract",
+                         "verify", "webhook", "integration", "developer", "freelancer",
+                         "creator", "merchant", "seller", "small business", "startup", "agent")
         )
-        return (commercial, freshness)
+        return (pain, freshness)
 
     fresh = [
         item for item in deduped
