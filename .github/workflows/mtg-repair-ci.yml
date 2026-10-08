@@ -1,0 +1,61 @@
+name: MTG Repair CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/**'
+      - '.github/workflows/mtg-repair-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mtg-repair-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gauntlet-elohim:
+    name: Compile + Gauntlet + Elohim + Brand
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: BEC-PRIME
+    steps:
+      - name: Checkout exact PR commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BEC-PRIME/package.json
+
+      - name: Install
+        run: npm install
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Brand contract
+        run: node scripts/Apply-DreamLedgerBrand.js
+
+      - name: First-party smoke against compiled runtime
+        run: node scripts/first-party-smoke.js
+        env:
+          DREAMLEDGER_BASE_URL: https://dreamledger.org
+
+      - name: Gauntlet
+        run: npm run gauntlet
+
+      - name: Elohim
+        run: node -e "const E=require('./elohim/ElohimV6'); if(!E) process.exit(1); console.log('ELOHIM_LOAD=PASS')"
+
+      - name: Runtime
+        run: node -e "require('./runtime/ControlPlane'); require('./runtime/worker-pool'); require('./proxy/DigitalProxy'); console.log('RUNTIME_LOAD=PASS')"
