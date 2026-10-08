@@ -44,15 +44,15 @@ function headers(res){
 async function proxySwarm(req,res,p){if(!ENGINE_INTERNAL_URL)return send(res,503,'Swarm engine unavailable','text/plain; charset=utf-8');try{const target=ENGINE_INTERNAL_URL+(p.startsWith('/swarm/')?'/api/swarm-100k/'+p.split('/').pop():p);const h={};if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;const r=await fetch(target,{headers:h});const body=await r.text();res.statusCode=r.status;res.setHeader('Content-Type',r.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');return res.end(body);}catch(e){return send(res,502,'Swarm engine unavailable','text/plain; charset=utf-8');}}
 async function proxyFightEdge(req,res,u){
   if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
-  const suffix=u.pathname.replace(/^\\/fightedge/,'')||'/';
+  const suffix=u.pathname.replace(/^\/fightedge/,'')||'/';
   const target='https://fightedge-web-live.onrender.com'+suffix+u.search;
   try{
     const upstream=await fetch(target,{method:req.method,headers:{accept:req.headers.accept||'*/*','user-agent':'DreamLedger-FightEdge-Proxy'},redirect:'manual'});
     const type=upstream.headers.get('content-type')||'application/octet-stream';
     let body=req.method==='HEAD'?'':await upstream.text();
     if(type.includes('text/html')){
-      body=body.replace(/(href|src|action)=(["'])\\/(?!\\/)/gi,'$1=$2/fightedge/');
-      body=body.replace(/url\\((["']?)\\/(?!\\/)/gi,'url($1/fightedge/');
+      body=body.replace(/(href|src|action)=(["'])\/(?!\/)/gi,'$1=$2/fightedge/');
+      body=body.replace(/url\\((["']?)\/(?!\/)/gi,'url($1/fightedge/');
     }
     res.statusCode=upstream.status;
     res.setHeader('Content-Type',type);
