@@ -3,7 +3,7 @@ const fs=require('fs');const path=require('path');
 const ROOT=path.join(__dirname,'..');const OUT=path.join(ROOT,'compiled','website','billboard.html');
 function write(file,value){fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,value,'utf8')}
 const existing=fs.existsSync(OUT)?fs.readFileSync(OUT,'utf8'):'';
-const required=['YOUR IDEA','ON THE BOARD','1,000,000','NZ$50','/api/molt-beach-inventory','/api/molt-beach-checkout','PAID_PENDING_REVIEW','Image Placement + human approval'];
+const required=['YOUR IDEA','ON THE BOARD','1,000,000','NZ$50','/api/molt-beach-inventory','/api/molt-beach-checkout','review your placement before publishing it','Image Placement + human approval'];
 const canonical=required.every(x=>existing.includes(x));
 if(!canonical){
  console.error(JSON.stringify({status:'BLOCKED',reason:'CANONICAL_BILLBOARD_SURFACE_MISSING_OR_STALE',output:path.relative(ROOT,OUT)},null,2));
