@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-08T03:51:47+00:00",
+  "updated_at_utc": "2026-10-08T07:28:37+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Te Kauwhata Walkway",
+      "url": "https://www.gets.govt.nz/WaikDC/ExternalTenderDetails.htm?id=34918271",
+      "observed_at": "2026-10-08T07:28:33+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "1538568a7651812702f1d8ecfe221eed4d96d9471d955f015e25955693b7536c",
+      "event_id": "bd7c3f3f-5235-5891-8502-0ced32888df1",
+      "silo_id": "ECO-1538568A76518127",
+      "slug": "procurement-te-kauwhata-walkway-1538568a76"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",

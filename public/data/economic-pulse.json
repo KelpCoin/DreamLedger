@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-08T01:14:34+00:00",
+  "generated_at_utc": "2026-10-08T07:28:37+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,28 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "bd7c3f3f-5235-5891-8502-0ced32888df1",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Te Kauwhata Walkway",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-08T07:28:33+00:00",
+      "url": "https://www.gets.govt.nz/WaikDC/ExternalTenderDetails.htm?id=34918271",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-te-kauwhata-walkway-1538568a76.html"
+    },
+    {
+      "id": "ac335600-a967-5cd4-afd0-3514e272453c",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Te Kura HRIS RFI",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-08T03:51:44+00:00",
+      "url": "https://www.gets.govt.nz/TAOTKP/ExternalTenderDetails.htm?id=34473418",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-te-kura-hris-rfi-e81244f17e.html"
+    },
     {
       "id": "eaf3d60c-e9ae-5438-9ff0-387181a9c5a4",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
@@ -59,7 +81,7 @@
       "title": "Wairoa Airport Runway Extension",
       "status": "UNVERIFIED",
       "source": "GETS",
-      "observed_at": "2026-10-06T23:34:35+00:00",
+      "observed_at": "2026-10-07T23:34:35+00:00",
       "url": "https://www.gets.govt.nz/WAIRDC/ExternalTenderDetails.htm?id=34954354",
       "category": "PROCUREMENT",
       "public_route": "/economic/procurement-wairoa-airport-runway-extension-89836f7e67.html"
