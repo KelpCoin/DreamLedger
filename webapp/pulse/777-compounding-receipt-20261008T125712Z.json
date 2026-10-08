@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-08-private-commercial-wikimedia-investigates-openai-agent-activity-as-ai-scraping-intensifies-tech-times-099d8edb7b4445a7.html"
+  ],
+  "observed_at": "2026-10-08T12:57:12.835108+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
