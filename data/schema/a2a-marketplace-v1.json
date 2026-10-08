@@ -1,0 +1,19 @@
+{
+  "schema_version":"dreamledger.a2a-marketplace.v1",
+  "purpose":"Machine-readable discovery, comparison, authorization and settlement handoff for agent-to-agent commerce.",
+  "objects":["agent","capability","offer","requirement","quote","authorization","order","fulfillment","evidence"],
+  "lifecycle":["DISCOVER","MATCH","QUOTE","AUTHORITY_GATE","CHECKOUT","SETTLE","FULFILL","EVIDENCE","REPEAT"],
+  "truth_rules":["Capability publication is not demand.","Quote is not an order.","Order is not payment.","Payment intent is not settled revenue.","A2A dispatch is not external result.","Only settled external payment plus fulfillment and evidence can become VERIFIED."],
+  "authority":["identity","consent","payment","external_account_actions"],
+  "endpoints":{
+    "manifest":"/m2m/v1/marketplace/manifest",
+    "capabilities":"/m2m/v1/marketplace/capabilities",
+    "search":"/m2m/v1/marketplace/search",
+    "quote":"/m2m/v1/marketplace/quote",
+    "authorize":"/m2m/v1/marketplace/authorize",
+    "orders":"/m2m/v1/marketplace/orders",
+    "proof":"/m2m/v1/marketplace/proof"
+  },
+  "monetization":["fixed_price","metered_call","quote","seller_tools","verified_evidence_access","promoted_discovery"],
+  "non_goals":["automatic_external_spend","self_purchase","fabricated_agents","new_ledger","new_queue","hidden_tracking"]
+}
