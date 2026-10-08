@@ -1,5 +1,6 @@
 const http = require('http');
 const { URL } = require('url');
+const tollRoad = require('../../BEC-PRIME/routes/tollRoad');
 
 const silos = {
   'dreamledger-billboard': {
@@ -165,9 +166,30 @@ function page(title, description, status, slug) {
     '<hr><p style="font-size:13px;color:#746f67">Silo: ' + esc(slug) + ' · Infrastructure readiness is not revenue.</p></body></html>';
 }
 
+const tollRoutePath = (pathname) => {
+  if (pathname === '/checkout/toll-probe') return '/api/toll/v1/checkout/toll-probe';
+  if (pathname === '/redeem/toll-probe') return '/api/toll/v1/redeem/toll-probe';
+  return pathname;
+};
+
 const server = http.createServer((req,res)=>{
   const u = new URL(req.url, 'http://localhost');
   const slug = u.pathname.split('/').filter(Boolean)[0] || '';
+  // Toll Road is the existing paid API wall. The public gateway only mounts it; it does not create a second authority, queue, or ledger.
+  const tollPath = tollRoutePath(u.pathname);
+  if (tollPath.startsWith('/api/toll/v1/')) {
+    try {
+      const handled = await tollRoad.handle(req, res, tollPath);
+      if (handled) return;
+    } catch (error) {
+      const status = Number(error && error.statusCode) || 500;
+      if (!res.writableEnded) {
+        res.writeHead(status, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
+        return res.end(JSON.stringify({error:String(error && error.message || 'toll_route_error')}));
+      }
+      return;
+    }
+  }
   if (u.pathname === '/robots.txt') {
     res.writeHead(200, securityHeaders('text/plain; charset=utf-8'));
     return res.end('User-agent: *\\nAllow: /\\nSitemap: https://dreamledger-silo-gateway.onrender.com/sitemap.xml\\n');
