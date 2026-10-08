@@ -1,0 +1,43 @@
+name: FightEdge Legacy Lockfile Repair
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "sports/fightedge/web/package.json"
+      - ".github/workflows/fightedge-lockfile-repair.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fightedge-lockfile-repair
+  cancel-in-progress: false
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Generate deterministic npm lockfile
+        working-directory: sports/fightedge/web
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit lockfile when changed
+        run: |
+          if git diff --quiet -- sports/fightedge/web/package-lock.json; then
+            echo "Lockfile already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sports/fightedge/web/package-lock.json
+          git commit -m "Add deterministic FightEdge npm lockfile"
+          git push
