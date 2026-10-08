@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          url="https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+          url="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e"
           body="$(curl -fsSL --max-time 20 "$url")"
           if grep -qiE "page you were looking for could not be found|something went wrong|not found" <<< "$body"; then
             echo "FAIL: configured checkout endpoint reports an error."
