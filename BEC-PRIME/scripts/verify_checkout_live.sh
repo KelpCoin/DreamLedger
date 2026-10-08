@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
-# BEC-PRIME runtime verification gate.
-# Proves, rather than assumes, that a specific offer is live, checkoutable,
-# and produces a real Stripe Checkout Session. Exits non-zero on failure.
+# Production checkout gate for the Render storefront.
+# The storefront uses catalog-backed /buy/<product-id> redirects to existing
+# Stripe Payment Links. It does not expose the Vercel-only session-create route.
+# This verifies offer publication and the real Stripe hand-off, not payment settlement.
 
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-https://dreamledger.org}"
-OFFER_ID="${1:?Usage: verify_checkout_live.sh <OFFER_ID>}"
+OFFER_ID="${1:?Usage: verify_checkout_live.sh <PRODUCT_ID>}"
 
 fail() { echo "FAIL: $1"; exit 1; }
 
-echo "== BEC-PRIME LIVE VERIFICATION GATE =="
+echo "== DREAMLEDGER LIVE PAYMENT-LINK GATE =="
 echo "Target: $BASE_URL"
-echo "Offer:  $OFFER_ID"
+echo "Product: $OFFER_ID"
 echo
 
-echo "[1/4] healthz..."
-HEALTH="$(curl -sf "$BASE_URL/healthz")" || fail "healthz unreachable"
-echo "$HEALTH" | python3 -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("status")=="ok" else 1)' || fail "service not ok"
-echo "  ok"
+echo "[1/3] storefront health..."
+HEALTH="$(curl -fsS "$BASE_URL/healthz")" || fail "healthz unreachable"
+printf '%s' "$HEALTH" | python3 -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("status")=="ok" or d.get("ok") is True else 1)' || fail "storefront health is not ok"
+echo "  HEALTH_OK"
 
-echo "[2/4] live offer catalog..."
-OFFERS="$(curl -sf "$BASE_URL/api/offers")" || fail "offers endpoint unreachable"
+echo "[2/3] published offer and payment link..."
+OFFERS="$(curl -fsS "$BASE_URL/api/offers")" || fail "offer catalog unreachable"
 OFFER_ID="$OFFER_ID" OFFERS_JSON="$OFFERS" python3 - <<'PY'
 import json, os, sys
 try:
@@ -31,51 +32,27 @@ except Exception as e:
     sys.exit(1)
 offers = data if isinstance(data, list) else data.get("offers", [])
 target = os.environ["OFFER_ID"]
-match = next((o for o in offers if o.get("offer_id") == target or o.get("id") == target), None)
+match = next((o for o in offers if target in (o.get("product_id"), o.get("offer_id"), o.get("id"), o.get("sku"))), None)
 if not match:
     print("OFFER_NOT_FOUND")
     sys.exit(1)
-if not match.get("checkout_available"):
-    print("CHECKOUT_NOT_AVAILABLE")
+url = match.get("checkout_url") or match.get("url") or ""
+status = match.get("status", "")
+if not match.get("checkout_available", status == "VERIFIED_AVAILABLE") or not url.startswith("https://buy.stripe.com/"):
+    print("OFFER_NOT_CHECKOUTABLE")
     sys.exit(1)
-print("OFFER_OK", match.get("price"), match.get("currency"))
+print("OFFER_OK", match.get("name", target), match.get("price_nzd", match.get("price", "price not published")), match.get("currency", "nzd"))
+print("PAYMENT_LINK_CONFIGURED")
 PY
-echo "  ok"
+echo "  CATALOG_OK"
 
-echo "[3/4] real Stripe Checkout Session..."
-SESSION="$(curl -sf -X POST "$BASE_URL/api/offer-checkout/create" \
-  -H "Content-Type: application/json" \
-  -d "{\"offer_id\":\"$OFFER_ID\",\"silo\":\"dreamledger\"}")" || fail "checkout-create endpoint failed"
-SESSION_JSON="$SESSION" python3 - <<'PY'
-import json, os, sys
-try:
-    data = json.loads(os.environ["SESSION_JSON"])
-except Exception as e:
-    print(f"INVALID_SESSION_JSON: {e}")
-    sys.exit(1)
-url = data.get("checkout_url", data.get("url", ""))
-session_id = data.get("session_id", data.get("id", ""))
-if not session_id.startswith("cs_"):
-    print("NOT_A_STRIPE_CHECKOUT_SESSION")
-    sys.exit(1)
-if not url.startswith("https://checkout.stripe.com"):
-    print("NOT_A_STRIPE_CHECKOUT_URL")
-    sys.exit(1)
-print("CHECKOUT_OK", session_id)
-print(url)
-PY
-
-echo "  ok"
-
-echo "[4/4] ledger durability (informational)..."
-HEALTH_JSON="$HEALTH" python3 - <<'PY'
-import json, os
-h = json.loads(os.environ["HEALTH_JSON"])
-print("  durable_ledger_configured:", h.get("durable_ledger_configured"))
-print("  event_count:", h.get("revenue_ledger", {}).get("event_count"))
-PY
-
+echo "[3/3] storefront buy route redirects to Stripe..."
+REDIRECT="$(curl -sS -o /dev/null -w '%{http_code}\n%{redirect_url}' "$BASE_URL/buy/$OFFER_ID")" || fail "buy route request failed"
+HTTP_CODE="${REDIRECT%%$'\n'*}"
+LOCATION="${REDIRECT#*$'\n'}"
+[[ "$HTTP_CODE" == "302" ]] || fail "expected HTTP 302, got $HTTP_CODE"
+[[ "$LOCATION" == https://buy.stripe.com/* ]] || fail "redirect did not point to Stripe Payment Links"
+echo "  STRIPE_REDIRECT_OK $HTTP_CODE"
 echo
-echo "== PASS: deployed service exposes $OFFER_ID as a live, checkoutable Stripe offer =="
-echo "This proves the checkout path, not a completed payment."
-echo "Level 1 evidence still requires a completed transaction plus verified webhook."
+echo "== PASS: $OFFER_ID is published and routes to its configured Stripe Payment Link =="
+echo "This proves checkout hand-off only. It does not prove a completed payment, webhook, entitlement, fulfillment, or revenue."
