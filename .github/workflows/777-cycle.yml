@@ -71,5 +71,7 @@ jobs:
 
 # 777 execution directive: upscale fresh cycle.
 # Objective: MONEY first. If no settlement, return exactly one new durable non-duplicate component.
-# Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem.
-# Execution nonce: fresh-cycle-20261008T1700-BRIDGE-HUGE-497-R2
+# Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem, Nylas IAM scoped API keys.
+# Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
+# HUGE decomposition: select at most 5 bounded jobs from issue #497, rank by economic leverage, execute highest-value job, emit evidence.
+# Execution nonce: fresh-cycle-20261008T1715-BRIDGE-HUGE-497-R3
