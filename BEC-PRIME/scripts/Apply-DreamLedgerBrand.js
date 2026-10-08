@@ -43,7 +43,7 @@ for(const file of authoredHtmlFiles(ROOT)){
 const assetDir=path.join(ROOT,'assets');
 fs.mkdirSync(assetDir,{recursive:true});
 const cssFile=path.join(assetDir,'dreamledger-core.css');
-const canonical=fs.readFileSync(path.join(__dirname,'..','website','assets','dreamledger-core.css'),'utf8');
+const canonical=fs.readFileSync(path.join(__dirname,'DreamLedgerCore.css'),'utf8');
 if(!fs.existsSync(cssFile) || fs.readFileSync(cssFile,'utf8')!==canonical) fs.writeFileSync(cssFile,canonical);
 if(!fs.existsSync(path.join(ROOT,'mtg','index.html'))) throw new Error('Required MTG compiled surface missing');
 const mtg=fs.readFileSync(path.join(ROOT,'mtg','index.html'),'utf8');
