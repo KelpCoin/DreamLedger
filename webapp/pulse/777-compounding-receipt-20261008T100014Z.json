@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-08-private-commercial-signed-at-the-source-api3-s-airnodehub-brings-provenance-to-ai-agent-data-hokanews-46fb11057ec5a29e.html"
+  ],
+  "observed_at": "2026-10-08T10:00:14.485221+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
