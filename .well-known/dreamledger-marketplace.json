@@ -1,0 +1,10 @@
+{
+  "schema": "dreamledger/marketplace-discovery/v1",
+  "updated": "2026-10-08",
+  "human_surface": "https://dreamledger.org/marketplace.html",
+  "machine_surface": "https://dreamledger.org/.well-known/ai-catalog.json",
+  "agent_contract": "https://dreamledger.org/.well-known/agent-commerce.json",
+  "model": "B2B + agent-discoverable offers with explicit human authorization and existing settlement rails",
+  "status": "ARMED_NOT_VERIFIED",
+  "economic_truth": "VERIFIED_EXTERNAL_REVENUE=NZ$0.00"
+}
