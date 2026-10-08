@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-08-private-commercial-samsung-egypt-powers-up-with-4-3-mw-solar-plant-partnership-solarquarter-eca343087cb750b4.html"
+  ],
+  "observed_at": "2026-10-08T04:01:42.277507+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
