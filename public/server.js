@@ -75,7 +75,7 @@ http.createServer(async (req,res)=>{
     const file=p==='/.well-known/ai' ? '.well-known/ai' : '.well-known/ai-catalog.json';
     return serveFile(res,file);
   }
-  if(req.method==='GET' && p==='/buy/QUOTE-COMPARE-49'){
+  if(req.method==='GET' && (p==='/buy/QUOTE-COMPARE-49'||p==='/buy/quote_compare_49')){
     res.statusCode=302;
     res.setHeader('Location','https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32');
     res.setHeader('Cache-Control','no-store');
