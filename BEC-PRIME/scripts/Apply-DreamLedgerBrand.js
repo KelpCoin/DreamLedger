@@ -23,7 +23,7 @@ function inject(file){
   if(!/<html\b/i.test(html) || !/<head\b/i.test(html)) return false;
   if(html.includes(CSS_HREF) && html.includes(MARKER)) return false;
   const tag='<link rel="stylesheet" href="'+CSS_HREF+'" '+MARKER+'>';
-  html=html.replace(/<head([^>]*)>/i, '<head$1>\\n'+tag);
+  html=html.replace(/<head([^>]*)>/i, '<head$1>\n'+tag);
   fs.writeFileSync(file,html);
   return true;
 }
