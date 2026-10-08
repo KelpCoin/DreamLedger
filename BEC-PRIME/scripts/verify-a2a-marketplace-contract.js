@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('fs'),path=require('path');
+const root=path.join(__dirname,'..');
+const checks=[
+ ['A2A_SCHEMA',fs.existsSync(path.join(root,'..','data','schema','a2a-marketplace-v1.json'))],
+ ['A2A_AGENT_CARD',fs.existsSync(path.join(root,'..','public','marketplace','agent-card.json'))],
+ ['A2A_UI',fs.existsSync(path.join(root,'..','public','a2a-marketplace.html'))],
+ ['M2M_ROUTE',fs.existsSync(path.join(root,'routes','m2m.js'))],
+ ['M2M_PRELOAD',fs.existsSync(path.join(root,'lib','m2mPreload.js'))]
+];
+const text=fs.readFileSync(path.join(root,'routes','m2m.js'),'utf8');
+for(const route of ['/m2m/v1/marketplace/manifest','/m2m/v1/marketplace/capabilities','/m2m/v1/marketplace/search','/m2m/v1/marketplace/quote','/m2m/v1/marketplace/authorize','/m2m/v1/marketplace/orders']) checks.push(['ROUTE_'+route.split('/').pop().toUpperCase(),text.includes(route)]);
+const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
+const proof={schema:'dreamledger/a2a-marketplace-contract/v1',generated_at:new Date().toISOString(),verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,economic_truth:'A2A discovery, quotes and orders are not revenue. VERIFIED requires settled external payment, fulfillment and independent evidence.'};
+const out=path.join(root,'data','proofs','A2A-MARKETPLACE-CONTRACT-PROOF.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));process.exit(failed.length?1:0);
