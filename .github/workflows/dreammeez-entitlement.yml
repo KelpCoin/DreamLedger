@@ -3,6 +3,8 @@ name: DreamMeez Paid Entitlement
 on:
   pull_request:
     paths:
+      - 'public/avatar.html'
+      - 'supabase/functions/dreammeez-cosmetic-checkout/index.ts'
       - 'BEC-PRIME/lib/dreammeezPaidEntitlement.js'
       - 'BEC-PRIME/routes/marketplaceWebhook.js'
       - 'BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js'
@@ -22,9 +24,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Syntax check
         run: |
           node --check BEC-PRIME/lib/dreammeezPaidEntitlement.js
           node --check BEC-PRIME/routes/marketplaceWebhook.js
+      - name: DreamMeez checkout type check
+        run: deno check supabase/functions/dreammeez-cosmetic-checkout/index.ts
+      - name: Cosmetic catalog guard
+        run: |
+          grep -q 'dreammeez-founder-cloak' public/avatar.html
+          grep -q 'dreammeez-pirate-crown' public/avatar.html
+          grep -q 'dreammeez-cosmic-hoodie' public/avatar.html
+          grep -q 'dreammeez-chrome-boots' public/avatar.html
+          grep -q 'dreammeez-dragon-mark' public/avatar.html
+          grep -q 'dreammeez-neon-sneakers' public/avatar.html
       - name: Entitlement unit test
         run: node BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js
