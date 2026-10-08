@@ -1,0 +1,13 @@
+{
+  "artifact_count": 2,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-08-demand-transition-FA248826RB001-5ab8b439fff91650.html",
+    "webapp/pulse/2026-10-08-private-commercial-zelestra-secures-350-million-for-indiana-solar-project-lifting-us-financing-to-1-14-billion-greentec-14c29d1e8cf3cb95.html"
+  ],
+  "observed_at": "2026-10-08T00:14:38.404141+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
