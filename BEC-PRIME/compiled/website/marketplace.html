@@ -1,39 +1,60 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger for business — catalogue APIs, placements, and partner integrations.">
-<title>Business · DreamLedger</title>
-<link rel="canonical" href="https://dreamledger.org/b2b">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DreamLedger B2B and agent commerce marketplace. Discover economic services, compare opportunities, and hand authorized purchases into Stripe.">
+<title>DreamLedger B2B + Agent Marketplace</title>
 <style>
-:root{--bg:#0b0f14;--card:#171e28;--line:#273041;--text:#f4f6f9;--muted:#95a0b3;--blue:#2563eb}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:32px 20px 64px}
-a{color:var(--blue);text-decoration:none}
-main{max-width:880px;margin:0 auto}
-h1{font-size:1.75rem;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
-.lead{color:var(--muted);margin-bottom:28px;max-width:42ch}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-.card h2{font-size:1rem;margin-bottom:6px}
-.card p{font-size:.875rem;color:var(--muted)}
-.back{display:inline-block;margin-bottom:20px;font-weight:600;font-size:.875rem}
+:root{--bg:#080b10;--panel:#111720;--line:#293443;--ink:#f5f7fa;--muted:#99a5b5;--accent:#d8b56b;--ok:#58d6a0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,sans-serif}.w{max-width:1120px;margin:auto;padding:24px}
+nav{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px}.brand{font-weight:950;letter-spacing:.06em}.brand span{color:var(--accent)}nav a{color:var(--muted);text-decoration:none;margin-left:14px}
+.hero{padding:55px 0 28px}.eyebrow{color:var(--accent);font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.hero h1{font-size:clamp(2.5rem,7vw,5rem);line-height:.92;letter-spacing:-.065em;margin:12px 0}.hero p{max-width:70ch;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}.card h2{margin:0 0 6px;font-size:1.05rem}.muted{color:var(--muted)}.truth{font:13px ui-monospace,monospace;background:#090d12;border:1px solid var(--line);padding:13px;border-radius:10px;margin:18px 0}.item{border:1px solid var(--line);border-radius:12px;padding:14px;background:#0d1219}.item strong{display:block}.item small{color:var(--muted)}.btn{display:inline-block;margin-top:10px;padding:10px 13px;border-radius:9px;background:var(--accent);color:#111;text-decoration:none;font-weight:850}.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}.status{color:var(--muted);min-height:24px}section{margin:34px 0}
+@media(max-width:650px){.w{padding:18px}.hero{padding-top:38px}}
 </style>
 </head>
 <body>
-<main>
-  <a class="back" href="/">← Market</a>
-  <h1>For business</h1>
-  <p class="lead">Catalogue and checkout endpoints for partners. Same listed NZD prices as the public market. No DreamLedger success fee on current public offers.</p>
-  <div class="grid">
-    <a class="card" href="/api/offers"><h2>Offers API</h2><p>Checkout-ready products and prices.</p></a>
-    <a class="card" href="/agent-commerce.json"><h2>Commerce contract</h2><p>Fees, buy loop, and endpoints.</p></a>
-    <a class="card" href="/agent.json"><h2>Agent interface</h2><p>Machine-readable offer interface.</p></a>
-    <a class="card" href="/billboard"><h2>Billboard</h2><p>Public placement inventory.</p></a>
-    <a class="card" href="/guides/"><h2>Guides</h2><p>Plain-language buyer and partner help.</p></a>
-    <a class="card" href="/"><h2>Storefront</h2><p>Human marketplace home.</p></a>
-  </div>
+<main class="w">
+<nav><a class="brand" href="/">DREAM<span>LEDGER</span></a><div><a href="/api/offers">Offers API</a><a href="/agent-commerce.json">Agent contract</a><a href="/b2b">Business</a></div></nav>
+<section class="hero">
+<div class="eyebrow">B2B + agent commerce</div>
+<h1>Demand meets a callable economic rail.</h1>
+<p>Discover published B2B supply, economic opportunities and machine-readable offers. Humans authorize spend. Agents can discover, compare and hand an approved purchase into the existing Stripe commerce rail.</p>
+<a class="btn" href="#offers">See checkout-ready offers</a>
+<a class="btn alt" href="/.well-known/dreamledger-marketplace.json">Machine marketplace contract</a>
+</section>
+<div class="truth">LISTING ≠ DEMAND · RFQ ≠ ORDER · ORDER ≠ PAYMENT · CHECKOUT ≠ REVENUE · SETTLED PAYMENT + FULFILLMENT + EVIDENCE = VERIFIED</div>
+
+<section><div class="grid">
+<div class="card"><h2>For buyers</h2><p class="muted">Find a narrow commercial action, inspect its price and hand authorization to Stripe.</p></div>
+<div class="card"><h2>For suppliers</h2><p class="muted">The initial marketplace exposes approved supply and uses zero mandatory marketplace success fee. Paid tools are separately disclosed.</p></div>
+<div class="card"><h2>For agents</h2><p class="muted">Read the machine contract, discover offers, present the human authorization step, then follow the checkout URL.</p></div>
+</div></section>
+
+<section id="catalog"><h2>B2B catalog</h2><p id="catalogStatus" class="status">Loading live catalog…</p><div id="catalog" class="grid"></div></section>
+
+<section id="offers"><h2>Checkout-ready economic offers</h2><p class="muted">These are real checkout surfaces, not revenue claims.</p><div id="offersList" class="grid"></div></section>
+
+<section><div class="card"><h2>Fastest B2B path</h2><p class="muted">Have competing supplier quotes? Use the existing automated comparison service. It is the shortest current B2B path from a commercial problem to a paid outcome.</p><a class="btn" href="https://buy.stripe.com/14AdP97LD6pLfuLdVadwc32">Supplier Quote Comparison · NZ$49</a></div></section>
+
+<section><div class="card"><h2>Economic scoreboard</h2><p class="muted">The marketplace is substrate. It does not create a revenue claim by itself.</p><div class="truth">VERIFIED_EXTERNAL_REVENUE = NZ$0.00<br>Independent buyers = 0 until independently observed.</div></div></section>
 </main>
-</body>
-</html>
+<script>
+const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function load(){
+ const [m,o]=await Promise.allSettled([fetch('/api/b2b/marketplace').then(r=>r.ok?r.json():Promise.reject()),fetch('/api/offers').then(r=>r.ok?r.json():Promise.reject())]);
+ const cat=document.getElementById('catalog'),cs=document.getElementById('catalogStatus');
+ if(m.status==='fulfilled'){
+   const items=m.value.catalog||[];
+   cs.textContent=items.length+' published B2B catalog records.';
+   cat.innerHTML=items.slice(0,48).map(x=>'<div class="item"><strong>'+esc(x.title||x.name||x.sku)+'</strong><small>'+esc(x.category||'B2B')+(x.price_nzd!=null?' · NZ$'+esc(x.price_nzd):'')+'</small><p class="muted">'+esc(x.description||'')+'</p></div>').join('')||'<div class="item">No published B2B catalog records are currently exposed.</div>';
+ } else {cs.textContent='B2B catalog is temporarily unavailable; checkout-ready offers remain available below.';cat.innerHTML='';}
+ const list=document.getElementById('offersList');
+ if(o.status==='fulfilled'){
+   const offers=o.value.offers||[];
+   list.innerHTML=offers.slice(0,24).map(x=>'<div class="item"><strong>'+esc(x.name||x.offer_id)+'</strong><small>NZ$'+esc(x.price)+' '+esc(x.currency||'NZD')+' · '+esc(x.status||'AVAILABLE')+'</small><p class="muted">'+esc(x.problem||x.description||'')+'</p><a class="btn" href="'+esc(x.checkout_url||x.checkout?.url||('/buy/'+encodeURIComponent(x.product_id||'')))+'">Open authorized checkout</a></div>').join('')||'<div class="item">No checkout-ready offers returned.</div>';
+ } else {list.innerHTML='<div class="item">Offer API unavailable.</div>';}
+}
+load();
+</script>
+</body></html>
