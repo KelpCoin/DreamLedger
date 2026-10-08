@@ -24,7 +24,7 @@
 (function(){
 const rail=document.getElementById('rail'),status=document.getElementById('status'),count=document.getElementById('count'),published=document.getElementById('published'),stock=document.getElementById('stock'),a=document.getElementById('a'),b=document.getElementById('b'),mc=document.getElementById('mc');
 function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));}
-function recordsFrom(j){if(Array.isArray(j))return j;if(Array.isArray(j.products))return j.products;if(Array.isArray(j.records))return j.records;if(Array.isArray(j.items))return j.items;return[];}
+function recordsFrom(j){if(Array.isArray(j))return j;if(Array.isArray(j.products))return j.products;if(Array.isArray(j.offers))return j.offers;if(Array.isArray(j.records))return j.records;if(Array.isArray(j.items))return j.items;return[];}
 async function get(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(url+' returned '+r.status);return recordsFrom(await r.json());}
 function isMtg(p){return String(p.silo||'').toLowerCase()==='mtg'||/^EDH[_-]/i.test(String(p.id||''));}
 async function buy(id,button){button=button||document.querySelector('[data-id="'+id+'"]');if(button)button.disabled=true;try{const r=await fetch('/api/checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:id,product_id:id,silo:'mtg'})});const d=await r.json();if(!r.ok||!d.checkout_url)throw new Error(d.error||'Checkout unavailable');location.href=d.checkout_url;}catch(e){status.className='status error';status.textContent=e.message;if(button)button.disabled=false;}}
