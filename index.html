@@ -1,20 +1,117 @@
 <!doctype html>
 <html lang="en-NZ">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger Economic Observatory: source-bound economic signals, compounding artifacts, machine access and commercial action.">
-<meta name="robots" content="index,follow"><link rel="canonical" href="https://dreamledger.org/"><title>DreamLedger | Economic Observatory</title>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DreamLedger is a commerce garden for real products, DreamMeez identities, digital worlds and evidence-backed transactions.">
+<link rel="canonical" href="https://dreamledger.org/">
+<title>DreamLedger | Buy, build, belong</title>
 <style>
-:root{--bg:#070b10;--panel:#0d151e;--line:#263543;--text:#eef3f7;--muted:#a1b0bd;--accent:#dff0ff;--blue:#79c8ff;--max:1120px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#102334 0,transparent 34%),var(--bg);color:var(--text);font:16px/1.55 Inter,system-ui,sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(calc(100% - 40px),var(--max));margin:auto}header{border-bottom:1px solid var(--line);background:#070b10ee;position:sticky;top:0;z-index:5}.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px}.links{display:flex;gap:18px;flex-wrap:wrap;color:#a8bdcf;font-size:13px}.hero{padding:82px 0 56px}.eyebrow{color:var(--blue);text-transform:uppercase;letter-spacing:.17em;font-size:11px;font-weight:900}.hero h1{font-size:clamp(48px,8vw,88px);line-height:.94;letter-spacing:-.06em;max-width:900px;margin:18px 0}.hero h1 span{color:var(--blue)}.lede{max-width:760px;color:var(--muted);font-size:19px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.button{display:inline-flex;padding:13px 18px;border-radius:10px;background:var(--accent);color:#071018;font-weight:900}.button.alt{background:transparent;color:var(--text);border:1px solid #415466}.section{padding:30px 0 64px}.section h2{font-size:28px;letter-spacing:-.03em}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{padding:21px;border:1px solid var(--line);border-radius:15px;background:var(--panel)}.card strong{display:block;margin-bottom:7px}.muted{color:var(--muted)}.offers{display:grid;grid-template-columns:1fr 1fr;gap:14px}.offer{padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.price{color:var(--blue);font:800 12px ui-monospace,monospace}.offer h3{font-size:28px;margin:10px 0}.offer p,.offer li{color:var(--muted)}.offer .button{margin-top:12px}.truth{border-left:3px solid #40596d;padding-left:16px}.footer{border-top:1px solid var(--line);padding:25px 0 45px;color:#728596;font-size:12px}@media(max-width:800px){.grid,.offers{grid-template-columns:1fr 1fr}}@media(max-width:520px){.grid,.offers{grid-template-columns:1fr}.hero{padding-top:58px}}
-</style></head>
+:root{color-scheme:dark;--bg:#06080b;--panel:#0d1218;--panel2:#121a22;--line:#25313c;--text:#f7f4ec;--muted:#9aa7b3;--mint:#a9f5cf;--gold:#e7c56b;--blue:#9bc2ff;--max:1220px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(900px 520px at 12% -10%,#26331d 0,transparent 62%),radial-gradient(850px 520px at 90% 4%,#172a31 0,transparent 60%),var(--bg);color:var(--text);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(calc(100% - 36px),var(--max));margin:auto}
+header{position:sticky;top:0;z-index:50;background:#06080be8;border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}nav{min-height:72px;display:flex;align-items:center;gap:22px}.logo{font-size:23px;font-weight:950;letter-spacing:-.06em;margin-right:auto}.logo span{color:var(--gold)}.navlinks{display:flex;align-items:center;gap:18px;color:var(--muted);font-size:13px}.navlinks a:hover{color:var(--text)}.nav-cta{padding:10px 15px;border-radius:999px;background:var(--gold);color:#111;font-weight:950}
+.hero{padding:72px 0 42px}.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:stretch}.eyebrow{font:850 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}h1{font-size:clamp(52px,8vw,96px);line-height:.9;letter-spacing:-.08em;margin:16px 0 20px;max-width:900px}h1 span{color:var(--mint)}.lede{max-width:730px;color:#c1c9d0;font-size:19px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 17px;border-radius:11px;border:1px solid var(--line);font-weight:900}.btn-primary{background:var(--gold);color:#111;border-color:var(--gold)}.btn-secondary{background:#101720}.hero-card{border:1px solid #4b4730;border-radius:24px;background:linear-gradient(145deg,#171a16,#0c1115);padding:28px;display:flex;flex-direction:column;justify-content:space-between;min-height:360px;box-shadow:0 20px 70px #0008}.hero-card .big{font-size:clamp(38px,5vw,58px);font-weight:950;letter-spacing:-.07em;line-height:.95;margin:12px 0}.hero-card p{color:var(--muted);max-width:420px}.price{font-size:27px;font-weight:950}.finite{display:inline-flex;width:max-content;margin-top:14px;padding:6px 9px;border:1px solid #5a502d;border-radius:999px;color:var(--gold);font:800 10px ui-monospace,monospace}
+.trustbar{border-block:1px solid var(--line);background:#0a0f14}.trustgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}.trust{padding:19px 16px;border-right:1px solid var(--line)}.trust:last-child{border-right:0}.trust b{display:block;font-size:13px}.trust span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+section{padding:70px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:24px}.section-head h2{font-size:34px;letter-spacing:-.06em;margin:7px 0 0}.section-head p{max-width:600px;color:var(--muted);margin:0}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,var(--panel2),var(--panel));padding:23px;min-height:235px;display:flex;flex-direction:column}.card h3{font-size:22px;letter-spacing:-.04em;margin:9px 0 7px}.card p{color:var(--muted);font-size:13px;margin:0}.card .bottom{margin-top:auto;padding-top:20px;display:flex;justify-content:space-between;align-items:center}.arrow{color:var(--mint);font-weight:900;font-size:13px}.tag{font:800 10px ui-monospace,monospace;color:var(--gold);letter-spacing:.1em}
+.evidence{display:grid;grid-template-columns:1fr 1fr;gap:14px}.evidence .panel{border:1px solid var(--line);border-radius:20px;background:#0a0f14;padding:25px}.evidence h3{margin:7px 0;font-size:22px}.evidence p{color:var(--muted)}.truth{font-size:31px;font-weight:950;letter-spacing:-.06em}.truth-note{color:var(--muted);font-size:12px}.list{display:grid;gap:9px;margin-top:18px}.list div{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}.list span{color:var(--muted);text-align:right}
+.pulse{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.panel{border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#111820,#0a0f14);padding:23px}.feedrow{display:flex;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid var(--line)}.feedrow:last-child{border-bottom:0}.feedrow strong{font-size:13px}.feedrow small{display:block;color:var(--muted);margin-top:3px}.status{display:inline-flex;margin-top:12px;padding:5px 8px;border:1px solid #594d27;border-radius:999px;color:var(--gold);font:800 10px ui-monospace,monospace}.status.green{border-color:#315c48;color:var(--mint)}
+footer{border-top:1px solid var(--line);padding:34px 0 55px;color:var(--muted);font-size:12px}.footer-grid{display:flex;justify-content:space-between;gap:25px}.footer-links{display:flex;gap:15px;flex-wrap:wrap}
+@media(max-width:850px){.hero-grid,.evidence,.pulse{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.trustgrid{grid-template-columns:1fr 1fr}.trust:nth-child(2){border-right:0}.trust:nth-child(-n+2){border-bottom:1px solid var(--line)}.navlinks a:not(.nav-cta){display:none}}
+@media(max-width:560px){.wrap{width:min(calc(100% - 26px),var(--max))}.hero{padding-top:48px}.cards,.trustgrid{grid-template-columns:1fr}.trust{border-right:0!important;border-bottom:1px solid var(--line)}.trust:last-child{border-bottom:0}h1{font-size:54px}.section-head{display:block}.section-head p{margin-top:12px}.footer-grid{display:block}.footer-links{margin-top:16px}}
+</style>
+</head>
 <body>
-<header><div class="wrap nav"><strong>DreamLedger</strong><div class="links"><a href="/artifacts/">Artifact Exchange</a><a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">API / Toll Road</a><a href="https://fightedge-web-live.onrender.com">FightEdge</a></div></div></header>
+<header>
+<div class="wrap"><nav>
+<a class="logo" href="/">Dream<span>Ledger</span></a>
+<div class="navlinks">
+<a href="/dreammeez">DreamMeez</a>
+<a href="/mtg">Magic</a>
+<a href="/guides">Trust & evidence</a>
+<a href="/billboard">Billboard</a>
+<a class="nav-cta" href="/billboard">Buy a Billboard · NZ$50</a>
+</div>
+</nav></div>
+</header>
+
 <main>
-<section class="hero"><div class="wrap"><div class="eyebrow">Economic Observatory</div><h1>Watch the economy. <span>Attach the evidence.</span> Put opportunity on rails.</h1><p class="lede">DreamLedger turns source-bound economic events into reusable economic artifacts that can feed commercial offers, machine-readable APIs, agent workflows and paid entitlements.</p><div class="actions"><a class="button" href="/buy/quote_compare_49?price=4900&utm_source=observatory&utm_medium=site&utm_campaign=quote_compare_49">Get a Quote Comparison · NZ$49 →</a><a class="button alt" href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Open API / Toll Road →</a></div></div></section>
-<section class="section"><div class="wrap"><h2>Observe → Evidence → Access → Act</h2><div class="grid"><div class="card"><strong>Observe</strong><span class="muted">Commercial events and economic signals.</span></div><div class="card"><strong>Evidence</strong><span class="muted">Source-bound, truth-labelled artifacts.</span></div><div class="card"><strong>Access</strong><span class="muted">Machine-readable APIs and toll-road surfaces.</span></div><div class="card"><strong>Act</strong><span class="muted">Offers, entitlements and fulfillment.</span></div></div></div></section>
-<section class="section"><div class="wrap"><div class="offer"><div class="price">NZ$49 · PROCUREMENT DECISION</div><h3>Have 2–5 supplier quotes? Turn them into one decision.</h3><p class="muted">Upload the quotes and requirements after payment. DreamLedger normalizes price, scope, MOQ, lead time and payment terms, keeps missing information visible, and produces an HTML + CSV decision packet.</p><div class="actions"><a class="button" href="/buy/quote_compare_49?price=4900&utm_source=observatory&utm_medium=site&utm_campaign=quote_compare_49">Buy Quote Compare →</a><a class="button alt" href="/supplier-quote-comparison.html">See exactly what you get →</a></div></div></div></section>
-<section class="section"><div class="wrap"><h2>Machine toll road</h2><div class="offer"><div class="price">NZ$0.50 · AGENT / API PROBE</div><h3>Pay → key → call → receipt</h3><p>Inspect the live machine-readable manifest, purchase a scoped toll, then use the resulting entitlement against the authenticated probe. This is a real commerce experiment, not a simulated revenue claim.</p><div class="actions"><a class="button" href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Open Toll Manifest →</a><a class="button alt" href="https://github.com/KelpCoin/DreamLedger/issues/490">Run the 50c Agent Probe →</a></div></div></div></section>
-<section class="section"><div class="wrap"><h2>B2B + agent marketplace</h2><p class="muted">Discover defined commercial actions through a human and machine-readable marketplace surface.</p><a class="button" href="/marketplace.html">Open Marketplace →</a><a class="button alt" href="/.well-known/ai-catalog.json">Machine catalog →</a></div></section>
-<section class="section"><div class="wrap"><h2>Commercial starting points</h2><div class="offers"><article class="offer"><div class="price">NZ$49 · ONE-OFF</div><h3>Quote Compare</h3><p>Compare supplied supplier quotes and surface price, scope, lead time, exclusions and contradictions.</p><a class="button" href="/buy/quote_compare_49?price=4900&utm_source=observatory&utm_medium=site&utm_campaign=quote_compare_49">Start Quote Compare →</a></article><article class="offer"><div class="price">NZ$999 · ONE-OFF</div><h3>Commercial Truth Stress-Test</h3><p>A focused examination of supplied commercial evidence where uncertainty has a materially larger cost.</p><a class="button" href="https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T">Start Stress-Test →</a></article></div></div></section>
-<section class="section"><div class="wrap truth"><strong>Economic truth</strong><p class="muted">VERIFIED_EXTERNAL_REVENUE = NZ$0.00. Publication, attachment, API visibility, clicks and internal execution are not settlement evidence. External payment and fulfillment remain independently verified.</p></div></section>
-</main><footer class="wrap footer">DreamLedger · Economic Observatory · Source-bound evidence · Machine access · Authorized economic action</footer>
-</body></html>
+<section class="hero">
+<div class="wrap hero-grid">
+<div>
+<div class="eyebrow">DreamLedger · Internet Garden · Commerce</div>
+<h1>Build your place in the <span>garden.</span></h1>
+<p class="lede">Real products. Real identities. Real experiences. DreamLedger connects things people can collect, use and buy with evidence that stays honest about what has actually happened.</p>
+<div class="hero-actions">
+<a class="btn btn-primary" href="/billboard">Own a Billboard Tile · NZ$50</a>
+<a class="btn btn-secondary" href="/dreammeez">Create a DreamMeez · Free</a>
+</div>
+</div>
+<aside class="hero-card">
+<div>
+<div class="eyebrow">FOUNDING BILLBOARD</div>
+<div class="big">Put something<br>on the canvas.</div>
+<p>A finite DreamLedger placement for a real image, project, brand or idea. Start with the existing Founding Tile offer.</p>
+</div>
+<div><div class="price">NZ$50</div><span class="finite">FINITE INVENTORY · LIVE OFFER</span></div>
+</aside>
+</div>
+</section>
+
+<div class="trustbar"><div class="wrap trustgrid">
+<div class="trust"><b>Transparent economic truth</b><span>Verified revenue is shown separately from internal activity.</span></div>
+<div class="trust"><b>Real checkout surfaces</b><span>Commercial offers expose their actual purchase path.</span></div>
+<div class="trust"><b>Evidence before hype</b><span>Guides explain what proves a transaction actually happened.</span></div>
+<div class="trust"><b>Start without an account</b><span>Explore the garden first. Account and entitlement layers follow the product.</span></div>
+</div></div>
+
+<section>
+<div class="wrap">
+<div class="section-head"><div><div class="eyebrow">01 · Enter the garden</div><h2>Three doors. One ecosystem.</h2></div><p>These are not three unrelated websites. They are the first visible surfaces of the same economic garden.</p></div>
+<div class="cards">
+<article class="card"><div class="tag">DREAMMEEZ · IDENTITY</div><h3>Make your DreamMeez.</h3><p>Start free. Shape your identity, save it, and build a wardrobe that can travel into experiences and worlds.</p><div class="bottom"><a class="arrow" href="/dreammeez">Create identity →</a></div></article>
+<article class="card"><div class="tag">MAGIC · MASTER SILO</div><h3>Buy something real.</h3><p>The MTG silo is the master commerce template: physical inventory, catalogue, purchase path, fulfilment and evidence.</p><div class="bottom"><a class="arrow" href="/mtg">Enter Magic →</a></div></article>
+<article class="card"><div class="tag">DOOH · VISIBILITY</div><h3>Put your signal on the canvas.</h3><p>Founding Billboard Tiles turn a physical placement into a visible DreamLedger surface with a direct buyer path.</p><div class="bottom"><a class="arrow" href="/billboard">See the Billboard →</a></div></article>
+</div>
+</div>
+</section>
+
+<section>
+<div class="wrap evidence">
+<div class="panel"><div class="eyebrow">02 · Why trust this?</div><h3>No trust-me-bro economics.</h3><p>DreamLedger deliberately separates a button click, a checkout, a settled payment, fulfilment and independent verification. The public scoreboard can say zero when the evidence says zero.</p><div class="truth">NZ$0.00</div><div class="truth-note">VERIFIED EXTERNAL REVENUE · current public state</div><a class="btn btn-secondary" style="margin-top:18px" href="/guides">Read the evidence guides →</a></div>
+<div class="panel"><div class="eyebrow">03 · Transaction standard</div><h3>What happens after “Buy”?</h3><div class="list"><div><b>1 · Offer</b><span>What exactly is being sold?</span></div><div><b>2 · Authority</b><span>Who is allowed to purchase?</span></div><div><b>3 · Settlement</b><span>Did money actually settle?</span></div><div><b>4 · Fulfilment</b><span>Did the buyer receive the result?</span></div><div><b>5 · Evidence</b><span>Can the outcome be checked?</span></div></div></div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+<div class="section-head"><div><div class="eyebrow">04 · Current signal</div><h2>Watch the garden learn.</h2></div><p id="feed-status">Loading the current economic pulse…</p></div>
+<div class="pulse">
+<div class="panel" id="signals"><div class="status">LOADING</div></div>
+<div class="panel"><div class="eyebrow">TRUTH STATE</div><div id="truth-state" style="margin-top:12px"></div><p id="replication" style="color:var(--muted)"></p></div>
+</div>
+</div>
+</section>
+</main>
+
+<footer><div class="wrap footer-grid"><span>DreamLedger · Economic Identity & Evidence</span><div class="footer-links"><a href="/guides">Guides</a><a href="/dreammeez">DreamMeez</a><a href="/mtg">MTG</a><a href="/billboard">Billboard</a><a href="/truth-oracle.html">Truth Oracle</a></div></div></footer>
+
+<script>
+(async function(){
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+try{
+const r=await fetch('/data/economic-pulse.json',{cache:'no-store'}); if(!r.ok) throw Error('feed '+r.status);
+const d=await r.json(),t=d.truth||{};
+document.getElementById('feed-status').textContent='Current pulse · '+esc(d.generated_at_utc||'timestamp unavailable');
+document.getElementById('truth-state').innerHTML='<div class="truth">NZ$'+Number(t.verified_external_revenue_nzd||0).toFixed(2)+'</div><div class="truth-note">'+Number(t.independent_external_buyers||0)+' independent buyers · '+Number(t.verified_economic_outcomes||0)+' verified outcomes</div><span class="status">UNVERIFIED UNTIL EVIDENCE EXISTS</span>';
+document.getElementById('replication').textContent=(d.replication&&d.replication.rule)||'Verified mechanisms only.';
+const rows=d.signals||[];
+document.getElementById('signals').innerHTML=rows.length?rows.map(x=>'<div class="feedrow"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.source)+' · '+esc(x.observed_at)+'</small></div><span>'+esc(x.status)+'</span></div>').join(''):'<p style="color:var(--muted)">No signal records.</p>';
+}catch(e){
+document.getElementById('feed-status').textContent='Economic pulse unavailable. No economic claim is inferred.';
+document.getElementById('signals').innerHTML='<span class="status">FEED UNAVAILABLE</span><p style="color:var(--muted)">The public surface fails closed when its evidence feed cannot be read.</p>';
+document.getElementById('truth-state').innerHTML='<span class="status">NO CLAIM</span>';
+}
+})();
+</script>
+</body>
+</html>
