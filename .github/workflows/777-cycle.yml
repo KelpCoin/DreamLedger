@@ -69,5 +69,5 @@ jobs:
 # Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem, Nylas IAM scoped API keys.
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
 # HUGE decomposition: select at most 5 bounded jobs from issue #497, rank by economic leverage, execute highest-value job, emit evidence.
-# Execution nonce: fresh-cycle-20261009T0130-NZ-FIND-THE-777-STRANGER-BUYER-R6
+# Execution nonce: fresh-cycle-20261009T0200-NZ-FIND-THE-777-STRANGER-BUYER-R7
 # R6 hunt: prioritize one externally reachable ordinary buyer/developer/procurement pain signal that can produce the canonical earning unit; money outranks artifact publication.
