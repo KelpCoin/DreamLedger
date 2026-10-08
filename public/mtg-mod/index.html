@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Moderation team · MTG · DreamLedger</title>
+<meta name="description" content="Apply to help moderate the DreamLedger MTG community. Safe, welcoming place to buy, sell, and trade Magic in New Zealand.">
+<meta name="theme-color" content="#0a0b0f">
+<link rel="canonical" href="https://dreamledger.org/mtg-mod">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0b0f;--surface:#161922;--ink:#f4f1ea;--muted:#9aa0b0;--line:#2a3040;--gold:#d4a84b;--gold-b:#e8c06a;--serif:"Instrument Serif",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.55;padding:24px 16px 48px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:540px;margin:0 auto}a{color:var(--gold-b);font-weight:600;text-decoration:none}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-b);border:1px solid rgba(212,168,75,.35);padding:5px 10px;border-radius:999px;margin-bottom:10px}
+h1{font-family:var(--serif);font-size:clamp(1.75rem,5vw,2.2rem);font-weight:400;margin:8px 0 12px}
+.lead{color:var(--muted);font-size:15px;margin-bottom:18px}
+.why{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:22px}
+.why h2{font-size:14px;font-weight:700;margin-bottom:8px}.why ul{margin:0;padding-left:1.15em;color:var(--muted);font-size:14px}.why li{margin-bottom:6px}
+label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 6px}
+input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+textarea{min-height:110px;resize:vertical}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;margin-top:20px;border-radius:14px;background:linear-gradient(180deg,var(--gold-b),var(--gold));color:#14120c;font-weight:800;border:0;width:100%;font-size:15px;cursor:pointer}
+.note{font-size:13px;color:var(--muted);margin-top:16px}.nav{margin-bottom:8px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="nav"><a href="/mtg">← MTG silo</a> · <a href="/register">Create account</a></p>
+  <span class="badge">Community · NZ</span>
+  <h1>Help keep MTG welcoming</h1>
+  <p class="lead">DreamLedger’s Magic silo is for buying, selling, and trading cards with as little friction and stress as possible. We’re inviting a small moderation team so this stays a <strong style="color:var(--ink)">safe, fair, and friendly</strong> place — especially for newer players.</p>
+  <div class="why">
+    <h2>Why we want moderators</h2>
+    <ul>
+      <li>Keep conversations respectful — no bullying, harassment, or pile-ons</li>
+      <li>Help people list clearly (condition, city, NZD) so deals stay simple</li>
+      <li>Spot spam and bad-faith behaviour early</li>
+      <li>Welcome new sellers and buyers so the hobby stays fun</li>
+      <li>Model the culture we want: calm, constructive, player-first</li>
+    </ul>
+  </div>
+  <form action="https://formsubmit.co/josharchibald89@icloud.com" method="POST">
+    <input type="hidden" name="_subject" value="DreamLedger MTG — moderator application">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_template" value="table">
+    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+    <input type="hidden" name="_next" value="https://dreamledger.org/mtg?mod=thanks">
+    <label for="name">Your name</label>
+    <input id="name" name="name" required autocomplete="name" placeholder="Preferred name">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+    <label for="city">City / region (NZ)</label>
+    <input id="city" name="city" placeholder="e.g. Wellington">
+    <label for="discord">Discord or other handle (optional)</label>
+    <input id="discord" name="contact_handle" placeholder="@handle">
+    <label for="experience">Any moderation or community experience?</label>
+    <select id="experience" name="experience">
+      <option value="none">None yet — keen to learn</option>
+      <option value="informal">Informal (helped in groups/chats)</option>
+      <option value="formal">Formal mod/admin experience</option>
+    </select>
+    <label for="why">Why would you like to help moderate?</label>
+    <textarea id="why" name="why" required placeholder="A few sentences is enough — what matters to you about a healthy trading space?"></textarea>
+    <label for="hours">Roughly how much time could you offer per week?</label>
+    <select id="hours" name="hours_per_week">
+      <option value="1-2">1–2 hours</option>
+      <option value="3-5">3–5 hours</option>
+      <option value="5+">5+ hours</option>
+      <option value="flex">Flexible / as needed</option>
+    </select>
+    <label for="else">Anything else we should know?</label>
+    <textarea id="else" name="anything_else" placeholder="Optional"></textarea>
+    <button class="btn" type="submit">Submit application</button>
+  </form>
+  <p class="note">Submissions go to the DreamLedger operator via FormSubmit. We read every application. Thank you for helping keep Magic trading kind.</p>
+</div>
+</body>
+</html>
