@@ -69,6 +69,7 @@ jobs:
           const source=fs.readFileSync('start.js','utf8');
           const sourceMissing=routes.filter(route=>!source.includes(route));
           if(sourceMissing.length){console.error('MTG_ROUTE_HANDLERS_MISSING',sourceMissing);process.exit(1);}
+          for(const p of ['compiled/website/mtg-search.html','compiled/website/mtg-list.html']){ const s=fs.existsSync(p)?fs.readFileSync(p,'utf8'):''; console.log('MTG_DEBUG',p,{bytes:s.length,hasHtml:/<html\\b/i.test(s),hasHead:/<head\\b/i.test(s),hasCss:s.includes('dreamledger-core.css'),preview:s.slice(0,220)}); }
           console.log('MTG_BRAND_SURFACE=PASS',compiled,'ROUTES=PASS',routes);
           NODE
 
