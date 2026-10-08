@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-08T07:28:37+00:00",
+  "generated_at_utc": "2026-10-08T14:49:51+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "c0c60ddc-f651-50f1-a02e-a32f56819ecf",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Taihape Raw Water Falling Main Replacement Stage 6 Pt A – Railway",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-08T14:49:46+00:00",
+      "url": "https://www.gets.govt.nz/RADC/ExternalTenderDetails.htm?id=34979661",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-taihape-raw-water-falling-main-replacement-stage-6-pt-a-rail-40635700bd.html"
+    },
     {
       "id": "bd7c3f3f-5235-5891-8502-0ced32888df1",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
