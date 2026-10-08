@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-08T14:49:51+00:00",
+  "generated_at_utc": "2026-10-08T20:14:56+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "4214ada5-597e-5d12-ae8d-6856ef42f87f",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Suppliers of Independent Asset Management Reviews",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-08T20:14:50+00:00",
+      "url": "https://www.gets.govt.nz/TEC/ExternalTenderDetails.htm?id=34939478",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-suppliers-of-independent-asset-management-reviews-9d7e162970.html"
+    },
     {
       "id": "c0c60ddc-f651-50f1-a02e-a32f56819ecf",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
