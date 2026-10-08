@@ -65,7 +65,6 @@ jobs:
             grep -q 'dreamledger-core.css' "$file"
           done
           grep -Eq 'Inter|system-ui|Segoe UI' compiled/website/assets/dreamledger-core.css
-          done
           echo "MTG_BRAND_SURFACE=PASS"
 
       - name: MTG source route recovery contract
