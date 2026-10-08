@@ -52,13 +52,6 @@ footer{border-top:1px solid var(--line);padding:34px 0 55px;color:var(--muted);f
 </div>
 </section>
 
-<div class="trustbar"><div class="wrap trustgrid">
-<div class="trust"><b>Transparent economic truth</b><span>Sales are reported only after payment and delivery are verified.</span></div>
-<div class="trust"><b>Real checkout surfaces</b><span>Commercial offers expose their actual purchase path.</span></div>
-<div class="trust"><b>Evidence before hype</b><span>Guides explain what proves a transaction actually happened.</span></div>
-<div class="trust"><b>Start without an account</b><span>Explore the garden first. Account and entitlement layers follow the product.</span></div>
-</div></div>
-
 <section>
 <div class="wrap">
 <div class="section-head"><div><div class="eyebrow">Start here</div><h2>What would you like to do?</h2></div><p>Choose a starting point. You can explore without an account.</p></div>
@@ -70,43 +63,10 @@ footer{border-top:1px solid var(--line);padding:34px 0 55px;color:var(--muted);f
 </div>
 </section>
 
-<section>
-<div class="wrap evidence">
-<div class="panel"><div class="eyebrow">Straight answers</div><h3>Clear about what is real.</h3><p>We only count a sale after payment and delivery can be verified.</p><div class="truth">NZ$0.00</div><div class="truth-note">INDEPENDENTLY VERIFIED SALES · current public total</div><p style="color:var(--muted);font-size:12px;margin-top:12px">A trustworthy marketplace should tell you what is real before asking for money: who operates the surface, what is sold, how checkout works, what happens after payment, and where evidence lives.</p><a class="btn btn-secondary" style="margin-top:18px" href="/guides">Read the evidence guides →</a></div>
-<div class="panel"><div class="eyebrow">03 · Transaction standard</div><h3>What happens after “Buy”?</h3><div class="list"><div><b>1 · Offer</b><span>What exactly is being sold?</span></div><div><b>2 · Authority</b><span>Who is allowed to purchase?</span></div><div><b>3 · Settlement</b><span>Did money actually settle?</span></div><div><b>4 · Fulfilment</b><span>Did the buyer receive the result?</span></div><div><b>5 · Evidence</b><span>Can the outcome be checked?</span></div></div></div>
-</div>
-</section>
-
-<section>
-<div class="wrap">
-<div class="section-head"><div><div class="eyebrow">04 · Market updates</div><h2>What’s changing.</h2></div><p id="feed-status">Loading the latest market updates…</p></div>
-<div class="pulse">
-<div class="panel" id="signals"><div class="status">LOADING</div></div>
-<div class="panel"><div class="eyebrow">SALES VERIFICATION</div><div id="truth-state" style="margin-top:12px"></div><p id="replication" style="color:var(--muted)"></p></div>
-</div>
-</div>
-</section>
 </main>
 
 <footer><div class="wrap footer-grid"><span>DreamLedger · Products, purchases & proof</span><div class="footer-links"><a href="/guides">Guides</a><a href="/dreammeez">DreamMeez</a><a href="/mtg">MTG</a><a href="/billboard">Billboard</a><a href="/truth-oracle.html">Truth Oracle</a></div></div></footer>
 
-<script>
-(async function(){
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-try{
-const r=await fetch('/data/economic-pulse.json',{cache:'no-store'}); if(!r.ok) throw Error('feed '+r.status);
-const d=await r.json(),t=d.truth||{};
-document.getElementById('feed-status').textContent='Current pulse · '+esc(d.generated_at_utc||'timestamp unavailable');
-document.getElementById('truth-state').innerHTML='<div class="truth">NZ$'+Number(t.verified_external_revenue_nzd||0).toFixed(2)+'</div><div class="truth-note">'+Number(t.independent_external_buyers||0)+' independent buyers · '+Number(t.verified_economic_outcomes||0)+' verified outcomes</div><span class="status">CONFIRMED ONLY AFTER PAYMENT AND DELIVERY CHECKS</span>';
-document.getElementById('replication').textContent=(d.replication&&d.replication.rule)||'Verified mechanisms only.';
-const rows=d.signals||[];
-document.getElementById('signals').innerHTML=rows.length?rows.map(x=>'<div class="feedrow"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.source)+' · '+esc(x.observed_at)+'</small></div><span>'+esc(x.status)+'</span></div>').join(''):'<p style="color:var(--muted)">No signal records.</p>';
-}catch(e){
-document.getElementById('feed-status').textContent='Market updates are temporarily unavailable. No sales claim is inferred.';
-document.getElementById('signals').innerHTML='<span class="status">FEED UNAVAILABLE</span><p style="color:var(--muted)">Sales totals are withheld when the verification feed cannot be read.</p>';
-document.getElementById('truth-state').innerHTML='<span class="status">NO CLAIM</span>';
-}
-})();
-</script>
+
 </body>
 </html>
