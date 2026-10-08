@@ -8,6 +8,11 @@ const publicBase = (Deno.env.get("PUBLIC_BASE_URL") || "https://dreamledger.org"
 
 const COSMETICS: Record<string, { name: string; amount: number; currency: string }> = {
   "dreammeez-founder-cloak": { name: "DreamMeez Founder Cloak", amount: 500, currency: "nzd" },
+  "dreammeez-pirate-crown": { name: "DreamMeez Pirate Crown", amount: 700, currency: "nzd" },
+  "dreammeez-cosmic-hoodie": { name: "DreamMeez Cosmic Hoodie", amount: 500, currency: "nzd" },
+  "dreammeez-chrome-boots": { name: "DreamMeez Chrome Boots", amount: 900, currency: "nzd" },
+  "dreammeez-dragon-mark": { name: "DreamMeez Dragon Mark", amount: 700, currency: "nzd" },
+  "dreammeez-neon-sneakers": { name: "DreamMeez Neon Sneakers", amount: 600, currency: "nzd" },
 };
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
