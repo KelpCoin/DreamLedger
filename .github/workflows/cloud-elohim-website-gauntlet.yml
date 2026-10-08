@@ -60,11 +60,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in compiled/website/mtg/index.html compiled/website/mtg-search.html compiled/website/mtg-list.html; do
-            test -s "$file"
-            grep -q 'dreamledger-core.css' "$file"
-          done
-          echo "MTG_BRAND_SURFACE=PASS"
+          node - <<'NODE'
+          const fs=require('fs');
+          const files=['compiled/website/mtg/index.html','compiled/website/mtg-search.html','compiled/website/mtg-list.html'];
+          const missing=files.filter(p=>!fs.existsSync(p)||!fs.readFileSync(p,'utf8').includes('dreamledger-core.css'));
+          if(missing.length){console.error('MTG_BRAND_FILES_MISSING',missing);process.exit(1);}
+          console.log('MTG_BRAND_SURFACE=PASS',files);
+          NODE
 
       - name: MTG source route recovery contract
         shell: bash
