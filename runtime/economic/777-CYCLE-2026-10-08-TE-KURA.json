@@ -1,0 +1,24 @@
+{
+  "schema": "DREAMLEDGER/777/CYCLE-PROOF/v1",
+  "cycle_at_utc": "2026-10-08T03:51:47+00:00",
+  "status": "PASS_PUBLISH",
+  "discovered": 97,
+  "published_this_cycle": 1,
+  "event_id": "ac335600-a967-5cd4-afd0-3514e272453c",
+  "title": "Te Kura HRIS RFI",
+  "source": "GETS",
+  "source_url": "https://www.gets.govt.nz/TAOTKP/ExternalTenderDetails.htm?id=34473418",
+  "public_route": "/economic/procurement-te-kura-hris-rfi-e81244f17e.html",
+  "verification": "UNVERIFIED",
+  "external_action": "NONE",
+  "manifest_count": 6,
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0
+  },
+  "lint_note": "Prior entry Terms and conditions is thin/value-floor risk; do not expand that class.",
+  "notion_airtable": "NOT_WRITTEN_THIS_SESSION — Notion/Airtable connectors not invoked; GitHub is source of truth for this cycle.",
+  "commits": ["b54abd7c6a99361a4f84af30c253581c2a4ca053"]
+}
