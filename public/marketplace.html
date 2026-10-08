@@ -2,93 +2,59 @@
 <html lang="en-NZ">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080a0e">
-<meta name="description" content="DreamLedger Universal Marketplace: human commerce, free B2B, low-cost A2A, digital goods, physical goods, media, APIs and verified compute.">
-<title>DreamLedger · Universal Marketplace</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080a0d">
+<meta name="description" content="DreamLedger is a simple place to buy, sell and trade goods, services and digital resources.">
+<title>DreamLedger | Buy, sell and trade</title>
 <style>
-:root{--bg:#080a0e;--p:#10151c;--p2:#151b23;--line:#28313c;--ink:#f5f6f7;--mut:#8e99a6;--gold:#d8b56b;--ok:#42d392;--blue:#6ca8ff}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}.wrap{width:min(1120px,calc(100% - 24px));margin:auto}.top{position:sticky;top:0;z-index:50;background:#080a0eea;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.nav{min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:8px}.brand{font-weight:950;letter-spacing:-.04em}.brand em{font-style:normal;color:var(--gold)}.navlinks{display:flex;gap:5px;overflow:auto}.navlinks a{white-space:nowrap;font-size:11px;font-weight:800;padding:8px 10px;border:1px solid var(--line);border-radius:999px;color:var(--mut)}.navlinks a.hot{background:var(--gold);border-color:var(--gold);color:#161107}.hero{padding:42px 0 24px}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:900}.hero h1{font-size:clamp(2.3rem,10vw,5.5rem);line-height:.91;letter-spacing:-.065em;max-width:850px;margin:10px 0 16px}.hero h1 span{color:var(--gold)}.lead{max-width:700px;color:var(--mut);font-size:1rem}.actions{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0}.btn{min-height:46px;display:inline-flex;align-items:center;justify-content:center;padding:0 15px;border-radius:11px;font-weight:900;font-size:13px;border:1px solid var(--line)}.primary{background:var(--gold);border-color:var(--gold);color:#151006}.ghost{background:transparent}.ok{border-color:#28553f;color:var(--ok);background:#0b1511}.truth{font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#b9c1c9;background:#090d12;border:1px solid var(--line);border-radius:12px;padding:12px;overflow:auto}.section{padding:22px 0}.section h2{font-size:1.4rem;letter-spacing:-.03em;margin:0 0 5px}.sub{color:var(--mut);margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:650px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}.grid.four{grid-template-columns:repeat(4,1fr)}}.card{background:var(--p);border:1px solid var(--line);border-radius:16px;padding:16px;min-height:125px}.card h3{font-size:15px;margin:0 0 5px}.card p{color:var(--mut);font-size:13px;margin:0}.tag{display:inline-block;font:800 9px ui-monospace,monospace;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.card .go{display:inline-block;margin-top:12px;font-size:12px;font-weight:900;color:var(--gold)}.featured{border-color:#5b4b29;box-shadow:inset 0 1px #8d7444}.rail{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:5px}.rail .card{min-width:270px;scroll-snap-align:start}.compute{border-color:#274766;background:linear-gradient(145deg,#101923,#0d1219)}.compute .go{color:var(--blue)}.principles{display:grid;gap:7px}.principle{display:flex;gap:10px;align-items:flex-start;background:var(--p);border:1px solid var(--line);border-radius:13px;padding:12px}.num{width:26px;height:26px;flex:0 0 26px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:#171107;font-weight:950;font-size:11px}.principle b{display:block;font-size:13px}.principle span{display:block;color:var(--mut);font-size:12px}.foot{border-top:1px solid var(--line);padding:22px 0 70px;color:var(--mut);font-size:11px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+:root{--bg:#080a0d;--panel:#10151b;--line:#27313a;--ink:#f5f3eb;--muted:#9ca7b2;--gold:#d8b56b;--green:#8fd3a2;--max:1120px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#2b2418 0,#080a0d 36%);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}.wrap{max-width:var(--max);margin:auto;padding:0 16px 64px}a{color:inherit;text-decoration:none}.nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid var(--line);gap:14px}.brand{font-weight:950;letter-spacing:.08em}.brand span{color:var(--gold)}nav{display:flex;gap:10px;overflow:auto}nav a{white-space:nowrap;color:var(--muted);font-size:.78rem}.hero{padding:58px 0 28px;max-width:900px}.kicker{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:900}.hero h1{font-size:clamp(3rem,8vw,6rem);line-height:.9;letter-spacing:-.065em;margin:10px 0 18px}.hero p{max-width:720px;color:var(--muted);font-size:1rem;line-height:1.6}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}.btn{display:inline-block;padding:12px 16px;border:1px solid var(--line);border-radius:9px;font-weight:900;font-size:.8rem}.primary{background:var(--gold);border-color:var(--gold);color:#111}.panel{background:#10151bdd;border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:18px}.panel h2{margin:0 0 7px;font-size:1.35rem;letter-spacing:-.03em}.panel>p{margin:0;color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.card{background:linear-gradient(180deg,#151b23,#0e1217);border:1px solid var(--line);border-radius:14px;padding:17px;min-height:135px}.card h3{margin:7px 0 6px;font-size:1rem}.card p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.45}.card .go{display:inline-block;margin-top:13px;color:var(--gold);font-size:.75rem;font-weight:900}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted);font-size:.6rem;letter-spacing:.1em}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.step{padding:14px 0;border-top:1px solid var(--line)}.step b{display:block;font-size:.82rem}.step span{display:block;color:var(--muted);font-size:.72rem;margin-top:4px;line-height:1.4}.compute{border-color:#3b4853}.compute .go{color:var(--green)}.foot{padding:24px 0;color:var(--muted);font-size:.68rem;border-top:1px solid var(--line);margin-top:24px}@media(max-width:760px){.grid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}}@media(max-width:480px){.hero{padding-top:42px}.hero h1{font-size:3.25rem}.steps{grid-template-columns:1fr}nav{max-width:55vw}}
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap nav">
-<a class="brand" href="/">Dream<em>Ledger</em></a>
-<nav class="navlinks">
-<a href="/mtg">MTG</a><a href="/b2b">B2B</a><a href="/avatar">Avatar</a><a href="/billboard">DOOH</a><a class="hot" href="#compute">GPU</a>
-</nav>
-</div></header>
-<main class="wrap">
+<div class="wrap">
+<header class="nav">
+<a class="brand" href="/"><span>DREAM</span>LEDGER</a>
+<nav><a href="/mtg">MTG</a><a href="/b2b">B2B</a><a href="/marketplace">Market</a><a href="/account">Account</a></nav>
+</header>
+
 <section class="hero">
-<div class="eyebrow">Universal economic substrate</div>
-<h1>One market for <span>people, businesses, agents and machines.</span></h1>
-<p class="lead">Human goods. B2B procurement. Digital products. APIs. A2A toll roads. Media. Compute. Templates. Models. Data. Anything that can be defined, authorized, fulfilled and evidenced can become a sellable resource.</p>
-<div class="actions"><a class="btn primary" href="/mtg">Enter MTG</a><a class="btn ghost" href="/b2b">Post B2B demand</a><a class="btn ok" href="/agent-commerce.json">Machine contract</a><a class="btn ghost" href="#compute">Offer compute</a></div>
-<div class="truth">ECONOMIC RULE: DISCOVER → AUTHORIZE → PAY → FULFILL → PROVE → SETTLE → REPEAT
-LISTING ≠ DEMAND · PAYMENT ≠ VERIFIED REVENUE · INTERNAL CAPACITY ≠ EXTERNAL SALE</div>
+<div class="kicker">DreamLedger marketplace</div>
+<h1>Buy. Sell.<br>Trade.</h1>
+<p>One simple place for people and businesses to exchange real goods, digital products and useful services. Start with something you need, or list something you have.</p>
+<div class="actions"><a class="btn primary" href="/mtg">Shop MTG</a><a class="btn" href="/b2b">Post a B2B request</a><a class="btn" href="/register">Create an account</a></div>
 </section>
 
-<section class="section">
-<h2>Beachheads</h2><p class="sub">The same substrate, different economic gravity.</p>
-<div class="grid three">
-<a class="card featured" href="/mtg"><div class="tag">COMMUNITY → COMMERCE</div><h3>MTG marketplace</h3><p>Buy, sell, trade, auctions, profiles, wants/haves and community surfaces.</p><span class="go">Open MTG →</span></a>
-<a class="card featured" href="/b2b"><div class="tag">FREE B2B</div><h3>Procurement market</h3><p>RFQs, suppliers, quote comparison and 0% platform success fee.</p><span class="go">Open B2B →</span></a>
-<a class="card" href="/marketplace"><div class="tag">UNIVERSAL</div><h3>Everything else</h3><p>Physical goods, digital goods, services, data, templates, APIs and more.</p><span class="go">Explore →</span></a>
+<section class="panel">
+<div class="kicker">What is DreamLedger?</div>
+<h2>A marketplace first. The machinery stays underneath.</h2>
+<p>You do not need to understand APIs, agents, GPUs or ledgers to use it. Find something, make an offer, buy or sell it, and let the commerce rail handle the transaction.</p>
+<div class="grid">
+<a class="card" href="/mtg"><span class="tag">COMMUNITY</span><h3>MTG</h3><p>Cards and Commander decks with a dedicated catalogue and commerce flow.</p><span class="go">Browse MTG →</span></a>
+<a class="card" href="/b2b"><span class="tag">BUSINESS</span><h3>B2B procurement</h3><p>Post what you need. Suppliers can respond with quotes and options.</p><span class="go">Open B2B →</span></a>
+<a class="card" href="/catalogue"><span class="tag">DIGITAL</span><h3>Digital resources</h3><p>Templates, documents, data, tools and other useful downloadable or callable resources.</p><span class="go">Explore resources →</span></a>
 </div>
 </section>
 
-<section class="section">
-<h2>Resources can be products</h2><p class="sub">A resource does not have to be a box on a shelf.</p>
-<div class="grid four">
-<div class="card"><div class="tag">DIGITAL</div><h3>Templates & stencils</h3><p>Documents, workflows, boilerplate, word banks and reusable artifacts.</p></div>
-<div class="card"><div class="tag">INTELLIGENCE</div><h3>Models & networks</h3><p>Inference, embeddings, extraction, classification, transformation and analysis.</p></div>
-<div class="card"><div class="tag">DATA</div><h3>Queries & evidence</h3><p>Lookups, comparisons, monitors, reports and signed evidence packets.</p></div>
-<div class="card"><div class="tag">SOFTWARE</div><h3>APIs & agent tools</h3><p>Machine-readable capabilities sold per call, bundle, subscription or outcome.</p></div>
+<section class="panel">
+<div class="kicker">How it works</div>
+<h2>Four steps. No fog machine.</h2>
+<div class="steps">
+<div class="step"><b>1. Find</b><span>Browse a listing, request or resource.</span></div>
+<div class="step"><b>2. Choose</b><span>Review the price, terms and what you receive.</span></div>
+<div class="step"><b>3. Pay</b><span>Authorize the transaction through the available checkout.</span></div>
+<div class="step"><b>4. Receive</b><span>Get the promised product, service or result.</span></div>
 </div>
 </section>
 
-<section class="section" id="compute">
-<h2>GPU exchange</h2><p class="sub">Your GPU becomes a capacity provider, not a decorative space heater.</p>
-<div class="rail">
-<a class="card compute" href="/compute.json"><div class="tag">CAPABILITY CONTRACT</div><h3>Inference capacity</h3><p>Expose compatible local models as a metered capability. Price per call, token, second or job.</p><span class="go">Inspect compute contract →</span></a>
-<a class="card compute" href="/compute.json"><div class="tag">A2A</div><h3>Batch processing</h3><p>Queue authorized jobs for extraction, classification, transformation, rendering or analysis.</p><span class="go">Inspect job contract →</span></a>
-<a class="card compute" href="/compute.json"><div class="tag">CREATIVE</div><h3>Generation</h3><p>Image, document and other GPU-capable workloads can become paid fulfillment lanes.</p><span class="go">Inspect capability →</span></a>
-<a class="card compute" href="/compute.json"><div class="tag">TRUTH GATE</div><h3>Metered, not imaginary</h3><p>Capacity is advertised separately from revenue. No usage becomes money until an external buyer authorizes and settles it.</p><span class="go">See evidence contract →</span></a>
-</div>
-<div class="truth" style="margin-top:8px">GPU STATUS CONTRACT
-LOCAL_CAPACITY → DISCOVERABLE
-JOB → AUTHORIZED
-COMPUTE → OBSERVED
-OUTPUT → DELIVERED
-PAYMENT → SETTLED
-REVENUE → VERIFIED
-No autonomous external spend. No fabricated usage. No “GPU revenue” without a real buyer.</div>
+<section class="panel">
+<div class="kicker">For machines and creators</div>
+<h2>More capability, when you need it.</h2>
+<p>The same commerce foundation can later expose machine-readable resources, agent-to-agent services and metered compute. Those are extensions of the marketplace, not homework for ordinary shoppers.</p>
+<div class="actions"><a class="btn" href="/toll-road">A2A resources</a><a class="btn" href="/compute.json">GPU capacity</a><a class="btn" href="/billboard">Media inventory</a></div>
 </section>
 
-<section class="section">
-<h2>Adjacent surfaces</h2>
-<div class="grid three">
-<a class="card" href="/billboard"><div class="tag">PROGRAMMATIC DOOH</div><h3>Public media</h3><p>Billboards and digital-out-of-home placements become inventory with explicit creative and delivery contracts.</p><span class="go">Open media →</span></a>
-<a class="card" href="/avatar"><div class="tag">IDENTITY</div><h3>DreamMeez</h3><p>Optional avatars, cosmetics and identity layers. Useful for retention without becoming an account prerequisite.</p><span class="go">Open avatar studio →</span></a>
-<a class="card" href="/toll-road"><div class="tag">A2A</div><h3>Cheap machine toll roads</h3><p>Small paid boundaries for machine-readable resources. Discover, authorize, pay, call, prove.</p><span class="go">Open toll road →</span></a>
-<a class="card" href="/quote-comparison"><div class="tag">B2B TOOL</div><h3>Quote comparison</h3><p>Turn messy supplier documents into a decision packet. Existing commercial rail.</p><span class="go">Open tool →</span></a>
-<a class="card" href="/truth-oracle.html"><div class="tag">EVIDENCE</div><h3>Truth Oracle</h3><p>Evidence and verification as a resource that can be consumed by people or machines.</p><span class="go">Open Oracle →</span></a>
-<a class="card" href="/catalogue"><div class="tag">CATALOGUE</div><h3>Resource discovery</h3><p>One catalogue can expose the whole portfolio without pretending every resource is already verified.</p><span class="go">Open catalogue →</span></a>
+<footer class="foot">DreamLedger · real listings and real transactions first. Internal capacity is not counted as revenue.</footer>
 </div>
-</section>
-
-<section class="section">
-<h2>The standard</h2>
-<div class="principles">
-<div class="principle"><div class="num">1</div><div><b>Phone first.</b><span>Thumb-sized actions, horizontal rails, no desktop ceremony required.</span></div></div>
-<div class="principle"><div class="num">2</div><div><b>Free at the edge.</b><span>Free accounts, free B2B demand and 0% platform success-fee positioning where the business model permits it.</span></div></div>
-<div class="principle"><div class="num">3</div><div><b>Cheap machine access.</b><span>Low-friction A2A resources with explicit price, authorization and fulfillment contracts.</span></div></div>
-<div class="principle"><div class="num">4</div><div><b>One economic truth.</b><span>All silos feed the existing evidence-gated commercial substrate. No parallel fake ledger.</span></div></div>
-<div class="principle"><div class="num">5</div><div><b>GPU is a supplier.</b><span>Local compute can serve the portfolio, external buyers or authorized agent jobs, subject to capacity, safety and actual settlement.</span></div></div>
-<div class="principle"><div class="num">6</div><div><b>Winner replication.</b><span>Do not clone empty products. Promote only what demonstrates real demand, payment and fulfillment.</span></div></div>
-</div>
-</section>
-</main>
-<footer class="wrap foot"><span>DreamLedger · universal marketplace substrate</span><span>VERIFIED_EXTERNAL_REVENUE remains independently earned.</span></footer>
 </body>
 </html>
