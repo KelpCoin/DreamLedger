@@ -83,13 +83,12 @@ jobs:
       - name: Website surface checks
         working-directory: .
         run: |
+          set -euo pipefail
           test -s index.html
-          grep -q "Pay for" index.html
-          grep -q "Quote Compare" index.html
-          grep -q "Commercial Truth Stress-Test" index.html
-          grep -q "NZ\$49" index.html
-          grep -q "NZ\$999" index.html
-          grep -q "verified" index.html
+          grep -Eqi 'DreamLedger|Dream Ledger' index.html
+          grep -qi 'Magic' index.html
+          grep -qi 'VERIFIED EXTERNAL REVENUE' index.html
+          grep -q 'NZ\$0.00' index.html
           echo "WEBSITE_SURFACE=PASS"
 
       - name: Emit candidate judgment
