@@ -69,7 +69,17 @@ Deno.serve(async(req)=>{
    }
  }
  if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS"&&!charityIdentifier)return new Response("missing required ACNC charity identifier",{status:400}); if(!sku)return new Response("missing sku_id",{status:400});
- const {data:catalog,error:catalogError}=await supabase.from("revenue_catalog").select("sku_id,price_nzd,active,fulfillment_type").eq("sku_id",sku).eq("active",true).limit(1).maybeSingle(); if(catalogError)return new Response("catalog lookup failed",{status:500}); if(!catalog)return new Response("unknown or inactive sku",{status:400});
+ if(metadata.dreammeez_cosmetic_id){
+  const cosmeticId=String(metadata.dreammeez_cosmetic_id);
+  const accountId=String(metadata.account_id||"");
+  if(!accountId)return new Response("missing DreamMeez account id",{status:400});
+  const {error:cosmeticError}=await supabase.from("cosmetic_sales").upsert({account_id:accountId,cosmetic_id:cosmeticId,stripe_event_id:eventId,stripe_checkout_session_id:checkoutSessionId,stripe_payment_intent_id:paymentIntentId,amount_minor:amountMinor,currency:currency.toLowerCase(),payout_status:"none",settled_at:new Date().toISOString()},{onConflict:"account_id,cosmetic_id",ignoreDuplicates:true});
+  if(cosmeticError)return new Response("DreamMeez entitlement failed",{status:500});
+  const {error:webhookUpdateError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+  if(webhookUpdateError)return new Response("webhook finalization failed",{status:500});
+  return Response.json({received:true,recorded:true,event_id:eventId,cosmetic_id:cosmeticId,account_id:accountId,entitlement:"settled"});
+}
+const {data:catalog,error:catalogError}=await supabase.from("revenue_catalog").select("sku_id,price_nzd,active,fulfillment_type").eq("sku_id",sku).eq("active",true).limit(1).maybeSingle(); if(catalogError)return new Response("catalog lookup failed",{status:500}); if(!catalog)return new Response("unknown or inactive sku",{status:400});
  const amountNzd=amountMinor/100; if(Number(catalog.price_nzd)!==amountNzd)return new Response("amount does not match catalog price",{status:400});
  const {data:skuRow,error:skuError}=await supabase.from("skus").select("id,silo_id,status").eq("id",sku).limit(1).maybeSingle(); if(skuError)return new Response("sku lookup failed",{status:500}); if(!skuRow||skuRow.status!=="active")return new Response("sku is not present in authoritative sku registry",{status:400});
  const paidAt=session.created?new Date(Number(session.created)*1000).toISOString():new Date().toISOString(); let orderId:string|null=null;
