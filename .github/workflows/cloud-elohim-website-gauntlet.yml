@@ -63,7 +63,8 @@ jobs:
           for file in compiled/website/mtg/index.html compiled/website/mtg-search.html compiled/website/mtg-list.html; do
             test -s "$file"
             grep -q 'dreamledger-core.css' "$file"
-            grep -Eq 'Inter|system-ui|Segoe UI' "$file"
+          done
+          grep -Eq 'Inter|system-ui|Segoe UI' compiled/website/assets/dreamledger-core.css
           done
           echo "MTG_BRAND_SURFACE=PASS"
 
