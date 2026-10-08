@@ -172,7 +172,7 @@ const tollRoutePath = (pathname) => {
   return pathname;
 };
 
-const server = http.createServer((req,res)=>{
+const server = http.createServer(async (req,res)=>{
   const u = new URL(req.url, 'http://localhost');
   const slug = u.pathname.split('/').filter(Boolean)[0] || '';
   // Toll Road is the existing paid API wall. The public gateway only mounts it; it does not create a second authority, queue, or ledger.
