@@ -7,7 +7,7 @@
 </head><body>
 <p><a href="/">DreamLedger</a> / <a href="/economic/">Economic Observatory</a> / Agent commerce infrastructure</p>
 <h1>Crossmint’s Agent Commerce Toolkit: The Payment Rail Is Becoming an Agent API</h1>
-<p><strong>Observed:</strong> 2026-10-08T21:07:57Z · <strong>Primary publisher:</strong> Crossmint · <strong>Evidence status:</strong> SOURCE-VERIFIED / MARKET IMPACT UNVERIFIED</p>
+<p><strong>Observed:</strong> 2026-10-08 · <strong>Primary publisher:</strong> Crossmint · <strong>Evidence status:</strong> SOURCE-VERIFIED / MARKET IMPACT UNVERIFIED</p>
 <section><h2>Primary-source observation</h2>
 <p>On 8 October 2026, Crossmint announced Agent Commerce Toolkit, a developer integration intended to connect saved payment cards, card-network credentials, and online merchant checkout behind one API. Crossmint says the toolkit is live and self-serve, and that an open-source reference app is available. Its announcement describes a stack that commonly requires separate card-vault, wallet, browser-automation, and card-network integrations.</p>
 <p><a href="https://www.crossmint.com/announcement/agent-commerce-toolkit-launch" rel="noopener noreferrer">Read Crossmint’s original announcement</a> · <a href="https://github.com/Crossmint/agent-checkout-quickstart" rel="noopener noreferrer">Inspect the public quickstart repository</a> · <a href="https://www.crossmint.com/products/agentic-checkout" rel="noopener noreferrer">Review the product surface</a></p>
@@ -23,13 +23,13 @@
 </section>
 <section><h2>Commercial implication for interoperable marketplaces</h2>
 <p>The important shift is not that an agent can browse a shop. It is that checkout, credential handling, authorization, and order evidence are becoming callable infrastructure. That creates an integration boundary for B2B and agent-to-agent commerce: an agent can discover an offer, submit a bounded purchase intent, obtain explicit authority for the spend, call a commerce rail, and reconcile the resulting receipt.</p>
-<p>For DreamLedger, this is adjacent to the existing Agent Bridge toll path, not a reason to build another payment system. The canonical sequence remains <strong>offer → buyer intent → authority → payment/entitlement → authenticated call → external result → receipt → fulfillment evidence</strong>. A card authorization or successful API response must not be promoted to settled revenue without independent settlement and delivery evidence.</p>
-<p>The first implementation should be an adapter contract, not a new marketplace SKU. Normalize purchase requests and receipts into the existing job/economic observation envelope; preserve idempotency and correlation IDs; record whether the result is internal, externally sent, externally observed, or unknown; and require an explicit human/API authority gate before money moves. Keep the current NZ$0.50 Agent/API Probe and NZ$49 Supplier Quote Comparison as existing commercial destinations.</p>
+<p>A marketplace implementing this pattern needs a clear separation between offer discovery, buyer intent, spending authority, payment or entitlement, authenticated execution, external result, receipt, and fulfillment evidence. A card authorization or successful API response must not be promoted to settled revenue without independent settlement and delivery evidence.</p>
+<p>The practical opportunity is an adapter contract, not another generic marketplace. Normalize purchase requests and receipts; preserve idempotency and correlation IDs; record whether the result is internal, externally sent, externally observed, or unknown; and require explicit user or authorized API approval before money moves. These boundaries make commerce integrations portable across providers while preserving auditability.</p>
 </section>
 <section><h2>Bounded next experiment</h2>
 <ol>
 <li>Read the official API and quickstart contracts; record required inputs, terminal states, receipt fields, and supported payment authorization flow.</li>
-<li>Map those fields to the existing Agent Bridge job envelope without storing raw card data or inventing a parallel ledger.</li>
+<li>Define a provider-neutral purchase envelope without storing raw card data or duplicating the marketplace's canonical order ledger.</li>
 <li>Build sandbox-only tests for success, declined payment, user-action-required, duplicate request, timeout, and cancellation.</li>
 <li>Only after those tests pass, expose a reversible, explicitly authorized integration proposal to a real developer or merchant buyer. Do not send outreach automatically.</li>
 <li>Measure external buyer response, checkout conversion, settled payment, and fulfilled outcome separately. If none is observed, keep the signal as research rather than calling it revenue.</li>
@@ -38,8 +38,7 @@
 <section><h2>Existing commercial routes</h2>
 <p>For businesses with 2–5 supplier quotations, the existing <a href="/quote-comparison/">NZ$49 Supplier Quote Comparison</a> remains the immediate paid offer. For developers and agents needing a machine-callable surface, inspect the existing <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Agent/API toll manifest</a> before claiming the toll door is live. Checkout availability and manifest reachability alone do not prove a paid call.</p>
 </section>
-<section><h2>Truth boundary and source record</h2>
-<p><strong>Truth status:</strong> UNVERIFIED for buyer demand, product adoption, settlement, fulfillment, and revenue. The source verifies the announcement, not customer uptake or DreamLedger demand. No independent buyer, settled payment, fulfilled order, or economic outcome is inferred from this page.</p>
-<p><strong>Discovery lineage:</strong> 777 Economic Pulse run #67, triggered by commit <a href="https://github.com/KelpCoin/DreamLedger/commit/4b25fc6e265d5192d48e50ba24d73ab5dcf46477">4b25fc6</a>. Cycle output commit: <a href="https://github.com/KelpCoin/DreamLedger/commit/abfaabce04d5e9221950dc6da0bec47dee4fbb78">abfaabc</a>. The automated run used the deterministic fallback; cloud and local model URLs were empty for this run.</p>
+<section><h2>Truth boundary</h2>
+<p><strong>Truth status:</strong> UNVERIFIED for buyer demand, product adoption, settlement, fulfillment, and revenue. The source verifies the announcement, not customer uptake or DreamLedger demand. No independent buyer, settled payment, fulfilled order, or economic outcome is inferred from this page. This page is a market observation and bounded implementation hypothesis, not an endorsement or claim of partnership.</p>
 </section>
 </body></html>
