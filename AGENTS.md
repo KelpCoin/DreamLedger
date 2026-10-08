@@ -139,9 +139,9 @@ WORLD/REQUEST
 
 Never make the human manually translate a giant goal into every tiny coding task. Agents should perform that decomposition.
 
-## Finhaven and other giant projects
+## PhinHaven and other giant projects
 
-A giant project such as Finhaven is a mission, not a single task.
+A giant project such as PhinHaven is a mission, not a single task.
 
 The first worker on a giant project must:
 1. discover the existing implementation and its actual state
