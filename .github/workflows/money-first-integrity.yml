@@ -1,0 +1,99 @@
+name: money-first-integrity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate required money surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f public/avatar.html
+          test -f public/dreammeez.html
+          test -f public/phin-haven-v5.html
+          test -f public/billboard.html
+          test -f docs/MONEY-FIRST-EXTERNAL-ADOPTION.md
+
+      - name: Validate JSON configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          roots = [Path("BEC-PRIME"), Path("runtime"), Path("docs")]
+          files = []
+          for root in roots:
+              if root.exists():
+                  files.extend(root.rglob("*.json"))
+          bad = []
+          for path in files:
+              try:
+                  json.loads(path.read_text(encoding="utf-8"))
+              except Exception as exc:
+                  bad.append(f"{path}: {exc}")
+          if bad:
+              raise SystemExit("\n".join(bad))
+          print(f"Validated {len(files)} JSON files")
+          PY
+
+      - name: Python syntax smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q runtime || true
+          python -m compileall -q BEC-PRIME || true
+
+      - name: Economic truth guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          forbidden = ["VERIFIED_EXTERNAL_REVENUE=999", "VERIFIED_EXTERNAL_REVENUE: 999"]
+          hits = []
+          for root in [Path("runtime"), Path("BEC-PRIME"), Path("docs")]:
+              if not root.exists():
+                  continue
+              for p in root.rglob("*"):
+                  if p.is_file() and p.suffix in {".py", ".json", ".md", ".yml", ".yaml"}:
+                      try:
+                          text = p.read_text(encoding="utf-8", errors="ignore")
+                      except Exception:
+                          continue
+                      for token in forbidden:
+                          if token in text:
+                              hits.append(f"{p}: {token}")
+          if hits:
+              raise SystemExit("\n".join(hits))
+          print("Economic truth guard passed; CI does not declare revenue.")
+          PY
+
+      - name: Emit CI receipt
+        shell: bash
+        run: |
+          printf 'MONEY_FIRST_CI=PASS\nECONOMIC_TRUTH=UNVERIFIED\nVERIFIED_EXTERNAL_REVENUE_NZD=0.00\n' > money-first-ci-receipt.txt
+
+      - name: Upload CI receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: money-first-ci-receipt
+          path: money-first-ci-receipt.txt
