@@ -69,7 +69,7 @@ jobs:
 # Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem, Nylas IAM scoped API keys.
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
 # HUGE decomposition: select at most 5 bounded jobs from issue #497, rank by economic leverage, execute highest-value job, emit evidence.
-# Execution nonce: fresh-cycle-20261009T0215-NZ-META-5X50-R8
+# Execution nonce: fresh-cycle-20261009T0220-NZ-META-5X50-R9
 # R6 hunt: prioritize one externally reachable ordinary buyer/developer/procurement pain signal that can produce the canonical earning unit; money outranks artifact publication.
 # META 5X50: after every 5 independently verified purchased decisions, generate exactly 50 new bounded meta-decisions; dedupe against prior decisions; rank by economic leverage; apply only reversible/authorized changes.
 # META MODEL ROUTING: prefer cloud HELIum + cloud Gauler MLS when those endpoints are actually configured and reachable. If unavailable, fail closed and do not simulate model execution, purchases, or verification.
