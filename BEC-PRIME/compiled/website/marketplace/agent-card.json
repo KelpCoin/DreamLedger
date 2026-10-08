@@ -1,0 +1,13 @@
+{
+  "schema":"dreamledger.a2a.agent-card.v1",
+  "name":"DreamLedger Marketplace",
+  "description":"B2B and A2A discovery, quote and commerce handoff surface.",
+  "protocols":["HTTP+JSON","A2A-compatible machine discovery"],
+  "human_web":"/marketplace.html",
+  "b2b_web":"/b2b",
+  "a2a_web":"/a2a",
+  "machine_manifest":"/m2m/v1/marketplace/manifest",
+  "capability_search":"/m2m/v1/marketplace/search",
+  "authority_required":["identity","consent","payment","external_account_actions"],
+  "truth_boundary":"UNVERIFIED until settled external payment, fulfillment and independent evidence are observed."
+}
