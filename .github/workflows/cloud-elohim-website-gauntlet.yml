@@ -62,10 +62,14 @@ jobs:
           set -euo pipefail
           node - <<'NODE'
           const fs=require('fs');
-          const files=['compiled/website/mtg/index.html','compiled/website/mtg-search.html','compiled/website/mtg-list.html'];
-          const missing=files.filter(p=>!fs.existsSync(p)||!fs.readFileSync(p,'utf8').includes('dreamledger-core.css'));
-          if(missing.length){console.error('MTG_BRAND_FILES_MISSING',missing);process.exit(1);}
-          console.log('MTG_BRAND_SURFACE=PASS',files);
+          const compiled=['compiled/website/mtg/index.html'];
+          const compiledMissing=compiled.filter(p=>!fs.existsSync(p)||!fs.readFileSync(p,'utf8').includes('dreamledger-core.css'));
+          if(compiledMissing.length){console.error('MTG_BRAND_COMPILED_MISSING',compiledMissing);process.exit(1);}
+          const routes=['/mtg-search','/mtg-list'];
+          const source=fs.readFileSync('start.js','utf8');
+          const sourceMissing=routes.filter(route=>!source.includes(route));
+          if(sourceMissing.length){console.error('MTG_ROUTE_HANDLERS_MISSING',sourceMissing);process.exit(1);}
+          console.log('MTG_BRAND_SURFACE=PASS',compiled,'ROUTES=PASS',routes);
           NODE
 
       - name: MTG source route recovery contract
