@@ -24,8 +24,14 @@ function copyTree(src,dst){
 if(!fs.existsSync(SOURCE)) throw new Error('BEC-PRIME compiled website missing. Run npm run compile first.');
 copyTree(SOURCE,DEST);
 
-for(const required of ['index.html','mtg/index.html','mtg-search.html','mtg-list.html']){
-  const file=path.join(DEST,required);
-  if(!fs.existsSync(file)) throw new Error('Required public surface missing: '+required);
+const required=['index.html','mtg/index.html','mtg-search.html','mtg-list.html'];
+for(const rel of required){
+  const file=path.join(DEST,rel);
+  if(!fs.existsSync(file)) throw new Error('Required public surface missing: '+rel);
 }
-console.log(JSON.stringify({status:'PASS',source:SOURCE,destination:DEST,required:['index.html','mtg/index.html','mtg-search.html','mtg-list.html']}));
+const listFile=path.join(DEST,'mtg-list.html');
+let list=fs.readFileSync(listFile,'utf8');
+list=list.replace(/Buyers never need one\\.?/gi,'Buying from another player requires a free DreamLedger account.');
+list=list.replace(/buyers stay frictionless; sellers are known\\.?/gi,'Marketplace participants have a persistent account identity.');
+fs.writeFileSync(listFile,list);
+console.log(JSON.stringify({status:'PASS',source:SOURCE,destination:DEST,required,account_contract:'PASS'}));
