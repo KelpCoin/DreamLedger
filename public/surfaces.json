@@ -210,6 +210,15 @@
       "path": "/demand-services",
       "status": "active",
       "role": "published_b2b_service_silo"
+    },
+    {
+      "surface_id": "DL-SILO-FIGHTEDGE-001",
+      "class": "SILO",
+      "path": "/fightedge",
+      "status": "active",
+      "role": "combat-sports-results-silo",
+      "canonical_upstream": "https://fightedge-web-live.onrender.com",
+      "quarantine_note": "fightedge-web is duplicate; keep offline/quarantined after canonical health verification"
     }
   ],
   "human_nav_priority": [
