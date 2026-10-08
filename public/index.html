@@ -1,73 +1,94 @@
-<!doctype html>
-<!-- Canonical public-surface source build trigger. -->
-<html lang="en-NZ">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="DreamLedger is a commerce garden for real products, DreamMeez identities, digital worlds and evidence-backed transactions.">
-<link rel="canonical" href="https://dreamledger.org/">
-<title>DreamLedger | Buy, build, belong</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="description" content="Swipe the DreamLedger catalogue, build your DreamMeez, and discover the Billboard."><title>DreamLedger | Explore</title>
 <style>
-:root{color-scheme:dark;--bg:#06080b;--panel:#0d1218;--panel2:#121a22;--line:#25313c;--text:#f7f4ec;--muted:#9aa7b3;--mint:#a9f5cf;--gold:#e7c56b;--blue:#9bc2ff;--max:1220px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(900px 520px at 12% -10%,#26331d 0,transparent 62%),radial-gradient(850px 520px at 90% 4%,#172a31 0,transparent 60%),var(--bg);color:var(--text);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(calc(100% - 36px),var(--max));margin:auto}
-header{position:sticky;top:0;z-index:50;background:#06080bf2;border-bottom:1px solid var(--line);backdrop-filter:blur(18px);padding-top:env(safe-area-inset-top,0)}nav{min-height:64px;display:flex;align-items:center;gap:16px}.logo{font-size:21px;font-weight:950;letter-spacing:-.06em;margin-right:auto;flex:0 0 auto}.logo span{color:var(--gold)}.navlinks{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:13px;max-width:72%;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}.navlinks::-webkit-scrollbar{display:none}.navlinks a:hover{color:var(--text)}.nav-cta{padding:9px 12px;border-radius:999px;background:var(--gold);color:#111;font-weight:950}
-.hero{padding:72px 0 42px}.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:stretch}.eyebrow{font:850 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}h1{font-size:clamp(52px,8vw,96px);line-height:.9;letter-spacing:-.08em;margin:16px 0 20px;max-width:900px}h1 span{color:var(--mint)}.lede{max-width:730px;color:#c1c9d0;font-size:19px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 17px;border-radius:11px;border:1px solid var(--line);font-weight:900}.btn-primary{background:var(--gold);color:#111;border-color:var(--gold)}.btn-secondary{background:#101720}.hero-card{border:1px solid #4b4730;border-radius:24px;background:linear-gradient(145deg,#171a16,#0c1115);padding:28px;display:flex;flex-direction:column;justify-content:space-between;min-height:360px;box-shadow:0 20px 70px #0008}.hero-card .big{font-size:clamp(38px,5vw,58px);font-weight:950;letter-spacing:-.07em;line-height:.95;margin:12px 0}.hero-card p{color:var(--muted);max-width:420px}.price{font-size:27px;font-weight:950}.finite{display:inline-flex;width:max-content;margin-top:14px;padding:6px 9px;border:1px solid #5a502d;border-radius:999px;color:var(--gold);font:800 10px ui-monospace,monospace}
-.trustbar{border-block:1px solid var(--line);background:#0a0f14}.trustgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}.trust{padding:19px 16px;border-right:1px solid var(--line)}.trust:last-child{border-right:0}.trust b{display:block;font-size:13px}.trust span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-section{padding:70px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:24px}.section-head h2{font-size:34px;letter-spacing:-.06em;margin:7px 0 0}.section-head p{max-width:600px;color:var(--muted);margin:0}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,var(--panel2),var(--panel));padding:23px;min-height:235px;display:flex;flex-direction:column}.card h3{font-size:22px;letter-spacing:-.04em;margin:9px 0 7px}.card p{color:var(--muted);font-size:13px;margin:0}.card .bottom{margin-top:auto;padding-top:20px;display:flex;justify-content:space-between;align-items:center}.arrow{color:var(--mint);font-weight:900;font-size:13px}.tag{font:800 10px ui-monospace,monospace;color:var(--gold);letter-spacing:.1em}
-.evidence{display:grid;grid-template-columns:1fr 1fr;gap:14px}.evidence .panel{border:1px solid var(--line);border-radius:20px;background:#0a0f14;padding:25px}.evidence h3{margin:7px 0;font-size:22px}.evidence p{color:var(--muted)}.truth{font-size:31px;font-weight:950;letter-spacing:-.06em}.truth-note{color:var(--muted);font-size:12px}.list{display:grid;gap:9px;margin-top:18px}.list div{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}.list span{color:var(--muted);text-align:right}
-.pulse{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.panel{border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#111820,#0a0f14);padding:23px}.feedrow{display:flex;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid var(--line)}.feedrow:last-child{border-bottom:0}.feedrow strong{font-size:13px}.feedrow small{display:block;color:var(--muted);margin-top:3px}.status{display:inline-flex;margin-top:12px;padding:5px 8px;border:1px solid #594d27;border-radius:999px;color:var(--gold);font:800 10px ui-monospace,monospace}.status.green{border-color:#315c48;color:var(--mint)}
-footer{border-top:1px solid var(--line);padding:34px 0 55px;color:var(--muted);font-size:12px}.footer-grid{display:flex;justify-content:space-between;gap:25px}.footer-links{display:flex;gap:15px;flex-wrap:wrap}
-@media(max-width:850px){.hero-grid,.evidence,.pulse{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.trustgrid{grid-template-columns:1fr 1fr}.trust:nth-child(2){border-right:0}.trust:nth-child(-n+2){border-bottom:1px solid var(--line)}.navlinks{max-width:70%;gap:12px;font-size:12px}}
-@media(max-width:560px){.wrap{width:min(calc(100% - 20px),var(--max))}.hero{padding-top:38px}.cards,.trustgrid{grid-template-columns:1fr}.trust{border-right:0!important;border-bottom:1px solid var(--line)}.trust:last-child{border-bottom:0}h1{font-size:52px}.section-head{display:block}.section-head p{margin-top:12px}.footer-grid{display:block}.footer-links{margin-top:16px}.logo{font-size:18px}.navlinks{max-width:68%;gap:10px}.nav-cta{padding:8px 10px}}
+:root{--bg:#0a0a0a;--surface:#141414;--s2:#1c1c1c;--s3:#242424;--text:#f4f2eb;--t2:#b5b2a8;--t3:#7a776f;--border:#2a2a2a;--bs:#3a3a3a;--accent:#e8e4d6;--ad:#c5c0b0;--pos:#6bcf8e;--r:14px;--rs:10px;--cta:48px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ease:cubic-bezier(.25,.1,.25,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+ .top{position:sticky;top:0;z-index:60;flex-shrink:0;padding:calc(.5rem + var(--st)) 1rem .4rem;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand tools" "links links";align-items:center;gap:.5rem;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}
+.brand{grid-area:brand}.ta{grid-area:tools}.quicklinks{grid-area:links;display:flex;align-items:center;gap:7px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 0 5px}.quicklinks::-webkit-scrollbar{display:none}.quicklinks a{font-size:.68rem;font-weight:650;color:var(--text);text-decoration:none;border:1px solid var(--border);border-radius:999px;padding:.35rem .65rem;flex:0 0 auto}.quicklinks a.primary{background:var(--accent);color:#111;border-color:var(--accent)}@media(min-width:760px){.top{display:flex}.quicklinks{margin-left:auto}.ta{order:3}}
+.brand{display:flex;align-items:center;gap:.4rem}.brand h1{font-size:.92rem;font-weight:600;letter-spacing:-.03em}
+.locale{font-size:.62rem;color:var(--t3);border:1px solid var(--border);padding:.12rem .35rem;border-radius:5px}
+.ta{display:flex;align-items:center;gap:.4rem}
+.sell{font-size:.68rem;font-weight:700;color:var(--pos);text-decoration:none;padding:.28rem .55rem;border:1px solid rgba(107,207,142,.28);border-radius:999px;background:rgba(107,207,142,.1)}
+.streak{display:flex;align-items:center;gap:.25rem;font-size:.68rem;font-weight:600;color:var(--pos);background:rgba(107,207,142,.08);border:1px solid rgba(107,207,142,.2);border-radius:999px;padding:.25rem .5rem}
+.silo{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.sl{padding:0 1rem .35rem;font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.cat{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.track{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:1rem;-webkit-overflow-scrolling:touch;padding:.25rem 1rem .5rem;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.card{flex:0 0 min(78vw,300px);scroll-snap-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column;overflow:hidden}
+.card.on{border-color:var(--bs);box-shadow:0 0 0 1px rgba(126,200,255,.15),0 0 24px rgba(74,163,255,.08)}
+.card.spark{animation:spk .35s ease-out}@keyframes spk{0%{box-shadow:0 0 0 1px rgba(180,220,255,.7),0 0 32px rgba(100,180,255,.35)}100%{box-shadow:0 0 0 1px rgba(126,200,255,.15),0 0 24px rgba(74,163,255,.08)}}
+.hero{position:relative;width:100%;aspect-ratio:16/10;background:var(--s2)}.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.hf{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;opacity:.35}
+.hb{position:absolute;top:.4rem;left:.4rem;z-index:2;font-size:.56rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:rgba(0,0,0,.6);color:#fff;padding:.2rem .4rem;border-radius:5px}
+.hb.live,.hb.fee{background:rgba(107,207,142,.9);color:#0a0a0a}
+.cb{padding:.65rem .8rem .4rem;display:flex;flex-direction:column;flex:1;gap:.12rem}
+.ct{font-size:.58rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.card h2{font-size:.92rem;font-weight:600;letter-spacing:-.025em;line-height:1.2}
+.card p{font-size:.74rem;color:var(--t2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cm{display:flex;align-items:baseline;justify-content:space-between;gap:.4rem;margin-top:.35rem}
+.cp{font-size:.92rem;font-weight:600;color:var(--accent)}.cp small{font-size:.66rem;font-weight:400;color:var(--t3);margin-left:.12rem}
+.ctr{font-size:.6rem;color:var(--t3);font-weight:500}
+.cw{padding:0 .65rem .65rem}
+.cta{display:flex;align-items:center;justify-content:center;width:100%;height:var(--cta);background:var(--accent);color:#111;font-size:.86rem;font-weight:600;border:none;border-radius:var(--rs);text-decoration:none}
+.cta:active{background:var(--ad);transform:scale(.975)}.cta.g{background:transparent;color:var(--accent);border:1px solid var(--border)}
+.bot{flex-shrink:0;padding:.2rem 1rem calc(.55rem + var(--sb));display:flex;flex-direction:column;gap:.4rem;background:linear-gradient(to top,var(--bg) 75%,transparent)}
+.sb{display:flex;justify-content:space-between;font-size:.66rem;color:var(--t3)}.sb .n{font-weight:600;color:var(--t2)}.sb .f{color:var(--pos);font-weight:500}
+.dots{display:flex;justify-content:center;gap:5px}.dot{width:5px;height:5px;border-radius:50%;background:var(--border)}.dot.on{background:var(--accent);transform:scale(1.35)}
+.daily{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.5rem .65rem;display:flex;align-items:center;gap:.55rem}
+.di{flex:1;min-width:0}.di .l{font-size:.58rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--t3)}.di .rw{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.di .rw.cl{color:var(--t3);font-weight:500}
+.cbn{flex-shrink:0;height:36px;padding:0 .8rem;background:var(--pos);color:#0a0a0a;font-size:.78rem;font-weight:700;border:none;border-radius:9px}.cbn:disabled{background:var(--s2);color:var(--t3)}
+.trust{display:flex;justify-content:center;gap:.65rem;font-size:.58rem;color:var(--t3)}.trust span::before{content:"·";margin-right:.65rem;opacity:.45}.trust span:first-child::before{display:none}
+.toast{position:fixed;left:50%;bottom:calc(5.2rem + var(--sb));transform:translateX(-50%) translateY(120%);background:var(--s3);border:1px solid var(--bs);color:var(--text);font-size:.8rem;font-weight:500;padding:.6rem .95rem;border-radius:11px;white-space:nowrap;z-index:50;opacity:0;transition:.3s;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.cf{pointer-events:none;position:fixed;inset:0;z-index:40;opacity:0;mix-blend-mode:screen}.cf.on{animation:cb 0.38s cubic-bezier(.2,.8,.2,1) forwards}@keyframes cb{0%{opacity:0}12%{opacity:1}55%{opacity:.55}100%{opacity:0}}
+.cf svg{width:100%;height:100%}.cf path{fill:none;stroke:#e8f7ff;stroke-width:1.5;stroke-linecap:round;filter:drop-shadow(0 0 4px #7ec8ff)}.cf path.hot{stroke:#fff;stroke-width:2.2}
 </style>
 </head>
 <body>
-<header>
-<div class="wrap"><nav>
-<a class="logo" href="/">Dream<span>Ledger</span></a>
-<div class="navlinks" aria-label="Main navigation">
-<a href="/avatar.html">Create avatar</a><a href="/billboard">Billboard</a><a href="/marketplace">Shop</a><a href="/mtg">Magic</a><a class="nav-cta" href="/billboard">Buy a tile · NZ$50</a>
-</div>
-</nav></div></header>
-
-<main>
-<section class="hero">
-<div class="wrap hero-grid">
-<div>
-<div class="eyebrow">Make it yours</div>
-<h1>Your place on the <span>internet.</span></h1>
-<p class="lede">Create an avatar, discover things to buy, or put your idea on the Billboard.</p>
-<div class="hero-actions">
-<a class="btn btn-primary" href="/billboard">Own a Billboard Tile · NZ$50</a>
-<a class="btn btn-secondary" href="/dreammeez">Create a DreamMeez · Free</a>
-</div>
-</div>
-<aside class="hero-card">
-<div>
-<div class="eyebrow">FOUNDING BILLBOARD</div>
-<div class="big">Put something<br>on the canvas.</div>
-<p>A finite DreamLedger placement for a real image, project, brand or idea. Start with the existing Founding Tile offer.</p>
-</div>
-<div><div class="price">NZ$50</div><span class="finite">FINITE INVENTORY · LIVE OFFER</span></div>
-</aside>
-</div>
-</section>
-
-<section>
-<div class="wrap">
-<div class="section-head"><div><div class="eyebrow">Start here</div><h2>What would you like to do?</h2></div><p>Choose a starting point. You can explore without an account.</p></div>
-<div class="cards">
-<article class="card"><div class="tag">DREAMMEEZ · IDENTITY</div><h3>Make your DreamMeez.</h3><p>Start free. Shape your identity, save it, and build a wardrobe that can travel into experiences and worlds.</p><div class="bottom"><a class="arrow" href="/dreammeez">Create identity →</a></div></article>
-<article class="card"><div class="tag">MAGIC · CARDS &amp; DECKS</div><h3>Buy something real.</h3><p>Browse cards, manage your collection, list a deck, and follow a clear path from listing to purchase and delivery.</p><div class="bottom"><span><a class="arrow" href="/mtg">Enter Magic →</a> <a class="arrow" href="/mtg/deck-upload.html">List a deck →</a></span></div></article>
-<article class="card"><div class="tag">DOOH · VISIBILITY</div><h3>Put your signal on the canvas.</h3><p>Founding Billboard Tiles turn a physical placement into a visible DreamLedger surface with a direct buyer path.</p><div class="bottom"><a class="arrow" href="/billboard">See the Billboard →</a></div></article>
-</div>
-</div>
-</section>
-
-</main>
-
-<footer><div class="wrap footer-grid"><span>DreamLedger · Products, purchases & proof</span><div class="footer-links"><a href="/guides">Guides</a><a href="/dreammeez">DreamMeez</a><a href="/mtg">MTG</a><a href="/billboard">Billboard</a><a href="/truth-oracle.html">Truth Oracle</a></div></div></footer>
-
-
+<header class="top"><a class="brand" href="/" aria-label="DreamLedger home"><h1>DreamLedger</h1><span class="locale">NZD</span></a>
+<nav class="quicklinks" aria-label="Main navigation"><a href="/">Explore</a><a href="/billboard">Billboard</a><a href="/avatar.html" class="primary">Create avatar</a><a href="/marketplace">Shop</a></nav>
+<div class="ta"><a class="sell" href="/sell.html">Sell · $0</a><div class="streak" id="ls"><span>🔥</span><span class="num">0</span><span>d</span></div></div></header>
+<main class="silo"><div class="sl" id="sl">Live catalogue</div>
+<section class="cat"><div class="track" id="track" role="list"></div></section></main>
+<footer class="bot">
+<div class="sb"><span>Swipe streak <span class="n" id="sc">0</span></span><span class="f" id="sm">Keep going</span></div>
+<div class="dots" id="dots"></div>
+<div class="daily"><div class="di"><div class="l">Today's style reward</div><div class="rw" id="rn">—</div></div>
+<button class="cbn" id="claim" type="button">Claim</button></div>
+<div class="trust"><span>$0 listing fees</span><span>Stripe on platform offers</span><span>Settled only</span></div>
+</footer>
+<div class="cf" id="cf" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="hot" id="ba" d=""/><path id="bb" d=""/><path id="bc" d=""/></svg></div>
+<div class="toast" id="toast" role="status"></div>
+<script src="/app.js"></script>
+<script>
+const P=[{badge:'Free',tag:'Your identity',title:'Create your DreamMeez',desc:'Choose your look, save your avatar, and explore optional cosmetics.',price:'Free',trust:'Avatar studio',cta:'Customize avatar',href:'/avatar.html',emoji:'🪄'},{badge:'Cosmetics',tag:'Make it yours',title:'Avatar wardrobe',desc:'Add a cloak, crown, hoodie, boots or other style upgrades.',price:'From NZ$5',trust:'Optional extras',cta:'Explore cosmetics',href:'/avatar.html',emoji:'✨'},{badge:'Best first',tag:'Service',title:'Commander Deck Diagnostic',desc:'Practical first-pass: power band, holes, upgrade order.',price:'NZ$29',note:'one-time',trust:'Stripe',cta:'Buy diagnostic',href:'/mtg',img:'https://images.unsplash.com/photo-1611195974224-db706f0d0e5b?w=640&q=80'},{badge:'Founding',tag:'Placement',title:'Public Billboard Tile',desc:'Permanent digital placement on the public canvas.',price:'NZ$50',note:'permanent',trust:'Stripe',cta:'Claim tile',href:'/billboard.html',img:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=640&q=80'},{badge:'$0 fees',bc:'fee',tag:'Seller',title:'List something for sale',desc:'Free listings. No success fees. Keep what you make.',price:'$0 to list',trust:'No take rate',cta:'Start listing',href:'/sell.html',img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=640&q=80'},{badge:'Evidence',tag:'Truth',title:'Truth Oracle',desc:'Public evidence layer. Missing data stays UNKNOWN.',price:'Free · paid depth',trust:'Evidence',cta:'Open Oracle',gc:'g',href:'/overpaying.html',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&q=80'}];
+const E={clothing:'👕',home:'🏠',electronics:'🔧',sport:'⚽',collectibles:'🃏',mtg:'🎴',vehicles:'🚗',services:'💼',other:'📦'};
+function lc(L){return{badge:L.status==='live'?'Live':'Pending',bc:L.status==='live'?'live':'',tag:(L.location||'NZ')+' · '+DL.conditionLabel(L.condition),title:L.title,desc:L.description,price:DL.formatPrice(L.price),note:'$0 fee',trust:L.seed?'Demo':'Seller',cta:L.status==='live'?'View offer':'In review',gc:L.status==='live'?'':'g',href:'#',emoji:E[L.category]||'📦'}}
+function h(c){const b='hb'+(c.bc?' '+c.bc:''),m=c.img?'<img src="'+c.img+'" alt="" loading="lazy"/>':'<div class="hf">'+(c.emoji||'📦')+'</div>',n=c.note?' <small>'+c.note+'</small>':'',cc=c.gc?'cta '+c.gc:'cta';return '<article class="card" role="listitem"><div class="hero">'+m+'<div class="'+b+'">'+c.badge+'</div></div><div class="cb"><div class="ct">'+c.tag+'</div><h2>'+c.title+'</h2><p>'+c.desc+'</p><div class="cm"><div class="cp">'+c.price+n+'</div><div class="ctr">'+c.trust+'</div></div></div><div class="cw"><a class="'+cc+'" href="'+c.href+'">'+c.cta+'</a></div></article>'}
+const all=[P[4],P[5],P[1],P[2],P[0],P[3]];
+const track=document.getElementById('track');track.innerHTML=all.map(h).join('');
+document.getElementById('sl').textContent='Explore · swipe to browse';
+const cards=[...track.querySelectorAll('.card')],dotsEl=document.getElementById('dots');
+cards.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');dotsEl.appendChild(d)});
+const dots=[...dotsEl.children];if(cards[0])cards[0].classList.add('on');
+let ss=0,li=0;const seen=new Set([0]);const MS=[{a:0,m:'Keep going'},{a:3,m:'Nice flow'},{a:5,m:'On a roll'},{a:8,m:'Catalogue explorer'}];
+function vib(p){if(navigator.vibrate)try{navigator.vibrate(p)}catch(_){}}
+function fire(){const f=document.getElementById('cf'),y=25+Math.random()*50;function j(x0,y0,x1,y1,s,jg){let d='M '+x0+' '+y0;for(let i=1;i<s;i++){const t=i/s;d+=' L '+(x0+(x1-x0)*t+(Math.random()-.5)*jg).toFixed(1)+' '+(y0+(y1-y0)*t+(Math.random()-.5)*jg).toFixed(1)}return d+' L '+x1+' '+y1}document.getElementById('ba').setAttribute('d',j(0,y,100,y+(Math.random()-.5)*20,9,10));document.getElementById('bb').setAttribute('d',j(5,y+8,95,y-6,7,14));document.getElementById('bc').setAttribute('d',j(10,y-10,90,y+12,6,11));f.classList.remove('on');void f.offsetWidth;f.classList.add('on')}
+function idx(){if(!cards.length)return 0;const g=parseFloat(getComputedStyle(track).gap)||12,w=cards[0].offsetWidth+g;return Math.max(0,Math.min(Math.round(track.scrollLeft/w),cards.length-1))}
+track.addEventListener('scroll',()=>requestAnimationFrame(()=>{const i=idx();dots.forEach((d,k)=>d.classList.toggle('on',k===i));cards.forEach((c,k)=>c.classList.toggle('on',k===i));if(i!==li){vib([6,18,10,12,4]);fire();const c=cards[i];if(c){c.classList.remove('spark');void c.offsetWidth;c.classList.add('spark')}if(!seen.has(i)){seen.add(i);ss++;document.getElementById('sc').textContent=ss;let m=MS[0].m;for(const x of MS)if(ss>=x.a)m=x.m;document.getElementById('sm').textContent=m}li=i}}),{passive:true});
+const RW=[{m:1,i:['Basic Aura','Soft Glow']},{m:3,i:['Ember Trail','Cool Tint']},{m:5,i:['Nebula Ring','Silver Pin']},{m:8,i:['Aurora Veil','Rare Crest']},{m:12,i:['Void Crown','Mythic Frame']},{m:20,i:['Eternal Halo','Dreamfire Wings']},{m:30,i:['Sovereign Core','Origin Seal']}];
+function gr(s){let t=RW[0];for(const x of RW)if(s>=x.m)t=x;const seed=DL.todayKey()+s;let h=0;for(let i=0;i<seed.length;i++)h=(h*31+seed.charCodeAt(i))|0;return t.i[Math.abs(h)%t.i.length]}
+function uls(){const s=DL.getStreakState(),today=DL.todayKey(),y=new Date();y.setDate(y.getDate()-1);const yd=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');if(s.lastLogin===today){}else if(s.lastLogin===yd){s.streak=(s.streak||0)+1;s.lastLogin=today;s.claimedToday=false}else{s.streak=1;s.lastLogin=today;s.claimedToday=false}DL.saveStreakState(s)}
+function rd(){const s=DL.getStreakState(),st=s.streak||1,r=gr(st);document.querySelector('#ls .num').textContent=st;const rn=document.getElementById('rn'),btn=document.getElementById('claim');if(s.claimedToday){rn.textContent=r+' · claimed';rn.classList.add('cl');btn.textContent='Done';btn.disabled=true}else{rn.textContent=r;rn.classList.remove('cl');btn.textContent='Claim';btn.disabled=false}}
+document.getElementById('claim').onclick=()=>{const s=DL.getStreakState();if(s.claimedToday)return;const r=gr(s.streak||1);s.claimedToday=true;s.inventory=s.inventory||[];s.inventory.push({item:r,day:DL.todayKey(),streak:s.streak});DL.saveStreakState(s);vib([12,24,8,40,20]);fire();rd();const t=document.getElementById('toast');t.textContent='Got '+r;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)};
+uls();rd();
+</script>
 </body>
 </html>
