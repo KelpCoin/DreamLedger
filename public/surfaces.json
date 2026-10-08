@@ -203,6 +203,13 @@
       "path": "/home_appliances",
       "status": "active",
       "role": "published_silo_shell"
+    },
+    {
+      "surface_id": "DL-SILO-DEMAND-SERVICES-001",
+      "class": "SILO",
+      "path": "/demand-services",
+      "status": "active",
+      "role": "published_b2b_service_silo"
     }
   ],
   "human_nav_priority": [
