@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-08T01:14:34+00:00",
+  "updated_at_utc": "2026-10-08T03:51:47+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Te Kura HRIS RFI",
+      "url": "https://www.gets.govt.nz/TAOTKP/ExternalTenderDetails.htm?id=34473418",
+      "observed_at": "2026-10-08T03:51:44+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "e81244f17e47ccfad532d00259e89cd5d7e438b53b7dd26159ef9ac13ffad5b6",
+      "event_id": "ac335600-a967-5cd4-afd0-3514e272453c",
+      "silo_id": "ECO-E81244F17E47CCFA",
+      "slug": "procurement-te-kura-hris-rfi-e81244f17e"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
@@ -55,7 +67,7 @@
       "category": "PROCUREMENT",
       "title": "Wairoa Airport Runway Extension",
       "url": "https://www.gets.govt.nz/WAIRDC/ExternalTenderDetails.htm?id=34954354",
-      "observed_at": "2026-10-06T23:34:35+00:00",
+      "observed_at": "2026-10-07T23:34:35+00:00",
       "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
       "source_key": "89836f7e67df387c5f7b4fdb7289bad95c3957ed86fc1bc8a9b470e452366e13",
       "event_id": "d802a7f2-c8f3-5ecf-aeae-e205b17c9245",
