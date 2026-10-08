@@ -72,7 +72,7 @@ const P=[{badge:'Free',tag:'Your identity',title:'Create your DreamMeez',desc:'C
 const E={clothing:'👕',home:'🏠',electronics:'🔧',sport:'⚽',collectibles:'🃏',mtg:'🎴',vehicles:'🚗',services:'💼',other:'📦'};
 function lc(L){return{badge:L.status==='live'?'Live':'Pending',bc:L.status==='live'?'live':'',tag:(L.location||'NZ')+' · '+DL.conditionLabel(L.condition),title:L.title,desc:L.description,price:DL.formatPrice(L.price),note:'$0 fee',trust:L.seed?'Demo':'Seller',cta:L.status==='live'?'View offer':'In review',gc:L.status==='live'?'':'g',href:'#',emoji:E[L.category]||'📦'}}
 function h(c){const b='hb'+(c.bc?' '+c.bc:''),m=c.img?'<img src="'+c.img+'" alt="" loading="lazy"/>':'<div class="hf">'+(c.emoji||'📦')+'</div>',n=c.note?' <small>'+c.note+'</small>':'',cc=c.gc?'cta '+c.gc:'cta';return '<article class="card" role="listitem"><div class="hero">'+m+'<div class="'+b+'">'+c.badge+'</div></div><div class="cb"><div class="ct">'+c.tag+'</div><h2>'+c.title+'</h2><p>'+c.desc+'</p><div class="cm"><div class="cp">'+c.price+n+'</div><div class="ctr">'+c.trust+'</div></div></div><div class="cw"><a class="'+cc+'" href="'+c.href+'">'+c.cta+'</a></div></article>'}
-const all=[P[4],P[5],P[1],P[2],P[0],P[3]];
+const all=[P[0],P[1],P[3],P[4],P[2],P[5]];
 const track=document.getElementById('track');track.innerHTML=all.map(h).join('');
 document.getElementById('sl').textContent='Explore · swipe to browse';
 const cards=[...track.querySelectorAll('.card')],dotsEl=document.getElementById('dots');
