@@ -190,15 +190,29 @@
     {
       "id": "EDH_0001",
       "silo": "mtg",
-      "name": "EDH_0001 Commander Deck",
-      "description": "One physical Commander deck from the current collection.",
-      "price": 400,
+      "name": "Edward Kenway – Pacin’ On The Plank",
+      "description": "Grixis Pirate/Vehicle Commander deck built around treasure generation, stealing cards, Pirates, Assassins and Vehicles. Physical Commander deck, free shipping in Aotearoa New Zealand. Decklist available on ManaBox.",
+      "price": 230,
       "currency": "nzd",
       "inventory": 1,
       "inventory_type": "physical",
       "status": "published",
       "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J"
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
+      "fulfillment": "physical_delivery",
+      "decklist_url": "https://manabox.app/decks/AZ5j98lSddyD5z5e5scYCw",
+      "seller": "Biggie",
+      "tags": [
+        "mtg",
+        "edh",
+        "grixis",
+        "edwardkenway",
+        "piratetribal",
+        "mtgsale"
+      ],
+      "patron_price_nzd": 200,
+      "patron_url": "https://patreon.com/happyhomarid"
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
