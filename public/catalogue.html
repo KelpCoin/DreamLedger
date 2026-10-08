@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#0a0a0a"/>
-<title>DreamLedger · Live catalogue</title>
+<meta name="description" content="Swipe the DreamLedger catalogue, build your DreamMeez, and discover the Billboard."><title>DreamLedger | Explore</title>
 <style>
 :root{--bg:#0a0a0a;--surface:#141414;--s2:#1c1c1c;--s3:#242424;--text:#f4f2eb;--t2:#b5b2a8;--t3:#7a776f;--border:#2a2a2a;--bs:#3a3a3a;--accent:#e8e4d6;--ad:#c5c0b0;--pos:#6bcf8e;--r:14px;--rs:10px;--cta:48px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ease:cubic-bezier(.25,.1,.25,1)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}html,body{height:100%}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-.top{flex-shrink:0;padding:calc(.5rem + var(--st)) 1rem .4rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+ .top{position:sticky;top:0;z-index:60;flex-shrink:0;padding:calc(.5rem + var(--st)) 1rem .4rem;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand tools" "links links";align-items:center;gap:.5rem;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}
+.brand{grid-area:brand}.ta{grid-area:tools}.quicklinks{grid-area:links;display:flex;align-items:center;gap:7px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 0 5px}.quicklinks::-webkit-scrollbar{display:none}.quicklinks a{font-size:.68rem;font-weight:650;color:var(--text);text-decoration:none;border:1px solid var(--border);border-radius:999px;padding:.35rem .65rem;flex:0 0 auto}.quicklinks a.primary{background:var(--accent);color:#111;border-color:var(--accent)}@media(min-width:760px){.top{display:flex}.quicklinks{margin-left:auto}.ta{order:3}}
 .brand{display:flex;align-items:center;gap:.4rem}.brand h1{font-size:.92rem;font-weight:600;letter-spacing:-.03em}
 .locale{font-size:.62rem;color:var(--t3);border:1px solid var(--border);padding:.12rem .35rem;border-radius:5px}
 .ta{display:flex;align-items:center;gap:.4rem}
@@ -51,14 +52,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 </style>
 </head>
 <body>
-<header class="top"><div class="brand"><h1>DreamLedger</h1><span class="locale">NZD</span></div>
+<header class="top"><a class="brand" href="/" aria-label="DreamLedger home"><h1>DreamLedger</h1><span class="locale">NZD</span></a>
+<nav class="quicklinks" aria-label="Main navigation"><a href="/">Explore</a><a href="/billboard">Billboard</a><a href="/avatar.html" class="primary">Create avatar</a><a href="/marketplace">Shop</a></nav>
 <div class="ta"><a class="sell" href="/sell.html">Sell · $0</a><div class="streak" id="ls"><span>🔥</span><span class="num">0</span><span>d</span></div></div></header>
 <main class="silo"><div class="sl" id="sl">Live catalogue</div>
 <section class="cat"><div class="track" id="track" role="list"></div></section></main>
 <footer class="bot">
 <div class="sb"><span>Swipe streak <span class="n" id="sc">0</span></span><span class="f" id="sm">Keep going</span></div>
 <div class="dots" id="dots"></div>
-<div class="daily"><div class="di"><div class="l">Today's cosmetic</div><div class="rw" id="rn">—</div></div>
+<div class="daily"><div class="di"><div class="l">Today's style reward</div><div class="rw" id="rn">—</div></div>
 <button class="cbn" id="claim" type="button">Claim</button></div>
 <div class="trust"><span>$0 listing fees</span><span>Stripe on platform offers</span><span>Settled only</span></div>
 </footer>
@@ -66,16 +68,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 <div class="toast" id="toast" role="status"></div>
 <script src="/app.js"></script>
 <script>
-const P=[{badge:'Best first',tag:'Service',title:'Commander Deck Diagnostic',desc:'Practical first-pass: power band, holes, upgrade order.',price:'NZ$29',note:'one-time',trust:'Stripe',cta:'Buy diagnostic',href:'/mtg',img:'https://images.unsplash.com/photo-1611195974224-db706f0d0e5b?w=640&q=80'},{badge:'Founding',tag:'Placement',title:'Public Billboard Tile',desc:'Permanent digital placement on the public canvas.',price:'NZ$50',note:'permanent',trust:'Stripe',cta:'Claim tile',href:'/billboard.html',img:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=640&q=80'},{badge:'$0 fees',bc:'fee',tag:'Seller',title:'List something for sale',desc:'Free listings. No success fees. Keep what you make.',price:'$0 to list',trust:'No take rate',cta:'Start listing',href:'/sell.html',img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=640&q=80'},{badge:'Evidence',tag:'Truth',title:'Truth Oracle',desc:'Public evidence layer. Missing data stays UNKNOWN.',price:'Free · paid depth',trust:'Evidence',cta:'Open Oracle',gc:'g',href:'/overpaying.html',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&q=80'}];
+const P=[{badge:'Free',tag:'Your identity',title:'Create your DreamMeez',desc:'Choose your look, save your avatar, and explore optional cosmetics.',price:'Free',trust:'Avatar studio',cta:'Customize avatar',href:'/avatar.html',emoji:'🪄'},{badge:'Cosmetics',tag:'Make it yours',title:'Avatar wardrobe',desc:'Add a cloak, crown, hoodie, boots or other style upgrades.',price:'From NZ$5',trust:'Optional extras',cta:'Explore cosmetics',href:'/avatar.html',emoji:'✨'},{badge:'Best first',tag:'Service',title:'Commander Deck Diagnostic',desc:'Practical first-pass: power band, holes, upgrade order.',price:'NZ$29',note:'one-time',trust:'Stripe',cta:'Buy diagnostic',href:'/mtg',img:'https://images.unsplash.com/photo-1611195974224-db706f0d0e5b?w=640&q=80'},{badge:'Founding',tag:'Placement',title:'Public Billboard Tile',desc:'Permanent digital placement on the public canvas.',price:'NZ$50',note:'permanent',trust:'Stripe',cta:'Claim tile',href:'/billboard.html',img:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=640&q=80'},{badge:'$0 fees',bc:'fee',tag:'Seller',title:'List something for sale',desc:'Free listings. No success fees. Keep what you make.',price:'$0 to list',trust:'No take rate',cta:'Start listing',href:'/sell.html',img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=640&q=80'},{badge:'Evidence',tag:'Truth',title:'Truth Oracle',desc:'Public evidence layer. Missing data stays UNKNOWN.',price:'Free · paid depth',trust:'Evidence',cta:'Open Oracle',gc:'g',href:'/overpaying.html',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&q=80'}];
 const E={clothing:'👕',home:'🏠',electronics:'🔧',sport:'⚽',collectibles:'🃏',mtg:'🎴',vehicles:'🚗',services:'💼',other:'📦'};
 function lc(L){return{badge:L.status==='live'?'Live':'Pending',bc:L.status==='live'?'live':'',tag:(L.location||'NZ')+' · '+DL.conditionLabel(L.condition),title:L.title,desc:L.description,price:DL.formatPrice(L.price),note:'$0 fee',trust:L.seed?'Demo':'Seller',cta:L.status==='live'?'View offer':'In review',gc:L.status==='live'?'':'g',href:'#',emoji:E[L.category]||'📦'}}
 function h(c){const b='hb'+(c.bc?' '+c.bc:''),m=c.img?'<img src="'+c.img+'" alt="" loading="lazy"/>':'<div class="hf">'+(c.emoji||'📦')+'</div>',n=c.note?' <small>'+c.note+'</small>':'',cc=c.gc?'cta '+c.gc:'cta';return '<article class="card" role="listitem"><div class="hero">'+m+'<div class="'+b+'">'+c.badge+'</div></div><div class="cb"><div class="ct">'+c.tag+'</div><h2>'+c.title+'</h2><p>'+c.desc+'</p><div class="cm"><div class="cp">'+c.price+n+'</div><div class="ctr">'+c.trust+'</div></div></div><div class="cw"><a class="'+cc+'" href="'+c.href+'">'+c.cta+'</a></div></article>'}
-DL.ensureSeedListings();
-const L=DL.getListings().filter(x=>x.status==='live'||x.status==='pending_truth_check');
-const all=[P[2],...L.map(lc),P[0],P[1],P[3]];
+const all=[P[4],P[5],P[1],P[2],P[0],P[3]];
 const track=document.getElementById('track');track.innerHTML=all.map(h).join('');
-const lc2=L.filter(x=>x.status==='live').length;
-document.getElementById('sl').textContent=lc2?'Live catalogue · '+lc2+' seller offer'+(lc2===1?'':'s'):'Live catalogue · list something';
+document.getElementById('sl').textContent='Explore · swipe to browse';
 const cards=[...track.querySelectorAll('.card')],dotsEl=document.getElementById('dots');
 cards.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');dotsEl.appendChild(d)});
 const dots=[...dotsEl.children];if(cards[0])cards[0].classList.add('on');
