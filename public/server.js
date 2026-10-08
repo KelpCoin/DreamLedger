@@ -14,7 +14,7 @@ const PUBLIC_FILES={
   '/app.js':'app.js',
   '/sell.html':'sell.html','/sell':'sell.html','/sell/':'sell.html',
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
-  '/mtg':'mtg.html','/mtg/':'mtg.html','/mtg.html':'mtg.html',
+  '/mtg':'mtg/index.html','/mtg/':'mtg/index.html','/mtg.html':'mtg/index.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
   '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
   '/go':'marketplace.html','/go/':'marketplace.html',
