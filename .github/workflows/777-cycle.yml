@@ -51,9 +51,25 @@ jobs:
             exit 0
           fi
           git commit -m "777: publish new economic pulse"
-          git push
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main || {
+              git rebase --abort || true
+              echo "Rebase failed on attempt $attempt"
+              sleep 2
+              continue
+            }
+            if git push origin HEAD:main; then
+              echo "PUSH_OK attempt=$attempt"
+              exit 0
+            fi
+            echo "PUSH_RETRY attempt=$attempt"
+            sleep 2
+          done
+          echo "PUSH_FAILED_AFTER_RETRIES"
+          exit 1
 
 # 777 execution directive: upscale fresh cycle.
 # Objective: MONEY first. If no settlement, return exactly one new durable non-duplicate component.
 # Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI.
-# Execution nonce: fresh-cycle-20261008T1600-NEXT-06
+# Execution nonce: fresh-cycle-20261008T1600-NEXT-07
