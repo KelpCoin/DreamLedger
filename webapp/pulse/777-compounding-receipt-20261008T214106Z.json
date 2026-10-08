@@ -1,0 +1,13 @@
+{
+  "artifact_count": 2,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/777-cloud-execution-receipt.json",
+    "webapp/pulse/777-cloud-gauntlet-proof.json"
+  ],
+  "observed_at": "2026-10-08T21:41:06.855881+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
