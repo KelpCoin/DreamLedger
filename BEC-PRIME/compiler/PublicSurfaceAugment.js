@@ -43,6 +43,21 @@ if (!html.includes('id="dreamledger-canonical-doors"')) {
 }
 if (!html.includes('id="dreamledger-architecture-board"')) html = html.replace('</body>', boardScript + '</body>');
 
+html = html.replace(/BUILD CANDIDATE/gi, "COMING SOON")
+  .replace(/Money membrane/gi, "Supplier Quote Comparison")
+  .replace(/Fresh shelf/gi, "New arrivals")
+  .replace(/Pioneer product/gi, "Featured product")
+  .replace(/MASTER SILO/gi, "CARDS &amp; DECKS")
+  .replace(/master commerce template/gi, "marketplace")
+  .replace(/VERIFIED EXTERNAL REVENUE/gi, "Independently verified sales")
+  .replace(/internal activity/gi, "unverified activity")
+  .replace(/Economic Observatory/gi, "Market Updates")
+  .replace(/current economic pulse/gi, "latest market updates")
+  .replace(/economic pulse/gi, "market updates")
+  .replace(/approval-gated/gi, "reviewed before publication")
+  .replace(/activation/gi, "launch")
+  .replace(/\\bsilos?\\b/gi, "sections")
+  .replace(/\\blanes?\\b/gi, "categories");
 write(INDEX, html);
 const community = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Community Seed | DreamLedger</title><style>body{font:16px/1.6 system-ui,sans-serif;margin:0;background:#070707;color:#f7f7f3}.wrap{max-width:900px;margin:auto;padding:40px 20px}a{color:#f2c14e}article{border:1px solid #292929;border-radius:16px;padding:22px;margin:14px 0;background:#111}h1{font-size:clamp(3rem,8vw,6rem);line-height:.9;margin:0 0 20px}h2{color:#f2c14e}.muted{color:#999}</style></head><body><main class="wrap"><p><a href="/">DREAMLEDGER</a></p><h1>Community seed.</h1><p class="muted">A small public protocol for growing useful commerce lanes without collapsing them into one giant bucket.</p><article><h2>Signal</h2><p>Bring a real problem, request, market movement or useful discovery.</p></article><article><h2>Offer</h2><p>Turn validated demand into an explicit, approval-gated offer.</p></article><article><h2>Proof</h2><p>Publish evidence of what actually happened. Do not promote a capability as live until it is verified.</p></article><article><h2>Silo</h2><p>Keep distinct communities and commercial lanes separated. Shared infrastructure does not require shared identity or inventory.</p></article><article><h2>Compounding</h2><p>Successful lanes can attract contributors, new offers and new demand. The network effect is earned through useful outcomes, not declared in advance.</p></article><p><a href="/">Return to the public catalog</a></p></main></body></html>`;
 write(path.join(OUT,'community.html'), community);
