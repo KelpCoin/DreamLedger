@@ -48,7 +48,7 @@ async function freeIntake(body:any){
   if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
   const files=Array.isArray(body.files)?body.files.slice(0,5):[];
   if(files.length<2||files.length>5)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
-  const rows:any[]=[];const paths:string[]=[];
+  const rows:any[]=[];const paths:string[]=files.map((f:any)=>String(f.path||"")).filter((p:string)=>p.startsWith(FREE_PREFIX+"/"+intakeId+"/")&&!p.includes(".."));let rawDeleted=false;
   try{
    for(const f of files){
     const path=String(f.path||"");const name=safeName(String(f.name||path.split("/").pop()||"quote"));
@@ -75,9 +75,10 @@ async function freeIntake(body:any){
      oracle=error?{status:"BLOCKED",reason:"Truth Oracle database write failed; comparison remains available."}:{status:"OBSERVATION_SUBMITTED",evidence_type:"QUOTED_OFFER",settled_transaction:false};
     }
    }
-   return out({ok:true,action:"free_finalize",intake_id:intakeId,requirements,comparison,quotes:rows,oracle_ingestion:oracle,privacy:{raw_documents_deleted_after_processing:true,supplier_names_not_extracted_for_publication:true,public_observation_is_aggregate:true},notice:"Extracted quote evidence is not proof of a settled transaction or independently verified market price."});
+   const cleanup=paths.length?await db.storage.from(BUCKET).remove(paths):{error:null};rawDeleted=!cleanup.error;
+   return out({ok:true,action:"free_finalize",intake_id:intakeId,requirements,comparison,quotes:rows,oracle_ingestion:oracle,privacy:{raw_documents_deleted_after_processing:rawDeleted,supplier_names_not_extracted_for_publication:true,public_observation_is_aggregate:true},notice:"Extracted quote evidence is not proof of a settled transaction or independently verified market price."});
   }catch(e){return out({error:"FREE_INTAKE_FAILED",detail:e instanceof Error?e.message:"UNKNOWN"},500);}
-  finally{if(paths.length)await db.storage.from(BUCKET).remove(paths);}
+  finally{if(paths.length&&!rawDeleted)await db.storage.from(BUCKET).remove(paths);}
  }
  return null;
 }
