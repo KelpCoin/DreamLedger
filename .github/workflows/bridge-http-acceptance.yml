@@ -58,14 +58,13 @@ jobs:
 
       - name: Require bridge secrets
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
           missing=0
-          if [ -z "${SUPABASE_URL:-}" ]; then echo 'MISSING_SECRET=SUPABASE_URL'; missing=1; fi
           if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then echo 'MISSING_SECRET=SUPABASE_SERVICE_ROLE_KEY'; missing=1; fi
           if [ -z "${DREAMLEDGER_AGENT_BRIDGE_TOKEN:-}" ]; then echo 'MISSING_SECRET=DREAMLEDGER_AGENT_BRIDGE_TOKEN'; missing=1; fi
           if [ "$missing" -ne 0 ]; then
@@ -93,7 +92,7 @@ jobs:
       - name: Execute stale-lease HTTP acceptance proof
         if: github.ref == 'refs/heads/main'
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           DREAMLEDGER_AGENT_BRIDGE_TOKEN: ${{ secrets.DREAMLEDGER_AGENT_BRIDGE_TOKEN }}
           BRIDGE_URL: https://dreamledger.org
