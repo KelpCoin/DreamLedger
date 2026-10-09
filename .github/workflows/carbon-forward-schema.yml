@@ -6,6 +6,7 @@ on:
     paths:
       - "webapp/observatory/carbon/carbon-forward-intent.v1.schema.json"
       - "webapp/.well-known/carbon-forward-schema.json"
+      - "webapp/carbon-forward-schema.json"
       - ".github/workflows/carbon-forward-schema.yml"
 
 permissions:
@@ -28,4 +29,6 @@ jobs:
           python -m pip install --disable-pip-version-check check-jsonschema
           check-jsonschema --check-metaschema webapp/observatory/carbon/carbon-forward-intent.v1.schema.json
           check-jsonschema --check-metaschema webapp/.well-known/carbon-forward-schema.json
+          check-jsonschema --check-metaschema webapp/carbon-forward-schema.json
           cmp webapp/observatory/carbon/carbon-forward-intent.v1.schema.json webapp/.well-known/carbon-forward-schema.json
+          cmp webapp/observatory/carbon/carbon-forward-intent.v1.schema.json webapp/carbon-forward-schema.json
