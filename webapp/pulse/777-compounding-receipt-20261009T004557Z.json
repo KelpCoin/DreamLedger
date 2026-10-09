@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-09-private-commercial-web-search-apis-for-ai-agents-benchmarks-pricing-and-mcp-setup-startuphub-ai-42a78d7e11b7623f.html"
+  ],
+  "observed_at": "2026-10-09T00:45:57.372593+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_ARTIFACT",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}

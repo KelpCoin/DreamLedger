@@ -129,8 +129,8 @@
       "message": "Proof and verification are explicit"
     }
   ],
-  "checked_at": "2026-10-09T00:04:09.544Z",
-  "candidate_hash": "b72233ab9890c28cd6a08bd048a6ac14128d35de26d8104004aebd21d57f030b",
+  "checked_at": "2026-10-09T00:45:57.260Z",
+  "candidate_hash": "b53c3c3d3d9c9d0b8c80ef82017f9ff3f51abfdbbfd8c0166805c3c876fff991",
   "candidate_offer_id": "QUOTE-COMPARE-49",
   "public_execution": "BLOCKED_UNTIL_HUMAN_APPROVAL"
 }
