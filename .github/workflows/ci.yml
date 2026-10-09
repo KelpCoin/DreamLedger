@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: 777 cloud candidate evidence boundary
+        run: node --test ../scripts/777_cloud_execution_adapter.test.js
 
       - name: Setup Node 24
         uses: actions/setup-node@v4
