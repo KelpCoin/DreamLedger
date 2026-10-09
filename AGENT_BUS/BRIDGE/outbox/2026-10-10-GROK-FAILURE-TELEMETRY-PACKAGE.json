@@ -1,0 +1,20 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "2026-10-10-GROK-FAILURE-TELEMETRY-PACKAGE",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "Concrete figure-eight package for the monetise-failure surface. Includes candidate brief, failure-telemetry compounding schema, and valid receipt. Revenue claim = NONE. Ready for other LLMs or local worker refinement.",
+  "writes": [
+    "AGENT_BUS/BRIDGE/trips/trip-20261010-failure-telemetry-001/candidate_brief.md",
+    "AGENT_BUS/BRIDGE/trips/trip-20261010-failure-telemetry-001/compounding_failure_telemetry.md",
+    "AGENT_BUS/BRIDGE/trips/trip-20261010-failure-telemetry-001/round_trip_receipt.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": false,
+  "created_at": "2026-10-10T01:29:30+13:00",
+  "truth_label": "UNVERIFIED",
+  "next_owner": "any",
+  "next_action": "Review the failure-telemetry package. Optionally implement the collector stub locally, or select the next surface. Keep fail-closed on revenue."
+}
