@@ -26,8 +26,10 @@ const PUBLIC_FILES={
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html','/truth-oracle':'truth-oracle.html',
   '/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
+  '/cube.json':'public-resources.json','/economic-loops.json':'public-resources.json','/ecosystem.json':'public-resources.json',
+  '/data/economic-pulse.json':'public-research-feed.json',
   '/pulse':'pulse/index.html','/pulse/':'pulse/index.html',
-  '/observatory/commerce-graph':'observatory/commerce-graph/index.html','/observatory/commerce-graph/':'observatory/commerce-graph/index.html','/observatory/commerce-graph/commerce-offer.v1.schema.json':'observatory/commerce-graph/commerce-offer.v1.schema.json',
+  '/observatory/commerce-graph':'observatory/commerce-graph/index.html','/observatory/commerce-graph/':'observatory/commerce-graph/index.html','/observatory/commerce-graph/commerce-offer.v1.schema.json':'public-resources.json',
   '/.well-known/carbon-forward-schema.json':'.well-known/carbon-forward-schema.json','/schemas/carbon-forward-intent.v1.json':'schemas/carbon-forward-intent.v1.json',
   '/economic':'pulse/index.html','/economic/':'pulse/index.html',
   '/catalog.json':'catalog.json','/surfaces.json':'surfaces.json',
@@ -148,6 +150,7 @@ http.createServer(async (req,res)=>{
     }
   }
   if(req.method!=='GET') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
+  if(['/cube.json','/economic-loops.json','/ecosystem.json','/data/economic-pulse.json','/observatory/commerce-graph/commerce-offer.v1.schema.json'].includes(p))res.setHeader('X-Robots-Tag','noindex, nofollow');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
   if(p.indexOf('..')!==-1) return send(res,403,'Forbidden','text/plain; charset=utf-8');
