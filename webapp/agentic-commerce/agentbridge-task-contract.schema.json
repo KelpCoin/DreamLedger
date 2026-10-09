@@ -1,0 +1,423 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/.well-known/agentbridge-task-contract.schema.json",
+  "title": "DreamLedger AgentBridge Bounded Task Contract",
+  "description": "Versioned, decomposable task contract for 777 workstreams. A task records intent, authorized scope, tool instructions, budget, evidence and acceptance. It does not itself authorize external effects or establish root cause or revenue.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "workstream_id",
+    "parent_task_id",
+    "title",
+    "objective",
+    "mode",
+    "priority",
+    "state",
+    "tool_contract",
+    "bounds",
+    "preconditions",
+    "expected_artifacts",
+    "acceptance",
+    "evidence",
+    "authority",
+    "truth_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "dreamledger.agentbridge-task.v1"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9._-]{2,127}$"
+    },
+    "workstream_id": {
+      "type": "string",
+      "pattern": "^HUGE-[0-9]{2}$"
+    },
+    "parent_task_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 180
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 30,
+      "maxLength": 3000
+    },
+    "mode": {
+      "enum": [
+        "INVESTIGATE",
+        "BUILD",
+        "TEST",
+        "REMEDIATE",
+        "PUBLISH",
+        "RECONCILE"
+      ]
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "state": {
+      "enum": [
+        "PROPOSED",
+        "READY",
+        "CLAIMED",
+        "RUNNING",
+        "WAITING_AUTHORITY",
+        "BLOCKED",
+        "COMPLETED",
+        "FAILED",
+        "UNKNOWN"
+      ]
+    },
+    "tool_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_name",
+        "description",
+        "when_to_use",
+        "preconditions",
+        "side_effect_class"
+      ],
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "minLength": 40,
+          "maxLength": 2000
+        },
+        "when_to_use": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 1000
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 30
+        },
+        "side_effect_class": {
+          "enum": [
+            "READ_ONLY",
+            "LOCAL_ARTIFACT",
+            "REPOSITORY_CHANGE",
+            "EXTERNAL_EFFECT",
+            "PAYMENT_OR_ACCOUNT"
+          ]
+        }
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_attempts",
+        "timeout_seconds",
+        "max_output_bytes",
+        "network_policy",
+        "secret_access",
+        "idempotency_key"
+      ],
+      "properties": {
+        "max_attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7200
+        },
+        "max_output_bytes": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 50000000
+        },
+        "network_policy": {
+          "enum": [
+            "NONE",
+            "ALLOWLIST_ONLY",
+            "READ_ONLY_ALLOWLIST",
+            "EXPLICITLY_AUTHORIZED"
+          ]
+        },
+        "secret_access": {
+          "const": "NONE"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 200
+        },
+        "resource_limits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "integer",
+              "number",
+              "string",
+              "boolean"
+            ]
+          }
+        },
+        "kill_switch_required": {
+          "const": true
+        }
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      },
+      "maxItems": 50
+    },
+    "expected_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "path_or_uri",
+          "required"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "CODE",
+              "SCHEMA",
+              "TEST_REPORT",
+              "PUBLIC_PAGE",
+              "OBSERVATION",
+              "RECEIPT",
+              "MANIFEST",
+              "DECISION_RECORD"
+            ]
+          },
+          "path_or_uri": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "test_command",
+        "expected_result",
+        "failure_behavior"
+      ],
+      "properties": {
+        "test_command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "expected_result": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "failure_behavior": {
+          "enum": [
+            "FAIL_CLOSED",
+            "RETRY_BOUNDED",
+            "MARK_UNKNOWN",
+            "WAIT_FOR_AUTHORITY"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "reference",
+          "observed_at",
+          "truth_status"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "SOURCE",
+              "LOG",
+              "TEST",
+              "HASH",
+              "HTTP_OBSERVATION",
+              "PAYMENT_PROVIDER",
+              "HUMAN_APPROVAL",
+              "EXTERNAL_RESULT"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "truth_status": {
+            "enum": [
+              "VERIFIED",
+              "UNVERIFIED",
+              "CONTRADICTED",
+              "STALE",
+              "TEST",
+              "SIMULATED",
+              "INTERNAL",
+              "UNMATCHED"
+            ]
+          }
+        }
+      },
+      "maxItems": 100
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "scope",
+        "approved"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "approval_reference": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "root_cause_claim": {
+      "const": false
+    },
+    "revenue_claim": {
+      "const": false
+    },
+    "truth_status": {
+      "enum": [
+        "INTERNAL",
+        "TEST",
+        "SIMULATED",
+        "UNVERIFIED",
+        "OBSERVED",
+        "VERIFIED",
+        "STALE",
+        "CONTRADICTED",
+        "UNMATCHED"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "enum": [
+              "REMEDIATE",
+              "PUBLISH"
+            ]
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "authority": {
+            "properties": {
+              "required": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "COMPLETED"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}
