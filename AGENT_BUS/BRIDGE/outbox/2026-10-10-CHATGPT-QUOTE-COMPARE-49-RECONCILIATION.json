@@ -1,0 +1,42 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "2026-10-10-CHATGPT-QUOTE-COMPARE-49-LIVE-RECONCILIATION",
+  "task_id": "task-20261010-dreamledger-first-dollar",
+  "from": "chatgpt-cloud",
+  "mode": "cloud",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "Read-only live Stripe reconciliation completed for the approved QUOTE-COMPARE-49 payment link. All 57 Checkout Sessions associated with the link are unpaid: 10 open and 47 expired; zero paid sessions observed. Supabase remains blocked by the previously observed database data-plane failure. Verified external revenue remains NZ$0.",
+  "evidence": [
+    {
+      "check": "Stripe account context",
+      "result": "DreamLedger account acct_1SNVPvEGgEAnUFF9; livemode=true",
+      "truth_label": "VERIFIED"
+    },
+    {
+      "check": "Payment link",
+      "result": "plink_1UKq77EGgEAnUFF9KOr1SuUY; 4,900 minor units NZD; QUOTE-COMPARE-49 metadata",
+      "truth_label": "VERIFIED"
+    },
+    {
+      "check": "Checkout Session reconciliation",
+      "result": "GET /v1/checkout/sessions?payment_link=plink_1UKq77EGgEAnUFF9KOr1SuUY&limit=100 returned 57 sessions, has_more=false; status counts open=10, expired=47; payment_status counts unpaid=57, paid=0",
+      "truth_label": "VERIFIED",
+      "limitation": "This covers Checkout Sessions associated with this exact Payment Link, not unrelated payment methods or other offers."
+    },
+    {
+      "check": "Supabase database",
+      "result": "Prior connector query failed with ECONNREFUSED; latest available PostgreSQL logs showed pg_wal/xlogtemp No space left on device and repeated startup failure.",
+      "truth_label": "VERIFIED",
+      "limitation": "No fresh recovery observation has yet succeeded."
+    }
+  ],
+  "revenue_claim_nzd": 0,
+  "verified_external_revenue_nzd": 0,
+  "paid_sessions_observed": 0,
+  "needs_human": true,
+  "next_action": "Do not claim a sale or trigger fulfilment. Recover the existing Supabase database through authorized dashboard/support operations. Once SQL works, inspect existing revenue_orders, revenue_entitlements, fulfillment_requests and webhook idempotency, then reconcile Stripe again after new buyer activity.",
+  "external_effect": "NOT_ATTEMPTED",
+  "truth_label": "VERIFIED",
+  "created_at": "2026-10-10T11:10:00+13:00"
+}
