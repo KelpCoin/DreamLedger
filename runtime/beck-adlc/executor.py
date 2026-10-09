@@ -64,6 +64,18 @@ def execute_intent(
         store.record_evidence(report)
         return report
 
+    action = actions.get((str(intent["action_type"]), str(intent["target"])))
+    if action is None:
+        report = _evidence({
+            **decision,
+            "decision": "DENY",
+            "reason_codes": ["ACTION_ADAPTER_NOT_REGISTERED"],
+            "execution_state": "NOT_DISPATCHED",
+            "result": None,
+        })
+        store.record_evidence(report)
+        return report
+
     fingerprint = str(decision["intent_fingerprint"])
     key = str(intent["idempotency_key"])
     status, prior = store.reserve(key, fingerprint)
@@ -74,18 +86,6 @@ def execute_intent(
             **decision,
             "decision": "DENY",
             "reason_codes": ["IDEMPOTENCY_" + str(status)],
-            "execution_state": "NOT_DISPATCHED",
-            "result": None,
-        })
-        store.record_evidence(report)
-        return report
-
-    action = actions.get((str(intent["action_type"]), str(intent["target"])))
-    if action is None:
-        report = _evidence({
-            **decision,
-            "decision": "DENY",
-            "reason_codes": ["ACTION_ADAPTER_NOT_REGISTERED"],
             "execution_state": "NOT_DISPATCHED",
             "result": None,
         })
