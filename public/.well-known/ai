@@ -2,7 +2,7 @@
   "aiendpoint": "1.0",
   "service": {
     "name": "DreamLedger",
-    "description": "A service for bounded commercial work, including supplier quote comparison into a decision-ready evidence packet.",
+    "description": "DreamLedger provides free evidence-checking tools, supplier quote comparison, and selected products and services.",
     "category": [
       "ecommerce",
       "productivity"
@@ -13,27 +13,39 @@
   },
   "capabilities": [
     {
-      "id": "free_supplier_quote_worksheet",
-      "description": "Free browser-side CSV worksheet for structuring supplier quotes. The worksheet does not upload user-entered data.",
-      "endpoint": "https://dreamledger.org/#quote-tool",
+      "id": "free_truth_oracle",
+      "description": "Free resource for recording a claim, tracing its original source, checking dates, and noting contradictions or missing evidence.",
+      "endpoint": "https://dreamledger.org/truth-oracle.html",
       "method": "GET",
-      "returns": "A downloadable local CSV template; no server-side quote ingestion is implied."
+      "returns": "Public evidence-checking tool and reusable claim record."
     },
     {
-      "id": "economic_observatory",
-      "description": "Source-bound 777 economic signals and reusable components. Each signal is labelled separately from verified demand or revenue.",
+      "id": "free_supplier_quote_worksheet",
+      "description": "Free browser-side CSV worksheet for organising supplier quotes. Entries are not uploaded by this tool.",
+      "endpoint": "https://dreamledger.org/",
+      "method": "GET",
+      "returns": "A downloadable local CSV template."
+    },
+    {
+      "id": "public_research_notes",
+      "description": "Source-linked research notes on AI commerce and product discovery. Notes attribute company claims and make uncertainty visible.",
       "endpoint": "https://dreamledger.org/pulse/",
       "method": "GET",
-      "returns": "Published source-bound research artifacts and component links."
+      "returns": "Curated public research notes."
+    },
+    {
+      "id": "supplier_quote_comparison",
+      "description": "One-time service for comparing 2–5 supplier quotes and identifying differences or missing information.",
+      "endpoint": "https://dreamledger.org/quote-comparison/",
+      "method": "GET",
+      "returns": "Service details and purchase instructions."
     }
   ],
   "auth": {
     "type": "none"
   },
   "meta": {
-    "last_updated": "2026-10-09",
-    "changelog": "https://github.com/KelpCoin/DreamLedger/commits/main",
-    "status": "https://dreamledger.org/healthz",
-    "quote_ingestion_status": "SERVER_SIDE_TRUTH_ORACLE_INTAKE_NOT_YET_VERIFIED_LIVE"
+    "last_updated": "2026-10-10",
+    "status": "https://dreamledger.org/healthz"
   }
 }
