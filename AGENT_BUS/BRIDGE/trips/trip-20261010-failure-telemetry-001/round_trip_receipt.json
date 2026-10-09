@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "trip_id": "trip-20261010-failure-telemetry-001",
+  "objective": "Turn monetise-failure + repeat-attempt telemetry into a concrete non-MTG figure-eight package with a reusable compounding component. No external actions.",
+  "origin": {
+    "surface": "DreamLedger AGENT_BUS",
+    "job": "user-directed-failure-monetisation"
+  },
+  "worker": {
+    "environment": "cloud-Grok",
+    "model": "Grok",
+    "note": "Cloud preparation only"
+  },
+  "status": "SUCCEEDED",
+  "started_at": "2026-10-09T12:28:30Z",
+  "finished_at": "2026-10-09T12:29:20Z",
+  "outputs": [
+    {
+      "path": "candidate_brief.md",
+      "sha256": "b60d1f7f1dd63e01cc9672dcaf65f514585667a1",
+      "media_type": "text/markdown"
+    },
+    {
+      "path": "compounding_failure_telemetry.md",
+      "sha256": "2594373b38caf14a7b727264a18b58581a7c4bf4",
+      "media_type": "text/markdown"
+    }
+  ],
+  "checks": [
+    {
+      "name": "scope_non_mtg",
+      "status": "PASS",
+      "evidence": "No MTG content"
+    },
+    {
+      "name": "no_external_action",
+      "status": "PASS",
+      "evidence": "No publishing, spend, or data collection"
+    },
+    {
+      "name": "receipt_schema",
+      "status": "PASS",
+      "evidence": "Required fields present"
+    },
+    {
+      "name": "local_worker",
+      "status": "NOT_RUN",
+      "evidence": "No LM Studio worker this session"
+    }
+  ],
+  "compounding_assets": [
+    {
+      "path": "compounding_failure_telemetry.md",
+      "rationale": "Failure-telemetry schema and collector pattern that future trips can reuse so repeated attempts become durable, queryable assets instead of lost cost"
+    }
+  ],
+  "limitations": [
+    "Cloud preparation only",
+    "No live telemetry collected",
+    "Revenue claim remains NONE"
+  ],
+  "external_effect": "NOT_ATTEMPTED",
+  "revenue_claim": "NONE"
+}
