@@ -1,26 +1,64 @@
 <!doctype html>
-<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>777 Private Commercial Signal: REVERSIBLE Launches Agentic Affiliate Platform Connecting AI Shopping to 700+ Retailers - USA Today</title>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>777 Commercial Signal: REVERSIBLE Builds a Commerce Graph for AI Shopping</title>
 <meta name="robots" content="index,follow">
-<meta name="description" content="Source-bound private-sector commercial signal observed through a public news discovery feed.">
-</head><body><main>
-<p><a href="/">DreamLedger</a> / 777 Private Commercial</p>
-<h1>REVERSIBLE Launches Agentic Affiliate Platform Connecting AI Shopping to 700+ Retailers - USA Today</h1>
-<p><strong>Observed:</strong> 2026-10-09T04:03:47.559507+00:00 · <strong>Publisher:</strong> USA Today</p>
-<section><h2>Primary observation</h2>
+<meta name="description" content="A source-bound analysis of REVERSIBLE Labs' multi-retailer commerce API and the reusable marketplace components DreamLedger can build from the signal.">
+<link rel="canonical" href="https://dreamledger.org/pulse/2026-10-09-private-commercial-reversible-launches-agentic-affiliate-platform-connecting-ai-shopping-to-700-retailers-usa-today-4f89a90a08dc9be6.html">
+</head>
+<body>
+<main>
+<p><a href="/">DreamLedger</a> / <a href="/pulse/">777 Economic Observatory</a> / Agentic commerce</p>
+<h1>REVERSIBLE’s commerce graph: one API between AI discovery and purchase</h1>
+<p><strong>Observed:</strong> 2026-10-09 04:03 UTC. <strong>Signal class:</strong> private-sector product launch. <strong>Truth label:</strong> UNVERIFIED market signal; vendor claims are attributed, not independently audited.</p>
+
+<section>
+<h2>What changed</h2>
+<p>REVERSIBLE Labs announced an API layer for AI shopping agents, styling applications, publishers, creators and fashion-tech products. The proposition is not simply a larger product catalogue. It combines retailer connectivity, product matching, offer comparison and affiliate attribution so a partner can move from a shopper’s intent to an eligible purchase link without building and maintaining hundreds of separate retailer integrations.</p>
+<p>The company’s <a href="https://labs.reversible.com/">official platform site</a> advertises access to more than 700 retailers and over one million fashion and beauty products. It describes normalized results that can include price, availability, size, shipping, returns and coupons. The product page also describes a sandbox for testing queries and says sandbox purchase links are not commissionable; production access requires review. Those are important commercial boundaries, not footnotes.</p>
+<p>The launch announcement was distributed as a paid press release. Its claims should therefore be treated as company-provided statements. REVERSIBLE says multi-retailer aggregation drives roughly three times higher conversion than single-merchant approaches and advertises affiliate commissions up to 12 percent on eligible purchases. Neither performance claim is independent proof of results for DreamLedger or any other operator.</p>
+<p>Sources: <a href="https://labs.reversible.com/">REVERSIBLE Labs platform</a>; <a href="https://www.reversible.com/join-creator-program">REVERSIBLE Creator Program</a>; <a href="https://www.finanzwire.com/press-release/reversible-launches-agentic-affiliate-platform-connecting-ai-shopping-to-700-premium-retailers-l2T6r6Le2uV">launch announcement, identified as paid press-release content</a>.</p>
+</section>
+
+<section>
+<h2>The reusable component hidden inside the announcement</h2>
+<p>The reusable asset is a <strong>Commerce Graph Adapter</strong>: a thin, provider-neutral contract that turns a product or service request into comparable offers and carries the chosen offer through attribution and delivery evidence. DreamLedger does not need to copy a retailer network to learn from this pattern. It can reuse the same architecture across existing silos and later add provider adapters where access is authorized.</p>
 <ul>
-<li>Publisher: USA Today</li>
-<li>Published: Thu, 08 Oct 2026 23:07:35 GMT</li>
-<li>Discovery source: Google News RSS</li>
+<li><strong>Intent:</strong> normalized query, category, location/market, constraints, user consent and correlation ID.</li>
+<li><strong>Offer:</strong> provider, canonical item identity, variant/size, currency, item price, shipping, tax/fees when known, availability timestamp, returns summary, exclusions and source URL.</li>
+<li><strong>Decision:</strong> comparable total cost, match confidence, missing fields, freshness, ranking rationale and explicit unknowns. Do not compare unlike variants or hide unavailable costs.</li>
+<li><strong>Attribution:</strong> referral or affiliate terms, eligibility, link provenance and commission status. A click is not a purchase; a reported commission is not settled revenue.</li>
+<li><strong>Receipt:</strong> request digest, selected offer digest, source timestamp, decision version, action status and independently observed fulfillment/settlement evidence.</li>
 </ul>
-<p><a href="https://news.google.com/rss/articles/CBMi1AFBVV95cUxPX3RhZGNNOTk3VFlSTkZpZlVQLU1yazMwTzBjUUROd1BhbEhFWkxOUDRfT18wSEx2VmxnQ1V1VjFhQ2hpN0RkVjNkRlVqM1EzVmZ3Uk1iclNRbW0zekZ1dldoNUxkWE05Vl9RbGNuUUFuVWRpM1N4OVc3X1VVUkUxQzRTbXE4SEhmdG9PUWQxcFBIcVdKaVlvdEszaVZVZVZrbGNhdi1WSmxhamVFTkdGZHBxRC0ySWtMNW5waHBnekZxeURWMnlLMzV4NnJ0RTVqd1NORQ?oc=5" rel="noopener noreferrer">Open the publisher source</a></p>
+<p>These fields are a proposed DreamLedger adapter contract, not a claim that REVERSIBLE exposes every field through its API. Provider-specific capabilities must be discovered from authorized documentation and tested before implementation.</p>
 </section>
-<section><h2>Commercial response surface</h2>
-<p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
-<p><a href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e">Open the existing NZ$49 Supplier Quote Comparison checkout</a></p>
-<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">NZ$0.50 Agent/API Probe</a> for machine-readable toll access. Pay → key → call → receipt.</p>
+
+<section>
+<h2>How this connects to DreamLedger’s existing rails</h2>
+<p>DreamLedger’s advantage should be interoperable commerce plumbing rather than another closed storefront template. The free B2B surface can help a business normalize a request or compare offers. Low-cost A2A calls can expose the same deterministic function to agents through the existing AgentBridge toll path. The commerce spine remains catalog/listing → authority → checkout → entitlement → action → fulfillment → evidence. Existing Stripe, entitlement and receipt mechanisms should be reused; this signal does not justify inventing a new SKU or a parallel queue.</p>
+<p>For quote intake, the transferable idea is comparable offer data with visible missing fields and source provenance. For MTG and other catalog silos, it is canonical item identity plus variant-aware offer comparison. For a future marketplace, it is the same contract across providers, with seller identity and payment authority held behind the appropriate gate. The Truth Oracle should distinguish a vendor’s marketing claim, a submitted offer, an observed listing, an independently verified purchase and a settled transaction.</p>
 </section>
-<section><h2>Truth boundary</h2>
-<p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
+
+<section>
+<h2>Next bounded execution task</h2>
+<ol>
+<li>Inspect the current AgentBridge request and receipt envelope before changing code.</li>
+<li>Define a versioned Commerce Graph Adapter fixture using synthetic, clearly labelled test data; include unequal variants, missing shipping costs, stale availability and conflicting currencies.</li>
+<li>Test deterministic normalization and comparison without calling external providers or spending money.</li>
+<li>Route a read-only probe through the existing Bridge contract and preserve the correlation ID, authorization state and result receipt.</li>
+<li>Only add a provider integration after access terms, data rights, attribution rules and production API availability are verified.</li>
+</ol>
+<p><strong>Acceptance:</strong> identical inputs produce identical normalized outputs; unknown costs remain unknown; stale offers are flagged; no private or licensed provider data is republished without permission; internal calls are not classified as external sales.</p>
 </section>
-</main></body></html>
+
+<section>
+<h2>Economic truth boundary</h2>
+<p>This is a source-backed commercial signal and a reusable adapter specification, not proof of buyer demand for DreamLedger. No buyer, settled payment, fulfillment or independent economic outcome was observed in this cycle. The generated pulse and its successful workflow execution are internal system outputs.</p>
+<p><strong>VERIFIED_EXTERNAL_REVENUE = NZ$0.00.</strong></p>
+<p>Existing commercial continuation: <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Agent/API toll manifest</a> and the existing quote-comparison intake. Their live commercial operation must be verified independently before any revenue claim.</p>
+</section>
+</main>
+</body>
+</html>
