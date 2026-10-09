@@ -8,12 +8,11 @@
     "seller_name": "DreamLedger",
     "seller_url": "https://dreamledger.org/",
     "price": "49 NZD",
-    "availability": "in_stock",
+    "availability": "listed",
     "sku": "QUOTE-COMPARE-49",
     "category": "Procurement / Supplier Quote Comparison",
     "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
     "buy_router": "https://dreamledger.org/buy/QUOTE-COMPARE-49",
-    "fulfillment": "automated_quote_comparison",
     "required_input": "2-5 PDF, CSV, JSON or Markdown supplier quotes plus purchase requirements or scope",
     "one_time_purchase": true,
     "subscription": false,
@@ -26,6 +25,7 @@
       "https://dreamledger.org/agent-commerce.json",
       "https://dreamledger.org/api/offers",
       "https://dreamledger.org/api/products"
-    ]
+    ],
+    "availability_note": "Review the product page for current terms and availability."
   }
 ]
