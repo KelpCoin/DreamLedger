@@ -5,6 +5,7 @@ on:
     - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - ".github/workflows/777-cycle.yml"
       - "scripts/777_cycle.py"
@@ -29,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Generate procurement amendment delta
         run: python scripts/procurement_amendment_delta.py
       - name: Generate external demand transition
@@ -58,9 +61,13 @@ jobs:
         run: python scripts/777_compounding_gate.py
       - name: Commit new pulse if changed
         run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "PUBLISH_SKIPPED_NON_MAIN_REF=$GITHUB_REF"
+            exit 0
+          fi
           git config user.name "DreamLedger 777"
           git config user.email "777@dreamledger.org"
-          git add webapp/pulse webapp/index.html webapp/phinhaven/index.html
+          git add -f webapp/pulse/* webapp/index.html webapp/phinhaven/index.html
           if git diff --cached --quiet; then
             echo "No new economic signal."
             exit 0
