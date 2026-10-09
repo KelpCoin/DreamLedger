@@ -91,13 +91,20 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
-      const products=Array.isArray(catalogue.products)?catalogue.products:[];
-      const offers=products.filter(x=>x&&x.status==='published'&&x.checkout_available===true).map(x=>({
-        product_id:x.id, sku:x.sku||null, name:x.name, description:x.description||null,
-        price_nzd:x.currency==='nzd'?x.price:null, currency:x.currency||'nzd', silo:x.silo||null,
-        checkout_url:x.checkout_url||null, fulfillment:x.fulfillment||null, status:'VERIFIED_AVAILABLE'
+      const source=Array.isArray(catalogue.products)?catalogue.products:[];
+      const categoryMap={mtg:'mtg','media':'public-placements','dreammeez':'avatar-accessories','commerce':'digital-tools','seller_tools':'seller-services','kelplantis':'digital-experiences','research':'research-services','procurement':'procurement-tools','toll-booths':'digital-tools','demand-services':'growth-services',other:'other-products'};
+      const publicDescription=value=>String(value||'').replace(/777/gi,'research').replace(/CUBE/gi,'').replace(/BECK/gi,'').replace(/Elohim/gi,'DreamLedger').replace(/AgentBridge/gi,'the service').replace(/existing fulfillment rail/gi,'automated service').replace(/internal activity/gi,'unverified activity').replace(/economic loops/gi,'purchase steps').replace(/silos?/gi,'categories').trim();
+      const listed=source.filter(x=>x&&x.status==='published'&&x.checkout_available===true&&typeof x.checkout_url==='string').map(x=>({
+        id:x.id,product_id:x.id,sku:x.sku||null,name:x.name,description:publicDescription(x.description),
+        price:x.price,price_nzd:x.currency==='nzd'?x.price:null,currency:x.currency||'nzd',
+        category:categoryMap[String(x.silo||'other').toLowerCase()]||'other-products',
+        checkout_url:x.checkout_url,status:'LISTED'
       }));
-      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:offers.length,offers,truth_rule:'settled_stripe_only'}),'application/json; charset=utf-8');
+      if(p==='/api/products'){
+        const products=listed.map(x=>({id:x.id,sku:x.sku,name:x.name,description:x.description,price:x.price,currency:x.currency,category:x.category,status:'published',checkout_available:true,checkout_url:x.checkout_url}));
+        return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:products.length,products,note:'Review the product page for current terms and availability.'}),'application/json; charset=utf-8');
+      }
+      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed,note:'A listing does not prove a completed purchase or delivery.'}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
   if(req.method==='GET' && (p==='/.well-known/ai'||p==='/.well-known/ai-catalog.json')){
