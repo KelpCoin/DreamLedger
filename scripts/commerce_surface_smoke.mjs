@@ -41,4 +41,44 @@ for (const [name, url] of checks) {
     console.log(`FAIL ${name} ${error?.name ?? "Error"}: ${error?.message ?? String(error)}`);
   }
 }
+
+async function testFreeQuoteIntake() {
+  const base = "https://wbwgroygjeyukkspnqiy.supabase.co";
+  const fn = base + "/functions/v1/quote-intake";
+  const key = "sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj";
+  const files = [
+    { name: "smoke-a.csv", body: "Supplier,Grand total,Lead time\\nSupplier A,Grand total: NZD 100.00,5 days\\n" },
+    { name: "smoke-b.csv", body: "Supplier,Grand total,Lead time\\nSupplier B,Grand total: NZD 125.00,7 days\\n" }
+  ];
+  const api = async (body) => {
+    const res = await fetch(fn, { method: "POST", headers: { "Content-Type": "application/json", apikey: key }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error("intake HTTP " + res.status + " " + (data.error || ""));
+    return data;
+  };
+  try {
+    const init = await api({ action: "free_initialize", files: files.map(x => ({ name: x.name })) });
+    if (!init.ok || !init.intake_id || !Array.isArray(init.uploads) || init.uploads.length !== 2) throw new Error("initialize did not return structured upload instructions");
+    const prepared = [];
+    for (let i = 0; i < files.length; i++) {
+      const u = init.uploads[i];
+      const res = await fetch(base + "/storage/v1/object/upload/sign/" + encodeURIComponent(u.path) + "?token=" + encodeURIComponent(u.token), {
+        method: "PUT", headers: { "Content-Type": "text/csv" }, body: files[i].body, signal: AbortSignal.timeout(30000)
+      });
+      if (!res.ok) throw new Error("test upload HTTP " + res.status);
+      prepared.push({ path: u.path, name: files[i].name, size: new TextEncoder().encode(files[i].body).length });
+    }
+    const result = await api({ action: "free_finalize", intake_id: init.intake_id, requirements: "CI fixture only: compare sample supplier quotes", files: prepared, share_anonymized: false });
+    if (!result.ok || result.comparison?.comparison_status !== "COMPLETE" || result.comparison?.comparable_totals !== 2 || result.comparison?.evidence_type !== "QUOTED_OFFER") {
+      throw new Error("unexpected structured comparison response: " + JSON.stringify(result.comparison || result.error));
+    }
+    if (result.oracle_ingestion?.status !== "NOT_REQUESTED") throw new Error("smoke test unexpectedly requested public publication");
+    console.log("PASS free-quote-intake HTTP 200 structured comparison; 2 totals; no public publication");
+  } catch (error) {
+    failed = true;
+    console.log("FAIL free-quote-intake " + (error?.message ?? String(error)));
+  }
+}
+await testFreeQuoteIntake();
+
 if (failed) process.exitCode = 1;
