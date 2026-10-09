@@ -1,3 +1,16 @@
+import { readFile } from "node:fs/promises";
+
+const quoteFunctionSource = await readFile(new URL("../supabase/functions/quote-intake/index.ts", import.meta.url), "utf8");
+const requestRouter = quoteFunctionSource.slice(quoteFunctionSource.indexOf("Deno.serve"));
+const freeRouteIndex = requestRouter.indexOf('if(action==="free_initialize"||action==="free_finalize")');
+const stripeGateIndex = requestRouter.indexOf('if(!STRIPE_API_KEY)return out({error:"SERVICE_NOT_CONFIGURED"},503)');
+if (freeRouteIndex < 0 || stripeGateIndex < 0 || freeRouteIndex > stripeGateIndex) {
+  console.error("FAIL free-intake-config-contract: free actions must be routed before the Stripe-secret gate");
+  process.exitCode = 1;
+} else {
+  console.log("PASS free-intake-config-contract: free actions do not require Stripe credentials");
+}
+
 const checks = [
   ["homepage", "https://dreamledger.org/"],
   ["agentic-commerce", "https://dreamledger.org/agentic-commerce/"],
