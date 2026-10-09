@@ -1,28 +1,38 @@
 {
   "schema_version": 1,
   "trip_id": "trip-20261010-failure-telemetry-001",
-  "objective": "Turn monetise-failure + repeat-attempt telemetry into a concrete non-MTG figure-eight package with a reusable compounding component. No external actions.",
+  "objective": "Harden the Failure Telemetry Pack: polished brief, canonical schema, runnable local collector, usage notes. No external actions.",
   "origin": {
     "surface": "DreamLedger AGENT_BUS",
-    "job": "user-directed-failure-monetisation"
+    "job": "user-requested-harden-failure-telemetry"
   },
   "worker": {
     "environment": "cloud-Grok",
     "model": "Grok",
-    "note": "Cloud preparation only"
+    "note": "Cloud hardening only"
   },
   "status": "SUCCEEDED",
-  "started_at": "2026-10-09T12:28:30Z",
-  "finished_at": "2026-10-09T12:29:20Z",
+  "started_at": "2026-10-09T12:33:00Z",
+  "finished_at": "2026-10-09T12:35:30Z",
   "outputs": [
     {
       "path": "candidate_brief.md",
-      "sha256": "b60d1f7f1dd63e01cc9672dcaf65f514585667a1",
+      "sha256": "a352a6fe292495b8e474a844b297ad8af662df25",
       "media_type": "text/markdown"
     },
     {
       "path": "compounding_failure_telemetry.md",
-      "sha256": "2594373b38caf14a7b727264a18b58581a7c4bf4",
+      "sha256": "edd86e4d98103fbb67ac58080a2f27ee40e4a40f",
+      "media_type": "text/markdown"
+    },
+    {
+      "path": "failure_collector.py",
+      "sha256": "f581a999d31e897413b2ed9849d9222f53509c65",
+      "media_type": "text/x-python"
+    },
+    {
+      "path": "USAGE.md",
+      "sha256": "79f3d6dc639485aceafec0afa73b25df02ae1c3c",
       "media_type": "text/markdown"
     }
   ],
@@ -35,7 +45,12 @@
     {
       "name": "no_external_action",
       "status": "PASS",
-      "evidence": "No publishing, spend, or data collection"
+      "evidence": "No network, no publishing, no spend"
+    },
+    {
+      "name": "collector_stdlib_only",
+      "status": "PASS",
+      "evidence": "failure_collector.py uses only Python standard library"
     },
     {
       "name": "receipt_schema",
@@ -43,20 +58,24 @@
       "evidence": "Required fields present"
     },
     {
-      "name": "local_worker",
+      "name": "local_execution",
       "status": "NOT_RUN",
-      "evidence": "No LM Studio worker this session"
+      "evidence": "Collector is provided; not executed in this cloud session"
     }
   ],
   "compounding_assets": [
     {
+      "path": "failure_collector.py",
+      "rationale": "Runnable local collector so any environment can start logging attempts immediately"
+    },
+    {
       "path": "compounding_failure_telemetry.md",
-      "rationale": "Failure-telemetry schema and collector pattern that future trips can reuse so repeated attempts become durable, queryable assets instead of lost cost"
+      "rationale": "Canonical schema that future trips can reuse"
     }
   ],
   "limitations": [
-    "Cloud preparation only",
-    "No live telemetry collected",
+    "Cloud preparation / hardening only",
+    "Collector not executed against live workloads in this session",
     "Revenue claim remains NONE"
   ],
   "external_effect": "NOT_ATTEMPTED",
