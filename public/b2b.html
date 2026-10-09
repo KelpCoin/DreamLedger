@@ -4,9 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#0a0c10"/>
-<meta name="description" content="DreamLedger B2B Marketplace — NZ wholesale & procurement. 0% platform success fee. RFQs, suppliers, quote comparison."/>
+<meta name="description" content="Supplier quote comparison and wholesale enquiry tools for New Zealand businesses."/>
 <link rel="canonical" href="https://dreamledger.org/b2b.html"/>
-<title>B2B Marketplace · DreamLedger NZ</title>
+<title>B2B Procurement Tools | DreamLedger</title>
 <style>
 :root{
   --bg:#0a0c10;--p:#11151c;--p2:#171c25;--line:#2a3340;--ink:#f2f4f7;--mut:#8b95a3;
@@ -83,9 +83,9 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 
 <main class="w">
   <section class="hero">
-    <div class="k">Enterprise B2B · New Zealand · 0% success fee</div>
+    <div class="k">B2B procurement · New Zealand · 0% success fee</div>
     <h1>Wholesale & procurement marketplace</h1>
-    <p class="lead">Source suppliers, post RFQs, compare quotes, settle in NZD. Platform success fee on peer B2B sales: <strong style="color:var(--ok)">0%</strong>. We earn on tools — not your margin.</p>
+    <p class="lead">Explore supplier enquiries, wholesale listings, and quote comparison. The listed platform success fee on peer-to-peer B2B sales is <strong style="color:var(--ok)">0%</strong>; optional tools have separate prices.</p>
     <div class="ctas">
       <a class="btn ok" href="#rfq">Post an RFQ</a>
       <a class="btn gold" href="/sell.html">List wholesale stock</a>
@@ -100,21 +100,21 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
   </section>
 
   <section class="sec">
-    <h2>B2B capability grid</h2>
-    <p class="sub">Full marketplace surface — not a brochure.</p>
+    <h2>Tools for buyers and suppliers</h2>
+    <p class="sub">Choose the tool that fits your purchasing task.</p>
     <div class="grid cols3">
       <a class="card feat" href="#rfq"><h3>Request for quote</h3><p>Buyers post demand. Suppliers respond. Structured intake, not inbox chaos.</p><span class="go">Post RFQ →</span></a>
       <a class="card" href="/sell.html"><h3>Wholesale listings</h3><p>MOQ, lead time, GST, trading name. 0% success fee on peer sales.</p><span class="go">List stock →</span></a>
       <a class="card" href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e"><h3>Quote comparison</h3><p>2–5 supplier quotes → normalized decision packet. Fixed NZ$49.</p><span class="go">Buy tool →</span></a>
       <a class="card" href="/buy/SELLER-PROFIT-AUDIT-001"><h3>Seller profit audit</h3><p>Channel fees, shipping, margin leaks. NZ$29 fixed scope.</p><span class="go">Buy audit →</span></a>
-      <a class="card" href="/truth-oracle.html"><h3>Truth / verification</h3><p>Entity checks and evidence. UNKNOWN stays UNKNOWN.</p><span class="go">Open Oracle →</span></a>
-      <a class="card" href="/agent-commerce.json"><h3>Machine commerce</h3><p>Agent-readable offers. Human authorize before spend.</p><span class="go">API contract →</span></a>
+      <a class="card" href="/truth-oracle.html"><h3>Supplier checks</h3><p>Entity checks and evidence. Missing details stay visible.</p><span class="go">Open Oracle →</span></a>
+      <a class="card" href="/agent-commerce.json"><h3>AI-assisted discovery</h3><p>Product information can be read by software; people approve purchases.</p><span class="go">Developer information →</span></a>
     </div>
   </section>
 
   <section class="sec">
-    <h2>Categories live for B2B intake</h2>
-    <p class="sub">Same rails. Clear silos.</p>
+    <h2>Common purchasing categories</h2>
+    <p class="sub">Choose the category that fits your request.</p>
     <div class="grid cols4">
       <div class="card"><h3>Construction & trade</h3><p>Subcontractor quotes, materials, MOQ.</p></div>
       <div class="card"><h3>IT & hardware</h3><p>Gear, warranty, lead times.</p></div>
@@ -129,7 +129,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 
   <section class="sec" id="rfq">
     <h2>Post a request for quote</h2>
-    <p class="sub">Buyers: describe what you need. We store the RFQ for supplier matching. No platform success fee on resulting peer deals.</p>
+    <p class="sub">Buyers: describe what you need. We receive your request for review and supplier matching where available. No platform success fee on resulting peer deals.</p>
     <form class="form" id="rfqForm">
       <label for="company">Company</label>
       <input id="company" name="company" required maxlength="120" placeholder="Trading name"/>
@@ -169,7 +169,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
         </div>
       </div>
       <button class="btn ok" type="submit" style="width:100%;margin-top:1rem">Submit RFQ · free</button>
-      <p class="note">RFQs are intake signals. Suppliers are matched when available. Platform success fee remains 0% on peer B2B sales.</p>
+      <p class="note">An RFQ is a request, not a guarantee of supplier response. Platform success fee remains 0% on peer B2B sales.</p>
       <p class="status" id="status">RFQ saved. Reference will appear here.</p>
     </form>
   </section>
@@ -177,9 +177,9 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
   <section class="sec">
     <h2>How a B2B deal clears</h2>
     <div class="steps">
-      <div class="step"><div class="n">1</div><div><strong>Demand or supply enters</strong><span>RFQ or wholesale listing. Truth gate applies.</span></div></div>
+      <div class="step"><div class="n">1</div><div><strong>Demand or supply enters</strong><span>RFQ or wholesale listing. Listing details may be reviewed.</span></div></div>
       <div class="step"><div class="n">2</div><div><strong>Match & negotiate</strong><span>Structured fields: MOQ, lead time, GST, region.</span></div></div>
-      <div class="step"><div class="n">3</div><div><strong>Settle via Stripe when using platform pay</strong><span>Only settled payments count as commercial truth.</span></div></div>
+      <div class="step"><div class="n">3</div><div><strong>Settle via Stripe when using platform pay</strong><span>Payment confirmation and delivery are checked separately.</span></div></div>
       <div class="step"><div class="n">4</div><div><strong>You keep the margin</strong><span>0% DreamLedger success fee on peer merchandise.</span></div></div>
     </div>
   </section>
