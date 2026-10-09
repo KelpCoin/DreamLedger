@@ -1,0 +1,15 @@
+{
+  "artifact_count": 4,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "public/pulse/2026-10-09-private-commercial-ai-agents-can-pay-for-your-shopping-who-gets-your-money-back-cryptonews-net-3914c4d85d182093.html",
+    "public/pulse/index.html",
+    "webapp/pulse/2026-10-09-private-commercial-ai-agents-can-pay-for-your-shopping-who-gets-your-money-back-cryptonews-net-3914c4d85d182093.html",
+    "webapp/pulse/index.html"
+  ],
+  "observed_at": "2026-10-09T13:21:28.780478+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
