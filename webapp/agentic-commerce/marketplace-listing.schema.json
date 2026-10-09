@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/.well-known/marketplace-listing.schema.json",
+  "title": "DreamLedger Marketplace Listing Contract",
+  "description": "Canonical version-pinned contract for reusable digital goods and AgentBridge capabilities. A listing is not proof of sale, entitlement, fulfillment, or revenue.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "listing_id", "kind", "title", "version", "publisher", "licence", "content", "interface", "commercial_terms", "acceptance", "truth_status"],
+  "properties": {
+    "schema_version": {"const": "dreamledger.marketplace-listing.v1"},
+    "listing_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"},
+    "kind": {"enum": ["template", "boilerplate", "stencil", "word_bank", "schema", "connector", "workflow_pack", "model_asset", "api_capability", "gpu_job"]},
+    "title": {"type": "string", "minLength": 3, "maxLength": 160},
+    "summary": {"type": "string", "minLength": 20, "maxLength": 1200},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"},
+    "publisher": {
+      "type": "object", "additionalProperties": false, "required": ["publisher_id", "display_name"],
+      "properties": {
+        "publisher_id": {"type": "string", "minLength": 3, "maxLength": 128},
+        "display_name": {"type": "string", "minLength": 1, "maxLength": 120},
+        "support_url": {"type": "string", "format": "uri"}
+      }
+    },
+    "licence": {
+      "type": "object", "additionalProperties": false, "required": ["spdx_id", "terms_url", "redistribution"],
+      "properties": {
+        "spdx_id": {"type": "string", "minLength": 1, "maxLength": 80},
+        "terms_url": {"type": "string", "format": "uri"},
+        "redistribution": {"enum": ["allowed", "restricted", "prohibited", "custom"]},
+        "commercial_use": {"type": "boolean"},
+        "attribution_required": {"type": "boolean"}
+      }
+    },
+    "content": {
+      "type": "object", "additionalProperties": false, "required": ["sha256", "media_type", "size_bytes"],
+      "properties": {
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "media_type": {"type": "string", "minLength": 3, "maxLength": 120},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "download_uri": {"type": "string", "format": "uri"},
+        "source_refs": {"type": "array", "items": {"type": "string", "format": "uri"}, "uniqueItems": true, "maxItems": 100}
+      }
+    },
+    "interface": {
+      "type": "object", "additionalProperties": false, "required": ["inputs", "outputs", "compatibility"],
+      "properties": {
+        "inputs": {"type": "array", "items": {"type": "object", "required": ["name", "type"], "properties": {"name": {"type": "string"}, "type": {"type": "string"}, "required": {"type": "boolean"}, "description": {"type": "string"}}, "additionalProperties": false}},
+        "outputs": {"type": "array", "items": {"type": "object", "required": ["name", "type"], "properties": {"name": {"type": "string"}, "type": {"type": "string"}, "description": {"type": "string"}}, "additionalProperties": false}},
+        "compatibility": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "runtime_requirements": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "commercial_terms": {
+      "type": "object", "additionalProperties": false, "required": ["currency", "amount_minor", "billing_model", "discovery_price"],
+      "properties": {
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "amount_minor": {"type": "integer", "minimum": 0},
+        "billing_model": {"enum": ["free", "one_time", "per_call", "subscription", "usage_metered", "quote"]},
+        "discovery_price": {"const": "FREE"},
+        "usage_limit": {"type": "integer", "minimum": 1},
+        "refund_policy_uri": {"type": "string", "format": "uri"},
+        "unit_cost_estimate_minor": {"type": "integer", "minimum": 0},
+        "margin_floor_bps": {"type": "integer", "minimum": 0, "maximum": 10000}
+      }
+    },
+    "acceptance": {
+      "type": "object", "additionalProperties": false, "required": ["test_command_or_uri", "expected_result", "delivery_evidence"],
+      "properties": {
+        "test_command_or_uri": {"type": "string", "minLength": 1, "maxLength": 500},
+        "expected_result": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "delivery_evidence": {"enum": ["hash_receipt", "signed_receipt", "test_report", "download_receipt", "api_result", "proof_of_play"]},
+        "test_refs": {"type": "array", "items": {"type": "string", "format": "uri"}, "uniqueItems": true}
+      }
+    },
+    "entitlement": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "scope": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "max_calls": {"type": "integer", "minimum": 1},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "idempotency_required": {"type": "boolean"},
+        "key_issuance_requires_settlement": {"type": "boolean"}
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "observed_at": {"type": "string", "format": "date-time"},
+        "verified_at": {"type": "string", "format": "date-time"},
+        "evidence_refs": {"type": "array", "items": {"type": "string", "format": "uri"}, "uniqueItems": true},
+        "verification_method": {"type": "string", "maxLength": 500}
+      }
+    },
+    "truth_status": {"enum": ["INTERNAL", "TEST", "OBSERVED", "UNVERIFIED", "VERIFIED", "STALE", "CONTRADICTED"]},
+    "status": {"enum": ["draft", "listed", "suspended", "retired"]},
+    "limitations": {"type": "array", "items": {"type": "string", "maxLength": 500}, "maxItems": 50}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"truth_status": {"const": "VERIFIED"}}, "required": ["truth_status"]},
+      "then": {"required": ["provenance"], "properties": {"provenance": {"required": ["verified_at", "evidence_refs", "verification_method"]}}}
+    }
+  ]
+}
