@@ -224,3 +224,8 @@ Do not expose the whole BECK/DreamLedger repository or private silo data. Extrac
 The first release gate is source/license audit + deterministic security tests, not launch posting. Then public repo/README, package build and smoke test, one demo, one integration guide, honest comparison, reproducible benchmark, and human-authored distribution. HN, PyPI, stars, downloads, and demo views are not revenue. Paid tier revenue requires a real buyer, settled payment, delivered hosted capability and retained evidence.
 
 Avoid unsupported “AI safety solved” claims. Document the bypass threat model: a wrapper cannot stop bypass if an agent can directly call the underlying tool. Do not publish destructive demos, fake stars, spam, or unverified competitor comparisons.
+
+
+## Economic Scale Canon (required read)
+
+Before any portfolio or cross-project task, read [`ECONOMIC_SCALE_CANON.md`](ECONOMIC_SCALE_CANON.md). Elohim is upstream of CUBE; CUBE routes bounded work only. Preserve existing authority, evidence, and economic truth boundaries. Prefer a verified customer outcome over new infrastructure. Local GPU work is optional and must not be claimed without local evidence. This doctrine applies across all Agent Bridge workers and silos.
