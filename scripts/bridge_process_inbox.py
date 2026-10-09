@@ -45,13 +45,22 @@ def main() -> None:
             continue
 
         schema = ping.get("schema", "")
+        intent = str(ping.get("intent") or "").lower()
+        summary_lower = str(ping.get("summary") or "").lower()
+        reads = set(ping.get("reads") or [])
+        commercial_context_required = intent in {"money", "commercial", "sell", "acquire"} or any(word in summary_lower for word in ("revenue", "buyer", "checkout", "payment", "offer", "distribution", "commercial", "sell"))
+        required_reads = {"AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md"}
         if "agent-bridge-ping" not in schema:
             status, summary = "rejected", "invalid schema"
         elif float(ping.get("revenue_claim_nzd") or 0) > 0:
             status, summary = "rejected", "revenue_claim_nzd must be 0 without fossil"
+        elif commercial_context_required and not required_reads.issubset(reads):
+            status, summary = "rejected", "commercial task must declare Agent Bridge protocol and canonical Money Playbook in reads"
         else:
             status = "accepted"
             summary = f"accepted ball={ping.get('ball')} intent={ping.get('intent')}"
+            if commercial_context_required:
+                summary += " commercial-context=acknowledged"
 
         pong_id = f"pong-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M')}-{uuid.uuid4().hex[:6]}"
         pong = {
@@ -62,6 +71,8 @@ def main() -> None:
             "status": status,
             "summary": summary,
             "verified_external_revenue_nzd": 0,
+            "required_context": ["AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md", "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json"] + (["AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md"] if commercial_context_required else []),
+            "commercial_context_required": commercial_context_required,
             "next_ball": ping.get("ball") or "C",
             "created_at": utc(),
         }
