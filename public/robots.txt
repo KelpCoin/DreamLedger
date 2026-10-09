@@ -6,7 +6,6 @@ Disallow: /admin/
 Disallow: /internal/
 Disallow: /debug/
 Sitemap: https://dreamledger.org/sitemap.xml
-Sitemap: https://dreamledger.org/hypotheses/sitemap.xml
 Sitemap: https://dreamledger.org/quote-comparison-sitemap.xml
 Agentmap: https://dreamledger.org/.well-known/dreamledger.json
 AI-Catalog: https://dreamledger.org/ai-catalog.json
