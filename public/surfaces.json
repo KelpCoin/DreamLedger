@@ -1,251 +1,32 @@
 {
-  "schema": "dreamledger/surfaces/v1",
-  "status": "active",
-  "updated": "2026-10-03",
-  "purpose": "canonical commercial surface registry — human + agent",
+  "schema": "dreamledger/public-site-directory/v1",
+  "status": "public",
+  "updated": "2026-10-10",
+  "purpose": "Directory of visitor-facing DreamLedger pages and tools.",
   "rules": {
-    "every_surface_has_surface_id": true,
-    "every_surface_maps_to_offer_id": true,
-    "every_paid_event_maps_to_economic_event": true,
-    "every_delivery_emits_proof": true,
-    "scale_rule": "paid_verified_then_clone",
-    "nav_rule": "prefer_extensionless_routes_on_live"
+    "examples_are_labelled": true,
+    "product_availability_is_confirmed_on_product_page": true,
+    "missing_information_is_not_guessed": true
   },
-  "surface_classes": {
-    "WEB_OFFER": "human-facing offer",
-    "AGENT_ENDPOINT": "machine-readable commerce doorway",
-    "DIGITAL_PRODUCT": "automated digital fulfillment",
-    "TRUST_PROOF": "portable transaction and delivery evidence",
-    "B2B_MARKETPLACE": "RIVET business trade rails",
-    "AUCTION_LANE": "timed lots with bid proofs",
-    "SILO": "vertical catalogue lane (cube clone)"
+  "page_types": {
+    "FREE_TOOL": "Free public tool or guide",
+    "SERVICE": "Paid product or service",
+    "RESEARCH": "Source-linked public research",
+    "MARKETPLACE": "Dedicated marketplace section",
+    "INFORMATION": "About, trust, and help pages"
   },
-  "active_surfaces": [
-    {
-      "surface_id": "DL-WEB-HOME-001",
-      "class": "WEB_OFFER",
-      "path": "/",
-      "status": "active",
-      "role": "front_door"
-    },
-    {
-      "surface_id": "DL-WEB-START-001",
-      "class": "WEB_OFFER",
-      "path": "/start",
-      "status": "pending_deploy",
-      "role": "conversion_funnel"
-    },
-    {
-      "surface_id": "DL-WEB-MONEY-001",
-      "class": "WEB_OFFER",
-      "path": "/money",
-      "status": "pending_deploy"
-    },
-    {
-      "surface_id": "DL-WEB-B2B-RIVET-001",
-      "class": "B2B_MARKETPLACE",
-      "path": "/b2b",
-      "status": "active",
-      "role": "rivet_hub"
-    },
-    {
-      "surface_id": "DL-WEB-MARKETPLACE-001",
-      "class": "B2B_MARKETPLACE",
-      "path": "/marketplace",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-WEB-BILLBOARD-001",
-      "class": "WEB_OFFER",
-      "path": "/billboard",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-WEB-CMD-DIAG-001",
-      "class": "WEB_OFFER",
-      "path": "/mtg",
-      "status": "active",
-      "role": "ignition"
-    },
-    {
-      "surface_id": "DL-SILO-MTG-001",
-      "class": "SILO",
-      "path": "/mtg",
-      "status": "active",
-      "role": "master_silo"
-    },
-    {
-      "surface_id": "DL-SILO-RETRO-001",
-      "class": "SILO",
-      "path": "/retro",
-      "status": "pending_deploy"
-    },
-    {
-      "surface_id": "DL-SILO-VINYL-001",
-      "class": "SILO",
-      "path": "/vinyl",
-      "status": "pending_deploy"
-    },
-    {
-      "surface_id": "DL-SILO-BOARD-001",
-      "class": "SILO",
-      "path": "/boardgames",
-      "status": "pending_deploy"
-    },
-    {
-      "surface_id": "DL-FULFILL-CMD-001",
-      "class": "DIGITAL_PRODUCT",
-      "path": "/diagnostic-input.html",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-FULFILL-AUDIT-001",
-      "class": "DIGITAL_PRODUCT",
-      "path": "/seller-audit-input.html",
-      "status": "pending_deploy"
-    },
-    {
-      "surface_id": "DL-AGENT-001",
-      "class": "AGENT_ENDPOINT",
-      "path": "/agent.json",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-AGENT-COMMERCE-001",
-      "class": "AGENT_ENDPOINT",
-      "path": "/agent-commerce.json",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-WELLKNOWN-001",
-      "class": "AGENT_ENDPOINT",
-      "path": "/.well-known/dreamledger.json",
-      "status": "active"
-    },
-    {
-      "surface_id": "DL-TRUST-001",
-      "class": "TRUST_PROOF",
-      "path": "/trust.html",
-      "status": "pending_deploy"
-    },
-    {
-      "surface_id": "DL-AUCTIONS-001",
-      "class": "AUCTION_LANE",
-      "path": "/auctions.html",
-      "status": "pending_deploy"
-    },
-    {
-      "surface_id": "DL-SILO-CAMERAS-001",
-      "class": "SILO",
-      "path": "/cameras",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-MUSICAL_INSTRUMENTS-001",
-      "class": "SILO",
-      "path": "/musical_instruments",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-TOOLS-001",
-      "class": "SILO",
-      "path": "/tools",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-OUTDOOR-001",
-      "class": "SILO",
-      "path": "/outdoor",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-COMPUTERS-001",
-      "class": "SILO",
-      "path": "/computers",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-PHONES-001",
-      "class": "SILO",
-      "path": "/phones",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-FURNITURE-001",
-      "class": "SILO",
-      "path": "/furniture",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-AUTO_PARTS-001",
-      "class": "SILO",
-      "path": "/auto_parts",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-COLLECTIBLES-001",
-      "class": "SILO",
-      "path": "/collectibles",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-HOME_APPLIANCES-001",
-      "class": "SILO",
-      "path": "/home_appliances",
-      "status": "active",
-      "role": "published_silo_shell"
-    },
-    {
-      "surface_id": "DL-SILO-DEMAND-SERVICES-001",
-      "class": "SILO",
-      "path": "/demand-services",
-      "status": "active",
-      "role": "published_b2b_service_silo"
-    },
-    {
-      "surface_id": "DL-SILO-FIGHTEDGE-001",
-      "class": "SILO",
-      "path": "/fightedge",
-      "status": "active",
-      "role": "combat-sports-results-silo",
-      "canonical_upstream": "https://fightedge-web-live.onrender.com",
-      "quarantine_note": "fightedge-web is duplicate; keep offline/quarantined after canonical health verification"
-    }
-  ],
-  "human_nav_priority": [
-    "/",
-    "/start",
-    "/mtg",
-    "/b2b",
-    "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-    "/buy/SELLER-PROFIT-AUDIT-001"
-  ],
-  "agent_nav_priority": [
-    "/.well-known/dreamledger.json",
-    "/agent-commerce.json",
-    "/api/offers",
-    "/api/products",
-    "/buy/{product_id}"
-  ],
-  "trade_me_positioning": {
-    "success_fee_bps": 0,
-    "earn_on": [
-      "listing_tools",
-      "diagnostics",
-      "partner_kits",
-      "plans",
-      "slots",
-      "b2b_micro"
-    ],
-    "not_claiming": "full_parity_with_trade_me_volume"
-  }
+  "pages": [
+    {"name":"Home","type":"INFORMATION","path":"/","status":"public"},
+    {"name":"Truth Oracle","type":"FREE_TOOL","path":"/truth-oracle.html","status":"public"},
+    {"name":"Truth Oracle Field Guide","type":"FREE_TOOL","path":"/truth-oracle-field-guide.html","status":"public"},
+    {"name":"Supplier Quote Comparison","type":"SERVICE","path":"/quote-comparison/","status":"public"},
+    {"name":"Products and Services","type":"SERVICE","path":"/shop.html","status":"public"},
+    {"name":"Seller Information","type":"INFORMATION","path":"/sell.html","status":"public"},
+    {"name":"Billboard","type":"SERVICE","path":"/billboard.html","status":"public"},
+    {"name":"Magic: The Gathering","type":"MARKETPLACE","path":"/mtg/","status":"public"},
+    {"name":"Research Notes","type":"RESEARCH","path":"/pulse/","status":"public"},
+    {"name":"About DreamLedger","type":"INFORMATION","path":"/about/","status":"public"},
+    {"name":"Evidence Standard","type":"INFORMATION","path":"/trust/","status":"public"},
+    {"name":"B2B Procurement","type":"SERVICE","path":"/b2b.html","status":"public"}
+  ]
 }
