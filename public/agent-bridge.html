@@ -3,63 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Agent Bridge · DreamLedger</title>
-<meta name="description" content="DreamLedger Agent Bridge — governed handoff, settlement-backed truth, tolls for agentic commerce validation.">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Agent Bridge API Toll Road | DreamLedger</title>
+<meta name="description" content="A governed API toll road for agent workflows: free discovery, prepaid call packs, route leases, usage receipts, and evidence-backed fulfillment.">
 <style>
-:root{--bg:#f7f3ec;--ink:#1a1510;--muted:#6e6458;--line:#e2d8c8;--gold:#c48a2b;--card:#fffcf7}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
-a{color:var(--gold)}header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-.brand{font-family:Fraunces,Georgia,serif;font-size:1.25rem;font-weight:600;color:var(--ink);text-decoration:none}
-main{max-width:640px;margin:0 auto;padding:28px 16px 64px}h1{font-family:Fraunces,Georgia,serif;font-size:clamp(1.8rem,5vw,2.4rem);font-weight:500;margin-bottom:12px}
-.lead{color:var(--muted);margin-bottom:24px}h2{font-size:1.05rem;margin:28px 0 10px}p,li{color:var(--muted);font-size:.95rem;margin-bottom:8px}ul{padding-left:1.2em}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0}
-.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;background:#1a1510;color:#fff;font-weight:700;text-decoration:none;margin-top:12px}
-.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+:root{--bg:#f7f3ec;--ink:#1a1510;--muted:#6e6458;--line:#e2d8c8;--gold:#c48a2b;--card:#fffcf7;--green:#245b3f;--greenbg:#e8f3e9;--amber:#725018;--amberbg:#fff0cf}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}a{color:#80510c}header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-family:Georgia,serif;font-size:1.25rem;font-weight:700;color:var(--ink);text-decoration:none}main{max-width:880px;margin:0 auto;padding:30px 16px 64px}h1{font-family:Georgia,serif;font-size:clamp(2.2rem,6vw,4.3rem);line-height:1.04;letter-spacing:-.04em;margin:18px 0}h2{font-size:1.25rem;margin:0 0 12px}h3{font-size:1.05rem;margin-bottom:8px}p,li{color:var(--muted);font-size:.97rem;margin-bottom:10px}ul{padding-left:1.2em}.lead{font-size:1.1rem;max-width:690px}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:800;color:#80510c}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}.price{font-family:Georgia,serif;font-size:2rem;color:var(--ink);margin:8px 0}.tag{display:inline-block;border-radius:99px;padding:4px 9px;font-size:.75rem;font-weight:800;background:var(--greenbg);color:var(--green)}.tag.planned{background:var(--amberbg);color:var(--amber)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.84rem;overflow-wrap:anywhere;background:#f0e9dd;border-radius:6px;padding:2px 5px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;border-radius:999px;background:#1a1510;color:#fff;font-weight:750;text-decoration:none;padding:10px 16px;margin:4px 6px 4px 0}.btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--line)}.notice{border-left:4px solid var(--gold);padding:12px 15px;background:#f1e8d8;border-radius:0 10px 10px 0;margin:18px 0}.steps{counter-reset:step;list-style:none;padding:0}.steps li{counter-increment:step;display:grid;grid-template-columns:28px 1fr;gap:10px;margin:12px 0}.steps li:before{content:counter(step);display:grid;place-items:center;width:26px;height:26px;background:#1a1510;color:white;border-radius:50%;font-size:.8rem;font-weight:800}.fine{font-size:.82rem}.section{margin-top:34px}@media(max-width:700px){.grid{grid-template-columns:1fr}header{align-items:flex-start}main{padding-top:20px}}
 </style>
 </head>
 <body>
-<header>
-  <a class="brand" href="/">DreamLedger</a>
-  <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001" style="font-weight:700;font-size:13px">Buy NZ$29</a>
-</header>
+<header><a class="brand" href="/">DreamLedger</a><a href="/agent-commerce.json">Machine contract ↗</a></header>
 <main>
-  <h1>Agent Bridge</h1>
-  <p class="lead">Governed handoff between agents and cloud commerce. The bridge is a road. Tolls are paid for access and validation — not for inventing revenue.</p>
-
-  <h2>What it is today</h2>
-  <ul>
-    <li><strong>Status:</strong> governed (authenticated agent token required)</li>
-    <li><strong>Rail:</strong> <span class="mono">/api/agent-bridge/rail/manifest</span> (401 without credentials)</li>
-    <li><strong>Settlement:</strong> Stripe live NZD only</li>
-    <li><strong>Truth rule:</strong> bridge activity ≠ revenue; revenue needs Stripe + fulfillment proof</li>
-  </ul>
-
-  <h2>Where tolls fit (agentic commerce boom)</h2>
-  <div class="card">
-    <p><strong>Discovery is free enough to try.</strong> Machine contracts stay public:</p>
-    <p class="mono">/api/offers · /agent-commerce.json · /.well-known/dreamledger.json</p>
-    <p style="margin-top:12px"><strong>Validation is the product.</strong> Agents that want governed handoff, attribution binding, and ledger proof pay for the road:</p>
-    <ul>
-      <li>Bridge session / rail access (tokenised agents)</li>
-      <li>Proof attestation against <span class="mono">proof.schema.json</span></li>
-      <li>Human checkout remains Stripe (0% platform success fee on current public offers)</li>
-    </ul>
-  </div>
-
-  <h2>Alignment with the industry stack</h2>
-  <ul>
-    <li><strong>AP2-like:</strong> human authorization before spend</li>
-    <li><strong>ACP-like:</strong> Payment Link / buy-router handoff</li>
-    <li><strong>x402 / MPP:</strong> reserved, not live on DreamLedger yet</li>
-  </ul>
-
-  <h2>Humans still buy here</h2>
-  <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · NZ$29</a>
-  <a class="btn" style="background:transparent;color:var(--ink);border:1.5px solid var(--line)" href="/shop.html">Horizontal shop →</a>
-
-  <h2>Machine entry</h2>
-  <p><a href="/agent.json">agent.json</a> · <a href="/agent-commerce.json">agent-commerce.json</a> · <a href="/ledger.html">ledger.html</a></p>
+<div class="eyebrow">Governed machine commerce</div>
+<h1>Agent Bridge is the toll road, not the toll booth fantasy.</h1>
+<p class="lead">Agents can discover offers for free. When they need authenticated work, bounded execution, usage records, and evidence-backed handoff, that is the paid layer. Human purchases still settle through Stripe.</p>
+<div class="notice"><strong>Honest live status:</strong> public discovery and the bridge manifest are live. The dedicated prepaid API pack and route lease below are the proposed commercial contract, not yet purchasable. We will not point an API buyer at an unrelated product and pretend they bought quota.</div>
+<div class="section">
+<h2>Pricing ladder</h2>
+<div class="grid">
+<article class="card"><span class="tag">LIVE</span><h3 style="margin-top:12px">Discovery</h3><div class="price">Free</div><p>Public offers, product catalogue, machine-readable contracts, bridge health and manifest. No authenticated write access.</p><a href="/api/agent-bridge/manifest">Open bridge manifest ↗</a></article>
+<article class="card"><span class="tag planned">PROPOSED</span><h3 style="margin-top:12px">API Starter Pack</h3><div class="price">NZ$19</div><p>100 billable authenticated operations. Usage receipt, remaining-call balance, idempotent retries, and a hard stop at zero. No surprise overage.</p><p class="fine"><strong>Not on sale yet:</strong> dedicated Stripe SKU, atomic quota debit, key issuance, and live payment-to-fulfillment verification are still required.</p></article>
+<article class="card"><span class="tag planned">PROPOSED</span><h3 style="margin-top:12px">Route Lease</h3><div class="price">NZ$29/mo</div><p>2,000 billable operations per month on a named route, plus usage export and a hard quota. Enterprise capacity and SLAs come later, after usage proves demand.</p><p class="fine"><strong>Not on sale yet.</strong> Recurring billing and quota renewal need end-to-end verification.</p></article>
+</div>
+</div>
+<div class="section">
+<h2>How the toll road earns money</h2>
+<ol class="steps">
+<li><div><strong>Discover free.</strong> An agent reads public offers and the bridge manifest. Cheap health and discovery reads stay free within reasonable limits.</div></li>
+<li><div><strong>Buy an entitlement.</strong> The future dedicated API Starter Pack checkout will sell 100 calls for NZ$19. Stripe settlement, not a success-page redirect, triggers fulfillment.</div></li>
+<li><div><strong>Receive a scoped key.</strong> The buyer receives a revocable token tied to the canonical SKU and a bounded allowance. Secrets are not written to public logs.</div></li>
+<li><div><strong>Pay per allowance, not per mystery.</strong> Each billable operation reserves one unit atomically. Replays with the same idempotency key return the original result without charging twice. At zero, execution stops until a top-up.</div></li>
+<li><div><strong>Prove delivery.</strong> Request ID, correlation ID, result, entitlement, usage and settlement are reconciled through the existing commerce and economic-observation spine. API activity alone is never called revenue.</div></li>
+</ol>
+</div>
+<div class="section">
+<h2>What counts as billable?</h2>
+<div class="card"><ul>
+<li>Billable: authenticated event writes, job claims/completions, and explicitly metered work routes.</li>
+<li>Free: public catalogue/manifest reads, health probes, rejected requests before authorization, and retries carrying the same idempotency key.</li>
+<li>Never silently overdraw: a depleted pack returns a machine-readable quota response without performing the requested side effect.</li>
+<li>No second ledger: use the existing entitlement and economic-observation contracts. If atomic quota enforcement is unavailable, fail closed instead of faking a balance.</li>
+</ul></div>
+</div>
+<div class="section">
+<h2>Available today: the adjacent integration product</h2>
+<div class="card"><span class="tag">EXISTING OFFER</span><h3 style="margin-top:12px">Discord Webhook Starter Kit · NZ$79</h3><p>A downloadable Stripe-to-Discord webhook integration kit. This is a separate product, not an Agent Bridge API key, quota pack, or route lease.</p><a class="btn" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">View existing kit checkout</a><p class="fine">Buying this kit does not grant Agent Bridge API access.</p></div>
+</div>
+<div class="section">
+<h2>Machine entry points</h2>
+<p><a href="/api/agent-bridge/manifest">Bridge manifest</a> · <a href="/api/agent-bridge/rail/public">Public rail contract</a> · <a href="/bridge-tolls.json">Toll contract JSON</a> · <a href="/api/offers">Offer catalogue</a> · <a href="/agent-commerce.json">Agent commerce</a></p>
+<p class="fine">External actions still require explicit human authorization. x402 and MPP are not represented as live payment rails here. Pricing and entitlements must not be marked live until the dedicated checkout, usage gate, and delivery evidence pass end-to-end tests.</p>
+</div>
 </main>
 </body>
 </html>
