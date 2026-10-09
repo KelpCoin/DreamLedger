@@ -49,8 +49,10 @@ def classify_ping(ping: dict) -> dict:
         status, summary = "rejected", "invalid schema"
     elif float(ping.get("revenue_claim_nzd") or 0) > 0:
         status, summary = "rejected", "revenue_claim_nzd must be 0 without fossil"
-    elif commercial and not required_reads.issubset(reads):
-        status, summary = "rejected", "commercial task must declare Agent Bridge protocol and canonical Money Playbook in reads"
+    elif not required_reads.issubset(reads):
+        status, summary = "rejected", "every Agent Bridge task must declare protocol and canonical Money Playbook in reads"
+    elif commercial and "AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md" not in reads:
+        status, summary = "rejected", "commercial task must declare COMMERCIAL_ROUTES_CATALOG.md in reads"
     elif beck and not required_beck_reads.issubset(reads):
         status, summary = "rejected", "BECK/runtime governance task must declare BECK_PRODUCTIZATION_GTM.md in reads"
     else:
