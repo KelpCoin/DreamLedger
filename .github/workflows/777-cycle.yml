@@ -49,6 +49,11 @@ jobs:
           LM_STUDIO_MODEL: ${{ vars.LM_STUDIO_MODEL }}
           QUOTE_COMPARE_CHECKOUT: ${{ vars.QUOTE_COMPARE_CHECKOUT }}
         run: node scripts/777_cloud_execution_adapter.js
+      - name: Stage public artifact candidates for compounding gate
+        run: |
+          # Some generated public pulse paths may match repository ignore rules.
+          # Stage HTML candidates before the gate so it evaluates the exact files the commit step can publish.
+          git add -f webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html
       - name: Enforce compounding output
         run: python scripts/777_compounding_gate.py
       - name: Commit new pulse if changed
