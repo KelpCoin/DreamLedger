@@ -5,6 +5,8 @@ on:
     - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - ".github/workflows/777-cycle.yml"
       - "scripts/777_cycle.py"
@@ -22,6 +24,9 @@ concurrency:
 
 jobs:
   pulse:
+    # This workflow writes generated artifacts back to main. Never allow a
+    # manual dispatch from a feature branch to publish to main.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -76,7 +81,7 @@ jobs:
           echo "PUSH_FAILED_AFTER_RETRIES"
           exit 1
 
-# 777 execution directive: upscale fresh cycle.
+# 777 execution directive: upscale fresh cycle. 
 # Objective: MONEY first. If no settlement, return exactly one new durable non-duplicate component.
 # Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem, Nylas IAM scoped API keys.
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
