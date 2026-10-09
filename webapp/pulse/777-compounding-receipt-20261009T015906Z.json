@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-09-private-commercial-agent-pricing-is-chaos-here-s-what-we-re-seeing-from-the-buyer-side-the-agents-015-youtube-b6f74d6f876bd074.html"
+  ],
+  "observed_at": "2026-10-09T01:59:06.859687+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
