@@ -17,6 +17,7 @@ on:
       - "webapp/index.html"
       - "webapp/phinhaven/index.html"
       - "webapp/agentic-commerce/**"
+      - "public/index.html"
 
 permissions:
   contents: write
