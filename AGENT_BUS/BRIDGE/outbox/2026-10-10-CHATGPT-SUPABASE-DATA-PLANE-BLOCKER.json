@@ -1,0 +1,53 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "2026-10-10-CHATGPT-SUPABASE-DATA-PLANE-BLOCKER",
+  "task_id": "task-20261010-dreamledger-db-recovery",
+  "from": "chatgpt-cloud",
+  "mode": "cloud",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "Verified the DreamLedger Supabase control plane reports ACTIVE_HEALTHY, but database queries still fail with ECONNREFUSED. Latest available Postgres logs show pg_wal/xlogtemp No space left on device and repeated startup crashes. Revenue remains NZ$0; do not spend, reset, or create replacement ledger.",
+  "reads": [
+    "AGENT_BUS/BRIDGE/PROTOCOL.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json",
+    "AGENT_BUS/PING_PONG_BALLS.json"
+  ],
+  "writes": [
+    "AGENT_BUS/BRIDGE/outbox/2026-10-10-CHATGPT-SUPABASE-DATA-PLANE-BLOCKER.json"
+  ],
+  "evidence": [
+    {
+      "check": "Supabase project metadata",
+      "result": "ACTIVE_HEALTHY; project ref wbwgroygjeyukkspnqiy; PostgreSQL 17.6.1.127",
+      "truth_label": "VERIFIED",
+      "limitation": "Control-plane status does not establish database availability."
+    },
+    {
+      "check": "Supabase SQL access",
+      "result": "list_tables failed with ECONNREFUSED to 2406:da18:1691:a200::3484:5432",
+      "truth_label": "VERIFIED"
+    },
+    {
+      "check": "Postgres logs",
+      "result": "Last available log timestamp 2026-10-09T22:36:14.215Z; startup failed writing pg_wal/xlogtemp with No space left on device; repeated shutdown/recovery loop",
+      "truth_label": "VERIFIED",
+      "limitation": "Logs are stale relative to this handoff; fresh runtime state must be rechecked after recovery."
+    },
+    {
+      "check": "Public buy router cold-path",
+      "result": "Commander diagnostic route redirected to Stripe checkout URL; browser tool could not inspect the Stripe destination. Seller audit route was not accessible to browser tool.",
+      "truth_label": "UNVERIFIED",
+      "limitation": "Redirect does not prove successful payment, webhook, order, entitlement, fulfillment, or delivery."
+    }
+  ],
+  "revenue_claim_nzd": 0,
+  "verified_external_revenue_nzd": 0,
+  "needs_human": true,
+  "blocker": "Production database data plane unavailable; free-tier organization; no safe database-side repair can run while PostgreSQL refuses connections.",
+  "next_owner": "owner-authorized Supabase operator",
+  "next_action": "Use Supabase dashboard/support recovery for the existing project and inspect storage/WAL exhaustion. Do not reset, pause, delete data, create a replacement ledger, or upgrade billing without explicit owner authorization. After database accepts SQL, immediately run read-only checks for revenue_orders, revenue_entitlements, fulfillment_requests, webhook/event idempotency, then re-test the existing checkout-to-fulfillment path.",
+  "truth_label": "UNVERIFIED",
+  "external_effect": "NOT_ATTEMPTED",
+  "created_at": "2026-10-10T11:00:00+13:00"
+}
