@@ -40,6 +40,12 @@ def main() -> None:
     dest.mkdir(parents=True, exist_ok=True)
 
     ping_id = f"ping-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M')}-{uuid.uuid4().hex[:6]}"
+    reads = ["AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md", "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json", "AGENT_BUS/PING_PONG_BALLS.json", "AGENT_BUS/ECONOMIC-LOOPS/registry.json"]
+    intent = args.intent.lower()
+    summary_lower = args.summary.lower()
+    if intent in {"money", "commercial", "sell", "acquire"} or any(word in summary_lower for word in ("revenue", "buyer", "checkout", "payment", "offer", "distribution", "commercial", "sell")):
+        reads.append("AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md")
+
     ping = {
         "schema": "dreamledger/agent-bridge-ping/v1",
         "ping_id": ping_id,
@@ -48,7 +54,7 @@ def main() -> None:
         "ball": args.ball,
         "intent": args.intent,
         "summary": args.summary,
-        "reads": ["AGENT_BUS/PING_PONG_BALLS.json", "AGENT_BUS/ECONOMIC-LOOPS/registry.json"],
+        "reads": ["AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md", "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json", "AGENT_BUS/PING_PONG_BALLS.json", "AGENT_BUS/ECONOMIC-LOOPS/registry.json"],
         "writes": [str(dest.relative_to(ROOT) / f"{ping_id}.json")],
         "revenue_claim_nzd": 0,
         "needs_human": args.ball == "C",
