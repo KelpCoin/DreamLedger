@@ -1,15 +1,15 @@
 {
   "schema_version": "DREAMLEDGER/777/CLOUD-EXECUTION/v1",
-  "generated_at_utc": "2026-10-08T21:41:06.501Z",
+  "generated_at_utc": "2026-10-09T00:04:09.544Z",
   "selected_path": "DETERMINISTIC_FALLBACK",
   "fallback_attempts": [
     {
       "path": "5:DETERMINISTIC_EXISTING_GAUNTLET",
       "status": "PASS",
-      "at": "2026-10-08T21:41:05.851Z"
+      "at": "2026-10-09T00:04:09.538Z"
     }
   ],
-  "candidate_hash": "b281c75fa4a9c92694d82df1ea51222b6c4cf044aa4db18c6bf85bee4ac103ab",
+  "candidate_hash": "b72233ab9890c28cd6a08bd048a6ac14128d35de26d8104004aebd21d57f030b",
   "gauntlet_status": "PASS",
   "candidate": {
     "offer_id": "QUOTE-COMPARE-49",
@@ -29,7 +29,7 @@
     "verification_rules": "external buyer + settled payment + fulfillment + independent proof",
     "provenance": {
       "private_material": "excluded",
-      "source_hash": "3092ac3cb0f1f331f4e5227382b56abb3f899a5606190613c553e69244546f38"
+      "source_hash": "fb3701a0117612315a6cf1cd914d1e9c8cdafb3f71d546b3da2d3b3efcb2900a"
     },
     "silo": "quote-compare",
     "kill_condition": "no external buyer, no settled payment, fulfillment failure, contradictory evidence"
@@ -50,5 +50,5 @@
     "revenue": "UNVERIFIED"
   },
   "next_action": "route only through existing authorized acquisition/commerce mechanism",
-  "integrity_sha256": "6d0d643e323a959399f483c8b37c89a1a4e9331283872ee4d2328838efa02ea1"
+  "integrity_sha256": "4a6380bde0a1dcfdd67b6eb133b7b5b887f5ce6ae5a8614f1926edf628c9052b"
 }
