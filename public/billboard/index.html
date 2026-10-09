@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b2b">
+<title>DOOH Campaign Brief Builder | DreamLedger</title>
+<meta name="description" content="Build a structured digital-out-of-home campaign brief before requesting inventory or quotes. Free, browser-only, and honest about what is not yet verified.">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--blue:#9ec9ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0,#1b3450 0,transparent 38%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(960px,calc(100% - 32px));margin:auto}.top{padding:22px 0;border-bottom:1px solid #ffffff18;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.top a{color:var(--mint);text-decoration:none}.hero{padding:50px 0 26px}.eyebrow{color:var(--mint);font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.hero h1{font-size:clamp(36px,6vw,58px);line-height:1.02;letter-spacing:-.05em;margin:14px 0}.hero p,.muted{color:var(--muted)}.pill{display:inline-block;border:1px solid #a9f2d055;border-radius:99px;padding:5px 10px;color:var(--mint);font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:18px}label{display:block;font-size:13px;color:var(--muted);font-weight:700;margin:0 0 6px}input,select,textarea{width:100%;padding:12px;background:#091321;color:var(--ink);border:1px solid var(--line);border-radius:10px;font:inherit;margin:0 0 15px}textarea{min-height:90px;resize:vertical}.btn{display:inline-flex;justify-content:center;align-items:center;padding:12px 16px;border-radius:11px;border:1px solid var(--line);color:var(--ink);background:#16253a;font-weight:750;cursor:pointer;text-decoration:none}.btn.primary{background:var(--mint);color:#0b1721;border-color:var(--mint)}.actions{display:flex;gap:10px;flex-wrap:wrap}.notice{border-left:3px solid #f0c77b;padding:10px 14px;background:#f0c77b0d;color:var(--muted);font-size:13px}.output{white-space:pre-wrap;overflow-wrap:anywhere;background:#091321;border:1px dashed #52657d;border-radius:12px;padding:16px;min-height:150px;color:var(--ink)}footer{padding:24px 0 40px;border-top:1px solid #ffffff18;color:var(--muted);font-size:12px;margin-top:30px}@media(max-width:650px){.grid{grid-template-columns:1fr}.hero{padding-top:36px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><a href="/">← DreamLedger</a><span class="pill">Free planning tool · No account</span></header>
+<main>
+<section class="hero"><div class="eyebrow">Programmatic DOOH · Early-stage planning</div><h1>Turn an advertising idea into a brief buyers can price.</h1><p>Specify the audience, geography, dates, creative and proof you need before contacting media owners. This tool creates a brief on your device. It does not reserve screens, confirm inventory, or send your information anywhere.</p></section>
+<section class="panel">
+<form id="brief">
+<div class="grid">
+<div><label for="campaign">Campaign or brand</label><input id="campaign" name="campaign" placeholder="e.g. Spring launch" required></div>
+<div><label for="objective">Primary objective</label><select id="objective" name="objective"><option>Reach and awareness</option><option>Store visits</option><option>Event attendance</option><option>Lead generation</option><option>Public information</option></select></div>
+<div><label for="geography">Target geography</label><input id="geography" name="geography" placeholder="City, region, or postcodes" required></div>
+<div><label for="audience">Audience or context</label><input id="audience" name="audience" placeholder="Who should see it?"></div>
+<div><label for="start">Start date</label><input id="start" name="start" type="date"></div>
+<div><label for="end">End date</label><input id="end" name="end" type="date"></div>
+<div><label for="budget">Budget and currency</label><input id="budget" name="budget" placeholder="e.g. 2,000 NZD, flexible"></div>
+<div><label for="format">Preferred screen / format</label><select id="format" name="format"><option>Recommend suitable formats</option><option>Street furniture</option><option>Retail and mall screens</option><option>Transit</option><option>Roadside digital billboard</option><option>Venue and event screens</option><option>Mixed inventory</option></select></div>
+</div>
+<label for="creative">Creative and constraints</label><textarea id="creative" name="creative" placeholder="Artwork dimensions, video length, accessibility, brand safety, restricted categories, language, dayparts…"></textarea>
+<label for="proof">Evidence requested from media owner</label><textarea id="proof" name="proof" placeholder="Rate card, screen list, proof-of-play, estimated impressions methodology, cancellation terms, make-goods…">Screen locations, dates and dayparts; pricing and fees; audience methodology; proof-of-play; cancellation and make-good terms.</textarea>
+<div class="actions"><button class="btn primary" type="submit">Build campaign brief</button><button class="btn" id="copy" type="button">Copy brief</button><button class="btn" id="download" type="button">Save .txt</button></div>
+</form>
+</section>
+<section class="panel"><h2>Your brief</h2><p class="muted">Generated locally in this browser. Nothing is submitted to DreamLedger.</p><div class="output" id="output" aria-live="polite">Complete the fields and choose “Build campaign brief”.</div></section>
+<section class="panel"><h2>Before money moves</h2><div class="notice">Treat inventory, audience estimates, delivery, and proof-of-play as unverified until the media owner supplies evidence and the campaign is independently checked. This page is a planning tool, not an inventory marketplace or a promise of availability.</div><p class="muted">Next product gate: connect an authorized inventory feed and a permissioned buyer/seller workflow only after data provenance, consent, pricing, cancellation rules, and campaign evidence are defined.</p><a class="btn" href="/trust/">Read the evidence standard</a></section>
+</main>
+<footer>DreamLedger · Evidence-first commercial tools. This tool stores no data server-side and does not make external requests.</footer>
+</div>
+<script>
+(function(){
+ const form=document.getElementById('brief'),out=document.getElementById('output');
+ function make(){
+  const d=new FormData(form),v=k=>(String(d.get(k)||'').trim()||'Not specified');
+  return 'DOOH CAMPAIGN BRIEF\n==================\nCampaign: '+v('campaign')+'\nObjective: '+v('objective')+'\nGeography: '+v('geography')+'\nAudience/context: '+v('audience')+'\nStart: '+v('start')+'\nEnd: '+v('end')+'\nBudget: '+v('budget')+'\nFormat: '+v('format')+'\n\nCreative and constraints\n------------------------\n'+v('creative')+'\n\nEvidence requested from media owner\n-----------------------------------\n'+v('proof')+'\n\nBUYER CHECKLIST\n- Confirm legal rights to the inventory and creative.\n- Request itemized pricing, fees, cancellation and make-good terms.\n- Request methodology and provenance for audience/impression estimates.\n- Require proof-of-play and reconcile delivery against the order.\n- Do not treat this brief as a reservation or verified inventory.';
+ }
+ form.addEventListener('submit',e=>{e.preventDefault();out.textContent=make()});
+ document.getElementById('copy').addEventListener('click',async()=>{if(out.textContent.startsWith('Complete the fields'))out.textContent=make();try{await navigator.clipboard.writeText(out.textContent);document.getElementById('copy').textContent='Copied';}catch(e){document.getElementById('copy').textContent='Select text to copy';}});
+ document.getElementById('download').addEventListener('click',()=>{if(out.textContent.startsWith('Complete the fields'))out.textContent=make();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out.textContent],{type:'text/plain;charset=utf-8'}));a.download='dreamledger-dooh-campaign-brief.txt';a.click();URL.revokeObjectURL(a.href);});
+})();
+</script>
+</body>
+</html>
