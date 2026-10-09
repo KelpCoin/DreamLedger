@@ -16,7 +16,6 @@ concurrency:
 
 env:
   CANONICAL_URL: https://dreamledger.org
-  FOUNDING_TILE_CHECKOUT: https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w
 
 jobs:
   build:
@@ -67,13 +66,11 @@ jobs:
               raise SystemExit("FAIL no source-bound commercial pulse page staged")
           print(f"PASS observatory index links={len(parser.hrefs)}; all targets exist") 
           PY
-          grep -Fq "DREAMLEDGER 3000" _site/index.html
-          grep -Fq "THE FRONT DOOR" _site/index.html
-          grep -Fq "Billboard" _site/index.html
-          grep -Fq 'NZ$50' _site/index.html
-          grep -Fq "$FOUNDING_TILE_CHECKOUT" _site/index.html
-          grep -Fq 'DreamMeez' _site/index.html
-          grep -Fq 'Magic' _site/index.html
+          grep -Fq "Clearer decisions. Verifiable outcomes." _site/index.html
+          grep -Fq "Start with a free worksheet" _site/index.html
+          grep -Fq "comparing supplier quotes" _site/index.html
+          grep -Fq "777 Economic Observatory" _site/pulse/index.html
+          grep -Fq "VERIFIED_EXTERNAL_REVENUE" _site/pulse/index.html
           echo "PASS DreamLedger Pages artifact staged"
 
       - name: Configure Pages
@@ -102,7 +99,7 @@ jobs:
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -Fq "DREAMLEDGER 3000" /tmp/dreamledger.html && grep -Fq "THE FRONT DOOR" /tmp/dreamledger.html && grep -Fq 'NZ$50' /tmp/dreamledger.html && grep -Fq "$FOUNDING_TILE_CHECKOUT" /tmp/dreamledger.html && grep -Fq 'DreamMeez' /tmp/dreamledger.html; then
+            if [ "$CODE" = "200" ] && grep -Fq "Clearer decisions. Verifiable outcomes." /tmp/dreamledger.html && grep -Fq "Start with a free worksheet" /tmp/dreamledger.html && grep -Fq "comparing supplier quotes" /tmp/dreamledger.html; then
               echo "PASS GitHub Pages DreamLedger front door verified: $URL"
               exit 0
             fi
