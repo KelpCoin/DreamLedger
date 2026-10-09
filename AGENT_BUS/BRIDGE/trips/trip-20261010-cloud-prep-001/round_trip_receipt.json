@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "trip_id": "trip-20261010-cloud-prep-001",
+  "objective": "Cloud preparation for first non-MTG figure-eight test trip: produce usable economic discovery artifact + reusable compounding component. No external actions or spend.",
+  "origin": {
+    "surface": "DreamLedger AGENT_BUS",
+    "job": "trip-20261010-letter-economic-discovery-001"
+  },
+  "worker": {
+    "environment": "cloud-Grok",
+    "model": "Grok",
+    "note": "No local LM Studio worker available this session"
+  },
+  "status": "SUCCEEDED",
+  "started_at": "2026-10-09T12:23:24Z",
+  "finished_at": "2026-10-09T12:24:00Z",
+  "outputs": [
+    {
+      "path": "candidate_brief.md",
+      "sha256": "bfede116ab3ba7db96515459d5047d2dca57c019",
+      "media_type": "text/markdown"
+    },
+    {
+      "path": "compounding_checklist.md",
+      "sha256": "ab421418742e40339c86328e6ae8264351b9122c",
+      "media_type": "text/markdown"
+    }
+  ],
+  "checks": [
+    {
+      "name": "scope_non_mtg",
+      "status": "PASS",
+      "evidence": "Brief explicitly excludes MTG content and silos"
+    },
+    {
+      "name": "no_external_action",
+      "status": "PASS",
+      "evidence": "No publishing, outreach, account changes, or spending performed"
+    },
+    {
+      "name": "receipt_schema",
+      "status": "PASS",
+      "evidence": "All required fields present per ROUND_TRIP_COMPOUNDING_ARTIFACT_CONTRACT"
+    },
+    {
+      "name": "local_worker_execution",
+      "status": "NOT_RUN",
+      "evidence": "No live LM Studio worker observed this session"
+    }
+  ],
+  "compounding_assets": [
+    {
+      "path": "compounding_checklist.md",
+      "rationale": "Ordered checklist that future cloud agents can reuse to shorten preparation of subsequent figure-eight trips"
+    }
+  ],
+  "limitations": [
+    "Local GPU / LM Studio stage not executed; cloud preparation only",
+    "No external demand validation performed",
+    "Revenue remains unverified (NONE)",
+    "SHA-256 values are the Git blob SHAs of the committed files (not pure content-hash of bytes before commit)"
+  ],
+  "external_effect": "NOT_ATTEMPTED",
+  "revenue_claim": "NONE"
+}
