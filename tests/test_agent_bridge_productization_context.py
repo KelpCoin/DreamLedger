@@ -49,15 +49,30 @@ class AgentBridgeProductizationContextTests(unittest.TestCase):
         self.assertEqual(decision["status"], "accepted")
         self.assertTrue(decision["beck_context_required"])
 
-    def test_commercial_ping_still_requires_money_playbook(self):
+    def test_every_ping_requires_protocol_and_money_playbook(self):
         decision = classify_ping({
             "schema": "dreamledger/agent-bridge-ping/v1",
-            "intent": "commercial",
-            "summary": "validate Pro offer",
+            "intent": "handoff",
+            "summary": "repair scheduler",
             "reads": ["AGENT_BUS/BRIDGE/PROTOCOL.md"],
             "revenue_claim_nzd": 0,
         })
         self.assertEqual(decision["status"], "rejected")
+        self.assertIn("every Agent Bridge task", decision["summary"])
+
+    def test_commercial_ping_requires_catalog(self):
+        decision = classify_ping({
+            "schema": "dreamledger/agent-bridge-ping/v1",
+            "intent": "commercial",
+            "summary": "validate Pro offer",
+            "reads": [
+                "AGENT_BUS/BRIDGE/PROTOCOL.md",
+                "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+            ],
+            "revenue_claim_nzd": 0,
+        })
+        self.assertEqual(decision["status"], "rejected")
+        self.assertIn("COMMERCIAL_ROUTES_CATALOG.md", decision["summary"])
 
     def test_revenue_claim_cannot_be_fabricated(self):
         decision = classify_ping({
