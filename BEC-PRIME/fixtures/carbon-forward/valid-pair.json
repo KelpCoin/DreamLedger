@@ -1,0 +1,61 @@
+{
+  "now": "2026-10-09T00:00:00.000Z",
+  "buyer": {
+    "intent_id": "buyer-0001",
+    "side": "BUY_FORWARD",
+    "quantity_nzu": 1000,
+    "delivery_window": {
+      "start_date": "2027-01-01",
+      "end_date": "2027-12-31"
+    },
+    "price_basis": {
+      "currency": "NZD",
+      "unit": "NZU",
+      "kind": "FIXED",
+      "price_per_nzu": 42
+    },
+    "counterparty_visibility": "BLINDED_UNTIL_MATCH",
+    "evidence": [
+      {
+        "kind": "CONTRACT_DRAFT",
+        "uri_or_digest": "sha256:abcdef012345",
+        "verification_status": "VERIFIED",
+        "verified_at": "2026-10-01T00:00:00.000Z"
+      }
+    ],
+    "consent": {
+      "data_processing": true,
+      "matching_only": true,
+      "recorded_at": "2026-10-01T00:00:00.000Z"
+    }
+  },
+  "seller": {
+    "intent_id": "seller-0001",
+    "side": "SELL_FORWARD",
+    "quantity_nzu": 800,
+    "delivery_window": {
+      "start_date": "2027-01-01",
+      "end_date": "2027-12-31"
+    },
+    "price_basis": {
+      "currency": "NZD",
+      "unit": "NZU",
+      "kind": "FIXED",
+      "price_per_nzu": 42
+    },
+    "counterparty_visibility": "BLINDED_UNTIL_MATCH",
+    "evidence": [
+      {
+        "kind": "CONTRACT_DRAFT",
+        "uri_or_digest": "sha256:abcdef012345",
+        "verification_status": "VERIFIED",
+        "verified_at": "2026-10-01T00:00:00.000Z"
+      }
+    ],
+    "consent": {
+      "data_processing": true,
+      "matching_only": true,
+      "recorded_at": "2026-10-01T00:00:00.000Z"
+    }
+  }
+}
