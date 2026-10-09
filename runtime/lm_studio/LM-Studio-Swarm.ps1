@@ -24,6 +24,17 @@ function Invoke-Lms {
   if ($LASTEXITCODE -ne 0) { throw ("lms failed ({0}): {1}" -f $LASTEXITCODE,(($output|Out-String).Trim())) }
   ($output|Out-String).Trim()
 }
+function Get-FirstModelValue {
+  param($Object,[string[]]$Names)
+  foreach($name in $Names){
+    $property=$Object.PSObject.Properties[$name]
+    if($property -and $null -ne $property.Value){
+      $value=[string]$property.Value
+      if(-not [string]::IsNullOrWhiteSpace($value)){return $value}
+    }
+  }
+  return ""
+}
 function Get-LmsJson {
   param([string[]]$Arguments)
   $raw=Invoke-Lms -Arguments $Arguments
@@ -62,20 +73,20 @@ if(-not $preferred){$preferred=$env:BECK_LM_MODEL}
 $model=$null
 if($preferred){
   $model=$inventory|Where-Object{
-    $key=[string]($_.modelKey ?? $_.model_key ?? $_.key ?? $_.id)
+    $key=Get-FirstModelValue $_ @("modelKey","model_key","key","id")
     $path=[string]$_.path
     $key -eq $preferred -or $path -eq $preferred
   }|Select-Object -First 1
 }
 if(-not $model){$model=$inventory|Select-Object -First 1}
-$modelKey=[string]($model.modelKey ?? $model.model_key ?? $model.key ?? $model.id)
+$modelKey=Get-FirstModelValue $model @("modelKey","model_key","key","id")
 if(-not $modelKey){throw "LM Studio model inventory contained no usable model key."}
 
 $loaded=Normalize-Items (Get-LmsJson @("ps","--json"))
 $loadedText=$loaded|ConvertTo-Json -Depth 20
 $alreadyLoaded=$loaded|Where-Object{
-  $key=[string]($_.modelKey ?? $_.model_key ?? $_.key ?? $_.id ?? $_.model)
-  $identifier=[string]($_.identifier ?? $_.id ?? $_.model)
+  $key=Get-FirstModelValue $_ @("modelKey","model_key","key","id","model")
+  $identifier=Get-FirstModelValue $_ @("identifier","id","model")
   $key -eq $modelKey -or $identifier -eq $modelKey
 }|Select-Object -First 1
 
@@ -84,8 +95,8 @@ if(-not $alreadyLoaded){
   $loaded=Normalize-Items (Get-LmsJson @("ps","--json"))
   $loadedText=$loaded|ConvertTo-Json -Depth 20
   $alreadyLoaded=$loaded|Where-Object{
-    $key=[string]($_.modelKey ?? $_.model_key ?? $_.key ?? $_.id ?? $_.model)
-    $identifier=[string]($_.identifier ?? $_.id ?? $_.model)
+    $key=Get-FirstModelValue $_ @("modelKey","model_key","key","id","model")
+    $identifier=Get-FirstModelValue $_ @("identifier","id","model")
     $key -eq $modelKey -or $identifier -eq $modelKey
   }|Select-Object -First 1
 }
