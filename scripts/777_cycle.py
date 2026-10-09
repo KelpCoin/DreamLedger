@@ -266,7 +266,7 @@ if deduped:
             m = re.search(r"<h1>(.*?)</h1>", text, re.S)
             if m:
                 title = decode_html(re.sub(r"<[^>]+>", "", m.group(1)))
-                existing_titles.add(re.sub(r"\\s+", " ", title).strip().lower())
+                existing_titles.add(re.sub(r"\s+", " ", title).strip().lower())
             for href in re.findall(r'href="(https?://[^"]+)"', text):
                 existing_urls.add(decode_html(href).strip())
         except Exception:
@@ -301,8 +301,8 @@ if deduped:
             title = decode_html(re.sub(r"<[^>]+>", "", match.group(1))).strip() if match else page_file.stem
             items.append(f'<li><a href="pulse/{html.escape(page_file.name, quote=True)}">{html.escape(title)}</a></li>')
         existing_index = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
-        section_start = "<h2>Latest private commercial pulses</h2>\\n<ul>"
-        replacement_html = section_start + "\\n".join(items[:100]) + "</ul>"
+        section_start = "<h2>Latest private commercial pulses</h2>\n<ul>"
+        replacement_html = section_start + "\n".join(items[:100]) + "</ul>"
         section_at = existing_index.find(section_start)
         if section_at >= 0:
             list_end = existing_index.find("</ul>", section_at)
@@ -310,7 +310,7 @@ if deduped:
                 return False
             updated_index = existing_index[:section_at] + replacement_html + existing_index[list_end + len("</ul>"):]
         else:
-            section_html = "<section aria-label=\\"Latest private commercial pulses\\">\\n" + replacement_html + "\\n</section>\\n"
+            section_html = "<section aria-label=\"Latest private commercial pulses\">\n" + replacement_html + "\n</section>\n"
             insert_at = existing_index.lower().rfind("</main>")
             if insert_at < 0:
                 insert_at = existing_index.lower().rfind("</body>")
