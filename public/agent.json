@@ -6,10 +6,10 @@
   "human_entry": "/",
   "discovery": "/api/offers",
   "catalog": "/api/products",
-  "product_pages": "/product/{product_id}",
+  "product_pages": "/shop.html",
   "purchase_router": "/buy/{product_id}",
   "agent_commerce": "/agent-commerce.json",
-  "ecosystem": "/ecosystem.json",
+  "ecosystem": "/surfaces.json",
   "surfaces": "/surfaces.json",
   "discovery_manifest": "/.well-known/dreamledger.json",
   "bridge": {
