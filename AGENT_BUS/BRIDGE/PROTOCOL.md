@@ -181,7 +181,7 @@ A participant is **brief-aware** after reading the current protocol and North St
 
 ## Commercial execution kernel (v1.4, 2026-10-09)
 
-**Mandatory for every task that proposes, ranks, builds, distributes, or operates a commercial offer:** read this section. For a commercial/economic task, load `AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md` as a candidate library, not as proven market evidence. Do not load its full contents for unrelated work.
+**Mandatory for every Agent Bridge task:** read this section and `AGENT_BUS/MONEY-PLAYBOOK-500.md` (canonical entry point) before taking action. For commercial/economic tasks, consult `AGENT_BUS/MONEY-PLAYBOOK-INDEX.json`; load `AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md` only when ranking or generating new candidates. The 600-entry expansion is supplementary hypotheses, not a replacement for the canonical playbook or proof of market demand.
 
 ### Mission and scoreboard
 - Mission: produce a useful outcome for a real external buyer, collect a settled payment, fulfill the promise, retain delivery evidence, and independently verify the loop. Then replicate the proven mechanism.
@@ -198,7 +198,7 @@ A participant is **brief-aware** after reading the current protocol and North St
 7. **Replicate only after proof:** require an independent buyer and settled external payment, plus fulfillment and delivery evidence. Prefer a verified repeat or second independent buyer before declaring the mechanism evergreen.
 
 ### Agent output contract
-Every commercial task returns: candidate/offer ID; source and current status; customer and job-to-be-done; existing surface/checkout URL; input and fulfillment path; platform fees/payout caveats; no-capital acquisition experiment; attribution plan; success and stop conditions; evidence references; truth label; next action. Mark unsupported platform claims `UNVERIFIED` and research them from current official terms before relying on them.
+Every commercial task returns: candidate/offer ID; source and current status; customer and job-to-be-done; existing surface/checkout URL; input and fulfillment path; platform fees/payout caveats; no-capital acquisition experiment; attribution plan; success and stop conditions; evidence references; truth label; next action. Existing distribution instructions in the legacy playbook are subordinate to current authorization rules: do not publish, message, spend, or change accounts without the required approval. Mark unsupported platform claims `UNVERIFIED` and research them from current official terms before relying on them.
 
 ### Existing platform caveats
 - Metafy Core currently advertises free entry with 12% + US$1.79 per transaction, capped at 30% of earnings; payout identity verification and local payout availability still require account-level verification.
