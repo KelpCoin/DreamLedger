@@ -1,5 +1,7 @@
 # DreamLedger Commercial Route Catalog
 
+Supplement to the canonical `AGENT_BUS/MONEY-PLAYBOOK-500.md` and `AGENT_BUS/MONEY-PLAYBOOK-INDEX.json`. This is not a new source of truth or a replacement for the existing playbook.
+
 Status: HYPOTHESIS CATALOG. The 600 combinations below are candidate experiments, not verified demand, approved offers, or revenue. No listing, payment, buyer, traffic, or deployment is evidence of revenue by itself.
 
 ## Governing execution rule
