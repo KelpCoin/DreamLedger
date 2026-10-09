@@ -129,6 +129,20 @@ http.createServer(async (req,res)=>{
       res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
     }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
   }
+  if(req.method==='GET'&&p==='/api/toll/v1/manifest'){
+    res.setHeader('X-Robots-Tag','noindex, nofollow');
+    return send(res,200,JSON.stringify({
+      schema:'dreamledger/public-resources/v1',
+      name:'DreamLedger',
+      note:'This address no longer lists internal service routes. Use the public product pages for current descriptions, prices, and availability.',
+      resources:[
+        {name:'Free Truth Oracle',url:'https://dreamledger.org/truth-oracle.html'},
+        {name:'Supplier quote comparison',url:'https://dreamledger.org/quote-comparison/'},
+        {name:'Products and services',url:'https://dreamledger.org/shop.html'},
+        {name:'Public research notes',url:'https://dreamledger.org/pulse/'}
+      ]
+    }),'application/json; charset=utf-8');
+  }
   if(p.startsWith('/api/toll/v1/')){
     try{
       const handled=await tollRoad.handle(req,res,p);
