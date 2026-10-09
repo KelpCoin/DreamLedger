@@ -85,10 +85,10 @@ http.createServer(async (req,res)=>{
   const p=u.pathname;
   if((req.method==='GET'||req.method==='HEAD')&&(p==='/fightedge'||p.startsWith('/fightedge/'))){return proxyFightEdge(req,res,u);}
   if(req.method==='GET'&&p==='/healthz'){
-    return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront',commit:COMMIT}),'application/json; charset=utf-8');
+    return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET'&&p==='/version'){
-    return send(res,200,JSON.stringify({service:'dreamledger-storefront',commit:COMMIT,surface:'marketplace-v19'}),'application/json; charset=utf-8');
+    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
