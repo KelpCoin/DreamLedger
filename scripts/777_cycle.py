@@ -354,3 +354,5 @@ raise SystemExit(
     "NO_PRIVATE_COMMERCIAL_SIGNAL: configured private-sector discovery feeds returned no admissible signal; "
     + ";".join(source_errors)
 )
+
+# 777 verification nonce 2026-10-09: exercise the existing scheduled-cycle path after the compounding-gate staging repair; no runtime behavior changed.
