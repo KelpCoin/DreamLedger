@@ -45,6 +45,13 @@ def main() -> None:
     summary_lower = args.summary.lower()
     if intent in {"money", "commercial", "sell", "acquire"} or any(word in summary_lower for word in ("revenue", "buyer", "checkout", "payment", "offer", "distribution", "commercial", "sell")):
         reads.append("AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md")
+    beck_context_required = any(word in summary_lower for word in (
+        "beck", "bec-prime", "bounded runtime", "agent approval", "action governance",
+        "policy enforcement", "approval token", "signed receipt", "agent guardrail",
+        "pypi", "langchain", "crewai", "autogen", "llamaindex", "mcp gateway",
+    ))
+    if beck_context_required:
+        reads.append("AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md")
 
     ping = {
         "schema": "dreamledger/agent-bridge-ping/v1",
