@@ -101,10 +101,10 @@ async function sessionContext(sessionId:string){
 Deno.serve(async req=>{
   if(req.method==="OPTIONS")return new Response("ok",{status:204,headers:cors});
   if(req.method!=="POST")return out({error:"POST_REQUIRED"},405);
-  if(!SUPABASE_URL||!SERVICE_ROLE_KEY||!STRIPE_API_KEY)return out({error:"SERVICE_NOT_CONFIGURED"},503);
   const body=await req.json().catch(()=>({}));const action=String(body.action||"initialize");const sessionId=String(body.session_id||"");
+  if(!SUPABASE_URL||!SERVICE_ROLE_KEY)return out({error:"SERVICE_NOT_CONFIGURED"},503);
+  // Free quote comparison must not depend on Stripe being configured.
   if(action==="free_initialize"||action==="free_finalize"){
-    if(!SUPABASE_URL||!SERVICE_ROLE_KEY)return out({error:"SERVICE_NOT_CONFIGURED"},503);
     const result=await freeIntake(body);return result||out({error:"UNKNOWN_ACTION"},400);
   }
   if(!STRIPE_API_KEY)return out({error:"SERVICE_NOT_CONFIGURED"},503);
