@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-09T13:38:55+00:00",
+  "generated_at_utc": "2026-10-09T18:59:59+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "46038eed-898b-56e2-8b1e-7d705c059039",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Te Nukutai o Tapoa Naval Point Lyttelton Recreation Ground Sports Field Lighting",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-09T18:59:54+00:00",
+      "url": "https://www.gets.govt.nz/CCC/ExternalTenderDetails.htm?id=33671621",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-te-nukutai-o-tapoa-naval-point-lyttelton-recreation-ground-s-a3395b35b5.html"
+    },
     {
       "id": "6b428d4a-6ec5-5201-996b-fb02d15b33f5",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
