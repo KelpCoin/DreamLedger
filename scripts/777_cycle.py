@@ -253,17 +253,50 @@ if "--local" in os.sys.argv:
 if deduped:
     existing_titles = set()
     existing_urls = set()
-    # Cross-artifact dedupe: observatory and other pulse pages count too, not only prior private-commercial cards.
+    existing_documents = []
+    # Cross-artifact dedupe includes editorially enriched pages whose headline differs from the discovery-feed title.
+    stopwords = {
+        "about", "after", "agent", "agents", "and", "announces", "announced", "api",
+        "connecting", "from", "how", "into", "launch", "launches", "more", "new",
+        "platform", "says", "the", "their", "this", "today", "with", "your"
+    }
+
+    def title_tokens(value):
+        return {
+            token for token in re.findall(r"[a-z0-9]{4,}", html.unescape(value).lower())
+            if token not in stopwords
+        }
+
     for existing in PULSE.glob("*.html"):
         try:
-            text = existing.read_text(encoding="utf-8", errors="ignore")
-            m = re.search(r"<h1>(.*?)</h1>", text, re.S)
-            if m:
-                existing_titles.add(re.sub(r"<[^>]+>", "", m.group(1)).strip().lower())
-            for href in re.findall(r'href="(https?://[^"]+)"', text):
+            document = existing.read_text(encoding="utf-8", errors="ignore")
+            m = re.search(r"<h1>(.*?)</h1>", document, re.S)
+            existing_title = html.unescape(re.sub(r"<[^>]+>", "", m.group(1))).strip().lower() if m else ""
+            if existing_title:
+                existing_titles.add(existing_title)
+            for href in re.findall(r'href="(https?://[^"]+)"', document):
                 existing_urls.add(href)
+            searchable = html.unescape(re.sub(r"<[^>]+>", " ", document)).lower()
+            existing_documents.append((existing_title, title_tokens(searchable)))
         except Exception:
             continue
+
+    def is_duplicate_signal(item):
+        title = html.unescape(item["title"]).strip().lower()
+        if title in existing_titles or item["url"] in existing_urls:
+            return True
+        candidate_tokens = title_tokens(title)
+        if not candidate_tokens:
+            return False
+        for existing_title, document_tokens in existing_documents:
+            overlap = candidate_tokens & document_tokens
+            # Catch a repeated event when a prior artifact has an editorial headline and cites the primary source.
+            if len(overlap) >= 4:
+                return True
+            title_overlap = candidate_tokens & title_tokens(existing_title)
+            if len(title_overlap) >= 2 and len(overlap) >= 3:
+                return True
+        return False
 
     def candidate_key(item):
         title = item["title"].lower()
@@ -281,10 +314,7 @@ if deduped:
         )
         return (pain, freshness)
 
-    fresh = [
-        item for item in deduped
-        if item["title"].lower() not in existing_titles and item["url"] not in existing_urls
-    ]
+    fresh = [item for item in deduped if not is_duplicate_signal(item)]
     if not fresh:
         raise SystemExit("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: all admissible recent signals already exist in the corpus.")
     signal = max(fresh, key=candidate_key)
