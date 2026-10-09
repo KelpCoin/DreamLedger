@@ -3,20 +3,24 @@ name: DreamLedger GitHub Pages
 on:
   push:
     branches: [main]
+    paths:
+      - "public/**"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "public/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: dreamledger-pages
-  cancel-in-progress: true
+  group: dreamledger-pages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
 
 env:
   CANONICAL_URL: https://dreamledger.org
-  FOUNDING_TILE_CHECKOUT: https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w
 
 jobs:
   build:
@@ -35,33 +39,36 @@ jobs:
           rm -f _site/CNAME
 
           test -s _site/index.html
-          test -s _site/automation-rescue.html
-          test -s _site/about.html
-          test -s _site/policies.html
-          test ! -e _site/CNAME
-          grep -Fq "DREAMLEDGER 3000" _site/index.html
-          grep -Fq "THE FRONT DOOR" _site/index.html
-          grep -Fq "Billboard" _site/index.html
-          grep -Fq 'NZ$50' _site/index.html
-          grep -Fq "$FOUNDING_TILE_CHECKOUT" _site/index.html
-          grep -Fq 'DreamMeez' _site/index.html
-          grep -Fq 'Magic' _site/index.html
-          echo "PASS DreamLedger Pages artifact staged"
+          test -s _site/trust/index.html
+          test -s _site/about/index.html
+          test -s _site/economic/index.html
+          test -s _site/quote-comparison/index.html
+          grep -Fq "Make the next decision easier to prove." _site/index.html
+          grep -Fq "Evidence before certainty." _site/index.html
+          grep -Fq "Supplier quote worksheet" _site/index.html
+          grep -Fq "/trust/" _site/index.html
+          echo "PASS DreamLedger storefront contract staged"
 
       - name: Configure Pages
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
 
   deploy:
+    if: ${{ github.event_name != 'pull_request' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
@@ -74,12 +81,12 @@ jobs:
           URL="${{ steps.deployment.outputs.page_url }}"
           for attempt in $(seq 1 12); do
             CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -Fq "DREAMLEDGER 3000" /tmp/dreamledger.html && grep -Fq "THE FRONT DOOR" /tmp/dreamledger.html && grep -Fq 'NZ$50' /tmp/dreamledger.html && grep -Fq "$FOUNDING_TILE_CHECKOUT" /tmp/dreamledger.html && grep -Fq 'DreamMeez' /tmp/dreamledger.html; then
-              echo "PASS GitHub Pages DreamLedger front door verified: $URL"
+            if [ "$CODE" = "200" ] && grep -Fq "Make the next decision easier to prove." /tmp/dreamledger.html && grep -Fq "Evidence before certainty." /tmp/dreamledger.html && grep -Fq "Supplier quote worksheet" /tmp/dreamledger.html && grep -Fq "/trust/" /tmp/dreamledger.html; then
+              echo "PASS GitHub Pages storefront contract verified: $URL"
               exit 0
             fi
             echo "Waiting for Pages deployment: attempt $attempt/12 HTTP=$CODE"
             sleep 10
           done
-          echo "FAIL GitHub Pages DreamLedger front-door verification"
+          echo "FAIL GitHub Pages storefront contract verification"
           exit 1
