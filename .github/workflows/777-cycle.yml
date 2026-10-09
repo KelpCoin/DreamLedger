@@ -16,6 +16,7 @@ on:
       - "webapp/pulse/777-manual-probe-2026-10-07.md"
       - "webapp/index.html"
       - "webapp/phinhaven/index.html"
+      - "webapp/agentic-commerce/**"
 
 permissions:
   contents: write
