@@ -1,6 +1,6 @@
 # DreamLedger Commercial Route Catalog
 
-Status: HYPOTHESIS CATALOG. The 500 combinations below are candidate experiments, not verified demand, approved offers, or revenue. No listing, payment, buyer, traffic, or deployment is evidence of revenue by itself.
+Status: HYPOTHESIS CATALOG. The 600 combinations below are candidate experiments, not verified demand, approved offers, or revenue. No listing, payment, buyer, traffic, or deployment is evidence of revenue by itself.
 
 ## Governing execution rule
 
