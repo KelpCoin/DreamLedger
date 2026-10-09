@@ -33,6 +33,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Refresh main before generation
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
       - name: Generate procurement amendment delta
         run: python scripts/procurement_amendment_delta.py
       - name: Generate external demand transition
@@ -76,12 +81,25 @@ jobs:
           git commit -m "777: publish new economic pulse"
           for attempt in 1 2 3 4 5; do
             git fetch origin main
-            git rebase origin/main || {
+            if ! git rebase origin/main; then
               git rebase --abort || true
+              candidate_files="$(git diff-tree --no-commit-id --name-only -r HEAD -- 'webapp/pulse/*.html')"
+              all_candidates_present=true
+              if [[ -z "$candidate_files" ]]; then all_candidates_present=false; fi
+              while IFS= read -r candidate; do
+                [[ -z "$candidate" ]] && continue
+                if ! git cat-file -e "origin/main:$candidate" 2>/dev/null; then
+                  all_candidates_present=false
+                fi
+              done <<< "$candidate_files"
+              if [[ "$all_candidates_present" == "true" ]]; then
+                echo "DUPLICATE_ARTIFACT_ALREADY_PUBLISHED"
+                exit 0
+              fi
               echo "Rebase failed on attempt $attempt"
               sleep 2
               continue
-            }
+            fi
             if git push origin HEAD:main; then
               echo "PUSH_OK attempt=$attempt"
               exit 0
