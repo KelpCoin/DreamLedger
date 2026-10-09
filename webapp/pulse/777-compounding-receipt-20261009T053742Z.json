@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-09-private-commercial-reducto-s-abhi-arya-says-agent-first-software-means-the-agent-never-goes-first-biggo-finance-d7a0a737d00c2727.html"
+  ],
+  "observed_at": "2026-10-09T05:37:42.587996+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
