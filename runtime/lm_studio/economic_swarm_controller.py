@@ -6,7 +6,7 @@ INTERVAL=int(os.environ.get("DREAMLEDGER_SWARM_INTERVAL_SECONDS","60"))
 SUPA=os.environ.get("SUPABASE_URL","").rstrip("/")
 KEY=os.environ.get("SUPABASE_ANON_KEY","")
 ROOT=os.environ.get("DREAMLEDGER_ROOT") or os.getcwd()
-777_PATH=os.path.join(ROOT,"BEC-PRIME","data","777","777-LATEST.json")
+PATH_777=os.path.join(ROOT,"BEC-PRIME","data","777","777-LATEST.json")
 SENSOR_PATH=os.path.join(ROOT,"scripts","777_cycle.py")
 RUN777=os.path.join(ROOT,"BEC-PRIME","scripts","Run-777.js")
 LOG=os.path.join(ROOT,"runtime","lm_studio","runs"); os.makedirs(LOG,exist_ok=True)
@@ -51,9 +51,9 @@ def snapshot():
     sub=load_substrate(); pop=population(sub)
     e={"timestamp_utc":datetime.now(timezone.utc).isoformat(),"economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0},"substrate_population":pop,"constraints":["no self purchase","no simulated revenue","no fake buyers","no autonomous outreach or proposal submission","no autonomous spending","no credential or secret handling","no bypass of platform controls","human gate for irreversible external action"]}
     e["local_private_signals"]=local_private_signals()
-    if os.path.exists(777_PATH):
+    if os.path.exists(PATH_777):
         try:
-            latest=json.loads(open(777_PATH,encoding="utf-8").read())
+            latest=json.loads(open(PATH_777,encoding="utf-8").read())
             e["777"]= {
                 "buyer_signal_queue": latest.get("buyer_signal_queue",[])[:10],
                 "next_human_action": latest.get("next_human_action"),
@@ -85,7 +85,8 @@ def cycle():
     if d.get("decision") in {"QUALIFY","BUILD"}:
         seven=run_777()
     else:
-        seven={"returncode":0,"status":"HELD","reason":"LOCAL_LM_QUALIFICATION_GATE","decision":d.get("decision")}\n    out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
+        seven={"returncode":0,"status":"HELD","reason":"LOCAL_LM_QUALIFICATION_GATE","decision":d.get("decision")}
+    out={"status":"READY","model":model,"seven_seven_seven":seven,"decision":d,"timestamp_utc":datetime.now(timezone.utc).isoformat()}
     trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v1","timestamp_utc":out["timestamp_utc"],"model":model,"cell_count":len(snap.get("substrate_population",[])),"population":snap.get("substrate_population",[]),"decision":d,"economic_truth":snap["economic_truth"],"rule":"internal computation is not revenue"})
     fn=os.path.join(LOG,"swarm-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     open(fn,"w",encoding="utf-8").write(json.dumps(out,indent=2)); out["run_file"]=fn; return out
