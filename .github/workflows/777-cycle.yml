@@ -99,3 +99,5 @@ jobs:
 # 777 expedition component added 2026-10-09: free B2B discovery, low-cost A2A tolls, reusable digital goods, sandboxed GPU capacity, and permissioned DOOH inventory. See webapp/agentic-commerce/.
 
 # Verification trigger: 2026-10-09T18:05+13:00; rerun after staged-output compounding-gate repair. No economic logic changed.
+
+# 777 verification trigger: 2026-10-09T18:08+13:00; verify semantic duplicate filtering and preserve corpus on no-signal cycles.
