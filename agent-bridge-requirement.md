@@ -193,3 +193,20 @@ Autonomy is **earned** by repeated verified pathways under governance — not as
 ---
 
 *Updated 2026-10-06. Credential ≠ authorization. Fail-closed. No revenue claimed. No invented demand.*
+
+
+---
+
+## Shared Multi-LLM Synchronization Contract (2026-10-09)
+
+All authorized nodes (owner phone LLMs, spouse phone LLMs, local LM Studio, cloud agents, and future collaborators explicitly invited by the owner) share one North Star and canonical repository state. A device/model is an execution node, not a separate project.
+
+Every handoff must include: task_id, objective, owner_node, status, target_paths, base_commit_sha, branch/commit SHA, input/output artifact URIs and hashes, tests/results, truth label, blocker, next owner, and timestamp. Claim before editing; one active writer per target path. Check the base commit and inspect diffs before applying or merging changes. GitHub stores source/specs/tests; Notion stores human-readable decisions; Airtable mirrors registry status. Link records rather than forking truth.
+
+LM Studio is optional local acceleration; cloud work continues if the desktop is offline. Phone models may research, triage, review and draft, but cannot claim runtime/code changes without a verifiable commit or system observation. Future friends require explicit invitation, individual identities and least privilege. Never place secrets, webhook URLs, private keys or payment credentials in prompts or project records. External outreach, spending, payments, account changes and irreversible production actions remain behind existing authority gates.
+
+Portfolio direction: quote comparison and document extraction may be free acquisition utilities; do not privilege one funnel. MTG remains the master/reference silo. Music & Media inherits the canonical listing lifecycle and adds vinyl metadata and fair, auditable auctions. FightEdge uses the standard silo contract while retaining sports-specific logic. Preserve idempotent payment handling, durable ledger evidence and verified fulfillment. Engagement must remain transparent and user-controlled, not coercive.
+
+Synchronization protocol: CLAIM → READ NORTH STAR + CURRENT COMMIT → WORK IN SCOPED PATHS → TEST → PUBLISH COMMIT/ARTIFACT + HASH → UPDATE HANDOFF → REVIEW → AUTHORIZED MERGE/DEPLOY → VERIFY EXTERNAL RESULT.
+
+VERIFIED_EXTERNAL_REVENUE remains NZ$0.00 until independent external settlement and fulfillment/delivery evidence are verified. This document defines the contract; it does not prove that every phone app, LM Studio, or cloud agent is already connected to an automatic live shared runtime.
