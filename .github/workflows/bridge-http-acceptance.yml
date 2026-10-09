@@ -3,6 +3,11 @@ name: Bridge HTTP Acceptance Proof
 on:
   push:
     branches: [main, maximona-experiment-001-execution]
+    paths:
+      - "public/**"
+      - "supabase/migrations/**"
+      - "supabase/functions/**"
+      - "BEC-PRIME/scripts/CortexEconomicWorker.ps1"
   workflow_dispatch:
 
 permissions:
@@ -26,21 +31,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          expected_public_commit=$(git log -1 --format=%H "$EXPECTED_COMMIT" -- public)
+          if [ -z "$expected_public_commit" ]; then
+            echo 'EXPECTED_PUBLIC_COMMIT=NOT_FOUND'
+            exit 1
+          fi
+          echo "EXPECTED_PUBLIC_SHA=$expected_public_commit"
           for i in $(seq 1 90); do
             body=$(curl -fsS "$BRIDGE_URL/version" || true)
             printf '%s\n' "$body"
             prod=$(printf '%s' "$body" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{process.stdout.write(JSON.parse(d).commit||'')}catch{}})")
-            if [ "$prod" = "$EXPECTED_COMMIT" ]; then
-              echo 'DEPLOYED_COMMIT=PASS'
+            if [ "$prod" = "$expected_public_commit" ]; then
+              echo 'DEPLOYED_PUBLIC_REVISION=PASS'
               echo "PRODUCTION_SHA=$prod"
-              echo "EXPECTED_SHA=$EXPECTED_COMMIT"
+              echo "EXPECTED_PUBLIC_SHA=$expected_public_commit"
+              echo "TRIGGER_COMMIT=$EXPECTED_COMMIT"
               exit 0
             fi
             sleep 10
           done
-          echo 'DEPLOYED_COMMIT=FAIL'
+          echo 'DEPLOYED_PUBLIC_REVISION=FAIL'
           echo "PRODUCTION_SHA=${prod:-unknown}"
-          echo "EXPECTED_SHA=$EXPECTED_COMMIT"
+          echo "EXPECTED_PUBLIC_SHA=$expected_public_commit"
+          echo "TRIGGER_COMMIT=$EXPECTED_COMMIT"
           exit 1
 
       - name: Require bridge secrets
