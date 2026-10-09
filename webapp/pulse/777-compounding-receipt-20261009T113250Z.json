@@ -1,0 +1,15 @@
+{
+  "artifact_count": 4,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "public/pulse/2026-10-09-private-commercial-celeste-creator-diego-san-jos-director-elena-trap-on-turning-a-tax-inspector-into-dirty-harry-yahoo-6a3f27fe53779265.html",
+    "public/pulse/index.html",
+    "webapp/pulse/2026-10-09-private-commercial-celeste-creator-diego-san-jos-director-elena-trap-on-turning-a-tax-inspector-into-dirty-harry-yahoo-6a3f27fe53779265.html",
+    "webapp/pulse/index.html"
+  ],
+  "observed_at": "2026-10-09T11:32:50.812216+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
