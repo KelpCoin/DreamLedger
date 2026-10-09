@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-09-private-commercial-crossmint-launches-agent-commerce-toolkit-enabling-ai-agents-to-pay-with-any-card-and-check-out-onli-43279087cf424203.html"
+  ],
+  "observed_at": "2026-10-09T01:28:52.034426+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
