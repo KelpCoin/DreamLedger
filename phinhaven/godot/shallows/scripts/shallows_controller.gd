@@ -38,11 +38,19 @@ func _ready() -> void:
 	GameState.log_line.connect(_on_log)
 	_refresh_hud()
 	_update_status_for_phase(GameState.phase)
+	queue_redraw()
 
 func _on_state(s: String) -> void:
 	_update_status_for_phase(s)
 	if s == "PLAY":
 		_spawn()
+	elif s == "SANCTUARY":
+		# Explicit redraw after DEAD → SANCTUARY (and any other return).
+		nodes.clear()
+		skitters.clear()
+		queue_redraw()
+	elif s == "CLEARED" or s == "DEAD":
+		queue_redraw()
 
 func _update_status_for_phase(s: String) -> void:
 	match s:
