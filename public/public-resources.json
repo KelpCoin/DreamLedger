@@ -1,0 +1,15 @@
+{
+  "schema": "dreamledger/public-resources/v1",
+  "name": "DreamLedger",
+  "note": "This address is no longer a public technical catalogue. Use the visitor-facing resources below.",
+  "resources": [
+    {"name":"Home","url":"https://dreamledger.org/"},
+    {"name":"Free Truth Oracle","url":"https://dreamledger.org/truth-oracle.html"},
+    {"name":"Free evidence guide","url":"https://dreamledger.org/truth-oracle-field-guide.html"},
+    {"name":"Supplier quote comparison","url":"https://dreamledger.org/quote-comparison/"},
+    {"name":"Products and services","url":"https://dreamledger.org/shop.html"},
+    {"name":"Public research notes","url":"https://dreamledger.org/pulse/"},
+    {"name":"Magic: The Gathering","url":"https://dreamledger.org/mtg/"},
+    {"name":"Evidence standard","url":"https://dreamledger.org/trust/"}
+  ]
+}
