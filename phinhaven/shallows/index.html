@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PHINHAVEN — The Shallows (minimal playable)</title>
+  <title>PHINHAVEN — The Shallows</title>
   <style>
     :root {
       --bg: #07141a;
@@ -15,6 +15,7 @@
       --text: #e0f5f2;
       --muted: #7a9aa3;
       --danger: #c45c5c;
+      --good: #52b788;
     }
     * { box-sizing: border-box; }
     body {
@@ -25,38 +26,42 @@
       width: 100%; max-width: 640px; padding: 0.75rem 1rem; display: flex; flex-wrap: wrap;
       gap: 0.5rem 1rem; align-items: center; justify-content: space-between;
     }
-    h1 { font-size: 1.1rem; margin: 0; color: var(--teal); }
-    .stats { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+    h1 { font-size: 1.1rem; margin: 0; color: var(--teal); letter-spacing: 0.02em; }
+    .stats { display: flex; gap: 0.85rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
     .stats strong { color: var(--text); }
     #wrap {
       position: relative; border: 2px solid #1e3a44; border-radius: 8px; overflow: hidden;
-      box-shadow: 0 0 24px rgba(78, 205, 196, 0.12);
+      box-shadow: 0 0 28px rgba(78, 205, 196, 0.14);
     }
-    canvas { display: block; background: var(--water); cursor: crosshair; }
+    canvas { display: block; background: var(--water); cursor: crosshair; image-rendering: pixelated; }
     #overlay {
-      position: absolute; inset: 0; background: rgba(7, 20, 26, 0.88);
+      position: absolute; inset: 0; background: rgba(7, 20, 26, 0.9);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 1.5rem; gap: 0.75rem;
+      text-align: center; padding: 1.5rem; gap: 0.85rem;
     }
     #overlay.hidden { display: none; }
-    #overlay h2 { margin: 0; color: var(--teal); font-size: 1.4rem; }
-    #overlay p { margin: 0; color: var(--muted); max-width: 28rem; line-height: 1.45; font-size: 0.95rem; }
+    #overlay h2 { margin: 0; color: var(--teal); font-size: 1.45rem; }
+    #overlay p { margin: 0; color: var(--muted); max-width: 28rem; line-height: 1.5; font-size: 0.95rem; }
+    #overlay .beat { color: var(--sand); font-size: 0.88rem; max-width: 26rem; }
     button {
-      background: var(--teal); color: #042; border: 0; padding: 0.6rem 1.2rem;
+      background: var(--teal); color: #042; border: 0; padding: 0.6rem 1.25rem;
       border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem;
     }
     button:hover { filter: brightness(1.08); }
     button.secondary { background: #234; color: var(--text); }
     button.danger { background: var(--danger); color: #fff; }
     footer {
-      max-width: 640px; width: 100%; padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--muted);
+      max-width: 640px; width: 100%; padding: 0.65rem 1rem; font-size: 0.8rem; color: var(--muted);
     }
     .hint { color: var(--sand); }
     #log {
-      max-width: 640px; width: 100%; height: 88px; overflow-y: auto; padding: 0.5rem 1rem;
+      max-width: 640px; width: 100%; height: 96px; overflow-y: auto; padding: 0.5rem 1rem;
       font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--muted);
       background: var(--panel); border-top: 1px solid #1e3a44;
     }
+    #log .good { color: var(--good); }
+    #log .bad { color: var(--danger); }
+    #log .sys { color: var(--teal); }
   </style>
 </head>
 <body>
@@ -74,25 +79,25 @@
     <canvas id="c" width="576" height="576"></canvas>
     <div id="overlay">
       <h2 id="ovTitle">Sanctuary</h2>
-      <p id="ovBody">You stand at the edge of Phin Haven. Beyond the tide line lies <strong style="color:var(--teal)">The Shallows</strong> — kelp fringe, tidal pools, Tide Skitters. Gather fronds or drive off skitters to clear the floor. WASD or arrows to move.</p>
+      <p id="ovBody">You stand at the edge of Phin Haven. Beyond the tide line lies <strong style="color:var(--teal)">The Shallows</strong> — kelp fringe and Tide Skitters. Gather fronds or drive them off to clear the floor.</p>
+      <p class="beat" id="ovBeat">WASD or arrows to move. Walk onto kelp to gather. Walk into skitters to fight.</p>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center">
         <button id="btnStart">Enter The Shallows</button>
-        <button id="btnReset" class="secondary">Reset progress</button>
+        <button id="btnReset" class="secondary">Reset local progress</button>
       </div>
     </div>
   </div>
 
   <div id="log"></div>
   <footer>
-    Minimal browser client for Floor 1 vertical slice. Local-only progress (not production authority).
-    <span class="hint"> Move: WASD / arrows · Walk onto kelp to gather · Walk into skitters to fight</span>
+    Floor 1 vertical slice · local-only progress (not production authority).
+    <span class="hint"> Move · Gather · Fight · Clear</span>
   </footer>
 
   <script>
 (function () {
   'use strict';
 
-  // --- Design constants (match PROOF/airgap/the_shallows_encounters.json) ---
   const TILE = 48;
   const COLS = 12;
   const ROWS = 12;
@@ -102,9 +107,10 @@
   const SKITTER_HP = 8;
   const SKITTER_DMG = 2;
   const PLAYER_DMG = 3;
-  const STORAGE_KEY = 'phinhaven_shallows_v1';
+  const STORAGE_KEY = 'phinhaven_shallows_v2';
+  const MOVE_CD_FRAMES = 7;
 
-  // Tile types: 0 water, 1 sand/path, 2 kelp node, 3 rock
+  // 0 water, 1 path, 2 kelp, 3 rock
   const MAP = [
     [3,3,3,3,3,3,3,3,3,3,3,3],
     [3,1,1,0,0,0,0,0,1,1,1,3],
@@ -125,30 +131,36 @@
   const overlay = document.getElementById('overlay');
   const ovTitle = document.getElementById('ovTitle');
   const ovBody = document.getElementById('ovBody');
+  const ovBeat = document.getElementById('ovBeat');
 
   let state = 'SANCTUARY'; // SANCTUARY | PLAY | CLEARED | DEAD
   let px = 5, py = 10;
+  let facing = { x: 0, y: -1 };
   let hp = MAX_HP;
   let fronds = 0;
   let kills = 0;
   let everCleared = false;
   let avatarColor = '#4ecdc4';
-  let nodes = []; // {x,y,taken}
-  let skitters = []; // {x,y,hp}
+  let nodes = [];
+  let skitters = [];
   let keys = {};
   let moveCooldown = 0;
-  let busy = false; // combat/gather lock
+  let busy = false;
+  let hitFlash = 0;
+  let shake = 0;
 
-  function log(msg) {
+  function log(msg, cls) {
     const box = document.getElementById('log');
     const t = new Date().toLocaleTimeString();
-    box.textContent = '[' + t + '] ' + msg + '\n' + box.textContent;
+    const span = cls ? ' class="' + cls + '"' : '';
+    box.innerHTML = '<div' + span + '>[' + t + '] ' + msg + '</div>' + box.innerHTML;
   }
 
   function save() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        everCleared, avatarColor, frondsBanked: everCleared ? 1 : 0
+        everCleared: everCleared,
+        avatarColor: avatarColor
       }));
     } catch (e) {}
   }
@@ -167,8 +179,7 @@
     document.getElementById('hp').textContent = Math.max(0, hp);
     document.getElementById('fronds').textContent = fronds;
     document.getElementById('kills').textContent = kills;
-    const badge = document.getElementById('clearBadge');
-    badge.style.display = everCleared ? 'inline' : 'none';
+    document.getElementById('clearBadge').style.display = everCleared ? 'inline' : 'none';
   }
 
   function spawnEntities() {
@@ -176,14 +187,13 @@
     skitters = [];
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
-        if (MAP[y][x] === 2) nodes.push({ x, y, taken: false });
+        if (MAP[y][x] === 2) nodes.push({ x: x, y: y, taken: false });
       }
     }
-    // Place up to 6 skitters on water/path tiles not on player start
     const candidates = [];
     for (let y = 1; y < ROWS - 1; y++) {
       for (let x = 1; x < COLS - 1; x++) {
-        if (MAP[y][x] !== 3 && !(x === px && y === py)) candidates.push({ x, y });
+        if (MAP[y][x] !== 3 && !(x === px && y === py)) candidates.push({ x: x, y: y });
       }
     }
     for (let i = 0; i < 6 && candidates.length; i++) {
@@ -193,9 +203,10 @@
     }
   }
 
-  function showOverlay(title, body, showStart) {
+  function showOverlay(title, body, beat, showStart) {
     ovTitle.textContent = title;
     ovBody.innerHTML = body;
+    ovBeat.innerHTML = beat || '';
     document.getElementById('btnStart').style.display = showStart ? 'inline-block' : 'none';
     overlay.classList.remove('hidden');
   }
@@ -207,13 +218,16 @@
   function startRun() {
     state = 'PLAY';
     px = 5; py = 10;
+    facing = { x: 0, y: -1 };
     hp = MAX_HP;
     fronds = 0;
     kills = 0;
     busy = false;
+    hitFlash = 0;
+    shake = 0;
     spawnEntities();
     hideOverlay();
-    log('Entered The Shallows. Kelp fringe. Tide Skitters nearby.');
+    log('Entered The Shallows. Kelp fringe. Tide Skitters nearby.', 'sys');
     refreshHUD();
   }
 
@@ -222,12 +236,12 @@
       state = 'CLEARED';
       everCleared = true;
       save();
-      log('CLEAR — tide line shifts; path marker appears near sanctuary.');
+      const path = fronds >= CLEAR_FRONDS ? 'gather path' : 'combat path';
+      log('CLEAR — The Shallows yields. (' + path + ')', 'good');
       showOverlay(
         'Floor cleared',
-        'You cleared <strong style="color:var(--teal)">The Shallows</strong>. ' +
-        (fronds >= CLEAR_FRONDS ? 'Gather path.' : 'Combat path.') +
-        ' World response flag set locally. In production this would be authoritative.',
+        'You cleared <strong style="color:var(--teal)">The Shallows</strong> via the ' + path + '. The tide line shifts. A path marker appears near the sanctuary.',
+        'Beyond this fringe: a Hearth Inn site, shallow soil for the first plots, and the outline of guild territory. Local clear flag saved. Production authority will come later.',
         true
       );
       document.getElementById('btnStart').textContent = 'Enter again';
@@ -240,10 +254,12 @@
   function die() {
     state = 'DEAD';
     fronds = 0;
-    log('DEATH — unbanked fronds lost. Respawn at sanctuary. Cosmetics kept.');
+    shake = 12;
+    log('DEATH — unbanked fronds lost. Cosmetics and clear flag kept.', 'bad');
     showOverlay(
       'You fell',
-      'The Shallows claimed you. Unbanked session loot is gone. Cosmetics and clear flag (if any) remain.',
+      'The Shallows claimed you. Session loot is gone. Anything already cleared remains on this device.',
+      'Return when ready. The inn, the plots, and the guild markers are still ahead.',
       true
     );
     document.getElementById('btnStart').textContent = 'Return to The Shallows';
@@ -257,8 +273,9 @@
     if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return;
     if (MAP[ny][nx] === 3) return;
 
-    // Skitter collision → fight
-    const si = skitters.findIndex(s => s.x === nx && s.y === ny);
+    facing = { x: dx, y: dy };
+
+    const si = skitters.findIndex(function (s) { return s.x === nx && s.y === ny; });
     if (si >= 0) {
       busy = true;
       fightSkitter(si);
@@ -267,15 +284,14 @@
 
     px = nx;
     py = ny;
-    moveCooldown = 8; // frames
+    moveCooldown = MOVE_CD_FRAMES;
 
-    // Kelp node
-    const node = nodes.find(n => n.x === nx && n.y === ny && !n.taken);
+    const node = nodes.find(function (n) { return n.x === nx && n.y === ny && !n.taken; });
     if (node) {
       const got = 1 + Math.floor(Math.random() * 2);
       node.taken = true;
       fronds += got;
-      log('Gathered ' + got + ' Kelp Frond(s). (' + fronds + '/' + CLEAR_FRONDS + ')');
+      log('Gathered ' + got + ' Kelp Frond(s). (' + fronds + '/' + CLEAR_FRONDS + ')', 'good');
       refreshHUD();
       checkClear();
     }
@@ -283,43 +299,66 @@
 
   function fightSkitter(index) {
     const s = skitters[index];
-    log('Engaged Tide Skitter!');
-    // Simple resolve: alternate hits until one drops
+    log('Engaged Tide Skitter!', 'sys');
     let ehp = s.hp;
     const steps = [];
+
     while (ehp > 0 && hp > 0) {
       ehp -= PLAYER_DMG;
-      steps.push('You hit (' + Math.max(0, ehp) + ' HP left on skitter)');
+      steps.push({ who: 'player', ehp: Math.max(0, ehp) });
       if (ehp <= 0) break;
       hp -= SKITTER_DMG;
-      steps.push('Skitter nips — your HP ' + Math.max(0, hp));
+      steps.push({ who: 'skitter', php: Math.max(0, hp) });
     }
-    steps.forEach((line, i) => setTimeout(() => log(line), i * 180));
-    const delay = steps.length * 180 + 50;
-    setTimeout(() => {
-      if (hp <= 0) {
-        die();
+
+    let i = 0;
+    function nextHit() {
+      if (i >= steps.length) {
+        if (hp <= 0) {
+          die();
+          busy = false;
+          return;
+        }
+        skitters.splice(index, 1);
+        kills += 1;
+        log('Skitter down. (' + kills + '/' + CLEAR_KILLS + ')', 'good');
+        refreshHUD();
         busy = false;
+        checkClear();
         return;
       }
-      skitters.splice(index, 1);
-      kills += 1;
-      log('Skitter down. (' + kills + '/' + CLEAR_KILLS + ')');
-      refreshHUD();
-      busy = false;
-      checkClear();
-    }, delay);
+      const step = steps[i++];
+      if (step.who === 'player') {
+        log('You strike — skitter HP ' + step.ehp);
+        hitFlash = 6;
+      } else {
+        log('Skitter nips — your HP ' + step.php, 'bad');
+        shake = 6;
+        hitFlash = 8;
+        refreshHUD();
+      }
+      setTimeout(nextHit, 220);
+    }
+    nextHit();
   }
 
-  // --- Input ---
-  window.addEventListener('keydown', (e) => {
-    keys[e.key.toLowerCase()] = true;
-    if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault();
+  window.addEventListener('keydown', function (e) {
+    const k = e.key.toLowerCase();
+    keys[k] = true;
+    if (['arrowup','arrowdown','arrowleft','arrowright',' '].indexOf(k) >= 0) e.preventDefault();
+    if (state === 'SANCTUARY' || state === 'CLEARED' || state === 'DEAD') {
+      if (k === 'enter' || k === ' ') {
+        e.preventDefault();
+        startRun();
+      }
+    }
   });
-  window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+  window.addEventListener('keyup', function (e) {
+    keys[e.key.toLowerCase()] = false;
+  });
 
-  document.getElementById('btnStart').onclick = () => startRun();
-  document.getElementById('btnReset').onclick = () => {
+  document.getElementById('btnStart').onclick = function () { startRun(); };
+  document.getElementById('btnReset').onclick = function () {
     localStorage.removeItem(STORAGE_KEY);
     everCleared = false;
     fronds = 0;
@@ -329,16 +368,22 @@
     refreshHUD();
     showOverlay(
       'Sanctuary',
-      'Progress wiped. Enter <strong style="color:var(--teal)">The Shallows</strong> when ready.',
+      'Local progress wiped. Enter <strong style="color:var(--teal)">The Shallows</strong> when ready.',
+      'WASD or arrows to move. Walk onto kelp to gather. Walk into skitters to fight.',
       true
     );
     document.getElementById('btnStart').textContent = 'Enter The Shallows';
-    log('Local progress reset.');
+    log('Local progress reset.', 'sys');
   };
 
-  // --- Render ---
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const ox = shake > 0 ? (Math.random() - 0.5) * shake : 0;
+    const oy = shake > 0 ? (Math.random() - 0.5) * shake : 0;
+    if (shake > 0) shake--;
+
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.clearRect(-8, -8, canvas.width + 16, canvas.height + 16);
 
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
@@ -351,18 +396,16 @@
         } else if (t === 1) {
           ctx.fillStyle = '#2a5a4a';
           ctx.fillRect(px0, py0, TILE, TILE);
-          ctx.fillStyle = 'rgba(196,165,116,0.15)';
+          ctx.fillStyle = 'rgba(196,165,116,0.14)';
           ctx.fillRect(px0 + 4, py0 + 4, TILE - 8, TILE - 8);
         } else {
-          // water
           ctx.fillStyle = (x + y) % 2 === 0 ? '#163d4a' : '#1a4a5c';
           ctx.fillRect(px0, py0, TILE, TILE);
         }
       }
     }
 
-    // Kelp nodes
-    nodes.forEach(n => {
+    nodes.forEach(function (n) {
       if (n.taken) return;
       const cx = n.x * TILE + TILE / 2;
       const cy = n.y * TILE + TILE / 2;
@@ -382,8 +425,7 @@
       ctx.stroke();
     });
 
-    // Skitters
-    skitters.forEach(s => {
+    skitters.forEach(function (s) {
       const cx = s.x * TILE + TILE / 2;
       const cy = s.y * TILE + TILE / 2;
       ctx.fillStyle = '#8b5a2b';
@@ -395,7 +437,6 @@
       ctx.arc(cx - 4, cy - 3, 3, 0, Math.PI * 2);
       ctx.arc(cx + 4, cy - 3, 3, 0, Math.PI * 2);
       ctx.fill();
-      // legs
       ctx.strokeStyle = '#6b4220';
       ctx.lineWidth = 2;
       for (let i = -1; i <= 1; i++) {
@@ -408,10 +449,16 @@
       }
     });
 
-    // Player
     if (state === 'PLAY' || state === 'CLEARED') {
       const cx = px * TILE + TILE / 2;
       const cy = py * TILE + TILE / 2;
+      if (hitFlash > 0) {
+        ctx.fillStyle = 'rgba(196,92,92,0.45)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+        ctx.fill();
+        hitFlash--;
+      }
       ctx.fillStyle = avatarColor;
       ctx.beginPath();
       ctx.arc(cx, cy, 14, 0, Math.PI * 2);
@@ -419,16 +466,16 @@
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
       ctx.stroke();
-      // simple face
+      // facing notch
       ctx.fillStyle = '#042';
+      const fx = cx + facing.x * 7;
+      const fy = cy + facing.y * 7;
       ctx.beginPath();
-      ctx.arc(cx - 5, cy - 2, 2, 0, Math.PI * 2);
-      ctx.arc(cx + 5, cy - 2, 2, 0, Math.PI * 2);
+      ctx.arc(fx, fy, 3.5, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Grid subtle
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
     ctx.lineWidth = 1;
     for (let x = 0; x <= COLS; x++) {
       ctx.beginPath();
@@ -442,6 +489,7 @@
       ctx.lineTo(COLS * TILE, y * TILE);
       ctx.stroke();
     }
+    ctx.restore();
   }
 
   function tick() {
@@ -460,18 +508,17 @@
     requestAnimationFrame(tick);
   }
 
-  // Boot
   load();
   refreshHUD();
   if (everCleared) {
     showOverlay(
       'Sanctuary',
-      'You have cleared The Shallows before (local flag). Enter again anytime.',
+      'You have cleared The Shallows before on this device. Enter again anytime.',
+      'The inn site, first plots, and guild markers wait beyond the fringe.',
       true
     );
-    document.getElementById('btnStart').textContent = 'Enter The Shallows';
   }
-  log('PHINHAVEN · The Shallows minimal client ready (local-only).');
+  log('PHINHAVEN · The Shallows ready (local-only).', 'sys');
   tick();
 })();
   </script>

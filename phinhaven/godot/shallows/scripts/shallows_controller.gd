@@ -1,6 +1,6 @@
 extends Node2D
-## Grid controller for The Shallows. Mirrors browser MVP behaviour offline.
-## Attach to main scene root. Replace resolution with RPC calls when backend is live.
+## Grid controller for The Shallows. Mirrors improved browser MVP offline.
+## Attach to main scene root. Replace resolution with RPC when backend is live.
 
 const TILE := 48
 const COLS := 12
@@ -24,8 +24,9 @@ var map: Array = [
 
 var px: int = 5
 var py: int = 10
-var nodes: Array = []  # {x,y,taken}
-var skitters: Array = []  # {x,y,hp}
+var facing: Vector2i = Vector2i(0, -1)
+var nodes: Array = []
+var skitters: Array = []
 var move_cd: float = 0.0
 
 @onready var status_label: Label = $UI/StatusLabel
@@ -36,22 +37,38 @@ func _ready() -> void:
 	GameState.hud_changed.connect(_refresh_hud)
 	GameState.log_line.connect(_on_log)
 	_refresh_hud()
-	if GameState.phase == "SANCTUARY":
-		status_label.text = "Sanctuary — press Enter / Space to enter The Shallows"
+	_update_status_for_phase(GameState.phase)
 
 func _on_state(s: String) -> void:
-	status_label.text = "Phase: %s" % s
+	_update_status_for_phase(s)
 	if s == "PLAY":
 		_spawn()
 
+func _update_status_for_phase(s: String) -> void:
+	match s:
+		"SANCTUARY":
+			status_label.text = "Sanctuary — Enter / Space to enter The Shallows"
+		"PLAY":
+			_refresh_hud()
+		"CLEARED":
+			status_label.text = "CLEARED — Enter / Space to run again"
+		"DEAD":
+			status_label.text = "You fell — Enter / Space to return"
+		_:
+			status_label.text = "Phase: %s" % s
+
 func _on_log(t: String) -> void:
-	log_label.text = t + "\n" + log_label.text
+	var prev := log_label.text
+	var lines := prev.split("\n")
+	if lines.size() > 8:
+		lines = lines.slice(0, 8)
+	log_label.text = t + "\n" + "\n".join(lines)
 
 func _refresh_hud() -> void:
-	if status_label:
-		status_label.text = "HP %d | Fronds %d/%d | Kills %d/%d | %s" % [
+	if GameState.phase == "PLAY":
+		status_label.text = "HP %d | Fronds %d/%d | Kills %d/%d" % [
 			GameState.hp, GameState.fronds, GameState.CLEAR_FRONDS,
-			GameState.kills, GameState.CLEAR_KILLS, GameState.phase
+			GameState.kills, GameState.CLEAR_KILLS
 		]
 
 func _spawn() -> void:
@@ -59,6 +76,7 @@ func _spawn() -> void:
 	skitters.clear()
 	px = 5
 	py = 10
+	facing = Vector2i(0, -1)
 	for y in range(ROWS):
 		for x in range(COLS):
 			if map[y][x] == 2:
@@ -76,10 +94,14 @@ func _spawn() -> void:
 	queue_redraw()
 
 func _process(delta: float) -> void:
-	if GameState.phase == "SANCTUARY":
-		if Input.is_action_just_pressed("ui_accept"):
+	var accept := Input.is_action_just_pressed("ui_accept")
+	if GameState.phase == "SANCTUARY" or GameState.phase == "CLEARED":
+		if accept:
 			GameState.reset_run()
-			_spawn()
+		return
+	if GameState.phase == "DEAD":
+		if accept:
+			GameState.return_to_sanctuary()
 		return
 	if GameState.phase != "PLAY" or GameState.busy:
 		return
@@ -106,6 +128,7 @@ func _try_move(dx: int, dy: int) -> void:
 		return
 	if map[ny][nx] == 3:
 		return
+	facing = Vector2i(dx, dy)
 	for i in range(skitters.size()):
 		var s: Dictionary = skitters[i]
 		if int(s.x) == nx and int(s.y) == ny:
@@ -113,7 +136,7 @@ func _try_move(dx: int, dy: int) -> void:
 			return
 	px = nx
 	py = ny
-	move_cd = 0.12
+	move_cd = 0.11
 	for n in nodes:
 		if not n.taken and int(n.x) == nx and int(n.y) == ny:
 			n.taken = true
@@ -161,3 +184,5 @@ func _draw() -> void:
 	if GameState.phase == "PLAY" or GameState.phase == "CLEARED":
 		var pc := Vector2(px * TILE + TILE / 2.0, py * TILE + TILE / 2.0)
 		draw_circle(pc, 14.0, GameState.avatar_color)
+		var nose := pc + Vector2(facing) * 7.0
+		draw_circle(nose, 3.5, Color("042022"))
