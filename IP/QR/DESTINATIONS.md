@@ -1,13 +1,15 @@
-# Canonical QR destinations (revenue-first)
+# Canonical QR destinations
 
-| Code purpose | Destination (live today) |
-|--------------|--------------------------|
-| Default / DOOH primary | https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001 |
-| MTG silo browse | https://dreamledger.org/mtg |
-| Seller audit | https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001 |
-| Soft support | https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT |
-| Front door | https://dreamledger.org/ |
+The default QR is a free-value doorway. Do not route general-purpose scans directly to a paid checkout.
 
-**Do not print QR to `/start` or `/q/*` until those return 200.**
+| Code purpose | Destination | Status rule |
+|---|---|---|
+| General / canonical QR | `https://dreamledger.org/?src=qr-canonical#quote-tool` | Canonical target; verify the encoded asset before printing |
+| Compatibility doorway | `https://dreamledger.org/go/` | Must redirect to the canonical free worksheet |
+| Supplier quote tool campaign | `https://dreamledger.org/?src=qr-quote-compare#quote-tool` | Free worksheet; tool completion is not a sale |
+| MTG silo browse | `https://dreamledger.org/mtg` | Verify public route and useful free result before distribution |
+| Paid product checkout | Existing product-specific buy URL only | Use only for explicitly product-specific placements, not the general QR |
 
-After deploy, short paths can 302 to the same buy URLs.
+Do not print QR codes to `/start` or `/q/*` until those routes return the intended content and have been tested.
+
+Before calling an asset production-ready, decode its QR payload, compare it with this table, scan it on a phone, and verify the final landing experience. Repository presence alone is not proof that a QR code works.
