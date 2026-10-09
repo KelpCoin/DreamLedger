@@ -6,12 +6,13 @@ This is the first executable policy and test-executor slice of BECK's Agent Deve
 
 - `beck_contract.json` defines the proposed policy contract.
 - `policy.py` deterministically evaluates structured intents and fails closed.
-- `executor.py` defines the bounded execution boundary: policy check, exact action/target registry, idempotency reservation, one registered action, and evidence hash. The persistence store is injected and must atomically reserve keys and persist result plus evidence.
+- `executor.py` now requires an injected `AuthorityProvider.resolve_verified(...)` boundary rather than accepting an authority grant directly from the caller. The production provider must retrieve and cryptographically verify a trusted grant; the test provider is only a fixture and does not verify signatures.
+- The executor requires an injected persistence store for idempotency reservation and result/evidence persistence. Current tests use an ephemeral in-memory test double, not durable production storage.
 - `test_policy.py` contains 12 policy unit tests.
-- `test_executor.py` contains 7 executor-harness tests: one authorized fixture action, unauthorized target rejection, unapproved authority, missing adapter, replay without a duplicate action, in-progress replay rejection, action timeout/failure, and evidence-hash verification.
-- The only executable test action returns a `TEST_ONLY` fixture value. It is not a production action.
+- `test_executor.py` contains 9 executor-harness tests, including authority-provider outage, grant scope mismatch, action timeout with UNKNOWN outcome, and receipt-persistence failure after the fixture action returns.
+- The only executable action returns a `TEST_ONLY` fixture value. It is not a production action.
 
-**This is not yet a production executor.** The current tests use an ephemeral in-memory store. No production store, trusted authority-signature verifier, live action adapter, or production deployment is connected. The contract remains `PROPOSED` with an empty action allowlist, so it cannot authorize real actions. A successful fixture test proves only the harness contract, not an external effect or revenue.
+**This is not yet a production executor.** No production authority verifier, persistent store, live action adapter, or deployment is connected. The contract remains `PROPOSED` with an empty production action allowlist. The SHA-256 evidence checksum is integrity-checkable but is neither a signature nor independent proof of an external effect.
 
 ## Run tests
 
@@ -29,13 +30,14 @@ From repository root:
 
 ## Production integration requirements
 
-- Authenticate the authority record from the trusted authority source.
+- Implement the authority provider using the trusted Figure Eight authority source or a signed grant from the existing canonical store; verify signature, issuer/key epoch, scope, expiry, revocation, and contract version.
 - Bind authorization to intent ID, action type, target, expiry, and contract version.
-- Implement atomic idempotency reservation and result/evidence persistence through the existing persistence layer.
+- Implement atomic durable idempotency reservation and result/evidence persistence through the existing persistence layer.
+- Treat external side effects as a separate failure domain. A database transaction cannot roll back an arbitrary remote payment/API effect. Use an intent/effect-receipt/outbox pattern where supported, and reconcile ambiguous outcomes by querying the provider. Never retry an UNKNOWN effect blindly.
 - Enforce limits at the adapter boundary, not only in the policy evaluator.
 - Record attempted, dispatched, externally-sent, result-observed, and unknown states separately.
 - Persist evidence before reporting completion; missing evidence fails closed.
-- Add adapter-level timeout, cancellation, retry, rollback, and concurrent-replay tests.
+- Add adapter-level timeout, cancellation, retry, rollback/compensation, quarantine, and concurrent-replay tests.
 - Prove Supabase data-plane health before database writes.
 - Keep TEST/SIMULATED/INTERNAL separate from VERIFIED external outcomes and revenue.
 
