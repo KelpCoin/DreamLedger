@@ -21,7 +21,7 @@ const forbidden=[
 ];
 const CATALOG_REQUIRED=[
   {label:'DreamLedger', test:/dreamledger/i},
-  {label:'Billboard', test:/href=["']\/billboard["']/i},
+  {label:'Billboard', test:/href=["']\/billboard(?:\.html)?["']/i},
   {label:'DreamMeez', test:/href=["']\/avatar\.html["']/i},
   {label:'Truth Oracle', test:/href=["']\/truth-oracle\.html["']/i}
 ];
