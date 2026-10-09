@@ -36,7 +36,7 @@ checks["internal links map to storefront routes"] = not broken_links
 
 failed = [name for name, ok in checks.items() if not ok]
 if broken_links:
-    print("BROKEN_INTERNAL_LINKS=" + ", ".join(sorted(set(broken_links)))
+    print("BROKEN_INTERNAL_LINKS=" + ", ".join(sorted(set(broken_links))))
 for name, ok in checks.items():
     print(f'{"PASS" if ok else "FAIL"} {name}')
 print(f"PUBLIC_SITE_CONTRACT={'FAIL' if failed else 'PASS'} checks={len(checks)} failed={len(failed)}")
