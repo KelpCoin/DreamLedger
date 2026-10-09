@@ -209,3 +209,18 @@ Every commercial task returns: candidate/offer ID; source and current status; cu
 - These details are dated research, not account-specific guarantees. Recheck official terms before launch.
 
 **Compact rule:** MONEY OUTCOMES > BUILD ACTIVITY. Use the catalog to discover candidates, but the next action must address the earliest unproven step in a real customer-to-cash loop.
+
+
+---
+
+## Cross-project BECK productization direction (2026-10-09)
+
+When any agent/LLM works on BECK, BEC-PRIME, Agent Bridge, or developer-tool monetization, it MUST read `AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md` alongside this protocol and the canonical Money Playbook.
+
+The strategy is open-core: a minimal, independently installable public action-governance runtime at $0; optional hosted Pro/Team; Enterprise only after buyer discovery. The proposed $49/month or $399/year Pro, $199/month Team, and $50,000/year Enterprise prices are hypotheses until currency, delivery scope, cost-to-serve and willingness-to-pay are verified.
+
+Do not expose the whole BECK/DreamLedger repository or private silo data. Extract only an audited clean core after verifying ownership, licenses, dependencies and private assumptions. Do not claim the runtime is stdlib-only, the package name is available, a public repo/PyPI release exists, or benchmark results exist until checked. Existing BECK source search did not find `bec_runtime.py` at the assumed path; locate the actual canonical source or write a small clean implementation against the documented contract.
+
+The first release gate is source/license audit + deterministic security tests, not launch posting. Then public repo/README, package build and smoke test, one demo, one integration guide, honest comparison, reproducible benchmark, and human-authored distribution. HN, PyPI, stars, downloads, and demo views are not revenue. Paid tier revenue requires a real buyer, settled payment, delivered hosted capability and retained evidence.
+
+Avoid unsupported “AI safety solved” claims. Document the bypass threat model: a wrapper cannot stop bypass if an agent can directly call the underlying tool. Do not publish destructive demos, fake stars, spam, or unverified competitor comparisons.
