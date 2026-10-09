@@ -59,7 +59,7 @@
       if(!req)throw new Error('Purchase requirements or scope required.');
       if(files.length<2||files.length>5)throw new Error('Submit 2-5 supplier quotes.');
       if(files.some(function(f){return f.size<=0||f.size>10*1024*1024}))throw new Error('Each file must be between 1 byte and 10 MB.');
-      out.textContent='Verifying payment and opening the service wall...';
+      out.textContent='Checking payment and opening your request...';
       var init=await api({action:'initialize',session_id:session,files:files.map(function(f){return{name:f.name}})});
       var prepared=[];
       for(var i=0;i<files.length;i++){await upload(init.uploads[i],files[i]);prepared.push({path:init.uploads[i].path,name:files[i].name,size:files[i].size,sha256:await hash(files[i])});}
