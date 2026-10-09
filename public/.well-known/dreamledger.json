@@ -3,7 +3,7 @@
   "service": "DreamLedger",
   "status": "active",
   "updated": "2026-10-05",
-  "thesis": "Settlement-backed ledger for commercial truth: agents discover, humans authorize, Stripe settles, fulfillment is proven, then ledgered.",
+  "thesis": "Find an offer, review the terms, approve any purchase, and keep the receipt and delivery confirmation.",
   "canonical": {
     "market": "/",
     "b2b_rivet": "/b2b",
@@ -28,13 +28,12 @@
   "commerce": {
     "flow": [
       "discover",
+      "review_terms",
       "authorize",
       "pay",
-      "deliver",
-      "prove",
-      "ledger"
+      "confirm_delivery"
     ],
-    "settlement": "stripe_live_nzd",
+    "settlement": "payment_provider_confirmation",
     "buy_router": "https://dreamledger.org/buy/{product_id}",
     "fee_policy": {
       "platform_success_fee_bps": 0,
@@ -69,16 +68,11 @@
     ],
     "agentic_rails": {
       "live": [
-        "stripe_payment_link",
-        "buy_router_with_client_reference_id"
+        "Stripe checkout"
       ],
-      "reserved": [
-        "x402",
-        "mpp",
-        "escrow"
-      ]
+      "reserved": []
     },
-    "scale_rule": "paid_verified_then_clone"
+    "scale_rule": "Check the product page for current price, terms, and availability."
   },
   "trust_layer": {
     "rule": "Checkout start is not revenue. Verified revenue requires Stripe evidence + fulfillment proof.",
