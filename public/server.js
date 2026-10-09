@@ -164,6 +164,7 @@ http.createServer(async (req,res)=>{
     }
   }
   if(req.method!=='GET') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
+  if(/^\/(?:server\.js|package(?:-lock)?\.json|Sync-BECPrimeStorefront\.js|(?:discordCommerce|agentbridge|webhook-proxy|hypothesisCommerce|brand|qrSurface)-preload\.js|\.env(?:\..*)?)$/i.test(p))return send(res,404,'Not Found','text/plain; charset=utf-8');
   if(['/cube.json','/economic-loops.json','/ecosystem.json','/data/economic-pulse.json','/observatory/commerce-graph/commerce-offer.v1.schema.json'].includes(p))res.setHeader('X-Robots-Tag','noindex, nofollow');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
