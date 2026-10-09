@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free B2B Quote Comparator | Truth Oracle</title>
+<meta name="description" content="Free procurement quote comparison tool. Normalize supplier quotes by setup, recurring charges, shipping, fees, tax, contract length and evidence quality.">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--amber:#f2cb85}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}.wrap{max-width:1100px;margin:auto;padding:24px 18px 60px}a{color:var(--mint)}.nav{display:flex;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}.eyebrow{color:var(--mint);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:800}.hero{padding:36px 0 22px}h1{font-size:clamp(36px,6vw,58px);line-height:1.04;letter-spacing:-.04em;margin:10px 0}p,.muted{color:var(--muted)}.notice{border:1px solid #f2cb8555;border-radius:12px;padding:14px;color:#f1dfbd;font-size:14px}.quotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.quote,.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px}.quote h2{font-size:20px;margin:0 0 12px}.field{display:block;margin:10px 0;font-size:13px;color:var(--muted)}input,select{display:block;width:100%;margin-top:4px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#0b1220;color:var(--ink);font:inherit}.btn{background:var(--mint);color:#092018;border:0;border-radius:9px;padding:12px 16px;font-weight:800;cursor:pointer;margin:12px 8px 12px 0}.btn.secondary{background:transparent;border:1px solid var(--line);color:var(--ink)}table{width:100%;border-collapse:collapse;margin:14px 0}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--mint)}.result{font-size:24px;font-weight:800}.pill{display:inline-block;padding:3px 8px;border:1px solid var(--line);border-radius:99px;font-size:12px;color:var(--mint)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}li{color:var(--muted);margin:7px 0}footer{border-top:1px solid var(--line);margin-top:32px;padding-top:18px;color:var(--muted);font-size:12px}@media(max-width:760px){.quotes,.grid{grid-template-columns:1fr}.wrap{padding:18px 14px 40px}table{font-size:13px}th,td{padding:7px}}
+</style>
+</head>
+<body><main class="wrap">
+<nav class="nav"><a href="/">DreamLedger</a><a href="/truth-oracle/">Truth Oracle</a><a href="/agentic-commerce/">Agentic Commerce</a></nav>
+<header class="hero"><div class="eyebrow">Free B2B intelligence · No account required</div><h1>Compare the quote.<br>Find the real cost.</h1><p>Supplier quotes often hide the difference in setup charges, shipping, minimum orders, contract length, payment fees, recurring costs, and exclusions. Put up to three offers on the same basis before choosing.</p><p class="notice"><strong>Evidence boundary:</strong> this tool calculates from figures you enter. It does not fetch supplier prices or verify a vendor quote. Store the source document and date separately; mark estimates as estimates. Your entries stay in this browser page and are not submitted to DreamLedger.</p></header>
+<section class="quotes" id="quotes">
+<article class="quote"><h2>Supplier 1</h2>
+<label class="field">Supplier / quote reference<input id="name1" placeholder="e.g. Supplier 1"></label>
+<label class="field">One-time setup / onboarding<input id="setup1" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Unit price<input id="unit1" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Units required<input id="qty1" type="number" min="0" step="1" value="1"></label>
+<label class="field">Shipping / delivery total<input id="ship1" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Other one-time fees<input id="fees1" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Recurring charge per month<input id="monthly1" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Contract length (months)<input id="months1" type="number" min="0" step="1" value="12"></label>
+<label class="field">Tax / GST rate (%)<input id="tax1" type="number" min="0" max="100" step=".01" value="0"></label>
+<label class="field">Quote evidence<select id="evidence1"><option value="UNVERIFIED">UNVERIFIED · not checked</option><option value="OBSERVED">OBSERVED · document seen</option><option value="VERIFIED">VERIFIED · independently confirmed</option></select></label>
+<label class="field">Quote URL or file reference<input id="source1" placeholder="Source URL or internal reference"></label>
+<label class="field">Quote date<input id="date1" type="date"></label>
+</article><article class="quote"><h2>Supplier 2</h2>
+<label class="field">Supplier / quote reference<input id="name2" placeholder="e.g. Supplier 2"></label>
+<label class="field">One-time setup / onboarding<input id="setup2" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Unit price<input id="unit2" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Units required<input id="qty2" type="number" min="0" step="1" value="1"></label>
+<label class="field">Shipping / delivery total<input id="ship2" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Other one-time fees<input id="fees2" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Recurring charge per month<input id="monthly2" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Contract length (months)<input id="months2" type="number" min="0" step="1" value="12"></label>
+<label class="field">Tax / GST rate (%)<input id="tax2" type="number" min="0" max="100" step=".01" value="0"></label>
+<label class="field">Quote evidence<select id="evidence2"><option value="UNVERIFIED">UNVERIFIED · not checked</option><option value="OBSERVED">OBSERVED · document seen</option><option value="VERIFIED">VERIFIED · independently confirmed</option></select></label>
+<label class="field">Quote URL or file reference<input id="source2" placeholder="Source URL or internal reference"></label>
+<label class="field">Quote date<input id="date2" type="date"></label>
+</article><article class="quote"><h2>Supplier 3</h2>
+<label class="field">Supplier / quote reference<input id="name3" placeholder="e.g. Supplier 3"></label>
+<label class="field">One-time setup / onboarding<input id="setup3" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Unit price<input id="unit3" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Units required<input id="qty3" type="number" min="0" step="1" value="1"></label>
+<label class="field">Shipping / delivery total<input id="ship3" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Other one-time fees<input id="fees3" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Recurring charge per month<input id="monthly3" type="number" min="0" step=".01" value="0"></label>
+<label class="field">Contract length (months)<input id="months3" type="number" min="0" step="1" value="12"></label>
+<label class="field">Tax / GST rate (%)<input id="tax3" type="number" min="0" max="100" step=".01" value="0"></label>
+<label class="field">Quote evidence<select id="evidence3"><option value="UNVERIFIED">UNVERIFIED · not checked</option><option value="OBSERVED">OBSERVED · document seen</option><option value="VERIFIED">VERIFIED · independently confirmed</option></select></label>
+<label class="field">Quote URL or file reference<input id="source3" placeholder="Source URL or internal reference"></label>
+<label class="field">Quote date<input id="date3" type="date"></label>
+</article>
+</section>
+<button class="btn" id="compare">Compare total cost</button><button class="btn secondary" id="export">Export comparison CSV</button><button class="btn secondary" id="reset">Reset values</button>
+<section class="panel" aria-live="polite"><div class="eyebrow">Normalized comparison</div><div id="results"><p>Enter quote figures and select Compare total cost.</p></div></section>
+<div class="grid">
+<section class="panel"><div class="eyebrow">Before choosing</div><h2>Quote-quality checklist</h2><ul><li>Same specification, quantity, service level, currency, and delivery location.</li><li>Include setup, shipping, duties, taxes, minimum order, transaction fees, and recurring charges.</li><li>Record validity date, lead time, warranty, support, exclusions, cancellation terms, and price-change clauses.</li><li>Ask for clarification where a line item is missing. Do not silently treat missing cost as zero.</li><li>Keep the original quote and note who confirmed it, when, and through which channel.</li></ul></section>
+<section class="panel"><div class="eyebrow">Free template</div><h2>How to request comparable quotes</h2><p>Send every supplier the same specification, volume, delivery location, required date, warranty/support expectation, and contract term. Request a line-item breakdown and validity period. Ask them to identify assumptions and exclusions explicitly.</p><p><span class="pill">B2B discovery stays free</span> Truth Oracle will not charge to read this guide or use this calculator. Future agent calls may be low-cost and metered, with clear caps before execution.</p></section>
+</div>
+<footer>Truth Oracle by DreamLedger. Currency is whatever currency your entered figures use. Compare only quotes in the same currency. Taxes are calculated as a simple rate applied to entered one-time and recurring totals; verify supplier tax treatment and any non-taxable items before making a decision. This is a decision aid, not financial, legal, or procurement advice.</footer>
+</main>
+<script>
+const ids=[1,2,3];
+function val(id){const n=Number(document.getElementById(id).value);return Number.isFinite(n)&&n>=0?n:0}
+function quote(i){const name=document.getElementById('name'+i).value.trim()||'Supplier '+i;const setup=val('setup'+i),unit=val('unit'+i),qty=val('qty'+i),ship=val('ship'+i),fees=val('fees'+i),monthly=val('monthly'+i),months=val('months'+i),tax=val('tax'+i)/100;const beforeTax=setup+unit*qty+ship+fees+monthly*months;return {i,name,setup,unit,qty,ship,fees,monthly,months,tax:tax*100,total:beforeTax*(1+tax),beforeTax,evidence:document.getElementById('evidence'+i).value,source:document.getElementById('source'+i).value.trim(),date:document.getElementById('date'+i).value}}
+let last=[];
+function compare(){last=ids.map(quote).filter(q=>document.getElementById('name'+q.i).value.trim()||q.setup||q.unit||q.ship||q.fees||q.monthly);if(!last.length){document.getElementById('results').innerHTML='<p>Enter at least one supplier or non-zero cost.</p>';return}const sorted=[...last].sort((a,b)=>a.total-b.total);const low=sorted[0].total;const fmt=n=>n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('results').innerHTML='<p class="muted">Totals are in your entered currency. They include setup, unit × quantity, shipping, other one-time fees, monthly charge × contract months, then the entered tax rate.</p><table><thead><tr><th>Supplier</th><th>Estimated total</th><th>Difference vs lowest</th><th>Evidence</th><th>Quote date</th></tr></thead><tbody>'+sorted.map(q=>'<tr><td>'+esc(q.name)+'</td><td><strong>'+fmt(q.total)+'</strong></td><td>'+fmt(q.total-low)+'</td><td>'+esc(q.evidence)+'</td><td>'+esc(q.date||'Not recorded')+'</td></tr>').join('')+'</tbody></table><p class="result">Lowest entered total: '+fmt(low)+'</p><p class="muted">Lowest price is not automatically best value. Compare specifications, exclusions, delivery time, service, and quote validity. "VERIFIED" is your selected label, not a verification performed by this tool.</p>'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.getElementById('compare').addEventListener('click',compare);
+document.getElementById('export').addEventListener('click',()=>{if(!last.length)compare();if(!last.length)return;const rows=[['supplier','setup','unit_price','quantity','shipping','other_fees','monthly','months','tax_percent','estimated_total','evidence','source','quote_date'],...last.map(q=>[q.name,q.setup,q.unit,q.qty,q.ship,q.fees,q.monthly,q.months,q.tax,q.total,q.evidence,q.source,q.date])];const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='truth-oracle-quote-comparison.csv';a.click();URL.revokeObjectURL(a.href)});
+document.getElementById('reset').addEventListener('click',()=>{document.querySelectorAll('input').forEach(el=>{if(el.type==='date')el.value='';else if(el.type==='number')el.value=el.id.startsWith('qty')?'1':el.id.startsWith('months')?'12':el.id.startsWith('tax')?'0':'0';else el.value=''});document.querySelectorAll('select').forEach(el=>el.value='UNVERIFIED');last=[];document.getElementById('results').innerHTML='<p>Enter quote figures and select Compare total cost.</p>'});
+</script></body></html>
