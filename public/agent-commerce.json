@@ -9,7 +9,6 @@
     "status": "public_discovery",
     "rail_public": "https://dreamledger.org/api/offers",
     "manifest": "https://dreamledger.org/agent.json",
-    "rail_configured": false,
     "economic_truth": "A listing or checkout start does not prove a completed purchase or delivery."
   },
   "fee_policy": {
