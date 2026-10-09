@@ -42,7 +42,7 @@ RentAHuman is primarily an agent-to-human procurement channel: the agent posts a
 The separate API revenue track remains:
 
 - Free discovery: public offers, manifests, and machine-readable contracts.
-- NZ$0.50 one-call probe.
+- NZ$1 one-call probe.
 - NZ$2 for 200 micro-ingest events.
 - NZ$5 for 500 Agent Bridge events.
 - NZ$9 for 5,000 shared-route calls / 30 days.
