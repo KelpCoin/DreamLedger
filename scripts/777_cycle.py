@@ -29,6 +29,7 @@ ROOT = Path("webapp")
 PULSE = ROOT / "pulse"
 INDEX = ROOT / "index.html"
 PULSE_INDEX = PULSE / "index.html"
+PUBLIC_PULSE = Path("public") / "pulse"
 PULSE.mkdir(parents=True, exist_ok=True)
 
 QUOTE_CHECKOUT = os.environ.get(
@@ -354,6 +355,40 @@ if deduped:
 </section>
 </main></body></html>"""
         target.write_text(body, encoding="utf-8")
+
+    # Mirror the one freshly qualified artifact into the actual deployed storefront root.
+    # Keep the curated public index intact and insert a link idempotently.
+    PUBLIC_PULSE.mkdir(parents=True, exist_ok=True)
+    public_target = PUBLIC_PULSE / filename
+    if not public_target.exists():
+        public_target.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+
+    public_index = PUBLIC_PULSE / "index.html"
+    if public_index.exists():
+        public_index_text = public_index.read_text(encoding="utf-8", errors="ignore")
+    else:
+        public_index_text = (
+            '<!doctype html><html lang="en-NZ"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>777 Economic Observatory | DreamLedger</title></head><body><main>'
+            '<h1>777 Economic Observatory</h1></main></body></html>'
+        )
+    public_href = f"/pulse/{html.escape(filename, quote=True)}"
+    if public_href not in public_index_text:
+        public_article = (
+            f'<article><h2><a href="{public_href}">{html.escape(signal["title"])}</a></h2>'
+            f'<p><strong>Observed:</strong> {now.date().isoformat()}. '
+            '<strong>Truth:</strong> UNVERIFIED market signal. '
+            'Source-discovery candidate, not proof of buyer intent, payment, fulfillment, or revenue.</p></article>\n'
+        )
+        revenue_marker = '<p><strong>Revenue truth:</strong>'
+        if revenue_marker in public_index_text:
+            public_index_text = public_index_text.replace(revenue_marker, public_article + revenue_marker, 1)
+        elif "</main>" in public_index_text:
+            public_index_text = public_index_text.replace("</main>", public_article + "</main>", 1)
+        else:
+            public_index_text += public_article
+        public_index.write_text(public_index_text, encoding="utf-8")
 
     items = []
     for f in sorted(PULSE.glob("*-private-commercial-*.html"), reverse=True):

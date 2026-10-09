@@ -62,7 +62,7 @@ jobs:
         run: |
           # Some generated public pulse paths may match repository ignore rules.
           # Stage HTML candidates before the gate so it evaluates the exact files the commit step can publish.
-          git add -f webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html
+          git add -f webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html
       - name: Enforce compounding output
         run: python scripts/777_compounding_gate.py
       - name: Commit new pulse if changed
@@ -73,7 +73,7 @@ jobs:
           fi
           git config user.name "DreamLedger 777"
           git config user.email "777@dreamledger.org"
-          git add -f webapp/pulse/* webapp/index.html webapp/phinhaven/index.html
+          git add -f webapp/pulse/* webapp/index.html webapp/phinhaven/index.html public/pulse/*
           if git diff --cached --quiet; then
             echo "No new economic signal."
             exit 0
