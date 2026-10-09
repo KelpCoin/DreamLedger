@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/carbon-forward-intent.v1.json",
+  "title": "Carbon Forward Matching Intent",
+  "description": "Non-binding, evidence-first intake contract for a proposed bilateral NZU forward. This schema does not execute trades, custody funds, or provide financial advice.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intent_id", "side", "quantity_nzu", "delivery_window", "price_basis", "counterparty_visibility", "evidence", "consent"],
+  "properties": {
+    "intent_id": {"type": "string", "minLength": 8, "maxLength": 128},
+    "side": {"enum": ["BUY_FORWARD", "SELL_FORWARD"]},
+    "quantity_nzu": {"type": "number", "exclusiveMinimum": 0, "maximum": 100000000},
+    "delivery_window": {
+      "type": "object", "additionalProperties": false,
+      "required": ["start_date", "end_date"],
+      "properties": {
+        "start_date": {"type": "string", "format": "date"},
+        "end_date": {"type": "string", "format": "date"}
+      }
+    },
+    "price_basis": {
+      "type": "object", "additionalProperties": false,
+      "required": ["currency", "unit", "kind"],
+      "properties": {
+        "currency": {"const": "NZD"},
+        "unit": {"const": "NZU"},
+        "kind": {"enum": ["FIXED", "INDEX_LINKED", "NEGOTIABLE"]},
+        "price_per_nzu": {"type": "number", "exclusiveMinimum": 0},
+        "index_name": {"type": "string", "maxLength": 200},
+        "adjustment_terms": {"type": "string", "maxLength": 2000}
+      }
+    },
+    "counterparty_visibility": {"enum": ["BLINDED_UNTIL_MATCH", "NAMED_BY_CONSENT"]},
+    "evidence": {
+      "type": "array", "minItems": 1, "maxItems": 20,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["kind", "uri_or_digest", "verification_status"],
+        "properties": {
+          "kind": {"enum": ["PARTICIPANT_AUTHORITY", "NZU_HOLDING_EVIDENCE", "DELIVERY_CAPACITY", "CONTRACT_DRAFT", "OTHER"]},
+          "uri_or_digest": {"type": "string", "minLength": 8, "maxLength": 2048},
+          "verification_status": {"enum": ["UNVERIFIED", "VERIFIED", "CONTRADICTED", "STALE"]},
+          "verified_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "consent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["data_processing", "matching_only", "recorded_at"],
+      "properties": {
+        "data_processing": {"const": true},
+        "matching_only": {"const": true},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "consent_reference": {"type": "string", "maxLength": 256}
+      }
+    },
+    "risk_flags": {"type": "array", "uniqueItems": true, "items": {"enum": ["DELIVERY_RISK", "TITLE_UNPROVEN", "AUTHORITY_UNPROVEN", "PRICE_BASIS_MISSING", "REGULATORY_REVIEW_REQUIRED"]}},
+    "status": {"enum": ["DRAFT", "EVIDENCE_PENDING", "ELIGIBLE_FOR_REVIEW", "MATCH_PROPOSED", "REJECTED", "WITHDRAWN"], "default": "DRAFT"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"price_basis": {"properties": {"kind": {"const": "FIXED"}}, "required": ["kind"]}},
+       "then": {"properties": {"price_basis": {"required": ["price_per_nzu"]}}}
+    },
+    {
+      "if": {"properties": {"price_basis": {"properties": {"kind": {"const": "INDEX_LINKED"}}, "required": ["kind"]}},
+       "then": {"properties": {"price_basis": {"required": ["index_name", "adjustment_terms"]}}}
+    }
+  ]
+}
