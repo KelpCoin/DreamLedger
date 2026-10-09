@@ -37,9 +37,11 @@ function Invoke-Lms([string[]]$Args) {
 }
 
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
-    if (Test-Path "D:\BrownEyeCortex\BECKPrime") { $RepoRoot = "D:\BrownEyeCortex\BECKPrime" }
+    $scriptRepoRoot = Split-Path -Parent $PSScriptRoot
+    if (Test-Path -LiteralPath (Join-Path $scriptRepoRoot "package.json")) { $RepoRoot = $scriptRepoRoot }
+    elseif (Test-Path "D:\BrownEyeCortex\BECKPrime") { $RepoRoot = "D:\BrownEyeCortex\BECKPrime" }
     elseif (Test-Path "C:\BrownEyeCortex\BECKPrime") { $RepoRoot = "C:\BrownEyeCortex\BECKPrime" }
-    else { throw "BEC PRIME repository not found on D: or C:." }
+    else { throw "BEC PRIME repository not found beside this script or in the legacy D:/C: locations." }
 }
 $DataRoot = if (Test-Path "D:\") { "D:\BrownEyeCortex\Runtime" } else { "C:\BrownEyeCortex\Runtime" }
 $LogRoot = Join-Path $DataRoot "logs"
