@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/commerce-offer.v1.json",
+  "title": "DreamLedger Normalized Commerce Offer",
+  "description": "Provider-neutral, evidence-labelled offer contract for product/service comparison. Never store credentials, buyer personal data, raw licensed catalog payloads, or confidential supplier documents in this public schema or public observation records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "offer_id",
+    "provider",
+    "item",
+    "price",
+    "availability",
+    "shipping",
+    "returns",
+    "source",
+    "attribution",
+    "truth"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "dreamledger.commerce.offer.v1"
+    },
+    "offer_id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 160
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider_id",
+        "display_name"
+      ],
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_item_id",
+        "title",
+        "variant_attributes"
+      ],
+      "properties": {
+        "canonical_item_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "brand": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "gtin": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64
+        },
+        "variant_attributes": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "value"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 300
+              }
+            }
+          }
+        }
+      }
+    },
+    "price": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amount",
+        "currency",
+        "status",
+        "tax_treatment"
+      ],
+      "properties": {
+        "amount": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "currency": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Z]{3}$"
+        },
+        "status": {
+          "enum": [
+            "KNOWN",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "tax_treatment": {
+          "enum": [
+            "INCLUDED",
+            "EXCLUDED",
+            "UNKNOWN"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "observed_at"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "IN_STOCK",
+            "OUT_OF_STOCK",
+            "PREORDER",
+            "BACKORDER",
+            "UNKNOWN"
+          ]
+        },
+        "observed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "shipping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "amount",
+        "currency",
+        "min_days",
+        "max_days"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "INCLUDED",
+            "SEPARATE",
+            "NOT_AVAILABLE",
+            "UNKNOWN"
+          ]
+        },
+        "amount": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "currency": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Z]{3}$"
+        },
+        "min_days": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "max_days": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "returns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "window_days",
+        "summary",
+        "policy_url"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "KNOWN",
+            "UNKNOWN",
+            "FINAL_SALE",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "window_days": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "policy_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_url",
+        "source_type",
+        "observed_at",
+        "digest_sha256"
+      ],
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "source_type": {
+          "enum": [
+            "PROVIDER_LISTING",
+            "VENDOR_CLAIM",
+            "PUBLIC_DOCUMENT",
+            "TEST_FIXTURE",
+            "INDEPENDENT_TRANSACTION_EVIDENCE"
+          ]
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "digest_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "terms_url",
+        "commission_rate_percent",
+        "evidence_type"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "NONE",
+            "ELIGIBLE",
+            "PENDING",
+            "CONFIRMED",
+            "UNKNOWN"
+          ]
+        },
+        "terms_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "commission_rate_percent": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "evidence_type": {
+          "enum": [
+            "CONTRACT",
+            "PROVIDER_DOCUMENTATION",
+            "VENDOR_CLAIM",
+            "UNKNOWN"
+          ]
+        }
+      }
+    },
+    "truth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence_type",
+        "verified_at"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "OBSERVED",
+            "VERIFIED",
+            "STALE",
+            "CONTRADICTED",
+            "UNKNOWN",
+            "TEST",
+            "SIMULATED",
+            "INTERNAL",
+            "UNMATCHED"
+          ]
+        },
+        "evidence_type": {
+          "enum": [
+            "LISTED_OFFER",
+            "QUOTED_OFFER",
+            "VENDOR_CLAIM",
+            "SETTLED_TRANSACTION",
+            "TEST_FIXTURE",
+            "INTERNAL_OUTPUT"
+          ]
+        },
+        "verified_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
