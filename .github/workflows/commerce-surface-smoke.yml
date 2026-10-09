@@ -1,0 +1,26 @@
+name: Commerce surface smoke test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "webapp/index.html"
+      - "webapp/agentic-commerce/**"
+      - "webapp/observatory/carbon/**"
+      - "webapp/.well-known/**"
+      - "scripts/commerce_surface_smoke.mjs"
+      - ".github/workflows/commerce-surface-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  public-commerce-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify public routes and revenue-critical offer
+        run: node scripts/commerce_surface_smoke.mjs
