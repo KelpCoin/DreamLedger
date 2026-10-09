@@ -13,6 +13,8 @@ on:
       - "data/external-demand-seeds/**"
       - "scripts/procurement_amendment_delta.py"
       - "webapp/pulse/777-manual-probe-2026-10-07.md"
+      - "webapp/index.html"
+      - "webapp/phinhaven/index.html"
 
 permissions:
   contents: write
@@ -53,7 +55,7 @@ jobs:
         run: |
           git config user.name "DreamLedger 777"
           git config user.email "777@dreamledger.org"
-          git add webapp/pulse webapp/index.html
+          git add webapp/pulse webapp/index.html webapp/phinhaven/index.html
           if git diff --cached --quiet; then
             echo "No new economic signal."
             exit 0
@@ -77,13 +79,8 @@ jobs:
           echo "PUSH_FAILED_AFTER_RETRIES"
           exit 1
 
-# 777 execution directive: upscale fresh cycle.
-# Objective: MONEY first. If no settlement, return exactly one new durable non-duplicate component.
-# Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem, Nylas IAM scoped API keys.
+# 777 execution directive: money first; if no settlement, produce one new durable, non-duplicate public artifact.
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
-# HUGE decomposition: select at most 5 bounded jobs from issue #497, rank by economic leverage, execute highest-value job, emit evidence.
-# Execution nonce: 2026-10-09T09:45:00+13:00-COMPOUNDING-GATE-PUBLIC-HTML-ONLY-AGENT-BRIDGE-PORTFOLIO
-# R6 hunt: prioritize one externally reachable ordinary buyer/developer/procurement pain signal that can produce the canonical earning unit; money outranks artifact publication.
-# META 5X50: after every 5 independently verified purchased decisions, generate exactly 50 new bounded meta-decisions; dedupe against prior decisions; rank by economic leverage; apply only reversible/authorized changes.
-# META MODEL ROUTING: prefer cloud HELIum + cloud Gauler MLS when those endpoints are actually configured and reachable. If unavailable, fail closed and do not simulate model execution, purchases, or verification.
-# META BOUNDARY: purchased means independently observable settled external purchase tied to a decision outcome. Internal artifacts, self-pay, test payments, traffic, and model outputs do not count.
+# META MODEL ROUTING: use cloud Elohim/Gauntlet endpoints only when configured and reachable. Fail closed otherwise.
+# META BOUNDARY: internal artifacts, test payments, traffic, and model outputs do not count as revenue.
+# Execution nonce: 2026-10-09T14:20:00+13:00-PHINHAVEN-PUBLIC-ARTIFACT-AND-TRUTH-GATE
