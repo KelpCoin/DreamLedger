@@ -1,37 +1,28 @@
 # DreamLedger
 
-DreamLedger is a New Zealand commerce storefront publishing machine-readable offers for human search, AI assistants and agentic commerce discovery.
+DreamLedger is a New Zealand website with free evidence-checking tools, supplier quote comparison, and selected digital products.
 
-## Canonical machine discovery
+## Start here
+- Home: https://dreamledger.org/
+- Free Truth Oracle: https://dreamledger.org/truth-oracle.html
+- Free evidence guide: https://dreamledger.org/truth-oracle-field-guide.html
+- Supplier quote comparison: https://dreamledger.org/quote-comparison/
+- Services and offers: https://dreamledger.org/money
+- Magic: The Gathering: https://dreamledger.org/mtg/
+- Public research notes: https://dreamledger.org/pulse/
+
+## Supplier quote comparison
+- Listed price: NZ$49 one-time
+- Product page: https://dreamledger.org/quote-comparison/
+- Intended for buyers with 2–5 supplier quotes and a purchase requirement or scope
+- Inputs: supplier quotes in supported file formats
+- Output: a source-linked comparison of stated prices, scope, missing costs, minimum order quantities, lead times, and payment terms
+- Missing information should remain unknown rather than guessed
+
+## Product discovery
 - AI catalog: https://dreamledger.org/ai-catalog.json
-- Agent product feed: https://dreamledger.org/agent-products.json
-- Discovery manifest: https://dreamledger.org/.well-known/dreamledger.json
-- Agent Commerce manifest: https://dreamledger.org/agent-commerce.json
+- Product feed: https://dreamledger.org/agent-products.json
 - Offers: https://dreamledger.org/api/offers
 - Products: https://dreamledger.org/api/products
-- Commerce context: https://dreamledger.org/commerce.txt
 
-## Priority commercial offer
-Supplier Quote Comparison — QUOTE-COMPARE-49
-- Price: NZ$49 one-time
-- URL: https://dreamledger.org/quote-comparison/
-- Buyer state: has 2-5 supplier quotes and needs a purchasing comparison
-- Inputs: 2-5 PDF, CSV, JSON or Markdown supplier quotes plus purchase requirements or scope
-- Output: source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms
-- Unknown source information remains unknown
-- Checkout: https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32
-
-## Agentic commerce
-Agents may discover and recommend offers. Human authorization is required before spending. Checkout starts are not revenue. Verified economic truth requires settled external payment, attribution, fulfillment and independent evidence.
-
-## Search/discovery language
-supplier quote comparison
-vendor quote comparison
-RFQ comparison
-procurement quote analysis
-compare supplier pricing
-compare supplier quotes
-compare MOQ and lead time
-supplier decision support
-compare landed supplier costs
-purchase quote comparison
+AI assistants may help discover and compare options. A person must approve purchases and review the final seller terms before spending.
