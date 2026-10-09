@@ -233,7 +233,11 @@ async function main() {
   }, null, 2));
 }
 
-main().catch(error => {
-  console.error(String(error.stack || error));
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(error => {
+    console.error(String(error.stack || error));
+    process.exit(1);
+  });
+}
+
+module.exports = { candidateFromModel };
