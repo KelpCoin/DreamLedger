@@ -25,6 +25,36 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def required_context_for_task(intent: str, summary: str) -> tuple[list[str], bool, bool]:
+    """Return canonical Agent Bridge reads and commercial/BECK context flags."""
+    reads = [
+        "AGENT_BUS/BRIDGE/PROTOCOL.md",
+        "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+        "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json",
+        "AGENT_BUS/PING_PONG_BALLS.json",
+        "AGENT_BUS/ECONOMIC-LOOPS/registry.json",
+    ]
+    intent_lower = intent.lower()
+    summary_lower = summary.lower()
+    commercial = intent_lower in {"money", "commercial", "sell", "acquire"} or any(
+        word in summary_lower
+        for word in ("revenue", "buyer", "checkout", "payment", "offer", "distribution", "commercial", "sell")
+    )
+    beck = any(
+        word in summary_lower
+        for word in (
+            "beck", "bec-prime", "bounded runtime", "agent approval", "action governance",
+            "policy enforcement", "approval token", "signed receipt", "agent guardrail",
+            "pypi", "langchain", "crewai", "autogen", "llamaindex", "mcp gateway",
+        )
+    )
+    if commercial:
+        reads.append("AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md")
+    if beck:
+        reads.append("AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md")
+    return reads, commercial, beck
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Write an Agent Bridge ping")
     ap.add_argument("--from", dest="frm", default="local-operator")
@@ -40,18 +70,7 @@ def main() -> None:
     dest.mkdir(parents=True, exist_ok=True)
 
     ping_id = f"ping-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M')}-{uuid.uuid4().hex[:6]}"
-    reads = ["AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md", "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json", "AGENT_BUS/PING_PONG_BALLS.json", "AGENT_BUS/ECONOMIC-LOOPS/registry.json"]
-    intent = args.intent.lower()
-    summary_lower = args.summary.lower()
-    if intent in {"money", "commercial", "sell", "acquire"} or any(word in summary_lower for word in ("revenue", "buyer", "checkout", "payment", "offer", "distribution", "commercial", "sell")):
-        reads.append("AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md")
-    beck_context_required = any(word in summary_lower for word in (
-        "beck", "bec-prime", "bounded runtime", "agent approval", "action governance",
-        "policy enforcement", "approval token", "signed receipt", "agent guardrail",
-        "pypi", "langchain", "crewai", "autogen", "llamaindex", "mcp gateway",
-    ))
-    if beck_context_required:
-        reads.append("AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md")
+    reads, commercial_context_required, beck_context_required = required_context_for_task(args.intent, args.summary)
 
     ping = {
         "schema": "dreamledger/agent-bridge-ping/v1",
