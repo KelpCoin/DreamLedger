@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-09-private-commercial-cloudflare-ceo-says-ai-micropayments-need-10-million-transactions-per-second-crypto-briefing-c268c57df8eced2a.html"
+  ],
+  "observed_at": "2026-10-09T02:18:42.381094+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
