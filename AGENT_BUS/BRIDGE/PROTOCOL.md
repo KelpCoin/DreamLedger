@@ -89,3 +89,50 @@ Cloud: Actions → Cloud Demand + Intent Sentinels; Commerce Settlement Sync.
 ## Money relationship
 
 Bridge coordinates. **DEMAND-KIT + external pay** produce revenue.
+
+
+---
+
+## Cross-device / Multi-LLM Synchronization (v1.2, 2026-10-09)
+
+**Shared North Star:** every authorized node (owner's phone LLMs, spouse's phone LLMs, local LM Studio, cloud agents, and future friends explicitly invited by the owner) works against the same repository and shared brief. A model/device is a worker, not a separate source of truth.
+
+### Task ownership and safe parallelism
+- Claim a task before modifying files; include a stable task ID and explicit target paths.
+- One active writer per target path. Parallelize only across disjoint paths or review-only tasks.
+- Record the exact base commit SHA. Before applying a handoff, compare current target state and inspect diffs; reject stale overwrites.
+- Every handoff records owner/node, status, target paths, base commit, branch/commit SHA, input/output artifact links and hashes, tests/results, truth label, blocker, next owner, and timestamp.
+- Nodes without Git write access submit a patch/diff or Markdown handoff; never imply a local draft changed canonical code.
+- GitHub is canonical for source/specs/tests/commits, Notion for decisions, Airtable for registry snapshots. Cross-link artifacts instead of forking truth.
+- LM Studio is optional acceleration; cloud work continues when desktop is offline. Phone LLMs may research, plan, triage and review without production privileges.
+- Future friends require explicit invitation, individual identities and least privilege. No shared accounts or secrets.
+- Never include API keys, webhook URLs, private signing keys, payment credentials, or sensitive personal data in prompts, pings, issues, Notion or Airtable.
+- Bridge coordination is not permission. External outreach, spending, payments, account changes, secret access and irreversible production actions remain behind existing human/policy gates.
+- Resolve disagreement using canonical commits, tests and independent evidence, not model seniority. Every blocker names a next action and next owner. Do not create a parallel queue, ledger or orchestrator.
+- Internal dispatch, builds, traffic, listings and simulated/test payments are not revenue.
+
+### Optional extended ping fields
+Existing v1 ping/pong fields remain valid. Producers may add:
+```json
+{
+  "task_id": "task-...",
+  "owner_node": "phone|lmstudio|cloud|human",
+  "target_paths": [],
+  "base_commit_sha": "...",
+  "branch": "...",
+  "commit_sha": null,
+  "artifact_refs": [],
+  "test_results": [],
+  "truth_label": "UNVERIFIED",
+  "blocker": null,
+  "next_owner": "...",
+  "updated_at": "ISO-8601"
+}
+```
+
+### Shared portfolio direction
+Free quote comparison and document extraction are eligible acquisition utilities. Do not privilege QUOTE-COMPARE-49 or any single funnel. MTG remains the reference silo; Music & Media inherits its listing lifecycle with vinyl and fair, auditable auctions; FightEdge uses the canonical silo contract. Preserve payment idempotency, durable ledger evidence, settlement-to-fulfillment proof and user-controlled engagement.
+
+**Protocol:** CLAIM → READ NORTH STAR + CURRENT COMMIT → WORK IN SCOPED PATHS → TEST → PUBLISH COMMIT/ARTIFACT + HASH → UPDATE HANDOFF → REVIEW → AUTHORIZED MERGE/DEPLOY → VERIFY EXTERNAL RESULT.
+
+**Honesty boundary:** this protocol defines the contract but does not prove every device/model is automatically connected to a live runtime. Each integration must be wired and observed before claiming automatic cross-device synchronization.
