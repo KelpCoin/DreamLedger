@@ -54,7 +54,7 @@ def main() -> None:
         "ball": args.ball,
         "intent": args.intent,
         "summary": args.summary,
-        "reads": ["AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md", "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json", "AGENT_BUS/PING_PONG_BALLS.json", "AGENT_BUS/ECONOMIC-LOOPS/registry.json"],
+        "reads": reads,
         "writes": [str(dest.relative_to(ROOT) / f"{ping_id}.json")],
         "revenue_claim_nzd": 0,
         "needs_human": args.ball == "C",
