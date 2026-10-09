@@ -13,19 +13,27 @@
   },
   "capabilities": [
     {
-      "id": "supplier_quote_comparison",
-      "description": "Inspect the NZ$49 supplier quote comparison offer for 2-5 quotes and its purchase requirements.",
-      "endpoint": "https://dreamledger.org/quote-comparison/",
+      "id": "free_supplier_quote_worksheet",
+      "description": "Free browser-side CSV worksheet for structuring supplier quotes. The worksheet does not upload user-entered data.",
+      "endpoint": "https://dreamledger.org/#quote-tool",
       "method": "GET",
-      "returns": "HTML offer page with price, required inputs, delivery description and checkout path"
+      "returns": "A downloadable local CSV template; no server-side quote ingestion is implied."
+    },
+    {
+      "id": "economic_observatory",
+      "description": "Source-bound 777 economic signals and reusable components. Each signal is labelled separately from verified demand or revenue.",
+      "endpoint": "https://dreamledger.org/pulse/",
+      "method": "GET",
+      "returns": "Published source-bound research artifacts and component links."
     }
   ],
   "auth": {
     "type": "none"
   },
   "meta": {
-    "last_updated": "2026-10-05",
-    "changelog": "https://dreamledger.org/",
-    "status": "https://dreamledger.org/healthz"
+    "last_updated": "2026-10-09",
+    "changelog": "https://github.com/KelpCoin/DreamLedger/commits/main",
+    "status": "https://dreamledger.org/healthz",
+    "quote_ingestion_status": "SERVER_SIDE_TRUTH_ORACLE_INTAKE_NOT_YET_VERIFIED_LIVE"
   }
 }
