@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-09T18:59:59+00:00",
+  "updated_at_utc": "2026-10-09T23:09:16+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Supplier help",
+      "url": "https://www.gets.govt.nz/SupplierUserTenderHelp.htm",
+      "observed_at": "2026-10-09T23:09:13+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "56940289f749b13ec6555ebff26c9b8b9afb330de6dde57a04118b434890a9af",
+      "event_id": "01a51379-eb0c-5a4d-aa06-bf09f1e66854",
+      "silo_id": "ECO-56940289F749B13E",
+      "slug": "procurement-supplier-help-56940289f7"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",

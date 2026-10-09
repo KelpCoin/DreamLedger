@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-09T18:59:59+00:00",
+  "generated_at_utc": "2026-10-09T23:09:16+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "01a51379-eb0c-5a4d-aa06-bf09f1e66854",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Supplier help",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-09T23:09:13+00:00",
+      "url": "https://www.gets.govt.nz/SupplierUserTenderHelp.htm",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-supplier-help-56940289f7.html"
+    },
     {
       "id": "46038eed-898b-56e2-8b1e-7d705c059039",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
