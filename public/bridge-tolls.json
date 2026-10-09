@@ -1,7 +1,8 @@
 {
-  "schema": "dreamledger/bridge-tolls/v1",
-  "updated": "2026-09-28",
-  "thesis": "Discovery is open. The bridge is a toll road. Human checkout stays Stripe. Ledger truth stays fail-closed.",
+  "schema": "dreamledger/bridge-tolls/v2",
+  "updated": "2026-10-10",
+  "thesis": "Public discovery is free. Paid API work is prepaid, metered, entitlement-gated, and hard-capped. Stripe records settlement; the existing commerce and economic-observation spine records fulfillment and proof.",
+  "economic_truth": "API activity is not revenue. Revenue requires matched settled Stripe payment, entitlement, fulfillment, and evidence.",
   "public_discovery": {
     "offers": "https://dreamledger.org/api/offers",
     "products": "https://dreamledger.org/api/products",
@@ -10,58 +11,85 @@
     "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
     "manifest": "https://dreamledger.org/api/agent-bridge/manifest"
   },
-  "work_requires": {
+  "authentication": {
     "header": "x-dreamledger-agent-token",
-    "routes": [
-      "/api/agent-bridge/events",
-      "/api/agent-bridge/jobs",
-      "/api/agent-bridge/rail/lease",
-      "/api/agent-bridge/rail/stage",
-      "/api/agent-bridge/rail/manifest"
-    ]
+    "rule": "Never place tokens in URLs, public logs, or client-side public source.",
+    "human_authority": "Consequential external actions still require explicit human authorization."
   },
   "toll_tiers": [
     {
       "id": "TOLL-DISCOVERY-FREE",
       "name": "Discovery",
-      "price_nzd": 0,
-      "includes": ["GET /api/offers", "GET /agent-commerce.json", "horizontal shop"],
+      "price_minor": 0,
+      "currency": "nzd",
+      "includes": ["Public offer and product catalogues", "Public Agent Bridge manifest and health", "Public machine-readable commerce contract"],
       "status": "live"
     },
     {
-      "id": "TOLL-BRIDGE-SESSION",
-      "name": "Bridge session access",
-      "price_nzd": 29,
-      "currency": "NZD",
-      "includes": ["Authenticated rail lease cycle", "job claim/complete under governance"],
-      "adjacent_purchase": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "note": "Until dedicated bridge SKU is live, primary paid ignition remains NZ$29 diagnostic",
-      "status": "adjacent_live"
+      "id": "TOLL-API-100-CALLS",
+      "name": "Bridge API Starter Pack",
+      "price_minor": 1900,
+      "currency": "nzd",
+      "allowance": {"billable_calls": 100, "overage": "blocked_until_top_up"},
+      "includes": ["One API entitlement", "100 billable authenticated operations", "Usage receipt and remaining allowance", "Hard stop at zero balance"],
+      "status": "proposed_not_sellable",
+      "checkout_url": null,
+      "activation_requirements": ["Dedicated Stripe SKU and Checkout URL", "Settled-payment-to-entitlement mapping", "Idempotent usage debit in the existing authoritative persistence layer", "Token issuance and revocation", "Live acceptance tests for payment, duplicate webhook, duplicate request, quota exhaustion, and fulfillment"]
+    },
+    {
+      "id": "TOLL-ROUTE-LEASE",
+      "name": "Route Lease",
+      "price_minor": 2900,
+      "currency": "nzd",
+      "interval": "month",
+      "allowance": {"billable_calls": 2000, "overage": "blocked_or_explicit_top_up"},
+      "includes": ["Named route namespace", "2,000 billable operations per billing month", "Usage export", "Hard quota"],
+      "status": "proposed_not_sellable",
+      "checkout_url": null
     },
     {
       "id": "TOLL-PROOF-ATTEST",
-      "name": "Proof attestation",
-      "price_nzd": 9.99,
-      "currency": "NZD",
-      "includes": ["proof.schema.json validation posture", "ledger citation for agent claims"],
-      "adjacent_purchase": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW",
-      "status": "adjacent_live"
-    },
-    {
-      "id": "TOLL-CUBE-CELL",
-      "name": "CUBE cell publish",
-      "price_nzd": 50,
-      "currency": "NZD",
-      "includes": ["New commercial cell on a silo", "billboard-class permanence option"],
-      "adjacent_purchase": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "status": "adjacent_live",
-      "scale": "clone_after_paid_proof"
+      "name": "Proof Attestation",
+      "price_minor": 999,
+      "currency": "nzd",
+      "includes": ["Validation of a supplied evidence object against the published proof contract", "Integrity receipt", "Explicit list of limitations"],
+      "status": "proposed_not_sellable",
+      "checkout_url": null
     }
   ],
-  "cube_scale": {
-    "principle": "many_surfaces_one_commerce_spine",
-    "rule": "paid_verified_then_clone",
-    "surface_classes": ["WEB_OFFER", "AGENT_ENDPOINT", "DIGITAL_PRODUCT", "TRUST_PROOF", "QR_SURFACE", "DOOH_SCREEN"]
+  "related_existing_offers": [
+    {
+      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Starter Kit",
+      "price_nzd": 79,
+      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "relationship": "Separate downloadable integration product; purchase does not grant Agent Bridge API quota."
+    }
+  ],
+  "metering_contract": {
+    "unit": "billable_authenticated_operation",
+    "exclude": ["Public GET discovery", "Health and manifest probes", "Rejected requests before authorization", "Retries carrying the same idempotency key"],
+    "must_be_idempotent": true,
+    "charge_before_execution": "Reserve one unit atomically before billable work begins; release only on a confirmed pre-execution failure.",
+    "duplicate_request": "Same tenant, idempotency key, and request digest returns the original result and does not consume a second unit.",
+    "quota_exhausted": "Return 402 or 429 with a machine-readable quota code and no side effect; do not silently overdraw.",
+    "authority": "Do not create a parallel ledger. Use the existing commerce entitlement and authoritative economic-observation spine; if the required atomic quota operation is not available, fail closed rather than simulate it."
   },
-  "economic_truth": "Toll payment is Stripe. Bridge events are not revenue until paid+proven."
+  "payment_to_fulfillment": [
+    "Public discovery",
+    "Stripe Checkout for the dedicated bridge SKU",
+    "Verify signed webhook and settled payment server-side",
+    "Match the purchase to the canonical SKU and create/reconcile entitlement idempotently",
+    "Issue a revocable API token without exposing the secret again in public logs",
+    "Atomically reserve and meter each billable operation",
+    "Return result plus request/correlation identifiers",
+    "Record fulfillment and evidence through the existing economic-observation contract",
+    "Reconcile Stripe settlement, entitlement, usage, and delivered result"
+  ],
+  "scale_rule": "Clone a paid route only after an independently verified external purchase and successful fulfillment.",
+  "explicit_non_claims": [
+    "The API Starter Pack and Route Lease are proposed, not currently purchasable.",
+    "The existing $79 integration kit is not an API entitlement.",
+    "Published routes and contract tests do not prove successful live authenticated traffic or revenue."
+  ]
 }
