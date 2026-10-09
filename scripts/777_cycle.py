@@ -296,7 +296,6 @@ if deduped:
     if not target.exists():
         title = html.escape(signal["title"])
         source_url = html.escape(signal["url"], quote=True)
-        checkout = html.escape(QUOTE_CHECKOUT, quote=True)
         body = f"""<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>777 Private Commercial Signal: {title}</title>
@@ -316,8 +315,8 @@ if deduped:
 </section>
 <section><h2>Commercial response surface</h2>
 <p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
-<p><a href="{checkout}">Open the existing NZ$49 Supplier Quote Comparison checkout</a></p>
-<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">NZ$0.50 Agent/API Probe</a> for machine-readable toll access. Pay → key → call → receipt.</p>
+<p><a href="https://dreamledger.org/quote-comparison/">Use the free quote-comparison input for Truth Oracle</a>. Quote submissions are observations, not verified market prices or transactions. Raw files and supplier identities remain private unless the user explicitly authorizes disclosure.</p>
+<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Inspect the Agent/API toll manifest</a>. This link does not imply route availability, a price, entitlement, or successful settlement.</p>
 </section>
 <section><h2>Truth boundary</h2>
 <p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
