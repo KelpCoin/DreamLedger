@@ -56,15 +56,5 @@
     },
     "risk_flags": {"type": "array", "uniqueItems": true, "items": {"enum": ["DELIVERY_RISK", "TITLE_UNPROVEN", "AUTHORITY_UNPROVEN", "PRICE_BASIS_MISSING", "REGULATORY_REVIEW_REQUIRED"]}},
     "status": {"enum": ["DRAFT", "EVIDENCE_PENDING", "ELIGIBLE_FOR_REVIEW", "MATCH_PROPOSED", "REJECTED", "WITHDRAWN"], "default": "DRAFT"}
-  },
-  "allOf": [
-    {
-      "if": {"properties": {"price_basis": {"properties": {"kind": {"const": "FIXED"}}, "required": ["kind"]}},
-       "then": {"properties": {"price_basis": {"required": ["price_per_nzu"]}}}
-    },
-    {
-      "if": {"properties": {"price_basis": {"properties": {"kind": {"const": "INDEX_LINKED"}}, "required": ["kind"]}},
-       "then": {"properties": {"price_basis": {"required": ["index_name", "adjustment_terms"]}}}
-    }
-  ]
+  }
 }
