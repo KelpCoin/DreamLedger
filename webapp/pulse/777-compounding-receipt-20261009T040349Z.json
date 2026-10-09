@@ -1,0 +1,12 @@
+{
+  "artifact_count": 1,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "webapp/pulse/2026-10-09-private-commercial-reversible-launches-agentic-affiliate-platform-connecting-ai-shopping-to-700-retailers-usa-today-4f89a90a08dc9be6.html"
+  ],
+  "observed_at": "2026-10-09T04:03:49.743042+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
