@@ -83,5 +83,5 @@ jobs:
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
 # META MODEL ROUTING: use cloud Elohim/Gauntlet endpoints only when configured and reachable. Fail closed otherwise.
 # META BOUNDARY: internal artifacts, test payments, traffic, and model outputs do not count as revenue.
-# Execution nonce: 2026-10-09T14:20:00+13:00-PHINHAVEN-PUBLIC-ARTIFACT-AND-TRUTH-GATE
+# Execution nonce: 2026-10-09T09:00+13:00-CARBON-FORWARD-CELL-EXPEDITION
 # 777 expedition component added 2026-10-09: free B2B discovery, low-cost A2A tolls, reusable digital goods, sandboxed GPU capacity, and permissioned DOOH inventory. See webapp/agentic-commerce/.
