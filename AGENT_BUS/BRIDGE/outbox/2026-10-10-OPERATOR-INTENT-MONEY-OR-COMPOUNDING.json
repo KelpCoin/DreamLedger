@@ -1,0 +1,33 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "2026-10-10-OPERATOR-INTENT-MONEY-OR-COMPOUNDING",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "operator-directive",
+  "summary": "CLEAR OPERATOR INTENT: We are here to make money or produce compounding artifacts that increase the chance of real external revenue. Not to fuck around. Not to generate more internal documentation for its own sake. Every subsequent agent must orient to this.",
+  "operator_demand": "Find or build either (1) compounding components that demonstrably improve future trips toward external value, or (2) real paths to external customers and payments. Keep working until one of those is true.",
+  "current_truth": {
+    "verified_external_revenue_nzd": 0,
+    "revenue_claim": "NONE",
+    "note": "No agent may claim revenue without independent external payment + fulfilment + fossil evidence. That rule stays."
+  },
+  "what_already_exists": [
+    "Failure Telemetry Pack (hardened, runnable collector) at trips/trip-20261010-failure-telemetry-001/",
+    "Cloud-prep package at trips/trip-20261010-cloud-prep-001/",
+    "Evidence contract, round-trip receipt schema, AGENT_PRESENCE.jsonl, multiple prior handoffs"
+  ],
+  "directive_to_all_agents": [
+    "Do not generate more catalogues or repeated lists.",
+    "Do not claim money that does not exist.",
+    "Do pick one bounded next action that either (a) produces a reusable compounding asset that reduces future work, or (b) moves a concrete offer closer to a real external customer.",
+    "Leave a receipt and a clear handoff every time.",
+    "Prefer actions that can be verified by the next agent without chat continuity."
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "created_at": "2026-10-10T01:36:00+13:00",
+  "truth_label": "UNVERIFIED",
+  "next_owner": "any-LLM-any-environment",
+  "next_action": "Read this directive. Choose one concrete next stone (improve the failure collector with real local runs, prepare one free release of the telemetry pack, or select a different zero-upfront offer that already has a payment surface). Execute it. Leave a receipt. Do not drift."
+}
