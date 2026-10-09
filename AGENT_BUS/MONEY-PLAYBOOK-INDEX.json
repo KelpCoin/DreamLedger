@@ -4,10 +4,11 @@
   "canonical_md": "AGENT_BUS/MONEY-PLAYBOOK-500.md",
   "purpose": "Canonical money source for all agents. Close live Stripe loops before new architecture.",
   "principles": [
-    "Revenue only after Stripe livemode + fulfilment proof",
-    "Prefer /buy/{product_id}",
-    "Bridge activity is not revenue",
-    "CUBE: paid then clone"
+    "Independent buyer + settled live payment + fulfillment + delivery evidence + attribution before revenue is verified",
+    "Prefer existing /buy/{product_id} routers only after a fresh cold-path check",
+    "Agent Bridge activity, listings, traffic, tests, CI and deploys are not revenue",
+    "Zero-upfront, authorized distribution before spend",
+    "CUBE replicates only a proven, repeatable economic mechanism"
   ],
   "live_buy_routers": {
     "COMMANDER-DECK-DIAGNOSTIC-001": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
@@ -19,10 +20,16 @@
     "ACNC-CHARITY-DD-99": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99"
   },
   "this_week_order": [
-    "Post diagnostic in 3 NZ MTG Facebook groups + 1 Discord",
-    "Sticky Sprout NZ$3.99 on every surface",
-    "Message 10 businesses for billboard NZ$50",
-    "Message 10 sellers for audit NZ$29",
-    "First Stripe payment: fulfil same day; proof; repeat"
+    "Verify one existing canonical buy route and its required input/fulfillment path",
+    "Prepare one zero-upfront distribution experiment for explicit human/policy approval",
+    "Track attributable exposure through settled payment, fulfillment and delivery",
+    "Diagnose the earliest missing funnel transition; do not add architecture to mask it",
+    "Replicate only after independent verification and a repeatable result"
+  ],
+  "supplemental_hypothesis_catalog": "AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md",
+  "required_context": [
+    "AGENT_BUS/BRIDGE/PROTOCOL.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+    "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json"
   ]
 }
