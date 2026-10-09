@@ -5,6 +5,10 @@ on:
   push:
     paths:
       - "webapp/index.html"
+      - "public/quote-comparison/**"
+      - "public/carbon-schema.json"
+      - ".well-known/carbon-forward-schema.json"
+      - "supabase/functions/quote-intake/**"
       - "webapp/agentic-commerce/**"
       - "webapp/observatory/carbon/**"
       - "webapp/.well-known/**"
