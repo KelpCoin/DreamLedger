@@ -39,6 +39,34 @@ jobs:
           test -s _site/about.html
           test -s _site/policies.html
           test ! -e _site/CNAME
+          test -s _site/pulse/index.html
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          root = Path("_site")
+          index = root / "pulse" / "index.html"
+          class Links(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.hrefs = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == "a":
+                      href = dict(attrs).get("href", "")
+                      if href.startswith("/pulse/"):
+                          self.hrefs.append(href)
+
+          parser = Links()
+          parser.feed(index.read_text(encoding="utf-8"))
+          if not parser.hrefs:
+              raise SystemExit("FAIL observatory index has no pulse links")
+          missing = [href for href in parser.hrefs if not (root / href.lstrip("/")).is_file()]
+          if missing:
+              raise SystemExit("FAIL broken pulse links: " + ", ".join(missing))
+          if not list((root / "pulse").glob("*-private-commercial-*.html")):
+              raise SystemExit("FAIL no source-bound commercial pulse page staged")
+          print(f"PASS observatory index links={len(parser.hrefs)}; all targets exist") 
+          PY
           grep -Fq "DREAMLEDGER 3000" _site/index.html
           grep -Fq "THE FRONT DOOR" _site/index.html
           grep -Fq "Billboard" _site/index.html
