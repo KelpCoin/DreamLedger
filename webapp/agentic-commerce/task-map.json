@@ -1,0 +1,160 @@
+{
+  "schema": "DREAMLEDGER/777/HUGE-TASK-MAP/v1",
+  "created_at": "2026-10-09",
+  "objective": "Build an evidence-first agentic commerce marketplace using existing DreamLedger, AgentBridge, CUBE, Gauntlet, payment and fulfillment substrate.",
+  "policy": {
+    "b2b_discovery_price": "FREE",
+    "a2a_usage": "LOW_COST_METERED",
+    "no_new_ledger_or_queue": true,
+    "public_external_actions_require_approval": true,
+    "arbitrary_tenant_code_on_host": false,
+    "verified_external_revenue_nzd": 0,
+    "truth_status": "UNVERIFIED_UNTIL_INDEPENDENT_EVIDENCE"
+  },
+  "workstreams": [
+    {
+      "id": "HUGE-01",
+      "name": "First-dollar commerce rail",
+      "priority": 1,
+      "depends_on": [],
+      "tasks": [
+        "Trace existing quote-comparison checkout to canonical order",
+        "Verify settled payment attribution",
+        "Verify entitlement, fulfillment request, delivery proof",
+        "Repair first failed boundary"
+      ],
+      "done_when": "Independent paid buyer completes delivery and evidence is recorded"
+    },
+    {
+      "id": "HUGE-02",
+      "name": "AgentBridge A2A toll",
+      "priority": 2,
+      "depends_on": [
+        "HUGE-01"
+      ],
+      "tasks": [
+        "Validate manifest schema",
+        "Add scoped entitlement and idempotency checks",
+        "Measure per-call cost and margin",
+        "Emit signed usage receipt",
+        "Add bounded retry and rate-limit behavior"
+      ],
+      "done_when": "A permitted machine client completes a metered call and reconciles its receipt"
+    },
+    {
+      "id": "HUGE-03",
+      "name": "Reusable digital goods exchange",
+      "priority": 3,
+      "depends_on": [
+        "HUGE-01"
+      ],
+      "tasks": [
+        "Define canonical listing metadata",
+        "Add version and licence validation",
+        "Add content-hash dedupe",
+        "Package templates, stencils, word banks, boilerplates and connectors",
+        "Add deterministic acceptance tests"
+      ],
+      "done_when": "One asset can be listed, paid for, version-pinned, delivered and verified"
+    },
+    {
+      "id": "HUGE-04",
+      "name": "Free B2B demand surfaces",
+      "priority": 4,
+      "depends_on": [
+        "HUGE-03"
+      ],
+      "tasks": [
+        "Build free worksheet and useful calculators",
+        "Corroborate every public signal at primary source",
+        "Generate source-bound pages with distinct user value",
+        "Publish small cohorts and measure indexing and conversion",
+        "Prune or update stale pages"
+      ],
+      "done_when": "Analytics measures qualified human visits and conversion without thin-page inflation"
+    },
+    {
+      "id": "HUGE-05",
+      "name": "Safe GPU capacity exchange",
+      "priority": 5,
+      "depends_on": [
+        "HUGE-02"
+      ],
+      "tasks": [
+        "Benchmark real local GPU capacity",
+        "Define opt-in availability and owner-priority policy",
+        "Run inference in isolated sandbox",
+        "Enforce time, memory, network and storage quotas",
+        "Strip secrets and define data retention",
+        "Add watchdog and emergency stop"
+      ],
+      "done_when": "A bounded test job completes with measured cost and verifiable receipt without host exposure"
+    },
+    {
+      "id": "HUGE-06",
+      "name": "Marketplace trust and fulfilment",
+      "priority": 6,
+      "depends_on": [
+        "HUGE-01",
+        "HUGE-03"
+      ],
+      "tasks": [
+        "Canonical listing and entitlement integration",
+        "Version pinning and licence receipts",
+        "Refund and dispute path",
+        "Delivery evidence and repeat-purchase telemetry",
+        "Trust and reputation based on verified events"
+      ],
+      "done_when": "Buyer can discover, purchase, receive, inspect and dispute one digital asset"
+    },
+    {
+      "id": "HUGE-07",
+      "name": "DOOH inventory adapter",
+      "priority": 7,
+      "depends_on": [
+        "HUGE-06"
+      ],
+      "tasks": [
+        "Define placement and time-slot schema",
+        "Capture vendor permissions and creative constraints",
+        "Model price and proof-of-play",
+        "Simulate booking and reporting",
+        "Add approval gate before spend or publication"
+      ],
+      "done_when": "A sandbox campaign produces a complete proof-of-play report; no spend without approval"
+    },
+    {
+      "id": "HUGE-08",
+      "name": "777 reliability and compounding",
+      "priority": 0,
+      "depends_on": [],
+      "tasks": [
+        "Verify workflow registration and latest run",
+        "Record job-level evidence not just run badge",
+        "Hash and deduplicate each artifact",
+        "Run site build and deployment health checks",
+        "Write Airtable snapshot and Notion receipt",
+        "Preserve rollback and kill-switch paths"
+      ],
+      "done_when": "Each cycle proves external revenue or commits a useful non-duplicate artifact with verifier output"
+    }
+  ],
+  "cycle_contract": {
+    "input": "Existing observed economic signals and current repository state",
+    "output": [
+      "one tested reusable component or useful public artifact",
+      "machine-readable manifest or receipt",
+      "verifier result",
+      "updated workstream state"
+    ],
+    "truth_rule": "Internal work, traffic, model output, test payments and workflow success are not revenue.",
+    "stop_conditions": [
+      "permission unclear",
+      "source cannot be corroborated",
+      "margin below floor",
+      "sandbox or quota unavailable",
+      "silo boundary conflict",
+      "external action lacks approval"
+    ]
+  }
+}
