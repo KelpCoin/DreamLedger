@@ -92,12 +92,12 @@ http.createServer(async (req,res)=>{
     try{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
       const source=Array.isArray(catalogue.products)?catalogue.products:[];
-      const categoryMap={mtg:'mtg','media':'public-placements','dreammeez':'avatar-accessories','commerce':'digital-tools','seller_tools':'seller-services','kelplantis':'digital-experiences','research':'research-services','procurement':'procurement-tools','toll-booths':'digital-tools','demand-services':'growth-services',other:'other-products'};
+      const categoryMap={mtg:'mtg','media':'public-placements','public-placements':'public-placements','dreammeez':'avatar-accessories','avatar-accessories':'avatar-accessories','commerce':'digital-tools','digital-tools':'digital-tools','seller_tools':'seller-services','seller-services':'seller-services','kelplantis':'digital-experiences','digital-experiences':'digital-experiences','research':'research-services','research-services':'research-services','procurement':'procurement-tools','procurement-tools':'procurement-tools','toll-booths':'digital-tools','demand-services':'growth-services','growth-services':'growth-services',other:'other-products','other-products':'other-products'};
       const publicDescription=value=>String(value||'').replace(/777/gi,'research').replace(/CUBE/gi,'').replace(/BECK/gi,'').replace(/Elohim/gi,'DreamLedger').replace(/AgentBridge/gi,'the service').replace(/existing fulfillment rail/gi,'automated service').replace(/internal activity/gi,'unverified activity').replace(/economic loops/gi,'purchase steps').replace(/silos?/gi,'categories').trim();
       const listed=source.filter(x=>x&&x.status==='published'&&x.checkout_available===true&&typeof x.checkout_url==='string').map(x=>({
         id:x.id,product_id:x.id,sku:x.sku||null,name:x.name,description:publicDescription(x.description),
         price:x.price,price_nzd:x.currency==='nzd'?x.price:null,currency:x.currency||'nzd',
-        category:categoryMap[String(x.silo||'other').toLowerCase()]||'other-products',
+        category:categoryMap[String(x.category||x.silo||'other').toLowerCase()]||'other-products',
         checkout_url:x.checkout_url,status:'LISTED'
       }));
       if(p==='/api/products'){
