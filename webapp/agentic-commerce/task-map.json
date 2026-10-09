@@ -13,6 +13,21 @@
   },
   "workstreams": [
     {
+      "id": "HUGE-08",
+      "name": "777 reliability and compounding",
+      "priority": 0,
+      "depends_on": [],
+      "tasks": [
+        "Verify workflow registration and latest run",
+        "Record job-level evidence not just run badge",
+        "Hash and deduplicate each artifact",
+        "Run site build and deployment health checks",
+        "Write Airtable snapshot and Notion receipt",
+        "Preserve rollback and kill-switch paths"
+      ],
+      "done_when": "Each cycle proves external revenue or commits a useful non-duplicate artifact with verifier output"
+    },
+    {
       "id": "HUGE-01",
       "name": "First-dollar commerce rail",
       "priority": 1,
@@ -124,19 +139,19 @@
       "done_when": "A sandbox campaign produces a complete proof-of-play report; no spend without approval"
     },
     {
-      "id": "HUGE-08",
-      "name": "777 reliability and compounding",
-      "priority": 0,
-      "depends_on": [],
-      "tasks": [
-        "Verify workflow registration and latest run",
-        "Record job-level evidence not just run badge",
-        "Hash and deduplicate each artifact",
-        "Run site build and deployment health checks",
-        "Write Airtable snapshot and Notion receipt",
-        "Preserve rollback and kill-switch paths"
+      "id": "HUGE-09",
+      "name": "Carbon forward evidence-gated pre-screen",
+      "priority": 8,
+      "depends_on": [
+        "HUGE-08"
       ],
-      "done_when": "Each cycle proves external revenue or commits a useful non-duplicate artifact with verifier output"
+      "tasks": [
+        "Run deterministic matcher against valid, stale-evidence, revoked-consent and price-mismatch fixtures",
+        "Keep all match proposals non-binding and require human review",
+        "Publish schema at /.well-known/carbon-forward-schema.json and verify live route",
+        "Record CI test output and schema parity"
+      ],
+      "done_when": "Repeatable tests pass for positive, negative and digest-reproducibility cases; no trade or revenue claim is made without external evidence"
     }
   ],
   "cycle_contract": {
