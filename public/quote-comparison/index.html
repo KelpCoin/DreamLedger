@@ -16,16 +16,16 @@
   {"@type":"PropertyValue","name":"output","value":"source-backed decision packet"}
  ]
 }
-</script></head><body><main><div class="k">DreamLedger · Automated procurement</div><h1>Supplier Quote Comparison</h1><p>Turn 2–5 supplier quotations into one normalized, evidence-backed decision packet. The service is designed for buyers who already have quotes and need the differences made explicit.</p><div class="card"><div class="price">NZ$49 one-time</div><p>Paid checkout → secure intake → extraction → normalization → comparison → evidence packet → digital delivery.</p><p><a id="quote-buy" href="/buy/QUOTE-COMPARE-49">Start the service</a></p></div><section class="card" style="margin-top:18px">
-<h2>Already paid? Open your service wall</h2>
-<p>Enter the Stripe checkout session from your receipt, then submit 2-5 supplier quotes and your comparison requirements. Payment is re-verified server-side before any upload or fulfillment begins.</p>
-<label for="qc-session">Stripe checkout session ID</label>
+</script></head><body><main><div class="k">DreamLedger · Supplier tools</div><h1>Supplier Quote Comparison</h1><p>Turn 2–5 supplier quotes into a clear comparison report. The service is for buyers who already have quotes and need prices, scope, terms, and missing details compared side by side.</p><div class="card"><div class="price">NZ$49 one-time</div><p>Pay once, submit your quotes, and receive a structured comparison report.</p><p><a id="quote-buy" href="/buy/QUOTE-COMPARE-49">Start quote comparison</a></p></div><section class="card" style="margin-top:18px">
+<h2>Already purchased? Continue your request</h2>
+<p>Use the checkout session ID from your receipt, then submit 2–5 supplier quotes and describe your purchasing requirements. We confirm payment before processing your files.</p>
+<label for="qc-session">Checkout session ID from your receipt</label>
 <input id="qc-session" placeholder="cs_live_..." autocomplete="off" style="box-sizing:border-box;width:100%;padding:10px;background:#0b0b0b;color:#eee;border:1px solid #444;border-radius:8px">
 <label for="qc-requirements" style="display:block;margin-top:12px">Purchase requirements or scope</label>
 <textarea id="qc-requirements" maxlength="12000" style="box-sizing:border-box;width:100%;min-height:110px;padding:10px;background:#0b0b0b;color:#eee;border:1px solid #444;border-radius:8px"></textarea>
 <label for="qc-files" style="display:block;margin-top:12px">Supplier quotes, 2-5 files, max 10 MB each</label>
 <input id="qc-files" type="file" multiple accept=".pdf,.csv,.json,.md">
-<button id="qc-submit" type="button" style="margin-top:14px;padding:11px 16px;background:#d5b45c;color:#090909;border:0;border-radius:8px;font-weight:800">Open service wall</button>
+<button id="qc-submit" type="button" style="margin-top:14px;padding:11px 16px;background:#d5b45c;color:#090909;border:0;border-radius:8px;font-weight:800">Continue request</button>
 <pre id="qc-status" style="white-space:pre-wrap;color:#aaa"></pre>
 </section>
 <script>
@@ -55,7 +55,7 @@
     b.disabled=true;
     try{
       var session=s.value.trim(), req=r.value.trim(), files=Array.from(fs.files||[]);
-      if(!/^cs_[A-Za-z0-9_]+$/.test(session))throw new Error('Valid Stripe checkout session ID required.');
+      if(!/^cs_[A-Za-z0-9_]+$/.test(session))throw new Error('Valid Checkout session ID from your receipt required.');
       if(!req)throw new Error('Purchase requirements or scope required.');
       if(files.length<2||files.length>5)throw new Error('Submit 2-5 supplier quotes.');
       if(files.some(function(f){return f.size<=0||f.size>10*1024*1024}))throw new Error('Each file must be between 1 byte and 10 MB.');
