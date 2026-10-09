@@ -25,6 +25,59 @@ def load_json(p: Path):
     return json.loads(p.read_text(encoding="utf-8"))
 
 
+def classify_ping(ping: dict) -> dict:
+    """Validate context declarations without performing I/O or external effects."""
+    schema = ping.get("schema", "")
+    intent = str(ping.get("intent") or "").lower()
+    summary_lower = str(ping.get("summary") or "").lower()
+    reads = set(ping.get("reads") or [])
+    commercial = intent in {"money", "commercial", "sell", "acquire"} or any(
+        word in summary_lower
+        for word in ("revenue", "buyer", "checkout", "payment", "offer", "distribution", "commercial", "sell")
+    )
+    beck = any(
+        word in summary_lower
+        for word in (
+            "beck", "bec-prime", "bounded runtime", "agent approval", "action governance",
+            "policy enforcement", "approval token", "signed receipt", "agent guardrail",
+            "pypi", "langchain", "crewai", "autogen", "llamaindex", "mcp gateway",
+        )
+    )
+    required_reads = {"AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md"}
+    required_beck_reads = {"AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md"}
+    if "agent-bridge-ping" not in schema:
+        status, summary = "rejected", "invalid schema"
+    elif float(ping.get("revenue_claim_nzd") or 0) > 0:
+        status, summary = "rejected", "revenue_claim_nzd must be 0 without fossil"
+    elif commercial and not required_reads.issubset(reads):
+        status, summary = "rejected", "commercial task must declare Agent Bridge protocol and canonical Money Playbook in reads"
+    elif beck and not required_beck_reads.issubset(reads):
+        status, summary = "rejected", "BECK/runtime governance task must declare BECK_PRODUCTIZATION_GTM.md in reads"
+    else:
+        status = "accepted"
+        summary = f"accepted ball={ping.get('ball')} intent={ping.get('intent')}"
+        if commercial:
+            summary += " commercial-context=acknowledged"
+        if beck:
+            summary += " beck-productization-context=acknowledged"
+    required_context = [
+        "AGENT_BUS/BRIDGE/PROTOCOL.md",
+        "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+        "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json",
+    ]
+    if commercial:
+        required_context.append("AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md")
+    if beck:
+        required_context.append("AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md")
+    return {
+        "status": status,
+        "summary": summary,
+        "commercial_context_required": commercial,
+        "beck_context_required": beck,
+        "required_context": required_context,
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -44,33 +97,9 @@ def main() -> None:
             results.append({"file": path.name, "status": "rejected", "error": str(e)})
             continue
 
-        schema = ping.get("schema", "")
-        intent = str(ping.get("intent") or "").lower()
-        summary_lower = str(ping.get("summary") or "").lower()
-        reads = set(ping.get("reads") or [])
-        commercial_context_required = intent in {"money", "commercial", "sell", "acquire"} or any(word in summary_lower for word in ("revenue", "buyer", "checkout", "payment", "offer", "distribution", "commercial", "sell"))
-        beck_context_required = any(word in summary_lower for word in (
-            "beck", "bec-prime", "bounded runtime", "agent approval", "action governance",
-            "policy enforcement", "approval token", "signed receipt", "agent guardrail",
-            "pypi", "langchain", "crewai", "autogen", "llamaindex", "mcp gateway",
-        ))
-        required_reads = {"AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md"}
-        required_beck_reads = {"AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md"}
-        if "agent-bridge-ping" not in schema:
-            status, summary = "rejected", "invalid schema"
-        elif float(ping.get("revenue_claim_nzd") or 0) > 0:
-            status, summary = "rejected", "revenue_claim_nzd must be 0 without fossil"
-        elif commercial_context_required and not required_reads.issubset(reads):
-            status, summary = "rejected", "commercial task must declare Agent Bridge protocol and canonical Money Playbook in reads"
-        elif beck_context_required and not required_beck_reads.issubset(reads):
-            status, summary = "rejected", "BECK/runtime governance task must declare BECK_PRODUCTIZATION_GTM.md in reads"
-        else:
-            status = "accepted"
-            summary = f"accepted ball={ping.get('ball')} intent={ping.get('intent')}"
-            if commercial_context_required:
-                summary += " commercial-context=acknowledged"
-            if beck_context_required:
-                summary += " beck-productization-context=acknowledged"
+        decision = classify_ping(ping)
+        status = decision["status"]
+        summary = decision["summary"]
 
         pong_id = f"pong-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M')}-{uuid.uuid4().hex[:6]}"
         pong = {
@@ -81,9 +110,9 @@ def main() -> None:
             "status": status,
             "summary": summary,
             "verified_external_revenue_nzd": 0,
-            "required_context": ["AGENT_BUS/BRIDGE/PROTOCOL.md", "AGENT_BUS/MONEY-PLAYBOOK-500.md", "AGENT_BUS/MONEY-PLAYBOOK-INDEX.json"] + (["AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md"] if commercial_context_required else []) + (["AGENT_BUS/BRIDGE/BECK_PRODUCTIZATION_GTM.md"] if beck_context_required else []),
-            "commercial_context_required": commercial_context_required,
-            "beck_context_required": beck_context_required,
+            "required_context": decision["required_context"],
+            "commercial_context_required": decision["commercial_context_required"],
+            "beck_context_required": decision["beck_context_required"],
             "next_ball": ping.get("ball") or "C",
             "created_at": utc(),
         }
