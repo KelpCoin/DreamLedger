@@ -12,6 +12,10 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# Install the recovery task before attempting model startup so a transient failure
+# does not prevent the next user logon from retrying the local runtime.
+
+
 function Ensure-Dir([string]$Path) {
     if (-not (Test-Path -LiteralPath $Path)) { New-Item -ItemType Directory -Path $Path -Force | Out-Null }
 }
