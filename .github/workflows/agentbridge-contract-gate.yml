@@ -6,6 +6,7 @@ on:
     paths:
       - 'BEC-PRIME/runtime/AgentBridge.js'
       - 'BEC-PRIME/runtime/AgentBridgeFencedAdapter.js'
+      - 'BEC-PRIME/runtime/AgentBridgeProxyAdapter.js'
       - 'BEC-PRIME/scripts/Verify-AgentBridge-*.js'
       - 'BEC-PRIME/scripts/CortexEconomicWorker.ps1'
       - 'scripts/bridge_ping.py'
@@ -18,6 +19,7 @@ on:
     paths:
       - 'BEC-PRIME/runtime/AgentBridge.js'
       - 'BEC-PRIME/runtime/AgentBridgeFencedAdapter.js'
+      - 'BEC-PRIME/runtime/AgentBridgeProxyAdapter.js'
       - 'BEC-PRIME/scripts/Verify-AgentBridge-*.js'
       - 'BEC-PRIME/scripts/CortexEconomicWorker.ps1'
       - '.github/workflows/agentbridge-contract-gate.yml'
