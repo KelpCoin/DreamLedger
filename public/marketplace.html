@@ -1,60 +1,19 @@
 <!doctype html>
-<html lang="en-NZ">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080a0d">
-<meta name="description" content="DreamLedger is a simple place to buy, sell and trade goods, services and digital resources.">
-<title>DreamLedger | Buy, sell and trade</title>
+<meta name="theme-color" content="#101b2b">
+<meta name="description" content="DreamLedger marketplace status and verified listing policy.">
+<title>Marketplace | DreamLedger</title>
 <style>
-:root{--bg:#080a0d;--panel:#10151b;--line:#27313a;--ink:#f5f3eb;--muted:#9ca7b2;--gold:#d8b56b;--green:#8fd3a2;--max:1120px}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#2b2418 0,#080a0d 36%);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}.wrap{max-width:var(--max);margin:auto;padding:0 16px 64px}a{color:inherit;text-decoration:none}.nav{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:14px;position:sticky;top:0;z-index:30;background:#080a0df2;backdrop-filter:blur(18px)}.brand{font-weight:950;letter-spacing:.08em;white-space:nowrap}.brand span{color:var(--gold)}nav{display:flex;gap:10px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}nav::-webkit-scrollbar{display:none}nav a{flex:0 0 auto;white-space:nowrap;color:var(--muted);font-size:.78rem}.hero{padding:58px 0 28px;max-width:900px}.kicker{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:900}.hero h1{font-size:clamp(3rem,8vw,6rem);line-height:.9;letter-spacing:-.065em;margin:10px 0 18px}.hero p{max-width:720px;color:var(--muted);font-size:1rem;line-height:1.6}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}.btn{display:inline-block;padding:12px 16px;border:1px solid var(--line);border-radius:9px;font-weight:900;font-size:.8rem}.primary{background:var(--gold);border-color:var(--gold);color:#111}.panel{background:#10151bdd;border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:18px}.panel h2{margin:0 0 7px;font-size:1.35rem;letter-spacing:-.03em}.panel>p{margin:0;color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.card{background:linear-gradient(180deg,#151b23,#0e1217);border:1px solid var(--line);border-radius:14px;padding:17px;min-height:135px}.card h3{margin:7px 0 6px;font-size:1rem}.card p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.45}.card .go{display:inline-block;margin-top:13px;color:var(--gold);font-size:.75rem;font-weight:900}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted);font-size:.6rem;letter-spacing:.1em}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.step{padding:14px 0;border-top:1px solid var(--line)}.step b{display:block;font-size:.82rem}.step span{display:block;color:var(--muted);font-size:.72rem;margin-top:4px;line-height:1.4}.compute{border-color:#3b4853}.compute .go{color:var(--green)}.foot{padding:24px 0;color:var(--muted);font-size:.68rem;border-top:1px solid var(--line);margin-top:24px}@media(max-width:760px){.grid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}}@media(max-width:480px){.hero{padding-top:42px}.hero h1{font-size:3.25rem}.steps{grid-template-columns:1fr}nav{max-width:55vw}}
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,sans-serif}.wrap{width:min(900px,calc(100% - 32px));margin:auto}.nav{padding:22px 0;border-bottom:1px solid #ffffff1a;display:flex;gap:18px;justify-content:space-between;flex-wrap:wrap}.nav a{color:var(--mint);text-decoration:none}.hero{padding:64px 0 28px}.eyebrow{color:var(--mint);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}h1{font-size:clamp(38px,7vw,62px);line-height:1.04;letter-spacing:-.05em;margin:14px 0 18px}p{color:var(--muted);max-width:760px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin:18px 0}.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{display:inline-block;padding:11px 15px;border:1px solid var(--line);border-radius:9px;color:var(--ink);text-decoration:none}.primary{background:var(--mint);color:#0b1721;border-color:var(--mint);font-weight:750}footer{padding:28px 0;border-top:1px solid #ffffff1a;color:var(--muted);font-size:13px}
 </style>
 </head>
-<body>
-<div class="wrap">
-<header class="nav">
-<a class="brand" href="/"><span>DREAM</span>LEDGER</a>
-<nav aria-label="Main navigation"><a href="/">Explore</a><a href="/avatar.html">Create avatar</a><a href="/billboard">Billboard</a><a href="/mtg">Magic</a><a href="/b2b">For business</a></nav>
-</header>
-
-<section class="hero">
-<div class="kicker">Shop and sell</div>
-<h1>Find it.<br>Make it yours.</h1>
-<p>Browse useful products and services, or list something you want to sell.</p>
-<div class="actions"><a class="btn primary" href="/mtg">Shop MTG</a><a class="btn" href="/b2b">Post a B2B request</a><a class="btn" href="/register">Create an account</a></div>
-</section>
-
-<section class="panel">
-<div class="kicker">Simple by design</div>
-<h2>The details stay behind the scenes.</h2>
-<p>Choose what you need, follow the checkout, and get clear next steps.</p>
-<div class="grid">
-<a class="card" href="/mtg"><span class="tag">COMMUNITY</span><h3>MTG</h3><p>Cards and Commander decks with a dedicated catalogue and commerce flow.</p><span class="go">Browse MTG →</span></a>
-<a class="card" href="/b2b"><span class="tag">BUSINESS</span><h3>B2B procurement</h3><p>Post what you need. Suppliers can respond with quotes and options.</p><span class="go">Open B2B →</span></a>
-<a class="card" href="/catalogue"><span class="tag">DIGITAL</span><h3>Digital resources</h3><p>Templates, documents, data, tools and other useful downloadable or callable resources.</p><span class="go">Explore resources →</span></a>
-</div>
-</section>
-
-<section class="panel">
-<div class="kicker">How it works</div>
-<h2>Four steps. No fog machine.</h2>
-<div class="steps">
-<div class="step"><b>1. Find</b><span>Browse a listing, request or resource.</span></div>
-<div class="step"><b>2. Choose</b><span>Review the price, terms and what you receive.</span></div>
-<div class="step"><b>3. Pay</b><span>Authorize the transaction through the available checkout.</span></div>
-<div class="step"><b>4. Receive</b><span>Get the promised product, service or result.</span></div>
-</div>
-</section>
-
-<section class="panel">
-<div class="kicker">For machines and creators</div>
-<h2>More capability, when you need it.</h2>
-<p>The same commerce foundation can later expose machine-readable resources, agent-to-agent services and metered compute. Those are extensions of the marketplace, not homework for ordinary shoppers.</p>
-<div class="actions"><a class="btn" href="/toll-road">A2A resources</a><a class="btn" href="/compute.json">GPU capacity</a><a class="btn" href="/billboard">Media inventory</a></div>
-</section>
-
-<footer class="foot">DreamLedger · real listings and real transactions first. Internal capacity is not counted as revenue.</footer>
-</div>
-</body>
-</html>
+<body><main class="wrap">
+<header class="nav"><a href="/" aria-label="DreamLedger home"><strong>DreamLedger</strong></a><nav><a href="/about/">About</a> · <a href="/trust/">Trust &amp; evidence</a></nav></header>
+<section class="hero"><div class="eyebrow">Evidence before inventory</div><h1>Real listings only. No invented stock.</h1><p>The marketplace is being narrowed to sourced, authorized offers. Until a listing can be tied to a real seller and current availability, it stays out of the public catalogue. This is an intentional integrity hold, not a claim that inventory exists.</p></section>
+<section class="panel"><h2>What is available here?</h2><p>Third-party physical listings are hidden while listing integrity is repaired. No fictional product, seller, location, condition, stock count, or price should be shown as real. A listing can return only when its source, seller authority, availability, and purchase path have been checked.</p><p>DreamLedger's free supplier-quote worksheet remains available. It is a browser-side template, not a supplier directory or a claim that any supplier has offered a product.</p><div class="links"><a class="btn primary" href="/#quote-tool">Open the free worksheet</a><a class="btn" href="/trust/">Read the evidence standard</a><a class="btn" href="/about/">About DreamLedger</a></div></section>
+<footer>DreamLedger · Published pages are not proof of inventory, buyer demand, settlement, or fulfillment.</footer>
+</main></body></html>
