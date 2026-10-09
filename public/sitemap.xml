@@ -1,50 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://dreamledger-silo-gateway.onrender.com/sitemap.xml</loc></url>
   <url><loc>https://dreamledger.org/</loc></url>
-  <url><loc>https://dreamledger.org/agent-commerce</loc></url>
-  <url><loc>https://dreamledger.org/agent-products.json</loc></url>
-  <url><loc>https://dreamledger.org/agentic-commerce.html</loc></url>
-  <url><loc>https://dreamledger.org/ai-catalog.json</loc></url>
-  <url><loc>https://dreamledger.org/compare-supplier-quotes.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/</loc></url>
-  <url><loc>https://dreamledger.org/economic/crossmint-agent-commerce-toolkit-20261008.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-supplier-help-56940289f7.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-supplier-log-in-1f1960bc73.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-suppliers-of-independent-asset-management-reviews-9d7e162970.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-taihape-raw-water-falling-main-replacement-stage-6-pt-a-rail-40635700bd.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-te-kauwhata-walkway-1538568a76.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-te-kura-hris-rfi-e81244f17e.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-te-nukutai-o-tapoa-naval-point-lyttelton-recreation-ground-s-a3395b35b5.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-terms-and-conditions-71caf165c6.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-tokanui-toilet-upgrade-7a5a369dfa.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-town-hall-floor-upgrade-82009d5e3d.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-transport-services-for-glenorchy-school-06d3a274e3.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-virtual-power-purchasing-agreement-c544547363.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-wairoa-airport-runway-extension-89836f7e67.html</loc></url>
-  <url><loc>https://dreamledger.org/economic/procurement-wdc-26-151-whakat-ne-floodwall-integration-quay-st-and-the-s-82e2442659.html</loc></url>
-  <url><loc>https://dreamledger.org/guides/agentic-commerce-nz</loc></url>
-  <url><loc>https://dreamledger.org/guides/ai-product-discovery-nz</loc></url>
-  <url><loc>https://dreamledger.org/money-10000.html</loc></url>
-  <url><loc>https://dreamledger.org/mtg/</loc></url>
-  <url><loc>https://dreamledger.org/observatory/commerce-graph/</loc></url>
-  <url><loc>https://dreamledger.org/pulse/</loc></url>
-  <url><loc>https://dreamledger.org/pulse/2026-10-09-private-commercial-reversible-launches-agentic-affiliate-platform-connecting-ai-shopping-to-700-retailers-usa-today-4f89a90a08dc9be6.html</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison.html</loc></url>
+  <url><loc>https://dreamledger.org/truth-oracle.html</loc></url>
+  <url><loc>https://dreamledger.org/truth-oracle-field-guide.html</loc></url>
+  <url><loc>https://dreamledger.org/trust/</loc></url>
+  <url><loc>https://dreamledger.org/about/</loc></url>
   <url><loc>https://dreamledger.org/quote-comparison/</loc></url>
   <url><loc>https://dreamledger.org/quote-comparison/construction</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison/ecommerce</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison/electrical</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison/hospitality</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison/import</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison/lighting</loc></url>
   <url><loc>https://dreamledger.org/quote-comparison/manufacturing</loc></url>
-  <url><loc>https://dreamledger.org/quote-comparison/operations</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/lighting</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/electrical</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/import</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/hospitality</loc></url>
   <url><loc>https://dreamledger.org/quote-comparison/packaging</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/ecommerce</loc></url>
   <url><loc>https://dreamledger.org/quote-comparison/wholesale</loc></url>
-  <url><loc>https://dreamledger.org/revenue.html</loc></url>
-  <url><loc>https://dreamledger.org/rfq-quote-comparison.html</loc></url>
+  <url><loc>https://dreamledger.org/quote-comparison/operations</loc></url>
   <url><loc>https://dreamledger.org/sell.html</loc></url>
-  <url><loc>https://dreamledger.org/supplier-quote-comparison.html</loc></url>
-  <url><loc>https://dreamledger.org/truth-oracle.html</loc></url>
+  <url><loc>https://dreamledger.org/mtg/</loc></url>
+  <url><loc>https://dreamledger.org/pulse/</loc></url>
+  <url><loc>https://dreamledger.org/pulse/2026-10-09-private-commercial-reversible-launches-agentic-affiliate-platform-connecting-ai-shopping-to-700-retailers-usa-today-4f89a90a08dc9be6.html</loc></url>
+  <url><loc>https://dreamledger.org/guides/agentic-commerce-nz</loc></url>
+  <url><loc>https://dreamledger.org/guides/ai-product-discovery-nz</loc></url>
 </urlset>
