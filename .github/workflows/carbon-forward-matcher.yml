@@ -1,0 +1,24 @@
+name: Carbon forward matcher tests
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "BEC-PRIME/scripts/carbon_forward_matcher.mjs"
+      - "BEC-PRIME/tests/carbon_forward_matcher.test.mjs"
+      - "BEC-PRIME/fixtures/carbon-forward/**"
+      - ".github/workflows/carbon-forward-matcher.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  matcher-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run deterministic matcher tests
+        run: node --test BEC-PRIME/tests/carbon_forward_matcher.test.mjs
