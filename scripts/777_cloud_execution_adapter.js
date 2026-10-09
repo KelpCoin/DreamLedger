@@ -54,23 +54,23 @@ function readInput() {
 function candidateFromModel(modelOutput, source) {
   const x = typeof modelOutput === 'string' ? { decision: modelOutput } : (modelOutput || {});
   return {
-    offer_id: x.offer_id || 'QUOTE-COMPARE-49',
-    name: x.name || 'Signed Quote Comparison',
-    problem: x.problem || x.decision || 'Compare supplier quotations and identify the economically superior comparable option.',
-    target_buyer: x.target_buyer || 'buyer with 2-5 supplier quotes',
-    deliverable: x.deliverable || 'normalized comparison, ranking, missing-scope findings, source evidence and signed verification packet',
-    delivery_mechanism: x.delivery_mechanism || 'existing quote comparison fulfillment rail',
-    price: Number(x.price || 49),
-    currency: x.currency || 'NZD',
-    payment_adapter: x.payment_adapter || 'existing Stripe checkout',
-    checkout_route: x.checkout_route || process.env.QUOTE_COMPARE_CHECKOUT || 'configured existing Quote Compare checkout',
+    offer_id: x.offer_id || source.offer_id || source.candidate?.offer_id || source.offer?.offer_id || 'UNASSIGNED_NO_EVIDENCE',
+    name: x.name || source.name || source.candidate?.name || 'Unqualified demand candidate',
+    problem: x.problem || x.decision || source.problem || source.objective || 'No grounded buyer problem supplied; candidate must remain unqualified.',
+    target_buyer: x.target_buyer || source.target_buyer || source.candidate?.target_buyer || 'UNVERIFIED_BUYER_SEGMENT',
+    deliverable: x.deliverable || source.deliverable || source.candidate?.deliverable || 'UNSPECIFIED_DELIVERABLE',
+    delivery_mechanism: x.delivery_mechanism || source.delivery_mechanism || source.candidate?.delivery_mechanism || 'UNCONFIGURED_FULFILLMENT',
+    price: Number(x.price ?? source.price ?? source.candidate?.price ?? 0),
+    currency: x.currency || source.currency || source.candidate?.currency || 'UNSPECIFIED',
+    payment_adapter: x.payment_adapter || source.payment_adapter || source.candidate?.payment_adapter || 'UNCONFIGURED_PAYMENT_ADAPTER',
+    checkout_route: x.checkout_route || source.checkout_route || source.candidate?.checkout_route || 'UNCONFIGURED_NO_CHECKOUT',
     approval_required: true,
     checkout_available: false,
     status: 'CANDIDATE',
     proof_of_delivery: x.proof_of_delivery || 'signed/hash-bound evidence packet plus independent verification',
     verification_rules: x.verification_rules || 'external buyer + settled payment + fulfillment + independent proof',
     provenance: { private_material: 'excluded', source_hash: sha(JSON.stringify(source)) },
-    silo: x.silo || 'quote-compare',
+    silo: x.silo || source.silo || source.candidate?.silo || 'unassigned',
     kill_condition: x.kill_condition || 'no external buyer, no settled payment, fulfillment failure, contradictory evidence'
   };
 }
@@ -233,7 +233,11 @@ async function main() {
   }, null, 2));
 }
 
-main().catch(error => {
-  console.error(String(error.stack || error));
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(error => {
+    console.error(String(error.stack || error));
+    process.exit(1);
+  });
+}
+
+module.exports = { candidateFromModel };

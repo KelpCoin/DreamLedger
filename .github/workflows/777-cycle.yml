@@ -2,12 +2,15 @@ name: 777 Economic Pulse
 
 on:
   schedule:
-    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
   workflow_dispatch:
   push:
+    branches: ["main"]
     paths:
       - ".github/workflows/777-cycle.yml"
       - "scripts/777_cycle.py"
+      - "scripts/777_cloud_execution_adapter.js"
+      - "scripts/777_cloud_execution_adapter.test.js"
       - "scripts/external_demand_transition.py"
       - "data/external-demand-seeds/**"
       - "scripts/procurement_amendment_delta.py"
@@ -26,6 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Test grounded candidate boundary
+        run: node --test scripts/777_cloud_execution_adapter.test.js
       - name: Generate procurement amendment delta
         run: python scripts/procurement_amendment_delta.py
       - name: Generate external demand transition
