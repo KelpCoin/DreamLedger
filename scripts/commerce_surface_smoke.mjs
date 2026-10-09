@@ -47,8 +47,8 @@ async function testFreeQuoteIntake() {
   const fn = base + "/functions/v1/quote-intake";
   const key = "sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj";
   const files = [
-    { name: "smoke-a.csv", body: "Supplier,Grand total,Lead time\\nSupplier A,Grand total: NZD 100.00,5 days\\n" },
-    { name: "smoke-b.csv", body: "Supplier,Grand total,Lead time\\nSupplier B,Grand total: NZD 125.00,7 days\\n" }
+    { name: "smoke-a.csv", body: "Supplier,Grand total,Lead time\nSupplier A,Grand total: NZD 100.00,5 days\n" },
+    { name: "smoke-b.csv", body: "Supplier,Grand total,Lead time\nSupplier B,Grand total: NZD 125.00,7 days\n" }
   ];
   const api = async (body) => {
     const res = await fetch(fn, { method: "POST", headers: { "Content-Type": "application/json", apikey: key }, body: JSON.stringify(body), signal: AbortSignal.timeout(30000) });
