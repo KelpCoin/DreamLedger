@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-09T00:25:58+00:00",
+  "updated_at_utc": "2026-10-09T06:28:57+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Virtual Power Purchasing Agreement",
+      "url": "https://www.gets.govt.nz/KRG/ExternalTenderDetails.htm?id=34911639",
+      "observed_at": "2026-10-09T06:28:52+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "c544547363d032fcc76422fed4a48c8ca642d445704e368e20345caad3134ed5",
+      "event_id": "b54459f2-6eb3-5b20-ba7e-c8b4cab74aee",
+      "silo_id": "ECO-C544547363D032FC",
+      "slug": "procurement-virtual-power-purchasing-agreement-c544547363"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
