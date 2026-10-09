@@ -50,7 +50,7 @@ async function main() {
 
   assert.throws(() => bridge.validateEventEnvelope({
     event_id: 'bad', correlation_id: 'bad', event_type: 'CANDIDATE_FOUND', agent: 'not-an-allowed-agent'
-  }), /agent not allowed/);
+  }), /agent not allowed|invalid agent/);
 
   assert.throws(() => bridge.validateEventEnvelope({
     event_id: 'bad-approval', correlation_id: 'bad-approval', event_type: 'ACTION_APPROVED', agent: 'claude'
