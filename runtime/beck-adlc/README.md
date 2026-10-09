@@ -6,7 +6,7 @@ This is the first executable policy slice of BECK's Agent Development Lifecycle.
 
 - `beck_contract.json` defines the policy contract.
 - `policy.py` evaluates structured intents without performing external effects.
-- `test_policy.py` covers allow/deny decisions, authority expiry and scope, action/target allowlists, budget limits, missing fields, future timestamps, idempotency conflicts, and evidence-shaped results.
+- `test_policy.py` currently contains 12 unit tests for the permitted test intent, proposed contract rejection, missing/expired/mismatched authority, action and target allowlists, budget and payload limits, missing fields, future timestamps, and idempotency conflicts.
 
 **This is not yet a production executor.** It does not perform external effects, authenticate authority signatures, persist evidence, reserve idempotency keys atomically, or integrate production adapters. The contract defaults to `PROPOSED` with an empty action allowlist, so it cannot authorize actions until a reviewed contract and trusted authority adapter are connected.
 
