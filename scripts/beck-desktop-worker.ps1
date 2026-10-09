@@ -50,7 +50,10 @@ function Run-BeckCycle {
     $checks["working_tree"] = if ($dirty) { "DIRTY_NO_AUTO_PULL" } else { "CLEAN" }
 
     # Never overwrite uncommitted desktop work. Updates remain manual if dirty.
-    if (-not $dirty) {
+    $branch = Invoke-Checked "git" @("rev-parse", "--abbrev-ref", "HEAD") $RepoPath
+    if ($branch -ne "main") {
+      $checks["git_sync"] = "SKIPPED_NON_MAIN_BRANCH"
+    } elseif (-not $dirty) {
       try {
         $null = Invoke-Checked "git" @("fetch", "origin", "main", "--quiet") $RepoPath
         $aheadBehind = Invoke-Checked "git" @("rev-list", "--left-right", "--count", "HEAD...origin/main") $RepoPath
@@ -110,9 +113,10 @@ if ($InstallTask) {
   $taskArgs = '-NoProfile -ExecutionPolicy Bypass -File "' + $script + '" -RepoPath "' + $RepoPath + '"'
   $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $taskArgs
   $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-  $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Days 1)
+  $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Days 3650)
   Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Description "Runs safe DreamLedger BECK checks; no payments or external publishing." -Force | Out-Null
   Write-Log "TASK_INSTALLED name=$taskName trigger=AtLogOn"
+  Start-ScheduledTask -TaskName $taskName
   if (-not $Once) { exit 0 }
 }
 
