@@ -379,7 +379,7 @@ if deduped:
             f'<article><h2><a href="{public_href}">{html.escape(signal["title"])}</a></h2>'
             f'<p><strong>Observed:</strong> {now.date().isoformat()}. '
             '<strong>Truth:</strong> UNVERIFIED market signal. '
-            'Source-discovery candidate, not proof of buyer intent, payment, fulfillment, or revenue.</p></article>\\n'
+            'Source-discovery candidate, not proof of buyer intent, payment, fulfillment, or revenue.</p></article>\n'
         )
         revenue_marker = '<p><strong>Revenue truth:</strong>'
         if revenue_marker in public_index_text:
