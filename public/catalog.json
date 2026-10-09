@@ -5,139 +5,111 @@
     {
       "id": "DREAMMEEZ-COSMIC-HOODIE-001",
       "sku": "COSMIC-HOODIE",
-      "silo": "dreammeez",
       "name": "DreamMeez Cosmic Hoodie",
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 5,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J",
-      "fulfillment": "dreammeez_entitlement"
+      "category": "avatar-accessories"
     },
     {
       "id": "DREAMMEEZ-CAPE-001",
       "sku": "CAPE",
-      "silo": "dreammeez",
       "name": "DreamMeez Cape",
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 10,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K",
-      "fulfillment": "dreammeez_entitlement"
+      "category": "avatar-accessories"
     },
     {
       "id": "DREAMMEEZ-CHROME-BOOTS-001",
       "sku": "CHROME-BOOTS",
-      "silo": "dreammeez",
       "name": "DreamMeez Chrome Boots",
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 9,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L",
-      "fulfillment": "dreammeez_entitlement"
+      "category": "avatar-accessories"
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-SPROUT",
       "sku": "DREAMMEEZ-SUPPORTER-SPROUT",
-      "silo": "dreammeez",
       "name": "DreamMeez Supporter — Sprout",
       "description": "Monthly supporter identity tier with supporter status, a monthly cosmetic drop, and DreamMeez/Kelplantis cosmetic access.",
       "price": 3.99,
       "currency": "nzd",
-      "inventory": 999999,
-      "inventory_type": "subscription",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
-      "fulfillment": "dreammeez_supporter_entitlement"
+      "category": "avatar-accessories"
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-GLOW",
       "sku": "DREAMMEEZ-SUPPORTER-GLOW",
-      "silo": "dreammeez",
       "name": "DreamMeez Supporter — Glow",
       "description": "Monthly supporter identity tier with expanded cosmetic access and a monthly cosmetic drop.",
       "price": 5.99,
       "currency": "nzd",
-      "inventory": 999999,
-      "inventory_type": "subscription",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N",
-      "fulfillment": "dreammeez_supporter_entitlement"
+      "category": "avatar-accessories"
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-DEPTH",
       "sku": "DREAMMEEZ-SUPPORTER-DEPTH",
-      "silo": "dreammeez",
       "name": "DreamMeez Supporter — Depth",
       "description": "Premium monthly supporter identity tier with premium cosmetic drops and premium DreamMeez/Kelplantis cosmetic access.",
       "price": 9.99,
       "currency": "nzd",
-      "inventory": 999999,
-      "inventory_type": "subscription",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O",
-      "fulfillment": "dreammeez_supporter_entitlement"
+      "category": "avatar-accessories"
     },
     {
       "id": "KELP-FLOOR1-001",
       "sku": "KELP-FLOOR1-001",
-      "silo": "kelplantis",
       "name": "Kelplantis Floor 1 Access Pass",
       "description": "One-time digital access to the Floor 1 vertical slice, including the persistent First Garden social hub and Floor 1 progression.",
       "price": 19,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P",
-      "fulfillment": "auto_delivery"
+      "category": "digital-experiences"
     },
     {
       "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "silo": "media",
       "name": "DreamLedger Founding Billboard",
       "description": "One permanent 100×100 public billboard tile on the DreamLedger canvas. Buyer supplies the destination and creative; publication follows human content review.",
       "price": 50,
       "currency": "nzd",
-      "inventory": 1,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "fulfillment": "billboard_placement"
+      "category": "public-placements"
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "sku": "CMD-DIAG-29",
-      "silo": "mtg",
       "name": "Commander Deck Diagnostic",
       "description": "An automated first-pass Commander deck diagnostic covering structural weaknesses, upgrade priorities and a tuning plan.",
       "price": 29,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
       "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
       "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
-      "fulfillment": "customer_input -> automatic_commander_worker -> verified_artifact",
       "fulfillment_input_url": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}",
       "fulfillment_contract": {
         "fulfillment_capability": "COMMANDER_DIAGNOSTIC",
@@ -155,22 +127,19 @@
         ],
         "human_gate": null,
         "completion_condition": "Validated diagnostic artifact is generated and made available to the buyer."
-      }
+      },
+      "category": "mtg"
     },
     {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
       "sku": "DISCORD_WEBHOOK_STARTER_KIT",
-      "silo": "commerce",
       "name": "Discord Webhook Starter Kit",
       "description": "A downloadable Stripe-to-Discord webhook starter kit with verified payment handling, code templates and setup guide.",
       "price": 79,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
-      "fulfillment": "automatic_paid_session_download",
       "fulfillment_contract": {
         "fulfillment_capability": "PAID_DIGITAL_DELIVERY",
         "buyer_inputs": [
@@ -185,22 +154,19 @@
         ],
         "human_gate": null,
         "completion_condition": "Paid digital artifact is made available after verified settlement."
-      }
+      },
+      "category": "digital-tools"
     },
     {
       "id": "EDH_0001",
-      "silo": "mtg",
       "name": "Edward Kenway – Pacin’ On The Plank",
       "description": "Grixis Pirate/Vehicle Commander deck built around treasure generation, stealing cards, Pirates, Assassins and Vehicles. Physical Commander deck, free shipping in Aotearoa New Zealand. Decklist available on ManaBox.",
       "price": 230,
       "currency": "nzd",
-      "inventory": 1,
-      "inventory_type": "physical",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
       "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
-      "fulfillment": "physical_delivery",
       "decklist_url": "https://manabox.app/decks/AZ5j98lSddyD5z5e5scYCw",
       "seller": "Biggie",
       "tags": [
@@ -212,54 +178,46 @@
         "mtgsale"
       ],
       "patron_price_nzd": 200,
-      "patron_url": "https://patreon.com/happyhomarid"
+      "patron_url": "https://patreon.com/happyhomarid",
+      "category": "mtg"
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
       "sku": "DL-DOOH-CAMPAIGN-500",
-      "silo": "core",
       "name": "DreamLedger Verified DOOH Campaign",
       "description": "One-time verified digital-out-of-home campaign package. Checkout remains gated until the delivery contract is verified.",
       "price": 500,
       "currency": "nzd",
-      "inventory": 1000,
-      "inventory_type": "service",
       "status": "gated",
       "checkout_available": false,
-      "checkout_url": null
+      "checkout_url": null,
+      "category": "other-products"
     },
     {
       "id": "KELP-BILLBOARD-FLOOR1",
       "sku": "KELP-BB-F1",
-      "silo": "kelplantis",
       "name": "Kelplantis Town Billboard — Depth 1",
       "description": "One in-game town billboard slot on Depth 1. Gated until webhook fulfilment is verified.",
       "price": 25,
       "currency": "nzd",
-      "inventory": 6,
-      "inventory_type": "digital",
       "status": "gated",
       "checkout_available": false,
       "checkout_url": null,
-      "fulfillment": "kelplantis_billboard_on_paid"
+      "category": "digital-experiences"
     },
     {
       "id": "SELLER-PROFIT-AUDIT-001",
       "sku": "SELLER-PROFIT-AUDIT-001",
-      "silo": "seller_tools",
       "name": "Seller Profit Audit",
       "description": "Seller-specific NZ profit audit covering marketplace fees, pricing, GST threshold, ACC and income-tax considerations, channel comparison and shipping economics.",
       "price": 29,
       "currency": "nzd",
-      "inventory": 9999,
-      "inventory_type": "digital",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
       "payment_link_id": "plink_1UJNTzEGgEAnUFF9bzVlFlng",
       "stripe_product_id": "prod_VK1WoQw8ieHpMN",
       "stripe_price_id": "price_1UJNTvEGgEAnUFF9bfGbtrmm",
-      "fulfillment": "manual_pdf",
       "fulfillment_contract": {
         "fulfillment_capability": "SELLER_PROFIT_AUDIT",
         "buyer_inputs": [
@@ -276,25 +234,22 @@
         ],
         "human_gate": "Manual review where source data is ambiguous.",
         "completion_condition": "Validated PDF audit is delivered."
-      }
+      },
+      "category": "seller-services"
     },
     {
       "id": "DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001",
       "sku": "COMMERCIAL-TRUTH-STRESS-TEST-001",
-      "silo": "truth_oracle",
       "name": "Commercial Truth Stress-Test",
       "description": "A bounded adversarial review of a commercial claim, offer, workflow, or decision. Tests evidence, assumptions, failure modes, and the conditions required for the claim to be considered supported.",
       "price": 999,
       "currency": "nzd",
-      "inventory": 100,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T",
       "payment_link_id": "plink_1UJSwWEGgEAnUFF9EPmOx8PQ",
       "stripe_product_id": "prod_VK7AxB6WEZGX9C",
       "stripe_price_id": "price_1UJSwREGgEAnUFF9kGZjJEma",
-      "fulfillment": "manual_gauntlet_truth_oracle_report",
       "fulfillment_contract": {
         "fulfillment_capability": "COMMERCIAL_TRUTH_REVIEW",
         "buyer_inputs": [
@@ -311,24 +266,21 @@
         ],
         "human_gate": "Human review for final adversarial report.",
         "completion_condition": "Final reviewed report is delivered to the buyer."
-      }
+      },
+      "category": "other-products"
     },
     {
       "id": "ACNC-CHARITY-DD-99",
       "sku": "ACNC-CHARITY-DD-99",
-      "silo": "research",
       "name": "ACNC Charity Due Diligence Report",
       "description": "Fixed-scope, source-backed due diligence report on one Australian charity using the ACNC public register, annual reports, governance records and other verifiable primary sources. A free Australian Red Cross sample is published.",
       "price": 99,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "research",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
       "payment_link_id": "plink_1UKAu6EGgEAnUFF93oLQlZiR",
       "stripe_price_id": "price_1UKAu0EGgEAnUFF9OrBC80OU",
-      "fulfillment": "checkout -> ACNC_RESEARCH_WORKER -> evidence-backed report",
       "sample_url": "https://dreamledger.org/buy/acnc-charity-due-diligence/",
       "scope": [
         "registration",
@@ -356,24 +308,21 @@
         ],
         "human_gate": null,
         "completion_condition": "Source-backed report and source trail are generated and validated."
-      }
+      },
+      "category": "research-services"
     },
     {
       "id": "QUOTE-COMPARE-49",
       "sku": "QUOTE-COMPARE-49",
-      "silo": "procurement",
       "name": "Supplier Quote Comparison",
       "description": "One-time normalization and comparison of 2-5 supplier quotes into a side-by-side decision packet covering price, scope differences, missing costs, terms and material exceptions.",
       "price": 49,
       "currency": "nzd",
-      "inventory": 9999,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
       "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
       "stripe_price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
-      "fulfillment": "automated_quote_comparison",
       "fulfillment_contract": {
         "fulfillment_capability": "SUPPLIER_QUOTE_COMPARISON",
         "buyer_inputs": [
@@ -401,115 +350,98 @@
         ],
         "human_gate": null,
         "completion_condition": "Validated decision packet is automatically delivered after verified settlement and buyer inputs."
-      }
+      },
+      "category": "procurement-tools"
     },
     {
       "id": "DOC-EXTRACT-50",
       "sku": "DOC-EXTRACT-50",
-      "silo": "toll-booths",
       "name": "Document Extraction",
       "description": "PDF to structured data, with source references and unknowns preserved.",
       "price": 5,
       "currency": "nzd",
-      "inventory": 9999,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/00wdR9ea14hDgyPbN2dwc33",
       "payment_link_id": "plink_1UKqD6EGgEAnUFF9u9GanhSX",
       "stripe_price_id": "price_1UKqCvEGgEAnUFF9RnTtUUpH",
-      "fulfillment": "manual_mvp",
-      "toll_unit": "per_document"
+      "toll_unit": "per_document",
+      "category": "digital-tools"
     },
     {
       "id": "SUPPLIER-CHECK-50",
       "sku": "SUPPLIER-CHECK-50",
-      "silo": "toll-booths",
       "name": "Supplier Verification Check",
       "description": "Entity and registry verification with source-backed findings.",
       "price": 5,
       "currency": "nzd",
-      "inventory": 9999,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/8x28wPc1T5lH6YfdVadwc34",
       "payment_link_id": "plink_1UKqD9EGgEAnUFF9NUPlLvyp",
       "stripe_price_id": "price_1UKqCxEGgEAnUFF9gj639uka",
-      "fulfillment": "manual_mvp",
-      "toll_unit": "per_check"
+      "toll_unit": "per_check",
+      "category": "digital-tools"
     },
     {
       "id": "EVIDENCE-PACKET-10",
       "sku": "EVIDENCE-PACKET-10",
-      "silo": "toll-booths",
       "name": "Evidence Packet",
       "description": "Source bundle plus integrity/hash receipt for a defined claim or transaction.",
       "price": 10,
       "currency": "nzd",
-      "inventory": 9999,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/28E14n6HzbK582j4kAdwc35",
       "payment_link_id": "plink_1UKqDBEGgEAnUFF946wIyU9k",
       "stripe_price_id": "price_1UKqD0EGgEAnUFF9eJjEjHBb",
-      "fulfillment": "manual_mvp",
-      "toll_unit": "per_packet"
+      "toll_unit": "per_packet",
+      "category": "digital-tools"
     },
     {
       "id": "DL-DEMAND-LEAK-500",
       "sku": "DL-DEMAND-LEAK-500",
-      "silo": "demand-services",
       "name": "Demand Leak Finder",
       "description": "Fixed-scope inbound demand audit for one product or service; competitor review, three high-intent acquisition opportunities, conversion-path findings, and a 30-day action plan.",
       "price": 500,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/9B67sLd5X01n2HZ4kAdwc3j",
       "stripe_product_id": "prod_VPDirsbZswjiaR",
       "stripe_price_id": "price_1UOPHJEGgEAnUFF9Ph7ivnnV",
       "payment_link_id": "plink_1UOPHUEGgEAnUFF9OQvE578s",
-      "fulfillment": "manual_intake_required"
+      "category": "growth-services"
     },
     {
       "id": "DL-INBOUND-ENGINE-2500",
       "sku": "DL-INBOUND-ENGINE-2500",
-      "silo": "demand-services",
       "name": "Inbound Revenue Engine",
       "description": "Fixed-scope implementation of one measurable inbound acquisition funnel with landing page, lead capture, analytics, automated tests, and a 30-day report.",
       "price": 2500,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/dRm14n1nf6pLcizdVadwc3k",
       "stripe_product_id": "prod_VPDifHxkq0QXuO",
       "stripe_price_id": "price_1UOPHLEGgEAnUFF9LCqTujZt",
       "payment_link_id": "plink_1UOPHWEGgEAnUFF93KiFoiMG",
-      "fulfillment": "manual_intake_required"
+      "category": "growth-services"
     },
     {
       "id": "DL-AUTONOMOUS-DEMAND-10000",
       "sku": "DL-AUTONOMOUS-DEMAND-10000",
-      "silo": "demand-services",
       "name": "Autonomous Demand System",
       "description": "Fixed-scope multi-channel inbound acquisition system with up to three offer pages, demand research, lead and purchase tracking, experiment scoring, failure controls, and handover documentation.",
       "price": 10000,
       "currency": "nzd",
-      "inventory": 999,
-      "inventory_type": "service",
       "status": "published",
       "checkout_available": true,
       "checkout_url": "https://buy.stripe.com/cNi7sLd5X8xT2HZg3idwc3l",
       "stripe_product_id": "prod_VPDibxfOI8hLz3",
       "stripe_price_id": "price_1UOPHNEGgEAnUFF9hMPRHJeA",
       "payment_link_id": "plink_1UOPHZEGgEAnUFF9yHvfZ1FL",
-      "fulfillment": "manual_intake_required"
+      "category": "growth-services"
     }
   ]
 }
