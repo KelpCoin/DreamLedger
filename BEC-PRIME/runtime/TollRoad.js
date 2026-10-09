@@ -13,16 +13,17 @@ const KEY_SCHEMA = 'DREAMLEDGER-TOLL-KEY-2.0';
 const DEFAULT_TTL_DAYS = 30;
 const MAX_CALLS = 1000000;
 const MAX_ROADS_SOFT = 200000;
+const PUBLISHED_SCOPES = new Set(['gauntlet','truth','toll-probe','bridge-events','route-lease','micro-ingest','nexus']);
 
 function config() {
   return {
     secret: String(process.env.DREAMLEDGER_TOLL_KEY_SECRET || ''),
     gauntletPriceId: String(process.env.DREAMLEDGER_GAUNTLET_PRICE_ID || 'NZD_19'),
     truthPriceId: String(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_ID || 'NZD_9'),
-    gauntletPriceNzd: Number(process.env.DREAMLEDGER_GAUNTLET_PRICE_NZD || 19),
+    gauntletPriceNzd: 19,
     truthPriceNzd: Number(process.env.DREAMLEDGER_TRUTH_ORACLE_PRICE_NZD || 9),
-    bridgeEventsPriceNzd: Number(process.env.DREAMLEDGER_BRIDGE_EVENTS_PRICE_NZD || 19),
-    routeLeasePriceNzd: Number(process.env.DREAMLEDGER_ROUTE_LEASE_PRICE_NZD || 29),
+    bridgeEventsPriceNzd: 5,
+    routeLeasePriceNzd: 9,
     gauntletPackPriceNzd: Number(process.env.DREAMLEDGER_GAUNTLET_PACK_PRICE_NZD || 15),
     defaultPackPriceNzd: Number(process.env.DREAMLEDGER_TOLL_DEFAULT_PACK_NZD || 19),
     defaultPackCalls: Number(process.env.DREAMLEDGER_TOLL_DEFAULT_PACK_CALLS || 100)
@@ -47,10 +48,11 @@ function sign(body) {
 
 function issueKey({
   keyId, tier = 'gauntlet', roadId = null, ownerPassportId = null, entitlementId = null,
-  expiresAt, callsRemaining = 1, reference = ''
+  expiresAt, issuedAt, callsRemaining = 1, reference = ''
 } = {}) {
   if (!configured()) throw new Error('Toll key secret is not configured');
-  const now = new Date();
+  const now = issuedAt ? new Date(issuedAt) : new Date();
+  if (!Number.isFinite(now.getTime())) throw new Error('Invalid key issuedAt');
   const exp = expiresAt || new Date(now.getTime() + DEFAULT_TTL_DAYS * 86400000).toISOString();
   const payload = {
     schema: KEY_SCHEMA,
@@ -149,13 +151,13 @@ function issueEntitlementForRoad(road, paymentReference, buyerRef = null) {
 function publicManifest(extraServices = []) {
   const c = config();
   const base = [
-    { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, description: 'Single automated decision / approval run' },
-    { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, description: 'Evidence classification wall access' },
-    { id: 'TOLL-PROBE-50C', route: '/api/toll/v1/probe', scope: 'toll-probe', price_nzd: 0.50, description: 'One live paid API toll-road probe' },
-    { id: 'AGENT-BRIDGE-EVENTS-100', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, description: '100 metered Agent Bridge events' },
-    { id: 'ROUTE-LEASE-BASIC', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, description: 'Named pipeline / route lease' },
+    { id: 'GAUNTLET-100', sku_id: 'DECISION-CHECK-100', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, calls: 100, description: '100 bounded automated decision evaluations' },
+    { id: 'EVIDENCE-CHECK-100', sku_id: 'EVIDENCE-CHECK-100', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, calls: 100, description: '100 bounded evidence classification evaluations' },
+    { id: 'TOLL-PROBE-1', sku_id: 'TOLL-PROBE-1', route: '/api/toll/v1/probe', scope: 'toll-probe', price_nzd: 1, calls: 1, description: 'One live paid API toll-road probe' },
+    { id: 'AGENT-BRIDGE-STARTER-500', sku_id: 'AGENT-BRIDGE-STARTER-500', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, calls: 500, description: '500 metered Agent Bridge operations; prepaid, hard-capped' },
+    { id: 'ROUTE-PASS-30D-5000', sku_id: 'ROUTE-PASS-30D-5000', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, calls: 5000, ttl_days: 30, description: 'Shared access to metered toll routes for 5,000 calls over 30 days; one-time prepaid' },
     { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, description: '20 automated gauntlet approvals' },
-    { id: 'MICRO-EVENT-INGEST', route: '/api/toll/v1/micro-ingest', scope: 'micro-ingest', price_nzd: 5, description: '500 authenticated event ingests' },
+    { id: 'MICRO-EVENT-INGEST-200', sku_id: 'MICRO-EVENT-INGEST-200', route: '/api/toll/v1/micro-ingest', scope: 'micro-ingest', price_nzd: 2, calls: 200, description: '200 authenticated Agent Bridge event ingests' },
     { id: 'MICRO-JOB-CLAIM', route: '/api/toll/v1/job-claim', scope: 'job-claim', price_nzd: 9, description: '200 agent job claims' },
     { id: 'MICRO-HEARTBEAT', route: '/api/toll/v1/heartbeat', scope: 'heartbeat', price_nzd: 4, description: '1000 job heartbeats' },
     { id: 'ROUTE-LEASE-EXCLUSIVE', route: '/api/toll/v1/route-exclusive', scope: 'route-exclusive', price_nzd: 99, description: 'Exclusive named route lease' },
@@ -177,16 +179,16 @@ function publicManifest(extraServices = []) {
     { id: 'TRANSPARENCY-LOG', route: '/api/toll/v1/transparency', scope: 'transparency', price_nzd: 15, description: 'Public transparency log' },
     { id: 'AGENT-PASSPORT', route: '/api/toll/v1/agent-passport', scope: 'agent-passport', price_nzd: 29, description: 'Signed agent passport + presence attestation' },
     { id: 'MULTI-AGENT-ROOM', route: '/api/toll/v1/multi-agent-room', scope: 'multi-agent-room', price_nzd: 39, description: 'Multi-agent coordination room' },
-    { id: 'CAPACITY-FUTURES', route: '/api/toll/v1/capacity-futures', scope: 'capacity-futures', price_nzd: 75, description: 'Prepaid burst capacity futures' }
-    ,{ id: 'TOLL-NEXUS', route: '/api/toll/v1/nexus', scope: 'nexus', price_nzd: 49, description: 'One paid run composing truth, Gauntlet, passport, rooms, capacity, seats, and org coordination' }
-    ,{ id: 'TRINITY-RUN', route: '/api/toll/v1/trinity', scope: 'trinity', price_nzd: 49, description: '25 automated runs composing Elohim truth, Gauntlet decision, and Agent Bridge coordination' }
-    ,{ id: 'ENTERPRISE-WALL', route: '/api/toll/v1/enterprise-wall', scope: 'enterprise-wall', price_nzd: 499, description: '500k-call enterprise toll wall' }
-    ,{ id: 'ENTERPRISE-PRO', route: '/api/toll/v1/enterprise-pro', scope: 'enterprise-pro', price_nzd: 1499, description: '2M-call enterprise tier with SLA' }
-    ,{ id: 'WHITE-LABEL', route: '/api/toll/v1/white-label', scope: 'white-label', price_nzd: 999, description: '100k-call white-label route namespace' }
-  ].map(s => Object.assign({ checkout_configured: true }, s));
+    { id: 'CAPACITY-FUTURES', route: '/api/toll/v1/capacity-futures', scope: 'capacity-futures', price_nzd: 75, description: 'Prepaid burst capacity futures' },
+    { id: 'TOLL-NEXUS-25', sku_id: 'TOLL-NEXUS-25', route: '/api/toll/v1/nexus', scope: 'nexus', price_nzd: 19, calls: 25, description: '25 bounded Truth + Gauntlet + Agent Bridge evaluation runs' },
+    { id: 'TRINITY-RUN', route: '/api/toll/v1/trinity', scope: 'trinity', price_nzd: 49, description: '25 automated runs composing Elohim truth, Gauntlet decision, and Agent Bridge coordination' },
+    { id: 'ENTERPRISE-WALL', route: '/api/toll/v1/enterprise-wall', scope: 'enterprise-wall', price_nzd: 499, description: '500k-call enterprise toll wall' },
+    { id: 'ENTERPRISE-PRO', route: '/api/toll/v1/enterprise-pro', scope: 'enterprise-pro', price_nzd: 1499, description: '2M-call enterprise tier with SLA' },
+    { id: 'WHITE-LABEL', route: '/api/toll/v1/white-label', scope: 'white-label', price_nzd: 999, description: '100k-call white-label route namespace' }
+  ].map(s => Object.assign({ sellable: PUBLISHED_SCOPES.has(s.scope), checkout_configured: PUBLISHED_SCOPES.has(s.scope) && Boolean(process.env.STRIPE_SECRET_KEY || process.env.STRIPE_LIVE_SECRET_KEY) && Boolean(process.env.SUPABASE_URL && process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN) && process.env.DREAMLEDGER_TOLL_CANONICAL_WEBHOOK_READY==='true' && configured(), durable_metering_required: true }, s));
   return {
     schema: 'dreamledger/toll-road/v2',
-    status: configured() ? 'ARMED' : 'NOT_CONFIGURED',
+    status: configured() && Boolean(process.env.STRIPE_SECRET_KEY || process.env.STRIPE_LIVE_SECRET_KEY) && Boolean(process.env.SUPABASE_URL && process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN) && process.env.DREAMLEDGER_TOLL_CANONICAL_WEBHOOK_READY==='true' ? 'ARMED' : 'NOT_CONFIGURED',
     model: 'customer pays -> settled payment -> entitlement -> signed key -> API wall -> automated fulfillment',
     human_gate: 'CUBE approval required before a road is published',
     internal_authority: 'never delegated to customer keys',

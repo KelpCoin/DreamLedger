@@ -1,67 +1,182 @@
 {
-  "schema": "dreamledger/bridge-tolls/v1",
-  "updated": "2026-09-28",
-  "thesis": "Discovery is open. The bridge is a toll road. Human checkout stays Stripe. Ledger truth stays fail-closed.",
+  "schema": "dreamledger/bridge-tolls/v2",
+  "updated": "2026-10-10",
+  "thesis": "Free public discovery; low-cost prepaid API access; durable hard quotas; settled Stripe payment and delivered results remain separate evidence.",
+  "readiness_source": "https://dreamledger.org/api/toll/v1/manifest",
   "public_discovery": {
     "offers": "https://dreamledger.org/api/offers",
     "products": "https://dreamledger.org/api/products",
     "agent_commerce": "https://dreamledger.org/agent-commerce.json",
     "bridge_public": "https://dreamledger.org/api/agent-bridge/public",
-    "rail_public": "https://dreamledger.org/api/agent-bridge/rail/public",
-    "manifest": "https://dreamledger.org/api/agent-bridge/manifest"
+    "bridge_manifest": "https://dreamledger.org/api/agent-bridge/manifest",
+    "toll_manifest": "https://dreamledger.org/api/toll/v1/manifest"
   },
-  "work_requires": {
-    "header": "x-dreamledger-agent-token",
-    "routes": [
-      "/api/agent-bridge/events",
-      "/api/agent-bridge/jobs",
-      "/api/agent-bridge/rail/lease",
-      "/api/agent-bridge/rail/stage",
-      "/api/agent-bridge/rail/manifest"
-    ]
+  "authentication": {
+    "agent_bridge_header": "x-dreamledger-agent-token",
+    "toll_header": "x-dreamledger-toll-key",
+    "idempotency_header": "Idempotency-Key",
+    "rule": "Never put tokens in URLs, public source, or logs."
   },
   "toll_tiers": [
     {
       "id": "TOLL-DISCOVERY-FREE",
       "name": "Discovery",
-      "price_nzd": 0,
-      "includes": ["GET /api/offers", "GET /agent-commerce.json", "horizontal shop"],
+      "price_minor": 0,
+      "currency": "nzd",
+      "includes": [
+        "Public offers and product catalogue",
+        "Public bridge and toll manifests",
+        "Machine-readable commerce contract"
+      ],
       "status": "live"
     },
     {
-      "id": "TOLL-BRIDGE-SESSION",
-      "name": "Bridge session access",
-      "price_nzd": 29,
-      "currency": "NZD",
-      "includes": ["Authenticated rail lease cycle", "job claim/complete under governance"],
-      "adjacent_purchase": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "note": "Until dedicated bridge SKU is live, primary paid ignition remains NZ$29 diagnostic",
-      "status": "adjacent_live"
+      "id": "TOLL-API-STARTER-500",
+      "name": "Agent Bridge Starter",
+      "price_minor": 500,
+      "currency": "nzd",
+      "allowance": {
+        "billable_operations": 500,
+        "valid_days": 30,
+        "overage": "blocked"
+      },
+      "checkout": "/api/toll/v1/checkout/bridge-events",
+      "redeem": "/api/toll/v1/redeem/bridge-events",
+      "status": "proposed_not_sellable_until_live_meter_health",
+      "includes": [
+        "500 authenticated billable operations",
+        "Revocable scoped key",
+        "Durable usage receipt",
+        "Idempotent replay protection",
+        "Hard stop at zero"
+      ]
     },
     {
-      "id": "TOLL-PROOF-ATTEST",
-      "name": "Proof attestation",
-      "price_nzd": 9.99,
-      "currency": "NZD",
-      "includes": ["proof.schema.json validation posture", "ledger citation for agent claims"],
-      "adjacent_purchase": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW",
-      "status": "adjacent_live"
+      "id": "TOLL-SHARED-ROUTE-PASS-5000",
+      "name": "Shared Route Pass",
+      "price_minor": 900,
+      "currency": "nzd",
+      "allowance": {
+        "billable_operations": 5000,
+        "valid_days": 30,
+        "overage": "blocked"
+      },
+      "checkout": "/api/toll/v1/checkout/route-lease",
+      "redeem": "/api/toll/v1/redeem/route-lease",
+      "status": "proposed_not_sellable_until_live_meter_health",
+      "includes": [
+        "5,000 authenticated billable operations",
+        "30-day expiry",
+        "Usage receipt",
+        "Hard stop at zero",
+        "Shared allowance across supported paid toll routes"
+      ],
+      "access_scope": "all_metered_toll_routes"
     },
     {
-      "id": "TOLL-CUBE-CELL",
-      "name": "CUBE cell publish",
-      "price_nzd": 50,
-      "currency": "NZD",
-      "includes": ["New commercial cell on a silo", "billboard-class permanence option"],
-      "adjacent_purchase": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "status": "adjacent_live",
-      "scale": "clone_after_paid_proof"
+      "id": "TOLL-PROBE-1",
+      "name": "Toll Probe",
+      "price_minor": 100,
+      "currency": "nzd",
+      "allowance": {
+        "billable_operations": 1,
+        "valid_days": 30,
+        "overage": "blocked"
+      },
+      "checkout": "/api/toll/v1/checkout/toll-probe",
+      "redeem": "/api/toll/v1/redeem/toll-probe",
+      "status": "conditional_not_sellable_until_live_meter_health"
+    },
+    {
+      "id": "TOLL-GAUNTLET",
+      "name": "Decision Check",
+      "price_minor": 1900,
+      "currency": "nzd",
+      "allowance": {
+        "billable_operations": 100,
+        "valid_days": 30,
+        "overage": "blocked"
+      },
+      "checkout": "/api/toll/v1/checkout/gauntlet",
+      "redeem": "/api/toll/v1/redeem/gauntlet",
+      "status": "conditional_not_sellable_until_live_meter_health",
+      "includes": [
+        "100 bounded evaluations",
+        "Machine-readable result",
+        "Hard stop at zero"
+      ]
+    },
+    {
+      "id": "TOLL-EVIDENCE-CHECK",
+      "name": "Evidence Check",
+      "price_minor": 900,
+      "currency": "nzd",
+      "allowance": {
+        "billable_operations": 100,
+        "valid_days": 30,
+        "overage": "blocked"
+      },
+      "checkout": "/api/toll/v1/checkout/truth",
+      "redeem": "/api/toll/v1/redeem/truth",
+      "status": "conditional_not_sellable_until_live_meter_health",
+      "includes": [
+        "100 bounded evaluations",
+        "Machine-readable result",
+        "Hard stop at zero"
+      ]
+    },
+    {
+      "id": "TOLL-MICRO-INGEST-200",
+      "name": "Micro Event Ingest",
+      "price_minor": 200,
+      "currency": "nzd",
+      "allowance": {
+        "billable_operations": 200,
+        "valid_days": 30,
+        "overage": "blocked"
+      },
+      "checkout": "/api/toll/v1/checkout/micro-ingest",
+      "redeem": "/api/toll/v1/redeem/micro-ingest",
+      "status": "proposed_not_sellable_until_live_meter_health",
+      "includes": [
+        "200 structured discovery/evidence/evaluation events",
+        "Agent Bridge receipt",
+        "Idempotency-key protection",
+        "Hard stop at zero"
+      ]
+    },
+    {
+      "id": "TOLL-NEXUS-25",
+      "name": "Toll Nexus",
+      "price_minor": 1900,
+      "currency": "nzd",
+      "allowance": {
+        "billable_operations": 25,
+        "valid_days": 30,
+        "overage": "blocked"
+      },
+      "checkout": "/api/toll/v1/checkout/nexus",
+      "redeem": "/api/toll/v1/redeem/nexus",
+      "status": "proposed_not_sellable_until_live_meter_health",
+      "includes": [
+        "25 bounded Truth classification + Gauntlet decision + Agent Bridge coordination runs",
+        "Machine-readable result",
+        "No automatic consequential external actions"
+      ]
     }
   ],
-  "cube_scale": {
-    "principle": "many_surfaces_one_commerce_spine",
-    "rule": "paid_verified_then_clone",
-    "surface_classes": ["WEB_OFFER", "AGENT_ENDPOINT", "DIGITAL_PRODUCT", "TRUST_PROOF", "QR_SURFACE", "DOOH_SCREEN"]
+  "metering": {
+    "authority": "Existing control_bridge_notes structured-event log via Agent Bridge proxy RPC",
+    "reservation": "Atomic per-key reservation before paid work using an advisory transaction lock",
+    "idempotency": "Same key and same request replays the stored response; same key with a different request is rejected",
+    "exhaustion": "402 quota_exhausted before route execution",
+    "dependency_failure": "503 fail-closed; checkout and redemption are blocked when durable metering health fails",
+    "truth": "API activity is not revenue. Revenue requires settled Stripe payment plus verified fulfillment and evidence."
   },
-  "economic_truth": "Toll payment is Stripe. Bridge events are not revenue until paid+proven."
+  "scale_rule": "Expand and clone only after an independent buyer, settled payment, and successful fulfillment are verified.",
+  "non_claims": [
+    "API starter and route pass are proposed, not purchasable until the live meter health check passes.",
+    "Manifest capacity is not proof of 200,000 functioning paid routes.",
+    "No public route, key issuance, or API call by itself proves external revenue."
+  ]
 }

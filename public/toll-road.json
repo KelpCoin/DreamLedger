@@ -1,39 +1,179 @@
 {
   "schema": "dreamledger/automated-services/v2",
-  "version": "2.0",
+  "version": "2.3",
   "services": [
     {
-      "id": "TOLL-PROBE-50C",
+      "id": "TOLL-PROBE-1",
       "name": "777 Toll Probe",
       "unit": "one paid API probe",
-      "price_nzd": 0.5,
+      "price_nzd": 1,
       "scope": "toll-probe",
       "checkout": "/api/toll/v1/checkout/toll-probe",
       "fulfillment": "settled payment -> scoped key -> /api/toll/v1/probe",
-      "truth_rule": "settled_stripe_only"
+      "truth_rule": "settled_stripe_only",
+      "sku_id": "TOLL-PROBE-1",
+      "calls": 1,
+      "status": "proposed_not_sellable_until_live_meter_health",
+      "quota": {
+        "calls": 1,
+        "valid_days": 30,
+        "overage": "blocked",
+        "idempotency_header": "Idempotency-Key"
+      }
     },
     {
       "id": "DECISION-CHECK",
       "name": "Decision Check",
-      "unit": "one bounded evaluation",
+      "unit": "100 bounded evaluations",
       "human_minutes_after_payment": 0,
       "scope": "gauntlet",
       "fulfillment": "automatic",
       "external_action": "none",
-      "truth_effect": "none"
+      "truth_effect": "none",
+      "price_nzd": 19,
+      "checkout": "/api/toll/v1/checkout/gauntlet",
+      "redeem": "/api/toll/v1/redeem/gauntlet",
+      "quota": {
+        "calls": 100,
+        "valid_days": 30,
+        "overage": "blocked",
+        "idempotency_header": "Idempotency-Key"
+      },
+      "availability_rule": "only advertise purchasable when live meter health passes",
+      "sku_id": "DECISION-CHECK-100",
+      "calls": 100,
+      "status": "proposed_not_sellable_until_live_meter_health"
     },
     {
       "id": "EVIDENCE-CHECK",
       "name": "Evidence Check",
-      "unit": "one bounded evidence evaluation",
+      "unit": "100 bounded evaluations",
       "human_minutes_after_payment": 0,
       "scope": "truth",
       "fulfillment": "automatic",
       "external_action": "none",
-      "truth_effect": "none"
+      "truth_effect": "none",
+      "price_nzd": 9,
+      "checkout": "/api/toll/v1/checkout/truth",
+      "redeem": "/api/toll/v1/redeem/truth",
+      "quota": {
+        "calls": 100,
+        "valid_days": 30,
+        "overage": "blocked",
+        "idempotency_header": "Idempotency-Key"
+      },
+      "availability_rule": "only advertise purchasable when live meter health passes",
+      "sku_id": "EVIDENCE-CHECK-100",
+      "calls": 100,
+      "status": "proposed_not_sellable_until_live_meter_health"
+    },
+    {
+      "id": "AGENT-BRIDGE-STARTER-500",
+      "name": "Agent Bridge Starter",
+      "unit": "500 billable authenticated bridge operations",
+      "price_nzd": 5,
+      "scope": "bridge-events",
+      "checkout": "/api/toll/v1/checkout/bridge-events",
+      "fulfillment": "settled Stripe payment -> scoped key -> durable quota reservation -> API response",
+      "quota": {
+        "calls": 500,
+        "valid_days": 30,
+        "overage": "blocked",
+        "idempotency_header": "Idempotency-Key"
+      },
+      "truth_rule": "settled_stripe_only",
+      "availability_rule": "only advertise purchasable when Stripe, bridge credentials, and durable quota RPC are configured",
+      "sku_id": "AGENT-BRIDGE-STARTER-500",
+      "calls": 500,
+      "status": "proposed_not_sellable_until_live_meter_health"
+    },
+    {
+      "id": "ROUTE-PASS-30D-5000",
+      "name": "Shared Route Pass",
+      "unit": "5,000 billable operations shared across metered toll routes, valid 30 days",
+      "price_nzd": 9,
+      "scope": "route-lease",
+      "checkout": "/api/toll/v1/checkout/route-lease",
+      "fulfillment": "settled Stripe payment -> scoped key -> durable quota reservation -> API response",
+      "quota": {
+        "calls": 5000,
+        "valid_days": 30,
+        "overage": "blocked",
+        "idempotency_header": "Idempotency-Key"
+      },
+      "truth_rule": "settled_stripe_only",
+      "availability_rule": "only advertise purchasable when Stripe, bridge credentials, and durable quota RPC are configured",
+      "access_scope": "all_metered_toll_routes",
+      "overage": "blocked",
+      "sku_id": "ROUTE-PASS-30D-5000",
+      "calls": 5000,
+      "status": "proposed_not_sellable_until_live_meter_health"
+    },
+    {
+      "id": "MICRO-EVENT-INGEST-200",
+      "name": "Micro Event Ingest",
+      "unit": "200 structured events submitted to Agent Bridge",
+      "price_nzd": 2,
+      "scope": "micro-ingest",
+      "checkout": "/api/toll/v1/checkout/micro-ingest",
+      "fulfillment": "settled Stripe payment -> scoped key -> durable quota reservation -> Agent Bridge event receipt",
+      "quota": {
+        "calls": 200,
+        "valid_days": 30,
+        "overage": "blocked",
+        "idempotency_header": "Idempotency-Key"
+      },
+      "truth_rule": "settled_stripe_only",
+      "availability_rule": "only advertise purchasable when live meter health passes",
+      "sku_id": "MICRO-EVENT-INGEST-200",
+      "calls": 200,
+      "status": "proposed_not_sellable_until_live_meter_health"
+    },
+    {
+      "id": "TOLL-NEXUS-25",
+      "name": "Toll Nexus",
+      "unit": "25 bounded Truth + Gauntlet + Agent Bridge evaluation runs",
+      "price_nzd": 19,
+      "scope": "nexus",
+      "checkout": "/api/toll/v1/checkout/nexus",
+      "redeem": "/api/toll/v1/redeem/nexus",
+      "quota": {
+        "calls": 25,
+        "valid_days": 30,
+        "overage": "blocked",
+        "idempotency_header": "Idempotency-Key"
+      },
+      "external_action": "none_without_separate_human_authorization",
+      "availability_rule": "only advertise purchasable when live meter health passes",
+      "sku_id": "TOLL-NEXUS-25",
+      "calls": 25,
+      "status": "proposed_not_sellable_until_live_meter_health"
     }
   ],
   "payment": "one-time Stripe Checkout",
   "access": "settled payment -> entitlement -> scoped credential -> automated response",
-  "customer_boundary": "payment does not grant access to private systems or unrelated customer accounts"
+  "customer_boundary": "payment does not grant access to private systems or unrelated customer accounts",
+  "metering": {
+    "authority": "existing control_bridge_notes via Agent Bridge RPC",
+    "idempotency_header": "Idempotency-Key",
+    "replay": "same key and same request returns stored result; conflicting body rejected",
+    "fail_closed": true
+  },
+  "agent_bridge_event_contract": {
+    "allowed_event_types": [
+      "CANDIDATE_FOUND",
+      "EVIDENCE_ATTACHED",
+      "DELIVERY_ASSESSMENT",
+      "COMMERCIAL_ATTACK",
+      "COURT_REVIEW"
+    ],
+    "agent_identity": "monetizer",
+    "routing": "bounded suggested_next_agents only; no automatic consequential action",
+    "payload_limits": {
+      "claim_characters": 4000,
+      "evidence_bytes": 20000
+    },
+    "idempotency_header": "Idempotency-Key",
+    "economic_truth": "Customer-submitted events are evidence or candidate signals, not payment or verified-revenue facts"
+  }
 }
