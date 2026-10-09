@@ -1,4 +1,4 @@
-# Agent Bridge protocol v1.1
+# Agent Bridge protocol v1.3
 
 **Purpose:** LLMs and operators on different devices share durable work via Git — local air-gap and cloud together.
 
@@ -93,7 +93,7 @@ Bridge coordinates. **DEMAND-KIT + external pay** produce revenue.
 
 ---
 
-## Cross-device / Multi-LLM Synchronization (v1.2, 2026-10-09)
+## Cross-device / Multi-LLM Synchronization (v1.3, 2026-10-09)
 
 **Shared North Star:** every authorized node (owner's phone LLMs, spouse's phone LLMs, local LM Studio, cloud agents, and future friends explicitly invited by the owner) works against the same repository and shared brief. A model/device is a worker, not a separate source of truth.
 
@@ -136,3 +136,42 @@ Free quote comparison and document extraction are eligible acquisition utilities
 **Protocol:** CLAIM → READ NORTH STAR + CURRENT COMMIT → WORK IN SCOPED PATHS → TEST → PUBLISH COMMIT/ARTIFACT + HASH → UPDATE HANDOFF → REVIEW → AUTHORIZED MERGE/DEPLOY → VERIFY EXTERNAL RESULT.
 
 **Honesty boundary:** this protocol defines the contract but does not prove every device/model is automatically connected to a live runtime. Each integration must be wired and observed before claiming automatic cross-device synchronization.
+
+
+---
+
+## Shared North Star + Commerce Reference Contract (v1.3)
+
+This section is the common brief for all participating models and devices. Read it before taking work; write a handoff after work. A phone session does not become connected to the bridge merely because this file exists. The session must read the current canonical brief and publish a patch, issue, commit, or handoff through an authorized path.
+
+### One project, role-scoped collaborators
+
+- **Canonical project:** `KelpCoin/DreamLedger`. GitHub owns code, schemas, tests and versioned specifications; Notion owns human-readable decisions; Airtable is a control mirror, never economic source of truth.
+- **Participants:** cloud agents, ChatGPT, owner's phone LLMs, spouse's phone LLMs, optional local LM Studio and future friends invited individually by the owner.
+- **Access tiers:** reviewer (read/comment); contributor (branch/patch on assigned paths); maintainer (merge/release); owner-authorized operator (specific external action). Invite each person/account individually and grant least privilege. No shared accounts, API keys or copied secrets.
+- **Device availability:** local LM Studio accelerates work when online; cloud remains available when it is offline. A phone-only worker can research, specify, review and submit a patch/handoff without production credentials.
+- **Disagreement:** canonical current commit + reproducible tests + independent evidence outrank model confidence or seniority.
+
+### Task envelope required for meaningful handoff
+
+Every non-trivial task should record: `task_id`, `north_star`, `owner_node`, `scope`, `target_paths`, `base_commit_sha`, `branch`, `artifact_refs`, `artifact_hashes`, `tests`, `truth_label`, `blocker`, `next_owner`, `updated_at`. Claim before editing; one writer per path; compare current base before applying patches; never overwrite a newer change without review. Use existing Git/Agent Bridge inbox/outbox and handoff conventions, not a new queue.
+
+### Portfolio and marketplace direction
+
+- The target is a broad portfolio of offer experiments and reusable economic primitives, not one funnel. Quote comparison and document extraction may be free acquisition magnets. Any paid tier or toll must be tested against actual demand, fulfillment cost and contribution economics.
+- MTG is the reference silo/template, not the company's sole product. Music & Media should reuse the canonical listing lifecycle and extend it for vinyl releases/pressings, item-specific photos, media/sleeve condition, wantlists, collections, CSV export, price history, seller/shipping terms, reputation and auditable auctions.
+- FightEdge is an ordinary silo and must use the canonical DreamLedger silo/deployment contract.
+- Free B2B listings and zero-fee peer transactions remain the default hypothesis. Potential monetization (evidence receipts, verification, premium tools, A2A access, priority placement) is experimental until users demonstrate willingness to pay. Do not present illustrative target prices or volume forecasts as observed demand.
+
+### Commerce correctness gates (design requirements, not deployment claims)
+
+- **Webhook:** verify the provider signature against the raw request body; durably insert the provider event ID under a unique constraint and process the event atomically/idempotently. A SELECT-first check is not the deduplication boundary.
+- **Ledger:** durable database-assigned ordering and transaction serialization; database-enforced append-only permissions/triggers; hash-chain verification and concurrency tests. An environment variable is not authoritative ledger-head state. A trigger alone is not a substitute for restricted privileges and verified write serialization.
+- **Auction:** durable Postgres state, row lock/transaction for each bid, validate auction status and minimum bid, and apply anti-sniping extension in the same transaction as bid acceptance. Expired auctions do not silently restart. Settlement and fulfillment are separate states.
+- **Evidence:** distinguish payment settlement, entitlement, fulfillment, delivery and evidence sealing. Receipts need stable identifiers, canonical serialization, hash verification and key-management/signature verification. Never claim a signature, receipt, event, endpoint or table is deployed until inspected and tested.
+- **Reputation and retention:** reputation is transaction-evidence-backed and portable only with user consent; keep bidding rules, closing times and spend controls transparent. Avoid manipulative retention patterns.
+- **Truth:** listings, checkout links, API calls, test transactions, CI, deploys and internal receipts do not establish external revenue. `VERIFIED_EXTERNAL_REVENUE = NZ$0.00` until an independent buyer, settled external payment, fulfillment and delivery evidence are verified.
+
+### Definition of synchronized
+
+A participant is **brief-aware** after reading the current protocol and North Star; **handoff-connected** after publishing a traceable artifact; **runtime-connected** only after a live integration test demonstrates reading/writing the shared task state with least-privilege identity. Do not conflate these states. No automatic phone-to-phone, phone-to-desktop or friend access is implied by a GitHub document or a Notion/Airtable update.
