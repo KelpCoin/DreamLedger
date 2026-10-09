@@ -5,6 +5,8 @@ on:
     paths:
       - "AGENT_BUS/BRIDGE/ECONOMIC_SCALE_CANON.md"
       - "scripts/verify_round_trip_artifact.py"
+      - "BEC-PRIME/scripts/verify-public-surface.js"
+      - "public/index.html"
       - "scripts/create_round_trip_smoke_package.py"
       - "tests/test_round_trip_artifact_verifier.py"
       - ".github/workflows/round-trip-contract.yml"
