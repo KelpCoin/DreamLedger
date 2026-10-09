@@ -1,13 +1,27 @@
-DreamLedger machine-readable commerce context
-
-Primary offer: Commander Deck Diagnostic
-Offer ID: OFFER-CMD-DIAG-29-NZD
-SKU: CMD-DIAG-29
-Price: NZ$29 one-time
+DreamLedger public commerce catalogue
+Name: DreamLedger
+Website: https://dreamledger.org
 Currency: NZD
-Checkout: https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R
-Product page: https://dreamledger.org/buy/cmd-diag-29
-Fulfillment: buyer supplies Commander, decklist, strategy if known, and improvement budget; deterministic diagnostic is generated after payment and input.
-Truth floor: external buyer + live paid Stripe evidence + funds available + correct attribution + fulfillment evidence.
-Never treat checkout starts, payment links, test payments, internal rows, or agent claims as revenue.
-Canonical API: https://dreamledger.org/api/commercial-cell/cmd-diag/status
+Purchase approval: Human confirmation required
+Prices and availability: Review the linked product page before payment
+
+Primary service: Supplier Quote Comparison
+Product ID: QUOTE-COMPARE-49
+Price: NZ$49 one-time
+Product page: https://dreamledger.org/quote-comparison/
+Input: 2-5 supplier quotes and purchase requirements or scope
+Output: A source-linked comparison of stated prices, scope, missing costs, minimum order quantities, lead times and payment terms
+Unknown information remains unknown.
+
+Other listed products:
+- Commander Deck Diagnostic: NZ$29, https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
+- Seller Profit Audit: NZ$29, https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001
+- Founding Billboard Tile: NZ$50, https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
+
+Machine-readable discovery:
+- Offers: https://dreamledger.org/api/offers
+- Products: https://dreamledger.org/api/products
+- Agent interface: https://dreamledger.org/agent.json
+- AI catalog: https://dreamledger.org/ai-catalog.json
+
+Check current product terms and availability before purchase. A listing does not prove that a purchase or delivery has occurred.
