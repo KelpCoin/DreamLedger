@@ -175,3 +175,37 @@ Every non-trivial task should record: `task_id`, `north_star`, `owner_node`, `sc
 ### Definition of synchronized
 
 A participant is **brief-aware** after reading the current protocol and North Star; **handoff-connected** after publishing a traceable artifact; **runtime-connected** only after a live integration test demonstrates reading/writing the shared task state with least-privilege identity. Do not conflate these states. No automatic phone-to-phone, phone-to-desktop or friend access is implied by a GitHub document or a Notion/Airtable update.
+
+
+---
+
+## Commercial execution kernel (v1.4, 2026-10-09)
+
+**Mandatory for every task that proposes, ranks, builds, distributes, or operates a commercial offer:** read this section. For a commercial/economic task, load `AGENT_BUS/BRIDGE/COMMERCIAL_ROUTES_CATALOG.md` as a candidate library, not as proven market evidence. Do not load its full contents for unrelated work.
+
+### Mission and scoreboard
+- Mission: produce a useful outcome for a real external buyer, collect a settled payment, fulfill the promise, retain delivery evidence, and independently verify the loop. Then replicate the proven mechanism.
+- Current economic truth stays `VERIFIED_EXTERNAL_REVENUE = NZ$0.00` until authoritative evidence establishes otherwise. Never infer revenue from a checkout link, listing, page view, click, test payment, internal dispatch, CI, deploy, or generated artifact.
+- The 600 catalog entries are hypotheses, not 600 offers, validated markets, or a forecast. Rank with evidence and contribution economics, not novelty.
+
+### Execution order
+1. **Inspect existing substrate first:** canonical published offers and payment links, live public pages, Agent Bridge, CUBE/Elohim/Gauntlet, existing economic observation modules, current Airtable/Notion records. Do not create a duplicate ledger, queue, orchestrator, offer registry, or truth system.
+2. **Verify the customer path before promotion:** exact public URL, mobile usability, CTA destination, price/currency, input capture, fulfillment method, privacy, refund terms, platform eligibility and payout setup. A PR or expected URL is not a live surface.
+3. **Choose one bounded experiment at a time per attributable cell:** no upfront spend; use an existing lawful/consented distribution surface; define audience, offer, message, CTA, attribution, delivery cost, expected contribution margin and stop condition.
+4. **Expose only after existing authorization/policy gates:** no unsolicited bulk DMs, spam, fake reviews, deceptive claims, unlicensed data, unauthorized scraping, or paid spend without approval. Account creation, identity checks, payout changes, and legally consequential representations remain human-controlled.
+5. **Record the funnel separately:** qualified exposure → visit → input/lead → checkout start → paid/settled → fulfilled → delivered → independently verified. Diagnose the earliest broken transition; do not answer weak conversion by adding infrastructure.
+6. **Manual fulfillment is allowed only as a bounded demand test** where truthful and deliverable. Before scaling, automate or cap the work and measure contribution margin and delivery quality.
+7. **Replicate only after proof:** require an independent buyer and settled external payment, plus fulfillment and delivery evidence. Prefer a verified repeat or second independent buyer before declaring the mechanism evergreen.
+
+### Agent output contract
+Every commercial task returns: candidate/offer ID; source and current status; customer and job-to-be-done; existing surface/checkout URL; input and fulfillment path; platform fees/payout caveats; no-capital acquisition experiment; attribution plan; success and stop conditions; evidence references; truth label; next action. Mark unsupported platform claims `UNVERIFIED` and research them from current official terms before relying on them.
+
+### Existing platform caveats
+- Metafy Core currently advertises free entry with 12% + US$1.79 per transaction, capped at 30% of earnings; payout identity verification and local payout availability still require account-level verification.
+- Fiverr seller terms credit 80% of order value; confirm category rules, onboarding and payout availability.
+- Trade Me's casual Marketplace success-fee removal does not automatically apply to Services listings or professional/in-trade services. Services are a lead/listing surface; verify current listing fee and terms before treating it as checkout.
+- Stripe Payment Links support up to three customer custom fields, but the actual canonical link must be inspected and tested before claiming fields are live.
+- Lemon Squeezy payout-country eligibility, account approval and total fees must be confirmed in the merchant account before dependency.
+- These details are dated research, not account-specific guarantees. Recheck official terms before launch.
+
+**Compact rule:** MONEY OUTCOMES > BUILD ACTIVITY. Use the catalog to discover candidates, but the next action must address the earliest unproven step in a real customer-to-cash loop.
