@@ -28,6 +28,7 @@ PRIVATE_SEARCHES = [
 ROOT = Path("webapp")
 PULSE = ROOT / "pulse"
 INDEX = ROOT / "index.html"
+PULSE_INDEX = PULSE / "index.html"
 PULSE.mkdir(parents=True, exist_ok=True)
 
 QUOTE_CHECKOUT = os.environ.get(
@@ -329,7 +330,7 @@ if deduped:
         body = f"""<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>777 Private Commercial Signal: {title}</title>
-<meta name="robots" content="index,follow">
+<meta name="robots" content="noindex,follow">
 <meta name="description" content="Source-bound private-sector commercial signal observed through a public news discovery feed.">
 </head><body><main>
 <p><a href="/">DreamLedger</a> / 777 Private Commercial</p>
@@ -361,20 +362,43 @@ if deduped:
         t = re.sub("<[^>]+>", "", m.group(1)).strip() if m else f.stem
         items.append(f'<li><a href="pulse/{html.escape(f.name, quote=True)}">{html.escape(t)}</a></li>')
 
-    existing_index = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
-    section_start = "<h2>Latest private commercial pulses</h2>\n<ul>"
-    start_index = existing_index.find(section_start)
-    if start_index >= 0:
-        list_end = existing_index.find("</ul>", start_index)
-        if list_end >= 0:
-            replacement = section_start + "\n".join(items[:100]) + "</ul>"
-            INDEX.write_text(
-                existing_index[:start_index] + replacement + existing_index[list_end + len("</ul>"):],
-                encoding="utf-8",
+    # Publish a stable, discoverable research index instead of assuming the homepage has a private-pulse section.
+    index_items = []
+    for artifact in sorted(PULSE.glob("*.html"), key=lambda p: p.name, reverse=True):
+        if artifact.name == "index.html":
+            continue
+        try:
+            artifact_text = artifact.read_text(encoding="utf-8", errors="ignore")
+            heading = re.search(r"<h1>(.*?)</h1>", artifact_text, re.S)
+            if not heading:
+                continue
+            artifact_title = html.unescape(re.sub(r"<[^>]+>", "", heading.group(1))).strip()
+            index_items.append(
+                f'<li><a href="{html.escape(artifact.name, quote=True)}">{html.escape(artifact_title)}</a>'
+                f'<span class="status">Research signal · not proof of demand</span></li>'
             )
-    else:
-        print("INDEX_PRESERVED=private_commercial_section_not_present")
+        except Exception:
+            continue
+    PULSE_INDEX.write_text(
+        "<!doctype html>\n<html lang=\"en-NZ\"><head><meta charset=\"utf-8\">"
+        "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+        "<title>DreamLedger Economic Observatory | Research Index</title>"
+        "<meta name=\"description\" content=\"Source-linked commercial and economic research artifacts. "
+        "Signals are candidates, not verified demand or revenue.\">"
+        "<meta name=\"robots\" content=\"index,follow\">"
+        "<style>body{max-width:900px;margin:40px auto;padding:0 20px;font:16px/1.6 system-ui;color:#182334}"
+        "li{margin:14px 0}.status{display:block;color:#5c6878;font-size:13px}a{color:#075e57}</style>"
+        "</head><body><main><p><a href=\"/\">DreamLedger</a> / 777 Economic Observatory</p>"
+        "<h1>Research index</h1><p>Source-linked candidate signals and reusable components. "
+        "Each page carries its own evidence boundary. A published page is not proof of buyer intent, "
+        "settlement, fulfillment, or revenue.</p><ul>"
+        + "\n".join(index_items[:100])
+        + "</ul></main></body></html>\n",
+        encoding="utf-8",
+    )
 
+    print(f"PULSE_INDEX={PULSE_INDEX}")
+    print(f"INDEXED_ARTIFACT_LINKS={min(len(index_items), 100)}")
     print(f"PRIVATE_COMMERCIAL_SIGNAL={signal['title']}")
     print(f"PULSE={target}")
     print("TRUTH=UNVERIFIED")
