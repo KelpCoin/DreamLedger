@@ -1,12 +1,13 @@
 {
   "name": "dreamledger-public-storefront",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "engines": {
     "node": ">=24 <25"
   },
   "scripts": {
     "start": "node -r ./discordCommercePreload.js -r ./agentbridge-preload.js -r ./webhook-proxy-preload.js -r ./hypothesisCommercePreload.js -r ./brand-preload.js -r ./qrSurfacePreload.js server.js",
     "prestart": "cd ../BEC-PRIME && npm ci --no-audit --no-fund && npm run compile && node ../public/Sync-BECPrimeStorefront.js"
-  }
+  },
+  "description": "DreamLedger public storefront with free Truth Oracle tools and source-labelled research leads"
 }
