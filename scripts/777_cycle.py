@@ -298,47 +298,45 @@ if deduped:
         for page_file in sorted(PULSE.glob("*-private-commercial-*.html"), reverse=True):
             page = page_file.read_text(encoding="utf-8", errors="ignore")
             match = re.search(r"<h1>(.*?)</h1>", page, re.S)
-            title = decode_html(re.sub(r"<[^>]+>", "", match.group(1))).strip() if match else page_file.stem
+            title = html.unescape(re.sub(r"<[^>]+>", "", match.group(1))).strip() if match else page_file.stem
             items.append(f'<li><a href="pulse/{html.escape(page_file.name, quote=True)}">{html.escape(title)}</a></li>')
-        existing_index = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
-        section_start = "<h2>Latest private commercial pulses</h2>\n<ul>"
-        replacement_html = section_start + "\n".join(items[:100]) + "</ul>"
-        section_at = existing_index.find(section_start)
-        if section_at >= 0:
-            list_end = existing_index.find("</ul>", section_at)
-            if list_end < 0:
+        current = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
+        heading = "<h2>Latest private commercial pulses</h2>"
+        section = heading + "\\n<ul>\\n" + "\\n".join(items[:100]) + "\\n</ul>"
+        pos = current.find(heading)
+        if pos >= 0:
+            end = current.find("</ul>", pos)
+            if end < 0:
                 return False
-            updated_index = existing_index[:section_at] + replacement_html + existing_index[list_end + len("</ul>"):]
+            updated = current[:pos] + section + current[end + len("</ul>"):]
         else:
-            section_html = "<section aria-label=\"Latest private commercial pulses\">\n" + replacement_html + "\n</section>\n"
-            insert_at = existing_index.lower().rfind("</main>")
-            if insert_at < 0:
-                insert_at = existing_index.lower().rfind("</body>")
-            if insert_at < 0:
+            wrapped = '<section aria-label="Latest private commercial pulses">\\n' + section + '\\n</section>\\n'
+            pos = current.lower().rfind("</main>")
+            if pos < 0:
+                pos = current.lower().rfind("</body>")
+            if pos < 0:
                 return False
-            updated_index = existing_index[:insert_at] + section_html + existing_index[insert_at:]
-        if updated_index != existing_index:
-            INDEX.write_text(updated_index, encoding="utf-8")
-            return True
-        return False
+            updated = current[:pos] + wrapped + current[pos:]
+        if updated == current:
+            return False
+        INDEX.write_text(updated, encoding="utf-8")
+        return True
 
     if not fresh:
         if update_index():
             print("INDEX_REPAIRED_FROM_EXISTING_ARTIFACTS")
             print("TRUTH=UNVERIFIED")
             raise SystemExit(0)
-        raise SystemExit("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: all admissible recent signals already exist and the public index is already current.")
+        raise SystemExit("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: no fresh source and index already current.")
 
     signal = max(fresh, key=candidate_key)
-    key_material = json.dumps(signal, sort_keys=True)
-    key = hashlib.sha256(key_material.encode()).hexdigest()[:16]
+    key = hashlib.sha256(json.dumps(signal, sort_keys=True).encode()).hexdigest()[:16]
     filename = f"{now.date().isoformat()}-private-commercial-{slug(signal['title'])}-{key}.html"
     target = PULSE / filename
-
     if not target.exists():
         title = html.escape(signal["title"])
         source_url = html.escape(signal["url"], quote=True)
-        checkout = html.escape(QUOTE_CHECKOUT, quote=True)
+        quote_url = "https://dreamledger.org/quote-comparison/"
         body = f"""<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>777 Private Commercial Signal: {title}</title>
@@ -349,21 +347,15 @@ if deduped:
 <h1>{title}</h1>
 <p><strong>Observed:</strong> {now.isoformat()} · <strong>Publisher:</strong> {html.escape(signal["publisher"])}</p>
 <section><h2>Primary observation</h2>
-<ul>
-<li>Publisher: {html.escape(signal["publisher"])}</li>
-<li>Published: {html.escape(signal["published_at"])}</li>
-<li>Discovery source: Google News RSS</li>
-</ul>
+<ul><li>Publisher: {html.escape(signal["publisher"])}</li><li>Published: {html.escape(signal["published_at"])}</li><li>Discovery source: Google News RSS</li></ul>
 <p><a href="{source_url}" rel="noopener noreferrer">Open the publisher source</a></p>
 </section>
 <section><h2>Commercial response surface</h2>
-<p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
-<p><a href="{checkout}">Open the existing NZ$49 Supplier Quote Comparison checkout</a></p>
-<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">NZ$0.50 Agent/API Probe</a> for machine-readable toll access. Pay → key → call → receipt.</p>
+<p>This is a private-sector commercial signal, not proof of buyer intent. Corroborate the publisher source before any economic action.</p>
+<p><a href="{quote_url}">Use the free Supplier Quote Comparison intake</a>. Public Truth Oracle sharing is optional and limited to sanitized observations. A submitted quote is not proof of a settled transaction.</p>
+<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Agent/API toll manifest</a>. Access requires a valid toll entitlement and authenticated call.</p>
 </section>
-<section><h2>Truth boundary</h2>
-<p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
-</section>
+<section><h2>Truth boundary</h2><p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p></section>
 </main></body></html>"""
         target.write_text(body, encoding="utf-8")
 
