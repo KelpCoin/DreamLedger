@@ -47,6 +47,17 @@
 </ol>
 </section>
 <section>
+<h2>AgentBridge toll road: free to discover, cheap to call</h2>
+<p>The live toll manifest is the catalogue contract: <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">machine-readable API toll manifest</a>. It reports the toll-road v2 model as customer payment → settled payment → entitlement → signed key → API wall → fulfillment. Manifest configuration is not proof that a stranger has purchased or that every route has passed an authenticated end-to-end test.</p>
+<div class="grid">
+<article class="card"><span class="tag">Free entry</span><h3>Discovery and evaluation</h3><p>Public catalogue, docs, schemas, free worksheets, and read-only manifests stay free. This widens the top of the funnel and lets B2B buyers and agents assess fit before paying.</p></article>
+<article class="card"><span class="tag">NZ$3–9</span><h3>Micro-tools and low-cost access</h3><p>The manifest lists an academic/research route at NZ$3, 1,000 heartbeats at NZ$4, 500 event ingests at NZ$5, 20 async Gauntlet tickets at NZ$8, and 200 job claims or Truth Oracle access at NZ$9. These are catalogue prices, not evidence of settled sales or validated unit margins.</p></article>
+<article class="card"><span class="tag">NZ$15–49</span><h3>Working packs</h3><p>Listed examples include 20 Gauntlet approvals at NZ$15, 100 AgentBridge events at NZ$19, a route lease at NZ$29, and a composed Trinity run at NZ$49. Sell the result and receipt, not raw model tokens.</p></article>
+<article class="card"><span class="tag">NZ$99–1,499</span><h3>Scale and enterprise</h3><p>Listed examples include an exclusive route at NZ$99, a 10k-event pack at NZ$150, a 500k-call wall at NZ$499, white-label namespace at NZ$999, and a 2M-call tier at NZ$1,499. Publish these only with real limits, measured capacity, support terms, and margin checks.</p></article>
+</div>
+<p class="note"><strong>Non-negotiable unit economics:</strong> meter provider/model cost, compute time, storage, retries, and payment fees before expanding any quota. Set a minimum contribution-margin floor; enforce hard spending limits and idempotency. If usage cost or entitlement is unknown, fail closed. The work API requires <code>x-dreamledger-agent-token</code>; never put that token in public HTML, client-side code, or an untrusted agent prompt. External actions remain human-approval-gated.</p>
+</section>
+<section>
 <h2>Acceptance contract</h2>
 <p><a href="/agentic-commerce/marketplace-listing.schema.json">Download the machine-readable marketplace listing contract (JSON Schema)</a>. It defines versioned asset metadata, licensing, content hashes, interface contracts, pricing, acceptance tests, entitlements, provenance, and truth status.</p>
 <p><a href="/agentic-commerce/agentbridge-task-contract.schema.json">Download the bounded AgentBridge task contract (JSON Schema)</a>. It defines task decomposition, clear tool descriptions, explicit modes, preconditions, idempotency, time/output/network limits, evidence, acceptance tests, and authority gates.</p>
