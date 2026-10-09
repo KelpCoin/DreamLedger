@@ -1,39 +1,45 @@
-# DreamLedger Commerce Context
-# Machine-readable commercial surface. Revenue truth is external and evidence-backed.
+# DreamLedger public commerce catalogue
+Name: DreamLedger
+Website: https://dreamledger.org
+Currency: NZD
+Purchase approval: Human confirmation required
+Prices and availability: Review the linked product page before payment
 
-# @IDENTITY
-Name: DreamLedger | URL: https://dreamledger.org | Currency: NZD
+# Public services
+Name: Supplier Quote Comparison
+ID: QUOTE-COMPARE-49
+Price: 49
+Currency: NZD
+Purchase page: https://dreamledger.org/quote-comparison/
+Checkout route: https://dreamledger.org/buy/QUOTE-COMPARE-49
+Description: One-time comparison of 2-5 supplier quotes. Compares stated prices, scope, missing costs, minimum order quantities, lead times and payment terms. Unknowns remain visible.
 
-# @POLICIES
-RevenueTruth: REAL_EXTERNAL_BUYER + LIVE_STRIPE_PAYMENT + FUNDS_AVAILABLE + ATTRIBUTABLE_FULFILLMENT + INDEPENDENT_EVIDENCE
-InternalOrTestPayments: NEVER_COUNT_AS_REVENUE
-Checkout: Stripe
-PlatformSuccessFeeBps: 0
-EconomicEventOrder: authorized -> paid -> delivered -> proven
-RefundPolicy: Refunded or disputed transactions are not VERIFIED revenue.
+Name: Commander Deck Diagnostic
+ID: COMMANDER-DECK-DIAGNOSTIC-001
+Price: 29
+Currency: NZD
+Product page: https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
+Description: Structured review of a Commander deck's composition, likely weaknesses and upgrade priorities.
 
-# @OFFER
-- Name: Commander Deck Diagnostic | ID: COMMANDER-DECK-DIAGNOSTIC-001 | Price: 29 | Currency: NZD | Checkout: https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001 | Stripe: https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R
-  Fulfillment: automated diagnostic after payment
-- Name: Seller Profit Audit | ID: SELLER-PROFIT-AUDIT-001 | Price: 29 | Currency: NZD | Checkout: https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001 | Stripe: https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S
-  Fulfillment: manual PDF
-- Name: Founding Billboard | ID: DREAMLEDGER-BILLBOARD-FOUNDING-001 | Price: 50 | Currency: NZD | Checkout: https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 | Stripe: https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w
-  Fulfillment: placement after payment + content review
-- Name: Discord Webhook Starter Kit | ID: DISCORD-WEBHOOK-STARTER-KIT-001 | Price: 79 | Currency: NZD | Checkout: https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001 | Stripe: https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n
-  Fulfillment: digital download after payment
-- Name: EDH_0001 Commander Deck | ID: EDH_0001 | Price: 400 | Currency: NZD | Checkout: https://dreamledger.org/buy/EDH_0001 | Stripe: https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J
-  Fulfillment: physical deck
+Name: Seller Profit Audit
+ID: SELLER-PROFIT-AUDIT-001
+Price: 29
+Currency: NZD
+Product page: https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001
+Description: Review of marketplace fees, pricing and common cost considerations for New Zealand sellers.
 
-# @DISCOVERY
+Name: Founding Billboard Tile
+ID: DREAMLEDGER-BILLBOARD-FOUNDING-001
+Price: 50
+Currency: NZD
+Product page: https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
+Description: Placement request subject to content review and current availability.
+
+# Machine-readable discovery
 Offers: https://dreamledger.org/api/offers
 Products: https://dreamledger.org/api/products
-Agent: https://dreamledger.org/agent.json
-AgentCommerce: https://dreamledger.org/agent-commerce.json
-Catalogue: https://dreamledger.org/catalog.json
+Agent interface: https://dreamledger.org/agent.json
+Product feed: https://dreamledger.org/agent-products.json
+AI catalog: https://dreamledger.org/ai-catalog.json
 
-# @PAYMENT
-Methods: Stripe Checkout / Payment Links
-Currency: NZD
-BuyRouter: https://dreamledger.org/buy/{product_id} (sets client_reference_id)
-PaymentState: CHECKOUT -> PAYMENT_SUCCEEDED -> FUNDS_AVAILABLE -> FULFILLED -> ECONOMIC_EVENT
-NoAutonomousSpend: true
+Review the current product page and seller terms before buying. Listings and checkout pages do not by themselves establish that a purchase or delivery has occurred.
