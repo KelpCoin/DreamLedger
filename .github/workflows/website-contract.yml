@@ -1,0 +1,43 @@
+name: Public Website Contract
+
+on:
+  push:
+    paths:
+      - "public/home.html"
+      - "public/about.html"
+      - "public/trust.html"
+      - "public/server.js"
+      - "scripts/test_public_site_contract.py"
+      - ".github/workflows/website-contract.yml"
+  pull_request:
+    paths:
+      - "public/home.html"
+      - "public/about.html"
+      - "public/trust.html"
+      - "public/server.js"
+      - "scripts/test_public_site_contract.py"
+      - ".github/workflows/website-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-website-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Check public route and content contract
+        run: python scripts/test_public_site_contract.py
+      - name: Check storefront server syntax
+        run: node --check public/server.js
