@@ -23,7 +23,9 @@
     "version": "/version",
     "ai_discovery": "/.well-known/ai",
     "ai_catalog_well_known": "/.well-known/ai-catalog.json",
-    "b2b": "/b2b"
+    "b2b": "/b2b.html",
+    "discovery": "/surfaces.json",
+    "economic_loops": "/pulse/"
   },
   "commerce": {
     "flow": [
