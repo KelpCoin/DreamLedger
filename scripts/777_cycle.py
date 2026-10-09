@@ -254,14 +254,21 @@ if deduped:
     existing_titles = set()
     existing_urls = set()
     # Cross-artifact dedupe: observatory and other pulse pages count too, not only prior private-commercial cards.
+    def decode_html(value):
+        return (value.replace("&amp;", "&").replace("&quot;", '"')
+                     .replace("&#39;", "'").replace("&#x27;", "'")
+                     .replace("&lt;", "<").replace("&gt;", ">")
+                     .replace("&nbsp;", " "))
+
     for existing in PULSE.glob("*.html"):
         try:
             text = existing.read_text(encoding="utf-8", errors="ignore")
             m = re.search(r"<h1>(.*?)</h1>", text, re.S)
             if m:
-                existing_titles.add(re.sub(r"<[^>]+>", "", m.group(1)).strip().lower())
+                title = decode_html(re.sub(r"<[^>]+>", "", m.group(1)))
+                existing_titles.add(re.sub(r"\\s+", " ", title).strip().lower())
             for href in re.findall(r'href="(https?://[^"]+)"', text):
-                existing_urls.add(href)
+                existing_urls.add(decode_html(href).strip())
         except Exception:
             continue
 
@@ -285,66 +292,11 @@ if deduped:
         item for item in deduped
         if item["title"].lower() not in existing_titles and item["url"] not in existing_urls
     ]
-    if not fresh:
-        raise SystemExit("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: all admissible recent signals already exist in the corpus.")
-    signal = max(fresh, key=candidate_key)
-    key_material = json.dumps(signal, sort_keys=True)
-    key = hashlib.sha256(key_material.encode()).hexdigest()[:16]
-    filename = f"{now.date().isoformat()}-private-commercial-{slug(signal['title'])}-{key}.html"
-    target = PULSE / filename
-
-    if not target.exists():
-        title = html.escape(signal["title"])
-        source_url = html.escape(signal["url"], quote=True)
-        checkout = html.escape(QUOTE_CHECKOUT, quote=True)
-        body = f"""<!doctype html>
-<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>777 Private Commercial Signal: {title}</title>
-<meta name="robots" content="index,follow">
-<meta name="description" content="Source-bound private-sector commercial signal observed through a public news discovery feed.">
-</head><body><main>
-<p><a href="/">DreamLedger</a> / 777 Private Commercial</p>
-<h1>{title}</h1>
-<p><strong>Observed:</strong> {now.isoformat()} · <strong>Publisher:</strong> {html.escape(signal["publisher"])}</p>
-<section><h2>Primary observation</h2>
-<ul>
-<li>Publisher: {html.escape(signal["publisher"])}</li>
-<li>Published: {html.escape(signal["published_at"])}</li>
-<li>Discovery source: Google News RSS</li>
-</ul>
-<p><a href="{source_url}" rel="noopener noreferrer">Open the publisher source</a></p>
-</section>
-<section><h2>Commercial response surface</h2>
-<p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
-<p><a href="{checkout}">Open the existing NZ$49 Supplier Quote Comparison checkout</a></p>
-<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">NZ$0.50 Agent/API Probe</a> for machine-readable toll access. Pay → key → call → receipt.</p>
-</section>
-<section><h2>Truth boundary</h2>
-<p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
-</section>
-</main></body></html>"""
-        target.write_text(body, encoding="utf-8")
-
-    items = []
-    for f in sorted(PULSE.glob("*-private-commercial-*.html"), reverse=True):
-        text = f.read_text(encoding="utf-8", errors="ignore")
-        m = re.search(r"<h1>(.*?)</h1>", text, re.S)
-        t = re.sub("<[^>]+>", "", m.group(1)).strip() if m else f.stem
-        items.append(f'<li><a href="pulse/{html.escape(f.name, quote=True)}">{html.escape(t)}</a></li>')
-
-    existing_index = INDEX.read_text(encoding="utf-8", errors="ignore") if INDEX.exists() else ""
-    section_start = "<h2>Latest private commercial pulses</h2>\n<ul>"
-    start_index = existing_index.find(section_start)
-    if start_index >= 0:
-        list_end = existing_index.find("</ul>", start_index)
-        if list_end >= 0:
-            replacement = section_start + "\n".join(items[:100]) + "</ul>"
-            INDEX.write_text(
-                existing_index[:start_index] + replacement + existing_index[list_end + len("</ul>"):],
-                encoding="utf-8",
-            )
+    def update_index():
+        if update_index():
+        print("INDEX_UPDATED_WITH_LATEST_PRIVATE_COMMERCIAL_ARTIFACTS")
     else:
-        print("INDEX_PRESERVED=private_commercial_section_not_present")
+        print("INDEX_UNCHANGED")
 
     print(f"PRIVATE_COMMERCIAL_SIGNAL={signal['title']}")
     print(f"PULSE={target}")
