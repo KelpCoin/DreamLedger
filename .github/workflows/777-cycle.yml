@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/777-cycle.yml"
       - "scripts/777_cycle.py"
+      - "scripts/777_compounding_gate.py"
       - "scripts/external_demand_transition.py"
       - "data/external-demand-seeds/**"
       - "scripts/procurement_amendment_delta.py"
@@ -81,7 +82,7 @@ jobs:
 # Reject repeats: Alfanar, C3-InfraRed, Nova-BMP, Brookfield-ESR, Te Kura HRIS RFI, Google Developer Knowledge API ecosystem, Nylas IAM scoped API keys.
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.
 # HUGE decomposition: select at most 5 bounded jobs from issue #497, rank by economic leverage, execute highest-value job, emit evidence.
-# Execution nonce: fresh-cycle-2026-10-09T09:15:00+13:00-QUOTE-COMPARISON-CHECKOUT-FIRST-PRIVATE-SECTOR
+# Execution nonce: 2026-10-09T09:45:00+13:00-COMPOUNDING-GATE-PUBLIC-HTML-ONLY-AGENT-BRIDGE-PORTFOLIO
 # R6 hunt: prioritize one externally reachable ordinary buyer/developer/procurement pain signal that can produce the canonical earning unit; money outranks artifact publication.
 # META 5X50: after every 5 independently verified purchased decisions, generate exactly 50 new bounded meta-decisions; dedupe against prior decisions; rank by economic leverage; apply only reversible/authorized changes.
 # META MODEL ROUTING: prefer cloud HELIum + cloud Gauler MLS when those endpoints are actually configured and reachable. If unavailable, fail closed and do not simulate model execution, purchases, or verification.
