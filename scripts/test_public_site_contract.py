@@ -23,7 +23,20 @@ checks = {
     "no public secret literals": not re.search(r"(?:sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+)", HOME + TRUST + ABOUT),
 }
 
+route_keys = set(re.findall(r"""['"](/[^'"]*)['"]\s*:""", SERVER))
+internal_links = []
+for page in (HOME, TRUST, ABOUT):
+    internal_links.extend(re.findall(r"""href=["'](/[^"']*)["']""", page))
+broken_links = []
+for target in internal_links:
+    route = target.split("#", 1)[0].split("?", 1)[0] or "/"
+    if route not in route_keys:
+        broken_links.append(target)
+checks["internal links map to storefront routes"] = not broken_links
+
 failed = [name for name, ok in checks.items() if not ok]
+if broken_links:
+    print("BROKEN_INTERNAL_LINKS=" + ", ".join(sorted(set(broken_links)))
 for name, ok in checks.items():
     print(f'{"PASS" if ok else "FAIL"} {name}')
 print(f"PUBLIC_SITE_CONTRACT={'FAIL' if failed else 'PASS'} checks={len(checks)} failed={len(failed)}")
