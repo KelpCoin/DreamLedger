@@ -6,7 +6,6 @@
   "thesis": "Find an offer, review the terms, approve any purchase, and keep the receipt and delivery confirmation.",
   "canonical": {
     "market": "/",
-    "b2b_rivet": "/b2b",
     "marketplace": "/marketplace",
     "mtg": "/mtg",
     "billboard": "/billboard",
@@ -23,7 +22,8 @@
     "health": "/healthz",
     "version": "/version",
     "ai_discovery": "/.well-known/ai",
-    "ai_catalog_well_known": "/.well-known/ai-catalog.json"
+    "ai_catalog_well_known": "/.well-known/ai-catalog.json",
+    "b2b": "/b2b"
   },
   "commerce": {
     "flow": [
@@ -66,16 +66,10 @@
         "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"
       }
     ],
-    "agentic_rails": {
-      "live": [
-        "Stripe checkout"
-      ],
-      "reserved": []
-    },
     "scale_rule": "Check the product page for current price, terms, and availability."
   },
   "trust_layer": {
-    "rule": "Checkout start is not revenue. Verified revenue requires Stripe evidence + fulfillment proof.",
+    "rule": "A listing or checkout is not proof of a completed purchase or delivery.",
     "fail_closed": true,
     "surfaces": [
       "/agent-commerce.json",
@@ -84,15 +78,14 @@
       "/healthz"
     ]
   },
-  "rivet": {
-    "path": "/b2b",
-    "marketplace": "/marketplace",
-    "role": "B2B transaction hub — 0% success fee positioning vs Trade Me"
-  },
   "discovery": {
     "ai_discovery": "https://dreamledger.org/.well-known/ai",
     "ai_catalog_well_known": "https://dreamledger.org/.well-known/ai-catalog.json",
     "ai_catalog": "https://dreamledger.org/ai-catalog.json",
     "agent_products": "https://dreamledger.org/agent-products.json"
+  },
+  "business_tools": {
+    "page": "https://dreamledger.org/b2b.html",
+    "description": "Tools for New Zealand buyers and suppliers."
   }
 }
