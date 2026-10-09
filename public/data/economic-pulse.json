@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-09T06:28:57+00:00",
+  "generated_at_utc": "2026-10-09T13:38:55+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "6b428d4a-6ec5-5201-996b-fb02d15b33f5",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Transport Services for Glenorchy School",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-09T13:38:51+00:00",
+      "url": "https://www.gets.govt.nz/MEDU/ExternalTenderDetails.htm?id=34885281",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-transport-services-for-glenorchy-school-06d3a274e3.html"
+    },
     {
       "id": "b54459f2-6eb3-5b20-ba7e-c8b4cab74aee",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-09T06:28:57+00:00",
+  "updated_at_utc": "2026-10-09T13:38:55+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Transport Services for Glenorchy School",
+      "url": "https://www.gets.govt.nz/MEDU/ExternalTenderDetails.htm?id=34885281",
+      "observed_at": "2026-10-09T13:38:51+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "06d3a274e3eb2f98c5319cdfc80e6a5ff931e8fa611afd59a89f8930917667c8",
+      "event_id": "6b428d4a-6ec5-5201-996b-fb02d15b33f5",
+      "silo_id": "ECO-06D3A274E3EB2F98",
+      "slug": "procurement-transport-services-for-glenorchy-school-06d3a274e3"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
