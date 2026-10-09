@@ -33,9 +33,12 @@ def verified_revenue() -> float:
 
 changed = git_changed_files()
 revenue = verified_revenue()
+# Machine receipts/candidate JSON are durable internal artifacts, but they are not
+# public website compounding. Only a new/changed HTML page or public index qualifies.
 artifact_files = [
     p for p in changed
-    if p.startswith("webapp/pulse/") or p == "webapp/index.html"
+    if (p.startswith("webapp/pulse/") and p.lower().endswith(".html"))
+    or p == "webapp/index.html"
 ]
 
 if revenue <= 0 and not artifact_files:
