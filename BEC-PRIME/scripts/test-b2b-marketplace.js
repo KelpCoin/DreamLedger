@@ -167,3 +167,18 @@ test('listing idempotency rejects a replay with a changed category', async () =>
   } finally { global.fetch = oldFetch; }
 });
 
+test('B2B order creation remains fail-closed until the canonical settlement rail is released', async () => {
+  const oldFetch = global.fetch;
+  global.fetch = async url => {
+    if (String(url).endsWith('/auth/v1/user')) return new Response(JSON.stringify({ id:'00000000-0000-4000-8000-000000000001', email:'buyer@example.com', email_confirmed_at:'2026-01-01T00:00:00Z' }), { status:200 });
+    throw new Error('No database call should be needed for the deliberate release gate');
+  };
+  try {
+    const res = response();
+    await handle(request('POST','/api/b2b/orders',{offer_id:'offer-test'},{authorization:'Bearer buyer-token'}),res,'/api/b2b/orders');
+    assert.equal(res.statusCode,503);
+    assert.equal(parse(res).code,'B2B_CHECKOUT_NOT_RELEASED');
+    assert.match(parse(res).error,/deliberately disabled/i);
+  } finally { global.fetch = oldFetch; }
+});
+
