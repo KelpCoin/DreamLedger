@@ -96,6 +96,28 @@ async function handle(req, res, url) {
   const uid = identity.user.id;
 
   try {
+    if (req.method === 'GET' && url === '/api/b2b/moderation/listings') {
+      const memberships = await db('marketplace_memberships','GET','user_id=eq.'+encodeURIComponent(uid)+'&status=eq.active&role=in.(admin,moderator,operator)&select=organization_id,role&limit=100');
+      if (!memberships?.length) return send(res,403,{error:'Marketplace moderator role required'});
+      const rows = await db('marketplace_listings','GET','status=eq.review&select=id,slug,title,description,category,price,currency,seller_id,organization_id,state_version,created_at&order=created_at.asc&limit=100');
+      const items=(rows||[]).filter(x=>x.organization_id?memberships.some(m=>m.organization_id===x.organization_id):memberships.some(m=>m.role==='admin'||m.role==='operator'));
+      return send(res,200,{items});
+    }
+
+    const moderationMatch=url.match(/^\/api\/b2b\/moderation\/listings\/([^/]+)\/(approve|reject)$/);
+    if (req.method === 'POST' && moderationMatch) {
+      const listingId=decodeURIComponent(moderationMatch[1]),action=moderationMatch[2],b=await readBody(req),expectedVersion=Number(b.expected_version),reason=String(b.reason||'').trim().slice(0,500);
+      if(!Number.isSafeInteger(expectedVersion)||expectedVersion<1)return send(res,422,{error:'expected_version is required'});
+      const listings=await db('marketplace_listings','GET','id=eq.'+encodeURIComponent(listingId)+'&select=id,status,organization_id,state_version&limit=1'),listing=listings?.[0];
+      if(!listing||listing.status!=='review')return send(res,404,{error:'Listing not found in review queue'});
+      const memberships=await db('marketplace_memberships','GET','user_id=eq.'+encodeURIComponent(uid)+'&status=eq.active&role=in.(admin,moderator,operator)&select=organization_id,role&limit=100');
+      const permitted=(memberships||[]).some(m=>listing.organization_id?m.organization_id===listing.organization_id:(m.role==='admin'||m.role==='operator'));
+      if(!permitted)return send(res,403,{error:'Not authorized to moderate this listing'});
+      const toState=action==='approve'?'published':'rejected';
+      const result=await db('rpc/transition_marketplace_listing','POST','',{p_listing_id:listing.id,p_expected_version:expectedVersion,p_to_state:toState,p_actor_user_id:uid,p_actor_org_id:listing.organization_id||null,p_reason:reason||null});
+      return send(res,200,{ok:true,listing:result,commercial_truth:toState==='published'?'LISTING_PUBLISHED_NOT_ORDER_OR_REVENUE':'LISTING_REJECTED'});
+    }
+
     if (req.method === 'GET' && url === '/api/b2b/my-listings') {
       const accounts = await db('marketplace_seller_accounts', 'GET', 'owner_user_id=eq.' + encodeURIComponent(uid) + '&select=seller_id,onboarding_status,charges_enabled,payouts_enabled&limit=1');
       if (!accounts?.length) return send(res, 200, { items:[], seller_setup_required:true });
