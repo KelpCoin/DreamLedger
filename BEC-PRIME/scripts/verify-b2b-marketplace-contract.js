@@ -7,10 +7,10 @@ const checks=[
  ['A2A_AGENT_MANIFEST',fs.existsSync(path.join(root,'..','public','marketplace','agent.json'))],
  ['TRADE_MARKETPLACE_SCHEMA',fs.existsSync(path.join(root,'..','data','schema','trade-marketplace-v1.json'))],
  ['LOCAL_POWERSHELL_RUNNER',fs.existsSync(path.join(root,'..','ops','marketplace','Invoke-TradeMarketplaceLocal.ps1'))],
- ['B2B_ROUTE_SEARCH',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/b2b/search')],
- ['B2B_ROUTE_RFQ',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/b2b/rfqs')],
- ['B2B_ROUTE_OFFERS',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/b2b/offers')],
- ['B2B_ROUTE_ORDERS',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/b2b/orders')],
+ ['B2B_ROUTE_SEARCH',fs.readFileSync(path.join(root,'routes','b2b-marketplace.js'),'utf8').includes('/api/b2b/search')],
+ ['B2B_ROUTE_RFQ',fs.readFileSync(path.join(root,'routes','b2b-marketplace.js'),'utf8').includes('/api/b2b/rfqs')],
+ ['B2B_ROUTE_OFFERS',fs.readFileSync(path.join(root,'routes','b2b-marketplace.js'),'utf8').includes('/api/b2b/offers')],
+ ['B2B_ROUTE_ORDERS_FAILS_CLOSED',fs.readFileSync(path.join(root,'routes','b2b-marketplace.js'),'utf8').includes('B2B_CHECKOUT_NOT_RELEASED')],
  ['MARKETPLACE_PRO_UI',fs.existsSync(path.join(root,'..','public','marketplace-pro.html'))],
  ['MARKETPLACE_FAVORITES',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/marketplace/favorites')],
  ['MARKETPLACE_MESSAGES',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('/api/marketplace/messages')],
@@ -24,9 +24,17 @@ const checks=[
  ['ZERO_FEE_PUBLIC_CLAIM',fs.readFileSync(path.join(root,'..','public','b2b.html'),'utf8').includes('0% success fee')],
  ['NO_REVENUE_FROM_ORDER_CREATION',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('PENDING_PAYMENT_NOT_REVENUE')]
 ];
-const b2bRoutes=fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8');
+const b2bRoutes=fs.readFileSync(path.join(root,'routes','b2b-marketplace.js'),'utf8');
+const b2bMigration=fs.readFileSync(path.join(root,'..','supabase','migrations','20261010120000_marketplace_b2b_rfq_offers.sql'),'utf8');
+const b2bUi=fs.readFileSync(path.join(root,'..','public','b2b-marketplace.html'),'utf8');
 checks.push(['B2B_DURABLE_PERSISTENCE_NOT_LOCAL_JSON',!b2bRoutes.includes("'b2b-rfqs.json'")&&!b2bRoutes.includes("'b2b-offers.json'")&&!b2bRoutes.includes("'b2b-orders.json'")]);
-checks.push(['B2B_DATABASE_OUTAGE_FAILS_CLOSED',b2bRoutes.includes('SUPABASE')&&b2bRoutes.includes('503')]);
+checks.push(['B2B_DATABASE_OUTAGE_FAILS_CLOSED',b2bRoutes.includes('B2B_DATA_UNAVAILABLE')&&b2bRoutes.includes('503')]);
+checks.push(['B2B_SUPABASE_JWT_REQUIRED',b2bRoutes.includes('/auth/v1/user')&&b2bRoutes.includes('AUTH_REQUIRED')]);
+checks.push(['B2B_IDEMPOTENCY_ENFORCED',b2bRoutes.includes('Idempotency-Key header is required')&&b2bMigration.includes('unique (buyer_user_id, idempotency_key)')&&b2bMigration.includes('unique (supplier_user_id, idempotency_key)')]);
+checks.push(['B2B_SELLER_PAYOUT_GATE',b2bRoutes.includes('payouts_enabled')&&b2bRoutes.includes('onboarding_status')]);
+checks.push(['B2B_OFFER_PRIVACY',b2bRoutes.includes('Only the RFQ buyer and participating suppliers can view these offers')]);
+checks.push(['B2B_CHECKOUT_NOT_MISREPRESENTED',b2bRoutes.includes('B2B_CHECKOUT_NOT_RELEASED')&&b2bRoutes.includes('no transaction was recorded')]);
+checks.push(['B2B_AUTHENTICATED_UI',b2bUi.includes('supabase.createClient')&&b2bUi.includes('Idempotency-Key')]);
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
 const proof={schema:'dreamledger/b2b-marketplace-contract/v1',generated_at:new Date().toISOString(),verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,economic_truth:'Order creation is not revenue; verified revenue requires settled external payment, attribution, fulfilment and independent evidence.'};
 const out=path.join(root,'data','proofs','B2B-MARKETPLACE-CONTRACT-PROOF.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));process.exit(failed.length?1:0);
