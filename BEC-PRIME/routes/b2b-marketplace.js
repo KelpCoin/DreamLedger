@@ -95,6 +95,12 @@ async function handle(req, res, url) {
   const uid = identity.user.id;
 
   try {
+    if (req.method === 'GET' && url === '/api/b2b/seller-status') {
+      const rows = await db('marketplace_seller_accounts', 'GET', 'owner_user_id=eq.' + encodeURIComponent(uid) + '&select=id,seller_id,onboarding_status,details_submitted,charges_enabled,payouts_enabled,requirements_due&limit=1');
+      const x = rows?.[0];
+      return send(res, 200, { exists:!!x, seller_id:x?.seller_id||null, onboarding_status:x?.onboarding_status||'not_started', details_submitted:x?.details_submitted===true, charges_enabled:x?.charges_enabled===true, payouts_enabled:x?.payouts_enabled===true, requirements_due:x?.requirements_due||[], offers_enabled:!!x&&x.onboarding_status==='complete'&&x.charges_enabled===true&&x.payouts_enabled===true });
+    }
+
     if (req.method === 'GET' && url === '/api/b2b/rfqs') {
       const rows = await db('marketplace_b2b_rfqs', 'GET', 'status=eq.open&select=*&order=created_at.desc&limit=100');
       return send(res, 200, {
