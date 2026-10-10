@@ -65,9 +65,6 @@ jobs:
       - name: Verify paid quote path contract
         run: python scripts/verify_quote_path_contract.py
 
-      - name: Verify paid quote path contract
-        run: python scripts/verify_quote_path_contract.py
-
       - name: Economic truth guard
         shell: bash
         run: |
