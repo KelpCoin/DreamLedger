@@ -8,6 +8,7 @@ const webhook = fs.readFileSync(path.join(root, 'routes', 'mvpRoutes.js'), 'utf8
 const preload = fs.readFileSync(path.join(root, 'lib', 'commercePaymentContractPreload.js'), 'utf8');
 const canonicalWebhook = fs.readFileSync(path.join(root, '..', 'supabase', 'functions', 'stripe-revenue-41104f355d6878cdd6d1f9dc', 'index.ts'), 'utf8');
 const idempotencyMigration = fs.readFileSync(path.join(root, '..', 'supabase', 'migrations', '20261010120000_stripe_webhook_claim_and_order_idempotency.sql'), 'utf8');
+const legacyQuoteRoute = fs.readFileSync(path.join(root, '..', 'public', 'buy', 'quote_compare_49', 'index.html'), 'utf8');
 
 const failures = [];
 function need(condition, message) { if (!condition) failures.push(message); }
@@ -27,6 +28,8 @@ need(canonicalWebhook.includes('metadata.dreamledger_sku') && canonicalWebhook.i
 need(canonicalWebhook.includes('eq("stripe_checkout_session_id",checkoutSessionId)'), 'canonical Edge webhook must deduplicate orders by Checkout Session ID');
 need(canonicalWebhook.includes('amount_nzd:amountNzd'), 'canonical Edge webhook must preserve cents instead of rounding NZD to whole dollars');
 need(canonicalWebhook.includes('checkout.session.async_payment_succeeded'), 'canonical Edge webhook must process delayed-payment settlement events');
+need(canonicalWebhook.includes('session.livemode!==true'), 'canonical Edge webhook must reject test-mode sessions from live revenue');
+need(legacyQuoteRoute.includes('location.replace("/quote-comparison/")') && !legacyQuoteRoute.includes('buy.stripe.com'), 'legacy quote buy route must point to the free worksheet, not the retired payment link');
 need(idempotencyMigration.includes('revenue_orders_checkout_session_uidx') && idempotencyMigration.includes('revenue_entitlements_order_id_uidx') && idempotencyMigration.includes('fulfillment_requests_entitlement_id_uidx'), 'database migration must enforce unique order, entitlement and fulfillment keys');
 need(idempotencyMigration.includes('processing_started_at < now() - interval \'5 minutes\''), 'database claim must recover abandoned event processing after a bounded lease');
 
@@ -37,4 +40,4 @@ if (failures.length) {
 }
 
 console.log('STRIPE_WEBHOOK_CONTRACT=PASS');
-console.log('checks=17');
+console.log('checks=19');
