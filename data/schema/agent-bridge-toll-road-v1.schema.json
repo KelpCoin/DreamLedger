@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/agent-bridge-toll-road-v1.schema.json",
+  "title": "DreamLedger Agent Bridge Toll Road",
+  "description": "A versioned, machine-readable contract for low-cost A2A API capabilities. Many toll roads are represented as data records, not thousands of duplicated route files. A candidate is not publishable until its economics, authorization and fulfilment are proven.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "route",
+    "scope",
+    "price",
+    "lifecycle",
+    "authorization",
+    "metering",
+    "truth"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "dreamledger.toll-road.v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9._-]{2,127}$"
+    },
+    "route": {
+      "type": "string",
+      "pattern": "^/api/[a-zA-Z0-9/_-]+$"
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "price": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amount_minor",
+        "currency",
+        "unit"
+      ],
+      "properties": {
+        "amount_minor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currency": {
+          "const": "NZD"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "lifecycle": {
+      "enum": [
+        "CANDIDATE",
+        "TEST",
+        "ARMED",
+        "PUBLISHED",
+        "PAUSED",
+        "RETIRED"
+      ]
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "budget_ceiling_required",
+        "scope_bound",
+        "expiry_required"
+      ],
+      "properties": {
+        "budget_ceiling_required": {
+          "const": true
+        },
+        "scope_bound": {
+          "const": true
+        },
+        "expiry_required": {
+          "const": true
+        }
+      }
+    },
+    "metering": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "idempotency_key_required",
+        "usage_receipt_required",
+        "hard_timeout_seconds",
+        "quota_required"
+      ],
+      "properties": {
+        "idempotency_key_required": {
+          "const": true
+        },
+        "usage_receipt_required": {
+          "const": true
+        },
+        "hard_timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "quota_required": {
+          "const": true
+        }
+      }
+    },
+    "fulfilment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "acceptance_test",
+        "delivery_evidence_required"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "SYNC_API",
+            "ASYNC_JOB",
+            "DIGITAL_ASSET",
+            "HUMAN_REVIEW"
+          ]
+        },
+        "acceptance_test": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 2000
+        },
+        "delivery_evidence_required": {
+          "const": true
+        }
+      }
+    },
+    "unit_economics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "estimated_cost_minor",
+        "minimum_margin_percent"
+      ],
+      "properties": {
+        "estimated_cost_minor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minimum_margin_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "truth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkout_configured",
+        "settlement_verified",
+        "fulfilment_verified",
+        "last_evidence_at"
+      ],
+      "properties": {
+        "checkout_configured": {
+          "type": "boolean"
+        },
+        "settlement_verified": {
+          "type": "boolean"
+        },
+        "fulfilment_verified": {
+          "type": "boolean"
+        },
+        "last_evidence_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "version",
+        "content_hash",
+        "updated_at"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "x-publication-gates": [
+    "No generated offer may claim VERIFIED or PUBLISHED from checkout configuration alone.",
+    "A paid call requires an authenticated buyer, explicit scoped budget, idempotency key, quota and timeout.",
+    "Settlement, entitlement, fulfilment and delivery evidence are independent gates.",
+    "Bulk generation creates CANDIDATE records only; publish in cohorts after demand and unit-economics checks.",
+    "Do not generate 100000 separate source files or fake listings. Parameterise validated route families and deduplicate by canonical ID/content hash."
+  ]
+}
