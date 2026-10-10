@@ -77,9 +77,10 @@ jobs:
       - name: BECK LM Studio SDK and ADLC tests
         shell: bash
         run: |
-          python -m py_compile ../runtime/lm_studio/beck_lmstudio_sdk.py ../runtime/lm_studio/local_cortex_lmstudio_ingest.py ../runtime/lm_studio/bec_mcp_server.py ../runtime/lm_studio/access_bridge.py ../runtime/lm_studio/test_access_bridge.py ../runtime/lm_studio/evals/evaluate.py ../runtime/lm_studio/aggregate_telemetry.py
+          python -m py_compile ../runtime/lm_studio/beck_lmstudio_sdk.py ../runtime/lm_studio/local_cortex_lmstudio_ingest.py ../runtime/lm_studio/bec_mcp_server.py ../runtime/lm_studio/access_bridge.py ../runtime/lm_studio/test_access_bridge.py ../runtime/lm_studio/evals/evaluate.py ../runtime/lm_studio/aggregate_telemetry.py ../runtime/lm_studio/care_funding_gap.py ../runtime/lm_studio/test_care_funding_gap.py
           python -m unittest discover -s ../runtime/lm_studio -p 'test_beck_lmstudio_sdk.py'
           python -m unittest discover -s ../runtime/lm_studio -p 'test_access_bridge.py'
+          python -m unittest discover -s ../runtime/lm_studio -p 'test_care_funding_gap.py'
           python -m unittest discover -s ../runtime/lm_studio/evals -p 'test_evaluate.py'
 
       - name: Execution gate tests
