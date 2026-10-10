@@ -19,3 +19,7 @@ AI-Catalog-WellKnown: https://dreamledger.org/.well-known/ai-catalog.json
 AI-Discovery: https://dreamledger.org/.well-known/ai
 AI-Products: https://dreamledger.org/agent-products.json
 Commerce-TXT: https://dreamledger.org/commerce.txt
+Disallow: /777/
+Disallow: /roadmap/777
+Disallow: /777-compounding
+Disallow: /777-component
