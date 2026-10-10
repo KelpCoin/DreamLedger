@@ -129,3 +129,4 @@ jobs:
 # Verification trigger: 2026-10-09T18:05+13:00; rerun after staged-output compounding-gate repair. No economic logic changed.
 
 # 777 verification trigger: 2026-10-09T18:08+13:00; verify semantic duplicate filtering and preserve corpus on no-signal cycles.
+# 777 marketplace epic: 2026-10-10; commit 7fd35f76c7eedcbb0434c90334f87456dd1acb9a adds the decomposable task contract. Trigger a fresh expedition to verify it.
