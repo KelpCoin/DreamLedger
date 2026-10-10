@@ -5,7 +5,7 @@ This gate supplements static UI checks. It is not a production certification.
 ## A2A checkout handoff
 
 - Configure `M2M_QUOTE_SIGNING_SECRET` as a high-entropy secret in the deployed Render service. Do not commit it or expose it to browser code.
-- Without that secret, quote and authorization endpoints must return HTTP 503 and must not create checkout sessions.
+- Without that secret, quote requests return HTTP 503; authorization requires a verified user first and then fails with HTTP 503. Neither path may create a checkout session.
 - Quotes are HMAC-signed over product ID, current price, currency, and issue time. Authorization rejects altered, mismatched, or expired quotes (15-minute maximum).
 - The browser must display the quoted price, require an explicit confirmation, and use a verified Supabase Auth session for the authorization request.
 - The UI now calls `/api/a2a/checkout`, which deliberately returns `A2A_ORDER_RAIL_NOT_RELEASED`. Do not replace this fail-closed gate with the generic `/api/checkout/create` route until checkout creates an order in the canonical marketplace model and settlement/fulfillment are wired and tested.
