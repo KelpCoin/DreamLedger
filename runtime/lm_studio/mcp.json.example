@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "beck-runtime-readonly": {
+      "command": "python",
+      "args": ["-m", "runtime.lm_studio.bec_mcp_server"],
+      "env": {
+        "BEC_ROOT": "C:\\DreamLedger\\DreamLedger"
+      }
+    }
+  }
+}
