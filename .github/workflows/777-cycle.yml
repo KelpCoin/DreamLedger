@@ -19,6 +19,8 @@ on:
       - "webapp/phinhaven/index.html"
       - "webapp/agentic-commerce/**"
       - "public/index.html"
+      - "marketplace.html"
+      - "index.html"
 
 permissions:
   contents: write
