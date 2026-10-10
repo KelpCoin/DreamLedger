@@ -106,7 +106,8 @@
     "runtime:once": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Once",
     "runtime:install": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Install",
     "syndicate:tumblr": "node scripts/sync-evergreen-to-tumblr.js",
-    "test:b2b-marketplace": "node --test scripts/test-b2b-marketplace.js"
+    "test:b2b-marketplace": "node --test scripts/test-b2b-marketplace.js",
+    "test:a2a-marketplace": "node --test scripts/test-a2a-marketplace.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
