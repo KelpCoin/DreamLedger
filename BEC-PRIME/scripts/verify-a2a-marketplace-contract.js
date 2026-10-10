@@ -10,6 +10,12 @@ const checks=[
 ];
 const text=fs.readFileSync(path.join(root,'routes','m2m.js'),'utf8');
 for(const route of ['/m2m/v1/marketplace/manifest','/m2m/v1/marketplace/capabilities','/m2m/v1/marketplace/search','/m2m/v1/marketplace/quote','/m2m/v1/marketplace/authorize','/m2m/v1/marketplace/orders']) checks.push(['ROUTE_'+route.split('/').pop().toUpperCase(),text.includes(route)]);
+const m2m=fs.readFileSync(path.join(root,'routes','m2m.js'),'utf8');
+const a2a=fs.readFileSync(path.join(root,'..','public','a2a-marketplace.html'),'utf8');
+checks.push(['QUOTE_HMAC_SIGNING',m2m.includes('M2M_QUOTE_SIGNING_SECRET')&&m2m.includes('crypto.createHmac')&&m2m.includes('crypto.timingSafeEqual')]);
+checks.push(['QUOTE_EXPIRY_ENFORCED',m2m.includes('Date.now()-issuedAt>900000')]);
+checks.push(['A2A_UI_CALLS_EXISTING_CHECKOUT',a2a.includes("api('/api/checkout/create'")&&a2a.includes('window.location.assign(checkout.checkout_url)')]);
+checks.push(['A2A_UI_CHECKS_QUOTE_PRICE',a2a.includes('Price changed since quote')]);
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
 const proof={schema:'dreamledger/a2a-marketplace-contract/v1',generated_at:new Date().toISOString(),verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,economic_truth:'A2A discovery, quotes and orders are not revenue. VERIFIED requires settled external payment, fulfillment and independent evidence.'};
 const out=path.join(root,'data','proofs','A2A-MARKETPLACE-CONTRACT-PROOF.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));process.exit(failed.length?1:0);
