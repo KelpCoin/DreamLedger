@@ -33,8 +33,12 @@ test('catalogue is paginated and never returns more than 100 roads', () => {
 
 test('road product makes no persistence or downstream-action claim', () => {
   const road = Factory.getRoad('ROAD-000042');
-  assert.equal(road.price_nzd, 1);
-  assert.equal(road.calls_per_pack, 100);
+  assert.equal(road.price_nzd, null);
+  assert.equal(road.calls_per_pack, null);
+  assert.equal(road.proposed_price_nzd, 1);
+  assert.equal(road.proposed_calls_per_pack, 100);
+  assert.equal(road.checkout_enabled, false);
+  assert.equal(road.status, 'catalogued_pending_durable_quota_ledger');
   assert.equal(road.service_model, 'bounded_receipt_only');
   assert.equal(road.economic_status, 'UNVERIFIED_UNTIL_EXTERNAL_SETTLEMENT_AND_FULFILLMENT_EVIDENCE');
 });
