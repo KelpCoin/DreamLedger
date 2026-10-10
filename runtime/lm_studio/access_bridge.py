@@ -1,6 +1,6 @@
 """Privacy-first BECK access bridge for NZ healthcare and legal-aid navigation.
 
-This module prepares next steps and communication drafts. It does not diagnose,
+Prepares route choices, case packets, and editable drafts. It does not diagnose,
 determine legal eligibility, persist personal information, or contact services.
 Service details are manually curated and must be rechecked before use.
 """
@@ -11,7 +11,7 @@ ROUTES = {
     "urgent_health": {"name": "Emergency medical help", "when": "Immediate danger or a medical emergency", "contact": "Call 111", "url": "https://www.govt.nz/browse/health/", "mode": "phone", "priority": 0},
     "healthline": {"name": "Healthline", "when": "You need clinical advice about what care to seek", "contact": "0800 611 116, free, 24/7", "url": "https://www.healthline.govt.nz/", "mode": "phone", "priority": 1},
     "health_advocacy": {"name": "Nationwide Health & Disability Advocacy Service", "when": "Access barriers, communication needs, or concerns about a health/disability service", "contact": "0800 555 050, Monday-Friday 8:30am-5pm; advocacy@advocacy.org.nz", "url": "https://advocacy.org.nz/contact-an-advocate-now/", "mode": "phone_or_email", "priority": 2},
-    "legal_aid": {"name": "Ministry of Justice Legal Aid Services", "when": "Ask about legal aid, an existing application, delay, or a decision", "contact": "0800 253 425", "url": "https://www.justice.govt.nz/courts/going-to-court/legal-aid/contact-legal-aid/", "mode": "phone", "priority": 2},
+    "legal_aid": {"name": "Ministry of Justice Legal Aid Services", "when": "Ask about legal aid, an existing application, delay, assigned lawyer, or a decision", "contact": "0800 253 425", "url": "https://www.justice.govt.nz/courts/going-to-court/legal-aid/contact-legal-aid/", "mode": "phone", "priority": 2},
     "community_law_bop": {"name": "Baywide Community Law (Tauranga/Whakatāne)", "when": "Free legal information/advice and help identifying the right legal-aid route", "contact": "Tauranga: (07) 571 6812; info@baywidecls.org.nz", "url": "https://communitylaw.org.nz/centre/tauranga-whakatane/", "mode": "phone_or_email", "priority": 2},
     "community_law_waikato": {"name": "Community Law Waikato", "when": "Free legal help in the Waikato region", "contact": "0800 529 482; reception@clwaikato.org.nz", "url": "https://communitylaw.org.nz/centre/waikato/", "mode": "phone_or_email", "priority": 2},
     "urgent_costs": {"name": "Work and Income urgent-cost support", "when": "Urgent food, eligible medical treatment/equipment, or health travel costs", "contact": "0800 559 009", "url": "https://www.workandincome.govt.nz/products/a-z-benefits/special-needs-grant/index.html", "mode": "phone", "priority": 1},
@@ -19,7 +19,7 @@ ROUTES = {
 ALIASES = {
     "health": ["healthline", "health_advocacy"], "healthcare": ["healthline", "health_advocacy"],
     "medical": ["healthline", "health_advocacy"], "disability": ["health_advocacy"],
-    "legal": ["legal_aid", "community_law_bop"], "legal_aid": ["legal_aid", "community_law_bop"],
+    "legal": ["legal_aid"], "legal_aid": ["legal_aid"],
     "food": ["urgent_costs"], "medical_costs": ["urgent_costs"], "urgent_costs": ["urgent_costs"],
 }
 
@@ -27,10 +27,10 @@ def list_routes(categories: Iterable[str] | None = None, region: str = "Bay of P
     """Return service routes, prioritised and deduplicated, without user data."""
     supplied = list(categories or [])
     keys: list[str] = []
-    local_law = "community_law_waikato" if "waikato" in region.lower() else "community_law_bop"
+    local_law = "community_law_waikato" if any(x in region.lower() for x in ("waikato", "hamilton")) else "community_law_bop"
     for category in supplied:
         normalized = str(category).strip().lower().replace(" ", "_")
-        if normalized in {"legal", "legal_aid"}:
+        if normalized in {"legal", "legal_aid", "criminal_legal_aid", "existing_legal_aid_file"}:
             keys.extend(["legal_aid", local_law])
         else:
             keys.extend(ALIASES.get(normalized, []))
@@ -40,7 +40,7 @@ def list_routes(categories: Iterable[str] | None = None, region: str = "Bay of P
     return [{"id": key, **ROUTES[key]} for key in unique if key in ROUTES]
 
 def build_access_plan(categories: Iterable[str], barrier: str = "I have been unable to access the service and need help identifying the next step.", communication_needs: str = "Please offer a low-effort way to respond, such as email or a scheduled callback.", region: str = "Bay of Plenty") -> dict:
-    """Prepare a bounded action plan and editable message draft; nothing is sent or stored."""
+    """Prepare an editable action plan; nothing is sent or stored."""
     selected = list_routes(categories, region)
     checklist = [
         "Choose one priority service and one backup route.",
@@ -50,6 +50,8 @@ def build_access_plan(categories: Iterable[str], barrier: str = "I have been una
         "Keep a private copy of messages and record the next follow-up date locally.",
         "If there is no response by the stated date, use the listed backup route.",
     ]
+    if any(str(c).lower() in {"legal", "legal_aid", "criminal_legal_aid", "existing_legal_aid_file"} for c in categories):
+        checklist.insert(2, "For an existing legal-aid matter, ask for the current file status, assigned lawyer, next court/deadline date, any missing documents, and the written review/escalation route.")
     draft = (
         "Subject: Request for accessible help to resolve an access barrier\n\n"
         "Hello,\n\nI need help accessing the appropriate service. The barrier I am facing is:\n"
@@ -63,3 +65,25 @@ def build_access_plan(categories: Iterable[str], barrier: str = "I have been una
             "medical_or_legal_decision_made": False, "region": region, "routes": selected,
             "checklist": checklist, "message_draft": draft,
             "safety_note": "For immediate medical danger call 111. Healthline can advise on urgent clinical next steps. This tool does not replace a clinician or lawyer."}
+
+def build_access_case_packet(issue_type: str, summary: str, desired_outcome: str, timeline: Iterable[str] = (), prior_attempts: Iterable[str] = (), deadline: str = "", region: str = "Bay of Plenty") -> dict:
+    """Structure only user-supplied facts into a private, unsaved case packet. No inferred facts or external actions."""
+    issue = str(issue_type or "unknown").strip().lower().replace(" ", "_")
+    categories = ["healthcare"] if issue in {"health", "healthcare", "medical", "disability"} else ["legal_aid"] if issue in {"legal", "legal_aid", "criminal_legal_aid", "existing_legal_aid_file"} else ["urgent_costs"] if issue in {"food", "medical_costs", "urgent_costs"} else []
+    steps = [str(x).strip() for x in prior_attempts if str(x).strip()]
+    events = [str(x).strip() for x in timeline if str(x).strip()]
+    gaps = []
+    if not events: gaps.append("Add a dated chronology of key events, contacts, decisions, and deadlines if known.")
+    if not steps: gaps.append("List previous attempts to obtain help and the response to each, including no response.")
+    if not str(desired_outcome or "").strip(): gaps.append("State the specific practical outcome you are asking the service to provide.")
+    if not str(deadline or "").strip(): gaps.append("Check whether a court, treatment, application, or review deadline exists; do not assume there is none.")
+    if not categories: gaps.append("Choose the service category; it remains unknown from the supplied issue type.")
+    return {
+        "mode": "DRAFT_ONLY", "personal_data_persisted": False, "external_actions_taken": False,
+        "issue_type": issue, "summary": str(summary or "").strip(),
+        "desired_outcome": str(desired_outcome or "").strip(),
+        "timeline": events, "prior_attempts": steps, "deadline": str(deadline or "").strip() or "UNKNOWN",
+        "routes": list_routes(categories, region), "missing_information": gaps,
+        "next_action": "Request written confirmation of the current status, the exact blocker, the person/team responsible, what evidence is needed, and the date for the next response.",
+        "privacy_note": "This packet exists only in the current tool response. Copy it to a private location you control if you want to retain it; do not put personal health or legal details in public issues or repositories."
+    }
