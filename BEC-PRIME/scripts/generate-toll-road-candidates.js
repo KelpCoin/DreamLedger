@@ -19,7 +19,7 @@
  *     "operation": "classify-evidence", "route": "/api/truth/classify",
  *     "description": "...", "source_ref": "path/to/implementation.js",
  *     "acceptance_test": "node --test path/to/test.js",
- *     "estimated_cost_nzd": 0.001, "enabled": true
+ *     "base_price_nzd": 9, "estimated_cost_nzd": null, "enabled": true
  *   }]
  * }
  *
@@ -79,8 +79,12 @@ function validateCapability(cap, index) {
   if (!/^\/api\/[a-zA-Z0-9/_:{}.-]+$/.test(cap.route)) {
     throw new Error('capabilities[' + index + '].route must be a canonical /api route');
   }
-  if (!Number.isFinite(Number(cap.estimated_cost_nzd)) || Number(cap.estimated_cost_nzd) < 0) {
-    throw new Error('capabilities[' + index + '].estimated_cost_nzd must be a non-negative number');
+  if (!Number.isFinite(Number(cap.base_price_nzd)) || Number(cap.base_price_nzd) <= 0) {
+    throw new Error('capabilities[' + index + '].base_price_nzd must be a positive baseline price');
+  }
+  if (cap.estimated_cost_nzd !== null && cap.estimated_cost_nzd !== undefined &&
+      (!Number.isFinite(Number(cap.estimated_cost_nzd)) || Number(cap.estimated_cost_nzd) < 0)) {
+    throw new Error('capabilities[' + index + '].estimated_cost_nzd must be null or a non-negative number');
   }
   if (cap.enabled !== true) return false;
   return true;
@@ -112,9 +116,10 @@ function buildCandidates(registry, options = {}) {
           !Number.isFinite(tier.multiplier) || tier.multiplier <= 0) {
         throw new Error('Invalid pricing tier definition');
       }
-      const cost = roundMoney(Number(cap.estimated_cost_nzd) * tier.calls);
-      const floor = cost / (1 - MIN_MARGIN);
-      const amount = roundMoney(Math.max(0.5, floor, Number(cap.base_price_nzd || 0) * tier.multiplier));
+      const costKnown = cap.estimated_cost_nzd !== null && cap.estimated_cost_nzd !== undefined;
+      const cost = costKnown ? roundMoney(Number(cap.estimated_cost_nzd) * tier.calls) : null;
+      const floor = costKnown ? cost / (1 - MIN_MARGIN) : 0;
+      const amount = roundMoney(Math.max(0.5, floor, Number(cap.base_price_nzd) * tier.multiplier));
       const identity = [canonicalSource.pipeline_id, canonicalSource.id, tier.id].join(':');
       const id = stableId(identity);
       if (seen.has(id)) throw new Error('Duplicate candidate identity: ' + identity);
@@ -137,7 +142,8 @@ function buildCandidates(registry, options = {}) {
           calls_per_pack: tier.calls,
           price_nzd: amount,
           estimated_cost_nzd: cost,
-          estimated_gross_margin_percent: amount === 0 ? 0 : roundMoney((amount - cost) / amount * 100)
+          unit_economics_status: costKnown ? 'ESTIMATE_UNVERIFIED' : 'UNKNOWN',
+          estimated_gross_margin_percent: !costKnown || amount === 0 ? null : roundMoney((amount - cost) / amount * 100)
         },
         demand: { signals: [], independent_buyer_count: 0, evidence: 'UNVERIFIED' },
         gates: {
