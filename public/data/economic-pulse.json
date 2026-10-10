@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-10T08:42:33+00:00",
+  "generated_at_utc": "2026-10-10T14:44:31+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "71c1b550-704b-53ed-8b98-547d104368e9",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Signage Contractor: External Building Signage",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-10T14:44:27+00:00",
+      "url": "https://www.gets.govt.nz/UO/ExternalTenderDetails.htm?id=34930654",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-signage-contractor-external-building-signage-e9c4247ebe.html"
+    },
     {
       "id": "8f585d82-aff3-55a5-8d1b-de7a25bc9160",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

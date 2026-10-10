@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-10T08:42:33+00:00",
+  "updated_at_utc": "2026-10-10T14:44:31+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Signage Contractor: External Building Signage",
+      "url": "https://www.gets.govt.nz/UO/ExternalTenderDetails.htm?id=34930654",
+      "observed_at": "2026-10-10T14:44:27+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "e9c4247ebed43b6d97228eec9adb5ef97cbe92595aec8e8a3dfaeee7ad049b51",
+      "event_id": "71c1b550-704b-53ed-8b98-547d104368e9",
+      "silo_id": "ECO-E9C4247EBED43B6D",
+      "slug": "procurement-signage-contractor-external-building-signage-e9c4247ebe"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
