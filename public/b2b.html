@@ -76,7 +76,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
   <a class="logo" href="/">Dream<em>Ledger</em> <span style="color:var(--mut);font-weight:600;font-size:.75rem">B2B</span></a>
   <nav class="nav">
     <a class="g" href="/">Home</a>
-    <a class="g" href="/sell.html">List</a>
+    <a class="g" href="/sell.html">Marketplace status</a>
     <a class="on" href="#rfq">Post RFQ</a>
   </nav>
 </div></header>
@@ -84,11 +84,11 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 <main class="w">
   <section class="hero">
     <div class="k">B2B procurement · New Zealand · 0% success fee</div>
-    <h1>Wholesale & procurement marketplace</h1>
+    <h1>B2B procurement tools</h1>
     <p class="lead">Explore supplier enquiries, wholesale listings, and quote comparison. The listed platform success fee on peer-to-peer B2B sales is <strong style="color:var(--ok)">0%</strong>; optional tools have separate prices.</p>
     <div class="ctas">
-      <a class="btn ok" href="#rfq">Post an RFQ</a>
-      <a class="btn gold" href="/sell.html">List wholesale stock</a>
+      <a class="btn ok" href="#rfq">Request supplier interest</a>
+      <a class="btn gold" href="/sell.html">Wholesale listings paused</a>
       <a class="btn line" href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e">Quote comparison NZ$49</a>
     </div>
     <div class="metrics">
@@ -103,9 +103,9 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <h2>Tools for buyers and suppliers</h2>
     <p class="sub">Choose the tool that fits your purchasing task.</p>
     <div class="grid cols3">
-      <a class="card feat" href="#rfq"><h3>Request for quote</h3><p>Buyers post demand. Suppliers respond. Structured intake, not inbox chaos.</p><span class="go">Post RFQ →</span></a>
-      <a class="card" href="/sell.html"><h3>Wholesale listings</h3><p>MOQ, lead time, GST, trading name. 0% success fee on peer sales.</p><span class="go">List stock →</span></a>
-      <a class="card" href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e"><h3>Quote comparison</h3><p>2–5 supplier quotes → normalized decision packet. Fixed NZ$49.</p><span class="go">Buy tool →</span></a>
+      <a class="card feat" href="#rfq"><h3>Request for quote</h3><p>Describe what you need. We can review your request, but supplier matching is not guaranteed while community listings are paused.</p><span class="go">Request supplier interest →</span></a>
+      <a class="card" href="/sell.html"><h3>Wholesale listings</h3><p>MOQ, lead time, GST, trading name. 0% success fee on peer sales.</p><span class="go">Marketplace status →</span></a>
+      <a class="card" href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e"><h3>Quote comparison</h3><p>2–5 supplier quotes → clear comparison report. Fixed NZ$49.</p><span class="go">Buy tool →</span></a>
       <a class="card" href="/buy/SELLER-PROFIT-AUDIT-001"><h3>Seller profit audit</h3><p>Channel fees, shipping, margin leaks. NZ$29 fixed scope.</p><span class="go">Buy audit →</span></a>
       <a class="card" href="/truth-oracle.html"><h3>Supplier checks</h3><p>Entity checks and evidence. Missing details stay visible.</p><span class="go">Open Oracle →</span></a>
       <a class="card" href="/agent-commerce.json"><h3>AI-assisted discovery</h3><p>Product information can be read by software; people approve purchases.</p><span class="go">Developer information →</span></a>
@@ -128,8 +128,8 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
   </section>
 
   <section class="sec" id="rfq">
-    <h2>Post a request for quote</h2>
-    <p class="sub">Buyers: describe what you need. We receive your request for review and supplier matching where available. No platform success fee on resulting peer deals.</p>
+    <h2>Request supplier interest</h2>
+    <p class="sub">Describe your requirement. We can review the request, but supplier matching is not guaranteed while community listings are paused. No platform success fee on resulting peer deals.</p>
     <form class="form" id="rfqForm">
       <label for="company">Company</label>
       <input id="company" name="company" required maxlength="120" placeholder="Trading name"/>
@@ -175,9 +175,9 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
   </section>
 
   <section class="sec">
-    <h2>How a B2B deal clears</h2>
+    <h2>How to use these tools</h2>
     <div class="steps">
-      <div class="step"><div class="n">1</div><div><strong>Demand or supply enters</strong><span>RFQ or wholesale listing. Listing details may be reviewed.</span></div></div>
+      <div class="step"><div class="n">1</div><div><strong>Demand or supply enters</strong><span>RFQ or wholesale listing. Marketplace statusing details may be reviewed.</span></div></div>
       <div class="step"><div class="n">2</div><div><strong>Match & negotiate</strong><span>Structured fields: MOQ, lead time, GST, region.</span></div></div>
       <div class="step"><div class="n">3</div><div><strong>Settle via Stripe when using platform pay</strong><span>Payment confirmation and delivery are checked separately.</span></div></div>
       <div class="step"><div class="n">4</div><div><strong>You keep the margin</strong><span>0% DreamLedger success fee on peer merchandise.</span></div></div>
@@ -206,7 +206,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 </main>
 
 <div class="stick">
-  <b>Post demand or list stock · 0% success fee</b>
+  <b>Compare supplier quotes · listed platform success fee 0%</b>
   <a href="#rfq">RFQ</a>
 </div>
 
@@ -214,7 +214,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 (function(){
   var form=document.getElementById('rfqForm');
   var status=document.getElementById('status');
-  form.addEventListener('submit',function(e){
+  form.addEventMarketplace statusener('submit',function(e){
     e.preventDefault();
     var data=Object.fromEntries(new FormData(form).entries());
     data.id='RFQ-'+Date.now();
@@ -228,7 +228,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
       localStorage.setItem(key,JSON.stringify(all.slice(0,50)));
     }catch(_){}
     status.textContent='RFQ accepted · ref '+data.id+' · stored for matching';
-    status.classList.add('show');
+    status.classMarketplace status.add('show');
     form.reset();
   });
 })();
