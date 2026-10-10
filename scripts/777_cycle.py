@@ -334,8 +334,8 @@ if deduped:
         public_index = PUBLIC_PULSE / "index.html"
         index_link = '<li><a href="/pulse/' + fallback.name + '">Agent Bridge capability map (catalogue candidates; settlement unverified)</a></li>'
         if fallback.exists():
-            # The source-side artifact may exist before the public Pages tree contains it.
-            # Promote that same component into the actual deployment root once, without duplicating it.
+            # If the catalogue fallback already exists, advance one bounded work item instead
+            # of treating a no-signal cycle as an engine failure or publishing a duplicate.
             if not public_fallback.exists():
                 PUBLIC_PULSE.mkdir(parents=True, exist_ok=True)
                 public_fallback.write_text(fallback.read_text(encoding="utf-8"), encoding="utf-8")
@@ -348,9 +348,65 @@ if deduped:
                             public_index_text = public_index_text.replace("</main>", "<ul>" + index_link + "</ul></main>", 1)
                         public_index.write_text(public_index_text, encoding="utf-8")
                 print("777_FALLBACK_PUBLIC_COPY=" + public_fallback.as_posix())
-            else:
-                print("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: fallback already exists in the public tree; no duplicate published.")
                 raise SystemExit(0)
+
+            components = [
+                ("01-toll-road-acceptance", "First-dollar toll-road acceptance", "Trace one existing low-cost offer from manifest through checkout, independently settled payment, scoped entitlement, successful probe and reconciled receipt.", "Exact SKU, amount and currency match; unpaid access denied; webhook replay is idempotent; entitlement issued once; delivery receipt reconciles; positive contribution margin."),
+                ("02-b2b-capability-schema", "Free B2B capability schema", "Define a portable listing with owner, buyer job, inputs, outputs, limits, freshness, provenance and evidence state. Keep discovery free.", "Schema validates sample listings; search and filters work; a qualified buyer action is measurable; unknown availability is not represented as live."),
+                ("03-a2a-metering-contract", "Low-cost A2A metering contract", "Specify scoped caller credentials, versioned capability, budget, quota, expiry, idempotency and a usage receipt.", "Unauthorized calls fail; concurrent quota use cannot overspend; retries do not double-charge; expiry, revocation and refunds are tested; cost per successful call is measured."),
+                ("04-reusable-stencil-kit", "Reusable commerce stencil kit", "Package one reusable template or adapter with sample data, license, version, setup steps and validation checklist.", "A clean checkout can reproduce the sample output; automated tests pass; provenance and support limits are explicit; delivery is repeatable."),
+                ("05-dooh-inventory-contract", "Digital-out-of-home inventory contract", "Define placement, format, geography, availability, rate basis, booking state and proof-of-play fields without inventing supply.", "Publisher rights and inventory are evidenced; a test campaign produces proof-of-play; campaign delivery and advertiser settlement reconcile."),
+                ("06-opt-in-gpu-job-contract", "Opt-in GPU job contract", "Start with offline benchmark data and a queued-job schema for model, inputs, resource budget, timeout, output hash and owner consent.", "No remote execution without explicit opt-in; isolation blocks host files and secrets; resource/network caps and kill switch work; positive unit economics are demonstrated."),
+                ("07-marketplace-interoperability", "Marketplace interoperability schema", "Define portable product, offer, order, refund, fulfillment and evidence objects plus one import/export adapter.", "Round-trip tests preserve IDs, currency, permissions, provenance, refunds and delivery status; no claim of replacing incumbent platforms without adoption evidence.")
+            ]
+            existing_names = {p.name for root in (PULSE, PUBLIC_PULSE) for p in root.glob("777-component-*.html")}
+            for task_id, title, purpose, acceptance in components:
+                filename = "777-component-" + task_id + ".html"
+                if filename in existing_names:
+                    continue
+                safe_title = html.escape(title)
+                page_html = (
+                    "<!doctype html><html lang='en-NZ'><head><meta charset='utf-8'>"
+                    "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+                    "<title>" + safe_title + " | DreamLedger</title>"
+                    "<meta name='description' content='A bounded, evidence-gated 777 implementation component.'>"
+                    "<link rel='canonical' href='https://dreamledger.org/pulse/" + filename + "'>"
+                    "<style>body{max-width:850px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#17221d}a{color:#17694d}.panel{border:1px solid #d5ddd5;border-radius:14px;padding:18px;margin:18px 0;background:#fbfcf8}code{overflow-wrap:anywhere}</style>"
+                    "</head><body><main><p><a href='/'>DreamLedger</a> / <a href='/pulse/'>777 Observatory</a></p>"
+                    "<p><strong>777 bounded implementation component</strong></p><h1>" + safe_title + "</h1>"
+                    "<p>" + html.escape(purpose) + "</p><section class='panel'><h2>Acceptance evidence</h2><p>" + html.escape(acceptance) + "</p></section>"
+                    "<section class='panel'><h2>Operating boundary</h2><p>This is a build specification, not proof that the component is deployed, a buyer exists, or revenue has occurred. Label missing evidence UNVERIFIED. Keep tests and internal events separate from external economic outcomes.</p></section>"
+                    "<p><a href='https://github.com/KelpCoin/DreamLedger/issues/606'>Decomposable marketplace work queue</a> · <a href='/trust/'>Trust and evidence</a></p></main></body></html>\n"
+                )
+                for root in (PULSE, PUBLIC_PULSE):
+                    root.mkdir(parents=True, exist_ok=True)
+                    target_page = root / filename
+                    if not target_page.exists():
+                        target_page.write_text(page_html, encoding="utf-8")
+                    index_path = root / "index.html"
+                    if index_path.exists():
+                        index_text = index_path.read_text(encoding="utf-8", errors="ignore")
+                        if filename not in index_text:
+                            item = '<article><h2><a href="/pulse/' + filename + '">' + safe_title + '</a></h2><p>Bounded implementation component; acceptance proof required before promotion.</p></article>'
+                            index_text = index_text.replace("</main>", item + "</main>", 1)
+                            index_path.write_text(index_text, encoding="utf-8")
+                print("777_COMPONENT_ARTIFACT=" + filename)
+                print("777_COMPONENT_TRUTH=UNVERIFIED")
+                raise SystemExit(0)
+
+            # The bounded component queue is exhausted. Emit a run-scoped internal receipt;
+            # the gate may accept only this explicit no-op for the current GitHub run.
+            noop = PULSE / "777-noop-receipt.json"
+            noop.write_text(json.dumps({
+                "schema": "dreamledger.777.noop-receipt.v1",
+                "run_id": os.environ.get("GITHUB_RUN_ID"),
+                "observed_at": datetime.now(timezone.utc).isoformat(),
+                "outcome": "NO_NEW_SIGNAL_NO_NEW_COMPONENT",
+                "truth_status": "UNVERIFIED",
+                "verified_revenue_nzd": 0,
+                "reason": "No admissible new source signal and all bounded fallback components already exist; no duplicate public page emitted."
+            }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print("777_NOOP_RECEIPT=" + noop.as_posix())
             raise SystemExit(0)
         rows = []
         for service in sorted(services, key=lambda item: (float(item.get("price_nzd") or 0), item.get("id", ""))):
