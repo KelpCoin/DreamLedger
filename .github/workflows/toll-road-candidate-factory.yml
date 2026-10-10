@@ -1,0 +1,33 @@
+name: toll-road-candidate-factory
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/scripts/generate-toll-road-candidates.js'
+      - 'BEC-PRIME/scripts/generate-toll-road-candidates.test.js'
+      - 'BEC-PRIME/catalog/pipeline-capabilities.json'
+      - '.github/workflows/toll-road-candidate-factory.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/scripts/generate-toll-road-candidates.js'
+      - 'BEC-PRIME/scripts/generate-toll-road-candidates.test.js'
+      - '.github/workflows/toll-road-candidate-factory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax check
+        run: node --check BEC-PRIME/scripts/generate-toll-road-candidates.js
+      - name: Candidate factory tests
+        run: node --test BEC-PRIME/scripts/generate-toll-road-candidates.test.js
+      - name: Compile registered capabilities to unpublished candidates
+        run: |
+          node BEC-PRIME/scripts/generate-toll-road-candidates.js --input BEC-PRIME/catalog/pipeline-capabilities.json --output "$RUNNER_TEMP/toll-road-candidates.json"
+          node -e "const fs=require('node:fs'); const c=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/toll-road-candidates.json','utf8')); if(c.candidate_count!==36 || c.active_road_count!==0 || c.published_road_count!==0 || c.candidates.some(x=>x.lifecycle!=='CANDIDATE'||x.checkout_url!==null)) process.exit(1); console.log('CANDIDATE_CATALOG_OK', c.candidate_count)"

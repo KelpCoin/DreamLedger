@@ -1,0 +1,85 @@
+{
+  "schema": "dreamledger/pipeline-capability-registry/v1",
+  "updated": "2026-10-10",
+  "purpose": "Source registry for candidate generation only. Base prices are existing code defaults, not proof of checkout readiness, profitability, or demand.",
+  "capabilities": [
+    {
+      "id": "TOLL-PROBE-50C",
+      "pipeline_id": "toll-road",
+      "operation": "paid-entitlement-probe",
+      "route": "/api/toll/v1/probe",
+      "description": "One bounded authenticated probe response after toll-key authorization.",
+      "source_ref": "BEC-PRIME/routes/tollRoad.js",
+      "acceptance_test": "node --test BEC-PRIME/runtime/TollRoad.test.js",
+      "base_price_nzd": 0.5,
+      "estimated_cost_nzd": null,
+      "price_source": "BEC-PRIME/routes/tollRoad.js SCOPES['toll-probe'].fixedPrice",
+      "enabled": true
+    },
+    {
+      "id": "GAUNTLET-RUN",
+      "pipeline_id": "gauntlet",
+      "operation": "automated-candidate-evaluation",
+      "route": "/api/toll/v1/gauntlet",
+      "description": "Run the existing Candidate Gauntlet against a bounded candidate payload and return its decision result.",
+      "source_ref": "BEC-PRIME/routes/tollRoad.js",
+      "acceptance_test": "node --test BEC-PRIME/runtime/TollRoad.test.js",
+      "base_price_nzd": 19,
+      "estimated_cost_nzd": null,
+      "price_source": "BEC-PRIME/runtime/TollRoad.js config default DREAMLEDGER_GAUNTLET_PRICE_NZD",
+      "enabled": true
+    },
+    {
+      "id": "TRUTH-ORACLE-ACCESS",
+      "pipeline_id": "truth-oracle",
+      "operation": "classify-evidence",
+      "route": "/api/toll/v1/truth",
+      "description": "Classify supplied evidence, contradictions and unresolved items without inventing settlement or economic facts.",
+      "source_ref": "BEC-PRIME/routes/tollRoad.js",
+      "acceptance_test": "node BEC-PRIME/scripts/Verify-TruthOracleCommerce.js",
+      "base_price_nzd": 9,
+      "estimated_cost_nzd": null,
+      "price_source": "BEC-PRIME/runtime/TollRoad.js config default DREAMLEDGER_TRUTH_ORACLE_PRICE_NZD",
+      "enabled": true
+    },
+    {
+      "id": "TOLL-NEXUS",
+      "pipeline_id": "toll-nexus",
+      "operation": "compose-truth-gauntlet-bridge",
+      "route": "/api/toll/v1/nexus",
+      "description": "Compose the existing truth, Gauntlet and Agent Bridge coordination result into one bounded response.",
+      "source_ref": "BEC-PRIME/routes/tollRoad.js",
+      "acceptance_test": "node --test BEC-PRIME/runtime/TollNexus.test.js",
+      "base_price_nzd": 49,
+      "estimated_cost_nzd": null,
+      "price_source": "BEC-PRIME/routes/tollRoad.js SCOPES.nexus.fixedPrice",
+      "enabled": true
+    },
+    {
+      "id": "TRINITY-RUN",
+      "pipeline_id": "trinity",
+      "operation": "compose-elohim-gauntlet-bridge",
+      "route": "/api/toll/v1/trinity",
+      "description": "Compose existing Elohim truth, Gauntlet decision and Agent Bridge coordination into one bounded response.",
+      "source_ref": "BEC-PRIME/routes/tollRoad.js",
+      "acceptance_test": "node --test BEC-PRIME/runtime/TollNexus.test.js",
+      "base_price_nzd": 49,
+      "estimated_cost_nzd": null,
+      "price_source": "BEC-PRIME/routes/tollRoad.js SCOPES.trinity.fixedPrice",
+      "enabled": true
+    },
+    {
+      "id": "AGENT-PASSPORT",
+      "pipeline_id": "agent-identity",
+      "operation": "issue-signed-passport",
+      "route": "/api/toll/v1/agent-passport",
+      "description": "Issue a time-limited signed agent presence passport under an authorized toll key.",
+      "source_ref": "BEC-PRIME/routes/tollRoad.js",
+      "acceptance_test": "node --test BEC-PRIME/runtime/TollRoad.test.js",
+      "base_price_nzd": 29,
+      "estimated_cost_nzd": null,
+      "price_source": "BEC-PRIME/routes/tollRoad.js SCOPES['agent-passport'].fixedPrice",
+      "enabled": true
+    }
+  ]
+}
