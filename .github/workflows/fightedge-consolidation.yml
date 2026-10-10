@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "fightedge/**"
+      - "fight-edge.html"
       - "public/fightedge/**"
       - "public/fight-edge.html"
       - "public/fight-edge-mma-boxing.html"
