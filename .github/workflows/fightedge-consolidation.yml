@@ -1,0 +1,41 @@
+name: FightEdge Consolidation Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "public/fightedge/**"
+      - "public/fight-edge.html"
+      - "public/fight-edge-mma-boxing.html"
+      - "sports/fightedge/web/middleware.ts"
+      - "render.yaml"
+      - "scripts/test_fightedge_consolidation.py"
+      - ".github/workflows/fightedge-consolidation.yml"
+  pull_request:
+    paths:
+      - "public/fightedge/**"
+      - "public/fight-edge.html"
+      - "public/fight-edge-mma-boxing.html"
+      - "sports/fightedge/web/middleware.ts"
+      - "render.yaml"
+      - "scripts/test_fightedge_consolidation.py"
+      - ".github/workflows/fightedge-consolidation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fightedge-consolidation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify FightEdge uses the DreamLedger service wall
+        run: python -m unittest scripts/test_fightedge_consolidation.py -v
