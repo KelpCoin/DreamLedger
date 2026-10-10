@@ -26,7 +26,9 @@ permissions:
   contents: write
 
 concurrency:
-  group: 777-cycle-${{ github.ref }}
+  # GitHub retains only one pending run per concurrency group; later pushes otherwise replace queued cycles.
+  # Give each expedition its own group. The publish step already retries/rebases and deduplicates concurrent artifacts.
+  group: 777-cycle-${{ github.ref }}-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
