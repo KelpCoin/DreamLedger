@@ -59,9 +59,9 @@ def prepare_access_request(categories: list[str], barrier: str, communication_ne
     return build_access_plan(categories, barrier, communication_needs, region)
 
 @mcp.tool()
-def prepare_access_case_packet(issue_type: str, summary: str, desired_outcome: str, timeline: list[str] | None = None, prior_attempts: list[str] | None = None, deadline: str = "", region: str = "Bay of Plenty") -> dict:
-    """Structure user-supplied facts into a case packet, flag gaps, and propose one next step. No storage or sending."""
-    return build_access_case_packet(issue_type, summary, desired_outcome, timeline or [], prior_attempts or [], deadline, region)
+def prepare_access_case_packet(issue_type: str, summary: str, desired_outcome: str, timeline: list[str] | None = None, prior_attempts: list[str] | None = None, deadline: str = "", region: str = "Bay of Plenty", barriers: list[str] | None = None) -> dict:
+    """Structure user-supplied facts and multiple barrier tags into a case packet with evidence prompts. No storage or sending."""
+    return build_access_case_packet(issue_type, summary, desired_outcome, timeline or [], prior_attempts or [], deadline, region, barriers or [])
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
