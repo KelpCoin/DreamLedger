@@ -113,7 +113,7 @@ async function handle(req, res, url) {
       const key = String(req.headers['idempotency-key'] || b.idempotency_key || '').trim();
       if (!title || !description) return send(res, 422, { error: 'title and description are required' });
       if (!key || key.length > 200) return send(res, 422, { error: 'Idempotency-Key header is required' });
-      if (!Number.isFinite(budget) || budget < 0) return send(res, 422, { error: 'budget must be a non-negative NZD amount' });
+      if (!Number.isFinite(budget) || budget < 0 || budget > Number.MAX_SAFE_INTEGER / 100) return send(res, 422, { error: 'budget must be a safe non-negative NZD amount' });
       let deadline = null;
       if (deadlineRaw) {
         const parsed = new Date(deadlineRaw);
@@ -132,7 +132,8 @@ async function handle(req, res, url) {
         item = found?.[0];
       }
       if (!item) return send(res, 503, { error: 'RFQ persistence could not be confirmed', code: 'PERSISTENCE_UNCONFIRMED' });
-      return send(res, 201, { ok: true, item: { ...item, budget_nzd: item.budget_minor === null ? null : Number(item.budget_minor) / 100 }, commercial_truth: 'RFQ_RECORDED_NOT_ORDER_OR_REVENUE' });
+      if (item.title !== title || item.description !== description || item.category !== category || item.budget_minor !== payload.budget_minor || (item.deadline || null) !== (payload.deadline || null)) return send(res, 409, { error: 'Idempotency-Key was already used for a different RFQ payload', code: 'IDEMPOTENCY_CONFLICT' });
+      return send(res, 201, { ok: true, item: { id:item.id,title:item.title,description:item.description,category:item.category,budget_minor:item.budget_minor,budget_nzd:item.budget_minor === null ? null : Number(item.budget_minor) / 100,currency:item.currency,deadline:item.deadline,status:item.status,created_at:item.created_at }, commercial_truth: 'RFQ_RECORDED_NOT_ORDER_OR_REVENUE' });
     }
 
     if (req.method === 'GET' && url === '/api/b2b/my-rfqs') {
@@ -173,7 +174,7 @@ async function handle(req, res, url) {
       const lead = String(b.lead_time || '').trim().slice(0, 80);
       const terms = String(b.terms || '').trim().slice(0, 1000);
       const key = String(req.headers['idempotency-key'] || b.idempotency_key || '').trim();
-      if (!rfqId || !title || !description || !Number.isFinite(amount) || amount <= 0) return send(res, 422, { error: 'RFQ, title, description and positive NZD price are required' });
+      if (!rfqId || !title || !description || !Number.isFinite(amount) || amount <= 0 || amount > Number.MAX_SAFE_INTEGER / 100) return send(res, 422, { error: 'RFQ, title, description and safe positive NZD price are required' });
       if (!key || key.length > 200) return send(res, 422, { error: 'Idempotency-Key header is required' });
       const rfqs = await db('marketplace_b2b_rfqs', 'GET', 'id=eq.' + encodeURIComponent(rfqId) + '&select=id,buyer_user_id,status&limit=1');
       const rfq = rfqs?.[0];
@@ -195,7 +196,8 @@ async function handle(req, res, url) {
         item = found?.[0];
       }
       if (!item) return send(res, 503, { error: 'Offer persistence could not be confirmed', code: 'PERSISTENCE_UNCONFIRMED' });
-      return send(res, 201, { ok: true, item: { ...item, price_nzd: Number(item.amount_minor) / 100 }, commercial_truth: 'SUPPLIER_OFFER_NOT_ORDER_OR_REVENUE' });
+      if (item.rfq_id !== rfqId || item.title !== title || item.description !== description || Number(item.amount_minor) !== payload.amount_minor || item.lead_time !== lead || item.terms !== terms) return send(res, 409, { error: 'Idempotency-Key was already used for a different offer payload', code: 'IDEMPOTENCY_CONFLICT' });
+      return send(res, 201, { ok: true, item: { id:item.id,rfq_id:item.rfq_id,title:item.title,description:item.description,amount_minor:item.amount_minor,price_nzd:Number(item.amount_minor)/100,currency:item.currency,lead_time:item.lead_time,terms:item.terms,status:item.status,created_at:item.created_at }, commercial_truth: 'SUPPLIER_OFFER_NOT_ORDER_OR_REVENUE' });
     }
 
     if (url === '/api/b2b/orders' || url.startsWith('/api/b2b/orders/')) {
