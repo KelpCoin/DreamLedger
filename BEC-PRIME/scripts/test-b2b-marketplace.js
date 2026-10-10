@@ -102,6 +102,32 @@ test('B2B listing submission requires seller payout readiness and enters review'
   } finally { global.fetch=oldFetch; }
 });
 
+
+test('B2B moderation uses the existing versioned listing transition RPC', async () => {
+  const oldFetch=global.fetch;
+  const calls=[];
+  global.fetch=async(url,options={})=>{
+    calls.push({url:String(url),options});
+    if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:'00000000-0000-4000-8000-000000000009',email:'moderator@example.com',email_confirmed_at:'2026-01-01T00:00:00Z'}),{status:200});
+    if(String(url).includes('/rest/v1/marketplace_listings?'))return new Response(JSON.stringify([{id:'00000000-0000-4000-8000-000000000010',status:'review',organization_id:'00000000-0000-4000-8000-000000000011',state_version:1}]),{status:200});
+    if(String(url).includes('/rest/v1/marketplace_memberships?'))return new Response(JSON.stringify([{organization_id:'00000000-0000-4000-8000-000000000011',role:'moderator'}]),{status:200});
+    if(String(url).endsWith('/rest/v1/rpc/transition_marketplace_listing')){
+      const body=JSON.parse(options.body);
+      assert.equal(body.p_to_state,'published');
+      assert.equal(body.p_expected_version,1);
+      return new Response(JSON.stringify({id:'00000000-0000-4000-8000-000000000010',status:'published',state_version:2}),{status:200});
+    }
+    throw new Error('Unexpected URL '+url);
+  };
+  try{
+    const res=response();
+    await handle(request('POST','/api/b2b/moderation/listings/00000000-0000-4000-8000-000000000010/approve',{expected_version:1,reason:'Approved after review'},{authorization:'Bearer moderator-token'}),res,'/api/b2b/moderation/listings/00000000-0000-4000-8000-000000000010/approve');
+    assert.equal(res.statusCode,200);
+    assert.equal(parse(res).listing.status,'published');
+    assert.ok(calls.some(x=>x.url.endsWith('/rest/v1/rpc/transition_marketplace_listing')));
+  }finally{global.fetch=oldFetch}
+});
+
 test('supplier cannot read competing offers on another buyer RFQ', async () => {
   const oldFetch = global.fetch;
   global.fetch = async url => {
