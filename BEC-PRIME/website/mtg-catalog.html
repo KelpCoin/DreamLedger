@@ -29,7 +29,8 @@ async function get(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)thr
 function isMtg(p){return String(p.silo||'').toLowerCase()==='mtg'||/^EDH[_-]/i.test(String(p.id||''));}
 async function buy(id,button){button=button||document.querySelector('[data-id="'+id+'"]');if(button)button.disabled=true;try{const r=await fetch('/api/checkout/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:id,product_id:id,silo:'mtg'})});const d=await r.json();if(!r.ok||!d.checkout_url)throw new Error(d.error||'Checkout unavailable');location.href=d.checkout_url;}catch(e){status.className='status error';status.textContent=e.message;if(button)button.disabled=false;}}
 function render(items){
-const decks=items.filter(isMtg);\ndecks.sort((x,y)=>{const rank=id=>id==='EDH_0001'?0:id==='EDH_QUINTORIUS_0002'?1:2;return rank(String(x.id||''))-rank(String(y.id||''));});
+const decks=items.filter(isMtg);
+decks.sort((x,y)=>{const rank=id=>id==='EDH_0001'?0:id==='EDH_QUINTORIUS_0002'?1:2;return rank(String(x.id||''))-rank(String(y.id||''));});
 const live=decks.filter(p=>String(p.status).toLowerCase()==='published');
 const units=decks.reduce((n,p)=>n+(Number(p.inventory)||0),0);
 count.textContent=decks.length;
