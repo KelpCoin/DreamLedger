@@ -10,7 +10,7 @@
       "fulfilment_verified": false,
       "id": "ACADEMIC-ROUTE",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 3,
+      "price_nzd": 3.0,
       "route": "/api/toll/v1/academic",
       "scope": "academic",
       "settlement_verified": false
@@ -21,7 +21,7 @@
       "fulfilment_verified": false,
       "id": "AGENT-BRIDGE-EVENTS-100",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 19,
+      "price_nzd": 19.0,
       "route": "/api/toll/v1/bridge-events",
       "scope": "bridge-events",
       "settlement_verified": false
@@ -32,7 +32,7 @@
       "fulfilment_verified": false,
       "id": "AGENT-PASSPORT",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 29,
+      "price_nzd": 29.0,
       "route": "/api/toll/v1/agent-passport",
       "scope": "agent-passport",
       "settlement_verified": false
@@ -43,7 +43,7 @@
       "fulfilment_verified": false,
       "id": "AUDIT-EXPORT",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 35,
+      "price_nzd": 35.0,
       "route": "/api/toll/v1/audit-export",
       "scope": "audit-export",
       "settlement_verified": false
@@ -54,7 +54,7 @@
       "fulfilment_verified": false,
       "id": "BRIDGE-NOTE-WRITE",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 7,
+      "price_nzd": 7.0,
       "route": "/api/toll/v1/note-write",
       "scope": "note-write",
       "settlement_verified": false
@@ -65,7 +65,7 @@
       "fulfilment_verified": false,
       "id": "CAPACITY-FUTURES",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 75,
+      "price_nzd": 75.0,
       "route": "/api/toll/v1/capacity-futures",
       "scope": "capacity-futures",
       "settlement_verified": false
@@ -76,7 +76,7 @@
       "fulfilment_verified": false,
       "id": "ENTERPRISE-PRO",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 1499,
+      "price_nzd": 1499.0,
       "route": "/api/toll/v1/enterprise-pro",
       "scope": "enterprise-pro",
       "settlement_verified": false
@@ -87,7 +87,7 @@
       "fulfilment_verified": false,
       "id": "ENTERPRISE-WALL",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 499,
+      "price_nzd": 499.0,
       "route": "/api/toll/v1/enterprise-wall",
       "scope": "enterprise-wall",
       "settlement_verified": false
@@ -98,7 +98,7 @@
       "fulfilment_verified": false,
       "id": "GAUNTLET-ASYNC",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 8,
+      "price_nzd": 8.0,
       "route": "/api/toll/v1/gauntlet-async",
       "scope": "gauntlet-async",
       "settlement_verified": false
@@ -109,7 +109,7 @@
       "fulfilment_verified": false,
       "id": "GAUNTLET-PACK-20",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 15,
+      "price_nzd": 15.0,
       "route": "/api/toll/v1/gauntlet-pack",
       "scope": "gauntlet-pack",
       "settlement_verified": false
@@ -120,7 +120,7 @@
       "fulfilment_verified": false,
       "id": "GAUNTLET-RUN",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 19,
+      "price_nzd": 19.0,
       "route": "/api/toll/v1/gauntlet",
       "scope": "gauntlet",
       "settlement_verified": false
@@ -131,7 +131,7 @@
       "fulfilment_verified": false,
       "id": "GAUNTLET-RUSH",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 5,
+      "price_nzd": 5.0,
       "route": "/api/toll/v1/gauntlet-rush",
       "scope": "gauntlet-rush",
       "settlement_verified": false
@@ -142,7 +142,7 @@
       "fulfilment_verified": false,
       "id": "MICRO-EVENT-INGEST",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 5,
+      "price_nzd": 5.0,
       "route": "/api/toll/v1/micro-ingest",
       "scope": "micro-ingest",
       "settlement_verified": false
@@ -153,7 +153,7 @@
       "fulfilment_verified": false,
       "id": "MICRO-HEARTBEAT",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 4,
+      "price_nzd": 4.0,
       "route": "/api/toll/v1/heartbeat",
       "scope": "heartbeat",
       "settlement_verified": false
@@ -164,7 +164,7 @@
       "fulfilment_verified": false,
       "id": "MICRO-JOB-CLAIM",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 9,
+      "price_nzd": 9.0,
       "route": "/api/toll/v1/job-claim",
       "scope": "job-claim",
       "settlement_verified": false
@@ -175,7 +175,7 @@
       "fulfilment_verified": false,
       "id": "MULTI-AGENT-ROOM",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 39,
+      "price_nzd": 39.0,
       "route": "/api/toll/v1/multi-agent-room",
       "scope": "multi-agent-room",
       "settlement_verified": false
@@ -186,7 +186,7 @@
       "fulfilment_verified": false,
       "id": "ORG-BRIDGE-KEY",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 49,
+      "price_nzd": 49.0,
       "route": "/api/toll/v1/org-key",
       "scope": "org-key",
       "settlement_verified": false
@@ -197,7 +197,7 @@
       "fulfilment_verified": false,
       "id": "PREPAID-10K",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 150,
+      "price_nzd": 150.0,
       "route": "/api/toll/v1/prepaid-10k",
       "scope": "prepaid-10k",
       "settlement_verified": false
@@ -208,7 +208,7 @@
       "fulfilment_verified": false,
       "id": "PRIORITY-LANE",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 25,
+      "price_nzd": 25.0,
       "route": "/api/toll/v1/priority",
       "scope": "priority",
       "settlement_verified": false
@@ -219,7 +219,7 @@
       "fulfilment_verified": false,
       "id": "QUARANTINE-ROUTE",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 22,
+      "price_nzd": 22.0,
       "route": "/api/toll/v1/quarantine",
       "scope": "quarantine",
       "settlement_verified": false
@@ -230,7 +230,7 @@
       "fulfilment_verified": false,
       "id": "ROUTE-LEASE-BASIC",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 29,
+      "price_nzd": 29.0,
       "route": "/api/toll/v1/route-lease",
       "scope": "route-lease",
       "settlement_verified": false
@@ -241,7 +241,7 @@
       "fulfilment_verified": false,
       "id": "ROUTE-LEASE-EXCLUSIVE",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 99,
+      "price_nzd": 99.0,
       "route": "/api/toll/v1/route-exclusive",
       "scope": "route-exclusive",
       "settlement_verified": false
@@ -252,7 +252,7 @@
       "fulfilment_verified": false,
       "id": "ROUTE-LEASE-SHARED",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 9,
+      "price_nzd": 9.0,
       "route": "/api/toll/v1/route-shared",
       "scope": "route-shared",
       "settlement_verified": false
@@ -263,7 +263,7 @@
       "fulfilment_verified": false,
       "id": "SEAT-AGENT-TOKEN",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 9,
+      "price_nzd": 9.0,
       "route": "/api/toll/v1/seat-agent",
       "scope": "seat-agent",
       "settlement_verified": false
@@ -274,7 +274,7 @@
       "fulfilment_verified": false,
       "id": "SHADOW-ROUTE",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 8,
+      "price_nzd": 8.0,
       "route": "/api/toll/v1/shadow-route",
       "scope": "shadow-route",
       "settlement_verified": false
@@ -285,7 +285,7 @@
       "fulfilment_verified": false,
       "id": "TOLL-NEXUS",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 49,
+      "price_nzd": 49.0,
       "route": "/api/toll/v1/nexus",
       "scope": "nexus",
       "settlement_verified": false
@@ -307,7 +307,7 @@
       "fulfilment_verified": false,
       "id": "TRANSPARENCY-LOG",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 15,
+      "price_nzd": 15.0,
       "route": "/api/toll/v1/transparency",
       "scope": "transparency",
       "settlement_verified": false
@@ -318,7 +318,7 @@
       "fulfilment_verified": false,
       "id": "TRINITY-RUN",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 49,
+      "price_nzd": 49.0,
       "route": "/api/toll/v1/trinity",
       "scope": "trinity",
       "settlement_verified": false
@@ -329,7 +329,7 @@
       "fulfilment_verified": false,
       "id": "TRUST-ATTEST",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 12,
+      "price_nzd": 12.0,
       "route": "/api/toll/v1/trust-attest",
       "scope": "trust-attest",
       "settlement_verified": false
@@ -340,7 +340,7 @@
       "fulfilment_verified": false,
       "id": "TRUST-SCORE-AGENT",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 10,
+      "price_nzd": 10.0,
       "route": "/api/toll/v1/trust-agent",
       "scope": "trust-agent",
       "settlement_verified": false
@@ -351,7 +351,7 @@
       "fulfilment_verified": false,
       "id": "TRUTH-ORACLE-ACCESS",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 9,
+      "price_nzd": 9.0,
       "route": "/api/toll/v1/truth",
       "scope": "truth",
       "settlement_verified": false
@@ -362,7 +362,7 @@
       "fulfilment_verified": false,
       "id": "WEBHOOK-EGRESS",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 12,
+      "price_nzd": 12.0,
       "route": "/api/toll/v1/webhook-egress",
       "scope": "webhook-egress",
       "settlement_verified": false
@@ -373,7 +373,7 @@
       "fulfilment_verified": false,
       "id": "WHITE-LABEL",
       "lifecycle": "CANDIDATE",
-      "price_nzd": 999,
+      "price_nzd": 999.0,
       "route": "/api/toll/v1/white-label",
       "scope": "white-label",
       "settlement_verified": false
