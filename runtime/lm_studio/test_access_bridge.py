@@ -1,5 +1,8 @@
 import unittest
-from access_bridge import build_access_plan, build_access_case_packet, list_routes, list_healthcare_funding_options
+from access_bridge import (
+    build_access_plan, build_access_case_packet, list_routes,
+    list_healthcare_funding_options, resolve_barrier_evidence,
+)
 
 class AccessBridgeTests(unittest.TestCase):
     def test_health_and_legal_routes_are_available(self):
@@ -21,6 +24,10 @@ class AccessBridgeTests(unittest.TestCase):
     def test_hamilton_routes_to_waikato_community_law(self):
         ids = {route["id"] for route in list_routes(["legal_aid"], "Hamilton")}
         self.assertIn("community_law_waikato", ids)
+        self.assertNotIn("community_law_bop", ids)
+
+    def test_unknown_route_category_returns_no_guessed_routes(self):
+        self.assertEqual(list_routes(["not-a-real-category"]), [])
 
     def test_food_and_medical_costs_route(self):
         routes = list_routes(["food", "medical_costs"])
@@ -52,6 +59,30 @@ class AccessBridgeTests(unittest.TestCase):
         self.assertTrue(packet["healthcare_funding_options"])
         self.assertEqual(packet["mode"], "DRAFT_ONLY")
         self.assertFalse(packet["external_actions_taken"])
+
+    def test_multiple_barriers_produce_separate_evidence_requirements(self):
+        packet = build_access_case_packet(
+            "healthcare", "Public route is not working and private care costs too much",
+            "Identify an affordable route to appropriate care",
+            barriers=["public_system_access", "private_care_cost", "communication"],
+        )
+        evidence = packet["barrier_evidence"]["barriers"]
+        ids = {item["id"] for item in evidence}
+        self.assertEqual(ids, {"public_system_access", "private_care_cost", "communication"})
+        private = next(item for item in evidence if item["id"] == "private_care_cost")
+        self.assertTrue(any("itemised written quote" in item.lower() for item in private["evidence"]))
+        self.assertTrue(packet["healthcare_funding_options"])
+        self.assertFalse(packet["external_actions_taken"])
+        self.assertFalse(packet["personal_data_persisted"])
+
+    def test_unknown_barrier_is_not_inferred_from_summary(self):
+        packet = build_access_case_packet(
+            "healthcare", "Several barriers at once", "Help me access care",
+            barriers=["unfamiliar barrier"],
+        )
+        self.assertEqual(packet["barrier_evidence"]["barriers"], [])
+        self.assertEqual(packet["barrier_evidence"]["unclassified_barriers"], ["unfamiliar_barrier"])
+        self.assertTrue(any("unclassified" in gap.lower() for gap in packet["missing_information"]))
 
 if __name__ == "__main__":
     unittest.main()
