@@ -33,6 +33,7 @@ checks.push(['B2B_SUPABASE_JWT_REQUIRED',b2bRoutes.includes('/auth/v1/user')&&b2
 checks.push(['B2B_IDEMPOTENCY_ENFORCED',b2bRoutes.includes('Idempotency-Key header is required')&&b2bMigration.includes('unique (buyer_user_id, idempotency_key)')&&b2bMigration.includes('unique (supplier_user_id, idempotency_key)')]);
 checks.push(['B2B_SELLER_PAYOUT_GATE',b2bRoutes.includes('payouts_enabled')&&b2bRoutes.includes('onboarding_status')]);
 checks.push(['B2B_OFFER_PRIVACY',b2bRoutes.includes('Only the RFQ buyer and participating suppliers can view these offers')]);
+checks.push(['B2B_NO_UNPROVEN_BUYER_VERIFICATION_CLAIM',!b2bRoutes.includes("buyer_name:'Verified buyer'")&&b2bRoutes.includes("buyer_name:'Marketplace buyer'")]);
 checks.push(['B2B_CHECKOUT_NOT_MISREPRESENTED',b2bRoutes.includes('B2B_CHECKOUT_NOT_RELEASED')&&b2bRoutes.includes('no transaction was recorded')]);
 checks.push(['B2B_AUTHENTICATED_UI',b2bUi.includes('supabase.createClient')&&b2bUi.includes('Idempotency-Key')]);
 checks.push(['B2B_STRIPE_CONNECT_ONBOARDING_UI',b2bUi.includes('marketplace-seller-onboarding')&&b2bUi.includes('offers_enabled')]);
