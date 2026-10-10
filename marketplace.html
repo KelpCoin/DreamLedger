@@ -31,7 +31,7 @@
  const grid=document.getElementById("bridge-offers"),status=document.getElementById("bridge-status");
  const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=text;return n;};
  try{
-  const res=await fetch("https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest",{headers:{"Accept":"application/json"},cache:"no-store"});
+  const res=await fetch("/agent-bridge-catalog.json",{headers:{"Accept":"application/json"},cache:"no-store"});
   if(!res.ok)throw new Error("HTTP "+res.status);
   let raw=await res.text();raw=raw.replace(/\\\\_/g,"_");
   const manifest=JSON.parse(raw);
