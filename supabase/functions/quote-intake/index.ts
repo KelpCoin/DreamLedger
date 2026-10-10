@@ -6,7 +6,7 @@ const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET_KEY")||"";
 const db=createClient(SUPABASE_URL,SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
-const stripe=new Stripe(STRIPE_API_KEY);
+const stripe=STRIPE_API_KEY?new Stripe(STRIPE_API_KEY):null;
 const BUCKET="marketplace-fulfillment";
 const PAYMENT_LINK="plink_1UKq77EGgEAnUFF9KOr1SuUY";
 const SKU="QUOTE-COMPARE-49";
@@ -16,6 +16,7 @@ const cors={"Access-Control-Allow-Origin":"https://dreamledger.org","Access-Cont
 const out=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"content-type":"application/json","cache-control":"no-store",...cors}});
 function safeName(name:string){const cleaned=name.normalize("NFKC").replace(/[^a-zA-Z0-9._-]+/g,"_").replace(/^\.+/,"").slice(0,140);return cleaned||"quote";}
 async function sessionContext(sessionId:string){
+  if(!stripe)throw new Error("STRIPE_NOT_CONFIGURED");
   if(!sessionId||!/^cs_[A-Za-z0-9_]+$/.test(sessionId))throw new Error("INVALID_SESSION_ID");
   const session=await stripe.checkout.sessions.retrieve(sessionId);
   if(session.livemode!==true||session.payment_status!=="paid")throw new Error("PAYMENT_NOT_SETTLED");
