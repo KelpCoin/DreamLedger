@@ -54,23 +54,23 @@ function readInput() {
 function candidateFromModel(modelOutput, source) {
   const x = typeof modelOutput === 'string' ? { decision: modelOutput } : (modelOutput || {});
   return {
-    offer_id: x.offer_id || 'QUOTE-COMPARE-49',
-    name: x.name || 'Signed Quote Comparison',
-    problem: x.problem || x.decision || 'Compare supplier quotations and identify the economically superior comparable option.',
-    target_buyer: x.target_buyer || 'buyer with 2-5 supplier quotes',
-    deliverable: x.deliverable || 'normalized comparison, ranking, missing-scope findings, source evidence and signed verification packet',
-    delivery_mechanism: x.delivery_mechanism || 'existing quote comparison fulfillment rail',
-    price: Number(x.price || 49),
+    offer_id: x.offer_id || 'TRUTH-ORACLE-DISTRIBUTION-001',
+    name: x.name || 'Truth Oracle Evidence-to-Alert Path',
+    problem: x.problem || x.decision || 'Help people and agents turn economic claims into source-linked, freshness-checked evidence records, with optional paid convenience only where an existing rail is verified.',
+    target_buyer: x.target_buyer || 'researchers, operators, buyers and agents needing source-grounded economic decisions',
+    deliverable: x.deliverable || 'free source-linked claim record with provenance, date, contradiction and uncertainty fields; optional alerts or execution only after an existing paid rail is verified',
+    delivery_mechanism: x.delivery_mechanism || 'existing public Truth Oracle surface; paid convenience only through an explicitly verified existing offer',
+    price: Number(x.price ?? 0),
     currency: x.currency || 'NZD',
-    payment_adapter: x.payment_adapter || 'existing Stripe checkout',
-    checkout_route: x.checkout_route || process.env.QUOTE_COMPARE_CHECKOUT || 'configured existing Quote Compare checkout',
+    payment_adapter: x.payment_adapter || 'no default checkout; use only an explicitly verified existing payment rail',
+    checkout_route: x.checkout_route || 'not configured; require explicit mapping to a verified existing offer',
     approval_required: true,
     checkout_available: false,
     status: 'CANDIDATE',
     proof_of_delivery: x.proof_of_delivery || 'signed/hash-bound evidence packet plus independent verification',
     verification_rules: x.verification_rules || 'external buyer + settled payment + fulfillment + independent proof',
     provenance: { private_material: 'excluded', source_hash: sha(JSON.stringify(source)) },
-    silo: x.silo || 'quote-compare',
+    silo: x.silo || 'truth-oracle',
     kill_condition: x.kill_condition || 'no external buyer, no settled payment, fulfillment failure, contradictory evidence'
   };
 }
@@ -140,7 +140,7 @@ async function main() {
         model: process.env.VERCEL_AI_MODEL || 'configured-model',
         messages: [{
           role: 'system',
-          content: 'Act as DreamLedger Elohim. Produce one bounded monetizable decision using existing offers only. Never invent buyers, payments, or proof.'
+          content: 'Act as DreamLedger Elohim. Prioritize existing core surfaces: free Truth Oracle economic knowledge layer, DreamMeez avatar/items and entitlement, Billboard web placements, then Agent Bridge/A2A and safely metered GPU jobs. Quote Comparison NZ$49 is a subordinate paid tier, never the default. Use existing offers only. Never invent buyers, payments, or proof.'
         }, { role: 'user', content: JSON.stringify(source) }]
       });
       const c = candidateFromModel(r.output || r.choices?.[0]?.message?.content || r, source);
@@ -165,7 +165,7 @@ async function main() {
         model: process.env.LM_STUDIO_MODEL || 'configured-local-model',
         messages: [{
           role: 'system',
-          content: 'Produce one bounded DreamLedger economic candidate. Existing offers only. No buyer/payment/proof claims.'
+          content: 'Produce one bounded DreamLedger economic candidate. Prioritize Truth Oracle, DreamMeez, Billboard, and Agent Bridge/GPU. Quote Comparison NZ$49 is a subordinate tier, never the default. Existing offers only. No buyer/payment/proof claims.'
         }, { role: 'user', content: JSON.stringify(source) }]
       });
       const c = candidateFromModel(r.choices?.[0]?.message?.content || r.output || r, source);
