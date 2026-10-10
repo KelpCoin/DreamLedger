@@ -23,3 +23,13 @@ This gate supplements static UI checks. It is not a production certification.
 ## Current status
 
 Code and static contract checks can be reviewed in the PR. The B2B and A2A contract workflows are configured, but a queued workflow is not a passing test. This document does not assert that secrets are configured, Supabase is healthy, Stripe events have been processed, or a live marketplace transaction has succeeded.
+
+
+## First-dollar incident response update — 2026-10-10
+
+- **Legacy quote Payment Link:** the live NZ$49 QUOTE-COMPARE-49 Payment Link was confirmed active and has now been deactivated because supplier quote comparison is a free worksheet. New Checkout Sessions should no longer be created from that link. This does not expire previously created Checkout Sessions.
+- **Remaining open sessions:** a live Stripe read found 9 open, unpaid Checkout Sessions attached to that link. The connected Stripe API interface did not expose the Checkout Session expire operation, so those existing sessions remain a separate containment task until they expire or can be expired through an authorized Stripe Dashboard/API path. Do not count them as revenue.
+- **Public route:** public/buy/quote_compare_49/index.html now redirects to /quote-comparison/ on the marketplace PR branch. It is not yet deployed to production; until that change is released, the existing public route may still lead to the deactivated link.
+- **Webhook source hardening on the PR branch:** added an atomic claim_stripe_webhook_event RPC migration with a five-minute processing lease; unique indexes for event IDs, Checkout Session IDs, one entitlement per order, and one fulfillment request per entitlement; SKU metadata alias resolution; cents-preserving NZD amounts; session-based order recovery; and delayed-payment settlement handling.
+- **Database dependency:** the migration has not been applied. The Supabase control plane reports ACTIVE_HEALTHY, but the direct SQL probe did not return a database result and the log API returned a backend error. Do not deploy the modified webhook until the data plane is reachable, the migration preflight passes, and duplicate-key constraints are confirmed.
+- **Economic truth remains:** verified external revenue NZ$0.00. Payment Link state changes, open sessions, code commits, and internal records are not settled revenue or delivered work.
