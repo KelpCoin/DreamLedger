@@ -144,8 +144,12 @@ async function handle(req, res, url) {
       const rid = url.slice('/api/b2b/rfqs/'.length, -'/offers'.length);
       const rfqs = await db('marketplace_b2b_rfqs', 'GET', 'id=eq.' + encodeURIComponent(rid) + '&select=id,buyer_user_id,status&limit=1');
       if (!rfqs?.length) return send(res, 404, { error: 'RFQ not found' });
-      const rows = await db('marketplace_b2b_offers', 'GET', 'rfq_id=eq.' + encodeURIComponent(rid) + '&status=eq.submitted&select=*&order=created_at.asc&limit=100');
-      return send(res, 200, { items: (rows || []).map(x => ({ ...x, price_nzd: Number(x.amount_minor) / 100 })) });
+      const allRows = await db('marketplace_b2b_offers', 'GET', 'rfq_id=eq.' + encodeURIComponent(rid) + '&status=eq.submitted&select=*&order=created_at.asc&limit=100');
+      const isBuyer = rfqs[0].buyer_user_id === uid;
+      const ownRows = (allRows || []).filter(x => x.supplier_user_id === uid);
+      if (!isBuyer && ownRows.length === 0) return send(res, 403, { error: 'Only the RFQ buyer and participating suppliers can view these offers' });
+      const rows = isBuyer ? (allRows || []) : ownRows;
+      return send(res, 200, { items: rows.map(x => ({ ...x, price_nzd: Number(x.amount_minor) / 100 })) });
     }
 
     if (req.method === 'GET' && url.startsWith('/api/b2b/rfqs/')) {
