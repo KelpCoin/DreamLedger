@@ -150,7 +150,7 @@ async function handle(req,res,path){
     return send(res,page.error?400:200,{schema:'dreamledger/toll-road-catalog/v1',...page});
   }
 
-  const roadMatch=path.match(/^\\/api\\/toll\\/v1\\/roads\\/(ROAD-\\d{6})$/);
+  const roadMatch=path.match(/^\/api\/toll\/v1\/roads\/(ROAD-\d{6})$/);
   if(roadMatch&&req.method==='GET'){
     const road=RoadFactory.getRoad(roadMatch[1]);
     return road?send(res,200,{schema:'dreamledger/toll-road/v1',...road}):send(res,404,{error:'unknown_toll_road'});
