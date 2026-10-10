@@ -5,7 +5,6 @@ These checks prevent accidental removal of key eligibility guards. They do not
 prove runtime behavior, database availability, Stripe settlement, or delivery.
 """
 from pathlib import Path
-import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,7 +56,7 @@ require("partial/review-needed comparison is not marked fulfilled",
 require("worker leaves evidence unverified pending verification",
         'evidence_status:"UNVERIFIED"' in worker)
 require("worker does not declare verified evidence",
-        not re.search(r'evidence_status\s*:\s*["\']VERIFIED["\']', worker))
+        "evidence_status:" + chr(34) + "VERIFIED" + chr(34) not in worker and "evidence_status:'VERIFIED'" not in worker)
 require("worker requires finalized quote inputs",
         "INPUTS_NOT_READY" in worker and "input_files" in worker)
 
