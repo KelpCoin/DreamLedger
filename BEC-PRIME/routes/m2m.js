@@ -20,6 +20,21 @@ const consultDecision = require('./consultDecision');
 function send(res, status, body) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); }
 function products() { if (!fs.existsSync(PRODUCT_DIR)) return []; return fs.readdirSync(PRODUCT_DIR).filter(x => x.endsWith('.json')).map(x => JSON.parse(fs.readFileSync(path.join(PRODUCT_DIR, x), 'utf8'))).filter(p => p.status === 'published' && p.commercial_truth?.approval_required === false && Number(p.inventory || 0) > 0); }
 function machineProduct(p) { return { id: p.id, name: p.name, agentDescription: p.description, price: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), inventory: Number(p.inventory), status: 'published', checkout_available: true, attributes: { type: 'physical_or_defined_delivery', silo: p.silo, shipping_zone: 'NZ' }, verification_hash: require('crypto').createHash('sha256').update(JSON.stringify(p)).digest('hex'), checkout_route: '/m2m/v1/checkout' }; }
+async function marketplaceListings() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return { ok:false, items:[] };
+  try {
+    const query='status=eq.published&agent_purchasable=eq.true&select=id,slug,title,description,category,price,currency,seller_id,agent_purchasable,created_at,status&order=created_at.desc&limit=100';
+    const response=await fetch(SUPABASE_URL+'/rest/v1/marketplace_listings?'+query,{headers:{apikey:SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+SUPABASE_SERVICE_ROLE_KEY}});
+    if(!response.ok)return {ok:false,items:[]};
+    const items=await response.json();
+    return {ok:true,items:Array.isArray(items)?items:[]};
+  } catch { return {ok:false,items:[]}; }
+}
+function machineListing(row) {
+  const item={id:row.id,name:row.title,agentDescription:row.description,price:Number(row.price),currency:String(row.currency||'nzd').toLowerCase(),inventory:1,status:'published',silo:'marketplace',seller_id:row.seller_id,category:row.category||'General',slug:row.slug||null,created_at:row.created_at,attributes:{type:'seller_marketplace_listing',seller_id:row.seller_id},checkout_available:false,checkout_route:'/api/a2a/checkout',verification_hash:require('crypto').createHash('sha256').update(JSON.stringify(row)).digest('hex')};
+  return item;
+}
+
 function authorized(req) { if (!M2M_API_KEY) return true; const header = String(req.headers.authorization || ''); return header === `Bearer ${M2M_API_KEY}`; }
 function ragAuthorized(req) { if (!RAG_API_KEY) return false; return String(req.headers.authorization || '') === `Bearer ${RAG_API_KEY}`; }
 async function authorizedHuman(req) { const match=String(req.headers.authorization||'').match(/^Bearer\s+(.+)$/i); if(!match||!SUPABASE_URL||!SUPABASE_ANON_KEY)return null; try{const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+match[1]}});if(!r.ok)return null;const user=await r.json();return user?.id&&user?.email_confirmed_at?user:null;}catch{return null;} }
