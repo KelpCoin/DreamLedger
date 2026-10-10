@@ -15,6 +15,10 @@ on:
   push:
     branches: [main]
     paths:
+      - 'BEC-PRIME/routes/m2m.js'
+      - 'public/a2a-marketplace.html'
+      - 'BEC-PRIME/scripts/test-a2a-marketplace.js'
+      - 'BEC-PRIME/scripts/verify-a2a-marketplace-contract.js'
       - 'BEC-PRIME/routes/b2b-marketplace.js'
       - 'BEC-PRIME/routes/dreamiez.js'
       - 'BEC-PRIME/scripts/test-b2b-marketplace.js'
