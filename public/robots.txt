@@ -7,7 +7,10 @@ Disallow: /internal/
 Disallow: /debug/
 Disallow: /pulse/777
 Disallow: /pulse/777-
+Disallow: /777-distribution.html
+Disallow: /agentic-commerce/777-compounding-marketplace-roadmap-2026-10-10.html
 Disallow: /*777-component*
+Disallow: /*777-compounding*
 Sitemap: https://dreamledger.org/sitemap.xml
 Sitemap: https://dreamledger.org/quote-comparison-sitemap.xml
 Agentmap: https://dreamledger.org/.well-known/dreamledger.json
