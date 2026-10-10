@@ -1,5 +1,5 @@
 import unittest
-from access_bridge import build_access_plan, build_access_case_packet, list_routes
+from access_bridge import build_access_plan, build_access_case_packet, list_routes, list_healthcare_funding_options
 
 class AccessBridgeTests(unittest.TestCase):
     def test_health_and_legal_routes_are_available(self):
@@ -16,6 +16,7 @@ class AccessBridgeTests(unittest.TestCase):
         self.assertFalse(plan["external_actions_taken"])
         self.assertIn("Need accessible follow-up", plan["message_draft"])
         self.assertTrue(any("assigned lawyer" in item for item in plan["checklist"]))
+        self.assertTrue(plan["healthcare_funding_options"])
 
     def test_hamilton_routes_to_waikato_community_law(self):
         ids = {route["id"] for route in list_routes(["legal_aid"], "Hamilton")}
@@ -35,6 +36,22 @@ class AccessBridgeTests(unittest.TestCase):
         self.assertEqual(packet["timeline"], ["2026-09-01: contacted service"])
         self.assertEqual(packet["deadline"], "UNKNOWN")
         self.assertTrue(packet["missing_information"])
+
+    def test_healthcare_funding_routes_include_limits_and_evidence(self):
+        options = list_healthcare_funding_options()
+        ids = {option["id"] for option in options}
+        self.assertIn("winz_disability_allowance", ids)
+        self.assertIn("winz_special_needs_grant", ids)
+        self.assertIn("provider_payment_options", ids)
+        grant = next(option for option in options if option["id"] == "winz_special_needs_grant")
+        self.assertIn("not guaranteed", grant["limitation"].lower())
+        self.assertTrue(grant["proof_to_prepare"])
+
+    def test_healthcare_case_packet_does_not_claim_funding_approval(self):
+        packet = build_access_case_packet("healthcare", "Cannot afford private consultation", "Find a viable care route")
+        self.assertTrue(packet["healthcare_funding_options"])
+        self.assertEqual(packet["mode"], "DRAFT_ONLY")
+        self.assertFalse(packet["external_actions_taken"])
 
 if __name__ == "__main__":
     unittest.main()
