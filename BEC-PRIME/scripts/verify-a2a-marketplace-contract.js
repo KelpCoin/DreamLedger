@@ -17,7 +17,7 @@ checks.push(['QUOTE_EXPIRY_ENFORCED',m2m.includes('Date.now()-issuedAt>900000')]
 checks.push(['A2A_UI_CALLS_EXISTING_CHECKOUT',a2a.includes("api('/api/checkout/create'")&&a2a.includes('window.location.assign(checkout.checkout_url)')]);
 checks.push(['A2A_UI_CHECKS_QUOTE_PRICE',a2a.includes('Price changed since quote')]);
 checks.push(['A2A_AUTHENTICATED_HUMAN',m2m.includes('authorizedHuman(req)')&&m2m.includes('AUTHENTICATED_HUMAN_REQUIRED')&&m2m.includes('email_confirmed_at')]);
-checks.push(['A2A_AUTH_UI',a2a.includes('humanSignIn')&&a2a.includes('humanSignUp')&&a2a.includes('state.session.access_token')]);
+checks.push(['A2A_AUTH_UI',a2a.includes('humanSignIn')&&a2a.includes('humanSignUp')&&a2a.includes('state.session?.access_token')]);
 checks.push(['A2A_OFFLINE_TESTS',fs.existsSync(path.join(root,'scripts','test-a2a-marketplace.js'))]);
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
 const proof={schema:'dreamledger/a2a-marketplace-contract/v1',generated_at:new Date().toISOString(),verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,economic_truth:'A2A discovery, quotes and orders are not revenue. VERIFIED requires settled external payment, fulfillment and independent evidence.'};
