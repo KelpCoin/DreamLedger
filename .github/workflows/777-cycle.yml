@@ -132,3 +132,5 @@ jobs:
 # 777 marketplace epic: 2026-10-10; commit 7fd35f76c7eedcbb0434c90334f87456dd1acb9a adds the decomposable task contract. Trigger a fresh expedition to verify it.
 
 # 777 fresh expedition trigger: 2026-10-10; execute a new cycle for Agent Bridge monetization and durable public components. Do not count candidates as revenue.
+
+# 777 fresh expedition trigger: 2026-10-10T08:20Z; publish/inspect Agent Bridge capability-exchange artifact and refresh economic signal candidates. No revenue claim.
