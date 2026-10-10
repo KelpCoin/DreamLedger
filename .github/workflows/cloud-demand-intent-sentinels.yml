@@ -32,11 +32,16 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run cloud sentinels
+      - name: Run cloud demand and intent sentinels
         env:
           LIVE_URL: https://dreamledger.org
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: node BEC-PRIME/sentinels/cloud_sentinel_run.mjs
+
+      - name: Scan global public trend feeds
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node BEC-PRIME/sentinels/trend_sentinel_run.mjs
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -45,6 +50,7 @@ jobs:
           path: |
             AGENT_BUS/sentinel-reports/
             ops/demand/latest-cloud.json
+            ops/demand/latest-trends.json
           if-no-files-found: error
           retention-days: 60
 
