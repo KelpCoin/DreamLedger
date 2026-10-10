@@ -61,6 +61,7 @@ function serveFile(res,file){
   fs.readFile(safe,(err,data)=>{
     if(err) return send(res,404,'Not Found','text/plain; charset=utf-8');
     const ext=path.extname(file).toLowerCase();
+    if(ext==='.html')res.setHeader('Cache-Control','no-store');
     send(res,200,data,MIME[ext]||'application/octet-stream');
   });
 }
