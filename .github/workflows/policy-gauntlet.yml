@@ -1,0 +1,23 @@
+name: policy-gauntlet
+
+on:
+  pull_request:
+    paths:
+      - "scorecards/**"
+      - "scripts/gauntlet_evaluator.py"
+      - "public/shop.html"
+      - "public/mtg/**"
+      - "**/*toll*"
+      - "**/*checkout*"
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run policy gauntlet (CI read-only)
+        run: python scripts/gauntlet_evaluator.py

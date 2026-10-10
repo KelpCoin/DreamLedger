@@ -1,0 +1,13 @@
+{
+  "schema": "dreamledger.policy.scorecard.v1",
+  "pass_score_threshold": 85,
+  "allowed_payment_rails": ["stripe_nzd"],
+  "min_unit_margin_nzd": 0.0,
+  "rules": {
+    "checkout_enabled_requires_durable_quota": true,
+    "forbid_fake_revenue_claims": true,
+    "forbid_public_777_internal": true,
+    "pii_sanitization_required_for_oracle_ingest": true
+  },
+  "notes": "CI gate only. Does not authorize local state mutation or auto-deploy."
+}
