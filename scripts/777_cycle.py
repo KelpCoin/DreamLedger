@@ -252,7 +252,7 @@ if "--local" in os.sys.argv:
     print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:50],"source_errors":source_errors}, ensure_ascii=False))
     raise SystemExit(0)
 
-if deduped:
+if deduped is not None:  # Empty discovery batches must reach the bounded fallback path.
     existing_titles = set()
     existing_urls = set()
     existing_documents = []
