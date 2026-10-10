@@ -19,7 +19,9 @@ checks.push(['A2A_UI_CHECKS_QUOTE_PRICE',a2a.includes('Price changed since quote
 checks.push(['A2A_AUTHENTICATED_HUMAN',m2m.includes('authorizedHuman(req)')&&m2m.includes('AUTHENTICATED_HUMAN_REQUIRED')&&m2m.includes('email_confirmed_at')]);
 checks.push(['A2A_AUTH_UI',a2a.includes('humanSignIn')&&a2a.includes('humanSignUp')&&a2a.includes('state.session?.access_token')]);
 checks.push(['A2A_OFFLINE_TESTS',fs.existsSync(path.join(root,'scripts','test-a2a-marketplace.js'))]);
-checks.push(['A2A_ORDER_RAIL_FAILS_CLOSED',fs.readFileSync(path.join(root,'server.js'),'utf8').includes('A2A_ORDER_RAIL_NOT_RELEASED')]);
+const server=fs.readFileSync(path.join(root,'server.js'),'utf8');
+checks.push(['A2A_ORDER_RAIL_FAILS_CLOSED',server.includes("if(req.method==='POST'&&url==='/api/a2a/checkout')return send(res,503")&&server.includes('A2A_ORDER_RAIL_NOT_RELEASED')]);
+checks.push(['A2A_CHECKOUT_DOES_NOT_BYPASS_CANONICAL_ORDER_RAIL',server.includes('A2A_ORDER_RAIL_NOT_RELEASED')&&!server.includes("url==='/api/a2a/checkout')return createCheckout")]);
 checks.push(['A2A_CAPABILITIES_REPORT_CHECKOUT_UNAVAILABLE',m2m.includes('checkout_available: false')&&m2m.includes("checkout_route: '/api/a2a/checkout'"));
 checks.push(['A2A_LISTING_DISCOVERY',m2m.includes('marketplaceListings()')&&m2m.includes("'LISTING:'+p.id")&&m2m.includes('agent_purchasable')]);
 checks.push(['A2A_LISTING_QUOTE_BINDING',m2m.includes("capabilityId.startsWith('LISTING:')")&&m2m.includes('QUOTE_CAPABILITY_MISMATCH')]);
