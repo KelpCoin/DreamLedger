@@ -1,0 +1,15 @@
+{
+  "artifact_count": 4,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "public/pulse/2026-10-10-private-commercial-ehunt-launches-new-all-in-one-ai-tools-for-ecommerce-sellers-financialcontent-31488b98922dbc2a.html",
+    "public/pulse/index.html",
+    "webapp/pulse/2026-10-10-private-commercial-ehunt-launches-new-all-in-one-ai-tools-for-ecommerce-sellers-financialcontent-31488b98922dbc2a.html",
+    "webapp/pulse/index.html"
+  ],
+  "observed_at": "2026-10-10T13:57:53.675772+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
