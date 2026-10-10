@@ -14,7 +14,7 @@ const m2m=fs.readFileSync(path.join(root,'routes','m2m.js'),'utf8');
 const a2a=fs.readFileSync(path.join(root,'..','public','a2a-marketplace.html'),'utf8');
 checks.push(['QUOTE_HMAC_SIGNING',m2m.includes('M2M_QUOTE_SIGNING_SECRET')&&m2m.includes('crypto.createHmac')&&m2m.includes('crypto.timingSafeEqual')]);
 checks.push(['QUOTE_EXPIRY_ENFORCED',m2m.includes('Date.now()-issuedAt>900000')]);
-checks.push(['A2A_UI_CALLS_EXISTING_CHECKOUT',a2a.includes("api('/api/checkout/create'")&&a2a.includes('window.location.assign(checkout.checkout_url)')]);
+checks.push(['A2A_UI_CALLS_FAIL_CLOSED_CHECKOUT',a2a.includes("api('/api/a2a/checkout'")&&a2a.includes('window.location.assign(checkout.checkout_url)')]);
 checks.push(['A2A_UI_CHECKS_QUOTE_PRICE',a2a.includes('Price changed since quote')]);
 checks.push(['A2A_AUTHENTICATED_HUMAN',m2m.includes('authorizedHuman(req)')&&m2m.includes('AUTHENTICATED_HUMAN_REQUIRED')&&m2m.includes('email_confirmed_at')]);
 checks.push(['A2A_AUTH_UI',a2a.includes('humanSignIn')&&a2a.includes('humanSignUp')&&a2a.includes('state.session?.access_token')]);
