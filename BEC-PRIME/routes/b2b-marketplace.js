@@ -115,12 +115,12 @@ async function handle(req, res, url) {
       const accounts = await db('marketplace_seller_accounts','GET','owner_user_id=eq.'+encodeURIComponent(uid)+'&select=seller_id,onboarding_status,charges_enabled,payouts_enabled&limit=1');
       if (!accounts?.length || accounts[0].onboarding_status!=='complete' || accounts[0].charges_enabled!==true || accounts[0].payouts_enabled!==true) return send(res,403,{error:'Complete Stripe Connect seller verification before submitting a listing'});
       const slug='seller-'+uid.replace(/-/g,'').slice(0,12)+'-'+crypto.createHash('sha256').update(key).digest('hex').slice(0,24);
-      const payload={seller_id:accounts[0].seller_id,slug,title,description,category,price:Math.round(price*100)/100,currency:'NZD',status:'review',agent_purchasable:false,shipping_profile:{},evidence:{submission_id:slug}};
+      const payload={seller_id:accounts[0].seller_id,slug,title,description,category,price:Math.round(price*100)/100,currency:'NZD',status:'review',agent_purchasable:b.agent_purchasable===true,shipping_profile:{},evidence:{submission_id:slug}};
       const rows=await db('marketplace_listings','POST','on_conflict=slug',payload,'resolution=ignore-duplicates,return=representation');
       let item=Array.isArray(rows)?rows[0]:null;
       if(!item){const found=await db('marketplace_listings','GET','slug=eq.'+encodeURIComponent(slug)+'&select=*&limit=1');item=found?.[0];}
       if(!item)return send(res,503,{error:'Listing persistence could not be confirmed',code:'PERSISTENCE_UNCONFIRMED'});
-      if(item.seller_id!==payload.seller_id||item.title!==title||item.description!==description||Number(item.price)!==payload.price)return send(res,409,{error:'Idempotency-Key was already used for a different listing payload',code:'IDEMPOTENCY_CONFLICT'});
+      if(item.seller_id!==payload.seller_id||item.title!==title||item.description!==description||Number(item.price)!==payload.price||item.agent_purchasable!==payload.agent_purchasable)return send(res,409,{error:'Idempotency-Key was already used for a different listing payload',code:'IDEMPOTENCY_CONFLICT'});
       return send(res,201,{ok:true,item:{id:item.id,slug:item.slug,title:item.title,description:item.description,category:item.category,price:item.price,currency:item.currency,status:item.status,created_at:item.created_at},commercial_truth:'LISTING_SUBMITTED_FOR_REVIEW_NOT_ORDER_OR_REVENUE'});
     }
 
