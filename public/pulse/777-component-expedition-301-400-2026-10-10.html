@@ -25,7 +25,7 @@
 <ol class="steps">
 <li><strong>Ingest:</strong> accept only authorized sources and customer files; retain the source URL or file identity, timestamp, jurisdiction and content hash where feasible.</li>
 <li><strong>Normalize:</strong> transform into a typed schema with required fields, units, currencies, timezone, provenance and explicit null/unknown states.</li>
-<li><strong>Evaluate:</strong> run deterministic checks first; use Elohim for bounded synthesis and Gauntlet for adversarial checks. Missing evidence stays missing, not green.</li>
+<li><strong>Evaluate:</strong> run deterministic checks first; use the bounded synthesis component for summarization and deterministic adversarial checks. Missing evidence stays missing, not green.</li>
 <li><strong>Produce:</strong> emit a durable HTML/JSON artifact, a machine-readable schema, a list of unresolved questions and a versioned receipt.</li>
 <li><strong>Commercialize:</strong> expose a free discovery or preview surface; charge only for a specific export, reviewed deliverable, metered API or completed job that has a real fulfillment path.</li>
 <li><strong>Prove:</strong> connect the authorized buyer, exact offer, external payment settlement, fulfillment and delivery evidence. Workflow success and model output do not count as revenue.</li>
