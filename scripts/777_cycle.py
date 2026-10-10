@@ -330,8 +330,27 @@ if deduped:
             raise SystemExit("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL_AND_EMPTY_CATALOG")
         fingerprint = hashlib.sha256(json.dumps(services, sort_keys=True).encode()).hexdigest()[:12]
         fallback = PULSE / f"agent-bridge-capability-map-{fingerprint}.html"
+        public_fallback = PUBLIC_PULSE / fallback.name
+        public_index = PUBLIC_PULSE / "index.html"
+        index_link = '<li><a href="/pulse/' + fallback.name + '">Agent Bridge capability map (catalogue candidates; settlement unverified)</a></li>'
         if fallback.exists():
-            print("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: fallback component already exists; no duplicate published.")
+            # The source-side artifact may exist before the public Pages tree contains it.
+            # Promote that same component into the actual deployment root once, without duplicating it.
+            if not public_fallback.exists():
+                PUBLIC_PULSE.mkdir(parents=True, exist_ok=True)
+                public_fallback.write_text(fallback.read_text(encoding="utf-8"), encoding="utf-8")
+                if public_index.exists():
+                    public_index_text = public_index.read_text(encoding="utf-8", errors="ignore")
+                    if fallback.name not in public_index_text:
+                        if "</ul>" in public_index_text:
+                            public_index_text = public_index_text.replace("</ul>", index_link + "</ul>", 1)
+                        else:
+                            public_index_text = public_index_text.replace("</main>", "<ul>" + index_link + "</ul></main>", 1)
+                        public_index.write_text(public_index_text, encoding="utf-8")
+                print("777_FALLBACK_PUBLIC_COPY=" + public_fallback.as_posix())
+            else:
+                print("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL: fallback already exists in the public tree; no duplicate published.")
+                raise SystemExit(0)
             raise SystemExit(0)
         rows = []
         for service in sorted(services, key=lambda item: (float(item.get("price_nzd") or 0), item.get("id", ""))):
