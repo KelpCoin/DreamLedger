@@ -12,7 +12,7 @@ No FightEdge-specific Render service, ledger, payment rail, queue, Supabase proj
 
 ## Compatibility
 
-The Next.js project under `sports/fightedge/web` is retained as a compatibility surface during retirement. Its middleware permanently redirects Render-hosted `*.onrender.com` requests to the first-party DreamLedger route, preserving path and query string. Legacy static aliases also route to `/fightedge/`.
+The Next.js project under `sports/fightedge/web` is retained as a compatibility surface during retirement. Its middleware permanently redirects Render-hosted `*.onrender.com` requests to the first-party DreamLedger route, preserving query strings and mapping legacy deep links to the closest first-party section. Legacy static aliases also route to `/fightedge/`.
 
 The connected Render MCP currently exposes inventory, deployments, logs and environment-variable operations, but no safe suspend/delete operation. Therefore the old Render resources remain infrastructure cleanup debt; they are not the canonical public route. Do not claim they were suspended or deleted until Render confirms that state.
 
