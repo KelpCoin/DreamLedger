@@ -38,3 +38,18 @@ test('road product makes no persistence or downstream-action claim', () => {
   assert.equal(road.service_model, 'bounded_receipt_only');
   assert.equal(road.economic_status, 'UNVERIFIED_UNTIL_EXTERNAL_SETTLEMENT_AND_FULFILLMENT_EVIDENCE');
 });
+
+test('toll access keys are bound to one exact road ID', () => {
+  const Toll = require('./TollRoad');
+  const prior = process.env.DREAMLEDGER_TOLL_KEY_SECRET;
+  process.env.DREAMLEDGER_TOLL_KEY_SECRET = 'test-only-road-secret';
+  try {
+    const token = Toll.issueKey({ tier: 'road', roadId: 'ROAD-000042', callsRemaining: 100 });
+    assert.equal(Toll.verifyKey(token, { requiredTier: 'road', requiredRoadId: 'ROAD-000042' }).ok, true);
+    assert.equal(Toll.verifyKey(token, { requiredTier: 'road', requiredRoadId: 'ROAD-000043' }).error, 'toll_key_road_denied');
+    assert.equal(Toll.verifyKey(token, { requiredTier: 'truth', requiredRoadId: 'ROAD-000042' }).error, 'toll_key_scope_denied');
+  } finally {
+    if (prior === undefined) delete process.env.DREAMLEDGER_TOLL_KEY_SECRET;
+    else process.env.DREAMLEDGER_TOLL_KEY_SECRET = prior;
+  }
+});
