@@ -3,7 +3,7 @@ from __future__ import annotations
 import json, os
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
-from access_bridge import list_routes, build_access_plan, build_access_case_packet
+from access_bridge import list_routes, list_healthcare_funding_options, build_access_plan, build_access_case_packet
 
 ROOT = Path(os.environ.get("BEC_ROOT", Path(__file__).resolve().parents[2])).resolve()
 FIXTURES = (ROOT / "runtime" / "lm_studio" / "fixtures").resolve()
@@ -47,6 +47,11 @@ def search_local_signal_fixtures(query: str) -> list:
 def list_access_routes(categories: list[str], region: str = "Bay of Plenty") -> list:
     """List curated NZ health, disability advocacy, legal-aid, or urgent-cost routes. No personal data is needed."""
     return list_routes(categories, region)
+
+@mcp.tool()
+def list_healthcare_funding_routes() -> list:
+    """List potential NZ healthcare cost-support routes and evidence to prepare; no eligibility decision is made."""
+    return list_healthcare_funding_options()
 
 @mcp.tool()
 def prepare_access_request(categories: list[str], barrier: str, communication_needs: str = "Please offer a low-effort way to respond, such as email or a scheduled callback.", region: str = "Bay of Plenty") -> dict:
