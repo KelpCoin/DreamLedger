@@ -28,3 +28,15 @@ test('Toll Road manifest reaches the canonical Toll Road handler', () => {
   assert.ok(source.includes('tollRoad.handle(req,res,p)'));
   assert.ok(!source.includes("schema:'dreamledger/public-resources/v1'"));
 });
+
+test('Public status page is routed and linked from the homepage', () => {
+  assert.ok(source.includes("'/status':'status.html'"));
+  assert.ok(source.includes("'/status/':'status.html'"));
+  assert.ok(fs.existsSync(path.join(__dirname, 'status.html')));
+  const home = fs.readFileSync(path.join(__dirname, 'home.html'), 'utf8');
+  assert.ok(home.includes('href="/status"'));
+  const status = fs.readFileSync(path.join(__dirname, 'status.html'), 'utf8');
+  assert.ok(status.includes('Manually reviewed snapshot, not live telemetry'));
+  assert.ok(status.includes('Disabled by design'));
+  assert.ok(status.includes('Not yet independently verified'));
+});
