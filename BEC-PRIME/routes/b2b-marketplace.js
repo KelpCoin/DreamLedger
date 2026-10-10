@@ -142,7 +142,7 @@ async function handle(req, res, url) {
       let item=Array.isArray(rows)?rows[0]:null;
       if(!item){const found=await db('marketplace_listings','GET','slug=eq.'+encodeURIComponent(slug)+'&select=*&limit=1');item=found?.[0];}
       if(!item)return send(res,503,{error:'Listing persistence could not be confirmed',code:'PERSISTENCE_UNCONFIRMED'});
-      if(item.seller_id!==payload.seller_id||item.title!==title||item.description!==description||Number(item.price)!==payload.price||item.agent_purchasable!==payload.agent_purchasable)return send(res,409,{error:'Idempotency-Key was already used for a different listing payload',code:'IDEMPOTENCY_CONFLICT'});
+      if(item.seller_id!==payload.seller_id||item.title!==title||item.description!==description||item.category!==category||Number(item.price)!==payload.price||String(item.currency||'NZD').toUpperCase()!=='NZD'||item.agent_purchasable!==payload.agent_purchasable)return send(res,409,{error:'Idempotency-Key was already used for a different listing payload',code:'IDEMPOTENCY_CONFLICT'});
       return send(res,201,{ok:true,item:{id:item.id,slug:item.slug,title:item.title,description:item.description,category:item.category,price:item.price,currency:item.currency,status:item.status,created_at:item.created_at},commercial_truth:'LISTING_SUBMITTED_FOR_REVIEW_NOT_ORDER_OR_REVENUE'});
     }
 
