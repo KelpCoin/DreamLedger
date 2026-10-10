@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard FightEdge consolidation into the existing DreamLedger service wall."""
+"""Guard the actual DreamLedger-served FightEdge route and shared-service contract."""
 from pathlib import Path
 import unittest
 
@@ -7,16 +7,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FightEdgeConsolidationContract(unittest.TestCase):
-    def test_canonical_static_route_is_first_party_and_not_a_redirect_shim(self):
-        page = (ROOT / "public/fightedge/index.html").read_text()
-        self.assertIn('href="https://dreamledger.org/fightedge/"', page)
-        self.assertIn("DreamLedger", page)
-        self.assertIn("Evidence-first combat-sports intelligence", page)
-        self.assertNotIn("fightedge-web-live.onrender.com", page)
-        self.assertNotIn('http-equiv="refresh"', page)
+    def test_actual_root_route_and_public_source_are_the_same_first_party_page(self):
+        root_page = (ROOT / "fightedge/index.html").read_text()
+        public_page = (ROOT / "public/fightedge/index.html").read_text()
+        self.assertEqual(root_page, public_page)
+        self.assertIn('href="https://dreamledger.org/fightedge/"', root_page)
+        self.assertIn("Evidence-first combat-sports intelligence", root_page)
+        self.assertNotIn("fightedge-web-live.onrender.com", root_page)
+        self.assertNotIn('http-equiv="refresh"', root_page)
 
     def test_legacy_pages_point_to_canonical_route(self):
-        for path in ("public/fight-edge.html", "public/fight-edge-mma-boxing.html"):
+        for path in ("fight-edge.html", "public/fight-edge.html", "public/fight-edge-mma-boxing.html"):
             content = (ROOT / path).read_text()
             self.assertIn("/fightedge/", content)
 
