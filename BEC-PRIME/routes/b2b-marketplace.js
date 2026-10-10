@@ -99,7 +99,7 @@ async function handle(req, res, url) {
       const rows = await db('marketplace_b2b_rfqs', 'GET', 'status=eq.open&select=*&order=created_at.desc&limit=100');
       return send(res, 200, {
         schema: 'DREAMLEDGER/B2B-RFQ/v2',
-        items: (rows || []).map(x => ({ ...x, budget_nzd: x.budget_minor === null ? null : Number(x.budget_minor) / 100, buyer_name: x.buyer_display_name || 'Verified buyer' }))
+        items: (rows || []).map(x => ({ id:x.id,title:x.title,description:x.description,category:x.category,budget_minor:x.budget_minor,budget_nzd:x.budget_minor === null ? null : Number(x.budget_minor) / 100,currency:x.currency,deadline:x.deadline,status:x.status,created_at:x.created_at,buyer_name:'Verified buyer' }))
       });
     }
 
@@ -137,7 +137,7 @@ async function handle(req, res, url) {
 
     if (req.method === 'GET' && url === '/api/b2b/my-rfqs') {
       const rows = await db('marketplace_b2b_rfqs', 'GET', 'buyer_user_id=eq.' + encodeURIComponent(uid) + '&select=*&order=created_at.desc&limit=100');
-      return send(res, 200, { items: rows || [] });
+      return send(res, 200, { items: (rows || []).map(x => ({ id:x.id,title:x.title,description:x.description,category:x.category,budget_minor:x.budget_minor,budget_nzd:x.budget_minor === null ? null : Number(x.budget_minor) / 100,currency:x.currency,deadline:x.deadline,status:x.status,created_at:x.created_at })) });
     }
 
     if (req.method === 'GET' && url.startsWith('/api/b2b/rfqs/') && url.endsWith('/offers')) {
@@ -149,7 +149,7 @@ async function handle(req, res, url) {
       const ownRows = (allRows || []).filter(x => x.supplier_user_id === uid);
       if (!isBuyer && ownRows.length === 0) return send(res, 403, { error: 'Only the RFQ buyer and participating suppliers can view these offers' });
       const rows = isBuyer ? (allRows || []) : ownRows;
-      return send(res, 200, { items: rows.map(x => ({ ...x, price_nzd: Number(x.amount_minor) / 100 })) });
+      return send(res, 200, { items: rows.map(x => ({ id:x.id,rfq_id:x.rfq_id,title:x.title,description:x.description,amount_minor:x.amount_minor,price_nzd:Number(x.amount_minor)/100,currency:x.currency,lead_time:x.lead_time,terms:x.terms,status:x.status,created_at:x.created_at })) });
     }
 
     if (req.method === 'GET' && url.startsWith('/api/b2b/rfqs/')) {
@@ -157,7 +157,11 @@ async function handle(req, res, url) {
       const rows = await db('marketplace_b2b_rfqs', 'GET', 'id=eq.' + encodeURIComponent(rid) + '&select=*&limit=1');
       if (!rows?.length) return send(res, 404, { error: 'RFQ not found' });
       const x = rows[0];
-      return send(res, 200, { item: { ...x, budget_nzd: x.budget_minor === null ? null : Number(x.budget_minor) / 100 } });
+      if (x.status !== 'open' && x.buyer_user_id !== uid) {
+        const own = await db('marketplace_b2b_offers', 'GET', 'rfq_id=eq.' + encodeURIComponent(rid) + '&supplier_user_id=eq.' + encodeURIComponent(uid) + '&select=id&limit=1');
+        if (!own?.length) return send(res, 404, { error: 'RFQ not found' });
+      }
+      return send(res, 200, { item: { id:x.id,title:x.title,description:x.description,category:x.category,budget_minor:x.budget_minor,budget_nzd:x.budget_minor === null ? null : Number(x.budget_minor) / 100,currency:x.currency,deadline:x.deadline,status:x.status,created_at:x.created_at } });
     }
 
     if (req.method === 'POST' && url === '/api/b2b/offers') {
