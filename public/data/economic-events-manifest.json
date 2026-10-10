@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-09T23:09:16+00:00",
+  "updated_at_utc": "2026-10-10T08:42:33+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Sitewide Wastewater Investigation and Remediation at Milson School",
+      "url": "https://www.gets.govt.nz/MEDUR/ExternalTenderDetails.htm?id=34863630",
+      "observed_at": "2026-10-10T08:42:27+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "a4b2d258af62913c78f3c039016aba8ec1a37abdeb10cfe49cbb5203d4b300ee",
+      "event_id": "8f585d82-aff3-55a5-8d1b-de7a25bc9160",
+      "silo_id": "ECO-A4B2D258AF62913C",
+      "slug": "procurement-sitewide-wastewater-investigation-and-remediation-at-milson--a4b2d258af"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
