@@ -5,6 +5,7 @@ const {run:runGauntlet}=require('../gauntlet/CandidateGauntlet');
 const Toll=require('../runtime/TollRoad');
 const Trinity=require('../runtime/Trinity');
 const TollNexus=require('../runtime/TollNexus');
+const RoadFactory=require('../runtime/TollRoadFactory');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
 
@@ -41,6 +42,7 @@ const SCOPES = {
   'enterprise-wall': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Enterprise Toll Wall (500k calls)', calls: 500000, fixedPrice: 499 },
   'enterprise-pro': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Enterprise Pro (2M calls + SLA)', calls: 2000000, fixedPrice: 1499 },
   'white-label': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger White-Label Route Namespace', calls: 100000, fixedPrice: 999 },
+  road: { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Namespaced Toll Road Access (100 calls)', calls: 100, fixedPrice: RoadFactory.ROAD_PRICE_NZD },
   'sla-credit': { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger SLA Credit Pack', calls: 10, fixedPrice: 250 },
   trinity: { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Trinity Run (Elohim+Gauntlet+Bridge)', calls: 25, fixedPrice: 49 },
   nexus: { priceKey: 'defaultPackPriceNzd', product: 'DreamLedger Toll Nexus (Truth+Gauntlet+Agent Bridge)', calls: 25, fixedPrice: 49 }
@@ -85,30 +87,40 @@ function verifyPassportToken(token){
   return {ok:true,payload};
 }
 
-async function createCheckout(scope){
+async function createCheckout(scope, roadId=null){
+  if(scope==='road'){
+    if(!RoadFactory.getRoad(roadId))throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
+    throw Object.assign(new Error('Road checkout disabled until durable per-key quota accounting is available'),{statusCode:503});
+  }
   const priceNzd=priceFor(scope);
+  if(!Toll.configured())throw Object.assign(new Error('Toll key issuance is not configured'),{statusCode:503});
   if(!STRIPE_SECRET_KEY||!(priceNzd>0))throw Object.assign(new Error('Toll checkout is not configured'),{statusCode:503});
   const def=SCOPES[scope];
   const sessionId='toll_'+crypto.randomUUID();
   const productName=def.product;
-  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':Math.round(priceNzd*100),'line_items[0][price_data][product_data][name]':productName,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,'metadata[toll_price_nzd]':String(priceNzd),'metadata[toll_product]':productName,'payment_intent_data[metadata][toll_scope]':scope,'payment_intent_data[metadata][toll_request_id]':sessionId,success_url:PUBLIC_BASE+'/toll-road?checkout=success&scope='+scope+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
+  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':Math.round(priceNzd*100),'line_items[0][price_data][product_data][name]':productName,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,'metadata[toll_price_nzd]':String(priceNzd),'metadata[toll_product]':productName,'payment_intent_data[metadata][toll_scope]':scope,'payment_intent_data[metadata][toll_request_id]':sessionId,'metadata[road_id]':roadId||'','payment_intent_data[metadata][road_id]':roadId||'',success_url:PUBLIC_BASE+'/toll-road?checkout=success&scope='+scope+(roadId?'&road_id='+encodeURIComponent(roadId):'')+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
   return data;
 }
 
-async function redeem(scope,sessionId){
+async function redeem(scope,sessionId,roadId=null){
+  if(scope==='road'){
+    if(!RoadFactory.getRoad(roadId))throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
+    throw Object.assign(new Error('Road redemption disabled until durable per-key quota accounting is available'),{statusCode:503});
+  }
   if(!STRIPE_SECRET_KEY)throw Object.assign(new Error('Stripe secret key is not configured'),{statusCode:503});
   const response=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(sessionId)+'?expand[]=line_items',{headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe session lookup failed'),{statusCode:502});
   if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.toll_scope!==scope)throw Object.assign(new Error('Settled payment required before key issuance'),{statusCode:402});
+  if(scope==='road'&&data.metadata?.road_id!==roadId)throw Object.assign(new Error('Road attribution mismatch'),{statusCode:409});
   const expectedPriceNzd=priceFor(scope);
   const expectedAmount=Math.round(expectedPriceNzd*100);
   const line=data.line_items?.data?.[0];
-  if(line && Number(line.amount_total||line.price?.unit_amount||0)!==expectedAmount)throw Object.assign(new Error('Checkout amount attribution mismatch'),{statusCode:409});
-  const def=SCOPES[scope]||{calls:100};
-  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,callsRemaining:def.calls,reference:sessionId})};
+  if(!line || Number(line.amount_total ?? line.price?.unit_amount ?? 0)!==expectedAmount || String(data.currency||'').toLowerCase()!=='nzd')throw Object.assign(new Error('Checkout amount or currency attribution mismatch'),{statusCode:409});
+  const def=scope==='road'?{calls:RoadFactory.CALLS_PER_ROAD}:(SCOPES[scope]||{calls:100});
+  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,reference:sessionId})};
 }
 
 function send(res,status,body){
@@ -125,8 +137,8 @@ function readJson(req){
     req.on('error',reject);
   });
 }
-function authorize(req,tier){
-  const checked=Toll.verifyKey(Toll.headerKey(req),tier);
+function authorize(req,tier,roadId=null){
+  const checked=Toll.verifyKey(Toll.headerKey(req),{requiredTier:tier,requiredRoadId:roadId});
   if(!checked.ok)throw Object.assign(new Error(checked.error),{statusCode:checked.error==='toll_wall_not_configured'?503:401});
   return checked.payload;
 }
@@ -135,7 +147,47 @@ function meterResult(key, service, extra){
 }
 
 async function handle(req,res,path){
-  if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest());
+  if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest([{id:'ROAD-METER-10000',route:'/api/toll/v1/roads/{road_id}',scope:'road',status:'CATALOGUED_PENDING_DURABLE_QUOTA_LEDGER',checkout_configured:false,price_nzd:null,proposed_price_nzd:RoadFactory.ROAD_PRICE_NZD,description:'10,000 logical road IDs. Paid execution remains disabled until durable per-key quota accounting is available.',road_instances:RoadFactory.ROAD_COUNT,calls_per_pack:null,proposed_calls_per_pack:RoadFactory.CALLS_PER_ROAD,checkout_route:null,catalog_endpoint:'/api/toll/v1/roads?offset=0&limit=100'}]));
+
+  if(path==='/api/toll/v1/roads'&&req.method==='GET'){
+    const u=new URL(req.url,'https://dreamledger.org');
+    const offset=Number(u.searchParams.get('offset')||0);
+    const limit=Number(u.searchParams.get('limit')||50);
+    const page=RoadFactory.listRoads({offset,limit});
+    return send(res,page.error?400:200,{schema:'dreamledger/toll-road-catalog/v1',...page});
+  }
+
+  const roadMatch=path.match(/^\/api\/toll\/v1\/roads\/(ROAD-\d{6})$/);
+  if(roadMatch&&req.method==='GET'){
+    const road=RoadFactory.getRoad(roadMatch[1]);
+    return road?send(res,200,{schema:'dreamledger/toll-road/v1',...road}):send(res,404,{error:'unknown_toll_road'});
+  }
+  if(roadMatch&&req.method==='POST'){
+    const road=RoadFactory.getRoad(roadMatch[1]);
+    if(!road)return send(res,404,{error:'unknown_toll_road'});
+    return send(res,503,{error:'durable_quota_ledger_required',road_id:road.road_id,note:'No payload was processed. Paid execution is disabled until per-key usage can be durably enforced.'});
+  }
+
+  if(path.startsWith('/api/toll/v1/checkout/road/')&&(req.method==='GET'||req.method==='POST')){
+    const roadId=path.split('/').pop();
+    if(!RoadFactory.getRoad(roadId))return send(res,404,{error:'unknown_toll_road'});
+    try{
+      const session=await createCheckout('road',roadId);
+      if(req.method==='GET'){res.writeHead(303,{Location:session.url,'Cache-Control':'no-store'});res.end();return true;}
+      return send(res,200,{schema:'dreamledger/toll-checkout/v1',scope:'road',road_id:roadId,session_id:session.id,url:session.url,amount_nzd:RoadFactory.ROAD_PRICE_NZD,calls_per_pack:RoadFactory.CALLS_PER_ROAD,note:'Pay on Stripe. Redeem only after a live settled payment; key is scoped to this road ID.'});
+    }catch(e){return send(res,e.statusCode||502,{error:e.message});}
+  }
+
+  if(path.startsWith('/api/toll/v1/redeem/road/')&&(req.method==='GET'||req.method==='POST')){
+    const roadId=path.split('/').pop();
+    const u=new URL(req.url,'https://dreamledger.org');
+    let sessionId=u.searchParams.get('session_id');
+    if(!sessionId&&req.method==='POST'){
+      try{const body=await readJson(req);sessionId=body&&body.session_id?String(body.session_id):null;}catch(e){return send(res,e.statusCode||400,{error:e.message});}
+    }
+    if(!RoadFactory.getRoad(roadId)||!sessionId)return send(res,400,{error:'valid_road_and_session_id_required'});
+    try{return send(res,200,{schema:'dreamledger/toll-redeem/v1',scope:'road',road_id:roadId,...(await redeem('road',sessionId,roadId))});}catch(e){return send(res,e.statusCode||502,{error:e.message});}
+  }
 
   if(path==='/api/toll/v1/passport/verify'&&req.method==='POST'){
     const body=await readJson(req).catch(()=>({}));

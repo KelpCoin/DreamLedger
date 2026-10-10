@@ -1,0 +1,32 @@
+name: Toll Road Factory Tests
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/runtime/TollRoad.js'
+      - 'BEC-PRIME/runtime/TollRoadFactory.js'
+      - 'BEC-PRIME/runtime/TollRoadFactory.test.js'
+      - 'BEC-PRIME/routes/tollRoad.js'
+      - 'public/toll-road.html'
+      - 'package.json'
+      - '.github/workflows/toll-road-factory.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/runtime/TollRoad.js'
+      - 'BEC-PRIME/runtime/TollRoadFactory.js'
+      - 'BEC-PRIME/runtime/TollRoadFactory.test.js'
+      - 'BEC-PRIME/routes/tollRoad.js'
+      - 'public/toll-road.html'
+      - 'package.json'
+      - '.github/workflows/toll-road-factory.yml'
+jobs:
+  toll-road-factory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --check BEC-PRIME/routes/tollRoad.js
+      - run: node --check BEC-PRIME/runtime/TollRoad.js
+      - run: npm run test:toll-roads
