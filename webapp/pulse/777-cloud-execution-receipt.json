@@ -1,15 +1,15 @@
 {
   "schema_version": "DREAMLEDGER/777/CLOUD-EXECUTION/v1",
-  "generated_at_utc": "2026-10-10T03:13:26.961Z",
+  "generated_at_utc": "2026-10-10T03:47:27.990Z",
   "selected_path": "DETERMINISTIC_FALLBACK",
   "fallback_attempts": [
     {
       "path": "5:DETERMINISTIC_EXISTING_GAUNTLET",
       "status": "PASS",
-      "at": "2026-10-10T03:13:26.955Z"
+      "at": "2026-10-10T03:47:27.985Z"
     }
   ],
-  "candidate_hash": "ec287dc2101818283fae111e60469a37f5eacea23a5db07aaaf39ab76a79704b",
+  "candidate_hash": "cf67f3541a360ab3be7c7b2b259faf1eaebc0fe95534054f14a051eb32e0ceb6",
   "gauntlet_status": "FAIL",
   "candidate": {
     "offer_id": "TRUTH-ORACLE-DISTRIBUTION-001",
@@ -29,7 +29,7 @@
     "verification_rules": "external buyer + settled payment + fulfillment + independent proof",
     "provenance": {
       "private_material": "excluded",
-      "source_hash": "df55ce833da4ffe794b5efcb6c0be347a43df9781dc03e0f2f1e470b5e72f56b"
+      "source_hash": "5a8d19890f363ed77650dafea207bb05cdb380d8fecf5b1811aa5a536448b84e"
     },
     "silo": "truth-oracle",
     "kill_condition": "no external buyer, no settled payment, fulfillment failure, contradictory evidence"
@@ -50,5 +50,5 @@
     "revenue": "UNVERIFIED"
   },
   "next_action": "retain candidate internally and generate next bounded candidate",
-  "integrity_sha256": "6442b627969a4ad922b453fc12a7e5101a41668ca18b0ab26589ef5f2ef0a47a"
+  "integrity_sha256": "4496ab98e3d83f2a6d29eb48ceebd7be2e2997c31b71de8f8d295ee769650c15"
 }
