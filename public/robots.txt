@@ -5,6 +5,9 @@ Disallow: /webhook
 Disallow: /admin/
 Disallow: /internal/
 Disallow: /debug/
+Disallow: /pulse/777
+Disallow: /pulse/777-
+Disallow: /*777-component*
 Sitemap: https://dreamledger.org/sitemap.xml
 Sitemap: https://dreamledger.org/quote-comparison-sitemap.xml
 Agentmap: https://dreamledger.org/.well-known/dreamledger.json
