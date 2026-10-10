@@ -79,6 +79,29 @@ test('RFQ creation requires idempotency and writes through the database API', as
   } finally { global.fetch = oldFetch; }
 });
 
+
+test('B2B listing submission requires seller payout readiness and enters review', async () => {
+  const oldFetch = global.fetch;
+  global.fetch = async (url, options = {}) => {
+    if (String(url).endsWith('/auth/v1/user')) return new Response(JSON.stringify({ id:'00000000-0000-4000-8000-000000000006', email:'seller@example.com', email_confirmed_at:'2026-01-01T00:00:00Z' }), { status:200 });
+    if (String(url).includes('/rest/v1/marketplace_seller_accounts')) return new Response(JSON.stringify([{ seller_id:'00000000-0000-4000-8000-000000000007', onboarding_status:'complete', charges_enabled:true, payouts_enabled:true }]), { status:200 });
+    if (String(url).includes('/rest/v1/marketplace_listings') && options.method==='POST') {
+      const payload=JSON.parse(options.body);
+      assert.equal(payload.status,'review');
+      assert.equal(payload.agent_purchasable,false);
+      return new Response(JSON.stringify([{ id:'00000000-0000-4000-8000-000000000008', ...payload, created_at:'2026-10-10T00:00:00Z' }]), { status:201 });
+    }
+    throw new Error('Unexpected URL '+url);
+  };
+  try {
+    const res=response();
+    await handle(request('POST','/api/b2b/listings',{title:'Custom machined bracket',description:'Made to drawing',price_nzd:49.99},{authorization:'Bearer verified-seller-token','idempotency-key':'listing-1'}),res,'/api/b2b/listings');
+    assert.equal(res.statusCode,201);
+    assert.equal(parse(res).item.status,'review');
+    assert.equal(parse(res).commercial_truth,'LISTING_SUBMITTED_FOR_REVIEW_NOT_ORDER_OR_REVENUE');
+  } finally { global.fetch=oldFetch; }
+});
+
 test('supplier cannot read competing offers on another buyer RFQ', async () => {
   const oldFetch = global.fetch;
   global.fetch = async url => {
