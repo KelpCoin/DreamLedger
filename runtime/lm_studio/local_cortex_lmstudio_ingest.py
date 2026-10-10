@@ -198,7 +198,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--signal-file")
     parser.add_argument("--stdin-jsonl", action="store_true")
+    parser.add_argument("--cortex-act", help="Run a bounded, read-only LM Studio .act task")
+    parser.add_argument("--act-max-tool-calls", type=int, default=3)
+    parser.add_argument("--act-max-rounds", type=int, default=4)
     args = parser.parse_args()
+    if args.cortex_act:
+        from beck_lmstudio_sdk import cortex_act
+        print(json.dumps(cortex_act(args.cortex_act, model_key=LM_MODEL,
+                                    max_tool_calls=args.act_max_tool_calls,
+                                    max_rounds=args.act_max_rounds), indent=2))
+        return
     if args.stdin_jsonl:
         for line in sys.stdin:
             if line.strip():
