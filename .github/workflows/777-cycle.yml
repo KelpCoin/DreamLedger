@@ -11,6 +11,7 @@ on:
       - "scripts/777_cycle.py"
       - "scripts/777_compounding_gate.py"
       - "scripts/external_demand_transition.py"
+      - "scripts/777_cloud_execution_adapter.js"
       - "data/external-demand-seeds/**"
       - "scripts/procurement_amendment_delta.py"
       - "webapp/pulse/777-manual-probe-2026-10-07.md"
