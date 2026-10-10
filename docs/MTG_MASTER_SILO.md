@@ -162,3 +162,33 @@ Singles: approximately 20 high-value card names/details.
 Decks: tentative names + commander + ballpark prices.
 
 Those inputs become the next validated MTG catalog batch.
+
+## Canonical MTG Deck Sales Post Schema v1
+
+Status: LOCKED FOR MTG SALES POSTS. This schema governs every Magic: The Gathering deck-sale post across DreamLedger / MTG / HappyHomarid. Preserve this section order. Replace only listing-specific facts. Unknown values must be flagged for review, never invented. Drafts require factual validation and human approval before publication.
+
+### Required section order
+
+1. **Title:** `[Commander] – [Deck Name]`.
+2. **Opening identity paragraph:** colour identity, archetype, core play pattern, known format/set context, and concise positioning hook. Claims about popularity, community consensus, or “sleeper” status must be supported or clearly framed as opinion.
+3. **Commander mechanics:** explain the relevant ability and how the deck converts it into value. Check current Oracle text where exact rules wording matters.
+4. **Deck contents and synergies:** representative named cards, their roles, engine pieces, and mana-base notes. Do not claim a card is included unless supported by the submitted decklist.
+5. **Play experience:** strengths, trade-offs, and the intended game plan. Claims such as “sleeved” and “playtested” require seller confirmation.
+6. **Player Archetype:** a consistent labelled block with a concise description of the intended pilot and playstyle.
+7. **Price and priority offer:** NZD price, shipping coverage, and membership discount/priority where applicable. Confirm actual terms.
+8. **Payment:** state only verified payment methods and provide a safe next step. Use an approved live checkout/payment link where available. Never request card details in DMs. Do not claim Afterpay support unless the actual checkout supports it.
+9. **Decklist link:** exact supplied decklist URL.
+10. **Community link:** Patreon or other approved community URL when relevant.
+11. **Hashtags:** concise, relevant tags.
+
+### Reusable listing data contract
+
+`title`, `commander`, `deck_name`, `colour_identity`, `archetype_strategy`, `opening_hook`, `commander_mechanics`, `synergy_cards`, `mana_base_notes`, `play_experience`, `player_archetype_label`, `player_archetype_copy`, `price_nzd`, `member_price_nzd`, `member_terms`, `shipping_terms`, `payment_methods_verified`, `decklist_url`, `community_url`, `hashtags`, `availability_status`, `facts_verified_by`, `publication_status`.
+
+### Exemplar and boundaries
+
+The user-supplied **Edward Kenway – Pacin’ On The Plank** listing is the style/order exemplar. Its NZ$230 price, NZ$200 Patreon price, free Aotearoa shipping, Afterpay claim, deck contents, and playtesting/condition statements are specific to that listing and are not defaults.
+
+Do not merge this fixed-deck sale format with the separate 80% prepared core + 20% buyer-directed customization offer. Primer, matchup, upgrade, and simulation sections are future enhancements only after the decklist-driven multi-colour primer pipeline exists and its output is verified. Until then, no primer is required or to be fabricated.
+
+Publication workflow: **DRAFT → FACT CHECK → HUMAN APPROVAL → PUBLISH**. No automatic public posting.
