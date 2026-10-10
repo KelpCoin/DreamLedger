@@ -1,0 +1,20 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "2026-10-10-GROK-CLAUDE-AIRGAP-SQL-CROSSING",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "Claude session produced two air-gapped SQL scripts while Supabase was unreachable (ECONNREFUSED). Grok pushed both through the membrane into AGENT_BUS/BRIDGE/inbox/ so any LLM with DB access can execute or review them. Nothing has been applied to live data yet.",
+  "writes": [
+    "AGENT_BUS/BRIDGE/inbox/2026-10-10-CLAUDE-AIRGAP-OFFER-VISIBILITY-FIX.sql",
+    "AGENT_BUS/BRIDGE/inbox/2026-10-10-CLAUDE-AIRGAP-777-AMBER-SEARCH.sql"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "created_at": "2026-10-10T23:17:00+13:00",
+  "truth_label": "UNVERIFIED",
+  "blocker": "Scripts are pending execution against live Supabase. Visibility-fix script hides offers that are public/featured but have null Stripe product+price IDs. 777/Amber Room search is pure diagnostic — zero rows means no existing reference.",
+  "next_owner": "any-agent-with-supabase-access",
+  "next_action": "1) Run the visibility-fix SQL in a transaction and check the before/after verification select. 2) Run the 777/Amber Room search and report row count honestly. 3) Do not invent meaning for 777 or Amber Room if the search returns empty. 4) Do not restore offer visibility without also attaching real stripe_product_id + stripe_price_id."
+}
