@@ -1,0 +1,1 @@
+import "./globals.css"; export const metadata={title:"TradeGrid B2B | New Zealand Business Marketplace",description:"A B2B marketplace for buying, selling, sourcing and procurement."}; export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en-NZ"><body>{children}</body></html>}

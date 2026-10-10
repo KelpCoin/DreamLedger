@@ -1,0 +1,17 @@
+create extension if not exists pgcrypto;
+create extension if not exists pg_trgm;
+create table if not exists public.b2b_business_members (business_id uuid not null references public.b2b_businesses(id) on delete cascade,user_id uuid not null references auth.users(id) on delete cascade,role text not null default 'MEMBER' check(role in('OWNER','ADMIN','BUYER','SELLER','MEMBER')),created_at timestamptz not null default now(),primary key(business_id,user_id));
+create table if not exists public.b2b_messages (id uuid primary key default gen_random_uuid(),thread_key text not null,sender_business_id uuid not null references public.b2b_businesses(id),body text not null check(char_length(body)>0),created_at timestamptz not null default now());
+create table if not exists public.b2b_audit_events (id bigint generated always as identity primary key,actor_user_id uuid references auth.users(id),business_id uuid references public.b2b_businesses(id),entity_type text not null,entity_id uuid,event_type text not null,evidence jsonb not null default '{}'::jsonb,created_at timestamptz not null default now());
+alter table public.b2b_business_members enable row level security;
+alter table public.b2b_messages enable row level security;
+alter table public.b2b_audit_events enable row level security;
+create index if not exists b2b_listings_search_idx on public.b2b_listings using gin((title||' '||description) gin_trgm_ops);
+create index if not exists b2b_members_user_idx on public.b2b_business_members(user_id);
+create index if not exists b2b_messages_thread_idx on public.b2b_messages(thread_key,created_at);
+create or replace function public.is_b2b_member(target_business uuid) returns boolean language sql stable security invoker set search_path=public as $$ select exists(select 1 from public.b2b_business_members m where m.business_id=target_business and m.user_id=(select auth.uid())); $$;
+create or replace function public.is_b2b_admin(target_business uuid) returns boolean language sql stable security invoker set search_path=public as $$ select exists(select 1 from public.b2b_business_members m where m.business_id=target_business and m.user_id=(select auth.uid()) and m.role in('OWNER','ADMIN')); $$;
+create policy "members read membership" on public.b2b_business_members for select to authenticated using(user_id=(select auth.uid()) or public.is_b2b_member(business_id));
+create policy "members read messages" on public.b2b_messages for select to authenticated using(public.is_b2b_member(sender_business_id));
+create policy "members create messages" on public.b2b_messages for insert to authenticated with check(public.is_b2b_member(sender_business_id));
+create policy "members read audit" on public.b2b_audit_events for select to authenticated using(public.is_b2b_member(business_id));

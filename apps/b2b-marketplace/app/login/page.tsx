@@ -1,0 +1,2 @@
+import {login,signup} from "./actions";
+export default function LoginPage(){return <main className="auth"><div className="authbox"><p className="eyebrow">TRADEGRID</p><h1>Business access</h1><form><label>Email<input name="email" type="email" required/></label><label>Password<input name="password" type="password" required/></label><div className="authactions"><button formAction={login} className="gold">Log in</button><button formAction={signup}>Create account</button></div></form></div></main>}
