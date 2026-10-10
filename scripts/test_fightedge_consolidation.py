@@ -13,6 +13,11 @@ class FightEdgeConsolidationContract(unittest.TestCase):
         self.assertEqual(root_page, public_page)
         self.assertIn('href="https://dreamledger.org/fightedge/"', root_page)
         self.assertIn("Evidence-first combat-sports intelligence", root_page)
+        server = (ROOT / "public/server.js").read_text()
+        self.assertIn("'/fightedge':'fightedge/index.html'", server)
+        self.assertIn("'/fightedge/':'fightedge/index.html'", server)
+        self.assertNotIn("proxyFightEdge", server)
+        self.assertNotIn("fightedge-web-live.onrender.com", server)
         self.assertNotIn("fightedge-web-live.onrender.com", root_page)
         self.assertNotIn('http-equiv="refresh"', root_page)
 
