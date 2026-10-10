@@ -23,6 +23,51 @@ ALIASES = {
     "food": ["urgent_costs"], "medical_costs": ["urgent_costs"], "urgent_costs": ["urgent_costs"],
 }
 
+# Evidence prompts are generic checklists, not assumptions that a record exists.
+# Unknown barrier labels remain unknown and do not receive a guessed classification.
+BARRIER_EVIDENCE = {
+    "public_system_access": {
+        "label": "Unable to access an appropriate public service",
+        "evidence": ["Dates of referral or requests and the service contacted", "Any waitlist, triage, refusal, or redirection message", "The care or service requested and the practical impact of delay", "Any accessibility adjustment requested and the response"],
+    },
+    "private_care_cost": {
+        "label": "Private care is unaffordable upfront",
+        "evidence": ["Itemised written quote separating consultation, tests, treatment, and follow-up", "Ask provider whether a lower-cost first consultation or staged payment is possible", "Written response from Work and Income about any potentially eligible support before incurring costs", "Any clinician's referral or recommendation if available"],
+    },
+    "disability_access": {
+        "label": "Disability-related access or accommodation barrier",
+        "evidence": ["Specific practical accommodation requested, such as email-first contact or extra processing time", "Date and channel of request", "Provider response or record that no response was received", "Optional clinician or advocate support if already available"],
+    },
+    "communication": {
+        "label": "Communication channel is inaccessible or burdensome",
+        "evidence": ["Preferred accessible channel and any times phone contact is not feasible", "Dates and channels already tried", "Any missed-call, callback, or unanswered-message record"],
+    },
+    "referral": {
+        "label": "Referral or handoff is unclear",
+        "evidence": ["Referring service and referral date, if known", "Receiving service and any referral/reference number", "Current referral status and what the receiving service says is missing"],
+    },
+    "delay_or_no_response": {
+        "label": "Delay or no response",
+        "evidence": ["Dated contact attempts and channel used", "Any promised response date or published service timeframe", "Reference number and the latest status, if available"],
+    },
+    "missing_documents": {
+        "label": "Requested documents or requirements are unclear",
+        "evidence": ["Exact document or information requested, preferably in writing", "Who requested it and the due date, if any", "What has already been supplied and confirmation of receipt"],
+    },
+    "legal_aid_status": {
+        "label": "Legal-aid application or existing file status is unclear",
+        "evidence": ["Application/file reference, kept private", "Application date and any written status or decision", "Assigned lawyer and next court/deadline date, if applicable", "Exact missing evidence and the written review/escalation route"],
+    },
+}
+BARRIER_ALIASES = {
+    "public_system": "public_system_access", "public_healthcare": "public_system_access",
+    "private_healthcare_cost": "private_care_cost", "private_care": "private_care_cost", "affordability": "private_care_cost",
+    "disability": "disability_access", "accessibility": "disability_access",
+    "communication_barrier": "communication", "inaccessible_contact": "communication",
+    "referral_problem": "referral", "no_response": "delay_or_no_response", "delay": "delay_or_no_response",
+    "documents": "missing_documents", "missing_evidence": "missing_documents", "legal_aid": "legal_aid_status",
+}
+
 def list_routes(categories: Iterable[str] | None = None, region: str = "Bay of Plenty") -> list[dict]:
     """Return service routes, prioritised and deduplicated, without user data."""
     supplied = list(categories or [])
@@ -40,7 +85,7 @@ def list_routes(categories: Iterable[str] | None = None, region: str = "Bay of P
     return [{"id": key, **ROUTES[key]} for key in unique if key in ROUTES]
 
 def list_healthcare_funding_options() -> list[dict]:
-    """Return verified starting points for costs; never imply that private treatment will be funded."""
+    """Return starting points for costs; never imply that private treatment will be funded."""
     return [
         {"id": "winz_disability_allowance", "name": "Work and Income Disability Allowance", "when": "Regular, ongoing eligible health or disability costs", "proof_to_prepare": ["Clinician/medical certificate if requested", "Receipts or quotes showing actual ongoing costs", "Evidence linking costs to disability or health needs"], "contact": "0800 559 009", "url": "https://www.workandincome.govt.nz/eligibility/health-and-disability/prescriptions-and-gp-costs", "limitation": "Eligibility and eligible expense rules apply; ask whether this specific provider and treatment qualify."},
         {"id": "winz_special_needs_grant", "name": "Work and Income Special Needs Grant", "when": "An immediate and essential or emergency cost with no other way to pay, including some medical treatment or equipment", "proof_to_prepare": ["Written quote or invoice", "Why the cost is urgent/essential", "Evidence of income and available cash assets if requested", "Provider details and proposed treatment"], "contact": "0800 559 009", "url": "https://www.workandincome.govt.nz/products/a-z-benefits/special-needs-grant/index.html", "limitation": "Not guaranteed and does not automatically cover any private clinic or elective treatment. Ask before incurring the cost."},
@@ -48,6 +93,21 @@ def list_healthcare_funding_options() -> list[dict]:
         {"id": "acc_injury", "name": "ACC treatment pathway", "when": "The treatment need relates to an accident or personal injury that may be covered", "proof_to_prepare": ["Date and description of injury", "Treating provider details", "ACC claim number if one exists"], "contact": "Ask the treating provider whether an ACC claim is appropriate", "url": "https://www.acc.co.nz/", "limitation": "Coverage depends on ACC rules and claim acceptance; this is not a general funding route for illness."},
         {"id": "high_cost_treatment_pool", "name": "Health New Zealand High Cost Treatment Pool", "when": "Potentially qualifying treatment not otherwise available in the public system", "proof_to_prepare": ["Specialist's clinical recommendation", "Evidence the treatment is unavailable through the public system", "Clinical rationale and likely benefit"], "contact": "Ask the treating district-hospital specialist about eligibility and referral", "url": "https://www.healthnz.govt.nz/hospitals-services/eligibility-subsidies/high-cost-treatment-pool", "limitation": "Application is made by a district hospital specialist and strict criteria apply; this is not a general private-care subsidy."},
     ]
+
+def resolve_barrier_evidence(barriers: Iterable[str] = ()) -> dict:
+    """Resolve explicitly selected barrier tags to evidence prompts; do not infer from personal narrative."""
+    resolved = []
+    unknown = []
+    for raw in barriers:
+        key = str(raw or "").strip().lower().replace(" ", "_").replace("-", "_")
+        key = BARRIER_ALIASES.get(key, key)
+        if key in BARRIER_EVIDENCE:
+            if key not in [item["id"] for item in resolved]:
+                resolved.append({"id": key, **BARRIER_EVIDENCE[key]})
+        elif key and key not in unknown:
+            unknown.append(key)
+    return {"barriers": resolved, "unclassified_barriers": unknown,
+            "note": "Evidence prompts are suggestions only. Keep source records in a private location; provide only what the receiving service actually requests."}
 
 def build_access_plan(categories: Iterable[str], barrier: str = "I have been unable to access the service and need help identifying the next step.", communication_needs: str = "Please offer a low-effort way to respond, such as email or a scheduled callback.", region: str = "Bay of Plenty") -> dict:
     """Prepare an editable action plan; nothing is sent or stored."""
@@ -79,23 +139,27 @@ def build_access_plan(categories: Iterable[str], barrier: str = "I have been una
             "checklist": checklist, "message_draft": draft,
             "safety_note": "For immediate medical danger call 111. Healthline can advise on urgent clinical next steps. This tool does not replace a clinician or lawyer."}
 
-def build_access_case_packet(issue_type: str, summary: str, desired_outcome: str, timeline: Iterable[str] = (), prior_attempts: Iterable[str] = (), deadline: str = "", region: str = "Bay of Plenty") -> dict:
+def build_access_case_packet(issue_type: str, summary: str, desired_outcome: str, timeline: Iterable[str] = (), prior_attempts: Iterable[str] = (), deadline: str = "", region: str = "Bay of Plenty", barriers: Iterable[str] = ()) -> dict:
     """Structure only user-supplied facts into a private, unsaved case packet. No inferred facts or external actions."""
     issue = str(issue_type or "unknown").strip().lower().replace(" ", "_")
-    categories = ["healthcare"] if issue in {"health", "healthcare", "medical", "disability"} else ["legal_aid"] if issue in {"legal", "legal_aid", "criminal_legal_aid", "existing_legal_aid_file"} else ["urgent_costs"] if issue in {"food", "medical_costs", "urgent_costs"} else []
     steps = [str(x).strip() for x in prior_attempts if str(x).strip()]
     events = [str(x).strip() for x in timeline if str(x).strip()]
+    barrier_map = resolve_barrier_evidence(barriers)
     gaps = []
     if not events: gaps.append("Add a dated chronology of key events, contacts, decisions, and deadlines if known.")
     if not steps: gaps.append("List previous attempts to obtain help and the response to each, including no response.")
     if not str(desired_outcome or "").strip(): gaps.append("State the specific practical outcome you are asking the service to provide.")
     if not str(deadline or "").strip(): gaps.append("Check whether a court, treatment, application, or review deadline exists; do not assume there is none.")
+    if not barrier_map["barriers"]: gaps.append("Select explicit barrier tags or leave the blocker unclassified until evidence identifies it.")
+    if barrier_map["unclassified_barriers"]: gaps.append("Review unclassified barrier tags; do not treat them as identified blockers.")
+    categories = ["healthcare"] if issue in {"health", "healthcare", "medical", "disability"} else ["legal_aid"] if issue in {"legal", "legal_aid", "criminal_legal_aid", "existing_legal_aid_file"} else ["urgent_costs"] if issue in {"food", "medical_costs", "urgent_costs"} else []
     if not categories: gaps.append("Choose the service category; it remains unknown from the supplied issue type.")
     return {
         "mode": "DRAFT_ONLY", "personal_data_persisted": False, "external_actions_taken": False,
         "issue_type": issue, "summary": str(summary or "").strip(),
         "desired_outcome": str(desired_outcome or "").strip(),
         "timeline": events, "prior_attempts": steps, "deadline": str(deadline or "").strip() or "UNKNOWN",
+        "barrier_evidence": barrier_map,
         "routes": list_routes(categories, region),
         "healthcare_funding_options": list_healthcare_funding_options() if issue in {"health", "healthcare", "medical", "disability", "medical_costs"} else [],
         "missing_information": gaps,
