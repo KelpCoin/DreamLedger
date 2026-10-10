@@ -16,7 +16,7 @@ const registry = {
       description: 'Classify supplied evidence into explicit truth states.',
       source_ref: 'BEC-PRIME/scripts/Verify-TruthOracleCommerce.js',
       acceptance_test: 'node --test BEC-PRIME/scripts/test-truth-oracle-economic.js',
-      estimated_cost_nzd: 0.01,
+      estimated_cost_nzd: null,
       base_price_nzd: 0.5,
       enabled: true
     },
@@ -40,7 +40,8 @@ const registry = {
       description: 'Not eligible for candidate generation.',
       source_ref: 'not-deployed',
       acceptance_test: 'not-configured',
-      estimated_cost_nzd: 0,
+      estimated_cost_nzd: null,
+      base_price_nzd: 1,
       enabled: false
     }
   ]
@@ -65,6 +66,12 @@ test('all generated records remain unpublished and checkout-disabled', () => {
     assert.equal(candidate.published_at, null);
     assert.equal(candidate.gates.publish_authorized, false);
     assert.equal(candidate.gates.settlement_verified, false);
+    if (candidate.source.capability_id === 'TRUTH-CLASSIFY') {
+      assert.equal(candidate.offer.estimated_cost_nzd, null);
+      assert.equal(candidate.offer.unit_economics_status, 'UNKNOWN');
+      assert.equal(candidate.offer.estimated_gross_margin_percent, null);
+      assert.equal(candidate.gates.unit_economics_reviewed, false);
+    }
     assert.equal(candidate.gates.fulfilment_verified, false);
     assert.equal(candidate.demand.independent_buyer_count, 0);
     assert.equal(candidate.demand.evidence, 'UNVERIFIED');
