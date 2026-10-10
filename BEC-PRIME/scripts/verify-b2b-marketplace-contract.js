@@ -39,6 +39,8 @@ checks.push(['B2B_STRIPE_CONNECT_ONBOARDING_UI',b2bUi.includes('marketplace-sell
 checks.push(['B2B_SELLER_STATUS_ROUTE',b2bRoutes.includes('/api/b2b/seller-status')]);
 checks.push(['B2B_DURABLE_LISTING_SUBMISSION',b2bRoutes.includes("'/api/b2b/listings'")&&b2bRoutes.includes("status:'review'")&&b2bRoutes.includes('PERSISTENCE_UNCONFIRMED')]);
 checks.push(['B2B_SELLER_LISTING_UI',b2bUi.includes('listing-form')&&b2bUi.includes('/api/b2b/my-listings')]);
+checks.push(['B2B_SCOPED_MODERATION',b2bRoutes.includes('transition_marketplace_listing')&&b2bRoutes.includes('Not authorized to moderate this listing')]);
+checks.push(['B2B_MODERATION_UI',b2bUi.includes('moderation-section')&&b2bUi.includes('data-moderate')]);
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
 const proof={schema:'dreamledger/b2b-marketplace-contract/v1',generated_at:new Date().toISOString(),verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,economic_truth:'Order creation is not revenue; verified revenue requires settled external payment, attribution, fulfilment and independent evidence.'};
 const out=path.join(root,'data','proofs','B2B-MARKETPLACE-CONTRACT-PROOF.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));process.exit(failed.length?1:0);
