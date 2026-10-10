@@ -1,0 +1,249 @@
+{
+  "schema": "dreamledger/777-marketplace-epic/v1",
+  "title": "Open B2B + Low-Cost A2A Marketplace",
+  "created_at": "2026-10-10",
+  "operating_rule": "Each cycle either advances independently verified external revenue or commits one non-duplicate, tested, useful artifact. No internal status is revenue.",
+  "north_star": {
+    "verified_external_revenue_nzd": 0,
+    "independent_buyers": 0,
+    "settled_external_payments": 0,
+    "paid_fulfilled_orders": 0,
+    "verified_outcomes": 0
+  },
+  "commercial_sequence": [
+    "existing_offer",
+    "qualified_demand",
+    "authorized_checkout",
+    "settled_payment",
+    "entitlement",
+    "bounded_fulfillment",
+    "delivery_evidence",
+    "independent_verification"
+  ],
+  "workstreams": [
+    {
+      "id": "W01-FIRST-DOLLAR",
+      "priority": "P0",
+      "status": "READY_FOR_PROOF",
+      "goal": "Repair the earliest break in the existing quote-comparison paid path.",
+      "tasks": [
+        "Trace live CTA to Stripe price/product and webhook attribution",
+        "Use a synthetic test to verify webhook idempotency and event-to-order linkage",
+        "Verify successful external settlement separately from checkout creation",
+        "Verify entitlement, fulfillment, customer-visible delivery, and refund path"
+      ],
+      "acceptance": [
+        "One independent buyer or an explicitly recorded failed boundary",
+        "Stripe settlement evidence linked to the order",
+        "Fulfillment receipt linked to the same order",
+        "No test payment counted as revenue"
+      ]
+    },
+    {
+      "id": "W02-AGENTBRIDGE-TOLLS",
+      "priority": "P0",
+      "status": "READY_FOR_TESTS",
+      "goal": "Turn the existing AgentBridge manifest into an honest metered commerce contract.",
+      "tasks": [
+        "Diff manifest routes against deployed route registry",
+        "Test auth, scope, quotas, idempotency, rate limits, and error schema",
+        "Measure compute, storage, retries, and payment fees",
+        "Expose only tolls with measured positive contribution margin",
+        "Produce signed request/usage/delivery receipts"
+      ],
+      "acceptance": [
+        "Automated route-parity report",
+        "Authenticated read-only probe evidence",
+        "Quota and replay tests pass",
+        "Price and cost model published",
+        "No secrets in client code"
+      ]
+    },
+    {
+      "id": "W03-ASSET-EXCHANGE",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Sell reusable implementation assets without turning the marketplace into an unlicensed code dump.",
+      "tasks": [
+        "Catalog boilerplates, templates, stencils, word banks, schemas, evaluators, and connectors",
+        "Require version, licence, provenance, hash, compatibility, inputs/outputs, and tests",
+        "Deduplicate by canonical hash and prevent unlicensed redistribution",
+        "Bundle free discovery with paid tested packs"
+      ],
+      "acceptance": [
+        "Machine-readable listing schema",
+        "Reproducible acceptance tests",
+        "Licence and provenance present for every published item"
+      ]
+    },
+    {
+      "id": "W04-B2B-DISCOVERY",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Earn inbound demand with genuinely useful free tools, not mass-produced doorway pages.",
+      "tasks": [
+        "Prioritize existing public demand and source-backed problems",
+        "Build one calculator, worksheet, or comparison tool per validated demand cluster",
+        "Publish in small cohorts",
+        "Measure impressions, qualified actions, checkout starts, and settled conversions"
+      ],
+      "acceptance": [
+        "Primary sources and update date",
+        "Distinct utility beyond entity substitution",
+        "Analytics event definitions",
+        "Prune or consolidate pages with no evidence of utility"
+      ]
+    },
+    {
+      "id": "W05-A2A-ECONOMICS",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Make machine-to-machine work affordable and margin-positive.",
+      "tasks": [
+        "Publish machine-readable terms and limits",
+        "Price tiny metered calls and prepaid packs against observed cost",
+        "Add per-tenant budgets, usage caps, stop-loss, and replay protection",
+        "Return machine-verifiable receipts"
+      ],
+      "acceptance": [
+        "Measured unit economics",
+        "Positive contribution margin at advertised limits",
+        "Kill switch and budget ceiling tested"
+      ]
+    },
+    {
+      "id": "W06-GPU-EXCHANGE",
+      "priority": "P2",
+      "status": "BLOCKED_ON_LOCAL_BENCHMARK",
+      "goal": "Offer only measured spare local GPU capacity while preserving owner priority.",
+      "tasks": [
+        "Benchmark idle/active VRAM, throughput, thermals, and power if available",
+        "Use opt-in isolated containers/sandboxes, quotas, timeouts, and egress policy",
+        "Strip host secrets and prohibit arbitrary host access",
+        "Meter jobs and support cancellation, deletion, and data-retention rules"
+      ],
+      "acceptance": [
+        "Owner-controlled opt-in",
+        "Isolation test report",
+        "Capacity and cost benchmark",
+        "Emergency stop demonstrated",
+        "Never expose unrestricted desktop or host GPU"
+      ]
+    },
+    {
+      "id": "W07-MARKETPLACE-TRUST",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Build the trust spine for listings, payments, delivery, refunds, and reputation.",
+      "tasks": [
+        "Canonical listing and version pinning",
+        "Seller and buyer identity tiers proportionate to risk",
+        "Payment-to-entitlement reconciliation",
+        "Fulfillment receipt and dispute/refund workflow",
+        "Reputation based on verified transactions only"
+      ],
+      "acceptance": [
+        "State machine tests",
+        "No unverified badge or seller claims",
+        "Refund/dispute path tested"
+      ]
+    },
+    {
+      "id": "W08-DOOH",
+      "priority": "P2",
+      "status": "QUEUED",
+      "goal": "Represent digital-out-of-home and billboard inventory as permissioned, auditable units.",
+      "tasks": [
+        "Define inventory, slot, geography, creative policy, price, and proof-of-play schema",
+        "Use simulated campaigns first",
+        "Require human approval before booking, spend, or public creative",
+        "Reconcile proof-of-play to invoice and campaign outcome"
+      ],
+      "acceptance": [
+        "Inventory provenance",
+        "Creative approval gate",
+        "Proof-of-play receipt",
+        "No automatic spend"
+      ]
+    },
+    {
+      "id": "W09-CI-COMPOUNDING",
+      "priority": "P0",
+      "status": "READY_FOR_VERIFICATION",
+      "goal": "Prove each 777 cycle generated a useful artifact and the website deployed it.",
+      "tasks": [
+        "Inspect the latest 777-cycle run and each job result",
+        "Compare output files before/after the run",
+        "Check duplicate hash and source provenance",
+        "Verify public deployment contains the artifact",
+        "Record run ID, commit SHA, artifact hash, and deploy observation"
+      ],
+      "acceptance": [
+        "Run conclusion and job steps captured",
+        "Artifact changed or a specific no-change reason recorded",
+        "Public deployment checked",
+        "Green CI never reported as revenue"
+      ]
+    },
+    {
+      "id": "W10-RELIABILITY",
+      "priority": "P1",
+      "status": "BLOCKED_ON_DB_CONNECTIVITY",
+      "goal": "Restore trustworthy data access and independent recovery without split brain.",
+      "tasks": [
+        "Verify SQL through the authenticated Supabase transaction pooler",
+        "Preserve current evidence until DB health is proven",
+        "Test backup restore and controlled standby promotion",
+        "Remediate RLS with explicit policies after connectivity returns"
+      ],
+      "acceptance": [
+        "SELECT 1 through transaction pooler succeeds",
+        "Read/write smoke tests use least privilege",
+        "Restore drill evidence",
+        "No active-active or split-brain configuration"
+      ]
+    }
+  ],
+  "authority": {
+    "auto_allowed": [
+      "read_only_discovery",
+      "synthetic_tests",
+      "artifact_generation",
+      "local_validation"
+    ],
+    "human_approval_required": [
+      "public_external_transmission",
+      "real_customer_charge",
+      "irreversible_change",
+      "third_party_data_disclosure",
+      "gpu_tenant_execution",
+      "dooh_booking_or_spend"
+    ],
+    "secrets_policy": "Never commit or publish API keys, agent tokens, passwords, session cookies, or raw customer data."
+  },
+  "compounding_artifact_contract": {
+    "required_fields": [
+      "artifact_id",
+      "source_urls",
+      "retrieved_at",
+      "content_sha256",
+      "claim_status",
+      "test_command",
+      "test_result",
+      "public_path",
+      "deployment_observation",
+      "next_task"
+    ],
+    "claim_status_values": [
+      "VERIFIED",
+      "UNVERIFIED",
+      "CONTRADICTED",
+      "STALE",
+      "TEST",
+      "SIMULATED",
+      "INTERNAL",
+      "UNMATCHED"
+    ],
+    "publish_rule": "Publish only distinct, source-grounded utility; never fabricate sources, prices, traffic, buyers, or settlement."
+  }
+}
