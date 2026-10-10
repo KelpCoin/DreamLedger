@@ -37,6 +37,8 @@ checks.push(['B2B_CHECKOUT_NOT_MISREPRESENTED',b2bRoutes.includes('B2B_CHECKOUT_
 checks.push(['B2B_AUTHENTICATED_UI',b2bUi.includes('supabase.createClient')&&b2bUi.includes('Idempotency-Key')]);
 checks.push(['B2B_STRIPE_CONNECT_ONBOARDING_UI',b2bUi.includes('marketplace-seller-onboarding')&&b2bUi.includes('offers_enabled')]);
 checks.push(['B2B_SELLER_STATUS_ROUTE',b2bRoutes.includes('/api/b2b/seller-status')]);
+checks.push(['B2B_DURABLE_LISTING_SUBMISSION',b2bRoutes.includes("'/api/b2b/listings'")&&b2bRoutes.includes("status:'review'")&&b2bRoutes.includes('PERSISTENCE_UNCONFIRMED')]);
+checks.push(['B2B_SELLER_LISTING_UI',b2bUi.includes('listing-form')&&b2bUi.includes('/api/b2b/my-listings')]);
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
 const proof={schema:'dreamledger/b2b-marketplace-contract/v1',generated_at:new Date().toISOString(),verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,economic_truth:'Order creation is not revenue; verified revenue requires settled external payment, attribution, fulfilment and independent evidence.'};
 const out=path.join(root,'data','proofs','B2B-MARKETPLACE-CONTRACT-PROOF.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));process.exit(failed.length?1:0);
