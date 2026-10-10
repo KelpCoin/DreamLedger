@@ -6,7 +6,7 @@ const CALLS_PER_ROAD = 100;
 const SCHEMA = 'dreamledger/toll-road/v1';
 
 function roadNumber(id) {
-  const match = String(id || '').match(/^ROAD-(\\d{6})$/);
+  const match = String(id || '').match(/^ROAD-(\d{6})$/);
   if (!match) return null;
   const n = Number(match[1]);
   return Number.isInteger(n) && n >= 1 && n <= ROAD_COUNT ? n : null;
