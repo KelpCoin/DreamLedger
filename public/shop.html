@@ -1,1 +1,58 @@
-PLACEHOLDER
+<!doctype html>
+<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Browse DreamLedger products. Prices in NZD. Live Stripe checkout where available."><meta name="theme-color" content="#f7f5ef"><title>Products and Services | DreamLedger</title>
+<style>
+:root{--bg:#f7f5ef;--paper:#fffdf8;--ink:#191a17;--muted:#65635c;--line:#ddd8cd;--accent:#5d43d8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:auto;padding:0 20px}
+.top{position:sticky;top:0;z-index:20;background:#f7f5eff2;border-bottom:1px solid var(--line);padding:14px 0}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:950;letter-spacing:-.04em}.brand span{color:var(--accent)}
+nav{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;font-weight:750;color:var(--muted)}
+.hero{padding:48px 0 20px}.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:850;color:var(--accent)}
+h1{font-size:clamp(2.2rem,5.5vw,3.8rem);line-height:.95;letter-spacing:-.07em;margin:12px 0 12px}
+.lead{max-width:700px;color:var(--muted)}
+.hero-billboard{margin:24px 0;padding:26px;border-radius:18px;border:1px solid #e8d9a8;background:linear-gradient(135deg,#fffdf0,#f7f0d8);display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:center}
+.hero-billboard h2{margin:0 0 8px;font-size:1.5rem}
+.hero-billboard p{margin:0 0 14px;color:var(--muted);font-size:.95rem}
+.price-lg{font-size:2rem;font-weight:950}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border-radius:10px;font-weight:850;border:1px solid var(--ink);background:var(--ink);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink)}.btn.gold{background:#c9a227;border-color:#c9a227;color:#111}
+.group{padding:20px 0}.group h2{font-size:1.25rem}
+.rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--paper);min-height:210px}
+.tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:850;color:var(--accent)}
+.card p{color:var(--muted);font-size:.9rem;flex:1}.price{font-size:1.25rem;font-weight:900}
+.card .actions{display:flex;gap:8px;flex-wrap:wrap}.card .actions a{font-size:.85rem;min-height:38px;padding:8px 12px}
+.empty{padding:20px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:.8rem}
+footer a{color:var(--accent);margin-right:12px}
+@media(max-width:720px){.hero-billboard{grid-template-columns:1fr}}
+</style></head><body>
+<header class="top"><div class="wrap"><a class="brand" href="/">Dream<span>Ledger</span></a>
+<nav><a href="/">Home</a><a href="/shop.html">Shop</a><a href="/billboard.html">Billboard</a><a href="/truth-oracle.html">Truth Oracle</a><a href="/privacy">Privacy</a></nav></div></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">Products and services</div>
+<h1>Choose the work you need.</h1>
+<p class="lead">Clear prices. Stripe handles payment. A listing is not a verified sale. Delivery follows settlement and any stated review steps.</p></section>
+<section class="hero-billboard"><div>
+<div class="eyebrow" style="color:#8a6d12">Hero offer</div>
+<h2>Founding Billboard Tile</h2>
+<p>Permanent 100×100 public placement. You choose title and destination. Human review before publish. Intended term through 1 January 3000 while the site operates.</p>
+<a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w">Buy Founding Tile · NZ$50</a>
+<a class="btn ghost" href="/billboard.html" style="margin-left:8px">Explore the board</a>
+</div><div><div class="price-lg">NZ$50</div>
+<p style="color:var(--muted);font-size:.85rem;margin:6px 0 0">Live Stripe · Review before publish · Not a traffic or sales guarantee</p></div></section>
+<div id="products"><p class="empty">Loading listed products…</p></div>
+</main>
+<footer><div class="wrap"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/security">Security</a><a href="/trust/">Trust</a><span> · Prices in NZD</span></div></footer>
+<script>
+(function(){
+const FALLBACK=[{"id":"DREAMLEDGER-BILLBOARD-FOUNDING-001","name":"DreamLedger Founding Billboard","description":"Permanent 100x100 public billboard tile. Destination and creative from buyer; human review before publish.","price":50,"category":"public-placements","checkout_url":"https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w","checkout_available":true},{"id":"QUOTE-COMPARE-49","name":"Supplier Quote Comparison","description":"Structured comparison of supplier quotes with source fields kept visible.","price":49,"category":"procurement-tools","checkout_url":"https://buy.stripe.com/8x28wPc1T5lH6YfdVadwc34","checkout_available":true},{"id":"COMMANDER-DECK-DIAGNOSTIC-001","name":"Commander Deck Diagnostic","description":"Fixed-scope diagnostic for a Commander deck after settlement.","price":29,"category":"mtg","checkout_url":null,"checkout_available":true},{"id":"EVIDENCE-PACKET-10","name":"Evidence Packet","description":"Source bundle plus integrity/hash receipt for a defined claim or transaction.","price":10,"category":"digital-tools","checkout_url":"https://buy.stripe.com/28E14n6HzbK582j4kAdwc35","checkout_available":true},{"id":"DOC-EXTRACT-50","name":"Document Extraction","description":"Extract structured fields from a supplied document.","price":5,"category":"digital-tools","checkout_url":null,"checkout_available":true},{"id":"SUPPLIER-CHECK-50","name":"Supplier Verification Check","description":"Bounded supplier verification check against stated sources.","price":5,"category":"procurement-tools","checkout_url":null,"checkout_available":true},{"id":"SELLER-PROFIT-AUDIT-001","name":"Seller Profit Audit","description":"Fixed-scope seller profit audit.","price":29,"category":"seller-services","checkout_url":null,"checkout_available":true},{"id":"DREAMMEEZ-COSMIC-HOODIE-001","name":"DreamMeez Cosmic Hoodie","description":"One-time DreamMeez identity cosmetic after settled payment.","price":5,"category":"avatar-accessories","checkout_url":"https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J","checkout_available":true},{"id":"DL-DEMAND-LEAK-500","name":"Demand Leak Finder","description":"Fixed-scope inbound demand audit for one product or service.","price":500,"category":"growth-services","checkout_url":"https://buy.stripe.com/9B67sLd5X01n2HZ4kAdwc3j","checkout_available":true}];
+const labels={mtg:"Magic: The Gathering","public-placements":"Public placements","avatar-accessories":"Avatar accessories","digital-tools":"Digital tools","seller-services":"Seller services","procurement-tools":"Procurement tools","growth-services":"Growth services","other-products":"More products"};
+const order=["public-placements","procurement-tools","mtg","seller-services","digital-tools","growth-services","avatar-accessories","other-products"];
+const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&","<":"<",">":">",'"':"""}[c]));
+function render(products){const groups={};products.filter(p=>p).forEach(p=>{const k=labels[p.category]?p.category:"other-products";(groups[k]=groups[k]||[]).push(p)});const root=document.getElementById("products");root.innerHTML=order.filter(k=>groups[k]?.length).map(k=>'<section class="group"><h2>'+esc(labels[k])+'</h2><div class="rail">'+groups[k].map(p=>{const href=p.checkout_url||("/buy/"+encodeURIComponent(p.id));const label=p.checkout_url?"Buy now":"View product";return '<article class="card"><div class="tag">'+esc(labels[k])+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||"")+'</p><div class="price">NZ$'+esc(Number(p.price||0).toLocaleString("en-NZ",{maximumFractionDigits:2}))+'</div><div class="actions"><a class="btn" href="'+esc(href)+'">'+label+'</a><a class="btn ghost" href="/buy/'+encodeURIComponent(p.id)+'">Details</a></div></article>'}).join("")+'</div></section>').join("")||'<p class="empty">No products listed.</p>'}
+render(FALLBACK);
+fetch("/api/products",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{const products=(d.products||[]).filter(p=>p&&p.status==="published");if(products.length)render(products)}).catch(()=>{});
+})();
+</script></body></html>
