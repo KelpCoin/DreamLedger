@@ -66,6 +66,11 @@ async function handle(req, res, url) {
   if (!String(url).startsWith('/api/b2b/')) return false;
   const query = new URL(req.url, 'http://localhost').searchParams;
 
+  if (req.method === 'GET' && url === '/api/b2b/config') {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return send(res, 503, { error: 'B2B sign-in is not configured' });
+    return send(res, 200, { supabase_url: SUPABASE_URL, supabase_anon_key: SUPABASE_ANON_KEY });
+  }
+
   if (req.method === 'GET' && url === '/api/b2b/search') {
     try {
       const rows = await db('marketplace_listings', 'GET', 'status=eq.published&select=*&order=created_at.desc&limit=100');
