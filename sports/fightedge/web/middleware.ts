@@ -13,9 +13,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const incomingPath = request.nextUrl.pathname;
-  const suffix = incomingPath === "/" ? "" : incomingPath.replace(/^\/+/, "");
-  const destination = new URL(CANONICAL_BASE + suffix + request.nextUrl.search);
+  // The first-party site is a static service wall, not the old Next.js route tree.
+  // Map old deep links to the closest useful section instead of creating 404s.
+  const path = request.nextUrl.pathname.toLowerCase();
+  const destination = new URL(CANONICAL_BASE);
+  destination.search = request.nextUrl.search;
+  destination.hash = /analysis|results|pundit/.test(path) ? "#evidence" : "#catalog";
   return NextResponse.redirect(destination, 308);
 }
 
