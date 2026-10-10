@@ -3,6 +3,8 @@ from __future__ import annotations
 import json, os
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
+from access_bridge import list_routes, list_healthcare_funding_options, build_access_plan, build_access_case_packet
+from care_funding_gap import build_care_funding_gap_plan
 
 ROOT = Path(os.environ.get("BEC_ROOT", Path(__file__).resolve().parents[2])).resolve()
 FIXTURES = (ROOT / "runtime" / "lm_studio" / "fixtures").resolve()
@@ -41,6 +43,38 @@ def search_local_signal_fixtures(query: str) -> list:
         if q in json.dumps(row, ensure_ascii=False).lower():
             found.append({"fixture": path.name, "signal": row})
     return found[:10]
+
+@mcp.tool()
+def list_access_routes(categories: list[str], region: str = "Bay of Plenty") -> list:
+    """List curated NZ health, disability advocacy, legal-aid, or urgent-cost routes. No personal data is needed."""
+    return list_routes(categories, region)
+
+@mcp.tool()
+def list_healthcare_funding_routes() -> list:
+    """List potential NZ healthcare cost-support routes and evidence to prepare; no eligibility decision is made."""
+    return list_healthcare_funding_options()
+
+@mcp.tool()
+def prepare_care_funding_gap_plan(itemised_care_quote_nzd: float, confirmed_support_nzd: float = 0, cash_already_set_aside_nzd: float = 0, settled_and_available_care_fund_nzd: float = 0, verified_net_contribution_per_fulfilled_sale_nzd: float | None = None) -> dict:
+    """Calculate a private care-funding gap and optional sales scenario. Do not include diagnoses or identifying details. Inputs are not stored; projected or unsettled revenue is excluded."""
+    return build_care_funding_gap_plan(
+        itemised_care_quote_nzd=itemised_care_quote_nzd,
+        confirmed_support_nzd=confirmed_support_nzd,
+        cash_already_set_aside_nzd=cash_already_set_aside_nzd,
+        settled_and_available_care_fund_nzd=settled_and_available_care_fund_nzd,
+        verified_net_contribution_per_fulfilled_sale_nzd=verified_net_contribution_per_fulfilled_sale_nzd,
+    )
+
+
+@mcp.tool()
+def prepare_access_request(categories: list[str], barrier: str, communication_needs: str = "Please offer a low-effort way to respond, such as email or a scheduled callback.", region: str = "Bay of Plenty") -> dict:
+    """Prepare an editable service-request draft and follow-up checklist. Draft only: no data is stored and nothing is sent."""
+    return build_access_plan(categories, barrier, communication_needs, region)
+
+@mcp.tool()
+def prepare_access_case_packet(issue_type: str, summary: str, desired_outcome: str, timeline: list[str] | None = None, prior_attempts: list[str] | None = None, deadline: str = "", region: str = "Bay of Plenty", barriers: list[str] | None = None) -> dict:
+    """Structure user-supplied facts and multiple barrier tags into a case packet with evidence prompts. No storage or sending."""
+    return build_access_case_packet(issue_type, summary, desired_outcome, timeline or [], prior_attempts or [], deadline, region, barriers or [])
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
