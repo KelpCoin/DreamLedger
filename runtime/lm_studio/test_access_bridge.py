@@ -21,6 +21,12 @@ class AccessBridgeTests(unittest.TestCase):
         self.assertTrue(any("assigned lawyer" in item for item in plan["checklist"]))
         self.assertTrue(plan["healthcare_funding_options"])
 
+    def test_baywide_route_uses_tauranga_contact_details(self):
+        route = next(route for route in list_routes(["legal_aid"], "Bay of Plenty") if route["id"] == "community_law_bop")
+        self.assertIn("0800 905 916", route["contact"])
+        self.assertIn("07) 571 6812", route["contact"])
+        self.assertIn("tauranga@baywidecls.org.nz", route["contact"])
+
     def test_hamilton_routes_to_waikato_community_law(self):
         ids = {route["id"] for route in list_routes(["legal_aid"], "Hamilton")}
         self.assertIn("community_law_waikato", ids)
