@@ -75,3 +75,39 @@ The supplied scripts were reviewed as text only. They have not been run on the u
 - Do not apply the pasted migration, deploy a new webhook, enable live webhook routing, or claim the loop is closed until these gates are evidenced.
 
 Current status remains: reviewed source text and repository files only. No local bootstrap, self-hosted runner registration, Supabase connection, migration, Stripe webhook delivery, or paid fulfillment has been executed or proven.
+
+
+## Batch 17–18 follow-up: code-level review (2026-10-10)
+
+### Outcome
+
+Reviewed the supplied scripts against the current repository's existing settlement schema and quote-comparison implementation. The proposed migration/webhook must **not** be applied or deployed as written. This is not a rejection of the three corrections; it is a compatibility and correctness gate before implementation.
+
+### Verified repository facts
+
+- `supabase/functions/quote-intake/index.ts` is an existing live-mode buyer path. It retrieves the Checkout Session from Stripe and requires `livemode === true`, `payment_status === "paid"`, the configured Quote-Compare Payment Link, the expected SKU metadata, and matching order, entitlement, and fulfillment rows.
+- `supabase/functions/quote-fulfillment/index.ts` processes uploaded quote inputs, only produces the comparison output when its comparison status is `COMPLETE`, and records output references. It currently reports `evidence_status: "UNVERIFIED"`; therefore the function's `fulfilled` status is not independent evidence validation.
+- Existing migration `20260912_settlement_and_work_ledger_hardening.sql` defines `processed_webhook_events` with primary key `provider_event_id`, payload, lease/attempt fields and statuses `pending/processing/done/failed`, and wires `stripe_webhook_events` inserts into that settlement queue.
+- Migration `20260913_maximona_payment_path_idempotency_and_evidence.sql` also attempts to create `processed_webhook_events`, but uses a different `event_id/event_type/processed_at` shape. Because it uses `CREATE TABLE IF NOT EXISTS`, it does not reconcile the already-existing table shape. This migration-history conflict must be resolved by inspecting the full applied migration ledger and actual database schema, not by adding another guessed inbox table.
+- GitHub Actions API returned new runs `38024011658` (B2B Marketplace Live Gate) and `38024011625` (money-first-integrity) as `queued` at the time of inspection. A queued state is not a passing test. The existing workflow path is cloud-hosted and does not need a Windows self-hosted runner.
+
+### Specific defects in the pasted atomic RPC proposal
+
+1. **Schema mismatch:** the function assumes column names and relations for `revenue_orders`, `revenue_entitlements`, and `fulfillment_requests` without proving them against the applied schema. It passes `v_order_id` as `fulfillment_requests.entitlement_id`, although the existing quote-intake path looks up the fulfillment request by the actual entitlement row ID. This can create a broken relationship or fail at runtime.
+2. **Unsafe duplicate semantics:** returning `already_processed: true` for any existing inbox row, including `processing`, `failed`, or `skipped`, can suppress retry/recovery. Duplicate handling must distinguish completed, in-flight, retryable, and permanent-failure states.
+3. **Payment eligibility:** the proposed handler only listens for `checkout.session.completed` and does not itself require `session.payment_status === "paid"`, expected live/test mode, expected Payment Link/SKU/amount/currency, or a supported settlement state. The existing quote-intake function does some of these checks; the proposal must not weaken them.
+4. **Null/shape handling:** the proposal's SQL columns and non-null assumptions are unverified, while `customer_details.email`, `amount_total`, metadata and other fields can be null. Explicit validation and a schema-aligned contract are required.
+5. **Atomic DB work is not end-to-end atomicity:** a PostgreSQL function can atomically create DB rows, but cannot atomically commit object-storage writes, external worker execution, or Stripe state. Those steps need a retry-safe state machine/outbox and reconciliation; database transaction rollback alone does not undo external effects.
+6. **Advisory-lock limits:** `hashtext` is a 32-bit hash and may collide. The unique event ID remains the authoritative deduplication constraint; do not rely on the advisory lock as the only concurrency control.
+7. **Runner script:** `--ephemeral` is a useful lifecycle boundary but does not by itself prevent malicious workflow code from reading any secrets or data available to that one job. The supplied installer downloads a pinned version without verifying an artifact digest, and the proposed wrapper-restart behavior is not implemented. No runner is required for the current cloud-hosted workflow and none should be registered while the PC is offline.
+8. **Verification script false positives:** checking `.runner` JSON for `ephemeral` may not be a supported/portable source of runner mode; the table test uses `-match "t"` and can match unrelated output; native `psql` exit codes are not checked consistently; and the script tests tool availability on a machine it cannot reach from cloud CI. Split cloud checks from local-worker checks and fail closed.
+
+### Safe next implementation sequence
+
+1. Resolve the migration-history/schema mismatch from the authoritative Supabase migration ledger and actual schema when database access is available.
+2. Map the current configured Stripe endpoint(s) and deployed Edge Functions to the existing settlement queue before changing webhook routing.
+3. Add secret-free cloud tests for the quote-intake eligibility guards, duplicate/concurrent fulfillment behavior, missing/stale local-worker heartbeat, and truthful evidence status.
+4. Test the current Quote-Compare path in Stripe test mode; reconcile Checkout Session, PaymentIntent/settlement, order, entitlement, fulfillment, and delivered artifact by stable IDs.
+5. Only then draft a schema-aligned migration/RPC on a branch, test rollback/retry behavior, and request explicit approval before production database or live webhook mutation.
+
+No migration was applied, no webhook was deployed, no runner was registered, and no live payment or fulfillment was claimed by this review.
