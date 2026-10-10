@@ -56,10 +56,10 @@ def evaluate(hypothesis: dict) -> dict:
     h_pass = all(v >= 7 for v in hs.values())
     e_low = any(v <= 3 for v in es.values())
     e_high = any(v >= 7 for v in es.values())
-    if not h_pass or weighted < 60:
-        decision = "KILL"
-    elif e_high and not h_pass:
+    if not h_pass and e_high:
         decision = "PIVOT"
+    elif not h_pass or weighted < 60:
+        decision = "KILL"
     elif not e_high and (weighted < 75 or e_low):
         decision = "ITERATE"
     elif weighted < 75:
