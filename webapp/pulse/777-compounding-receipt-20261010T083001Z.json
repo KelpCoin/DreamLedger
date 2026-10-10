@@ -1,0 +1,15 @@
+{
+  "artifact_count": 4,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "public/pulse/777-component-02-b2b-capability-schema.html",
+    "public/pulse/index.html",
+    "webapp/pulse/777-component-02-b2b-capability-schema.html",
+    "webapp/pulse/index.html"
+  ],
+  "observed_at": "2026-10-10T08:30:01.628522+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
