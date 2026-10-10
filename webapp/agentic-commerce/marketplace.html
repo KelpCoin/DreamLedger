@@ -35,5 +35,38 @@ const items=[
 ];
 const catalog=document.getElementById("catalog"),search=document.getElementById("search"),category=document.getElementById("category"),count=document.getElementById("count");
 function render(){const q=search.value.trim().toLowerCase(),c=category.value,found=items.filter(x=>(!c||x.category===c)&&(!q||(x.name+" "+x.description+" "+x.tags).toLowerCase().includes(q)));catalog.replaceChildren();for(const x of found){const a=document.createElement("article");a.className="card";const m=document.createElement("div");m.className="meta";m.textContent=x.category;const h=document.createElement("h3");h.textContent=x.name;const p=document.createElement("p");p.textContent=x.description;const s=document.createElement("div");s.className="status";s.textContent=x.status;const id=document.createElement("div");id.className="small";id.textContent="Listing key: "+x.id;a.append(m,h,p,s,id);catalog.append(a)}if(!found.length){const e=document.createElement("div");e.className="empty";e.textContent="No matching listings. Try a broader term.";catalog.append(e)}count.textContent=found.length+" of "+items.length+" catalogue entries shown. Entries are not proof of seller availability or completed transactions."}
-search.addEventListener("input",render);category.addEventListener("change",render);render();
+
+// Agent Bridge manifest is the catalogue source of truth for API offers.
+// Checkout configuration is deliberately not presented as settled payment or fulfilled delivery.
+async function loadBridgeCatalogue(){
+  try {
+    const response = await fetch("https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest",{headers:{"Accept":"application/json"},cache:"no-store"});
+    if(!response.ok) throw new Error("Manifest HTTP "+response.status);
+    let raw = await response.text();
+    // Defensive compatibility for an upstream serializer that may escape underscores.
+    raw = raw.replace(/\\\\_/g,"_");
+    const manifest = JSON.parse(raw);
+    if(!Array.isArray(manifest.services)) throw new Error("Manifest services missing");
+    const existing = new Set(items.map(x=>x.id));
+    for(const service of manifest.services){
+      if(!service || !service.id || existing.has(service.id)) continue;
+      const price = Number(service.price_nzd);
+      const priceLabel = Number.isFinite(price) ? " · NZ$"+price.toFixed(price%1?2:0) : "";
+      items.push({
+        id:String(service.id),
+        name:String(service.id).replace(/[-_]+/g," ").toLowerCase().replace(/\\b\\w/g,c=>c.toUpperCase())+priceLabel,
+        category:"Agent APIs",
+        description:String(service.description||"Agent Bridge capability.")+" Route: "+String(service.route||"not supplied")+". Scope: "+String(service.scope||"not supplied")+".",
+        status:service.checkout_configured===true ? "Manifest reports checkout configured; settlement, entitlement and delivery are unverified" : "Manifest entry; checkout and fulfilment status unverified",
+        tags:[service.id,service.route,service.scope,service.description].filter(Boolean).join(" ")
+      });
+      existing.add(service.id);
+    }
+    render();
+    count.textContent += " Agent Bridge manifest loaded; catalogue is not proof of completed transactions.";
+  } catch(error) {
+    count.textContent = count.textContent+" Agent Bridge live sync unavailable; showing the bundled fallback catalogue.";
+  }
+}
+search.addEventListener("input",render);category.addEventListener("change",render);render();loadBridgeCatalogue();
 </script></body></html>
