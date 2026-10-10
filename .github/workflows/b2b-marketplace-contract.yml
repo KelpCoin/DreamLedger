@@ -5,6 +5,9 @@ on:
       - 'BEC-PRIME/routes/b2b-marketplace.js'
       - 'BEC-PRIME/routes/dreamiez.js'
       - 'BEC-PRIME/scripts/test-b2b-marketplace.js'
+      - 'BEC-PRIME/scripts/test-a2a-marketplace.js'
+      - 'BEC-PRIME/routes/m2m.js'
+      - 'public/a2a-marketplace.html'
       - 'BEC-PRIME/scripts/verify-b2b-marketplace-contract.js'
       - 'BEC-PRIME/package.json'
       - 'public/b2b-marketplace.html'
@@ -32,6 +35,12 @@ jobs:
       - name: Test B2B API authorization and failure boundaries
         working-directory: BEC-PRIME
         run: npm run test:b2b-marketplace
+      - name: Test A2A authorization and quote signatures
+        working-directory: BEC-PRIME
+        run: npm run test:a2a-marketplace
+      - name: Verify A2A marketplace release contract
+        working-directory: BEC-PRIME
+        run: node scripts/verify-a2a-marketplace-contract.js
       - name: Verify marketplace release contract
         working-directory: BEC-PRIME
         run: node scripts/verify-b2b-marketplace-contract.js
