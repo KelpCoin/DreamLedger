@@ -15,9 +15,14 @@ Deno.serve(async(req)=>{
  const signature=req.headers.get("stripe-signature")||""; const raw=await req.text(); let event:any;
  try{event=await stripe.webhooks.constructEventAsync(raw,signature,STRIPE_WEBHOOK_SIGNING_SECRET,undefined,cryptoProvider)}catch(error){return new Response("invalid signature",{status:400})}
  const eventId=String(event.id||""); const eventType=String(event.type||""); if(!eventId)return new Response("missing event id",{status:400});
- const {data:existingWebhook}=await supabase.from("stripe_webhook_events").select("event_id,processed").eq("event_id",eventId).maybeSingle();
- if(existingWebhook?.processed===true)return Response.json({received:true,duplicate:true,event_id:eventId});
- const {error:webhookInsertError}=await supabase.from("stripe_webhook_events").upsert({event_id:eventId,event_type:eventType,processed:false,processed_at:null,payload:event},{onConflict:"event_id"}); if(webhookInsertError)return new Response("webhook event persistence failed",{status:500});
+ const {data:claim,error:claimError}=await supabase.rpc("claim_stripe_webhook_event",{
+   p_event_id:eventId,
+   p_event_type:eventType,
+   p_payload:event
+ });
+ if(claimError||!claim)return new Response("webhook idempotency claim unavailable",{status:503});
+ if(claim.processed===true)return Response.json({received:true,duplicate:true,event_id:eventId});
+ if(claim.claimed!==true)return new Response("webhook event is already being processed; retry shortly",{status:503});
  if(eventType==="transfer.created"||eventType==="transfer.updated"||eventType==="transfer.reversed"){
    const transfer:any=event.data?.object||{};
    const transferId=String(transfer.id||"");
@@ -29,17 +34,21 @@ Deno.serve(async(req)=>{
        stripe_charge_id:transfer.source_transaction||undefined,
        updated_at:new Date().toISOString()
      }).eq("stripe_transfer_id",transferId);
-     await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+     await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString(),processing_started_at:null}).eq("event_id",eventId);
      return Response.json({received:true,recorded:true,event_id:eventId,transfer_id:transferId,status:transferStatus});
    }
  }
- if(eventType!=="checkout.session.completed"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);return Response.json({received:true,ignored:true,event_id:eventId});}
+ if(eventType!=="checkout.session.completed"&&eventType!=="checkout.session.async_payment_succeeded"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString(),processing_started_at:null}).eq("event_id",eventId);return Response.json({received:true,ignored:true,event_id:eventId});}
  const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null; const customFields=Array.isArray(session.custom_fields)?session.custom_fields:[]; const charityField=customFields.find((field:any)=>String(field?.key||"")==="charity"); const charityIdentifier=String(charityField?.text?.value||"").trim();
- if(!checkoutSessionId||session.payment_status!=="paid")return new Response("checkout session is not paid",{status:400}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
+ if(!checkoutSessionId)return new Response("missing checkout session id",{status:400});
+ if(eventType==="checkout.session.completed"&&session.payment_status!=="paid"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString(),processing_started_at:null}).eq("event_id",eventId);return Response.json({received:true,ignored:true,event_id:eventId,reason:"checkout_not_settled"});}
+ if(session.payment_status!=="paid")return new Response("settlement event is not paid",{status:409});
+ if(session.livemode!==true)return new Response("test-mode session cannot enter live revenue ledger",{status:400});
+ if(currency!=="NZD")return new Response("unexpected currency",{status:400});
  const marketplaceListingId=String(metadata.marketplace_listing_id||"");
  let marketplaceSettlement:any=null;
  let marketplaceListing:any=null;
- let sku=String(metadata.sku_id||metadata.sku||""); if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS") sku="ACNC-CHARITY-DD-99";
+ let sku=String(metadata.sku_id||metadata.dreamledger_sku||metadata.product_sku||metadata.sku||""); if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS") sku="ACNC-CHARITY-DD-99";
  if(marketplaceListingId){
    const {data:listing,error:listingError}=await supabase.from("marketplace_listings").select("id,sku,title,price_nzd,status,inventory,seller_id,organization_id,fulfillment_type,metadata").eq("id",marketplaceListingId).single();
    if(listingError||!listing)return new Response("marketplace listing not found",{status:400});
@@ -83,7 +92,17 @@ const {data:catalog,error:catalogError}=await supabase.from("revenue_catalog").s
  const amountNzd=amountMinor/100; if(Number(catalog.price_nzd)!==amountNzd)return new Response("amount does not match catalog price",{status:400});
  const {data:skuRow,error:skuError}=await supabase.from("skus").select("id,silo_id,status").eq("id",sku).limit(1).maybeSingle(); if(skuError)return new Response("sku lookup failed",{status:500}); if(!skuRow||skuRow.status!=="active")return new Response("sku is not present in authoritative sku registry",{status:400});
  const paidAt=session.created?new Date(Number(session.created)*1000).toISOString():new Date().toISOString(); let orderId:string|null=null;
- const {data:existingOrder}=await supabase.from("revenue_orders").select("id").eq("stripe_event_id",eventId).limit(1).maybeSingle(); if(existingOrder?.id)orderId=existingOrder.id; else {const {data:order,error:orderError}=await supabase.from("revenue_orders").insert({stripe_event_id:eventId,stripe_checkout_session_id:checkoutSessionId,stripe_payment_intent_id:paymentIntentId,stripe_customer_id:typeof session.customer==="string"?session.customer:null,sku_id:sku,amount_nzd:Math.round(amountNzd),currency:currency.toLowerCase(),customer_email:customerEmail,status:"paid",paid_at:paidAt,raw_event:event}).select("id").single(); if(orderError||!order)return new Response("order creation failed",{status:500}); orderId=order.id;}
+ const {data:existingOrder,error:existingOrderError}=await supabase.from("revenue_orders").select("id").eq("stripe_checkout_session_id",checkoutSessionId).limit(1).maybeSingle();
+ if(existingOrderError)return new Response("existing order lookup failed",{status:500});
+ if(existingOrder?.id)orderId=existingOrder.id;
+ else {
+   const {data:order,error:orderError}=await supabase.from("revenue_orders").insert({stripe_event_id:eventId,stripe_checkout_session_id:checkoutSessionId,stripe_payment_intent_id:paymentIntentId,stripe_customer_id:typeof session.customer==="string"?session.customer:null,sku_id:sku,amount_nzd:amountNzd,currency:currency.toLowerCase(),customer_email:customerEmail,status:"paid",paid_at:paidAt,raw_event:event}).select("id").single();
+   if(orderError||!order){
+     const {data:recoveredOrder,error:recoveryError}=await supabase.from("revenue_orders").select("id").eq("stripe_checkout_session_id",checkoutSessionId).limit(1).maybeSingle();
+     if(recoveryError||!recoveredOrder?.id)return new Response("order creation failed and idempotent recovery was not confirmed",{status:500});
+     orderId=recoveredOrder.id;
+   } else orderId=order.id;
+ }
  const {error:ledgerInsertError}=await supabase.from("event_ledger").upsert({idempotency_key:eventId,stripe_event_id:eventId,type:"payment.observed",amount_minor:amountMinor,currency:currency.toLowerCase(),sku_id:sku,raw:event},{onConflict:"idempotency_key"}); if(ledgerInsertError)return new Response("ledger write failed",{status:500});
  let entitlement:any=null; const {data:existingEntitlement}=await supabase.from("revenue_entitlements").select("id,fulfillment_key,status").eq("order_id",orderId).limit(1).maybeSingle(); if(existingEntitlement)entitlement=existingEntitlement; else {const fulfillmentKey=`DL-${sku}-${crypto.randomUUID().replaceAll("-","").slice(0,20).toUpperCase()}`; const {data:createdEntitlement,error:entitlementError}=await supabase.from("revenue_entitlements").insert({order_id:orderId,sku_id:sku,fulfillment_key:fulfillmentKey,status:"ready"}).select("id,fulfillment_key,status").single(); if(entitlementError||!createdEntitlement)return new Response("entitlement creation failed",{status:500}); entitlement=createdEntitlement;}
  let fulfillment:any=null; const {data:existingFulfillment,error:fulfillmentLookupError}=await supabase.from("fulfillment_requests").select("id,status").eq("entitlement_id",entitlement.id).limit(1).maybeSingle(); if(fulfillmentLookupError)return new Response("fulfillment lookup failed",{status:500}); if(existingFulfillment)fulfillment=existingFulfillment; else {const {data:createdFulfillment,error:fulfillmentError}=await supabase.from("fulfillment_requests").insert({entitlement_id:entitlement.id,sku_id:sku,customer_email:customerEmail,payload:{source:"stripe_revenue_webhook",stripe_event_id:eventId,stripe_checkout_session_id:checkoutSessionId,stripe_payment_intent_id:paymentIntentId,offer_id:metadata.offer_id?String(metadata.offer_id):null,fulfillment_type:catalog.fulfillment_type||null},status:"queued"}).select("id,status").single(); if(fulfillmentError||!createdFulfillment)return new Response("fulfillment request creation failed",{status:500}); fulfillment=createdFulfillment;}

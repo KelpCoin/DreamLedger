@@ -6,7 +6,7 @@
   "counts": {
     "capabilities": 15,
     "candidates": 31,
-    "passed": 29,
+    "passed": 28,
     "approved": 0,
     "rejected": 3
   },
@@ -1545,56 +1545,6 @@
         ],
         "methodology": "offer-compiler-v1",
         "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
-        "private_material": "excluded"
-      }
-    },
-    {
-      "offer_id": "OFFER-QUOTE-COMPARE-49-NZD",
-      "version": "offer-v1",
-      "capability_id": "PRODUCT-QUOTE-COMPARE-49",
-      "silo": "dreamledger",
-      "name": "Supplier Quote Comparison",
-      "problem": "Turn 2-5 supplier quotations into one normalized, source-backed decision packet.",
-      "input": "2-5 PDF, CSV, JSON or Markdown supplier quotes plus purchase requirements or scope.",
-      "output": "Source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.",
-      "delivery_mechanism": "stripe_payment -> revenue_webhook -> revenue_order -> entitlement -> fulfillment_request -> quote_fulfillment -> digital_delivery",
-      "deliverable": "Normalized supplier quote comparison decision packet.",
-      "target_buyer": "Buyer with 2-5 supplier quotes who needs the differences made explicit before choosing a supplier.",
-      "eligibility": "Buyer supplies 2-5 supported supplier quote files plus purchase requirements or scope.",
-      "constraints": [
-        "No credential collection",
-        "No invented missing information",
-        "Missing fields remain unknown",
-        "DreamLedger silo only"
-      ],
-      "price": 49,
-      "currency": "NZD",
-      "pricing_strategy": "fixed",
-      "pricing_tier": null,
-      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
-      "payment_adapter": "stripe",
-      "checkout_route": "stripe_payment_link",
-      "approval_required": false,
-      "checkout_available": true,
-      "status": "VERIFIED_AVAILABLE",
-      "proof_of_delivery": "fulfilled quote comparison artifact + Stripe live payment evidence + fulfillment evidence",
-      "verification_rules": [
-        "canonical_product",
-        "stripe_livemode",
-        "payment_paid",
-        "currency_nzd",
-        "amount_matches_offer",
-        "sku_attribution",
-        "fulfillment_artifact",
-        "evidence_present",
-        "schema_valid"
-      ],
-      "provenance": {
-        "capability_ids": [
-          "PRODUCT-QUOTE-COMPARE-49"
-        ],
-        "methodology": "offer-compiler-v1",
-        "public_claims_source": "public/agent-products.json",
         "private_material": "excluded"
       }
     }

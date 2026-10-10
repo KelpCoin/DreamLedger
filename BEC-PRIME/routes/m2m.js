@@ -2,11 +2,15 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
 const PRODUCT_DIR = path.join(ROOT, 'catalog', 'products');
 const PROOF_DIR = path.resolve(process.env.PROOF_DATA_DIR || path.join(ROOT, 'data', 'proofs'));
 const M2M_API_KEY = process.env.M2M_API_KEY || '';
+const M2M_QUOTE_SIGNING_SECRET = process.env.M2M_QUOTE_SIGNING_SECRET || '';
+
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || '';
 const RAG_API_KEY = process.env.RAG_API_KEY || '';
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -15,9 +19,25 @@ const consultDecision = require('./consultDecision');
 
 function send(res, status, body) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); }
 function products() { if (!fs.existsSync(PRODUCT_DIR)) return []; return fs.readdirSync(PRODUCT_DIR).filter(x => x.endsWith('.json')).map(x => JSON.parse(fs.readFileSync(path.join(PRODUCT_DIR, x), 'utf8'))).filter(p => p.status === 'published' && p.commercial_truth?.approval_required === false && Number(p.inventory || 0) > 0); }
-function machineProduct(p) { return { id: p.id, name: p.name, agentDescription: p.description, price: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), inventory: Number(p.inventory), status: 'published', checkout_available: true, attributes: { type: 'physical_or_defined_delivery', silo: p.silo, shipping_zone: 'NZ' }, verification_hash: require('crypto').createHash('sha256').update(JSON.stringify(p)).digest('hex'), checkout_route: '/m2m/v1/checkout' }; }
+function machineProduct(p) { return { id: p.id, name: p.name, agentDescription: p.description, price: Number(p.price), currency: String(p.currency || 'nzd').toLowerCase(), inventory: Number(p.inventory), status: 'published', checkout_available: false, attributes: { type: 'physical_or_defined_delivery', silo: p.silo, shipping_zone: 'NZ' }, verification_hash: require('crypto').createHash('sha256').update(JSON.stringify(p)).digest('hex'), checkout_route: '/api/a2a/checkout' }; }
+async function marketplaceListings() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return { ok:false, items:[] };
+  try {
+    const query='status=eq.published&agent_purchasable=eq.true&select=id,slug,title,description,category,price,currency,seller_id,agent_purchasable,created_at,status&order=created_at.desc&limit=100';
+    const response=await fetch(SUPABASE_URL+'/rest/v1/marketplace_listings?'+query,{headers:{apikey:SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+SUPABASE_SERVICE_ROLE_KEY}});
+    if(!response.ok)return {ok:false,items:[]};
+    const items=await response.json();
+    return {ok:true,items:Array.isArray(items)?items:[]};
+  } catch { return {ok:false,items:[]}; }
+}
+function machineListing(row) {
+  const item={id:row.id,name:row.title,agentDescription:row.description,price:Number(row.price),currency:String(row.currency||'nzd').toLowerCase(),inventory:1,status:'published',silo:'marketplace',seller_id:row.seller_id,category:row.category||'General',slug:row.slug||null,created_at:row.created_at,attributes:{type:'seller_marketplace_listing',seller_id:row.seller_id},checkout_available:false,checkout_route:'/api/a2a/checkout',verification_hash:require('crypto').createHash('sha256').update(JSON.stringify(row)).digest('hex')};
+  return item;
+}
+
 function authorized(req) { if (!M2M_API_KEY) return true; const header = String(req.headers.authorization || ''); return header === `Bearer ${M2M_API_KEY}`; }
 function ragAuthorized(req) { if (!RAG_API_KEY) return false; return String(req.headers.authorization || '') === `Bearer ${RAG_API_KEY}`; }
+async function authorizedHuman(req) { const match=String(req.headers.authorization||'').match(/^Bearer\s+(.+)$/i); if(!match||!SUPABASE_URL||!SUPABASE_ANON_KEY)return null; try{const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+match[1]}});if(!r.ok)return null;const user=await r.json();return user?.id&&user?.email_confirmed_at?user:null;}catch{return null;} }
 async function body(req) { let data = ''; for await (const chunk of req) { data += chunk; if (data.length > 1000000) throw new Error('Request too large'); } return JSON.parse(data || '{}'); }
 async function ragQuery(payload, caller) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error('RAG Supabase service is not configured');
@@ -47,10 +67,48 @@ async function handle(req, res, url) {
   if (req.method === 'POST' && url === '/m2m/v1/checkout') { if (!authorized(req)) return send(res, 403, { error: { code: 'FORBIDDEN', message: 'M2M authentication required' } }); const b = await body(req); if (!b.product_id) return send(res, 422, { error: { code: 'VALIDATION_ERROR', message: 'product_id is required' } }); const target = products().find(p => p.id === b.product_id); if (!target) return send(res, 404, { error: { code: 'NOT_FOUND', message: 'Product not available' } }); return send(res, 200, { checkout_route: '/api/checkout/create', product_id: target.id, status: 'READY', requires_payment: true, human_approval_required: false, next: 'POST /api/checkout/create with product_id and silo' }); }
   if (req.method === 'GET' && url.startsWith('/m2m/v1/proof/')) { const ref = path.basename(url); const file = path.join(PROOF_DIR, ref.endsWith('.json') ? ref : `${ref}.json`); if (!fs.existsSync(file)) return send(res, 404, { error: { code: 'NOT_FOUND', message: 'Proof not found' } }); return send(res, 200, JSON.parse(fs.readFileSync(file, 'utf8'))); }
   if (req.method === 'GET' && url === '/m2m/v1/marketplace/manifest') return send(res, 200, { schema:'dreamledger.a2a-marketplace.manifest.v1', name:'DreamLedger B2B + A2A Marketplace', discovery:['/m2m/v1/marketplace/capabilities','/m2m/v1/marketplace/search'], commerce:['/m2m/v1/marketplace/quote','/m2m/v1/marketplace/authorize'], human_web:'/marketplace.html', b2b_web:'/b2b', a2a_web:'/a2a', agent_card:'/marketplace/agent-card.json', authority_required:['identity','consent','payment','external_account_actions'], truth_boundary:'UNVERIFIED until settled external payment, fulfillment and independent evidence are observed.' });
-  if (req.method === 'GET' && url === '/m2m/v1/marketplace/capabilities') { const list=products().map(machineProduct).map(p=>({capability_id:'PRODUCT:'+p.id,name:p.name,description:p.agentDescription,price:p.price,currency:p.currency,pricing_mode:'fixed',source:'DreamLedger product catalog',checkout_route:p.checkout_route,verification_hash:p.verification_hash})); return send(res,200,{schema:'dreamledger.a2a.capabilities.v1',capabilities:list,total:list.length}); }
-  if (req.method === 'POST' && url === '/m2m/v1/marketplace/search') { const b=await body(req),q=String(b.query||'').trim().toLowerCase(),max=Number.isFinite(Number(b.filters?.max_price))?Number(b.filters.max_price):Infinity; const capabilities=products().map(machineProduct).filter(p=>{const hay=(p.name+' '+p.agentDescription+' '+p.attributes.silo).toLowerCase();return(!q||hay.includes(q))&&p.price<=max&&(!b.filters?.in_stock||p.inventory>0)}).map(p=>({capability_id:'PRODUCT:'+p.id,name:p.name,description:p.agentDescription,price:p.price,currency:p.currency,pricing_mode:'fixed',source:'DreamLedger product catalog',checkout_route:p.checkout_route,verification_hash:p.verification_hash})); return send(res,200,{schema:'dreamledger.a2a.search.v1',query:q,capabilities,total:capabilities.length}); }
-  if (req.method === 'POST' && url === '/m2m/v1/marketplace/quote') { const b=await body(req),id=String(b.capability_id||b.product_id||'').replace(/^PRODUCT:/,''),target=products().find(p=>p.id===id); if(!target)return send(res,404,{error:{code:'NOT_FOUND',message:'Capability not available'}}); const p=machineProduct(target); return send(res,200,{schema:'dreamledger.a2a.quote.v1',quote_id:'quote:'+target.id+':'+Date.now(),capability_id:'PRODUCT:'+target.id,price:p.price,currency:p.currency,pricing_mode:'fixed',valid_for_seconds:900,checkout_route:p.checkout_route,payment_required:true,human_authorization_required:true,commercial_truth:'QUOTE_NOT_PAYMENT'}); }
-  if (req.method === 'POST' && url === '/m2m/v1/marketplace/authorize') { const b=await body(req),id=String(b.capability_id||b.product_id||'').replace(/^PRODUCT:/,''),target=products().find(p=>p.id===id); if(!target)return send(res,404,{error:{code:'NOT_FOUND',message:'Capability not available'}}); if(b.authorized!==true)return send(res,403,{error:{code:'AUTHORITY_REQUIRED',message:'Explicit buyer authorization is required before checkout handoff'}}); return send(res,200,{schema:'dreamledger.a2a.authorization.v1',capability_id:'PRODUCT:'+target.id,authorization:'APPROVED_FOR_CHECKOUT_HANDOFF',checkout_route:'/api/checkout/create',product_id:target.id,human_authorization_required:true,commercial_truth:'AUTHORIZED_ACTION_NOT_PAYMENT'}); }
+  if (req.method === 'GET' && url === '/m2m/v1/marketplace/capabilities') { const base=products().map(machineProduct).map(p=>({capability_id:'PRODUCT:'+p.id,name:p.name,description:p.agentDescription,price:p.price,currency:p.currency,pricing_mode:'fixed',source:'DreamLedger product catalog',checkout_route:'/api/a2a/checkout',checkout_available:false,verification_hash:p.verification_hash})); const listingResult=await marketplaceListings(); const listings=listingResult.items.map(x=>{const p=machineListing(x);return{capability_id:'LISTING:'+p.id,name:p.name,description:p.agentDescription,price:p.price,currency:p.currency,pricing_mode:'fixed',source:'DreamLedger seller marketplace',checkout_route:p.checkout_route,checkout_available:false,verification_hash:p.verification_hash};}); const capabilities=[...base,...listings]; return send(res,200,{schema:'dreamledger.a2a.capabilities.v1',capabilities,total:capabilities.length,marketplace_listing_discovery:listingResult.ok?'AVAILABLE':'UNAVAILABLE',checkout_truth:'A2A checkout remains blocked until canonical order settlement and fulfillment are released.'}); }
+  if (req.method === 'POST' && url === '/m2m/v1/marketplace/search') { const b=await body(req),q=String(b.query||'').trim().toLowerCase(),max=Number.isFinite(Number(b.filters?.max_price))?Number(b.filters.max_price):Infinity; const base=products().map(machineProduct).filter(p=>{const hay=(p.name+' '+p.agentDescription+' '+p.attributes.silo).toLowerCase();return(!q||hay.includes(q))&&p.price<=max&&(!b.filters?.in_stock||p.inventory>0)}).map(p=>({capability_id:'PRODUCT:'+p.id,name:p.name,description:p.agentDescription,price:p.price,currency:p.currency,pricing_mode:'fixed',source:'DreamLedger product catalog',checkout_route:p.checkout_route,checkout_available:p.checkout_available,verification_hash:p.verification_hash})); const listingResult=await marketplaceListings(); const listings=listingResult.items.map(x=>machineListing(x)).filter(p=>{const hay=(p.name+' '+p.agentDescription+' '+p.category).toLowerCase();return(!q||hay.includes(q))&&p.price<=max;}).map(p=>({capability_id:'LISTING:'+p.id,name:p.name,description:p.agentDescription,price:p.price,currency:p.currency,pricing_mode:'fixed',source:'DreamLedger seller marketplace',checkout_route:p.checkout_route,checkout_available:false,verification_hash:p.verification_hash})); const capabilities=[...base,...listings]; return send(res,200,{schema:'dreamledger.a2a.search.v1',query:q,capabilities,total:capabilities.length,marketplace_listing_discovery:listingResult.ok?'AVAILABLE':'UNAVAILABLE',checkout_truth:'A2A checkout remains blocked until canonical order settlement and fulfillment are released.'}); }
+  if (req.method === 'POST' && url === '/m2m/v1/marketplace/quote') {
+    const b=await body(req),requested=String(b.capability_id||b.product_id||'');
+    let capabilityId='',target=null,p=null,silo='marketplace';
+    if(requested.startsWith('LISTING:')){
+      const listingId=requested.slice('LISTING:'.length),result=await marketplaceListings();
+      if(!result.ok)return send(res,503,{error:{code:'LISTING_DATA_UNAVAILABLE',message:'Seller marketplace discovery is unavailable until Supabase responds'}});
+      target=result.items.find(x=>String(x.id)===listingId&&x.agent_purchasable===true);
+      if(target){capabilityId='LISTING:'+target.id;p=machineListing(target);silo='marketplace';}
+    } else {
+      const id=requested.replace(/^PRODUCT:/,'');target=products().find(x=>x.id===id);
+      if(target){capabilityId='PRODUCT:'+target.id;p=machineProduct(target);silo=target.silo||target.attributes.silo;}
+    }
+    if(!target)return send(res,404,{error:{code:'NOT_FOUND',message:'Published capability not available'}});
+    if(!M2M_QUOTE_SIGNING_SECRET)return send(res,503,{error:{code:'QUOTE_SIGNING_NOT_CONFIGURED',message:'Secure quote signing is not configured; checkout is unavailable'}});
+    const issuedAt=Date.now(),claims=[capabilityId,String(p.price),p.currency,String(issuedAt)].join('|'),signature=crypto.createHmac('sha256',M2M_QUOTE_SIGNING_SECRET).update(claims).digest('hex');
+    return send(res,200,{schema:'dreamledger.a2a.quote.v1',quote_id:'quote:'+encodeURIComponent(capabilityId)+':'+issuedAt+':'+signature,capability_id:capabilityId,product_id:target.id,silo,price:p.price,currency:p.currency,pricing_mode:'fixed',issued_at:new Date(issuedAt).toISOString(),expires_at:new Date(issuedAt+900000).toISOString(),valid_for_seconds:900,checkout_route:'/api/a2a/checkout',payment_required:true,human_authorization_required:true,commercial_truth:'QUOTE_NOT_PAYMENT'});
+  }
+  if (req.method === 'POST' && url === '/m2m/v1/marketplace/authorize') {
+    const human=await authorizedHuman(req);
+    if(!human)return send(res,401,{error:{code:'AUTHENTICATED_HUMAN_REQUIRED',message:'Sign in with a verified DreamLedger account before authorizing checkout'}});
+    const b=await body(req),requested=String(b.capability_id||b.product_id||''),quoteParts=String(b.quote_id||'').split(':');
+    let capabilityId='',target=null,p=null,silo='marketplace',sellerId=null;
+    try{capabilityId=decodeURIComponent(quoteParts[1]||'');}catch{return send(res,409,{error:{code:'QUOTE_EXPIRED_OR_MISMATCHED',message:'Quote capability encoding is invalid'}});}
+    if(requested!==capabilityId)return send(res,409,{error:{code:'QUOTE_CAPABILITY_MISMATCH',message:'Authorization capability does not match the quoted capability'}});
+    if(capabilityId.startsWith('LISTING:')){
+      const listingId=capabilityId.slice('LISTING:'.length),result=await marketplaceListings();
+      if(!result.ok)return send(res,503,{error:{code:'LISTING_DATA_UNAVAILABLE',message:'Seller marketplace discovery is unavailable until Supabase responds'}});
+      target=result.items.find(x=>String(x.id)===listingId&&x.agent_purchasable===true);
+      if(target){p=machineListing(target);sellerId=target.seller_id;silo='marketplace';}
+    } else {
+      const id=capabilityId.replace(/^PRODUCT:/,'');target=products().find(x=>x.id===id);
+      if(target){p=machineProduct(target);silo=target.silo||target.attributes.silo;}
+    }
+    if(!target)return send(res,404,{error:{code:'NOT_FOUND',message:'Published capability not available'}});
+    if(b.authorized!==true)return send(res,403,{error:{code:'AUTHORITY_REQUIRED',message:'Explicit buyer authorization is required before checkout handoff'}});
+    if(!M2M_QUOTE_SIGNING_SECRET)return send(res,503,{error:{code:'QUOTE_SIGNING_NOT_CONFIGURED',message:'Secure quote signing is not configured; checkout is unavailable'}});
+    const issuedAt=Number(quoteParts[2]),signature=String(quoteParts[3]||''),claims=[capabilityId,String(p.price),p.currency,String(issuedAt)].join('|'),expected=crypto.createHmac('sha256',M2M_QUOTE_SIGNING_SECRET).update(claims).digest('hex'),sigA=Buffer.from(signature,'hex'),sigB=Buffer.from(expected,'hex'),validSignature=sigA.length===sigB.length&&sigA.length===32&&crypto.timingSafeEqual(sigA,sigB);
+    if(quoteParts.length!==4||quoteParts[0]!=='quote'||!Number.isFinite(issuedAt)||issuedAt>Date.now()+5000||Date.now()-issuedAt>900000||!validSignature)return send(res,409,{error:{code:'QUOTE_EXPIRED_OR_MISMATCHED',message:'Quote signature, price, capability or expiry is invalid. Request a fresh quote.'}});
+    return send(res,200,{schema:'dreamledger.a2a.authorization.v1',capability_id:capabilityId,authorization:'APPROVED_FOR_CHECKOUT_HANDOFF',authorized_by_user_id:human.id,checkout_route:'/api/a2a/checkout',product_id:target.id,silo,seller_id:sellerId,price:p.price,currency:p.currency,quote_id:b.quote_id,quote_validated:true,human_authorization_required:true,commercial_truth:'AUTHORIZED_ACTION_NOT_PAYMENT'});
+  }
   if (req.method === 'GET' && url === '/m2m/v1/marketplace/orders') return send(res,200,{schema:'dreamledger.a2a.orders.v1',status:'DELEGATED_TO_EXISTING_COMMERCE_RAIL',route:'/api/marketplace/orders',truth:'Orders are not revenue until settled and fulfilled.'});
   return send(res, 404, { error: { code: 'NOT_FOUND', message: 'M2M endpoint not found' } });
 }
