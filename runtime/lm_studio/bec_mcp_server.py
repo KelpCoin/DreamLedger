@@ -3,7 +3,7 @@ from __future__ import annotations
 import json, os
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
-from access_bridge import list_routes, build_access_plan
+from access_bridge import list_routes, build_access_plan, build_access_case_packet
 
 ROOT = Path(os.environ.get("BEC_ROOT", Path(__file__).resolve().parents[2])).resolve()
 FIXTURES = (ROOT / "runtime" / "lm_studio" / "fixtures").resolve()
@@ -52,6 +52,11 @@ def list_access_routes(categories: list[str], region: str = "Bay of Plenty") -> 
 def prepare_access_request(categories: list[str], barrier: str, communication_needs: str = "Please offer a low-effort way to respond, such as email or a scheduled callback.", region: str = "Bay of Plenty") -> dict:
     """Prepare an editable service-request draft and follow-up checklist. Draft only: no data is stored and nothing is sent."""
     return build_access_plan(categories, barrier, communication_needs, region)
+
+@mcp.tool()
+def prepare_access_case_packet(issue_type: str, summary: str, desired_outcome: str, timeline: list[str] | None = None, prior_attempts: list[str] | None = None, deadline: str = "", region: str = "Bay of Plenty") -> dict:
+    """Structure user-supplied facts into a case packet, flag gaps, and propose one next step. No storage or sending."""
+    return build_access_case_packet(issue_type, summary, desired_outcome, timeline or [], prior_attempts or [], deadline, region)
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
