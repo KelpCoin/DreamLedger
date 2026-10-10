@@ -30,6 +30,7 @@ class FightEdgeConsolidationContract(unittest.TestCase):
         self.assertIn('https://dreamledger.org/fightedge/', middleware)
         self.assertIn('host.endsWith(".onrender.com")', middleware)
         self.assertIn("NextResponse.redirect(destination, 308)", middleware)
+        self.assertIn('destination.hash = /analysis|results|pundit/.test(path) ? "#evidence" : "#catalog"', middleware)
 
 
 if __name__ == "__main__":
