@@ -90,6 +90,7 @@ function verifyPassportToken(token){
 async function createCheckout(scope, roadId=null){
   if(scope==='road' && !RoadFactory.getRoad(roadId)) throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
   const priceNzd=priceFor(scope);
+  if(!Toll.configured())throw Object.assign(new Error('Toll key issuance is not configured'),{statusCode:503});
   if(!STRIPE_SECRET_KEY||!(priceNzd>0))throw Object.assign(new Error('Toll checkout is not configured'),{statusCode:503});
   const def=SCOPES[scope];
   const sessionId='toll_'+crypto.randomUUID();
@@ -111,7 +112,7 @@ async function redeem(scope,sessionId,roadId=null){
   const expectedPriceNzd=priceFor(scope);
   const expectedAmount=Math.round(expectedPriceNzd*100);
   const line=data.line_items?.data?.[0];
-  if(line && Number(line.amount_total||line.price?.unit_amount||0)!==expectedAmount)throw Object.assign(new Error('Checkout amount attribution mismatch'),{statusCode:409});
+  if(!line || Number(line.amount_total ?? line.price?.unit_amount ?? 0)!==expectedAmount || String(data.currency||'').toLowerCase()!=='nzd')throw Object.assign(new Error('Checkout amount or currency attribution mismatch'),{statusCode:409});
   const def=scope==='road'?{calls:RoadFactory.CALLS_PER_ROAD}:(SCOPES[scope]||{calls:100});
   return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,reference:sessionId})};
 }
