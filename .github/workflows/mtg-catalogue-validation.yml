@@ -41,7 +41,12 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Custom-domain catalogue must use tracked public catalogue data');
+          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
+          const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
+          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
+            if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
+          }
           if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
