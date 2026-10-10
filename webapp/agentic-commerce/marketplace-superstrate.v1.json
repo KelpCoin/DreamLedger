@@ -1,0 +1,176 @@
+{
+  "schema": "dreamledger/777-marketplace-superstrate/v1",
+  "generated_at": "2026-10-10",
+  "objective": "Build a portable, evidence-first marketplace spine that starts with a verified first-dollar path, supports free B2B discovery and cheap A2A execution, and expands into reusable digital assets, permissioned DOOH, and opt-in GPU capacity without manufacturing economic truth.",
+  "orchestration": {
+    "parent_id": "MKT-EPIC-777-MARKETPLACE-SUPERSTRATE",
+    "scheduler": "GitHub Actions 777-cycle.yml",
+    "bridge": "Existing Agent Bridge and existing public.jobs claim/complete contract only",
+    "decomposition_rule": "Each cycle selects one unblocked child task, emits one testable artifact, attaches provenance and an acceptance proof, and records the result. Never create a second queue.",
+    "stop_conditions": [
+      "missing authority or credential",
+      "external side effect without approval",
+      "unbounded cost",
+      "failed acceptance test",
+      "duplicate artifact",
+      "unknown data rights"
+    ],
+    "truth_boundary": {
+      "verified_external_revenue_nzd": 0,
+      "settled_external_payments": 0,
+      "independent_external_buyers": 0,
+      "verified_economic_outcomes": 0
+    }
+  },
+  "existing_work": [
+    "MKT-001",
+    "MKT-002",
+    "MKT-003",
+    "MKT-004",
+    "MKT-005",
+    "MKT-006",
+    "MKT-007",
+    "MKT-008",
+    "MKT-009",
+    "MKT-010",
+    "MKT-011",
+    "MKT-012",
+    "MKT-013",
+    "MKT-014",
+    "MKT-015",
+    "MKT-016"
+  ],
+  "child_tasks": [
+    {
+      "id": "MKT-017",
+      "title": "First-dollar proof path",
+      "priority": "P0",
+      "depends_on": [
+        "MKT-003",
+        "MKT-015"
+      ],
+      "acceptance": [
+        "Exact existing offer, price, checkout URL and fulfillment route reconcile",
+        "A real independent test transaction proves settlement, entitlement, delivery and receipt or blocker is evidence-recorded",
+        "No test or internal payment is counted as revenue"
+      ],
+      "artifact": "commerce-first-dollar-proof.v1.json",
+      "external_actions": "none without human authorization"
+    },
+    {
+      "id": "MKT-018",
+      "title": "Agent Bridge authenticated toll acceptance",
+      "priority": "P0",
+      "depends_on": [
+        "MKT-002",
+        "MKT-015"
+      ],
+      "acceptance": [
+        "Manifest parity check passes",
+        "Scoped credential stays server-side",
+        "Authenticated call, idempotency, quota, usage ledger and delivery receipt pass synthetic tests",
+        "Missing token remains a blocker, not a bypass"
+      ],
+      "artifact": "agent-bridge-acceptance-fixtures/"
+    },
+    {
+      "id": "MKT-019",
+      "title": "Reusable digital asset exchange",
+      "priority": "P1",
+      "depends_on": [
+        "MKT-005",
+        "MKT-008",
+        "MKT-016"
+      ],
+      "acceptance": [
+        "Versioned template, stencil, boilerplate, word bank, schema and model adapter have provenance, licence, hash, version and tests",
+        "Search and deduplication work",
+        "Buyer receives the exact version purchased with delivery evidence"
+      ],
+      "artifact": "digital-asset-contract.v1.schema.json"
+    },
+    {
+      "id": "MKT-020",
+      "title": "Portable marketplace spine",
+      "priority": "P1",
+      "depends_on": [
+        "MKT-001",
+        "MKT-004",
+        "MKT-006",
+        "MKT-008"
+      ],
+      "acceptance": [
+        "Canonical listing and source provenance",
+        "Seller/agent identity and permissions",
+        "Attribution, checkout, settlement, fulfillment, refunds/disputes and reputation states are explicit",
+        "Guest browsing is free; account/authorization is required for consequential actions"
+      ],
+      "artifact": "marketplace-lifecycle.v1.schema.json"
+    },
+    {
+      "id": "MKT-021",
+      "title": "Cheap A2A metering and contribution margin",
+      "priority": "P1",
+      "depends_on": [
+        "MKT-002",
+        "MKT-009",
+        "MKT-013"
+      ],
+      "acceptance": [
+        "Actual compute, token, storage, retry and payment costs measured",
+        "Price unit and quotas explicit",
+        "Positive contribution-margin floor and kill switch tested",
+        "No unmetered public endpoint"
+      ],
+      "artifact": "a2a-unit-economics.v1.json"
+    },
+    {
+      "id": "MKT-022",
+      "title": "Permissioned DOOH proof-of-play adapter",
+      "priority": "P2",
+      "depends_on": [
+        "MKT-010",
+        "MKT-012",
+        "MKT-016"
+      ],
+      "acceptance": [
+        "Only owner-authorized inventory is listed",
+        "Placement/time slot, creative approval, proof-of-play and outcome fields defined",
+        "Synthetic campaign works end-to-end before any live placement or spend"
+      ],
+      "artifact": "dooh-inventory-contract.v1.schema.json"
+    },
+    {
+      "id": "MKT-023",
+      "title": "Opt-in GPU capacity exchange",
+      "priority": "P2",
+      "depends_on": [
+        "MKT-011",
+        "MKT-013",
+        "MKT-016"
+      ],
+      "acceptance": [
+        "Benchmark spare capacity before offering it",
+        "Per-job isolation, quotas, timeout, network/secret restrictions, metering and kill switch tested",
+        "Owner workload always has priority; no unrestricted host/desktop access"
+      ],
+      "artifact": "gpu-job-contract.v1.schema.json"
+    },
+    {
+      "id": "MKT-024",
+      "title": "Compounding artifact quality gate",
+      "priority": "P1",
+      "depends_on": [
+        "MKT-014",
+        "MKT-015"
+      ],
+      "acceptance": [
+        "Source links and observation dates required",
+        "Duplicate, thin, stale, unsupported and cannibalizing pages blocked",
+        "Every accepted artifact adds a specific user task, test or source-backed insight",
+        "Indexing and traffic are claimed only when analytics proves them"
+      ],
+      "artifact": "artifact-quality-gate.v1.json"
+    }
+  ]
+}
