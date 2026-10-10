@@ -25,14 +25,17 @@ ALIASES = {
 
 def list_routes(categories: Iterable[str] | None = None, region: str = "Bay of Plenty") -> list[dict]:
     """Return service routes, prioritised and deduplicated, without user data."""
+    supplied = list(categories or [])
     keys: list[str] = []
-    for category in categories or []:
+    local_law = "community_law_waikato" if "waikato" in region.lower() else "community_law_bop"
+    for category in supplied:
         normalized = str(category).strip().lower().replace(" ", "_")
-        keys.extend(ALIASES.get(normalized, []))
-    if not keys:
-        keys = ["urgent_health", "healthline", "health_advocacy", "legal_aid", "community_law_bop", "urgent_costs"]
-        if "waikato" in region.lower():
-            keys.append("community_law_waikato")
+        if normalized in {"legal", "legal_aid"}:
+            keys.extend(["legal_aid", local_law])
+        else:
+            keys.extend(ALIASES.get(normalized, []))
+    if not supplied:
+        keys = ["urgent_health", "healthline", "health_advocacy", "legal_aid", local_law, "urgent_costs"]
     unique = sorted(set(keys), key=lambda key: (ROUTES[key]["priority"], key))
     return [{"id": key, **ROUTES[key]} for key in unique if key in ROUTES]
 
