@@ -1,0 +1,37 @@
+name: B2B marketplace contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/routes/b2b-marketplace.js'
+      - 'BEC-PRIME/routes/dreamiez.js'
+      - 'BEC-PRIME/scripts/test-b2b-marketplace.js'
+      - 'BEC-PRIME/scripts/verify-b2b-marketplace-contract.js'
+      - 'BEC-PRIME/package.json'
+      - 'public/b2b-marketplace.html'
+      - 'supabase/migrations/*marketplace_b2b*'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/routes/b2b-marketplace.js'
+      - 'BEC-PRIME/routes/dreamiez.js'
+      - 'BEC-PRIME/scripts/test-b2b-marketplace.js'
+      - 'BEC-PRIME/scripts/verify-b2b-marketplace-contract.js'
+      - 'BEC-PRIME/package.json'
+      - 'public/b2b-marketplace.html'
+      - 'supabase/migrations/*marketplace_b2b*'
+permissions:
+  contents: read
+jobs:
+  b2b-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test B2B API authorization and failure boundaries
+        working-directory: BEC-PRIME
+        run: npm run test:b2b-marketplace
+      - name: Verify marketplace release contract
+        working-directory: BEC-PRIME
+        run: node scripts/verify-b2b-marketplace-contract.js
