@@ -24,7 +24,8 @@ const PUBLIC_FILES={
   '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
   '/go':'marketplace.html','/go/':'marketplace.html',
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
-  '/truth-oracle.html':'truth-oracle.html','/truth-oracle':'truth-oracle.html',
+  '/truth-oracle.html':'truth-oracle.html',
+  '/truth-oracle-field-guide.html':'truth-oracle-field-guide.html','/shop.html':'shop.html','/truth-oracle':'truth-oracle.html',
   '/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
   '/cube.json':'public-resources.json','/economic-loops.json':'public-resources.json','/ecosystem.json':'public-resources.json',
   '/data/economic-pulse.json':'public-research-feed.json',
@@ -113,20 +114,6 @@ http.createServer(async (req,res)=>{
       if(!product) return send(res,404,'Not Found','text/plain; charset=utf-8');
       res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
     }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
-  }
-  if(req.method==='GET'&&p==='/api/toll/v1/manifest'){
-    res.setHeader('X-Robots-Tag','noindex, nofollow');
-    return send(res,200,JSON.stringify({
-      schema:'dreamledger/public-resources/v1',
-      name:'DreamLedger',
-      note:'Browse the public product pages for current descriptions, prices, and availability.',
-      resources:[
-        {name:'Free Truth Oracle',url:'https://dreamledger.org/truth-oracle.html'},
-        {name:'Supplier quote comparison',url:'https://dreamledger.org/quote-comparison/'},
-        {name:'Products and services',url:'https://dreamledger.org/shop.html'},
-        {name:'Public research notes',url:'https://dreamledger.org/pulse/'}
-      ]
-    }),'application/json; charset=utf-8');
   }
   if(p.startsWith('/api/toll/v1/')){
     try{
