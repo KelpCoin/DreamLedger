@@ -80,7 +80,47 @@ def classify_with_sdk(prompt: str, model_key: str = "") -> tuple[dict[str, Any],
     }
     return parsed, telemetry
 
-def cortex_act(task: str, tools: list, model_key: str = "", max_tool_calls: int = 3):
+def search_local_signal_fixtures(query: str) -> list:
+    """Search only the repository's fixed local signal fixtures; never accesses the web."""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    fixtures = root / "runtime" / "lm_studio" / "fixtures"
+    needle = str(query or "").strip().lower()
+    if not needle or not fixtures.is_dir():
+        return []
+    results = []
+    for path in sorted(fixtures.glob("*.json")):
+        try:
+            row = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if needle in json.dumps(row, ensure_ascii=False).lower():
+            results.append({"fixture": path.name, "signal": row})
+    return results[:10]
+
+def summarize_local_signal_counts() -> dict[str, Any]:
+    """Summarize local run artifacts only; counts are not demand or revenue."""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    runs = root / "runtime" / "lm_studio" / "runs"
+    files = list(runs.glob("signal-*.json")) if runs.is_dir() else []
+    return {"local_run_artifacts": len(files), "external_actions": 0, "revenue_claim": False}
+
+def preview_classification(text: str) -> dict[str, Any]:
+    """Return a deliberately provisional lexical preview; not a Gauntlet decision."""
+    value = str(text or "").lower()
+    budget = any(token in value for token in ("budget", "paying", "invoice", "spend", "$", "quote"))
+    urgency = any(token in value for token in ("urgent", "asap", "critical", "blocked", "deadline"))
+    repeated = any(token in value for token in ("weekly", "monthly", "every week", "every day", "hours a week"))
+    return {
+        "money_signal_hint": "possible" if budget else "unknown",
+        "urgency_hint": "possible" if urgency else "unknown",
+        "frequency_hint": "recurring_candidate" if repeated else "unknown",
+        "authoritative": False,
+        "revenue_claim": False
+    }
+
+def cortex_act(task: str, tools: list | None = None, model_key: str = "", max_tool_calls: int = 3, max_rounds: int = 4):
     """Bounded local agent loop. Only caller-supplied, pre-approved tools are exposed.
 
     Each exposed function must be read-only and local. The wrapper counts actual tool
@@ -92,6 +132,10 @@ def cortex_act(task: str, tools: list, model_key: str = "", max_tool_calls: int 
     if not isinstance(max_tool_calls, int) or not 1 <= max_tool_calls <= 5:
         raise ValueError("MAX_TOOL_CALLS_MUST_BE_1_TO_5")
     allowed_names = {"search_local_signal_fixtures", "summarize_local_signal_counts", "preview_classification"}
+    if not isinstance(max_rounds, int) or not 1 <= max_rounds <= 5:
+        raise ValueError("MAX_ROUNDS_MUST_BE_1_TO_5")
+    if tools is None:
+        tools = [search_local_signal_fixtures, summarize_local_signal_counts, preview_classification]
     if not isinstance(tools, list) or not tools:
         raise ValueError("EXPLICIT_SAFE_TOOLS_REQUIRED")
     wrapped = []
@@ -110,5 +154,14 @@ def cortex_act(task: str, tools: list, model_key: str = "", max_tool_calls: int 
         wrapped.append(bounded)
     lms = _sdk()
     model = lms.llm(model_key) if model_key else lms.llm()
-    result = model.act(task, wrapped, max_parallel_tool_calls=1)
-    return {"result": str(result), "tool_calls": budget["calls"], "tool_call_budget": max_tool_calls, "external_action_taken": False}
+    def enforce_round_budget(round_index):
+        if int(round_index) >= max_rounds:
+            raise RuntimeError("CORTEX_ACT_ROUND_BUDGET_EXCEEDED")
+    started = time.perf_counter()
+    result = model.act(task, wrapped, max_parallel_tool_calls=1, on_round_start=enforce_round_budget)
+    return {
+        "result": str(result), "tool_calls": budget["calls"], "tool_call_budget": max_tool_calls,
+        "round_budget": max_rounds, "latency_ms": round((time.perf_counter() - started) * 1000, 2),
+        "model": model_key or os.environ.get("LM_STUDIO_MODEL") or "default",
+        "external_action_taken": False, "revenue_claim": False
+    }
