@@ -30,6 +30,15 @@ lost follow-ups, and uncertainty about the next concrete step.
 ## Run tests
 From runtime/lm_studio: python -m unittest test_access_bridge.py
 
+## Care-cost and BECK-income bridge
+
+The optional arithmetic helper in `care_funding_gap.py` estimates the remaining gap from an itemised care quote, written-confirmed support, cash set aside, and funds already settled and available. It can calculate a sales scenario only when a verified net contribution per fulfilled sale is supplied. A scenario is not a forecast, buyer, or revenue claim.
+
+- Do not put diagnoses, treatment notes, provider names, or identifying information into this helper.
+- Pending grants, unpaid checkouts, PaymentIntents without verified attribution, gross sales, and unfulfilled orders do not count as available care funds.
+- Keep private care-cost inputs outside GitHub, public telemetry, shared CRM tables, and sales logs.
+- Run both test suites from this directory: `python -m unittest test_access_bridge.py` and `python -m unittest test_care_funding_gap.py`.
+
 ## Follow-up loop
 The user or an authorised support person keeps a private local record of: service, date contacted,
 reference number, requested documents, response due, next action, and whether a human confirmed
