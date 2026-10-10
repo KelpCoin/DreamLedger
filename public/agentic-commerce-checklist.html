@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agentic Commerce Checkout Readiness Checklist | DreamLedger</title>
+<meta name="description" content="A free, practical checklist for testing agentic commerce from product discovery through authorization, payment settlement, fulfillment and evidence.">
+<meta name="robots" content="index,follow"><meta name="theme-color" content="#0b1220">
+<link rel="canonical" href="https://dreamledger.org/agentic-commerce-checklist.html">
+<meta property="og:title" content="Agentic Commerce Checkout Readiness Checklist | DreamLedger">
+<meta property="og:description" content="Check the whole journey: discovery, authority, checkout, settlement, fulfillment, exceptions and proof.">
+<meta property="og:type" content="article"><meta property="og:url" content="https://dreamledger.org/agentic-commerce-checklist.html">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--blue:#9ec9ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,sans-serif}.wrap{width:min(900px,calc(100% - 28px));margin:auto;padding:26px 0 70px}a{color:var(--mint)}header,footer{padding:14px 0;border-bottom:1px solid var(--line);color:var(--muted)}footer{border-top:1px solid var(--line);border-bottom:0;margin-top:36px}h1{font-size:clamp(38px,7vw,64px);line-height:1.03;letter-spacing:-.055em;margin:28px 0 14px}h2{margin-top:34px;line-height:1.2}.lead{font-size:19px;color:var(--muted)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}.check{padding:12px 0;border-bottom:1px solid var(--line)}.check:last-child{border-bottom:0}.label{font-weight:800}.evidence{display:block;color:var(--muted);font-size:14px;margin-top:4px}.cta{display:inline-block;background:var(--mint);color:#08130e;font-weight:850;text-decoration:none;border-radius:10px;padding:13px 17px}.note{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body><main class="wrap">
+<header><a href="/">DreamLedger</a> / Free practical guide</header>
+<h1>Agentic commerce checkout readiness checklist</h1>
+<p class="lead">A purchase journey is only as reliable as its weakest handoff. Use this checklist to inspect the path from discovery to delivery, with evidence for each step. A green-looking dashboard is not a substitute for a completed end-to-end test.</p>
+<div class="panel"><strong>How to use it</strong><p>For every item, record PASS, FAIL, or UNKNOWN, attach a timestamped artifact where practical, and name the person or system responsible. Do not mark an item PASS from a design document alone.</p></div>
+<h2>1. Discovery and offer clarity</h2>
+<div class="check"><span class="label">The offer describes exactly what is included, excluded, priced, and delivered.</span><span class="evidence">Evidence: public offer page, price, terms, delivery format and expected timing.</span></div>
+<div class="check"><span class="label">An automated buyer can discover the offer and retrieve the current details.</span><span class="evidence">Evidence: canonical URL, machine-readable metadata, product identifier and a fresh retrieval test.</span></div>
+<div class="check"><span class="label">Availability is truthful.</span><span class="evidence">Evidence: checkout-enabled state matches actual capacity and fulfillment readiness.</span></div>
+<h2>2. Authority and buyer intent</h2>
+<div class="check"><span class="label">The buyer or agent has authority for the specific purchase.</span><span class="evidence">Evidence: explicit authorization record, scope, amount limit, identity or delegation context as appropriate.</span></div>
+<div class="check"><span class="label">The action stays within a stated spending and tool budget.</span><span class="evidence">Evidence: enforced cap at each worker level, denial test above the cap, and revocation test.</span></div>
+<div class="check"><span class="label">A human approval gate exists for consequential or irreversible actions.</span><span class="evidence">Evidence: approval request, approver, decision, timestamp and exact action approved.</span></div>
+<h2>3. Checkout and settlement</h2>
+<div class="check"><span class="label">Checkout resolves to the intended live product and amount.</span><span class="evidence">Evidence: a fresh test in the appropriate mode and verified product/price identity.</span></div>
+<div class="check"><span class="label">The server verifies the provider's signed event using the unmodified request body.</span><span class="evidence">Evidence: signature-valid test, invalid-signature rejection, and raw-body handling.</span></div>
+<div class="check"><span class="label">Duplicate or delayed events cannot create duplicate entitlements.</span><span class="evidence">Evidence: idempotency test with replayed and out-of-order events.</span></div>
+<div class="check"><span class="label">The ledger distinguishes checkout creation from settled, attributable payment.</span><span class="evidence">Evidence: provider payment identifier, live-mode status, amount, currency, product attribution, settlement state and reconciliation result.</span></div>
+<h2>4. Fulfillment and evidence</h2>
+<div class="check"><span class="label">Fulfillment starts only after the required payment state is verified.</span><span class="evidence">Evidence: order-to-payment linkage and a negative test for unpaid or unmatched sessions.</span></div>
+<div class="check"><span class="label">The delivered item or service is identifiable and retrievable.</span><span class="evidence">Evidence: scoped entitlement, delivery timestamp, artifact hash or receipt, and buyer-facing retrieval path.</span></div>
+<div class="check"><span class="label">Failure, cancellation, refund and support paths are documented and tested.</span><span class="evidence">Evidence: test cases, owner, expected response and reconciliation treatment.</span></div>
+<h2>5. Final acceptance</h2>
+<div class="panel"><p>Do not call the journey complete until an independent test can discover the offer, authorize the action, complete checkout, verify settlement, receive the promised fulfillment, and inspect the evidence. A signed receipt can prove integrity of a record; it does not by itself prove the underlying claim is true or still current.</p><p class="note">This checklist is general operational guidance, not legal certification, security certification, or a guarantee of sales or protocol eligibility.</p></div>
+<h2>Need a workflow-specific review?</h2>
+<p>For one agent-facing or merchant-facing commerce journey, the fixed-scope NZ$149 blueprint turns the checklist into prioritized findings, observable acceptance checks, and a 30/60/90-day remediation roadmap.</p>
+<p><a class="cta" href="/agentic-commerce-remediation-blueprint.html">View the NZ$149 blueprint</a></p>
+<footer><a href="/">DreamLedger</a> · <a href="/truth-oracle.html">Free Truth Oracle</a></footer>
+</main></body></html>
