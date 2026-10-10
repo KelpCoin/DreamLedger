@@ -43,6 +43,7 @@ Deno.serve(async(req)=>{
  if(!checkoutSessionId)return new Response("missing checkout session id",{status:400});
  if(eventType==="checkout.session.completed"&&session.payment_status!=="paid"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString(),processing_started_at:null}).eq("event_id",eventId);return Response.json({received:true,ignored:true,event_id:eventId,reason:"checkout_not_settled"});}
  if(session.payment_status!=="paid")return new Response("settlement event is not paid",{status:409});
+ if(session.livemode!==true)return new Response("test-mode session cannot enter live revenue ledger",{status:400});
  if(currency!=="NZD")return new Response("unexpected currency",{status:400});
  const marketplaceListingId=String(metadata.marketplace_listing_id||"");
  let marketplaceSettlement:any=null;
