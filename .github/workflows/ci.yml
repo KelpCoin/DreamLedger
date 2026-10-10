@@ -84,6 +84,9 @@ jobs:
       - name: Execution gate tests
         run: npm run test:execution-gate
 
+      - name: Four-engine revenue contract
+        run: node scripts/verify-revenue-engines.js
+
       - name: Revenue pipeline tests
         run: npm run test:revenue-pipeline
 
