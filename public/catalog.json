@@ -199,6 +199,56 @@
       "default_offer_id": "EDH_QUINTORIUS_0002"
     },
     {
+      "id": "EDH_DWYNEN_0003",
+      "sku": "EDH-DWYNEN-GILT-LEAF-DAEN-THAT-SPELLS-LIFE-001",
+      "silo": "mtg",
+      "name": "Dwynen, Gilt-Leaf Daen – That Spells Life!",
+      "description": "Mono-green Elf tribal Commander deck. Build mana with Priest of Titania and Elvish Archdruid, grow the board with Lys Alana Huntmaster and Imperious Perfect, and draw cards with Voice of Many. Dwynen boosts your Elves and rewards wide attacks with life gain. Seller reports the deck is sleeved and extensively playtested. NZ$90 with free shipping throughout Aotearoa New Zealand; Patreon subscribers pay NZ$80 and get first priority. Message to claim; online checkout is not enabled for this listing.",
+      "price": 90,
+      "currency": "nzd",
+      "inventory": 1,
+      "status": "published",
+      "seller": "HappyHomarid",
+      "condition": "Seller reports sleeved and extensively playtested",
+      "fulfillment_method": "physical_delivery",
+      "image_url": null,
+      "checkout_available": false,
+      "checkout_url": null,
+      "sale_mode": "claim_by_message",
+      "claim_url": "/mtg/dwynen-gilt-leaf-daen.html",
+      "decklist_url": "https://manabox.app/decks/AZ46QrurcOObBGF6V5oWTA",
+      "metadata": {
+        "commander": "Dwynen, Gilt-Leaf Daen",
+        "archetype": "The Swarm Lord",
+        "strategy": "Mono-green Elf tribal, mana ramp, wide board, life gain, rebuilding after removal",
+        "patron_price_nzd": 80,
+        "patron_url": "https://patreon.com/happyhomarid",
+        "shipping": "Free shipping throughout Aotearoa New Zealand",
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "edh",
+          "commander",
+          "monogreen",
+          "elftribal",
+          "dwynen",
+          "mtgsale",
+          "edhcommunity",
+          "budgetedh",
+          "MeatiestMagic"
+        ],
+        "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
+      },
+      "commercial_truth": {
+        "approval_required": false,
+        "checkout_available": false,
+        "fulfillment_required": true,
+        "evidence_required": true,
+        "payment_link": null
+      },
+      "default_offer_id": "EDH_DWYNEN_0003"
+    },
+    {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
       "sku": "DL-DOOH-CAMPAIGN-500",
       "name": "DreamLedger Verified DOOH Campaign",
