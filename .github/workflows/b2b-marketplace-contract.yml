@@ -11,7 +11,10 @@ on:
       - 'BEC-PRIME/scripts/verify-b2b-marketplace-contract.js'
       - 'BEC-PRIME/package.json'
       - 'public/b2b-marketplace.html'
-      - 'supabase/migrations/*marketplace_b2b*'
+      - 'supabase/migrations/*.sql'
+      - 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts'
+      - 'BEC-PRIME/scripts/verify-stripe-webhook-contract.js'
+      - 'BEC-PRIME/scripts/verify-supabase-migration-versions.js'
   push:
     branches: [main]
     paths:
@@ -36,6 +39,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Fail closed on duplicate Supabase migration versions
+        run: node BEC-PRIME/scripts/verify-supabase-migration-versions.js
+      - name: Verify canonical Stripe webhook contract
+        run: node BEC-PRIME/scripts/verify-stripe-webhook-contract.js
       - name: Test B2B API authorization and failure boundaries
         working-directory: BEC-PRIME
         run: npm run test:b2b-marketplace
