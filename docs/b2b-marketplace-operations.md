@@ -6,6 +6,8 @@
 - RFQs and supplier offers use the new `marketplace_b2b_rfqs` and `marketplace_b2b_offers` tables defined in `supabase/migrations/20261010120000_marketplace_b2b_rfq_offers.sql`.
 - B2B writes require a valid Supabase Auth bearer token and confirmed email. The browser must never receive the service-role key.
 - RFQ and offer creation require a client-supplied `Idempotency-Key`. Reusing a key with a different payload returns a conflict.
+- Seller listings require completed Stripe Connect onboarding and enter the existing versioned `review` state. Only authorized moderators can publish/reject them through `transition_marketplace_listing`; the database payout gate still applies.
+- Sellers must explicitly opt in to `agent_purchasable` for their published listing to appear in A2A discovery. Agent discovery can show listings while checkout remains gated.
 - Supplier offers require an existing Stripe Connect seller account with onboarding complete, charges enabled and payouts enabled.
 - Offer visibility is restricted to the RFQ buyer and a supplier who submitted an offer.
 - B2B order routes intentionally fail closed until offer acceptance creates an order in the existing canonical `marketplace_orders` model and that order is bound to Stripe settlement and fulfillment.
