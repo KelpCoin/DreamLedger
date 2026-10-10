@@ -22,7 +22,7 @@ lost follow-ups, and uncertainty about the next concrete step.
 - Healthline: 0800 611 116, free and available 24/7: https://www.healthline.govt.nz/
 - Nationwide Health & Disability Advocacy Service: 0800 555 050, weekdays 8:30am-5pm: https://advocacy.org.nz/contact-an-advocate-now/
 - Legal Aid Services: 0800 253 425: https://www.justice.govt.nz/courts/going-to-court/legal-aid/contact-legal-aid/
-- Baywide Community Law (Tauranga): (07) 571 6812: https://communitylaw.org.nz/centre/tauranga-whakatane/
+- Baywide Community Law (Tauranga): 0800 905 916; (07) 571 6812; tauranga@baywidecls.org.nz: https://communitylaw.org.nz/centre/tauranga-whakatane/
 - Community Law Waikato: 0800 529 482: https://communitylaw.org.nz/centre/waikato/
 - Work and Income urgent-cost support: 0800 559 009: https://www.workandincome.govt.nz/products/a-z-benefits/special-needs-grant/index.html
 
