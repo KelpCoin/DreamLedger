@@ -9,7 +9,7 @@ const PRODUCT_DIR = path.join(ROOT, 'catalog', 'products');
 const PROOF_DIR = path.resolve(process.env.PROOF_DATA_DIR || path.join(ROOT, 'data', 'proofs'));
 const M2M_API_KEY = process.env.M2M_API_KEY || '';
 const M2M_QUOTE_SIGNING_SECRET = process.env.M2M_QUOTE_SIGNING_SECRET || '';
-const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
+
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || '';
 const RAG_API_KEY = process.env.RAG_API_KEY || '';
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
