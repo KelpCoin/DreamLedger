@@ -43,11 +43,29 @@ artifact_files = [
     )
 ]
 
-if revenue <= 0 and not artifact_files:
+# A no-op is accepted only when this exact workflow run emitted an explicit no-new-signal receipt.
+# This prevents stale receipts from masking future generation failures.
+noop_receipt = PULSE / "777-noop-receipt.json"
+valid_noop = False
+try:
+    noop = json.loads(noop_receipt.read_text(encoding="utf-8"))
+    current_run_id = os.environ.get("GITHUB_RUN_ID")
+    valid_noop = bool(current_run_id) and noop.get("run_id") == current_run_id and noop.get("outcome") == "NO_NEW_SIGNAL_NO_NEW_COMPONENT" and noop.get("truth_status") == "UNVERIFIED"
+except Exception:
+    valid_noop = False
+
+if revenue <= 0 and not artifact_files and not valid_noop:
     raise SystemExit(
         "777_COMPOUNDING_GATE=FAIL: cycle produced neither verified revenue evidence "
-        "nor a new or changed public HTML artifact."
+        "nor a new or changed public HTML artifact or current-run no-op receipt."
     )
+if revenue <= 0 and not artifact_files and valid_noop:
+    print("777_COMPOUNDING_GATE=PASS_NOOP")
+    print("TRUTH_STATUS=UNVERIFIED")
+    print("VERIFIED_REVENUE_NZD=0.00")
+    print("ARTIFACT_COUNT=0")
+    print("NOOP_REASON=No admissible new signal and no new bounded component; no duplicate public page emitted.")
+    raise SystemExit(0)
 
 now = datetime.now(timezone.utc)
 receipt = {
