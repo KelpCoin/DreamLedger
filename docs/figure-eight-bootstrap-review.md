@@ -44,3 +44,34 @@ Do not run the supplied bootstrap or register a self-hosted runner yet. The desi
 ## Current truth boundary
 
 The supplied scripts were reviewed as text only. They have not been run on the user's PC. The user's PC is reported offline. This review does not establish runner registration, database connectivity, successful workflow execution, deployment, or revenue.
+
+
+## Batch 3–8 follow-up review (2026-10-10)
+
+### Repository inspection findings
+
+- The repository already contains supabase/functions/quote-intake/index.ts. It retrieves the Stripe Checkout Session from Stripe and checks live mode, paid payment status, the configured Payment Link, expected SKU metadata, and corresponding revenue_orders, revenue_entitlements, and fulfillment_requests rows before accepting quote inputs.
+- That function calls quote-fulfillment after the buyer finalizes inputs. This is an existing buyer-journey path; do not replace it with the pasted standalone stripe-webhook.ts without tracing the currently configured Stripe webhook endpoint, deployed functions, and existing schema first.
+- The proposed path supabase/functions/stripe-webhook/index.ts and supabase/config.toml were not found at those exact repository paths during this inspection. That does not prove no webhook exists elsewhere; search the full repository and Stripe endpoint configuration before modifying routing.
+- The current .github/workflows/777-cycle.yml is GitHub-hosted (ubuntu-latest) and has a frequent cron schedule. It does not depend on a self-hosted Windows runner. Adding a local runner is therefore not required to unblock the existing cloud pulse workflow, and a PC-offline runner cannot repair a GitHub-hosted run stuck before job creation.
+
+### Corrections to the proposed scripts
+
+1. **Pooler diagnosis:** Test-Connection/ICMP is informational only. The acceptance test is a successful PostgreSQL connection using the exact dashboard-provided transaction-pooler hostname, username, database, port, and secret. Port 6543 is not a universal replacement for every connection mode or migration workflow; verify the chosen pooler mode and its prepared-statement/transaction constraints. Do not infer the cause of the earlier refusal from IPv6 alone.
+2. **SQL probe:** avoid matching output with the letter "t". Use psql -X -A -t -v ON_ERROR_STOP=1 and compare normalized scalar output exactly to t; check the native process exit code after each invocation. Set a connection timeout and require TLS where supported. Never print the connection URI.
+3. **Schema migration:** the proposed table's defaults make an event look processed before side effects finish. Use explicit receipt/processing/completion timestamps and a state machine. RLS plus a service_role grant does not itself validate access policy or deployment safety.
+4. **Atomicity:** Supabase client calls issued separately do not create a shared PostgreSQL transaction. Put the claim and all database side effects behind a database function/RPC or another transaction-capable server-side implementation. Enforce unique constraints on Checkout Session/order and entitlement/fulfillment relationships. On transient failure, permit safe retry; do not return a success response that suppresses Stripe retries while work remains incomplete.
+5. **Payment semantics:** checkout.session.completed alone is not sufficient evidence of settled funds for every payment method. Validate the expected event/payment status and configured accepted payment methods; independently reconcile with Stripe before counting revenue.
+6. **Runner setup:** do not put a broad push-to-main workflow on a self-hosted machine until repository/runner-group restrictions and least privilege are established. Do not store the pooler URL in source control or user-wide environment variables if it contains a password. Use an approved secret store. A registered runner and a healthy runner service are distinct states.
+7. **Workflow diagnosis:** queued-with-no-jobs is evidence to investigate, not proof that the run is permanently orphaned. Inspect jobs, timestamps, repository runner/Actions status, and API response before cancellation or support escalation. A self-hosted runner does not bypass a GitHub workflow run that never schedules a job.
+8. **False-green proof:** status completed must only be emitted after every required check passes. Include per-check results and explicit cloud, local_worker, database, webhook, and fulfillment states. A missing or stale local heartbeat must be OFFLINE/STALE, not healthy.
+
+### Next execution gates
+
+- First inspect configured production Stripe webhook endpoints, deployed Supabase Edge Functions, relevant migrations, and schema constraints for revenue_orders, revenue_entitlements, and fulfillment_requests.
+- Add cloud-hosted, secret-free tests for receipt correctness and PC-offline behavior before any local runner is activated.
+- Probe the Supabase transaction pooler read-only only after provider/database status is confirmed and an authorized secret is available.
+- Test the existing quote-comparison path in Stripe test mode, including duplicate event delivery, retry after partial failure, one order per Checkout Session, and one fulfillment per paid order.
+- Do not apply the pasted migration, deploy a new webhook, enable live webhook routing, or claim the loop is closed until these gates are evidenced.
+
+Current status remains: reviewed source text and repository files only. No local bootstrap, self-hosted runner registration, Supabase connection, migration, Stripe webhook delivery, or paid fulfillment has been executed or proven.
