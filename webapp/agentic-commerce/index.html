@@ -31,6 +31,57 @@
 </div>
 </section>
 <section>
+<h2>Free tool: compare supplier quotes on landed cost</h2>
+<p>Compare up to three offers without uploading documents or sending figures to a server. Enter the quoted price, freight, setup fees, estimated delay, and your own risk allowance. The tool exposes the arithmetic so a cheaper headline price cannot hide a more expensive delivered outcome.</p>
+<div class="card">
+<div class="grid">
+<article class="card"><h3>Offer A</h3><label>Supplier <input id="qname0" value="Supplier A"></label><label>Price (NZD) <input id="qprice0" type="number" min="0" step="0.01" value="100"></label><label>Freight (NZD) <input id="qfreight0" type="number" min="0" step="0.01" value="15"></label><label>Setup/other (NZD) <input id="qsetup0" type="number" min="0" step="0.01" value="0"></label><label>Delay (days) <input id="qdays0" type="number" min="0" step="1" value="5"></label><label>Risk allowance (NZD) <input id="qrisk0" type="number" min="0" step="0.01" value="0"></label></article>
+<article class="card"><h3>Offer B</h3><label>Supplier <input id="qname1" value="Supplier B"></label><label>Price (NZD) <input id="qprice1" type="number" min="0" step="0.01" value="95"></label><label>Freight (NZD) <input id="qfreight1" type="number" min="0" step="0.01" value="28"></label><label>Setup/other (NZD) <input id="qsetup1" type="number" min="0" step="0.01" value="5"></label><label>Delay (days) <input id="qdays1" type="number" min="0" step="1" value="9"></label><label>Risk allowance (NZD) <input id="qrisk1" type="number" min="0" step="0.01" value="0"></label></article>
+<article class="card"><h3>Offer C</h3><label>Supplier <input id="qname2" value="Supplier C"></label><label>Price (NZD) <input id="qprice2" type="number" min="0" step="0.01" value="110"></label><label>Freight (NZD) <input id="qfreight2" type="number" min="0" step="0.01" value="0"></label><label>Setup/other (NZD) <input id="qsetup2" type="number" min="0" step="0.01" value="0"></label><label>Delay (days) <input id="qdays2" type="number" min="0" step="1" value="3"></label><label>Risk allowance (NZD) <input id="qrisk2" type="number" min="0" step="0.01" value="0"></label></article>
+</div>
+<p><button class="cta" type="button" id="quote-calc">Calculate comparison</button> <button class="cta quiet" type="button" id="quote-reset">Reset example</button></p>
+<div id="quote-results" aria-live="polite" class="note">Change the example values, then calculate. The default risk allowance is zero; add your own expected delay, defect, or rework cost if you can justify it.</div>
+</div>
+<p class="note">This is a planning aid, not supplier verification or a binding recommendation. Confirm taxes, specifications, delivery terms, currency, warranty, stock, and source documents independently. Values stay in this browser tab and are not submitted.</p>
+<p><a class="cta" href="https://dreamledger.org/quote-comparison/">Explore the existing quote-comparison service</a></p>
+<script>
+(function(){
+const ids=['qname','qprice','qfreight','qsetup','qdays','qrisk'];
+function value(id){const e=document.getElementById(id);return e?e.value:''}
+function num(id){const n=Number(value(id));return Number.isFinite(n)&&n>=0?n:0}
+function calculate(){
+ const rows=[];
+ for(let i=0;i<3;i++){
+  const name=value('qname'+i).trim()||('Offer '+String.fromCharCode(65+i));
+  const price=num('qprice'+i), freight=num('qfreight'+i), setup=num('qsetup'+i), days=num('qdays'+i), risk=num('qrisk'+i);
+  const landed=price+freight+setup, adjusted=landed+risk;
+  rows.push({name,price,freight,setup,days,risk,landed,adjusted});
+ }
+ rows.sort((a,b)=>a.adjusted-b.adjusted);
+ const money=n=>new Intl.NumberFormat('en-NZ',{style:'currency',currency:'NZD'}).format(n);
+ const result=document.getElementById('quote-results');
+ result.replaceChildren();
+ const title=document.createElement('p');title.textContent='Ranked by landed cost plus your stated risk allowance:';result.appendChild(title);
+ rows.forEach((r,i)=>{
+  const p=document.createElement('p');
+  p.textContent=(i+1)+'. '+r.name+' | landed '+money(r.landed)+' | risk allowance '+money(r.risk)+' | adjusted '+money(r.adjusted)+' | estimated delay '+r.days+' day(s).';
+  result.appendChild(p);
+ });
+ const hint=document.createElement('p');hint.textContent='The ranking only reflects the values entered. It does not verify supplier identity, quality, stock, or delivery promises.';result.appendChild(hint);
+}
+document.getElementById('quote-calc').addEventListener('click',calculate);
+document.getElementById('quote-reset').addEventListener('click',function(){
+ const defaults=[['Supplier A',100,15,0,5,0],['Supplier B',95,28,5,9,0],['Supplier C',110,0,0,3,0]];
+ defaults.forEach((a,i)=>{['qname','qprice','qfreight','qsetup','qdays','qrisk'].forEach((k,j)=>{document.getElementById(k+i).value=a[j]})});
+ document.getElementById('quote-results').textContent='Example reset. Change values, then calculate.';
+});
+})();
+</script>
+<style>
+#quote-results{margin-top:14px}label{display:block;margin:8px 0;color:var(--muted);font-size:14px}input{display:block;width:100%;min-height:42px;margin-top:3px;padding:9px;border:1px solid var(--line);border-radius:8px;background:#08101b;color:var(--ink);font:inherit}button{border:0;cursor:pointer;font:inherit}
+</style>
+</section>
+<section>
 <h2>Huge task: Marketplace that builds itself in bounded pieces</h2>
 <p>One task registry, decomposed by 777 into small idempotent work items. Each item must produce a durable artifact, run its verifier, and state what remains blocked. Reuse the existing CUBE, AgentBridge, Elohim, Gauntlet, commerce, and Truth Oracle substrate. Do not create a competing queue or truth ledger.</p>
 <ol class="steps">
