@@ -70,7 +70,7 @@ test('A2A authorization binds the accepted quote to the verified user', async ()
     const catalog = response();
     await handle(request('GET', '/m2m/v1/marketplace/capabilities'), catalog, '/m2m/v1/marketplace/capabilities');
     const products = parse(catalog).capabilities || [];
-    if (!products.length) return;
+    assert.ok(products.length, 'A2A catalog must contain at least one published capability');
     const item = products[0];
     const quoteRes = response();
     await handle(request('POST', '/m2m/v1/marketplace/quote', { capability_id: item.capability_id }), quoteRes, '/m2m/v1/marketplace/quote');
