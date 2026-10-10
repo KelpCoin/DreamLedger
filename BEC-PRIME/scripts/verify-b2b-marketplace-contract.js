@@ -24,6 +24,9 @@ const checks=[
  ['ZERO_FEE_PUBLIC_CLAIM',fs.readFileSync(path.join(root,'..','public','b2b.html'),'utf8').includes('0% success fee')],
  ['NO_REVENUE_FROM_ORDER_CREATION',fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8').includes('PENDING_PAYMENT_NOT_REVENUE')]
 ];
+const b2bRoutes=fs.readFileSync(path.join(root,'routes','dreamiez.js'),'utf8');
+checks.push(['B2B_DURABLE_PERSISTENCE_NOT_LOCAL_JSON',!b2bRoutes.includes("'b2b-rfqs.json'")&&!b2bRoutes.includes("'b2b-offers.json'")&&!b2bRoutes.includes("'b2b-orders.json'")]);
+checks.push(['B2B_DATABASE_OUTAGE_FAILS_CLOSED',b2bRoutes.includes('SUPABASE')&&b2bRoutes.includes('503')]);
 const failed=checks.filter(x=>!x[1]).map(x=>x[0]);
 const proof={schema:'dreamledger/b2b-marketplace-contract/v1',generated_at:new Date().toISOString(),verdict:failed.length?'FAIL':'PASS',checks:Object.fromEntries(checks),failed,economic_truth:'Order creation is not revenue; verified revenue requires settled external payment, attribution, fulfilment and independent evidence.'};
 const out=path.join(root,'data','proofs','B2B-MARKETPLACE-CONTRACT-PROOF.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));process.exit(failed.length?1:0);
