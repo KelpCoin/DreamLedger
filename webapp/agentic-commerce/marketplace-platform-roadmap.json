@@ -1,0 +1,279 @@
+{
+  "schema": "dreamledger/marketplace-platform-roadmap/v1",
+  "created_at": "2026-10-10",
+  "title": "Marketplace Superstrate: B2B discovery, A2A execution, commerce primitives, creator tooling, DOOH and opt-in GPU",
+  "operating_contract": {
+    "verified_external_revenue_nzd": 0,
+    "first_dollar_rule": "Repair and prove one existing paid route before multiplying offers.",
+    "no_upfront_spend": true,
+    "discovery": "Free B2B discovery and exportable open interfaces wherever feasible.",
+    "a2a": "Low-cost metered A2A actions; charge only for successful bounded value-bearing execution.",
+    "truth": "A green workflow, generated artifact, checkout start, manifest price or health endpoint is not revenue.",
+    "approvals_required": [
+      "real charges",
+      "public external transmission",
+      "third-party data disclosure",
+      "GPU tenant execution",
+      "DOOH booking/spend",
+      "irreversible changes"
+    ],
+    "reuse_rule": "Reuse the existing Agent Bridge, CUBE/job contract, Elohim ranking, Gauntlet gates, Stripe rails, evidence receipts, and Notion/Airtable queue. Do not create a parallel authority."
+  },
+  "north_star": "Build a portable, interoperable commerce and capability network that can compete on specific jobs and workflows, not claim incumbent replacement before adoption proves it.",
+  "workstreams": [
+    {
+      "id": "M01_FIRST_DOLLAR",
+      "priority": "P0",
+      "status": "ACTIVE",
+      "goal": "Prove one existing offer from qualified demand to attributable settlement and delivered result.",
+      "tasks": [
+        "Trace live CTA and exact Stripe product/price",
+        "Verify webhook signature, event ID idempotency, amount/currency/SKU and order linkage",
+        "Test entitlement and fulfillment with synthetic/test fixtures",
+        "Observe a real independent settlement only if one naturally occurs",
+        "Record delivery receipt, refund route and earliest failing transition"
+      ],
+      "acceptance": [
+        "One end-to-end verified order OR an exact blocker with logs and next repair",
+        "No test event counted as revenue",
+        "No new SKU until existing route passes"
+      ]
+    },
+    {
+      "id": "M02_AGENT_BRIDGE_TOLLS",
+      "priority": "P0",
+      "status": "READY_FOR_PROOF",
+      "goal": "Turn existing Agent Bridge capabilities into scoped, cheap, reliable machine-to-machine commerce.",
+      "tasks": [
+        "Compare manifest with deployed route registry",
+        "Require caller identity, scoped token, versioned capability, quota, budget, expiry, idempotency and correlation ID",
+        "Charge only on successful value-bearing execution",
+        "Add usage and fulfillment receipts; test timeout, replay, refund and revocation",
+        "Measure per-success compute, storage, retry and payment cost before setting margin floors"
+      ],
+      "acceptance": [
+        "Route parity report",
+        "Auth/quota/replay tests pass",
+        "Positive contribution margin demonstrated",
+        "No secret in browser or logs"
+      ]
+    },
+    {
+      "id": "M03_PORTABLE_ASSET_EXCHANGE",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Create a lawful exchange for boilerplates, templates, stencils, word banks, schemas, evaluators, connectors and small neural-network assets.",
+      "tasks": [
+        "Define canonical asset manifest with owner, licence, provenance, version, hash, runtime, dependencies, inputs/outputs, support window and tests",
+        "Build import/export and compatibility adapters",
+        "Deduplicate by content hash and scan for secrets and unsafe payloads",
+        "Offer free previews and paid, tested bundles through existing commerce rails",
+        "Generate reproducible acceptance reports and machine-readable receipts"
+      ],
+      "acceptance": [
+        "Schema validated by fixtures",
+        "Clean-environment reproduction test passes",
+        "Licence/provenance mandatory",
+        "Paid delivery only after checkout-to-fulfillment proof"
+      ]
+    },
+    {
+      "id": "M04_INTEROPERABLE_MARKETPLACE",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Build an open marketplace superstrate capable of competing with Trade Me, eBay, Amazon and Shopify on defined workflows.",
+      "tasks": [
+        "Canonical product/listing/variant/offer/inventory/order/refund/shipping/return/dispute/reputation schemas",
+        "Adapters for seller catalog import/export and supported platform APIs",
+        "Search, faceted discovery, price/availability freshness and duplicate detection",
+        "Seller and buyer trust tiers; transaction-backed reputation only",
+        "Hosted storefront templates and checkout components without forcing platform lock-in",
+        "Portable customer-owned exports and clear data deletion controls",
+        "Seller onboarding, support, fraud controls and dispute operations"
+      ],
+      "acceptance": [
+        "Round-trip import/export tests preserve IDs, price, currency, provenance and state",
+        "No unlicensed scraping or copying protected content",
+        "No claim of platform replacement until independently measured active sellers, buyers and repeat orders exist"
+      ]
+    },
+    {
+      "id": "M05_FREE_B2B_DISCOVERY",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Attract inbound B2B demand with useful free discovery and tools.",
+      "tasks": [
+        "Use source-grounded commercial signals and known user problems",
+        "Build one useful calculator, comparison, quote normalizer or data checker per validated cluster",
+        "Instrument qualified actions and funnel transitions",
+        "Publish in small cohorts and consolidate pages with no distinct utility",
+        "Keep research signals explicitly UNVERIFIED until corroborated"
+      ],
+      "acceptance": [
+        "Primary source and retrieval date",
+        "Unique function beyond templated copy",
+        "Usage and conversion measurement",
+        "No mass thin-content publishing"
+      ]
+    },
+    {
+      "id": "M06_CHEAP_A2A_NETWORK",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Make agents discover and buy scoped capabilities at low cost.",
+      "tasks": [
+        "Publish machine-readable capability manifests and terms",
+        "Support stable capability IDs, versions, caller scope, idempotency, quotas, budget ceilings and signed receipts",
+        "Add cost/latency telemetry and failure-only non-billable rules",
+        "Design provider discovery and portability across compatible agents",
+        "Use escrow or settlement standards only after legal, custody and operational review"
+      ],
+      "acceptance": [
+        "Machine-readable terms",
+        "Replay-safe usage receipt",
+        "Per-success margin positive at advertised caps",
+        "Budget kill switch tested"
+      ]
+    },
+    {
+      "id": "M07_GPU_CAPACITY_EXCHANGE",
+      "priority": "P2",
+      "status": "BLOCKED_ON_OWNER_OPT_IN_AND_BENCHMARK",
+      "goal": "Offer genuinely spare local GPU capacity without risking the owner’s computer or data.",
+      "tasks": [
+        "Benchmark idle/active VRAM, throughput, thermal and power envelopes on the actual machine",
+        "Model jobs as declarative containers with fixed model, input, output, resource cap, timeout and price",
+        "Isolate filesystem, network egress, process tree, secrets and credentials",
+        "Give owner workloads absolute priority and immediate kill switch",
+        "Meter jobs and delete tenant inputs according to explicit retention terms",
+        "Start with offline benchmark and synthetic jobs; enable remote tenant execution only after explicit opt-in"
+      ],
+      "acceptance": [
+        "Owner opt-in recorded",
+        "Isolation and escape tests",
+        "Measured capacity/cost and positive margin",
+        "Kill switch, quotas and deletion verified",
+        "Never offer unrestricted host or desktop access"
+      ]
+    },
+    {
+      "id": "M08_PROGRAMMATIC_DOOH",
+      "priority": "P2",
+      "status": "QUEUED",
+      "goal": "Represent billboard and digital-out-of-home inventory as auditable permissioned slots.",
+      "tasks": [
+        "Define publisher, location, screen, time slot, creative format, audience estimate source, price basis and availability freshness",
+        "Verify inventory owner authorization and creative rights",
+        "Create simulated booking and proof-of-play receipts first",
+        "Reconcile delivery proof, invoice and campaign result",
+        "Require approval before live booking, spend or public creative"
+      ],
+      "acceptance": [
+        "Inventory provenance",
+        "Creative policy and approval gate",
+        "Proof-of-play contract tested",
+        "No fabricated supply or automatic spend"
+      ]
+    },
+    {
+      "id": "M09_TRUST_AND_EVIDENCE",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Make trust portable across goods, services, APIs, digital assets and fulfilment.",
+      "tasks": [
+        "One lifecycle contract for listing → version/licence → consent → order → settlement → entitlement → fulfilment → delivery → refund/dispute → reputation",
+        "Use independent evidence sources and preserve UNKNOWN/dissent",
+        "Hash artifacts where useful without claiming hashes alone prove truth",
+        "Add fraud, abuse, privacy, accessibility and consumer-rights checks"
+      ],
+      "acceptance": [
+        "State-machine tests cover failure, refund, replay and stale evidence",
+        "Reputation only from verified transactions",
+        "Data minimization and permission tests"
+      ]
+    },
+    {
+      "id": "M10_777_COMPOUNDING",
+      "priority": "P0",
+      "status": "ACTIVE",
+      "goal": "Each 777 expedition yields verified revenue evidence or one new useful, nonduplicate, tested component.",
+      "tasks": [
+        "Capture run ID, commit SHA, exact failed step, output file list and hashes",
+        "If no fresh signal exists, emit a bounded component or same-run no-op receipt",
+        "Test generated schema/page and link it from the correct index",
+        "Verify deployed page independently",
+        "Write the receipt to Airtable and Notion"
+      ],
+      "acceptance": [
+        "Workflow and job conclusions observed",
+        "Artifact or explicit no-op reason captured",
+        "Deployment verified separately",
+        "Revenue stays NZ$0 until independent settlement and delivery reconcile"
+      ]
+    },
+    {
+      "id": "M11_DATA_AND_RESILIENCE",
+      "priority": "P1",
+      "status": "BLOCKED_ON_DB_CONNECTIVITY",
+      "goal": "Keep a single authority with recoverable data and safe controlled failover.",
+      "tasks": [
+        "Recheck Supabase health and authenticated transaction-pooler SELECT 1",
+        "No business writes until the data plane is confirmed healthy",
+        "Prepare encrypted local backups and restore drill",
+        "Add controlled warm standby promotion only after fencing and recovery tests",
+        "Remediate RLS with deliberate policies"
+      ],
+      "acceptance": [
+        "Read-only connectivity proof",
+        "Restore test receipt",
+        "No active-active split brain",
+        "RLS policies tested"
+      ]
+    },
+    {
+      "id": "M12_FOUNDER_CONTROL",
+      "priority": "P1",
+      "status": "QUEUED",
+      "goal": "Reduce founder involvement to consequential approvals and a compact proof dashboard.",
+      "tasks": [
+        "Queue idempotent jobs with stable IDs, deadlines, retries and dead-letter status",
+        "Persist decisions and artifact links to existing Airtable/Notion paths",
+        "Summarize only blocked, risky or approval-required actions",
+        "Keep routine discovery, tests and artifact generation autonomous"
+      ],
+      "acceptance": [
+        "One-screen status with source links",
+        "Failed sync recoverable without duplicates",
+        "No false claim of cross-app capture until end-to-end test succeeds"
+      ]
+    }
+  ],
+  "execution_order": [
+    "M10_777_COMPOUNDING",
+    "M01_FIRST_DOLLAR",
+    "M02_AGENT_BRIDGE_TOLLS",
+    "M03_PORTABLE_ASSET_EXCHANGE",
+    "M05_FREE_B2B_DISCOVERY",
+    "M06_CHEAP_A2A_NETWORK",
+    "M04_INTEROPERABLE_MARKETPLACE",
+    "M09_TRUST_AND_EVIDENCE",
+    "M11_DATA_AND_RESILIENCE",
+    "M12_FOUNDER_CONTROL",
+    "M07_GPU_CAPACITY_EXCHANGE",
+    "M08_PROGRAMMATIC_DOOH"
+  ],
+  "proof_contract": [
+    "run_id",
+    "commit_sha",
+    "job_conclusion",
+    "artifact_path",
+    "artifact_sha256",
+    "source_urls",
+    "retrieved_at",
+    "test_command",
+    "test_result",
+    "deployment_observation",
+    "truth_status",
+    "next_task"
+  ]
+}
