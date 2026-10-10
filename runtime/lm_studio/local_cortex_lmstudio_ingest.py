@@ -76,27 +76,15 @@ Text: {(signal.get("text") or "")[:1200]}
 URL: {signal.get("url", "")}
 """
     try:
-        models = http_json("/models")
-        ids = [str(x.get("id")) for x in models.get("data", []) if x.get("id")]
-        model = LM_MODEL or (ids[0] if ids else "")
-        if not model:
-            raise RuntimeError("NO_LM_STUDIO_MODEL")
-        body = {
-            "model": model,
-            "messages": [{"role": "system", "content": "Return strict JSON only."}, {"role": "user", "content": prompt}],
-            "temperature": 0.1,
-            "stream": False,
-            "response_format": {"type": "json_object"},
-        }
-        data = http_json("/chat/completions", body, timeout=120)
-        result = json.loads(data["choices"][0]["message"]["content"])
+        from beck_lmstudio_sdk import classify_with_sdk
+        result, telemetry = classify_with_sdk(prompt, LM_MODEL)
         required = ["1_PAIN","2_FREQUENCY","3_URGENCY","4_CURRENT_WORKAROUND","5_BUYING_INTENT","6_MONEY_SIGNAL","7_BUYER","8_PRODUCT_OPPORTUNITY","9_STATUS_BUCKET","10_NEXT_ACTION"]
         for key in required:
             if key not in result:
                 raise ValueError("MISSING_" + key)
             if key in ALLOWED and result[key] not in ALLOWED[key]:
                 raise ValueError("INVALID_" + key)
-        return result, {"provider": "lmstudio-local", "model": model, "fallback": False}
+        return result, telemetry
     except Exception as exc:
         return fallback(signal, str(exc)), {"provider": "cortex-heuristic", "model": None, "fallback": True, "error": str(exc)}
 
@@ -177,15 +165,23 @@ def checkout_decision(gauntlet, offer):
     }
 
 def process(signal):
+    process_started = time.perf_counter()
     audit, provider = classify(signal)
     offer = load_offer(audit)
     gauntlet = run_existing_gauntlet(audit, signal, offer)
     decision = checkout_decision(gauntlet, offer)
+    provider.setdefault("task_class", "demand_signal_classification")
+    provider.setdefault("latency_ms", None)
+    provider.setdefault("input_tokens", None)
+    provider.setdefault("output_tokens", None)
+    provider.setdefault("estimated_cost", None)
+    provider.setdefault("cost_currency", None)
     result = {
         "schema": "BEC/LOCAL-CORTEX-SIGNAL-GAUNTLET/v1",
         "signal": signal,
         "audit": audit,
         "provider": provider,
+        "runtime_latency_ms": round((time.perf_counter() - process_started) * 1000, 2),
         "gauntlet": gauntlet,
         "checkout_decision": decision,
         "external_action_taken": False,
@@ -202,7 +198,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--signal-file")
     parser.add_argument("--stdin-jsonl", action="store_true")
+    parser.add_argument("--cortex-act", help="Run a bounded, read-only LM Studio .act task")
+    parser.add_argument("--act-max-tool-calls", type=int, default=3)
+    parser.add_argument("--act-max-rounds", type=int, default=4)
     args = parser.parse_args()
+    if args.cortex_act:
+        from beck_lmstudio_sdk import cortex_act
+        print(json.dumps(cortex_act(args.cortex_act, model_key=LM_MODEL,
+                                    max_tool_calls=args.act_max_tool_calls,
+                                    max_rounds=args.act_max_rounds), indent=2))
+        return
     if args.stdin_jsonl:
         for line in sys.stdin:
             if line.strip():
