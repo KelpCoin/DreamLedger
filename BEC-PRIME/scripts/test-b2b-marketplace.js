@@ -142,3 +142,28 @@ test('supplier cannot read competing offers on another buyer RFQ', async () => {
     assert.equal(res.statusCode, 403);
   } finally { global.fetch = oldFetch; }
 });
+
+test('listing idempotency rejects a replay with a changed category', async () => {
+  const oldFetch = global.fetch;
+  let submitted;
+  global.fetch = async (url, options = {}) => {
+    const target = String(url);
+    if (target.endsWith('/auth/v1/user')) return new Response(JSON.stringify({ id:'00000000-0000-4000-8000-000000000006', email:'seller@example.com', email_confirmed_at:'2026-01-01T00:00:00Z' }), { status:200 });
+    if (target.includes('/rest/v1/marketplace_seller_accounts')) return new Response(JSON.stringify([{ seller_id:'00000000-0000-4000-8000-000000000007', onboarding_status:'complete', charges_enabled:true, payouts_enabled:true }]), { status:200 });
+    if (target.includes('/rest/v1/marketplace_listings') && options.method === 'POST') {
+      submitted = JSON.parse(options.body);
+      return new Response('', { status:201 });
+    }
+    if (target.includes('/rest/v1/marketplace_listings?') && target.includes('slug=eq.')) {
+      return new Response(JSON.stringify([{ id:'00000000-0000-4000-8000-000000000008', ...submitted, category:'Tools', created_at:'2026-10-10T00:00:00Z' }]), { status:200 });
+    }
+    throw new Error('Unexpected URL ' + target);
+  };
+  try {
+    const res = response();
+    await handle(request('POST','/api/b2b/listings',{title:'Custom machined bracket',description:'Made to drawing',category:'Parts',price_nzd:49.99},{authorization:'Bearer verified-seller-token','idempotency-key':'same-listing-key'}),res,'/api/b2b/listings');
+    assert.equal(res.statusCode,409);
+    assert.equal(parse(res).code,'IDEMPOTENCY_CONFLICT');
+  } finally { global.fetch = oldFetch; }
+});
+
