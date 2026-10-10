@@ -1,7 +1,7 @@
 {
   "type": "dreamledger-candidate-gauntlet-proof",
   "version": "1.0",
-  "status": "PASS",
+  "status": "FAIL",
   "checks": [
     {
       "id": "candidate.offer_id",
@@ -95,8 +95,8 @@
     },
     {
       "id": "candidate.price_positive",
-      "status": "PASS",
-      "message": "Price is greater than zero"
+      "status": "FAIL",
+      "message": "Price must be greater than zero"
     },
     {
       "id": "candidate.approval",
@@ -129,8 +129,8 @@
       "message": "Proof and verification are explicit"
     }
   ],
-  "checked_at": "2026-10-09T23:09:55.923Z",
-  "candidate_hash": "b53c3c3d3d9c9d0b8c80ef82017f9ff3f51abfdbbfd8c0166805c3c876fff991",
-  "candidate_offer_id": "QUOTE-COMPARE-49",
+  "checked_at": "2026-10-10T03:13:26.960Z",
+  "candidate_hash": "ec287dc2101818283fae111e60469a37f5eacea23a5db07aaaf39ab76a79704b",
+  "candidate_offer_id": "TRUTH-ORACLE-DISTRIBUTION-001",
   "public_execution": "BLOCKED_UNTIL_HUMAN_APPROVAL"
 }

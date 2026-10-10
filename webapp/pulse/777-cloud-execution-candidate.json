@@ -1,14 +1,14 @@
 {
-  "offer_id": "QUOTE-COMPARE-49",
-  "name": "Signed Quote Comparison",
-  "problem": "Compare supplier quotations and identify the economically superior comparable option.",
-  "target_buyer": "buyer with 2-5 supplier quotes",
-  "deliverable": "normalized comparison, ranking, missing-scope findings, source evidence and signed verification packet",
-  "delivery_mechanism": "existing quote comparison fulfillment rail",
-  "price": 49,
+  "offer_id": "TRUTH-ORACLE-DISTRIBUTION-001",
+  "name": "Truth Oracle Evidence-to-Alert Path",
+  "problem": "Help people and agents turn economic claims into source-linked, freshness-checked evidence records, with optional paid convenience only where an existing rail is verified.",
+  "target_buyer": "researchers, operators, buyers and agents needing source-grounded economic decisions",
+  "deliverable": "free source-linked claim record with provenance, date, contradiction and uncertainty fields; optional alerts or execution only after an existing paid rail is verified",
+  "delivery_mechanism": "existing public Truth Oracle surface; paid convenience only through an explicitly verified existing offer",
+  "price": 0,
   "currency": "NZD",
-  "payment_adapter": "existing Stripe checkout",
-  "checkout_route": "configured existing Quote Compare checkout",
+  "payment_adapter": "no default checkout; use only an explicitly verified existing payment rail",
+  "checkout_route": "not configured; require explicit mapping to a verified existing offer",
   "approval_required": true,
   "checkout_available": false,
   "status": "CANDIDATE",
@@ -16,8 +16,8 @@
   "verification_rules": "external buyer + settled payment + fulfillment + independent proof",
   "provenance": {
     "private_material": "excluded",
-    "source_hash": "e43148d67dbcdf89e61d536c2a1fed34951c3725643b9cbb68d1bd300ac7cf82"
+    "source_hash": "df55ce833da4ffe794b5efcb6c0be347a43df9781dc03e0f2f1e470b5e72f56b"
   },
-  "silo": "quote-compare",
+  "silo": "truth-oracle",
   "kill_condition": "no external buyer, no settled payment, fulfillment failure, contradictory evidence"
 }
