@@ -156,7 +156,7 @@ async function handle(req, res, url) {
       const rows = await db('marketplace_b2b_rfqs', 'GET', 'status=eq.open&select=*&order=created_at.desc&limit=100');
       return send(res, 200, {
         schema: 'DREAMLEDGER/B2B-RFQ/v2',
-        items: (rows || []).map(x => ({ id:x.id,title:x.title,description:x.description,category:x.category,budget_minor:x.budget_minor,budget_nzd:x.budget_minor === null ? null : Number(x.budget_minor) / 100,currency:x.currency,deadline:x.deadline,status:x.status,created_at:x.created_at,buyer_name:'Verified buyer' }))
+        items: (rows || []).map(x => ({ id:x.id,title:x.title,description:x.description,category:x.category,budget_minor:x.budget_minor,budget_nzd:x.budget_minor === null ? null : Number(x.budget_minor) / 100,currency:x.currency,deadline:x.deadline,status:x.status,created_at:x.created_at,buyer_name:'Marketplace buyer' }))
       });
     }
 
