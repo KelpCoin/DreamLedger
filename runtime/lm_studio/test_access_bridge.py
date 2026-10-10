@@ -55,6 +55,9 @@ class AccessBridgeTests(unittest.TestCase):
         ids = {option["id"] for option in options}
         self.assertIn("winz_disability_allowance", ids)
         self.assertIn("winz_special_needs_grant", ids)
+        allowance = next(option for option in options if option["id"] == "winz_disability_allowance")
+        self.assertIn("82.85", allowance["maximum_rate"])
+        self.assertIn("not guaranteed", allowance["maximum_rate"].lower())
         self.assertIn("provider_payment_options", ids)
         grant = next(option for option in options if option["id"] == "winz_special_needs_grant")
         self.assertIn("not guaranteed", grant["limitation"].lower())
