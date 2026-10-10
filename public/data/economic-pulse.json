@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-10T14:44:31+00:00",
+  "generated_at_utc": "2026-10-10T18:54:33+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "d2b6e04b-6e91-54af-b63d-6db1a10daa88",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Sanson & Whanganui Civil & Structural Works",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-10T18:54:28+00:00",
+      "url": "https://www.gets.govt.nz/ACNZ/ExternalTenderDetails.htm?id=34919977",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-sanson-whanganui-civil-structural-works-48f984dacb.html"
+    },
     {
       "id": "71c1b550-704b-53ed-8b98-547d104368e9",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

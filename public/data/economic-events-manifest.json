@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-10T14:44:31+00:00",
+  "updated_at_utc": "2026-10-10T18:54:33+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Sanson & Whanganui Civil & Structural Works",
+      "url": "https://www.gets.govt.nz/ACNZ/ExternalTenderDetails.htm?id=34919977",
+      "observed_at": "2026-10-10T18:54:28+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "48f984dacb6e3d5fb8d9fb7292f035671e188a48d36386d74146f97c88ffe15d",
+      "event_id": "d2b6e04b-6e91-54af-b63d-6db1a10daa88",
+      "silo_id": "ECO-48F984DACB6E3D5F",
+      "slug": "procurement-sanson-whanganui-civil-structural-works-48f984dacb"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
