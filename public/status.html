@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b2b">
+<meta name="description" content="DreamLedger public service status, known limitations, and support path.">
+<meta name="robots" content="index,follow">
+<title>System status | DreamLedger</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b1bdcc;--mint:#a9f2d0;--amber:#f0c77b;--red:#ffaaa4}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,sans-serif}.wrap{width:min(880px,calc(100% - 32px));margin:auto}header{padding:26px 0;border-bottom:1px solid var(--line)}header a,footer a{color:var(--mint);text-decoration:none}.brand{font-weight:850;letter-spacing:-.04em}main{padding:36px 0 60px}h1{font-size:clamp(34px,7vw,52px);line-height:1.05;letter-spacing:-.05em;margin:0 0 12px}.intro,.muted{color:var(--muted)}.snapshot{margin:24px 0 30px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:14px}.items{display:grid;gap:12px}.item{padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.top{display:flex;justify-content:space-between;align-items:center;gap:14px}.top h2{font-size:18px;margin:0}.state{display:inline-block;padding:3px 9px;border:1px solid var(--line);border-radius:99px;font-size:12px;font-weight:750;white-space:nowrap}.ok{color:var(--mint)}.limited{color:var(--amber)}.notready{color:var(--red)}.item p{margin:10px 0 0;color:var(--muted)}.notice{margin-top:24px;padding:18px;border-left:3px solid var(--amber);background:#f0c77b0d}.notice strong{display:block;margin-bottom:5px}footer{padding:24px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px}footer nav{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="/">DreamLedger</a> <span class="muted">/ System status</span></div></header>
+<main class="wrap">
+<div class="muted">PUBLIC STATUS SNAPSHOT</div>
+<h1>Service status</h1>
+<p class="intro">A plain-language record of what is available, what is deliberately disabled, and what has not yet been proven. We do not label an untested money flow as operational.</p>
+<div class="snapshot"><strong>Snapshot reviewed:</strong> 11 October 2026<br><strong>Monitoring level:</strong> Manually reviewed snapshot, not live telemetry. No uptime guarantee or SLA is implied.</div>
+<div class="items">
+<section class="item"><div class="top"><h2>Public website and shop</h2><span class="state ok">Available</span></div><p>The public storefront and static offer fallback are served. A product-listing script may affect dynamic catalogue details; fallback offers remain visible.</p></section>
+<section class="item"><div class="top"><h2>Toll Road catalogue</h2><span class="state ok">Available</span></div><p>The public manifest and 10,000 logical road identifiers are available. Catalogue presence does not mean a road has been sold or executed.</p></section>
+<section class="item"><div class="top"><h2>Paid Toll Road execution</h2><span class="state limited">Disabled by design</span></div><p>Paid checkout and metered execution remain disabled until durable per-key quota accounting and end-to-end payment tests are in place. No paid-call availability is promised.</p></section>
+<section class="item"><div class="top"><h2>Payments and fulfilment</h2><span class="state notready">Not yet independently verified</span></div><p>A complete external settlement → attributable order → fulfilment → delivery-evidence cycle has not yet been established as verified. Do not treat a checkout link or payment attempt as proof of delivery.</p></section>
+<section class="item"><div class="top"><h2>MTG and B2B/A2A marketplace</h2><span class="state limited">In development</span></div><p>Public discovery and some offer pages exist. A fully durable listing-to-order-to-settlement-to-fulfilment marketplace is not yet available as a verified end-to-end service.</p></section>
+<section class="item"><div class="top"><h2>Persistent usage ledger</h2><span class="state limited">Not ready for billing</span></div><p>Production metering is gated until usage can be recorded durably and enforced per customer key. Metered calls stay disabled rather than risking unbounded or unprovable usage.</p></section>
+</div>
+<div class="notice"><strong>Need help or reporting an incident?</strong>Use the <a href="/contact?v=20261011">contact page</a>. Include the affected URL, approximate time, and a request or receipt ID if one exists. Do not send passwords, API keys, payment-card details, or other secrets.</div>
+<p class="muted">This page is a status disclosure, not a real-time monitoring dashboard. Incident response times, uptime percentages, recovery objectives, and service-level commitments are not currently published.</p>
+</main>
+<footer><div class="wrap">DreamLedger · Status stated, not implied.<nav><a href="/">Home</a><a href="/shop.html">Shop</a><a href="/trust/">Evidence standard</a><a href="/privacy?v=20261011">Privacy</a><a href="/terms?v=20261011">Terms</a><a href="/security?v=20261011">Security</a><a href="/contact?v=20261011">Contact</a></nav></div></footer>
+</body>
+</html>
