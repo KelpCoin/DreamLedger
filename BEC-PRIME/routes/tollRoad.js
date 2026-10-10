@@ -88,7 +88,10 @@ function verifyPassportToken(token){
 }
 
 async function createCheckout(scope, roadId=null){
-  if(scope==='road' && !RoadFactory.getRoad(roadId)) throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
+  if(scope==='road'){
+    if(!RoadFactory.getRoad(roadId))throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
+    throw Object.assign(new Error('Road checkout disabled until durable per-key quota accounting is available'),{statusCode:503});
+  }
   const priceNzd=priceFor(scope);
   if(!Toll.configured())throw Object.assign(new Error('Toll key issuance is not configured'),{statusCode:503});
   if(!STRIPE_SECRET_KEY||!(priceNzd>0))throw Object.assign(new Error('Toll checkout is not configured'),{statusCode:503});
@@ -102,7 +105,10 @@ async function createCheckout(scope, roadId=null){
 }
 
 async function redeem(scope,sessionId,roadId=null){
-  if(scope==='road' && !RoadFactory.getRoad(roadId))throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
+  if(scope==='road'){
+    if(!RoadFactory.getRoad(roadId))throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
+    throw Object.assign(new Error('Road redemption disabled until durable per-key quota accounting is available'),{statusCode:503});
+  }
   if(!STRIPE_SECRET_KEY)throw Object.assign(new Error('Stripe secret key is not configured'),{statusCode:503});
   const response=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(sessionId)+'?expand[]=line_items',{headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
@@ -141,7 +147,7 @@ function meterResult(key, service, extra){
 }
 
 async function handle(req,res,path){
-  if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest([{id:'ROAD-METER-10000',route:'/api/toll/v1/roads/{road_id}',scope:'road',price_nzd:RoadFactory.ROAD_PRICE_NZD,description:'10,000 separately key-scoped logical road IDs; 100 metered receipt calls per road entitlement',road_instances:RoadFactory.ROAD_COUNT,calls_per_pack:RoadFactory.CALLS_PER_ROAD,checkout_route:'/api/toll/v1/checkout/road/{road_id}'}]));
+  if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest([{id:'ROAD-METER-10000',route:'/api/toll/v1/roads/{road_id}',scope:'road',status:'CATALOGUED_PENDING_DURABLE_QUOTA_LEDGER',checkout_configured:false,price_nzd:null,proposed_price_nzd:RoadFactory.ROAD_PRICE_NZD,description:'10,000 logical road IDs. Paid execution remains disabled until durable per-key quota accounting is available.',road_instances:RoadFactory.ROAD_COUNT,calls_per_pack:null,proposed_calls_per_pack:RoadFactory.CALLS_PER_ROAD,checkout_route:null,catalog_endpoint:'/api/toll/v1/roads?offset=0&limit=100'}]));
 
   if(path==='/api/toll/v1/roads'&&req.method==='GET'){
     const u=new URL(req.url,'https://dreamledger.org');
@@ -159,6 +165,7 @@ async function handle(req,res,path){
   if(roadMatch&&req.method==='POST'){
     const road=RoadFactory.getRoad(roadMatch[1]);
     if(!road)return send(res,404,{error:'unknown_toll_road'});
+    return send(res,503,{error:'durable_quota_ledger_required',road_id:road.road_id,note:'No payload was processed. Paid execution is disabled until per-key usage can be durably enforced.'});
     let key;
     try{key=authorize(req,'road',road.road_id);}catch(e){return send(res,e.statusCode||401,{error:e.message});}
     const body=await readJson(req).catch(e=>{throw e;});
