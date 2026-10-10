@@ -166,12 +166,6 @@ async function handle(req,res,path){
     const road=RoadFactory.getRoad(roadMatch[1]);
     if(!road)return send(res,404,{error:'unknown_toll_road'});
     return send(res,503,{error:'durable_quota_ledger_required',road_id:road.road_id,note:'No payload was processed. Paid execution is disabled until per-key usage can be durably enforced.'});
-    let key;
-    try{key=authorize(req,'road',road.road_id);}catch(e){return send(res,e.statusCode||401,{error:e.message});}
-    const body=await readJson(req).catch(e=>{throw e;});
-    const canonical=JSON.stringify(body);
-    const digest=crypto.createHash('sha256').update(canonical).digest('hex');
-    return send(res,200,meterResult(key,'NAMESPACED-TOLL-ROAD',{road_id:road.road_id,receipt_id:'RCP-'+crypto.randomUUID().slice(0,12).toUpperCase(),payload_sha256:digest,payload_bytes:Buffer.byteLength(canonical,'utf8'),payload_stored:false,downstream_action:'NONE',calls_per_pack:RoadFactory.CALLS_PER_ROAD,note:'Authenticated receipt only. Payload is not persisted and no downstream work is claimed.'}));
   }
 
   if(path.startsWith('/api/toll/v1/checkout/road/')&&(req.method==='GET'||req.method==='POST')){
