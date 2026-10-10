@@ -25,6 +25,7 @@ lost follow-ups, and uncertainty about the next concrete step.
 - Baywide Community Law (Tauranga): 0800 905 916; (07) 571 6812; tauranga@baywidecls.org.nz: https://communitylaw.org.nz/centre/tauranga-whakatane/
 - Community Law Waikato: 0800 529 482: https://communitylaw.org.nz/centre/waikato/
 - Work and Income urgent-cost support: 0800 559 009: https://www.workandincome.govt.nz/products/a-z-benefits/special-needs-grant/index.html
+- Disability Allowance: up to NZ$82.85/week as at 1 April 2026 for eligible ongoing costs; actual entitlement depends on circumstances and eligible expenses. Check current rules with Work and Income: https://www.workandincome.govt.nz/eligibility/health-and-disability/phones
 
 ## Run tests
 From runtime/lm_studio: python -m unittest test_access_bridge.py
