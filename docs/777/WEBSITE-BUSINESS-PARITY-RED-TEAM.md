@@ -34,7 +34,267 @@
 - Pattern Foundry: https://github.com/KelpCoin/DreamLedger/blob/main/docs/777/PATTERN-FOUNDRY.md
 - Pattern Overlay: https://github.com/KelpCoin/DreamLedger/blob/main/docs/777/PATTERN-OVERLAY-AUDIT.md
 
-\n## B1 — Paid offer availability and checkout-to-fulfilment mismatch\n**Severity:** P0 / revenue-critical\n\n**Observed blocker:** The live /quote-comparison/ page explicitly says paid automated comparison is unavailable while payment verification and report delivery are repaired. Do not sell or advertise this paid flow as available until the real path is proven.\n\n**Positive signal:** The public page honestly quarantines the unavailable paid flow and preserves a free worksheet. This is better than misleading buyers.\n\n**Negative signal:** The wider offer catalogue and previous commercial plans can still imply paid readiness; checkout, payment verification, intake, report generation, delivery, and receipt have not been proven together.\n\n**Triangulated ruling:** Keep the paid route unavailable until a complete test and independent end-to-end proof pass. Preserve the free worksheet as the live fallback. Reconcile catalog, CTA, Stripe state, webhook, fulfillment and customer-facing copy against one canonical offer record.\n\n### 50 materially distinct solution paths\n1. Keep the paid CTA disabled and the free worksheet primary until the whole path passes.\n2. Show an explicit status banner with last-checked timestamp and scope.\n3. Add a single canonical offer manifest consumed by website and checkout.\n4. Make public price, currency, product ID and Stripe Price ID derive from the same manifest.\n5. Verify the exact Payment Link is active before enabling any paid CTA.\n6. Verify its line item amount and currency against the offer manifest.\n7. Verify redirect target after checkout without initiating a charge.\n8. Verify intake captures a Checkout Session ID and exact offer ID.\n9. Require a paid, settled provider status before work enters fulfillment.\n10. Verify signed webhook delivery and registered event types.\n11. Add an idempotent transactional inbox for webhook events.\n12. Persist event IDs and reject duplicate processing.\n13. Reject missing or unknown SKU metadata instead of defaulting.\n14. Bind checkout session, offer, buyer, and fulfillment request together.\n15. Make unpaid and expired sessions ineligible for fulfillment.\n16. Reject amount, currency, or product mismatches.\n17. Make report delivery produce a stable artifact ID and checksum.\n18. Record a delivery receipt tied to the paid order.\n19. Make the customer see delivery status and next steps.\n20. Create a support-safe failure state that never says delivered prematurely.\n21. Add a reconciliation job comparing Stripe, order, entitlement, and delivery.\n22. Test replaying the same webhook three times.\n23. Test out-of-order webhook arrival.\n24. Test provider timeout after a successful event.\n25. Test fulfillment succeeds but receipt write fails.\n26. Test receipt succeeds but delivery fails.\n27. Test refund and dispute status against entitlement.\n28. Test zero-byte, malformed, and missing customer uploads.\n29. Test source URL access errors and unsupported file formats.\n30. Publish an exact scope and exclusions list for the paid output.\n31. State delivery time only after measuring actual delivery latency.\n32. Offer a manual bounded fulfillment fallback only if capacity and proof are real.\n33. Keep the free worksheet fully functional without account creation.\n34. Capture privacy notice and retention period at upload intake.\n35. Do not collect contact details unless needed for delivery.\n36. Add a pre-purchase preview with a sample output marked illustrative.\n37. Add an acceptance checklist visible before payment.\n38. Keep refund terms adjacent to the paid CTA.\n39. Add a synthetic end-to-end test environment that cannot count as revenue.\n40. Label test orders TEST and exclude them from economic metrics.\n41. Run a production smoke test against the deployed public route after every release.\n42. Add a route-level kill switch that disables checkout if dependencies fail.\n43. Show the customer a non-payment alternative while disabled.\n44. Track CTA click, checkout open, settlement, fulfillment and delivery as distinct events.\n45. Require source-to-order attribution to be non-empty before marking a sale verified.\n46. Reconcile net payment after fees, refunds, and chargebacks.\n47. Add a documented recovery path for ambiguous Stripe responses.\n48. Keep an immutable incident record for any misrouted or unfulfilled payment.\n49. Only re-enable the offer after Gauntlet G0–G10 evidence is attached.\n50. Promote the route only after an independent buyer pays and receives the promised result.\n\n**Gauntlet evidence required:** Exact active Stripe product/price and redirect, webhook registration/signature, order/SKU attribution, paid-state check, entitlement, successful output, delivery receipt, replay tests, reconciliation, independent buyer.\n\n## B2 — Product discovery and URL integrity\n**Severity:** P1 / trust and conversion\n\n**Observed blocker:** The exact paths /commander-diagnostic/ and /agentic-commerce-remediation-blueprint/ returned 404. They may have moved, but these destinations are not currently usable as inspected.\n\n**Positive signal:** The about page lists existing tools and product areas, and the website has a small, consistent evidence-first identity.\n\n**Negative signal:** If catalogue entries, links, social previews, or automation prompts refer to these dead paths, a visitor may hit a dead end or be unable to understand what is actually for sale.\n\n**Triangulated ruling:** Inventory every public and internal offer reference, map each to one canonical live page, and quarantine offers without an end-to-end fulfillment contract. Avoid creating substitute SKUs just to make broken links appear fixed.\n\n### 50 materially distinct solution paths\n1. Search repository and deployed pages for every occurrence of both broken paths.\n2. Inspect the current marketplace.html and shop.html destinations.\n3. Create a canonical route inventory with status and owner.\n4. Map old paths to verified replacements only after checking the replacement content.\n5. Use permanent redirects only when the replacement is semantically equivalent.\n6. Return a branded 404 page with working navigation and a search/contact route.\n7. Remove dead CTA links from the homepage.\n8. Remove dead URLs from sitemap.xml.\n9. Update canonical metadata on replacement pages.\n10. Check internal links in about, trust, marketplace and shop pages.\n11. Check mobile navigation links separately.\n12. Check Open Graph title and URL for each live product page.\n13. Check robots and canonical tags for stale duplicate pages.\n14. Add automated link checking to CI.\n15. Add a production URL smoke test after deploy.\n16. Build a route manifest from actual files and explicit redirects.\n17. Require each paid offer to include a public page URL in the canonical catalog.\n18. Reject catalog offers whose canonical URL returns non-2xx.\n19. Mark unavailable offers as QUARANTINE rather than hiding the failure.\n20. Keep redirects out of checkout until redirect destination is verified.\n21. Test query-string preservation through redirects.\n22. Test trailing-slash and .html variants.\n23. Test uppercase/lowercase path behavior.\n24. Test unknown routes on mobile Safari.\n25. Test cached 404 behavior after a fix.\n26. Set cache invalidation rules for corrected routes.\n27. Use a stable offer ID separate from the page slug.\n28. Keep price and product scope out of the URL slug.\n29. Generate sitemap only from approved public pages.\n30. Add a dead-link report to the daily audit.\n31. Create a public product index showing available, free, paused and retired states.\n32. Show why an offer is paused without promising a repair date.\n33. Ensure a 404 does not fall back to a different paid offer.\n34. Do not reuse an unrelated Payment Link as a redirect target.\n35. Preserve retired-page history for internal attribution.\n36. Add a migration map for changed URLs.\n37. Check external backlinks to dead paths before retiring them.\n38. Update GitHub issues and Notion pages that contain old URLs.\n39. Update scheduled tasks to treat legacy URLs as leads, not ground truth.\n40. Validate links from search engine snippets where observable.\n41. Validate links from social cards and QR codes.\n42. Use exact page titles matching the offer a user expects.\n43. Make the destination explain who the product is for.\n44. Make the destination state inputs, outputs, limits and delivery mode.\n45. Add a single CTA only when its action is real and safe.\n46. Do not put a price on a page if the payment route is unavailable.\n47. Add route tests for all offers before promotion.\n48. Have Gauntlet fail if a promoted offer URL is missing or broken.\n49. Recheck all route status codes after each public deployment.\n50. Record a dated evidence snapshot for each audited URL.\n\n**Gauntlet evidence required:** Every referenced URL resolves to the intended live content; route manifest, internal link scan, sitemap, metadata and production smoke tests agree.\n\n## B3 — Truth Oracle source legitimacy and feed readiness\n**Severity:** P0 / trust-critical\n\n**Observed blocker:** The Truth Oracle page gives strong guidance on original sources, dates, scope, contradictions, and uncertainty, but the inspected live page displayed “Loading public records…”. It explicitly calls the feed leads rather than verified truths. The missing step is a demonstrably operating source-verification workflow and clear visible behavior when data is unavailable.\n\n**Positive signal:** The methodology already discourages source-link laundering, stale claims, unsupported certainty, and treating a listing as a sale. The page says paid products cannot buy a better truth verdict.\n\n**Negative signal:** A source link is not independence; several articles repeating one press release are not multiple sources. The visitor needs to see provenance, source class, corroboration relationships, counterevidence, freshness, and why the ruling follows.\n\n**Triangulated ruling:** Operationalize the BrownEye Tri-Fecta as a source-evidence graph: positive evidence, negative/counterevidence, and a triangulated ruling. Independence must be measured by underlying origin and incentives, not URL count. No source should certify its own claim.\n\n### 50 materially distinct solution paths\n1. Define a versioned claim schema with exact wording and decision scope.\n2. Store the original source URL, canonical URL and retrieval timestamp.\n3. Store publication date separately from observation/retrieval date.\n4. Capture the exact passage or data row that supports each claim.\n5. Record the source author, publisher and responsible organization where known.\n6. Classify sources as primary, official secondary, independent secondary, advocacy, anonymous, or unknown.\n7. Record source incentives and commercial relationships.\n8. Track ownership and common control across sources.\n9. Cluster syndicated stories by their underlying press release or data source.\n10. Count independent evidence roots, not raw URLs.\n11. Separate source authority from source independence.\n12. Separate recency from reliability.\n13. Track version, geography, market, cohort and time period for every claim.\n14. Record claim polarity: supports, contradicts, contextualizes, or does not address.\n15. Require a negative-evidence search for high-impact claims.\n16. Require a positive-evidence search rather than relying on absence of contradictions.\n17. Use the Tri-Fecta: positive steelman, negative steelman, triangulated ruling.\n18. Do not average positive and negative signals into a false neutral.\n19. Require the ruling to cite evidence on both sides where available.\n20. Permit INSUFFICIENT EVIDENCE when one side cannot be responsibly tested.\n21. Use confidence labels tied to explicit criteria rather than model intuition.\n22. Keep fact, source statement, inference, forecast and opinion in separate fields.\n23. Track corrections and retractions as first-class source events.\n24. Re-fetch sources before a time-sensitive claim is promoted.\n25. Apply domain-specific freshness windows.\n26. Show when a source is inaccessible, paywalled, deleted or robots-blocked.\n27. Never treat inaccessible content as evidence for the claim.\n28. Store a content hash for the retrieved snapshot, alongside the URL.\n29. Store extraction method and parser version.\n30. Keep quote spans short and retain a pointer to the original context.\n31. Detect when a quoted passage omits a qualifying sentence.\n32. Record counterexamples and exclusion clauses.\n33. Check official documentation before relying on summaries for platform behavior.\n34. Check legal or medical claims against authoritative sources and state limits.\n35. Never turn a supplier's own performance claim into independent verification.\n36. Label company-reported results as company-reported.\n37. Distinguish transaction evidence from demand claims and customer testimonials.\n38. Separate the evidence graph from the generated prose summary.\n39. Require a human review for high-consequence conclusions.\n40. Run an adversarial reviewer tasked to disprove the strongest positive claim.\n41. Run a second reviewer tasked to find the strongest supportable version.\n42. Resolve reviewer disagreements by evidence, not majority vote.\n43. Show unresolved disagreement and missing evidence publicly.\n44. Prevent model-generated citations that were not actually retrieved.\n45. Test every displayed citation opens the cited source.\n46. Make an empty feed say the feed is unavailable or has no records, never imply no events exist.\n47. Add a last successful refresh timestamp and health status.\n48. Use a static, usable fallback template if the dynamic feed fails.\n49. Provide an evidence export containing claim, sources, contradiction map and ruling.\n50. Require Gauntlet to pass provenance, independence, counterevidence and freshness checks before publication.\n\n**Gauntlet evidence required:** Source snapshots, retrieval timestamps, evidence passages, provenance roots, independence clusters, positive and negative search traces, ruling rationale, and a tested unavailable-feed state.\n\n## B4 — Product promise, capability and fulfillment parity\n**Severity:** P0 / portfolio-wide\n\n**Observed blocker:** The public brand promises practical tools and evidence-linked outcomes. Existing project doctrine also names paid diagnostics, agent bridge calls, quote comparison, a marketplace, and remediation blueprints, but the inspected pages do not establish that every listed offer can currently be purchased, fulfilled and evidenced. The known Supabase data-plane outage makes database-dependent entitlements and delivery especially unsafe to assume.\n\n**Positive signal:** The website already uses cautious language and a clear trust standard; the repository has a connector protocol and Pattern Foundry/Overlay specifications that can govern the portfolio.\n\n**Negative signal:** Public presentation can drift away from real implementation. A code artifact, catalogue row, green dashboard, payment link, or successful connector write is not proof that the customer got the promised result.\n\n**Triangulated ruling:** Create one offer-to-fulfillment registry and score each product across promise, deployed surface, price, intake, authority, dependencies, delivery, receipt, support, refund and evidence. Only sell routes that pass every applicable hard gate; keep free tools available when they work independently.\n\n### 50 materially distinct solution paths\n1. Create one canonical offer registry with stable IDs.\n2. Assign each offer a lifecycle status: DRAFT, TEST, AVAILABLE, PAUSED, QUARANTINE or RETIRED.\n3. Store the canonical URL, Stripe Price ID, currency, scope and fulfillment contract together.\n4. Record each offer's actual input requirements.\n5. Record the output artifact type and acceptance criteria.\n6. Record whether fulfillment is automated, manual or mixed.\n7. Name the true runtime dependencies for each offer.\n8. Mark Supabase-dependent functions unavailable while the data plane is down.\n9. Do not substitute in-memory state for durable entitlements without explicit redesign and disclosure.\n10. Add a dependency health gate before checkout.\n11. Add a manual fulfilment fallback only for work the operator can actually deliver.\n12. Estimate delivery time from observed runs rather than aspiration.\n13. Publish limitations and exclusions beside the CTA.\n14. Use a sample deliverable that is clearly marked as an example.\n15. Add a pre-purchase checklist so buyers know what to supply.\n16. Define how a buyer submits source material securely.\n17. Define retention and deletion for uploaded material.\n18. Create a delivery receipt schema tied to order ID.\n19. Require a customer-visible artifact or result for fulfilment completion.\n20. Add an evidence link to every completed order.\n21. Reconcile payment, offer ID, order ID and artifact ID.\n22. Make missing artifacts visible as UNFULFILLED.\n23. Make partial delivery visible as PARTIAL, not complete.\n24. Create a customer-safe recovery path for delivery failures.\n25. Define refund handling for non-delivery and misdescription.\n26. Track support burden per offer.\n27. Track human minutes per verified delivery.\n28. Track gross receipts separately from net contribution.\n29. Track refunds and disputes separately from gross sales.\n30. Track repeat use only for independent customers.\n31. Keep test and internal events out of public success metrics.\n32. Create a production acceptance test for each offer.\n33. Run the tests against the deployed public URL, not only local code.\n34. Require independent review for security-sensitive or high-consequence products.\n35. Audit public claims for certifications, guarantees, case studies and uptime promises.\n36. Remove claims without proof or relabel them as intended capability.\n37. Add an expiry date to availability evidence.\n38. Recheck the exact Stripe product and price before re-enabling an offer.\n39. Ensure unknown SKU never maps to a fallback product.\n40. Ensure paid entitlement is scoped to the purchased resource.\n41. Ensure duplicate webhooks cannot duplicate delivery.\n42. Ensure refund/reversal affects entitlement appropriately.\n43. Make outages fail closed for paid access when authorization cannot be verified.\n44. Add monitoring for checkout, webhook, order, delivery and receipt boundaries.\n45. Create a portfolio-level parity report from actual sources.\n46. Make the homepage CTA point to the strongest working free or paid experience.\n47. Keep one primary CTA per silo and avoid competing toll roads.\n48. Quarantine overlapping offers until their buyer and outcome differ clearly.\n49. Require Gauntlet G0–G10 before promoting an offer.\n50. Require one independent buyer, settled payment and verified delivery before calling a paid path proven.\n\n**Gauntlet evidence required:** One canonical offer registry maps the public promise to dependencies, payment, intake, output, delivery evidence, refunds and support; deployed tests pass.\n
+
+## B1 — Paid offer availability and checkout-to-fulfilment mismatch
+**Severity:** P0 / revenue-critical
+
+**Observed blocker:** The live /quote-comparison/ page explicitly says paid automated comparison is unavailable while payment verification and report delivery are repaired. Do not sell or advertise this paid flow as available until the real path is proven.
+
+**Positive signal:** The public page honestly quarantines the unavailable paid flow and preserves a free worksheet. This is better than misleading buyers.
+
+**Negative signal:** The wider offer catalogue and previous commercial plans can still imply paid readiness; checkout, payment verification, intake, report generation, delivery, and receipt have not been proven together.
+
+**Triangulated ruling:** Keep the paid route unavailable until a complete test and independent end-to-end proof pass. Preserve the free worksheet as the live fallback. Reconcile catalog, CTA, Stripe state, webhook, fulfillment and customer-facing copy against one canonical offer record.
+
+### 50 materially distinct solution paths
+1. Keep the paid CTA disabled and the free worksheet primary until the whole path passes.
+2. Show an explicit status banner with last-checked timestamp and scope.
+3. Add a single canonical offer manifest consumed by website and checkout.
+4. Make public price, currency, product ID and Stripe Price ID derive from the same manifest.
+5. Verify the exact Payment Link is active before enabling any paid CTA.
+6. Verify its line item amount and currency against the offer manifest.
+7. Verify redirect target after checkout without initiating a charge.
+8. Verify intake captures a Checkout Session ID and exact offer ID.
+9. Require a paid, settled provider status before work enters fulfillment.
+10. Verify signed webhook delivery and registered event types.
+11. Add an idempotent transactional inbox for webhook events.
+12. Persist event IDs and reject duplicate processing.
+13. Reject missing or unknown SKU metadata instead of defaulting.
+14. Bind checkout session, offer, buyer, and fulfillment request together.
+15. Make unpaid and expired sessions ineligible for fulfillment.
+16. Reject amount, currency, or product mismatches.
+17. Make report delivery produce a stable artifact ID and checksum.
+18. Record a delivery receipt tied to the paid order.
+19. Make the customer see delivery status and next steps.
+20. Create a support-safe failure state that never says delivered prematurely.
+21. Add a reconciliation job comparing Stripe, order, entitlement, and delivery.
+22. Test replaying the same webhook three times.
+23. Test out-of-order webhook arrival.
+24. Test provider timeout after a successful event.
+25. Test fulfillment succeeds but receipt write fails.
+26. Test receipt succeeds but delivery fails.
+27. Test refund and dispute status against entitlement.
+28. Test zero-byte, malformed, and missing customer uploads.
+29. Test source URL access errors and unsupported file formats.
+30. Publish an exact scope and exclusions list for the paid output.
+31. State delivery time only after measuring actual delivery latency.
+32. Offer a manual bounded fulfillment fallback only if capacity and proof are real.
+33. Keep the free worksheet fully functional without account creation.
+34. Capture privacy notice and retention period at upload intake.
+35. Do not collect contact details unless needed for delivery.
+36. Add a pre-purchase preview with a sample output marked illustrative.
+37. Add an acceptance checklist visible before payment.
+38. Keep refund terms adjacent to the paid CTA.
+39. Add a synthetic end-to-end test environment that cannot count as revenue.
+40. Label test orders TEST and exclude them from economic metrics.
+41. Run a production smoke test against the deployed public route after every release.
+42. Add a route-level kill switch that disables checkout if dependencies fail.
+43. Show the customer a non-payment alternative while disabled.
+44. Track CTA click, checkout open, settlement, fulfillment and delivery as distinct events.
+45. Require source-to-order attribution to be non-empty before marking a sale verified.
+46. Reconcile net payment after fees, refunds, and chargebacks.
+47. Add a documented recovery path for ambiguous Stripe responses.
+48. Keep an immutable incident record for any misrouted or unfulfilled payment.
+49. Only re-enable the offer after Gauntlet G0–G10 evidence is attached.
+50. Promote the route only after an independent buyer pays and receives the promised result.
+
+**Gauntlet evidence required:** Exact active Stripe product/price and redirect, webhook registration/signature, order/SKU attribution, paid-state check, entitlement, successful output, delivery receipt, replay tests, reconciliation, independent buyer.
+
+## B2 — Product discovery and URL integrity
+**Severity:** P1 / trust and conversion
+
+**Observed blocker:** The exact paths /commander-diagnostic/ and /agentic-commerce-remediation-blueprint/ returned 404. They may have moved, but these destinations are not currently usable as inspected.
+
+**Positive signal:** The about page lists existing tools and product areas, and the website has a small, consistent evidence-first identity.
+
+**Negative signal:** If catalogue entries, links, social previews, or automation prompts refer to these dead paths, a visitor may hit a dead end or be unable to understand what is actually for sale.
+
+**Triangulated ruling:** Inventory every public and internal offer reference, map each to one canonical live page, and quarantine offers without an end-to-end fulfillment contract. Avoid creating substitute SKUs just to make broken links appear fixed.
+
+### 50 materially distinct solution paths
+1. Search repository and deployed pages for every occurrence of both broken paths.
+2. Inspect the current marketplace.html and shop.html destinations.
+3. Create a canonical route inventory with status and owner.
+4. Map old paths to verified replacements only after checking the replacement content.
+5. Use permanent redirects only when the replacement is semantically equivalent.
+6. Return a branded 404 page with working navigation and a search/contact route.
+7. Remove dead CTA links from the homepage.
+8. Remove dead URLs from sitemap.xml.
+9. Update canonical metadata on replacement pages.
+10. Check internal links in about, trust, marketplace and shop pages.
+11. Check mobile navigation links separately.
+12. Check Open Graph title and URL for each live product page.
+13. Check robots and canonical tags for stale duplicate pages.
+14. Add automated link checking to CI.
+15. Add a production URL smoke test after deploy.
+16. Build a route manifest from actual files and explicit redirects.
+17. Require each paid offer to include a public page URL in the canonical catalog.
+18. Reject catalog offers whose canonical URL returns non-2xx.
+19. Mark unavailable offers as QUARANTINE rather than hiding the failure.
+20. Keep redirects out of checkout until redirect destination is verified.
+21. Test query-string preservation through redirects.
+22. Test trailing-slash and .html variants.
+23. Test uppercase/lowercase path behavior.
+24. Test unknown routes on mobile Safari.
+25. Test cached 404 behavior after a fix.
+26. Set cache invalidation rules for corrected routes.
+27. Use a stable offer ID separate from the page slug.
+28. Keep price and product scope out of the URL slug.
+29. Generate sitemap only from approved public pages.
+30. Add a dead-link report to the daily audit.
+31. Create a public product index showing available, free, paused and retired states.
+32. Show why an offer is paused without promising a repair date.
+33. Ensure a 404 does not fall back to a different paid offer.
+34. Do not reuse an unrelated Payment Link as a redirect target.
+35. Preserve retired-page history for internal attribution.
+36. Add a migration map for changed URLs.
+37. Check external backlinks to dead paths before retiring them.
+38. Update GitHub issues and Notion pages that contain old URLs.
+39. Update scheduled tasks to treat legacy URLs as leads, not ground truth.
+40. Validate links from search engine snippets where observable.
+41. Validate links from social cards and QR codes.
+42. Use exact page titles matching the offer a user expects.
+43. Make the destination explain who the product is for.
+44. Make the destination state inputs, outputs, limits and delivery mode.
+45. Add a single CTA only when its action is real and safe.
+46. Do not put a price on a page if the payment route is unavailable.
+47. Add route tests for all offers before promotion.
+48. Have Gauntlet fail if a promoted offer URL is missing or broken.
+49. Recheck all route status codes after each public deployment.
+50. Record a dated evidence snapshot for each audited URL.
+
+**Gauntlet evidence required:** Every referenced URL resolves to the intended live content; route manifest, internal link scan, sitemap, metadata and production smoke tests agree.
+
+## B3 — Truth Oracle source legitimacy and feed readiness
+**Severity:** P0 / trust-critical
+
+**Observed blocker:** The Truth Oracle page gives strong guidance on original sources, dates, scope, contradictions, and uncertainty, but the inspected live page displayed “Loading public records…”. It explicitly calls the feed leads rather than verified truths. The missing step is a demonstrably operating source-verification workflow and clear visible behavior when data is unavailable.
+
+**Positive signal:** The methodology already discourages source-link laundering, stale claims, unsupported certainty, and treating a listing as a sale. The page says paid products cannot buy a better truth verdict.
+
+**Negative signal:** A source link is not independence; several articles repeating one press release are not multiple sources. The visitor needs to see provenance, source class, corroboration relationships, counterevidence, freshness, and why the ruling follows.
+
+**Triangulated ruling:** Operationalize the BrownEye Tri-Fecta as a source-evidence graph: positive evidence, negative/counterevidence, and a triangulated ruling. Independence must be measured by underlying origin and incentives, not URL count. No source should certify its own claim.
+
+### 50 materially distinct solution paths
+1. Define a versioned claim schema with exact wording and decision scope.
+2. Store the original source URL, canonical URL and retrieval timestamp.
+3. Store publication date separately from observation/retrieval date.
+4. Capture the exact passage or data row that supports each claim.
+5. Record the source author, publisher and responsible organization where known.
+6. Classify sources as primary, official secondary, independent secondary, advocacy, anonymous, or unknown.
+7. Record source incentives and commercial relationships.
+8. Track ownership and common control across sources.
+9. Cluster syndicated stories by their underlying press release or data source.
+10. Count independent evidence roots, not raw URLs.
+11. Separate source authority from source independence.
+12. Separate recency from reliability.
+13. Track version, geography, market, cohort and time period for every claim.
+14. Record claim polarity: supports, contradicts, contextualizes, or does not address.
+15. Require a negative-evidence search for high-impact claims.
+16. Require a positive-evidence search rather than relying on absence of contradictions.
+17. Use the Tri-Fecta: positive steelman, negative steelman, triangulated ruling.
+18. Do not average positive and negative signals into a false neutral.
+19. Require the ruling to cite evidence on both sides where available.
+20. Permit INSUFFICIENT EVIDENCE when one side cannot be responsibly tested.
+21. Use confidence labels tied to explicit criteria rather than model intuition.
+22. Keep fact, source statement, inference, forecast and opinion in separate fields.
+23. Track corrections and retractions as first-class source events.
+24. Re-fetch sources before a time-sensitive claim is promoted.
+25. Apply domain-specific freshness windows.
+26. Show when a source is inaccessible, paywalled, deleted or robots-blocked.
+27. Never treat inaccessible content as evidence for the claim.
+28. Store a content hash for the retrieved snapshot, alongside the URL.
+29. Store extraction method and parser version.
+30. Keep quote spans short and retain a pointer to the original context.
+31. Detect when a quoted passage omits a qualifying sentence.
+32. Record counterexamples and exclusion clauses.
+33. Check official documentation before relying on summaries for platform behavior.
+34. Check legal or medical claims against authoritative sources and state limits.
+35. Never turn a supplier's own performance claim into independent verification.
+36. Label company-reported results as company-reported.
+37. Distinguish transaction evidence from demand claims and customer testimonials.
+38. Separate the evidence graph from the generated prose summary.
+39. Require a human review for high-consequence conclusions.
+40. Run an adversarial reviewer tasked to disprove the strongest positive claim.
+41. Run a second reviewer tasked to find the strongest supportable version.
+42. Resolve reviewer disagreements by evidence, not majority vote.
+43. Show unresolved disagreement and missing evidence publicly.
+44. Prevent model-generated citations that were not actually retrieved.
+45. Test every displayed citation opens the cited source.
+46. Make an empty feed say the feed is unavailable or has no records, never imply no events exist.
+47. Add a last successful refresh timestamp and health status.
+48. Use a static, usable fallback template if the dynamic feed fails.
+49. Provide an evidence export containing claim, sources, contradiction map and ruling.
+50. Require Gauntlet to pass provenance, independence, counterevidence and freshness checks before publication.
+
+**Gauntlet evidence required:** Source snapshots, retrieval timestamps, evidence passages, provenance roots, independence clusters, positive and negative search traces, ruling rationale, and a tested unavailable-feed state.
+
+## B4 — Product promise, capability and fulfillment parity
+**Severity:** P0 / portfolio-wide
+
+**Observed blocker:** The public brand promises practical tools and evidence-linked outcomes. Existing project doctrine also names paid diagnostics, agent bridge calls, quote comparison, a marketplace, and remediation blueprints, but the inspected pages do not establish that every listed offer can currently be purchased, fulfilled and evidenced. The known Supabase data-plane outage makes database-dependent entitlements and delivery especially unsafe to assume.
+
+**Positive signal:** The website already uses cautious language and a clear trust standard; the repository has a connector protocol and Pattern Foundry/Overlay specifications that can govern the portfolio.
+
+**Negative signal:** Public presentation can drift away from real implementation. A code artifact, catalogue row, green dashboard, payment link, or successful connector write is not proof that the customer got the promised result.
+
+**Triangulated ruling:** Create one offer-to-fulfillment registry and score each product across promise, deployed surface, price, intake, authority, dependencies, delivery, receipt, support, refund and evidence. Only sell routes that pass every applicable hard gate; keep free tools available when they work independently.
+
+### 50 materially distinct solution paths
+1. Create one canonical offer registry with stable IDs.
+2. Assign each offer a lifecycle status: DRAFT, TEST, AVAILABLE, PAUSED, QUARANTINE or RETIRED.
+3. Store the canonical URL, Stripe Price ID, currency, scope and fulfillment contract together.
+4. Record each offer's actual input requirements.
+5. Record the output artifact type and acceptance criteria.
+6. Record whether fulfillment is automated, manual or mixed.
+7. Name the true runtime dependencies for each offer.
+8. Mark Supabase-dependent functions unavailable while the data plane is down.
+9. Do not substitute in-memory state for durable entitlements without explicit redesign and disclosure.
+10. Add a dependency health gate before checkout.
+11. Add a manual fulfilment fallback only for work the operator can actually deliver.
+12. Estimate delivery time from observed runs rather than aspiration.
+13. Publish limitations and exclusions beside the CTA.
+14. Use a sample deliverable that is clearly marked as an example.
+15. Add a pre-purchase checklist so buyers know what to supply.
+16. Define how a buyer submits source material securely.
+17. Define retention and deletion for uploaded material.
+18. Create a delivery receipt schema tied to order ID.
+19. Require a customer-visible artifact or result for fulfilment completion.
+20. Add an evidence link to every completed order.
+21. Reconcile payment, offer ID, order ID and artifact ID.
+22. Make missing artifacts visible as UNFULFILLED.
+23. Make partial delivery visible as PARTIAL, not complete.
+24. Create a customer-safe recovery path for delivery failures.
+25. Define refund handling for non-delivery and misdescription.
+26. Track support burden per offer.
+27. Track human minutes per verified delivery.
+28. Track gross receipts separately from net contribution.
+29. Track refunds and disputes separately from gross sales.
+30. Track repeat use only for independent customers.
+31. Keep test and internal events out of public success metrics.
+32. Create a production acceptance test for each offer.
+33. Run the tests against the deployed public URL, not only local code.
+34. Require independent review for security-sensitive or high-consequence products.
+35. Audit public claims for certifications, guarantees, case studies and uptime promises.
+36. Remove claims without proof or relabel them as intended capability.
+37. Add an expiry date to availability evidence.
+38. Recheck the exact Stripe product and price before re-enabling an offer.
+39. Ensure unknown SKU never maps to a fallback product.
+40. Ensure paid entitlement is scoped to the purchased resource.
+41. Ensure duplicate webhooks cannot duplicate delivery.
+42. Ensure refund/reversal affects entitlement appropriately.
+43. Make outages fail closed for paid access when authorization cannot be verified.
+44. Add monitoring for checkout, webhook, order, delivery and receipt boundaries.
+45. Create a portfolio-level parity report from actual sources.
+46. Make the homepage CTA point to the strongest working free or paid experience.
+47. Keep one primary CTA per silo and avoid competing toll roads.
+48. Quarantine overlapping offers until their buyer and outcome differ clearly.
+49. Require Gauntlet G0–G10 before promoting an offer.
+50. Require one independent buyer, settled payment and verified delivery before calling a paid path proven.
+
+**Gauntlet evidence required:** One canonical offer registry maps the public promise to dependencies, payment, intake, output, delivery evidence, refunds and support; deployed tests pass.
+
 ## Initial acceptance checklist
 - [ ] Audit every public offer URL, not just the first five.
 - [ ] Locate all legacy offer references in repository, Notion, scheduled task prompts and catalogue.
