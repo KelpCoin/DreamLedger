@@ -1,7 +1,7 @@
 {
   "schema": "dreamledger/public-resources/v1",
   "name": "DreamLedger",
-  "note": "This address is no longer a public technical catalogue. Use the visitor-facing resources below.",
+  "note": "Browse the public resources below for current products, free tools, and research notes.",
   "resources": [
     {"name":"Home","url":"https://dreamledger.org/"},
     {"name":"Free Truth Oracle","url":"https://dreamledger.org/truth-oracle.html"},

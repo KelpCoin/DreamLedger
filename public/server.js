@@ -138,7 +138,7 @@ http.createServer(async (req,res)=>{
     return send(res,200,JSON.stringify({
       schema:'dreamledger/public-resources/v1',
       name:'DreamLedger',
-      note:'This address no longer lists internal service routes. Use the public product pages for current descriptions, prices, and availability.',
+      note:'Browse the public product pages for current descriptions, prices, and availability.',
       resources:[
         {name:'Free Truth Oracle',url:'https://dreamledger.org/truth-oracle.html'},
         {name:'Supplier quote comparison',url:'https://dreamledger.org/quote-comparison/'},
