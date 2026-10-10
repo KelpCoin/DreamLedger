@@ -24,7 +24,13 @@ function copyTree(src,dst){
 if(!fs.existsSync(SOURCE)) throw new Error('BEC-PRIME compiled website missing. Run npm run compile first.');
 copyTree(SOURCE,DEST);
 
-const required=['index.html','mtg/index.html','mtg-search.html','mtg-list.html'];
+const deckUploadSource=path.join(__dirname,'..','mtg','deck-upload.html');
+const deckUploadDest=path.join(DEST,'mtg','deck-upload.html');
+if(!fs.existsSync(deckUploadSource)) throw new Error('Canonical MTG deck upload source missing');
+fs.mkdirSync(path.dirname(deckUploadDest),{recursive:true});
+fs.copyFileSync(deckUploadSource,deckUploadDest);
+
+const required=['index.html','mtg/index.html','mtg/deck-upload.html','mtg-search.html','mtg-list.html'];
 for(const rel of required){
   const file=path.join(DEST,rel);
   if(!fs.existsSync(file)) throw new Error('Required public surface missing: '+rel);
