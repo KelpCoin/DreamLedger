@@ -8,6 +8,7 @@
  */
 
 const crypto = require('crypto');
+const RoadFactory = require('./TollRoadFactory');
 
 const KEY_SCHEMA = 'DREAMLEDGER-TOLL-KEY-2.0';
 const DEFAULT_TTL_DAYS = 30;
@@ -88,7 +89,7 @@ function verifyKey(token, opts) {
   if (payload.expires_at && Date.parse(payload.expires_at) <= Date.now()) return { ok: false, error: 'toll_key_expired' };
   if (Number(payload.calls_remaining) <= 0) return { ok: false, error: 'toll_key_exhausted' };
   if (requiredTier && payload.tier !== requiredTier && payload.tier !== 'all') return { ok: false, error: 'toll_key_scope_denied' };
-  if (requiredRoadId && payload.road_id && payload.road_id !== requiredRoadId) return { ok: false, error: 'toll_key_road_denied' };
+  if (requiredRoadId && payload.road_id !== requiredRoadId) return { ok: false, error: 'toll_key_road_denied' };
   return { ok: true, payload };
 }
 
@@ -192,6 +193,9 @@ function publicManifest(extraServices = []) {
     internal_authority: 'never delegated to customer keys',
     truth_boundary: 'payment and economic truth remain external-evidence governed',
     design_target_roads: MAX_ROADS_SOFT,
+    generated_road_instances: RoadFactory.ROAD_COUNT,
+    road_catalog_endpoint: '/api/toll/v1/roads?offset=0&limit=100',
+    road_access_model: '10,000 logical road IDs; each is separately key-scoped and uses the bounded metered receipt handler',
     key_schema: KEY_SCHEMA,
     services: base.concat(extraServices),
     header: 'x-dreamledger-toll-key',
