@@ -60,6 +60,34 @@ test('A2A authorization rejects altered quote signatures', async () => {
   } finally { global.fetch = oldFetch; }
 });
 
+
+test('A2A discovers and signs quotes for explicitly agent-enabled marketplace listings', async () => {
+  const oldFetch=global.fetch;
+  const listing={id:'00000000-0000-4000-8000-000000000021',slug:'agent-ready-widget',title:'Agent-ready widget',description:'A seller-listed widget',category:'Parts',price:75.5,currency:'NZD',seller_id:'00000000-0000-4000-8000-000000000022',agent_purchasable:true,status:'published',created_at:'2026-10-10T00:00:00Z'};
+  global.fetch=async url=>{
+    if(String(url).endsWith('/auth/v1/user'))return new Response(JSON.stringify({id:'00000000-0000-4000-8000-000000000023',email:'buyer@example.com',email_confirmed_at:'2026-01-01T00:00:00Z'}),{status:200});
+    if(String(url).includes('/rest/v1/marketplace_listings?'))return new Response(JSON.stringify([listing]),{status:200});
+    throw new Error('Unexpected URL '+url);
+  };
+  try{
+    const catalog=response();
+    await handle(request('GET','/m2m/v1/marketplace/capabilities'),catalog,'/m2m/v1/marketplace/capabilities');
+    const item=(parse(catalog).capabilities||[]).find(x=>x.capability_id==='LISTING:'+listing.id);
+    assert.ok(item,'agent-enabled seller listing should be discoverable');
+    assert.equal(item.checkout_available,false);
+    const quoteRes=response();
+    await handle(request('POST','/m2m/v1/marketplace/quote',{capability_id:item.capability_id}),quoteRes,'/m2m/v1/marketplace/quote');
+    assert.equal(quoteRes.statusCode,200);
+    const quote=parse(quoteRes);
+    assert.equal(quote.price,75.5);
+    const authRes=response();
+    await handle(request('POST','/m2m/v1/marketplace/authorize',{capability_id:item.capability_id,quote_id:quote.quote_id,authorized:true},{authorization:'Bearer verified-user-token'}),authRes,'/m2m/v1/marketplace/authorize');
+    assert.equal(authRes.statusCode,200);
+    assert.equal(parse(authRes).seller_id,listing.seller_id);
+    assert.equal(parse(authRes).checkout_route,'/api/a2a/checkout');
+  }finally{global.fetch=oldFetch}
+});
+
 test('A2A authorization binds the accepted quote to the verified user', async () => {
   const oldFetch = global.fetch;
   global.fetch = async url => {
