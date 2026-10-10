@@ -51,3 +51,7 @@ The canonical fulfillment contract is [docs/FORENSIC-FULFILLMENT-ACCEPTANCE.md](
 ## Universal pain research
 
 The canonical universal-pain and B2B marketplace research corpus is maintained at [docs/UNIVERSAL-PAIN-OBSERVATORY.md](docs/UNIVERSAL-PAIN-OBSERVATORY.md) and extended by [docs/UNIVERSAL-PAIN-OBSERVATORY-P301-P400.md](docs/UNIVERSAL-PAIN-OBSERVATORY-P301-P400.md). The B2B transaction operating model is [docs/B2B-MARKETPLACE-TRANSACTION-OS.md](docs/B2B-MARKETPLACE-TRANSACTION-OS.md), with the public exchange at /b2b. Research remains separate from economic proof.
+
+## FightEdge consolidation
+
+FightEdge is a first-party DreamLedger service wall at [dreamledger.org/fightedge](https://dreamledger.org/fightedge/), served by the existing `dreamledger-storefront` Render static site. The standalone Next.js deployment is compatibility-only and redirects Render-hosted URLs to the canonical route. No separate FightEdge ledger, queue, payment rail, Supabase project, or truth engine is permitted. See [docs/FIGHTEDGE-CONSOLIDATION.md](docs/FIGHTEDGE-CONSOLIDATION.md). CI enforces the route and deployment contract.
