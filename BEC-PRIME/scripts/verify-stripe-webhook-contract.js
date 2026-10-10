@@ -8,7 +8,7 @@ const webhook = fs.readFileSync(path.join(root, 'routes', 'mvpRoutes.js'), 'utf8
 const preload = fs.readFileSync(path.join(root, 'lib', 'commercePaymentContractPreload.js'), 'utf8');
 const canonicalWebhook = fs.readFileSync(path.join(root, '..', 'supabase', 'functions', 'stripe-revenue-41104f355d6878cdd6d1f9dc', 'index.ts'), 'utf8');
 const quoteIntake = fs.readFileSync(path.join(root, '..', 'supabase', 'functions', 'quote-intake', 'index.ts'), 'utf8');
-const idempotencyMigration = fs.readFileSync(path.join(root, '..', 'supabase', 'migrations', '20261010120000_stripe_webhook_claim_and_order_idempotency.sql'), 'utf8');
+const idempotencyMigration = fs.readFileSync(path.join(root, '..', 'supabase', 'migrations', '20261010120100_stripe_webhook_claim_and_order_idempotency.sql'), 'utf8');
 const legacyQuoteRoute = fs.readFileSync(path.join(root, '..', 'public', 'buy', 'quote_compare_49', 'index.html'), 'utf8');
 
 const failures = [];
