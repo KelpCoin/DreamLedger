@@ -9,6 +9,7 @@ on:
     paths:
       - ".github/workflows/777-cycle.yml"
       - "scripts/777_cycle.py"
+      - "scripts/sync_agent_bridge_catalog.py"
       - "scripts/777_compounding_gate.py"
       - "scripts/external_demand_transition.py"
       - "scripts/777_cloud_execution_adapter.js"
@@ -44,6 +45,8 @@ jobs:
         run: |
           git fetch origin main
           git reset --hard origin/main
+      - name: Sync Agent Bridge catalogue snapshot
+        run: python scripts/sync_agent_bridge_catalog.py
       - name: Generate procurement amendment delta
         run: python scripts/procurement_amendment_delta.py
       - name: Generate external demand transition
@@ -68,7 +71,7 @@ jobs:
         run: |
           # Some generated public pulse paths may match repository ignore rules.
           # Stage HTML candidates before the gate so it evaluates the exact files the commit step can publish.
-          git add -f webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html
+          git add -f agent-bridge-catalog.json webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html
       - name: Enforce compounding output
         run: python scripts/777_compounding_gate.py
       - name: Commit new pulse if changed
@@ -79,7 +82,7 @@ jobs:
           fi
           git config user.name "DreamLedger 777"
           git config user.email "777@dreamledger.org"
-          git add -f webapp/pulse/* webapp/index.html webapp/phinhaven/index.html public/pulse/*
+          git add -f agent-bridge-catalog.json webapp/pulse/* webapp/index.html webapp/phinhaven/index.html public/pulse/*
           if git diff --cached --quiet; then
             echo "No new economic signal."
             exit 0
