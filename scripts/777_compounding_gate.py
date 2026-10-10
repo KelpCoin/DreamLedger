@@ -32,14 +32,14 @@ def verified_revenue() -> float:
 
 changed = git_changed_files()
 revenue = verified_revenue()
-# Only actual public HTML changes qualify as public compounding artifacts.
+# Public HTML and the stable machine-readable marketplace catalogue qualify as compounding artifacts.
 # Internal JSON receipts remain internal evidence and never imply revenue.
 artifact_files = [
     p for p in changed
     if (
         (p.startswith("webapp/pulse/") and p.lower().endswith(".html"))
         or (p.startswith("public/pulse/") and p.lower().endswith(".html"))
-        or p in {"webapp/index.html", "webapp/phinhaven/index.html", "public/pulse/index.html"}
+        or p in {"webapp/index.html", "webapp/phinhaven/index.html", "public/pulse/index.html", "agent-bridge-catalog.json"}
     )
 ]
 
