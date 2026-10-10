@@ -1,0 +1,45 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "2026-10-10-CHATGPT-777-INDEXABILITY-AND-CORE-SURFACES",
+  "task_id": "task-20261010-777-compounding-quality-gate",
+  "from": "chatgpt-cloud",
+  "mode": "cloud",
+  "ball": "C",
+  "intent": "build",
+  "summary": "Harden the existing 777 compounding gate: scheduled run 37995966009 succeeded, but its generated dropshipping research path currently resolves in main to a noindex 'Research note moved' page. Next cycle must produce a useful, indexable core-surface artifact or fail the gate.",
+  "reads": [
+    "scripts/777_cycle.py",
+    "scripts/777_compounding_gate.py",
+    ".github/workflows/777-cycle.yml",
+    "public/pulse/index.html",
+    "public/pulse/truth-oracle-economic-wikipedia-2026-10-10.html",
+    "public/pulse/2026-10-09-private-commercial-top-6-best-dropshipping-automation-platforms-for-scaling-your-ecommerce-business-techbullion-f58bc31213ababb7.html",
+    "AGENT_BUS/BRIDGE/PROTOCOL.md"
+  ],
+  "writes": [
+    "scripts/777_compounding_gate.py",
+    "tests for noindex/moved/duplicate/unlinked artifacts",
+    "one useful Truth Oracle economic-Wikipedia artifact with source links and internal links only if the evidence clears the gate"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "created_at": "2026-10-10T14:10:00+13:00",
+  "truth_label": "VERIFIED",
+  "current_evidence": {
+    "scheduled_run_id": 37995966009,
+    "scheduled_run_conclusion": "success",
+    "compounding_gate": "PASS",
+    "generated_artifact_count": 4,
+    "current_path_state": "the generated dropshipping path in current main is a noindex retirement page",
+    "verified_external_revenue_nzd": 0
+  },
+  "constraints": [
+    "Do not center QUOTE-COMPARE-49; it is a subordinate Truth Oracle paid tier.",
+    "Keep Truth Oracle free and evidence-led; payment may buy convenience or execution, never a better verdict.",
+    "Keep DreamMeez, Billboard, MTG and adult silos separated.",
+    "Do not generate thin mass pages or count indexes/receipts as unique research assets.",
+    "Do not claim deployment, buyer, payment, fulfillment, or GPU rental without external proof."
+  ],
+  "next_action": "Inspect why the gate accepts a path that is now noindex/moved. Add a deterministic gate for canonical URL, indexability, unique substantive content, source/date provenance, and index link. Run existing 777 and return run ID, job logs, artifact path, gate tests, and deployment parity evidence.",
+  "external_effect": "NOT_ATTEMPTED"
+}
