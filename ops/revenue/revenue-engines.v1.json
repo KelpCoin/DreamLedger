@@ -1,0 +1,151 @@
+{
+  "schema": "dreamledger.revenue-engines.v1",
+  "status": "IMPLEMENTATION_CONTRACT",
+  "owner_first": true,
+  "constraints": {
+    "incremental_spend_nzd": 0,
+    "no_fake_demand": true,
+    "no_self_purchase": true,
+    "external_publish_requires_authorization": true,
+    "truth_boundary": [
+      "independent_external_buyer",
+      "settled_payment",
+      "correct_offer_attribution",
+      "fulfilled_order",
+      "delivery_evidence",
+      "independent_verification"
+    ]
+  },
+  "canonical_entry": {
+    "url": "https://dreamledger.org/go",
+    "qr_id": "QR-CANONICAL-001",
+    "utm_required": ["utm_source", "utm_medium", "utm_campaign", "offer_id", "placement_id"]
+  },
+  "engines": {
+    "A_productized_b2b_services": {
+      "status": "LIVE_OFFER_NEEDS_DOMAIN_PARITY_AND_SALE",
+      "primary_offer": {
+        "id": "AGENTIC-COMMERCE-REMEDIATION-149",
+        "name": "Agentic Commerce Remediation Blueprint",
+        "price": 149,
+        "currency": "NZD",
+        "checkout": "https://buy.stripe.com/bJecN57LDbK51DV5oEdwc23",
+        "offer_page": "https://dreamledger-org.onrender.com/agentic-commerce-remediation-blueprint.html",
+        "delivery_sla_business_days": 3,
+        "scope": "One workflow diagnostic, scenario map, prioritized failure points, risk/owner/source/acceptance-test classification, and 30/60/90-day roadmap.",
+        "not_included": ["implementation", "guaranteed revenue", "guaranteed protocol approval"]
+      },
+      "repeatable_fulfillment_artifacts": [
+        "intake",
+        "workflow_map",
+        "failure_register",
+        "risk_and_owner_matrix",
+        "acceptance_tests",
+        "30_60_90_day_roadmap",
+        "delivery_receipt",
+        "customer_acceptance"
+      ],
+      "gate": "Never accept paid order until checkout attribution and manual fulfillment procedure are observable."
+    },
+    "B_recurring_monitoring": {
+      "status": "DESIGN_READY_EXTERNAL_ACCOUNT_LINK_REQUIRED",
+      "billing_system_of_record": "Patreon membership state; confirm actual account/API access before activation",
+      "community_delivery": "Discord roles and private channels; requires authorized bot/OAuth installation",
+      "tiers": [
+        {
+          "id": "WATCH",
+          "monthly_price_nzd": null,
+          "purpose": "Public change notes, monthly risk digest, and member-only monitoring summary.",
+          "discord_role": "DreamLedger Watch",
+          "automation_level": "BATCHED_MONTHLY",
+          "availability": "DRAFT_NOT_PUBLISHED"
+        },
+        {
+          "id": "SIGNAL",
+          "monthly_price_nzd": null,
+          "purpose": "Watch benefits plus weekly change review, monitored workflow checklist, and prioritized exceptions.",
+          "discord_role": "DreamLedger Signal",
+          "automation_level": "WEEKLY",
+          "availability": "DRAFT_NOT_PUBLISHED"
+        },
+        {
+          "id": "GUARD",
+          "monthly_price_nzd": null,
+          "purpose": "Signal benefits plus monthly evidence pack, incident review, and bounded Q&A.",
+          "discord_role": "DreamLedger Guard",
+          "automation_level": "MONTHLY_EVIDENCE_PACK",
+          "availability": "DRAFT_NOT_PUBLISHED"
+        }
+      ],
+      "entitlement_rules": {
+        "grant_only_on_verified_active_membership": true,
+        "idempotent_event_processing": true,
+        "handle_renewal_cancellation_refund_chargeback_and_role_removal": true,
+        "periodic_reconciliation_required": true,
+        "minimum_data": ["external_member_id", "membership_state", "tier_id", "period_end", "event_id", "updated_at"],
+        "never_store_payment_card_data": true
+      },
+      "blockers": ["Patreon account/API connection not verified", "Discord bot/application authorization not verified", "tier prices and final benefits require owner confirmation before publishing"]
+    },
+    "C_paid_agent_tools": {
+      "status": "EXISTING_MACHINE_COMMERCE_SURFACE_REQUIRES_LIVE_CONTRACT_TEST",
+      "machine_manifest": "https://dreamledger-silo-gateway.onrender.com/m2m/v1/marketplace/manifest",
+      "required_capabilities": [
+        "manifest",
+        "capability_search",
+        "quote",
+        "authorization",
+        "checkout",
+        "settlement_webhook",
+        "scoped_entitlement",
+        "usage_metering",
+        "rate_limit",
+        "order_status",
+        "receipt",
+        "fulfillment_evidence"
+      ],
+      "security": ["least_privilege", "idempotency", "replay_protection", "per-key-scope", "bounded-usage", "no-secret-logging"],
+      "economic_gate": "A successful API response or machine probe is not revenue; require an independent buyer, settled payment, paid entitlement, fulfilled capability, and receipt."
+    },
+    "D_b2b_a2a_marketplace": {
+      "status": "EXISTING_SURFACES_REQUIRE_ROUTE_AND_TRANSACTION_E2E_VERIFICATION",
+      "b2b_path": "/b2b",
+      "a2a_path": "/a2a",
+      "transaction_lifecycle": [
+        "REQUIREMENT",
+        "DISCOVERY",
+        "RFQ",
+        "QUOTE",
+        "OFFER",
+        "TRUST",
+        "AGREEMENT",
+        "PAYMENT",
+        "FULFILLMENT",
+        "DELIVERY",
+        "ACCEPTANCE",
+        "RECONCILIATION",
+        "DISPUTE",
+        "REPEAT"
+      ],
+      "required_objects": ["requirement", "listing", "capability", "rfq", "quote", "offer", "agreement", "payment_reference", "order", "fulfillment", "delivery", "acceptance", "reconciliation", "dispute", "evidence_packet"],
+      "required_properties": ["deterministic_state_transitions", "idempotency", "expiry", "retry_policy", "audit_lineage", "trust_evidence", "settlement_binding", "delivery_receipt", "dispute_path"],
+      "rule": "Do not list a candidate as transact-ready until price, input contract, fulfillment contract, delivery surface, payment boundary, evidence boundary, health check, and CI proof pass."
+    }
+  },
+  "distribution": {
+    "status": "PREPARE_ONLY_UNTIL_PUBLISHER_IS_CONNECTED",
+    "zero_cost_first": true,
+    "placement_families": ["owned_surfaces", "community_posts", "specialist_directories", "newsletters", "creator_partnerships", "marketplaces", "referrals", "websites"],
+    "each_placement_requires": ["placement_id", "platform", "offer_id", "url", "utm_source", "utm_medium", "utm_campaign", "policy_checked_at", "approval_state", "published_url", "published_at"],
+    "published_means": "External post/page URL and timestamp verified, not merely drafted or scheduled.",
+    "forbidden": ["spam", "fabricated testimonials", "fake buyers", "self-purchases", "unapproved paid promotion"]
+  },
+  "scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "paid_fulfilled_orders": 0,
+    "verified_economic_outcomes": 0,
+    "source": "Baseline from last confirmed operational record; refresh from live systems before reporting current status."
+  }
+}
