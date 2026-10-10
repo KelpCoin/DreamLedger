@@ -39,9 +39,20 @@ def list_routes(categories: Iterable[str] | None = None, region: str = "Bay of P
     unique = sorted(set(keys), key=lambda key: (ROUTES[key]["priority"], key))
     return [{"id": key, **ROUTES[key]} for key in unique if key in ROUTES]
 
+def list_healthcare_funding_options() -> list[dict]:
+    """Return verified starting points for costs; never imply that private treatment will be funded."""
+    return [
+        {"id": "winz_disability_allowance", "name": "Work and Income Disability Allowance", "when": "Regular, ongoing eligible health or disability costs", "proof_to_prepare": ["Clinician/medical certificate if requested", "Receipts or quotes showing actual ongoing costs", "Evidence linking costs to disability or health needs"], "contact": "0800 559 009", "url": "https://www.workandincome.govt.nz/eligibility/health-and-disability/prescriptions-and-gp-costs", "limitation": "Eligibility and eligible expense rules apply; ask whether this specific provider and treatment qualify."},
+        {"id": "winz_special_needs_grant", "name": "Work and Income Special Needs Grant", "when": "An immediate and essential or emergency cost with no other way to pay, including some medical treatment or equipment", "proof_to_prepare": ["Written quote or invoice", "Why the cost is urgent/essential", "Evidence of income and available cash assets if requested", "Provider details and proposed treatment"], "contact": "0800 559 009", "url": "https://www.workandincome.govt.nz/products/a-z-benefits/special-needs-grant/index.html", "limitation": "Not guaranteed and does not automatically cover any private clinic or elective treatment. Ask before incurring the cost."},
+        {"id": "provider_payment_options", "name": "Ask the private provider about a staged plan", "when": "You have identified a private provider but cannot pay the full amount upfront", "proof_to_prepare": ["Itemised quote", "Deposit and staged-payment options", "Cancellation/refund terms", "Whether a shorter initial consultation can establish next steps"], "contact": "Contact the provider using its official contact channel", "url": "", "limitation": "Provider discretion; do not assume credit or a payment plan is available."},
+        {"id": "acc_injury", "name": "ACC treatment pathway", "when": "The treatment need relates to an accident or personal injury that may be covered", "proof_to_prepare": ["Date and description of injury", "Treating provider details", "ACC claim number if one exists"], "contact": "Ask the treating provider whether an ACC claim is appropriate", "url": "https://www.acc.co.nz/", "limitation": "Coverage depends on ACC rules and claim acceptance; this is not a general funding route for illness."},
+        {"id": "high_cost_treatment_pool", "name": "Health New Zealand High Cost Treatment Pool", "when": "Potentially qualifying treatment not otherwise available in the public system", "proof_to_prepare": ["Specialist's clinical recommendation", "Evidence the treatment is unavailable through the public system", "Clinical rationale and likely benefit"], "contact": "Ask the treating district-hospital specialist about eligibility and referral", "url": "https://www.healthnz.govt.nz/hospitals-services/eligibility-subsidies/high-cost-treatment-pool", "limitation": "Application is made by a district hospital specialist and strict criteria apply; this is not a general private-care subsidy."},
+    ]
+
 def build_access_plan(categories: Iterable[str], barrier: str = "I have been unable to access the service and need help identifying the next step.", communication_needs: str = "Please offer a low-effort way to respond, such as email or a scheduled callback.", region: str = "Bay of Plenty") -> dict:
     """Prepare an editable action plan; nothing is sent or stored."""
-    selected = list_routes(categories, region)
+    supplied = list(categories)
+    selected = list_routes(supplied, region)
     checklist = [
         "Choose one priority service and one backup route.",
         "Write down dates of previous contacts, responses, and any reference numbers.",
@@ -50,8 +61,9 @@ def build_access_plan(categories: Iterable[str], barrier: str = "I have been una
         "Keep a private copy of messages and record the next follow-up date locally.",
         "If there is no response by the stated date, use the listed backup route.",
     ]
-    if any(str(c).lower() in {"legal", "legal_aid", "criminal_legal_aid", "existing_legal_aid_file"} for c in categories):
+    if any(str(c).lower() in {"legal", "legal_aid", "criminal_legal_aid", "existing_legal_aid_file"} for c in supplied):
         checklist.insert(2, "For an existing legal-aid matter, ask for the current file status, assigned lawyer, next court/deadline date, any missing documents, and the written review/escalation route.")
+    health_related = any(str(c).lower().replace(" ", "_") in {"health", "healthcare", "medical", "disability", "medical_costs"} for c in supplied)
     draft = (
         "Subject: Request for accessible help to resolve an access barrier\n\n"
         "Hello,\n\nI need help accessing the appropriate service. The barrier I am facing is:\n"
@@ -63,6 +75,7 @@ def build_access_plan(categories: Iterable[str], barrier: str = "I have been una
     )
     return {"mode": "DRAFT_ONLY", "personal_data_persisted": False, "external_actions_taken": False,
             "medical_or_legal_decision_made": False, "region": region, "routes": selected,
+            "healthcare_funding_options": list_healthcare_funding_options() if health_related else [],
             "checklist": checklist, "message_draft": draft,
             "safety_note": "For immediate medical danger call 111. Healthline can advise on urgent clinical next steps. This tool does not replace a clinician or lawyer."}
 
@@ -83,7 +96,9 @@ def build_access_case_packet(issue_type: str, summary: str, desired_outcome: str
         "issue_type": issue, "summary": str(summary or "").strip(),
         "desired_outcome": str(desired_outcome or "").strip(),
         "timeline": events, "prior_attempts": steps, "deadline": str(deadline or "").strip() or "UNKNOWN",
-        "routes": list_routes(categories, region), "missing_information": gaps,
+        "routes": list_routes(categories, region),
+        "healthcare_funding_options": list_healthcare_funding_options() if issue in {"health", "healthcare", "medical", "disability", "medical_costs"} else [],
+        "missing_information": gaps,
         "next_action": "Request written confirmation of the current status, the exact blocker, the person/team responsible, what evidence is needed, and the date for the next response.",
         "privacy_note": "This packet exists only in the current tool response. Copy it to a private location you control if you want to retain it; do not put personal health or legal details in public issues or repositories."
     }
