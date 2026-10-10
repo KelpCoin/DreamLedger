@@ -74,3 +74,37 @@ test('publicManifest reports v2 and design target', () => {
   assert.equal(m.design_target_roads, 200000);
   assert.ok(Array.isArray(m.services));
 });
+
+test('same Stripe session inputs produce the same signed key on repeat redemption', () => {
+  const issuedAt = new Date('2026-10-10T00:00:00.000Z');
+  const expiresAt = new Date('2026-11-09T00:00:00.000Z').toISOString();
+  const input = {
+    keyId: 'TOLL_cs_live_stable',
+    tier: 'bridge-events',
+    callsRemaining: 500,
+    reference: 'cs_live_stable',
+    issuedAt,
+    expiresAt
+  };
+  const first = Toll.issueKey(input);
+  const second = Toll.issueKey(input);
+  assert.equal(first, second);
+  assert.equal(Toll.verifyKey(first, 'bridge-events').ok, true);
+});
+
+test('public manifest does not claim paid checkout is configured without durable dependencies', () => {
+  const names = ['STRIPE_SECRET_KEY','STRIPE_LIVE_SECRET_KEY','SUPABASE_URL','DREAMLEDGER_AGENT_BRIDGE_TOKEN','DREAMLEDGER_TOLL_CANONICAL_WEBHOOK_READY'];
+  const saved = Object.fromEntries(names.map(name => [name, process.env[name]]));
+  for (const name of names) delete process.env[name];
+  try {
+    const m = Toll.publicManifest();
+    assert.equal(m.status, 'NOT_CONFIGURED');
+    assert.ok(m.services.every(service => service.durable_metering_required === true));
+    assert.ok(m.services.every(service => service.checkout_configured === false));
+  } finally {
+    for (const name of names) {
+      if (saved[name] === undefined) delete process.env[name];
+      else process.env[name] = saved[name];
+    }
+  }
+});

@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node -r ./lib/commercePaymentContractPreload.js -r ./lib/marketplacePreload.js -r ./lib/boundaryRuntimePreload.js -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js -r ./lib/liveRouteCompatibility.js start.js",
     "build": "npm install --omit=dev --no-audit --no-fund && node -e \"require('ajv'); console.log('AJV_RUNTIME_OK')\" && npm run compile",
-    "test": "node --test scripts/test-mvp-policy.js",
+    "test": "node scripts/test-mvp-policy.js && node --test runtime/TollRoad.test.js routes/tollRoad.quota.test.js",
     "test:trend-flywheel": "node --test trends/TrendFlywheel.test.js",
     "test:truth-oracle": "node --test scripts/test-truth-oracle-economic.js",
     "test:revenue-pipeline": "node --test scripts/test-revenue-pipeline.js",
@@ -105,7 +105,8 @@
     "autonomy:heartbeat": "node scripts/Run-777.js && node autonomy/RevenueAutonomy.js",
     "runtime:once": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Once",
     "runtime:install": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Install",
-    "syndicate:tumblr": "node scripts/sync-evergreen-to-tumblr.js"
+    "syndicate:tumblr": "node scripts/sync-evergreen-to-tumblr.js",
+    "test:toll-road": "node --test runtime/TollRoad.test.js routes/tollRoad.quota.test.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
