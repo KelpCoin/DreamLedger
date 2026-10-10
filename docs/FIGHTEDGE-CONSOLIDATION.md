@@ -5,8 +5,9 @@
 FightEdge is a DreamLedger service wall, not an independent production platform. The canonical public route is:
 
 - `https://dreamledger.org/fightedge/`
-- Source: `public/fightedge/index.html`
-- Render owner: the existing `dreamledger-storefront` static site declared in `render.yaml`
+- Actual served file: `fightedge/index.html` at the repository root, because the connected production Render service `dreamledger-org` reports `publishPath: .`
+- Mirrored source file: `public/fightedge/index.html`; CI requires these files to remain identical
+- Intended blueprint service: `dreamledger-storefront` in `render.yaml` declares `rootDir: public`, but this is not the service configuration currently returned by Render
 
 No FightEdge-specific Render service, ledger, payment rail, queue, Supabase project, or truth engine should be created.
 
