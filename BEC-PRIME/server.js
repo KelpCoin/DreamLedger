@@ -57,7 +57,8 @@ if(req.method==='GET'&&url.startsWith('/api/auctions/')){try{const a=auctions.ge
 if(req.method==='POST'&&url==='/api/auctions'){try{const body=JSON.parse(await readBody(req));return send(res,201,auctions.createAuction(body));}catch(err){return send(res,400,{error:err.message});}}
 if(req.method==='POST'&&/^\/api\/auctions\/[^/]+\/bid$/.test(url)){try{const id=url.split('/')[3];const body=JSON.parse(await readBody(req));return send(res,201,auctions.placeBid(id,body.bidder_id,body.amount));}catch(err){return send(res,400,{error:err.message});}}
 if(req.method==='GET'&&url==='/api/news'){try{const silo=new URL(req.url,`http://${req.headers.host||'localhost'}`).searchParams.get('silo')||'dreamledger';return send(res,200,{silo,items:loadNews()[silo]||[]});}catch(err){return send(res,500,{error:'News unavailable'});}}
-if(req.method==='POST'&&url==='/api/checkout/create')return createCheckout(req,res);
+if(req.method==='POST'&&url==='/api/a2a/checkout')return send(res,503,{error:'A2A checkout is disabled until the canonical marketplace order, Stripe settlement and fulfillment path is verified against Supabase.',code:'A2A_ORDER_RAIL_NOT_RELEASED'});
+  if(req.method==='POST'&&url==='/api/checkout/create')return createCheckout(req,res);
 if(req.method==='POST'&&url==='/api/offer-checkout/create')return createOfferCheckout(req,res);
 if(req.method==='POST'&&url==='/webhook')return webhook(req,res);
 if(req.method==='GET'&&url==='/checkout/success')return send(res,200,'<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><title>DreamLedger | Payment received</title></head><body style="font-family:system-ui;max-width:720px;margin:80px auto;padding:24px"><h1>Payment received</h1><p>Your Stripe checkout completed. Transaction evidence is generated after webhook confirmation.</p><p><a href="/">Return to DreamLedger</a></p></body></html>','text/html; charset=utf-8');
