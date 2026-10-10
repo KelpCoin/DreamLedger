@@ -22,7 +22,35 @@
 <article class="card"><div class="price">NZ$29 · EVIDENCE</div><h2>Commander Deck Diagnostic</h2><p class="muted">A structured diagnostic report delivered through the existing commerce rail.</p><a class="btn" href="https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R">Open checkout</a></article>
 <article class="card"><div class="price">NZ$79 · AGENT / DEV</div><h2>Discord Webhook Starter Kit</h2><p class="muted">A packaged digital capability with an existing checkout and delivery path.</p><a class="btn" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Open checkout</a></article>
 </div></div></section>
+<section id="agent-bridge-catalog" class="section"><div class="wrap"><h2>Agent Bridge toll-road catalogue</h2><p class="muted">Live manifest entries, including low-cost API capabilities. A configured checkout is not proof of settlement, access entitlement or successful delivery.</p><div id="bridge-offers" class="grid" aria-live="polite"><article class="card"><h2>Loading capability manifest…</h2><p class="muted">If the live manifest cannot be reached, the page will say so rather than inventing availability.</p></article></div><p id="bridge-status" class="muted" role="status">Contacting Agent Bridge manifest.</p><p><a class="btn alt" href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Open raw machine manifest</a></p></div></section>
 <section class="section"><div class="wrap"><div class="card"><h2>What makes this a marketplace?</h2><p class="muted">Discovery is shared. Offers are structured. Agents can consume the catalog. Buyers retain authorization. Existing Stripe settlement and fulfillment remain the economic authority. The first objective is not marketplace scale. It is one independent buyer crossing the wallet.</p></div></div></section>
 <section><div class="wrap truth">VERIFIED_EXTERNAL_REVENUE = NZ$0.00<br>Listings, clicks, checkout starts and internal orders do not count as revenue.</div></section>
 </main><footer class="wrap footer">DreamLedger · B2B + agent marketplace · Human authorization required · Settlement truth remains external</footer>
+<script>
+(async function(){
+ const grid=document.getElementById("bridge-offers"),status=document.getElementById("bridge-status");
+ const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=text;return n;};
+ try{
+  const res=await fetch("https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest",{headers:{"Accept":"application/json"},cache:"no-store"});
+  if(!res.ok)throw new Error("HTTP "+res.status);
+  let raw=await res.text();raw=raw.replace(/\\\\_/g,"_");
+  const manifest=JSON.parse(raw);
+  if(!Array.isArray(manifest.services))throw new Error("The manifest did not contain a services array.");
+  grid.replaceChildren();
+  for(const service of manifest.services){
+   if(!service||!service.id)continue;
+   const card=el("article","card","");
+   card.append(el("div","price",Number.isFinite(Number(service.price_nzd))?"NZ$"+Number(service.price_nzd).toFixed(Number(service.price_nzd)%1?2:0)+" · "+String(service.scope||"API").toUpperCase():"PRICE UNVERIFIED"));
+   card.append(el("h2", "",String(service.id).replace(/[-_]+/g," ")));
+   card.append(el("p","muted",String(service.description||"Agent Bridge capability.")+" Route: "+String(service.route||"not specified")+"."));
+   card.append(el("p","muted",service.checkout_configured===true?"Manifest says checkout configured. Settlement and fulfilment are unverified.":"Checkout, settlement and fulfilment are unverified."));
+   grid.append(card);
+  }
+  status.textContent=grid.children.length+" manifest entries loaded. Listing count is not active-buyer count, settled revenue or proof of fulfilment.";
+ }catch(error){
+  grid.replaceChildren(el("article","card","Agent Bridge manifest temporarily unavailable. Use the raw manifest link to retry. No live offers are inferred."));
+  status.textContent="Live catalogue sync failed; no availability claim made.";
+ }
+})();
+</script>
 </body></html>
