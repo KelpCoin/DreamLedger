@@ -152,7 +152,6 @@ function publicManifest(extraServices = []) {
     { id: 'GAUNTLET-RUN', route: '/api/toll/v1/gauntlet', scope: 'gauntlet', price_nzd: c.gauntletPriceNzd, description: 'Single automated decision / approval run' },
     { id: 'TRUTH-ORACLE-ACCESS', route: '/api/toll/v1/truth', scope: 'truth', price_nzd: c.truthPriceNzd, description: 'Evidence classification wall access' },
     { id: 'TOLL-PROBE-50C', route: '/api/toll/v1/probe', scope: 'toll-probe', price_nzd: 0.50, description: 'One live paid API toll-road probe' },
-    { id: 'GPU-INFERENCE-100', route: '/v1/chat/completions', scope: 'gpu-inference', price_nzd: 9, description: '100 bounded LM Studio local-GPU inference requests; public endpoint must be configured separately' },
     { id: 'AGENT-BRIDGE-EVENTS-100', route: '/api/toll/v1/bridge-events', scope: 'bridge-events', price_nzd: c.bridgeEventsPriceNzd, description: '100 metered Agent Bridge events' },
     { id: 'ROUTE-LEASE-BASIC', route: '/api/toll/v1/route-lease', scope: 'route-lease', price_nzd: c.routeLeasePriceNzd, description: 'Named pipeline / route lease' },
     { id: 'GAUNTLET-PACK-20', route: '/api/toll/v1/gauntlet-pack', scope: 'gauntlet-pack', price_nzd: c.gauntletPackPriceNzd, description: '20 automated gauntlet approvals' },
