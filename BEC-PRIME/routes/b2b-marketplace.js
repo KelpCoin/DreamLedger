@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || '';
@@ -95,6 +96,34 @@ async function handle(req, res, url) {
   const uid = identity.user.id;
 
   try {
+    if (req.method === 'GET' && url === '/api/b2b/my-listings') {
+      const accounts = await db('marketplace_seller_accounts', 'GET', 'owner_user_id=eq.' + encodeURIComponent(uid) + '&select=seller_id,onboarding_status,charges_enabled,payouts_enabled&limit=1');
+      if (!accounts?.length) return send(res, 200, { items:[], seller_setup_required:true });
+      const rows = await db('marketplace_listings', 'GET', 'seller_id=eq.' + encodeURIComponent(accounts[0].seller_id) + '&select=*&order=created_at.desc&limit=100');
+      return send(res, 200, { items:(rows||[]).map(x=>({id:x.id,slug:x.slug||null,title:x.title,description:x.description,category:x.category||'General',price:x.price??null,currency:x.currency||'NZD',status:x.status,created_at:x.created_at,published_at:x.published_at||null})), seller_setup_required:false });
+    }
+
+    if (req.method === 'POST' && url === '/api/b2b/listings') {
+      const b = await readBody(req);
+      const title = String(b.title||'').trim().slice(0,120);
+      const description = String(b.description||'').trim().slice(0,4000);
+      const category = String(b.category||'General').trim().slice(0,80);
+      const price = Number(b.price_nzd);
+      const key = String(req.headers['idempotency-key']||b.idempotency_key||'').trim();
+      if (!title || !description || !Number.isFinite(price) || price <= 0 || price > Number.MAX_SAFE_INTEGER/100) return send(res,422,{error:'title, description and a safe positive NZD price are required'});
+      if (!key || key.length > 200) return send(res,422,{error:'Idempotency-Key header is required'});
+      const accounts = await db('marketplace_seller_accounts','GET','owner_user_id=eq.'+encodeURIComponent(uid)+'&select=seller_id,onboarding_status,charges_enabled,payouts_enabled&limit=1');
+      if (!accounts?.length || accounts[0].onboarding_status!=='complete' || accounts[0].charges_enabled!==true || accounts[0].payouts_enabled!==true) return send(res,403,{error:'Complete Stripe Connect seller verification before submitting a listing'});
+      const slug='seller-'+uid.replace(/-/g,'').slice(0,12)+'-'+crypto.createHash('sha256').update(key).digest('hex').slice(0,24);
+      const payload={seller_id:accounts[0].seller_id,slug,title,description,category,price:Math.round(price*100)/100,currency:'NZD',status:'review',agent_purchasable:false,shipping_profile:{},evidence:{submission_id:slug}};
+      const rows=await db('marketplace_listings','POST','on_conflict=slug',payload,'resolution=ignore-duplicates,return=representation');
+      let item=Array.isArray(rows)?rows[0]:null;
+      if(!item){const found=await db('marketplace_listings','GET','slug=eq.'+encodeURIComponent(slug)+'&select=*&limit=1');item=found?.[0];}
+      if(!item)return send(res,503,{error:'Listing persistence could not be confirmed',code:'PERSISTENCE_UNCONFIRMED'});
+      if(item.seller_id!==payload.seller_id||item.title!==title||item.description!==description||Number(item.price)!==payload.price)return send(res,409,{error:'Idempotency-Key was already used for a different listing payload',code:'IDEMPOTENCY_CONFLICT'});
+      return send(res,201,{ok:true,item:{id:item.id,slug:item.slug,title:item.title,description:item.description,category:item.category,price:item.price,currency:item.currency,status:item.status,created_at:item.created_at},commercial_truth:'LISTING_SUBMITTED_FOR_REVIEW_NOT_ORDER_OR_REVENUE'});
+    }
+
     if (req.method === 'GET' && url === '/api/b2b/seller-status') {
       const rows = await db('marketplace_seller_accounts', 'GET', 'owner_user_id=eq.' + encodeURIComponent(uid) + '&select=id,seller_id,onboarding_status,details_submitted,charges_enabled,payouts_enabled,requirements_due&limit=1');
       const x = rows?.[0];
