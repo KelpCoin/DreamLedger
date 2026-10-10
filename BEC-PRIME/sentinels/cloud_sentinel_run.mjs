@@ -37,7 +37,7 @@ const LOOPS = [
     loop_id: 'LOOP-QUOTE-COMPARE-49',
     label: 'Supplier Quote Comparison',
     price_nzd: 49,
-    buy_path: '/buy/quote_compare_49?price=4900',
+    buy_path: '/buy/QUOTE-COMPARE-49',
     surface_paths: ['/', '/supplier-quote-comparison.html', '/quote-comparison.html'],
   },
 ];
