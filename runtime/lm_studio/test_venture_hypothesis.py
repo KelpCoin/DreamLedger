@@ -23,8 +23,12 @@ class VentureHypothesisTests(unittest.TestCase):
         self.assertEqual(result["decision"], "ITERATE")
         self.assertEqual(result["evidence_state"], "UNVERIFIED")
 
-    def test_core_h_below_seven_kills(self):
+    def test_low_h_with_high_evidence_pivots(self):
         result = evaluate(hypothesis(h_values={"economic_buyer": 6}, e_values={k: 8 for k in CORE_GATES}))
+        self.assertEqual(result["decision"], "PIVOT")
+
+    def test_low_h_with_low_evidence_kills(self):
+        result = evaluate(hypothesis(h_values={"economic_buyer": 6}, e_values={k: 2 for k in CORE_GATES}))
         self.assertEqual(result["decision"], "KILL")
 
     def test_invalid_score_rejected(self):
