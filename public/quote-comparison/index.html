@@ -1,77 +1,41 @@
-<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Supplier Quote Comparison | DreamLedger</title><meta name="description" content="Automated supplier quote comparison for 2–5 quotes. Normalize pricing, MOQ, lead time and payment terms into an evidence-backed decision packet."><link rel="canonical" href="https://dreamledger.org/quote-comparison/"><style>body{margin:0;background:#090909;color:#eee;font:16px/1.55 system-ui,sans-serif}main{max-width:900px;margin:auto;padding:48px 20px 90px}.k{color:#d5b45c;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}h1{font-size:48px;line-height:1.05}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{border:1px solid #333;background:#111;padding:18px}a{color:#d5b45c}.price{font-size:30px;font-weight:900;color:#d5b45c}</style><script type="application/ld+json">
-{
- "@context":"https://schema.org",
- "@type":"Service",
- "@id":"https://dreamledger.org/quote-comparison/#service",
- "name":"Supplier Quote Comparison",
- "description":"One-time comparison of 2-5 supplier quotes into a source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.",
- "url":"https://dreamledger.org/quote-comparison/",
- "provider":{"@type":"Organization","name":"DreamLedger","url":"https://dreamledger.org/"},
- "serviceType":"Procurement quote comparison",
- "areaServed":{"@type":"Country","name":"New Zealand"},
- "offers":{"@type":"Offer","url":"https://dreamledger.org/quote-comparison/","price":"49","priceCurrency":"NZD","availability":"https://schema.org/InStock","priceValidUntil":"2027-10-05"},
- "additionalProperty":[
-  {"@type":"PropertyValue","name":"input","value":"2-5 supplier quotes plus purchase requirements or scope"},
-  {"@type":"PropertyValue","name":"purchaseType","value":"one-time"},
-  {"@type":"PropertyValue","name":"output","value":"source-backed decision packet"}
- ]
-}
-</script></head><body><main><div class="k">DreamLedger · Supplier tools</div><h1>Supplier Quote Comparison</h1><p>Turn 2–5 supplier quotes into a clear comparison report. The service is for buyers who already have quotes and need prices, scope, terms, and missing details compared side by side.</p><div class="card"><div class="price">NZ$49 one-time</div><p>Pay once, submit your quotes, and receive a structured comparison report.</p><p><a id="quote-buy" href="/buy/QUOTE-COMPARE-49">Start quote comparison</a></p></div><section class="card" style="margin-top:18px">
-<h2>Already purchased? Continue your request</h2>
-<p>Use the checkout session ID from your receipt, then submit 2–5 supplier quotes and describe your purchasing requirements. We confirm payment before processing your files.</p>
-<label for="qc-session">Checkout session ID from your receipt</label>
-<input id="qc-session" placeholder="cs_live_..." autocomplete="off" style="box-sizing:border-box;width:100%;padding:10px;background:#0b0b0b;color:#eee;border:1px solid #444;border-radius:8px">
-<label for="qc-requirements" style="display:block;margin-top:12px">Purchase requirements or scope</label>
-<textarea id="qc-requirements" maxlength="12000" style="box-sizing:border-box;width:100%;min-height:110px;padding:10px;background:#0b0b0b;color:#eee;border:1px solid #444;border-radius:8px"></textarea>
-<label for="qc-files" style="display:block;margin-top:12px">Supplier quotes, 2-5 files, max 10 MB each</label>
-<input id="qc-files" type="file" multiple accept=".pdf,.csv,.json,.md">
-<button id="qc-submit" type="button" style="margin-top:14px;padding:11px 16px;background:#d5b45c;color:#090909;border:0;border-radius:8px;font-weight:800">Continue request</button>
-<pre id="qc-status" style="white-space:pre-wrap;color:#aaa"></pre>
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supplier Quote Comparison | DreamLedger</title>
+<meta name="description" content="Free supplier quote comparison worksheet. Normalize pricing, MOQ, lead time and payment terms before making a purchasing decision.">
+<link rel="canonical" href="https://dreamledger.org/quote-comparison/">
+<meta name="robots" content="index,follow">
+<style>
+body{margin:0;background:#090909;color:#eee;font:16px/1.6 system-ui,sans-serif}
+main{max-width:820px;margin:auto;padding:48px 20px 90px}
+.k{color:#d5b45c;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+h1{font-size:clamp(34px,6vw,48px);line-height:1.05}
+.card{border:1px solid #333;background:#111;padding:22px;border-radius:12px;margin:18px 0}
+a{color:#d5b45c}
+button{padding:12px 16px;background:#d5b45c;color:#090909;border:0;border-radius:8px;font-weight:800;cursor:pointer}
+</style>
+</head>
+<body><main>
+<div class="k">DreamLedger · Supplier tools</div>
+<h1>Supplier Quote Comparison</h1>
+<p>Turn 2–5 supplier quotes into a clearer purchasing decision. Compare price, scope, minimum order quantity, lead time, freight, payment terms and missing information while keeping assumptions visible.</p>
+<section class="card">
+<h2>Free worksheet</h2>
+<p>The paid automated comparison flow is currently unavailable while payment verification and report delivery are being repaired. No payment is required for the worksheet, and we will not ask you to pay through a disabled checkout.</p>
+<p><a href="/#quote-tool"><button type="button">Open the free supplier worksheet</button></a></p>
 </section>
-<script>
-(function(){
-  var q=new URLSearchParams(location.search);
-  var sid=q.get('session_id')||q.get('sessionId')||'';
-  var s=document.getElementById('qc-session'), r=document.getElementById('qc-requirements');
-  var fs=document.getElementById('qc-files'), b=document.getElementById('qc-submit'), out=document.getElementById('qc-status');
-  if(sid)s.value=sid;
-  var base='https://wbwgroygjeyukkspnqiy.supabase.co';
-  var fn=base+'/functions/v1/quote-intake';
-  var key='sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
-  async function api(body){
-    var x=await fetch(fn,{method:'POST',headers:{'Content-Type':'application/json','apikey':key},body:JSON.stringify(body)});
-    var d=await x.json().catch(function(){return{}});
-    if(!x.ok)throw new Error(d.error||('Request failed ('+x.status+')')); return d;
-  }
-  async function hash(file){
-    var d=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());
-    return Array.from(new Uint8Array(d)).map(function(v){return v.toString(16).padStart(2,'0')}).join('');
-  }
-  async function upload(u,file){
-    var x=await fetch(base+'/storage/v1/object/upload/sign/'+encodeURIComponent(u.path)+'?token='+encodeURIComponent(u.token),{method:'PUT',headers:{'Content-Type':file.type||'application/octet-stream'},body:file});
-    if(!x.ok)throw new Error('Upload failed: '+file.name);
-  }
-  b.onclick=async function(){
-    b.disabled=true;
-    try{
-      var session=s.value.trim(), req=r.value.trim(), files=Array.from(fs.files||[]);
-      if(!/^cs_[A-Za-z0-9_]+$/.test(session))throw new Error('Valid Checkout session ID from your receipt required.');
-      if(!req)throw new Error('Purchase requirements or scope required.');
-      if(files.length<2||files.length>5)throw new Error('Submit 2-5 supplier quotes.');
-      if(files.some(function(f){return f.size<=0||f.size>10*1024*1024}))throw new Error('Each file must be between 1 byte and 10 MB.');
-      out.textContent='Checking payment and opening your request...';
-      var init=await api({action:'initialize',session_id:session,files:files.map(function(f){return{name:f.name}})});
-      var prepared=[];
-      for(var i=0;i<files.length;i++){await upload(init.uploads[i],files[i]);prepared.push({path:init.uploads[i].path,name:files[i].name,size:files[i].size,sha256:await hash(files[i])});}
-      out.textContent='Running automatic comparison...';
-      var done=await api({action:'finalize',session_id:session,requirements:req,files:prepared});
-      if(done.status==='fulfilled'){
-        var result=await api({action:'status',session_id:session});
-        out.textContent=result.download_url?'Comparison complete. Opening delivery...':'Comparison fulfilled. Delivery URL not yet available.';
-        if(result.download_url)window.location.href=result.download_url;
-      }else out.textContent='Accepted. Fulfillment state: '+String(done.status||'queued')+'.';
-    }catch(e){out.textContent=e&&e.message?e.message:String(e)}
-    finally{b.disabled=false}
-  };
-})();
-</script></div></main></body></html>
+<section class="card">
+<h2>What the worksheet helps you compare</h2>
+<ul>
+<li>Supplier and source URL</li>
+<li>Quote date, currency, unit price and minimum order quantity</li>
+<li>Lead time, freight, Incoterms, duties and taxes</li>
+<li>Exclusions, validity dates and unresolved questions</li>
+<li>Evidence links and decision notes</li>
+</ul>
+<p>Keep unknown values blank and verify source documents before committing funds. The worksheet is a template, not procurement, legal, customs or financial advice.</p>
+</section>
+<p><a href="/">Return to DreamLedger</a> · <a href="/truth-oracle.html">Free Truth Oracle</a></p>
+</main></body></html>
