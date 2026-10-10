@@ -100,14 +100,15 @@ http.createServer(async (req,res)=>{
       const source=Array.isArray(catalogue.products)?catalogue.products:[];
       const categoryMap={mtg:'mtg','media':'public-placements','public-placements':'public-placements','dreammeez':'avatar-accessories','avatar-accessories':'avatar-accessories','commerce':'digital-tools','digital-tools':'digital-tools','seller_tools':'seller-services','seller-services':'seller-services','kelplantis':'digital-experiences','digital-experiences':'digital-experiences','research':'research-services','research-services':'research-services','procurement':'procurement-tools','procurement-tools':'procurement-tools','toll-booths':'digital-tools','demand-services':'growth-services','growth-services':'growth-services',other:'other-products','other-products':'other-products'};
       const publicDescription=value=>String(value||'').replace(/777/gi,'research').replace(/CUBE/gi,'').replace(/BECK/gi,'').replace(/Elohim/gi,'DreamLedger').replace(/AgentBridge/gi,'the service').replace(/existing fulfillment rail/gi,'automated service').replace(/internal activity/gi,'unverified activity').replace(/economic loops/gi,'purchase steps').replace(/silos?/gi,'categories').trim();
-      const listed=source.filter(x=>x&&x.status==='published'&&x.checkout_available===true&&typeof x.checkout_url==='string').map(x=>({
+      const listed=source.filter(x=>x&&x.status==='published'&&((x.checkout_available===true&&typeof x.checkout_url==='string')||(x.sale_mode==='claim_by_message'&&typeof x.claim_url==='string'))).map(x=>({
         id:x.id,product_id:x.id,sku:x.sku||null,name:x.name,description:publicDescription(x.description),
         price:x.price,price_nzd:x.currency==='nzd'?x.price:null,currency:x.currency||'nzd',
+        silo:x.silo||x.category||null,inventory:x.inventory==null?(String(x.silo||x.category||'').toLowerCase()==='mtg'?1:null):x.inventory,condition:x.condition||null,image_url:x.image_url||null,
         category:categoryMap[String(x.category||x.silo||'other').toLowerCase()]||'other-products',
-        checkout_url:x.checkout_url,status:'LISTED'
+        checkout_url:x.checkout_url||null,checkout_available:x.checkout_available===true,claim_url:x.claim_url||null,sale_mode:x.sale_mode||'checkout',status:'LISTED'
       }));
       if(p==='/api/products'){
-        const products=listed.map(x=>({id:x.id,sku:x.sku,name:x.name,description:x.description,price:x.price,currency:x.currency,category:x.category,status:'published',checkout_available:true,checkout_url:x.checkout_url}));
+        const products=listed.map(x=>({id:x.id,sku:x.sku,name:x.name,description:x.description,price:x.price,currency:x.currency,category:x.category,silo:x.silo,inventory:x.inventory,condition:x.condition,image_url:x.image_url,status:'published',checkout_available:x.checkout_available,checkout_url:x.checkout_url,claim_url:x.claim_url,sale_mode:x.sale_mode}));
         return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:products.length,products,note:'Review the product page for current terms and availability.'}),'application/json; charset=utf-8');
       }
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed,note:'A listing does not prove a completed purchase or delivery.'}),'application/json; charset=utf-8');

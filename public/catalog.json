@@ -149,6 +149,56 @@
       "category": "mtg"
     },
     {
+      "id": "EDH_QUINTORIUS_0002",
+      "sku": "EDH-QUINTORIUS-FIELD-HISTORIAN-THIS-IS-NOT-AN-ELEPHANT-DECK-001",
+      "silo": "mtg",
+      "name": "Quintorius, Field Historian – This Is Not An Elephant Deck",
+      "description": "Boros graveyard-recursion Commander deck. Cards leaving your graveyard build a Spirit army. Seller reports the deck is fully sleeved and extensively playtested. NZ$90 with free shipping throughout Aotearoa New Zealand. Patreon subscribers: NZ$80 and first priority. Message to claim; online checkout is not yet enabled for this listing.",
+      "price": 90,
+      "currency": "nzd",
+      "inventory": 1,
+      "status": "published",
+      "seller": "Biggie",
+      "condition": "Seller reports fully sleeved; extensively playtested",
+      "fulfillment_method": "physical_delivery",
+      "image_url": null,
+      "checkout_available": false,
+      "checkout_url": null,
+      "sale_mode": "claim_by_message",
+      "claim_url": "/mtg/quintorius-field-historian.html",
+      "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
+      "metadata": {
+        "commander": "Quintorius, Field Historian",
+        "archetype": "The Necromancer",
+        "strategy": "Boros graveyard recursion and Spirit token generation",
+        "patron_price_nzd": 80,
+        "patron_url": "https://patreon.com/happyhomarid",
+        "shipping": "Free shipping throughout Aotearoa New Zealand",
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "edh",
+          "commander",
+          "boros",
+          "lorehold",
+          "quintorius",
+          "mtgsale",
+          "edhcommunity",
+          "graveyard",
+          "MeatiestMagic"
+        ],
+        "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
+      },
+      "commercial_truth": {
+        "approval_required": false,
+        "checkout_available": false,
+        "fulfillment_required": true,
+        "evidence_required": true,
+        "payment_link": null
+      },
+      "default_offer_id": "EDH_QUINTORIUS_0002"
+    },
+    {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
       "sku": "DL-DOOH-CAMPAIGN-500",
       "name": "DreamLedger Verified DOOH Campaign",
