@@ -71,9 +71,9 @@ function Execute-SafeAction($Decision,$Worker) {
         'READ_REPO' { $p=Assert-LocalPath $Worker.silo ([string]$Decision.args.path) $Worker; return (Get-Content -Raw -LiteralPath $p) }
         'WRITE_FILE' { $p=Assert-LocalPath $Worker.silo ([string]$Decision.args.path) $Worker; Set-Content -LiteralPath $p -Value ([string]$Decision.args.content) -Encoding UTF8; return 'WRITE_OK' }
         'RUN_TEST' { $name=[string]$Decision.args.script; if ($name -notmatch '^[A-Za-z0-9_.-]+\.(ps1|js)$') { throw 'Invalid test script' }; $p=Assert-LocalPath $Worker.silo ("BEC-PRIME/autonomy/$name") $Worker; if ($p.EndsWith('.ps1')) { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $p } else { & node.exe $p }; if ($LASTEXITCODE -ne 0) { throw "Test failed: $name" }; return 'TEST_PASS' }
-        'RUN_GAUNTLET' { return 'GAUNTLET_REQUEST_REQUIRES_IMPLEMENTED_LOCAL_GATE' }
-        'CHECK_DEPLOYMENT' { return 'DEPLOYMENT_CHECK_REQUIRES_EXPLICIT_LOCAL_ADAPTER' }
-        'CHECK_PAYMENT' { return 'PAYMENT_CHECK_REQUIRES_SERVER_AUTHORITATIVE_EVIDENCE' }
+        'RUN_GAUNTLET' { throw 'BLOCKED: Gauntlet execution is not implemented in this controller; refusing to record a successful cycle.' }
+        'CHECK_DEPLOYMENT' { throw 'BLOCKED: deployment adapter is missing; refusing to report deployment health.' }
+        'CHECK_PAYMENT' { throw 'BLOCKED: payment verification adapter is missing; only server-authoritative settled-payment evidence may pass.' }
         'WRITE_PROOF' { $id="AUTONOMY-{0}.json" -f (Get-Date -Format 'yyyyMMddHHmmssfff'); $proof=[ordered]@{type='bec-autonomy-cycle';status='PASS';silo=$Worker.silo;action=$Decision.action;verified_payment=$false;revenue_nzd=0;timestamp=(Get-Date -Format o);evidence='No payment claim. Controller cycle evidence only.'}; Write-JsonFile (Join-Path $Proofs $id) $proof; return $id }
         'CREATE_WORK_ORDER' { return (New-WorkOrder $Decision $Worker) }
         default { throw "Action not executable: $($Decision.action)" }
