@@ -48,7 +48,7 @@ Scans, bots, checkout starts and model-generated interest are not buyers.
 ### P2 — 777 compounding / local BEC machine
 - Run one bounded cycle through the existing 777, CUBE, Elohim, Gauntlet and BECK lineage. Read existing playbook/protocol first; do not build another scheduler or ledger.
 - Every cycle must produce either (a) verified economic outcome evidence or (b) a durable, falsifiable failure artifact with exact response, commit, test output, owner/next action and stop condition.
-- Fix the known missing import os in scripts/777_compounding_gate.py only after checking current source and adding a regression test; do not let broad exception handling turn a hidden code error into a false no-op.
+- The missing import os in scripts/777_compounding_gate.py was confirmed and corrected in commit 24e456b56286f0e015e387fecdc5e39a84051c6f. A static regression test was added in commit 198e8bff39d7cb2a7839d3f216f6d796d8c41729 and wired into the workflow in commit 37ef7a7f2668c07f79d57849c0f4aa184a0c7dc4. CI/deploy results still require observation. A read-only local verifier is at scripts/VERIFY-FIRST-MONEY.ps1.
 - Local LM Studio is an accelerator, not an authority. PC-offline must not be described as a running local worker. Any real charge, public transmission, disclosure or irreversible action stays behind the existing human approval gate.
 
 ## Roles and acceptance
