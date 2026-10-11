@@ -60,6 +60,7 @@ jobs:
         run: |
           node scripts/test-777-amber-room.js
           node scripts/test-777-factory-factory.js
+          node gauntlet/test-free-discovery-gauntlet.js
 
       - name: Verify economic truth boundary
         working-directory: BEC-PRIME
