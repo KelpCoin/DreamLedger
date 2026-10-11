@@ -25,15 +25,17 @@ jobs:
             grep -qi "Phin Haven" "$f"
           done
 
-      - name: Passport and Echo surface
+      - name: Current social-lobby interaction surface
         shell: bash
         run: |
           set -euo pipefail
           f=public/phin-haven-v5.html
-          grep -q 'id="passport"' "$f"
-          grep -q 'kelplantis_get_passport_for_token' "$f"
-          grep -q 'id="echo"' "$f"
-          grep -q 'kelplantis_set_soul_anchor_for_token' "$f"
+          grep -q 'id="feed"' "$f"
+          grep -q 'id="input"' "$f"
+          grep -q 'id="send"' "$f"
+          grep -q 'id="presence"' "$f"
+          grep -q 'renderPresence' "$f"
+          grep -q 'function send' "$f"
 
       - name: Economic surface
         shell: bash
