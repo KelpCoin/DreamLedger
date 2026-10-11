@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          pattern='Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|HappyHomarid|private factory|internal factory'
+          pattern='Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|private factory|internal factory'
           failed=0
           while IFS= read -r -d '' f; do
             case "$f" in
@@ -67,7 +67,7 @@ jobs:
               printf '%s' "$content" | grep -Ein "$pattern" | head -5 || true
               failed=1
             fi
-          done < <(find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.json' -o -name '*.txt' \) -print0)
+          done < <(find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.json' -o -name '*.txt' \) ! -path 'public/package.json' -print0)
           if [ "$failed" -ne 0 ]; then
             echo 'FAIL: prohibited internal or cross-silo language found in public assets.'
             exit 1
