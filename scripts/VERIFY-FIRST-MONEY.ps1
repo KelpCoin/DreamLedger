@@ -16,6 +16,7 @@ $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add('DREAMLEDGER FIRST-MONEY VERIFICATION')
 $lines.Add("ObservedAtLocal=$((Get-Date).ToString('o'))")
 $lines.Add('Purpose=Read-only smoke checks; not a payment or revenue test')
+$lines.Add('Checkout GET deliberately omitted because it creates an unpaid Stripe Checkout Session. Do not use this verifier to create sessions.')
 $lines.Add('VERIFIED_EXTERNAL_REVENUE_NZD=0.00 until independent settlement and fulfillment reconcile')
 $lines.Add('')
 
@@ -23,7 +24,6 @@ $urls = @(
     'https://dreamledger.org/go',
     'https://dreamledger.org/api/toll/v1/manifest',
     'https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest',
-    'https://dreamledger-silo-gateway.onrender.com/api/toll/v1/checkout/toll-probe',
     'https://dreamledger.org/.well-known/agent-commerce.json'
 )
 foreach ($url in $urls) {
