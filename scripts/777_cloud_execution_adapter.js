@@ -61,6 +61,7 @@ function candidateFromModel(modelOutput, source) {
     deliverable: x.deliverable || 'free source-linked claim record with provenance, date, contradiction and uncertainty fields; optional alerts or execution only after an existing paid rail is verified',
     delivery_mechanism: x.delivery_mechanism || 'existing public Truth Oracle surface; paid convenience only through an explicitly verified existing offer',
     price: Number(x.price ?? 0),
+    commercial_mode: x.commercial_mode || (Number(x.price ?? 0) === 0 ? 'FREE_DISCOVERY' : 'PAID_CANDIDATE'),
     currency: x.currency || 'NZD',
     payment_adapter: x.payment_adapter || 'no default checkout; use only an explicitly verified existing payment rail',
     checkout_route: x.checkout_route || 'not configured; require explicit mapping to a verified existing offer',
