@@ -5,6 +5,7 @@ const {run:runGauntlet}=require('../gauntlet/CandidateGauntlet');
 const Toll=require('../runtime/TollRoad');
 const Trinity=require('../runtime/Trinity');
 const TollNexus=require('../runtime/TollNexus');
+const AgentBridgeEventLedger=require('../runtime/AgentBridgeEventLedger');
 const RoadFactory=require('../runtime/TollRoadFactory');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
@@ -307,6 +308,20 @@ async function handle(req,res,path){
     const tier = thinMeters[path];
     const key = authorize(req, tier);
     const body = await readJson(req).catch(()=>({}));
+    if (tier === 'bridge-events') {
+      const idempotencyKey = String(req.headers['idempotency-key'] || body.idempotency_key || '').trim();
+      const payload = body && typeof body.payload === 'object' && !Array.isArray(body.payload)
+        ? body.payload
+        : body && typeof body.event === 'object' && !Array.isArray(body.event)
+          ? body.event
+          : Object.fromEntries(Object.entries(body || {}).filter(([name]) => name !== 'idempotency_key'));
+      try {
+        const receipt = await AgentBridgeEventLedger.acceptEvent({ keyId: key.key_id, idempotencyKey, payload });
+        return send(res,200,{...meterResult(key,'AGENT-BRIDGE-EVENTS',{...receipt}),economic_truth_unchanged:true});
+      } catch (error) {
+        return send(res,Number(error && error.statusCode) || 500,{error:String(error && error.message || 'agent_bridge_event_rejected'),service:'AGENT-BRIDGE-EVENTS'});
+      }
+    }
     return send(res,200,meterResult(key, tier.toUpperCase(), {payload_keys: typeof body==='object' ? Object.keys(body) : []}));
   }
 
