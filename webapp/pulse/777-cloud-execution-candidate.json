@@ -16,7 +16,7 @@
   "verification_rules": "external buyer + settled payment + fulfillment + independent proof",
   "provenance": {
     "private_material": "excluded",
-    "source_hash": "9ed1735e6695160ff78dff856d4bb5227c31fa98b5448a1f4d3cce36e94b26d2"
+    "source_hash": "d18e08f4d62d2d0d83e41ab7a00dc1f08345f028412bceaf214e3d7bae90859f"
   },
   "silo": "truth-oracle",
   "kill_condition": "no external buyer, no settled payment, fulfillment failure, contradictory evidence"
