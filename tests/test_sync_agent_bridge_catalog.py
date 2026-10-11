@@ -100,5 +100,40 @@ class AgentBridgeCatalogSyncTests(unittest.TestCase):
             self.assertEqual(result["manifest_sync_error"], "services_or_offers_array_missing")
 
 
+    def test_empty_legacy_services_falls_back_to_live_offers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "catalog.json"
+            payload = {
+                "schema": "dreamledger/toll-road/v2",
+                "services": [],
+                "offers": [{
+                    "id": "TOLL-PROBE-50C",
+                    "scope": "toll-probe",
+                    "price_nzd": 0.5,
+                    "execution_route": "/api/toll/v1/probe",
+                    "checkout_route": "/api/toll/v1/checkout/toll-probe"
+                }]
+            }
+            self.assertEqual(self.run_sync(payload, target), 0)
+            result = json.loads(target.read_text(encoding="utf-8"))
+            self.assertEqual(result["manifest_source_collection"], "offers")
+            self.assertEqual(result["service_count"], 1)
+            self.assertEqual(result["services"][0]["id"], "TOLL-PROBE-50C")
+
+    def test_empty_supported_envelopes_preserve_previous_snapshot_as_stale(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "catalog.json"
+            target.write_text(json.dumps({
+                "schema": "dreamledger/agent-bridge-catalog/v1",
+                "service_count": 1,
+                "services": [{"id": "KNOWN-SERVICE", "route": "/api/known"}]
+            }), encoding="utf-8")
+            self.assertEqual(self.run_sync({"services": [], "offers": []}, target), 0)
+            result = json.loads(target.read_text(encoding="utf-8"))
+            self.assertEqual(result["manifest_sync_status"], "STALE_PRESERVED")
+            self.assertEqual(result["manifest_sync_error"], "empty_services_or_offers_array")
+            self.assertEqual(result["services"][0]["id"], "KNOWN-SERVICE")
+
+
 if __name__ == "__main__":
     unittest.main()
