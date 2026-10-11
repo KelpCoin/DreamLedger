@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/agentic-commerce/gpu-capacity-job.schema.json",
+  "title": "DreamLedger Metered GPU Job Contract",
+  "description": "Versioned contract for offering measured spare inference or batch capacity through AgentBridge. A valid contract is not a promise that capacity is currently available and never authorizes arbitrary host execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "job_id",
+    "tenant_id",
+    "workload",
+    "limits",
+    "pricing",
+    "data_policy",
+    "authorization",
+    "acceptance",
+    "truth_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "dreamledger.gpu-job.v1"
+    },
+    "job_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9._-]{7,127}$"
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 200
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "model_or_image", "input_ref", "output_contract"],
+      "properties": {
+        "kind": {
+          "enum": ["INFERENCE", "BATCH_TRANSFORM", "EMBEDDING", "EVALUATION"]
+        },
+        "model_or_image": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "input_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "description": "Reference to tenant-authorized input. Never place credentials or secrets in the payload."
+        },
+        "output_contract": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 2000
+        },
+        "network_profile": {
+          "enum": ["NONE", "READ_ONLY_ALLOWLIST"]
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timeout_seconds", "max_input_bytes", "max_output_bytes", "max_vram_mb", "max_retries", "concurrency"],
+      "properties": {
+        "timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 7200 },
+        "max_input_bytes": { "type": "integer", "minimum": 1, "maximum": 50000000 },
+        "max_output_bytes": { "type": "integer", "minimum": 1, "maximum": 50000000 },
+        "max_vram_mb": { "type": "integer", "minimum": 256, "maximum": 65536 },
+        "max_retries": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "concurrency": { "const": 1 },
+        "host_access": { "const": false },
+        "secret_mounts": { "const": false },
+        "arbitrary_code_execution": { "const": false },
+        "kill_switch_required": { "const": true }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "unit", "unit_price", "maximum_charge", "cost_basis_ref"],
+      "properties": {
+        "currency": { "const": "NZD" },
+        "unit": { "enum": ["1K_INPUT_TOKENS", "1K_OUTPUT_TOKENS", "GPU_SECOND", "JOB"] },
+        "unit_price": { "type": "number", "exclusiveMinimum": 0 },
+        "maximum_charge": { "type": "number", "exclusiveMinimum": 0 },
+        "cost_basis_ref": { "type": "string", "minLength": 8, "maxLength": 1000 },
+        "margin_verified": { "const": false, "description": "Must remain false until measured costs and payment fees establish positive contribution margin." }
+      }
+    },
+    "data_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retention", "training_use", "deletion_receipt"],
+      "properties": {
+        "retention": { "enum": ["EPHEMERAL", "EXPLICIT_TTL"] },
+        "ttl_hours": { "type": "integer", "minimum": 1, "maximum": 720 },
+        "training_use": { "const": false },
+        "deletion_receipt": { "const": true }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_opt_in", "tenant_entitled", "budget_reserved", "approval_ref"],
+      "properties": {
+        "owner_opt_in": { "type": "boolean" },
+        "tenant_entitled": { "type": "boolean" },
+        "budget_reserved": { "type": "boolean" },
+        "approval_ref": { "type": ["string", "null"], "maxLength": 1000 },
+        "expires_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verifier", "expected_result", "failure_mode"],
+      "properties": {
+        "verifier": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "expected_result": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "failure_mode": { "enum": ["FAIL_CLOSED", "CANCEL_AND_REFUND", "MARK_UNKNOWN"] }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "ref", "observed_at", "truth_status"],
+        "properties": {
+          "kind": { "enum": ["BENCHMARK", "AUTHORIZATION", "PAYMENT", "EXECUTION_LOG", "OUTPUT_HASH", "DELETION", "FULFILLMENT"] },
+          "ref": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "observed_at": { "type": "string", "format": "date-time" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "truth_status": { "enum": ["VERIFIED", "UNVERIFIED", "TEST", "SIMULATED", "STALE", "CONTRADICTED"] }
+        }
+      }
+    },
+    "truth_status": {
+      "enum": ["INTERNAL", "TEST", "SIMULATED", "UNVERIFIED", "OBSERVED", "VERIFIED", "STALE", "CONTRADICTED"]
+    },
+    "revenue_claim": { "const": false }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "truth_status": { "const": "VERIFIED" } }, "required": ["truth_status"] },
+      "then": { "required": ["evidence"] }
+    }
+  ]
+}
