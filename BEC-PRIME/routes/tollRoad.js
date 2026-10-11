@@ -121,7 +121,10 @@ async function redeem(scope,sessionId,roadId=null){
   const line=data.line_items?.data?.[0];
   if(!line || Number(line.amount_total ?? line.price?.unit_amount ?? 0)!==expectedAmount || String(data.currency||'').toLowerCase()!=='nzd')throw Object.assign(new Error('Checkout amount or currency attribution mismatch'),{statusCode:409});
   const def=scope==='road'?{calls:RoadFactory.CALLS_PER_ROAD}:(SCOPES[scope]||{calls:100});
-  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,reference:sessionId})};
+  const createdAt = Number(data.created || 0) * 1000;
+  const expiresAt = createdAt > 0 ? new Date(createdAt + 30 * 86400000).toISOString() : undefined;
+  if (expiresAt && Date.parse(expiresAt) <= Date.now()) throw Object.assign(new Error('Paid entitlement expired'),{statusCode:410});
+  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,expiresAt,reference:sessionId})};
 }
 
 function send(res,status,body){
