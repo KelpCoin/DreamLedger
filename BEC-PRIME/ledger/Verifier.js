@@ -101,7 +101,13 @@ function writeFossil(input, outputDir = DEFAULT_ROOT) {
       Number(existing.amount) !== Number(fossil.amount) ||
       existing.currency !== fossil.currency ||
       existing.asset_id !== fossil.asset_id ||
-      existing.external_evidence_ref !== fossil.external_evidence_ref
+      existing.external_evidence_ref !== fossil.external_evidence_ref ||
+      existing.payment_provider !== fossil.payment_provider ||
+      existing.provider_event_id !== fossil.provider_event_id ||
+      existing.attribution_ref !== fossil.attribution_ref ||
+      existing.fulfillment_ref !== fossil.fulfillment_ref ||
+      existing.independent_proof_ref !== fossil.independent_proof_ref ||
+      existing.settlement_status !== fossil.settlement_status
     ) {
       throw new Error('fossil_idempotency_conflict');
     }
