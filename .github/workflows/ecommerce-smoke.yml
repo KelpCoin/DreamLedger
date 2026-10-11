@@ -1,6 +1,8 @@
 name: DreamLedger E-Commerce Smoke
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
@@ -28,17 +30,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s index.html
-          test -s billboard.html
-          test -s avatar.html
+          test -s home.html
+          test -s quote-comparison/index.html
           test -s server.js
-          grep -qi 'AVATAR ACCESSORIES' index.html
-          grep -qi 'DIGITAL BILLBOARDS' index.html
-          grep -qi 'Make your avatar yours' index.html
-          grep -qi 'Put your message on a billboard' index.html
-          grep -q 'href="/avatar"' index.html
-          grep -q 'href="/billboard"' index.html
-          ! grep -Eiq 'BECK|Gauntlet|Economic Court|Truth Oracle|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' index.html billboard.html avatar.html server.js
+          grep -qi 'Evidence-first commerce' home.html
+          grep -qi 'Make the next decision' home.html
+          grep -qi 'Delivery Proof Audit' home.html
+          grep -Eq 'href="(https://dreamledger.org)?/quote-comparison/' home.html
+          grep -q 'href="/trust/"' home.html
+          if grep -Ein 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html; then
+            echo 'PUBLIC_COPY_SCAN=FAIL'
+            exit 1
+          else
+            echo 'PUBLIC_COPY_SCAN=PASS'
+          fi
           echo 'SOURCE_STOREFRONT=PASS'
 
       - name: Start runtime
@@ -48,16 +53,19 @@ jobs:
           set -euo pipefail
           npm start > /tmp/dreamledger.log 2>&1 &
           echo $! > /tmp/dreamledger.pid
+          ready=0
           for i in $(seq 1 45); do
-            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then break; fi
+            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then ready=1; break; fi
             sleep 1
           done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/dreamledger.log
+            exit 1
+          fi
           curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
           curl -fsS http://127.0.0.1:4173/api/products >/tmp/products.json
-          grep -qi 'AVATAR ACCESSORIES' /tmp/home.html
-          grep -qi 'DIGITAL BILLBOARDS' /tmp/home.html
-          grep -qi 'Make your avatar yours' /tmp/home.html
-          grep -qi 'Put your message on a billboard' /tmp/home.html
+          grep -qi 'Make the next decision' /tmp/home.html
+          grep -Eq 'href="(https://dreamledger.org)?/quote-comparison/' /tmp/home.html
           grep -q '"products"' /tmp/products.json
           echo 'LOCAL_STOREFRONT_RUNTIME=PASS'
 
