@@ -1,0 +1,107 @@
+{
+  "schema": "dreamledger.777.work-contract.v1",
+  "id": "DL-777-EPIC-2026-10-11-FIRST-DOLLAR-AND-COMPOUNDING",
+  "title": "First-dollar Agent Bridge monetization and compounding marketplace substrate",
+  "created_at": "2026-10-11",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_fulfillments": 0,
+    "status": "UNVERIFIED"
+  },
+  "operating_rule": "One silo, one CTA, one commercial wall. Reuse existing Agent Bridge and existing offers. Do not create another daemon, payment rail, database truth system, or SKU before proving the existing path.",
+  "execution_order": [
+    {
+      "id": "W1-PAYMENT-TO-FULFILLMENT",
+      "priority": "P0",
+      "workstream": "First-dollar proof",
+      "goal": "Make one existing offer work end-to-end for an independent external buyer.",
+      "tasks": [
+        "Trace the current public CTA to the canonical Stripe payment link and verify the live redirect destination.",
+        "Trace the canonical webhook to durable entitlement and fulfillment evidence without treating checkout creation or PaymentIntent success alone as revenue.",
+        "Resolve webhook attribution ambiguity and preserve unmatched payments as UNVERIFIED.",
+        "Verify the smallest existing offer with an actual settled external payment, idempotent fulfillment, and a buyer-visible delivery receipt.",
+        "Publish a red/amber/green evidence report with exact URLs, run IDs, and missing proofs."
+      ],
+      "acceptance": "Settled external payment + independent buyer + correctly attributed SKU + successful fulfillment + delivery evidence; otherwise explicitly report the first failing boundary."
+    },
+    {
+      "id": "W2-AGENT-BRIDGE-TOLL",
+      "priority": "P1",
+      "workstream": "Cheap A2A and paid API tolls",
+      "goal": "Make the existing Agent Bridge manifest, quote, authorization, quota, execution, and receipt path a real metered product.",
+      "tasks": [
+        "Use the existing Agent Bridge job claim/lease/complete/fail lifecycle.",
+        "Check the existing toll probe, per-key quota durability, replay/idempotency, timeout, and settlement attribution.",
+        "Keep discovery free; charge only for bounded execution or completed output.",
+        "Do not advertise endpoint counts as working endpoints without live route tests."
+      ],
+      "acceptance": "A live test proves authorization, metering, bounded execution, quota decrement, and a verifiable receipt; external revenue still requires an independent settled buyer."
+    },
+    {
+      "id": "W3-COMPOUNDING-CORPUS",
+      "priority": "P1",
+      "workstream": "Public knowledge assets",
+      "goal": "Every successful 777 expedition either publishes one genuinely useful, sourced, non-duplicate public artifact or records a reasoned no-op receipt.",
+      "tasks": [
+        "Preserve raw source evidence and provenance.",
+        "Require distinct facts, clear update date, primary sources, useful internal links, and a concrete reader job.",
+        "Reject fabricated metrics, unsourced market claims, thin templates, duplicate pages, and content generated solely to hit a word count.",
+        "Use an isolated /observatory/ path; never cannibalize commercial product pages.",
+        "Track publication, build, deployment, indexation, impressions, clicks, CTA conversion, and outcomes separately."
+      ],
+      "acceptance": "Artifact is committed, build/deployment is verified, source links are present, duplicate check passes, and it is linked from an index; indexation and traffic remain UNVERIFIED until measured."
+    },
+    {
+      "id": "W4-REUSABLE-DIGITAL-GOODS",
+      "priority": "P2",
+      "workstream": "Templates, boilerplates, stencils, word banks, neural-network patterns",
+      "goal": "Turn reusable internal components into catalogue entries and buyer-ready deliverables without launching a new SKU prematurely.",
+      "tasks": [
+        "Inventory existing artifacts and identify the highest-reuse component with an evidenced user job.",
+        "Package one component with example input/output, license, compatibility, limitations, and a machine-readable manifest.",
+        "Attach it to an existing offer and one CTA only after W1 is proven.",
+        "Record provenance and version so future cycles can improve rather than duplicate it."
+      ],
+      "acceptance": "Installable or directly usable component, reproducible example, provenance, license, and fulfillment path."
+    },
+    {
+      "id": "W5-SANDBOXED-GPU-CAPACITY",
+      "priority": "P2",
+      "workstream": "GPU/API capacity",
+      "goal": "Offer bounded model inference using available LM Studio capacity without exposing the owner's machine or credentials.",
+      "tasks": [
+        "Measure actual model availability, latency, throughput, memory, and idle capacity before publishing capacity claims.",
+        "Prefer queued, authenticated, rate-limited jobs with hard token/time limits and explicit per-job budgets.",
+        "Keep local network, filesystem, shell, credentials, and unrestricted code execution inaccessible to customers.",
+        "Require a job sandbox, tenant isolation, cancellation, abuse controls, and usage receipts before public exposure.",
+        "Do not incur paid infrastructure cost until an external buyer or prepaid demand justifies it."
+      ],
+      "acceptance": "A sandboxed benchmark and abuse-boundary test pass; only measured capacity is listed, and paid access is disabled until authorization and metering work."
+    },
+    {
+      "id": "W6-PROGRAMMATIC-DOOH",
+      "priority": "P3",
+      "workstream": "Digital out-of-home inventory",
+      "goal": "Create a permissioned inventory and campaign-receipt model adjacent to the marketplace.",
+      "tasks": [
+        "Model inventory owner, location, display capability, available time windows, audience estimate source, creative constraints, and proof-of-play.",
+        "Use explicit owner permission and legal rights for every display; never assume access to third-party screens.",
+        "Prototype the booking schema and evidence receipt before building a network or promising reach."
+      ],
+      "acceptance": "One permissioned inventory record and a test proof-of-play receipt; no reach or revenue claims without evidence."
+    }
+  ],
+  "global_gates": [
+    "Existing Agent Bridge before new workers or competing daemons.",
+    "Existing offers before new SKUs.",
+    "No personal outreach, paid ads, or upfront spend.",
+    "No Supabase writes or migrations while database recovery is unresolved.",
+    "Human approval required for identity, consent, payments, account access, public transmission, legal commitments, and irreversible actions.",
+    "Unknown is not pass. Tests, simulations, internal records, traffic, and model outputs are not revenue.",
+    "Each cycle must link its source evidence, changed files, CI run, artifact URL, deployment proof, and any external outcome."
+  ],
+  "next_action": "Run 777-cycle.yml from the default branch after this contract commit. Inspect the run, generated artifact, compounding gate, and deployment evidence. If no useful artifact is emitted, capture the exact blocker and create a bounded child task.",
+  "stop_condition": "Do not declare the epic complete until W1 acceptance is evidenced. Continue other workstreams only when they do not distract from the first-dollar path."
+}
