@@ -156,23 +156,29 @@ http.createServer(async (req,res)=>{
       const ref=String(attributionUrl.searchParams.get('ref')||'');
       const campaign=String(attributionUrl.searchParams.get('c')||'');
       const validAttribution=value=>/^[A-Za-z0-9_-]{1,64}$/.test(value);
-      const checkoutRoute=route=>{const target=new URL(route,'https://dreamledger.org');if(validAttribution(ref))target.searchParams.set('ref',ref);if(validAttribution(campaign))target.searchParams.set('c',campaign);return target.pathname+target.search;};
-      const configured=Boolean(TollRuntime.configured() && (process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY));
-      const status=configured?'CONFIGURED_NOT_END_TO_END_VERIFIED':'UNCONFIGURED';
       const manifest={
         schema:'dreamledger/toll-road/v2',
         service:'DreamLedger',
         currency:'NZD',
-        status,
+        status:'HELD_NOT_END_TO_END_VERIFIED',
+        checkout_enabled:false,
         first_payment_proof:'NOT_PROVEN',
+        entitlement_redemption:'NOT_PROVEN',
         revenue_nzd:0,
+        hold_reason:'Durable per-key quota accounting and settlement-to-key redemption are not end-to-end verified.',
         attribution:{referrer_id:validAttribution(ref)?ref:'organic',campaign_id:validAttribution(campaign)?campaign:'direct'},
         offers:[
-          {id:'TOLL-PROBE-50C',scope:'toll-probe',price_nzd:0.50,calls_included:1,checkout_route:checkoutRoute('/api/toll/v1/checkout/toll-probe'),execution_route:'/api/toll/v1/probe',status:configured?'EXPERIMENTAL_UNVERIFIED':'UNCONFIGURED'},
-          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',price_nzd:19.00,calls_included:100,checkout_route:null,execution_route:null,status:'HELD_UNTIL_PROBE_VERIFIED'}
+          {id:'TOLL-PROBE-50C',scope:'toll-probe',planned_price_nzd:0.50,price_nzd:null,calls_included:1,checkout_route:null,execution_route:null,status:'HELD_NOT_END_TO_END_VERIFIED'},
+          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',planned_price_nzd:19.00,price_nzd:null,calls_included:100,checkout_route:null,execution_route:null,status:'HELD_UNTIL_PROBE_VERIFIED'}
         ]
       };
       return send(res,200,JSON.stringify(manifest),'application/json; charset=utf-8');
+    }
+    if(p==='/api/toll/v1/checkout/toll-probe'){
+      return send(res,503,JSON.stringify({
+        error:'checkout_held_not_end_to_end_verified',
+        reason:'Paid API access remains closed until settlement, durable quota accounting, scoped credential issuance and redemption are independently verified.'
+      }),'application/json; charset=utf-8');
     }
     const allowedTollPaths=[
       '/api/toll/v1/checkout/toll-probe',
