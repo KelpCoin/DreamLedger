@@ -20,7 +20,7 @@ class CompoundingGateRegressionTests(unittest.TestCase):
             and isinstance(node.func.value, ast.Attribute)
             and node.func.value.attr == "environ"
             and isinstance(node.func.value.value, ast.Name)
-            and node.func.value.id == "os"
+            and node.func.value.value.id == "os"
             for node in ast.walk(tree)
         )
         self.assertTrue(uses_environment, "No-op receipt must be tied to the current GitHub run")
