@@ -67,4 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           test -d supabase/migrations
-          grep -Rli 'canonicalize_phin_haven_table_names' supabase/migrations >/dev/null
+          # The canonicalization is implemented as a data-preserving DO/ALTER TABLE
+          # migration, not as a stored procedure with the former function name.
+          grep -Rli 'alter table if exists public.kelplantis_' supabase/migrations >/dev/null
+          grep -Rli 'phinhaven_' supabase/migrations/20260921000000_phinhaven_canonical_table_names.sql >/dev/null
