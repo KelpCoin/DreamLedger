@@ -22,6 +22,13 @@ function validInput(overrides = {}) {
     timestamp_utc: '2026-10-11T10:00:00.000Z',
     external_evidence_ref: 'provider-reconciliation:evt_123',
     verifier_id: 'trusted-stripe-reconciler/v1',
+    settlement_status: 'settled',
+    provider_signature_verified: true,
+    payment_provider: 'stripe',
+    provider_event_id: 'evt_123',
+    attribution_ref: 'order:123',
+    fulfillment_ref: 'ful:123',
+    independent_proof_ref: 'delivery-proof:123',
     verification_results: Object.fromEntries(REQUIRED_GATES.map(gate => [gate, true])),
     ...overrides
   };
@@ -61,6 +68,17 @@ test('missing fulfillment or independent proof blocks PASS', () => {
     const gates = Object.fromEntries(REQUIRED_GATES.map(gate => [gate, true]));
     gates.fulfillment_verified = false;
     const { file, fossil } = writeFossil(validInput({ verification_results: gates }), dir);
+    assert.equal(fossil.status, 'UNVERIFIED');
+    assert.equal(verifyFossil(file).status, 'UNVERIFIED');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('settlement and provider verification are mandatory even if gate flags are supplied', () => {
+  const dir = tempDir();
+  try {
+    const { file, fossil } = writeFossil(validInput({ settlement_status: 'pending', provider_signature_verified: false }), dir);
     assert.equal(fossil.status, 'UNVERIFIED');
     assert.equal(verifyFossil(file).status, 'UNVERIFIED');
   } finally {
