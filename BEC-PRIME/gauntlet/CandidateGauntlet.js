@@ -33,8 +33,17 @@ function run(candidate, proofPath) {
     }
   }
 
-  if (Number(candidate.price) > 0) pass(checks, 'candidate.price_positive', 'Price is greater than zero');
-  else fail(checks, 'candidate.price_positive', 'Price must be greater than zero');
+  if (Number(candidate.price) > 0) {
+    pass(checks, 'candidate.price_positive', 'Paid candidate price is greater than zero');
+  } else if (
+    Number(candidate.price) === 0 &&
+    candidate.commercial_mode === 'FREE_DISCOVERY' &&
+    candidate.checkout_available === false
+  ) {
+    pass(checks, 'candidate.price_positive', 'Explicit free-discovery candidate has no checkout');
+  } else {
+    fail(checks, 'candidate.price_positive', 'Price must be greater than zero unless explicitly FREE_DISCOVERY with checkout unavailable');
+  }
 
   if (candidate.approval_required === true) pass(checks, 'candidate.approval', 'Human approval gate is locked');
   else fail(checks, 'candidate.approval', 'Candidate must require human approval');
