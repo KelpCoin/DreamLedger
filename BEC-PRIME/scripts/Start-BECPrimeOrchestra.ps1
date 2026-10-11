@@ -1,5 +1,5 @@
 # BEC PRIME startup orchestra for Windows 11
-# Starts LM Studio daemon/server, keeps one local LLM loaded, then starts the local revenue cycle.
+# Starts LM Studio, verifies a real local inference, and leaves cloud-dependent work opt-in.
 # Public actions remain approval-gated. No payment execution occurs here.
 
 [CmdletBinding()]
@@ -110,7 +110,6 @@ try {
     $smokeText = [string]$smoke.choices[0].message.content
     if ($smokeText -notmatch "BECK_LOCAL_INFERENCE_OK") { throw "Local inference smoke test did not return the expected token. Model=$apiModel" }
     Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.1";model_key=$selected;api_model_id=$apiModel;server=$apiBase;loaded=$true;inference_smoke="PASS";inference_token="BECK_LOCAL_INFERENCE_OK";verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
-    Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.0";model_key=$selected;server=("http://127.0.0.1:{0}" -f $ServerPort);loaded=$true;verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
     $swarm = Join-Path $RepoRoot "..\runtime\lm_studio\LM-Studio-Swarm.ps1"
     $swarmStatus = "NOT_STARTED"
     if (Test-Path -LiteralPath $swarm) {
