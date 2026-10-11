@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate primary authority and failover gates
-        shell: python
+        shell: python {0}
         run: |
           import json
           from pathlib import Path
