@@ -24,7 +24,7 @@ const mtg = read('public/mtg.html');
 const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.json'));
 
 check('homepage-canonical-doors',
-  ['DreamLedger', 'Agent Delivery Proof Audit', 'Truth Oracle', 'supplier-quote worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())),
+  ['DreamLedger', 'Agent Delivery Proof Audit', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())),
   'Homepage exposes the canonical storefront doors required for this release.');
 check('diagnostic-current-public-catalog',
   Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && /^https:\/\/buy\.stripe\.com\//.test(String(x.checkout_url || '')),
