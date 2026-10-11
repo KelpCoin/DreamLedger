@@ -1,219 +1,321 @@
 [CmdletBinding()]
 param(
-  [string]$RepoPath = 'D:\BrownEyeCortex\CANONICAL\DreamLedger',
-  [int]$InferenceTimeoutSeconds = 90,
-  [switch]$RunMembraneProbe
+    [string]$RepoPath = 'D:\BrownEyeCortex\CANONICAL\DreamLedger',
+    [int]$InferenceTimeoutSeconds = 90
 )
 
-# Single entry point. Read-only diagnostics only; no deployments, task mutations,
-# Stripe writes, public publishing, database writes, or simulated revenue.
+# Unified 20-gate operational acceptance run.
+# Read-only: no deployments, public posts, Stripe writes, database writes,
+# scheduled-task mutations, or synthetic revenue.
 $ErrorActionPreference = 'Stop'
-$stamp = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ')
-$proofRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\proofs\unified-bootstrap' } else { Join-Path $env:USERPROFILE 'BrownEyeCortex\proofs\unified-bootstrap' }
+$startedUtc = [DateTime]::UtcNow
+$stamp = $startedUtc.ToString('yyyyMMddTHHmmssZ')
+$proofRoot = if (Test-Path 'D:\') {
+    'D:\BrownEyeCortex\proofs\unified-bootstrap'
+} else {
+    Join-Path $env:USERPROFILE 'BrownEyeCortex\proofs\unified-bootstrap'
+}
 New-Item -ItemType Directory -Force -Path $proofRoot | Out-Null
 $reportPath = Join-Path $proofRoot "unified-bootstrap-$stamp.json"
 $logPath = Join-Path $proofRoot "unified-bootstrap-$stamp.log"
-$ignitionScript = Join-Path $RepoPath 'scripts\operations\Invoke-DreamLedgerIgnition20.ps1'
-$heartbeatScript = Join-Path $RepoPath 'scripts\operations\Start-BrownEyeFactoryHeartbeat.ps1'
+$results = New-Object System.Collections.Generic.List[object]
+$script:RepoPath = $RepoPath
+$script:InferenceTimeoutSeconds = $InferenceTimeoutSeconds
 
-function Get-LatestIgnition([datetime]$SinceUtc) {
-  $dir = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\proofs\factory-bootstrap' } else { Join-Path $env:USERPROFILE 'BrownEyeCortex\proofs\factory-bootstrap' }
-  $f = Get-ChildItem -LiteralPath $dir -Filter 'ignition-*.json' -File -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTimeUtc -ge $SinceUtc } | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
-  if ($f) { try { return (Get-Content -LiteralPath $f.FullName -Raw | ConvertFrom-Json) } catch {} }
-  return $null
+function Add-Gate {
+    param([int]$Id, [string]$Name, [string]$Status, [object]$Evidence, [string]$NextAction)
+    $item = [pscustomobject]@{
+        gate = $Id
+        name = $Name
+        status = $Status
+        evidence = $Evidence
+        next_action = $NextAction
+    }
+    $script:results.Add($item)
+    Write-Host ('[{0:D2}/20] {1}: {2}' -f $Id, $Name, $Status)
 }
-function Get-Gate([object]$Ignition, [int]$Id) {
-  if (-not $Ignition) { return $null }
-  return $Ignition.gates | Where-Object { [int]$_.gate -eq $Id } | Select-Object -First 1
+
+function Invoke-HttpProbe {
+    param([string]$Url, [int]$TimeoutSeconds = 15)
+    try {
+        $response = Invoke-WebRequest -Uri $Url -Method Get -TimeoutSec $TimeoutSeconds -UseBasicParsing
+        return [pscustomobject]@{
+            ok = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400)
+            status_code = [int]$response.StatusCode
+            final_url = [string]$response.BaseResponse.ResponseUri.AbsoluteUri
+            content_type = [string]$response.Headers['Content-Type']
+            bytes = [int]$response.RawContentLength
+            error = $null
+        }
+    } catch {
+        return [pscustomobject]@{
+            ok = $false
+            status_code = $null
+            final_url = $Url
+            content_type = $null
+            bytes = 0
+            error = $_.Exception.Message
+        }
+    }
 }
-function Map-GateStatus([object]$Gate) {
-  if (-not $Gate) { return 'UNVERIFIED' }
-  if ($Gate.status -in @('PASS','FAIL','BLOCKED','WARN')) { return [string]$Gate.status }
-  return 'OBSERVED_NOT_ACCEPTANCE'
+
+function Invoke-NpmVerifier {
+    param([string]$Name)
+    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+        return [pscustomobject]@{ status = 'BLOCKED'; exit_code = $null; output = 'npm not found' }
+    }
+    Push-Location $script:RepoPath
+    try {
+        $output = @(& npm run $Name 2>&1 | ForEach-Object { [string]$_ })
+        $code = $LASTEXITCODE
+        $tail = @($output | Select-Object -Last 25) -join [Environment]::NewLine
+        $status = if ($code -eq 0) { 'PASS' } else { 'FAIL' }
+        return [pscustomobject]@{ status = $status; exit_code = $code; output = $tail }
+    } catch {
+        return [pscustomobject]@{ status = 'FAIL'; exit_code = 1; output = $_.Exception.Message }
+    } finally {
+        Pop-Location
+    }
 }
-function Add-Outcome([System.Collections.Generic.List[object]]$List, [int]$Id, [string]$Name, [string]$Status, [string]$Evidence, [string]$NextAction) {
-  $List.Add([pscustomobject]@{ outcome=$Id; name=$Name; status=$Status; evidence=$Evidence; next_action=$NextAction })
+
+function Get-ModelIds {
+    param([string]$BaseUrl)
+    try {
+        $response = Invoke-RestMethod -Uri ($BaseUrl.TrimEnd('/') + '/v1/models') -TimeoutSec 5
+        return @($response.data | ForEach-Object { [string]$_.id } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    } catch {
+        return @()
+    }
+}
+
+function Invoke-ModelInference {
+    param([string]$BaseUrl, [string]$Model)
+    $body = @{
+        model = $Model
+        messages = @(@{ role = 'user'; content = 'Reply with exactly FACTORY_HEARTBEAT_OK' })
+        temperature = 0
+        max_tokens = 24
+    } | ConvertTo-Json -Depth 6
+    try {
+        $response = Invoke-RestMethod -Uri ($BaseUrl.TrimEnd('/') + '/v1/chat/completions') -Method Post -ContentType 'application/json' -Body $body -TimeoutSec $script:InferenceTimeoutSeconds
+        $answer = [string]$response.choices[0].message.content
+        $ok = $answer -match 'FACTORY_HEARTBEAT_OK'
+        return [pscustomobject]@{
+            status = $(if ($ok) { 'PASS' } else { 'FAIL' })
+            model = $Model
+            response = $answer
+            error = $null
+        }
+    } catch {
+        return [pscustomobject]@{
+            status = 'FAIL'
+            model = $Model
+            response = $null
+            error = $_.Exception.Message
+        }
+    }
 }
 
 try {
-  Start-Transcript -LiteralPath $logPath -Force | Out-Null
-  Write-Host 'DREAMLEDGER UNIFIED BOOTSTRAP: VERIFY FIRST; NO PRODUCTION MUTATIONS'
-  if (-not (Test-Path (Join-Path $RepoPath '.git'))) { throw "Canonical repository not found at '$RepoPath'. No clone or overwrite attempted." }
-  if (-not (Test-Path $ignitionScript)) { throw "Missing prerequisite: $ignitionScript. Fetch the PR #648 branch before running." }
-  if (-not (Test-Path $heartbeatScript)) { throw "Missing prerequisite: $heartbeatScript. Fetch the PR #648 branch before running." }
+    Start-Transcript -LiteralPath $logPath -Force | Out-Null
+    Write-Host 'DREAMLEDGER UNIFIED BOOTSTRAP: 20 EXECUTABLE OPERATIONAL GATES'
+    Write-Host 'This run is read-only. Operational PASS is not proof of revenue.'
 
-  $ignitionStartedUtc = [DateTime]::UtcNow
-  Write-Host 'PHASE 1/3: Running the 20-gate environment and production GET verifier...'
-  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $ignitionScript -RepoPath $RepoPath -InferenceTimeoutSeconds $InferenceTimeoutSeconds
-  $ignitionExit = $LASTEXITCODE
-  $ignition = Get-LatestIgnition $ignitionStartedUtc
-  if (-not $ignition) { throw 'Ignition verifier did not create a fresh report. Stale reports are never accepted.' }
-  if ($ignitionExit -ne 0) { Write-Warning "Ignition verifier exited $ignitionExit; gate results will retain their individual failures." }
+    # 01: Canonical repository
+    $repoExists = Test-Path (Join-Path $RepoPath '.git')
+    Add-Gate 1 'Canonical repository path' $(if ($repoExists) { 'PASS' } else { 'FAIL' }) @{ path = $RepoPath; exists = $repoExists } 'Use the existing canonical checkout; do not create a parallel clone.'
+    if (-not $repoExists) {
+        throw "Canonical Git repository not found: $RepoPath. No clone or overwrite was attempted."
+    }
 
-  Write-Host 'PHASE 2/3: Running the local factory heartbeat once...'
-  $heartbeatArgs = @('-NoProfile','-ExecutionPolicy','Bypass','-File',$heartbeatScript,'-Once')
-  if ($RunMembraneProbe) { $heartbeatArgs += '-RunMembraneProbe' }
-  & powershell.exe @heartbeatArgs
-  $heartbeatExit = $LASTEXITCODE
-  $heartbeatRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\proofs\factory-heartbeat' } else { Join-Path $env:USERPROFILE 'BrownEyeCortex\proofs\factory-heartbeat' }
-  $heartbeatPath = Join-Path $heartbeatRoot 'heartbeat-latest.json'
-  $heartbeat = $null
-  if (Test-Path $heartbeatPath) {
+    Push-Location $RepoPath
     try {
-      $heartbeatFile = Get-Item -LiteralPath $heartbeatPath
-      if ($heartbeatFile.LastWriteTimeUtc -ge $ignitionStartedUtc) { $heartbeat = Get-Content -LiteralPath $heartbeatPath -Raw | ConvertFrom-Json }
+        $branch = (& git branch --show-current 2>&1 | Out-String).Trim()
+        $gitCode1 = $LASTEXITCODE
+        $commit = (& git rev-parse HEAD 2>&1 | Out-String).Trim()
+        $gitCode2 = $LASTEXITCODE
+        $origin = (& git remote get-url origin 2>&1 | Out-String).Trim()
+        $gitCode3 = $LASTEXITCODE
+        $dirty = @(& git status --porcelain 2>&1 | ForEach-Object { [string]$_ })
+        $gitCode4 = $LASTEXITCODE
+    } finally {
+        Pop-Location
+    }
+
+    # 02: Git identity and reproducibility
+    $gitOk = ($gitCode1 -eq 0 -and $gitCode2 -eq 0 -and $gitCode3 -eq 0 -and $gitCode4 -eq 0 -and $commit -match '^[0-9a-f]{40}$' -and $origin -match 'KelpCoin/DreamLedger')
+    Add-Gate 2 'Git identity and source provenance' $(if ($gitOk) { 'PASS' } else { 'FAIL' }) @{ branch = $branch; commit = $commit; origin = $origin; dirty_count = $dirty.Count; working_tree = $dirty } 'Resolve source/remote errors; review local changes before any future update.'
+
+    # 03: Node/npm
+    $nodeVersion = if (Get-Command node -ErrorAction SilentlyContinue) { (& node --version 2>&1 | Out-String).Trim() } else { $null }
+    $npmVersion = if (Get-Command npm -ErrorAction SilentlyContinue) { (& npm --version 2>&1 | Out-String).Trim() } else { $null }
+    $runtimeOk = (-not [string]::IsNullOrWhiteSpace($nodeVersion) -and -not [string]::IsNullOrWhiteSpace($npmVersion))
+    Add-Gate 3 'Node and npm runtime' $(if ($runtimeOk) { 'PASS' } else { 'FAIL' }) @{ node = $nodeVersion; npm = $npmVersion } 'Install or repair Node.js/npm only if this gate fails.'
+
+    # 04: Project manifest and dependencies
+    $packageJson = Test-Path (Join-Path $RepoPath 'package.json')
+    $nodeModules = Test-Path (Join-Path $RepoPath 'node_modules')
+    Add-Gate 4 'Package manifest and dependency directory' $(if ($packageJson -and $nodeModules) { 'PASS' } elseif ($packageJson) { 'BLOCKED' } else { 'FAIL' }) @{ package_json = $packageJson; node_modules = $nodeModules } 'If dependencies are missing, inspect the lockfile and run the repository-approved install command deliberately.'
+
+    # 05: GPU telemetry
+    $nvidia = Get-Command nvidia-smi -ErrorAction SilentlyContinue
+    $gpuText = 'nvidia-smi not found'
+    $gpuOk = $false
+    if ($nvidia) {
+        $gpuOutput = @(& $nvidia.Source --query-gpu=name,utilization.gpu,memory.used,memory.total,temperature.gpu --format=csv,noheader 2>&1 | ForEach-Object { [string]$_ })
+        $gpuCode = $LASTEXITCODE
+        $gpuText = $gpuOutput -join [Environment]::NewLine
+        $gpuOk = ($gpuCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($gpuText))
+    }
+    Add-Gate 5 'Physical GPU telemetry' $(if ($gpuOk) { 'PASS' } else { 'FAIL' }) @{ available = $gpuOk; telemetry = $gpuText } 'If this fails, repair the NVIDIA driver/CLI before treating GPU work as available.'
+
+    # 06: LM Studio API reachability
+    $api = if ($env:LMSTUDIO_BASE_URL) { $env:LMSTUDIO_BASE_URL.TrimEnd('/') } else { 'http://127.0.0.1:1234' }
+    $modelIds = @(Get-ModelIds $api)
+    $apiOk = ($modelIds.Count -gt 0)
+    Add-Gate 6 'LM Studio OpenAI-compatible API' $(if ($apiOk) { 'PASS' } else { 'FAIL' }) @{ base_url = $api; exposed_model_count = $modelIds.Count; models = $modelIds } 'Start the actual LM Studio server and verify its configured port; the script does not guess another port.'
+
+    # 07: Minimum three API-exposed models
+    Add-Gate 7 'Three exposed specialist models' $(if ($modelIds.Count -ge 3) { 'PASS' } elseif ($modelIds.Count -eq 0) { 'BLOCKED' } else { 'FAIL' }) @{ required = 3; actual = $modelIds.Count; models = $modelIds } 'Expose the intended specialist models in LM Studio. A model on disk is not the same as a resident/API-exposed model.'
+
+    # 08-10: Real inference against three distinct API-listed models
+    $modelResults = @()
+    for ($i = 0; $i -lt 3; $i++) {
+        $gateId = 8 + $i
+        if ($i -lt $modelIds.Count) {
+            $test = Invoke-ModelInference $api $modelIds[$i]
+            $modelResults += $test
+            Add-Gate $gateId ("Live model inference " + ($i + 1)) $test.status @{ model = $test.model; response = $test.response; error = $test.error } 'Check the model identifier, model residency, server logs, and available memory; rerun this same gate after repair.'
+        } else {
+            Add-Gate $gateId ("Live model inference " + ($i + 1)) 'BLOCKED' @{ required_distinct_model = $i + 1; exposed_model_count = $modelIds.Count } 'Expose another distinct model before this inference gate can run.'
+        }
+    }
+
+    # 11: Process inventory
+    $processes = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+        $_.Name -match 'LM Studio|lms|node|python|powershell' -and
+        $_.CommandLine -match 'BrownEye|DreamLedger|LM Studio|lmstudio|777|Cortex|heartbeat|factory'
+    } | Select-Object ProcessId, Name, ExecutablePath, CommandLine)
+    Add-Gate 11 'Worker and supervisor process inventory' 'PASS' @{ matching_processes = $processes; count = $processes.Count; inventory_only = $true } 'Review the inventory and reuse one existing supervisor; this script does not start or kill processes.'
+
+    # 12: Scheduled task inventory
+    $tasks = @()
+    try {
+        $tasks = @(Get-ScheduledTask -ErrorAction Stop | Where-Object {
+            $_.TaskName -match 'BrownEye|DreamLedger|Cortex|777|Factory|Heartbeat|Autopilot'
+        } | ForEach-Object {
+            [pscustomobject]@{ task = $_.TaskName; path = $_.TaskPath; state = [string]$_.State }
+        })
+        $taskInventoryStatus = 'PASS'
+    } catch {
+        $taskInventoryStatus = 'BLOCKED'
+    }
+    Add-Gate 12 'Scheduled supervisor inventory' $taskInventoryStatus @{ matching_tasks = $tasks; count = $tasks.Count; mutation = 'none' } 'If task inventory is blocked by permissions, rerun from an authorized shell; no task is created or changed.'
+
+    # 13-15: Real public GET probes
+    $home = Invoke-HttpProbe 'https://dreamledger.org/'
+    Add-Gate 13 'Public storefront homepage GET' $(if ($home.ok -and $home.status_code -eq 200) { 'PASS' } else { 'FAIL' }) $home 'Inspect the deployed storefront and host response; this test sends no form or purchase.'
+    $door = Invoke-HttpProbe 'https://dreamledger.org/go'
+    Add-Gate 14 'Canonical distribution doorway GET' $(if ($door.ok) { 'PASS' } else { 'FAIL' }) $door 'Repair the route/redirect and verify the final destination without creating an order.'
+    $manifest = Invoke-HttpProbe 'https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest'
+    Add-Gate 15 'Toll manifest GET' $(if ($manifest.ok -and $manifest.status_code -eq 200) { 'PASS' } else { 'FAIL' }) $manifest 'Repair the public manifest endpoint; a healthy GET does not prove a toll payment.'
+
+    # 16: Compiled artifact
+    $compiledIndex = Join-Path $RepoPath 'BEC-PRIME\compiled\website\index.html'
+    $compiledOk = Test-Path $compiledIndex
+    $compiledEvidence = if ($compiledOk) {
+        $file = Get-Item -LiteralPath $compiledIndex
+        @{ path = $compiledIndex; bytes = $file.Length; last_write_utc = $file.LastWriteTimeUtc.ToString('o') }
+    } else {
+        @{ path = $compiledIndex; exists = $false }
+    }
+    Add-Gate 16 'Compiled storefront artifact' $(if ($compiledOk) { 'PASS' } else { 'FAIL' }) $compiledEvidence 'Build through the repository-approved compiler; do not copy a stale artifact into place to satisfy this gate.'
+
+    # 17-20: Existing repository verifiers, executed rather than inferred
+    $v17 = Invoke-NpmVerifier 'verify:silos'
+    Add-Gate 17 'Silo boundary verifier' $v17.status $v17 'Fix the reported silo boundary failures, then rerun the verifier.'
+    $v18 = Invoke-NpmVerifier 'verify:evidence-manifest'
+    Add-Gate 18 'Evidence manifest verifier' $v18.status $v18 'Repair missing/invalid evidence manifest entries, then rerun the verifier.'
+    $v19 = Invoke-NpmVerifier 'verify:b2b-marketplace'
+    Add-Gate 19 'B2B marketplace contract verifier' $v19.status $v19 'Fix the B2B contract verifier failures, then rerun the verifier.'
+    $v20 = Invoke-NpmVerifier 'verify:a2a-marketplace'
+    Add-Gate 20 'A2A marketplace contract verifier' $v20.status $v20 'Fix the A2A contract verifier failures, then rerun the verifier.'
+
+    # Commercial truth is recorded separately from the 20 operational gates.
+    # File presence or API reachability never proves a buyer or settled payment.
+    $stripeStatus = 'BLOCKED_NO_STRIPE_SECRET_KEY'
+    $stripeEvidence = 'No Stripe API request made because STRIPE_SECRET_KEY is not present in this process.'
+    if (-not [string]::IsNullOrWhiteSpace($env:STRIPE_SECRET_KEY)) {
+        try {
+            $stripeResponse = Invoke-RestMethod -Uri 'https://api.stripe.com/v1/prices?limit=3&active=true' -Headers @{ Authorization = "Bearer $env:STRIPE_SECRET_KEY" } -TimeoutSec 15
+            $stripeStatus = 'API_REACHABLE_NOT_REVENUE'
+            $stripeEvidence = @{ active_prices_returned = @($stripeResponse.data).Count; read_only = $true; settlement_proven = $false }
+        } catch {
+            $stripeStatus = 'FAIL'
+            $stripeEvidence = $_.Exception.Message
+        }
+    }
+
+    $counts = @{
+        pass = @($results | Where-Object { $_.status -eq 'PASS' }).Count
+        fail = @($results | Where-Object { $_.status -eq 'FAIL' }).Count
+        blocked = @($results | Where-Object { $_.status -eq 'BLOCKED' }).Count
+    }
+    $summary = [ordered]@{
+        schema = 'DREAMLEDGER/UNIFIED-BOOTSTRAP-20/v2'
+        started_at_utc = $startedUtc.ToString('o')
+        completed_at_utc = [DateTime]::UtcNow.ToString('o')
+        repository = $RepoPath
+        git_branch = $branch
+        git_commit = $commit
+        origin = $origin
+        gates = $results.ToArray()
+        counts = $counts
+        commercial_truth = @{
+            stripe_api_status = $stripeStatus
+            stripe_api_evidence = $stripeEvidence
+            verified_external_revenue_nzd = 0
+            settled_external_payments = 0
+            independent_buyers = 0
+            paid_fulfilled_orders = 0
+            verified_outcomes = 0
+            status = 'NOT_PROVEN_BY_OPERATIONAL_BOOTSTRAP'
+        }
+        safety = @{
+            deployments = 0
+            public_posts = 0
+            stripe_writes = 0
+            database_writes = 0
+            scheduled_task_mutations = 0
+            purchases_or_charges_created = 0
+        }
+        interpretation = 'All 20 operational gates are executed. PASS applies only to that specific technical check. A green operational report does not create or prove buyer demand, settled revenue, fulfillment, or delivery.'
+    }
+
+    $summary | ConvertTo-Json -Depth 14 | Set-Content -LiteralPath $reportPath -Encoding UTF8
+    Write-Host ''
+    Write-Host "REPORT: $reportPath"
+    Write-Host "LOG: $logPath"
+    Write-Host ("SUMMARY pass={0}; fail={1}; blocked={2}" -f $counts.pass, $counts.fail, $counts.blocked)
+    Write-Host 'Commercial truth remains unchanged unless separately reconciled from authoritative evidence.'
+} catch {
+    $fatal = $_.Exception.Message
+    Write-Error ("UNIFIED BOOTSTRAP FAILED CLOSED: " + $fatal)
+    try {
+        $failure = [ordered]@{
+            schema = 'DREAMLEDGER/UNIFIED-BOOTSTRAP-20/v2'
+            started_at_utc = $startedUtc.ToString('o')
+            failed_at_utc = [DateTime]::UtcNow.ToString('o')
+            repository = $RepoPath
+            fatal_error = $fatal
+            completed_gate_count = $results.Count
+            gates = $results.ToArray()
+            commercial_truth = @{ verified_external_revenue_nzd = 0; settled_external_payments = 0; independent_buyers = 0; paid_fulfilled_orders = 0; verified_outcomes = 0; status = 'NOT_PROVEN_BY_OPERATIONAL_BOOTSTRAP' }
+        }
+        $failure | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $reportPath -Encoding UTF8
+        Write-Host "PARTIAL REPORT: $reportPath"
     } catch {}
-  }
-  if (-not $heartbeat) { Write-Warning 'Heartbeat did not produce fresh evidence; previous heartbeat data will not be reused.' }
-
-  Write-Host 'PHASE 3/3: Reconciling the 20 intended operational outcomes...'
-  $o = [System.Collections.Generic.List[object]]::new()
-  $g1=Get-Gate $ignition 1; $g2=Get-Gate $ignition 2; $g3=Get-Gate $ignition 3
-  $g4=Get-Gate $ignition 4; $g5=Get-Gate $ignition 5; $g6=Get-Gate $ignition 6
-  $g7=Get-Gate $ignition 7; $g8=Get-Gate $ignition 8; $g9=Get-Gate $ignition 9
-  $g10=Get-Gate $ignition 10; $g11=Get-Gate $ignition 11; $g12=Get-Gate $ignition 12
-  $g13=Get-Gate $ignition 13; $g14=Get-Gate $ignition 14; $g15=Get-Gate $ignition 15
-  $g16=Get-Gate $ignition 16; $g17=Get-Gate $ignition 17; $g18=Get-Gate $ignition 18
-  $g19=Get-Gate $ignition 19; $g20=Get-Gate $ignition 20
-
-  Add-Outcome $o 1 'One authoritative supervisor / canonical checkout' (Map-GateStatus $g1) ("repo={0}; branch={1}" -f $RepoPath,$ignition.git_branch) 'Confirm the canonical checkout and retain this single entrypoint; do not create another scheduler.'
-  Add-Outcome $o 2 'Physical GPU telemetry' $(if($heartbeat -and $heartbeat.gpu_after.available){'PASS'}else{Map-GateStatus $g6}) $(if($heartbeat){[string]$heartbeat.gpu_after.detail}else{'No heartbeat JSON'}) 'Install or repair NVIDIA driver/CLI only if telemetry is genuinely unavailable.'
-  $modelCount = if($heartbeat){[int]$heartbeat.loaded_model_count}else{0}
-  $allInference = $false
-  if($heartbeat -and $heartbeat.model_inference_tests){$allInference = (@($heartbeat.model_inference_tests).Count -gt 0 -and @($heartbeat.model_inference_tests | Where-Object { -not $_.ok }).Count -eq 0)}
-  Add-Outcome $o 3 'Three-model specialist inference' $(if($modelCount -ge 3 -and $allInference){'PASS'}elseif($modelCount -eq 0){'BLOCKED'}else{'FAIL'}) ("API-exposed models={0}; heartbeat inference pass={1}" -f $modelCount,$allInference) 'Load/configure the intended models through LM Studio, then rerun this same bootstrap.'
-  $g11=Get-Gate $ignition 11; $g12=Get-Gate $ignition 12
-  Add-Outcome $o 4 'Useful-work scheduler inventory' $(if($g11 -and $g12 -and $g11.evidence -and $g12.evidence){'PASS'}else{'UNVERIFIED'}) ("process_inventory={0}; task_inventory={1}; ignition_report_fresh=true" -f [bool]$g11,[bool]$g12) 'Inspect the captured inventory and select one existing supervisor; this diagnostic deliberately does not create or mutate scheduled tasks.'
-  $recentRecoveryLogs = @()
-  $recoveryRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\proofs' } else { Join-Path $env:USERPROFILE 'BrownEyeCortex\proofs' }
-  if (Test-Path $recoveryRoot) { $recentRecoveryLogs = @(Get-ChildItem -LiteralPath $recoveryRoot -Recurse -File -Include '*restart*','*recovery*','*crash*' -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTimeUtc -ge $ignitionStartedUtc } | Select-Object -ExpandProperty FullName -First 10) }
-  Add-Outcome $o 5 'Restart recovery' $(if($recentRecoveryLogs.Count -gt 0){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("fresh_recovery_artifacts={0}; this run did not restart or crash a service" -f $recentRecoveryLogs.Count) 'A controlled restart/crash test is required; this read-only run will not disrupt the running machine.'
-  $memStatus = if($heartbeat){[string]$heartbeat.membrane.status}else{'NO_HEARTBEAT'}
-  $memEvidence = if($heartbeat -and $heartbeat.membrane){$heartbeat.membrane | ConvertTo-Json -Depth 6 -Compress}else{'No membrane evidence'}
-  Add-Outcome $o 6 'Figure Eight membrane endpoint and receipt' $(if($memStatus -eq 'PASS'){'PASS'}elseif($memStatus -in @('NOT_CONFIGURED','NOT_RUN','NO_HEARTBEAT')){'BLOCKED'}else{$memStatus}) $memEvidence 'Set BEC_MEMBRANE_URL to the actual endpoint and BEC_MEMBRANE_TOKEN if required; rerun with -RunMembraneProbe.'
-  $membraneAuthConfigured = -not [string]::IsNullOrWhiteSpace($env:BEC_MEMBRANE_TOKEN)
-  $membraneRoundTrip = ($memStatus -eq 'PASS' -and $membraneAuthConfigured -and $heartbeat.membrane.task_match -eq $true -and $heartbeat.membrane.nonce_match -eq $true -and $heartbeat.membrane.receipt_present -eq $true -and $heartbeat.membrane.processed -eq $true)
-  Add-Outcome $o 7 'Authenticated local-to-online receipt round trip' $(if($membraneRoundTrip){'OBSERVED_NOT_ACCEPTANCE'}elseif($memStatus -eq 'NOT_CONFIGURED' -or -not $membraneAuthConfigured){'BLOCKED'}else{'FAIL'}) ("membrane_status={0}; bearer_token_configured={1}; task_nonce_receipt_processed_match={2}; durable storage and identity are not inferred" -f $memStatus,$membraneAuthConfigured,$membraneRoundTrip) 'Verify the endpoint authenticates a real identity and durably stores the receipt; token presence alone is not identity proof.'
-  $returnReceipt = if($heartbeat -and $heartbeat.membrane -and $heartbeat.membrane.response){[string]$heartbeat.membrane.response.return_receipt_id}else{''}
-  Add-Outcome $o 8 'Online-to-local return path' $(if(-not [string]::IsNullOrWhiteSpace($returnReceipt)){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("explicit_return_receipt_present={0}; no local task was dispatched by this read-only probe" -f (-not [string]::IsNullOrWhiteSpace($returnReceipt))) 'Requires a real signed remote task delivered to the local worker and a correlated local return receipt.'
-  $replayEvidence = if($heartbeat -and $heartbeat.membrane -and $heartbeat.membrane.response){[string]$heartbeat.membrane.response.replay_protection}else{''}
-  Add-Outcome $o 9 'Replay quarantine' $(if($replayEvidence -match '^(enforced|rejected|quarantined)
-  $candidateFiles = @('BEC-PRIME/gauntlet/CandidateGauntlet.js','BEC-PRIME/compiler/FactoryFactoryApprovalPackets.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $candidatePresent = @($candidateFiles | Where-Object { Test-Path $_ }).Count -eq $candidateFiles.Count
-  Add-Outcome $o 11 'Elohim candidate audit readiness' $(if($candidatePresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("required_policy_files_present={0}; candidate execution/publication was not triggered" -f $candidatePresent) 'A real candidate still needs Gauntlet policy evaluation and durable evidence; this bootstrap will not auto-approve or publish it.'
-  $offerFiles = @('BEC-PRIME/compiler/OfferCompiler.js','BEC-PRIME/scripts/verify-commercial-cell.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $offerPresent = @($offerFiles | Where-Object { Test-Path $_ }).Count -eq $offerFiles.Count
-  Add-Outcome $o 12 'Offer scope gate readiness' $(if($offerPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("offer_contract_files_present={0}; no offer was newly approved" -f $offerPresent) 'An offer must still specify deliverable, exclusions, acceptance test, fulfillment owner, and refund boundary.'
-  $stripeConfigured = -not [string]::IsNullOrWhiteSpace($env:STRIPE_SECRET_KEY)
-  $stripePriceCheck = 'NOT_RUN_NO_STRIPE_SECRET_KEY'
-  $stripePriceEvidence = 'No Stripe API request was made; no key was found in process environment.'
-  if($stripeConfigured){ try { $p=Invoke-RestMethod -Uri 'https://api.stripe.com/v1/prices?limit=3&active=true' -Headers @{Authorization="Bearer $env:STRIPE_SECRET_KEY"} -TimeoutSec 15; $stripePriceCheck='PASS_READ_ONLY_API_REACHABLE'; $stripePriceEvidence=("active_prices_returned={0}; read_only=true" -f @($p.data).Count) } catch { $stripePriceCheck='FAIL'; $stripePriceEvidence=$_.Exception.Message } }
-  Add-Outcome $o 13 'Live Stripe price registry reachability' $(if($stripePriceCheck -eq 'PASS_READ_ONLY_API_REACHABLE'){'OBSERVED_NOT_ACCEPTANCE'}elseif($stripePriceCheck -eq 'FAIL'){'FAIL'}else{'BLOCKED'}) $stripePriceEvidence 'A reachable price list does not prove the approved offer-to-price mapping; verify the exact active live-mode Price ID before publishing checkout.'
-  $checkoutSource = @('BEC-PRIME/lib/commercePaymentContractPreload.js','BEC-PRIME/scripts/verify-commercial-cell.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $checkoutPresent = @($checkoutSource | Where-Object { Test-Path $_ }).Count -eq $checkoutSource.Count
-  Add-Outcome $o 14 'Checkout attribution contract readiness' $(if($checkoutPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("checkout_contract_files_present={0}; no checkout or order was created" -f $checkoutPresent) 'A real order still needs immutable offer, price, checkout/session, and order linkage.'
-  $paymentEvidenceRoot = Join-Path $proofRoot 'economic'
-  $paymentEvidence = if(Test-Path $paymentEvidenceRoot){@(Get-ChildItem -LiteralPath $paymentEvidenceRoot -File -Filter '*.json' -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTimeUtc -ge [datetime]::UtcNow.AddDays(-30)} | Select-Object -ExpandProperty FullName -First 10)}else{@()}
-  Add-Outcome $o 15 'Settled external payment evidence' $(if($paymentEvidence.Count -gt 0){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("recent_economic_evidence_files={0}; file presence alone is not settlement proof" -f $paymentEvidence.Count) 'A real live-mode Stripe settlement must be reconciled to an independent buyer and order; this diagnostic does not charge anyone.'
-  $entitlementFiles = @('BEC-PRIME/lib/commercePaymentContractPreload.js','BEC-PRIME/scripts/verify-commercial-cell.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $entitlementPresent = @($entitlementFiles | Where-Object { Test-Path $_ }).Count -eq $entitlementFiles.Count
-  Add-Outcome $o 16 'Settlement-gated entitlement readiness' $(if($entitlementPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("payment_contract_files_present={0}; entitlement not issued" -f $entitlementPresent) 'Exercise entitlement issuance only against a verified settled order, including idempotency and revocation.'
-  $fulfillmentFiles = @('BEC-PRIME/scripts/verify-commercial-cell.js','BEC-PRIME/runtime/ExecutionGate.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $fulfillmentPresent = @($fulfillmentFiles | Where-Object { Test-Path $_ }).Count -eq $fulfillmentFiles.Count
-  Add-Outcome $o 17 'Fulfillment contract readiness' $(if($fulfillmentPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("fulfillment_contract_files_present={0}; no paid order fulfilled" -f $fulfillmentPresent) 'Run the exact fulfillment contract on a verified paid order; test payments are not revenue.'
-  $deliveryRoot = Join-Path $proofRoot 'delivery'
-  $deliveryEvidence = if(Test-Path $deliveryRoot){@(Get-ChildItem -LiteralPath $deliveryRoot -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -First 10)}else{@()}
-  Add-Outcome $o 18 'Delivered artifact evidence' $(if($deliveryEvidence.Count -gt 0){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("delivery_evidence_files={0}; content and recipient linkage still require reconciliation" -f $deliveryEvidence.Count) 'Record artifact hash, recipient/order linkage, delivery timestamp, and acceptance evidence.'
-  $truthFiles = @($paymentEvidence) + @($deliveryEvidence)
-  Add-Outcome $o 19 'Full economic truth-chain evidence availability' $(if($paymentEvidence.Count -gt 0 -and $deliveryEvidence.Count -gt 0){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("payment_evidence_files={0}; delivery_evidence_files={1}; file existence alone never verifies the chain" -f $paymentEvidence.Count,$deliveryEvidence.Count) 'Only reconcile as VERIFIED when buyer, authorization, settlement, fulfillment, delivery, and evidence are independently linked.'
-  Add-Outcome $o 20 'Replicate only a proven mechanism' 'BLOCKED' 'No verified paid-and-fulfilled outcome is evidenced by this bootstrap.' 'Keep replication disabled until at least one real buyer, settled payment, fulfilled order, and delivery evidence reconcile.'
-
-  $summary = [ordered]@{
-    schema='DREAMLEDGER/UNIFIED-BOOTSTRAP/1'
-    generated_at_utc=[DateTime]::UtcNow.ToString('o')
-    repository=$RepoPath
-    git_branch=if($ignition){$ignition.git_branch}else{$null}
-    git_commit=if($ignition){$ignition.git_commit}else{$null}
-    child_process_exit_codes=@{ignition=$ignitionExit;heartbeat=$heartbeatExit}
-    source_reports=@{ignition=(if($ignition){'factory-bootstrap/ignition-*.json'}else{$null});heartbeat=$heartbeatPath}
-    outcomes=$o.ToArray()
-    counts=@{pass=@($o|Where-Object{$_.status -eq 'PASS'}).Count;fail=@($o|Where-Object{$_.status -eq 'FAIL'}).Count;blocked=@($o|Where-Object{$_.status -eq 'BLOCKED'}).Count;unverified=@($o|Where-Object{$_.status -eq 'UNVERIFIED'}).Count;observed_not_acceptance=@($o|Where-Object{$_.status -eq 'OBSERVED_NOT_ACCEPTANCE'}).Count}
-    economic_truth=@{verified_external_revenue_nzd=0;settled_external_payments=0;independent_buyers=0;paid_fulfilled_orders=0;verified_outcomes=0;status='UNCHANGED_NOT_PROVEN_BY_DIAGNOSTIC'}
-    safety=@{production_mutations=0;stripe_writes=0;database_writes=0;deployments=0;public_posts=0;scheduled_task_mutations=0}
-    interpretation='PASS means only the named acceptance evidence passed. UNVERIFIED is not a pass. This bootstrap cannot create buyer demand or claim revenue.'
-  }
-  $summary | ConvertTo-Json -Depth 14 | Set-Content -LiteralPath $reportPath -Encoding UTF8
-  Write-Host ''
-  Write-Host "UNIFIED REPORT: $reportPath"
-  Write-Host "HEARTBEAT: $heartbeatPath"
-  Write-Host ("OUTCOMES pass={0}; fail={1}; blocked={2}; unverified={3}; observed-only={4}" -f $summary.counts.pass,$summary.counts.fail,$summary.counts.blocked,$summary.counts.unverified,$summary.counts.observed_not_acceptance)
-  Write-Host 'No production mutations performed. Inspect the JSON; do not treat diagnostic passes as revenue.'
-}
-catch {
-  Write-Error ("UNIFIED BOOTSTRAP FAILED CLOSED: " + $_.Exception.Message)
-  exit 1
-}
-finally {
-  try { Stop-Transcript | Out-Null } catch {}
-}
-){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("endpoint_declared_replay_protection={0}; no duplicate was sent to production" -f $(if($replayEvidence){$replayEvidence}else{'not reported'})) 'Prove duplicate nonce/task rejection against a designated test endpoint; production replay probes are deliberately not sent.'
-  $reconcilePass = ($membraneRoundTrip -and -not [string]::IsNullOrWhiteSpace([string]$heartbeat.membrane.receipt_id) -and -not [string]::IsNullOrWhiteSpace([string]$heartbeat.membrane.task_id))
-  Add-Outcome $o 10 'Round-trip receipt reconciliation' $(if($reconcilePass){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("task_id_present={0}; receipt_id_present={1}; matching remote and local durable records not queried" -f (-not [string]::IsNullOrWhiteSpace([string]$heartbeat.membrane.task_id)),(-not [string]::IsNullOrWhiteSpace([string]$heartbeat.membrane.receipt_id))) 'Reconcile task ID, nonce, receipt ID, timestamps, authenticated actor, and terminal status from both durable sides.'
-  $candidateFiles = @('BEC-PRIME/gauntlet/CandidateGauntlet.js','BEC-PRIME/compiler/FactoryFactoryApprovalPackets.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $candidatePresent = @($candidateFiles | Where-Object { Test-Path $_ }).Count -eq $candidateFiles.Count
-  Add-Outcome $o 11 'Elohim candidate audit readiness' $(if($candidatePresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("required_policy_files_present={0}; candidate execution/publication was not triggered" -f $candidatePresent) 'A real candidate still needs Gauntlet policy evaluation and durable evidence; this bootstrap will not auto-approve or publish it.'
-  $offerFiles = @('BEC-PRIME/compiler/OfferCompiler.js','BEC-PRIME/scripts/verify-commercial-cell.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $offerPresent = @($offerFiles | Where-Object { Test-Path $_ }).Count -eq $offerFiles.Count
-  Add-Outcome $o 12 'Offer scope gate readiness' $(if($offerPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("offer_contract_files_present={0}; no offer was newly approved" -f $offerPresent) 'An offer must still specify deliverable, exclusions, acceptance test, fulfillment owner, and refund boundary.'
-  $stripeConfigured = -not [string]::IsNullOrWhiteSpace($env:STRIPE_SECRET_KEY)
-  $stripePriceCheck = 'NOT_RUN_NO_STRIPE_SECRET_KEY'
-  $stripePriceEvidence = 'No Stripe API request was made; no key was found in process environment.'
-  if($stripeConfigured){ try { $p=Invoke-RestMethod -Uri 'https://api.stripe.com/v1/prices?limit=3&active=true' -Headers @{Authorization="Bearer $env:STRIPE_SECRET_KEY"} -TimeoutSec 15; $stripePriceCheck='PASS_READ_ONLY_API_REACHABLE'; $stripePriceEvidence=("active_prices_returned={0}; read_only=true" -f @($p.data).Count) } catch { $stripePriceCheck='FAIL'; $stripePriceEvidence=$_.Exception.Message } }
-  Add-Outcome $o 13 'Live Stripe price registry reachability' $(if($stripePriceCheck -eq 'PASS_READ_ONLY_API_REACHABLE'){'OBSERVED_NOT_ACCEPTANCE'}elseif($stripePriceCheck -eq 'FAIL'){'FAIL'}else{'BLOCKED'}) $stripePriceEvidence 'A reachable price list does not prove the approved offer-to-price mapping; verify the exact active live-mode Price ID before publishing checkout.'
-  $checkoutSource = @('BEC-PRIME/lib/commercePaymentContractPreload.js','BEC-PRIME/scripts/verify-commercial-cell.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $checkoutPresent = @($checkoutSource | Where-Object { Test-Path $_ }).Count -eq $checkoutSource.Count
-  Add-Outcome $o 14 'Checkout attribution contract readiness' $(if($checkoutPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("checkout_contract_files_present={0}; no checkout or order was created" -f $checkoutPresent) 'A real order still needs immutable offer, price, checkout/session, and order linkage.'
-  $paymentEvidenceRoot = Join-Path $proofRoot 'economic'
-  $paymentEvidence = if(Test-Path $paymentEvidenceRoot){@(Get-ChildItem -LiteralPath $paymentEvidenceRoot -File -Filter '*.json' -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTimeUtc -ge [datetime]::UtcNow.AddDays(-30)} | Select-Object -ExpandProperty FullName -First 10)}else{@()}
-  Add-Outcome $o 15 'Settled external payment evidence' $(if($paymentEvidence.Count -gt 0){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("recent_economic_evidence_files={0}; file presence alone is not settlement proof" -f $paymentEvidence.Count) 'A real live-mode Stripe settlement must be reconciled to an independent buyer and order; this diagnostic does not charge anyone.'
-  $entitlementFiles = @('BEC-PRIME/lib/commercePaymentContractPreload.js','BEC-PRIME/scripts/verify-commercial-cell.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $entitlementPresent = @($entitlementFiles | Where-Object { Test-Path $_ }).Count -eq $entitlementFiles.Count
-  Add-Outcome $o 16 'Settlement-gated entitlement readiness' $(if($entitlementPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("payment_contract_files_present={0}; entitlement not issued" -f $entitlementPresent) 'Exercise entitlement issuance only against a verified settled order, including idempotency and revocation.'
-  $fulfillmentFiles = @('BEC-PRIME/scripts/verify-commercial-cell.js','BEC-PRIME/runtime/ExecutionGate.js') | ForEach-Object { Join-Path $RepoPath $_ }
-  $fulfillmentPresent = @($fulfillmentFiles | Where-Object { Test-Path $_ }).Count -eq $fulfillmentFiles.Count
-  Add-Outcome $o 17 'Fulfillment contract readiness' $(if($fulfillmentPresent){'OBSERVED_NOT_ACCEPTANCE'}else{'FAIL'}) ("fulfillment_contract_files_present={0}; no paid order fulfilled" -f $fulfillmentPresent) 'Run the exact fulfillment contract on a verified paid order; test payments are not revenue.'
-  $deliveryRoot = Join-Path $proofRoot 'delivery'
-  $deliveryEvidence = if(Test-Path $deliveryRoot){@(Get-ChildItem -LiteralPath $deliveryRoot -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -First 10)}else{@()}
-  Add-Outcome $o 18 'Delivered artifact evidence' $(if($deliveryEvidence.Count -gt 0){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("delivery_evidence_files={0}; content and recipient linkage still require reconciliation" -f $deliveryEvidence.Count) 'Record artifact hash, recipient/order linkage, delivery timestamp, and acceptance evidence.'
-  $truthFiles = @($paymentEvidence) + @($deliveryEvidence)
-  Add-Outcome $o 19 'Full economic truth-chain evidence availability' $(if($paymentEvidence.Count -gt 0 -and $deliveryEvidence.Count -gt 0){'OBSERVED_NOT_ACCEPTANCE'}else{'BLOCKED'}) ("payment_evidence_files={0}; delivery_evidence_files={1}; file existence alone never verifies the chain" -f $paymentEvidence.Count,$deliveryEvidence.Count) 'Only reconcile as VERIFIED when buyer, authorization, settlement, fulfillment, delivery, and evidence are independently linked.'
-  Add-Outcome $o 20 'Replicate only a proven mechanism' 'BLOCKED' 'No verified paid-and-fulfilled outcome is evidenced by this bootstrap.' 'Keep replication disabled until at least one real buyer, settled payment, fulfilled order, and delivery evidence reconcile.'
-
-  $summary = [ordered]@{
-    schema='DREAMLEDGER/UNIFIED-BOOTSTRAP/1'
-    generated_at_utc=[DateTime]::UtcNow.ToString('o')
-    repository=$RepoPath
-    git_branch=if($ignition){$ignition.git_branch}else{$null}
-    git_commit=if($ignition){$ignition.git_commit}else{$null}
-    child_process_exit_codes=@{ignition=$ignitionExit;heartbeat=$heartbeatExit}
-    source_reports=@{ignition=(if($ignition){'factory-bootstrap/ignition-*.json'}else{$null});heartbeat=$heartbeatPath}
-    outcomes=$o.ToArray()
-    counts=@{pass=@($o|Where-Object{$_.status -eq 'PASS'}).Count;fail=@($o|Where-Object{$_.status -eq 'FAIL'}).Count;blocked=@($o|Where-Object{$_.status -eq 'BLOCKED'}).Count;unverified=@($o|Where-Object{$_.status -eq 'UNVERIFIED'}).Count;observed_not_acceptance=@($o|Where-Object{$_.status -eq 'OBSERVED_NOT_ACCEPTANCE'}).Count}
-    economic_truth=@{verified_external_revenue_nzd=0;settled_external_payments=0;independent_buyers=0;paid_fulfilled_orders=0;verified_outcomes=0;status='UNCHANGED_NOT_PROVEN_BY_DIAGNOSTIC'}
-    safety=@{production_mutations=0;stripe_writes=0;database_writes=0;deployments=0;public_posts=0;scheduled_task_mutations=0}
-    interpretation='PASS means only the named acceptance evidence passed. UNVERIFIED is not a pass. This bootstrap cannot create buyer demand or claim revenue.'
-  }
-  $summary | ConvertTo-Json -Depth 14 | Set-Content -LiteralPath $reportPath -Encoding UTF8
-  Write-Host ''
-  Write-Host "UNIFIED REPORT: $reportPath"
-  Write-Host "HEARTBEAT: $heartbeatPath"
-  Write-Host ("OUTCOMES pass={0}; fail={1}; blocked={2}; unverified={3}; observed-only={4}" -f $summary.counts.pass,$summary.counts.fail,$summary.counts.blocked,$summary.counts.unverified,$summary.counts.observed_not_acceptance)
-  Write-Host 'No production mutations performed. Inspect the JSON; do not treat diagnostic passes as revenue.'
-}
-catch {
-  Write-Error ("UNIFIED BOOTSTRAP FAILED CLOSED: " + $_.Exception.Message)
-  exit 1
-}
-finally {
-  try { Stop-Transcript | Out-Null } catch {}
+    exit 1
+} finally {
+    try { Stop-Transcript | Out-Null } catch {}
 }
