@@ -1,0 +1,53 @@
+{
+  "schema": "dreamledger.777.first_money_execution.v1",
+  "updated_at": "2026-10-11",
+  "mode": "FIRST_MONEY_NO_ARCHITECTURE_EXPANSION",
+  "goal": "Maximize probability of first independent, settled, fulfilled, attributable sale today; not a guarantee.",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "independent_buyers_verified": 0,
+    "settled_attributable_payments_verified": 0,
+    "paid_fulfillments_verified": 0
+  },
+  "primary_offer": {
+    "sku": "TOLL-PROBE-50C",
+    "price_nzd": 0.5,
+    "status": "EXPERIMENTAL_UNVERIFIED",
+    "url": "https://dreamledger.org/api/toll/v1/manifest"
+  },
+  "held_offer": {
+    "sku": "AGENT-BRIDGE-EVENTS-100",
+    "price_nzd": 19,
+    "unit": "100 events",
+    "status": "HELD_UNTIL_PROBE_VERIFIED"
+  },
+  "doorway": "https://dreamledger.org/go/",
+  "issue": "https://github.com/KelpCoin/DreamLedger/issues/490",
+  "execution_order": [
+    "Run scripts/VERIFY-FIRST-MONEY.ps1 read-only on the local PC and record current HTTP statuses, deployed commit, git state and exact LM Studio /v1/models IDs.",
+    "Find the earliest failed transition; do not create unpaid checkout sessions as smoke tests and do not self-purchase.",
+    "Repair the existing route/config only; no new infrastructure, SKU, ledger or database table.",
+    "Verify independent settlement, correct SKU/amount/currency, idempotent entitlement, scoped key, authenticated probe, attributable receipt and reconciliation.",
+    "Unhold the NZ$19 offer and distribute QR only after the paid probe and margin/safety gates pass.",
+    "Write a falsifiable receipt with timestamp, commit, evidence, blocker, next action and stop condition."
+  ],
+  "lm_studio_policy": {
+    "authority": "ACCELERATOR_NOT_TRUTH_AUTHORITY",
+    "model_inventory": "Read actual local /v1/models response; never infer loaded models from installed models.",
+    "pc_offline": "No local worker execution claim when PC is off."
+  },
+  "gates": {
+    "no_self_purchase": true,
+    "no_upfront_spend": true,
+    "no_unapproved_public_posts": true,
+    "no_paid_ads": true,
+    "no_secrets_in_client": true,
+    "supabase_persistence": "UNVERIFIED until data-plane and persistence tests pass",
+    "revenue_requires": "independent buyer + settled payment + fulfillment + delivery evidence + attribution + reconciliation"
+  },
+  "close_criteria": {
+    "minimum": "fresh read-only production check; exact blocker or complete verified sale; regression result; receipt; repository/Notion/Airtable reconciliation",
+    "stretch": "one independent buyer pays and receives the promised bounded probe today"
+  },
+  "status": "UNVERIFIED_UNTIL_FRESH_RUN"
+}
