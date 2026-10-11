@@ -129,11 +129,14 @@ http.createServer(async (req,res)=>{
     return serveFile(res,file);
   }
   if(req.method==='GET' && (p==='/buy/QUOTE-COMPARE-49'||p==='/buy/quote_compare_49')){
-    res.statusCode=302;
-    res.setHeader('Location','https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32');
     res.setHeader('Cache-Control','no-store');
-    res.setHeader('X-DreamLedger-Buy-Router','QUOTE-COMPARE-49');
-    return res.end();
+    res.setHeader('X-DreamLedger-Buy-Router','QUOTE-COMPARE-49-HELD');
+    return send(res,410,JSON.stringify({
+      error:'offer_temporarily_unavailable',
+      offer:'QUOTE-COMPARE-49',
+      free_worksheet:'/quote-comparison/',
+      reason:'Paid checkout is held until intake, persistence, and fulfillment are independently verified.'
+    }),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && p.startsWith('/buy/')){
     try{

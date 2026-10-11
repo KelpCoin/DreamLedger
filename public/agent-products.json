@@ -37,17 +37,16 @@
     "seller_name": "DreamLedger",
     "seller_url": "https://dreamledger.org/",
     "price": "49 NZD",
-    "availability": "listed",
+    "availability": "review_required",
     "sku": "QUOTE-COMPARE-49",
     "category": "Procurement / Supplier Quote Comparison",
-    "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
-    "buy_router": "https://dreamledger.org/buy/QUOTE-COMPARE-49",
+    "buy_router": "https://dreamledger.org/quote-comparison/",
     "required_input": "2-5 PDF, CSV, JSON or Markdown supplier quotes plus purchase requirements or scope",
     "one_time_purchase": true,
     "subscription": false,
     "human_authorization_required": true,
     "enable_search": true,
-    "enable_checkout": true,
+    "enable_checkout": false,
     "machine_discovery": [
       "https://dreamledger.org/ai-catalog.json",
       "https://dreamledger.org/.well-known/dreamledger.json",
@@ -55,6 +54,6 @@
       "https://dreamledger.org/api/offers",
       "https://dreamledger.org/api/products"
     ],
-    "availability_note": "Review the product page for current terms and availability."
+    "availability_note": "Paid checkout is held. Use the free browser-side worksheet; do not initiate a purchase until intake, persistence, and fulfillment are independently verified."
   }
 ]
