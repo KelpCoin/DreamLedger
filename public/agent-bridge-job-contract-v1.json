@@ -1,0 +1,202 @@
+{
+  "schema": "dreamledger/agent-bridge-job-contract/v1",
+  "artifact_id": "AB-JOB-CONTRACT-001",
+  "title": "Bounded Agent Bridge Job Contract",
+  "status": "DESIGN_COMPONENT_NOT_LIVE_COMMERCE",
+  "purpose": "Turn large marketplace work into small, independently testable jobs without granting agents open-ended authority.",
+  "created_at": "2026-10-12",
+  "hard_rules": [
+    "A job is not revenue. Revenue requires an independent buyer, authorized external action, settled payment, fulfillment, delivery evidence, and reconciliation.",
+    "No job may exceed its declared budget, runtime, scope, or tool allowlist.",
+    "Retries must reuse the same idempotency key for the same logical action.",
+    "External publication, charges, third-party disclosure, GPU tenant execution, and DOOH booking require explicit authorization.",
+    "Unknown, missing, stale, simulated, and internal evidence never pass as verified."
+  ],
+  "contract": {
+    "job_id": "stable-unique-id",
+    "parent_epic_id": "stable-parent-id",
+    "objective": "one observable outcome",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "source_evidence": [
+      {
+        "url": "https://example.invalid/source",
+        "retrieved_at": "ISO-8601",
+        "claim_status": "UNVERIFIED"
+      }
+    ],
+    "tool_allowlist": [],
+    "budget": {
+      "currency": "NZD",
+      "max_amount": 0,
+      "max_model_tokens": 0,
+      "max_external_calls": 0
+    },
+    "limits": {
+      "timeout_seconds": 60,
+      "max_attempts": 2,
+      "max_output_bytes": 100000
+    },
+    "idempotency_key": "sha256(parent_epic_id|job_id|normalized_input)",
+    "authorization": {
+      "mode": "READ_ONLY",
+      "required_approver": null,
+      "approval_receipt": null
+    },
+    "evaluator": {
+      "acceptance_criteria": [],
+      "test_command": null,
+      "evaluator_version": "1"
+    },
+    "evidence": {
+      "source_hashes": [],
+      "output_sha256": null,
+      "test_result": "NOT_RUN",
+      "external_receipt": null
+    },
+    "terminal_state": "PENDING"
+  },
+  "states": [
+    "PROPOSED",
+    "QUALIFIED",
+    "AUTHORIZED",
+    "RUNNING",
+    "EVALUATED",
+    "DELIVERED",
+    "REJECTED",
+    "CANCELLED"
+  ],
+  "transitions": [
+    {
+      "from": "PROPOSED",
+      "to": "QUALIFIED",
+      "gate": "Inputs and measurable acceptance criteria exist."
+    },
+    {
+      "from": "QUALIFIED",
+      "to": "AUTHORIZED",
+      "gate": "Scope, budget, tools, risk tier, and approval policy pass."
+    },
+    {
+      "from": "AUTHORIZED",
+      "to": "RUNNING",
+      "gate": "Idempotency reservation succeeds and limits are enforced."
+    },
+    {
+      "from": "RUNNING",
+      "to": "EVALUATED",
+      "gate": "Output is schema-valid and tests have a recorded result."
+    },
+    {
+      "from": "EVALUATED",
+      "to": "DELIVERED",
+      "gate": "Acceptance passes and a delivery receipt is emitted."
+    }
+  ],
+  "evaluator_rules": [
+    "Reject output that does not validate against output_schema.",
+    "Reject claims without source URLs and retrieval timestamps where external facts are asserted.",
+    "Reject a pass if a required test is missing, skipped, or failed.",
+    "Reject any budget, scope, tool, or authorization violation.",
+    "A delivered job does not imply commercial success or payment."
+  ],
+  "decomposition_plan": [
+    {
+      "id": "ABJ-01",
+      "priority": "P0",
+      "task": "Trace existing toll manifest to deployed route registry",
+      "output": "route-parity.json",
+      "gate": "Every advertised route maps to a deployed handler or is marked held."
+    },
+    {
+      "id": "ABJ-02",
+      "priority": "P0",
+      "task": "Probe the existing low-price route read-only",
+      "output": "route-probe.json",
+      "gate": "Record status, latency, response schema, and timestamp; no charge."
+    },
+    {
+      "id": "ABJ-03",
+      "priority": "P0",
+      "task": "Test settlement-to-entitlement idempotency using synthetic fixtures",
+      "output": "settlement-fixture-report.json",
+      "gate": "Duplicate events produce one entitlement; synthetic events never count as revenue."
+    },
+    {
+      "id": "ABJ-04",
+      "priority": "P0",
+      "task": "Join existing offer, Stripe event, order, fulfillment, and delivery receipt fields",
+      "output": "commerce-reconciliation-map.json",
+      "gate": "Missing join keys remain explicit blockers."
+    },
+    {
+      "id": "ABJ-05",
+      "priority": "P1",
+      "task": "Add usage receipt schema with per-tenant quota and replay protection",
+      "output": "usage-receipt.schema.json",
+      "gate": "Tenant, request ID, usage units, timestamp, and content digest are present."
+    },
+    {
+      "id": "ABJ-06",
+      "priority": "P1",
+      "task": "Calculate contribution margin from measured usage and fees",
+      "output": "unit-economics.json",
+      "gate": "No toll advertised as purchasable unless the measured margin is positive."
+    },
+    {
+      "id": "ABJ-07",
+      "priority": "P1",
+      "task": "Index reusable templates and stencils with licence, version, provenance, hash, and tests",
+      "output": "asset-catalogue-entry.schema.json",
+      "gate": "Unlicensed or provenance-missing assets cannot publish."
+    },
+    {
+      "id": "ABJ-08",
+      "priority": "P2",
+      "task": "Specify opt-in GPU worker isolation and kill-switch acceptance tests",
+      "output": "gpu-worker-gate.json",
+      "gate": "No third-party job runs until isolation, metering, resource caps, and owner opt-in are proven."
+    },
+    {
+      "id": "ABJ-09",
+      "priority": "P2",
+      "task": "Specify permissioned DOOH inventory and proof-of-play receipt",
+      "output": "dooh-proof-of-play.schema.json",
+      "gate": "No booking or spend; simulated inventory is labelled SIMULATED."
+    }
+  ],
+  "truth_model": {
+    "revenue_nzd": 0,
+    "claim_status": "UNVERIFIED",
+    "required_chain": [
+      "INDEPENDENT_BUYER",
+      "AUTHORIZED_ACTION",
+      "EXTERNAL_RESULT",
+      "SETTLED_PAYMENT",
+      "FULFILLMENT",
+      "DELIVERY_EVIDENCE",
+      "RECONCILIATION"
+    ],
+    "disallowed_substitutes": [
+      "checkout_created",
+      "payment_intent_created",
+      "green_ci",
+      "internal_row",
+      "simulated_receipt",
+      "model_output"
+    ]
+  },
+  "next_task": "Complete ABJ-01 and ABJ-02 against the deployed gateway; keep all held routes non-purchasable until route parity and end-to-end settlement/fulfillment proof exist.",
+  "sources": [
+    "https://github.com/KelpCoin/DreamLedger/issues/639",
+    "https://github.com/KelpCoin/DreamLedger/issues/549",
+    "https://github.com/KelpCoin/DreamLedger/blob/main/webapp/agentic-commerce/777-marketplace-epic.json",
+    "https://dreamledger.org/api/toll/v1/manifest"
+  ]
+}
