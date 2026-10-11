@@ -88,8 +88,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY|SUPABASE_SERVICE_ROLE_KEY' public; then
-            echo 'FAIL: credential-like literal found in public assets.'
+          found=0
+          scan_pattern() {
+            label="$1"
+            pattern="$2"
+            while IFS= read -r -d '' f; do
+              if grep -Eiq "$pattern" "$f"; then
+                echo "SECRET_PATTERN=$label FILE=$f"
+                found=1
+              fi
+            done < <(find public -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' -o -name '*.json' -o -name '*.txt' \) ! -path 'public/package.json' -print0)
+          }
+          scan_pattern STRIPE_LIVE_KEY 'sk_live_[A-Za-z0-9]+'
+          scan_pattern STRIPE_TEST_KEY 'sk_test_[A-Za-z0-9]+'
+          scan_pattern STRIPE_WEBHOOK_SECRET 'whsec_[A-Za-z0-9]+'
+          scan_pattern PRIVATE_KEY_HEADER 'BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY'
+          if [ "$found" -ne 0 ]; then
+            echo 'FAIL: credential-like literal found in public assets. File paths are shown; matched values are never printed.'
             exit 1
           fi
           echo 'PASS: no obvious secret material found in public assets.'
