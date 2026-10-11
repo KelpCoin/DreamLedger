@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-11T01:00:24+00:00",
+  "generated_at_utc": "2026-10-11T07:01:23+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "2a8a6378-b5ed-5bef-b0f8-8760aedee7f0",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Purchaser log in",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-11T07:01:19+00:00",
+      "url": "https://www.gets.govt.nz/main.html",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-purchaser-log-in-610e7e1ac2.html"
+    },
     {
       "id": "3f2e5853-c446-582c-b2db-4e32fe343c44",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

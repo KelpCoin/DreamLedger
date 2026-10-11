@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-11T01:00:24+00:00",
+  "updated_at_utc": "2026-10-11T07:01:23+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Purchaser log in",
+      "url": "https://www.gets.govt.nz/main.html",
+      "observed_at": "2026-10-11T07:01:19+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "610e7e1ac2c2dc42dbcd8db374ad793d2b2214f4edc6aa5ec96cd55c82b9bfc4",
+      "event_id": "2a8a6378-b5ed-5bef-b0f8-8760aedee7f0",
+      "silo_id": "ECO-610E7E1AC2C2DC42",
+      "slug": "procurement-purchaser-log-in-610e7e1ac2"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
