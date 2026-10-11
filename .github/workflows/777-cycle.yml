@@ -23,6 +23,7 @@ on:
       - "public/index.html"
       - "public/home.html"
       - "public/marketplace.html"
+      - "BEC-PRIME/marketplace/marketplace.html"
       - "marketplace.html"
       - "index.html"
 
@@ -150,3 +151,5 @@ jobs:
 # User-requested fresh expedition trigger: explicit request from 2026-10-12; execute one money-first 777 cycle, inspect actual run/artifacts, preserve revenue truth.
 
 # 777 public-surface trigger coverage: public/marketplace.html is watched so custom-domain marketplace edits run the evidence gate.
+
+# 777 source-of-truth coverage: watch BEC-PRIME/marketplace/marketplace.html because compile and prestart sync overwrite generated public copies.
