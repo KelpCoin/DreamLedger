@@ -64,3 +64,22 @@ Scans, bots, checkout starts and model-generated interest are not buyers.
 - Stretch target: one independent buyer settles and receives the promised probe result today.
 - If no buyer converts, report the exact funnel evidence and next smallest action. Never label ambition as a forecast.
 - Verified external revenue remains NZD 0.00 until the full chain is independently evidenced.
+
+
+## Live findings and repair commits — 2026-10-11
+A fresh read-only fetch at approximately 2026-10-11 16:52 NZ time observed:
+- https://dreamledger.org/go returned HTTP 404.
+- https://dreamledger.org/api/toll/v1/manifest returned HTTP 503.
+- https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest and /api/toll/v1/checkout/toll-probe returned HTTP 503.
+- https://dreamledger.org/.well-known/agent-commerce.json returned HTTP 200 but advertised current_offers as empty, first_payment_proof NOT_PROVEN, and revenue_nzd 0.
+- The Render service inventory does not include the dreamledger-engine private service referenced by render.yaml. public/server.js previously proxied all toll endpoints to ENGINE_INTERNAL_URL, explaining a missing dependency risk. No new paid service will be provisioned.
+
+Changes now committed; deployment and live behavior are not yet verified:
+- 24e456b56286f0e015e387fecdc5e39a84051c6f: import os in the 777 compounding gate.
+- 198e8bff39d7cb2a7839d3f216f6d796d8c41729: regression test for the gate's current-run environment binding.
+- 37ef7a7f2668c07f79d57849c0f4aa184a0c7dc4: run that regression test in 777-cycle workflow.
+- 3c7ae68a0309be5787fe0e163945aca3cc4c355e / 2cf242f62a1f51de3e9f0be048bdaa35d3a3f96a: add a canonical campaign-aware /go page to public/go and repository-root go/index.html. ref/c values are validated before storage and propagated only to same-origin links; no new database writes are required.
+- e3f7ac1574ae9a8fb587bbffabcd342636ef59f8: map the storefront's /go route to the canonical doorway.
+- cb63de14fee552f5641388b3d84ba965b2b56cba: route only the TOLL-PROBE-50C and AGENT-BRIDGE-EVENTS-100 scopes through the existing BEC-PRIME toll handler in the current storefront process; publish a two-offer manifest with explicit unverified/configuration status. Other toll scopes remain unpublished. This removes the hard dependency on a separately provisioned service, but Stripe and toll-key secrets may still be missing; live checkout must prove otherwise.
+
+Current state after commits: deployments were queued/in progress at last inspection. Do not call /go or toll paths fixed until fresh HTTP checks return the expected responses. The 50-cent checkout still must pass settlement → entitlement → authenticated probe → receipt before QR distribution.
