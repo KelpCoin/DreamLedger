@@ -166,7 +166,7 @@ http.createServer(async (req,res)=>{
         attribution:{referrer_id:validAttribution(ref)?ref:'organic',campaign_id:validAttribution(campaign)?campaign:'direct'},
         offers:[
           {id:'TOLL-PROBE-50C',scope:'toll-probe',price_nzd:0.50,calls_included:1,checkout_route:checkoutRoute('/api/toll/v1/checkout/toll-probe'),execution_route:'/api/toll/v1/probe',status:configured?'EXPERIMENTAL_UNVERIFIED':'UNCONFIGURED'},
-          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',price_nzd:19.00,calls_included:100,checkout_route:checkoutRoute('/api/toll/v1/checkout/bridge-events'),execution_route:'/api/toll/v1/bridge-events',status:'HELD_UNTIL_PROBE_VERIFIED'}
+          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',price_nzd:19.00,calls_included:100,checkout_route:null,execution_route:null,status:'HELD_UNTIL_PROBE_VERIFIED'}
         ]
       };
       return send(res,200,JSON.stringify(manifest),'application/json; charset=utf-8');
