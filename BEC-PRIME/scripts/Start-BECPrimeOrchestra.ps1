@@ -109,7 +109,12 @@ try {
     $smoke = Invoke-RestMethod -Uri "$apiBase/v1/chat/completions" -Method Post -ContentType "application/json" -Body $smokeBody -TimeoutSec 180
     $smokeText = [string]$smoke.choices[0].message.content
     if ($smokeText -notmatch "BECK_LOCAL_INFERENCE_OK") { throw "Local inference smoke test did not return the expected token. Model=$apiModel" }
-    Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.1";model_key=$selected;api_model_id=$apiModel;server=$apiBase;loaded=$true;inference_smoke="PASS";inference_token="BECK_LOCAL_INFERENCE_OK";verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
+    # Three-tier council is a hard readiness gate, not an assumed side effect of one-model inference.
+    $councilVerifier = Join-Path $PSScriptRoot "Verify-LMStudioThreeRoleReadiness.ps1"
+    if (-not (Test-Path -LiteralPath $councilVerifier)) { throw "Three-role verifier missing: $councilVerifier. Council readiness cannot be claimed." }
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $councilVerifier -Port $ServerPort
+    if ($LASTEXITCODE -ne 0) { throw "Three-role council readiness failed. See LMSTUDIO-THREE-ROLE-READINESS.json." }
+    Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.2";model_key=$selected;api_model_id=$apiModel;server=$apiBase;loaded=$true;inference_smoke="PASS";council_readiness="THREE_DISTINCT_ROLES_INFERENCE_VERIFIED";inference_token="BECK_LOCAL_INFERENCE_OK";verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
     $swarm = Join-Path $RepoRoot "..\runtime\lm_studio\LM-Studio-Swarm.ps1"
     $swarmStatus = "NOT_STARTED"
     if (Test-Path -LiteralPath $swarm) {
@@ -129,9 +134,9 @@ try {
         }
     }
     $proof = [ordered]@{
-        schema="BEC-PRIME-STARTUP-ORCHESTRA-1.2"
+        schema="BEC-PRIME-STARTUP-ORCHESTRA-1.3"
         status="PASS"
-        readiness="LOCAL_INFERENCE_VERIFIED"
+        readiness="THREE_ROLE_COUNCIL_VERIFIED"
         lm_studio="RUNNING"
         model=$selected
         model_loaded=$true
