@@ -29,7 +29,6 @@ check('homepage-canonical-doors',
 check('diagnostic-current-public-catalog',
   Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && /^https:\/\/buy\.stripe\.com\//.test(String(x.checkout_url || '')),
   'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.' );
-  'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.');
 check('diagnostic-current-public-mtg',
   /Commander Deck Diagnostic/i.test(mtg) && /29/i.test(mtg),
   'Current Commander Deck Diagnostic remains discoverable at the canonical NZD 29 public MTG surface.');
