@@ -87,7 +87,7 @@ def main() -> int:
                 previous["manifest_sync_status"] = "STALE_PRESERVED"
                 previous["manifest_sync_error"] = "empty_services_or_offers_array"
                 TARGET.write_text(
-                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\\n",
+                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
                     encoding="utf-8",
                 )
                 print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=empty_services_or_offers_array")
@@ -135,7 +135,7 @@ def main() -> int:
                 previous["manifest_sync_status"] = "STALE_PRESERVED"
                 previous["manifest_sync_error"] = "no_executable_services_after_normalization"
                 TARGET.write_text(
-                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\\n",
+                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
                     encoding="utf-8",
                 )
                 print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=no_executable_services_after_normalization")
