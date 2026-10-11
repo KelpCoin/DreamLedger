@@ -149,6 +149,11 @@ http.createServer(async (req,res)=>{
     // The separate dreamledger-engine service declared by the old Blueprint is not provisioned.
     // Publish only the two approved first-money scopes; other catalogued scopes remain quarantined.
     if(p==='/api/toll/v1/manifest' && req.method==='GET'){
+      const attributionUrl=new URL(req.url,'https://dreamledger.org');
+      const ref=String(attributionUrl.searchParams.get('ref')||'');
+      const campaign=String(attributionUrl.searchParams.get('c')||'');
+      const validAttribution=value=>/^[A-Za-z0-9_-]{1,64}$/.test(value);
+      const checkoutRoute=route=>{const target=new URL(route,'https://dreamledger.org');if(validAttribution(ref))target.searchParams.set('ref',ref);if(validAttribution(campaign))target.searchParams.set('c',campaign);return target.pathname+target.search;};
       const configured=Boolean(TollRuntime.configured() && (process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY));
       const status=configured?'CONFIGURED_NOT_END_TO_END_VERIFIED':'UNCONFIGURED';
       const manifest={
@@ -158,9 +163,10 @@ http.createServer(async (req,res)=>{
         status,
         first_payment_proof:'NOT_PROVEN',
         revenue_nzd:0,
+        attribution:{referrer_id:validAttribution(ref)?ref:'organic',campaign_id:validAttribution(campaign)?campaign:'direct'},
         offers:[
-          {id:'TOLL-PROBE-50C',scope:'toll-probe',price_nzd:0.50,calls_included:1,checkout_route:'/api/toll/v1/checkout/toll-probe',execution_route:'/api/toll/v1/probe',status:configured?'EXPERIMENTAL_UNVERIFIED':'UNCONFIGURED'},
-          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',price_nzd:19.00,calls_included:100,checkout_route:'/api/toll/v1/checkout/bridge-events',execution_route:'/api/toll/v1/bridge-events',status:'HELD_UNTIL_PROBE_VERIFIED'}
+          {id:'TOLL-PROBE-50C',scope:'toll-probe',price_nzd:0.50,calls_included:1,checkout_route:checkoutRoute('/api/toll/v1/checkout/toll-probe'),execution_route:'/api/toll/v1/probe',status:configured?'EXPERIMENTAL_UNVERIFIED':'UNCONFIGURED'},
+          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',price_nzd:19.00,calls_included:100,checkout_route:checkoutRoute('/api/toll/v1/checkout/bridge-events'),execution_route:'/api/toll/v1/bridge-events',status:'HELD_UNTIL_PROBE_VERIFIED'}
         ]
       };
       return send(res,200,JSON.stringify(manifest),'application/json; charset=utf-8');
