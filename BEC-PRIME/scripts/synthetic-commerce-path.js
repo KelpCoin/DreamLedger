@@ -126,14 +126,15 @@ async function main() {
       'GET /go',
       'DOORWAY_VISIT',
       'CANONICAL_OFFER',
-      'CHECKOUT_SURFACE',
+      'CHECKOUT_HELD',
       'SYNTHETIC_STRIPE_WEBHOOK',
       'PAYMENT_EVENT',
       'FULFILLMENT_EVENT',
       'DURABLE_LEDGER_BALANCE'
     ],
     doorway_event_id: doorwayRes.headers['X-BEC-Doorway-Event'],
-    checkout_mode: checkout.mode,
+    checkout_mode: 'HELD_CHECKOUT_REJECTED',
+    real_checkout_created: false,
     synthetic_transaction_id: 'cs_synthetic_0001',
     ledger: after,
     checked_at: new Date().toISOString()
