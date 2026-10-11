@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/777-expedition-receipt-v1.schema.json",
+  "title": "DreamLedger 777 Expedition Receipt v1",
+  "description": "Canonical machine-readable receipt for one 777 expedition. Workflow success is operational status only; it must never imply a buyer, settlement, fulfillment, verified revenue, or a new public artifact.",
+  "type": "object",
+  "required": [
+    "schema",
+    "run_id",
+    "observed_at",
+    "run_status",
+    "economic_outcome",
+    "truth_status",
+    "verified_revenue_nzd",
+    "settled_external_payments",
+    "independent_external_buyers",
+    "paid_fulfilled_orders",
+    "verified_economic_outcomes",
+    "artifact_count",
+    "gate_status",
+    "next_action"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dreamledger.777.expedition-receipt.v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "commit_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "event": {
+      "enum": [
+        "schedule",
+        "push",
+        "workflow_dispatch",
+        "repository_dispatch",
+        "other"
+      ]
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "run_status": {
+      "enum": [
+        "queued",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "unknown"
+      ]
+    },
+    "run_conclusion": {
+      "enum": [
+        "success",
+        "failure",
+        "cancelled",
+        "skipped",
+        "unknown"
+      ]
+    },
+    "economic_outcome": {
+      "enum": [
+        "SETTLED_AND_FULFILLED",
+        "BUYER_SIGNAL_ONLY",
+        "COMPONENT_ONLY",
+        "NOOP",
+        "BLOCKED",
+        "UNKNOWN"
+      ]
+    },
+    "truth_status": {
+      "enum": [
+        "VERIFIED",
+        "UNVERIFIED",
+        "CONTRADICTED",
+        "STALE",
+        "TEST",
+        "SIMULATED",
+        "INTERNAL",
+        "UNMATCHED"
+      ]
+    },
+    "verified_revenue_nzd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "settled_external_payments": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "independent_external_buyers": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "paid_fulfilled_orders": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "verified_economic_outcomes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "artifact_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "url",
+          "classification"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "classification": {
+            "enum": [
+              "CAPABILITY_PROOF",
+              "TEST",
+              "SIMULATED",
+              "INTERNAL",
+              "COMMERCIAL_EVIDENCE"
+            ]
+          },
+          "source_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "buyer_signal": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "buyer_authored": {
+          "type": "boolean"
+        },
+        "problem": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intent_type": {
+          "enum": [
+            "purchase_request",
+            "vendor_selection",
+            "urgent_problem",
+            "budget_evidence",
+            "general_interest",
+            "unknown"
+          ]
+        },
+        "price_or_budget_evidence": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "dedupe_key": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "source_url",
+        "observed_at",
+        "buyer_authored",
+        "problem",
+        "intent_type",
+        "dedupe_key"
+      ],
+      "additionalProperties": false
+    },
+    "gate_status": {
+      "enum": [
+        "PASS",
+        "PASS_NOOP",
+        "FAIL",
+        "QUARANTINE",
+        "NEEDS_EVIDENCE",
+        "NOT_RUN",
+        "UNKNOWN"
+      ]
+    },
+    "gate_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "economic_outcome": {
+            "const": "SETTLED_AND_FULFILLED"
+          }
+        },
+        "required": [
+          "economic_outcome"
+        ]
+      },
+      "then": {
+        "properties": {
+          "truth_status": {
+            "const": "VERIFIED"
+          },
+          "verified_revenue_nzd": {
+            "exclusiveMinimum": 0
+          },
+          "settled_external_payments": {
+            "minimum": 1
+          },
+          "independent_external_buyers": {
+            "minimum": 1
+          },
+          "paid_fulfilled_orders": {
+            "minimum": 1
+          },
+          "verified_economic_outcomes": {
+            "minimum": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "economic_outcome": {
+            "const": "NOOP"
+          }
+        },
+        "required": [
+          "economic_outcome"
+        ]
+      },
+      "then": {
+        "properties": {
+          "artifact_count": {
+            "const": 0
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}
