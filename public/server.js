@@ -55,6 +55,33 @@ function headers(res){
 }
 async function proxySwarm(req,res,p){if(!ENGINE_INTERNAL_URL)return send(res,503,'Swarm engine unavailable','text/plain; charset=utf-8');try{const target=ENGINE_INTERNAL_URL+(p.startsWith('/swarm/')?'/api/swarm-100k/'+p.split('/').pop():p);const h={};if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;const r=await fetch(target,{headers:h});const body=await r.text();res.statusCode=r.status;res.setHeader('Content-Type',r.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');return res.end(body);}catch(e){return send(res,502,'Swarm engine unavailable','text/plain; charset=utf-8');}}
 
+async function proxyTollToEngine(req,res,p){
+  if(!ENGINE_INTERNAL_URL)return send(res,503,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
+  try{
+    const chunks=[];
+    let size=0;
+    if(!['GET','HEAD'].includes(req.method)){
+      for await(const chunk of req){
+        size+=chunk.length;
+        if(size>1024*1024)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8');
+        chunks.push(chunk);
+      }
+    }
+    const h={'accept':'application/json'};
+    for(const name of ['content-type','idempotency-key','x-dreamledger-toll-key'])if(req.headers[name])h[name]=req.headers[name];
+    if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;
+    const target=ENGINE_INTERNAL_URL+(req.url||p);
+    const upstream=await fetch(target,{method:req.method,headers:h,body:chunks.length?Buffer.concat(chunks):undefined,redirect:'manual'});
+    const body=await upstream.arrayBuffer();
+    res.statusCode=upstream.status;
+    for(const name of ['content-type','cache-control','location','retry-after']){const value=upstream.headers.get(name);if(value)res.setHeader(name,value);}
+    return res.end(Buffer.from(body));
+  }catch(error){
+    console.error(JSON.stringify({toll_engine_proxy_failed:true,path:p,error:String(error&&error.message||error)}));
+    return send(res,502,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
+  }
+}
+
 function serveFile(res,file){
   const safe=path.normalize(path.join(ROOT,file));
   if(!safe.startsWith(ROOT+path.sep) && safe!==ROOT) return send(res,403,'Forbidden','text/plain; charset=utf-8');
@@ -116,15 +143,7 @@ http.createServer(async (req,res)=>{
       res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
     }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
   }
-  if(p.startsWith('/api/toll/v1/')){
-    try{
-      const handled=await tollRoad.handle(req,res,p);
-      if(handled)return;
-    }catch(error){
-      return send(res,error.statusCode||500,JSON.stringify({error:String(error&&error.message||error)}),'application/json; charset=utf-8');
-    }
-    return send(res,404,'Not Found','text/plain; charset=utf-8');
-  }
+  if(p.startsWith('/api/toll/v1/')) return proxyTollToEngine(req,res,p);
   if(req.method==='GET' && /^\/swarm\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && /^\/api\/swarm-100k\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && p==='/api/swarm-100k/summary') return proxySwarm(req,res,p);
