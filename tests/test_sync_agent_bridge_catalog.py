@@ -69,6 +69,31 @@ class AgentBridgeCatalogSyncTests(unittest.TestCase):
             self.assertFalse(result["services"][0]["settlement_verified"])
             self.assertFalse(result["services"][0]["fulfilment_verified"])
 
+    def test_live_offer_identifier_aliases_are_normalized(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "catalog.json"
+            payload = {
+                "schema": "dreamledger/toll-road/v2",
+                "offers": [
+                    {
+                        "offer_id": "TOLL-ALIAS-001",
+                        "scope": "alias-probe",
+                        "price_nzd": 1,
+                        "execution_route": "/api/toll/v1/alias-probe",
+                        "checkout_route": "/api/toll/v1/checkout/alias-probe",
+                    }
+                ],
+            }
+            self.assertEqual(self.run_sync(payload, target), 0)
+            result = json.loads(target.read_text(encoding="utf-8"))
+            self.assertEqual(result["manifest_sync_status"], "FRESH")
+            self.assertEqual(result["service_count"], 1)
+            self.assertEqual(result["services"][0]["id"], "TOLL-ALIAS-001")
+            self.assertEqual(result["services"][0]["route"], "/api/toll/v1/alias-probe")
+            self.assertTrue(result["services"][0]["checkout_configured"])
+            self.assertFalse(result["services"][0]["settlement_verified"])
+            self.assertFalse(result["services"][0]["fulfilment_verified"])
+
     def test_legacy_services_envelope_remains_supported(self):
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory) / "catalog.json"
