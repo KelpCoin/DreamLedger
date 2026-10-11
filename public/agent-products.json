@@ -1,5 +1,34 @@
 [
   {
+    "item_id": "AGENT-PROOF-AUDIT-49",
+    "title": "Agent Delivery Proof Audit",
+    "description": "One-time bounded evidence review of one public URL or digital artifact against up to five acceptance criteria. Includes source-linked findings, PASS/FAIL/NEEDS HUMAN REVIEW, limitations, and a timestamped report. Manual fulfilment; 24-hour target after complete intake.",
+    "url": "https://dreamledger.org/agent-delivery-proof-audit.html",
+    "brand": "DreamLedger",
+    "seller_name": "DreamLedger",
+    "seller_url": "https://dreamledger.org/",
+    "price": "49 NZD",
+    "availability": "listed",
+    "sku": "AGENT-PROOF-AUDIT-49",
+    "category": "Verification / Digital Deliverable Audit",
+    "checkout_url": "https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m",
+    "buy_router": "https://dreamledger.org/agent-delivery-proof-audit.html",
+    "required_input": "One public URL or bounded artifact, up to five acceptance criteria, and delivery email",
+    "one_time_purchase": true,
+    "subscription": false,
+    "human_authorization_required": true,
+    "enable_search": true,
+    "enable_checkout": true,
+    "fulfillment_mode": "manual_evidence_report_24h",
+    "machine_discovery": [
+      "https://dreamledger.org/ai-catalog.json",
+      "https://dreamledger.org/agent-commerce.json",
+      "https://dreamledger.org/api/offers",
+      "https://dreamledger.org/api/products"
+    ],
+    "availability_note": "Manual service. Delivery target starts after complete, accessible intake. A listing is not proof of a sale or a guaranteed outcome."
+  },
+  {
     "item_id": "QUOTE-COMPARE-49",
     "title": "Supplier Quote Comparison",
     "description": "One-time service for buyers with 2-5 supplier quotes. Normalizes price, scope, missing costs, MOQ, lead time and payment terms into a source-backed decision packet. Missing information remains marked unknown.",
