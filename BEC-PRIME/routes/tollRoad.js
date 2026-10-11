@@ -9,6 +9,8 @@ const AgentBridgeEventLedger=require('../runtime/AgentBridgeEventLedger');
 const RoadFactory=require('../runtime/TollRoadFactory');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
+const TOLL_PROBE_SKU='TOLL-PROBE-50C';
+const TOLL_PROBE_STRIPE_PRICE_ID='price_1UNpvxEGgEAnUFF9OLa7dXKM';
 
 const SCOPES = {
   gauntlet: { priceKey: 'gauntletPriceNzd', product: 'DreamLedger Automated Gauntlet Access', calls: 100000 },
@@ -100,12 +102,59 @@ async function createCheckout(scope, roadId=null, attribution={}){
   const def=SCOPES[scope];
   const sessionId='toll_'+crypto.randomUUID();
   const productName=def.product;
-  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':Math.round(priceNzd*100),'line_items[0][price_data][product_data][name]':productName,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,'metadata[toll_price_nzd]':String(priceNzd),'metadata[toll_product]':productName,'metadata[referrer_id]':safeAttribution(attribution.referrer_id,'organic'),'metadata[campaign_id]':safeAttribution(attribution.campaign_id,'direct'),'payment_intent_data[metadata][toll_scope]':scope,'payment_intent_data[metadata][toll_request_id]':sessionId,'payment_intent_data[metadata][referrer_id]':safeAttribution(attribution.referrer_id,'organic'),'payment_intent_data[metadata][campaign_id]':safeAttribution(attribution.campaign_id,'direct'),'metadata[road_id]':roadId||'','payment_intent_data[metadata][road_id]':roadId||'',success_url:PUBLIC_BASE+(scope==='bridge-events'?'/agent-bridge.html':'/toll-road')+'?checkout=success&scope='+scope+(roadId?'&road_id='+encodeURIComponent(roadId):'')+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
+  const fields={
+    mode:'payment',
+    client_reference_id:sessionId,
+    'line_items[0][quantity]':'1',
+    'metadata[toll_scope]':scope,
+    'metadata[toll_request_id]':sessionId,
+    'metadata[toll_price_nzd]':String(priceNzd),
+    'metadata[toll_product]':productName,
+    'metadata[referrer_id]':safeAttribution(attribution.referrer_id,'organic'),
+    'metadata[campaign_id]':safeAttribution(attribution.campaign_id,'direct'),
+    'payment_intent_data[metadata][toll_scope]':scope,
+    'payment_intent_data[metadata][toll_request_id]':sessionId,
+    'payment_intent_data[metadata][referrer_id]':safeAttribution(attribution.referrer_id,'organic'),
+    'payment_intent_data[metadata][campaign_id]':safeAttribution(attribution.campaign_id,'direct'),
+    'metadata[road_id]':roadId||'',
+    'payment_intent_data[metadata][road_id]':roadId||'',
+    success_url:PUBLIC_BASE+(scope==='bridge-events'?'/agent-bridge.html':'/toll-road')+'?checkout=success&scope='+scope+(roadId?'&road_id='+encodeURIComponent(roadId):'')+'&session_id={CHECKOUT_SESSION_ID}',
+    cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope
+  };
+  if(scope==='toll-probe'){
+    // Use the existing live Price ID; do not mint an inline-price substitute.
+    fields['line_items[0][price]']=TOLL_PROBE_STRIPE_PRICE_ID;
+    fields['metadata[dreamledger_sku]']=TOLL_PROBE_SKU;
+    fields['metadata[product_sku]']=TOLL_PROBE_SKU;
+    fields['metadata[product_id]']=TOLL_PROBE_SKU;
+    fields['metadata[offer_id]']=TOLL_PROBE_SKU;
+    fields['metadata[silo]']='dreamledger';
+    fields['metadata[source]']='api_toll_checkout';
+    fields['payment_intent_data[metadata][dreamledger_sku]']=TOLL_PROBE_SKU;
+    fields['payment_intent_data[metadata][product_sku]']=TOLL_PROBE_SKU;
+    fields['payment_intent_data[metadata][product_id]']=TOLL_PROBE_SKU;
+    fields['payment_intent_data[metadata][offer_id]']=TOLL_PROBE_SKU;
+    fields['payment_intent_data[metadata][silo]']='dreamledger';
+    fields['payment_intent_data[metadata][source]']='api_toll_checkout';
+    fields['payment_intent_data[metadata][toll_price_nzd]']=String(priceNzd);
+  }else{
+    fields['line_items[0][price_data][currency]']='nzd';
+    fields['line_items[0][price_data][unit_amount]']=String(Math.round(priceNzd*100));
+    fields['line_items[0][price_data][product_data][name]']=productName;
+  }
+  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{
+    method:'POST',
+    headers:{
+      Authorization:'Bearer '+STRIPE_SECRET_KEY,
+      'Content-Type':'application/x-www-form-urlencoded',
+      'Idempotency-Key':'dreamledger-toll-'+sessionId
+    },
+    body:stripeForm(fields)
+  });
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
   return data;
 }
-
 async function redeem(scope,sessionId,roadId=null){
   if(scope==='road'){
     if(!RoadFactory.getRoad(roadId))throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
@@ -116,11 +165,13 @@ async function redeem(scope,sessionId,roadId=null){
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe session lookup failed'),{statusCode:502});
   if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.toll_scope!==scope)throw Object.assign(new Error('Settled payment required before key issuance'),{statusCode:402});
+  if(scope==='toll-probe'&&String(data.metadata?.dreamledger_sku||'').toUpperCase()!==TOLL_PROBE_SKU)throw Object.assign(new Error('Toll probe SKU attribution mismatch'),{statusCode:409});
   if(scope==='road'&&data.metadata?.road_id!==roadId)throw Object.assign(new Error('Road attribution mismatch'),{statusCode:409});
   const expectedPriceNzd=priceFor(scope);
   const expectedAmount=Math.round(expectedPriceNzd*100);
   const line=data.line_items?.data?.[0];
   if(!line || Number(line.amount_total ?? line.price?.unit_amount ?? 0)!==expectedAmount || String(data.currency||'').toLowerCase()!=='nzd')throw Object.assign(new Error('Checkout amount or currency attribution mismatch'),{statusCode:409});
+  if(scope==='toll-probe'&&String(line.price?.id||'')!==TOLL_PROBE_STRIPE_PRICE_ID)throw Object.assign(new Error('Toll probe Stripe Price ID mismatch'),{statusCode:409});
   const def=scope==='road'?{calls:RoadFactory.CALLS_PER_ROAD}:(SCOPES[scope]||{calls:100});
   const createdAt = Number(data.created || 0) * 1000;
   const expiresAt = createdAt > 0 ? new Date(createdAt + 30 * 86400000).toISOString() : undefined;
