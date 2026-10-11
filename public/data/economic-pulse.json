@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-11T13:55:17+00:00",
+  "generated_at_utc": "2026-10-11T18:36:06+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "d79d1418-e65c-5648-8d10-e328280cb4ca",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Organisation",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-11T18:36:02+00:00",
+      "url": "https://www.gets.govt.nz/ExternalIndex.htm?orderBy=client",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-organisation-640296c256.html"
+    },
     {
       "id": "e2693523-e5a3-5ae3-8055-4aee55a71a76",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

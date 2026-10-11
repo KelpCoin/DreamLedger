@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-11T13:55:17+00:00",
+  "updated_at_utc": "2026-10-11T18:36:06+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Organisation",
+      "url": "https://www.gets.govt.nz/ExternalIndex.htm?orderBy=client",
+      "observed_at": "2026-10-11T18:36:02+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "640296c2568bb00e7e78ffd416c839445f52c29d1e41bbfa1ba8850cca8e4ffd",
+      "event_id": "d79d1418-e65c-5648-8d10-e328280cb4ca",
+      "silo_id": "ECO-640296C2568BB00E",
+      "slug": "procurement-organisation-640296c256"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
