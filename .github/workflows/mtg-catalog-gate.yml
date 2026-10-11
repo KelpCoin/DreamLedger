@@ -1,0 +1,31 @@
+name: MTG catalogue safety gate
+
+on:
+  pull_request:
+    paths:
+      - "public/catalog.json"
+      - "tests/mtg-catalog.test.mjs"
+      - ".github/workflows/mtg-catalog-gate.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "public/catalog.json"
+      - "tests/mtg-catalog.test.mjs"
+      - ".github/workflows/mtg-catalog-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  mtg-catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate MTG catalogue invariants
+        run: node --test tests/mtg-catalog.test.mjs
