@@ -1,10 +1,11 @@
 'use strict';
 
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const mtgDiagnostic = require('../lib/mtgDiagnosticFulfillment');
 const PRODUCT_ID = 'COMMANDER-DECK-DIAGNOSTIC-001';
 const OFFER_ID = 'OFFER-CMD-DIAG-29-NZD';
-const PAYMENT_LINK_ID = 'plink_1UJ3NlEGgEAnUFF9wAINPrwZ';
 const PRICE_MINOR = 2900;
 const CURRENCY = 'nzd';
 const INTERVAL_MS = Number(process.env.COMMERCIAL_CELL_POLL_MS || 300000);
@@ -57,8 +58,55 @@ async function finalizeVerified(session,settlement){
   const outcome=await supabaseRequest('rpc/record_economic_outcome','POST',{p_offer_id:offerId,p_outcome_type:'FULFILLED',p_amount_nzd:29,p_external_reference:'stripe:verified:'+session.id,p_evidence_id:evidenceId,p_metadata:{classification:'OBSERVED',scope:'EXTERNAL',livemode:true,external_buyer:true,settled_transaction:true,attributed:true,fulfilled:true,product_id:PRODUCT_ID,offer_key:OFFER_ID,checkout_session_id:session.id,payment_intent:session.payment_intent,report_hash:report.report_hash,settlement_status:'AVAILABLE',source:'commercial_cell_runner'}});
   return {status:'VERIFIED_ATTEMPTED',evidence_id:evidenceId,outcome_id:Array.isArray(outcome)?outcome[0]:outcome,report_hash:report.report_hash};
 }
-async function listPaidSessions(){
-  const q=new URLSearchParams({payment_link:PAYMENT_LINK_ID,limit:'100'});
+function readCanonicalCheckout(){
+  const productPath=path.join(__dirname,'..','catalog','products','COMMANDER-DECK-DIAGNOSTIC-001.json');
+  const offersPath=path.join(__dirname,'..','catalog','offers','approved.json');
+  const product=JSON.parse(fs.readFileSync(productPath,'utf8'));
+  const approved=JSON.parse(fs.readFileSync(offersPath,'utf8'));
+  const offer=(approved.approved||[]).find(x=>x.offer_id===OFFER_ID);
+  const productUrl=String(product?.commercial_truth?.payment_link||'').trim();
+  const offerUrl=String(offer?.payment_link_url||'').trim();
+  if(product.id!==PRODUCT_ID||product.sku!=='CMD-DIAG-29'||Number(product.price)!==29||String(product.currency).toLowerCase()!=='nzd') {
+    throw new Error('Canonical Commander Diagnostic product identity/price validation failed');
+  }
+  if(!offer||offer.product_id!==PRODUCT_ID||offer.product_sku!=='CMD-DIAG-29'||Number(offer.price)!==29||String(offer.currency).toLowerCase()!=='nzd') {
+    throw new Error('Approved Commander Diagnostic offer identity/price validation failed');
+  }
+  if(!productUrl||!offerUrl||productUrl!==offerUrl) {
+    throw new Error('Commander Diagnostic checkout URL mismatch between canonical product and approved offer catalog');
+  }
+  return {url:productUrl,priceId:String(product?.commercial_truth?.stripe_price_id||'').trim()};
+}
+async function resolvePaymentLink(){
+  const canonical=readCanonicalCheckout();
+  let startingAfter='';
+  for(let page=0;page<10;page++){
+    const params=new URLSearchParams({limit:'100',active:'true'});
+    if(startingAfter) params.set('starting_after',startingAfter);
+    const result=await stripeGet('payment_links?'+params.toString());
+    const links=Array.isArray(result.data)?result.data:[];
+    const matches=links.filter(link=>String(link.url||'').trim()===canonical.url);
+    if(matches.length>1) throw new Error('Multiple active Stripe Payment Links match the canonical Commander Diagnostic URL');
+    if(matches.length===1){
+      const link=matches[0];
+      if(link.active!==true) throw new Error('Canonical Commander Diagnostic Stripe Payment Link is not active');
+      if(canonical.priceId){
+        const lineItems=await stripeGet('payment_links/'+encodeURIComponent(link.id)+'/line_items?limit=100');
+        const items=Array.isArray(lineItems.data)?lineItems.data:[];
+        if(!items.some(item=>String(item.price?.id||'')===canonical.priceId&&Number(item.price?.unit_amount)===PRICE_MINOR&&String(item.price?.currency||'').toLowerCase()===CURRENCY&&Number(item.quantity||1)===1)) {
+          throw new Error('Resolved Stripe Payment Link does not contain the canonical Commander Diagnostic price');
+        }
+      }
+      return {id:link.id,url:link.url};
+    }
+    if(!result.has_more||!links.length) break;
+    startingAfter=String(links[links.length-1].id||'');
+    if(!startingAfter) break;
+  }
+  throw new Error('No active Stripe Payment Link matches the canonical Commander Diagnostic checkout URL');
+}
+async function listPaidSessions(paymentLinkId){
+  const q=new URLSearchParams({payment_link:paymentLinkId,limit:'100'});
   const j=await stripeGet('checkout/sessions?'+q.toString());
   return (Array.isArray(j.data)?j.data:[]).filter(s=>s.livemode===true&&s.payment_status==='paid'&&Number(s.amount_total)===PRICE_MINOR&&String(s.currency).toLowerCase()===CURRENCY);
 }
@@ -75,23 +123,32 @@ async function chargeSettlement(session){
 }
 async function scan(){
   state={...state,status:'RUNNING',checked_at:new Date().toISOString(),last_error:null};
+  let paymentLink;
+  let sessions;
   try{
-    const sessions=await listPaidSessions();
-    const claims=await truthClaims();
-    const rows=[];
-    for(const session of sessions.slice(0,25)){
-      const settlement=await chargeSettlement(session);
-      const fulfillment=mtgDiagnostic.getReport(session.id)?'FULFILLED':'WAITING_INPUT';
-      const row={session_id:session.id,product_id:PRODUCT_ID,offer_id:OFFER_ID,livemode:session.livemode===true,payment_status:session.payment_status,amount_minor:Number(session.amount_total),currency:String(session.currency).toLowerCase(),settlement,fulfillment};
-      if(settlement.status==='AVAILABLE' && fulfillment==='FULFILLED') row.finalization=await finalizeVerified(session,settlement);
-      rows.push(row);
-    }
-    state={...state,status:'PASS',checked_at:new Date().toISOString(),candidates:rows.length,sessions:rows,truth_claims:claims,external_truth_match:rows.some(r=>claims.some(c=>c.event_id&&String(c.event_id).includes(r.session_id)))};
-    return state;
+    paymentLink=await resolvePaymentLink();
+    sessions=await listPaidSessions(paymentLink.id);
   }catch(error){
     state={...state,status:'ERROR',checked_at:new Date().toISOString(),last_error:error.message,sessions:[],truth_claims:[]};
     return state;
   }
+  let claims=[];
+  let truthClaimsError=null;
+  try{claims=await truthClaims();}catch(error){truthClaimsError=error.message;}
+  const rows=[];
+  for(const session of sessions.slice(0,25)){
+    let settlement;
+    try{settlement=await chargeSettlement(session);}catch(error){settlement={status:'ERROR',reason:error.message};}
+    const fulfillment=mtgDiagnostic.getReport(session.id)?'FULFILLED':'WAITING_INPUT';
+    const row={session_id:session.id,product_id:PRODUCT_ID,offer_id:OFFER_ID,payment_link_id:paymentLink.id,livemode:session.livemode===true,payment_status:session.payment_status,amount_minor:Number(session.amount_total),currency:String(session.currency).toLowerCase(),settlement,fulfillment};
+    if(settlement.status==='AVAILABLE' && fulfillment==='FULFILLED'){
+      try{row.finalization=await finalizeVerified(session,settlement);}catch(error){row.finalization={status:'BLOCKED',reason:error.message};}
+    }
+    rows.push(row);
+  }
+  const status=truthClaimsError?'PARTIAL':'PASS';
+  state={...state,status,checked_at:new Date().toISOString(),candidates:rows.length,sessions:rows,truth_claims:claims,truth_claims_error:truthClaimsError,canonical_checkout_url:paymentLink.url,payment_link_id:paymentLink.id,external_truth_match:rows.some(r=>claims.some(c=>c.event_id&&String(c.event_id).includes(r.session_id))),last_error:null};
+  return state;
 }
 function start(){
   if(global.__dreamledgerCommercialCellRunner) return;
