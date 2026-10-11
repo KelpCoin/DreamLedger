@@ -6,6 +6,7 @@
   "deliverable": "free source-linked claim record with provenance, date, contradiction and uncertainty fields; optional alerts or execution only after an existing paid rail is verified",
   "delivery_mechanism": "existing public Truth Oracle surface; paid convenience only through an explicitly verified existing offer",
   "price": 0,
+  "commercial_mode": "FREE_DISCOVERY",
   "currency": "NZD",
   "payment_adapter": "no default checkout; use only an explicitly verified existing payment rail",
   "checkout_route": "not configured; require explicit mapping to a verified existing offer",

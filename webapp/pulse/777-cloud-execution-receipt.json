@@ -1,16 +1,16 @@
 {
   "schema_version": "DREAMLEDGER/777/CLOUD-EXECUTION/v1",
-  "generated_at_utc": "2026-10-11T05:53:11.409Z",
+  "generated_at_utc": "2026-10-11T06:31:10.337Z",
   "selected_path": "DETERMINISTIC_FALLBACK",
   "fallback_attempts": [
     {
       "path": "5:DETERMINISTIC_EXISTING_GAUNTLET",
       "status": "PASS",
-      "at": "2026-10-11T05:53:11.349Z"
+      "at": "2026-10-11T06:31:10.279Z"
     }
   ],
-  "candidate_hash": "9de697d546d56d3a2c8062471c71a5c4be6361925dc678b12c7e0afb4b97f379",
-  "gauntlet_status": "FAIL",
+  "candidate_hash": "4b4c24c8e735a938e882e4aad88d8637a3bb507f856a86c385ac89704d92352e",
+  "gauntlet_status": "PASS",
   "candidate": {
     "offer_id": "TRUTH-ORACLE-DISTRIBUTION-001",
     "name": "Truth Oracle Evidence-to-Alert Path",
@@ -19,6 +19,7 @@
     "deliverable": "free source-linked claim record with provenance, date, contradiction and uncertainty fields; optional alerts or execution only after an existing paid rail is verified",
     "delivery_mechanism": "existing public Truth Oracle surface; paid convenience only through an explicitly verified existing offer",
     "price": 0,
+    "commercial_mode": "FREE_DISCOVERY",
     "currency": "NZD",
     "payment_adapter": "no default checkout; use only an explicitly verified existing payment rail",
     "checkout_route": "not configured; require explicit mapping to a verified existing offer",
@@ -49,6 +50,6 @@
     "independent_proof": false,
     "revenue": "UNVERIFIED"
   },
-  "next_action": "retain candidate internally and generate next bounded candidate",
-  "integrity_sha256": "251fdbe6acac4d102a710b3853627812e7fc2db5b1aa2dc1a0398db3ae1d3c6f"
+  "next_action": "route only through existing authorized acquisition/commerce mechanism",
+  "integrity_sha256": "b2a795d534e93626587f4ab2001e3043fcd525d91223b2cee66ba6c043423c61"
 }
