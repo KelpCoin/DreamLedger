@@ -55,10 +55,25 @@ function writeFossil(input, outputDir = DEFAULT_ROOT) {
     schema_version: 'BEC-FOSSIL-2.0',
     event: String(input.event || 'UNCLASSIFIED_EXTERNAL_EVENT'),
     asset_id: input.asset_id || input.product_id || input.offer_id || null,
-    status: evidenceComplete && Number.isFinite(amount) && amount > 0 && /^[a-z]{3}$/.test(currency)
+    status: evidenceComplete &&
+      input.settlement_status === 'settled' &&
+      input.provider_signature_verified === true &&
+      typeof input.payment_provider === 'string' && input.payment_provider.trim() &&
+      typeof input.provider_event_id === 'string' && input.provider_event_id.trim() &&
+      typeof input.attribution_ref === 'string' && input.attribution_ref.trim() &&
+      typeof input.fulfillment_ref === 'string' && input.fulfillment_ref.trim() &&
+      typeof input.independent_proof_ref === 'string' && input.independent_proof_ref.trim() &&
+      Number.isFinite(amount) && amount > 0 && /^[a-z]{3}$/.test(currency)
       ? 'PASS'
       : 'UNVERIFIED',
     verification_boundary: 'UPSTREAM_TRUSTED_VERIFIER_REQUIRED',
+    settlement_status: input.settlement_status === 'settled' ? 'settled' : 'unknown',
+    provider_signature_verified: input.provider_signature_verified === true,
+    payment_provider: typeof input.payment_provider === 'string' && input.payment_provider.trim() ? input.payment_provider.trim() : null,
+    provider_event_id: typeof input.provider_event_id === 'string' && input.provider_event_id.trim() ? input.provider_event_id.trim() : null,
+    attribution_ref: typeof input.attribution_ref === 'string' && input.attribution_ref.trim() ? input.attribution_ref.trim() : null,
+    fulfillment_ref: typeof input.fulfillment_ref === 'string' && input.fulfillment_ref.trim() ? input.fulfillment_ref.trim() : null,
+    independent_proof_ref: typeof input.independent_proof_ref === 'string' && input.independent_proof_ref.trim() ? input.independent_proof_ref.trim() : null,
     ledger_head_hash: input.ledger_head_hash || null,
     verification_results: Object.fromEntries(REQUIRED_GATES.map(gate => [
       gate, Boolean(input.verification_results && input.verification_results[gate] === true)
@@ -112,11 +127,21 @@ function verifyFossil(file) {
     timestamp: typeof fossil.timestamp_utc === 'string' && !Number.isNaN(Date.parse(fossil.timestamp_utc)),
     evidence_reference: typeof fossil.external_evidence_ref === 'string' && fossil.external_evidence_ref.trim().length > 0,
     verifier_identity: typeof fossil.verifier_id === 'string' && fossil.verifier_id.trim().length > 0,
+    settlement_status: fossil.settlement_status === 'settled',
+    provider_signature_verified: fossil.provider_signature_verified === true,
+    payment_provider: typeof fossil.payment_provider === 'string' && fossil.payment_provider.trim().length > 0,
+    provider_event_id: typeof fossil.provider_event_id === 'string' && fossil.provider_event_id.trim().length > 0,
+    attribution_reference: typeof fossil.attribution_ref === 'string' && fossil.attribution_ref.trim().length > 0,
+    fulfillment_reference: typeof fossil.fulfillment_ref === 'string' && fossil.fulfillment_ref.trim().length > 0,
+    independent_proof_reference: typeof fossil.independent_proof_ref === 'string' && fossil.independent_proof_ref.trim().length > 0,
     required_gates: REQUIRED_GATES.every(gate => gates[gate] === true),
     fossil_integrity: typeof storedHash === 'string' && storedHash === 'sha256:' + sha256(body),
     status_consistent: fossil.status === 'PASS'
       ? REQUIRED_GATES.every(gate => gates[gate] === true) &&
         Boolean(fossil.external_evidence_ref) && Boolean(fossil.verifier_id) &&
+        fossil.settlement_status === 'settled' && fossil.provider_signature_verified === true &&
+        Boolean(fossil.payment_provider) && Boolean(fossil.provider_event_id) &&
+        Boolean(fossil.attribution_ref) && Boolean(fossil.fulfillment_ref) && Boolean(fossil.independent_proof_ref) &&
         Number(fossil.amount) > 0 && /^[a-z]{3}$/.test(String(fossil.currency))
       : fossil.status === 'UNVERIFIED'
   };
