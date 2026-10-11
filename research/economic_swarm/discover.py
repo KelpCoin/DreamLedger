@@ -34,7 +34,7 @@ def get(url):
         return r.read(1_500_000)
 
 def clean(s):
-    return re.sub(r"\\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()[:MAX_BODY]
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()[:MAX_BODY]
 
 def parse_feed(raw, source):
     root = ET.fromstring(raw)
