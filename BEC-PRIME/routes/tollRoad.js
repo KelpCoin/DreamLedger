@@ -314,7 +314,9 @@ async function handle(req,res,path){
         ? body.payload
         : body && typeof body.event === 'object' && !Array.isArray(body.event)
           ? body.event
-          : Object.fromEntries(Object.entries(body || {}).filter(([name]) => name !== 'idempotency_key'));
+          : body && typeof body === 'object' && !Array.isArray(body)
+            ? Object.fromEntries(Object.entries(body).filter(([name]) => name !== 'idempotency_key'))
+            : null;
       try {
         const receipt = await AgentBridgeEventLedger.acceptEvent({ keyId: key.key_id, idempotencyKey, payload });
         return send(res,200,{...meterResult(key,'AGENT-BRIDGE-EVENTS',{...receipt}),economic_truth_unchanged:true});
