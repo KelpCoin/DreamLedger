@@ -48,7 +48,24 @@ def main() -> int:
 
     services = manifest.get("services")
     if not isinstance(services, list):
-        print("AGENT_BRIDGE_SYNC=FAIL services_array_missing", file=sys.stderr)
+        # The public gateway can return a valid JSON manifest with a different
+        # envelope while its deployment is inconsistent. Preserve the last known
+        # catalogue, but mark it explicitly stale so it cannot be mistaken for a
+        # current reachability or fulfillment proof. Continue the 777 cycle.
+        if TARGET.exists():
+            try:
+                previous = json.loads(TARGET.read_text(encoding="utf-8"))
+                previous["manifest_sync_status"] = "STALE_PRESERVED"
+                previous["manifest_sync_error"] = "services_array_missing"
+                TARGET.write_text(
+                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\\n",
+                    encoding="utf-8",
+                )
+                print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=services_array_missing")
+                return 0
+            except (OSError, json.JSONDecodeError):
+                pass
+        print("AGENT_BRIDGE_SYNC=FAIL services_array_missing and no valid prior catalogue", file=sys.stderr)
         return 1
 
     normalised = []
