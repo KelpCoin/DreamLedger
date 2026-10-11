@@ -274,7 +274,7 @@ def main() -> int:
             heartbeat["matching_files"] = len(files)
             outcomes = [handle(p, model, state) for p in files]
             heartbeat["last_outcomes"] = outcomes[-20:]
-            heartbeat["status"] = "PASS" if all(x["status"] in {"VALIDATED", "DUPLICATE_SKIPPED"} for x in outcomes) else ("IDLE" if not outcomes else "DEGRADED")
+            heartbeat["status"] = ("IDLE" if not outcomes else ("PASS" if all(x["status"] in {"VALIDATED", "DUPLICATE_SKIPPED"} for x in outcomes) else "DEGRADED"))
         except Exception as exc:
             heartbeat["status"] = "FAILED"
             heartbeat["error"] = f"{type(exc).__name__}: {exc}"
