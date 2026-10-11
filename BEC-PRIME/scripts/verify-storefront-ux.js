@@ -53,8 +53,8 @@ async function main() {
   }
   const published = parsed.products.filter(product => product && product.status === 'published');
   const purchasable = published.filter(product =>
-    (product.checkout_available === true && typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url)) ||
-    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && /^https:\/\//i.test(product.claim_url))
+    (product.checkout_available === true && typeof product.checkout_url === 'string' && (/^https:\/\//i.test(product.checkout_url) || /^\/(?!\/)/.test(product.checkout_url))) ||
+    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
   );
   const brokenCheckout = published.filter(product =>
     product.checkout_available === true && !(typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url))
