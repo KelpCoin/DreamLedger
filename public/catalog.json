@@ -90,13 +90,14 @@
       "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "name": "DreamLedger Founding Billboard",
-      "description": "One permanent 100×100 public billboard tile on the DreamLedger canvas. Buyer supplies the destination and creative; publication follows human content review.",
+      "description": "Billboard preview only. Paid placement checkout is temporarily held while secure intake and live inventory reservation are repaired. No purchase is accepted from the current billboard page.",
       "price": 50,
       "currency": "nzd",
       "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "category": "public-placements"
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "public-placements",
+      "availability": "review_required"
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",

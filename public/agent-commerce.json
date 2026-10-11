@@ -123,15 +123,6 @@
       "loop": "LOOP-KELP-FLOOR1-19"
     },
     {
-      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "name": "Founding Billboard",
-      "price_nzd": 50,
-      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "status": "LISTED",
-      "loop": "LOOP-BILLBOARD-FOUNDING-50"
-    },
-    {
       "product_id": "SELLER-PROFIT-AUDIT-001",
       "name": "Seller Profit Audit",
       "price_nzd": 29,
@@ -189,6 +180,15 @@
       "status": "REVIEW_REQUIRED",
       "loop": "LOOP-QUOTE-COMPARE-49",
       "note": "Paid checkout held until intake, persistence, and fulfillment are independently verified. The free worksheet remains available."
+    },
+    {
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard",
+      "price_nzd": 50,
+      "buy_router": "https://dreamledger.org/billboard",
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-BILLBOARD-FOUNDING-50",
+      "note": "Paid placement checkout held until secure intake and live inventory reservation are independently verified."
     }
   ]
 }
