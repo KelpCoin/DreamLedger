@@ -2,7 +2,8 @@
   "design_target_roads": null,
   "manifest_source_collection": "offers",
   "manifest_status": "CONFIGURED_NOT_END_TO_END_VERIFIED",
-  "manifest_sync_status": "FRESH",
+  "manifest_sync_error": "no_executable_services_after_normalization",
+  "manifest_sync_status": "STALE_PRESERVED",
   "schema": "dreamledger/agent-bridge-catalog/v1",
   "service_count": 1,
   "services": [
