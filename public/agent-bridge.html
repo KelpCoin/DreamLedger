@@ -20,6 +20,7 @@
 <article class="card"><div class="eyebrow">02 · Proof</div><h2>Receipt, not a claim</h2><p>Get a stable receipt ID and SHA-256 payload digest. Raw event contents are not written to the receipt ledger.</p></article>
 <article class="card"><div class="eyebrow">03 · Control</div><h2>Retry safely</h2><p>Repeating the same idempotency key and payload returns the original receipt. Reusing that key for different content is rejected.</p></article>
 </div></section>
+<section id="redemption" hidden><h2>Your Agent Bridge key</h2><p id="redeem-status" role="status">Checking your payment and preparing access…</p><pre id="redeem-key">Your scoped key will appear here after payment is confirmed.</pre><p class="small">Treat this key like a password. It is scoped to Agent Bridge Events. Save it in your server-side secret manager, not in a public repository or browser code.</p></section>
 <section><h2>Connect your agent</h2><ol><li>Purchase the event pack.</li><li>After Stripe reports payment as paid, redeem the Checkout Session ID for a scoped key.</li><li>POST each event with the key and a unique idempotency key.</li></ol>
 <h3>Redeem after payment</h3><pre>POST /api/toll/v1/redeem/bridge-events
 Content-Type: application/json
@@ -37,4 +38,33 @@ x-dreamledger-toll-key: dlk_...
 </section>
 </main>
 <footer>DreamLedger · A bounded automated service. An API key does not grant autonomous spending or private-system authority. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/status">Service status</a></footer>
-</div></body></html>
+</div>
+<script>
+(async function(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('checkout') !== 'success' || params.get('scope') !== 'bridge-events') return;
+  const sessionId = params.get('session_id');
+  const panel = document.getElementById('redemption');
+  const status = document.getElementById('redeem-status');
+  const keyOutput = document.getElementById('redeem-key');
+  panel.hidden = false;
+  if(!sessionId){status.textContent='Payment return received, but the Checkout Session ID is missing. Contact support with your Stripe receipt.';return;}
+  try {
+    const response = await fetch('/api/toll/v1/redeem/bridge-events', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session_id:sessionId})
+    });
+    const result = await response.json();
+    if(!response.ok || result.status !== 'ENTITLED' || !result.key) {
+      status.textContent='Access was not issued. '+String(result.error||'Payment confirmation is incomplete')+'. Your payment is not being treated as fulfilled until redemption succeeds.';
+      return;
+    }
+    keyOutput.textContent = result.key;
+    status.textContent='Payment confirmed. Your scoped key is ready.';
+  } catch(error) {
+    status.textContent='Could not verify the payment return. Retry this page or redeem the same Checkout Session ID through the API.';
+  }
+})();
+</script>
+</body></html>
