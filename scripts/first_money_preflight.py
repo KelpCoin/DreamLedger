@@ -65,7 +65,7 @@ def http_get(name: str, url: str, timeout: float = 8.0) -> None:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             payload = response.read(256_000)
             record(name, "PASS" if 200 <= response.status < 300 else "FAIL",
-                   f"HTTP {response.status}; received {len(payload)} bytes from {url}")
+                   f"HTTP {response.status}; received {len(payload)} bytes from {response.geturl()} (requested {url})")
             if name == "gateway_manifest":
                 try:
                     manifest = json.loads(payload.decode("utf-8"))
@@ -119,7 +119,7 @@ def main() -> int:
     output = {"tool": "dreamledger-first-money-preflight", "mode": "READ_ONLY", "results": RESULTS}
     print(json.dumps(output, indent=2, ensure_ascii=False))
     failures = sum(1 for item in RESULTS if item["status"] == "FAIL")
-    missing = sum(1 for item in RESULTS if item["status"] == "MISSING")
+    missing = sum(1 for item in RESULTS if item["status"] in {"MISSING", "NOT_FOUND"})
     return 1 if failures or missing else 0
 
 
