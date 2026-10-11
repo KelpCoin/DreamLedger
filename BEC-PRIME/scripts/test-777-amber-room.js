@@ -18,7 +18,7 @@ const rows = [
 ];
 const allocation = buildGoldenAllocation(rows);
 assert.equal(allocation.length, 2);
-assert.equal(allocation[0].allocation, 'ELEVATE_INTERNAL');
-assert.equal(allocation[0].external_action, 'BLOCKED');
-assert.equal(allocation[0].truth_status, 'UNVERIFIED');
+assert.equal(allocation[0].disposition, 'ELEVATE_INTERNAL');
+assert.equal(allocation[0].external_action, 'BLOCKED_UNTIL_EXISTING_AUTHORITY_AND_HUMAN_APPROVAL');
+assert.equal(allocation[0].verification_status, 'UNVERIFIED');
 console.log('777_AMBER_ROOM_ALLOCATION_TEST=PASS');
