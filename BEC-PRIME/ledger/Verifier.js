@@ -80,7 +80,14 @@ function writeFossil(input, outputDir = DEFAULT_ROOT) {
   ensureDir(outputDir);
   if (fs.existsSync(file)) {
     const existing = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (existing.transaction_id !== transactionId || existing.idempotency_key !== fossil.idempotency_key) {
+    if (
+      existing.transaction_id !== transactionId ||
+      existing.idempotency_key !== fossil.idempotency_key ||
+      Number(existing.amount) !== Number(fossil.amount) ||
+      existing.currency !== fossil.currency ||
+      existing.asset_id !== fossil.asset_id ||
+      existing.external_evidence_ref !== fossil.external_evidence_ref
+    ) {
       throw new Error('fossil_idempotency_conflict');
     }
     return { file, fossil: existing, idempotent: true };
