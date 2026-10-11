@@ -58,7 +58,7 @@ def main() -> int:
                 previous["manifest_sync_status"] = "STALE_PRESERVED"
                 previous["manifest_sync_error"] = "services_array_missing"
                 TARGET.write_text(
-                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\\n",
+                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
                     encoding="utf-8",
                 )
                 print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=services_array_missing")
