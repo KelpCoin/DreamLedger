@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DreamLedger Marketplace Roadmap | Open Discovery, Verified Transactions</title>
+<meta name="description" content="A practical, evidence-gated roadmap for a reusable B2B and agent-to-agent marketplace: discover free, pay for scoped actions, verify delivery, and build trust from receipts.">
+<meta name="robots" content="index,follow">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--blue:#9ec9ff;--warn:#f3d39a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{max-width:1000px;margin:auto;padding:28px 22px 70px}a{color:var(--mint)}.eyebrow{color:var(--mint);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.hero{padding:34px 0}h1{font-size:clamp(36px,6vw,62px);line-height:1.05;letter-spacing:-.05em;margin:14px 0}h2{font-size:27px;line-height:1.2;letter-spacing:-.03em;margin-top:42px}h3{font-size:19px;margin:0 0 8px}p,li{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:16px;padding:19px;background:var(--panel)}.tag{display:inline-block;border:1px solid #a9f2d055;border-radius:99px;padding:3px 9px;color:var(--mint);font-size:12px}.callout{border-left:3px solid var(--mint);padding:4px 0 4px 16px}.warn{border-left-color:var(--warn)}.steps{padding-left:22px}.steps li{padding:6px 0}.foot{border-top:1px solid var(--line);margin-top:42px;padding-top:18px;font-size:13px}@media(max-width:650px){.grid{grid-template-columns:1fr}.hero{padding-top:16px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="hero">
+<div class="eyebrow">DreamLedger / 777 compounding artifact / 11 October 2026</div>
+<h1>Make useful work easy to find, buy, and verify.</h1>
+<p>The marketplace ambition is broad: reusable digital goods, supplier discovery, agent-to-agent services, GPU inference, and eventually digital-out-of-home inventory. The execution plan must be narrow at the transaction boundary: one clear offer, one authorized payment path, one deliverable, and one independent proof of completion.</p>
+<p class="callout"><strong>Operating rule:</strong> discovery can be free; scoped execution can be cheap; trust is earned by evidence. A catalogue entry, green workflow, checkout link, or API response is not settled revenue.</p>
+</header>
+<section>
+<h2>Marketplace surfaces</h2>
+<div class="grid">
+<article class="card"><span class="tag">B2B discovery · free</span><h3>Search before signup</h3><p>Let people and agents find supplier quote tools, verified templates, stencils, word banks, schemas, workflow packs, connectors, and service providers without paying to browse. Every listing should state who it helps, required inputs, outputs, version, licence, price, constraints, and evidence.</p></article>
+<article class="card"><span class="tag">A2A · low-cost calls</span><h3>Machine-readable service contracts</h3><p>Each service needs a stable ID, schema, route, price, rate limit, idempotency key, timeout, authentication scope, response schema, error model, and receipt. Start with a read-only manifest and a simulated contract test; enable paid execution only after external settlement and fulfilment are verified.</p></article>
+<article class="card"><span class="tag">Reusable digital goods</span><h3>Sell assets once, improve them continuously</h3><p>Versioned assets should include a checksum, licence, compatibility range, changelog, examples, automated tests, and a small sample. Revenue options include one-off purchase, team licence, update subscription, and usage-based API access. Do not duplicate assets already present in the repository.</p></article>
+<article class="card"><span class="tag">GPU capacity</span><h3>Rent inference, not the host machine</h3><p>Offer bounded inference or batch jobs only after measuring available VRAM, throughput, queue time, power/thermal constraints, and uptime. Isolate each tenant, enforce quotas and timeouts, keep secrets out of jobs, limit network access, define retention, and return a signed job receipt. Never expose unrestricted shell or host access to customers.</p></article>
+<article class="card"><span class="tag">Programmatic DOOH</span><h3>Inventory with proof-of-play</h3><p>Represent each billboard slot with owner authorization, venue, screen specs, date/time inventory, creative dimensions, content policy, audience methodology, price, cancellation terms, and proof-of-play. Begin with a digital inventory schema and mock booking; do not claim physical inventory or buy placements until an actual supply partner and approval process exist.</p></article>
+<article class="card"><span class="tag">Trust and settlement</span><h3>One auditable transaction spine</h3><p>Track demand signal → buyer → authorized action → external result → settled payment → fulfilment → delivery evidence → verification. Preserve source evidence and idempotency. Unknown is not pass; internal rows and payment intents are not revenue.</p></article>
+</div>
+</section>
+<section>
+<h2>Agent Bridge: the release gates</h2>
+<ol class="steps">
+<li><strong>Discover:</strong> fetch the live manifest and validate its schema. Record source timestamp and content hash. If the source cannot be fetched, preserve the last snapshot as stale and visibly mark it unverified.</li>
+<li><strong>Normalize:</strong> accept supported service identifiers and route fields only when their meaning is unambiguous. Reject malformed prices, missing routes, duplicate IDs, unsafe methods, and missing input/output schemas.</li>
+<li><strong>Simulate:</strong> run contract tests against a local fixture, including malformed input, timeout, duplicate idempotency key, rate-limit response, and error serialization. A passing fixture proves the test harness, not the production route.</li>
+<li><strong>Authorize:</strong> require an explicit scope and valid entitlement for any billable action. Do not infer consent from manifest access or a previous unrelated purchase.</li>
+<li><strong>Settle and fulfil:</strong> reconcile provider-side payment state, service execution, output checksum, and delivery receipt. Retry safely without double-charging.</li>
+<li><strong>Certify:</strong> mark a service production-ready only after a real external payment is settled and a real buyer receives the promised result. Store the evidence IDs and timestamp.</li>
+</ol>
+<p class="callout warn"><strong>Current known baseline from the last repository receipt:</strong> the Agent Bridge catalogue still reports one candidate service, <code>TOLL-PROBE-50C</code>, at NZ$0.50, with stale manifest sync and unverified settlement/fulfilment. This is not yet a verified paid API product. Re-read the live manifest and latest workflow output before changing that classification.</p>
+</section>
+<section>
+<h2>The 777 work programme: small pieces, shared contracts</h2>
+<div class="grid">
+<article class="card"><h3>Wave 0 · close the first-dollar loop</h3><p>Choose one existing offer. Verify the exact checkout URL, payment webhook, settled-payment reconciliation, entitlement, fulfilment, delivery receipt, refund path, and customer-facing instructions. Acceptance: one independent external buyer completes one paid order and receives the promised deliverable. Scoreboard stays at NZ$0 until then.</p></article>
+<article class="card"><h3>Wave 1 · Agent Bridge reliability</h3><p>Repair manifest normalization, add schema validation and fixture tests, expose freshness/error status, and build a payment-to-entitlement test that cannot confuse a checkout session with settlement. Acceptance: repeatable tests plus one real end-to-end evidence bundle.</p></article>
+<article class="card"><h3>Wave 2 · reusable asset catalogue</h3><p>Define listing, licence, version, checksum, dependency, price, and fulfilment schemas. Index existing assets before creating more. Acceptance: each public listing points to a real downloadable or callable asset, a clear licence, and a tested delivery path.</p></article>
+<article class="card"><h3>Wave 3 · free B2B discovery</h3><p>Build filters, canonical listing URLs, source/freshness labels, and claim/report flows. Monetize verified execution or premium datasets, not basic search. Acceptance: useful listings are crawlable, differentiated, source-grounded, and connected to a clear commercial next step.</p></article>
+<article class="card"><h3>Wave 4 · cheap A2A commerce</h3><p>Publish machine-readable contracts, rate cards, usage caps, idempotency, signed receipts, and scoped keys. Acceptance: a test agent can discover a service, estimate cost, authorize a call, receive an output, and reconcile a receipt without exposing secrets.</p></article>
+<article class="card"><h3>Wave 5 · GPU inference exchange</h3><p>Measure actual capacity, package one safe inference endpoint, add queueing, quotas, abuse controls, tenant isolation, and metering. Acceptance: repeatable benchmark, bounded job, cost model, and a real paid job receipt before increasing capacity.</p></article>
+<article class="card"><h3>Wave 6 · DOOH inventory exchange</h3><p>Model placements and booking rules first; recruit supply only through authorized integrations. Add creative review, payment/escrow state, proof-of-play, and dispute evidence. Acceptance: one authorized inventory source and one verified campaign, not a fabricated billboard catalogue.</p></article>
+<article class="card"><h3>Wave 7 · marketplace federation</h3><p>Standardize seller identity, product/service schemas, policy enforcement, reviews tied to verified transactions, disputes, returns, and exportable seller data. Acceptance: portable listings and reliable order state across independent sellers. Compete on trust and low friction, not on claiming to replace incumbents before usage proves it.</p></article>
+</div>
+</section>
+<section>
+<h2>Compounding rules</h2>
+<ul>
+<li>One expedition should leave a durable artifact: a tested component, source-grounded page, schema, fixture, run receipt, or documented blocker with its next action.</li>
+<li>Never publish filler merely to increase page count. Every public page must answer a distinct query with attributable facts, a useful tool or workflow, clear limitations, and links to relevant existing pages.</li>
+<li>Do not fabricate demand, inventory, regulatory conclusions, benchmarks, buyer activity, settlement, or production readiness.</li>
+<li>Keep commercial routes separate from informational pages. Do not cannibalize existing product URLs.</li>
+<li>Prefer one end-to-end paid fulfilment proof over hundreds of unverified candidate services.</li>
+<li>Every generated artifact records source URLs, observation time, code version, test results, freshness, and explicit unknowns.</li>
+</ul>
+</section>
+<footer class="foot"><p>DreamLedger / 777. This roadmap is an implementation plan, not a claim that each component is deployed or commercially validated. Revenue is verified only from settled external payment plus evidence of fulfilment and delivery.</p><p><a href="/agentic-commerce/">Back to Agentic Commerce</a> · <a href="https://dreamledger.org/mtg">Current MTG product surface</a></p></footer>
+</main></body></html>
