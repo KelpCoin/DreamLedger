@@ -1,12 +1,12 @@
 {
   "schema": "dreamledger/agent-commerce/v6",
-  "updated": "2026-10-05",
+  "updated": "2026-10-11",
   "purpose": "Public product discovery and purchase information for people and AI assistants.",
   "storefront": "https://dreamledger.org/",
   "human_shop_horizontal": "https://dreamledger.org/shop.html",
   "thesis": "Find a listed offer, review its terms, approve the purchase, and follow the product page for next steps.",
   "agent_bridge": {
-    "status": "public_discovery",
+    "status": "held_until_probe_verified",
     "rail_public": "https://dreamledger.org/api/offers",
     "manifest": "https://dreamledger.org/agent.json",
     "economic_truth": "A listing or checkout start does not prove a completed purchase or delivery."
@@ -45,14 +45,15 @@
   },
   "primary_offers": [
     {
-      "product_id": "QUOTE-COMPARE-49",
-      "name": "Supplier Quote Comparison",
+      "product_id": "AGENT-PROOF-AUDIT-49",
+      "name": "Agent Delivery Proof Audit",
       "price_nzd": 49,
-      "buy_router": "https://dreamledger.org/quote-comparison/",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+      "buy_router": "https://dreamledger.org/agent-delivery-proof-audit.html",
+      "checkout_url": "https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m",
       "status": "LISTED",
-      "loop": "LOOP-QUOTE-COMPARE-49",
-      "note": "Live Stripe API read on 2026-10-07 confirms the payment link is active in livemode and carries SKU QUOTE-COMPARE-49 metadata. Canonical buy router restored at /buy/quote_compare_49/."
+      "fulfillment": "manual",
+      "loop": "LOOP-AGENT-PROOF-AUDIT-49",
+      "note": "One bounded public URL or artifact, up to five acceptance criteria. Delivery target starts after complete accessible intake; checkout is not proof of sale or delivery."
     },
     {
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
@@ -122,15 +123,6 @@
       "loop": "LOOP-KELP-FLOOR1-19"
     },
     {
-      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "name": "Founding Billboard",
-      "price_nzd": 50,
-      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "status": "LISTED",
-      "loop": "LOOP-BILLBOARD-FOUNDING-50"
-    },
-    {
       "product_id": "SELLER-PROFIT-AUDIT-001",
       "name": "Seller Profit Audit",
       "price_nzd": 29,
@@ -178,5 +170,25 @@
     "agent_products": "https://dreamledger.org/agent-products.json",
     "llms": "https://dreamledger.org/llms.txt"
   },
-  "economic_loops": "https://dreamledger.org/pulse/"
+  "economic_loops": "https://dreamledger.org/pulse/",
+  "held_offers": [
+    {
+      "product_id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "price_nzd": 49,
+      "buy_router": "https://dreamledger.org/quote-comparison/",
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-QUOTE-COMPARE-49",
+      "note": "Paid checkout held until intake, persistence, and fulfillment are independently verified. The free worksheet remains available."
+    },
+    {
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard",
+      "price_nzd": 50,
+      "buy_router": "https://dreamledger.org/billboard",
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-BILLBOARD-FOUNDING-50",
+      "note": "Paid placement checkout held until secure intake and live inventory reservation are independently verified."
+    }
+  ]
 }

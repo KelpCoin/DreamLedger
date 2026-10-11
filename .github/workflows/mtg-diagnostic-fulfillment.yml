@@ -48,9 +48,11 @@ jobs:
             'BEC-PRIME/compiled/website/billboard.html'
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
-          $homeHtml = Get-Content BEC-PRIME/compiled/website/index.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison','Commander Deck Diagnostic','Choose a result')) {
-            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
+          # DreamLedger1 serves public/home.html at /. Check the actual canonical storefront,
+          # not a stale compiled snapshot maintained by a different build path.
+          $homeHtml = Get-Content public/home.html -Raw
+          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Commander Deck Diagnostic','Agent Delivery Proof Audit')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical storefront token missing: $token" }
           }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
           Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'

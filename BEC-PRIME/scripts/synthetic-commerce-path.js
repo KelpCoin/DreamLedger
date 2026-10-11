@@ -69,12 +69,11 @@ async function main() {
   assert.match(String(doorwayRes.headers.Location), /^\/billboard\?/);
   assert.ok(doorwayRes.headers['X-BEC-Doorway-Event'], 'doorway event id should be emitted');
 
-  const checkout = await platformCart.createProductCheckout('DREAMLEDGER-BILLBOARD-FOUNDING-001', 'dreamledger');
-  assert.equal(checkout.ok, true);
-  assert.equal(checkout.mode, 'canonical_payment_link');
-  assert.equal(checkout.amount_minor, 5000);
-  assert.equal(checkout.currency, 'nzd');
-  assert.equal(checkout.payment_link_id, 'plink_1UAN9zJt4ieIQDFzgHeso6Qo');
+  await assert.rejects(
+    () => platformCart.createProductCheckout('DREAMLEDGER-BILLBOARD-FOUNDING-001', 'dreamledger'),
+    /Product is not checkoutable/,
+    'held Billboard must not create a checkout'
+  );
 
   writeSyntheticBillboard();
   const event = {
@@ -127,14 +126,15 @@ async function main() {
       'GET /go',
       'DOORWAY_VISIT',
       'CANONICAL_OFFER',
-      'CHECKOUT_SURFACE',
+      'CHECKOUT_HELD',
       'SYNTHETIC_STRIPE_WEBHOOK',
       'PAYMENT_EVENT',
       'FULFILLMENT_EVENT',
       'DURABLE_LEDGER_BALANCE'
     ],
     doorway_event_id: doorwayRes.headers['X-BEC-Doorway-Event'],
-    checkout_mode: checkout.mode,
+    checkout_mode: 'HELD_CHECKOUT_REJECTED',
+    real_checkout_created: false,
     synthetic_transaction_id: 'cs_synthetic_0001',
     ledger: after,
     checked_at: new Date().toISOString()

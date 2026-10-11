@@ -106,8 +106,16 @@ jobs:
           grep -q '/fulfilment.html?session_id=' public/automation-rescue.html
           grep -Fq 'NZ$99' public/automation-rescue.html
           test -s public/billboard.html
-          grep -Fq 'Buy Founding Tile NZ$50' public/billboard.html
-          grep -q 'https://buy.stripe.com/' public/billboard.html
+          node - <<'NODE'
+          const fs=require('fs');
+          const c=JSON.parse(fs.readFileSync('public/catalog.json','utf8'));
+          const p=c.products.find(x=>x.id==='DREAMLEDGER-BILLBOARD-FOUNDING-001');
+          const page=fs.readFileSync('public/billboard.html','utf8');
+          if(!p || p.checkout_available!==false || p.checkout_url!==null) throw new Error('Billboard checkout must be held');
+          if(page.includes('buy.stripe.com') || page.includes('Buy Founding Tile NZ$50')) throw new Error('Billboard page still exposes a direct purchase path');
+          if(!page.includes('Paid placement checkout is temporarily held')) throw new Error('Billboard hold message is missing');
+          console.log('BILLBOARD_CHECKOUT=HELD');
+          NODE
           test -s public/maximona.html
           grep -q 'Independent Production Verification' public/maximona.html
           grep -Fq 'NZ$1,500' public/maximona.html

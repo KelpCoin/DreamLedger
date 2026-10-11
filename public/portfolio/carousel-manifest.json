@@ -1,8 +1,8 @@
 {
-  "schema": "BEC-PRIME/SILO-CAROUSEL-MANIFEST/v1",
+  "schema": "DREAMLEDGER/PUBLIC-CAROUSEL-MANIFEST/v1",
   "status": "COMPILED",
   "compiler": "SiloPortfolioCompiler",
-  "trend_engine": "BEC-PRIME/trends/TrendFlywheel.js",
+  "trend_engine": "evidence-trend-engine",
   "compiled_at": "2026-10-05T10:54:40.387Z",
   "source_hash": "PENDING_COMPILER_RECALCULATION",
   "rules": {

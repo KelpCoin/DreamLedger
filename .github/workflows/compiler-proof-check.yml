@@ -58,10 +58,14 @@ jobs:
           grep -q '"status": "PASS"' data/proofs/compiler-leverage-latest.json
           test -s data/proofs/leverage-registry-latest.json
           grep -q '"count": 100' data/proofs/leverage-registry-latest.json
-      - name: Verify DreamMeez branding and Cortex controls
+      - name: Verify canonical storefront and avatar controls
         run: |
-          test -s compiled/website/index.html
-          grep -q 'DreamMee' compiled/website/index.html
+          test -s ../public/home.html
+          grep -q 'DreamLedger' ../public/home.html
+          grep -q 'Supplier Quote Comparison Worksheet' ../public/home.html
+          test -s ../public/avatar.html
+          grep -q 'DreamMeez' ../public/avatar.html
+          grep -q 'Save DreamMeez' ../public/avatar.html
       - name: Upload compiler proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

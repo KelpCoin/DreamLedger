@@ -29,7 +29,7 @@ function trendScore(input={}){
     input.fulfillment_health,
     input.conversion_evidence,
     freshnessScore
-  ].filter(v => Number.isFinite(Number(v)));
+  ].filter(v => v != null && Number.isFinite(Number(v)));
 
   if (!known.length) {
     return {
@@ -86,10 +86,10 @@ function trendScore(input={}){
   else if (momentum < .36) state='MISSED';
   else state='HEATING_UP';
 
-  if (state === 'DEAD' || state === 'HATED' || state === 'MISSED') {
-    const prior = String(input.previous_state || '');
-    const freshPositive = fresh > .55 && momentum > .48 && (intent == null || intent > .40);
-    if (freshPositive && prior !== 'UNKNOWN') state='REVIVED';
+  const prior = String(input.previous_state || '');
+  const freshPositive = fresh > .55 && momentum > .48 && (intent == null || intent > .40);
+  if (['DEAD','HATED','MISSED'].includes(prior) && freshPositive && directionalDepth >= 2) {
+    state='REVIVED';
   }
 
   const confidence = clamp(

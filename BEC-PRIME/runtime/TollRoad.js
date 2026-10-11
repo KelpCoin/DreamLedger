@@ -184,11 +184,15 @@ function publicManifest(extraServices = []) {
     ,{ id: 'ENTERPRISE-WALL', route: '/api/toll/v1/enterprise-wall', scope: 'enterprise-wall', price_nzd: 499, description: '500k-call enterprise toll wall' }
     ,{ id: 'ENTERPRISE-PRO', route: '/api/toll/v1/enterprise-pro', scope: 'enterprise-pro', price_nzd: 1499, description: '2M-call enterprise tier with SLA' }
     ,{ id: 'WHITE-LABEL', route: '/api/toll/v1/white-label', scope: 'white-label', price_nzd: 999, description: '100k-call white-label route namespace' }
-  ].map(s => Object.assign({ checkout_configured: true }, s));
+  ].map(s => ({ ...s, proposed_price_nzd: s.price_nzd, price_nzd: null, checkout_configured: false, checkout_route: null, status: 'HELD_NOT_END_TO_END_VERIFIED' }));
   return {
     schema: 'dreamledger/toll-road/v2',
-    status: configured() ? 'ARMED' : 'NOT_CONFIGURED',
-    model: 'customer pays -> settled payment -> entitlement -> signed key -> API wall -> automated fulfillment',
+    status: 'HELD_NOT_END_TO_END_VERIFIED',
+    checkout_enabled: false,
+    first_payment_proof: 'NOT_PROVEN',
+    entitlement_redemption: 'NOT_PROVEN',
+    hold_reason: 'Durable per-key quota accounting and settlement-to-key redemption are not end-to-end verified.',
+    model: 'planned: settled payment -> durable entitlement -> scoped key -> API wall; access remains held until verified',
     human_gate: 'CUBE approval required before a road is published',
     internal_authority: 'never delegated to customer keys',
     truth_boundary: 'payment and economic truth remain external-evidence governed',

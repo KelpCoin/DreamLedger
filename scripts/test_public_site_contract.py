@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline contract checks for the public DreamLedger storefront."""
 from pathlib import Path
+import json
 import re
 import sys
 
@@ -9,6 +10,7 @@ SERVER = (ROOT / "public" / "server.js").read_text(encoding="utf-8")
 HOME = (ROOT / "public" / "home.html").read_text(encoding="utf-8")
 TRUST = (ROOT / "public" / "trust.html").read_text(encoding="utf-8")
 ABOUT = (ROOT / "public" / "about.html").read_text(encoding="utf-8")
+CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
 
 checks = {
     "root maps to designed homepage": "'/':'home.html'" in SERVER,
@@ -30,8 +32,21 @@ for page in (HOME, TRUST, ABOUT):
 broken_links = []
 for target in internal_links:
     route = target.split("#", 1)[0].split("?", 1)[0] or "/"
-    if route not in route_keys:
-        broken_links.append(target)
+    if route in route_keys:
+        continue
+    # /buy/<product_id> is a dynamic storefront route. Accept it only when the
+    # catalog exposes that exact product as published and checkout-enabled.
+    if route.startswith("/buy/") and "p.startsWith('/buy/')" in SERVER:
+        product_id = route[len("/buy/"):]
+        if any(
+            product.get("id") == product_id
+            and product.get("status") == "published"
+            and product.get("checkout_available") is True
+            and isinstance(product.get("checkout_url"), str)
+            for product in CATALOGUE.get("products", [])
+        ):
+            continue
+    broken_links.append(target)
 checks["internal links map to storefront routes"] = not broken_links
 
 failed = [name for name, ok in checks.items() if not ok]

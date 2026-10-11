@@ -25,25 +25,38 @@ jobs:
             grep -qi "Phin Haven" "$f"
           done
 
-      - name: Passport and Echo surface
+      - name: Current social-lobby interaction surface
         shell: bash
         run: |
           set -euo pipefail
           f=public/phin-haven-v5.html
-          grep -q 'id="passport"' "$f"
-          grep -q 'kelplantis_get_passport_for_token' "$f"
-          grep -q 'id="echo"' "$f"
-          grep -q 'kelplantis_set_soul_anchor_for_token' "$f"
+          grep -q 'id="feed"' "$f"
+          grep -q 'id="input"' "$f"
+          grep -q 'id="send"' "$f"
+          grep -q 'id="presence"' "$f"
+          grep -q 'renderPresence' "$f"
+          grep -q 'function send' "$f"
 
       - name: Economic surface
         shell: bash
         run: |
           set -euo pipefail
-          f=public/billboard.html
-          grep -q 'buy.stripe.com' "$f"
-          grep -q 'permanent' "$f"
-          grep -q 'finite' "$f"
-          grep -q 'Human review' "$f"
+          node - <<'NODE'
+          const fs = require('fs');
+          const catalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
+          const product = catalog.products.find(x => x.id === 'DREAMLEDGER-BILLBOARD-FOUNDING-001');
+          const page = fs.readFileSync('public/billboard.html', 'utf8');
+          if (!product || product.checkout_available !== false || product.checkout_url !== null || product.availability !== 'review_required') {
+            throw new Error('Billboard catalog must hold checkout until intake and inventory are verified');
+          }
+          if (page.includes('buy.stripe.com') || page.includes('/api/molt-beach-checkout')) {
+            throw new Error('Billboard page must not expose the inactive direct checkout or missing intake endpoint');
+          }
+          if (!page.includes('Paid placement checkout is temporarily held')) {
+            throw new Error('Billboard page must clearly state checkout is held');
+          }
+          console.log('PASS: unverified billboard checkout held safely');
+          NODE
 
       - name: No fake economic proof
         shell: bash
@@ -56,7 +69,8 @@ jobs:
         run: |
           set -euo pipefail
           test -f public/avatar.html
-          grep -q 'IDENTITY PREVIEW' public/avatar.html
+          grep -q 'id="avatar"' public/avatar.html
+          grep -q 'id="save"' public/avatar.html
           grep -q 'Save DreamMeez' public/avatar.html
 
       - name: SQL canonical table check
@@ -64,4 +78,7 @@ jobs:
         run: |
           set -euo pipefail
           test -d supabase/migrations
-          grep -Rli 'canonicalize_phin_haven_table_names' supabase/migrations >/dev/null
+          # The canonicalization is implemented as a data-preserving DO/ALTER TABLE
+          # migration, not as a stored procedure with the former function name.
+          grep -Rli 'alter table if exists public.kelplantis_' supabase/migrations >/dev/null
+          grep -Rli 'phinhaven_' supabase/migrations/20260921000000_phinhaven_canonical_table_names.sql >/dev/null

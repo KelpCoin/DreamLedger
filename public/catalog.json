@@ -90,13 +90,14 @@
       "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "name": "DreamLedger Founding Billboard",
-      "description": "One permanent 100×100 public billboard tile on the DreamLedger canvas. Buyer supplies the destination and creative; publication follows human content review.",
+      "description": "Billboard preview only. Paid placement checkout is temporarily held while secure intake and live inventory reservation are repaired. No purchase is accepted from the current billboard page.",
       "price": 50,
       "currency": "nzd",
       "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "category": "public-placements"
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "public-placements",
+      "availability": "review_required"
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
@@ -329,15 +330,16 @@
       "id": "QUOTE-COMPARE-49",
       "sku": "QUOTE-COMPARE-49",
       "name": "Supplier Quote Comparison",
-      "description": "One-time normalization and comparison of 2-5 supplier quotes into a side-by-side decision packet covering price, scope differences, missing costs, terms and material exceptions.",
+      "description": "Free browser-side supplier quote comparison worksheet. Paid comparison service temporarily unavailable while intake, persistence, and fulfillment are verified.",
       "price": 49,
       "currency": "nzd",
       "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
+      "checkout_available": false,
+      "checkout_url": null,
       "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
       "stripe_price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
-      "category": "procurement-tools"
+      "category": "procurement-tools",
+      "availability": "review_required"
     },
     {
       "id": "DOC-EXTRACT-50",

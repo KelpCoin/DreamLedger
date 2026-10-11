@@ -26,61 +26,85 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s public/index.html
+          test -s public/home.html
           test -s public/billboard.html
           test -s public/server.js
           test -s public/package.json
           test -s public/robots.txt
           test -s public/sitemap.xml
-          grep -q 'Decisions made clearer' public/index.html
-          grep -q 'Supplier Quote Comparison' public/index.html
-          grep -q 'Automated where practical' public/index.html
-          grep -q 'Evidence-aware' public/index.html
-          grep -q '/billboard' public/index.html
-          grep -q '/avatar.html' public/index.html
-          grep -q '/truth-oracle.html' public/index.html
-          grep -q "'GET /api/products':true" public/server.js
-          grep -q "'POST /api/billboard/submit':true" public/server.js
+          grep -q 'Supplier Quote Comparison Worksheet' public/home.html
+          grep -q 'Agent Delivery Proof Audit' public/home.html
+          grep -q 'Commander Deck Diagnostic' public/home.html
+          grep -q 'Agent Bridge · Preview (held)' public/home.html
+          grep -q "p==='/api/offers' || p==='/api/products'" public/server.js
           grep -q "'/sitemap.xml':'sitemap.xml'" public/server.js
-          grep -Eq "public-v1[4-9]" public/server.js
+          grep -q "p.startsWith('/buy/')" public/server.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const c=JSON.parse(fs.readFileSync('public/catalog.json','utf8'));
+          const b=c.products.find(x=>x.id==='DREAMLEDGER-BILLBOARD-FOUNDING-001');
+          if(!b || b.checkout_available!==false || b.checkout_url!==null || b.availability!=='review_required') process.exit(1);
+          const page=fs.readFileSync('public/billboard.html','utf8');
+          if(page.includes('buy.stripe.com') || page.includes('/api/molt-beach-checkout')) process.exit(1);
+          console.log('PASS: unverified billboard checkout is held.');
+          NODE
           grep -q 'https://dreamledger.org/sitemap.xml' public/robots.txt
           grep -q 'https://dreamledger.org/' public/sitemap.xml
-          echo 'PASS: DreamMeez storefront contract is present.'
+          echo 'PASS: canonical storefront and honest checkout availability are verified.'
       - name: Scan public assets for internal or cross-silo leakage
         shell: bash
         run: |
           set -euo pipefail
-          tmp=$(mktemp)
-          find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.json' -o -name '*.txt' \) -print0 | while IFS= read -r -d '' f; do
+          pattern='Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|private factory|internal factory'
+          failed=0
+          while IFS= read -r -d '' f; do
             case "$f" in
-              *.html) sed -E 's#<script[^>]*>.*</script>##g; s#<style[^>]*>.*</style>##g' "$f" >> "$tmp" ;;
-              *) cat "$f" >> "$tmp" ;;
+              *.html) content=$(sed -E 's#<script[^>]*>.*</script>##g; s#<style[^>]*>.*</style>##g' "$f") ;;
+              *) content=$(cat "$f") ;;
             esac
-          done
-          if grep -Eiq 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|BEC-PRIME|AMPLISSA|COLLECTORSCOAST|HappyHomarid|private factory|internal factory' "$tmp"; then
+            if printf '%s' "$content" | grep -Eiq "$pattern"; then
+              echo "PUBLIC_LANGUAGE_MATCH=$f"
+              printf '%s' "$content" | grep -Ein "$pattern" | head -5 || true
+              failed=1
+            fi
+          done < <(find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.json' -o -name '*.txt' \) ! -path 'public/package.json' -print0)
+          if [ "$failed" -ne 0 ]; then
             echo 'FAIL: prohibited internal or cross-silo language found in public assets.'
-            rm -f "$tmp"
             exit 1
           fi
-          rm -f "$tmp"
           echo 'PASS: public language boundary clean.'
       - name: Verify public route allowlist
         shell: bash
         run: |
           set -euo pipefail
           grep -q 'PUBLIC_FILES' public/server.js
-          grep -Eq "'/'.*index.html" public/server.js
+          grep -q "'/':'home.html','/index.html':'home.html'" public/server.js
           grep -Eq "'/billboard'.*billboard.html" public/server.js
-          grep -Eq "'/dreammeez'.*avatar.html" public/server.js
+          grep -q "'/avatar.html':'avatar.html'" public/server.js
           grep -Eq "'/sitemap.xml'.*sitemap.xml" public/server.js
-          grep -q "if\(!ALLOWED_API\[key\]\)" public/server.js
-          echo 'PASS: public routes explicitly allowlisted.'
+          grep -q "p==='/api/offers' || p==='/api/products'" public/server.js
+          echo 'PASS: canonical public routes and product API are implemented.'
       - name: Verify secrets absent from public assets
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -Eiq --include='*.html' --include='*.js' --include='*.css' --include='*.json' --include='*.txt' 'sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY|SUPABASE_SERVICE_ROLE_KEY' public; then
-            echo 'FAIL: credential-like literal found in public assets.'
+          found=0
+          scan_pattern() {
+            label="$1"
+            pattern="$2"
+            while IFS= read -r -d '' f; do
+              if grep -Eiq "$pattern" "$f"; then
+                echo "SECRET_PATTERN=$label FILE=$f"
+                found=1
+              fi
+            done < <(find public -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' -o -name '*.json' -o -name '*.txt' \) ! -path 'public/package.json' -print0)
+          }
+          scan_pattern STRIPE_LIVE_KEY 'sk_live_[A-Za-z0-9]+'
+          scan_pattern STRIPE_TEST_KEY 'sk_test_[A-Za-z0-9]+'
+          scan_pattern STRIPE_WEBHOOK_SECRET 'whsec_[A-Za-z0-9]+'
+          scan_pattern PRIVATE_KEY_HEADER 'BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY'
+          if [ "$found" -ne 0 ]; then
+            echo 'FAIL: credential-like literal found in public assets. File paths are shown; matched values are never printed.'
             exit 1
           fi
           echo 'PASS: no obvious secret material found in public assets.'

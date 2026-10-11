@@ -12,7 +12,7 @@ $audit = Join-Path $root 'scripts\Run-SurfaceAudit.ps1'
 $gauntlet = Join-Path $root 'scripts\Run-WealthEngineGauntlet.ps1'
 $engine = Join-Path $root 'gauntlet\GauntletV6.js'
 $ip = Join-Path $root 'catalog\ip-capabilities.json'
-$frontDoor = Join-Path $root '..\public\index.html'
+$frontDoor = Join-Path $root '..\public\home.html'
 
 Check 'offer_exists' (Test-Path $candidate)
 Check 'surface_audit_script_exists' (Test-Path $audit)
@@ -32,7 +32,7 @@ if (Test-Path $candidate) {
 
 if (Test-Path $frontDoor) {
     $html = Get-Content -Raw $frontDoor
-    Check 'front_door_is_commercial' ($html -match 'Commander diagnostic' -and $html -match 'NZ\$29' -and $html -match '/buy/COMMANDER-DECK-DIAGNOSTIC-001')
+    Check 'front_door_is_commercial' ($html -match 'Commander Deck Diagnostic' -and $html -match 'NZ\$29' -and $html -match '/buy/COMMANDER-DECK-DIAGNOSTIC-001')
     Check 'mtg_silo_not_required_on_home' $true
     Check 'no_internal_front_door_language' ($html -notmatch 'BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST')
 }

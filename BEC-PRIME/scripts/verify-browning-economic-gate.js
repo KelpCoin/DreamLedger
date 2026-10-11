@@ -17,17 +17,18 @@ function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
 }
 
-const index = read('public/index.html');
-const catalog = read('public/catalog.json');
+const index = read('public/home.html');
+const catalogText = read('public/catalog.json');
+const catalog = JSON.parse(catalogText);
 const mtg = read('public/mtg.html');
 const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.json'));
 
 check('homepage-canonical-doors',
-  ['DreamLedger', 'Billboard', 'DreamMeez', 'Truth Oracle'].every((x) => index.toLowerCase().includes(x.toLowerCase())),
+  ['DreamLedger', 'Agent Delivery Proof Audit', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())),
   'Homepage exposes the canonical storefront doors required for this release.');
 check('diagnostic-current-public-catalog',
-  /"id":"COMMANDER-DECK-DIAGNOSTIC-001"[^}]*"sku":"CMD-DIAG-29"[^}]*"price":29[^}]*"status":"published"/i.test(catalog),
-  'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.');
+  Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && /^https:\/\/buy\.stripe\.com\//.test(String(x.checkout_url || ''))),
+  'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.' );
 check('diagnostic-current-public-mtg',
   /Commander Deck Diagnostic/i.test(mtg) && /29/i.test(mtg),
   'Current Commander Deck Diagnostic remains discoverable at the canonical NZD 29 public MTG surface.');
@@ -41,11 +42,11 @@ for (const [tier, price] of Object.entries(expected)) {
 }
 
 check('no-fake-payment-claim',
-  !/RA_000001[^\n]{0,120}(?:PASS|VERIFIED|SUCCESS)/i.test(index + '\n' + catalog + '\n' + mtg),
+  !/RA_000001[^\n]{0,120}(?:PASS|VERIFIED|SUCCESS)/i.test(index + '\n' + catalogText + '\n' + mtg),
   'Public storefront does not claim a verified first customer payment.');
 
 const secretPatterns = [/sk_live_/i, /sk_test_/i, /whsec_/i, /STRIPE_SECRET_KEY/i, /STRIPE_WEBHOOK_SECRET/i];
-for (const [name, text] of [['index.html', index], ['catalog.json', catalog], ['mtg.html', mtg]]) {
+for (const [name, text] of [['index.html', index], ['catalog.json', catalogText], ['mtg.html', mtg]]) {
   check('public-secret-scan-' + name,
     !secretPatterns.some((re) => re.test(text)),
     `${name} contains no known Stripe secret material.`);
