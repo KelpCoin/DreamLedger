@@ -6,7 +6,8 @@
 param(
     [string]$RepoRoot = "",
     [string]$Model = "",
-    [switch]$Install
+    [switch]$Install,
+    [switch]$RunRevenueCycle
 )
 
 $ErrorActionPreference = "Stop"
@@ -88,6 +89,27 @@ try {
     if ($verify.Count -eq 1 -and $verify[0].models) { $verify = @($verify[0].models) }
     $loadedNow = $verify | Where-Object { ([string]$_.identifier) -eq $selected -or ([string]$_.modelKey) -eq $selected }
     if (-not $loadedNow) { throw "LM Studio model failed to remain loaded: $selected" }
+    
+    # A loaded model is not proof of working inference. Exercise the local OpenAI-compatible API.
+    $apiBase = "http://127.0.0.1:$ServerPort"
+    $apiModels = Invoke-RestMethod -Uri "$apiBase/v1/models" -Method Get -TimeoutSec 15
+    $apiModelIds = @($apiModels.data | ForEach-Object { [string]$_.id } | Where-Object { $_ })
+    if ($apiModelIds.Count -eq 0) { throw "LM Studio API exposes no model IDs at $apiBase/v1/models" }
+    $apiModel = $apiModelIds | Where-Object { $_ -eq $selected } | Select-Object -First 1
+    if (-not $apiModel) { $apiModel = $apiModelIds[0] }
+    $smokeBody = @{
+        model = $apiModel
+        messages = @(
+            @{ role = "system"; content = "Return only the exact token requested by the user." },
+            @{ role = "user"; content = "Return exactly BECK_LOCAL_INFERENCE_OK" }
+        )
+        temperature = 0
+        max_tokens = 24
+    } | ConvertTo-Json -Depth 8
+    $smoke = Invoke-RestMethod -Uri "$apiBase/v1/chat/completions" -Method Post -ContentType "application/json" -Body $smokeBody -TimeoutSec 180
+    $smokeText = [string]$smoke.choices[0].message.content
+    if ($smokeText -notmatch "BECK_LOCAL_INFERENCE_OK") { throw "Local inference smoke test did not return the expected token. Model=$apiModel" }
+    Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.1";model_key=$selected;api_model_id=$apiModel;server=$apiBase;loaded=$true;inference_smoke="PASS";inference_token="BECK_LOCAL_INFERENCE_OK";verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
     Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.0";model_key=$selected;server=("http://127.0.0.1:{0}" -f $ServerPort);loaded=$true;verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
     $swarm = Join-Path $RepoRoot "..\runtime\lm_studio\LM-Studio-Swarm.ps1"
     $swarmStatus = "NOT_STARTED"
@@ -97,12 +119,33 @@ try {
         $swarmStatus = "STARTED"
     }
     $cycle = Join-Path $RepoRoot "autonomy\RevenueAutonomy.js"
-    $cycleStatus = "NOT_STARTED"
-    if (Test-Path -LiteralPath $cycle) {
-        & node.exe $cycle *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "autonomy-cycle.log") | Out-Host
-        $cycleStatus = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+    $cycleStatus = "DEFERRED_BY_DEFAULT"
+    if ($RunRevenueCycle) {
+        if (Test-Path -LiteralPath $cycle) {
+            & node.exe $cycle *>&1 | Tee-Object -FilePath (Join-Path $LogRoot "autonomy-cycle.log") | Out-Host
+            $cycleStatus = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+            if ($cycleStatus -ne "PASS") { throw "Local inference passed, but the explicitly requested revenue cycle failed. See autonomy-cycle.log." }
+        } else {
+            throw "Revenue cycle requested but missing: $cycle"
+        }
     }
-    $proof = [ordered]@{schema="BEC-PRIME-STARTUP-ORCHESTRA-1.1";status="PASS";lm_studio="RUNNING";model=$selected;model_loaded=$true;server=("http://127.0.0.1:{0}" -f $ServerPort);swarm=$swarmStatus;autonomous_spend_nzd=0;public_actions="APPROVAL_REQUIRED";autonomy_cycle=$cycleStatus;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}
+    $proof = [ordered]@{
+        schema="BEC-PRIME-STARTUP-ORCHESTRA-1.2"
+        status="PASS"
+        readiness="LOCAL_INFERENCE_VERIFIED"
+        lm_studio="RUNNING"
+        model=$selected
+        model_loaded=$true
+        api_model_id=$apiModel
+        inference_smoke="PASS"
+        server=$apiBase
+        swarm=$swarmStatus
+        revenue_cycle=$cycleStatus
+        cloud_database="NOT_TESTED_BY_LOCAL_STARTUP"
+        autonomous_spend_nzd=0
+        public_actions="APPROVAL_REQUIRED"
+        timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")
+    }
     Write-Json (Join-Path $ProofRoot "STARTUP-ORCHESTRA-LATEST.json") $proof
 } catch {
     $proof = [ordered]@{schema="BEC-PRIME-STARTUP-ORCHESTRA-1.0";status="FAIL";error=$_.Exception.Message;timestamp_utc=(Get-Date).ToUniversalTime().ToString("o")}
