@@ -16,7 +16,7 @@ $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add('DREAMLEDGER FIRST-MONEY VERIFICATION')
 $lines.Add("ObservedAtLocal=$((Get-Date).ToString('o'))")
 $lines.Add('Purpose=Read-only smoke checks; not a payment or revenue test')
-$lines.Add('Checkout GET deliberately omitted because it creates an unpaid Stripe Checkout Session. Do not use this verifier to create sessions.')
+$lines.Add('Paid probe checkout GET deliberately omitted because it creates an unpaid Stripe Checkout Session; the held bridge checkout is safe to probe and should return 404.')
 $lines.Add('VERIFIED_EXTERNAL_REVENUE_NZD=0.00 until independent settlement and fulfillment reconcile')
 $lines.Add('')
 
