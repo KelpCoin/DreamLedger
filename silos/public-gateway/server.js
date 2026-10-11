@@ -1,6 +1,7 @@
 const http = require('http');
 const { URL } = require('url');
 const tollRoad = require('../../BEC-PRIME/routes/tollRoad');
+const PUBLIC_BASE = String(process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 
 const silos = {
   'dreamledger-billboard': {
