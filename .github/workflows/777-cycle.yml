@@ -145,3 +145,5 @@ jobs:
 # 777 user-requested fresh expedition trigger 2026-10-11T05:38Z: execute another cycle and emit one durable, non-duplicate marketplace component or a run-scoped no-op receipt; preserve revenue truth.
 
 # User-requested 777 expedition trigger: 2026-10-12T00:00+13:00; run the existing money-first cycle and inspect outputs before recording any new artifact.
+
+# User-requested fresh expedition trigger: explicit request from 2026-10-12; execute one money-first 777 cycle, inspect actual run/artifacts, preserve revenue truth.
