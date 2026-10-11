@@ -1,0 +1,58 @@
+name: Economic Swarm Research
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */4 * * *"
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: economic-swarm-research
+  cancel-in-progress: false
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/economic-swarm-overnight
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run bounded public-source discovery
+        run: python research/economic_swarm/discover.py
+      - name: Validate archive and report
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("research/economic_swarm/data")
+          report = json.loads((root / "latest-report.json").read_text())
+          archive = root / "archive.jsonl"
+          for line in archive.read_text().splitlines():
+              row = json.loads(line)
+              assert row.get("id") and row.get("url", "").startswith(("https://", "http://"))
+          assert report["mode"] == "RESEARCH_ONLY_NO_EXTERNAL_ACTIONS"
+          print("VERIFY_OK", "archive_rows=" + str(len(archive.read_text().splitlines())), "report_items=" + str(report["items_total"]))
+          PY
+      - name: Commit idempotent research archive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/economic_swarm/data/archive.jsonl research/economic_swarm/data/latest-report.json
+          if git diff --cached --quiet; then
+            echo "No archive changes to commit."
+          else
+            git commit -m "chore: refresh economic swarm research archive"
+            git push origin HEAD:feat/economic-swarm-overnight
+          fi
+      - name: Upload proof artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-swarm-proof
+          path: research/economic_swarm/data/latest-report.json
+          if-no-files-found: warn
+          retention-days: 30
