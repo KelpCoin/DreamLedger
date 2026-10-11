@@ -21,6 +21,7 @@ on:
       - "webapp/phinhaven/index.html"
       - "webapp/agentic-commerce/**"
       - "public/index.html"
+      - "public/home.html"
       - "marketplace.html"
       - "index.html"
 
