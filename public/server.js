@@ -2,6 +2,8 @@
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
+const tollRoad=require('../BEC-PRIME/routes/tollRoad');
+const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
@@ -142,7 +144,44 @@ http.createServer(async (req,res)=>{
       res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
     }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
   }
-  if(p.startsWith('/api/toll/v1/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/api/toll/v1/')){
+    // Keep the existing toll implementation in the existing storefront process.
+    // The separate dreamledger-engine service declared by the old Blueprint is not provisioned.
+    // Publish only the two approved first-money scopes; other catalogued scopes remain quarantined.
+    if(p==='/api/toll/v1/manifest' && req.method==='GET'){
+      const configured=Boolean(TollRuntime.configured() && (process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY));
+      const status=configured?'CONFIGURED_NOT_END_TO_END_VERIFIED':'UNCONFIGURED';
+      const manifest={
+        schema:'dreamledger/toll-road/v2',
+        service:'DreamLedger',
+        currency:'NZD',
+        status,
+        first_payment_proof:'NOT_PROVEN',
+        revenue_nzd:0,
+        offers:[
+          {id:'TOLL-PROBE-50C',scope:'toll-probe',price_nzd:0.50,calls_included:1,checkout_route:'/api/toll/v1/checkout/toll-probe',execution_route:'/api/toll/v1/probe',status:configured?'EXPERIMENTAL_UNVERIFIED':'UNCONFIGURED'},
+          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',price_nzd:19.00,calls_included:100,checkout_route:'/api/toll/v1/checkout/bridge-events',execution_route:'/api/toll/v1/bridge-events',status:'HELD_UNTIL_PROBE_VERIFIED'}
+        ]
+      };
+      return send(res,200,JSON.stringify(manifest),'application/json; charset=utf-8');
+    }
+    const allowedTollPaths=[
+      '/api/toll/v1/checkout/toll-probe',
+      '/api/toll/v1/redeem/toll-probe',
+      '/api/toll/v1/probe',
+      '/api/toll/v1/checkout/bridge-events',
+      '/api/toll/v1/redeem/bridge-events',
+      '/api/toll/v1/bridge-events'
+    ];
+    if(!allowedTollPaths.includes(p))return send(res,404,JSON.stringify({error:'toll_route_not_published'}),'application/json; charset=utf-8');
+    try{
+      const handled=await tollRoad.handle(req,res,p);
+      if(handled)return;
+      return send(res,404,JSON.stringify({error:'toll_route_not_found'}),'application/json; charset=utf-8');
+    }catch(error){
+      return send(res,Number(error&&error.statusCode)||500,JSON.stringify({error:'toll_request_failed',detail:String(error&&error.message||'unknown error')}),'application/json; charset=utf-8');
+    }
+  }
   if(req.method==='GET' && /^\/swarm\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && /^\/api\/swarm-100k\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && p==='/api/swarm-100k/summary') return proxySwarm(req,res,p);
