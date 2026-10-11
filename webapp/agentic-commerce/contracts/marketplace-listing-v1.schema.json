@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/marketplace-listing-v1.schema.json",
+  "title": "DreamLedger Marketplace Listing v1",
+  "description": "Canonical listing contract for free B2B discovery and low-cost, budget-capped A2A. A listing is not proof of availability, settlement, entitlement, fulfilment or revenue.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "listing_id",
+    "asset_type",
+    "title",
+    "summary",
+    "owner",
+    "provenance",
+    "licence",
+    "version",
+    "status",
+    "commercial_state",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "dreamledger.marketplace-listing.v1"
+    },
+    "listing_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]+$"
+    },
+    "asset_type": {
+      "enum": [
+        "digital_good",
+        "template",
+        "stencil",
+        "boilerplate",
+        "word_bank",
+        "neural_network",
+        "api_capability",
+        "gpu_job",
+        "dooh_inventory",
+        "physical_good",
+        "service"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 180
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner_id",
+        "verification_status"
+      ],
+      "properties": {
+        "owner_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "display_name": {
+          "type": "string",
+          "maxLength": 180
+        },
+        "verification_status": {
+          "enum": [
+            "unverified",
+            "identity_verified",
+            "seller_verified"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "source_uri"
+      ],
+      "properties": {
+        "source_type": {
+          "enum": [
+            "first_party",
+            "licensed",
+            "open_source",
+            "third_party",
+            "generated",
+            "unknown"
+          ]
+        },
+        "source_uri": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "source_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "evidence_uri": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      }
+    },
+    "licence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "licence_id",
+        "redistribution_allowed"
+      ],
+      "properties": {
+        "licence_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "redistribution_allowed": {
+          "type": "boolean"
+        },
+        "terms_uri": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "checksum_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "compatibility": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "price": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "amount",
+        "currency",
+        "unit",
+        "pricing_model"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "pricing_model": {
+          "enum": [
+            "free",
+            "one_time",
+            "per_call",
+            "per_second",
+            "per_job",
+            "subscription",
+            "quote",
+            "revenue_share"
+          ]
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "candidate",
+        "staged",
+        "published",
+        "suspended",
+        "withdrawn"
+      ]
+    },
+    "commercial_state": {
+      "enum": [
+        "discovery_only",
+        "checkout_configured",
+        "payment_pending",
+        "settlement_verified",
+        "entitlement_created",
+        "fulfilment_in_progress",
+        "delivered",
+        "refunded",
+        "disputed"
+      ]
+    },
+    "acceptance_tests": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_calls": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "budget_ceiling": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "timeout_seconds": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "idempotency_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "fulfilment_evidence_uri": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "truth_status": {
+      "enum": [
+        "unverified",
+        "verified",
+        "contradicted",
+        "stale"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
