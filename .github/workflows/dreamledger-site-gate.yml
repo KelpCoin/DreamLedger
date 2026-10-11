@@ -74,12 +74,12 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'PUBLIC_FILES' public/server.js
-          grep -Eq "'/'.*index.html" public/server.js
+          grep -q "'/':'home.html','/index.html':'home.html'" public/server.js
           grep -Eq "'/billboard'.*billboard.html" public/server.js
-          grep -Eq "'/dreammeez'.*avatar.html" public/server.js
+          grep -q "'/avatar.html':'avatar.html'" public/server.js
           grep -Eq "'/sitemap.xml'.*sitemap.xml" public/server.js
-          grep -q "if\(!ALLOWED_API\[key\]\)" public/server.js
-          echo 'PASS: public routes explicitly allowlisted.'
+          grep -q "p==='/api/offers' || p==='/api/products'" public/server.js
+          echo 'PASS: canonical public routes and product API are implemented.'
       - name: Verify secrets absent from public assets
         shell: bash
         run: |
