@@ -12,7 +12,7 @@ $audit = Join-Path $root 'scripts\Run-SurfaceAudit.ps1'
 $gauntlet = Join-Path $root 'scripts\Run-WealthEngineGauntlet.ps1'
 $engine = Join-Path $root 'gauntlet\GauntletV6.js'
 $ip = Join-Path $root 'catalog\ip-capabilities.json'
-$frontDoor = Join-Path $root '..\public\index.html'
+$frontDoor = Join-Path $root '..\public\home.html'
 
 Check 'offer_exists' (Test-Path $candidate)
 Check 'surface_audit_script_exists' (Test-Path $audit)
