@@ -11,6 +11,7 @@ on:
       - "scripts/777_cycle.py"
       - "scripts/sync_agent_bridge_catalog.py"
       - "scripts/777_compounding_gate.py"
+      - "tests/test_777_compounding_gate_import.py"
       - "scripts/external_demand_transition.py"
       - "scripts/777_cloud_execution_adapter.js"
       - "data/external-demand-seeds/**"
