@@ -58,7 +58,8 @@ jobs:
         run: |
           set -euo pipefail
           test -f public/avatar.html
-          grep -q 'IDENTITY PREVIEW' public/avatar.html
+          grep -q 'id="avatar"' public/avatar.html
+          grep -q 'id="save"' public/avatar.html
           grep -q 'Save DreamMeez' public/avatar.html
 
       - name: SQL canonical table check
