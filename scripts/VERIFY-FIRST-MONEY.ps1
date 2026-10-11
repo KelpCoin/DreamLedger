@@ -21,9 +21,11 @@ $lines.Add('VERIFIED_EXTERNAL_REVENUE_NZD=0.00 until independent settlement and 
 $lines.Add('')
 
 $urls = @(
-    'https://dreamledger.org/go',
+    'https://dreamledger.org/go/',
     'https://dreamledger.org/api/toll/v1/manifest',
     'https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest',
+    'https://dreamledger.org/toll-road?ref=qr&c=universal-20261011',
+    'https://dreamledger.org/api/toll/v1/checkout/bridge-events',
     'https://dreamledger.org/.well-known/agent-commerce.json'
 )
 foreach ($url in $urls) {
@@ -76,6 +78,20 @@ if ($repo) {
             $lines.Add("777_GATE_REGRESSION_EXIT=$LASTEXITCODE")
         } catch { $lines.Add("777_GATE_REGRESSION=UNAVAILABLE ERROR=$($_.Exception.Message)") }
     } else { $lines.Add('777_GATE_REGRESSION=TEST_FILE_NOT_FOUND') }
+    $becPrime = Join-Path $repo 'BEC-PRIME'
+    if (Test-Path (Join-Path $becPrime 'package.json')) {
+        Push-Location $becPrime
+        try {
+            & npm test 2>&1 | ForEach-Object { $lines.Add([string]$_) }
+            $lines.Add("BEC_PRIME_NPM_TEST_EXIT=$LASTEXITCODE")
+        } catch {
+            $lines.Add("BEC_PRIME_NPM_TEST=UNAVAILABLE ERROR=$($_.Exception.Message)")
+        } finally {
+            Pop-Location
+        }
+    } else {
+        $lines.Add('BEC_PRIME_NPM_TEST=PACKAGE_NOT_FOUND')
+    }
 } else {
     $lines.Add('REPO_ROOT=NOT_FOUND_IN_KNOWN_PATHS')
     $lines.Add('NOTE=Run this script on the local PC; this chat session cannot execute commands on that machine.')
