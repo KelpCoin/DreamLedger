@@ -178,17 +178,12 @@ const server = http.createServer(async (req,res)=>{
   // Toll Road is the existing paid API wall. The public gateway only mounts it; it does not create a second authority, queue, or ledger.
   const tollPath = tollRoutePath(u.pathname);
   if (tollPath.startsWith('/api/toll/v1/')) {
-    try {
-      const handled = await tollRoad.handle(req, res, tollPath);
-      if (handled) return;
-    } catch (error) {
-      const status = Number(error && error.statusCode) || 500;
-      if (!res.writableEnded) {
-        res.writeHead(status, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
-        return res.end(JSON.stringify({error:String(error && error.message || 'toll_route_error')}));
-      }
-      return;
-    }
+    // Keep this legacy gateway as a discovery alias; the canonical storefront proxies to the private engine and its persistent disk.
+    res.writeHead(307, {
+      'Location': PUBLIC_BASE + tollPath + u.search,
+      'Cache-Control': 'no-store'
+    });
+    return res.end();
   }
   if (u.pathname === '/robots.txt') {
     res.writeHead(200, securityHeaders('text/plain; charset=utf-8'));
