@@ -35,7 +35,7 @@ try {
   elseif ($sc -in @('401','403')) { Write-Output 'SUPABASE_STATUS=AUTH_REQUIRED; DB/RPC health UNPROVEN' }
   elseif ($sc -eq '000' -or $sc -like '5*') { Write-Output 'SUPABASE_STATUS=BLOCKED; automated fulfillment BLOCKED' }
   else { Write-Output "SUPABASE_STATUS=HTTP_$sc; DB/RPC health UNPROVEN" }
-  @' 
+  @'
 SCOUT: Find the strongest existing, independently sourced demand signal for one approved DreamLedger offer and one inbound/public action that could improve odds of a sale in 48h. Include URLs and timestamps. Never invent buyers or demand. Return at most five bullets.
 '@ | Set-Content -Encoding UTF8 (Join-Path $out 'council\01-scout.txt')
   @'
