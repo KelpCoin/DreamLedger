@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-11T18:36:06+00:00",
+  "updated_at_utc": "2026-10-11T22:26:44+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "​After Hours and Urgent Care Services for Timaru",
+      "url": "https://www.gets.govt.nz/HEALTHNZ/ExternalTenderDetails.htm?id=34877688",
+      "observed_at": "2026-10-11T22:26:40+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "3283ab752f93866e142fbb2d5edbb0d85804d0e2f1012373b8def763348f45d9",
+      "event_id": "2de64863-3fa8-5c76-80f7-ad7cd8c97139",
+      "silo_id": "ECO-3283AB752F93866E",
+      "slug": "procurement-after-hours-and-urgent-care-services-for-timaru-3283ab752f"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",

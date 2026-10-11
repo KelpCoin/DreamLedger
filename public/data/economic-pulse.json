@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-11T18:36:06+00:00",
+  "generated_at_utc": "2026-10-11T22:26:44+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "2de64863-3fa8-5c76-80f7-ad7cd8c97139",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "​After Hours and Urgent Care Services for Timaru",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-11T22:26:40+00:00",
+      "url": "https://www.gets.govt.nz/HEALTHNZ/ExternalTenderDetails.htm?id=34877688",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-after-hours-and-urgent-care-services-for-timaru-3283ab752f.html"
+    },
     {
       "id": "d79d1418-e65c-5648-8d10-e328280cb4ca",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
