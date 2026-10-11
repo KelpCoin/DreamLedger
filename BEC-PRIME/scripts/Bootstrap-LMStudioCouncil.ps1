@@ -69,7 +69,7 @@ $roles = [ordered]@{
     coder = Pick @('qwen3.*coder.*30b','qwen3.*coder','qwen.*coder','qwen3','qwen2\.5.*coder')
 }
 
-$coreMissing = @('proposer','critic','synthesizer','coder') | Where-Object { -not $roles[$_] }
+$coreMissing = @('proposer','critic','synthesizer') | Where-Object { -not $roles[$_] }
 if ($coreMissing.Count -gt 0) {
     $proof = [ordered]@{
         status = 'FAIL'
@@ -129,7 +129,7 @@ $council = [ordered]@{
         critic = [ordered]@{ model = $roles.critic; job = 'Attack assumptions, detect failure modes, and score evidence.'; required = $true }
         synthesizer = [ordered]@{ model = $roles.synthesizer; job = 'Resolve disagreement into one executable plan.'; required = $true }
         visual_critic = [ordered]@{ model = $roles.visual_critic; job = 'Inspect screenshots/assets when a multimodal model is available.'; required = $false }
-        coder = [ordered]@{ model = $roles.coder; job = 'Implement bounded code changes and tests.'; required = $true }
+        coder = [ordered]@{ model = $roles.coder; job = 'Implement bounded code changes and tests.'; required = $false }
     }
     loop = @('INGEST','PROPOSE','CRITIQUE','SYNTHESIZE','GAUNTLET','EXECUTE_IF_APPROVED','VERIFY','PERSIST')
     guardrails = @('NO_REVENUE_CLAIMS_WITHOUT_EXTERNAL_PAYMENT_EVIDENCE','NO_PUBLIC_POST_WITHOUT_APPROVAL','NO_CROSS_SILO_DATA','NO_SECRET_PERSISTENCE','FAIL_CLOSED_ON_MISSING_CORE_ROLE')
