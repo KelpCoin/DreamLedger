@@ -222,7 +222,7 @@ def process(path: Path, model: str, state: dict[str, Any]) -> dict[str, Any]:
             raise RuntimeError("ARTIFACT_COLLISION")
     else:
         atomic_json(destination, artifact)
-    state["processed"][sha] = {"artifact": str(destination.relative_to(ROOT)).replace("\", "/"), "processed_at": now()}
+    state["processed"][sha] = {"artifact": str(destination.relative_to(ROOT)).replace("\\", "/"), "processed_at": now()}
     atomic_json(STATE, state)
     return {"status": "VALIDATED", "artifact": str(destination), "input_sha256": sha}
 
