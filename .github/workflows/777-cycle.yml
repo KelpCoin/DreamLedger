@@ -24,6 +24,10 @@ on:
       - "public/home.html"
       - "public/marketplace.html"
       - "BEC-PRIME/marketplace/marketplace.html"
+      - "public/server.js"
+      - "public/toll-road.html"
+      - "public/agent-bridge.html"
+      - "BEC-PRIME/routes/tollRoad.js"
       - "marketplace.html"
       - "index.html"
 
@@ -155,3 +159,5 @@ jobs:
 # 777 source-of-truth coverage: watch BEC-PRIME/marketplace/marketplace.html because compile and prestart sync overwrite generated public copies.
 
 # User-requested expedition nonce: 2026-10-12T00:45+13:00; run one fresh money-first cycle and inspect the generated artifacts before claiming results.
+
+# 777 first-money surface coverage: monitor the guarded toll probe server, buyer page, and route implementation.
