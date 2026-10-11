@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-11T07:01:23+00:00",
+  "generated_at_utc": "2026-10-11T13:55:17+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "e2693523-e5a3-5ae3-8055-4aee55a71a76",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Privacy statement",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-11T13:55:13+00:00",
+      "url": "https://www.gets.govt.nz/GetsTermsAndConditions.htm#privacy",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-privacy-statement-18194e8580.html"
+    },
     {
       "id": "2a8a6378-b5ed-5bef-b0f8-8760aedee7f0",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

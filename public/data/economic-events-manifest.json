@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-11T07:01:23+00:00",
+  "updated_at_utc": "2026-10-11T13:55:17+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Privacy statement",
+      "url": "https://www.gets.govt.nz/GetsTermsAndConditions.htm#privacy",
+      "observed_at": "2026-10-11T13:55:13+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "18194e8580ca152ecc562e04465cc62d2f63b50531d636c8813f14f92ed1585b",
+      "event_id": "e2693523-e5a3-5ae3-8055-4aee55a71a76",
+      "silo_id": "ECO-18194E8580CA152E",
+      "slug": "procurement-privacy-statement-18194e8580"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
