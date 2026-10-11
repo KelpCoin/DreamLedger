@@ -27,7 +27,7 @@ const PUBLIC_FILES={
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html',
   '/truth-oracle-field-guide.html':'truth-oracle-field-guide.html','/shop.html':'shop.html','/truth-oracle':'truth-oracle.html',
-  '/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
+  '/agent-bridge-job-contract-v1.json':'agent-bridge-job-contract-v1.json','/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
   '/cube.json':'public-resources.json','/economic-loops.json':'public-resources.json','/ecosystem.json':'public-resources.json',
   '/data/economic-pulse.json':'public-research-feed.json',
   '/pulse':'pulse/index.html','/pulse/':'pulse/index.html',
