@@ -69,12 +69,11 @@ async function main() {
   assert.match(String(doorwayRes.headers.Location), /^\/billboard\?/);
   assert.ok(doorwayRes.headers['X-BEC-Doorway-Event'], 'doorway event id should be emitted');
 
-  const checkout = await platformCart.createProductCheckout('DREAMLEDGER-BILLBOARD-FOUNDING-001', 'dreamledger');
-  assert.equal(checkout.ok, true);
-  assert.equal(checkout.mode, 'canonical_payment_link');
-  assert.equal(checkout.amount_minor, 5000);
-  assert.equal(checkout.currency, 'nzd');
-  assert.equal(checkout.payment_link_id, 'plink_1UAN9zJt4ieIQDFzgHeso6Qo');
+  await assert.rejects(
+    () => platformCart.createProductCheckout('DREAMLEDGER-BILLBOARD-FOUNDING-001', 'dreamledger'),
+    /Product is not checkoutable/,
+    'held Billboard must not create a checkout'
+  );
 
   writeSyntheticBillboard();
   const event = {
