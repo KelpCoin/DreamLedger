@@ -65,7 +65,7 @@
     "cube:radar": "python ops/demand/ingest-public-feeds.py && python ops/cube/resolve-mechanisms.py",
     "verify:b2b-marketplace": "node BEC-PRIME/scripts/verify-b2b-marketplace-contract.js",
     "verify:a2a-marketplace": "node BEC-PRIME/scripts/verify-a2a-marketplace-contract.js",
-    "test:toll-roads": "node --test BEC-PRIME/runtime/TollRoadFactory.test.js",
+    "test:toll-roads": "node --test BEC-PRIME/runtime/TollRoadFactory.test.js BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
     "test:agent-bridge-ledger": "node --test BEC-PRIME/runtime/AgentBridgeEventLedger.test.js"
   },
   "engines": {
