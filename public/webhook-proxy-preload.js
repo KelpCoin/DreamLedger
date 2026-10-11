@@ -91,16 +91,9 @@ if (!global.__dreamledgerWebhookProxyPreload) {
         return;
       }
 
-      if (req.method === 'GET' && requestPath === '/go') {
-        try {
-          const handled = await distributionDoorway.handle(req, res);
-          if (handled) return;
-        } catch (err) {
-          // Doorway analytics is optional. A tracking/bridge failure must never block the commercial wall.
-          if (!res.writableEnded) return handler(req, res);
-          return;
-        }
-      }
+      // /go is served by the canonical static doorway in public/go/index.html.
+      // It validates ref/c locally and never blocks on Supabase analytics.
+      // Keep distributionDoorway available for its other explicit routes; do not intercept /go here.
 
       if (req.method === 'GET' && (requestPath === '/truth-oracle' || requestPath === '/truth-oracle/')) {
         const file = path.join(__dirname, '..', 'BEC-PRIME', 'compiled', 'website', 'truth-oracle.html');
