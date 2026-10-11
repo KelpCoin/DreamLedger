@@ -175,9 +175,6 @@ http.createServer(async (req,res)=>{
       '/api/toll/v1/checkout/toll-probe',
       '/api/toll/v1/redeem/toll-probe',
       '/api/toll/v1/probe',
-      '/api/toll/v1/checkout/bridge-events',
-      '/api/toll/v1/redeem/bridge-events',
-      '/api/toll/v1/bridge-events'
     ];
     if(!allowedTollPaths.includes(p))return send(res,404,JSON.stringify({error:'toll_route_not_published'}),'application/json; charset=utf-8');
     try{
