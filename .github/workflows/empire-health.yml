@@ -36,12 +36,12 @@ jobs:
           // DreamLedger can contain multiple approved offers. Select the named
           // canonical commerce offer explicitly; never infer canonicality from array order
           // or require all offers in a silo to collapse into one.
-          const expectedId='OFFER-QUOTE-COMPARE-49-NZD';
+          const expectedId='OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001';
           const matches=x.approved.filter(o=>o.offer_id===expectedId);
           if(matches.length!==1) throw new Error(`Expected exactly one offer_id=${expectedId}; found ${matches.length}`);
           const o=matches[0];
-          if(o.silo!=='dreamledger' || o.product_id!=='QUOTE-COMPARE-49') throw new Error('Canonical offer identity/silo mismatch');
-          if(Number(o.price)!==49 || o.currency!=='NZD') throw new Error('Canonical Quote Compare offer must be NZD 49');
+          if(o.silo!=='dreamledger' || o.product_id!=='DREAMLEDGER-BILLBOARD-FOUNDING-001') throw new Error('Canonical offer identity/silo mismatch');
+          if(Number(o.price)!==50 || o.currency!=='NZD') throw new Error('Canonical Founding Billboard offer must be NZD 50');
           if(o.payment_link_status!=='ACTIVE_LIVEMODE' || !o.payment_link_url) throw new Error('Canonical payment link is not marked active or URL is missing');
           console.log(`CANONICAL_OFFER=PASS offer_id=${o.offer_id} product_id=${o.product_id} price=NZD ${o.price}`);
           NODE
