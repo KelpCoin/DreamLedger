@@ -1,0 +1,15 @@
+{
+  "artifact_count": 4,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "public/pulse/2026-10-11-private-commercial-ai-agent-tool-calling-in-typescript-guardrails-against-runaway-loops-sitepoint-2a8fa9c20c2ba8bc.html",
+    "public/pulse/index.html",
+    "webapp/pulse/2026-10-11-private-commercial-ai-agent-tool-calling-in-typescript-guardrails-against-runaway-loops-sitepoint-2a8fa9c20c2ba8bc.html",
+    "webapp/pulse/index.html"
+  ],
+  "observed_at": "2026-10-11T18:20:47.864995+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
