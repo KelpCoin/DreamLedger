@@ -1,6 +1,8 @@
 {
   "design_target_roads": 200000,
   "manifest_status": "ARMED",
+  "manifest_sync_error": "services_array_missing",
+  "manifest_sync_status": "STALE_PRESERVED",
   "schema": "dreamledger/agent-bridge-catalog/v1",
   "service_count": 34,
   "services": [
