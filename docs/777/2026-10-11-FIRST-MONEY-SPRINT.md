@@ -83,3 +83,17 @@ Changes now committed; deployment and live behavior are not yet verified:
 - cb63de14fee552f5641388b3d84ba965b2b56cba: route only the TOLL-PROBE-50C and AGENT-BRIDGE-EVENTS-100 scopes through the existing BEC-PRIME toll handler in the current storefront process; publish a two-offer manifest with explicit unverified/configuration status. Other toll scopes remain unpublished. This removes the hard dependency on a separately provisioned service, but Stripe and toll-key secrets may still be missing; live checkout must prove otherwise.
 
 Current state after commits: deployments were queued/in progress at last inspection. Do not call /go or toll paths fixed until fresh HTTP checks return the expected responses. The 50-cent checkout still must pass settlement → entitlement → authenticated probe → receipt before QR distribution.
+
+
+## Final live verification — 2026-10-11
+Latest storefront deployment is live on commit c031e7e672518b5d4b784448b7a885a6c7c6ec4a. The production prestart now runs `npm test` before compilation; the two-test suite passed and the deployment completed.
+- `https://dreamledger.org/go/?ref=qr&c=universal-20261011` returns the canonical doorway.
+- `https://dreamledger.org/api/toll/v1/manifest?ref=qr&c=universal-20261011` returns HTTP 200 and propagates `ref=qr` / `c=universal-20261011` into the NZ$0.50 checkout route.
+- Manifest truth remains `CONFIGURED_NOT_END_TO_END_VERIFIED`, `first_payment_proof=NOT_PROVEN`, and `revenue_nzd=0`.
+- The NZ$19 Agent Bridge Events pack has no checkout URL in the manifest and its checkout route returns HTTP 404 until the 50-cent probe is proven.
+- A prior direct Render-host GET returned HTTP 303 to Stripe, proving only that a checkout session can be created. We deliberately did not repeat the request because GET creates an unpaid Stripe Checkout Session.
+- The probe handler now verifies a live paid NZD 0.50 Stripe session, writes a durable `probe_consumed` marker to Stripe metadata, and returns the same receipt on retries/restarts. The mocked regression test covers campaign metadata plus retry behavior. No live paid probe has exercised this code yet.
+- `scripts/VERIFY-FIRST-MONEY.ps1` is read-only and no longer calls the checkout endpoint, avoiding extra unpaid sessions.
+- The local QR PNG/SVG encode `https://dreamledger.org/go/?ref=qr&c=universal-20261011` and decode correctly. They remain undistributed until a real payment settles, the probe is fulfilled, and the attributed receipt is reconciled.
+
+Verified external revenue remains NZD 0.00. No independent buyer, paid fulfillment, or verified economic outcome has been observed. The 777 pulse candidate remains research-only after Gauntlet FAIL; it is not demand evidence. Supabase-backed ProductionBridgeWorker still reports a 503 on its bridge-auth store, so no Supabase schema change was made.
