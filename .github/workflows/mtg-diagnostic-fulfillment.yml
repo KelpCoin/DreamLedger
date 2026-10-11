@@ -49,8 +49,16 @@ jobs:
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
           $homeHtml = Get-Content BEC-PRIME/compiled/website/index.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison','Commander Deck Diagnostic','Choose a result')) {
-            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Catalogue doorway token missing: $token" }
+          $mtgHtml = Get-Content BEC-PRIME/compiled/website/mtg/index.html -Raw
+          $diagnosticHtml = Get-Content BEC-PRIME/compiled/website/mtg/diagnostic.html -Raw
+          foreach ($token in @('DreamLedger','Truth Oracle','/mtg/')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Homepage doorway token missing: $token" }
+          }
+          foreach ($token in @('Decks, cards','Commander inventory','/api/offer-checkout/create')) {
+            if ($mtgHtml -notmatch [regex]::Escape($token)) { throw "MTG catalogue token missing: $token" }
+          }
+          foreach ($token in @('Commander Deck Diagnostic','NZ$29','Generate checkout')) {
+            if ($diagnosticHtml -notmatch [regex]::Escape($token)) { throw "Diagnostic page token missing: $token" }
           }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
-          Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'
+          Write-Host '[PASS] Homepage doorway, MTG catalogue, diagnostic and Billboard surfaces present'
