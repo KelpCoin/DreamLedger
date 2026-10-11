@@ -7,7 +7,7 @@ const Trinity=require('../runtime/Trinity');
 const TollNexus=require('../runtime/TollNexus');
 const AgentBridgeEventLedger=require('../runtime/AgentBridgeEventLedger');
 const RoadFactory=require('../runtime/TollRoadFactory');
-const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
+const STRIPE_SECRET_KEY=String(process.env.STRIPE_LIVE_SECRET_KEY||process.env.STRIPE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
 
 const SCOPES = {
