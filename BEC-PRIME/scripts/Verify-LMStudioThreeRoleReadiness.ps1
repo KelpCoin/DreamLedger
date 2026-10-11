@@ -80,9 +80,13 @@ try {
     foreach ($role in @('proposer','critic','synthesizer')) {
         $proof.roles += Test-Role -Role $role -ModelKey ([string]$roles[$role])
     }
+    # A per-role pass is insufficient if loading the next model evicted the previous one.
+    $finalApiIds = Get-ApiModels
+    $notResident = @($proof.roles | Where-Object { $_.api_model_id -notin $finalApiIds } | ForEach-Object { $_.role + '=' + $_.api_model_id })
+    if ($notResident.Count) { throw "All three models did not remain simultaneously visible after loading. Missing from final /v1/models: $($notResident -join ', '). Reduce model sizes or configure LM Studio memory settings; startup remains NOT_READY." }
     $proof.status = 'PASS'
     $proof.readiness = 'THREE_DISTINCT_ROLES_INFERENCE_VERIFIED'
-    $proof.note = 'Each role was loaded and passed an inference smoke test during this run. This does not guarantee all three remain simultaneously resident after LM Studio memory management or reboot.'
+    $proof.note = 'Each role was loaded and passed an inference smoke test during this run. All three role models were simultaneously visible after the final load check; reboot readiness must be re-proven on each startup.'
 } catch {
     $proof.status = 'FAIL'
     $proof.readiness = 'NOT_READY'
