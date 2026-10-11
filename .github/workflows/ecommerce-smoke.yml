@@ -30,14 +30,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s index.html
+          test -s home.html
           test -s quote-comparison/index.html
           test -s server.js
-          grep -qi 'Supplier quote comparison' index.html
-          grep -qi 'Know what each quote really costs' index.html
-          grep -q 'href="/quote-comparison/"' index.html
-          grep -q 'href="/supplier-quote-comparison.html"' index.html
-          ! grep -Eiq 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' index.html quote-comparison/index.html
+          grep -qi 'Evidence-first commerce' home.html
+          grep -qi 'Make the next decision' home.html
+          grep -qi 'Delivery Proof Audit' home.html
+          grep -q 'href="/quote-comparison/"' home.html
+          grep -q 'href="/trust/"' home.html
+          ! grep -Eiq 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html
           echo 'SOURCE_STOREFRONT=PASS'
 
       - name: Start runtime
@@ -58,7 +59,7 @@ jobs:
           fi
           curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
           curl -fsS http://127.0.0.1:4173/api/products >/tmp/products.json
-          grep -qi 'Know what each quote really costs' /tmp/home.html
+          grep -qi 'Make the next decision' /tmp/home.html
           grep -q 'href="/quote-comparison/"' /tmp/home.html
           grep -q '"products"' /tmp/products.json
           echo 'LOCAL_STOREFRONT_RUNTIME=PASS'
