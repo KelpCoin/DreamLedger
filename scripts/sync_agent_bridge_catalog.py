@@ -102,8 +102,22 @@ def main() -> int:
     for item in entries:
         if not isinstance(item, dict):
             continue
-        service_id = str(item.get("id") or "").strip()
-        route = str(item.get("route") or item.get("execution_route") or "").strip()
+        # The gateway has emitted both service-style "id" and offer-style
+        # "offer_id" / "service_id" identifiers. Normalize aliases before
+        # deciding whether a real execution route is present.
+        service_id = str(
+            item.get("id")
+            or item.get("offer_id")
+            or item.get("service_id")
+            or item.get("sku")
+            or ""
+        ).strip()
+        route = str(
+            item.get("route")
+            or item.get("execution_route")
+            or item.get("endpoint")
+            or ""
+        ).strip()
         # Do not publish a route-less offer as an executable capability.
         if not service_id or not route or service_id in seen:
             continue
