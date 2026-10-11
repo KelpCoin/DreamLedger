@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "policy": "docs/SUPABASE-RESILIENCE-AND-CLONE-MIGRATION.md",
+  "updated_utc": "2026-10-12",
+  "write_authority": {
+    "project_ref": "wbwgroygjeyukkspnqiy",
+    "product": "DreamLedger",
+    "role": "PRIMARY_ONLY",
+    "failover_writes_enabled": false,
+    "health_state": "UNVERIFIED_DATA_PLANE"
+  },
+  "fallbacks": [
+    {
+      "tier": 1,
+      "kind": "read_replica",
+      "project_ref": null,
+      "enabled": false,
+      "reason": "No verified replica provisioned; read replicas are not write failover."
+    },
+    {
+      "tier": 2,
+      "kind": "independent_warm_standby",
+      "project_ref": null,
+      "enabled": false,
+      "reason": "No verified continuous replication, schema parity, data freshness, or promotion fencing."
+    },
+    {
+      "tier": 3,
+      "kind": "encrypted_off_project_backup",
+      "project_ref": null,
+      "enabled": false,
+      "reason": "Backup registry exists, but current database backup and restore drill are not proven."
+    },
+    {
+      "tier": 4,
+      "kind": "durable_outbox",
+      "project_ref": null,
+      "enabled": false,
+      "reason": "Durability and replay are not yet proven independently of Supabase."
+    }
+  ],
+  "clone_candidates": [
+    {"project_ref": "kgwhmnxnhkslrdgebpmf", "name": "thebrowneye", "observed_status": "INACTIVE", "production_eligible": false},
+    {"project_ref": "uaudjnkbpqcavmyihker", "name": "TheBrownEye", "observed_status": "INACTIVE", "production_eligible": false},
+    {"project_ref": "sclmcmsugijgcuaftqlh", "name": "mtg singles", "observed_status": "INACTIVE", "production_eligible": false}
+  ],
+  "rules": [
+    "No automatic write failover to another project.",
+    "No active-active writers or split brain.",
+    "Do not mark payment, settlement, or fulfillment complete during an outage.",
+    "A clone is not a standby until schema, data, auth, storage, secrets, functions, and recovery are verified.",
+    "Promotion requires explicit authorization and evidence."
+  ]
+}
