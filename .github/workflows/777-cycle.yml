@@ -153,3 +153,5 @@ jobs:
 # 777 public-surface trigger coverage: public/marketplace.html is watched so custom-domain marketplace edits run the evidence gate.
 
 # 777 source-of-truth coverage: watch BEC-PRIME/marketplace/marketplace.html because compile and prestart sync overwrite generated public copies.
+
+# User-requested expedition nonce: 2026-10-12T00:45+13:00; run one fresh money-first cycle and inspect the generated artifacts before claiming results.
