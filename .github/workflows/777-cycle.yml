@@ -46,6 +46,8 @@ jobs:
         run: |
           git fetch origin main
           git reset --hard origin/main
+      - name: Test Agent Bridge manifest normalization
+        run: python -m unittest tests.test_sync_agent_bridge_catalog
       - name: Sync Agent Bridge catalogue snapshot
         run: python scripts/sync_agent_bridge_catalog.py
       - name: Generate procurement amendment delta
