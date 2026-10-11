@@ -46,35 +46,43 @@ def main() -> int:
         print(f"AGENT_BRIDGE_SYNC=FAIL invalid_json line={exc.lineno}", file=sys.stderr)
         return 1
 
-    services = manifest.get("services")
-    if not isinstance(services, list):
-        # The public gateway can return a valid JSON manifest with a different
-        # envelope while its deployment is inconsistent. Preserve the last known
-        # catalogue, but mark it explicitly stale so it cannot be mistaken for a
-        # current reachability or fulfillment proof. Continue the 777 cycle.
+    # The live toll-road/v2 envelope uses "offers" with checkout_route and
+    # execution_route. The older internal snapshot format uses "services" with
+    # route and checkout_configured. Accept both explicitly; never reinterpret
+    # checkout configuration as settlement or fulfillment evidence.
+    entries = manifest.get("services")
+    source_collection = "services"
+    if not isinstance(entries, list):
+        entries = manifest.get("offers")
+        source_collection = "offers"
+
+    if not isinstance(entries, list):
+        # Preserve the last known catalogue only when neither supported envelope
+        # exists. Mark it stale so it cannot be mistaken for a current snapshot.
         if TARGET.exists():
             try:
                 previous = json.loads(TARGET.read_text(encoding="utf-8"))
                 previous["manifest_sync_status"] = "STALE_PRESERVED"
-                previous["manifest_sync_error"] = "services_array_missing"
+                previous["manifest_sync_error"] = "services_or_offers_array_missing"
                 TARGET.write_text(
                     json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
                     encoding="utf-8",
                 )
-                print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=services_array_missing")
+                print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=services_or_offers_array_missing")
                 return 0
             except (OSError, json.JSONDecodeError):
                 pass
-        print("AGENT_BRIDGE_SYNC=FAIL services_array_missing and no valid prior catalogue", file=sys.stderr)
+        print("AGENT_BRIDGE_SYNC=FAIL services_or_offers_array_missing and no valid prior catalogue", file=sys.stderr)
         return 1
 
     normalised = []
     seen = set()
-    for item in services:
+    for item in entries:
         if not isinstance(item, dict):
             continue
         service_id = str(item.get("id") or "").strip()
-        route = str(item.get("route") or "").strip()
+        route = str(item.get("route") or item.get("execution_route") or "").strip()
+        # Do not publish a route-less offer as an executable capability.
         if not service_id or not route or service_id in seen:
             continue
         seen.add(service_id)
@@ -87,9 +95,12 @@ def main() -> int:
             "id": service_id,
             "route": route,
             "scope": str(item.get("scope") or ""),
-            "description": str(item.get("description") or ""),
+            "description": str(item.get("description") or item.get("scope") or service_id),
             "price_nzd": price,
-            "checkout_configured": item.get("checkout_configured") is True,
+            "checkout_configured": (
+                item.get("checkout_configured") is True
+                or bool(str(item.get("checkout_route") or "").strip())
+            ),
             "settlement_verified": False,
             "fulfilment_verified": False,
             "lifecycle": "CANDIDATE",
@@ -99,6 +110,8 @@ def main() -> int:
         "schema": "dreamledger/agent-bridge-catalog/v1",
         "source_url": SOURCE_URL,
         "manifest_status": str(manifest.get("status") or "UNVERIFIED"),
+        "manifest_sync_status": "FRESH",
+        "manifest_source_collection": source_collection,
         "design_target_roads": manifest.get("design_target_roads"),
         "service_count": len(normalised),
         "services": sorted(normalised, key=lambda row: row["id"]),
