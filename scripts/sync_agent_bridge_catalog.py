@@ -52,8 +52,11 @@ def main() -> int:
     # checkout configuration as settlement or fulfillment evidence.
     entries = manifest.get("services")
     source_collection = "services"
-    if not isinstance(entries, list):
-        entries = manifest.get("offers")
+    # A legacy "services": [] must not mask the live toll-road/v2 "offers" array.
+    # Empty arrays are not evidence that the catalogue has no capabilities.
+    offers = manifest.get("offers")
+    if (not isinstance(entries, list) or not entries) and isinstance(offers, list) and offers:
+        entries = offers
         source_collection = "offers"
 
     if not isinstance(entries, list):
@@ -73,6 +76,25 @@ def main() -> int:
             except (OSError, json.JSONDecodeError):
                 pass
         print("AGENT_BRIDGE_SYNC=FAIL services_or_offers_array_missing and no valid prior catalogue", file=sys.stderr)
+        return 1
+
+    if not entries:
+        # Preserve the last useful snapshot rather than replacing it with an empty
+        # catalogue when the upstream envelope is present but contains no offers.
+        if TARGET.exists():
+            try:
+                previous = json.loads(TARGET.read_text(encoding="utf-8"))
+                previous["manifest_sync_status"] = "STALE_PRESERVED"
+                previous["manifest_sync_error"] = "empty_services_or_offers_array"
+                TARGET.write_text(
+                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\\n",
+                    encoding="utf-8",
+                )
+                print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=empty_services_or_offers_array")
+                return 0
+            except (OSError, json.JSONDecodeError):
+                pass
+        print("AGENT_BRIDGE_SYNC=FAIL empty_services_or_offers_array and no valid prior catalogue", file=sys.stderr)
         return 1
 
     normalised = []
@@ -105,6 +127,23 @@ def main() -> int:
             "fulfilment_verified": False,
             "lifecycle": "CANDIDATE",
         })
+
+    if not normalised:
+        if TARGET.exists():
+            try:
+                previous = json.loads(TARGET.read_text(encoding="utf-8"))
+                previous["manifest_sync_status"] = "STALE_PRESERVED"
+                previous["manifest_sync_error"] = "no_executable_services_after_normalization"
+                TARGET.write_text(
+                    json.dumps(previous, indent=2, sort_keys=True, ensure_ascii=False) + "\\n",
+                    encoding="utf-8",
+                )
+                print("AGENT_BRIDGE_SYNC=STALE_PRESERVED reason=no_executable_services_after_normalization")
+                return 0
+            except (OSError, json.JSONDecodeError):
+                pass
+        print("AGENT_BRIDGE_SYNC=FAIL no_executable_services_after_normalization", file=sys.stderr)
+        return 1
 
     catalogue = {
         "schema": "dreamledger/agent-bridge-catalog/v1",
