@@ -19,22 +19,48 @@ class LocalLMStudioAdapter {
   }
 
   async health(fetchImpl = globalThis.fetch) {
+    const endpoint = this.baseUrl + '/models';
+    const readModels = async () => {
+      const response = await fetchImpl(endpoint, {
+        method: 'GET',
+        signal: AbortSignal.timeout(Math.min(this.timeoutMs, 15000))
+      });
+      const text = await response.text();
+      if (!response.ok) throw new Error('LM_STUDIO_MODELS_' + response.status + ': ' + text.slice(0, 500));
+      const data = JSON.parse(text || '{}');
+      return Array.isArray(data.data) ? data.data : [];
+    };
+
     try {
-      const r0 = await fetchImpl(this.baseUrl + '/models', { method: 'GET', signal: AbortSignal.timeout(this.timeoutMs) });
-      if (!r0.ok) throw new Error('HTTP_' + r0.status);
-    } catch (_) {
+      return await readModels();
+    } catch (initialError) {
       const cli = process.platform === 'win32' ? 'lms.exe' : 'lms';
-      const run = (args) => require('node:child_process').spawnSync(cli, args, { encoding: 'utf8', windowsHide: true, timeout: 15000 });
-      const daemon = run(['daemon', 'up']);
-      const server = run(['server', 'start']);
-      if (daemon.error && server.error) throw new Error('LLMSTER_UNAVAILABLE:' + daemon.error.message);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const run = (args) => require('node:child_process').spawnSync(cli, args, {
+        encoding: 'utf8', windowsHide: true, timeout: 15000
+      });
+      const version = run(['version']);
+      if (version.error || version.status !== 0) {
+        const detail = version.error ? version.error.message : String(version.stderr || version.stdout || '').slice(0, 500);
+        throw new Error('LM_STUDIO_CLI_UNAVAILABLE:' + detail);
+      }
+
+      const parsed = new URL(this.baseUrl);
+      const port = parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
+      // The HTTP endpoint, not the CLI exit code, decides whether an already-running
+      // server is healthy. Do not invoke the unsupported "lms daemon up" command.
+      run(['server', 'start', '--port', port]);
+
+      let lastError = initialError;
+      for (let attempt = 0; attempt < 15; attempt += 1) {
+        try {
+          return await readModels();
+        } catch (error) {
+          lastError = error;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+      throw new Error('LM_STUDIO_SERVER_NOT_READY:' + String(lastError && lastError.message || lastError));
     }
-    const r = await fetchImpl(this.baseUrl + '/models', { method: 'GET', signal: AbortSignal.timeout(this.timeoutMs) });
-    const text = await r.text();
-    if (!r.ok) throw new Error('LM_STUDIO_MODELS_' + r.status + ': ' + text.slice(0, 1000));
-    const data = JSON.parse(text || '{}');
-    return Array.isArray(data.data) ? data.data : [];
   }
 
   async ensureReady(fetchImpl = globalThis.fetch) {
