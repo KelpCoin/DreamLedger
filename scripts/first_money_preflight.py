@@ -28,9 +28,17 @@ GATEWAY_BASE = os.getenv(
 ).rstrip("/")
 MANIFEST_PATH = "/api/toll/v1/manifest"
 LM_MODELS_URL = os.getenv("LM_STUDIO_MODELS_URL", "http://127.0.0.1:1234/v1/models")
-EXPECTED_FILES = (
-    "scripts/toll_road_checker.py",
-    "scripts/ingest_quote.py",
+
+# Check the canonical implementation locations actually used by DreamLedger.
+# Old filenames such as scripts/toll_road_checker.py and scripts/ingest_quote.py
+# are not canonical entry points and must not create false missing-file failures.
+SOURCE_FILES = (
+    "public/server.js",
+    "BEC-PRIME/routes/tollRoad.js",
+    "BEC-PRIME/runtime/TollRoad.js",
+    "BEC-PRIME/scripts/test-toll-probe-single-use.js",
+    "supabase/functions/quote-intake/index.ts",
+    "supabase/functions/quote-fulfillment/index.ts",
 )
 RESULTS: list[dict[str, Any]] = []
 
@@ -52,7 +60,7 @@ def tcp_check(host: str, port: int, timeout: float = 4.0) -> None:
 
 
 def http_get(name: str, url: str, timeout: float = 8.0) -> None:
-    request = urllib.request.Request(url, headers={"User-Agent": "DreamLedger-readonly-preflight/1.0"})
+    request = urllib.request.Request(url, headers={"User-Agent": "DreamLedger-readonly-preflight/1.1"})
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             payload = response.read(256_000)
@@ -76,13 +84,13 @@ def http_get(name: str, url: str, timeout: float = 8.0) -> None:
         record(name, "FAIL", f"{type(exc).__name__}: {exc} for {url}")
 
 
-def check_local_files() -> None:
-    for relative in EXPECTED_FILES:
+def check_source_files() -> None:
+    for relative in SOURCE_FILES:
         path = ROOT / relative
         record(
             f"source_file:{relative}",
             "PRESENT" if path.is_file() else "MISSING",
-            str(path) if path.is_file() else "Expected implementation file does not exist at this repository path",
+            "Canonical source file exists" if path.is_file() else "Canonical source file is absent at this repository path",
         )
 
 
@@ -95,24 +103,23 @@ def main() -> int:
     record("secrets_policy", "PASS", "Secret values are not read or printed by this script")
     tcp_check(POOLER_HOST, POOLER_PORT)
     http_get("gateway_manifest", GATEWAY_BASE + MANIFEST_PATH)
-    check_local_files()
+    check_source_files()
     check_local_model_server()
 
-    # These are intentionally NOT marked passed by a connectivity check. They require
-    # executable tests against the actual implementation and authoritative payment data.
+    # Source presence and network reachability are not behavioral proof.
     record("atomic_quota_decrement", "UNVERIFIED",
-           "Requires concurrent/replay tests against the real entitlement handler and persistence layer")
+           "Requires concurrent/replay tests against the actual entitlement handler and persistence layer")
     record("duplicate_entitlement_prevention", "UNVERIFIED",
            "Requires repeated checkout-session redemption tests and authoritative entitlement reads")
     record("quote_ingestion_pii_redaction_and_sha256", "UNVERIFIED",
-           "Requires an implementation and a non-sensitive fixture; this preflight does not ingest documents")
+           "A quote-intake Edge Function exists in source; privacy/hash guarantees still require source audit and non-sensitive fixture tests")
     record("settlement_to_fulfillment", "UNVERIFIED",
            "Requires an independent settled payment, scoped entitlement, successful execution, receipt, and reconciliation")
 
     output = {"tool": "dreamledger-first-money-preflight", "mode": "READ_ONLY", "results": RESULTS}
     print(json.dumps(output, indent=2, ensure_ascii=False))
     failures = sum(1 for item in RESULTS if item["status"] == "FAIL")
-    missing = sum(1 for item in RESULTS if item["status"] in {"MISSING", "NOT_FOUND"})
+    missing = sum(1 for item in RESULTS if item["status"] == "MISSING")
     return 1 if failures or missing else 0
 
 
