@@ -52,9 +52,24 @@ async function main() {
     throw new Error('/api/products JSON has no products[] array');
   }
   const published = parsed.products.filter(product => product && product.status === 'published');
-  const unavailable = published.filter(product => product.checkout_available === false);
-  if (unavailable.length) {
-    throw new Error('published products without checkout: ' + unavailable.map(product => product.id).join(', '));
+  const purchasable = published.filter(product =>
+    (product.checkout_available === true && typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url)) ||
+    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && /^https:\/\//i.test(product.claim_url))
+  );
+  const brokenCheckout = published.filter(product =>
+    product.checkout_available === true && !(typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url))
+  );
+  const brokenClaim = published.filter(product =>
+    product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && /^https:\/\//i.test(product.claim_url))
+  );
+  if (brokenCheckout.length) {
+    throw new Error('checkout-enabled products missing valid checkout URL: ' + brokenCheckout.map(product => product.id).join(', '));
+  }
+  if (brokenClaim.length) {
+    throw new Error('claim-by-message products missing valid claim URL: ' + brokenClaim.map(product => product.id).join(', '));
+  }
+  if (!purchasable.length) {
+    throw new Error('no published product has a valid checkout or claim route');
   }
 
   console.log(JSON.stringify({
@@ -66,6 +81,7 @@ async function main() {
     forbidden_public_copy_checked: forbidden,
     published_products: published.length,
     buyable_published_products: published.filter(product => product.checkout_available === true).length,
+    claimable_published_products: published.filter(product => product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string').length,
     products_json_valid: true
   }, null, 2));
 }
