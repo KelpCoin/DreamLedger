@@ -22,10 +22,10 @@ async function main() {
   const html = home.body;
   const required = [
     ['DreamLedger brand', /DreamLedger/i],
-    ['supplier quote comparison offer', /Supplier quote comparison/i],
-    ['homepage headline', /Know what each quote really costs/i],
+    ['evidence-first commerce positioning', /Evidence-first commerce/i],
+    ['homepage headline', /Make the next decision\s*<span>easier to prove/i],
+    ['Delivery Proof Audit offer link', /href="\/agent-delivery-proof-audit\.html"/i],
     ['free worksheet route', /href="\/quote-comparison\//i],
-    ['paid comparison route', /href="\/supplier-quote-comparison\.html"/i],
     ['trust route', /href="\/trust\//i]
   ];
   for (const [label, pattern] of required) {
