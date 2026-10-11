@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DreamLedger Marketplace Listing v1",
+  "description": "Portable listing contract for reusable digital goods, B2B services, Agent Bridge APIs, DOOH inventory, and opt-in GPU jobs. A listing is not proof of availability, demand, payment, or delivery.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["listing_id", "name", "category", "version", "provenance", "licence", "status", "truth"],
+  "properties": {
+    "listing_id": {"type": "string", "minLength": 3},
+    "name": {"type": "string", "minLength": 3, "maxLength": 160},
+    "description": {"type": "string", "maxLength": 4000},
+    "category": {"enum": ["business_tool", "agent_api", "digital_asset", "dooh_inventory", "gpu_compute", "evidence_service"]},
+    "version": {"type": "string"},
+    "owner_id": {"type": ["string", "null"]},
+    "provenance": {
+      "type": "object",
+      "required": ["source_type", "observed_at"],
+      "properties": {
+        "source_type": {"enum": ["repository", "official_manifest", "seller_submission", "primary_source", "internal_candidate"]},
+        "source_url": {"type": ["string", "null"], "format": "uri"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "source_sha256": {"type": ["string", "null"]}
+      }
+    },
+    "licence": {
+      "type": "object",
+      "required": ["type", "redistribution_allowed"],
+      "properties": {
+        "type": {"type": "string"},
+        "redistribution_allowed": {"type": "boolean"},
+        "terms_url": {"type": ["string", "null"], "format": "uri"}
+      }
+    },
+    "checksum_sha256": {"type": ["string", "null"]},
+    "inputs": {"type": "array", "items": {"type": "object", "required": ["name", "type"], "properties": {"name": {"type": "string"}, "type": {"type": "string"}, "required": {"type": "boolean"}, "sensitivity": {"enum": ["public", "internal", "confidential", "personal"]}}}},
+    "outputs": {"type": "array", "items": {"type": "object", "required": ["name", "type"], "properties": {"name": {"type": "string"}, "type": {"type": "string"}, "evidence_required": {"type": "boolean"}}}},
+    "price": {"type": ["object", "null"], "required": ["amount", "currency", "unit"], "properties": {"amount": {"type": "number", "minimum": 0}, "currency": {"type": "string", "minLength": 3, "maxLength": 3}, "unit": {"type": "string"}, "billing_mode": {"enum": ["free", "fixed", "metered", "usage_based", "performance_fee"]}}},
+    "limits": {"type": "object", "properties": {"budget_ceiling": {"type": ["number", "null"], "minimum": 0}, "timeout_seconds": {"type": ["integer", "null"], "minimum": 1}, "quota": {"type": ["integer", "null"], "minimum": 0}, "idempotency_required": {"type": "boolean"}, "network_access": {"enum": ["none", "allowlisted", "restricted", "not_applicable"]}}},
+    "status": {"enum": ["candidate", "available_unverified", "verified_available", "suspended", "retired"]},
+    "truth": {
+      "type": "object",
+      "required": ["buyer_intent", "settlement", "entitlement", "fulfilment", "delivery"],
+      "properties": {
+        "buyer_intent": {"enum": ["unknown", "observed", "verified"]},
+        "settlement": {"enum": ["unverified", "pending", "settled", "refunded", "disputed"]},
+        "entitlement": {"enum": ["unverified", "not_applicable", "granted", "revoked"]},
+        "fulfilment": {"enum": ["unverified", "pending", "fulfilled", "failed"]},
+        "delivery": {"enum": ["unverified", "pending", "evidence_attached", "accepted", "rejected"]}
+      }
+    },
+    "acceptance_tests": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "updated_at": {"type": "string", "format": "date-time"}
+  }
+}
