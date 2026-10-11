@@ -38,7 +38,12 @@ jobs:
           grep -qi 'Delivery Proof Audit' home.html
           grep -q 'href="/quote-comparison/"' home.html
           grep -q 'href="/trust/"' home.html
-          ! grep -Eiq 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html
+          if grep -Ein 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html; then
+            echo 'PUBLIC_COPY_SCAN=FAIL'
+            exit 1
+          else
+            echo 'PUBLIC_COPY_SCAN=PASS'
+          fi
           echo 'SOURCE_STOREFRONT=PASS'
 
       - name: Start runtime
