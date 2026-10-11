@@ -21,7 +21,7 @@ const PUBLIC_FILES={
   '/agent-commerce':'agent-commerce.html','/agent-commerce/':'agent-commerce.html','/agentic-commerce':'agentic-commerce.html','/agentic-commerce/':'agentic-commerce.html','/revenue.html':'agentic-commerce.html','/revenue':'agentic-commerce.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
   '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
-  '/go':'marketplace.html','/go/':'marketplace.html',
+  '/go':'go/index.html','/go/':'go/index.html',
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html',
   '/truth-oracle-field-guide.html':'truth-oracle-field-guide.html','/shop.html':'shop.html','/truth-oracle':'truth-oracle.html',
