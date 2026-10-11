@@ -10,7 +10,6 @@ const required = [
   'FACTORY-FACTORY-QUEUE.json',
   'FACTORY-FACTORY-RUN.json',
   'MONEY-CELLS.json',
-  'UNIVERSAL-MONEY-CELLS.json',
   'FACTORY-FACTORY-CYCLE.json',
   'orchestrator/latest.json'
 ];
@@ -21,12 +20,14 @@ for (const name of required) {
 }
 
 const run = JSON.parse(fs.readFileSync(path.join(dir, 'FACTORY-FACTORY-RUN.json'), 'utf8'));
-const universal = JSON.parse(fs.readFileSync(path.join(dir, 'UNIVERSAL-MONEY-CELLS.json'), 'utf8'));
+const money = JSON.parse(fs.readFileSync(path.join(dir, 'MONEY-CELLS.json'), 'utf8'));
 const cycle = JSON.parse(fs.readFileSync(path.join(dir, 'FACTORY-FACTORY-CYCLE.json'), 'utf8'));
 const orchestrator = JSON.parse(fs.readFileSync(path.join(dir, 'orchestrator/latest.json'), 'utf8'));
 
 if (!Array.isArray(run.cells)) throw new Error('Factory run has no cells array');
-if (!Array.isArray(universal.cells)) throw new Error('Universal factory has no cells array');
+if (!Array.isArray(money.cells)) throw new Error('Money-cells artifact has no cells array');
+if (money.cell_count !== money.cells.length) throw new Error('Money-cells count does not match its cells array');
+if (money.cells.length !== run.cells.length) throw new Error('Money-cells artifact does not match factory run');
 if (run.external_action !== 'NOT_PERFORMED') throw new Error('Factory run crossed external-action boundary');
 if (run.external_revenue !== 'UNVERIFIED') throw new Error('Factory run claimed revenue');
 if (run.business_truth !== 'NOT_CLAIMED') throw new Error('Factory run claimed BusinessTruth');
@@ -43,7 +44,7 @@ console.log(JSON.stringify({
   schema: 'DREAMLEDGER/FACTORY-FACTORY-ASSEMBLY-VERIFY/v1',
   status: 'PASS',
   factory_cells: run.cells.length,
-  universal_cells: universal.cells.length,
+  money_cells: money.cells.length,
   acquisition_packets: orchestrator.acquisition_packet_count,
   external_action: cycle.external_action,
   external_revenue: cycle.external_revenue,
