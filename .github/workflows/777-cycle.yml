@@ -72,6 +72,8 @@ jobs:
           # Some generated public pulse paths may match repository ignore rules.
           # Stage HTML candidates before the gate so it evaluates the exact files the commit step can publish.
           git add -f agent-bridge-catalog.json webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html
+      - name: Regression test compounding gate environment binding
+        run: python -m unittest discover -s tests -p 'test_777_compounding_gate_import.py'
       - name: Enforce compounding output
         run: python scripts/777_compounding_gate.py
       - name: Commit new pulse if changed
