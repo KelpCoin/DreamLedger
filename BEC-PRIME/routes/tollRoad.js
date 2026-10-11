@@ -128,6 +128,36 @@ async function redeem(scope,sessionId,roadId=null){
   return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,expiresAt,reference:sessionId}),attribution:{referrer_id:safeAttribution(data.metadata?.referrer_id,'organic'),campaign_id:safeAttribution(data.metadata?.campaign_id,'direct')}};
 }
 
+const probeClaims=new Set();
+const probeClaimInFlight=new Map();
+
+async function claimProbeOnce(sessionId,keyId){
+  const id=String(sessionId||'').trim();
+  if(!id||id.length>255)throw Object.assign(new Error('paid_checkout_session_reference_required'),{statusCode:401});
+  if(!STRIPE_SECRET_KEY)throw Object.assign(new Error('Stripe secret key is not configured'),{statusCode:503});
+  if(probeClaims.has(id))throw Object.assign(new Error('probe_already_consumed'),{statusCode:409});
+  const existing=probeClaimInFlight.get(id);
+  if(existing){await existing.catch(()=>{});throw Object.assign(new Error('probe_claim_already_in_progress_or_consumed'),{statusCode:409});}
+  const task=(async()=>{
+    const response=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY}});
+    const raw=await response.text();let data;try{data=JSON.parse(raw||'{}')}catch{data={}};
+    if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe session lookup failed'),{statusCode:502});
+    if(data.livemode!==true||data.payment_status!=='paid'||data.metadata?.toll_scope!=='toll-probe'||Number(data.amount_total)!==50||String(data.currency||'').toLowerCase()!=='nzd')throw Object.assign(new Error('settled_NZD_0.50_toll_probe_payment_required'),{statusCode:402});
+    if(data.metadata?.probe_consumed==='true')throw Object.assign(new Error('probe_already_consumed'),{statusCode:409});
+    const update=await fetch('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(id),{
+      method:'POST',
+      headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-probe-consume-'+id},
+      body:stripeForm({'metadata[probe_consumed]':'true','metadata[probe_consumed_at]':new Date().toISOString(),'metadata[probe_key_id]':String(keyId||'').slice(0,128)})
+    });
+    const updateRaw=await update.text();let updated;try{updated=JSON.parse(updateRaw||'{}')}catch{updated={}};
+    if(!update.ok||updated.metadata?.probe_consumed!=='true')throw Object.assign(new Error(updated?.error?.message||'durable_probe_claim_failed'),{statusCode:502});
+    probeClaims.add(id);
+    return {referrer_id:safeAttribution(data.metadata?.referrer_id,'organic'),campaign_id:safeAttribution(data.metadata?.campaign_id,'direct')};
+  })();
+  probeClaimInFlight.set(id,task);
+  try{return await task;}finally{probeClaimInFlight.delete(id);}
+}
+
 function send(res,status,body){
   if(res.writableEnded)return true;
   res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
@@ -227,7 +257,13 @@ async function handle(req,res,path){
 
   if(path==='/api/toll/v1/probe'&&req.method==='POST'){
     const key=authorize(req,'toll-probe');
-    return send(res,200,meterResult(key,'TOLL-PROBE',{probe_id:'TOLL-PROBE-50C',route:'/api/toll/v1/probe',price_nzd:0.50,result:'LIVE_TOLL_WALL_REACHED',issued_at:new Date().toISOString(),note:'This response proves access through the paid toll wall. It does not itself create economic truth.'}));
+    try{
+      const attribution=await claimProbeOnce(key.reference,key.key_id);
+      const receipt={receipt_id:'PROBE-'+crypto.createHash('sha256').update(String(key.reference)).digest('hex').slice(0,24),probe_id:'TOLL-PROBE-50C',route:'/api/toll/v1/probe',price_nzd:0.50,result:'LIVE_TOLL_WALL_REACHED',issued_at:new Date().toISOString(),attribution,note:'One paid probe consumed. Receipt is an API response; it is not an Ed25519 signature.'};
+      return send(res,200,meterResult(key,'TOLL-PROBE',receipt));
+    }catch(error){
+      return send(res,Number(error&&error.statusCode)||502,{error:String(error&&error.message||'probe_claim_failed'),service:'TOLL-PROBE'});
+    }
   }
 
   if(path==='/api/toll/v1/gauntlet'&&req.method==='POST'){
