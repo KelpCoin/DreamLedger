@@ -5,6 +5,7 @@ const {run:runGauntlet}=require('../gauntlet/CandidateGauntlet');
 const Toll=require('../runtime/TollRoad');
 const Trinity=require('../runtime/Trinity');
 const TollNexus=require('../runtime/TollNexus');
+const AgentBridgeEventLedger=require('../runtime/AgentBridgeEventLedger');
 const RoadFactory=require('../runtime/TollRoadFactory');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_SECRET_KEY||process.env.STRIPE_LIVE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
@@ -98,7 +99,7 @@ async function createCheckout(scope, roadId=null){
   const def=SCOPES[scope];
   const sessionId='toll_'+crypto.randomUUID();
   const productName=def.product;
-  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':Math.round(priceNzd*100),'line_items[0][price_data][product_data][name]':productName,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,'metadata[toll_price_nzd]':String(priceNzd),'metadata[toll_product]':productName,'payment_intent_data[metadata][toll_scope]':scope,'payment_intent_data[metadata][toll_request_id]':sessionId,'metadata[road_id]':roadId||'','payment_intent_data[metadata][road_id]':roadId||'',success_url:PUBLIC_BASE+'/toll-road?checkout=success&scope='+scope+(roadId?'&road_id='+encodeURIComponent(roadId):'')+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
+  const response=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-toll-'+sessionId},body:stripeForm({mode:'payment',client_reference_id:sessionId,'line_items[0][price_data][currency]':'nzd','line_items[0][price_data][unit_amount]':Math.round(priceNzd*100),'line_items[0][price_data][product_data][name]':productName,'line_items[0][quantity]':'1','metadata[toll_scope]':scope,'metadata[toll_request_id]':sessionId,'metadata[toll_price_nzd]':String(priceNzd),'metadata[toll_product]':productName,'payment_intent_data[metadata][toll_scope]':scope,'payment_intent_data[metadata][toll_request_id]':sessionId,'metadata[road_id]':roadId||'','payment_intent_data[metadata][road_id]':roadId||'',success_url:PUBLIC_BASE+(scope==='bridge-events'?'/agent-bridge.html':'/toll-road')+'?checkout=success&scope='+scope+(roadId?'&road_id='+encodeURIComponent(roadId):'')+'&session_id={CHECKOUT_SESSION_ID}',cancel_url:PUBLIC_BASE+'/toll-road?checkout=cancelled&scope='+scope})});
   const text=await response.text();let data;try{data=JSON.parse(text||'{}')}catch{data={}};
   if(!response.ok)throw Object.assign(new Error(data?.error?.message||'Stripe checkout creation failed'),{statusCode:502});
   return data;
@@ -120,7 +121,10 @@ async function redeem(scope,sessionId,roadId=null){
   const line=data.line_items?.data?.[0];
   if(!line || Number(line.amount_total ?? line.price?.unit_amount ?? 0)!==expectedAmount || String(data.currency||'').toLowerCase()!=='nzd')throw Object.assign(new Error('Checkout amount or currency attribution mismatch'),{statusCode:409});
   const def=scope==='road'?{calls:RoadFactory.CALLS_PER_ROAD}:(SCOPES[scope]||{calls:100});
-  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,reference:sessionId})};
+  const createdAt = Number(data.created || 0) * 1000;
+  const expiresAt = createdAt > 0 ? new Date(createdAt + 30 * 86400000).toISOString() : undefined;
+  if (expiresAt && Date.parse(expiresAt) <= Date.now()) throw Object.assign(new Error('Paid entitlement expired'),{statusCode:410});
+  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,expiresAt,reference:sessionId})};
 }
 
 function send(res,status,body){
@@ -307,6 +311,22 @@ async function handle(req,res,path){
     const tier = thinMeters[path];
     const key = authorize(req, tier);
     const body = await readJson(req).catch(()=>({}));
+    if (tier === 'bridge-events') {
+      const idempotencyKey = String(req.headers['idempotency-key'] || body.idempotency_key || '').trim();
+      const payload = body && typeof body.payload === 'object' && !Array.isArray(body.payload)
+        ? body.payload
+        : body && typeof body.event === 'object' && !Array.isArray(body.event)
+          ? body.event
+          : body && typeof body === 'object' && !Array.isArray(body)
+            ? Object.fromEntries(Object.entries(body).filter(([name]) => name !== 'idempotency_key'))
+            : null;
+      try {
+        const receipt = await AgentBridgeEventLedger.acceptEvent({ keyId: key.key_id, idempotencyKey, payload });
+        return send(res,200,{...meterResult(key,'AGENT-BRIDGE-EVENTS',{...receipt}),economic_truth_unchanged:true});
+      } catch (error) {
+        return send(res,Number(error && error.statusCode) || 500,{error:String(error && error.message || 'agent_bridge_event_rejected'),service:'AGENT-BRIDGE-EVENTS'});
+      }
+    }
     return send(res,200,meterResult(key, tier.toUpperCase(), {payload_keys: typeof body==='object' ? Object.keys(body) : []}));
   }
 

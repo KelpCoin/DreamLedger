@@ -1,7 +1,6 @@
 'use strict';
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
-const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -39,7 +38,7 @@ const PUBLIC_FILES={
   '/overpaying':'overpaying.html','/overpaying.html':'overpaying.html',
   '/avatar.html':'avatar.html','/avatar':'avatar.html','/account':'account.html','/account/':'account.html','/register':'register.html','/register/':'register.html','/login':'login.html','/login/':'login.html','/mtg-search':'mtg-search.html','/mtg-search/':'mtg-search.html','/mtg-list':'mtg-list.html','/mtg-list/':'mtg-list.html','/mtg-marketplace':'mtg-marketplace.html','/mtg-marketplace/':'mtg-marketplace.html','/mtg-mod':'mtg-mod.html','/mtg-mod/':'mtg-mod.html','/mtg-welcome':'mtg-welcome.html','/mtg-welcome/':'mtg-welcome.html','/toll-road':'toll-road.html','/toll-road/':'toll-road.html'
 };
-Object.assign(PUBLIC_FILES,{"/777-distribution.html":"777-distribution.html","/a2a-marketplace.html":"marketplace.html","/agent-bridge.html":"agentic-commerce.html","/cube-marketplace.html":"marketplace.html","/evidence-ledger.html":"trust.html","/evidence.html":"trust.html","/ledger.html":"trust.html","/production-verification.html":"trust.html","/money-500000.html":"shop.html","/silo-template.html":"public-resources.json","/silos/":"shop.html","/silos/index.html":"shop.html","/toll-road.html":"shop.html","/toll-booths.html":"shop.html","/marketplace-forward.html":"marketplace.html","/marketplace-pro.html":"marketplace.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/cortex.html":"home.html","/index-black-gold-v1.html":"home.html","/marketplace/order/":"marketplace.html","/marketplace/order/index.html":"marketplace.html","/marketplace/sell/":"marketplace.html","/marketplace/sell/index.html":"marketplace.html","/economicMechanismLibrary.json":"public-resources.json","/evergreen-silo-factory.json":"public-resources.json","/silo-clone-manifest.json":"public-resources.json","/bridge-tolls.json":"public-resources.json","/commerce-roads.json":"public-resources.json","/compute.json":"public-resources.json","/ledger.json":"public-resources.json","/proof.schema.json":"public-resources.json","/money-playbook.json":"public-resources.json","/dream-ledger-manifest.json":"public-resources.json","/dreamledger-sitemap.xml":"sitemap.xml","/data/economic-events-manifest.json":"public-resources.json","/data/procurement-opportunities.json":"public-research-feed.json","/news.json":"public-research-feed.json","/platform.json":"public-resources.json","/api/agent-commerce/toll-probe.json":"public-resources.json","/b2b/catalog.openapi.json":"public-resources.json","/catalog.openapi.json":"public-resources.json","/marketplace/agent-card.json":"public-resources.json","/marketplace/agent.json":"public-resources.json","/toll-road.json":"public-resources.json"});
+Object.assign(PUBLIC_FILES,{"/777-distribution.html":"777-distribution.html","/a2a-marketplace.html":"marketplace.html","/agent-bridge.html":"agent-bridge.html","/agent-bridge":"agent-bridge.html","/agent-bridge/":"agent-bridge.html","/cube-marketplace.html":"marketplace.html","/evidence-ledger.html":"trust.html","/evidence.html":"trust.html","/ledger.html":"trust.html","/production-verification.html":"trust.html","/money-500000.html":"shop.html","/silo-template.html":"public-resources.json","/silos/":"shop.html","/silos/index.html":"shop.html","/toll-road.html":"shop.html","/toll-booths.html":"shop.html","/marketplace-forward.html":"marketplace.html","/marketplace-pro.html":"marketplace.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/cortex.html":"home.html","/index-black-gold-v1.html":"home.html","/marketplace/order/":"marketplace.html","/marketplace/order/index.html":"marketplace.html","/marketplace/sell/":"marketplace.html","/marketplace/sell/index.html":"marketplace.html","/economicMechanismLibrary.json":"public-resources.json","/evergreen-silo-factory.json":"public-resources.json","/silo-clone-manifest.json":"public-resources.json","/bridge-tolls.json":"public-resources.json","/commerce-roads.json":"public-resources.json","/compute.json":"public-resources.json","/ledger.json":"public-resources.json","/proof.schema.json":"public-resources.json","/money-playbook.json":"public-resources.json","/dream-ledger-manifest.json":"public-resources.json","/dreamledger-sitemap.xml":"sitemap.xml","/data/economic-events-manifest.json":"public-resources.json","/data/procurement-opportunities.json":"public-research-feed.json","/news.json":"public-research-feed.json","/platform.json":"public-resources.json","/api/agent-commerce/toll-probe.json":"public-resources.json","/b2b/catalog.openapi.json":"public-resources.json","/catalog.openapi.json":"public-resources.json","/marketplace/agent-card.json":"public-resources.json","/marketplace/agent.json":"public-resources.json","/toll-road.json":"public-resources.json"});
 Object.assign(PUBLIC_FILES,{"/b2b-marketplace.html":"b2b.html","/auctions.html":"marketplace.html","/auto_parts.html":"marketplace.html","/boardgames.html":"marketplace.html","/cameras.html":"marketplace.html","/collectibles.html":"marketplace.html","/computers.html":"marketplace.html","/furniture.html":"marketplace.html","/home_appliances.html":"marketplace.html","/musical_instruments.html":"marketplace.html","/outdoor.html":"marketplace.html","/phones.html":"marketplace.html","/vinyl.html":"marketplace.html","/nz-secondhand/":"marketplace.html","/nz-secondhand/index.html":"marketplace.html","/digital-products/":"shop.html","/digital-products/index.html":"shop.html","/activity.html":"trust.html","/tools.html":"home.html","/start.html":"shop.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/marketplace/order":"marketplace.html","/marketplace/sell":"marketplace.html","/silos/evergreen.html":"shop.html","/silos/construction-subcontractor-quotes.html":"quote-comparison/construction/index.html","/silos/event-vendor-quotes.html":"quote-comparison/hospitality/index.html","/silos/fleet-repair-quotes.html":"quote-comparison/operations/index.html","/silos/freight-quotes.html":"quote-comparison/import/index.html","/silos/it-hardware-quotes.html":"quote-comparison/operations/index.html","/silos/manufacturing-supplier-quotes.html":"quote-comparison/manufacturing/index.html","/silos/marketing-agency-quotes.html":"quote-comparison/operations/index.html","/silos/professional-services-quotes.html":"quote-comparison/operations/index.html","/silos/saas-vendor-quotes.html":"quote-comparison/operations/index.html","/silos/supplier-price-list-comparison.html":"quote-comparison/wholesale/index.html"});
 Object.assign(PUBLIC_FILES,{"/rivet/":"b2b.html","/rivet/index.html":"b2b.html","/dreamledger-billboard.html":"billboard.html","/quote-comparison/ecommerce.html":"quote-comparison/ecommerce/index.html","/tools/":"tools/index.html","/tools/index.html":"tools/index.html","/sandbox-tools.html":"tools/index.html","/pulse/2026-10-09-private-commercial-ai-agents-can-pay-for-your-shopping-who-gets-your-money-back-cryptonews-net-3914c4d85d182093.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-api-tax-slows-ai-agents-saasrise-d3958748bb03e4d3.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-introducing-strands-box-ai-agent-sandboxes-powered-by-dogwood-amazon-web-services-aws-ebd0f33212ab2024.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-openai-launches-decisions-api-with-up-to-10x-faster-responses-propakistani-185784e8881b102a.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-payrails-launches-a-hybrid-merchant-of-record-product-the-paypers-dcb5d940220c205a.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-secure-ai-agent-credentials-13-step-mcp-setup-2026-https-tech-insider-org-e63b27eb35707850.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-top-6-best-dropshipping-automation-platforms-for-scaling-your-ecommerce-business-techbullion-f58bc31213ababb7.html":"pulse/index.html"});
 Object.assign(PUBLIC_FILES,{"/discord-starter-kit.html":"products/discord-webhook-starter-kit-001/index.html","/tools/nz-seller-profit/":"tools/seller-profit/index.html","/tools/nz-seller-profit/index.html":"tools/seller-profit/index.html"});
@@ -54,6 +53,33 @@ function headers(res){
   res.setHeader('Content-Security-Policy',"default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://buy.stripe.com");
 }
 async function proxySwarm(req,res,p){if(!ENGINE_INTERNAL_URL)return send(res,503,'Swarm engine unavailable','text/plain; charset=utf-8');try{const target=ENGINE_INTERNAL_URL+(p.startsWith('/swarm/')?'/api/swarm-100k/'+p.split('/').pop():p);const h={};if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;const r=await fetch(target,{headers:h});const body=await r.text();res.statusCode=r.status;res.setHeader('Content-Type',r.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');return res.end(body);}catch(e){return send(res,502,'Swarm engine unavailable','text/plain; charset=utf-8');}}
+
+async function proxyTollToEngine(req,res,p){
+  if(!ENGINE_INTERNAL_URL)return send(res,503,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
+  try{
+    const chunks=[];
+    let size=0;
+    if(!['GET','HEAD'].includes(req.method)){
+      for await(const chunk of req){
+        size+=chunk.length;
+        if(size>1024*1024)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8');
+        chunks.push(chunk);
+      }
+    }
+    const h={'accept':'application/json'};
+    for(const name of ['content-type','idempotency-key','x-dreamledger-toll-key'])if(req.headers[name])h[name]=req.headers[name];
+    if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;
+    const target=ENGINE_INTERNAL_URL+(req.url||p);
+    const upstream=await fetch(target,{method:req.method,headers:h,body:chunks.length?Buffer.concat(chunks):undefined,redirect:'manual'});
+    const body=await upstream.arrayBuffer();
+    res.statusCode=upstream.status;
+    for(const name of ['content-type','cache-control','location','retry-after']){const value=upstream.headers.get(name);if(value)res.setHeader(name,value);}
+    return res.end(Buffer.from(body));
+  }catch(error){
+    console.error(JSON.stringify({toll_engine_proxy_failed:true,path:p,error:String(error&&error.message||error)}));
+    return send(res,502,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
+  }
+}
 
 function serveFile(res,file){
   const safe=path.normalize(path.join(ROOT,file));
@@ -116,15 +142,7 @@ http.createServer(async (req,res)=>{
       res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
     }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
   }
-  if(p.startsWith('/api/toll/v1/')){
-    try{
-      const handled=await tollRoad.handle(req,res,p);
-      if(handled)return;
-    }catch(error){
-      return send(res,error.statusCode||500,JSON.stringify({error:String(error&&error.message||error)}),'application/json; charset=utf-8');
-    }
-    return send(res,404,'Not Found','text/plain; charset=utf-8');
-  }
+  if(p.startsWith('/api/toll/v1/')) return proxyTollToEngine(req,res,p);
   if(req.method==='GET' && /^\/swarm\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && /^\/api\/swarm-100k\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
   if(req.method==='GET' && p==='/api/swarm-100k/summary') return proxySwarm(req,res,p);

@@ -1,65 +1,70 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Agent Bridge · DreamLedger</title>
-<meta name="description" content="DreamLedger Agent Bridge — governed handoff, settlement-backed truth, tolls for agentic commerce validation.">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Bridge · Durable Event Receipts | DreamLedger</title>
+<meta name="description" content="Paid event receipts for AI agents and automations. Idempotent event intake, payload hashes, and bounded 100-event access.">
 <style>
-:root{--bg:#f7f3ec;--ink:#1a1510;--muted:#6e6458;--line:#e2d8c8;--gold:#c48a2b;--card:#fffcf7}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
-a{color:var(--gold)}header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-.brand{font-family:Fraunces,Georgia,serif;font-size:1.25rem;font-weight:600;color:var(--ink);text-decoration:none}
-main{max-width:640px;margin:0 auto;padding:28px 16px 64px}h1{font-family:Fraunces,Georgia,serif;font-size:clamp(1.8rem,5vw,2.4rem);font-weight:500;margin-bottom:12px}
-.lead{color:var(--muted);margin-bottom:24px}h2{font-size:1.05rem;margin:28px 0 10px}p,li{color:var(--muted);font-size:.95rem;margin-bottom:8px}ul{padding-left:1.2em}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0}
-.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;background:#1a1510;color:#fff;font-weight:700;text-decoration:none;margin-top:12px}
-.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
-</style>
-</head>
-<body>
-<header>
-  <a class="brand" href="/">DreamLedger</a>
-  <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001" style="font-weight:700;font-size:13px">Buy NZ$29</a>
-</header>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--soft:#8496aa;--mint:#a9f2d0;--blue:#9ec9ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 78% 0%,#1b3450 0,transparent 34%),var(--bg);color:var(--ink);font:16px/1.65 system-ui,sans-serif}.wrap{width:min(960px,calc(100% - 28px));margin:auto}.top{padding:20px 0;border-bottom:1px solid var(--line)}a{color:var(--mint)}.brand{font-size:20px;font-weight:900;color:var(--ink);text-decoration:none}.hero{padding:52px 0 28px}.eyebrow{font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}h1{font-size:clamp(40px,7vw,68px);line-height:.98;letter-spacing:-.06em;max-width:850px;margin:14px 0}h2{font-size:clamp(24px,4vw,34px);line-height:1.1;letter-spacing:-.04em}.lede{font-size:19px;color:var(--muted);max-width:760px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.btn{display:inline-block;padding:13px 17px;border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:850}.primary{background:var(--mint);color:#08130e;border-color:var(--mint)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{padding:19px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,#15212d,#101720)}.card p,li{color:var(--muted)}section{padding:22px 0}.small{font-size:12px;color:var(--soft)}pre{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#070c13;border:1px solid var(--line);border-radius:12px;padding:16px;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#dce9f5}.notice{border-left:3px solid var(--blue);padding:10px 15px;background:#101a27;color:var(--muted)}footer{border-top:1px solid var(--line);margin-top:28px;padding:24px 0 38px;color:var(--soft);font-size:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}.hero{padding-top:36px}}
+</style></head>
+<body><div class="wrap">
+<header class="top"><a class="brand" href="/">DreamLedger</a> <span class="small"> / Agent Bridge</span></header>
 <main>
-  <h1>Agent Bridge</h1>
-  <p class="lead">Governed handoff between agents and cloud commerce. The bridge is a road. Tolls are paid for access and validation — not for inventing revenue.</p>
+<section class="hero"><div class="eyebrow">Machine-to-machine · Bounded paid API</div>
+<h1>Give every agent event a receipt.</h1>
+<p class="lede">Agent Bridge accepts a structured event from your automation and returns a receipt ID, payload hash, timestamp, and idempotency result. It is designed for workflows that need a traceable handoff without storing the raw event payload.</p>
+<div class="actions"><a class="btn primary" href="/api/toll/v1/checkout/bridge-events">Buy 100 event receipts · NZ$19</a><a class="btn" href="/api/toll/v1/manifest">Read the API manifest</a></div>
+<p class="small">One-time purchase. No subscription. The paid key is scoped to Agent Bridge Events and capped at 100 unique receipts. Checkout creation is not a completed purchase.</p></section>
+<section><div class="grid">
+<article class="card"><div class="eyebrow">01 · Intake</div><h2>Structured event</h2><p>Send a JSON object with an idempotency key. Requests without a valid paid key are rejected.</p></article>
+<article class="card"><div class="eyebrow">02 · Proof</div><h2>Receipt, not a claim</h2><p>Get a stable receipt ID and SHA-256 payload digest. Raw event contents are not written to the receipt ledger.</p></article>
+<article class="card"><div class="eyebrow">03 · Control</div><h2>Retry safely</h2><p>Repeating the same idempotency key and payload returns the original receipt. Reusing that key for different content is rejected.</p></article>
+</div></section>
+<section id="redemption" hidden><h2>Your Agent Bridge key</h2><p id="redeem-status" role="status">Checking your payment and preparing access…</p><pre id="redeem-key">Your scoped key will appear here after payment is confirmed.</pre><p class="small">Treat this key like a password. It is scoped to Agent Bridge Events. Save it in your server-side secret manager, not in a public repository or browser code.</p></section>
+<section><h2>Connect your agent</h2><ol><li>Purchase the event pack.</li><li>After Stripe reports payment as paid, redeem the Checkout Session ID for a scoped key.</li><li>POST each event with the key and a unique idempotency key.</li></ol>
+<h3>Redeem after payment</h3><pre>POST /api/toll/v1/redeem/bridge-events
+Content-Type: application/json
 
-  <h2>What it is today</h2>
-  <ul>
-    <li><strong>Status:</strong> governed (authenticated agent token required)</li>
-    <li><strong>Rail:</strong> <span class="mono">/api/agent-bridge/rail/manifest</span> (401 without credentials)</li>
-    <li><strong>Settlement:</strong> Stripe live NZD only</li>
-    <li><strong>Truth rule:</strong> bridge activity ≠ revenue; revenue needs Stripe + fulfillment proof</li>
-  </ul>
+{"session_id":"cs_live_..."}</pre>
+<h3>Submit an event</h3><pre>POST /api/toll/v1/bridge-events
+Content-Type: application/json
+Idempotency-Key: order-8472-step-3
+x-dreamledger-toll-key: dlk_...
 
-  <h2>Where tolls fit (agentic commerce boom)</h2>
-  <div class="card">
-    <p><strong>Discovery is free enough to try.</strong> Machine contracts stay public:</p>
-    <p class="mono">/api/offers · /agent-commerce.json · /.well-known/dreamledger.json</p>
-    <p style="margin-top:12px"><strong>Validation is the product.</strong> Agents that want governed handoff, attribution binding, and ledger proof pay for the road:</p>
-    <ul>
-      <li>Bridge session / rail access (tokenised agents)</li>
-      <li>Proof attestation against <span class="mono">proof.schema.json</span></li>
-      <li>Human checkout remains Stripe (0% platform success fee on current public offers)</li>
-    </ul>
-  </div>
-
-  <h2>Alignment with the industry stack</h2>
-  <ul>
-    <li><strong>AP2-like:</strong> human authorization before spend</li>
-    <li><strong>ACP-like:</strong> Payment Link / buy-router handoff</li>
-    <li><strong>x402 / MPP:</strong> reserved, not live on DreamLedger yet</li>
-  </ul>
-
-  <h2>Humans still buy here</h2>
-  <a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic · NZ$29</a>
-  <a class="btn" style="background:transparent;color:var(--ink);border:1.5px solid var(--line)" href="/shop.html">Horizontal shop →</a>
-
-  <h2>Machine entry</h2>
-  <p><a href="/agent.json">agent.json</a> · <a href="/agent-commerce.json">agent-commerce.json</a> · <a href="/ledger.html">ledger.html</a></p>
+{"payload":{"job_id":"8472","step":"classification","result":"complete"}}</pre>
+<p class="small">Illustrative requests only. Use the actual session ID and key returned by your purchase. Never publish a live key in source control, logs, or browser-side code.</p></section>
+<section><h2>What a receipt proves</h2><div class="notice">A receipt proves that the Bridge accepted and recorded a payload digest under a scoped key. It does not prove that the upstream agent's claim is true, that a downstream task succeeded, or that a payment is revenue.</div>
+<ul><li>Receipt metadata includes key ID, idempotency key, payload hash, payload key names, receipt ID, and acceptance time.</li><li>Same key plus same idempotency key and payload returns the original receipt.</li><li>Changed content with a reused idempotency key is rejected.</li><li>The allowance is 100 unique events per issued key. Do not submit secrets, personal data, or raw confidential documents.</li></ul>
+</section>
 </main>
-</body>
-</html>
+<footer>DreamLedger · A bounded automated service. An API key does not grant autonomous spending or private-system authority. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/status">Service status</a></footer>
+</div>
+<script>
+(async function(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('checkout') !== 'success' || params.get('scope') !== 'bridge-events') return;
+  const sessionId = params.get('session_id');
+  const panel = document.getElementById('redemption');
+  const status = document.getElementById('redeem-status');
+  const keyOutput = document.getElementById('redeem-key');
+  panel.hidden = false;
+  if(!sessionId){status.textContent='Payment return received, but the Checkout Session ID is missing. Contact support with your Stripe receipt.';return;}
+  try {
+    const response = await fetch('/api/toll/v1/redeem/bridge-events', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session_id:sessionId})
+    });
+    const result = await response.json();
+    if(!response.ok || result.status !== 'ENTITLED' || !result.key) {
+      status.textContent='Access was not issued. '+String(result.error||'Payment confirmation is incomplete')+'. Your payment is not being treated as fulfilled until redemption succeeds.';
+      return;
+    }
+    keyOutput.textContent = result.key;
+    status.textContent='Payment confirmed. Your scoped key is ready.';
+  } catch(error) {
+    status.textContent='Could not verify the payment return. Retry this page or redeem the same Checkout Session ID through the API.';
+  }
+})();
+</script>
+</body></html>
