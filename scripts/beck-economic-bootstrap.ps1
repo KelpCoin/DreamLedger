@@ -191,6 +191,7 @@ try {
         $interim = [ordered]@{
             schema = 'BECK-ECONOMIC-VALIDATION/v1'
             generated_at_utc = [DateTime]::UtcNow.ToString('o')
+            run_started_at_utc = $started.ToUniversalTime().ToString('o')
             checks = @($checks)
         }
         $interim | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $interimDir 'latest-economic-validation.json') -Encoding UTF8
