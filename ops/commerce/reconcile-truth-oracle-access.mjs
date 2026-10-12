@@ -80,7 +80,9 @@ const proof = {
     payment_link_active: retiredLink?.active ?? null,
     product_active: retiredProduct.active === true,
     price_active: retiredPrice.active === true,
-    retirement_verified: Boolean(retiredLink && retiredLink.active === false && retiredProduct.active === false && retiredPrice.active === false)
+    retirement_verified: Boolean(retiredLink && retiredLink.active === false && retiredProduct.active === false && retiredPrice.active === false),
+    truth_oracle_checkout_hold_verified: Boolean(link && link.active === false && offer.checkout_enabled === false),
+    truth_oracle_payment_link_active: link?.active ?? null
   },
   live_stripe: {
     exact_payment_link_found: Boolean(link),
@@ -126,7 +128,7 @@ const proof = {
     net_profit_or_bank_payout_established: false
   },
   decision: {
-    payment_link_state: !link ? 'CONTRADICTED_LINK_NOT_FOUND' : link.active ? (offer.checkout_enabled ? 'ACTIVE_LINK_FOUND' : 'ACTIVE_LINK_HELD_NOT_PUBLIC') : 'INACTIVE_LINK',
+    payment_link_state: !link ? 'CONTRADICTED_LINK_NOT_FOUND' : link.active ? (offer.checkout_enabled ? 'ACTIVE_LINK_FOUND' : 'ACTIVE_LINK_HELD_NOT_PUBLIC') : 'INACTIVE_LINK_HELD_PENDING_FULFILLMENT',
     payment_evidence_state: matches.length ? 'SETTLED_PAYMENT_EVIDENCE_OBSERVED_PENDING_FULFILLMENT' : 'NO_MATCHED_PAID_SESSION_OBSERVED',
     verified_revenue_nzd: 0,
     reason: 'Truth Oracle paid checkout remains held in the public catalog until entitlement delivery and database persistence are independently verified. This read-only Stripe check cannot establish an independent buyer, fulfillment, delivery, refunds/disputes, net profit, or bank payout.',
