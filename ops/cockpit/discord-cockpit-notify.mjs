@@ -56,7 +56,24 @@ const lines = [
   'Cloud readiness: ' + (report.cloud?.score ?? 0) + '/10000',
   'Local readiness: ' + (report.local?.score ?? 0) + '/10000 (' + (report.local?.status || 'UNOBSERVED') + ')',
   'Stripe charge movements today: ' + chargeSummary,
-  'Verified DreamLedger revenue: NZ$' + Number(money.verified_dreamledger_revenue_nzd || 0).toFixed(2),
+  'Verified DreamLedger revenue: NZ
+  'Database: ' + (report.database?.status || 'UNVERIFIED') + '; delivery: ' + (report.fulfillment?.status || 'UNVERIFIED'),
+  'Canonical revenue endpoint enabled: ' + (report.webhook_routing?.canonical_revenue_endpoint_enabled_count ?? 0),
+  'Cloud gates needing attention: ' + gates.length,
+  ...gates.slice(0, 5).map(item => '- ' + item.name + ': ' + item.status),
+  'Read-only summary. No production configuration changed.'
+];
+const response = await fetch(url, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ content: lines.join('\n').slice(0, 1900), allowed_mentions: { parse: [] } })
+});
+if (!response.ok) throw new Error('Discord webhook HTTP ' + response.status + '; response body suppressed.');
+await fs.writeFile(statePath, JSON.stringify({last_digest:digest,last_sent_at_ms:Date.now()},null,2)+'\n',{mode:0o600});
+console.log('DISCORD_COCKPIT=DELIVERED');
+ + Number(money.verified_dreamledger_revenue_nzd || 0).toFixed(2) + ' (' + (money.verified_revenue_status || 'UNVERIFIED') + ')',
+  'Settled payments: ' + (money.settled_external_payments ?? 0) + '; independent buyers: ' + (money.independent_buyers ?? 0),
+  'Paid fulfilled orders: ' + (money.paid_fulfilled_orders ?? 0) + '; verified outcomes: ' + (money.verified_outcomes ?? 0),
   'Database: ' + (report.database?.status || 'UNVERIFIED') + '; delivery: ' + (report.fulfillment?.status || 'UNVERIFIED'),
   'Canonical revenue endpoint enabled: ' + (report.webhook_routing?.canonical_revenue_endpoint_enabled_count ?? 0),
   'Cloud gates needing attention: ' + gates.length,
