@@ -64,7 +64,7 @@ Write-Output "COCKPIT_EXIT=$cockpitExit"
 Write-Output "COCKPIT_HTML=$(Join-Path $proofRoot 'cockpit\index.html')"
 Write-Output "LOCAL_HEARTBEAT_PROOF=$(Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json')"
 Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
-Write-Output 'CLOUD_HEARTBEAT=GITHUB_ACTIONS_SCHEDULED_EVERY_15_MINUTES_AFTER_WORKFLOW_IS_ON_DEFAULT_BRANCH'
+Write-Output 'CLOUD_HEARTBEAT=GITHUB_ACTIONS_SCHEDULED_EVERY_30_MINUTES_AFTER_WORKFLOW_IS_ON_DEFAULT_BRANCH'
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
 if ($startupExit -eq 1 -or $heartbeatExit -eq 1 -or $cockpitExit -eq 1) { exit 1 }
 if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0) { exit 2 }
