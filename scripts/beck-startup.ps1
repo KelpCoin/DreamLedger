@@ -28,15 +28,15 @@ function Add-StartupCheck([string]$Name,[string]$Status,[string]$Detail) {
 }
 function Save-StartupProof([string]$Status) {
     $rubric = @(
-        @{name='local.node_version';points=100},
-        @{name='local.daily_bootstrap';points=100},
-        @{name='local.lm_studio_api';points=150},
-        @{name='local.inference';points=250},
-        @{name='local.gpu_telemetry';points=100},
-        @{name='local.proof_persisted';points=100},
-        @{name='local.safe_defaults';points=100},
-        @{name='local.backup_restore';points=50},
-        @{name='local.three_role_readiness';points=50}
+        @{name='local.node_version';points=1000},
+        @{name='local.daily_bootstrap';points=1000},
+        @{name='local.lm_studio_api';points=1500},
+        @{name='local.inference';points=2500},
+        @{name='local.gpu_telemetry';points=1000},
+        @{name='local.proof_persisted';points=1000},
+        @{name='local.safe_defaults';points=1000},
+        @{name='local.backup_restore';points=500},
+        @{name='local.three_role_readiness';points=500}
     )
     $localScore = 0
     $scoreRows = @(
@@ -56,8 +56,8 @@ function Save-StartupProof([string]$Status) {
         repository = $RepoRoot
         local_daily_root = $dailyRoot
         proof_root = $ProofRoot
-        local_score_out_of_10000 = ($localScore * 10)
-        local_score_status = if ($localScore -eq 1000) {'VERIFIED_10000'} else {'IMPROVEMENT_REQUIRED'}
+        local_score_out_of_10000 = $localScore
+        local_score_status = if ($localScore -eq 10000) {'VERIFIED_10000'} else {'IMPROVEMENT_REQUIRED'}
         local_score_breakdown = $scoreRows
         checks = @($checks)
         safety = @(
