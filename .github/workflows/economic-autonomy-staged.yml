@@ -10,9 +10,11 @@ on:
       - 'BEC-PRIME/**'
   workflow_dispatch:
 
+# This workflow may validate and stage a release, but it must never merge or
+# deploy automatically. Consequential production changes require human approval.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 
 concurrency:
   group: economic-autonomy-${{ github.event.pull_request.number || github.ref }}
@@ -27,7 +29,7 @@ jobs:
       - name: Validate autonomy contract
         run: |
           set -euo pipefail
-          node -e "const x=require('./ops/economic/ECONOMIC-AUTONOMY-CONTRACT-20260922.json'); if(x.release.staging_delay_minutes<15) process.exit(2); if(x.release.kill_switch_required!==true) process.exit(3); console.log('autonomy contract PASS')"
+          node -e "const x=require('./ops/economic/ECONOMIC-AUTONOMY-CONTRACT-20260922.json'); if(x.release.staging_delay_minutes<15) process.exit(2); if(x.release.kill_switch_required!==true) process.exit(3); if(x.release.required_checks_must_pass!==true) process.exit(4); if(x.release.unexpected_external_side_effects_are_fatal!==true) process.exit(5); console.log('autonomy contract PASS; human release gate required')"
 
   staged-delay:
     needs: contract
@@ -38,12 +40,13 @@ jobs:
       - name: Staging checkpoint
         run: |
           echo "STAGING CHECKPOINT: 15-minute kill-switch window."
-          echo "Cancel this workflow or close the PR to stop the release before the production boundary."
+          echo "Cancel this workflow or close the PR to stop the release review."
+          echo "This workflow cannot merge or deploy."
       - name: Kill-switch window
         run: |
-          echo "Beginning 15-minute bounded release delay..."
+          echo "Beginning 15-minute bounded review delay..."
           sleep 900
-          echo "Delay elapsed."
+          echo "Delay elapsed. Human release authorization is still required."
 
   post-delay-contract:
     needs: staged-delay
@@ -51,14 +54,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Re-check kill-switch contract
+      - name: Re-check release contract
         run: |
           set -euo pipefail
-          node -e "const x=require('./ops/economic/ECONOMIC-AUTONOMY-CONTRACT-20260922.json'); if(x.release.kill_switch_required!==true) throw new Error('kill switch disabled'); if(x.release.staging_delay_minutes<15) throw new Error('staging delay below minimum'); console.log('release gate PASS')"
-      - name: Merge after safety window
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.state == 'open' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
+          node -e "const x=require('./ops/economic/ECONOMIC-AUTONOMY-CONTRACT-20260922.json'); if(x.release.kill_switch_required!==true) throw new Error('kill switch disabled'); if(x.release.staging_delay_minutes<15) throw new Error('staging delay below minimum'); if(x.release.required_checks_must_pass!==true) throw new Error('required checks gate disabled'); if(x.release.unexpected_external_side_effects_are_fatal!==true) throw new Error('side-effect fail-closed gate disabled'); console.log('release contract PASS; HUMAN_GATE_REQUIRED')"
+      - name: Record human gate requirement
         run: |
-          set -euo pipefail
-          gh pr merge "${{ github.event.pull_request.number }}" --merge --delete-branch=false
+          echo "HUMAN_GATE_REQUIRED: inspect the diff, required checks, deployment target, database health, and rollback plan."
+          echo "No automatic merge, deployment, public transmission, charge, or spend is permitted by this workflow."
