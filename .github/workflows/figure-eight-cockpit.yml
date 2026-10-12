@@ -1,0 +1,38 @@
+name: Private Economic Cockpit
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cockpit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install project dependencies
+        run: npm install --no-package-lock --no-audit --no-fund
+      - name: Run read-only economic validation
+        shell: bash
+        run: |
+          set +e
+          npm run validate:economics
+          exit 0
+      - name: Generate private cockpit score
+        run: node ops/cockpit/economic-cockpit.mjs
+      - name: Upload private report and evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: private-economic-cockpit-${{ github.run_id }}
+          path: |
+            proof/cockpit/
+            proof/BECK-ECONOMIC-VALIDATION-LATEST.json
+            proof/commerce/
+          if-no-files-found: warn
+          retention-days: 14
