@@ -1,16 +1,16 @@
 import fs from 'node:fs/promises';
 
 const offer = {
-  id: 'TRUTH-ORACLE-ACCESS-001',
+  id: 'DREAMLEDGER-BILLBOARD-FOUNDING-001',
   checkout_enabled: false,
-  name: 'Truth Oracle Access',
-  price_nzd: 9,
+  name: 'DreamLedger Founding Billboard',
+  price_nzd: 50,
   currency: 'nzd',
-  expected_payment_link_url: 'https://buy.stripe.com/00wcN5fe55lH0zRaIYdwc3i',
+  expected_payment_link_url: 'https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w',
   retired_payment_link_url: 'https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m',
   retired_product_id: 'agent-proof-audit-49',
   retired_price_id: 'price_1UOqk5EGgEAnUFF91kUGxhpx',
-  product_page: 'https://dreamledger.org/truth-oracle.html'
+  product_page: 'https://dreamledger.org/billboard.html'
 };
 
 if (!process.env.STRIPE_SECRET_KEY) throw new Error('Missing STRIPE_SECRET_KEY. Set it locally; never paste it into chat or logs.');
@@ -71,7 +71,7 @@ const sessionStartCount = offerSessions.length;
 const checkoutSessionPaidRate = sessionStartCount ? Number((paidOfferSessions.length / sessionStartCount).toFixed(4)) : null;
 
 const proof = {
-  schema: 'BECK-TRUTH-ORACLE-STRIPE-RECONCILIATION/v1',
+  schema: 'BECK-BILLBOARD-STRIPE-RECONCILIATION/v1',
   generated_at_utc: new Date().toISOString(),
   mode: 'READ_ONLY_LIVE_STRIPE',
   offer,
@@ -81,8 +81,8 @@ const proof = {
     product_active: retiredProduct.active === true,
     price_active: retiredPrice.active === true,
     retirement_verified: Boolean(retiredLink && retiredLink.active === false && retiredProduct.active === false && retiredPrice.active === false),
-    truth_oracle_checkout_hold_verified: Boolean(link && link.active === false && offer.checkout_enabled === false),
-    truth_oracle_payment_link_active: link?.active ?? null
+    billboard_checkout_hold_verified: Boolean(link && link.active === false && offer.checkout_enabled === false),
+    billboard_payment_link_active: link?.active ?? null
   },
   live_stripe: {
     exact_payment_link_found: Boolean(link),
@@ -131,14 +131,14 @@ const proof = {
     payment_link_state: !link ? 'CONTRADICTED_LINK_NOT_FOUND' : link.active ? (offer.checkout_enabled ? 'ACTIVE_LINK_FOUND' : 'ACTIVE_LINK_HELD_NOT_PUBLIC') : 'INACTIVE_LINK_HELD_PENDING_FULFILLMENT',
     payment_evidence_state: matches.length ? 'SETTLED_PAYMENT_EVIDENCE_OBSERVED_PENDING_FULFILLMENT' : 'NO_MATCHED_PAID_SESSION_OBSERVED',
     verified_revenue_nzd: 0,
-    reason: 'Truth Oracle paid checkout remains held in the public catalog until entitlement delivery and database persistence are independently verified. This read-only Stripe check cannot establish an independent buyer, fulfillment, delivery, refunds/disputes, net profit, or bank payout.',
+    reason: 'Founding Billboard public checkout remains held in the public catalog until signed-webhook inventory allocation and publication are independently verified. This read-only Stripe check cannot establish an independent buyer, fulfillment, delivery, refunds/disputes, net profit, or bank payout.',
     required_next_proof: [
       'Confirm payment remains settled and is not refunded or disputed.',
       'Correlate one independent buyer to the approved offer without retaining unnecessary personal data.',
-      'Keep paid checkout held until the Truth Oracle entitlement and evidence-review delivery path passes.',
+      'Keep public checkout held until signed-webhook allocation and publication can be proven; do not activate a payment link to improve a score.',
       'Record report hash or stable artifact reference and delivery timestamp/evidence.',
       'Reconcile Stripe payout and bank receipt separately.',
-      'Do not restore the retired standalone offer; its bounded review capability is part of Truth Oracle.'
+      'Do not restore the retired standalone audit offer; the public destination remains the free Truth Oracle.'
     ]
   }
 };
