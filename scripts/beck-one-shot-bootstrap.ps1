@@ -3,6 +3,34 @@
 param([string]$RepoRoot = "")
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+trap {
+  $failureMessage = [string]$_.Exception.Message
+  $proofRootForFailure = if (Get-Variable -Name proofRoot -Scope Script -ErrorAction SilentlyContinue) { [string]$proofRoot } elseif (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime\proofs' } else { Join-Path $HOME 'BrownEyeCortex\Runtime\proofs' }
+  try {
+    $null = New-Item -ItemType Directory -Force -Path $proofRootForFailure
+    $taskAfterFailure = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
+    $failureProof = [ordered]@{
+      schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
+      generated_at_utc = [DateTime]::UtcNow.ToString('o')
+      status = if ($taskAfterFailure) { 'INSTALLED_DEGRADED' } else { 'FAILED_BEFORE_INSTALL' }
+      local_heartbeat_task = if ($taskAfterFailure) { 'REGISTERED' } else { 'MISSING' }
+      failure_stage = 'UNHANDLED_BOOTSTRAP_ERROR'
+      error = $failureMessage.Substring(0,[Math]::Min(500,$failureMessage.Length))
+      cloud_fallback_workflows = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml')
+      verified_revenue_nzd = 0
+      notes = @('A registered recurring heartbeat does not mean commercial readiness or revenue.','When the task is registered, this installer preserves the failure evidence and does not require a rerun just to repeat diagnostics.')
+    }
+    $failureProofPath = Join-Path $proofRootForFailure 'ONE-SHOT-COMMISSIONING-LATEST.json'
+    $failureProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $failureProofPath -Encoding UTF8
+    Write-Output ("COMMISSIONING_STATUS=" + [string]$failureProof.status)
+    Write-Output ("COMMISSIONING_PROOF=" + $failureProofPath)
+    Write-Output 'RERUN_REQUIRED=NO_IF_TASK_REGISTERED'
+    if ($taskAfterFailure) { exit 0 } else { exit 1 }
+  } catch {
+    Write-Error 'Bootstrap failed before a durable commissioning proof could be written.'
+    exit 1
+  }
+}
 $Branch = 'fix/beck-canonical-offer-and-supabase-failure'
 $Workflow = 'figure-eight-cockpit.yml'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
