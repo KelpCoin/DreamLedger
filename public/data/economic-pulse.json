@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-11T22:26:44+00:00",
+  "generated_at_utc": "2026-10-12T01:33:45+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "73343186-bfb3-512b-b3b7-3fe5d5f7a633",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "ROI - Registration of Interest - Waikato Water Supply Programme Alliance",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-12T01:33:40+00:00",
+      "url": "https://www.gets.govt.nz/WSL/ExternalTenderDetails.htm?id=34824054",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-roi-registration-of-interest-waikato-water-supply-programme--d6dae6533a.html"
+    },
     {
       "id": "2de64863-3fa8-5c76-80f7-ad7cd8c97139",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

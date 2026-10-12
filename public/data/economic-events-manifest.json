@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-11T22:26:44+00:00",
+  "updated_at_utc": "2026-10-12T01:33:45+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "ROI - Registration of Interest - Waikato Water Supply Programme Alliance",
+      "url": "https://www.gets.govt.nz/WSL/ExternalTenderDetails.htm?id=34824054",
+      "observed_at": "2026-10-12T01:33:40+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "d6dae6533a196147548b01a01ac743ce2ed39ae649618d1d4d3b3dcd295d3e3e",
+      "event_id": "73343186-bfb3-512b-b3b7-3fe5d5f7a633",
+      "silo_id": "ECO-D6DAE6533A196147",
+      "slug": "procurement-roi-registration-of-interest-waikato-water-supply-programme--d6dae6533a"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
