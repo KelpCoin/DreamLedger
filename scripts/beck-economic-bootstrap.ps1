@@ -66,6 +66,29 @@ try {
     }
 
     if ((@($checks | Where-Object { $_.name -eq 'dependencies.npm_ci' -and $_.status -eq 'FAIL' })).Count -eq 0) {
+        # Traverse the existing offer catalog and monetizable substrate before selecting work.
+        $scoutCode = Run-NodeCheck 'substrate.monetization_traversal' @('ops/commerce/beck-monetization-scout.mjs')
+        $scoutPath = Join-Path $RepoRoot 'proof/commerce/latest-monetization-scout.json'
+        if ($scoutCode -eq 0 -and (Test-Path -LiteralPath $scoutPath)) {
+            try {
+                $scout = Get-Content -LiteralPath $scoutPath -Raw | ConvertFrom-Json
+                $decision = $scout.monetization_decision
+                Write-Host "`n=== EXISTING SUBSTRATE: MONETIZATION PRIORITY ===" -ForegroundColor Cyan
+                Write-Host ("First path: " + $decision.first_path)
+                Write-Host ("Reason: " + $decision.why)
+                foreach ($asset in @($scout.substrate_inventory)) {
+                    Write-Host ("- {0} | {1} | repo coverage {2}% | present files {3}/{4}" -f $asset.id,$asset.readiness,$asset.repository_coverage,$asset.present_files.Count,$asset.files.Count)
+                }
+                foreach ($blocker in @($scout.blockers)) {
+                    Write-Host ("BLOCKER [{0}] {1}: {2}" -f $blocker.code,$blocker.offer,$blocker.detail) -ForegroundColor Yellow
+                }
+                Add-Check 'substrate.monetization_report' 'PASS' ("Read-only inventory generated. First path: " + $decision.first_path + ". This is a ranked candidate, not demand or revenue proof.")
+            } catch {
+                Add-Check 'substrate.monetization_report' 'FAIL' ("Scout report could not be parsed: " + $_.Exception.Message)
+            }
+        } else {
+            Add-Check 'substrate.monetization_report' 'FAIL' 'Monetization scout failed or did not produce proof/commerce/latest-monetization-scout.json.'
+        }
         $offer = @()
         $catalogPath = Join-Path $RepoRoot 'BEC-PRIME/catalog/offers/approved.json'
         if (Test-Path -LiteralPath $catalogPath) {
