@@ -35,6 +35,7 @@ trap {
   }
 }
 $Workflow = 'figure-eight-cockpit.yml'
+$BootstrapSourceBranch = 'feat/beck-dual-heartbeat-bootstrap'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   $base = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime' } else { Join-Path $HOME 'BrownEyeCortex\Runtime' }
@@ -81,8 +82,13 @@ $requiredCommissioningFiles = @(
   'ops\\commerce\\gauntlet-economic-verdict.mjs'
 )
 $missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
-if ($Branch -eq 'main' -and ($missingCommissioningFiles.Count -gt 0 -or -not (Test-Path -LiteralPath (Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1')))) {
-  $bootstrapFallbackBranch = 'feat/beck-dual-heartbeat-bootstrap'
+$installedBootstrapPath = Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1'
+$installedBootstrapMatchesSource = $false
+if (Test-Path -LiteralPath $installedBootstrapPath) {
+  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains("$BootstrapSourceBranch = 'feat/beck-dual-heartbeat-bootstrap'")
+}
+if ($Branch -eq 'main' -and ($missingCommissioningFiles.Count -gt 0 -or -not $installedBootstrapMatchesSource)) {
+  $bootstrapFallbackBranch = $BootstrapSourceBranch
   Write-Output "BOOTSTRAP_BRANCH_FALLBACK=$bootstrapFallbackBranch"
   & git.exe -C $RepoRoot fetch --depth 1 origin $bootstrapFallbackBranch
   if ($LASTEXITCODE -ne 0) { throw 'Bootstrap fallback branch fetch failed; refusing to run a partial or mixed-version commissioning set.' }
