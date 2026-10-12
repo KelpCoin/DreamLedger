@@ -108,6 +108,27 @@ try {
   })
   Write-Output ('INVENTORY_LOCAL_BROWN_EYE_CORTEX_ARTIFACTS_STATUS=' + $(if($inventoryCode -eq 0){'PASS'}else{'BLOCKED'}))
 
+  # Match local text artifacts to the 100 gated commercial hypotheses. No content leaves this machine.
+  $commercialReviewScript = Join-Path $RepoRoot 'scripts\beck-local-artifact-commercial-review.ps1'
+  $registryPath = Join-Path $RepoRoot 'ops\cube-swarm\commercial-mechanism-registry.json'
+  $commercialReviewPath = Join-Path $ProofRoot 'LOCAL-ARTIFACT-COMMERCIAL-REVIEW-LATEST.json'
+  try {
+    $reviewLines = @(& $commercialReviewScript -InventoryPath $inventoryPath -RegistryPath $registryPath -OutputPath $commercialReviewPath -MaxFiles 5000 2>&1 | ForEach-Object { [string]$_ })
+    $reviewCode = $LASTEXITCODE
+  } catch {
+    $reviewCode = 9001
+    $reviewLines = @($_.Exception.Message)
+  }
+  foreach ($line in $reviewLines) { Add-Content -LiteralPath $logPath -Value $line -Encoding UTF8 }
+  $results.Add([ordered]@{
+    name='MATCH_LOCAL_TEXT_ARTIFACTS_TO_COMMERCIAL_HYPOTHESES'
+    status=$(if($reviewCode -eq 0){'PASS'}else{'BLOCKED'})
+    exit_code=$reviewCode
+    proof_path=$commercialReviewPath
+    output_tail=@($reviewLines | Select-Object -Last 20)
+  })
+  Write-Output ('MATCH_LOCAL_TEXT_ARTIFACTS_TO_COMMERCIAL_HYPOTHESES_STATUS=' + $(if($reviewCode -eq 0){'PASS'}else{'BLOCKED'}))
+
   $commands = @(
     @{name='SCOUT_EXISTING_MONETIZABLE_ASSETS';exe='npm.cmd';args=@('run','scout:monetization')},
     @{name='COMPILE_ECONOMIC_OPPORTUNITIES';exe='npm.cmd';args=@('run','compile:opportunities')},
