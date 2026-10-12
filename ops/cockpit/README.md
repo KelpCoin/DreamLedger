@@ -16,3 +16,10 @@ Run locally with `node ops/cockpit/figure-eight-cockpit.mjs`. Optional local pro
 The live Stripe endpoint inventory showed the endpoint labelled canonical revenue settlement disabled, while several other live destinations remain enabled for overlapping checkout events. The Render destination `/api/webhooks/stripe` also did not match the `/webhook` route in the actual `BEC-PRIME/start.js` runtime. The current PR adds the configured path as an alias into the same existing dispatcher and adds a regression contract check. This code is **not deployed or live-verified** yet.
 
 Do not enable the disabled revenue endpoint or disable existing endpoints until the database is demonstrably stable and one canonical destination passes signature verification, replay/idempotency, payment attribution, fulfillment, and delivery-proof tests. The current provisional evidence score is therefore low by design. No production webhook configuration has been changed.
+
+
+## Local score and cloud boundary
+
+The one-command Windows startup writes a weighted `local_score_out_of_1000` to `D:\\BrownEyeCortex\\Runtime\\proofs\\BECK-STARTUP-LATEST.json` (or the home-folder fallback) and prints `LOCAL_SCORE=x/1000`. Points require explicit evidence for Node, the daily proof, LM Studio model listing, a real inference smoke test, GPU telemetry, proof persistence, safe defaults, backup restore, and three-role readiness.
+
+The cloud runner cannot read a file on the user's PC. Until a private authenticated local-to-cloud sync is configured, the Discord cloud snapshot correctly reports the local score as `UNOBSERVED`; the local score remains available in the local proof file. Do not solve this by uploading the proof to public GitHub Actions artifacts.
