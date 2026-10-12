@@ -48,7 +48,87 @@ try {
   } else { $proof.checks.gpu = [ordered]@{status='UNVERIFIED';reason='nvidia-smi unavailable'} }
 
   $base = "http://127.0.0.1:$Port/v1"
-  if ($env:BECK_LMSTUDIO_BASE) { $base = $env:BECK_LMSTUDIO_BASE.TrimEnd('/') }
+  if ($env:BECK_LMSTUDIO_BASE) {
+    $base = $env:BECK_LMSTUDIO_BASE.TrimEnd('/')
+    if ($base -match ':(\d+)/v1 = "$base/models"
+  $modelStatus = Get-HttpStatus $modelUrl
+  if ($modelStatus -ne '200') {
+    $lms = Get-Command lms.exe -ErrorAction SilentlyContinue
+    $lmsPath = if ($lms) { $lms.Source } else { $null }
+    if (-not $lmsPath) {
+      $candidates = @((Join-Path $env:USERPROFILE '.lmstudio\bin\lms.exe'),(Join-Path $env:LOCALAPPDATA 'Programs\LM Studio\resources\app\.webpack\bin\lms.exe'))
+      $lmsPath = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    }
+    if ($lmsPath) {
+      $null = & $lmsPath server start --port $Port 2>&1
+      for ($i=0; $i -lt 20; $i++) { Start-Sleep -Seconds 1; $modelStatus = Get-HttpStatus $modelUrl; if ($modelStatus -eq '200') { break } }
+    }
+  }
+  $modelIds = @()
+  if ($modelStatus -eq '200') { try { $api = Invoke-RestMethod -Uri $modelUrl -TimeoutSec 12; $modelIds = @($api.data | ForEach-Object { [string]$_.id } | Where-Object { $_ }) } catch {} }
+  $proof.checks.lm_studio = [ordered]@{
+    status = if ($modelStatus -eq '200' -and $modelIds.Count -gt 0) {'API_AND_MODEL_LIST_OBSERVED'} elseif ($modelStatus -eq '200') {'API_REACHABLE_NO_MODELS'} else {'BLOCKED'}
+    http_status = $modelStatus
+    visible_model_ids = $modelIds
+    inference = 'NOT_RUN_BY_DAILY_BOOTSTRAP'
+    three_role_readiness = 'NOT_VERIFIED'
+  }
+
+  $urls = @('https://dreamledger.org/agent-delivery-proof-audit.html','https://dreamledger.org/billboard.html')
+  if ($env:BECK_OFFER_URLS) { $urls = @($env:BECK_OFFER_URLS -split '\s+' | Where-Object { $_ }) }
+  $proof.checks.public_pages = @($urls | ForEach-Object { [ordered]@{url=$_;http_status=(Get-HttpStatus $_);checkout='NOT_TESTED';payment='NOT_TESTED'} })
+
+  $sb = if ($env:SUPABASE_URL) { $env:SUPABASE_URL.TrimEnd('/') } else { 'https://wbwgroygjeyukkspnqiy.supabase.co' }
+  $sbStatus = Get-HttpStatus "$sb/rest/v1/"
+  if ($sbStatus -eq '200') { $sbLabel = 'GATEWAY_REACHABLE_ONLY_DB_UNPROVEN' }
+  elseif ($sbStatus -in @('401','403')) { $sbLabel = 'GATEWAY_AUTH_REQUIRED_DB_UNPROVEN' }
+  elseif ($sbStatus -eq '000' -or $sbStatus -like '5*') { $sbLabel = 'BLOCKED' }
+  else { $sbLabel = "HTTP_$($sbStatus)_DB_UNPROVEN" }
+  $proof.checks.supabase = [ordered]@{project_ref='wbwgroygjeyukkspnqiy';rest_gateway_http=$sbStatus;status=$sbLabel;authenticated_sql='NOT_TESTED';rpc_health='NOT_PROVEN';writes='NOT_ATTEMPTED'}
+
+  @'
+SCOUT: Find the strongest independently sourced demand signal for one approved DreamLedger offer and one inbound/public action that could improve odds of a sale in 48h. Include source URLs and timestamps. Never invent buyers or demand. Return at most five bullets.
+'@ | Set-Content -LiteralPath (Join-Path $out 'council\01-scout.txt') -Encoding UTF8
+  @'
+CRITICAL: Challenge Scout claims. Label VERIFIED / UNVERIFIED / CONTRADICTED / STALE. Check buyer intent, evidence quality, price/scope, checkout readiness, support/contact, delivery capacity, and risk. Never infer DB health from gateway reachability or revenue from internal events.
+'@ | Set-Content -LiteralPath (Join-Path $out 'council\02-critic.txt') -Encoding UTF8
+  @'
+SYNTH: Use Scout evidence and Critical review to produce at most seven actions ordered by commercial value and low effort. One approved offer, one buyer path. Prefer inbound/public distribution. State proof required and blockers. No architecture work unless it directly blocks sale or fulfillment.
+'@ | Set-Content -LiteralPath (Join-Path $out 'council\03-synth.txt') -Encoding UTF8
+  @'
+# One-sale checklist
+- [ ] Verify live page, price, scope, payment destination, support/contact, and delivery process.
+- [ ] Fix one buyer-visible blocker or improve intake/delivery.
+- [ ] Do not promote an offer whose checkout is held or delivery is not ready.
+- [ ] Reconcile settled external payment to the exact order, deliver the work, and retain evidence.
+- [ ] If any link is missing, mark UNVERIFIED.
+- [ ] Page views, checkouts, model output, and CI are not revenue.
+'@ | Set-Content -LiteralPath (Join-Path $out 'money\CHECKLIST.md') -Encoding UTF8
+  @'
+# 777 rules
+- Use admissible external signals with source URL and observation time.
+- Never fabricate an artifact to make CI green.
+- Use the workflow's exact current-run no-op receipt contract when no admissible signal exists.
+- Revenue remains NZ$0 until settlement and fulfillment evidence are reconciled.
+'@ | Set-Content -LiteralPath (Join-Path $out '777\RULES.md') -Encoding UTF8
+  $proof.status = 'PREPARED'
+  $proof.readiness = 'DIAGNOSTICS_AND_PROMPTS_ONLY'
+  Write-Proof
+  Write-Output 'BOOTSTRAP_STATUS=PREPARED_NOT_COMMISSIONED'
+  Write-Output "PROOF=$proofPath"
+  Write-Output 'LMSTUDIO_INFERENCE=NOT_RUN'
+  Write-Output 'SUPABASE_AUTHENTICATED_HEALTH=NOT_PROVEN'
+} catch {
+  $proof.status = 'FAIL'
+  $proof.readiness = 'NOT_READY'
+  $proof.error = $_.Exception.Message
+  try { Write-Proof } catch { Write-Error 'Could not persist bootstrap proof.' }
+  Write-Error $_
+  exit 2
+} finally {
+  if ($transcriptStarted) { try { Stop-Transcript | Out-Null } catch {} }
+}) { $Port = [int]$Matches[1] }
+  }
   $modelUrl = "$base/models"
   $modelStatus = Get-HttpStatus $modelUrl
   if ($modelStatus -ne '200') {
