@@ -81,7 +81,7 @@ if (truthOracleFeed) {
   const truthText = exists(truthPagePath) ? fs.readFileSync(path.join(root, truthPagePath), 'utf8') : '';
   const redirectText = exists(redirectPath) ? fs.readFileSync(path.join(root, redirectPath), 'utf8') : '';
   const publicCheckout = truthOracleFeed.enable_checkout === true || /buy\.stripe\.com/i.test(truthText);
-  const redirectCorrect = /truth-oracle\.html/i.test(redirectText) && !/buy\\.stripe\\.com|NZ\$9|Purchase the audit/i.test(redirectText);
+  const redirectCorrect = /truth-oracle\.html/i.test(redirectText) && !/buy\.stripe\.com|NZ\$49|Purchase the audit/i.test(redirectText);
   if (publicCheckout) {
     addBlocker('TRUTH-ORACLE-ACCESS-001','CHECKOUT_ENABLED_BEFORE_FULFILLMENT_PROOF',
       'Truth Oracle paid checkout must remain held until entitlement, evidence persistence, and delivery proof pass end to end.');
