@@ -149,17 +149,17 @@ try {
   } finally { Pop-Location }
   if (Test-Path -LiteralPath $commercialGauntletPath) {
     $commercialProof = Get-Content -LiteralPath $commercialGauntletPath -Raw | ConvertFrom-Json
-    if ($commercialProof.schema -eq 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -and $commercialProof.generated_at_utc -and $commercialGauntletExit -in @(0,2)) {
+    $commercialGauntletVerdict = [string]$commercialProof.verdict
+    $commercialGauntletScore = [int]$commercialProof.score_out_of_100
+    if ($commercialProof.schema -eq 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -and $commercialProof.generated_at_utc -and $commercialGauntletExit -eq 0 -and $commercialGauntletVerdict -eq 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE') {
       $commercialGauntletContract = 'PASS'
-      $commercialGauntletVerdict = [string]$commercialProof.verdict
-      $commercialGauntletScore = [int]$commercialProof.score_out_of_100
-      if ($commercialGauntletExit -eq 0 -and $commercialGauntletVerdict -eq 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE') {
-        $commercialGauntletStatus = 'PASS'
-      } elseif ($commercialGauntletExit -eq 2 -and $commercialGauntletVerdict -in @('BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF','PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS')) {
-        $commercialGauntletStatus = 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED'
-      } else {
-        $commercialGauntletStatus = 'FAIL_UNEXPECTED_VERDICT'
-      }
+      $commercialGauntletStatus = 'PASS'
+    } elseif ($commercialProof.schema -eq 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -and $commercialProof.generated_at_utc -and $commercialGauntletExit -eq 2 -and $commercialGauntletVerdict -in @('BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF','PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS')) {
+      $commercialGauntletContract = 'PASS'
+      $commercialGauntletStatus = 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED'
+    } else {
+      $commercialGauntletContract = 'FAIL'
+      $commercialGauntletStatus = 'FAIL_UNEXPECTED_VERDICT'
     }
   }
 } catch {
