@@ -167,7 +167,6 @@ try {
             $ok = $billboardProduct.Count -eq 1 -and $retiredProduct.Count -eq 0 -and $held -and $billboardPage.status -ge 200 -and $billboardPage.status -lt 400 -and @($billboardPage.stripe_links).Count -eq 0 -and $truthPage.status -ge 200 -and $truthPage.status -lt 400 -and @($truthPage.stripe_links).Count -eq 0 -and $legacyPage.status -ge 200 -and $legacyPage.status -lt 400 -and $legacyRedirected -and @($legacyPage.stripe_links).Count -eq 0 -and -not $legacyPage.retired_offer_copy
             Add-Check 'commercial.billboard_offer_parity' $(if ($ok) {'PASS'} else {'FAIL'}) ('Billboard held=' + $held + '; retired catalog entries=' + $retiredProduct.Count + '; Truth Oracle legacy route redirected=' + $legacyRedirected + '; public checkout remains held until allocation and delivery proof.')
         }
-        }
         if ($offerUrl) {
             $r = Get-HttpResult $offerUrl
             Add-Check 'checkout.offer_url_reachable' $(if ($r.status -ge 200 -and $r.status -lt 400) {'PASS'} else {'FAIL'}) (($r | ConvertTo-Json -Compress) + '; link reachability does not prove price, livemode account ownership, payment settlement, or fulfillment.')
