@@ -1,9 +1,11 @@
 name: BECK Cloud Liveness
 on:
   push:
-    branches: [main]
+    branches: [main, feat/beck-dual-heartbeat-bootstrap]
     paths:
       - '.github/workflows/beck-cloud-liveness.yml'
+      - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'scripts/beck-economic-bootstrap.ps1'
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
