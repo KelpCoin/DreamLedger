@@ -138,7 +138,7 @@ const proof = {
       'Keep paid checkout held until the Billboard payment-to-publication and payment-to-allocation-to-publication path passes.',
       'Record report hash or stable artifact reference and delivery timestamp/evidence.',
       'Reconcile Stripe payout and bank receipt separately.',
-      'Do not restore the retired standalone offer; its bounded review capability is part of Billboard.'
+      'Do not restore the retired standalone audit offer; its public destination remains the free Truth Oracle.'
     ]
   }
 };
