@@ -1,6 +1,8 @@
 name: Private Economic Cockpit
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   schedule:
     - cron: '*/30 * * * *'
 permissions:
