@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
   [string]$RepoRoot = "",
-  [string]$Branch = 'feat/beck-dual-heartbeat-bootstrap'
+  [string]$Branch = 'main'
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
