@@ -22,6 +22,7 @@ jobs:
         run: |
           node --check ops/cockpit/figure-eight-cockpit.mjs
           node --check ops/cockpit/discord-cockpit-notify.mjs
+          node --check ops/cockpit/render-cockpit-html.mjs
       - name: Build read-only report
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
@@ -33,6 +34,17 @@ jobs:
           COCKPIT_FULFILLMENT_PROBE_URL: ${{ secrets.COCKPIT_FULFILLMENT_PROBE_URL }}
           COCKPIT_RECOVERY_PROBE_URL: ${{ secrets.COCKPIT_RECOVERY_PROBE_URL }}
         run: node ops/cockpit/figure-eight-cockpit.mjs
+      - name: Render cockpit HTML
+        run: node ops/cockpit/render-cockpit-html.mjs figure-eight-cockpit-latest.json figure-eight-cockpit.html
+      - name: Upload private cockpit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: private-economic-cockpit-${{ github.run_id }}
+          path: |
+            figure-eight-cockpit-latest.json
+            figure-eight-cockpit.html
+          retention-days: 14
       - name: Notification staging delay
         if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' }}
         run: sleep 900
