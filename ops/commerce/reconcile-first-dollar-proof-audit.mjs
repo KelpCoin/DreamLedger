@@ -1,0 +1,109 @@
+import fs from 'node:fs/promises';
+
+const offer = {
+  id: 'AGENT-PROOF-AUDIT-49',
+  name: 'Agent Delivery Proof Audit',
+  price_nzd: 49,
+  currency: 'nzd',
+  expected_payment_link_url: 'https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m',
+  product_page: 'https://dreamledger.org/agent-delivery-proof-audit.html'
+};
+
+if (!process.env.STRIPE_SECRET_KEY) throw new Error('Missing STRIPE_SECRET_KEY. Set it locally; never paste it into chat or logs.');
+if (process.env.STRIPE_LIVE_ENABLED !== 'true') throw new Error('Fail-closed: set STRIPE_LIVE_ENABLED=true to permit read-only live reconciliation.');
+
+const headers = { Authorization: 'Bearer ' + process.env.STRIPE_SECRET_KEY };
+const api = 'https://api.stripe.com/v1';
+
+async function stripe(path) {
+  const response = await fetch(api + path, { headers });
+  const body = await response.text();
+  if (!response.ok) throw new Error('Stripe API ' + response.status + ': ' + body.slice(0, 600));
+  return JSON.parse(body);
+}
+
+async function listAll(path, params = {}) {
+  const rows = [];
+  let cursor;
+  for (;;) {
+    const query = new URLSearchParams({ limit: '100', ...params });
+    if (cursor) query.set('starting_after', cursor);
+    const page = await stripe(path + '?' + query.toString());
+    rows.push(...(page.data || []));
+    if (!page.has_more || !page.data?.length) return rows;
+    cursor = page.data[page.data.length - 1].id;
+  }
+}
+
+const links = await listAll('/payment_links');
+const link = links.find(x => x.url === offer.expected_payment_link_url);
+const sessions = await listAll('/checkout/sessions', { status: 'complete' });
+const matches = link ? sessions.filter(s =>
+  s.payment_link === link.id &&
+  s.livemode === true &&
+  s.payment_status === 'paid' &&
+  s.currency === offer.currency &&
+  s.amount_total === offer.price_nzd * 100
+) : [];
+const wrongPriceOrCurrency = link ? sessions.filter(s =>
+  s.payment_link === link.id &&
+  s.livemode === true &&
+  s.payment_status === 'paid' &&
+  !(s.currency === offer.currency && s.amount_total === offer.price_nzd * 100)
+) : [];
+
+const proof = {
+  schema: 'BECK-FIRST-DOLLAR-STRIPE-RECONCILIATION/v1',
+  generated_at_utc: new Date().toISOString(),
+  mode: 'READ_ONLY_LIVE_STRIPE',
+  offer,
+  live_stripe: {
+    exact_payment_link_found: Boolean(link),
+    payment_link_id: link?.id || null,
+    payment_link_active: link?.active ?? null,
+    completed_checkout_sessions_scanned: sessions.length,
+    exact_paid_live_sessions: matches.map(s => ({
+      session_id: s.id,
+      created_at_utc: new Date(s.created * 1000).toISOString(),
+      amount_nzd: s.amount_total / 100,
+      currency: s.currency,
+      payment_status: s.payment_status,
+      livemode: s.livemode,
+      payment_link_id: s.payment_link,
+      customer_email_recorded: Boolean(s.customer_details?.email),
+      pii_stored: false
+    })),
+    paid_sessions_with_wrong_amount_or_currency: wrongPriceOrCurrency.map(s => ({
+      session_id: s.id,
+      amount_total_minor: s.amount_total,
+      currency: s.currency,
+      created_at_utc: new Date(s.created * 1000).toISOString()
+    }))
+  },
+  economic_model: {
+    price_nzd: offer.price_nzd,
+    gross_sales_for_1000_nzd: Math.ceil(1000 / offer.price_nzd),
+    gross_sales_for_10000_nzd: Math.ceil(10000 / offer.price_nzd),
+    gross_sales_for_1000000_nzd: Math.ceil(1000000 / offer.price_nzd),
+    gross_revenue_nzd_from_matched_sessions: matches.length * offer.price_nzd,
+    scenarios_are_arithmetic_not_forecasts: true,
+    net_profit_or_bank_payout_established: false
+  },
+  decision: {
+    payment_link_state: !link ? 'CONTRADICTED_LINK_NOT_FOUND' : link.active ? 'ACTIVE_LINK_FOUND' : 'INACTIVE_LINK',
+    payment_evidence_state: matches.length ? 'SETTLED_PAYMENT_EVIDENCE_OBSERVED_PENDING_FULFILLMENT' : 'NO_MATCHED_PAID_SESSION_OBSERVED',
+    verified_revenue_nzd: 0,
+    reason: 'This read-only Stripe check can establish matched paid Checkout Session evidence only. It cannot establish an independent buyer, report fulfillment, delivery, refunds/disputes, net profit, or bank payout.',
+    required_next_proof: [
+      'Confirm payment remains settled and is not refunded or disputed.',
+      'Correlate one independent buyer to the approved offer without retaining unnecessary personal data.',
+      'Produce the promised report against complete intake.',
+      'Record report hash or stable artifact reference and delivery timestamp/evidence.',
+      'Reconcile Stripe payout and bank receipt separately.'
+    ]
+  }
+};
+
+await fs.mkdir('proof/commerce', { recursive: true });
+await fs.writeFile('proof/commerce/latest-first-dollar-stripe-reconciliation.json', JSON.stringify(proof, null, 2) + '\n', 'utf8');
+console.log(JSON.stringify(proof, null, 2));
