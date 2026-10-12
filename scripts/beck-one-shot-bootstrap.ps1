@@ -135,6 +135,43 @@ Write-Output 'PHASE=REFRESH_LOCAL_HEARTBEAT_AFTER_INFERENCE'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-heartbeat.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
 $heartbeatAfterStartupExit = $LASTEXITCODE
 if ($heartbeatAfterStartupExit -ne 0) { $heartbeatExit = $heartbeatAfterStartupExit }
+Write-Output 'PHASE=VERIFY_COMMERCIAL_GAUNTLET'
+$commercialGauntletContract = 'FAIL'
+$commercialGauntletStatus = 'UNVERIFIED'
+$commercialGauntletVerdict = 'UNVERIFIED'
+$commercialGauntletScore = $null
+$commercialGauntletPath = Join-Path $RepoRoot 'proof\commerce\latest-gauntlet-economic-verdict.json'
+try {
+  Push-Location $RepoRoot
+  try {
+    $commercialRunnerOutput = & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1
+    $commercialGauntletExit = $LASTEXITCODE
+    $commercialRunnerOutput | ForEach-Object { Write-Output ([string]$_) }
+  } finally { Pop-Location }
+  if (Test-Path -LiteralPath $commercialGauntletPath) {
+    $commercialProof = Get-Content -LiteralPath $commercialGauntletPath -Raw | ConvertFrom-Json
+    if ($commercialProof.schema -eq 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -and $commercialProof.generated_at_utc -and $commercialGauntletExit -in @(0,2)) {
+      $commercialGauntletContract = 'PASS'
+      $commercialGauntletVerdict = [string]$commercialProof.verdict
+      $commercialGauntletScore = [int]$commercialProof.score_out_of_100
+      if ($commercialGauntletExit -eq 0 -and $commercialGauntletVerdict -eq 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE') {
+        $commercialGauntletStatus = 'PASS'
+      } elseif ($commercialGauntletExit -eq 2 -and $commercialGauntletVerdict -in @('BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF','PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS')) {
+        $commercialGauntletStatus = 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED'
+      } else {
+        $commercialGauntletStatus = 'FAIL_UNEXPECTED_VERDICT'
+      }
+    }
+  }
+} catch {
+  $commercialGauntletStatus = 'FAIL_EXECUTION'
+  Write-Output ("COMMERCIAL_GAUNTLET_ERROR=" + $_.Exception.Message)
+}
+Write-Output "COMMERCIAL_GAUNTLET_CONTRACT=$commercialGauntletContract"
+Write-Output "COMMERCIAL_GAUNTLET_STATUS=$commercialGauntletStatus"
+Write-Output "COMMERCIAL_GAUNTLET_VERDICT=$commercialGauntletVerdict"
+Write-Output "COMMERCIAL_GAUNTLET_SCORE=$commercialGauntletScore"
+Write-Output "COMMERCIAL_GAUNTLET_PROOF=$commercialGauntletPath"
 Write-Output 'PHASE=BUILD_PRIVATE_COCKPIT'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-cockpit-bootstrap.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot -SkipEconomicBootstrap
 $cockpitExit = $LASTEXITCODE
@@ -197,7 +234,7 @@ Write-Output 'CLOUD_SCHEDULE=30_MINUTES_ONLY_AFTER_THIS_WORKFLOW_IS_ENABLED_ON_D
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
 # Corroborate the local proof against the independent public GitHub Actions heartbeat.
 # This is read-only and does not require a GitHub token.
-$localProofPath = Join-Path $proofRoot 'heartbeat\\LOCAL-HEARTBEAT-LATEST.json'
+$localProofPath = Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json'
 $localHeartbeatStatus = 'UNKNOWN'
 $localHeartbeatFresh = $false
 if (Test-Path -LiteralPath $localProofPath) {
@@ -212,7 +249,7 @@ $onlineHeartbeatStatus = 'UNKNOWN'
 $onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
-$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
+$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
 try {
   $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
   $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
@@ -249,13 +286,18 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletContract -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   status = $commissionStatus
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
   dual_heartbeat_status = $dualHeartbeatStatus
+  commercial_gauntlet_contract = $commercialGauntletContract
+  commercial_gauntlet_status = $commercialGauntletStatus
+  commercial_gauntlet_verdict = $commercialGauntletVerdict
+  commercial_gauntlet_score = $commercialGauntletScore
+  commercial_gauntlet_proof = $commercialGauntletPath
   dual_heartbeat_proof = $dualHeartbeatPath
   online_heartbeat_status = $onlineHeartbeatStatus
   local_heartbeat_exit = $heartbeatExit
@@ -270,6 +312,9 @@ $commissionProof = [ordered]@{
 }
 $commissionProofPath = Join-Path $proofRoot 'ONE-SHOT-COMMISSIONING-LATEST.json'
 $commissionProof | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $commissionProofPath -Encoding UTF8
+Write-Output "COMMERCIAL_GAUNTLET_CONTRACT=$commercialGauntletContract"
+Write-Output "COMMERCIAL_GAUNTLET_STATUS=$commercialGauntletStatus"
+Write-Output "COMMERCIAL_GAUNTLET_VERDICT=$commercialGauntletVerdict"
 Write-Output "COMMISSIONING_STATUS=$commissionStatus"
 Write-Output "COMMISSIONING_PROOF=$commissionProofPath"
 Write-Output 'RERUN_REQUIRED=NO'

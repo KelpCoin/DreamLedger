@@ -105,6 +105,7 @@ jobs:
                   raise SystemExit('MTG_SILO_ISOLATION=FAIL')
           print('MTG_SILO_ISOLATION=PASS')
           print('PUBLIC_ACTIONS=APPROVAL_GATED')
+          PY
 
       - name: Verify live front door
         shell: bash
@@ -160,10 +161,14 @@ jobs:
           from pathlib import Path
           proof = {
               'schema_version': 'DREAMLEDGER-GAUNTLET-RELEASE-1',
-              'status': 'PASS',
+              'status': 'PASS_TECHNICAL_ONLY',
+              'commercial_status': 'BLOCKED_PENDING_SETTLED_PAYMENT_AND_FULFILLMENT',
+              'verified_revenue_nzd': 0,
               'release_sha': os.environ['RELEASE_SHA'],
               'checked_at_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'economic_truth': {
+                  'status': 'BLOCKED',
+                  'blocker': 'No independently attributable settled live payment plus fulfillment and delivery evidence.',
                   'payment_link': 'VERIFIED_CONFIGURED',
                   'purchase_executed': False,
                   'sale_settled': False,

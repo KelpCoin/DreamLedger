@@ -21,27 +21,17 @@
     "purchase_router": "https://dreamledger.org/buy/{product_id}"
   },
   "priority_offer": {
-    "id": "TRUTH-ORACLE-ACCESS-001",
-    "title": "Truth Oracle Access",
-    "description": "A bounded evidence-review workflow within Truth Oracle. The former standalone audit capability is absorbed here; the public guide and claim-record template remain free.",
-    "url": "https://dreamledger.org/truth-oracle.html",
-    "price": 9,
+    "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "title": "DreamLedger Founding Billboard",
+    "description": "NZ$50 permanent 100x100 web placement. The approved offer is not purchase-enabled on the public catalogue while secure intake, inventory reservation and fulfillment proof remain unverified.",
+    "url": "https://dreamledger.org/billboard.html",
+    "price": 50,
     "currency": "NZD",
     "availability": "review_required",
-    "required_input": "One public URL or bounded artifact and up to five acceptance criteria.",
+    "required_input": "Placement title and destination URL; image option requires human review.",
     "checkout": null,
-    "fulfillment": "truth_oracle_access_held_pending_fulfillment_proof",
-    "delivery_target": null,
-    "availability_note": "Paid checkout remains held until live settlement, entitlement delivery, evidence persistence, and delivery receipt pass end to end. Do not promote or sell a separate audit."
-  },
-  "deprioritized_offer": {
-    "id": "QUOTE-COMPARE-49",
-    "title": "Supplier Quote Comparison",
-    "url": "https://dreamledger.org/quote-comparison/",
-    "price": 49,
-    "currency": "NZD",
-    "availability": "review_required",
-    "availability_note": "Do not prioritize checkout-driven acquisition until the intake and fulfillment path is independently tested and its persistence dependency is healthy."
+    "fulfillment": "held_until_secure_intake_and_inventory_reservation_verified",
+    "availability_note": "Do not send a buyer to checkout until the live reservation and signed-webhook fulfillment path are proven."
   },
   "trust": {
     "human_authorization_required": true,
@@ -49,5 +39,15 @@
     "unknown_data_preserved": true,
     "checkout_is_not_revenue": true,
     "settled_payment_and_delivery_evidence_required": true
+  },
+  "free_entry_point": {
+    "id": "TRUTH-ORACLE-FREE",
+    "title": "Truth Oracle",
+    "url": "https://dreamledger.org/truth-oracle.html",
+    "price": 0,
+    "currency": "NZD",
+    "availability": "available",
+    "checkout": null,
+    "description": "Free evidence and claim-checking tools. The retired standalone audit offer is absorbed here and is not sold separately."
   }
 }
