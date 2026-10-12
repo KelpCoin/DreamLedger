@@ -31,7 +31,9 @@ has(bootstrap, /readiness\.status -ne 'PASS'/, 'Missing or failed verifier proof
 has(bootstrap, /Select-Object -Unique/, 'Core roles must be distinct model keys');
 has(verifier, /v1\/chat\/completions/, 'Each role must exercise actual inference');
 has(verifier, /Select-Object -Unique/, 'Verifier must require distinct models');
-has(verifier, /notResident\.Count/, 'Verifier must check all role models remain visible after loading');
+has(verifier, /lms ps/, 'Verifier must inspect loaded models rather than treating /v1/models as residency proof');
+has(verifier, /notLoaded\.Count/, 'Verifier must fail if a role model was evicted');
+has(verifier, /THREE_DISTINCT_ROLES_INFERENCE_AND_LOADED_STATE_VERIFIED/, 'Verifier PASS must name its loaded-state evidence contract');
 
 has(orchestra, /\[switch\]\$StartSwarm/, 'Swarm start must be an explicit operator option');
 has(orchestra, /if \(\$StartSwarm\)/, 'Swarm must be gated by explicit switch');
