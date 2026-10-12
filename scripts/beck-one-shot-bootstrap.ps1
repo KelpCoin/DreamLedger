@@ -286,31 +286,6 @@ Write-Output "LOCAL_HEARTBEAT_PROOF=$(Join-Path $proofRoot 'heartbeat\LOCAL-HEAR
 Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
 Write-Output 'CLOUD_SCHEDULE=30_MINUTES_ONLY_AFTER_THIS_WORKFLOW_IS_ENABLED_ON_DEFAULT_BRANCH; CURRENT_DEFAULT_BRANCH_SCHEDULE_NOT_CHANGED'
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
-# Trigger a fresh, read-only online heartbeat when GitHub CLI authentication is already available.
-# Never start an interactive login from this final proof phase.
-try {
-  $ghAvailable = Get-Command gh.exe -ErrorAction SilentlyContinue
-  if ($ghAvailable) {
-    & gh.exe auth status 2>&1 | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-      $dispatchAt = [DateTime]::UtcNow
-      & gh.exe workflow run 'beck-cloud-liveness.yml' --repo KelpCoin/DreamLedger --ref $Branch 2>&1 | Out-Null
-      if ($LASTEXITCODE -eq 0) {
-        $deadline = [DateTime]::UtcNow.AddMinutes(4)
-        do {
-          Start-Sleep -Seconds 8
-          $onlineRuns = & gh.exe run list --repo KelpCoin/DreamLedger --workflow 'beck-cloud-liveness.yml' --branch $Branch --limit 5 --json databaseId,status,conclusion,createdAt,event 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            try {
-              $candidate = @($onlineRuns | ConvertFrom-Json | Where-Object { [DateTime]::Parse([string]$_.createdAt).ToUniversalTime() -ge $dispatchAt.AddSeconds(-5) } | Sort-Object createdAt -Descending | Select-Object -First 1)
-              if ($candidate.Count -gt 0 -and $candidate[0].status -eq 'completed') { break }
-            } catch {}
-          }
-        } while ([DateTime]::UtcNow -lt $deadline)
-      }
-    }
-  }
-} catch {}
 # Corroborate the local proof against the independent public GitHub Actions heartbeat.
 # This is read-only and does not require a GitHub token.
 $localProofPath = Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json'
