@@ -81,7 +81,7 @@ jobs:
           $branchContractSingle = '[string]$Branch = ' + "'main'"
           $branchContractDouble = '[string]$Branch = ' + '"main"'
           if (-not ($bootstrap.Contains($branchContractSingle) -or $bootstrap.Contains($branchContractDouble))) { throw 'Bootstrap must default to main after merge while permitting explicit branch selection.' }
-          if (-not $bootstrap.Contains('runs?branch=main&per_page=5')) { throw 'Cloud corroboration must query the independent scheduled heartbeat on main.' }
+          if (-not $bootstrap.Contains('EscapeDataString($Branch)')) { throw 'Cloud corroboration must query the selected bootstrap branch.' }
           if (-not $bootstrap.Contains('$BootstrapSourceBranch = ''feat/billboard-commercial-gauntlet-bootstrap''')) { throw 'Bootstrap must pin its reviewed source revision until it lands on main.' }
           if (-not $bootstrap.Contains('BOOTSTRAP_BRANCH_FALLBACK=$BootstrapSourceBranch')) { throw 'Bootstrap must switch to its reviewed source revision when main lacks that marker.' }
           if (-not $bootstrap.Contains('PHASE=VERIFY_COMMERCIAL_GAUNTLET')) { throw 'Bootstrap must explicitly execute the Commercial Gauntlet.' }
