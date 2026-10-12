@@ -31,7 +31,8 @@ try {
     $models = Invoke-RestMethod -Uri ($lmsBase + '/models') -TimeoutSec 4
     $modelList = @($models.data)
     $modelIds = @($modelList | ForEach-Object { [string]$_.id })
-    $modelAliasesPresent = @('scout','critic','vision' | Where-Object { $_ -in $modelIds }).Count
+    $expectedModelAliases = @('scout','critic','vision')
+    $modelAliasesPresent = @($expectedModelAliases | Where-Object { $_ -in $modelIds }).Count
     Add-Check 'local.lm_studio_api' $(if($modelAliasesPresent -eq 3){'PASS'}else{'BLOCKED'}) ("Model endpoint reachable; required role aliases present="+$modelAliasesPresent+"/3; listed models="+$modelList.Count)
   } catch { Add-Check 'local.lm_studio_api' 'BLOCKED' 'LM Studio API unavailable; cloud heartbeat is independent.' }
   $roleProofPath = Join-Path $ProofRoot 'LMSTUDIO-THREE-ROLE-READINESS.json'
