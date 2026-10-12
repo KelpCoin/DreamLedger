@@ -94,7 +94,18 @@ try {
         if (Test-Path -LiteralPath $productFeedPath) {
             $productFeed = Get-Content -LiteralPath $productFeedPath -Raw | ConvertFrom-Json
             $offer = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
-            if ($offer.Count -eq 1 -and [string]$offer[0].price -match '^49\s*NZD
+            if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '49 NZD' -and $offer[0].enable_checkout -eq $true -and [string]$offer[0].checkout_url -match '^https://buy\.stripe\.com/') {
+                Add-Check 'offer.canonical_catalog' 'PASS' 'Found one NZ$49 Agent Delivery Proof Audit listing with checkout enabled and a declared Stripe URL. This is repository evidence, not live Stripe verification.'
+                $offerUrl = [string]$offer[0].checkout_url
+            } else {
+                Add-Check 'offer.canonical_catalog' 'FAIL' 'Expected exactly one AGENT-PROOF-AUDIT-49 at NZ$49 NZD with checkout enabled and a Stripe URL.'
+                $offerUrl = ''
+            }
+        } else {
+            Add-Check 'offer.canonical_catalog' 'FAIL' "Missing $productFeedPath"
+            $offerUrl = ''
+        }
+
         $commands = @(
             @{name='contract.commercial_cell'; args=@('BEC-PRIME/scripts/verify-commercial-cell.js')},
             @{name='contract.execution_gate_tests'; args=@('--test','BEC-PRIME/runtime/ExecutionGate.test.js')},
