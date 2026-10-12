@@ -35,7 +35,7 @@ const openSessions = Number(funnel?.open_sessions || 0);
 const expiredSessions = Number(funnel?.expired_sessions || 0);
 const fulfillmentProven = status('fulfillment.end_to_end') === 'PASS';
 const deliveryEvidence = status('fulfillment.delivery_evidence') === 'PASS';
-const parity = status('commercial.truth_oracle_offer_parity') === 'PASS';
+const parity = status('commercial.truth_oracle_offer_parity') === 'PASS' && status('offer.retired_offer_retirement') === 'PASS';
 const offer = freshScout && scout?.recommended_first_dollar_path?.offer === 'TRUTH-ORACLE-ACCESS-001';
 const blockers = [];
 const laws = [];
@@ -43,7 +43,7 @@ const addLaw = (id, title, pass, detail, points) => {
   laws.push({id, title, verdict: pass ? 'PASS' : 'FAIL_OR_UNPROVEN', points_awarded: pass ? points : 0, points_available: points, detail});
 };
 addLaw('C1', 'Specific buyer problem and bounded deliverable', offer, offer ? 'Truth Oracle Access is the bounded evidence-review workflow; checkout remains held until paid delivery proof passes.' : 'The existing scout did not establish the Truth Oracle Access as the first-dollar candidate.', 10);
-addLaw('C2', 'Production CTA matches canonical offer', parity, 'Truth Oracle catalog, legacy redirect, and held-checkout state must agree; repository-only links do not pass.', 10);
+addLaw('C2', 'Truth Oracle catalog and retirement contract', parity, 'The retired Stripe product/link/price must be inactive; public Truth Oracle must be canonical and paid checkout must remain held until delivery proof passes.', 10);
 addLaw('C3', 'Exact live payment link is active', activeLink, stripe ? (activeLink ? 'Fresh exact Stripe link found and active.' : 'Fresh live Stripe proof missing, stale, or link absent/inactive.') : 'Live Stripe proof is missing.', 10);
 addLaw('C4', 'Independent, attributable paid order', attributablePaidOrder, attributablePaidOrder ? paid.length + ' matching paid live session(s) observed and the independent-order evidence check passed; refund/dispute and payout reconciliation remain separate.' : paidSignal ? 'A matching paid live session exists, but independent buyer/order attribution is not proven by a passing evidence check.' : 'No fresh matching paid live NZ$9 Truth Oracle session has been evidenced by this run.', 20);
 addLaw('C5', 'Fulfillment works end-to-end', fulfillmentProven, 'A checkout session cannot prove intake, report production, or successful fulfillment.', 15);
