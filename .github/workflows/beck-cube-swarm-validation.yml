@@ -9,6 +9,7 @@ on:
       - 'scripts/beck-local-artifact-inventory.ps1'
       - 'scripts/beck-local-artifact-commercial-review.ps1'
       - 'ops/cube-swarm/commercial-mechanism-registry.json'
+      - 'ops/cube-swarm/commercial-option-matrix.mjs'
       - 'package.json'
       - '.github/workflows/beck-cube-swarm-validation.yml'
   pull_request:
@@ -60,9 +61,24 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           node --check ops/cube-swarm/opportunity-batch-controller.mjs
+          node --check ops/cube-swarm/commercial-option-matrix.mjs
           $registry = Get-Content 'ops/cube-swarm/commercial-mechanism-registry.json' -Raw | ConvertFrom-Json
           if ($registry.count -ne 100 -or $registry.mechanisms.Count -ne 100) { throw 'Expected exactly 100 commercial hypotheses.' }
           node -e "const p=require('./package.json'); if (!p.scripts['cube:swarm:batch'] || !p.scripts['verify:cube-swarm:batch']) process.exit(1)"
+      - name: Generate and validate 500 commercial hypotheses
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          node ops/cube-swarm/commercial-option-matrix.mjs --out artifacts/commercial-option-matrix-latest.json
+          if ($LASTEXITCODE -ne 0) { throw "Commercial option matrix exited $LASTEXITCODE" }
+          $matrix = Get-Content 'artifacts/commercial-option-matrix-latest.json' -Raw | ConvertFrom-Json
+          if ($matrix.schema -ne 'DREAMLEDGER-COMMERCIAL-OPTION-MATRIX/v1') { throw 'Unexpected commercial option matrix schema.' }
+          if ($matrix.count -ne 500 -or $matrix.options.Count -ne 500) { throw 'Expected exactly 500 commercial hypotheses.' }
+          if ($matrix.domain_count -ne 50 -or $matrix.offer_model_count -ne 10) { throw 'Expected a 50 x 10 option matrix.' }
+          if (@($matrix.options | Where-Object { $_.status -ne 'HYPOTHESIS_UNVALIDATED' -or $_.sale_candidate -ne $false -or $_.external_actions_allowed -ne $false }).Count -gt 0) { throw 'Hypotheses must remain unvalidated with all external actions disabled.' }
+          if ($matrix.verified_revenue_nzd -ne 0 -or $matrix.independent_buyers -ne 0 -or $matrix.settled_external_payments -ne 0 -or $matrix.fulfilled_paid_orders -ne 0) { throw 'Hypothesis matrix cannot claim commercial outcomes.' }
+          Write-Host 'COMMERCIAL_OPTION_MATRIX_TRUTH_BOUNDARY_PASS'
       - name: Run offline candidate batch
         shell: pwsh
         run: |
@@ -83,6 +99,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cube-swarm-validation-${{ github.run_id }}
-          path: artifacts/opportunity-batch-latest.json
+          path: |
+            artifacts/opportunity-batch-latest.json
+            artifacts/commercial-option-matrix-latest.json
           if-no-files-found: warn
           retention-days: 14
