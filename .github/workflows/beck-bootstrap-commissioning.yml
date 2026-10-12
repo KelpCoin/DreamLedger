@@ -18,6 +18,8 @@ on:
       - 'public/agent-products.json'
       - 'public/ai-catalog.json'
       - 'public/agent-commerce.json'
+  push:
+    branches: [feat/beck-dual-heartbeat-bootstrap]
   workflow_dispatch:
 
 permissions:
