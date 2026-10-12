@@ -42,7 +42,7 @@ function Get-HttpResult([string]$Url) {
     } catch {
         $status = 0
         try { if ($_.Exception.Response -and $_.Exception.Response.StatusCode) { $status=[int]$_.Exception.Response.StatusCode } } catch {}
-        return [ordered]@{ url=$Url; status=$status; error=$_.Exception.Message }
+        return [ordered]@{ url=$Url; status=$status; error=$_.Exception.Message; stripe_links=@() }
     }
 }
 
@@ -66,6 +66,7 @@ try {
     }
 
     if ((@($checks | Where-Object { $_.name -eq 'dependencies.npm_ci' -and $_.status -eq 'FAIL' })).Count -eq 0) {
+        $offer = @()
         $catalogPath = Join-Path $RepoRoot 'BEC-PRIME/catalog/offers/approved.json'
         if (Test-Path -LiteralPath $catalogPath) {
             $catalog = Get-Content -LiteralPath $catalogPath -Raw | ConvertFrom-Json
