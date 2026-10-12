@@ -1,0 +1,52 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-definition/v1",
+  "silo_id": "mtg-commander",
+  "name": "MTG Commander Deck Diagnostic",
+  "category": "magic-the-gathering",
+  "lifecycle": "CANDIDATE",
+  "commercial_contract": {
+    "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "legacy_sku": "CMD-DIAG-29",
+    "currency": "NZD",
+    "amount_minor": 2900,
+    "checkout_status": "UNVERIFIED_MISMATCH",
+    "fulfillment_input": "/diagnostic-input.html",
+    "fulfillment_api": "/api/commercial/input",
+    "evidence_required": [
+      "stripe_session_paid",
+      "canonical_sku_match",
+      "order_created",
+      "decklist_accepted",
+      "report_artifact_sha256",
+      "delivery_confirmed"
+    ]
+  },
+  "carousel_card": {
+    "title": "Commander Deck Diagnostic",
+    "description": "A structured first-pass review of a Commander deck, with measurable deck metrics and upgrade priorities.",
+    "cta_label": "Get the NZ$29 diagnostic",
+    "cta_action": "navigate",
+    "cta_target": "/buy/commander-deck-diagnostic-001/",
+    "visible": true,
+    "position": 1
+  },
+  "isolation": {
+    "compute": "SHARED_WORKER",
+    "database_strategy": "DEDICATED_D1_PER_SILO",
+    "database_name": null,
+    "database_id": null,
+    "r2_bucket": "marketplace-fulfillment",
+    "r2_prefix": "silos/mtg-commander/",
+    "cross_silo_customer_data": false
+  },
+  "routes": [
+    "/buy/commander-deck-diagnostic-001/",
+    "/diagnostic-input.html",
+    "/api/commercial/input"
+  ],
+  "provisioning": {
+    "mode": "DRY_RUN_ONLY",
+    "deploy_allowed": false,
+    "reason": "Stripe checkout destination is inconsistent between the public buy page and product contract; Supabase read-only connectivity also fails. Resolve those gates before provisioning production resources."
+  }
+}
