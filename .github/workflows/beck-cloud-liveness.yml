@@ -1,9 +1,15 @@
 name: BECK Cloud Liveness
 on:
   push:
-    branches: [main]
+    branches: [main, feat/billboard-commercial-gauntlet-bootstrap]
     paths:
       - '.github/workflows/beck-cloud-liveness.yml'
+      - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'scripts/beck-economic-bootstrap.ps1'
+      - 'ops/commerce/beck-monetization-scout.mjs'
+      - 'ops/commerce/gauntlet-economic-verdict.mjs'
+      - 'ops/commerce/reconcile-billboard-first-dollar.mjs'
+      - 'public/agent-products.json'
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
@@ -36,16 +42,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --retry 3 --retry-delay 5 --retry-all-errors --output /tmp/version.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/version)"
+          code="$(curl --silent --show-error --retry 3 --retry-delay 5 --retry-all-errors --output /tmp/version.json --write-out '%{http_code}' --max-time 20 https://dreamledger.org/version)"
           test "$code" = "200"
-          test -s /tmp/version.txt
           node - <<'NODE'
           const fs = require('fs');
-          const body = fs.readFileSync('/tmp/version.txt', 'utf8').replace(/^\\uFEFF/, '').trim();
+          const body = fs.readFileSync('/tmp/version.json', 'utf8').replace(/^\uFEFF/, '').trim();
           if (!body) process.exit(1);
-          let commit = null;
-          try { const x = JSON.parse(body); commit = x.commit || x.sha || x.version_sha || x.git_sha || null; } catch {}
-          console.log(JSON.stringify({status: 'PASS', body_nonempty: true, commit}));
+          const x = JSON.parse(body);
+          if (x.service !== 'dreamledger-storefront' || x.status !== 'ok') process.exit(1);
+          console.log(JSON.stringify({status: 'PASS', service: x.service, service_status: x.status}));
           NODE
           echo "version_http=$code" >> "$GITHUB_OUTPUT"
 

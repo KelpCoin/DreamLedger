@@ -39,19 +39,19 @@ test('a paid-session signal alone cannot pass buyer attribution, fulfillment, or
   const result = runGauntlet({
     'latest-monetization-scout.json': {
       generated_at_utc: future,
-      recommended_first_dollar_path: { offer: 'TRUTH-ORACLE-ACCESS-001' }
+      recommended_first_dollar_path: { offer: 'DREAMLEDGER-BILLBOARD-FOUNDING-001' }
     },
     'latest-economic-validation.json': {
       run_started_at_utc: new Date().toISOString(),
       checks: [
-        { name: 'commercial.truth_oracle_offer_parity', status: 'PASS' },
+        { name: 'commercial.billboard_offer_parity', status: 'PASS' },
         { name: 'offer.retired_offer_retirement', status: 'PASS' },
-        { name: 'offer.truth_oracle_checkout_hold', status: 'PASS' }
+        { name: 'offer.billboard_checkout_hold', status: 'PASS' }
       ]
     },
     'latest-first-dollar-stripe-reconciliation.json': {
       generated_at_utc: future,
-      offer: { checkout_enabled: true },
+      offer: { checkout_enabled: true, price_nzd: 50 },
       live_stripe: {
         exact_payment_link_found: true,
         payment_link_active: true,
@@ -75,19 +75,19 @@ test('a verified prelaunch checkout hold passes checkout safety but never passes
   const result = runGauntlet({
     'latest-monetization-scout.json': {
       generated_at_utc: future,
-      recommended_first_dollar_path: { offer: 'TRUTH-ORACLE-ACCESS-001' }
+      recommended_first_dollar_path: { offer: 'DREAMLEDGER-BILLBOARD-FOUNDING-001' }
     },
     'latest-economic-validation.json': {
       run_started_at_utc: new Date().toISOString(),
       checks: [
-        { name: 'commercial.truth_oracle_offer_parity', status: 'PASS' },
+        { name: 'commercial.billboard_offer_parity', status: 'PASS' },
         { name: 'offer.retired_offer_retirement', status: 'PASS' },
-        { name: 'offer.truth_oracle_checkout_hold', status: 'PASS' }
+        { name: 'offer.billboard_checkout_hold', status: 'PASS' }
       ]
     },
     'latest-first-dollar-stripe-reconciliation.json': {
       generated_at_utc: future,
-      offer: { checkout_enabled: false },
+      offer: { checkout_enabled: false, price_nzd: 50 },
       live_stripe: {
         exact_payment_link_found: true,
         payment_link_active: false,
@@ -110,14 +110,14 @@ test('complete evidence-shaped fixture can pass the commercial verdict contract 
   const result = runGauntlet({
     'latest-monetization-scout.json': {
       generated_at_utc: now,
-      recommended_first_dollar_path: { offer: 'TRUTH-ORACLE-ACCESS-001' },
+      recommended_first_dollar_path: { offer: 'DREAMLEDGER-BILLBOARD-FOUNDING-001' },
       test_fixture_only: true
     },
     'latest-economic-validation.json': {
       run_started_at_utc: new Date(Date.now() - 1000).toISOString(),
       test_fixture_only: true,
       checks: [
-        { name: 'commercial.truth_oracle_offer_parity', status: 'PASS' },
+        { name: 'commercial.billboard_offer_parity', status: 'PASS' },
         { name: 'offer.retired_offer_retirement', status: 'PASS' },
         { name: 'commerce.independent_paid_order', status: 'PASS' },
         { name: 'fulfillment.end_to_end', status: 'PASS' },
@@ -129,7 +129,7 @@ test('complete evidence-shaped fixture can pass the commercial verdict contract 
     'latest-first-dollar-stripe-reconciliation.json': {
       generated_at_utc: now,
       test_fixture_only: true,
-      offer: { checkout_enabled: true },
+      offer: { checkout_enabled: true, price_nzd: 50 },
       live_stripe: {
         exact_payment_link_found: true,
         payment_link_active: true,

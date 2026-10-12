@@ -32,6 +32,7 @@ trap {
   }
 }
 $Workflow = 'figure-eight-cockpit.yml'
+$BootstrapSourceBranch = 'feat/billboard-commercial-gauntlet-bootstrap'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   $base = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime' } else { Join-Path $HOME 'BrownEyeCortex\Runtime' }
@@ -67,6 +68,30 @@ if (-not (Test-Path (Join-Path $RepoRoot '.git'))) {
   & git.exe -C $RepoRoot checkout -B $Branch FETCH_HEAD
   if ($LASTEXITCODE -ne 0) { throw "Git checkout failed with exit code $LASTEXITCODE" }
 }
+# The downloaded bootstrap may be newer than main while its PR is being validated.
+# Use the same reviewed source revision until that marker lands on main; after merge, main wins.
+$installedBootstrapPath = Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1'
+$installedBootstrapMatchesSource = $false
+if (Test-Path -LiteralPath $installedBootstrapPath) {
+  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/billboard-commercial-gauntlet-bootstrap''')
+}
+if ($Branch -eq 'main' -and -not $installedBootstrapMatchesSource) {
+  Write-Output "BOOTSTRAP_BRANCH_FALLBACK=$BootstrapSourceBranch"
+  & git.exe -C $RepoRoot fetch --depth 1 origin $BootstrapSourceBranch
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap source branch fetch failed; refusing to run mixed-version commissioning.' }
+  & git.exe -C $RepoRoot checkout -B $BootstrapSourceBranch FETCH_HEAD
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap source branch checkout failed; refusing to run mixed-version commissioning.' }
+  $Branch = $BootstrapSourceBranch
+}
+$requiredCommissioningFiles = @(
+  'scripts\\install-beck-heartbeat.ps1',
+  'scripts\\beck-heartbeat.ps1',
+  'scripts\\beck-startup.ps1',
+  'scripts\\beck-economic-bootstrap.ps1',
+  'ops\\commerce\\gauntlet-economic-verdict.mjs'
+)
+$missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
+if ($missingCommissioningFiles.Count -gt 0) { throw ("Required commissioning files missing: " + ($missingCommissioningFiles -join ', ')) }
 $RepoRoot = (Resolve-Path $RepoRoot).Path
 $proofRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime\proofs' } else { Join-Path $HOME 'BrownEyeCortex\Runtime\proofs' }
 $null = New-Item -ItemType Directory -Force -Path $proofRoot
@@ -249,24 +274,76 @@ $onlineHeartbeatStatus = 'UNKNOWN'
 $onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
+$onlineHeartbeatSourceBranch = $Branch
 $onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
-try {
-  $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
-  $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
-  $latestRuns = @($onlineResponse.workflow_runs | Where-Object { $_.event -ne 'workflow_dispatch' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending | Select-Object -First 1)
-  $latestRun = if ($latestRuns.Count -gt 0) { $latestRuns[0] } else { $null }
-  if ($latestRun) {
-    $onlineHeartbeatRunId = [string]$latestRun.id
-    $onlineHeartbeatAgeMinutes = [Math]::Round(([DateTime]::UtcNow - [DateTime]::Parse([string]$latestRun.created_at).ToUniversalTime()).TotalMinutes, 1)
-    if ($latestRun.status -eq 'completed' -and $latestRun.conclusion -eq 'success' -and $onlineHeartbeatAgeMinutes -ge 0 -and $onlineHeartbeatAgeMinutes -le 35) {
-      $onlineHeartbeatStatus = 'PASS'
-    } elseif ($latestRun.status -ne 'completed') {
-      $onlineHeartbeatStatus = 'RUNNING'
+$headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
+$dispatchStartedAt = $null
+$onlineResponse = $null
+$ghCommand = Get-Command gh.exe -ErrorAction SilentlyContinue
+# If GitHub CLI is already authenticated, run the read-only liveness workflow now and wait
+# for its result. No interactive login is requested and no production state is mutated.
+if ($ghCommand) {
+  & gh.exe auth status --hostname github.com *> $null
+  if ($LASTEXITCODE -eq 0) {
+    $dispatchStartedAt = [DateTime]::UtcNow
+    & gh.exe workflow run $onlineHeartbeatWorkflow --repo 'KelpCoin/DreamLedger' --ref $Branch
+    if ($LASTEXITCODE -eq 0) {
+      for ($attempt = 0; $attempt -lt 24; $attempt++) {
+        try {
+          $dispatchResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
+          $dispatchRuns = @($dispatchResponse.workflow_runs | Where-Object { $_.head_branch -eq $Branch -and $_.event -eq 'workflow_dispatch' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending)
+          if ($dispatchRuns.Count -gt 0) {
+            $candidateDispatch = $dispatchRuns[0]
+            if ([DateTime]::Parse([string]$candidateDispatch.created_at).ToUniversalTime() -ge $dispatchStartedAt.AddMinutes(-1)) {
+              $onlineResponse = $dispatchResponse
+              if ($candidateDispatch.status -eq 'completed') { break }
+            }
+          }
+        } catch { }
+        Start-Sleep -Seconds 5
+      }
     } else {
-      $onlineHeartbeatStatus = 'DEGRADED'
+      $dispatchStartedAt = $null
     }
-  } else { $onlineHeartbeatStatus = 'NO_RUN_FOUND' }
-} catch { $onlineHeartbeatStatus = 'UNREACHABLE_OR_UNAUTHORIZED' }
+  }
+}
+# Use anonymous GitHub API reads when CLI auth is unavailable. If commissioning from a
+# pre-merge branch has no run yet, a fresh successful mainline run is valid corroboration.
+if (-not $onlineResponse) {
+  try { $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15 } catch { $onlineResponse = $null }
+}
+$latestRun = $null
+if ($onlineResponse) {
+  $branchRuns = @($onlineResponse.workflow_runs | Where-Object { $_.head_branch -eq $Branch } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending)
+  if ($dispatchStartedAt) {
+    $branchRuns = @($branchRuns | Where-Object { [DateTime]::Parse([string]$_.created_at).ToUniversalTime() -ge $dispatchStartedAt.AddMinutes(-1) })
+  }
+  if ($branchRuns.Count -gt 0) { $latestRun = $branchRuns[0] }
+}
+if (-not $latestRun -and $Branch -ne 'main') {
+  $mainHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
+  try {
+    $mainResponse = Invoke-RestMethod -Uri $mainHeartbeatUrl -Headers $headers -TimeoutSec 15
+    $mainRuns = @($mainResponse.workflow_runs | Where-Object { $_.head_branch -eq 'main' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending)
+    if ($mainRuns.Count -gt 0) {
+      $latestRun = $mainRuns[0]
+      $onlineHeartbeatSourceBranch = 'main'
+    }
+  } catch { }
+}
+if ($latestRun) {
+  $onlineHeartbeatRunId = [string]$latestRun.id
+  $onlineHeartbeatAgeMinutes = [Math]::Round(([DateTime]::UtcNow - [DateTime]::Parse([string]$latestRun.created_at).ToUniversalTime()).TotalMinutes, 1)
+  if ($latestRun.status -eq 'completed' -and $latestRun.conclusion -eq 'success' -and $onlineHeartbeatAgeMinutes -ge 0 -and $onlineHeartbeatAgeMinutes -le 35) {
+    $onlineHeartbeatStatus = 'PASS'
+  } elseif ($latestRun.status -ne 'completed') {
+    $onlineHeartbeatStatus = 'RUNNING'
+  } else {
+    $onlineHeartbeatStatus = 'DEGRADED'
+  }
+} else {
+  $onlineHeartbeatStatus = if ($ghCommand -and $dispatchStartedAt) { 'DISPATCH_NOT_VERIFIED' } else { 'NO_RUN_FOUND' }
+}
 $localHeartbeatProducedProof = $localHeartbeatFresh -and $localHeartbeatStatus -in @('PASS','DEGRADED')
 $dualHeartbeatStatus = if ($localHeartbeatProducedProof -and $onlineHeartbeatStatus -eq 'PASS') { 'PASS' } else { 'DEGRADED' }
 $dualHeartbeatProof = [ordered]@{
@@ -274,8 +351,8 @@ $dualHeartbeatProof = [ordered]@{
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   status = $dualHeartbeatStatus
   local = [ordered]@{ status=$localHeartbeatStatus; proof_path=$localProofPath; fresh_within_20_minutes=$localHeartbeatFresh; heartbeat_proof_produced=$localHeartbeatProducedProof }
-  online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
-  rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions heartbeat on main no older than 35 minutes. Unknown is not pass.'
+  online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; source_branch=$onlineHeartbeatSourceBranch; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
+  rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions liveness run on the selected commissioning branch or fresh mainline fallback, no older than 35 minutes. Unknown is not pass.'
   no_revenue_claim = $true
 }
 $dualHeartbeatPath = Join-Path $proofRoot 'DUAL-HEARTBEAT-CORROBORATION-LATEST.json'
@@ -286,7 +363,23 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletContract -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commercialGauntletExecution = if ($commercialGauntletContract -eq 'PASS') { 'PASS' } else { 'FAIL' }
+Write-Output "COMMERCIAL_GAUNTLET_EXECUTION=$commercialGauntletExecution"
+# A successful validator run and a blocked commercial verdict are different facts.
+# Technical commissioning may be green while real commercial eligibility remains blocked by missing buyer/fulfillment evidence.
+$commissionStatus = if (-not $taskFinal) {
+  'FAILED'
+} elseif ($dualHeartbeatStatus -ne 'PASS') {
+  'INSTALLED_HEARTBEAT_DEGRADED'
+} elseif ($commercialGauntletContract -ne 'PASS') {
+  'INSTALLED_COMMERCIAL_GAUNTLET_EXECUTION_UNVERIFIED'
+} elseif ($commercialGauntletStatus -eq 'PASS') {
+  'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET'
+} elseif ($commercialGauntletStatus -eq 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED') {
+  'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED'
+} else {
+  'INSTALLED_COMMERCIAL_GAUNTLET_NOT_PASSED'
+}
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
@@ -294,6 +387,7 @@ $commissionProof = [ordered]@{
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
   dual_heartbeat_status = $dualHeartbeatStatus
   commercial_gauntlet_contract = $commercialGauntletContract
+  commercial_gauntlet_execution = $commercialGauntletExecution
   commercial_gauntlet_status = $commercialGauntletStatus
   commercial_gauntlet_verdict = $commercialGauntletVerdict
   commercial_gauntlet_score = $commercialGauntletScore
