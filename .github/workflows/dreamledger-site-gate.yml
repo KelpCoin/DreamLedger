@@ -33,7 +33,7 @@ jobs:
           test -s public/robots.txt
           test -s public/sitemap.xml
           grep -q 'Supplier Quote Comparison Worksheet' public/home.html
-          grep -q 'Agent Delivery Proof Audit' public/home.html
+          grep -q 'Truth Oracle evidence review' public/home.html
           grep -q 'Commander Deck Diagnostic' public/home.html
           grep -q 'Agent Bridge · Preview (held)' public/home.html
           grep -q "p==='/api/offers' || p==='/api/products'" public/server.js

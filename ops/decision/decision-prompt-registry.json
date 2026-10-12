@@ -1,0 +1,213 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "Internal decision-prompt registry for cloud decision workflows. Prompts classify supplied evidence; they do not create evidence, authorize external actions, or establish revenue.",
+  "visibility": "INTERNAL_ONLY",
+  "policy": {
+    "model_output_is_evidence": false,
+    "confidence_is_proof": false,
+    "missing_or_conflicting_evidence": "UNVERIFIED",
+    "external_action_requires_human_approval": true,
+    "revenue_rule": "Count only independently attributable external payment that is settled, fulfilled, delivered, and supported by evidence.",
+    "public_surface_rule": "Never publish internal workflow names, decision prompts, model deliberations, or internal score receipts."
+  },
+  "prompts": [
+    {
+      "id": "decision.gauntlet.verdict",
+      "name": "Economic testability verdict",
+      "task": "choice",
+      "options": [
+        "PASS",
+        "REFINE",
+        "KILL"
+      ],
+      "input": "proposition and evidence packet",
+      "prompt": "Assess whether the supplied proposition is economically testable now. PASS only if the packet identifies an independent buyer or evidenced buyer intent, approved offer and price, reachable checkout, feasible fulfillment, and evidence capture. REFINE if a specific repair could make it testable. KILL if no plausible test exists in the supplied evidence. Missing evidence is not a pass. Return JSON only: {\"verdict\":\"PASS|REFINE|KILL\",\"reason\":\"one sentence\",\"missing_evidence\":[\"...\"],\"confidence\":0.0}.",
+      "human_gate": true
+    },
+    {
+      "id": "decision.truth-oracle.classification",
+      "name": "Evidence claim classification",
+      "task": "choice",
+      "options": [
+        "VERIFIED",
+        "UNVERIFIED",
+        "CONTRADICTED",
+        "STALE"
+      ],
+      "input": "claim, sources, timestamps",
+      "prompt": "Classify only from supplied source evidence. VERIFIED requires direct, current supporting evidence; CONTRADICTED requires direct conflicting evidence; STALE means once-supported evidence is now outside its stated freshness window; otherwise UNVERIFIED. Return JSON only: {\"label\":\"VERIFIED|UNVERIFIED|CONTRADICTED|STALE\",\"missing_evidence\":\"...\",\"source_refs\":[\"...\"],\"confidence\":0.0}. A model response is never itself proof.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.cube.demand-score",
+      "name": "Demand signal scoring",
+      "task": "score",
+      "range": [
+        0,
+        10
+      ],
+      "input": "demand signal and source",
+      "prompt": "Score buyer clarity, urgency, and independent evidence strength from 0 to 10 using only the supplied signal. Do not infer purchase intent from generic interest. Return JSON only: {\"buyer_clarity\":0,\"urgency\":0,\"evidence_strength\":0,\"reason\":\"...\",\"source_refs\":[\"...\"]}.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.demand-gate",
+      "name": "Minimum demand gate",
+      "task": "binary",
+      "input": "silo, buyer evidence, offer, fulfillment",
+      "prompt": "Check whether the supplied evidence identifies a plausible buyer, a defined deliverable, a stated price, and a credible route to reach the buyer. Return JSON only: {\"passed\":true,\"confidence\":0.0,\"missing\":[\"...\"],\"evidence_refs\":[\"...\"]}. A pass means testable, not revenue validated.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.fightedge.signal-type",
+      "name": "Sports signal type",
+      "task": "choice",
+      "options": [
+        "ODDS_MOVE",
+        "INJURY",
+        "CAMP_CHANGE",
+        "LINE_MOVE",
+        "TENDENCY",
+        "NOISE"
+      ],
+      "input": "signal with source and timestamp",
+      "prompt": "Classify the supplied sports signal into one allowed type. If the evidence is irrelevant, duplicate, or unsupported, use NOISE. Return JSON only: {\"type\":\"ODDS_MOVE|INJURY|CAMP_CHANGE|LINE_MOVE|TENDENCY|NOISE\",\"reason\":\"...\",\"source_refs\":[\"...\"],\"confidence\":0.0}.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.acnc.red-flags",
+      "name": "Charity filing red flags",
+      "task": "multi_binary",
+      "input": "charity filings and comparable data",
+      "prompt": "Evaluate only the supplied charity filing evidence. Return JSON only with booleans or null when data is absent: {\"stale_filing\":true,\"high_exec_pay\":false,\"minimal_disclosure\":null,\"identical_program_ratio\":null,\"evidence_refs\":[\"...\"],\"limitations\":[\"...\"]}. Do not treat missing data as a negative finding.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.channel.rank",
+      "name": "Distribution channel ranking",
+      "task": "ranked_list",
+      "input": "buyer segment, geography, candidate channels, evidence",
+      "prompt": "Rank up to three supplied channels for reaching the specified buyer segment. Use evidence in the input, and mark assumptions. Do not send or publish anything. Return JSON only: {\"ranked_channels\":[{\"rank\":1,\"channel\":\"...\",\"evidence\":\"...\",\"assumption\":true}],\"not_tested\":true}.",
+      "human_gate": true
+    },
+    {
+      "id": "decision.outreach.review",
+      "name": "Outreach approval recommendation",
+      "task": "choice",
+      "options": [
+        "SEND",
+        "REVISE",
+        "HOLD"
+      ],
+      "input": "draft, recipient context, consent and policy evidence",
+      "prompt": "Review the supplied outreach draft for accuracy, relevance, consent, and unsupported claims. Recommend SEND, REVISE, or HOLD. This is not authorization to send. Return JSON only: {\"recommendation\":\"SEND|REVISE|HOLD\",\"single_blocker\":\"...\",\"unsupported_claims\":[\"...\"],\"human_approval_required\":true}.",
+      "human_gate": true
+    },
+    {
+      "id": "decision.pricing.hypothesis",
+      "name": "Pricing hypothesis selection",
+      "task": "choice",
+      "options": [
+        "A",
+        "B",
+        "C"
+      ],
+      "input": "offer, buyer evidence, options A/B/C and costs",
+      "prompt": "Compare only the provided pricing options against buyer evidence, scope, and cost-to-fulfill. Do not assert likely conversion without observed data. Return JSON only: {\"hypothesis\":\"A|B|C|INSUFFICIENT_EVIDENCE\",\"reason\":\"...\",\"test_needed\":\"...\",\"observed_conversion_data\":false}.",
+      "human_gate": true
+    },
+    {
+      "id": "decision.silo.lifecycle",
+      "name": "Silo lifecycle stage",
+      "task": "choice",
+      "options": [
+        "DISCOVERED",
+        "QUALIFIED",
+        "FURNISHING",
+        "READY",
+        "ACTIVE"
+      ],
+      "input": "silo state and evidence",
+      "prompt": "Assign the most advanced lifecycle stage supported by the supplied evidence. READY requires approved offer, checkout, fulfillment, and proof capture; ACTIVE requires real operation evidence. Return JSON only: {\"stage\":\"DISCOVERED|QUALIFIED|FURNISHING|READY|ACTIVE\",\"evidence_refs\":[\"...\"],\"missing\":[\"...\"]}.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.evidence.freshness",
+      "name": "Evidence freshness",
+      "task": "choice",
+      "options": [
+        "FRESH",
+        "STALE",
+        "EXPIRED",
+        "UNKNOWN"
+      ],
+      "input": "source timestamp and policy window",
+      "prompt": "Classify source freshness using the timestamp and freshness policy supplied in the input. Do not guess currentness if the timestamp or policy is absent. Return JSON only: {\"freshness\":\"FRESH|STALE|EXPIRED|UNKNOWN\",\"age_days\":null,\"basis\":\"...\"}.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.liability.score",
+      "name": "Report liability review",
+      "task": "score",
+      "range": [
+        0,
+        10
+      ],
+      "input": "report and supporting evidence",
+      "prompt": "Score potential liability exposure from 0 to 10 based on unsupported assertions, high-stakes advice, privacy, attribution, and missing caveats. This is triage, not legal advice. Return JSON only: {\"liability_score\":0,\"riskiest_statement\":\"...\",\"mitigations\":[\"...\"],\"human_review_required\":true}.",
+      "human_gate": true
+    },
+    {
+      "id": "decision.signal.licensing",
+      "name": "Signal licensing tier",
+      "task": "choice",
+      "options": [
+        "FREE",
+        "PER_SIGNAL",
+        "PER_EVENT",
+        "SUBSCRIPTION",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "input": "signal utility, rights, buyer use and costs",
+      "prompt": "Recommend a licensing hypothesis using only supplied utility, rights, buyer workflow, and fulfillment cost. Return JSON only: {\"tier\":\"FREE|PER_SIGNAL|PER_EVENT|SUBSCRIPTION|INSUFFICIENT_EVIDENCE\",\"reason\":\"...\",\"rights_checked\":true,\"market_validation\":\"UNVERIFIED\"}.",
+      "human_gate": true
+    },
+    {
+      "id": "decision.red-team.severity",
+      "name": "Risk severity triage",
+      "task": "choice",
+      "options": [
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ],
+      "input": "risk description and impact evidence",
+      "prompt": "Classify severity from evidenced impact and likelihood. If key information is absent, explain uncertainty and avoid a falsely precise confidence. Return JSON only: {\"severity\":\"CRITICAL|HIGH|MEDIUM|LOW\",\"smallest_mitigation\":\"...\",\"unknowns\":[\"...\"],\"confidence\":0.0}.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.buyer-lane",
+      "name": "Buyer lane routing",
+      "task": "choice",
+      "options": [
+        "INDIVIDUAL",
+        "ADVISER",
+        "JOURNALIST",
+        "GYM",
+        "UNKNOWN"
+      ],
+      "input": "prospect context and consented evidence",
+      "prompt": "Route the supplied prospect to the best-supported buyer lane. Use UNKNOWN if the evidence does not support one. Do not infer sensitive attributes or contact the prospect. Return JSON only: {\"lane\":\"INDIVIDUAL|ADVISER|JOURNALIST|GYM|UNKNOWN\",\"reason\":\"...\",\"evidence_refs\":[\"...\"],\"contact_authorized\":false}.",
+      "human_gate": false
+    },
+    {
+      "id": "decision.economic-truth",
+      "name": "Economic truth gate",
+      "task": "binary",
+      "input": "processor settlement evidence, buyer attribution, order, fulfillment and delivery evidence",
+      "prompt": "Determine whether the supplied evidence proves an independent external buyer's payment settled and the promised deliverable was fulfilled and delivered. Return JSON only: {\"verified_revenue\":true,\"amount_nzd\":0.0,\"settlement_ref\":\"...\",\"fulfillment_ref\":\"...\",\"delivery_ref\":\"...\",\"missing\":[\"...\"],\"label\":\"VERIFIED|UNVERIFIED|CONTRADICTED\"}. If any required evidence is missing, set verified_revenue=false and amount_nzd=0.00. Never infer revenue from checkout sessions, PaymentIntents, internal rows, test mode, or model output.",
+      "human_gate": false
+    }
+  ]
+}

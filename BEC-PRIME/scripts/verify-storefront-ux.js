@@ -24,7 +24,7 @@ async function main() {
     ['DreamLedger brand', /DreamLedger/i],
     ['evidence-first commerce positioning', /Evidence-first commerce/i],
     ['homepage headline', /Make the next decision\s*<span>easier to prove/i],
-    ['Delivery Proof Audit offer link', /href="\/agent-delivery-proof-audit\.html"/i],
+    ['Truth Oracle evidence review link', /href="\/truth-oracle\.html/i],
     ['free worksheet route', /href="(?:https:\/\/dreamledger\.org)?\/quote-comparison\//i],
     ['trust route', /href="\/trust\//i]
   ];

@@ -59,7 +59,8 @@ if(req.method==='POST'&&/^\/api\/auctions\/[^/]+\/bid$/.test(url)){try{const id=
 if(req.method==='GET'&&url==='/api/news'){try{const silo=new URL(req.url,`http://${req.headers.host||'localhost'}`).searchParams.get('silo')||'dreamledger';return send(res,200,{silo,items:loadNews()[silo]||[]});}catch(err){return send(res,500,{error:'News unavailable'});}}
 if(req.method==='POST'&&url==='/api/checkout/create')return createCheckout(req,res);
 if(req.method==='POST'&&url==='/api/offer-checkout/create')return createOfferCheckout(req,res);
-if(req.method==='POST'&&url==='/webhook')return webhook(req,res);
+// Keep the live Stripe endpoint path and legacy alias on the same signature-verified handler.
+if(req.method==='POST'&&(url==='/api/webhooks/stripe'||url==='/webhook'))return webhook(req,res);
 if(req.method==='GET'&&url==='/checkout/success')return send(res,200,'<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><title>DreamLedger | Payment received</title></head><body style="font-family:system-ui;max-width:720px;margin:80px auto;padding:24px"><h1>Payment received</h1><p>Your Stripe checkout completed. Transaction evidence is generated after webhook confirmation.</p><p><a href="/">Return to DreamLedger</a></p></body></html>','text/html; charset=utf-8');
 if(req.method==='GET'&&url==='/checkout/cancel')return res.writeHead(302,{Location:'/'}).end();
 if(req.method==='GET'&&url.startsWith('/dreamiez/')){const relative=decodeURIComponent(url.slice('/dreamiez/'.length)||'dreamiez.html');const candidate=path.normalize(path.join(DREAMIEZ_ROOT,relative));if(candidate!==DREAMIEZ_ROOT&&!candidate.startsWith(DREAMIEZ_ROOT+path.sep))return send(res,400,'Bad Request','text/plain; charset=utf-8');return serveFile(res,candidate);}

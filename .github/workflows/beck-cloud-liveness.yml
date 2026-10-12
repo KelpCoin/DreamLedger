@@ -1,0 +1,52 @@
+name: BECK Cloud Liveness
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/beck-cloud-liveness.yml'
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-cloud-liveness
+  cancel-in-progress: true
+
+jobs:
+  liveness:
+    name: Independent cloud and public-host liveness
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check public health endpoint
+        id: health
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/health.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/healthz)"
+          test "$code" = "200"
+          echo "health_http=$code" >> "$GITHUB_OUTPUT"
+          cat /tmp/health.txt || true
+
+      - name: Check public version endpoint
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/version)"
+          test "$code" = "200"
+          node -e 'const x=require("/tmp/version.json"); if (!x || typeof x !== "object") process.exit(1); console.log(JSON.stringify({status:"PASS",commit:x.commit||x.sha||x.version_sha||x.git_sha||null}))'
+          echo "version_http=$code" >> "$GITHUB_OUTPUT"
+
+      - name: Check canonical public Truth Oracle page
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --location --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 20 https://dreamledger.org/truth-oracle.html)"
+          test "$code" = "200"
+          echo "truth_oracle_http=$code"
+          echo '{"schema":"DREAMLEDGER-CLOUD-LIVENESS/v1","status":"PASS","external_action":"NONE","production_mutation":"NONE","revenue_claimed_nzd":0,"payment_claimed":0,"buyer_claimed":0}' > "$RUNNER_TEMP/cloud-liveness-proof.json"
+          cat "$RUNNER_TEMP/cloud-liveness-proof.json"
