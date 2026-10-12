@@ -1,9 +1,10 @@
 name: BECK Cloud Liveness
 on:
   push:
-    branches: [main]
+    branches: [main, feat/beck-commercial-gauntlet-bootstrap-clean]
     paths:
       - '.github/workflows/beck-cloud-liveness.yml'
+      - 'scripts/beck-one-shot-bootstrap.ps1'
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
@@ -12,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: beck-cloud-liveness
+  group: beck-cloud-liveness-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
