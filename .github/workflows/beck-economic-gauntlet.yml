@@ -27,8 +27,8 @@ jobs:
           node-version: '20'
           cache: npm
 
-      - name: Install existing project dependencies
-        run: npm ci
+      - name: Install dependencies without assuming a committed lockfile
+        run: npm install --no-package-lock --no-audit --no-fund
 
       - name: Validate package JSON and JavaScript syntax
         shell: pwsh
@@ -58,7 +58,7 @@ jobs:
         env:
           STRIPE_LIVE_ENABLED: 'false'
         run: |
-          npm run validate:economics -- -SkipInstall
+          npm run validate:economics
           $validationExit = $LASTEXITCODE
           $gauntletPath = Join-Path $PWD 'proof/commerce/latest-gauntlet-economic-verdict.json'
           if (-not (Test-Path -LiteralPath $gauntletPath)) {
