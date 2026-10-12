@@ -1,4 +1,4 @@
-name: Figure Eight Heartbeat
+name: Figure Eight First-Dollar Heartbeat
 
 on:
   schedule:
@@ -6,29 +6,29 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "buy/commander-deck-diagnostic-001/index.html"
-      - "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json"
+      - "index.html"
+      - "public/agent-delivery-proof-audit.html"
       - ".github/workflows/figure-eight-heartbeat.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: figure-eight-heartbeat
+  group: figure-eight-first-dollar
   cancel-in-progress: false
 
 jobs:
   heartbeat:
-    name: BECK public and commercial heartbeat
+    name: First-dollar offer and checkout probe
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check out the exact triggering revision
+      - name: Check out exact revision
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Verify checkout contract and public route
+      - name: Probe offer, live route, and Stripe checkout
         id: probe
         shell: bash
         run: |
@@ -36,46 +36,62 @@ jobs:
           mkdir -p heartbeat-report
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
+          const offerFile = 'public/agent-delivery-proof-audit.html';
+          const homeFile = 'index.html';
+          const stripeUrl = 'https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m';
+          const routeUrl = 'https://dreamledger.org/agent-delivery-proof-audit.html';
           const report = {
             generated_at: new Date().toISOString(),
             revision: process.env.GITHUB_SHA || 'unknown',
+            offer: 'Agent Delivery Proof Audit',
+            price: 'NZD 49',
             checks: [],
             economic_status: 'UNVERIFIED',
-            overall: 'FAIL'
+            overall: 'FAIL',
+            note: 'A reachable checkout is not a settled payment. Revenue remains unverified until external settlement and fulfillment evidence exist.'
           };
           const add = (name, status, detail) => report.checks.push({name, status, detail});
-          const routeFile = 'buy/commander-deck-diagnostic-001/index.html';
-          const catalogFile = 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json';
+          let offerHtml = '';
           try {
-            if (!fs.existsSync(routeFile)) throw new Error('Route source file missing');
-            const html = fs.readFileSync(routeFile, 'utf8');
-            if (!html.includes('https://buy.stripe.com/')) throw new Error('No Stripe checkout destination found in route source');
-            add('route_source', 'PASS', routeFile + ' exists and contains a Stripe destination');
-          } catch (e) { add('route_source', 'FAIL', e.message); }
+            if (!fs.existsSync(offerFile)) throw new Error('Public offer source missing');
+            offerHtml = fs.readFileSync(offerFile, 'utf8');
+            if (!offerHtml.includes('Agent Delivery Proof Audit') || !offerHtml.includes('NZ$49') || !offerHtml.includes(stripeUrl)) {
+              throw new Error('Offer title, price, or canonical Stripe URL missing from public source');
+            }
+            add('offer_source', 'PASS', 'Public offer source contains the offer name, NZ$49 price, and canonical Stripe link');
+          } catch (e) { add('offer_source', 'FAIL', e.message); }
           try {
-            const catalog = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
-            const serialized = JSON.stringify(catalog);
-            const url = serialized.match(/https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+/);
-            const html = fs.existsSync(routeFile) ? fs.readFileSync(routeFile, 'utf8') : '';
-            const routeUrl = html.match(/https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+/);
-            if (!url || !routeUrl) throw new Error('Could not extract checkout URL from both catalogue and route');
-            if (url[0] !== routeUrl[0]) throw new Error('Catalogue checkout URL does not match route checkout URL');
-            add('checkout_contract', 'PASS', 'Catalogue and route declare the same checkout URL');
-          } catch (e) { add('checkout_contract', 'FAIL', e.message); }
+            if (!fs.existsSync(homeFile)) throw new Error('Homepage source missing');
+            const home = fs.readFileSync(homeFile, 'utf8');
+            if (!home.includes('/agent-delivery-proof-audit.html') || !home.includes('Buy the Proof Audit')) {
+              throw new Error('Homepage does not direct buyers to the Proof Audit');
+            }
+            add('homepage_cta', 'PASS', 'Homepage directs buyers to the Proof Audit offer page');
+          } catch (e) { add('homepage_cta', 'FAIL', e.message); }
           try {
-            const response = await fetch('https://dreamledger.org/buy/commander-deck-diagnostic-001/', {redirect:'manual', signal:AbortSignal.timeout(12000)});
-            const detail = 'HTTP ' + response.status + (response.headers.get('location') ? '; redirect present' : '');
-            if (response.status >= 200 && response.status < 400) add('production_route', 'PASS', detail);
-            else add('production_route', 'FAIL', detail);
-          } catch (e) { add('production_route', 'FAIL', String(e.message || e)); }
+            const response = await fetch(routeUrl, {redirect:'follow', signal:AbortSignal.timeout(12000)});
+            const body = await response.text();
+            if (response.status < 200 || response.status >= 400) throw new Error('HTTP ' + response.status);
+            if (!body.includes('Agent Delivery Proof Audit') || !body.includes(stripeUrl)) {
+              throw new Error('Live page does not contain the expected offer and checkout URL');
+            }
+            add('production_offer', 'PASS', 'HTTP ' + response.status + '; live offer and Stripe destination found');
+          } catch (e) { add('production_offer', 'FAIL', String(e.message || e)); }
+          try {
+            const response = await fetch(stripeUrl, {redirect:'manual', signal:AbortSignal.timeout(12000)});
+            if (response.status < 200 || response.status >= 400) throw new Error('Stripe returned HTTP ' + response.status);
+            add('stripe_link_reachability', 'PASS', 'Stripe Payment Link responded with HTTP ' + response.status + '; no payment or settlement inferred');
+          } catch (e) { add('stripe_link_reachability', 'FAIL', String(e.message || e)); }
           report.overall = report.checks.every(c => c.status === 'PASS') ? 'PASS' : 'FAIL';
           fs.writeFileSync('heartbeat-report/figure-eight-heartbeat.json', JSON.stringify(report, null, 2) + '\n');
           fs.writeFileSync('heartbeat-report/figure-eight-heartbeat.md',
-            '# Figure Eight Heartbeat\n\n' +
+            '# Figure Eight First-Dollar Heartbeat\n\n' +
             '- Time: ' + report.generated_at + '\n' +
             '- Revision: ' + report.revision + '\n' +
+            '- Offer: ' + report.offer + ' (' + report.price + ')\n' +
             '- Operational result: **' + report.overall + '**\n' +
-            '- Economic result: **UNVERIFIED** (settlement and fulfillment are not verified by this workflow)\n\n' +
+            '- Economic result: **UNVERIFIED**\n\n' +
+            report.note + '\n\n' +
             report.checks.map(c => '- [' + c.status + '] ' + c.name + ': ' + c.detail).join('\n') + '\n');
           console.log(JSON.stringify(report, null, 2));
           if (report.overall !== 'PASS') process.exitCode = 1;
@@ -84,15 +100,15 @@ jobs:
           echo "result=$probe_status" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Publish heartbeat evidence even when a check fails
+      - name: Upload evidence even on failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: figure-eight-heartbeat-${{ github.run_id }}
+          name: figure-eight-first-dollar-${{ github.run_id }}
           path: heartbeat-report/
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Fail the run if any required heartbeat check failed
+      - name: Fail if any required check failed
         if: steps.probe.outputs.result != '0'
         run: exit 1
