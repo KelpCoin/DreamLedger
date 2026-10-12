@@ -120,6 +120,20 @@ try {
     Pop-Location
 }
 
+
+# Supabase is a fulfillment dependency for the canonical Billboard offer.
+# This is an unauthenticated gateway probe only, never a DB-health claim.
+$sbUrl = if ($env:SUPABASE_URL) { $env:SUPABASE_URL.TrimEnd('/') } else { 'https://wbwgroygjeyukkspnqiy.supabase.co' }
+$sbProbe = Get-HttpResult ($sbUrl + '/rest/v1/')
+if ($sbProbe.status -eq 0 -or $sbProbe.status -ge 500) {
+    Add-Check 'fulfillment.supabase_gateway' 'BLOCKED' (($sbProbe | ConvertTo-Json -Compress) + '; Supabase gateway unreachable or server error. Automated fulfillment must not be claimed.')
+} elseif ($sbProbe.status -in @(401,403)) {
+    Add-Check 'fulfillment.supabase_gateway' 'UNVERIFIED' (($sbProbe | ConvertTo-Json -Compress) + '; gateway responds but authenticated database/RPC health is unproven.')
+} else {
+    Add-Check 'fulfillment.supabase_gateway' 'UNVERIFIED' (($sbProbe | ConvertTo-Json -Compress) + '; HTTP response is not proof of database/RPC health or successful fulfillment.')
+}
+Add-Check 'fulfillment.end_to_end' 'UNVERIFIED' 'No safe synthetic paid-order-to-delivery test has been executed by this read-only bootstrap. Require correlated live payment, order attribution, fulfilled artifact, and delivery evidence before claiming revenue.'
+
 $hardFails = @($checks | Where-Object { $_.status -eq 'FAIL' }).Count
 $blocked = @($checks | Where-Object { $_.status -eq 'BLOCKED' }).Count
 $settledEvidence = @($checks | Where-Object { $_.name -eq 'stripe.settled_payment_evidence' -and $_.status -eq 'OBSERVED_PENDING_FULFILLMENT' }).Count -gt 0
