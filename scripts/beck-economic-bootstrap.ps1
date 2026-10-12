@@ -81,15 +81,26 @@ try {
         }
 
         $commands = @(
+            @{name='monetization.asset_traversal'; args=@('ops/commerce/beck-monetization-scout.mjs')},
             @{name='contract.commercial_cell'; args=@('BEC-PRIME/scripts/verify-commercial-cell.js')},
             @{name='contract.execution_gate_tests'; args=@('--test','BEC-PRIME/runtime/ExecutionGate.test.js')},
             @{name='contract.cube_swarm_definition'; args=@('BEC-PRIME/scripts/verify-cube-swarm-definition.js')}
         )
         foreach ($c in $commands) { $null = Run-NodeCheck $c.name $c.args }
 
+        $scoutProof = Join-Path $RepoRoot 'proof/commerce/latest-monetization-scout.json'
+        if (Test-Path -LiteralPath $scoutProof) {
+            $scout = Get-Content -LiteralPath $scoutProof -Raw | ConvertFrom-Json
+            Add-Check 'monetization.recommendation' 'OBSERVED' (($scout.recommended_first_dollar_path | ConvertTo-Json -Compress) + '; inspect ranked_candidates and blockers in ' + $scoutProof)
+        } else {
+            Add-Check 'monetization.recommendation' 'FAIL' 'Monetization scout did not create its proof report.'
+        }
+
         $publicUrls = @(
             'https://dreamledger.org/agent-delivery-proof-audit.html',
-            'https://dreamledger.org/billboard.html'
+            'https://dreamledger.org/billboard.html',
+            'https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001',
+            'https://dreamledger.org/quote-comparison/'
         )
         foreach ($url in $publicUrls) {
             $r = Get-HttpResult $url
