@@ -9,3 +9,10 @@ Optional protected read-only probe URLs may be configured as repository secrets:
 Discord reports are disabled by default. Enable only after configuring repository variable `COCKPIT_DISCORD_ENABLED=true` and secret `COCKPIT_DISCORD_WEBHOOK_URL` for a private channel. The sender enforces a minimum 15-minute staging delay and obeys `COCKPIT_KILL_SWITCH=true`; cancel the GitHub Actions run to stop a pending notification. Do not commit or share the webhook URL. This is one-way webhook reporting, not a slash-command bot. Interactive `/today` commands would require a separately authenticated Discord application and interaction endpoint.
 
 Run locally with `node ops/cockpit/figure-eight-cockpit.mjs`. Optional local proof input: set `COCKPIT_LOCAL_PROOF_JSON` to a fresh local bootstrap receipt. A missing local receipt is shown as 0 verified points / UNOBSERVED, not proof that the PC is broken. The scripts make read-only GET requests and do not mutate Stripe, Supabase, Render, orders or fulfillment.
+
+
+## Current cloud audit note (2026-10-12)
+
+The live Stripe endpoint inventory showed the endpoint labelled canonical revenue settlement disabled, while several other live destinations remain enabled for overlapping checkout events. The Render destination `/api/webhooks/stripe` also did not match the `/webhook` route in the actual `BEC-PRIME/start.js` runtime. The current PR adds the configured path as an alias into the same existing dispatcher and adds a regression contract check. This code is **not deployed or live-verified** yet.
+
+Do not enable the disabled revenue endpoint or disable existing endpoints until the database is demonstrably stable and one canonical destination passes signature verification, replay/idempotency, payment attribution, fulfillment, and delivery-proof tests. The current provisional evidence score is therefore low by design. No production webhook configuration has been changed.
