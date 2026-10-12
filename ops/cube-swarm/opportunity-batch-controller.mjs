@@ -25,12 +25,12 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--input' && args[i + 1]) inputPaths.push(path.resolve(root, args[++i]));
 }
 if (!inputPaths.length) {
-  inputPaths.push(
+  for (const p of [
     'public/agent-products.json',
     'public/agent-commerce.json',
     'public/ai-catalog.json',
     'BEC-PRIME/catalog/offers/approved.json'
-  ).forEach(p => inputPaths.push(path.resolve(root, p)));
+  ]) inputPaths.push(path.resolve(root, p));
 }
 const now = new Date().toISOString();
 const digest = value => crypto.createHash('sha256').update(String(value)).digest('hex');
