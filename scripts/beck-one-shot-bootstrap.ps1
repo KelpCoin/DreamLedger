@@ -32,6 +32,7 @@ trap {
   }
 }
 $Workflow = 'figure-eight-cockpit.yml'
+$BootstrapSourceBranch = 'feat/billboard-commercial-gauntlet-bootstrap'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   $base = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime' } else { Join-Path $HOME 'BrownEyeCortex\Runtime' }
@@ -67,6 +68,30 @@ if (-not (Test-Path (Join-Path $RepoRoot '.git'))) {
   & git.exe -C $RepoRoot checkout -B $Branch FETCH_HEAD
   if ($LASTEXITCODE -ne 0) { throw "Git checkout failed with exit code $LASTEXITCODE" }
 }
+# The downloaded bootstrap may be newer than main while its PR is being validated.
+# Use the same reviewed source revision until that marker lands on main; after merge, main wins.
+$installedBootstrapPath = Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1'
+$installedBootstrapMatchesSource = $false
+if (Test-Path -LiteralPath $installedBootstrapPath) {
+  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/billboard-commercial-gauntlet-bootstrap''')
+}
+if ($Branch -eq 'main' -and -not $installedBootstrapMatchesSource) {
+  Write-Output "BOOTSTRAP_BRANCH_FALLBACK=$BootstrapSourceBranch"
+  & git.exe -C $RepoRoot fetch --depth 1 origin $BootstrapSourceBranch
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap source branch fetch failed; refusing to run mixed-version commissioning.' }
+  & git.exe -C $RepoRoot checkout -B $BootstrapSourceBranch FETCH_HEAD
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap source branch checkout failed; refusing to run mixed-version commissioning.' }
+  $Branch = $BootstrapSourceBranch
+}
+$requiredCommissioningFiles = @(
+  'scripts\\install-beck-heartbeat.ps1',
+  'scripts\\beck-heartbeat.ps1',
+  'scripts\\beck-startup.ps1',
+  'scripts\\beck-economic-bootstrap.ps1',
+  'ops\\commerce\\gauntlet-economic-verdict.mjs'
+)
+$missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
+if ($missingCommissioningFiles.Count -gt 0) { throw ("Required commissioning files missing: " + ($missingCommissioningFiles -join ', ')) }
 $RepoRoot = (Resolve-Path $RepoRoot).Path
 $proofRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime\proofs' } else { Join-Path $HOME 'BrownEyeCortex\Runtime\proofs' }
 $null = New-Item -ItemType Directory -Force -Path $proofRoot
@@ -249,7 +274,7 @@ $onlineHeartbeatStatus = 'UNKNOWN'
 $onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
-$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
+$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
 try {
   $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
   $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
