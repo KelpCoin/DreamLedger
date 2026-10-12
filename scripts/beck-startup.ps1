@@ -56,8 +56,8 @@ function Save-StartupProof([string]$Status) {
         repository = $RepoRoot
         local_daily_root = $dailyRoot
         proof_root = $ProofRoot
-        local_score_out_of_1000 = $localScore
-        local_score_status = if ($localScore -eq 1000) {'VERIFIED_1000'} else {'IMPROVEMENT_REQUIRED'}
+        local_score_out_of_10000 = ($localScore * 10)
+        local_score_status = if ($localScore -eq 1000) {'VERIFIED_10000'} else {'IMPROVEMENT_REQUIRED'}
         local_score_breakdown = $scoreRows
         checks = @($checks)
         safety = @(
