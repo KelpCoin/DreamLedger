@@ -56,14 +56,6 @@ jobs:
         run: npm install --no-audit --no-fund
         continue-on-error: true
 
-      - name: Compile bounded CUBE opportunity batch
-        id: batch
-        if: always() && steps.install.outcome == 'success'
-        run: |
-          mkdir -p artifacts
-          node ops/cube-swarm/opportunity-batch-controller.mjs --max-candidates 100000 --out artifacts/opportunity-batch-latest.json
-        continue-on-error: true
-
       - name: Scout existing monetizable assets
         id: scout
         if: always() && steps.install.outcome == 'success'
@@ -74,6 +66,14 @@ jobs:
         id: compile
         if: always() && steps.install.outcome == 'success'
         run: npm run compile:opportunities
+        continue-on-error: true
+
+      - name: Compile bounded CUBE opportunity batch
+        id: batch
+        if: always() && steps.install.outcome == 'success'
+        run: |
+          mkdir -p artifacts
+          node ops/cube-swarm/opportunity-batch-controller.mjs --max-candidates 100000 --out artifacts/opportunity-batch-latest.json
         continue-on-error: true
 
       - name: Run existing factory and approval packet pipeline
