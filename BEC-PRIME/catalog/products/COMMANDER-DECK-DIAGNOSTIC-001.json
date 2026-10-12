@@ -13,24 +13,24 @@
   "status": "published",
   "checkout": {
     "mode": "payment",
-    "url": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-    "success_path": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}",
+    "url": "/mtg/diagnostic.html",
+    "success_path": "https://dreamledger.org/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}",
     "cancel_path": "/mtg"
   },
   "commercial_truth": {
     "approval_required": false,
     "sellable": true,
     "reason": "Operator authorized automated MTG digital fulfillment on 2026-08-23.",
-    "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
-    "payment_link_id": "plink_1UFFZFEGgEAnUFF9LHNMWTDl",
+    "payment_surface": "stripe-checkout-session",
+    "payment_link": "https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l",
+    "payment_link_id": "plink_1U8LHlEGgEAnUFF9qkZuYTKB",
     "stripe_product_id": "prod_V6iVKl9HgFpzRU",
-    "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7"
+    "stripe_price_id": "price_1U8LHfEGgEAnUFF9i3vrXCJU"
   },
   "fulfillment": {
     "mode": "automated",
     "delivery_sla_hours": 1,
-    "input_url": "https://dreamledger.org/diagnostic-input.html?session_id={CHECKOUT_SESSION_ID}",
+    "input_url": "https://dreamledger.org/mtg/diagnostic.html",
     "input_api": "/api/commercial/input",
     "inputs": [
       "email used at checkout",
