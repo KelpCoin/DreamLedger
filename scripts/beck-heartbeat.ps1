@@ -25,11 +25,32 @@ try {
     Add-Check 'local.node' $(if($ok){'PASS'}else{'BLOCKED'}) $v
   } else { Add-Check 'local.node' 'BLOCKED' 'Node.js 20+ is not on PATH.' }
   $lmsBase = if ($env:BECK_LMSTUDIO_BASE) { $env:BECK_LMSTUDIO_BASE.TrimEnd('/') } else { 'http://127.0.0.1:1234/v1' }
+  $modelList = @()
+  $modelIds = @()
   try {
     $models = Invoke-RestMethod -Uri ($lmsBase + '/models') -TimeoutSec 4
     $modelList = @($models.data)
-    Add-Check 'local.lm_studio_api' $(if($modelList.Count -gt 0){'PASS'}else{'BLOCKED'}) ("Model endpoint reachable; listed models="+$modelList.Count)
+    $modelIds = @($modelList | ForEach-Object { [string]$_.id })
+    $modelAliasesPresent = @('scout','critic','vision' | Where-Object { $_ -in $modelIds }).Count
+    Add-Check 'local.lm_studio_api' $(if($modelAliasesPresent -eq 3){'PASS'}else{'BLOCKED'}) ("Model endpoint reachable; required role aliases present="+$modelAliasesPresent+"/3; listed models="+$modelList.Count)
   } catch { Add-Check 'local.lm_studio_api' 'BLOCKED' 'LM Studio API unavailable; cloud heartbeat is independent.' }
+  $roleProofPath = Join-Path $ProofRoot 'LMSTUDIO-THREE-ROLE-READINESS.json'
+  $roleProof = $null
+  $roleReady = $false
+  $roleDetail = 'Three-role proof absent.'
+  if (Test-Path -LiteralPath $roleProofPath) {
+    try {
+      $roleProof = Get-Content -LiteralPath $roleProofPath -Raw | ConvertFrom-Json
+      $heartbeatUtc = [DateTime]::Parse([string]$roleProof.heartbeat_at_utc).ToUniversalTime()
+      $age = ([DateTime]::UtcNow - $heartbeatUtc).TotalMinutes
+      $roleNames = @($roleProof.roles | ForEach-Object { [string]$_.role })
+      $modelKeys = @($roleProof.roles | ForEach-Object { [string]$_.model_key })
+      $allAliases = @($roleProof.roles | ForEach-Object { [string]$_.api_identifier })
+      $roleReady = $roleProof.status -eq 'PASS' -and $roleProof.readiness -eq 'THREE_DISTINCT_ROLES_INFERENCE_AND_LOADED_STATE_VERIFIED' -and $age -ge 0 -and $age -le 20 -and (@($roleNames | Select-Object -Unique).Count -eq 3) -and (@($modelKeys | Select-Object -Unique).Count -eq 3) -and (@($allAliases | Where-Object { $_ -in $modelIds }).Count -eq 3) -and $roleProof.gpu.total_memory_mb -gt 0 -and $roleProof.gpu.status -eq 'PASS_GPU_MEMORY_AND_INFERENCE_ACTIVITY_OBSERVED'
+      $roleDetail = "status=$($roleProof.status); age_minutes=$([math]::Round($age,1)); roles=$(@($roleNames | Select-Object -Unique).Count)/3; distinct_models=$(@($modelKeys | Select-Object -Unique).Count)/3; proof=$roleProofPath"
+    } catch { $roleDetail = "Cannot validate current three-role proof: $($_.Exception.Message)" }
+  }
+  Add-Check 'local.three_role_readiness' $(if($roleReady){'PASS'}else{'BLOCKED'}) $roleDetail
   $gpu = Get-Command nvidia-smi.exe -ErrorAction SilentlyContinue
   if (-not $gpu) { $gpu = Get-Command nvidia-smi -ErrorAction SilentlyContinue }
   if ($gpu) {
@@ -59,7 +80,8 @@ try {
   Add-Check 'local.backup_restore' $(if($backupOk){'PASS'}else{'BLOCKED'}) 'Encrypted backup restore earns points only from a dated independent restore-test proof.'
   $weights = @{
     'local.node' = 500
-    'local.lm_studio_api' = 1500
+    'local.lm_studio_api' = 500
+    'local.three_role_readiness' = 1000
     'local.inference' = 2500
     'local.gpu_telemetry' = 1000
     'local.repository' = 1000
