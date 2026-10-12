@@ -71,7 +71,7 @@ const sessionStartCount = offerSessions.length;
 const checkoutSessionPaidRate = sessionStartCount ? Number((paidOfferSessions.length / sessionStartCount).toFixed(4)) : null;
 
 const proof = {
-  schema: 'BECK-TRUTH-ORACLE-STRIPE-RECONCILIATION/v1',
+  schema: 'BECK-BILLBOARD-STRIPE-RECONCILIATION/v1',
   generated_at_utc: new Date().toISOString(),
   mode: 'READ_ONLY_LIVE_STRIPE',
   offer,
@@ -135,10 +135,10 @@ const proof = {
     required_next_proof: [
       'Confirm payment remains settled and is not refunded or disputed.',
       'Correlate one independent buyer to the approved offer without retaining unnecessary personal data.',
-      'Keep paid checkout held until the Billboard entitlement and payment-to-allocation-to-publication path passes.',
+      'Keep public checkout held until signed-webhook allocation and publication can be proven; do not activate a payment link to improve a score.',
       'Record report hash or stable artifact reference and delivery timestamp/evidence.',
       'Reconcile Stripe payout and bank receipt separately.',
-      'Do not restore the retired standalone offer; its bounded review capability is part of Billboard.'
+      'Do not restore the retired standalone audit offer; the public destination remains the free Truth Oracle.'
     ]
   }
 };
