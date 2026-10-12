@@ -100,13 +100,13 @@ try {
         $productFeedPath = Join-Path $RepoRoot 'public/agent-products.json'
         if (Test-Path -LiteralPath $productFeedPath) {
             $productFeed = Get-Content -LiteralPath $productFeedPath -Raw | ConvertFrom-Json
-            $offer = @($productFeed | Where-Object { $_.item_id -eq 'TRUTH-ORACLE-ACCESS-001' })
+            $offer = @($productFeed | Where-Object { $_.item_id -eq 'DREAMLEDGER-BILLBOARD-FOUNDING-001' })
             $retiredOffer = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
-            if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '9 NZD' -and [string]$offer[0].url -eq 'https://dreamledger.org/truth-oracle.html' -and $offer[0].enable_checkout -eq $false -and $offer[0].availability -eq 'review_required' -and $retiredOffer.Count -eq 0) {
-                Add-Check 'offer.canonical_catalog' 'PASS' 'Truth Oracle Access is the sole evidence-review product entry; checkout remains held and the retired standalone SKU is absent. This is repository evidence, not proof of fulfillment.'
+            if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '50 NZD' -and [string]$offer[0].url -eq 'https://dreamledger.org/billboard.html' -and $offer[0].enable_checkout -eq $false -and $offer[0].availability -eq 'review_required' -and $retiredOffer.Count -eq 0) {
+                Add-Check 'offer.canonical_catalog' 'PASS' 'Founding Billboard is the selected NZ$50 offer; public checkout remains held and the retired standalone audit SKU is absent. This is catalog evidence, not proof of fulfillment.'
                 $offerUrl = ''
             } else {
-                Add-Check 'offer.canonical_catalog' 'FAIL' 'Expected one TRUTH-ORACLE-ACCESS-001 at NZ$9 under Truth Oracle, checkout held, and zero retired standalone listings.'
+                Add-Check 'offer.canonical_catalog' 'FAIL' 'Expected one DREAMLEDGER-BILLBOARD-FOUNDING-001 at NZ$50 on Billboard, checkout held, and zero retired standalone audit listings.'
                 $offerUrl = ''
             }
         } else {
@@ -165,7 +165,7 @@ try {
             $legacyRedirected = ([string]$legacyPage.final_url -match '/truth-oracle\.html/?$') -or ($legacyPage.truth_oracle_redirect -eq $true)
             $held = $billboardProduct.Count -eq 1 -and [string]$billboardProduct[0].price -eq '50 NZD' -and $billboardProduct[0].url -eq 'https://dreamledger.org/billboard.html' -and $billboardProduct[0].enable_checkout -eq $false -and $billboardProduct[0].availability -eq 'review_required'
             $ok = $billboardProduct.Count -eq 1 -and $retiredProduct.Count -eq 0 -and $held -and $billboardPage.status -ge 200 -and $billboardPage.status -lt 400 -and @($billboardPage.stripe_links).Count -eq 0 -and $truthPage.status -ge 200 -and $truthPage.status -lt 400 -and @($truthPage.stripe_links).Count -eq 0 -and $legacyPage.status -ge 200 -and $legacyPage.status -lt 400 -and $legacyRedirected -and @($legacyPage.stripe_links).Count -eq 0 -and -not $legacyPage.retired_offer_copy
-            Add-Check 'commercial.billboard_offer_parity' $(if ($ok) {'PASS'} else {'FAIL'}) ('Billboard held=' + $held + '; retired catalog entries=' + $retiredProduct.Count + '; Truth Oracle legacy route redirected=' + $legacyRedirected + '; public checkout remains held until allocation and delivery proof.')
+            Add-Check 'commercial.billboard_offer_parity' $(if ($ok) {'PASS'} else {'BLOCKED'}) ('Billboard held=' + $held + '; retired catalog entries=' + $retiredProduct.Count + '; Truth Oracle legacy route redirected=' + $legacyRedirected + '; public checkout remains held until allocation and delivery proof.')
         }
         if ($offerUrl) {
             $r = Get-HttpResult $offerUrl
