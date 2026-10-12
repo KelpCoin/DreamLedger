@@ -1,0 +1,33 @@
+name: BECK safety contract
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/autonomy/**'
+      - 'BEC-PRIME/scripts/**'
+      - 'scripts/beck-daily-*'
+      - 'scripts/verify-beck-safety-contract.js'
+      - '.github/workflows/beck-safety-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/autonomy/**'
+      - 'BEC-PRIME/scripts/**'
+      - 'scripts/beck-daily-*'
+      - 'scripts/verify-beck-safety-contract.js'
+      - '.github/workflows/beck-safety-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify BECK safety invariants
+        run: node scripts/verify-beck-safety-contract.js

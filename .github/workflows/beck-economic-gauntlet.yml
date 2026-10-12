@@ -1,0 +1,148 @@
+name: BECK Economic Gauntlet
+
+on:
+  push:
+    branches: [main, fix/beck-canonical-offer-and-supabase-failure]
+    paths:
+      - 'scripts/beck-economic-bootstrap.ps1'
+      - 'scripts/beck-startup.ps1'
+      - 'scripts/beck-daily-bootstrap.ps1'
+      - 'scripts/beck-heartbeat.ps1'
+      - 'scripts/install-beck-heartbeat.ps1'
+      - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'ops/commerce/**'
+      - 'ops/cockpit/**'
+      - 'ops/decision/**'
+      - 'BEC-PRIME/server.js'
+      - 'BEC-PRIME/start.js'
+      - 'BEC-PRIME/scripts/verify-render-stripe-webhook-route.js'
+      - 'package.json'
+      - '.github/workflows/beck-economic-gauntlet.yml'
+      - '.github/workflows/beck-cloud-liveness.yml'
+      - '.github/workflows/bootstrap-gauntlet.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/beck-economic-bootstrap.ps1'
+      - 'scripts/beck-startup.ps1'
+      - 'scripts/beck-daily-bootstrap.ps1'
+      - 'scripts/beck-heartbeat.ps1'
+      - 'scripts/install-beck-heartbeat.ps1'
+      - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'scripts/beck-cockpit-bootstrap.ps1'
+      - 'ops/commerce/**'
+      - 'ops/cockpit/**'
+      - 'BEC-PRIME/server.js'
+      - 'BEC-PRIME/scripts/verify-render-stripe-webhook-route.js'
+      - '.github/workflows/figure-eight-cockpit.yml'
+      - 'package.json'
+      - '.github/workflows/beck-economic-gauntlet.yml'
+      - '.github/workflows/beck-cloud-liveness.yml'
+      - '.github/workflows/bootstrap-gauntlet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  economic-gauntlet:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies without assuming a committed lockfile
+        run: npm install --no-package-lock --no-audit --no-fund
+
+      - name: Validate package JSON and JavaScript syntax
+        shell: pwsh
+        run: |
+          Get-Content package.json -Raw | ConvertFrom-Json | Out-Null
+          node --check ops/decision/validate-decision-prompt-registry.mjs
+          node --check ops/decision/run-cloud-decision.mjs
+          node ops/decision/validate-decision-prompt-registry.mjs
+          node --check ops/commerce/beck-monetization-scout.mjs
+          node --check ops/commerce/reconcile-truth-oracle-access.mjs
+          node --check ops/commerce/gauntlet-economic-verdict.mjs
+          node --check ops/commerce/reconcile-stripe-webhook-routing.mjs
+          node --check ops/cockpit/figure-eight-cockpit.mjs
+          node --check ops/cockpit/discord-cockpit-notify.mjs
+          node --check ops/cockpit/render-cockpit-html.mjs
+          node --check BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
+          node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
+
+      - name: Parse PowerShell bootstrap without executing it
+        shell: powershell
+        run: |
+          $tokens = $null
+          $errors = $null
+          foreach ($path in @('scripts/beck-economic-bootstrap.ps1','scripts/beck-startup.ps1','scripts/beck-daily-bootstrap.ps1','scripts/beck-cockpit-bootstrap.ps1','scripts/beck-heartbeat.ps1','scripts/install-beck-heartbeat.ps1','scripts/beck-one-shot-bootstrap.ps1')) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Join-Path $PWD $path),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$path : $($_.Message)" }
+              exit 1
+            }
+          }
+
+      - name: Validate one-shot bootstrap and cloud heartbeat contract
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bootstrap = Get-Content -LiteralPath 'scripts/beck-one-shot-bootstrap.ps1' -Raw
+          $cloud = Get-Content -LiteralPath '.github/workflows/beck-cloud-liveness.yml' -Raw
+          $localInstaller = Get-Content -LiteralPath 'scripts/install-beck-heartbeat.ps1' -Raw
+          if (-not $bootstrap.Contains('LOCAL_HEARTBEAT_TASK=REGISTERED')) { throw 'Bootstrap lacks explicit local task registration proof.' }
+          if (-not $bootstrap.Contains('beck-cloud-liveness.yml')) { throw 'Bootstrap does not use the independent cloud liveness workflow.' }
+          if ($bootstrap.Contains('actions/workflows/beck-production-heartbeat.yml/runs')) { throw 'Bootstrap is still coupled to the production workflow that can self-heal deployments.' }
+          if (-not $localInstaller.Contains('DreamLedger-Local-Heartbeat')) { throw 'Local heartbeat scheduled task is not installed.' }
+          if (-not $cloud.Contains('contents: read')) { throw 'Cloud heartbeat must be read-only.' }
+          foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','secrets.')) {
+            if ($cloud.Contains($forbidden)) { throw "Cloud liveness contains forbidden mutation capability: $forbidden" }
+          }
+          foreach ($endpoint in @('/healthz','/version','/truth-oracle.html')) {
+            if (-not $cloud.Contains($endpoint)) { throw "Cloud liveness is missing endpoint probe $endpoint" }
+          }
+          Write-Host 'BOOTSTRAP_CLOUD_LIVENESS_CONTRACT=PASS'
+
+      - name: Run read-only economic bootstrap and inspect fail-closed evidence
+        shell: powershell
+        env:
+          STRIPE_LIVE_ENABLED: 'false'
+        run: |
+          npm run validate:economics
+          $validationExit = $LASTEXITCODE
+          $gauntletPath = Join-Path $PWD 'proof/commerce/latest-gauntlet-economic-verdict.json'
+          if (-not (Test-Path -LiteralPath $gauntletPath)) {
+            throw "Bootstrap exited $validationExit without producing a Gauntlet verdict."
+          }
+          $verdict = Get-Content -LiteralPath $gauntletPath -Raw | ConvertFrom-Json
+          if ($verdict.economic_baseline.verified_business_revenue_nzd -ne 0) {
+            throw 'Fail-closed rule violated: test run must not invent verified revenue.'
+          }
+          if ($verdict.economic_baseline.bank_payout_or_net_profit_verified -ne $false) {
+            throw 'Fail-closed rule violated: bank payout/net profit must remain unverified.'
+          }
+          if ($verdict.verdict -like 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE*' -and $verdict.score_out_of_100 -lt 80) {
+            throw 'Gauntlet verdict cannot be eligible below the 80/100 threshold.'
+          }
+          if ($verdict.verdict -like 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE*' -and @($verdict.hard_laws | Where-Object { $_.verdict -ne 'PASS' }).Count -gt 0) {
+            throw 'Gauntlet verdict cannot be eligible while any commercial law is unproven.'
+          }
+          Write-Host "GAUNTLET_VERDICT=$($verdict.verdict)"
+          Write-Host "GAUNTLET_SCORE=$($verdict.score_out_of_100)/100"
+          Write-Host "BOOTSTRAP_EXIT=$validationExit (nonzero is expected while live payment/fulfillment evidence is absent)"
+          if ($validationExit -notin @(0,1,2)) {
+            throw "Unexpected bootstrap process exit code: $validationExit"
+          }

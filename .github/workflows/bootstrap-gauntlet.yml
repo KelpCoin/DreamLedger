@@ -1,0 +1,81 @@
+name: Bootstrap Gauntlet
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/**/*.ps1'
+      - '.github/workflows/bootstrap-gauntlet.yml'
+      - '.github/workflows/beck-cloud-liveness.yml'
+      - 'ops/cockpit/**'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**/*.ps1'
+      - '.github/workflows/bootstrap-gauntlet.yml'
+      - 'ops/cockpit/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bootstrap-gauntlet-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  powershell-parse:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse every PowerShell script without executing it
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(Get-ChildItem -Path scripts -Filter '*.ps1' -File -Recurse)
+          if ($files.Count -eq 0) { throw 'No PowerShell scripts found.' }
+          $errors = [System.Collections.Generic.List[string]]::new()
+          foreach ($file in $files) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            foreach ($parseError in $parseErrors) {
+              $errors.Add("$($file.FullName):$($parseError.Extent.StartLineNumber): $($parseError.Message)")
+            }
+          }
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }
+          Write-Output "POWERSHELL_PARSE_PASS=$($files.Count)"
+      - name: Enforce retired audit exclusion
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $path = 'scripts/beck-daily-bootstrap.ps1'
+          $content = Get-Content -LiteralPath $path -Raw
+          if ($content.Contains('https://dreamledger.org/agent-delivery-proof-audit.html')) {
+            throw 'Retired standalone audit URL is still present in operational bootstrap probes.'
+          }
+          if (-not $content.Contains('https://dreamledger.org/truth-oracle.html')) {
+            throw 'Canonical Truth Oracle page probe is missing.'
+          }
+          Write-Output 'RETIRED_AUDIT_EXCLUSION_PASS'
+      - name: Verify bootstrap and independent cloud-heartbeat contract
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bootstrap = Get-Content -LiteralPath 'scripts/beck-one-shot-bootstrap.ps1' -Raw
+          $cloud = Get-Content -LiteralPath '.github/workflows/beck-cloud-liveness.yml' -Raw
+          if (-not $bootstrap.Contains('beck-cloud-liveness.yml')) { throw 'Bootstrap does not corroborate against the independent cloud liveness workflow.' }
+          if ($bootstrap.Contains("actions/workflows/beck-production-heartbeat.yml/runs")) { throw 'Bootstrap still couples dual heartbeat to the production workflow with self-heal side effects.' }
+          if (-not $cloud.Contains('contents: read')) { throw 'Cloud liveness must use read-only repository permissions.' }
+          foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','secrets.')) {
+            if ($cloud.Contains($forbidden)) { throw "Cloud liveness contains forbidden side-effect capability: $forbidden" }
+          }
+          foreach ($endpoint in @('/healthz','/version','/truth-oracle.html')) {
+            if (-not $cloud.Contains($endpoint)) { throw "Cloud liveness is missing endpoint probe $endpoint" }
+          }
+          Write-Output 'BOOTSTRAP_CLOUD_LIVENESS_CONTRACT_PASS'
+  workflow-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: reviewdog/action-actionlint@v1
+        with:
+          fail_on_error: true
