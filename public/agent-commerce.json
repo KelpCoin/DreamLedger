@@ -152,10 +152,11 @@
     {
       "product_id": "EDH_0001",
       "name": "EDH_0001 Commander Deck",
-      "price_nzd": 400,
-      "buy_router": "https://dreamledger.org/buy/EDH_0001",
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-      "status": "LISTED"
+      "price_nzd": 230,
+      "buy_router": "https://dreamledger.org/buy/edh-0001/",
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "note": "Checkout is held because the public listing says NZ$230 while the linked live Stripe Payment Link charges NZ$400. Do not purchase until the price and checkout are reconciled."
     }
   ],
   "catalog_note": "Prices, checkout links, and availability can change. Confirm current terms on the product page before purchase.",

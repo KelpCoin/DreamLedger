@@ -68,9 +68,12 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           res.setHeader('Cache-Control', 'no-store');
           res.end(JSON.stringify(result));
         } catch (err) {
-          res.statusCode = 400;
+          const message = err && err.message ? err.message : 'Diagnostic intake failed';
+          const unavailable = /Economic ledger unavailable|checkout held|STRIPE_SECRET_KEY|Stripe/i.test(message);
+          res.statusCode = unavailable ? 503 : 400;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(JSON.stringify({ error: err && err.message ? err.message : 'Diagnostic intake failed' }));
+          res.setHeader('Cache-Control', 'no-store');
+          res.end(JSON.stringify({ error: message, code: unavailable ? 'CHECKOUT_TEMPORARILY_UNAVAILABLE' : 'INVALID_DIAGNOSTIC_INPUT' }));
         }
         return;
       }
@@ -119,11 +122,20 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             if (body.length > 100000) throw new Error('Request too large');
           }
           const payload = JSON.parse(body.toString('utf8'));
-          if (payload && payload.offer_id === 'OFFER-CMD-DIAG-29-NZD') {
-            res.statusCode = 200;
+          const offerId = String(payload && payload.offer_id || '');
+          const productId = String(payload && (payload.product_id || payload.sku_id) || '');
+          if (['OFFER-CMD-DIAG-29-NZD', 'OFFER-COMMANDER-DECK-DIAGNOSTIC-001'].includes(offerId) || productId === 'COMMANDER-DECK-DIAGNOSTIC-001') {
+            res.statusCode = 409;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             res.setHeader('Cache-Control', 'no-store');
-            res.end(JSON.stringify({ok:true,offer_id:'OFFER-CMD-DIAG-29-NZD',product_id:'COMMANDER-DECK-DIAGNOSTIC-001',amount_nzd:29,currency:'NZD',checkout_url:'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l'}));
+            res.end(JSON.stringify({ok:false,code:'FIRST_PARTY_INTAKE_REQUIRED',error:'Commander Diagnostic must use the first-party intake so decklist, intake ID, payment, and fulfillment evidence stay linked.',intake_url:'https://dreamledger.org/mtg/diagnostic.html'}));
+            return;
+          }
+          if (['OFFER-QUOTE-COMPARE-49-NZD'].includes(offerId) || productId === 'QUOTE-COMPARE-49') {
+            res.statusCode = 409;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({ok:false,code:'PAID_OFFER_HELD',error:'Paid Supplier Quote Comparison is held; use the free worksheet inside Truth Oracle.',free_entry_url:'https://dreamledger.org/quote-comparison/'}));
             return;
           }
           return handler(replayRequest(req, body), res);

@@ -136,11 +136,11 @@
       "pricing_strategy": "fixed",
       "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
       "payment_adapter": "stripe",
-      "payment_link_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32",
-      "payment_link_status": "ACTIVE_LIVEMODE",
-      "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
-      "checkout_route": "stripe_payment_link",
-      "fulfillment_route": "quote-intake -> quote-fulfillment -> marketplace-fulfillment",
+      "payment_link_url": null,
+      "payment_link_status": "INACTIVE_LIVEMODE",
+      "payment_link_id": null,
+      "checkout_route": "free_worksheet_only",
+      "fulfillment_route": "Truth Oracle free evidence review",
       "proof_of_delivery": "fulfilled quote comparison artifact + Stripe live payment evidence + fulfillment evidence",
       "verification_rules": [
         "canonical_product",
@@ -159,7 +159,10 @@
       },
       "approved_by": "operator",
       "approved_at": "2026-10-05",
-      "payment_link_note": "Aligned to live QUOTE-COMPARE-49 checkout used by quote-intake."
+      "payment_link_note": "Retired as a paid checkout. The bounded comparison capability is available as a free Truth Oracle worksheet until intake, persistence, attribution, and fulfillment pass end-to-end proof.",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "HELD"
     }
   ]
 }

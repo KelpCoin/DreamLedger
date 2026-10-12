@@ -3,17 +3,17 @@
   "neutral_host": "dreamledger",
   "offers": [
     {
-      "id": "MTG-DIAGNOSTIC-NZD-25",
+      "id": "MTG-DIAGNOSTIC-NZD-29",
       "silo": "MTG",
       "name": "Commander Deck Diagnostic",
-      "price_nzd": 25,
-      "status": "VERIFIED_AVAILABLE",
-      "checkout_available": true,
+      "price_nzd": 29,
+      "status": "LEDGER_GATED",
+      "checkout_available": false,
       "public_action_requires_approval": false,
       "approval_required": false,
-      "checkout_route": "/api/checkout/create",
+      "checkout_route": "/api/mtg/diagnostic/intake",
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "fossil_path": "D:\\BrownEyeCortex\\BEC-PRIME\\Proof\\Fossils\\FIRST_PAYMENT_PROOF.json"
+      "fossil_path": "D:\\\\BrownEyeCortex\\\\BEC-PRIME\\\\Proof\\\\Fossils\\\\FIRST_PAYMENT_PROOF.json"
     }
   ],
   "rules": {
