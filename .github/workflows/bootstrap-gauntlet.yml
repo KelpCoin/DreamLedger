@@ -65,6 +65,7 @@ jobs:
           if (-not $bootstrap.Contains('beck-cloud-liveness.yml')) { throw 'Bootstrap does not corroborate against the independent cloud liveness workflow.' }
           if ($bootstrap.Contains("actions/workflows/beck-production-heartbeat.yml/runs")) { throw 'Bootstrap still couples dual heartbeat to the production workflow with self-heal side effects.' }
           if (-not $cloud.Contains('contents: read')) { throw 'Cloud liveness must use read-only repository permissions.' }
+          if (-not $cloud.Contains('dreamledger-silo-gateway.onrender.com')) { throw 'Cloud liveness must probe the actual Render gateway, not the static public domain.' }
           foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','secrets.')) {
             if ($cloud.Contains($forbidden)) { throw "Cloud liveness contains forbidden side-effect capability: $forbidden" }
           }

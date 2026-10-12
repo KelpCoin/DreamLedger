@@ -109,6 +109,7 @@ jobs:
           if ($bootstrap.Contains('actions/workflows/beck-production-heartbeat.yml/runs')) { throw 'Bootstrap is still coupled to the production workflow that can self-heal deployments.' }
           if (-not $localInstaller.Contains('DreamLedger-Local-Heartbeat')) { throw 'Local heartbeat scheduled task is not installed.' }
           if (-not $cloud.Contains('contents: read')) { throw 'Cloud heartbeat must be read-only.' }
+          if (-not $cloud.Contains('dreamledger-silo-gateway.onrender.com')) { throw 'Cloud heartbeat must probe the actual Render gateway, not the static public domain.' }
           foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','secrets.')) {
             if ($cloud.Contains($forbidden)) { throw "Cloud liveness contains forbidden mutation capability: $forbidden" }
           }

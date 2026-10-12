@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --output /tmp/health.txt --write-out '%{http_code}' --max-time 20 https://dreamledger.org/healthz)"
+          code="$(curl --silent --show-error --output /tmp/health.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/healthz)"
           test "$code" = "200"
           echo "health_http=$code" >> "$GITHUB_OUTPUT"
           cat /tmp/health.txt || true
@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 20 https://dreamledger.org/version)"
+          code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/version)"
           test "$code" = "200"
           node -e 'const x=require("/tmp/version.json"); if (!x || typeof x !== "object") process.exit(1); console.log(JSON.stringify({status:"PASS",commit:x.commit||x.sha||x.version_sha||x.git_sha||null}))'
           echo "version_http=$code" >> "$GITHUB_OUTPUT"
