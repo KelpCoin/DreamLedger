@@ -103,6 +103,7 @@ if ($gh) {
   }
   & gh.exe auth status 2>&1 | Out-Null
   if ($LASTEXITCODE -eq 0) {
+    $dispatchStarted = (Get-Date).ToUniversalTime()
     & gh.exe workflow run $Workflow --repo KelpCoin/DreamLedger --ref $Branch
     if ($LASTEXITCODE -eq 0) {
       $cloudDispatchStatus = 'DISPATCHED_WAITING_FOR_CLOUD_RUN'
@@ -114,7 +115,7 @@ if ($gh) {
         if ($LASTEXITCODE -eq 0) {
           try {
             $runs = @($runsJson | ConvertFrom-Json)
-            $run = $runs | Where-Object { $_.event -eq 'workflow_dispatch' } | Sort-Object createdAt -Descending | Select-Object -First 1
+            $run = $runs | Where-Object { $_.event -eq 'workflow_dispatch' -and ([DateTime]::Parse($_.createdAt).ToUniversalTime() -ge $dispatchStarted.AddSeconds(-5)) } | Sort-Object createdAt -Descending | Select-Object -First 1
             if ($run) {
               $runId = [string]$run.databaseId
               if ($run.status -eq 'completed') {
