@@ -35,7 +35,7 @@ trap {
   }
 }
 $Workflow = 'figure-eight-cockpit.yml'
-$BootstrapSourceBranch = 'feat/beck-commercial-gauntlet-bootstrap-clean'
+$BootstrapSourceBranch = 'feat/beck-commercial-gauntlet-stable'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   $base = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime' } else { Join-Path $HOME 'BrownEyeCortex\Runtime' }
@@ -85,7 +85,7 @@ $missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not
 $installedBootstrapPath = Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1'
 $installedBootstrapMatchesSource = $false
 if (Test-Path -LiteralPath $installedBootstrapPath) {
-  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/beck-commercial-gauntlet-bootstrap-clean''')
+  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/beck-commercial-gauntlet-stable''')
 }
 if ($Branch -eq 'main' -and ($missingCommissioningFiles.Count -gt 0 -or -not $installedBootstrapMatchesSource)) {
   $bootstrapFallbackBranch = $BootstrapSourceBranch
