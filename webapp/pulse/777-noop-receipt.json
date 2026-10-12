@@ -1,8 +1,8 @@
 {
-  "observed_at": "2026-10-12T12:33:41.719607+00:00",
+  "observed_at": "2026-10-12T12:34:14.240285+00:00",
   "outcome": "NO_NEW_SIGNAL_NO_NEW_COMPONENT",
   "reason": "No admissible new source signal and all bounded fallback components already exist; no duplicate public page emitted.",
-  "run_id": "38249406640",
+  "run_id": "38249419309",
   "schema": "dreamledger.777.noop-receipt.v1",
   "truth_status": "UNVERIFIED",
   "verified_revenue_nzd": 0

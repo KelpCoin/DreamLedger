@@ -1,0 +1,24 @@
+{
+  "artifact_count": 13,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "pulse/777-component-02-b2b-capability-schema.html",
+    "pulse/777-component-03-a2a-metering-contract.html",
+    "pulse/777-component-04-reusable-stencil-kit.html",
+    "pulse/777-component-05-dooh-inventory-contract.html",
+    "pulse/777-component-06-opt-in-gpu-job-contract.html",
+    "pulse/777-component-07-marketplace-interoperability.html",
+    "pulse/777-component-08-marketplace-listing-schema-validation.html",
+    "pulse/777-component-expedition-301-400-2026-10-10.html",
+    "pulse/agent-bridge-capability-map-fc06a6edffc2.html",
+    "pulse/agent-bridge-capability-map-fea2153f74a7.html",
+    "pulse/agent-bridge-open-capability-exchange-2026-10-10.html",
+    "pulse/index.html",
+    "pulse/truth-oracle-economic-wikipedia-2026-10-10.html"
+  ],
+  "observed_at": "2026-10-12T12:34:14.718002+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
