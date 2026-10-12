@@ -137,7 +137,8 @@ Add-Check 'fulfillment.end_to_end' 'UNVERIFIED' 'No safe synthetic paid-order-to
 $hardFails = @($checks | Where-Object { $_.status -eq 'FAIL' }).Count
 $blocked = @($checks | Where-Object { $_.status -eq 'BLOCKED' }).Count
 $settledEvidence = @($checks | Where-Object { $_.name -eq 'stripe.settled_payment_evidence' -and $_.status -eq 'OBSERVED_PENDING_FULFILLMENT' }).Count -gt 0
-$status = if ($hardFails -gt 0) {'FAIL'} elseif ($blocked -gt 0) {'BLOCKED'} else {'STATIC_AND_PUBLIC_CHECKS_PASS_NOT_REVENUE'}
+$fulfillmentUnverified = @($checks | Where-Object { $_.name -eq 'fulfillment.end_to_end' -and $_.status -ne 'PASS' }).Count -gt 0
+$status = if ($hardFails -gt 0) {'FAIL'} elseif ($blocked -gt 0 -or $fulfillmentUnverified) {'BLOCKED_ECONOMIC_PATH_NOT_PROVEN'} else {'STATIC_AND_PUBLIC_CHECKS_PASS_NOT_REVENUE'}
 $proof = [ordered]@{
     schema = 'BECK-ECONOMIC-VALIDATION/v1'
     status = $status
