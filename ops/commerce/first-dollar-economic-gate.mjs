@@ -14,14 +14,16 @@ const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 const EVIDENCE_URL = process.env.SUPABASE_ECONOMIC_EVIDENCE_URL;
-const CLIENT_REFERENCE_ID = process.env.DL_CLIENT_REFERENCE_ID || ('dl-first-dollar-' + (process.env.GITHUB_RUN_ID || 'local') + '-' + (process.env.GITHUB_RUN_ATTEMPT || '1') + '-' + crypto.randomUUID());
+// This gate does not create or pay for a checkout. The reference must identify an
+// already executed, explicitly authorized test transaction whose evidence is queried.
+const CLIENT_REFERENCE_ID = process.env.DL_CLIENT_REFERENCE_ID || '';
 const report = {
   schema: 'DREAMLEDGER-FIRST-DOLLAR-GATE/v1',
   generated_at_utc: new Date().toISOString(),
   commit: process.env.GITHUB_SHA || null,
   workflow_run: process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
     ? process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID : null,
-  test_transaction: { client_reference_id: CLIENT_REFERENCE_ID, checkout_session: 'NOT_YET_VERIFIED' },
+  test_transaction: { client_reference_id: CLIENT_REFERENCE_ID || null, checkout_session: 'NOT_CREATED_BY_GATE' },
   gates: {},
   commercial: { state: 'UNVERIFIED', verified_revenue_nzd: 0, independent_buyers: 0, paid_fulfilled_orders: 0 },
   blockers: []
@@ -42,9 +44,13 @@ const jsonFetch = async (url, options = {}) => {
 };
 
 try {
-  if (!STRIPE_KEY || !OFFER_ID) {
-    report.gates.offer_integrity = { state: 'UNKNOWN', reason: !STRIPE_KEY ? 'STRIPE_SECRET_KEY is not configured.' : 'ACNC_OFFER_ID repository variable is not configured.' };
-    report.blockers.push('Configure required GitHub Actions secret/variable; never put secrets in repository files.');
+  if (!STRIPE_KEY || !OFFER_ID || !CLIENT_REFERENCE_ID) {
+    const missing = [];
+    if (!STRIPE_KEY) missing.push('STRIPE_SECRET_KEY is not configured');
+    if (!OFFER_ID) missing.push('ACNC_OFFER_ID repository variable is not configured');
+    if (!CLIENT_REFERENCE_ID) missing.push('DL_CLIENT_REFERENCE_ID must identify an already executed test transaction; this gate will not invent one');
+    report.gates.offer_integrity = { state: 'UNKNOWN', reason: missing.join('; ') };
+    report.blockers.push('Configure required GitHub Actions secret/variables and provide an existing, explicitly authorized test transaction reference; never put secrets in repository files.');
     await finish(7, 'UNKNOWN: required Stripe credentials or canonical offer identity unavailable.');
   } else {
     const stripeHeaders = { Authorization: 'Bearer ' + STRIPE_KEY };
