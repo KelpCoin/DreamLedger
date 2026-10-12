@@ -157,12 +157,14 @@ try {
         $proofFeedPath = Join-Path $RepoRoot 'public/agent-products.json'
         if (Test-Path -LiteralPath $proofFeedPath) {
             $productFeed = Get-Content -LiteralPath $proofFeedPath -Raw | ConvertFrom-Json
-            $billboardProduct = @($productFeed | Where-Object { $_.item_id -eq 'DREAMLEDGER-BILLBOARD-FOUNDING-001' })
+            $truthProduct = @($productFeed | Where-Object { $_.item_id -eq 'TRUTH-ORACLE-ACCESS-001' })
             $retiredProduct = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
-            $billboardPage = $livePages['https://dreamledger.org/billboard.html']
             $truthPage = $livePages['https://dreamledger.org/truth-oracle.html']
             $legacyPage = $livePages['https://dreamledger.org/agent-delivery-proof-audit.html']
-            $legacyRedirected = ([string]$legacyPage.final_url -match '/truth-oracle\.html/?
+            $legacyRedirected = ([string]$legacyPage.final_url -match '/truth-oracle\.html/?$') -or ($legacyPage.truth_oracle_redirect -eq $true)
+            $held = $truthProduct.Count -eq 1 -and $truthProduct[0].enable_checkout -eq $false -and $truthProduct[0].availability -eq 'review_required'
+            $ok = $truthProduct.Count -eq 1 -and $retiredProduct.Count -eq 0 -and $held -and $truthPage.status -ge 200 -and $truthPage.status -lt 400 -and @($truthPage.stripe_links).Count -eq 0 -and $legacyPage.status -ge 200 -and $legacyPage.status -lt 400 -and $legacyRedirected -and @($legacyPage.stripe_links).Count -eq 0 -and -not $legacyPage.retired_offer_copy
+            Add-Check 'commercial.truth_oracle_offer_parity' $(if ($ok) {'PASS'} else {'FAIL'}) ('Truth Oracle held=' + $held + '; retired catalog entries=' + $retiredProduct.Count + '; legacy route redirected=' + $legacyRedirected + '; checkout remains held until paid fulfillment proof.')
         }
         if ($offerUrl) {
             $r = Get-HttpResult $offerUrl
