@@ -14,12 +14,14 @@ const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 const EVIDENCE_URL = process.env.SUPABASE_ECONOMIC_EVIDENCE_URL;
+const CLIENT_REFERENCE_ID = process.env.DL_CLIENT_REFERENCE_ID || ('dl-first-dollar-' + (process.env.GITHUB_RUN_ID || 'local') + '-' + (process.env.GITHUB_RUN_ATTEMPT || '1') + '-' + crypto.randomUUID());
 const report = {
   schema: 'DREAMLEDGER-FIRST-DOLLAR-GATE/v1',
   generated_at_utc: new Date().toISOString(),
   commit: process.env.GITHUB_SHA || null,
   workflow_run: process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
     ? process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID : null,
+  test_transaction: { client_reference_id: CLIENT_REFERENCE_ID, checkout_session: 'NOT_YET_VERIFIED' },
   gates: {},
   commercial: { state: 'UNVERIFIED', verified_revenue_nzd: 0, independent_buyers: 0, paid_fulfilled_orders: 0 },
   blockers: []
@@ -72,17 +74,26 @@ try {
       } else {
         try {
           await jsonFetch(SUPABASE_URL + '/auth/v1/health', { headers: { apikey: SUPABASE_ANON_KEY } });
-          const evidence = await jsonFetch(EVIDENCE_URL, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY } });
+          const evidenceUrl = new URL(EVIDENCE_URL);
+          evidenceUrl.searchParams.set('client_reference_id', CLIENT_REFERENCE_ID);
+          const evidence = await jsonFetch(evidenceUrl.toString(), { headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY } });
           report.gates.supabase_availability = { state: 'PASS', status_indicator: indicator, direct_health: 'PASS', evidence_probe: 'REACHABLE' };
           const paymentOk = evidence?.schema === 'DREAMLEDGER-ECONOMIC-EVIDENCE/v1'
+            && evidence?.client_reference_id === CLIENT_REFERENCE_ID
+            && evidence?.checkout_session?.client_reference_id === CLIENT_REFERENCE_ID
+            && evidence?.checkout_session?.payment_status === 'paid'
+            && evidence?.checkout_session?.mode === 'payment'
             && evidence?.webhook_event_id_unique_constraint === true
             && evidence?.webhook_event?.event_id
-            && evidence?.webhook_event?.client_reference_id === evidence?.client_reference_id
-            && evidence?.revenue_order?.client_reference_id === evidence?.client_reference_id
-            && evidence?.fulfillment_request?.client_reference_id === evidence?.client_reference_id;
+            && evidence?.webhook_event?.event_type === 'checkout.session.completed'
+            && evidence?.webhook_event?.client_reference_id === CLIENT_REFERENCE_ID
+            && evidence?.revenue_order?.client_reference_id === CLIENT_REFERENCE_ID
+            && evidence?.revenue_order?.status === 'paid'
+            && evidence?.fulfillment_request?.client_reference_id === CLIENT_REFERENCE_ID;
           report.gates.payment_integrity = {
             state: paymentOk ? 'PASS' : 'FAIL',
             client_reference_id: evidence?.client_reference_id || null,
+            checkout_session_correlated: evidence?.checkout_session?.client_reference_id === CLIENT_REFERENCE_ID && evidence?.checkout_session?.payment_status === 'paid',
             event_id_unique_constraint: evidence?.webhook_event_id_unique_constraint === true,
             webhook_correlated: Boolean(evidence?.webhook_event?.event_id && evidence?.webhook_event?.client_reference_id === evidence?.client_reference_id),
             revenue_order_correlated: Boolean(evidence?.revenue_order?.client_reference_id === evidence?.client_reference_id),
@@ -96,7 +107,8 @@ try {
             const delivery = evidence?.delivery_receipt;
             const shaOk = typeof reportArtifact?.sha256 === 'string' && /^[a-f0-9]{64}$/i.test(reportArtifact.sha256);
             const timestampOk = Number.isFinite(Date.parse(reportArtifact?.generated_at_utc || ''));
-            const deliveryOk = delivery?.client_reference_id === evidence.client_reference_id
+            const deliveryOk = evidence?.report?.client_reference_id === CLIENT_REFERENCE_ID
+              && delivery?.client_reference_id === CLIENT_REFERENCE_ID
               && delivery?.artifact_sha256 === reportArtifact?.sha256
               && Number.isFinite(Date.parse(delivery?.accepted_at_utc || ''))
               && Number.isFinite(Date.parse(delivery?.confirmed_at_utc || ''));
