@@ -81,7 +81,7 @@ try {
   $nodeVersion = (& node.exe --version | Out-String).Trim()
   if ($nodeVersion -notmatch '^v(\d+)\.' -or [int]$Matches[1] -lt 20) { throw "Node.js 20+ required; found $nodeVersion" }
   if (-not $CycleOnly) {
-    [void](Invoke-Logged 'INSTALL_NPM_DEPENDENCIES' 'npm.cmd' @('ci','--no-audit','--no-fund'))
+    [void](Invoke-Logged 'INSTALL_NPM_DEPENDENCIES' 'npm.cmd' @('install','--no-audit','--no-fund'))
   }
 
   [void](Invoke-Logged 'COMPILE_DEDUPLICATED_CUBE_SWARM_BATCH' 'node.exe' @('ops/cube-swarm/opportunity-batch-controller.mjs','--max-candidates','100000','--out',(Join-Path $ProofRoot 'OPPORTUNITY-BATCH-LATEST.json')))
