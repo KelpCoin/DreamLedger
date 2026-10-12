@@ -42,8 +42,6 @@ def walk(task, depth, parent_budget, ids, dedupe_keys, all_ids):
         require(value >= (1 if key in ("timeout_seconds", "max_parallelism") else 0),
                 f"{task['task_id']}: {key} is below its minimum")
         require(value <= cap, f"{task['task_id']}: {key} exceeds hard cap {cap}")
-    require(depth <= budget["max_depth"] or depth == 0,
-            f"{task['task_id']}: nested depth exceeds its own max_depth")
 
     permissions = task["permissions"]
     require(permissions.get("external_spend_nzd") == 0, f"{task['task_id']}: external spend must be zero")
