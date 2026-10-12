@@ -146,6 +146,54 @@ $cloudProof = [ordered]@{
 }
 $cloudProofPath = Join-Path $proofRoot 'CLOUD-COCKPIT-DISPATCH-LATEST.json'
 $cloudProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $cloudProofPath -Encoding UTF8
+if ($cloudDispatchStatus -match '^COMPLETED_success_ARTIFACT_DOWNLOADED
+Write-Output "LOCAL_HEARTBEAT_AFTER_STARTUP_EXIT=$heartbeatAfterStartupExit"
+Write-Output "ECONOMIC_STARTUP_EXIT=$startupExit"
+Write-Output "COCKPIT_EXIT=$cockpitExit"
+Write-Output "COCKPIT_HTML=$(Join-Path $proofRoot 'cockpit\index.html')"
+Write-Output "CLOUD_COCKPIT_STATUS=$cloudDispatchStatus"
+Write-Output "CLOUD_COCKPIT_PROOF=$cloudProofPath"
+Write-Output "LOCAL_HEARTBEAT_PROOF=$(Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json')"
+Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
+Write-Output 'CLOUD_HEARTBEAT=GITHUB_ACTIONS_SCHEDULED_EVERY_30_MINUTES_AFTER_WORKFLOW_IS_ON_DEFAULT_BRANCH'
+Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
+if ($startupExit -eq 1 -or $heartbeatExit -eq 1 -or $cockpitExit -eq 1) { exit 1 }
+if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0 -or $cloudDispatchStatus -notmatch '^COMPLETED_success_ARTIFACT_DOWNLOADED
+exit 0
+) { exit 2 }
+exit 0
+) {
+  $remoteReportFile = Get-ChildItem -LiteralPath (Join-Path $proofRoot 'cloud') -Filter 'figure-eight-cockpit-latest.json' -File -Recurse -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  $localHeartbeatPath = Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json'
+  $cockpitDir = Join-Path $proofRoot 'cockpit'
+  $mergedPath = Join-Path $cockpitDir 'figure-eight-cockpit-latest.json'
+  if ($remoteReportFile -and (Test-Path -LiteralPath $localHeartbeatPath)) {
+    try {
+      $remoteReport = Get-Content -LiteralPath $remoteReportFile.FullName -Raw | ConvertFrom-Json
+      $localReport = Get-Content -LiteralPath $localHeartbeatPath -Raw | ConvertFrom-Json
+      $localChecks = @($localReport.checks | Where-Object { $_.name -like 'local.*' })
+      $remoteReport.local = [ordered]@{
+        score = [int]$localReport.score_out_of_10000
+        max = 10000
+        status = [string]$localReport.local_score_status
+        detail = "Local heartbeat evidence: $(@($localChecks | Where-Object {$_.status -eq 'PASS'}).Count)/$($localChecks.Count) checks passed; proof timestamp $($localReport.generated_at_utc)"
+      }
+      if ($remoteReport.cloud) {
+        $remoteReport.cloud | Add-Member -NotePropertyName workflow_dispatch_status -NotePropertyValue $cloudDispatchStatus -Force
+      }
+      $remoteReport | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath $mergedPath -Encoding UTF8
+      $renderer = Join-Path $RepoRoot 'ops\cockpit\render-cockpit-html.mjs'
+      & node.exe $renderer $mergedPath (Join-Path $cockpitDir 'index.html')
+      if ($LASTEXITCODE -ne 0) { throw 'Could not render the merged cloud/local cockpit.' }
+      Write-Output 'UNIFIED_COCKPIT=MERGED_CLOUD_ARTIFACT_PLUS_LOCAL_HEARTBEAT'
+    } catch {
+      $cloudDispatchStatus = 'COMPLETED_BUT_COCKPIT_MERGE_FAILED'
+      Write-Output ("UNIFIED_COCKPIT_ERROR=" + $_.Exception.Message)
+    }
+  } else {
+    $cloudDispatchStatus = 'COMPLETED_BUT_REQUIRED_ARTIFACT_MISSING'
+  }
+}
 Write-Output "LOCAL_HEARTBEAT_EXIT=$heartbeatExit"
 Write-Output "LOCAL_HEARTBEAT_AFTER_STARTUP_EXIT=$heartbeatAfterStartupExit"
 Write-Output "ECONOMIC_STARTUP_EXIT=$startupExit"
