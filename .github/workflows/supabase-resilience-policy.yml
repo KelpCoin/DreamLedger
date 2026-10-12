@@ -1,0 +1,53 @@
+name: Supabase Resilience Policy
+
+on:
+  pull_request:
+    paths:
+      - 'ops/supabase-resilience-manifest.json'
+      - 'docs/SUPABASE-RESILIENCE-AND-CLONE-MIGRATION.md'
+      - '.github/workflows/supabase-resilience-policy.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ops/supabase-resilience-manifest.json'
+      - 'docs/SUPABASE-RESILIENCE-AND-CLONE-MIGRATION.md'
+      - '.github/workflows/supabase-resilience-policy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fail-closed-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate primary authority and failover gates
+        shell: python {0}
+        run: |
+          import json
+          from pathlib import Path
+
+          p = Path("ops/supabase-resilience-manifest.json")
+          m = json.loads(p.read_text(encoding="utf-8"))
+          assert m["schema_version"] == "1.0.0"
+          primary = m["write_authority"]
+          assert primary["project_ref"] == "wbwgroygjeyukkspnqiy"
+          assert primary["role"] == "PRIMARY_ONLY"
+          assert primary["failover_writes_enabled"] is False
+          assert primary["health_state"] == "UNVERIFIED_DATA_PLANE"
+
+          refs = {primary["project_ref"]}
+          for fallback in m["fallbacks"]:
+              if fallback["enabled"]:
+                  assert fallback["project_ref"], "Enabled fallback must have a verified project ref"
+                  assert fallback.get("promotion_evidence"), "Enabled fallback must cite promotion evidence"
+                  assert fallback.get("write_authority_fenced") is True, "Old writer must be fenced before promotion"
+
+          for clone in m["clone_candidates"]:
+              assert clone["production_eligible"] is False, "Unverified clone must not become production eligible"
+
+          rules = set(m["rules"])
+          assert "No automatic write failover to another project." in rules
+          assert "No active-active writers or split brain." in rules
+          print("PASS: only the declared primary may write; all unverified clones remain ineligible.")

@@ -53,10 +53,15 @@ function Assert-Silo([string]$Silo,$Registry) {
 }
 function Assert-LocalPath([string]$Silo,[string]$Path,$Worker) {
     if ([string]::IsNullOrWhiteSpace($Path)) { throw 'Path required' }
+    if ([IO.Path]::IsPathRooted($Path)) { throw 'Absolute paths are forbidden; use a repository-relative path' }
     $full = [IO.Path]::GetFullPath((Join-Path $Root $Path))
-    $allowed = @($Worker.allowed_paths | ForEach-Object { [IO.Path]::GetFullPath((Join-Path $Root $_)) })
+    $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd([IO.Path]::DirectorySeparatorChar,[IO.Path]::AltDirectorySeparatorChar)
+    if (-not ($full.Equals($rootFull,[StringComparison]::OrdinalIgnoreCase) -or $full.StartsWith($rootFull + [IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase))) { throw "Path escapes repository root: $Path" }
+    $allowed = @($Worker.allowed_paths | ForEach-Object { [IO.Path]::GetFullPath((Join-Path $Root $_)).TrimEnd([IO.Path]::DirectorySeparatorChar,[IO.Path]::AltDirectorySeparatorChar) })
     $ok = $false
-    foreach ($a in $allowed) { if ($full.StartsWith($a,[StringComparison]::OrdinalIgnoreCase)) { $ok=$true; break } }
+    foreach ($a in $allowed) {
+        if ($full.Equals($a,[StringComparison]::OrdinalIgnoreCase) -or $full.StartsWith($a + [IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { $ok=$true; break }
+    }
     if (-not $ok) { throw "Cross-silo or forbidden path: $Path" }
     return $full
 }
@@ -71,10 +76,10 @@ function Execute-SafeAction($Decision,$Worker) {
         'READ_REPO' { $p=Assert-LocalPath $Worker.silo ([string]$Decision.args.path) $Worker; return (Get-Content -Raw -LiteralPath $p) }
         'WRITE_FILE' { $p=Assert-LocalPath $Worker.silo ([string]$Decision.args.path) $Worker; Set-Content -LiteralPath $p -Value ([string]$Decision.args.content) -Encoding UTF8; return 'WRITE_OK' }
         'RUN_TEST' { $name=[string]$Decision.args.script; if ($name -notmatch '^[A-Za-z0-9_.-]+\.(ps1|js)$') { throw 'Invalid test script' }; $p=Assert-LocalPath $Worker.silo ("BEC-PRIME/autonomy/$name") $Worker; if ($p.EndsWith('.ps1')) { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $p } else { & node.exe $p }; if ($LASTEXITCODE -ne 0) { throw "Test failed: $name" }; return 'TEST_PASS' }
-        'RUN_GAUNTLET' { return 'GAUNTLET_REQUEST_REQUIRES_IMPLEMENTED_LOCAL_GATE' }
-        'CHECK_DEPLOYMENT' { return 'DEPLOYMENT_CHECK_REQUIRES_EXPLICIT_LOCAL_ADAPTER' }
-        'CHECK_PAYMENT' { return 'PAYMENT_CHECK_REQUIRES_SERVER_AUTHORITATIVE_EVIDENCE' }
-        'WRITE_PROOF' { $id="AUTONOMY-{0}.json" -f (Get-Date -Format 'yyyyMMddHHmmssfff'); $proof=[ordered]@{type='bec-autonomy-cycle';status='PASS';silo=$Worker.silo;action=$Decision.action;verified_payment=$false;revenue_nzd=0;timestamp=(Get-Date -Format o);evidence='No payment claim. Controller cycle evidence only.'}; Write-JsonFile (Join-Path $Proofs $id) $proof; return $id }
+        'RUN_GAUNTLET' { throw 'BLOCKED: Gauntlet execution is not implemented in this controller; refusing to record a successful cycle.' }
+        'CHECK_DEPLOYMENT' { throw 'BLOCKED: deployment adapter is missing; refusing to report deployment health.' }
+        'CHECK_PAYMENT' { throw 'BLOCKED: payment verification adapter is missing; only server-authoritative settled-payment evidence may pass.' }
+        'WRITE_PROOF' { $id="AUTONOMY-{0}.json" -f (Get-Date -Format 'yyyyMMddHHmmssfff'); $proof=[ordered]@{type='bec-autonomy-cycle';status='UNVERIFIED';classification='INTERNAL_CONTROLLER_TELEMETRY_ONLY';silo=$Worker.silo;action=$Decision.action;verified_payment=$false;revenue_nzd=0;timestamp=(Get-Date -Format o);evidence='Internal controller telemetry only. Not evidence of action success, external outcome, payment, fulfillment, or revenue.'}; Write-JsonFile (Join-Path $Proofs $id) $proof; return $id }
         'CREATE_WORK_ORDER' { return (New-WorkOrder $Decision $Worker) }
         default { throw "Action not executable: $($Decision.action)" }
     }
@@ -84,8 +89,13 @@ function Invoke-Cycle {
     $state=Read-JsonFile (Join-Path $Base 'STATE.json'); $registry=Read-JsonFile (Join-Path $Base 'SILO-REGISTRY.json'); $workers=Get-Workers
     $pending=@(Get-ChildItem -LiteralPath $Waiting -Filter '*.json' -ErrorAction SilentlyContinue | ForEach-Object { Read-JsonFile $_.FullName })
     $decision=Invoke-LmDecision $state $registry $workers $pending
-    $worker=@($workers | Where-Object {$_.silo -eq $decision.silo})[0]
-    if ($null -eq $worker) { throw "No worker for silo $($decision.silo)" }
+    if ($null -eq $decision -or [string]::IsNullOrWhiteSpace([string]$decision.silo) -or [string]::IsNullOrWhiteSpace([string]$decision.action)) { throw 'Malformed council decision: silo and action are required' }
+    $allowedActions = @('READ_REPO','WRITE_FILE','RUN_TEST','RUN_GAUNTLET','CREATE_WORK_ORDER','CHECK_DEPLOYMENT','CHECK_PAYMENT','WRITE_PROOF','CREATE_CHECKOUT','PUBLIC_POST','SEND_OUTREACH','CREATE_GITHUB_COMMIT','CLONE_SILO','DEPLOY')
+    if ($decision.action -notin $allowedActions) { throw "Denied unknown action: $($decision.action)" }
+    $workerMatches = @($workers | Where-Object {$_.silo -eq $decision.silo})
+    if ($workerMatches.Count -ne 1) { throw "Expected exactly one worker for silo '$($decision.silo)'; found $($workerMatches.Count)" }
+    $worker=$workerMatches[0]
+    $null = Assert-Silo $worker.silo $registry
     if ($decision.action -in @('CREATE_CHECKOUT','PUBLIC_POST','SEND_OUTREACH','CREATE_GITHUB_COMMIT','CLONE_SILO','DEPLOY')) { $result=New-WorkOrder $decision $worker } else { $result=Execute-SafeAction $decision $worker }
     $run=[ordered]@{schema_version='BEC-AUTONOMY-RUN-1.0';timestamp=(Get-Date -Format o);silo=$worker.silo;action=$decision.action;reason=$decision.reason;result=if($result -is [string]){$result}else{'WORK_ORDER_CREATED'};revenue_nzd_verified=0}
     $runPath=Join-Path $Runs ("RUN-{0}.json" -f (Get-Date -Format 'yyyyMMddHHmmssfff')); Write-JsonFile $runPath $run

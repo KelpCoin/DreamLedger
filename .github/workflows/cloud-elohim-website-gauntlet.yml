@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "index.html"
+      - "public/home.html"
       - "BEC-PRIME/**"
       - "package.json"
       - "package-lock.json"
@@ -84,12 +85,17 @@ jobs:
         working-directory: .
         run: |
           set -euo pipefail
+          # The Node server serves public/home.html at /. Root index.html is the
+          # supplier-quote landing page, not the site homepage or the MTG silo.
+          test -s public/home.html
+          grep -Eqi 'DreamLedger|Dream Ledger' public/home.html
+          grep -qi 'Evidence-first commerce' public/home.html
+          grep -qi 'not claimed without supporting evidence' public/home.html
+          grep -qi '/trust/' public/home.html
           test -s index.html
-          grep -Eqi 'DreamLedger|Dream Ledger' index.html
-          grep -qi 'Magic' index.html
-          grep -qi 'VERIFIED EXTERNAL REVENUE' index.html
-          grep -q 'NZ\$0.00' index.html
-          echo "WEBSITE_SURFACE=PASS"
+          grep -qi 'Compare Supplier Quotes' index.html
+          grep -qi 'Supplier Quote Comparison' index.html
+          echo "WEBSITE_SURFACE=PASS homepage=public/home.html quote_landing=index.html"
 
       - name: Emit candidate judgment
         working-directory: .
