@@ -195,15 +195,17 @@ try {
             checks = @($checks)
         }
         $interim | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $interimDir 'latest-economic-validation.json') -Encoding UTF8
-        $gauntletCode = Run-NodeCheck 'gauntlet.economic_verdict' @('ops/commerce/gauntlet-economic-verdict.mjs')
+        $gauntletOutput = & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1
+        $gauntletCode = $LASTEXITCODE
         $gauntletPath = Join-Path $RepoRoot 'proof/commerce/latest-gauntlet-economic-verdict.json'
         if ($gauntletCode -eq 0 -and (Test-Path -LiteralPath $gauntletPath)) {
-            Add-Check 'gauntlet.economic_verdict' 'PASS' 'Gauntlet produced a controlled-scale eligibility verdict.'
+            $g = Get-Content -LiteralPath $gauntletPath -Raw | ConvertFrom-Json
+            Add-Check 'gauntlet.economic_verdict' 'PASS' ("Gauntlet verdict=" + $g.verdict + '; score=' + $g.score_out_of_100 + '/100. See ' + $gauntletPath)
         } elseif (Test-Path -LiteralPath $gauntletPath) {
             $g = Get-Content -LiteralPath $gauntletPath -Raw | ConvertFrom-Json
             Add-Check 'gauntlet.economic_verdict' 'BLOCKED' ("Gauntlet verdict=" + $g.verdict + '; score=' + $g.score_out_of_100 + '/100. See ' + $gauntletPath)
         } else {
-            Add-Check 'gauntlet.economic_verdict' 'FAIL' 'Gauntlet did not produce its verdict artifact.'
+            Add-Check 'gauntlet.economic_verdict' 'FAIL' ("Gauntlet did not produce its verdict artifact. " + (($gauntletOutput | ForEach-Object { [string]$_ }) -join "`n"))
         }
     }
 } finally {
