@@ -93,6 +93,7 @@ try {
     @{name='COMPILE_ECONOMIC_OPPORTUNITIES';exe='npm.cmd';args=@('run','compile:opportunities')},
     @{name='RUN_FACTORY_AND_APPROVAL_PACKETS';exe='npm.cmd';args=@('run','factory:run')},
     @{name='RUN_UNIVERSAL_FACTORY';exe='npm.cmd';args=@('run','factory:universal')},
+    @{name='RUN_FACTORY_ORCHESTRATOR';exe='npm.cmd';args=@('run','factory:orchestrate')},
     @{name='VERIFY_FACTORY_ASSEMBLY';exe='npm.cmd';args=@('run','verify:factory-factory-assembly')},
     @{name='VERIFY_B2B_MARKETPLACE';exe='npm.cmd';args=@('run','verify:b2b-marketplace')},
     @{name='VERIFY_A2A_MARKETPLACE';exe='npm.cmd';args=@('run','verify:a2a-marketplace')},
