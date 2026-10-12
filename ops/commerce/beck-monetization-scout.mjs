@@ -91,6 +91,39 @@ if (aiCatalog.priority_offer?.id === 'AGENT-PROOF-AUDIT-49' && !proofAuditFeed) 
   addBlocker('AGENT-PROOF-AUDIT-49','FEED_MISMATCH','AI catalogue names Proof Audit as priority, but the product feed does not contain it.');
 }
 
+// Traverse the existing monetizable substrate without executing it.
+// This inventory is based on repository artifacts only; presence is not live readiness.
+const substrateSpecs = [
+  {id:'AGENT-PROOF-AUDIT-49',name:'Agent Delivery Proof Audit',price_nzd:49,files:['public/agent-products.json','public/agent-delivery-proof-audit.html','agent-delivery-proof-audit.html','BEC-PRIME/compiled/website/agent-delivery-proof-audit.html'],fulfillment:'manual evidence report',database_dependent:false,reason:'Small fixed-scope digital deliverable; can be fulfilled manually without Supabase if public intake and payment attribution are sound.'},
+  {id:'QUOTE-COMPARE-49',name:'Supplier Quote Comparison',price_nzd:49,files:['public/quote-intake.html','supabase/functions/quote-intake/index.ts','supabase/functions/quote-fulfillment/index.ts','BEC-PRIME/data/777/QUOTE-COMPARE-49-LIVE-FULFILLMENT-MAP.json'],fulfillment:'automated quote intake and report generation',database_dependent:true,reason:'Strong repeatable B2B problem with existing intake and fulfillment code, but paid checkout is explicitly held and depends on healthy Supabase persistence.'},
+  {id:'COMMANDER-DECK-DIAGNOSTIC-001',name:'Commander Deck Diagnostic',price_nzd:29,files:['public/diagnostic-input.html','BEC-PRIME/routes/mtgDiagnostic.js','BEC-PRIME/lib/mtgDiagnosticFulfillment.js','ops/cube-swarm/silo-definitions/mtg-commander.json'],fulfillment:'automated diagnostic report',database_dependent:true,reason:'Existing report capability and low price, but the silo definition records checkout mismatch/unverified state; do not acquire buyers until the canonical route is reconciled.'},
+  {id:'SELLER-PROFIT-AUDIT-001',name:'Seller Profit Audit',price_nzd:29,files:['public/agent-commerce.json','BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'audit/calculation service',database_dependent:null,reason:'Existing listed offer and potentially bounded fulfillment; trace its exact live intake and delivery route before ranking it above the Proof Audit.'},
+  {id:'DREAMLEDGER-BILLBOARD-FOUNDING-001',name:'Founding Billboard',price_nzd:50,files:['BEC-PRIME/lib/billboardAutoFulfillment.js','public/agent-commerce.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'paid inventory allocation and publication',database_dependent:true,reason:'Finite placement has a concrete deliverable, but current public catalog marks the offer review-required until inventory reservation and intake are verified.'},
+  {id:'AGENT-TOLL-ROAD',name:'Agent Toll Road / Toll Probe',price_nzd:0.5,files:['supabase/functions/agent-toll-road/index.ts','BEC-PRIME/runtime/TollRoad.js','BEC-PRIME/runtime/TollRoadFactory.js','public/api/agent-commerce/toll-probe.json'],fulfillment:'machine capability with attributable receipt',database_dependent:true,reason:'Useful substrate and a low-cost machine-payment experiment, but weak first-dollar yield and durable entitlement dependency make it secondary.'},
+  {id:'TRUTH-ORACLE',name:'Truth Oracle Evidence Verification',price_nzd:null,files:['public/truth-oracle.html','BEC-PRIME/routes/truthOracleCommerce.js','supabase/functions/truth-oracle-public/index.ts','supabase/functions/truth-oracle-fuel-ingest-v2/index.ts'],fulfillment:'structured evidence verification',database_dependent:true,reason:'Potential reusable B2B/agent capability, but complete paid analysis-to-delivery and current pricing are not yet proven.'},
+  {id:'BECK-WINDOWS-RECOVERY-KIT',name:'Windows Automation Recovery Kit',price_nzd:null,files:['scripts/beck-daily-bootstrap.ps1','scripts/beck-daily-bootstrap.sh','BEC-PRIME/scripts/Bootstrap-LMStudioCouncil.ps1','BEC-PRIME/scripts/Verify-LMStudioThreeRoleReadiness.ps1','docs/BECK-FIRST-DOLLAR-RUNBOOK.md'],fulfillment:'generalized recovery/verifier package',database_dependent:false,reason:'Reusable existing tooling can be packaged as a bounded paid kit, but no canonical public offer/checkout was established by this inventory; package only after the existing first-dollar route is tested.'}
+];
+const substrateInventory = substrateSpecs.map(s => {
+  const present = s.files.filter(exists);
+  const missing = s.files.filter(p => !exists(p));
+  const readiness = s.id === 'AGENT-PROOF-AUDIT-49'
+    ? (blockers.some(b => b.offer === s.id) ? 'BLOCKED_PUBLIC_ARTIFACT_PARITY' : 'CANDIDATE_MANUAL_FULFILLMENT')
+    : s.id === 'QUOTE-COMPARE-49'
+      ? 'HELD_CHECKOUT_SUPABASE_DEPENDENCY'
+      : s.id === 'COMMANDER-DECK-DIAGNOSTIC-001'
+        ? 'BLOCKED_CHECKOUT_CONTRACT'
+        : s.id === 'DREAMLEDGER-BILLBOARD-FOUNDING-001'
+          ? 'HELD_INVENTORY_FULFILLMENT'
+          : s.id === 'AGENT-TOLL-ROAD'
+            ? 'SECONDARY_LOW_TICKET_EXPERIMENT'
+            : s.id === 'TRUTH-ORACLE'
+              ? 'UNPROVEN_PAID_DELIVERY'
+              : s.id === 'BECK-WINDOWS-RECOVERY-KIT'
+                ? 'PACKAGE_CANDIDATE_NO_CANONICAL_OFFER'
+                : 'TRACE_REQUIRED';
+  return {...s, present_files:present, missing_files:missing, readiness, repository_coverage: s.files.length ? Math.round(100*present.length/s.files.length) : 0};
+});
+
 candidates.sort((a,b) => b.score - a.score || (a.price_nzd || 0) - (b.price_nzd || 0));
 const proof = {
   schema: 'BECK-MONETIZATION-SCOUT/v1',
@@ -107,6 +140,19 @@ const proof = {
   ],
   selection_rule: 'Score is an explicit readiness heuristic based on existing checkout metadata and fulfillability. It is not a demand estimate, conversion forecast, or revenue claim.',
   ranked_candidates: candidates.slice(0,12),
+  substrate_inventory: substrateInventory,
+  monetization_decision: {
+    first_path: 'AGENT-PROOF-AUDIT-49',
+    why: 'Existing fixed-scope NZ$49 manual digital service with a listed Stripe URL and bounded report deliverable; avoids making the known Supabase database outage a prerequisite.',
+    must_pass_before_acquisition: [
+      'Root, public, compiled, and production product pages agree on availability and exact checkout destination.',
+      'A real paid session can be attributed to the exact offer without exposing or logging secrets.',
+      'Complete intake is accessible and manual fulfillment can produce and deliver the stated report.',
+      'Do not claim revenue until external settlement, independent buyer, attribution, and delivery evidence exist.'
+    ],
+    fallback_after_first_path_is_proven: 'Re-enable QUOTE-COMPARE-49 only after Supabase persistence, entitlement, idempotency, and signed delivery are proven end-to-end.',
+    later_candidates: ['COMMANDER-DECK-DIAGNOSTIC-001','SELLER-PROFIT-AUDIT-001','AGENT-TOLL-ROAD','TRUTH-ORACLE','BECK-WINDOWS-RECOVERY-KIT']
+  },
   blockers,
   recommended_first_dollar_path: {
     offer: 'AGENT-PROOF-AUDIT-49',
