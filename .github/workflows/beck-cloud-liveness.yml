@@ -39,12 +39,8 @@ jobs:
           set -euo pipefail
           code="$(curl --silent --show-error --retry 1 --retry-delay 2 --output /tmp/version.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/version || true)"
           if [[ "$code" == "200" && -s /tmp/version.txt ]]; then
-            node - <<'NODE'
-            const fs = require('fs');
-            const body = fs.readFileSync('/tmp/version.txt', 'utf8').replace(/^\\uFEFF/, '').trim();
-            console.log(JSON.stringify({status: body ? 'PASS' : 'UNVERIFIED', body_nonempty: Boolean(body)}));
-            NODE
             echo "version_status=PASS" >> "$GITHUB_OUTPUT"
+            echo "VERSION_ENDPOINT=PASS"
           else
             echo "version_status=UNVERIFIED" >> "$GITHUB_OUTPUT"
             echo "VERSION_ENDPOINT_UNVERIFIED=http_$code; core liveness still requires /healthz and the Truth Oracle page"
