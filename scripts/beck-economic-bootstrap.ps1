@@ -165,7 +165,8 @@ try {
             $legacyRedirected = ([string]$legacyPage.final_url -match '/truth-oracle\.html/?$') -or ($legacyPage.truth_oracle_redirect -eq $true)
             $held = $billboardProduct.Count -eq 1 -and [string]$billboardProduct[0].price -eq '50 NZD' -and $billboardProduct[0].url -eq 'https://dreamledger.org/billboard.html' -and $billboardProduct[0].enable_checkout -eq $false -and $billboardProduct[0].availability -eq 'review_required'
             $ok = $billboardProduct.Count -eq 1 -and $retiredProduct.Count -eq 0 -and $held -and $billboardPage.status -ge 200 -and $billboardPage.status -lt 400 -and @($billboardPage.stripe_links).Count -eq 0 -and $truthPage.status -ge 200 -and $truthPage.status -lt 400 -and @($truthPage.stripe_links).Count -eq 0 -and $legacyPage.status -ge 200 -and $legacyPage.status -lt 400 -and $legacyRedirected -and @($legacyPage.stripe_links).Count -eq 0 -and -not $legacyPage.retired_offer_copy
-            Add-Check 'commercial.billboard_offer_parity' $(if ($ok) {'PASS'} else {'FAIL'}) ('Billboard held=' + $held + '; retired catalog entries=' + $retiredProduct.Count + '; Truth Oracle legacy route redirected=' + $legacyRedirected + '; public checkout remains held until allocation and delivery proof.')
+            $billboardParityStatus = if ($ok) {'PASS'} else {'BLOCKED'}
+            Add-Check 'commercial.billboard_offer_parity' $billboardParityStatus ('Billboard catalog held=' + $held + '; public Billboard Stripe links=' + @($billboardPage.stripe_links).Count + '; public retired-offer copy=' + $billboardPage.retired_offer_copy + '; retired catalog entries=' + $retiredProduct.Count + '; Truth Oracle legacy route redirected=' + $legacyRedirected + '. Live/catalog parity must be resolved before commercial approval.')
         }
         if ($offerUrl) {
             $r = Get-HttpResult $offerUrl
