@@ -30,12 +30,20 @@ const attributablePaidOrder = paidSignal && status('commerce.independent_paid_or
 const repeatableAcquisition = status('acquisition.repeatable_demand') === 'PASS';
 const positiveUnitEconomics = status('economics.positive_unit_economics') === 'PASS';
 const activeLink = freshStripe && stripe?.offer?.checkout_enabled === true && stripe?.live_stripe?.exact_payment_link_found === true && stripe?.live_stripe?.payment_link_active === true;
+// A deliberately held offer can be commercially safe before launch. Do not require it to be active
+// just to pass the checkout-safety law; activation remains a separate hard law for commercial scale.
+const checkoutHeldSafely = freshStripe &&
+  stripe?.offer?.checkout_enabled === false &&
+  stripe?.live_stripe?.exact_payment_link_found === true &&
+  stripe?.live_stripe?.payment_link_active === false &&
+  status('offer.truth_oracle_checkout_hold') === 'PASS';
+const checkoutStateSafe = activeLink || checkoutHeldSafely;
 const checkoutStarts = Number(funnel?.sessions_started_for_exact_payment_link || 0);
 const openSessions = Number(funnel?.open_sessions || 0);
 const expiredSessions = Number(funnel?.expired_sessions || 0);
 const fulfillmentProven = status('fulfillment.end_to_end') === 'PASS';
 const deliveryEvidence = status('fulfillment.delivery_evidence') === 'PASS';
-const parity = status('commercial.truth_oracle_offer_parity') === 'PASS' && status('offer.retired_offer_retirement') === 'PASS' && status('offer.truth_oracle_checkout_hold') === 'PASS';
+const parity = status('commercial.truth_oracle_offer_parity') === 'PASS' && status('offer.retired_offer_retirement') === 'PASS';
 const offer = freshScout && scout?.recommended_first_dollar_path?.offer === 'TRUTH-ORACLE-ACCESS-001';
 const blockers = [];
 const laws = [];
@@ -43,8 +51,8 @@ const addLaw = (id, title, pass, detail, points) => {
   laws.push({id, title, verdict: pass ? 'PASS' : 'FAIL_OR_UNPROVEN', points_awarded: pass ? points : 0, points_available: points, detail});
 };
 addLaw('C1', 'Specific buyer problem and bounded deliverable', offer, offer ? 'Truth Oracle Access is the bounded evidence-review workflow; checkout remains held until paid delivery proof passes.' : 'The existing scout did not establish the Truth Oracle Access as the first-dollar candidate.', 10);
-addLaw('C2', 'Truth Oracle catalog and retirement contract', parity, 'The retired Stripe product/link/price must be inactive; the Truth Oracle payment link must remain inactive while the public catalog holds checkout, until delivery proof passes.', 10);
-addLaw('C3', 'Exact live payment link is active', activeLink, stripe ? (activeLink ? 'Fresh exact Stripe link found and active.' : 'Fresh live Stripe proof missing, stale, or link absent/inactive.') : 'Live Stripe proof is missing.', 10);
+addLaw('C2', 'Truth Oracle catalog and retirement contract', parity, 'The retired standalone audit offer must be absent from the public catalog and its Stripe product/link/price must be inactive. Checkout hold is evaluated separately.', 10);
+addLaw('C3', 'Checkout state is safe and consistent', checkoutStateSafe, checkoutHeldSafely ? 'Fresh evidence confirms public checkout and the exact Stripe link are both held. This is safe prelaunch state, not commercial launch approval.' : activeLink ? 'Fresh evidence confirms the public checkout and exact Stripe link are active. Commercial scale still requires buyer, fulfillment, delivery, demand, and unit-economics proof.' : 'Fresh evidence does not prove either a consistent held state or a valid active checkout.', 10);
 addLaw('C4', 'Independent, attributable paid order', attributablePaidOrder, attributablePaidOrder ? paid.length + ' matching paid live session(s) observed and the independent-order evidence check passed; refund/dispute and payout reconciliation remain separate.' : paidSignal ? 'A matching paid live session exists, but independent buyer/order attribution is not proven by a passing evidence check.' : 'No fresh matching paid live NZ$9 Truth Oracle session has been evidenced by this run.', 20);
 addLaw('C5', 'Fulfillment works end-to-end', fulfillmentProven, 'A checkout session cannot prove intake, report production, or successful fulfillment.', 15);
 addLaw('C6', 'Delivery evidence exists', deliveryEvidence, 'Require a stable deliverable reference/hash and delivery timestamp/evidence.', 10);
@@ -52,7 +60,8 @@ addLaw('C7', 'Repeatable acquisition demand is measured', repeatableAcquisition,
 addLaw('C8', 'Positive unit economics and scalable capacity', positiveUnitEconomics, positiveUnitEconomics ? 'The bootstrap contains a passing unit-economics and delivery-capacity evidence check.' : 'Net margin, support time, refund/dispute rate, and repeatable delivery capacity have not been measured.', 10);
 
 if (!offer) blockers.push({priority:1, blocker:'Truth Oracle first-dollar candidate not selected by the scout', remedy:'Keep Truth Oracle Access as the only evidence-review candidate and prove its fulfillment before enabling checkout.'});
-if (!parity) blockers.push({priority:1, blocker:'Truth Oracle offer parity is not proven', remedy:'Verify root/public Truth Oracle pages agree, the retired route redirects, and checkout remains held.'});
+if (!parity) blockers.push({priority:1, blocker:'Truth Oracle catalog or retired-offer state is not proven', remedy:'Verify root/public Truth Oracle pages agree, the retired route redirects, and the retired Stripe product/link/price are inactive.'});
+if (!checkoutStateSafe) blockers.push({priority:1, blocker:'Truth Oracle checkout state is unverified or inconsistent', remedy:'Verify the exact Stripe link and public catalog agree. Keep both held until secure fulfillment is proven; do not activate checkout to improve a score.'});
 if (!activeLink) blockers.push({priority:1, blocker:'Truth Oracle Access checkout is held pending fulfillment proof', remedy:'Keep the public checkout disabled until the configured Truth Oracle link remains disabled until entitlement and delivery proof pass end to end.'});
 if (!attributablePaidOrder) blockers.push({priority:1, blocker: paidSignal ? 'Paid session exists but independent order attribution is unproven' : 'No attributable Truth Oracle paid order evidenced', remedy:'Match the live payment to the approved offer, establish an independent buyer/order without retaining unnecessary PII, and separately reconcile refunds, disputes and payout.'});
 if (!fulfillmentProven) blockers.push({priority:1, blocker:'Truth Oracle payment-to-delivery chain is unproven', remedy:'Complete one controlled paid-order fulfillment with buyer authorization; produce the report and record payment attribution, artifact hash/reference and delivery timestamp.'});
