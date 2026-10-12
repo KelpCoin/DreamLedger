@@ -104,3 +104,43 @@ test('a verified prelaunch checkout hold passes checkout safety but never passes
   assert.ok(result.verdict.hard_laws.some(x => x.id === 'C4' && x.verdict !== 'PASS'));
   assert.ok(result.verdict.hard_laws.some(x => x.id === 'C5' && x.verdict !== 'PASS'));
 });
+
+test('complete evidence-shaped fixture can pass the commercial verdict contract without claiming verified revenue', () => {
+  const now = new Date().toISOString();
+  const result = runGauntlet({
+    'latest-monetization-scout.json': {
+      generated_at_utc: now,
+      recommended_first_dollar_path: { offer: 'TRUTH-ORACLE-ACCESS-001' },
+      test_fixture_only: true
+    },
+    'latest-economic-validation.json': {
+      run_started_at_utc: new Date(Date.now() - 1000).toISOString(),
+      test_fixture_only: true,
+      checks: [
+        { name: 'commercial.truth_oracle_offer_parity', status: 'PASS' },
+        { name: 'offer.retired_offer_retirement', status: 'PASS' },
+        { name: 'commerce.independent_paid_order', status: 'PASS' },
+        { name: 'fulfillment.end_to_end', status: 'PASS' },
+        { name: 'fulfillment.delivery_evidence', status: 'PASS' },
+        { name: 'acquisition.repeatable_demand', status: 'PASS' },
+        { name: 'economics.positive_unit_economics', status: 'PASS' }
+      ]
+    },
+    'latest-first-dollar-stripe-reconciliation.json': {
+      generated_at_utc: now,
+      test_fixture_only: true,
+      offer: { checkout_enabled: true },
+      live_stripe: {
+        exact_payment_link_found: true,
+        payment_link_active: true,
+        exact_paid_live_sessions: [{ session_id: 'SYNTHETIC-TEST-FIXTURE-NOT-A-LIVE-PAYMENT' }],
+        offer_checkout_funnel: { sessions_started_for_exact_payment_link: 1, open_sessions: 0, expired_sessions: 0 }
+      }
+    }
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(result.verdict.verdict, 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE');
+  assert.equal(result.verdict.score_out_of_100, 100);
+  assert.equal(result.verdict.economic_baseline.verified_business_revenue_nzd, 0);
+  assert.equal(result.verdict.economic_baseline.bank_payout_or_net_profit_verified, false);
+});
