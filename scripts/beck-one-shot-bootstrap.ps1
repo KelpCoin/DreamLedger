@@ -187,7 +187,7 @@ Write-Output "CLOUD_COCKPIT_STATUS=$cloudDispatchStatus"
 Write-Output "CLOUD_COCKPIT_PROOF=$cloudProofPath"
 Write-Output "LOCAL_HEARTBEAT_PROOF=$(Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json')"
 Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
-Write-Output 'CLOUD_HEARTBEAT=GITHUB_ACTIONS_SCHEDULED_EVERY_30_MINUTES_AFTER_WORKFLOW_IS_ON_DEFAULT_BRANCH'
+Write-Output 'CLOUD_SCHEDULE=30_MINUTES_ONLY_AFTER_THIS_WORKFLOW_IS_ENABLED_ON_DEFAULT_BRANCH; CURRENT_DEFAULT_BRANCH_SCHEDULE_NOT_CHANGED'
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
 if ($startupExit -eq 1 -or $heartbeatExit -eq 1 -or $cockpitExit -eq 1) { exit 1 }
 if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0 -or $cloudDispatchStatus -notmatch '^COMPLETED_success_ARTIFACT_DOWNLOADED$') { exit 2 }
