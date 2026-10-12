@@ -62,7 +62,7 @@ try {
         throw "Three-role readiness verification failed. Read $verifierProof; no council PASS is permitted."
     }
     $readiness = Get-Content -LiteralPath $verifierProof -Raw | ConvertFrom-Json
-    if ($readiness.status -ne 'PASS' -or $readiness.readiness -ne 'THREE_DISTINCT_ROLES_INFERENCE_VERIFIED') {
+    if ($readiness.status -ne 'PASS' -or $readiness.readiness -ne 'THREE_DISTINCT_ROLES_INFERENCE_AND_LOADED_STATE_VERIFIED') {
         throw "Verifier did not produce a verified three-role readiness proof."
     }
     $roleMap = @{}
