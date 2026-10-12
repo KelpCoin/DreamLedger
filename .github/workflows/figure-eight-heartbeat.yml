@@ -64,10 +64,19 @@ jobs:
             if (!fs.existsSync(homeFile)) throw new Error('Homepage source missing');
             const home = fs.readFileSync(homeFile, 'utf8');
             if (!home.includes('/agent-delivery-proof-audit.html') || !home.includes('Buy the Proof Audit')) {
-              throw new Error('Homepage does not direct buyers to the Proof Audit');
+              throw new Error('Repository homepage source does not direct buyers to the Proof Audit');
             }
-            add('homepage_cta', 'PASS', 'Homepage directs buyers to the Proof Audit offer page');
-          } catch (e) { add('homepage_cta', 'FAIL', e.message); }
+            add('homepage_source_cta', 'PASS', 'Repository homepage source directs buyers to the Proof Audit offer page');
+          } catch (e) { add('homepage_source_cta', 'FAIL', e.message); }
+          try {
+            const response = await fetch('https://dreamledger.org/', {redirect:'follow', signal:AbortSignal.timeout(12000)});
+            const body = await response.text();
+            if (response.status < 200 || response.status >= 400) throw new Error('HTTP ' + response.status);
+            if (!body.includes('agent-delivery-proof-audit.html') || !body.includes('Agent Delivery Proof Audit')) {
+              throw new Error('Live homepage is missing the Proof Audit offer link or label');
+            }
+            add('production_homepage', 'PASS', 'HTTP ' + response.status + '; live homepage links to the Proof Audit');
+          } catch (e) { add('production_homepage', 'FAIL', String(e.message || e)); }
           try {
             const response = await fetch(routeUrl, {redirect:'follow', signal:AbortSignal.timeout(12000)});
             const body = await response.text();
