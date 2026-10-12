@@ -84,6 +84,12 @@ jobs:
         run: npm run factory:universal
         continue-on-error: true
 
+      - name: Run factory orchestrator to emit canonical acquisition packets
+        id: orchestrator
+        if: always() && steps.install.outcome == 'success'
+        run: npm run factory:orchestrate
+        continue-on-error: true
+
       - name: Verify factory assembly
         id: assembly
         if: always() && steps.install.outcome == 'success'
@@ -124,12 +130,13 @@ jobs:
           BATCH: ${{ steps.batch.outcome }}
           FACTORY: ${{ steps.factory.outcome }}
           UNIVERSAL: ${{ steps.universal.outcome }}
+          ORCHESTRATOR: ${{ steps.orchestrator.outcome }}
           ASSEMBLY: ${{ steps.assembly.outcome }}
           MARKETPLACES: ${{ steps.marketplaces.outcome }}
           CONTRACTS: ${{ steps.contracts.outcome }}
         run: |
-          printf 'INSTALL=%s\nSCOUT=%s\nCOMPILE=%s\nBATCH=%s\nFACTORY=%s\nUNIVERSAL=%s\nASSEMBLY=%s\nMARKETPLACES=%s\nCONTRACTS=%s\n' "$INSTALL" "$SCOUT" "$COMPILE" "$BATCH" "$FACTORY" "$UNIVERSAL" "$ASSEMBLY" "$MARKETPLACES" "$CONTRACTS"
-          for result in "$INSTALL" "$SCOUT" "$COMPILE" "$BATCH" "$FACTORY" "$UNIVERSAL" "$ASSEMBLY" "$MARKETPLACES" "$CONTRACTS"; do
+          printf 'INSTALL=%s\nSCOUT=%s\nCOMPILE=%s\nBATCH=%s\nFACTORY=%s\nUNIVERSAL=%s\nORCHESTRATOR=%s\nASSEMBLY=%s\nMARKETPLACES=%s\nCONTRACTS=%s\n' "$INSTALL" "$SCOUT" "$COMPILE" "$BATCH" "$FACTORY" "$UNIVERSAL" "$ORCHESTRATOR" "$ASSEMBLY" "$MARKETPLACES" "$CONTRACTS"
+          for result in "$INSTALL" "$SCOUT" "$COMPILE" "$BATCH" "$FACTORY" "$UNIVERSAL" "$ORCHESTRATOR" "$ASSEMBLY" "$MARKETPLACES" "$CONTRACTS"; do
             if [[ "$result" != "success" ]]; then
               echo "ECONOMIC_TRAVERSAL=BLOCKED"
               exit 1
