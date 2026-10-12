@@ -18,6 +18,8 @@ on:
       - 'BEC-PRIME/scripts/verify-render-stripe-webhook-route.js'
       - 'package.json'
       - '.github/workflows/beck-economic-gauntlet.yml'
+      - '.github/workflows/beck-cloud-liveness.yml'
+      - '.github/workflows/bootstrap-gauntlet.yml'
   pull_request:
     branches: [main]
     paths:
@@ -35,6 +37,8 @@ on:
       - '.github/workflows/figure-eight-cockpit.yml'
       - 'package.json'
       - '.github/workflows/beck-economic-gauntlet.yml'
+      - '.github/workflows/beck-cloud-liveness.yml'
+      - '.github/workflows/bootstrap-gauntlet.yml'
   workflow_dispatch:
 
 permissions:
@@ -91,6 +95,26 @@ jobs:
               exit 1
             }
           }
+
+      - name: Validate one-shot bootstrap and cloud heartbeat contract
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bootstrap = Get-Content -LiteralPath 'scripts/beck-one-shot-bootstrap.ps1' -Raw
+          $cloud = Get-Content -LiteralPath '.github/workflows/beck-cloud-liveness.yml' -Raw
+          $localInstaller = Get-Content -LiteralPath 'scripts/install-beck-heartbeat.ps1' -Raw
+          if (-not $bootstrap.Contains('LOCAL_HEARTBEAT_TASK=REGISTERED')) { throw 'Bootstrap lacks explicit local task registration proof.' }
+          if (-not $bootstrap.Contains('beck-cloud-liveness.yml')) { throw 'Bootstrap does not use the independent cloud liveness workflow.' }
+          if ($bootstrap.Contains('actions/workflows/beck-production-heartbeat.yml/runs')) { throw 'Bootstrap is still coupled to the production workflow that can self-heal deployments.' }
+          if (-not $localInstaller.Contains('DreamLedger-Local-Heartbeat')) { throw 'Local heartbeat scheduled task is not installed.' }
+          if (-not $cloud.Contains('contents: read')) { throw 'Cloud heartbeat must be read-only.' }
+          foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','secrets.')) {
+            if ($cloud.Contains($forbidden)) { throw "Cloud liveness contains forbidden mutation capability: $forbidden" }
+          }
+          foreach ($endpoint in @('/healthz','/version','/truth-oracle.html')) {
+            if (-not $cloud.Contains($endpoint)) { throw "Cloud liveness is missing endpoint probe $endpoint" }
+          }
+          Write-Host 'BOOTSTRAP_CLOUD_LIVENESS_CONTRACT=PASS'
 
       - name: Run read-only economic bootstrap and inspect fail-closed evidence
         shell: powershell
