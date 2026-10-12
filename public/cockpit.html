@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operations overview | DreamLedger</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Private operations overview: settled money, system health, and items needing attention.">
+<style>
+:root{color-scheme:dark;--bg:#0b0f14;--panel:#121820;--line:#2a3542;--ink:#eef3f7;--muted:#9aabba;--ok:#7ddeb0;--warn:#e6c07b;--bad:#f0a0a0;--accent:#8ec8ff}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{width:min(960px,calc(100% - 28px));margin:0 auto;padding:28px 0 48px}
+h1{font-size:1.55rem;letter-spacing:-.03em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 22px;font-size:.92rem}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.card h2{margin:0 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.metric{font-size:1.85rem;font-weight:750;letter-spacing:-.03em}
+.muted{color:var(--muted)}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+ul{margin:8px 0 0;padding-left:1.1rem}.note{margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#0e141b;color:var(--muted);font-size:.88rem}
+a{color:var(--accent)}
+.score{font-size:1.1rem;font-weight:700}
+.bar{height:8px;background:#1a2330;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar>span{display:block;height:100%;background:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Operations overview</h1>
+  <p class="sub">Three questions only. Quiet by default. A green label is not a sale.</p>
+
+  <div class="grid">
+    <section class="card" id="money-card">
+      <h2>1. Money settled today</h2>
+      <div class="metric" id="money-metric">NZ$0</div>
+      <p class="muted" id="money-detail">Verified external revenue requires independent settlement and delivery evidence. Listings and checkouts do not count.</p>
+    </section>
+    <section class="card" id="health-card">
+      <h2>2. System health</h2>
+      <div class="metric score" id="health-metric">—</div>
+      <div class="bar"><span id="health-bar" style="width:0%"></span></div>
+      <p class="muted" id="health-detail">Probing public surfaces…</p>
+    </section>
+    <section class="card" id="attention-card">
+      <h2>3. Needs your attention</h2>
+      <ul id="attention-list"><li class="muted">Loading…</li></ul>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:14px">
+    <h2>Capability scores (provisional)</h2>
+    <p class="muted">Out of 1,000. Based on verified capability probes, not number of services deployed.</p>
+    <p><strong>Cloud path:</strong> <span id="cloud-score">—</span>/1000</p>
+    <div class="bar"><span id="cloud-bar" style="width:0%"></span></div>
+    <p style="margin-top:12px"><strong>Local path:</strong> <span id="local-score">—</span>/1000 <span class="muted">(run host checks on your PC)</span></p>
+    <div class="bar"><span id="local-bar" style="width:0%"></span></div>
+  </section>
+
+  <div class="note">
+    <strong>Nearest commercial path:</strong>
+    <a href="/billboard">Founding Billboard · NZ$50</a> — public checkout.
+    Delivery is not complete until placement is published after payment.
+    Free evidence tools live on <a href="/truth-oracle.html">Truth Oracle</a>.
+    This page does not process payments and does not expose internal tooling names.
+  </div>
+</div>
+<script>
+(function () {
+  var attention = [];
+  var cloud = 0;
+
+  function setBar(id, score) {
+    var el = document.getElementById(id);
+    if (el) el.style.width = Math.max(0, Math.min(100, score / 10)) + '%';
+  }
+
+  function addAttention(msg, level) {
+    attention.push({ msg: msg, level: level || 'warn' });
+  }
+
+  // Money: default zero until a verified ledger endpoint exists
+  document.getElementById('money-metric').textContent = 'NZ$0';
+  document.getElementById('money-detail').textContent =
+    'No verified external settlement recorded for this view. Checkout activity is not revenue.';
+
+  var probes = [
+    { name: 'Storefront health', url: '/healthz', weight: 120 },
+    { name: 'Billboard page', url: '/billboard', weight: 180 },
+    { name: 'Product catalogue API', url: '/api/products', weight: 150 },
+    { name: 'Offers API', url: '/api/offers', weight: 100 },
+    { name: 'Truth Oracle', url: '/truth-oracle.html', weight: 80 }
+  ];
+
+  Promise.all(probes.map(function (p) {
+    return fetch(p.url, { method: 'GET', cache: 'no-store' })
+      .then(function (r) {
+        if (r.ok) { cloud += p.weight; return { ok: true, p: p }; }
+        addAttention(p.name + ' returned HTTP ' + r.status, 'bad');
+        return { ok: false, p: p };
+      })
+      .catch(function () {
+        addAttention(p.name + ' unreachable', 'bad');
+        return { ok: false, p: p };
+      });
+  })).then(function () {
+    // Webhook route probe (POST without signature should not 404)
+    return fetch('/api/webhooks/stripe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    }).then(function (r) {
+      if (r.status === 404) {
+        addAttention('Payment notification route missing (404)', 'bad');
+      } else {
+        cloud += 150; // route exists; signature verification still required in live ops
+      }
+    }).catch(function () {
+      addAttention('Payment notification route unreachable', 'bad');
+    });
+  }).then(function () {
+    // Commercial consistency: old audit URL should not be the primary money path if redirected
+    return fetch('/agent-delivery-proof-audit.html', { method: 'GET', redirect: 'manual', cache: 'no-store' })
+      .then(function (r) {
+        if (r.status >= 300 && r.status < 400) {
+          addAttention('Legacy audit URL redirects — catalogue should point at a live offer page (Billboard)', 'warn');
+          cloud += 40; // redirect is intentional absorb, partial credit
+        } else if (r.ok) {
+          cloud += 80;
+        }
+      }).catch(function () {});
+  }).then(function () {
+    // Cap cloud score: without verified revenue, ceiling is 700
+    if (cloud > 700) cloud = 700;
+    document.getElementById('cloud-score').textContent = String(cloud);
+    setBar('cloud-bar', cloud);
+
+    var healthLabel = cloud >= 500 ? 'Usable' : (cloud >= 300 ? 'Degraded' : 'Blocked');
+    var healthClass = cloud >= 500 ? 'ok' : (cloud >= 300 ? 'warn' : 'bad');
+    var hm = document.getElementById('health-metric');
+    hm.textContent = healthLabel;
+    hm.className = 'metric score ' + healthClass;
+    document.getElementById('health-detail').textContent =
+      'Public probes scored ' + cloud + '/1000 provisional. Full 1000 requires verified payment-to-delivery evidence and reliable data plane.';
+    setBar('health-bar', cloud);
+
+    // Always surface money truth
+    addAttention('Verified settled revenue still NZ$0 until external payment + delivery evidence', 'warn');
+    addAttention('Prefer Founding Billboard (NZ$50) as nearest live purchase path', 'ok');
+
+    var ul = document.getElementById('attention-list');
+    ul.innerHTML = '';
+    attention.forEach(function (a) {
+      var li = document.createElement('li');
+      li.className = a.level;
+      li.textContent = a.msg;
+      ul.appendChild(li);
+    });
+
+    // Local score unknown from browser alone
+    document.getElementById('local-score').textContent = 'n/a';
+    document.getElementById('local-bar').style.width = '0%';
+  });
+})();
+</script>
+</body>
+</html>
