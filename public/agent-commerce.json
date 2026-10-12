@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/agent-commerce/v6",
-  "updated": "2026-10-12",
+  "updated": "2026-10-11",
   "purpose": "Public product discovery and purchase information for people and AI assistants.",
   "storefront": "https://dreamledger.org/",
   "human_shop_horizontal": "https://dreamledger.org/shop.html",
@@ -44,6 +44,16 @@
     "shop": "https://dreamledger.org/shop.html"
   },
   "primary_offers": [
+    {
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Founding Billboard",
+      "price_nzd": 50,
+      "buy_router": "https://dreamledger.org/billboard.html",
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "fulfillment": "held_until_secure_intake_and_inventory_reservation_verified",
+      "note": "Public checkout is intentionally held until secure intake, live inventory reservation, signed-webhook handling and delivery evidence are verified."
+    },
     {
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "name": "Commander Deck Diagnostic",
@@ -147,7 +157,7 @@
       "status": "LISTED"
     }
   ],
-  "catalog_note": "The former standalone delivery-proof audit is retired and absorbed into Truth Oracle. Truth Oracle paid access remains held until checkout-to-delivery is independently verified. A listing or checkout session is not proof of revenue.",
+  "catalog_note": "Prices, checkout links, and availability can change. Confirm current terms on the product page before purchase.",
   "safety": {
     "human_approval_required_before_spending": true,
     "check_current_terms_before_purchase": true,
@@ -178,15 +188,16 @@
       "status": "REVIEW_REQUIRED",
       "loop": "LOOP-BILLBOARD-FOUNDING-50",
       "note": "Paid placement checkout held until secure intake and live inventory reservation are independently verified."
-    },
-    {
-      "product_id": "TRUTH-ORACLE-ACCESS-001",
-      "name": "Truth Oracle Access",
-      "price_nzd": 9,
-      "buy_router": "https://dreamledger.org/truth-oracle.html",
-      "status": "REVIEW_REQUIRED",
-      "loop": "LOOP-TRUTH-ORACLE-ACCESS-9",
-      "note": "The former standalone evidence-audit offer is absorbed into Truth Oracle. Keep paid checkout hidden until entitlement, evidence persistence, and delivery are independently verified. The public guide remains free."
     }
-  ]
+  ],
+  "free_entry_point": {
+    "product_id": "TRUTH-ORACLE-FREE",
+    "name": "Truth Oracle",
+    "url": "https://dreamledger.org/truth-oracle.html",
+    "price_nzd": 0,
+    "status": "AVAILABLE_FREE",
+    "checkout_url": null,
+    "fulfillment": "browser_tools",
+    "note": "Canonical free destination for the retired standalone audit offer. No separate audit product or checkout remains."
+  }
 }
