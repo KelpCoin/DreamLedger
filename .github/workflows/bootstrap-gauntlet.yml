@@ -1,4 +1,5 @@
 name: Bootstrap Gauntlet
+# Static commissioning checks; does not claim local PC execution or revenue.
 on:
   pull_request:
     branches: [main, feat/beck-bootstrap-gauntlet-ready-20261012]

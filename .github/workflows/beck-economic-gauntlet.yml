@@ -1,4 +1,5 @@
 name: BECK Economic Gauntlet
+# Bootstrap and economic evidence checks only; commercial blockers remain explicit.
 
 on:
   push:
