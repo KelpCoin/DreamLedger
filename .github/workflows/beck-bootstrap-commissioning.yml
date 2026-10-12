@@ -1,0 +1,86 @@
+name: BECK Bootstrap Commissioning Gate
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'scripts/beck-heartbeat.ps1'
+      - 'scripts/install-beck-heartbeat.ps1'
+      - 'scripts/beck-startup.ps1'
+      - 'scripts/beck-economic-bootstrap.ps1'
+      - 'scripts/beck-cockpit-bootstrap.ps1'
+      - 'ops/cockpit/render-cockpit-html.mjs'
+      - '.github/workflows/beck-cloud-liveness.yml'
+      - '.github/workflows/beck-bootstrap-commissioning.yml'
+  push:
+    branches: [feat/beck-dual-heartbeat-bootstrap]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-bootstrap-commissioning-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  syntax-and-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate PowerShell syntax
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(
+            'scripts/beck-one-shot-bootstrap.ps1',
+            'scripts/beck-heartbeat.ps1',
+            'scripts/install-beck-heartbeat.ps1',
+            'scripts/beck-startup.ps1',
+            'scripts/beck-economic-bootstrap.ps1',
+            'scripts/beck-cockpit-bootstrap.ps1'
+          )
+          foreach ($file in $files) {
+            if (-not (Test-Path -LiteralPath $file)) { throw "Missing required commissioning file: $file" }
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $file).Path, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) { throw "$file has PowerShell parse errors: $($errors | ForEach-Object Message | Join-String -Separator '; ')" }
+            Write-Host "POWERSHELL_PARSE_PASS=$file"
+          }
+      - name: Validate independent cloud heartbeat safety contract
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bootstrap = Get-Content 'scripts/beck-one-shot-bootstrap.ps1' -Raw
+          $cloud = Get-Content '.github/workflows/beck-cloud-liveness.yml' -Raw
+          if (-not $bootstrap.Contains('beck-cloud-liveness.yml')) { throw 'Bootstrap does not corroborate with the independent cloud heartbeat.' }
+          if ($bootstrap.Contains('actions/workflows/beck-production-heartbeat.yml/runs')) { throw 'Bootstrap still depends on production heartbeat with self-heal side effects.' }
+          if (-not $cloud.Contains('contents: read')) { throw 'Cloud heartbeat must be read-only.' }
+          foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','stripe listen')) {
+            if ($cloud.Contains($forbidden)) { throw "Cloud heartbeat contains forbidden capability: $forbidden" }
+          }
+          foreach ($endpoint in @('/healthz','/version','/truth-oracle.html')) {
+            if (-not $cloud.Contains($endpoint)) { throw "Missing public liveness probe: $endpoint" }
+          }
+          if (-not $bootstrap.Contains("LOCAL_HEARTBEAT_TASK=REGISTERED")) { throw 'Bootstrap must emit local task registration proof.' }
+          if (-not $bootstrap.Contains('DUAL_HEARTBEAT_STATUS=$dualHeartbeatStatus')) { throw 'Bootstrap must emit dual-heartbeat status.' }
+          Write-Host 'BOOTSTRAP_CLOUD_SAFETY_CONTRACT=PASS'
+      - name: Validate cloud workflow YAML structure
+        shell: bash
+        run: |
+          python - <<'PY'
+          import pathlib
+          import yaml
+          p = pathlib.Path('.github/workflows/beck-cloud-liveness.yml')
+          d = yaml.safe_load(p.read_text())
+          assert isinstance(d, dict) and isinstance(d.get('jobs'), dict) and 'liveness' in d['jobs']
+          assert d['jobs']['liveness']['timeout-minutes'] <= 5
+          print('CLOUD_WORKFLOW_STRUCTURE=PASS')
+          PY
+      - name: Run local execution-gate contract tests
+        run: node --test BEC-PRIME/runtime/ExecutionGate.test.js
