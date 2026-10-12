@@ -100,13 +100,13 @@ try {
         $productFeedPath = Join-Path $RepoRoot 'public/agent-products.json'
         if (Test-Path -LiteralPath $productFeedPath) {
             $productFeed = Get-Content -LiteralPath $productFeedPath -Raw | ConvertFrom-Json
-            $offer = @($productFeed | Where-Object { $_.item_id -eq 'TRUTH-ORACLE-ACCESS-001' })
+            $offer = @($productFeed | Where-Object { $_.item_id -eq 'DREAMLEDGER-BILLBOARD-FOUNDING-001' })
             $retiredOffer = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
-            if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '9 NZD' -and [string]$offer[0].url -eq 'https://dreamledger.org/truth-oracle.html' -and $offer[0].enable_checkout -eq $false -and $offer[0].availability -eq 'review_required' -and $retiredOffer.Count -eq 0) {
-                Add-Check 'offer.canonical_catalog' 'PASS' 'Truth Oracle Access is the sole evidence-review product entry; checkout remains held and the retired standalone SKU is absent. This is repository evidence, not proof of fulfillment.'
+            if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '50 NZD' -and [string]$offer[0].url -eq 'https://dreamledger.org/billboard.html' -and $offer[0].enable_checkout -eq $false -and $offer[0].availability -eq 'review_required' -and $retiredOffer.Count -eq 0) {
+Founding Billboard is the selected NZ$50 offer
                 $offerUrl = ''
             } else {
-                Add-Check 'offer.canonical_catalog' 'FAIL' 'Expected one TRUTH-ORACLE-ACCESS-001 at NZ$9 under Truth Oracle, checkout held, and zero retired standalone listings.'
+Expected one DREAMLEDGER-BILLBOARD-FOUNDING-001 at NZ$50 on the Billboard page
                 $offerUrl = ''
             }
         } else {
@@ -149,22 +149,24 @@ try {
                 $ok = $r.status -ge 200 -and $r.status -lt 400 -and $redirected -and @($r.stripe_links).Count -eq 0 -and -not $r.retired_offer_copy
                 Add-Check $pageName $(if ($ok) {'PASS'} else {'FAIL'}) (($r | ConvertTo-Json -Compress) + '; retired route must redirect to Truth Oracle without an old offer or checkout.')
             } else {
-                Add-Check $pageName 'DIAGNOSTIC_ONLY' (($r | ConvertTo-Json -Compress) + '; secondary candidate route, not a gate for the Truth Oracle path.')
+                Add-Check $pageName 'DIAGNOSTIC_ONLY' (($r | ConvertTo-Json -Compress) + '; secondary route probe; the selected Billboard parity contract is evaluated separately below.')
             }
         }
 
-        # Truth Oracle owns the bounded review capability. Keep checkout held until fulfillment is proven.
+        # Founding Billboard is the selected NZ$50 path; Truth Oracle remains the free destination for the retired audit.
         $proofFeedPath = Join-Path $RepoRoot 'public/agent-products.json'
         if (Test-Path -LiteralPath $proofFeedPath) {
             $productFeed = Get-Content -LiteralPath $proofFeedPath -Raw | ConvertFrom-Json
-            $truthProduct = @($productFeed | Where-Object { $_.item_id -eq 'TRUTH-ORACLE-ACCESS-001' })
+            $billboardProduct = @($productFeed | Where-Object { $_.item_id -eq 'DREAMLEDGER-BILLBOARD-FOUNDING-001' })
             $retiredProduct = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
+            $billboardPage = $livePages['https://dreamledger.org/billboard.html']
             $truthPage = $livePages['https://dreamledger.org/truth-oracle.html']
             $legacyPage = $livePages['https://dreamledger.org/agent-delivery-proof-audit.html']
             $legacyRedirected = ([string]$legacyPage.final_url -match '/truth-oracle\.html/?$') -or ($legacyPage.truth_oracle_redirect -eq $true)
-            $held = $truthProduct.Count -eq 1 -and $truthProduct[0].enable_checkout -eq $false -and $truthProduct[0].availability -eq 'review_required'
-            $ok = $truthProduct.Count -eq 1 -and $retiredProduct.Count -eq 0 -and $held -and $truthPage.status -ge 200 -and $truthPage.status -lt 400 -and @($truthPage.stripe_links).Count -eq 0 -and $legacyPage.status -ge 200 -and $legacyPage.status -lt 400 -and $legacyRedirected -and @($legacyPage.stripe_links).Count -eq 0 -and -not $legacyPage.retired_offer_copy
-            Add-Check 'commercial.truth_oracle_offer_parity' $(if ($ok) {'PASS'} else {'FAIL'}) ('Truth Oracle held=' + $held + '; retired catalog entries=' + $retiredProduct.Count + '; legacy route redirected=' + $legacyRedirected + '; checkout remains held until paid fulfillment proof.')
+            $held = $billboardProduct.Count -eq 1 -and [string]$billboardProduct[0].price -eq '50 NZD' -and $billboardProduct[0].url -eq 'https://dreamledger.org/billboard.html' -and $billboardProduct[0].enable_checkout -eq $false -and $billboardProduct[0].availability -eq 'review_required'
+            $ok = $billboardProduct.Count -eq 1 -and $retiredProduct.Count -eq 0 -and $held -and $billboardPage.status -ge 200 -and $billboardPage.status -lt 400 -and @($billboardPage.stripe_links).Count -eq 0 -and $truthPage.status -ge 200 -and $truthPage.status -lt 400 -and @($truthPage.stripe_links).Count -eq 0 -and $legacyPage.status -ge 200 -and $legacyPage.status -lt 400 -and $legacyRedirected -and @($legacyPage.stripe_links).Count -eq 0 -and -not $legacyPage.retired_offer_copy
+            $billboardParityStatus = if ($ok) {'PASS'} else {'BLOCKED'}
+            Add-Check 'commercial.billboard_offer_parity' $billboardParityStatus ('Billboard catalog held=' + $held + '; public Billboard Stripe links=' + @($billboardPage.stripe_links).Count + '; public retired-offer copy=' + $billboardPage.retired_offer_copy + '; retired catalog entries=' + $retiredProduct.Count + '; Truth Oracle legacy route redirected=' + $legacyRedirected + '. Live/catalog parity must be resolved before commercial approval.')
         }
         if ($offerUrl) {
             $r = Get-HttpResult $offerUrl
@@ -185,14 +187,14 @@ try {
             if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
                 $firstDollar = Get-Content -LiteralPath $firstDollarPath -Raw | ConvertFrom-Json
                 Add-Check 'offer.retired_offer_retirement' $(if ($firstDollar.retired_offer.retirement_verified -eq $true) {'PASS'} else {'FAIL'}) ('Retired standalone payment link active=' + $firstDollar.retired_offer.payment_link_active + '; product active=' + $firstDollar.retired_offer.product_active + '; price active=' + $firstDollar.retired_offer.price_active)
-                Add-Check 'offer.truth_oracle_checkout_hold' $(if ($firstDollar.retired_offer.truth_oracle_checkout_hold_verified -eq $true) {'PASS'} else {'FAIL'}) ('Truth Oracle Access payment link active=' + $firstDollar.retired_offer.truth_oracle_payment_link_active + '; public checkout enabled=' + $firstDollar.offer.checkout_enabled_in_public_catalog)
+                Add-Check 'offer.billboard_checkout_hold' $(if ($firstDollar.retired_offer.billboard_checkout_hold_verified -eq $true) {'PASS'} else {'FAIL'}) ('Founding Billboard payment link active=' + $firstDollar.retired_offer.billboard_payment_link_active + '; public checkout enabled=' + $firstDollar.offer.checkout_enabled_in_public_catalog)
                 $paidCount = @($firstDollar.live_stripe.exact_paid_live_sessions).Count
                 if ($firstDollar.live_stripe.exact_payment_link_found -ne $true) {
-                    Add-Check 'stripe.first_dollar_payment_link' 'CONTRADICTED' 'Truth Oracle Access payment link was not found in this live Stripe account.'
+                    Add-Check 'stripe.first_dollar_payment_link' 'CONTRADICTED' 'Founding Billboard payment link was not found in this live Stripe account.'
                 } elseif ($paidCount -gt 0) {
-                    Add-Check 'stripe.first_dollar_settlement_evidence' 'OBSERVED_PENDING_FULFILLMENT' ("Exact-price paid Truth Oracle Access sessions: " + $paidCount + '. Fulfillment and independent buyer remain unverified.')
+                    Add-Check 'stripe.first_dollar_settlement_evidence' 'OBSERVED_PENDING_FULFILLMENT' ("Exact-price paid Founding Billboard sessions: " + $paidCount + '. Fulfillment and independent buyer remain unverified.')
                 } else {
-                    Add-Check 'stripe.first_dollar_settlement_evidence' 'NOT_OBSERVED' 'No paid live Checkout Session matched the Truth Oracle Access link, NZD currency, NZ$9 amount, and livemode.'
+                    Add-Check 'stripe.first_dollar_settlement_evidence' 'NOT_OBSERVED' 'No paid live Checkout Session matched the Founding Billboard link, NZD currency, NZ$50 amount, and livemode.'
                 }
             }
             $stripeCode = Run-NodeCheck 'stripe.approved_offer_reconciliation' @('ops/commerce/reconcile-approved-offers.mjs')
@@ -206,7 +208,7 @@ try {
             Add-Check 'stripe.live_reconciliation' 'BLOCKED' 'Set STRIPE_SECRET_KEY in the local process environment and STRIPE_LIVE_ENABLED=true to query live Stripe. Never paste the key into chat. No Stripe API call was made.'
             Add-Check 'stripe.webhook_routing' 'BLOCKED' 'Webhook destinations were not inspected because live Stripe credentials were not enabled. No endpoint was changed.'
             Add-Check 'offer.retired_offer_retirement' 'BLOCKED' 'Live Stripe credentials not enabled; retired standalone payment link/product/price state cannot be verified.'
-            Add-Check 'offer.truth_oracle_checkout_hold' 'BLOCKED' 'Live Stripe credentials not enabled; Truth Oracle checkout hold cannot be verified.'
+            Add-Check 'offer.billboard_checkout_hold' 'BLOCKED' 'Live Stripe credentials not enabled; Billboard Stripe/public checkout state cannot be reconciled.'
         }
 
         # Snapshot current evidence for the Gauntlet. This is local proof output only.
