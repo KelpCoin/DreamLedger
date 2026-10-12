@@ -37,7 +37,7 @@ function Get-HttpResult([string]$Url) {
     try {
         $r = Invoke-WebRequest -Uri $Url -MaximumRedirection 8 -TimeoutSec 20 -UseBasicParsing
         $html = [string]$r.Content
-        $stripeLinks = @([regex]::Matches($html, 'href=["''](https://buy\.stripe\.com/[^"'']+)["'']') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique)
+        $stripeLinks = @([regex]::Matches($html, 'https://buy\.stripe\.com/[A-Za-z0-9]+') | ForEach-Object { $_.Value.TrimEnd('.') } | Select-Object -Unique)
         return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=[string]$r.BaseResponse.ResponseUri.AbsoluteUri; stripe_links=$stripeLinks }
     } catch {
         $status = 0
