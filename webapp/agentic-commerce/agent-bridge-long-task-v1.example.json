@@ -151,6 +151,54 @@
         "workflow_run"
       ],
       "children": []
+    },
+    {
+      "task_id": "DL-777-FIRST-DOLLAR-ROUTE-RECEIPT",
+      "title": "Capture CI and expedition receipt",
+      "objective": "Record the actual workflow run, contract guard result, changed artifact URLs and remaining blocker so the next cycle can resume without repeating completed work.",
+      "status": "READY",
+      "priority": "P0",
+      "dedupe_key": "sha256:dl777-route-receipt-v1",
+      "depends_on": [
+        "DL-777-FIRST-DOLLAR-ROUTE-READ",
+        "DL-777-FIRST-DOLLAR-ROUTE-TEST"
+      ],
+      "budget": {
+        "currency": "NZD",
+        "max_cost": 0.05,
+        "max_calls": 1,
+        "max_tokens": 500,
+        "timeout_seconds": 60,
+        "max_retries": 0,
+        "max_parallelism": 1,
+        "max_depth": 0
+      },
+      "permissions": {
+        "network": "none",
+        "filesystem": "workspace_only",
+        "gpu": {
+          "allowed": false,
+          "max_vram_gb": 0,
+          "arbitrary_code": false
+        },
+        "external_spend_nzd": 0,
+        "public_publish": false
+      },
+      "approval_gates": [
+        "payment",
+        "public_transmission",
+        "irreversible_action"
+      ],
+      "acceptance_criteria": [
+        "Record the actual CI run ID and exact validator result.",
+        "Leave the first unproven commercial boundary explicit; do not infer revenue."
+      ],
+      "artifact_requirements": [
+        "test",
+        "commit",
+        "workflow_run"
+      ],
+      "children": []
     }
   ]
 }
