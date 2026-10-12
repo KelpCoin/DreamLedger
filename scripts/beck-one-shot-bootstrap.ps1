@@ -41,6 +41,15 @@ if (-not (Test-Path (Join-Path $RepoRoot '.git'))) {
   if ($LASTEXITCODE -ne 0) { throw "Git checkout failed with exit code $LASTEXITCODE" }
 }
 $RepoRoot = (Resolve-Path $RepoRoot).Path
+$proofRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime\proofs' } else { Join-Path $HOME 'BrownEyeCortex\Runtime\proofs' }
+$null = New-Item -ItemType Directory -Force -Path $proofRoot
+# Install the durable local heartbeat BEFORE optional runtimes or model checks.
+Write-Output 'PHASE=INSTALL_LOCAL_HEARTBEAT_FIRST'
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\install-beck-heartbeat.ps1') -RepoRoot $RepoRoot
+if ($LASTEXITCODE -ne 0) { throw "Local heartbeat installation failed: $LASTEXITCODE" }
+$task = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
+if (-not $task) { throw 'Local heartbeat task was not registered; refusing to claim commissioning success.' }
+Write-Output 'LOCAL_HEARTBEAT_TASK=REGISTERED'
 if (-not (Get-Command node.exe -ErrorAction SilentlyContinue) -or -not (Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
   $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
   if (-not $winget) { throw 'BLOCKED: Node.js 20+ is missing and winget is unavailable. Install Node.js LTS once, reopen PowerShell, then rerun this same bootstrap.' }
@@ -48,7 +57,29 @@ if (-not (Get-Command node.exe -ErrorAction SilentlyContinue) -or -not (Get-Comm
   & winget.exe install --id OpenJS.NodeJS.LTS -e --silent --accept-package-agreements --accept-source-agreements
   if ($LASTEXITCODE -ne 0) { throw "Node.js LTS installation failed with exit code $LASTEXITCODE" }
   $env:PATH = [Environment]::GetEnvironmentVariable('PATH','Machine') + ';' + [Environment]::GetEnvironmentVariable('PATH','User')
-  if (-not (Get-Command node.exe -ErrorAction SilentlyContinue) -or -not (Get-Command npm.cmd -ErrorAction SilentlyContinue)) { throw 'Node.js installed but is not on PATH. Close PowerShell, reopen it, and rerun this same bootstrap.' }
+  $nodeDirs = @("$env:ProgramFiles\nodejs", "$env:LOCALAPPDATA\Programs\nodejs", "$env:ProgramFiles\OpenJS\NodeJS")
+  foreach ($dir in $nodeDirs) { if ((Test-Path (Join-Path $dir 'node.exe')) -and $env:PATH -notlike "*$dir*") { $env:PATH = "$dir;$env:PATH" } }
+  $nodeCmd = Get-Command node.exe -ErrorAction SilentlyContinue
+  $npmCmd = Get-Command npm.cmd -ErrorAction SilentlyContinue
+  if (-not $nodeCmd -or -not $npmCmd) {
+    $proof = [ordered]@{
+      schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
+      generated_at_utc = [DateTime]::UtcNow.ToString('o')
+      status = 'INSTALLED_DEGRADED_CLOUD_ONLY'
+      local_heartbeat_task = 'REGISTERED'
+      local_heartbeat_schedule = 'At user logon and every 15 minutes while session is available'
+      cloud_fallback = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml')
+      node_runtime = 'UNAVAILABLE_AFTER_INSTALL_ATTEMPT'
+      verified_revenue_nzd = 0
+      notes = @('The recurring local task is installed. GitHub Actions does not depend on this PC.','Local Node-based cockpit and inference checks were skipped; this is not a revenue or fulfillment pass.','Do not rerun the bootstrap merely to repeat diagnostics.')
+    }
+    $proofPath = Join-Path $proofRoot 'ONE-SHOT-COMMISSIONING-LATEST.json'
+    $proof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $proofPath -Encoding UTF8
+    Write-Output 'COMMISSIONING_STATUS=INSTALLED_DEGRADED_CLOUD_ONLY'
+    Write-Output "COMMISSIONING_PROOF=$proofPath"
+    Write-Output 'RERUN_REQUIRED=NO'
+    exit 0
+  }
 }
 $proofRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime\proofs' } else { Join-Path $HOME 'BrownEyeCortex\Runtime\proofs' }
 $null = New-Item -ItemType Directory -Force -Path $proofRoot
@@ -65,9 +96,8 @@ try {
   & npm.cmd install --no-package-lock --no-audit --no-fund
   if ($LASTEXITCODE -ne 0) { throw "npm dependency installation failed with exit code $LASTEXITCODE" }
 } finally { Pop-Location }
-Write-Output 'PHASE=INSTALL_LOCAL_HEARTBEAT'
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\install-beck-heartbeat.ps1') -RepoRoot $RepoRoot
-if ($LASTEXITCODE -ne 0) { throw "Local heartbeat installation failed: $LASTEXITCODE" }
+Write-Output 'PHASE=LOCAL_HEARTBEAT_ALREADY_REGISTERED'
+# The task was installed before optional dependency setup; do not reinstall it.
 Write-Output 'PHASE=RUN_LOCAL_HEARTBEAT_NOW'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-heartbeat.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
 $heartbeatExit = $LASTEXITCODE
@@ -189,6 +219,28 @@ Write-Output "LOCAL_HEARTBEAT_PROOF=$(Join-Path $proofRoot 'heartbeat\LOCAL-HEAR
 Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
 Write-Output 'CLOUD_SCHEDULE=30_MINUTES_ONLY_AFTER_THIS_WORKFLOW_IS_ENABLED_ON_DEFAULT_BRANCH; CURRENT_DEFAULT_BRANCH_SCHEDULE_NOT_CHANGED'
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
-if ($startupExit -eq 1 -or $heartbeatExit -eq 1 -or $cockpitExit -eq 1) { exit 1 }
-if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0 -or $cloudDispatchStatus -notmatch '^COMPLETED_success_ARTIFACT_DOWNLOADED$') { exit 2 }
+$taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
+$commissionStatus = if ($taskFinal) { 'INSTALLED' } else { 'FAILED' }
+$commissionProof = [ordered]@{
+  schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
+  generated_at_utc = [DateTime]::UtcNow.ToString('o')
+  status = $commissionStatus
+  local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
+  local_heartbeat_exit = $heartbeatExit
+  startup_exit = $startupExit
+  heartbeat_after_startup_exit = $heartbeatAfterStartupExit
+  cockpit_exit = $cockpitExit
+  cloud_cockpit_dispatch = $cloudDispatchStatus
+  cloud_fallback_workflows = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml')
+  verified_revenue_nzd = 0
+  readiness_is_not_revenue = $true
+  notes = @('The recurring task is the commissioning outcome; blocked diagnostics are retained as evidence and do not require rerunning this installer.','GitHub Actions cloud fallback is independent of local PC power.','Revenue remains zero until external settlement, fulfillment, and delivery evidence reconcile.')
+}
+$commissionProofPath = Join-Path $proofRoot 'ONE-SHOT-COMMISSIONING-LATEST.json'
+$commissionProof | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $commissionProofPath -Encoding UTF8
+Write-Output "COMMISSIONING_STATUS=$commissionStatus"
+Write-Output "COMMISSIONING_PROOF=$commissionProofPath"
+Write-Output 'RERUN_REQUIRED=NO'
+if (-not $taskFinal) { exit 1 }
+# Readiness failures remain in the proof, but do not make the operator reinstall the same heartbeat.
 exit 0
