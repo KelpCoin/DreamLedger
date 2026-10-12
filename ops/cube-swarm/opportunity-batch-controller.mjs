@@ -146,7 +146,7 @@ const report = {
   pipeline: ['WORLD', 'OBSERVATION', 'IDEA', 'HYPOTHESIS', 'PROPOSITION', 'TEST', 'EXTERNAL_EFFECT', 'RESPONSE', 'PAYMENT', 'FULFILLMENT', 'TRUTH', 'LEARNING', 'MUTATION', 'REPEAT'],
   operating_contract: {
     one_shared_pipeline: true,
-    max_candidates,
+    max_candidates: maxCandidates,
     source_records_are_not_buyer_demand: true,
     no_external_actions: true,
     no_supabase_writes: true,
