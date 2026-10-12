@@ -286,7 +286,23 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletContract -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commercialGauntletExecution = if ($commercialGauntletContract -eq 'PASS') { 'PASS' } else { 'FAIL' }
+Write-Output "COMMERCIAL_GAUNTLET_EXECUTION=$commercialGauntletExecution"
+# A successful validator run and a blocked commercial verdict are different facts.
+# Technical commissioning may be green while real commercial eligibility remains blocked by missing buyer/fulfillment evidence.
+$commissionStatus = if (-not $taskFinal) {
+  'FAILED'
+} elseif ($dualHeartbeatStatus -ne 'PASS') {
+  'INSTALLED_HEARTBEAT_DEGRADED'
+} elseif ($commercialGauntletContract -ne 'PASS') {
+  'INSTALLED_COMMERCIAL_GAUNTLET_EXECUTION_UNVERIFIED'
+} elseif ($commercialGauntletStatus -eq 'PASS') {
+  'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET'
+} elseif ($commercialGauntletStatus -eq 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED') {
+  'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED'
+} else {
+  'INSTALLED_COMMERCIAL_GAUNTLET_NOT_PASSED'
+}
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
@@ -294,6 +310,7 @@ $commissionProof = [ordered]@{
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
   dual_heartbeat_status = $dualHeartbeatStatus
   commercial_gauntlet_contract = $commercialGauntletContract
+  commercial_gauntlet_execution = $commercialGauntletExecution
   commercial_gauntlet_status = $commercialGauntletStatus
   commercial_gauntlet_verdict = $commercialGauntletVerdict
   commercial_gauntlet_score = $commercialGauntletScore
