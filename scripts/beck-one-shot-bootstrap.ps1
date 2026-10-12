@@ -278,6 +278,7 @@ $onlineHeartbeatSourceBranch = $Branch
 $onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
 $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
 $dispatchStartedAt = $null
+$onlineResponse = $null
 $ghCommand = Get-Command gh.exe -ErrorAction SilentlyContinue
 # If GitHub CLI is already authenticated, run the read-only liveness workflow now and wait
 # for its result. No interactive login is requested and no production state is mutated.
