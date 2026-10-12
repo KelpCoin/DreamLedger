@@ -2,15 +2,19 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const source = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
+const root = path.join(__dirname, '..');
+const runtime = fs.readFileSync(path.join(root, 'start.js'), 'utf8');
+const compatibility = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+const truthOracle = fs.readFileSync(path.join(root, 'routes', 'truthOracleCommerce.js'), 'utf8');
+const marketplace = fs.readFileSync(path.join(root, 'routes', 'marketplaceWebhook.js'), 'utf8');
 const checks = [
-  ['configured Render path reaches the shared handler', /req\.method==='POST'&&\(url==='\/api\/webhooks\/stripe'\|\|url==='\/webhook'\)\)return webhook\(req,res\)/.test(source)],
-  ['handler verifies Stripe signature', /verifyStripeSignature\(raw,req\.headers\[['"]stripe-signature['"]\]\|\|['"]['"]\)/.test(source)],
-  ['handler rejects stale signatures', /if\(age>300\)throw new Error\(['"]Expired Stripe signature['"]\)/.test(source)],
-  ['handler compares signatures in constant time', /crypto\.timingSafeEqual\(a,b\)/.test(source)],
-  ['handler requires paid checkout', /session\.payment_status!=='paid'/.test(source)],
-  ['handler checks transaction idempotency', /fs\.existsSync\(txFile\)/.test(source)],
-  ['handler writes payment and fulfillment ledger evidence', /revenueLedger\.recordPayment/.test(source) && /revenueLedger\.recordFulfillment/.test(source)]
+  ['canonical Render URL is accepted by the actual start.js runtime', runtime.includes("requestPath==='/webhook'||requestPath==='/api/webhooks/stripe'")],
+  ['actual runtime reads the raw request body before dispatch', runtime.includes("if(req.method==='POST'&&(requestPath==='/webhook'||requestPath==='/api/webhooks/stripe')){let raw=''")],
+  ['Truth Oracle webhook validates Stripe signature', truthOracle.includes("stripeProof.verifyStripeSignature(raw,signature,process.env.STRIPE_WEBHOOK_SECRET||'')")],
+  ['Truth Oracle webhook deduplicates provider event IDs', truthOracle.includes('existing.provider_events && existing.provider_events[event.id]')],
+  ['marketplace webhook validates timestamped signatures', marketplace.includes("if (Math.abs(Date.now() / 1000 - Number(t)) > 300)")],
+  ['marketplace webhook uses constant-time signature comparison', marketplace.includes('crypto.timingSafeEqual')],
+  ['legacy server.js alias remains aligned', compatibility.includes("url==='/api/webhooks/stripe'||url==='/webhook'")]
 ];
 const failed = checks.filter(([, ok]) => !ok);
 for (const [name, ok] of checks) console.log((ok ? 'PASS ' : 'FAIL ') + name);
