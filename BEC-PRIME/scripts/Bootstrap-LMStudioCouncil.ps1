@@ -9,7 +9,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $DataRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex' } else { Join-Path $HOME 'BrownEyeCortex' }
 if ([string]::IsNullOrWhiteSpace($Root)) { $Root = Join-Path $DataRoot 'Runtime\LMStudioCouncil' }
-if ([string]::IsNullOrWhiteSpace($ProofRoot)) { $ProofRoot = Join-Path $DataRoot 'proofs\Runtime' }
+if ([string]::IsNullOrWhiteSpace($ProofRoot)) { $ProofRoot = Join-Path $DataRoot 'Runtime\proofs' }
 $Root = [System.IO.Path]::GetFullPath($Root)
 $ProofRoot = [System.IO.Path]::GetFullPath($ProofRoot)
 $LogDir = Join-Path $DataRoot 'logs'
