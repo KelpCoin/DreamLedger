@@ -37,20 +37,29 @@ async function listAll(path, params = {}) {
 
 const links = await listAll('/payment_links');
 const link = links.find(x => x.url === offer.expected_payment_link_url);
-const sessions = await listAll('/checkout/sessions', { status: 'complete' });
-const matches = link ? sessions.filter(s =>
-  s.payment_link === link.id &&
+const [completeSessions, openSessions, expiredSessions] = await Promise.all([
+  listAll('/checkout/sessions', { status: 'complete' }),
+  listAll('/checkout/sessions', { status: 'open' }),
+  listAll('/checkout/sessions', { status: 'expired' })
+]);
+const sessions = [...completeSessions, ...openSessions, ...expiredSessions];
+const offerSessions = link ? sessions.filter(s => s.payment_link === link.id) : [];
+const matches = offerSessions.filter(s =>
   s.livemode === true &&
+  s.status === 'complete' &&
   s.payment_status === 'paid' &&
   s.currency === offer.currency &&
   s.amount_total === offer.price_nzd * 100
-) : [];
-const wrongPriceOrCurrency = link ? sessions.filter(s =>
-  s.payment_link === link.id &&
+);
+const wrongPriceOrCurrency = offerSessions.filter(s =>
   s.livemode === true &&
+  s.status === 'complete' &&
   s.payment_status === 'paid' &&
   !(s.currency === offer.currency && s.amount_total === offer.price_nzd * 100)
-) : [];
+);
+const paidOfferSessions = offerSessions.filter(s => s.livemode === true && s.status === 'complete' && s.payment_status === 'paid');
+const sessionStartCount = offerSessions.length;
+const checkoutSessionPaidRate = sessionStartCount ? Number((paidOfferSessions.length / sessionStartCount).toFixed(4)) : null;
 
 const proof = {
   schema: 'BECK-FIRST-DOLLAR-STRIPE-RECONCILIATION/v1',
@@ -61,7 +70,17 @@ const proof = {
     exact_payment_link_found: Boolean(link),
     payment_link_id: link?.id || null,
     payment_link_active: link?.active ?? null,
-    completed_checkout_sessions_scanned: sessions.length,
+    completed_checkout_sessions_scanned: completeSessions.length,
+    open_checkout_sessions_scanned: openSessions.length,
+    expired_checkout_sessions_scanned: expiredSessions.length,
+    offer_checkout_funnel: {
+      sessions_started_for_exact_payment_link: sessionStartCount,
+      completed_paid_sessions_any_amount: paidOfferSessions.length,
+      open_sessions: offerSessions.filter(s => s.status === 'open').length,
+      expired_sessions: offerSessions.filter(s => s.status === 'expired').length,
+      paid_rate_per_checkout_session_started: checkoutSessionPaidRate,
+      interpretation: 'Checkout-session conversion only. It does not measure page visitors, link clicks without a session, unique buyers, or organic demand.'
+    },
     exact_paid_live_sessions: matches.map(s => ({
       session_id: s.id,
       created_at_utc: new Date(s.created * 1000).toISOString(),
