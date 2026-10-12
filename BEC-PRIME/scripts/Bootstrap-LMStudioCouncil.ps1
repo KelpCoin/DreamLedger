@@ -22,10 +22,13 @@ New-Item -ItemType Directory -Force -Path $Root,$LogDir,$MemoryDir,$ConfigDir | 
 $Log = Join-Path $LogDir ('bootstrap-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.log')
 $Memory = Join-Path $MemoryDir 'memory.jsonl'
 $Config = Join-Path $ConfigDir 'council.json'
-Start-Transcript -Path $Log -Force | Out-Null
+$transcriptStarted = $false
+try { Start-Transcript -Path $Log -Force | Out-Null; $transcriptStarted = $true } catch { Write-Warning 'Transcript unavailable; bootstrap proof remains authoritative.' }
 
 function Write-Json([string]$Path, [object]$Value) {
-    $Value | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Path -Encoding UTF8
+    $tmp = "$Path.tmp"
+    $Value | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $tmp -Encoding UTF8
+    Move-Item -LiteralPath $tmp -Destination $Path -Force
 }
 try {
     Write-Host 'BECK LOCAL COUNCIL BOOTSTRAP'
@@ -147,5 +150,5 @@ try {
     Write-Error $_
     exit 2
 } finally {
-    Stop-Transcript | Out-Null
+    if ($transcriptStarted) { try { Stop-Transcript | Out-Null } catch {} }
 }
