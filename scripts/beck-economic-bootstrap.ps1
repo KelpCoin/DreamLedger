@@ -182,7 +182,7 @@ try {
             } else {
                 Add-Check 'stripe.webhook_routing' 'BLOCKED' 'Webhook endpoint inventory failed. No endpoint was created, changed, or disabled.'
             }
-            $firstDollarCode = Run-NodeCheck 'stripe.first_dollar_offer_reconciliation' @('ops/commerce/reconcile-truth-oracle-access.mjs')
+            $firstDollarCode = Run-NodeCheck 'stripe.first_dollar_offer_reconciliation' @('ops/commerce/reconcile-billboard-first-dollar.mjs')
             $firstDollarPath = Join-Path $RepoRoot 'proof/commerce/latest-first-dollar-stripe-reconciliation.json'
             if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
                 $firstDollar = Get-Content -LiteralPath $firstDollarPath -Raw | ConvertFrom-Json
