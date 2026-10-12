@@ -70,6 +70,7 @@
     "verify:cube-swarm-definition": "node BEC-PRIME/scripts/verify-cube-swarm-definition.js",
     "scout:monetization": "node ops/commerce/beck-monetization-scout.mjs",
     "reconcile:first-dollar": "node ops/commerce/reconcile-first-dollar-proof-audit.mjs",
+    "gauntlet:economics": "node ops/commerce/gauntlet-economic-verdict.mjs",
     "validate:economics": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/beck-economic-bootstrap.ps1"
   },
   "engines": {
