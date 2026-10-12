@@ -69,7 +69,7 @@ jobs:
           node --check ops/decision/run-cloud-decision.mjs
           node ops/decision/validate-decision-prompt-registry.mjs
           node --check ops/commerce/beck-monetization-scout.mjs
-          node --check ops/commerce/reconcile-truth-oracle-access.mjs
+          node --check ops/commerce/reconcile-billboard-first-dollar.mjs
           node --check ops/commerce/gauntlet-economic-verdict.mjs
           node --check ops/commerce/reconcile-stripe-webhook-routing.mjs
           node --check ops/cockpit/figure-eight-cockpit.mjs
