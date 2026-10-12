@@ -70,7 +70,7 @@ const normalize = (raw, sourcePath) => {
   const hasOffer = Boolean(x.checkout_url || x.payment_link_url || x.offer_id || x.product_id || x.sku);
   const hasFulfillment = Boolean(x.fulfillment || x.fulfillment_mode || x.fulfillment_method || x.delivery_mechanism);
   const hasPrice = Number.isFinite(Number(x.price_nzd ?? x.price)) && Number(x.price_nzd ?? x.price) > 0;
-  const isRegistryHypothesis = sourcePath.replaceAll('\\\\', '/').endsWith('ops/cube-swarm/commercial-mechanism-registry.json') || x.status === 'HYPOTHESIS_UNVALIDATED';
+  const isRegistryHypothesis = sourcePath.toLowerCase().endsWith(path.join('ops','cube-swarm','commercial-mechanism-registry.json').toLowerCase()) || x.status === 'HYPOTHESIS_UNVALIDATED';
   const blockers = [];
   if (isRegistryHypothesis) blockers.push('HYPOTHESIS_ONLY_NOT_AN_APPROVED_OFFER');
   if (!hasSource) blockers.push('SOURCE_EVIDENCE_MISSING');
