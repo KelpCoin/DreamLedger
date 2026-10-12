@@ -43,7 +43,7 @@ const [completeSessions, openSessions, expiredSessions] = await Promise.all([
   listAll('/checkout/sessions', { status: 'expired' })
 ]);
 const sessions = [...completeSessions, ...openSessions, ...expiredSessions];
-const offerSessions = link ? sessions.filter(s => s.payment_link === link.id) : [];
+const offerSessions = link ? sessions.filter(s => s.payment_link === link.id && s.livemode === true) : [];
 const matches = offerSessions.filter(s =>
   s.livemode === true &&
   s.status === 'complete' &&
