@@ -9,8 +9,6 @@ on:
       - 'scripts/beck-local-artifact-inventory.ps1'
       - 'scripts/beck-local-artifact-commercial-review.ps1'
       - 'ops/cube-swarm/commercial-mechanism-registry.json'
-      - 'scripts/beck-local-artifact-commercial-review.ps1'
-      - 'ops/cube-swarm/commercial-mechanism-registry.json'
       - 'package.json'
       - '.github/workflows/beck-cube-swarm-validation.yml'
   pull_request:
