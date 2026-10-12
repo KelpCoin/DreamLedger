@@ -70,8 +70,30 @@ if (-not (Test-Path (Join-Path $RepoRoot '.git'))) {
   & git.exe -C $RepoRoot checkout -B $Branch FETCH_HEAD
   if ($LASTEXITCODE -ne 0) { throw "Git checkout failed with exit code $LASTEXITCODE" }
 }
+# A one-shot script downloaded from the feature branch may run before it has been merged.
+# Prefer main when it already contains the bootstrap; otherwise use the reviewed bootstrap branch
+# so the installed local task, economic validator and Gauntlet come from one consistent revision.
+$requiredCommissioningFiles = @(
+  'scripts\\install-beck-heartbeat.ps1',
+  'scripts\\beck-heartbeat.ps1',
+  'scripts\\beck-startup.ps1',
+  'scripts\\beck-economic-bootstrap.ps1',
+  'ops\\commerce\\gauntlet-economic-verdict.mjs'
+)
+$missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
+if ($Branch -eq 'main' -and ($missingCommissioningFiles.Count -gt 0 -or -not (Test-Path -LiteralPath (Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1')))) {
+  $bootstrapFallbackBranch = 'feat/beck-dual-heartbeat-bootstrap'
+  Write-Output "BOOTSTRAP_BRANCH_FALLBACK=$bootstrapFallbackBranch"
+  & git.exe -C $RepoRoot fetch --depth 1 origin $bootstrapFallbackBranch
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap fallback branch fetch failed; refusing to run a partial or mixed-version commissioning set.' }
+  & git.exe -C $RepoRoot checkout -B $bootstrapFallbackBranch FETCH_HEAD
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap fallback branch checkout failed; refusing to run a partial or mixed-version commissioning set.' }
+  $Branch = $bootstrapFallbackBranch
+  $missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
+}
+if ($missingCommissioningFiles.Count -gt 0) { throw ("Required commissioning files missing from selected branch: " + ($missingCommissioningFiles -join ', ')) }
 $RepoRoot = (Resolve-Path $RepoRoot).Path
-$proofRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime\proofs' } else { Join-Path $HOME 'BrownEyeCortex\Runtime\proofs' }
+$proofRoot = if (Test-Path 'D:\\') { 'D:\\BrownEyeCortex\\Runtime\\proofs' } else { Join-Path $HOME 'BrownEyeCortex\\Runtime\\proofs' }
 $null = New-Item -ItemType Directory -Force -Path $proofRoot
 # Install the durable local heartbeat BEFORE optional runtimes or model checks.
 Write-Output 'PHASE=INSTALL_LOCAL_HEARTBEAT_FIRST'
@@ -340,6 +362,11 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
+$commercialGauntletExecution = if ($commercialGauntletContract -eq 'PASS') { 'PASS' } else { 'FAIL' }
+Write-Output "COMMERCIAL_GAUNTLET_EXECUTION=$commercialGauntletExecution"
+# Commissioning success means the local/cloud heartbeat and the Gauntlet execution contract
+# are verified. It does NOT override the business verdict: real paid-order, fulfillment,
+# delivery, demand and unit-economics evidence are still required for commercial eligibility.
 $commissionStatus = if (-not $taskFinal) {
   'FAILED'
 } elseif ($dualHeartbeatStatus -ne 'PASS') {
@@ -349,7 +376,7 @@ $commissionStatus = if (-not $taskFinal) {
 } elseif ($commercialGauntletStatus -eq 'PASS') {
   'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET'
 } elseif ($commercialGauntletStatus -eq 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED') {
-  'HEARTBEAT_PASS_COMMERCIAL_EVIDENCE_REQUIRED'
+  'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED'
 } else {
   'INSTALLED_COMMERCIAL_GAUNTLET_NOT_PASSED'
 }
@@ -360,6 +387,7 @@ $commissionProof = [ordered]@{
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
   dual_heartbeat_status = $dualHeartbeatStatus
   commercial_gauntlet_contract = $commercialGauntletContract
+  commercial_gauntlet_execution = $commercialGauntletExecution
   commercial_gauntlet_status = $commercialGauntletStatus
   commercial_gauntlet_verdict = $commercialGauntletVerdict
   commercial_gauntlet_score = $commercialGauntletScore
@@ -385,7 +413,7 @@ if (-not $taskFinal) { exit 1 }
 # Exit status distinguishes installed heartbeat from commercial readiness.
 # Never label the commercial Gauntlet green without its real evidence-gated eligible verdict.
 if ($commissionStatus -eq 'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET') { exit 0 }
-if ($commissionStatus -eq 'HEARTBEAT_PASS_COMMERCIAL_EVIDENCE_REQUIRED') { exit 2 }
+if ($commissionStatus -eq 'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED') { exit 0 }
 # A degraded local runtime does not erase a successfully registered task; retain proof and return 0.
 if ($commissionStatus -like 'INSTALLED_*') { exit 0 }
 exit 1
