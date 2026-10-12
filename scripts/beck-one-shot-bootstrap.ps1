@@ -294,12 +294,12 @@ try {
     & gh.exe auth status 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
       $dispatchAt = [DateTime]::UtcNow
-      & gh.exe workflow run 'beck-cloud-liveness.yml' --repo KelpCoin/DreamLedger --ref main 2>&1 | Out-Null
+      & gh.exe workflow run 'beck-cloud-liveness.yml' --repo KelpCoin/DreamLedger --ref $Branch 2>&1 | Out-Null
       if ($LASTEXITCODE -eq 0) {
         $deadline = [DateTime]::UtcNow.AddMinutes(4)
         do {
           Start-Sleep -Seconds 8
-          $onlineRuns = & gh.exe run list --repo KelpCoin/DreamLedger --workflow 'beck-cloud-liveness.yml' --branch main --limit 5 --json databaseId,status,conclusion,createdAt,event 2>$null
+          $onlineRuns = & gh.exe run list --repo KelpCoin/DreamLedger --workflow 'beck-cloud-liveness.yml' --branch $Branch --limit 5 --json databaseId,status,conclusion,createdAt,event 2>$null
           if ($LASTEXITCODE -eq 0) {
             try {
               $candidate = @($onlineRuns | ConvertFrom-Json | Where-Object { [DateTime]::Parse([string]$_.createdAt).ToUniversalTime() -ge $dispatchAt.AddSeconds(-5) } | Sort-Object createdAt -Descending | Select-Object -First 1)
@@ -328,7 +328,7 @@ $onlineHeartbeatStatus = 'UNKNOWN'
 $onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
-$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
+$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
 try {
   $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
   $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
