@@ -6,6 +6,7 @@ on:
     paths:
       - 'ops/cube-swarm/opportunity-batch-controller.mjs'
       - 'scripts/beck-cube-swarm-bootstrap.ps1'
+      - 'scripts/beck-local-artifact-inventory.ps1'
       - 'package.json'
       - '.github/workflows/beck-cube-swarm-validation.yml'
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - 'ops/cube-swarm/opportunity-batch-controller.mjs'
       - 'scripts/beck-cube-swarm-bootstrap.ps1'
+      - 'scripts/beck-local-artifact-inventory.ps1'
       - 'package.json'
       - '.github/workflows/beck-cube-swarm-validation.yml'
   workflow_dispatch:
@@ -35,16 +37,20 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $tokens = $null
           $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Join-Path $PWD 'scripts/beck-cube-swarm-bootstrap.ps1'),
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object { Write-Error $_.Message }
-            throw 'CUBE Swarm bootstrap parse failed.'
+          foreach ($path in @('scripts/beck-cube-swarm-bootstrap.ps1','scripts/beck-local-artifact-inventory.ps1')) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Join-Path $PWD $path),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error ($path + ': ' + $_.Message) }
+              throw ('PowerShell parse failed: ' + $path)
+            }
+            Write-Host ('POWERSHELL_PARSE_PASS=' + $path)
           }
-          Write-Host 'POWERSHELL_PARSE_PASS'
       - name: Validate Node syntax and package scripts
         shell: pwsh
         run: |
