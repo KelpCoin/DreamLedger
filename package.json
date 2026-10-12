@@ -68,7 +68,8 @@
     "test:toll-roads": "node --test BEC-PRIME/runtime/TollRoadFactory.test.js BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
     "test:agent-bridge-ledger": "node --test BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
     "verify:cube-swarm-definition": "node BEC-PRIME/scripts/verify-cube-swarm-definition.js",
-    "scout:monetization": "node ops/commerce/beck-monetization-scout.mjs"
+    "scout:monetization": "node ops/commerce/beck-monetization-scout.mjs",
+    "reconcile:first-dollar": "node ops/commerce/reconcile-first-dollar-proof-audit.mjs"
   },
   "engines": {
     "node": ">=20"
