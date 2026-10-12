@@ -11,6 +11,7 @@ on:
       - "scripts/777_cycle.py"
       - "scripts/sync_agent_bridge_catalog.py"
       - "scripts/777_compounding_gate.py"
+      - "scripts/validate_777_long_horizon_task_graph.py"
       - "tests/test_777_compounding_gate_import.py"
       - "scripts/external_demand_transition.py"
       - "scripts/777_cloud_execution_adapter.js"
@@ -56,7 +57,9 @@ jobs:
       - name: Test Agent Bridge manifest normalization
         run: python -m unittest tests.test_sync_agent_bridge_catalog
       - name: Validate bounded Agent Bridge long-task contract
-        run: python scripts/validate_agent_bridge_long_task_contract.py
+        run: |
+          python scripts/validate_agent_bridge_long_task_contract.py
+          python scripts/validate_777_long_horizon_task_graph.py
       - name: Sync Agent Bridge catalogue snapshot
         run: python scripts/sync_agent_bridge_catalog.py
       - name: Generate procurement amendment delta
