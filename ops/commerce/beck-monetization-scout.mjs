@@ -40,7 +40,7 @@ function scoreCandidate(o) {
   if (o.human_authorization_required === true) score += 3;
   if (o.required_input || o.input) score += 5;
   if (o.proof_of_delivery || o.output || o.description) score += 5;
-  if (id.includes('AGENT-PROOF-AUDIT-49')) score += 8;
+  if (id.includes('TRUTH-ORACLE-ACCESS-001')) score += 8;
   if (id.includes('TOLL-PROBE')) score -= 8; // useful infrastructure test, not strongest first-dollar service.
   if (id.includes('QUOTE-COMPARE')) score -= 8; // catalog explicitly disables checkout.
   if (id.includes('COMMANDER') || id.includes('CMD-DIAG')) score -= 5; // known contract mismatch remains unresolved.
@@ -61,17 +61,26 @@ for (const o of (commerce.primary_offers || [])) {
 }
 for (const o of merged.values()) candidates.push(scoreCandidate(o));
 
-const proofAuditFeed = feed.find(x => x.item_id === 'AGENT-PROOF-AUDIT-49');
-const proofAuditPublic = 'public/agent-delivery-proof-audit.html';
-const proofAuditRoot = 'agent-delivery-proof-audit.html';
-if (proofAuditFeed && exists(proofAuditPublic) && exists(proofAuditRoot)) {
-  const publicText = fs.readFileSync(path.join(root, proofAuditPublic), 'utf8');
-  const rootText = fs.readFileSync(path.join(root, proofAuditRoot), 'utf8');
-  const publicActive = /Purchase the audit|buy\.stripe\.com/i.test(publicText);
-  const rootWithdrawn = /Offer withdrawn|not available for purchase/i.test(rootText);
-  if (publicActive && rootWithdrawn) {
-    addBlocker('AGENT-PROOF-AUDIT-49','CONTRADICTORY_PUBLIC_ARTIFACTS',
-      'public/agent-delivery-proof-audit.html advertises checkout while root agent-delivery-proof-audit.html says offer withdrawn. Production serves compiled website artifacts, so the actually deployed artifact must be checked before acquisition.');
+const truthOracleFeed = feed.find(x => x.item_id === 'TRUTH-ORACLE-ACCESS-001');
+const retiredStandaloneInFeed = feed.some(x => x.item_id === 'AGENT-PROOF-AUDIT-49');
+if (retiredStandaloneInFeed) {
+  addBlocker('TRUTH-ORACLE-ACCESS-001','RETIRED_OFFER_REAPPEARED',
+    'The retired standalone audit SKU has reappeared in the public product feed. Keep its payment link and price inactive.');
+}
+if (truthOracleFeed) {
+  const truthPagePath = 'public/truth-oracle.html';
+  const redirectPath = 'public/agent-delivery-proof-audit.html';
+  const truthText = exists(truthPagePath) ? fs.readFileSync(path.join(root, truthPagePath), 'utf8') : '';
+  const redirectText = exists(redirectPath) ? fs.readFileSync(path.join(root, redirectPath), 'utf8') : '';
+  const publicCheckout = truthOracleFeed.enable_checkout === true || /buy\\.stripe\\.com/i.test(truthText);
+  const redirectCorrect = /truth-oracle\\.html/i.test(redirectText) && !/buy\\.stripe\\.com|NZ\\$49|Purchase the audit/i.test(redirectText);
+  if (publicCheckout) {
+    addBlocker('TRUTH-ORACLE-ACCESS-001','CHECKOUT_ENABLED_BEFORE_FULFILLMENT_PROOF',
+      'Truth Oracle paid checkout must remain held until entitlement, evidence persistence, and delivery proof pass end to end.');
+  }
+  if (!redirectCorrect) {
+    addBlocker('TRUTH-ORACLE-ACCESS-001','LEGACY_ROUTE_NOT_REDIRECTED',
+      'The retired standalone route must redirect to Truth Oracle and contain no checkout or old offer copy.');
   }
 }
 const commanderDefPath = 'ops/cube-swarm/silo-definitions/mtg-commander.json';
@@ -87,14 +96,14 @@ if (quote && quote.enable_checkout === false) {
   addBlocker('QUOTE-COMPARE-49','PAID_CHECKOUT_DISABLED',
     'Public product feed disables paid checkout and marks review required; keep the free worksheet as the entry point.');
 }
-if (aiCatalog.priority_offer?.id === 'AGENT-PROOF-AUDIT-49' && !proofAuditFeed) {
-  addBlocker('AGENT-PROOF-AUDIT-49','FEED_MISMATCH','AI catalogue names Proof Audit as priority, but the product feed does not contain it.');
+if (aiCatalog.priority_offer?.id === 'TRUTH-ORACLE-ACCESS-001' && !truthOracleFeed) {
+  addBlocker('TRUTH-ORACLE-ACCESS-001','FEED_MISMATCH','AI catalogue names Truth Oracle Access as priority, but the product feed does not contain it.');
 }
 
 // Traverse the existing monetizable substrate without executing it.
 // This inventory is based on repository artifacts only; presence is not live readiness.
 const substrateSpecs = [
-  {id:'AGENT-PROOF-AUDIT-49',name:'Agent Delivery Proof Audit',price_nzd:49,files:['public/agent-products.json','public/agent-delivery-proof-audit.html','agent-delivery-proof-audit.html','BEC-PRIME/compiled/website/agent-delivery-proof-audit.html'],fulfillment:'manual evidence report',database_dependent:false,reason:'Small fixed-scope digital deliverable; can be fulfilled manually without Supabase if public intake and payment attribution are sound.'},
+  {id:'TRUTH-ORACLE-ACCESS-001',name:'Truth Oracle Access',price_nzd:49,files:['public/agent-products.json','public/truth-oracle.html','truth-oracle.html','BEC-PRIME/compiled/website/truth-oracle.html'],fulfillment:'manual evidence report',database_dependent:false,reason:'Small fixed-scope digital deliverable; can be fulfilled manually without Supabase if public intake and payment attribution are sound.'},
   {id:'QUOTE-COMPARE-49',name:'Supplier Quote Comparison',price_nzd:49,files:['public/quote-intake.html','supabase/functions/quote-intake/index.ts','supabase/functions/quote-fulfillment/index.ts','BEC-PRIME/data/777/QUOTE-COMPARE-49-LIVE-FULFILLMENT-MAP.json'],fulfillment:'automated quote intake and report generation',database_dependent:true,reason:'Strong repeatable B2B problem with existing intake and fulfillment code, but paid checkout is explicitly held and depends on healthy Supabase persistence.'},
   {id:'COMMANDER-DECK-DIAGNOSTIC-001',name:'Commander Deck Diagnostic',price_nzd:29,files:['public/diagnostic-input.html','BEC-PRIME/routes/mtgDiagnostic.js','BEC-PRIME/lib/mtgDiagnosticFulfillment.js','ops/cube-swarm/silo-definitions/mtg-commander.json'],fulfillment:'automated diagnostic report',database_dependent:true,reason:'Existing report capability and low price, but the silo definition records checkout mismatch/unverified state; do not acquire buyers until the canonical route is reconciled.'},
   {id:'SELLER-PROFIT-AUDIT-001',name:'Seller Profit Audit',price_nzd:29,files:['public/agent-commerce.json','BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'audit/calculation service',database_dependent:null,reason:'Existing listed offer and potentially bounded fulfillment; trace its exact live intake and delivery route before ranking it above the Proof Audit.'},
@@ -106,7 +115,7 @@ const substrateSpecs = [
 const substrateInventory = substrateSpecs.map(s => {
   const present = s.files.filter(exists);
   const missing = s.files.filter(p => !exists(p));
-  const readiness = s.id === 'AGENT-PROOF-AUDIT-49'
+  const readiness = s.id === 'TRUTH-ORACLE-ACCESS-001'
     ? (blockers.some(b => b.offer === s.id) ? 'BLOCKED_PUBLIC_ARTIFACT_PARITY' : 'CANDIDATE_MANUAL_FULFILLMENT')
     : s.id === 'QUOTE-COMPARE-49'
       ? 'HELD_CHECKOUT_SUPABASE_DEPENDENCY'
@@ -135,19 +144,19 @@ const proof = {
     'public/ai-catalog.json',
     'BEC-PRIME/catalog/offers/approved.json',
     'ops/cube-swarm/silo-definitions/mtg-commander.json',
-    'agent-delivery-proof-audit.html',
-    'public/agent-delivery-proof-audit.html'
+    'truth-oracle.html',
+    'public/truth-oracle.html'
   ],
   selection_rule: 'Score is an explicit readiness heuristic based on existing checkout metadata and fulfillability. It is not a demand estimate, conversion forecast, or revenue claim.',
   ranked_candidates: candidates.slice(0,12),
   substrate_inventory: substrateInventory,
   monetization_decision: {
-    first_path: 'AGENT-PROOF-AUDIT-49',
+    first_path: 'TRUTH-ORACLE-ACCESS-001',
     why: 'Existing fixed-scope NZ$49 manual digital service with a listed Stripe URL and bounded report deliverable; avoids making the known Supabase database outage a prerequisite.',
     must_pass_before_acquisition: [
-      'Root, public, compiled, and production product pages agree on availability and exact checkout destination.',
-      'A real paid session can be attributed to the exact offer without exposing or logging secrets.',
-      'Complete intake is accessible and manual fulfillment can produce and deliver the stated report.',
+      'Root, public, and production Truth Oracle pages agree; the retired standalone route redirects and contains no separate offer.',
+      'The Truth Oracle Access entitlement is delivered from a settled, attributable payment without exposing or logging secrets.',
+      'The Truth Oracle workflow persists evidence and delivers a verifiable result for a bounded claim.',
       'Do not claim revenue until external settlement, independent buyer, attribution, and delivery evidence exist.'
     ],
     fallback_after_first_path_is_proven: 'Re-enable QUOTE-COMPARE-49 only after Supabase persistence, entitlement, idempotency, and signed delivery are proven end-to-end.',
@@ -155,11 +164,11 @@ const proof = {
   },
   blockers,
   recommended_first_dollar_path: {
-    offer: 'AGENT-PROOF-AUDIT-49',
+    offer: 'TRUTH-ORACLE-ACCESS-001',
     reason: 'Existing NZ$49 manual digital service has a defined input, bounded scope, report deliverable, and Stripe URL; manual fulfillment avoids making Supabase recovery a prerequisite.',
     condition_before_distribution: 'Resolve the contradictory root/public offer artifacts and confirm the actual production page and checkout destination match the approved offer.',
     fulfillment_contract: 'After verified paid order and complete accessible intake, manually produce the bounded evidence report, deliver it to the buyer, and retain payment attribution plus delivery evidence.',
-    status: blockers.some(x => x.offer === 'AGENT-PROOF-AUDIT-49') ? 'BLOCKED_PENDING_PUBLIC_ARTIFACT_PARITY' : 'CANDIDATE_NOT_YET_ECONOMICALLY_VERIFIED'
+    status: blockers.some(x => x.offer === 'TRUTH-ORACLE-ACCESS-001') ? 'BLOCKED_PENDING_PUBLIC_ARTIFACT_PARITY' : 'CANDIDATE_NOT_YET_ECONOMICALLY_VERIFIED'
   },
   economic_truth: {
     verified_revenue_nzd: 0,
