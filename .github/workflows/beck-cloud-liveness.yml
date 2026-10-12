@@ -1,7 +1,7 @@
 name: BECK Cloud Liveness
 on:
   push:
-    branches: [main, feat/beck-commercial-gauntlet-bootstrap-clean]
+    branches: [main, feat/beck-commercial-gauntlet-stable]
     paths:
       - '.github/workflows/beck-cloud-liveness.yml'
       - 'scripts/beck-one-shot-bootstrap.ps1'
