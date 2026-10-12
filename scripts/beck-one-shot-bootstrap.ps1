@@ -2,9 +2,9 @@
 [CmdletBinding()]
 param(
   [string]$RepoRoot = "",
-  [string]$Branch = 'main'
+  [string]$Branch = "main"
 )
-if ($Branch -notmatch '^[A-Za-z0-9._/-]+
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 trap {
   $failureMessage = [string]$_.Exception.Message
