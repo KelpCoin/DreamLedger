@@ -5,6 +5,9 @@ on:
       - 'scripts/beck-economic-magnet-bootstrap.ps1'
       - 'scripts/beck-one-shot-bootstrap.ps1'
       - 'scripts/beck-commercial-gauntlet.ps1'
+      - 'scripts/beck-cube-swarm-bootstrap.ps1'
+      - 'ops/cube-swarm/opportunity-batch-controller.mjs'
+      - '.github/workflows/beck-cube-swarm.yml'
       - '.github/workflows/beck-economic-magnet-validation.yml'
   push:
     branches:
@@ -33,7 +36,8 @@ jobs:
           $files = @(
             'scripts/beck-economic-magnet-bootstrap.ps1',
             'scripts/beck-one-shot-bootstrap.ps1',
-            'scripts/beck-commercial-gauntlet.ps1'
+            'scripts/beck-commercial-gauntlet.ps1',
+            'scripts/beck-cube-swarm-bootstrap.ps1'
           )
           foreach ($file in $files) {
             $tokens = $null
@@ -56,4 +60,5 @@ jobs:
           if ($magnet -notmatch 'verified_revenue_nzd=0') { throw 'Economic magnet must preserve zero verified revenue unless provider evidence is reconciled.' }
           if ($magnet -notmatch 'No public transmission or acquisition dispatch is initiated automatically') { throw 'External acquisition must remain explicitly gated.' }
           if ($gauntlet -notmatch "revenue_claim='UNVERIFIED_UNLESS_PROVIDER_SETTLEMENT_AND_FULFILLMENT_EVIDENCE_ARE_LINKED'") { throw 'Commercial truth boundary is missing.' }
+          node --check ops/cube-swarm/opportunity-batch-controller.mjs
           Write-Host 'ECONOMIC_TRUTH_BOUNDARY_PASS'
