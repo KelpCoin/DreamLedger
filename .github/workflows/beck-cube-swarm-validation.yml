@@ -7,6 +7,8 @@ on:
       - 'ops/cube-swarm/opportunity-batch-controller.mjs'
       - 'scripts/beck-cube-swarm-bootstrap.ps1'
       - 'scripts/beck-local-artifact-inventory.ps1'
+      - 'scripts/beck-local-artifact-commercial-review.ps1'
+      - 'ops/cube-swarm/commercial-mechanism-registry.json'
       - 'package.json'
       - '.github/workflows/beck-cube-swarm-validation.yml'
   pull_request:
@@ -37,7 +39,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $tokens = $null
           $errors = $null
-          foreach ($path in @('scripts/beck-cube-swarm-bootstrap.ps1','scripts/beck-local-artifact-inventory.ps1')) {
+          foreach ($path in @('scripts/beck-cube-swarm-bootstrap.ps1','scripts/beck-local-artifact-inventory.ps1','scripts/beck-local-artifact-commercial-review.ps1')) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile(
@@ -56,6 +58,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           node --check ops/cube-swarm/opportunity-batch-controller.mjs
+          $registry = Get-Content 'ops/cube-swarm/commercial-mechanism-registry.json' -Raw | ConvertFrom-Json
+          if ($registry.count -ne 100 -or $registry.mechanisms.Count -ne 100) { throw 'Expected exactly 100 commercial hypotheses.' }
           node -e "const p=require('./package.json'); if (!p.scripts['cube:swarm:batch'] || !p.scripts['verify:cube-swarm:batch']) process.exit(1)"
       - name: Run offline candidate batch
         shell: pwsh
@@ -68,6 +72,8 @@ jobs:
           if ($proof.schema -ne 'DREAMLEDGER-CUBE-SWARM-BATCH/v1') { throw 'Unexpected batch proof schema.' }
           if ($proof.operating_contract.verified_revenue_nzd -ne 0) { throw 'Candidate batch must not claim revenue.' }
           if ($proof.operating_contract.no_external_actions -ne $true) { throw 'External actions must remain disabled.' }
+          if ($proof.counts.hypotheses -ne 100) { throw ('Expected 100 routed hypotheses, found ' + $proof.counts.hypotheses) }
+          if (@($proof.candidates | Where-Object { $_.hypothesis_only -eq $true -and $_.sale_candidate -ne $false }).Count -gt 0) { throw 'Hypotheses must never be marked sale candidates.' }
           Write-Host ("BATCH_RECORDS=" + $proof.counts.unique_candidates)
           Write-Host 'OFFLINE_BATCH_TRUTH_BOUNDARY_PASS'
       - name: Upload safe batch proof
