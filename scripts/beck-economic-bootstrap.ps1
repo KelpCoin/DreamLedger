@@ -4,7 +4,6 @@ param(
     [string]$RepoRoot = "",
     [string]$ProofPath = "",
     [switch]$InstallDependencies,
-    [switch]$SkipInstall,
     [switch]$SkipInstall
 )
 Set-StrictMode -Version Latest
