@@ -30,11 +30,10 @@ jobs:
       - name: Verify front-door markers
         run: |
           set -euo pipefail
-          grep -F 'dreamledger-surface=public-v7' index.html
-          grep -F 'dreamledger-visual-contract=catalogue-first-v1' index.html
-          grep -F 'DISCOVER' index.html
-          grep -F 'THINGS WORTH BUYING' index.html
-          grep -F 'Evidence before hype' index.html
+          grep -F 'Know what was delivered. See the evidence.' index.html
+          grep -F 'Use the free Truth Oracle' index.html
+          grep -F 'VERIFIED EXTERNAL REVENUE: NZ$0.00' index.html
+          grep -F 'Magic: The Gathering listings with price or checkout mismatches remain non-purchasable.' index.html
       - name: Verify real local destinations
         run: |
           set -euo pipefail
@@ -63,8 +62,9 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location --max-time 30 https://dreamledger.org/ > /tmp/dreamledger-index.html
-          grep -F 'THINGS WORTH BUYING' /tmp/dreamledger-index.html
-          grep -F 'dreamledger-surface=public-v7' /tmp/dreamledger-index.html
+          grep -F 'Know what was delivered. See the evidence.' /tmp/dreamledger-index.html
+          grep -F 'VERIFIED EXTERNAL REVENUE: NZ$0.00' /tmp/dreamledger-index.html
+          grep -F 'Magic: The Gathering listings with price or checkout mismatches remain non-purchasable.' /tmp/dreamledger-index.html
           if grep -q 'http-equiv="refresh"' /tmp/dreamledger-index.html; then
             echo "FAIL: production front door still redirects"
             exit 1
