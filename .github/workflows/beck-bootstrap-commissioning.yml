@@ -112,6 +112,8 @@ jobs:
           PY
       - name: Run local execution-gate contract tests
         run: node --test BEC-PRIME/runtime/ExecutionGate.test.js
+      - name: Test Commercial Gauntlet evidence laws
+        run: node --test ops/commerce/gauntlet-economic-verdict.test.mjs
       - name: Test commercial Gauntlet fails closed without real evidence
         shell: pwsh
         run: |
@@ -130,6 +132,7 @@ jobs:
             if ($proof.verdict -ne 'BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF') { throw "Unexpected commercial verdict: $($proof.verdict)" }
             if ($proof.economic_baseline.verified_business_revenue_nzd -ne 0) { throw 'Empty evidence must not produce verified revenue.' }
             Write-Host 'COMMERCIAL_GAUNTLET_FAIL_CLOSED=PASS'
+            $global:LASTEXITCODE = 0
           } finally { Pop-Location }
           # The expected commercial-gate exit code is 2; assertions above validate that fail-closed result.
           # Explicitly return success for the test harness after all assertions have passed.
