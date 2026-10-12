@@ -1,6 +1,8 @@
 name: DreamLedger E-Commerce Smoke
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
@@ -48,10 +50,19 @@ jobs:
           set -euo pipefail
           npm start > /tmp/dreamledger.log 2>&1 &
           echo $! > /tmp/dreamledger.pid
+          ready=0
           for i in $(seq 1 45); do
-            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then break; fi
+            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then
+              ready=1
+              break
+            fi
             sleep 1
           done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/dreamledger.log
+            echo 'STOREFRONT_STARTUP_FAILED=1'
+            exit 1
+          fi
           curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
           curl -fsS http://127.0.0.1:4173/api/products >/tmp/products.json
           grep -qi 'AVATAR ACCESSORIES' /tmp/home.html
