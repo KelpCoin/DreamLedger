@@ -45,6 +45,8 @@ try {
     } else { Add-Check 'economic.preflight' 'BLOCKED' "Missing $startScript" }
   } else { Add-Check 'economic.preflight' 'SKIPPED' 'Explicitly skipped by operator.' }
 
+  $derive = Join-Path $RepoRoot 'ops\cockpit\derive-evidence.mjs'
+  if (Test-Path $derive) { $null = & node.exe $derive 2>&1; if ($LASTEXITCODE -ne 0) { Add-Check 'cockpit.evidence_derivation' 'FAIL' 'Could not derive evidence inputs.' } } else { Add-Check 'cockpit.evidence_derivation' 'FAIL' "Missing $derive" }
   $scorer = Join-Path $RepoRoot 'ops\cockpit\economic-cockpit.mjs'
   if (-not (Test-Path $scorer)) { Add-Check 'cockpit.scorer' 'FAIL' "Missing $scorer"; Save-Proof 'FAIL'; exit 1 }
   $env:DREAMLEDGER_PROOF_ROOT = $ProofRoot`n  $env:COCKPIT_RUN_CONTEXT = 'local'
