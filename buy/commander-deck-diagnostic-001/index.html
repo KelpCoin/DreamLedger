@@ -1,0 +1,10 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Opening DreamLedger checkout</title></head><body><p>Opening secure checkout…</p><script>
+(function () {
+  var checkout = new URL("https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30");
+  checkout.searchParams.set("client_reference_id", "COMMANDER-DECK-DIAGNOSTIC-001");
+  checkout.searchParams.set("utm_source", "dreamledger");
+  checkout.searchParams.set("utm_medium", "machine-commerce");
+  checkout.searchParams.set("utm_campaign", "COMMANDER-DECK-DIAGNOSTIC-001");
+  location.replace(checkout.toString());
+}());
+</script></body></html>
