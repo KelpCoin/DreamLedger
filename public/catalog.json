@@ -112,7 +112,8 @@
       "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
       "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
       "category": "mtg",
-      "delivery_test_status": "UNVERIFIED"
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED"
     },
     {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
