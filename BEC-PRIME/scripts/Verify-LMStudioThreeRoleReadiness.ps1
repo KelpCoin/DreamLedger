@@ -9,7 +9,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $base = "http://127.0.0.1:$Port"
 $DataRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex' } else { Join-Path $HOME 'BrownEyeCortex' }
-if ([string]::IsNullOrWhiteSpace($ProofPath)) { $ProofPath = Join-Path $DataRoot 'proofs\Runtime\LMSTUDIO-THREE-ROLE-READINESS.json' }
+if ([string]::IsNullOrWhiteSpace($ProofPath)) { $ProofPath = Join-Path $DataRoot 'Runtime\proofs\LMSTUDIO-THREE-ROLE-READINESS.json' }
 $ProofDir = Split-Path -Parent $ProofPath
 $LogDir = Join-Path $DataRoot 'logs'
 $LogPath = Join-Path $LogDir 'LMStudio-ThreeRole-Readiness.log'
@@ -82,9 +82,9 @@ function Get-ModelKeys {
         $jsonText = $jsonText.Substring($start)
         $parsed = $jsonText | ConvertFrom-Json
     }
-    $items = @($parsed)
     if ($parsed -and $parsed.PSObject.Properties['models']) { $items = @($parsed.models) }
-    if ($parsed -and $parsed.PSObject.Properties['data'] -and $items.Count -eq 0) { $items = @($parsed.data) }
+    elseif ($parsed -and $parsed.PSObject.Properties['data']) { $items = @($parsed.data) }
+    else { $items = @($parsed) }
     $keys = [System.Collections.Generic.List[string]]::new()
     foreach ($item in $items) {
         if ($null -eq $item) { continue }
@@ -149,7 +149,7 @@ function Find-RoleModel([string]$Role,[string[]]$Keys,[string[]]$Exclude) {
         }
     }
     foreach ($pattern in $patterns) {
-        $match = @($Keys | Where-Object { $_ -match $pattern -and $_ -notin $Exclude } | Select-Object -First 1)
+        $match = @($Keys | Where-Object { $_ -match $pattern -and $_ -notin $Exclude -and ($Role -eq 'visual' -or $_ -notmatch '(?i)(qwen.*vl|llava|internvl|pixtral|moondream|minicpm.*v|gemma.?3)') } | Select-Object -First 1)
         if ($match.Count -gt 0) { return [string]$match[0] }
     }
     return $null
