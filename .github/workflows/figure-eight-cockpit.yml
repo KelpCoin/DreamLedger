@@ -29,6 +29,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           COCKPIT_REPORT_PATH: figure-eight-cockpit-latest.json
           COCKPIT_PRIVATE_MODE: 'true'
+          COCKPIT_KILL_SWITCH: ${{ vars.COCKPIT_KILL_SWITCH }}
           COCKPIT_DB_PROBE_URL: ${{ secrets.COCKPIT_DB_PROBE_URL }}
           COCKPIT_LEDGER_PROBE_URL: ${{ secrets.COCKPIT_LEDGER_PROBE_URL }}
           COCKPIT_FULFILLMENT_PROBE_URL: ${{ secrets.COCKPIT_FULFILLMENT_PROBE_URL }}
