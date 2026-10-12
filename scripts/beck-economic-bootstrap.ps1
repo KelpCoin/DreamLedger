@@ -57,15 +57,6 @@ Add-Check 'runtime.node' 'PASS' $nodeVersion
 
 Push-Location $RepoRoot
 try {
-    if (-not $SkipInstall) {
-        $installOut = & npm.cmd ci --no-audit --no-fund 2>&1
-        $installCode = $LASTEXITCODE
-        Add-Check 'dependencies.npm_ci' $(if ($installCode -eq 0) {'PASS'} else {'FAIL'}) (($installOut | ForEach-Object {[string]$_}) -join "`n")
-    } else {
-        Add-Check 'dependencies.npm_ci' 'SKIPPED' 'Operator supplied -SkipInstall; existing node_modules assumed.'
-    }
-
-    if ((@($checks | Where-Object { $_.name -eq 'dependencies.npm_ci' -and $_.status -eq 'FAIL' })).Count -eq 0) {
         # Traverse the existing offer catalog and monetizable substrate before selecting work.
         $scoutCode = Run-NodeCheck 'substrate.monetization_traversal' @('ops/commerce/beck-monetization-scout.mjs')
         $scoutPath = Join-Path $RepoRoot 'proof/commerce/latest-monetization-scout.json'
@@ -90,6 +81,15 @@ try {
             Add-Check 'substrate.monetization_report' 'FAIL' 'Monetization scout failed or did not produce proof/commerce/latest-monetization-scout.json.'
         }
         $offer = @()
+    if (-not $SkipInstall) {
+        $installOut = & npm.cmd ci --no-audit --no-fund 2>&1
+        $installCode = $LASTEXITCODE
+        Add-Check 'dependencies.npm_ci' $(if ($installCode -eq 0) {'PASS'} else {'FAIL'}) (($installOut | ForEach-Object {[string]$_}) -join "`n")
+    } else {
+        Add-Check 'dependencies.npm_ci' 'SKIPPED' 'Operator supplied -SkipInstall; existing node_modules assumed.'
+    }
+
+    if ((@($checks | Where-Object { $_.name -eq 'dependencies.npm_ci' -and $_.status -eq 'FAIL' })).Count -eq 0) {
         $catalogPath = Join-Path $RepoRoot 'BEC-PRIME/catalog/offers/approved.json'
         if (Test-Path -LiteralPath $catalogPath) {
             $catalog = Get-Content -LiteralPath $catalogPath -Raw | ConvertFrom-Json
