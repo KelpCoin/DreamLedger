@@ -318,5 +318,3 @@ if ($blocked -gt 0 -or $fulfillmentUnverified) {
     exit 2
 }
 exit 0
-    }
-}
