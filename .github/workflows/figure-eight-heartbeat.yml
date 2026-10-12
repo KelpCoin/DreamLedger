@@ -46,7 +46,6 @@ jobs:
           const add = (name, status, detail) => report.checks.push({name, status, detail});
           const routeFile = 'buy/commander-deck-diagnostic-001/index.html';
           const catalogFile = 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json';
-          let catalog;
           try {
             if (!fs.existsSync(routeFile)) throw new Error('Route source file missing');
             const html = fs.readFileSync(routeFile, 'utf8');
@@ -54,11 +53,11 @@ jobs:
             add('route_source', 'PASS', routeFile + ' exists and contains a Stripe destination');
           } catch (e) { add('route_source', 'FAIL', e.message); }
           try {
-            catalog = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
+            const catalog = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
             const serialized = JSON.stringify(catalog);
-            const url = serialized.match(/https:\\/\\/buy\\.stripe\\.com\\/[A-Za-z0-9]+/);
+            const url = serialized.match(/https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+/);
             const html = fs.existsSync(routeFile) ? fs.readFileSync(routeFile, 'utf8') : '';
-            const routeUrl = html.match(/https:\\/\\/buy\\.stripe\\.com\\/[A-Za-z0-9]+/);
+            const routeUrl = html.match(/https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+/);
             if (!url || !routeUrl) throw new Error('Could not extract checkout URL from both catalogue and route');
             if (url[0] !== routeUrl[0]) throw new Error('Catalogue checkout URL does not match route checkout URL');
             add('checkout_contract', 'PASS', 'Catalogue and route declare the same checkout URL');
@@ -70,19 +69,19 @@ jobs:
             else add('production_route', 'FAIL', detail);
           } catch (e) { add('production_route', 'FAIL', String(e.message || e)); }
           report.overall = report.checks.every(c => c.status === 'PASS') ? 'PASS' : 'FAIL';
-          report.economic_status = 'UNVERIFIED';
           fs.writeFileSync('heartbeat-report/figure-eight-heartbeat.json', JSON.stringify(report, null, 2) + '\n');
           fs.writeFileSync('heartbeat-report/figure-eight-heartbeat.md',
             '# Figure Eight Heartbeat\n\n' +
             '- Time: ' + report.generated_at + '\n' +
             '- Revision: ' + report.revision + '\n' +
             '- Operational result: **' + report.overall + '**\n' +
-            '- Economic result: **UNVERIFIED** (this workflow does not verify payment settlement or fulfillment)\n\n' +
+            '- Economic result: **UNVERIFIED** (settlement and fulfillment are not verified by this workflow)\n\n' +
             report.checks.map(c => '- [' + c.status + '] ' + c.name + ': ' + c.detail).join('\n') + '\n');
           console.log(JSON.stringify(report, null, 2));
           if (report.overall !== 'PASS') process.exitCode = 1;
           NODE
-          echo "result=$?" >> "$GITHUB_OUTPUT"
+          probe_status=$?
+          echo "result=$probe_status" >> "$GITHUB_OUTPUT"
           exit 0
 
       - name: Publish heartbeat evidence even when a check fails
