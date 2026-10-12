@@ -77,7 +77,7 @@ if (truthOracleFeed) {
       'Truth Oracle Access must be held consistently in product, commerce, and AI discovery feeds until paid fulfillment is verified.');
   }
   const truthPagePath = 'public/truth-oracle.html';
-  const redirectPath = exists('public/agent-delivery-proof-audit.html') ? 'public/agent-delivery-proof-audit.html' : 'agent-delivery-proof-audit.html';
+  const redirectPath = 'public/agent-delivery-proof-audit.html';
   const truthText = exists(truthPagePath) ? fs.readFileSync(path.join(root, truthPagePath), 'utf8') : '';
   const redirectText = exists(redirectPath) ? fs.readFileSync(path.join(root, redirectPath), 'utf8') : '';
   const publicCheckout = truthOracleFeed.enable_checkout === true || /buy\.stripe\.com/i.test(truthText);
