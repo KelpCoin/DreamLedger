@@ -96,17 +96,3 @@ jobs:
           if ($validationExit -notin @(0,1,2)) {
             throw "Unexpected bootstrap process exit code: $validationExit"
           }
-
-      - name: Upload local validation artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: beck-economic-gauntlet-proof
-          path: |
-            proof/commerce/latest-monetization-scout.json
-            proof/commerce/latest-first-dollar-stripe-reconciliation.json
-            proof/commerce/latest-economic-validation.json
-            proof/commerce/latest-gauntlet-economic-verdict.json
-            proof/commerce/latest-stripe-webhook-routing.json
-          if-no-files-found: warn
-          retention-days: 14
