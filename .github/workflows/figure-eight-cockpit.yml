@@ -1,14 +1,14 @@
 name: Figure Eight cockpit
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 permissions:
   contents: read
   actions: read
 concurrency:
   group: figure-eight-cockpit
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   cockpit:
     runs-on: ubuntu-latest
