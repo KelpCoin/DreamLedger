@@ -31,7 +31,7 @@ trap {
     exit 1
   }
 }
-$Branch = 'feat/beck-dual-heartbeat-bootstrap'
+$Branch = 'feat/beck-bootstrap-gauntlet-ready-20261012'
 $Workflow = 'figure-eight-cockpit.yml'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
