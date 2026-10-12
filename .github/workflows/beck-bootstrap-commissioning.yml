@@ -86,6 +86,8 @@ jobs:
           if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_STATUS=$commercialGauntletStatus')) { throw 'Bootstrap must report the actual commercial verdict.' }
           if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_CONTRACT=$commercialGauntletContract')) { throw 'Bootstrap must report the Gauntlet artifact contract result separately from the business verdict.' }
           if (-not $bootstrap.Contains('commercial_gauntlet_status = $commercialGauntletStatus')) { throw 'Commissioning proof must persist the commercial verdict.' }
+          if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_EXECUTION=$commercialGauntletExecution')) { throw 'Bootstrap must report Gauntlet execution separately from commercial eligibility.' }
+          if (-not $bootstrap.Contains('PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED')) { throw 'Technical commissioning must not be conflated with commercial eligibility.' }
           Write-Host 'BOOTSTRAP_CLOUD_SAFETY_CONTRACT=PASS'
       - name: Verify canonical Truth Oracle and commercial truth labels
         shell: pwsh
