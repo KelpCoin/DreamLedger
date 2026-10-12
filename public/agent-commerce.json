@@ -189,5 +189,15 @@
       "loop": "LOOP-BILLBOARD-FOUNDING-50",
       "note": "Paid placement checkout held until secure intake and live inventory reservation are independently verified."
     }
-  ]
+  ],
+  "free_entry_point": {
+    "product_id": "TRUTH-ORACLE-FREE",
+    "name": "Truth Oracle",
+    "url": "https://dreamledger.org/truth-oracle.html",
+    "price_nzd": 0,
+    "status": "AVAILABLE_FREE",
+    "checkout_url": null,
+    "fulfillment": "browser_tools",
+    "note": "Canonical free destination for the retired standalone audit offer. No separate audit product or checkout remains."
+  }
 }
