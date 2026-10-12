@@ -30,7 +30,8 @@ if (!inputPaths.length) {
     'public/agent-commerce.json',
     'public/ai-catalog.json',
     'BEC-PRIME/catalog/offers/approved.json',
-    'BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json'
+    'BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json',
+    'ops/cube-swarm/commercial-mechanism-registry.json'
   ]) inputPaths.push(path.resolve(root, p));
 }
 const now = new Date().toISOString();
@@ -69,7 +70,9 @@ const normalize = (raw, sourcePath) => {
   const hasOffer = Boolean(x.checkout_url || x.payment_link_url || x.offer_id || x.product_id || x.sku);
   const hasFulfillment = Boolean(x.fulfillment || x.fulfillment_mode || x.fulfillment_method || x.delivery_mechanism);
   const hasPrice = Number.isFinite(Number(x.price_nzd ?? x.price)) && Number(x.price_nzd ?? x.price) > 0;
+  const isRegistryHypothesis = sourcePath.replaceAll('\\\\', '/').endsWith('ops/cube-swarm/commercial-mechanism-registry.json') || x.status === 'HYPOTHESIS_UNVALIDATED';
   const blockers = [];
+  if (isRegistryHypothesis) blockers.push('HYPOTHESIS_ONLY_NOT_AN_APPROVED_OFFER');
   if (!hasSource) blockers.push('SOURCE_EVIDENCE_MISSING');
   if (!hasExplicitDemand) blockers.push('EXTERNAL_DEMAND_UNVERIFIED');
   if (!hasOffer) blockers.push('CANONICAL_OFFER_UNLINKED');
@@ -85,9 +88,15 @@ const normalize = (raw, sourcePath) => {
     source,
     evidence_url: /^https?:\/\//i.test(url) ? url : null,
     candidate_text: text,
+    family: x.family || null,
+    buyer_segment: x.buyer_segment || x.buyer || null,
+    proposed_deliverable: x.deliverable || null,
+    required_gates: Array.isArray(x.required_gates) ? x.required_gates : [],
+    hypothesis_only: isRegistryHypothesis,
+    sale_candidate: false,
     source_file: path.relative(root, sourcePath).replaceAll('\\', '/'),
     score,
-    route: score >= 80 && blockers.length === 0 ? 'GAUNTLET_READY' : (hasSource ? 'RESEARCH' : 'QUARANTINE'),
+    route: score >= 80 && blockers.length === 0 ? 'GAUNTLET_READY' : (isRegistryHypothesis ? 'HYPOTHESIS' : (hasSource ? 'RESEARCH' : 'QUARANTINE')),
     evidence_status: hasExplicitDemand ? 'DEMAND_EVIDENCE_CLAIMED_REQUIRES_VERIFICATION' : 'UNVERIFIED',
     blockers,
     commercial_fields: {
@@ -137,6 +146,7 @@ const counts = {
   gauntlet_ready: candidates.filter(x => x.route === 'GAUNTLET_READY').length,
   research: candidates.filter(x => x.route === 'RESEARCH').length,
   quarantine: candidates.filter(x => x.route === 'QUARANTINE').length,
+  hypotheses: candidates.filter(x => x.route === 'HYPOTHESIS').length,
   claimed_demand_unverified: candidates.filter(x => x.evidence_status === 'DEMAND_EVIDENCE_CLAIMED_REQUIRES_VERIFICATION').length
 };
 const report = {
@@ -144,6 +154,7 @@ const report = {
   generated_at_utc: now,
   status: 'BATCH_COMPILED_NOT_COMMERCIALLY_VALIDATED',
   pipeline: ['WORLD', 'OBSERVATION', 'IDEA', 'HYPOTHESIS', 'PROPOSITION', 'TEST', 'EXTERNAL_EFFECT', 'RESPONSE', 'PAYMENT', 'FULFILLMENT', 'TRUTH', 'LEARNING', 'MUTATION', 'REPEAT'],
+  commercial_mechanism_registry: { source: 'ops/cube-swarm/commercial-mechanism-registry.json', hypotheses_are_not_offers: true, promotion_requires_all_required_gates: true },
   operating_contract: {
     one_shared_pipeline: true,
     max_candidates: maxCandidates,
