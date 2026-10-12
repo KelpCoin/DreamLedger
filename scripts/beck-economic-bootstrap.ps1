@@ -103,10 +103,10 @@ try {
             $offer = @($productFeed | Where-Object { $_.item_id -eq 'DREAMLEDGER-BILLBOARD-FOUNDING-001' })
             $retiredOffer = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
             if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '50 NZD' -and [string]$offer[0].url -eq 'https://dreamledger.org/billboard.html' -and $offer[0].enable_checkout -eq $false -and $offer[0].availability -eq 'review_required' -and $retiredOffer.Count -eq 0) {
-Founding Billboard is the selected NZ$50 offer
+                Add-Check 'offer.canonical_catalog' 'PASS' 'Founding Billboard is the selected NZ$50 offer; checkout remains held and the retired standalone SKU is absent. This is repository evidence, not proof of fulfillment.'
                 $offerUrl = ''
             } else {
-Expected one DREAMLEDGER-BILLBOARD-FOUNDING-001 at NZ$50 on the Billboard page
+                Add-Check 'offer.canonical_catalog' 'FAIL' 'Expected one DREAMLEDGER-BILLBOARD-FOUNDING-001 at NZ$50 on the Billboard page, checkout held, and zero retired standalone listings.'
                 $offerUrl = ''
             }
         } else {
