@@ -69,35 +69,13 @@ const billboardPriority = aiCatalog.priority_offer?.id === billboardId && aiCata
 if (!billboardFeed || billboardFeed.price !== '50 NZD' || billboardFeed.url !== 'https://dreamledger.org/billboard.html' || billboardFeed.enable_checkout !== false || billboardFeed.availability !== 'review_required' || !billboardPrimary || !billboardHeld || !billboardPriority) {
   addBlocker(billboardId,'BILLBOARD_CATALOG_DRIFT','The selected NZ$50 Billboard offer must agree across the product feed, AI priority, commerce listing and held-offer register. Keep checkout held until fulfillment is proven.');
 }
-const truthOracleFeed = feed.find(x => x.item_id === 'TRUTH-ORACLE-ACCESS-001');
-const retiredStandaloneInFeed = feed.some(x => x.item_id === 'AGENT-PROOF-AUDIT-49') ||
-  (commerce.primary_offers || []).some(x => x.product_id === 'AGENT-PROOF-AUDIT-49') ||
-  aiCatalog.priority_offer?.id === 'AGENT-PROOF-AUDIT-49';
-if (retiredStandaloneInFeed) {
-  addBlocker('TRUTH-ORACLE-ACCESS-001','RETIRED_OFFER_REAPPEARED',
-    'The retired standalone audit SKU has reappeared in the public product feed. Keep its payment link and price inactive.');
-}
-if (truthOracleFeed) {
-  const heldInCommerce = (commerce.held_offers || []).some(x => x.product_id === 'TRUTH-ORACLE-ACCESS-001' && x.status === 'REVIEW_REQUIRED');
-  const truthPriority = aiCatalog.priority_offer?.id === 'TRUTH-ORACLE-ACCESS-001' && aiCatalog.priority_offer?.availability === 'review_required';
-  if (!heldInCommerce || !truthPriority) {
-    addBlocker('TRUTH-ORACLE-ACCESS-001','TRUTH_ORACLE_CATALOG_DRIFT',
-      'Truth Oracle Access must be held consistently in product, commerce, and AI discovery feeds until paid fulfillment is verified.');
-  }
-  const truthPagePath = 'public/truth-oracle.html';
-  const redirectPath = exists('public/agent-delivery-proof-audit.html') ? 'public/agent-delivery-proof-audit.html' : 'agent-delivery-proof-audit.html';
-  const truthText = exists(truthPagePath) ? fs.readFileSync(path.join(root, truthPagePath), 'utf8') : '';
-  const redirectText = exists(redirectPath) ? fs.readFileSync(path.join(root, redirectPath), 'utf8') : '';
-  const publicCheckout = truthOracleFeed.enable_checkout === true || /buy\.stripe\.com/i.test(truthText);
-  const redirectCorrect = /truth-oracle\.html/i.test(redirectText) && !/buy\.stripe\.com|NZ\$49|Purchase the audit/i.test(redirectText);
-  if (publicCheckout) {
-    addBlocker('TRUTH-ORACLE-ACCESS-001','CHECKOUT_ENABLED_BEFORE_FULFILLMENT_PROOF',
-      'Truth Oracle paid checkout must remain held until entitlement, evidence persistence, and delivery proof pass end to end.');
-  }
-  if (!redirectCorrect) {
-    addBlocker('TRUTH-ORACLE-ACCESS-001','LEGACY_ROUTE_NOT_REDIRECTED',
-      'The retired standalone route must redirect to Truth Oracle and contain no checkout or old offer copy.');
-  }
+const retiredTruthOracleAccess = feed.some(x => x.item_id === 'TRUTH-ORACLE-ACCESS-001') ||
+  (commerce.primary_offers || []).some(x => x.product_id === 'TRUTH-ORACLE-ACCESS-001') ||
+  (commerce.held_offers || []).some(x => x.product_id === 'TRUTH-ORACLE-ACCESS-001') ||
+  aiCatalog.priority_offer?.id === 'TRUTH-ORACLE-ACCESS-001';
+if (retiredTruthOracleAccess) {
+  addBlocker('TRUTH-ORACLE-ACCESS-001','RETIRED_PAID_TRUTH_ORACLE_ACCESS_REAPPEARED',
+    'The paid Truth Oracle Access SKU is retired. Only the free Truth Oracle remains public; the legacy audit route redirects there.');
 }
 const commanderDefPath = 'ops/cube-swarm/silo-definitions/mtg-commander.json';
 if (exists(commanderDefPath)) {
@@ -112,14 +90,10 @@ if (quote && quote.enable_checkout === false) {
   addBlocker('QUOTE-COMPARE-49','PAID_CHECKOUT_DISABLED',
     'Public product feed disables paid checkout and marks review required; keep the free worksheet as the entry point.');
 }
-if (aiCatalog.priority_offer?.id === 'TRUTH-ORACLE-ACCESS-001' && !truthOracleFeed) {
-  addBlocker('TRUTH-ORACLE-ACCESS-001','FEED_MISMATCH','AI catalogue names Truth Oracle Access as priority, but the product feed does not contain it.');
-}
 
 // Traverse the existing monetizable substrate without executing it.
 // This inventory is based on repository artifacts only; presence is not live readiness.
 const substrateSpecs = [
-  {id:'TRUTH-ORACLE-ACCESS-001',name:'Truth Oracle Access',price_nzd:9,files:['public/agent-products.json','public/truth-oracle.html','truth-oracle.html','ops/commerce/reconcile-truth-oracle-access.mjs'],fulfillment:'digital access to bounded evidence-review workflow',database_dependent:true,reason:'The former standalone audit capability is absorbed into the free Truth Oracle. The selected paid candidate is the NZ$50 Founding Billboard.'},
   {id:'QUOTE-COMPARE-49',name:'Supplier Quote Comparison',price_nzd:49,files:['public/quote-intake.html','supabase/functions/quote-intake/index.ts','supabase/functions/quote-fulfillment/index.ts','BEC-PRIME/data/777/QUOTE-COMPARE-49-LIVE-FULFILLMENT-MAP.json'],fulfillment:'automated quote intake and report generation',database_dependent:true,reason:'Strong repeatable B2B problem with existing intake and fulfillment code, but paid checkout is explicitly held and depends on healthy Supabase persistence.'},
   {id:'COMMANDER-DECK-DIAGNOSTIC-001',name:'Commander Deck Diagnostic',price_nzd:29,files:['public/diagnostic-input.html','BEC-PRIME/routes/mtgDiagnostic.js','BEC-PRIME/lib/mtgDiagnosticFulfillment.js','ops/cube-swarm/silo-definitions/mtg-commander.json'],fulfillment:'automated diagnostic report',database_dependent:true,reason:'Existing report capability and low price, but the silo definition records checkout mismatch/unverified state; do not acquire buyers until the canonical route is reconciled.'},
   {id:'SELLER-PROFIT-AUDIT-001',name:'Seller Profit Audit',price_nzd:29,files:['public/agent-commerce.json','BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'audit/calculation service',database_dependent:null,reason:'Existing listed offer and potentially bounded fulfillment; trace its exact live intake and delivery route before ranking it above the selected Billboard path.'},
@@ -131,9 +105,7 @@ const substrateSpecs = [
 const substrateInventory = substrateSpecs.map(s => {
   const present = s.files.filter(exists);
   const missing = s.files.filter(p => !exists(p));
-  const readiness = s.id === 'TRUTH-ORACLE-ACCESS-001'
-    ? (blockers.some(b => b.offer === s.id) ? 'BLOCKED_TRUTH_ORACLE_FULFILLMENT' : 'HELD_CHECKOUT_PENDING_PROOF')
-    : s.id === 'QUOTE-COMPARE-49'
+  const readiness = s.id === 'QUOTE-COMPARE-49'
       ? 'HELD_CHECKOUT_SUPABASE_DEPENDENCY'
       : s.id === 'COMMANDER-DECK-DIAGNOSTIC-001'
         ? 'BLOCKED_CHECKOUT_CONTRACT'
