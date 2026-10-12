@@ -101,6 +101,6 @@ $blocking = @($script:Results | Where-Object { $_.status -eq 'BLOCKED' })
 $publicPass = @($script:Results | Where-Object { $_.gate -like 'GATE_1A*' -and $_.pass -eq $true }).Count -ge 4
 $status = if ($publicPass -and $blocking.Count -eq 0) { 'PASS_PUBLIC_DISCOVERY_ONLY' } elseif ($publicPass) { 'PASS_PUBLIC_DISCOVERY_AUTH_REQUIRED' } else { 'BLOCKED' }
 
-[PSCustomObject]@{ status = $status; proof_path = $proofPath; schema_path = $OutputPath; results = @($script:Results) } | ConvertTo-Json -Depth 30
+[PSCustomObject]@{ status = $status; proof_path = $proofPath; schema_path = $OutputPath; results = $script:Results.ToArray() } | ConvertTo-Json -Depth 30
 if ($status -eq 'BLOCKED') { exit 1 }
 exit 0
