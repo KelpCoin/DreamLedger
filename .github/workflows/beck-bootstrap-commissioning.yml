@@ -71,6 +71,10 @@ jobs:
           }
           if (-not $bootstrap.Contains("LOCAL_HEARTBEAT_TASK=REGISTERED")) { throw 'Bootstrap must emit local task registration proof.' }
           if (-not $bootstrap.Contains('DUAL_HEARTBEAT_STATUS=$dualHeartbeatStatus')) { throw 'Bootstrap must emit dual-heartbeat status.' }
+          if (-not $bootstrap.Contains('PHASE=VERIFY_COMMERCIAL_GAUNTLET')) { throw 'Bootstrap must explicitly execute and verify the commercial Gauntlet.' }
+          if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_CONTRACT=$commercialGauntletContract')) { throw 'Bootstrap must report the commercial Gauntlet contract result.' }
+          if (-not $bootstrap.Contains('commercial_gauntlet_status = $commercialGauntletStatus')) { throw 'Commissioning proof must preserve the commercial verdict independently from heartbeat status.' }
+          if (-not $bootstrap.Contains("[string]$Branch = 'main'")) { throw 'Bootstrap must support selecting the tested branch and default to main after merge.' }
           Write-Host 'BOOTSTRAP_CLOUD_SAFETY_CONTRACT=PASS'
       - name: Validate cloud workflow YAML structure
         shell: bash
