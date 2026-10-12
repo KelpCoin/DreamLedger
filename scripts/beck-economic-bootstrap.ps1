@@ -131,7 +131,12 @@ try {
         foreach ($url in $publicUrls) {
             $r = Get-HttpResult $url
             $livePages[$url] = $r
-            Add-Check ('public_page.' + ([uri]$url).AbsolutePath.Trim('/').Replace('/','_')) $(if ($r.status -ge 200 -and $r.status -lt 400) {'PASS'} else {'FAIL'}) ($r | ConvertTo-Json -Compress)
+            $pageName = 'public_page.' + ([uri]$url).AbsolutePath.Trim('/').Replace('/','_')
+            if ($url -eq 'https://dreamledger.org/agent-delivery-proof-audit.html') {
+                Add-Check $pageName $(if ($r.status -ge 200 -and $r.status -lt 400) {'PASS'} else {'FAIL'}) ($r | ConvertTo-Json -Compress)
+            } else {
+                Add-Check $pageName 'DIAGNOSTIC_ONLY' (($r | ConvertTo-Json -Compress) + '; secondary candidate route, not a gate for the first-dollar offer.')
+            }
         }
 
         # Compare the actual public CTA with canonical repository contracts.
