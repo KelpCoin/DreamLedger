@@ -7,6 +7,7 @@ param(
     [string]$RepoRoot = "",
     [string]$Model = "",
     [switch]$Install,
+    [switch]$StartSwarm,
     [switch]$RunRevenueCycle
 )
 
@@ -116,11 +117,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Three-role council readiness failed. See LMSTUDIO-THREE-ROLE-READINESS.json." }
     Write-Json $config ([ordered]@{schema="BEC-LMSTUDIO-STARTUP-1.2";model_key=$selected;api_model_id=$apiModel;server=$apiBase;loaded=$true;inference_smoke="PASS";council_readiness="THREE_DISTINCT_ROLES_INFERENCE_VERIFIED";inference_token="BECK_LOCAL_INFERENCE_OK";verified_at_utc=(Get-Date).ToUniversalTime().ToString("o")})
     $swarm = Join-Path $RepoRoot "..\runtime\lm_studio\LM-Studio-Swarm.ps1"
-    $swarmStatus = "NOT_STARTED"
-    if (Test-Path -LiteralPath $swarm) {
+    $swarmStatus = "DEFERRED_BY_DEFAULT"
+    if ($StartSwarm) {
+        if (-not (Test-Path -LiteralPath $swarm)) { throw "Swarm startup requested but script is missing: $swarm" }
         $arg = "-NoProfile -ExecutionPolicy Bypass -File `"$swarm`""
         Start-Process -FilePath "powershell.exe" -ArgumentList $arg -WindowStyle Hidden
-        $swarmStatus = "STARTED"
+        $swarmStatus = "STARTED_BY_EXPLICIT_OPERATOR_REQUEST"
     }
     $cycle = Join-Path $RepoRoot "autonomy\RevenueAutonomy.js"
     $cycleStatus = "DEFERRED_BY_DEFAULT"
