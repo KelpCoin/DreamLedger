@@ -209,28 +209,7 @@ try {
             Add-Check 'offer.truth_oracle_checkout_hold' 'BLOCKED' 'Live Stripe credentials not enabled; Truth Oracle checkout hold cannot be verified.'
         }
 
-        # Snapshot current evidence for the Gauntlet. This is local proof output only.
-        $interimDir = Join-Path $RepoRoot 'proof/commerce'
-        New-Item -ItemType Directory -Path $interimDir -Force | Out-Null
-        $interim = [ordered]@{
-            schema = 'BECK-ECONOMIC-VALIDATION/v1'
-            generated_at_utc = [DateTime]::UtcNow.ToString('o')
-            run_started_at_utc = $started.ToUniversalTime().ToString('o')
-            checks = @($checks)
-        }
-        $interim | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $interimDir 'latest-economic-validation.json') -Encoding UTF8
-        $gauntletOutput = & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1
-        $gauntletCode = $LASTEXITCODE
-        $gauntletPath = Join-Path $RepoRoot 'proof/commerce/latest-gauntlet-economic-verdict.json'
-        if ($gauntletCode -eq 0 -and (Test-Path -LiteralPath $gauntletPath)) {
-            $g = Get-Content -LiteralPath $gauntletPath -Raw | ConvertFrom-Json
-            Add-Check 'gauntlet.economic_verdict' 'PASS' ("Gauntlet verdict=" + $g.verdict + '; score=' + $g.score_out_of_100 + '/100. See ' + $gauntletPath)
-        } elseif (Test-Path -LiteralPath $gauntletPath) {
-            $g = Get-Content -LiteralPath $gauntletPath -Raw | ConvertFrom-Json
-            Add-Check 'gauntlet.economic_verdict' 'BLOCKED' ("Gauntlet verdict=" + $g.verdict + '; score=' + $g.score_out_of_100 + '/100. See ' + $gauntletPath)
-        } else {
-            Add-Check 'gauntlet.economic_verdict' 'FAIL' ("Gauntlet did not produce its verdict artifact. " + (($gauntletOutput | ForEach-Object { [string]$_ }) -join "`n"))
-        }
+
     }
 } finally {
     Pop-Location
@@ -249,6 +228,50 @@ if ($sbProbe.status -eq 0 -or $sbProbe.status -ge 500) {
     Add-Check 'fulfillment.supabase_gateway' 'UNVERIFIED' (($sbProbe | ConvertTo-Json -Compress) + '; HTTP response is not proof of database/RPC health or successful fulfillment.')
 }
 Add-Check 'fulfillment.end_to_end' 'UNVERIFIED' 'No safe synthetic paid-order-to-delivery test has been executed by this read-only bootstrap. Require correlated live payment, order attribution, fulfilled artifact, and delivery evidence before claiming revenue.'
+
+# Run the commercial Gauntlet only after every current-run commerce and fulfillment check exists.
+# The validator is expected to exit 2 while real buyer/payment/fulfillment evidence is absent.
+$interimDir = Join-Path $RepoRoot 'proof/commerce'
+$null = New-Item -ItemType Directory -Path $interimDir -Force
+$interimPath = Join-Path $interimDir 'latest-economic-validation.json'
+$interim = [ordered]@{
+    schema = 'BECK-ECONOMIC-VALIDATION/v1'
+    generated_at_utc = [DateTime]::UtcNow.ToString('o')
+    run_started_at_utc = $started.ToUniversalTime().ToString('o')
+    checks = @($checks)
+}
+$interim | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath $interimPath -Encoding UTF8
+Push-Location $RepoRoot
+try {
+    $gauntletOutput = & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1
+    $gauntletCode = $LASTEXITCODE
+} finally {
+    Pop-Location
+}
+$gauntletPath = Join-Path $RepoRoot 'proof/commerce/latest-gauntlet-economic-verdict.json'
+if (Test-Path -LiteralPath $gauntletPath) {
+    $g = Get-Content -LiteralPath $gauntletPath -Raw | ConvertFrom-Json
+    if ($g.schema -ne 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -or -not $g.generated_at_utc) {
+        Add-Check 'gauntlet.economic_verdict' 'FAIL' 'Gauntlet artifact schema or timestamp is invalid.'
+    } elseif ($gauntletCode -eq 0 -and [string]$g.verdict -eq 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE') {
+        Add-Check 'gauntlet.economic_verdict' 'PASS' ("Commercial Gauntlet eligible verdict; score=" + $g.score_out_of_100 + '/100. See ' + $gauntletPath)
+    } elseif ($gauntletCode -eq 2 -and [string]$g.verdict -in @('BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF','PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS')) {
+        Add-Check 'gauntlet.economic_verdict' 'BLOCKED' ("Commercial Gauntlet ran and correctly withheld approval; verdict=" + $g.verdict + '; score=' + $g.score_out_of_100 + '/100. See ' + $gauntletPath)
+    } else {
+        Add-Check 'gauntlet.economic_verdict' 'FAIL' ("Unexpected Gauntlet exit/verdict combination: exit=" + $gauntletCode + '; verdict=' + $g.verdict + '; output=' + (($gauntletOutput | ForEach-Object { [string]$_ }) -join "`n"))
+    }
+} else {
+    Add-Check 'gauntlet.economic_verdict' 'FAIL' ("Commercial Gauntlet did not produce its verdict artifact. " + (($gauntletOutput | ForEach-Object { [string]$_ }) -join "`n"))
+}
+# Preserve the complete current-run checks for the next inspection; this is not revenue proof.
+$finalInterim = [ordered]@{
+    schema = 'BECK-ECONOMIC-VALIDATION/v1'
+    generated_at_utc = [DateTime]::UtcNow.ToString('o')
+    run_started_at_utc = $started.ToUniversalTime().ToString('o')
+    checks = @($checks)
+}
+$finalInterim | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath $interimPath -Encoding UTF8
+
 
 $hardFails = @($checks | Where-Object { $_.status -eq 'FAIL' }).Count
 $blocked = @($checks | Where-Object { $_.status -eq 'BLOCKED' }).Count
