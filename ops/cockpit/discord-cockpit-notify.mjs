@@ -15,6 +15,11 @@ if (!/^https:\/\/(discord\.com|discordapp\.com)\/api\/webhooks\//.test(url)) {
 }
 
 const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
+const localHour = Number(new Intl.DateTimeFormat('en-NZ', { timeZone: 'Pacific/Auckland', hour: '2-digit', hourCycle: 'h23' }).format(new Date()));
+if (localHour >= 2 && localHour < 9) {
+  console.log('DISCORD_COCKPIT=SKIPPED_QUIET_HOURS_NZ');
+  process.exit(0);
+}
 const statePath = process.env.COCKPIT_NOTIFY_STATE_PATH || 'cockpit-notify-state.json';
 let prior = {};
 try { prior = JSON.parse(await fs.readFile(statePath, 'utf8')); } catch {}
