@@ -74,6 +74,10 @@ $heartbeatExit = $LASTEXITCODE
 Write-Output 'PHASE=RUN_EXISTING_ECONOMIC_STARTUP'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-startup.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
 $startupExit = $LASTEXITCODE
+Write-Output 'PHASE=REFRESH_LOCAL_HEARTBEAT_AFTER_INFERENCE'
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-heartbeat.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
+$heartbeatAfterStartupExit = $LASTEXITCODE
+if ($heartbeatAfterStartupExit -ne 0) { $heartbeatExit = $heartbeatAfterStartupExit }
 Write-Output 'PHASE=BUILD_PRIVATE_COCKPIT'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-cockpit-bootstrap.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot -SkipEconomicBootstrap
 $cockpitExit = $LASTEXITCODE
@@ -126,6 +130,7 @@ $cloudProof = [ordered]@{
 $cloudProofPath = Join-Path $proofRoot 'CLOUD-COCKPIT-DISPATCH-LATEST.json'
 $cloudProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $cloudProofPath -Encoding UTF8
 Write-Output "LOCAL_HEARTBEAT_EXIT=$heartbeatExit"
+Write-Output "LOCAL_HEARTBEAT_AFTER_STARTUP_EXIT=$heartbeatAfterStartupExit"
 Write-Output "ECONOMIC_STARTUP_EXIT=$startupExit"
 Write-Output "COCKPIT_EXIT=$cockpitExit"
 Write-Output "COCKPIT_HTML=$(Join-Path $proofRoot 'cockpit\index.html')"
