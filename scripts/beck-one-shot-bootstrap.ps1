@@ -268,7 +268,8 @@ $onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions
 try {
   $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
   $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
-  $latestRun = @($onlineResponse.workflow_runs | Where-Object { $_.event -ne 'workflow_dispatch' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending | Select-Object -First 1)[0]
+  $latestRuns = @($onlineResponse.workflow_runs | Where-Object { $_.event -ne 'workflow_dispatch' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending | Select-Object -First 1)
+  $latestRun = if ($latestRuns.Count -gt 0) { $latestRuns[0] } else { $null }
   if ($latestRun) {
     $onlineHeartbeatRunId = [string]$latestRun.id
     $onlineHeartbeatAgeMinutes = [Math]::Round(([DateTime]::UtcNow - [DateTime]::Parse([string]$latestRun.created_at).ToUniversalTime()).TotalMinutes, 1)
