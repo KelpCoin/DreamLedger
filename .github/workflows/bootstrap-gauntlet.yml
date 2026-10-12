@@ -61,6 +61,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $bootstrap = Get-Content -LiteralPath 'scripts/beck-one-shot-bootstrap.ps1' -Raw
+          if (-not $bootstrap.Contains('[string]$Branch = "main"')) { throw 'Bootstrap must default to the current main branch, not a stale feature branch.' }
           $cloud = Get-Content -LiteralPath '.github/workflows/beck-cloud-liveness.yml' -Raw
           if (-not $bootstrap.Contains('beck-cloud-liveness.yml')) { throw 'Bootstrap does not corroborate against the independent cloud liveness workflow.' }
           if ($bootstrap.Contains("actions/workflows/beck-production-heartbeat.yml/runs")) { throw 'Bootstrap still couples dual heartbeat to the production workflow with self-heal side effects.' }
