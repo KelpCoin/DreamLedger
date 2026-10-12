@@ -68,7 +68,7 @@ const verdict = hardLawPassed && score >= 80
   ? 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE'
   : paidSignal
     ? 'PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS'
-    : 'FAIL_TO_PROVE_WEALTH_PATH_FIX_CONVERSION_AND_EVIDENCE_FIRST';
+    : 'BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF';
 const proof = {
   schema: 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1',
   generated_at_utc: new Date().toISOString(),
@@ -78,18 +78,18 @@ const proof = {
   hard_laws: laws,
   economic_baseline: {
     offer: 'Truth Oracle Access',
-    price_nzd: 49,
+    price_nzd: 9,
     matched_paid_sessions_observed: paid.length,
-    gross_revenue_nzd_from_matched_sessions: paid.length * 49,
+    gross_revenue_nzd_from_matched_sessions: paid.length * 9,
     verified_business_revenue_nzd: 0,
     verified_fulfillment: fulfillmentProven,
     verified_delivery: deliveryEvidence,
     checkout_sessions_started: checkoutStarts,
     evidence_freshness: { bootstrap_run_start_present: Number.isFinite(runStartedAt), scout_current_for_run: freshScout, stripe_current_for_run: freshStripe },
     checkout_paid_rate: funnel?.paid_rate_per_checkout_session_started ?? null,
-    gross_sales_for_nzd_1000: Math.ceil(1000 / 49),
-    gross_sales_for_nzd_10000: Math.ceil(10000 / 49),
-    gross_sales_for_nzd_1000000: Math.ceil(1000000 / 49),
+    gross_sales_for_nzd_1000: Math.ceil(1000 / 9),
+    gross_sales_for_nzd_10000: Math.ceil(10000 / 9),
+    gross_sales_for_nzd_1000000: Math.ceil(1000000 / 9),
     bank_payout_or_net_profit_verified: false
   },
   blockers_and_remedies: blockers.sort((a,b) => a.priority - b.priority),
