@@ -87,7 +87,7 @@ jobs:
           if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_CONTRACT=$commercialGauntletContract')) { throw 'Bootstrap must report the Gauntlet artifact contract result separately from the business verdict.' }
           if (-not $bootstrap.Contains('commercial_gauntlet_status = $commercialGauntletStatus')) { throw 'Commissioning proof must persist the commercial verdict.' }
           if (-not $bootstrap.Contains('BOOTSTRAP_BRANCH_FALLBACK=$bootstrapFallbackBranch')) { throw 'Bootstrap must fall back to the reviewed feature branch if main lacks the commissioning file set.' }
-          if (-not $bootstrap.Contains("`$BootstrapSourceBranch = 'feat/beck-commercial-gauntlet-bootstrap-clean'")) { throw 'Bootstrap fallback must point to the reviewed commissioning branch.' }
+          if (-not $bootstrap.Contains("`$BootstrapSourceBranch = 'feat/beck-commercial-gauntlet-stable'")) { throw 'Bootstrap fallback must point to the reviewed commissioning branch.' }
           if (-not $bootstrap.Contains('PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED')) { throw 'A correctly executed, evidence-blocked Gauntlet must be distinguished from a bootstrap execution failure.' }
           if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_EXECUTION=$commercialGauntletExecution')) { throw 'Bootstrap must report Gauntlet execution separately from its business verdict.' }
           $successExitContract = "if (`$commissionStatus -eq 'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED') { exit 0 }"
