@@ -1,0 +1,446 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/agent-bridge-long-task-v1.schema.json",
+  "title": "DreamLedger Agent Bridge Long-Task Contract v1",
+  "description": "A bounded, resumable work package that decomposes a large objective into idempotent child tasks. This contract grants no payment, account, public-publishing, legal, or host-compute authority by itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "title",
+    "objective",
+    "status",
+    "dedupe_key",
+    "created_at",
+    "updated_at",
+    "budget",
+    "permissions",
+    "approval_gates",
+    "acceptance_criteria",
+    "children"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dreamledger.agent-bridge.long-task.v1"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9._:-]{2,127}$"
+    },
+    "parent_task_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 180
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 4000
+    },
+    "status": {
+      "enum": [
+        "BACKLOG",
+        "READY",
+        "CLAIMED",
+        "IN_PROGRESS",
+        "BLOCKED",
+        "REVIEW",
+        "COMPLETE",
+        "CANCELLED"
+      ]
+    },
+    "priority": {
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ]
+    },
+    "dedupe_key": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "depends_on": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "uniqueItems": true
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "max_cost",
+        "max_calls",
+        "max_tokens",
+        "timeout_seconds",
+        "max_retries",
+        "max_parallelism",
+        "max_depth"
+      ],
+      "properties": {
+        "currency": {
+          "const": "NZD"
+        },
+        "max_cost": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "max_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1800
+        },
+        "max_retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "max_parallelism": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network",
+        "filesystem",
+        "gpu",
+        "external_spend_nzd",
+        "public_publish"
+      ],
+      "properties": {
+        "network": {
+          "enum": [
+            "none",
+            "allowlisted",
+            "read_only"
+          ]
+        },
+        "filesystem": {
+          "enum": [
+            "none",
+            "workspace_only",
+            "read_only"
+          ]
+        },
+        "gpu": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "allowed",
+            "max_vram_gb",
+            "arbitrary_code"
+          ],
+          "properties": {
+            "allowed": {
+              "type": "boolean"
+            },
+            "max_vram_gb": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 8
+            },
+            "arbitrary_code": {
+              "const": false
+            }
+          }
+        },
+        "external_spend_nzd": {
+          "type": "number",
+          "const": 0
+        },
+        "public_publish": {
+          "const": false
+        }
+      }
+    },
+    "approval_gates": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "identity",
+          "consent",
+          "payment",
+          "account_access",
+          "public_transmission",
+          "legal_commitment",
+          "irreversible_action",
+          "host_compute"
+        ]
+      },
+      "contains": {
+        "const": "payment"
+      },
+      "minContains": 1
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 500
+      }
+    },
+    "artifact_requirements": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "source",
+          "test",
+          "hash",
+          "commit",
+          "workflow_run",
+          "deployment_probe",
+          "delivery_receipt"
+        ]
+      }
+    },
+    "blocker": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 2000
+    },
+    "result_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "uniqueItems": true
+    },
+    "children": {
+      "type": "array",
+      "maxItems": 25,
+      "items": {
+        "$ref": "#/$defs/task"
+      }
+    },
+    "examples": [
+      {
+        "schema": "dreamledger.agent-bridge.long-task.v1",
+        "task_id": "DL-777-FIRST-DOLLAR-ROUTE",
+        "parent_task_id": null,
+        "title": "Prove the existing first-dollar route",
+        "objective": "Inspect the existing Agent Bridge and fallback offer without charging anyone, then return a reproducible pass/fail receipt for the earliest broken boundary.",
+        "status": "READY",
+        "priority": "P0",
+        "dedupe_key": "sha256:dl777-first-dollar-route-v1",
+        "created_at": "2026-10-12T00:00:00Z",
+        "updated_at": "2026-10-12T00:00:00Z",
+        "depends_on": [],
+        "source_refs": [
+          "https://github.com/KelpCoin/DreamLedger/blob/main/webapp/agentic-commerce/777-first-dollar-compounding-work-contract.json"
+        ],
+        "budget": {
+          "currency": "NZD",
+          "max_cost": 0.5,
+          "max_calls": 12,
+          "max_tokens": 6000,
+          "timeout_seconds": 300,
+          "max_retries": 2,
+          "max_parallelism": 1,
+          "max_depth": 3
+        },
+        "permissions": {
+          "network": "read_only",
+          "filesystem": "read_only",
+          "gpu": {
+            "allowed": false,
+            "max_vram_gb": 0,
+            "arbitrary_code": false
+          },
+          "external_spend_nzd": 0,
+          "public_publish": false
+        },
+        "approval_gates": [
+          "identity",
+          "consent",
+          "payment",
+          "account_access",
+          "public_transmission",
+          "legal_commitment",
+          "irreversible_action",
+          "host_compute"
+        ],
+        "acceptance_criteria": [
+          "Record the canonical checkout and SKU mapping from read-only evidence.",
+          "Trace entitlement, fulfilment and delivery-receipt boundaries without a live charge.",
+          "Emit the first failing boundary with a reproducible test or direct evidence.",
+          "Keep all unknowns UNVERIFIED and verified revenue at NZD 0 unless settlement and delivery are proven."
+        ],
+        "artifact_requirements": [
+          "source",
+          "test",
+          "hash",
+          "commit",
+          "workflow_run",
+          "delivery_receipt"
+        ],
+        "blocker": null,
+        "result_refs": [],
+        "children": []
+      }
+    ]
+  },
+  "$defs": {
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "title",
+        "objective",
+        "status",
+        "dedupe_key",
+        "budget",
+        "permissions",
+        "approval_gates",
+        "acceptance_criteria",
+        "children"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9._:-]{2,127}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 180
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 4000
+        },
+        "status": {
+          "enum": [
+            "BACKLOG",
+            "READY",
+            "CLAIMED",
+            "IN_PROGRESS",
+            "BLOCKED",
+            "REVIEW",
+            "COMPLETE",
+            "CANCELLED"
+          ]
+        },
+        "priority": {
+          "enum": [
+            "P0",
+            "P1",
+            "P2",
+            "P3",
+            "P4"
+          ]
+        },
+        "dedupe_key": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 256
+        },
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "budget": {
+          "$ref": "#/properties/budget"
+        },
+        "permissions": {
+          "$ref": "#/properties/permissions"
+        },
+        "approval_gates": {
+          "$ref": "#/properties/approval_gates"
+        },
+        "acceptance_criteria": {
+          "$ref": "#/properties/acceptance_criteria"
+        },
+        "artifact_requirements": {
+          "$ref": "#/properties/artifact_requirements"
+        },
+        "children": {
+          "type": "array",
+          "maxItems": 25,
+          "items": {
+            "$ref": "#/$defs/task"
+          }
+        },
+        "blocker": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        },
+        "result_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}
