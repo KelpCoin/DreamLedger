@@ -35,8 +35,8 @@ function Save-StartupProof([string]$Status) {
         @{name='local.gpu_telemetry';points=100},
         @{name='local.proof_persisted';points=100},
         @{name='local.safe_defaults';points=100},
-        @{name='local.backup_restore';points=100},
-        @{name='local.three_role_readiness';points=100}
+        @{name='local.backup_restore';points=50},
+        @{name='local.three_role_readiness';points=50}
     )
     $localScore = 0
     $scoreRows = @(
