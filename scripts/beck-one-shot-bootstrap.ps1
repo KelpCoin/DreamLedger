@@ -143,8 +143,9 @@ $commercialGauntletPath = Join-Path $RepoRoot 'proof\commerce\latest-gauntlet-ec
 try {
   Push-Location $RepoRoot
   try {
-    & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1 | ForEach-Object { Write-Output ([string]$_) }
+    $commercialRunnerOutput = & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1
     $commercialGauntletExit = $LASTEXITCODE
+    $commercialRunnerOutput | ForEach-Object { Write-Output ([string]$_) }
   } finally { Pop-Location }
   if (Test-Path -LiteralPath $commercialGauntletPath) {
     $commercialProof = Get-Content -LiteralPath $commercialGauntletPath -Raw | ConvertFrom-Json
@@ -339,7 +340,7 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletContract -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
