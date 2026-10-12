@@ -142,7 +142,7 @@ try {
   $proof = [ordered]@{
     schema='DREAMLEDGER-CUBE-SWARM-BOOTSTRAP/v1'
     generated_at_utc=[DateTime]::UtcNow.ToString('o')
-    status=$(if($blocked -eq 0){'CYCLE_COMPLETED_WITH_GATES'}else{'DEGRADED_EXISTING_SUBSTRATE_TRAVERSED'})
+    status=$(if($blocked -gt 0){'DEGRADED_EXISTING_SUBSTRATE_TRAVERSED'}elseif($held -gt 0){'CYCLE_COMPLETED_WITH_HELD_GATES'}else{'CYCLE_COMPLETED_WITH_GATES'})
     repo_root=$RepoRoot
     branch=$Branch
     scheduled_worker=$(if(-not $CycleOnly -and -not $NoScheduledWorker){'DreamLedger-Cube-Swarm-Opportunity-Worker'}else{$null})
