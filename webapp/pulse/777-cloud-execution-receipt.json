@@ -1,12 +1,12 @@
 {
   "schema_version": "DREAMLEDGER/777/CLOUD-EXECUTION/v1",
-  "generated_at_utc": "2026-10-12T23:12:52.369Z",
+  "generated_at_utc": "2026-10-12T23:34:32.001Z",
   "selected_path": "DETERMINISTIC_FALLBACK",
   "fallback_attempts": [
     {
       "path": "5:DETERMINISTIC_EXISTING_GAUNTLET",
       "status": "PASS",
-      "at": "2026-10-12T23:12:52.363Z"
+      "at": "2026-10-12T23:34:31.995Z"
     }
   ],
   "candidate_hash": "4fd5d64f033eb7e60d670673425b87fbcac00597bdf283021f4d599e00cd0f28",
@@ -51,5 +51,5 @@
     "revenue": "UNVERIFIED"
   },
   "next_action": "route only through existing authorized acquisition/commerce mechanism",
-  "integrity_sha256": "6f7e9901a88ee7dbefde450473875449b2dee90f50f3ef6ec5d0969942edb051"
+  "integrity_sha256": "814d3d1e951c9b1fafa470012c61d63c3eca5d19e5b9f831fcac026a51a92f47"
 }
