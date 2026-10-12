@@ -174,10 +174,10 @@ const proof = {
   blockers,
   recommended_first_dollar_path: {
     offer: 'TRUTH-ORACLE-ACCESS-001',
-    reason: 'Existing NZ$49 manual digital service has a defined input, bounded scope, report deliverable, and Stripe URL; manual fulfillment avoids making Supabase recovery a prerequisite.',
+    reason: 'Truth Oracle Access is the sole bounded evidence-review candidate at NZ$9; checkout remains held until evidence persistence, entitlement, and delivery are proven.',
     condition_before_distribution: 'Verify the Truth Oracle payment-to-entitlement and delivery path. Keep checkout disabled until all required evidence passes.',
     fulfillment_contract: 'After a verified paid order, grant Truth Oracle access or complete the bounded evidence review, preserve source-linked findings and uncertainty, and record a stable delivery receipt.',
-    status: blockers.some(x => x.offer === 'TRUTH-ORACLE-ACCESS-001') ? 'BLOCKED_PENDING_PUBLIC_ARTIFACT_PARITY' : 'CANDIDATE_NOT_YET_ECONOMICALLY_VERIFIED'
+    status: blockers.some(x => x.offer === 'TRUTH-ORACLE-ACCESS-001') ? 'BLOCKED_PENDING_TRUTH_ORACLE_FULFILLMENT' : 'HELD_CHECKOUT_PENDING_PROOF'
   },
   economic_truth: {
     verified_revenue_nzd: 0,
