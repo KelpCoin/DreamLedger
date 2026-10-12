@@ -40,7 +40,7 @@ function scoreCandidate(o) {
   if (o.human_authorization_required === true) score += 3;
   if (o.required_input || o.input) score += 5;
   if (o.proof_of_delivery || o.output || o.description) score += 5;
-  if (id.includes('TRUTH-ORACLE-ACCESS-001')) score += 8;
+  if (id.includes('DREAMLEDGER-BILLBOARD-FOUNDING-001')) score += 8; // operator-selected first-dollar candidate with an existing NZ$50 Stripe link.
   if (id.includes('TOLL-PROBE')) score -= 8; // useful infrastructure test, not strongest first-dollar service.
   if (id.includes('QUOTE-COMPARE')) score -= 8; // catalog explicitly disables checkout.
   if (id.includes('COMMANDER') || id.includes('CMD-DIAG')) score -= 5; // known contract mismatch remains unresolved.
@@ -61,6 +61,14 @@ for (const o of (commerce.primary_offers || [])) {
 }
 for (const o of merged.values()) candidates.push(scoreCandidate(o));
 
+const billboardId = 'DREAMLEDGER-BILLBOARD-FOUNDING-001';
+const billboardFeed = feed.find(x => x.item_id === billboardId);
+const billboardPrimary = primaryById.get(billboardId);
+const billboardHeld = (commerce.held_offers || []).some(x => x.product_id === billboardId && x.status === 'REVIEW_REQUIRED');
+const billboardPriority = aiCatalog.priority_offer?.id === billboardId && aiCatalog.priority_offer?.availability === 'review_required';
+if (!billboardFeed || billboardFeed.price !== '50 NZD' || billboardFeed.url !== 'https://dreamledger.org/billboard.html' || billboardFeed.enable_checkout !== false || billboardFeed.availability !== 'review_required' || !billboardPrimary || !billboardHeld || !billboardPriority) {
+  addBlocker(billboardId,'BILLBOARD_CATALOG_DRIFT','The selected NZ$50 Billboard offer must agree across the product feed, AI priority, commerce listing and held-offer register. Keep checkout held until fulfillment is proven.');
+}
 const truthOracleFeed = feed.find(x => x.item_id === 'TRUTH-ORACLE-ACCESS-001');
 const retiredStandaloneInFeed = feed.some(x => x.item_id === 'AGENT-PROOF-AUDIT-49') ||
   (commerce.primary_offers || []).some(x => x.product_id === 'AGENT-PROOF-AUDIT-49') ||
@@ -111,11 +119,11 @@ if (aiCatalog.priority_offer?.id === 'TRUTH-ORACLE-ACCESS-001' && !truthOracleFe
 // Traverse the existing monetizable substrate without executing it.
 // This inventory is based on repository artifacts only; presence is not live readiness.
 const substrateSpecs = [
-  {id:'TRUTH-ORACLE-ACCESS-001',name:'Truth Oracle Access',price_nzd:9,files:['public/agent-products.json','public/truth-oracle.html','truth-oracle.html','ops/commerce/reconcile-truth-oracle-access.mjs'],fulfillment:'digital access to bounded evidence-review workflow',database_dependent:true,reason:'The former standalone audit capability is absorbed into Truth Oracle. Keep checkout held until database persistence, entitlement, and delivery are proven.'},
+  {id:'TRUTH-ORACLE-ACCESS-001',name:'Truth Oracle Access',price_nzd:9,files:['public/agent-products.json','public/truth-oracle.html','truth-oracle.html','ops/commerce/reconcile-truth-oracle-access.mjs'],fulfillment:'digital access to bounded evidence-review workflow',database_dependent:true,reason:'The former standalone audit capability is absorbed into the free Truth Oracle. The selected paid candidate is the NZ$50 Founding Billboard.'},
   {id:'QUOTE-COMPARE-49',name:'Supplier Quote Comparison',price_nzd:49,files:['public/quote-intake.html','supabase/functions/quote-intake/index.ts','supabase/functions/quote-fulfillment/index.ts','BEC-PRIME/data/777/QUOTE-COMPARE-49-LIVE-FULFILLMENT-MAP.json'],fulfillment:'automated quote intake and report generation',database_dependent:true,reason:'Strong repeatable B2B problem with existing intake and fulfillment code, but paid checkout is explicitly held and depends on healthy Supabase persistence.'},
   {id:'COMMANDER-DECK-DIAGNOSTIC-001',name:'Commander Deck Diagnostic',price_nzd:29,files:['public/diagnostic-input.html','BEC-PRIME/routes/mtgDiagnostic.js','BEC-PRIME/lib/mtgDiagnosticFulfillment.js','ops/cube-swarm/silo-definitions/mtg-commander.json'],fulfillment:'automated diagnostic report',database_dependent:true,reason:'Existing report capability and low price, but the silo definition records checkout mismatch/unverified state; do not acquire buyers until the canonical route is reconciled.'},
-  {id:'SELLER-PROFIT-AUDIT-001',name:'Seller Profit Audit',price_nzd:29,files:['public/agent-commerce.json','BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'audit/calculation service',database_dependent:null,reason:'Existing listed offer and potentially bounded fulfillment; trace its exact live intake and delivery route before ranking it above Truth Oracle Access.'},
-  {id:'DREAMLEDGER-BILLBOARD-FOUNDING-001',name:'Founding Billboard',price_nzd:50,files:['BEC-PRIME/lib/billboardAutoFulfillment.js','public/agent-commerce.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'paid inventory allocation and publication',database_dependent:true,reason:'Finite placement has a concrete deliverable, but current public catalog marks the offer review-required until inventory reservation and intake are verified.'},
+  {id:'SELLER-PROFIT-AUDIT-001',name:'Seller Profit Audit',price_nzd:29,files:['public/agent-commerce.json','BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'audit/calculation service',database_dependent:null,reason:'Existing listed offer and potentially bounded fulfillment; trace its exact live intake and delivery route before ranking it above the selected Billboard path.'},
+  {id:'DREAMLEDGER-BILLBOARD-FOUNDING-001',name:'Founding Billboard',price_nzd:50,files:['BEC-PRIME/lib/billboardAutoFulfillment.js','public/agent-products.json','public/agent-commerce.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'paid inventory allocation and publication',database_dependent:true,reason:'Operator-selected first-dollar candidate because the exact NZ$50 Stripe path exists; public checkout remains held until signed-webhook allocation and publication are proven.'},
   {id:'AGENT-TOLL-ROAD',name:'Agent Toll Road / Toll Probe',price_nzd:0.5,files:['supabase/functions/agent-toll-road/index.ts','BEC-PRIME/runtime/TollRoad.js','BEC-PRIME/runtime/TollRoadFactory.js','public/api/agent-commerce/toll-probe.json'],fulfillment:'machine capability with attributable receipt',database_dependent:true,reason:'Useful substrate and a low-cost machine-payment experiment, but weak first-dollar yield and durable entitlement dependency make it secondary.'},
   {id:'TRUTH-ORACLE',name:'Truth Oracle Evidence Verification',price_nzd:null,files:['public/truth-oracle.html','BEC-PRIME/routes/truthOracleCommerce.js','supabase/functions/truth-oracle-public/index.ts','supabase/functions/truth-oracle-fuel-ingest-v2/index.ts'],fulfillment:'structured evidence verification',database_dependent:true,reason:'Potential reusable B2B/agent capability, but complete paid analysis-to-delivery and current pricing are not yet proven.'},
   {id:'BECK-WINDOWS-RECOVERY-KIT',name:'Windows Automation Recovery Kit',price_nzd:null,files:['scripts/beck-daily-bootstrap.ps1','scripts/beck-daily-bootstrap.sh','BEC-PRIME/scripts/Bootstrap-LMStudioCouncil.ps1','BEC-PRIME/scripts/Verify-LMStudioThreeRoleReadiness.ps1','docs/BECK-FIRST-DOLLAR-RUNBOOK.md'],fulfillment:'generalized recovery/verifier package',database_dependent:false,reason:'Reusable existing tooling can be packaged as a bounded paid kit, but no canonical public offer/checkout was established by this inventory; package only after the existing first-dollar route is tested.'}
@@ -156,28 +164,28 @@ const proof = {
     'public/truth-oracle.html',
     'public/agent-delivery-proof-audit.html'
   ],
-  selection_rule: 'Score is an explicit readiness heuristic based on existing checkout metadata and fulfillability. It is not a demand estimate, conversion forecast, or revenue claim.',
+  selection_rule: 'Candidate scores are readiness heuristics, not demand estimates. The operator-selected first-dollar path is the existing NZ$50 Founding Billboard offer; its live/catalog parity and fulfillment still require proof.',
   ranked_candidates: candidates.slice(0,12),
   substrate_inventory: substrateInventory,
   monetization_decision: {
-    first_path: 'TRUTH-ORACLE-ACCESS-001',
-    why: 'Truth Oracle Access is the sole evidence-review candidate at NZ$9. Checkout remains held until database persistence, entitlement, and delivery are proven.',
+    first_path: 'DREAMLEDGER-BILLBOARD-FOUNDING-001',
+    why: 'Founding Billboard is the nearest existing NZ$50 Stripe path. Keep public checkout held until payment attribution, signed-webhook inventory allocation, human approval and publication evidence are proven.',
     must_pass_before_acquisition: [
       'Root, public, and production Truth Oracle pages agree; the retired standalone route redirects and contains no separate offer.',
-      'The Truth Oracle Access entitlement is delivered from a settled, attributable payment without exposing or logging secrets.',
-      'The Truth Oracle workflow persists evidence and delivers a verifiable result for a bounded claim.',
+      'The Billboard placement is allocated from a settled, attributable payment through the signed webhook, with human approval and a published-canvas receipt.',
+      'The live Billboard checkout, inventory reservation, webhook idempotency and publication receipt are verified end to end.',
       'Do not claim revenue until external settlement, independent buyer, attribution, and delivery evidence exist.'
     ],
-    fallback_after_first_path_is_proven: 'Re-enable QUOTE-COMPARE-49 only after Supabase persistence, entitlement, idempotency, and signed delivery are proven end-to-end.',
-    later_candidates: ['COMMANDER-DECK-DIAGNOSTIC-001','SELLER-PROFIT-AUDIT-001','AGENT-TOLL-ROAD','TRUTH-ORACLE','BECK-WINDOWS-RECOVERY-KIT']
+    fallback_after_first_path_is_proven: 'Re-enable QUOTE-COMPARE-49 only after Supabase persistence, idempotency and signed delivery are proven end-to-end.',
+    later_candidates: ['QUOTE-COMPARE-49','COMMANDER-DECK-DIAGNOSTIC-001','SELLER-PROFIT-AUDIT-001','AGENT-TOLL-ROAD','TRUTH-ORACLE','BECK-WINDOWS-RECOVERY-KIT']
   },
   blockers,
   recommended_first_dollar_path: {
-    offer: 'TRUTH-ORACLE-ACCESS-001',
-    reason: 'Truth Oracle Access is the sole bounded evidence-review candidate at NZ$9; checkout remains held until evidence persistence, entitlement, and delivery are proven.',
-    condition_before_distribution: 'Verify the Truth Oracle payment-to-entitlement and delivery path. Keep checkout disabled until all required evidence passes.',
-    fulfillment_contract: 'After a verified paid order, grant Truth Oracle access or complete the bounded evidence review, preserve source-linked findings and uncertainty, and record a stable delivery receipt.',
-    status: blockers.some(x => x.offer === 'TRUTH-ORACLE-ACCESS-001') ? 'BLOCKED_PENDING_TRUTH_ORACLE_FULFILLMENT' : 'HELD_CHECKOUT_PENDING_PROOF'
+    offer: 'DREAMLEDGER-BILLBOARD-FOUNDING-001',
+    reason: 'Founding Billboard is the selected NZ$50 first-dollar candidate because an exact live Stripe Payment Link already exists; public checkout remains held until fulfillment is verified.',
+    condition_before_distribution: 'Verify exact live Stripe price/link, signed webhook idempotency, atomic inventory allocation, human approval and published-canvas delivery evidence. Keep public checkout held until the chain passes.',
+    fulfillment_contract: 'After a verified paid order, allocate one 100x100 placement, preserve payment/order correlation, obtain human approval, publish the tile and record a stable delivery receipt.',
+    status: blockers.some(x => x.offer === 'DREAMLEDGER-BILLBOARD-FOUNDING-001') ? 'BLOCKED_PENDING_BILLBOARD_FULFILLMENT' : 'HELD_CHECKOUT_PENDING_PROOF'
   },
   economic_truth: {
     verified_revenue_nzd: 0,
