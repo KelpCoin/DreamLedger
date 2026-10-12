@@ -161,9 +161,6 @@ try {
         }
 
         if ($env:STRIPE_SECRET_KEY -and $env:STRIPE_LIVE_ENABLED -eq 'true') {
-            # The NZ$49 Proof Audit is listed in the public product feed but is not in
-            # approved.json. Reconcile it directly rather than silently omitting the
-            # actual first-dollar candidate from live Stripe checks.
             $firstDollarCode = Run-NodeCheck 'stripe.first_dollar_offer_reconciliation' @('ops/commerce/reconcile-first-dollar-proof-audit.mjs')
             $firstDollarPath = Join-Path $RepoRoot 'proof/commerce/latest-first-dollar-stripe-reconciliation.json'
             if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
@@ -186,6 +183,26 @@ try {
             }
         } else {
             Add-Check 'stripe.live_reconciliation' 'BLOCKED' 'Set STRIPE_SECRET_KEY in the local process environment and STRIPE_LIVE_ENABLED=true to query live Stripe. Never paste the key into chat. No Stripe API call was made.'
+        }
+
+        # Snapshot current evidence for the Gauntlet. This is local proof output only.
+        $interimDir = Join-Path $RepoRoot 'proof/commerce'
+        New-Item -ItemType Directory -Path $interimDir -Force | Out-Null
+        $interim = [ordered]@{
+            schema = 'BECK-ECONOMIC-VALIDATION/v1'
+            generated_at_utc = [DateTime]::UtcNow.ToString('o')
+            checks = @($checks)
+        }
+        $interim | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $interimDir 'latest-economic-validation.json') -Encoding UTF8
+        $gauntletCode = Run-NodeCheck 'gauntlet.economic_verdict' @('ops/commerce/gauntlet-economic-verdict.mjs')
+        $gauntletPath = Join-Path $RepoRoot 'proof/commerce/latest-gauntlet-economic-verdict.json'
+        if ($gauntletCode -eq 0 -and (Test-Path -LiteralPath $gauntletPath)) {
+            Add-Check 'gauntlet.economic_verdict' 'PASS' 'Gauntlet produced a controlled-scale eligibility verdict.'
+        } elseif (Test-Path -LiteralPath $gauntletPath) {
+            $g = Get-Content -LiteralPath $gauntletPath -Raw | ConvertFrom-Json
+            Add-Check 'gauntlet.economic_verdict' 'BLOCKED' ("Gauntlet verdict=" + $g.verdict + '; score=' + $g.score_out_of_100 + '/100. See ' + $gauntletPath)
+        } else {
+            Add-Check 'gauntlet.economic_verdict' 'FAIL' 'Gauntlet did not produce its verdict artifact.'
         }
     }
 } finally {
