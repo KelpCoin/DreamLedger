@@ -2,9 +2,9 @@
 'use strict';
 
 // Read-only asset traversal. Scores monetization readiness, not demand or revenue.
-const fs = require('node:fs');
-const path = require('node:path');
-const crypto = require('node:crypto');
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
 const root = process.cwd();
 const readJson = p => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 const exists = p => fs.existsSync(path.join(root, p));
