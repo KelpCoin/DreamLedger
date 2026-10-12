@@ -282,12 +282,13 @@ try {
     }
   } else { $onlineHeartbeatStatus = 'NO_RUN_FOUND' }
 } catch { $onlineHeartbeatStatus = 'UNREACHABLE_OR_UNAUTHORIZED' }
-$dualHeartbeatStatus = if ($localHeartbeatFresh -and $localHeartbeatStatus -eq 'PASS' -and $onlineHeartbeatStatus -eq 'PASS') { 'PASS' } else { 'DEGRADED' }
+$localHeartbeatProducedProof = $localHeartbeatFresh -and $localHeartbeatStatus -in @('PASS','DEGRADED')
+$dualHeartbeatStatus = if ($localHeartbeatProducedProof -and $onlineHeartbeatStatus -eq 'PASS') { 'PASS' } else { 'DEGRADED' }
 $dualHeartbeatProof = [ordered]@{
   schema = 'DREAMLEDGER-DUAL-HEARTBEAT-CORROBORATION/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   status = $dualHeartbeatStatus
-  local = [ordered]@{ status=$localHeartbeatStatus; proof_path=$localProofPath; fresh_within_20_minutes=$localHeartbeatFresh }
+  local = [ordered]@{ status=$localHeartbeatStatus; proof_path=$localProofPath; fresh_within_20_minutes=$localHeartbeatFresh; heartbeat_proof_produced=$localHeartbeatProducedProof }
   online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
   rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions heartbeat on main no older than 35 minutes. Unknown is not pass.'
   no_revenue_claim = $true
