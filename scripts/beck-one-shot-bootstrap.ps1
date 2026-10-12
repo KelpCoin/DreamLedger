@@ -96,7 +96,7 @@ if (-not (Get-Command node.exe -ErrorAction SilentlyContinue) -or -not (Get-Comm
       status = 'INSTALLED_DEGRADED_CLOUD_ONLY'
       local_heartbeat_task = 'REGISTERED'
       local_heartbeat_schedule = 'At user logon and every 15 minutes while session is available'
-      cloud_fallback = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml')
+      cloud_fallback = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml')
       node_runtime = 'UNAVAILABLE_AFTER_INSTALL_ATTEMPT'
       verified_revenue_nzd = 0
       notes = @('The recurring local task is installed. GitHub Actions does not depend on this PC.','Local Node-based cockpit and inference checks were skipped; this is not a revenue or fulfillment pass.','Do not rerun the bootstrap merely to repeat diagnostics.')
@@ -261,10 +261,10 @@ if (Test-Path -LiteralPath $localProofPath) {
   } catch { $localHeartbeatStatus = 'INVALID_PROOF' }
 }
 $onlineHeartbeatStatus = 'UNKNOWN'
-$onlineHeartbeatWorkflow = 'beck-production-heartbeat.yml'
+$onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
-$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml/runs?branch=main&per_page=5'
+$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
 try {
   $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
   $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
@@ -315,7 +315,7 @@ $commissionProof = [ordered]@{
   heartbeat_after_startup_exit = $heartbeatAfterStartupExit
   cockpit_exit = $cockpitExit
   cloud_cockpit_dispatch = $cloudDispatchStatus
-  cloud_fallback_workflows = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml')
+  cloud_fallback_workflows = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml')
   verified_revenue_nzd = 0
   readiness_is_not_revenue = $true
   notes = @('The recurring task is the commissioning outcome; blocked diagnostics are retained as evidence and do not require rerunning this installer.','GitHub Actions cloud fallback is independent of local PC power.','Revenue remains zero until external settlement, fulfillment, and delivery evidence reconcile.')
