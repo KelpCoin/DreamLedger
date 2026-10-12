@@ -1,0 +1,74 @@
+name: BECK CUBE Swarm Bootstrap Validation
+
+on:
+  push:
+    branches: [feat/cube-swarm-economic-traversal]
+    paths:
+      - 'ops/cube-swarm/opportunity-batch-controller.mjs'
+      - 'scripts/beck-cube-swarm-bootstrap.ps1'
+      - 'package.json'
+      - '.github/workflows/beck-cube-swarm-validation.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/cube-swarm/opportunity-batch-controller.mjs'
+      - 'scripts/beck-cube-swarm-bootstrap.ps1'
+      - 'package.json'
+      - '.github/workflows/beck-cube-swarm-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-safe-batch:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse PowerShell bootstrap without executing it
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD 'scripts/beck-cube-swarm-bootstrap.ps1'),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            throw 'CUBE Swarm bootstrap parse failed.'
+          }
+          Write-Host 'POWERSHELL_PARSE_PASS'
+      - name: Validate Node syntax and package scripts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          node --check ops/cube-swarm/opportunity-batch-controller.mjs
+          node -e "const p=require('./package.json'); if (!p.scripts['cube:swarm:batch'] || !p.scripts['verify:cube-swarm:batch']) process.exit(1)"
+      - name: Run offline candidate batch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          node ops/cube-swarm/opportunity-batch-controller.mjs --max-candidates 100000 --out artifacts/opportunity-batch-latest.json
+          if ($LASTEXITCODE -ne 0) { throw "CUBE batch exited $LASTEXITCODE" }
+          $proof = Get-Content 'artifacts/opportunity-batch-latest.json' -Raw | ConvertFrom-Json
+          if ($proof.schema -ne 'DREAMLEDGER-CUBE-SWARM-BATCH/v1') { throw 'Unexpected batch proof schema.' }
+          if ($proof.operating_contract.verified_revenue_nzd -ne 0) { throw 'Candidate batch must not claim revenue.' }
+          if ($proof.operating_contract.no_external_actions -ne $true) { throw 'External actions must remain disabled.' }
+          Write-Host ("BATCH_RECORDS=" + $proof.counts.unique_candidates)
+          Write-Host 'OFFLINE_BATCH_TRUTH_BOUNDARY_PASS'
+      - name: Upload safe batch proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-swarm-validation-${{ github.run_id }}
+          path: artifacts/opportunity-batch-latest.json
+          if-no-files-found: warn
+          retention-days: 14
