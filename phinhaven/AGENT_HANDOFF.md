@@ -1,68 +1,66 @@
-# PhinHaven agent handoff — 2026-10-13
+# PhinHaven agent handoff
 
-This file is durable state for other LLMs and workers. Chat is not source of truth.
+Durable state for other LLMs and workers. Chat is not source of truth.
 
-## Commits already on `main`
+## Commits on `main` (newest last)
 
-1. `fd8b87829d8ca8bd14098fac93e10077d7ef300d` — public page + roadmap + PvE guild docs
-   - `phinhaven.html` — honest Stage 0 public landing
-   - `phinhaven/ROADMAP.md` — stages 0–7
-   - `phinhaven/PVE_GUILD_TERRITORY.md` — pure PvE territory design
+| SHA (prefix) | What |
+|--------------|------|
+| `fd8b878` | Public `phinhaven.html`, `ROADMAP.md`, `PVE_GUILD_TERRITORY.md` |
+| `6b2c080` | `STAGE0_HOTEL_CHAT.md`, first handoff, START_HERE pointer |
+| *(this)* | Stage 0 **SQL migration** + **local TEST hotel UI** |
 
-2. (this commit) — Stage 0 hotel/chat sketch + this handoff + START_HERE pointer
+## Files added this pass
+
+| Path | Status |
+|------|--------|
+| `supabase/migrations/20261013_phinhaven_stage0_hotel_chat.sql` | Written. **Not applied** on production unless an operator runs it. UNVERIFIED. |
+| `phinhaven/hotel/index.html` | LocalStorage multi-tab chat. Labeled **TEST**. Not Supabase-backed. |
 
 ## What is true
 
-- Public design contract for PhinHaven Stage 0–7 is in-repo.
-- PvE-only guild territory is specified (no PvP).
-- Existing Godot shallows scaffold remains under `phinhaven/godot/shallows/`.
-- Browser shallows slice remains under `phinhaven/shallows/`.
-- Operator/commercial gates remain in `PHINHAVEN_MASTER_OPERATING_CONTRACT.md`.
+- Design contract for Stages 0–7 is in-repo.
+- PvE-only guild territory design is in-repo.
+- Stage 0 migration defines `ph_rooms`, `ph_guests`, `ph_presence`, `ph_messages` + RPCs (`ph_register_guest`, `ph_enter_room`, `ph_heartbeat`, `ph_post_message`, `ph_list_room_state`).
+- Local hotel UI lets two browser tabs on one machine chat (storage event sync).
 
 ## What is not true
 
-- Stage 0 hotel/chat is **not** implemented as live Supabase tables yet (schema is a sketch).
-- No verified external players or revenue for PhinHaven.
-- dreamledger.org may still cold-start on free Render (ops issue, not fixed in these commits).
+- Migration has **not** been proven applied on live Supabase.
+- Hotel UI is **not** connected to Supabase.
+- No external dual-session production proof.
+- No revenue / player counts claimed.
 
-## Exact next jobs (pick one, claim it, ship evidence)
+## Remaining jobs
 
-### Job A — Stage 0 schema migration (preferred)
+### Job A2 — Apply migration (ops)
 
-- Scope: add Supabase migration for `ph_rooms`, `ph_presence`, `ph_messages` (or map onto existing player tables).
-- Acceptance: migration applies cleanly; RLS policies documented; no combat tables required.
-- Evidence: migration file path + apply log or CI proof.
+- Apply `20261013_phinhaven_stage0_hotel_chat.sql` on the real project.
+- Evidence: apply log or Supabase migration history screenshot/note + commit reference.
 
-### Job B — Stage 0 minimal UI
+### Job B2 — Wire hotel UI to Supabase
 
-- Scope: simple page that lists lobby, shows presence, posts messages (can be static + Supabase client).
-- Depends on: Job A or mock local storage with clear “not production” label.
-- Acceptance: two sessions can chat in one room (test note + screenshots or recorded steps).
+- Replace localStorage with RPC calls using anon key from existing DreamLedger config patterns.
+- Acceptance: two different browsers/devices chat in one room via backend.
 
-### Job C — Deploy / cold-start
+### Job C — Cold start
 
-- Scope: reduce dreamledger.org wake latency (paid Render, static front, or warm ping).
-- Acceptance: TTFB for `/phinhaven.html` under a stated threshold from a cold state, with evidence.
+- Reduce dreamledger.org wake time so `/phinhaven.html` and `/phinhaven/hotel/` are reachable without 30s spin-up.
 
-### Job D — Wire public nav
+### Job D — Nav links
 
-- Scope: ensure homepage / silos link to `/phinhaven.html` without claiming a finished MMO.
-- Acceptance: link present; wording matches evidence vocabulary in AGENTS.md / operating contract.
+- Link homepage/silos to PhinHaven without overclaiming.
 
-## Parallelism notes
+## Parallelism
 
-- Jobs A and C do not share files → safe in parallel.
-- Job B should wait for A unless using an explicit mock path labeled TEST.
-- Do not edit `PHINHAVEN_MASTER_OPERATING_CONTRACT.md` unless reconciling runtime truth.
+- A2 is ops-only; B2 depends on A2 for production proof (can develop against local/supabase CLI).
+- Do not invent a second chat system; extend this Stage 0 surface.
 
-## Read first
+## Read order for next worker
 
 1. `AGENTS.md`
-2. `phinhaven/ROADMAP.md`
+2. This file
 3. `phinhaven/STAGE0_HOTEL_CHAT.md`
-4. `PHINHAVEN_START_HERE.md`
-5. `PHINHAVEN_MASTER_OPERATING_CONTRACT.md`
-
-## Worker rule
-
-Commit atomically. Report SHA, what was tested, what remains. Do not mark complete without acceptance evidence.
+4. `supabase/migrations/20261013_phinhaven_stage0_hotel_chat.sql`
+5. `phinhaven/hotel/index.html`
+6. `PHINHAVEN_MASTER_OPERATING_CONTRACT.md` (commercial gates)
