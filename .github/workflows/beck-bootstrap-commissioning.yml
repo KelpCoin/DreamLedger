@@ -89,7 +89,7 @@ jobs:
           if (-not $bootstrap.Contains('BOOTSTRAP_BRANCH_FALLBACK=\$bootstrapFallbackBranch')) { throw 'Bootstrap must fall back to the reviewed feature branch if main lacks the commissioning file set.' }
           if (-not $bootstrap.Contains('PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED')) { throw 'A correctly executed, evidence-blocked Gauntlet must be distinguished from a bootstrap execution failure.' }
           if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_EXECUTION=$commercialGauntletExecution')) { throw 'Bootstrap must report Gauntlet execution separately from its business verdict.' }
-          if (-not $bootstrap.Contains("if ($commissionStatus -eq 'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED') { exit 0 }")) { throw 'A successful commissioning run must exit zero when the Gauntlet correctly emits a real-evidence blocker.' }
+          if (-not $bootstrap.Contains('if ($commissionStatus -eq ''PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED'') { exit 0 }')) { throw 'A successful commissioning run must exit zero when the Gauntlet correctly emits a real-evidence blocker.' }
           Write-Host 'BOOTSTRAP_CLOUD_SAFETY_CONTRACT=PASS'
       - name: Verify canonical Truth Oracle and commercial truth labels
         shell: pwsh
