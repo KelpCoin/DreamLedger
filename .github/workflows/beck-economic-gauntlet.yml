@@ -148,3 +148,4 @@ jobs:
           if ($validationExit -notin @(0,1,2)) {
             throw "Unexpected bootstrap process exit code: $validationExit"
           }
+          $global:LASTEXITCODE = 0
