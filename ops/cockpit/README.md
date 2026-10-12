@@ -1,6 +1,6 @@
 # Figure Eight cockpit
 
-Cloud and local readiness are scored separately out of 1,000. Full points require fresh acceptance evidence; missing evidence is marked UNVERIFIED and earns no points. The cloud score covers database reliability (200), Stripe webhook routing (200), settled-payment-to-ledger reconciliation (200), paid-order-to-delivery proof (200), CI reliability (100), and backups/alerts/kill-switch proof (100).
+Cloud and local readiness are scored separately out of 10,000. Full points require fresh acceptance evidence; missing evidence is marked UNVERIFIED and earns no points. The cloud score weights database reliability, webhook routing, settlement reconciliation, fulfillment evidence, CI reliability, and recovery controls. The local score weights runtime availability, LM Studio, inference, GPU telemetry, repository integrity, scheduled heartbeat, proof persistence, safe defaults, and tested backup restore. The cloud score covers database reliability (200), Stripe webhook routing (200), settled-payment-to-ledger reconciliation (200), paid-order-to-delivery proof (200), CI reliability (100), and backups/alerts/kill-switch proof (100).
 
 The money panel reports Stripe balance-ledger charge movements for the New Zealand calendar day, gross and net, plus payout movements. These are not automatically DreamLedger revenue. Verified DreamLedger revenue stays at NZ$0 until independent buyer, attribution, settlement, fulfillment and delivery evidence reconcile.
 
