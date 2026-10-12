@@ -58,10 +58,11 @@
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "name": "Commander Deck Diagnostic",
       "price_nzd": 29,
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "checkout_url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
+      "buy_router": "https://dreamledger.org/mtg/diagnostic.html",
+      "checkout_url": "https://dreamledger.org/mtg/diagnostic.html",
       "status": "LISTED",
-      "loop": "LOOP-CMD-DIAG-29"
+      "loop": "LOOP-CMD-DIAG-29",
+      "note": "First-party decklist intake creates a one-time Checkout Session only while the canonical economic ledger is reachable. Do not treat checkout creation as payment or delivery proof."
     },
     {
       "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
