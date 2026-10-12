@@ -21,18 +21,18 @@
     "purchase_router": "https://dreamledger.org/buy/{product_id}"
   },
   "priority_offer": {
-    "id": "AGENT-PROOF-AUDIT-49",
-    "title": "Agent Delivery Proof Audit",
-    "description": "One-time bounded evidence review of one public URL or digital artifact against up to five acceptance criteria. Includes source-linked findings, PASS/FAIL/NEEDS HUMAN REVIEW, limitations, and a timestamped report.",
-    "url": "https://dreamledger.org/agent-delivery-proof-audit.html",
-    "price": 49,
+    "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "title": "Founding Billboard",
+    "description": "One-time NZ$50 placement on the public DreamLedger billboard after settled payment and publication.",
+    "url": "https://dreamledger.org/billboard",
+    "price": 50,
     "currency": "NZD",
     "availability": "listed",
-    "required_input": "One accessible public URL or bounded artifact, up to five acceptance criteria, and delivery email",
-    "checkout": "https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m",
-    "fulfillment": "manual",
-    "delivery_target": "within 24 hours after complete intake",
-    "availability_note": "Manual fulfilment. Delivery target starts only after complete, accessible intake. A listing or checkout session is not proof of a sale or delivery."
+    "required_input": "Billboard title and destination URL after payment",
+    "checkout": "https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x",
+    "fulfillment": "manual_or_webhook_assisted",
+    "delivery_target": "published after settled payment and placement steps complete",
+    "availability_note": "A checkout session is not proof of sale or publication. Verified revenue requires settlement and delivery evidence."
   },
   "deprioritized_offer": {
     "id": "QUOTE-COMPARE-49",
@@ -41,7 +41,13 @@
     "price": 49,
     "currency": "NZD",
     "availability": "review_required",
-    "availability_note": "Do not prioritize checkout-driven acquisition until the intake and fulfillment path is independently tested and its persistence dependency is healthy."
+    "availability_note": "Do not prioritize checkout-driven acquisition until intake and fulfillment are independently verified."
+  },
+  "withdrawn_offer": {
+    "id": "AGENT-PROOF-AUDIT-49",
+    "title": "Agent Delivery Proof Audit",
+    "status": "absorbed",
+    "note": "Former product page redirects to Truth Oracle free tools. Do not validate NZ$49 checkout on the old URL. Prefer Founding Billboard for paid acquisition."
   },
   "trust": {
     "human_authorization_required": true,
