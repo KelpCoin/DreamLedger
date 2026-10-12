@@ -42,7 +42,7 @@ try {
   $renderScript = Join-Path $RepoRoot 'ops\cockpit\render-cockpit-html.mjs'
   if (-not (Test-Path $cockpitScript)) { Add-Check 'cockpit.report' 'FAIL' "Missing $cockpitScript"; Save-Proof 'FAIL'; exit 1 }
   $env:COCKPIT_REPORT_PATH = Join-Path $cockpitRoot 'figure-eight-cockpit-latest.json'
-  $env:COCKPIT_LOCAL_PROOF_JSON = Join-Path $ProofRoot 'BECK-STARTUP-LATEST.json'
+  $env:COCKPIT_LOCAL_PROOF_JSON = Join-Path $ProofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json'
   $env:COCKPIT_PRIVATE_MODE = 'true'
   $out = & node.exe $cockpitScript 2>&1
   $code = $LASTEXITCODE
