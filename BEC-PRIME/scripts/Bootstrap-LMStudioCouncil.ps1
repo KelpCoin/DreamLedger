@@ -1,165 +1,140 @@
 #Requires -Version 5.1
+[CmdletBinding()]
+param(
+    [int]$Port = 1234,
+    [string]$Root = "",
+    [string]$ProofRoot = ""
+)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-
-$Root = 'D:\BrownEyeCortex\ARTIFACTS\LM-COUNCIL'
-$LogDir = Join-Path $Root 'LOGS'
-$MemoryDir = Join-Path $Root 'MEMORY'
+$DataRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex' } else { Join-Path $HOME 'BrownEyeCortex' }
+if ([string]::IsNullOrWhiteSpace($Root)) { $Root = Join-Path $DataRoot 'Runtime\LMStudioCouncil' }
+if ([string]::IsNullOrWhiteSpace($ProofRoot)) { $ProofRoot = Join-Path $DataRoot 'Runtime\proofs' }
+$Root = [System.IO.Path]::GetFullPath($Root)
+$ProofRoot = [System.IO.Path]::GetFullPath($ProofRoot)
+$LogDir = Join-Path $DataRoot 'logs'
+$Log = Join-Path $LogDir 'LMStudio-Council-Bootstrap.log'
 $ConfigDir = Join-Path $Root 'CONFIG'
-$Log = Join-Path $LogDir ('bootstrap-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.log')
+$MemoryDir = Join-Path $Root 'MEMORY'
+$Verifier = Join-Path $PSScriptRoot 'Verify-LMStudioThreeRoleReadiness.ps1'
+$VerifierProof = Join-Path $ProofRoot 'LMSTUDIO-THREE-ROLE-READINESS.json'
+$CouncilProof = Join-Path $ProofRoot 'LM-COUNCIL-BOOTSTRAP-PROOF.json'
 $Config = Join-Path $ConfigDir 'council.json'
 $Memory = Join-Path $MemoryDir 'memory.jsonl'
-$ProofPath = Join-Path $Root 'LM-COUNCIL-BOOTSTRAP-PROOF.json'
-
-New-Item -ItemType Directory -Force -Path $Root,$LogDir,$MemoryDir,$ConfigDir | Out-Null
-Start-Transcript -Path $Log -Force | Out-Null
-
-function Write-Event([string]$Message) { Write-Host $Message; Add-Content -Path $Log -Value $Message }
-function Get-LmServerStatus {
-    try {
-        $raw = & $env:ComSpec /c "lms server status --json --quiet" 2>$null | Out-String
-        if ([string]::IsNullOrWhiteSpace($raw)) { return $null }
-        return $raw | ConvertFrom-Json
-    } catch { return $null }
+$null = New-Item -ItemType Directory -Force -Path $Root,$ProofRoot,$LogDir,$ConfigDir,$MemoryDir
+function Write-Log([string]$Message) {
+    $line = "[$([DateTime]::UtcNow.ToString('o'))] $Message"
+    Add-Content -LiteralPath $Log -Value $line -Encoding UTF8
+    Write-Host $Message
 }
-function Get-LmModels {
-    try {
-        $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/models' -Method Get -TimeoutSec 8
-        return @($r.data)
-    } catch {
-        return @()
+function Write-JsonAtomic([string]$Path,[object]$Value) {
+    $tmp = "$Path.tmp"
+    $Value | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath $tmp -Encoding UTF8
+    Move-Item -LiteralPath $tmp -Destination $Path -Force
+}
+try {
+    Write-Log "BEC_LOCAL_COUNCIL_START port=$Port root=$Root proof_root=$ProofRoot"
+    if (-not (Test-Path -LiteralPath $Verifier)) { throw "Required verifier missing: $Verifier" }
+    $out = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $Verifier -Port $Port -ProofPath $VerifierProof -CacheMinutes 360 2>&1
+    $verifierExit = $LASTEXITCODE
+    if ($verifierExit -ne 0 -or -not (Test-Path -LiteralPath $VerifierProof)) {
+        $summary = (($out | ForEach-Object { [string]$_ }) -join [Environment]::NewLine)
+        throw "Three-role verifier did not pass; exit=$verifierExit; proof=$VerifierProof; output=$summary"
     }
-}
-function Pick([string[]]$Patterns) {
-    foreach ($p in $Patterns) {
-        $hit = $names | Where-Object { $_ -match $p } | Select-Object -First 1
-        if ($hit) { return $hit }
+    $readiness = Get-Content -LiteralPath $VerifierProof -Raw | ConvertFrom-Json
+    if ($readiness.status -ne 'PASS' -or $readiness.readiness -ne 'THREE_DISTINCT_ROLES_INFERENCE_AND_LOADED_STATE_VERIFIED') {
+        throw "Verifier status/readiness mismatch. No Council PASS permitted."
     }
-    return $null
-}
-
-Write-Event 'LM STUDIO COUNCIL BOOTSTRAP'
-Write-Event ('UTC: ' + [DateTime]::UtcNow.ToString('o'))
-
-$serverStatus = Get-LmServerStatus
-$models = Get-LmModels
-if ($null -eq $serverStatus -or -not $serverStatus.running) {
-    Write-Event 'LM Studio server is not running; attempting local server start.'
-    try { & lms server start --port 1234 2>&1 | Out-Null } catch { }
-    Start-Sleep -Seconds 2
-    $serverStatus = Get-LmServerStatus
-}
-$models = Get-LmModels
-if ($null -eq $serverStatus -or -not $serverStatus.running -or $models.Count -eq 0) {
-    Write-Event 'FAIL: LM Studio server not reachable or no models visible at http://127.0.0.1:1234.'
-    Write-Event 'Start the LM Studio local server, then rerun this script. No cloud call is made by this bootstrap.'
-    Stop-Transcript | Out-Null
+    $roleMap = @{}
+    foreach ($roleProof in @($readiness.roles)) {
+        if ($roleProof.inference -ne 'PASS' -or [string]::IsNullOrWhiteSpace([string]$roleProof.model_key) -or [string]::IsNullOrWhiteSpace([string]$roleProof.api_identifier)) {
+            throw "Incomplete real-inference proof for role=$($roleProof.role)."
+        }
+        $roleMap[[string]$roleProof.role] = $roleProof
+    }
+    foreach ($required in @('lightweight','heavyweight','visual')) {
+        if (-not $roleMap.ContainsKey($required)) { throw "Verified proof missing required role '$required'." }
+    }
+    $modelKeys = @($roleMap.lightweight.model_key,$roleMap.heavyweight.model_key,$roleMap.visual.model_key)
+    if (@($modelKeys | Select-Object -Unique).Count -ne 3) { throw 'The three required roles must use three distinct model keys.' }
+    if ($roleMap.visual.vision_color_check -ne 'BLUE_DETECTED') { throw 'Vision role has no successful image-payload/color proof.' }
+    if ($readiness.gpu.status -ne 'PASS_GPU_MEMORY_AND_INFERENCE_ACTIVITY_OBSERVED' -and -not $readiness.verification_reused) {
+        throw 'GPU activity proof missing; model runtime is not ready.'
+    }
+    $council = [ordered]@{
+        schema_version='BEC-LM-COUNCIL-2.0'
+        generated_utc=[DateTime]::UtcNow.ToString('o')
+        readiness='THREE_DISTINCT_ROLES_INFERENCE_VERIFIED'
+        readiness_proof=$VerifierProof
+        runtime=[ordered]@{
+            base_url="http://127.0.0.1:$Port"
+            models_endpoint='/v1/models'
+            inference_endpoint='/v1/chat/completions'
+            model_residency='REQUIRE_ALL_THREE_PRESENT_IN_FINAL_LMS_PS_AND_API_MODELS'
+            context_length_default=2048
+            gpu_offload='DYNAMIC_PARTIAL_OFFLOAD_WITH_RETRY'
+            automatic_unload='NOT_CONFIGURED'
+            concurrency='SERIAL_BY_DEFAULT'
+        }
+        roles=[ordered]@{
+            lightweight=[ordered]@{ model=[string]$roleMap.lightweight.model_key; api_identifier=[string]$roleMap.lightweight.api_identifier; job='Fast scouting, triage, classification, and bounded draft proposals.'; required=$true }
+            heavyweight=[ordered]@{ model=[string]$roleMap.heavyweight.model_key; api_identifier=[string]$roleMap.heavyweight.api_identifier; job='Deep critique, code reasoning, failure analysis, and adversarial checks.'; required=$true }
+            visual=[ordered]@{ model=[string]$roleMap.visual.model_key; api_identifier=[string]$roleMap.visual.api_identifier; job='Image input inspection; may report visible evidence only with uncertainty.'; required=$true; input_modality='IMAGE_AND_TEXT' }
+        }
+        compatibility_aliases=[ordered]@{
+            scout=[string]$roleMap.lightweight.api_identifier
+            proposer=[string]$roleMap.lightweight.api_identifier
+            critic=[string]$roleMap.heavyweight.api_identifier
+            synthesizer=[string]$roleMap.heavyweight.api_identifier
+            vision=[string]$roleMap.visual.api_identifier
+        }
+        loop=@('INGEST_EVIDENCE','SCOUT','CRITIC','VISUAL_IF_IMAGE_INPUT','SYNTHESIZE','GAUNTLET','EXECUTE_ONLY_IF_AUTHORIZED','VERIFY_EXTERNAL_EFFECT','PERSIST_PROOF')
+        north_star='MAXIMIZE_VERIFIED_EXTERNAL_ECONOMIC_OUTCOMES_PER_HUMAN_ATTENTION_MINUTE; first independent buyer -> authorized purchase -> settled attributable payment -> fulfilled deliverable -> delivery evidence -> reconciliation.'
+        truth_boundary='Model scores, model availability, GPU use, checkout sessions, workflow success and internal records are not revenue. Current verified external revenue remains NZD 0.00 until independent settlement and fulfillment evidence reconcile.'
+        guardrails=@('NO_PUBLIC_POST_WITHOUT_APPROVAL','NO_LIVE_FINANCIAL_ACTION_WITHOUT_AUTHORIZATION','NO_CROSS_SILO_DATA','NO_SECRET_PERSISTENCE','FAIL_CLOSED_ON_MISSING_ROLE_OR_STALE_PROOF','LOCAL_MODELS_ARE_ACCELERATORS_NOT_TRUTH_AUTHORITY')
+        economics=[ordered]@{ cloud_spend_default='OFF'; public_actions='APPROVAL_GATED'; db_writes='NOT_PERFORMED_BY_MODEL_BOOTSTRAP'; stripe_actions='NOT_PERFORMED_BY_MODEL_BOOTSTRAP' }
+        memory_file=$Memory
+        append_only_memory=$true
+    }
+    Write-JsonAtomic -Path $Config -Value $council
+    if (-not (Test-Path -LiteralPath $Memory)) { New-Item -ItemType File -Path $Memory -Force | Out-Null }
+    $proof = [ordered]@{
+        schema='BEC-LM-COUNCIL-BOOTSTRAP/v2'
+        status='PASS'
+        readiness='THREE_DISTINCT_ROLES_INFERENCE_VERIFIED'
+        verified_at_utc=[DateTime]::UtcNow.ToString('o')
+        port=$Port
+        role_count=3
+        distinct_model_keys=$modelKeys
+        roles=@($readiness.roles)
+        gpu=$readiness.gpu
+        readiness_proof=$VerifierProof
+        council_config=$Config
+        log=$Log
+        north_star='First independent buyer and one completed, attributable, reconciled delivery. No economic claims from infrastructure telemetry.'
+        note='PASS proves local model residency/inference/vision/GPU checks only. It does not prove cloud uptime, Supabase recovery, commerce fulfillment, or revenue.'
+    }
+    Write-JsonAtomic -Path $CouncilProof -Value $proof
+    Write-Log "BEC_LOCAL_COUNCIL_PASS roles=3 proof=$CouncilProof"
+    Write-Host "COUNCIL_CONFIG=$Config"
+    Write-Host "READINESS_PROOF=$VerifierProof"
+    Write-Host "COUNCIL_PROOF=$CouncilProof"
+    Write-Host "LOG=$Log"
+    exit 0
+} catch {
+    $proof = [ordered]@{
+        schema='BEC-LM-COUNCIL-BOOTSTRAP/v2'
+        status='FAIL'
+        readiness='NOT_READY'
+        verified_at_utc=[DateTime]::UtcNow.ToString('o')
+        error=$_.Exception.Message
+        readiness_proof=$VerifierProof
+        council_config=$Config
+        log=$Log
+        note='Failure stays explicit. A model list, parser-only test, or local HTTP 200 never substitutes for three live role probes.'
+    }
+    Write-JsonAtomic -Path $CouncilProof -Value $proof
+    Write-Log ("BEC_LOCAL_COUNCIL_FAIL error=" + $_.Exception.Message)
+    Write-Error $_
     exit 2
 }
-
-$names = @($models | ForEach-Object { [string]$_.id })
-Write-Event ('Models visible: ' + ($names -join ', '))
-
-# Role selection is adaptive. Core roles must exist before the council may execute.
-$roles = [ordered]@{
-    proposer = Pick @('qwen3.*14b','qwen2\.5.*14b.*instruct','qwen.*coder.*','qwen')
-    critic = Pick @('deepseek.*r1.*14b','deepseek.*r1','deepseek')
-    synthesizer = Pick @('gpt-oss-20b','gpt-oss','qwen3.*14b','qwen2\.5.*14b','qwen')
-    visual_critic = Pick @('gemma-3.*12b','gemma-3','gemma')
-    coder = Pick @('qwen3.*coder.*30b','qwen3.*coder','qwen.*coder','qwen3','qwen2\.5.*coder')
-}
-
-$coreMissing = @('proposer','critic','synthesizer','coder') | Where-Object { -not $roles[$_] }
-if ($coreMissing.Count -gt 0) {
-    $proof = [ordered]@{
-        status = 'FAIL'
-        reason = 'CORE_ROLE_MODEL_MISSING'
-        generated_utc = [DateTime]::UtcNow.ToString('o')
-        lm_studio_server = 'http://127.0.0.1:1234'
-        visible_model_count = $models.Count
-        missing_core_roles = $coreMissing
-        models = $names
-        config = $Config
-    }
-    $proofJson = $proof | ConvertTo-Json -Depth 8
-    $proofHash = [Convert]::ToHexString(([Security.Cryptography.SHA256]::Create()).ComputeHash([Text.Encoding]::UTF8.GetBytes($proofJson))).ToLowerInvariant()
-$proofJson | Set-Content -Path $ProofPath -Encoding UTF8
-    Write-Event ('Proof SHA256: ' + $proofHash)
-    Write-Event ('FAIL: missing core roles: ' + ($coreMissing -join ', '))
-    Write-Event ('Proof: ' + $ProofPath)
-    Stop-Transcript | Out-Null
-    exit 3
-}
-
-$unique = @($roles.Values | Where-Object { $_ } | Select-Object -Unique)
-$available = $unique.Count
-
-$council = [ordered]@{
-    schema_version = 'BEC-LM-COUNCIL-1.1'
-    generated_utc = [DateTime]::UtcNow.ToString('o')
-    transport = [ordered]@{
-        base_url = 'http://127.0.0.1:1234'
-        openai_compatible = '/v1'
-        stateful_api = '/api/v1/chat'
-        models_api = '/v1/models'
-        sequential_loading = $true
-        status_probe = 'lms server status --json --quiet'
-        inference = 'http://127.0.0.1:1234/v1/chat/completions'
-    }
-    execution = [ordered]@{
-        strategy = 'SEQUENTIAL_ROLE_EXECUTION'
-        contract = 'LOAD_ROLE -> RUN_ROLE -> PERSIST_RESULT -> UNLOAD_ROLE -> NEXT_ROLE'
-        parallelism = 'OFF_BY_DEFAULT'
-        fail_closed = $true
-    }
-    economics = [ordered]@{
-        mode = 'LOCAL_FIRST'
-        cloud_spend_default = 'OFF'
-        external_calls = 'APPROVAL_GATED'
-        objective = 'MAXIMIZE_EXPECTED_COMMERCIAL_VALUE_PER_UNIT_OF_COMPUTE'
-    }
-    persistence = [ordered]@{
-        memory_jsonl = $Memory
-        append_only = $true
-        include = @('decision','evidence','artifact_path','model','role','timestamp_utc','confidence')
-        exclude = @('credentials','payment_secrets','customer_pii')
-    }
-    roles = [ordered]@{
-        proposer = [ordered]@{ model = $roles.proposer; job = 'Generate commercial and engineering proposals.'; required = $true }
-        critic = [ordered]@{ model = $roles.critic; job = 'Attack assumptions, detect failure modes, and score evidence.'; required = $true }
-        synthesizer = [ordered]@{ model = $roles.synthesizer; job = 'Resolve disagreement into one executable plan.'; required = $true }
-        visual_critic = [ordered]@{ model = $roles.visual_critic; job = 'Inspect screenshots/assets when a multimodal model is available.'; required = $false }
-        coder = [ordered]@{ model = $roles.coder; job = 'Implement bounded code changes and tests.'; required = $true }
-    }
-    loop = @('INGEST','PROPOSE','CRITIQUE','SYNTHESIZE','GAUNTLET','EXECUTE_IF_APPROVED','VERIFY','PERSIST')
-    guardrails = @('NO_REVENUE_CLAIMS_WITHOUT_EXTERNAL_PAYMENT_EVIDENCE','NO_PUBLIC_POST_WITHOUT_APPROVAL','NO_CROSS_SILO_DATA','NO_SECRET_PERSISTENCE','FAIL_CLOSED_ON_MISSING_CORE_ROLE')
-}
-
-$council | ConvertTo-Json -Depth 8 | Set-Content -Path $Config -Encoding UTF8
-if (-not (Test-Path $Memory)) { New-Item -ItemType File -Path $Memory -Force | Out-Null }
-
-$proof = [ordered]@{
-    status = 'PASS'
-    generated_utc = [DateTime]::UtcNow.ToString('o')
-    lm_studio_server = 'http://127.0.0.1:1234'
-    server_status = $serverStatus
-    visible_model_count = $models.Count
-    assigned_role_count = $available
-    optional_visual_critic_assigned = [bool]$roles.visual_critic
-    config = $Config
-    memory = $Memory
-    models = $names
-    role_models = $roles
-}
-$proofJson = $proof | ConvertTo-Json -Depth 8
-$proofHash = [Convert]::ToHexString(([Security.Cryptography.SHA256]::Create()).ComputeHash([Text.Encoding]::UTF8.GetBytes($proofJson))).ToLowerInvariant()
-$proofJson | Set-Content -Path $ProofPath -Encoding UTF8
-Write-Event ('Proof SHA256: ' + $proofHash)
-
-Write-Event ('Assigned roles: ' + $available)
-Write-Event ('Config: ' + $Config)
-Write-Event ('Memory: ' + $Memory)
-Write-Event ('Proof: ' + $ProofPath)
-Write-Event 'PASS: core local council registry generated. Execution remains approval-gated.'
-Stop-Transcript | Out-Null
-exit 0
