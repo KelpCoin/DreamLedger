@@ -22,7 +22,7 @@ const ciPoints=ciGreen?100:(successRate>=0.8&&completed.length>=10?50:(successRa
 {name:'Stripe webhook routing',points:wh.ok?(canonicalActive.length===1&&dupes.length===0?200:25):0,max:200,status:wh.ok?(canonicalActive.length===1&&dupes.length===0?'PASS':'FAIL'):'UNVERIFIED',detail:`inventory=${wh.ok?'readable':'unavailable'}; canonical active=${canonicalActive.length}; duplicate critical events=${dupes.join(',')||'none'}`},
 {name:'Settled payment to ledger',points:ledger.ok?200:0,max:200,status:ledger.ok?'PASS':'UNVERIFIED',detail:ledger.reason},
 {name:'Paid order to delivery',points:fulfill.ok?200:0,max:200,status:fulfill.ok?'PASS':'UNVERIFIED',detail:fulfill.reason},
-{name:'CI and scheduled automation',points:ciGreen?100:(recent.length?20:0),max:100,status:ciGreen?'PASS':recent.length?'DEGRADED':'UNVERIFIED',detail:`${recent.length} workflow runs in last 24 hours`},
+{name:'CI and scheduled automation',points:ciPoints,max:100,status:ciGreen?'PASS':completed.length?(successRate<0.5?'FAIL':'DEGRADED'):'UNVERIFIED',detail:`${completed.length} completed runs in last 24 hours; success rate ${Math.round(successRate*100)}%`},
 {name:'Backups, alerts and kill switch',points:recovery.ok?100:0,max:100,status:recovery.ok?'PASS':'UNVERIFIED',detail:recovery.reason}
 ];
 const cloud=checks.reduce((s,c)=>s+c.points,0),charges=(bt.data||[]).filter(t=>(t.type==='charge'||t.reporting_category==='charge')&&t.currency==='nzd'),gross=charges.reduce((s,t)=>s+Number(t.amount||0),0),net=charges.reduce((s,t)=>s+Number(t.net||0),0),payouts=(po.data||[]).filter(p=>p.currency==='nzd');
