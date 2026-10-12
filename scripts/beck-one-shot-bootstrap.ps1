@@ -1,6 +1,9 @@
 #Requires -Version 5.1
 [CmdletBinding()]
-param([string]$RepoRoot = "", [string]$Branch = "main")
+param(
+  [string]$RepoRoot = "",
+  [string]$Branch = 'main'
+)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 trap {
@@ -32,6 +35,7 @@ trap {
   }
 }
 $Workflow = 'figure-eight-cockpit.yml'
+$BootstrapSourceBranch = 'feat/beck-dual-heartbeat-bootstrap'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   $base = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime' } else { Join-Path $HOME 'BrownEyeCortex\Runtime' }
@@ -67,8 +71,35 @@ if (-not (Test-Path (Join-Path $RepoRoot '.git'))) {
   & git.exe -C $RepoRoot checkout -B $Branch FETCH_HEAD
   if ($LASTEXITCODE -ne 0) { throw "Git checkout failed with exit code $LASTEXITCODE" }
 }
+# A one-shot script downloaded from the feature branch may run before it has been merged.
+# Prefer main when it already contains the bootstrap; otherwise use the reviewed bootstrap branch
+# so the installed local task, economic validator and Gauntlet come from one consistent revision.
+$requiredCommissioningFiles = @(
+  'scripts\\install-beck-heartbeat.ps1',
+  'scripts\\beck-heartbeat.ps1',
+  'scripts\\beck-startup.ps1',
+  'scripts\\beck-economic-bootstrap.ps1',
+  'ops\\commerce\\gauntlet-economic-verdict.mjs'
+)
+$missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
+$installedBootstrapPath = Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1'
+$installedBootstrapMatchesSource = $false
+if (Test-Path -LiteralPath $installedBootstrapPath) {
+  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/beck-dual-heartbeat-bootstrap''')
+}
+if ($Branch -eq 'main' -and ($missingCommissioningFiles.Count -gt 0 -or -not $installedBootstrapMatchesSource)) {
+  $bootstrapFallbackBranch = $BootstrapSourceBranch
+  Write-Output "BOOTSTRAP_BRANCH_FALLBACK=$bootstrapFallbackBranch"
+  & git.exe -C $RepoRoot fetch --depth 1 origin $bootstrapFallbackBranch
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap fallback branch fetch failed; refusing to run a partial or mixed-version commissioning set.' }
+  & git.exe -C $RepoRoot checkout -B $bootstrapFallbackBranch FETCH_HEAD
+  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap fallback branch checkout failed; refusing to run a partial or mixed-version commissioning set.' }
+  $Branch = $bootstrapFallbackBranch
+  $missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
+}
+if ($missingCommissioningFiles.Count -gt 0) { throw ("Required commissioning files missing from selected branch: " + ($missingCommissioningFiles -join ', ')) }
 $RepoRoot = (Resolve-Path $RepoRoot).Path
-$proofRoot = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime\proofs' } else { Join-Path $HOME 'BrownEyeCortex\Runtime\proofs' }
+$proofRoot = if (Test-Path 'D:\\') { 'D:\\BrownEyeCortex\\Runtime\\proofs' } else { Join-Path $HOME 'BrownEyeCortex\\Runtime\\proofs' }
 $null = New-Item -ItemType Directory -Force -Path $proofRoot
 # Install the durable local heartbeat BEFORE optional runtimes or model checks.
 Write-Output 'PHASE=INSTALL_LOCAL_HEARTBEAT_FIRST'
@@ -131,6 +162,43 @@ $heartbeatExit = $LASTEXITCODE
 Write-Output 'PHASE=RUN_EXISTING_ECONOMIC_STARTUP'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-startup.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
 $startupExit = $LASTEXITCODE
+Write-Output 'PHASE=VERIFY_COMMERCIAL_GAUNTLET'
+$commercialGauntletContract = 'FAIL'
+$commercialGauntletStatus = 'UNVERIFIED'
+$commercialGauntletVerdict = 'UNVERIFIED'
+$commercialGauntletScore = $null
+$commercialGauntletPath = Join-Path $RepoRoot 'proof\commerce\latest-gauntlet-economic-verdict.json'
+try {
+  Push-Location $RepoRoot
+  try {
+    $commercialRunnerOutput = & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1
+    $commercialGauntletExit = $LASTEXITCODE
+    $commercialRunnerOutput | ForEach-Object { Write-Output ([string]$_) }
+  } finally { Pop-Location }
+  if (Test-Path -LiteralPath $commercialGauntletPath) {
+    $commercialProof = Get-Content -LiteralPath $commercialGauntletPath -Raw | ConvertFrom-Json
+    $commercialGauntletVerdict = [string]$commercialProof.verdict
+    $commercialGauntletScore = [int]$commercialProof.score_out_of_100
+    if ($commercialProof.schema -eq 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -and $commercialProof.generated_at_utc -and $commercialGauntletExit -eq 0 -and $commercialGauntletVerdict -eq 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE') {
+      $commercialGauntletContract = 'PASS'
+      $commercialGauntletStatus = 'PASS'
+    } elseif ($commercialProof.schema -eq 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -and $commercialProof.generated_at_utc -and $commercialGauntletExit -eq 2 -and $commercialGauntletVerdict -in @('BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF','PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS')) {
+      $commercialGauntletContract = 'PASS'
+      $commercialGauntletStatus = 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED'
+    } else {
+      $commercialGauntletContract = 'FAIL'
+      $commercialGauntletStatus = 'FAIL_UNEXPECTED_VERDICT'
+    }
+  }
+} catch {
+  $commercialGauntletStatus = 'FAIL_EXECUTION'
+  Write-Output ("COMMERCIAL_GAUNTLET_ERROR=" + $_.Exception.Message)
+}
+Write-Output "COMMERCIAL_GAUNTLET_CONTRACT=$commercialGauntletContract"
+Write-Output "COMMERCIAL_GAUNTLET_STATUS=$commercialGauntletStatus"
+Write-Output "COMMERCIAL_GAUNTLET_VERDICT=$commercialGauntletVerdict"
+Write-Output "COMMERCIAL_GAUNTLET_SCORE=$commercialGauntletScore"
+Write-Output "COMMERCIAL_GAUNTLET_PROOF=$commercialGauntletPath"
 Write-Output 'PHASE=REFRESH_LOCAL_HEARTBEAT_AFTER_INFERENCE'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-heartbeat.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
 $heartbeatAfterStartupExit = $LASTEXITCODE
@@ -138,17 +206,68 @@ if ($heartbeatAfterStartupExit -ne 0) { $heartbeatExit = $heartbeatAfterStartupE
 Write-Output 'PHASE=BUILD_PRIVATE_COCKPIT'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-cockpit-bootstrap.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot -SkipEconomicBootstrap
 $cockpitExit = $LASTEXITCODE
-Write-Output 'PHASE=SKIP_OPTIONAL_CLOUD_COCKPIT_DISPATCH'
-# The heartbeat must never require an interactive GitHub CLI login.
-# Cloud Actions run independently on schedule; anonymous API corroboration below is sufficient.
-$cloudDispatchStatus = 'SKIPPED_OPTIONAL_NO_AUTH_REQUIRED'
+Write-Output 'PHASE=DISPATCH_CLOUD_COCKPIT_IF_AUTHORIZED'
+$cloudDispatchStatus = 'BLOCKED_GH_CLI_NOT_AVAILABLE'
+$gh = Get-Command gh.exe -ErrorAction SilentlyContinue
+if (-not $gh) {
+  $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+  if ($winget) {
+    Write-Output 'PHASE=INSTALL_GITHUB_CLI'
+    & winget.exe install --id GitHub.cli -e --silent --accept-package-agreements --accept-source-agreements
+    if ($LASTEXITCODE -eq 0) {
+      $env:PATH = [Environment]::GetEnvironmentVariable('PATH','Machine') + ';' + [Environment]::GetEnvironmentVariable('PATH','User')
+      $gh = Get-Command gh.exe -ErrorAction SilentlyContinue
+    }
+  }
+}
+if ($gh) {
+  & gh.exe auth status 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output 'PHASE=GITHUB_AUTHENTICATION_REQUIRED'
+    & gh.exe auth login --hostname github.com --git-protocol https --web
+  }
+  & gh.exe auth status 2>&1 | Out-Null
+  if ($LASTEXITCODE -eq 0) {
+    $dispatchStarted = (Get-Date).ToUniversalTime()
+    & gh.exe workflow run $Workflow --repo KelpCoin/DreamLedger --ref $Branch
+    if ($LASTEXITCODE -eq 0) {
+      $cloudDispatchStatus = 'DISPATCHED_WAITING_FOR_CLOUD_RUN'
+      $deadline = (Get-Date).AddMinutes(8)
+      $runId = $null
+      do {
+        Start-Sleep -Seconds 10
+        $runsJson = & gh.exe run list --repo KelpCoin/DreamLedger --workflow $Workflow --branch $Branch --limit 5 --json databaseId,status,conclusion,createdAt,event
+        if ($LASTEXITCODE -eq 0) {
+          try {
+            $runs = @($runsJson | ConvertFrom-Json)
+            $run = $runs | Where-Object { $_.event -eq 'workflow_dispatch' -and ([DateTime]::Parse($_.createdAt).ToUniversalTime() -ge $dispatchStarted.AddSeconds(-5)) } | Sort-Object createdAt -Descending | Select-Object -First 1
+            if ($run) {
+              $runId = [string]$run.databaseId
+              if ($run.status -eq 'completed') {
+                $cloudDispatchStatus = 'COMPLETED_' + [string]$run.conclusion
+                break
+              }
+            }
+          } catch {}
+        }
+      } while ((Get-Date) -lt $deadline)
+      if ($cloudDispatchStatus -eq 'DISPATCHED_WAITING_FOR_CLOUD_RUN') { $cloudDispatchStatus = 'TIMED_OUT_CHECK_GITHUB_ACTIONS' }
+      if ($runId) {
+        $cloudDir = Join-Path $proofRoot 'cloud'
+        $null = New-Item -ItemType Directory -Force -Path $cloudDir
+        & gh.exe run download $runId --repo KelpCoin/DreamLedger --dir $cloudDir
+        if ($LASTEXITCODE -eq 0) { $cloudDispatchStatus += '_ARTIFACT_DOWNLOADED' }
+      }
+    } else { $cloudDispatchStatus = 'BLOCKED_WORKFLOW_DISPATCH_FAILED' }
+  } else { $cloudDispatchStatus = 'BLOCKED_GH_NOT_AUTHENTICATED' }
+}
 $cloudProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-CLOUD-RESULT/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   workflow = $Workflow
   branch = $Branch
   status = $cloudDispatchStatus
-  note = 'Optional cockpit dispatch skipped. Local task installation and anonymous cloud-liveness corroboration do not require gh CLI or interactive login.'
+  note = 'Manual dispatch is attempted only when GitHub CLI is installed and authenticated. Scheduled execution still requires the workflow to be on the repository default branch.'
 }
 $cloudProofPath = Join-Path $proofRoot 'CLOUD-COCKPIT-DISPATCH-LATEST.json'
 $cloudProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $cloudProofPath -Encoding UTF8
@@ -197,7 +316,7 @@ Write-Output 'CLOUD_SCHEDULE=30_MINUTES_ONLY_AFTER_THIS_WORKFLOW_IS_ENABLED_ON_D
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
 # Corroborate the local proof against the independent public GitHub Actions heartbeat.
 # This is read-only and does not require a GitHub token.
-$localProofPath = Join-Path $proofRoot 'heartbeat\\LOCAL-HEARTBEAT-LATEST.json'
+$localProofPath = Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json'
 $localHeartbeatStatus = 'UNKNOWN'
 $localHeartbeatFresh = $false
 if (Test-Path -LiteralPath $localProofPath) {
@@ -238,7 +357,7 @@ $dualHeartbeatProof = [ordered]@{
   status = $dualHeartbeatStatus
   local = [ordered]@{ status=$localHeartbeatStatus; proof_path=$localProofPath; fresh_within_20_minutes=$localHeartbeatFresh; heartbeat_proof_produced=$localHeartbeatProducedProof }
   online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
-  rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions heartbeat on main no older than 35 minutes. Unknown is not pass.'
+  rule = 'PASS requires a fresh local heartbeat proof and a successful scheduled GitHub Actions heartbeat on main no older than 35 minutes. The local checkout branch does not control cloud monitoring. Unknown is not pass.'
   no_revenue_claim = $true
 }
 $dualHeartbeatPath = Join-Path $proofRoot 'DUAL-HEARTBEAT-CORROBORATION-LATEST.json'
@@ -249,13 +368,36 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commercialGauntletExecution = if ($commercialGauntletContract -eq 'PASS') { 'PASS' } else { 'FAIL' }
+Write-Output "COMMERCIAL_GAUNTLET_EXECUTION=$commercialGauntletExecution"
+# Commissioning success means the local/cloud heartbeat and the Gauntlet execution contract
+# are verified. It does NOT override the business verdict: real paid-order, fulfillment,
+# delivery, demand and unit-economics evidence are still required for commercial eligibility.
+$commissionStatus = if (-not $taskFinal) {
+  'FAILED'
+} elseif ($dualHeartbeatStatus -ne 'PASS') {
+  'INSTALLED_HEARTBEAT_DEGRADED'
+} elseif ($commercialGauntletContract -ne 'PASS') {
+  'INSTALLED_COMMERCIAL_GAUNTLET_EXECUTION_UNVERIFIED'
+} elseif ($commercialGauntletStatus -eq 'PASS') {
+  'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET'
+} elseif ($commercialGauntletStatus -eq 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED') {
+  'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED'
+} else {
+  'INSTALLED_COMMERCIAL_GAUNTLET_NOT_PASSED'
+}
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   status = $commissionStatus
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
   dual_heartbeat_status = $dualHeartbeatStatus
+  commercial_gauntlet_contract = $commercialGauntletContract
+  commercial_gauntlet_execution = $commercialGauntletExecution
+  commercial_gauntlet_status = $commercialGauntletStatus
+  commercial_gauntlet_verdict = $commercialGauntletVerdict
+  commercial_gauntlet_score = $commercialGauntletScore
+  commercial_gauntlet_proof = $commercialGauntletPath
   dual_heartbeat_proof = $dualHeartbeatPath
   online_heartbeat_status = $onlineHeartbeatStatus
   local_heartbeat_exit = $heartbeatExit
@@ -274,5 +416,10 @@ Write-Output "COMMISSIONING_STATUS=$commissionStatus"
 Write-Output "COMMISSIONING_PROOF=$commissionProofPath"
 Write-Output 'RERUN_REQUIRED=NO'
 if (-not $taskFinal) { exit 1 }
-# Readiness failures remain in the proof, but do not make the operator reinstall the same heartbeat.
-exit 0
+# Exit status distinguishes installed heartbeat from commercial readiness.
+# Never label the commercial Gauntlet green without its real evidence-gated eligible verdict.
+if ($commissionStatus -eq 'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET') { exit 0 }
+if ($commissionStatus -eq 'PASS_HEARTBEAT_AND_GAUNTLET_EXECUTION_COMMERCIAL_BLOCKED') { exit 0 }
+# A degraded local runtime does not erase a successfully registered task; retain proof and return 0.
+if ($commissionStatus -like 'INSTALLED_*') { exit 0 }
+exit 1
