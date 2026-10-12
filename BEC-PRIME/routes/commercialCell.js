@@ -89,11 +89,25 @@ async function reconcileFunds(sessionId) {
   return {handled:true,funds_available:true,event_id:event.event_id,payment_intent:pi.id,charge_id:charge.id,balance_transaction_id:bt.id,available_on:bt.available_on,order_id:fulfillment?.order_id||null};
 }
 
+function normalizeCommerceSku(metadata = {}) {
+  const raw = clean(metadata.dreamledger_sku || metadata.sku || metadata.product_sku || metadata.sku_id || metadata.product_id).toUpperCase();
+  // Payment Link metadata uses CMD-DIAG-29; the marketplace settlement RPC uses the canonical product ID.
+  return raw === 'CMD-DIAG-29' ? 'COMMANDER-DECK-DIAGNOSTIC-001' : raw;
+}
+
+function resolveCommerceSilo(metadata = {}, listingId = '') {
+  const explicit = clean(metadata.silo).toLowerCase();
+  if (explicit) return explicit;
+  // A listing-backed diagnostic is an MTG marketplace sale, not a generic DreamLedger sale.
+  return clean(listingId) ? 'mtg' : 'dreamledger';
+}
+
 async function settleSession(session, event) {
-  const sku = clean(session.metadata?.dreamledger_sku || session.metadata?.sku || session.metadata?.product_sku).toUpperCase();
-  const offerId = clean(session.metadata?.offer_id);
-  const silo = clean(session.metadata?.silo || 'dreamledger');
-  const listingId = clean(session.metadata?.marketplace_listing_id || session.metadata?.listing_id);
+  const metadata = session.metadata || {};
+  const listingId = clean(metadata.marketplace_listing_id || metadata.listing_id);
+  const sku = normalizeCommerceSku(metadata);
+  const offerId = clean(metadata.offer_id);
+  const silo = resolveCommerceSilo(metadata, listingId);
   if (!sku) return {handled:false, reason:'no_dreamledger_sku'};
   if (session.payment_status !== 'paid') return {handled:true, ignored:true, reason:'payment_not_paid'};
   if (session.livemode !== true) return {handled:true, ignored:true, reason:'not_livemode'};
@@ -289,4 +303,4 @@ async function handle(req,res,path) {
   return false;
 }
 
-module.exports={handle};
+module.exports={handle,normalizeCommerceSku,resolveCommerceSilo};
