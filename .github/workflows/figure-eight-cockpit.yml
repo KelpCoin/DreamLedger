@@ -23,7 +23,11 @@ jobs:
           set -euo pipefail
           npm run validate:economics
       - name: Generate private cockpit score
-        run: node ops/cockpit/economic-cockpit.mjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof/cockpit
+          COCKPIT_REPORT_PATH=proof/cockpit/figure-eight-cockpit-latest.json COCKPIT_PRIVATE_MODE=true node ops/cockpit/figure-eight-cockpit.mjs
       - name: Upload private report and evidence
         if: always()
         uses: actions/upload-artifact@v4
