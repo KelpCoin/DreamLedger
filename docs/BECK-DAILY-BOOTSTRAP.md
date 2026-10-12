@@ -98,3 +98,20 @@ Only update `REVENUE_VERIFIED_NZD` after settlement and fulfillment evidence hav
 5. First sale: not proven until a real independent buyer pays and receives the promised deliverable.
 
 **Operating order:** diagnose → prove local inference → one commercial action → 777 artifact or honest no-op → record truth. Do not make database recovery a prerequisite for local research, and do not let local research masquerade as a sale.
+
+
+## One-command Windows startup (preferred)
+
+From the DreamLedger repository root in Windows PowerShell, run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\beck-startup.ps1
+```
+
+This orchestrator reuses the existing `beck-daily-bootstrap.ps1` and `beck-economic-bootstrap.ps1`. It does not replace either one. It writes a combined status receipt to `D:\\BrownEyeCortex\\Runtime\\proofs\\BECK-STARTUP-LATEST.json` when drive D: exists, otherwise under the user's home folder. Its transcript is `BECK-STARTUP-LATEST.log` beside that receipt.
+
+The economic validator defaults to read-only checks and does not install packages. This repository branch does not commit `package-lock.json`, so `npm ci` is not valid; dependency installation is explicit with `-InstallDependencies` on the economic validator, and the CI workflow uses `npm install --no-package-lock`.
+
+The webhook routing reconciler runs only when a local `STRIPE_SECRET_KEY` is present and `STRIPE_LIVE_ENABLED=true`. It only lists configured Stripe webhook endpoints and their event subscriptions. It does not create, edit, or disable endpoints. The inventory is not proof of delivery; confirm endpoint delivery history, function logs, successful database writes, order attribution, fulfillment, and customer delivery before declaring the money path complete.
+
+Expected result: `PASS`, `BLOCKED`, or `FAIL`. A `BLOCKED` economic result is an honest report that a live dependency or commercial proof remains missing, not permission to invent a successful sale. Never paste a Stripe secret into ChatGPT or terminal output.
