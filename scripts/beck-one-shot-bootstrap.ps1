@@ -84,7 +84,23 @@ $cockpitExit = $LASTEXITCODE
 Write-Output 'PHASE=DISPATCH_CLOUD_COCKPIT_IF_AUTHORIZED'
 $cloudDispatchStatus = 'BLOCKED_GH_CLI_NOT_AVAILABLE'
 $gh = Get-Command gh.exe -ErrorAction SilentlyContinue
+if (-not $gh) {
+  $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+  if ($winget) {
+    Write-Output 'PHASE=INSTALL_GITHUB_CLI'
+    & winget.exe install --id GitHub.cli -e --silent --accept-package-agreements --accept-source-agreements
+    if ($LASTEXITCODE -eq 0) {
+      $env:PATH = [Environment]::GetEnvironmentVariable('PATH','Machine') + ';' + [Environment]::GetEnvironmentVariable('PATH','User')
+      $gh = Get-Command gh.exe -ErrorAction SilentlyContinue
+    }
+  }
+}
 if ($gh) {
+  & gh.exe auth status 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output 'PHASE=GITHUB_AUTHENTICATION_REQUIRED'
+    & gh.exe auth login --hostname github.com --git-protocol https --web
+  }
   & gh.exe auth status 2>&1 | Out-Null
   if ($LASTEXITCODE -eq 0) {
     & gh.exe workflow run $Workflow --repo KelpCoin/DreamLedger --ref $Branch
@@ -141,5 +157,7 @@ Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
 Write-Output 'CLOUD_HEARTBEAT=GITHUB_ACTIONS_SCHEDULED_EVERY_30_MINUTES_AFTER_WORKFLOW_IS_ON_DEFAULT_BRANCH'
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
 if ($startupExit -eq 1 -or $heartbeatExit -eq 1 -or $cockpitExit -eq 1) { exit 1 }
-if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0) { exit 2 }
+if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0 -or $cloudDispatchStatus -notmatch '^COMPLETED_success_ARTIFACT_DOWNLOADED
+exit 0
+) { exit 2 }
 exit 0
