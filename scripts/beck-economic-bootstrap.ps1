@@ -3,13 +3,16 @@
 param(
     [string]$RepoRoot = "",
     [string]$ProofPath = "",
-    [switch]$InstallDependencies
+    [switch]$InstallDependencies,
+    [switch]$SkipInstall
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # Economic validation, not a model-startup check. Read-only by default:
 # no Supabase writes, no customer messages, no purchases, no deployments.
+# SkipInstall is retained as a legacy no-op because the existing base-branch CI workflow still passes it.
+if ($InstallDependencies -and $SkipInstall) { throw 'Choose either -InstallDependencies or legacy -SkipInstall, not both.' }
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 }
