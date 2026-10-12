@@ -1,7 +1,7 @@
 name: Bootstrap Gauntlet
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/beck-bootstrap-gauntlet-ready-20261012]
     paths:
       - 'scripts/**/*.ps1'
       - '.github/workflows/bootstrap-gauntlet.yml'

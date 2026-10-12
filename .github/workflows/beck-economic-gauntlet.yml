@@ -2,7 +2,7 @@ name: BECK Economic Gauntlet
 
 on:
   push:
-    branches: [main, fix/beck-canonical-offer-and-supabase-failure]
+    branches: [main, feat/beck-bootstrap-gauntlet-ready-20261012]
     paths:
       - 'scripts/beck-economic-bootstrap.ps1'
       - 'scripts/beck-startup.ps1'
