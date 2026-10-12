@@ -36,7 +36,9 @@ function Run-NodeCheck([string]$Name, [string[]]$Arguments) {
 function Get-HttpResult([string]$Url) {
     try {
         $r = Invoke-WebRequest -Uri $Url -MaximumRedirection 8 -TimeoutSec 20 -UseBasicParsing
-        return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=[string]$r.BaseResponse.ResponseUri.AbsoluteUri }
+        $html = [string]$r.Content
+        $stripeLinks = @([regex]::Matches($html, 'href=["''](https://buy\.stripe\.com/[^"'']+)["'']') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique)
+        return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=[string]$r.BaseResponse.ResponseUri.AbsoluteUri; stripe_links=$stripeLinks }
     } catch {
         $status = 0
         try { if ($_.Exception.Response -and $_.Exception.Response.StatusCode) { $status=[int]$_.Exception.Response.StatusCode } } catch {}
@@ -102,9 +104,34 @@ try {
             'https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001',
             'https://dreamledger.org/quote-comparison/'
         )
+        $livePages = @{}
         foreach ($url in $publicUrls) {
             $r = Get-HttpResult $url
+            $livePages[$url] = $r
             Add-Check ('public_page.' + ([uri]$url).AbsolutePath.Trim('/').Replace('/','_')) $(if ($r.status -ge 200 -and $r.status -lt 400) {'PASS'} else {'FAIL'}) ($r | ConvertTo-Json -Compress)
+        }
+
+        # Compare the actual public CTA with canonical repository contracts.
+        # This catches live-page/catalog drift, not just reachable URLs.
+        $proofFeedPath = Join-Path $RepoRoot 'public/agent-products.json'
+        if (Test-Path -LiteralPath $proofFeedPath) {
+            $productFeed = Get-Content -LiteralPath $proofFeedPath -Raw | ConvertFrom-Json
+            $proofProduct = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
+            if ($proofProduct.Count -eq 1) {
+                $proofPage = $livePages['https://dreamledger.org/agent-delivery-proof-audit.html']
+                $expectedProofLink = [string]$proofProduct[0].checkout_url
+                $found = @($proofPage.stripe_links | Where-Object { $_ -eq $expectedProofLink }).Count -gt 0
+                Add-Check 'commercial.cta_parity.proof_audit' $(if ($proofPage.status -ge 200 -and $proofPage.status -lt 400 -and $found) {'PASS'} else {'FAIL'}) ("Expected CTA=" + $expectedProofLink + '; observed Stripe links=' + (@($proofPage.stripe_links) -join ', '))
+            } else {
+                Add-Check 'commercial.cta_parity.proof_audit' 'FAIL' 'Expected exactly one AGENT-PROOF-AUDIT-49 in public/agent-products.json.'
+            }
+        }
+
+        if ($offer.Count -eq 1) {
+            $billboardPage = $livePages['https://dreamledger.org/billboard.html']
+            $expectedBillboardLink = [string]$offer[0].payment_link_url
+            $billboardFound = @($billboardPage.stripe_links | Where-Object { $_ -eq $expectedBillboardLink }).Count -gt 0
+            Add-Check 'commercial.cta_parity.billboard' $(if ($billboardPage.status -ge 200 -and $billboardPage.status -lt 400 -and $billboardFound) {'PASS'} else {'FAIL'}) ("Catalog CTA=" + $expectedBillboardLink + '; observed Stripe links=' + (@($billboardPage.stripe_links) -join ', '))
         }
         if ($offerUrl) {
             $r = Get-HttpResult $offerUrl
@@ -178,5 +205,5 @@ $proof | ConvertTo-Json -Depth 16
 Write-Host "`nECONOMIC_VALIDATION=$status"
 Write-Host "PROOF=$ProofPath"
 if ($hardFails -gt 0) { exit 1 }
-if ($blocked -gt 0) { exit 2 }
+if ($blocked -gt 0 -or $fulfillmentUnverified) { exit 2 }
 exit 0
