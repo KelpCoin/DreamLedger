@@ -82,6 +82,8 @@ jobs:
           $branchContractDouble = '[string]$Branch = ' + '"main"'
           if (-not ($bootstrap.Contains($branchContractSingle) -or $bootstrap.Contains($branchContractDouble))) { throw 'Bootstrap must default to main after merge while permitting explicit branch selection.' }
           if (-not $bootstrap.Contains('EscapeDataString($Branch)')) { throw 'Cloud corroboration must query the selected bootstrap branch.' }
+          if (-not $bootstrap.Contains('gh.exe workflow run $onlineHeartbeatWorkflow')) { throw 'Authenticated commissioning must dispatch the read-only cloud liveness check and verify its result.' }
+          if (-not $bootstrap.Contains('$mainHeartbeatUrl = ''https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5''')) { throw 'Pre-merge commissioning must permit a fresh successful mainline liveness fallback.' }
           if (-not $bootstrap.Contains('$BootstrapSourceBranch = ''feat/billboard-commercial-gauntlet-bootstrap''')) { throw 'Bootstrap must pin its reviewed source revision until it lands on main.' }
           if (-not $bootstrap.Contains('BOOTSTRAP_BRANCH_FALLBACK=$BootstrapSourceBranch')) { throw 'Bootstrap must switch to its reviewed source revision when main lacks that marker.' }
           if (-not $bootstrap.Contains('PHASE=VERIFY_COMMERCIAL_GAUNTLET')) { throw 'Bootstrap must explicitly execute the Commercial Gauntlet.' }
