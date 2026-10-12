@@ -85,7 +85,7 @@ $missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not
 $installedBootstrapPath = Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1'
 $installedBootstrapMatchesSource = $false
 if (Test-Path -LiteralPath $installedBootstrapPath) {
-  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/beck-dual-heartbeat-bootstrap''')
+  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/beck-commercial-gauntlet-bootstrap-clean''')
 }
 if ($Branch -eq 'main' -and ($missingCommissioningFiles.Count -gt 0 -or -not $installedBootstrapMatchesSource)) {
   $bootstrapFallbackBranch = $BootstrapSourceBranch
@@ -331,7 +331,7 @@ $onlineHeartbeatStatus = 'UNKNOWN'
 $onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
-$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
+$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
 try {
   $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
   $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
