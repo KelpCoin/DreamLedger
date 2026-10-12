@@ -34,10 +34,10 @@ jobs:
           COCKPIT_RECOVERY_PROBE_URL: ${{ secrets.COCKPIT_RECOVERY_PROBE_URL }}
         run: node ops/cockpit/figure-eight-cockpit.mjs
       - name: Notification staging delay
-        if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH != 'true' }}
+        if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' }}
         run: sleep 900
       - name: Send private Discord snapshot
-        if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH != 'true' }}
+        if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' }}
         env:
           COCKPIT_DISCORD_ENABLED: ${{ vars.COCKPIT_DISCORD_ENABLED }}
           COCKPIT_KILL_SWITCH: ${{ vars.COCKPIT_KILL_SWITCH }}
