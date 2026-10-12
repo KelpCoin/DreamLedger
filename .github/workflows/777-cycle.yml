@@ -12,6 +12,8 @@ on:
       - "scripts/sync_agent_bridge_catalog.py"
       - "scripts/777_compounding_gate.py"
       - "scripts/validate_777_long_horizon_task_graph.py"
+      - "scripts/publish_777_pulse_to_site.py"
+      - "pulse/**"
       - "tests/test_777_compounding_gate_import.py"
       - "scripts/external_demand_transition.py"
       - "scripts/777_cloud_execution_adapter.js"
@@ -21,6 +23,7 @@ on:
       - "webapp/index.html"
       - "webapp/phinhaven/index.html"
       - "webapp/agentic-commerce/**"
+      - "pulse/**"
       - "public/index.html"
       - "public/home.html"
       - "public/marketplace.html"
@@ -70,6 +73,8 @@ jobs:
         env:
           CTA_URL: ${{ vars.DREAMLEDGER_CTA_URL }}
         run: python scripts/777_cycle.py
+      - name: Publish source-bound pulse notes to canonical site route
+        run: python scripts/publish_777_pulse_to_site.py
       - name: Run cloud Elohim / Gauntlet execution adapter
         env:
           CLOUD_ELOHIM_URL: ${{ vars.CLOUD_ELOHIM_URL }}
@@ -86,7 +91,7 @@ jobs:
         run: |
           # Some generated public pulse paths may match repository ignore rules.
           # Stage HTML candidates before the gate so it evaluates the exact files the commit step can publish.
-          git add -f agent-bridge-catalog.json webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html
+          git add -f agent-bridge-catalog.json webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html pulse/*.html
       - name: Regression test compounding gate environment binding
         run: python -m unittest discover -s tests -p 'test_777_compounding_gate_import.py'
       - name: Enforce compounding output
