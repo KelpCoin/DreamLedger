@@ -184,13 +184,14 @@ try {
             $firstDollarPath = Join-Path $RepoRoot 'proof/commerce/latest-first-dollar-stripe-reconciliation.json'
             if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
                 $firstDollar = Get-Content -LiteralPath $firstDollarPath -Raw | ConvertFrom-Json
+                Add-Check 'offer.retired_offer_retirement' $(if ($firstDollar.retired_offer.retirement_verified -eq $true) {'PASS'} else {'FAIL'}) ('Retired standalone payment link active=' + $firstDollar.retired_offer.payment_link_active + '; product active=' + $firstDollar.retired_offer.product_active + '; price active=' + $firstDollar.retired_offer.price_active)
                 $paidCount = @($firstDollar.live_stripe.exact_paid_live_sessions).Count
                 if ($firstDollar.live_stripe.exact_payment_link_found -ne $true) {
-                    Add-Check 'stripe.first_dollar_payment_link' 'CONTRADICTED' 'Canonical Proof Audit payment link was not found in this live Stripe account.'
+                    Add-Check 'stripe.first_dollar_payment_link' 'CONTRADICTED' 'Truth Oracle Access payment link was not found in this live Stripe account.'
                 } elseif ($paidCount -gt 0) {
-                    Add-Check 'stripe.first_dollar_settlement_evidence' 'OBSERVED_PENDING_FULFILLMENT' ("Exact-price paid live sessions: " + $paidCount + '. Fulfillment and independent buyer remain unverified.')
+                    Add-Check 'stripe.first_dollar_settlement_evidence' 'OBSERVED_PENDING_FULFILLMENT' ("Exact-price paid Truth Oracle Access sessions: " + $paidCount + '. Fulfillment and independent buyer remain unverified.')
                 } else {
-                    Add-Check 'stripe.first_dollar_settlement_evidence' 'NOT_OBSERVED' 'No paid live Checkout Session matched the canonical Proof Audit link, NZD currency, NZ$49 amount, and livemode.'
+                    Add-Check 'stripe.first_dollar_settlement_evidence' 'NOT_OBSERVED' 'No paid live Checkout Session matched the Truth Oracle Access link, NZD currency, NZ$9 amount, and livemode.'
                 }
             }
             $stripeCode = Run-NodeCheck 'stripe.approved_offer_reconciliation' @('ops/commerce/reconcile-approved-offers.mjs')
@@ -203,6 +204,7 @@ try {
         } else {
             Add-Check 'stripe.live_reconciliation' 'BLOCKED' 'Set STRIPE_SECRET_KEY in the local process environment and STRIPE_LIVE_ENABLED=true to query live Stripe. Never paste the key into chat. No Stripe API call was made.'
             Add-Check 'stripe.webhook_routing' 'BLOCKED' 'Webhook destinations were not inspected because live Stripe credentials were not enabled. No endpoint was changed.'
+            Add-Check 'offer.retired_offer_retirement' 'BLOCKED' 'Live Stripe credentials not enabled; retired standalone payment link/product/price state cannot be verified.'
         }
 
         # Snapshot current evidence for the Gauntlet. This is local proof output only.
