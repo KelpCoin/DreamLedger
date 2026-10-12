@@ -39,5 +39,15 @@
     "unknown_data_preserved": true,
     "checkout_is_not_revenue": true,
     "settled_payment_and_delivery_evidence_required": true
+  },
+  "free_entry_point": {
+    "id": "TRUTH-ORACLE-FREE",
+    "title": "Truth Oracle",
+    "url": "https://dreamledger.org/truth-oracle.html",
+    "price": 0,
+    "currency": "NZD",
+    "availability": "available",
+    "checkout": null,
+    "description": "Free evidence and claim-checking tools. The retired standalone audit offer is absorbed here and is not sold separately."
   }
 }
