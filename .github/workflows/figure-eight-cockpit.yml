@@ -46,6 +46,14 @@ jobs:
             figure-eight-cockpit-latest.json
             figure-eight-cockpit.html
           retention-days: 14
+      - name: Restore notification deduplication state
+        if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: cockpit-notify-state.json
+          key: cockpit-notify-state-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            cockpit-notify-state-
       - name: Notification staging delay
         if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' }}
         run: sleep 900
@@ -57,4 +65,11 @@ jobs:
           COCKPIT_DISCORD_WEBHOOK_URL: ${{ secrets.COCKPIT_DISCORD_WEBHOOK_URL }}
           COCKPIT_DELAY_MINUTES: '15'
           COCKPIT_REPORT_PATH: figure-eight-cockpit-latest.json
+          COCKPIT_NOTIFY_STATE_PATH: cockpit-notify-state.json
         run: node ops/cockpit/discord-cockpit-notify.mjs
+      - name: Save notification deduplication state
+        if: ${{ always() && vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' }}
+        uses: actions/cache/save@v4
+        with:
+          path: cockpit-notify-state.json
+          key: cockpit-notify-state-${{ github.run_id }}-${{ github.run_attempt }}
