@@ -47,7 +47,7 @@ try {
 
   $scorer = Join-Path $RepoRoot 'ops\cockpit\economic-cockpit.mjs'
   if (-not (Test-Path $scorer)) { Add-Check 'cockpit.scorer' 'FAIL' "Missing $scorer"; Save-Proof 'FAIL'; exit 1 }
-  $env:DREAMLEDGER_PROOF_ROOT = $ProofRoot
+  $env:DREAMLEDGER_PROOF_ROOT = $ProofRoot`n  $env:COCKPIT_RUN_CONTEXT = 'local'
   $out = & node.exe $scorer 2>&1
   $code = $LASTEXITCODE
   $joined = (($out | ForEach-Object {[string]$_}) -join "`n")
