@@ -96,7 +96,6 @@ try {
             $offer = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
             if ($offer.Count -eq 1 -and [string]$offer[0].price -match '^49\s*NZD
         $commands = @(
-            @{name='monetization.asset_traversal'; args=@('ops/commerce/beck-monetization-scout.mjs')},
             @{name='contract.commercial_cell'; args=@('BEC-PRIME/scripts/verify-commercial-cell.js')},
             @{name='contract.execution_gate_tests'; args=@('--test','BEC-PRIME/runtime/ExecutionGate.test.js')},
             @{name='contract.cube_swarm_definition'; args=@('BEC-PRIME/scripts/verify-cube-swarm-definition.js')}
