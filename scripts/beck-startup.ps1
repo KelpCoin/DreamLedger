@@ -146,8 +146,20 @@ try {
         $economicCode = $LASTEXITCODE
         $env:STRIPE_LIVE_ENABLED = $previousStripeEnabled
         $economicText = (($economicOutput | ForEach-Object {[string]$_}) -join "`n")
-        $moneyStatus = if ($economicCode -eq 0) {'PASS'} elseif ($economicCode -eq 2) {'BLOCKED'} else {'FAIL'}
-        Add-StartupCheck 'economic.money_path' $moneyStatus ("exit=$economicCode; output=" + $economicText.Substring(0,[Math]::Min(5000,$economicText.Length)))
+        $economicProofStatus = 'UNVERIFIED'
+        if (Test-Path -LiteralPath $moneyProof) {
+            try {
+                $economicProofDoc = Get-Content -LiteralPath $moneyProof -Raw | ConvertFrom-Json
+                $economicProofStatus = [string]$economicProofDoc.status
+            } catch { $economicProofStatus = 'INVALID_PROOF' }
+        }
+        # GitHub CI may return exit 0 for a truthful blocked verdict. Read the proof status;
+        # never translate "CI accepted the blocker" into a commercial PASS.
+        $moneyStatus = if ($economicCode -eq 1 -or $economicProofStatus -eq 'FAIL') {'FAIL'}
+            elseif ($economicCode -eq 2 -or $economicProofStatus -eq 'BLOCKED_ECONOMIC_PATH_NOT_PROVEN') {'BLOCKED'}
+            elseif ($economicCode -eq 0 -and $economicProofStatus -eq 'STATIC_AND_PUBLIC_CHECKS_PASS_NOT_REVENUE') {'PASS'}
+            else {'BLOCKED'}
+        Add-StartupCheck 'economic.money_path' $moneyStatus ("exit=$economicCode; proof_status=$economicProofStatus; output=" + $economicText.Substring(0,[Math]::Min(5000,$economicText.Length)))
     } else {
         Add-StartupCheck 'economic.money_path' 'BLOCKED' "Missing existing bootstrap: $economicScript"
     }
