@@ -313,3 +313,7 @@ if ($blocked -gt 0 -or $fulfillmentUnverified) {
     if ($env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true') {
         Write-Host 'CI_BLOCKED_VERDICT_ACCEPTED=true'
         exit 0
+    }
+    exit 2
+}
+exit 0
