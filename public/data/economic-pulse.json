@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-12T01:33:45+00:00",
+  "generated_at_utc": "2026-10-12T07:56:40+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "380252a3-ab93-5165-af5d-3395018172b2",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "RFT - Hardie Avenue Groundwater Mitigation — Subsoil Drainage",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-12T07:56:35+00:00",
+      "url": "https://www.gets.govt.nz/KAWDC/ExternalTenderDetails.htm?id=34886594",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-rft-hardie-avenue-groundwater-mitigation-subsoil-drainage-fc9c12bcbe.html"
+    },
     {
       "id": "73343186-bfb3-512b-b3b7-3fe5d5f7a633",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
