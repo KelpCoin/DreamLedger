@@ -3,8 +3,8 @@
 
 // Gauntlet is deliberately evidence-gated. This is a commercial viability gate,
 // not a promise of wealth and not a substitute for an actual customer transaction.
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
 const root = process.cwd();
 const read = p => {
   try { return JSON.parse(fs.readFileSync(path.join(root, p), 'utf8').replace(/^\uFEFF/, '')); }
