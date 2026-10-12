@@ -45,15 +45,21 @@ try {
     } else { Add-Check 'economic.preflight' 'BLOCKED' "Missing $startScript" }
   } else { Add-Check 'economic.preflight' 'SKIPPED' 'Explicitly skipped by operator.' }
 
-  $derive = Join-Path $RepoRoot 'ops\cockpit\derive-evidence.mjs'
-  if (Test-Path $derive) { $null = & node.exe $derive 2>&1; if ($LASTEXITCODE -ne 0) { Add-Check 'cockpit.evidence_derivation' 'FAIL' 'Could not derive evidence inputs.' } } else { Add-Check 'cockpit.evidence_derivation' 'FAIL' "Missing $derive" }
-  $scorer = Join-Path $RepoRoot 'ops\cockpit\economic-cockpit.mjs'
-  if (-not (Test-Path $scorer)) { Add-Check 'cockpit.scorer' 'FAIL' "Missing $scorer"; Save-Proof 'FAIL'; exit 1 }
-  $env:DREAMLEDGER_PROOF_ROOT = $ProofRoot`n  $env:COCKPIT_RUN_CONTEXT = 'local'
-  $out = & node.exe $scorer 2>&1
+  $cockpitScript = Join-Path $RepoRoot 'ops\cockpit\figure-eight-cockpit.mjs'
+  $renderScript = Join-Path $RepoRoot 'ops\cockpit\render-cockpit-html.mjs'
+  if (-not (Test-Path $cockpitScript)) { Add-Check 'cockpit.scorer' 'FAIL' "Missing $cockpitScript"; Save-Proof 'FAIL'; exit 1 }
+  $env:COCKPIT_REPORT_PATH = Join-Path $cockpitRoot 'figure-eight-cockpit-latest.json'
+  $env:COCKPIT_LOCAL_PROOF_JSON = Join-Path $ProofRoot 'BECK-STARTUP-LATEST.json'
+  $env:COCKPIT_PRIVATE_MODE = 'true'
+  $out = & node.exe $cockpitScript 2>&1
   $code = $LASTEXITCODE
   $joined = (($out | ForEach-Object {[string]$_}) -join "`n")
   Add-Check 'cockpit.report' $(if ($code -eq 0) {'PASS'} else {'FAIL'}) $joined
+  if ($code -eq 0 -and (Test-Path $renderScript)) {
+    $null = & node.exe $renderScript $env:COCKPIT_REPORT_PATH (Join-Path $cockpitRoot 'index.html') 2>&1
+    Add-Check 'cockpit.html' $(if ($LASTEXITCODE -eq 0) {'PASS'} else {'FAIL'}) 'Rendered private local cockpit HTML from the canonical cloud cockpit report.'
+  } else { Add-Check 'cockpit.html' 'BLOCKED' 'Cockpit HTML renderer missing or JSON report failed.' }
+
   if ($ConfigureDiscordCloudSecret) {
     $gh = Get-Command gh.exe -ErrorAction SilentlyContinue
     if (-not $gh) { Add-Check 'discord.cloud_secret' 'BLOCKED' 'GitHub CLI not found. Install gh, authenticate, then rerun with -ConfigureDiscordCloudSecret.' }
@@ -69,7 +75,7 @@ try {
         elseif ($plain -notmatch '^https://discord(?:app)?\.com/api/webhooks/\d+/[A-Za-z0-9_\-]+$') { Add-Check 'discord.cloud_secret' 'BLOCKED' 'Value did not match the expected Discord webhook URL shape; no secret changed.'; $plain = $null }
         else {
           # Pipe through stdin; never place the webhook in command arguments, console output or proof.
-          $plain | & gh.exe secret set DREAMLEDGER_DISCORD_WEBHOOK --repo KelpCoin/DreamLedger 2>$null
+          $plain | & gh.exe secret set COCKPIT_DISCORD_WEBHOOK_URL --repo KelpCoin/DreamLedger 2>$null
           $setCode = $LASTEXITCODE
           $plain = $null
           Add-Check 'discord.cloud_secret' $(if ($setCode -eq 0) {'PASS'} else {'FAIL'}) $(if ($setCode -eq 0) {'GitHub repository secret updated. Sending remains disabled until the separate enable flag and kill-switch settings are deliberately changed.'} else {'gh secret set failed. Webhook value was not recorded in the proof.'})
@@ -82,9 +88,9 @@ try {
   Save-Proof $status
   Write-Host "COCKPIT_STATUS=$status"
   Write-Host "COCKPIT_HTML=$(Join-Path $ProofRoot 'cockpit\index.html')"
-  Write-Host "COCKPIT_JSON=$(Join-Path $ProofRoot 'cockpit\cockpit-latest.json')"
+  Write-Host "COCKPIT_JSON=$(Join-Path $cockpitRoot 'figure-eight-cockpit-latest.json')"
   Write-Host "BOOTSTRAP_PROOF=$master"
-  Write-Host 'NOTIFICATIONS=OFF_BY_DEFAULT'
+  Write-Host 'NOTIFICATIONS=OFF_BY_DEFAULT; KILL_SWITCH=ON_UNLESS_EXPLICITLY_DISABLED'
   if ($status -eq 'FAIL') { exit 1 } elseif ($status -eq 'BLOCKED') { exit 2 } else { exit 0 }
 } catch {
   Add-Check 'bootstrap.exception' 'FAIL' $_.Exception.Message
