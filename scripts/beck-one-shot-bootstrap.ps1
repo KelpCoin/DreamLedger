@@ -274,24 +274,75 @@ $onlineHeartbeatStatus = 'UNKNOWN'
 $onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
+$onlineHeartbeatSourceBranch = $Branch
 $onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
-try {
-  $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
-  $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
-  $latestRuns = @($onlineResponse.workflow_runs | Where-Object { $_.event -ne 'workflow_dispatch' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending | Select-Object -First 1)
-  $latestRun = if ($latestRuns.Count -gt 0) { $latestRuns[0] } else { $null }
-  if ($latestRun) {
-    $onlineHeartbeatRunId = [string]$latestRun.id
-    $onlineHeartbeatAgeMinutes = [Math]::Round(([DateTime]::UtcNow - [DateTime]::Parse([string]$latestRun.created_at).ToUniversalTime()).TotalMinutes, 1)
-    if ($latestRun.status -eq 'completed' -and $latestRun.conclusion -eq 'success' -and $onlineHeartbeatAgeMinutes -ge 0 -and $onlineHeartbeatAgeMinutes -le 35) {
-      $onlineHeartbeatStatus = 'PASS'
-    } elseif ($latestRun.status -ne 'completed') {
-      $onlineHeartbeatStatus = 'RUNNING'
+$headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
+$dispatchStartedAt = $null
+$ghCommand = Get-Command gh.exe -ErrorAction SilentlyContinue
+# If GitHub CLI is already authenticated, run the read-only liveness workflow now and wait
+# for its result. No interactive login is requested and no production state is mutated.
+if ($ghCommand) {
+  & gh.exe auth status --hostname github.com *> $null
+  if ($LASTEXITCODE -eq 0) {
+    $dispatchStartedAt = [DateTime]::UtcNow
+    & gh.exe workflow run $onlineHeartbeatWorkflow --repo 'KelpCoin/DreamLedger' --ref $Branch
+    if ($LASTEXITCODE -eq 0) {
+      for ($attempt = 0; $attempt -lt 24; $attempt++) {
+        try {
+          $dispatchResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
+          $dispatchRuns = @($dispatchResponse.workflow_runs | Where-Object { $_.head_branch -eq $Branch -and $_.event -eq 'workflow_dispatch' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending)
+          if ($dispatchRuns.Count -gt 0) {
+            $candidateDispatch = $dispatchRuns[0]
+            if ([DateTime]::Parse([string]$candidateDispatch.created_at).ToUniversalTime() -ge $dispatchStartedAt.AddMinutes(-1)) {
+              $onlineResponse = $dispatchResponse
+              if ($candidateDispatch.status -eq 'completed') { break }
+            }
+          }
+        } catch { }
+        Start-Sleep -Seconds 5
+      }
     } else {
-      $onlineHeartbeatStatus = 'DEGRADED'
+      $dispatchStartedAt = $null
     }
-  } else { $onlineHeartbeatStatus = 'NO_RUN_FOUND' }
-} catch { $onlineHeartbeatStatus = 'UNREACHABLE_OR_UNAUTHORIZED' }
+  }
+}
+# Use anonymous GitHub API reads when CLI auth is unavailable. If commissioning from a
+# pre-merge branch has no run yet, a fresh successful mainline run is valid corroboration.
+if (-not $onlineResponse) {
+  try { $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15 } catch { $onlineResponse = $null }
+}
+$latestRun = $null
+if ($onlineResponse) {
+  $branchRuns = @($onlineResponse.workflow_runs | Where-Object { $_.head_branch -eq $Branch } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending)
+  if ($dispatchStartedAt) {
+    $branchRuns = @($branchRuns | Where-Object { [DateTime]::Parse([string]$_.created_at).ToUniversalTime() -ge $dispatchStartedAt.AddMinutes(-1) })
+  }
+  if ($branchRuns.Count -gt 0) { $latestRun = $branchRuns[0] }
+}
+if (-not $latestRun -and $Branch -ne 'main') {
+  $mainHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
+  try {
+    $mainResponse = Invoke-RestMethod -Uri $mainHeartbeatUrl -Headers $headers -TimeoutSec 15
+    $mainRuns = @($mainResponse.workflow_runs | Where-Object { $_.head_branch -eq 'main' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending)
+    if ($mainRuns.Count -gt 0) {
+      $latestRun = $mainRuns[0]
+      $onlineHeartbeatSourceBranch = 'main'
+    }
+  } catch { }
+}
+if ($latestRun) {
+  $onlineHeartbeatRunId = [string]$latestRun.id
+  $onlineHeartbeatAgeMinutes = [Math]::Round(([DateTime]::UtcNow - [DateTime]::Parse([string]$latestRun.created_at).ToUniversalTime()).TotalMinutes, 1)
+  if ($latestRun.status -eq 'completed' -and $latestRun.conclusion -eq 'success' -and $onlineHeartbeatAgeMinutes -ge 0 -and $onlineHeartbeatAgeMinutes -le 35) {
+    $onlineHeartbeatStatus = 'PASS'
+  } elseif ($latestRun.status -ne 'completed') {
+    $onlineHeartbeatStatus = 'RUNNING'
+  } else {
+    $onlineHeartbeatStatus = 'DEGRADED'
+  }
+} else {
+  $onlineHeartbeatStatus = if ($ghCommand -and $dispatchStartedAt) { 'DISPATCH_NOT_VERIFIED' } else { 'NO_RUN_FOUND' }
+}
 $localHeartbeatProducedProof = $localHeartbeatFresh -and $localHeartbeatStatus -in @('PASS','DEGRADED')
 $dualHeartbeatStatus = if ($localHeartbeatProducedProof -and $onlineHeartbeatStatus -eq 'PASS') { 'PASS' } else { 'DEGRADED' }
 $dualHeartbeatProof = [ordered]@{
@@ -299,8 +350,8 @@ $dualHeartbeatProof = [ordered]@{
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   status = $dualHeartbeatStatus
   local = [ordered]@{ status=$localHeartbeatStatus; proof_path=$localProofPath; fresh_within_20_minutes=$localHeartbeatFresh; heartbeat_proof_produced=$localHeartbeatProducedProof }
-  online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
-  rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions heartbeat on main no older than 35 minutes. Unknown is not pass.'
+  online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; source_branch=$onlineHeartbeatSourceBranch; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
+  rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions liveness run on the selected commissioning branch or fresh mainline fallback, no older than 35 minutes. Unknown is not pass.'
   no_revenue_claim = $true
 }
 $dualHeartbeatPath = Join-Path $proofRoot 'DUAL-HEARTBEAT-CORROBORATION-LATEST.json'
