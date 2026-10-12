@@ -4,6 +4,7 @@ param(
     [string]$RepoRoot = "",
     [string]$ProofPath = "",
     [switch]$InstallDependencies,
+    [switch]$SkipInstall,
     [switch]$SkipInstall
 )
 Set-StrictMode -Version Latest
@@ -86,14 +87,14 @@ try {
             Add-Check 'substrate.monetization_report' 'FAIL' 'Monetization scout failed or did not produce proof/commerce/latest-monetization-scout.json.'
         }
         $offer = @()
-    if ($InstallDependencies) {
+    if ($InstallDependencies -and -not $SkipInstall) {
         # This repository branch does not contain package-lock.json, so npm ci is invalid here.
         # Keep installation explicit; do not mutate dependencies as a surprise during preflight.
         $installOut = & npm.cmd install --no-package-lock --no-audit --no-fund 2>&1
         $installCode = $LASTEXITCODE
         Add-Check 'dependencies.npm_install' $(if ($installCode -eq 0) {'PASS'} else {'FAIL'}) (($installOut | ForEach-Object {[string]$_}) -join "`n")
     } else {
-        Add-Check 'dependencies.npm_install' 'SKIPPED' 'Default is read-only preflight; dependency installation was not requested.'
+        Add-Check 'dependencies.npm_install' 'SKIPPED' 'Default is read-only preflight; dependency installation was not requested or was explicitly skipped.'
     }
 
     if ((@($checks | Where-Object { $_.name -eq 'dependencies.npm_install' -and $_.status -eq 'FAIL' })).Count -eq 0) {
