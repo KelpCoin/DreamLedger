@@ -29,6 +29,7 @@ jobs:
         uses: reviewdog/action-actionlint@v1
         with:
           actionlint_flags: -color
+          fail_on_error: true
       - name: Syntax-check economic gate
         run: node --check ops/commerce/first-dollar-economic-gate.mjs
       - name: Run read-only economic gate
