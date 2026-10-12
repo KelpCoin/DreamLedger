@@ -55,6 +55,8 @@ jobs:
           git reset --hard origin/main
       - name: Test Agent Bridge manifest normalization
         run: python -m unittest tests.test_sync_agent_bridge_catalog
+      - name: Validate bounded Agent Bridge long-task contract
+        run: python scripts/validate_agent_bridge_long_task_contract.py
       - name: Sync Agent Bridge catalogue snapshot
         run: python scripts/sync_agent_bridge_catalog.py
       - name: Generate procurement amendment delta
