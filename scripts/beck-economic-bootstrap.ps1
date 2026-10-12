@@ -42,7 +42,7 @@ function Get-HttpResult([string]$Url) {
         $html = [string]$r.Content
         $stripeLinks = @([regex]::Matches($html, 'https://buy\.stripe\.com/[A-Za-z0-9]+') | ForEach-Object { $_.Value.TrimEnd('.') } | Select-Object -Unique)
         $truthRedirect = $html -match 'truth-oracle\.html'
-        $retiredOfferCopy = $html -match 'AGENT-PROOF-AUDIT-49|Agent Delivery Proof Audit|NZ\$49|Purchase the audit'
+        $retiredOfferCopy = $html -match 'AGENT-PROOF-AUDIT-49|Agent Delivery Proof Audit|NZ\$49\b|Purchase the audit'
         return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=[string]$r.BaseResponse.ResponseUri.AbsoluteUri; stripe_links=$stripeLinks; truth_oracle_redirect=[bool]$truthRedirect; retired_offer_copy=[bool]$retiredOfferCopy }
     } catch {
         $status = 0
