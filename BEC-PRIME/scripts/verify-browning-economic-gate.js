@@ -24,8 +24,8 @@ const mtg = read('public/mtg.html');
 const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.json'));
 
 check('homepage-canonical-doors',
-  ['DreamLedger', 'Commander Deck Diagnostic', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())),
-  'Homepage exposes the canonical storefront doors required for this release.');
+  ['DreamLedger', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())) && !/Agent Delivery Proof Audit|agent-delivery-proof-audit/i.test(index),
+  'Homepage exposes Truth Oracle and supplier quote comparison; the retired audit offer is absent.');
 check('diagnostic-current-public-catalog',
   Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && /^https:\/\/buy\.stripe\.com\//.test(String(x.checkout_url || ''))),
   'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.' );
