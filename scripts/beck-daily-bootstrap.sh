@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Read-only service checks plus a local daily workspace. Does not write to Supabase or run sales actions.
-set -u
+set -Eeuo pipefail
 umask 077
 ROOT="${BEC_DAILY_ROOT:-$HOME/bec-daily}"
 DAY="$(date +%F)"
@@ -19,7 +19,7 @@ if command -v nvidia-smi >/dev/null 2>&1; then nvidia-smi --query-gpu=name,drive
 echo '=== LM STUDIO ==='
 code="$(http_code "$LM_BASE/models")"
 if [ "$code" != 200 ] && command -v lms >/dev/null 2>&1; then
-  echo 'LMSTUDIO_START_ATTEMPT=1'; lms server start --port 1234 || true; sleep 2; code="$(http_code "$LM_BASE/models")"
+  echo 'LMSTUDIO_START_ATTEMPT=1'; port="${BECK_LMSTUDIO_PORT:-1234}"; if [[ "$LM_BASE" =~ :([0-9]+)/v1/?$ ]]; then port="${BASH_REMATCH[1]}"; fi; lms server start --port "$port" || true; for _ in $(seq 1 20); do sleep 1; code="$(http_code "$LM_BASE/models")"; [[ "$code" == 200 ]] && break; done
 fi
 echo "LMSTUDIO_MODELS_HTTP=$code"
 if [ "$code" = 200 ]; then curl -sS --max-time 12 "$LM_BASE/models" 2>/dev/null || true; else echo 'LMSTUDIO_STATUS=NOT_READY; model loading is not automatic'; fi
@@ -63,5 +63,17 @@ ARTIFACTS:
 REVENUE_VERIFIED_NZD: 0.00
 NEXT:
 EOF
-echo "BOOTSTRAP_COMPLETE=1"; echo "WORKSPACE=$OUT"; echo "LOG=$LOG"
-echo 'LIMITS=No model loading, Supabase writes, payment claims, or fulfillment claims. HTTP checks do not prove database health.'
+python3 - "$OUT/bootstrap-proof.json" "$LM_BASE" "$code" "$SB_URL" "$sb" "$OUT" <<'PY'
+import json,sys,datetime,os
+path,lm_base,lm_http,sb_url,sb_http,out=sys.argv[1:]
+obj={"schema":"BECK-DAILY-BOOTSTRAP-1.1","status":"PREPARED","readiness":"DIAGNOSTICS_AND_PROMPTS_ONLY","captured_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"workspace":out,"checks":{"lm_studio":{"base":lm_base,"models_http":lm_http,"inference":"NOT_RUN_BY_DAILY_BOOTSTRAP","three_role_readiness":"NOT_VERIFIED"},"supabase":{"project_ref":"wbwgroygjeyukkspnqiy","rest_gateway_http":sb_http,"authenticated_sql":"NOT_TESTED","rpc_health":"NOT_PROVEN","writes":"NOT_ATTEMPTED","url":sb_url}},"limitations":["No Supabase writes","No Stripe API calls","No public/customer actions","HTTP reachability is not database health","Prompt files are not model inference"]}
+tmp=path+".tmp"
+with open(tmp,"w",encoding="utf-8") as f: json.dump(obj,f,indent=2)
+os.replace(tmp,path)
+PY
+echo "BOOTSTRAP_STATUS=PREPARED_NOT_COMMISSIONED"
+echo "WORKSPACE=$OUT"
+echo "LOG=$LOG"
+echo "PROOF=$OUT/bootstrap-proof.json"
+echo 'LMSTUDIO_INFERENCE=NOT_RUN'
+echo 'SUPABASE_AUTHENTICATED_HEALTH=NOT_PROVEN'
