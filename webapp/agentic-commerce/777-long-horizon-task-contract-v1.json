@@ -1,0 +1,168 @@
+{
+  "schema": "dreamledger/777-long-horizon-task-graph/v1",
+  "artifact_id": "777-AGENT-BRIDGE-LONG-HORIZON-001",
+  "created_at": "2026-10-13",
+  "status": "EXECUTION_PLAN_NOT_REVENUE",
+  "purpose": "Decompose the broad DreamLedger marketplace ambition into bounded jobs that 777 can repeatedly execute, test, and compound without proliferating offers or fabricating economic proof.",
+  "north_star": "First independently verified external buyer payment followed by correct fulfillment, delivery evidence, and reconciliation. After that, repeatability and scale.",
+  "truth": {
+    "verified_external_revenue_nzd": 0,
+    "claim_status": "UNVERIFIED",
+    "rule": "Do not change revenue until independent buyer, authorized action, external result, settled payment, fulfillment, delivery evidence, and reconciliation are linked.",
+    "green_ci_is_revenue": false,
+    "checkout_is_revenue": false,
+    "synthetic_fixture_is_revenue": false
+  },
+  "execution_policy": {
+    "default_authority": "READ_ONLY",
+    "budget_nzd_per_job": 0,
+    "max_attempts": 2,
+    "idempotency_required": true,
+    "human_approval_required_for": [
+      "spending",
+      "real customer charges",
+      "public outreach",
+      "public offer or pricing changes",
+      "third-party data disclosure",
+      "GPU tenant execution",
+      "physical DOOH bookings",
+      "irreversible production changes"
+    ],
+    "never": [
+      "invent buyer demand",
+      "count PaymentIntent or checkout creation as revenue",
+      "publish thin or duplicate SEO pages",
+      "expose GPU host shell, secrets, or unrestricted filesystem/network access",
+      "claim billboard inventory without authorized supply",
+      "enable a route before route parity and fulfillment are proven"
+    ]
+  },
+  "task_graph": [
+    {
+      "id": "DL777-00-OBSERVE",
+      "priority": "P0",
+      "objective": "Observe a genuinely new 777 run and inspect its exact output before declaring a cycle complete.",
+      "depends_on": [],
+      "inputs": ["workflow_run_id", "commit_sha"],
+      "outputs": ["run-receipt.json", "job-status.json", "artifact-inventory.json"],
+      "acceptance": ["run ID and event are real", "jobs and conclusions are recorded", "artifacts are fetched and inspected", "no-op is distinguished from new output"],
+      "failure_state": "BLOCKED_NO_RUN_OR_NO_NEW_OUTPUT"
+    },
+    {
+      "id": "DL777-01-ROUTE-PARITY",
+      "priority": "P0",
+      "objective": "Compare the Agent Bridge manifest, catalog, gateway route registry, deployed handler, and customer-facing route.",
+      "depends_on": ["DL777-00-OBSERVE"],
+      "outputs": ["route-parity.json"],
+      "acceptance": ["every listed route maps to a deployed handler or is HELD", "price and SKU match across surfaces", "HTTP method and request schema match", "missing joins remain explicit"],
+      "failure_state": "HOLD_ROUTE"
+    },
+    {
+      "id": "DL777-02-READONLY-PROBE",
+      "priority": "P0",
+      "objective": "Probe the existing toll endpoint without charging or mutating state.",
+      "depends_on": ["DL777-01-ROUTE-PARITY"],
+      "outputs": ["route-probe.json"],
+      "acceptance": ["UTC timestamp", "HTTP status", "latency", "response schema", "content digest", "no charge and no state mutation"],
+      "failure_state": "STALE_OR_UNAVAILABLE"
+    },
+    {
+      "id": "DL777-03-SETTLEMENT-TO-DELIVERY",
+      "priority": "P0",
+      "objective": "Map the existing offer to verified Stripe settlement, entitlement, execution, output, delivery, refund/dispute state, and reconciliation.",
+      "depends_on": ["DL777-01-ROUTE-PARITY"],
+      "outputs": ["commerce-reconciliation-map.json", "missing-join-keys.json"],
+      "acceptance": ["provider-side settled state is verified", "event signature and idempotency are covered", "fulfillment and delivery are evidenced", "refunds/disputes are represented", "no fake or synthetic event reaches production ledger"],
+      "failure_state": "REVENUE_UNVERIFIED"
+    },
+    {
+      "id": "DL777-04-SAFE-FIX-QUEUE",
+      "priority": "P0",
+      "objective": "Turn each red finding into a minimal fix with a regression test, owner boundary, and independent verification step.",
+      "depends_on": ["DL777-00-OBSERVE"],
+      "outputs": ["red-green-fix-ledger.json"],
+      "acceptance": ["each red item has root cause or explicitly UNKNOWN", "fix is linked to source and test", "CI green is not confused with live economic proof", "production mutation waits for approval when required"],
+      "failure_state": "QUARANTINE"
+    },
+    {
+      "id": "DL777-05-ASSET-CATALOGUE",
+      "priority": "P1",
+      "objective": "Index existing templates, stencils, word banks, neural-network assets, workflow packs, and connectors before inventing duplicates.",
+      "depends_on": ["DL777-00-OBSERVE"],
+      "outputs": ["asset-catalogue.json", "asset-catalogue.schema.json"],
+      "acceptance": ["source path and provenance", "licence", "version", "SHA-256", "compatibility", "tests", "dependencies", "reuse count", "commercial entitlement"],
+      "failure_state": "DO_NOT_PUBLISH_ASSET"
+    },
+    {
+      "id": "DL777-06-FREE-B2B-DISCOVERY",
+      "priority": "P1",
+      "objective": "Make verified supplier/service/template discovery useful without charging for browsing.",
+      "depends_on": ["DL777-05-ASSET-CATALOGUE"],
+      "outputs": ["discovery-index-contract.json"],
+      "acceptance": ["only source-backed listings", "search facets and provenance", "clear terms/licence", "one canonical commercial CTA", "no duplicate thin pages"],
+      "failure_state": "KEEP_INTERNAL"
+    },
+    {
+      "id": "DL777-07-CHEAP-A2A",
+      "priority": "P1",
+      "objective": "Prepare a metered Agent Bridge call contract only for routes that pass route parity, safety, and positive measured unit economics.",
+      "depends_on": ["DL777-02-READONLY-PROBE", "DL777-03-SETTLEMENT-TO-DELIVERY"],
+      "outputs": ["usage-receipt.schema.json", "unit-economics.json", "a2a-contract-tests.json"],
+      "acceptance": ["auth scope", "quotas", "timeouts", "replay protection", "tenant attribution", "measured inference/API costs", "positive contribution margin", "delivery receipt"],
+      "failure_state": "DO_NOT_ENABLE_PAID_ROUTE"
+    },
+    {
+      "id": "DL777-08-GPU-CAPACITY",
+      "priority": "P2",
+      "objective": "Evaluate bounded, opt-in GPU inference as a service without exposing the host machine.",
+      "depends_on": ["DL777-07-CHEAP-A2A"],
+      "outputs": ["gpu-capacity-benchmark.json", "gpu-tenant-isolation-gate.json"],
+      "acceptance": ["measured VRAM/throughput/queue time", "owner opt-in", "tenant isolation", "network/filesystem restrictions", "secret isolation", "timeouts/quotas/kill switch", "cost ceiling and retention policy"],
+      "failure_state": "NO_EXTERNAL_GPU_JOBS"
+    },
+    {
+      "id": "DL777-09-DOOH",
+      "priority": "P2",
+      "objective": "Model programmatic DOOH inventory and proof-of-play without claiming unsourced physical supply.",
+      "depends_on": ["DL777-05-ASSET-CATALOGUE"],
+      "outputs": ["dooh-inventory.schema.json", "proof-of-play.schema.json"],
+      "acceptance": ["authorized owner/source", "venue and screen specs", "available slots", "creative policy", "price/cancellation", "proof-of-play", "dispute evidence"],
+      "failure_state": "SIMULATED_ONLY"
+    },
+    {
+      "id": "DL777-10-COHORT-QUALITY",
+      "priority": "P2",
+      "objective": "Improve the public website only with distinct, useful, source-backed artifacts and observable quality signals.",
+      "depends_on": ["DL777-00-OBSERVE", "DL777-05-ASSET-CATALOGUE"],
+      "outputs": ["content-quality-receipt.json", "internal-link-audit.json"],
+      "acceptance": ["page-specific utility", "primary-source references with retrieval times", "no invented market numbers", "no near-duplicate/cannibalizing URL", "indexing/traffic measured before cohort expansion"],
+      "failure_state": "DO_NOT_PUBLISH"
+    }
+  ],
+  "iteration_protocol": [
+    "Run the existing money-first 777 workflow.",
+    "Inspect run ID, commit, event, jobs, logs, and produced artifacts.",
+    "Choose the highest-priority unblocked task; do not open parallel workstreams without a dependency reason.",
+    "Generate one bounded artifact with sources, timestamp, schema validation, tests, and content hash.",
+    "Run Gauntlet against the artifact and its evidence.",
+    "Publish only if the task's publication gate is met; otherwise keep it internal and record the blocker.",
+    "Update the existing GitHub epic, Airtable queue, and Notion expedition log with the same evidence IDs.",
+    "Repeat. Never claim wealth, demand, or revenue from workflow activity alone."
+  ],
+  "current_next_task": "DL777-01-ROUTE-PARITY",
+  "known_prior_state_to_revalidate": {
+    "agent_bridge_candidate": "TOLL-PROBE-50C",
+    "candidate_price_nzd": 0.5,
+    "prior_catalogue_state": "STALE_PRESERVED",
+    "prior_commerce_state": "DESIGN_COMPONENT_NOT_LIVE_COMMERCE",
+    "instruction": "Treat these as historical until the live manifest and deployed route are freshly fetched."
+  },
+  "provenance": {
+    "related_github_epics": [
+      "https://github.com/KelpCoin/DreamLedger/issues/652",
+      "https://github.com/KelpCoin/DreamLedger/issues/657"
+    ],
+    "related_contract": "webapp/agentic-commerce/agent-bridge-job-contract-v1.json",
+    "source_status": "PLAN_DERIVED_FROM_EXISTING_REPOSITORY_CONTRACTS; NO_NEW_MARKET_DEMAND_ASSERTED"
+  }
+}
