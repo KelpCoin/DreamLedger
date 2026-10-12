@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/**/*.ps1'
       - '.github/workflows/bootstrap-gauntlet.yml'
+      - '.github/workflows/beck-cloud-liveness.yml'
       - 'ops/cockpit/**'
   push:
     branches: [main]
@@ -54,6 +55,22 @@ jobs:
             throw 'Canonical Truth Oracle page probe is missing.'
           }
           Write-Output 'RETIRED_AUDIT_EXCLUSION_PASS'
+      - name: Verify bootstrap and independent cloud-heartbeat contract
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bootstrap = Get-Content -LiteralPath 'scripts/beck-one-shot-bootstrap.ps1' -Raw
+          $cloud = Get-Content -LiteralPath '.github/workflows/beck-cloud-liveness.yml' -Raw
+          if (-not $bootstrap.Contains('beck-cloud-liveness.yml')) { throw 'Bootstrap does not corroborate against the independent cloud liveness workflow.' }
+          if ($bootstrap.Contains("actions/workflows/beck-production-heartbeat.yml/runs")) { throw 'Bootstrap still couples dual heartbeat to the production workflow with self-heal side effects.' }
+          if (-not $cloud.Contains('contents: read')) { throw 'Cloud liveness must use read-only repository permissions.' }
+          foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','secrets.')) {
+            if ($cloud.Contains($forbidden)) { throw "Cloud liveness contains forbidden side-effect capability: $forbidden" }
+          }
+          foreach ($endpoint in @('/healthz','/version','/truth-oracle.html')) {
+            if (-not $cloud.Contains($endpoint)) { throw "Cloud liveness is missing endpoint probe $endpoint" }
+          }
+          Write-Output 'BOOTSTRAP_CLOUD_LIVENESS_CONTRACT_PASS'
   workflow-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
