@@ -19,7 +19,7 @@ on:
       - 'public/ai-catalog.json'
       - 'public/agent-commerce.json'
   push:
-    branches: [feat/beck-commercial-gauntlet-bootstrap-clean]
+    branches: [feat/beck-commercial-gauntlet-stable]
   workflow_dispatch:
 
 permissions:
