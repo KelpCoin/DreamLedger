@@ -325,7 +325,7 @@ $onlineHeartbeatStatus = 'UNKNOWN'
 $onlineHeartbeatWorkflow = 'beck-cloud-liveness.yml'
 $onlineHeartbeatRunId = $null
 $onlineHeartbeatAgeMinutes = $null
-$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=' + [uri]::EscapeDataString($Branch) + '&per_page=5'
+$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml/runs?branch=main&per_page=5'
 try {
   $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
   $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
@@ -351,7 +351,7 @@ $dualHeartbeatProof = [ordered]@{
   status = $dualHeartbeatStatus
   local = [ordered]@{ status=$localHeartbeatStatus; proof_path=$localProofPath; fresh_within_20_minutes=$localHeartbeatFresh; heartbeat_proof_produced=$localHeartbeatProducedProof }
   online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
-  rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions heartbeat on main no older than 35 minutes. Unknown is not pass.'
+  rule = 'PASS requires a fresh local heartbeat proof and a successful scheduled GitHub Actions heartbeat on main no older than 35 minutes. The local checkout branch does not control cloud monitoring. Unknown is not pass.'
   no_revenue_claim = $true
 }
 $dualHeartbeatPath = Join-Path $proofRoot 'DUAL-HEARTBEAT-CORROBORATION-LATEST.json'
