@@ -39,8 +39,8 @@ jobs:
           WORKFLOW='.github/workflows/create-payment-link.yml'
           PRODUCT_ID='DISCORD-WEBHOOK-STARTER-KIT-001'
 
-          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .price_nzd' "$CATALOG")" = '79'
-          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .currency' "$CATALOG")" = 'NZD'
+          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .price' "$CATALOG")" = '79'
+          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .currency' "$CATALOG")" = 'nzd'
           test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .checkout_available' "$CATALOG")" = 'true'
           test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .delivery_test_status' "$CATALOG")" = 'UNVERIFIED'
           jq -e --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | (.checkout_url | startswith("https://buy.stripe.com/"))' "$CATALOG"
