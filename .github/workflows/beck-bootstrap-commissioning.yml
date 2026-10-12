@@ -27,7 +27,7 @@ permissions:
 
 concurrency:
   group: beck-bootstrap-commissioning-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   syntax-and-safety:
