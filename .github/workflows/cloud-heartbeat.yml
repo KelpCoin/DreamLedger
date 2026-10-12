@@ -1,0 +1,40 @@
+name: Cloud heartbeat
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: dreamledger-cloud-heartbeat
+  cancel-in-progress: true
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Runtime and repository heartbeat
+        id: runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          node --check ops/cockpit/figure-eight-cockpit.mjs
+          node --check ops/cockpit/render-cockpit-html.mjs
+          node --check ops/cockpit/discord-cockpit-notify.mjs
+          node --check ops/commerce/reconcile-stripe-webhook-routing.mjs
+          node --check ops/commerce/gauntlet-economic-verdict.mjs
+          node -e "JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log('PACKAGE_JSON=PASS')"
+          git status --short
+          mkdir -p heartbeat-proof
+          node -e "const fs=require('fs'); const p={schema:'DREAMLEDGER-CLOUD-HEARTBEAT/v1',generated_at_utc:new Date().toISOString(),runner:'GitHub Actions',pc_required:false,repository_checks:'PASS',revenue_status:'UNVERIFIED_UNTIL_SETTLEMENT_AND_FULFILLMENT_EVIDENCE',safety:'No production writes, no payment, no deployment, no public messages'}; fs.writeFileSync('heartbeat-proof/cloud-heartbeat.json',JSON.stringify(p,null,2)+'\n')"
+      - name: Upload cloud heartbeat proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-heartbeat-${{ github.run_id }}
+          path: heartbeat-proof/cloud-heartbeat.json
+          retention-days: 14
