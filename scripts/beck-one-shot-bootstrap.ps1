@@ -139,68 +139,17 @@ if ($heartbeatAfterStartupExit -ne 0) { $heartbeatExit = $heartbeatAfterStartupE
 Write-Output 'PHASE=BUILD_PRIVATE_COCKPIT'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-cockpit-bootstrap.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot -SkipEconomicBootstrap
 $cockpitExit = $LASTEXITCODE
-Write-Output 'PHASE=DISPATCH_CLOUD_COCKPIT_IF_AUTHORIZED'
-$cloudDispatchStatus = 'BLOCKED_GH_CLI_NOT_AVAILABLE'
-$gh = Get-Command gh.exe -ErrorAction SilentlyContinue
-if (-not $gh) {
-  $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
-  if ($winget) {
-    Write-Output 'PHASE=INSTALL_GITHUB_CLI'
-    & winget.exe install --id GitHub.cli -e --silent --accept-package-agreements --accept-source-agreements
-    if ($LASTEXITCODE -eq 0) {
-      $env:PATH = [Environment]::GetEnvironmentVariable('PATH','Machine') + ';' + [Environment]::GetEnvironmentVariable('PATH','User')
-      $gh = Get-Command gh.exe -ErrorAction SilentlyContinue
-    }
-  }
-}
-if ($gh) {
-  & gh.exe auth status 2>&1 | Out-Null
-  if ($LASTEXITCODE -ne 0) {
-    Write-Output 'PHASE=GITHUB_AUTHENTICATION_REQUIRED'
-    & gh.exe auth login --hostname github.com --git-protocol https --web
-  }
-  & gh.exe auth status 2>&1 | Out-Null
-  if ($LASTEXITCODE -eq 0) {
-    $dispatchStarted = (Get-Date).ToUniversalTime()
-    & gh.exe workflow run $Workflow --repo KelpCoin/DreamLedger --ref $Branch
-    if ($LASTEXITCODE -eq 0) {
-      $cloudDispatchStatus = 'DISPATCHED_WAITING_FOR_CLOUD_RUN'
-      $deadline = (Get-Date).AddMinutes(8)
-      $runId = $null
-      do {
-        Start-Sleep -Seconds 10
-        $runsJson = & gh.exe run list --repo KelpCoin/DreamLedger --workflow $Workflow --branch $Branch --limit 5 --json databaseId,status,conclusion,createdAt,event
-        if ($LASTEXITCODE -eq 0) {
-          try {
-            $runs = @($runsJson | ConvertFrom-Json)
-            $run = $runs | Where-Object { $_.event -eq 'workflow_dispatch' -and ([DateTime]::Parse($_.createdAt).ToUniversalTime() -ge $dispatchStarted.AddSeconds(-5)) } | Sort-Object createdAt -Descending | Select-Object -First 1
-            if ($run) {
-              $runId = [string]$run.databaseId
-              if ($run.status -eq 'completed') {
-                $cloudDispatchStatus = 'COMPLETED_' + [string]$run.conclusion
-                break
-              }
-            }
-          } catch {}
-        }
-      } while ((Get-Date) -lt $deadline)
-      if ($cloudDispatchStatus -eq 'DISPATCHED_WAITING_FOR_CLOUD_RUN') { $cloudDispatchStatus = 'TIMED_OUT_CHECK_GITHUB_ACTIONS' }
-      if ($runId) {
-        $cloudDir = Join-Path $proofRoot 'cloud'
-        $null = New-Item -ItemType Directory -Force -Path $cloudDir
-        & gh.exe run download $runId --repo KelpCoin/DreamLedger --dir $cloudDir
-        if ($LASTEXITCODE -eq 0) { $cloudDispatchStatus += '_ARTIFACT_DOWNLOADED' }
-      }
-    } else { $cloudDispatchStatus = 'BLOCKED_WORKFLOW_DISPATCH_FAILED' }
-  } else { $cloudDispatchStatus = 'BLOCKED_GH_NOT_AUTHENTICATED' }
-}
+Write-Output 'PHASE=SKIP_OPTIONAL_CLOUD_COCKPIT_DISPATCH'
+# The heartbeat must never require an interactive GitHub CLI login.
+# Cloud Actions run independently on schedule; anonymous API corroboration below is sufficient.
+$cloudDispatchStatus = 'SKIPPED_OPTIONAL_NO_AUTH_REQUIRED'
 $cloudProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-CLOUD-RESULT/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   workflow = $Workflow
   branch = $Branch
   status = $cloudDispatchStatus
-  note = 'Manual dispatch is attempted only when GitHub CLI is installed and authenticated. Scheduled execution still requires the workflow to be on the repository default branch.'
+  note = 'Optional cockpit dispatch skipped. Local task installation and anonymous cloud-liveness corroboration do not require gh CLI or interactive login.'
 }
 $cloudProofPath = Join-Path $proofRoot 'CLOUD-COCKPIT-DISPATCH-LATEST.json'
 $cloudProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $cloudProofPath -Encoding UTF8
