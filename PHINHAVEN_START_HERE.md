@@ -2,6 +2,21 @@
 
 This is the operator-facing status page.
 
+## Public surface (2026-10-13)
+
+Honest Stage 0 landing and design docs are on `main`:
+
+| Path | Purpose |
+|------|--------|
+| `phinhaven.html` | Public page — chat + hotel intent, roadmap table, no fake MMO claims |
+| `phinhaven/ROADMAP.md` | Stages 0–7 (hotel → territory → farming → combat depth) |
+| `phinhaven/PVE_GUILD_TERRITORY.md` | Pure PvE guild territory (no PvP) |
+| `phinhaven/STAGE0_HOTEL_CHAT.md` | Stage 0 schema/UI acceptance sketch |
+| `phinhaven/AGENT_HANDOFF.md` | What other agents should do next |
+
+Godot shallows scaffold: `phinhaven/godot/shallows/`  
+Browser shallows slice: `phinhaven/shallows/`
+
 ## What is already working conceptually
 
 DreamLedger has a canonical GitHub repository, Supabase migrations, deployment configuration, commercial pages, proof artifacts and a repaired Stripe settlement path. The latest Stripe repair commit explicitly accepts `payment_intent.succeeded` and recovers Checkout Session attribution.
@@ -10,7 +25,9 @@ DreamLedger has a canonical GitHub repository, Supabase migrations, deployment c
 
 PHINHAVEN is not yet a verified playable commercial product.
 
-The canonical repository currently has no discoverable `project.godot` or PHINHAVEN Godot runtime. Kelplantis-era database work is present, but database work alone does not prove a playable client/server game.
+Stage 0 hotel/chat schema is a **design sketch**, not proven live tables.
+
+Database work and scaffolds are not proof of a complete client/server game or external players.
 
 Therefore: do not expect PHINHAVEN money yet.
 
@@ -42,11 +59,15 @@ A sale becomes verified only when a real external customer pays and the payment,
 
 ## Current next action
 
-FIN-PHIN-RECON-001
+See `phinhaven/AGENT_HANDOFF.md` for bounded jobs.
 
-Recover or locate the actual PHINHAVEN Godot project, establish it as canonical, and reconcile it before writing new game systems.
+Highest-value unblocked path:
 
-## Commercial sequence
+1. Stage 0 Supabase rooms/presence/messages (or map to existing identity tables)
+2. Minimal UI so two sessions can chat in one room
+3. Reduce site cold-start so the public page is actually reachable
+
+Commercial sequence remains:
 
 GAME PROOF -> PURCHASE PROOF -> REPEATABILITY -> SCALE
 
@@ -56,12 +77,12 @@ BUILD EVERYTHING -> HOPE -> ADVERTISE
 
 ## Status vocabulary
 
-VERIFIED = evidence closes the required chain.
-UNVERIFIED = implementation exists but evidence is incomplete.
-BLOCKED = required dependency is absent or contradictory.
-TEST = controlled test activity.
-SIMULATED = simulation only.
-UNMATCHED = external event cannot yet be attributed safely.
+VERIFIED = evidence closes the required chain.  
+UNVERIFIED = implementation exists but evidence is incomplete.  
+BLOCKED = required dependency is absent or contradictory.  
+TEST = controlled test activity.  
+SIMULATED = simulation only.  
+UNMATCHED = external event cannot yet be attributed safely.  
 STALE = evidence no longer represents current state.
 
 Never promote TEST or SIMULATED activity into revenue.
