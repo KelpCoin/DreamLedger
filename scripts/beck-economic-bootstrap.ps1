@@ -163,6 +163,14 @@ try {
         }
 
         if ($env:STRIPE_SECRET_KEY -and $env:STRIPE_LIVE_ENABLED -eq 'true') {
+            $webhookCode = Run-NodeCheck 'stripe.webhook_routing_reconciliation' @('ops/commerce/reconcile-stripe-webhook-routing.mjs')
+            $webhookPath = Join-Path $RepoRoot 'proof/commerce/latest-stripe-webhook-routing.json'
+            if ($webhookCode -eq 0 -and (Test-Path -LiteralPath $webhookPath)) {
+                $webhook = Get-Content -LiteralPath $webhookPath -Raw | ConvertFrom-Json
+                Add-Check 'stripe.webhook_routing' 'BLOCKED' (("Configured endpoints=" + $webhook.endpoint_count + "; enabled live endpoints=" + $webhook.enabled_live_endpoint_count + "; unknown destinations=" + $webhook.unknown_enabled_live_targets.Count + "; duplicate event routes=" + $webhook.duplicate_event_routing.Count) + '. Inventory is read-only; canonical routing and successful delivery still require review.')
+            } else {
+                Add-Check 'stripe.webhook_routing' 'BLOCKED' 'Webhook endpoint inventory failed. No endpoint was created, changed, or disabled.'
+            }
             $firstDollarCode = Run-NodeCheck 'stripe.first_dollar_offer_reconciliation' @('ops/commerce/reconcile-first-dollar-proof-audit.mjs')
             $firstDollarPath = Join-Path $RepoRoot 'proof/commerce/latest-first-dollar-stripe-reconciliation.json'
             if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
@@ -185,6 +193,7 @@ try {
             }
         } else {
             Add-Check 'stripe.live_reconciliation' 'BLOCKED' 'Set STRIPE_SECRET_KEY in the local process environment and STRIPE_LIVE_ENABLED=true to query live Stripe. Never paste the key into chat. No Stripe API call was made.'
+            Add-Check 'stripe.webhook_routing' 'BLOCKED' 'Webhook destinations were not inspected because live Stripe credentials were not enabled. No endpoint was changed.'
         }
 
         # Snapshot current evidence for the Gauntlet. This is local proof output only.
