@@ -1,0 +1,59 @@
+name: BECK Economic Magnet Validation
+on:
+  pull_request:
+    paths:
+      - 'scripts/beck-economic-magnet-bootstrap.ps1'
+      - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'scripts/beck-commercial-gauntlet.ps1'
+      - '.github/workflows/beck-economic-magnet-validation.yml'
+  push:
+    branches:
+      - fix/beck-canonical-offer-and-supabase-failure
+    paths:
+      - 'scripts/beck-economic-magnet-bootstrap.ps1'
+      - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'scripts/beck-commercial-gauntlet.ps1'
+      - '.github/workflows/beck-economic-magnet-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: beck-economic-magnet-validation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  parse-and-contract-check:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell bootstraps without executing them
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(
+            'scripts/beck-economic-magnet-bootstrap.ps1',
+            'scripts/beck-one-shot-bootstrap.ps1',
+            'scripts/beck-commercial-gauntlet.ps1'
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Join-Path $PWD $file), [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error ($file + ': ' + $_.Message) }
+              throw "PowerShell parse failed: $file"
+            }
+            Write-Host ("POWERSHELL_PARSE_PASS=" + $file)
+          }
+      - name: Verify economic truth is fail-closed
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $magnet = Get-Content 'scripts/beck-economic-magnet-bootstrap.ps1' -Raw
+          $gauntlet = Get-Content 'scripts/beck-commercial-gauntlet.ps1' -Raw
+          if ($magnet -notmatch 'verified_revenue_nzd=0') { throw 'Economic magnet must preserve zero verified revenue unless provider evidence is reconciled.' }
+          if ($magnet -notmatch 'No public transmission or acquisition dispatch is initiated automatically') { throw 'External acquisition must remain explicitly gated.' }
+          if ($gauntlet -notmatch "revenue_claim='UNVERIFIED_UNLESS_PROVIDER_SETTLEMENT_AND_FULFILLMENT_EVIDENCE_ARE_LINKED'") { throw 'Commercial truth boundary is missing.' }
+          Write-Host 'ECONOMIC_TRUTH_BOUNDARY_PASS'
