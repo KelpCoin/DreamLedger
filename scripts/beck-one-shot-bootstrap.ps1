@@ -300,6 +300,25 @@ Write-Output "LOCAL_HEARTBEAT_PROOF_STATUS=$localHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
+Write-Output 'PHASE=RUN_ECONOMIC_MAGNET_AND_INSTALL_RECURRING_WORKER'
+$economicMagnetStatus = 'BLOCKED_SCRIPT_MISSING'
+$economicMagnetProofPath = Join-Path $proofRoot 'ECONOMIC-MAGNET-LATEST.json'
+$economicMagnetScript = Join-Path $RepoRoot 'scripts\beck-economic-magnet-bootstrap.ps1'
+if (Test-Path -LiteralPath $economicMagnetScript) {
+  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $economicMagnetScript -RepoRoot $RepoRoot -ProofRoot $proofRoot -InstallScheduledWorker
+  $economicMagnetExit = $LASTEXITCODE
+  if (Test-Path -LiteralPath $economicMagnetProofPath) {
+    try {
+      $economicMagnetProof = Get-Content -LiteralPath $economicMagnetProofPath -Raw | ConvertFrom-Json
+      $economicMagnetStatus = [string]$economicMagnetProof.status
+    } catch { $economicMagnetStatus = 'BLOCKED_INVALID_PROOF' }
+  } else { $economicMagnetStatus = 'BLOCKED_PROOF_MISSING' }
+} else {
+  $economicMagnetExit = 127
+  Write-Output 'ECONOMIC_MAGNET_ERROR=SCRIPT_MISSING'
+}
+Write-Output "ECONOMIC_MAGNET_STATUS=$economicMagnetStatus"
+Write-Output "ECONOMIC_MAGNET_PROOF=$economicMagnetProofPath"
 Write-Output 'PHASE=RUN_READ_ONLY_COMMERCIAL_GAUNTLET'
 $commercialGauntletStatus = 'BLOCKED_SCRIPT_MISSING'
 $commercialGauntletScore = 0
@@ -334,6 +353,10 @@ $commissionProof = [ordered]@{
   commercial_gauntlet_status = $commercialGauntletStatus
   commercial_gauntlet_score = $commercialGauntletScore
   commercial_gauntlet_proof = $commercialGauntletProofPath
+  economic_magnet_status = $economicMagnetStatus
+  economic_magnet_proof = $economicMagnetProofPath
+  economic_magnet_exit = $economicMagnetExit
+  economic_magnet_worker_task = 'DreamLedger-Economic-Magnet-Worker'
   online_heartbeat_status = $onlineHeartbeatStatus
   local_heartbeat_exit = $heartbeatExit
   startup_exit = $startupExit
