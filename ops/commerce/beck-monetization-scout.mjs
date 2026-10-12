@@ -106,7 +106,7 @@ const substrateSpecs = [
   {id:'TRUTH-ORACLE-ACCESS-001',name:'Truth Oracle Access',price_nzd:9,files:['public/agent-products.json','public/truth-oracle.html','truth-oracle.html','ops/commerce/reconcile-truth-oracle-access.mjs'],fulfillment:'digital access to bounded evidence-review workflow',database_dependent:true,reason:'The former standalone audit capability is absorbed into Truth Oracle. Keep checkout held until database persistence, entitlement, and delivery are proven.'},
   {id:'QUOTE-COMPARE-49',name:'Supplier Quote Comparison',price_nzd:49,files:['public/quote-intake.html','supabase/functions/quote-intake/index.ts','supabase/functions/quote-fulfillment/index.ts','BEC-PRIME/data/777/QUOTE-COMPARE-49-LIVE-FULFILLMENT-MAP.json'],fulfillment:'automated quote intake and report generation',database_dependent:true,reason:'Strong repeatable B2B problem with existing intake and fulfillment code, but paid checkout is explicitly held and depends on healthy Supabase persistence.'},
   {id:'COMMANDER-DECK-DIAGNOSTIC-001',name:'Commander Deck Diagnostic',price_nzd:29,files:['public/diagnostic-input.html','BEC-PRIME/routes/mtgDiagnostic.js','BEC-PRIME/lib/mtgDiagnosticFulfillment.js','ops/cube-swarm/silo-definitions/mtg-commander.json'],fulfillment:'automated diagnostic report',database_dependent:true,reason:'Existing report capability and low price, but the silo definition records checkout mismatch/unverified state; do not acquire buyers until the canonical route is reconciled.'},
-  {id:'SELLER-PROFIT-AUDIT-001',name:'Seller Profit Audit',price_nzd:29,files:['public/agent-commerce.json','BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'audit/calculation service',database_dependent:null,reason:'Existing listed offer and potentially bounded fulfillment; trace its exact live intake and delivery route before ranking it above the Proof Audit.'},
+  {id:'SELLER-PROFIT-AUDIT-001',name:'Seller Profit Audit',price_nzd:29,files:['public/agent-commerce.json','BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'audit/calculation service',database_dependent:null,reason:'Existing listed offer and potentially bounded fulfillment; trace its exact live intake and delivery route before ranking it above Truth Oracle Access.'},
   {id:'DREAMLEDGER-BILLBOARD-FOUNDING-001',name:'Founding Billboard',price_nzd:50,files:['BEC-PRIME/lib/billboardAutoFulfillment.js','public/agent-commerce.json','BEC-PRIME/catalog/offers/approved.json'],fulfillment:'paid inventory allocation and publication',database_dependent:true,reason:'Finite placement has a concrete deliverable, but current public catalog marks the offer review-required until inventory reservation and intake are verified.'},
   {id:'AGENT-TOLL-ROAD',name:'Agent Toll Road / Toll Probe',price_nzd:0.5,files:['supabase/functions/agent-toll-road/index.ts','BEC-PRIME/runtime/TollRoad.js','BEC-PRIME/runtime/TollRoadFactory.js','public/api/agent-commerce/toll-probe.json'],fulfillment:'machine capability with attributable receipt',database_dependent:true,reason:'Useful substrate and a low-cost machine-payment experiment, but weak first-dollar yield and durable entitlement dependency make it secondary.'},
   {id:'TRUTH-ORACLE',name:'Truth Oracle Evidence Verification',price_nzd:null,files:['public/truth-oracle.html','BEC-PRIME/routes/truthOracleCommerce.js','supabase/functions/truth-oracle-public/index.ts','supabase/functions/truth-oracle-fuel-ingest-v2/index.ts'],fulfillment:'structured evidence verification',database_dependent:true,reason:'Potential reusable B2B/agent capability, but complete paid analysis-to-delivery and current pricing are not yet proven.'},
@@ -116,7 +116,7 @@ const substrateInventory = substrateSpecs.map(s => {
   const present = s.files.filter(exists);
   const missing = s.files.filter(p => !exists(p));
   const readiness = s.id === 'TRUTH-ORACLE-ACCESS-001'
-    ? (blockers.some(b => b.offer === s.id) ? 'BLOCKED_PUBLIC_ARTIFACT_PARITY' : 'CANDIDATE_MANUAL_FULFILLMENT')
+    ? (blockers.some(b => b.offer === s.id) ? 'BLOCKED_TRUTH_ORACLE_FULFILLMENT' : 'HELD_CHECKOUT_PENDING_PROOF')
     : s.id === 'QUOTE-COMPARE-49'
       ? 'HELD_CHECKOUT_SUPABASE_DEPENDENCY'
       : s.id === 'COMMANDER-DECK-DIAGNOSTIC-001'
@@ -145,14 +145,15 @@ const proof = {
     'BEC-PRIME/catalog/offers/approved.json',
     'ops/cube-swarm/silo-definitions/mtg-commander.json',
     'truth-oracle.html',
-    'public/truth-oracle.html'
+    'public/truth-oracle.html',
+    'public/agent-delivery-proof-audit.html'
   ],
   selection_rule: 'Score is an explicit readiness heuristic based on existing checkout metadata and fulfillability. It is not a demand estimate, conversion forecast, or revenue claim.',
   ranked_candidates: candidates.slice(0,12),
   substrate_inventory: substrateInventory,
   monetization_decision: {
     first_path: 'TRUTH-ORACLE-ACCESS-001',
-    why: 'Existing fixed-scope NZ$49 manual digital service with a listed Stripe URL and bounded report deliverable; avoids making the known Supabase database outage a prerequisite.',
+    why: 'Truth Oracle Access is the sole evidence-review candidate at NZ$9. Checkout remains held until database persistence, entitlement, and delivery are proven.',
     must_pass_before_acquisition: [
       'Root, public, and production Truth Oracle pages agree; the retired standalone route redirects and contains no separate offer.',
       'The Truth Oracle Access entitlement is delivered from a settled, attributable payment without exposing or logging secrets.',
@@ -166,8 +167,8 @@ const proof = {
   recommended_first_dollar_path: {
     offer: 'TRUTH-ORACLE-ACCESS-001',
     reason: 'Existing NZ$49 manual digital service has a defined input, bounded scope, report deliverable, and Stripe URL; manual fulfillment avoids making Supabase recovery a prerequisite.',
-    condition_before_distribution: 'Resolve the contradictory root/public offer artifacts and confirm the actual production page and checkout destination match the approved offer.',
-    fulfillment_contract: 'After verified paid order and complete accessible intake, manually produce the bounded evidence report, deliver it to the buyer, and retain payment attribution plus delivery evidence.',
+    condition_before_distribution: 'Verify the Truth Oracle payment-to-entitlement and delivery path. Keep checkout disabled until all required evidence passes.',
+    fulfillment_contract: 'After a verified paid order, grant Truth Oracle access or complete the bounded evidence review, preserve source-linked findings and uncertainty, and record a stable delivery receipt.',
     status: blockers.some(x => x.offer === 'TRUTH-ORACLE-ACCESS-001') ? 'BLOCKED_PENDING_PUBLIC_ARTIFACT_PARITY' : 'CANDIDATE_NOT_YET_ECONOMICALLY_VERIFIED'
   },
   economic_truth: {
