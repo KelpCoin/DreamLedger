@@ -300,8 +300,30 @@ Write-Output "LOCAL_HEARTBEAT_PROOF_STATUS=$localHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
+Write-Output 'PHASE=RUN_READ_ONLY_COMMERCIAL_GAUNTLET'
+$commercialGauntletStatus = 'BLOCKED_SCRIPT_MISSING'
+$commercialGauntletScore = 0
+$commercialGauntletProofPath = Join-Path $proofRoot 'COMMERCIAL-GAUNTLET-LATEST.json'
+$commercialGauntletScript = Join-Path $RepoRoot 'scripts\beck-commercial-gauntlet.ps1'
+if (Test-Path -LiteralPath $commercialGauntletScript) {
+  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $commercialGauntletScript -ProofRoot $proofRoot
+  $commercialGauntletExit = $LASTEXITCODE
+  if (Test-Path -LiteralPath $commercialGauntletProofPath) {
+    try {
+      $commercialGauntletProof = Get-Content -LiteralPath $commercialGauntletProofPath -Raw | ConvertFrom-Json
+      $commercialGauntletStatus = [string]$commercialGauntletProof.verdict
+      $commercialGauntletScore = [int]$commercialGauntletProof.score_out_of_100
+    } catch { $commercialGauntletStatus = 'BLOCKED_INVALID_PROOF' }
+  } else { $commercialGauntletStatus = 'BLOCKED_PROOF_MISSING' }
+} else {
+  $commercialGauntletExit = 127
+  Write-Output 'COMMERCIAL_GAUNTLET_ERROR=SCRIPT_MISSING'
+}
+Write-Output "COMMERCIAL_GAUNTLET_STATUS=$commercialGauntletStatus"
+Write-Output "COMMERCIAL_GAUNTLET_SCORE=$commercialGauntletScore/100"
+Write-Output "COMMERCIAL_GAUNTLET_PROOF=$commercialGauntletProofPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletStatus -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
@@ -309,6 +331,9 @@ $commissionProof = [ordered]@{
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
   dual_heartbeat_status = $dualHeartbeatStatus
   dual_heartbeat_proof = $dualHeartbeatPath
+  commercial_gauntlet_status = $commercialGauntletStatus
+  commercial_gauntlet_score = $commercialGauntletScore
+  commercial_gauntlet_proof = $commercialGauntletProofPath
   online_heartbeat_status = $onlineHeartbeatStatus
   local_heartbeat_exit = $heartbeatExit
   startup_exit = $startupExit
