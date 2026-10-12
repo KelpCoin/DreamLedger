@@ -45,15 +45,14 @@
   },
   "primary_offers": [
     {
-      "product_id": "AGENT-PROOF-AUDIT-49",
-      "name": "Agent Delivery Proof Audit",
-      "price_nzd": 49,
-      "buy_router": "https://dreamledger.org/agent-delivery-proof-audit.html",
-      "checkout_url": "https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m",
-      "status": "LISTED",
-      "fulfillment": "manual",
-      "loop": "LOOP-AGENT-PROOF-AUDIT-49",
-      "note": "One bounded public URL or artifact, up to five acceptance criteria. Delivery target starts after complete accessible intake; checkout is not proof of sale or delivery."
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Founding Billboard",
+      "price_nzd": 50,
+      "buy_router": "https://dreamledger.org/billboard.html",
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "fulfillment": "held_until_secure_intake_and_inventory_reservation_verified",
+      "note": "Public checkout is intentionally held until secure intake, live inventory reservation, signed-webhook handling and delivery evidence are verified."
     },
     {
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
