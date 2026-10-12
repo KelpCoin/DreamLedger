@@ -20,6 +20,7 @@ on:
       - 'scripts/beck-local-artifact-inventory.ps1'
       - 'scripts/beck-local-artifact-commercial-review.ps1'
       - 'ops/cube-swarm/commercial-mechanism-registry.json'
+      - 'ops/cube-swarm/commercial-option-matrix.mjs'
       - 'package.json'
       - '.github/workflows/beck-cube-swarm-validation.yml'
   workflow_dispatch:
