@@ -37,6 +37,7 @@ jobs:
           node --check ops/commerce/beck-monetization-scout.mjs
           node --check ops/commerce/reconcile-first-dollar-proof-audit.mjs
           node --check ops/commerce/gauntlet-economic-verdict.mjs
+          node --check ops/commerce/reconcile-stripe-webhook-routing.mjs
 
       - name: Parse PowerShell bootstrap without executing it
         shell: powershell
@@ -94,5 +95,6 @@ jobs:
             proof/commerce/latest-first-dollar-stripe-reconciliation.json
             proof/commerce/latest-economic-validation.json
             proof/commerce/latest-gauntlet-economic-verdict.json
+            proof/commerce/latest-stripe-webhook-routing.json
           if-no-files-found: warn
           retention-days: 14
