@@ -73,7 +73,8 @@ try {
     foreach ($required in @('proposer','critic','synthesizer')) {
         if (-not $roleMap.ContainsKey($required)) { throw "Verified proof missing core role '$required'." }
     }
-    if (@($roleMap.proposer,$roleMap.critic,$roleMap.synthesizer | Select-Object -Unique).Count -ne 3) {
+    $coreModels = @($roleMap.proposer,$roleMap.critic,$roleMap.synthesizer)
+    if (@($coreModels | Select-Object -Unique).Count -ne 3) {
         throw 'Core council roles are not assigned to three distinct model keys.'
     }
 
