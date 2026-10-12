@@ -29,7 +29,8 @@ if (!inputPaths.length) {
     'public/agent-products.json',
     'public/agent-commerce.json',
     'public/ai-catalog.json',
-    'BEC-PRIME/catalog/offers/approved.json'
+    'BEC-PRIME/catalog/offers/approved.json',
+    'BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json'
   ]) inputPaths.push(path.resolve(root, p));
 }
 const now = new Date().toISOString();
@@ -45,9 +46,10 @@ const safeRead = file => {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) return parsed;
-    for (const key of ['candidates', 'opportunities', 'approved', 'products', 'primary_offers', 'held_offers', 'items', 'signals', 'mechanisms']) {
+    for (const key of ['candidates', 'opportunities', 'approved', 'products', 'primary_offers', 'held_offers', 'items', 'signals', 'mechanisms', 'results']) {
       if (Array.isArray(parsed?.[key])) return parsed[key];
     }
+    if (parsed?.priority_offer && typeof parsed.priority_offer === 'object') return [parsed.priority_offer];
     return [parsed];
   } catch (error) {
     return [{ __input_error: String(error.message), __input_path: file }];
