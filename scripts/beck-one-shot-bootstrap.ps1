@@ -247,13 +247,67 @@ Write-Output "LOCAL_HEARTBEAT_PROOF=$(Join-Path $proofRoot 'heartbeat\LOCAL-HEAR
 Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
 Write-Output 'CLOUD_SCHEDULE=30_MINUTES_ONLY_AFTER_THIS_WORKFLOW_IS_ENABLED_ON_DEFAULT_BRANCH; CURRENT_DEFAULT_BRANCH_SCHEDULE_NOT_CHANGED'
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
+# Corroborate the local proof against the independent public GitHub Actions heartbeat.
+# This is read-only and does not require a GitHub token.
+$localProofPath = Join-Path $proofRoot 'heartbeat\\LOCAL-HEARTBEAT-LATEST.json'
+$localHeartbeatStatus = 'UNKNOWN'
+$localHeartbeatFresh = $false
+if (Test-Path -LiteralPath $localProofPath) {
+  try {
+    $localProof = Get-Content -LiteralPath $localProofPath -Raw | ConvertFrom-Json
+    $localHeartbeatStatus = [string]$localProof.status
+    $localAge = ([DateTime]::UtcNow - [DateTime]::Parse([string]$localProof.generated_at_utc).ToUniversalTime()).TotalMinutes
+    $localHeartbeatFresh = ($localAge -ge 0 -and $localAge -le 20)
+  } catch { $localHeartbeatStatus = 'INVALID_PROOF' }
+}
+$onlineHeartbeatStatus = 'UNKNOWN'
+$onlineHeartbeatWorkflow = 'beck-production-heartbeat.yml'
+$onlineHeartbeatRunId = $null
+$onlineHeartbeatAgeMinutes = $null
+$onlineHeartbeatUrl = 'https://api.github.com/repos/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml/runs?branch=main&per_page=5'
+try {
+  $headers = @{ 'User-Agent' = 'DreamLedger-Dual-Heartbeat-Commissioner'; 'Accept' = 'application/vnd.github+json' }
+  $onlineResponse = Invoke-RestMethod -Uri $onlineHeartbeatUrl -Headers $headers -TimeoutSec 15
+  $latestRun = @($onlineResponse.workflow_runs | Where-Object { $_.event -ne 'workflow_dispatch' } | Sort-Object { [DateTime]::Parse($_.created_at).ToUniversalTime() } -Descending | Select-Object -First 1)[0]
+  if ($latestRun) {
+    $onlineHeartbeatRunId = [string]$latestRun.id
+    $onlineHeartbeatAgeMinutes = [Math]::Round(([DateTime]::UtcNow - [DateTime]::Parse([string]$latestRun.created_at).ToUniversalTime()).TotalMinutes, 1)
+    if ($latestRun.status -eq 'completed' -and $latestRun.conclusion -eq 'success' -and $onlineHeartbeatAgeMinutes -ge 0 -and $onlineHeartbeatAgeMinutes -le 35) {
+      $onlineHeartbeatStatus = 'PASS'
+    } elseif ($latestRun.status -ne 'completed') {
+      $onlineHeartbeatStatus = 'RUNNING'
+    } else {
+      $onlineHeartbeatStatus = 'DEGRADED'
+    }
+  } else { $onlineHeartbeatStatus = 'NO_RUN_FOUND' }
+} catch { $onlineHeartbeatStatus = 'UNREACHABLE_OR_UNAUTHORIZED' }
+$dualHeartbeatStatus = if ($localHeartbeatFresh -and $localHeartbeatStatus -eq 'PASS' -and $onlineHeartbeatStatus -eq 'PASS') { 'PASS' } else { 'DEGRADED' }
+$dualHeartbeatProof = [ordered]@{
+  schema = 'DREAMLEDGER-DUAL-HEARTBEAT-CORROBORATION/v1'
+  generated_at_utc = [DateTime]::UtcNow.ToString('o')
+  status = $dualHeartbeatStatus
+  local = [ordered]@{ status=$localHeartbeatStatus; proof_path=$localProofPath; fresh_within_20_minutes=$localHeartbeatFresh }
+  online = [ordered]@{ status=$onlineHeartbeatStatus; workflow=$onlineHeartbeatWorkflow; run_id=$onlineHeartbeatRunId; age_minutes=$onlineHeartbeatAgeMinutes; api_url=$onlineHeartbeatUrl }
+  rule = 'PASS requires a fresh local heartbeat proof and a successful GitHub Actions heartbeat on main no older than 35 minutes. Unknown is not pass.'
+  no_revenue_claim = $true
+}
+$dualHeartbeatPath = Join-Path $proofRoot 'DUAL-HEARTBEAT-CORROBORATION-LATEST.json'
+$dualHeartbeatProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $dualHeartbeatPath -Encoding UTF8
+Write-Output "DUAL_HEARTBEAT_STATUS=$dualHeartbeatStatus"
+Write-Output "LOCAL_HEARTBEAT_PROOF_STATUS=$localHeartbeatStatus"
+Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
+Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
+Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if ($taskFinal) { 'INSTALLED' } else { 'FAILED' }
+$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   status = $commissionStatus
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
+  dual_heartbeat_status = $dualHeartbeatStatus
+  dual_heartbeat_proof = $dualHeartbeatPath
+  online_heartbeat_status = $onlineHeartbeatStatus
   local_heartbeat_exit = $heartbeatExit
   startup_exit = $startupExit
   heartbeat_after_startup_exit = $heartbeatAfterStartupExit
