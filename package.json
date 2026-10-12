@@ -67,7 +67,8 @@
     "verify:a2a-marketplace": "node BEC-PRIME/scripts/verify-a2a-marketplace-contract.js",
     "test:toll-roads": "node --test BEC-PRIME/runtime/TollRoadFactory.test.js BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
     "test:agent-bridge-ledger": "node --test BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
-    "verify:cube-swarm-definition": "node BEC-PRIME/scripts/verify-cube-swarm-definition.js"
+    "verify:cube-swarm-definition": "node BEC-PRIME/scripts/verify-cube-swarm-definition.js",
+    "scout:monetization": "node ops/commerce/beck-monetization-scout.mjs"
   },
   "engines": {
     "node": ">=20"
