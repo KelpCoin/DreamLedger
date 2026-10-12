@@ -54,5 +54,26 @@
       "https://dreamledger.org/api/products"
     ],
     "availability_note": "Paid checkout is held. Use the free browser-side worksheet; do not initiate a purchase until intake, persistence, and fulfillment are independently verified."
+  },
+  {
+    "item_id": "TRUTH-ORACLE-FREE",
+    "title": "Truth Oracle",
+    "description": "Free tools for checking claims, comparing evidence and recording what is verified versus unknown. This is the canonical destination for the retired standalone audit offer.",
+    "url": "https://dreamledger.org/truth-oracle.html",
+    "brand": "DreamLedger",
+    "seller_name": "DreamLedger",
+    "seller_url": "https://dreamledger.org/",
+    "price": "Free",
+    "availability": "available",
+    "sku": "TRUTH-ORACLE-FREE",
+    "category": "Free decision tools",
+    "required_input": "A public claim, source, or decision question.",
+    "one_time_purchase": false,
+    "subscription": false,
+    "human_authorization_required": false,
+    "enable_search": true,
+    "enable_checkout": false,
+    "fulfillment_mode": "browser_tools",
+    "availability_note": "Free self-service tools. No paid audit offer or checkout is attached to this entry."
   }
 ]
