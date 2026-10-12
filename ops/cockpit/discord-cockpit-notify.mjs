@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import crypto from 'node:crypto';
 
 const enabled = process.env.COCKPIT_DISCORD_ENABLED === 'true';
 const killed = process.env.COCKPIT_KILL_SWITCH !== 'false';
@@ -14,6 +15,26 @@ if (!/^https:\/\/(discord\.com|discordapp\.com)\/api\/webhooks\//.test(url)) {
 }
 
 const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
+const statePath = process.env.COCKPIT_NOTIFY_STATE_PATH || 'cockpit-notify-state.json';
+let prior = {};
+try { prior = JSON.parse(await fs.readFile(statePath, 'utf8')); } catch {}
+const digestInput = {
+  day_nz: report.day_nz,
+  cloud_score: report.cloud?.score ?? 0,
+  local_score: report.local?.score ?? 0,
+  gross: report.money_today_nzd?.gross_charge_amount_nzd ?? null,
+  net: report.money_today_nzd?.net_charge_balance_amount_nzd ?? null,
+  payouts: report.money_today_nzd?.payout_amount_nzd ?? null,
+  verified_revenue: report.money_today_nzd?.verified_dreamledger_revenue_nzd ?? 0,
+  database: report.database?.status ?? 'UNVERIFIED',
+  fulfillment: report.fulfillment?.status ?? 'UNVERIFIED',
+  gates: (report.cloud?.checks || []).map(item => [item.name, item.status, item.points])
+};
+const digest = crypto.createHash('sha256').update(JSON.stringify(digestInput)).digest('hex');
+if (prior.last_digest === digest) { console.log('DISCORD_COCKPIT=SKIPPED_UNCHANGED'); process.exit(0); }
+if (Date.now() - Number(prior.last_sent_at_ms || 0) < 6 * 60 * 60 * 1000) {
+  console.log('DISCORD_COCKPIT=RATE_LIMITED'); process.exit(0);
+}
 const ageMs = Date.now() - Date.parse(report.generated_at_utc || '');
 if (!Number.isFinite(ageMs) || ageMs < delayMinutes * 60000) {
   console.log('DISCORD_COCKPIT=STAGED_DELAY_NOT_ELAPSED');
@@ -48,4 +69,5 @@ const response = await fetch(url, {
   body: JSON.stringify({ content: lines.join('\n').slice(0, 1900), allowed_mentions: { parse: [] } })
 });
 if (!response.ok) throw new Error('Discord webhook HTTP ' + response.status + '; response body suppressed.');
+await fs.writeFile(statePath, JSON.stringify({last_digest:digest,last_sent_at_ms:Date.now()},null,2)+'\n',{mode:0o600});
 console.log('DISCORD_COCKPIT=DELIVERED');
