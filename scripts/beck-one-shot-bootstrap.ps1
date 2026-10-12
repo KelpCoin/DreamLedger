@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
   [string]$RepoRoot = "",
-  [string]$Branch = "main"
+  [string]$Branch = 'main'
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
