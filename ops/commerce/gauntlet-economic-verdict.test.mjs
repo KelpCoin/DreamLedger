@@ -69,3 +69,38 @@ test('a paid-session signal alone cannot pass buyer attribution, fulfillment, or
   assert.ok(result.verdict.hard_laws.some(x => x.id === 'C5' && x.verdict !== 'PASS'));
   assert.ok(result.verdict.hard_laws.some(x => x.id === 'C6' && x.verdict !== 'PASS'));
 });
+
+test('a verified prelaunch checkout hold passes checkout safety but never passes commercial launch', () => {
+  const future = new Date(Date.now() + 60_000).toISOString();
+  const result = runGauntlet({
+    'latest-monetization-scout.json': {
+      generated_at_utc: future,
+      recommended_first_dollar_path: { offer: 'TRUTH-ORACLE-ACCESS-001' }
+    },
+    'latest-economic-validation.json': {
+      run_started_at_utc: new Date().toISOString(),
+      checks: [
+        { name: 'commercial.truth_oracle_offer_parity', status: 'PASS' },
+        { name: 'offer.retired_offer_retirement', status: 'PASS' },
+        { name: 'offer.truth_oracle_checkout_hold', status: 'PASS' }
+      ]
+    },
+    'latest-first-dollar-stripe-reconciliation.json': {
+      generated_at_utc: future,
+      offer: { checkout_enabled: false },
+      live_stripe: {
+        exact_payment_link_found: true,
+        payment_link_active: false,
+        exact_paid_live_sessions: [],
+        offer_checkout_funnel: { sessions_started_for_exact_payment_link: 0 }
+      }
+    }
+  });
+  assert.equal(result.status, 2);
+  assert.equal(result.verdict.verdict, 'BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF');
+  assert.equal(result.verdict.economic_baseline.verified_business_revenue_nzd, 0);
+  assert.ok(result.verdict.hard_laws.some(x => x.id === 'C2' && x.verdict === 'PASS'));
+  assert.ok(result.verdict.hard_laws.some(x => x.id === 'C3' && x.verdict === 'PASS'));
+  assert.ok(result.verdict.hard_laws.some(x => x.id === 'C4' && x.verdict !== 'PASS'));
+  assert.ok(result.verdict.hard_laws.some(x => x.id === 'C5' && x.verdict !== 'PASS'));
+});
