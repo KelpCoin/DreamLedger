@@ -40,6 +40,8 @@ jobs:
           node --check ops/commerce/reconcile-first-dollar-proof-audit.mjs
           node --check ops/commerce/gauntlet-economic-verdict.mjs
           node --check ops/commerce/reconcile-stripe-webhook-routing.mjs
+          node --check BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
+          node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
 
       - name: Parse PowerShell bootstrap without executing it
         shell: powershell
