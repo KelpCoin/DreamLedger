@@ -1,0 +1,52 @@
+name: Figure Eight cockpit
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: figure-eight-cockpit
+  cancel-in-progress: true
+jobs:
+  cockpit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax-check cockpit
+        run: |
+          node --check ops/cockpit/figure-eight-cockpit.mjs
+          node --check ops/cockpit/discord-cockpit-notify.mjs
+      - name: Build read-only report
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          COCKPIT_REPORT_PATH: figure-eight-cockpit-latest.json
+          COCKPIT_DB_PROBE_URL: ${{ secrets.COCKPIT_DB_PROBE_URL }}
+          COCKPIT_LEDGER_PROBE_URL: ${{ secrets.COCKPIT_LEDGER_PROBE_URL }}
+          COCKPIT_FULFILLMENT_PROBE_URL: ${{ secrets.COCKPIT_FULFILLMENT_PROBE_URL }}
+          COCKPIT_RECOVERY_PROBE_URL: ${{ secrets.COCKPIT_RECOVERY_PROBE_URL }}
+        run: node ops/cockpit/figure-eight-cockpit.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: figure-eight-cockpit-${{ github.run_id }}
+          path: figure-eight-cockpit-latest.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Notification staging delay
+        if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH != 'true' }}
+        run: sleep 900
+      - name: Send private Discord snapshot
+        if: ${{ vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH != 'true' }}
+        env:
+          COCKPIT_DISCORD_ENABLED: ${{ vars.COCKPIT_DISCORD_ENABLED }}
+          COCKPIT_KILL_SWITCH: ${{ vars.COCKPIT_KILL_SWITCH }}
+          COCKPIT_DISCORD_WEBHOOK_URL: ${{ secrets.COCKPIT_DISCORD_WEBHOOK_URL }}
+          COCKPIT_DELAY_MINUTES: '15'
+          COCKPIT_REPORT_PATH: figure-eight-cockpit-latest.json
+        run: node ops/cockpit/discord-cockpit-notify.mjs
