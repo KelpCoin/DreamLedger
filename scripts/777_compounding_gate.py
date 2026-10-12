@@ -40,6 +40,7 @@ artifact_files = [
     if (
         (p.startswith("webapp/pulse/") and p.lower().endswith(".html"))
         or (p.startswith("public/pulse/") and p.lower().endswith(".html"))
+        or (p.startswith("pulse/") and p.lower().endswith(".html"))
         or p in {"webapp/index.html", "webapp/phinhaven/index.html", "public/pulse/index.html", "agent-bridge-catalog.json"}
     )
 ]
