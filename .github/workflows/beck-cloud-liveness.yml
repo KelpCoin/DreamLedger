@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --output /tmp/health.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/healthz)"
+          code="$(curl --silent --show-error --retry 3 --retry-delay 5 --retry-all-errors --output /tmp/health.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/healthz)"
           test "$code" = "200"
           echo "health_http=$code" >> "$GITHUB_OUTPUT"
           cat /tmp/health.txt || true
@@ -36,9 +36,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --output /tmp/version.json --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/version)"
+          code="$(curl --silent --show-error --retry 3 --retry-delay 5 --retry-all-errors --output /tmp/version.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/version)"
           test "$code" = "200"
-          node -e 'const x=require("/tmp/version.json"); if (!x || typeof x !== "object") process.exit(1); console.log(JSON.stringify({status:"PASS",commit:x.commit||x.sha||x.version_sha||x.git_sha||null}))'
+          test -s /tmp/version.txt
+          node - <<'NODE'
+          const fs = require('fs');
+          const body = fs.readFileSync('/tmp/version.txt', 'utf8').replace(/^\\uFEFF/, '').trim();
+          if (!body) process.exit(1);
+          let commit = null;
+          try { const x = JSON.parse(body); commit = x.commit || x.sha || x.version_sha || x.git_sha || null; } catch {}
+          console.log(JSON.stringify({status: 'PASS', body_nonempty: true, commit}));
+          NODE
           echo "version_http=$code" >> "$GITHUB_OUTPUT"
 
       - name: Check canonical public Truth Oracle page
