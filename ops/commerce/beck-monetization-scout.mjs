@@ -62,18 +62,26 @@ for (const o of (commerce.primary_offers || [])) {
 for (const o of merged.values()) candidates.push(scoreCandidate(o));
 
 const truthOracleFeed = feed.find(x => x.item_id === 'TRUTH-ORACLE-ACCESS-001');
-const retiredStandaloneInFeed = feed.some(x => x.item_id === 'AGENT-PROOF-AUDIT-49');
+const retiredStandaloneInFeed = feed.some(x => x.item_id === 'AGENT-PROOF-AUDIT-49') ||
+  (commerce.primary_offers || []).some(x => x.product_id === 'AGENT-PROOF-AUDIT-49') ||
+  aiCatalog.priority_offer?.id === 'AGENT-PROOF-AUDIT-49';
 if (retiredStandaloneInFeed) {
   addBlocker('TRUTH-ORACLE-ACCESS-001','RETIRED_OFFER_REAPPEARED',
     'The retired standalone audit SKU has reappeared in the public product feed. Keep its payment link and price inactive.');
 }
 if (truthOracleFeed) {
+  const heldInCommerce = (commerce.held_offers || []).some(x => x.product_id === 'TRUTH-ORACLE-ACCESS-001' && x.status === 'REVIEW_REQUIRED');
+  const truthPriority = aiCatalog.priority_offer?.id === 'TRUTH-ORACLE-ACCESS-001' && aiCatalog.priority_offer?.availability === 'review_required';
+  if (!heldInCommerce || !truthPriority) {
+    addBlocker('TRUTH-ORACLE-ACCESS-001','TRUTH_ORACLE_CATALOG_DRIFT',
+      'Truth Oracle Access must be held consistently in product, commerce, and AI discovery feeds until paid fulfillment is verified.');
+  }
   const truthPagePath = 'public/truth-oracle.html';
   const redirectPath = 'public/agent-delivery-proof-audit.html';
   const truthText = exists(truthPagePath) ? fs.readFileSync(path.join(root, truthPagePath), 'utf8') : '';
   const redirectText = exists(redirectPath) ? fs.readFileSync(path.join(root, redirectPath), 'utf8') : '';
-  const publicCheckout = truthOracleFeed.enable_checkout === true || /buy\\.stripe\\.com/i.test(truthText);
-  const redirectCorrect = /truth-oracle\\.html/i.test(redirectText) && !/buy\\.stripe\\.com|NZ\\$49|Purchase the audit/i.test(redirectText);
+  const publicCheckout = truthOracleFeed.enable_checkout === true || /buy\.stripe\.com/i.test(truthText);
+  const redirectCorrect = /truth-oracle\.html/i.test(redirectText) && !/buy\\.stripe\\.com|NZ\$9|Purchase the audit/i.test(redirectText);
   if (publicCheckout) {
     addBlocker('TRUTH-ORACLE-ACCESS-001','CHECKOUT_ENABLED_BEFORE_FULFILLMENT_PROOF',
       'Truth Oracle paid checkout must remain held until entitlement, evidence persistence, and delivery proof pass end to end.');
