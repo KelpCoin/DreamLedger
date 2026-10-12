@@ -83,7 +83,7 @@ jobs:
           }
           Write-Host "GAUNTLET_VERDICT=$($verdict.verdict)"
           Write-Host "GAUNTLET_SCORE=$($verdict.score_out_of_100)/100"
-          Write-Host "BOOTSTRAP_EXIT=$validationExit (nonzero is expected while live payment/fulfillment evidence is absent)"
+          Write-Host "BOOTSTRAP_EXIT=$validationExit (CI accepts a truthful BLOCKED verdict; local runs keep exit code 2)"
           if ($validationExit -notin @(0,1,2)) {
             throw "Unexpected bootstrap process exit code: $validationExit"
           }
