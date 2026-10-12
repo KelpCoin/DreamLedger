@@ -185,6 +185,7 @@ try {
             if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
                 $firstDollar = Get-Content -LiteralPath $firstDollarPath -Raw | ConvertFrom-Json
                 Add-Check 'offer.retired_offer_retirement' $(if ($firstDollar.retired_offer.retirement_verified -eq $true) {'PASS'} else {'FAIL'}) ('Retired standalone payment link active=' + $firstDollar.retired_offer.payment_link_active + '; product active=' + $firstDollar.retired_offer.product_active + '; price active=' + $firstDollar.retired_offer.price_active)
+                Add-Check 'offer.truth_oracle_checkout_hold' $(if ($firstDollar.retired_offer.truth_oracle_checkout_hold_verified -eq $true) {'PASS'} else {'FAIL'}) ('Truth Oracle Access payment link active=' + $firstDollar.retired_offer.truth_oracle_payment_link_active + '; public checkout enabled=' + $firstDollar.offer.checkout_enabled_in_public_catalog)
                 $paidCount = @($firstDollar.live_stripe.exact_paid_live_sessions).Count
                 if ($firstDollar.live_stripe.exact_payment_link_found -ne $true) {
                     Add-Check 'stripe.first_dollar_payment_link' 'CONTRADICTED' 'Truth Oracle Access payment link was not found in this live Stripe account.'
@@ -205,6 +206,7 @@ try {
             Add-Check 'stripe.live_reconciliation' 'BLOCKED' 'Set STRIPE_SECRET_KEY in the local process environment and STRIPE_LIVE_ENABLED=true to query live Stripe. Never paste the key into chat. No Stripe API call was made.'
             Add-Check 'stripe.webhook_routing' 'BLOCKED' 'Webhook destinations were not inspected because live Stripe credentials were not enabled. No endpoint was changed.'
             Add-Check 'offer.retired_offer_retirement' 'BLOCKED' 'Live Stripe credentials not enabled; retired standalone payment link/product/price state cannot be verified.'
+            Add-Check 'offer.truth_oracle_checkout_hold' 'BLOCKED' 'Live Stripe credentials not enabled; Truth Oracle checkout hold cannot be verified.'
         }
 
         # Snapshot current evidence for the Gauntlet. This is local proof output only.
