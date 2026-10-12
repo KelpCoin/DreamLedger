@@ -16,7 +16,7 @@ trap {
       local_heartbeat_task = if ($taskAfterFailure) { 'REGISTERED' } else { 'MISSING' }
       failure_stage = 'UNHANDLED_BOOTSTRAP_ERROR'
       error = $failureMessage.Substring(0,[Math]::Min(500,$failureMessage.Length))
-      cloud_fallback_workflows = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-production-heartbeat.yml')
+      cloud_fallback_workflows = @('https://github.com/KelpCoin/DreamLedger/actions/workflows/cloud-777-economic-heartbeat.yml','https://github.com/KelpCoin/DreamLedger/actions/workflows/beck-cloud-liveness.yml')
       verified_revenue_nzd = 0
       notes = @('A registered recurring heartbeat does not mean commercial readiness or revenue.','When the task is registered, this installer preserves the failure evidence and does not require a rerun just to repeat diagnostics.')
     }
