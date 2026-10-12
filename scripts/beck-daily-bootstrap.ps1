@@ -68,15 +68,46 @@ try {
   }
   $modelIds = @()
   if ($modelStatus -eq '200') { try { $api = Invoke-RestMethod -Uri $modelUrl -TimeoutSec 12; $modelIds = @($api.data | ForEach-Object { [string]$_.id } | Where-Object { $_ }) } catch {} }
+  $inferenceStatus = 'NOT_RUN'
+  $inferenceModel = $null
+  $inferenceOutput = 'NOT_RUN'
+  if ($modelStatus -eq '200' -and $modelIds.Count -gt 0) {
+    $inferenceModel = [string]$modelIds[0]
+    try {
+      $body = @{ model=$inferenceModel; messages=@(@{role='user';content='Reply with exactly READY.'}); temperature=0; max_tokens=5 } | ConvertTo-Json -Depth 8 -Compress
+      $completion = Invoke-RestMethod -Uri "$base/chat/completions" -Method Post -ContentType 'application/json' -Body $body -TimeoutSec 25
+      $reply = [string]$completion.choices[0].message.content
+      if ($reply.Trim() -match '^READY[.! ]*$') {
+        $inferenceStatus = 'PASS'
+        $inferenceOutput = 'READY'
+      } else {
+        $inferenceStatus = 'FAIL'
+        $inferenceOutput = 'UNEXPECTED_OUTPUT'
+      }
+    } catch {
+      $inferenceStatus = 'BLOCKED'
+      $inferenceOutput = 'INFERENCE_REQUEST_FAILED'
+      $proof.checks.lm_studio_inference_error = $_.Exception.Message
+    }
+  } elseif ($modelStatus -eq '200') {
+    $inferenceStatus = 'BLOCKED'
+    $inferenceOutput = 'NO_VISIBLE_MODELS'
+  } else {
+    $inferenceStatus = 'BLOCKED'
+    $inferenceOutput = 'LM_STUDIO_API_UNAVAILABLE'
+  }
   $proof.checks.lm_studio = [ordered]@{
     status = if ($modelStatus -eq '200' -and $modelIds.Count -gt 0) {'API_AND_MODEL_LIST_OBSERVED'} elseif ($modelStatus -eq '200') {'API_REACHABLE_NO_MODELS'} else {'BLOCKED'}
     http_status = $modelStatus
     visible_model_ids = $modelIds
-    inference = 'NOT_RUN_BY_DAILY_BOOTSTRAP'
+    inference = $inferenceStatus
+    inference_model = $inferenceModel
+    inference_output = $inferenceOutput
     three_role_readiness = 'NOT_VERIFIED'
   }
+  $proof.checks.inference = [ordered]@{status=$inferenceStatus;model=$inferenceModel;output=$inferenceOutput;timestamp_utc=[DateTime]::UtcNow.ToString('o')}
 
-  $urls = @('https://dreamledger.org/agent-delivery-proof-audit.html','https://dreamledger.org/billboard.html')
+  $urls = @('https://dreamledger.org/truth-oracle.html','https://dreamledger.org/agent-delivery-proof-audit.html','https://dreamledger.org/billboard.html')
   if ($env:BECK_OFFER_URLS) { $urls = @($env:BECK_OFFER_URLS -split '\s+' | Where-Object { $_ }) }
   $proof.checks.public_pages = @($urls | ForEach-Object { [ordered]@{url=$_;http_status=(Get-HttpStatus $_);checkout='NOT_TESTED';payment='NOT_TESTED'} })
 
@@ -113,12 +144,12 @@ SYNTH: Use Scout evidence and Critical review to produce at most seven actions o
 - Use the workflow's exact current-run no-op receipt contract when no admissible signal exists.
 - Revenue remains NZ$0 until settlement and fulfillment evidence are reconciled.
 '@ | Set-Content -LiteralPath (Join-Path $out '777\RULES.md') -Encoding UTF8
-  $proof.status = 'PREPARED'
-  $proof.readiness = 'DIAGNOSTICS_AND_PROMPTS_ONLY'
+  $proof.status = if ($inferenceStatus -eq 'PASS') {'PASS'} else {'BLOCKED'}
+  $proof.readiness = if ($inferenceStatus -eq 'PASS') {'LOCAL_INFERENCE_PROVEN'} else {'LOCAL_INFERENCE_NOT_PROVEN'}
   Write-Proof
-  Write-Output 'BOOTSTRAP_STATUS=PREPARED_NOT_COMMISSIONED'
+  Write-Output ('BOOTSTRAP_STATUS=' + $proof.status + '_' + $proof.readiness)
   Write-Output "PROOF=$proofPath"
-  Write-Output 'LMSTUDIO_INFERENCE=NOT_RUN'
+  Write-Output ('LMSTUDIO_INFERENCE=' + $inferenceStatus)
   Write-Output 'SUPABASE_AUTHENTICATED_HEALTH=NOT_PROVEN'
 } catch {
   $proof.status = 'FAIL'
