@@ -67,6 +67,14 @@ try {
       $auth = & gh.exe auth status 2>&1
       if ($LASTEXITCODE -ne 0) { Add-Check 'discord.cloud_secret' 'BLOCKED' 'GitHub CLI is not authenticated. No secret was changed.' }
       else {
+        & gh.exe variable set COCKPIT_DISCORD_ENABLED --repo KelpCoin/DreamLedger --body false
+        $disableCode = $LASTEXITCODE
+        & gh.exe variable set COCKPIT_KILL_SWITCH --repo KelpCoin/DreamLedger --body true
+        $killCode = $LASTEXITCODE
+        if ($disableCode -ne 0 -or $killCode -ne 0) {
+          Add-Check 'discord.safe_defaults' 'BLOCKED' 'Could not set notification OFF and kill switch ON. No webhook prompt opened and no secret changed.'
+        } else {
+        Add-Check 'discord.safe_defaults' 'PASS' 'Notifications disabled and kill switch enabled before secret setup.'
         Write-Host 'Discord webhook setup: paste the webhook only into this local secure prompt. It will be sent to GitHub as a secret and not saved in this script.'
         $secure = Read-Host 'Private Discord incoming webhook URL (blank cancels)' -AsSecureString
         $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
@@ -79,6 +87,8 @@ try {
           $setCode = $LASTEXITCODE
           $plain = $null
           Add-Check 'discord.cloud_secret' $(if ($setCode -eq 0) {'PASS'} else {'FAIL'}) $(if ($setCode -eq 0) {'GitHub repository secret updated. Sending remains disabled until the separate enable flag and kill-switch settings are deliberately changed.'} else {'gh secret set failed. Webhook value was not recorded in the proof.'})
+        }
+        }
         }
       }
     }
