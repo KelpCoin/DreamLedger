@@ -55,6 +55,7 @@ jobs:
         run: |
           Get-Content package.json -Raw | ConvertFrom-Json | Out-Null
           node --check ops/decision/validate-decision-prompt-registry.mjs
+          node --check ops/decision/run-cloud-decision.mjs
           node ops/decision/validate-decision-prompt-registry.mjs
           node --check ops/commerce/beck-monetization-scout.mjs
           node --check ops/commerce/reconcile-truth-oracle-access.mjs
