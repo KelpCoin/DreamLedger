@@ -35,7 +35,7 @@ trap {
   }
 }
 $Workflow = 'figure-eight-cockpit.yml'
-$BootstrapSourceBranch = 'feat/beck-dual-heartbeat-bootstrap'
+$BootstrapSourceBranch = 'feat/beck-commercial-gauntlet-bootstrap-clean'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
   $base = if (Test-Path 'D:\') { 'D:\BrownEyeCortex\Runtime' } else { Join-Path $HOME 'BrownEyeCortex\Runtime' }
