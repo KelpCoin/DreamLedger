@@ -7,26 +7,33 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = process.cwd();
 const read = p => {
-  try { return JSON.parse(fs.readFileSync(path.join(root, p), 'utf8')); }
+  try { return JSON.parse(fs.readFileSync(path.join(root, p), 'utf8').replace(/^\\uFEFF/, '')); }
   catch { return null; }
 };
 const scout = read('proof/commerce/latest-monetization-scout.json');
 const stripe = read('proof/commerce/latest-first-dollar-stripe-reconciliation.json');
 const bootstrap = read('proof/commerce/latest-economic-validation.json');
 const checks = Array.isArray(bootstrap?.checks) ? bootstrap.checks : [];
+const runStartedAt = Date.parse(bootstrap?.run_started_at_utc || '');
+const isFresh = evidence => {
+  const timestamp = Date.parse(evidence?.generated_at_utc || evidence?.generated_at || '');
+  return Number.isFinite(runStartedAt) && Number.isFinite(timestamp) && timestamp >= runStartedAt;
+};
+const freshScout = isFresh(scout);
+const freshStripe = isFresh(stripe);
 const check = name => checks.find(x => x.name === name);
 const status = name => check(name)?.status || 'UNVERIFIED';
-const funnel = stripe?.live_stripe?.offer_checkout_funnel;
-const paid = Array.isArray(stripe?.live_stripe?.exact_paid_live_sessions) ? stripe.live_stripe.exact_paid_live_sessions : [];
+const funnel = freshStripe ? stripe?.live_stripe?.offer_checkout_funnel : null;
+const paid = freshStripe && Array.isArray(stripe?.live_stripe?.exact_paid_live_sessions) ? stripe.live_stripe.exact_paid_live_sessions : [];
 const settled = paid.length > 0;
-const activeLink = stripe?.live_stripe?.exact_payment_link_found === true && stripe?.live_stripe?.payment_link_active === true;
+const activeLink = freshStripe && stripe?.live_stripe?.exact_payment_link_found === true && stripe?.live_stripe?.payment_link_active === true;
 const checkoutStarts = Number(funnel?.sessions_started_for_exact_payment_link || 0);
 const openSessions = Number(funnel?.open_sessions || 0);
 const expiredSessions = Number(funnel?.expired_sessions || 0);
 const fulfillmentProven = status('fulfillment.end_to_end') === 'PASS';
 const deliveryEvidence = status('fulfillment.delivery_evidence') === 'PASS';
 const parity = status('commercial.cta_parity.proof_audit') === 'PASS';
-const offer = scout?.recommended_first_dollar_path?.offer === 'AGENT-PROOF-AUDIT-49';
+const offer = freshScout && scout?.recommended_first_dollar_path?.offer === 'AGENT-PROOF-AUDIT-49';
 const blockers = [];
 const laws = [];
 const addLaw = (id, title, pass, detail, points) => {
@@ -34,8 +41,8 @@ const addLaw = (id, title, pass, detail, points) => {
 };
 addLaw('C1', 'Specific buyer problem and bounded deliverable', offer, offer ? 'Existing NZ$49 Proof Audit has bounded scope and a defined report deliverable.' : 'The existing scout did not establish the Proof Audit as the first-dollar candidate.', 10);
 addLaw('C2', 'Production CTA matches canonical offer', parity, 'A live page/CTA parity check is required; repository-only links do not pass.', 10);
-addLaw('C3', 'Exact live payment link is active', activeLink, stripe ? (activeLink ? 'Exact Stripe link found and active.' : 'Link absent or inactive in inspected live account.') : 'Live Stripe proof is missing.', 10);
-addLaw('C4', 'Independent, attributable paid order', settled, settled ? paid.length + ' matching paid live session(s) observed; independence and dispute/refund checks remain separate.' : 'No matching paid live NZ$49 session has been evidenced by this report.', 20);
+addLaw('C3', 'Exact live payment link is active', activeLink, stripe ? (activeLink ? 'Fresh exact Stripe link found and active.' : 'Fresh live Stripe proof missing, stale, or link absent/inactive.') : 'Live Stripe proof is missing.', 10);
+addLaw('C4', 'Independent, attributable paid order', settled, settled ? paid.length + ' matching paid live session(s) observed; independence and dispute/refund checks remain separate.' : 'No fresh matching paid live NZ$49 session has been evidenced by this run.', 20);
 addLaw('C5', 'Fulfillment works end-to-end', fulfillmentProven, 'A checkout session cannot prove intake, report production, or successful fulfillment.', 15);
 addLaw('C6', 'Delivery evidence exists', deliveryEvidence, 'Require a stable deliverable reference/hash and delivery timestamp/evidence.', 10);
 addLaw('C7', 'Repeatable acquisition demand is measured', false, checkoutStarts ? checkoutStarts + ' live checkout session(s) observed (' + openSessions + ' open, ' + expiredSessions + ' expired); visitors, unique buyers, traffic source and acquisition cost are not established.' : 'No verified traffic, unique-buyer, acquisition-cost, or repeatable inbound-demand evidence is connected.', 15);
@@ -75,6 +82,7 @@ const proof = {
     verified_fulfillment: fulfillmentProven,
     verified_delivery: deliveryEvidence,
     checkout_sessions_started: checkoutStarts,
+    evidence_freshness: { bootstrap_run_start_present: Number.isFinite(runStartedAt), scout_current_for_run: freshScout, stripe_current_for_run: freshStripe },
     checkout_paid_rate: funnel?.paid_rate_per_checkout_session_started ?? null,
     gross_sales_for_nzd_1000: Math.ceil(1000 / 49),
     gross_sales_for_nzd_10000: Math.ceil(10000 / 49),
