@@ -31,7 +31,7 @@ trap {
     exit 1
   }
 }
-$Branch = 'fix/beck-canonical-offer-and-supabase-failure'
+$Branch = 'main'
 $Workflow = 'figure-eight-cockpit.yml'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
