@@ -75,5 +75,25 @@
     "enable_checkout": false,
     "fulfillment_mode": "browser_tools",
     "availability_note": "Free self-service tools. No paid audit offer or checkout is attached to this entry."
+  },
+  {
+    "item_id": "TRUTH-ORACLE-ACCESS-001",
+    "title": "Truth Oracle Access",
+    "description": "A bounded evidence-review workflow delivered through Truth Oracle. The paid access checkout is intentionally held until payment attribution, entitlement, fulfillment, and delivery evidence pass.",
+    "url": "https://dreamledger.org/truth-oracle.html",
+    "brand": "DreamLedger",
+    "seller_name": "DreamLedger",
+    "seller_url": "https://dreamledger.org/",
+    "price": "9 NZD",
+    "availability": "review_required",
+    "sku": "TRUTH-ORACLE-ACCESS-001",
+    "category": "Evidence review",
+    "one_time_purchase": true,
+    "subscription": false,
+    "human_authorization_required": true,
+    "enable_search": true,
+    "enable_checkout": false,
+    "fulfillment_mode": "held_pending_payment_attribution_entitlement_and_delivery_proof",
+    "availability_note": "Paid access candidate only. Do not treat a Payment Link or checkout session as a sale; checkout remains held pending end-to-end fulfillment proof."
   }
 ]
