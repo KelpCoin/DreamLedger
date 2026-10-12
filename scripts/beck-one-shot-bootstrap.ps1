@@ -132,6 +132,42 @@ $heartbeatExit = $LASTEXITCODE
 Write-Output 'PHASE=RUN_EXISTING_ECONOMIC_STARTUP'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-startup.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
 $startupExit = $LASTEXITCODE
+Write-Output 'PHASE=VERIFY_COMMERCIAL_GAUNTLET'
+$commercialGauntletContract = 'FAIL'
+$commercialGauntletStatus = 'UNVERIFIED'
+$commercialGauntletVerdict = 'UNVERIFIED'
+$commercialGauntletScore = $null
+$commercialGauntletPath = Join-Path $RepoRoot 'proof\commerce\latest-gauntlet-economic-verdict.json'
+try {
+  Push-Location $RepoRoot
+  try {
+    & node.exe 'ops/commerce/gauntlet-economic-verdict.mjs' 2>&1 | ForEach-Object { Write-Output ([string]$_) }
+    $commercialGauntletExit = $LASTEXITCODE
+  } finally { Pop-Location }
+  if (Test-Path -LiteralPath $commercialGauntletPath) {
+    $commercialProof = Get-Content -LiteralPath $commercialGauntletPath -Raw | ConvertFrom-Json
+    if ($commercialProof.schema -eq 'DREAMLEDGER-GAUNTLET-ECONOMIC-VERDICT/v1' -and $commercialProof.generated_at_utc -and $commercialGauntletExit -in @(0,2)) {
+      $commercialGauntletContract = 'PASS'
+      $commercialGauntletVerdict = [string]$commercialProof.verdict
+      $commercialGauntletScore = [int]$commercialProof.score_out_of_100
+      if ($commercialGauntletExit -eq 0 -and $commercialGauntletVerdict -eq 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE_NOT_A_WEALTH_GUARANTEE') {
+        $commercialGauntletStatus = 'PASS'
+      } elseif ($commercialGauntletExit -eq 2 -and $commercialGauntletVerdict -in @('BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF','PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS')) {
+        $commercialGauntletStatus = 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED'
+      } else {
+        $commercialGauntletStatus = 'FAIL_UNEXPECTED_VERDICT'
+      }
+    }
+  }
+} catch {
+  $commercialGauntletStatus = 'FAIL_EXECUTION'
+  Write-Output ("COMMERCIAL_GAUNTLET_ERROR=" + $_.Exception.Message)
+}
+Write-Output "COMMERCIAL_GAUNTLET_CONTRACT=$commercialGauntletContract"
+Write-Output "COMMERCIAL_GAUNTLET_STATUS=$commercialGauntletStatus"
+Write-Output "COMMERCIAL_GAUNTLET_VERDICT=$commercialGauntletVerdict"
+Write-Output "COMMERCIAL_GAUNTLET_SCORE=$commercialGauntletScore"
+Write-Output "COMMERCIAL_GAUNTLET_PROOF=$commercialGauntletPath"
 Write-Output 'PHASE=REFRESH_LOCAL_HEARTBEAT_AFTER_INFERENCE'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\beck-heartbeat.ps1') -RepoRoot $RepoRoot -ProofRoot $proofRoot
 $heartbeatAfterStartupExit = $LASTEXITCODE
@@ -326,13 +362,18 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletStatus -eq 'PASS' -and $startupExit -eq 0 -and $cockpitExit -eq 0) { 'INSTALLED_AND_CORROBORATED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletContract -eq 'PASS') { 'INSTALLED_DUAL_HEARTBEAT_COMMERCIAL_BLOCKED' } else { 'INSTALLED_DEGRADED' }
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
   status = $commissionStatus
   local_heartbeat_task = if ($taskFinal) { 'REGISTERED' } else { 'MISSING' }
   dual_heartbeat_status = $dualHeartbeatStatus
+  commercial_gauntlet_contract = $commercialGauntletContract
+  commercial_gauntlet_status = $commercialGauntletStatus
+  commercial_gauntlet_verdict = $commercialGauntletVerdict
+  commercial_gauntlet_score = $commercialGauntletScore
+  commercial_gauntlet_proof = $commercialGauntletPath
   dual_heartbeat_proof = $dualHeartbeatPath
   online_heartbeat_status = $onlineHeartbeatStatus
   local_heartbeat_exit = $heartbeatExit
