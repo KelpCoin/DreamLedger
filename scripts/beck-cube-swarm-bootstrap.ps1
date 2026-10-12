@@ -84,8 +84,8 @@ try {
     [void](Invoke-Logged 'INSTALL_NPM_DEPENDENCIES' 'npm.cmd' @('install','--no-audit','--no-fund'))
   }
 
-  [void](Invoke-Logged 'COMPILE_DEDUPLICATED_CUBE_SWARM_BATCH' 'node.exe' @('ops/cube-swarm/opportunity-batch-controller.mjs','--max-candidates','100000','--out',(Join-Path $ProofRoot 'OPPORTUNITY-BATCH-LATEST.json')))
   [void](Invoke-Logged 'TRAVERSE_EXISTING_ECONOMIC_SUBSTRATE' 'powershell.exe' @('-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',(Join-Path $RepoRoot 'scripts\beck-economic-magnet-bootstrap.ps1'),'-RepoRoot',$RepoRoot,'-ProofRoot',$ProofRoot,'-RunCycleOnly'))
+  [void](Invoke-Logged 'COMPILE_DEDUPLICATED_CUBE_SWARM_BATCH' 'node.exe' @('ops/cube-swarm/opportunity-batch-controller.mjs','--max-candidates','100000','--out',(Join-Path $ProofRoot 'OPPORTUNITY-BATCH-LATEST.json')))
 
   if (-not $CycleOnly -and -not $NoScheduledWorker) {
     $taskName = 'DreamLedger-Cube-Swarm-Opportunity-Worker'
