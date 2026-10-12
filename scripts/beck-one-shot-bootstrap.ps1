@@ -85,7 +85,7 @@ $missingCommissioningFiles = @($requiredCommissioningFiles | Where-Object { -not
 $installedBootstrapPath = Join-Path $RepoRoot 'scripts\\beck-one-shot-bootstrap.ps1'
 $installedBootstrapMatchesSource = $false
 if (Test-Path -LiteralPath $installedBootstrapPath) {
-  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains("$BootstrapSourceBranch = 'feat/beck-dual-heartbeat-bootstrap'")
+  $installedBootstrapMatchesSource = (Get-Content -LiteralPath $installedBootstrapPath -Raw).Contains('$BootstrapSourceBranch = ''feat/beck-dual-heartbeat-bootstrap''')
 }
 if ($Branch -eq 'main' -and ($missingCommissioningFiles.Count -gt 0 -or -not $installedBootstrapMatchesSource)) {
   $bootstrapFallbackBranch = $BootstrapSourceBranch
