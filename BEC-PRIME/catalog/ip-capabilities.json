@@ -145,6 +145,17 @@
       "currency": "NZD"
     },
     {
+      "id": "PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "category": "mtg_deck_analysis",
+      "summary": "Automated first-pass Commander deck diagnostic report from a buyer-supplied decklist, with structural metrics, issues, cut candidates, upgrade priorities and a tuning plan.",
+      "commercialization": "one_time_digital_fulfillment",
+      "silo": "mtg",
+      "pricing_strategy": "fixed",
+      "price": 29,
+      "currency": "NZD"
+    },
+    {
       "id": "PRODUCT-QUOTE-COMPARE-49",
       "name": "Supplier Quote Comparison",
       "category": "procurement_decision_support",

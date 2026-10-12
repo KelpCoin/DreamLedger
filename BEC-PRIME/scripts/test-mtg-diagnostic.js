@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-mtgdiag-'));
 process.env.MTG_DIAGNOSTIC_DATA_DIR = tempDir;
-process.env.STRIPE_SECRET_KEY = 'sk_test_unit_test';
+process.env.STRIPE_SECRET_KEY = 'mocked_stripe_secret_for_unit_tests';
 process.env.SUPABASE_URL = '';
 process.env.SUPABASE_SERVICE_ROLE_KEY = '';
 const d = require('../lib/mtgDiagnosticFulfillment');
