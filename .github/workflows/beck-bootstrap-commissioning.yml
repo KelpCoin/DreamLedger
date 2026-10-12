@@ -8,6 +8,8 @@ on:
       - 'scripts/install-beck-heartbeat.ps1'
       - 'scripts/beck-startup.ps1'
       - 'scripts/beck-economic-bootstrap.ps1'
+      - 'ops/commerce/gauntlet-economic-verdict.mjs'
+      - 'ops/commerce/gauntlet-economic-verdict.test.mjs'
       - 'scripts/beck-cockpit-bootstrap.ps1'
       - 'ops/cockpit/render-cockpit-html.mjs'
       - '.github/workflows/beck-cloud-liveness.yml'
@@ -85,3 +87,5 @@ jobs:
           PY
       - name: Run local execution-gate contract tests
         run: node --test BEC-PRIME/runtime/ExecutionGate.test.js
+      - name: Test commercial Gauntlet fails closed without real evidence
+        run: node --test ops/commerce/gauntlet-economic-verdict.test.mjs
