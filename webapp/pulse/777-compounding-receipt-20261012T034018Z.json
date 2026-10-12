@@ -1,0 +1,15 @@
+{
+  "artifact_count": 4,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "public/pulse/2026-10-12-private-commercial-tencent-will-shut-down-its-yuanqi-ai-agent-platform-on-november-9-pandaily-7a0f630fbf2132e4.html",
+    "public/pulse/index.html",
+    "webapp/pulse/2026-10-12-private-commercial-tencent-will-shut-down-its-yuanqi-ai-agent-platform-on-november-9-pandaily-7a0f630fbf2132e4.html",
+    "webapp/pulse/index.html"
+  ],
+  "observed_at": "2026-10-12T03:40:18.020659+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}
