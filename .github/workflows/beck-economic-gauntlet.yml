@@ -9,6 +9,7 @@ on:
       - 'scripts/beck-daily-bootstrap.ps1'
       - 'ops/commerce/**'
       - 'ops/cockpit/**'
+      - 'ops/decision/**'
       - 'BEC-PRIME/server.js'
       - 'BEC-PRIME/start.js'
       - 'BEC-PRIME/scripts/verify-render-stripe-webhook-route.js'
@@ -53,6 +54,8 @@ jobs:
         shell: pwsh
         run: |
           Get-Content package.json -Raw | ConvertFrom-Json | Out-Null
+          node --check ops/decision/validate-decision-prompt-registry.mjs
+          node ops/decision/validate-decision-prompt-registry.mjs
           node --check ops/commerce/beck-monetization-scout.mjs
           node --check ops/commerce/reconcile-truth-oracle-access.mjs
           node --check ops/commerce/gauntlet-economic-verdict.mjs
