@@ -88,6 +88,28 @@ try {
     [void](Invoke-Logged 'INSTALL_NPM_DEPENDENCIES' 'npm.cmd' @('install','--no-audit','--no-fund'))
   }
 
+  # Generate the 500-route hypothesis matrix. This is inventory only, not ranking or demand proof.
+  $optionMatrixScript = Join-Path $RepoRoot 'ops\cube-swarm\commercial-option-matrix.mjs'
+  $commercialOptionMatrixPath = Join-Path $ProofRoot 'COMMERCIAL-OPTION-MATRIX-LATEST.json'
+  try {
+    $matrixLines = @(& node.exe $optionMatrixScript --out $commercialOptionMatrixPath 2>&1 | ForEach-Object { [string]$_ })
+    $matrixCode = $LASTEXITCODE
+  } catch {
+    $matrixCode = 9001
+    $matrixLines = @($_.Exception.Message)
+  }
+  foreach ($line in $matrixLines) { Add-Content -LiteralPath $logPath -Value $line -Encoding UTF8 }
+  $matrixStatus = if ($matrixCode -eq 0) { 'PASS' } else { 'BLOCKED' }
+  $results.Add([ordered]@{
+    name='GENERATE_500_COMMERCIAL_HYPOTHESES'
+    status=$matrixStatus
+    exit_code=$matrixCode
+    proof_path=$commercialOptionMatrixPath
+    output_tail=@($matrixLines | Select-Object -Last 20)
+    truth_boundary='HYPOTHESIS_ONLY_NOT_DEMAND_OR_REVENUE'
+  })
+  Write-Output ('GENERATE_500_COMMERCIAL_HYPOTHESES_STATUS=' + $matrixStatus)
+
   # Read-only inventory of known BEC, Garage, DreamLedger and artifact roots.
   $inventoryScript = Join-Path $RepoRoot 'scripts\beck-local-artifact-inventory.ps1'
   $inventoryPath = Join-Path $ProofRoot 'LOCAL-ARTIFACT-INVENTORY-LATEST.json'
@@ -189,6 +211,7 @@ try {
     branch=$Branch
     scheduled_worker=$(if(-not $CycleOnly -and -not $NoScheduledWorker){'DreamLedger-Cube-Swarm-Opportunity-Worker'}else{$null})
     candidate_batch_path=(Join-Path $ProofRoot 'OPPORTUNITY-BATCH-LATEST.json')
+    commercial_option_matrix_path=(Join-Path $ProofRoot 'COMMERCIAL-OPTION-MATRIX-LATEST.json')
     passed_steps=$passed
     blocked_steps=$blocked
     held_steps=$held
