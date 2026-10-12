@@ -77,6 +77,7 @@ if ($hasKey) {
 }
 Add-Result 'GATE_1B_SANDBOX_EXECUTION' $false 'NOT_RUN' 'Sandbox execution requires authenticated runtime authorization and is not part of public discovery.'
 
+$observedToolCount = if ($discovery) { @($discovery.result.tools).Count } else { 0 }
 $proof = [ordered]@{
     schema_version = 'DOOH-GATE1-PROOF/1.0'
     generated_at = (Get-Date).ToUniversalTime().ToString('o')
@@ -85,10 +86,10 @@ $proof = [ordered]@{
     live_purchase = $false
     live_booking = $false
     revenue = [ordered]@{ verified_nzd = 0; status = 'UNMATCHED' }
-    mcp = [ordered]@{ endpoint = $Endpoint; transport = 'streamable-http'; protocol_version = '2025-11-25'; observed_tool_count = if ($discovery) { @($discovery.result.tools).Count } else { 0 }; schema_path = $OutputPath }
+    mcp = [ordered]@{ endpoint = $Endpoint; transport = 'streamable-http'; protocol_version = '2025-11-25'; observed_tool_count = $observedToolCount; schema_path = $OutputPath }
     proof = [ordered]@{ algorithm = 'Ed25519'; version = 'v2'; real_proof_verified = $false; tamper_rejection_verified = $false; public_key_endpoint = $ProofKeyEndpoint; verify_endpoint = $ProofVerifyEndpoint }
     cube = [ordered]@{ defined = $true; contracted = $true; instantiated = $false; contract_path = 'DOOH/DOOH-CUBE-001.json' }
-    results = @($script:Results)
+    results = $script:Results.ToArray()
     next_gate = 'GATE_2_LIVE_BOOKING'
 }
 
