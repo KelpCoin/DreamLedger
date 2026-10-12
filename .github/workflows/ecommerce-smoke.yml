@@ -35,7 +35,11 @@ jobs:
           test -s server.js
           grep -qi 'Evidence-first commerce' home.html
           grep -qi 'Make the next decision' home.html
-          grep -qi 'Delivery Proof Audit' home.html
+          grep -qi 'Truth Oracle' home.html
+          if grep -Eqi 'Delivery Proof Audit|agent-delivery-proof-audit' home.html quote-comparison/index.html; then
+            echo 'RETIRED_AUDIT_RESIDUE=FAIL'
+            exit 1
+          fi
           grep -Eq 'href="(https://dreamledger.org)?/quote-comparison/' home.html
           grep -q 'href="/trust/"' home.html
           if grep -Ein 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html; then
