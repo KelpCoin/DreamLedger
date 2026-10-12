@@ -161,16 +161,28 @@ try {
         }
 
         if ($env:STRIPE_SECRET_KEY -and $env:STRIPE_LIVE_ENABLED -eq 'true') {
-            $stripeCode = Run-NodeCheck 'stripe.live_reconciliation' @('ops/commerce/reconcile-approved-offers.mjs')
+            # The NZ$49 Proof Audit is listed in the public product feed but is not in
+            # approved.json. Reconcile it directly rather than silently omitting the
+            # actual first-dollar candidate from live Stripe checks.
+            $firstDollarCode = Run-NodeCheck 'stripe.first_dollar_offer_reconciliation' @('ops/commerce/reconcile-first-dollar-proof-audit.mjs')
+            $firstDollarPath = Join-Path $RepoRoot 'proof/commerce/latest-first-dollar-stripe-reconciliation.json'
+            if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
+                $firstDollar = Get-Content -LiteralPath $firstDollarPath -Raw | ConvertFrom-Json
+                $paidCount = @($firstDollar.live_stripe.exact_paid_live_sessions).Count
+                if ($firstDollar.live_stripe.exact_payment_link_found -ne $true) {
+                    Add-Check 'stripe.first_dollar_payment_link' 'CONTRADICTED' 'Canonical Proof Audit payment link was not found in this live Stripe account.'
+                } elseif ($paidCount -gt 0) {
+                    Add-Check 'stripe.first_dollar_settlement_evidence' 'OBSERVED_PENDING_FULFILLMENT' ("Exact-price paid live sessions: " + $paidCount + '. Fulfillment and independent buyer remain unverified.')
+                } else {
+                    Add-Check 'stripe.first_dollar_settlement_evidence' 'NOT_OBSERVED' 'No paid live Checkout Session matched the canonical Proof Audit link, NZD currency, NZ$49 amount, and livemode.'
+                }
+            }
+            $stripeCode = Run-NodeCheck 'stripe.approved_offer_reconciliation' @('ops/commerce/reconcile-approved-offers.mjs')
             $reconPath = Join-Path $RepoRoot 'proof/commerce/latest-approved-offer-reconciliation.json'
             if ($stripeCode -eq 0 -and (Test-Path -LiteralPath $reconPath)) {
                 $recon = Get-Content -LiteralPath $reconPath -Raw | ConvertFrom-Json
                 $settled = @($recon.offers | Where-Object { $_.state -eq 'SETTLED_PENDING_FULFILLMENT' })
-                if ($settled.Count -gt 0) {
-                    Add-Check 'stripe.settled_payment_evidence' 'OBSERVED_PENDING_FULFILLMENT' ("Matched live paid Checkout Session(s): " + (($settled | ForEach-Object { $_.offer_id + ':' + $_.matched_paid_sessions.Count }) -join ', '))
-                } else {
-                    Add-Check 'stripe.settled_payment_evidence' 'NOT_OBSERVED' 'No paid live Checkout Session matched the approved offer and exact price/currency.'
-                }
+                Add-Check 'stripe.approved_offer_settlement_evidence' $(if ($settled.Count -gt 0) {'OBSERVED_PENDING_FULFILLMENT'} else {'NOT_OBSERVED'}) ("Matched paid sessions across approved catalog offers: " + (($settled | ForEach-Object { $_.offer_id + ':' + $_.matched_paid_sessions.Count }) -join ', '))
             }
         } else {
             Add-Check 'stripe.live_reconciliation' 'BLOCKED' 'Set STRIPE_SECRET_KEY in the local process environment and STRIPE_LIVE_ENABLED=true to query live Stripe. Never paste the key into chat. No Stripe API call was made.'
