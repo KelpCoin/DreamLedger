@@ -76,7 +76,7 @@ function latestEvidence() {
   }
   return found;
 }
-const raw = readJson(process.env.DREAMLEDGER_COCKPIT_EVIDENCE || path.join(proofRoot,'cockpit-evidence.json')) || {};
+const raw = readJson(process.env.DREAMLEDGER_COCKPIT_EVIDENCE || path.join(proofRoot,'cockpit','cockpit-evidence.json')) || {};
 const cloud = scoreVector('Cloud system readiness / 10,000',CLOUD,raw.cloud||{});
 const local = scoreVector('Local runtime readiness / 10,000',LOCAL,raw.local||{});
 const money = scoreVector('Verified economic outcome / 10,000',MONEY,raw.money||{},72);
