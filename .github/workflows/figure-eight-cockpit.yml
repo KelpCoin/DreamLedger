@@ -68,7 +68,7 @@ jobs:
           COCKPIT_NOTIFY_STATE_PATH: cockpit-notify-state.json
         run: node ops/cockpit/discord-cockpit-notify.mjs
       - name: Save notification deduplication state
-        if: ${{ always() && vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' }}
+        if: ${{ always() && vars.COCKPIT_DISCORD_ENABLED == 'true' && vars.COCKPIT_KILL_SWITCH == 'false' && hashFiles('cockpit-notify-state.json') != '' }}
         uses: actions/cache/save@v4
         with:
           path: cockpit-notify-state.json
