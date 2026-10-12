@@ -127,8 +127,8 @@
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "name": "Commander Deck Diagnostic",
-      "checkout_url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "checkout_url": "https://dreamledger.org/mtg/diagnostic.html",
+      "buy_router": "https://dreamledger.org/mtg/diagnostic.html",
       "action": "purchase",
       "price_nzd": 29,
       "status": "LISTED"

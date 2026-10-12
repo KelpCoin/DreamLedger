@@ -6,6 +6,7 @@ const { URL } = require('url');
 const { Readable } = require('stream');
 const distributionDoorway = require('../BEC-PRIME/routes/distributionDoorway');
 const mtgDiagnostic = require('../BEC-PRIME/lib/mtgDiagnosticFulfillment');
+const mtgDiagnosticRoute = require('../BEC-PRIME/routes/mtgDiagnostic');
 const paidCheckoutWebhook = require('./paidCheckoutWebhook');
 
 function replayRequest(req, body) {
@@ -153,10 +154,17 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           && parsedEvent?.data?.object?.payment_status === 'paid'
           && parsedEvent?.data?.object?.metadata?.product_id === 'COMMANDER-DECK-DIAGNOSTIC-001';
         try {
-          const result = await mtgDiagnostic.handleWebhook(replayRequest(req, body), res);
+          const result = await mtgDiagnosticRoute.handleWebhook(replayRequest(req, body), res);
           if (result && result.handled) return;
         } catch (err) {
-          if (err && /STRIPE_WEBHOOK_SECRET|Invalid Stripe signature|Expired Stripe signature/.test(err.message || '')) {
+          if (err && /STRIPE_WEBHOOK_SECRET/.test(err.message || '')) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({ error: 'Stripe webhook configuration unavailable', code: 'WEBHOOK_CONFIGURATION_MISSING' }));
+            return;
+          }
+          if (err && /Invalid Stripe signature|Expired Stripe signature/.test(err.message || '')) {
             res.statusCode = 400;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             res.end(JSON.stringify({ error: err.message }));

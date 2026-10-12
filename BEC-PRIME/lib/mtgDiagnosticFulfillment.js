@@ -11,8 +11,8 @@ const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').r
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1U8LHfEGgEAnUFF9i3vrXCJU';
-const PAYMENT_LINK = 'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l';
+const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1UFFY1EGgEAnUFF9Yq03zIa7';
+const PAYMENT_LINK = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
 const PRODUCT_ID = 'COMMANDER-DECK-DIAGNOSTIC-001';
 const OFFER_ID = 'OFFER-CMD-DIAG-29-NZD';
 
