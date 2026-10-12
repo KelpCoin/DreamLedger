@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 
 const enabled = process.env.COCKPIT_DISCORD_ENABLED === 'true';
-const killed = process.env.COCKPIT_KILL_SWITCH === 'true';
+const killed = process.env.COCKPIT_KILL_SWITCH !== 'false';
 const url = process.env.COCKPIT_DISCORD_WEBHOOK_URL || '';
 const delayMinutes = Math.max(15, Number(process.env.COCKPIT_DELAY_MINUTES || 15));
 const reportPath = process.env.COCKPIT_REPORT_PATH || 'figure-eight-cockpit-latest.json';
@@ -32,8 +32,8 @@ const chargeSummary = money.stripe_balance_transactions_readable
 const lines = [
   '**DreamLedger Figure Eight cockpit**',
   'NZ day: ' + (report.day_nz || 'unknown'),
-  'Cloud readiness: ' + (report.cloud?.score ?? 0) + '/1000',
-  'Local readiness: ' + (report.local?.score ?? 0) + '/1000 (' + (report.local?.status || 'UNOBSERVED') + ')',
+  'Cloud readiness: ' + (report.cloud?.score ?? 0) + '/10000',
+  'Local readiness: ' + (report.local?.score ?? 0) + '/10000 (' + (report.local?.status || 'UNOBSERVED') + ')',
   'Stripe charge movements today: ' + chargeSummary,
   'Verified DreamLedger revenue: NZ$' + Number(money.verified_dreamledger_revenue_nzd || 0).toFixed(2),
   'Database: ' + (report.database?.status || 'UNVERIFIED') + '; delivery: ' + (report.fulfillment?.status || 'UNVERIFIED'),
