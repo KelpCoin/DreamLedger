@@ -41,11 +41,13 @@ function Get-HttpResult([string]$Url) {
         $r = Invoke-WebRequest -Uri $Url -MaximumRedirection 8 -TimeoutSec 20 -UseBasicParsing
         $html = [string]$r.Content
         $stripeLinks = @([regex]::Matches($html, 'https://buy\.stripe\.com/[A-Za-z0-9]+') | ForEach-Object { $_.Value.TrimEnd('.') } | Select-Object -Unique)
-        return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=[string]$r.BaseResponse.ResponseUri.AbsoluteUri; stripe_links=$stripeLinks }
+        $truthRedirect = $html -match 'truth-oracle\.html'
+        $retiredOfferCopy = $html -match 'AGENT-PROOF-AUDIT-49|Agent Delivery Proof Audit|NZ\$49|Purchase the audit'
+        return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=[string]$r.BaseResponse.ResponseUri.AbsoluteUri; stripe_links=$stripeLinks; truth_oracle_redirect=[bool]$truthRedirect; retired_offer_copy=[bool]$retiredOfferCopy }
     } catch {
         $status = 0
         try { if ($_.Exception.Response -and $_.Exception.Response.StatusCode) { $status=[int]$_.Exception.Response.StatusCode } } catch {}
-        return [ordered]@{ url=$Url; status=$status; error=$_.Exception.Message; stripe_links=@() }
+        return [ordered]@{ url=$Url; status=$status; error=$_.Exception.Message; stripe_links=@(); truth_oracle_redirect=$false; retired_offer_copy=$false }
     }
 }
 
@@ -98,12 +100,13 @@ try {
         $productFeedPath = Join-Path $RepoRoot 'public/agent-products.json'
         if (Test-Path -LiteralPath $productFeedPath) {
             $productFeed = Get-Content -LiteralPath $productFeedPath -Raw | ConvertFrom-Json
-            $offer = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
-            if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '49 NZD' -and $offer[0].enable_checkout -eq $true -and [string]$offer[0].checkout_url -match '^https://buy\.stripe\.com/') {
-                Add-Check 'offer.canonical_catalog' 'PASS' 'Found one NZ$49 Agent Delivery Proof Audit listing with checkout enabled and a declared Stripe URL. This is repository evidence, not live Stripe verification.'
-                $offerUrl = [string]$offer[0].checkout_url
+            $offer = @($productFeed | Where-Object { $_.item_id -eq 'TRUTH-ORACLE-ACCESS-001' })
+            $retiredOffer = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
+            if ($offer.Count -eq 1 -and [string]$offer[0].price -eq '9 NZD' -and [string]$offer[0].url -eq 'https://dreamledger.org/truth-oracle.html' -and $offer[0].enable_checkout -eq $false -and $offer[0].availability -eq 'review_required' -and $retiredOffer.Count -eq 0) {
+                Add-Check 'offer.canonical_catalog' 'PASS' 'Truth Oracle Access is the sole evidence-review product entry; checkout remains held and the retired standalone SKU is absent. This is repository evidence, not proof of fulfillment.'
+                $offerUrl = ''
             } else {
-                Add-Check 'offer.canonical_catalog' 'FAIL' 'Expected exactly one AGENT-PROOF-AUDIT-49 at NZ$49 NZD with checkout enabled and a Stripe URL.'
+                Add-Check 'offer.canonical_catalog' 'FAIL' 'Expected one TRUTH-ORACLE-ACCESS-001 at NZ$9 under Truth Oracle, checkout held, and zero retired standalone listings.'
                 $offerUrl = ''
             }
         } else {
@@ -127,6 +130,7 @@ try {
         }
 
         $publicUrls = @(
+            'https://dreamledger.org/truth-oracle.html',
             'https://dreamledger.org/agent-delivery-proof-audit.html',
             'https://dreamledger.org/billboard.html',
             'https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001',
@@ -137,29 +141,31 @@ try {
             $r = Get-HttpResult $url
             $livePages[$url] = $r
             $pageName = 'public_page.' + ([uri]$url).AbsolutePath.Trim('/').Replace('/','_')
-            if ($url -eq 'https://dreamledger.org/agent-delivery-proof-audit.html') {
-                Add-Check $pageName $(if ($r.status -ge 200 -and $r.status -lt 400) {'PASS'} else {'FAIL'}) ($r | ConvertTo-Json -Compress)
+            if ($url -eq 'https://dreamledger.org/truth-oracle.html') {
+                $ok = $r.status -ge 200 -and $r.status -lt 400 -and @($r.stripe_links).Count -eq 0 -and -not $r.retired_offer_copy
+                Add-Check $pageName $(if ($ok) {'PASS'} else {'FAIL'}) (($r | ConvertTo-Json -Compress) + '; public Truth Oracle guide must remain free and contain no separate audit checkout.')
+            } elseif ($url -eq 'https://dreamledger.org/agent-delivery-proof-audit.html') {
+                $redirected = ([string]$r.final_url -match '/truth-oracle\.html/?$') -or ($r.truth_oracle_redirect -eq $true)
+                $ok = $r.status -ge 200 -and $r.status -lt 400 -and $redirected -and @($r.stripe_links).Count -eq 0 -and -not $r.retired_offer_copy
+                Add-Check $pageName $(if ($ok) {'PASS'} else {'FAIL'}) (($r | ConvertTo-Json -Compress) + '; retired route must redirect to Truth Oracle without an old offer or checkout.')
             } else {
-                Add-Check $pageName 'DIAGNOSTIC_ONLY' (($r | ConvertTo-Json -Compress) + '; secondary candidate route, not a gate for the first-dollar offer.')
+                Add-Check $pageName 'DIAGNOSTIC_ONLY' (($r | ConvertTo-Json -Compress) + '; secondary candidate route, not a gate for the Truth Oracle path.')
             }
         }
 
-        # Compare the actual public CTA with canonical repository contracts.
-        # This catches live-page/catalog drift, not just reachable URLs.
+        # Truth Oracle owns the bounded review capability. Keep checkout held until fulfillment is proven.
         $proofFeedPath = Join-Path $RepoRoot 'public/agent-products.json'
         if (Test-Path -LiteralPath $proofFeedPath) {
             $productFeed = Get-Content -LiteralPath $proofFeedPath -Raw | ConvertFrom-Json
-            $proofProduct = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
-            if ($proofProduct.Count -eq 1) {
-                $proofPage = $livePages['https://dreamledger.org/agent-delivery-proof-audit.html']
-                $expectedProofLink = [string]$proofProduct[0].checkout_url
-                $found = @($proofPage.stripe_links | Where-Object { $_ -eq $expectedProofLink }).Count -gt 0
-                Add-Check 'commercial.cta_parity.proof_audit' $(if ($proofPage.status -ge 200 -and $proofPage.status -lt 400 -and $found) {'PASS'} else {'FAIL'}) ("Expected CTA=" + $expectedProofLink + '; observed Stripe links=' + (@($proofPage.stripe_links) -join ', '))
-            } else {
-                Add-Check 'commercial.cta_parity.proof_audit' 'FAIL' 'Expected exactly one AGENT-PROOF-AUDIT-49 in public/agent-products.json.'
-            }
+            $truthProduct = @($productFeed | Where-Object { $_.item_id -eq 'TRUTH-ORACLE-ACCESS-001' })
+            $retiredProduct = @($productFeed | Where-Object { $_.item_id -eq 'AGENT-PROOF-AUDIT-49' })
+            $truthPage = $livePages['https://dreamledger.org/truth-oracle.html']
+            $legacyPage = $livePages['https://dreamledger.org/agent-delivery-proof-audit.html']
+            $legacyRedirected = ([string]$legacyPage.final_url -match '/truth-oracle\.html/?$') -or ($legacyPage.truth_oracle_redirect -eq $true)
+            $held = $truthProduct.Count -eq 1 -and $truthProduct[0].enable_checkout -eq $false -and $truthProduct[0].availability -eq 'review_required'
+            $ok = $truthProduct.Count -eq 1 -and $retiredProduct.Count -eq 0 -and $held -and $truthPage.status -ge 200 -and $truthPage.status -lt 400 -and @($truthPage.stripe_links).Count -eq 0 -and $legacyPage.status -ge 200 -and $legacyPage.status -lt 400 -and $legacyRedirected -and @($legacyPage.stripe_links).Count -eq 0 -and -not $legacyPage.retired_offer_copy
+            Add-Check 'commercial.truth_oracle_offer_parity' $(if ($ok) {'PASS'} else {'FAIL'}) ('Truth Oracle held=' + $held + '; retired catalog entries=' + $retiredProduct.Count + '; legacy route redirected=' + $legacyRedirected + '; checkout remains held until paid fulfillment proof.')
         }
-
         if ($offerUrl) {
             $r = Get-HttpResult $offerUrl
             Add-Check 'checkout.offer_url_reachable' $(if ($r.status -ge 200 -and $r.status -lt 400) {'PASS'} else {'FAIL'}) (($r | ConvertTo-Json -Compress) + '; link reachability does not prove price, livemode account ownership, payment settlement, or fulfillment.')
@@ -174,7 +180,7 @@ try {
             } else {
                 Add-Check 'stripe.webhook_routing' 'BLOCKED' 'Webhook endpoint inventory failed. No endpoint was created, changed, or disabled.'
             }
-            $firstDollarCode = Run-NodeCheck 'stripe.first_dollar_offer_reconciliation' @('ops/commerce/reconcile-first-dollar-proof-audit.mjs')
+            $firstDollarCode = Run-NodeCheck 'stripe.first_dollar_offer_reconciliation' @('ops/commerce/reconcile-truth-oracle-access.mjs')
             $firstDollarPath = Join-Path $RepoRoot 'proof/commerce/latest-first-dollar-stripe-reconciliation.json'
             if ($firstDollarCode -eq 0 -and (Test-Path -LiteralPath $firstDollarPath)) {
                 $firstDollar = Get-Content -LiteralPath $firstDollarPath -Raw | ConvertFrom-Json
