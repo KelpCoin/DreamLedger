@@ -146,23 +146,7 @@ $cloudProof = [ordered]@{
 }
 $cloudProofPath = Join-Path $proofRoot 'CLOUD-COCKPIT-DISPATCH-LATEST.json'
 $cloudProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $cloudProofPath -Encoding UTF8
-if ($cloudDispatchStatus -match '^COMPLETED_success_ARTIFACT_DOWNLOADED
-Write-Output "LOCAL_HEARTBEAT_AFTER_STARTUP_EXIT=$heartbeatAfterStartupExit"
-Write-Output "ECONOMIC_STARTUP_EXIT=$startupExit"
-Write-Output "COCKPIT_EXIT=$cockpitExit"
-Write-Output "COCKPIT_HTML=$(Join-Path $proofRoot 'cockpit\index.html')"
-Write-Output "CLOUD_COCKPIT_STATUS=$cloudDispatchStatus"
-Write-Output "CLOUD_COCKPIT_PROOF=$cloudProofPath"
-Write-Output "LOCAL_HEARTBEAT_PROOF=$(Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json')"
-Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
-Write-Output 'CLOUD_HEARTBEAT=GITHUB_ACTIONS_SCHEDULED_EVERY_30_MINUTES_AFTER_WORKFLOW_IS_ON_DEFAULT_BRANCH'
-Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
-if ($startupExit -eq 1 -or $heartbeatExit -eq 1 -or $cockpitExit -eq 1) { exit 1 }
-if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0 -or $cloudDispatchStatus -notmatch '^COMPLETED_success_ARTIFACT_DOWNLOADED
-exit 0
-) { exit 2 }
-exit 0
-) {
+if ($cloudDispatchStatus -match '^COMPLETED_success_ARTIFACT_DOWNLOADED$') {
   $remoteReportFile = Get-ChildItem -LiteralPath (Join-Path $proofRoot 'cloud') -Filter 'figure-eight-cockpit-latest.json' -File -Recurse -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
   $localHeartbeatPath = Join-Path $proofRoot 'heartbeat\LOCAL-HEARTBEAT-LATEST.json'
   $cockpitDir = Join-Path $proofRoot 'cockpit'
@@ -206,7 +190,5 @@ Write-Output "STARTUP_PROOF=$(Join-Path $proofRoot 'BECK-STARTUP-LATEST.json')"
 Write-Output 'CLOUD_HEARTBEAT=GITHUB_ACTIONS_SCHEDULED_EVERY_30_MINUTES_AFTER_WORKFLOW_IS_ON_DEFAULT_BRANCH'
 Write-Output 'SAFETY=No production writes, purchases, deployments, public posts, or webhook changes.'
 if ($startupExit -eq 1 -or $heartbeatExit -eq 1 -or $cockpitExit -eq 1) { exit 1 }
-if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0 -or $cloudDispatchStatus -notmatch '^COMPLETED_success_ARTIFACT_DOWNLOADED
-exit 0
-) { exit 2 }
+if ($startupExit -ne 0 -or $heartbeatExit -ne 0 -or $cockpitExit -ne 0 -or $cloudDispatchStatus -notmatch '^COMPLETED_success_ARTIFACT_DOWNLOADED$') { exit 2 }
 exit 0
