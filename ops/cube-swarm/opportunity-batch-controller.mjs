@@ -60,9 +60,9 @@ const normalize = (raw, sourcePath) => {
   const id = String(x.opportunity_id || x.candidate_id || x.offer_id || x.product_id || x.product_sku || x.item_id || x.sku || x.id || '');
   const title = String(x.title || x.name || x.label || x.description || id || 'Untitled candidate').trim().slice(0, 240);
   const source = String(x.source || x.provenance?.source || sourcePath);
-  const url = String(x.url || x.source_url || x.evidence_ref || x.checkout_url || x.payment_link_url || '');
+  const url = String(x.url || x.source_url || x.evidence_ref || '');
   const text = [title, x.description, x.problem, x.buyer, x.buyer_segment, x.category, x.lane_definition].filter(Boolean).join(' ').slice(0, 2000);
-  const paymentStatus = String(x.payment_intent_status || x.demand_evidence_status || x.evidence_status || '').toUpperCase();
+  const paymentStatus = String(x.payment_intent_status || '').toUpperCase();
   const hasExplicitDemand = ['VERIFIED', 'CONFIRMED'].includes(paymentStatus) ||
     x.buyer_request_verified === true || x.paid_order_verified === true;
   const hasSource = /^https?:\/\//i.test(url) || /^https?:\/\//i.test(source);
@@ -75,6 +75,7 @@ const normalize = (raw, sourcePath) => {
   if (!hasOffer) blockers.push('CANONICAL_OFFER_UNLINKED');
   if (!hasPrice) blockers.push('PRICE_UNVERIFIED');
   if (!hasFulfillment) blockers.push('FULFILLMENT_UNVERIFIED');
+  if (x.independent_buyer !== true) blockers.push('INDEPENDENT_BUYER_UNVERIFIED');
   const score = (hasExplicitDemand ? 50 : 0) + (hasSource ? 10 : 0) + (hasOffer ? 10 : 0) + (hasPrice ? 10 : 0) + (hasFulfillment ? 10 : 0) + (x.independent_buyer === true ? 10 : 0);
   const canonical = id ? id.toLowerCase() : digest(source + '|' + url + '|' + title.toLowerCase());
   return {
