@@ -17,7 +17,7 @@ $registry = Get-Content -LiteralPath $RegistryPath -Raw | ConvertFrom-Json
 $allowed = @('.ps1','.psm1','.psd1','.js','.mjs','.cjs','.ts','.tsx','.jsx','.py','.html','.css','.json','.jsonl','.yaml','.yml','.toml','.md','.txt','.csv','.sql','.sh','.bat','.cmd')
 $deny = '(?i)(^|[\\/])(\.env($|\.)|secrets?([\\/]|$)|credentials?([\\/]|$)|id_rsa|id_ed25519|[^\\/]*\.(pem|pfx|key)$|service[-_]?account|secret[-_]?key|api[-_]?key|token[-_]?store|wallet\.dat)'
 function Get-Tokens([string]$Value) {
-  @([regex]::Matches(($Value ?? '').ToLowerInvariant(), '[a-z0-9]{4,}') | ForEach-Object { $_.Value } | Where-Object { $_ -notin @('with','from','that','this','into','your','have','will','only','not','then','when','where','what','buyer','teams','team','report','tool','data','product','existing','candidate','mechanism','potential','hypothesis','validated') } | Select-Object -Unique)
+  @([regex]::Matches(([string]$(if($null -eq $Value){''}else{$Value})).ToLowerInvariant(), '[a-z0-9]{4,}') | ForEach-Object { $_.Value } | Where-Object { $_ -notin @('with','from','that','this','into','your','have','will','only','not','then','when','where','what','buyer','teams','team','report','tool','data','product','existing','candidate','mechanism','potential','hypothesis','validated') } | Select-Object -Unique)
 }
 $mechanisms = @($registry.mechanisms)
 $rows = [System.Collections.Generic.List[object]]::new()
