@@ -61,7 +61,7 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             body = Buffer.concat([body, Buffer.from(chunk)]);
             if (body.length > 100000) throw new Error('Request too large');
           }
-          const result = await mtgDiagnostic.createPaymentLinkCheckout(JSON.parse(body.toString('utf8')));
+          const result = await mtgDiagnostic.createCheckout(JSON.parse(body.toString('utf8')));
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.setHeader('Cache-Control', 'no-store');
@@ -147,6 +147,11 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           res.end(JSON.stringify({ error: err.message || 'Request too large' }));
           return;
         }
+        let parsedEvent = null;
+        try { parsedEvent = JSON.parse(body.toString('utf8')); } catch {}
+        const paidMtgDiagnostic = parsedEvent?.type === 'checkout.session.completed'
+          && parsedEvent?.data?.object?.payment_status === 'paid'
+          && parsedEvent?.data?.object?.metadata?.product_id === 'COMMANDER-DECK-DIAGNOSTIC-001';
         try {
           const result = await mtgDiagnostic.handleWebhook(replayRequest(req, body), res);
           if (result && result.handled) return;
@@ -159,6 +164,15 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           }
         }
         if (res.writableEnded) return;
+        if (paidMtgDiagnostic) {
+          // Never acknowledge a paid diagnostic order if report or economic-ledger
+          // persistence failed. Stripe must retry until fulfillment is recorded.
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          res.end(JSON.stringify({ error: 'MTG diagnostic fulfillment failed; retry required', code: 'MTG_FULFILLMENT_RETRY_REQUIRED' }));
+          return;
+        }
         try {
           const event = JSON.parse(body.toString('utf8'));
           if (event && event.type === 'checkout.session.completed') {
