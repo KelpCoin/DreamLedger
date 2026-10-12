@@ -84,9 +84,20 @@ try {
 
     $economicScript = Join-Path $RepoRoot 'scripts/beck-economic-bootstrap.ps1'
     if (Test-Path -LiteralPath $economicScript) {
+        # Enable only read-only live Stripe GETs when a live-mode secret is already present.
+        # Never print, copy, or persist the key. A test key must not trigger live reconciliation.
+        $previousStripeEnabled = $env:STRIPE_LIVE_ENABLED
+        if ($env:STRIPE_SECRET_KEY -match '^(sk_live_|rk_live_)') {
+            $env:STRIPE_LIVE_ENABLED = 'true'
+            Add-StartupCheck 'stripe.live_read_only' 'PASS' 'Live-mode key detected; read-only Stripe endpoint and payment reconciliation enabled for this child process.'
+        } else {
+            $env:STRIPE_LIVE_ENABLED = 'false'
+            Add-StartupCheck 'stripe.live_read_only' 'BLOCKED' 'No live-mode Stripe key detected in the process environment; webhook routing and live payment reconciliation will be skipped.'
+        }
         $moneyProof = Join-Path $ProofRoot 'BECK-ECONOMIC-VALIDATION-LATEST.json'
         $economicOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $economicScript -RepoRoot $RepoRoot -ProofPath $moneyProof 2>&1
         $economicCode = $LASTEXITCODE
+        $env:STRIPE_LIVE_ENABLED = $previousStripeEnabled
         $economicText = (($economicOutput | ForEach-Object {[string]$_}) -join "`n")
         $moneyStatus = if ($economicCode -eq 0) {'PASS'} elseif ($economicCode -eq 2) {'BLOCKED'} else {'FAIL'}
         Add-StartupCheck 'economic.money_path' $moneyStatus ("exit=$economicCode; output=" + $economicText.Substring(0,[Math]::Min(5000,$economicText.Length)))
