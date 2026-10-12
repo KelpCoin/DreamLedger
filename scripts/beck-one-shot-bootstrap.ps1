@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
   [string]$RepoRoot = "",
-  [string]$Branch = 'main'
+  [string]$Branch = 'feat/beck-dual-heartbeat-bootstrap'
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -340,7 +340,19 @@ Write-Output "ONLINE_HEARTBEAT_STATUS=$onlineHeartbeatStatus"
 Write-Output "ONLINE_HEARTBEAT_RUN_ID=$onlineHeartbeatRunId"
 Write-Output "DUAL_HEARTBEAT_PROOF=$dualHeartbeatPath"
 $taskFinal = Get-ScheduledTask -TaskName 'DreamLedger-Local-Heartbeat' -ErrorAction SilentlyContinue
-$commissionStatus = if (-not $taskFinal) { 'FAILED' } elseif ($dualHeartbeatStatus -eq 'PASS' -and $commercialGauntletContract -eq 'PASS') { 'INSTALLED_AND_CORROBORATED' } else { 'INSTALLED_DEGRADED' }
+$commissionStatus = if (-not $taskFinal) {
+  'FAILED'
+} elseif ($dualHeartbeatStatus -ne 'PASS') {
+  'INSTALLED_HEARTBEAT_DEGRADED'
+} elseif ($commercialGauntletContract -ne 'PASS') {
+  'INSTALLED_COMMERCIAL_GAUNTLET_EXECUTION_UNVERIFIED'
+} elseif ($commercialGauntletStatus -eq 'PASS') {
+  'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET'
+} elseif ($commercialGauntletStatus -eq 'BLOCKED_REAL_COMMERCIAL_EVIDENCE_REQUIRED') {
+  'HEARTBEAT_PASS_COMMERCIAL_EVIDENCE_REQUIRED'
+} else {
+  'INSTALLED_COMMERCIAL_GAUNTLET_NOT_PASSED'
+}
 $commissionProof = [ordered]@{
   schema = 'DREAMLEDGER-ONE-SHOT-COMMISSIONING/v1'
   generated_at_utc = [DateTime]::UtcNow.ToString('o')
@@ -370,5 +382,10 @@ Write-Output "COMMISSIONING_STATUS=$commissionStatus"
 Write-Output "COMMISSIONING_PROOF=$commissionProofPath"
 Write-Output 'RERUN_REQUIRED=NO'
 if (-not $taskFinal) { exit 1 }
-# Readiness failures remain in the proof, but do not make the operator reinstall the same heartbeat.
-exit 0
+# Exit status distinguishes installed heartbeat from commercial readiness.
+# Never label the commercial Gauntlet green without its real evidence-gated eligible verdict.
+if ($commissionStatus -eq 'PASS_HEARTBEAT_AND_COMMERCIAL_GAUNTLET') { exit 0 }
+if ($commissionStatus -eq 'HEARTBEAT_PASS_COMMERCIAL_EVIDENCE_REQUIRED') { exit 2 }
+# A degraded local runtime does not erase a successfully registered task; retain proof and return 0.
+if ($commissionStatus -like 'INSTALLED_*') { exit 0 }
+exit 1
