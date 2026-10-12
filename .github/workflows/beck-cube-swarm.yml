@@ -1,0 +1,138 @@
+name: BECK CUBE Swarm Economic Traversal
+
+on:
+  push:
+    branches:
+      - main
+      - feat/cube-swarm-economic-traversal
+    paths:
+      - 'ops/cube-swarm/**'
+      - 'ops/commerce/**'
+      - 'BEC-PRIME/catalog/offers/**'
+      - 'BEC-PRIME/compiler/EconomicOpportunityCompiler.js'
+      - 'BEC-PRIME/factory/**'
+      - 'scripts/beck-cube-swarm-bootstrap.ps1'
+      - 'package.json'
+      - '.github/workflows/beck-cube-swarm.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/cube-swarm/**'
+      - 'ops/commerce/**'
+      - 'BEC-PRIME/catalog/offers/**'
+      - 'BEC-PRIME/compiler/EconomicOpportunityCompiler.js'
+      - 'BEC-PRIME/factory/**'
+      - 'scripts/beck-cube-swarm-bootstrap.ps1'
+      - 'package.json'
+      - '.github/workflows/beck-cube-swarm.yml'
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-cube-swarm-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  traverse:
+    name: Bounded opportunity batch and economic gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        id: install
+        run: npm install --no-audit --no-fund
+        continue-on-error: true
+
+      - name: Scout existing monetizable assets
+        id: scout
+        if: always() && steps.install.outcome == 'success'
+        run: npm run scout:monetization
+        continue-on-error: true
+
+      - name: Compile opportunity candidates
+        id: compile
+        if: always() && steps.install.outcome == 'success'
+        run: npm run compile:opportunities
+        continue-on-error: true
+
+      - name: Compile bounded CUBE opportunity batch
+        id: batch
+        if: always() && steps.install.outcome == 'success'
+        run: |
+          mkdir -p artifacts
+          node ops/cube-swarm/opportunity-batch-controller.mjs --max-candidates 100000 --out artifacts/opportunity-batch-latest.json
+        continue-on-error: true
+
+      - name: Run existing factory and approval packet pipeline
+        id: factory
+        if: always() && steps.install.outcome == 'success'
+        run: npm run factory:run
+        continue-on-error: true
+
+      - name: Run universal factory
+        id: universal
+        if: always() && steps.install.outcome == 'success'
+        run: npm run factory:universal
+        continue-on-error: true
+
+      - name: Verify factory assembly
+        id: assembly
+        if: always() && steps.install.outcome == 'success'
+        run: npm run verify:factory-factory-assembly
+        continue-on-error: true
+
+      - name: Verify B2B and A2A marketplace contracts
+        id: marketplaces
+        if: always() && steps.install.outcome == 'success'
+        run: |
+          npm run verify:b2b-marketplace
+          npm run verify:a2a-marketplace
+        continue-on-error: true
+
+      - name: Verify Cube Swarm definition and toll-road tests
+        id: contracts
+        if: always() && steps.install.outcome == 'success'
+        run: |
+          npm run verify:cube-swarm-definition
+          npm run test:toll-roads
+        continue-on-error: true
+
+      - name: Upload run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-cube-swarm-${{ github.run_id }}
+          path: artifacts/opportunity-batch-latest.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail run if any required gate failed
+        if: always()
+        env:
+          INSTALL: ${{ steps.install.outcome }}
+          SCOUT: ${{ steps.scout.outcome }}
+          COMPILE: ${{ steps.compile.outcome }}
+          BATCH: ${{ steps.batch.outcome }}
+          FACTORY: ${{ steps.factory.outcome }}
+          UNIVERSAL: ${{ steps.universal.outcome }}
+          ASSEMBLY: ${{ steps.assembly.outcome }}
+          MARKETPLACES: ${{ steps.marketplaces.outcome }}
+          CONTRACTS: ${{ steps.contracts.outcome }}
+        run: |
+          printf 'INSTALL=%s\nSCOUT=%s\nCOMPILE=%s\nBATCH=%s\nFACTORY=%s\nUNIVERSAL=%s\nASSEMBLY=%s\nMARKETPLACES=%s\nCONTRACTS=%s\n' "$INSTALL" "$SCOUT" "$COMPILE" "$BATCH" "$FACTORY" "$UNIVERSAL" "$ASSEMBLY" "$MARKETPLACES" "$CONTRACTS"
+          for result in "$INSTALL" "$SCOUT" "$COMPILE" "$BATCH" "$FACTORY" "$UNIVERSAL" "$ASSEMBLY" "$MARKETPLACES" "$CONTRACTS"; do
+            if [[ "$result" != "success" ]]; then
+              echo "ECONOMIC_TRAVERSAL=BLOCKED"
+              exit 1
+            fi
+          done
+          echo "ECONOMIC_TRAVERSAL=GATES_PASSED_NOT_REVENUE"
