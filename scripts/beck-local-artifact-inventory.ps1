@@ -57,7 +57,7 @@ foreach ($drive in @('C:\','D:\')) {
       Get-ChildItem -LiteralPath $drive -Directory -Force -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -match '(?i)BrownEye|DreamLedger|Garage|BEC|Artifact|Factory|Cube|Cortex|Spine|Bootstrap' } |
         ForEach-Object { $existingRoots += $_.FullName }
-    } catch { $errors.Add("ROOT_DISCOVERY:$drive:$($_.Exception.Message)") }
+    } catch { $errors.Add("ROOT_DISCOVERY:${drive}:$($_.Exception.Message)") }
   }
 }
 $existingRoots = @($existingRoots | Select-Object -Unique)
@@ -108,9 +108,9 @@ foreach ($root in $existingRoots) {
             sale_candidate=$false
             reason='Inventory metadata only. Commercial suitability requires content review, ownership/license review, validation, and explicit approval.'
           })
-        } catch { $errors.Add("ENTRY:$entry:$($_.Exception.Message)") }
+        } catch { $errors.Add("ENTRY:${entry}:$($_.Exception.Message)") }
       }
-    } catch { $errors.Add("DIRECTORY:$dir:$($_.Exception.Message)") }
+    } catch { $errors.Add("DIRECTORY:${dir}:$($_.Exception.Message)") }
     if ($walked -gt $MaxFiles) { break }
   }
   if ($walked -gt $MaxFiles) { break }
