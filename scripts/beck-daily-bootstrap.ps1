@@ -107,9 +107,10 @@ try {
   }
   $proof.checks.inference = [ordered]@{status=$inferenceStatus;model=$inferenceModel;output=$inferenceOutput;timestamp_utc=[DateTime]::UtcNow.ToString('o')}
 
-  $urls = @('https://dreamledger.org/truth-oracle.html','https://dreamledger.org/agent-delivery-proof-audit.html','https://dreamledger.org/billboard.html')
+  $urls = @('https://dreamledger.org/truth-oracle.html','https://dreamledger.org/billboard.html')
   if ($env:BECK_OFFER_URLS) { $urls = @($env:BECK_OFFER_URLS -split '\s+' | Where-Object { $_ }) }
   $proof.checks.public_pages = @($urls | ForEach-Object { [ordered]@{url=$_;http_status=(Get-HttpStatus $_);checkout='NOT_TESTED';payment='NOT_TESTED'} })
+  $proof.checks.retired_delivery_audit = [ordered]@{status='NOT_PROBED';reason='Retired capability belongs inside Truth Oracle; the standalone audit URL is intentionally excluded from operational checks.'}
 
   $sb = if ($env:SUPABASE_URL) { $env:SUPABASE_URL.TrimEnd('/') } else { 'https://wbwgroygjeyukkspnqiy.supabase.co' }
   $sbStatus = Get-HttpStatus "$sb/rest/v1/"
