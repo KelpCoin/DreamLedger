@@ -100,7 +100,7 @@ test('a verified prelaunch checkout hold passes checkout safety but never passes
   assert.equal(result.verdict.verdict, 'BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF');
   assert.equal(result.verdict.economic_baseline.verified_business_revenue_nzd, 0);
   assert.ok(result.verdict.hard_laws.some(x => x.id === 'C2' && x.verdict === 'PASS'));
-  assert.ok(result.verdict.hard_laws.some(x => x.id === 'C3' && x.verdict === 'PASS'));
+  assert.ok(result.verdict.hard_laws.some(x => x.id === 'C3' && x.verdict !== 'PASS'));
   assert.ok(result.verdict.hard_laws.some(x => x.id === 'C4' && x.verdict !== 'PASS'));
   assert.ok(result.verdict.hard_laws.some(x => x.id === 'C5' && x.verdict !== 'PASS'));
 });
@@ -119,6 +119,7 @@ test('complete evidence-shaped fixture can pass the commercial verdict contract 
       checks: [
         { name: 'commercial.truth_oracle_offer_parity', status: 'PASS' },
         { name: 'offer.retired_offer_retirement', status: 'PASS' },
+        { name: 'offer.truth_oracle_checkout_hold', status: 'PASS' },
         { name: 'commerce.independent_paid_order', status: 'PASS' },
         { name: 'fulfillment.end_to_end', status: 'PASS' },
         { name: 'fulfillment.delivery_evidence', status: 'PASS' },

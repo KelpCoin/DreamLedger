@@ -49,13 +49,13 @@ foreach ($record in $approvedRecords) {
         continue
     }
     $offer = $compiledById[$id]
-    if ($offer.approval_required -ne $false) { $errors.Add("$id: approval_required must be false") }
-    if ($offer.checkout_available -ne $true) { $errors.Add("$id: checkout_available must be true") }
-    if ($offer.status -ne 'VERIFIED_AVAILABLE') { $errors.Add("$id: status must be VERIFIED_AVAILABLE") }
-    if ($offer.silo -ne $record.silo) { $errors.Add("$id: silo mismatch between approved source and compiled catalog") }
-    if ([double]$offer.price -ne [double]$record.price) { $errors.Add("$id: price mismatch between approved source and compiled catalog") }
-    if ([string]$offer.currency -ne [string]$record.currency) { $errors.Add("$id: currency mismatch between approved source and compiled catalog") }
-    if ($offer.capability_id -notin $validIds) { $errors.Add("$id: compiled capability is not present in capability catalog") }
+    if ($offer.approval_required -ne $false) { $errors.Add("${id}: approval_required must be false") }
+    if ($offer.checkout_available -ne $true) { $errors.Add("${id}: checkout_available must be true") }
+    if ($offer.status -ne 'VERIFIED_AVAILABLE') { $errors.Add("${id}: status must be VERIFIED_AVAILABLE") }
+    if ($offer.silo -ne $record.silo) { $errors.Add("${id}: silo mismatch between approved source and compiled catalog") }
+    if ([double]$offer.price -ne [double]$record.price) { $errors.Add("${id}: price mismatch between approved source and compiled catalog") }
+    if ([string]$offer.currency -ne [string]$record.currency) { $errors.Add("${id}: currency mismatch between approved source and compiled catalog") }
+    if ($offer.capability_id -notin $validIds) { $errors.Add("${id}: compiled capability is not present in capability catalog") }
 }
 
 if ($approvedRecords.Count -eq 0) { $errors.Add('approved catalog contains zero records') }

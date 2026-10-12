@@ -65,7 +65,9 @@ jobs:
         shell: pwsh
         run: ./scripts/Verify-ApprovedOfferContract.ps1
 
+      # Production parity can only be asserted after deployment. PR builds are not deployed.
       - name: Verify compiled catalog to production API contract
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         env:
           LIVE_URL: https://dreamledger.org

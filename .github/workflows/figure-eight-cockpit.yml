@@ -1,8 +1,10 @@
 name: Private Economic Cockpit
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '*/30 * * * *'
 permissions:
   contents: read
   actions: read
@@ -20,11 +22,14 @@ jobs:
       - name: Run read-only economic validation
         shell: bash
         run: |
-          set +e
+          set -euo pipefail
           npm run validate:economics
-          exit 0
       - name: Generate private cockpit score
-        run: node ops/cockpit/economic-cockpit.mjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof/cockpit
+          COCKPIT_REPORT_PATH=proof/cockpit/figure-eight-cockpit-latest.json COCKPIT_PRIVATE_MODE=true node ops/cockpit/figure-eight-cockpit.mjs
       - name: Upload private report and evidence
         if: always()
         uses: actions/upload-artifact@v4

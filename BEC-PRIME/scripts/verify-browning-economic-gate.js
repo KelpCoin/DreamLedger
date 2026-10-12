@@ -27,7 +27,7 @@ check('homepage-canonical-doors',
   ['DreamLedger', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())) && !/Agent Delivery Proof Audit|agent-delivery-proof-audit/i.test(index),
   'Homepage exposes Truth Oracle and supplier quote comparison; the retired audit offer is absent.');
 check('diagnostic-current-public-catalog',
-  Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && /^https:\/\/buy\.stripe\.com\//.test(String(x.checkout_url || ''))),
+  Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && x.checkout_url === 'https://dreamledger.org/mtg/diagnostic.html'),
   'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.' );
 check('diagnostic-current-public-mtg',
   /Commander Deck Diagnostic/i.test(mtg) && /29/i.test(mtg),

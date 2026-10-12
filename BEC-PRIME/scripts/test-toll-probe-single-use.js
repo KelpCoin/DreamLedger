@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 process.env.DREAMLEDGER_TOLL_KEY_SECRET = 'unit-test-toll-secret';
-process.env.STRIPE_SECRET_KEY = 'sk_test_mock_only';
+process.env.STRIPE_SECRET_KEY = 'mocked_stripe_secret_for_unit_tests';
 process.env.PUBLIC_BASE_URL = 'https://dreamledger.org';
 
 let stripeSession = null;

@@ -6,6 +6,7 @@ const { URL } = require('url');
 const { Readable } = require('stream');
 const distributionDoorway = require('../BEC-PRIME/routes/distributionDoorway');
 const mtgDiagnostic = require('../BEC-PRIME/lib/mtgDiagnosticFulfillment');
+const mtgDiagnosticRoute = require('../BEC-PRIME/routes/mtgDiagnostic');
 const paidCheckoutWebhook = require('./paidCheckoutWebhook');
 
 function replayRequest(req, body) {
@@ -61,15 +62,18 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             body = Buffer.concat([body, Buffer.from(chunk)]);
             if (body.length > 100000) throw new Error('Request too large');
           }
-          const result = await mtgDiagnostic.createPaymentLinkCheckout(JSON.parse(body.toString('utf8')));
+          const result = await mtgDiagnostic.createCheckout(JSON.parse(body.toString('utf8')));
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.setHeader('Cache-Control', 'no-store');
           res.end(JSON.stringify(result));
         } catch (err) {
-          res.statusCode = 400;
+          const message = err && err.message ? err.message : 'Diagnostic intake failed';
+          const unavailable = /Economic ledger unavailable|checkout held|STRIPE_SECRET_KEY|Stripe/i.test(message);
+          res.statusCode = unavailable ? 503 : 400;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(JSON.stringify({ error: err && err.message ? err.message : 'Diagnostic intake failed' }));
+          res.setHeader('Cache-Control', 'no-store');
+          res.end(JSON.stringify({ error: message, code: unavailable ? 'CHECKOUT_TEMPORARILY_UNAVAILABLE' : 'INVALID_DIAGNOSTIC_INPUT' }));
         }
         return;
       }
@@ -118,11 +122,20 @@ if (!global.__dreamledgerWebhookProxyPreload) {
             if (body.length > 100000) throw new Error('Request too large');
           }
           const payload = JSON.parse(body.toString('utf8'));
-          if (payload && payload.offer_id === 'OFFER-CMD-DIAG-29-NZD') {
-            res.statusCode = 200;
+          const offerId = String(payload && payload.offer_id || '');
+          const productId = String(payload && (payload.product_id || payload.sku_id) || '');
+          if (['OFFER-CMD-DIAG-29-NZD', 'OFFER-COMMANDER-DECK-DIAGNOSTIC-001'].includes(offerId) || productId === 'COMMANDER-DECK-DIAGNOSTIC-001') {
+            res.statusCode = 409;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             res.setHeader('Cache-Control', 'no-store');
-            res.end(JSON.stringify({ok:true,offer_id:'OFFER-CMD-DIAG-29-NZD',product_id:'COMMANDER-DECK-DIAGNOSTIC-001',amount_nzd:29,currency:'NZD',checkout_url:'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l'}));
+            res.end(JSON.stringify({ok:false,code:'FIRST_PARTY_INTAKE_REQUIRED',error:'Commander Diagnostic must use the first-party intake so decklist, intake ID, payment, and fulfillment evidence stay linked.',intake_url:'https://dreamledger.org/mtg/diagnostic.html'}));
+            return;
+          }
+          if (['OFFER-QUOTE-COMPARE-49-NZD'].includes(offerId) || productId === 'QUOTE-COMPARE-49') {
+            res.statusCode = 409;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({ok:false,code:'PAID_OFFER_HELD',error:'Paid Supplier Quote Comparison is held; use the free worksheet inside Truth Oracle.',free_entry_url:'https://dreamledger.org/quote-comparison/'}));
             return;
           }
           return handler(replayRequest(req, body), res);
@@ -147,11 +160,23 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           res.end(JSON.stringify({ error: err.message || 'Request too large' }));
           return;
         }
+        let parsedEvent = null;
+        try { parsedEvent = JSON.parse(body.toString('utf8')); } catch {}
+        const paidMtgDiagnostic = parsedEvent?.type === 'checkout.session.completed'
+          && parsedEvent?.data?.object?.payment_status === 'paid'
+          && parsedEvent?.data?.object?.metadata?.product_id === 'COMMANDER-DECK-DIAGNOSTIC-001';
         try {
-          const result = await mtgDiagnostic.handleWebhook(replayRequest(req, body), res);
+          const result = await mtgDiagnosticRoute.handleWebhook(replayRequest(req, body), res);
           if (result && result.handled) return;
         } catch (err) {
-          if (err && /STRIPE_WEBHOOK_SECRET|Invalid Stripe signature|Expired Stripe signature/.test(err.message || '')) {
+          if (err && /STRIPE_WEBHOOK_SECRET/.test(err.message || '')) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({ error: 'Stripe webhook configuration unavailable', code: 'WEBHOOK_CONFIGURATION_MISSING' }));
+            return;
+          }
+          if (err && /Invalid Stripe signature|Expired Stripe signature/.test(err.message || '')) {
             res.statusCode = 400;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             res.end(JSON.stringify({ error: err.message }));
@@ -159,6 +184,15 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           }
         }
         if (res.writableEnded) return;
+        if (paidMtgDiagnostic) {
+          // Never acknowledge a paid diagnostic order if report or economic-ledger
+          // persistence failed. Stripe must retry until fulfillment is recorded.
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          res.end(JSON.stringify({ error: 'MTG diagnostic fulfillment failed; retry required', code: 'MTG_FULFILLMENT_RETRY_REQUIRED' }));
+          return;
+        }
         try {
           const event = JSON.parse(body.toString('utf8'));
           if (event && event.type === 'checkout.session.completed') {

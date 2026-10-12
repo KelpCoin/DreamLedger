@@ -9,8 +9,10 @@ const REPORTS = path.join(DATA, 'reports');
 const INTAKES = path.join(DATA, 'intakes');
 const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
-const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1U8LHfEGgEAnUFF9i3vrXCJU';
-const PAYMENT_LINK = 'https://buy.stripe.com/00w7sLaXP01n96nbN2dwc2l';
+const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1UFFY1EGgEAnUFF9Yq03zIa7';
+const PAYMENT_LINK = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
 const PRODUCT_ID = 'COMMANDER-DECK-DIAGNOSTIC-001';
 const OFFER_ID = 'OFFER-CMD-DIAG-29-NZD';
 
@@ -57,8 +59,40 @@ async function createIntake(input){
   const cards=parseDecklist(input.decklist);if(cards.length<10)throw new Error('Please supply at least 10 decklist lines.');const intakeId=id();const intake={intake_id:intakeId,product_id:PRODUCT_ID,offer_id:OFFER_ID,commander:String(input.commander||''),strategy:String(input.strategy||''),budget:String(input.budget||''),decklist:String(input.decklist),cards,created_at:new Date().toISOString(),status:'awaiting_payment'};writeJson(path.join(INTAKES,intakeId+'.json'),intake);return intake;}
 function form(params){const out=new URLSearchParams();for(const[k,v]of Object.entries(params))out.set(k,String(v));return out;}
 async function stripeSession(intake){if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');const sessionParams={'mode':'payment','line_items[0][price]':STRIPE_PRICE_ID,'line_items[0][quantity]':'1','success_url':PUBLIC_BASE+'/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}','cancel_url':PUBLIC_BASE+'/mtg?diagnostic_cancelled=1','metadata[product_id]':PRODUCT_ID,'metadata[offer_id]':OFFER_ID,'metadata[silo]':'mtg','metadata[intake_id]':intake.intake_id,'metadata[commerce_version]':'mtg-diagnostic-auto-v1','customer_creation':'always'};const r=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'content-type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-mtg-diagnostic-'+intake.intake_id},body:form(sessionParams)});const t=await r.text();let j;try{j=JSON.parse(t)}catch{j={}}if(!r.ok)throw new Error(j?.error?.message||'Stripe checkout creation failed');return j;}
-async function createCheckout(input){const intake=await createIntake(input);try{const session=await stripeSession(intake);intake.session_id=session.id;intake.status='checkout_created';writeJson(path.join(INTAKES,intake.intake_id+'.json'),intake);return{ok:true,intake_id:intake.intake_id,session_id:session.id,checkout_url:session.url};}catch(e){intake.status='checkout_failed';intake.error=e.message;writeJson(path.join(INTAKES,intake.intake_id+'.json'),intake);throw e;}}
-async function createPaymentLinkCheckout(input){const intake=await createIntake(input);intake.status='payment_link_created';intake.checkout_url=PAYMENT_LINK+'?client_reference_id='+encodeURIComponent(intake.intake_id);writeJson(path.join(INTAKES,intake.intake_id+'.json'),intake);return{ok:true,intake_id:intake.intake_id,checkout_url:intake.checkout_url};}
+async function assertEconomicLedgerReady(){
+  if(!SUPABASE_URL||!SUPABASE_SERVICE_ROLE_KEY)throw new Error('Economic ledger unavailable; checkout held until settlement recording is reachable');
+  let response;
+  try {
+    response=await fetch(SUPABASE_URL+'/rest/v1/rpc/resolve_economic_offer_id',{
+      method:'POST',
+      headers:{apikey:SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+SUPABASE_SERVICE_ROLE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({p_offer_key:OFFER_ID,p_sku_id:'CMD-DIAG-29',p_amount_nzd:29})
+    });
+  } catch {
+    throw new Error('Economic ledger unavailable; checkout held until settlement recording is reachable');
+  }
+  if(!response.ok)throw new Error('Economic ledger unavailable; checkout held until settlement recording is reachable');
+  let offerId=null;try{offerId=await response.json();}catch{}
+  if(!offerId)throw new Error('Canonical economic offer unavailable; checkout held');
+}
+async function createCheckout(input){
+  if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');
+  await assertEconomicLedgerReady();
+  const intake=await createIntake(input);
+  try {
+    const session=await stripeSession(intake);
+    intake.session_id=session.id;
+    intake.status='checkout_created';
+    writeJson(path.join(INTAKES,intake.intake_id+'.json'),intake);
+    return{ok:true,intake_id:intake.intake_id,session_id:session.id,checkout_url:session.url};
+  } catch(e) {
+    intake.status='checkout_failed';
+    intake.error=e.message;
+    writeJson(path.join(INTAKES,intake.intake_id+'.json'),intake);
+    throw e;
+  }
+}
+async function createPaymentLinkCheckout(input){return createCheckout(input);}
 async function verifySettledPayment(session){
   if(!STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not configured');
   if(session?.livemode!==true) throw new Error('LIVE_PAYMENT_REQUIRED');

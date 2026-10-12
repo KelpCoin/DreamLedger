@@ -58,10 +58,11 @@
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "name": "Commander Deck Diagnostic",
       "price_nzd": 29,
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "checkout_url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
+      "buy_router": "https://dreamledger.org/mtg/diagnostic.html",
+      "checkout_url": "https://dreamledger.org/mtg/diagnostic.html",
       "status": "LISTED",
-      "loop": "LOOP-CMD-DIAG-29"
+      "loop": "LOOP-CMD-DIAG-29",
+      "note": "First-party decklist intake creates a one-time Checkout Session only while the canonical economic ledger is reachable. Do not treat checkout creation as payment or delivery proof."
     },
     {
       "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
@@ -151,10 +152,11 @@
     {
       "product_id": "EDH_0001",
       "name": "EDH_0001 Commander Deck",
-      "price_nzd": 400,
-      "buy_router": "https://dreamledger.org/buy/EDH_0001",
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-      "status": "LISTED"
+      "price_nzd": 230,
+      "buy_router": "https://dreamledger.org/buy/edh-0001/",
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "note": "Checkout is held because the public listing says NZ$230 while the linked live Stripe Payment Link charges NZ$400. Do not purchase until the price and checkout are reconciled."
     }
   ],
   "catalog_note": "Prices, checkout links, and availability can change. Confirm current terms on the product page before purchase.",
