@@ -11,7 +11,7 @@ const settled=await Promise.allSettled([
  list('/balance_transactions',{'created[gte]':String(start),'created[lt]':String(end),currency:'nzd'}),
  list('/payouts',{'created[gte]':String(start),'created[lt]':String(end)}),
  get(canonical),
- get('https://api.github.com/repos/'+repo+'/actions/runs?per_page=20',{Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(process.env.GITHUB_TOKEN?{Authorization:'Bearer '+process.env.GITHUB_TOKEN}:{})})
+ get('https://api.github.com/repos/'+repo+'/actions/workflows/beck-economic-gauntlet.yml/runs?per_page=20',{Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(process.env.GITHUB_TOKEN?{Authorization:'Bearer '+process.env.GITHUB_TOKEN}:{})})
 ]);
 const unwrap=i=>settled[i].status==='fulfilled'?settled[i].value:{ok:false,data:{},error:'request failed'};
 const wh=unwrap(0),bt=unwrap(1),po=unwrap(2),health=unwrap(3),ci=unwrap(4),eps=wh.data||[],active=eps.filter(e=>e.status==='enabled'&&e.livemode===true),canonicalActive=active.filter(e=>e.url?.replace(/\/$/,'')===canonical),events=['checkout.session.completed','checkout.session.async_payment_succeeded','payment_intent.succeeded'],dupes=events.filter(ev=>active.filter(e=>(e.enabled_events||[]).includes(ev)||(e.enabled_events||[]).includes('*')).length>1);
