@@ -50,7 +50,9 @@ try {
   $base = "http://127.0.0.1:$Port/v1"
   if ($env:BECK_LMSTUDIO_BASE) {
     $base = $env:BECK_LMSTUDIO_BASE.TrimEnd('/')
-    if ($base -match ':(\d+)/v1 = "$base/models"
+    if ($base -match ':(\d+)/v1$') { $Port = [int]$Matches[1] }
+  }
+  $modelUrl = "$base/models"
   $modelStatus = Get-HttpStatus $modelUrl
   if ($modelStatus -ne '200') {
     $lms = Get-Command lms.exe -ErrorAction SilentlyContinue
