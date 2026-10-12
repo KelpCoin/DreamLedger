@@ -88,6 +88,26 @@ try {
     [void](Invoke-Logged 'INSTALL_NPM_DEPENDENCIES' 'npm.cmd' @('install','--no-audit','--no-fund'))
   }
 
+  # Read-only inventory of known BEC, Garage, DreamLedger and artifact roots.
+  $inventoryScript = Join-Path $RepoRoot 'scripts\beck-local-artifact-inventory.ps1'
+  $inventoryPath = Join-Path $ProofRoot 'LOCAL-ARTIFACT-INVENTORY-LATEST.json'
+  try {
+    $inventoryLines = @(& $inventoryScript -OutputPath $inventoryPath -MaxFiles 100000 2>&1 | ForEach-Object { [string]$_ })
+    $inventoryCode = $LASTEXITCODE
+  } catch {
+    $inventoryCode = 9001
+    $inventoryLines = @($_.Exception.Message)
+  }
+  foreach ($line in $inventoryLines) { Add-Content -LiteralPath $logPath -Value $line -Encoding UTF8 }
+  $results.Add([ordered]@{
+    name='INVENTORY_LOCAL_BROWN_EYE_CORTEX_ARTIFACTS'
+    status=$(if($inventoryCode -eq 0){'PASS'}else{'BLOCKED'})
+    exit_code=$inventoryCode
+    proof_path=$inventoryPath
+    output_tail=@($inventoryLines | Select-Object -Last 20)
+  })
+  Write-Output ('INVENTORY_LOCAL_BROWN_EYE_CORTEX_ARTIFACTS_STATUS=' + $(if($inventoryCode -eq 0){'PASS'}else{'BLOCKED'}))
+
   $commands = @(
     @{name='SCOUT_EXISTING_MONETIZABLE_ASSETS';exe='npm.cmd';args=@('run','scout:monetization')},
     @{name='COMPILE_ECONOMIC_OPPORTUNITIES';exe='npm.cmd';args=@('run','compile:opportunities')},
