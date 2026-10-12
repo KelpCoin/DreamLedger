@@ -78,8 +78,9 @@ jobs:
           }
           if (-not $bootstrap.Contains("LOCAL_HEARTBEAT_TASK=REGISTERED")) { throw 'Bootstrap must emit local task registration proof.' }
           if (-not $bootstrap.Contains('DUAL_HEARTBEAT_STATUS=$dualHeartbeatStatus')) { throw 'Bootstrap must emit dual-heartbeat status.' }
-          $branchContract = '[string]$Branch = ' + "'main'"
-          if (-not $bootstrap.Contains($branchContract)) { throw 'Bootstrap must use main as the default runtime branch after merge.' }
+          $branchContractSingle = '[string]$Branch = ' + "'main'"
+          $branchContractDouble = '[string]$Branch = ' + '"main"'
+          if (-not ($bootstrap.Contains($branchContractSingle) -or $bootstrap.Contains($branchContractDouble))) { throw 'Bootstrap must default to main after merge while permitting explicit branch selection.' }
           if (-not $bootstrap.Contains('EscapeDataString($Branch)')) { throw 'Cloud corroboration must query the selected bootstrap branch.' }
           if (-not $bootstrap.Contains('PHASE=VERIFY_COMMERCIAL_GAUNTLET')) { throw 'Bootstrap must explicitly execute the Commercial Gauntlet.' }
           if (-not $bootstrap.Contains('COMMERCIAL_GAUNTLET_STATUS=$commercialGauntletStatus')) { throw 'Bootstrap must report the actual commercial verdict.' }
