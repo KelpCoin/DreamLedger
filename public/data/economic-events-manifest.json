@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-12T17:27:19+00:00",
+  "updated_at_utc": "2026-10-12T23:43:59+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "WITT20260914",
+      "url": "https://www.gets.govt.nz/NZIST/ExternalTenderDetails.htm?id=34924423",
+      "observed_at": "2026-10-12T23:43:55+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "258db589a287ef912c09ddbdefb8978f1ca16ea15949855c7e7b4f390545e4ae",
+      "event_id": "213b5461-14bc-5855-9776-a5dfe845313a",
+      "silo_id": "ECO-258DB589A287EF91",
+      "slug": "procurement-witt20260914-258db589a2"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
