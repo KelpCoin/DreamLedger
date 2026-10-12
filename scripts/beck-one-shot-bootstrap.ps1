@@ -1,6 +1,6 @@
 #Requires -Version 5.1
 [CmdletBinding()]
-param([string]$RepoRoot = "")
+param([string]$RepoRoot = "", [string]$Branch = "main")
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 trap {
@@ -31,7 +31,6 @@ trap {
     exit 1
   }
 }
-$Branch = 'feat/beck-bootstrap-gauntlet-ready-20261012'
 $Workflow = 'figure-eight-cockpit.yml'
 $RepoUrl = 'https://github.com/KelpCoin/DreamLedger.git'
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
