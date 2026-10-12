@@ -22,14 +22,15 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+      # First validation gate after checkout: fail the job before runtime checks.
       - name: Validate workflow structure with actionlint
         uses: reviewdog/action-actionlint@v1
         with:
           actionlint_flags: -color
           fail_on_error: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Syntax-check economic gate
         run: node --check ops/commerce/first-dollar-economic-gate.mjs
       - name: Run read-only economic gate
@@ -47,6 +48,7 @@ jobs:
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
+          DL_CLIENT_REFERENCE_ID: ${{ vars.DL_CLIENT_REFERENCE_ID }}
         shell: bash
         run: |
           set +e
