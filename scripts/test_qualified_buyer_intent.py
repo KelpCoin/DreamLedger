@@ -97,7 +97,7 @@ class QualifiedBuyerIntentTests(unittest.TestCase):
         self.assertIn('signal.get("publisher")', cycle)
         self.assertIn('"looking for" manual invoice', cycle)
         self.assertIn('"does anyone know" webhook error', cycle)
-        self.assertIn('"signals":deduped[:200]', cycle)
+        self.assertIn('"signals":deduped[:500]', cycle)
         self.assertIn('"source_counts":source_counts', cycle)
         self.assertIn('href="https://dreamledger.org/truth-oracle.html"', cycle)
         self.assertNotIn("Discovery source: Google News RSS", cycle)
