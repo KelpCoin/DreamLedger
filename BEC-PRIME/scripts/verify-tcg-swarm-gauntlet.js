@@ -24,6 +24,7 @@ const hub=read('public/tcg/index.html');
 check('TCG hub references canonical swarm data',hub.includes('tcg-swarm.json'));
 check('TCG hub renders manifest data through DOM APIs',hub.includes('g.replaceChildren()')&&hub.includes('document.createElement')&&!hub.includes('g.innerHTML=(d.silos||[])'));
 hold('NO_VERIFIED_TCG_TRANSACTIONS','These are discovery/intake clones, not proof of inventory, settlement, fulfilment, or delivered outcomes.');
+hold('MARKET_RANKING_NOT_DEMAND','Market-size ranks are research context only. They are not verified DreamLedger buyer demand or conversion evidence.');
 const failed=checks.filter(x=>!x.ok);
 console.log(JSON.stringify({schema:'DREAMLEDGER/TCG-SWARM-GAUNTLET/v1',verdict:failed.length?'FAIL':'PASS_WITH_HOLDS',launch_ready:false,clone_count:clones.length,checks,holds,failed_checks:failed.length,truth:{verified_external_revenue_nzd:0,settled_external_payments:0,independent_external_buyers:0,paid_fulfilled_orders:0,verified_outcomes:0}},null,2));
 if(failed.length)process.exitCode=1;
