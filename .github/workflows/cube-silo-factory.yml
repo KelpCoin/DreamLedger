@@ -15,6 +15,8 @@ on:
       - 'BEC-PRIME/scripts/verify-music-media-silo.js'
       - 'BEC-PRIME/scripts/verify-silo-fee-policy.js'
       - 'BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js'
+      - 'BEC-PRIME/scripts/verify-silo-capabilities.js'
+      - 'runtime/cube/capability-registry.json'
       - 'package.json'
       - 'docs/BECK-EMPIRE-SILO-REGISTRY.json'
       - 'docs/BECK-SILO-FEE-POLICY.json'
@@ -76,6 +78,7 @@ jobs:
           node BEC-PRIME/scripts/verify-music-media-silo.js
           node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
           node BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js
+          node BEC-PRIME/scripts/verify-silo-capabilities.js
           node BEC-PRIME/scripts/verify-silo-fee-policy.js
       - name: Commit generated artifacts to the working branch only
         if: github.event_name == 'push' && github.ref_name != 'main'
