@@ -104,7 +104,7 @@ def derive_explicit_request_fields(signal: dict | None) -> dict:
     author = _plain_text(signal.get("author"))
     title = _plain_text(signal.get("title"))
     body = _plain_text(signal.get("text") or signal.get("comment_text") or signal.get("story_text"))
-    combined = ". ".join(part for part in (title, body) if part)
+    combined = ". ".join(part for part in (body, title) if part)
     sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", combined) if part.strip()]
     request_sentence = next((s for s in sentences if _REQUEST_RE.search(s)), "")
     problem_sentence = next(
