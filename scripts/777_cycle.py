@@ -182,13 +182,16 @@ def parse_private_rss(raw):
 
 
 PUBLIC_REQUEST_SEARCHES = [
-    '"looking for" invoice automation',
-    '"need a tool" PDF extraction',
-    '"anyone recommend" quote comparison',
-    '"anyone know" webhook debugging',
-    '"looking for" document processing API',
-    '"hire someone to" invoice automation',
-    '"alternative to" invoice extraction',
+    '"looking for" manual invoice',
+    '"need help with" invoice manual',
+    '"anyone recommend" PDF extraction failing',
+    '"does anyone know" webhook error',
+    '"looking for" data extraction "takes too long"',
+    '"looking to hire" automation manual',
+    '"pay someone to" API broken',
+    '"alternative to" invoice "not working"',
+    '"any recommendations for" quote manual',
+    '"looking for" OCR invoice',
 ]
 
 
