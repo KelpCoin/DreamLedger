@@ -4,7 +4,7 @@ const {spawnSync}=require('child_process');
 const root=path.resolve(__dirname,'../..');
 const args=process.argv.slice(2);
 const i=args.indexOf('--manifest');
-const manifest=i>=0?args[i+1]:'runtime/cube/silo-manifests/music-media.json';
+const manifest=i>=0?args[i+1]:'silos/music-media/silo.json';
 const check=args.includes('--check');
 const jobs=[
  ['SiloCloneCompiler.js',['--manifest',manifest]],
