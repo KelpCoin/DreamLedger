@@ -79,8 +79,7 @@ jobs:
       - name: Publish source-bound pulse notes to canonical site route
         if: steps.pulse.outputs.publish == 'true'
         run: python scripts/publish_777_pulse_to_site.py
-      - name: Run cloud Elohim / Gauntlet execution adapter
-        if: steps.pulse.outputs.publish == 'true'
+      - name: Run bounded internal Elohim / Gauntlet candidate
         env:
           CLOUD_ELOHIM_URL: ${{ vars.CLOUD_ELOHIM_URL }}
           CLOUD_GAUNTLET_URL: ${{ vars.CLOUD_GAUNTLET_URL }}
@@ -91,6 +90,8 @@ jobs:
           LM_STUDIO_URL: ${{ vars.LM_STUDIO_URL }}
           LM_STUDIO_MODEL: ${{ vars.LM_STUDIO_MODEL }}
           QUOTE_COMPARE_CHECKOUT: ${{ vars.QUOTE_COMPARE_CHECKOUT }}
+          DREAMLEDGER_777_OUTPUT_DIR: artifacts/777/internal
+          DREAMLEDGER_777_SKIP_MODELS: 'true'
         run: node scripts/777_cloud_execution_adapter.js
       - name: Stage public artifact candidates for compounding gate
         if: steps.pulse.outputs.publish == 'true'
@@ -186,6 +187,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 777-qualification-receipt-\${{ github.run_id }}
-          path: artifacts/777/receipts/*.json
+          path: |
+            artifacts/777/receipts/*.json
+            artifacts/777/internal/*.json
           if-no-files-found: ignore
           retention-days: 30
