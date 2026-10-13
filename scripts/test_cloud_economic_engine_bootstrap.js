@@ -35,6 +35,7 @@ async function main() {
     },
   });
   assert.equal(publicReport.status, 'PUBLIC_SURFACES_PASS_COMMERCE_UNVERIFIED');
+  assert.match(fs.readFileSync(path.resolve(__dirname, 'cloud_economic_engine_bootstrap.js'), 'utf8'), /report\.status === 'BLOCKED_OR_UNVERIFIED'\) process\.exitCode = 2/);
   assert.equal(publicReport.public_surfaces.length, 6);
   assert.ok(publicReport.public_surfaces.every(item => item.status === 'PASS'));
   assert.equal(publicReport.economic_truth.verified_external_revenue_nzd, 0);
