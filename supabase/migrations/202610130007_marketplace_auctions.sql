@@ -16,7 +16,8 @@ create table if not exists public.marketplace_auctions (
   status text not null default 'pending_review' check (status in ('pending_review','scheduled','live','ended','awarded','cancelled')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (ends_at>starts_at)
+  check (ends_at>starts_at),
+  check (buy_now_price_minor is null or reserve_price_minor is null or buy_now_price_minor>=reserve_price_minor)
 );
 create table if not exists public.marketplace_bids (
   id uuid primary key default gen_random_uuid(),
@@ -54,7 +55,7 @@ begin
   reserve:=nullif(p_payload->>'reserve_price_minor','')::bigint;
   buy_now:=nullif(p_payload->>'buy_now_price_minor','')::bigint;
   increment:=coalesce(nullif(p_payload->>'minimum_increment_minor','')::bigint,100);
-  if start_price<0 or increment<1 or (reserve is not null and reserve<start_price) or (buy_now is not null and buy_now<start_price) then raise exception 'invalid auction pricing'; end if;
+  if start_price<0 or increment<1 or (reserve is not null and reserve<start_price) or (buy_now is not null and buy_now<start_price) or (buy_now is not null and reserve is not null and buy_now<reserve) then raise exception 'invalid auction pricing'; end if;
   insert into public.marketplace_auctions(listing_id,seller_party_id,starting_price_minor,reserve_price_minor,buy_now_price_minor,minimum_increment_minor,currency,starts_at,ends_at,anti_sniping_seconds,status)
   values(listing.id,p_seller_party_id,start_price,reserve,buy_now,increment,upper(coalesce(p_payload->>'currency',listing.currency)),start_at,end_at,least(greatest(coalesce(nullif(p_payload->>'anti_sniping_seconds','')::integer,120),0),900),'pending_review') returning * into item;
   perform public.marketplace_append_ledger_event(p_idempotency_key,'AUCTION_SUBMITTED','auction',item.id,'business',p_seller_party_id::text,'OBSERVED',jsonb_build_object('listing_id',listing.id,'starts_at',start_at,'ends_at',end_at,'starting_price_minor',start_price,'reserve_price_minor',reserve,'currency',item.currency));
