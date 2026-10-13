@@ -13,6 +13,16 @@
       "cross_silo_forbidden_domains": ["amplissa.com"],
       "cross_silo_forbidden_terms": ["Amplissa", "adult content", "18+ content", "BBW content", "OnlyFans", "Pornhub"]
     },
+    "MUSIC_MEDIA": {
+      "id": "dreamledger-music-media",
+      "public_domains": ["dreamledger.org"],
+      "public_prefixes": ["/music-media"],
+      "platform_fee_bps": 500,
+      "status": "build",
+      "first_dollar_priority": 6,
+      "cross_silo_forbidden_domains": ["amplissa.com"],
+      "cross_silo_forbidden_terms": ["MTG", "Magic: The Gathering", "Commander", "adult content", "18+ content"]
+    },
     "AMPLISSA": {
       "id": "amplissa",
       "public_domains": ["amplissa.com"],
