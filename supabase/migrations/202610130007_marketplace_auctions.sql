@@ -125,10 +125,37 @@ begin
   return jsonb_build_object('auction_id',auction.id,'state',result_state,'order_id',ord.id,'winner_party_id',bid.bidder_party_id);
 end; $$;
 
+create or replace function public.marketplace_buy_now(p_idempotency_key text,p_auction_id uuid,p_buyer_party_id uuid,p_authorization jsonb)
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $
+declare auction public.marketplace_auctions%rowtype; buyer public.marketplace_parties%rowtype; listing public.marketplace_listings%rowtype; agreement public.marketplace_agreements%rowtype; ord public.marketplace_orders%rowtype; prior public.marketplace_orders%rowtype; terms jsonb;
+begin
+  perform pg_advisory_xact_lock(hashtext(p_idempotency_key));
+  select * into prior from public.marketplace_orders where idempotency_key=p_idempotency_key;
+  if found then return jsonb_build_object('order_id',prior.id,'state',prior.state,'payment_state',prior.payment_state,'duplicate',true); end if;
+  if coalesce(p_authorization->>'confirmed','false')<>'true' or coalesce(length(trim(p_authorization->>'authorized_by')),0)<3 then raise exception 'explicit human buy-now authorization required'; end if;
+  select * into auction from public.marketplace_auctions where id=p_auction_id for update;
+  if not found or auction.status not in ('scheduled','live') or auction.starts_at>now() or auction.ends_at<=now() or auction.buy_now_price_minor is null then raise exception 'buy-now is unavailable'; end if;
+  select * into buyer from public.marketplace_parties where id=p_buyer_party_id and status='active';
+  if not found or buyer.id=auction.seller_party_id then raise exception 'active non-seller buyer party required'; end if;
+  select * into listing from public.marketplace_listings where id=auction.listing_id and status='published';
+  if not found then raise exception 'published auction listing required'; end if;
+  terms:=jsonb_build_object('auction_id',auction.id,'listing_id',listing.id,'title',listing.title,'amount_minor',auction.buy_now_price_minor,'currency',auction.currency,'purchase_type','buy_now');
+  insert into public.marketplace_agreements(offer_id,auction_id,buyer_party_id,seller_party_id,version,terms,terms_hash,buyer_accepted_at,seller_accepted_at,human_authorization,status)
+  values(null,auction.id,buyer.id,auction.seller_party_id,1,terms,encode(digest(convert_to(terms::text,'UTF8'),'sha256'),'hex'),now(),now(),jsonb_build_object('confirmed',true,'authorized_by',left(p_authorization->>'authorized_by',160),'source','human_authorized_buy_now'),'accepted') returning * into agreement;
+  insert into public.marketplace_orders(agreement_id,buyer_party_id,seller_party_id,amount_minor,currency,payment_state,fulfillment_state,idempotency_key,state)
+  values(agreement.id,buyer.id,auction.seller_party_id,auction.buy_now_price_minor,auction.currency,'UNPAID','NOT_STARTED',p_idempotency_key,'CREATED') returning * into ord;
+  if auction.highest_bid_id is not null then update public.marketplace_bids set status='outbid' where id=auction.highest_bid_id; end if;
+  update public.marketplace_auctions set status='awarded',updated_at=now() where id=auction.id;
+  perform public.marketplace_append_ledger_event(p_idempotency_key||':authorized','AUCTION_BUY_NOW_ACCEPTED','auction',auction.id,'human',buyer.id::text,'AUTHORIZED',jsonb_build_object('order_id',ord.id,'buyer_party_id',buyer.id,'amount_minor',ord.amount_minor,'currency',ord.currency));
+  return jsonb_build_object('auction_id',auction.id,'order_id',ord.id,'state','CREATED','payment_state','UNPAID','duplicate',false,'message','Buy-now accepted; payment has not been taken.');
+end; $;
+
 -- The winning auction order's agreement references the auction terms rather than a supplier offer.
 alter table public.marketplace_agreements alter column offer_id drop not null;
 alter table public.marketplace_agreements add column if not exists auction_id uuid references public.marketplace_auctions(id);
 
+revoke all on function public.marketplace_buy_now(text,uuid,uuid,jsonb) from public,anon,authenticated;
+grant execute on function public.marketplace_buy_now(text,uuid,uuid,jsonb) to service_role;
 revoke all on function public.marketplace_schedule_auction(text,uuid,uuid,jsonb) from public,anon,authenticated;
 revoke all on function public.marketplace_public_auctions(integer) from public,anon,authenticated;
 revoke all on function public.marketplace_place_bid(text,uuid,uuid,bigint,char,jsonb) from public,anon,authenticated;
