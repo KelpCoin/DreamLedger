@@ -6,6 +6,7 @@ const read=p=>fs.readFileSync(path.join(ROOT,p),'utf8');
 function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function build(manifestPath=DEFAULT){
  const m=JSON.parse(read(manifestPath)),i=m.identity||{},s=m.surface||{},slug=i.slug;
+ if(slug==='mtg')throw Error('MTG master cannot be a clone target');
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)||i.canonical_path!=='/'+slug+'/'||i.catalog_path!=='/data/'+slug+'-catalog.json')throw Error('Invalid silo identity or route');
  if(slug==='mtg'?m.platform_fee_bps!==0:m.platform_fee_bps!==500)throw Error('MTG=0 bps; non-MTG=500 bps invariant');
  const cfg={slug,name:i.display_name,path:i.canonical_path,description:m.description,eyebrow:s.eyebrow,headline_prefix:s.headline_prefix,headline_emphasis:s.headline_emphasis,hero_copy:s.tagline,category_heading:s.category_heading,category_intro:s.category_intro,accent:i.accent_color,accent_bright:i.accent_bright,currency:m.currency||'NZD',catalogue_path:i.catalog_path,categories:s.categories||[],pills:s.pills||[]};
