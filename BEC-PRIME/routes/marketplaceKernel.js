@@ -171,7 +171,15 @@ async function handle(req,res,requestPath) {
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/listings') {
     const supplier=supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
     const b=await readBody(req), key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
-    const result=await rpc('marketplace_submit_listing',{p_idempotency_key:key,p_seller_party_id:supplier.party_id,p_payload:{title:safeText(b.title,180),description:safeText(b.description,12000),category:safeText(b.category,80).toLowerCase(),listing_type:safeText(b.listing_type||'goods',40),pricing_model:safeText(b.pricing_model||'fixed',40),price_minor:b.price_minor==null?null:Number(b.price_minor),currency:safeText(b.currency||'NZD',3).toUpperCase(),quantity:b.quantity==null?null:Number(b.quantity),unit:safeText(b.unit,40),location:b.location||{},attributes:b.attributes||{}}});
+    const payload={title:safeText(b.title,180),description:safeText(b.description,12000),category:safeText(b.category,80).toLowerCase(),listing_type:safeText(b.listing_type||'goods',40),pricing_model:safeText(b.pricing_model||'fixed',40),price_minor:b.price_minor==null?null:Number(b.price_minor),currency:safeText(b.currency||'NZD',3).toUpperCase(),quantity:b.quantity==null?null:Number(b.quantity),unit:safeText(b.unit,40),location:b.location||{},attributes:b.attributes||{},seller_party_id:supplier.party_id};
+    if(STORE==='local') {
+      const old=readLocal(10000).find(e=>e.idempotency_key===key);
+      if(old) return send(res,200,{listing_id:old.subject_id,state:'pending_review',duplicate:true});
+      if(payload.title.length<4||payload.description.length<10||payload.category.length<2) return send(res,400,{error:'Invalid listing fields'});
+      const id=crypto.randomUUID(); appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'LISTING_SUBMITTED',subject_type:'listing',subject_id:id,actor_type:'business',actor_id:supplier.party_id,economic_state:'OBSERVED',payload:{...payload,id,status:'pending_review',created_at:new Date().toISOString()}});
+      return send(res,201,{listing_id:id,state:'pending_review',message:'Listing submitted for review; not yet public.'});
+    }
+    const result=await rpc('marketplace_submit_listing',{p_idempotency_key:key,p_seller_party_id:supplier.party_id,p_payload:payload});
     return send(res,result?.duplicate?200:201,result);
   }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/evidence') {
@@ -181,7 +189,15 @@ async function handle(req,res,requestPath) {
     if(!evidenceType||!contentHash) return send(res,400,{error:'evidence_type and content_hash are required'});
     if(!/^[a-f0-9]{64}$/i.test(contentHash)) return send(res,400,{error:'content_hash must be a SHA-256 hex digest'});
     const subjectType=safeText(b.subject_type||'order',80), subjectId=uuid(b.subject_id)?b.subject_id:null;
-    const rows=await rest('marketplace_evidence',{method:'POST',body:JSON.stringify({subject_type:subjectType,subject_id:subjectId,evidence_type:evidenceType,source_uri:sourceUri||null,source_hash:safeText(b.source_hash,128)||null,content_hash:contentHash.toLowerCase(),provenance:{submitted_by_party_id:supplier.party_id,submitted_at:new Date().toISOString(),source_description:safeText(b.source_description,1000)},verdict:'UNVERIFIED',verifier:null})});
+    const evidence={subject_type:subjectType,subject_id:subjectId,evidence_type:evidenceType,source_uri:sourceUri||null,source_hash:safeText(b.source_hash,128)||null,content_hash:contentHash.toLowerCase(),provenance:{submitted_by_party_id:supplier.party_id,submitted_at:new Date().toISOString(),source_description:safeText(b.source_description,1000)},verdict:'UNVERIFIED',verifier:null};
+    if(STORE==='local') {
+      const id=crypto.randomUUID(), key=safeText(req.headers['idempotency-key'],160)||('evidence:'+contentHash.toLowerCase());
+      const old=readLocal(10000).find(e=>e.idempotency_key===key);
+      if(old) return send(res,200,{evidence_id:old.subject_id,verdict:'UNVERIFIED',duplicate:true});
+      appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'EVIDENCE_REGISTERED',subject_type:'evidence',subject_id:id,actor_type:'business',actor_id:supplier.party_id,economic_state:'UNVERIFIED',payload:{...evidence,id,created_at:new Date().toISOString()}});
+      return send(res,201,{evidence_id:id,verdict:'UNVERIFIED',message:'Evidence registered locally; it has not been independently verified.'});
+    }
+    const rows=await rest('marketplace_evidence',{method:'POST',body:JSON.stringify(evidence)});
     const item=Array.isArray(rows)?rows[0]:null;
     if(!item) return send(res,502,{error:'Evidence was not persisted'});
     return send(res,201,{evidence_id:item.id,verdict:'UNVERIFIED',message:'Evidence registered. It has not been independently verified.'});
@@ -205,7 +221,16 @@ async function handle(req,res,requestPath) {
     const b=await readBody(req), key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
     const amount=Number(b.amount_minor);
     if(!Number.isSafeInteger(amount)||amount<0) return send(res,400,{error:'amount_minor must be a non-negative integer'});
-    const result=await rpc('marketplace_submit_offer',{p_idempotency_key:key,p_seller_party_id:supplier.party_id,p_rfq_id:offerMatch[1],p_payload:{title:safeText(b.title,180),scope:b.scope||{},amount_minor:amount,currency:safeText(b.currency||'NZD',3).toUpperCase(),delivery_terms:b.delivery_terms||{},validity_until:b.validity_until||null}});
+    const payload={rfq_id:offerMatch[1],title:safeText(b.title,180),scope:b.scope||{},amount_minor:amount,currency:safeText(b.currency||'NZD',3).toUpperCase(),delivery_terms:b.delivery_terms||{},validity_until:b.validity_until||null,seller_party_id:supplier.party_id};
+    if(STORE==='local') {
+      const old=readLocal(10000).find(e=>e.idempotency_key===key);
+      if(old) return send(res,200,{offer_id:old.subject_id,state:'submitted',duplicate:true});
+      const rfq=readLocal(10000).find(e=>e.event_type==='RFQ_SUBMITTED'&&e.subject_id===offerMatch[1]);
+      if(!rfq) return send(res,404,{error:'RFQ not found in local ledger'});
+      const id=crypto.randomUUID(); appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'SUPPLIER_OFFER_SUBMITTED',subject_type:'offer',subject_id:id,actor_type:'business',actor_id:supplier.party_id,economic_state:'OBSERVED',payload:{...payload,id,status:'submitted',created_at:new Date().toISOString()}});
+      return send(res,201,{offer_id:id,state:'submitted',message:'Offer recorded; buyer has not accepted it.'});
+    }
+    const result=await rpc('marketplace_submit_offer',{p_idempotency_key:key,p_seller_party_id:supplier.party_id,p_rfq_id:offerMatch[1],p_payload:payload});
     return send(res,result?.duplicate?200:201,result);
   }
   const acceptMatch=requestPath.match(/^\/api\/marketplace\/v1\/offers\/([0-9a-f-]{36})\/accept$/i);
@@ -214,6 +239,15 @@ async function handle(req,res,requestPath) {
     if(!uuid(acceptMatch[1])) return send(res,400,{error:'Invalid offer id'});
     const b=await readBody(req); if(b.confirmed!==true||safeText(b.authorized_by,160).length<3) return send(res,400,{error:'Explicit human confirmation and authorized_by are required'});
     const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
+    if(STORE==='local') {
+      const old=readLocal(10000).find(e=>e.idempotency_key===key);
+      if(old) return send(res,200,{order_id:old.subject_id,state:'CREATED',payment_state:'UNPAID',duplicate:true});
+      const offer=readLocal(10000).find(e=>e.event_type==='SUPPLIER_OFFER_SUBMITTED'&&e.subject_id===acceptMatch[1]);
+      if(!offer) return send(res,404,{error:'Offer not found in local ledger'});
+      const orderId=crypto.randomUUID();
+      appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'ORDER_AUTHORIZED',subject_type:'order',subject_id:orderId,actor_type:'human',actor_id:buyer.party_id,economic_state:'AUTHORIZED',payload:{offer_id:acceptMatch[1],buyer_party_id:buyer.party_id,seller_party_id:offer.actor_id,amount_minor:offer.payload.amount_minor,currency:offer.payload.currency,payment_state:'UNPAID',fulfillment_state:'NOT_STARTED',authorized_by:safeText(b.authorized_by,160),state:'CREATED'}});
+      return send(res,201,{order_id:orderId,state:'CREATED',payment_state:'UNPAID',message:'Order authorized; no payment has been taken.'});
+    }
     const result=await rpc('marketplace_accept_offer',{p_idempotency_key:key,p_buyer_party_id:buyer.party_id,p_offer_id:acceptMatch[1],p_authorization:{confirmed:true,authorized_by:safeText(b.authorized_by,160),source:'marketplace_api'}});
     return send(res,result?.duplicate?200:201,result);
   }
