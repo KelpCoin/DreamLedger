@@ -92,6 +92,7 @@ jobs:
         run: |
           node BEC-PRIME/compiler/SiloFactory.js --check --manifest "$MANIFEST_PATH"
           node BEC-PRIME/scripts/verify-silo-factory.js
+          node BEC-PRIME/scripts/verify-silo-capabilities.js
           node BEC-PRIME/scripts/verify-music-media-silo.js
           node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
           node BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js
