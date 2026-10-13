@@ -12,6 +12,8 @@ on:
       - "ops/demand/777-metal-detector-scout.py"
       - "tests/test_777_metal_detector_scout.py"
       - ".github/workflows/777-metal-detector-scout.yml"
+      - "supabase/migrations/20261013090000_777_metal_detector_scout.sql"
+      - "docs/777-metal-detector-scout.md"
 
 permissions:
   contents: read
