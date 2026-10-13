@@ -233,7 +233,7 @@ async function handle(req,res,requestPath) {
     return send(res,result?.duplicate?200:201,result);
   }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/evidence') {
-    const supplier=supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
     const b=await readBody(req);
     const evidenceType=safeText(b.evidence_type,80), sourceUri=safeText(b.source_uri,1000), contentHash=safeText(b.content_hash,128);
     if(!evidenceType||!contentHash) return send(res,400,{error:'evidence_type and content_hash are required'});
@@ -299,7 +299,7 @@ async function handle(req,res,requestPath) {
   }
   const offerMatch=requestPath.match(/^\/api\/marketplace\/v1\/rfqs\/([0-9a-f-]{36})\/offers$/i);
   if(req.method==='POST'&&offerMatch) {
-    const supplier=supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
     if(!uuid(offerMatch[1])) return send(res,400,{error:'Invalid RFQ id'});
     const b=await readBody(req), key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
     const amount=Number(b.amount_minor);
@@ -336,7 +336,7 @@ async function handle(req,res,requestPath) {
   }
   const checkoutMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/checkout$/i);
   if(req.method==='POST'&&checkoutMatch) {
-    const buyer=buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
     if(!uuid(checkoutMatch[1])) return send(res,400,{error:'Invalid order id'});
     if(STORE!=='supabase') return send(res,503,{error:'CHECKOUT_HELD: local ledger mode cannot prove external settlement. No charge was created.'});
     if(process.env.MARKETPLACE_ENABLE_CHECKOUT!=='true'||process.env.MARKETPLACE_PAYOUT_MODEL!=='stripe_connect_verified') return send(res,503,{error:'CHECKOUT_HELD: marketplace checkout remains disabled until Connect, refunds, tax and reconciliation are explicitly approved. No charge was created.'});
@@ -367,7 +367,7 @@ async function handle(req,res,requestPath) {
   }
   const deliveryMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/delivery$/i);
   if(req.method==='POST'&&deliveryMatch) {
-    const supplier=supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
     if(!uuid(deliveryMatch[1])) return send(res,400,{error:'Invalid order id'});
     const b=await readBody(req), ids=Array.isArray(b.evidence_ids)?b.evidence_ids.filter(uuid):[];
     if(!ids.length) return send(res,400,{error:'At least one registered evidence UUID is required'});
@@ -379,7 +379,7 @@ async function handle(req,res,requestPath) {
   }
   const acceptDeliveryMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/acceptance$/i);
   if(req.method==='POST'&&acceptDeliveryMatch) {
-    const buyer=buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
     if(!uuid(acceptDeliveryMatch[1])) return send(res,400,{error:'Invalid order id'});
     const b=await readBody(req); if(typeof b.accept!=='boolean') return send(res,400,{error:'accept boolean required'});
     const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
