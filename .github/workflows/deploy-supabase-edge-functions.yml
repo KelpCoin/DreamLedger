@@ -13,7 +13,87 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      stripe_revenue: ${ steps.filter.outputs.stripe_revenue }}
+      mtg_catalog: ${ steps.filter.outputs.mtg_catalog }}
+      dreammeez_checkout: ${ steps.filter.outputs.dreammeez_checkout }}
+      diagnostic_delivery: ${ steps.filter.outputs.diagnostic_delivery }}
+      diagnostic_input: ${ steps.filter.outputs.diagnostic_input }}
+      any: ${ steps.filter.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        shell: bash
+        env:
+          EVENT_NAME: ${ github.event_name }}
+          BEFORE: ${ github.event.before }}
+          AFTER: ${ github.sha }}
+        run: |
+          set -euo pipefail
+          set_output() { printf '%s=%s\\n' "$1" "$2" >> "$GITHUB_OUTPUT"; }
+          if [[ "$EVENT_NAME" == "workflow_dispatch" || "$BEFORE" =~ ^0+$ ]]; then
+            for name in stripe_revenue mtg_catalog dreammeez_checkout diagnostic_delivery diagnostic_input; do set_output "$name" true; done
+            set_output any true
+            exit 0
+          fi
+          changed="$(git diff --name-only "$BEFORE" "$AFTER")"
+          has() { grep -Fq "$1" <<< "$changed"; }
+          stripe_revenue=false; mtg_catalog=false; dreammeez_checkout=false; diagnostic_delivery=false; diagnostic_input=false
+          has "supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/" && stripe_revenue=true
+          has "supabase/functions/mtg-deck-catalog/" && mtg_catalog=true
+          has "supabase/functions/dreammeez-cosmetic-checkout/" && dreammeez_checkout=true
+          has "supabase/functions/marketplace-diagnostic-delivery/" && diagnostic_delivery=true
+          has "supabase/functions/marketplace-diagnostic-input/" && diagnostic_input=true
+          set_output stripe_revenue "$stripe_revenue"
+          set_output mtg_catalog "$mtg_catalog"
+          set_output dreammeez_checkout "$dreammeez_checkout"
+          set_output diagnostic_delivery "$diagnostic_delivery"
+          set_output diagnostic_input "$diagnostic_input"
+          any=false
+          for value in "$stripe_revenue" "$mtg_catalog" "$dreammeez_checkout" "$diagnostic_delivery" "$diagnostic_input"; do [[ "$value" == true ]] && any=true; done
+          set_output any "$any"
+
+  preflight:
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    env:
+      SUPABASE_URL: ${ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - name: Require live Supabase persistence before any function deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$SUPABASE_URL" || -z "$SUPABASE_SERVICE_ROLE_KEY" ]]; then
+            echo "BLOCKED: Supabase read-only preflight credentials are missing."
+            exit 1
+          fi
+          for table in marketplace_orders marketplace_fulfillments revenue_orders event_ledger revenue_entitlements fulfillment_requests; do
+            url="${SUPABASE_URL%/}/rest/v1/$table?select=*&limit=0"
+            code="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --head --max-time 12 "$url" \
+              -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+              -H 'Prefer: count=exact')"
+            if [[ "$code" != "200" ]]; then
+              echo "BLOCKED: read-only Supabase probe for $table returned HTTP $code; no function will deploy."
+              exit 1
+            fi
+          done
+          echo "PASS: all required commerce tables answered read-only HEAD probes."
+
   deploy:
+    needs: [changes, preflight]
+    if: needs.changes.outputs.stripe_revenue == 'true'
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -68,6 +148,8 @@ jobs:
           echo "Deployed Supabase function ${FUNCTION_NAME} from commit ${GITHUB_SHA}"
 
   deploy-mtg-deck-catalog:
+    needs: [changes, preflight]
+    if: needs.changes.outputs.mtg_catalog == 'true'
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -105,6 +187,8 @@ jobs:
           body="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 "${FUNCTION_URL}")"
           echo "${body}" | grep -F 'DREAMLEDGER/MTG-DECK-CATALOG/v1'
   deploy-dreammeez-cosmetic-checkout:
+    needs: [changes, preflight]
+    if: needs.changes.outputs.dreammeez_checkout == 'true'
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -144,3 +228,74 @@ jobs:
           test "${code}" = "401"
           grep -F 'authorization required' /tmp/body
 
+
+  deploy-marketplace-diagnostic-delivery:
+    needs: [changes, preflight]
+    if: needs.changes.outputs.diagnostic_delivery == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    env:
+      SUPABASE_ACCESS_TOKEN: ${ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: wbwgroygjeyukkspnqiy
+      FUNCTION_NAME: marketplace-diagnostic-delivery
+      FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-delivery
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Validate diagnostic delivery source
+        run: |
+          set -euo pipefail
+          test -s "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'checkout.sessions.retrieve' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'marketplace_orders' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'session.payment_status!=="paid"' "supabase/functions/${FUNCTION_NAME}/index.ts"
+      - name: Deploy diagnostic delivery
+        run: supabase functions deploy "$FUNCTION_NAME" --project-ref "$PROJECT_ID" --no-verify-jwt
+      - name: Verify delivery endpoint rejects missing session without a write
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 15 "$FUNCTION_URL")"
+          test "$code" = "400"
+          grep -F 'Missing session_id' /tmp/body
+
+  deploy-marketplace-diagnostic-input:
+    needs: [changes, preflight]
+    if: needs.changes.outputs.diagnostic_input == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    env:
+      SUPABASE_ACCESS_TOKEN: ${ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: wbwgroygjeyukkspnqiy
+      FUNCTION_NAME: marketplace-diagnostic-input
+      FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-input
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Validate diagnostic input source
+        run: |
+          set -euo pipefail
+          test -s "supabase/functions/$FUNCTION_NAME/index.ts"
+          grep -F 'session.livemode!==true' "supabase/functions/$FUNCTION_NAME/index.ts"
+          grep -F 'rawSku==="CMD-DIAG-29"' "supabase/functions/$FUNCTION_NAME/index.ts"
+          grep -F 'marketplace_fulfillments' "supabase/functions/$FUNCTION_NAME/index.ts"
+          grep -F 'marketplace_submit_diagnostic_input' "supabase/functions/$FUNCTION_NAME/index.ts"
+      - name: Deploy diagnostic input
+        run: supabase functions deploy "$FUNCTION_NAME" --project-ref "$PROJECT_ID" --no-verify-jwt
+      - name: Verify input endpoint rejects invalid input without a write
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/body --write-out '%{http_code}' --max-time 15 -X POST "$FUNCTION_URL" -H 'content-type: application/json' --data '{}')"
+          test "$code" = "400"
+          grep -F 'invalid input' /tmp/body
