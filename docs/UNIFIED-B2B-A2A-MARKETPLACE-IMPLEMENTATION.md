@@ -21,12 +21,14 @@ The PostgreSQL ledger uses idempotency keys, sequence IDs, previous hashes, even
 - `GET /api/marketplace/v1/discovery`: machine-readable unified capability contract.
 - `GET /api/marketplace/v1/status`: selected persistence backend health.
 - `GET /api/marketplace/v1/listings?q=...`: published listings only.
+- `POST /api/marketplace/v1/party-applications`: apply for buyer/business access; applications remain pending and trust remains UNVERIFIED until review.
+- `POST /api/marketplace/v1/admin/parties/{party_id}/approve`: admin approval requires email verification and authority confirmation.
 - `GET /api/marketplace/v1/auctions`: reviewed, live/scheduled timed auctions.
 - `POST /api/marketplace/v1/listings/{listing_id}/auction`: supplier submits a timed-auction schedule for review.
 - `POST /api/marketplace/v1/auctions/{auction_id}/bids`: buyer credential with `place_bid` scope and explicit human confirmation; enforces minimum increments, no seller self-bids, reserve, and anti-sniping.
 - `POST /api/marketplace/v1/auctions/{auction_id}/buy-now`: buyer credential with `buy_now` scope and explicit human confirmation; creates an unpaid order.
 - `POST /api/marketplace/v1/admin/auctions/{auction_id}/close`: admin-gated closeout after the end time; creates an unpaid winner order only when the reserve is met.
-- `POST /api/marketplace/v1/rfqs`: public RFQ intake with a honeypot, size limits, rate limit, idempotency key and OBSERVED state.
+- `POST /api/marketplace/v1/rfqs`: public RFQ intake with a honeypot, size limits, rate limit, idempotency key and OBSERVED state. When a buyer credential is supplied, the RFQ is bound to that buyer; offers cannot be accepted by a different buyer or by an anonymous submitter.
 - `POST /api/marketplace/v1/listings`: authenticated supplier listing submission; starts in pending_review.
 - `POST /api/marketplace/v1/rfqs/{rfq_id}/offers`: authenticated supplier response to an open RFQ.
 - `POST /api/marketplace/v1/offers/{offer_id}/accept`: buyer-authenticated, explicit human authorization; creates an unpaid order.
@@ -48,7 +50,7 @@ The PostgreSQL ledger uses idempotency keys, sequence IDs, previous hashes, even
 
 The selected backend is `MARKETPLACE_STORE=supabase`. The service uses Supabase REST/RPC calls with bounded timeouts. It does not reuse a serverless postgres-js connection pool. If the RPC preflight fails, writes fail closed. No silent local fallback and no split brain.
 
-The SQL files under `supabase/migrations/20261013000*.sql` define the transaction schema, RLS, idempotent RFQ/agent flows, transaction lifecycle RPCs, Stripe Connect readiness, credentials and the 36-candidate CUBE seed. They have **not** been applied to the production project from this branch. First apply and test them in a disposable/staging Supabase project; inspect existing tables and constraints before production migration.
+The SQL files under `supabase/migrations/20261013000*.sql` define the transaction schema, RLS, idempotent RFQ/agent flows, transaction lifecycle RPCs, Stripe Connect readiness, credentials, pending party applications, buyer-bound RFQs, and the 36-candidate CUBE seed. They have **not** been applied to the production project from this branch. First apply and test them in a disposable/staging Supabase project; inspect existing tables and constraints before production migration.
 
 ### Encrypted local fallback
 
