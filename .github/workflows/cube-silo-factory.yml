@@ -107,6 +107,8 @@ jobs:
           node BEC-PRIME/scripts/verify-silo-capabilities.js
           node BEC-PRIME/scripts/verify-music-media-silo.js
           node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
+          node BEC-PRIME/scripts/verify-mtg-bridge-dry-run.js
+          node BEC-PRIME/scripts/verify-gauntlet-evaluation.js
           node BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js
           node BEC-PRIME/scripts/verify-silo-fee-policy.js
       - name: Commit generated artifacts to the working branch
