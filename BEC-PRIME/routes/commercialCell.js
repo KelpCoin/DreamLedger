@@ -49,9 +49,7 @@ function clean(v) { return String(v || '').trim().slice(0, 500); }
 function normalizeMarketplaceSku(value) {
   const sku = clean(value).toUpperCase();
   const aliases = new Set([
-    'CMD-DIAG-29',
-    'MTG_CMD_DIAG_001',
-    'OFFER-CMD-DIAG-29-NZD'
+    'CMD-DIAG-29'
   ]);
   return aliases.has(sku) ? 'COMMANDER-DECK-DIAGNOSTIC-001' : sku;
 }
