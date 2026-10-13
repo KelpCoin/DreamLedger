@@ -6,7 +6,7 @@
   "main": "BEC-PRIME/start.js",
   "scripts": {
     "start": "node -r ./BEC-PRIME/lib/commercePaymentContractPreload.js -r ./BEC-PRIME/lib/discordCommercePreload.js -r ./BEC-PRIME/lib/accountPagePreload.js -r ./BEC-PRIME/lib/publicShellPreload.js -r ./BEC-PRIME/lib/m2mPreload.js -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
-    "compile": "npm run compile:products && npm run compile:commerce-api && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && node BEC-PRIME/scripts/RepairAccountContractSurface.js && npm run compile:mtg && npm run compile:billboard && npm run compile:board && npm run compile:molt-beach && npm run compile:price && npm run compile:public-contract && npm run compile:leverage && npm run compile:opportunities && npm run verify:ip && npm run verify:molt-beach && node BEC-PRIME/scripts/verify-public-surface.js && node BEC-PRIME/scripts/verify-silo-boundaries.js && node BEC-PRIME/scripts/verify-music-media-silo.js && node BEC-PRIME/scripts/verify-silo-fee-policy.js && node BEC-PRIME/scripts/Verify-BECKEmpireSilos.js",
+    "compile": "npm run compile:products && npm run compile:commerce-api && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && node BEC-PRIME/scripts/RepairAccountContractSurface.js && npm run compile:mtg && npm run compile:billboard && npm run compile:board && npm run compile:molt-beach && npm run compile:price && npm run compile:public-contract && npm run compile:leverage && npm run compile:opportunities && npm run verify:ip && npm run verify:molt-beach && node BEC-PRIME/scripts/verify-public-surface.js && node BEC-PRIME/scripts/verify-silo-boundaries.js && npm run verify:silo-factory && node BEC-PRIME/scripts/verify-music-media-silo.js && npm run verify:mtg-gauntlet && node BEC-PRIME/scripts/verify-silo-fee-policy.js && node BEC-PRIME/scripts/Verify-BECKEmpireSilos.js",
     "compile:products": "node BEC-PRIME/compiler/ProductCompiler.js",
     "compile:commerce-api": "node BEC-PRIME/compiler/CommerceApiCompiler.js",
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js",
@@ -14,6 +14,9 @@
     "compile:omni": "node BEC-PRIME/compiler/OmniCommerceCompiler.js",
     "compile:surface": "node BEC-PRIME/compiler/SurfaceCompilerStable.js",
     "compile:mtg": "node BEC-PRIME/compiler/MTGCatalogCompiler.js",
+    "silo:compile": "node BEC-PRIME/compiler/SiloCloneCompiler.js",
+    "verify:silo-factory": "node BEC-PRIME/compiler/SiloCloneCompiler.js --check && node BEC-PRIME/scripts/verify-silo-factory.js",
+    "verify:mtg-gauntlet": "node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js",
     "compile:billboard": "node BEC-PRIME/compiler/BillboardCompiler.js",
     "compile:board": "node BEC-PRIME/compiler/BoardCompiler.js",
     "compile:molt-beach": "node BEC-PRIME/compiler/MoltBeachCompiler.js",
