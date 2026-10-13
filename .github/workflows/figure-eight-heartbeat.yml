@@ -7,7 +7,7 @@ on:
   push:
     paths:
       - "index.html"
-      - "public/agent-delivery-proof-audit.html"
+      - "billboard.html"
       - ".github/workflows/figure-eight-heartbeat.yml"
 
 permissions:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   heartbeat:
-    name: First-dollar offer and checkout probe
+    name: Billboard offer and checkout probe
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -28,7 +28,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Probe offer, live route, and Stripe checkout
+      - name: Probe Billboard offer, live route, and Stripe checkout
         id: probe
         shell: bash
         run: |
@@ -36,55 +36,58 @@ jobs:
           mkdir -p heartbeat-report
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const offerFile = 'public/agent-delivery-proof-audit.html';
+          const offerFile = 'billboard.html';
           const homeFile = 'index.html';
-          const stripeUrl = 'https://buy.stripe.com/00w5kDc1Tg0l1DVcR6dwc3m';
-          const routeUrl = 'https://dreamledger.org/agent-delivery-proof-audit.html';
+          const stripeUrl = 'https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x';
+          const routeUrl = 'https://dreamledger.org/billboard.html';
           const report = {
             generated_at: new Date().toISOString(),
             revision: process.env.GITHUB_SHA || 'unknown',
-            offer: 'Agent Delivery Proof Audit',
-            price: 'NZD 49',
+            offer: 'DreamLedger 3000 Founding Billboard',
+            price: 'NZD 50',
             checks: [],
             economic_status: 'UNVERIFIED',
             overall: 'FAIL',
-            note: 'A reachable checkout is not a settled payment. Revenue remains unverified until external settlement and fulfillment evidence exist.'
+            note: 'A reachable checkout is not a settled payment. Revenue remains unverified until independently evidenced settlement and fulfillment exist.'
           };
           const add = (name, status, detail) => report.checks.push({name, status, detail});
-          let offerHtml = '';
           try {
-            if (!fs.existsSync(offerFile)) throw new Error('Public offer source missing');
-            offerHtml = fs.readFileSync(offerFile, 'utf8');
-            if (!offerHtml.includes('Agent Delivery Proof Audit') || !offerHtml.includes('NZ$49') || !offerHtml.includes(stripeUrl)) {
-              throw new Error('Offer title, price, or canonical Stripe URL missing from public source');
+            if (!fs.existsSync(offerFile)) throw new Error('Billboard source missing');
+            const offerHtml = fs.readFileSync(offerFile, 'utf8');
+            if (!offerHtml.includes('DreamLedger 3000') ||
+                !offerHtml.includes('NZ$50') ||
+                !offerHtml.includes(stripeUrl) ||
+                !offerHtml.includes('Human review applies.')) {
+              throw new Error('Billboard title, NZ$50 price, canonical Stripe URL, or human-review disclosure missing');
             }
-            add('offer_source', 'PASS', 'Public offer source contains the offer name, NZ$49 price, and canonical Stripe link');
+            add('offer_source', 'PASS', 'Billboard source contains the NZ$50 offer, canonical Stripe URL, and human-review disclosure');
           } catch (e) { add('offer_source', 'FAIL', e.message); }
           try {
             if (!fs.existsSync(homeFile)) throw new Error('Homepage source missing');
             const home = fs.readFileSync(homeFile, 'utf8');
-            if (!home.includes('/agent-delivery-proof-audit.html') || !home.includes('Buy the Proof Audit')) {
-              throw new Error('Repository homepage source does not direct buyers to the Proof Audit');
+            if (!home.includes('href="/billboard.html"') || !home.includes('Billboard')) {
+              throw new Error('Repository homepage does not link to the Billboard page');
             }
-            add('homepage_source_cta', 'PASS', 'Repository homepage source directs buyers to the Proof Audit offer page');
+            add('homepage_source_cta', 'PASS', 'Repository homepage links to the Billboard offer');
           } catch (e) { add('homepage_source_cta', 'FAIL', e.message); }
           try {
             const response = await fetch('https://dreamledger.org/', {redirect:'follow', signal:AbortSignal.timeout(12000)});
             const body = await response.text();
             if (response.status < 200 || response.status >= 400) throw new Error('HTTP ' + response.status);
-            if (!body.includes('agent-delivery-proof-audit.html') || !body.includes('Agent Delivery Proof Audit')) {
-              throw new Error('Live homepage is missing the Proof Audit offer link or label');
+            if (!body.includes('/billboard.html') || !body.includes('Billboard')) {
+              throw new Error('Live homepage is missing the Billboard link or label');
             }
-            add('production_homepage', 'PASS', 'HTTP ' + response.status + '; live homepage links to the Proof Audit');
+            add('production_homepage', 'PASS', 'HTTP ' + response.status + '; live homepage links to Billboard');
           } catch (e) { add('production_homepage', 'FAIL', String(e.message || e)); }
           try {
             const response = await fetch(routeUrl, {redirect:'follow', signal:AbortSignal.timeout(12000)});
             const body = await response.text();
             if (response.status < 200 || response.status >= 400) throw new Error('HTTP ' + response.status);
-            if (!body.includes('Agent Delivery Proof Audit') || !body.includes(stripeUrl)) {
-              throw new Error('Live page does not contain the expected offer and checkout URL');
+            if (!body.includes('DreamLedger 3000') || !body.includes('NZ$50') ||
+                !body.includes(stripeUrl) || !body.includes('Human review applies.')) {
+              throw new Error('Live Billboard page is missing the expected offer, Stripe URL, or review disclosure');
             }
-            add('production_offer', 'PASS', 'HTTP ' + response.status + '; live offer and Stripe destination found');
+            add('production_offer', 'PASS', 'HTTP ' + response.status + '; live NZ$50 Billboard offer and Stripe destination found');
           } catch (e) { add('production_offer', 'FAIL', String(e.message || e)); }
           try {
             const response = await fetch(stripeUrl, {redirect:'manual', signal:AbortSignal.timeout(12000)});
