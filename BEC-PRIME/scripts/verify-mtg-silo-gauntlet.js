@@ -37,20 +37,19 @@ check('deck-grid renderer uses DOM nodes for dynamic card data',deckGrid.include
 const productPaymentLink=product.commercial_truth?.payment_link;
 const approvedLink=approvedOffer?.payment_link_url;
 const productLinkMatches=!!approvedLink&&productPaymentLink===approvedLink;
-if(approvedOffer&&publicOffer&&productLinkMatches){
- check('canonical product Payment Link matches approved offer',true);
- if(publicOffer.checkout_url&&publicOffer.checkout_url!==approvedLink){
-  if(publicOffer.checkout_available===false&&!publicOffer.checkout_url&&listing&&listing.checkout_available===false&&!listing.checkout_url){
-   hold('STRIPE_LINK_PARITY','A stale or mismatched public checkout reference was detected and is safely disabled. Keep direct checkout blocked until live Stripe read-back confirms the mapping.');
-  }else check('public checkout matches approved offer or is safely held',false,'Mismatched direct Payment Link remains purchasable.');
- }else if(publicOffer.checkout_available===false&&!publicOffer.checkout_url){
-  hold('PUBLIC_CHECKOUT_HELD','Direct public checkout is disabled. The canonical diagnostic route remains gated pending end-to-end settlement and fulfillment proof.');
- }else check('public checkout matches approved offer',true);
-}else{
+if(productLinkMatches)check('canonical product Payment Link matches approved offer',true);
+else{
  const safelyHeld=publicOffer?.checkout_available===false&&!publicOffer?.checkout_url&&listing?.checkout_available===false&&!listing?.checkout_url;
- if(safelyHeld)hold('STRIPE_LINK_PARITY','Canonical product Payment Link does not match the approved offer, but public direct checkout is disabled. Reconcile the mapping before release.');
+ if(safelyHeld)hold('STRIPE_LINK_PARITY','Canonical product Payment Link does not match the approved offer, but public direct checkout is disabled. Reconcile before release.');
  else check('canonical product Payment Link matches approved offer',false,'Mismatch or missing canonical offer remains purchasable.');
 }
+if(publicOffer?.checkout_available===true){
+ check('enabled public checkout URL matches approved offer',productLinkMatches&&publicOffer.checkout_url===approvedLink);
+}else if(publicOffer?.checkout_available===false&&!publicOffer.checkout_url){
+ hold('PUBLIC_CHECKOUT_HELD','Direct public checkout is disabled. The canonical diagnostic route remains gated pending end-to-end settlement and fulfillment proof.');
+}else if(publicOffer){
+ check('disabled public checkout has no direct URL',publicOffer.checkout_available===false&&!publicOffer.checkout_url);
+}else check('public offer exists for payment mapping',false);
 check('no payment falsely recorded',product.evidence?.status==='awaiting_first_payment'&&!product.evidence?.transaction_id);
 if(product.evidence?.status==='awaiting_first_payment')hold('NO_VERIFIED_TRANSACTION','No settled-and-fulfilled diagnostic order is recorded; economic promotion remains blocked.');
 if(singles.includes("localStorage.setItem('dreamledger_mtg_draft_listing'"))hold('SINGLES_DRAFT_ONLY','The new singles form stores drafts in browser localStorage. Backend listing publication, seller verification, and fulfilment are not proven by this page.');
