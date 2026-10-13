@@ -35,9 +35,17 @@ def title_and_description(path: Path) -> tuple[str, str]:
 def main() -> int:
     if not SOURCE.is_dir() or not INDEX.is_file():
         raise SystemExit("SITE_PUBLICATION=FAIL: expected public/pulse and pulse/index.html")
+    def recency_key(path: Path) -> tuple[int, str, str]:
+        # Date-prefixed expedition pages must outrank alphabetically later legacy filenames.
+        # Otherwise a fresh 2026-10-13 artifact can be silently excluded from the 12-page cap.
+        date_match = re.match(r"^(\\d{4}-\\d{2}-\\d{2})", path.name)
+        if date_match:
+            return (1, date_match.group(1), path.name)
+        return (0, path.name, path.name)
+
     candidates = sorted(
         (p for p in SOURCE.glob("*.html") if p.name != "index.html"),
-        key=lambda p: p.name,
+        key=recency_key,
         reverse=True,
     )[:MAX_LINKS]
     if not candidates:
