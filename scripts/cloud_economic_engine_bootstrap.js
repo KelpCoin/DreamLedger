@@ -11,6 +11,8 @@ const PUBLIC_TARGETS = [
   { id: 'dreamledger1_version', url: 'https://dreamledger1.onrender.com/version' },
   { id: 'silo_gateway_healthz', url: 'https://dreamledger-silo-gateway.onrender.com/healthz' },
   { id: 'static_site', url: 'https://dreamledger-org.onrender.com/' },
+  { id: 'marketplace_diagnostic_delivery', url: 'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-delivery', expected_status: [400], expected_body: 'Missing session_id' },
+  { id: 'marketplace_diagnostic_input', url: 'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-input', expected_status: [405], expected_body: 'POST required' },
 ];
 
 async function safeFetch(url, options = {}, fetchImpl = fetch) {
@@ -24,9 +26,13 @@ async function probePublic(fetchImpl = fetch) {
   for (const target of PUBLIC_TARGETS) {
     try {
       const response = await safeFetch(target.url, { method: 'GET' }, fetchImpl);
+      const body = await response.text();
       let finalHost = 'UNKNOWN';
       try { finalHost = new URL(response.url || target.url).host; } catch {}
-      results.push({ id: target.id, status: response.ok ? 'PASS' : 'FAIL', http_status: response.status, final_host: finalHost });
+      const expectedStatus = Array.isArray(target.expected_status) ? target.expected_status : null;
+      const statusAccepted = expectedStatus ? expectedStatus.includes(response.status) : response.ok;
+      const bodyAccepted = !target.expected_body || body.includes(target.expected_body);
+      results.push({ id: target.id, status: statusAccepted && bodyAccepted ? 'PASS' : 'FAIL', http_status: response.status, final_host: finalHost });
     } catch (error) {
       results.push({ id: target.id, status: 'FAIL', error: String(error.message || error).slice(0, 100) });
     }
