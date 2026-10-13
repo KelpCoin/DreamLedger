@@ -19,7 +19,7 @@ check('MTG catalogue schema and silo',catalog.schema==='dreamledger/mtg-catalogu
 check('unique catalogue IDs',new Set((catalog.products||[]).map(p=>p.id)).size===(catalog.products||[]).length);
 check('all catalogue products belong to MTG',(catalog.products||[]).every(p=>p.silo==='mtg'));
 check('published products have positive prices',(catalog.products||[]).filter(p=>p.status==='published').every(p=>Number(p.price)>0));
-check('HTML escaping covers ampersand/angle brackets',page.includes("'&':'&amp;'")&&page.includes("'<':'&lt;'")&&page.includes("'>' :'&gt;'")||page.includes("'&':'&amp;'")&&page.includes("'<':'&lt;'")&&page.includes("'>' :'&gt;'"));
+check('HTML escaping covers ampersand/angle brackets',page.includes("'&':'&amp;'")&&page.includes("'<':'&lt;'")&&page.includes("'>':'&gt;'")||page.includes("'&':'&amp;'")&&page.includes("'<':'&lt;'")&&page.includes("'>' :'&gt;'"));
 check('diagnostic CTA uses canonical route',page.includes('href="/mtg/diagnostic.html"')&&!page.includes('8x228r1nfg0l3M32csdwc2I'));
 check('canonical diagnostic route remains configured',product.silo==='mtg'&&product.checkout.url==='/mtg/diagnostic.html');
 if(approvedOffer&&publicOffer&&publicOffer.checkout_url!==approvedOffer.payment_link_url){
