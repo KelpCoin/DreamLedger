@@ -1,69 +1,222 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-NZ">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
-<title>DreamMeez Studio | PhinHaven</title>
+<title>DreamMeez Studio | DreamLedger</title>
+<meta name="description" content="Build a relatable DreamMeez: extreme body shapes free. Cosmetics and extras are optional and paid.">
 <style>
-:root{--bg:#0a0a0d;--panel:#121216;--panel2:#18181e;--line:#2a2a32;--text:#f7f4ed;--muted:#9897a2;--gold:#e1b85b;--violet:#9f8cff;--mint:#69e0b0;--skin:#c88769;--hair:#272631}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(900px 500px at 15% -10%,#242044 0%,transparent 60%),radial-gradient(700px 500px at 100% 15%,#12342e 0%,transparent 58%),var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}button,input{font:inherit}a{color:inherit;text-decoration:none}.shell{width:min(1180px,calc(100% - 32px));margin:auto}.nav{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;background:#0a0a0df2;backdrop-filter:blur(18px)}.brand{font-weight:950;letter-spacing:.04em;font-size:12px;white-space:nowrap}.brand b{color:var(--gold)}.navlinks{display:flex;gap:7px;max-width:72%;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}.navlinks::-webkit-scrollbar{display:none}.navlinks a{flex:0 0 auto;padding:8px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:10px;font-weight:800}.hero{display:flex;justify-content:space-between;align-items:end;padding:42px 0 22px;gap:24px}.eyebrow{color:var(--gold);font-size:9px;font-weight:900;letter-spacing:.22em;text-transform:uppercase}.hero h1{font-size:clamp(38px,6vw,72px);line-height:.9;letter-spacing:-.07em;margin:10px 0}.hero h1 span{color:var(--violet)}.hero p{max-width:610px;color:var(--muted);margin:0}.authstate{font-size:11px;color:var(--mint);text-align:right}.studio{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:18px;padding-bottom:50px}.preview{min-height:650px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,#171722,#0d0d11);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}.preview:before{content:"DREAMMEEZ";position:absolute;left:22px;top:20px;color:#777581;font-size:9px;letter-spacing:.2em;font-weight:900}.preview:after{content:"PHINHAVEN READY";position:absolute;right:22px;top:20px;color:var(--mint);font-size:9px;letter-spacing:.15em;font-weight:900}.halo{position:absolute;width:410px;height:410px;border-radius:50%;background:radial-gradient(circle,#9f8cff22,transparent 62%);filter:blur(3px)}.ground{position:absolute;bottom:58px;width:360px;height:90px;border-radius:50%;background:radial-gradient(ellipse,#000b,transparent 68%)}.meezy{position:relative;width:290px;height:500px;z-index:2;transform-origin:bottom center;transition:.18s ease}.head{position:absolute;top:35px;left:86px;width:118px;height:132px;border-radius:48% 48% 45% 45%;background:var(--skin);border:3px solid #09090c;box-shadow:inset -16px -18px 25px #0002;z-index:4}.hair{position:absolute;top:17px;left:72px;width:150px;height:118px;background:var(--hair);border-radius:58% 45% 30% 42%;transform:rotate(-5deg);z-index:5;box-shadow:inset 18px 8px 25px #fff1}.hair:after{content:"";position:absolute;right:-8px;top:38px;width:42px;height:100px;background:var(--hair);border-radius:16px 45px 70px 25px}.eye{position:absolute;top:61px;width:18px;height:6px;border-radius:99px;background:#17151c}.eye.l{left:25px}.eye.r{right:25px}.nose{position:absolute;left:54px;top:70px;width:9px;height:17px;border-right:2px solid #7d4c3e;border-bottom:2px solid #7d4c3e;border-radius:0 0 8px 0}.smile{position:absolute;left:45px;bottom:22px;width:28px;height:9px;border-bottom:2px solid #5d3030;border-radius:0 0 50% 50%}.body{position:absolute;top:161px;left:48px;width:194px;height:224px;border:3px solid #09090c;border-radius:58px 58px 24px 24px;background:linear-gradient(145deg,#353849,#11131b 65%);z-index:2;box-shadow:inset 18px 8px 32px #fff1}.body:before{content:"";position:absolute;left:51px;top:10px;width:88px;height:196px;background:linear-gradient(#222536,#0a0b10);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);border-left:2px solid var(--gold);border-right:2px solid var(--gold)}.badge{position:absolute;right:25px;top:22px;color:var(--gold);font-size:18px}.arm{position:absolute;top:176px;width:44px;height:160px;border:3px solid #09090c;border-radius:26px;background:var(--skin);z-index:1}.arm.l{left:18px;transform:rotate(7deg)}.arm.r{right:18px;transform:rotate(-7deg)}.leg{position:absolute;bottom:2px;width:55px;height:145px;border:3px solid #09090c;border-radius:20px 20px 12px 12px;background:#202432}.leg.l{left:70px}.leg.r{right:70px}.shoe{position:absolute;bottom:0;width:88px;height:35px;border:3px solid #09090c;border-radius:20px;background:#d9dbe0}.shoe.l{left:28px}.shoe.r{right:28px}.panel{border:1px solid var(--line);border-radius:28px;background:#111116;padding:22px}.panel h2{margin:0;font-size:22px;letter-spacing:-.04em}.sub{margin:5px 0 20px;color:var(--muted);font-size:12px}.group{padding:18px 0;border-top:1px solid var(--line)}.group:first-of-type{border-top:0;padding-top:0}.label{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#c7c5cc}.choices{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:9px}.choice{min-height:38px;border:1px solid var(--line);border-radius:9px;background:#0b0b0f;color:#bbb9c1;font-weight:900;cursor:pointer}.choice:hover{border-color:#55515f}.choice.active{background:#211d3c;border-color:var(--violet);color:#fff}.skinchoices{display:flex;gap:8px;margin-top:10px}.skin{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer}.skin.active{outline:2px solid var(--gold);outline-offset:2px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}.btn{min-height:44px;border:1px solid var(--line);border-radius:11px;background:#0b0b0f;color:#fff;font-weight:900;cursor:pointer}.btn.primary{background:var(--gold);border-color:var(--gold);color:#090806}.btn:disabled{opacity:.45;cursor:not-allowed}.auth{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}.auth h3{font-size:13px;margin:0 0 4px}.auth p{color:var(--muted);font-size:11px;margin:0 0 12px}.authgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.authgrid .full{grid-column:1/-1}input{width:100%;height:42px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:#0a0a0e;color:#fff;outline:none}input:focus{border-color:var(--violet)}.status{min-height:20px;margin-top:10px;color:var(--mint);font-size:11px}.status.error{color:#ff8998}.signed{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border:1px solid #24483b;border-radius:10px;background:#0c1914;color:var(--mint);font-size:11px}.tiny{color:var(--muted);font-size:10px}@media(max-width:900px){.studio{grid-template-columns:1fr}.preview{min-height:560px}.hero{align-items:start;flex-direction:column}.authstate{text-align:left}.navlinks{max-width:72%}}@media(max-width:560px){.shell{width:min(100% - 20px,1180px)}.navlinks{max-width:70%;gap:5px}.navlinks a{padding:7px 8px;font-size:9px}.preview{min-height:500px}.meezy{transform:scale(.82)}.choices{grid-template-columns:repeat(3,1fr)}.authgrid{grid-template-columns:1fr}.authgrid .full{grid-column:auto}.actions{grid-template-columns:1fr}}
-
-.swatch.cloak{background:radial-gradient(circle at 50% 40%,#e1b85b66,transparent 25%),linear-gradient(135deg,#251b08,#9a6a16 50%,#151016)}.swatch.pirate{background:radial-gradient(circle at 50% 30%,#e7c76a 0 12%,transparent 13%),linear-gradient(135deg,#10131b,#5b1723 55%,#e1b85b)}.swatch.cosmic{background:radial-gradient(circle at 25% 30%,#9f8cff 0 4%,transparent 5%),radial-gradient(circle at 70% 65%,#69e0b0 0 3%,transparent 4%),linear-gradient(135deg,#17102d,#3a1c70,#081b25)}.swatch.chrome{background:linear-gradient(135deg,#e9edf5,#6e7c91 45%,#f9fbff 55%,#4b586c)}.swatch.dragon{background:radial-gradient(circle at 60% 50%,#ef3340 0 10%,transparent 11%),linear-gradient(135deg,#1a0808,#6f1820 55%,#e1b85b)}.swatch.neon{background:radial-gradient(circle at 30% 60%,#39ff14 0 8%,transparent 9%),radial-gradient(circle at 70% 35%,#ff2bd6 0 7%,transparent 8%),linear-gradient(135deg,#081313,#172b35,#090b0f)}.shop{margin-top:18px;border:1px solid var(--line);border-radius:22px;background:#0d0d12;padding:16px}.shophead{display:flex;justify-content:space-between;gap:12px;align-items:end}.shophead h3{margin:0;font-size:18px}.shophead p{margin:4px 0 0;color:var(--muted);font-size:11px}.shopgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.item{border:1px solid var(--line);border-radius:14px;padding:12px;background:linear-gradient(145deg,#15151d,#0b0b0f)}.item.owned{border-color:#315f50}.swatch{height:72px;border-radius:10px;margin-bottom:9px;position:relative;overflow:hidden}.swatch:after{content:"DREAMMEEZ";position:absolute;bottom:7px;left:9px;font-size:8px;letter-spacing:.18em;font-weight:900;color:#ffffff99}.item h4{margin:0;font-size:12px}.item p{margin:3px 0;color:var(--muted);font-size:10px;min-height:30px}.itemrow{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:8px}.price{font-weight:950;color:var(--gold);font-size:11px}.buymini{min-height:34px;padding:0 10px;border:1px solid var(--gold);border-radius:9px;background:var(--gold);color:#090806;font-weight:900;cursor:pointer}.buymini[disabled]{opacity:.45;cursor:not-allowed}.buff{color:var(--mint);font-size:9px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}@media(max-width:560px){.shopgrid{grid-template-columns:1fr}}</style>
+:root{
+  --bg:#0a0a0d;--panel:#121216;--line:#2a2a32;--text:#f7f4ed;--muted:#9897a2;
+  --gold:#e1b85b;--violet:#9f8cff;--mint:#69e0b0;--skin:#c88769;--hair:#272631;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(900px 500px at 15% -10%,#242044 0%,transparent 60%),radial-gradient(700px 500px at 100% 15%,#12342e 0%,transparent 58%),var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,sans-serif}
+button,input{font:inherit}a{color:inherit;text-decoration:none}
+.shell{width:min(1180px,calc(100% - 32px));margin:auto}
+.nav{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;background:#0a0a0df2;backdrop-filter:blur(18px)}
+.brand{font-weight:950;letter-spacing:.04em;font-size:12px}.brand b{color:var(--gold)}
+.navlinks{display:flex;gap:7px;max-width:72%;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.navlinks::-webkit-scrollbar{display:none}
+.navlinks a{flex:0 0 auto;padding:8px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:10px;font-weight:800}
+.navlinks a[aria-current]{border-color:var(--gold);color:var(--gold)}
+.hero{padding:36px 0 18px}
+.eyebrow{color:var(--gold);font-size:9px;font-weight:900;letter-spacing:.22em;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6vw,64px);line-height:.92;letter-spacing:-.06em;margin:10px 0}
+.hero h1 span{color:var(--violet)}
+.hero p{max-width:640px;color:var(--muted);margin:0 0 8px}
+.rule{display:inline-block;font-size:12px;padding:8px 12px;border-radius:999px;border:1px solid #315f50;background:#0c1914;color:var(--mint);font-weight:700}
+.studio{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:18px;padding-bottom:50px}
+.preview{min-height:620px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,#171722,#0d0d11);position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding-bottom:40px}
+.preview-tag{position:absolute;left:18px;top:16px;font-size:9px;letter-spacing:.18em;font-weight:900;color:#777581}
+.preview-free{position:absolute;right:18px;top:16px;font-size:9px;letter-spacing:.12em;font-weight:900;color:var(--mint)}
+.halo{position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,#9f8cff22,transparent 62%);top:12%;filter:blur(2px)}
+.ground{position:absolute;bottom:36px;width:min(70%,360px);height:70px;border-radius:50%;background:radial-gradient(ellipse,#000c,transparent 70%)}
+.meezy{position:relative;width:220px;height:380px;z-index:2;transform-origin:bottom center;transition:transform .2s ease}
+.head{position:absolute;top:8%;left:50%;width:38%;height:22%;margin-left:-19%;border-radius:48% 48% 42% 42%;background:var(--skin);border:3px solid #09090c;box-shadow:inset -12px -14px 20px #0002;z-index:4}
+.hair{position:absolute;top:2%;left:50%;width:48%;height:18%;margin-left:-24%;background:var(--hair);border-radius:55% 50% 28% 40%;z-index:5;transform:rotate(-4deg)}
+.hair:after{content:"";position:absolute;right:-6%;top:28%;width:28%;height:90%;background:var(--hair);border-radius:12px 40px 60px 20px}
+.eye{position:absolute;top:42%;width:14%;height:5%;border-radius:99px;background:#17151c}
+.eye.l{left:22%}.eye.r{right:22%}
+.nose{position:absolute;left:48%;top:50%;width:7%;height:12%;border-right:2px solid #7d4c3e;border-bottom:2px solid #7d4c3e;border-radius:0 0 6px 0}
+.smile{position:absolute;left:40%;bottom:18%;width:20%;height:6%;border-bottom:2px solid #5d3030;border-radius:0 0 50% 50%}
+.body{position:absolute;top:28%;left:50%;width:58%;height:40%;margin-left:-29%;border:3px solid #09090c;border-radius:40% 40% 18% 18%;background:linear-gradient(145deg,#353849,#11131b 65%);z-index:2;transform-origin:top center;transition:transform .2s ease,border-radius .2s ease}
+.arm{position:absolute;top:30%;width:14%;height:32%;border:3px solid #09090c;border-radius:40%;background:var(--skin);z-index:1;transform-origin:top center;transition:transform .2s ease}
+.arm.l{left:8%;transform:rotate(8deg)}.arm.r{right:8%;transform:rotate(-8deg)}
+.leg{position:absolute;bottom:4%;width:16%;height:30%;border:3px solid #09090c;border-radius:18px 18px 10px 10px;background:#202432;transform-origin:top center;transition:transform .2s ease}
+.leg.l{left:28%}.leg.r{right:28%}
+.shoe{position:absolute;bottom:0;width:22%;height:7%;border:3px solid #09090c;border-radius:14px;background:#d9dbe0}
+.shoe.l{left:18%}.shoe.r{right:18%}
+.panel{border:1px solid var(--line);border-radius:28px;background:#111116;padding:20px}
+.panel h2{margin:0;font-size:20px;letter-spacing:-.03em}
+.sub{margin:6px 0 16px;color:var(--muted);font-size:12px}
+.group{padding:16px 0;border-top:1px solid var(--line)}
+.group:first-of-type{border-top:0;padding-top:0}
+.label{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#c7c5cc}
+.label .free-tag{color:var(--mint);letter-spacing:.08em}
+.choices{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.choice{min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:#0b0b0f;color:#bbb9c1;font-weight:800;font-size:11px;cursor:pointer}
+.choice:hover{border-color:#55515f}
+.choice.active{background:#211d3c;border-color:var(--violet);color:#fff}
+.skinchoices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.skin{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
+.skin.active{outline:2px solid var(--gold);outline-offset:2px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.btn{min-height:44px;border:1px solid var(--line);border-radius:11px;background:#0b0b0f;color:#fff;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0 12px}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#090806}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.auth{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.auth h3{font-size:13px;margin:0 0 4px}
+.auth p{color:var(--muted);font-size:11px;margin:0 0 12px}
+.authgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.authgrid .full{grid-column:1/-1}
+input{width:100%;height:42px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:#0a0a0e;color:#fff;outline:none}
+input:focus{border-color:var(--violet)}
+.status{min-height:20px;margin-top:10px;color:var(--mint);font-size:11px}
+.status.error{color:#ff8998}
+.tiny{color:var(--muted);font-size:11px}
+.shop{margin-top:18px;border:1px solid var(--line);border-radius:22px;background:#0d0d12;padding:16px}
+.shophead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.shophead h3{margin:0;font-size:16px}
+.shophead p{margin:4px 0 0;color:var(--muted);font-size:11px}
+.badge-paid{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(225,184,91,.4);padding:4px 8px;border-radius:999px}
+.shopgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.item{border:1px solid var(--line);border-radius:14px;padding:12px;background:linear-gradient(145deg,#15151d,#0b0b0f)}
+.swatch{height:64px;border-radius:10px;margin-bottom:8px}
+.item h4{margin:0;font-size:12px}
+.item p{margin:4px 0;color:var(--muted);font-size:11px;min-height:28px}
+.itemrow{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:8px}
+.price{font-weight:950;color:var(--gold);font-size:12px}
+.buymini{min-height:34px;padding:0 10px;border:1px solid var(--gold);border-radius:9px;background:var(--gold);color:#090806;font-weight:900;cursor:pointer;font-size:11px}
+.buymini:disabled{opacity:.5;cursor:not-allowed}
+.swatch.cloak{background:linear-gradient(145deg,#3a2a12,#c9a04a 45%,#1a1208)}
+.swatch.hoodie{background:linear-gradient(145deg,#2a1a4a,#7b5fd4 40%,#0e1a28)}
+.swatch.boots{background:linear-gradient(145deg,#c8d0dc,#5a6678 50%,#eef2f8)}
+.swatch.crown{background:linear-gradient(145deg,#1a1010,#8b1e2e 55%,#e1b85b)}
+.swatch.mark{background:linear-gradient(145deg,#2a0808,#c0392b 50%,#e1b85b)}
+.swatch.sneakers{background:linear-gradient(145deg,#0a1a1a,#2ecc71 40%,#ff2bd6 90%)}
+@media(max-width:900px){.studio{grid-template-columns:1fr}.preview{min-height:480px}}
+@media(max-width:560px){.shopgrid{grid-template-columns:1fr}.authgrid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div class="shell">
-<header class="nav"><a class="brand" href="/">DREAM<b>LEDGER</b></a><nav class="navlinks" aria-label="Main navigation"><a href="/">Explore</a><a href="/billboard">Billboard</a><a href="/avatar.html" aria-current="page">Your avatar</a><a href="/marketplace">Shop</a></nav></header>
-<section class="hero"><div><div class="eyebrow">Your avatar studio</div><h1>Make your <span>DreamMeez.</span></h1><p>Build your look, customise the details and save your avatar.</p></div><div class="authstate" id="identity">Checking account…</div></section>
-<main class="studio">
-<section class="preview" aria-label="DreamMeez preview"><div class="halo"></div><div class="ground"></div><div class="meezy" id="avatar"><div class="hair"></div><div class="head"><span class="eye l"></span><span class="eye r"></span><span class="nose"></span><span class="smile"></span></div><div class="arm l"></div><div class="arm r"></div><div class="body"><span class="badge">✦</span></div><div class="leg l"></div><div class="leg r"></div><div class="shoe l"></div><div class="shoe r"></div></div></section>
-<section class="panel">
-<h2>Studio controls</h2><p class="sub">Changes preview instantly. Saving requires a real DreamLedger account.</p>
-<div class="group"><div class="label"><span>Height</span><output id="heightOut">3</output></div><div class="choices" id="heightChoices"></div></div>
-<div class="group"><div class="label"><span>Build</span><output id="buildOut">3</output></div><div class="choices" id="buildChoices"></div></div>
-<div class="group"><div class="label"><span>Skin</span><output id="skinOut">4</output></div><div class="skinchoices" id="skinChoices"></div></div>
-<div class="actions"><button class="btn primary" id="save" disabled>Save DreamMeez</button><button class="btn" id="logout" hidden>Sign out</button></div>
-<div id="status" class="status"></div>
-<div id="auth" class="auth"><h3>Sign in or create your account</h3><p>No fake users. The controls use the existing Supabase authentication path.</p><form id="authForm" class="authgrid"><input class="full" id="email" type="email" autocomplete="email" placeholder="Email" required><input id="password" type="password" minlength="8" autocomplete="new-password" placeholder="Password" required><input id="name" type="text" maxlength="60" autocomplete="name" placeholder="Display name"><button class="btn primary" type="submit">Create account</button><button class="btn" type="button" id="login">Log in</button></form></div>
-<div class="group" id="streakRewards"><div class="label"><span>Swipe rewards</span><output id="streakRewardCount">0 earned</output></div><p class="tiny" style="margin:8px 0 10px">Style tokens you claim while exploring on this device.</p><div id="streakRewardList" class="tiny">Swipe the catalogue to earn a reward.</div><a class="btn" style="margin-top:10px" href="/">Back to explore</a></div>
-<div class="group" id="cosmeticGroup"><div class="label"><span>DreamMeez cosmetics</span><output id="cosmeticStatus">0 owned</output></div><p class="tiny" style="margin:8px 0 10px">Preview swatches only. Paid release is paused until Cloud Elohim asset provenance, Gauntlet approval, Stripe settlement and owned_cosmetics delivery are verified.</p><button class="btn primary" id="buyFounder" type="button" disabled>Purchases paused · NZ$5</button><div id="ownedCosmetics" class="tiny" style="margin-top:10px"></div></div>
-<div class="shop" id="shop"><div class="shophead"><div><h3>DreamMeez Collection 001</h3><p>Concept previews only. Original cloud-generated assets are not yet approved for sale.</p></div><span class="buff">Assets pending approval</span></div><div class="shopgrid" id="shopGrid"></div></div><div class="actions" style="margin-top:12px"><a class="btn" href="/phinhaven/">Enter PhinHaven</a><a class="btn" href="/mtg">Open Market</a></div>
+<header class="nav">
+  <a class="brand" href="/">DREAM<b>LEDGER</b></a>
+  <nav class="navlinks" aria-label="Main">
+    <a href="/">Explore</a>
+    <a href="/avatar.html" aria-current="page">Your avatar</a>
+    <a href="/phinhaven.html">PhinHaven</a>
+    <a href="/mtg">Magic</a>
+  </nav>
+</header>
+<section class="hero">
+  <div class="eyebrow">DreamMeez studio</div>
+  <h1>Look like <span>you</span> — extremes free.</h1>
+  <p>Body size and shape go far: short, tall, skinny, solid, wide. Those are free. Clothes, marks, and extras are optional and paid.</p>
+  <span class="rule">Free body · Paid cosmetics</span>
 </section>
-</main></div>
+<main class="studio">
+  <section class="preview" aria-label="Avatar preview">
+    <span class="preview-tag">DREAMMEEZ</span>
+    <span class="preview-free">BODY FREE</span>
+    <div class="halo"></div>
+    <div class="ground"></div>
+    <div class="meezy" id="avatar">
+      <div class="hair" id="hair"></div>
+      <div class="head" id="head">
+        <span class="eye l"></span><span class="eye r"></span>
+        <span class="nose"></span><span class="smile"></span>
+      </div>
+      <div class="arm l" id="armL"></div>
+      <div class="arm r" id="armR"></div>
+      <div class="body" id="body"></div>
+      <div class="leg l" id="legL"></div>
+      <div class="leg r" id="legR"></div>
+      <div class="shoe l"></div><div class="shoe r"></div>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>Body · free</h2>
+    <p class="sub">Push the extremes. These controls cost nothing. Save needs a free account.</p>
+    <div class="group">
+      <div class="label"><span>Height</span><span class="free-tag" id="heightOut">Average</span></div>
+      <div class="choices" id="heightChoices"></div>
+    </div>
+    <div class="group">
+      <div class="label"><span>Build</span><span class="free-tag" id="buildOut">Regular</span></div>
+      <div class="choices" id="buildChoices"></div>
+    </div>
+    <div class="group">
+      <div class="label"><span>Skin</span><span class="free-tag" id="skinOut">Tone 4</span></div>
+      <div class="skinchoices" id="skinChoices"></div>
+    </div>
+    <div class="group">
+      <div class="label"><span>Hair colour</span><span class="free-tag" id="hairOut">Dark</span></div>
+      <div class="skinchoices" id="hairChoices"></div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="save" disabled>Save DreamMeez</button>
+      <button class="btn" id="logout" hidden>Sign out</button>
+    </div>
+    <div id="status" class="status"></div>
+    <div id="identity" class="tiny" style="margin-top:8px">Checking account…</div>
+    <div id="auth" class="auth">
+      <h3>Sign in to save</h3>
+      <p>Free account. Body settings sync when you are signed in.</p>
+      <form id="authForm" class="authgrid">
+        <input class="full" id="email" type="email" autocomplete="email" placeholder="Email" required>
+        <input id="password" type="password" minlength="8" autocomplete="new-password" placeholder="Password" required>
+        <input id="name" type="text" maxlength="60" autocomplete="name" placeholder="Display name">
+        <button class="btn primary" type="submit">Create account</button>
+        <button class="btn" type="button" id="login">Log in</button>
+      </form>
+    </div>
+    <div class="shop" id="shop">
+      <div class="shophead">
+        <div>
+          <h3>Cosmetics · paid</h3>
+          <p>Optional look pieces. Body stays free. Checkout opens when you are signed in and the item is available.</p>
+        </div>
+        <span class="badge-paid">Paid</span>
+      </div>
+      <div class="shopgrid" id="shopGrid"></div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <a class="btn" href="/phinhaven.html">PhinHaven</a>
+      <a class="btn" href="/tools/free.html">Free tools</a>
+    </div>
+  </section>
+</main>
+</div>
 <script>
 (function(){
-const COSMETICS=[
-{id:'dreammeez-founder-cloak',name:'Founder Cloak',price:'NZ$5',effect:'+5% cold resistance · Founder title',className:'cloak'},
-{id:'dreammeez-pirate-crown',name:'Pirate Crown',price:'NZ$7',effect:'+5% treasure clue radius',className:'pirate'},
-{id:'dreammeez-cosmic-hoodie',name:'Cosmic Hoodie',price:'NZ$5',effect:'+5% exploration XP',className:'cosmic'},
-{id:'dreammeez-chrome-boots',name:'Chrome Boots',price:'NZ$9',effect:'+3% sprint stamina',className:'chrome'},
-{id:'dreammeez-dragon-mark',name:'Dragon Mark',price:'NZ$7',effect:'+3% boss fear resistance',className:'dragon'},
-{id:'dreammeez-neon-sneakers',name:'Neon Sneakers',price:'NZ$6',effect:'+3% movement stamina',className:'neon'}
-];
-const SUPABASE_URL='https://wbwgroygjeyukkspnqiy.supabase.co',SUPABASE_KEY='sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj',SESSION='dreammeez_supabase_session_v1';
-const $=id=>document.getElementById(id);let token=localStorage.getItem(SESSION)||'',user=null,state={height:3,build:3,skin:4};
+const HEIGHTS=[{id:1,label:'Tiny',scale:0.52},{id:2,label:'Short',scale:0.68},{id:3,label:'Petite',scale:0.80},{id:4,label:'Average',scale:0.95},{id:5,label:'Tall',scale:1.12},{id:6,label:'Very tall',scale:1.28},{id:7,label:'Towering',scale:1.45}];
+const BUILDS=[{id:1,label:'Stick',sx:0.52,bodyR:'55% 55% 22% 22%'},{id:2,label:'Slim',sx:0.68,bodyR:'48% 48% 20% 20%'},{id:3,label:'Regular',sx:0.90,bodyR:'42% 42% 18% 18%'},{id:4,label:'Solid',sx:1.08,bodyR:'40% 40% 18% 18%'},{id:5,label:'Wide',sx:1.28,bodyR:'38% 38% 20% 20%'},{id:6,label:'Plus',sx:1.42,bodyR:'36% 36% 22% 22%'},{id:7,label:'Massive',sx:1.58,bodyR:'34% 34% 24% 24%'}];
+const SKINS=['#f3d2b8','#e4b48f','#d09a72','#b87a55','#946041','#6b3f30','#4a2c24'];
+const HAIRS=[{c:'#1a1820',n:'Dark'},{c:'#3d2914',n:'Brown'},{c:'#8b6914',n:'Blonde'},{c:'#6b1c1c',n:'Auburn'},{c:'#c8c4c0',n:'Silver'},{c:'#2a4a8a',n:'Blue'},{c:'#5a2a7a',n:'Violet'}];
+const COSMETICS=[{id:'dreammeez-founder-cloak',name:'Founder Cloak',price:'NZ$5',blurb:'Full-length cloak. Statement outer layer.',className:'cloak'},{id:'dreammeez-cosmic-hoodie',name:'Cosmic Hoodie',price:'NZ$5',blurb:'Soft hoodie with night-sky wash.',className:'hoodie'},{id:'dreammeez-chrome-boots',name:'Chrome Boots',price:'NZ$9',blurb:'Shiny boots for the lower half.',className:'boots'},{id:'dreammeez-pirate-crown',name:'Pirate Crown',price:'NZ$7',blurb:'Gold-trim crown piece.',className:'crown'},{id:'dreammeez-dragon-mark',name:'Dragon Mark',price:'NZ$7',blurb:'Face/body mark accent.',className:'mark'},{id:'dreammeez-neon-sneakers',name:'Neon Sneakers',price:'NZ$6',blurb:'Bright trainers.',className:'sneakers'}];
+const SUPABASE_URL='https://wbwgroygjeyukkspnqiy.supabase.co';
+const SUPABASE_KEY='sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
+const SESSION='dreammeez_supabase_session_v1';
+const $=id=>document.getElementById(id);
+let token=localStorage.getItem(SESSION)||'',user=null,state={height:4,build:3,skin:4,hair:0};
 function status(t,error){$('status').textContent=t||'';$('status').className='status'+(error?' error':'')}
 async function authFetch(path,options){const o=options||{};o.headers=Object.assign({'apikey':SUPABASE_KEY,'Content-Type':'application/json'},o.headers||{});if(token)o.headers.Authorization='Bearer '+token;const r=await fetch(SUPABASE_URL+path,o);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.msg||d.error_description||d.message||d.error||'Request failed');return d}
-async function loadAvatar(){const rows=await authFetch('/rest/v1/dreammeez_avatars?select=avatar_id,account_id,display_name,appearance,current_location,owned_objects,soul_tome&account_id=eq.'+encodeURIComponent(user.id)+'&limit=1');if(Array.isArray(rows)&&rows[0]){const a=rows[0],ap=a.appearance||{};state.height=Number(ap.height||3);state.build=Number(ap.build||3);state.skin=Number(ap.skin||4)}await loadCosmetics()}
-async function loadCosmetics(){try{const rows=await authFetch('/rest/v1/owned_cosmetics?select=cosmetic_id,settled_at&account_id=eq.'+encodeURIComponent(user.id)+'&order=settled_at.desc');const list=Array.isArray(rows)?rows:[];$('cosmeticStatus').textContent=list.length+' owned';$('ownedCosmetics').textContent=list.length?list.map(x=>x.cosmetic_id).join(' · '):'No paid cosmetics yet.'}catch(e){$('cosmeticStatus').textContent='unavailable';$('ownedCosmetics').textContent='Entitlement service not available yet.'}}
-
-function renderShop(){const grid=$('shopGrid');if(!grid)return;grid.innerHTML='';COSMETICS.forEach(item=>{const card=document.createElement('article');card.className='item';card.innerHTML='<div class="swatch '+item.className+'"></div><h4>'+item.name+'</h4><p>'+item.effect+'</p><div class="itemrow"><span class="price">'+item.price+'</span><button class="buymini" data-cosmetic="'+item.id+'" disabled>Paused</button></div>';grid.appendChild(card)});grid.querySelectorAll('.buymini').forEach(btn=>btn.onclick=()=>buyCosmetic(btn.dataset.cosmetic,btn));}
-async function buyCosmetic(cosmeticId,button){if(!token)return status('Sign in first.',true);button.disabled=true;button.textContent='Opening…';status('Opening secure checkout…');try{const r=await fetch(SUPABASE_URL+'/functions/v1/dreammeez-cosmetic-checkout',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({cosmetic_id:cosmeticId})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Checkout unavailable');if(!d.checkout_url)throw new Error('Checkout URL missing');window.location.href=d.checkout_url}catch(e){button.disabled=false;button.textContent='Buy';status(e.message,true)}}
-function signedOut(){user=null;$('identity').textContent='Not signed in';$('auth').hidden=false;$('logout').hidden=true;$('save').disabled=true;render()}
-function signedIn(){ $('identity').textContent='Signed in as '+(user.email||'account');$('auth').hidden=true;$('logout').hidden=false;$('save').disabled=false;render()}
-function render(){
-['height','build'].forEach(k=>{const out=$(k+'Out'),el=$(k+'Choices');out.textContent=state[k];el.innerHTML='';for(let i=1;i<=6;i++){const b=document.createElement('button');b.type='button';b.className='choice'+(state[k]===i?' active':'');b.textContent=i;b.onclick=()=>{state[k]=i;render()};el.appendChild(b)}});
-const tones=['#f1c8aa','#dfad88','#cf956f','#bc7d5c','#985d42','#6f3f32'];const sc=$('skinChoices');sc.innerHTML='';for(let i=1;i<=6;i++){const b=document.createElement('button');b.type='button';b.className='skin'+(state.skin===i?' active':'');b.style.background=tones[i-1];b.setAttribute('aria-label','Skin '+i);b.onclick=()=>{state.skin=i;render()};sc.appendChild(b)}
-$('avatar').style.transform='scale('+(0.9+state.height*.035)+')';$('avatar').querySelector('.body').style.transform='scaleX('+(0.86+state.build*.05)+')';$('avatar').querySelector('.head').style.background=tones[state.skin-1];$('avatar').querySelectorAll('.arm').forEach(x=>x.style.background=tones[state.skin-1]);
-}
+function renderShop(){const grid=$('shopGrid');if(!grid)return;grid.innerHTML='';COSMETICS.forEach(item=>{const card=document.createElement('article');card.className='item';card.innerHTML='<div class="swatch '+item.className+'"></div><h4>'+item.name+'</h4><p>'+item.blurb+'</p><div class="itemrow"><span class="price">'+item.price+'</span><button class="buymini" data-cosmetic="'+item.id+'" type="button">'+(token?'Buy':'Sign in')+'</button></div>';grid.appendChild(card)});grid.querySelectorAll('.buymini').forEach(btn=>{btn.onclick=()=>buyCosmetic(btn.dataset.cosmetic,btn)})}
+async function buyCosmetic(cosmeticId,button){if(!token){status('Sign in to buy cosmetics.',true);return}button.disabled=true;button.textContent='Opening…';status('Opening checkout…');try{const r=await fetch(SUPABASE_URL+'/functions/v1/dreammeez-cosmetic-checkout',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({cosmetic_id:cosmeticId})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Checkout unavailable right now');if(!d.checkout_url)throw new Error('Checkout not available for this item yet');window.location.href=d.checkout_url}catch(e){button.disabled=false;button.textContent='Buy';status(e.message,true)}}
+function render(){const h=HEIGHTS.find(x=>x.id===state.height)||HEIGHTS[3];const b=BUILDS.find(x=>x.id===state.build)||BUILDS[2];$('heightOut').textContent=h.label;$('buildOut').textContent=b.label;$('skinOut').textContent='Tone '+state.skin;$('hairOut').textContent=HAIRS[state.hair].n;const hc=$('heightChoices');hc.innerHTML='';HEIGHTS.forEach(x=>{const btn=document.createElement('button');btn.type='button';btn.className='choice'+(state.height===x.id?' active':'');btn.textContent=x.label;btn.onclick=()=>{state.height=x.id;render()};hc.appendChild(btn)});const bc=$('buildChoices');bc.innerHTML='';BUILDS.forEach(x=>{const btn=document.createElement('button');btn.type='button';btn.className='choice'+(state.build===x.id?' active':'');btn.textContent=x.label;btn.onclick=()=>{state.build=x.id;render()};bc.appendChild(btn)});const sc=$('skinChoices');sc.innerHTML='';SKINS.forEach((c,i)=>{const btn=document.createElement('button');btn.type='button';btn.className='skin'+(state.skin===i+1?' active':'');btn.style.background=c;btn.setAttribute('aria-label','Skin '+(i+1));btn.onclick=()=>{state.skin=i+1;render()};sc.appendChild(btn)});const hc2=$('hairChoices');hc2.innerHTML='';HAIRS.forEach((hitem,i)=>{const btn=document.createElement('button');btn.type='button';btn.className='skin'+(state.hair===i?' active':'');btn.style.background=hitem.c;btn.setAttribute('aria-label',hitem.n);btn.onclick=()=>{state.hair=i;render()};hc2.appendChild(btn)});const skin=SKINS[state.skin-1];const hair=HAIRS[state.hair].c;$('avatar').style.transform='scale('+h.scale+')';$('body').style.transform='scaleX('+b.sx+')';$('body').style.borderRadius=b.bodyR;$('head').style.background=skin;$('armL').style.background=skin;$('armR').style.background=skin;$('hair').style.background=hair;const armScale=0.75+b.sx*0.25;$('armL').style.transform='rotate(8deg) scaleX('+armScale+')';$('armR').style.transform='rotate(-8deg) scaleX('+armScale+')'}
+async function loadAvatar(){try{const rows=await authFetch('/rest/v1/dreammeez_avatars?select=appearance&account_id=eq.'+encodeURIComponent(user.id)+'&limit=1');if(Array.isArray(rows)&&rows[0]&&rows[0].appearance){const ap=rows[0].appearance;if(ap.height)state.height=Number(ap.height);if(ap.build)state.build=Number(ap.build);if(ap.skin)state.skin=Number(ap.skin);if(ap.hair!=null)state.hair=Number(ap.hair)}}catch(e){}render()}
+function signedOut(){user=null;$('identity').textContent='Not signed in — body is free to try';$('auth').hidden=false;$('logout').hidden=true;$('save').disabled=true;renderShop();render()}
+function signedIn(){$('identity').textContent='Signed in as '+(user.email||'account');$('auth').hidden=true;$('logout').hidden=false;$('save').disabled=false;renderShop();render()}
 async function loadUser(){if(!token){signedOut();return}try{user=await authFetch('/auth/v1/user',{headers:{Authorization:'Bearer '+token}});await loadAvatar();signedIn()}catch(e){localStorage.removeItem(SESSION);token='';signedOut();status('Session expired. Sign in again.',true)}}
-$('authForm').addEventListener('submit',async e=>{e.preventDefault();status('Creating account…');try{const d=await authFetch('/auth/v1/signup',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value,name:$('name').value.trim()||undefined,data:{display_name:$('name').value.trim()||undefined}})});if(d.access_token){token=d.access_token;localStorage.setItem(SESSION,token);user=d.user;await loadAvatar();signedIn();status('Account created. Save your DreamMeez.')}else status('Account created. Check your email, then log in.')}catch(e){status(e.message,true)}});
-$('login').onclick=async()=>{status('Logging in…');try{const d=await authFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});token=d.access_token;localStorage.setItem(SESSION,token);user=d.user;await loadAvatar();signedIn();status('Signed in.')}catch(e){status(e.message,true)}};
-$('save').onclick=async()=>{if(!user||!token)return status('Sign in first.',true);status('Saving…');try{const body={account_id:user.id,display_name:($('name').value.trim()||user.user_metadata?.display_name||user.email?.split('@')[0]||'Dreamer'),appearance:{height:state.height,build:state.build,skin:state.skin},current_location:{world:'kelplantis',city:'kelplantis_city',district:'plaza',spawn:'plaza_spawn'},owned_objects:[],soul_tome:{entries:[]}};const d=await authFetch('/rest/v1/dreammeez_avatars?on_conflict=account_id',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(body)});if(!Array.isArray(d)||!d[0])throw Error('Avatar was not persisted.');status('DreamMeez saved.');renderShop();}catch(e){status(e.message,true)}};
-$('logout').onclick=async()=>{try{await authFetch('/auth/v1/logout',{method:'POST'})}catch(e){}localStorage.removeItem(SESSION);token='';signedOut();status('Signed out.')};
-$('buyFounder').onclick=async()=>{if(!token)return status('Sign in first.',true);status('Opening secure checkout…');try{const r=await fetch(SUPABASE_URL+'/functions/v1/dreammeez-cosmetic-checkout',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({cosmetic_id:'dreammeez-founder-cloak'})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Checkout unavailable');if(!d.checkout_url)throw new Error('Checkout URL missing');window.location.href=d.checkout_url}catch(e){status(e.message,true)}};
-function showStreakRewards(){try{const s=JSON.parse(localStorage.getItem('dl_streak')||'{}'),items=Array.isArray(s.inventory)?s.inventory:[];$('streakRewardCount').textContent=items.length+' earned';$('streakRewardList').textContent=items.length?items.map(x=>x.item+' · '+x.day).join('  •  '):'No swipe rewards yet. Explore the catalogue and claim today’s style reward.'}catch(e){$('streakRewardList').textContent='Rewards are unavailable on this device.'}}
-showStreakRewards();render();renderShop();loadUser();
+$('authForm').addEventListener('submit',async e=>{e.preventDefault();status('Creating account…');try{const d=await authFetch('/auth/v1/signup',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value,data:{display_name:$('name').value.trim()||undefined}})});if(d.access_token){token=d.access_token;localStorage.setItem(SESSION,token)}status('Account created. Check email if confirmation is required.');await loadUser()}catch(err){status(err.message,true)}});
+$('login').onclick=async()=>{status('Signing in…');try{const d=await authFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});token=d.access_token;localStorage.setItem(SESSION,token);status('Signed in.');await loadUser()}catch(err){status(err.message,true)}};
+$('logout').onclick=()=>{token='';localStorage.removeItem(SESSION);signedOut();status('Signed out.')};
+$('save').onclick=async()=>{if(!user){status('Sign in to save.',true);return}status('Saving…');try{const appearance={height:state.height,build:state.build,skin:state.skin,hair:state.hair};const existing=await authFetch('/rest/v1/dreammeez_avatars?select=avatar_id&account_id=eq.'+encodeURIComponent(user.id)+'&limit=1');if(Array.isArray(existing)&&existing[0]){await authFetch('/rest/v1/dreammeez_avatars?avatar_id=eq.'+encodeURIComponent(existing[0].avatar_id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({appearance:appearance})})}else{await authFetch('/rest/v1/dreammeez_avatars',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({account_id:user.id,appearance:appearance})})}status('Saved.')}catch(err){status(err.message||'Save failed',true)}};
+renderShop();loadUser();
 })();
 </script>
-</body></html>
+</body>
+</html>
