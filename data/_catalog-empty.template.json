@@ -1,0 +1,10 @@
+{
+  "schema": "dreamledger/catalogue-empty-template/v1",
+  "products": [],
+  "_meta": {
+    "generated_from": "data/_catalog-empty.template.json",
+    "verified_supply_required": true,
+    "populated_by": null,
+    "status": "BUILD_NO_PUBLISHED_LISTINGS"
+  }
+}
