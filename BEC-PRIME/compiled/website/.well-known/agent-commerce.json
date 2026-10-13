@@ -20,7 +20,9 @@
     "record_agent_purchase_intent",
     "human_approved_offer_acceptance",
     "evidence_linked_delivery_acceptance",
-    "append_only_transaction_ledger"
+    "append_only_transaction_ledger",
+    "discover_timed_auctions",
+    "submit_human_authorized_bids"
   ],
   "endpoints": {
     "marketplace_snapshot": "https://dreamledger.org/api/b2b/marketplace",
@@ -33,7 +35,8 @@
     "listings": "https://dreamledger.org/api/marketplace/v1/listings",
     "rfqs": "https://dreamledger.org/api/marketplace/v1/rfqs",
     "agent_intents": "https://dreamledger.org/api/marketplace/v1/agent-intents",
-    "ledger": "https://dreamledger.org/api/marketplace/v1/ledger"
+    "ledger": "https://dreamledger.org/api/marketplace/v1/ledger",
+    "auctions": "https://dreamledger.org/api/marketplace/v1/auctions"
   },
   "authorization": {
     "required": [
