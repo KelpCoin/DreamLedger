@@ -38,6 +38,7 @@ check('CHECKOUT_FAILS_CLOSED',route.includes('CHECKOUT_HELD'));
 check('AUCTION_SCHEMA',sql.includes('marketplace_auctions')&&sql.includes('marketplace_bids')&&sql.includes('marketplace_place_bid')&&sql.includes('marketplace_close_auction')&&sql.includes('marketplace_buy_now'));
 check('AUCTION_HUMAN_AUTH',sql.includes('explicit human bid authorization required')&&route.includes("lacks place_bid scope"));
 check('AUCTION_CATALOG_UI',page.includes('/api/marketplace/v1/auctions')&&page.includes('Timed auctions'));
+check('CUBE_ADMIN_INTAKE',route.includes('/api/marketplace/v1/admin/cube-hypotheses')&&route.includes('DREAMLEDGER/CUBE-SALES-HYPOTHESES/v1'));
 check('CUBE_SEED_MIGRATION',migrations.some(x=>x.includes('003_seed_cube_b2b_hypotheses'))&&sql.includes('marketplace_cube_hypotheses'));
 check('LEDGER_APPEND_SERIALIZED',sql.includes('pg_advisory_xact_lock(777771)'));
 check('PAGE_USES_REAL_API',page.includes('/api/marketplace/v1/listings')&&page.includes('/api/marketplace/v1/rfqs'));
