@@ -66,9 +66,9 @@ jobs:
               raise SystemExit("FAIL no source-bound commercial pulse page staged")
           print(f"PASS observatory index links={len(parser.hrefs)}; all targets exist") 
           PY
-          grep -Fq "Clearer decisions. Verifiable outcomes." _site/index.html
-          grep -Fq "Start with a free worksheet" _site/index.html
-          grep -Fq "comparing supplier quotes" _site/index.html
+          grep -Fq "Claim a founding billboard tile" _site/index.html
+          grep -Fq "Build your DreamMeez free" _site/index.html
+          grep -Fq "Revenue paths live now" _site/index.html
           grep -Fq "777 Economic Observatory" _site/pulse/index.html
           grep -Fq "VERIFIED_EXTERNAL_REVENUE" _site/pulse/index.html
           echo "PASS DreamLedger Pages artifact staged"
