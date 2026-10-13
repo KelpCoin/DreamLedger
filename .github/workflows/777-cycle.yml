@@ -92,6 +92,7 @@ jobs:
           QUOTE_COMPARE_CHECKOUT: ${{ vars.QUOTE_COMPARE_CHECKOUT }}
           DREAMLEDGER_777_OUTPUT_DIR: artifacts/777/internal
           DREAMLEDGER_777_SKIP_MODELS: 'true'
+          DREAMLEDGER_777_PREFER_LOCAL_GPU: 'false'
         run: node scripts/777_cloud_execution_adapter.js
       - name: Stage public artifact candidates for compounding gate
         if: steps.pulse.outputs.publish == 'true'
