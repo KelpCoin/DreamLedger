@@ -465,7 +465,7 @@ async function handle(req,res,requestPath) {
       if(old) return send(res,200,{offer_id:old.subject_id,state:'submitted',duplicate:true});
       const rfq=readLocal(10000).find(e=>e.event_type==='RFQ_SUBMITTED'&&e.subject_id===offerMatch[1]);
       if(!rfq) return send(res,404,{error:'RFQ not found in local ledger'});
-      const id=crypto.randomUUID(); appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'SUPPLIER_OFFER_SUBMITTED',subject_type:'offer',subject_id:id,actor_type:'business',actor_id:supplier.party_id,economic_state:'OBSERVED',payload:{...payload,id,status:'submitted',created_at:new Date().toISOString()}});
+      const id=crypto.randomUUID(); appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'SUPPLIER_OFFER_SUBMITTED',subject_type:'offer',subject_id:id,actor_type:'business',actor_id:supplier.party_id,economic_state:'OBSERVED',payload:{...payload,buyer_party_id:rfq.payload?.buyer_party_id||null,id,status:'submitted',created_at:new Date().toISOString()}});
       return send(res,201,{offer_id:id,state:'submitted',message:'Offer recorded; buyer has not accepted it.'});
     }
     const result=await rpc('marketplace_submit_offer',{p_idempotency_key:key,p_seller_party_id:supplier.party_id,p_rfq_id:offerMatch[1],p_payload:payload});
@@ -483,6 +483,7 @@ async function handle(req,res,requestPath) {
       if(old) return send(res,200,{order_id:old.subject_id,state:'CREATED',payment_state:'UNPAID',duplicate:true});
       const offer=readLocal(10000).find(e=>e.event_type==='SUPPLIER_OFFER_SUBMITTED'&&e.subject_id===acceptMatch[1]);
       if(!offer) return send(res,404,{error:'Offer not found in local ledger'});
+      if(!offer.payload?.buyer_party_id||offer.payload.buyer_party_id!==buyer.party_id) return send(res,403,{error:'Offer is not assigned to this buyer; anonymous RFQs cannot accept offers.'});
       const orderId=crypto.randomUUID();
       appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'ORDER_AUTHORIZED',subject_type:'order',subject_id:orderId,actor_type:'human',actor_id:buyer.party_id,economic_state:'AUTHORIZED',payload:{offer_id:acceptMatch[1],buyer_party_id:buyer.party_id,seller_party_id:offer.actor_id,amount_minor:offer.payload.amount_minor,currency:offer.payload.currency,payment_state:'UNPAID',fulfillment_state:'NOT_STARTED',authorized_by:safeText(b.authorized_by,160),state:'CREATED'}});
       return send(res,201,{order_id:orderId,state:'CREATED',payment_state:'UNPAID',message:'Order authorized; no payment has been taken.'});
