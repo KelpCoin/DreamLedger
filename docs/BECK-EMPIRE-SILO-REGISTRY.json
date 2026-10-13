@@ -14,17 +14,8 @@
       "platform_fee_bps": 0,
       "status": "active",
       "first_dollar_priority": 1,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": [
-        "Amplissa",
-        "adult content",
-        "18+ content",
-        "BBW content",
-        "OnlyFans",
-        "Pornhub"
-      ]
+      "cross_silo_forbidden_domains": [],
+      "cross_silo_forbidden_terms": []
     },
     "AMPLISSA": {
       "id": "amplissa",
@@ -107,7 +98,7 @@
       ],
       "platform_fee_bps": 500,
       "status": "build",
-      "first_dollar_priority": 6,
+      "first_dollar_priority": 99,
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
@@ -118,118 +109,6 @@
         "adult content",
         "18+ content"
       ]
-    },
-    "TCG_POKEMON": {
-      "id": "dreamledger-pokemon",
-      "public_domains": [
-        "dreamledger.org"
-      ],
-      "public_prefixes": [
-        "/pokemon"
-      ],
-      "platform_fee_bps": 500,
-      "status": "build",
-      "first_dollar_priority": 99,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": []
-    },
-    "TCG_ONEPIECE": {
-      "id": "dreamledger-onepiece",
-      "public_domains": [
-        "dreamledger.org"
-      ],
-      "public_prefixes": [
-        "/onepiece"
-      ],
-      "platform_fee_bps": 500,
-      "status": "build",
-      "first_dollar_priority": 99,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": []
-    },
-    "TCG_YUGIOH": {
-      "id": "dreamledger-yugioh",
-      "public_domains": [
-        "dreamledger.org"
-      ],
-      "public_prefixes": [
-        "/yugioh"
-      ],
-      "platform_fee_bps": 500,
-      "status": "build",
-      "first_dollar_priority": 99,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": []
-    },
-    "TCG_LORCANA": {
-      "id": "dreamledger-lorcana",
-      "public_domains": [
-        "dreamledger.org"
-      ],
-      "public_prefixes": [
-        "/lorcana"
-      ],
-      "platform_fee_bps": 500,
-      "status": "build",
-      "first_dollar_priority": 99,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": []
-    },
-    "TCG_RIFTBOUND": {
-      "id": "dreamledger-riftbound",
-      "public_domains": [
-        "dreamledger.org"
-      ],
-      "public_prefixes": [
-        "/riftbound"
-      ],
-      "platform_fee_bps": 500,
-      "status": "build",
-      "first_dollar_priority": 99,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": []
-    },
-    "TCG_GUNDAM": {
-      "id": "dreamledger-gundam",
-      "public_domains": [
-        "dreamledger.org"
-      ],
-      "public_prefixes": [
-        "/gundam"
-      ],
-      "platform_fee_bps": 500,
-      "status": "build",
-      "first_dollar_priority": 99,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": []
-    },
-    "TCG_DIGIMON": {
-      "id": "dreamledger-digimon",
-      "public_domains": [
-        "dreamledger.org"
-      ],
-      "public_prefixes": [
-        "/digimon"
-      ],
-      "platform_fee_bps": 500,
-      "status": "build",
-      "first_dollar_priority": 99,
-      "cross_silo_forbidden_domains": [
-        "amplissa.com"
-      ],
-      "cross_silo_forbidden_terms": []
     }
   },
   "hard_rules": [
