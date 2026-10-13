@@ -12,5 +12,7 @@ check('root/public legacy aliases match',read('music-media.html')===read('public
 check('generated page differs from master only by slug',read('public/music-media/index.html')===read('public/mtg/index.html').replace('data-silo="mtg"','data-silo="music-media"'));
 check('registry declares Music & Media build-only at 500 bps',reg.silos.MUSIC_MEDIA?.id==='dreamledger-music-media'&&reg.silos.MUSIC_MEDIA?.status==='build'&&reg.silos.MUSIC_MEDIA?.platform_fee_bps===500);
 check('fee policy declares Music & Media at 500 bps',fees.rules['dreamledger-music-media']?.platform_fee_bps===500);
-check('no fake inventory or checkout in catalogue',c.products.length===0&&!JSON.stringify(c).includes('buy.stripe.com'));
+check('build-gated catalogue has no published inventory',m.status==='active'||!c.products.some(p=>p.status==='published'));
+check('every listing remains isolated to Music & Media',c.products.every(p=>p.silo==='music-media'));
+for(const p of c.products){if(p.checkout_available===true)check('checkout requires verified rights and delivery: '+(p.id||p.title||'listing'),p.rights_status==='verified'&&p.delivery_status==='verified'&&/^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/.test(p.checkout_url||''));}
 const failed=checks.filter(c=>!c.ok);console.log(JSON.stringify({schema:'DREAMLEDGER/MUSIC-MEDIA-GAUNTLET/v1',verdict:failed.length?'FAIL':'PASS_WITH_HOLDS',checks,failed_checks:failed.length,holds:[{code:'CAPABILITY_READINESS',detail:'The shell and empty catalogue can be cloned, but unresolved payment/fulfilment/community capabilities still block activation.'}]},null,2));if(failed.length)process.exit(1);
