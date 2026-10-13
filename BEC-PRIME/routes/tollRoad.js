@@ -7,6 +7,7 @@ const Trinity=require('../runtime/Trinity');
 const TollNexus=require('../runtime/TollNexus');
 const AgentBridgeEventLedger=require('../runtime/AgentBridgeEventLedger');
 const RoadFactory=require('../runtime/TollRoadFactory');
+const TollEntitlementLedger=require('../runtime/TollEntitlementLedger');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_LIVE_SECRET_KEY||process.env.STRIPE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
 const TOLL_CHECKOUT_ENABLED = String(process.env.TOLL_CHECKOUT_ENABLED || 'false').trim().toLowerCase() === 'true';
@@ -127,7 +128,22 @@ async function redeem(scope,sessionId,roadId=null){
   const createdAt = Number(data.created || 0) * 1000;
   const expiresAt = createdAt > 0 ? new Date(createdAt + 30 * 86400000).toISOString() : undefined;
   if (expiresAt && Date.parse(expiresAt) <= Date.now()) throw Object.assign(new Error('Paid entitlement expired'),{statusCode:410});
-  return {status:'ENTITLED',key:Toll.issueKey({keyId:'TOLL_'+String(sessionId).slice(-24),tier:scope,roadId:roadId||null,callsRemaining:def.calls,expiresAt,reference:sessionId}),attribution:{referrer_id:safeAttribution(data.metadata?.referrer_id,'organic'),campaign_id:safeAttribution(data.metadata?.campaign_id,'direct')}};
+  const keyId='TOLL_'+String(sessionId).slice(-24);
+  if(scope==='toll-probe'){
+    const paymentIntentId=typeof data.payment_intent==='string'?data.payment_intent:(data.payment_intent?.id||'');
+    await TollEntitlementLedger.registerProbeEntitlement({
+      keyId,
+      checkoutSessionId:sessionId,
+      paymentIntentId,
+      scope,
+      callsGranted:def.calls,
+      expiresAt:expiresAt||new Date(Date.now()+30*86400000).toISOString(),
+      livemode:data.livemode===true,
+      amountMinor:Number(data.amount_total),
+      currency:String(data.currency||'').toLowerCase()
+    });
+  }
+  return {status:'ENTITLED',key:Toll.issueKey({keyId,tier:scope,roadId:roadId||null,callsRemaining:def.calls,expiresAt,reference:sessionId}),attribution:{referrer_id:safeAttribution(data.metadata?.referrer_id,'organic'),campaign_id:safeAttribution(data.metadata?.campaign_id,'direct')}};
 }
 
 const probeClaims=new Map();
@@ -269,7 +285,8 @@ async function handle(req,res,path){
     const key=authorize(req,'toll-probe');
     try{
       const claim=await claimProbeOnce(key.reference,key.key_id);
-      const receipt={receipt_id:'PROBE-'+crypto.createHash('sha256').update(String(key.reference)).digest('hex').slice(0,24),probe_id:'TOLL-PROBE-50C',route:'/api/toll/v1/probe',price_nzd:0.50,result:'LIVE_TOLL_WALL_REACHED',issued_at:claim.consumed_at,attribution:claim.attribution,replayed:claim.replayed,note:'One paid probe consumed. Retries return the same receipt. Receipt is an API response; it is not an Ed25519 signature.'};
+      const quota=await TollEntitlementLedger.consumeProbeQuota({keyId:key.key_id,idempotencyKey:'toll-probe:'+String(key.reference)});
+      const receipt={receipt_id:'PROBE-'+crypto.createHash('sha256').update(String(key.reference)).digest('hex').slice(0,24),probe_id:'TOLL-PROBE-50C',route:'/api/toll/v1/probe',price_nzd:0.50,result:'LIVE_TOLL_WALL_REACHED',issued_at:claim.consumed_at,attribution:claim.attribution,replayed:claim.replayed===true||quota.replayed===true,calls_remaining:Number(quota.calls_remaining),quota_ledger:'DURABLE',note:'One settled NZ$0.50 probe consumed through the durable quota ledger. Retries return the same receipt without decrementing quota again. Receipt is an API response; it is not an Ed25519 signature.'};
       return send(res,200,meterResult(key,'TOLL-PROBE',receipt));
     }catch(error){
       return send(res,Number(error&&error.statusCode)||502,{error:String(error&&error.message||'probe_claim_failed'),service:'TOLL-PROBE'});

@@ -6,10 +6,14 @@ const assert = require('node:assert/strict');
 process.env.DREAMLEDGER_TOLL_KEY_SECRET = 'unit-test-toll-secret';
 process.env.STRIPE_SECRET_KEY = 'mocked_stripe_secret_for_unit_tests';
 process.env.PUBLIC_BASE_URL = 'https://dreamledger.org';
+process.env.SUPABASE_URL = 'https://mock.supabase.co';
+process.env.SUPABASE_SERVICE_ROLE_KEY = 'mock_service_role_for_unit_tests';
 process.env.TOLL_CHECKOUT_ENABLED = 'true';
 
 let stripeSession = null;
 let checkoutForm = null;
+const entitlements = new Map();
+const usageEvents = new Map();
 const originalFetch = global.fetch;
 
 function response(payload, ok = true, status = 200) {
@@ -20,6 +24,43 @@ global.fetch = async (url, options = {}) => {
   const target = String(url);
   const method = String(options.method || 'GET').toUpperCase();
 
+  if (target === 'https://mock.supabase.co/rest/v1/rpc/register_toll_probe_entitlement' && method === 'POST') {
+    const args = JSON.parse(options.body);
+    const existing = entitlements.get(args.p_checkout_session_id);
+    if (existing && existing.key_id !== args.p_key_id) return response({ error: 'session already bound' }, false, 409);
+    const row = existing || {
+      key_id: args.p_key_id,
+      checkout_session_id: args.p_checkout_session_id,
+      scope: args.p_scope,
+      calls_granted: args.p_calls_granted,
+      calls_remaining: args.p_calls_granted,
+      expires_at: args.p_expires_at,
+      status: 'active',
+      livemode: args.p_livemode,
+      amount_minor: args.p_amount_minor,
+      currency: args.p_currency
+    };
+    entitlements.set(args.p_checkout_session_id, row);
+    return response({ ok: true, key_id: row.key_id, calls_remaining: row.calls_remaining, status: row.status });
+  }
+
+  if (target === 'https://mock.supabase.co/rest/v1/rpc/consume_toll_probe_quota' && method === 'POST') {
+    const args = JSON.parse(options.body);
+    const prior = usageEvents.get(args.p_idempotency_key);
+    if (prior) {
+      if (prior.key_id !== args.p_key_id) return response({ error: 'idempotency collision' }, false, 409);
+      return response({ ok: true, replayed: true, key_id: prior.key_id, calls_remaining: prior.calls_remaining, consumed_at: prior.consumed_at });
+    }
+    const row = [...entitlements.values()].find(item => item.key_id === args.p_key_id);
+    if (!row) return response({ error: 'entitlement not found' }, false, 404);
+    if (row.status !== 'active' || row.calls_remaining < 1) return response({ error: 'quota exhausted' }, false, 409);
+    row.calls_remaining -= 1;
+    if (row.calls_remaining === 0) row.status = 'exhausted';
+    const event = { key_id: row.key_id, calls_remaining: row.calls_remaining, consumed_at: new Date().toISOString() };
+    usageEvents.set(args.p_idempotency_key, event);
+    return response({ ok: true, replayed: false, key_id: row.key_id, calls_remaining: row.calls_remaining, consumed_at: event.consumed_at });
+  }
+
   if (target === 'https://api.stripe.com/v1/checkout/sessions' && method === 'POST') {
     checkoutForm = new URLSearchParams(options.body);
     stripeSession = {
@@ -29,6 +70,8 @@ global.fetch = async (url, options = {}) => {
       payment_status: 'unpaid',
       amount_total: Number(checkoutForm.get('line_items[0][price_data][unit_amount]')),
       currency: checkoutForm.get('line_items[0][price_data][currency]'),
+      line_items: { data: [{ amount_total: Number(checkoutForm.get('line_items[0][price_data][unit_amount]')) }] },
+      payment_intent: 'pi_live_test_probe',
       created: Math.floor(Date.now() / 1000),
       metadata: {}
     };
@@ -39,7 +82,7 @@ global.fetch = async (url, options = {}) => {
     return response(stripeSession);
   }
 
-  if (target.endsWith('/checkout/sessions/cs_live_test_probe') && method === 'GET') {
+  if (target.includes('/checkout/sessions/cs_live_test_probe') && method === 'GET') {
     return response(stripeSession || {}, Boolean(stripeSession), stripeSession ? 200 : 404);
   }
 
@@ -119,14 +162,16 @@ test('campaign attribution reaches Stripe and one paid probe returns a stable re
   assert.equal(checkoutForm.get('payment_intent_data[metadata][campaign_id]'), 'universal-20261011');
 
   stripeSession.payment_status = 'paid';
-  const Toll = require('../runtime/TollRoad');
-  const key = Toll.issueKey({
-    keyId: 'TOLL_test_probe',
-    tier: 'toll-probe',
-    callsRemaining: 1,
-    expiresAt: new Date(Date.now() + 86400000).toISOString(),
-    reference: stripeSession.id
-  });
+  const redemption = await invoke(
+    routes.handle,
+    fakeRequest('GET', '/api/toll/v1/redeem/toll-probe?session_id=' + stripeSession.id),
+    '/api/toll/v1/redeem/toll-probe'
+  );
+  assert.equal(redemption.statusCode, 200);
+  assert.equal(redemption.body.status, 'ENTITLED');
+  const key = redemption.body.key;
+  assert.ok(key, 'a settled checkout must produce the scoped key only after durable entitlement registration');
+  assert.equal(entitlements.get(stripeSession.id).calls_remaining, 1);
 
   const first = await invoke(routes.handle, fakeRequest('POST', '/api/toll/v1/probe', key), '/api/toll/v1/probe');
   assert.equal(first.statusCode, 200);
@@ -134,12 +179,17 @@ test('campaign attribution reaches Stripe and one paid probe returns a stable re
   assert.equal(first.body.attribution.referrer_id, 'qr');
   assert.equal(first.body.attribution.campaign_id, 'universal-20261011');
   assert.equal(first.body.replayed, false);
+  assert.equal(first.body.quota_ledger, 'DURABLE');
+  assert.equal(first.body.calls_remaining, 0);
+  assert.equal(entitlements.get(stripeSession.id).calls_remaining, 0);
+  assert.equal(usageEvents.size, 1);
   assert.equal(stripeSession.metadata.probe_consumed, 'true');
 
   const retry = await invoke(routes.handle, fakeRequest('POST', '/api/toll/v1/probe', key), '/api/toll/v1/probe');
   assert.equal(retry.statusCode, 200);
   assert.equal(retry.body.receipt_id, first.body.receipt_id);
   assert.equal(retry.body.replayed, true);
+  assert.equal(usageEvents.size, 1, 'retry must not consume quota twice');
 
   delete require.cache[routePath];
   routes = require('../routes/tollRoad');
@@ -147,5 +197,6 @@ test('campaign attribution reaches Stripe and one paid probe returns a stable re
   assert.equal(afterRestart.statusCode, 200);
   assert.equal(afterRestart.body.receipt_id, first.body.receipt_id);
   assert.equal(afterRestart.body.replayed, true);
+  assert.equal(usageEvents.size, 1, 'process restart must not reset durable quota consumption');
 });
 
