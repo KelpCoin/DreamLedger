@@ -12,7 +12,7 @@
  * 1. CLOUD_ELOHIM_URL + CLOUD_GAUNTLET_URL
  * 2. VERCEL_AI_GATEWAY_URL (OpenAI-compatible JSON endpoint)
  * 3. ELOHIM_FALLBACK_URL + GAUNTLET_FALLBACK_URL
- * 4. LM_STUDIO_URL (local OpenAI-compatible endpoint)
+ * 4. LM_STUDIO_URL (authenticated HTTPS LM Studio relay; optional GPU lane)
  * 5. Existing deterministic CandidateGauntlet + FactoryFactory, with no model claim
  *
  * No path may spend, contact a buyer, publish externally, mutate credentials,
