@@ -14,6 +14,14 @@ on:
       - 'BEC-PRIME/scripts/verify-silo-factory.js'
       - 'BEC-PRIME/scripts/verify-silo-capabilities.js'
       - 'BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js'
+      - 'AGENT_BUS/BRIDGE/MTG_INTAKE/**'
+      - 'public/catalog.json'
+      - 'data/mtg-catalog.json'
+      - 'public/data/mtg-catalog.json'
+      - 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/scripts/ingest-mtg-bridge.js'
+      - 'BEC-PRIME/scripts/verify-mtg-bridge-dry-run.js'
       - 'BEC-PRIME/scripts/verify-music-media-silo.js'
       - 'BEC-PRIME/scripts/verify-silo-fee-policy.js'
       - 'BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js'
@@ -61,6 +69,7 @@ jobs:
           node BEC-PRIME/scripts/verify-silo-capabilities.js
           node BEC-PRIME/scripts/verify-music-media-silo.js
           node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
+          node BEC-PRIME/scripts/verify-mtg-bridge-dry-run.js
           node BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js
           node BEC-PRIME/scripts/verify-silo-fee-policy.js
       - name: Commit generated artifacts to the working branch only
