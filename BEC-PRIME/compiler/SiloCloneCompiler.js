@@ -19,8 +19,13 @@ function build(manifestPath=DEFAULT){
  if((m.products||[]).length)throw Error('Manifest must not embed inventory; inventory belongs in the catalogue');
  const page=slug==='mtg'?master:master.replace('data-silo="mtg"','data-silo="'+slug+'"');
  if(page.includes('data-silo="mtg"')&&slug!=='mtg')throw Error('Failed to bind clone slug');
- const empty=readJson('data/_catalog-empty.template.json');
- const catalog={schema:'dreamledger/'+slug+'-catalogue/v1',silo:slug,currency:i.currency||'NZD',status:'BUILD_NO_PUBLISHED_LISTINGS',updated:'2026-10-14',products:[],_meta:{...empty._meta,generated_from:manifestPath,source_master:'public/mtg/index.html',verified_supply_required:true,status:'BUILD_NO_PUBLISHED_LISTINGS'}};
+ const empty=readJson('data/_catalog-empty.template.json'),catalogPath='data/'+slug+'-catalog.json';
+ let existing=null;if(fs.existsSync(path.join(ROOT,catalogPath)))existing=readJson(catalogPath);
+ if(existing&&existing.silo!==slug)throw Error('Existing catalogue belongs to another silo: '+slug);
+ const products=existing&&Array.isArray(existing.products)?existing.products:[];
+ if(products.some(p=>p.silo!==slug))throw Error('Cross-silo inventory in '+slug+' catalogue');
+ const status=existing&&existing.status?existing.status:(products.length?'DRAFT_LISTINGS':'BUILD_NO_PUBLISHED_LISTINGS');
+ const catalog={...(existing||{}),schema:'dreamledger/'+slug+'-catalogue/v1',silo:slug,currency:(existing&&existing.currency)||i.currency||'NZD',status,updated:(existing&&existing.updated)||'2026-10-14',products,_meta:{...empty._meta,...((existing&&existing._meta)||{}),generated_from:manifestPath,source_master:'public/mtg/index.html',verified_supply_required:true,status}};
  const alias='<!doctype html>\n<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url='+i.canonical_path+'"><link rel="canonical" href="https://dreamledger.org'+i.canonical_path+'"><title>'+esc(i.display_name)+' | DreamLedger</title><script>location.replace('+JSON.stringify(i.canonical_path)+');</script></head><body><p><a href="'+i.canonical_path+'">Continue to '+esc(i.display_name)+' →</a></p></body></html>\n';
  return {[slug+'/index.html']:page,['public/'+slug+'/index.html']:page,['data/'+slug+'-catalog.json']:JSON.stringify(catalog,null,2)+'\n',['public/data/'+slug+'-catalog.json']:JSON.stringify(catalog,null,2)+'\n',[slug+'.html']:alias,['public/'+slug+'.html']:alias};
 }
