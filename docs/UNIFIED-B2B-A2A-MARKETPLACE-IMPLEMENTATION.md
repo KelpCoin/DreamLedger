@@ -38,6 +38,7 @@ The PostgreSQL ledger uses idempotency keys, sequence IDs, previous hashes, even
 - `POST /api/marketplace/v1/admin/credentials`: admin issues a role- and scope-bound API token once; only its SHA-256 digest is stored.
 - `POST /api/marketplace/v1/admin/credentials/{credential_id}/revoke`: revoke a credential.
 - `GET /api/marketplace/v1/ledger`: audit-token protected ledger view.
+- `GET /api/marketplace/v1/admin/cube-hypotheses`: protected CUBE candidate registry/counts for swarm ingestion; no candidate is promoted by listing it.
 
 `/b2b`, `/a2a`, and `/marketplace.html` now point to the same human + machine commerce surface. The public page fetches real API data and explicitly says when the ledger is unavailable; it does not fabricate listings.
 
