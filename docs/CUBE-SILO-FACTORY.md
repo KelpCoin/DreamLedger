@@ -12,6 +12,7 @@ Invariants:
 - A Buy control requires a verified Stripe Payment Link plus verified rights and delivery state. Unknown means hold.
 - Only registry entries with status=active appear in the active marketplace directory.
 - Root/public mirrors must match. Generated-file drift fails verification.
+- Every capability reference must resolve in runtime/cube/capability-registry.json. A non-VERIFIED capability creates a hold; a missing reference fails the Gauntlet.
 - TCG clones remain discovery/intake surfaces until real listings, seller checks, payment, and fulfilment evidence exist.
 - Manifest values must be rendered through DOM APIs or escaped text, never concatenated into HTML.
 - Public promotion remains subject to Gauntlet and the authorized release gate.
