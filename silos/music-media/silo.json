@@ -1,0 +1,142 @@
+{
+  "$schema": "dreamledger/silo-clone/v1",
+  "contracts": {
+    "clone": "CUBE-CLONE-CONTRACT",
+    "factory": "CUBE-SILO-FACTORY-CONTRACT"
+  },
+  "identity": {
+    "slug": "music-media",
+    "display_name": "Music & Media",
+    "short_name": "Music & Media",
+    "accent_color": "#c5a8ff",
+    "accent_bright": "#d8c5ff",
+    "list_route": "/register",
+    "catalog_path": "/data/music-media-catalog.json",
+    "canonical_path": "/music-media/"
+  },
+  "capabilities": {
+    "payment": "ref:stripe-checkout-standard",
+    "fulfillment": "ref:manual-ship-or-digital",
+    "evidence": "ref:evidence-ed25519",
+    "gauntlet": "ref:gauntlet-five-judges",
+    "recovery": "ref:local-heartbeat-v1",
+    "community": "ref:community-bridge",
+    "listing": "ref:media-listing-v1"
+  },
+  "inventory_policy": {
+    "initial_state": "empty-catalogue",
+    "verified_supply_required": true,
+    "allow_invented_products": false,
+    "allow_direct_checkout_without_verified_link": false
+  },
+  "surface": {
+    "eyebrow": "Music · Film · Physical media · Creator editions",
+    "headline_prefix": "Sound, stories, and",
+    "headline_emphasis": "things worth keeping.",
+    "tagline": "A focused home for independent releases and collectible media. Preview what you can, see exactly what is included, and buy only when rights, checkout, and delivery are ready. No ghost listings. No mystery files.",
+    "pills": [
+      "One silo, one catalogue",
+      "Rights first",
+      "Delivery evidence"
+    ],
+    "category_heading": "Four shelves, one standard.",
+    "category_intro": "Each listing has its own format and rights trail, while identity, checkout, and evidence remain shared platform services.",
+    "categories": [
+      {
+        "id": "audio",
+        "eyebrow": "01 / AUDIO",
+        "tag": "Vinyl · CD · cassette · digital",
+        "title": "Music releases",
+        "description": "Albums, singles, mixes, live sessions, and physical editions with artist credits, track lists, formats, and preview links where available."
+      },
+      {
+        "id": "screen",
+        "eyebrow": "02 / SCREEN",
+        "tag": "Film · video · visual",
+        "title": "Screen & moving image",
+        "description": "Independent film, visualizers, short-form work, and behind-the-scenes editions with runtime, captions, and playback details."
+      },
+      {
+        "id": "print",
+        "eyebrow": "03 / PRINT",
+        "tag": "Posters · zines · artwork",
+        "title": "Physical media & art",
+        "description": "Posters, zines, printed editions, and media collectibles with condition, edition details, shipping, and return terms."
+      },
+      {
+        "id": "creator",
+        "eyebrow": "04 / CREATOR",
+        "tag": "Stems · packs · project files",
+        "title": "Creator editions",
+        "description": "Licensed stems, sample packs, artwork bundles, and project files with explicit usage rights and exact deliverables."
+      },
+      {
+        "id": "archive",
+        "eyebrow": "05 / ARCHIVE",
+        "tag": "Owned physical copies",
+        "title": "Collectible media",
+        "description": "Physical editions can be resold when the seller has the item and can accurately describe its condition and fulfilment."
+      },
+      {
+        "id": "services",
+        "eyebrow": "06 / SERVICES",
+        "tag": "Mixing · mastering · editing",
+        "title": "Creative services",
+        "description": "Bounded services with scope, deliverables, revision limits, timeline, and acceptance criteria stated before checkout."
+      }
+    ],
+    "empty_state": "No approved releases are published yet. Listings stay hidden until their details and rights are checked.",
+    "featured_offers": [],
+    "footer_copy": "Music & Media is a DreamLedger silo. Its catalogue is isolated; identity, checkout infrastructure, and economic truth remain shared."
+  },
+  "listing_fields": "ref:MEDIA-LISTING-TEMPLATE",
+  "clone_steps": [
+    "author or refine one versioned silo manifest",
+    "compile the shared storefront template into route and root/public mirrors",
+    "generate an empty isolated catalogue, registry entry, fee policy and active-only directory",
+    "run CUBE parity, boundary, checkout and evidence Gauntlets",
+    "keep status build and navigation hidden until explicit release approval"
+  ],
+  "do_not_copy": [
+    "inventory",
+    "revenue_claims",
+    "payment_links",
+    "seller_identity",
+    "secrets",
+    "custom_capabilities",
+    "activation_status"
+  ],
+  "gauntlet": {
+    "accept_if": [
+      "manifest identity and route are unique",
+      "catalogue belongs only to music-media and starts empty",
+      "all root/public generated mirrors match",
+      "checkout remains disabled without verified Stripe mapping, rights, settlement, fulfilment and delivery evidence",
+      "candidate stays hidden until publish approval"
+    ],
+    "reject_if": [
+      "invented inventory",
+      "cross-silo catalogue data",
+      "missing capability reference",
+      "hardcoded cross-silo checkout",
+      "unverified economic claims",
+      "unapproved publication"
+    ]
+  },
+  "description": "A focused marketplace for independent music releases, film, physical media and creator editions. Rights, checkout and delivery status stay visible.",
+  "silo_key": "MUSIC_MEDIA",
+  "platform_fee_bps": 500,
+  "status": "build",
+  "first_dollar_priority": 6,
+  "products": [],
+  "cross_silo_forbidden_domains": [
+    "amplissa.com"
+  ],
+  "cross_silo_forbidden_terms": [
+    "MTG",
+    "Magic: The Gathering",
+    "Commander",
+    "adult content",
+    "18+ content"
+  ]
+}
