@@ -76,6 +76,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: node scripts/cloud_economic_engine_bootstrap.js --public-only
       - name: Summarize source evidence without exposing source text
+        if: always()
         run: |
           python - <<'PY'
           import json
