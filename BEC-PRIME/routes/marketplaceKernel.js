@@ -84,6 +84,7 @@ function decodeLocalLine(line, expectedPrevious) {
   const plain=Buffer.concat([decipher.update(Buffer.from(envelope.ciphertext,'base64')),decipher.final()]).toString('utf8');
   const event=JSON.parse(plain);
   if(event.previous_hash!==(expectedPrevious||null)) throw new Error('Local marketplace event chain mismatch');
+  event.event_hash=envelope.event_hash;
   return event;
 }
 function appendLocal(event) {
@@ -107,7 +108,7 @@ function appendLocal(event) {
   envelope.event_hash=envelopeHash(envelope);
   const fd=fs.openSync(LEDGER_PATH,'a',0o600);
   try { fs.writeSync(fd,JSON.stringify(envelope)+'\n'); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
-  return canonical;
+  return {...canonical,event_hash:envelope.event_hash};
 }
 function readLocal(limit=100) {
   try {
