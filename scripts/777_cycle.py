@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
-from scripts.qualified_buyer_intent import classify_signal
+from qualified_buyer_intent import classify_signal
 
 # 777 sensing order: human/SMB/developer pain first. Follow the dollar, not prestige.
 # A failed source is never interpreted as zero demand.
