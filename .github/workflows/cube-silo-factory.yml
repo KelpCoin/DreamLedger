@@ -1,0 +1,40 @@
+name: CUBE Silo Factory
+on:
+  pull_request:
+    paths:
+      - 'runtime/cube/silo-manifests/*.json'
+      - 'runtime/cube/templates/silo-index.html'
+      - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/scripts/verify-silo-factory.js'
+      - 'BEC-PRIME/scripts/verify-music-media-silo.js'
+      - 'docs/BECK-EMPIRE-SILO-REGISTRY.json'
+      - 'docs/BECK-SILO-FEE-POLICY.json'
+      - '.github/workflows/cube-silo-factory.yml'
+  push:
+    branches-ignore: [main]
+    paths:
+      - 'runtime/cube/silo-manifests/*.json'
+      - 'runtime/cube/templates/silo-index.html'
+      - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/scripts/verify-silo-factory.js'
+      - 'docs/BECK-EMPIRE-SILO-REGISTRY.json'
+      - 'docs/BECK-SILO-FEE-POLICY.json'
+      - '.github/workflows/cube-silo-factory.yml'
+permissions:
+  contents: read
+jobs:
+  compile-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile manifest into silo surfaces
+        run: node BEC-PRIME/compiler/SiloCloneCompiler.js
+      - name: Verify deterministic output and policy
+        run: node BEC-PRIME/scripts/verify-silo-factory.js
+      - name: Run silo isolation and checkout gate
+        run: |
+          node BEC-PRIME/scripts/verify-music-media-silo.js
+          node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
