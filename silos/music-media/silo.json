@@ -10,7 +10,7 @@
     "short_name": "Media",
     "accent_color": "#c5a8ff",
     "accent_bright": "#d8c5ff",
-    "list_route": "#catalogue",
+    "list_route": "#decks",
     "catalog_path": "/data/music-media-catalog.json",
     "canonical_path": "/music-media/",
     "currency": "NZD",
@@ -43,7 +43,7 @@
     ],
     "primary_cta": {
       "label": "Browse releases",
-      "href": "#catalogue"
+      "href": "#decks"
     },
     "secondary_cta": {
       "label": "Creator onboarding",
