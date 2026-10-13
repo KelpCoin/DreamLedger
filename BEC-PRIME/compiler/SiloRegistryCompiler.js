@@ -4,6 +4,8 @@ const root=path.resolve(__dirname,'../..');
 const read=p=>JSON.parse(fs.readFileSync(path.join(root,p),'utf8'));
 const music=read('runtime/cube/silo-manifests/music-media.json');
 const tcg=read('public/data/tcg-swarm.json');
+const args=process.argv.slice(2),manifestArg=args.indexOf('--manifest');
+const requested=read(manifestArg>=0?args[manifestArg+1]:'runtime/cube/silo-manifests/music-media.json');
 function compile(checkOnly=false){
  const rp='docs/BECK-EMPIRE-SILO-REGISTRY.json',fp='docs/BECK-SILO-FEE-POLICY.json';
  const registry=read(rp),policy=read(fp);
@@ -14,8 +16,7 @@ function compile(checkOnly=false){
   registry.silos[key]={id,public_domains:['dreamledger.org'],public_prefixes:['/'+slug],platform_fee_bps:fee,status,first_dollar_priority:priority,cross_silo_forbidden_domains:['amplissa.com'],cross_silo_forbidden_terms:terms};
   policy.rules[id]={silo:key,domain:'dreamledger.org/'+slug,platform_fee_bps:fee,label:fee===0?'0% forever':'5% flat'};
  }
- if(music.silo_key==='MTG'?music.platform_fee_bps!==0:music.platform_fee_bps!==500)throw Error('MTG must be 0 bps and non-MTG must be 500 bps');
- upsert(music.silo_key,music.silo_id,music.slug,music.platform_fee_bps,music.status,music.first_dollar_priority,music.cross_silo_forbidden_terms||[]);
+ for(const m of [music,requested]){if(m.silo_key==='MTG'?m.platform_fee_bps!==0:m.platform_fee_bps!==500)throw Error('MTG must be 0 bps and non-MTG must be 500 bps');upsert(m.silo_key,m.silo_id,m.slug,m.platform_fee_bps,m.status,m.first_dollar_priority,m.cross_silo_forbidden_terms||[]);}
  for(const s of tcg.silos||[]){
   if(s.slug==='mtg'||s.status!=='clone')continue;
   upsert('TCG_'+s.slug.toUpperCase(),'dreamledger-'+s.slug,s.slug,500,'build',99,[]);
@@ -33,5 +34,5 @@ function compile(checkOnly=false){
  const proof={schema:'DREAMLEDGER/SILO-REGISTRY-COMPILER/v1',status:drift.length?'FAIL':checkOnly?'PASS':'GENERATED',registered_silos:Object.keys(registry.silos).length,generated_files:Object.keys(outputs),drift,tcg_clone_count:(tcg.silos||[]).filter(s=>s.status==='clone').length};
  console.log(JSON.stringify(proof,null,2));if(drift.length)process.exitCode=1;
 }
-if(require.main===module)compile(process.argv.includes('--check'));
+if(require.main===module)compile(args.includes('--check'));
 module.exports={compile};
