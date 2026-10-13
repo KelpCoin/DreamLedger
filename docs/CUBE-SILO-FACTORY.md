@@ -4,7 +4,7 @@ CUBE creates a silo candidate from one versioned manifest. The factory generates
 
 Run the one-command factory with npm run silo:compile. Run npm run verify:silo-factory, npm run verify:music-media, npm run verify:mtg-gauntlet, and npm run verify:tcg-swarm-gauntlet before release.
 
-For a new non-TCG silo, add one manifest under runtime/cube/silo-manifests/<slug>.json, then run npm run silo:compile -- --manifest runtime/cube/silo-manifests/<slug>.json.
+For a new non-TCG silo, add one manifest under silos/<slug>/silo.json, then run npm run silo:compile -- --manifest silos/<slug>/silo.json.
 
 Invariants:
 - MTG alone has a 0 bps platform fee. Every non-MTG silo resolves to 500 bps server-side.
