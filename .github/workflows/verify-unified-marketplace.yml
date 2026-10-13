@@ -1,0 +1,39 @@
+name: Unified marketplace contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/routes/marketplaceKernel.js'
+      - 'BEC-PRIME/start.js'
+      - 'BEC-PRIME/compiled/website/marketplace.html'
+      - 'BEC-PRIME/compiled/website/.well-known/agent-commerce.json'
+      - 'data/777/cube-b2b-sales-hypotheses.v1.json'
+      - 'supabase/migrations/20261013000*.sql'
+      - 'BEC-PRIME/scripts/verify-unified-marketplace.js'
+      - '.github/workflows/verify-unified-marketplace.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/routes/marketplaceKernel.js'
+      - 'BEC-PRIME/start.js'
+      - 'BEC-PRIME/compiled/website/marketplace.html'
+      - 'BEC-PRIME/compiled/website/.well-known/agent-commerce.json'
+      - 'data/777/cube-b2b-sales-hypotheses.v1.json'
+      - 'supabase/migrations/20261013000*.sql'
+      - 'BEC-PRIME/scripts/verify-unified-marketplace.js'
+      - '.github/workflows/verify-unified-marketplace.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax-check marketplace runtime
+        run: |
+          node --check BEC-PRIME/routes/marketplaceKernel.js
+          node --check BEC-PRIME/start.js
+      - name: Validate marketplace, ledger, and CUBE contract
+        run: node BEC-PRIME/scripts/verify-unified-marketplace.js
