@@ -15,7 +15,8 @@
       "status": "active",
       "first_dollar_priority": 1,
       "cross_silo_forbidden_domains": [],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [],
+      "factory": "CUBE"
     },
     "AMPLISSA": {
       "id": "amplissa",
@@ -98,7 +99,7 @@
       ],
       "platform_fee_bps": 500,
       "status": "build",
-      "first_dollar_priority": 99,
+      "first_dollar_priority": 6,
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
@@ -108,7 +109,8 @@
         "Commander",
         "adult content",
         "18+ content"
-      ]
+      ],
+      "factory": "CUBE"
     }
   },
   "hard_rules": [
