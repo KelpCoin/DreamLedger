@@ -10,7 +10,7 @@
     "short_name": "Media",
     "accent_color": "#c5a8ff",
     "accent_bright": "#d8c5ff",
-    "list_route": "/music-media/list",
+    "list_route": "#catalogue",
     "catalog_path": "/data/music-media-catalog.json",
     "canonical_path": "/music-media/",
     "currency": "NZD",
@@ -42,7 +42,7 @@
       "Delivery evidence"
     ],
     "primary_cta": {
-      "label": "Explore releases",
+      "label": "Browse releases",
       "href": "#catalogue"
     },
     "secondary_cta": {
