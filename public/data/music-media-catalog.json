@@ -9,9 +9,8 @@
     "Creator identity and credits recorded",
     "Ownership or distribution rights evidenced",
     "Exact format and deliverables described",
-    "Preview, captions or accessibility details supplied where relevant",
     "Price, currency, availability and refund terms explicit",
     "Checkout enabled only after live Stripe URL and attribution are verified",
-    "Digital fulfillment tested from settled payment through delivery evidence"
+    "Fulfilment tested from settlement through delivery evidence"
   ]
 }
