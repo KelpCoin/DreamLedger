@@ -4,7 +4,7 @@
 
 ## Product scope
 
-One transaction kernel supports goods, services, surplus lots, procurement RFQs, supplier offers, agent capabilities, evidence, order authorization, settlement, delivery, buyer acceptance, disputes, and the CUBE hypothesis swarm.
+One transaction kernel supports fixed-price goods and services, timed auctions with reserve prices and anti-sniping, procurement RFQs, supplier offers, agent capabilities, evidence, order authorization, settlement, delivery, buyer acceptance, disputes, and the CUBE hypothesis swarm.
 
 Human and agent traffic share the same transaction records and ledger. An agent can discover, propose and request authorization. It cannot spend or perform irreversible actions solely because it generated an intent.
 
@@ -21,6 +21,10 @@ The PostgreSQL ledger uses idempotency keys, sequence IDs, previous hashes, even
 - `GET /api/marketplace/v1/discovery`: machine-readable unified capability contract.
 - `GET /api/marketplace/v1/status`: selected persistence backend health.
 - `GET /api/marketplace/v1/listings?q=...`: published listings only.
+- `GET /api/marketplace/v1/auctions`: reviewed, live/scheduled timed auctions.
+- `POST /api/marketplace/v1/listings/{listing_id}/auction`: supplier submits a timed-auction schedule for review.
+- `POST /api/marketplace/v1/auctions/{auction_id}/bids`: buyer credential with `place_bid` scope and explicit human confirmation; enforces minimum increments, no seller self-bids, reserve, and anti-sniping.
+- `POST /api/marketplace/v1/admin/auctions/{auction_id}/close`: admin-gated closeout after the end time; creates an unpaid winner order only when the reserve is met.
 - `POST /api/marketplace/v1/rfqs`: public RFQ intake with a honeypot, size limits, rate limit, idempotency key and OBSERVED state.
 - `POST /api/marketplace/v1/listings`: authenticated supplier listing submission; starts in pending_review.
 - `POST /api/marketplace/v1/rfqs/{rfq_id}/offers`: authenticated supplier response to an open RFQ.
