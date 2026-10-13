@@ -175,6 +175,44 @@ async function handle(req,res,requestPath) {
     truth_chain:['OBSERVED','QUALIFIED_BUYER_INTENT','AUTHORIZED','PAYMENT_PENDING','SETTLED','FULFILLED','DELIVERED','ACCEPTED','VERIFIED'],
     economic_truth:'Discovery, agent intent, an RFQ, a checkout, and an internal ledger event are not revenue.'
   });
+  if(req.method==='GET'&&requestPath==='/api/marketplace/v1/auctions') {
+    if(STORE==='local') return send(res,200,{schema:'DREAMLEDGER/MARKETPLACE-AUCTIONS/v1',auctions:[],message:'Timed auctions require the transactional Supabase backend; local mode does not accept bids.'});
+    const u=new URL(req.url,'http://localhost'), limit=Math.min(Math.max(Number(u.searchParams.get('limit')||30),1),100);
+    const rows=await rpc('marketplace_public_auctions',{p_limit:limit});
+    return send(res,200,{schema:'DREAMLEDGER/MARKETPLACE-AUCTIONS/v1',auctions:Array.isArray(rows)?rows:[]});
+  }
+  const scheduleAuctionMatch=requestPath.match(/^\/api\/marketplace\/v1\/listings\/([0-9a-f-]{36})\/auction$/i);
+  if(req.method==='POST'&&scheduleAuctionMatch) {
+    const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    if(!hasScope(supplier,'schedule_auction')) return send(res,403,{error:'Supplier credential lacks schedule_auction scope'});
+    if(STORE!=='supabase') return send(res,503,{error:'Timed auction scheduling requires the transactional Supabase backend.'});
+    if(!uuid(scheduleAuctionMatch[1])) return send(res,400,{error:'Invalid listing id'});
+    const b=await readBody(req), key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
+    const result=await rpc('marketplace_schedule_auction',{p_idempotency_key:key,p_seller_party_id:supplier.party_id,p_listing_id:scheduleAuctionMatch[1],p_payload:{starts_at:b.starts_at,ends_at:b.ends_at,starting_price_minor:b.starting_price_minor,reserve_price_minor:b.reserve_price_minor,buy_now_price_minor:b.buy_now_price_minor,minimum_increment_minor:b.minimum_increment_minor,currency:safeText(b.currency||'NZD',3).toUpperCase(),anti_sniping_seconds:b.anti_sniping_seconds}});
+    return send(res,result?.duplicate?200:201,result);
+  }
+  const bidMatch=requestPath.match(/^\/api\/marketplace\/v1\/auctions\/([0-9a-f-]{36})\/bids$/i);
+  if(req.method==='POST'&&bidMatch) {
+    const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    if(!hasScope(buyer,'place_bid')) return send(res,403,{error:'Buyer credential lacks place_bid scope'});
+    if(STORE!=='supabase') return send(res,503,{error:'Timed auction bidding requires the transactional Supabase backend.'});
+    if(!uuid(bidMatch[1])) return send(res,400,{error:'Invalid auction id'});
+    const b=await readBody(req), amount=Number(b.amount_minor);
+    if(!Number.isSafeInteger(amount)||amount<0||b.confirmed!==true||safeText(b.authorized_by,160).length<3) return send(res,400,{error:'amount_minor and explicit human bid confirmation are required'});
+    const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
+    const result=await rpc('marketplace_place_bid',{p_idempotency_key:key,p_auction_id:bidMatch[1],p_bidder_party_id:buyer.party_id,p_amount_minor:amount,p_currency:safeText(b.currency||'NZD',3).toUpperCase(),p_authorization:{confirmed:true,authorized_by:safeText(b.authorized_by,160)}});
+    return send(res,result?.duplicate?200:201,result);
+  }
+  const closeAuctionMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/auctions\/([0-9a-f-]{36})\/close$/i);
+  if(req.method==='POST'&&closeAuctionMatch) {
+    const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
+    if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
+    if(STORE!=='supabase') return send(res,503,{error:'Auction closeout requires the transactional Supabase backend.'});
+    if(!uuid(closeAuctionMatch[1])) return send(res,400,{error:'Invalid auction id'});
+    const b=await readBody(req);
+    const result=await rpc('marketplace_close_auction',{p_auction_id:closeAuctionMatch[1],p_closed_by:safeText(b.closed_by||'marketplace_admin',160)});
+    return send(res,200,result);
+  }
   if(req.method==='GET'&&requestPath==='/api/marketplace/v1/listings') {
     const u=new URL(req.url,'http://localhost'), q=safeText(u.searchParams.get('q'),160), category=safeText(u.searchParams.get('category'),80)||null, type=safeText(u.searchParams.get('type'),40)||null;
     if(STORE==='local') return send(res,200,{schema:'DREAMLEDGER/MARKETPLACE-LISTINGS/v1',listings:readLocal(500).filter(e=>e.event_type==='LISTING_PUBLISHED'&&e.payload?.status==='published').map(e=>e.payload).filter(x=>(!q||JSON.stringify(x).toLowerCase().includes(q.toLowerCase()))&&(!category||x.category===category)&&(!type||x.listing_type===type)).slice(0,50).map(publicListing)});
