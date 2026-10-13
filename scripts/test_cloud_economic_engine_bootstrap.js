@@ -25,6 +25,8 @@ async function main() {
   assert.equal(stripe.status, 'BLOCKED');
   assert.ok(methods.every(method => method === 'GET'));
   await assert.rejects(safeFetch('https://example.com', { method: 'POST' }, async () => new Response('', { status: 200 })), /READ_ONLY_METHOD_BLOCKED/);
+  const source = require('node:fs').readFileSync(require('node:path').resolve(__dirname, 'cloud_economic_engine_bootstrap.js'), 'utf8');
+  assert.match(source, /PUBLIC_SURFACES_PASS_COMMERCE_UNVERIFIED/);
   console.log('PASS: bootstrap probe is read-only and keeps missing/disabled commerce infrastructure blocked.');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
