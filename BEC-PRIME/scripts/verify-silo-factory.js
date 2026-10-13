@@ -5,7 +5,7 @@ const path=require('path');
 const ROOT=path.resolve(__dirname,'..','..');
 const {build}=require('../compiler/SiloCloneCompiler');
 const out=build();
-for(const [rel,content] of Object.entries(out.files)){
+for(const [rel,content] of Object.entries(out)){
  const p=path.join(ROOT,rel);
  assert(fs.existsSync(p),'missing generated file '+rel);
  assert.strictEqual(fs.readFileSync(p,'utf8'),content,'generated file drift '+rel);
