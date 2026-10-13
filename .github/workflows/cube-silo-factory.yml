@@ -30,6 +30,10 @@ on:
     paths:
       - 'runtime/cube/silo-manifests/*.json'
       - 'runtime/cube/templates/silo-index.html'
+      - 'runtime/cube/templates/tcg-silo-index.html'
+      - 'BEC-PRIME/compiler/TcgSiloCompiler.js'
+      - 'BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js'
+      - 'package.json'
       - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
       - 'BEC-PRIME/compiler/SiloRegistryCompiler.js'
       - 'public/data/tcg-swarm.json'
