@@ -1,0 +1,16 @@
+{
+  "schema": "dreamledger/cube-swarm/tcg/v1",
+  "updated": "2026-10-14",
+  "note": "Top TCGs by 2026 secondary/GMV performance (TCGplayer Q2 GMV + TCGIndex size). Cube swarm: thin clones of MTG master; scale only after observed use.",
+  "master": "mtg",
+  "silos": [
+    {"slug": "mtg", "name": "Magic: The Gathering", "short": "Magic", "route": "/mtg/", "accent": "#d8b56b", "list_route": "/mtg-list", "status": "live", "rank_gmv_q2_2026": 1, "focus": "singles + commander decks"},
+    {"slug": "pokemon", "name": "Pokémon TCG", "short": "Pokémon", "route": "/pokemon/", "accent": "#ffcb05", "list_route": "/tcg-list?game=pokemon", "status": "clone", "rank_gmv_q2_2026": 2, "focus": "singles first"},
+    {"slug": "onepiece", "name": "One Piece Card Game", "short": "One Piece", "route": "/onepiece/", "accent": "#e63946", "list_route": "/tcg-list?game=onepiece", "status": "clone", "rank_gmv_q2_2026": 3, "focus": "singles first"},
+    {"slug": "yugioh", "name": "Yu-Gi-Oh!", "short": "Yu-Gi-Oh!", "route": "/yugioh/", "accent": "#1e88e5", "list_route": "/tcg-list?game=yugioh", "status": "clone", "rank_gmv_q2_2026": 4, "focus": "singles first"},
+    {"slug": "lorcana", "name": "Disney Lorcana", "short": "Lorcana", "route": "/lorcana/", "accent": "#9b6dff", "list_route": "/tcg-list?game=lorcana", "status": "clone", "rank_gmv_q2_2026": 5, "focus": "singles first"},
+    {"slug": "riftbound", "name": "Riftbound", "short": "Riftbound", "route": "/riftbound/", "accent": "#c8aa6e", "list_route": "/tcg-list?game=riftbound", "status": "clone", "rank_gmv_q2_2026": 6, "focus": "singles first"},
+    {"slug": "gundam", "name": "Gundam Card Game", "short": "Gundam", "route": "/gundam/", "accent": "#e85d04", "list_route": "/tcg-list?game=gundam", "status": "clone", "rank_gmv_q2_2026": 8, "focus": "singles first"},
+    {"slug": "digimon", "name": "Digimon Card Game", "short": "Digimon", "route": "/digimon/", "accent": "#00b4d8", "list_route": "/tcg-list?game=digimon", "status": "clone", "rank_gmv_q2_2026": 10, "focus": "singles first"}
+  ]
+}

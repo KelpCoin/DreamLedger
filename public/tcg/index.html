@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TCG markets · DreamLedger NZ</title>
+<meta name="description" content="Buy and sell TCG singles in New Zealand. Magic, Pokémon, One Piece, Yu-Gi-Oh!, Lorcana, and more. Free to list.">
+<style>
+:root{color-scheme:dark;--bg:#07080c;--ink:#f3f0e8;--muted:#9aa0b0;--line:#2a3040;--gold:#d8b56b;--surface:#11141c}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--gold);text-decoration:none}
+.wrap{max-width:1000px;margin:auto;padding:28px 16px 80px}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.04em;line-height:1.1;margin:12px 0}
+.lead{color:var(--muted);max-width:40em}
+.grid{display:grid;gap:12px;grid-template-columns:1fr;margin-top:28px}
+@media(min-width:600px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;min-height:160px}
+.card .rank{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.card h2{margin:0 0 6px;font-size:1.15rem}
+.card p{margin:0 0 12px;color:var(--muted);font-size:13px;flex:1}
+.card a.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border-radius:10px;background:var(--gold);color:#14120c;font-weight:800;font-size:13px}
+.badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(216,181,107,.35);padding:5px 10px;border-radius:999px}
+.nav{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;font-size:13px}
+.nav a{color:var(--muted);font-weight:700}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="nav"><a href="/">Home</a><a href="/mtg/">Magic</a><a href="/mtg-list">Sell single</a></nav>
+  <span class="badge">Cube swarm · Top TCGs 2026</span>
+  <h1>One board. Every major TCG.</h1>
+  <p class="lead">Singles-first markets cloned from the Magic master silo. Free to list. Same safe-deal rules. Ranked from 2026 GMV / secondary market performance — not hype.</p>
+  <div class="grid" id="grid">Loading…</div>
+  <p style="margin-top:24px;font-size:12px;color:var(--muted)">Sources: TCGplayer Q2 2026 GMV; TCGIndex secondary size. Swarm expands when a silo shows real use.</p>
+</main>
+<script>
+fetch('/data/tcg-swarm.json').then(r=>r.json()).then(d=>{
+  const g=document.getElementById('grid');
+  g.innerHTML=(d.silos||[]).map((s,i)=>'<article class="card"><div class="rank">#'+(s.rank_gmv_q2_2026||i+1)+' · '+(s.status||'clone')+'</div><h2>'+s.short+'</h2><p>'+s.name+' · '+(s.focus||'singles')+'</p><a class="btn" href="'+s.route+'">Open market</a></article>').join('');
+}).catch(()=>{document.getElementById('grid').textContent='Could not load swarm registry.';});
+</script>
+</body>
+</html>
