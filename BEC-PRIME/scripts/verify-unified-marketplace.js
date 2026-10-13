@@ -35,7 +35,7 @@ check('CREDENTIAL_SCOPE_GATES',route.includes("lacks submit_listing scope")&&rou
 check('CONNECT_ONBOARDING_GATED',route.includes('MARKETPLACE_ENABLE_CONNECT_ONBOARDING')&&route.includes('account_links'));
 check('CONNECT_DESTINATION_CHARGE',route.includes('payment_intent_data[transfer_data][destination]')&&route.includes('payment_intent_data[application_fee_amount]'));
 check('CHECKOUT_FAILS_CLOSED',route.includes('CHECKOUT_HELD'));
-check('AUCTION_SCHEMA',sql.includes('marketplace_auctions')&&sql.includes('marketplace_bids')&&sql.includes('marketplace_place_bid')&&sql.includes('marketplace_close_auction'));
+check('AUCTION_SCHEMA',sql.includes('marketplace_auctions')&&sql.includes('marketplace_bids')&&sql.includes('marketplace_place_bid')&&sql.includes('marketplace_close_auction')&&sql.includes('marketplace_buy_now'));
 check('AUCTION_HUMAN_AUTH',sql.includes('explicit human bid authorization required')&&route.includes("lacks place_bid scope"));
 check('AUCTION_CATALOG_UI',page.includes('/api/marketplace/v1/auctions')&&page.includes('Timed auctions'));
 check('CUBE_SEED_MIGRATION',migrations.some(x=>x.includes('003_seed_cube_b2b_hypotheses'))&&sql.includes('marketplace_cube_hypotheses'));
