@@ -1,0 +1,21 @@
+.mtg-grid-status{color:#9ca7b2;font-size:14px;padding:12px 0}
+.mtg-grid-status.error{color:#ef9292}
+.mtg-grid-head{margin-bottom:18px}
+.mtg-grid-head h2{margin:0 0 6px;font-size:1.35rem}
+.mtg-grid-meta{margin:0 0 8px;color:#9ca7b2;font-size:13px}
+.mtg-grid-source{font-size:13px;font-weight:700;color:#d8b56b}
+.mtg-grid-section{margin:22px 0}
+.mtg-grid-section h3{margin:0 0 12px;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:#d8b56b}
+.mtg-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+@media(min-width:720px){.mtg-card-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}}
+.mtg-card{margin:0;background:#0d1116;border:1px solid #27313a;border-radius:10px;overflow:hidden;transition:border-color .15s,transform .15s}
+.mtg-card:hover{border-color:#d8b56b;transform:translateY(-2px)}
+.mtg-card img{display:block;width:100%;height:auto;aspect-ratio:5/7;object-fit:cover;background:#151a20}
+.mtg-card-ph{aspect-ratio:5/7;display:grid;place-items:center;padding:8px;font-size:11px;text-align:center;color:#9ca7b2;background:#151a20}
+.mtg-card figcaption{padding:6px 7px 8px;font-size:10px;line-height:1.25;color:#c5cdd6;min-height:2.6em}
+.mtg-grid-note{font-size:11px;color:#6a7480;margin-top:16px;line-height:1.45}
+.trust-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+@media(min-width:640px){.trust-row{grid-template-columns:repeat(4,1fr)}}
+.trust-chip{background:#10151b;border:1px solid #27313a;border-radius:12px;padding:12px}
+.trust-chip b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#d8b56b;margin-bottom:4px}
+.trust-chip span{font-size:13px;color:#c5cdd6;line-height:1.35}
