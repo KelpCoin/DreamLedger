@@ -9,8 +9,8 @@ function normalize(value) { return String(value || '').trim().toLowerCase().repl
 function resolve(silo) {
   const normalized = normalize(silo);
   const aliases = { mtg: 'dreamledger-mtg', 'dreamledger-mtg': 'dreamledger-mtg' };
-  const key = aliases[normalized] || normalized;
   const rules = POLICY.rules || {};
+  const key = aliases[normalized] || (rules[normalized] ? normalized : (rules['dreamledger-' + normalized] ? 'dreamledger-' + normalized : normalized));
   const rule = rules[key] || rules.default;
   if (!rule) throw new Error('Silo fee policy has no default rule');
   return { silo: rule.silo, platform_fee_bps: Number(rule.platform_fee_bps), label: rule.label };
