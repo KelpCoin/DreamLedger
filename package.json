@@ -6,7 +6,7 @@
   "main": "BEC-PRIME/start.js",
   "scripts": {
     "start": "node -r ./BEC-PRIME/lib/commercePaymentContractPreload.js -r ./BEC-PRIME/lib/discordCommercePreload.js -r ./BEC-PRIME/lib/accountPagePreload.js -r ./BEC-PRIME/lib/publicShellPreload.js -r ./BEC-PRIME/lib/m2mPreload.js -r ./BEC-PRIME/lib/qrPreload.js BEC-PRIME/start.js",
-    "compile": "npm run compile:products && npm run compile:commerce-api && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && node BEC-PRIME/scripts/RepairAccountContractSurface.js && npm run compile:mtg && npm run compile:billboard && npm run compile:board && npm run compile:molt-beach && npm run compile:price && npm run compile:public-contract && npm run compile:leverage && npm run compile:opportunities && npm run verify:ip && npm run verify:molt-beach && node BEC-PRIME/scripts/verify-public-surface.js && node BEC-PRIME/scripts/verify-silo-boundaries.js && npm run verify:silo-factory && npm run verify:silo-capabilities && npm run verify:music-media && npm run verify:mtg-gauntlet && npm run verify:mtg-bridge && npm run verify:tcg-swarm-gauntlet && node BEC-PRIME/scripts/verify-silo-fee-policy.js && node BEC-PRIME/scripts/Verify-BECKEmpireSilos.js",
+    "compile": "npm run compile:products && npm run compile:commerce-api && npm run compile:offers && npm run compile:qr && npm run compile:omni && npm run compile:surface && node BEC-PRIME/scripts/RepairAccountContractSurface.js && npm run compile:mtg && npm run compile:billboard && npm run compile:board && npm run compile:molt-beach && npm run compile:price && npm run compile:public-contract && npm run compile:leverage && npm run compile:opportunities && npm run verify:ip && npm run verify:molt-beach && node BEC-PRIME/scripts/verify-public-surface.js && node BEC-PRIME/scripts/verify-silo-boundaries.js && npm run verify:silo-factory && npm run verify:silo-capabilities && npm run verify:music-media && npm run verify:mtg-gauntlet && npm run verify:mtg-bridge && npm run verify:gauntlet-evaluation && npm run verify:tcg-swarm-gauntlet && node BEC-PRIME/scripts/verify-silo-fee-policy.js && node BEC-PRIME/scripts/Verify-BECKEmpireSilos.js",
     "compile:products": "node BEC-PRIME/compiler/ProductCompiler.js",
     "compile:commerce-api": "node BEC-PRIME/compiler/CommerceApiCompiler.js",
     "compile:offers": "node BEC-PRIME/compiler/OfferCompiler.js",
@@ -76,7 +76,8 @@
     "validate:economics:windows": "npm run validate:economics && powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/beck-economic-bootstrap.ps1",
     "verify:silo-capabilities": "node BEC-PRIME/scripts/verify-silo-capabilities.js",
     "silo:compile:all": "node BEC-PRIME/compiler/SiloFactory.js --all",
-    "verify:mtg-bridge": "node BEC-PRIME/scripts/verify-mtg-bridge-dry-run.js"
+    "verify:mtg-bridge": "node BEC-PRIME/scripts/verify-mtg-bridge-dry-run.js",
+    "verify:gauntlet-evaluation": "node BEC-PRIME/scripts/verify-gauntlet-evaluation.js"
   },
   "engines": {
     "node": ">=20"
