@@ -24,6 +24,7 @@ The PostgreSQL ledger uses idempotency keys, sequence IDs, previous hashes, even
 - `GET /api/marketplace/v1/auctions`: reviewed, live/scheduled timed auctions.
 - `POST /api/marketplace/v1/listings/{listing_id}/auction`: supplier submits a timed-auction schedule for review.
 - `POST /api/marketplace/v1/auctions/{auction_id}/bids`: buyer credential with `place_bid` scope and explicit human confirmation; enforces minimum increments, no seller self-bids, reserve, and anti-sniping.
+- `POST /api/marketplace/v1/auctions/{auction_id}/buy-now`: buyer credential with `buy_now` scope and explicit human confirmation; creates an unpaid order.
 - `POST /api/marketplace/v1/admin/auctions/{auction_id}/close`: admin-gated closeout after the end time; creates an unpaid winner order only when the reserve is met.
 - `POST /api/marketplace/v1/rfqs`: public RFQ intake with a honeypot, size limits, rate limit, idempotency key and OBSERVED state.
 - `POST /api/marketplace/v1/listings`: authenticated supplier listing submission; starts in pending_review.
