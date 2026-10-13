@@ -1,0 +1,70 @@
+name: Cloud Economic Engine Bootstrap
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/cloud_economic_engine_bootstrap.js"
+      - "scripts/test_cloud_economic_engine_bootstrap.js"
+      - "scripts/777_cycle.py"
+      - "scripts/777_cloud_execution_adapter.js"
+      - "scripts/qualified_buyer_intent.py"
+      - "scripts/test_qualified_buyer_intent.py"
+      - ".github/workflows/cloud-economic-engine-bootstrap.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-economic-engine-bootstrap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Run deterministic source and adapter tests
+        run: |
+          python -m unittest discover -s scripts -p 'test_qualified_buyer_intent.py' -v
+          node scripts/test_777_cloud_execution_adapter.js
+          node scripts/test_cloud_economic_engine_bootstrap.js
+      - name: Run public demand sensor in read-only mode
+        if: github.event_name == 'pull_request'
+        run: |
+          mkdir -p artifacts/777/bootstrap
+          python scripts/777_cycle.py --local > artifacts/777/bootstrap/public-signal-batch.json
+          python -m json.tool artifacts/777/bootstrap/public-signal-batch.json > /dev/null
+      - name: Run private deterministic Gauntlet
+        if: github.event_name == 'pull_request'
+        env:
+          DREAMLEDGER_777_SKIP_MODELS: 'true'
+          DREAMLEDGER_777_OUTPUT_DIR: artifacts/777/internal
+        run: node scripts/777_cloud_execution_adapter.js
+      - name: Probe cloud commerce dependencies (read-only; manual dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: node scripts/cloud_economic_engine_bootstrap.js --commerce
+      - name: Probe public cloud surfaces (manual dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        run: node scripts/cloud_economic_engine_bootstrap.js --public-only
+      - name: Retain commissioning evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-economic-engine-bootstrap-${{ github.run_id }}
+          path: |
+            artifacts/777/bootstrap/*.json
+            artifacts/777/internal/*.json
+          if-no-files-found: ignore
+          retention-days: 30
