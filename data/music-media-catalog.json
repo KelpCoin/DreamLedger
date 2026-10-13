@@ -1,0 +1,17 @@
+{
+  "schema": "dreamledger/music-media-catalogue/v1",
+  "silo": "music-media",
+  "currency": "NZD",
+  "status": "BUILD_NO_PUBLISHED_LISTINGS",
+  "updated": "2026-10-14",
+  "products": [],
+  "publication_requirements": [
+    "Creator identity and credits recorded",
+    "Ownership or distribution rights evidenced",
+    "Exact format and deliverables described",
+    "Preview, captions or accessibility details supplied where relevant",
+    "Price, currency, availability and refund terms explicit",
+    "Checkout enabled only after live Stripe URL and attribution are verified",
+    "Digital fulfillment tested from settled payment through delivery evidence"
+  ]
+}
