@@ -8,7 +8,11 @@ const read=p=>JSON.parse(fs.readFileSync(path.join(ROOT,p),'utf8'));
 const args=process.argv.slice(2),mi=args.indexOf('--manifest');
 const requestedPath=mi>=0?args[mi+1]:DEFAULT;
 function compile(checkOnly=false){
- const master=read(MASTER),candidate=read(requestedPath),tcg=read(TCG);
+ const tcg=read(TCG);
+ const manifestDir=path.join(ROOT,'silos');
+ const manifestPaths=fs.readdirSync(manifestDir,{withFileTypes:true}).filter(d=>d.isDirectory()).map(d=>'silos/'+d.name+'/silo.json').filter(p=>fs.existsSync(path.join(ROOT,p))).sort();
+ if(!manifestPaths.includes(MASTER)||!manifestPaths.includes(requestedPath))throw Error('Requested manifest must be a canonical silo contract');
+ const manifests=manifestPaths.map(read);
  const registry=read('docs/BECK-EMPIRE-SILO-REGISTRY.json');
  const policy=read('docs/BECK-SILO-FEE-POLICY.json');
  registry.silos=registry.silos||{};policy.rules=policy.rules||{};
@@ -23,7 +27,7 @@ function compile(checkOnly=false){
   registry.silos[key]={...(previous||{}),id,public_domains:['dreamledger.org'],public_prefixes:[route],platform_fee_bps:fee,status:key==='MTG'?'active':(m.status||'build'),first_dollar_priority:key==='MTG'?1:(m.first_dollar_priority||99),cross_silo_forbidden_domains:m.cross_silo_forbidden_domains||['amplissa.com'],cross_silo_forbidden_terms:m.cross_silo_forbidden_terms||[]};
   policy.rules[id]={...(policy.rules[id]||{}),silo:key,domain:'dreamledger.org'+route,platform_fee_bps:fee,label:fee===0?'0% forever':'5% flat'};
  }
- upsert(master);upsert(candidate);
+ for(const manifest of manifests)upsert(manifest);
  const clones=(tcg.silos||[]).filter(s=>s.status==='clone'&&s.slug!=='mtg');
  const cloneKeys=new Set(clones.map(s=>'TCG_'+s.slug.toUpperCase()));
  for(const key of Object.keys(registry.silos))if(key.startsWith('TCG_')&&!cloneKeys.has(key))delete registry.silos[key];
@@ -37,13 +41,14 @@ function compile(checkOnly=false){
  }
  for(const [key,value] of Object.entries(registry.silos)){const fee=Number(value.platform_fee_bps);if(key==='MTG'?fee!==0:fee!==500)throw Error('Registry fee invariant violation '+key);}
  for(const [key,value] of Object.entries(policy.rules)){const fee=Number(value.platform_fee_bps);if(key==='dreamledger-mtg'?fee!==0:fee!==500)throw Error('Policy fee invariant violation '+key);}
- const names={MTG:master.identity.display_name,[candidate.silo_key||candidate.identity.slug.toUpperCase()]:candidate.identity.display_name};
+ const names={};
+ for(const manifest of manifests)names[manifest.silo_key||(manifest.identity.slug==='mtg'?'MTG':manifest.identity.slug.toUpperCase())]=manifest.identity.display_name;
  for(const s of tcg.silos||[])names['TCG_'+s.slug.toUpperCase()]=s.name;
  const directory={schema:'dreamledger/silo-directory/v1',updated:'2026-10-14',silos:Object.entries(registry.silos).filter(([k,v])=>v.status==='active'&&Array.isArray(v.public_prefixes)&&v.public_prefixes.length).map(([k,v])=>({key:k,name:names[k]||k,route:v.public_prefixes[0].endsWith('/')?v.public_prefixes[0]:v.public_prefixes[0]+'/',status:v.status}))};
  const outputs={'docs/BECK-EMPIRE-SILO-REGISTRY.json':JSON.stringify(registry,null,2)+'\n','docs/BECK-SILO-FEE-POLICY.json':JSON.stringify(policy,null,2)+'\n','data/silo-directory.json':JSON.stringify(directory,null,2)+'\n','public/data/silo-directory.json':JSON.stringify(directory,null,2)+'\n'};
  const drift=[];
  for(const [rel,body] of Object.entries(outputs)){const dest=path.join(ROOT,rel);if(checkOnly){if(!fs.existsSync(dest)||fs.readFileSync(dest,'utf8')!==body)drift.push(rel);}else{fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,body,'utf8');}}
- const proof={schema:'DREAMLEDGER/CUBE-SILO-REGISTRY/v1',status:drift.length?'FAIL':checkOnly?'PASS':'GENERATED',manifests:[MASTER,requestedPath,TCG],tcg_clones:clones.map(s=>s.slug),files:Object.keys(outputs),drift};
+ const proof={schema:'DREAMLEDGER/CUBE-SILO-REGISTRY/v1',status:drift.length?'FAIL':checkOnly?'PASS':'GENERATED',manifests:[...manifestPaths,TCG],tcg_clones:clones.map(s=>s.slug),files:Object.keys(outputs),drift};
  console.log(JSON.stringify(proof,null,2));if(drift.length)process.exitCode=1;return proof;
 }
 if(require.main===module)compile(args.includes('--check'));
