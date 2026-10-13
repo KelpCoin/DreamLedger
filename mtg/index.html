@@ -12,7 +12,7 @@
 <header class="nav"><div class="brand"><b>MAGIC</b> / DREAMLEDGER</div><nav><a href="/">DreamLedger home</a><a href="/mtg-marketplace.html">Marketplace</a><a href="/music-media.html">Music &amp; Media</a></nav></header>
 <section class="hero"><div class="kicker">Commander decks · real listings</div><h1>Find your next deck.</h1><p>Browse the current decks, open the full list, and use the listing's claim instructions. We only advertise direct checkout when that listing has a working checkout path.</p></section>
 <section><div class="kicker">Available decks</div><h2>MTG Deck Catalogue</h2><div id="status" class="status">Loading deck listings…</div><div id="rail" class="rail"></div></section>
-<div class="notice">Want to claim a deck? Follow the instructions on its listing page. Never send payment-card details in a direct message. Patreon subscribers receive first priority where a listing says so. <strong>#MeatiestMagic</strong></div>
+<div class="notice">Check the decklist and listing details before buying. Never send payment-card details in a direct message. Direct checkout appears only when the listing has a verified Stripe link. <strong>#MeatiestMagic</strong></div>
 </main>
 <script>
 const rail=document.getElementById('rail'),status=document.getElementById('status');
@@ -27,15 +27,15 @@ async function load(){
   products.sort((a,b)=>rank(a.id)-rank(b.id));
   status.textContent=products.length+' published deck listing'+(products.length===1?'':'s');
   rail.innerHTML=products.length?products.map(p=>{
-   const price=Number(p.price||0), patron=Number(p.metadata&&p.metadata.patron_price_nzd||0);
+   const price=Number(p.price||0);
    const direct=p.checkout_available===true&&typeof p.checkout_url==='string';
    const claim=p.sale_mode==='claim_by_message'&&typeof p.claim_url==='string';
    const href=direct?p.checkout_url:(claim?p.claim_url:'#');
-   const label=direct?'BUY NOW':(claim?'VIEW DECK / CLAIM':'VIEW LISTING');
+   const label=direct?'BUY WITH STRIPE':(claim?'VIEW DECK DETAILS':'ONLINE CHECKOUT UNAVAILABLE');
    const commander=(p.metadata&&p.metadata.commander)||'Commander';
    const archetype=(p.metadata&&p.metadata.archetype)||'MTG deck';
    const decklist=p.decklist_url?'<a class="cta secondary" target="_blank" rel="noopener" href="'+esc(p.decklist_url)+'">Open full decklist</a>':'';
-   return '<article class="card"><div class="art">EDH</div><div class="body"><span class="pill">'+esc(archetype)+'</span><h2>'+esc(p.name||p.id)+'</h2><div class="desc">'+esc(p.description||'Commander deck listing.')+'</div><div class="price">NZ$'+price.toFixed(2)+'</div>'+(patron?'<div class="meta">Member price: NZ$'+patron.toFixed(2)+'</div>':'')+'<div class="meta">Seller: '+esc(p.seller||'HappyHomarid')+'</div><a class="cta" href="'+esc(href)+'" '+(direct?'target="_blank" rel="noopener"':(claim?'':'aria-disabled="true"'))+'>'+label+'</a>'+decklist+'</div></article>';
+   return '<article class="card"><div class="art">EDH</div><div class="body"><span class="pill">'+esc(archetype)+'</span><h2>'+esc(p.name||p.id)+'</h2><div class="desc">'+esc(p.description||'Commander deck listing.')+'</div><div class="price">NZ$'+price.toFixed(2)+'</div>'+'<div class="meta">Seller: '+esc(p.seller||'HappyHomarid')+'</div><a class="cta" href="'+esc(href)+'" '+(direct?'target="_blank" rel="noopener"':(claim?'':'aria-disabled="true"'))+'>'+label+'</a>'+decklist+'</div></article>';
   }).join(''):'<div class="notice">No published MTG decks are available right now.</div>';
  }catch(e){status.textContent='Deck catalogue could not load: '+e.message;status.style.color='#ef9292';rail.innerHTML='<div class="notice">Please try again shortly. If this continues, contact DreamLedger support.</div>';}
 }
