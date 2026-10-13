@@ -1,0 +1,97 @@
+{
+  "schema": "dreamledger/sandbox-calls/v1",
+  "silo": "sandbox",
+  "status": "OPEN",
+  "updated_at": "2026-10-13T07:26:00+13:00",
+  "rule": "These are public calls for work or evidence. They are not job offers, revenue, or verified demand. Status OPEN means the silo still wants it; DONE means shipped on the public surface.",
+  "calls": [
+    {
+      "id": "call-nzbn-keys",
+      "title": "Wire NZBN verification service credentials",
+      "status": "OPEN",
+      "priority": "high",
+      "summary": "Supabase verify-nzbn returns SERVICE_NOT_CONFIGURED (missing NZBN_API_KEY and FOSSIL_PRIVATE_KEY_JWK). Frontend and Truth Oracle claim integration are ready; live register evidence needs keys.",
+      "acceptance": [
+        "Successful lookup for a known 13-digit NZBN returns entity fields from the official register path",
+        "Signed packet or hash fields present when fossil key is configured",
+        "Failure modes still label unknown rather than inventing status"
+      ],
+      "silos": ["sandbox", "oracle", "b2b"],
+      "links": [
+        "https://dreamledger.org/tools/nzbn.html",
+        "https://portal.api.business.govt.nz/api/nzbn"
+      ],
+      "opened_at": "2026-10-13"
+    },
+    {
+      "id": "call-incoterms",
+      "title": "Free offer-completeness checklist (Incoterms / GST / freight / exclusions)",
+      "status": "OPEN",
+      "priority": "medium",
+      "summary": "Browser-only checklist magnet that marks missing commercial fields as unknown. Pairs with quote comparison and Truth Oracle claim check.",
+      "acceptance": [
+        "Public HTML tool under /tools/ with no account required",
+        "Export or copy of checklist state",
+        "Does not invent prices or treat blank as zero"
+      ],
+      "silos": ["sandbox", "b2b"],
+      "links": [
+        "https://dreamledger.org/quote-comparison/",
+        "https://dreamledger.org/tools/claim-check.html"
+      ],
+      "opened_at": "2026-10-13"
+    },
+    {
+      "id": "call-ticker-api",
+      "title": "Document free ticker GET for agents; design paid alert tier without truth upgrade",
+      "status": "OPEN",
+      "priority": "medium",
+      "summary": "Free feed is /data/ticker.json. Need clear agent docs and a progressive plan for filters/alerts that does not sell a better verdict.",
+      "acceptance": [
+        "llms.txt or agent discovery points at ticker schema",
+        "Premium described as convenience only",
+        "Sandbox calls appear in ticker with kind SANDBOX_CALL"
+      ],
+      "silos": ["sandbox", "agent"],
+      "links": [
+        "https://dreamledger.org/data/ticker.json",
+        "https://dreamledger.org/.well-known/dreamledger.json"
+      ],
+      "opened_at": "2026-10-13"
+    },
+    {
+      "id": "call-decision-log",
+      "title": "Free one-decision log template (assumptions + next check date)",
+      "status": "OPEN",
+      "priority": "low",
+      "summary": "Companion magnet to claim check: record a decision, assumptions, and when to re-check. Browser-only.",
+      "acceptance": [
+        "No upload of user data",
+        "Copyable structured record",
+        "Linked from free tools hub"
+      ],
+      "silos": ["sandbox", "oracle"],
+      "links": [
+        "https://dreamledger.org/tools/free.html"
+      ],
+      "opened_at": "2026-10-13"
+    },
+    {
+      "id": "call-claim-check-shipped",
+      "title": "Interactive Claim Check worksheet",
+      "status": "DONE",
+      "priority": "high",
+      "summary": "Shipped as free Truth Oracle magnet at /tools/claim-check.html.",
+      "acceptance": [
+        "Browser-only form builds claim record",
+        "No account required"
+      ],
+      "silos": ["sandbox", "oracle"],
+      "links": [
+        "https://dreamledger.org/tools/claim-check.html"
+      ],
+      "opened_at": "2026-10-13",
+      "closed_at": "2026-10-13"
+    }
+  ]
+}

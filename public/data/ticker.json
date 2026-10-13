@@ -1,0 +1,79 @@
+{
+  "schema": "dreamledger/ticker/v1",
+  "status": "PUBLIC_FREE_FEED",
+  "generated_at": "2026-10-13T07:26:00+13:00",
+  "rule": "Every item is labelled. UNVERIFIED is not a pass. Payment does not improve a truth verdict. A ticker item is not revenue, demand, or fulfillment proof.",
+  "silos": ["sandbox", "oracle", "mtg", "phinhaven", "b2b", "agent", "general"],
+  "items": [
+    {
+      "id": "tick-2026-10-13-sandbox-nzbn",
+      "headline": "Sandbox calling for: NZBN API key + fossil signing so live lookup returns register evidence",
+      "status": "UNVERIFIED",
+      "silos": ["sandbox", "oracle", "b2b"],
+      "source": "DreamLedger sandbox call board",
+      "observed_at": "2026-10-13",
+      "url": "https://dreamledger.org/sandbox/calling-for.html",
+      "kind": "SANDBOX_CALL"
+    },
+    {
+      "id": "tick-2026-10-13-claim-check",
+      "headline": "Free Claim Check worksheet live — Truth Oracle magnet, browser-only, no account",
+      "status": "SUPPORTED",
+      "silos": ["oracle", "sandbox", "general"],
+      "source": "DreamLedger public tools",
+      "observed_at": "2026-10-13",
+      "url": "https://dreamledger.org/tools/claim-check.html",
+      "kind": "PRODUCT_SURFACE"
+    },
+    {
+      "id": "tick-2026-10-13-free-hub",
+      "headline": "Free tools hub lists claim check, NZBN, quote comparison, seller profit, pulse",
+      "status": "SUPPORTED",
+      "silos": ["sandbox", "general"],
+      "source": "DreamLedger public tools",
+      "observed_at": "2026-10-13",
+      "url": "https://dreamledger.org/tools/free.html",
+      "kind": "PRODUCT_SURFACE"
+    },
+    {
+      "id": "tick-2026-10-13-revenue",
+      "headline": "Verified external revenue remains NZ$0 until independent settlement is evidenced",
+      "status": "SUPPORTED",
+      "silos": ["general", "oracle"],
+      "source": "DreamLedger economic truth rule",
+      "observed_at": "2026-10-13",
+      "url": "https://dreamledger.org/trust/",
+      "kind": "TRUTH_SCOREBOARD"
+    },
+    {
+      "id": "tick-2026-10-12-pulse",
+      "headline": "Research pulse continues to publish source-linked leads labelled UNVERIFIED market signal",
+      "status": "UNVERIFIED",
+      "silos": ["general", "agent"],
+      "source": "DreamLedger pulse",
+      "observed_at": "2026-10-12",
+      "url": "https://dreamledger.org/pulse/",
+      "kind": "RESEARCH_LEAD"
+    },
+    {
+      "id": "tick-2026-10-13-sandbox-incoterms",
+      "headline": "Sandbox calling for: free offer-completeness checklist (Incoterms, GST, freight, exclusions)",
+      "status": "UNVERIFIED",
+      "silos": ["sandbox", "b2b"],
+      "source": "DreamLedger sandbox call board",
+      "observed_at": "2026-10-13",
+      "url": "https://dreamledger.org/sandbox/calling-for.html#call-incoterms",
+      "kind": "SANDBOX_CALL"
+    },
+    {
+      "id": "tick-2026-10-13-sandbox-ticker-api",
+      "headline": "Sandbox calling for: agent-readable ticker subscribe pattern (free GET already; paid alerts later)",
+      "status": "UNVERIFIED",
+      "silos": ["sandbox", "agent"],
+      "source": "DreamLedger sandbox call board",
+      "observed_at": "2026-10-13",
+      "url": "https://dreamledger.org/sandbox/calling-for.html#call-ticker-api",
+      "kind": "SANDBOX_CALL"
+    }
+  ]
+}
