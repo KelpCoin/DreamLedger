@@ -27,7 +27,7 @@ function build(manifestPath=DEFAULT){
  const status=existing&&existing.status?existing.status:(products.length?'DRAFT_LISTINGS':'BUILD_NO_PUBLISHED_LISTINGS');
  const catalog={...(existing||{}),schema:'dreamledger/'+slug+'-catalogue/v1',silo:slug,currency:(existing&&existing.currency)||i.currency||'NZD',status,updated:(existing&&existing.updated)||'2026-10-14',products,_meta:{...empty._meta,...((existing&&existing._meta)||{}),generated_from:manifestPath,source_master:'public/mtg/index.html',verified_supply_required:true,status}};
  const alias='<!doctype html>\n<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url='+i.canonical_path+'"><link rel="canonical" href="https://dreamledger.org'+i.canonical_path+'"><title>'+esc(i.display_name)+' | DreamLedger</title><script>location.replace('+JSON.stringify(i.canonical_path)+');</script></head><body><p><a href="'+i.canonical_path+'">Continue to '+esc(i.display_name)+' →</a></p></body></html>\n';
- return {[slug+'/index.html']:page,['public/'+slug+'/index.html']:page,['data/'+slug+'-catalog.json']:JSON.stringify(catalog,null,2)+'\n',['public/data/'+slug+'-catalog.json']:JSON.stringify(catalog,null,2)+'\n',[slug+'.html']:alias,['public/'+slug+'.html']:alias};
+ return {[slug+'/index.html']:page,['public/'+slug+'/index.html']:page,['public/silos/'+slug+'/silo.json']:JSON.stringify(m,null,2)+'\n',['data/'+slug+'-catalog.json']:JSON.stringify(catalog,null,2)+'\n',['public/data/'+slug+'-catalog.json']:JSON.stringify(catalog,null,2)+'\n',[slug+'.html']:alias,['public/'+slug+'.html']:alias};
 }
 function compile(manifestPath=DEFAULT,checkOnly=false){
  const outputs=build(manifestPath),drift=[];
