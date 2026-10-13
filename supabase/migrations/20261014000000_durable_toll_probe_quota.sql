@@ -45,7 +45,7 @@ create or replace function public.register_toll_probe_entitlement(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = ''
 as $$
 declare
   v_row public.toll_entitlements%rowtype;
@@ -101,7 +101,7 @@ create or replace function public.consume_toll_probe_quota(
 ) returns jsonb
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = ''
 as $$
 declare
   v_row public.toll_entitlements%rowtype;
