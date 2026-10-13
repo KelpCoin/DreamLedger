@@ -352,7 +352,7 @@ if "--local" in os.sys.argv:
     for item in deduped:
         source_name = str(item.get("source") or "UNKNOWN")
         source_counts[source_name] = source_counts.get(source_name, 0) + 1
-    print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:200],"source_counts":source_counts,"source_errors":source_errors}, ensure_ascii=False))
+    print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:500],"source_counts":source_counts,"source_errors":source_errors}, ensure_ascii=False))
     raise SystemExit(0)
 
 if deduped is not None:  # Empty discovery batches must reach the bounded fallback path.
