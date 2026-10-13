@@ -52,30 +52,62 @@ async function rpc(name,args) {
     throw err;
   } finally { clearTimeout(timer); }
 }
+function localKey() {
+  const raw=String(process.env.MARKETPLACE_LOCAL_ENCRYPTION_KEY||'').trim();
+  if(!/^[a-f0-9]{64}$/i.test(raw)) throw Object.assign(new Error('MARKETPLACE_LOCAL_ENCRYPTION_KEY must be a 32-byte hex key'),{statusCode:503});
+  return Buffer.from(raw,'hex');
+}
+function envelopeHash(envelope) {
+  const core={v:envelope.v,previous_hash:envelope.previous_hash,iv:envelope.iv,tag:envelope.tag,ciphertext:envelope.ciphertext};
+  return crypto.createHash('sha256').update(JSON.stringify(core)).digest('hex');
+}
+function decodeLocalLine(line, expectedPrevious) {
+  const envelope=JSON.parse(line);
+  if(envelope.v!==1||envelope.previous_hash!==(expectedPrevious||null)||envelope.event_hash!==envelopeHash(envelope)) throw new Error('Local marketplace ledger hash chain is invalid');
+  const decipher=crypto.createDecipheriv('aes-256-gcm',localKey(),Buffer.from(envelope.iv,'base64'));
+  decipher.setAuthTag(Buffer.from(envelope.tag,'base64'));
+  const plain=Buffer.concat([decipher.update(Buffer.from(envelope.ciphertext,'base64')),decipher.final()]).toString('utf8');
+  const event=JSON.parse(plain);
+  if(event.previous_hash!==(expectedPrevious||null)) throw new Error('Local marketplace event chain mismatch');
+  return event;
+}
 function appendLocal(event) {
+  const key=localKey();
   fs.mkdirSync(path.dirname(LEDGER_PATH),{recursive:true});
   let previous=null;
   try {
-    const lines=fs.readFileSync(LEDGER_PATH,'utf8').trim().split('\n').filter(Boolean);
-    if(lines.length) previous=JSON.parse(lines[lines.length-1]).event_hash;
+    const lines=fs.readFileSync(LEDGER_PATH,'utf8').split('\n').filter(Boolean);
+    if(lines.length) {
+      let chain=null;
+      for(const line of lines) { const decoded=decodeLocalLine(line,chain); chain=JSON.parse(line).event_hash; }
+      previous=chain;
+    }
   } catch(err) { if(err.code!=='ENOENT') throw err; }
   const canonical={...event,previous_hash:previous,recorded_at:new Date().toISOString()};
-  canonical.event_hash=crypto.createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
-  // Append-only file. fsync makes the write durable on the configured volume, not across replicated instances.
+  const iv=crypto.randomBytes(12);
+  const cipher=crypto.createCipheriv('aes-256-gcm',key,iv);
+  const plaintext=Buffer.from(JSON.stringify(canonical),'utf8');
+  const ciphertext=Buffer.concat([cipher.update(plaintext),cipher.final()]);
+  const envelope={v:1,previous_hash:previous,iv:iv.toString('base64'),tag:cipher.getAuthTag().toString('base64'),ciphertext:ciphertext.toString('base64')};
+  envelope.event_hash=envelopeHash(envelope);
   const fd=fs.openSync(LEDGER_PATH,'a',0o600);
-  try { fs.writeSync(fd,JSON.stringify(canonical)+'\n'); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+  try { fs.writeSync(fd,JSON.stringify(envelope)+'\n'); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
   return canonical;
 }
 function readLocal(limit=100) {
   try {
-    return fs.readFileSync(LEDGER_PATH,'utf8').split('\n').filter(Boolean).slice(-limit).reverse().map(line=>JSON.parse(line));
+    const lines=fs.readFileSync(LEDGER_PATH,'utf8').split('\n').filter(Boolean);
+    let previous=null; const decoded=[];
+    for(const line of lines) { decoded.push(decodeLocalLine(line,previous)); previous=JSON.parse(line).event_hash; }
+    return decoded.slice(-limit).reverse();
   } catch(err) { if(err.code==='ENOENT') return []; throw err; }
 }
 function localStatus() {
   const dir=path.dirname(LEDGER_PATH);
-  let writable=false;
+  let writable=false, keyConfigured=/^[a-f0-9]{64}$/i.test(String(process.env.MARKETPLACE_LOCAL_ENCRYPTION_KEY||''));
   try { fs.mkdirSync(dir,{recursive:true}); fs.accessSync(dir,fs.constants.W_OK); writable=true; } catch {}
-  return {mode:'local',status:writable?'available':'unavailable',durability:'single-process append-only JSONL; requires persistent disk; not safe for multi-replica or multi-writer deployment',ledger_path_configured:Boolean(process.env.MARKETPLACE_LEDGER_PATH),writable};
+  const available=writable&&keyConfigured;
+  return {mode:'local',status:available?'available':'unavailable',durability:'AES-256-GCM encrypted, hash-chained JSONL; single-writer only; requires persistent disk and configured encryption key; not safe for multi-replica deployment',ledger_path_configured:Boolean(process.env.MARKETPLACE_LEDGER_PATH),encryption_key_configured:keyConfigured,writable};
 }
 function publicListing(row) {
   return {id:row.id,title:row.title,description:row.description,category:row.category,listing_type:row.listing_type,price_minor:row.price_minor,currency:row.currency,pricing_model:row.pricing_model,quantity:row.quantity,unit:row.unit,location:row.location||{},attributes:row.attributes||{},created_at:row.created_at};
