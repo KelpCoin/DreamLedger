@@ -1,10 +1,12 @@
 # Cloud-First GPU Scheduling and Bounded Self-Improvement
 
+> **Hierarchy:** Elohim → Brown Eye Cortex Krinkle (BECK) → independent special-purpose vehicles (SPVs). DreamLedger is one vehicle, not the ecosystem parent. AMPLISSA is a permanently separate adult-content silo. See [BECK ecosystem hierarchy](BECK-ECOSYSTEM-HIERARCHY.md).
+
 ## Objective
 
 Use cloud services as the durable control plane. When an authorized local Windows machine is online and its GPU/LLM runtime is healthy, it may accelerate queued jobs. When local hardware is offline, the cloud continues with available low-cost workloads and does not assume local capacity exists.
 
-The same scheduler serves AMPLISSA, DreamLedger, the game, and other approved applications without creating separate ledgers or conflicting truth systems.
+The BECK scheduler may coordinate AMPLISSA, DreamLedger, the game, and future approved vehicles, but each SPV retains its own commercial ledger, identity boundary, secrets, storage, permissions, and release gates. Shared scheduling does not mean shared product data or authorization.
 
 ## Priority order
 
