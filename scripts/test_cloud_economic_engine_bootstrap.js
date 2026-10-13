@@ -71,6 +71,26 @@ async function main() {
   );
   assert.equal(ambiguousStripe.canonical_revenue_webhook, 'UNVERIFIED');
   assert.equal(ambiguousStripe.status, 'BLOCKED');
+
+  const sessionAudit = await probeStripe(
+    { STRIPE_SECRET_KEY: 'sk_live_fixture_only' },
+    async url => {
+      if (String(url).includes('/webhook_endpoints')) return new Response(JSON.stringify({ data: [
+        { id: 'we_enabled', url: 'https://example.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc', status: 'enabled', disabled_reason: null }
+      ]}), { status: 200, headers: { 'content-type': 'application/json' } });
+      if (String(url).includes('/payment_links')) return new Response(JSON.stringify({ data: [
+        { id: 'plink_1UKS00EGgEAnUFF9kUjraaL5', active: true, metadata: { sku_id: 'CMD-DIAG-29' } }
+      ]}), { status: 200, headers: { 'content-type': 'application/json' } });
+      return new Response(JSON.stringify({ data: [
+        { livemode: true, payment_status: 'paid' },
+        { livemode: true, payment_status: 'unpaid' },
+        { livemode: false, payment_status: 'paid' }
+      ]}), { status: 200, headers: { 'content-type': 'application/json' } });
+    },
+  );
+  assert.equal(sessionAudit.status, 'PASS');
+  assert.equal(sessionAudit.commander_paid_live_sessions_count, 1);
+  assert.equal(sessionAudit.commander_unpaid_live_sessions_count, 1);
   await assert.rejects(safeFetch('https://example.com', { method: 'POST' }, async () => new Response('', { status: 200 })), /READ_ONLY_METHOD_BLOCKED/);
   const source = require('node:fs').readFileSync(require('node:path').resolve(__dirname, 'cloud_economic_engine_bootstrap.js'), 'utf8');
   assert.match(source, /PUBLIC_SURFACES_PASS_COMMERCE_UNVERIFIED/);
