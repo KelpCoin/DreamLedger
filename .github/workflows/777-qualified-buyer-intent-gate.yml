@@ -6,6 +6,8 @@ on:
       - "scripts/qualified_buyer_intent.py"
       - "scripts/test_qualified_buyer_intent.py"
       - "scripts/777_cycle.py"
+      - "scripts/777_cloud_execution_adapter.js"
+      - "scripts/test_777_cloud_execution_adapter.js"
       - ".github/workflows/777-qualified-buyer-intent-gate.yml"
   push:
     branches: [main]
@@ -31,3 +33,5 @@ jobs:
       - name: Run qualified-intent fixtures
         working-directory: scripts
         run: python -m unittest -v test_qualified_buyer_intent.py
+      - name: Validate cloud adapter is private and no-spend by default
+        run: node scripts/test_777_cloud_execution_adapter.js
