@@ -23,8 +23,11 @@ check('MTG catalogue schema and silo',catalog.schema==='dreamledger/mtg-catalogu
 check('unique catalogue IDs',new Set((catalog.products||[]).map(p=>p.id)).size===(catalog.products||[]).length);
 check('all catalogue products belong to MTG',(catalog.products||[]).every(p=>p.silo==='mtg'));
 check('published products have positive prices',(catalog.products||[]).filter(p=>p.status==='published').every(p=>Number(p.price)>0));
-check('HTML escaping covers ampersand/angle brackets',page.includes("'&':'&amp;'")&&page.includes("'<':'&lt;'")&&page.includes("'>':'&gt;'"));
-check('diagnostic CTA uses canonical route',page.includes('href="/mtg/diagnostic.html"')&&!page.includes('8x228r1nfg0l3M32csdwc2I'));
+check('MTG master uses safe DOM APIs and no innerHTML',!page.includes('innerHTML')&&page.includes('replaceChildren()')&&page.includes('textContent=String(text)'));
+check('MTG master reads canonical per-silo manifest',page.includes("const slug=document.documentElement.dataset.silo")&&page.includes("'/silos/'+encodeURIComponent(slug)+'/silo.json'"));
+check('MTG master has no hardcoded external Payment Link',!page.includes('buy.stripe.com/'));
+const masterManifest=json('silos/mtg/silo.json');
+check('MTG master manifest binds the canonical diagnostic route',masterManifest.identity.slug==='mtg'&&masterManifest.surface.featured_offers.some(o=>o.cta&&o.cta.href==='/mtg/diagnostic.html')&&!page.includes('8x228r1nfg0l3M32csdwc2I'));
 check('canonical diagnostic route remains configured',product.silo==='mtg'&&product.checkout.url==='/mtg/diagnostic.html');
 check('singles autocomplete and preview use safe DOM APIs',!singles.includes('suggest.innerHTML=names.map')&&!singles.includes('art.innerHTML')&&singles.includes('label.textContent=name')&&singles.includes('suggest.replaceChildren()'));
 check('Quintorius listing includes the decklist grid and trust anchors',detail.includes('data-mtg-deck="/data/decklists/quintorius.json"')&&detail.includes('<b>See the cards</b>')&&detail.includes('<b>Clear terms</b>')&&detail.includes('<b>Safe deal</b>'));
