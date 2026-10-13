@@ -234,7 +234,7 @@ async function main() {
     model_execution_allowed: !skipModels,
     local_gpu_preferred: preferLocalGpu,
     local_gpu_endpoint_configured: Boolean(process.env.LM_STUDIO_URL),
-    local_gpu_authenticated_https_ready: Boolean(localGpu),
+    local_gpu_authenticated_https_configured: Boolean(localGpu),
     fallback_attempts: attempts,
     candidate_hash: sha(JSON.stringify(candidate)),
     gauntlet_status: gauntlet.status || 'UNKNOWN',
