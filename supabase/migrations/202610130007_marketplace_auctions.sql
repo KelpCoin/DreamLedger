@@ -45,6 +45,7 @@ begin
   if found then return jsonb_build_object('auction_id',prior.id,'state',prior.status,'duplicate',true); end if;
   select * into listing from public.marketplace_listings where id=p_listing_id and seller_party_id=p_seller_party_id and status in ('draft','pending_review');
   if not found then raise exception 'seller-owned draft or pending-review listing required'; end if;
+  if listing.pricing_model<>'auction' then raise exception 'listing must use auction pricing_model'; end if;
   start_at:=(p_payload->>'starts_at')::timestamptz; end_at:=(p_payload->>'ends_at')::timestamptz;
   if start_at<=now() or end_at<=start_at or end_at>start_at+interval '30 days' then raise exception 'auction dates must be future-dated and no longer than 30 days'; end if;
   start_price:=coalesce(nullif(p_payload->>'starting_price_minor','')::bigint,listing.price_minor,0);
@@ -100,6 +101,7 @@ begin
   select * into auction from public.marketplace_auctions where id=p_auction_id for update;
   if not found then raise exception 'auction not found'; end if;
   if auction.status in ('awarded','ended') then return jsonb_build_object('auction_id',auction.id,'state',auction.status,'duplicate',true); end if;
+  if auction.status not in ('scheduled','live') then raise exception 'auction is not eligible to close'; end if;
   if auction.ends_at>now() then raise exception 'auction cannot close before end time'; end if;
   select * into listing from public.marketplace_listings where id=auction.listing_id;
   if auction.highest_bid_id is null then update public.marketplace_auctions set status='ended',updated_at=now() where id=auction.id; result_state:='ended';
