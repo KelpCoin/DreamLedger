@@ -2,10 +2,75 @@
   "schema": "BECK/SILO-FEE-POLICY/v1",
   "default_currency": "nzd",
   "rules": {
-    "dreamledger-mtg": { "silo": "MTG", "domain": "dreamledger.org/mtg", "platform_fee_bps": 0, "label": "0% forever" },
-    "amplissa": { "silo": "AMPLISSA", "platform_fee_bps": 500, "label": "5% flat" },
-    "bbw-ssbbw-creator": { "silo": "BBW_SSBBW", "platform_fee_bps": 500, "label": "5% flat" },
-    "default": { "silo": "OTHER", "platform_fee_bps": 500, "label": "5% flat" }
+    "dreamledger-mtg": {
+      "silo": "MTG",
+      "domain": "dreamledger.org/mtg",
+      "platform_fee_bps": 0,
+      "label": "0% forever"
+    },
+    "amplissa": {
+      "silo": "AMPLISSA",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "bbw-ssbbw-creator": {
+      "silo": "BBW_SSBBW",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "default": {
+      "silo": "OTHER",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-music-media": {
+      "silo": "MUSIC_MEDIA",
+      "domain": "dreamledger.org/music-media",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-pokemon": {
+      "silo": "TCG_POKEMON",
+      "domain": "dreamledger.org/pokemon",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-onepiece": {
+      "silo": "TCG_ONEPIECE",
+      "domain": "dreamledger.org/onepiece",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-yugioh": {
+      "silo": "TCG_YUGIOH",
+      "domain": "dreamledger.org/yugioh",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-lorcana": {
+      "silo": "TCG_LORCANA",
+      "domain": "dreamledger.org/lorcana",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-riftbound": {
+      "silo": "TCG_RIFTBOUND",
+      "domain": "dreamledger.org/riftbound",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-gundam": {
+      "silo": "TCG_GUNDAM",
+      "domain": "dreamledger.org/gundam",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    },
+    "dreamledger-digimon": {
+      "silo": "TCG_DIGIMON",
+      "domain": "dreamledger.org/digimon",
+      "platform_fee_bps": 500,
+      "label": "5% flat"
+    }
   },
   "invariants": [
     "MTG is the only zero-fee silo.",

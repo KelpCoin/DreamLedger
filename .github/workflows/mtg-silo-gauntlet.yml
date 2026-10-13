@@ -1,0 +1,45 @@
+name: MTG Silo Gauntlet
+on:
+  pull_request:
+    paths:
+      - 'mtg/**'
+      - 'public/mtg/**'
+      - 'public/mtg-list.html'
+      - 'public/assets/mtg-deck-grid.js'
+      - 'public/assets/mtg-deck-grid.css'
+      - 'public/data/decklists/quintorius.json'
+      - 'data/mtg-catalog.json'
+      - 'public/data/mtg-catalog.json'
+      - 'public/catalog.json'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+      - 'BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js'
+      - '.github/workflows/mtg-silo-gauntlet.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mtg/**'
+      - 'public/mtg/**'
+      - 'public/mtg-list.html'
+      - 'public/assets/mtg-deck-grid.js'
+      - 'public/assets/mtg-deck-grid.css'
+      - 'public/data/decklists/quintorius.json'
+      - 'data/mtg-catalog.json'
+      - 'public/data/mtg-catalog.json'
+      - 'public/catalog.json'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+      - 'BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js'
+      - '.github/workflows/mtg-silo-gauntlet.yml'
+permissions:
+  contents: read
+jobs:
+  gauntlet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run MTG silo Gauntlet
+        run: node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js

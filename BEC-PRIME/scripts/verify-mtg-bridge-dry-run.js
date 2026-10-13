@@ -1,0 +1,37 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
+const {spawnSync}=require('node:child_process');
+const sourceRoot=path.resolve(__dirname,'../..');
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'dreamledger-mtg-bridge-'));
+try{
+ const scriptRel='BEC-PRIME/scripts/ingest-mtg-bridge.js';
+ const scriptPath=path.join(tmp,scriptRel);
+ fs.mkdirSync(path.dirname(scriptPath),{recursive:true});
+ fs.copyFileSync(path.join(sourceRoot,scriptRel),scriptPath);
+ const base=path.join(tmp,'AGENT_BUS/BRIDGE/MTG_INTAKE');
+ for(const d of ['inbox','canonical','receipts','processed'])fs.mkdirSync(path.join(base,d),{recursive:true});
+ const submission={schema:'dreamledger/mtg-agent-bridge-submission/v1',source_worker:'GROK',source_device:'SYNTHETIC_TEST',submitted_by:'TEST_HUMAN_GATE',commander:'Synthetic Test Commander',deck_name:'Synthetic bridge test',ballpark_price_nzd:null,notes:'Synthetic only; never publish',decklist_text:null};
+ fs.writeFileSync(path.join(base,'inbox','submission-synthetic-test.json'),JSON.stringify(submission,null,2)+'\n');
+ const run=spawnSync(process.execPath,[scriptPath],{encoding:'utf8'});
+ assert.equal(run.status,0,'bridge dry-run failed: '+run.stderr+' '+run.stdout);
+ const proof=JSON.parse(run.stdout);
+ assert.equal(proof.processed.length,1);
+ assert.equal(proof.processed[0].status,'ACCEPTED');
+ const canonical=JSON.parse(fs.readFileSync(path.join(base,'canonical','MTG-0001.json'),'utf8'));
+ const receipt=JSON.parse(fs.readFileSync(path.join(base,'receipts','MTG-0001.json'),'utf8'));
+ assert.equal(canonical.truth_state,'UNVERIFIED');
+ assert.equal(canonical.publication_state,'NOT_PUBLISHED');
+ assert.equal(canonical.normalized.ballpark_price_nzd,null);
+ assert.equal(canonical.normalized.commander,'Synthetic Test Commander');
+ assert.equal(receipt.status,'ACCEPTED');
+ assert.equal(receipt.publication_state,'NOT_PUBLISHED');
+ assert.equal(fs.existsSync(path.join(base,'processed','submission-synthetic-test.json')),true);
+ const second=spawnSync(process.execPath,[scriptPath],{encoding:'utf8'});
+ assert.equal(second.status,0,'empty replay should be a no-op');
+ assert.equal(JSON.parse(second.stdout).processed.length,0);
+ assert.equal(fs.readdirSync(path.join(base,'canonical')).filter(x=>x.endsWith('.json')).length,1,'replay created duplicate canonical records');
+ console.log(JSON.stringify({schema:'DREAMLEDGER/MTG-BRIDGE-DRY-RUN/v1',verdict:'PASS',synthetic_only:true,live_inbox_touched:false,canonical_id:canonical.intake_id,truth_state:canonical.truth_state,publication_state:canonical.publication_state,replay:'NO_DUPLICATE'},null,2));
+}finally{fs.rmSync(tmp,{recursive:true,force:true});}

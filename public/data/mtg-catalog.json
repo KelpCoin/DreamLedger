@@ -75,8 +75,7 @@
       "silo": "mtg",
       "category": "digital-service",
       "sale_mode": "checkout",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
+      "checkout_available": false,
       "detail_url": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
       "commander": null
     },

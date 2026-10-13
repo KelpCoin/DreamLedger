@@ -1,0 +1,1 @@
+{"schema":"dreamledger/legacy-manifest-pointer/v1","status":"deprecated","canonical_manifest":"silos/music-media/silo.json","instruction":"Do not edit this pointer; CUBE reads the canonical silo contract."}

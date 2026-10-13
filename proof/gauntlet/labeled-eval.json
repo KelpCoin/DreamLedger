@@ -1,0 +1,5 @@
+{
+  "schema": "DREAMLEDGER/GAUNTLET-LABELED-EVAL/v1",
+  "label_policy": "Only independently reviewed real traces. Do not invent labels or use the judge to label its own evaluation set.",
+  "cases": []
+}

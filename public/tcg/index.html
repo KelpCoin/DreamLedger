@@ -37,7 +37,16 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.04em;line-height:1.1;marg
 <script>
 fetch('/data/tcg-swarm.json').then(r=>r.json()).then(d=>{
   const g=document.getElementById('grid');
-  g.innerHTML=(d.silos||[]).map((s,i)=>'<article class="card"><div class="rank">#'+(s.rank_gmv_q2_2026||i+1)+' · '+(s.status||'clone')+'</div><h2>'+s.short+'</h2><p>'+s.name+' · '+(s.focus||'singles')+'</p><a class="btn" href="'+s.route+'">Open market</a></article>').join('');
+  g.replaceChildren();
+  (Array.isArray(d.silos)?d.silos:[]).forEach((s,i)=>{
+    if(!s||typeof s.route!=='string'||s.route.charAt(0)!=='/'||!s.route.endsWith('/')||s.route.includes('..')||s.route.slice(1,-1).includes('/'))return;
+    const card=document.createElement('article');card.className='card';
+    const rank=document.createElement('div');rank.className='rank';rank.textContent='#'+(s.rank_gmv_q2_2026||i+1)+' · '+(s.status||'clone');
+    const h=document.createElement('h2');h.textContent=s.short||'TCG';
+    const p=document.createElement('p');p.textContent=(s.name||'')+' · '+(s.focus||'singles');
+    const a=document.createElement('a');a.className='btn';a.href=s.route;a.textContent='Open market';
+    card.append(rank,h,p,a);g.append(card);
+  });
 }).catch(()=>{document.getElementById('grid').textContent='Could not load swarm registry.';});
 </script>
 </body>

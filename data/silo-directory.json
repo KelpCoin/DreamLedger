@@ -1,0 +1,12 @@
+{
+  "schema": "dreamledger/silo-directory/v1",
+  "updated": "2026-10-14",
+  "silos": [
+    {
+      "key": "MTG",
+      "name": "Magic: The Gathering",
+      "route": "/mtg/",
+      "status": "active"
+    }
+  ]
+}
