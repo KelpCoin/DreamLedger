@@ -204,7 +204,7 @@ PUBLIC_REQUEST_SEARCHES = [
 def hacker_news_search_url(query, since_epoch):
     params = urllib.parse.urlencode({
         "query": query,
-        "tags": "story,comment",
+        "tags": "(story,comment)",
         "hitsPerPage": "25",
         "numericFilters": f"created_at_i>{since_epoch}",
     })
