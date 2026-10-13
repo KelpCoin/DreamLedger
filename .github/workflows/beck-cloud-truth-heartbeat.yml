@@ -46,7 +46,7 @@ jobs:
           deploy_match=false
           [ -n "$live_sha" ] && [ "$live_sha" = "$sha" ] && deploy_match=true
           overall=false
-          [ "$health_ok" = true ] && [ "$version_ok" = true ] && overall=true
+          [ "$health_ok" = true ] && [ "$version_ok" = true ] && [ "$deploy_match" = true ] && overall=true
           mkdir -p proof/beck
           export NOW="$now" EXPECTED_SHA="$sha" HEALTH_CODE="$health_code" VERSION_CODE="$version_code" LIVE_SHA="$live_sha" HEALTH_OK="$health_ok" VERSION_OK="$version_ok" DEPLOY_MATCH="$deploy_match" OVERALL="$overall"
           node <<'NODE'
