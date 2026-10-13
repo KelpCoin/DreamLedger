@@ -29,6 +29,8 @@ create table if not exists public.marketplace_bids (
   created_at timestamptz not null default now()
 );
 alter table public.marketplace_auctions add constraint marketplace_auction_highest_bid_fk foreign key(highest_bid_id) references public.marketplace_bids(id) deferrable initially deferred;
+alter table public.marketplace_agreements alter column offer_id drop not null;
+alter table public.marketplace_agreements add column if not exists auction_id uuid references public.marketplace_auctions(id);
 create index if not exists marketplace_auctions_live_idx on public.marketplace_auctions(status,ends_at);
 create index if not exists marketplace_bids_highest_idx on public.marketplace_bids(auction_id,amount_minor desc,created_at asc);
 alter table public.marketplace_auctions enable row level security;
@@ -151,8 +153,7 @@ begin
 end; $;
 
 -- The winning auction order's agreement references the auction terms rather than a supplier offer.
-alter table public.marketplace_agreements alter column offer_id drop not null;
-alter table public.marketplace_agreements add column if not exists auction_id uuid references public.marketplace_auctions(id);
+
 
 revoke all on function public.marketplace_buy_now(text,uuid,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.marketplace_buy_now(text,uuid,uuid,jsonb) to service_role;
