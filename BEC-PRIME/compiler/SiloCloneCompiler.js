@@ -8,9 +8,10 @@ function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function build(manifestPath=DEFAULT){
  const m=readJson(manifestPath),i=m.identity||{},slug=i.slug;
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug||''))throw Error('Invalid silo slug');
+ if(slug==='mtg')throw Error('MTG is the master, not a clone target; use it as the source shell only');
  if(i.canonical_path!=='/'+slug+'/')throw Error('Canonical path must match slug');
  if(i.catalog_path!=='/data/'+slug+'-catalog.json')throw Error('Catalogue path must be isolated to slug');
- if(slug==='mtg'?(i.platform_fee_bps??0)!==0:(i.platform_fee_bps??m.platform_fee_bps??500)!==500)throw Error('Fee invariant violation');
+ if((i.platform_fee_bps??m.platform_fee_bps??500)!==500)throw Error('Every non-MTG clone must use 500 bps');
  if(!m.inventory_policy||m.inventory_policy.allow_invented_products!==false||m.inventory_policy.verified_supply_required!==true)throw Error('Unsafe inventory policy');
  for(const [name,ref] of Object.entries(m.capabilities||{}))if(typeof ref!=='string'||!ref.startsWith('ref:'))throw Error('Unbound capability '+name);
  const master=read('public/mtg/index.html');
