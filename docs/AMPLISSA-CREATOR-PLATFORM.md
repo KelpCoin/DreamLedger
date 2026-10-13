@@ -1,5 +1,7 @@
 # AMPLISSA.com: Creator Platform MVP
 
+> **Silo boundary:** AMPLISSA is an independent adult-content SPV under the Elohim → Brown Eye Cortex Krinkle (BECK) hierarchy. DreamLedger is a separate SPV, not AMPLISSA's parent. See [BECK ecosystem hierarchy](BECK-ECOSYSTEM-HIERARCHY.md). Shared orchestration does not permit shared creator data, media storage, service-role credentials, or implicit commerce access.
+
 ## Product objective
 
 Build AMPLISSA as a creator-first platform for BBW/SSBBW creators, beginning with the founder's wife as the first creator. The product should let creators publish and manage their own content with clear ownership, privacy, audience, and payout controls. Build for a global audience by default; apply local legal requirements where relevant.
@@ -31,7 +33,7 @@ This document is a product contract, not a claim that a live website or payment 
 
 - **Web:** mobile-first creator site with server-side authorization and accessible controls.
 - **Identity:** managed authentication; separate public creator handle from verified legal identity.
-- **Database:** existing DreamLedger Supabase project only after its health, backups, RLS policies, and migration path are verified. No new parallel truth ledger.
+- **Database:** a dedicated AMPLISSA database/project or formally isolated database boundary with its own least-privilege roles, RLS policies, backups, and migrations. Do not reuse DreamLedger service-role credentials or creator records. AMPLISSA's commercial truth stays vehicle-specific; BECK may aggregate evidence references, not merge private data.
 - **Media:** private object storage with signed delivery; database rows alone do not prove an upload or delivery.
 - **Jobs:** durable, idempotent queue for scanning, transcoding, thumbnails, and delivery receipts.
 - **Payments:** provider adapter behind a compliance-checked boundary; webhook signature verification and idempotency; settled payment is required before granting paid entitlements.
