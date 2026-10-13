@@ -55,8 +55,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: node scripts/cloud_economic_engine_bootstrap.js --commerce
-      - name: Probe public cloud surfaces (manual dispatch only)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Probe public cloud surfaces (PR-safe, read-only)
+        if: github.event_name == 'pull_request'
         run: node scripts/cloud_economic_engine_bootstrap.js --public-only
       - name: Retain commissioning evidence
         if: always()
