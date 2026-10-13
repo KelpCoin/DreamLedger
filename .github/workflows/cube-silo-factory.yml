@@ -3,7 +3,7 @@ on:
   push:
     branches-ignore: [main]
     paths:
-      - 'runtime/cube/silo-manifests/*.json'
+      - 'silos/*/silo.json'
       - 'runtime/cube/templates/silo-index.html'
       - 'runtime/cube/templates/tcg-silo-index.html'
       - 'BEC-PRIME/compiler/TcgSiloCompiler.js'
@@ -34,7 +34,7 @@ on:
       - '.github/workflows/cube-silo-factory.yml'
   pull_request:
     paths:
-      - 'runtime/cube/silo-manifests/*.json'
+      - 'silos/*/silo.json'
       - 'runtime/cube/templates/silo-index.html'
       - 'runtime/cube/templates/tcg-silo-index.html'
       - 'BEC-PRIME/compiler/TcgSiloCompiler.js'
@@ -68,7 +68,7 @@ on:
       manifest_path:
         description: 'Path to the silo manifest to compile'
         required: false
-        default: 'runtime/cube/silo-manifests/music-media.json'
+        default: 'silos/music-media/silo.json'
 permissions:
   contents: write
   actions: write
@@ -93,7 +93,7 @@ jobs:
           if [ -z "$manifest" ] && [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             manifest=$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" | grep '^runtime/cube/silo-manifests/.*\.json$' | head -n 1 || true)
           fi
-          if [ -z "$manifest" ]; then manifest='runtime/cube/silo-manifests/music-media.json'; fi
+          if [ -z "$manifest" ]; then manifest='silos/music-media/silo.json'; fi
           test -f "$manifest"
           echo "path=$manifest" >> "$GITHUB_OUTPUT"
           echo "MANIFEST_PATH=$manifest" >> "$GITHUB_ENV"
