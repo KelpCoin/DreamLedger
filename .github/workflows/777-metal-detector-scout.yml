@@ -30,7 +30,9 @@ jobs:
           python3 tests/test_777_metal_detector_scout.py
           SCOUT_DRY_RUN=1 python3 ops/demand/777-metal-detector-scout.py
       - name: Harvest and stage raw discoveries
-        run: python3 ops/demand/777-metal-detector-scout.py | tee scout-run.json
+        run: |
+          set -o pipefail
+          python3 ops/demand/777-metal-detector-scout.py | tee scout-run.json
       - name: Emit truthful run summary
         if: always()
         run: |
