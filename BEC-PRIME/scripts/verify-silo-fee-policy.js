@@ -1,7 +1,7 @@
 'use strict';
 const assert = require('assert');
 const policy = require('../lib/siloFeePolicy');
-const expected = { 'dreamledger-mtg': 0, amplissa: 500, 'bbw-ssbbw-creator': 500, unrelated: 500 };
+const expected = { 'dreamledger-mtg': 0, 'dreamledger-music-media': 500, 'dreamledger-pokemon': 500, 'dreamledger-onepiece': 500, 'dreamledger-yugioh': 500, 'dreamledger-lorcana': 500, 'dreamledger-riftbound': 500, 'dreamledger-gundam': 500, 'dreamledger-digimon': 500, amplissa: 500, 'bbw-ssbbw-creator': 500, unrelated: 500 };
 for (const [silo, bps] of Object.entries(expected)) {
   const resolved = policy.resolve(silo);
   assert.strictEqual(resolved.platform_fee_bps, bps, silo + ' fee mismatch');
@@ -9,7 +9,11 @@ for (const [silo, bps] of Object.entries(expected)) {
   assert.throws(() => policy.assert(silo, bps === 0 ? 500 : 0), /SILO_FEE_POLICY_VIOLATION/);
 }
 assert.strictEqual(policy.resolve('MTG').platform_fee_bps, 0);
+assert.strictEqual(policy.resolve('music-media').silo, 'MUSIC_MEDIA');
+assert.strictEqual(policy.resolve('music-media').platform_fee_bps, 500);
+assert.strictEqual(policy.resolve('pokemon').silo, 'TCG_POKEMON');
+assert.strictEqual(policy.resolve('pokemon').platform_fee_bps, 500);
 assert.strictEqual(policy.resolve('AMPLISSA').platform_fee_bps, 500);
 console.log('PASS: BECK silo fee policy verified.');
-console.log('MTG=0 bps; AMPLISSA=500 bps; BBW_SSBBW=500 bps; default=500 bps.');
+console.log('MTG=0 bps; Music & Media + non-MTG TCG silos=500 bps; AMPLISSA=500 bps; BBW_SSBBW=500 bps; default=500 bps.');
 console.log('Policy SHA256: ' + policy.policySha256());
