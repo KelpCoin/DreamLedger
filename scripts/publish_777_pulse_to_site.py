@@ -38,7 +38,7 @@ def main() -> int:
     def recency_key(path: Path) -> tuple[int, str, str]:
         # Date-prefixed expedition pages must outrank alphabetically later legacy filenames.
         # Otherwise a fresh 2026-10-13 artifact can be silently excluded from the 12-page cap.
-        date_match = re.match(r"^(\\d{4}-\\d{2}-\\d{2})", path.name)
+        date_match = re.match(r"^(\d{4}-\d{2}-\d{2})", path.name)
         if date_match:
             return (1, date_match.group(1), path.name)
         return (0, path.name, path.name)
