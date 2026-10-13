@@ -10,6 +10,7 @@ on:
       - 'BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js'
       - 'package.json'
       - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/compiler/SiloFactory.js'
       - 'BEC-PRIME/compiler/SiloRegistryCompiler.js'
       - 'public/data/tcg-swarm.json'
       - 'public/tcg/index.html'
@@ -35,6 +36,7 @@ on:
       - 'BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js'
       - 'package.json'
       - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/compiler/SiloFactory.js'
       - 'BEC-PRIME/compiler/SiloRegistryCompiler.js'
       - 'public/data/tcg-swarm.json'
       - 'public/tcg/index.html'
@@ -87,14 +89,10 @@ jobs:
           echo "MANIFEST_PATH=$manifest" >> "$GITHUB_ENV"
       - name: Compile generated silo files and policy
         run: |
-          node BEC-PRIME/compiler/SiloCloneCompiler.js --manifest "$MANIFEST_PATH"
-          node BEC-PRIME/compiler/TcgSiloCompiler.js
-          node BEC-PRIME/compiler/SiloRegistryCompiler.js --manifest "$MANIFEST_PATH"
+          node BEC-PRIME/compiler/SiloFactory.js --manifest "$MANIFEST_PATH"
       - name: Verify generated artifacts and fee policy
         run: |
-          node BEC-PRIME/compiler/SiloCloneCompiler.js --check --manifest "$MANIFEST_PATH"
-          node BEC-PRIME/compiler/TcgSiloCompiler.js --check
-          node BEC-PRIME/compiler/SiloRegistryCompiler.js --check --manifest "$MANIFEST_PATH"
+          node BEC-PRIME/compiler/SiloFactory.js --check --manifest "$MANIFEST_PATH"
           node BEC-PRIME/scripts/verify-silo-factory.js
           node BEC-PRIME/scripts/verify-music-media-silo.js
           node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
