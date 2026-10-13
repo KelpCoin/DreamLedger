@@ -7,6 +7,8 @@ on:
       - "BEC-PRIME/scripts/test-commercial-cell-sku-normalization.js"
       - "supabase/functions/marketplace-diagnostic-input/index.ts"
       - "supabase/functions/marketplace-diagnostic-delivery/index.ts"
+      - "supabase/functions/marketplace-diagnostic-input/index.ts"
+      - "supabase/functions/marketplace-diagnostic-delivery/index.ts"
       - "package.json"
       - ".github/workflows/commerce-sku-normalization-gate.yml"
   push:
@@ -14,6 +16,8 @@ on:
     paths:
       - "BEC-PRIME/routes/commercialCell.js"
       - "BEC-PRIME/scripts/test-commercial-cell-sku-normalization.js"
+      - "supabase/functions/marketplace-diagnostic-input/index.ts"
+      - "supabase/functions/marketplace-diagnostic-delivery/index.ts"
       - "package.json"
       - ".github/workflows/commerce-sku-normalization-gate.yml"
   workflow_dispatch:
