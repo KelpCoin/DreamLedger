@@ -307,6 +307,8 @@ declare
   canonical jsonb;
 begin
   if coalesce(length(trim(p_idempotency_key)),0)<8 then raise exception 'idempotency key must be at least 8 chars'; end if;
+  -- Serialize hash-chain appenders so concurrent transactions cannot fork previous_hash.
+  perform pg_advisory_xact_lock(777771);
   select * into prior from public.marketplace_ledger_events where idempotency_key=p_idempotency_key;
   if found then return jsonb_build_object('duplicate',true,'event_id',prior.event_id,'sequence_id',prior.sequence_id,'event_hash',prior.event_hash); end if;
   select event_hash into previous from public.marketplace_ledger_events order by sequence_id desc limit 1;
