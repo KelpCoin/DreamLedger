@@ -4,6 +4,13 @@ DreamLedger is the public economic and identity surface for the BrownEye/DreamLe
 
 The repository contains public surfaces, commerce rails, evidence/Truth Oracle components, MTG commerce, distribution tooling, and private/internal control-plane code. Confidential credentials and genuinely private business data must remain outside public source control.
 
+## Public offer: permanent billboard tile
+
+Reserve a permanent 100×100 digital placement on the DreamLedger Internet Billboard for **NZ$50 one-time**. Submissions require a destination URL and tile label, and publication is subject to human review. The offer does not promise traffic, views, leads, or sales.
+
+- [View the billboard offer](https://dreamledger.org/billboard.html)
+- [Reserve a tile through Stripe](https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=github&utm_medium=readme&utm_campaign=founding)
+
 ## Current economic truth
 
 Verified external revenue is tracked separately from infrastructure and intent.
