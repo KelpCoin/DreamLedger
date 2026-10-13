@@ -5,7 +5,8 @@ DreamLedger's primary runtime is GitHub Actions. The existing \`777-cycle.yml\` 
 ## What it does
 
 - On a pull request, runs deterministic buyer-intent and cloud-adapter tests, reads public demand feeds, runs the deterministic internal Gauntlet, probes public health endpoints, and retains internal evidence as a GitHub Actions artifact.
-- On manual dispatch from the default branch, probes the public endpoints plus the existing Supabase commerce tables and Stripe webhook/payment-link configuration using existing GitHub secrets. These are GET/HEAD reads only.
+- Probes the live diagnostic delivery/input endpoints using safe GET requests that must return their expected no-session/no-method responses before any database or Stripe call.
+- On manual dispatch from the default branch, probes the public endpoints plus the existing Supabase commerce tables and Stripe webhook/payment-link configuration using existing GitHub secrets. It also counts live paid/unpaid Commander Checkout Sessions without retaining buyer identifiers. These are GET/HEAD reads only.
 - Writes a commissioning report under \`artifacts/777/bootstrap/commissioning-report.json\`; internal candidate/Gauntlet proofs stay under \`artifacts/777/internal/\`.
 - Fails closed in the report when a dependency is missing, ambiguous, or unavailable. It does not claim a transaction is proven.
 
