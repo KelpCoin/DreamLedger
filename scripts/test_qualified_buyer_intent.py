@@ -94,6 +94,10 @@ class QualifiedBuyerIntentTests(unittest.TestCase):
         self.assertIn('item.get("qualification_status") == "QUALIFIED_BUYER_INTENT"', cycle)
         self.assertIn('"public_artifacts_created": 0', cycle)
         self.assertNotIn("Agent Bridge capability map (catalogue candidates; settlement unverified)", cycle)
+        self.assertIn('signal.get("publisher")', cycle)
+        self.assertIn('href="https://dreamledger.org/truth-oracle.html"', cycle)
+        self.assertNotIn("Discovery source: Google News RSS", cycle)
+        self.assertNotIn("api/toll/v1/manifest", cycle)
 
 
 if __name__ == "__main__":
