@@ -133,7 +133,13 @@
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [
+        "MTG",
+        "Magic: The Gathering",
+        "Commander",
+        "adult content",
+        "18+ content"
+      ]
     },
     "TCG_ONEPIECE": {
       "id": "dreamledger-onepiece",
@@ -149,7 +155,13 @@
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [
+        "MTG",
+        "Magic: The Gathering",
+        "Commander",
+        "adult content",
+        "18+ content"
+      ]
     },
     "TCG_YUGIOH": {
       "id": "dreamledger-yugioh",
@@ -165,7 +177,13 @@
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [
+        "MTG",
+        "Magic: The Gathering",
+        "Commander",
+        "adult content",
+        "18+ content"
+      ]
     },
     "TCG_LORCANA": {
       "id": "dreamledger-lorcana",
@@ -181,7 +199,13 @@
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [
+        "MTG",
+        "Magic: The Gathering",
+        "Commander",
+        "adult content",
+        "18+ content"
+      ]
     },
     "TCG_RIFTBOUND": {
       "id": "dreamledger-riftbound",
@@ -197,7 +221,13 @@
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [
+        "MTG",
+        "Magic: The Gathering",
+        "Commander",
+        "adult content",
+        "18+ content"
+      ]
     },
     "TCG_GUNDAM": {
       "id": "dreamledger-gundam",
@@ -213,7 +243,13 @@
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [
+        "MTG",
+        "Magic: The Gathering",
+        "Commander",
+        "adult content",
+        "18+ content"
+      ]
     },
     "TCG_DIGIMON": {
       "id": "dreamledger-digimon",
@@ -229,7 +265,13 @@
       "cross_silo_forbidden_domains": [
         "amplissa.com"
       ],
-      "cross_silo_forbidden_terms": []
+      "cross_silo_forbidden_terms": [
+        "MTG",
+        "Magic: The Gathering",
+        "Commander",
+        "adult content",
+        "18+ content"
+      ]
     }
   },
   "hard_rules": [
