@@ -1,0 +1,25 @@
+name: B2B hypothesis registry contract
+on:
+  pull_request:
+    paths:
+      - 'data/777/b2b-sales-hypotheses.v1.json'
+      - 'BEC-PRIME/scripts/Verify-B2BSalesHypothesisSwarm.js'
+      - '.github/workflows/verify-b2b-hypothesis-swarm.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'data/777/b2b-sales-hypotheses.v1.json'
+      - 'BEC-PRIME/scripts/Verify-B2BSalesHypothesisSwarm.js'
+      - '.github/workflows/verify-b2b-hypothesis-swarm.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate hypothesis registry
+        run: node BEC-PRIME/scripts/Verify-B2BSalesHypothesisSwarm.js
