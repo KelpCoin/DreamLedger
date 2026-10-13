@@ -1,12 +1,38 @@
 'use strict';
 const assert = require('node:assert/strict');
-const { probeSupabase, probeStripe, safeFetch } = require('./cloud_economic_engine_bootstrap');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { probeSupabase, probeStripe, safeFetch, runBootstrap } = require('./cloud_economic_engine_bootstrap');
 
 async function main() {
   const noDb = await probeSupabase({}, async () => { throw new Error('must not fetch without credentials'); });
   assert.equal(noDb.status, 'UNVERIFIED_NO_CREDENTIALS');
   const noStripe = await probeStripe({}, async () => { throw new Error('must not fetch without credentials'); });
   assert.equal(noStripe.status, 'UNVERIFIED_NO_CREDENTIALS');
+
+  const dbMethods = [];
+  const db = await probeSupabase(
+    { SUPABASE_URL: 'https://fixture.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'fixture-only' },
+    async (url, options = {}) => {
+      dbMethods.push(String(options.method || 'GET'));
+      return new Response('', { status: 200 });
+    },
+  );
+  assert.equal(db.status, 'PASS');
+  assert.ok(dbMethods.every(method => method === 'HEAD'));
+
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-bootstrap-'));
+  const reportPath = path.join(tempDir, 'commissioning-report.json');
+  const publicReport = await runBootstrap({
+    mode: 'public-only',
+    env: {},
+    reportPath,
+    fetchImpl: async url => new Response('', { status: 200, headers: { 'content-type': 'text/plain' } }),
+  });
+  assert.equal(publicReport.status, 'PUBLIC_SURFACES_PASS_COMMERCE_UNVERIFIED');
+  assert.equal(publicReport.economic_truth.verified_external_revenue_nzd, 0);
+  assert.ok(fs.existsSync(reportPath));
 
   const methods = [];
   const mockFetch = async (url, options = {}) => {
