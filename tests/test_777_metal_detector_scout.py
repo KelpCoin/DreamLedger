@@ -31,6 +31,16 @@ class MetalDetectorScoutTests(unittest.TestCase):
         self.assertEqual(SCOUT.item_url({"url": "https://example.com/x"}), "https://example.com/x")
         self.assertIsNone(SCOUT.item_url({"url": "javascript:alert(1)"}))
 
+    def test_migration_preserves_raw_find_and_uses_100_point_rubric(self):
+        migration = (pathlib.Path(__file__).resolve().parents[1] / "supabase" / "migrations" / "20261013090000_777_metal_detector_scout.sql").read_text()
+        self.assertIn("raw_payload jsonb not null", migration)
+        self.assertIn("revenue_score integer not null check (revenue_score between 0 and 40)", migration)
+        self.assertIn("reuse_score integer not null check (reuse_score between 0 and 30)", migration)
+        self.assertIn("leverage_score integer not null check (leverage_score between 0 and 20)", migration)
+        self.assertIn("novelty_score integer not null check (novelty_score between 0 and 10)", migration)
+        self.assertIn("evidence_signature text", migration)
+        self.assertIn("economic_ledger", migration)
+
     def test_no_network_dry_run_is_safe(self):
         import os
         old = os.environ.get("SCOUT_DRY_RUN")
