@@ -44,7 +44,7 @@ const proof = {
   checks,
   registry_sha256: sha256File(REGISTRY_PATH),
   fee_policy_sha256: sha256File(FEE_PATH),
-  first_dollar_order: ['MTG/EDH_0001', 'MTG/EDH_ONE_LINK', 'MTG/INVENTORY_CUSTOMIZATION', 'MTG/CINEMA', 'AMPLISSA', 'BBW_SSBBW', 'DREAMMEEZ', 'OTHER']
+  first_dollar_order: ['MTG/EDH_0001', 'MTG/EDH_ONE_LINK', 'MTG/INVENTORY_CUSTOMIZATION', 'MTG/CINEMA', 'AMPLISSA', 'BBW_SSBBW', 'DREAMMEEZ', 'MUSIC_MEDIA', 'OTHER']
 };
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
