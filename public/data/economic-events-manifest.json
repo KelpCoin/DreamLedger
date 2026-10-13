@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-12T23:43:59+00:00",
+  "updated_at_utc": "2026-10-13T03:54:56+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "RPAS (Remotely Piloted Aircraft System) replacement and maintenance services",
+      "url": "https://www.gets.govt.nz/NZP/ExternalTenderDetails.htm?id=34977310",
+      "observed_at": "2026-10-13T03:54:50+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "752872185fe818aa7c0cd0236b1005a118e216b32e275220381530f6a818e5ba",
+      "event_id": "c8e38149-efe0-5443-9f65-d864b90d8725",
+      "silo_id": "ECO-752872185FE818AA",
+      "slug": "procurement-rpas-remotely-piloted-aircraft-system-replacement-and-mainte-752872185f"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",

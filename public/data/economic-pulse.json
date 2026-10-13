@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-12T23:43:59+00:00",
+  "generated_at_utc": "2026-10-13T03:54:56+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "c8e38149-efe0-5443-9f65-d864b90d8725",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "RPAS (Remotely Piloted Aircraft System) replacement and maintenance services",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-13T03:54:50+00:00",
+      "url": "https://www.gets.govt.nz/NZP/ExternalTenderDetails.htm?id=34977310",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-rpas-remotely-piloted-aircraft-system-replacement-and-mainte-752872185f.html"
+    },
     {
       "id": "213b5461-14bc-5855-9776-a5dfe845313a",
       "type": "PUBLIC_ECONOMIC_SIGNAL",
