@@ -1,0 +1,17 @@
+{
+  "slug": "mtg",
+  "name": "Magic: The Gathering",
+  "tagline": "NZ decks & cards — buy physical stock, run diagnostics",
+  "accent": "#d8b56b",
+  "route": "/mtg/",
+  "catalog": "/data/mtg-catalog.json",
+  "browse_free": true,
+  "account_to_sell": true,
+  "product_schema": "mtg_physical_v1",
+  "fields": ["name", "commander", "price", "condition", "inventory", "shipping"],
+  "free_tools": ["ticker"],
+  "paid": [
+    { "id": "COMMANDER-DECK-DIAGNOSTIC-001", "price_nzd": 29, "type": "diagnostic" }
+  ],
+  "clone_notes": "Swap catalog JSON + copy + accent. Keep silo-master layout and claim/checkout patterns."
+}
