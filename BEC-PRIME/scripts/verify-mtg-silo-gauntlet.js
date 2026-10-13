@@ -25,6 +25,7 @@ check('all catalogue products belong to MTG',(catalog.products||[]).every(p=>p.s
 check('published products have positive prices',(catalog.products||[]).filter(p=>p.status==='published').every(p=>Number(p.price)>0));
 check('MTG master uses safe DOM APIs and no innerHTML',!page.includes('innerHTML')&&page.includes('replaceChildren()')&&page.includes('textContent=String(text)'));
 check('MTG master reads canonical per-silo manifest',page.includes("const slug=document.documentElement.dataset.silo")&&page.includes("'/silos/'+encodeURIComponent(slug)+'/silo.json'"));
+check('root/public MTG manifest copies match',read('silos/mtg/silo.json')===read('public/silos/mtg/silo.json'));
 check('MTG master has no hardcoded external Payment Link',!page.includes('buy.stripe.com/'));
 const masterManifest=json('silos/mtg/silo.json');
 check('MTG master manifest binds the canonical diagnostic route',masterManifest.identity.slug==='mtg'&&masterManifest.surface.featured_offers.some(o=>o.cta&&o.cta.href==='/mtg/diagnostic.html')&&!page.includes('8x228r1nfg0l3M32csdwc2I'));
