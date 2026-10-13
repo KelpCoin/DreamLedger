@@ -1,0 +1,79 @@
+name: Render fleet autodeploy freeze
+
+on:
+  push:
+    paths:
+      - ".github/workflows/render-fleet-autodeploy-freeze.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freeze-noncanonical-services:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Disable independent autodeploys on noncanonical services
+        shell: bash
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${RENDER_API_KEY}" ]]; then
+            echo "::error::RENDER_API_KEY repository secret is missing; no Render settings were changed."
+            exit 1
+          fi
+
+          # DreamLedger1 remains the sole auto-deploying web app.
+          # The economic heartbeat is intentionally preserved as a scheduled job.
+          services=(
+            "srv-db26uv17lnhs73drj0p0"
+            "srv-das8k4d9fdbs73cbbmlg"
+            "srv-das8genpn0mc73f9f6ig"
+            "srv-das8g6npn0mc73f9e680"
+            "srv-d8poidegvqtc739cr3t0"
+            "srv-d8f2rjsm0tmc73egs540"
+            "srv-d8mclrnlk1mc738hdg2g"
+            "srv-d8aimjmk1jcs7380una0"
+            "srv-d7ne5qbbc2fs738okf5g"
+          )
+
+          failed=0
+          for id in "${services[@]}"; do
+            code="$(curl --silent --show-error --output /tmp/render-response.json --write-out '%{http_code}' \
+              --request PATCH "https://api.render.com/v1/services/${id}" \
+              --header "Authorization: Bearer ${RENDER_API_KEY}" \
+              --header "Content-Type: application/json" \
+              --data '{"autoDeployTrigger":"off"}')"
+            if [[ "${code}" != "200" ]]; then
+              echo "::error::Render update failed for ${id} (HTTP ${code}); response body withheld."
+              failed=1
+            else
+              echo "AUTODEPLOY_OFF_SET service=${id}"
+            fi
+          done
+
+          # Read each service back and verify its persisted setting.
+          for id in "${services[@]}"; do
+            code="$(curl --silent --show-error --output /tmp/render-response.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer ${RENDER_API_KEY}" \
+              "https://api.render.com/v1/services/${id}")"
+            if [[ "${code}" != "200" ]]; then
+              echo "::error::Could not verify ${id} (HTTP ${code})."
+              failed=1
+              continue
+            fi
+            value="$(jq -r '.autoDeployTrigger // .service.autoDeployTrigger // empty' /tmp/render-response.json)"
+            if [[ "${value}" == "off" ]]; then
+              echo "AUTODEPLOY_OFF_VERIFIED service=${id}"
+            else
+              echo "::error::Autodeploy setting did not verify for ${id} (observed '${value:-missing}')."
+              failed=1
+            fi
+          done
+
+          if [[ "$failed" -ne 0 ]]; then
+            exit 1
+          fi
+          echo "FLEET_AUTODEPLOY_FREEZE=PASS"
