@@ -1,0 +1,72 @@
+name: CUBE Silo Factory
+on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - 'silos/**/silo.json'
+      - 'public/mtg/index.html'
+      - 'mtg/index.html'
+      - 'data/_catalog-empty.template.json'
+      - 'runtime/cube/capability-registry.json'
+      - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/compiler/SiloRegistryCompiler.js'
+      - 'BEC-PRIME/compiler/SiloFactory.js'
+      - 'BEC-PRIME/scripts/verify-silo-factory.js'
+      - 'BEC-PRIME/scripts/verify-silo-capabilities.js'
+      - 'BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js'
+      - 'BEC-PRIME/scripts/verify-music-media-silo.js'
+      - 'BEC-PRIME/scripts/verify-silo-fee-policy.js'
+      - 'package.json'
+      - 'docs/BECK-EMPIRE-SILO-REGISTRY.json'
+      - 'docs/BECK-SILO-FEE-POLICY.json'
+      - '.github/workflows/cube-silo-factory.yml'
+  pull_request:
+    paths:
+      - 'silos/**/silo.json'
+      - 'public/mtg/index.html'
+      - 'mtg/index.html'
+      - 'data/_catalog-empty.template.json'
+      - 'runtime/cube/capability-registry.json'
+      - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/compiler/SiloRegistryCompiler.js'
+      - 'BEC-PRIME/compiler/SiloFactory.js'
+      - 'BEC-PRIME/scripts/verify-silo-factory.js'
+      - 'BEC-PRIME/scripts/verify-silo-capabilities.js'
+      - 'BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js'
+      - 'BEC-PRIME/scripts/verify-music-media-silo.js'
+      - 'BEC-PRIME/scripts/verify-silo-fee-policy.js'
+      - 'package.json'
+      - '.github/workflows/cube-silo-factory.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  compile-and-gauntlet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile every canonical candidate from the MTG master
+        run: node BEC-PRIME/compiler/SiloFactory.js --all
+      - name: Run CUBE and independent Gauntlets
+        run: |
+          node BEC-PRIME/compiler/SiloFactory.js --check --all
+          node BEC-PRIME/scripts/verify-silo-factory.js
+          node BEC-PRIME/scripts/verify-silo-capabilities.js
+          node BEC-PRIME/scripts/verify-music-media-silo.js
+          node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
+          node BEC-PRIME/scripts/verify-silo-fee-policy.js
+      - name: Commit generated artifacts to the working branch only
+        if: github.event_name == 'push' && github.ref_name != 'main'
+        shell: bash
+        run: |
+          git add --all
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "DreamLedger CUBE Silo Factory"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "CUBE: compile all silo manifests from MTG master"
+          git push origin "HEAD:$GITHUB_REF_NAME"
