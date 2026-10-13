@@ -37,7 +37,7 @@ check('catalogue is isolated to music-media', catalogue.silo === 'music-media');
 check('catalogue products is an array', Array.isArray(catalogue.products));
 check('registry declares canonical route', Boolean(silo && silo.id === 'dreamledger-music-media' && (silo.public_prefixes || []).includes('/music-media')));
 check('non-MTG platform fee is 500 bps', Boolean(silo && silo.platform_fee_bps === 500 && fee && fee.platform_fee_bps === 500));
-check('page reads the silo-specific catalogue', read(rootPage).includes("fetch('/data/music-media-catalog.json'"));
+check('page reads the silo-specific catalogue', read(rootPage).includes('fetch(config.catalogue_path') && read(rootPage).includes('"catalogue_path":"/data/music-media-catalog.json"'));
 
 const products = Array.isArray(catalogue.products) ? catalogue.products : [];
 for (const p of products) {
