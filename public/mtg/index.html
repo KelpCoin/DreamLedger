@@ -29,6 +29,9 @@
 .community{display:grid;gap:12px;grid-template-columns:1fr}
 @media(min-width:720px){.community{grid-template-columns:1fr 1fr 1fr}}
 .community article{padding:18px;border-radius:16px;border:1px solid var(--silo-line);background:var(--silo-surface)}
+.category-grid{display:grid;gap:12px;grid-template-columns:1fr}
+.category-card{padding:16px;border:1px solid var(--silo-line);border-radius:14px;background:var(--silo-surface)}
+.category-card h3{margin:0 0 6px}.category-card p{margin:0;color:var(--silo-muted);font-size:13px}
 .community h3{margin:0 0 6px;font-size:1rem}
 .community p{margin:0;color:var(--silo-muted);font-size:13px;line-height:1.45}
 .diag{border-color:rgba(212,168,75,.35);background:linear-gradient(160deg,var(--silo-accent-soft),var(--silo-surface));padding:20px;border-radius:18px;border:1px solid}
@@ -36,84 +39,62 @@
 </head>
 <body class="silo-body">
 <header class="silo-hdr"><div class="silo-hdr-inner">
-  <a class="silo-logo" href="/mtg/">
+  <a class="silo-logo" id="siloLogo" href="/mtg/">
     <span class="silo-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8l8-5 8 5v8l-8 5-8-5V8z" stroke="#e8c87a" stroke-width="1.4"/></svg></span>
-    <span>Dream<em>Ledger</em> · Magic</span>
+    <span>Dream<em>Ledger</em> · <span id="brandShort">Magic</span></span>
   </a>
   <nav class="silo-nav">
-    <a href="/mtg-list">Sell single</a>
+    <a id="navList" href="/mtg-list">Sell single</a>
     <a href="#decks">Decks</a>
-    <a href="#community">Community</a>
+    <a id="navCommunity" href="#community">Community</a>
     <a href="/register">Join free</a>
-    <a class="silo-cta" href="/mtg-list">List free</a>
+    <a class="silo-cta" id="navCta" href="/mtg-list">List free</a>
   </nav>
 </div></header>
 <main class="silo-wrap">
   <section class="hero">
-    <p class="silo-eyebrow">Magic: The Gathering · New Zealand</p>
-    <span class="silo-pill silo-pill-gold">Singles first</span>
-    <span class="silo-pill silo-pill-ok">0% success fee</span>
-    <span class="silo-pill">Buy · sell · trade</span>
-    <h1 class="silo-display" style="margin-top:14px;max-width:16ch">Sell singles. See the card.</h1>
-    <p class="silo-lead">List a single with real Scryfall art, condition, and price. Browse decks when you want a whole pile. Free to list — no group gate.</p>
+    <p class="silo-eyebrow" id="eyebrow">Magic: The Gathering · New Zealand</p>
+    <div id="pills"><span class="silo-pill silo-pill-gold">Singles first</span><span class="silo-pill silo-pill-ok">0% success fee</span><span class="silo-pill">Buy · sell · trade</span></div>
+    <h1 class="silo-display" id="headline" style="margin-top:14px;max-width:16ch">Sell singles. See the card.</h1>
+    <p class="silo-lead" id="tagline">List a single with real card art, condition, and price. Browse decks when you want a whole pile. Free to list.</p>
     <div class="silo-actions">
-      <a class="silo-btn silo-btn-gold" href="/mtg-list">Sell a single</a>
-      <a class="silo-btn silo-btn-ghost" href="#decks">Browse decks</a>
-      <a class="silo-btn silo-btn-line" href="/register">Join free</a>
+      <a class="silo-btn silo-btn-gold" id="ctaPrimary" href="/mtg-list">Sell a single</a>
+      <a class="silo-btn silo-btn-ghost" id="ctaSecondary" href="#catalogue">Browse decks</a>
+      <a class="silo-btn silo-btn-line" id="ctaJoin" href="/register">Join free</a>
     </div>
   </section>
   <section class="silo-section" id="community">
-    <div class="silo-section-h"><h2 class="silo-h2">How this space works</h2></div>
-    <div class="community">
-      <article><h3>List a single</h3><p>Search the card, lock the art, set condition and NZD price. Buyers see a real face — not a blurry binder shot.</p></article>
-      <article><h3>Buy with eyes open</h3><p>Open lists for decks. Clear terms for singles. Confirm before you pay or ship.</p></article>
-      <article><h3>Trade carefully</h3><p>Accounts keep people reachable. Deals stay between humans who show up as themselves.</p></article>
-    </div>
+    <div class="silo-section-h"><h2 class="silo-h2" id="communityHeading">How this space works</h2></div>
+    <div class="community" id="communityGrid"></div>
   </section>
-  <section class="silo-section" id="decks">
-    <div class="silo-section-h"><h2 class="silo-h2">Decks for sale</h2></div>
+  <section class="silo-section" id="categoriesSection" hidden><div class="silo-section-h"><h2 class="silo-h2" id="categoriesHeading">Explore</h2></div><div id="categoriesGrid" class="category-grid"></div></section>
+  <section class="silo-section" id="catalogue">
+    <div class="silo-section-h"><h2 class="silo-h2" id="catalogueHeading">Decks for sale</h2></div>
     <div id="status" class="status-bar">Loading inventory…</div>
     <div id="grid" class="grid"></div>
   </section>
-  <section class="silo-section">
-    <div class="diag">
-      <p class="silo-eyebrow">Not a physical card</p>
-      <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
-      <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Optional — separate from singles.</p>
-      <a class="silo-btn silo-btn-gold" href="/mtg/diagnostic.html">Buy diagnostic</a>
-    </div>
-  </section>
+  <section class="silo-section" id="featuredSection" hidden><div id="featuredOffers" class="community"></div></section>
 </main>
 <footer class="silo-footer silo-wrap">
-  <a href="/">Home</a><a href="/mtg/">Magic</a><a href="/mtg-list">Sell single</a><a href="/register">Join</a>
-  <p style="margin-top:12px">DreamLedger Magic — singles first, decks welcome.</p>
+  <a href="/">Home</a><a href="/mtg/">Magic</a><a id="footList" href="/mtg-list">Sell single</a><a href="/register">Join</a>
+  <p id="footerCopy" style="margin-top:12px">DreamLedger Magic — singles first, decks welcome.</p>
 </footer>
 <script>
 (function(){
-const grid=document.getElementById('grid'), status=document.getElementById('status');
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
-async function load(){
-  try{
-    const r=await fetch('/data/mtg-catalog.json',{cache:'no-store'});
-    if(!r.ok)throw new Error('Catalogue unavailable');
-    const data=await r.json();
-    const decks=(data.products||[]).filter(isPhysical);
-    if(!decks.length){status.className='status-bar error';status.textContent='No physical decks listed yet.';return;}
-    status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open the listing to see the cards';
-    grid.innerHTML=decks.map(p=>{
-      const price=Number(p.price)||0;
-      const detail=p.detail_url||'#';
-      const inv=Number(p.inventory)>0;
-      let buy;
-      if(p.checkout_available&&p.checkout_url&&inv) buy='<a class="buy" href="'+esc(p.checkout_url)+'" target="_blank" rel="noopener">Buy · NZ$'+price+'</a>';
-      else if(inv) buy='<a class="buy" href="'+esc(detail)+'">See cards & buy · NZ$'+price+'</a>';
-      else buy='<a class="buy" href="'+esc(detail)+'" style="opacity:.6">View</a>';
-      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
-    }).join('');
-  }catch(e){status.className='status-bar error';status.textContent=e.message||'Load failed';}
-}
-load();
+const slug=document.documentElement.dataset.silo||'mtg',manifestUrl='/silos/'+encodeURIComponent(slug)+'/silo.json';
+const grid=document.getElementById('grid'),status=document.getElementById('status');
+function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n;}
+function internalPath(v){return typeof v==='string'&&v.startsWith('/')&&!v.startsWith('//');}
+function stripeUrl(v){return typeof v==='string'&&/^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/.test(v);}
+function link(id,v){const n=document.getElementById(id);if(n&&internalPath(v))n.href=v;}
+function pills(items){const h=document.getElementById('pills');h.replaceChildren();(items||[]).forEach((v,i)=>h.append(node('span','silo-pill'+(i===0?' silo-pill-gold':i===1?' silo-pill-ok':''),v)));}
+function cards(id,items,cls){const h=document.getElementById(id);h.replaceChildren();(items||[]).forEach(v=>{const a=node('article',cls||''),title=v.title||'',body=v.body||v.description||'';if(v.eyebrow)a.append(node('div','silo-eyebrow',v.eyebrow));if(title)a.append(node('h3','',title));if(body)a.append(node('p','',body));h.append(a);});}
+function categories(items){if(!Array.isArray(items)||!items.length)return;const section=document.getElementById('categoriesSection'),host=document.getElementById('categoriesGrid');section.hidden=false;host.replaceChildren();items.forEach(v=>{const a=node('article','category-card');if(v.eyebrow)a.append(node('div','silo-eyebrow',v.eyebrow));a.append(node('h3','',v.title||v.id||'Category'),node('p','',v.description||v.tag||''));host.append(a);});}
+function offers(items){const valid=(items||[]).filter(v=>v&&v.title&&v.cta&&internalPath(v.cta.href));if(!valid.length)return;const section=document.getElementById('featuredSection'),host=document.getElementById('featuredOffers');section.hidden=false;host.replaceChildren();valid.forEach(v=>{const a=node('article',''),btn=node('a','silo-btn silo-btn-gold',v.cta.label||'View details');btn.href=v.cta.href;a.append(node('h3','',v.title),node('p','',v.description||''),btn);host.append(a);});}
+function apply(m){const i=m.identity,s=m.surface||{};if(!i||i.slug!==slug)throw Error('Manifest identity mismatch');document.title=(i.display_name||slug)+' | DreamLedger';const d=document.querySelector('meta[name="description"]');if(d&&m.description)d.content=m.description;const can=document.querySelector('link[rel="canonical"]');if(can)can.href='https://dreamledger.org'+(i.canonical_path||'/'+slug+'/');document.documentElement.style.setProperty('--silo-accent',i.accent_color||'#d8b56b');document.documentElement.style.setProperty('--silo-accent-bright',i.accent_bright||i.accent_color||'#e8c87a');document.getElementById('brandShort').textContent=i.short_name||i.display_name||slug;document.getElementById('eyebrow').textContent=s.eyebrow||i.display_name||slug;document.getElementById('headline').textContent=s.headline||i.display_name||slug;document.getElementById('tagline').textContent=s.tagline||'Explore verified listings.';document.getElementById('communityHeading').textContent=s.community_heading||'How this space works';document.getElementById('catalogueHeading').textContent=s.catalogue_heading||'Published catalogue';document.getElementById('footerCopy').textContent=s.footer_copy||i.display_name+' · DreamLedger';pills(s.pills);cards('communityGrid',s.community_blocks,'');categories(s.categories||m.categories);offers(s.featured_offers);for(const id of ['navList','navCta','ctaPrimary','footList'])link(id,i.list_route);for(const [id,key] of [['ctaPrimary','primary_cta'],['ctaSecondary','secondary_cta'],['ctaJoin','join_cta']]){const n=document.getElementById(id),v=s[key];if(n&&v){n.textContent=v.label||n.textContent;if(internalPath(v.href))n.href=v.href;}}const logo=document.getElementById('siloLogo');if(logo)logo.href=i.canonical_path||'/'+slug+'/';const navList=document.getElementById('navList');if(navList)navList.textContent=(s.primary_cta&&s.primary_cta.label)||'List';const navCta=document.getElementById('navCta');if(navCta)navCta.textContent=(s.primary_cta&&s.primary_cta.label)||'Explore';}
+function render(items,m){grid.replaceChildren();const list=(items||[]).filter(p=>p&&p.silo===m.identity.slug&&p.status==='published');if(!list.length){status.textContent=(m.surface&&m.surface.empty_state)||'No verified supply listed yet. Inventory stays empty until verified.';return;}status.textContent=list.length+' published listing'+(list.length===1?'':'s');for(const p of list){const card=node('article','deck'),body=node('div','deck-body'),price=Number(p.price),priceText=Number.isFinite(price)&&price>=0?new Intl.NumberFormat('en-NZ',{style:'currency',currency:String(p.currency||m.identity.currency||'NZD').toUpperCase()}).format(price):'Price not supplied';card.append(node('div','deck-banner',p.category||p.format||'Published listing'));body.append(node('div','tag',p.commander||p.creator||p.category||'Listing'),node('h3','',p.name||p.title||'Untitled listing'),node('p','desc',p.description||''),node('div','price',priceText));const actions=node('div','actions'),detail=internalPath(p.detail_url)?p.detail_url:null;if(p.checkout_available===true&&stripeUrl(p.checkout_url)&&p.rights_status==='verified'&&p.delivery_status==='verified'){const a=node('a','buy','Buy · '+priceText);a.href=p.checkout_url;a.target='_blank';a.rel='noopener noreferrer';actions.append(a);}else if(detail){const a=node('a','buy','View listing');a.href=detail;actions.append(a);}else actions.append(node('span','buy','Checkout not verified'));if(detail){const a=node('a','see','View details');a.href=detail;actions.append(a);}body.append(actions);card.append(body);grid.append(card);}}
+async function boot(){try{const r=await fetch(manifestUrl,{cache:'no-store'});if(!r.ok)throw Error('Manifest unavailable');const m=await r.json();apply(m);const cr=await fetch(m.identity.catalog_path,{cache:'no-store'});if(!cr.ok)throw Error('Catalogue unavailable');const data=await cr.json();if(data.silo!==slug||!Array.isArray(data.products))throw Error('Catalogue silo/schema mismatch');render(data.products,m);}catch(e){status.className='status-bar error';status.textContent='This silo is held until its manifest and isolated catalogue verify. Checkout remains unavailable.';grid.replaceChildren();}}
+boot();
 })();
 </script>
 </body>
