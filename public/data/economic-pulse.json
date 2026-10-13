@@ -1,7 +1,7 @@
 {
   "schema": "DREAMLEDGER/ECONOMIC-PULSE/v1",
   "status": "UNVERIFIED_SUBSTRATE_SNAPSHOT",
-  "generated_at_utc": "2026-10-13T03:54:56+00:00",
+  "generated_at_utc": "2026-10-13T11:21:53+00:00",
   "truth": {
     "verified_external_revenue_nzd": 0,
     "settled_external_payments": 0,
@@ -9,6 +9,17 @@
     "verified_economic_outcomes": 0
   },
   "signals": [
+    {
+      "id": "54f40b67-c8e3-52bb-8f2b-f5dbcab4f3c1",
+      "type": "PUBLIC_ECONOMIC_SIGNAL",
+      "title": "Tokomaru Bay Landfill - Temporary Transfer Station Facility",
+      "status": "UNVERIFIED",
+      "source": "GETS",
+      "observed_at": "2026-10-13T11:21:49+00:00",
+      "url": "https://www.gets.govt.nz/GDC/ExternalTenderDetails.htm?id=34971380",
+      "category": "PROCUREMENT",
+      "public_route": "/economic/procurement-tokomaru-bay-landfill-temporary-transfer-station-facility-c8a820a4a7.html"
+    },
     {
       "id": "c8e38149-efe0-5443-9f65-d864b90d8725",
       "type": "PUBLIC_ECONOMIC_SIGNAL",

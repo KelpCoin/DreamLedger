@@ -1,7 +1,19 @@
 {
   "schema": "DREAMLEDGER/777/ECONOMIC-EVENT-MANIFEST/v1",
-  "updated_at_utc": "2026-10-13T03:54:56+00:00",
+  "updated_at_utc": "2026-10-13T11:21:53+00:00",
   "events": [
+    {
+      "source_type": "GETS",
+      "category": "PROCUREMENT",
+      "title": "Tokomaru Bay Landfill - Temporary Transfer Station Facility",
+      "url": "https://www.gets.govt.nz/GDC/ExternalTenderDetails.htm?id=34971380",
+      "observed_at": "2026-10-13T11:21:49+00:00",
+      "source_listing": "https://www.gets.govt.nz/ExternalIndex.htm",
+      "source_key": "c8a820a4a74c2b8a5b0fea68e22c1c12533f266e3e92ff35b0e9b9134d18ab45",
+      "event_id": "54f40b67-c8e3-52bb-8f2b-f5dbcab4f3c1",
+      "silo_id": "ECO-C8A820A4A74C2B8A",
+      "slug": "procurement-tokomaru-bay-landfill-temporary-transfer-station-facility-c8a820a4a7"
+    },
     {
       "source_type": "GETS",
       "category": "PROCUREMENT",
