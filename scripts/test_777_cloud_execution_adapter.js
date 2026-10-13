@@ -13,7 +13,11 @@ assert.match(adapter, /if \(!skipModels && !selected && process\.env\.CLOUD_ELOH
 assert.match(adapter, /if \(!skipModels && !selected && process\.env\.VERCEL_AI_GATEWAY_URL/);
 assert.match(adapter, /if \(!skipModels && !selected && process\.env\.ELOHIM_FALLBACK_URL/);
 assert.match(adapter, /if \(!skipModels && !selected && process\.env\.LM_STUDIO_URL/);
-assert.match(adapter, /if \(!skipModels && preferLocalGpu && process\.env\.LM_STUDIO_URL/);
+assert.match(adapter, /if \(!skipModels && preferLocalGpu && localGpu/);
+assert.match(adapter, /function localGpuConfig\(\)/);
+assert.match(adapter, /if \(!endpoint \|\| !apiKey\) return null/);
+assert.match(adapter, /parsed\.protocol !== 'https:'/);
+assert.match(adapter, /local_gpu_authenticated_https_ready: Boolean\(localGpu\)/);
 assert.match(adapter, /model_execution_allowed: !skipModels/);
 assert.match(adapter, /fs\.readdirSync\(PULSE_DIR/);
 assert.match(workflow, /DREAMLEDGER_777_OUTPUT_DIR: artifacts\/777\/internal/);
