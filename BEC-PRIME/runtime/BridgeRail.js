@@ -16,17 +16,18 @@ function restPath(table,params){const q=new URLSearchParams();for(const [k,v] of
 async function currentLease(jobId){const rows=await supabase(restPath('jobs',{id:`eq.${jobId}`,select:'id,status,worker_id,lease_token,leased_until',limit:1}));return Array.isArray(rows)&&rows.length?rows[0]:null;}
 async function findStageEvent(eventId){const rows=await supabase(`control_bridge_notes?note_type=eq.STRUCTURED_EVENT&event_id=eq.${encodeURIComponent(eventId)}&select=note_id,body&limit=1`);if(!Array.isArray(rows)||!rows.length)return null;try{return {note_id:rows[0].note_id,body:JSON.parse(rows[0].body||'{}')}}catch{return {note_id:rows[0].note_id,body:null}}}
 function normalizeClaimed(raw){
-  if(!raw) return null;
-  if(Array.isArray(raw)) return raw[0]||null;
-  if(raw.claim_job && typeof raw.claim_job==='object') return Array.isArray(raw.claim_job)?(raw.claim_job[0]||null):raw.claim_job;
-  if(raw.data){
-    if(Array.isArray(raw.data)) return raw.data[0]||null;
-    if(typeof raw.data==='object') return raw.data;
+  if(raw==null) return null;
+  if(Array.isArray(raw)) return raw.length?normalizeClaimed(raw[0]):null;
+  if(typeof raw!=='object') return null;
+  for(const wrapper of ['claim_job','data','result','job']){
+    if(!Object.prototype.hasOwnProperty.call(raw,wrapper)) continue;
+    const value=raw[wrapper];
+    if(value==null) return null;
+    if(Array.isArray(value)) return value.length?normalizeClaimed(value[0]):null;
+    if(typeof value==='object') return normalizeClaimed(value);
   }
-  if(raw.result){
-    if(Array.isArray(raw.result)) return raw.result[0]||null;
-    if(typeof raw.result==='object') return raw.result;
-  }
+  const status=String(raw.status||'').trim().toUpperCase();
+  if(!raw.id&&!raw.job_id&&['IDLE','NO_JOB','NO_WORK','EMPTY','NOT_FOUND'].includes(status)) return null;
   return raw;
 }
 async function leaseJob(workerId){const rawClaimed=await supabase('rpc/claim_job',{method:'POST',body:JSON.stringify({p_worker_id:String(workerId),p_lease_seconds:LEASE_TTL_SECONDS})});const claimed=normalizeClaimed(rawClaimed);if(!claimed)return null;const now=new Date(),expires=new Date(claimed.leased_until||now.getTime()+LEASE_TTL_SECONDS*1000),leaseId=`LEASE_${crypto.randomUUID()}`;let payload=claimed.payload&&typeof claimed.payload==='object'?claimed.payload:{};let jobId=String(claimed.id||claimed.job_id||'').trim();if(!jobId){const leased=await supabase(restPath('jobs',{worker_id:`eq.${workerId}`,status:'eq.leased',leased_until:`gt.${now.toISOString()}`,select:'id,status,worker_id,lease_token,leased_until,payload,type',order:'started_at.desc,id.desc',limit:1}));const recovered=Array.isArray(leased)?leased[0]:null;jobId=String(recovered&& (recovered.id||recovered.job_id)||'').trim();if(recovered){Object.assign(claimed,recovered);payload=claimed.payload&&typeof claimed.payload==='object'?claimed.payload:payload;}}if(!jobId)throw Object.assign(new Error('claim_job returned a lease without a recoverable job id'),{statusCode:500});const envelope={schema_version:RAIL_SCHEMA,lease_id:leaseId,job_id:jobId,worker_id:String(workerId),lease_token:String(claimed.lease_token),issued_at:now.toISOString(),expires_at:expires.toISOString(),objective:String(payload.mission||payload.objective||claimed.type||'worker task'),silo_id:String(payload.silo_id||'SILO_GENERAL')};const signature=sign(envelope);await durableNote('system',String(workerId),`BRIDGE_LEASE:${leaseId}`,{rail_schema:RAIL_SCHEMA,stage:'LEASE_ISSUED',...envelope,signature},leaseId);return {envelope,signature,job:claimed};}
