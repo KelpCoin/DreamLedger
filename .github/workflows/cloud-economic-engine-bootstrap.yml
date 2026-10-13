@@ -37,13 +37,11 @@ jobs:
           node scripts/test_777_cloud_execution_adapter.js
           node scripts/test_cloud_economic_engine_bootstrap.js
       - name: Run public demand sensor in read-only mode
-        if: github.event_name == 'pull_request'
         run: |
           mkdir -p artifacts/777/bootstrap
           python scripts/777_cycle.py --local > artifacts/777/bootstrap/public-signal-batch.json
           python -m json.tool artifacts/777/bootstrap/public-signal-batch.json > /dev/null
       - name: Run private deterministic Gauntlet
-        if: github.event_name == 'pull_request'
         env:
           DREAMLEDGER_777_SKIP_MODELS: 'true'
           DREAMLEDGER_777_OUTPUT_DIR: artifacts/777/internal
@@ -58,6 +56,35 @@ jobs:
       - name: Probe public cloud surfaces (PR-safe, read-only)
         if: github.event_name == 'pull_request'
         run: node scripts/cloud_economic_engine_bootstrap.js --public-only
+      - name: Summarize source evidence without exposing source text
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, "scripts")
+          from qualified_buyer_intent import classify_signal
+          batch_path = Path("artifacts/777/bootstrap/public-signal-batch.json")
+          report_path = Path("artifacts/777/bootstrap/commissioning-report.json")
+          batch = json.loads(batch_path.read_text(encoding="utf-8"))
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          signals = batch.get("signals", [])
+          verdicts = [classify_signal(item)["status"] for item in signals]
+          errors = batch.get("source_errors", [])
+          report["demand_sensor"] = {
+              "status": "UNKNOWN" if errors else "PASS",
+              "discovery_signals_count": len(signals),
+              "qualified_buyer_intent_count": sum(1 for value in verdicts if value == "QUALIFIED_BUYER_INTENT"),
+              "discovery_only_count": sum(1 for value in verdicts if value == "DISCOVERY_ONLY"),
+              "unknown_count": sum(1 for value in verdicts if value == "UNKNOWN"),
+              "source_error_count": len(errors),
+              "source_error_types": sorted({str(value).split(":")[0] for value in errors}),
+              "public_artifacts_created_by_sensor": 0,
+          }
+          report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(report["demand_sensor"], indent=2))
+          PY
+
       - name: Retain commissioning evidence
         if: always()
         uses: actions/upload-artifact@v4
