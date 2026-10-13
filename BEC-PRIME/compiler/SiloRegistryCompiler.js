@@ -31,10 +31,11 @@ function compile(checkOnly=false){
  }
  for(const manifest of manifests)upsert(manifest);
  const clones=(tcg.silos||[]).filter(s=>s.status==='clone'&&s.slug!=='mtg');
+ const previousTcgIds=Object.entries(registry.silos).filter(([key])=>key.startsWith('TCG_')).map(([,value])=>value.id);
  const cloneKeys=new Set(clones.map(s=>'TCG_'+s.slug.toUpperCase()));
  for(const key of Object.keys(registry.silos))if(key.startsWith('TCG_')&&!cloneKeys.has(key))delete registry.silos[key];
  const cloneIds=new Set(clones.map(s=>'dreamledger-'+s.slug));
- for(const key of Object.keys(policy.rules))if(key.startsWith('dreamledger-')&&key!=='dreamledger-mtg'&&key!=='dreamledger-music-media'&&!cloneIds.has(key)&&['dreamledger-pokemon','dreamledger-onepiece','dreamledger-yugioh','dreamledger-lorcana','dreamledger-riftbound','dreamledger-gundam','dreamledger-digimon'].includes(key))delete policy.rules[key];
+ for(const id of previousTcgIds)if(id&&!cloneIds.has(id))delete policy.rules[id];
  for(const s of clones){
   if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s.slug)||s.route!=='/'+s.slug+'/')throw Error('Invalid TCG route '+s.slug);
   const key='TCG_'+s.slug.toUpperCase(),id='dreamledger-'+s.slug,route='/'+s.slug;
