@@ -13,6 +13,8 @@ function compile(checkOnly=false){
  const manifestPaths=fs.readdirSync(manifestDir,{withFileTypes:true}).filter(d=>d.isDirectory()).map(d=>'silos/'+d.name+'/silo.json').filter(p=>fs.existsSync(path.join(ROOT,p))).sort();
  if(!manifestPaths.includes(MASTER)||!manifestPaths.includes(requestedPath))throw Error('Requested manifest must be a canonical silo contract');
  const manifests=manifestPaths.map(read);
+ const slugs=manifests.map(m=>m.identity&&m.identity.slug),keys=manifests.map(m=>m.silo_key||(m.identity.slug==='mtg'?'MTG':String(m.identity.slug).toUpperCase())),routes=manifests.map(m=>m.identity&&m.identity.canonical_path);
+ if(new Set(slugs).size!==slugs.length||new Set(keys).size!==keys.length||new Set(routes).size!==routes.length)throw Error('Duplicate silo slug, key, or route');
  const registry=read('docs/BECK-EMPIRE-SILO-REGISTRY.json');
  const policy=read('docs/BECK-SILO-FEE-POLICY.json');
  registry.silos=registry.silos||{};policy.rules=policy.rules||{};
