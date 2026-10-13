@@ -146,7 +146,20 @@ async function loadCatalog(manifest){
       const detail=p.detail_url||'#';
       const inv=Number(p.inventory)>0;
       const buy=inv
-        ? '<a class="buy" href="'+esc(detail)+'">See cards & buy · NZ$'+price+'</a>'
+        ? '<a class="buy" href="'+esc(detail)+'">'+(p.sale_mode==='claim_by_message'?'See cards & claim':'See cards & buy')+' · NZ
+      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+    }).join('');
+  }catch(e){
+    status.className='status-bar error';
+    status.textContent=e.message||'Load failed';
+  }
+}
+applyManifest().then(loadCatalog);
+})();
+</script>
+</body>
+</html>
++price+'</a>'
         : '<a class="buy" href="'+esc(detail)+'" style="opacity:.6">View</a>';
       return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
     }).join('');
