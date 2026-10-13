@@ -31,6 +31,15 @@ jobs:
           echo "health_http=$code" >> "$GITHUB_OUTPUT"
           cat /tmp/health.txt || true
 
+      - name: Check gateway version endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --retry 3 --retry-delay 3 --retry-all-errors --output /tmp/version.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/version)"
+          test "$code" = "200"
+          echo "version_http=$code"
+          cat /tmp/version.txt || true
+
       - name: Check canonical public Truth Oracle page
         shell: bash
         run: |

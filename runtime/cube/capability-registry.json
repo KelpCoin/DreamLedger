@@ -1,0 +1,91 @@
+{
+  "$schema": "dreamledger/cube-capability-registry/v1",
+  "policy": "References resolve to registry entries; only VERIFIED entries may be activated. Presence of code or a manifest ref is not proof of operational readiness.",
+  "capabilities": {
+    "stripe-checkout-standard": {
+      "status": "UNVERIFIED",
+      "activation_ready": false,
+      "required_evidence": [
+        "Stripe secret exists without exposure",
+        "safe initialization test",
+        "canonical offer/payment-link parity",
+        "settlement webhook proof",
+        "idempotent ledger write"
+      ]
+    },
+    "manual-ship-or-digital": {
+      "status": "UNVERIFIED",
+      "activation_ready": false,
+      "required_evidence": [
+        "per-order entitlement or shipping record",
+        "fulfilment acceptance",
+        "delivery evidence",
+        "refund/dispute path"
+      ]
+    },
+    "evidence-ed25519": {
+      "status": "UNVERIFIED",
+      "activation_ready": false,
+      "required_evidence": [
+        "verified signer/key registry",
+        "signature validation test",
+        "durable evidence chain"
+      ]
+    },
+    "gauntlet-five-judges": {
+      "status": "IMPLEMENTATION_PRESENT_UNVERIFIED",
+      "activation_ready": false,
+      "implementation_paths": [
+        "BEC-PRIME/gauntlet/CandidateGauntlet.js"
+      ],
+      "required_evidence": [
+        "independent labelled evaluation",
+        "TPR/TNR report",
+        "commit-bound test evidence"
+      ]
+    },
+    "local-heartbeat-v1": {
+      "status": "UNVERIFIED",
+      "activation_ready": false,
+      "required_evidence": [
+        "observed local heartbeat",
+        "correlation ID",
+        "stale/offline behavior test"
+      ]
+    },
+    "community-bridge-patreon-discord": {
+      "status": "NOT_IMPLEMENTED",
+      "activation_ready": false,
+      "required_evidence": [
+        "verified Patreon event source",
+        "idempotent entitlement ledger",
+        "approval-gated Discord role adapter",
+        "revocation/replay tests",
+        "invocation evidence"
+      ]
+    },
+    "mtg-listing-v1": {
+      "status": "DRAFT_ONLY",
+      "activation_ready": false,
+      "implementation_paths": [
+        "public/mtg-list.html"
+      ],
+      "required_evidence": [
+        "authenticated seller listing persistence",
+        "server-side moderation",
+        "published listing read-back",
+        "verified supply"
+      ]
+    },
+    "universal-listing-v1": {
+      "status": "NOT_IMPLEMENTED",
+      "activation_ready": false,
+      "required_evidence": [
+        "isolated listing API",
+        "seller authorization",
+        "catalogue persistence",
+        "publication gate"
+      ]
+    }
+  }
+}

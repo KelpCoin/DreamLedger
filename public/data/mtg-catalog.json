@@ -61,24 +61,6 @@
       "detail_url": "/buy/edh-0001/",
       "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20EDH_0001%20Commander%20deck%20NZ%24400&body=I%20want%20to%20buy%20EDH_0001%20(NZ%24400).",
       "commander": "See listing"
-    },
-    {
-      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "sku": "CMD-DIAG-29",
-      "name": "Commander Deck Diagnostic",
-      "description": "Digital first-pass structural review of your Commander list. Not a physical deck.",
-      "price": 29,
-      "currency": "NZD",
-      "status": "published",
-      "inventory": 999,
-      "condition": "Digital product",
-      "silo": "mtg",
-      "category": "digital-service",
-      "sale_mode": "checkout",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
-      "detail_url": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "commander": null
     }
   ]
 }

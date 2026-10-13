@@ -1,86 +1,111 @@
 {
-  "schema": "BEC-PRIME/CUBE-CLONE-MANIFEST/v1",
-  "source_contract": "BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json",
-  "factory_contract": "BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json",
-  "slug": "mtg",
-  "name": "Magic: The Gathering",
-  "short": "Magic",
-  "tagline": "Singles and decks — see the cards, then deal.",
-  "accent": "#d8b56b",
-  "accent_bright": "#e8c87a",
-  "route": "/mtg/",
-  "list_route": "/mtg-list",
-  "catalog": "/data/mtg-catalog.json",
-  "manifest_path": "/silos/mtg/silo.json",
-  "neutral_host": "dreamledger",
-  "status": "live_candidate",
-  "isolation": {
-    "catalog": true,
-    "checkout": true,
-    "analytics": true,
-    "customer_data": true,
-    "content": true,
-    "promotion": true
+  "$schema": "dreamledger/silo-clone/v1",
+  "contracts": {
+    "clone": "CUBE-CLONE-CONTRACT",
+    "factory": "CUBE-SILO-FACTORY-CONTRACT"
   },
-  "capabilities_by_ref": ["catalog", "gauntlet", "commerce-spine", "news-carousel", "fossil"],
-  "inventory_policy": "empty_until_verified_supply",
-  "payment_truth": "settled_payment_only",
-  "browse_free": true,
-  "account_to_sell": true,
-  "success_fee_peer": 0,
-  "currency": "NZD",
-  "listing_template_ref": "AGENT_BUS/SILOS/MTG-LISTING-TEMPLATE.md",
-  "listing_fields_required": ["title", "condition", "finish", "price_nzd", "city", "meetup_or_post"],
-  "listing_fields_optional": ["photos", "language", "quantity", "bundle_discount", "trades_wanted"],
-  "product_kinds": [
-    {"id": "single", "label": "Single", "primary": true},
-    {"id": "commander-deck", "label": "Commander deck", "detail_pattern": "/mtg/{slug}.html", "grid_capability": "card_image_grid"}
-  ],
-  "clone": {
-    "rule": "Clone shell + capability bindings. Never copy inventory. Never invent templates outside factory.",
-    "steps": [
-      "Copy public/silos/mtg/silo.json to public/silos/{slug}/silo.json",
-      "Set slug, name, short, accent, routes, catalog path",
-      "Create empty catalog public/data/{slug}-catalog.json with products: []",
-      "Point public/{slug}/index.html at silo-master.css + new manifest path",
-      "Cube compile_candidate then gauntlet_check then publish_approval_gate",
-      "Activate only with verified supply atom and buyer path"
-    ],
-    "replace_tokens": {
-      "{{SILO_SLUG}}": "slug",
-      "{{SILO_NAME}}": "name",
-      "{{SILO_SHORT}}": "short",
-      "{{SILO_TAGLINE}}": "tagline",
-      "{{SILO_ACCENT}}": "accent",
-      "{{SILO_ROUTE}}": "route",
-      "{{SILO_LIST_ROUTE}}": "list_route",
-      "{{SILO_CATALOG}}": "catalog"
-    },
-    "do_not_copy": ["product inventory rows", "customer data", "stripe credentials", "analytics identities", "other silo promotion"]
+  "identity": {
+    "slug": "mtg",
+    "display_name": "Magic: The Gathering",
+    "short_name": "Magic",
+    "accent_color": "#d8b56b",
+    "accent_bright": "#e8c87a",
+    "list_route": "/mtg-list",
+    "catalog_path": "/data/mtg-catalog.json",
+    "canonical_path": "/mtg/",
+    "currency": "NZD",
+    "platform_fee_bps": 0
   },
-  "gauntlet": {
-    "accept_when": [
-      "manifest validates against clone schema",
-      "catalog empty or every product has verified supply fields",
-      "list path works without cross-silo data",
-      "no revenue claim without settled payment evidence",
-      "public copy has no internal control-plane language"
-    ],
-    "reject_when": [
-      "inventory invented without supply atom",
-      "cross-silo customer or catalog bleed",
-      "template invented outside factory contracts",
-      "activation without publish_approval_gate"
-    ]
+  "capabilities": {
+    "payment": "ref:stripe-checkout-standard",
+    "fulfillment": "ref:manual-ship-or-digital",
+    "evidence": "ref:evidence-ed25519",
+    "gauntlet": "ref:gauntlet-five-judges",
+    "recovery": "ref:local-heartbeat-v1",
+    "community": "ref:community-bridge-patreon-discord",
+    "listing": "ref:mtg-listing-v1"
+  },
+  "inventory_policy": {
+    "initial_state": "existing-catalogue-only",
+    "verified_supply_required": true,
+    "allow_invented_products": false,
+    "allow_direct_checkout_without_verified_link": false
   },
   "surface": {
-    "hero_pills": ["Singles first", "0% success fee", "See the cards"],
-    "primary_cta": {"label": "Sell a single", "href_key": "list_route"},
-    "secondary_cta": {"label": "Browse decks", "href": "#decks"},
+    "eyebrow": "Magic: The Gathering · New Zealand",
+    "headline": "Sell singles. See the card.",
+    "tagline": "List a single with real card art, condition, and price. Browse decks when you want a whole pile. Free to list.",
+    "pills": [
+      "Singles first",
+      "0% success fee",
+      "Buy · sell · trade"
+    ],
+    "primary_cta": {
+      "label": "Sell a single",
+      "href": "/mtg-list"
+    },
+    "secondary_cta": {
+      "label": "Browse decks",
+      "href": "#catalogue"
+    },
+    "join_cta": {
+      "label": "Join free",
+      "href": "/register"
+    },
+    "community_heading": "How this space works",
     "community_blocks": [
-      {"title": "List a single", "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."},
-      {"title": "Buy with eyes open", "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."},
-      {"title": "Trade carefully", "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."}
+      {
+        "title": "List a single",
+        "body": "Search the card, lock the art, set condition and NZD price. Buyers see a real card face, not a blurry binder shot."
+      },
+      {
+        "title": "Buy with eyes open",
+        "body": "Open listings show details and clear terms. Confirm before you pay or ship."
+      },
+      {
+        "title": "Trade carefully",
+        "body": "Accounts keep people reachable. Deals stay between people who show up as themselves."
+      }
+    ],
+    "catalogue_heading": "Decks for sale",
+    "empty_state": "No verified supply listed yet. Inventory stays empty until supply is verified.",
+    "featured_offers": [],
+    "footer_copy": "DreamLedger Magic · singles first, decks welcome."
+  },
+  "listing_fields": "ref:MTG-LISTING-TEMPLATE",
+  "clone_steps": [
+    "copy silo manifest and replace identity/surface fields only",
+    "copy data/_catalog-empty.template.json to the clone catalogue",
+    "copy public/mtg/index.html unchanged except data-silo slug",
+    "compile registry and fee policy from the same manifest",
+    "run CUBE clone verifier and Gauntlet",
+    "keep candidate hidden until explicit publish approval"
+  ],
+  "do_not_copy": [
+    "inventory",
+    "revenue_claims",
+    "payment_links",
+    "seller_identity",
+    "secrets",
+    "custom_capabilities",
+    "activation_status"
+  ],
+  "gauntlet": {
+    "accept_if": [
+      "all capability refs resolve",
+      "catalogue belongs only to clone slug",
+      "catalogue starts empty unless supply has independent evidence",
+      "generated shell matches MTG master except declared slug",
+      "checkout remains disabled without verified Stripe mapping, rights, settlement, fulfilment and delivery evidence"
+    ],
+    "reject_if": [
+      "invented inventory",
+      "cross-silo catalogue data",
+      "missing capability ref",
+      "hardcoded cross-silo checkout",
+      "unverified economic claims",
+      "unapproved publication"
     ]
-  }
+  },
+  "description": "A Magic: The Gathering marketplace for real card listings and decks. Listings, checkout, and delivery remain evidence-gated."
 }

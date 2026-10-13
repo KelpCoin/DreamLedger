@@ -1,0 +1,167 @@
+{
+  "$schema": "dreamledger/silo-clone/v1",
+  "contracts": {
+    "clone": "CUBE-CLONE-CONTRACT",
+    "factory": "CUBE-SILO-FACTORY-CONTRACT"
+  },
+  "identity": {
+    "slug": "music-media",
+    "display_name": "Music & Media",
+    "short_name": "Media",
+    "accent_color": "#c5a8ff",
+    "accent_bright": "#d8c5ff",
+    "list_route": "#decks",
+    "catalog_path": "/data/music-media-catalog.json",
+    "canonical_path": "/music-media/",
+    "currency": "NZD",
+    "platform_fee_bps": 500
+  },
+  "description": "A focused marketplace for independent music releases, film, physical media and creator editions. Rights, checkout and delivery status stay visible.",
+  "capabilities": {
+    "payment": "ref:stripe-checkout-standard",
+    "fulfillment": "ref:manual-ship-or-digital",
+    "evidence": "ref:evidence-ed25519",
+    "gauntlet": "ref:gauntlet-five-judges",
+    "recovery": "ref:local-heartbeat-v1",
+    "community": "ref:community-bridge-patreon-discord",
+    "listing": "ref:universal-listing-v1"
+  },
+  "inventory_policy": {
+    "initial_state": "empty",
+    "verified_supply_required": true,
+    "allow_invented_products": false,
+    "allow_direct_checkout_without_verified_link": false
+  },
+  "surface": {
+    "eyebrow": "Music · Film · Physical media · Creator editions",
+    "headline": "Sound, stories, and things worth keeping.",
+    "tagline": "A focused home for independent releases and collectible media. Preview what you can, see exactly what is included, and buy only when rights, checkout, and delivery are ready. No ghost listings. No mystery files.",
+    "pills": [
+      "Rights first",
+      "Clear deliverables",
+      "Delivery evidence"
+    ],
+    "primary_cta": {
+      "label": "Browse releases",
+      "href": "#decks"
+    },
+    "secondary_cta": {
+      "label": "Creator onboarding",
+      "href": "/register"
+    },
+    "join_cta": {
+      "label": "Join free",
+      "href": "/register"
+    },
+    "community_heading": "A clean release, from rights to delivery",
+    "community_blocks": [
+      {
+        "title": "Rights before listing",
+        "body": "Publish only when ownership, distribution permission, credits, and allowed uses are documented."
+      },
+      {
+        "title": "Exact deliverables",
+        "body": "Buyers see the format, edition, runtime or track list, delivery method, and refund terms before checkout."
+      },
+      {
+        "title": "Patreon + Discord, by approval",
+        "body": "Community access and creator perks are reusable capabilities, triggered only by verified entitlements and idempotent settlement evidence."
+      }
+    ],
+    "categories": [
+      {
+        "id": "audio",
+        "eyebrow": "01 / AUDIO",
+        "tag": "Vinyl · CD · cassette · digital",
+        "title": "Music releases",
+        "description": "Albums, singles, mixes, live sessions, and physical editions with artist credits, track lists, formats, and preview links where available."
+      },
+      {
+        "id": "screen",
+        "eyebrow": "02 / SCREEN",
+        "tag": "Film · video · visual",
+        "title": "Screen & moving image",
+        "description": "Independent film, visualizers, short-form work, and behind-the-scenes editions with runtime, captions, and playback details."
+      },
+      {
+        "id": "print",
+        "eyebrow": "03 / PRINT",
+        "tag": "Posters · zines · artwork",
+        "title": "Physical media & art",
+        "description": "Posters, zines, printed editions, and media collectibles with condition, edition details, shipping, and return terms."
+      },
+      {
+        "id": "creator",
+        "eyebrow": "04 / CREATOR",
+        "tag": "Stems · packs · project files",
+        "title": "Creator editions",
+        "description": "Licensed stems, sample packs, artwork bundles, and project files with explicit usage rights and exact deliverables."
+      },
+      {
+        "id": "archive",
+        "eyebrow": "05 / ARCHIVE",
+        "tag": "Owned physical copies",
+        "title": "Collectible media",
+        "description": "Physical editions can be resold when the seller has the item and can accurately describe its condition and fulfilment."
+      },
+      {
+        "id": "services",
+        "eyebrow": "06 / SERVICES",
+        "tag": "Mixing · mastering · editing",
+        "title": "Creative services",
+        "description": "Bounded services with scope, deliverables, revision limits, timeline, and acceptance criteria stated before checkout."
+      }
+    ],
+    "catalogue_heading": "Published catalogue",
+    "empty_state": "No verified releases are published yet. Inventory stays empty until supply and rights are verified.",
+    "featured_offers": [],
+    "footer_copy": "Music & Media · independent releases, rights, and delivery evidence."
+  },
+  "listing_fields": "ref:UNIVERSAL-MEDIA-LISTING-TEMPLATE",
+  "clone_steps": [
+    "clone the MTG master shell without creating a new HTML template",
+    "replace only the silo slug and supply this manifest",
+    "copy data/_catalog-empty.template.json to the isolated catalogue",
+    "compile registry and fee policy from the same manifest",
+    "run CUBE clone verifier and Gauntlet",
+    "publish only after explicit approval and verified supply"
+  ],
+  "do_not_copy": [
+    "inventory",
+    "revenue_claims",
+    "payment_links",
+    "seller_identity",
+    "secrets",
+    "custom_capabilities",
+    "activation_status"
+  ],
+  "gauntlet": {
+    "accept_if": [
+      "all capability refs resolve",
+      "catalogue belongs only to music-media",
+      "catalogue starts empty",
+      "generated shell matches MTG master except slug",
+      "rights, checkout, settlement, fulfilment and delivery gates are fail-closed"
+    ],
+    "reject_if": [
+      "invented inventory",
+      "cross-silo catalogue data",
+      "missing capability ref",
+      "unapproved external side effect",
+      "unverified economic claim",
+      "unapproved publication"
+    ]
+  },
+  "cross_silo_forbidden_domains": [
+    "amplissa.com"
+  ],
+  "cross_silo_forbidden_terms": [
+    "MTG",
+    "Magic: The Gathering",
+    "Commander",
+    "adult content",
+    "18+ content"
+  ],
+  "status": "build",
+  "first_dollar_priority": 6
+}
