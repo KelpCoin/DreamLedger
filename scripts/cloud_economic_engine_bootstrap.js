@@ -96,7 +96,12 @@ async function probeStripe(env = process.env, fetchImpl = fetch) {
     };
     const webhooks = webhookResponse.payload.data || [], links = linksResponse.payload.data || [];
     const canonical = webhooks.find(item => String(item.url || '').includes(CANONICAL_REVENUE_FUNCTION));
-    const commander = links.find(item => item.id === COMMANDER_LINK_ID);
+    const commanderLinks = links.filter(item => {
+      const skuValues = [item.metadata?.dreamledger_sku, item.metadata?.sku_id, item.metadata?.sku]
+        .map(value => String(value || '').trim().toUpperCase());
+      return item.id === COMMANDER_LINK_ID || skuValues.includes('CMD-DIAG-29') || skuValues.includes('COMMANDER-DECK-DIAGNOSTIC-001');
+    });
+    const commander = commanderLinks.find(item => item.id === COMMANDER_LINK_ID) || commanderLinks[0] || null;
     const canonicalState = !canonical
       ? 'MISSING'
       : (canonical.status === 'disabled' || canonical.disabled_reason)
@@ -105,11 +110,23 @@ async function probeStripe(env = process.env, fetchImpl = fetch) {
           ? 'ENABLED'
           : 'UNVERIFIED';
     const commanderState = !commander ? 'MISSING_OR_INACTIVE' : 'ACTIVE';
+    const sessionResponses = await Promise.all(commanderLinks.map(item =>
+      stripeGet('checkout/sessions?payment_link=' + encodeURIComponent(item.id) + '&limit=100', key, fetchImpl)
+    ));
+    const sessionProbeOk = commanderLinks.length > 0 && sessionResponses.every(item => item.ok);
+    const sessions = sessionResponses.flatMap(item => item.ok ? (item.payload.data || []) : []);
+    const paidLiveSessions = sessions.filter(item => item.livemode === true && item.payment_status === 'paid').length;
+    const unpaidLiveSessions = sessions.filter(item => item.livemode === true && item.payment_status !== 'paid').length;
     return {
-      status: canonicalState === 'ENABLED' && commanderState === 'ACTIVE' && mode === 'LIVE' ? 'PASS' : 'BLOCKED',
+      status: canonicalState === 'ENABLED' && commanderState === 'ACTIVE' && mode === 'LIVE' && sessionProbeOk ? 'PASS' : 'BLOCKED',
       mode, canonical_revenue_webhook: canonicalState,
       canonical_webhook_disabled_reason: canonical ? (canonical.disabled_reason || null) : null,
-      commander_payment_link: commanderState, active_payment_link_count: links.length,
+      commander_payment_link: commanderState, commander_payment_link_count: commanderLinks.length,
+      active_payment_link_count: links.length,
+      commander_session_probe_status: sessionProbeOk ? 'PASS' : (commanderLinks.length ? 'FAIL' : 'UNVERIFIED_NO_MATCHING_LINK'),
+      commander_checkout_sessions_sampled: sessions.length,
+      commander_paid_live_sessions_count: paidLiveSessions,
+      commander_unpaid_live_sessions_count: unpaidLiveSessions,
     };
   } catch (error) {
     return {
