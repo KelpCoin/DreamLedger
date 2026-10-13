@@ -69,17 +69,7 @@
     ],
     "catalogue_heading": "Decks for sale",
     "empty_state": "No verified supply listed yet. Inventory stays empty until supply is verified.",
-    "featured_offers": [
-      {
-        "title": "Commander diagnostic",
-        "description": "Digital structure review. Separate from physical cards.",
-        "cta": {
-          "label": "View diagnostic",
-          "href": "/mtg/diagnostic.html"
-        },
-        "checkout_enabled": false
-      }
-    ],
+    "featured_offers": [],
     "footer_copy": "DreamLedger Magic · singles first, decks welcome."
   },
   "listing_fields": "ref:MTG-LISTING-TEMPLATE",
