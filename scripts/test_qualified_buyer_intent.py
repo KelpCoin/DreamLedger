@@ -46,5 +46,16 @@ class QualifiedBuyerIntentTests(unittest.TestCase):
         self.assertEqual(receipt["qualified_intent_count"], 0)
 
 
+    def test_777_cycle_uses_gate_and_has_no_generic_public_fallback(self):
+        from pathlib import Path
+
+        cycle = Path(__file__).with_name("777_cycle.py").read_text(encoding="utf-8")
+        self.assertIn("from scripts.qualified_buyer_intent import classify_signal", cycle)
+        self.assertIn('item.get("qualification_status") == "QUALIFIED_BUYER_INTENT"', cycle)
+        self.assertIn('"public_artifacts_created": 0', cycle)
+        self.assertNotIn("777-component-", cycle)
+        self.assertNotIn("Agent Bridge capability map (catalogue candidates; settlement unverified)", cycle)
+
+
 if __name__ == "__main__":
     unittest.main()
