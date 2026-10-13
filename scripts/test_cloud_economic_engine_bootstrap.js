@@ -28,9 +28,15 @@ async function main() {
     mode: 'public-only',
     env: {},
     reportPath,
-    fetchImpl: async url => new Response('', { status: 200, headers: { 'content-type': 'text/plain' } }),
+    fetchImpl: async url => {
+      if (String(url).includes('marketplace-diagnostic-delivery')) return new Response('Missing session_id', { status: 400 });
+      if (String(url).includes('marketplace-diagnostic-input')) return new Response('POST required', { status: 405 });
+      return new Response('', { status: 200, headers: { 'content-type': 'text/plain' } });
+    },
   });
   assert.equal(publicReport.status, 'PUBLIC_SURFACES_PASS_COMMERCE_UNVERIFIED');
+  assert.equal(publicReport.public_surfaces.length, 6);
+  assert.ok(publicReport.public_surfaces.every(item => item.status === 'PASS'));
   assert.equal(publicReport.economic_truth.verified_external_revenue_nzd, 0);
   assert.ok(fs.existsSync(reportPath));
 
