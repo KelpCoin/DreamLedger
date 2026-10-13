@@ -55,7 +55,7 @@ global.fetch = async (url, options = {}) => {
     if (!row) return response({ error: 'entitlement not found' }, false, 404);
     if (row.status !== 'active' || row.calls_remaining < 1) return response({ error: 'quota exhausted' }, false, 409);
     row.calls_remaining -= 1;
-    if (row.calls_remaining === 0) row.status = 'expired';
+    if (row.calls_remaining === 0) row.status = 'exhausted';
     const event = { key_id: row.key_id, calls_remaining: row.calls_remaining, consumed_at: new Date().toISOString() };
     usageEvents.set(args.p_idempotency_key, event);
     return response({ ok: true, replayed: false, key_id: row.key_id, calls_remaining: row.calls_remaining, consumed_at: event.consumed_at });
