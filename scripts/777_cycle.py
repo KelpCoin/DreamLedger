@@ -219,10 +219,14 @@ def parse_public_request_search(raw):
     now = datetime.now(timezone.utc)
     rows = []
     for hit in payload.get("hits", []):
-        title = (hit.get("title") or "").strip()
+        object_id = str(hit.get("objectID") or "").strip()
+        title = (hit.get("title") or hit.get("story_title") or "").strip()
         body = (hit.get("comment_text") or hit.get("story_text") or "").strip()
         author = (hit.get("author") or "").strip()
-        url = (hit.get("url") or hit.get("story_url") or "").strip()
+        url = ("https://news.ycombinator.com/item?id=" + object_id) if object_id else (hit.get("url") or hit.get("story_url") or "").strip()
+        if not title:
+            # Never turn an entire public comment into a public-page title.
+            title = "Hacker News public discussion " + (object_id or "source")
         published_at = (hit.get("created_at") or "").strip()
         if not author or not url or not published_at:
             continue
