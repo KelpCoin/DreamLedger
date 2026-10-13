@@ -18,12 +18,12 @@ jobs:
     permissions:
       contents: read
     outputs:
-      stripe_revenue: ${ steps.filter.outputs.stripe_revenue }}
-      mtg_catalog: ${ steps.filter.outputs.mtg_catalog }}
-      dreammeez_checkout: ${ steps.filter.outputs.dreammeez_checkout }}
-      diagnostic_delivery: ${ steps.filter.outputs.diagnostic_delivery }}
-      diagnostic_input: ${ steps.filter.outputs.diagnostic_input }}
-      any: ${ steps.filter.outputs.any }}
+      stripe_revenue: ${{ steps.filter.outputs.stripe_revenue }}
+      mtg_catalog: ${{ steps.filter.outputs.mtg_catalog }}
+      dreammeez_checkout: ${{ steps.filter.outputs.dreammeez_checkout }}
+      diagnostic_delivery: ${{ steps.filter.outputs.diagnostic_delivery }}
+      diagnostic_input: ${{ steps.filter.outputs.diagnostic_input }}
+      any: ${{ steps.filter.outputs.any }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,12 +31,12 @@ jobs:
       - id: filter
         shell: bash
         env:
-          EVENT_NAME: ${ github.event_name }}
-          BEFORE: ${ github.event.before }}
-          AFTER: ${ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
         run: |
           set -euo pipefail
-          set_output() { printf '%s=%s\\n' "$1" "$2" >> "$GITHUB_OUTPUT"; }
+          set_output() { printf '%s=%s\n' "$1" "$2" >> "$GITHUB_OUTPUT"; }
           if [[ "$EVENT_NAME" == "workflow_dispatch" || "$BEFORE" =~ ^0+$ ]]; then
             for name in stripe_revenue mtg_catalog dreammeez_checkout diagnostic_delivery diagnostic_input; do set_output "$name" true; done
             set_output any true
@@ -67,8 +67,8 @@ jobs:
     permissions:
       contents: read
     env:
-      SUPABASE_URL: ${ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - name: Require live Supabase persistence before any function deployment
         shell: bash
@@ -237,7 +237,7 @@ jobs:
     permissions:
       contents: read
     env:
-      SUPABASE_ACCESS_TOKEN: ${ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       PROJECT_ID: wbwgroygjeyukkspnqiy
       FUNCTION_NAME: marketplace-diagnostic-delivery
       FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-delivery
@@ -272,7 +272,7 @@ jobs:
     permissions:
       contents: read
     env:
-      SUPABASE_ACCESS_TOKEN: ${ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       PROJECT_ID: wbwgroygjeyukkspnqiy
       FUNCTION_NAME: marketplace-diagnostic-input
       FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-input
